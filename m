@@ -1,10 +1,7 @@
 From: Stefan Wallentowitz <stefan@wallentowitz.de>
-Date: Sat, 19 Mar 2016 16:15:21 +0100
-Subject: [OpenRISC] OpenRISC RTEMS
-In-Reply-To: <56ED6894.7060009@oarcorp.com>
-References: <56D49EF1.2050104@oarcorp.com> <56ED4668.2070408@wallentowitz.de>
- <56ED6894.7060009@oarcorp.com>
-Message-ID: <56ED6D09.8010207@wallentowitz.de>
+Date: Sun, 20 Mar 2016 12:18:47 +0100
+Subject: [OpenRISC] New newlib release: 2.3.0-1
+Message-ID: <56EE8717.1030702@wallentowitz.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -14,29 +11,24 @@ To: openrisc@lists.librecores.org
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-On 19.03.2016 15:56, Joel Sherrill wrote:
+Hi all,
 
-> Without testing, my first impression is that the target fragment
-> for or1k should  look like this:
+I have created a release of the baremetal newlib toolchain. It is the
+latest release (2.3.0) with two or1k backport patches applied. There
+are full toolchains available for download at
+https://github.com/openrisc/newlib/releases/tag/v2.3.0-1
 
-> or1k*-*-rtems*) tm_file="${tm_file} dbxelf.h elfos.h
-> newlib-stdint.h ${cpu_type}/elf.h" tm_file="${tm_file}
-> newlib-stdint.h or1k/rtems.h rtems.h" extra_parts="crti.o
-> crtbegin.o crtend.o crtn.o" ;;
-> 
+The latest supported GCC versions are 5.2.0 and 4.9.3.
 
-Excellent. I was hoping so, I have already tested something similar
-before and will push a release for the tools today.
+For more details of the newlib toolchain visit: http://openrisc.io/newlib/
 
-Have a nice weekend!
-
-Best,
+Best regards,
 Stefan
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iEYEARECAAYFAlbtbQkACgkQuMYtsrn2U9ytcgCdEZqvn9srrinyBW+jS/tLrfug
-LHEAn0v72OtAVvnOGUDO1ZCFuZ9/Y9Mz
-=KLCW
+iEYEARECAAYFAlbuhxcACgkQuMYtsrn2U9zJpgCeN1DT+3iKME3FCkbARcMIEGgL
+ry8An3PDKzypnKX+ijIqOAGsypqKG9kB
+=tJVO
 -----END PGP SIGNATURE-----
 
