@@ -1,33 +1,41 @@
-From: Stefan Wallentowitz <stefan@wallentowitz.de>
-Date: Mon, 21 Mar 2016 16:11:10 +0100
-Subject: [OpenRISC] Mailing List Bounces
-Message-ID: <56F00F0E.8070406@wallentowitz.de>
+From: Stafford Horne <shorne@gmail.com>
+Date: Tue, 22 Mar 2016 06:36:56 +0900
+Subject: [OpenRISC] [RFC PATCH 0/1 ] Optimized memcpy routine
+Message-ID: <1458596217-14337-1-git-send-email-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+(resending as there were some reported issues on the mail server)
 
-Hi all,
+Hello,
 
-unfortunately we had an issue with the gmail servers and all messages
-bounced. Hence some of you have probably missed a few messages:
+This patch is to show what I have been doing and what methods I have tried in
+providing an optimized memcpy routine.  As you can see from the results in the
+commit details the numbers are promising and there are 2 word copy optimization
+options which both perform well. If no opposition for a few days I will update
+the patch to remove the Kconfig stuff and only use the
+`word copies + loop unrolls` implementation.
 
-https://lists.librecores.org/pipermail/openrisc/2016-March/thread.html
+The final patch will be made as a pull request to Stefan's github repo.
 
-Sorry for the issues, but all IPv6 related issues are solved by
-deactivating it ;)
+Thanks
+ -Stafford
 
-Best,
-Stefan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Stafford Horne (1):
+  openrisc: Add optimized memcpy routine
 
-iEYEARECAAYFAlbwDw4ACgkQuMYtsrn2U9w32wCfawjMQcT4BGNC8Vw5kSs8Ptdg
-uwgAoIv/yoiiWkXBThkKhxIVfjgE6Ymi
-=mZAT
------END PGP SIGNATURE-----
+ arch/openrisc/Kconfig              |  61 ++++++
+ arch/openrisc/TODO.openrisc        |   1 -
+ arch/openrisc/include/asm/string.h |   5 +
+ arch/openrisc/lib/Makefile         |   3 +-
+ arch/openrisc/lib/memcpy.c         | 377 +++++++++++++++++++++++++++++++++++++
+ 5 files changed, 445 insertions(+), 2 deletions(-)
+ create mode 100644 arch/openrisc/lib/memcpy.c
+
+-- 
+2.5.0
+
 
