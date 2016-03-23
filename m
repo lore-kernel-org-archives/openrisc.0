@@ -1,69 +1,87 @@
-From: Jeremy Bennett <jeremy.bennett@embecosm.com>
-Date: Mon, 21 Mar 2016 23:27:50 +0100
-Subject: [OpenRISC] [RFC PATCH 1/1] openrisc: Add optimized memcpy
-	routine
-In-Reply-To: <1458596217-14337-2-git-send-email-shorne@gmail.com>
-References: <1458596217-14337-1-git-send-email-shorne@gmail.com>
- <1458596217-14337-2-git-send-email-shorne@gmail.com>
-Message-ID: <56F07566.6090607@embecosm.com>
+From: Jonas Bonn <jonas@southpole.se>
+Date: Wed, 23 Mar 2016 05:54:25 +0100
+Subject: [OpenRISC] [PATCH] openrisc: Add optimized memcpy routine
+In-Reply-To: <1458570567-11596-2-git-send-email-shorne@gmail.com>
+References: <1458570567-11596-1-git-send-email-shorne@gmail.com>
+ <1458570567-11596-2-git-send-email-shorne@gmail.com>
+Message-ID: <56F22181.5020205@southpole.se>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Nice work.
+Hi Stafford,
 
-A while since I've looked at this, but you might like to consider
-whether the compiler is also aggressively optimizing memcpy in all
-circumstances. The compiler should generate _builtin_memcpy for things
-like structure assignment, and then lower that to suitably efficient
-inline code in most circumstances.
+Looks really good.  Here's my two cents worth:
 
-Best wishes,
+i)  I personally don't care much for the open-coded loop unrolling 
+because it makes a lot of assumptions about the underlying 
+implementation; put it behind CONFIG_OR1200 (or whatever that option was 
+called) if you really want to do it this way
+ii) The NONALIGNED variant appears overly complex for little gain.
+iii)  That said, the "simple" word copy variant is what I'd probably choose
 
+What would probably be even better though is:
 
-Jeremy
+#define memcpy(...) __builtin_memcpy(...)
 
-On 21/03/16 22:36, Stafford Horne wrote:
+and put the below optimisations directly into GCC.  I haven't looked at 
+GCC in a long time and don't know if anyone is currently maintaining it; 
+it used to be in need of the below optimization, as well, but perhaps 
+someone has done it in the meantime.  If not, that's probably the best 
+place for it; there you can better take the underlying implementation 
+into account in order to do proper loop unrolling and other 
+optimizations (speaking of which, I believe loop unrolling is an 
+optimization pass in GCC... not sure what architecture hooks it relies on).
+
+That said, if the GCC folk are impossible, your Linux optmisation will 
+be fine.  Let's just get a reliable "Tested-by" on there once you've 
+settled on which variant you want to support.
+
+Top-notch work!
+
+/Jonas
+
+On 03/21/2016 03:29 PM, Stafford Horne wrote:
 > The default memcpy routing provided in lib does only byte copies.
 > Using word copies we can lower boot time and cycles spend in memcpy
 > quite significantly.
-> 
+>
 > Booting on my de0 nano I see boot times go from 7.2 to 5.6 seconds.
 > The avg cycles in memcpy during boot go from 6467 to 1887.
-> 
+>
 > This commit contains an option menu for people to see what I tried
 > but in the end we should only leave the implementation we want to
 > keep.
 > The implementations I tested and avg cycles:
->   - Word Copies + Loop Unrolls + Non Aligned    1882
->   - Word Copies + Loop Unrolls                  1887
->   - Word Copies                                 2441
->   - Byte Copies + Loop Unrolls                  6467
->   - Byte Copies                                 7600
-> 
+>    - Word Copies + Loop Unrolls + Non Aligned    1882
+>    - Word Copies + Loop Unrolls                  1887
+>    - Word Copies                                 2441
+>    - Byte Copies + Loop Unrolls                  6467
+>    - Byte Copies                                 7600
+>
 > I would suggest going with the Word Copies + Loop Unrolls one as its
 > provides best tradeoff between simplicity and boot speedups.
-> 
+>
 > Signed-off-by: Stafford Horne <shorne@gmail.com>
 > ---
->  arch/openrisc/Kconfig              |  61 ++++++
->  arch/openrisc/TODO.openrisc        |   1 -
->  arch/openrisc/include/asm/string.h |   5 +
->  arch/openrisc/lib/Makefile         |   3 +-
->  arch/openrisc/lib/memcpy.c         | 377 +++++++++++++++++++++++++++++++++++++
->  5 files changed, 445 insertions(+), 2 deletions(-)
->  create mode 100644 arch/openrisc/lib/memcpy.c
-> 
+>   arch/openrisc/Kconfig              |  61 ++++++
+>   arch/openrisc/TODO.openrisc        |   1 -
+>   arch/openrisc/include/asm/string.h |   5 +
+>   arch/openrisc/lib/Makefile         |   3 +-
+>   arch/openrisc/lib/memcpy.c         | 377 +++++++++++++++++++++++++++++++++++++
+>   5 files changed, 445 insertions(+), 2 deletions(-)
+>   create mode 100644 arch/openrisc/lib/memcpy.c
+>
 > diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
 > index 6e88268..68c0588 100644
 > --- a/arch/openrisc/Kconfig
 > +++ b/arch/openrisc/Kconfig
 > @@ -115,6 +115,67 @@ config OPENRISC_HAVE_INST_LWA_SWA
->  
->  endmenu
->  
+>   
+>   endmenu
+>   
 > +menu "Optimized Lib"
 > +
 > +config OPT_LIB_FUNCTION
@@ -125,43 +143,43 @@ On 21/03/16 22:36, Stafford Horne wrote:
 > +
 > +endmenu
 > +
->  config NR_CPUS
->  	int "Maximum number of CPUs (2-32)"
->  	range 2 32
+>   config NR_CPUS
+>   	int "Maximum number of CPUs (2-32)"
+>   	range 2 32
 > diff --git a/arch/openrisc/TODO.openrisc b/arch/openrisc/TODO.openrisc
 > index acfeef9..a2bda7b 100644
 > --- a/arch/openrisc/TODO.openrisc
 > +++ b/arch/openrisc/TODO.openrisc
 > @@ -13,4 +13,3 @@ that are due for investigation shortly, i.e. our TODO list:
->     or1k and this change is slowly trickling through the stack.  For the time
->     being, or32 is equivalent to or1k.
->  
+>      or1k and this change is slowly trickling through the stack.  For the time
+>      being, or32 is equivalent to or1k.
+>   
 > --- Implement optimized version of memcpy and memset
 > diff --git a/arch/openrisc/include/asm/string.h b/arch/openrisc/include/asm/string.h
 > index 33470d4..04111b2 100644
 > --- a/arch/openrisc/include/asm/string.h
 > +++ b/arch/openrisc/include/asm/string.h
 > @@ -1,7 +1,12 @@
->  #ifndef __ASM_OPENRISC_STRING_H
->  #define __ASM_OPENRISC_STRING_H
->  
+>   #ifndef __ASM_OPENRISC_STRING_H
+>   #define __ASM_OPENRISC_STRING_H
+>   
 > +#ifdef CONFIG_OPT_LIB_FUNCTION
->  #define __HAVE_ARCH_MEMSET
->  extern void *memset(void *s, int c, __kernel_size_t n);
->  
+>   #define __HAVE_ARCH_MEMSET
+>   extern void *memset(void *s, int c, __kernel_size_t n);
+>   
 > +#define __HAVE_ARCH_MEMCPY
 > +extern void *memcpy(void *dest, __const void *src, __kernel_size_t n);
 > +#endif
 > +
->  #endif /* __ASM_OPENRISC_STRING_H */
+>   #endif /* __ASM_OPENRISC_STRING_H */
 > diff --git a/arch/openrisc/lib/Makefile b/arch/openrisc/lib/Makefile
 > index 67c583e..c3316f6 100644
 > --- a/arch/openrisc/lib/Makefile
 > +++ b/arch/openrisc/lib/Makefile
 > @@ -2,4 +2,5 @@
->  # Makefile for or32 specific library files..
->  #
->  
+>   # Makefile for or32 specific library files..
+>   #
+>   
 > -obj-y  = memset.o string.o delay.o
 > +obj-y				:= delay.o string.o
 > +obj-$(CONFIG_OPT_LIB_FUNCTION)	+= memset.o memcpy.o
@@ -548,22 +566,5 @@ On 21/03/16 22:36, Stafford Horne wrote:
 > +#endif
 > +
 > +EXPORT_SYMBOL(memcpy);
-> 
 
 
--- 
-Tel:     +44 (1590) 610184
-Cell:    +44 (7970) 676050
-SkypeID: jeremybennett
-Twitter: @jeremypbennett
-Email:   jeremy.bennett at embecosm.com
-Web:     www.embecosm.com
-PGP key: 1024D/BEF58172FB4754E1 2009-03-20
-
--------------- next part --------------
-A non-text attachment was scrubbed...
-Name: signature.asc
-Type: application/pgp-signature
-Size: 181 bytes
-Desc: OpenPGP digital signature
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20160321/8e2c384f/attachment.sig>
