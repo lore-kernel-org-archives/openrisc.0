@@ -1,12 +1,7 @@
-From: Jeremy Bennett <jeremy.bennett@embecosm.com>
-Date: Fri, 25 Mar 2016 12:18:10 +0000
-Subject: [OpenRISC] [PATCH] openrisc: Add optimized memcpy routine
-In-Reply-To: <alpine.LFD.2.20.1603250632270.5619@lianli.shorne-pla.net>
-References: <1458570567-11596-1-git-send-email-shorne@gmail.com>
- <1458570567-11596-2-git-send-email-shorne@gmail.com>
- <56F22181.5020205@southpole.se>
- <alpine.LFD.2.20.1603250632270.5619@lianli.shorne-pla.net>
-Message-ID: <56F52C82.8060905@embecosm.com>
+From: Stefan Wallentowitz <stefan@wallentowitz.de>
+Date: Thu, 31 Mar 2016 21:52:57 +0200
+Subject: [OpenRISC] newlib release: 2.4.0
+Message-ID: <56FD8019.3050202@wallentowitz.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -16,45 +11,34 @@ To: openrisc@lists.librecores.org
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-On 24/03/16 22:06, Stafford Horne wrote:
+Dear all,
 
-<snip>
+the newlib project has released outside the regular release cycle and
+OpenRISC is part of the standard release.
 
-> This reply took me some time because I was spending the last few
-> days looking into GCC. The openrisc GCC back end seems to need a
-> rewrite before it can be upstreamed due to copyright issues. But we
-> are still maintaining the port and keeping it up to date with
-> upstream.
+There have been small bugfixes for OpenRISC and the major change in
+this release is improved GCC feature testing.
 
-Hi Stafford,
+Four your convenience, you can find prebuilt cross compilers for GCC
+4.9.3, GCC 5.3 and GCC 6 (experimental!) here:
 
-I thought BlueCmd had resolved almost all of the copyright issues, by
-talking to most of the copyright holders. So I didn't think there was
-much that needed rewriting. Certainly there is no restriction to
-anything done by Joern Rennecke (amylaar) as part of the major work he
-did on GCC 4.5.1 a few years ago.
+https://github.com/openrisc/newlib/releases/tag/v2.4.0
 
-I don't think Joern is on this mailing list, but I'm sure he'll be
-happy to review any OpenRISC GCC work.
+Find more details around the newlib-based baremetal toolchain here:
+http://openrisc.io/newlib/
 
-Best wishes,
+Feedback welcome!
 
+Best,
+Stefan
 
-Jeremy
-
-- -- 
-Tel:     +44 (1590) 610184
-Cell:    +44 (7970) 676050
-SkypeID: jeremybennett
-Twitter: @jeremypbennett
-Email:   jeremy.bennett at embecosm.com
-Web:     www.embecosm.com
-PGP key: 1024D/BEF58172FB4754E1 2009-03-20
+Note: Please find a new community-maintained mailing list at
+https://lists.librecores.org/listinfo/openrisc
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iEYEARECAAYFAlb1LIIACgkQvvWBcvtHVOG5qACgiAWUC/vU8Z9qkapBtujAIHVx
-wpwAnjoidh1Pkz7lgnmfjVlyXkas6iXW
-=7ZAg
+iEYEARECAAYFAlb9gBkACgkQuMYtsrn2U9xFKgCcCJBV8YavXwJFAjJvKbhmNHnW
+NhEAnRyAXUmqVg+4b3Zpz2y58zpiY/O/
+=Np1N
 -----END PGP SIGNATURE-----
 
