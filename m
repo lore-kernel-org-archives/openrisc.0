@@ -1,43 +1,53 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Tue, 3 May 2016 08:50:30 +0900 (JST)
-Subject: [OpenRISC] [PATCH] cgen: sim: Updates to sim files to match gdb
-	types
-In-Reply-To: <20160502182904.GJ26300@vapier.lan>
-References: <1462069082-8756-1-git-send-email-shorne@gmail.com>
- <20160501190301.GC26300@vapier.lan> <20160502182904.GJ26300@vapier.lan>
-Message-ID: <alpine.LFD.2.20.1605030849020.2230@lianli.shorne-pla.net>
+From: Philipp Wagner <lists@philipp-wagner.com>
+Date: Wed, 11 May 2016 17:17:06 +0200
+Subject: [OpenRISC] Fwd: or1k GCC Internal Compiler Error
+In-Reply-To: <542B2933.4090402@philipp-wagner.com>
+References: <542B2933.4090402@philipp-wagner.com>
+Message-ID: <57334CF2.6080700@philipp-wagner.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
+Hi,
 
-(Replying second time without the crazy text/html) sorry about that.
+I've been asked to forward this bug report to the new mailing list; the
+bug is still not resolved, so I'd be glad if someone wants to have a
+look at it.
 
-On Mon, 2 May 2016, Mike Frysinger wrote:
+Philipp
 
-> On 01 May 2016 15:03, Mike Frysinger wrote:
->> On 01 May 2016 11:18, Stafford Horne wrote:
->>> The types like MACH and MODEL have changes to SIM_MACH and SIM_MODEL
->>> make updates to match these changes.  This way people dont have to
->>> manually update the generated files in GDB.
->>>
->>> I am from openrisc and working on getting the openrisc sim and gdb patches
->>> ready for submitting to upstream. This was required to get the sim build to
->>> work.
->>
->> looks fine to me (since i did make those changes in the sim), but i'm not
->> a cgen committer.
->
-> i talked to Frank and i'll pick this up.
 
-Thank you
+-------- Forwarded Message --------
+Subject: or1k GCC Internal Compiler Error
+Date: Wed, 01 Oct 2014 00:05:39 +0200
+From: Philipp Wagner <lists@philipp-wagner.com>
+To: openrisc@lists.opencores.org
 
-> cgen is still using the CVS tree right ?
+Hi,
 
-Yes, as far as I know I can only find cgen in cvs.  This patch is based on 
-the nightly release from 20160401 (I didn't have a cvs client on my 
-machine) so it should apply find against current CVS.  Let me know if you 
-have any issues.
+we get an Internal Compiler Error (ICE) from the or1k 4.9 and 4.8 GCC
+when trying to compile C++ code that makes use of inheritance and
+virtual functions. The ICE only occurs if optimization is enabled (-O1
+and above), it does *not* happen with -O0. The code also compiles fine
+on a regular Ubuntu 14.04 x86_64 GCC 4.8 (probably heavily patched though).
 
+I reduced the attached testcase down to a minimum (it's code from
+Fiasco.OC) to show the ICE, but I have no clue what exactly triggers the
+problem. Could possibly anybody with more experience in the compiler
+field have a look at what might cause the error?
+
+Some free beers at ORConf will be reserved for the solution for that :-)
+
+Philipp
+
+
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: testcase.cc
+Type: text/x-c++src
+Size: 2748 bytes
+Desc: not available
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20160511/b9055083/attachment.cc>
