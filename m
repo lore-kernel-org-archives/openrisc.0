@@ -1,28 +1,42 @@
-From: Javier <javieralso@gmail.com>
-Date: Sat, 4 Jun 2016 19:08:09 +0100
+From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Date: Sat, 4 Jun 2016 22:50:36 +0300
 Subject: [OpenRISC] l.bf instruction issue
-Message-ID: <CAPnaeVAZkj6XtbiArJ0d6gKphnSR=CoXYCimjoy=2N5uc+H3sw@mail.gmail.com>
+In-Reply-To: <CAPnaeVAZkj6XtbiArJ0d6gKphnSR=CoXYCimjoy=2N5uc+H3sw@mail.gmail.com>
+References: <CAPnaeVAZkj6XtbiArJ0d6gKphnSR=CoXYCimjoy=2N5uc+H3sw@mail.gmail.com>
+Message-ID: <CADzBsGPkWW12+TDMF7g6CyaWuf60h=tJEHqfQa3_MKAokYKHzA@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="ibm852"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-SGVsbG8gZXZlcnlib2R5LgoKSSdtIHJlbGF0aXZlbHkgbmV3IHdpdGggT1IxSyBhcmNoaXRlY3R1
-cmUgYW5kIEkgd291bGQgbmVlZCBzb21lIGhlbHAgd2l0aCBhCnByb2JsZW0gSSdtIGV4cGVyaWVu
-Y2luZy4KCkF0IHRoZSBtb21lbnQsIEknbSBkZXZlbG9waW5nIGEgc21hbGwgcm9ib3RpYyBwcm9q
-ZWN0IHVzaW5nIGEgREVPIE5hbm8KYm9hcmQgYW5kIGZ1c2Vzb2MuIEkgbWFuYWdlZCB0byBzeW50
-aGV0aXNlIHRoZSBTb0MgYWRkaW5nIGEgc2VsZi1tYWRlCm1vZHVsZSBhbmQgc2VlbXMgdG8gd29y
-ayBPSywgYnV0IGR1cmluZyBkZWJ1Z2luZywgSSBub3RpY2VkIHNvbWV0aGluZyB0aGF0CkkgZG9u
-J3Qga25vdyB3aGV0aGVyIGNhbiBiZSBhIGJ1Zy4KCldoZW4gdGhlIGNvcmUgKG1vcjFrKSBleGVj
-dXRlcyB0aGUgaW5zdHJ1Y3Rpb24gbC5iZiAob3IgbC5ibmYpIGFuZCB0aGUgZmxhZwppcyBzZXQg
-KG9yIGNsZWFyZWQgaW4gdGhlIGNhc2Ugb2YgbC5ibmYpLCB0aGUgcHJvY2Vzc29yIGRvZXNuJ3Qg
-YnJhbmNoIHRvCnRoZSB0YXJnZXQgYWRkcmVzcyBhZnRlciBleGVjdXRpbmcgdGhlIGluc3RydWN0
-aW9uIGluIHRoZSBkZWxheSBzbG90LgoKVGhpcyBoYXBwZW5zIHNvbWV0aW1lcywgbm90IGFsbCB0
-aGUgdGltZXMuCgpJcyB0aGlzIGEgYnVnPwoKRm9yIHlvdXIgcmVmZXJlbmNlLCBJIHRyaWVkIHdp
-dGggbW9yMWsgMy4xLCA0LjEgYW5kIG1hc3Rlci4gb3Ixa3NpbSB3b3JrcwpmaW5lLCBidXQgbm90
-IHRoZSBpbXBsZW1lbnRhdGlvbi4KCi0tIApKYXZpZXIgQWxtYW5zYSBTb2JyaW5vLgpJbmdlbmll
-cm8gSW5mb3Jtw6F0aWNvLgoKRlNGICM3MDMyIE1lbWJlciAod3d3LmZzZi5jb20pCi0tLS0tLS0t
-LS0tLS0tIG5leHQgcGFydCAtLS0tLS0tLS0tLS0tLQpBbiBIVE1MIGF0dGFjaG1lbnQgd2FzIHNj
-cnViYmVkLi4uClVSTDogPGh0dHA6Ly9saXN0cy5saWJyZWNvcmVzLm9yZy9waXBlcm1haWwvb3Bl
-bnJpc2MvYXR0YWNobWVudHMvMjAxNjA2MDQvMzhmMWRiODgvYXR0YWNobWVudC5odG1sPgo=
+On Sat, Jun 4, 2016 at 9:08 PM, Javier <javieralso@gmail.com> wrote:
+> Hello everybody.
+>
+> I'm relatively new with OR1K architecture and I would need some help with a
+> problem I'm experiencing.
+>
+> At the moment, I'm developing a small robotic project using a DEO Nano board
+> and fusesoc. I managed to synthetise the SoC adding a self-made module and
+> seems to work OK, but during debuging, I noticed something that I don't know
+> whether can be a bug.
+>
+> When the core (mor1k) executes the instruction l.bf (or l.bnf) and the flag
+> is set (or cleared in the case of l.bnf), the processor doesn't branch to
+> the target address after executing the instruction in the delay slot.
+>
+> This happens sometimes, not all the times.
+>
+
+Can you provide some more precise information on when this happens?
+
+> Is this a bug?
+>
+> For your reference, I tried with mor1k 3.1, 4.1 and master. or1ksim works
+> fine, but not the implementation.
+>
+
+Is this with or without your modifications? what do they do?
+Does this only happen when you run on FPGA or can you reproduce in
+simulations (e.g. with verilator)?
+
