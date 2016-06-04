@@ -1,26 +1,28 @@
-From: Stefan Wallentowitz <stefan@wallentowitz.de>
-Date: Fri, 13 May 2016 18:55:13 +0200
-Subject: [OpenRISC] ORCONF 2016: Save the date
-Message-ID: <573606F1.9010807@wallentowitz.de>
+From: Javier <javieralso@gmail.com>
+Date: Sat, 4 Jun 2016 19:08:09 +0100
+Subject: [OpenRISC] l.bf instruction issue
+Message-ID: <CAPnaeVAZkj6XtbiArJ0d6gKphnSR=CoXYCimjoy=2N5uc+H3sw@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="ibm852"
+Content-Transfer-Encoding: base64
 To: openrisc@lists.librecores.org
 
-Hi all,
-
-this years ORCONF will be held in Bologna, Italy, from October 7-9!
-
-We will announce more details over the next weeks on http://orconf.org.
-
-Cheers,
-Stefan
-
--------------- next part --------------
-A non-text attachment was scrubbed...
-Name: signature.asc
-Type: application/pgp-signature
-Size: 181 bytes
-Desc: OpenPGP digital signature
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20160513/5b01696a/attachment.sig>
+SGVsbG8gZXZlcnlib2R5LgoKSSdtIHJlbGF0aXZlbHkgbmV3IHdpdGggT1IxSyBhcmNoaXRlY3R1
+cmUgYW5kIEkgd291bGQgbmVlZCBzb21lIGhlbHAgd2l0aCBhCnByb2JsZW0gSSdtIGV4cGVyaWVu
+Y2luZy4KCkF0IHRoZSBtb21lbnQsIEknbSBkZXZlbG9waW5nIGEgc21hbGwgcm9ib3RpYyBwcm9q
+ZWN0IHVzaW5nIGEgREVPIE5hbm8KYm9hcmQgYW5kIGZ1c2Vzb2MuIEkgbWFuYWdlZCB0byBzeW50
+aGV0aXNlIHRoZSBTb0MgYWRkaW5nIGEgc2VsZi1tYWRlCm1vZHVsZSBhbmQgc2VlbXMgdG8gd29y
+ayBPSywgYnV0IGR1cmluZyBkZWJ1Z2luZywgSSBub3RpY2VkIHNvbWV0aGluZyB0aGF0CkkgZG9u
+J3Qga25vdyB3aGV0aGVyIGNhbiBiZSBhIGJ1Zy4KCldoZW4gdGhlIGNvcmUgKG1vcjFrKSBleGVj
+dXRlcyB0aGUgaW5zdHJ1Y3Rpb24gbC5iZiAob3IgbC5ibmYpIGFuZCB0aGUgZmxhZwppcyBzZXQg
+KG9yIGNsZWFyZWQgaW4gdGhlIGNhc2Ugb2YgbC5ibmYpLCB0aGUgcHJvY2Vzc29yIGRvZXNuJ3Qg
+YnJhbmNoIHRvCnRoZSB0YXJnZXQgYWRkcmVzcyBhZnRlciBleGVjdXRpbmcgdGhlIGluc3RydWN0
+aW9uIGluIHRoZSBkZWxheSBzbG90LgoKVGhpcyBoYXBwZW5zIHNvbWV0aW1lcywgbm90IGFsbCB0
+aGUgdGltZXMuCgpJcyB0aGlzIGEgYnVnPwoKRm9yIHlvdXIgcmVmZXJlbmNlLCBJIHRyaWVkIHdp
+dGggbW9yMWsgMy4xLCA0LjEgYW5kIG1hc3Rlci4gb3Ixa3NpbSB3b3JrcwpmaW5lLCBidXQgbm90
+IHRoZSBpbXBsZW1lbnRhdGlvbi4KCi0tIApKYXZpZXIgQWxtYW5zYSBTb2JyaW5vLgpJbmdlbmll
+cm8gSW5mb3Jtw6F0aWNvLgoKRlNGICM3MDMyIE1lbWJlciAod3d3LmZzZi5jb20pCi0tLS0tLS0t
+LS0tLS0tIG5leHQgcGFydCAtLS0tLS0tLS0tLS0tLQpBbiBIVE1MIGF0dGFjaG1lbnQgd2FzIHNj
+cnViYmVkLi4uClVSTDogPGh0dHA6Ly9saXN0cy5saWJyZWNvcmVzLm9yZy9waXBlcm1haWwvb3Bl
+bnJpc2MvYXR0YWNobWVudHMvMjAxNjA2MDQvMzhmMWRiODgvYXR0YWNobWVudC5odG1sPgo=
