@@ -1,42 +1,44 @@
-From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Date: Sat, 4 Jun 2016 22:50:36 +0300
+From: Olof Kindgren <olof.kindgren@gmail.com>
+Date: Sat, 4 Jun 2016 21:51:18 +0200
 Subject: [OpenRISC] l.bf instruction issue
 In-Reply-To: <CAPnaeVAZkj6XtbiArJ0d6gKphnSR=CoXYCimjoy=2N5uc+H3sw@mail.gmail.com>
 References: <CAPnaeVAZkj6XtbiArJ0d6gKphnSR=CoXYCimjoy=2N5uc+H3sw@mail.gmail.com>
-Message-ID: <CADzBsGPkWW12+TDMF7g6CyaWuf60h=tJEHqfQa3_MKAokYKHzA@mail.gmail.com>
+Message-ID: <CAKaYPCMin9quv_jRU+Vrdc0nJBPEuqXBWs5djdPP=fxeNvqfLA@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="ibm852"
+Content-Transfer-Encoding: base64
 To: openrisc@lists.librecores.org
 
-On Sat, Jun 4, 2016 at 9:08 PM, Javier <javieralso@gmail.com> wrote:
-> Hello everybody.
->
-> I'm relatively new with OR1K architecture and I would need some help with a
-> problem I'm experiencing.
->
-> At the moment, I'm developing a small robotic project using a DEO Nano board
-> and fusesoc. I managed to synthetise the SoC adding a self-made module and
-> seems to work OK, but during debuging, I noticed something that I don't know
-> whether can be a bug.
->
-> When the core (mor1k) executes the instruction l.bf (or l.bnf) and the flag
-> is set (or cleared in the case of l.bnf), the processor doesn't branch to
-> the target address after executing the instruction in the delay slot.
->
-> This happens sometimes, not all the times.
->
-
-Can you provide some more precise information on when this happens?
-
-> Is this a bug?
->
-> For your reference, I tried with mor1k 3.1, 4.1 and master. or1ksim works
-> fine, but not the implementation.
->
-
-Is this with or without your modifications? what do they do?
-Does this only happen when you run on FPGA or can you reproduce in
-simulations (e.g. with verilator)?
-
+T24gU2F0LCBKdW4gNCwgMjAxNiBhdCA4OjA4IFBNLCBKYXZpZXIgPGphdmllcmFsc29AZ21haWwu
+Y29tPiB3cm90ZToKPiBIZWxsbyBldmVyeWJvZHkuCj4KPiBJJ20gcmVsYXRpdmVseSBuZXcgd2l0
+aCBPUjFLIGFyY2hpdGVjdHVyZSBhbmQgSSB3b3VsZCBuZWVkIHNvbWUgaGVscCB3aXRoIGEKPiBw
+cm9ibGVtIEknbSBleHBlcmllbmNpbmcuCj4KPiBBdCB0aGUgbW9tZW50LCBJJ20gZGV2ZWxvcGlu
+ZyBhIHNtYWxsIHJvYm90aWMgcHJvamVjdCB1c2luZyBhIERFTyBOYW5vIGJvYXJkCj4gYW5kIGZ1
+c2Vzb2MuIEkgbWFuYWdlZCB0byBzeW50aGV0aXNlIHRoZSBTb0MgYWRkaW5nIGEgc2VsZi1tYWRl
+IG1vZHVsZSBhbmQKPiBzZWVtcyB0byB3b3JrIE9LLCBidXQgZHVyaW5nIGRlYnVnaW5nLCBJIG5v
+dGljZWQgc29tZXRoaW5nIHRoYXQgSSBkb24ndCBrbm93Cj4gd2hldGhlciBjYW4gYmUgYSBidWcu
+Cj4KPiBXaGVuIHRoZSBjb3JlIChtb3IxaykgZXhlY3V0ZXMgdGhlIGluc3RydWN0aW9uIGwuYmYg
+KG9yIGwuYm5mKSBhbmQgdGhlIGZsYWcKPiBpcyBzZXQgKG9yIGNsZWFyZWQgaW4gdGhlIGNhc2Ug
+b2YgbC5ibmYpLCB0aGUgcHJvY2Vzc29yIGRvZXNuJ3QgYnJhbmNoIHRvCj4gdGhlIHRhcmdldCBh
+ZGRyZXNzIGFmdGVyIGV4ZWN1dGluZyB0aGUgaW5zdHJ1Y3Rpb24gaW4gdGhlIGRlbGF5IHNsb3Qu
+Cj4KPiBUaGlzIGhhcHBlbnMgc29tZXRpbWVzLCBub3QgYWxsIHRoZSB0aW1lcy4KPgo+IElzIHRo
+aXMgYSBidWc/Cj4KPiBGb3IgeW91ciByZWZlcmVuY2UsIEkgdHJpZWQgd2l0aCBtb3IxayAzLjEs
+IDQuMSBhbmQgbWFzdGVyLiBvcjFrc2ltIHdvcmtzCj4gZmluZSwgYnV0IG5vdCB0aGUgaW1wbGVt
+ZW50YXRpb24uCj4KPiAtLQo+IEphdmllciBBbG1hbnNhIFNvYnJpbm8uCj4gSW5nZW5pZXJvIElu
+Zm9ybcOhdGljby4KPgo+IEZTRiAjNzAzMiBNZW1iZXIgKHd3dy5mc2YuY29tKQo+Cj4KPiBfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwo+IE9wZW5SSVNDIG1h
+aWxpbmcgbGlzdAo+IE9wZW5SSVNDIGF0IGxpc3RzLmxpYnJlY29yZXMub3JnCj4gaHR0cHM6Ly9s
+aXN0cy5saWJyZWNvcmVzLm9yZy9saXN0aW5mby9vcGVucmlzYwo+CgpIaSBKYXZpZXIsCgpUaGVy
+ZSBhcmVuJ3QgYW55IGtub3duIGJ1Z3MgaW4gdGhpcyBhcmVhIGF0IGxlYXN0LCBidXQgd2hhdCB5
+b3UncmUKZGVzY3JpYmluZyBpcyBkZWZpbml0ZWx5IG5vdCB0aGUgaW50ZW5kZWQgYmVoYXZpb3Vy
+IDopCgpJcyB0aGlzIHJ1bm5pbmcgb24gYW4gRlBHQSB0YXJnZXQgb3IgaW4gUlRMIHNpbXVsYXRp
+b24/IEl0IHdvdWxkIGJlCnZlcnkgaGVscGZ1bCBhbHNvIGlmIHlvdSBoYXZlIHRoZSBwcm9ncmFt
+IHlvdSdyZSB0cnlpbmcgdG8gcnVuCmF2YWlsYWJsZSwgZXNwZWNpYWxseSBpZiB5b3Uga25vdyBh
+IGNlcnRhaW4gcG9pbnQgaW4gdGhlIHByb2dyYW0gd2hlcmUKdGhpcyB1c3VhbGx5IGZhaWxzLgoK
+V291bGQgYmUgZ29vZCB0byBjb25maXJtIGFsc28gdGhhdCB0aGUgZGVzaWduIG1lZXRzIHRpbWlu
+ZywgaWYgaXQncwp0aGUgRlBHQSBpbXBsZW1lbnRhdGlvbi4gQXMgaXQgc2VlbXMgdG8gaGFwcGVu
+IG1vcmUgb3IgbGVzcyBhdCByYW5kb20sCml0IHNvdW5kcyBhIGJpdCBsaWtlIGEgdGltaW5nIGlz
+c3VlLgoKQXMgeW91IHNheSB0aGF0IHRoaXMgaGFwcGVucyBkdXJpbmcgZGVidWdnaW5nLCBpdCBj
+b3VsZCBhbHNvIGJlCnJlbGF0ZWQgdG8gdGhlIGRlYnVnIGludGVyZmFjZS4gQXJlIHlvdSBzaW5n
+bGUtc3RlcHBpbmcsIHNldHRpbmcKYnJlYWtwb2ludHMgZXRjPwoKLy9PbG9mCgo=
