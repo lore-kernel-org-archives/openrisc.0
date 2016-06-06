@@ -1,122 +1,245 @@
-From: Olof Kindgren <olof.kindgren@gmail.com>
-Date: Sun, 5 Jun 2016 16:16:33 +0200
+From: Javier <javieralso@gmail.com>
+Date: Mon, 6 Jun 2016 20:59:35 +0100
 Subject: [OpenRISC] l.bf instruction issue
 In-Reply-To: <CAKaYPCNPtoaN1Qe6uQJdSy_Z75una9tOyzFwZWyCggDtGEoCaA@mail.gmail.com>
 References: <CAPnaeVAZkj6XtbiArJ0d6gKphnSR=CoXYCimjoy=2N5uc+H3sw@mail.gmail.com>
  <CAKaYPCMin9quv_jRU+Vrdc0nJBPEuqXBWs5djdPP=fxeNvqfLA@mail.gmail.com>
  <CAPnaeVDey2J325MDzdQq6P19h0s-b1UvHXscd+mdhm5ntRfwmQ@mail.gmail.com>
  <CAKaYPCNPtoaN1Qe6uQJdSy_Z75una9tOyzFwZWyCggDtGEoCaA@mail.gmail.com>
-Message-ID: <CAKaYPCM1E0X+Kr-P=-k3Bmamzji3gtnLijo69CxNF99G6YZejg@mail.gmail.com>
+Message-ID: <CAPnaeVDFc-pBkVpgvQ3WtZvPOdS0cKx=ScFve3i15r3cUPbemw@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="ibm852"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-T24gU3VuLCBKdW4gNSwgMjAxNiBhdCA0OjE1IFBNLCBPbG9mIEtpbmRncmVuIDxvbG9mLmtpbmRn
-cmVuQGdtYWlsLmNvbT4gd3JvdGU6Cj4gT24gU3VuLCBKdW4gNSwgMjAxNiBhdCAyOjIzIFBNLCBK
-YXZpZXIgPGphdmllcmFsc29AZ21haWwuY29tPiB3cm90ZToKPj4gSGkgT2xvZiBhbmQgU3RlZmFu
-LAo+Pgo+PiBUaGFua3MgZm9yIHlvdXIgY29tbWVudHMuCj4+Cj4+IEFmdGVyIHNvbWUgdGVzdHMg
-Zm9sbG93aW5nIHlvdXIgYWR2aWNlcywgbG9va3MgbGlrZSBPbG9mIHdhcyByaWdodCwgaXQgd2Fz
-IGEKPj4gdGltaW5nIGlzc3VlLiBJdCBvbmx5IGhhcHBlbnMgd2hlbiBJJ20gZGVidWdpbmcgc3Rl
-cCBieSBzdGVwLiBzbyBtaXN0ZXJ5Cj4+IHNvbHZlZCA6KSB0aGFua3MKPj4KPgo+IEFjdHVhbGx5
-LCB3aXRoIHRoaXMgaW5mb3JtYXRpb24gSSB3b3VsZCBzYXkgdGhhdCB0aGUgbXlzdGVyeSBpcyBu
-b3Qgc29sdmVkIDopCj4KPiBXaGVuIEkgc2FpZCB0aW1pbmcgaXNzdWVzLCBJIHdhcyByZWZlcnJp
-bmcgdG8gdGltaW5nIHZpb2xhdGlvbnMgaW4gdGhlCj4gRlBHQSByb3V0aW5nIFlvdSBjYW4gY2hl
-Y2sgaWYgeW91IGhhdmUgdGltaW5nIGlzc3VlcyBieSBsb29raW5nIGF0IHRoZQo+IGVuZCBvZiA8
-d29ya3NwYWNlPi9idWlsZC9kZTBfbmFuby9ibGRfcXVhcnR1cy9kZTBfbmFuby5zdGEucnB0LiBJ
-biB0aGUKPiBsYXN0IGxpbmVzIHRoZXJlIHNob3VsZCBiZSBhIG1lc3NhZ2Ugc2F5aW5nICJJbmZv
-OiBRdWFydHVzIElJIDY0LUJpdAo+IFRpbWVRdWVzdCBUaW1pbmcgQW5hbHl6ZXIgd2FzIHN1Y2Nl
-c3NmdWwuIDAgZXJyb3JzLCAwIHdhcm5pbmdzIi4KPgo+IFNpbmdsZSBzdGVwcGluZyBzaG91bGQg
-d29yayBhcyBmYXIgYXMgSSBrbm93LCBidXQgaXQgc291bmRzIGxpa2UgaXQKPiBkb2Vzbid0IHdv
-cmsgcmVsaWFibHksIHNvIHlvdSBtaWdodCBoYXZlIGhpdCBhIGJ1ZyBoZXJlLgo+Cj4+IFJlZ2Fy
-ZGluZyBPbG9mJ3Mgc3VnZ2VzdGlvbiBhYm91dCB0byBwZXJmb3JtIGEgUlRMIHNpbXVsYXRpb24s
-IEkndmUgdHJpZWQgaXQKPj4gd2l0aCBjb21tYW5kICJmdXNlc29jIHNpbSBkZTBfbmFubyIgYnV0
-IGFsbCB0aGF0IEkgaGF2ZSBpcyBzb21ldGhpbmcgbGlrZQo+Pgo+PiBQcmVsb2FkaW5nIGJvb3Qg
-Uk9NIGZyb20gLi4vc3JjL2RlMF9uYW5vL3N3L2NsZWFyX3IzX2FuZF9qdW1wX3RvXzB4MTAwLnZo
-Cj4+Cj4+IEFuZCBub3RoaW5nIGVsc2UuIEknbSBqdXN0IHN0YXJ0aW5nIHdpdGggZnVzZXNvYyBh
-bmQgb3Jwc29jIGFuZCBJIGRpZG4ndAo+PiBmaW5kIG11Y2ggaW5mb3JtYXRpb24gYWJvdXQgUlRM
-IHNpbXVsYXRpb24sIGJ1dCwgYXMgSSBzYXcgb24gc29tZSBleGFtcGxlcywKPj4gbG9va3MgbGlr
-ZSBJIGNhbiB3cml0ZSBhIHByb2dyYW0gdGhhdCB1c2VzIHRoZSBVQVJUIHRvIHByaW50IG9uIHRo
-ZSBjb25zb2xlCj4+IGR1cmluZyBzaW11bGF0aW9uLgo+Pgo+PiBBbSBJIHdyb25nPyBJcyB0aGVy
-ZSBhbnkgd2F5IHRvIGNvbm5lY3QgdGhlIFJUTCBtb2RlbCBiZWluZyBzaW11bGF0ZWQgdG8gZ2Ri
-Cj4+IGFzIEkgY2FuIGRvIHdpdGggb3Ixa3NpbT8gSSBkb24ndCB0aGluayBzbywgYnV0IGFzIEkg
-c2FpZCBiZWZvcmUsIEknbSBub3QKPj4gZXhwZXJpZW5jZWQgd2l0aCB0aGlzIHNvIEkgbWF5IGJl
-IHdyb25nLgo+Pgo+Cj4gVGhlcmUgYXJlIGF0IGxlYXN0IHRocmVlIHdheXMgdG8gcnVuIGEgcmVh
-bCBlbGYgZmlsZSBpbiBzaW11bGF0aW9ucy4KPiBBcyBhbGwgdGhyZWUgbWV0aG9kcyBhcmUgcHJl
-dHR5IHNsb3csIEkgd291bGQgcmVjb21tZW5kIHN0YXJ0aW5nIHdpdGgKPiBhIHNpbXBsZSBoZWxs
-byB3b3JsZCBmaXJzdCB0byBzZWUgdGhhdCBpdCB3b3Jrcy4KPgo+IFRoZSBtZXRob2QgSSBtb3N0
-bHkgdXNlIGlzIHRvIGxvYWQgYW4gZWxmIGZpbGUgdG8gdGhlIHNpbXVsYXRlZCBSQU0KPiBiZWZv
-cmUgc3RhcnRpbmcgdGhlIHNpbXVsYXRpb24uIFlvdSBjYW4gZG8gdGhpcyBieSBhcHBlbmRpbmcK
-PiAtLWVsZi1sb2FkPS9wYXRoL3RvL2ZpbGUuZWxmIHRvIGxvYWQgeW91ciBwcm9ncmFtLgo+Cj4g
-QW5vdGhlciBtZXRob2QgaXMgdG8gcHV0IHlvdXIgZWxmIGZpbGUgaW4gdGhlIHNpbXVsYXRlZCBT
-UEkgRmxhc2ggb24KPiB0aGUgYm9hcmQuIFRoaXMgcmVxdWlyZXMgeW91IHRvIGZpcnN0IGNvbnZl
-cnQgeW91ciBlbGYgZmlsZSB0byB0aGUKPiB1Qm9vdCB1SW1hZ2UgZm9ybWF0IGFuZCB0aGVuIHRv
-IGEgdmVyaWxvZyBtZW1sb2FkIGZpbGUuIFRoZXJlJ3MgYQo+IG1ha2VmaWxlIGluIH4vLmxvY2Fs
-L3NoYXJlL29ycHNvYy1jb3Jlcy9zeXN0ZW1zL2RlMF9uYW5vL2JlbmNoIHRoYXQKPiBjYW4gaGVs
-cCB5b3Ugd2l0aCB0aGF0LiBSdW4gIklNQUdFPS9wYXRoL3RvL2ZpbGUuZWxmIG1ha2UiIHRvIGNy
-ZWF0ZQo+IGZpbGUudmgsIHdoaWNoIGNhbiBiZSBsb2FkZWQgaW50byB0aGUgc2ltdWxhdGVkIEZs
-YXNoLiBUbyBtYWtlIEZ1c2VTb0MKPiB1c2UgeW91ciBuZXcgZmlsZSwgeW91IGNhbiBhZGQgdGhl
-IHBhcmFtZXRlcgo+IC0tc3BpX2ZsYXNoX2ZpbGU9L3BhdGgvdG8vZmlsZS52aCAuIFlvdSB3aWxs
-IGFsc28gbmVlZCB0byBjaGFuZ2UgdGhlCj4gZGVmYXVsdCBkZTBfbmFubyBib290bG9hZGVyLCBz
-byB0aGF0IGl0IGxvYWRzIHlvdXIgZmlsZS4gWW91IGRvIHRoYXQKPiBieSBhZGRpbmcgdGhlIHBh
-cmFtZXRlcgo+IC0tYm9vdHJvbV9maWxlPX4vLmxvY2FsL3NoYXJlL29ycHNvYy1jb3Jlcy9zeXN0
-ZW1zL2RlMF9uYW5vL3N3L3NwaV91aW1hZ2VfbG9hZGVyLnZoCj4KPiBUaGUgdGhpcmQgb3B0aW9u
-IGlzIHRvIGxvYWQgeW91ciBlbGYgZmlsZSB3aXRoIGdkYiBvciBvcGVub2NkLiBUbyBkbwo+IHRo
-YXQsIHlvdSBhZGQgdGhlIHN3aXRjaCAtLWp0YWdfdnBpX2VuYWJsZSAuIFRoaXMgd2lsbCBvcGVu
-IGEgc29ja2V0Cj4gb24gcG9ydCA1NTU1IHRoYXQgY2FuIGJlIHVzZWQgdG8gc2VuZCBKVEFHIGNv
-bW1hbmRzIGZyb20gT3Blbk9DRCB0bwo+IHRoZSBydW5uaW5nIHNpbXVsYXRpb24sIGp1c3QgYXMg
-eW91IHdvdWxkIGRvIG9uIGEgcmVhbCB0YXJnZXQuIE9uY2UKPiB0aGUgc2ltdWxhdGlvbiBpcyBy
-dW5uaW5nLCB5b3UgY2FuIG5vdyBzdGFydCBPcGVuT0NEIHdpdGggIm9wZW5vY2QgLWYKPiBpbnRl
-cmZhY2UvanRhZ192cGkuY2ZnIC1jICJzZXQgVEFQX1RZUEUgTU9IT1IiIC1mCj4gYm9hcmQvb3Ix
-a19nZW5lcmljLmNmZyIsIGFuZCBpdCBzaG91bGQgY29ubmVjdCB0byB0aGUgc29ja2V0LiBIYXZl
-bid0Cj4gZG9uZSB0aGF0IGZvciBzb21lIHRpbWUgdGhvdWdoLCBzbyBJIG1pZ2h0IGhhdmUgZ290
-dGVuIHNvbWUgcGFyYW1ldGVyCj4gd3JvbmcuIEFsc28sIG5vdGUgdGhhdCB0aGlzIGlzIHByZXR0
-eSBzbG93LCBzbyBJIHdvdWxkIHN0YXJ0IHdpdGgKPiBvcHRpb24gMSA6KQo+Cj4KPgo+PiBBbnl3
-YXksIG9uY2UgbW9yZSB0aW1lLCB0aGFua3MgZm9yIHlvdXIgaGVscCB3aXRoIHRoaXMuCj4+Cj4K
-PiBObyB3b3JyaWVzLiBEb24ndCBoZXNpdGF0ZSB0byBhc2sgZm9yIGhlbHAgaWYgeW91IG5lZWQg
-aXQsIGFuZCB3ZSBhcmUKPiB1c3VhbGx5IGF2YWlsYWJsZSBhdCAjb3BlbnJpc2Mgb24gaXJjLmZy
-ZWVub2RlLm5ldCBpZiB5b3UgbmVlZCBxdWljawo+IGFzc2lzdGFuY2UKPgo+PiBSZWdhcmRzLAo+
-PiBKYXZpZXIKPj4KPj4KPj4KPj4gT24gNCBKdW5lIDIwMTYgYXQgMjA6NTEsIE9sb2YgS2luZGdy
-ZW4gPG9sb2Yua2luZGdyZW5AZ21haWwuY29tPiB3cm90ZToKPj4+Cj4+PiBPbiBTYXQsIEp1biA0
-LCAyMDE2IGF0IDg6MDggUE0sIEphdmllciA8amF2aWVyYWxzb0BnbWFpbC5jb20+IHdyb3RlOgo+
-Pj4gPiBIZWxsbyBldmVyeWJvZHkuCj4+PiA+Cj4+PiA+IEknbSByZWxhdGl2ZWx5IG5ldyB3aXRo
-IE9SMUsgYXJjaGl0ZWN0dXJlIGFuZCBJIHdvdWxkIG5lZWQgc29tZSBoZWxwCj4+PiA+IHdpdGgg
-YQo+Pj4gPiBwcm9ibGVtIEknbSBleHBlcmllbmNpbmcuCj4+PiA+Cj4+PiA+IEF0IHRoZSBtb21l
-bnQsIEknbSBkZXZlbG9waW5nIGEgc21hbGwgcm9ib3RpYyBwcm9qZWN0IHVzaW5nIGEgREVPIE5h
-bm8KPj4+ID4gYm9hcmQKPj4+ID4gYW5kIGZ1c2Vzb2MuIEkgbWFuYWdlZCB0byBzeW50aGV0aXNl
-IHRoZSBTb0MgYWRkaW5nIGEgc2VsZi1tYWRlIG1vZHVsZQo+Pj4gPiBhbmQKPj4+ID4gc2VlbXMg
-dG8gd29yayBPSywgYnV0IGR1cmluZyBkZWJ1Z2luZywgSSBub3RpY2VkIHNvbWV0aGluZyB0aGF0
-IEkgZG9uJ3QKPj4+ID4ga25vdwo+Pj4gPiB3aGV0aGVyIGNhbiBiZSBhIGJ1Zy4KPj4+ID4KPj4+
-ID4gV2hlbiB0aGUgY29yZSAobW9yMWspIGV4ZWN1dGVzIHRoZSBpbnN0cnVjdGlvbiBsLmJmIChv
-ciBsLmJuZikgYW5kIHRoZQo+Pj4gPiBmbGFnCj4+PiA+IGlzIHNldCAob3IgY2xlYXJlZCBpbiB0
-aGUgY2FzZSBvZiBsLmJuZiksIHRoZSBwcm9jZXNzb3IgZG9lc24ndCBicmFuY2gKPj4+ID4gdG8K
-Pj4+ID4gdGhlIHRhcmdldCBhZGRyZXNzIGFmdGVyIGV4ZWN1dGluZyB0aGUgaW5zdHJ1Y3Rpb24g
-aW4gdGhlIGRlbGF5IHNsb3QuCj4+PiA+Cj4+PiA+IFRoaXMgaGFwcGVucyBzb21ldGltZXMsIG5v
-dCBhbGwgdGhlIHRpbWVzLgo+Pj4gPgo+Pj4gPiBJcyB0aGlzIGEgYnVnPwo+Pj4gPgo+Pj4gPiBG
-b3IgeW91ciByZWZlcmVuY2UsIEkgdHJpZWQgd2l0aCBtb3IxayAzLjEsIDQuMSBhbmQgbWFzdGVy
-LiBvcjFrc2ltCj4+PiA+IHdvcmtzCj4+PiA+IGZpbmUsIGJ1dCBub3QgdGhlIGltcGxlbWVudGF0
-aW9uLgo+Pj4gPgo+Pj4gPiAtLQo+Pj4gPiBKYXZpZXIgQWxtYW5zYSBTb2JyaW5vLgo+Pj4gPiBJ
-bmdlbmllcm8gSW5mb3Jtw6F0aWNvLgo+Pj4gPgo+Pj4gPiBGU0YgIzcwMzIgTWVtYmVyICh3d3cu
-ZnNmLmNvbSkKPj4+ID4KPj4+ID4KPj4+ID4gX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KPj4+ID4gT3BlblJJU0MgbWFpbGluZyBsaXN0Cj4+PiA+IE9wZW5S
-SVNDIGF0IGxpc3RzLmxpYnJlY29yZXMub3JnCj4+PiA+IGh0dHBzOi8vbGlzdHMubGlicmVjb3Jl
-cy5vcmcvbGlzdGluZm8vb3BlbnJpc2MKPj4+ID4KPj4+Cj4+PiBIaSBKYXZpZXIsCj4+Pgo+Pj4g
-VGhlcmUgYXJlbid0IGFueSBrbm93biBidWdzIGluIHRoaXMgYXJlYSBhdCBsZWFzdCwgYnV0IHdo
-YXQgeW91J3JlCj4+PiBkZXNjcmliaW5nIGlzIGRlZmluaXRlbHkgbm90IHRoZSBpbnRlbmRlZCBi
-ZWhhdmlvdXIgOikKPj4+Cj4+PiBJcyB0aGlzIHJ1bm5pbmcgb24gYW4gRlBHQSB0YXJnZXQgb3Ig
-aW4gUlRMIHNpbXVsYXRpb24/IEl0IHdvdWxkIGJlCj4+PiB2ZXJ5IGhlbHBmdWwgYWxzbyBpZiB5
-b3UgaGF2ZSB0aGUgcHJvZ3JhbSB5b3UncmUgdHJ5aW5nIHRvIHJ1bgo+Pj4gYXZhaWxhYmxlLCBl
-c3BlY2lhbGx5IGlmIHlvdSBrbm93IGEgY2VydGFpbiBwb2ludCBpbiB0aGUgcHJvZ3JhbSB3aGVy
-ZQo+Pj4gdGhpcyB1c3VhbGx5IGZhaWxzLgo+Pj4KPj4+IFdvdWxkIGJlIGdvb2QgdG8gY29uZmly
-bSBhbHNvIHRoYXQgdGhlIGRlc2lnbiBtZWV0cyB0aW1pbmcsIGlmIGl0J3MKPj4+IHRoZSBGUEdB
-IGltcGxlbWVudGF0aW9uLiBBcyBpdCBzZWVtcyB0byBoYXBwZW4gbW9yZSBvciBsZXNzIGF0IHJh
-bmRvbSwKPj4+IGl0IHNvdW5kcyBhIGJpdCBsaWtlIGEgdGltaW5nIGlzc3VlLgo+Pj4KPj4+IEFz
-IHlvdSBzYXkgdGhhdCB0aGlzIGhhcHBlbnMgZHVyaW5nIGRlYnVnZ2luZywgaXQgY291bGQgYWxz
-byBiZQo+Pj4gcmVsYXRlZCB0byB0aGUgZGVidWcgaW50ZXJmYWNlLiBBcmUgeW91IHNpbmdsZS1z
-dGVwcGluZywgc2V0dGluZwo+Pj4gYnJlYWtwb2ludHMgZXRjPwo+Pj4KPj4+IC8vT2xvZgo+Pgo+
-Pgo+Pgo+Pgo+PiAtLQo+PiBKYXZpZXIgQWxtYW5zYSBTb2JyaW5vLgo+PiBJbmdlbmllcm8gSW5m
-b3Jtw6F0aWNvLgo+Pgo+PiBGU0YgIzcwMzIgTWVtYmVyICh3d3cuZnNmLmNvbSkKPj4KCk9uZSBt
-b3JlIHRoaW5nIEkgZm9yZ290IHRvIGFkZC4gWW91IGNhbiBnZXQgYSBsaXN0IG9mIGFsbCBzdXBw
-b3J0ZWQKc2ltdWxhdGlvbiBvcHRpb25zIGZvciBhIGNlcnRhaW4gc3lzdGVtIGJ5IHJ1bm5pbmcg
-ZnVzZXNvYyBzaW0KZGUwX25hbm8gLS1oZWxwCgovL09sb2YKCg==
+On 5 June 2016 at 15:15, Olof Kindgren <olof.kindgren@gmail.com> wrote:
+
+> On Sun, Jun 5, 2016 at 2:23 PM, Javier <javieralso@gmail.com> wrote:
+> > Hi Olof and Stefan,
+> >
+> > Thanks for your comments.
+> >
+> > After some tests following your advices, looks like Olof was right, it
+> was a
+> > timing issue. It only happens when I'm debuging step by step. so mistery
+> > solved :) thanks
+> >
+>
+> Actually, with this information I would say that the mystery is not solved
+> :)
+>
+> When I said timing issues, I was referring to timing violations in the
+> FPGA routing You can check if you have timing issues by looking at the
+> end of <workspace>/build/de0_nano/bld_quartus/de0_nano.sta.rpt. In the
+> last lines there should be a message saying "Info: Quartus II 64-Bit
+> TimeQuest Timing Analyzer was successful. 0 errors, 0 warnings".
+>
+
+TimeQuest Timing Analyzer gave me 0 errors, 1 warnings (but the warning was
+due Parallel compilation wasn't licensed so it doesn't count)
+
+>
+> Single stepping should work as far as I know, but it sounds like it
+> doesn't work reliably, so you might have hit a bug here.
+>
+
+Yep, you're right. I was meaning that it looked as if it was just a timing
+issue but it's true, it can be due to a bug :)
+
+>
+> > Regarding Olof's suggestion about to perform a RTL simulation, I've
+> tried it
+> > with command "fusesoc sim de0_nano" but all that I have is something like
+> >
+> > Preloading boot ROM from ../src/de0_nano/sw/clear_r3_and_jump_to_0x100.vh
+> >
+> > And nothing else. I'm just starting with fusesoc and orpsoc and I didn't
+> > find much information about RTL simulation, but, as I saw on some
+> examples,
+> > looks like I can write a program that uses the UART to print on the
+> console
+> > during simulation.
+> >
+> > Am I wrong? Is there any way to connect the RTL model being simulated to
+> gdb
+> > as I can do with or1ksim? I don't think so, but as I said before, I'm not
+> > experienced with this so I may be wrong.
+> >
+>
+> There are at least three ways to run a real elf file in simulations.
+> As all three methods are pretty slow, I would recommend starting with
+> a simple hello world first to see that it works.
+>
+> The method I mostly use is to load an elf file to the simulated RAM
+> before starting the simulation. You can do this by appending
+> --elf-load=/path/to/file.elf to load your program.
+
+
+By simulating this way I saw the behaviour was the expected one: the flag
+was set and then l.bf instruction branched
+
+>
+> Another method is to put your elf file in the simulated SPI Flash on
+> the board. This requires you to first convert your elf file to the
+> uBoot uImage format and then to a verilog memload file. There's a
+> makefile in ~/.local/share/orpsoc-cores/systems/de0_nano/bench that
+> can help you with that. Run "IMAGE=/path/to/file.elf make" to create
+> file.vh, which can be loaded into the simulated Flash. To make FuseSoC
+> use your new file, you can add the parameter
+> --spi_flash_file=/path/to/file.vh . You will also need to change the
+> default de0_nano bootloader, so that it loads your file. You do that
+> by adding the parameter
+>
+> --bootrom_file=~/.local/share/orpsoc-cores/systems/de0_nano/sw/spi_uimage_loader.vh
+>
+> The third option is to load your elf file with gdb or openocd. To do
+> that, you add the switch --jtag_vpi_enable . This will open a socket
+> on port 5555 that can be used to send JTAG commands from OpenOCD to
+> the running simulation, just as you would do on a real target. Once
+> the simulation is running, you can now start OpenOCD with "openocd -f
+> interface/jtag_vpi.cfg -c "set TAP_TYPE MOHOR" -f
+> board/or1k_generic.cfg", and it should connect to the socket. Haven't
+> done that for some time though, so I might have gotten some parameter
+> wrong. Also, note that this is pretty slow, so I would start with
+> option 1 :)
+
+
+I tried to carry out this simulation but looks like there isn't socket
+listening at port 5555. I don't understand exactly why. The command I
+issued was:
+
+fusesoc sim de0_nano --vcd --trace_to_screen --trace_enable
+--jtag-vpi-enable
+
+And the output I got was:
+
+LXT2 info: dumpfile testlog.vcd opened for output.
+No ELF file specified
+orpsoc_tb.dut.mor1kx0.bus_gen.ibus_bridge: Wishbone bus IF is
+B3_REGISTERED_FEEDBACK
+orpsoc_tb.dut.mor1kx0.bus_gen.dbus_bridge: Wishbone bus IF is
+B3_REGISTERED_FEEDBACK
+Preloading boot ROM from ../src/de0_nano/sw/clear_r3_and_jump_to_0x100.vh
+JTAG debug module with VPI interface enabled
+
+S f0000000: 18000000 l.movhi r0,0x0000       r0 = 00000000  flag: x
+S f0000004: a8200000 l.ori   r1,r0,0x0000    r1 = 00000000  flag: x
+S f0000008: a8c00100 l.ori   r6,r0,0x0100    r6 = 00000100  flag: x
+S f000000c: 44003000 l.jr    r6                  flag: x
+S f000000c: 44003000 l.jr    r6                  flag: x
+S f0000010: 15000000 l.nop   0x0000              flag: x
+
+But when I try to connect with openocd I have a connection refused message.
+I also tried to connect with netcat but there are no opened port.
+
+Do I miss something?
+
+
+>
+>
+> > Anyway, once more time, thanks for your help with this.
+> >
+>
+> No worries. Don't hesitate to ask for help if you need it, and we are
+> usually available at #openrisc on irc.freenode.net if you need quick
+> assistance
+
+
+Thanks for all your help Olof, it's really appreciated :)
+
+Regards
+
+
+> > Regards,
+> > Javier
+> >
+> >
+> >
+> > On 4 June 2016 at 20:51, Olof Kindgren <olof.kindgren@gmail.com> wrote:
+> >>
+> >> On Sat, Jun 4, 2016 at 8:08 PM, Javier <javieralso@gmail.com> wrote:
+> >> > Hello everybody.
+> >> >
+> >> > I'm relatively new with OR1K architecture and I would need some help
+> >> > with a
+> >> > problem I'm experiencing.
+> >> >
+> >> > At the moment, I'm developing a small robotic project using a DEO Nano
+> >> > board
+> >> > and fusesoc. I managed to synthetise the SoC adding a self-made module
+> >> > and
+> >> > seems to work OK, but during debuging, I noticed something that I
+> don't
+> >> > know
+> >> > whether can be a bug.
+> >> >
+> >> > When the core (mor1k) executes the instruction l.bf (or l.bnf) and
+> the
+> >> > flag
+> >> > is set (or cleared in the case of l.bnf), the processor doesn't branch
+> >> > to
+> >> > the target address after executing the instruction in the delay slot.
+> >> >
+> >> > This happens sometimes, not all the times.
+> >> >
+> >> > Is this a bug?
+> >> >
+> >> > For your reference, I tried with mor1k 3.1, 4.1 and master. or1ksim
+> >> > works
+> >> > fine, but not the implementation.
+> >> >
+> >> > --
+> >> > Javier Almansa Sobrino.
+> >> > Ingeniero Informático.
+> >> >
+> >> > FSF #7032 Member (www.fsf.com)
+> >> >
+> >> >
+> >> > _______________________________________________
+> >> > OpenRISC mailing list
+> >> > OpenRISC at lists.librecores.org
+> >> > https://lists.librecores.org/listinfo/openrisc
+> >> >
+> >>
+> >> Hi Javier,
+> >>
+> >> There aren't any known bugs in this area at least, but what you're
+> >> describing is definitely not the intended behaviour :)
+> >>
+> >> Is this running on an FPGA target or in RTL simulation? It would be
+> >> very helpful also if you have the program you're trying to run
+> >> available, especially if you know a certain point in the program where
+> >> this usually fails.
+> >>
+> >> Would be good to confirm also that the design meets timing, if it's
+> >> the FPGA implementation. As it seems to happen more or less at random,
+> >> it sounds a bit like a timing issue.
+> >>
+> >> As you say that this happens during debugging, it could also be
+> >> related to the debug interface. Are you single-stepping, setting
+> >> breakpoints etc?
+> >>
+> >> //Olof
+> >
+> >
+> >
+> >
+> > --
+> > Javier Almansa Sobrino.
+> > Ingeniero Informático.
+> >
+> > FSF #7032 Member (www.fsf.com)
+> >
+>
+
+
+
+-- 
+Javier Almansa Sobrino.
+Ingeniero Informático.
+
+FSF #7032 Member (www.fsf.com)
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20160606/6b5e9f26/attachment.html>
