@@ -1,274 +1,165 @@
-From: Olof Kindgren <olof.kindgren@gmail.com>
-Date: Mon, 13 Jun 2016 22:39:45 +0200
-Subject: [OpenRISC] l.bf instruction issue
-In-Reply-To: <CAPnaeVDFc-pBkVpgvQ3WtZvPOdS0cKx=ScFve3i15r3cUPbemw@mail.gmail.com>
-References: <CAPnaeVAZkj6XtbiArJ0d6gKphnSR=CoXYCimjoy=2N5uc+H3sw@mail.gmail.com>
- <CAKaYPCMin9quv_jRU+Vrdc0nJBPEuqXBWs5djdPP=fxeNvqfLA@mail.gmail.com>
- <CAPnaeVDey2J325MDzdQq6P19h0s-b1UvHXscd+mdhm5ntRfwmQ@mail.gmail.com>
- <CAKaYPCNPtoaN1Qe6uQJdSy_Z75una9tOyzFwZWyCggDtGEoCaA@mail.gmail.com>
- <CAPnaeVDFc-pBkVpgvQ3WtZvPOdS0cKx=ScFve3i15r3cUPbemw@mail.gmail.com>
-Message-ID: <CAKaYPCPVCxjq1k5JkEOKXYr2tNkDWqvjL0CwYRs8tE0ZB3R5Jw@mail.gmail.com>
+From: Vidya Govindan <vidya.mazhur@gmail.com>
+Date: Fri, 29 Jul 2016 10:03:47 +0530
+Subject: [OpenRISC] or1ksim linux booting problem
+Message-ID: <CAO0TxARPSp+FORiaqjtv5-q8O6Gz_4f1J1ZsZNJ8L=+-wT+AHg@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Jun 6, 2016 at 9:59 PM, Javier <javieralso@gmail.com> wrote:
->
->
-> On 5 June 2016 at 15:15, Olof Kindgren <olof.kindgren@gmail.com> wrote:
->>
->> On Sun, Jun 5, 2016 at 2:23 PM, Javier <javieralso@gmail.com> wrote:
->> > Hi Olof and Stefan,
->> >
->> > Thanks for your comments.
->> >
->> > After some tests following your advices, looks like Olof was right, it
->> > was a
->> > timing issue. It only happens when I'm debuging step by step. so mistery
->> > solved :) thanks
->> >
->>
->> Actually, with this information I would say that the mystery is not solved
->> :)
->>
->> When I said timing issues, I was referring to timing violations in the
->> FPGA routing You can check if you have timing issues by looking at the
->> end of <workspace>/build/de0_nano/bld_quartus/de0_nano.sta.rpt. In the
->> last lines there should be a message saying "Info: Quartus II 64-Bit
->> TimeQuest Timing Analyzer was successful. 0 errors, 0 warnings".
->
->
-> TimeQuest Timing Analyzer gave me 0 errors, 1 warnings (but the warning was
-> due Parallel compilation wasn't licensed so it doesn't count)
->>
->>
->> Single stepping should work as far as I know, but it sounds like it
->> doesn't work reliably, so you might have hit a bug here.
->
->
-> Yep, you're right. I was meaning that it looked as if it was just a timing
-> issue but it's true, it can be due to a bug :)
->>
->>
->> > Regarding Olof's suggestion about to perform a RTL simulation, I've
->> > tried it
->> > with command "fusesoc sim de0_nano" but all that I have is something
->> > like
->> >
->> > Preloading boot ROM from
->> > ../src/de0_nano/sw/clear_r3_and_jump_to_0x100.vh
->> >
->> > And nothing else. I'm just starting with fusesoc and orpsoc and I didn't
->> > find much information about RTL simulation, but, as I saw on some
->> > examples,
->> > looks like I can write a program that uses the UART to print on the
->> > console
->> > during simulation.
->> >
->> > Am I wrong? Is there any way to connect the RTL model being simulated to
->> > gdb
->> > as I can do with or1ksim? I don't think so, but as I said before, I'm
->> > not
->> > experienced with this so I may be wrong.
->> >
->>
->> There are at least three ways to run a real elf file in simulations.
->> As all three methods are pretty slow, I would recommend starting with
->> a simple hello world first to see that it works.
->>
->> The method I mostly use is to load an elf file to the simulated RAM
->> before starting the simulation. You can do this by appending
->> --elf-load=/path/to/file.elf to load your program.
->
->
-> By simulating this way I saw the behaviour was the expected one: the flag
-> was set and then l.bf instruction branched
->>
->>
->> Another method is to put your elf file in the simulated SPI Flash on
->> the board. This requires you to first convert your elf file to the
->> uBoot uImage format and then to a verilog memload file. There's a
->> makefile in ~/.local/share/orpsoc-cores/systems/de0_nano/bench that
->> can help you with that. Run "IMAGE=/path/to/file.elf make" to create
->> file.vh, which can be loaded into the simulated Flash. To make FuseSoC
->> use your new file, you can add the parameter
->> --spi_flash_file=/path/to/file.vh . You will also need to change the
->> default de0_nano bootloader, so that it loads your file. You do that
->> by adding the parameter
->>
->> --bootrom_file=~/.local/share/orpsoc-cores/systems/de0_nano/sw/spi_uimage_loader.vh
->>
->> The third option is to load your elf file with gdb or openocd. To do
->> that, you add the switch --jtag_vpi_enable . This will open a socket
->> on port 5555 that can be used to send JTAG commands from OpenOCD to
->> the running simulation, just as you would do on a real target. Once
->> the simulation is running, you can now start OpenOCD with "openocd -f
->> interface/jtag_vpi.cfg -c "set TAP_TYPE MOHOR" -f
->> board/or1k_generic.cfg", and it should connect to the socket. Haven't
->> done that for some time though, so I might have gotten some parameter
->> wrong. Also, note that this is pretty slow, so I would start with
->> option 1 :)
->
->
-> I tried to carry out this simulation but looks like there isn't socket
-> listening at port 5555. I don't understand exactly why. The command I issued
-> was:
->
-> fusesoc sim de0_nano --vcd --trace_to_screen --trace_enable
-> --jtag-vpi-enable
->
-> And the output I got was:
->
-> LXT2 info: dumpfile testlog.vcd opened for output.
-> No ELF file specified
-> orpsoc_tb.dut.mor1kx0.bus_gen.ibus_bridge: Wishbone bus IF is
-> B3_REGISTERED_FEEDBACK
-> orpsoc_tb.dut.mor1kx0.bus_gen.dbus_bridge: Wishbone bus IF is
-> B3_REGISTERED_FEEDBACK
-> Preloading boot ROM from ../src/de0_nano/sw/clear_r3_and_jump_to_0x100.vh
-> JTAG debug module with VPI interface enabled
->
-> S f0000000: 18000000 l.movhi r0,0x0000       r0 = 00000000  flag: x
-> S f0000004: a8200000 l.ori   r1,r0,0x0000    r1 = 00000000  flag: x
-> S f0000008: a8c00100 l.ori   r6,r0,0x0100    r6 = 00000100  flag: x
-> S f000000c: 44003000 l.jr    r6                  flag: x
-> S f000000c: 44003000 l.jr    r6                  flag: x
-> S f0000010: 15000000 l.nop   0x0000              flag: x
->
-> But when I try to connect with openocd I have a connection refused message.
-> I also tried to connect with netcat but there are no opened port.
->
-> Do I miss something?
+Hi All,
+
+I'm trying to boot linux on or1ksim platform using  Ubuntu 14.04 32bit
+version host machine.
+I have followed the steps in this link
+http://electria.metropolia.fi/2013/12/linux-on-de0-nano-part-i-simulator/
+I'm able to proceed till the step of bulding linux.
+After that when I try to boot linux on or1ksim I get the Linux kernel panic
+error.
+My boot log is as below:
+
+Seeding random generator with value 0x288d4ad3
+> Insn MMU 0KB: 1 ways, 64 sets, entry size 1 bytes
+> Data MMU 0KB: 1 ways, 64 sets, entry size 1 bytes
+> Ethernet TAP type
+> Warning: ./arch/openrisc/or1ksim.cfg: Unrecognized parameter: sockif at
+> line 714; ignored.
+> Verbose on, simdebug off, interactive prompt off
+> Machine initialization...
+> Clock cycle: 10ns
+> No data cache.
+> No instruction cache.
+> BPB simulation off.
+> BTIC simulation off.
+> Or1ksim 2012-04-27
+> Building automata... done, num uncovered: 0/215.
+> Parsing operands data... done.
+> Warning: Failed to set TAP device tap0: Operation not permitted
+> UART at 0x90000000
+> Resetting Tick Timer.
+> Resetting Power Management.
+> Resetting PIC.
+> Starting at 0x00000000
+> loadcode: filename vmlinux  startaddr=00000000  virtphy_transl=00000000
+> Not COFF file format
+> ELF type: 0x0002
+> ELF machine: 0x005c
+> ELF version: 0x00000001
+> ELF sec = 28
+> Section: .text, vaddr: 0xc0000000, paddr: 0x0 offset: 0x00002000, size:
+> 0x0029d5a0
+> Section: .rodata, vaddr: 0xc029e000, paddr: 0x29e000 offset: 0x002a0000,
+> size: 0x0002ef88
+> Section: .eh_frame, vaddr: 0xc02ccf88, paddr: 0x2ccf88 offset: 0x002cef88,
+> size: 0x00050e60
+> Section: __ksymtab, vaddr: 0xc031dde8, paddr: 0x31dde8 offset: 0x0031fde8,
+> size: 0x000045d0
+> Section: __ksymtab_gpl, vaddr: 0xc03223b8, paddr: 0x3223b8 offset:
+> 0x003243b8, size: 0x00002f90
+> Section: __ksymtab_strings, vaddr: 0xc0325348, paddr: 0x325348 offset:
+> 0x00327348, size: 0x0001049e
+> Section: __param, vaddr: 0xc03357e8, paddr: 0x3357e8 offset: 0x003377e8,
+> size: 0x000002f8
+> Section: .data, vaddr: 0xc0336000, paddr: 0x336000 offset: 0x00338000,
+> size: 0x00016380
+> Section: __ex_table, vaddr: 0xc034c380, paddr: 0x34c380 offset:
+> 0x0034e380, size: 0x00000ab0
+> Section: .notes, vaddr: 0xc034ce30, paddr: 0x34ce30 offset: 0x0034ee30,
+> size: 0x00000024
+> Section: .head.text, vaddr: 0xc034e000, paddr: 0x34e000 offset:
+> 0x00350000, size: 0x00004000
+> Section: .init.text, vaddr: 0xc0352000, paddr: 0x352000 offset:
+> 0x00354000, size: 0x00015428
+> Section: .init.data, vaddr: 0xc0367440, paddr: 0x367440 offset:
+> 0x00369440, size: 0x006e087c
+> WARNING: sim_init: Debug module not enabled, cannot start remote service
+> to GDB
+> ****************** counters reset ******************
+> cycles 110463, insn #88572
+> ****************** counters reset ******************
+> Compiled-in FDT at c0368420
+> Linux version 4.4.0-or1ksim (iot at iot-HCL-Desktop) (gcc version 4.9.2
+> (GCC) ) #2 Thu Jul 28 19:47:49 IST 2016
+> CPU: OpenRISC-12 (revision 1) @20 MHz
+> -- dcache disabled
+> -- icache disabled
+> -- dmmu:   64 entries, 1 way(s)
+> -- immu:   64 entries, 1 way(s)
+> -- additional features:
+> -- power management
+> -- timer
+> setup_memory: Memory: 0x0-0x2000000
+> Reserved - 0x01fff23c-0x00000da2
+> Setting up paging and PTEs.
+> map_ram: Memory: 0x0-0x2000000
+> itlb_miss_handler c0002160
+> dtlb_miss_handler c0002000
+> OpenRISC Linux -- http://openrisc.net
+> Built 1 zonelists in Zone order, mobility grouping off.  Total pages: 4080
+> Kernel command line: console=uart,mmio,0x90000000,115200
+> earlycon: Early serial console at MMIO 0x90000000 (options '115200')
+> bootconsole [uart0] enabled
+> PID hash table entries: 128 (order: -4, 512 bytes)
+> Dentry cache hash table entries: 4096 (order: 1, 16384 bytes)
+> Inode-cache hash table entries: 2048 (order: 0, 8192 bytes)
+> Sorting __ex_table...
+> Memory: 21904K/32768K available (2677K kernel code, 91K rwdata, 608K
+> rodata, 7144K init, 85K bss, 10864K reserved, 0K cma-reserved)
+> mem_init_done ...........................................
+> NR_IRQS:32
+> clocksource: openrisc_timer: mask: 0xffffffff max_cycles: 0xffffffff,
+> max_idle_ns: 95563022313 ns
+> 40.00 BogoMIPS (lpj=200000)
+> pid_max: default: 32768 minimum: 301
+> Mount-cache hash table entries: 2048 (order: 0, 8192 bytes)
+> Mountpoint-cache hash table entries: 2048 (order: 0, 8192 bytes)
+> devtmpfs: initialized
+> clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff,
+> max_idle_ns: 19112604462750000 ns
+> NET: Registered protocol family 16
+> clocksource: Switched to clocksource openrisc_timer
+> NET: Registered protocol family 2
+> TCP established hash table entries: 2048 (order: 0, 8192 bytes)
+> TCP bind hash table entries: 2048 (order: 0, 8192 bytes)
+> TCP: Hash tables configured (established 2048 bind 2048)
+> UDP hash table entries: 512 (order: 0, 8192 bytes)
+> UDP-Lite hash table entries: 512 (order: 0, 8192 bytes)
+> NET: Registered protocol family 1
+> RPC: Registered named UNIX socket transport module.
+> RPC: Registered udp transport module.
+> RPC: Registered tcp transport module.
+> RPC: Registered tcp NFSv4.1 backchannel transport module.
+> futex hash table entries: 256 (order: -2, 3072 bytes)
+> Serial: 8250/16550 driver, 4 ports, IRQ sharing disabled
+> 90000000.serial: ttyS0 at MMIO 0x90000000 (irq = 2, base_baud = 1250000)
+> is a 16550A
+> console [ttyS0] enabled
+> console [ttyS0] enabled
+> bootconsole [uart0] disabled
+> bootconsole [uart0] disabled
+> libphy: ethoc-mdio: probed
+> NET: Registered protocol family 17
+> Freeing unused kernel memory: 7144K (c034e000 - c0a48000)
+> Failed to execute /init (error -13)
+> Starting init: /sbin/init exists but couldn't execute it (error -13)
+> Starting init: /bin/sh exists but couldn't execute it (error -13)
+> Kernel panic - not syncing: No working init found.  Try passing init=
+> option to kernel. See Linux Documentation/init.txt for guidance.
+> ---[ end Kernel panic - not syncing: No working init found.  Try passing
+> init= option to kernel. See Linux Documentation/init.txt for guidance.
 >
 
-Hi again Javier,
+I checked the linux documentation. Also I tried to work out solutions
+provided in this link http://opencores.org/forum,OpenRISC,0,4350 but could
+not find git://openrisc.net/jonas/bakiri/linux this repo. Instead I have
+used https://github.com/openrisc/linux repo.
 
-Sorry for the late reply. I have a (untested) theory here now. The
-jtag VPI socket isn't setup until the wishbone reset is deasserted,
-and this doesn't happen until the RAM model is initialized, which can
-take an awful long time. To see if this is the problem, you could add
-some printout to see when the wishbone reset is being deasserted.  If
-you just want to play around with the JTAG support in simulations, it
-might be a better choice to use the mor1kx-generic system as that will
-be much faster. Another method could be to replace the SDRAM
-controller and memory model with a simple memory array during
-simulations.
+I'm new to OpenRISC and it would be great if someone could help me to run
+the linux successfully.
 
->>
->>
->>
->> > Anyway, once more time, thanks for your help with this.
->> >
->>
->> No worries. Don't hesitate to ask for help if you need it, and we are
->> usually available at #openrisc on irc.freenode.net if you need quick
->> assistance
->
->
-> Thanks for all your help Olof, it's really appreciated :)
->
-> Regards
->
->>
->> > Regards,
->> > Javier
->> >
->> >
->> >
->> > On 4 June 2016 at 20:51, Olof Kindgren <olof.kindgren@gmail.com> wrote:
->> >>
->> >> On Sat, Jun 4, 2016 at 8:08 PM, Javier <javieralso@gmail.com> wrote:
->> >> > Hello everybody.
->> >> >
->> >> > I'm relatively new with OR1K architecture and I would need some help
->> >> > with a
->> >> > problem I'm experiencing.
->> >> >
->> >> > At the moment, I'm developing a small robotic project using a DEO
->> >> > Nano
->> >> > board
->> >> > and fusesoc. I managed to synthetise the SoC adding a self-made
->> >> > module
->> >> > and
->> >> > seems to work OK, but during debuging, I noticed something that I
->> >> > don't
->> >> > know
->> >> > whether can be a bug.
->> >> >
->> >> > When the core (mor1k) executes the instruction l.bf (or l.bnf) and
->> >> > the
->> >> > flag
->> >> > is set (or cleared in the case of l.bnf), the processor doesn't
->> >> > branch
->> >> > to
->> >> > the target address after executing the instruction in the delay slot.
->> >> >
->> >> > This happens sometimes, not all the times.
->> >> >
->> >> > Is this a bug?
->> >> >
->> >> > For your reference, I tried with mor1k 3.1, 4.1 and master. or1ksim
->> >> > works
->> >> > fine, but not the implementation.
->> >> >
->> >> > --
->> >> > Javier Almansa Sobrino.
->> >> > Ingeniero Informático.
->> >> >
->> >> > FSF #7032 Member (www.fsf.com)
->> >> >
->> >> >
->> >> > _______________________________________________
->> >> > OpenRISC mailing list
->> >> > OpenRISC at lists.librecores.org
->> >> > https://lists.librecores.org/listinfo/openrisc
->> >> >
->> >>
->> >> Hi Javier,
->> >>
->> >> There aren't any known bugs in this area at least, but what you're
->> >> describing is definitely not the intended behaviour :)
->> >>
->> >> Is this running on an FPGA target or in RTL simulation? It would be
->> >> very helpful also if you have the program you're trying to run
->> >> available, especially if you know a certain point in the program where
->> >> this usually fails.
->> >>
->> >> Would be good to confirm also that the design meets timing, if it's
->> >> the FPGA implementation. As it seems to happen more or less at random,
->> >> it sounds a bit like a timing issue.
->> >>
->> >> As you say that this happens during debugging, it could also be
->> >> related to the debug interface. Are you single-stepping, setting
->> >> breakpoints etc?
->> >>
->> >> //Olof
->> >
->> >
->> >
->> >
->> > --
->> > Javier Almansa Sobrino.
->> > Ingeniero Informático.
->> >
->> > FSF #7032 Member (www.fsf.com)
->> >
->
->
->
->
-> --
-> Javier Almansa Sobrino.
-> Ingeniero Informático.
->
-> FSF #7032 Member (www.fsf.com)
->
->
-> _______________________________________________
-> OpenRISC mailing list
-> OpenRISC at lists.librecores.org
-> https://lists.librecores.org/listinfo/openrisc
->
-
+Thanks & Regards,
+Vidya
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20160729/c8aa4fb6/attachment.html>
