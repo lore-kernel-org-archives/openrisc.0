@@ -1,126 +1,372 @@
-From: Olof Kindgren <olof.kindgren@gmail.com>
-Date: Sun, 7 Aug 2016 22:54:39 +0200
-Subject: [OpenRISC] Linux on DE0-Nano Board- Fusesoc build problem
-In-Reply-To: <CAO0TxAQOW1zpzyag=A68UuU9OEssymCiUNR882TG6F+0=JgORw@mail.gmail.com>
-References: <CAO0TxAQOW1zpzyag=A68UuU9OEssymCiUNR882TG6F+0=JgORw@mail.gmail.com>
-Message-ID: <CAKaYPCM9Fy3+qx5oL1apYtu=BTMA9Fie0eVkZq2_xQYWBTCOeQ@mail.gmail.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Mon, 8 Aug 2016 06:34:18 +0900
+Subject: [OpenRISC] or1ksim linux booting problem
+In-Reply-To: <CAAfxs761NqMK1ZE9uhpvSOYvKw=f5peUdDsUEbsfoTm=PhUf2A@mail.gmail.com>
+References: <CAO0TxARPSp+FORiaqjtv5-q8O6Gz_4f1J1ZsZNJ8L=+-wT+AHg@mail.gmail.com>
+ <CAAfxs77PNOhdZ6R2qEDX2L983BOX4vCcPob0W+facCMZ3E9DsQ@mail.gmail.com>
+ <CAKaYPCOHxz4L1YG=Js-QBPGqOQWOJPxqn0fTP4rYkBJSKmJSmQ@mail.gmail.com>
+ <CAO0TxAT6MF_pJF7O-U9bMDsg0WZEf6QWJQu28rPSmreCf_9h1A@mail.gmail.com>
+ <CAAfxs76xJ29mSZMZ8=3qH_E8Hd-T6dgNPVLUjCkkrhNK8SwbRg@mail.gmail.com>
+ <CAO0TxAQQHWWSk1a4uW8-dCM40EYj7=CSnUSdA=0=nNnifRcL_Q@mail.gmail.com>
+ <CAO0TxASbWEoCwSBLkTjh3D4ac=9Vx8JNkj+veV2Coj43sJpjww@mail.gmail.com>
+ <CAAfxs761NqMK1ZE9uhpvSOYvKw=f5peUdDsUEbsfoTm=PhUf2A@mail.gmail.com>
+Message-ID: <CAAfxs75UL00o2YaY4S4MO-GOxPirNvYE9JdPa2N5tz0P+t3qVQ@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sun, Aug 7, 2016 at 3:31 PM, Vidya Govindan <vidya.mazhur@gmail.com> wrote:
-> Hello All,
++CC All others,
+
+Sorry, somehow when I replied on my phone the list did not get CC'd.
+
+In summary, the problem with Vidya's build was she was copying the
+linux source code and losing symlinks.
+
+-Stafford
+
+On Sun, Aug 7, 2016 at 6:07 AM, Stafford Horne <shorne@gmail.com> wrote:
+> Hello,
 >
-> I'm trying to build an sof file for DE0Nano board using which I want to run
-> linux on openrisc platform synthesized on Cyclone IV board.
-> So far I have been able simulate linux using or1ksim.
-
-Great to hear that you got it working with or1ksim. Just out of
-curiosity, did you find out what the problem was?
-
-> I decided to move on to the board and tried the steps mentioned in
-> https://github.com/kdgwill/OR1K/wiki/OpenRisc-tools-Install
-> I'm stuck at the make phase of fusesoc where I get the following error:
+> I think Its always good practice to work with what you pull from source
+> control.  Its already backed up on the servers so if you have any issues you
+> can revert your changes.This is especially easy with git since you have a
+> complete repository stored locally.
 >
-> make: *** No rule to make target `bin/fusesoc', needed by `out/fusesoc'.
-> Stop.
+> -Stafford
 >
-> As I tried to find out  why I get the error and how I can solve it, I came
-> upon lot of other things which basically confused me more. So I have
-> following queries if possible someone can please clarify:
 >
-
-I didn't know about these instructions, and the procedure has changed
-quite a bit since that was written. Unfortunately, the old commands no
-longer work. The correct installation instructions are now like this:
-
-git clone https://github.com/olofk/fusesoc
-cd fusesoc
-pip install .
-
-To automatically download the FuseSoC standard core library
-(orpsoc-cores) and create the configuration files, just run
-
-fusesoc init
-
-Once FuseSoC is installed, you need to create a working directory
-where all systems will be built. This can be placed anywhere, and
-we'll call it $WORKSPACE in this example
-
-mkdir $WORKSPACE
-cd $WORKSPACE
-fusesoc build de0_nano
-
-the above commands will build the SoC
-
-
-> 1.I understand Fusesoc is the latest version of orpsocv3. Is my
-> understanding correct?
-
-I started a project called orpsocv3 about five years ago. After about
-a year I realized that nothing in the code had anything to do with
-OpenRISC, so I decided that orpsoc (OpenRISC Reference Platform SoC)
-was a bad name, and I renamed the project FuseSoC. If you find any
-references to orpsocv3, they are most likely more than four years old,
-and will probably not work anymore. orpsocv3 is a dead project and
-FuseSoC is what we use today
-
-> 2. I have to build Fusesoc and orpsoc cores separately. So once I have
-> installed the Fusesoc framework described in here
-> https://github.com/kdgwill/OR1K/wiki/OpenRisc-tools-Install , I have to use
-> either
-> http://www.rs-online.com/designspark/electronics/eng/blog/booting-linux-on-a-de0-nano-with-orpsoc
-> or
-> http://web.archive.org/web/20140625095048/http://opencores.org/or1k/ORCONF2013_Workshop_ORPSoC_On_DE0_Nano
-> instructions both of which do not talk about Fusesoc (may be because it was
-> recently named?)
-
-It's very unfortunate that there has been several articles written
-when it was still orpsocv3. We are trying to improve the situation and
-have started writing new tutorials here
-https://github.com/openrisc/tutorials/ In fact, the first one covers
-the de0 nano board, so please let us know if that works ok
-
-> Am I going correct here?
-> 3. How can I can build Fusesoc successfully and run linux on OpenRISC
-> platform using DE0Nano? Any leads would be greatly appreciated.
->
-
-There are several steps to accomplish this, but in the most basic
-setup it amounts to
-
-1. Build the FPGA image (fusesoc build de0_nano)
-2. Compile a linux kernel for de0_nano
-3. Download the linux kernel to the SDRAM on the de0 nano via JTAG.
-
-I know that there are lots of things more to explain here, but as I'm
-not really sure on which topics you would like more help, I think it's
-best that you continue to give me questions once you're stuck
-somewhere, and I'll try to answer them
-
-> PS: Please pardon me if any of my queries are stupid.
->
-
-Not at all. Unfortunately it just highlights how complex this is and
-most of all, the bad state of our documentation. We'll take this
-opportunity to improve on our side too. Also, if you use IRC, you can
-find us on #openrisc on irc.freenode.net . That is perhaps the
-quickest way to get replies
-
-
-> Thanks & Regards,
-> Vidya
->
-
-Cheers,
-Olof
-
->
-> _______________________________________________
-> OpenRISC mailing list
-> OpenRISC at lists.librecores.org
-> https://lists.librecores.org/listinfo/openrisc
+> On Fri, Aug 5, 2016 at 8:22 PM, Vidya Govindan <vidya.mazhur@gmail.com>
+> wrote:
+>>
+>> Hi Stafford,
+>>
+>> The linux booted up nicely when I used the cloned directory. Thanks a lot.
+>> I wanted to know whether this is the case with all the sources that are
+>> there in git for openrisc or is it particular with linux?
+>>
+>> Regards,
+>> Vidya
+>>
+>> On Thu, Aug 4, 2016 at 6:50 AM, Vidya Govindan <vidya.mazhur@gmail.com>
+>> wrote:
+>>>
+>>> Hi Stafford,
+>>>
+>>> Yes I did copy the Linux folder into the build directory to keep the
+>>> source intact.
+>>> Thanks a lot I will try to build it in the cloned directory and get back
+>>> to you.
+>>>
+>>> Thanks&Regards,
+>>> Vidya
+>>>
+>>>
+>>> On 4 Aug 2016 5:24 a.m., "Stafford Horne" <shorne@gmail.com> wrote:
+>>>
+>>> Hi Vidya,
+>>> I'll try to look into that error.
+>>>
+>>> Just a simple question. Are you doing any copying of the git repo after
+>>> cloning it from github?
+>>> The kernel repo contains symlinks so if you copied it or didn't clone it
+>>> directly on Linux there might be problems packing the init binary (busybox)
+>>> in the img.
+>>>
+>>> -Stafford
+>>>
+>>>
+>>> On Aug 3, 2016 7:10 PM, "Vidya Govindan" <vidya.mazhur@gmail.com> wrote:
+>>>>
+>>>> Hi Stafford ,
+>>>>
+>>>> I tried using your linux kernel. I just replaced the generated vmlinux
+>>>> with the one you mentioned.
+>>>> When I tried to run it , the kernel goes into infinite loop and
+>>>> terminates with the following error:
+>>>>
+>>>> Code: 44 00 48 00 84 21 ff fc d7 e1 0f fc 9c 21 ff fc a4 63 00 ff 9c 21
+>>>> 00 04 (d8) 04 18 00 44 00 48 00 84 21 ff fc d7 e1 0f fc 9c 21 ff fc a4 63 ff
+>>>> ff
+>>>>
+>>>> UNHANDLED_EXCEPTION: entering infinite loop
+>>>> exit(34425)
+>>>> @reset : cycles 116103, insn #93084
+>>>> @exit  : cycles 70715977, insn #57126651
+>>>>  diff  : cycles 70599874, insn #57033567
+>>>>
+>>>>
+>>>> May be you can comment something about this?
+>>>> I will try now using the new https://github.com/openrisc/binutils-gdb
+>>>> instead of or1k-src link .
+>>>>
+>>>> Hi Olof,
+>>>>
+>>>> I did try what you suggested , by changing the config file but still i
+>>>> get the same error.
+>>>>
+>>>> Regards,
+>>>> Vidya
+>>>>
+>>>>
+>>>>
+>>>>
+>>>>
+>>>>
+>>>>
+>>>>
+>>>>
+>>>>
+>>>> On Fri, Jul 29, 2016 at 7:29 PM, Olof Kindgren <olof.kindgren@gmail.com>
+>>>> wrote:
+>>>>>
+>>>>> On Fri, Jul 29, 2016 at 3:46 PM, Stafford Horne <shorne@gmail.com>
+>>>>> wrote:
+>>>>> > Hello Vidya,
+>>>>> >
+>>>>> > It seems that some of your document links are a bit old, but you did
+>>>>> > get the kernel booting.  The problem is this message:
+>>>>> >
+>>>>> >> Failed to execute /init (error -13)
+>>>>> >> Starting init: /sbin/init exists but couldn't execute it (error -13)
+>>>>> >
+>>>>> > This is saying that your kernel could not find init.  Since you are
+>>>>> > using github.com/openrisc/linux and probably using the default kernel
+>>>>> > config "or1ksim_defconfig" it should be packaging up the init for
+>>>>> > you.
+>>>>> >
+>>>>> > Did you edit the default config at all?
+>>>>> >
+>>>>> > Can you try booting one of my kernels here?
+>>>>> > http://shorne.noip.me/uploads/vmlinux-shorne
+>>>>> >
+>>>>> > Also, you can find the latest docs for building software things here:
+>>>>> >  http://openrisc.io/software#baremetal-software
+>>>>> >
+>>>>> > There is a newer linux build instruction, but the one you were using
+>>>>> > seems ok.
+>>>>> >  https://github.com/openrisc/tutorials/blob/master/docs/Linux.md
+>>>>> >
+>>>>> > On another note, There should be little need to use repo
+>>>>> > https://github.com/openrisc/or1k-src, it has been replaced by
+>>>>> > https://github.com/openrisc/binutils-gdb now.
+>>>>> >
+>>>>> > -Stafford
+>>>>> >
+>>>>> > On Fri, Jul 29, 2016 at 1:33 PM, Vidya Govindan
+>>>>> > <vidya.mazhur@gmail.com> wrote:
+>>>>> >> Hi All,
+>>>>> >>
+>>>>> >> I'm trying to boot linux on or1ksim platform using  Ubuntu 14.04
+>>>>> >> 32bit
+>>>>> >> version host machine.
+>>>>> >> I have followed the steps in this link
+>>>>> >>
+>>>>> >> http://electria.metropolia.fi/2013/12/linux-on-de0-nano-part-i-simulator/
+>>>>> >> I'm able to proceed till the step of bulding linux.
+>>>>> >> After that when I try to boot linux on or1ksim I get the Linux
+>>>>> >> kernel panic
+>>>>> >> error.
+>>>>> >> My boot log is as below:
+>>>>> >>
+>>>>> >>> Seeding random generator with value 0x288d4ad3
+>>>>> >>> Insn MMU 0KB: 1 ways, 64 sets, entry size 1 bytes
+>>>>> >>> Data MMU 0KB: 1 ways, 64 sets, entry size 1 bytes
+>>>>> >>> Ethernet TAP type
+>>>>> >>> Warning: ./arch/openrisc/or1ksim.cfg: Unrecognized parameter:
+>>>>> >>> sockif at
+>>>>> >>> line 714; ignored.
+>>>>> >>> Verbose on, simdebug off, interactive prompt off
+>>>>> >>> Machine initialization...
+>>>>> >>> Clock cycle: 10ns
+>>>>> >>> No data cache.
+>>>>> >>> No instruction cache.
+>>>>> >>> BPB simulation off.
+>>>>> >>> BTIC simulation off.
+>>>>> >>> Or1ksim 2012-04-27
+>>>>> >>> Building automata... done, num uncovered: 0/215.
+>>>>> >>> Parsing operands data... done.
+>>>>> >>> Warning: Failed to set TAP device tap0: Operation not permitted
+>>>>> >>> UART at 0x90000000
+>>>>> >>> Resetting Tick Timer.
+>>>>> >>> Resetting Power Management.
+>>>>> >>> Resetting PIC.
+>>>>> >>> Starting at 0x00000000
+>>>>> >>> loadcode: filename vmlinux  startaddr=00000000
+>>>>> >>> virtphy_transl=00000000
+>>>>> >>> Not COFF file format
+>>>>> >>> ELF type: 0x0002
+>>>>> >>> ELF machine: 0x005c
+>>>>> >>> ELF version: 0x00000001
+>>>>> >>> ELF sec = 28
+>>>>> >>> Section: .text, vaddr: 0xc0000000, paddr: 0x0 offset: 0x00002000,
+>>>>> >>> size:
+>>>>> >>> 0x0029d5a0
+>>>>> >>> Section: .rodata, vaddr: 0xc029e000, paddr: 0x29e000 offset:
+>>>>> >>> 0x002a0000,
+>>>>> >>> size: 0x0002ef88
+>>>>> >>> Section: .eh_frame, vaddr: 0xc02ccf88, paddr: 0x2ccf88 offset:
+>>>>> >>> 0x002cef88,
+>>>>> >>> size: 0x00050e60
+>>>>> >>> Section: __ksymtab, vaddr: 0xc031dde8, paddr: 0x31dde8 offset:
+>>>>> >>> 0x0031fde8,
+>>>>> >>> size: 0x000045d0
+>>>>> >>> Section: __ksymtab_gpl, vaddr: 0xc03223b8, paddr: 0x3223b8 offset:
+>>>>> >>> 0x003243b8, size: 0x00002f90
+>>>>> >>> Section: __ksymtab_strings, vaddr: 0xc0325348, paddr: 0x325348
+>>>>> >>> offset:
+>>>>> >>> 0x00327348, size: 0x0001049e
+>>>>> >>> Section: __param, vaddr: 0xc03357e8, paddr: 0x3357e8 offset:
+>>>>> >>> 0x003377e8,
+>>>>> >>> size: 0x000002f8
+>>>>> >>> Section: .data, vaddr: 0xc0336000, paddr: 0x336000 offset:
+>>>>> >>> 0x00338000,
+>>>>> >>> size: 0x00016380
+>>>>> >>> Section: __ex_table, vaddr: 0xc034c380, paddr: 0x34c380 offset:
+>>>>> >>> 0x0034e380, size: 0x00000ab0
+>>>>> >>> Section: .notes, vaddr: 0xc034ce30, paddr: 0x34ce30 offset:
+>>>>> >>> 0x0034ee30,
+>>>>> >>> size: 0x00000024
+>>>>> >>> Section: .head.text, vaddr: 0xc034e000, paddr: 0x34e000 offset:
+>>>>> >>> 0x00350000, size: 0x00004000
+>>>>> >>> Section: .init.text, vaddr: 0xc0352000, paddr: 0x352000 offset:
+>>>>> >>> 0x00354000, size: 0x00015428
+>>>>> >>> Section: .init.data, vaddr: 0xc0367440, paddr: 0x367440 offset:
+>>>>> >>> 0x00369440, size: 0x006e087c
+>>>>> >>> WARNING: sim_init: Debug module not enabled, cannot start remote
+>>>>> >>> service
+>>>>> >>> to GDB
+>>>>> >>> ****************** counters reset ******************
+>>>>> >>> cycles 110463, insn #88572
+>>>>> >>> ****************** counters reset ******************
+>>>>> >>> Compiled-in FDT at c0368420
+>>>>> >>> Linux version 4.4.0-or1ksim (iot at iot-HCL-Desktop) (gcc version
+>>>>> >>> 4.9.2 (GCC)
+>>>>> >>> ) #2 Thu Jul 28 19:47:49 IST 2016
+>>>>> >>> CPU: OpenRISC-12 (revision 1) @20 MHz
+>>>>> >>> -- dcache disabled
+>>>>> >>> -- icache disabled
+>>>>> >>> -- dmmu:   64 entries, 1 way(s)
+>>>>> >>> -- immu:   64 entries, 1 way(s)
+>>>>> >>> -- additional features:
+>>>>> >>> -- power management
+>>>>> >>> -- timer
+>>>>> >>> setup_memory: Memory: 0x0-0x2000000
+>>>>> >>> Reserved - 0x01fff23c-0x00000da2
+>>>>> >>> Setting up paging and PTEs.
+>>>>> >>> map_ram: Memory: 0x0-0x2000000
+>>>>> >>> itlb_miss_handler c0002160
+>>>>> >>> dtlb_miss_handler c0002000
+>>>>> >>> OpenRISC Linux -- http://openrisc.net
+>>>>> >>> Built 1 zonelists in Zone order, mobility grouping off.  Total
+>>>>> >>> pages: 4080
+>>>>> >>> Kernel command line: console=uart,mmio,0x90000000,115200
+>>>>> >>> earlycon: Early serial console at MMIO 0x90000000 (options
+>>>>> >>> '115200')
+>>>>> >>> bootconsole [uart0] enabled
+>>>>> >>> PID hash table entries: 128 (order: -4, 512 bytes)
+>>>>> >>> Dentry cache hash table entries: 4096 (order: 1, 16384 bytes)
+>>>>> >>> Inode-cache hash table entries: 2048 (order: 0, 8192 bytes)
+>>>>> >>> Sorting __ex_table...
+>>>>> >>> Memory: 21904K/32768K available (2677K kernel code, 91K rwdata,
+>>>>> >>> 608K
+>>>>> >>> rodata, 7144K init, 85K bss, 10864K reserved, 0K cma-reserved)
+>>>>> >>> mem_init_done ...........................................
+>>>>> >>> NR_IRQS:32
+>>>>> >>> clocksource: openrisc_timer: mask: 0xffffffff max_cycles:
+>>>>> >>> 0xffffffff,
+>>>>> >>> max_idle_ns: 95563022313 ns
+>>>>> >>> 40.00 BogoMIPS (lpj=200000)
+>>>>> >>> pid_max: default: 32768 minimum: 301
+>>>>> >>> Mount-cache hash table entries: 2048 (order: 0, 8192 bytes)
+>>>>> >>> Mountpoint-cache hash table entries: 2048 (order: 0, 8192 bytes)
+>>>>> >>> devtmpfs: initialized
+>>>>> >>> clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff,
+>>>>> >>> max_idle_ns: 19112604462750000 ns
+>>>>> >>> NET: Registered protocol family 16
+>>>>> >>> clocksource: Switched to clocksource openrisc_timer
+>>>>> >>> NET: Registered protocol family 2
+>>>>> >>> TCP established hash table entries: 2048 (order: 0, 8192 bytes)
+>>>>> >>> TCP bind hash table entries: 2048 (order: 0, 8192 bytes)
+>>>>> >>> TCP: Hash tables configured (established 2048 bind 2048)
+>>>>> >>> UDP hash table entries: 512 (order: 0, 8192 bytes)
+>>>>> >>> UDP-Lite hash table entries: 512 (order: 0, 8192 bytes)
+>>>>> >>> NET: Registered protocol family 1
+>>>>> >>> RPC: Registered named UNIX socket transport module.
+>>>>> >>> RPC: Registered udp transport module.
+>>>>> >>> RPC: Registered tcp transport module.
+>>>>> >>> RPC: Registered tcp NFSv4.1 backchannel transport module.
+>>>>> >>> futex hash table entries: 256 (order: -2, 3072 bytes)
+>>>>> >>> Serial: 8250/16550 driver, 4 ports, IRQ sharing disabled
+>>>>> >>> 90000000.serial: ttyS0 at MMIO 0x90000000 (irq = 2, base_baud =
+>>>>> >>> 1250000)
+>>>>> >>> is a 16550A
+>>>>> >>> console [ttyS0] enabled
+>>>>> >>> console [ttyS0] enabled
+>>>>> >>> bootconsole [uart0] disabled
+>>>>> >>> bootconsole [uart0] disabled
+>>>>> >>> libphy: ethoc-mdio: probed
+>>>>> >>> NET: Registered protocol family 17
+>>>>> >>> Freeing unused kernel memory: 7144K (c034e000 - c0a48000)
+>>>>> >>> Failed to execute /init (error -13)
+>>>>> >>> Starting init: /sbin/init exists but couldn't execute it (error
+>>>>> >>> -13)
+>>>>> >>> Starting init: /bin/sh exists but couldn't execute it (error -13)
+>>>>> >>> Kernel panic - not syncing: No working init found.  Try passing
+>>>>> >>> init=
+>>>>> >>> option to kernel. See Linux Documentation/init.txt for guidance.
+>>>>> >>> ---[ end Kernel panic - not syncing: No working init found.  Try
+>>>>> >>> passing
+>>>>> >>> init= option to kernel. See Linux Documentation/init.txt for
+>>>>> >>> guidance.
+>>>>> >>
+>>>>> >>
+>>>>> >> I checked the linux documentation. Also I tried to work out
+>>>>> >> solutions
+>>>>> >> provided in this link http://opencores.org/forum,OpenRISC,0,4350 but
+>>>>> >> could
+>>>>> >> not find git://openrisc.net/jonas/bakiri/linux this repo. Instead I
+>>>>> >> have
+>>>>> >> used https://github.com/openrisc/linux repo.
+>>>>> >>
+>>>>> >> I'm new to OpenRISC and it would be great if someone could help me
+>>>>> >> to run
+>>>>> >> the linux successfully.
+>>>>> >>
+>>>>> >> Thanks & Regards,
+>>>>> >> Vidya
+>>>>> >>
+>>>>> >>
+>>>>> >>
+>>>>> >> _______________________________________________
+>>>>> >> OpenRISC mailing list
+>>>>> >> OpenRISC at lists.librecores.org
+>>>>> >> https://lists.librecores.org/listinfo/openrisc
+>>>>> >>
+>>>>> > _______________________________________________
+>>>>> > OpenRISC mailing list
+>>>>> > OpenRISC at lists.librecores.org
+>>>>> > https://lists.librecores.org/listinfo/openrisc
+>>>>>
+>>>>> Actually, I got an idea what the problem could be. There were some
+>>>>> changes to the default compression method for the ramdisk a while ago.
+>>>>> You could try setting these options in your .config for Linux
+>>>>>
+>>>>> CONFIG_RD_GZIP=y
+>>>>> CONFIG_RD_BZIP2=y
+>>>>> CONFIG_RD_LZMA=y
+>>>>> CONFIG_RD_XZ=y
+>>>>> CONFIG_RD_LZO=y
+>>>>> CONFIG_RD_LZ4=y
+>>>>>
+>>>>> or run make menuconfig, navigate to General setup and check all the
+>>>>> "Support initial ramdisks compressed using ..."
+>>>>>
+>>>>> //Olof
+>>>>
+>>>>
+>>>
+>>
 >
 
