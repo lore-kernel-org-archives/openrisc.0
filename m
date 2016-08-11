@@ -1,169 +1,40 @@
 From: Vidya Govindan <vidya.mazhur@gmail.com>
-Date: Mon, 8 Aug 2016 21:54:27 +0530
+Date: Thu, 11 Aug 2016 21:12:35 +0530
 Subject: [OpenRISC] Linux on DE0-Nano Board- Fusesoc build problem
 In-Reply-To: <CAKaYPCM9Fy3+qx5oL1apYtu=BTMA9Fie0eVkZq2_xQYWBTCOeQ@mail.gmail.com>
 References: <CAO0TxAQOW1zpzyag=A68UuU9OEssymCiUNR882TG6F+0=JgORw@mail.gmail.com>
  <CAKaYPCM9Fy3+qx5oL1apYtu=BTMA9Fie0eVkZq2_xQYWBTCOeQ@mail.gmail.com>
-Message-ID: <CAO0TxASbKs2ZpqFeWfGONGFV23h7dyX6aiJoXnCTszu-50sz=g@mail.gmail.com>
+Message-ID: <CAO0TxATxupiqXUmRqFX2yTqVfNQZKFPw4BV1=B-A+GK3-56AJA@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Olof,
+Hi All,
 
-Thanks a lot for your reply , I understand better now.
-I got the linux working on ork1sim by not using the copied source( earlier
-I was copying the linux folder which did'nt work out).
-I  tried to build FPGA image and I have following errors, hoping you can
-help out:
+I'm now able to build the FPGA image.
+I have also built linux for the board.
+I'm facing problems in running software with GDB using OPENOCD.
+After running
 
-1.  When I ran - *~/work/openrisc/fusesoc$ fusesoc init  *after the warning
-messages I get
+or1k-elf-gdb timer.elf and executing these steps:
 
-*Directory to use for orpsoc-cores [/home/vidya/.local/share/orpsoc-cores]
-: orpsoc-cores*
-     So I gave the input as orpsoc-cores which created and downloaded the
-cores in fusesoc directory.
+target remote :50001
+load
+set $npc=0x100
+continue
 
-Now as you mentioned when I create new directory for build and run the
-build command:
+I get the following error:
+or1k_timer_get_ticks ()
+    at /home/wallento/dev/build-or1k-elf/newlib/libgloss/or1k/timer.c:173
+173    /home/wallento/dev/build-or1k-elf/newlib/libgloss/or1k/timer.c:
+No such file or directory.
 
+Does anyone know what can be the problem?
 
-*~/work/openrisc$ cd
-build_fusesoc_DE0Nano/~/work/openrisc/build_fusesoc_DE0Nano$ fusesoc build
-de0_nano * I get the error:
-
-
-
-*WARN:  Failed to register cores root 'orpsoc-cores is not a
-directory'ERROR: Can't find system 'de0_nano'*
-I then tried to build the image inside fusesoc directory as I thought the
-cores are present in it and I get the following error:
-~/work/openrisc/fusesoc$ fusesoc build de0_nano
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*WARN:  plusargs section is deprecated and will not be parsed by FuseSoC.
-Please migrate to parameters in fifo-1.0WARN:  plusargs section is
-deprecated and will not be parsed by FuseSoC. Please migrate to parameters
-in vlog_tb_utilsWARN:  plusargs section is deprecated and will not be
-parsed by FuseSoC. Please migrate to parameters in elf-loaderWARN:
-plusargs section is deprecated and will not be parsed by FuseSoC. Please
-migrate to parameters in wb_sdram_ctrlWARN:  plusargs section is deprecated
-and will not be parsed by FuseSoC. Please migrate to parameters in
-wb_altera_ddr_wrapperWARN:  plusargs section is deprecated and will not be
-parsed by FuseSoC. Please migrate to parameters in stream_utils-1.0WARN:
-plusargs section is deprecated and will not be parsed by FuseSoC. Please
-migrate to parameters in ram_wbWARN:  plusargs section is deprecated and
-will not be parsed by FuseSoC. Please migrate to parameters in
-wb_intercon-1.0WARN:  plusargs section is deprecated and will not be parsed
-by FuseSoC. Please migrate to parameters in wb_interconINFO:  Preparing
-adv_debug_sysINFO:  Downloading olofk/adv_debug_sys from githubTraceback
-(most recent call last):  File "/usr/local/bin/fusesoc", line 9, in
-<module>    load_entry_point('fusesoc==1.4', 'console_scripts',
-'fusesoc')()  File
-"/usr/local/lib/python2.7/dist-packages/fusesoc/main.py", line 357, in
-main    run(parsed_args)  File
-"/usr/local/lib/python2.7/dist-packages/fusesoc/main.py", line 291, in
-run    args.func(args)  File
-"/usr/local/lib/python2.7/dist-packages/fusesoc/main.py", line 65, in
-build    backend.configure(args.backendargs)  File
-"/usr/local/lib/python2.7/dist-packages/fusesoc/build/quartus.py", line 38,
-in configure    super(Quartus, self).configure(args)  File
-"/usr/local/lib/python2.7/dist-packages/fusesoc/build/backend.py", line 39,
-in configure    super(Backend, self).configure(args)  File
-"/usr/local/lib/python2.7/dist-packages/fusesoc/edatool.py", line 60, in
-configure    core.setup()  File
-"/usr/local/lib/python2.7/dist-packages/fusesoc/core.py", line 125, in
-setup    if self.provider.fetch():  File
-"/usr/local/lib/python2.7/dist-packages/fusesoc/provider/github.py", line
-38, in fetch    self._checkout(self.files_root)  File
-"/usr/local/lib/python2.7/dist-packages/fusesoc/provider/github.py", line
-64, in _checkout    (filename, headers) = urllib.urlretrieve(url)  File
-"/usr/lib/python2.7/urllib.py", line 94, in urlretrieve    return
-_urlopener.retrieve(url, filename, reporthook, data)  File
-"/usr/lib/python2.7/urllib.py", line 240, in retrieve    fp =
-self.open(url, data)  File "/usr/lib/python2.7/urllib.py", line 208, in
-open    return getattr(self, name)(url)  File
-"/usr/lib/python2.7/urllib.py", line 437, in open_https
-h.endheaders(data)  File "/usr/lib/python2.7/httplib.py", line 975, in
-endheaders    self._send_output(message_body)  File
-"/usr/lib/python2.7/httplib.py", line 835, in _send_output
-self.send(msg)  File "/usr/lib/python2.7/httplib.py", line 797, in send
-self.connect()  File "/usr/lib/python2.7/httplib.py", line 1178, in
-connect    self.timeout, self.source_address)  File
-"/usr/lib/python2.7/socket.py", line 571, in create_connection    raise
-errIOError: [Errno socket error] [Errno 111] Connection refused*
-There are two causes that I can figure out :
-1. Maybe because I have different versions of Python?
-2. or Maybe because I'm working behind a proxy?or something else.
-
-Can you please tell me what could be the solution?
-
-2. Also I want to run a simple C program on the linux on or1ksim. How can I
-do it? I saw using toolchain installed I can cross compile the code and
-then run the code in linux. To port the code in the linux I have to use gdb
-server ? Do you have any updated links/steps to do this?
-
-Thanks &Regards,
+Regards,
 Vidya
-
-
-
-
-
-
 
 
 On Mon, Aug 8, 2016 at 2:24 AM, Olof Kindgren <olof.kindgren@gmail.com>
@@ -292,4 +163,4 @@ wrote:
 >
 -------------- next part --------------
 An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20160808/da663cce/attachment.html>
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20160811/585bf416/attachment.html>
