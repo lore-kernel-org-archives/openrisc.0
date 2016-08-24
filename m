@@ -1,36 +1,35 @@
-From: Manaar Alam <alam.manaar@gmail.com>
-Date: Sat, 20 Aug 2016 23:03:09 +0530
+From: Stefan Wallentowitz <stefan@wallentowitz.de>
+Date: Wed, 24 Aug 2016 10:41:14 +0200
 Subject: [OpenRISC] Difficulties on Setting up a mor1kx development
-Message-ID: <CAFoY_wzsML45neoNXPbAHVrk5vUJq3Nm4+pw1ZieAexDA33Biw@mail.gmail.com>
+In-Reply-To: <CAFoY_wzsML45neoNXPbAHVrk5vUJq3Nm4+pw1ZieAexDA33Biw@mail.gmail.com>
+References: <CAFoY_wzsML45neoNXPbAHVrk5vUJq3Nm4+pw1ZieAexDA33Biw@mail.gmail.com>
+Message-ID: <634f0288-7728-3ab7-7dd5-d9289a7850e9@wallentowitz.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hello,
+Hi Manaar,
 
-I am trying to load LINUX in the de0_nano board via telnet I am facing core
-dumped error given as -
+On 20.08.2016 19:33, Manaar Alam wrote:
 
+> Error: or1k_assert_reset: implement me
+> Error: or1k_deassert_reset: implement me
+> openocd: driver.c:191: interface_jtag_add_dr_scan: Assertion `field ==
+> out_fields + scan->num_fields' failed.
+> Aborted (core dumped)*
 
+I have never seen this before. Which steps did you take, so that I can
+reproduce it?
 
+Cheers,
+Stefan
 
-
-*Info : JTAG tap: or1k.cpu tap/device found: 0x020f30dd (mfg: 0x06e, part:
-0x20f3, ver: 0x0)Error: or1k_assert_reset: implement meError:
-or1k_deassert_reset: implement meopenocd: driver.c:191:
-interface_jtag_add_dr_scan: Assertion `field == out_fields +
-scan->num_fields' failed.Aborted (core dumped)*
-
-The linux image is working properly in the simulator.
-Can you help me out to sort out this error?
-
-*Manaar Alam,*
-Junior Research Fellow,
-Department of Computer Science and Engineering,
-Indian Institute of Technology, Kharagpur,
-West Bengal, India.
 -------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20160820/ab1649ed/attachment.html>
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 181 bytes
+Desc: OpenPGP digital signature
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20160824/9d035bea/attachment.sig>
