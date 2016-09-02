@@ -1,74 +1,53 @@
-From: Jeremy Bennett <jeremy.bennett@embecosm.com>
-Date: Thu, 25 Aug 2016 17:23:55 +0200
-Subject: [OpenRISC] newlib, malloc missing, I must be missing something
-In-Reply-To: <1472133706.4263.2727.camel@jericho>
-References: <1472133706.4263.2727.camel@jericho>
-Message-ID: <0707be5b-9b4f-9dc8-b981-204fcc7ab330@embecosm.com>
+From: Stefan Wallentowitz <stefan@wallentowitz.de>
+Date: Fri, 2 Sep 2016 19:12:18 +0200
+Subject: [OpenRISC] New OpTiMSoC release
+Message-ID: <dcc5dd71-8fb6-c8d1-8b5d-48c60a4cdd36@wallentowitz.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 25/08/16 16:01, Dan wrote:
-> Hello!
-> 
-> I just built the or1k tool suite according to the directions on
-> openrisk.io/newlib/building.html.  However, when trying to build my
-> first file, I'm getting:
-> 
-> 
-> % or1k-elf-gcc -O3 -o dhry.o -c dhry.c
-> % or1k-elf-ld -o dhry dhry.o
-> % or1k-elf-ld: warning: cannot find entry symbol _start; defaulting to
-> 0000000000000000
-> dhry.o: In function `Func_2':
-> dhry.c:(.text+0x444): undefined reference to `strcmp'
-> dhry.o: In function `main':
-> dhry.c:(.text.startup+0x34): undefined reference to `malloc'
-> dhry.c:(.text.startup+0x48): undefined reference to `malloc'
-> dhry.c:(.text.startup+0x1e8): undefined reference to `strcmp'
-> dhry.c:(.text.startup+0x390): undefined reference to `exit'
-> 
-> However, if I just do the linking with GCC alone, I get:
-> 
-> % or1k-elf-gcc dhry.o -o dhry
-> % (No errors)
-> 
-> Any thoughts?
+Hi all,
 
-Hi Dan,
+I am forwarding my announcement here as it is closely related to
+OpenRISC (its the processor core in our manycore SoC) and we have
+switched entirely to FuseSoC.
 
-The C compiler is a driver for the linker, putting in all the libraries
-you need.  You should always link C code using gcc, not ld.
+Hope it finds your interest!
 
-To see the link line used try gcc -v.  It will show you all the
-sub-commands used.
+Cheers,
+Stefan
 
+Announcement:
 
-Jeremy
+Hi folks,
 
-> 
-> Thanks!
-> 
-> Dan
-> 
-> 
-> _______________________________________________
-> OpenRISC mailing list
-> OpenRISC at lists.librecores.org
-> https://lists.librecores.org/listinfo/openrisc
-> 
+it has been very quiet for some time now, but we finally released a new
+OpTiMSoC version today: http://www.optimsoc.org/blog/2016/09/02/release.html
+
+The delay is mainly because we cut out our debug infrastructure and
+transfered the concepts to the more generic "Open SoC Debug" project
+(opensocdebug.org). The projects got a fresh start with generalized
+modules and better scalability. I was involved in supporting the same
+infrastructure in the lowRISC project (lowrisc.org). So you can use the
+same debug methodology with two open source SoCs now!
+
+Beside that we added support for FuseSoC, which is a package manager for
+hardware IP.
+
+We are already planning the next release, so stay tuned for more board
+support and more platform variants.
+
+The OpTiMSoC team will be at ORCONF (orconf.org) as every year, this
+time in Bologna from October 7-9. Would be great to meet you there!
+
+Cheers,
+Stefan
 
 
--- 
-Tel:     +44 (1590) 610184
-Cell:    +44 (7970) 676050
-SkypeID: jeremybennett
-Twitter: @jeremypbennett
-Email:   jeremy.bennett at embecosm.com
-Web:     www.embecosm.com
-PGP key: 1024D/BEF58172FB4754E1 2009-03-20
+
+
 
 -------------- next part --------------
 A non-text attachment was scrubbed...
@@ -76,4 +55,4 @@ Name: signature.asc
 Type: application/pgp-signature
 Size: 181 bytes
 Desc: OpenPGP digital signature
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20160825/d355cc76/attachment.sig>
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20160902/afbcbd3b/attachment.sig>
