@@ -1,58 +1,30 @@
-From: Stefan Wallentowitz <stefan@wallentowitz.de>
-Date: Fri, 2 Sep 2016 19:12:18 +0200
-Subject: [OpenRISC] New OpTiMSoC release
-Message-ID: <dcc5dd71-8fb6-c8d1-8b5d-48c60a4cdd36@wallentowitz.de>
+From: Special.offer@mg-style.cn <Special.offer@mg-style.cn>
+Date: 03 Sep 2016 11:41:30 -0700
+Subject: [OpenRISC] 700k unique visits for 100 usd, limited time offer
+Message-ID: <20160903114129.25EE434806C9C167@mg-style.cn>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi all,
+hello
+Check this out: cheapest traffic on the web.
+Fully trackable in google analytics.
 
-I am forwarding my announcement here as it is closely related to
-OpenRISC (its the processor core in our manycore SoC) and we have
-switched entirely to FuseSoC.
+Real and active visits
 
-Hope it finds your interest!
+50-60% of Traffic comes from USA Blogs
 
-Cheers,
-Stefan
-
-Announcement:
-
-Hi folks,
-
-it has been very quiet for some time now, but we finally released a new
-OpTiMSoC version today: http://www.optimsoc.org/blog/2016/09/02/release.html
-
-The delay is mainly because we cut out our debug infrastructure and
-transfered the concepts to the more generic "Open SoC Debug" project
-(opensocdebug.org). The projects got a fresh start with generalized
-modules and better scalability. I was involved in supporting the same
-infrastructure in the lowRISC project (lowrisc.org). So you can use the
-same debug methodology with two open source SoCs now!
-
-Beside that we added support for FuseSoC, which is a package manager for
-hardware IP.
-
-We are already planning the next release, so stay tuned for more board
-support and more platform variants.
-
-The OpTiMSoC team will be at ORCONF (orconf.org) as every year, this
-time in Bologna from October 7-9. Would be great to meet you there!
-
-Cheers,
-Stefan
+http://www.mg-style.cn/detail.php?id=112
 
 
 
 
 
--------------- next part --------------
-A non-text attachment was scrubbed...
-Name: signature.asc
-Type: application/pgp-signature
-Size: 181 bytes
-Desc: OpenPGP digital signature
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20160902/afbcbd3b/attachment.sig>
+
+
+
+Unsubscribe option available on the footer of our website
+
+
