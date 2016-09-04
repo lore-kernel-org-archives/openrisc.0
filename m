@@ -1,30 +1,35 @@
-From: Special.offer@mg-style.cn <Special.offer@mg-style.cn>
-Date: 03 Sep 2016 11:41:30 -0700
-Subject: [OpenRISC] 700k unique visits for 100 usd, limited time offer
-Message-ID: <20160903114129.25EE434806C9C167@mg-style.cn>
+From: Conversion SEO <admin@conversion-seo.cn>
+Date: Sun, 04 Sep 2016 03:13:30 -0800
+Subject: [OpenRISC] SEO for my site needed
+Message-ID: <F18A342D.70707EEB@conversion-seo.cn>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-hello
-Check this out: cheapest traffic on the web.
-Fully trackable in google analytics.
+hi
+after thoroughly checking your website and analyzing 
+your competition activities, we can recommend one 
+of the following SEO Packages:
+http://www.conversion-seo.cn/seo-packages/
 
-Real and active visits
-
-50-60% of Traffic comes from USA Blogs
-
-http://www.mg-style.cn/detail.php?id=112
+PS: we are offering 100 usd discount on the GOLD SEO Package
 
 
-
-
+Regards
+Conversion SEO
 
 
 
 
-Unsubscribe option available on the footer of our website
+
+
+
+
+
+
+Unsubscribe option is available on the footer of our website
+
 
 
