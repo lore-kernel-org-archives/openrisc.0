@@ -1,29 +1,15 @@
-From: Top.Alexa.Ranks@mg-dot.cn <Top.Alexa.Ranks@mg-dot.cn>
-Date: 04 Sep 2016 12:24:17 -0700
-Subject: [OpenRISC] SEO quote
-Message-ID: <20160904122415.A0DA48D345F3537A@mg-dot.cn>
+From: steven.345345.f@gmail.com <steven.345345.f@gmail.com>
+Date: 05 Sep 2016 14:32:52 -0700
+Subject: [OpenRISC] High quality Targeted instagram followers
+Message-ID: <20160905143250.5AF0192DDBB0B85B@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi there
-Thank you for showing interest  in our SEO Services
-Per your SEO quote request, we recommend any of the following SEO 
-Plans
-
-http://www.topalexarank.com/index.php/seo-packages/
-
-All our plans cover all aspects of SEO, manually work, safely 
-done. 
-The only outcome that can be expected from our work is a healthy 
-growth and climb of your keywords ranks.
-
-http://www.topalexarank.com/index.php/seo-packages/
-
-note: we accept any niche, any keywords, any language
-
+Cheap and fast instagram followers
+http://www.instabuygram.cn/buy-instagram-followers/
 
 
 
@@ -35,5 +21,4 @@ note: we accept any niche, any keywords, any language
 
 
 Unsubscribe option is available on the footer of our website
-
 
