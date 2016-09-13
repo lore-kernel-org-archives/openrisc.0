@@ -1,71 +1,52 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 12 Sep 2016 19:40:33 +0900 (JST)
-Subject: [OpenRISC] [PATCH] openrisc: remove the redundant
-	of_platform_populate
-In-Reply-To: <20160830151059.23353-1-robh@kernel.org>
-References: <20160830151059.23353-1-robh@kernel.org>
-Message-ID: <alpine.LFD.2.20.1609121936080.2354@lianli.shorne-pla.net>
+From: esmaeel ensanimehr <eensanimehr@gmail.com>
+Date: Tue, 13 Sep 2016 10:14:26 +0430
+Subject: [OpenRISC] OR1200-generic-question
+Message-ID: <CALtEHQZcLoVy=nbZe_1P4YW8AjFt6yTo=geYHKo9zwwM0vKdrg@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
+Dear Sir
 
+I want to use custom instruction in OR1200-generic with inline
+assembly in a simple C code.
 
-On Tue, 30 Aug 2016, Rob Herring wrote:
+(may possible to use general  defined instruction buts i want to
+implement it for future work on OR Project).
 
-> The of_platform_populate call in the openrisc arch code is now redundant
-> as the DT core provides a default call. Openrisc has a NULL match table
-> which means only top level nodes with compatible strings will have
-> devices creates. The default version will also descend nodes in the
-> match table such as "simple-bus" which should be fine as openrisc
-> doesn't have any of these (though it is preferred that memory-mapped
-> peripherals be grouped under a bus node(s)).
+___add___  work  for me
 
-This looks fine to me.  I am not sure if you got a reply from Jonas, but 
-he hasn't been active maintainer for a while.
+ int x=2,y=3,sum=0;
+__asm__("l.add %0,%1,%2" : "=r" (sum) : "r" (x), "r" (y));
 
-We are working on getting this sorted out.
+///sum : 5
 
--Stafford
+-----------------------
+i try to implement a new shift command. shift  b to left by  c
+position and store to a
 
-> Signed-off-by: Rob Herring <robh@kernel.org>
-> Cc: Jonas Bonn <jonas@southpole.se>
-> ---
-> arch/openrisc/kernel/setup.c | 10 ----------
-> 1 file changed, 10 deletions(-)
->
-> diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
-> index b4ed8b3..d2f78cf7 100644
-> --- a/arch/openrisc/kernel/setup.c
-> +++ b/arch/openrisc/kernel/setup.c
-> @@ -38,7 +38,6 @@
-> #include <linux/of.h>
-> #include <linux/memblock.h>
-> #include <linux/device.h>
-> -#include <linux/of_platform.h>
->
-> #include <asm/sections.h>
-> #include <asm/segment.h>
-> @@ -219,15 +218,6 @@ void __init or32_early_setup(void *fdt)
-> 	early_init_devtree(fdt);
-> }
->
-> -static int __init openrisc_device_probe(void)
-> -{
-> -	of_platform_populate(NULL, NULL, NULL, NULL);
-> -
-> -	return 0;
-> -}
-> -
-> -device_initcall(openrisc_device_probe);
-> -
-> static inline unsigned long extract_value_bits(unsigned long reg,
-> 					       short bit_nr, short width)
-> {
-> -- 
-> 2.9.3
+int a,b,c;//
+__asm__("l.cust5 %0%1%2":"=r" (a):"r" (b):"r" (c)); /// a <=  b << c ;
 
+but this argument list cause error
 
+///  __asm__("l.cust5");   run correct .
 
+i find that   verilog  code for shift must be add in or1200_alu.v in final
+part.
+
+but how to inform to compiler new  added list of argument for cust5.
+
+i find or1k-opc.c and or32-opc.c , damage these file to see how effect
+on compile side (or1k-elf) and sim with fusesoc  but no effect .
+
+please inform me how to do it.
+
+your sincerly
+
+Esmaeel EnsaniMehr
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20160913/a9ab00c8/attachment.html>
