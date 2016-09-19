@@ -1,5 +1,5 @@
 From: Stefan Wallentowitz <stefan@wallentowitz.de>
-Date: Mon, 19 Sep 2016 16:58:23 +0200
+Date: Mon, 19 Sep 2016 16:59:02 +0200
 Subject: [OpenRISC] [PATCH 5/7] openrisc: Support both old (or32) and
  new (or1k) toolchain
 In-Reply-To: <57DFF797.7090400@southpole.se>
@@ -12,7 +12,7 @@ References: <1474036985-20981-1-git-send-email-shorne@gmail.com>
  <e4b7075b-a1f7-74b1-ca62-4f3d2058fe97@roeck-us.net>
  <alpine.LFD.2.20.1609192247170.2352@lianli.shorne-pla.net>
  <57DFF797.7090400@southpole.se>
-Message-ID: <bb977e99-dbb4-d602-373b-8f3bfb73b796@wallentowitz.de>
+Message-ID: <10fbfffd-1e85-ffad-1b2d-f05759116c18@wallentowitz.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -35,10 +35,12 @@ nearly up-to-date GCC for some time now.
 Cheers,
 Stefan
 
+
+
 -------------- next part --------------
 A non-text attachment was scrubbed...
 Name: signature.asc
 Type: application/pgp-signature
 Size: 181 bytes
 Desc: OpenPGP digital signature
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20160919/26acad3b/attachment.sig>
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20160919/e77b16bd/attachment.sig>
