@@ -1,8 +1,8 @@
-From: Jeremy Bennett <jeremy.bennett@embecosm.com>
-Date: Mon, 19 Sep 2016 18:49:36 +0100
+From: Stafford Horne <shorne@gmail.com>
+Date: Tue, 20 Sep 2016 19:01:58 +0900 (JST)
 Subject: [OpenRISC] [PATCH 5/7] openrisc: Support both old (or32) and
  new (or1k) toolchain
-In-Reply-To: <DAACD3FB-78B8-4D43-A434-09D476FE8B02@wallentowitz.de>
+In-Reply-To: <436317ac-6898-d9c2-36eb-79a0b3dc333a@roeck-us.net>
 References: <1474036985-20981-1-git-send-email-shorne@gmail.com>
  <1474036985-20981-6-git-send-email-shorne@gmail.com>
  <8ef63a71-81ed-2a0c-e204-666f7fba5e4c@roeck-us.net>
@@ -11,147 +11,115 @@ References: <1474036985-20981-1-git-send-email-shorne@gmail.com>
  <alpine.LFD.2.20.1609191807160.2352@lianli.shorne-pla.net>
  <e4b7075b-a1f7-74b1-ca62-4f3d2058fe97@roeck-us.net>
  <alpine.LFD.2.20.1609192247170.2352@lianli.shorne-pla.net>
- <57DFF797.7090400@southpole.se>
- <bb977e99-dbb4-d602-373b-8f3bfb73b796@wallentowitz.de>
- <6933ccf2-69d9-89c8-e880-a6d5296af4f8@embecosm.com>
- <alpine.LFD.2.20.1609200102541.2352@lianli.shorne-pla.net>
- <db88c929-06e9-72ab-5618-1b38f3069c4f@embecosm.com>
- <DAACD3FB-78B8-4D43-A434-09D476FE8B02@wallentowitz.de>
-Message-ID: <f50615e0-d0cf-a8a9-a0eb-dabd74bb4c51@embecosm.com>
+ <436317ac-6898-d9c2-36eb-79a0b3dc333a@roeck-us.net>
+Message-ID: <alpine.LFD.2.20.1609201901450.2352@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On 19/09/16 18:15, Stefan Wallentowitz wrote:
-> I think it was beyond semi that are missing.
-
-I can't help there - I don't have the necessary relationships.  Might
-be worth checking if the key players already have assignments on file
-at the FSF.  If Damjan has, so may the others from the same time.
-
-Best wishes,
 
 
-Jeremy
+On Mon, 19 Sep 2016, Guenter Roeck wrote:
 
-> 
-> Cheers, Stefan
-> 
-> On September 19, 2016 6:27:19 PM GMT+02:00, Jeremy Bennett 
-> <jeremy.bennett@embecosm.com> wrote:
-> 
-> On 19/09/16 17:09, Stafford Horne wrote:
-> 
-> 
-> 
-> On Mon, 19 Sep 2016, Jeremy Bennett wrote:
-> 
-> On 19/09/16 15:58, Stefan Wallentowitz wrote:
-> 
-> On 19.09.2016 16:35, Jonas Bonn wrote:
-> 
-> The bigger question I would have at this point is the value of the
-> code remaining upstream... Five years ago, there was a promise to
-> try to get the toolchain upstream within a year or two; to this
-> day, I don't know that much progress has been made there so this
-> architecture still requires a hodge-podge of tools from various
-> sources to build.
-> 
-> 
-> Actually, there has been progress. All but one copyright assignment
-> have been collected and the last one blocks everything. Don't know
-> if there was any progress on this since last ORCONF, but at least
-> we have like nearly up-to-date GCC for some time now.
-> 
-> 
-> Is there anything I can do to help unblock the last one (having 
-> been around longer than some, I know some of the old 
-> contributors).
-> 
-> Hi Jeremy,
-> 
-> 
-> As far as I can tell from SVN->Git history, the first changes I can
-> see are from "Giuseppe Scrivano" and "Peter Gavin" back in 2011. I
-> am guessing the fsf assignments are in order with them.
-> 
-> 
-> I would think that the one that Stefan mentioned is missing is 
-> *Damjan* who started port. Are you in contact with him?
-> 
-> 
-> Hi Stafford,
-> 
-> I haven't seen him for some years, but I'm connected on LinkedIn.
-> I can ping him.
-> 
-> I presume you would like him to assign any copyright in the GNU
-> tool chain for OpenRISC?
-> 
-> Best wishes,
-> 
-> 
-> Jeremy
-> 
-> https://gcc.gnu.org/ml/gcc/1999-11n/msg00391.html - first contact 
-> with gcc
-> 
-> 
-> https://gcc.gnu.org/ml/gcc-patches/2002-02/msg01788.html - further
-> discussions
-> 
-> 
-> I would leave it to Stefan for details.
-> 
-> 
-> ------------------------------------------------------------------------
+> On 09/19/2016 07:04 AM, Stafford Horne wrote:
+>> 
+>>
+>>  On Mon, 19 Sep 2016, Guenter Roeck wrote:
+>> 
+>> >  On 09/19/2016 02:11 AM, Stafford Horne wrote:
+>> > > 
+>> > > 
+>> > >   On Mon, 19 Sep 2016, Guenter Roeck wrote:
+>> > > 
+>> > > >   On 09/18/2016 11:02 PM, Stafford Horne wrote:
+>> > > > > > > > >    On Sun, 18 Sep 2016, Guenter Roeck wrote:
+>> > > > > > > >    Tested-by: Guenter Roeck <linux@roeck-us.net>
+>> > > > > > >    If you plan to handle openrisc going forward, it would be 
+>> > > > > > >    great > > > >   if you >  could
+>> > > > > >    consider updating MAINTAINERS. The web site and git repository 
+>> > > > > >    have > > >   been >  unreachable
+>> > > > > >    for a long time.
+>> > > > > > >    Thank you,
+>> > > > >    Updating maintainers was kind of on my plans, but I figured I 
+>> > > > >    need to
+>> > > > >    prove that I kind of know what I am doing.
+>> > > > > > >   The alternative would be to mark it as Orphaned. Which, for 
+>> > > > > > >   all >  practical purpose,
+>> > > >   would be the correct state right now.
+>> > > 
+>> > >   +CC The openrisc list
+>> > > 
+>> > >   Understood, I don't think we would want that to happen.
+>> > > 
+>> >  Look at the entry today:
+>> > 
+>> >  OPENRISC ARCHITECTURE
+>> >  M:      Jonas Bonn <jonas@southpole.se>
+>> >  W:      http://openrisc.net
+>> >  S:      Maintained
+>> >  T:      git git://openrisc.net/~jonas/linux
+>> >  F:      arch/openrisc/
+>> > 
+>> >  At the very least, W: and T: are incorrect and need to be updated or 
+>> >  removed.
+>> >  Plus, apparently there is a L:, and "T: 
+>> >  https://github.com/openrisc/linux"
+>> >  might be appropriate.
+>> > 
+>>
+>>  Thanks,
+>>  I am aware of this, we have since setup a new website, mailing list and as
+>>  you have found, git repo. Stefan has been nominated as the maintainer by
+>>  Jonas on a previous mail thread.
+>>
+>>  The issue (as we see it) is that neither Stefan or I have signed PGP keys
+>>  by anyone in the web of trust.
+>>
+>>  I sent this patch set with a cover lett trying to explain of the situation
+>>  trying to get some help.  Your reponses are very helpful.
+>>
+>>  Do you think I should just send "git pull" reuqests to Linus with a self
+>>  signed pgp key and eplaination to see how it goes?
+>> 
 >
-> 
-OpenRISC
-> mailing list OpenRISC at lists.librecores.org 
-> https://lists.librecores.org/listinfo/openrisc
-> 
-> 
-> 
-> -- Tel: +44 (1590) 610184 Cell: +44 (7970) 676050 SkypeID: 
-> jeremybennett Twitter: @jeremypbennett Email: 
-> jeremy.bennett at embecosm.com Web: www.embecosm.com 
-> <http://www.embecosm.com> PGP key: 1024D/BEF58172FB4754E1
-> 2009-03-20
-> 
-> ------------------------------------------------------------------------
->
-> 
-OpenRISC mailing
-> list OpenRISC at lists.librecores.org 
-> https://lists.librecores.org/listinfo/openrisc
-> 
-> 
-> ------------------------------------------------------------------------
->
->  OpenRISC mailing list OpenRISC at lists.librecores.org 
-> https://lists.librecores.org/listinfo/openrisc
-> 
+> Nope, that won't work. Linus will not accept pull requests without signed 
+> key,
+> or at least I would be very surprised if he does. You'll have to get your key
+> signed. I understand that may be tricky, with you being in Japan (if that is
+> you ;-), but we can't help it.
 
-- -- 
-Tel:     +44 (1590) 610184
-Cell:    +44 (7970) 676050
-SkypeID: jeremybennett
-Twitter: @jeremypbennett
-Email:   jeremy.bennett at embecosm.com
-Web:     www.embecosm.com
-PGP key: 1024D/BEF58172FB4754E1 2009-03-20
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Thats as I figured.
 
-iGMEARECACMFAlfgJTAcHGplcmVteS5iZW5uZXR0QGVtYmVjb3NtLmNvbQAKCRC+
-9YFy+0dU4V9jAJ0bR6s/YiHWCEBalLOKBW/gO6KDLwCfeHgL3PnSsJTWKNvVI+CD
-ncDO268=
-=wMBt
------END PGP SIGNATURE-----
+It is me and I just missed LinuxCon Japan 2016 as I was out of town. I 
+have some contacts I may be able to reach out to though.
+
+-Stafford
+
+>>  FYI
+>>  I have a change as following in my backlog, as follows:
+>>
+>>  ---
+>>  @@ -8691,10 +8063,12 @@ F:      drivers/of/overlay.c
+>>   F:     drivers/of/resolver.c
+>>
+>>  OPENRISC ARCHITECTURE
+>>  -M:    Jonas Bonn <jonas@southpole.se>
+>>  -W:    http://openrisc.net
+>>  +M:    Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+>>  +M:    Stafford Horne <shorne@gmail.com>
+>>  +W:    http://openrisc.io
+>>  +L:    openrisc at lists.librecores.org
+>>  +T:    https://github.com/openrisc/linux.git
+>>  S:    Maintained
+>>  -T:    git git://openrisc.net/~jonas/linux
+>>   F:    arch/openrisc/
+>>
+>>   OPENVSWITCH
+>>
+>>  --
+>> 
+>
+>
 
