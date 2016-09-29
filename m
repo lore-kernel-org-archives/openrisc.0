@@ -1,36 +1,28 @@
-From: JUSTIN <Clean.up@mg-dot.cn>
-Date: Sat, 24 Sep 2016 02:01:16 -1000
-Subject: [OpenRISC] Recover your ranks with Powerful manual Clean up Service
-Message-ID: <DEE8F803.148D0DDA@mg-dot.cn>
+From: Manaar Alam <alam.manaar@gmail.com>
+Date: Thu, 29 Sep 2016 15:20:41 +0530
+Subject: [OpenRISC] Branch Predictor on OpenRISC de0-nano
+Message-ID: <CAFoY_wyD=3cn9jDwwL1YRqE7DsptwsGYAUeqZfV=6f3FO9=a0w@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Get your ranks back 
-by identifying and removing backlinks from banned domains.
+Hello,
 
-This kind of clean up, as simple as it may seem, takes lots of time to
-compile. For example 1000 Domains check take about 3-4 days to investigate. 
- 
-There is no other way to clean up your site, hire our manual service today
-and Get your rankings back to where they were!! and even MORE.
+I am currently working on openRISC Linux on de0-nano development board.
+What I want to know is, if there any branch predictor in it like dynamic
+2-bit branch prediction or not. It will be very helpful for my research.
 
-More info here
-http://www.mg-dot.cn/detail.php?id=32
+Thank you.
 
-
-
-
-
-
-
-
-
-
-
-Unsubscribe option is available on the footer of our website
-
-
-
+-- 
+*Manaar Alam,*
+Junior Research Fellow,
+Secured Embedded Architecture Laboratory (SEAL),
+Department of Computer Science and Engineering,
+Indian Institute of Technology, Kharagpur,
+West Bengal, India.
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20160929/b092d57a/attachment.html>
