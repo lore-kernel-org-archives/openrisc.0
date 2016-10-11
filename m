@@ -1,56 +1,30 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Fri, 7 Oct 2016 02:11:55 +0900 (JST)
-Subject: [OpenRISC] Openrisc Specification
-In-Reply-To: <aa80189d-f993-5693-8b31-0e02e552df4b@wallentowitz.de>
-References: <alpine.LFD.2.20.1610040755170.3778@lianli.shorne-pla.net>
- <aa80189d-f993-5693-8b31-0e02e552df4b@wallentowitz.de>
-Message-ID: <alpine.LFD.2.20.1610070209350.3778@lianli.shorne-pla.net>
+From: Alexey Baturo <baturo.alexey@gmail.com>
+Date: Tue, 11 Oct 2016 22:23:50 +0300
+Subject: [OpenRISC] OpenRISC isa changes proposal
+Message-ID: <CAFukJ-C7TYtzkszLZEMSgS=io6NnyLcX5mOzq=kZGHH7M1w7_A@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
+Hi, everyone!
 
+I've been looking at openrisc isa recently, especially at orvdx part and
+have some ideas to improve it.
 
-On Tue, 4 Oct 2016, Stefan Wallentowitz wrote:
+First of all, there is no ORVDX32 extention and I don't see why shouldn't
+we have it? It would not be very efficient, but why not?
 
-> On 04.10.2016 02:24, Stafford Horne wrote:
->> Hi All,
->>
->> As many problably know opencores was offline for some time over the past
->> week. The openrisc specification process currently depends on being able
->> to post specifiations on the wiki here:
->>  http://opencores.org/or1k/Architecture_Specification
->>
->> Would anyone be apposed to moving the specification process to
->> http://openrisc.io?  There is already a page for specification setup there.
->>
->> If we would agree I could do the work to
->>  1. Add old specification history to the openrisc.io page
->>  2. Describe the change submission process
->>    - Create a page change pull requests
->>    - Send mail to this mailing list for discssion
->>    - Periodically discuss the final cut of changes
->>    - Update the docs and post the changes back to the Specification page
->>      and download page
->
-> Hi Stafford,
->
-> thanks a lot for picking that up. I once had the plan to get the new
-> revision done by ORCONF 2015, but the old story of time and focus..
->
-> I like the process. I originally thought about moving the specification
-> entirely to Github issues, but having it integrated is a great idea.
->
-> One thing I still have in mind is how to resolve conflicts if any. Will
-> we have to do voting then?
->
-Hi Stefan,
+Next one is related to vector instructions encoding. Let's say there are 2
+types of vector instructions: the ones who operate on bytes and another
+operate on vector. To distinguish them it would be useful to assume the
+byte ones have LSB of 0 and 1 for halves. To do that we have to slightly
+tune the encoding: i.e. make lv.avg.b and lv.avg.h be encoded with 0x38 and
+0x39 respectively, instead of 0x39 and 0x3a. I could provide suggested list
+of changes.
 
-I thin confilcts can be discussed on the mailing list as well. But maybe a 
-voting system would be more applicable. Did we ever have conflicts in the 
-past that we can learn from?
-
--Stafford
-
+Thanks for attention.
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20161011/d9af975e/attachment.html>
