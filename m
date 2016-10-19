@@ -1,73 +1,123 @@
-From: Jeremy Bennett <jeremy.bennett@embecosm.com>
-Date: Sat, 15 Oct 2016 15:57:04 +0100
-Subject: [OpenRISC] OpenRISC isa changes proposal
-In-Reply-To: <CAFukJ-C7TYtzkszLZEMSgS=io6NnyLcX5mOzq=kZGHH7M1w7_A@mail.gmail.com>
-References: <CAFukJ-C7TYtzkszLZEMSgS=io6NnyLcX5mOzq=kZGHH7M1w7_A@mail.gmail.com>
-Message-ID: <c1120129-7537-31b2-394b-c1c09720bb76@embecosm.com>
+From: Jakob Viketoft <jakob.viketoft@aacmicrotec.com>
+Date: Wed, 19 Oct 2016 16:39:02 +0000
+Subject: [OpenRISC] GCC-optimizations/weirdness...
+Message-ID: <D90E780DD5090A4F9AEBC859615CED77EE1CEE69@OXYGEN.aacmicrotec.local>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hello any gcc-gurus out there!
 
-On 11/10/16 20:23, Alexey Baturo wrote:
-> Hi, everyone!
-> 
-> I've been looking at openrisc isa recently, especially at orvdx
-> part and have some ideas to improve it.
-> 
-> First of all, there is no ORVDX32 extention and I don't see why 
-> shouldn't we have it? It would not be very efficient, but why not?
-> 
-> Next one is related to vector instructions encoding. Let's say
-> there are 2 types of vector instructions: the ones who operate on
-> bytes and another operate on vector. To distinguish them it would
-> be useful to assume the byte ones have LSB of 0 and 1 for halves.
-> To do that we have to slightly tune the encoding: i.e. make
-> lv.avg.b and lv.avg.h be encoded with 0x38 and 0x39 respectively,
-> instead of 0x39 and 0x3a. I could provide suggested list of
-> changes.
+I've hit a major performance obstacle on 64-bit mul/div which is used by default in the RTEMS kernel. I feel this should be able to speed up considerably using some clever maths and the (possibly) defined hardware instructions for 32 bits. However, I'm not quite sure how the translation in gcc is made. Looking into the or1k-port of gcc, I have yet to see a way of defining 64-bit mul/div operations as compared to the 32-bit which are implemented. Please see my test code and a dump of it's assembler below which shows how these are implemented today.
 
-Hi Alexey,
+I also consistently see unnecessary stack operations which might be quite a bummer in terms of performance as well, please see the same code snippets below.
 
-I wish you well with this project. Although the original spec included
-a set of vector instructions, I don't remember anyone ever
-implementing them. IIRC they were never added to Or1ksim either.
+Any help or pointers are more than welcome!
 
-So you should have plenty of scope to refine the details of the spec.
+     /Jakob
 
-Best wishes,
+---------------------------8<--------------------------
+
+uint64_t add64(uint64_t a, uint64_t b)
+{
+  return a + b;
+}
+
+uint64_t mul64(uint64_t a, uint64_t b)
+{
+  return a * b;
+}
+
+uint64_t div64(uint64_t a, uint64_t b)
+{
+  return a / b;
+}
+
+uint32_t add32(uint32_t a, uint32_t b)
+{
+  return a + b;
+}
+
+uint32_t mul32(uint32_t a, uint32_t b)
+{
+  return a * b;
+}
+
+uint32_t div32(uint32_t a, uint32_t b)
+{
+  return a / b;
+}
 
 
-Jeremy
+00002df4 <add64>:
+    2df4:       e1 84 30 00      l.add r12,r4,r6
+    2df8:       d7 e1 0f fc      l.sw -4(r1),r1
+    2dfc:       e4 8c 20 00      l.sfltu r12,r4
+    2e00:       9c 21 ff fc      l.addi r1,r1,-4
+    2e04:       10 00 00 03      l.bf 2e10 <add64+0x1c>
+    2e08:       9c 80 00 01      l.addi r4,r0,1
+    2e0c:       9c 80 00 00      l.addi r4,r0,0
+    2e10:       e1 63 28 00      l.add r11,r3,r5
+    2e14:       9c 21 00 04      l.addi r1,r1,4
+    2e18:       e1 64 58 00      l.add r11,r4,r11
+    2e1c:       44 00 48 00      l.jr r9
+    2e20:       84 21 ff fc      l.lwz r1,-4(r1)
 
-> 
-> Thanks for attention.
-> 
-> 
-> _______________________________________________ OpenRISC mailing
-> list OpenRISC at lists.librecores.org 
-> https://lists.librecores.org/listinfo/openrisc
-> 
+00002e24 <mul64>:
+    2e24:       d7 e1 4f fc      l.sw -4(r1),r9
+    2e28:       d7 e1 0f f8      l.sw -8(r1),r1
+    2e2c:       04 00 03 96      l.jal 3c84 <__muldi3>
+    2e30:       9c 21 ff f8      l.addi r1,r1,-8
+    2e34:       9c 21 00 08      l.addi r1,r1,8
+    2e38:       85 21 ff fc      l.lwz r9,-4(r1)
+    2e3c:       44 00 48 00      l.jr r9
+    2e40:       84 21 ff f8      l.lwz r1,-8(r1)
+
+00002e44 <div64>:
+    2e44:       d7 e1 4f fc      l.sw -4(r1),r9
+    2e48:       d7 e1 0f f8      l.sw -8(r1),r1
+    2e4c:       04 00 03 ad      l.jal 3d00 <__udivdi3>
+    2e50:       9c 21 ff f8      l.addi r1,r1,-8
+    2e54:       9c 21 00 08      l.addi r1,r1,8
+    2e58:       85 21 ff fc      l.lwz r9,-4(r1)
+    2e5c:       44 00 48 00      l.jr r9
+    2e60:       84 21 ff f8      l.lwz r1,-8(r1)
+
+00002e64 <add32>:
+    2e64:       d7 e1 0f fc      l.sw -4(r1),r1
+    2e68:       9c 21 ff fc      l.addi r1,r1,-4
+    2e6c:       e1 63 20 00      l.add r11,r3,r4
+    2e70:       9c 21 00 04      l.addi r1,r1,4
+    2e74:       44 00 48 00      l.jr r9
+    2e78:       84 21 ff fc      l.lwz r1,-4(r1)
+
+00002e7c <mul32>:
+    2e7c:       d7 e1 0f fc      l.sw -4(r1),r1
+    2e80:       9c 21 ff fc      l.addi r1,r1,-4
+    2e84:       e1 63 23 06      l.mul r11,r3,r4
+    2e88:       9c 21 00 04      l.addi r1,r1,4
+    2e8c:       44 00 48 00      l.jr r9
+    2e90:       84 21 ff fc      l.lwz r1,-4(r1)
+
+00002e94 <div32>:
+    2e94:       d7 e1 0f fc      l.sw -4(r1),r1
+    2e98:       9c 21 ff fc      l.addi r1,r1,-4
+    2e9c:       e1 63 23 0a      l.divu r11,r3,r4
+    2ea0:       9c 21 00 04      l.addi r1,r1,4
+    2ea4:       44 00 48 00      l.jr r9
+    2ea8:       84 21 ff fc      l.lwz r1,-4(r1)
 
 
-- -- 
-Tel:     +44 (1590) 610184
-Cell:    +44 (7970) 676050
-SkypeID: jeremybennett
-Twitter: @jeremypbennett
-Email:   jeremy.bennett at embecosm.com
-Web:     www.embecosm.com
-PGP key: 1024D/BEF58172FB4754E1 2009-03-20
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
 
-iGMEARECACMFAlgCQ8AcHGplcmVteS5iZW5uZXR0QGVtYmVjb3NtLmNvbQAKCRC+
-9YFy+0dU4ZGNAJ4upMBOQjcVz1fCAjEmeWUJLHZl/QCdENfZzxvYn6awIWkiog0i
-A6C0o1U=
-=l6UW
------END PGP SIGNATURE-----
+Jakob Viketoft
+Senior Engineer in RTL and embedded software
+
+ÅAC Microtec AB
+Dag Hammarskjölds väg 48
+SE-751 83 Uppsala, Sweden
+
+T: +46 702 80 95 97
+http://www.aacmicrotec.com
 
