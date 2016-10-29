@@ -1,135 +1,91 @@
-From: Marcus Swift <marcus_swift@crevinn.com>
-Date: Mon, 24 Oct 2016 15:56:50 +0100
-Subject: [OpenRISC] Nexys4DDR and OpenRISC
-Message-ID: <CA+2xKH_FCLWPB_r=oP5OkCgttWrzWNeaz7bE0Gk5oos4LjQJGg@mail.gmail.com>
+From: BAndViG <bandvig@mail.ru>
+Date: Sat, 29 Oct 2016 19:12:07 +0300
+Subject: [OpenRISC] Question on float64 instructions support
+Message-ID: <6948BA87F3F14F5B98FFD6E33A2D518B@BAndViG>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi all,
+Hello all,
+I'm trying to implement double arithmetic support as I proposed here: 
+http://openrisc.io/proposals/orfpx64a32
+Verilog models are done. If somebody is interested in source code it could 
+be found here https://github.com/bandvig/mor1kx/tree/mar
+The functionality isn't tested yet (the reason I haven't pushed it in 
+community's repository), but it is synthesizable.
+In fact I found that even so compiler has got "double-float" option, the 
+disassembled code looks quite strange. For example:
 
-I am new to OpenRISC and have been attempting to use FuseSOC to build a
-system for the Nexys4DRR board.
+/* try_dbl.cpp begin */
 
-I realize there is not a FuseSOC system set up in the official repository,
-but I came across this and it looked promising: https://github.com/
-andrzej-r/orpsoc-cores/tree/nexys4ddr/systems/nexys4ddr
+extern "C" double f64_add(double a, double b)
+{
+  double z;
+  z = a + b;
+  return (z);
+}
 
-I have been attempting to build this and I have run into several problems -
-mostly I think with generating the cores using coregen and logicore.
-
-*Error 1 - Using Coregen to generate project nexys4ddr_ddr2.cgp*
-
-INFO:  Using Coregen to generate project nexys4ddr_ddr2.cgp
-Release 14.7 - Xilinx CORE Generator P.20131013 (lin64)
-Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
-All runtime messages will be recorded in
-/home/marcus/.cache/fusesoc/nexys4ddr_ddr2/coregen.log
-INFO:encore:314 - Created non-GUI application for batch mode execution.
-ERROR:sim:879 - Part 'xc6vlx75t-3ff484' is not valid for component
-   'xilinx.com:ip:mig_7series:1.9'.
-ERROR:sim:918 - Could not create instance of component MIG 7 Series v1.9.
-ERROR: "coregen -r -b nexys4ddr_ddr2.xco -p nexys4ddr_ddr2.cgp" exited with
-an error code.
-ERROR: See stderr for details.
+/* try_dbl.cpp end */
 
 
-I cannot find the location of 'stderr' (unless it is /dev/stderr) and am
-unsure of where to start with solving this error. If I rebuild the system
-for a second time, this error does not occur but a new error arises.
+compile with -O0 and disassemble:
 
-*Error 2 - Using Xilinx Vivado to generate LogiCORE(tm) project
-xilinx_mii_to_rmii.xci*
+$ 
+or1k-elf-gcc -pipe -c -O0 -mhard-mul -mhard-div -mhard-float -mdouble-float  
+-mboard=atlys try_dbl.cpp -o try_dbl.elf
+$ or1k-elf-objdump -d try_dbl.elf > try_dbl.dis
 
-INFO:  Preparing xilinx_mii_to_rmii
-INFO:  Using Xilinx Vivado to generate LogiCORE(tm) project
-xilinx_mii_to_rmii.xci
+Disassembling result:
 
-****** Vivado v2016.2 (64-bit)
-  **** SW Build 1577090 on Thu Jun  2 16:32:35 MDT 2016
-  **** IP Build 1577682 on Fri Jun  3 12:00:54 MDT 2016
-    ** Copyright 1986-2016 Xilinx, Inc. All Rights Reserved.
-
-source xilinx_mii_to_rmii.tcl
-# create_project -force -in_memory xilinx_mii_to_rmii
-# set_property target_language verilog [current_project]
-# set_property part xc7a100tcsg324-1 [current_project]
-# read_ip xilinx_mii_to_rmii.xci
-INFO: [IP_Flow 19-234] Refreshing IP repositories
-INFO: [IP_Flow 19-1704] No user IP repositories specified
-INFO: [IP_Flow 19-2313] Loaded Vivado IP repository
-'/opt/Xilinx/Vivado/2016.2/data/ip'.
-# generate_target -force synthesis [get_files xilinx_mii_to_rmii.xci]
-CRITICAL WARNING: [filemgmt 20-1365] Unable to generate target(s) for the
-following file is locked: /home/marcus/.cache/fusesoc/
-xilinx_mii_to_rmii/xilinx_mii_to_rmii.xci
-Locked reason:
-* IP definition 'Ethernet PHY MII to Reduced MII (2.0)' for IP
-'xilinx_mii_to_rmii' has a different revision in the IP Catalog.
-Please select 'Report IP Status' from the 'Tools/Report' menu or run Tcl
-command 'report_ip_status' for more information.
-INFO: [Common 17-206] Exiting Vivado at Mon Oct 24 14:11:34 2016...
-The text leading up to this was:
---------------------------
-|From a32b1c7380893e7ed890c19e8dd25bc66f226cb3 Mon Sep 17 00:00:00 2001
-|From: Andrzej <ndrwrdck@gmail.com>
-|Date: Thu, 17 Mar 2016 08:30:51 +0000
-|Subject: [PATCH] Switched to work library
-|
-|---
-| mii_to_rmii_v2_0/hdl/src/vhdl/mii_to_rmii.vhd      | 12 ++++++------
-| mii_to_rmii_v2_0/hdl/src/vhdl/rmii_rx_agile.vhd    |  2 +-
-| mii_to_rmii_v2_0/hdl/src/vhdl/rmii_rx_fixed.vhd    |  6 +++---
-| mii_to_rmii_v2_0/hdl/src/vhdl/rmii_tx_agile.vhd    |  2 +-
-| mii_to_rmii_v2_0/hdl/src/vhdl/rmii_tx_fixed.vhd    |  2 +-
-| mii_to_rmii_v2_0/hdl/src/vhdl/rx_fifo.vhd          |  2 +-
-| mii_to_rmii_v2_0/hdl/src/vhdl/rx_fifo_disposer.vhd |  2 +-
-| mii_to_rmii_v2_0/hdl/src/vhdl/rx_fifo_loader.vhd   |  2 +-
-| mii_to_rmii_v2_0/hdl/src/vhdl/srl_fifo.vhd         |  6 +++---
-| 9 files changed, 18 insertions(+), 18 deletions(-)
-| mode change 100755 => 100644 mii_to_rmii_v2_0/hdl/src/vhdl/mii_to_rmii.vhd
-| mode change 100755 => 100644 mii_to_rmii_v2_0/hdl/src/vhdl/
-rmii_rx_agile.vhd
-| mode change 100755 => 100644 mii_to_rmii_v2_0/hdl/src/vhdl/
-rmii_rx_fixed.vhd
-| mode change 100755 => 100644 mii_to_rmii_v2_0/hdl/src/vhdl/
-rmii_tx_agile.vhd
-| mode change 100755 => 100644 mii_to_rmii_v2_0/hdl/src/vhdl/
-rmii_tx_fixed.vhd
-| mode change 100755 => 100644 mii_to_rmii_v2_0/hdl/src/vhdl/rx_fifo.vhd
-| mode change 100755 => 100644 mii_to_rmii_v2_0/hdl/src/vhdl/
-rx_fifo_disposer.vhd
-| mode change 100755 => 100644 mii_to_rmii_v2_0/hdl/src/vhdl/
-rx_fifo_loader.vhd
-| mode change 100755 => 100644 mii_to_rmii_v2_0/hdl/src/vhdl/srl_fifo.vhd
-|
-|diff --git a/mii_to_rmii_v2_0/hdl/src/vhdl/mii_to_rmii.vhd
-b/mii_to_rmii_v2_0/hdl/src/vhdl/mii_to_rmii.vhd
-|old mode 100755
-|new mode 100644
-|index f8d34fa..ba59ec0
-|--- a/mii_to_rmii_v2_0/hdl/src/vhdl/mii_to_rmii.vhd
-|+++ b/mii_to_rmii_v2_0/hdl/src/vhdl/mii_to_rmii.vhd
---------------------------
-File to patch:
+00000000 <f64_add>:
+   0:    d7 e1 17 fc     l.sw -4(r1),r2
+   4:    9c 41 00 00     l.addi r2,r1,0
+   8:    9c 21 ff e4     l.addi r1,r1,-28
+   c:    d7 e2 1f ec     l.sw -20(r2),r3
+  10:    d7 e2 27 f0     l.sw -16(r2),r4
+  14:    d7 e2 2f e4     l.sw -28(r2),r5
+  18:    d7 e2 37 e8     l.sw -24(r2),r6
+  1c:    84 a2 ff ec     l.lwz r5,-20(r2)
+  20:    84 c2 ff f0     l.lwz r6,-16(r2)
+  24:    84 62 ff e4     l.lwz r3,-28(r2)
+  28:    84 82 ff e8     l.lwz r4,-24(r2)
+  2c:    c8 60 00 10     lf.add.d r3,r3,r3
+  30:    d7 e2 1f f4     l.sw -12(r2),r3
+  34:    d7 e2 27 f8     l.sw -8(r2),r4
+  38:    84 62 ff f4     l.lwz r3,-12(r2)
+  3c:    84 82 ff f8     l.lwz r4,-8(r2)
+  40:    e1 63 00 04     l.or r11,r3,r0
+  44:    e1 84 00 04     l.or r12,r4,r0
+  48:    a8 22 00 00     l.ori r1,r2,0x0
+  4c:    84 41 ff fc     l.lwz r2,-4(r1)
+  50:    44 00 48 00     l.jr r9
+  54:    15 00 00 00     l.nop 0x0
 
 
-When building the* '**xilinx_mii_to_rmii' *core, LogiCORE requests many
-patches. I gives me the opportunity to enter the location of a file which
-is a patch for the core. From looking at the source directory which I
-linked to earlier it might be easier to see what is going on: (
-https://github.com/andrzej-r/orpsoc-cores/tree/nexys4ddr/
-cores/xilinx_mii_to_rmii)
+Compiling with -O2. Disassembling result:
 
-If anyone could point me in the right direction on getting an OpenRISC SOC
-to run on the nexys4ddr or in troubleshooting the above problems I would be
-very grateful!
+00000000 <f64_add>:
+   0:    d7 e1 0f fc     l.sw -4(r1),r1
+   4:    9c 21 ff fc     l.addi r1,r1,-4
+   8:    c8 a0 00 10     lf.add.d r5,r5,r5
+   c:    9c 21 00 04     l.addi r1,r1,4
+  10:    44 00 48 00     l.jr r9
+  14:    84 21 ff fc     l.lwz r1,-4(r1)
 
-Thanks
 
-Marcus
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20161024/3ff32fee/attachment.html>
+I think the best result should look like:
+
+  lf.add.d r11,r3,r5  /* {r11,r12} <- {r3,r4} + {r5,r6} */
+  l.jr r9
+  l.nop 0x0
+
+Any case lf.add.d arguments look incorrectly.
+
+Could anybody make some comments on double instruction implementation status 
+in OR1K gcc port?
+
+Andrey 
+
+
