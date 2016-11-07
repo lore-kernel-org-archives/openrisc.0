@@ -1,36 +1,64 @@
-From: Marcus Swift <marcus_swift@crevinn.com>
-Date: Mon, 7 Nov 2016 16:23:30 +0000
+From: Stefan Wallentowitz <stefan@wallentowitz.de>
+Date: Mon, 7 Nov 2016 19:24:06 +0100
 Subject: [OpenRISC] Nexys4DDR and OpenRISC
 In-Reply-To: <CA+2xKH_FCLWPB_r=oP5OkCgttWrzWNeaz7bE0Gk5oos4LjQJGg@mail.gmail.com>
 References: <CA+2xKH_FCLWPB_r=oP5OkCgttWrzWNeaz7bE0Gk5oos4LjQJGg@mail.gmail.com>
-Message-ID: <CA+2xKH-Bryc3MXAfCiRAABrgqstvfSCeGJLTMmCfB+mXGymRcg@mail.gmail.com>
+Message-ID: <62626c02-f6d5-acfa-9fb6-751d9fec76b5@wallentowitz.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="windows-1250"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-SGkgYWxsLAoKSSBoYXZlIHNvbHZlZCB0aGUgZmlyc3QgcHJvYmxlbSBpbnZvbHZpbmcgKkNvcmVn
-ZW4gdG8gZ2VuZXJhdGUgcnRsIGZyb20KcHJvamVjdCBuZXh5czRkZHJfZGRyMi5jZ3AqLCBUaGUg
-cHJvYmxlbSB3YXMgdGhhdCB0aGUgLmNncCBmaWxlIHdhcwpjb25maWd1cmVkIGZvciBhIGRpZmZl
-cmVudCBib2FyZC4gQnkgY2hhbmdpbmcgdGhlIGZpbGUgdG8gYmUgYXMgc2hvd24gYmVsb3cKdGhl
-IHByb2JsZW0gaXMgb3ZlcmNvbWUuCgoqKioqKioqKioqKioqKioqKioqKioqKiogbmV4eXM0ZGRy
-X2RkcjIuY2dwICoqKioqKioqKioqKioqKioqKioqKioqKgojIERhdGU6IE1vbiBOb3YgNyAxMjo1
-Njo1MyAyMDE2CgpTRVQgYWRkcGFkcyA9IGZhbHNlClNFVCBhc3lzeW1ib2wgPSB0cnVlClNFVCBi
-dXNmb3JtYXQgPSBCdXNGb3JtYXRBbmdsZUJyYWNrZXROb3RSaXBwZWQKU0VUIGNyZWF0ZW5kZiA9
-IGZhbHNlClNFVCBkZXNpZ25lbnRyeSA9IFZIREwKU0VUIGRldmljZSA9IHhjN2ExMDB0ClNFVCBk
-ZXZpY2VmYW1pbHkgPSBhcnRpeDcKU0VUIGZsb3d2ZW5kb3IgPSBPdGhlcgpTRVQgZm9ybWFsdmVy
-aWZpY2F0aW9uID0gZmFsc2UKU0VUIGZvdW5kYXRpb25zeW0gPSBmYWxzZQpTRVQgaW1wbGVtZW50
-YXRpb25maWxldHlwZSA9IE5nYwpTRVQgcGFja2FnZSA9IGNzZzMyNApTRVQgcmVtb3ZlcnBtcyA9
-IGZhbHNlClNFVCBzaW11bGF0aW9uZmlsZXMgPSBCZWhhdmlvcmFsClNFVCBzcGVlZGdyYWRlID0g
-LTEKU0VUIHZlcmlsb2dzaW0gPSBmYWxzZQpTRVQgdmhkbHNpbSA9IHRydWUKU0VUIHdvcmtpbmdk
-aXJlY3RvcnkgPSAuL3RtcC8KCiMgQ1JDOiA2M2U2YWEzYgoqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKgoKSWYg
-YW55b25lIGtub3dzIGhvdyB0byBnZXQgdml2YWRvcyBsb2dpY29yZSB0byBjcmVhdGUgdGhlCip4
-aWxpbnhfbWlpX3RvX3JtaWkueGNpCipydGwgeW91ciBpbnB1dCB3b3VsZCBiZSBtdWNoIGFwcHJl
-Y2lhdGVkIQoKT3IgaWYgYW55b25lIGNvdWxkIHBvaW50IG1lIGluIHRoZSByaWdodCBkaXJlY3Rp
-b24gaW4gdGVybXMgb2YgaG93IHRvIGdldApPcGVuUklTQyB0byBydW4gb24gdGhlIE5leHVzNERE
-UiBwbGVhc2UgZG8gZ2V0IGluIHRvdWNoLgoKUmVnYXJkcywKCk1hcmN1c+KAiwotLS0tLS0tLS0t
-LS0tLSBuZXh0IHBhcnQgLS0tLS0tLS0tLS0tLS0KQW4gSFRNTCBhdHRhY2htZW50IHdhcyBzY3J1
-YmJlZC4uLgpVUkw6IDxodHRwOi8vbGlzdHMubGlicmVjb3Jlcy5vcmcvcGlwZXJtYWlsL29wZW5y
-aXNjL2F0dGFjaG1lbnRzLzIwMTYxMTA3L2I4YjJiZWEwL2F0dGFjaG1lbnQuaHRtbD4K
+On 24.10.2016 16:56, Marcus Swift wrote:
+> Hi all,
+> 
+> I am new to OpenRISC and have been attempting to use FuseSOC to build a
+> system for the Nexys4DRR board.
+> 
+> [..]
+>
+> If anyone could point me in the right direction on getting an OpenRISC
+> SOC to run on the nexys4ddr or in troubleshooting the above problems I
+> would be very grateful!
+
+Hi,
+
+in OpTiMSoC we used Xilinx Vivado directly to generate the core. In my
+humble opinion thats the most sane way. You end up with AXI ports then
+unfortunately, but handling that in the proper clock domain is probably
+easier than what you are facing and the "user interface" of MIG.
+
+This is the fusesoc core file:
+https://github.com/optimsoc/sources/blob/master/external/extra_cores/boards/nexys4ddr/nexys4ddr-ddr.core
+
+The xci is what I generated in Vivado:
+https://github.com/optimsoc/sources/blob/master/external/extra_cores/boards/nexys4ddr/ip/mig_7series.xci
+
+And a data file comes along:
+https://github.com/optimsoc/sources/blob/master/external/extra_cores/boards/nexys4ddr/ip/mig_config.prj
+
+If anything needs to be changed, you should generate, customize and then
+write back to the xci and prj files.
+
+We then have an abstraction layer (sorry, this is something I plan to
+extend and standardize for months now):
+https://github.com/optimsoc/sources/blob/master/external/extra_cores/boards/nexys4ddr/rtl/verilog/nexys4ddr.sv
+
+You can see the mig instantiated there. Beside that I have written a
+very, very, very simple wb2axi, that does not support anything except
+two-cycle accesses (no bursts). But that may be a good start and I would
+be happy to assist extensions (planned: i. register, ii. bursts).
+
+I hope that helps a little bit.
+
+Cheers,
+Stefan
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 181 bytes
+Desc: OpenPGP digital signature
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20161107/6f5ae1d3/attachment.sig>
