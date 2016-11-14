@@ -1,47 +1,96 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 14 Nov 2016 22:30:39 +0900
-Subject: [OpenRISC] [PATCH v2 9/9] openrisc: include l.swa in check for
-	write data pagefault
+Date: Mon, 14 Nov 2016 22:30:38 +0900
+Subject: [OpenRISC] [PATCH v2 8/9] openrisc: Updates after openrisc.net has
+	been lost
 In-Reply-To: <1479130239-30707-1-git-send-email-shorne@gmail.com>
 References: <1479130239-30707-1-git-send-email-shorne@gmail.com>
-Message-ID: <a9fae5563e34217ff99efafde7e7bf607a5d5ec6.1479128947.git.shorne@gmail.com>
+Message-ID: <85a10b7601c10dc0cf710f69d5729bf1871de22c.1479128947.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+The openrisc.net domain expired and was taken over by squatters.
+These updates point documentation to the new domain, mailing lists
+and git repos.
 
-During page fault handling we check the last instruction to understand
-if the fault was for a read or for a write.  By default we fall back to
-read.  New instructions were added to the openrisc 1.1 spec for an
-atomic load/store pair (l.lwa/l.swa).
-
-This patch adds the opcode for l.swa (0x33) allowing it to be treated as
-a write operation.
-
-Signed-off-by: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-[shorne at gmail.com: expanded a bit on the comment]
+Also, Jonas is not the main maintainer anylonger, he reviews changes
+but does not maintain a repo or sent pull requests.  Updating this to
+add Stafford and Stefan who are the active maintainers.
 
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/kernel/entry.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ MAINTAINERS                   | 6 ++++--
+ arch/openrisc/README.openrisc | 8 ++++----
+ arch/openrisc/kernel/setup.c  | 2 +-
+ 3 files changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
-index 572d223..aac0bde 100644
---- a/arch/openrisc/kernel/entry.S
-+++ b/arch/openrisc/kernel/entry.S
-@@ -264,7 +264,7 @@ EXCEPTION_ENTRY(_data_page_fault_handler)
- 	l.srli  r6,r6,26                   // check opcode for write access
- #endif
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 851b89b..d84a585 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8958,9 +8958,11 @@ F:	drivers/of/resolver.c
  
--	l.sfgeui r6,0x34		   // check opcode for write access
-+	l.sfgeui r6,0x33		   // check opcode for write access
- 	l.bnf   1f
- 	l.sfleui r6,0x37
- 	l.bnf   1f
+ OPENRISC ARCHITECTURE
+ M:	Jonas Bonn <jonas@southpole.se>
+-W:	http://openrisc.net
++M:	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
++M:	Stafford Horne <shorne@gmail.com>
++L:	openrisc at lists.librecores.org
++W:	http://openrisc.io
+ S:	Maintained
+-T:	git git://openrisc.net/~jonas/linux
+ F:	arch/openrisc/
+ 
+ OPENVSWITCH
+diff --git a/arch/openrisc/README.openrisc b/arch/openrisc/README.openrisc
+index c9f7edf..072069a 100644
+--- a/arch/openrisc/README.openrisc
++++ b/arch/openrisc/README.openrisc
+@@ -6,7 +6,7 @@ target architecture, specifically, is the 32-bit OpenRISC 1000 family (or1k).
+ 
+ For information about OpenRISC processors and ongoing development:
+ 
+-	website		http://openrisc.net
++	website		http://openrisc.io
+ 
+ For more information about Linux on OpenRISC, please contact South Pole AB.
+ 
+@@ -24,17 +24,17 @@ In order to build and run Linux for OpenRISC, you'll need at least a basic
+ toolchain and, perhaps, the architectural simulator.  Steps to get these bits
+ in place are outlined here.
+ 
+-1)  The toolchain can be obtained from openrisc.net.  Instructions for building
++1)  The toolchain can be obtained from openrisc.io.  Instructions for building
+ a toolchain can be found at:
+ 
+-http://openrisc.net/toolchain-build.html
++https://github.com/openrisc/tutorials
+ 
+ 2) or1ksim (optional)
+ 
+ or1ksim is the architectural simulator which will allow you to actually run
+ your OpenRISC Linux kernel if you don't have an OpenRISC processor at hand.
+ 
+-	git clone git://openrisc.net/jonas/or1ksim-svn
++	git clone https://github.com/openrisc/or1ksim.git
+ 
+ 	cd or1ksim
+ 	./configure --prefix=$OPENRISC_PREFIX
+diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
+index 6329d7a..cb797a3 100644
+--- a/arch/openrisc/kernel/setup.c
++++ b/arch/openrisc/kernel/setup.c
+@@ -295,7 +295,7 @@ void __init setup_arch(char **cmdline_p)
+ 
+ 	*cmdline_p = boot_command_line;
+ 
+-	printk(KERN_INFO "OpenRISC Linux -- http://openrisc.net\n");
++	printk(KERN_INFO "OpenRISC Linux -- http://openrisc.io\n");
+ }
+ 
+ static int show_cpuinfo(struct seq_file *m, void *v)
 -- 
 2.7.4
 
