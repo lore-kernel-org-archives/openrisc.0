@@ -1,62 +1,80 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 14 Nov 2016 22:30:36 +0900
-Subject: [OpenRISC] [PATCH v2 6/9] openrisc: remove the redundant
-	of_platform_populate
-In-Reply-To: <1479130239-30707-1-git-send-email-shorne@gmail.com>
-References: <1479130239-30707-1-git-send-email-shorne@gmail.com>
-Message-ID: <8229b02de46da492810331e374cf2a3f8731e2bb.1479128947.git.shorne@gmail.com>
+Date: Mon, 14 Nov 2016 22:30:30 +0900
+Subject: [OpenRISC] [PATCH v2 0/9] openrisc: Misc fixes from backlog
+Message-ID: <1479130239-30707-1-git-send-email-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-From: Rob Herring <robh@kernel.org>
+Hello,
 
-The of_platform_populate call in the openrisc arch code is now redundant
-as the DT core provides a default call. Openrisc has a NULL match table
-which means only top level nodes with compatible strings will have
-devices creates. The default version will also descend nodes in the
-match table such as "simple-bus" which should be fine as openrisc
-doesn't have any of these (though it is preferred that memory-mapped
-peripherals be grouped under a bus node(s)).
+This patch is a small set of fixes from the openrisc backlog. These
+changes fix several issues with the openrisc build on modern tool chains
+and address other issues which have cropped up as the kernel has been
+getting updated.
 
-Signed-off-by: Rob Herring <robh@kernel.org>
-Cc: Jonas Bonn <jonas@southpole.se>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- arch/openrisc/kernel/setup.c | 10 ----------
- 1 file changed, 10 deletions(-)
+Consider for Pull:
 
-diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
-index b4ed8b3..d2f78cf 100644
---- a/arch/openrisc/kernel/setup.c
-+++ b/arch/openrisc/kernel/setup.c
-@@ -38,7 +38,6 @@
- #include <linux/of.h>
- #include <linux/memblock.h>
- #include <linux/device.h>
--#include <linux/of_platform.h>
- 
- #include <asm/sections.h>
- #include <asm/segment.h>
-@@ -219,15 +218,6 @@ void __init or32_early_setup(void *fdt)
- 	early_init_devtree(fdt);
- }
- 
--static int __init openrisc_device_probe(void)
--{
--	of_platform_populate(NULL, NULL, NULL, NULL);
--
--	return 0;
--}
--
--device_initcall(openrisc_device_probe);
--
- static inline unsigned long extract_value_bits(unsigned long reg,
- 					       short bit_nr, short width)
- {
+The following changes since commit a25f0944ba9b1d8a6813fd6f1a86f1bd59ac25a6:
+
+  Linux 4.9-rc5 (2016-11-13 10:32:32 -0800)
+
+are available in the git repository at:
+
+  https://github.com/stffrdhrn/linux.git tags/or1k-fixes-4.9
+
+for you to fetch changes up to a9fae5563e34217ff99efafde7e7bf607a5d5ec6:
+
+  openrisc: include l.swa in check for write data pagefault (2016-11-14 21:58:33 +0900)
+
+Regards,
+ Stafford
+
+Changes since V1:
+ - Removed SMP option patch and replaced with NR_CPUS default value
+ - Removed Apply transparent_union on semun patch as its handled by libc
+ - Added memblock patch as suggested by Jonas
+ - Added MAINTAINERS patch as suggested by Guenter
+ - Added l.swa patch as its needed to fix musl programs
+ - Improved commit message on rt_sigreturn patch
+
+Christian Svensson (1):
+  openrisc: Add thread-local storage (TLS) support
+
+Guenter Roeck (1):
+  openrisc: Support both old (or32) and new (or1k) toolchain
+
+Jonas Bonn (1):
+  openrisc: restore all regs on rt_sigreturn
+
+Rob Herring (1):
+  openrisc: remove the redundant of_platform_populate
+
+Stafford Horne (3):
+  openrisc: add NR_CPUS Kconfig default value
+  openrisc: Consolidate setup to use memblock instead of bootmem
+  openrisc: Updates after openrisc.net has been lost
+
+Stefan Kristiansson (2):
+  openrisc: fix PTRS_PER_PGD define
+  openrisc: include l.swa in check for write data pagefault
+
+ MAINTAINERS                         |  6 +++--
+ arch/openrisc/Kconfig               |  4 ++++
+ arch/openrisc/README.openrisc       |  8 +++----
+ arch/openrisc/TODO.openrisc         |  3 ---
+ arch/openrisc/include/asm/pgalloc.h |  1 -
+ arch/openrisc/include/asm/pgtable.h |  2 +-
+ arch/openrisc/kernel/entry.S        | 12 ++++++++--
+ arch/openrisc/kernel/process.c      | 13 ++++++++++
+ arch/openrisc/kernel/setup.c        | 48 ++++++++++---------------------------
+ arch/openrisc/kernel/vmlinux.lds.S  |  8 ++++++-
+ arch/openrisc/mm/init.c             |  4 ++--
+ arch/openrisc/mm/ioremap.c          |  4 ----
+ 12 files changed, 58 insertions(+), 55 deletions(-)
+
 -- 
 2.7.4
 
