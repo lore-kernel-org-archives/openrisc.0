@@ -1,64 +1,63 @@
-From: Stefan Wallentowitz <stefan@wallentowitz.de>
-Date: Mon, 7 Nov 2016 19:24:06 +0100
-Subject: [OpenRISC] Nexys4DDR and OpenRISC
-In-Reply-To: <CA+2xKH_FCLWPB_r=oP5OkCgttWrzWNeaz7bE0Gk5oos4LjQJGg@mail.gmail.com>
-References: <CA+2xKH_FCLWPB_r=oP5OkCgttWrzWNeaz7bE0Gk5oos4LjQJGg@mail.gmail.com>
-Message-ID: <62626c02-f6d5-acfa-9fb6-751d9fec76b5@wallentowitz.de>
+From: Stafford Horne <shorne@gmail.com>
+Date: Mon, 14 Nov 2016 22:30:31 +0900
+Subject: [OpenRISC] [PATCH v2 1/9] openrisc: fix PTRS_PER_PGD define
+In-Reply-To: <1479130239-30707-1-git-send-email-shorne@gmail.com>
+References: <1479130239-30707-1-git-send-email-shorne@gmail.com>
+Message-ID: <80c23bdfab23b1939c3ab8e382d4cdb251a732e1.1479128947.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 24.10.2016 16:56, Marcus Swift wrote:
-> Hi all,
-> 
-> I am new to OpenRISC and have been attempting to use FuseSOC to build a
-> system for the Nexys4DRR board.
-> 
-> [..]
->
-> If anyone could point me in the right direction on getting an OpenRISC
-> SOC to run on the nexys4ddr or in troubleshooting the above problems I
-> would be very grateful!
+From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
 
-Hi,
+On OpenRISC, with its 8k pages, PAGE_SHIFT is defined to be 13.
+That makes the expression (1UL << (PAGE_SHIFT-2)) evaluate
+to 2048.
+The correct value for PTRS_PER_PGD should be 256.
 
-in OpTiMSoC we used Xilinx Vivado directly to generate the core. In my
-humble opinion thats the most sane way. You end up with AXI ports then
-unfortunately, but handling that in the proper clock domain is probably
-easier than what you are facing and the "user interface" of MIG.
+Correcting the PTRS_PER_PGD define unveiled a bug in map_ram(),
+where PTRS_PER_PGD was used when the intent was to iterate
+over a set of page table entries.
+This patch corrects that issue as well.
 
-This is the fusesoc core file:
-https://github.com/optimsoc/sources/blob/master/external/extra_cores/boards/nexys4ddr/nexys4ddr-ddr.core
+Signed-off-by: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+Acked-by: Jonas Bonn <jonas@southpole.se>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+---
+ arch/openrisc/include/asm/pgtable.h | 2 +-
+ arch/openrisc/mm/init.c             | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-The xci is what I generated in Vivado:
-https://github.com/optimsoc/sources/blob/master/external/extra_cores/boards/nexys4ddr/ip/mig_7series.xci
+diff --git a/arch/openrisc/include/asm/pgtable.h b/arch/openrisc/include/asm/pgtable.h
+index 69c7df0..3567aa7 100644
+--- a/arch/openrisc/include/asm/pgtable.h
++++ b/arch/openrisc/include/asm/pgtable.h
+@@ -69,7 +69,7 @@ extern void paging_init(void);
+  */
+ #define PTRS_PER_PTE	(1UL << (PAGE_SHIFT-2))
+ 
+-#define PTRS_PER_PGD	(1UL << (PAGE_SHIFT-2))
++#define PTRS_PER_PGD	(1UL << (32-PGDIR_SHIFT))
+ 
+ /* calculate how many PGD entries a user-level program can use
+  * the first mappable virtual address is 0
+diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
+index 7f94652..b782ce9 100644
+--- a/arch/openrisc/mm/init.c
++++ b/arch/openrisc/mm/init.c
+@@ -110,7 +110,7 @@ static void __init map_ram(void)
+ 			set_pmd(pme, __pmd(_KERNPG_TABLE + __pa(pte)));
+ 
+ 			/* Fill the newly allocated page with PTE'S */
+-			for (j = 0; p < e && j < PTRS_PER_PGD;
++			for (j = 0; p < e && j < PTRS_PER_PTE;
+ 			     v += PAGE_SIZE, p += PAGE_SIZE, j++, pte++) {
+ 				if (v >= (u32) _e_kernel_ro ||
+ 				    v < (u32) _s_kernel_ro)
+-- 
+2.7.4
 
-And a data file comes along:
-https://github.com/optimsoc/sources/blob/master/external/extra_cores/boards/nexys4ddr/ip/mig_config.prj
 
-If anything needs to be changed, you should generate, customize and then
-write back to the xci and prj files.
-
-We then have an abstraction layer (sorry, this is something I plan to
-extend and standardize for months now):
-https://github.com/optimsoc/sources/blob/master/external/extra_cores/boards/nexys4ddr/rtl/verilog/nexys4ddr.sv
-
-You can see the mig instantiated there. Beside that I have written a
-very, very, very simple wb2axi, that does not support anything except
-two-cycle accesses (no bursts). But that may be a good start and I would
-be happy to assist extensions (planned: i. register, ii. bursts).
-
-I hope that helps a little bit.
-
-Cheers,
-Stefan
-
--------------- next part --------------
-A non-text attachment was scrubbed...
-Name: signature.asc
-Type: application/pgp-signature
-Size: 181 bytes
-Desc: OpenPGP digital signature
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20161107/6f5ae1d3/attachment.sig>
