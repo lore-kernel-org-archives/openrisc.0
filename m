@@ -1,61 +1,39 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 14 Nov 2016 22:30:32 +0900
-Subject: [OpenRISC] [PATCH v2 2/9] openrisc: restore all regs on rt_sigreturn
+Date: Mon, 14 Nov 2016 22:30:35 +0900
+Subject: [OpenRISC] [PATCH v2 5/9] openrisc: add NR_CPUS Kconfig default
+	value
 In-Reply-To: <1479130239-30707-1-git-send-email-shorne@gmail.com>
 References: <1479130239-30707-1-git-send-email-shorne@gmail.com>
-Message-ID: <5c3fa1c5a426801ddf8a31730c24b749b285fab4.1479128947.git.shorne@gmail.com>
+Message-ID: <1e0020e0c4f622c7a386b50cd37f51e7d67814b4.1479128947.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-From: Jonas Bonn <jonas@southpole.se>
+The build system now expects that NR_CPUS is defined.
 
-Fix signal handling for when signals are handled as the result of timers
-or exceptions, previous code assumed syscalls. This was noticeable with X
-crashing where it uses SIGALRM.
-
-This patch restores all regs before returning to userspace via
-_resume_userspace instead of via syscall return path.
-
-The rt_sigreturn syscall is more like a context switch than a function
-call; it entails a return from one context (the signal handler) to another
-(the process in question).  For a context switch like this there are
-effectively no call-saved regs that remain constant across the transition.
-
-Reported-by: Sebastian Macke <sebastian@macke.de>
-Signed-off-by: Jonas Bonn <jonas@southpole.se>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-[shorne at gmail.com: Updated comment better reflect change and issue]
+Follow 4cbbbb4 ("microblaze: Fix missing NR_CPUS in menuconfig")
 
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/kernel/entry.S | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ arch/openrisc/Kconfig | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
-index fec8bf9..572d223 100644
---- a/arch/openrisc/kernel/entry.S
-+++ b/arch/openrisc/kernel/entry.S
-@@ -1101,8 +1101,16 @@ ENTRY(__sys_fork)
- 	 l.addi	r3,r1,0
+diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+index 489e7f9..691e1af 100644
+--- a/arch/openrisc/Kconfig
++++ b/arch/openrisc/Kconfig
+@@ -98,6 +98,9 @@ config OPENRISC_HAVE_INST_DIV
+ 	  Select this if your implementation has a hardware divide instruction
+ endmenu
  
- ENTRY(sys_rt_sigreturn)
--	l.j	_sys_rt_sigreturn
-+	l.jal	_sys_rt_sigreturn
- 	 l.addi	r3,r1,0
-+	l.sfne	r30,r0
-+	l.bnf	_no_syscall_trace
-+	 l.nop
-+	l.jal	do_syscall_trace_leave
-+	 l.addi	r3,r1,0
-+_no_syscall_trace:
-+	l.j	_resume_userspace
-+	 l.nop
++config NR_CPUS
++	int
++	default "1"
  
- /* This is a catch-all syscall for atomic instructions for the OpenRISC 1000.
-  * The functions takes a variable number of parameters depending on which
+ source kernel/Kconfig.hz
+ source kernel/Kconfig.preempt
 -- 
 2.7.4
 
