@@ -1,38 +1,76 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 24 Nov 2016 07:10:35 +0900
-Subject: [OpenRISC] [PATCH 09/18] gdb: or1k: Silence gcc warning
+Date: Thu, 24 Nov 2016 07:10:37 +0900
+Subject: [OpenRISC] [PATCH 11/18] Add gdb for or1k build
 In-Reply-To: <1479939044-1341-1-git-send-email-shorne@gmail.com>
 References: <1479939044-1341-1-git-send-email-shorne@gmail.com>
-Message-ID: <1479939044-1341-10-git-send-email-shorne@gmail.com>
+Message-ID: <1479939044-1341-12-git-send-email-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+From: Stefan Wallentowitz <stefan@wallentowitz.de>
 
-gdb/ChangeLog:
+* ChangeLog:
 
-	* or1k-tdep.c (or1k_regset_from_core_section) : Silence gcc warning
-	by using %z format for size_t.
+	* configure.ac: remove logic adding gdb to noconfigsdirs for or1k
+	* configure: regenerate
 ---
- gdb/or1k-tdep.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ configure    | 7 -------
+ configure.ac | 7 -------
+ 2 files changed, 14 deletions(-)
 
-diff --git a/gdb/or1k-tdep.c b/gdb/or1k-tdep.c
-index 81bb541..f938077 100644
---- a/gdb/or1k-tdep.c
-+++ b/gdb/or1k-tdep.c
-@@ -1868,7 +1868,7 @@ or1k_regset_from_core_section (struct gdbarch *gdbarch,
- 			       const char     *sect_name,
- 			       size_t          sect_size)
- {
--  printf ("sect_name \"%s\", sect_size %d\n", sect_name, sect_size);
-+  printf ("sect_name \"%s\", sect_size %zd\n", sect_name, sect_size);
-   return NULL;
- 
- }	/* or1k_regset_from_core_section () */
+diff --git a/configure b/configure
+index a5f4fc5..0a23491 100755
+--- a/configure
++++ b/configure
+@@ -3729,10 +3729,6 @@ case "${target}" in
+     ;;
+   *-*-rtems*)
+     noconfigdirs="$noconfigdirs target-libgloss"
+-    # this is not caught below because this stanza matches earlier
+-    case $target in
+-      or1k*-*-*) noconfigdirs="$noconfigdirs gdb" ;;
+-    esac
+     ;;
+     # The tpf target doesn't support gdb yet.
+   *-*-tpf*)
+@@ -3940,9 +3936,6 @@ case "${target}" in
+   nvptx*-*-*)
+     noconfigdirs="$noconfigdirs target-libssp target-libstdc++-v3 target-libobjc"
+     ;;
+-  or1k*-*-*)
+-    noconfigdirs="$noconfigdirs gdb"
+-    ;;
+   sh-*-* | sh64-*-*)
+     case "${target}" in
+       sh*-*-elf)
+diff --git a/configure.ac b/configure.ac
+index a27985c..ddaab5a 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1065,10 +1065,6 @@ case "${target}" in
+     ;;
+   *-*-rtems*)
+     noconfigdirs="$noconfigdirs target-libgloss"
+-    # this is not caught below because this stanza matches earlier
+-    case $target in
+-      or1k*-*-*) noconfigdirs="$noconfigdirs gdb" ;;
+-    esac
+     ;;
+     # The tpf target doesn't support gdb yet.
+   *-*-tpf*)
+@@ -1276,9 +1272,6 @@ case "${target}" in
+   nvptx*-*-*)
+     noconfigdirs="$noconfigdirs target-libssp target-libstdc++-v3 target-libobjc"
+     ;;
+-  or1k*-*-*)
+-    noconfigdirs="$noconfigdirs gdb"
+-    ;;
+   sh-*-* | sh64-*-*)
+     case "${target}" in
+       sh*-*-elf)
 -- 
 2.7.4
 
