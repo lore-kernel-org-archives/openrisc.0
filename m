@@ -1,10 +1,9 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 24 Nov 2016 07:10:29 +0900
-Subject: [OpenRISC] [PATCH 03/18] gdb: or1k: Add or1k_push_dummy_code and
-	use it.
+Date: Thu, 24 Nov 2016 07:10:30 +0900
+Subject: [OpenRISC] [PATCH 04/18] gdb: add tdesc_find_register functions
 In-Reply-To: <1479939044-1341-1-git-send-email-shorne@gmail.com>
 References: <1479939044-1341-1-git-send-email-shorne@gmail.com>
-Message-ID: <1479939044-1341-4-git-send-email-shorne@gmail.com>
+Message-ID: <1479939044-1341-5-git-send-email-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,79 +12,96 @@ To: openrisc@lists.librecores.org
 
 From: Franck Jullien <franck.jullien@gmail.com>
 
+In order to get registers names and groups from the target descriptor
+file, some new functions are needed.
+
+This patch adds:
+
+- tdesc_find_register_name: Search FEATURE for a register REGNO and
+  return its name.
+
+- tdesc_find_register_group_name: Search FEATURE for a register
+  REGNO and return its group name.
+
 gdb/ChangeLog:
 
-	* or1k-tdep.c (or1k_push_dummy_code): New function.
- 	(or1k_gdbarch_init): Override default behavior and call dummy
-	from the stack. Set the push_dummy_code handler to
-	or1k_push_dummy_code.
-
-Signed-off-by: Franck Jullien <franck.jullien@gmail.com>
+	* target-descriptions.c: (tdesc_find_register_name) create
+	(tdesc_find_register_group_name) create
+	* target-descriptions.h: (tdesc_find_register_name) create
+	(tdesc_find_register_group_name) create
 ---
- gdb/or1k-tdep.c | 43 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 43 insertions(+)
+ gdb/target-descriptions.c | 34 ++++++++++++++++++++++++++++++++++
+ gdb/target-descriptions.h | 12 ++++++++++++
+ 2 files changed, 46 insertions(+)
 
-diff --git a/gdb/or1k-tdep.c b/gdb/or1k-tdep.c
-index 55b9522..d660a39 100644
---- a/gdb/or1k-tdep.c
-+++ b/gdb/or1k-tdep.c
-@@ -1112,6 +1112,47 @@ or1k_unwind_sp (struct gdbarch    *gdbarch,
+diff --git a/gdb/target-descriptions.c b/gdb/target-descriptions.c
+index 40f0478..18c39cd 100644
+--- a/gdb/target-descriptions.c
++++ b/gdb/target-descriptions.c
+@@ -900,6 +900,40 @@ tdesc_numbered_register (const struct tdesc_feature *feature,
+   return 1;
+ }
  
- }	/* or1k_unwind_sp() */
- 
-+/*----------------------------------------------------------------------------*/
-+/*!Provides return address for dummy call
-+
-+   Provides an address on the stack where to put a breakpoint as return
-+   address for function. bp_addr is the address to which the function should
-+   return (which is breakpointed, so gdb can regain control, hence the name).
-+
-+   @param[in] gdbarch        The architecture to use
-+   @param[in] sp             The stack pointer
-+   @param[in] function       Pointer to the function that will be called
-+   @param[in] args           The arguments
-+   @param[in] nargs          Number of ags to push
-+   @param[in] value_type     Type of the function result
-+   @param[in] real_pc        Resume address
-+   @param[in] bp_addr        Breakpoint address
-+   @param[in] regcache       The register cache to use
-+
-+   @return  The breakpoint address */
-+/*---------------------------------------------------------------------------*/
-+
-+static CORE_ADDR
-+or1k_push_dummy_code (struct gdbarch *gdbarch,
-+		      CORE_ADDR sp,
-+		      CORE_ADDR function,
-+		      struct value **args,
-+		      int nargs,
-+		      struct type *value_type,
-+		      CORE_ADDR *real_pc,
-+		      CORE_ADDR *bp_addr,
-+		      struct regcache *regcache)
++/* Search FEATURE for a register REGNO and return its name. */
++char *
++tdesc_find_register_name (const struct tdesc_feature *feature,
++			   int regno)
 +{
-+  /* Allocate space sufficient for a breakpoint, keeping the stack aligned.  */
-+  sp = (sp - 4) & ~15;
-+  /* Store the address of that breakpoint */
-+  *bp_addr = sp;
-+  /* The call starts at the callee's entry point.  */
-+  *real_pc = function;
++  int ixr;
++  struct tdesc_reg *reg;
 +
-+  return sp;
++  for (ixr = 0;
++       VEC_iterate (tdesc_reg_p, feature->registers, ixr, reg);
++       ixr++)
++    if (ixr == regno)
++      return reg->name;
 +
-+}	/* or1k_push_dummy_code() */
++  return NULL;
++}
++
++/* Search FEATURE for a register REGNO and return its group name. */
++char *
++tdesc_find_register_group_name (const struct tdesc_feature *feature,
++			   int regno)
++{
++  int ixr;
++  struct tdesc_reg *reg;
++
++  for (ixr = 0;
++       VEC_iterate (tdesc_reg_p, feature->registers, ixr, reg);
++       ixr++)
++    if (ixr == regno)
++      return reg->group;
++
++  return NULL;
++}
++
+ /* Search FEATURE for a register named NAME, but do not assign a fixed
+    register number to it.  */
  
- /*----------------------------------------------------------------------------*/
- /*!Create a dummy stack frame
-@@ -1888,6 +1929,8 @@ or1k_gdbarch_init (struct gdbarch_info  info,
-   set_gdbarch_unwind_sp             (gdbarch, or1k_unwind_sp);
+diff --git a/gdb/target-descriptions.h b/gdb/target-descriptions.h
+index ef97d1d..0d8f03f 100644
+--- a/gdb/target-descriptions.h
++++ b/gdb/target-descriptions.h
+@@ -111,6 +111,18 @@ struct tdesc_arch_data *tdesc_data_alloc (void);
  
-   /* Functions handling dummy frames */
-+  set_gdbarch_call_dummy_location   (gdbarch, ON_STACK);
-+  set_gdbarch_push_dummy_code       (gdbarch, or1k_push_dummy_code);
-   set_gdbarch_push_dummy_call       (gdbarch, or1k_push_dummy_call);
-   set_gdbarch_dummy_id              (gdbarch, or1k_dummy_id);
+ void tdesc_data_cleanup (void *data_untyped);
  
++/* Search FEATURE for a register REGNO and return its name. */
++
++char *tdesc_find_register_name (const struct tdesc_feature *feature,
++				int regno);
++
++
++/* Search FEATURE for a register REGNO and return its group name. */
++
++char *tdesc_find_register_group_name (const struct tdesc_feature *feature,
++				      int regno);
++
++
+ /* Search FEATURE for a register named NAME.  Record REGNO and the
+    register in DATA; when tdesc_use_registers is called, REGNO will be
+    assigned to the register.  1 is returned if the register was found,
 -- 
 2.7.4
 
