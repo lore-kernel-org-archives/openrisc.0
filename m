@@ -1,47 +1,80 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 24 Nov 2016 07:10:34 +0900
-Subject: [OpenRISC] [PATCH 08/18] gdb: or1k: change or1k_push_dummy_code
-	stack alignment
+Date: Thu, 24 Nov 2016 07:10:36 +0900
+Subject: [OpenRISC] [PATCH 10/18] gdb: or1k: Fixes for things that broke
+	after upstream merge
 In-Reply-To: <1479939044-1341-1-git-send-email-shorne@gmail.com>
 References: <1479939044-1341-1-git-send-email-shorne@gmail.com>
-Message-ID: <1479939044-1341-9-git-send-email-shorne@gmail.com>
+Message-ID: <1479939044-1341-11-git-send-email-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-From: Franck Jullien <franck.jullien@gmail.com>
+From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
 
-gdb/ChangeLog
-	* or1k-tdep.c (or1k_push_dummy_code) : Use or1k_frame_align to
-	align the stack pointer.
+gdb/ChangeLog:
+
+	* or1k-tdep.c (or1k_fetch_instruction): Change char to gdb_byte
+	to prevent pointer signedness error.
+	(or1k_push_dummy_code): Likewise.
 ---
- gdb/or1k-tdep.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ gdb/or1k-tdep.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
 diff --git a/gdb/or1k-tdep.c b/gdb/or1k-tdep.c
-index cb0871f..81bb541 100644
+index f938077..ae57734 100644
 --- a/gdb/or1k-tdep.c
 +++ b/gdb/or1k-tdep.c
-@@ -1173,10 +1173,14 @@ or1k_push_dummy_code (struct gdbarch *gdbarch,
- 		      CORE_ADDR *bp_addr,
- 		      struct regcache *regcache)
+@@ -164,7 +164,7 @@ or1k_fetch_instruction (struct gdbarch *gdbarch,
+ 			CORE_ADDR       addr)
  {
--  /* Allocate space sufficient for a breakpoint, keeping the stack aligned.  */
--  sp = (sp - 4) & ~15;
-+  CORE_ADDR bp_slot;
-+
-+  /* Reserve enough room on the stack for our breakpoint instruction.  */
-+  bp_slot = sp - 4;
-   /* Store the address of that breakpoint */
--  *bp_addr = sp;
-+  *bp_addr = bp_slot;
-+  /* keeping the stack aligned.  */
-+  sp = or1k_frame_align (gdbarch, bp_slot);
-   /* The call starts at the callee's entry point.  */
-   *real_pc = function;
+   enum bfd_endian byte_order = gdbarch_byte_order (gdbarch);
+-  char            buf[OR1K_INSTLEN];
++  gdb_byte        buf[OR1K_INSTLEN];
+   int             status;
  
+   status = target_read_memory (addr, buf, OR1K_INSTLEN);
+@@ -1247,8 +1247,8 @@ or1k_push_dummy_call (struct gdbarch  *gdbarch,
+   /* Put as many args as possible in registers */
+   for (argnum = 0; argnum < nargs; argnum++)
+     {
+-      char           *val;
+-      char            valbuf[sizeof (ULONGEST) ];
++      const gdb_byte *val;
++      gdb_byte        valbuf[sizeof (ULONGEST)];
+ 
+       struct value   *arg      = args[argnum];
+       struct type    *arg_type = check_typedef (value_type (arg));
+@@ -1266,7 +1266,7 @@ or1k_push_dummy_call (struct gdbarch  *gdbarch,
+       else
+ 	{
+ 	  /* Everything else, we just get the value. */
+-	  val = (char *) value_contents (arg);
++	  val = value_contents (arg);
+ 	}
+ 
+       /* Stick the value in a register */
+@@ -1346,8 +1346,8 @@ or1k_push_dummy_call (struct gdbarch  *gdbarch,
+   /* Push the remaining args on the stack */
+   for (argnum = first_stack_arg; argnum < nargs; argnum++)
+     {
+-      char           *val;
+-      char            valbuf[sizeof (ULONGEST) ];
++      const gdb_byte *val;
++      gdb_byte        valbuf[sizeof (ULONGEST) ];
+ 
+       struct value   *arg      = args[argnum];
+       struct type    *arg_type = check_typedef (value_type (arg));
+@@ -1364,7 +1364,7 @@ or1k_push_dummy_call (struct gdbarch  *gdbarch,
+ 	}
+       else
+ 	{
+-	  val = (char *) value_contents (arg);
++	  val = value_contents (arg);
+ 	}
+ 
+       gdb_assert (len <= (bpw * 2));
 -- 
 2.7.4
 
