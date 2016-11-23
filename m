@@ -1,10 +1,10 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 24 Nov 2016 07:14:16 +0900
-Subject: [OpenRISC] [PATCH 02/18] sim: cgen: add mul-o1flag,
-	mul-o2flag RTL functions to CGEN
+Date: Thu, 24 Nov 2016 07:14:17 +0900
+Subject: [OpenRISC] [PATCH 03/18] sim: cgen: allow suffix on generated
+	arch.[ch] and cpuall.h
 In-Reply-To: <1479939272-1754-1-git-send-email-shorne@gmail.com>
 References: <1479939272-1754-1-git-send-email-shorne@gmail.com>
-Message-ID: <1479939272-1754-3-git-send-email-shorne@gmail.com>
+Message-ID: <1479939272-1754-4-git-send-email-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,54 +13,47 @@ To: openrisc@lists.librecores.org
 
 From: Peter Gavin <pgavin@gmail.com>
 
-* sim/common/ChangeLog
-2012-03-14  Peter Gavin  <pgavin@gmail.com>
+sim/ChangeLog:
 
-	* add mul-o1flag (1's complement unsigned multiply overflow flag)
-	and mul-o2flag (2's complement signed multiply overflow flag)
-	* cgen-ops.h:
-	(MUL1OFSI) new function: 1's complement
-	(MUL2OFSI) new function: 2's complement
+	* Make-common.in: pass $(SUFFIX) to cgen.sh in cgen-arch target
+	* cgen.sh: append suffix to names of arch.[ch] and cpuall.h
 ---
- sim/common/cgen-ops.h | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ sim/common/Make-common.in | 2 +-
+ sim/common/cgen.sh        | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/sim/common/cgen-ops.h b/sim/common/cgen-ops.h
-index 7ff1b4d..81ba02c 100644
---- a/sim/common/cgen-ops.h
-+++ b/sim/common/cgen-ops.h
-@@ -631,6 +631,22 @@ SUBOFQI (QI a, QI b, BI c)
-   return res;
- }
+diff --git a/sim/common/Make-common.in b/sim/common/Make-common.in
+index 3d99f62..a78255c 100644
+--- a/sim/common/Make-common.in
++++ b/sim/common/Make-common.in
+@@ -566,7 +566,7 @@ CGEN_FLAGS_TO_PASS = \
+ cgen-arch: force
+ 	$(SHELL) $(srccom)/cgen.sh arch $(srcdir) \
+ 		$(CGEN) $(CGENDIR) "$(CGENFLAGS)" \
+-		$(arch) "$(FLAGS)" ignored "$(isa)" $(mach) ignored \
++		$(arch) "$(FLAGS)" ignored "$(isa)" $(mach) "$(SUFFIX)" \
+ 		$(archfile) ignored
  
-+SEMOPS_INLINE BI
-+MUL2OFSI (SI a, SI b)
-+{
-+  DI tmp = MULDI (EXTSIDI(a), EXTSIDI(b));
-+  BI res = tmp < -0x80000000LL || tmp > 0x7fffffffLL;
-+  return res;
-+}
-+
-+SEMOPS_INLINE BI
-+MUL1OFSI (USI a, USI b)
-+{
-+  UDI tmp = MULDI (ZEXTSIDI(a), ZEXTSIDI(b));
-+  BI res = (tmp > 0xFFFFFFFFULL);
-+  return res;
-+}
-+
- #else
+ cgen-cpu: force
+diff --git a/sim/common/cgen.sh b/sim/common/cgen.sh
+index 394ef2d..c03a4a7 100755
+--- a/sim/common/cgen.sh
++++ b/sim/common/cgen.sh
+@@ -70,11 +70,11 @@ arch)
+ 		-B ${tmp}-arch.c1 \
+ 		-N ${tmp}-all.h1
+ 	sed $sedscript < ${tmp}-arch.h1 > ${tmp}-arch.h
+-	${rootdir}/move-if-change ${tmp}-arch.h ${srcdir}/arch.h
++	${rootdir}/move-if-change ${tmp}-arch.h ${srcdir}/arch${suffix}.h
+ 	sed $sedscript < ${tmp}-arch.c1 > ${tmp}-arch.c
+-	${rootdir}/move-if-change ${tmp}-arch.c ${srcdir}/arch.c
++	${rootdir}/move-if-change ${tmp}-arch.c ${srcdir}/arch${suffix}.c
+ 	sed $sedscript < ${tmp}-all.h1 > ${tmp}-all.h
+-	${rootdir}/move-if-change ${tmp}-all.h ${srcdir}/cpuall.h
++	${rootdir}/move-if-change ${tmp}-all.h ${srcdir}/cpuall${suffix}.h
  
- SI ADDCSI (SI, SI, BI);
-@@ -651,6 +667,8 @@ UBI ADDOFQI (QI, QI, BI);
- QI SUBCQI (QI, QI, BI);
- UBI SUBCFQI (QI, QI, BI);
- UBI SUBOFQI (QI, QI, BI);
-+BI MUL1OFSI (SI a, SI b);
-+BI MUL2OFSI (SI a, SI b);
- 
- #endif
- 
+ 	rm -f ${tmp}-arch.h1 ${tmp}-arch.c1 ${tmp}-all.h1
+ 	;;
 -- 
 2.7.4
 
