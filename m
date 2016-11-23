@@ -1,25 +1,18 @@
-From: Masoud Man <masoud.mansouryar@gmail.com>
-Date: Wed, 16 Nov 2016 16:30:35 +0100
-Subject: [OpenRISC] ORPSoC on Atlys Spartan 6 FPGA - technical problem
-Message-ID: <2FE943F9-B663-451C-B349-7247CB129067@gmail.com>
+From: Kacper Migala <cryuffpl@gmail.com>
+Date: Wed, 23 Nov 2016 09:40:22 +0100
+Subject: [OpenRISC] Question about https://github.com/openrisc/or1ksim/
+Message-ID: <CALYbPr1r0C46YLurZ1qvDRfWZVtL3qzTO6MVDTEWSHoa-xHwEg@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="windows-1250"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-CkRlYXJzLApJIGFtIG5ldyB0byBvcGVuUklTQyBhbmQgaGF2ZSB0byBkbyBhIHByb2plY3Qgb24g
-aW1wbGVtZW50aW5nIGEgU29DIGRlc2lnbiB3aXRoIGFuIG9wZW5SSVNDIGFyY2hpdGVjdHVyZSBp
-biBhbiBBdGx5cyBTcGFydGFuLTYgRlBHQSBkZXZlbG9wbWVudCBib2FyZC4gSSBhbSBmb2xsb3dp
-bmcgZGlmZmVyZW50IHdvcmtmbG93cywgYXMgd2VsbCBhcyBPUlBTb0MgdXNlciBndWlkZSBhbmQg
-aHR0cDovL3d3dy5ydGUuc2UvYmxvZy9ibG9nZy1tb2Rlc3R5LWNvcmV4L2luZGV4IDxodHRwOi8v
-d3d3LnJ0ZS5zZS9ibG9nL2Jsb2dnLW1vZGVzdHktY29yZXgvaW5kZXg+IHdvcmtmbG93LiBCdXQg
-dW5mb3J0dW5hdGVseSBpbiB0aGUgc2ltdWxhdGlvbiBzdGVwLCBJIGtlZXAgcmVjZWl2aW5nIGVy
-cm9ycyBpbiBMaW51eCBzaGVsbCB3aGljaCB0aGVyZSBhcmUgbWlzc2luZyBmaWxlcyBvciBjb21t
-YW5kc+KApgpteSBxdWVzdGlvbiBpcyB0aGF0IENhbiBJIGRvIHRoZSBwcm9qZWN0IGluIFdpbmRv
-d3Mgb3IgTWFjICh1c2luZyBJU0UpPyBhbmQgaG93PyBJcyBpdCBnZW5lcmFsbHkgcG9zc2libGUg
-b3IgSSB3aWxsIG1pc3Mgc29tZSBpbnRlcm1lZGlhdGUgc3RlcHM/CldpbGwgYXBwcmVjaWF0ZSB5
-b3VyIGhlbHAuCgoKVGhhbmtzCk1hc291ZAotLS0tLS0tLS0tLS0tLSBuZXh0IHBhcnQgLS0tLS0t
-LS0tLS0tLS0KQW4gSFRNTCBhdHRhY2htZW50IHdhcyBzY3J1YmJlZC4uLgpVUkw6IDxodHRwOi8v
-bGlzdHMubGlicmVjb3Jlcy5vcmcvcGlwZXJtYWlsL29wZW5yaXNjL2F0dGFjaG1lbnRzLzIwMTYx
-MTE2LzdiZGMxZjVjL2F0dGFjaG1lbnQuaHRtbD4K
+I got question, where can i find instruction definition?
+I need to change for example l.add instruction, so every time i put this in
+code i will get result +1?
+
+Thank you in advance
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20161123/77587508/attachment.html>
