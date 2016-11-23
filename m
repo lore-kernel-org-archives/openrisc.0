@@ -1,97 +1,133 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 24 Nov 2016 07:14:29 +0900
-Subject: [OpenRISC] [PATCH 15/18] sim: or1k: Implement register store/fetch
+Date: Thu, 24 Nov 2016 07:14:30 +0900
+Subject: [OpenRISC] [PATCH 16/18] sim: or1k: Do trap breakpoint handling
 In-Reply-To: <1479939272-1754-1-git-send-email-shorne@gmail.com>
 References: <1479939272-1754-1-git-send-email-shorne@gmail.com>
-Message-ID: <1479939272-1754-16-git-send-email-shorne@gmail.com>
+Message-ID: <1479939272-1754-17-git-send-email-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-There was a comment questioning the use of these. But as soon
-as I run any basic test gdb complains that these are not implemented.
+Breakpoints were not implemented in the sim.  This change allows for
+trap instructions (inserted when gdb sets breakpoints) to transfer
+control back to GDB allowing breakpoints to work with 'target sim'
 
-More tests and basic run and execute work now.
+After implementing this gdb test suite is looking better with:
+
+                === gdb Summary ===
+
+ # of expected passes            15981
+ # of unexpected failures        509
+ # of expected failures          27
+ # of known failures             47
+ # of unresolved testcases       34
+ # of untested testcases         174
+ # of unsupported tests          309
 ---
- sim/or1k/or1k-sim.h |  2 +-
- sim/or1k/or1k.c     | 31 ++++++++++++++++++++++++++++---
- 2 files changed, 29 insertions(+), 4 deletions(-)
+ sim/or1k/traps.c | 70 ++++++++++++++++++++++++++++++--------------------------
+ 1 file changed, 37 insertions(+), 33 deletions(-)
 
-diff --git a/sim/or1k/or1k-sim.h b/sim/or1k/or1k-sim.h
-index 9e1754f..7213caa 100644
---- a/sim/or1k/or1k-sim.h
-+++ b/sim/or1k/or1k-sim.h
-@@ -4,7 +4,7 @@
- #include "symcat.h"
- 
- /* GDB register numbers. */
--#define PC_REGNUM	16
-+#define PC_REGNUM	33
- 
- /* Misc. profile data.  */
- typedef struct {
-diff --git a/sim/or1k/or1k.c b/sim/or1k/or1k.c
-index 98225ab..565a018 100644
---- a/sim/or1k/or1k.c
-+++ b/sim/or1k/or1k.c
-@@ -9,27 +9,52 @@
- #include "sim-main.h"
- #include "symcat.h"
- #include "cgen-ops.h"
-+#include "cgen-mem.h"
-+#include "cpuall.h"
- 
- #include <string.h>
- 
--/* not sure what the point of these is */
- int XCONCAT2(WANT_CPU,_fetch_register) (sim_cpu *current_cpu, int rn, unsigned char *buf, int len)
- {
--  return -1;
-+   if (rn < 32)
-+    SETTWI (buf, XCONCAT2(WANT_CPU,_h_gpr_get) (current_cpu, rn));
-+  else
-+    switch (rn)
-+      {
-+      case PC_REGNUM :
-+        SETTWI (buf, XCONCAT2(WANT_CPU,_h_pc_get) (current_cpu));
-+        break;
-+      default :
-+         return 0;
-+      }
-+  return sizeof(WI); /* WI from arch.h */
- }
- 
- int XCONCAT2(WANT_CPU,_store_register) (sim_cpu *current_cpu, int rn, unsigned char *buf, int len)
- {
--  return -1;
-+  if (rn < 32)
-+    XCONCAT2(WANT_CPU,_h_gpr_set) (current_cpu, rn, GETTWI (buf));
-+  else
-+    switch (rn)
-+      {
-+      case PC_REGNUM :
-+        XCONCAT2(WANT_CPU,_h_pc_set) (current_cpu, GETTWI (buf));
-+        break;
-+      default :
-+         return 0;
-+      }
-+  return sizeof(WI); /* WI from arch.h */
- }
- 
+diff --git a/sim/or1k/traps.c b/sim/or1k/traps.c
+index 526f2e7..235d9b5 100644
+--- a/sim/or1k/traps.c
++++ b/sim/or1k/traps.c
+@@ -17,48 +17,52 @@ sim_engine_invalid_insn (SIM_CPU *current_cpu, IADDR cia, SEM_PC vpc)
  #ifdef WANT_CPU_OR1K32BF
- int or1k32bf_model_or1200_u_exec (sim_cpu * UNUSED current_cpu, const IDESC * UNUSED idesc, int unit_num, int referenced)
- {
-+  return -1;
+   or1k32bf_exception (current_cpu, cia, EXCEPT_ILLEGAL);
+ #endif
+-  
++
+   return vpc;
  }
  
- int or1k32bf_model_or1200nd_u_exec (sim_cpu * UNUSED current_cpu, const IDESC * UNUSED idesc, int unit_num, int referenced)
+ void or1k32bf_exception (sim_cpu *current_cpu, USI pc, USI exnum)
  {
-+  return -1;
+   SIM_DESC sd = CPU_STATE(current_cpu);
+-  
+-  SET_H_SYS_ESR0 (GET_H_SYS_SR ());
+-  
+-  SET_H_SYS_SR_DSX (current_cpu->delay_slot);
+-  
+-  switch (exnum) {
+-  case EXCEPT_RESET:
+-    break;
+ 
+-  case EXCEPT_SYSCALL:
+-    SET_H_SYS_EPCR0 (pc + 4 - (current_cpu->delay_slot ? 4 : 0));
+-    break;
++  if (exnum == EXCEPT_TRAP) {
++    /* Trap, used for breakpoints, sends control back to gdb breakpoint handling */
++    sim_engine_halt (sd, current_cpu, NULL, pc, sim_stopped, SIM_SIGTRAP);
++  } else {
++
++    /* Calculate the exception program counter */
++    switch (exnum) {
++    case EXCEPT_RESET:
++      break;
++
++    case EXCEPT_SYSCALL:
++      SET_H_SYS_EPCR0 (pc + 4 - (current_cpu->delay_slot ? 4 : 0));
++      break;
++
++    case EXCEPT_BUSERR:
++    case EXCEPT_ALIGN:
++    case EXCEPT_ILLEGAL:
++      SET_H_SYS_EPCR0 (pc - (current_cpu->delay_slot ? 4 : 0));
++      break;
++
++    default:
++      sim_io_error (sd, "unexpected exception 0x%x raised at PC 0x%08x", exnum, pc);
++      break;
++    }
+ 
+-  case EXCEPT_BUSERR:
+-  case EXCEPT_ALIGN:
+-  case EXCEPT_RANGE:
+-  case EXCEPT_TRAP:
+-  case EXCEPT_ILLEGAL:
+-    SET_H_SYS_EPCR0 (pc - (current_cpu->delay_slot ? 4 : 0));
+-    break;
++    /* Store the curent SR into ESR0 */
++    SET_H_SYS_ESR0 (GET_H_SYS_SR ());
+ 
+-  default:
+-    sim_io_error (sd, "unexpected exception 0x%x raised at PC 0x%08x", exnum, pc);
+-    break;
+-    
++    /* Indicate in SR if the failed instruction is in delay slot or not */
++    SET_H_SYS_SR_DSX (current_cpu->delay_slot);
++
++    current_cpu->next_delay_slot = 0;
++
++    /* jump program counter into handler */
++    IADDR handler_pc = (GET_H_SYS_SR_EPH() ? 0xf0000000 : 0x00000000) + (exnum << 8);
++
++    sim_engine_restart (sd, current_cpu, NULL, handler_pc);
+   }
+-  
+-  current_cpu->next_delay_slot = 0;
+-  
+-  IADDR handler_pc = (GET_H_SYS_SR_EPH() ? 0xf0000000 : 0x00000000) + (exnum << 8);
+-  
+-  sim_engine_restart (CPU_STATE (current_cpu),
+-                      current_cpu,
+-                      NULL,
+-                      handler_pc);
  }
  
- void or1k32bf_model_insn_before (sim_cpu * UNUSED current_cpu, int UNUSED first_p)
+ void or1k32bf_rfe (sim_cpu *current_cpu)
+@@ -97,8 +101,8 @@ USI or1k32bf_mfspr (sim_cpu *current_cpu, USI addr)
+   case SPR_ADDR(SYS,PPC):
+   case SPR_ADDR(SYS,FPCSR):
+   case SPR_ADDR(SYS,EPCR0):
+-  case SPR_ADDR(MAC,MACHI):
+   case SPR_ADDR(MAC,MACLO):
++  case SPR_ADDR(MAC,MACHI):
+     break;
+ 
+   default:
 -- 
 2.7.4
 
