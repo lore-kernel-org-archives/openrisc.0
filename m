@@ -1,140 +1,97 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 24 Nov 2016 07:14:26 +0900
-Subject: [OpenRISC] [PATCH 12/18] sim: or1k: Get or1k sim building with
-	latest sim common
+Date: Thu, 24 Nov 2016 07:14:29 +0900
+Subject: [OpenRISC] [PATCH 15/18] sim: or1k: Implement register store/fetch
 In-Reply-To: <1479939272-1754-1-git-send-email-shorne@gmail.com>
 References: <1479939272-1754-1-git-send-email-shorne@gmail.com>
-Message-ID: <1479939272-1754-13-git-send-email-shorne@gmail.com>
+Message-ID: <1479939272-1754-16-git-send-email-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-There have been a few type name changes.
- * Update configure.ac to use new ENDIAN config tpes
- * Update mloop to use new CGEN_TRACE.. instead of TRACE..
- * Change singnature of sim_create_inferior to have const param
- * Remove sim_close as its covered by sim_close in common now
- * Move WITH_SCACHE_PBB into sim-main.h from tconfig.in
- * Remove SIM_HANDLES_LMA as it seems its not needed anymore from tcofig.in
- * Remove tconfig.in
----
- sim/or1k/configure.ac |  5 ++---
- sim/or1k/mloop.in     |  6 +++---
- sim/or1k/sim-if.c     | 14 +++-----------
- sim/or1k/sim-main.h   |  2 ++
- sim/or1k/tconfig.in   |  8 --------
- 5 files changed, 10 insertions(+), 25 deletions(-)
- delete mode 100644 sim/or1k/tconfig.in
+There was a comment questioning the use of these. But as soon
+as I run any basic test gdb complains that these are not implemented.
 
-diff --git a/sim/or1k/configure.ac b/sim/or1k/configure.ac
-index d5dca70..c248d0a 100644
---- a/sim/or1k/configure.ac
-+++ b/sim/or1k/configure.ac
-@@ -24,11 +24,10 @@ sinclude(../common/acinclude.m4)
+More tests and basic run and execute work now.
+---
+ sim/or1k/or1k-sim.h |  2 +-
+ sim/or1k/or1k.c     | 31 ++++++++++++++++++++++++++++---
+ 2 files changed, 29 insertions(+), 4 deletions(-)
+
+diff --git a/sim/or1k/or1k-sim.h b/sim/or1k/or1k-sim.h
+index 9e1754f..7213caa 100644
+--- a/sim/or1k/or1k-sim.h
++++ b/sim/or1k/or1k-sim.h
+@@ -4,7 +4,7 @@
+ #include "symcat.h"
  
- SIM_AC_COMMON
+ /* GDB register numbers. */
+-#define PC_REGNUM	16
++#define PC_REGNUM	33
  
--SIM_AC_OPTION_ENDIAN(BIG_ENDIAN)
-+SIM_AC_OPTION_ENDIAN(BIG)
- SIM_AC_OPTION_ALIGNMENT(STRICT_ALIGNMENT)
--SIM_AC_OPTION_HOSTENDIAN
- SIM_AC_OPTION_BITSIZE([32], [31], [32])
--SIM_AC_OPTION_SCACHE([16384])
-+SIM_AC_OPTION_SCACHE(16384)
- SIM_AC_OPTION_DEFAULT_MODEL([$default_model])
- SIM_AC_OPTION_ENVIRONMENT
- SIM_AC_OPTION_INLINE()
-diff --git a/sim/or1k/mloop.in b/sim/or1k/mloop.in
-index 6f19c50..092ce7d 100644
---- a/sim/or1k/mloop.in
-+++ b/sim/or1k/mloop.in
-@@ -97,8 +97,8 @@ execute (SIM_CPU *current_cpu, SCACHE *sc, int fast_p)
-           if (PROFILE_MODEL_P (current_cpu)
-               && ARGBUF_PROFILE_P (abuf))
-             @cpu at _model_insn_before (current_cpu, 1 /*first_p*/);
--          TRACE_INSN_INIT (current_cpu, abuf, 1);
--          TRACE_INSN (current_cpu, idata,
-+          CGEN_TRACE_INSN_INIT (current_cpu, abuf, 1);
-+          CGEN_TRACE_INSN (current_cpu, idata,
-                       (const struct argbuf *) abuf, abuf->addr);
-         }
- #if WITH_SCACHE
-@@ -117,7 +117,7 @@ execute (SIM_CPU *current_cpu, SCACHE *sc, int fast_p)
-               cycles = (*idesc->timing->model_fn) (current_cpu, sc);
-               @cpu at _model_insn_after (current_cpu, 1 /*last_p*/, cycles);
-             }
--          TRACE_INSN_FINI (current_cpu, abuf, 1);
-+          CGEN_TRACE_INSN_FINI (current_cpu, abuf, 1);
-         }
- #else
-       abort ();
-diff --git a/sim/or1k/sim-if.c b/sim/or1k/sim-if.c
-index 23a8a9e..e643fa1 100644
---- a/sim/or1k/sim-if.c
-+++ b/sim/or1k/sim-if.c
-@@ -174,7 +174,7 @@ sim_open (kind, callback, abfd, argv)
-      SIM_OPEN_KIND kind;
-      host_callback *callback;
-      struct bfd *abfd;
--     char **argv;
-+     char * const *argv;
+ /* Misc. profile data.  */
+ typedef struct {
+diff --git a/sim/or1k/or1k.c b/sim/or1k/or1k.c
+index 98225ab..565a018 100644
+--- a/sim/or1k/or1k.c
++++ b/sim/or1k/or1k.c
+@@ -9,27 +9,52 @@
+ #include "sim-main.h"
+ #include "symcat.h"
+ #include "cgen-ops.h"
++#include "cgen-mem.h"
++#include "cpuall.h"
+ 
+ #include <string.h>
+ 
+-/* not sure what the point of these is */
+ int XCONCAT2(WANT_CPU,_fetch_register) (sim_cpu *current_cpu, int rn, unsigned char *buf, int len)
  {
-   SIM_DESC sd = sim_state_alloc (kind, callback);
-   char c;
-@@ -297,21 +297,13 @@ sim_open (kind, callback, abfd, argv)
-   return sd;
+-  return -1;
++   if (rn < 32)
++    SETTWI (buf, XCONCAT2(WANT_CPU,_h_gpr_get) (current_cpu, rn));
++  else
++    switch (rn)
++      {
++      case PC_REGNUM :
++        SETTWI (buf, XCONCAT2(WANT_CPU,_h_pc_get) (current_cpu));
++        break;
++      default :
++         return 0;
++      }
++  return sizeof(WI); /* WI from arch.h */
  }
  
--void
--sim_close (sd, quitting)
--     SIM_DESC sd;
--     int quitting;
--{
--  or1k_cgen_cpu_close (CPU_CPU_DESC (STATE_CPU (sd, 0)));
--  sim_module_uninstall (sd);
--}
- 
- SIM_RC
- sim_create_inferior (sd, abfd, argv, envp)
-      SIM_DESC sd;
-      struct bfd *abfd;
--     char **argv;
--     char **envp;
-+     char * const *argv;
-+     char * const *envp;
+ int XCONCAT2(WANT_CPU,_store_register) (sim_cpu *current_cpu, int rn, unsigned char *buf, int len)
  {
-   SIM_CPU *current_cpu = STATE_CPU (sd, 0);
-   SIM_ADDR addr;
-diff --git a/sim/or1k/sim-main.h b/sim/or1k/sim-main.h
-index d26d616..f0b4e07 100644
---- a/sim/or1k/sim-main.h
-+++ b/sim/or1k/sim-main.h
-@@ -1,6 +1,8 @@
- #ifndef SIM_MAIN_H
- #define SIM_MAIN_H
+-  return -1;
++  if (rn < 32)
++    XCONCAT2(WANT_CPU,_h_gpr_set) (current_cpu, rn, GETTWI (buf));
++  else
++    switch (rn)
++      {
++      case PC_REGNUM :
++        XCONCAT2(WANT_CPU,_h_pc_set) (current_cpu, GETTWI (buf));
++        break;
++      default :
++         return 0;
++      }
++  return sizeof(WI); /* WI from arch.h */
+ }
  
-+#define WITH_SCACHE_PBB 1
-+
- #include "ansidecl.h"
- #include "or1k-desc.h"
- #include "sim-basics.h"
-diff --git a/sim/or1k/tconfig.in b/sim/or1k/tconfig.in
-deleted file mode 100644
-index a1b463f..0000000
---- a/sim/or1k/tconfig.in
-+++ /dev/null
-@@ -1,8 +0,0 @@
--#ifndef OR1K_TCONFIG_H
--#define OR1K_TCONFIG_H
--
--#define SIM_HANDLES_LMA 1
--
--#define WITH_SCACHE_PBB 1
--
--#endif
-\ No newline at end of file
+ #ifdef WANT_CPU_OR1K32BF
+ int or1k32bf_model_or1200_u_exec (sim_cpu * UNUSED current_cpu, const IDESC * UNUSED idesc, int unit_num, int referenced)
+ {
++  return -1;
+ }
+ 
+ int or1k32bf_model_or1200nd_u_exec (sim_cpu * UNUSED current_cpu, const IDESC * UNUSED idesc, int unit_num, int referenced)
+ {
++  return -1;
+ }
+ 
+ void or1k32bf_model_insn_before (sim_cpu * UNUSED current_cpu, int UNUSED first_p)
 -- 
 2.7.4
 
