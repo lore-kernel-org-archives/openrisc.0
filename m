@@ -1,55 +1,72 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 24 Nov 2016 07:14:32 +0900
-Subject: [OpenRISC] [PATCH 18/18] sim: or1k: add additional stubs for linux
-	build
+Date: Thu, 24 Nov 2016 07:14:31 +0900
+Subject: [OpenRISC] [PATCH 17/18] sim: or1k: Implement fetch/store for ppc
+	and sr
 In-Reply-To: <1479939272-1754-1-git-send-email-shorne@gmail.com>
 References: <1479939272-1754-1-git-send-email-shorne@gmail.com>
-Message-ID: <1479939272-1754-19-git-send-email-shorne@gmail.com>
+Message-ID: <1479939272-1754-18-git-send-email-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Building for linux the traps interface requires to be
-expanded more.  For now just add stubs to get building.
-
-sim/or1k/ChangeLog:
-
-	* sim/or1k/traps-linux.c (or1k32bf_exception): create dummy
+This was causing some tests to failure due to warnings.
 ---
- sim/or1k/traps-linux.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ sim/or1k/or1k-sim.h |  2 ++
+ sim/or1k/or1k.c     | 12 ++++++++++++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/sim/or1k/traps-linux.c b/sim/or1k/traps-linux.c
-index d2a111f..263657f 100644
---- a/sim/or1k/traps-linux.c
-+++ b/sim/or1k/traps-linux.c
-@@ -6,3 +6,24 @@ sim_engine_invalid_insn (SIM_CPU *current_cpu, IADDR cia, SEM_PC vpc)
-   /* TODO */
-   abort();
- }
-+
-+void or1k32bf_exception (sim_cpu *current_cpu, USI pc, USI exnum)
-+{
-+  /* TODO */
-+  abort();
-+}
-+
-+void or1k32bf_rfe (sim_cpu *current_cpu)
-+{
-+  abort();
-+}
-+
-+USI or1k32bf_mfspr (sim_cpu *current_cpu, USI addr)
-+{
-+  abort();
-+}
-+
-+void or1k32bf_mtspr (sim_cpu *current_cpu, USI addr, USI val)
-+{
-+  abort();
-+}
+diff --git a/sim/or1k/or1k-sim.h b/sim/or1k/or1k-sim.h
+index 7213caa..2ad6f8c 100644
+--- a/sim/or1k/or1k-sim.h
++++ b/sim/or1k/or1k-sim.h
+@@ -4,7 +4,9 @@
+ #include "symcat.h"
+ 
+ /* GDB register numbers. */
++#define PPC_REGNUM	32
+ #define PC_REGNUM	33
++#define SR_REGNUM	34
+ 
+ /* Misc. profile data.  */
+ typedef struct {
+diff --git a/sim/or1k/or1k.c b/sim/or1k/or1k.c
+index 565a018..9f50c33 100644
+--- a/sim/or1k/or1k.c
++++ b/sim/or1k/or1k.c
+@@ -21,9 +21,15 @@ int XCONCAT2(WANT_CPU,_fetch_register) (sim_cpu *current_cpu, int rn, unsigned c
+   else
+     switch (rn)
+       {
++      case PPC_REGNUM :
++        SETTWI (buf, XCONCAT2(WANT_CPU,_h_sys_ppc_get) (current_cpu));
++        break;
+       case PC_REGNUM :
+         SETTWI (buf, XCONCAT2(WANT_CPU,_h_pc_get) (current_cpu));
+         break;
++      case SR_REGNUM :
++        SETTWI (buf, XCONCAT2(WANT_CPU,_h_sys_sr_get) (current_cpu));
++        break;
+       default :
+          return 0;
+       }
+@@ -37,9 +43,15 @@ int XCONCAT2(WANT_CPU,_store_register) (sim_cpu *current_cpu, int rn, unsigned c
+   else
+     switch (rn)
+       {
++      case PPC_REGNUM :
++        XCONCAT2(WANT_CPU,_h_sys_ppc_set) (current_cpu, GETTWI (buf));
++        break;
+       case PC_REGNUM :
+         XCONCAT2(WANT_CPU,_h_pc_set) (current_cpu, GETTWI (buf));
+         break;
++      case SR_REGNUM :
++        XCONCAT2(WANT_CPU,_h_sys_sr_set) (current_cpu, GETTWI (buf));
++        break;
+       default :
+          return 0;
+       }
 -- 
 2.7.4
 
