@@ -1,46 +1,56 @@
-From: Jonas Bonn <jonas@southpole.se>
-Date: Sat, 31 Dec 2016 15:11:27 +0100
-Subject: [OpenRISC] [PATCH 1/3] openrisc: Add _text symbol to fix ksym
-	build error
-In-Reply-To: <da0fbe6c8413d990849d8f8764033810b18b83e9.1483184705.git.shorne@gmail.com>
-References: <cover.1483184705.git.shorne@gmail.com>
- <da0fbe6c8413d990849d8f8764033810b18b83e9.1483184705.git.shorne@gmail.com>
-Message-ID: <99666d68-29c8-7241-1fd3-dc335c8506b7@southpole.se>
+From: Stafford Horne <shorne@gmail.com>
+Date: Thu, 1 Dec 2016 07:02:26 +0900 (JST)
+Subject: [OpenRISC] Add openrisc for-next branch to linux-next
+In-Reply-To: <f7f0e124-00b9-5b21-9ca0-1f17e7c338bd@infradead.org>
+References: <alpine.LFD.2.20.1611302214520.29569@lianli.shorne-pla.net>
+ <f7f0e124-00b9-5b21-9ca0-1f17e7c338bd@infradead.org>
+Message-ID: <alpine.LFD.2.20.1612010658350.29569@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 12/31/2016 12:52 PM, Stafford Horne wrote:
-> The build robot reports:
+
+
+On Wed, 30 Nov 2016, Randy Dunlap wrote:
+
+> On 11/30/16 05:22, Stafford Horne wrote:
+>> Hi Stephen,
+>>
+>> I have been working on getting the OpenRISC backlog of fixes sorted out for upstream.  Can this branch be added to linux-next?
+>>
+>>   git://github.com/openrisc/linux.git for-next
+>>
+>> These have been through a few reviews and we plan to ask Linus to pull in the next merge window.
+>>
+>> -Stafford
 >
->     .tmp_kallsyms1.o: In function `kallsyms_relative_base':
->>> (.rodata+0x8a18): undefined reference to `_text'
-> This is when using 'make alldefconfig'. Adding this _text symbol to mark
-> the start of the kernel as in other architecture fixes this.
+> Hi,
 >
-> Signed-off-by: Stafford Horne <shorne@gmail.com>
-
-Acked-by: Jonas Bonn <jonas@southpole.se>
-
-> ---
->   arch/openrisc/kernel/vmlinux.lds.S | 2 ++
->   1 file changed, 2 insertions(+)
+> I see that you have updated MAINTAINERS.  Good.
 >
-> diff --git a/arch/openrisc/kernel/vmlinux.lds.S b/arch/openrisc/kernel/vmlinux.lds.S
-> index ef31fc2..5525446 100644
-> --- a/arch/openrisc/kernel/vmlinux.lds.S
-> +++ b/arch/openrisc/kernel/vmlinux.lds.S
-> @@ -44,6 +44,8 @@ SECTIONS
->           /* Read-only sections, merged into text segment: */
->           . = LOAD_BASE ;
->   
-> +	_text = .;
-> +
->   	/* _s_kernel_ro must be page aligned */
->   	. = ALIGN(PAGE_SIZE);
->   	_s_kernel_ro = .;
+> Does openRISC support VGA console?
+> I tried to send a patch to Jason a few days ago.
+> Please look at http://marc.info/?l=linux-kernel&m=147968525011508&w=2
+> (or I can resend it if you wish).
+>
+> The kbuild test bot has been reporting this build error for several
+> months.  If my fix is wrong, please submit something else.
 
+Hi Randy,
 
+I was watching that thread, I honestly thought it would have been pulled 
+in by one of the console maintainers.
+
+Openrisc does not have support for vga console, some people may have 
+hacked something together, but its not in our kernel yet.  So I have no 
+issue disabling it in the build.
+
+I will pull it in to my branch.
+
+If someone else pulls,
+Acked-by: Stafford Horne <shorne@gmail.com>
+
+-Stafford
 
