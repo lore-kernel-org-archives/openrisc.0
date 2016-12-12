@@ -1,51 +1,75 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 5 Dec 2016 17:40:51 +0900
-Subject: [OpenRISC] [PATCH 00/18] sim: port for OpenRISC
-In-Reply-To: <alpine.LFD.2.20.1611260741400.29569@lianli.shorne-pla.net>
-References: <1479939272-1754-1-git-send-email-shorne@gmail.com>
- <20161125161932.GH21655@vapier.lan>
- <alpine.LFD.2.20.1611260741400.29569@lianli.shorne-pla.net>
-Message-ID: <20161205084050.GA567@lianli.shorne-pla.net>
+Date: Mon, 12 Dec 2016 23:38:56 +0900
+Subject: [OpenRISC] [GIT PULL] Openrisc changes for 4.10 merge
+Message-ID: <20161212143856.GA2650@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sat, Nov 26, 2016 at 07:46:37AM +0900, Stafford Horne wrote:
-> 
-> 
-> On Fri, 25 Nov 2016, Mike Frysinger wrote:
-> 
-> > On 24 Nov 2016 07:14, Stafford Horne wrote:
-> > > The main author is Peter Gavin who should have his FSF copyright in place.
-> > 
-> > what about yourself ?  all authors should have papers in place.
-> 
-> Hello,
-> 
-> I do not yet, but I would like to.  According to the gcc contributing
-> guidelines [1] it mentions:
-> 
->   See some documentation by the FSF for details and contact us (either via
->   the gcc at gcc.gnu.org list or the GCC maintainer that is taking care of
->   your contributions) to obtain the relevant forms.
-> 
-> I know this is not gcc, but gdb, but I thought it might be the same
-> process. Since it mentions 'via .. maintainer .. taking care of your ..' I
-> thought it best I submit these patches first.
-> 
-> Could you send me the forms?
-> 
-> [1] https://gcc.gnu.org/contribute.html
+Hi Linus,
 
-Hello,
+Please pull the below, highlights include:
+ _ This is my first pull request as the new OpenRISC architecture
+   maintainer. I hope I have things in order.
+ - Changes to MAINTAINER for openrisc
+ - Probably biggest actual change is the move to memblock from bootmem
+ - Plus several bug and build fixes
 
-I was able to get these forms submitted, but I may have made a mistake.
-Please, help clarify, I sent the program name as "GDB".  However does
-that cover work on all of binutils-gdb?  Or just gdb?
+ 
+The following changes since commit 69973b830859bc6529a7a0468ba0d80ee5117826:
 
-If needed I can request again.
+  Linux 4.9 (2016-12-11 11:17:54 -0800)
 
--Stafford
+are available in the git repository at:
+
+  https://github.com/openrisc/linux.git tags/openrisc-for-linus
+
+for you to fetch changes up to 7c7808ce107d63e158dbbc3af085980985a0c3c4:
+
+  openrisc: prevent VGA console, fix builds (2016-12-12 23:10:29 +0900)
+
+----------------------------------------------------------------
+Openrisc fixes for 4.10
+
+----------------------------------------------------------------
+Christian Svensson (1):
+      openrisc: Add thread-local storage (TLS) support
+
+Guenter Roeck (1):
+      openrisc: Support both old (or32) and new (or1k) toolchain
+
+Jonas Bonn (1):
+      openrisc: restore all regs on rt_sigreturn
+
+Randy Dunlap (1):
+      openrisc: prevent VGA console, fix builds
+
+Rob Herring (1):
+      openrisc: remove the redundant of_platform_populate
+
+Stafford Horne (3):
+      openrisc: add NR_CPUS Kconfig default value
+      openrisc: Consolidate setup to use memblock instead of bootmem
+      openrisc: Updates after openrisc.net has been lost
+
+Stefan Kristiansson (2):
+      openrisc: fix PTRS_PER_PGD define
+      openrisc: include l.swa in check for write data pagefault
+
+ MAINTAINERS                         |  6 +++--
+ arch/openrisc/Kconfig               |  4 ++++
+ arch/openrisc/README.openrisc       |  8 +++----
+ arch/openrisc/TODO.openrisc         |  3 ---
+ arch/openrisc/include/asm/pgalloc.h |  1 -
+ arch/openrisc/include/asm/pgtable.h |  2 +-
+ arch/openrisc/kernel/entry.S        | 12 ++++++++--
+ arch/openrisc/kernel/process.c      | 13 ++++++++++
+ arch/openrisc/kernel/setup.c        | 48 ++++++++++---------------------------
+ arch/openrisc/kernel/vmlinux.lds.S  |  8 ++++++-
+ arch/openrisc/mm/init.c             |  4 ++--
+ arch/openrisc/mm/ioremap.c          |  4 ----
+ drivers/video/console/Kconfig       |  2 +-
+ 13 files changed, 59 insertions(+), 56 deletions(-)
 
