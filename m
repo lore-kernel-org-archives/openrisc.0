@@ -1,77 +1,49 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 14 Dec 2016 20:44:35 +0900
-Subject: [OpenRISC] [PATCH v2 8/9] openrisc: Updates after openrisc.net
-	has been lost
-In-Reply-To: <CAMuHMdU1EUpjmNVMv3Kmb1FrvzpxUVtcfLKmCduT5-pSUZw-bA@mail.gmail.com>
-References: <cover.1479128947.git.shorne@gmail.com>
- <1479130239-30707-1-git-send-email-shorne@gmail.com>
- <85a10b7601c10dc0cf710f69d5729bf1871de22c.1479128947.git.shorne@gmail.com>
- <CAMuHMdU1EUpjmNVMv3Kmb1FrvzpxUVtcfLKmCduT5-pSUZw-bA@mail.gmail.com>
-Message-ID: <20161214114435.GD2650@lianli.shorne-pla.net>
+Date: Wed, 14 Dec 2016 21:55:02 +0900
+Subject: [OpenRISC] [PATCH] openrisc: Add _text symbol to fix ksym build
+	error
+Message-ID: <1481720102-20169-1-git-send-email-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Geert,
+The build report reports:
 
-On Wed, Dec 14, 2016 at 09:57:11AM +0100, Geert Uytterhoeven wrote:
-> Hi Stafford, Stefan,
-> 
-> On Mon, Nov 14, 2016 at 2:30 PM, Stafford Horne <shorne@gmail.com> wrote:
-> > The openrisc.net domain expired and was taken over by squatters.
-> > These updates point documentation to the new domain, mailing lists
-> > and git repos.
-> >
-> > Also, Jonas is not the main maintainer anylonger, he reviews changes
-> > but does not maintain a repo or sent pull requests.  Updating this to
-> > add Stafford and Stefan who are the active maintainers.
-> >
-> > Signed-off-by: Stafford Horne <shorne@gmail.com>
-> > ---
-> >  MAINTAINERS                   | 6 ++++--
-> >  arch/openrisc/README.openrisc | 8 ++++----
-> >  arch/openrisc/kernel/setup.c  | 2 +-
-> >  3 files changed, 9 insertions(+), 7 deletions(-)
-> >
-> > diff --git a/MAINTAINERS b/MAINTAINERS
-> > index 851b89b..d84a585 100644
-> > --- a/MAINTAINERS
-> > +++ b/MAINTAINERS
-> > @@ -8958,9 +8958,11 @@ F:       drivers/of/resolver.c
-> >
-> >  OPENRISC ARCHITECTURE
-> >  M:     Jonas Bonn <jonas@southpole.se>
-> > -W:     http://openrisc.net
-> > +M:     Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-> > +M:     Stafford Horne <shorne@gmail.com>
-> > +L:     openrisc at lists.librecores.org
-> > +W:     http://openrisc.io
-> >  S:     Maintained
-> > -T:     git git://openrisc.net/~jonas/linux
-> >  F:     arch/openrisc/
-> 
-> It's great news to see new active maintainers for OpenRISC.
-> Thanks a lot!
-> 
-> Somehow I seem to have missed the new mailing announcement.
-> Subscribed ;-)
+   .tmp_kallsyms1.o: In function `kallsyms_relative_base':
+>> (.rodata+0x8a18): undefined reference to `_text'
 
-I hope we can help out as much as possible.  Let us know if you have any
-requests.
+This is when using 'make alldefconfig'. Adding this _text symbol to mark
+the start of the kernel as in other architecture fixes this.
 
-Just to give a bit of a preview of what we have in our backlog:
- - Openrisc optimized memcpy memset routines
- - Various opencores (now librecores?) IP drivers
- - SMP support
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+ arch/openrisc/kernel/vmlinux.lds.S | 3 +++
+ 1 file changed, 3 insertions(+)
 
-I have been sorting through the patches and getting them ready (commit
-messages, code style etc).  Everything will be reviewed on the openrisc
-and kernel list.
+diff --git a/arch/openrisc/kernel/vmlinux.lds.S b/arch/openrisc/kernel/vmlinux.lds.S
+index ef31fc2..58eaca0 100644
+--- a/arch/openrisc/kernel/vmlinux.lds.S
++++ b/arch/openrisc/kernel/vmlinux.lds.S
+@@ -44,6 +44,8 @@ SECTIONS
+         /* Read-only sections, merged into text segment: */
+         . = LOAD_BASE ;
+ 
++	_text = .;
++
+ 	/* _s_kernel_ro must be page aligned */
+ 	. = ALIGN(PAGE_SIZE);
+ 	_s_kernel_ro = .;
+@@ -66,6 +68,7 @@ SECTIONS
+ 	 * fixup is definitely necessary
+ 	 */
+ 
++	_data = .;
+ 	_sdata = .;
+ 
+ 	/* Page alignment required for RO_DATA_SECTION */
+-- 
+2.7.4
 
-We cant promise quick progress but hopefully better than it has been in
-the recent past.
-
--Stafford
 
