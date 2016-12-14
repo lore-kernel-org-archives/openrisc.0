@@ -1,44 +1,43 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 14 Dec 2016 22:27:24 +0900
-Subject: [OpenRISC] [PATCH v2] openrisc: Add _text symbol to fix ksym build
-	error
-Message-ID: <1481722044-20901-1-git-send-email-shorne@gmail.com>
+From: Olof Kindgren <olof.kindgren@gmail.com>
+Date: Wed, 14 Dec 2016 15:05:21 +0100
+Subject: [OpenRISC] ORPSoC in ISE project navigator/Quartus
+In-Reply-To: <4A10ED4B-8809-4DF7-9999-9B2383428518@gmail.com>
+References: <4A10ED4B-8809-4DF7-9999-9B2383428518@gmail.com>
+Message-ID: <CAKaYPCM=_dDCAHOhC=d2C2FL5w01fqPsVuyiGm2k8ktLJL834g@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The build robot reports:
+On Wed, Dec 14, 2016 at 11:17 AM, Masoud Man <masoud.mansouryar@gmail.com>
+wrote:
 
-   .tmp_kallsyms1.o: In function `kallsyms_relative_base':
->> (.rodata+0x8a18): undefined reference to `_text'
+>
+> Hello friends,
+> Has anyone used openRISC design in Xilinx ISE project Navigator or Quartus
+> softwares (GUI based not with makefile)?
+> I have some small questions, thanks.
+>
+> Best Regards
+> Masoud
+>
+>
+>
+>
+> _______________________________________________
+> OpenRISC mailing list
+> OpenRISC at lists.librecores.org
+> https://lists.librecores.org/listinfo/openrisc
+>
+>
+What kind of questions?
 
-This is when using 'make alldefconfig'. Adding this _text symbol to mark
-the start of the kernel as in other architecture fixes this.
+If you're using FuseSoC, it will automatically generate project files for
+you. I sometimes use the GUI to do the implementation, but mostly let
+FuseSoC build the whole thing
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
-Change in v2:
- - dont add _data since its not needed
-
- arch/openrisc/kernel/vmlinux.lds.S | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/arch/openrisc/kernel/vmlinux.lds.S b/arch/openrisc/kernel/vmlinux.lds.S
-index ef31fc2..5525446 100644
---- a/arch/openrisc/kernel/vmlinux.lds.S
-+++ b/arch/openrisc/kernel/vmlinux.lds.S
-@@ -44,6 +44,8 @@ SECTIONS
-         /* Read-only sections, merged into text segment: */
-         . = LOAD_BASE ;
- 
-+	_text = .;
-+
- 	/* _s_kernel_ro must be page aligned */
- 	. = ALIGN(PAGE_SIZE);
- 	_s_kernel_ro = .;
--- 
-2.7.4
-
-
+//Oof
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20161214/233d2856/attachment.html>
