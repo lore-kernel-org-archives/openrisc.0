@@ -1,427 +1,1141 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 17 Dec 2016 01:02:53 +0900
-Subject: [OpenRISC] [PATCH 3/5] or1k: gdb: Simplify handling of tdesc
+Date: Sat, 17 Dec 2016 01:02:54 +0900
+Subject: [OpenRISC] [PATCH 4/5] or1k: gdb: Remove spr commands
 In-Reply-To: <cover.1481903617.git.shorne@gmail.com>
 References: <cover.1481903617.git.shorne@gmail.com>
-Message-ID: <367e63db38d88ac51dcf23d863f57bd87fde1c5f.1481903617.git.shorne@gmail.com>
+Message-ID: <21d4d8698d713d61ccdd8da6b186c21f1c9dabd2.1481903617.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The previous code tried to intercept all access to registers provided by
-report target descriptor features.  However, the target descriptor can
-support that access if setup properly.
+The recommended was to read/write registers is through the g packet.
 
-There was also some code which dynamically created groups which I change
-to simply hard code the groups we support.  I hope that is reasonable.
-
-I did some basic testing and it seems to all work the same as before.
-Need to confirm with the real openocd target.
-
-or1k-tdep.c
- * remove parsing logic and info_reg overrides
-   as its handled by target descriptions actually
-
-target-descriptions.[ch]
- * remove unused functions
+Lets try that way. As suggested by Yao.
 ---
- gdb/or1k-tdep.c           | 262 +++++++---------------------------------------
- gdb/target-descriptions.c |  34 ------
- gdb/target-descriptions.h |  12 ---
- 3 files changed, 39 insertions(+), 269 deletions(-)
+ gdb/or1k-tdep.c | 943 --------------------------------------------------------
+ gdb/or1k-tdep.h | 148 ---------
+ 2 files changed, 1091 deletions(-)
 
 diff --git a/gdb/or1k-tdep.c b/gdb/or1k-tdep.c
-index be5f483..2ea3c24 100644
+index 2ea3c24..bd982b6 100644
 --- a/gdb/or1k-tdep.c
 +++ b/gdb/or1k-tdep.c
-@@ -413,19 +413,12 @@ static const char *const or1k_reg_names[OR1K_NUM_REGS_CACHED] = {
- static const char *
- or1k_register_name (struct gdbarch *gdbarch, int regnum)
- {
--  /* If we have a target description, use it */
--  if (tdesc_has_registers (gdbarch_target_desc (gdbarch)))
--    return tdesc_register_name (gdbarch, regnum);
--  else
-+  if (0 <= regnum && regnum < OR1K_NUM_REGS_CACHED)
-     {
--      if (0 <= regnum && regnum < OR1K_NUM_REGS_CACHED)
--	{
--	  return or1k_reg_names[regnum];
--	}
--      else
--	return NULL;
-+      return or1k_reg_names[regnum];
-     }
--
-+  else
-+      return NULL;
+@@ -1423,943 +1423,6 @@ or1k_dump_tdep (struct gdbarch *gdbarch, struct ui_file *file)
  }
+ 
  
- /* Implement the register_type gdbarch method.  */
-@@ -456,60 +449,6 @@ or1k_register_type (struct gdbarch *gdbarch, int regnum)
- 
- }
- 
--/* Implement the registers_info gdbarch method.  */
 -
--static void
--or1k_registers_info (struct gdbarch *gdbarch,
--		     struct ui_file *file,
--		     struct frame_info *frame, int regnum, int all)
+-/* Functions to add extra commands to GDB.  */
+-
+-/* Get a special purpose register group name.  */
+-
+-static const char *
+-or1k_spr_group_name (int group)
 -{
--  struct regcache *regcache = get_current_regcache ();
+-  static const char *or1k_group_names[OR1K_NUM_SPGS] = {
+-    "SYS",
+-    "DMMU",
+-    "IMMU",
+-    "DCACHE",
+-    "ICACHE",
+-    "MAC",
+-    "DEBUG",
+-    "PERF",
+-    "POWER",
+-    "PIC",
+-    "TIMER",
+-    "FPU"
+-  };
 -
--/* TODO
--or1k_registers_info should print the registers contents from FRAME
--rather than current regcache.
--*/
--
--  if (-1 == regnum)
+-  if ((0 <= group) && (group < OR1K_NUM_SPGS))
 -    {
--      /* Do all (valid) registers */
--      unsigned int lim = all ? OR1K_NUM_REGS_CACHED : OR1K_MAX_GPR_REGS;
--
--      for (regnum = 0; regnum < lim; regnum++)
--	{
--	  if ('\0' != *(or1k_register_name (gdbarch, regnum)))
--	    {
--	      or1k_registers_info (gdbarch, file, frame, regnum, all);
--	    }
--	}
+-      return or1k_group_names[group];
 -    }
 -  else
 -    {
--      /* Do one specified register - if it is part of this architecture */
--      if ((regnum < OR1K_NUM_REGS_CACHED)
--	  && ('\0' == *(or1k_register_name (gdbarch, regnum))))
--	{
--	  error ("Not a valid register for the current processor type");
--	}
--      else
--	{
--	  /* If the register is not in the g/G packet, fetch it from the
--	   * target with a p/P packet.
--	   */
--	  if (regnum >= OR1K_NUM_REGS_CACHED)
--	    target_fetch_registers (regcache, regnum);
--
--/* TODO
--Why is a register not in the g/G packet?  Again, we shouldn't fetch
--registers now.
--*/
--
--	  default_print_registers_info (gdbarch, file, frame, regnum, all);
--	}
+-      return "";
 -    }
 -}
 -
 -
- /* Implement the register_reggroup_p gdbarch method.  */
- 
- static int
-@@ -544,16 +483,8 @@ or1k_register_reggroup_p (struct gdbarch *gdbarch,
-       return 0;	/* No vector regs.  */
-     }
- 
--  if (tdesc_has_registers (gdbarch_target_desc (gdbarch)))
--    {
--      if ((tdesc_register_in_reggroup_p (gdbarch, regnum, group)) != 1)
--	return 0;
--      else
--	return 1;
--    }
--  else
--    /* For any that are not handled above.  */
--    return default_register_reggroup_p (gdbarch, regnum, group);
-+  /* For any that are not handled above.  */
-+  return default_register_reggroup_p (gdbarch, regnum, group);
- 
- }
- 
-@@ -1308,98 +1239,6 @@ static const struct frame_unwind or1k_frame_unwind = {
-   .prev_arch = NULL
- };
- 
+-/* Get a special purpose register name.  */
 -
--/* Create a register group based on a group name.  */
--
--static int
--create_register_group (struct gdbarch *gdbarch, const char *group_name)
+-static char *
+-or1k_spr_register_name (int group, int index, char *name)
 -{
--  struct reggroup *group;
--  static int first = 1;
--  int group_exist = 0;
+-  char di;
 -
--  if (group_name == NULL)
--    return 0;
--
--  if (!first)
+-  switch (group)
 -    {
--      for (group = reggroup_next (gdbarch, NULL);
--	   group != NULL; group = reggroup_next (gdbarch, group))
+-
+-    case OR1K_SPG_SYS:
+-      /* 1:1 names */
+-      switch (index)
 -	{
--	  if (strcmp (group_name, reggroup_name (group)) == 0)
--	    group_exist = 1;
+-	case OR1K_SPG_SYS_VR:
+-	  sprintf (name, "VR");
+-	  return name;
+-	case OR1K_SPG_SYS_UPR:
+-	  sprintf (name, "UPR");
+-	  return name;
+-	case OR1K_SPG_SYS_CPUCFGR:
+-	  sprintf (name, "CPUCFGR");
+-	  return name;
+-	case OR1K_SPG_SYS_DMMUCFGR:
+-	  sprintf (name, "DMMUCFGR");
+-	  return name;
+-	case OR1K_SPG_SYS_IMMUCFGR:
+-	  sprintf (name, "IMMUCFGR");
+-	  return name;
+-	case OR1K_SPG_SYS_DCCFGR:
+-	  sprintf (name, "DCCFGR");
+-	  return name;
+-	case OR1K_SPG_SYS_ICCFGR:
+-	  sprintf (name, "ICCFGR");
+-	  return name;
+-	case OR1K_SPG_SYS_DCFGR:
+-	  sprintf (name, "DCFGR");
+-	  return name;
+-	case OR1K_SPG_SYS_PCCFGR:
+-	  sprintf (name, "PCCFGR");
+-	  return name;
+-	case OR1K_SPG_SYS_NPC:
+-	  sprintf (name, "NPC");
+-	  return name;
+-	case OR1K_SPG_SYS_SR:
+-	  sprintf (name, "SR");
+-	  return name;
+-	case OR1K_SPG_SYS_PPC:
+-	  sprintf (name, "PPC");
+-	  return name;
+-	case OR1K_SPG_SYS_FPCSR:
+-	  sprintf (name, "FPCSR");
+-	  return name;
 -	}
 -
--      if (!group_exist)
+-      /* Exception PC regs */
+-      if ((OR1K_SPG_SYS_EPCR <= index) && (index <= OR1K_SPG_SYS_EPCR_END))
 -	{
--	  /* If the group doesn't exist, create it.  */
--	  reggroup_add (gdbarch, reggroup_new (group_name, USER_REGGROUP));
--	  return 1;
+-	  sprintf (name, "EPCR%d", index - OR1K_SPG_SYS_EPCR);
+-	  return name;
 -	}
--    }
--  else
--    {
--      /* The function reggroup_next cannot be called during architecture init.
--         However, a first call to reggroup_add execute reggroups_init and then
--         reggroup_next can be use. We assume the first group name we create
--         does not exist.  */
--      reggroup_add (gdbarch, reggroup_new (group_name, USER_REGGROUP));
--      first = 0;
+-
+-      /* Exception EA regs */
+-      if ((OR1K_SPG_SYS_EEAR <= index) && (index <= OR1K_SPG_SYS_EEAR_END))
+-	{
+-	  sprintf (name, "EEAR%d", index - OR1K_SPG_SYS_EEAR);
+-	  return name;
+-	}
+-
+-      /* Exception SR regs */
+-      if ((OR1K_SPG_SYS_ESR <= index) && (index <= OR1K_SPG_SYS_ESR_END))
+-	{
+-	  sprintf (name, "ESR%d", index - OR1K_SPG_SYS_ESR);
+-	  return name;
+-	}
+-
+-      /* GPRs */
+-      if ((OR1K_SPG_SYS_GPR <= index) && (index <= OR1K_SPG_SYS_GPR_END))
+-	{
+-	  sprintf (name, "GPR%d", index - OR1K_SPG_SYS_GPR);
+-	  return name;
+-	}
+-
+-      break;
+-
+-    case OR1K_SPG_DMMU:
+-    case OR1K_SPG_IMMU:
+-      /* MMU registers. Use DMMU constants throughout, but these are identical
+-         to the corresponding IMMU constants.  */
+-      di = OR1K_SPG_DMMU == group ? 'D' : 'I';
+-
+-      /* 1:1 names */
+-      switch (index)
+-	{
+-	case OR1K_SPG_DMMU_DMMUCR:
+-	  sprintf (name, "%cMMUCR", di);
+-	  return name;
+-	case OR1K_SPG_DMMU_DMMUPR:
+-	  sprintf (name, "%cMMUPR", di);
+-	  return name;
+-	case OR1K_SPG_DMMU_DTLBEIR:
+-	  sprintf (name, "%cTLBEIR", di);
+-	  return name;
+-	}
+-
+-      /* ATB Match registers */
+-      if ((OR1K_SPG_DMMU_DATBMR <= index)
+-	  && (index <= OR1K_SPG_DMMU_DATBMR_END))
+-	{
+-	  sprintf (name, "%cATBMR%d", di, index - OR1K_SPG_DMMU_DATBMR);
+-	  return name;
+-	}
+-
+-      /* ATB Translate registers */
+-      if ((OR1K_SPG_DMMU_DATBTR <= index)
+-	  && (index <= OR1K_SPG_DMMU_DATBTR_END))
+-	{
+-	  sprintf (name, "%cATBTR%d", di, index - OR1K_SPG_DMMU_DATBTR);
+-	  return name;
+-	}
+-
+-      /* TLB Way 1 Match registers */
+-      if ((OR1K_SPG_DMMU_DTLBW1MR <= index)
+-	  && (index <= OR1K_SPG_DMMU_DTLBW1MR_END))
+-	{
+-	  sprintf (name, "%cTLBW1MR%d", di, index - OR1K_SPG_DMMU_DTLBW1MR);
+-	  return name;
+-	}
+-
+-      /* TLB Way 1 Translate registers */
+-      if ((OR1K_SPG_DMMU_DTLBW1TR <= index)
+-	  && (index <= OR1K_SPG_DMMU_DTLBW1TR_END))
+-	{
+-	  sprintf (name, "%cTLBW1TR%d", di, index - OR1K_SPG_DMMU_DTLBW1TR);
+-	  return name;
+-	}
+-
+-      /* TLB Way 2 Match registers */
+-      if ((OR1K_SPG_DMMU_DTLBW2MR <= index)
+-	  && (index <= OR1K_SPG_DMMU_DTLBW2MR_END))
+-	{
+-	  sprintf (name, "%cTLBW2MR%d", di, index - OR1K_SPG_DMMU_DTLBW2MR);
+-	  return name;
+-	}
+-
+-      /* TLB Way 2 Translate registers */
+-      if ((OR1K_SPG_DMMU_DTLBW2TR <= index)
+-	  && (index <= OR1K_SPG_DMMU_DTLBW2TR_END))
+-	{
+-	  sprintf (name, "%cTLBW2TR%d", di, index - OR1K_SPG_DMMU_DTLBW2TR);
+-	  return name;
+-	}
+-
+-      /* TLB Way 3 Match registers */
+-      if ((OR1K_SPG_DMMU_DTLBW3MR <= index)
+-	  && (index <= OR1K_SPG_DMMU_DTLBW3MR_END))
+-	{
+-	  sprintf (name, "%cTLBW3MR%d", di, index - OR1K_SPG_DMMU_DTLBW3MR);
+-	  return name;
+-	}
+-
+-      /* TLB Way 3 Translate registers */
+-      if ((OR1K_SPG_DMMU_DTLBW3TR <= index)
+-	  && (index <= OR1K_SPG_DMMU_DTLBW3TR_END))
+-	{
+-	  sprintf (name, "%cTLBW3TR%d", di, index - OR1K_SPG_DMMU_DTLBW3TR);
+-	  return name;
+-	}
+-
+-      break;
+-
+-    case OR1K_SPG_DC:
+-      /* Data cache registers. These do not have an exact correspondence with
+-         their instruction cache counterparts, so must be done separately.  */
+-
+-      /* 1:1 names */
+-      switch (index)
+-	{
+-	case OR1K_SPG_DC_DCCR:
+-	  sprintf (name, "DCCR");
+-	  return name;
+-	case OR1K_SPG_DC_DCBPR:
+-	  sprintf (name, "DCBPR");
+-	  return name;
+-	case OR1K_SPG_DC_DCBFR:
+-	  sprintf (name, "DCBFR");
+-	  return name;
+-	case OR1K_SPG_DC_DCBIR:
+-	  sprintf (name, "DCBIR");
+-	  return name;
+-	case OR1K_SPG_DC_DCBWR:
+-	  sprintf (name, "DCBWR");
+-	  return name;
+-	case OR1K_SPG_DC_DCBLR:
+-	  sprintf (name, "DCBLR");
+-	  return name;
+-	}
+-
+-      break;
+-
+-    case OR1K_SPG_IC:
+-      /* Instruction cache registers */
+-
+-      /* 1:1 names */
+-      switch (index)
+-	{
+-	case OR1K_SPG_IC_ICCR:
+-	  sprintf (name, "ICCR");
+-	  return name;
+-	case OR1K_SPG_IC_ICBPR:
+-	  sprintf (name, "ICBPR");
+-	  return name;
+-	case OR1K_SPG_IC_ICBIR:
+-	  sprintf (name, "ICBIR");
+-	  return name;
+-	case OR1K_SPG_IC_ICBLR:
+-	  sprintf (name, "ICBLR");
+-	  return name;
+-	}
+-
+-      break;
+-
+-    case OR1K_SPG_MAC:
+-      /* MAC registers */
+-
+-      /* 1:1 names */
+-      switch (index)
+-	{
+-	case OR1K_SPG_MAC_MACLO:
+-	  sprintf (name, "MACLO");
+-	  return name;
+-	case OR1K_SPG_MAC_MACHI:
+-	  sprintf (name, "MACHI");
+-	  return name;
+-	}
+-
+-      break;
+-
+-    case OR1K_SPG_DEBUG:
+-      /* Debug registers */
+-
+-      /* Debug Value registers */
+-      if ((OR1K_SPG_DEBUG_DVR <= index) && (index <= OR1K_SPG_DEBUG_DVR_END))
+-	{
+-	  sprintf (name, "DVR%d", index - OR1K_SPG_DEBUG_DVR);
+-	  return name;
+-	}
+-
+-      /* Debug Control registers */
+-      if ((OR1K_SPG_DEBUG_DCR <= index) && (index <= OR1K_SPG_DEBUG_DCR_END))
+-	{
+-	  sprintf (name, "DCR%d", index - OR1K_SPG_DEBUG_DCR);
+-	  return name;
+-	}
+-
+-      /* 1:1 names */
+-      switch (index)
+-	{
+-	case OR1K_SPG_DEBUG_DMR1:
+-	  sprintf (name, "DMR1");
+-	  return name;
+-	case OR1K_SPG_DEBUG_DMR2:
+-	  sprintf (name, "DMR2");
+-	  return name;
+-	case OR1K_SPG_DEBUG_DCWR0:
+-	  sprintf (name, "DCWR0");
+-	  return name;
+-	case OR1K_SPG_DEBUG_DCWR1:
+-	  sprintf (name, "DCWR1");
+-	  return name;
+-	case OR1K_SPG_DEBUG_DSR:
+-	  sprintf (name, "DSR");
+-	  return name;
+-	case OR1K_SPG_DEBUG_DRR:
+-	  sprintf (name, "DRR");
+-	  return name;
+-	}
+-
+-      break;
+-
+-    case OR1K_SPG_PC:
+-      /* Performance Counter registers */
+-
+-      /* Performance Counters Count registers */
+-      if ((OR1K_SPG_PC_PCCR <= index) && (index <= OR1K_SPG_PC_PCCR_END))
+-	{
+-	  sprintf (name, "PCCR%d", index - OR1K_SPG_PC_PCCR);
+-	  return name;
+-	}
+-
+-      /* Performance Counters Mode registers */
+-      if ((OR1K_SPG_PC_PCMR <= index) && (index <= OR1K_SPG_PC_PCMR_END))
+-	{
+-	  sprintf (name, "PCMR%d", index - OR1K_SPG_PC_PCMR);
+-	  return name;
+-	}
+-
+-      break;
+-
+-    case OR1K_SPG_PM:
+-      /* Power Management registers */
+-
+-      /* 1:1 names */
+-      switch (index)
+-	{
+-	case OR1K_SPG_PM_PMR:
+-	  sprintf (name, "PMR");
+-	  return name;
+-	}
+-
+-      break;
+-
+-    case OR1K_SPG_PIC:
+-      /* Programmable Interrupt Controller registers */
+-
+-      /* 1:1 names */
+-      switch (index)
+-	{
+-	case OR1K_SPG_PIC_PICMR:
+-	  sprintf (name, "PICMR");
+-	  return name;
+-	case OR1K_SPG_PIC_PICSR:
+-	  sprintf (name, "PICSR");
+-	  return name;
+-	}
+-
+-      break;
+-
+-    case OR1K_SPG_TT:
+-      /* Tick Timer registers */
+-
+-      /* 1:1 names */
+-      switch (index)
+-	{
+-	case OR1K_SPG_TT_TTMR:
+-	  sprintf (name, "TTMR");
+-	  return name;
+-	case OR1K_SPG_TT_TTCR:
+-	  sprintf (name, "TTCR");
+-	  return name;
+-	}
+-
+-      break;
+-
+-    case OR1K_SPG_FPU:
+-
+-      break;
 -    }
 -
--  return 0;
+-  /* Not a recognized register */
+-  strcpy (name, "");
+-  return name;
+-
 -}
 -
--/* Register all reg found in a feature section and create a group for each
--   new register group name found in the tdesc file.  */
+-
+-/* Get SPR group number from a name.  */
 -
 -static int
--get_feature_registers (const struct tdesc_feature *feature,
--		       struct tdesc_arch_data *tdesc_data, int *reg_index,
--		       struct gdbarch *gdbarch)
+-or1k_groupnum_from_name (char *group_name)
 -{
--  int valid_p;
+-  int group;
+-
+-  for (group = 0; group < OR1K_NUM_SPGS; group++)
+-    {
+-      if (0 == strcasecmp (group_name, or1k_spr_group_name (group)))
+-	{
+-	  return group;
+-	}
+-    }
+-
+-  return -1;
+-
+-}
+-
+-
+-/* Get register index in special purpose register group from name.
+-   The name may either be SPR<group_num>_<index> or a known unique name. In
+-   either case the group number must match the supplied group number.  */
+-
+-static int
+-or1k_regnum_from_name (int group, char *name)
+-{
+-  /* Last valid register in each group.  */
+-  static const int or1k_spr_group_last[OR1K_NUM_SPGS] = {
+-    OR1K_SPG_SYS_LAST,
+-    OR1K_SPG_DMMU_LAST,
+-    OR1K_SPG_IMMU_LAST,
+-    OR1K_SPG_DC_LAST,
+-    OR1K_SPG_IC_LAST,
+-    OR1K_SPG_MAC_LAST,
+-    OR1K_SPG_DEBUG_LAST,
+-    OR1K_SPG_PC_LAST,
+-    OR1K_SPG_PM_LAST,
+-    OR1K_SPG_PIC_LAST,
+-    OR1K_SPG_TT_LAST,
+-    OR1K_SPG_FPU_LAST
+-  };
+-
 -  int i;
--  const char *name;
--  const char *group_name;
+-  char spr_name[32];
 -
--  if (feature)
+-  if (0 == strcasecmp (name, "SPR"))
 -    {
--      valid_p = 1;
--      i = 0;
--      while (1)
--	{
--	  name = tdesc_find_register_name (feature, i);
--	  if (name)
--	    {
--	      valid_p &=
--		tdesc_numbered_register (feature, tdesc_data, (*reg_index)++,
--					 name);
--	      if (valid_p)
--		{
--		  group_name = tdesc_find_register_group_name (feature, i);
--		  if (group_name)
--		    create_register_group (gdbarch, group_name);
--		}
--	      i++;
--	    }
--	  else
--	    break;
--	}
+-      char *ptr_c;
 -
--      if (!valid_p)
+-      /* skip SPR */
+-      name += 3;
+-
+-      /* get group number */
+-      i = (int) strtoul (name, &ptr_c, 10);
+-      if (*ptr_c != '_' || i != group)
 -	{
--	  tdesc_data_cleanup (tdesc_data);
 -	  return -1;
 -	}
 -
--      return i;
--
+-      /* get index */
+-      ptr_c++;
+-      i = (int) strtoul (name, &ptr_c, 10);
+-      if (*ptr_c)
+-	{
+-	  return -1;
+-	}
+-      else
+-	{
+-	  return i;
+-	}
 -    }
 -
--  return 0;
+-  /* Look for a "known" name in this group.  */
+-  for (i = 0; i <= or1k_spr_group_last[group]; i++)
+-    {
+-      char *s = or1k_spr_register_name (group, i, spr_name);
+-
+-      if (0 == strcasecmp (name, s))
+-	{
+-	  return i;
+-	}
+-    }
+-
+-  /* Failure */
+-  return -1;
+-
 -}
 -
- /* Architecture initialization for OpenRISC 1000.  */
- 
- static struct gdbarch *
-@@ -1467,7 +1306,6 @@ or1k_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)
-   /* Functions to supply register information */
-   set_gdbarch_register_name (gdbarch, or1k_register_name);
-   set_gdbarch_register_type (gdbarch, or1k_register_type);
--  set_gdbarch_print_registers_info (gdbarch, or1k_registers_info);
-   set_gdbarch_register_reggroup_p (gdbarch, or1k_register_reggroup_p);
- 
-   /* Functions to analyse frames */
-@@ -1514,73 +1352,51 @@ or1k_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)
- 
-   /* Check any target description for validity.  */
-   if (tdesc_has_registers (info.target_desc))
+-/* Get the next token from a string. Take a string and find the start of the
+-   next token and its length. A token is anything containing non-blank
+-   characters.  */
+-/* TODO make sure we cant use something existing here */
+-static int
+-or1k_tokenize (char *str, char **tok)
+-{
+-  char *ptr;
+-  int len;
+-
+-  if (NULL == str)
+-    {
+-      if (NULL != tok)
+-	{
+-	  *tok = NULL;
+-	}
+-      return 0;
+-    }
+-
+-  /* Find the start.  */
+-  for (ptr = str; ISBLANK (*ptr); ptr++)
+-    {
+-      continue;
+-    }
+-
+-  /* Return the start pointer if requested.  */
+-  if (NULL != tok)
+-    {
+-      *tok = ptr;
+-    }
+-
+-  /* Find the end and put in EOS.  */
+-  for (len = 0; ('\0' != ptr[len]) && (!ISBLANK (ptr[len])); len++)
+-    {
+-      continue;
+-    }
+-
+-  return len;
+-
+-}
+-
+-/* Parses args for spr commands. Where arg_str syntax is:
+-
+-   <spr_args>    -> <group_ref> | <reg_name>
+-   <group_ref>   -> <group_id> <index>
+-   <group_id>    -> <group_num> | <group_name>
+-
+-   Where the indices/names have to be valid.  */
+-
+-static char *
+-or1k_parse_spr_params (char *arg_str, int *group, int *index, int is_set)
+-{
+-  struct
+-  {
+-    char *str;
+-    int len;
+-    unsigned long int val;
+-    int is_num;
+-  } arg[3] =
+-  {
+-    {
+-    .str = NULL,.len = 0,.val = 0,.is_num = 0,},
+-    {
+-    .str = NULL,.len = 0,.val = 0,.is_num = 0,},
+-    {
+-    .str = NULL,.len = 0,.val = 0,.is_num = 0,}
+-  };
+-
+-  int num_args;
+-  char *trailer = arg_str;
+-  char *tmp_str;
+-  int i;
+-  struct ui_out *uiout = current_uiout;
+-  char spr_name[32];
+-
+-  /* Break out the arguments. Note that the strings are NOT null terminated
+-     (we don't want to change arg_str), so we must rely on len. The stroul
+-     call will still work, since there is always a non-digit char (possibly EOS)
+-     after the last digit.  */
+-  if (NULL == arg_str)
+-    {
+-      num_args = 0;
+-    }
+-  else
+-    {
+-      for (num_args = 0; num_args < 3; num_args++)
+-	{
+-	  arg[num_args].len = or1k_tokenize (trailer, &(arg[num_args].str));
+-	  trailer = arg[num_args].str + arg[num_args].len;
+-
+-	  if (0 == arg[num_args].len)
+-	    {
+-	      break;
+-	    }
+-	}
+-    }
+-
+-  /* Patch nulls into the arg strings and see about values. Couldn't do this
+-     earlier, since we needed the next char clean to check later args. This
+-     means advancing trailer, UNLESS it was already@EOS.  */
+-
+-  if ((NULL != arg_str) && ('\0' != *trailer))
+-    {
+-      trailer++;
+-    }
+-
+-  for (i = 0; i < num_args; i++)
+-    {
+-      (arg[i].str)[arg[i].len] = '\0';
+-      errno = 0;
+-      arg[i].val = strtoul (arg[i].str, &tmp_str, 0);
+-      arg[i].is_num = (0 == errno) && ('\0' == *tmp_str);
+-    }
+-
+-  /* Deal with the case where we are setting a register, so the final argument
+-     should be disregarded (it is the trailer). Do this anyway if we get a
+-     third argument.  */
+-  if ((is_set & (num_args > 0)) || (num_args > 2))
+-    {
+-      trailer = arg[num_args - 1].str;
+-      num_args--;
+-    }
+-
+-  /* Deal with different numbers of args */
+-
+-  switch (num_args)
 -    {
 -
-+    { 
-       const struct tdesc_feature *feature;
--      int total_regs = 0;
--      int nb_features;
--      char feature_name[30];
-+      int valid_p;
- 
--      tdesc_data = tdesc_data_alloc ();
-+      feature = tdesc_find_feature (info.target_desc, "org.gnu.gdb.or1k.group0");
-+      if (feature == NULL)
-+        return NULL;
- 
--      /* OpenRisc architecture manual define a maximum of 32 registers
--	 groups.  */
--      for (group = 0; group < 32; group++)
+-    case 0:
+-      ui_out_message (uiout, 0,
+-		      "Usage: <command> <register>      |\n"
+-		      "       <command> <group>         |\n"
+-		      "       <command> <group> <index>\n"
+-		      "Valid groups are:\n");
+-      for (i = 0; i < OR1K_NUM_SPGS; i++)
 -	{
-+      tdesc_data = tdesc_data_alloc ();
- 
--	  sprintf (feature_name, "org.gnu.gdb.or1k.group%d", group);
--	  feature = tdesc_find_feature (info.target_desc, feature_name);
-+      valid_p = 1;
- 
--	  retval =
--	    get_feature_registers (feature, tdesc_data, &reg_index, gdbarch);
-+      for (i = 0; i < OR1K_NUM_REGS_CACHED; i++)
-+        valid_p &= tdesc_numbered_register (feature, tdesc_data, i,
-+                                            or1k_reg_names[i]);
- 
--	  if (retval < 0)
+-	  ui_out_field_string (uiout, NULL, or1k_spr_group_name (i));
+-	  ui_out_spaces (uiout, 1);
+-	  ui_out_wrap_hint (uiout, NULL);
+-	}
+-      ui_out_field_string (uiout, NULL, "\n");
+-
+-      *index = -1;
+-      return trailer;
+-
+-    case 1:
+-      /* See if it is a numeric group */
+-      if (arg[0].is_num)
+-	{
+-	  if (arg[0].val < OR1K_NUM_SPGS)
 -	    {
--	      tdesc_data_cleanup (tdesc_data);
--	      return NULL;
+-	      *group = arg[0].val;
+-	      *index = -1;
+-	      return trailer;
 -	    }
 -	  else
 -	    {
--	      total_regs += retval;
--	      if (retval && gdbarch_debug)
--		fprintf_unfiltered (gdb_stdout,
--				    "Found %4d registers in feature %s\n",
--				    retval, feature_name);
+-	      ui_out_message (uiout, 0,
+-			      "Group index should be in the range 0 - %d\n",
+-			      OR1K_NUM_SPGS);
+-	      *group = -1;
+-	      *index = -1;
+-	      return trailer;
 -	    }
 -	}
--/*
--TODO YQ
--I don't fully understand what you want to achieve here, can you
--elaborate?  What do these features look alike?
--*/
--      if (gdbarch_debug)
--	fprintf_unfiltered (gdb_stdout,
--			    "Found %4d registers in the tdesc file\n",
--			    total_regs);
 -
--      if (!total_regs)
+-      /* Is is it a group name? */
+-      *group = or1k_groupnum_from_name (arg[0].str);
+-      if (*group >= 0)
 -	{
--	  tdesc_data_cleanup (tdesc_data);
--	  return NULL;
+-	  *index = -1;
+-	  return trailer;
 -	}
-+      if (!valid_p)
-+        { 
-+          tdesc_data_cleanup (tdesc_data);
-+          return NULL;
-+        }
-     }
- 
-   if (tdesc_data)
-     {
-       tdesc_use_registers (gdbarch, info.target_desc, tdesc_data);
- 
--      /* Override the normal target description methods to handle our
--         dual real and pseudo registers.  */
--/* TODO SMH
--These look wrong they are already set above
+-
+-      /* See if it is a valid register name in any group */
+-      for (*group = 0; *group < OR1K_NUM_SPGS; (*group)++)
+-	{
+-	  *index = or1k_regnum_from_name (*group, arg[0].str);
+-
+-	  if (*index >= 0)
+-	    {
+-	      return trailer;
+-	    }
+-	}
+-
+-      /* Couldn't find it - print out a rude message */
+-      ui_out_message (uiout, 0,
+-		      "Group or register name not recognized.\n"
+-		      "Valid groups are:\n");
+-      for (i = 0; i < OR1K_NUM_SPGS; i++)
+-	{
+-	  ui_out_field_string (uiout, NULL, or1k_spr_group_name (i));
+-	  ui_out_spaces (uiout, 1);
+-	  ui_out_wrap_hint (uiout, NULL);
+-	}
+-      ui_out_field_string (uiout, NULL, "\n");
+-
+-      *group = -1;
+-      *index = -1;
+-      return trailer;
+-
+-    case 2:
+-      /* See if first arg is a numeric group */
+-      if (arg[0].is_num)
+-	{
+-	  if (arg[0].val < OR1K_NUM_SPGS)
+-	    {
+-	      *group = arg[0].val;
+-	      *index = -1;
+-	    }
+-	  else
+-	    {
+-	      ui_out_message (uiout, 0,
+-			      "Group index should be in the range 0 - %d\n",
+-			      OR1K_NUM_SPGS - 1);
+-	      *group = -1;
+-	      *index = -1;
+-	      return trailer;
+-	    }
+-	}
+-      else
+-	{
+-	  /* Is is it a group name? */
+-	  *group = or1k_groupnum_from_name (arg[0].str);
+-	  if (*group >= 0)
+-	    {
+-	      *index = -1;
+-	    }
+-	  else
+-	    {
+-	      ui_out_message (uiout, 0,
+-			      "Group name not recognized.\n"
+-			      "Valid groups are:\n");
+-	      for (i = 0; i < OR1K_NUM_SPGS; i++)
+-		{
+-		  ui_out_field_string (uiout, NULL, or1k_spr_group_name (i));
+-		  ui_out_spaces (uiout, 1);
+-		  ui_out_wrap_hint (uiout, NULL);
+-		}
+-	      ui_out_field_string (uiout, NULL, "\n");
+-
+-	      *group = -1;
+-	      *index = -1;
+-	      return trailer;
+-	    }
+-	}
+-
+-      /* Is second arg an index or name? */
+-      if (arg[1].is_num)
+-	{
+-	  if (arg[1].val < OR1K_SPG_SIZE)
+-	    {
+-	      /* Check this really is a register */
+-	      if (0 != strlen (or1k_spr_register_name (*group, arg[1].val,
+-						       spr_name)))
+-		{
+-		  *index = arg[1].val;
+-		  return trailer;
+-		}
+-	      else
+-		{
+-		  ui_out_message (uiout, 0,
+-				  "No valid register@that index in group\n");
+-		  *group = -1;
+-		  *index = -1;
+-		  return trailer;
+-		}
+-	    }
+-	  else
+-	    {
+-	      ui_out_message (uiout, 0,
+-			      "Register index should be in the range 0 - %d\n",
+-			      OR1K_SPG_SIZE - 1);
+-	      *group = -1;
+-	      *index = -1;
+-	      return trailer;
+-	    }
+-	}
+-
+-      /* Must be a name */
+-      *index = or1k_regnum_from_name (*group, arg[1].str);
+-
+-      if (*index >= 0)
+-	{
+-	  return trailer;
+-	}
+-
+-      /* Couldn't find it - print out a rude message */
+-      ui_out_message (uiout, 0, "Register name not recognized in group.\n");
+-      *group = -1;
+-      *index = -1;
+-      return trailer;
+-
+-    default:
+-      /* Anything else is an error */
+-      ui_out_message (uiout, 0, "Unable to parse arguments\n");
+-      *group = -1;
+-      *index = -1;
+-      return trailer;
+-    }
+-}
+-
+-/* Read a special purpose register from the target.  */
+-
+-static ULONGEST
+-or1k_read_spr (unsigned int regnum)
+-{
+-  struct ui_file *uibuf = mem_fileopen ();
+-  char cmd[sizeof ("readspr ffff")];
+-  unsigned long int data;
+-  char *res;
+-  long int len;
+-
+-  /* Create the command string and pass it to target remote command function */
+-  sprintf (cmd, "readspr %4x", regnum);
+-  target_rcmd (cmd, uibuf);
+-
+-/* TODO YQ
+-Why don't you put these special purpose register to g packet, so that
+-we can read them through g packet?  It is not a good idea to extend rcmd this way.
 -*/
--      set_gdbarch_register_name (gdbarch, or1k_register_name);
--      set_gdbarch_register_reggroup_p (gdbarch, or1k_register_reggroup_p);
 -
--      set_gdbarch_register_name (gdbarch, or1k_register_name);
--      set_gdbarch_sp_regnum (gdbarch, OR1K_SP_REGNUM);
--      set_gdbarch_pc_regnum (gdbarch, OR1K_NPC_REGNUM);
--      set_gdbarch_num_pseudo_regs (gdbarch, OR1K_NUM_PSEUDO_REGS);
-+      /* Target descriptions may extend into the following groups.  */
-+      reggroup_add (gdbarch, general_reggroup);
-+      reggroup_add (gdbarch, system_reggroup);
-+      reggroup_add (gdbarch, float_reggroup);
-+      reggroup_add (gdbarch, vector_reggroup);
-+      reggroup_add (gdbarch, reggroup_new ("immu", USER_REGGROUP));
-+      reggroup_add (gdbarch, reggroup_new ("dmmu", USER_REGGROUP));
-+      reggroup_add (gdbarch, reggroup_new ("icache", USER_REGGROUP));
-+      reggroup_add (gdbarch, reggroup_new ("dcache", USER_REGGROUP));
-+      reggroup_add (gdbarch, reggroup_new ("pic", USER_REGGROUP));
-+      reggroup_add (gdbarch, reggroup_new ("timer", USER_REGGROUP));
-+      reggroup_add (gdbarch, reggroup_new ("power", USER_REGGROUP));
-+      reggroup_add (gdbarch, reggroup_new ("perf", USER_REGGROUP));
-+      reggroup_add (gdbarch, reggroup_new ("mac", USER_REGGROUP));
-+      reggroup_add (gdbarch, reggroup_new ("debug", USER_REGGROUP));
-+      reggroup_add (gdbarch, all_reggroup);
-+      reggroup_add (gdbarch, save_reggroup);
-+      reggroup_add (gdbarch, restore_reggroup);
-     }
+-  /* Get the output for the UI file as a string */
+-  res = ui_file_xstrdup (uibuf, &len);
+-  sscanf (res, "%lx", &data);
+-
+-  /* Tidy up */
+-  xfree (res);
+-  ui_file_delete (uibuf);
+-
+-  return (ULONGEST) data;
+-
+-}
+-
+-/* Write a special purpose register on the target.  */
+-
+-static void
+-or1k_write_spr (unsigned int regnum, ULONGEST data)
+-{
+-  struct ui_file *uibuf = mem_fileopen ();
+-  char cmd[sizeof ("writespr ffff ffffffff")];
+-  char *res;
+-  long int len;
+-
+-  /* Create the command string and pass it to target remote command function */
+-  sprintf (cmd, "writespr %4x %8llx", regnum, (long long unsigned int) data);
+-  target_rcmd (cmd, uibuf);
+-
+-  /* Flush the register cache */
+-  registers_changed ();
+-
+-  /* We ignore the result - Rcmd can put out its own error messages. Just
+-     tidy up.  */
+-  ui_file_delete (uibuf);
+-
+-}
+-
+-/* Show the value of a special purpose register or group.  */
+-
+-static void
+-or1k_info_spr_command (char *args, int from_tty)
+-{
+-  int group;
+-  int index;
+-  struct ui_out *uiout = current_uiout;
+-  char spr_name[32];
+-
+-  or1k_parse_spr_params (args, &group, &index, 0);
+-
+-/* TODO YQ
+-Could you explain what do you want to do for special purpose
+-register/group here?
+-*/
+-
+-  if (group < 0)
+-    {
+-      return; /* couldn't parse the args */
+-    }
+-
+-  if (index >= 0)
+-    {
+-      ULONGEST value = or1k_read_spr (OR1K_SPR (group, index));
+-
+-      ui_out_field_fmt (uiout, NULL, "%s.%s = SPR%i_%i = %llu (0x%llx)\n",
+-			or1k_spr_group_name (group),
+-			or1k_spr_register_name (group, index, spr_name),
+-			group, index, (long long unsigned int) value,
+-			(long long unsigned int) value);
+-    }
+-  else
+-    {
+-      /* Print all valid registers in the group.  */
+-      for (index = 0; index < OR1K_SPG_SIZE; index++)
+-	{
+-	  if (0 != strlen (or1k_spr_register_name (group, index, spr_name)))
+-	    {
+-	      ULONGEST value = or1k_read_spr (OR1K_SPR (group, index));
+-
+-	      ui_out_field_fmt (uiout, NULL,
+-				"%s.%s = SPR%i_%i = %llu (0x%llx)\n",
+-				or1k_spr_group_name (group),
+-				or1k_spr_register_name (group, index,
+-							spr_name), group,
+-				index, (long long unsigned int) value,
+-				(long long unsigned int) value);
+-	    }
+-	}
+-    }
+-}
+-
+-/* Set a special purpose register command.  */
+-
+-static void
+-or1k_spr_command (char *args, int from_tty)
+-{
+-  int group;
+-  int index;
+-  char *tmp_str;
+-  char *nargs = or1k_parse_spr_params (args, &group, &index, 1);
+-  struct ui_out *uiout = current_uiout;
+-  ULONGEST old_val;
+-  ULONGEST new_val;
+-
+-  char spr_name[32];
+-
+-  /* Do we have a valid register spec?  */
+-  if (index < 0)
+-    {
+-      return; /* Parser will have printed the error message.  */
+-    }
+-
+-  /* Do we have a value to set?  */
+-
+-  errno = 0;
+-  new_val = (ULONGEST) strtoul (nargs, &tmp_str, 0);
+-
+-  if ((0 != errno) || ('\0' != *tmp_str))
+-    {
+-      ui_out_message (uiout, 0, "Invalid value - register not changed\n");
+-      return;
+-    }
+-
+-  old_val = or1k_read_spr (OR1K_SPR (group, index));
+-
+-  or1k_write_spr (OR1K_SPR (group, index), new_val);
+-
+-  ui_out_field_fmt (uiout, NULL,
+-		    "%s.%s (SPR%i_%i) set to %llu (0x%llx), "
+-		    "was: %llu (0x%llx)\n",
+-		    or1k_spr_group_name (group),
+-		    or1k_spr_register_name (group, index, spr_name), group,
+-		    index, (long long unsigned int) new_val,
+-		    (long long unsigned int) new_val,
+-		    (long long unsigned int) old_val,
+-		    (long long unsigned int) old_val);
+-
+-}
+-
+ extern initialize_file_ftype _initialize_or1k_tdep; /* -Wmissing-prototypes */
  
-   return gdbarch;
-diff --git a/gdb/target-descriptions.c b/gdb/target-descriptions.c
-index a542ef9..dfc2e93 100644
---- a/gdb/target-descriptions.c
-+++ b/gdb/target-descriptions.c
-@@ -900,40 +900,6 @@ tdesc_numbered_register (const struct tdesc_feature *feature,
-   return 1;
+ void
+@@ -2370,10 +1433,4 @@ _initialize_or1k_tdep (void)
+ 
+   /* Tell remote stub that we support XML target description.  */
+   register_remote_support_xml ("or1k");
+-
+-  add_info ("spr", or1k_info_spr_command,
+-	    "Show the value of a special purpose register");
+-  add_com ("spr", class_support, or1k_spr_command,
+-	   "Set a special purpose register");
+-
  }
+diff --git a/gdb/or1k-tdep.h b/gdb/or1k-tdep.h
+index a3c361d..0684004 100644
+--- a/gdb/or1k-tdep.h
++++ b/gdb/or1k-tdep.h
+@@ -31,154 +31,6 @@
+ /*! Numeric instruction used for a l.nop NOP_EXIT */
+ #define  OR1K_NOP_EXIT 0x15000001
  
--/* Search FEATURE for a register REGNO and return its name. */
--char *
--tdesc_find_register_name (const struct tdesc_feature *feature,
--			   int regno)
--{
--  int ixr;
--  struct tdesc_reg *reg;
+-/* Special purpose groups */
 -
--  for (ixr = 0;
--       VEC_iterate (tdesc_reg_p, feature->registers, ixr, reg);
--       ixr++)
--    if (ixr == regno)
--      return reg->name;
+-#define OR1K_SPG_SIZE_BITS  11
+-#define OR1K_SPG_SIZE       (1 << OR1K_SPG_SIZE_BITS)
 -
--  return NULL;
--}
+-#define OR1K_SPG_SYS      0
+-#define OR1K_SPG_DMMU     1
+-#define OR1K_SPG_IMMU     2
+-#define OR1K_SPG_DC       3
+-#define OR1K_SPG_IC       4
+-#define OR1K_SPG_MAC      5
+-#define OR1K_SPG_DEBUG    6
+-#define OR1K_SPG_PC       7
+-#define OR1K_SPG_PM       8
+-#define OR1K_SPG_PIC      9
+-#define OR1K_SPG_TT      10
+-#define OR1K_SPG_FPU     11
 -
--/* Search FEATURE for a register REGNO and return its group name. */
--char *
--tdesc_find_register_group_name (const struct tdesc_feature *feature,
--			   int regno)
--{
--  int ixr;
--  struct tdesc_reg *reg;
+-#define OR1K_NUM_SPGS   (OR1K_SPG_FPU + 1)
 -
--  for (ixr = 0;
--       VEC_iterate (tdesc_reg_p, feature->registers, ixr, reg);
--       ixr++)
--    if (ixr == regno)
--      return reg->group;
+-/* Special register group offsets */
 -
--  return NULL;
--}
+-#define OR1K_SPG_SYS_VR          0
+-#define OR1K_SPG_SYS_UPR         1
+-#define OR1K_SPG_SYS_CPUCFGR     2
+-#define OR1K_SPG_SYS_DMMUCFGR    3
+-#define OR1K_SPG_SYS_IMMUCFGR    4
+-#define OR1K_SPG_SYS_DCCFGR      5
+-#define OR1K_SPG_SYS_ICCFGR      6
+-#define OR1K_SPG_SYS_DCFGR       7
+-#define OR1K_SPG_SYS_PCCFGR      8
+-#define OR1K_SPG_SYS_NPC        16
+-#define OR1K_SPG_SYS_SR         17
+-#define OR1K_SPG_SYS_PPC        18
+-#define OR1K_SPG_SYS_FPCSR      20
+-#define OR1K_SPG_SYS_EPCR       32
+-#define OR1K_SPG_SYS_EPCR_END  (OR1K_SPG_SYS_EPCR + 15)
+-#define OR1K_SPG_SYS_EEAR       48
+-#define OR1K_SPG_SYS_EEAR_END  (OR1K_SPG_SYS_EEAR + 15)
+-#define OR1K_SPG_SYS_ESR        64
+-#define OR1K_SPG_SYS_ESR_END   (OR1K_SPG_SYS_ESR + 15)
+-#define OR1K_SPG_SYS_GPR      1024
+-#define OR1K_SPG_SYS_GPR_END   (OR1K_SPG_SYS_GPR + OR1K_MAX_GPR_REGS)
+-#define OR1K_SPG_SYS_LAST       OR1K_SPG_SYS_GPR_END
 -
- /* Search FEATURE for a register named NAME, but do not assign a fixed
-    register number to it.  */
- 
-diff --git a/gdb/target-descriptions.h b/gdb/target-descriptions.h
-index 0d8f03f..ef97d1d 100644
---- a/gdb/target-descriptions.h
-+++ b/gdb/target-descriptions.h
-@@ -111,18 +111,6 @@ struct tdesc_arch_data *tdesc_data_alloc (void);
- 
- void tdesc_data_cleanup (void *data_untyped);
- 
--/* Search FEATURE for a register REGNO and return its name. */
+-#define OR1K_SPG_DMMU_DMMUCR           0
+-#define OR1K_SPG_DMMU_DMMUPR           1
+-#define OR1K_SPG_DMMU_DTLBEIR          2
+-#define OR1K_SPG_DMMU_DATBMR           4
+-#define OR1K_SPG_DMMU_DATBMR_END   (OR1K_SPG_DMMU_DATBMR + 3)
+-#define OR1K_SPG_DMMU_DATBTR           8
+-#define OR1K_SPG_DMMU_DATBTR_END   (OR1K_SPG_DMMU_DATBTR + 3)
+-#define OR1K_SPG_DMMU_DTLBW0MR       512
+-#define OR1K_SPG_DMMU_DTLBW0MR_END (OR1K_SPG_DMMU_DTLBW0MR + 127)
+-#define OR1K_SPG_DMMU_DTLBW0TR       640
+-#define OR1K_SPG_DMMU_DTLBW0TR_END (OR1K_SPG_DMMU_DTLBW0TR + 127)
+-#define OR1K_SPG_DMMU_DTLBW1MR       768
+-#define OR1K_SPG_DMMU_DTLBW1MR_END (OR1K_SPG_DMMU_DTLBW1MR + 127)
+-#define OR1K_SPG_DMMU_DTLBW1TR       896
+-#define OR1K_SPG_DMMU_DTLBW1TR_END (OR1K_SPG_DMMU_DTLBW1TR + 127)
+-#define OR1K_SPG_DMMU_DTLBW2MR      1024
+-#define OR1K_SPG_DMMU_DTLBW2MR_END (OR1K_SPG_DMMU_DTLBW2MR + 127)
+-#define OR1K_SPG_DMMU_DTLBW2TR      1152
+-#define OR1K_SPG_DMMU_DTLBW2TR_END (OR1K_SPG_DMMU_DTLBW2TR + 127)
+-#define OR1K_SPG_DMMU_DTLBW3MR      1280
+-#define OR1K_SPG_DMMU_DTLBW3MR_END (OR1K_SPG_DMMU_DTLBW3MR + 127)
+-#define OR1K_SPG_DMMU_DTLBW3TR      1408
+-#define OR1K_SPG_DMMU_DTLBW3TR_END (OR1K_SPG_DMMU_DTLBW3TR + 127)
+-#define OR1K_SPG_DMMU_LAST          OR1K_SPG_DMMU_DTLBW3TR_END
 -
--char *tdesc_find_register_name (const struct tdesc_feature *feature,
--				int regno);
+-#define OR1K_SPG_IMMU_IMMUCR           0
+-#define OR1K_SPG_IMMU_IMMUPR           1
+-#define OR1K_SPG_IMMU_ITLBEIR          2
+-#define OR1K_SPG_IMMU_IATBMR           4
+-#define OR1K_SPG_IMMU_IATBMR_END   (OR1K_SPG_IMMU_IATBMR + 3)
+-#define OR1K_SPG_IMMU_IATBTR           8
+-#define OR1K_SPG_IMMU_IATBTR_END   (OR1K_SPG_IMMU_IATBTR + 3)
+-#define OR1K_SPG_IMMU_ITLBW0MR       512
+-#define OR1K_SPG_IMMU_ITLBW0MR_END (OR1K_SPG_IMMU_ITLBW0MR + 127)
+-#define OR1K_SPG_IMMU_ITLBW0TR       640
+-#define OR1K_SPG_IMMU_ITLBW0TR_END (OR1K_SPG_IMMU_ITLBW0TR + 127)
+-#define OR1K_SPG_IMMU_ITLBW1MR       768
+-#define OR1K_SPG_IMMU_ITLBW1MR_END (OR1K_SPG_IMMU_ITLBW1MR + 127)
+-#define OR1K_SPG_IMMU_ITLBW1TR       896
+-#define OR1K_SPG_IMMU_ITLBW1TR_END (OR1K_SPG_IMMU_ITLBW1TR + 127)
+-#define OR1K_SPG_IMMU_ITLBW2MR      1024
+-#define OR1K_SPG_IMMU_ITLBW2MR_END (OR1K_SPG_IMMU_ITLBW2MR + 127)
+-#define OR1K_SPG_IMMU_ITLBW2TR      1152
+-#define OR1K_SPG_IMMU_ITLBW2TR_END (OR1K_SPG_IMMU_ITLBW2TR + 127)
+-#define OR1K_SPG_IMMU_ITLBW3MR      1280
+-#define OR1K_SPG_IMMU_ITLBW3MR_END (OR1K_SPG_IMMU_ITLBW3MR + 127)
+-#define OR1K_SPG_IMMU_ITLBW3TR      1408
+-#define OR1K_SPG_IMMU_ITLBW3TR_END (OR1K_SPG_IMMU_ITLBW3TR + 127)
+-#define OR1K_SPG_IMMU_LAST          OR1K_SPG_IMMU_ITLBW3TR_END
+-
+-#define OR1K_SPG_DC_DCCR   0
+-#define OR1K_SPG_DC_DCBPR  1
+-#define OR1K_SPG_DC_DCBFR  2
+-#define OR1K_SPG_DC_DCBIR  3
+-#define OR1K_SPG_DC_DCBWR  4
+-#define OR1K_SPG_DC_DCBLR  5
+-#define OR1K_SPG_DC_LAST   OR1K_SPG_DC_DCBLR
+-
+-#define OR1K_SPG_IC_ICCR   0
+-#define OR1K_SPG_IC_ICBPR  1
+-#define OR1K_SPG_IC_ICBIR  2
+-#define OR1K_SPG_IC_ICBLR  3
+-#define OR1K_SPG_IC_LAST   OR1K_SPG_IC_ICBLR
+-
+-#define OR1K_SPG_MAC_MACLO  1
+-#define OR1K_SPG_MAC_MACHI  2
+-#define OR1K_SPG_MAC_LAST   OR1K_SPG_MAC_MACHI
+-
+-#define OR1K_SPG_DEBUG_DVR      0
+-#define OR1K_SPG_DEBUG_DVR_END (OR1K_SPG_DEBUG_DVR + 7)
+-#define OR1K_SPG_DEBUG_DCR      8
+-#define OR1K_SPG_DEBUG_DCR_END (OR1K_SPG_DEBUG_DCR + 7)
+-#define OR1K_SPG_DEBUG_DMR1   16
+-#define OR1K_SPG_DEBUG_DMR2   17
+-#define OR1K_SPG_DEBUG_DCWR0  18
+-#define OR1K_SPG_DEBUG_DCWR1  19
+-#define OR1K_SPG_DEBUG_DSR    20
+-#define OR1K_SPG_DEBUG_DRR    21
+-#define OR1K_SPG_DEBUG_LAST   OR1K_SPG_DEBUG_DRR
+-
+-#define OR1K_SPG_PC_PCCR       0
+-#define OR1K_SPG_PC_PCCR_END  (OR1K_SPG_PC_PCCR + 7)
+-#define OR1K_SPG_PC_PCMR       8
+-#define OR1K_SPG_PC_PCMR_END  (OR1K_SPG_PC_PCMR + 7)
+-#define OR1K_SPG_PC_LAST       OR1K_SPG_PC_PCMR_END
+-
+-#define OR1K_SPG_PM_PMR     0
+-#define OR1K_SPG_PM_LAST    OR1K_SPG_PM_PMR
+-
+-#define OR1K_SPG_PIC_PICMR  0
+-#define OR1K_SPG_PIC_PICSR  2
+-#define OR1K_SPG_PIC_LAST   OR1K_SPG_PIC_PICSR
+-
+-#define OR1K_SPG_TT_TTMR    0
+-#define OR1K_SPG_TT_TTCR    1
+-#define OR1K_SPG_TT_LAST    OR1K_SPG_TT_TTCR
+-
+-#define OR1K_SPG_FPU_LAST  -1
 -
 -
--/* Search FEATURE for a register REGNO and return its group name. */
+-/* Define absolute SPR values from group and index  */
+-#define OR1K_SPR(group, index) (((group) << OR1K_SPG_SIZE_BITS) + (index))
 -
--char *tdesc_find_register_group_name (const struct tdesc_feature *feature,
--				      int regno);
--
--
- /* Search FEATURE for a register named NAME.  Record REGNO and the
-    register in DATA; when tdesc_use_registers is called, REGNO will be
-    assigned to the register.  1 is returned if the register was found,
+ /* General Purpose Registers */
+ #define OR1K_ZERO_REGNUM          0
+ #define OR1K_SP_REGNUM            1
 -- 
 2.7.4
 
