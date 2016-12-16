@@ -1,59 +1,69 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 17 Dec 2016 01:02:50 +0900
-Subject: [OpenRISC] [PATCH 0/5] Openrisc gdb patches after yao's comments
-Message-ID: <cover.1481903617.git.shorne@gmail.com>
+Date: Sat, 17 Dec 2016 01:02:52 +0900
+Subject: [OpenRISC] [PATCH 2/5] gdb: or1k: Remove pseudo registers
+In-Reply-To: <cover.1481903617.git.shorne@gmail.com>
+References: <cover.1481903617.git.shorne@gmail.com>
+Message-ID: <015c0ab94b89deb4c321cd5931ca148a27855971.1481903617.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi All, 
+We do not have definitions for peudo registers yet.  This could be added
+later. We do have vectors and floats that could be added here, but
+discussions need to be made on how they should be named and represented.
+---
+ gdb/or1k-tdep.c | 29 -----------------------------
+ 1 file changed, 29 deletions(-)
 
-I wanted to circulate these patches on the openrisc list first. These are in 
-response to Yao's gdb patch review.
-
- - The first patch is baiscally format and comment updates as per gnu style. 
- - The second removes the unimplemented pseudo register functions
- - Next is the BIG one it removes the handling of target-description parsing
-   and intercepting.  But this is as per the recommended way. May what is 
-   questionable is how I hard code the reggroups.
- - Next removes the special spr commands.  I think or1ksim would need to be
-   updated to work with the target-descriptor xml.
- - Last is just a cleanup.
-
-The plan would be to squash all of these into the previous patch set I sent. 
-
-Test results look ok.  Also I tested against openocd and I can reed sprs with
-commands like `info reg upr` as expected.
-
-                === gdb Summary ===
-
-# of expected passes            19241
-# of unexpected failures        406
-# of expected failures          29
-# of known failures             57
-# of unresolved testcases       2
-# of untested testcases         190
-# of unsupported tests          264
-/home/shorne/work/openrisc/build-gdb/gdb/gdb version  7.12.50.20161122-git 
-
--Stafford
-
-Stafford Horne (5):
-  gdb: or1k: Updates suggested by yao in gdb review
-  gdb: or1k: Remove pseudo registers
-  or1k: gdb: Simplify handling of tdesc
-  or1k: gdb: Remove spr commands
-  gdb: or1k: Just have one number of registers
-
- gdb/configure.tgt         |   14 -
- gdb/or1k-tdep.c           | 2931 +++++++++------------------------------------
- gdb/or1k-tdep.h           |  389 +-----
- gdb/target-descriptions.c |   34 -
- gdb/target-descriptions.h |   12 -
- 5 files changed, 549 insertions(+), 2831 deletions(-)
-
+diff --git a/gdb/or1k-tdep.c b/gdb/or1k-tdep.c
+index 2c5d679..be5f483 100644
+--- a/gdb/or1k-tdep.c
++++ b/gdb/or1k-tdep.c
+@@ -395,33 +395,6 @@ or1k_single_step_through_delay (struct gdbarch *gdbarch,
+ 
+ }
+ 
+-/* Read a pseudo register.  */
+-
+-/*
+-   TODO The floating point and vector registers ought to be done as
+-         pseudo-registers.
+-*/
+-
+-static enum register_status
+-or1k_pseudo_register_read (struct gdbarch *gdbarch,
+-			   struct regcache *regcache,
+-			   int regnum, gdb_byte * buf)
+-{
+-  return REG_UNKNOWN;
+-}
+-
+-
+-/* Write a pseudo register.  */
+-
+-static void
+-or1k_pseudo_register_write (struct gdbarch *gdbarch,
+-			    struct regcache *regcache,
+-			    int regnum, const gdb_byte * buf)
+-{
+-  return;
+-
+-}
+-
+ /* Name for or1k general registers.  */
+ 
+ static const char *const or1k_reg_names[OR1K_NUM_REGS_CACHED] = {
+@@ -1484,8 +1457,6 @@ or1k_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)
+   set_gdbarch_print_insn (gdbarch, print_insn_or1k);
+ 
+   /* Register architecture */
+-  set_gdbarch_pseudo_register_read (gdbarch, or1k_pseudo_register_read);
+-  set_gdbarch_pseudo_register_write (gdbarch, or1k_pseudo_register_write);
+   set_gdbarch_num_regs (gdbarch, OR1K_NUM_REGS);
+   set_gdbarch_num_pseudo_regs (gdbarch, OR1K_NUM_PSEUDO_REGS);
+   set_gdbarch_sp_regnum (gdbarch, OR1K_SP_REGNUM);
 -- 
 2.7.4
 
