@@ -1,35 +1,60 @@
-From: Masoud Man <masoud.mansouryar@gmail.com>
-Date: Wed, 14 Dec 2016 15:54:26 +0100
-Subject: [OpenRISC] ORPSoC in ISE project navigator/Quartus
-In-Reply-To: <CAKaYPCM=_dDCAHOhC=d2C2FL5w01fqPsVuyiGm2k8ktLJL834g@mail.gmail.com>
-References: <4A10ED4B-8809-4DF7-9999-9B2383428518@gmail.com>
- <CAKaYPCM=_dDCAHOhC=d2C2FL5w01fqPsVuyiGm2k8ktLJL834g@mail.gmail.com>
-Message-ID: <D43950BE-9937-4EF9-9AB3-C8C8C4F2F0AC@gmail.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Sat, 17 Dec 2016 01:02:50 +0900
+Subject: [OpenRISC] [PATCH 0/5] Openrisc gdb patches after yao's comments
+Message-ID: <cover.1481903617.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
+Hi All, 
 
-Dear Olof,
-Thank you for your suggestion. I am actually working on a modification of ORPSoC design, and following this workflow (OpenRISC 1200):
-http://www.rte.se/blog/blogg-modesty-corex/index <http://www.rte.se/blog/blogg-modesty-corex/index>
+I wanted to circulate these patches on the openrisc list first. These are in 
+response to Yao's gdb patch review.
 
-But in the simulation part when I use Fuse command, I get errors which I cannot solve. That’s why I want to try GUI since it’s easier to simulate and debug.
-Would you tell me the Verilog sources needed to add in my ISE hierarchy for synthesis please?
+ - The first patch is baiscally format and comment updates as per gnu style. 
+ - The second removes the unimplemented pseudo register functions
+ - Next is the BIG one it removes the handling of target-description parsing
+   and intercepting.  But this is as per the recommended way. May what is 
+   questionable is how I hard code the reggroups.
+ - Next removes the special spr commands.  I think or1ksim would need to be
+   updated to work with the target-descriptor xml.
+ - Last is just a cleanup.
 
-Thanks
-Masoud
+The plan would be to squash all of these into the previous patch set I sent. 
+
+Test results look ok.  Also I tested against openocd and I can reed sprs with
+commands like `info reg upr` as expected.
+
+                === gdb Summary ===
+
+# of expected passes            19241
+# of unexpected failures        406
+# of expected failures          29
+# of known failures             57
+# of unresolved testcases       2
+# of untested testcases         190
+# of unsupported tests          264
+/home/shorne/work/openrisc/build-gdb/gdb/gdb version  7.12.50.20161122-git 
+
+-Stafford
+
+Stafford Horne (5):
+  gdb: or1k: Updates suggested by yao in gdb review
+  gdb: or1k: Remove pseudo registers
+  or1k: gdb: Simplify handling of tdesc
+  or1k: gdb: Remove spr commands
+  gdb: or1k: Just have one number of registers
+
+ gdb/configure.tgt         |   14 -
+ gdb/or1k-tdep.c           | 2931 +++++++++------------------------------------
+ gdb/or1k-tdep.h           |  389 +-----
+ gdb/target-descriptions.c |   34 -
+ gdb/target-descriptions.h |   12 -
+ 5 files changed, 549 insertions(+), 2831 deletions(-)
+
+-- 
+2.7.4
 
 
-
-
-
-> On 14 Dec 2016, at 15:05, Olof Kindgren <olof.kindgren@gmail.com> wrote:
-> 
-> FuseSoC
-
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20161214/308baf28/attachment.html>
