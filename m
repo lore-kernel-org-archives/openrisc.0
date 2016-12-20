@@ -1,89 +1,62 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Tue, 20 Dec 2016 22:59:49 +0900
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Tue, 20 Dec 2016 21:45:56 +0100
 Subject: [OpenRISC] [PATCH] openrisc: Define __kernel_size_t to suppress
 	compiler warnings
-Message-ID: <1482242389-30006-1-git-send-email-shorne@gmail.com>
+In-Reply-To: <201612210415.zQ2N1x5s%fengguang.wu@intel.com>
+References: <1482242389-30006-1-git-send-email-shorne@gmail.com>
+ <201612210415.zQ2N1x5s%fengguang.wu@intel.com>
+Message-ID: <CAMuHMdUvXsiuHWuyiriyU5Y3ZJqRT2js++nXTwOd=WCdqArCTw@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The current build throws numerous warnings like:
+Hi Stafford,
 
-  mm/percpu.c:1442:9: warning: format '%zu' expects argument of type
-  'size_t', but argument 3 has type 'unsigned int' [-Wformat=]
-         ai->unit_size, ai->alloc_size / ai->atom_size, ai->atom_size);
-         ^
-  mm/percpu.c:1442:9: warning: format '%zu' expects argument of type
-  'size_t', but argument 4 has type 'unsigned int' [-Wformat=]
+On Tue, Dec 20, 2016 at 9:22 PM, kbuild test robot <lkp@intel.com> wrote:
+> [auto build test WARNING on linus/master]
+> [also build test WARNING on v4.9 next-20161220]
+> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+>
+> url:    https://github.com/0day-ci/linux/commits/Stafford-Horne/openrisc-Define-__kernel_size_t-to-suppress-compiler-warnings/20161221-024243
+> config: openrisc-or1ksim_defconfig (attached as .config)
+> compiler: or32-linux-gcc (GCC) 4.5.1-or32-1.0rc1
+> reproduce:
+>         wget https://git.kernel.org/cgit/linux/kernel/git/wfg/lkp-tests.git/plain/sbin/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         # save the attached .config to linux build tree
+>         make.cross ARCH=openrisc
+>
+> All warnings (new ones prefixed by >>):
+>
+>    crypto/drbg.c: In function 'drbg_seed':
+>>> crypto/drbg.c:1062:3: warning: format '%zu' expects type 'size_t', but argument 2 has type 'long unsigned int'
+>    crypto/drbg.c: In function 'drbg_generate':
+>    crypto/drbg.c:1275:3: warning: format '%zu' expects type 'size_t', but argument 2 has type 'long unsigned int'
 
-This change defines size_t as unsigned long, after this change there are
-no warnings.
+When I saw this patch, I was already a bit skeptical about it, but I noticed
+other architectures (e.g. avr32) are doing the same, so I didn't reply.
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- arch/openrisc/include/asm/Kbuild             |  1 -
- arch/openrisc/include/uapi/asm/Kbuild        |  1 +
- arch/openrisc/include/uapi/asm/posix_types.h | 24 ++++++++++++++++++++++++
- 3 files changed, 25 insertions(+), 1 deletion(-)
- create mode 100644 arch/openrisc/include/uapi/asm/posix_types.h
+In my experience, "format '%zu' expects argument of type 'size_t', but
+argument 3 has type 'unsigned int'" happens when using a compiler that
+was not configured to use the correct type (should be unsigned long) for
+size_t. Typically this happens when using a compiler not configured for
+a Linux target.
 
-diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
-index a669c14..98d69c5 100644
---- a/arch/openrisc/include/asm/Kbuild
-+++ b/arch/openrisc/include/asm/Kbuild
-@@ -40,7 +40,6 @@ generic-y += msgbuf.h
- generic-y += pci.h
- generic-y += percpu.h
- generic-y += poll.h
--generic-y += posix_types.h
- generic-y += preempt.h
- generic-y += resource.h
- generic-y += sections.h
-diff --git a/arch/openrisc/include/uapi/asm/Kbuild b/arch/openrisc/include/uapi/asm/Kbuild
-index 80761eb..c09b436 100644
---- a/arch/openrisc/include/uapi/asm/Kbuild
-+++ b/arch/openrisc/include/uapi/asm/Kbuild
-@@ -5,6 +5,7 @@ header-y += byteorder.h
- header-y += elf.h
- header-y += kvm_para.h
- header-y += param.h
-+header-y += posix_types.h
- header-y += ptrace.h
- header-y += sigcontext.h
- header-y += unistd.h
-diff --git a/arch/openrisc/include/uapi/asm/posix_types.h b/arch/openrisc/include/uapi/asm/posix_types.h
-new file mode 100644
-index 0000000..9b71c3f
---- /dev/null
-+++ b/arch/openrisc/include/uapi/asm/posix_types.h
-@@ -0,0 +1,24 @@
-+/*
-+ * This file is subject to the terms and conditions of the GNU General Public
-+ * License.  See the file "COPYING" in the main directory of this archive
-+ * for more details.
-+ *
-+ * Copyright (C) 2016 by Stafford Horne
-+ */
-+#ifndef _ASM_POSIX_TYPES_H
-+#define _ASM_POSIX_TYPES_H
-+
-+/*
-+ * This file is generally used by user-level software, so you need to
-+ * be a little careful about namespace pollution etc.  Also, we cannot
-+ * assume GCC is being used.
-+ */
-+
-+typedef unsigned long	__kernel_size_t;
-+typedef long		__kernel_ssize_t;
-+typedef long		__kernel_ptrdiff_t;
-+#define __kernel_size_t __kernel_size_t
-+
-+#include <asm-generic/posix_types.h>
-+
-+#endif /* _ASM_POSIX_TYPES_H */
--- 
-2.7.4
+Given 0day uses a compiler configured for Linux (or32-linux-gcc), your
+patch seems to break such (correct) setups.
 
+What kind of compiler are you using?
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert at linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
 
