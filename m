@@ -1,62 +1,89 @@
-From: Mike Frysinger <vapier@gentoo.org>
-Date: Sat, 17 Dec 2016 23:33:28 -0500
-Subject: [OpenRISC] [PATCH 00/18] sim: port for OpenRISC
-In-Reply-To: <20161217041836.GH2650@lianli.shorne-pla.net>
-References: <1479939272-1754-1-git-send-email-shorne@gmail.com>
- <20161125161932.GH21655@vapier.lan>
- <alpine.LFD.2.20.1611260741400.29569@lianli.shorne-pla.net>
- <20161205084050.GA567@lianli.shorne-pla.net>
- <20161216203421.GB30602@vapier.lan>
- <20161217041836.GH2650@lianli.shorne-pla.net>
-Message-ID: <20161218043328.GA9608@vapier.lan>
+From: Stafford Horne <shorne@gmail.com>
+Date: Tue, 20 Dec 2016 22:59:49 +0900
+Subject: [OpenRISC] [PATCH] openrisc: Define __kernel_size_t to suppress
+	compiler warnings
+Message-ID: <1482242389-30006-1-git-send-email-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 17 Dec 2016 13:18, Stafford Horne wrote:
-> On Fri, Dec 16, 2016 at 03:34:21PM -0500, Mike Frysinger wrote:
-> > On 05 Dec 2016 17:40, Stafford Horne wrote:
-> > > On Sat, Nov 26, 2016 at 07:46:37AM +0900, Stafford Horne wrote:
-> > > > On Fri, 25 Nov 2016, Mike Frysinger wrote:
-> > > > > On 24 Nov 2016 07:14, Stafford Horne wrote:
-> > > > > > The main author is Peter Gavin who should have his FSF copyright in place.
-> > > > > 
-> > > > > what about yourself ?  all authors should have papers in place.
-> > > > 
-> > > > I do not yet, but I would like to.  According to the gcc contributing
-> > > > guidelines [1] it mentions:
-> > > > 
-> > > >   See some documentation by the FSF for details and contact us (either via
-> > > >   the gcc at gcc.gnu.org list or the GCC maintainer that is taking care of
-> > > >   your contributions) to obtain the relevant forms.
-> > > > 
-> > > > I know this is not gcc, but gdb, but I thought it might be the same
-> > > > process. Since it mentions 'via .. maintainer .. taking care of your ..' I
-> > > > thought it best I submit these patches first.
-> > > > 
-> > > > Could you send me the forms?
-> > > > 
-> > > > [1] https://gcc.gnu.org/contribute.html
-> > > 
-> > > I was able to get these forms submitted, but I may have made a mistake.
-> > > Please, help clarify, I sent the program name as "GDB".  However does
-> > > that cover work on all of binutils-gdb?  Or just gdb?
-> > 
-> > i think each project is considered sep.  you'll want binutils, gdb, and
-> > sim.  this is the form i used in the past (directions at the top):
-> > http://git.savannah.gnu.org/gitweb/?p=gnulib.git;a=blob_plain;f=doc/Copyright/request-assign.future;hb=HEAD
-> 
-> Right, those are the same forms I used.  I will additionally request sim
-> and binutils.
+The current build throws numerous warnings like:
 
-thanks.  let us know when it's sorted and we can start the review.
--mike
--------------- next part --------------
-A non-text attachment was scrubbed...
-Name: signature.asc
-Type: application/pgp-signature
-Size: 819 bytes
-Desc: Digital signature
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20161217/735ed721/attachment.sig>
+  mm/percpu.c:1442:9: warning: format '%zu' expects argument of type
+  'size_t', but argument 3 has type 'unsigned int' [-Wformat=]
+         ai->unit_size, ai->alloc_size / ai->atom_size, ai->atom_size);
+         ^
+  mm/percpu.c:1442:9: warning: format '%zu' expects argument of type
+  'size_t', but argument 4 has type 'unsigned int' [-Wformat=]
+
+This change defines size_t as unsigned long, after this change there are
+no warnings.
+
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+ arch/openrisc/include/asm/Kbuild             |  1 -
+ arch/openrisc/include/uapi/asm/Kbuild        |  1 +
+ arch/openrisc/include/uapi/asm/posix_types.h | 24 ++++++++++++++++++++++++
+ 3 files changed, 25 insertions(+), 1 deletion(-)
+ create mode 100644 arch/openrisc/include/uapi/asm/posix_types.h
+
+diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
+index a669c14..98d69c5 100644
+--- a/arch/openrisc/include/asm/Kbuild
++++ b/arch/openrisc/include/asm/Kbuild
+@@ -40,7 +40,6 @@ generic-y += msgbuf.h
+ generic-y += pci.h
+ generic-y += percpu.h
+ generic-y += poll.h
+-generic-y += posix_types.h
+ generic-y += preempt.h
+ generic-y += resource.h
+ generic-y += sections.h
+diff --git a/arch/openrisc/include/uapi/asm/Kbuild b/arch/openrisc/include/uapi/asm/Kbuild
+index 80761eb..c09b436 100644
+--- a/arch/openrisc/include/uapi/asm/Kbuild
++++ b/arch/openrisc/include/uapi/asm/Kbuild
+@@ -5,6 +5,7 @@ header-y += byteorder.h
+ header-y += elf.h
+ header-y += kvm_para.h
+ header-y += param.h
++header-y += posix_types.h
+ header-y += ptrace.h
+ header-y += sigcontext.h
+ header-y += unistd.h
+diff --git a/arch/openrisc/include/uapi/asm/posix_types.h b/arch/openrisc/include/uapi/asm/posix_types.h
+new file mode 100644
+index 0000000..9b71c3f
+--- /dev/null
++++ b/arch/openrisc/include/uapi/asm/posix_types.h
+@@ -0,0 +1,24 @@
++/*
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file "COPYING" in the main directory of this archive
++ * for more details.
++ *
++ * Copyright (C) 2016 by Stafford Horne
++ */
++#ifndef _ASM_POSIX_TYPES_H
++#define _ASM_POSIX_TYPES_H
++
++/*
++ * This file is generally used by user-level software, so you need to
++ * be a little careful about namespace pollution etc.  Also, we cannot
++ * assume GCC is being used.
++ */
++
++typedef unsigned long	__kernel_size_t;
++typedef long		__kernel_ssize_t;
++typedef long		__kernel_ptrdiff_t;
++#define __kernel_size_t __kernel_size_t
++
++#include <asm-generic/posix_types.h>
++
++#endif /* _ASM_POSIX_TYPES_H */
+-- 
+2.7.4
+
+
