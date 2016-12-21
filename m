@@ -1,76 +1,46 @@
-From: kbuild test robot <lkp@intel.com>
-Date: Wed, 21 Dec 2016 12:06:53 +0800
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 21 Dec 2016 08:05:26 +0100
 Subject: [OpenRISC] [PATCH] openrisc: Define __kernel_size_t to suppress
- compiler warnings
-In-Reply-To: <1482242389-30006-1-git-send-email-shorne@gmail.com>
-Message-ID: <201612211228.62uBjDuK%fengguang.wu@intel.com>
+	compiler warnings
+In-Reply-To: <871sx28bl0.fsf@linux-m68k.org>
+References: <1482242389-30006-1-git-send-email-shorne@gmail.com>
+ <201612210415.zQ2N1x5s%fengguang.wu@intel.com>
+ <CAMuHMdUvXsiuHWuyiriyU5Y3ZJqRT2js++nXTwOd=WCdqArCTw@mail.gmail.com>
+ <871sx28bl0.fsf@linux-m68k.org>
+Message-ID: <CAMuHMdVn8FKEkaNeiYaepKcaE6eofZN9kJ0u0yo0Y1X3P37Bfg@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Stafford,
+On Tue, Dec 20, 2016 at 11:44 PM, Andreas Schwab <schwab@linux-m68k.org> wrote:
+> On Dez 20 2016, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+>> When I saw this patch, I was already a bit skeptical about it, but I noticed
+>> other architectures (e.g. avr32) are doing the same, so I didn't reply.
+>>
+>> In my experience, "format '%zu' expects argument of type 'size_t', but
+>> argument 3 has type 'unsigned int'" happens when using a compiler that
+>> was not configured to use the correct type (should be unsigned long) for
+>> size_t. Typically this happens when using a compiler not configured for
+>> a Linux target.
+>
+> 32-bit targets typically use unsigned int for size_t.  It is part of the
+> ABI, so all compilers must agree.  Since or32 is a out-of-tree port, and
+> gcc defaults to unsigned long for size_t, mismatches can happen if
+> people are using incomplete patches.
 
-[auto build test WARNING on linus/master]
-[also build test WARNING on v4.9 next-20161221]
-[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+Right, thanks for correcting me!
+It should indeed be unsigned int on 32-bit, and unsigned long on 64-bit.
 
-url:    https://github.com/0day-ci/linux/commits/Stafford-Horne/openrisc-Define-__kernel_size_t-to-suppress-compiler-warnings/20161221-024243
-config: openrisc-allnoconfig (attached as .config)
-compiler: or32-linux-gcc (GCC) 4.5.1-or32-1.0rc1
-reproduce:
-        wget https://git.kernel.org/cgit/linux/kernel/git/wfg/lkp-tests.git/plain/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # save the attached .config to linux build tree
-        make.cross ARCH=openrisc 
+Gr{oetje,eeting}s,
 
-All warnings (new ones prefixed by >>):
+                        Geert
 
-   mm/slab_common.c: In function 'create_boot_cache':
->> mm/slab_common.c:816:6: warning: format '%zu' expects type 'size_t', but argument 3 has type 'long unsigned int'
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert at linux-m68k.org
 
-vim +816 mm/slab_common.c
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
 
-45530c44 Christoph Lameter 2012-11-28  800  /* Create a cache during boot when no slab services are available yet */
-45530c44 Christoph Lameter 2012-11-28  801  void __init create_boot_cache(struct kmem_cache *s, const char *name, size_t size,
-45530c44 Christoph Lameter 2012-11-28  802  		unsigned long flags)
-45530c44 Christoph Lameter 2012-11-28  803  {
-45530c44 Christoph Lameter 2012-11-28  804  	int err;
-45530c44 Christoph Lameter 2012-11-28  805  
-45530c44 Christoph Lameter 2012-11-28  806  	s->name = name;
-45530c44 Christoph Lameter 2012-11-28  807  	s->size = s->object_size = size;
-45906855 Christoph Lameter 2012-11-28  808  	s->align = calculate_alignment(flags, ARCH_KMALLOC_MINALIGN, size);
-f7ce3190 Vladimir Davydov  2015-02-12  809  
-f7ce3190 Vladimir Davydov  2015-02-12  810  	slab_init_memcg_params(s);
-f7ce3190 Vladimir Davydov  2015-02-12  811  
-45530c44 Christoph Lameter 2012-11-28  812  	err = __kmem_cache_create(s, flags);
-45530c44 Christoph Lameter 2012-11-28  813  
-45530c44 Christoph Lameter 2012-11-28  814  	if (err)
-31ba7346 Christoph Lameter 2013-01-10  815  		panic("Creation of kmalloc slab %s size=%zu failed. Reason %d\n",
-45530c44 Christoph Lameter 2012-11-28 @816  					name, size, err);
-45530c44 Christoph Lameter 2012-11-28  817  
-45530c44 Christoph Lameter 2012-11-28  818  	s->refcount = -1;	/* Exempt from merging for now */
-45530c44 Christoph Lameter 2012-11-28  819  }
-45530c44 Christoph Lameter 2012-11-28  820  
-45530c44 Christoph Lameter 2012-11-28  821  struct kmem_cache *__init create_kmalloc_cache(const char *name, size_t size,
-45530c44 Christoph Lameter 2012-11-28  822  				unsigned long flags)
-45530c44 Christoph Lameter 2012-11-28  823  {
-45530c44 Christoph Lameter 2012-11-28  824  	struct kmem_cache *s = kmem_cache_zalloc(kmem_cache, GFP_NOWAIT);
-
-:::::: The code at line 816 was first introduced by commit
-:::::: 45530c4474d258b822e2639c786606d8257aad8b mm, sl[au]b: create common functions for boot slab creation
-
-:::::: TO: Christoph Lameter <cl@linux.com>
-:::::: CC: Pekka Enberg <penberg@kernel.org>
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
--------------- next part --------------
-A non-text attachment was scrubbed...
-Name: .config.gz
-Type: application/gzip
-Size: 4315 bytes
-Desc: not available
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20161221/315cecff/attachment.bin>
