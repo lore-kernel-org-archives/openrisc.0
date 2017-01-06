@@ -1,43 +1,49 @@
-From: Richard Weinberger <richard.weinberger@gmail.com>
-Date: Mon, 2 Jan 2017 12:15:55 +0100
-Subject: [OpenRISC] [PATCH 0/3] Openrisc 4.10 fixes
-In-Reply-To: <efa24779-b5a5-718a-8133-4ce24a010ab1@southpole.se>
-References: <cover.1483184705.git.shorne@gmail.com>
- <5edddd32-2a31-8b52-adfa-f5edae1fc227@southpole.se>
- <20161231225059.GC2777@lianli.shorne-pla.net>
- <efa24779-b5a5-718a-8133-4ce24a010ab1@southpole.se>
-Message-ID: <CAFLxGvyvLoSRfENYKF7dCOC9uQ1S_toXm05KGVvfiGykViDgSw@mail.gmail.com>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Date: Fri,  6 Jan 2017 10:43:52 +0100
+Subject: [OpenRISC] [PATCH v2 0/7] uapi: export all headers under uapi
+	directories
+In-Reply-To: <bf83da6b-01ef-bf44-b3e1-ca6fc5636818@6wind.com>
+References: <bf83da6b-01ef-bf44-b3e1-ca6fc5636818@6wind.com>
+Message-ID: <1483695839-18660-1-git-send-email-nicolas.dichtel@6wind.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Jan 2, 2017 at 11:34 AM, Jonas Bonn <jonas@southpole.se> wrote:
-> On 12/31/2016 11:50 PM, Stafford Horne wrote:
->>
->> Hi Jonas,
->>
->> On Sat, Dec 31, 2016 at 03:10:37PM +0100, Jonas Bonn wrote:
->>>
->>> Hi Stafford,
->>>
->>> Post-merge window patches should  be bug fixes, only.  Patch 1/3 probably
->>> qualifies, but the others are far too trivial to be pushing now.  Just
->>> put
->>> them on your 4.11 branch.
->>
->> Thanks, for some reason I thought minor changes like this were ok too.
->> I will only push the one change in this case.  The rest will go to my
->> 4.11 queue, which I'll send for review in the next few days.
->
-> Actually, it's not even bug-fixes, just fixes for regressions. Patch 1 fixes
 
-Well, it is not that strict.
-Fixes for real bugs are perfectly fine in early -rcX releases and don't have to
-wait for a merge window.
+Here is the v2 of this series. The first 5 patches are just cleanup: some
+exported headers were still under a non-uapi directory.
+The patch 6 was spotted by code review: there is no in-tree user of this
+functionality.
+The last patch remove the use of header-y. Now all files under an uapi
+directory are exported.
 
--- 
-Thanks,
-//richard
+asm is a bit special, most of architectures export asm/<arch>/include/uapi/asm
+only, but there is two exceptions:
+ - cris which exports arch/cris/include/uapi/arch-v[10|32];
+ - tile which exports arch/tile/include/uapi/arch.
+Because I don't know if the output of 'make headers_install_all' can be changed,
+I introduce subdir-y in Kbuild file. The headers_install_all target copies all
+asm/<arch>/include/uapi/asm to usr/include/asm-<arch> but
+arch/cris/include/uapi/arch-v[10|32] and arch/tile/include/uapi/arch are not
+prefixed (they are put asis in usr/include/). If it's acceptable to modify the
+output of 'make headers_install_all' to export asm headers in
+usr/include/asm-<arch>/asm, then I could remove this new subdir-y and exports
+everything under arch/<arch>/include/uapi/.
 
+Note also that exported files for asm are a mix of files listed by:
+ - include/uapi/asm-generic/Kbuild.asm;
+ - arch/x86/include/uapi/asm/Kbuild;
+ - arch/x86/include/asm/Kbuild.
+This complicates a lot the processing (arch/x86/include/asm/Kbuild is also
+used by scripts/Makefile.asm-generic).
+
+This series has been tested with a 'make headers_install' on x86 and a
+'make headers_install_all'. I've checked the result of both commands.
+
+This patch is built against linus tree. I don't know if it should be
+made against antoher tree.
+
+Comments are welcomed,
+Nicolas
