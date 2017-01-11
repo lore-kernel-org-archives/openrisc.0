@@ -1,33 +1,93 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Wed, 11 Jan 2017 07:48:03 +0100
-Subject: [OpenRISC] [PATCH 2/9] Move dma_ops from archdata into struct
-	device
-In-Reply-To: <20170111005648.14988-3-bart.vanassche@sandisk.com>
-References: <20170111005648.14988-1-bart.vanassche@sandisk.com>
- <20170111005648.14988-3-bart.vanassche@sandisk.com>
-Message-ID: <20170111064803.GB26893@kroah.com>
+From: Jesper Nilsson <jesper.nilsson@axis.com>
+Date: Wed, 11 Jan 2017 13:42:02 +0100
+Subject: [OpenRISC] [PATCH v2 0/7] uapi: export all headers under uapi
+	directories
+In-Reply-To: <3131144.4Ej3KFWRbz@wuerfel>
+References: <bf83da6b-01ef-bf44-b3e1-ca6fc5636818@6wind.com>
+ <1483695839-18660-1-git-send-email-nicolas.dichtel@6wind.com>
+ <3131144.4Ej3KFWRbz@wuerfel>
+Message-ID: <20170111124202.GD7275@axis.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Jan 10, 2017 at 04:56:41PM -0800, Bart Van Assche wrote:
-> Several RDMA drivers, e.g. drivers/infiniband/hw/qib, use the CPU to
-> transfer data between memory and PCIe adapter. Because of performance
-> reasons it is important that the CPU cache is not flushed when such
-> drivers transfer data. Make this possible by allowing these drivers to
-> override the dma_map_ops pointer. Additionally, introduce the function
-> set_dma_ops() that will be used by a later patch in this series.
+On Mon, Jan 09, 2017 at 12:33:58PM +0100, Arnd Bergmann wrote:
+> On Friday, January 6, 2017 10:43:52 AM CET Nicolas Dichtel wrote:
+> > Here is the v2 of this series. The first 5 patches are just cleanup: some
+> > exported headers were still under a non-uapi directory.
+> 
+> Since this is meant as a cleanup, I commented on this to point out a cleaner
+> way to do the same.
+> 
+> > The patch 6 was spotted by code review: there is no in-tree user of this
+> > functionality.
+> > The last patch remove the use of header-y. Now all files under an uapi
+> > directory are exported.
+> 
+> Very nice!
+> 
+> > asm is a bit special, most of architectures export asm/<arch>/include/uapi/asm
+> > only, but there is two exceptions:
+> >  - cris which exports arch/cris/include/uapi/arch-v[10|32];
+> 
+> This is interesting, though not your problem. Maybe someone who understands
+> cris better can comment on this: How is the decision made about which of
+> the arch/user.h headers gets used? I couldn't find that in the sources,
+> but it appears to be based on kernel compile-time settings, which is
+> wrong for user space header files that should be independent of the kernel
+> config.
 
-When you say things like "additionally", that's a huge flag that this
-needs to be split up into multiple patches.  No need to add
-set_dma_ops() here in this patch.
+I believe it's since the CRISv10 and CRISv32 are very different beasts,
+and that is selected via kernel config...
 
-And I'd argue that it should be dma_ops_set(), and dma_ops_get(), just
-to keep the namespace sane, but that's probably a different set of
-patches...
+This part of the CRIS port has been transformed a couple of times from
+the original layout without uapi, and there's still some legacy silliness,
+where some files might have been exported but never used from userspace
+except for some corner cases.
 
-thanks,
+> >  - tile which exports arch/tile/include/uapi/arch.
+> > Because I don't know if the output of 'make headers_install_all' can be changed,
+> > I introduce subdir-y in Kbuild file. The headers_install_all target copies all
+> > asm/<arch>/include/uapi/asm to usr/include/asm-<arch> but
+> > arch/cris/include/uapi/arch-v[10|32] and arch/tile/include/uapi/arch are not
+> > prefixed (they are put asis in usr/include/). If it's acceptable to modify the
+> > output of 'make headers_install_all' to export asm headers in
+> > usr/include/asm-<arch>/asm, then I could remove this new subdir-y and exports
+> > everything under arch/<arch>/include/uapi/.
+> 
+> I don't know if anyone still uses "make headers_install_all", I suspect
+> distros these days all use "make headers_install", so it probably
+> doesn't matter much.
+> 
+> In case of cris, it should be easy enough to move all the contents of the
+> uapi/arch-*/*.h headers into the respective uapi/asm/*.h headers, they
+> only seem to be referenced from there.
 
-greg k-h
+This would seem to be a reasonable change.
+
+> For tile, I suspect that would not work as the arch/*.h headers are
+> apparently defined as interfaces for both user space and kernel.
+> 
+> > Note also that exported files for asm are a mix of files listed by:
+> >  - include/uapi/asm-generic/Kbuild.asm;
+> >  - arch/x86/include/uapi/asm/Kbuild;
+> >  - arch/x86/include/asm/Kbuild.
+> > This complicates a lot the processing (arch/x86/include/asm/Kbuild is also
+> > used by scripts/Makefile.asm-generic).
+> > 
+> > This series has been tested with a 'make headers_install' on x86 and a
+> > 'make headers_install_all'. I've checked the result of both commands.
+> > 
+> > This patch is built against linus tree. I don't know if it should be
+> > made against antoher tree.
+> 
+> The series should probably get merged through the kbuild tree, but testing
+> it on mainline is fine here.
+> 
+> 	Arnd
+
+/^JN - Jesper Nilsson
+-- 
+               Jesper Nilsson -- jesper.nilsson at axis.com
