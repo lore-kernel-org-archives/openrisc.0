@@ -1,36 +1,49 @@
-From: gregkh@linuxfoundation.org <gregkh@linuxfoundation.org>
-Date: Thu, 12 Jan 2017 08:35:11 +0100
-Subject: [OpenRISC] [PATCH 2/9] Move dma_ops from archdata into struct
-	device
-In-Reply-To: <1484173670.2619.28.camel@sandisk.com>
-References: <20170111005648.14988-1-bart.vanassche@sandisk.com>
- <20170111005648.14988-3-bart.vanassche@sandisk.com>
- <20170111064803.GB26893@kroah.com>
- <1484158589.2619.14.camel@sandisk.com>
- <20170111203100.GB17895@kroah.com>
- <1484173670.2619.28.camel@sandisk.com>
-Message-ID: <20170112073511.GA23347@kroah.com>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Date: Thu, 12 Jan 2017 16:52:57 +0100
+Subject: [OpenRISC] [PATCH v2 7/7] uapi: export all headers under uapi
+	directories
+In-Reply-To: <20170109125638.GA15506@infradead.org>
+References: <bf83da6b-01ef-bf44-b3e1-ca6fc5636818@6wind.com>
+ <1483695839-18660-1-git-send-email-nicolas.dichtel@6wind.com>
+ <1483695839-18660-8-git-send-email-nicolas.dichtel@6wind.com>
+ <20170109125638.GA15506@infradead.org>
+Message-ID: <464a1323-4450-e563-ff59-9e6d57b75959@6wind.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-On Wed, Jan 11, 2017 at 10:28:05PM +0000, Bart Van Assche wrote:
-> On Wed, 2017-01-11 at 21:31 +0100, gregkh at linuxfoundation.org wrote:
-> > That's a big sign that your patch series needs work.  Break it up into
-> > smaller pieces, it should be possible, which will make merges easier
-> > (well, different in a way.)
+Le 09/01/2017 à 13:56, Christoph Hellwig a écrit :
+> On Fri, Jan 06, 2017 at 10:43:59AM +0100, Nicolas Dichtel wrote:
+>> Regularly, when a new header is created in include/uapi/, the developer
+>> forgets to add it in the corresponding Kbuild file. This error is usually
+>> detected after the release is out.
+>>
+>> In fact, all headers under uapi directories should be exported, thus it's
+>> useless to have an exhaustive list.
+>>
+>> After this patch, the following files, which were not exported, are now
+>> exported (with make headers_install_all):
 > 
-> Hello Greg,
+> ... snip ...
 > 
-> Can you have a look at the attached patches? These three patches are a
-> splitup of the single patch at the start of this e-mail thread.
+>> linux/genwqe/.install
+>> linux/genwqe/..install.cmd
+>> linux/cifs/.install
+>> linux/cifs/..install.cmd
+> 
+> I'm pretty sure these should not be exported!
+> 
+Those files are created in every directory:
+$ find usr/include/ -name '\.\.install.cmd' | wc -l
+71
+$ find usr/include/ -name '\.install' | wc -l
+71
 
-Please send them in the proper format (i.e. one patch per email), and I
-will be glad to review them.  Otherwise it's really hard to do so, would
-you want to review attachments?
+See also
+http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/scripts/Makefile.headersinst#n32
 
-thanks,
 
-greg k-h
+Thank you,
+Nicolas
