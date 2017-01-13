@@ -1,8 +1,8 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 14 Jan 2017 06:57:20 +0900
+Date: Sat, 14 Jan 2017 07:00:28 +0900
 Subject: [OpenRISC] [PATCH] target-openrisc: Fix exception handling status
 	registers
-Message-ID: <20170113215720.29598-1-shorne@gmail.com>
+Message-ID: <20170113220028.29687-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
