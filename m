@@ -1,59 +1,39 @@
-From: Russell King - ARM Linux <linux@armlinux.org.uk>
-Date: Fri, 13 Jan 2017 16:19:52 +0000
-Subject: [OpenRISC] [PATCH v3 1/8] arm: put types.h in uapi
-In-Reply-To: <4633e475-47f2-5627-81a9-a1747dfddbc0@6wind.com>
-References: <1484304406-10820-2-git-send-email-nicolas.dichtel@6wind.com>
+From: Borislav Petkov <bp@alien8.de>
+Date: Fri, 13 Jan 2017 17:38:36 +0100
+Subject: [OpenRISC] [PATCH v3 4/8] x86: stop exporting msr-index.h to
+	userland
+In-Reply-To: <dd826bc7-e1ef-be29-e0c3-692afb346036@6wind.com>
+References: <1484304406-10820-5-git-send-email-nicolas.dichtel@6wind.com>
  <3131144.4Ej3KFWRbz@wuerfel>
  <1484304406-10820-1-git-send-email-nicolas.dichtel@6wind.com>
- <25063.1484321803@warthog.procyon.org.uk>
- <4633e475-47f2-5627-81a9-a1747dfddbc0@6wind.com>
-Message-ID: <20170113161951.GT14217@n2100.armlinux.org.uk>
+ <25483.1484322229@warthog.procyon.org.uk>
+ <dd826bc7-e1ef-be29-e0c3-692afb346036@6wind.com>
+Message-ID: <20170113163836.jn3u6xyfcrbtynut@pd.tnic>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-On Fri, Jan 13, 2017 at 05:01:01PM +0100, Nicolas Dichtel wrote:
-> Please, do not remove the email subject when you reply. I restore it to
-> ease the thread follow-up.
-
-I mentioned it to David, and he says it's because the long list of
-recipients is breaking his mailer.  I've already posed the question
-about whether that's exploitable!
-
-> Le 13/01/2017 à 16:36, David Howells a écrit :
-> > Nicolas Dichtel <nicolas.dichtel@6wind.com> wrote:
+On Fri, Jan 13, 2017 at 05:08:34PM +0100, Nicolas Dichtel wrote:
+> Le 13/01/2017 à 16:43, David Howells a écrit :
+> >> -header-y += msr-index.h
 > > 
-> >> This header file is exported, thus move it to uapi.
-> > 
-> > Exported how?
+> > I see it on my desktop as /usr/include/asm/msr-index.h and it's been there at
+> > least four years - and as such it's part of the UAPI.  I don't think you can
+> > remove it unless you can guarantee there are no userspace users.
+> I keep it in the v2 of the series, but the maintainer, Borislav Petkov, asks me
+> to un-export it.
 > 
-> It is listed in include/uapi/asm-generic/Kbuild.asm, which is included by
-> arch/arm/include/uapi/asm/Kbuild.
+> I will follow the maintainer decision.
 
-We really should not be installing non-uapi header files to userland
-under _any_ circumstance - this to me sounds like a bug in kbuild.
-
-The assumption is that headers outside of uapi directories are not
-part of the user visible API, and so can be freely modified - which
-in the presence of this bug is untrue.
-
-However, as it's happening, and this header has been there since 2013
-(commit 09096f6a0ee2 - "ARM: 7822/1: add workaround for ambiguous C99
-stdint.h types") it's now well and truely part of the user API whether
-we intended it to be or not, so your patch looks to me like the correct
-thing to do.
-
-I think it needs further evaluation to make sure kbuild isn't going to
-do something else silly, like subsitute include/asm-generic/types.h for
-the now missing arch/arm/include/asm/types.h
-
-I wonder how many more headers are unintentionally exported.
-
-... what a mess. :(
+I'm not the maintainer. I simply think that exporting that file was
+wrong because it if we change something in it, we will break userspace.
+And that should not happen - if userspace needs MSRs, it should do its
+own defines.
 
 -- 
-RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-according to speedtest.net.
+Regards/Gruss,
+    Boris.
+
+Good mailing practices for 400: avoid top-posting and trim the reply.
