@@ -1,10 +1,9 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 15 Jan 2017 08:08:05 +0900
-Subject: [OpenRISC] [PATCH 08/22] openrisc: add cmpxchg and xchg
-	implementations
+Date: Sun, 15 Jan 2017 08:08:06 +0900
+Subject: [OpenRISC] [PATCH 09/22] openrisc: add optimized atomic operations
 In-Reply-To: <cover.1484432596.git.shorne@gmail.com>
 References: <cover.1484432596.git.shorne@gmail.com>
-Message-ID: <7e01352e4edd03375e63bbc6dc1f94494955fe86.1484432596.git.shorne@gmail.com>
+Message-ID: <eb53a60d29a8da31f13e09250468f6cd6597f827.1484432596.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,42 +12,38 @@ To: openrisc@lists.librecores.org
 
 From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
 
-Optimized version that make use of the l.lwa and l.swa atomic instruction
-pair.
-Most openrisc cores provide these instructions now, if not available
-emulation is provided.
+Using the l.lwa and l.swa atomic instruction pair.
+Most openrisc processor cores provide these instructions now. If the
+instructions are not available emulation is provided.
 
 Signed-off-by: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
 [shorne at gmail.com: remove OPENRISC_HAVE_INST_LWA_SWA config suggesed by
 Alan Cox https://lkml.org/lkml/2014/7/23/666]
-[shorne at gmail.com: fixed unused calculated value compiler warning in
-define cmpxchg]
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/include/asm/Kbuild    |  2 -
- arch/openrisc/include/asm/cmpxchg.h | 82 +++++++++++++++++++++++++++++++++++++
- 2 files changed, 82 insertions(+), 2 deletions(-)
- create mode 100644 arch/openrisc/include/asm/cmpxchg.h
+ arch/openrisc/include/asm/Kbuild   |  1 -
+ arch/openrisc/include/asm/atomic.h | 53 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 53 insertions(+), 1 deletion(-)
+ create mode 100644 arch/openrisc/include/asm/atomic.h
 
 diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
-index 6dd177d..15e6ed5 100644
+index 15e6ed5..1cedd63 100644
 --- a/arch/openrisc/include/asm/Kbuild
 +++ b/arch/openrisc/include/asm/Kbuild
-@@ -10,8 +10,6 @@ generic-y += bugs.h
- generic-y += cacheflush.h
- generic-y += checksum.h
- generic-y += clkdev.h
--generic-y += cmpxchg-local.h
--generic-y += cmpxchg.h
- generic-y += cputime.h
- generic-y += current.h
- generic-y += device.h
-diff --git a/arch/openrisc/include/asm/cmpxchg.h b/arch/openrisc/include/asm/cmpxchg.h
+@@ -1,7 +1,6 @@
+ 
+ header-y += ucontext.h
+ 
+-generic-y += atomic.h
+ generic-y += auxvec.h
+ generic-y += barrier.h
+ generic-y += bitsperlong.h
+diff --git a/arch/openrisc/include/asm/atomic.h b/arch/openrisc/include/asm/atomic.h
 new file mode 100644
-index 0000000..6d73c7b
+index 0000000..67f0b30
 --- /dev/null
-+++ b/arch/openrisc/include/asm/cmpxchg.h
-@@ -0,0 +1,82 @@
++++ b/arch/openrisc/include/asm/atomic.h
+@@ -0,0 +1,53 @@
 +/*
 + * Copyright (C) 2014 Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
 + *
@@ -57,80 +52,51 @@ index 0000000..6d73c7b
 + * kind, whether express or implied.
 + */
 +
-+#ifndef __ASM_OPENRISC_CMPXCHG_H
-+#define __ASM_OPENRISC_CMPXCHG_H
++#ifndef __ASM_OPENRISC_ATOMIC_H
++#define __ASM_OPENRISC_ATOMIC_H
 +
-+#include  <linux/types.h>
++#include <linux/types.h>
 +
-+/*
-+ * This function doesn't exist, so you'll get a linker error
-+ * if something tries to do an invalid cmpxchg().
-+ */
-+extern void __cmpxchg_called_with_bad_pointer(void);
-+
-+#define __HAVE_ARCH_CMPXCHG 1
-+
-+static inline unsigned long
-+__cmpxchg(volatile void *ptr, unsigned long old, unsigned long new, int size)
++static inline int atomic_add_return(int i, atomic_t *v)
 +{
-+	if (size != 4) {
-+		__cmpxchg_called_with_bad_pointer();
-+		return old;
-+	}
++	int tmp;
 +
 +	__asm__ __volatile__(
-+		"1:	l.lwa %0, 0(%1)		\n"
-+		"	l.sfeq %0, %2		\n"
-+		"	l.bnf 1f		\n"
++		"1:	l.lwa	%0,0(%1)	\n"
++		"	l.add	%0,%0,%2	\n"
++		"	l.swa	0(%1),%0	\n"
++		"	l.bnf	1b		\n"
 +		"	 l.nop			\n"
-+		"	l.swa 0(%1), %3		\n"
-+		"	l.bnf 1b		\n"
-+		"1:	 l.nop			\n"
-+		: "=&r"(old)
-+		: "r"(ptr), "r"(old), "r"(new)
++		: "=&r"(tmp)
++		: "r"(&v->counter), "r"(i)
 +		: "cc", "memory");
 +
-+	return old;
++	return tmp;
 +}
 +
-+#define cmpxchg(ptr, o, n)						\
-+	({								\
-+		(__typeof__(*(ptr))) __cmpxchg((ptr),			\
-+					       (unsigned long)(o),	\
-+					       (unsigned long)(n),	\
-+					       sizeof(*(ptr)));		\
-+	})
-+
-+/*
-+ * This function doesn't exist, so you'll get a linker error if
-+ * something tries to do an invalidly-sized xchg().
-+ */
-+extern void __xchg_called_with_bad_pointer(void);
-+
-+static inline unsigned long __xchg(unsigned long val, volatile void *ptr,
-+				   int size)
++static inline int atomic_sub_return(int i, atomic_t *v)
 +{
-+	if (size != 4) {
-+		__xchg_called_with_bad_pointer();
-+		return val;
-+	}
++	int tmp;
 +
 +	__asm__ __volatile__(
-+		"1:	l.lwa %0, 0(%1)		\n"
-+		"	l.swa 0(%1), %2		\n"
-+		"	l.bnf 1b		\n"
++		"1:	l.lwa	%0,0(%1)	\n"
++		"	l.sub	%0,%0,%2	\n"
++		"	l.swa	0(%1),%0	\n"
++		"	l.bnf	1b		\n"
 +		"	 l.nop			\n"
-+		: "=&r"(val)
-+		: "r"(ptr), "r"(val)
++		: "=&r"(tmp)
++		: "r"(&v->counter), "r"(i)
 +		: "cc", "memory");
 +
-+	return val;
++	return tmp;
 +}
 +
-+#define xchg(ptr, with) \
-+	((typeof(*(ptr)))__xchg((unsigned long)(with), (ptr), sizeof(*(ptr))))
++#define atomic_add_return	atomic_add_return
++#define atomic_sub_return	atomic_sub_return
 +
-+#endif /* __ASM_OPENRISC_CMPXCHG_H */
++#include <asm-generic/atomic.h>
++
++#endif /* __ASM_OPENRISC_ATOMIC_H */
 -- 
 2.9.3
 
