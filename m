@@ -1,9 +1,10 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 15 Jan 2017 08:08:07 +0900
-Subject: [OpenRISC] [PATCH 10/22] openrisc: add spinlock implementation
+Date: Sun, 15 Jan 2017 08:08:08 +0900
+Subject: [OpenRISC] [PATCH 11/22] openrisc: add futex_atomic_*
+	implementations
 In-Reply-To: <cover.1484432596.git.shorne@gmail.com>
 References: <cover.1484432596.git.shorne@gmail.com>
-Message-ID: <a55ee7b14705407418f48aa24689ecc2b83cc520.1484432596.git.shorne@gmail.com>
+Message-ID: <7635b34acaa99fa7ffc878ab0d38107b128db429.1484432596.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -12,301 +13,174 @@ To: openrisc@lists.librecores.org
 
 From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
 
-Heavily based on the ARM implementation, this adds
-ticket spinlock support for OpenRISC.
+Support for the futex_atomic_* operations by using the
+load-link/store-conditional l.lwa/l.swa instructions.
+Most openrisc cores provide these instructions now if not available,
+emulation is provided.
 
 Signed-off-by: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-[shorne at gmail.com: fix tabs vs space checkpatch warning]
+[shorne at gmail.com: remove OPENRISC_HAVE_INST_LWA_SWA config suggesed by
+Alan Cox https://lkml.org/lkml/2014/7/23/666]
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/include/asm/spinlock.h       | 232 ++++++++++++++++++++++++++++-
- arch/openrisc/include/asm/spinlock_types.h |  28 ++++
- 2 files changed, 259 insertions(+), 1 deletion(-)
- create mode 100644 arch/openrisc/include/asm/spinlock_types.h
+ arch/openrisc/include/asm/Kbuild  |   1 -
+ arch/openrisc/include/asm/futex.h | 135 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 135 insertions(+), 1 deletion(-)
+ create mode 100644 arch/openrisc/include/asm/futex.h
 
-diff --git a/arch/openrisc/include/asm/spinlock.h b/arch/openrisc/include/asm/spinlock.h
-index fd00a3a..adf62a6 100644
---- a/arch/openrisc/include/asm/spinlock.h
-+++ b/arch/openrisc/include/asm/spinlock.h
-@@ -9,6 +9,9 @@
-  * Copyright (C) 2003 Matjaz Breskvar <phoenix@bsemi.com>
-  * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
-  * et al.
-+ * Copyright (C) 2014 Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-+ *
-+ * Ticket spinlocks, based on the ARM implementation.
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-@@ -19,6 +22,233 @@
- #ifndef __ASM_OPENRISC_SPINLOCK_H
- #define __ASM_OPENRISC_SPINLOCK_H
- 
--#error "or32 doesn't do SMP yet"
-+#include <asm/spinlock_types.h>
-+
-+#define arch_spin_unlock_wait(lock) \
-+	do { while (arch_spin_is_locked(lock)) cpu_relax(); } while (0)
-+
-+#define arch_spin_lock_flags(lock, flags) arch_spin_lock(lock)
-+
-+static inline void arch_spin_lock(arch_spinlock_t *lock)
-+{
-+	u32 newval;
-+	arch_spinlock_t lockval;
-+
-+	__asm__ __volatile__(
-+		"1:	l.lwa	%0, 0(%2)	\n"
-+		"	l.add	%1, %0, %3	\n"
-+		"	l.swa	0(%2), %1	\n"
-+		"	l.bnf	1b		\n"
-+		"	 l.nop			\n"
-+		: "=&r" (lockval), "=&r" (newval)
-+		: "r" (&lock->slock), "r" (1 << TICKET_SHIFT)
-+		: "cc", "memory");
-+
-+	while (lockval.tickets.next != lockval.tickets.owner)
-+		lockval.tickets.owner = ACCESS_ONCE(lock->tickets.owner);
-+
-+	smp_mb();
-+}
-+
-+static inline int arch_spin_trylock(arch_spinlock_t *lock)
-+{
-+	unsigned long contended, tmp;
-+	u32 slock;
-+
-+	/* contended = (lock->tickets.owner != lock->tickets.next) */
-+	__asm__ __volatile__(
-+		"1:	l.lwa	%0, 0(%3)	\n"
-+		"	l.srli	%1, %0, 16	\n"
-+		"	l.andi	%2, %0, 0xffff	\n"
-+		"	l.sfeq	%1, %2		\n"
-+		"	l.bnf	1f		\n"
-+		"	 l.ori	%1, r0, 1	\n"
-+		"	l.add	%0, %0, %4	\n"
-+		"	l.swa	0(%3), %0	\n"
-+		"	l.bnf	1b		\n"
-+		"	 l.ori	%1, r0, 0	\n"
-+		"1:				\n"
-+		: "=&r" (slock), "=&r" (contended), "=&r" (tmp)
-+		: "r" (&lock->slock), "r" (1 << TICKET_SHIFT)
-+		: "cc", "memory");
-+
-+	if (!contended) {
-+		smp_mb();
-+		return 1;
-+	} else {
-+		return 0;
-+	}
-+}
-+
-+static inline void arch_spin_unlock(arch_spinlock_t *lock)
-+{
-+	smp_mb();
-+	lock->tickets.owner++;
-+}
-+
-+static inline int arch_spin_value_unlocked(arch_spinlock_t lock)
-+{
-+	return lock.tickets.owner == lock.tickets.next;
-+}
-+
-+static inline int arch_spin_is_locked(arch_spinlock_t *lock)
-+{
-+	return !arch_spin_value_unlocked(ACCESS_ONCE(*lock));
-+}
-+
-+static inline int arch_spin_is_contended(arch_spinlock_t *lock)
-+{
-+	struct __raw_tickets tickets = ACCESS_ONCE(lock->tickets);
-+
-+	return (tickets.next - tickets.owner) > 1;
-+}
-+#define arch_spin_is_contended	arch_spin_is_contended
-+
-+/*
-+ * RWLOCKS
-+ *
-+ *
-+ * Write locks are easy - we just set bit 31.  When unlocking, we can
-+ * just write zero since the lock is exclusively held.
-+ */
-+
-+static inline void arch_write_lock(arch_rwlock_t *rw)
-+{
-+	unsigned long tmp;
-+
-+	__asm__ __volatile__(
-+		"1:	l.lwa	%0, 0(%1)	\n"
-+		"	l.sfeqi	%0, 0		\n"
-+		"	l.bnf	1f		\n"
-+		"	 l.nop			\n"
-+		"	l.swa	0(%1), %2	\n"
-+		"	l.bnf	1b		\n"
-+		"	 l.nop			\n"
-+		"1:				\n"
-+		: "=&r" (tmp)
-+		: "r" (&rw->lock), "r" (0x80000000)
-+		: "cc", "memory");
-+
-+	smp_mb();
-+}
-+
-+static inline int arch_write_trylock(arch_rwlock_t *rw)
-+{
-+	unsigned long contended;
-+
-+	__asm__ __volatile__(
-+		"1:	l.lwa	%0, 0(%1)	\n"
-+		"	l.sfeqi	%0, 0		\n"
-+		"	l.bnf	1f		\n"
-+		"	 l.nop			\n"
-+		"	l.swa	 0(%1), %2	\n"
-+		"	l.bnf	1b		\n"
-+		"	 l.nop			\n"
-+		"1:				\n"
-+		: "=&r" (contended)
-+		: "r" (&rw->lock), "r" (0x80000000)
-+		: "cc", "memory");
-+
-+	if (!contended) {
-+		smp_mb();
-+		return 1;
-+	} else {
-+		return 0;
-+	}
-+}
-+
-+static inline void arch_write_unlock(arch_rwlock_t *rw)
-+{
-+	smp_mb();
-+	rw->lock = 0;
-+}
-+
-+/* write_can_lock - would write_trylock() succeed? */
-+#define arch_write_can_lock(x)		(ACCESS_ONCE((x)->lock) == 0)
-+
-+/*
-+ * Read locks are a bit more hairy:
-+ *  - Exclusively load the lock value.
-+ *  - Increment it.
-+ *  - Store new lock value if positive, and we still own this location.
-+ *    If the value is negative, we've already failed.
-+ *  - If we failed to store the value, we want a negative result.
-+ *  - If we failed, try again.
-+ * Unlocking is similarly hairy.  We may have multiple read locks
-+ * currently active.  However, we know we won't have any write
-+ * locks.
-+ */
-+static inline void arch_read_lock(arch_rwlock_t *rw)
-+{
-+	unsigned long tmp;
-+
-+	__asm__ __volatile__(
-+		"1:	l.lwa		%0, 0(%1)	\n"
-+		"	l.sfltsi	%0, -1		\n"
-+		"	l.bf		1b		\n"
-+		"	 l.addi		%0, %0, 1	\n"
-+		"	l.swa		0(%1), %0	\n"
-+		"	l.bnf		1b		\n"
-+		"	 l.nop				\n"
-+		: "=&r" (tmp)
-+		: "r" (&rw->lock)
-+		: "cc", "memory");
-+
-+	smp_mb();
-+}
-+
-+static inline void arch_read_unlock(arch_rwlock_t *rw)
-+{
-+	unsigned long tmp;
-+
-+	smp_mb();
-+
-+	__asm__ __volatile__(
-+		"1:	l.lwa	%0, 0(%1)	\n"
-+		"	l.addi	%0, %0, -1	\n"
-+		"	l.swa	0(%1), %0	\n"
-+		"	l.bnf	1b		\n"
-+		"	 l.nop			\n"
-+		: "=&r" (tmp)
-+		: "r" (&rw->lock)
-+		: "cc", "memory");
-+
-+}
-+
-+static inline int arch_read_trylock(arch_rwlock_t *rw)
-+{
-+	unsigned long contended;
-+
-+	__asm__ __volatile__(
-+		"1:	l.lwa		%0, 0(%1)	\n"
-+		"	l.sfltsi	%0, -1		\n"
-+		"	l.bf		1f		\n"
-+		"	 l.addi		%0, %0, 1	\n"
-+		"	l.swa		0(%1), %0	\n"
-+		"	l.bnf		1b		\n"
-+		"	 l.nop				\n"
-+		"1:					\n"
-+		: "=&r" (contended)
-+		: "r" (&rw->lock)
-+		: "cc", "memory");
-+
-+	/* If the lock is negative, then it is already held for write. */
-+	if (contended < 0x80000000) {
-+		smp_mb();
-+		return 1;
-+	} else {
-+		return 0;
-+	}
-+}
-+
-+/* read_can_lock - would read_trylock() succeed? */
-+#define arch_read_can_lock(x)		(ACCESS_ONCE((x)->lock) < 0x80000000)
-+
-+#define arch_read_lock_flags(lock, flags) arch_read_lock(lock)
-+#define arch_write_lock_flags(lock, flags) arch_write_lock(lock)
-+
-+#define arch_spin_relax(lock)	cpu_relax()
-+#define arch_read_relax(lock)	cpu_relax()
-+#define arch_write_relax(lock)	cpu_relax()
- 
- #endif
-diff --git a/arch/openrisc/include/asm/spinlock_types.h b/arch/openrisc/include/asm/spinlock_types.h
+diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
+index 1cedd63..a669c14 100644
+--- a/arch/openrisc/include/asm/Kbuild
++++ b/arch/openrisc/include/asm/Kbuild
+@@ -20,7 +20,6 @@ generic-y += exec.h
+ generic-y += fb.h
+ generic-y += fcntl.h
+ generic-y += ftrace.h
+-generic-y += futex.h
+ generic-y += hardirq.h
+ generic-y += hw_irq.h
+ generic-y += ioctl.h
+diff --git a/arch/openrisc/include/asm/futex.h b/arch/openrisc/include/asm/futex.h
 new file mode 100644
-index 0000000..bc0de48
+index 0000000..7780873
 --- /dev/null
-+++ b/arch/openrisc/include/asm/spinlock_types.h
-@@ -0,0 +1,28 @@
-+#ifndef __ASM_SPINLOCK_TYPES_H
-+#define __ASM_SPINLOCK_TYPES_H
++++ b/arch/openrisc/include/asm/futex.h
+@@ -0,0 +1,135 @@
++#ifndef __ASM_OPENRISC_FUTEX_H
++#define __ASM_OPENRISC_FUTEX_H
 +
-+#ifndef __LINUX_SPINLOCK_TYPES_H
-+# error "please don't include this file directly"
-+#endif
++#ifdef __KERNEL__
 +
-+#define TICKET_SHIFT	16
++#include <linux/futex.h>
++#include <linux/uaccess.h>
++#include <asm/errno.h>
 +
-+typedef struct {
-+	union {
-+		u32 slock;
-+		struct __raw_tickets {
-+			u16 next;
-+			u16 owner;
-+		} tickets;
-+	};
-+} arch_spinlock_t;
++#define __futex_atomic_op(insn, ret, oldval, uaddr, oparg) \
++({								\
++	__asm__ __volatile__ (					\
++		"1:	l.lwa	%0, %2			\n"	\
++			insn				"\n"	\
++		"2:	l.swa	%2, %1			\n"	\
++		"	l.bnf	1b			\n"	\
++		"	 l.ori	%1, r0, 0		\n"	\
++		"3:					\n"	\
++		".section .fixup,\"ax\"			\n"	\
++		"4:	l.j	3b			\n"	\
++		"	 l.addi	%1, r0, %3		\n"	\
++		".previous				\n"	\
++		".section __ex_table,\"a\"		\n"	\
++		".word	1b,4b,2b,4b			\n"	\
++		".previous				\n"	\
++		: "=&r" (oldval), "=&r" (ret), "+m" (*uaddr)	\
++		: "i" (-EFAULT), "r" (oparg)			\
++		: "cc", "memory"				\
++		);						\
++})
 +
-+#define __ARCH_SPIN_LOCK_UNLOCKED	{ { 0 } }
++static inline int
++futex_atomic_op_inuser(int encoded_op, u32 __user *uaddr)
++{
++	int op = (encoded_op >> 28) & 7;
++	int cmp = (encoded_op >> 24) & 15;
++	int oparg = (encoded_op << 8) >> 20;
++	int cmparg = (encoded_op << 20) >> 20;
++	int oldval = 0, ret;
 +
-+typedef struct {
-+	u32 lock;
-+} arch_rwlock_t;
++	if (encoded_op & (FUTEX_OP_OPARG_SHIFT << 28))
++		oparg = 1 << oparg;
 +
-+#define __ARCH_RW_LOCK_UNLOCKED		{ 0 }
++	if (!access_ok(VERIFY_WRITE, uaddr, sizeof(u32)))
++		return -EFAULT;
 +
-+#endif
++	pagefault_disable();
++
++	switch (op) {
++	case FUTEX_OP_SET:
++		__futex_atomic_op("l.or %1,%4,%4", ret, oldval, uaddr, oparg);
++		break;
++	case FUTEX_OP_ADD:
++		__futex_atomic_op("l.add %1,%0,%4", ret, oldval, uaddr, oparg);
++		break;
++	case FUTEX_OP_OR:
++		__futex_atomic_op("l.or %1,%0,%4", ret, oldval, uaddr, oparg);
++		break;
++	case FUTEX_OP_ANDN:
++		__futex_atomic_op("l.and %1,%0,%4", ret, oldval, uaddr, ~oparg);
++		break;
++	case FUTEX_OP_XOR:
++		__futex_atomic_op("l.xor %1,%0,%4", ret, oldval, uaddr, oparg);
++		break;
++	default:
++		ret = -ENOSYS;
++	}
++
++	pagefault_enable();
++
++	if (!ret) {
++		switch (cmp) {
++		case FUTEX_OP_CMP_EQ:
++			ret = (oldval == cmparg);
++			break;
++		case FUTEX_OP_CMP_NE:
++			ret = (oldval != cmparg);
++			break;
++		case FUTEX_OP_CMP_LT:
++			ret = (oldval < cmparg);
++			break;
++		case FUTEX_OP_CMP_GE:
++			ret = (oldval >= cmparg);
++			break;
++		case FUTEX_OP_CMP_LE:
++			ret = (oldval <= cmparg);
++			break;
++		case FUTEX_OP_CMP_GT:
++			ret = (oldval > cmparg);
++			break;
++		default:
++			ret = -ENOSYS;
++		}
++	}
++	return ret;
++}
++
++static inline int
++futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *uaddr,
++			      u32 oldval, u32 newval)
++{
++	int ret = 0;
++	u32 prev;
++
++	if (!access_ok(VERIFY_WRITE, uaddr, sizeof(u32)))
++		return -EFAULT;
++
++	__asm__ __volatile__ (				\
++		"1:	l.lwa	%1, %2		\n"	\
++		"	l.sfeq	%1, %3		\n"	\
++		"	l.bnf	3f		\n"	\
++		"	 l.nop			\n"	\
++		"2:	l.swa	%2, %4		\n"	\
++		"	l.bnf	1b		\n"	\
++		"	 l.nop			\n"	\
++		"3:				\n"	\
++		".section .fixup,\"ax\"		\n"	\
++		"4:	l.j	3b		\n"	\
++		"	 l.addi	%0, r0, %5	\n"	\
++		".previous			\n"	\
++		".section __ex_table,\"a\"	\n"	\
++		".word	1b,4b,2b,4b		\n"	\
++		".previous			\n"	\
++		: "+r" (ret), "=&r" (prev), "+m" (*uaddr) \
++		: "r" (oldval), "r" (newval), "i" (-EFAULT) \
++		: "cc",	"memory"			\
++		);
++
++	*uval = prev;
++	return ret;
++}
++
++#endif /* __KERNEL__ */
++
++#endif /* __ASM_OPENRISC_FUTEX_H */
 -- 
 2.9.3
 
