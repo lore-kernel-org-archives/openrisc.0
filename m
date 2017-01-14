@@ -1,140 +1,242 @@
-From: Russell King - ARM Linux <linux@armlinux.org.uk>
-Date: Fri, 13 Jan 2017 17:06:10 +0000
-Subject: [OpenRISC] [PATCH v3 1/8] arm: put types.h in uapi
-In-Reply-To: <1484304406-10820-2-git-send-email-nicolas.dichtel@6wind.com>
-References: <3131144.4Ej3KFWRbz@wuerfel>
- <1484304406-10820-1-git-send-email-nicolas.dichtel@6wind.com>
- <1484304406-10820-2-git-send-email-nicolas.dichtel@6wind.com>
-Message-ID: <20170113170610.GV14217@n2100.armlinux.org.uk>
+From: Jia Liu <proljc@gmail.com>
+Date: Sat, 14 Jan 2017 12:29:32 +0800
+Subject: [OpenRISC] [PATCH] target-openrisc: Fix exception handling
+	status registers
+In-Reply-To: <20170113220252.GE25986@lianli.shorne-pla.net>
+References: <20170113215720.29598-1-shorne@gmail.com>
+ <20170113220252.GE25986@lianli.shorne-pla.net>
+Message-ID: <CAJBMM-sX4fGckYy-eNRdZ9dKamOoJoK2fQ4TLS80T5n6jCkpFg@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, Jan 13, 2017 at 11:46:39AM +0100, Nicolas Dichtel wrote:
-> This header file is exported, thus move it to uapi.
+Hi all,
 
-I'm taking this patch, but with the following commit log:
+On Sat, Jan 14, 2017 at 6:02 AM, Stafford Horne <shorne@gmail.com> wrote:
+> Hello,
+>
+> Sorry for the duplicate. There was an issue with my copy to qemu-devel
+> group.  Resent to everyone with proper cc to qemu-devel.
+>
+> Please ignore this one.
+>
+> -Stafford
+>
+> On Sat, Jan 14, 2017 at 06:57:20AM +0900, Stafford Horne wrote:
+>> I am working on testing instruction emulation patches for the linux
+>> kernel. During testing I found these 2 issues:
+>>
+>>  - sets DSX (delay slot exception) but never clears it
+>>  - EEAR for illegal insns should point to the bad exception (as per
+>>    openrisc spec) but its not
+>>
+>> This patch fixes these two issues by clearing the DSX flag when not in a
+>> delay slot and by setting EEAR to exception PC when handling illegal
+>> instruction exceptions.
+>>
+>> After this patch the openrisc kernel with latest patches boots great on
+>> qemu and instruction emulation works.
+>>
+>> Cc: qemu-trivial at nongnu.org
+>> Cc: openrisc at lists.librecores.org
+>> Signed-off-by: Stafford Horne <shorne@gmail.com>
+>> ---
+>>  target/openrisc/interrupt.c | 7 +++++++
+>>  1 file changed, 7 insertions(+)
+>>
+>> diff --git a/target/openrisc/interrupt.c b/target/openrisc/interrupt.c
+>> index 5fe3f11..e1b0142 100644
+>> --- a/target/openrisc/interrupt.c
+>> +++ b/target/openrisc/interrupt.c
+>> @@ -38,10 +38,17 @@ void openrisc_cpu_do_interrupt(CPUState *cs)
+>>          env->flags &= ~D_FLAG;
+>>          env->sr |= SR_DSX;
+>>          env->epcr -= 4;
+>> +    } else {
+>> +        env->sr &= ~SR_DSX;
+>>      }
+>>      if (cs->exception_index == EXCP_SYSCALL) {
+>>          env->epcr += 4;
+>>      }
+>> +    /* When we have an illegal instruction the error effective address
+>> +       shall be set to the illegal instruction address.  */
+>> +    if (cs->exception_index == EXCP_ILLEGAL) {
+>> +        env->eear = env->pc;
+>> +    }
+>>
+>>      /* For machine-state changed between user-mode and supervisor mode,
+>>         we need flush TLB when we enter&exit EXCP.  */
 
-  Due to the way kbuild works, this header was unintentionally exported
-  back in 2013 when it was created, despite it not being in a uapi/
-  directory.  This is very non-intuitive behaviour by Kbuild.
+Anyone wanna take the openrisc job in QEMU?
+Will you Stafford?
+I really don't have time working on it.
 
-  However, we've had this include exported to userland for almost four
-  years, and searching google for "ARM types.h __UINTPTR_TYPE__" gives
-  no hint that anyone has complained about it.  So, let's make it
-  officially exported in this state.
+And, this is the lwa&swa support.
+It also make latest Linux boot.
 
-If anyone has any objections, they better shout sooner rather than
-later.
+>> --
+>> 2.9.3
+>>
 
-> 
-> Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-> ---
->  arch/arm/include/asm/types.h      | 40 ---------------------------------------
->  arch/arm/include/uapi/asm/types.h | 40 +++++++++++++++++++++++++++++++++++++++
->  2 files changed, 40 insertions(+), 40 deletions(-)
->  delete mode 100644 arch/arm/include/asm/types.h
->  create mode 100644 arch/arm/include/uapi/asm/types.h
-> 
-> diff --git a/arch/arm/include/asm/types.h b/arch/arm/include/asm/types.h
-> deleted file mode 100644
-> index a53cdb8f068c..000000000000
-> --- a/arch/arm/include/asm/types.h
-> +++ /dev/null
-> @@ -1,40 +0,0 @@
-> -#ifndef _ASM_TYPES_H
-> -#define _ASM_TYPES_H
-> -
-> -#include <asm-generic/int-ll64.h>
-> -
-> -/*
-> - * The C99 types uintXX_t that are usually defined in 'stdint.h' are not as
-> - * unambiguous on ARM as you would expect. For the types below, there is a
-> - * difference on ARM between GCC built for bare metal ARM, GCC built for glibc
-> - * and the kernel itself, which results in build errors if you try to build with
-> - * -ffreestanding and include 'stdint.h' (such as when you include 'arm_neon.h'
-> - * in order to use NEON intrinsics)
-> - *
-> - * As the typedefs for these types in 'stdint.h' are based on builtin defines
-> - * supplied by GCC, we can tweak these to align with the kernel's idea of those
-> - * types, so 'linux/types.h' and 'stdint.h' can be safely included from the same
-> - * source file (provided that -ffreestanding is used).
-> - *
-> - *                    int32_t         uint32_t               uintptr_t
-> - * bare metal GCC     long            unsigned long          unsigned int
-> - * glibc GCC          int             unsigned int           unsigned int
-> - * kernel             int             unsigned int           unsigned long
-> - */
-> -
-> -#ifdef __INT32_TYPE__
-> -#undef __INT32_TYPE__
-> -#define __INT32_TYPE__		int
-> -#endif
-> -
-> -#ifdef __UINT32_TYPE__
-> -#undef __UINT32_TYPE__
-> -#define __UINT32_TYPE__	unsigned int
-> -#endif
-> -
-> -#ifdef __UINTPTR_TYPE__
-> -#undef __UINTPTR_TYPE__
-> -#define __UINTPTR_TYPE__	unsigned long
-> -#endif
-> -
-> -#endif /* _ASM_TYPES_H */
-> diff --git a/arch/arm/include/uapi/asm/types.h b/arch/arm/include/uapi/asm/types.h
-> new file mode 100644
-> index 000000000000..9435a42f575e
-> --- /dev/null
-> +++ b/arch/arm/include/uapi/asm/types.h
-> @@ -0,0 +1,40 @@
-> +#ifndef _UAPI_ASM_TYPES_H
-> +#define _UAPI_ASM_TYPES_H
-> +
-> +#include <asm-generic/int-ll64.h>
-> +
-> +/*
-> + * The C99 types uintXX_t that are usually defined in 'stdint.h' are not as
-> + * unambiguous on ARM as you would expect. For the types below, there is a
-> + * difference on ARM between GCC built for bare metal ARM, GCC built for glibc
-> + * and the kernel itself, which results in build errors if you try to build with
-> + * -ffreestanding and include 'stdint.h' (such as when you include 'arm_neon.h'
-> + * in order to use NEON intrinsics)
-> + *
-> + * As the typedefs for these types in 'stdint.h' are based on builtin defines
-> + * supplied by GCC, we can tweak these to align with the kernel's idea of those
-> + * types, so 'linux/types.h' and 'stdint.h' can be safely included from the same
-> + * source file (provided that -ffreestanding is used).
-> + *
-> + *                    int32_t         uint32_t               uintptr_t
-> + * bare metal GCC     long            unsigned long          unsigned int
-> + * glibc GCC          int             unsigned int           unsigned int
-> + * kernel             int             unsigned int           unsigned long
-> + */
-> +
-> +#ifdef __INT32_TYPE__
-> +#undef __INT32_TYPE__
-> +#define __INT32_TYPE__		int
-> +#endif
-> +
-> +#ifdef __UINT32_TYPE__
-> +#undef __UINT32_TYPE__
-> +#define __UINT32_TYPE__	unsigned int
-> +#endif
-> +
-> +#ifdef __UINTPTR_TYPE__
-> +#undef __UINTPTR_TYPE__
-> +#define __UINTPTR_TYPE__	unsigned long
-> +#endif
-> +
-> +#endif /* _UAPI_ASM_TYPES_H */
-> -- 
-> 2.8.1
-> 
-
--- 
-RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-according to speedtest.net.
+Regards,
+Jia
+-------------- next part --------------
+diff --git a/target-openrisc/cpu.c b/target-openrisc/cpu.c
+index 155913f..e6f6186 100644
+--- a/target-openrisc/cpu.c
++++ b/target-openrisc/cpu.c
+@@ -55,6 +55,7 @@ static void openrisc_cpu_reset(CPUState *s)
+ 
+     cpu->env.pc = 0x100;
+     cpu->env.sr = SR_FO | SR_SM;
++    cpu->env.lock_addr = -1;
+     s->exception_index = -1;
+ 
+     cpu->env.upr = UPR_UP | UPR_DMP | UPR_IMP | UPR_PICP | UPR_TTP;
+diff --git a/target-openrisc/cpu.h b/target-openrisc/cpu.h
+index aaf1535..d64c54f 100644
+--- a/target-openrisc/cpu.h
++++ b/target-openrisc/cpu.h
+@@ -296,6 +296,9 @@ typedef struct CPUOpenRISCState {
+     uint32_t fpcsr;           /* Float register */
+     float_status fp_status;
+ 
++    target_ulong lock_addr;
++    target_ulong lock_value;
++
+     uint32_t flags;           /* cpu_flags, we only use it for exception
+                                  in solt so far.  */
+     uint32_t btaken;          /* the SR_F bit */
+diff --git a/target-openrisc/interrupt.c b/target-openrisc/interrupt.c
+index 5fe3f11..2c4f452 100644
+--- a/target-openrisc/interrupt.c
++++ b/target-openrisc/interrupt.c
+@@ -55,6 +55,7 @@ void openrisc_cpu_do_interrupt(CPUState *cs)
+     env->sr &= ~SR_TEE;
+     env->tlb->cpu_openrisc_map_address_data = &cpu_openrisc_get_phys_nommu;
+     env->tlb->cpu_openrisc_map_address_code = &cpu_openrisc_get_phys_nommu;
++    env->lock_addr = -1;
+ 
+     if (cs->exception_index > 0 && cs->exception_index < EXCP_NR) {
+         env->pc = (cs->exception_index << 8);
+diff --git a/target-openrisc/interrupt_helper.c b/target-openrisc/interrupt_helper.c
+index 116f9109..a1d3a9b 100644
+--- a/target-openrisc/interrupt_helper.c
++++ b/target-openrisc/interrupt_helper.c
+@@ -34,6 +34,7 @@ void HELPER(rfe)(CPUOpenRISCState *env)
+     cpu->env.pc = cpu->env.epcr;
+     cpu->env.npc = cpu->env.epcr;
+     cpu->env.sr = cpu->env.esr;
++    cpu->env.lock_addr = -1;
+ 
+ #ifndef CONFIG_USER_ONLY
+     if (cpu->env.sr & SR_DME) {
+diff --git a/target-openrisc/mmu.c b/target-openrisc/mmu.c
+index 505dcdc..56b11d3 100644
+--- a/target-openrisc/mmu.c
++++ b/target-openrisc/mmu.c
+@@ -174,6 +174,7 @@ static void cpu_openrisc_raise_mmu_exception(OpenRISCCPU *cpu,
+ 
+     cs->exception_index = exception;
+     cpu->env.eear = address;
++    cpu->env.lock_addr = -1;
+ }
+ 
+ #ifndef CONFIG_USER_ONLY
+diff --git a/target-openrisc/translate.c b/target-openrisc/translate.c
+index 28c9446..1185a00 100644
+--- a/target-openrisc/translate.c
++++ b/target-openrisc/translate.c
+@@ -61,6 +61,8 @@ static TCGv jmp_pc;            /* l.jr/l.jalr temp pc */
+ static TCGv cpu_npc;
+ static TCGv cpu_ppc;
+ static TCGv_i32 env_btaken;    /* bf/bnf , F flag taken */
++static TCGv cpu_lock_addr;
++static TCGv cpu_lock_value;
+ static TCGv_i32 fpcsr;
+ static TCGv machi, maclo;
+ static TCGv fpmaddhi, fpmaddlo;
+@@ -95,6 +97,12 @@ void openrisc_translate_init(void)
+     env_btaken = tcg_global_mem_new_i32(cpu_env,
+                                         offsetof(CPUOpenRISCState, btaken),
+                                         "btaken");
++    cpu_lock_addr = tcg_global_mem_new(cpu_env,
++                                       offsetof(CPUOpenRISCState, lock_addr),
++                                       "lock_addr");
++    cpu_lock_value = tcg_global_mem_new(cpu_env,
++                                        offsetof(CPUOpenRISCState, lock_value),
++                                        "lock_value");
+     fpcsr = tcg_global_mem_new_i32(cpu_env,
+                                    offsetof(CPUOpenRISCState, fpcsr),
+                                    "fpcsr");
+@@ -264,6 +272,44 @@ static void gen_jump(DisasContext *dc, uint32_t imm, uint32_t reg, uint32_t op0)
+     gen_sync_flags(dc);
+ }
+ 
++static void gen_lwa(DisasContext *dc, TCGv rd, TCGv ra, int32_t ofs)
++{
++    TCGv ea = tcg_temp_new();
++
++    tcg_gen_addi_tl(ea, ra, ofs);
++    tcg_gen_qemu_ld_tl(rd, ea, dc->mem_idx, MO_TEUL);
++    tcg_gen_mov_tl(cpu_lock_addr, ea);
++    tcg_gen_mov_tl(cpu_lock_value, rd);
++    tcg_temp_free(ea);
++}
++
++static void gen_swa(DisasContext *dc, TCGv rb, TCGv ra, int32_t ofs)
++{
++    TCGv ea, val;
++    TCGLabel *lab_fail, *lab_done;
++
++    ea = tcg_temp_new();
++    tcg_gen_addi_tl(ea, ra, ofs);
++
++    lab_fail = gen_new_label();
++    lab_done = gen_new_label();
++    tcg_gen_brcond_tl(TCG_COND_NE, ea, cpu_lock_addr, lab_fail);
++    tcg_temp_free(ea);
++
++    val = tcg_temp_new();
++    tcg_gen_qemu_ld_tl(val, cpu_lock_addr, dc->mem_idx, MO_TEUL);
++    tcg_gen_brcond_tl(TCG_COND_NE, val, cpu_lock_value, lab_fail);
++
++    tcg_gen_qemu_st_tl(rb, cpu_lock_addr, dc->mem_idx, MO_TEUL);
++    tcg_gen_movi_i32(env_btaken, 0x1);
++    tcg_gen_br(lab_done);
++
++    gen_set_label(lab_fail);
++    tcg_gen_movi_i32(env_btaken, 0x0);
++
++    gen_set_label(lab_done);
++    tcg_gen_movi_tl(cpu_lock_addr, -1);
++}
+ 
+ static void dec_calc(DisasContext *dc, uint32_t insn)
+ {
+@@ -858,6 +904,11 @@ static void dec_misc(DisasContext *dc, uint32_t insn)
+         goto do_load;
+ #endif*/
+ 
++    case 0x1b: /* l.lwa */
++        LOG_DIS("l.lwa r%d, r%d, %d\n", rd, ra, I16);
++        gen_lwa(dc, cpu_R[rd], cpu_R[ra], I16);
++        break;
++
+     case 0x21:    /* l.lwz */
+         LOG_DIS("l.lwz r%d, r%d, %d\n", rd, ra, I16);
+         mop = MO_TEUL;
+@@ -1036,6 +1087,11 @@ static void dec_misc(DisasContext *dc, uint32_t insn)
+         goto do_store;
+ #endif*/
+ 
++    case 0x33: /* l.swa */
++        LOG_DIS("l.swa r%d, r%d, %d\n", ra, rb, I16);
++        gen_swa(dc, cpu_R[rb], cpu_R[ra], sign_extend(tmp, 16));
++        break;
++
+     case 0x35:    /* l.sw */
+         LOG_DIS("l.sw %d, r%d, r%d, %d\n", I5, ra, rb, I11);
+         mop = MO_TEUL;
