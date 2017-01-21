@@ -1,40 +1,25 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 21 Jan 2017 12:05:13 +0900
-Subject: [OpenRISC] [PATCH v4 3/3] gdb: testsuite: Add or1k l.nop inscruction
-In-Reply-To: <cover.1484967574.git.shorne@gmail.com>
-References: <cover.1484967574.git.shorne@gmail.com>
-Message-ID: <32a0c15e0ffaa031e87777ff2abf68a601834b8b.1484967574.git.shorne@gmail.com>
+From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Date: Sat, 21 Jan 2017 17:58:22 +0200
+Subject: [OpenRISC] U-Boot and OpenRISC
+In-Reply-To: <20170121142843.GQ25981@bill-the-cat>
+References: <20170121142843.GQ25981@bill-the-cat>
+Message-ID: <CADzBsGPQqo=iS70aOvqcfFem4_kU0XKWofGZAg206jxWrf-xDw@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The test case requires adding a nop instruction.  For or1k the
-instruction is `l.nop`. This change uses the correct operation.
+On Sat, Jan 21, 2017 at 4:28 PM, Tom Rini <trini@konsulko.com> wrote:
+> Hey,
+>
+> I was wondering, is there still interest in having U-Boot for OpenRISC?
+> Thanks!
+>
 
-gdb/testsuite/ChangeLog:
+I bet there is.
+Unfortunately, I personally don't have much time nowadays to work on it.
 
-2016-05-11  Stafford Horne  <shorne@gmail.com>
+Adding the openrisc mailing list as well.
 
-	* gdb.base/bp-permanent.c: Define nop of or1k.
----
- gdb/testsuite/gdb.base/bp-permanent.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/gdb/testsuite/gdb.base/bp-permanent.c b/gdb/testsuite/gdb.base/bp-permanent.c
-index acd5be7..d42aafa 100644
---- a/gdb/testsuite/gdb.base/bp-permanent.c
-+++ b/gdb/testsuite/gdb.base/bp-permanent.c
-@@ -26,6 +26,8 @@
- 
- #if defined(__s390__) || defined(__s390x__)
- #define NOP asm("nopr 0")
-+#elif defined(__or1k__)
-+#define NOP asm("l.nop")
- #else
- #define NOP asm("nop")
- #endif
--- 
-2.9.3
-
+Stefan
