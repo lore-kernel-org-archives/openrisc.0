@@ -1,25 +1,44 @@
-From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Date: Sat, 21 Jan 2017 17:58:22 +0200
-Subject: [OpenRISC] U-Boot and OpenRISC
-In-Reply-To: <20170121142843.GQ25981@bill-the-cat>
-References: <20170121142843.GQ25981@bill-the-cat>
-Message-ID: <CADzBsGPQqo=iS70aOvqcfFem4_kU0XKWofGZAg206jxWrf-xDw@mail.gmail.com>
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date: Sun, 22 Jan 2017 11:32:34 -0500
+Subject: [OpenRISC] [PATCH 10/20] openrisc: migrate exception table users
+	off module.h and onto extable.h
+In-Reply-To: <20170122163244.11740-1-paul.gortmaker@windriver.com>
+References: <20170122163244.11740-1-paul.gortmaker@windriver.com>
+Message-ID: <20170122163244.11740-11-paul.gortmaker@windriver.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sat, Jan 21, 2017 at 4:28 PM, Tom Rini <trini@konsulko.com> wrote:
-> Hey,
->
-> I was wondering, is there still interest in having U-Boot for OpenRISC?
-> Thanks!
->
+This file was only including module.h for exception table related
+functions.  We've now separated that content out into its own file
+"extable.h" so now move over to that and avoid all the extra header
+content in module.h that we don't really need to compile these files.
 
-I bet there is.
-Unfortunately, I personally don't have much time nowadays to work on it.
+Reported-by: kbuild test robot <lkp@intel.com>
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Cc: Stafford Horne <shorne@gmail.com>
+Cc: openrisc at lists.librecores.org
+Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+---
+ arch/openrisc/mm/fault.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Adding the openrisc mailing list as well.
+diff --git a/arch/openrisc/mm/fault.c b/arch/openrisc/mm/fault.c
+index b1a7435e786a..53592a639744 100644
+--- a/arch/openrisc/mm/fault.c
++++ b/arch/openrisc/mm/fault.c
+@@ -17,7 +17,7 @@
+ 
+ #include <linux/mm.h>
+ #include <linux/interrupt.h>
+-#include <linux/module.h>
++#include <linux/extable.h>
+ #include <linux/sched.h>
+ 
+ #include <linux/uaccess.h>
+-- 
+2.11.0
 
-Stefan
