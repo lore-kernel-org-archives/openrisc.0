@@ -1,54 +1,84 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Fri, 27 Jan 2017 07:01:26 +0900
-Subject: [OpenRISC] [Qemu-devel] [PATCH] target-openrisc: Fix exception
- handling status registers
-In-Reply-To: <ddb9c656-aa3e-5d90-c8fc-0058af5b603b@twiddle.net>
-References: <CAJBMM-sX4fGckYy-eNRdZ9dKamOoJoK2fQ4TLS80T5n6jCkpFg@mail.gmail.com>
- <20170114080435.GF25986@lianli.shorne-pla.net>
- <20170120163918.GD7836@lianli.shorne-pla.net>
- <d27b7c60-a9fe-e92e-a937-d2d13b78f290@twiddle.net>
- <20170124102625.GF7836@lianli.shorne-pla.net>
- <01f7a18d-f4f5-18f3-0932-b32c06ad0b0c@twiddle.net>
- <20170125123430.GG7836@lianli.shorne-pla.net>
- <39f927aa-26fe-0e43-7c6b-efe1b70bc5fa@twiddle.net>
- <20170126131229.GB16014@lianli.shorne-pla.net>
- <ddb9c656-aa3e-5d90-c8fc-0058af5b603b@twiddle.net>
-Message-ID: <20170126220126.GC21641@lianli.shorne-pla.net>
+Date: Sun, 29 Jan 2017 22:05:08 +0900
+Subject: [OpenRISC] [linux-next:master 3724/5750]
+ drivers/block/drbd/drbd_req.c:955:3: error: implicit declaration of
+ function 'test_and_change_bit'
+In-Reply-To: <201701290951.idaFnKE3%fengguang.wu@intel.com>
+References: <201701290951.idaFnKE3%fengguang.wu@intel.com>
+Message-ID: <20170129130508.GA32144@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Thu, Jan 26, 2017 at 09:26:55AM -0800, Richard Henderson wrote:
-> On 01/26/2017 05:12 AM, Stafford Horne wrote:
-> > I just sent you a mail with a link to my kernel for download.
-> > 
-> > One thing I noticed is you passed '-append console=ttyS0' I think that
-> > does nothing on openrisc since as far as I know openrisc only gets boot
-> > params from the device tree file. I tried with and without it and got no
-> > differences.
+On Sun, Jan 29, 2017 at 09:03:54AM +0800, kbuild test robot wrote:
+> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
+> head:   f37208bc3c9c2f811460ef264909dfbc7f605a60
+> commit: 116ded1356614cff3facc9010125b5a28718cbf1 [3724/5750] openrisc: add atomic bitops
+> config: openrisc-allyesconfig (attached as .config)
+> compiler: or32-linux-gcc (GCC) 4.5.1-or32-1.0rc1
+> reproduce:
+>         wget https://git.kernel.org/cgit/linux/kernel/git/wfg/lkp-tests.git/plain/sbin/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         git checkout 116ded1356614cff3facc9010125b5a28718cbf1
+>         # save the attached .config to linux build tree
+>         make.cross ARCH=openrisc 
 > 
-> That was just reflex, wondering where the output went.
+> All errors (new ones prefixed by >>):
 > 
-> > Another thing, I am using a 'late' version of gcc built with musl cross [1]
-> > , I dont think it would make a difference, but maybe?
-> 
-> I think that's likely the difference.  I can indeed boot your kernel.
+>    drivers/block/drbd/drbd_req.c: In function 'remote_due_to_read_balancing':
+> >> drivers/block/drbd/drbd_req.c:955:3: error: implicit declaration of function 'test_and_change_bit'
+> --
+>    net/bluetooth/mgmt.c: In function 'set_external_config':
+> >> net/bluetooth/mgmt.c:5591:3: error: implicit declaration of function 'test_and_change_bit'
 
-OK, you can try to build with the musl-cross link I sent you.
+Hello,
 
-  https://github.com/openrisc/musl-cross/tree/or1k
+Thanks, it looks like this test_and_change_bit() was missed in the
+recent atomic bitops patch. Its not really used much so I guess it
+slipped by.
 
-Also, for the linux kernel crosstool project I am working on getting
-their toolchain updated to support l.swa/l.lwa.   I have posted some
-binaries here (but no libc needed for the kernel):
-
-  http://shorne.noip.me/crosstool/files/bin/x86_64/5.4.0/
-
-The official ones are all here (below), but much too old to support openrisc
-modern instructions.
-
-  https://www.kernel.org/pub/tools/crosstool/
+We will get it added.
 
 -Stafford
+
+> vim +/test_and_change_bit +955 drivers/block/drbd/drbd_req.c
+> 
+> 380207d0 Philipp Reisner     2011-11-11  939  	switch (rbm) {
+> 380207d0 Philipp Reisner     2011-11-11  940  	case RB_CONGESTED_REMOTE:
+> b30ab791 Andreas Gruenbacher 2011-07-03  941  		bdi = &device->ldev->backing_bdev->bd_disk->queue->backing_dev_info;
+> 380207d0 Philipp Reisner     2011-11-11  942  		return bdi_read_congested(bdi);
+> 380207d0 Philipp Reisner     2011-11-11  943  	case RB_LEAST_PENDING:
+> b30ab791 Andreas Gruenbacher 2011-07-03  944  		return atomic_read(&device->local_cnt) >
+> b30ab791 Andreas Gruenbacher 2011-07-03  945  			atomic_read(&device->ap_pending_cnt) + atomic_read(&device->rs_pending_cnt);
+> d60de03a Philipp Reisner     2011-11-17  946  	case RB_32K_STRIPING:  /* stripe_shift = 15 */
+> d60de03a Philipp Reisner     2011-11-17  947  	case RB_64K_STRIPING:
+> d60de03a Philipp Reisner     2011-11-17  948  	case RB_128K_STRIPING:
+> d60de03a Philipp Reisner     2011-11-17  949  	case RB_256K_STRIPING:
+> d60de03a Philipp Reisner     2011-11-17  950  	case RB_512K_STRIPING:
+> d60de03a Philipp Reisner     2011-11-17  951  	case RB_1M_STRIPING:   /* stripe_shift = 20 */
+> d60de03a Philipp Reisner     2011-11-17  952  		stripe_shift = (rbm - RB_32K_STRIPING + 15);
+> d60de03a Philipp Reisner     2011-11-17  953  		return (sector >> (stripe_shift - 9)) & 1;
+> 380207d0 Philipp Reisner     2011-11-11  954  	case RB_ROUND_ROBIN:
+> b30ab791 Andreas Gruenbacher 2011-07-03 @955  		return test_and_change_bit(READ_BALANCE_RR, &device->flags);
+> 380207d0 Philipp Reisner     2011-11-11  956  	case RB_PREFER_REMOTE:
+> 380207d0 Philipp Reisner     2011-11-11  957  		return true;
+> 380207d0 Philipp Reisner     2011-11-11  958  	case RB_PREFER_LOCAL:
+> 380207d0 Philipp Reisner     2011-11-11  959  	default:
+> 380207d0 Philipp Reisner     2011-11-11  960  		return false;
+> 380207d0 Philipp Reisner     2011-11-11  961  	}
+> 380207d0 Philipp Reisner     2011-11-11  962  }
+> 380207d0 Philipp Reisner     2011-11-11  963  
+> 
+> :::::: The code at line 955 was first introduced by commit
+> :::::: b30ab7913b0a7b1d3b1091c8cb3abb1a9f1e0824 drbd: Rename "mdev" to "device"
+> 
+> :::::: TO: Andreas Gruenbacher <agruen@linbit.com>
+> :::::: CC: Philipp Reisner <philipp.reisner@linbit.com>
+> 
+> ---
+> 0-DAY kernel test infrastructure                Open Source Technology Center
+> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+
+
