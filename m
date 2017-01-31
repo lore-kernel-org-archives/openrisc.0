@@ -1,61 +1,49 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 1 Jan 2017 07:50:59 +0900
-Subject: [OpenRISC] [PATCH 0/3] Openrisc 4.10 fixes
-In-Reply-To: <5edddd32-2a31-8b52-adfa-f5edae1fc227@southpole.se>
-References: <cover.1483184705.git.shorne@gmail.com>
- <5edddd32-2a31-8b52-adfa-f5edae1fc227@southpole.se>
-Message-ID: <20161231225059.GC2777@lianli.shorne-pla.net>
+Date: Wed, 1 Feb 2017 07:44:38 +0900
+Subject: [OpenRISC] Crosstool/kbuild-all toolchain updates
+Message-ID: <20170131224438.GD21641@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Jonas,
+Hi Fengguang/All,
 
-On Sat, Dec 31, 2016 at 03:10:37PM +0100, Jonas Bonn wrote:
-> Hi Stafford,
-> 
-> On 12/31/2016 12:52 PM, Stafford Horne wrote:
-> > Hello,
-> > 
-> > These are a few small changes for openrisc I would like to include in 4.10.
-> > The main change is a fix for building with alldefconfig to properly setup
-> > then _text symbol.  Others are trivial.
-> > 
-> > If no complaints I will push to 4.10 for inclusion and start working on
-> > 4.11 changes.
-> 
-> Post-merge window patches should  be bug fixes, only.  Patch 1/3 probably
-> qualifies, but the others are far too trivial to be pushing now.  Just put
-> them on your 4.11 branch.
+I am working as the OpenRISC linux kernel maintainer.  Currently in
+linux-next our patches are causing kbuild test robot to fail.
 
-Thanks, for some reason I thought minor changes like this were ok too.
-I will only push the one change in this case.  The rest will go to my
-4.11 queue, which I'll send for review in the next few days.
+This is because the patches are taking advantage of 2 'new' (2 year old)
+instrucions (l.swa/l.lwa) and the build robots, as far as I can tell,
+use the 'make.cross' [0] build script from lkp-tests.git.  These point
+to the crosstools [1] toolchains maintained by Tony.
 
-That brings up a question, Do you want to stay in the MAINTAINERS file?
-I noticed sometimes you dont get around to review, but often when you do
-the reviews are helpful like this one.
+I sent a mail to Tony who maintains the crosstools but I didn't get a
+reply and it seems he is not longer working on them [1].
 
-> > Let me know if these are too minor to even post for review.
-> Nothing is too minor to post for review!
+I think our options are:
 
-Good to know!
+  1. Update 'make.cross' to point somewhere else for openrisc
+  2. Update and maintain crosstools
+
+For 1. its trvial but, maybe not the best solution.
+
+For 2. I created new crosstool builds for openrisc [3]. The way the
+crosstools are maintained is via a patches.tar file and it seem a custom
+buildall script.  I dont see the source for that custom script anywhere.
+
+I am thinking I could help to update and 'opensource' the crosstool
+build scripts to make it easier for everyone to update toolchains by
+sending patches.
+
+But, I would need access to crosstool on kernel.org and an OK from
+everyone.
+
+Any opinions? Questions?
 
 -Stafford
 
-> > 
-> > Stafford Horne (3):
-> >    openrisc: Add _text symbol to fix ksym build error
-> >    openrisc: Add .gitignore
-> >    MAINTAINERS: Add the openrisc official repository
-> > 
-> >   MAINTAINERS                        | 1 +
-> >   arch/openrisc/kernel/.gitignore    | 1 +
-> >   arch/openrisc/kernel/vmlinux.lds.S | 2 ++
-> >   3 files changed, 4 insertions(+)
-> >   create mode 100644 arch/openrisc/kernel/.gitignore
-> > 
-> 
-
+[0] https://git.kernel.org/cgit/linux/kernel/git/wfg/lkp-tests.git/tree/sbin/make.cross
+[1] https://www.kernel.org/pub/tools/crosstool/
+[2] https://marc.info/?l=linux-kernel&m=146406282809809&w=1
+[3] http://shorne.noip.me/crosstool/files/
