@@ -1,30 +1,36 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat,  4 Feb 2017 00:48:41 +0900
-Subject: [OpenRISC] [PATCH v2 17/23] openrisc: Add .gitignore
+Date: Sat,  4 Feb 2017 00:48:42 +0900
+Subject: [OpenRISC] [PATCH v2 18/23] MAINTAINERS: Add the openrisc official
+	repository
 In-Reply-To: <cover.1486135912.git.shorne@gmail.com>
 References: <cover.1486135912.git.shorne@gmail.com>
-Message-ID: <96d24525b9f3825625c86cebf14942617d802323.1486135912.git.shorne@gmail.com>
+Message-ID: <c72bc2371bd441f4f48b52d0ba95509a2ae872d5.1486135912.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-This helps to suppress the vmlinux.lds file.
+The openrisc official repository and patch work happens currently on
+github. Add the repo for reference.
 
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/kernel/.gitignore | 1 +
+ MAINTAINERS | 1 +
  1 file changed, 1 insertion(+)
- create mode 100644 arch/openrisc/kernel/.gitignore
 
-diff --git a/arch/openrisc/kernel/.gitignore b/arch/openrisc/kernel/.gitignore
-new file mode 100644
-index 0000000..c5f676c
---- /dev/null
-+++ b/arch/openrisc/kernel/.gitignore
-@@ -0,0 +1 @@
-+vmlinux.lds
+diff --git a/MAINTAINERS b/MAINTAINERS
+index c36976d..92000bf 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -9171,6 +9171,7 @@ OPENRISC ARCHITECTURE
+ M:	Jonas Bonn <jonas@southpole.se>
+ M:	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+ M:	Stafford Horne <shorne@gmail.com>
++T:	git git://github.com/openrisc/linux.git
+ L:	openrisc at lists.librecores.org
+ W:	http://openrisc.io
+ S:	Maintained
 -- 
 2.9.3
 
