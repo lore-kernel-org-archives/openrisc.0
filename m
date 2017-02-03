@@ -1,36 +1,38 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat,  4 Feb 2017 00:48:42 +0900
-Subject: [OpenRISC] [PATCH v2 18/23] MAINTAINERS: Add the openrisc official
-	repository
+Date: Sat,  4 Feb 2017 00:48:43 +0900
+Subject: [OpenRISC] [PATCH v2 19/23] scripts/checkstack.pl: Add openrisc
+	support
 In-Reply-To: <cover.1486135912.git.shorne@gmail.com>
 References: <cover.1486135912.git.shorne@gmail.com>
-Message-ID: <c72bc2371bd441f4f48b52d0ba95509a2ae872d5.1486135912.git.shorne@gmail.com>
+Message-ID: <d371471892ef8c04b31f1ad4e2ab0203a71266d9.1486135912.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The openrisc official repository and patch work happens currently on
-github. Add the repo for reference.
+Openrisc stack pointer is managed by decrementing r1. Add regexes to
+recognize this.
 
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- MAINTAINERS | 1 +
- 1 file changed, 1 insertion(+)
+ scripts/checkstack.pl | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index c36976d..92000bf 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -9171,6 +9171,7 @@ OPENRISC ARCHITECTURE
- M:	Jonas Bonn <jonas@southpole.se>
- M:	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
- M:	Stafford Horne <shorne@gmail.com>
-+T:	git git://github.com/openrisc/linux.git
- L:	openrisc at lists.librecores.org
- W:	http://openrisc.io
- S:	Maintained
+diff --git a/scripts/checkstack.pl b/scripts/checkstack.pl
+index dd83978..eea5b78 100755
+--- a/scripts/checkstack.pl
++++ b/scripts/checkstack.pl
+@@ -106,6 +106,9 @@ my (@stack, $re, $dre, $x, $xs, $funcre);
+ 	} elsif ($arch eq 'sparc' || $arch eq 'sparc64') {
+ 		# f0019d10:       9d e3 bf 90     save  %sp, -112, %sp
+ 		$re = qr/.*save.*%sp, -(([0-9]{2}|[3-9])[0-9]{2}), %sp/o;
++	} elsif ($arch eq 'openrisc') {
++		# c000043c:       9c 21 fe f0     l.addi r1,r1,-272
++		$re = qr/.*l\.addi.*r1,r1,-(([0-9]{2}|[3-9])[0-9]{2})/o;
+ 	} else {
+ 		print("wrong or unknown architecture \"$arch\"\n");
+ 		exit
 -- 
 2.9.3
 
