@@ -1,10 +1,10 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat,  4 Feb 2017 00:48:28 +0900
-Subject: [OpenRISC] [PATCH v2 04/23] openrisc: head: use THREAD_SIZE instead
-	of magic constant
+Date: Sat,  4 Feb 2017 00:48:29 +0900
+Subject: [OpenRISC] [PATCH v2 05/23] openrisc: head: refactor out tlb flush
+	into it's own function
 In-Reply-To: <cover.1486135912.git.shorne@gmail.com>
 References: <cover.1486135912.git.shorne@gmail.com>
-Message-ID: <7d6586ff19e452e736655398133a19347d8cbbc0.1486135912.git.shorne@gmail.com>
+Message-ID: <0d67d4e88b3d6db60aebab8bcc10c49f71b6671b.1486135912.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,38 +13,73 @@ To: openrisc@lists.librecores.org
 
 From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
 
-The stack size was hard coded to 0x2000, use the standard THREAD_SIZE
-definition loaded from thread_info.h.
+This brings it inline with the other setup oprations done like the cache
+enables _ic_enable and _dc_enable.  Also, this is going to make it
+easier to initialize additional cpu's when smp is introduced.
 
 Signed-off-by: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-[shorne at gmail.com: Added body to the commit message]
+[shorne at gmail.com: Added commit body]
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/kernel/head.S | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/openrisc/kernel/head.S | 38 ++++++++++++++++++++++----------------
+ 1 file changed, 22 insertions(+), 16 deletions(-)
 
 diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
-index 2346c5b..63ba2d9 100644
+index 63ba2d9..a22f1fc 100644
 --- a/arch/openrisc/kernel/head.S
 +++ b/arch/openrisc/kernel/head.S
-@@ -24,6 +24,7 @@
- #include <asm/page.h>
- #include <asm/mmu.h>
- #include <asm/pgtable.h>
-+#include <asm/thread_info.h>
- #include <asm/cache.h>
- #include <asm/spr_defs.h>
- #include <asm/asm-offsets.h>
-@@ -486,7 +487,8 @@ _start:
- 	/*
- 	 * set up initial ksp and current
- 	 */
--	LOAD_SYMBOL_2_GPR(r1,init_thread_union+0x2000)	// setup kernel stack
-+	/* setup kernel stack */
-+	LOAD_SYMBOL_2_GPR(r1,init_thread_union + THREAD_SIZE)
- 	LOAD_SYMBOL_2_GPR(r10,init_thread_union)	// setup current
- 	tophys	(r31,r10)
- 	l.sw	TI_KSP(r31), r1
+@@ -522,22 +522,8 @@ enable_dc:
+ 	 l.nop
+ 
+ flush_tlb:
+-	/*
+-	 *  I N V A L I D A T E   T L B   e n t r i e s
+-	 */
+-	LOAD_SYMBOL_2_GPR(r5,SPR_DTLBMR_BASE(0))
+-	LOAD_SYMBOL_2_GPR(r6,SPR_ITLBMR_BASE(0))
+-	l.addi	r7,r0,128 /* Maximum number of sets */
+-1:
+-	l.mtspr	r5,r0,0x0
+-	l.mtspr	r6,r0,0x0
+-
+-	l.addi	r5,r5,1
+-	l.addi	r6,r6,1
+-	l.sfeq	r7,r0
+-	l.bnf	1b
+-	 l.addi	r7,r7,-1
+-
++	l.jal	_flush_tlb
++	 l.nop
+ 
+ /* The MMU needs to be enabled before or32_early_setup is called */
+ 
+@@ -629,6 +615,26 @@ jump_start_kernel:
+ 	l.jr    r30
+ 	 l.nop
+ 
++_flush_tlb:
++	/*
++	 *  I N V A L I D A T E   T L B   e n t r i e s
++	 */
++	LOAD_SYMBOL_2_GPR(r5,SPR_DTLBMR_BASE(0))
++	LOAD_SYMBOL_2_GPR(r6,SPR_ITLBMR_BASE(0))
++	l.addi	r7,r0,128 /* Maximum number of sets */
++1:
++	l.mtspr	r5,r0,0x0
++	l.mtspr	r6,r0,0x0
++
++	l.addi	r5,r5,1
++	l.addi	r6,r6,1
++	l.sfeq	r7,r0
++	l.bnf	1b
++	 l.addi	r7,r7,-1
++
++	l.jr	r9
++	 l.nop
++
+ /* ========================================[ cache ]=== */
+ 
+ 	/* aligment here so we don't change memory offsets with
 -- 
 2.9.3
 
