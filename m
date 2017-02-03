@@ -1,9 +1,10 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat,  4 Feb 2017 00:48:31 +0900
-Subject: [OpenRISC] [PATCH v2 07/23] openrisc: add atomic bitops
+Date: Sat,  4 Feb 2017 00:48:32 +0900
+Subject: [OpenRISC] [PATCH v2 08/23] openrisc: add cmpxchg and xchg
+	implementations
 In-Reply-To: <cover.1486135912.git.shorne@gmail.com>
 References: <cover.1486135912.git.shorne@gmail.com>
-Message-ID: <284cf05a2094a8b6fdb82028564343bde7f9a830.1486135912.git.shorne@gmail.com>
+Message-ID: <52d8063e0491ea71ed04a613b022047854df9010.1486135912.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -12,40 +13,42 @@ To: openrisc@lists.librecores.org
 
 From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
 
-This utilize the load-link/store-conditional l.lwa and l.swa
-instructions to implement the atomic bitops.
-When those instructions are not available emulation is provided.
+Optimized version that make use of the l.lwa and l.swa atomic instruction
+pair.
+Most openrisc cores provide these instructions now, if not available
+emulation is provided.
 
 Signed-off-by: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
 [shorne at gmail.com: remove OPENRISC_HAVE_INST_LWA_SWA config suggesed by
-Alan Cox https://lkml.org/lkml/2014/7/23/666, implement
-test_and_change_bit]
+Alan Cox https://lkml.org/lkml/2014/7/23/666]
+[shorne at gmail.com: fixed unused calculated value compiler warning in
+define cmpxchg]
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/include/asm/bitops.h        |   2 +-
- arch/openrisc/include/asm/bitops/atomic.h | 123 ++++++++++++++++++++++++++++++
- 2 files changed, 124 insertions(+), 1 deletion(-)
- create mode 100644 arch/openrisc/include/asm/bitops/atomic.h
+ arch/openrisc/include/asm/Kbuild    |  2 -
+ arch/openrisc/include/asm/cmpxchg.h | 82 +++++++++++++++++++++++++++++++++++++
+ 2 files changed, 82 insertions(+), 2 deletions(-)
+ create mode 100644 arch/openrisc/include/asm/cmpxchg.h
 
-diff --git a/arch/openrisc/include/asm/bitops.h b/arch/openrisc/include/asm/bitops.h
-index 3003cda..689f568 100644
---- a/arch/openrisc/include/asm/bitops.h
-+++ b/arch/openrisc/include/asm/bitops.h
-@@ -45,7 +45,7 @@
- #include <asm-generic/bitops/hweight.h>
- #include <asm-generic/bitops/lock.h>
- 
--#include <asm-generic/bitops/atomic.h>
-+#include <asm/bitops/atomic.h>
- #include <asm-generic/bitops/non-atomic.h>
- #include <asm-generic/bitops/le.h>
- #include <asm-generic/bitops/ext2-atomic.h>
-diff --git a/arch/openrisc/include/asm/bitops/atomic.h b/arch/openrisc/include/asm/bitops/atomic.h
+diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
+index 6dd177d..15e6ed5 100644
+--- a/arch/openrisc/include/asm/Kbuild
++++ b/arch/openrisc/include/asm/Kbuild
+@@ -10,8 +10,6 @@ generic-y += bugs.h
+ generic-y += cacheflush.h
+ generic-y += checksum.h
+ generic-y += clkdev.h
+-generic-y += cmpxchg-local.h
+-generic-y += cmpxchg.h
+ generic-y += cputime.h
+ generic-y += current.h
+ generic-y += device.h
+diff --git a/arch/openrisc/include/asm/cmpxchg.h b/arch/openrisc/include/asm/cmpxchg.h
 new file mode 100644
-index 0000000..35fb85f
+index 0000000..6d73c7b
 --- /dev/null
-+++ b/arch/openrisc/include/asm/bitops/atomic.h
-@@ -0,0 +1,123 @@
++++ b/arch/openrisc/include/asm/cmpxchg.h
+@@ -0,0 +1,82 @@
 +/*
 + * Copyright (C) 2014 Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
 + *
@@ -54,121 +57,80 @@ index 0000000..35fb85f
 + * kind, whether express or implied.
 + */
 +
-+#ifndef __ASM_OPENRISC_BITOPS_ATOMIC_H
-+#define __ASM_OPENRISC_BITOPS_ATOMIC_H
++#ifndef __ASM_OPENRISC_CMPXCHG_H
++#define __ASM_OPENRISC_CMPXCHG_H
 +
-+static inline void set_bit(int nr, volatile unsigned long *addr)
++#include  <linux/types.h>
++
++/*
++ * This function doesn't exist, so you'll get a linker error
++ * if something tries to do an invalid cmpxchg().
++ */
++extern void __cmpxchg_called_with_bad_pointer(void);
++
++#define __HAVE_ARCH_CMPXCHG 1
++
++static inline unsigned long
++__cmpxchg(volatile void *ptr, unsigned long old, unsigned long new, int size)
 +{
-+	unsigned long mask = BIT_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
-+	unsigned long tmp;
++	if (size != 4) {
++		__cmpxchg_called_with_bad_pointer();
++		return old;
++	}
 +
 +	__asm__ __volatile__(
-+		"1:	l.lwa	%0,0(%1)	\n"
-+		"	l.or	%0,%0,%2	\n"
-+		"	l.swa	0(%1),%0	\n"
-+		"	l.bnf	1b		\n"
++		"1:	l.lwa %0, 0(%1)		\n"
++		"	l.sfeq %0, %2		\n"
++		"	l.bnf 1f		\n"
 +		"	 l.nop			\n"
-+		: "=&r"(tmp)
-+		: "r"(p), "r"(mask)
++		"	l.swa 0(%1), %3		\n"
++		"	l.bnf 1b		\n"
++		"1:	 l.nop			\n"
++		: "=&r"(old)
++		: "r"(ptr), "r"(old), "r"(new)
 +		: "cc", "memory");
++
++	return old;
 +}
 +
-+static inline void clear_bit(int nr, volatile unsigned long *addr)
++#define cmpxchg(ptr, o, n)						\
++	({								\
++		(__typeof__(*(ptr))) __cmpxchg((ptr),			\
++					       (unsigned long)(o),	\
++					       (unsigned long)(n),	\
++					       sizeof(*(ptr)));		\
++	})
++
++/*
++ * This function doesn't exist, so you'll get a linker error if
++ * something tries to do an invalidly-sized xchg().
++ */
++extern void __xchg_called_with_bad_pointer(void);
++
++static inline unsigned long __xchg(unsigned long val, volatile void *ptr,
++				   int size)
 +{
-+	unsigned long mask = BIT_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
-+	unsigned long tmp;
++	if (size != 4) {
++		__xchg_called_with_bad_pointer();
++		return val;
++	}
 +
 +	__asm__ __volatile__(
-+		"1:	l.lwa	%0,0(%1)	\n"
-+		"	l.and	%0,%0,%2	\n"
-+		"	l.swa	0(%1),%0	\n"
-+		"	l.bnf	1b		\n"
++		"1:	l.lwa %0, 0(%1)		\n"
++		"	l.swa 0(%1), %2		\n"
++		"	l.bnf 1b		\n"
 +		"	 l.nop			\n"
-+		: "=&r"(tmp)
-+		: "r"(p), "r"(~mask)
-+		: "cc", "memory");
-+}
-+
-+static inline void change_bit(int nr, volatile unsigned long *addr)
-+{
-+	unsigned long mask = BIT_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
-+	unsigned long tmp;
-+
-+	__asm__ __volatile__(
-+		"1:	l.lwa	%0,0(%1)	\n"
-+		"	l.xor	%0,%0,%2	\n"
-+		"	l.swa	0(%1),%0	\n"
-+		"	l.bnf	1b		\n"
-+		"	 l.nop			\n"
-+		: "=&r"(tmp)
-+		: "r"(p), "r"(mask)
-+		: "cc", "memory");
-+}
-+
-+static inline int test_and_set_bit(int nr, volatile unsigned long *addr)
-+{
-+	unsigned long mask = BIT_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
-+	unsigned long old;
-+	unsigned long tmp;
-+
-+	__asm__ __volatile__(
-+		"1:	l.lwa	%0,0(%2)	\n"
-+		"	l.or	%1,%0,%3	\n"
-+		"	l.swa	0(%2),%1	\n"
-+		"	l.bnf	1b		\n"
-+		"	 l.nop			\n"
-+		: "=&r"(old), "=&r"(tmp)
-+		: "r"(p), "r"(mask)
++		: "=&r"(val)
++		: "r"(ptr), "r"(val)
 +		: "cc", "memory");
 +
-+	return (old & mask) != 0;
++	return val;
 +}
 +
-+static inline int test_and_clear_bit(int nr, volatile unsigned long *addr)
-+{
-+	unsigned long mask = BIT_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
-+	unsigned long old;
-+	unsigned long tmp;
++#define xchg(ptr, with) \
++	((typeof(*(ptr)))__xchg((unsigned long)(with), (ptr), sizeof(*(ptr))))
 +
-+	__asm__ __volatile__(
-+		"1:	l.lwa	%0,0(%2)	\n"
-+		"	l.and	%1,%0,%3	\n"
-+		"	l.swa	0(%2),%1	\n"
-+		"	l.bnf	1b		\n"
-+		"	 l.nop			\n"
-+		: "=&r"(old), "=&r"(tmp)
-+		: "r"(p), "r"(~mask)
-+		: "cc", "memory");
-+
-+	return (old & mask) != 0;
-+}
-+
-+static inline int test_and_change_bit(int nr, volatile unsigned long *addr)
-+{
-+	unsigned long mask = BIT_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
-+	unsigned long old;
-+	unsigned long tmp;
-+
-+	__asm__ __volatile__(
-+		"1:	l.lwa	%0,0(%2)	\n"
-+		"	l.xor	%1,%0,%3	\n"
-+		"	l.swa	0(%2),%1	\n"
-+		"	l.bnf	1b		\n"
-+		"	 l.nop			\n"
-+		: "=&r"(old), "=&r"(tmp)
-+		: "r"(p), "r"(mask)
-+		: "cc", "memory");
-+
-+	return (old & mask) != 0;
-+}
-+
-+#endif /* __ASM_OPENRISC_BITOPS_ATOMIC_H */
++#endif /* __ASM_OPENRISC_CMPXCHG_H */
 -- 
 2.9.3
 
