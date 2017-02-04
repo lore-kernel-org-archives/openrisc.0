@@ -1,39 +1,33 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sat,  4 Feb 2017 00:48:47 +0900
-Subject: [OpenRISC] [PATCH v2 23/23] arch/openrisc/lib/memcpy.c: use correct
-	OR1200 option
-In-Reply-To: <cover.1486135912.git.shorne@gmail.com>
-References: <cover.1486135912.git.shorne@gmail.com>
-Message-ID: <f42ec9c719900c41e443b85585156cc53910f9fe.1486135912.git.shorne@gmail.com>
+From: Jakob Viketoft <jakob.viketoft@aacmicrotec.com>
+Date: Sat, 4 Feb 2017 20:33:45 +0000
+Subject: [OpenRISC] Linux openrisc init code...
+Message-ID: <D90E780DD5090A4F9AEBC859615CED770106727209@OXYGEN.aacmicrotec.local>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-From: Valentin Rothberg <valentinrothberg@gmail.com>
+Hello!
 
-The Kconfig option for OR12000 is OR1K_1200.
+I've already left dealing with Linux on openrisc, but your recent posts sparked a remembrance of couple of bug fixes I've made locally, I might as well share and you can do with that info as you please. :)
 
-Signed-off-by: Valentin Rothberg <valentinrothberg@gmail.com>
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- arch/openrisc/lib/memcpy.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+First off is the very initial code in arch/openrisc/head.S:
+As I recall it, r0 isn't actually tied to zero explicitly and the current init code fails in e.g. a simulator. I'd like to change the CLEAR_GPR method to use l.movhi instead and also explicitly clear r0 before using that in any instruction.
 
-diff --git a/arch/openrisc/lib/memcpy.c b/arch/openrisc/lib/memcpy.c
-index 4706f01..669887a 100644
---- a/arch/openrisc/lib/memcpy.c
-+++ b/arch/openrisc/lib/memcpy.c
-@@ -17,7 +17,7 @@
- 
- #include <linux/string.h>
- 
--#ifdef CONFIG_OR1200
-+#ifdef CONFIG_OR1K_1200
- /*
-  * Do memcpy with word copies and loop unrolling. This gives the
-  * best performance on the OR1200 and MOR1KX archirectures
--- 
-2.9.3
+The second one I can't find anymore in linux-next, whether it's been removed completely or was only part of Jonas' tree I can't tell, but I thought I'd share anyway. There was a rule to create a dtb-image suitable for u-boot, but it gave the wrong jump-to address in the kernel. Originally it says 0x100 which is reset and which will clear the dtb argument given by u-boot. I corrected this to 0x400000 to be able to do the handover between u-boot and the kernel using different dtb-images based on the board.
 
+Best regards,
+
+       /Jakob
+
+
+Jakob Viketoft
+Senior Engineer in RTL and embedded software
+
+ÅAC Microtec AB
+Dag Hammarskjölds väg 48
+SE-751 83 Uppsala, Sweden
+
+T: +46 702 80 95 97
+http://www.aacmicrotec.com
