@@ -1,47 +1,75 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Mon,  6 Feb 2017 23:38:40 +0900
-Subject: [OpenRISC] [PATCH 3/3] libgloss: Remove duplicate definition of
-	environ
-In-Reply-To: <cover.1486391219.git.shorne@gmail.com>
-References: <cover.1486391219.git.shorne@gmail.com>
-Message-ID: <ac05ff603f3fc6ba605191dd6a3960c8c68c1da4.1486391219.git.shorne@gmail.com>
+From: Richard Henderson <rth@twiddle.net>
+Date: Mon, 6 Feb 2017 12:44:56 -0800
+Subject: [OpenRISC] [Qemu-devel] [PATCH] target-openrisc: Fix exception
+ handling status registers
+In-Reply-To: <20170202143455.GB32144@lianli.shorne-pla.net>
+References: <20170120163918.GD7836@lianli.shorne-pla.net>
+ <d27b7c60-a9fe-e92e-a937-d2d13b78f290@twiddle.net>
+ <20170124102625.GF7836@lianli.shorne-pla.net>
+ <01f7a18d-f4f5-18f3-0932-b32c06ad0b0c@twiddle.net>
+ <20170125123430.GG7836@lianli.shorne-pla.net>
+ <39f927aa-26fe-0e43-7c6b-efe1b70bc5fa@twiddle.net>
+ <20170126131229.GB16014@lianli.shorne-pla.net>
+ <ddb9c656-aa3e-5d90-c8fc-0058af5b603b@twiddle.net>
+ <20170201100423.GE21641@lianli.shorne-pla.net>
+ <c840eff0-2be7-07d7-eae9-4cded569d146@twiddle.net>
+ <20170202143455.GB32144@lianli.shorne-pla.net>
+Message-ID: <e9f58f51-4cca-6136-d392-91c805d5631d@twiddle.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Environ is defined in libgloss and libc:
- - libgloss/or1k/syscalls.c
- - libc/stdlib/environ.c
+[ qemu lists trimed ]
+On 02/02/2017 06:34 AM, Stafford Horne wrote:
+> What issue are you having compiling gdb?
 
-When linking we sometimes get errors:
-or1k-elf-g++ test.o -mnewlib -mboard=or1ksim -lm -o  test
-/opt/shorne/software/or1k/lib/gcc/or1k-elf/5.3.0/../../../../or1k-elf/lib/libor1k.a(syscalls.o):(.data+0x0):
-multiple definition of `environ'
-/opt/shorne/software/or1k/lib/gcc/or1k-elf/5.3.0/../../../../or1k-elf/lib/libc.a(lib_a-environ.o):(.data+0x0):
-first defined here
-collect2: error: ld returned 1 exit status
 
-This doesnt happen after the fix. Basic things build fine too.
----
- libgloss/or1k/syscalls.c | 3 ---
- 1 file changed, 3 deletions(-)
-
-diff --git a/libgloss/or1k/syscalls.c b/libgloss/or1k/syscalls.c
-index 3e2ad22..92bff49 100644
---- a/libgloss/or1k/syscalls.c
-+++ b/libgloss/or1k/syscalls.c
-@@ -56,9 +56,6 @@ _close_r(struct _reent *reent, int fildes)
- 	return -1;
- }
  
--char *__env[1] = { 0 };
--char **environ = __env;
--
- int
- _execve_r(struct _reent *reent, const char *name, char * const *argv,
- 		char * const *env)
--- 
-2.9.3
+/home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:589: 
+undefined reference to `or1k32bf_exception'
+ 
+/home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:574: 
+undefined reference to `or1k32bf_exception'
+ 
+/home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:649: 
+undefined reference to `or1k32bf_rfe'
+ 
+/home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:730: 
+undefined reference to `or1k32bf_mfspr'
+ 
+/home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:748: 
+undefined reference to `or1k32bf_mtspr'
+ 
+/home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:1717: 
+undefined reference to `or1k32bf_exception'
+ 
+/home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:1681: 
+undefined reference to `or1k32bf_exception'
+ 
+/home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:1643: 
+undefined reference to `or1k32bf_exception'
+ 
+/home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:1511: 
+undefined reference to `or1k32bf_exception'
+ 
+/home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:1463: 
+undefined reference to `or1k32bf_exception'
+ 
+../sim/or1k/libsim.a(mloop32.o):/home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:1416: 
+more undefined references to `or1k32bf_exception' follow
+  ../sim/or1k/libsim.a(sem32.o): In function `or1k32bf_sem_l_mtspr':
+  /home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32.c:635: 
+undefined reference to `or1k32bf_mtspr'
+  ../sim/or1k/libsim.a(sem32.o): In function `or1k32bf_sem_l_mfspr':
+  /home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32.c:615: 
+undefined reference to `or1k32bf_mfspr'
+  ../sim/or1k/libsim.a(sem32.o): In function `or1k32bf_sem_l_rfe':
+  /home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32.c:526: 
+undefined reference to `or1k32bf_rfe'
+  collect2: error: ld returned 1 exit status
 
+
+
+r~
