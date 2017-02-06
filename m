@@ -1,42 +1,50 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon,  6 Feb 2017 23:38:38 +0900
-Subject: [OpenRISC] [PATCH 1/3] or1k: Make open reentrant
+Date: Mon,  6 Feb 2017 23:38:39 +0900
+Subject: [OpenRISC] [PATCH 2/3] libgloss: or1k: If available call the init
+	for init_array
 In-Reply-To: <cover.1486391219.git.shorne@gmail.com>
 References: <cover.1486391219.git.shorne@gmail.com>
-Message-ID: <608a0c980e753934e9bb15fb02e2e9302bad1b4f.1486391219.git.shorne@gmail.com>
+Message-ID: <0c64720c78e17dc41fab6f2a80b6e101e78e459a.1486391219.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-From: Olof Kindgren <olof.kindgren@gmail.com>
+There was an issue revealed in gdb testing where C++ virtual tables
+were not getting properly initialized.  This seems to be due to the
+c++ global constructors moving from ctors to init_array.
 
-or1k uses reentrant calls by default, but there was no open_r defined
-which caused failure in C++/C code such as:
-
-int main() { std::cout << "test\n";  return 0; }
-
-or
-
-int main() {open(".", 0);}
+This fix makes sure we call the proper method for initializing the
+constructors in all places.
 ---
- libgloss/or1k/syscalls.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ libgloss/or1k/crt0.S | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/libgloss/or1k/syscalls.c b/libgloss/or1k/syscalls.c
-index 690d21a..3e2ad22 100644
---- a/libgloss/or1k/syscalls.c
-+++ b/libgloss/or1k/syscalls.c
-@@ -124,7 +124,7 @@ _lseek_r(struct _reent *reent, int file, _off_t ptr, int dir)
- }
+diff --git a/libgloss/or1k/crt0.S b/libgloss/or1k/crt0.S
+index 84adba1..03d7323 100644
+--- a/libgloss/or1k/crt0.S
++++ b/libgloss/or1k/crt0.S
+@@ -36,6 +36,7 @@
+       the obvious things..                                                    */
+ /* -------------------------------------------------------------------------- */
  
- int
--_open(struct _reent *reent, char *file, int flags, int mode)
-+_open_r(struct _reent *reent, const char *file, int flags, int mode)
- {
- 	reent->_errno = ENOSYS;
- 	return -1;
++#include "newlib.h"
+ #include "include/or1k-asm.h"
+ #include "include/or1k-sprs.h"
+ 
+@@ -96,6 +97,11 @@ _or1k_exception_stack_size:	.word EXCEPTION_STACK_SIZE
+                                                                               */
+ /* -------------------------------------------------------------------------- */
+ 
++#ifdef HAVE_INITFINI_ARRAY
++#define _init	__libc_init_array
++#define _fini	__libc_fini_array
++#endif
++
+ #define GPR_BUF_OFFSET(x) (x << 2)
+ 
+ #ifndef __OR1K_MULTICORE__
 -- 
 2.9.3
 
