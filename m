@@ -1,50 +1,47 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon,  6 Feb 2017 23:38:39 +0900
-Subject: [OpenRISC] [PATCH 2/3] libgloss: or1k: If available call the init
-	for init_array
+Date: Mon,  6 Feb 2017 23:38:40 +0900
+Subject: [OpenRISC] [PATCH 3/3] libgloss: Remove duplicate definition of
+	environ
 In-Reply-To: <cover.1486391219.git.shorne@gmail.com>
 References: <cover.1486391219.git.shorne@gmail.com>
-Message-ID: <0c64720c78e17dc41fab6f2a80b6e101e78e459a.1486391219.git.shorne@gmail.com>
+Message-ID: <ac05ff603f3fc6ba605191dd6a3960c8c68c1da4.1486391219.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-There was an issue revealed in gdb testing where C++ virtual tables
-were not getting properly initialized.  This seems to be due to the
-c++ global constructors moving from ctors to init_array.
+Environ is defined in libgloss and libc:
+ - libgloss/or1k/syscalls.c
+ - libc/stdlib/environ.c
 
-This fix makes sure we call the proper method for initializing the
-constructors in all places.
+When linking we sometimes get errors:
+or1k-elf-g++ test.o -mnewlib -mboard=or1ksim -lm -o  test
+/opt/shorne/software/or1k/lib/gcc/or1k-elf/5.3.0/../../../../or1k-elf/lib/libor1k.a(syscalls.o):(.data+0x0):
+multiple definition of `environ'
+/opt/shorne/software/or1k/lib/gcc/or1k-elf/5.3.0/../../../../or1k-elf/lib/libc.a(lib_a-environ.o):(.data+0x0):
+first defined here
+collect2: error: ld returned 1 exit status
+
+This doesnt happen after the fix. Basic things build fine too.
 ---
- libgloss/or1k/crt0.S | 6 ++++++
- 1 file changed, 6 insertions(+)
+ libgloss/or1k/syscalls.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/libgloss/or1k/crt0.S b/libgloss/or1k/crt0.S
-index 84adba1..03d7323 100644
---- a/libgloss/or1k/crt0.S
-+++ b/libgloss/or1k/crt0.S
-@@ -36,6 +36,7 @@
-       the obvious things..                                                    */
- /* -------------------------------------------------------------------------- */
+diff --git a/libgloss/or1k/syscalls.c b/libgloss/or1k/syscalls.c
+index 3e2ad22..92bff49 100644
+--- a/libgloss/or1k/syscalls.c
++++ b/libgloss/or1k/syscalls.c
+@@ -56,9 +56,6 @@ _close_r(struct _reent *reent, int fildes)
+ 	return -1;
+ }
  
-+#include "newlib.h"
- #include "include/or1k-asm.h"
- #include "include/or1k-sprs.h"
- 
-@@ -96,6 +97,11 @@ _or1k_exception_stack_size:	.word EXCEPTION_STACK_SIZE
-                                                                               */
- /* -------------------------------------------------------------------------- */
- 
-+#ifdef HAVE_INITFINI_ARRAY
-+#define _init	__libc_init_array
-+#define _fini	__libc_fini_array
-+#endif
-+
- #define GPR_BUF_OFFSET(x) (x << 2)
- 
- #ifndef __OR1K_MULTICORE__
+-char *__env[1] = { 0 };
+-char **environ = __env;
+-
+ int
+ _execve_r(struct _reent *reent, const char *name, char * const *argv,
+ 		char * const *env)
 -- 
 2.9.3
 
