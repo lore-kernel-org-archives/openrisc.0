@@ -1,100 +1,82 @@
-From: Olof Kindgren <olof.kindgren@gmail.com>
-Date: Tue, 7 Feb 2017 00:11:07 +0100
-Subject: [OpenRISC] mor1kx
-In-Reply-To: <CAF6YiZ7ZXMROWdoajkHz+B+zELig0bsWHvTPqweLr2ch-u9SXg@mail.gmail.com>
-References: <DB5PR06MB130238A582A580CD9611C9DE9F400@DB5PR06MB1302.eurprd06.prod.outlook.com>
- <CAF6YiZ7ZXMROWdoajkHz+B+zELig0bsWHvTPqweLr2ch-u9SXg@mail.gmail.com>
-Message-ID: <CAKaYPCMGRKi9eOt2RH5-HdzfX+fNcxtOxCojRRg2rHTUdRweZA@mail.gmail.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Tue, 7 Feb 2017 09:31:08 +0900
+Subject: [OpenRISC] [Qemu-devel] [PATCH] target-openrisc: Fix exception
+ handling status registers
+In-Reply-To: <e9f58f51-4cca-6136-d392-91c805d5631d@twiddle.net>
+References: <20170124102625.GF7836@lianli.shorne-pla.net>
+ <01f7a18d-f4f5-18f3-0932-b32c06ad0b0c@twiddle.net>
+ <20170125123430.GG7836@lianli.shorne-pla.net>
+ <39f927aa-26fe-0e43-7c6b-efe1b70bc5fa@twiddle.net>
+ <20170126131229.GB16014@lianli.shorne-pla.net>
+ <ddb9c656-aa3e-5d90-c8fc-0058af5b603b@twiddle.net>
+ <20170201100423.GE21641@lianli.shorne-pla.net>
+ <c840eff0-2be7-07d7-eae9-4cded569d146@twiddle.net>
+ <20170202143455.GB32144@lianli.shorne-pla.net>
+ <e9f58f51-4cca-6136-d392-91c805d5631d@twiddle.net>
+Message-ID: <20170207003108.GF32144@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Feb 6, 2017 at 10:59 PM, Julius Baxter <juliusbaxter@gmail.com>
-wrote:
+On Mon, Feb 06, 2017 at 12:44:56PM -0800, Richard Henderson wrote:
+> [ qemu lists trimed ]
+> On 02/02/2017 06:34 AM, Stafford Horne wrote:
+> > What issue are you having compiling gdb?
+> 
+> 
+> 
+> /home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:589:
+> undefined reference to `or1k32bf_exception'
+> 
+> /home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:574:
+> undefined reference to `or1k32bf_exception'
+> 
+> /home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:649:
+> undefined reference to `or1k32bf_rfe'
+> 
+> /home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:730:
+> undefined reference to `or1k32bf_mfspr'
+> 
+> /home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:748:
+> undefined reference to `or1k32bf_mtspr'
+> 
+> /home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:1717:
+> undefined reference to `or1k32bf_exception'
+> 
+> /home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:1681:
+> undefined reference to `or1k32bf_exception'
+> 
+> /home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:1643:
+> undefined reference to `or1k32bf_exception'
+> 
+> /home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:1511:
+> undefined reference to `or1k32bf_exception'
+> 
+> /home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:1463:
+> undefined reference to `or1k32bf_exception'
+> 
+> ../sim/or1k/libsim.a(mloop32.o):/home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32-switch.c:1416:
+> more undefined references to `or1k32bf_exception' follow
+>  ../sim/or1k/libsim.a(sem32.o): In function `or1k32bf_sem_l_mtspr':
+>  /home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32.c:635:
+> undefined reference to `or1k32bf_mtspr'
+>  ../sim/or1k/libsim.a(sem32.o): In function `or1k32bf_sem_l_mfspr':
+>  /home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32.c:615:
+> undefined reference to `or1k32bf_mfspr'
+>  ../sim/or1k/libsim.a(sem32.o): In function `or1k32bf_sem_l_rfe':
+>  /home/rth/work/gcc/bld-or/sim/or1k/../../../comb-or/sim/or1k/sem32.c:526:
+> undefined reference to `or1k32bf_rfe'
+>  collect2: error: ld returned 1 exit status
 
->
->
-> On Feb 7, 2017 3:05 AM, "Kevin Irikefe" <keviniri@hotmail.co.uk> wrote:
->
-> Dear Julius,
->
->
-> I am a student at the University of Southampton and have a keen interest
-> in microprocessor architecture. I have recently come across the mor1kx
-> system and would love to modify and edit the rtl, myself, then simulate it
-> on fusesoc. However, whilst searching for more information online, I have
-> only managed to find how I would simulate the mor1kx-generic system.
->
->
-> It would be much appreciated if you could aid me on how I would be able to
-> modify and simulate the verilog?
->
->
-> Kind regards,
->
->
-> Kevin Irikefe
->
->
-> Hi Kevin,
->
-> Nice to hear about your interest in microprocessor arch and the mor1kx.
->
-> I've not played with this recently, but I believe there is a contemporary
-> ORPSoC-ish system using the mor1kx built with FuseSoC which exists. I've
-> copied the OpenRISC list and I suppose someone who used this stuff more
-> recently than I will be able to point you in the right direction for
-> getting started with it.
->
-> There's also usually some good help to be found in #openrisc on the
-> freenode IRC network. Responses might take a day or so due to the timezones
-> everyone is spread across but if you're polite and patient you'll usually
-> receive an answer to any questions.
->
-> Hope that helps,
->
-> Julius
->
->
->
-> _______________________________________________
-> OpenRISC mailing list
-> OpenRISC at lists.librecores.org
-> https://lists.librecores.org/listinfo/openrisc
->
->
-Hi Kevin,
+These are defined in traps.c.  The correct traps* file gets selected based
+on the target specified.
 
-I'm the author of FuseSoC. I'm well aware that the documentation is lacking
-in many areas. Apologies for that. Here's a quick guide how to replace
-mor1kx with your own copy, that you can make changes to
+Could you send your bld-or/config.log?  At least the first 10 lines?
 
-1. Create a new directory where you want to keep the cores you're working
-on  (we will refer to this directory as $corelib from now on)
+Also which branch are you using to build?
 
-2. Clone the mor1kx git repository here. (cd $corelib; git clone
-https://github.com/openrisc/mor1kx)
+-Stafford
 
-3. Edit fusesoc.conf in your workspace directory (or in
-$HOME/.config/fusesoc/ if you want it for all workspaces that don't have
-its own fusesoc.conf) and add the path to $corelib at the end of the line
-that begin with "cores_root = ". (This will tell FuseSoC to look for
-additional cores in $corelib and override cores that it has already found.
-You can also use fusesoc --cores-root=/path/to/$corelib ... if you don't
-want to edit config files
-
-4. Verify that the new core is found by running fusesoc core-info mor1kx.
-You should see that "Core root: " is set to $corelib/mor1kx
-
-Now you can hack the code in $corelib/mor1kx as much as you want and run
-fusesoc sim --force mor1kx-generic --lots-of-other-options to use your own
-copy of mor1kx
-
-Let me know if that works for you
-
-//Olof
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20170207/5e91adfa/attachment.html>
+> r~
