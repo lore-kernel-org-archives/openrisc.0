@@ -1,63 +1,77 @@
-From: Richard Henderson <rth@twiddle.net>
-Date: Wed,  8 Feb 2017 20:51:36 -0800
-Subject: [OpenRISC] [PATCH 04/22] target/openrisc: Fix exception handling
-	status registers
-In-Reply-To: <20170209045154.16868-1-rth@twiddle.net>
-References: <20170209045154.16868-1-rth@twiddle.net>
-Message-ID: <20170209045154.16868-5-rth@twiddle.net>
+From: Stafford Horne <shorne@gmail.com>
+Date: Fri, 10 Feb 2017 09:39:16 +0900
+Subject: [OpenRISC] [Qemu-devel] [PATCH 00/22] target/openrisc updates
+In-Reply-To: <8C14E9D0-F376-4CDC-BF24-A0609A329977@gmail.com>
+References: <mailman.51026.1486615955.22738.qemu-devel@nongnu.org>
+ <8C14E9D0-F376-4CDC-BF24-A0609A329977@gmail.com>
+Message-ID: <20170210003916.GL32144@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-From: Stafford Horne <shorne@gmail.com>
+On Thu, Feb 09, 2017 at 09:10:51AM -0500, G 3 wrote:
+> 
+> On Feb 8, 2017, at 11:52 PM, qemu-devel-request at nongnu.org wrote:
+> 
+> > Message: 6
+> > Date: Wed,  8 Feb 2017 20:51:32 -0800
+> > From: Richard Henderson <rth@twiddle.net>
+> > To: qemu-devel at nongnu.org
+> > Cc: shorne at gmail.com
+> > Subject: [Qemu-devel] [PATCH 00/22] target/openrisc updates
+> > Message-ID: <20170209045154.16868-1-rth@twiddle.net>
+> > 
+> > The bulk of this patch set is 2-3 years old, and was mostly
+> > reviewed by Bastian Koppelmann.  But it languished because
+> > there were reports of it not booting kernel images, and I
+> > had problems putting together a set of tools that could even
+> > build a kernel.
+> > 
+> > The OpenRISC community has picked up activity recently,
+> > with Stafford Horne upstreaming some of the compiler tools.
+> > He has even done some testing for me of this patch set.
+> > 
+> > 
+> > r~
+> 
+> I see you are working on OpenRISC. Would you be able to help
+> me improve its wiki page?
+> 
+> http://wiki.qemu-project.org/Documentation/Platforms/OpenRISC
+> 
+> Right now there isn't much information on OpenRISC here. I'm
+> hoping to make it a lot useful to anyone who is interesting in this
+> platform.
+> 
+> Would you know of any links to software that works in OpenRISC?
+> 
+> Pictures of the OpenRISC target running anything would be great also.
+> 
+> What is your suggested command-line for using OpenRISC?
+> 
+> If you have any suggestions on how to improve the page place don't
+> hesitate to let me know.
+>
 
-I am working on testing instruction emulation patches for the linux
-kernel. During testing I found these 2 issues:
+Hi Richard, G 3,
 
- - sets DSX (delay slot exception) but never clears it
- - EEAR for illegal insns should point to the bad exception (as per
-   openrisc spec) but its not
+I am not sure if Richard has the time for this.  But I kind of got him
+started back on the openrisc work, it would be my fault to burden him
+with even more work :).  Also, I was helping to do some tests so I have
+some example commands.
 
-This patch fixes these two issues by clearing the DSX flag when not in a
-delay slot and by setting EEAR to exception PC when handling illegal
-instruction exceptions.
+I don't have a lot of time, but I think I can help to update the above.
+Probably Richard and I could work together?
 
-After this patch the openrisc kernel with latest patches boots great on
-qemu and instruction emulation works.
+I was recently working on updating the openrisc page
 
-Cc: qemu-trivial at nongnu.org
-Cc: openrisc at lists.librecores.org
-Signed-off-by: Stafford Horne <shorne@gmail.com>
-Message-Id: <20170113220028.29687-1-shorne@gmail.com>
-Signed-off-by: Richard Henderson <rth@twiddle.net>
----
- target/openrisc/interrupt.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+  http://openrisc.io
 
-diff --git a/target/openrisc/interrupt.c b/target/openrisc/interrupt.c
-index e43fc84..a243eb2 100644
---- a/target/openrisc/interrupt.c
-+++ b/target/openrisc/interrupt.c
-@@ -38,10 +38,17 @@ void openrisc_cpu_do_interrupt(CPUState *cs)
-         env->flags &= ~D_FLAG;
-         env->sr |= SR_DSX;
-         env->epcr -= 4;
-+    } else {
-+        env->sr &= ~SR_DSX;
-     }
-     if (cs->exception_index == EXCP_SYSCALL) {
-         env->epcr += 4;
-     }
-+    /* When we have an illegal instruction the error effective address
-+       shall be set to the illegal instruction address.  */
-+    if (cs->exception_index == EXCP_ILLEGAL) {
-+        env->eear = env->pc;
-+    }
- 
-     /* For machine-state changed between user-mode and supervisor mode,
-        we need flush TLB when we enter&exit EXCP.  */
--- 
-2.9.3
+I think I could link between the two for toolchain compile guides and
+software guides (i.e. debugging and linux).
 
+Richard what do you think?
+
+-Stafford
