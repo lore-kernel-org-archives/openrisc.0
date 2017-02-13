@@ -1,69 +1,63 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 12 Feb 2017 21:33:51 +0900
-Subject: [OpenRISC] [PATCH 2/2] sim: or1k: Regenerate sim files
-In-Reply-To: <cover.1486902449.git.shorne@gmail.com>
-References: <cover.1486902449.git.shorne@gmail.com>
-Message-ID: <600c5db572b186e3e46ae1b886e4391045702dce.1486902449.git.shorne@gmail.com>
+From: Richard Henderson <rth@twiddle.net>
+Date: Tue, 14 Feb 2017 08:25:17 +1100
+Subject: [OpenRISC] [PULL 05/24] target/openrisc: Fix exception handling
+	status registers
+In-Reply-To: <20170213212536.31871-1-rth@twiddle.net>
+References: <20170213212536.31871-1-rth@twiddle.net>
+Message-ID: <20170213212536.31871-6-rth@twiddle.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-After updating the cpu ppc setting logic regenarate the cpu files.
+From: Stafford Horne <shorne@gmail.com>
 
-sim/ChangeLog:
+I am working on testing instruction emulation patches for the linux
+kernel. During testing I found these 2 issues:
 
-2017-02-12  Stafford Horne  <shorne@gmail.com>
+ - sets DSX (delay slot exception) but never clears it
+ - EEAR for illegal insns should point to the bad exception (as per
+   openrisc spec) but its not
 
-	* or1k/cpu32.c: Regenerate.
-	* or1k/cpu32.h: Regenerate.
+This patch fixes these two issues by clearing the DSX flag when not in a
+delay slot and by setting EEAR to exception PC when handling illegal
+instruction exceptions.
+
+After this patch the openrisc kernel with latest patches boots great on
+qemu and instruction emulation works.
+
+Cc: qemu-trivial at nongnu.org
+Cc: openrisc at lists.librecores.org
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+Message-Id: <20170113220028.29687-1-shorne@gmail.com>
+Signed-off-by: Richard Henderson <rth@twiddle.net>
 ---
- sim/or1k/cpu32.c | 4 ++--
- sim/or1k/cpu32.h | 8 +++++++-
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ target/openrisc/interrupt.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/sim/or1k/cpu32.c b/sim/or1k/cpu32.c
-index 14e11ec..d8c0526 100644
---- a/sim/or1k/cpu32.c
-+++ b/sim/or1k/cpu32.c
-@@ -33,7 +33,7 @@ This file is part of the GNU simulators.
- USI
- or1k32bf_h_pc_get (SIM_CPU *current_cpu)
- {
--  return CPU (h_pc);
-+  return GET_H_PC ();
- }
+diff --git a/target/openrisc/interrupt.c b/target/openrisc/interrupt.c
+index e43fc84..a243eb2 100644
+--- a/target/openrisc/interrupt.c
++++ b/target/openrisc/interrupt.c
+@@ -38,10 +38,17 @@ void openrisc_cpu_do_interrupt(CPUState *cs)
+         env->flags &= ~D_FLAG;
+         env->sr |= SR_DSX;
+         env->epcr -= 4;
++    } else {
++        env->sr &= ~SR_DSX;
+     }
+     if (cs->exception_index == EXCP_SYSCALL) {
+         env->epcr += 4;
+     }
++    /* When we have an illegal instruction the error effective address
++       shall be set to the illegal instruction address.  */
++    if (cs->exception_index == EXCP_ILLEGAL) {
++        env->eear = env->pc;
++    }
  
- /* Set a value for h-pc.  */
-@@ -41,7 +41,7 @@ or1k32bf_h_pc_get (SIM_CPU *current_cpu)
- void
- or1k32bf_h_pc_set (SIM_CPU *current_cpu, USI newval)
- {
--  CPU (h_pc) = newval;
-+  SET_H_PC (newval);
- }
- 
- /* Get the value of h-fsr.  */
-diff --git a/sim/or1k/cpu32.h b/sim/or1k/cpu32.h
-index 771fcdc..20c9ac6 100644
---- a/sim/or1k/cpu32.h
-+++ b/sim/or1k/cpu32.h
-@@ -45,7 +45,13 @@ typedef struct {
-   /* program counter */
-   USI h_pc;
- #define GET_H_PC() CPU (h_pc)
--#define SET_H_PC(x) (CPU (h_pc) = (x))
-+#define SET_H_PC(x) \
-+do { \
-+{\
-+SET_H_SYS_PPC (CPU (h_pc));\
-+CPU (h_pc) = (x);\
-+}\
-+;} while (0)
-   /* general registers */
-   USI h_gpr[32];
- #define GET_H_GPR(index) GET_H_SPR (((index) + (ORSI (SLLSI (SPR_GROUP_SYS, 11), SPR_INDEX_SYS_GPR0))))
+     /* For machine-state changed between user-mode and supervisor mode,
+        we need flush TLB when we enter&exit EXCP.  */
 -- 
 2.9.3
 
