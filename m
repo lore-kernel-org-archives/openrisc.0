@@ -1,89 +1,161 @@
-From: Richard Henderson <rth@twiddle.net>
-Date: Tue, 14 Feb 2017 14:25:31 +1100
-Subject: [OpenRISC] [Qemu-devel] [PATCH 00/22] target/openrisc updates
-In-Reply-To: <20170210003916.GL32144@lianli.shorne-pla.net>
-References: <mailman.51026.1486615955.22738.qemu-devel@nongnu.org>
- <8C14E9D0-F376-4CDC-BF24-A0609A329977@gmail.com>
- <20170210003916.GL32144@lianli.shorne-pla.net>
-Message-ID: <ec491d8c-3fb0-3ce9-5558-ac4ab1455f7f@twiddle.net>
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Tue, 14 Feb 2017 13:52:08 -0500
+Subject: [OpenRISC] [PATCH v2 4/6] sim: or1k: add or1k target to sim
+In-Reply-To: <92c04bd768b66a48e03850af185e975d01605435.1484967575.git.shorne@gmail.com>
+References: <cover.1484967575.git.shorne@gmail.com>
+ <92c04bd768b66a48e03850af185e975d01605435.1484967575.git.shorne@gmail.com>
+Message-ID: <20170214185208.GJ28432@vapier>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 02/10/2017 11:39 AM, Stafford Horne wrote:
-> On Thu, Feb 09, 2017 at 09:10:51AM -0500, G 3 wrote:
->>
->> On Feb 8, 2017, at 11:52 PM, qemu-devel-request at nongnu.org wrote:
->>
->>> Message: 6
->>> Date: Wed,  8 Feb 2017 20:51:32 -0800
->>> From: Richard Henderson <rth@twiddle.net>
->>> To: qemu-devel at nongnu.org
->>> Cc: shorne at gmail.com
->>> Subject: [Qemu-devel] [PATCH 00/22] target/openrisc updates
->>> Message-ID: <20170209045154.16868-1-rth@twiddle.net>
->>>
->>> The bulk of this patch set is 2-3 years old, and was mostly
->>> reviewed by Bastian Koppelmann.  But it languished because
->>> there were reports of it not booting kernel images, and I
->>> had problems putting together a set of tools that could even
->>> build a kernel.
->>>
->>> The OpenRISC community has picked up activity recently,
->>> with Stafford Horne upstreaming some of the compiler tools.
->>> He has even done some testing for me of this patch set.
->>>
->>>
->>> r~
->>
->> I see you are working on OpenRISC. Would you be able to help
->> me improve its wiki page?
->>
->> http://wiki.qemu-project.org/Documentation/Platforms/OpenRISC
->>
->> Right now there isn't much information on OpenRISC here. I'm
->> hoping to make it a lot useful to anyone who is interesting in this
->> platform.
->>
->> Would you know of any links to software that works in OpenRISC?
->>
->> Pictures of the OpenRISC target running anything would be great also.
->>
->> What is your suggested command-line for using OpenRISC?
->>
->> If you have any suggestions on how to improve the page place don't
->> hesitate to let me know.
->>
+On 21 Jan 2017 12:03, Stafford Horne wrote:
+> --- /dev/null
+> +++ b/sim/or1k/Makefile.in
 >
-> Hi Richard, G 3,
+> +# Extra headers included by sim-main.h.
+
+you shouldn't need to do any manual dep management.  i'd suggest
+deleting all this logic and seeing if things still work.
+
+> --- /dev/null
+> +++ b/sim/or1k/configure.ac
+> @@ -0,0 +1,41 @@
+> +dnl Process this file with autoconf to produce a configure script.
+> +AC_PREREQ(2.64)dnl
+> +AC_INIT(Makefile.in)
+> +sinclude(../common/acinclude.m4)
+> +
+> +  case "${target_alias}" in
+
+drop the indentation
+
+> +  or1k-linux*|or1knd-linux*)
+> +    traps_obj=traps32-linux.o
+> +    ;;
+> +  or1k-*|or1knd-*)
+> +    traps_obj=traps32.o
+> +    ;;
+> +  esac
+
+we really don't like to see this kind of logic.  can't you do a single
+build and then select the right details at runtime ?
+
+--- /dev/null
+> +++ b/sim/or1k/or1k.h
+> @@ -0,0 +1,38 @@
+> +#ifndef OR1K_H
+> +#define OR1K_H
+
+all files should have a header with copyright & license info
+
+also, please use namespaced defines like SIM_OR1K_H
+
+> --- /dev/null
+> +++ b/sim/or1k/sim-if.c
+> @@ -0,0 +1,318 @@
+> +/* Main simulator entry points specific to the OR1K.
+> +   Copyright (C) 1996-1999, 2003, 2007-2012 Free Software Foundation,
+> +   Inc.
+> +   Contributed by Cygnus Support.
+
+looks like you need to double check where you copied & pasted things from.
+cygnus isn't doing this port ;).
+
+> +SIM_DESC
+> +sim_open (kind, callback, abfd, argv)
+> +     SIM_OPEN_KIND kind;
+> +     host_callback *callback;
+> +     struct bfd *abfd;
+> +     char * const *argv;
+
+you need to update all your prototypes.  we don't do old style ones like
+this anymore.
+
+> +#ifdef HAVE_DV_SOCKSER /* FIXME: was done differently before */
+> +  if (dv_sockser_install (sd) != SIM_RC_OK)
+> +    {
+> +      free_state (sd);
+> +      return 0;
+> +    }
+> +#endif
+
+delete this.  common code handles it for you now.
+
+> +  /* Allocate core managed memory if none specified by user.
+> +     Use address 4 here in case the user wanted address 0 unmapped.  */
+> +  if (sim_core_read_buffer (sd, NULL, read_map, &c, 4, 1) == 0) {
+> +    sim_do_commandf (sd, "memory region 0,0x%x", OR1K_DEFAULT_MEM_SIZE);
+> +  }
+
+this isn't using GNU style for the braces/if body.  this comes up
+multiple times in this patch, so please fix them all.
+
+> +  /* check for/establish the reference program image */
+
+this comment isn't using GNU style.  this comes up
+multiple times in this patch, so please fix them all.
+
+> +
+> +  for (c = 0; c < MAX_NR_PROCESSORS; ++c)
+> +    {
+> +      SIM_CPU *cpu = STATE_CPU (sd, i);
+> +      /* Only needed for profiling, but the structure member is small.  */
+> +      memset (CPU_OR1K_MISC_PROFILE (cpu), 0,
+> +	      sizeof (* CPU_OR1K_MISC_PROFILE (cpu)));
+> +
+> +#ifdef WANT_CPU_OR1K32BF
+> +      or1k32bf_h_spr_set_raw(cpu, SPR_ADDR(SYS,VR),      or1k_vr);
+> +      or1k32bf_h_spr_set_raw(cpu, SPR_ADDR(SYS,UPR),     or1k_upr);
+> +      or1k32bf_h_spr_set_raw(cpu, SPR_ADDR(SYS,CPUCFGR), or1k_cpucfgr);
+> +
+> +      or1k32bf_cpu_init (sd, cpu);
+> +#endif
+> +    }
+
+this loop has to call these funcs:
+	CPU_REG_FETCH
+	CPU_REG_STORE
+	CPU_PC_FETCH
+	CPU_PC_STORE
+
+> +  /* Store in a global so things like sparc32_dump_regs can be invoked
+> +     from the gdb command line.  */
+> +  current_state = sd;
+
+you must kill current_state.  we do not allow global state anymore.
+
+> --- /dev/null
+> +++ b/sim/or1k/sim-main.h
 >
-> I am not sure if Richard has the time for this.  But I kind of got him
-> started back on the openrisc work, it would be my fault to burden him
-> with even more work :).  Also, I was helping to do some tests so I have
-> some example commands.
+> +typedef IAI sim_cia;
+> +#define CIA_GET(cpu) CPU_PC_GET (cpu)
+> +#define CIA_SET(cpu,val) CPU_PC_SET ((cpu),(val))
 
-:-)
+these defines are dead -> delete
 
-> I don't have a lot of time, but I think I can help to update the above.
-> Probably Richard and I could work together?
->
-> I was recently working on updating the openrisc page
->
->   http://openrisc.io
->
-> I think I could link between the two for toolchain compile guides and
-> software guides (i.e. debugging and linux).
->
-> Richard what do you think?
+> +typedef struct _sim_cpu SIM_CPU;
 
-Probably the most beneficial thing that we can do is create a kernel+initrd 
-that boots into a busybox root shell.  Similar to the other test images that we 
-have at
+delete this
 
-   http://wiki.qemu-project.org/Testing/System_Images
+> +#ifdef OR1K_LINUX
 
+nothing defines this -> delete
 
-r~
+> +#if (WITH_SMP)
+> +#define STATE_CPU(sd, n) ((sd)->cpu[n])
+> +#else
+> +#define STATE_CPU(sd, n) ((sd)->cpu[0])
+> +#endif
 
+delete these -- common code does it for you now
+-mike
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 833 bytes
+Desc: Digital signature
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20170214/3ef1d98b/attachment.sig>
