@@ -1,101 +1,34 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 15 Feb 2017 22:26:47 +0900
-Subject: [OpenRISC] [Qemu-devel] [PATCH 00/22] target/openrisc updates
-In-Reply-To: <4BE06A79-02EC-48A8-8081-F21CEACE396F@gmail.com>
-References: <mailman.51026.1486615955.22738.qemu-devel@nongnu.org>
- <8C14E9D0-F376-4CDC-BF24-A0609A329977@gmail.com>
- <20170210003916.GL32144@lianli.shorne-pla.net>
- <ec491d8c-3fb0-3ce9-5558-ac4ab1455f7f@twiddle.net>
- <4BE06A79-02EC-48A8-8081-F21CEACE396F@gmail.com>
-Message-ID: <20170215132647.GB1603@lianli.shorne-pla.net>
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Wed, 15 Feb 2017 10:42:07 -0500
+Subject: [OpenRISC] [PATCH v2 4/6] sim: or1k: add or1k target to sim
+In-Reply-To: <20170215132222.GA1603@lianli.shorne-pla.net>
+References: <cover.1484967575.git.shorne@gmail.com>
+ <92c04bd768b66a48e03850af185e975d01605435.1484967575.git.shorne@gmail.com>
+ <20170214185208.GJ28432@vapier>
+ <20170215132222.GA1603@lianli.shorne-pla.net>
+Message-ID: <20170215154207.GN28432@vapier>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Feb 13, 2017 at 10:33:09PM -0500, Programmingkid wrote:
-> 
-> On Feb 13, 2017, at 10:25 PM, Richard Henderson wrote:
-> 
-> > On 02/10/2017 11:39 AM, Stafford Horne wrote:
-> >> On Thu, Feb 09, 2017 at 09:10:51AM -0500, G 3 wrote:
-> >>> 
-> >>> On Feb 8, 2017, at 11:52 PM, qemu-devel-request at nongnu.org wrote:
-> >>> 
-> >>>> Message: 6
-> >>>> Date: Wed,  8 Feb 2017 20:51:32 -0800
-> >>>> From: Richard Henderson <rth@twiddle.net>
-> >>>> To: qemu-devel at nongnu.org
-> >>>> Cc: shorne at gmail.com
-> >>>> Subject: [Qemu-devel] [PATCH 00/22] target/openrisc updates
-> >>>> Message-ID: <20170209045154.16868-1-rth@twiddle.net>
-> >>>> 
-> >>>> The bulk of this patch set is 2-3 years old, and was mostly
-> >>>> reviewed by Bastian Koppelmann.  But it languished because
-> >>>> there were reports of it not booting kernel images, and I
-> >>>> had problems putting together a set of tools that could even
-> >>>> build a kernel.
-> >>>> 
-> >>>> The OpenRISC community has picked up activity recently,
-> >>>> with Stafford Horne upstreaming some of the compiler tools.
-> >>>> He has even done some testing for me of this patch set.
-> >>>> 
-> >>>> 
-> >>>> r~
-> >>> 
-> >>> I see you are working on OpenRISC. Would you be able to help
-> >>> me improve its wiki page?
-> >>> 
-> >>> http://wiki.qemu-project.org/Documentation/Platforms/OpenRISC
-> >>> 
-> >>> Right now there isn't much information on OpenRISC here. I'm
-> >>> hoping to make it a lot useful to anyone who is interesting in this
-> >>> platform.
-> >>> 
-> >>> Would you know of any links to software that works in OpenRISC?
-> >>> 
-> >>> Pictures of the OpenRISC target running anything would be great also.
-> >>> 
-> >>> What is your suggested command-line for using OpenRISC?
-> >>> 
-> >>> If you have any suggestions on how to improve the page place don't
-> >>> hesitate to let me know.
-> >>> 
-> >> 
-> >> Hi Richard, G 3,
-> >> 
-> >> I am not sure if Richard has the time for this.  But I kind of got him
-> >> started back on the openrisc work, it would be my fault to burden him
-> >> with even more work :).  Also, I was helping to do some tests so I have
-> >> some example commands.
-> > 
-> > :-)
-> > 
-> >> I don't have a lot of time, but I think I can help to update the above.
-> >> Probably Richard and I could work together?
-> >> 
-> >> I was recently working on updating the openrisc page
-> >> 
-> >>  http://openrisc.io
-> >> 
-> >> I think I could link between the two for toolchain compile guides and
-> >> software guides (i.e. debugging and linux).
-> >> 
-> >> Richard what do you think?
-> > 
-> > Probably the most beneficial thing that we can do is create a kernel+initrd that boots into a busybox root shell.  Similar to the other test images that we have at
-> > 
-> >  http://wiki.qemu-project.org/Testing/System_Images
-> > 
-> > 
-> > r~
-> > 
-> 
-> We could do both the test image and a wiki page.
+On 15 Feb 2017 22:24, Stafford Horne wrote:
+> Before, we get started I just want to point out that some of these
+> issues seem pretty obvious, but this code had been sitting in the
+> openrisc source repo's for some time.  I believe it was done on contract
+> by the people mentioned in the cover letter, who may have worked at
+> Cygnus.
 
-Right, I will have a look at it.
-
-Getting a little busy right now, give me a few days.
-
--Stafford
+i suspected it's an old port because it looks like it was copied from
+another sim port, but before a lot of cleanups were done.  there has
+been a bunch of fixups across the codebase to try and make things easy
+for new ports.
+-mike
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 833 bytes
+Desc: Digital signature
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20170215/5833e4cd/attachment.sig>
