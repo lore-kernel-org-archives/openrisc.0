@@ -1,59 +1,65 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 19 Feb 2017 16:21:03 +0900
-Subject: [OpenRISC] GCC 5.4.0 Release and Binaries
-Message-ID: <20170219072103.GA2379@lianli.shorne-pla.net>
+Date: Sun, 19 Feb 2017 17:20:28 +0900
+Subject: [OpenRISC] Crosstool/kbuild-all toolchain updates
+In-Reply-To: <20170131224438.GD21641@lianli.shorne-pla.net>
+References: <20170131224438.GD21641@lianli.shorne-pla.net>
+Message-ID: <20170219082028.GC2379@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi All,
+Ping?
 
-We have released an updated version of the gcc 5.4.0 toolchain with
-x86_64 binaries for easy consumption. The new version, tagged
-or1k-5.4.0-20170218 is available on our github release page.
+On Wed, Feb 01, 2017 at 07:44:38AM +0900, Stafford Horne wrote:
+> Hi Fengguang/All,
+> 
+> I am working as the OpenRISC linux kernel maintainer.  Currently in
+> linux-next our patches are causing kbuild test robot to fail.
+> 
+> This is because the patches are taking advantage of 2 'new' (2 year old)
+> instrucions (l.swa/l.lwa) and the build robots, as far as I can tell,
+> use the 'make.cross' [0] build script from lkp-tests.git.  These point
+> to the crosstools [1] toolchains maintained by Tony.
+> 
+> I sent a mail to Tony who maintains the crosstools but I didn't get a
+> reply and it seems he is not longer working on them [1].
+> 
+> I think our options are:
+> 
+>   1. Update 'make.cross' to point somewhere else for openrisc
+>   2. Update and maintain crosstools
+> 
+> For 1. its trvial but, maybe not the best solution.
+> 
+> For 2. I created new crosstool builds for openrisc [3]. The way the
+> crosstools are maintained is via a patches.tar file and it seem a custom
+> buildall script.  I dont see the source for that custom script anywhere.
+> 
+> I am thinking I could help to update and 'opensource' the crosstool
+> build scripts to make it easier for everyone to update toolchains by
+> sending patches.
+> 
+> But, I would need access to crosstool on kernel.org and an OK from
+> everyone.
+> 
+> Any opinions? Questions?
+> 
+> -Stafford
+> 
+> [0] https://git.kernel.org/cgit/linux/kernel/git/wfg/lkp-tests.git/tree/sbin/make.cross
+> [1] https://www.kernel.org/pub/tools/crosstool/
+> [2] https://marc.info/?l=linux-kernel&m=146406282809809&w=1
+> [3] http://shorne.noip.me/crosstool/files/
 
-Get them now at:
+Any thought on this?
 
-  https://github.com/openrisc/or1k-gcc/releases/tag/or1k-5.4.0-20170218
+I create a patch to do 1. Update make.cross to point to openrisc
+binaries. I hope you found it on the list:
 
-There are 3 different binaries to choose from:
-
- - newlib - this is the baremetal toolchain good for running c code
-   directly on the openrisc cpu without an operating system
- - musl - this is our main supported linux capable libc toolchain good for
-   compiling applications to run on linux
- - nolib - this is a special build used for building kernels (like linux),
-   this is specifically used by the kbuild linux build robots.
-
-We have released full toolchain binaries with the following versions:
-
- - GCC 5.4.0     (from openrisc/or1k-gcc)
- - Binutils 2.26 (from upstream tarballs)
- - Newlib 2.4.0  (from openrisc/newlib)
- - Musl 1.1.16   (from upstream tarballs)
-
-# Change Log #
-
-This is mostly just a rebase and version bump release. Notable updates
-for OpenRISC include.
-
- - Update to GCC 5.4.0 to allow building toolchain on newer gcc compilers.
- - Newlib patches to fix issue with environ and c++ pointed out during gdb
-   testing.
-
-# Note on GDB #
-
-This release does not currently contain any GDB binaries. This is
-because I am currently in progress of getting openrisc GDB
-fully pushed to upsteam and the is under review.
-
-For details watch for updates here on the OpenRISC mailing list as well as on
-my upstream preparation branch here (beware of rebases):
-
- https://github.com/stffrdhrn/binutils-gdb.git or1k-upstream
-
-Please let me know if you have any issues.
+  https://lkml.org/lkml/2017/2/19/12
 
 -Stafford
+
+
