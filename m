@@ -1,168 +1,204 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 22 Feb 2017 04:11:44 +0900
-Subject: [OpenRISC] [PATCH v3 15/25] openrisc: Add optimized memset
+Date: Wed, 22 Feb 2017 04:11:45 +0900
+Subject: [OpenRISC] [PATCH v3 16/25] openrisc: Add optimized memcpy routine
 In-Reply-To: <cover.1487702890.git.shorne@gmail.com>
 References: <cover.1487702890.git.shorne@gmail.com>
-Message-ID: <324aa407cd6eaad42232c898c35414b6911aa993.1487702890.git.shorne@gmail.com>
+Message-ID: <1df41c0ce89172e270fc8e6a6d3f539e2304156f.1487702890.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-From: Olof Kindgren <olof.kindgren@gmail.com>
+The generic memcpy routine provided in kernel does only byte copies.
+Using word copies we can lower boot time and cycles spend in memcpy
+quite significantly.
 
-This adds a hand-optimized assembler version of memset and sets
-__HAVE_ARCH_MEMSET to use this version instead of the generic C
-routine
+Booting on my de0 nano I see boot times go from 7.2 to 5.6 seconds.
+The avg cycles in memcpy during boot go from 6467 to 1887.
 
-Signed-off-by: Olof Kindgren <olof.kindgren@gmail.com>
+I tested several algorithms (see code in previous patch mails)
+
+The implementations I tested and avg cycles:
+  - Word Copies + Loop Unrolls + Non Aligned    1882
+  - Word Copies + Loop Unrolls                  1887
+  - Word Copies                                 2441
+  - Byte Copies + Loop Unrolls                  6467
+  - Byte Copies                                 7600
+
+In the end I ended up going with Word Copies + Loop Unrolls as it
+provides best tradeoff between simplicity and boot speedups.
+
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/include/asm/string.h |  7 +++
- arch/openrisc/kernel/or32_ksyms.c  |  1 +
- arch/openrisc/lib/Makefile         |  2 +-
- arch/openrisc/lib/memset.S         | 98 ++++++++++++++++++++++++++++++++++++++
- 4 files changed, 107 insertions(+), 1 deletion(-)
- create mode 100644 arch/openrisc/include/asm/string.h
- create mode 100644 arch/openrisc/lib/memset.S
+ arch/openrisc/TODO.openrisc        |   1 -
+ arch/openrisc/include/asm/string.h |   3 +
+ arch/openrisc/lib/Makefile         |   2 +-
+ arch/openrisc/lib/memcpy.c         | 124 +++++++++++++++++++++++++++++++++++++
+ 4 files changed, 128 insertions(+), 2 deletions(-)
+ create mode 100644 arch/openrisc/lib/memcpy.c
 
-diff --git a/arch/openrisc/include/asm/string.h b/arch/openrisc/include/asm/string.h
-new file mode 100644
-index 0000000..33470d4
---- /dev/null
-+++ b/arch/openrisc/include/asm/string.h
-@@ -0,0 +1,7 @@
-+#ifndef __ASM_OPENRISC_STRING_H
-+#define __ASM_OPENRISC_STRING_H
-+
-+#define __HAVE_ARCH_MEMSET
-+extern void *memset(void *s, int c, __kernel_size_t n);
-+
-+#endif /* __ASM_OPENRISC_STRING_H */
-diff --git a/arch/openrisc/kernel/or32_ksyms.c b/arch/openrisc/kernel/or32_ksyms.c
-index 86e31cf..5c4695d 100644
---- a/arch/openrisc/kernel/or32_ksyms.c
-+++ b/arch/openrisc/kernel/or32_ksyms.c
-@@ -44,3 +44,4 @@ DECLARE_EXPORT(__ashldi3);
- DECLARE_EXPORT(__lshrdi3);
+diff --git a/arch/openrisc/TODO.openrisc b/arch/openrisc/TODO.openrisc
+index 0eb04c8..c43d4e1 100644
+--- a/arch/openrisc/TODO.openrisc
++++ b/arch/openrisc/TODO.openrisc
+@@ -10,4 +10,3 @@ that are due for investigation shortly, i.e. our TODO list:
+    or1k and this change is slowly trickling through the stack.  For the time
+    being, or32 is equivalent to or1k.
  
- EXPORT_SYMBOL(__copy_tofrom_user);
-+EXPORT_SYMBOL(memset);
+--- Implement optimized version of memcpy and memset
+diff --git a/arch/openrisc/include/asm/string.h b/arch/openrisc/include/asm/string.h
+index 33470d4..64939cc 100644
+--- a/arch/openrisc/include/asm/string.h
++++ b/arch/openrisc/include/asm/string.h
+@@ -4,4 +4,7 @@
+ #define __HAVE_ARCH_MEMSET
+ extern void *memset(void *s, int c, __kernel_size_t n);
+ 
++#define __HAVE_ARCH_MEMCPY
++extern void *memcpy(void *dest, __const void *src, __kernel_size_t n);
++
+ #endif /* __ASM_OPENRISC_STRING_H */
 diff --git a/arch/openrisc/lib/Makefile b/arch/openrisc/lib/Makefile
-index 966f65d..67c583e 100644
+index 67c583e..17d9d37 100644
 --- a/arch/openrisc/lib/Makefile
 +++ b/arch/openrisc/lib/Makefile
 @@ -2,4 +2,4 @@
  # Makefile for or32 specific library files..
  #
  
--obj-y  = string.o delay.o
-+obj-y  = memset.o string.o delay.o
-diff --git a/arch/openrisc/lib/memset.S b/arch/openrisc/lib/memset.S
+-obj-y  = memset.o string.o delay.o
++obj-y	:= delay.o string.o memset.o memcpy.o
+diff --git a/arch/openrisc/lib/memcpy.c b/arch/openrisc/lib/memcpy.c
 new file mode 100644
-index 0000000..92cc2ea
+index 0000000..4706f01
 --- /dev/null
-+++ b/arch/openrisc/lib/memset.S
-@@ -0,0 +1,98 @@
++++ b/arch/openrisc/lib/memcpy.c
+@@ -0,0 +1,124 @@
 +/*
-+ * OpenRISC memset.S
++ * arch/openrisc/lib/memcpy.c
 + *
-+ * Hand-optimized assembler version of memset for OpenRISC.
-+ * Algorithm inspired by several other arch-specific memset routines
-+ * in the kernel tree
++ * Optimized memory copy routines for openrisc.  These are mostly copied
++ * from ohter sources but slightly entended based on ideas discuassed in
++ * #openrisc.
 + *
-+ * Copyright (C) 2015 Olof Kindgren <olof.kindgren@gmail.com>
++ * The word unroll implementation is an extension to the arm byte
++ * unrolled implementation, but using word copies (if things are
++ * properly aligned)
 + *
-+ *      This program is free software; you can redistribute it and/or
-+ *      modify it under the terms of the GNU General Public License
-+ *      as published by the Free Software Foundation; either version
-+ *      2 of the License, or (at your option) any later version.
++ * The great arm loop unroll algorithm can be found at:
++ *  arch/arm/boot/compressed/string.c
 + */
 +
-+	.global memset
-+	.type	memset, @function
-+memset:
-+	/* arguments:
-+	 * r3 = *s
-+	 * r4 = c
-+	 * r5 = n
-+	 * r13, r15, r17, r19 used as temp regs
-+	*/
++#include <linux/export.h>
 +
-+	/* Exit if n == 0 */
-+	l.sfeqi		r5, 0
-+	l.bf		4f
++#include <linux/string.h>
 +
-+	/* Truncate c to char */
-+	l.andi  	r13, r4, 0xff
++#ifdef CONFIG_OR1200
++/*
++ * Do memcpy with word copies and loop unrolling. This gives the
++ * best performance on the OR1200 and MOR1KX archirectures
++ */
++void *memcpy(void *dest, __const void *src, __kernel_size_t n)
++{
++	int i = 0;
++	unsigned char *d, *s;
++	uint32_t *dest_w = (uint32_t *)dest, *src_w = (uint32_t *)src;
 +
-+	/* Skip word extension if c is 0 */
-+	l.sfeqi		r13, 0
-+	l.bf		1f
-+	/* Check for at least two whole words (8 bytes) */
-+	 l.sfleui	r5, 7
++	/* If both source and dest are word aligned copy words */
++	if (!((unsigned int)dest_w & 3) && !((unsigned int)src_w & 3)) {
++		/* Copy 32 bytes per loop */
++		for (i = n >> 5; i > 0; i--) {
++			*dest_w++ = *src_w++;
++			*dest_w++ = *src_w++;
++			*dest_w++ = *src_w++;
++			*dest_w++ = *src_w++;
++			*dest_w++ = *src_w++;
++			*dest_w++ = *src_w++;
++			*dest_w++ = *src_w++;
++			*dest_w++ = *src_w++;
++		}
 +
-+	/* Extend char c to 32-bit word cccc in r13 */
-+	l.slli		r15, r13, 16  // r13 = 000c, r15 = 0c00
-+	l.or		r13, r13, r15 // r13 = 0c0c, r15 = 0c00
-+	l.slli		r15, r13, 8   // r13 = 0c0c, r15 = c0c0
-+	l.or		r13, r13, r15 // r13 = cccc, r15 = c0c0
++		if (n & 1 << 4) {
++			*dest_w++ = *src_w++;
++			*dest_w++ = *src_w++;
++			*dest_w++ = *src_w++;
++			*dest_w++ = *src_w++;
++		}
 +
-+1:	l.addi		r19, r3, 0 // Set r19 = src
-+	/* Jump to byte copy loop if less than two words */
-+	l.bf		3f
-+	 l.or		r17, r5, r0 // Set r17 = n
++		if (n & 1 << 3) {
++			*dest_w++ = *src_w++;
++			*dest_w++ = *src_w++;
++		}
 +
-+	/* Mask out two LSBs to check alignment */
-+	l.andi		r15, r3, 0x3
++		if (n & 1 << 2)
++			*dest_w++ = *src_w++;
 +
-+	/* lsb == 00, jump to word copy loop */
-+	l.sfeqi		r15, 0
-+	l.bf		2f
-+	 l.addi		r19, r3, 0 // Set r19 = src
++		d = (unsigned char *)dest_w;
++		s = (unsigned char *)src_w;
 +
-+	/* lsb == 01,10 or 11 */
-+	l.sb		0(r3), r13   // *src = c
-+	l.addi		r17, r17, -1 // Decrease n
++	} else {
++		d = (unsigned char *)dest_w;
++		s = (unsigned char *)src_w;
 +
-+	l.sfeqi		r15, 3
-+	l.bf		2f
-+	 l.addi		r19, r3, 1  // src += 1
++		for (i = n >> 3; i > 0; i--) {
++			*d++ = *s++;
++			*d++ = *s++;
++			*d++ = *s++;
++			*d++ = *s++;
++			*d++ = *s++;
++			*d++ = *s++;
++			*d++ = *s++;
++			*d++ = *s++;
++		}
 +
-+	/* lsb == 01 or 10 */
-+	l.sb		1(r3), r13   // *(src+1) = c
-+	l.addi		r17, r17, -1 // Decrease n
++		if (n & 1 << 2) {
++			*d++ = *s++;
++			*d++ = *s++;
++			*d++ = *s++;
++			*d++ = *s++;
++		}
++	}
 +
-+	l.sfeqi		r15, 2
-+	l.bf		2f
-+	 l.addi		r19, r3, 2  // src += 2
++	if (n & 1 << 1) {
++		*d++ = *s++;
++		*d++ = *s++;
++	}
 +
-+	/* lsb == 01 */
-+	l.sb		2(r3), r13   // *(src+2) = c
-+	l.addi		r17, r17, -1 // Decrease n
-+	l.addi		r19, r3, 3   // src += 3
++	if (n & 1)
++		*d++ = *s++;
 +
-+	/* Word copy loop */
-+2:	l.sw		0(r19), r13  // *src = cccc
-+	l.addi		r17, r17, -4 // Decrease n
-+	l.sfgeui	r17, 4
-+	l.bf		2b
-+	 l.addi		r19, r19, 4  // Increase src
++	return dest;
++}
++#else
++/*
++ * Use word copies but no loop unrolling as we cannot assume there
++ * will be benefits on the archirecture
++ */
++void *memcpy(void *dest, __const void *src, __kernel_size_t n)
++{
++	unsigned char *d = (unsigned char *)dest, *s = (unsigned char *)src;
++	uint32_t *dest_w = (uint32_t *)dest, *src_w = (uint32_t *)src;
 +
-+	/* When n > 0, copy the remaining bytes, otherwise jump to exit */
-+	l.sfeqi		r17, 0
-+	l.bf		4f
++	/* If both source and dest are word aligned copy words */
++	if (!((unsigned int)dest_w & 3) && !((unsigned int)src_w & 3)) {
++		for (; n >= 4; n -= 4)
++			*dest_w++ = *src_w++;
++	}
 +
-+	/* Byte copy loop */
-+3:	l.addi		r17, r17, -1 // Decrease n
-+	l.sb		0(r19), r13  // *src = cccc
-+	l.sfnei		r17, 0
-+	l.bf		3b
-+	 l.addi		r19, r19, 1  // Increase src
++	d = (unsigned char *)dest_w;
++	s = (unsigned char *)src_w;
 +
-+4:	l.jr		r9
-+	 l.ori		r11, r3, 0
++	/* For remaining or if not aligned, copy bytes */
++	for (; n >= 1; n -= 1)
++		*d++ = *s++;
++
++	return dest;
++
++}
++#endif
++
++EXPORT_SYMBOL(memcpy);
 -- 
 2.9.3
 
