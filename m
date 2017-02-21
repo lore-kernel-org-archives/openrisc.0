@@ -1,36 +1,53 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 22 Feb 2017 04:11:47 +0900
-Subject: [OpenRISC] [PATCH v3 18/25] MAINTAINERS: Add the openrisc official
-	repository
-In-Reply-To: <cover.1487702890.git.shorne@gmail.com>
+From: Joe Perches <joe@perches.com>
+Date: Tue, 21 Feb 2017 12:24:41 -0800
+Subject: [OpenRISC] [PATCH v3 14/25] openrisc: Initial support for the
+	idle state
+In-Reply-To: <705d104f39c66faddd1fda08fc7b04f2b2e6a840.1487702890.git.shorne@gmail.com>
 References: <cover.1487702890.git.shorne@gmail.com>
-Message-ID: <21f96afe5e19dc544282c9edb24a16ae41e44f45.1487702890.git.shorne@gmail.com>
+ <705d104f39c66faddd1fda08fc7b04f2b2e6a840.1487702890.git.shorne@gmail.com>
+Message-ID: <1487708681.2853.35.camel@perches.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The openrisc official repository and patch work happens currently on
-github. Add the repo for reference.
+On Wed, 2017-02-22 at 04:11 +0900, Stafford Horne wrote:
+> From: Sebastian Macke <sebastian@macke.de>
+> 
+> This patch adds basic support for the idle state of the cpu.
+> The patch overrides the regular idle function, enables the interupts,
+> checks for the power management unit and enables the cpu doze mode
+> if available.
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- MAINTAINERS | 1 +
- 1 file changed, 1 insertion(+)
+trivia:
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 187b961..57809d6 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -9187,6 +9187,7 @@ OPENRISC ARCHITECTURE
- M:	Jonas Bonn <jonas@southpole.se>
- M:	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
- M:	Stafford Horne <shorne@gmail.com>
-+T:	git git://github.com/openrisc/linux.git
- L:	openrisc at lists.librecores.org
- W:	http://openrisc.io
- S:	Maintained
--- 
-2.9.3
+> diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
+[]
+> @@ -75,6 +75,20 @@ void machine_power_off(void)
+>  	__asm__("l.nop 1");
+>  }
+>  
+> +/*
+> + * Send the doze signal to the cpu if available.
+> + * Make sure, that all interrupts are enabled
+> + */
+> +void arch_cpu_idle(void)
+> +{
+> +	unsigned long upr;
+> +
+> +	local_irq_enable();
+> +	upr = mfspr(SPR_UPR);
+> +	if (upr & SPR_UPR_PMP)
+> +		mtspr(SPR_PMR, mfspr(SPR_PMR) | SPR_PMR_DME);
+> +}
+
+Perhaps this would be easier to read without the automatic
+
+void arch_cpu_idle(void)
+{
+	local_irq_enable();
+	if (mfspr(SPR_UPR) & SPR_UPR_PMP)
+		mtspr(SPR_PMR, mfspr(SPR_PMR) | SPR_PMR_DME);
+}
 
