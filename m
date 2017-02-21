@@ -1,99 +1,130 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 20 Feb 2017 22:22:07 +0900
-Subject: [OpenRISC] [Qemu-devel] [PATCH 00/22] target/openrisc updates
-In-Reply-To: <4BE06A79-02EC-48A8-8081-F21CEACE396F@gmail.com>
-References: <mailman.51026.1486615955.22738.qemu-devel@nongnu.org>
- <8C14E9D0-F376-4CDC-BF24-A0609A329977@gmail.com>
- <20170210003916.GL32144@lianli.shorne-pla.net>
- <ec491d8c-3fb0-3ce9-5558-ac4ab1455f7f@twiddle.net>
- <4BE06A79-02EC-48A8-8081-F21CEACE396F@gmail.com>
-Message-ID: <20170220132207.GD2379@lianli.shorne-pla.net>
+Date: Wed, 22 Feb 2017 04:11:29 +0900
+Subject: [OpenRISC] [PATCH v3 00/25] OpenRISC patches for 4.11 final call
+Message-ID: <cover.1487702890.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Feb 13, 2017 at 10:33:09PM -0500, Programmingkid wrote:
-> 
-> On Feb 13, 2017, at 10:25 PM, Richard Henderson wrote:
-> 
-> > On 02/10/2017 11:39 AM, Stafford Horne wrote:
-> >> On Thu, Feb 09, 2017 at 09:10:51AM -0500, G 3 wrote:
-> >>> 
-> >>> On Feb 8, 2017, at 11:52 PM, qemu-devel-request at nongnu.org wrote:
-> >>> 
-> >>>> Message: 6
-> >>>> Date: Wed,  8 Feb 2017 20:51:32 -0800
-> >>>> From: Richard Henderson <rth@twiddle.net>
-> >>>> To: qemu-devel at nongnu.org
-> >>>> Cc: shorne at gmail.com
-> >>>> Subject: [Qemu-devel] [PATCH 00/22] target/openrisc updates
-> >>>> Message-ID: <20170209045154.16868-1-rth@twiddle.net>
-> >>>> 
-> >>>> The bulk of this patch set is 2-3 years old, and was mostly
-> >>>> reviewed by Bastian Koppelmann.  But it languished because
-> >>>> there were reports of it not booting kernel images, and I
-> >>>> had problems putting together a set of tools that could even
-> >>>> build a kernel.
-> >>>> 
-> >>>> The OpenRISC community has picked up activity recently,
-> >>>> with Stafford Horne upstreaming some of the compiler tools.
-> >>>> He has even done some testing for me of this patch set.
-> >>>> 
-> >>>> 
-> >>>> r~
-> >>> 
-> >>> I see you are working on OpenRISC. Would you be able to help
-> >>> me improve its wiki page?
-> >>> 
-> >>> http://wiki.qemu-project.org/Documentation/Platforms/OpenRISC
-> >>> 
-> >>> Right now there isn't much information on OpenRISC here. I'm
-> >>> hoping to make it a lot useful to anyone who is interesting in this
-> >>> platform.
-> >>> 
-> >>> Would you know of any links to software that works in OpenRISC?
-> >>> 
-> >>> Pictures of the OpenRISC target running anything would be great also.
-> >>> 
-> >>> What is your suggested command-line for using OpenRISC?
-> >>> 
-> >>> If you have any suggestions on how to improve the page place don't
-> >>> hesitate to let me know.
-> >>> 
-> >> 
-> >> Hi Richard, G 3,
-> >> 
-> >> I am not sure if Richard has the time for this.  But I kind of got him
-> >> started back on the openrisc work, it would be my fault to burden him
-> >> with even more work :).  Also, I was helping to do some tests so I have
-> >> some example commands.
-> > 
-> > :-)
-> > 
-> >> I don't have a lot of time, but I think I can help to update the above.
-> >> Probably Richard and I could work together?
-> >> 
-> >> I was recently working on updating the openrisc page
-> >> 
-> >>  http://openrisc.io
-> >> 
-> >> I think I could link between the two for toolchain compile guides and
-> >> software guides (i.e. debugging and linux).
-> >> 
-> >> Richard what do you think?
-> > 
-> > Probably the most beneficial thing that we can do is create a kernel+initrd that boots into a busybox root shell.  Similar to the other test images that we have at
-> > 
-> >  http://wiki.qemu-project.org/Testing/System_Images
-> > 
-> > 
-> > r~
-> > 
-> 
-> We could do both the test image and a wiki page.
+Hi All,
 
-Could you create me an account on the wiki then?
+Changes from v2
+ o implemented all atomic ops pointed out by Peter Z
+ o export ioremap symbols pointed out by allyesconfig
+ o init r0 to 0 as per openrisc spec, suggested by Jakob Viketoft
+
+Changes from v1
+ o added change set from Valentin catching CONFIG issues
+ o added missing test_and_change_bit atomic bitops patch
+
+This is a attempt to get some final comments before I send the pull request
+for this merge windot to Linus.  This comes up due to last minute findings
+by Peter Zijlstra with the atomic operations patch.  If I get a bunch of
+Nak's I will likely just skip this merge window, but lets hope that can be
+avoided.
+
+Any feedback is appreciated.
+
+The interesting things here are:
+ - optimized memset and memcpy routines, ~20% boot time saving
+ - support for cpu idling
+ - adding support for l.swa and l.lwa atomic operations (in spec from 2014)
+ - use atomics to implement: bitops, cmpxchg, futex, spinlocks
+ - the atomics are in preparation for SMP support
+
+Testing:
+I have used the kselftests to validate the changes especially the futex
+operations with the futex test. Other atomic operations are common so no
+explicit testing.  I have mainly done the tests on qemu.
+
+Note for testers:
+The l.swa and l.lwa emulation + native instruction support is NOW FIXED in
+qemu upstream git.
+
+I have send patches for get a recent openrisc toolchain added to the
+lkp-tests make.cross script.  It should be up to date now I believe 
+this is what most build sytems use. Let me know if different.
 
 -Stafford
+
+
+Jonas Bonn (1):
+  openrisc: use SPARSE_IRQ
+
+Olof Kindgren (1):
+  openrisc: Add optimized memset
+
+Sebastian Macke (2):
+  openrisc: Fix the bitmask for the unit present register
+  openrisc: Initial support for the idle state
+
+Stafford Horne (9):
+  openrisc: Add optimized memcpy routine
+  openrisc: Add .gitignore
+  MAINTAINERS: Add the openrisc official repository
+  scripts/checkstack.pl: Add openrisc support
+  openrisc: entry: Whitespace and comment cleanups
+  openrisc: entry: Fix delay slot detection
+  openrisc: head: Move init strings to rodata section
+  openrisc: Export ioremap symbols used by modules
+  openrisc: head: Init r0 to 0 on start
+
+Stefan Kristiansson (11):
+  openrisc: add cache way information to cpuinfo
+  openrisc: tlb miss handler optimizations
+  openrisc: head: use THREAD_SIZE instead of magic constant
+  openrisc: head: refactor out tlb flush into it's own function
+  openrisc: add l.lwa/l.swa emulation
+  openrisc: add atomic bitops
+  openrisc: add cmpxchg and xchg implementations
+  openrisc: add optimized atomic operations
+  openrisc: add spinlock implementation
+  openrisc: add futex_atomic_* implementations
+  openrisc: remove unnecessary stddef.h include
+
+Valentin Rothberg (1):
+  arch/openrisc/lib/memcpy.c: use correct OR1200 option
+
+ MAINTAINERS                                |   1 +
+ arch/openrisc/Kconfig                      |   1 +
+ arch/openrisc/TODO.openrisc                |   1 -
+ arch/openrisc/include/asm/Kbuild           |   5 +-
+ arch/openrisc/include/asm/atomic.h         | 100 +++++++++++++
+ arch/openrisc/include/asm/bitops.h         |   2 +-
+ arch/openrisc/include/asm/bitops/atomic.h  | 123 +++++++++++++++
+ arch/openrisc/include/asm/cmpxchg.h        |  82 ++++++++++
+ arch/openrisc/include/asm/cpuinfo.h        |   2 +
+ arch/openrisc/include/asm/futex.h          | 135 +++++++++++++++++
+ arch/openrisc/include/asm/spinlock.h       | 232 ++++++++++++++++++++++++++++-
+ arch/openrisc/include/asm/spinlock_types.h |  28 ++++
+ arch/openrisc/include/asm/spr_defs.h       |   4 +-
+ arch/openrisc/include/asm/string.h         |  10 ++
+ arch/openrisc/kernel/.gitignore            |   1 +
+ arch/openrisc/kernel/entry.S               |  60 +++++---
+ arch/openrisc/kernel/head.S                | 200 ++++++++++---------------
+ arch/openrisc/kernel/or32_ksyms.c          |   1 +
+ arch/openrisc/kernel/process.c             |  17 +++
+ arch/openrisc/kernel/ptrace.c              |   1 -
+ arch/openrisc/kernel/setup.c               |  67 +++++----
+ arch/openrisc/kernel/traps.c               | 183 +++++++++++++++++++++++
+ arch/openrisc/lib/Makefile                 |   2 +-
+ arch/openrisc/lib/memcpy.c                 | 124 +++++++++++++++
+ arch/openrisc/lib/memset.S                 |  98 ++++++++++++
+ arch/openrisc/mm/ioremap.c                 |   2 +
+ scripts/checkstack.pl                      |   3 +
+ 27 files changed, 1297 insertions(+), 188 deletions(-)
+ create mode 100644 arch/openrisc/include/asm/atomic.h
+ create mode 100644 arch/openrisc/include/asm/bitops/atomic.h
+ create mode 100644 arch/openrisc/include/asm/cmpxchg.h
+ create mode 100644 arch/openrisc/include/asm/futex.h
+ create mode 100644 arch/openrisc/include/asm/spinlock_types.h
+ create mode 100644 arch/openrisc/include/asm/string.h
+ create mode 100644 arch/openrisc/kernel/.gitignore
+ create mode 100644 arch/openrisc/lib/memcpy.c
+ create mode 100644 arch/openrisc/lib/memset.S
+
+-- 
+2.9.3
+
