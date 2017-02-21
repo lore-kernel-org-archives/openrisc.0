@@ -1,45 +1,50 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 22 Feb 2017 04:11:53 +0900
-Subject: [OpenRISC] [PATCH v3 24/25] openrisc: Export ioremap symbols used
-	by modules
+Date: Wed, 22 Feb 2017 04:11:54 +0900
+Subject: [OpenRISC] [PATCH v3 25/25] openrisc: head: Init r0 to 0 on start
 In-Reply-To: <cover.1487702890.git.shorne@gmail.com>
 References: <cover.1487702890.git.shorne@gmail.com>
-Message-ID: <240621f3d305172c1d86355241b14e4423518594.1487702890.git.shorne@gmail.com>
+Message-ID: <20913e0a776dda47da0d95e7769867636f180f90.1487702890.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Noticed this when building with allyesconfig.  Got build failures due
-to iounmap and __ioremap symbols missing.  This patch exports them so
-modules can use them.  This is inline with other architectures.
+Originally openrisc spec 0 specified that r0 would be wired to ground.
+This is no longer the case.  r0 is not guaranteed to be 0 at init, so we
+need to initialize it to 0 before using it.
+
+Also, if we are clearing r0 we cant use r0 to clear itself. Change the
+the CLEAR_GPR macro to use movhi for clearing.
 
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/mm/ioremap.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/openrisc/kernel/head.S | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/openrisc/mm/ioremap.c b/arch/openrisc/mm/ioremap.c
-index 8705a46..2175e4b 100644
---- a/arch/openrisc/mm/ioremap.c
-+++ b/arch/openrisc/mm/ioremap.c
-@@ -80,6 +80,7 @@ __ioremap(phys_addr_t addr, unsigned long size, pgprot_t prot)
+diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
+index 573e131..e8a1784 100644
+--- a/arch/openrisc/kernel/head.S
++++ b/arch/openrisc/kernel/head.S
+@@ -35,7 +35,7 @@
+ 	l.add	rd,rd,rs
  
- 	return (void __iomem *)(offset + (char *)v);
- }
-+EXPORT_SYMBOL(__ioremap);
+ #define CLEAR_GPR(gpr)				\
+-	l.or    gpr,r0,r0
++	l.movhi	gpr,0x0
  
- void iounmap(void *addr)
- {
-@@ -106,6 +107,7 @@ void iounmap(void *addr)
+ #define LOAD_SYMBOL_2_GPR(gpr,symbol)		\
+ 	l.movhi gpr,hi(symbol)			;\
+@@ -443,6 +443,9 @@ _dispatch_do_ipage_fault:
+ 	__HEAD
+ 	.global _start
+ _start:
++	/* Init r0 to zero as per spec */
++	CLEAR_GPR(r0)
++
+ 	/* save kernel parameters */
+ 	l.or	r25,r0,r3	/* pointer to fdt */
  
- 	return vfree((void *)(PAGE_MASK & (unsigned long)addr));
- }
-+EXPORT_SYMBOL(iounmap);
- 
- /**
-  * OK, this one's a bit tricky... ioremap can get called before memory is
 -- 
 2.9.3
 
