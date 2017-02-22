@@ -1,56 +1,33 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 22 Feb 2017 23:19:09 +0900
-Subject: [OpenRISC] [PATCH v3 14/25] openrisc: Initial support for the
-	idle state
-In-Reply-To: <1487708681.2853.35.camel@perches.com>
+Date: Wed, 22 Feb 2017 23:20:07 +0900
+Subject: [OpenRISC] [PATCH v3 08/25] openrisc: add cmpxchg and xchg
+	implementations
+In-Reply-To: <20170222111940.GR6500@twins.programming.kicks-ass.net>
 References: <cover.1487702890.git.shorne@gmail.com>
- <705d104f39c66faddd1fda08fc7b04f2b2e6a840.1487702890.git.shorne@gmail.com>
- <1487708681.2853.35.camel@perches.com>
-Message-ID: <20170222141909.GA2449@lianli.shorne-pla.net>
+ <58010da3ed6e62743cc99674349f91022b41e92a.1487702890.git.shorne@gmail.com>
+ <20170222111940.GR6500@twins.programming.kicks-ass.net>
+Message-ID: <20170222142007.GB2449@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Feb 21, 2017 at 12:24:41PM -0800, Joe Perches wrote:
-> On Wed, 2017-02-22 at 04:11 +0900, Stafford Horne wrote:
-> > From: Sebastian Macke <sebastian@macke.de>
-> > 
-> > This patch adds basic support for the idle state of the cpu.
-> > The patch overrides the regular idle function, enables the interupts,
-> > checks for the power management unit and enables the cpu doze mode
-> > if available.
+On Wed, Feb 22, 2017 at 12:19:40PM +0100, Peter Zijlstra wrote:
+> On Wed, Feb 22, 2017 at 04:11:37AM +0900, Stafford Horne wrote:
+> > +	__asm__ __volatile__(
+> > +		"1:	l.lwa %0, 0(%1)		\n"
+> > +		"	l.sfeq %0, %2		\n"
+> > +		"	l.bnf 1f		\n"
+> > +		"	 l.nop			\n"
+> > +		"	l.swa 0(%1), %3		\n"
+> > +		"	l.bnf 1b		\n"
+> > +		"1:	 l.nop			\n"
+> > +		: "=&r"(old)
+> > +		: "r"(ptr), "r"(old), "r"(new)
+> > +		: "cc", "memory");
 > 
-> trivia:
-> 
-> > diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
-> []
-> > @@ -75,6 +75,20 @@ void machine_power_off(void)
-> >  	__asm__("l.nop 1");
-> >  }
-> >  
-> > +/*
-> > + * Send the doze signal to the cpu if available.
-> > + * Make sure, that all interrupts are enabled
-> > + */
-> > +void arch_cpu_idle(void)
-> > +{
-> > +	unsigned long upr;
-> > +
-> > +	local_irq_enable();
-> > +	upr = mfspr(SPR_UPR);
-> > +	if (upr & SPR_UPR_PMP)
-> > +		mtspr(SPR_PMR, mfspr(SPR_PMR) | SPR_PMR_DME);
-> > +}
-> 
-> Perhaps this would be easier to read without the automatic
-> 
-> void arch_cpu_idle(void)
-> {
-> 	local_irq_enable();
-> 	if (mfspr(SPR_UPR) & SPR_UPR_PMP)
-> 		mtspr(SPR_PMR, mfspr(SPR_PMR) | SPR_PMR_DME);
-> }
+> I just noticed this, but having both labels have the same name is
+> somewhat confusing.
 
-Yeah, that looks better.  I made the change.  Will post another series. 
+Right, better to use '2' for the second one.
