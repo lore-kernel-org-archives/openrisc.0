@@ -1,40 +1,46 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 23 Feb 2017 07:42:42 +0900
-Subject: [OpenRISC] [PATCH v3 09/25] openrisc: add optimized atomic
- operations
-In-Reply-To: <c775b4d1-fa98-c1b2-d212-1441343b62d4@twiddle.net>
+Date: Thu, 23 Feb 2017 07:43:37 +0900
+Subject: [OpenRISC] [PATCH v3 08/25] openrisc: add cmpxchg and xchg
+ implementations
+In-Reply-To: <a846d63e-14cd-7b29-54d8-b361cd74c522@twiddle.net>
 References: <cover.1487702890.git.shorne@gmail.com>
- <1479fc4a4a18712003849341affe74b2a0da609a.1487702890.git.shorne@gmail.com>
- <20170222112737.GM6515@twins.programming.kicks-ass.net>
- <20170222142246.GC2449@lianli.shorne-pla.net>
- <c775b4d1-fa98-c1b2-d212-1441343b62d4@twiddle.net>
-Message-ID: <20170222224242.GD2449@lianli.shorne-pla.net>
+ <58010da3ed6e62743cc99674349f91022b41e92a.1487702890.git.shorne@gmail.com>
+ <20170222111940.GR6500@twins.programming.kicks-ass.net>
+ <20170222142007.GB2449@lianli.shorne-pla.net>
+ <a846d63e-14cd-7b29-54d8-b361cd74c522@twiddle.net>
+Message-ID: <20170222224337.GE2449@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Thu, Feb 23, 2017 at 04:31:34AM +1100, Richard Henderson wrote:
-> On 02/23/2017 01:22 AM, Stafford Horne wrote:
-> > > static inline int __atomic_add_unless(atomic_t *v, int a, int u)
-> > > {
-> > > 	int old, tmp;
+On Thu, Feb 23, 2017 at 04:30:35AM +1100, Richard Henderson wrote:
+> On 02/23/2017 01:20 AM, Stafford Horne wrote:
+> > On Wed, Feb 22, 2017 at 12:19:40PM +0100, Peter Zijlstra wrote:
+> > > On Wed, Feb 22, 2017 at 04:11:37AM +0900, Stafford Horne wrote:
+> > > > +	__asm__ __volatile__(
+> > > > +		"1:	l.lwa %0, 0(%1)		\n"
+> > > > +		"	l.sfeq %0, %2		\n"
+> > > > +		"	l.bnf 1f		\n"
+> > > > +		"	 l.nop			\n"
+> > > > +		"	l.swa 0(%1), %3		\n"
+> > > > +		"	l.bnf 1b		\n"
+> > > > +		"1:	 l.nop			\n"
+> > > > +		: "=&r"(old)
+> > > > +		: "r"(ptr), "r"(old), "r"(new)
+> > > > +		: "cc", "memory");
 > > > 
-> > > 	__asm__ __volatile__(
-> > > 		"1:     l.lwa %0, 0(%2)         \n"
-> > > 		"       l.sfeq %0, %4           \n"
-> > > 		"       l.bf 2f                 \n"
-> > > 		"        l.nop                  \n"
-> > > 		"	l.add %1, %0, %3	\n"
+> > > I just noticed this, but having both labels have the same name is
+> > > somewhat confusing.
+> > 
+> > Right, better to use '2' for the second one.
 > 
-> You can move this add into the delay slot and drop the preceding nop.
+> Better still to put the second label after the delay-slot nop.
+> You don't need to execute that on the way out.
 
-Thanks, Thats right, also here the 2: label being after the l.nop can be
-applied.   I should have thought about it.  I made the change, Ill also
-fix/look again in the other places.
+Right, thats a good point, lots of cases like this.  I will go through
+them.
 
--Stafford
-
-> 
 > r~
+> 
