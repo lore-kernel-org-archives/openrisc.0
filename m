@@ -1,30 +1,56 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Date: Wed, 22 Feb 2017 13:08:49 +0100
-Subject: [OpenRISC] [PATCH v3 10/25] openrisc: add spinlock
-	implementation
-In-Reply-To: <20170222114117.GR6515@twins.programming.kicks-ass.net>
+From: Stafford Horne <shorne@gmail.com>
+Date: Wed, 22 Feb 2017 23:19:09 +0900
+Subject: [OpenRISC] [PATCH v3 14/25] openrisc: Initial support for the
+	idle state
+In-Reply-To: <1487708681.2853.35.camel@perches.com>
 References: <cover.1487702890.git.shorne@gmail.com>
- <9ec913b47790e9412d5b71a5fc52794ce4ebafb9.1487702890.git.shorne@gmail.com>
- <20170222114117.GR6515@twins.programming.kicks-ass.net>
-Message-ID: <20170222120849.GR6536@twins.programming.kicks-ass.net>
+ <705d104f39c66faddd1fda08fc7b04f2b2e6a840.1487702890.git.shorne@gmail.com>
+ <1487708681.2853.35.camel@perches.com>
+Message-ID: <20170222141909.GA2449@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Feb 22, 2017 at 12:41:17PM +0100, Peter Zijlstra wrote:
-> On Wed, Feb 22, 2017 at 04:11:39AM +0900, Stafford Horne wrote:
-> > +static inline void arch_spin_unlock(arch_spinlock_t *lock)
+On Tue, Feb 21, 2017 at 12:24:41PM -0800, Joe Perches wrote:
+> On Wed, 2017-02-22 at 04:11 +0900, Stafford Horne wrote:
+> > From: Sebastian Macke <sebastian@macke.de>
+> > 
+> > This patch adds basic support for the idle state of the cpu.
+> > The patch overrides the regular idle function, enables the interupts,
+> > checks for the power management unit and enables the cpu doze mode
+> > if available.
+> 
+> trivia:
+> 
+> > diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
+> []
+> > @@ -75,6 +75,20 @@ void machine_power_off(void)
+> >  	__asm__("l.nop 1");
+> >  }
+> >  
+> > +/*
+> > + * Send the doze signal to the cpu if available.
+> > + * Make sure, that all interrupts are enabled
+> > + */
+> > +void arch_cpu_idle(void)
 > > +{
-> > +	smp_mb();
-> > +	lock->tickets.owner++;
+> > +	unsigned long upr;
+> > +
+> > +	local_irq_enable();
+> > +	upr = mfspr(SPR_UPR);
+> > +	if (upr & SPR_UPR_PMP)
+> > +		mtspr(SPR_PMR, mfspr(SPR_PMR) | SPR_PMR_DME);
 > > +}
 > 
-> This is putting a lot of trust in the compiler, nothing is volatile so
-> it can do horrible things.
+> Perhaps this would be easier to read without the automatic
+> 
+> void arch_cpu_idle(void)
+> {
+> 	local_irq_enable();
+> 	if (mfspr(SPR_UPR) & SPR_UPR_PMP)
+> 		mtspr(SPR_PMR, mfspr(SPR_PMR) | SPR_PMR_DME);
+> }
 
-Also, your architecture manual seems to not explicitly mention how
-l.lwa/l.swa interact with overlapping l.sh.
-
-In fact, I can read the text such that its done 'wrong'.
+Yeah, that looks better.  I made the change.  Will post another series. 
