@@ -1,66 +1,110 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 23 Feb 2017 22:35:15 +0900
-Subject: [OpenRISC] Crosstool/kbuild-all toolchain updates
-In-Reply-To: <20170219174923.GI21840@gate.crashing.org>
-References: <20170131224438.GD21641@lianli.shorne-pla.net>
- <20170219132637.gjv26w7w5sses2fi@wfg-t540p.sh.intel.com>
- <20170219174923.GI21840@gate.crashing.org>
-Message-ID: <20170223133515.GI2449@lianli.shorne-pla.net>
+Date: Thu, 23 Feb 2017 23:09:44 +0900
+Subject: [OpenRISC] [Qemu-devel] [PATCH 00/22] target/openrisc updates
+In-Reply-To: <4BE06A79-02EC-48A8-8081-F21CEACE396F@gmail.com>
+References: <mailman.51026.1486615955.22738.qemu-devel@nongnu.org>
+ <8C14E9D0-F376-4CDC-BF24-A0609A329977@gmail.com>
+ <20170210003916.GL32144@lianli.shorne-pla.net>
+ <ec491d8c-3fb0-3ce9-5558-ac4ab1455f7f@twiddle.net>
+ <4BE06A79-02EC-48A8-8081-F21CEACE396F@gmail.com>
+Message-ID: <20170223140944.GK2449@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sun, Feb 19, 2017 at 11:49:23AM -0600, Segher Boessenkool wrote:
-> Hi!
+On Mon, Feb 13, 2017 at 10:33:09PM -0500, Programmingkid wrote:
 > 
-> On Sun, Feb 19, 2017 at 09:26:37PM +0800, Fengguang Wu wrote:
-> > An uptodate crosstool and reasonable active maintainer would be very
-> > welcome. I'll sure be a heavy user. In the past year when crosstool is
-> > not updated to gcc-6, we've resorted to using debian packages for some
-> > ARCHs and building our own cross compliers for the other ARCHs. The
-> > latter are based on Segher's buildall tools (CCed). The private builds
-> > may work for us in short term, however is obvious not a satisfactory
-> > solution.
+> On Feb 13, 2017, at 10:25 PM, Richard Henderson wrote:
 > 
-> Buildall supports GCC only, and this is not likely to change.
+> > On 02/10/2017 11:39 AM, Stafford Horne wrote:
+> >> On Thu, Feb 09, 2017 at 09:10:51AM -0500, G 3 wrote:
+> >>> 
+> >>> On Feb 8, 2017, at 11:52 PM, qemu-devel-request at nongnu.org wrote:
+> >>> 
+> >>>> Message: 6
+> >>>> Date: Wed,  8 Feb 2017 20:51:32 -0800
+> >>>> From: Richard Henderson <rth@twiddle.net>
+> >>>> To: qemu-devel at nongnu.org
+> >>>> Cc: shorne at gmail.com
+> >>>> Subject: [Qemu-devel] [PATCH 00/22] target/openrisc updates
+> >>>> Message-ID: <20170209045154.16868-1-rth@twiddle.net>
+> >>>> 
+> >>>> The bulk of this patch set is 2-3 years old, and was mostly
+> >>>> reviewed by Bastian Koppelmann.  But it languished because
+> >>>> there were reports of it not booting kernel images, and I
+> >>>> had problems putting together a set of tools that could even
+> >>>> build a kernel.
+> >>>> 
+> >>>> The OpenRISC community has picked up activity recently,
+> >>>> with Stafford Horne upstreaming some of the compiler tools.
+> >>>> He has even done some testing for me of this patch set.
+> >>>> 
+> >>>> 
+> >>>> r~
+> >>> 
+> >>> I see you are working on OpenRISC. Would you be able to help
+> >>> me improve its wiki page?
+> >>> 
+> >>> http://wiki.qemu-project.org/Documentation/Platforms/OpenRISC
+> >>> 
+> >>> Right now there isn't much information on OpenRISC here. I'm
+> >>> hoping to make it a lot useful to anyone who is interesting in this
+> >>> platform.
+> >>> 
+> >>> Would you know of any links to software that works in OpenRISC?
+> >>> 
+> >>> Pictures of the OpenRISC target running anything would be great also.
+> >>> 
+> >>> What is your suggested command-line for using OpenRISC?
+> >>> 
+> >>> If you have any suggestions on how to improve the page place don't
+> >>> hesitate to let me know.
+> >>> 
+> >> 
+> >> Hi Richard, G 3,
+> >> 
+> >> I am not sure if Richard has the time for this.  But I kind of got him
+> >> started back on the openrisc work, it would be my fault to burden him
+> >> with even more work :).  Also, I was helping to do some tests so I have
+> >> some example commands.
+> > 
+> > :-)
+> > 
+> >> I don't have a lot of time, but I think I can help to update the above.
+> >> Probably Richard and I could work together?
+> >> 
+> >> I was recently working on updating the openrisc page
+> >> 
+> >>  http://openrisc.io
+> >> 
+> >> I think I could link between the two for toolchain compile guides and
+> >> software guides (i.e. debugging and linux).
+> >> 
+> >> Richard what do you think?
+> > 
+> > Probably the most beneficial thing that we can do is create a kernel+initrd that boots into a busybox root shell.  Similar to the other test images that we have at
+> > 
+> >  http://wiki.qemu-project.org/Testing/System_Images
+> > 
+> > 
+> > r~
+> > 
+> 
+> We could do both the test image and a wiki page.
 
-I think we are not requiring more at this moment.
+I posted a test image to the wiki
 
-My thought was to open up/modernize the crostool build system and store it
-on git.kernel.org.  Currently Tony mentions [0] "They are built using a
-modified version of the buildall scripts".  I am hoping we can get those
-from him and..
+ http://wiki.qemu-project.org/Testing/System_Images
 
-  - Create a project kernel/git/{user}/crosstool.git
-  - Store there
-    * build script (wrapping buildall)
-    * any patches needed i.e. or1k/gcc.patch
-    * scripts for signing and uploading binaries to website
-    * container config for setting up whole build in docker
-       * i.e. something like masami's linux-cross [1]
+However, someone on the #qemu irc room mentioned its not ideal to post
+any images on the wiki and existing images should be taken down due to
+copyright issues.  I don't quite follow, should we be concerned?
 
-The idea being that then when people want to update binaries they can
-just send a patch.  The maintainer need just run the scripts.
+Also, I did start adding some commands to the wiki, any feedback
+appreciated.
 
-Another question, does anyone use the 32-bit binaries anymore?
+  http://wiki.qemu-project.org/Documentation/Platforms/OpenRISC
 
 -Stafford
-
-[0] https://www.kernel.org/pub/tools/crosstool/
-[1] https://github.com/mhiramat/linux-cross/tree/master/linux-cross-build
-
-> The primary usecase for buildall is for my own GCC testing.  All patches
-> are welcome, but I'm not likely to apply them if they make it harder to
-> use the tools for what their goal is.  I'm certainly not going to apply
-> patches to other trees from the scripts, etc.
-> 
-> Buildall itself is still maintained.  It does not get very many updates
-> but that is because it is close to perfect ;-)
-> 
-> On the other hand I'll be happy to help wherever I can.  Just Cc: me on
-> whatever comes up.
-> 
-> 
-> Segher
