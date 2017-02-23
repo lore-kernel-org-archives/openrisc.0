@@ -1,46 +1,56 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 23 Feb 2017 07:43:37 +0900
-Subject: [OpenRISC] [PATCH v3 08/25] openrisc: add cmpxchg and xchg
- implementations
-In-Reply-To: <a846d63e-14cd-7b29-54d8-b361cd74c522@twiddle.net>
-References: <cover.1487702890.git.shorne@gmail.com>
- <58010da3ed6e62743cc99674349f91022b41e92a.1487702890.git.shorne@gmail.com>
- <20170222111940.GR6500@twins.programming.kicks-ass.net>
- <20170222142007.GB2449@lianli.shorne-pla.net>
- <a846d63e-14cd-7b29-54d8-b361cd74c522@twiddle.net>
-Message-ID: <20170222224337.GE2449@lianli.shorne-pla.net>
+From: Richard Henderson <rth@twiddle.net>
+Date: Thu, 23 Feb 2017 12:01:20 +1100
+Subject: [OpenRISC] gcc7 port and improvements
+Message-ID: <93ad6594-b3f1-5a4f-14d4-f45cb72229f5@twiddle.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Thu, Feb 23, 2017 at 04:30:35AM +1100, Richard Henderson wrote:
-> On 02/23/2017 01:20 AM, Stafford Horne wrote:
-> > On Wed, Feb 22, 2017 at 12:19:40PM +0100, Peter Zijlstra wrote:
-> > > On Wed, Feb 22, 2017 at 04:11:37AM +0900, Stafford Horne wrote:
-> > > > +	__asm__ __volatile__(
-> > > > +		"1:	l.lwa %0, 0(%1)		\n"
-> > > > +		"	l.sfeq %0, %2		\n"
-> > > > +		"	l.bnf 1f		\n"
-> > > > +		"	 l.nop			\n"
-> > > > +		"	l.swa 0(%1), %3		\n"
-> > > > +		"	l.bnf 1b		\n"
-> > > > +		"1:	 l.nop			\n"
-> > > > +		: "=&r"(old)
-> > > > +		: "r"(ptr), "r"(old), "r"(new)
-> > > > +		: "cc", "memory");
-> > > 
-> > > I just noticed this, but having both labels have the same name is
-> > > somewhat confusing.
-> > 
-> > Right, better to use '2' for the second one.
-> 
-> Better still to put the second label after the delay-slot nop.
-> You don't need to execute that on the way out.
+Several years ago I did some cleanup work to the openrisc gcc port, but wasn't 
+able to test it properly, so it languished.
 
-Right, thats a good point, lots of cases like this.  I will go through
-them.
+I have recently rebased that onto the gcc7 branch that is nearing release. 
+Test results are fairly good using qemu for testing (I do have some odd linkage 
+problems that suggest that I ought to rebuild my old sys-root from scratch).
 
-> r~
-> 
+I won't post patches here unless desired, but instead a link to my branch:
+
+   git://github.com/rth7680/gcc.git or1k-7-2
+
+An incomplete list of visible improvements are:
+
+   * 64-bit arithmetic using addc/addic.
+
+   * Define "cstore" pattern, i.e. comparisons with a boolean result,
+     e.g. x = (y < 0).  This can use addc or cmov.
+
+   * Prologue rewritten to take advantage of red-zone, and only store
+     registers that are required.
+
+   * Tail calls added.
+
+   * Atomic operations rewritten to properly handle delay slots.
+
+   * The -fpic register is chosen dynamically.  This allows us to use
+     a call-clobbered register for leaf functions.
+
+
+If this goes well, I have some additional patches to revive that enhance both 
+binutils and gcc with additional relocations so that the low-part of an address 
+can be moved into a load or store offset.  E.g. instead of
+
+	l.movhi	r4, hi(foo)
+	l.ori	r4, r4, lo(foo)
+	l.lw	r5, 0(r4)
+	l.sw	0(r4), r6
+
+we can do
+
+	l.movhi	r4, ha(foo)
+	l.lw	r5, lo(foo)(r4)
+	l.sw	lo(foo)(r4), r6
+
+
+r~
