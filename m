@@ -1,50 +1,144 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Fri, 24 Feb 2017 13:32:44 +0900
-Subject: [OpenRISC] [PATCH v4 24/24] openrisc: head: Init r0 to 0 on start
-In-Reply-To: <cover.1487910170.git.shorne@gmail.com>
-References: <cover.1487910170.git.shorne@gmail.com>
-Message-ID: <77f7a25e10627b60b2553817f05b20ec2ec25a28.1487910170.git.shorne@gmail.com>
+From: G 3 <programmingkidx@gmail.com>
+Date: Thu, 23 Feb 2017 10:54:43 -0500
+Subject: [OpenRISC] [Qemu-devel] [PATCH 00/22] target/openrisc updates
+In-Reply-To: <20170223140944.GK2449@lianli.shorne-pla.net>
+References: <mailman.51026.1486615955.22738.qemu-devel@nongnu.org>
+ <8C14E9D0-F376-4CDC-BF24-A0609A329977@gmail.com>
+ <20170210003916.GL32144@lianli.shorne-pla.net>
+ <ec491d8c-3fb0-3ce9-5558-ac4ab1455f7f@twiddle.net>
+ <4BE06A79-02EC-48A8-8081-F21CEACE396F@gmail.com>
+ <20170223140944.GK2449@lianli.shorne-pla.net>
+Message-ID: <C90ADBA7-AAB2-4392-8C64-3BB12545AE2F@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Originally openrisc spec 0 specified that r0 would be wired to ground.
-This is no longer the case.  r0 is not guaranteed to be 0 at init, so we
-need to initialize it to 0 before using it.
 
-Also, if we are clearing r0 we cant use r0 to clear itself. Change the
-the CLEAR_GPR macro to use movhi for clearing.
+On Feb 23, 2017, at 9:09 AM, Stafford Horne wrote:
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- arch/openrisc/kernel/head.S | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+> On Mon, Feb 13, 2017 at 10:33:09PM -0500, Programmingkid wrote:
+>>
+>> On Feb 13, 2017, at 10:25 PM, Richard Henderson wrote:
+>>
+>>> On 02/10/2017 11:39 AM, Stafford Horne wrote:
+>>>> On Thu, Feb 09, 2017 at 09:10:51AM -0500, G 3 wrote:
+>>>>>
+>>>>> On Feb 8, 2017, at 11:52 PM, qemu-devel-request at nongnu.org wrote:
+>>>>>
+>>>>>> Message: 6
+>>>>>> Date: Wed,  8 Feb 2017 20:51:32 -0800
+>>>>>> From: Richard Henderson <rth@twiddle.net>
+>>>>>> To: qemu-devel at nongnu.org
+>>>>>> Cc: shorne at gmail.com
+>>>>>> Subject: [Qemu-devel] [PATCH 00/22] target/openrisc updates
+>>>>>> Message-ID: <20170209045154.16868-1-rth@twiddle.net>
+>>>>>>
+>>>>>> The bulk of this patch set is 2-3 years old, and was mostly
+>>>>>> reviewed by Bastian Koppelmann.  But it languished because
+>>>>>> there were reports of it not booting kernel images, and I
+>>>>>> had problems putting together a set of tools that could even
+>>>>>> build a kernel.
+>>>>>>
+>>>>>> The OpenRISC community has picked up activity recently,
+>>>>>> with Stafford Horne upstreaming some of the compiler tools.
+>>>>>> He has even done some testing for me of this patch set.
+>>>>>>
+>>>>>>
+>>>>>> r~
+>>>>>
+>>>>> I see you are working on OpenRISC. Would you be able to help
+>>>>> me improve its wiki page?
+>>>>>
+>>>>> http://wiki.qemu-project.org/Documentation/Platforms/OpenRISC
+>>>>>
+>>>>> Right now there isn't much information on OpenRISC here. I'm
+>>>>> hoping to make it a lot useful to anyone who is interesting in  
+>>>>> this
+>>>>> platform.
+>>>>>
+>>>>> Would you know of any links to software that works in OpenRISC?
+>>>>>
+>>>>> Pictures of the OpenRISC target running anything would be great  
+>>>>> also.
+>>>>>
+>>>>> What is your suggested command-line for using OpenRISC?
+>>>>>
+>>>>> If you have any suggestions on how to improve the page place don't
+>>>>> hesitate to let me know.
+>>>>>
+>>>>
+>>>> Hi Richard, G 3,
+>>>>
+>>>> I am not sure if Richard has the time for this.  But I kind of  
+>>>> got him
+>>>> started back on the openrisc work, it would be my fault to  
+>>>> burden him
+>>>> with even more work :).  Also, I was helping to do some tests so  
+>>>> I have
+>>>> some example commands.
+>>>
+>>> :-)
+>>>
+>>>> I don't have a lot of time, but I think I can help to update the  
+>>>> above.
+>>>> Probably Richard and I could work together?
+>>>>
+>>>> I was recently working on updating the openrisc page
+>>>>
+>>>>  http://openrisc.io
+>>>>
+>>>> I think I could link between the two for toolchain compile  
+>>>> guides and
+>>>> software guides (i.e. debugging and linux).
+>>>>
+>>>> Richard what do you think?
+>>>
+>>> Probably the most beneficial thing that we can do is create a  
+>>> kernel+initrd that boots into a busybox root shell.  Similar to  
+>>> the other test images that we have at
+>>>
+>>>  http://wiki.qemu-project.org/Testing/System_Images
+>>>
+>>>
+>>> r~
+>>>
+>>
+>> We could do both the test image and a wiki page.
+>
+> I posted a test image to the wiki
+>
+>  http://wiki.qemu-project.org/Testing/System_Images
+>
+> However, someone on the #qemu irc room mentioned its not ideal to post
+> any images on the wiki and existing images should be taken down due to
+> copyright issues.  I don't quite follow, should we be concerned?
 
-diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
-index 573e131..e8a1784 100644
---- a/arch/openrisc/kernel/head.S
-+++ b/arch/openrisc/kernel/head.S
-@@ -35,7 +35,7 @@
- 	l.add	rd,rd,rs
- 
- #define CLEAR_GPR(gpr)				\
--	l.or    gpr,r0,r0
-+	l.movhi	gpr,0x0
- 
- #define LOAD_SYMBOL_2_GPR(gpr,symbol)		\
- 	l.movhi gpr,hi(symbol)			;\
-@@ -443,6 +443,9 @@ _dispatch_do_ipage_fault:
- 	__HEAD
- 	.global _start
- _start:
-+	/* Init r0 to zero as per spec */
-+	CLEAR_GPR(r0)
-+
- 	/* save kernel parameters */
- 	l.or	r25,r0,r3	/* pointer to fdt */
- 
--- 
-2.9.3
+If this is a Linux test image, it should be fine. Could we add a link  
+to the test image to the wiki page?
 
+>
+> Also, I did start adding some commands to the wiki, any feedback
+> appreciated.
+>
+>   http://wiki.qemu-project.org/Documentation/Platforms/OpenRISC
+>
+> -Stafford
+
+Thank you so much for all your work. The wiki page looks great. For  
+the maintainer, is Jia Liu still maintaining it? I never received a  
+reply from him.  Would you be interested in being a maintainer?
+
+This line in the wiki doesn't sound right:
+"To get good traces you can also add the following, this will output  
+trace info the a file z"
+
+Maybe this:
+"To get good traces you can also add the following, this will output  
+trace info to the file z"
+
+If z is a file, I really suggest renaming it to something more  
+descriptive.
+
+Thank you.
