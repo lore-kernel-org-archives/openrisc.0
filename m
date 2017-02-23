@@ -1,110 +1,80 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 23 Feb 2017 23:09:44 +0900
-Subject: [OpenRISC] [Qemu-devel] [PATCH 00/22] target/openrisc updates
-In-Reply-To: <4BE06A79-02EC-48A8-8081-F21CEACE396F@gmail.com>
-References: <mailman.51026.1486615955.22738.qemu-devel@nongnu.org>
- <8C14E9D0-F376-4CDC-BF24-A0609A329977@gmail.com>
- <20170210003916.GL32144@lianli.shorne-pla.net>
- <ec491d8c-3fb0-3ce9-5558-ac4ab1455f7f@twiddle.net>
- <4BE06A79-02EC-48A8-8081-F21CEACE396F@gmail.com>
-Message-ID: <20170223140944.GK2449@lianli.shorne-pla.net>
+Date: Thu, 23 Feb 2017 23:51:28 +0900
+Subject: [OpenRISC] gcc7 port and improvements
+In-Reply-To: <93ad6594-b3f1-5a4f-14d4-f45cb72229f5@twiddle.net>
+References: <93ad6594-b3f1-5a4f-14d4-f45cb72229f5@twiddle.net>
+Message-ID: <20170223145128.GL2449@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Feb 13, 2017 at 10:33:09PM -0500, Programmingkid wrote:
+On Thu, Feb 23, 2017 at 12:01:20PM +1100, Richard Henderson wrote:
+> Several years ago I did some cleanup work to the openrisc gcc port, but
+> wasn't able to test it properly, so it languished.
 > 
-> On Feb 13, 2017, at 10:25 PM, Richard Henderson wrote:
+> I have recently rebased that onto the gcc7 branch that is nearing release.
+> Test results are fairly good using qemu for testing (I do have some odd
+> linkage problems that suggest that I ought to rebuild my old sys-root from
+> scratch).
 > 
-> > On 02/10/2017 11:39 AM, Stafford Horne wrote:
-> >> On Thu, Feb 09, 2017 at 09:10:51AM -0500, G 3 wrote:
-> >>> 
-> >>> On Feb 8, 2017, at 11:52 PM, qemu-devel-request at nongnu.org wrote:
-> >>> 
-> >>>> Message: 6
-> >>>> Date: Wed,  8 Feb 2017 20:51:32 -0800
-> >>>> From: Richard Henderson <rth@twiddle.net>
-> >>>> To: qemu-devel at nongnu.org
-> >>>> Cc: shorne at gmail.com
-> >>>> Subject: [Qemu-devel] [PATCH 00/22] target/openrisc updates
-> >>>> Message-ID: <20170209045154.16868-1-rth@twiddle.net>
-> >>>> 
-> >>>> The bulk of this patch set is 2-3 years old, and was mostly
-> >>>> reviewed by Bastian Koppelmann.  But it languished because
-> >>>> there were reports of it not booting kernel images, and I
-> >>>> had problems putting together a set of tools that could even
-> >>>> build a kernel.
-> >>>> 
-> >>>> The OpenRISC community has picked up activity recently,
-> >>>> with Stafford Horne upstreaming some of the compiler tools.
-> >>>> He has even done some testing for me of this patch set.
-> >>>> 
-> >>>> 
-> >>>> r~
-> >>> 
-> >>> I see you are working on OpenRISC. Would you be able to help
-> >>> me improve its wiki page?
-> >>> 
-> >>> http://wiki.qemu-project.org/Documentation/Platforms/OpenRISC
-> >>> 
-> >>> Right now there isn't much information on OpenRISC here. I'm
-> >>> hoping to make it a lot useful to anyone who is interesting in this
-> >>> platform.
-> >>> 
-> >>> Would you know of any links to software that works in OpenRISC?
-> >>> 
-> >>> Pictures of the OpenRISC target running anything would be great also.
-> >>> 
-> >>> What is your suggested command-line for using OpenRISC?
-> >>> 
-> >>> If you have any suggestions on how to improve the page place don't
-> >>> hesitate to let me know.
-> >>> 
-> >> 
-> >> Hi Richard, G 3,
-> >> 
-> >> I am not sure if Richard has the time for this.  But I kind of got him
-> >> started back on the openrisc work, it would be my fault to burden him
-> >> with even more work :).  Also, I was helping to do some tests so I have
-> >> some example commands.
-> > 
-> > :-)
-> > 
-> >> I don't have a lot of time, but I think I can help to update the above.
-> >> Probably Richard and I could work together?
-> >> 
-> >> I was recently working on updating the openrisc page
-> >> 
-> >>  http://openrisc.io
-> >> 
-> >> I think I could link between the two for toolchain compile guides and
-> >> software guides (i.e. debugging and linux).
-> >> 
-> >> Richard what do you think?
-> > 
-> > Probably the most beneficial thing that we can do is create a kernel+initrd that boots into a busybox root shell.  Similar to the other test images that we have at
-> > 
-> >  http://wiki.qemu-project.org/Testing/System_Images
-> > 
-> > 
-> > r~
-> > 
+> I won't post patches here unless desired, but instead a link to my branch:
 > 
-> We could do both the test image and a wiki page.
+>   git://github.com/rth7680/gcc.git or1k-7-2
+> 
+> An incomplete list of visible improvements are:
+> 
+>   * 64-bit arithmetic using addc/addic.
+> 
+>   * Define "cstore" pattern, i.e. comparisons with a boolean result,
+>     e.g. x = (y < 0).  This can use addc or cmov.
+> 
+>   * Prologue rewritten to take advantage of red-zone, and only store
+>     registers that are required.
+> 
+>   * Tail calls added.
+> 
+>   * Atomic operations rewritten to properly handle delay slots.
+> 
+>   * The -fpic register is chosen dynamically.  This allows us to use
+>     a call-clobbered register for leaf functions.
 
-I posted a test image to the wiki
+This is a great list.  The worked to get everything working on gcc 7 has
+been on out todo list.   I did notice it in your github repo over the
+last few days, thanks for letting us know your plans.
 
- http://wiki.qemu-project.org/Testing/System_Images
+Thanks a lot, after I finish this kernel merge window work I will try to
+build everything with this, including gdb and running the testsuite.
 
-However, someone on the #qemu irc room mentioned its not ideal to post
-any images on the wiki and existing images should be taken down due to
-copyright issues.  I don't quite follow, should we be concerned?
+Have you been running the gcc testsuite on your 7 branch?
 
-Also, I did start adding some commands to the wiki, any feedback
-appreciated.
+> If this goes well, I have some additional patches to revive that enhance
+> both binutils and gcc with additional relocations so that the low-part of an
+> address can be moved into a load or store offset.  E.g. instead of
+> 
+> 	l.movhi	r4, hi(foo)
+> 	l.ori	r4, r4, lo(foo)
+> 	l.lw	r5, 0(r4)
+> 	l.sw	0(r4), r6
+> 
+> we can do
+> 
+> 	l.movhi	r4, ha(foo)
+> 	l.lw	r5, lo(foo)(r4)
+> 	l.sw	lo(foo)(r4), r6
 
-  http://wiki.qemu-project.org/Documentation/Platforms/OpenRISC
+That would be good.  I can see plenty of places that would help.  I just
+wonder how long after the toolchain is available can we start using it
+in public projects without causing too much stir forcing people to update
+their toolchains.  :)
+
 
 -Stafford
+
+> 
+> r~
+> _______________________________________________
+> OpenRISC mailing list
+> OpenRISC at lists.librecores.org
+> https://lists.librecores.org/listinfo/openrisc
