@@ -1,56 +1,66 @@
-From: Richard Henderson <rth@twiddle.net>
-Date: Thu, 23 Feb 2017 12:01:20 +1100
-Subject: [OpenRISC] gcc7 port and improvements
-Message-ID: <93ad6594-b3f1-5a4f-14d4-f45cb72229f5@twiddle.net>
+From: Stafford Horne <shorne@gmail.com>
+Date: Thu, 23 Feb 2017 22:35:15 +0900
+Subject: [OpenRISC] Crosstool/kbuild-all toolchain updates
+In-Reply-To: <20170219174923.GI21840@gate.crashing.org>
+References: <20170131224438.GD21641@lianli.shorne-pla.net>
+ <20170219132637.gjv26w7w5sses2fi@wfg-t540p.sh.intel.com>
+ <20170219174923.GI21840@gate.crashing.org>
+Message-ID: <20170223133515.GI2449@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Several years ago I did some cleanup work to the openrisc gcc port, but wasn't 
-able to test it properly, so it languished.
+On Sun, Feb 19, 2017 at 11:49:23AM -0600, Segher Boessenkool wrote:
+> Hi!
+> 
+> On Sun, Feb 19, 2017 at 09:26:37PM +0800, Fengguang Wu wrote:
+> > An uptodate crosstool and reasonable active maintainer would be very
+> > welcome. I'll sure be a heavy user. In the past year when crosstool is
+> > not updated to gcc-6, we've resorted to using debian packages for some
+> > ARCHs and building our own cross compliers for the other ARCHs. The
+> > latter are based on Segher's buildall tools (CCed). The private builds
+> > may work for us in short term, however is obvious not a satisfactory
+> > solution.
+> 
+> Buildall supports GCC only, and this is not likely to change.
 
-I have recently rebased that onto the gcc7 branch that is nearing release. 
-Test results are fairly good using qemu for testing (I do have some odd linkage 
-problems that suggest that I ought to rebuild my old sys-root from scratch).
+I think we are not requiring more at this moment.
 
-I won't post patches here unless desired, but instead a link to my branch:
+My thought was to open up/modernize the crostool build system and store it
+on git.kernel.org.  Currently Tony mentions [0] "They are built using a
+modified version of the buildall scripts".  I am hoping we can get those
+from him and..
 
-   git://github.com/rth7680/gcc.git or1k-7-2
+  - Create a project kernel/git/{user}/crosstool.git
+  - Store there
+    * build script (wrapping buildall)
+    * any patches needed i.e. or1k/gcc.patch
+    * scripts for signing and uploading binaries to website
+    * container config for setting up whole build in docker
+       * i.e. something like masami's linux-cross [1]
 
-An incomplete list of visible improvements are:
+The idea being that then when people want to update binaries they can
+just send a patch.  The maintainer need just run the scripts.
 
-   * 64-bit arithmetic using addc/addic.
+Another question, does anyone use the 32-bit binaries anymore?
 
-   * Define "cstore" pattern, i.e. comparisons with a boolean result,
-     e.g. x = (y < 0).  This can use addc or cmov.
+-Stafford
 
-   * Prologue rewritten to take advantage of red-zone, and only store
-     registers that are required.
+[0] https://www.kernel.org/pub/tools/crosstool/
+[1] https://github.com/mhiramat/linux-cross/tree/master/linux-cross-build
 
-   * Tail calls added.
-
-   * Atomic operations rewritten to properly handle delay slots.
-
-   * The -fpic register is chosen dynamically.  This allows us to use
-     a call-clobbered register for leaf functions.
-
-
-If this goes well, I have some additional patches to revive that enhance both 
-binutils and gcc with additional relocations so that the low-part of an address 
-can be moved into a load or store offset.  E.g. instead of
-
-	l.movhi	r4, hi(foo)
-	l.ori	r4, r4, lo(foo)
-	l.lw	r5, 0(r4)
-	l.sw	0(r4), r6
-
-we can do
-
-	l.movhi	r4, ha(foo)
-	l.lw	r5, lo(foo)(r4)
-	l.sw	lo(foo)(r4), r6
-
-
-r~
+> The primary usecase for buildall is for my own GCC testing.  All patches
+> are welcome, but I'm not likely to apply them if they make it harder to
+> use the tools for what their goal is.  I'm certainly not going to apply
+> patches to other trees from the scripts, etc.
+> 
+> Buildall itself is still maintained.  It does not get very many updates
+> but that is because it is close to perfect ;-)
+> 
+> On the other hand I'll be happy to help wherever I can.  Just Cc: me on
+> whatever comes up.
+> 
+> 
+> Segher
