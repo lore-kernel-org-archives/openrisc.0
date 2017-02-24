@@ -1,32 +1,32 @@
-From: Richard Henderson <rth@twiddle.net>
-Date: Fri, 24 Feb 2017 09:41:40 +1100
-Subject: [OpenRISC] [Qemu-devel] [PATCH 00/22] target/openrisc updates
-In-Reply-To: <20170223140944.GK2449@lianli.shorne-pla.net>
-References: <mailman.51026.1486615955.22738.qemu-devel@nongnu.org>
- <8C14E9D0-F376-4CDC-BF24-A0609A329977@gmail.com>
- <20170210003916.GL32144@lianli.shorne-pla.net>
- <ec491d8c-3fb0-3ce9-5558-ac4ab1455f7f@twiddle.net>
- <4BE06A79-02EC-48A8-8081-F21CEACE396F@gmail.com>
- <20170223140944.GK2449@lianli.shorne-pla.net>
-Message-ID: <5158fb90-96ad-b5d8-0f87-538aa5b945bb@twiddle.net>
+From: Stafford Horne <shorne@gmail.com>
+Date: Fri, 24 Feb 2017 13:09:56 +0900
+Subject: [OpenRISC] gcc7 port and improvements
+In-Reply-To: <db0c86b4-2d22-8655-5134-02118ff06933@twiddle.net>
+References: <93ad6594-b3f1-5a4f-14d4-f45cb72229f5@twiddle.net>
+ <20170223145128.GL2449@lianli.shorne-pla.net>
+ <db0c86b4-2d22-8655-5134-02118ff06933@twiddle.net>
+Message-ID: <20170224040956.GM2449@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 02/24/2017 01:09 AM, Stafford Horne wrote:
-> I posted a test image to the wiki
->
->  http://wiki.qemu-project.org/Testing/System_Images
->
-> However, someone on the #qemu irc room mentioned its not ideal to post
-> any images on the wiki and existing images should be taken down due to
-> copyright issues.  I don't quite follow, should we be concerned?
+On Fri, Feb 24, 2017 at 07:37:46AM +1100, Richard Henderson wrote:
+> On 02/24/2017 01:51 AM, Stafford Horne wrote:
+> > On Thu, Feb 23, 2017 at 12:01:20PM +1100, Richard Henderson wrote:
+> > > Test results are fairly good using qemu for testing (I do have some odd
+> > > linkage problems that suggest that I ought to rebuild my old sys-root from
+> > > scratch).
+> ...
+> > Have you been running the gcc testsuite on your 7 branch?
+> 
+> Yes.  As I said there.
 
-I think that someone is confused.  All of those testing images are open source.
+Great, I wasn't sure what tests you were running when you mentioned
+above.
 
-Thanks for building it!
+-Stafford
 
-
-r~
+> 
+> r~
