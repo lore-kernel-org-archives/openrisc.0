@@ -1,53 +1,46 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 25 Feb 2017 04:20:56 +0900
-Subject: [OpenRISC] [PATCH v4 05/24] openrisc: head: refactor out tlb
- flush into it's own function
-In-Reply-To: <20170224135401.GB21431@chokladfabriken.org>
+Date: Sat, 25 Feb 2017 04:33:48 +0900
+Subject: [OpenRISC] [PATCH v4 18/24] scripts/checkstack.pl: Add openrisc
+	support
+In-Reply-To: <20170224144205.GB27998@distanz.ch>
 References: <cover.1487910170.git.shorne@gmail.com>
- <8c9b7db0de3d64c9a6fcd12622636d4aa6a8c30c.1487910170.git.shorne@gmail.com>
- <e824fc06-152d-39cf-1d6a-f007d6246d92@southpole.se>
- <20170224105422.GA21431@chokladfabriken.org>
- <a3f12b07-22f4-b1db-9a24-aba8ae4608d9@southpole.se>
- <20170224135401.GB21431@chokladfabriken.org>
-Message-ID: <20170224192056.GO2449@lianli.shorne-pla.net>
+ <fa5b73d3d8891452306376998a26886512934616.1487910170.git.shorne@gmail.com>
+ <20170224144205.GB27998@distanz.ch>
+Message-ID: <20170224193348.GP2449@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, Feb 24, 2017 at 03:54:02PM +0200, Stefan Kristiansson wrote:
-> On Fri, Feb 24, 2017 at 01:48:10PM +0100, Jonas Bonn wrote:
-> > On 02/24/2017 11:54 AM, Stefan Kristiansson wrote:
-> > >eOn Fri, Feb 24, 2017 at 10:57:19AM +0100, Jonas Bonn wrote:
-> > >>On 02/24/2017 05:32 AM, Stafford Horne wrote:
-> > >>>From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-> > >>>
-> > >>>This brings it inline with the other setup oprations done like the cache
-> > >>>enables _ic_enable and _dc_enable.  Also, this is going to make it
-> > >>>easier to initialize additional cpu's when smp is introduced.
-> > >>This patch confuses me.  The TLB flush is moved to a point after MMU's are
-> > >>enabled.  The TLB flush should happen before enabling the MMU, shouldn't it?
-> > >>
-> > >It still happens before the MMUs are enabled, the patch only refactors the code
-> > >out into a function that is called from the place where it was open coded
-> > >before.
+On Fri, Feb 24, 2017 at 03:42:06PM +0100, Tobias Klauser wrote:
+> On 2017-02-24 at 05:32:38 +0100, Stafford Horne <shorne@gmail.com> wrote:
+> > Openrisc stack pointer is managed by decrementing r1. Add regexes to
+> > recognize this.
 > > 
-> > Right.  What's the point of moving it then?
+> > Signed-off-by: Stafford Horne <shorne@gmail.com>
+> > ---
+> >  scripts/checkstack.pl | 3 +++
+> >  1 file changed, 3 insertions(+)
 > > 
+> > diff --git a/scripts/checkstack.pl b/scripts/checkstack.pl
+> > index dd83978..eea5b78 100755
+> > --- a/scripts/checkstack.pl
+> > +++ b/scripts/checkstack.pl
+> > @@ -106,6 +106,9 @@ my (@stack, $re, $dre, $x, $xs, $funcre);
+> >  	} elsif ($arch eq 'sparc' || $arch eq 'sparc64') {
+> >  		# f0019d10:       9d e3 bf 90     save  %sp, -112, %sp
+> >  		$re = qr/.*save.*%sp, -(([0-9]{2}|[3-9])[0-9]{2}), %sp/o;
+> > +	} elsif ($arch eq 'openrisc') {
+> > +		# c000043c:       9c 21 fe f0     l.addi r1,r1,-272
+> > +		$re = qr/.*l\.addi.*r1,r1,-(([0-9]{2}|[3-9])[0-9]{2})/o;
 > 
-> As the commit message mentions, it's a preparation patch for initialisation
-> of secondary cpus, which also will call this function.
-> 
-> Perhaps this patch should be bundled with those patches.
-> 
+> The if/elsif clauses are currently ordered alphabetically (except for
+> blackfin :-/), so this should rather be inserted above after nios2.
 
-Thanks for replying on this patch, I think keeping this patch here is
-ok.  Since part of the theme of this series is preparing for SMP (which
-will be another big series) I think its ok have any non SMP specific
-work into here.  Its going to make my life a bit easier going forward.
+Right, I didnt notice the order.   Also, nios is new, this might cause a
+bit of a conflict during merge. (just a note)
 
-Also, as this is good refactor to get it structurally in sync with other
-initializations I think its not completely out of place.
+Thanks for the comment.
 
 -Stafford
