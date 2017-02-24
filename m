@@ -1,10 +1,10 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Fri, 24 Feb 2017 13:32:29 +0900
-Subject: [OpenRISC] [PATCH v4 09/24] openrisc: add optimized atomic
-	operations
+Date: Fri, 24 Feb 2017 13:32:30 +0900
+Subject: [OpenRISC] [PATCH v4 10/24] openrisc: add futex_atomic_*
+	implementations
 In-Reply-To: <cover.1487910170.git.shorne@gmail.com>
 References: <cover.1487910170.git.shorne@gmail.com>
-Message-ID: <e66970354310182a74334d3bc2181ad86f9e8524.1487910170.git.shorne@gmail.com>
+Message-ID: <52d55484a27ab454ead1083d52bb0297078c3806.1487910170.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,187 +13,175 @@ To: openrisc@lists.librecores.org
 
 From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
 
-Using the l.lwa and l.swa atomic instruction pair.
-Most openrisc processor cores provide these instructions now. If the
-instructions are not available emulation is provided.
+Support for the futex_atomic_* operations by using the
+load-link/store-conditional l.lwa/l.swa instructions.
+Most openrisc cores provide these instructions now if not available,
+emulation is provided.
 
 Cc: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
 [shorne at gmail.com: remove OPENRISC_HAVE_INST_LWA_SWA config suggesed by
 Alan Cox https://lkml.org/lkml/2014/7/23/666]
-[shorne at gmail.com: expand to implement all ops suggested by Peter
-Zijlstra https://lkml.org/lkml/2017/2/20/317]
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/include/asm/Kbuild   |   1 -
- arch/openrisc/include/asm/atomic.h | 126 +++++++++++++++++++++++++++++++++++++
- include/asm-generic/atomic.h       |   2 +
- 3 files changed, 128 insertions(+), 1 deletion(-)
- create mode 100644 arch/openrisc/include/asm/atomic.h
+ arch/openrisc/include/asm/Kbuild  |   1 -
+ arch/openrisc/include/asm/futex.h | 135 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 135 insertions(+), 1 deletion(-)
+ create mode 100644 arch/openrisc/include/asm/futex.h
 
 diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
-index 15e6ed5..1cedd63 100644
+index 1cedd63..a669c14 100644
 --- a/arch/openrisc/include/asm/Kbuild
 +++ b/arch/openrisc/include/asm/Kbuild
-@@ -1,7 +1,6 @@
- 
- header-y += ucontext.h
- 
--generic-y += atomic.h
- generic-y += auxvec.h
- generic-y += barrier.h
- generic-y += bitsperlong.h
-diff --git a/arch/openrisc/include/asm/atomic.h b/arch/openrisc/include/asm/atomic.h
+@@ -20,7 +20,6 @@ generic-y += exec.h
+ generic-y += fb.h
+ generic-y += fcntl.h
+ generic-y += ftrace.h
+-generic-y += futex.h
+ generic-y += hardirq.h
+ generic-y += hw_irq.h
+ generic-y += ioctl.h
+diff --git a/arch/openrisc/include/asm/futex.h b/arch/openrisc/include/asm/futex.h
 new file mode 100644
-index 0000000..146e166
+index 0000000..7780873
 --- /dev/null
-+++ b/arch/openrisc/include/asm/atomic.h
-@@ -0,0 +1,126 @@
-+/*
-+ * Copyright (C) 2014 Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-+ *
-+ * This file is licensed under the terms of the GNU General Public License
-+ * version 2.  This program is licensed "as is" without any warranty of any
-+ * kind, whether express or implied.
-+ */
++++ b/arch/openrisc/include/asm/futex.h
+@@ -0,0 +1,135 @@
++#ifndef __ASM_OPENRISC_FUTEX_H
++#define __ASM_OPENRISC_FUTEX_H
 +
-+#ifndef __ASM_OPENRISC_ATOMIC_H
-+#define __ASM_OPENRISC_ATOMIC_H
++#ifdef __KERNEL__
 +
-+#include <linux/types.h>
++#include <linux/futex.h>
++#include <linux/uaccess.h>
++#include <asm/errno.h>
 +
-+/* Atomically perform op with v->counter and i */
-+#define ATOMIC_OP(op)							\
-+static inline void atomic_##op(int i, atomic_t *v)			\
-+{									\
-+	int tmp;							\
-+									\
-+	__asm__ __volatile__(						\
-+		"1:	l.lwa	%0,0(%1)	\n"			\
-+		"	l." #op " %0,%0,%2	\n"			\
-+		"	l.swa	0(%1),%0	\n"			\
-+		"	l.bnf	1b		\n"			\
-+		"	 l.nop			\n"			\
-+		: "=&r"(tmp)						\
-+		: "r"(&v->counter), "r"(i)				\
-+		: "cc", "memory");					\
-+}
++#define __futex_atomic_op(insn, ret, oldval, uaddr, oparg) \
++({								\
++	__asm__ __volatile__ (					\
++		"1:	l.lwa	%0, %2			\n"	\
++			insn				"\n"	\
++		"2:	l.swa	%2, %1			\n"	\
++		"	l.bnf	1b			\n"	\
++		"	 l.ori	%1, r0, 0		\n"	\
++		"3:					\n"	\
++		".section .fixup,\"ax\"			\n"	\
++		"4:	l.j	3b			\n"	\
++		"	 l.addi	%1, r0, %3		\n"	\
++		".previous				\n"	\
++		".section __ex_table,\"a\"		\n"	\
++		".word	1b,4b,2b,4b			\n"	\
++		".previous				\n"	\
++		: "=&r" (oldval), "=&r" (ret), "+m" (*uaddr)	\
++		: "i" (-EFAULT), "r" (oparg)			\
++		: "cc", "memory"				\
++		);						\
++})
 +
-+/* Atomically perform op with v->counter and i, return the result */
-+#define ATOMIC_OP_RETURN(op)						\
-+static inline int atomic_##op##_return(int i, atomic_t *v)		\
-+{									\
-+	int tmp;							\
-+									\
-+	__asm__ __volatile__(						\
-+		"1:	l.lwa	%0,0(%1)	\n"			\
-+		"	l." #op " %0,%0,%2	\n"			\
-+		"	l.swa	0(%1),%0	\n"			\
-+		"	l.bnf	1b		\n"			\
-+		"	 l.nop			\n"			\
-+		: "=&r"(tmp)						\
-+		: "r"(&v->counter), "r"(i)				\
-+		: "cc", "memory");					\
-+									\
-+	return tmp;							\
-+}
-+
-+/* Atomically perform op with v->counter and i, return orig v->counter */
-+#define ATOMIC_FETCH_OP(op)						\
-+static inline int atomic_fetch_##op(int i, atomic_t *v)			\
-+{									\
-+	int tmp, old;							\
-+									\
-+	__asm__ __volatile__(						\
-+		"1:	l.lwa	%0,0(%2)	\n"			\
-+		"	l." #op " %1,%0,%3	\n"			\
-+		"	l.swa	0(%2),%1	\n"			\
-+		"	l.bnf	1b		\n"			\
-+		"	 l.nop			\n"			\
-+		: "=&r"(old), "=&r"(tmp)				\
-+		: "r"(&v->counter), "r"(i)				\
-+		: "cc", "memory");					\
-+									\
-+	return old;							\
-+}
-+
-+ATOMIC_OP_RETURN(add)
-+ATOMIC_OP_RETURN(sub)
-+
-+ATOMIC_FETCH_OP(add)
-+ATOMIC_FETCH_OP(sub)
-+ATOMIC_FETCH_OP(and)
-+ATOMIC_FETCH_OP(or)
-+ATOMIC_FETCH_OP(xor)
-+
-+ATOMIC_OP(and)
-+ATOMIC_OP(or)
-+ATOMIC_OP(xor)
-+
-+#undef ATOMIC_FETCH_OP
-+#undef ATOMIC_OP_RETURN
-+#undef ATOMIC_OP
-+
-+#define atomic_add_return	atomic_add_return
-+#define atomic_sub_return	atomic_sub_return
-+#define atomic_fetch_add	atomic_fetch_add
-+#define atomic_fetch_sub	atomic_fetch_sub
-+#define atomic_fetch_and	atomic_fetch_and
-+#define atomic_fetch_or		atomic_fetch_or
-+#define atomic_fetch_xor	atomic_fetch_xor
-+#define atomic_and	atomic_and
-+#define atomic_or	atomic_or
-+#define atomic_xor	atomic_xor
-+
-+/*
-+ * Atomically add a to v->counter as long as v is not already u.
-+ * Returns the original value at v->counter.
-+ *
-+ * This is often used through atomic_inc_not_zero()
-+ */
-+static inline int __atomic_add_unless(atomic_t *v, int a, int u)
++static inline int
++futex_atomic_op_inuser(int encoded_op, u32 __user *uaddr)
 +{
-+	int old, tmp;
++	int op = (encoded_op >> 28) & 7;
++	int cmp = (encoded_op >> 24) & 15;
++	int oparg = (encoded_op << 8) >> 20;
++	int cmparg = (encoded_op << 20) >> 20;
++	int oldval = 0, ret;
 +
-+	__asm__ __volatile__(
-+		"1:	l.lwa %0, 0(%2)		\n"
-+		"	l.sfeq %0, %4		\n"
-+		"	l.bf 2f			\n"
-+		"	 l.add %1, %0, %3	\n"
-+		"	l.swa 0(%2), %1		\n"
-+		"	l.bnf 1b		\n"
-+		"	 l.nop			\n"
-+		"2:				\n"
-+		: "=&r"(old), "=&r" (tmp)
-+		: "r"(&v->counter), "r"(a), "r"(u)
-+		: "cc", "memory");
++	if (encoded_op & (FUTEX_OP_OPARG_SHIFT << 28))
++		oparg = 1 << oparg;
 +
-+	return old;
++	if (!access_ok(VERIFY_WRITE, uaddr, sizeof(u32)))
++		return -EFAULT;
++
++	pagefault_disable();
++
++	switch (op) {
++	case FUTEX_OP_SET:
++		__futex_atomic_op("l.or %1,%4,%4", ret, oldval, uaddr, oparg);
++		break;
++	case FUTEX_OP_ADD:
++		__futex_atomic_op("l.add %1,%0,%4", ret, oldval, uaddr, oparg);
++		break;
++	case FUTEX_OP_OR:
++		__futex_atomic_op("l.or %1,%0,%4", ret, oldval, uaddr, oparg);
++		break;
++	case FUTEX_OP_ANDN:
++		__futex_atomic_op("l.and %1,%0,%4", ret, oldval, uaddr, ~oparg);
++		break;
++	case FUTEX_OP_XOR:
++		__futex_atomic_op("l.xor %1,%0,%4", ret, oldval, uaddr, oparg);
++		break;
++	default:
++		ret = -ENOSYS;
++	}
++
++	pagefault_enable();
++
++	if (!ret) {
++		switch (cmp) {
++		case FUTEX_OP_CMP_EQ:
++			ret = (oldval == cmparg);
++			break;
++		case FUTEX_OP_CMP_NE:
++			ret = (oldval != cmparg);
++			break;
++		case FUTEX_OP_CMP_LT:
++			ret = (oldval < cmparg);
++			break;
++		case FUTEX_OP_CMP_GE:
++			ret = (oldval >= cmparg);
++			break;
++		case FUTEX_OP_CMP_LE:
++			ret = (oldval <= cmparg);
++			break;
++		case FUTEX_OP_CMP_GT:
++			ret = (oldval > cmparg);
++			break;
++		default:
++			ret = -ENOSYS;
++		}
++	}
++	return ret;
 +}
-+#define __atomic_add_unless	__atomic_add_unless
 +
-+#include <asm-generic/atomic.h>
++static inline int
++futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *uaddr,
++			      u32 oldval, u32 newval)
++{
++	int ret = 0;
++	u32 prev;
 +
-+#endif /* __ASM_OPENRISC_ATOMIC_H */
-diff --git a/include/asm-generic/atomic.h b/include/asm-generic/atomic.h
-index 9ed8b98..3f38eb0 100644
---- a/include/asm-generic/atomic.h
-+++ b/include/asm-generic/atomic.h
-@@ -223,6 +223,7 @@ static inline void atomic_dec(atomic_t *v)
- #define atomic_xchg(ptr, v)		(xchg(&(ptr)->counter, (v)))
- #define atomic_cmpxchg(v, old, new)	(cmpxchg(&((v)->counter), (old), (new)))
- 
-+#ifndef __atomic_add_unless
- static inline int __atomic_add_unless(atomic_t *v, int a, int u)
- {
- 	int c, old;
-@@ -231,5 +232,6 @@ static inline int __atomic_add_unless(atomic_t *v, int a, int u)
- 		c = old;
- 	return c;
- }
-+#endif
- 
- #endif /* __ASM_GENERIC_ATOMIC_H */
++	if (!access_ok(VERIFY_WRITE, uaddr, sizeof(u32)))
++		return -EFAULT;
++
++	__asm__ __volatile__ (				\
++		"1:	l.lwa	%1, %2		\n"	\
++		"	l.sfeq	%1, %3		\n"	\
++		"	l.bnf	3f		\n"	\
++		"	 l.nop			\n"	\
++		"2:	l.swa	%2, %4		\n"	\
++		"	l.bnf	1b		\n"	\
++		"	 l.nop			\n"	\
++		"3:				\n"	\
++		".section .fixup,\"ax\"		\n"	\
++		"4:	l.j	3b		\n"	\
++		"	 l.addi	%0, r0, %5	\n"	\
++		".previous			\n"	\
++		".section __ex_table,\"a\"	\n"	\
++		".word	1b,4b,2b,4b		\n"	\
++		".previous			\n"	\
++		: "+r" (ret), "=&r" (prev), "+m" (*uaddr) \
++		: "r" (oldval), "r" (newval), "i" (-EFAULT) \
++		: "cc",	"memory"			\
++		);
++
++	*uval = prev;
++	return ret;
++}
++
++#endif /* __KERNEL__ */
++
++#endif /* __ASM_OPENRISC_FUTEX_H */
 -- 
 2.9.3
 
