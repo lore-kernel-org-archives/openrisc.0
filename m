@@ -1,46 +1,59 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 25 Feb 2017 04:33:48 +0900
-Subject: [OpenRISC] [PATCH v4 18/24] scripts/checkstack.pl: Add openrisc
-	support
-In-Reply-To: <20170224144205.GB27998@distanz.ch>
+Date: Sat, 25 Feb 2017 04:35:04 +0900
+Subject: [OpenRISC] [PATCH v4 24/24] openrisc: head: Init r0 to 0 on
+	start
+In-Reply-To: <e134009d-67f4-fd37-e3bb-20b020760023@southpole.se>
 References: <cover.1487910170.git.shorne@gmail.com>
- <fa5b73d3d8891452306376998a26886512934616.1487910170.git.shorne@gmail.com>
- <20170224144205.GB27998@distanz.ch>
-Message-ID: <20170224193348.GP2449@lianli.shorne-pla.net>
+ <77f7a25e10627b60b2553817f05b20ec2ec25a28.1487910170.git.shorne@gmail.com>
+ <e134009d-67f4-fd37-e3bb-20b020760023@southpole.se>
+Message-ID: <20170224193504.GQ2449@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, Feb 24, 2017 at 03:42:06PM +0100, Tobias Klauser wrote:
-> On 2017-02-24 at 05:32:38 +0100, Stafford Horne <shorne@gmail.com> wrote:
-> > Openrisc stack pointer is managed by decrementing r1. Add regexes to
-> > recognize this.
+On Fri, Feb 24, 2017 at 10:21:50AM +0100, Jonas Bonn wrote:
+> On 02/24/2017 05:32 AM, Stafford Horne wrote:
+> > Originally openrisc spec 0 specified that r0 would be wired to ground.
+> > This is no longer the case.  r0 is not guaranteed to be 0 at init, so we
+> > need to initialize it to 0 before using it.
 > > 
+> > Also, if we are clearing r0 we cant use r0 to clear itself. Change the
+> > the CLEAR_GPR macro to use movhi for clearing.
+> 
+> Use the Reported-by: tag here since you are taking the time to mention him
+> in the summary mail.
+
+Right, added.
+
+Thanks.
+
+> Reported-by:  Jakob...
 > > Signed-off-by: Stafford Horne <shorne@gmail.com>
 > > ---
-> >  scripts/checkstack.pl | 3 +++
-> >  1 file changed, 3 insertions(+)
+> >   arch/openrisc/kernel/head.S | 5 ++++-
+> >   1 file changed, 4 insertions(+), 1 deletion(-)
 > > 
-> > diff --git a/scripts/checkstack.pl b/scripts/checkstack.pl
-> > index dd83978..eea5b78 100755
-> > --- a/scripts/checkstack.pl
-> > +++ b/scripts/checkstack.pl
-> > @@ -106,6 +106,9 @@ my (@stack, $re, $dre, $x, $xs, $funcre);
-> >  	} elsif ($arch eq 'sparc' || $arch eq 'sparc64') {
-> >  		# f0019d10:       9d e3 bf 90     save  %sp, -112, %sp
-> >  		$re = qr/.*save.*%sp, -(([0-9]{2}|[3-9])[0-9]{2}), %sp/o;
-> > +	} elsif ($arch eq 'openrisc') {
-> > +		# c000043c:       9c 21 fe f0     l.addi r1,r1,-272
-> > +		$re = qr/.*l\.addi.*r1,r1,-(([0-9]{2}|[3-9])[0-9]{2})/o;
+> > diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
+> > index 573e131..e8a1784 100644
+> > --- a/arch/openrisc/kernel/head.S
+> > +++ b/arch/openrisc/kernel/head.S
+> > @@ -35,7 +35,7 @@
+> >   	l.add	rd,rd,rs
+> >   #define CLEAR_GPR(gpr)				\
+> > -	l.or    gpr,r0,r0
+> > +	l.movhi	gpr,0x0
+> >   #define LOAD_SYMBOL_2_GPR(gpr,symbol)		\
+> >   	l.movhi gpr,hi(symbol)			;\
+> > @@ -443,6 +443,9 @@ _dispatch_do_ipage_fault:
+> >   	__HEAD
+> >   	.global _start
+> >   _start:
+> > +	/* Init r0 to zero as per spec */
+> > +	CLEAR_GPR(r0)
+> > +
+> >   	/* save kernel parameters */
+> >   	l.or	r25,r0,r3	/* pointer to fdt */
 > 
-> The if/elsif clauses are currently ordered alphabetically (except for
-> blackfin :-/), so this should rather be inserted above after nios2.
-
-Right, I didnt notice the order.   Also, nios is new, this might cause a
-bit of a conflict during merge. (just a note)
-
-Thanks for the comment.
-
--Stafford
+> 
