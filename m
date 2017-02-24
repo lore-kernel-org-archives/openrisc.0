@@ -1,59 +1,60 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 25 Feb 2017 04:35:04 +0900
-Subject: [OpenRISC] [PATCH v4 24/24] openrisc: head: Init r0 to 0 on
-	start
-In-Reply-To: <e134009d-67f4-fd37-e3bb-20b020760023@southpole.se>
+Date: Sat, 25 Feb 2017 04:44:34 +0900
+Subject: [OpenRISC] [PATCH v4 22/24] arch/openrisc/lib/memcpy.c: use
+ correct OR1200 option
+In-Reply-To: <a1ff0eac-c9a9-3019-2bff-fc0bb2bef9d7@southpole.se>
 References: <cover.1487910170.git.shorne@gmail.com>
- <77f7a25e10627b60b2553817f05b20ec2ec25a28.1487910170.git.shorne@gmail.com>
- <e134009d-67f4-fd37-e3bb-20b020760023@southpole.se>
-Message-ID: <20170224193504.GQ2449@lianli.shorne-pla.net>
+ <7ec3096414795682d3540c4b8020ff52b12b34a6.1487910170.git.shorne@gmail.com>
+ <a1ff0eac-c9a9-3019-2bff-fc0bb2bef9d7@southpole.se>
+Message-ID: <20170224194434.GR2449@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, Feb 24, 2017 at 10:21:50AM +0100, Jonas Bonn wrote:
-> On 02/24/2017 05:32 AM, Stafford Horne wrote:
-> > Originally openrisc spec 0 specified that r0 would be wired to ground.
-> > This is no longer the case.  r0 is not guaranteed to be 0 at init, so we
-> > need to initialize it to 0 before using it.
-> > 
-> > Also, if we are clearing r0 we cant use r0 to clear itself. Change the
-> > the CLEAR_GPR macro to use movhi for clearing.
+On Fri, Feb 24, 2017 at 10:24:31AM +0100, Jonas Bonn wrote:
+> Hi Stafford,
 > 
-> Use the Reported-by: tag here since you are taking the time to mention him
-> in the summary mail.
+> Squash this patch into the memcpy patch in order to prevent surprises for
+> anyone doing a git bisection through here.
 
-Right, added.
+Hi Jonas,
 
-Thanks.
+Thanks for reviewing. Good spot.
 
-> Reported-by:  Jakob...
+I intentionally didn't squash this one just to give Valentin credit on the
+fix.  Also, since it wouldnt really be broken (build or boot issues) in the
+initial patch I didnt think it would be a bisect issue.
+
+Also, I noticed a lot of Valintin's patches pushed by people are
+separated out not squashed.
+
+-Stafford
+
+> /Jonas
+> 
+> On 02/24/2017 05:32 AM, Stafford Horne wrote:
+> > From: Valentin Rothberg <valentinrothberg@gmail.com>
+> > 
+> > The Kconfig option for OR12000 is OR1K_1200.
+> > 
+> > Signed-off-by: Valentin Rothberg <valentinrothberg@gmail.com>
 > > Signed-off-by: Stafford Horne <shorne@gmail.com>
 > > ---
-> >   arch/openrisc/kernel/head.S | 5 ++++-
-> >   1 file changed, 4 insertions(+), 1 deletion(-)
+> >   arch/openrisc/lib/memcpy.c | 2 +-
+> >   1 file changed, 1 insertion(+), 1 deletion(-)
 > > 
-> > diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
-> > index 573e131..e8a1784 100644
-> > --- a/arch/openrisc/kernel/head.S
-> > +++ b/arch/openrisc/kernel/head.S
-> > @@ -35,7 +35,7 @@
-> >   	l.add	rd,rd,rs
-> >   #define CLEAR_GPR(gpr)				\
-> > -	l.or    gpr,r0,r0
-> > +	l.movhi	gpr,0x0
-> >   #define LOAD_SYMBOL_2_GPR(gpr,symbol)		\
-> >   	l.movhi gpr,hi(symbol)			;\
-> > @@ -443,6 +443,9 @@ _dispatch_do_ipage_fault:
-> >   	__HEAD
-> >   	.global _start
-> >   _start:
-> > +	/* Init r0 to zero as per spec */
-> > +	CLEAR_GPR(r0)
-> > +
-> >   	/* save kernel parameters */
-> >   	l.or	r25,r0,r3	/* pointer to fdt */
+> > diff --git a/arch/openrisc/lib/memcpy.c b/arch/openrisc/lib/memcpy.c
+> > index 4706f01..669887a 100644
+> > --- a/arch/openrisc/lib/memcpy.c
+> > +++ b/arch/openrisc/lib/memcpy.c
+> > @@ -17,7 +17,7 @@
+> >   #include <linux/string.h>
+> > -#ifdef CONFIG_OR1200
+> > +#ifdef CONFIG_OR1K_1200
+> >   /*
+> >    * Do memcpy with word copies and loop unrolling. This gives the
+> >    * best performance on the OR1200 and MOR1KX archirectures
 > 
 > 
