@@ -1,74 +1,60 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 25 Feb 2017 05:09:46 +0900
-Subject: [OpenRISC] [PATCH v4 21/24] openrisc: head: Move init strings
- to rodata section
-In-Reply-To: <d204faf6-23f4-73de-e643-9a9ba2d92205@southpole.se>
+Date: Sat, 25 Feb 2017 05:13:08 +0900
+Subject: [OpenRISC] [PATCH v4 20/24] openrisc: entry: Fix delay slot
+	detection
+In-Reply-To: <188dcb34-4e8e-7636-e31d-2ae451dac2ff@southpole.se>
 References: <cover.1487910170.git.shorne@gmail.com>
- <b53f4e075a96bac470a67e0110bad71cb74cdfe6.1487910170.git.shorne@gmail.com>
- <d204faf6-23f4-73de-e643-9a9ba2d92205@southpole.se>
-Message-ID: <20170224200946.GT2449@lianli.shorne-pla.net>
+ <34caff307ead3a1b67a7226507082ace94e22875.1487910170.git.shorne@gmail.com>
+ <188dcb34-4e8e-7636-e31d-2ae451dac2ff@southpole.se>
+Message-ID: <20170224201308.GU2449@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, Feb 24, 2017 at 10:28:46AM +0100, Jonas Bonn wrote:
+On Fri, Feb 24, 2017 at 10:32:32AM +0100, Jonas Bonn wrote:
 > On 02/24/2017 05:32 AM, Stafford Horne wrote:
-> > The strings used during the head/init phase of openrisc bootup were
-> > stored in the executable section of the binary.
+> > Use execption SR stored in pt_regs for detection, the current SR is not
+> > correct as the handler is running after return from exception.
 > > 
-> > This causes compilation to fail when using CONFIG_DEBUG_INFO with
-> > error:
-> >   Error: unaligned opcodes detected in executable segment
+> > Also, The code that checks for a delay slot uses a flag bitmask and then
+> > wants to check if the result is not zero.  The test it implemented was
+> > wrong.
 > > 
-> > Also, this patch removes unused strings.
-> This should be two patches:  one that removes unused strings and one that
-> switches the data section.
+> > Correct it by changing the test to check result against non zero.
 > 
-> Works like "Also" usually indicate that you are doing too much in your patch
-> and you need to split it up.
+> This wants to be two patches as you are changing two different things.
 
 Hi Jonas,
 
-Right, I'll split this one.  I was debating that due to the size. But
-it would be right in this case.
+Technically yes, two things, but...
 
-Also, I use the word also a lot :)
+The logic is broken without both fixes.  It would be a nightmare for someone
+to review these one-liners as two patches.
+
+I would like to keep as one.
 
 -Stafford
 
 > > 
 > > Signed-off-by: Stafford Horne <shorne@gmail.com>
 > > ---
-> >   arch/openrisc/kernel/head.S | 12 +-----------
-> >   1 file changed, 1 insertion(+), 11 deletions(-)
+> >   arch/openrisc/kernel/entry.S | 4 ++--
+> >   1 file changed, 2 insertions(+), 2 deletions(-)
 > > 
-> > diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
-> > index a22f1fc..573e131 100644
-> > --- a/arch/openrisc/kernel/head.S
-> > +++ b/arch/openrisc/kernel/head.S
-> > @@ -1530,11 +1530,7 @@ ENTRY(_early_uart_init)
-> >   	l.jr	r9
-> >   	l.nop
-> > -_string_copying_linux:
-> > -	.string "\n\n\n\n\n\rCopying Linux... \0"
-> > -
-> > -_string_ok_booting:
-> > -	.string "Ok, booting the kernel.\n\r\0"
-> > +	.section .rodata
-> >   _string_unhandled_exception:
-> >   	.string "\n\rRunarunaround: Unhandled exception 0x\0"
-> > @@ -1545,12 +1541,6 @@ _string_epc_prefix:
-> >   _string_nl:
-> >   	.string "\n\r\0"
-> > -	.global	_string_esr_irq_bug
-> > -_string_esr_irq_bug:
-> > -	.string "\n\rESR external interrupt bug, for details look into entry.S\n\r\0"
-> > -
-> > -
-> > -
-> >   /* ========================================[ page aligned structures ]=== */
-> >   /*
+> > diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
+> > index daae2a4..bc65008 100644
+> > --- a/arch/openrisc/kernel/entry.S
+> > +++ b/arch/openrisc/kernel/entry.S
+> > @@ -258,9 +258,9 @@ EXCEPTION_ENTRY(_data_page_fault_handler)
+> >   #else
+> > -	l.mfspr r6,r0,SPR_SR               // SR
+> > +	l.lwz   r6,PT_SR(r3)               // SR
+> >   	l.andi  r6,r6,SPR_SR_DSX           // check for delay slot exception
+> > -	l.sfeqi r6,0x1                     // exception happened in delay slot
+> > +	l.sfne  r6,r0                      // exception happened in delay slot
+> >   	l.bnf   7f
+> >   	 l.lwz  r6,PT_PC(r3)               // address of an offending insn
 > 
 > 
