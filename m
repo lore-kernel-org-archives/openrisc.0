@@ -1,162 +1,198 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 25 Feb 2017 15:17:14 +0900
-Subject: [OpenRISC] [Qemu-devel] [PATCH 00/22] target/openrisc updates
-In-Reply-To: <C90ADBA7-AAB2-4392-8C64-3BB12545AE2F@gmail.com>
-References: <mailman.51026.1486615955.22738.qemu-devel@nongnu.org>
- <8C14E9D0-F376-4CDC-BF24-A0609A329977@gmail.com>
- <20170210003916.GL32144@lianli.shorne-pla.net>
- <ec491d8c-3fb0-3ce9-5558-ac4ab1455f7f@twiddle.net>
- <4BE06A79-02EC-48A8-8081-F21CEACE396F@gmail.com>
- <20170223140944.GK2449@lianli.shorne-pla.net>
- <C90ADBA7-AAB2-4392-8C64-3BB12545AE2F@gmail.com>
-Message-ID: <20170225061714.GX2449@lianli.shorne-pla.net>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Date: Mon, 27 Feb 2017 14:40:52 +0900
+Subject: [OpenRISC] [PATCH] kbuild: avoid unrecognized option error for
+	external DTC
+Message-ID: <1488174052-2530-1-git-send-email-yamada.masahiro@socionext.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Thu, Feb 23, 2017 at 10:54:43AM -0500, G 3 wrote:
-> 
-> On Feb 23, 2017, at 9:09 AM, Stafford Horne wrote:
-> 
-> > On Mon, Feb 13, 2017 at 10:33:09PM -0500, Programmingkid wrote:
-> > > 
-> > > On Feb 13, 2017, at 10:25 PM, Richard Henderson wrote:
-> > > 
-> > > > On 02/10/2017 11:39 AM, Stafford Horne wrote:
-> > > > > On Thu, Feb 09, 2017 at 09:10:51AM -0500, G 3 wrote:
-> > > > > > 
-> > > > > > On Feb 8, 2017, at 11:52 PM, qemu-devel-request at nongnu.org wrote:
-> > > > > > 
-> > > > > > > Message: 6
-> > > > > > > Date: Wed,  8 Feb 2017 20:51:32 -0800
-> > > > > > > From: Richard Henderson <rth@twiddle.net>
-> > > > > > > To: qemu-devel at nongnu.org
-> > > > > > > Cc: shorne at gmail.com
-> > > > > > > Subject: [Qemu-devel] [PATCH 00/22] target/openrisc updates
-> > > > > > > Message-ID: <20170209045154.16868-1-rth@twiddle.net>
-> > > > > > > 
-> > > > > > > The bulk of this patch set is 2-3 years old, and was mostly
-> > > > > > > reviewed by Bastian Koppelmann.  But it languished because
-> > > > > > > there were reports of it not booting kernel images, and I
-> > > > > > > had problems putting together a set of tools that could even
-> > > > > > > build a kernel.
-> > > > > > > 
-> > > > > > > The OpenRISC community has picked up activity recently,
-> > > > > > > with Stafford Horne upstreaming some of the compiler tools.
-> > > > > > > He has even done some testing for me of this patch set.
-> > > > > > > 
-> > > > > > > 
-> > > > > > > r~
-> > > > > > 
-> > > > > > I see you are working on OpenRISC. Would you be able to help
-> > > > > > me improve its wiki page?
-> > > > > > 
-> > > > > > http://wiki.qemu-project.org/Documentation/Platforms/OpenRISC
-> > > > > > 
-> > > > > > Right now there isn't much information on OpenRISC here. I'm
-> > > > > > hoping to make it a lot useful to anyone who is
-> > > > > > interesting in this
-> > > > > > platform.
-> > > > > > 
-> > > > > > Would you know of any links to software that works in OpenRISC?
-> > > > > > 
-> > > > > > Pictures of the OpenRISC target running anything would
-> > > > > > be great also.
-> > > > > > 
-> > > > > > What is your suggested command-line for using OpenRISC?
-> > > > > > 
-> > > > > > If you have any suggestions on how to improve the page place don't
-> > > > > > hesitate to let me know.
-> > > > > > 
-> > > > > 
-> > > > > Hi Richard, G 3,
-> > > > > 
-> > > > > I am not sure if Richard has the time for this.  But I kind
-> > > > > of got him
-> > > > > started back on the openrisc work, it would be my fault to
-> > > > > burden him
-> > > > > with even more work :).  Also, I was helping to do some
-> > > > > tests so I have
-> > > > > some example commands.
-> > > > 
-> > > > :-)
-> > > > 
-> > > > > I don't have a lot of time, but I think I can help to update
-> > > > > the above.
-> > > > > Probably Richard and I could work together?
-> > > > > 
-> > > > > I was recently working on updating the openrisc page
-> > > > > 
-> > > > >  http://openrisc.io
-> > > > > 
-> > > > > I think I could link between the two for toolchain compile
-> > > > > guides and
-> > > > > software guides (i.e. debugging and linux).
-> > > > > 
-> > > > > Richard what do you think?
-> > > > 
-> > > > Probably the most beneficial thing that we can do is create a
-> > > > kernel+initrd that boots into a busybox root shell.  Similar to
-> > > > the other test images that we have at
-> > > > 
-> > > >  http://wiki.qemu-project.org/Testing/System_Images
-> > > > 
-> > > > 
-> > > > r~
-> > > > 
-> > > 
-> > > We could do both the test image and a wiki page.
-> > 
-> > I posted a test image to the wiki
-> > 
-> >  http://wiki.qemu-project.org/Testing/System_Images
-> > 
-> > However, someone on the #qemu irc room mentioned its not ideal to post
-> > any images on the wiki and existing images should be taken down due to
-> > copyright issues.  I don't quite follow, should we be concerned?
-> 
-> If this is a Linux test image, it should be fine. Could we add a link to the
-> test image to the wiki page?
-> 
-> > 
-> > Also, I did start adding some commands to the wiki, any feedback
-> > appreciated.
-> > 
-> >   http://wiki.qemu-project.org/Documentation/Platforms/OpenRISC
-> > 
-> > -Stafford
-> 
-> Thank you so much for all your work. The wiki page looks great. For the
-> maintainer, is Jia Liu still maintaining it? I never received a reply from
-> him.  Would you be interested in being a maintainer?
+Since commit 6b22b3d1614a ("kbuild: Allow using host dtc instead of
+kernel's copy"), it is possible to use an external dtc.  In this
+case, we do not know which options are supported on it.
 
-No worries, I just copied the commands from my history, some were sent
-from Richard.  I hope they can help others in the future.
+Commit bc553986a2f7 ("dtc: turn off dtc unit address warnings by
+default") gives -Wno-unit_address_vs_reg, but this options is only
+recognized by v1.4.2 or later.
 
-Last time I sent a patch Jia Liu also asked me to be maintainer,  I
-added myself for now.  I am sure there are more qualified people like
-Richard, but Ill try to help where I can.
+If an older version is specified, the build fails:
 
-> This line in the wiki doesn't sound right:
-> "To get good traces you can also add the following, this will output trace
-> info the a file z"
-> 
-> Maybe this:
-> "To get good traces you can also add the following, this will output trace
-> info to the file z"
-> 
-> If z is a file, I really suggest renaming it to something more descriptive.
+$ dtc --version
+Version: DTC 1.4.0
+$ make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- DTC=dtc dtbs
+  [ snip ]
+  DTC     arch/arm64/boot/dts/al/alpine-v2-evp.dtb
+FATAL ERROR: Unrecognized check name "unit_address_vs_reg"
+make[2]: *** [arch/arm64/boot/dts/al/alpine-v2-evp.dtb] Error 1
+make[1]: *** [arch/arm64/boot/dts/al] Error 2
+make: *** [dtbs] Error 2
 
-Done.  If I do any more cool things with qemu I will post them to the
-twiki.  Also, Ill try to link back to any docs I/we put on openrisc.io.
+This commit adds a new helper dtc-option to check if the given
+option is supported, like cc-option, ld-option, etc.
 
-BTW, for now the image at 'Testing/System_Images' is hosted on my
-server.  Would it be possible for someone to move it to the wiki or a qemu
-server?  The link I posted should be up most of the time, but its not
-something I would give any 9's of up time.
+The check for the -Wno-unit_address_vs_reg has been moved from
+Makefile.lib to Makefile.extrawarn.  Since Makefile.lib is included
+recursively, it is not efficient to evaluate the $(call dtc-option)
+at every descend.  On the other hand, Makefile.extrawarn is included
+just once from the top Makefile.  Besides, it seems more suitable to
+collect extra warning things into the Makefile.extrawarn.
 
--Stafford
+The variable, DTC, has also been moved to the top Makefile so that
+the Makefile.extrawarn can reference it.
 
-> Thank you.
+Here is one problem for the dtc-option helper; the kernel's copy
+(scripts/dtc/dtc) is not compiled until Kbuild descends into the
+scripts/dtc/ directory.  This happens later after Makefile.extrawarn
+is evaluated.  So, dtc-options should its job only when DTC is
+overridden from the command line (i.e. pre-built dtc is used).
+If the kernel's copy is used, dtc-option falls back to a fixed option
+because we know which options are supported on the internal one.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+---
+
+ Makefile                          |  4 +++-
+ arch/c6x/boot/dts/Makefile        |  2 +-
+ arch/microblaze/boot/dts/Makefile |  2 +-
+ arch/openrisc/boot/dts/Makefile   |  2 +-
+ arch/powerpc/boot/Makefile        |  2 +-
+ scripts/Kbuild.include            | 14 ++++++++++++++
+ scripts/Makefile.extrawarn        |  4 ++++
+ scripts/Makefile.lib              |  6 ------
+ 8 files changed, 25 insertions(+), 11 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index b83109b..4c4647a 100644
+--- a/Makefile
++++ b/Makefile
+@@ -356,6 +356,7 @@ STRIP		= $(CROSS_COMPILE)strip
+ OBJCOPY		= $(CROSS_COMPILE)objcopy
+ OBJDUMP		= $(CROSS_COMPILE)objdump
+ AWK		= awk
++DTC		= scripts/dtc/dtc
+ GENKSYMS	= scripts/genksyms/genksyms
+ INSTALLKERNEL  := installkernel
+ DEPMOD		= /sbin/depmod
+@@ -365,6 +366,7 @@ CHECK		= sparse
+ 
+ CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
+ 		  -Wbitwise -Wno-return-void $(CF)
++DTC_FLAGS      :=
+ NOSTDINC_FLAGS  =
+ CFLAGS_MODULE   =
+ AFLAGS_MODULE   =
+@@ -419,7 +421,7 @@ export VERSION PATCHLEVEL SUBLEVEL KERNELRELEASE KERNELVERSION
+ export ARCH SRCARCH CONFIG_SHELL HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD CC
+ export CPP AR NM STRIP OBJCOPY OBJDUMP
+ export MAKE AWK GENKSYMS INSTALLKERNEL PERL PYTHON UTS_MACHINE
+-export HOSTCXX HOSTCXXFLAGS LDFLAGS_MODULE CHECK CHECKFLAGS
++export HOSTCXX HOSTCXXFLAGS LDFLAGS_MODULE CHECK CHECKFLAGS DTC DTC_FLAGS
+ 
+ export KBUILD_CPPFLAGS NOSTDINC_FLAGS LINUXINCLUDE OBJCOPYFLAGS LDFLAGS
+ export KBUILD_CFLAGS CFLAGS_KERNEL CFLAGS_MODULE CFLAGS_GCOV CFLAGS_KCOV CFLAGS_KASAN CFLAGS_UBSAN
+diff --git a/arch/c6x/boot/dts/Makefile b/arch/c6x/boot/dts/Makefile
+index c7528b0..459955b 100644
+--- a/arch/c6x/boot/dts/Makefile
++++ b/arch/c6x/boot/dts/Makefile
+@@ -2,7 +2,7 @@
+ # Makefile for device trees
+ #
+ 
+-DTC_FLAGS ?= -p 1024
++DTC_FLAGS += -p 1024
+ 
+ ifneq ($(DTB),)
+ obj-y += linked_dtb.o
+diff --git a/arch/microblaze/boot/dts/Makefile b/arch/microblaze/boot/dts/Makefile
+index a3d2e42..5addb5b 100644
+--- a/arch/microblaze/boot/dts/Makefile
++++ b/arch/microblaze/boot/dts/Makefile
+@@ -15,4 +15,4 @@ quiet_cmd_cp = CP      $< $@$2
+ 	cmd_cp = cat $< >$@$2 || (rm -f $@ && echo false)
+ 
+ # Rule to build device tree blobs
+-DTC_FLAGS := -p 1024
++DTC_FLAGS += -p 1024
+diff --git a/arch/openrisc/boot/dts/Makefile b/arch/openrisc/boot/dts/Makefile
+index b092d30..f4048d1 100644
+--- a/arch/openrisc/boot/dts/Makefile
++++ b/arch/openrisc/boot/dts/Makefile
+@@ -7,4 +7,4 @@ obj-y += $(BUILTIN_DTB)
+ 
+ clean-files := *.dtb.S
+ 
+-#DTC_FLAGS ?= -p 1024
++#DTC_FLAGS += -p 1024
+diff --git a/arch/powerpc/boot/Makefile b/arch/powerpc/boot/Makefile
+index e82f333..5350b67 100644
+--- a/arch/powerpc/boot/Makefile
++++ b/arch/powerpc/boot/Makefile
+@@ -50,7 +50,7 @@ endif
+ 
+ BOOTCFLAGS	+= -I$(objtree)/$(obj) -I$(srctree)/$(obj)
+ 
+-DTC_FLAGS	?= -p 1024
++DTC_FLAGS	+= -p 1024
+ 
+ $(obj)/4xx.o: BOOTCFLAGS += -mcpu=405
+ $(obj)/ebony.o: BOOTCFLAGS += -mcpu=405
+diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
+index d6ca649..adabbb5 100644
+--- a/scripts/Kbuild.include
++++ b/scripts/Kbuild.include
+@@ -171,6 +171,20 @@ ld-version = $(shell $(LD) --version | $(srctree)/scripts/ld-version.sh)
+ # Usage:  $(call ld-ifversion, -ge, 22252, y)
+ ld-ifversion = $(shell [ $(ld-version) $(1) $(2) ] && echo $(3) || echo $(4))
+ 
++# dtc-option
++# Usage:  DTC_FLAGS += $(call dtc-option,-Wno-unit_address_vs_reg)
++#
++# When we use the external dtc, check if the desired options are supported.
++# When we use the kernel's copy (scripts/dtc/dtc), just use the fixed option.
++# Until Kbuild descends into the scripts/dtc/ directory, scripts/dtc/dtc may
++# not exist, i.e. $(call try-run,...) may not work.
++ifeq ("$(origin DTC)", "command line")
++dtc-option = $(call try-run,\
++	echo '/dts-v1/; / {};' | $(DTC) $(1),$(1),$(2))
++else
++dtc-option = $(1)
++endif
++
+ ######
+ 
+ ###
+diff --git a/scripts/Makefile.extrawarn b/scripts/Makefile.extrawarn
+index 7c321a6..17d4030 100644
+--- a/scripts/Makefile.extrawarn
++++ b/scripts/Makefile.extrawarn
+@@ -69,4 +69,8 @@ KBUILD_CFLAGS += $(call cc-disable-warning, sign-compare)
+ KBUILD_CFLAGS += $(call cc-disable-warning, format-zero-length)
+ KBUILD_CFLAGS += $(call cc-disable-warning, uninitialized)
+ endif
++
++# Disable noisy checks by default
++DTC_FLAGS += $(call dtc-option,-Wno-unit_address_vs_reg)
++
+ endif
+diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
+index 0a07f90..6228c9b 100644
+--- a/scripts/Makefile.lib
++++ b/scripts/Makefile.lib
+@@ -276,12 +276,6 @@ cmd_gzip = (cat $(filter-out FORCE,$^) | gzip -n -f -9 > $@) || \
+ 
+ # DTC
+ # ---------------------------------------------------------------------------
+-DTC ?= $(objtree)/scripts/dtc/dtc
+-
+-# Disable noisy checks by default
+-ifeq ($(KBUILD_ENABLE_EXTRA_GCC_CHECKS),)
+-DTC_FLAGS += -Wno-unit_address_vs_reg
+-endif
+ 
+ # Generate an assembly file to wrap the output of the device tree compiler
+ quiet_cmd_dt_S_dtb= DTB     $@
+-- 
+2.7.4
+
