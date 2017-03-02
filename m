@@ -1,179 +1,328 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Tue, 28 Feb 2017 20:07:53 +0900
-Subject: [OpenRISC] [PATCH v2 4/6] sim: or1k: add or1k target to sim
-In-Reply-To: <20170214185208.GJ28432@vapier>
-References: <cover.1484967575.git.shorne@gmail.com>
- <92c04bd768b66a48e03850af185e975d01605435.1484967575.git.shorne@gmail.com>
- <20170214185208.GJ28432@vapier>
-Message-ID: <20170228110753.GY2449@lianli.shorne-pla.net>
+From: Richard Henderson <rth@twiddle.net>
+Date: Fri, 3 Mar 2017 09:14:17 +1100
+Subject: [OpenRISC] gcc7 port and improvements
+In-Reply-To: <93ad6594-b3f1-5a4f-14d4-f45cb72229f5@twiddle.net>
+References: <93ad6594-b3f1-5a4f-14d4-f45cb72229f5@twiddle.net>
+Message-ID: <4bfff4c5-fdea-563b-3b84-340b1bc6b708@twiddle.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Feb 14, 2017 at 01:52:08PM -0500, Mike Frysinger wrote:
-> On 21 Jan 2017 12:03, Stafford Horne wrote:
-> > --- /dev/null
-> > +++ b/sim/or1k/Makefile.in
-> >
-> > +# Extra headers included by sim-main.h.
-> 
-> you shouldn't need to do any manual dep management.  i'd suggest
-> deleting all this logic and seeing if things still work.
+On 02/23/2017 12:01 PM, Richard Henderson wrote:
+> If this goes well, I have some additional patches to revive that enhance both
+> binutils and gcc with additional relocations so that the low-part of an address
+> can be moved into a load or store offset.
 
-Hi Mike,
+Please see
 
-I have started to look into this.  Its kind of interesting, what the
-original author was doing here is putting both 32 and 64 bit families in
-the same sim, something that I think is not currently supported by the
-cgen dep management.
+   git://github.com/rth7680/binutils-gdb.git or1k-3
+   git://github.com/rth7680/gcc.git or1k-7-1
 
-If I try to general all, I rightly get:
-  ERROR: app requires all selected cpu families to have same word size
+which includes the additional relocations both for unmodified or1k, as well as 
+implementing the l.adrp proposal from
 
-Would you have a suggestion for this?
+   http://openrisc.io/proposals/ladrp
 
- - Should 32 and 64 bits be in separate sim_arch directories?
- - SHould we modify cgen to support handling different word sizes at the
-   same time?  Like the author has done here?
+The new insn is not enabled by default, but by -madrp.  Patches to emulate this 
+new instruction are at
 
-At the moment I think I will work on getting the 32bit sim working
-alone.
+   git://github.com/rth7680/qemu.git tgt-openrisc
+   git://github.com/rth7680/or1ksim.git adrp
 
--Stafford
+And, though I've really no idea how to go about either compiling or testing it, 
+I've made an attempt at adding l.adrp to the mor1kx vhdl.  Monkey see, monkey 
+do.  See below.
 
-> > --- /dev/null
-> > +++ b/sim/or1k/configure.ac
-> > @@ -0,0 +1,41 @@
-> > +dnl Process this file with autoconf to produce a configure script.
-> > +AC_PREREQ(2.64)dnl
-> > +AC_INIT(Makefile.in)
-> > +sinclude(../common/acinclude.m4)
-> > +
-> > +  case "${target_alias}" in
-> 
-> drop the indentation
-> 
-> > +  or1k-linux*|or1knd-linux*)
-> > +    traps_obj=traps32-linux.o
-> > +    ;;
-> > +  or1k-*|or1knd-*)
-> > +    traps_obj=traps32.o
-> > +    ;;
-> > +  esac
-> 
-> we really don't like to see this kind of logic.  can't you do a single
-> build and then select the right details at runtime ?
-> 
-> --- /dev/null
-> > +++ b/sim/or1k/or1k.h
-> > @@ -0,0 +1,38 @@
-> > +#ifndef OR1K_H
-> > +#define OR1K_H
-> 
-> all files should have a header with copyright & license info
-> 
-> also, please use namespaced defines like SIM_OR1K_H
-> 
-> > --- /dev/null
-> > +++ b/sim/or1k/sim-if.c
-> > @@ -0,0 +1,318 @@
-> > +/* Main simulator entry points specific to the OR1K.
-> > +   Copyright (C) 1996-1999, 2003, 2007-2012 Free Software Foundation,
-> > +   Inc.
-> > +   Contributed by Cygnus Support.
-> 
-> looks like you need to double check where you copied & pasted things from.
-> cygnus isn't doing this port ;).
-> 
-> > +SIM_DESC
-> > +sim_open (kind, callback, abfd, argv)
-> > +     SIM_OPEN_KIND kind;
-> > +     host_callback *callback;
-> > +     struct bfd *abfd;
-> > +     char * const *argv;
-> 
-> you need to update all your prototypes.  we don't do old style ones like
-> this anymore.
-> 
-> > +#ifdef HAVE_DV_SOCKSER /* FIXME: was done differently before */
-> > +  if (dv_sockser_install (sd) != SIM_RC_OK)
-> > +    {
-> > +      free_state (sd);
-> > +      return 0;
-> > +    }
-> > +#endif
-> 
-> delete this.  common code handles it for you now.
-> 
-> > +  /* Allocate core managed memory if none specified by user.
-> > +     Use address 4 here in case the user wanted address 0 unmapped.  */
-> > +  if (sim_core_read_buffer (sd, NULL, read_map, &c, 4, 1) == 0) {
-> > +    sim_do_commandf (sd, "memory region 0,0x%x", OR1K_DEFAULT_MEM_SIZE);
-> > +  }
-> 
-> this isn't using GNU style for the braces/if body.  this comes up
-> multiple times in this patch, so please fix them all.
-> 
-> > +  /* check for/establish the reference program image */
-> 
-> this comment isn't using GNU style.  this comes up
-> multiple times in this patch, so please fix them all.
-> 
-> > +
-> > +  for (c = 0; c < MAX_NR_PROCESSORS; ++c)
-> > +    {
-> > +      SIM_CPU *cpu = STATE_CPU (sd, i);
-> > +      /* Only needed for profiling, but the structure member is small.  */
-> > +      memset (CPU_OR1K_MISC_PROFILE (cpu), 0,
-> > +	      sizeof (* CPU_OR1K_MISC_PROFILE (cpu)));
-> > +
-> > +#ifdef WANT_CPU_OR1K32BF
-> > +      or1k32bf_h_spr_set_raw(cpu, SPR_ADDR(SYS,VR),      or1k_vr);
-> > +      or1k32bf_h_spr_set_raw(cpu, SPR_ADDR(SYS,UPR),     or1k_upr);
-> > +      or1k32bf_h_spr_set_raw(cpu, SPR_ADDR(SYS,CPUCFGR), or1k_cpucfgr);
-> > +
-> > +      or1k32bf_cpu_init (sd, cpu);
-> > +#endif
-> > +    }
-> 
-> this loop has to call these funcs:
-> 	CPU_REG_FETCH
-> 	CPU_REG_STORE
-> 	CPU_PC_FETCH
-> 	CPU_PC_STORE
-> 
-> > +  /* Store in a global so things like sparc32_dump_regs can be invoked
-> > +     from the gdb command line.  */
-> > +  current_state = sd;
-> 
-> you must kill current_state.  we do not allow global state anymore.
-> 
-> > --- /dev/null
-> > +++ b/sim/or1k/sim-main.h
-> >
-> > +typedef IAI sim_cia;
-> > +#define CIA_GET(cpu) CPU_PC_GET (cpu)
-> > +#define CIA_SET(cpu,val) CPU_PC_SET ((cpu),(val))
-> 
-> these defines are dead -> delete
-> 
-> > +typedef struct _sim_cpu SIM_CPU;
-> 
-> delete this
-> 
-> > +#ifdef OR1K_LINUX
-> 
-> nothing defines this -> delete
-> 
-> > +#if (WITH_SMP)
-> > +#define STATE_CPU(sd, n) ((sd)->cpu[n])
-> > +#else
-> > +#define STATE_CPU(sd, n) ((sd)->cpu[0])
-> > +#endif
-> 
-> delete these -- common code does it for you now
-> -mike
+Comments?
 
 
+r~
+-------------- next part --------------
+diff --git a/rtl/verilog/mor1kx-defines.v b/rtl/verilog/mor1kx-defines.v
+index 365c8a6..795df6f 100644
+--- a/rtl/verilog/mor1kx-defines.v
++++ b/rtl/verilog/mor1kx-defines.v
+@@ -79,6 +79,7 @@
+ 
+ `define OR1K_OPCODE_J       {2'b00, 4'h0}
+ `define OR1K_OPCODE_JAL     {2'b00, 4'h1}
++`define OR1K_OPCODE_ADRP    {2'b00, 4'h2}
+ `define OR1K_OPCODE_BNF     {2'b00, 4'h3}
+ `define OR1K_OPCODE_BF      {2'b00, 4'h4}
+ `define OR1K_OPCODE_NOP     {2'b00, 4'h5}
+diff --git a/rtl/verilog/mor1kx_cpu_cappuccino.v b/rtl/verilog/mor1kx_cpu_cappuccino.v
+index 2e9b309..b2fec24 100644
+--- a/rtl/verilog/mor1kx_cpu_cappuccino.v
++++ b/rtl/verilog/mor1kx_cpu_cappuccino.v
+@@ -260,6 +260,7 @@ module mor1kx_cpu_cappuccino
+    wire                 decode_op_lsu_store_o;  // From mor1kx_decode of mor1kx_decode.v
+    wire                 decode_op_mfspr_o;      // From mor1kx_decode of mor1kx_decode.v
+    wire                 decode_op_movhi_o;      // From mor1kx_decode of mor1kx_decode.v
++   wire                 decode_op_adrp_o;       // From mor1kx_decode of mor1kx_decode.v
+    wire                 decode_op_msync_o;      // From mor1kx_decode of mor1kx_decode.v
+    wire [`OR1K_FPUOP_WIDTH-1:0] decode_op_fpu_o; // From mor1kx_decode of mor1kx_decode.v
+    wire                 decode_op_mtspr_o;      // From mor1kx_decode of mor1kx_decode.v
+@@ -318,6 +319,7 @@ module mor1kx_cpu_cappuccino
+    wire                 execute_op_lsu_store_o; // From mor1kx_decode_execute_cappuccino of mor1kx_decode_execute_cappuccino.v
+    wire                 execute_op_mfspr_o;     // From mor1kx_decode_execute_cappuccino of mor1kx_decode_execute_cappuccino.v
+    wire                 execute_op_movhi_o;     // From mor1kx_decode_execute_cappuccino of mor1kx_decode_execute_cappuccino.v
++   wire                 execute_op_adrp_o;      // From mor1kx_decode_execute_cappuccino of mor1kx_decode_execute_cappuccino.v
+    wire                 execute_op_msync_o;     // From mor1kx_decode_execute_cappuccino of mor1kx_decode_execute_cappuccino.v
+    wire [`OR1K_FPUOP_WIDTH-1:0] execute_op_fpu_o; // From mor1kx_decode_execute_cappuccino of mor1kx_decode_execute_cappuccino.v
+    wire                 execute_op_mtspr_o;     // From mor1kx_decode_execute_cappuccino of mor1kx_decode_execute_cappuccino.v
+@@ -545,6 +547,7 @@ module mor1kx_cpu_cappuccino
+       .decode_op_shift_o                (decode_op_shift_o),
+       .decode_op_ffl1_o                 (decode_op_ffl1_o),
+       .decode_op_movhi_o                (decode_op_movhi_o),
++      .decode_op_adrp_o                 (decode_op_adrp_o),
+       .decode_op_msync_o                (decode_op_msync_o),
+       .decode_op_fpu_o                  (decode_op_fpu_o),
+       .decode_adder_do_sub_o            (decode_adder_do_sub_o),
+@@ -610,6 +613,7 @@ module mor1kx_cpu_cappuccino
+       .decode_op_shift_i		(decode_op_shift_o),
+       .decode_op_ffl1_i			(decode_op_ffl1_o),
+       .decode_op_movhi_i		(decode_op_movhi_o),
++      .decode_op_adrp_i			(decode_op_adrp_o),
+       .decode_op_msync_i                (decode_op_msync_o),
+       .decode_op_fpu_i		  (decode_op_fpu_o),
+       .decode_opc_insn_i		(decode_opc_insn_o[`OR1K_OPCODE_WIDTH-1:0]),
+@@ -670,6 +674,7 @@ module mor1kx_cpu_cappuccino
+       .execute_op_shift_o               (execute_op_shift_o),
+       .execute_op_ffl1_o                (execute_op_ffl1_o),
+       .execute_op_movhi_o               (execute_op_movhi_o),
++      .execute_op_adrp_o                (execute_op_adrp_o),
+       .execute_op_msync_o               (execute_op_msync_o),
+       .execute_op_fpu_o                 (execute_op_fpu_o),
+       .execute_op_bf_o                  (execute_op_bf_o),
+@@ -741,6 +746,7 @@ module mor1kx_cpu_cappuccino
+       .decode_op_shift_i                (decode_op_shift_o),     // Templated
+       .decode_op_ffl1_i                 (decode_op_ffl1_o),      // Templated
+       .decode_op_movhi_i                (decode_op_movhi_o),     // Templated
++      .decode_op_adrp_i                 (decode_op_adrp_o),      // Templated
+       .decode_op_msync_i                (decode_op_msync_o),     // Templated
+       .decode_op_fpu_i                  (decode_op_fpu_o), // Templated
+       .decode_opc_insn_i                (decode_opc_insn_o[`OR1K_OPCODE_WIDTH-1:0]), // Templated
+@@ -814,6 +820,7 @@ module mor1kx_cpu_cappuccino
+     .op_mtspr_i				(execute_op_mtspr_o),
+     .op_mfspr_i				(execute_op_mfspr_o),
+     .op_movhi_i				(execute_op_movhi_o),
++    .op_adrp_i				(execute_op_adrp_o),
+     .op_fpu_i				  (execute_op_fpu_o),
+     .fpu_round_mode_i (ctrl_fpu_round_mode_o),
+     .op_jbr_i				(execute_op_jbr_o),
+@@ -899,6 +906,7 @@ module mor1kx_cpu_cappuccino
+       .op_mtspr_i                       (execute_op_mtspr_o),    // Templated
+       .op_mfspr_i                       (execute_op_mfspr_o),    // Templated
+       .op_movhi_i                       (execute_op_movhi_o),    // Templated
++      .op_adrp_i                        (execute_op_adrp_o),     // Templated
+       .op_fpu_i                         (execute_op_fpu_o), // Templated
+       .fpu_round_mode_i                 (ctrl_fpu_round_mode_o), // Templated
+       .op_jbr_i                         (execute_op_jbr_o),      // Templated
+diff --git a/rtl/verilog/mor1kx_cpu_espresso.v b/rtl/verilog/mor1kx_cpu_espresso.v
+index 3b40603..eac330c 100644
+--- a/rtl/verilog/mor1kx_cpu_espresso.v
++++ b/rtl/verilog/mor1kx_cpu_espresso.v
+@@ -187,6 +187,7 @@ module mor1kx_cpu_espresso
+    wire			decode_op_lsu_store_o;	// From mor1kx_decode of mor1kx_decode.v
+    wire			decode_op_mfspr_o;	// From mor1kx_decode of mor1kx_decode.v
+    wire			decode_op_movhi_o;	// From mor1kx_decode of mor1kx_decode.v
++   wire			decode_op_adrp_o;	// From mor1kx_decode of mor1kx_decode.v
+    wire			decode_op_mtspr_o;	// From mor1kx_decode of mor1kx_decode.v
+    wire			decode_op_mul_o;	// From mor1kx_decode of mor1kx_decode.v
+    wire			decode_op_mul_signed_o;	// From mor1kx_decode of mor1kx_decode.v
+@@ -358,6 +359,7 @@ module mor1kx_cpu_espresso
+       .decode_op_shift_o		(decode_op_shift_o),
+       .decode_op_ffl1_o			(decode_op_ffl1_o),
+       .decode_op_movhi_o		(decode_op_movhi_o),
++      .decode_op_adrp_o			(decode_op_adrp_o),
+       .decode_adder_do_sub_o		(decode_adder_do_sub_o),
+       .decode_adder_do_carry_o		(decode_adder_do_carry_o),
+       .decode_except_illegal_o		(decode_except_illegal_o),
+@@ -392,6 +394,7 @@ module mor1kx_cpu_espresso
+     .op_mtspr_i				(decode_op_mtspr_o),
+     .op_mfspr_i				(decode_op_mfspr_o),
+     .op_movhi_i				(decode_op_movhi_o),
++    .op_adrp_i				(decode_op_adrp_o),
+     .op_jbr_i				(decode_op_jbr_o),
+     .op_jr_i				(decode_op_jr_o),
+     .immjbr_upper_i			(decode_immjbr_upper_o),
+@@ -462,6 +465,7 @@ module mor1kx_cpu_espresso
+       .op_mtspr_i			(decode_op_mtspr_o),	 // Templated
+       .op_mfspr_i			(decode_op_mfspr_o),	 // Templated
+       .op_movhi_i			(decode_op_movhi_o),	 // Templated
++      .op_adrp_i			(decode_op_adrp_o),	 // Templated
+       .op_jbr_i				(decode_op_jbr_o),	 // Templated
+       .op_jr_i				(decode_op_jr_o),	 // Templated
+       .immjbr_upper_i			(decode_immjbr_upper_o), // Templated
+diff --git a/rtl/verilog/mor1kx_cpu_prontoespresso.v b/rtl/verilog/mor1kx_cpu_prontoespresso.v
+index 61896cb..2b8f024 100644
+--- a/rtl/verilog/mor1kx_cpu_prontoespresso.v
++++ b/rtl/verilog/mor1kx_cpu_prontoespresso.v
+@@ -191,6 +191,7 @@ module mor1kx_cpu_prontoespresso
+    wire			decode_op_lsu_store_o;	// From mor1kx_decode of mor1kx_decode.v
+    wire			decode_op_mfspr_o;	// From mor1kx_decode of mor1kx_decode.v
+    wire			decode_op_movhi_o;	// From mor1kx_decode of mor1kx_decode.v
++   wire			decode_op_adrp_o;	// From mor1kx_decode of mor1kx_decode.v
+    wire			decode_op_mtspr_o;	// From mor1kx_decode of mor1kx_decode.v
+    wire			decode_op_mul_o;	// From mor1kx_decode of mor1kx_decode.v
+    wire			decode_op_mul_signed_o;	// From mor1kx_decode of mor1kx_decode.v
+@@ -458,6 +459,7 @@ module mor1kx_cpu_prontoespresso
+       .decode_op_shift_o		(decode_op_shift_o),
+       .decode_op_ffl1_o			(decode_op_ffl1_o),
+       .decode_op_movhi_o		(decode_op_movhi_o),
++      .decode_op_adrp_o			(decode_op_adrp_o),
+       .decode_adder_do_sub_o		(decode_adder_do_sub_o),
+       .decode_adder_do_carry_o		(decode_adder_do_carry_o),
+       .decode_except_illegal_o		(decode_except_illegal_o),
+@@ -492,6 +494,7 @@ module mor1kx_cpu_prontoespresso
+     .op_mtspr_i				(decode_op_mtspr_o),
+     .op_mfspr_i				(decode_op_mfspr_o),
+     .op_movhi_i				(decode_op_movhi_o),
++    .op_adrp_i				(decode_op_adrp_o),
+     .op_jbr_i				(decode_op_jbr_o),
+     .op_jr_i				(decode_op_jr_o),
+     .immjbr_upper_i			(decode_immjbr_upper_o),
+@@ -562,6 +565,7 @@ module mor1kx_cpu_prontoespresso
+       .op_mtspr_i			(decode_op_mtspr_o),	 // Templated
+       .op_mfspr_i			(decode_op_mfspr_o),	 // Templated
+       .op_movhi_i			(decode_op_movhi_o),	 // Templated
++      .op_adrp_i			(decode_op_adrp_o),	 // Templated
+       .op_jbr_i				(decode_op_jbr_o),	 // Templated
+       .op_jr_i				(decode_op_jr_o),	 // Templated
+       .immjbr_upper_i			(decode_immjbr_upper_o), // Templated
+diff --git a/rtl/verilog/mor1kx_decode.v b/rtl/verilog/mor1kx_decode.v
+index 6163d3b..3c247b1 100644
+--- a/rtl/verilog/mor1kx_decode.v
++++ b/rtl/verilog/mor1kx_decode.v
+@@ -114,6 +114,7 @@ module mor1kx_decode
+     output 			      decode_op_shift_o,
+     output 			      decode_op_ffl1_o,
+     output 			      decode_op_movhi_o,
++    output 			      decode_op_adrp_o,
+ 
+     // Sync operations
+     output                            decode_op_msync_o,
+@@ -262,6 +263,7 @@ module mor1kx_decode
+ 			     opc_alu == `OR1K_ALU_OPC_FFL1;
+ 
+    assign decode_op_movhi_o = opc_insn == `OR1K_OPCODE_MOVHI;
++   assign decode_op_adrp_o = opc_insn == `OR1K_OPCODE_ADRP;
+ 
+    // FPU related
+    generate
+@@ -279,6 +281,7 @@ module mor1kx_decode
+    // Which instructions cause writeback?
+    assign decode_rf_wb_o = (opc_insn == `OR1K_OPCODE_JAL |
+ 			    opc_insn == `OR1K_OPCODE_MOVHI |
++			    opc_insn == `OR1K_OPCODE_ADRP |
+ 			    opc_insn == `OR1K_OPCODE_JALR |
+ 			    opc_insn == `OR1K_OPCODE_LWA) |
+ 			   // All '10????' opcodes except l.sfxxi
+@@ -326,10 +329,14 @@ module mor1kx_decode
+    assign imm_high = {decode_imm16_o, 16'd0};
+    assign imm_high_sel = decode_op_movhi_o;
+ 
++   assign imm_adrp = {decode_insn_i[18:0], 13'd0};
++   assign imm_adrp_sel = declde_op_adrp_o;
++
+    assign decode_immediate_o = imm_sext_sel ? imm_sext :
+-			       imm_zext_sel ? imm_zext : imm_high;
++			       imm_zext_sel ? imm_zext :
++                               imm_high_sel ? imm_high : imm_adrp;
+ 
+-   assign decode_immediate_sel_o = imm_sext_sel | imm_zext_sel | imm_high_sel;
++   assign decode_immediate_sel_o = imm_sext_sel | imm_zext_sel | imm_high_sel | imm_adrp_sel;
+ 
+    // ALU opcode
+    assign opc_alu = decode_insn_i[`OR1K_ALU_OPC_SELECT];
+@@ -397,6 +404,7 @@ module mor1kx_decode
+ 	`OR1K_OPCODE_SFLES,
+ 	*/
+        `OR1K_OPCODE_SF,
++       `OR1K_OPCODE_ADRP,
+        `OR1K_OPCODE_NOP:
+ 	 decode_except_illegal_o = 1'b0;
+ 
+diff --git a/rtl/verilog/mor1kx_decode_execute_cappuccino.v b/rtl/verilog/mor1kx_decode_execute_cappuccino.v
+index 8d48b12..b99a289 100644
+--- a/rtl/verilog/mor1kx_decode_execute_cappuccino.v
++++ b/rtl/verilog/mor1kx_decode_execute_cappuccino.v
+@@ -130,6 +130,7 @@ module mor1kx_decode_execute_cappuccino
+     input 				  decode_op_shift_i,
+     input 				  decode_op_ffl1_i,
+     input 				  decode_op_movhi_i,
++    input 				  decode_op_adrp_i,
+     input                                 decode_op_msync_i,
+     input [`OR1K_FPUOP_WIDTH-1:0]         decode_op_fpu_i,
+ 
+@@ -168,6 +169,7 @@ module mor1kx_decode_execute_cappuccino
+     output reg 				  execute_op_shift_o,
+     output reg 				  execute_op_ffl1_o,
+     output reg 				  execute_op_movhi_o,
++    output reg 				  execute_op_adrp_o,
+     output reg 				  execute_op_bf_o,
+     output reg 				  execute_op_bnf_o,
+     output reg                            execute_op_msync_o,
+@@ -233,6 +235,7 @@ module mor1kx_decode_execute_cappuccino
+ 	execute_op_shift_o <= 1'b0;
+ 	execute_op_ffl1_o <= 1'b0;
+ 	execute_op_movhi_o <= 1'b0;
++	execute_op_adrp_o <= 1'b0;
+         execute_op_msync_o <= 1'b0;
+ 	execute_op_mfspr_o <= 1'b0;
+ 	execute_op_mtspr_o <= 1'b0;
+@@ -259,6 +262,7 @@ module mor1kx_decode_execute_cappuccino
+ 	execute_op_shift_o <= 1'b0;
+ 	execute_op_ffl1_o <= 1'b0;
+ 	execute_op_movhi_o <= 1'b0;
++	execute_op_adrp_o <= 1'b0;
+         execute_op_msync_o <= 1'b0;
+ 	execute_op_lsu_load_o <= 1'b0;
+ 	execute_op_lsu_store_o <= 1'b0;
+@@ -283,6 +287,7 @@ module mor1kx_decode_execute_cappuccino
+ 	execute_op_shift_o <= decode_op_shift_i;
+ 	execute_op_ffl1_o <= decode_op_ffl1_i;
+ 	execute_op_movhi_o <= decode_op_movhi_i;
++	execute_op_adrp_o <= decode_op_adrp_i;
+         execute_op_msync_o <= decode_op_msync_i;
+ 	execute_op_mfspr_o <= decode_op_mfspr_i;
+ 	execute_op_mtspr_o <= decode_op_mtspr_i;
+@@ -309,6 +314,7 @@ module mor1kx_decode_execute_cappuccino
+ 	   execute_op_shift_o <= 1'b0;
+ 	   execute_op_ffl1_o <= 1'b0;
+ 	   execute_op_movhi_o <= 1'b0;
++	   execute_op_adrp_o <= 1'b0;
+            execute_op_msync_o <= 1'b0;
+ 	   execute_op_mtspr_o <= 1'b0;
+ 	   execute_op_mfspr_o <= 1'b0;
+diff --git a/rtl/verilog/mor1kx_execute_alu.v b/rtl/verilog/mor1kx_execute_alu.v
+index 7157859..bc8c863 100644
+--- a/rtl/verilog/mor1kx_execute_alu.v
++++ b/rtl/verilog/mor1kx_execute_alu.v
+@@ -88,6 +88,7 @@ module mor1kx_execute_alu
+     input 			      op_mtspr_i,
+     input 			      op_mfspr_i,
+     input 			      op_movhi_i,
++    input 			      op_adrp_i,
+     input [`OR1K_FPUOP_WIDTH-1:0]   op_fpu_i,
+     input [`OR1K_FPCSR_RM_SIZE-1:0] fpu_round_mode_i,
+     input 			      op_jbr_i,
+@@ -179,12 +180,14 @@ module mor1kx_execute_alu
+    wire [OPTION_OPERAND_WIDTH-1:0]        decode_b;
+ generate
+ if (CALCULATE_BRANCH_DEST=="TRUE") begin : calculate_branch_dest
+-   assign a = (op_jbr_i | op_jr_i) ? pc_execute_i : rfa_i;
++   assign a = (op_jbr_i | op_jr_i) ? pc_execute_i
++	      : op_adrp_i ? {pc_execute_i[31:13], 13'b0}
++	      : rfa_i;
+    assign b = immediate_sel_i ? immediate_i :
+               op_jbr_i ? {{4{immjbr_upper_i[9]}},immjbr_upper_i,imm16_i,2'b00} :
+               rfb_i;
+ end else begin
+-   assign a = rfa_i;
++   assign a = op_adrp_i ? {pc_execute_i[31:13], 13'b0} : rfa_i;
+    assign b = immediate_sel_i ? immediate_i : rfb_i;
+ 
+    assign decode_a = decode_rfa_i;
