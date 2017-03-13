@@ -1,83 +1,44 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 5 Mar 2017 06:38:05 +0900
-Subject: [OpenRISC] [PATCH 1/3] futex: remove duplicated code
-In-Reply-To: <3994975e-89a5-d2b5-60be-a8633ddc3733@zytor.com>
-References: <20170303122712.13353-1-jslaby@suse.cz>
- <20170304130550.GT21222@n2100.armlinux.org.uk>
- <3994975e-89a5-d2b5-60be-a8633ddc3733@zytor.com>
-Message-ID: <20170304213805.GA2449@lianli.shorne-pla.net>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Mon, 13 Mar 2017 11:15:23 +0100
+Subject: [OpenRISC] Build regressions/improvements in v4.11-rc2
+In-Reply-To: <1489394631-9491-1-git-send-email-geert@linux-m68k.org>
+References: <1489394631-9491-1-git-send-email-geert@linux-m68k.org>
+Message-ID: <CAMuHMdUSmQ=9VQX_-U6nfxitwxeBJ950JM-+cO7o+3OqFK=c5g@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sat, Mar 04, 2017 at 11:15:17AM -0800, H. Peter Anvin wrote:
-> On 03/04/17 05:05, Russell King - ARM Linux wrote:
-> >>  
-> >> +static int futex_atomic_op_inuser(int encoded_op, u32 __user *uaddr)
-> >> +{
-> >> +	int op = (encoded_op >> 28) & 7;
-> >> +	int cmp = (encoded_op >> 24) & 15;
-> >> +	int oparg = (encoded_op << 8) >> 20;
-> >> +	int cmparg = (encoded_op << 20) >> 20;
-> > 
-> > Hmm.  oparg and cmparg look like they're doing these shifts to get sign
-> > extension of the 12-bit values by assuming that "int" is 32-bit -
-> > probably worth a comment, or for safety, they should be "s32" so it's
-> > not dependent on the bit-width of "int".
-> > 
-> 
-> For readability, perhaps we should make sign- and zero-extension an
-> explicit facility?
+On Mon, Mar 13, 2017 at 9:43 AM, Geert Uytterhoeven
+<geert@linux-m68k.org> wrote:
+> JFYI, when comparing v4.11-rc2[1] to v4.11-rc1[3], the summaries are:
+>   - build errors: +6/-13
 
-There is some of this in already here, 32 and 64 bit versions:
+  + /home/kisskb/slave/src/arch/openrisc/include/asm/atomic.h: Error:
+/home/kisskb/slave/src/arch/openrisc/include/asm/atomic.h:69: unknown
+opcode2 `l.swa'.Error: :  => 71
+  + /home/kisskb/slave/src/arch/openrisc/include/asm/atomic.h: Error:
+unknown opcode2 `l.lwa'.: 70, 69, 107 => 70, 79, 107, 69, 78
+  + /home/kisskb/slave/src/arch/openrisc/include/asm/atomic.h: Error:
+unknown opcode2 `l.swa'.: 72, 111, 71 => 71, 111, 72, 80, 81
+  + /home/kisskb/slave/src/arch/openrisc/include/asm/futex.h: Error:
+unknown opcode2 `l.lwa'.:  => 54, 60, 63, 51, 108, 57
+  + /home/kisskb/slave/src/arch/openrisc/include/asm/futex.h: Error:
+unknown opcode2 `l.swa'.:  => 62, 112, 53, 59, 65, 56
 
-  include/linux/bitops.h
+OpenRISC needs an updated toolchain.
 
-Do we really need zero extension? It seems the same.
+> [1] http://kisskb.ellerman.id.au/kisskb/head/4495c08e84729385774601b5146d51d9e5849f81/ (all 266 configs)
+> [3] http://kisskb.ellerman.id.au/kisskb/head/c1ae3cfa0e89fa1a7ecc4c99031f5e9ae99d9201/ (all 266 configs)
 
-Example implementation from bitops.h
+Gr{oetje,eeting}s,
 
-static inline __s32 sign_extend32(__u32 value, int index)
-{
-        __u8 shift = 31 - index;
-        return (__s32)(value << shift) >> shift;
-}
+                        Geert
 
-> /*
->  * Truncate an integer x to n bits, using sign- or
->  * zero-extension, respectively.
->  */
-> static inline __const_func__ s32 sex32(s32 x, int n)
-> {
->   return (x << (32-n)) >> (32-n);
-> }
-> 
-> static inline __const_func__ s64 sex64(s64 x, int n)
-> {
->   return (x << (64-n)) >> (64-n);
-> }
-> 
-> #define sex(x,y)						\
-> 	((__typeof__(x))					\
-> 	 (((__builtin_constant_p(y) && ((y) <= 32)) ||		\
-> 	   (sizeof(x) <= sizeof(s32)))				\
-> 	  ? sex32((x),(y)) : sex64((x),(y))))
-> 
-> static inline __const_func__ u32 zex32(u32 x, int n)
-> {
->   return (x << (32-n)) >> (32-n);
-> }
-> 
-> static inline __const_func__ u64 zex64(u64 x, int n)
-> {
->   return (x << (64-n)) >> (64-n);
-> }
-> 
-> #define zex(x,y)						\
-> 	((__typeof__(x))					\
-> 	 (((__builtin_constant_p(y) && ((y) <= 32)) ||		\
-> 	   (sizeof(x) <= sizeof(u32)))				\
-> 	  ? zex32((x),(y)) : zex64((x),(y))))
-> 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert at linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
