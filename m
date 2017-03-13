@@ -1,70 +1,53 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Tue, 14 Mar 2017 00:01:24 +0900
-Subject: [OpenRISC] [PATCH] target/openrisc: Fixes for memory debugging
-Message-ID: <20170313150124.4762-1-shorne@gmail.com>
+Date: Tue, 14 Mar 2017 00:10:01 +0900
+Subject: [OpenRISC] Build regressions/improvements in v4.11-rc2
+In-Reply-To: <CAMuHMdU7VXnN8i=P-PkYiQpxhFSsFKG3VvDRjKCZ8oH_uivmxw@mail.gmail.com>
+References: <1489394631-9491-1-git-send-email-geert@linux-m68k.org>
+ <CAMuHMdUSmQ=9VQX_-U6nfxitwxeBJ950JM-+cO7o+3OqFK=c5g@mail.gmail.com>
+ <20170313141228.GA2418@lianli.shorne-pla.net>
+ <CAMuHMdU7VXnN8i=P-PkYiQpxhFSsFKG3VvDRjKCZ8oH_uivmxw@mail.gmail.com>
+Message-ID: <20170313151001.GB2418@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-When debugging in gdb you might want to inspect instructions in mapped
-pages or in exception vectors like 0x800 etc.  This was previously not
-possible in qemu since the *get_phys_page_debug() routine only looked
-into the data tlb.
+On Mon, Mar 13, 2017 at 03:17:15PM +0100, Geert Uytterhoeven wrote:
+> Hi Stafford,
+> 
+> On Mon, Mar 13, 2017 at 3:12 PM, Stafford Horne <shorne@gmail.com> wrote:
+> > On Mon, Mar 13, 2017 at 11:15:23AM +0100, Geert Uytterhoeven wrote:
+> >> On Mon, Mar 13, 2017 at 9:43 AM, Geert Uytterhoeven
+> >> <geert@linux-m68k.org> wrote:
+> >> > JFYI, when comparing v4.11-rc2[1] to v4.11-rc1[3], the summaries are:
+> >> >   - build errors: +6/-13
+> >>
+> >>   + /home/kisskb/slave/src/arch/openrisc/include/asm/atomic.h: Error:
+> >> /home/kisskb/slave/src/arch/openrisc/include/asm/atomic.h:69: unknown
+> >> opcode2 `l.swa'.Error: :  => 71
+> >>   + /home/kisskb/slave/src/arch/openrisc/include/asm/atomic.h: Error:
+> >> unknown opcode2 `l.lwa'.: 70, 69, 107 => 70, 79, 107, 69, 78
+> >>   + /home/kisskb/slave/src/arch/openrisc/include/asm/atomic.h: Error:
+> >> unknown opcode2 `l.swa'.: 72, 111, 71 => 71, 111, 72, 80, 81
+> >>   + /home/kisskb/slave/src/arch/openrisc/include/asm/futex.h: Error:
+> >> unknown opcode2 `l.lwa'.:  => 54, 60, 63, 51, 108, 57
+> >>   + /home/kisskb/slave/src/arch/openrisc/include/asm/futex.h: Error:
+> >> unknown opcode2 `l.swa'.:  => 62, 112, 53, 59, 65, 56
+> >>
+> >> OpenRISC needs an updated toolchain.
+> >
+> > Thansk for the report.  I have updated the toolchain that is pointed to
+> > by make.cross [1] a few weeks back.  Fengguang and I updated the
+> > make.cross tool which the build robot's point to a late tool chain [2],
+> > what are you using?
+> 
+> I'm using the linux-next build service.
+> http://kisskb.ellerman.id.au/kisskb/head/4495c08e84729385774601b5146d51d9e5849f81/
 
-Change to fall back to look into instruction tlb and plain physical
-pages.
+Right, I see the results there but I don't really see how to go about
+sending patches to reference our latest toolchain.
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- target/openrisc/mmu.c | 23 +++++++++++++++++++----
- 1 file changed, 19 insertions(+), 4 deletions(-)
+Perhaps Michael can help with that.
 
-diff --git a/target/openrisc/mmu.c b/target/openrisc/mmu.c
-index 56b11d3..a6d7bcd 100644
---- a/target/openrisc/mmu.c
-+++ b/target/openrisc/mmu.c
-@@ -124,7 +124,7 @@ static int cpu_openrisc_get_phys_addr(OpenRISCCPU *cpu,
- {
-     int ret = TLBRET_MATCH;
- 
--    if (rw == 2) {    /* ITLB */
-+    if (rw == MMU_INST_FETCH) {    /* ITLB */
-        *physical = 0;
-         ret = cpu->env.tlb->cpu_openrisc_map_address_code(cpu, physical,
-                                                           prot, address, rw);
-@@ -221,12 +221,27 @@ hwaddr openrisc_cpu_get_phys_page_debug(CPUState *cs, vaddr addr)
-     OpenRISCCPU *cpu = OPENRISC_CPU(cs);
-     hwaddr phys_addr;
-     int prot;
-+    int miss;
- 
--    if (cpu_openrisc_get_phys_addr(cpu, &phys_addr, &prot, addr, 0)) {
--        return -1;
-+    /* Check memory for any kind of address, since during debug the
-+       gdb can ask for anything, check data tlb for address */
-+    miss = cpu_openrisc_get_phys_addr(cpu, &phys_addr, &prot, addr, 0);
-+
-+    /* Check instruction tlb */
-+    if (miss) {
-+        miss = cpu_openrisc_get_phys_addr(cpu, &phys_addr, &prot, addr, MMU_INST_FETCH);
-+    }
-+
-+    /* Last, fall back to a plain address */
-+    if (miss) {
-+        miss = cpu_openrisc_get_phys_nommu(cpu, &phys_addr, &prot, addr, 0);
-     }
- 
--    return phys_addr;
-+    if (miss) {
-+        return -1;
-+    } else {
-+        return phys_addr;
-+    }
- }
- 
- void cpu_openrisc_mmu_init(OpenRISCCPU *cpu)
--- 
-2.9.3
-
+-Stafford
