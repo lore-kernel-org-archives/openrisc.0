@@ -1,29 +1,25 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 16 Mar 2017 06:59:21 +0900
+Date: Thu, 16 Mar 2017 07:10:53 +0900
 Subject: [OpenRISC] [PATCH 0/3] openrisc: various fixes
 In-Reply-To: <CAAfxs75jPZN+kPEx2dESjXvw5dJf2peir7jv6xyfRuut=epd=g@mail.gmail.com>
 References: <cover.1486391219.git.shorne@gmail.com>
  <CAAfxs75jPZN+kPEx2dESjXvw5dJf2peir7jv6xyfRuut=epd=g@mail.gmail.com>
-Message-ID: <CAAfxs75dXp5-b6TwQAJs6G-nRk=SQgTbMNXTW=CQAz9_WhRAqg@mail.gmail.com>
+Message-ID: <20170315221053.GL2418@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hello.
+On Wed, Mar 15, 2017 at 08:44:34PM +0900, Stafford Horne wrote:
+> Hello,
+> 
+> Any comment on this series?
 
-Sorry my mistake. Corinna replied that this patch series was pushed.  I
-didn't get that mail.
+Sorry, my mistake Corinna replied on this but I missed it.
 
 https://sourceware.org/ml/newlib/2017/msg00139.html
 
-On 15 Mar 2017 8:44 p.m., "Stafford Horne" <shorne@gmail.com> wrote:
-
-> Hello,
->
-> Any comment on this series?
->
 > On Mon, Feb 6, 2017 at 11:38 PM, Stafford Horne <shorne@gmail.com> wrote:
 > > Hello,
 > >
@@ -49,7 +45,3 @@ On 15 Mar 2017 8:44 p.m., "Stafford Horne" <shorne@gmail.com> wrote:
 > > --
 > > 2.9.3
 > >
->
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20170316/147bc975/attachment.html>
