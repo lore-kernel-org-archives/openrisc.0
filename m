@@ -1,47 +1,45 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 16 Mar 2017 07:10:53 +0900
-Subject: [OpenRISC] [PATCH 0/3] openrisc: various fixes
-In-Reply-To: <CAAfxs75jPZN+kPEx2dESjXvw5dJf2peir7jv6xyfRuut=epd=g@mail.gmail.com>
-References: <cover.1486391219.git.shorne@gmail.com>
- <CAAfxs75jPZN+kPEx2dESjXvw5dJf2peir7jv6xyfRuut=epd=g@mail.gmail.com>
-Message-ID: <20170315221053.GL2418@lianli.shorne-pla.net>
+Date: Fri, 17 Mar 2017 14:18:39 +0900
+Subject: [OpenRISC] [PATCH] cpu: or1k: Set ppc on pc change
+Message-ID: <20170317051839.31241-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Mar 15, 2017 at 08:44:34PM +0900, Stafford Horne wrote:
-> Hello,
-> 
-> Any comment on this series?
+Currently the openrisc previous program counter (ppc) is never updated
+when running the cgen based simulator.  This causes issues when running
+the single step delay detection code in gdb.
 
-Sorry, my mistake Corinna replied on this but I missed it.
+cpu/ChangeLog:
 
-https://sourceware.org/ml/newlib/2017/msg00139.html
+2017-02-12  Stafford Horne  <shorne@gmail.com>
 
-> On Mon, Feb 6, 2017 at 11:38 PM, Stafford Horne <shorne@gmail.com> wrote:
-> > Hello,
-> >
-> > These are a few patches that have collected in the openrisc newlib
-> > repository on github over the last year.  Most issues were found
-> > when running the gdb test suite as I worked on getting that ready
-> > for upstream.
-> >
-> > I am working with Stefan Wallentowitz who has sent openrisc patches
-> > in the past.
-> >
-> > Olof Kindgren (1):
-> >   or1k: Make open reentrant
-> >
-> > Stafford Horne (2):
-> >   libgloss: or1k: If available call the init for init_array
-> >   libgloss: Remove duplicate definition of environ
-> >
-> >  libgloss/or1k/crt0.S     | 6 ++++++
-> >  libgloss/or1k/syscalls.c | 5 +----
-> >  2 files changed, 7 insertions(+), 4 deletions(-)
-> >
-> > --
-> > 2.9.3
-> >
+	* or1kcommon.cpu: Add pc set semantics to also update ppc.
+---
+Note I dont think any code needs rebuilding as this is only going to be
+used by the simulator (not yet upstream).
+
+ cpu/or1kcommon.cpu | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/cpu/or1kcommon.cpu b/cpu/or1kcommon.cpu
+index 1119f98..ced70c3 100644
+--- a/cpu/or1kcommon.cpu
++++ b/cpu/or1kcommon.cpu
+@@ -26,6 +26,11 @@
+   (comment "program counter")
+   (attrs PC (MACH ORBIS-MACHS))
+   (type pc UWI)
++  (get () (raw-reg h-pc))
++  (set (newval) (sequence ()
++                 (set (reg h-sys-ppc) (raw-reg h-pc))
++                 (set (raw-reg h-pc) newval)
++                ))
+   )
+ 
+ (define-pmacro REG-INDICES
+-- 
+2.9.3
+
