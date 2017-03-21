@@ -1,28 +1,26 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Tue, 21 Mar 2017 06:20:38 +0900
-Subject: [OpenRISC] [PATCH] cpu: or1k: Set ppc on pc change
-In-Reply-To: <e1d0fd02-f3c4-5fd2-534d-ed568e7d9055@redhat.com>
-References: <20170317051839.31241-1-shorne@gmail.com>
- <e1d0fd02-f3c4-5fd2-534d-ed568e7d9055@redhat.com>
-Message-ID: <20170320212038.GC2570@lianli.shorne-pla.net>
+From: Yao Qi <qiyaoltc@gmail.com>
+Date: Tue, 21 Mar 2017 09:14:32 +0000
+Subject: [OpenRISC] [PATCH v5 0/4] OpenRISC gdb port
+In-Reply-To: <cover.1489728533.git.shorne@gmail.com> (Stafford Horne's message
+ of "Fri, 17 Mar 2017 14:43:16 +0900")
+References: <cover.1489728533.git.shorne@gmail.com>
+Message-ID: <86d1dbvvnr.fsf@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-On Mon, Mar 20, 2017 at 03:35:42PM +0000, Nick Clifton wrote:
-> Hi Stafford,
-> 
-> > 2017-02-12  Stafford Horne  <shorne@gmail.com>
-> > 
-> > 	* or1kcommon.cpu: Add pc set semantics to also update ppc.
-> 
-> Approved and applied.
+Stafford Horne <shorne@gmail.com> writes:
 
-Thank you
+> This is the openrisc port of GDB that has been in openrisc
+> repositories for a very long time. The main original author
+> was Jeremy Bennett as can be seen in file copyrights. Others
+> should also have copyright assignment in place.
 
-> Cheers
->   Nick
-> 
-> 
+Hi Stafford,
+Thanks for the patches, but I don't have cycles to review them now,
+because of the 8.0 release.  I'll review them after 8.0 release.
+
+-- 
+Yao (齐尧)
