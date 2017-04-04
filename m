@@ -1,13 +1,12 @@
 From: Yao Qi <qiyaoltc@gmail.com>
-Date: Tue, 04 Apr 2017 22:29:55 +0100
-Subject: [OpenRISC] [PATCH v5 3/4] gdb: testsuite: Add or1k l.nop
-	inscruction
-In-Reply-To: <d3d7f61042f7fdd9aa8cea88524249acfd43841b.1489728533.git.shorne@gmail.com>
- (Stafford Horne's message of "Fri, 17 Mar 2017 14:43:19 +0900")
+Date: Tue, 04 Apr 2017 22:32:51 +0100
+Subject: [OpenRISC] [PATCH v5 4/4] Add gdb for or1k build
+In-Reply-To: <e14cb9c471bb14d29f789b2af4b3bef85317c3dc.1489728533.git.shorne@gmail.com>
+ (Stafford Horne's message of "Fri, 17 Mar 2017 14:43:20 +0900")
 References: <cover.1489728533.git.shorne@gmail.com>
  <cover.1489728533.git.shorne@gmail.com>
- <d3d7f61042f7fdd9aa8cea88524249acfd43841b.1489728533.git.shorne@gmail.com>
-Message-ID: <86inmj6euk.fsf@gmail.com>
+ <e14cb9c471bb14d29f789b2af4b3bef85317c3dc.1489728533.git.shorne@gmail.com>
+Message-ID: <86efx76epo.fsf@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -16,14 +15,14 @@ To: openrisc@lists.librecores.org
 
 Stafford Horne <shorne@gmail.com> writes:
 
-> gdb/testsuite/ChangeLog:
+> * ChangeLog:
 >
-> 2016-05-11  Stafford Horne  <shorne@gmail.com>
->
-> 	* gdb.base/bp-permanent.c: Define nop of or1k.
+> 	* configure.ac: remove logic adding gdb to noconfigsdirs for or1k
+> 	* configure: regenerate
 
-The patch is good to me, but do you need to add or1k in
-gdb.xml/tdesc-regs.exp?
+Once all the rest of patch series are OK, send this patch to
+gcc-patches at .  Top-level configure is maintained there, and binutils-gdb
+sync from gdb repository manually.
 
 -- 
 Yao (齐尧)
