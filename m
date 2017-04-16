@@ -1,47 +1,72 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 17 Apr 2017 08:23:49 +0900
-Subject: [OpenRISC] [PATCH 0/7] Openrisc misc features / fixes
-Message-ID: <cover.1492384862.git.shorne@gmail.com>
+Date: Mon, 17 Apr 2017 08:23:50 +0900
+Subject: [OpenRISC] [PATCH 1/7] target/openrisc: Fixes for memory debugging
+In-Reply-To: <cover.1492384862.git.shorne@gmail.com>
+References: <cover.1492384862.git.shorne@gmail.com>
+Message-ID: <575d21dff52df4fa53d17e77728018453f82e8e5.1492384862.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hello,
+When debugging in gdb you might want to inspect instructions in mapped
+pages or in exception vectors like 0x800 etc.  This was previously not
+possible in qemu since the *get_phys_page_debug() routine only looked
+into the data tlb.
 
-The first patch here I sent a few weeks ago and got go response.  Sending
-again.
+Change to fall back to look into instruction tlb and plain physical
+pages.
 
-The second was requested by the uclibc-ng maintainer as when he is testing
-his builds he uses qemu and would like to have a way for the system to shut
-down.  This models how our other simulators shutdown, so no changes are
-needed on the kernel side.
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+ target/openrisc/mmu.c | 23 +++++++++++++++++++----
+ 1 file changed, 19 insertions(+), 4 deletions(-)
 
-The others I added while working on upcoming openrisc smp support.
-
--Stafford
-
-Stafford Horne (7):
-  target/openrisc: Fixes for memory debugging
-  target/openrisc: add shutdown logic
-  target/openrisc: add numcores and coreid support
-  target/openrisc: implement shadow registers
-  migration: Add VMSTATE_UINTTL_2DARRAY()
-  migration: Add VMSTATE_STRUCT_2DARRAY()
-  target/openrisc: Implement full vmstate serialization
-
- include/migration/cpu.h      |  7 ++++
- include/migration/vmstate.h  | 15 +++++++++
- target/openrisc/cpu.c        |  5 ++-
- target/openrisc/cpu.h        |  4 ++-
- target/openrisc/helper.h     |  1 +
- target/openrisc/machine.c    | 76 ++++++++++++++++++++++++++++++++++++++++++--
- target/openrisc/mmu.c        | 23 +++++++++++---
- target/openrisc/sys_helper.c | 32 +++++++++++++++++++
- target/openrisc/translate.c  |  8 +++--
- 9 files changed, 160 insertions(+), 11 deletions(-)
-
+diff --git a/target/openrisc/mmu.c b/target/openrisc/mmu.c
+index 56b11d3..a6d7bcd 100644
+--- a/target/openrisc/mmu.c
++++ b/target/openrisc/mmu.c
+@@ -124,7 +124,7 @@ static int cpu_openrisc_get_phys_addr(OpenRISCCPU *cpu,
+ {
+     int ret = TLBRET_MATCH;
+ 
+-    if (rw == 2) {    /* ITLB */
++    if (rw == MMU_INST_FETCH) {    /* ITLB */
+        *physical = 0;
+         ret = cpu->env.tlb->cpu_openrisc_map_address_code(cpu, physical,
+                                                           prot, address, rw);
+@@ -221,12 +221,27 @@ hwaddr openrisc_cpu_get_phys_page_debug(CPUState *cs, vaddr addr)
+     OpenRISCCPU *cpu = OPENRISC_CPU(cs);
+     hwaddr phys_addr;
+     int prot;
++    int miss;
+ 
+-    if (cpu_openrisc_get_phys_addr(cpu, &phys_addr, &prot, addr, 0)) {
+-        return -1;
++    /* Check memory for any kind of address, since during debug the
++       gdb can ask for anything, check data tlb for address */
++    miss = cpu_openrisc_get_phys_addr(cpu, &phys_addr, &prot, addr, 0);
++
++    /* Check instruction tlb */
++    if (miss) {
++        miss = cpu_openrisc_get_phys_addr(cpu, &phys_addr, &prot, addr, MMU_INST_FETCH);
++    }
++
++    /* Last, fall back to a plain address */
++    if (miss) {
++        miss = cpu_openrisc_get_phys_nommu(cpu, &phys_addr, &prot, addr, 0);
+     }
+ 
+-    return phys_addr;
++    if (miss) {
++        return -1;
++    } else {
++        return phys_addr;
++    }
+ }
+ 
+ void cpu_openrisc_mmu_init(OpenRISCCPU *cpu)
 -- 
 2.9.3
 
