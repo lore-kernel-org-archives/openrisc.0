@@ -1,46 +1,47 @@
-From: Julius Baxter <julius@fossi-foundation.org>
-Date: Wed, 12 Apr 2017 14:16:50 +1000
-Subject: [OpenRISC] ORConf 2017 call for participation
-Message-ID: <CA+5O_KsdW6RmRXiHX5w=urhMM5EHs+Pe18jQh03YpytT2HAA3w@mail.gmail.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Mon, 17 Apr 2017 08:23:49 +0900
+Subject: [OpenRISC] [PATCH 0/7] Openrisc misc features / fixes
+Message-ID: <cover.1492384862.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi all,
+Hello,
 
-ORConf 2017 will be held in Hebden Bridge in the UK from Friday to
-Sunday, September 8th to the 10th.
+The first patch here I sent a few weeks ago and got go response.  Sending
+again.
 
-I'd like to announce that we've opened submissions for presentations,
-posters and hardware displays at the event. Proposals may be submitted
-through this form:
+The second was requested by the uclibc-ng maintainer as when he is testing
+his builds he uses qemu and would like to have a way for the system to shut
+down.  This models how our other simulators shutdown, so no changes are
+needed on the kernel side.
 
-https://goo.gl/forms/fwALSQvbyUfE83Fh1
+The others I added while working on upcoming openrisc smp support.
 
-ORConf is an event aimed at anyone involved in free and open source
-computer system design, with the emphasis on open source digital
-design. So if you contribute to a tool to help put systems together,
-or develop on and debug them, or publish components and IP, or even
-make fully-open source chips(!) we'd very much like to hear from you!
+-Stafford
 
-ORConf this year is being held as part of the esteemed Wuthering Bytes
-Festival of Technology: http://wutheringbytes.com/ There will be
-events in Hebden Bridge starting September 1st, so do check it out.
+Stafford Horne (7):
+  target/openrisc: Fixes for memory debugging
+  target/openrisc: add shutdown logic
+  target/openrisc: add numcores and coreid support
+  target/openrisc: implement shadow registers
+  migration: Add VMSTATE_UINTTL_2DARRAY()
+  migration: Add VMSTATE_STRUCT_2DARRAY()
+  target/openrisc: Implement full vmstate serialization
 
-We'll be in touch when general registration opens and further details
-of the event become available, which shouldn't be too far away. All
-details will be on http://orconf.org as they become available.
+ include/migration/cpu.h      |  7 ++++
+ include/migration/vmstate.h  | 15 +++++++++
+ target/openrisc/cpu.c        |  5 ++-
+ target/openrisc/cpu.h        |  4 ++-
+ target/openrisc/helper.h     |  1 +
+ target/openrisc/machine.c    | 76 ++++++++++++++++++++++++++++++++++++++++++--
+ target/openrisc/mmu.c        | 23 +++++++++++---
+ target/openrisc/sys_helper.c | 32 +++++++++++++++++++
+ target/openrisc/translate.c  |  8 +++--
+ 9 files changed, 160 insertions(+), 11 deletions(-)
 
-As always we're looking for sponsorship for this year's event. If you
-think you'd like to have your company's name associated with it,
-please email us at orconf at fossi-foundation.org and we'll get talking.
+-- 
+2.9.3
 
-Whether or not you're intending on presenting, we're hoping to see
-everyone again for another year of great presentations and, this time,
-a few good English ales.
-
-Cheers,
-
-The ORConf team
