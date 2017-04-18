@@ -1,49 +1,45 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Tue, 18 Apr 2017 23:18:46 +0900
-Subject: [OpenRISC] [Qemu-devel] [PATCH 1/7] target/openrisc: Fixes for
- memory debugging
-In-Reply-To: <382ab324-39c0-5549-ff01-3fe7cc1319de@twiddle.net>
+Date: Tue, 18 Apr 2017 23:20:55 +0900
+Subject: [OpenRISC] [Qemu-devel] [PATCH 2/7] target/openrisc: add
+	shutdown logic
+In-Reply-To: <6914f9b7-ece1-973d-2210-871b71319ae0@twiddle.net>
 References: <cover.1492384862.git.shorne@gmail.com>
- <575d21dff52df4fa53d17e77728018453f82e8e5.1492384862.git.shorne@gmail.com>
- <382ab324-39c0-5549-ff01-3fe7cc1319de@twiddle.net>
-Message-ID: <20170418141846.GA2599@lianli.shorne-pla.net>
+ <fb69c137317a365dcb549dfef1ecd2fbff48e92c.1492384862.git.shorne@gmail.com>
+ <6914f9b7-ece1-973d-2210-871b71319ae0@twiddle.net>
+Message-ID: <20170418142055.GB2599@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Apr 18, 2017 at 12:47:30AM -0700, Richard Henderson wrote:
+On Tue, Apr 18, 2017 at 12:52:52AM -0700, Richard Henderson wrote:
 > On 04/16/2017 04:23 PM, Stafford Horne wrote:
-> > When debugging in gdb you might want to inspect instructions in mapped
-> > pages or in exception vectors like 0x800 etc.  This was previously not
-> > possible in qemu since the *get_phys_page_debug() routine only looked
-> > into the data tlb.
+> > In openrisc simulators we use hooks like 'l.nop 1' to cause the
+> > simulator to exit.  Implement that for qemu too.
 > > 
-> > Change to fall back to look into instruction tlb and plain physical
-> > pages.
-> > 
+> > Reported-by: Waldemar Brodkorb <wbx@openadk.org>
 > > Signed-off-by: Stafford Horne <shorne@gmail.com>
 > 
-> Oh the horrors of a software managed TLB.
+> As I said the first time this was posted: This is horrible.
 > 
-> You might do well to architecturally define an SPR that holds the page table
-> base, even if for real hardware that's only used by the software refill to
-> load up the address.
+> If you want to do something like this, it needs to be buried under a special
+> run mode like -semihosting.
+
+Understood,  I will revise this.  I didnt know this was posted before.
+
+> >          case 0x01:    /* l.nop */
+> >              LOG_DIS("l.nop %d\n", I16);
+> > +            {
+> > +                TCGv_i32 arg = tcg_const_i32(I16);
+> > +                gen_helper_nop(arg);
+> > +            }
 > 
-> That would give qemu the option of performing a real page table walk.  This
-> would fix this debug hook properly (so that you can examine pages that
-> aren't in the TLB at all).  It would also optionally allow QEMU to skip the
-> software refill, which *significantly* speeds up emulation.
+> You also really really must special-case l.nop 0 so that it doesn't generate
+> a function call.  Just think of all the extra calls you're adding for every
+> delay slot that couldn't be filled.
 
-Understood, I guess we would also need a way to represent which paging
-model we are using (1 level, 2 level etc)?
-
-> That said,
-> 
-> Reviewed-by: Richard Henderson <rth@twiddle.net>
-
-Thanks for the review.
+Yeah, that makes sense.  Ill add that for l.nop 0.
 
 -Stafford
 
