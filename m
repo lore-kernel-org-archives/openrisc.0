@@ -1,11 +1,11 @@
 From: Richard Henderson <rth@twiddle.net>
-Date: Tue, 18 Apr 2017 01:11:53 -0700
-Subject: [OpenRISC] [Qemu-devel] [PATCH 4/7] target/openrisc: implement
- shadow registers
-In-Reply-To: <b1be5af9a1d304f55847efeab706e88e3b9b1afa.1492384862.git.shorne@gmail.com>
+Date: Tue, 18 Apr 2017 01:14:19 -0700
+Subject: [OpenRISC] [Qemu-devel] [PATCH 7/7] target/openrisc: Implement
+ full vmstate serialization
+In-Reply-To: <fae2ac85b7226ec28c8419f488cd9947bb6142a0.1492384862.git.shorne@gmail.com>
 References: <cover.1492384862.git.shorne@gmail.com>
- <b1be5af9a1d304f55847efeab706e88e3b9b1afa.1492384862.git.shorne@gmail.com>
-Message-ID: <5447c3cd-4b64-3b71-fd77-33a29f225104@twiddle.net>
+ <fae2ac85b7226ec28c8419f488cd9947bb6142a0.1492384862.git.shorne@gmail.com>
+Message-ID: <2b6eee7d-e83d-5d0f-c1ef-a8a85236807d@twiddle.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,38 +13,16 @@ Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
 On 04/16/2017 04:23 PM, Stafford Horne wrote:
-> Shadow registers are part of the openrisc spec along with sr[cid], as
-> part of the fast context switching feature.  When exceptions occur,
-> instead of having to save registers to the stack if enabled the CID will
-> increment and a new set of registers will be available.
+> Previously serialization did not persist the tlb, timer, pic and other
+> key state items.  This meant snapshotting and restoring a running os
+> would crash. After adding these I am able to take snapshots of a
+> running linux os and restore at a later time.
 >
-> This patch only implements shadow registers which can be used as extra
-> scratch registers via the mfspr and mtspr if required.  This is
-> implemented in a way where it would be easy to add on the fast context
-> switching, currently cid is hardcoded to 0.
+> I am currently not trying to maintain capatibility with older versions
+> as I do not believe this really worked before or anyone used it.
 
-I'm not especially keen on this half-conversion.
-If CID cannot be changed, then
-
-> -    target_ulong gpr[32];     /* General registers */
-> +    target_ulong shadow_gpr[16][32]; /* Shadow registers */
-> +    target_ulong * gpr;       /* General registers (backed by shadow) */
-
-this pointer should not be necessary.  Just use a union, or even just
-
-     target_ulong gpr[32];
-     target_ulong shadow_gpr[15][32];
-
-for now.
-
-Alternately, add accessor functions that take the whole ENV (which would be 
-able to read CID, when needed).  C.f.
-
-     uint64_t cpu_alpha_load_gr(CPUAlphaState *env, unsigned reg);
-     void cpu_alpha_store_gr(CPUAlphaState *env, unsigned reg, uint64_t val);
-
-If/when CID can be changed, then we can talk about various ways
-that this can be modeled within TCG.
+That's fine, but you still have to bump the version numbers.
 
 
 r~
+
