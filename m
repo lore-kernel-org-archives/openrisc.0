@@ -1,163 +1,65 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 24 Apr 2017 06:54:20 +0900
-Subject: [OpenRISC] [PATCH RFC] target/openrisc: Support non-busy idle state
-	using PMR SPR
-In-Reply-To: <ab4f029c-8264-7d35-b0e0-9b35a8e80d9d@twiddle.net>
-References: <ab4f029c-8264-7d35-b0e0-9b35a8e80d9d@twiddle.net>
-Message-ID: <20170423215420.27098-1-shorne@gmail.com>
+Date: Mon, 24 Apr 2017 07:40:48 +0900
+Subject: [OpenRISC] [PATCH v2 0/9] Openrisc misc features / fixes
+Message-ID: <cover.1492986468.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The OpenRISC architecture has the Power Management Register (PMR)
-special purpose register to manage cpu power states.  The interesting
-modes are:
-
- * Doze Mode (DME) - Stop cpu except timer & pic - wake on interrupt
- * Sleep Mode (SME) - Stop cpu and all units - wake on interrupt
- * Suspend Model (SUME) - Stop cpu and all units - wake on reset
-
-The linux kernel will set DME when idle.
-
-This patch implements the PMR SPR and halts the qemu cpu when there is a
-change to DME or SME.  This means that openrisc qemu in no longer peggs
-a host cpu at 100%.
-
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
-(Sorry, resending this again, there was something wrong with my mail setup
-on the last)
-
 Hello,
 
-This patch seems work fine but I am not sure if it is the right way to do
-trigger the halt signal.  Should I do it via raising an interrupt or
-exception and exitting the cpu?
+I have got a few response on the last series and have fixed them up.  Also
+I have dropped the shutdown patch.
 
-Also, I don't know if its due to this patch of an issue with the timer
-interrupts.  After applying this patch the timer interrupts do not trigger
-until a keypress is make.  i.e. something like this...
+These patches I added while working on upcoming openrisc smp support.  This
+does not allow for SMP openrisc on qemu "yet" but it does help to allow
+booting of an SMP kernel on the uni-processor qemu system which I was using
+as a sanity check before testing on fpga hardware.
 
-  $ sleep 5
-  <hangs forever until a key is pressed>
+Changes Since v1:
 
-It may or may not be related to this patch as I noticed sometime things
-like this happened before this patch.
+ o Added Tim's patches to this series (since the vmstate patch depends on
+   in)
+ o Changed vmstate patch to bump version numbers + support evbar saving
+ o Changed Shadow Register patch to use accessor functions
+ o Added reviewed-by's
+ o Added a patch to remote the `features` field and enums
+ o Dropped shutdown on `l.nop 1` patch
 
+-Stafford
 
- target/openrisc/cpu.c        |  3 ++-
- target/openrisc/cpu.h        | 10 ++++++++++
- target/openrisc/interrupt.c  |  2 ++
- target/openrisc/machine.c    |  1 +
- target/openrisc/sys_helper.c | 12 ++++++++++++
- 5 files changed, 27 insertions(+), 1 deletion(-)
+Stafford Horne (7):
+  target/openrisc: Fixes for memory debugging
+  target/openrisc: add numcores and coreid support
+  migration: Add VMSTATE_UINTTL_2DARRAY()
+  target/openrisc: implement shadow registers
+  migration: Add VMSTATE_STRUCT_2DARRAY()
+  target/openrisc: Implement full vmstate serialization
+  target/openrisc: Remove duplicate features property
 
-diff --git a/target/openrisc/cpu.c b/target/openrisc/cpu.c
-index c9b3f22..1d6330c 100644
---- a/target/openrisc/cpu.c
-+++ b/target/openrisc/cpu.c
-@@ -51,7 +51,8 @@ static void openrisc_cpu_reset(CPUState *s)
-     cpu->env.lock_addr = -1;
-     s->exception_index = -1;
- 
--    cpu->env.upr = UPR_UP | UPR_DMP | UPR_IMP | UPR_PICP | UPR_TTP;
-+    cpu->env.upr = UPR_UP | UPR_DMP | UPR_IMP | UPR_PICP | UPR_TTP |
-+                   UPR_PMP;
-     cpu->env.dmmucfgr = (DMMUCFGR_NTW & (0 << 2)) | (DMMUCFGR_NTS & (6 << 2));
-     cpu->env.immucfgr = (IMMUCFGR_NTW & (0 << 2)) | (IMMUCFGR_NTS & (6 << 2));
- 
-diff --git a/target/openrisc/cpu.h b/target/openrisc/cpu.h
-index 938ccc3..2721432 100644
---- a/target/openrisc/cpu.h
-+++ b/target/openrisc/cpu.h
-@@ -140,6 +140,15 @@ enum {
-     IMMUCFGR_HTR = (1 << 11),
- };
- 
-+/* Power management register */
-+enum {
-+    PMR_SDF = (15 << 0),
-+    PMR_DME = (1 << 4),
-+    PMR_SME = (1 << 5),
-+    PMR_DCGE = (1 << 6),
-+    PMR_SUME = (1 << 7),
-+};
-+
- /* Float point control status register */
- enum {
-     FPCSR_FPEE = 1,
-@@ -284,6 +293,7 @@ typedef struct CPUOpenRISCState {
-     uint32_t immucfgr;        /* IMMU configure register */
-     uint32_t esr;             /* Exception supervisor register */
-     uint32_t evbar;           /* Exception vector base address register */
-+    uint32_t pmr;             /* Power Management Register */
-     uint32_t fpcsr;           /* Float register */
-     float_status fp_status;
- 
-diff --git a/target/openrisc/interrupt.c b/target/openrisc/interrupt.c
-index 2c91fab..3959671 100644
---- a/target/openrisc/interrupt.c
-+++ b/target/openrisc/interrupt.c
-@@ -60,6 +60,8 @@ void openrisc_cpu_do_interrupt(CPUState *cs)
-     env->sr |= SR_SM;
-     env->sr &= ~SR_IEE;
-     env->sr &= ~SR_TEE;
-+    env->pmr &= ~PMR_DME;
-+    env->pmr &= ~PMR_SME;
-     env->tlb->cpu_openrisc_map_address_data = &cpu_openrisc_get_phys_nommu;
-     env->tlb->cpu_openrisc_map_address_code = &cpu_openrisc_get_phys_nommu;
-     env->lock_addr = -1;
-diff --git a/target/openrisc/machine.c b/target/openrisc/machine.c
-index a82be62..a20cce7 100644
---- a/target/openrisc/machine.c
-+++ b/target/openrisc/machine.c
-@@ -138,6 +138,7 @@ static const VMStateDescription vmstate_env = {
-         VMSTATE_UINT32(dmmucfgr, CPUOpenRISCState),
-         VMSTATE_UINT32(immucfgr, CPUOpenRISCState),
-         VMSTATE_UINT32(evbar, CPUOpenRISCState),
-+        VMSTATE_UINT32(pmr, CPUOpenRISCState),
-         VMSTATE_UINT32(esr, CPUOpenRISCState),
-         VMSTATE_UINT32(fpcsr, CPUOpenRISCState),
-         VMSTATE_UINT64(mac, CPUOpenRISCState),
-diff --git a/target/openrisc/sys_helper.c b/target/openrisc/sys_helper.c
-index fa3d6a4..cb1e085 100644
---- a/target/openrisc/sys_helper.c
-+++ b/target/openrisc/sys_helper.c
-@@ -22,6 +22,7 @@
- #include "cpu.h"
- #include "exec/exec-all.h"
- #include "exec/helper-proto.h"
-+#include "exception.h"
- 
- #define TO_SPR(group, number) (((group) << 11) + (number))
- 
-@@ -141,6 +142,14 @@ void HELPER(mtspr)(CPUOpenRISCState *env,
-     case TO_SPR(5, 2):  /* MACHI */
-         env->mac = deposit64(env->mac, 32, 32, rb);
-         break;
-+    case TO_SPR(8, 0):  /* PMR */
-+        env->pmr = rb;
-+        if (env->pmr & PMR_DME || env->pmr & PMR_SME) {
-+            cpu_restore_state(cs, GETPC() + 4);
-+            cs->halted = 1;
-+            raise_exception(cpu, EXCP_HLT);
-+        }
-+        break;
-     case TO_SPR(9, 0):  /* PICMR */
-         env->picmr |= rb;
-         break;
-@@ -287,6 +296,9 @@ target_ulong HELPER(mfspr)(CPUOpenRISCState *env,
-         return env->mac >> 32;
-         break;
- 
-+    case TO_SPR(8, 0):  /* PMR */
-+        return env->pmr;
-+
-     case TO_SPR(9, 0):  /* PICMR */
-         return env->picmr;
- 
+Tim 'mithro' Ansell (2):
+  target/openrisc: Implement EVBAR register
+  target/openrisc: Implement EPH bit
+
+ include/migration/cpu.h             |  7 ++++
+ include/migration/vmstate.h         | 15 ++++++++
+ linux-user/elfload.c                |  2 +-
+ linux-user/main.c                   | 18 ++++-----
+ linux-user/openrisc/target_cpu.h    |  6 +--
+ linux-user/openrisc/target_signal.h |  2 +-
+ linux-user/signal.c                 | 16 ++++----
+ target/openrisc/cpu.c               | 13 ++-----
+ target/openrisc/cpu.h               | 36 ++++++++++--------
+ target/openrisc/gdbstub.c           |  4 +-
+ target/openrisc/interrupt.c         |  9 ++++-
+ target/openrisc/machine.c           | 75 +++++++++++++++++++++++++++++++++++--
+ target/openrisc/mmu.c               | 23 ++++++++++--
+ target/openrisc/sys_helper.c        | 22 +++++++++++
+ target/openrisc/translate.c         |  5 ++-
+ 15 files changed, 194 insertions(+), 59 deletions(-)
+
 -- 
 2.9.3
 
