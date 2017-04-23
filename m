@@ -1,56 +1,135 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 24 Apr 2017 07:40:55 +0900
-Subject: [OpenRISC] [PATCH v2 7/9] migration: Add VMSTATE_STRUCT_2DARRAY()
+Date: Mon, 24 Apr 2017 07:40:56 +0900
+Subject: [OpenRISC] [PATCH v2 8/9] target/openrisc: Implement full vmstate
+	serialization
 In-Reply-To: <cover.1492986468.git.shorne@gmail.com>
 References: <cover.1492986468.git.shorne@gmail.com>
-Message-ID: <565b9678ec7335762a290afce68f7062bdaf0ce9.1492986468.git.shorne@gmail.com>
+Message-ID: <76adf807304af127f81f0c11f29b610b059f3497.1492986468.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-For openrisc we implement tlb state as a 2d array of tlb entry structs.
-This is added to allow easy storing of state of 2d arrays.
+Previously serialization did not persist the tlb, timer, pic and other
+key state items.  This meant snapshotting and restoring a running os
+would crash. After adding these I am able to take snapshots of a
+running linux os and restore at a later time.
+
+I am currently not trying to maintain capatibility with older versions
+as I do not believe this really worked before or anyone used it.
 
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- include/migration/vmstate.h | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+Changes since v1:
 
-diff --git a/include/migration/vmstate.h b/include/migration/vmstate.h
-index f2dbf84..9b7dcdc 100644
---- a/include/migration/vmstate.h
-+++ b/include/migration/vmstate.h
-@@ -499,6 +499,17 @@ extern const VMStateInfo vmstate_info_qtailq;
-     .offset       = vmstate_offset_array(_state, _field, _type, _num),\
- }
+ o Added evbar
+ o Bumped version on vmstate_env
+
+ target/openrisc/machine.c | 73 +++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 71 insertions(+), 2 deletions(-)
+
+diff --git a/target/openrisc/machine.c b/target/openrisc/machine.c
+index 2bf71c3..a82be62 100644
+--- a/target/openrisc/machine.c
++++ b/target/openrisc/machine.c
+@@ -24,6 +24,63 @@
+ #include "hw/boards.h"
+ #include "migration/cpu.h"
  
-+#define VMSTATE_STRUCT_2DARRAY_TEST(_field, _state, _n1, _n2, _test, _version, _vmsd, _type) { \
-+    .name         = (stringify(_field)),                                    \
-+    .num          = (_n1) * (_n2),                                          \
-+    .field_exists = (_test),                                                \
-+    .version_id   = (_version),                                             \
-+    .vmsd         = &(_vmsd),                                               \
-+    .size         = sizeof(_type),                                          \
-+    .flags        = VMS_STRUCT|VMS_ARRAY,                                   \
-+    .offset       = vmstate_offset_2darray(_state, _field, _type, _n1, _n2),\
++static int env_post_load(void *opaque, int version_id)
++{
++    CPUOpenRISCState *env = opaque;
++
++    /* Restore MMU handlers */
++    if (env->sr & SR_DME) {
++        env->tlb->cpu_openrisc_map_address_data =
++            &cpu_openrisc_get_phys_data;
++    } else {
++        env->tlb->cpu_openrisc_map_address_data =
++            &cpu_openrisc_get_phys_nommu;
++    }
++
++    if (env->sr & SR_IME) {
++        env->tlb->cpu_openrisc_map_address_code =
++            &cpu_openrisc_get_phys_code;
++    } else {
++        env->tlb->cpu_openrisc_map_address_code =
++            &cpu_openrisc_get_phys_nommu;
++    }
++
++
++    return 0;
 +}
 +
- #define VMSTATE_STRUCT_VARRAY_UINT8(_field, _state, _field_num, _version, _vmsd, _type) { \
-     .name       = (stringify(_field)),                               \
-     .num_offset = vmstate_offset_value(_state, _field_num, uint8_t), \
-@@ -746,6 +757,10 @@ extern const VMStateInfo vmstate_info_qtailq;
-     VMSTATE_STRUCT_ARRAY_TEST(_field, _state, _num, NULL, _version,   \
-             _vmsd, _type)
- 
-+#define VMSTATE_STRUCT_2DARRAY(_field, _state, _n1, _n2, _version, _vmsd, _type) \
-+    VMSTATE_STRUCT_2DARRAY_TEST(_field, _state, _n1, _n2, NULL, _version,   \
-+            _vmsd, _type)
++static const VMStateDescription vmstate_tlb_entry = {
++    .name = "tlb_entry",
++    .version_id = 1,
++    .minimum_version_id = 1,
++    .minimum_version_id_old = 1,
++    .fields = (VMStateField[]) {
++        VMSTATE_UINTTL(mr, OpenRISCTLBEntry),
++        VMSTATE_UINTTL(tr, OpenRISCTLBEntry),
++        VMSTATE_END_OF_LIST()
++    }
++};
 +
- #define VMSTATE_BUFFER_UNSAFE_INFO(_field, _state, _version, _info, _size) \
-     VMSTATE_BUFFER_UNSAFE_INFO_TEST(_field, _state, NULL, _version, _info, \
-             _size)
++static const VMStateDescription vmstate_cpu_tlb = {
++    .name = "cpu_tlb",
++    .version_id = 1,
++    .minimum_version_id = 1,
++    .minimum_version_id_old = 1,
++    .fields = (VMStateField[]) {
++        VMSTATE_STRUCT_2DARRAY(itlb, CPUOpenRISCTLBContext,
++                             ITLB_WAYS, ITLB_SIZE, 0,
++                             vmstate_tlb_entry, OpenRISCTLBEntry),
++        VMSTATE_STRUCT_2DARRAY(dtlb, CPUOpenRISCTLBContext,
++                             DTLB_WAYS, DTLB_SIZE, 0,
++                             vmstate_tlb_entry, OpenRISCTLBEntry),
++        VMSTATE_END_OF_LIST()
++    }
++};
++
++#define VMSTATE_CPU_TLB(_f, _s)                             \
++    VMSTATE_STRUCT_POINTER(_f, _s, vmstate_cpu_tlb, CPUOpenRISCTLBContext)
++
++
+ static int get_sr(QEMUFile *f, void *opaque, size_t size, VMStateField *field)
+ {
+     CPUOpenRISCState *env = opaque;
+@@ -47,8 +104,9 @@ static const VMStateInfo vmstate_sr = {
+ 
+ static const VMStateDescription vmstate_env = {
+     .name = "env",
+-    .version_id = 5,
+-    .minimum_version_id = 5,
++    .version_id = 6,
++    .minimum_version_id = 6,
++    .post_load = env_post_load,
+     .fields = (VMStateField[]) {
+         VMSTATE_UINTTL_2DARRAY(shadow_gpr, CPUOpenRISCState, 16, 32),
+         VMSTATE_UINTTL(pc, CPUOpenRISCState),
+@@ -79,9 +137,20 @@ static const VMStateDescription vmstate_env = {
+         VMSTATE_UINT32(cpucfgr, CPUOpenRISCState),
+         VMSTATE_UINT32(dmmucfgr, CPUOpenRISCState),
+         VMSTATE_UINT32(immucfgr, CPUOpenRISCState),
++        VMSTATE_UINT32(evbar, CPUOpenRISCState),
+         VMSTATE_UINT32(esr, CPUOpenRISCState),
+         VMSTATE_UINT32(fpcsr, CPUOpenRISCState),
+         VMSTATE_UINT64(mac, CPUOpenRISCState),
++
++        VMSTATE_CPU_TLB(tlb, CPUOpenRISCState),
++
++        VMSTATE_TIMER_PTR(timer, CPUOpenRISCState),
++        VMSTATE_UINT32(ttmr, CPUOpenRISCState),
++        VMSTATE_UINT32(ttcr, CPUOpenRISCState),
++
++        VMSTATE_UINT32(picmr, CPUOpenRISCState),
++        VMSTATE_UINT32(picsr, CPUOpenRISCState),
++
+         VMSTATE_END_OF_LIST()
+     }
+ };
 -- 
 2.9.3
 
