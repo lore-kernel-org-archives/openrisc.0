@@ -1,46 +1,55 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 24 Apr 2017 07:40:52 +0900
-Subject: [OpenRISC] [PATCH v2 4/9] target/openrisc: add numcores and coreid
-	support
+Date: Mon, 24 Apr 2017 07:40:53 +0900
+Subject: [OpenRISC] [PATCH v2 5/9] migration: Add VMSTATE_UINTTL_2DARRAY()
 In-Reply-To: <cover.1492986468.git.shorne@gmail.com>
 References: <cover.1492986468.git.shorne@gmail.com>
-Message-ID: <4d3ebb3092f5ac66a58357cee15bd5432e77f2fe.1492986468.git.shorne@gmail.com>
+Message-ID: <a7a36b48f9e4c9f971556a7b71c056d2b25a41f0.1492986468.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-These are used to identify the processor in SMP system.  Their
-definition has been defined in verilog cores but it not yet part of the
-spec but it will be soon.
+In openRISC we are implementing the shadow registers as a 2d array.
+Using this target long method rather than direct 32-bit alternatives is
+consistent with the rest of our vm state serialization logic.
 
-The proposal for this is available:
-  https://openrisc.io/proposals/core-identifier-and-number-of-cores
-
-Reviewed-by: Richard Henderson <rth@twiddle.net>
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- target/openrisc/sys_helper.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ include/migration/cpu.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/target/openrisc/sys_helper.c b/target/openrisc/sys_helper.c
-index 6ba8162..e13666b 100644
---- a/target/openrisc/sys_helper.c
-+++ b/target/openrisc/sys_helper.c
-@@ -233,6 +233,12 @@ target_ulong HELPER(mfspr)(CPUOpenRISCState *env,
-     case TO_SPR(0, 64): /* ESR */
-         return env->esr;
+diff --git a/include/migration/cpu.h b/include/migration/cpu.h
+index f3d5dfc..a40bd35 100644
+--- a/include/migration/cpu.h
++++ b/include/migration/cpu.h
+@@ -18,6 +18,8 @@
+     VMSTATE_UINT64_EQUAL_V(_f, _s, _v)
+ #define VMSTATE_UINTTL_ARRAY_V(_f, _s, _n, _v)                        \
+     VMSTATE_UINT64_ARRAY_V(_f, _s, _n, _v)
++#define VMSTATE_UINTTL_2DARRAY_V(_f, _s, _n1, _n2, _v)                \
++    VMSTATE_UINT64_2DARRAY_V(_f, _s, _n1, _n2, _v)
+ #define VMSTATE_UINTTL_TEST(_f, _s, _t)                               \
+     VMSTATE_UINT64_TEST(_f, _s, _t)
+ #define vmstate_info_uinttl vmstate_info_uint64
+@@ -37,6 +39,8 @@
+     VMSTATE_UINT32_EQUAL_V(_f, _s, _v)
+ #define VMSTATE_UINTTL_ARRAY_V(_f, _s, _n, _v)                        \
+     VMSTATE_UINT32_ARRAY_V(_f, _s, _n, _v)
++#define VMSTATE_UINTTL_2DARRAY_V(_f, _s, _n1, _n2, _v)                \
++    VMSTATE_UINT32_2DARRAY_V(_f, _s, _n1, _n2, _v)
+ #define VMSTATE_UINTTL_TEST(_f, _s, _t)                               \
+     VMSTATE_UINT32_TEST(_f, _s, _t)
+ #define vmstate_info_uinttl vmstate_info_uint32
+@@ -48,5 +52,8 @@
+     VMSTATE_UINTTL_EQUAL_V(_f, _s, 0)
+ #define VMSTATE_UINTTL_ARRAY(_f, _s, _n)                              \
+     VMSTATE_UINTTL_ARRAY_V(_f, _s, _n, 0)
++#define VMSTATE_UINTTL_2DARRAY(_f, _s, _n1, _n2)                      \
++    VMSTATE_UINTTL_2DARRAY_V(_f, _s, _n1, _n2, 0)
++
  
-+    case TO_SPR(0, 128): /* COREID */
-+        return 0;
-+
-+    case TO_SPR(0, 129): /* NUMCORES */
-+        return 1;
-+
-     case TO_SPR(1, 512) ... TO_SPR(1, 512+DTLB_SIZE-1): /* DTLBW0MR 0-127 */
-         idx = spr - TO_SPR(1, 512);
-         return env->tlb->dtlb[0][idx].mr;
+ #endif
 -- 
 2.9.3
 
