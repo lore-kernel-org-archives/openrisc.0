@@ -1,10 +1,10 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 24 Apr 2017 06:28:47 +0900
-Subject: [OpenRISC] [PATCH PMR] target/openrisc: Support non-busy idle state
+Date: Mon, 24 Apr 2017 06:54:20 +0900
+Subject: [OpenRISC] [PATCH RFC] target/openrisc: Support non-busy idle state
 	using PMR SPR
 In-Reply-To: <ab4f029c-8264-7d35-b0e0-9b35a8e80d9d@twiddle.net>
 References: <ab4f029c-8264-7d35-b0e0-9b35a8e80d9d@twiddle.net>
-Message-ID: <20170423212847.26692-1-shorne@gmail.com>
+Message-ID: <20170423215420.27098-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -27,6 +27,8 @@ a host cpu at 100%.
 
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
+(Sorry, resending this again, there was something wrong with my mail setup
+on the last)
 
 Hello,
 
