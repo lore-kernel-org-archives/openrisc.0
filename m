@@ -1,39 +1,76 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 24 Apr 2017 21:52:53 +0900
-Subject: [OpenRISC] [PATCH v6 4/5] gdb: testsuite: Add or1k tdesc-regs.exp
-	test support
+Date: Mon, 24 Apr 2017 21:52:54 +0900
+Subject: [OpenRISC] [PATCH v6 5/5] Add gdb for or1k build
 In-Reply-To: <cover.1493038197.git.shorne@gmail.com>
 References: <cover.1493038197.git.shorne@gmail.com>
-Message-ID: <e81976c7a05ff46ad7016e4b150e8285895e80c8.1493038197.git.shorne@gmail.com>
+Message-ID: <88149ed8048a13b6b57f006f0fd3063b9a1ec085.1493038197.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-gdb/testsuite/ChangeLog:
+* ChangeLog:
 
-2017-04-20  Stafford Horne  <shorne@gmail.com>
+2017-02-12  Stafford Horne  <shorne@gmail.com>
 
-	* gdb.xml/tdesc-regs.exp: Add or1k support.
+	* configure.ac: remove logic adding gdb to noconfigsdirs for or1k
+	* configure: regenerate
 ---
- gdb/testsuite/gdb.xml/tdesc-regs.exp | 3 +++
- 1 file changed, 3 insertions(+)
+ configure    | 7 -------
+ configure.ac | 7 -------
+ 2 files changed, 14 deletions(-)
 
-diff --git a/gdb/testsuite/gdb.xml/tdesc-regs.exp b/gdb/testsuite/gdb.xml/tdesc-regs.exp
-index 70fc0e0..d62ed98 100644
---- a/gdb/testsuite/gdb.xml/tdesc-regs.exp
-+++ b/gdb/testsuite/gdb.xml/tdesc-regs.exp
-@@ -50,6 +50,9 @@ switch -glob -- [istarget] {
-     "nios2-*-*" {
- 	set core-regs {nios2-cpu.xml}
-     }
-+    "or1k-*-*" {
-+	set core-regs {or1k-core.xml}
-+    }
-     "powerpc*-*-*" {
- 	set regdir "rs6000/"
- 	set core-regs {power-core.xml}
+diff --git a/configure b/configure
+index be9dd89..0bf47fa 100755
+--- a/configure
++++ b/configure
+@@ -3632,10 +3632,6 @@ case "${target}" in
+     ;;
+   *-*-rtems*)
+     noconfigdirs="$noconfigdirs target-libgloss"
+-    # this is not caught below because this stanza matches earlier
+-    case $target in
+-      or1k*-*-*) noconfigdirs="$noconfigdirs gdb" ;;
+-    esac
+     ;;
+     # The tpf target doesn't support gdb yet.
+   *-*-tpf*)
+@@ -3841,9 +3837,6 @@ case "${target}" in
+   nvptx*-*-*)
+     noconfigdirs="$noconfigdirs target-libssp target-libstdc++-v3 target-libobjc"
+     ;;
+-  or1k*-*-*)
+-    noconfigdirs="$noconfigdirs gdb"
+-    ;;
+   sh-*-*)
+     case "${target}" in
+       sh*-*-elf)
+diff --git a/configure.ac b/configure.ac
+index 532c5c2..9d16792 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -966,10 +966,6 @@ case "${target}" in
+     ;;
+   *-*-rtems*)
+     noconfigdirs="$noconfigdirs target-libgloss"
+-    # this is not caught below because this stanza matches earlier
+-    case $target in
+-      or1k*-*-*) noconfigdirs="$noconfigdirs gdb" ;;
+-    esac
+     ;;
+     # The tpf target doesn't support gdb yet.
+   *-*-tpf*)
+@@ -1175,9 +1171,6 @@ case "${target}" in
+   nvptx*-*-*)
+     noconfigdirs="$noconfigdirs target-libssp target-libstdc++-v3 target-libobjc"
+     ;;
+-  or1k*-*-*)
+-    noconfigdirs="$noconfigdirs gdb"
+-    ;;
+   sh-*-*)
+     case "${target}" in
+       sh*-*-elf)
 -- 
 2.9.3
 
