@@ -1,12 +1,13 @@
 From: Yao Qi <qiyaoltc@gmail.com>
-Date: Tue, 02 May 2017 15:38:22 +0100
-Subject: [OpenRISC] [PATCH v6 5/5] Add gdb for or1k build
-In-Reply-To: <88149ed8048a13b6b57f006f0fd3063b9a1ec085.1493038197.git.shorne@gmail.com>
- (Stafford Horne's message of "Mon, 24 Apr 2017 21:52:54 +0900")
+Date: Tue, 02 May 2017 15:40:20 +0100
+Subject: [OpenRISC] [PATCH v6 1/5] tdesc: handle arbitrary strings in
+	tdesc_register_in_reggroup_p
+In-Reply-To: <dbd35ae7e8f9ca8db89dd14b81119d3eb50afb98.1493038197.git.shorne@gmail.com>
+ (Stafford Horne's message of "Mon, 24 Apr 2017 21:52:50 +0900")
 References: <cover.1493038197.git.shorne@gmail.com>
  <cover.1493038197.git.shorne@gmail.com>
- <88149ed8048a13b6b57f006f0fd3063b9a1ec085.1493038197.git.shorne@gmail.com>
-Message-ID: <86vapj728x.fsf@gmail.com>
+ <dbd35ae7e8f9ca8db89dd14b81119d3eb50afb98.1493038197.git.shorne@gmail.com>
+Message-ID: <86r307725n.fsf@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -15,20 +16,25 @@ To: openrisc@lists.librecores.org
 
 Stafford Horne <shorne@gmail.com> writes:
 
-> 2017-02-12  Stafford Horne  <shorne@gmail.com>
+> tdesc_register_in_reggroup_p in now able to handle arbitrary
+> groups. This is useful when groups are created while the
+> target descriptor file is received from the remote.
 >
-> 	* configure.ac: remove logic adding gdb to noconfigsdirs for or1k
+> This can be the case of a soft core target processor where
+> registers/groups can change.
+>
+> gdb/ChangeLog:
+>
+> 2013-02-15  Franck Jullien  <franck.jullien@gmail.com>
+>
+> 	* target-descriptions.c (tdesc_register_in_reggroup_p): Support
+> 	arbitrary strings.
 
-s/remove/Remove/
-ended with ".".
+I am not sure what do you want to change and why do you need this
+change?  I didn't see it in the previous version.
 
-> 	* configure: regenerate
-
-Likewise.
-
-Patch should be sent to gcc-patches at gcc.gnu.org, where top-level
-configure are maintained.  You can post your patch there after all the
-rest of patches are approved here.
+If you want to control what registers are displayed, you can follow the
+way nds32 used, see nds32-tdep.c:nds32_register_reggroup_p.
 
 -- 
 Yao (齐尧)
