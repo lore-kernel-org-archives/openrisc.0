@@ -1,13 +1,12 @@
 From: Yao Qi <qiyaoltc@gmail.com>
-Date: Tue, 02 May 2017 15:36:23 +0100
-Subject: [OpenRISC] [PATCH v6 4/5] gdb: testsuite: Add or1k
-	tdesc-regs.exp test support
-In-Reply-To: <e81976c7a05ff46ad7016e4b150e8285895e80c8.1493038197.git.shorne@gmail.com>
- (Stafford Horne's message of "Mon, 24 Apr 2017 21:52:53 +0900")
+Date: Tue, 02 May 2017 15:38:22 +0100
+Subject: [OpenRISC] [PATCH v6 5/5] Add gdb for or1k build
+In-Reply-To: <88149ed8048a13b6b57f006f0fd3063b9a1ec085.1493038197.git.shorne@gmail.com>
+ (Stafford Horne's message of "Mon, 24 Apr 2017 21:52:54 +0900")
 References: <cover.1493038197.git.shorne@gmail.com>
  <cover.1493038197.git.shorne@gmail.com>
- <e81976c7a05ff46ad7016e4b150e8285895e80c8.1493038197.git.shorne@gmail.com>
-Message-ID: <86ziev72c8.fsf@gmail.com>
+ <88149ed8048a13b6b57f006f0fd3063b9a1ec085.1493038197.git.shorne@gmail.com>
+Message-ID: <86vapj728x.fsf@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -16,13 +15,20 @@ To: openrisc@lists.librecores.org
 
 Stafford Horne <shorne@gmail.com> writes:
 
-> gdb/testsuite/ChangeLog:
+> 2017-02-12  Stafford Horne  <shorne@gmail.com>
 >
-> 2017-04-20  Stafford Horne  <shorne@gmail.com>
->
-> 	* gdb.xml/tdesc-regs.exp: Add or1k support.
+> 	* configure.ac: remove logic adding gdb to noconfigsdirs for or1k
 
-Patch is good to me.
+s/remove/Remove/
+ended with ".".
+
+> 	* configure: regenerate
+
+Likewise.
+
+Patch should be sent to gcc-patches at gcc.gnu.org, where top-level
+configure are maintained.  You can post your patch there after all the
+rest of patches are approved here.
 
 -- 
 Yao (齐尧)
