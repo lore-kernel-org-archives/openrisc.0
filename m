@@ -1,15 +1,15 @@
 From: Yao Qi <qiyaoltc@gmail.com>
-Date: Tue, 09 May 2017 14:54:01 +0100
-Subject: [OpenRISC] [PATCH v6 1/5] tdesc: handle arbitrary strings in
-	tdesc_register_in_reggroup_p
-In-Reply-To: <20170502154115.GH2724@lianli.shorne-pla.net> (Stafford Horne's
- message of "Wed, 3 May 2017 00:41:15 +0900")
+Date: Tue, 09 May 2017 15:15:38 +0100
+Subject: [OpenRISC] [PATCH v6 2/5] gdb: Add OpenRISC or1k and or1knd
+	target support
+In-Reply-To: <20170502155305.GI2724@lianli.shorne-pla.net> (Stafford Horne's
+ message of "Wed, 3 May 2017 00:53:05 +0900")
 References: <cover.1493038197.git.shorne@gmail.com>
  <cover.1493038197.git.shorne@gmail.com>
- <dbd35ae7e8f9ca8db89dd14b81119d3eb50afb98.1493038197.git.shorne@gmail.com>
- <86r307725n.fsf@gmail.com>
- <20170502154115.GH2724@lianli.shorne-pla.net>
-Message-ID: <86wp9qt9ty.fsf@gmail.com>
+ <ae4e2c7e3e9d364bf73adba1eedaeb3f4691d907.1493038197.git.shorne@gmail.com>
+ <864lx38h2i.fsf@gmail.com>
+ <20170502155305.GI2724@lianli.shorne-pla.net>
+Message-ID: <86shket8tx.fsf@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -18,35 +18,81 @@ To: openrisc@lists.librecores.org
 
 Stafford Horne <shorne@gmail.com> writes:
 
-> This change is to also allow returning true in the case that the register
-> group was registered with gdb with reggroup_add().  This seems like
-> something that will be generally required so it was added to the
-> target-descriptions definition.  If you think not I can make it for
-> openrisc only, but I think it makes more sense in tdesc.
-
-Thanks for the explanation.
-
+> I understand this is nothing new, but this tells to the users some extra
+> details about using target remote for OpenRISC (example which platforms
+> support it).  Also, this is consistent with some other targets like
+> Microblaze.
 >
-> This allows the command like, the below to return the registers for the
-> named reggroup.
+
+All the targets listed in "Embedded Processors" do have "target
+remote".  We don't have to document it for every one.  IMO, we need to
+remove "target remote" from Microblaze part too.
+
+>> > +
+>> > + at kindex target sim
+>> > + at item target sim
+>> > +
+>> > +Runs the builtin CPU simulator which can run very basic
+>> > +programs but does not support most hardware functions like MMU.
+>> > +For more complex use cases the user is advised to run an external
+>> > +target, and connect using @samp{target remote}.
+>> > +
+>> > +Example: @code{target sim}
+>> > +
+>> > + at end table
+>> > +
+>> >  @node PowerPC Embedded
+>> >  @subsection PowerPC Embedded
+>> >  
+>> > @@ -41088,6 +41131,7 @@ registers using the capitalization used in
+>> > the description.
+>> >  * M68K Features::
+>> >  * NDS32 Features::
+>> >  * Nios II Features::
+>> > +* OpenRISC 1000 Features::
+>> >  * PowerPC Features::
+>> >  * S/390 and System z Features::
+>> >  * Sparc Features::
+>> > @@ -41374,6 +41418,32 @@ targets.  It should contain the 32 core
+>> > registers (@samp{zero},
+>> >  @samp{pc}, and the 16 control registers (@samp{status} through
+>> >  @samp{mpuacc}).
+>> >  
+>> > + at node OpenRISC 1000 Features
+>> > + at subsection Openrisc 1000 Features
+>> > + at cindex target descriptions, OpenRISC 1000 features
+>> > +
+>> > +The @samp{org.gnu.gdb.or1k.group0} feature is required for OpenRISC 1000
+>> > +targets.  It should contain the 32 general purpose registers (@samp{r0}
+>> > +through @samp{r31}), @samp{ppc}, @samp{npc} and @samp{sr}.
+>> > +
+>> > +Along with the default reggroups like @samp{system} and @samp{general}
+>> > +provided by @value{GDBN}, OpenRISC targets can use the following reggroups
+>> > +to group their many registers:
+>> > +
+>> > + at smallexample
+>> > + Group      Type
+>> > + immu       user
+>> > + dmmu       user
+>> > + icache     user
+>> > + dcache     user
+>> > + pic        user
+>> > + timer      user
+>> > + power      user
+>> > + perf       user
+>> > + mac        user
+>> > + debug      user
+>> > + at end smallexample
+>> > +
+>> 
+>> Why do you need to document the reggroups?
 >
->   info reg system
+> These register groups can be used by the target description features.  If
+> not documented one would have to look into the code.  In general arbitrary
+> groups are not allowed by features.  This is also related to patch 1/5.
 
-Some bits are missing,
-
- - A test case, in which we can define some reggroups "foo" and test
-   expected "foo" is shown in the output of "maintenance print
-   reggroups".  You can add reggroups in gdb.xml/extra-regs.xml.
-
- - A test case with live inferior, get a list of support reggroups from
-   the output of "maint print reggroups", pass each reggroup to "info
-   reg $group", and test there is no error.
-
- - Document "info registers".
-   https://sourceware.org/gdb/current/onlinedocs/gdb/Registers.html
-   doesn't document the usage "info reg GROUP".  We need to add it.
-
- - Add a news entry, because your patch adds a user visible change.
+"maintenance print reggroups" can tell the reggroups, so don't need to
+document them.
 
 -- 
 Yao (齐尧)
