@@ -1,52 +1,52 @@
-From: Julius Baxter <julius@fossi-foundation.org>
-Date: Mon, 8 May 2017 21:38:58 +1000
-Subject: [OpenRISC] ORConf 2017 registration now open
-Message-ID: <CA+5O_Kt_XGXy0A+vLZUwsoRWQw9kGb+TKVPFX6fYJtvy9e0Q5Q@mail.gmail.com>
+From: Yao Qi <qiyaoltc@gmail.com>
+Date: Tue, 09 May 2017 14:54:01 +0100
+Subject: [OpenRISC] [PATCH v6 1/5] tdesc: handle arbitrary strings in
+	tdesc_register_in_reggroup_p
+In-Reply-To: <20170502154115.GH2724@lianli.shorne-pla.net> (Stafford Horne's
+ message of "Wed, 3 May 2017 00:41:15 +0900")
+References: <cover.1493038197.git.shorne@gmail.com>
+ <cover.1493038197.git.shorne@gmail.com>
+ <dbd35ae7e8f9ca8db89dd14b81119d3eb50afb98.1493038197.git.shorne@gmail.com>
+ <86r307725n.fsf@gmail.com>
+ <20170502154115.GH2724@lianli.shorne-pla.net>
+Message-ID: <86wp9qt9ty.fsf@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-Hi all,
+Stafford Horne <shorne@gmail.com> writes:
 
-ORConf 2017 will be an open source digital design conference held over
-September 8-10 in Hebden Bridge in the UK.
+> This change is to also allow returning true in the case that the register
+> group was registered with gdb with reggroup_add().  This seems like
+> something that will be generally required so it was added to the
+> target-descriptions definition.  If you think not I can make it for
+> openrisc only, but I think it makes more sense in tdesc.
 
-Registration for the event is now open via this Google form:
-https://goo.gl/forms/ALKx6xPRZWhaW1sh1
+Thanks for the explanation.
 
-We're looking forward to yet another strong showing from the many
-projects across the open source digital design and hardware space.
-We'd like to encourage all who are interested or involved in open
-source digital systems architecture, design and verification, open
-source EDA tool development or open source licensing of
-semiconductor-targeted works to consider joining us for this year's
-event.
+>
+> This allows the command like, the below to return the registers for the
+> named reggroup.
+>
+>   info reg system
 
-Presentation submissions can be made through this form:
-https://goo.gl/forms/fwALSQvbyUfE83Fh1
+Some bits are missing,
 
-As for practicalities, we now have some transport and accommodation
-options in and around Hebden Bridge on the conference website:
+ - A test case, in which we can define some reggroups "foo" and test
+   expected "foo" is shown in the output of "maintenance print
+   reggroups".  You can add reggroups in gdb.xml/extra-regs.xml.
 
-https://orconf.org/#gettingthere
+ - A test case with live inferior, get a list of support reggroups from
+   the output of "maint print reggroups", pass each reggroup to "info
+   reg $group", and test there is no error.
 
-Dinner and catering arrangements are pretty much finalised. As usual
-we're hoping to provide free refreshments throughout the 3 days and a
-conference dinner on the Saturday night.
+ - Document "info registers".
+   https://sourceware.org/gdb/current/onlinedocs/gdb/Registers.html
+   doesn't document the usage "info reg GROUP".  We need to add it.
 
-We are looking for sponsors for the event, so get in touch if you're
-interested in some exposure throughout the conference!
+ - Add a news entry, because your patch adds a user visible change.
 
-All other information about the event can be found at the usual place:
-https://orconf.org
-
-Do get in touch should you have any questions via orconf at fossi-foundation.org
-
-We hope everyone is looking forward to another great meeting of those
-in and around the open source digital design arena.
-
-Cheers,
-
-The ORConf team
+-- 
+Yao (齐尧)
