@@ -1,36 +1,36 @@
-From: Yao Qi <qiyaoltc@gmail.com>
-Date: Tue, 09 May 2017 15:21:43 +0100
-Subject: [OpenRISC] [PATCH v6 1/5] tdesc: handle arbitrary strings in
-	tdesc_register_in_reggroup_p
-In-Reply-To: <dbd35ae7e8f9ca8db89dd14b81119d3eb50afb98.1493038197.git.shorne@gmail.com>
- (Stafford Horne's message of "Mon, 24 Apr 2017 21:52:50 +0900")
-References: <cover.1493038197.git.shorne@gmail.com>
- <cover.1493038197.git.shorne@gmail.com>
- <dbd35ae7e8f9ca8db89dd14b81119d3eb50afb98.1493038197.git.shorne@gmail.com>
-Message-ID: <86o9v2t8js.fsf@gmail.com>
+From: Tobias Klauser <tklauser@distanz.ch>
+Date: Mon, 15 May 2017 12:14:51 +0200
+Subject: [OpenRISC] [PATCH] openrisc: explicitly include linux/bug.h in
+	asm/fixmap.h
+Message-ID: <20170515101451.27973-1-tklauser@distanz.ch>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Stafford Horne <shorne@gmail.com> writes:
->  
->        if (reggroup == general_reggroup)
->  	return general_p;
-> +
-> +      if (strcmp (reg->group, reggroup_name (reggroup)) == 0)
-> +	return 1;
-> +
->      }
+openrisc's asm/fixmap.h uses the BUG() and BUG_ON() macros but relies on
+implict inclusion of linux/bug.h which means that changes in other
+headers could break the build. Thus, add an explicit include.
 
-I read the patch again, and find that we can replace the whole block in
-"if (reg != NULL && reg->group != NULL)" with the code this patch adds,
-like this,
+Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+---
+ arch/openrisc/include/asm/fixmap.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-  if (reg != NULL && reg->group != NULL
-      && (strcmp (reg->group, reggroup_name (reggroup)) == 0))
-     return 1;
-
+diff --git a/arch/openrisc/include/asm/fixmap.h b/arch/openrisc/include/asm/fixmap.h
+index 52733416c1f3..5a0159546f9e 100644
+--- a/arch/openrisc/include/asm/fixmap.h
++++ b/arch/openrisc/include/asm/fixmap.h
+@@ -27,6 +27,7 @@
+ #define FIXADDR_TOP	((unsigned long) (-2*PAGE_SIZE))
+ 
+ #include <linux/kernel.h>
++#include <linux/bug.h>
+ #include <asm/page.h>
+ 
+ /*
 -- 
-Yao (齐尧)
+2.13.0
+
+
