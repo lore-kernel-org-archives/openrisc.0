@@ -1,41 +1,104 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 15 May 2017 22:31:26 +0900
-Subject: [OpenRISC] [PATCH] openrisc: explicitly include linux/bug.h in
-	asm/fixmap.h
-In-Reply-To: <20170515101451.27973-1-tklauser@distanz.ch>
-References: <20170515101451.27973-1-tklauser@distanz.ch>
-Message-ID: <20170515133126.GB2440@lianli.shorne-pla.net>
+Date: Tue, 16 May 2017 20:18:28 +0900
+Subject: [OpenRISC] [PATCH v6 2/5] gdb: Add OpenRISC or1k and or1knd
+	target support
+In-Reply-To: <86shket8tx.fsf@gmail.com>
+References: <cover.1493038197.git.shorne@gmail.com>
+ <cover.1493038197.git.shorne@gmail.com>
+ <ae4e2c7e3e9d364bf73adba1eedaeb3f4691d907.1493038197.git.shorne@gmail.com>
+ <864lx38h2i.fsf@gmail.com>
+ <20170502155305.GI2724@lianli.shorne-pla.net>
+ <86shket8tx.fsf@gmail.com>
+Message-ID: <20170516111828.GD2440@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-On Mon, May 15, 2017 at 12:14:51PM +0200, Tobias Klauser wrote:
-> openrisc's asm/fixmap.h uses the BUG() and BUG_ON() macros but relies on
-> implict inclusion of linux/bug.h which means that changes in other
-> headers could break the build. Thus, add an explicit include.
-
-Thanks, I have applied it.
-
-> Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
-> ---
->  arch/openrisc/include/asm/fixmap.h | 1 +
->  1 file changed, 1 insertion(+)
+On Tue, May 09, 2017 at 03:15:38PM +0100, Yao Qi wrote:
+> Stafford Horne <shorne@gmail.com> writes:
 > 
-> diff --git a/arch/openrisc/include/asm/fixmap.h b/arch/openrisc/include/asm/fixmap.h
-> index 52733416c1f3..5a0159546f9e 100644
-> --- a/arch/openrisc/include/asm/fixmap.h
-> +++ b/arch/openrisc/include/asm/fixmap.h
-> @@ -27,6 +27,7 @@
->  #define FIXADDR_TOP	((unsigned long) (-2*PAGE_SIZE))
->  
->  #include <linux/kernel.h>
-> +#include <linux/bug.h>
->  #include <asm/page.h>
->  
->  /*
+> > I understand this is nothing new, but this tells to the users some extra
+> > details about using target remote for OpenRISC (example which platforms
+> > support it).  Also, this is consistent with some other targets like
+> > Microblaze.
+> >
+> 
+> All the targets listed in "Embedded Processors" do have "target
+> remote".  We don't have to document it for every one.  IMO, we need to
+> remove "target remote" from Microblaze part too.
+
+Sure I will remove.  Also I am adding 'set debug or1k' and 'show debug
+or1k'.
+
+> >> > +
+> >> > + at kindex target sim
+> >> > + at item target sim
+> >> > +
+> >> > +Runs the builtin CPU simulator which can run very basic
+> >> > +programs but does not support most hardware functions like MMU.
+> >> > +For more complex use cases the user is advised to run an external
+> >> > +target, and connect using @samp{target remote}.
+> >> > +
+> >> > +Example: @code{target sim}
+> >> > +
+> >> > + at end table
+> >> > +
+> >> >  @node PowerPC Embedded
+> >> >  @subsection PowerPC Embedded
+> >> >  
+> >> > @@ -41088,6 +41131,7 @@ registers using the capitalization used in
+> >> > the description.
+> >> >  * M68K Features::
+> >> >  * NDS32 Features::
+> >> >  * Nios II Features::
+> >> > +* OpenRISC 1000 Features::
+> >> >  * PowerPC Features::
+> >> >  * S/390 and System z Features::
+> >> >  * Sparc Features::
+> >> > @@ -41374,6 +41418,32 @@ targets.  It should contain the 32 core
+> >> > registers (@samp{zero},
+> >> >  @samp{pc}, and the 16 control registers (@samp{status} through
+> >> >  @samp{mpuacc}).
+> >> >  
+> >> > + at node OpenRISC 1000 Features
+> >> > + at subsection Openrisc 1000 Features
+> >> > + at cindex target descriptions, OpenRISC 1000 features
+> >> > +
+> >> > +The @samp{org.gnu.gdb.or1k.group0} feature is required for OpenRISC 1000
+> >> > +targets.  It should contain the 32 general purpose registers (@samp{r0}
+> >> > +through @samp{r31}), @samp{ppc}, @samp{npc} and @samp{sr}.
+> >> > +
+> >> > +Along with the default reggroups like @samp{system} and @samp{general}
+> >> > +provided by @value{GDBN}, OpenRISC targets can use the following reggroups
+> >> > +to group their many registers:
+> >> > +
+> >> > + at smallexample
+> >> > + Group      Type
+> >> > + immu       user
+> >> > + dmmu       user
+> >> > + icache     user
+> >> > + dcache     user
+> >> > + pic        user
+> >> > + timer      user
+> >> > + power      user
+> >> > + perf       user
+> >> > + mac        user
+> >> > + debug      user
+> >> > + at end smallexample
+> >> > +
+> >> 
+> >> Why do you need to document the reggroups?
+> >
+> > These register groups can be used by the target description features.  If
+> > not documented one would have to look into the code.  In general arbitrary
+> > groups are not allowed by features.  This is also related to patch 1/5.
+> 
+> "maintenance print reggroups" can tell the reggroups, so don't need to
+> document them.
+
+Sure, I will remove.
+
 > -- 
-> 2.13.0
-> 
-> 
+> Yao (齐尧)
