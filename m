@@ -1,40 +1,41 @@
-From: Will Deacon <will.deacon@arm.com>
-Date: Mon, 15 May 2017 14:16:45 +0100
+From: Jiri Slaby <jslaby@suse.cz>
+Date: Wed, 17 May 2017 10:01:29 +0200
 Subject: [OpenRISC] [PATCH 1/1] futex: remove duplicated code
-In-Reply-To: <20170515130742.18357-1-jslaby@suse.cz>
+In-Reply-To: <20170515131644.GA3605@arm.com>
 References: <20170515130742.18357-1-jslaby@suse.cz>
-Message-ID: <20170515131644.GA3605@arm.com>
+ <20170515131644.GA3605@arm.com>
+Message-ID: <14580dfc-9721-38ab-a1e0-6b4aba13b406@suse.cz>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Jiri,
+On 05/15/2017, 03:16 PM, Will Deacon wrote:
+> Whilst I think this is a good idea, the code in question actually results
+> in undefined behaviour per the C spec and is reported by UBSAN.
 
-On Mon, May 15, 2017 at 03:07:42PM +0200, Jiri Slaby wrote:
-> There is code duplicated over all architecture's headers for
-> futex_atomic_op_inuser. Namely op decoding, access_ok check for uaddr,
-> and comparison of the result.
+Hi, yes, I know -- this patch was the 1st from the series of 3 which I
+sent a long time ago to fix that up too. But I remember your patch, so I
+sent only this one this time.
+
+> See my
+> patch fixing arm64 here (which I'd forgotten about):
 > 
-> Remove this duplication and leave up to the arches only the needed
-> assembly which is now in arch_futex_atomic_op_inuser.
+> https://www.spinics.net/lists/linux-arch/msg38564.html
 > 
-> Note that s390 removed access_ok check in d12a29703 ("s390/uaccess:
-> remove pointless access_ok() checks") as access_ok there returns true.
-> We introduce it back to the helper for the sake of simplicity (it gets
-> optimized away anyway).
+> But, as stated in the thread above, I think we should go a step further
+> and remove FUTEX_OP_{OR,ANDN,XOR,OPARG_SHIFT} altogether. They don't
+> appear to be used by userspace, and this whole thing is a total mess.
+> 
+> Any thoughts?
 
-Whilst I think this is a good idea, the code in question actually results
-in undefined behaviour per the C spec and is reported by UBSAN. See my
-patch fixing arm64 here (which I'd forgotten about):
+Ok, I am all for that. I think the only question is who is going to do
+the work and submit it :)? Do I understand correctly to eliminate all
+these functions and the path into the kernel? But won't this break API
+-- are there really no users of this interface?
 
-https://www.spinics.net/lists/linux-arch/msg38564.html
-
-But, as stated in the thread above, I think we should go a step further
-and remove FUTEX_OP_{OR,ANDN,XOR,OPARG_SHIFT} altogether. They don't
-appear to be used by userspace, and this whole thing is a total mess.
-
-Any thoughts?
-
-Will
+thanks,
+-- 
+js
+suse labs
