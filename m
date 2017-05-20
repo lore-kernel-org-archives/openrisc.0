@@ -1,47 +1,65 @@
-From: Will Deacon <will.deacon@arm.com>
-Date: Thu, 18 May 2017 18:30:10 +0100
-Subject: [OpenRISC] [PATCH 1/1] futex: remove duplicated code
-In-Reply-To: <14580dfc-9721-38ab-a1e0-6b4aba13b406@suse.cz>
-References: <20170515130742.18357-1-jslaby@suse.cz>
- <20170515131644.GA3605@arm.com>
- <14580dfc-9721-38ab-a1e0-6b4aba13b406@suse.cz>
-Message-ID: <20170518173010.GK21359@arm.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Sat, 20 May 2017 15:42:25 +0900
+Subject: [OpenRISC] [PATCH v6 1/5] tdesc: handle arbitrary strings in
+ tdesc_register_in_reggroup_p
+In-Reply-To: <86wp9qt9ty.fsf@gmail.com>
+References: <cover.1493038197.git.shorne@gmail.com>
+ <cover.1493038197.git.shorne@gmail.com>
+ <dbd35ae7e8f9ca8db89dd14b81119d3eb50afb98.1493038197.git.shorne@gmail.com>
+ <86r307725n.fsf@gmail.com>
+ <20170502154115.GH2724@lianli.shorne-pla.net>
+ <86wp9qt9ty.fsf@gmail.com>
+Message-ID: <20170520064225.GA2940@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, May 17, 2017 at 10:01:29AM +0200, Jiri Slaby wrote:
-> On 05/15/2017, 03:16 PM, Will Deacon wrote:
-> > Whilst I think this is a good idea, the code in question actually results
-> > in undefined behaviour per the C spec and is reported by UBSAN.
+On Tue, May 09, 2017 at 02:54:01PM +0100, Yao Qi wrote:
+> Stafford Horne <shorne@gmail.com> writes:
 > 
-> Hi, yes, I know -- this patch was the 1st from the series of 3 which I
-> sent a long time ago to fix that up too. But I remember your patch, so I
-> sent only this one this time.
+> > This change is to also allow returning true in the case that the register
+> > group was registered with gdb with reggroup_add().  This seems like
+> > something that will be generally required so it was added to the
+> > target-descriptions definition.  If you think not I can make it for
+> > openrisc only, but I think it makes more sense in tdesc.
 > 
-> > See my
-> > patch fixing arm64 here (which I'd forgotten about):
-> > 
-> > https://www.spinics.net/lists/linux-arch/msg38564.html
-> > 
-> > But, as stated in the thread above, I think we should go a step further
-> > and remove FUTEX_OP_{OR,ANDN,XOR,OPARG_SHIFT} altogether. They don't
-> > appear to be used by userspace, and this whole thing is a total mess.
-> > 
-> > Any thoughts?
+> Thanks for the explanation.
 > 
-> Ok, I am all for that. I think the only question is who is going to do
-> the work and submit it :)? Do I understand correctly to eliminate all
-> these functions and the path into the kernel? But won't this break API
-> -- are there really no users of this interface?
+> >
+> > This allows the command like, the below to return the registers for the
+> > named reggroup.
+> >
+> >   info reg system
+> 
+> Some bits are missing,
+> 
+>  - A test case, in which we can define some reggroups "foo" and test
+>    expected "foo" is shown in the output of "maintenance print
+>    reggroups".  You can add reggroups in gdb.xml/extra-regs.xml.
+> 
+>  - A test case with live inferior, get a list of support reggroups from
+>    the output of "maint print reggroups", pass each reggroup to "info
+>    reg $group", and test there is no error.
+> 
+>  - Document "info registers".
+>    https://sourceware.org/gdb/current/onlinedocs/gdb/Registers.html
+>    doesn't document the usage "info reg GROUP".  We need to add it.
+> 
+>  - Add a news entry, because your patch adds a user visible change.
 
-That's the million-dollar question, really. I don't know of any code using
-it, and I couldn't find any when I looked (also nothing reported by Debian
-Codesearch afaict), but I was hoping linux-arch might have some thoughts
-on this too.
+Right,
 
-For now, I'll queue my arm64 patch before I forget about it again!
+I am working on this, I have most of it done.  However, I am thinking to
+submit this separately from the OpenRISC port.
 
-Will
+There are more changes required to get this to work as you mention in the
+(1st) test case above.  Currently tdesc supplied reggroups are not added by
+default, they need to be manually supplied by calling reggroup_add().  I
+have made a patch to make this automatic.
+
+As mentioned I will split this out separate from the OpenRISC patch and do
+all that is mentioned above.
+
+-Stafford
