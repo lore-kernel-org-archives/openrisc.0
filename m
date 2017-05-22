@@ -1,65 +1,51 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 20 May 2017 15:42:25 +0900
-Subject: [OpenRISC] [PATCH v6 1/5] tdesc: handle arbitrary strings in
- tdesc_register_in_reggroup_p
-In-Reply-To: <86wp9qt9ty.fsf@gmail.com>
-References: <cover.1493038197.git.shorne@gmail.com>
- <cover.1493038197.git.shorne@gmail.com>
- <dbd35ae7e8f9ca8db89dd14b81119d3eb50afb98.1493038197.git.shorne@gmail.com>
- <86r307725n.fsf@gmail.com>
- <20170502154115.GH2724@lianli.shorne-pla.net>
- <86wp9qt9ty.fsf@gmail.com>
-Message-ID: <20170520064225.GA2940@lianli.shorne-pla.net>
+From: Thomas Gleixner <tglx@linutronix.de>
+Date: Mon, 22 May 2017 23:11:33 +0200 (CEST)
+Subject: [OpenRISC] [PATCH 1/1] futex: remove duplicated code
+In-Reply-To: <20170515131644.GA3605@arm.com>
+References: <20170515130742.18357-1-jslaby@suse.cz>
+ <20170515131644.GA3605@arm.com>
+Message-ID: <alpine.DEB.2.20.1705222259580.2407@nanos>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, May 09, 2017 at 02:54:01PM +0100, Yao Qi wrote:
-> Stafford Horne <shorne@gmail.com> writes:
+On Mon, 15 May 2017, Will Deacon wrote:
+> Hi Jiri,
 > 
-> > This change is to also allow returning true in the case that the register
-> > group was registered with gdb with reggroup_add().  This seems like
-> > something that will be generally required so it was added to the
-> > target-descriptions definition.  If you think not I can make it for
-> > openrisc only, but I think it makes more sense in tdesc.
+> On Mon, May 15, 2017 at 03:07:42PM +0200, Jiri Slaby wrote:
+> > There is code duplicated over all architecture's headers for
+> > futex_atomic_op_inuser. Namely op decoding, access_ok check for uaddr,
+> > and comparison of the result.
+> > 
+> > Remove this duplication and leave up to the arches only the needed
+> > assembly which is now in arch_futex_atomic_op_inuser.
+> > 
+> > Note that s390 removed access_ok check in d12a29703 ("s390/uaccess:
+> > remove pointless access_ok() checks") as access_ok there returns true.
+> > We introduce it back to the helper for the sake of simplicity (it gets
+> > optimized away anyway).
 > 
-> Thanks for the explanation.
+> Whilst I think this is a good idea, the code in question actually results
+> in undefined behaviour per the C spec and is reported by UBSAN. See my
+> patch fixing arm64 here (which I'd forgotten about):
 > 
-> >
-> > This allows the command like, the below to return the registers for the
-> > named reggroup.
-> >
-> >   info reg system
+> https://www.spinics.net/lists/linux-arch/msg38564.html
 > 
-> Some bits are missing,
-> 
->  - A test case, in which we can define some reggroups "foo" and test
->    expected "foo" is shown in the output of "maintenance print
->    reggroups".  You can add reggroups in gdb.xml/extra-regs.xml.
-> 
->  - A test case with live inferior, get a list of support reggroups from
->    the output of "maint print reggroups", pass each reggroup to "info
->    reg $group", and test there is no error.
-> 
->  - Document "info registers".
->    https://sourceware.org/gdb/current/onlinedocs/gdb/Registers.html
->    doesn't document the usage "info reg GROUP".  We need to add it.
-> 
->  - Add a news entry, because your patch adds a user visible change.
+> But, as stated in the thread above, I think we should go a step further
+> and remove FUTEX_OP_{OR,ANDN,XOR,OPARG_SHIFT} altogether. They don't
+> appear to be used by userspace, and this whole thing is a total mess.
 
-Right,
+You wish. The constants are not used, but FUTEX_WAKE_OP _IS_ used by
+glibc. They only have one argument it seems:
 
-I am working on this, I have most of it done.  However, I am thinking to
-submit this separately from the OpenRISC port.
+   #define FUTEX_OP_CLEAR_WAKE_IF_GT_ONE      ((4 << 24) | 1)
 
-There are more changes required to get this to work as you mention in the
-(1st) test case above.  Currently tdesc supplied reggroups are not added by
-default, they need to be manually supplied by calling reggroup_add().  I
-have made a patch to make this automatic.
+but I'm pretty sure that there is enough (probably horrible) code (think
+java) out there using FUTEX_WAKE_OP for whatever (non)sensical reasons in
+any available combination.
 
-As mentioned I will split this out separate from the OpenRISC patch and do
-all that is mentioned above.
+Thanks,
 
--Stafford
+	tglx
