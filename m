@@ -1,64 +1,84 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Date: Fri, 26 May 2017 08:54:31 +0200 (CEST)
-Subject: [OpenRISC] [PATCH 1/1] futex: remove duplicated code
-In-Reply-To: <20170525142829.GO2859@arm.com>
-References: <20170515130742.18357-1-jslaby@suse.cz>
- <20170515131644.GA3605@arm.com> <alpine.DEB.2.20.1705222259580.2407@nanos>
- <20170525142829.GO2859@arm.com>
-Message-ID: <alpine.DEB.2.20.1705260849520.1902@nanos>
+From: Vegard Nossum <vegard.nossum@oracle.com>
+Date: Mon, 29 May 2017 09:22:07 +0200
+Subject: [OpenRISC] [PATCH] kthread: fix boot hang (regression) on
+	MIPS/OpenRISC
+Message-ID: <20170529072207.16130-1-vegard.nossum@oracle.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Thu, 25 May 2017, Will Deacon wrote:
-> On Mon, May 22, 2017 at 11:11:33PM +0200, Thomas Gleixner wrote:
-> > On Mon, 15 May 2017, Will Deacon wrote:
-> > > On Mon, May 15, 2017 at 03:07:42PM +0200, Jiri Slaby wrote:
-> > > > There is code duplicated over all architecture's headers for
-> > > > futex_atomic_op_inuser. Namely op decoding, access_ok check for uaddr,
-> > > > and comparison of the result.
-> > > > 
-> > > > Remove this duplication and leave up to the arches only the needed
-> > > > assembly which is now in arch_futex_atomic_op_inuser.
-> > > > 
-> > > > Note that s390 removed access_ok check in d12a29703 ("s390/uaccess:
-> > > > remove pointless access_ok() checks") as access_ok there returns true.
-> > > > We introduce it back to the helper for the sake of simplicity (it gets
-> > > > optimized away anyway).
-> > > 
-> > > Whilst I think this is a good idea, the code in question actually results
-> > > in undefined behaviour per the C spec and is reported by UBSAN. See my
-> > > patch fixing arm64 here (which I'd forgotten about):
-> > > 
-> > > https://www.spinics.net/lists/linux-arch/msg38564.html
-> > > 
-> > > But, as stated in the thread above, I think we should go a step further
-> > > and remove FUTEX_OP_{OR,ANDN,XOR,OPARG_SHIFT} altogether. They don't
-> > > appear to be used by userspace, and this whole thing is a total mess.
-> > 
-> > You wish. The constants are not used, but FUTEX_WAKE_OP _IS_ used by
-> > glibc. They only have one argument it seems:
-> > 
-> >    #define FUTEX_OP_CLEAR_WAKE_IF_GT_ONE      ((4 << 24) | 1)
-> > 
-> > but I'm pretty sure that there is enough (probably horrible) code (think
-> > java) out there using FUTEX_WAKE_OP for whatever (non)sensical reasons in
-> > any available combination.
-> 
-> Indeed, and I'm not proposing to get rid of that. It's the grossly
-> over-engineered array of operations and the FUTEX_OP_OPARG_SHIFT modifier
-> that I think we should kill. The latter likely behaves differently across
-> different architectures and potentially depending on the toolchain you used
-> to build the kernel.
-> 
-> Does anybody know the history behind the interface design?
+This fixes a regression in commit 4d6501dce079 where I didn't notice
+that MIPS and OpenRISC were reinitialising p->{set,clear}_child_tid to
+NULL after our initialisation in copy_process().
 
-Which design?
+We can simply get rid of the arch-specific initialisation here since it
+is now always done in copy_process() before hitting copy_thread{,_tls}().
 
-4732efbeb997 ("[PATCH] FUTEX_WAKE_OP: pthread_cond_signal() speedup")
+Review notes:
 
-Thanks,
+ - As far as I can tell, copy_process() is the only user of
+   copy_thread_tls(), which is the only caller of copy_thread() for
+   architectures that don't implement copy_thread_tls().
 
-	tglx
+ - After this patch, there is no arch-specific code touching
+   p->set_child_tid or p->clear_child_tid whatsoever.
+
+ - It may look like MIPS/OpenRISC wanted to always have these fields be
+   NULL, but that's not true, as copy_process() would unconditionally
+   set them again _after_ calling copy_thread_tls() before commit
+   4d6501dce079.
+
+Fixes: 4d6501dce079c1eb6bf0b1d8f528a5e81770109e ("kthread: Fix use-after-free if kthread fork fails")
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Guenter Roeck <linux@roeck-us.net> # MIPS only
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: linux-mips at linux-mips.org
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Cc: Stafford Horne <shorne@gmail.com>
+Cc: openrisc at lists.librecores.org
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Jamie Iles <jamie.iles@oracle.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
+---
+Not sure who this should go through, the last patch went through tglx/the
+core-urgent-for-linus tree, but it does touch arch code + fix a mainline
+boot hang regression on at least MIPS (Guenter said OpenRISC didn't seem
+affected in his boot tests, but the code looks wrong in any case). Maybe
+we could get acks/reviews by MIPS and OpenRISC maintainers?
+---
+ arch/mips/kernel/process.c     | 1 -
+ arch/openrisc/kernel/process.c | 2 --
+ 2 files changed, 3 deletions(-)
+
+diff --git a/arch/mips/kernel/process.c b/arch/mips/kernel/process.c
+index 918d4c73e951..5351e1f3950d 100644
+--- a/arch/mips/kernel/process.c
++++ b/arch/mips/kernel/process.c
+@@ -120,7 +120,6 @@ int copy_thread_tls(unsigned long clone_flags, unsigned long usp,
+ 	struct thread_info *ti = task_thread_info(p);
+ 	struct pt_regs *childregs, *regs = current_pt_regs();
+ 	unsigned long childksp;
+-	p->set_child_tid = p->clear_child_tid = NULL;
+ 
+ 	childksp = (unsigned long)task_stack_page(p) + THREAD_SIZE - 32;
+ 
+diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
+index f8da545854f9..106859ae27ff 100644
+--- a/arch/openrisc/kernel/process.c
++++ b/arch/openrisc/kernel/process.c
+@@ -167,8 +167,6 @@ copy_thread(unsigned long clone_flags, unsigned long usp,
+ 
+ 	top_of_kernel_stack = sp;
+ 
+-	p->set_child_tid = p->clear_child_tid = NULL;
+-
+ 	/* Locate userspace context on stack... */
+ 	sp -= STACK_FRAME_OVERHEAD;	/* redzone */
+ 	sp -= sizeof(struct pt_regs);
+-- 
+2.12.0.rc0
+
