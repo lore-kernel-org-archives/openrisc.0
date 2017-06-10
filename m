@@ -1,49 +1,40 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 10 Jun 2017 17:11:38 +0900
-Subject: [OpenRISC] [PATCH v7 1/4] gdb: Add OpenRISC or1k and or1knd
-	target support
-In-Reply-To: <20170609130839.GC8558@lianli.shorne-pla.net>
-References: <cover.1496068645.git.shorne@gmail.com>
- <cover.1496068645.git.shorne@gmail.com>
- <0d86778997b5aebf1301f883ef30833823a7dbd7.1496068645.git.shorne@gmail.com>
- <864lvp5v4y.fsf@gmail.com>
- <20170609130839.GC8558@lianli.shorne-pla.net>
-Message-ID: <20170610081138.GD8558@lianli.shorne-pla.net>
+Date: Sat, 10 Jun 2017 17:13:54 +0900
+Subject: [OpenRISC] [PATCH 20/35] openrisc: defconfig: Cleanup from old
+ Kconfig options
+In-Reply-To: <20170608161049.12421-20-krzk@kernel.org>
+References: <20170608160836.12196-1-krzk@kernel.org>
+ <20170608161049.12421-20-krzk@kernel.org>
+Message-ID: <20170610081354.GA6190@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, Jun 09, 2017 at 10:08:39PM +0900, Stafford Horne wrote:
-> On Fri, Jun 09, 2017 at 11:10:37AM +0100, Yao Qi wrote:
-> > Stafford Horne <shorne@gmail.com> writes:
-> > 
-> > > +  set_gdbarch_print_insn (gdbarch, print_insn_or1k);
-> > > +
-> > 
-> > Don't need to set gdbarch_print_insn, so remove this line.  GDB will use
-> > the default one, which selects the right disassembler in opcodes.
+On Thu, Jun 08, 2017 at 06:10:31PM +0200, Krzysztof Kozlowski wrote:
+> Remove old, dead Kconfig option INET_LRO. It is gone since
+> commit 7bbf3cae65b6 ("ipv4: Remove inet_lro library").
 > 
-> I removed it, but all tests start failing after that.  I will look into it
-> a bit more.
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> ---
+>  arch/openrisc/configs/or1ksim_defconfig | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/arch/openrisc/configs/or1ksim_defconfig b/arch/openrisc/configs/or1ksim_defconfig
+> index eb3fc581cf20..a73aa90501be 100644
+> --- a/arch/openrisc/configs/or1ksim_defconfig
+> +++ b/arch/openrisc/configs/or1ksim_defconfig
+> @@ -23,7 +23,6 @@ CONFIG_INET=y
+>  # CONFIG_INET_XFRM_MODE_TRANSPORT is not set
+>  # CONFIG_INET_XFRM_MODE_TUNNEL is not set
+>  # CONFIG_INET_XFRM_MODE_BEET is not set
+> -# CONFIG_INET_LRO is not set
+>  # CONFIG_INET_DIAG is not set
+>  CONFIG_TCP_CONG_ADVANCED=y
+>  # CONFIG_TCP_CONG_BIC is not set
 
-I tried to look into this, but it looks liek we do need
-set_gdbarch_print_insn ().   If not starting gdb hits this error in
-gdbarch.c verify_gdbarch().
+Thanks, please let me know if you want me to take this, but it looks like
+you plan to push the whole series in via another route.
 
-...
-  if (gdbarch->print_insn == 0)
-    log.puts ("\n\tprint_insn");
-...
-
-  if (!log.empty ())
-    internal_error (__FILE__, __LINE__,
-		    _("verify_gdbarch: the following are invalid ...%s"),
-		    log.c_str ());
-...
-
-Is the automatic selecting of `print_insn` something new?  My patch is
-based on yesterdays master branch of http://sourceware.org/git/binutils-gdb.git.
-
--Stafford
+Acked-by: Stafford Horne <shorne@gmail.com>
