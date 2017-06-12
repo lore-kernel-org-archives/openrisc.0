@@ -1,137 +1,52 @@
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Date: Mon, 12 Jun 2017 12:27:12 +0900
-Subject: [OpenRISC] [PATCH 18/27] openrisc: move generic-y of exported
-	headers to uapi/asm/Kbuild
-In-Reply-To: <1497238041-7011-1-git-send-email-yamada.masahiro@socionext.com>
-References: <1497238041-7011-1-git-send-email-yamada.masahiro@socionext.com>
-Message-ID: <1497238041-7011-19-git-send-email-yamada.masahiro@socionext.com>
+From: Yao Qi <qiyaoltc@gmail.com>
+Date: Mon, 12 Jun 2017 10:45:15 +0100
+Subject: [OpenRISC] [PATCH v7 1/4] gdb: Add OpenRISC or1k and or1knd
+	target support
+In-Reply-To: <20170610081138.GD8558@lianli.shorne-pla.net> (Stafford Horne's
+ message of "Sat, 10 Jun 2017 17:11:38 +0900")
+References: <cover.1496068645.git.shorne@gmail.com>
+ <cover.1496068645.git.shorne@gmail.com>
+ <0d86778997b5aebf1301f883ef30833823a7dbd7.1496068645.git.shorne@gmail.com>
+ <864lvp5v4y.fsf@gmail.com>
+ <20170609130839.GC8558@lianli.shorne-pla.net>
+ <20170610081138.GD8558@lianli.shorne-pla.net>
+Message-ID: <86lgoxa6ac.fsf@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-Since commit fcc8487d477a ("uapi: export all headers under uapi
-directories"), all (and only) headers under uapi directories are
-exported, but asm-generic wrappers are still exceptions.
+Stafford Horne <shorne@gmail.com> writes:
 
-scripts/Makefile.headersinst still need to deal with old-kbuild-file
-for headers listed in arch/*/include/asm/Kbuild, but actually exported.
+> I tried to look into this, but it looks liek we do need
+> set_gdbarch_print_insn ().   If not starting gdb hits this error in
+> gdbarch.c verify_gdbarch().
+>
+> ...
+>   if (gdbarch->print_insn == 0)
+>     log.puts ("\n\tprint_insn");
 
-As the last work to finish de-coupling the uapi from kernel headers,
-move generic-y of exported headers to uapi/asm/Kbuild.
+These lines were removed by my commit
+39503f82427e22ed8e04d986ccdc8562091ec62e (Delegate opcodes to select
+disassembler in GDB) on May 24th.
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
----
+-  if (gdbarch->print_insn == 0)
+-    log.puts ("\n\tprint_insn");
++  /* Skip verify of print_insn, invalid_p == 0 */
 
- arch/openrisc/include/asm/Kbuild      | 28 ----------------------------
- arch/openrisc/include/uapi/asm/Kbuild | 29 +++++++++++++++++++++++++++++
- 2 files changed, 29 insertions(+), 28 deletions(-)
+> ...
+>
+>   if (!log.empty ())
+>     internal_error (__FILE__, __LINE__,
+> 		    _("verify_gdbarch: the following are invalid ...%s"),
+> 		    log.c_str ());
+> ...
+>
+> Is the automatic selecting of `print_insn` something new?  My patch is
+> based on yesterdays master branch of http://sourceware.org/git/binutils-gdb.git.
 
-diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
-index fdbcf0bf44a4..5e209fcd9a54 100644
---- a/arch/openrisc/include/asm/Kbuild
-+++ b/arch/openrisc/include/asm/Kbuild
-@@ -1,6 +1,4 @@
--generic-y += auxvec.h
- generic-y += barrier.h
--generic-y += bitsperlong.h
- generic-y += bug.h
- generic-y += bugs.h
- generic-y += cacheflush.h
-@@ -11,56 +9,30 @@ generic-y += device.h
- generic-y += div64.h
- generic-y += dma.h
- generic-y += emergency-restart.h
--generic-y += errno.h
- generic-y += exec.h
- generic-y += extable.h
- generic-y += fb.h
--generic-y += fcntl.h
- generic-y += ftrace.h
- generic-y += hardirq.h
- generic-y += hw_irq.h
--generic-y += ioctl.h
--generic-y += ioctls.h
--generic-y += ipcbuf.h
- generic-y += irq.h
- generic-y += irq_regs.h
- generic-y += irq_work.h
- generic-y += kdebug.h
- generic-y += kmap_types.h
--generic-y += kvm_para.h
- generic-y += local.h
- generic-y += mcs_spinlock.h
- generic-y += mm-arch-hooks.h
--generic-y += mman.h
- generic-y += module.h
--generic-y += msgbuf.h
- generic-y += pci.h
- generic-y += percpu.h
--generic-y += poll.h
--generic-y += posix_types.h
- generic-y += preempt.h
--generic-y += resource.h
- generic-y += sections.h
- generic-y += segment.h
--generic-y += sembuf.h
--generic-y += setup.h
--generic-y += shmbuf.h
--generic-y += shmparam.h
--generic-y += siginfo.h
--generic-y += signal.h
--generic-y += socket.h
--generic-y += sockios.h
--generic-y += stat.h
--generic-y += statfs.h
- generic-y += string.h
--generic-y += swab.h
- generic-y += switch_to.h
--generic-y += termbits.h
--generic-y += termios.h
- generic-y += topology.h
- generic-y += trace_clock.h
--generic-y += types.h
--generic-y += ucontext.h
- generic-y += user.h
- generic-y += vga.h
- generic-y += word-at-a-time.h
-diff --git a/arch/openrisc/include/uapi/asm/Kbuild b/arch/openrisc/include/uapi/asm/Kbuild
-index b15bf6bc0e94..62286dbeb904 100644
---- a/arch/openrisc/include/uapi/asm/Kbuild
-+++ b/arch/openrisc/include/uapi/asm/Kbuild
-@@ -1,2 +1,31 @@
- # UAPI Header export list
- include include/uapi/asm-generic/Kbuild.asm
-+
-+generic-y += auxvec.h
-+generic-y += bitsperlong.h
-+generic-y += errno.h
-+generic-y += fcntl.h
-+generic-y += ioctl.h
-+generic-y += ioctls.h
-+generic-y += ipcbuf.h
-+generic-y += kvm_para.h
-+generic-y += mman.h
-+generic-y += msgbuf.h
-+generic-y += poll.h
-+generic-y += posix_types.h
-+generic-y += resource.h
-+generic-y += sembuf.h
-+generic-y += setup.h
-+generic-y += shmbuf.h
-+generic-y += shmparam.h
-+generic-y += siginfo.h
-+generic-y += signal.h
-+generic-y += socket.h
-+generic-y += sockios.h
-+generic-y += stat.h
-+generic-y += statfs.h
-+generic-y += swab.h
-+generic-y += termbits.h
-+generic-y += termios.h
-+generic-y += types.h
-+generic-y += ucontext.h
+Looks your gdbarch.c is out of date.
+
 -- 
-2.7.4
-
+Yao (齐尧)
