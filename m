@@ -1,54 +1,137 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 11 Jun 2017 08:35:06 +0900
-Subject: [OpenRISC] [PATCH 20/35] openrisc: defconfig: Cleanup from old
- Kconfig options
-In-Reply-To: <20170610164227.o5t5yei4lrazduu7@kozik-lap>
-References: <20170608160836.12196-1-krzk@kernel.org>
- <20170608161049.12421-20-krzk@kernel.org>
- <20170610081354.GA6190@lianli.shorne-pla.net>
- <20170610164227.o5t5yei4lrazduu7@kozik-lap>
-Message-ID: <20170610233506.GD6190@lianli.shorne-pla.net>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Date: Mon, 12 Jun 2017 12:27:12 +0900
+Subject: [OpenRISC] [PATCH 18/27] openrisc: move generic-y of exported
+	headers to uapi/asm/Kbuild
+In-Reply-To: <1497238041-7011-1-git-send-email-yamada.masahiro@socionext.com>
+References: <1497238041-7011-1-git-send-email-yamada.masahiro@socionext.com>
+Message-ID: <1497238041-7011-19-git-send-email-yamada.masahiro@socionext.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sat, Jun 10, 2017 at 06:42:27PM +0200, Krzysztof Kozlowski wrote:
-> On Sat, Jun 10, 2017 at 05:13:54PM +0900, Stafford Horne wrote:
-> > On Thu, Jun 08, 2017 at 06:10:31PM +0200, Krzysztof Kozlowski wrote:
-> > > Remove old, dead Kconfig option INET_LRO. It is gone since
-> > > commit 7bbf3cae65b6 ("ipv4: Remove inet_lro library").
-> > > 
-> > > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-> > > ---
-> > >  arch/openrisc/configs/or1ksim_defconfig | 1 -
-> > >  1 file changed, 1 deletion(-)
-> > > 
-> > > diff --git a/arch/openrisc/configs/or1ksim_defconfig b/arch/openrisc/configs/or1ksim_defconfig
-> > > index eb3fc581cf20..a73aa90501be 100644
-> > > --- a/arch/openrisc/configs/or1ksim_defconfig
-> > > +++ b/arch/openrisc/configs/or1ksim_defconfig
-> > > @@ -23,7 +23,6 @@ CONFIG_INET=y
-> > >  # CONFIG_INET_XFRM_MODE_TRANSPORT is not set
-> > >  # CONFIG_INET_XFRM_MODE_TUNNEL is not set
-> > >  # CONFIG_INET_XFRM_MODE_BEET is not set
-> > > -# CONFIG_INET_LRO is not set
-> > >  # CONFIG_INET_DIAG is not set
-> > >  CONFIG_TCP_CONG_ADVANCED=y
-> > >  # CONFIG_TCP_CONG_BIC is not set
-> > 
-> > Thanks, please let me know if you want me to take this, but it looks like
-> > you plan to push the whole series in via another route.
-> > 
-> > Acked-by: Stafford Horne <shorne@gmail.com>
-> 
-> Thanks, I did not mention the merging plan in cover letter but I think
-> the best way is to merge it through platform maintainers. Less
-> conflicts, I guess.
-> 
-> I'll be taking and sendin in pull request only ARM part.
-> 
-> So please go ahead and apply it.
+Since commit fcc8487d477a ("uapi: export all headers under uapi
+directories"), all (and only) headers under uapi directories are
+exported, but asm-generic wrappers are still exceptions.
 
-Applied.
+scripts/Makefile.headersinst still need to deal with old-kbuild-file
+for headers listed in arch/*/include/asm/Kbuild, but actually exported.
+
+As the last work to finish de-coupling the uapi from kernel headers,
+move generic-y of exported headers to uapi/asm/Kbuild.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+---
+
+ arch/openrisc/include/asm/Kbuild      | 28 ----------------------------
+ arch/openrisc/include/uapi/asm/Kbuild | 29 +++++++++++++++++++++++++++++
+ 2 files changed, 29 insertions(+), 28 deletions(-)
+
+diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
+index fdbcf0bf44a4..5e209fcd9a54 100644
+--- a/arch/openrisc/include/asm/Kbuild
++++ b/arch/openrisc/include/asm/Kbuild
+@@ -1,6 +1,4 @@
+-generic-y += auxvec.h
+ generic-y += barrier.h
+-generic-y += bitsperlong.h
+ generic-y += bug.h
+ generic-y += bugs.h
+ generic-y += cacheflush.h
+@@ -11,56 +9,30 @@ generic-y += device.h
+ generic-y += div64.h
+ generic-y += dma.h
+ generic-y += emergency-restart.h
+-generic-y += errno.h
+ generic-y += exec.h
+ generic-y += extable.h
+ generic-y += fb.h
+-generic-y += fcntl.h
+ generic-y += ftrace.h
+ generic-y += hardirq.h
+ generic-y += hw_irq.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+ generic-y += irq.h
+ generic-y += irq_regs.h
+ generic-y += irq_work.h
+ generic-y += kdebug.h
+ generic-y += kmap_types.h
+-generic-y += kvm_para.h
+ generic-y += local.h
+ generic-y += mcs_spinlock.h
+ generic-y += mm-arch-hooks.h
+-generic-y += mman.h
+ generic-y += module.h
+-generic-y += msgbuf.h
+ generic-y += pci.h
+ generic-y += percpu.h
+-generic-y += poll.h
+-generic-y += posix_types.h
+ generic-y += preempt.h
+-generic-y += resource.h
+ generic-y += sections.h
+ generic-y += segment.h
+-generic-y += sembuf.h
+-generic-y += setup.h
+-generic-y += shmbuf.h
+-generic-y += shmparam.h
+-generic-y += siginfo.h
+-generic-y += signal.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += stat.h
+-generic-y += statfs.h
+ generic-y += string.h
+-generic-y += swab.h
+ generic-y += switch_to.h
+-generic-y += termbits.h
+-generic-y += termios.h
+ generic-y += topology.h
+ generic-y += trace_clock.h
+-generic-y += types.h
+-generic-y += ucontext.h
+ generic-y += user.h
+ generic-y += vga.h
+ generic-y += word-at-a-time.h
+diff --git a/arch/openrisc/include/uapi/asm/Kbuild b/arch/openrisc/include/uapi/asm/Kbuild
+index b15bf6bc0e94..62286dbeb904 100644
+--- a/arch/openrisc/include/uapi/asm/Kbuild
++++ b/arch/openrisc/include/uapi/asm/Kbuild
+@@ -1,2 +1,31 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
++
++generic-y += auxvec.h
++generic-y += bitsperlong.h
++generic-y += errno.h
++generic-y += fcntl.h
++generic-y += ioctl.h
++generic-y += ioctls.h
++generic-y += ipcbuf.h
++generic-y += kvm_para.h
++generic-y += mman.h
++generic-y += msgbuf.h
++generic-y += poll.h
++generic-y += posix_types.h
++generic-y += resource.h
++generic-y += sembuf.h
++generic-y += setup.h
++generic-y += shmbuf.h
++generic-y += shmparam.h
++generic-y += siginfo.h
++generic-y += signal.h
++generic-y += socket.h
++generic-y += sockios.h
++generic-y += stat.h
++generic-y += statfs.h
++generic-y += swab.h
++generic-y += termbits.h
++generic-y += termios.h
++generic-y += types.h
++generic-y += ucontext.h
+-- 
+2.7.4
+
