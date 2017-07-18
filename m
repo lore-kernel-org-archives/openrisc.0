@@ -1,17 +1,23 @@
-From: Philipp Wagner <lists@philipp-wagner.com>
-Date: Tue, 18 Jul 2017 17:57:53 +0200
+From: jallouli kais <jalloulikais@yahoo.fr>
+Date: Tue, 18 Jul 2017 16:09:34 +0000 (UTC)
 Subject: [OpenRISC] Dev Digest, Vol 14, Issue 5
-In-Reply-To: <59124735.4203645.1500392970520@mail.yahoo.com>
+In-Reply-To: <c880cd71-edc3-8d9e-00c6-e8ffcd00b340@philipp-wagner.com>
 References: <mailman.3.1500372002.20804.dev@lists.librecores.org>
  <59124735.4203645.1500392970520@mail.yahoo.com>
-Message-ID: <c880cd71-edc3-8d9e-00c6-e8ffcd00b340@philipp-wagner.com>
+ <c880cd71-edc3-8d9e-00c6-e8ffcd00b340@philipp-wagner.com>
+Message-ID: <1400400087.4242525.1500394174858@mail.yahoo.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-[Please reply to the openrisc mailing list.]
+For the NoC,we have our NoC.For testing a soft c code;  I  must installing  his toolchain ?Thanks 
+
+    Le Mardi 18 juillet 2017 17h57, Philipp Wagner <lists@philipp-wagner.com> a écrit :
+ 
+
+ [Please reply to the openrisc mailing list.]
 
 Hello,
 
@@ -34,3 +40,9 @@ If you are looking for a system including a NoC you could have a look at
 OpTiMSoC (https://optimsoc.org).
 
 Philipp
+
+
+   
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20170718/b6805fc0/attachment.html>
