@@ -1,48 +1,25 @@
-From: jallouli kais <jalloulikais@yahoo.fr>
-Date: Tue, 18 Jul 2017 16:09:34 +0000 (UTC)
+From: Philipp Wagner <lists@philipp-wagner.com>
+Date: Wed, 19 Jul 2017 10:47:33 +0200
 Subject: [OpenRISC] Dev Digest, Vol 14, Issue 5
-In-Reply-To: <c880cd71-edc3-8d9e-00c6-e8ffcd00b340@philipp-wagner.com>
+In-Reply-To: <1400400087.4242525.1500394174858@mail.yahoo.com>
 References: <mailman.3.1500372002.20804.dev@lists.librecores.org>
  <59124735.4203645.1500392970520@mail.yahoo.com>
  <c880cd71-edc3-8d9e-00c6-e8ffcd00b340@philipp-wagner.com>
-Message-ID: <1400400087.4242525.1500394174858@mail.yahoo.com>
+ <1400400087.4242525.1500394174858@mail.yahoo.com>
+Message-ID: <17abb4a9-1a49-d1b7-04e5-79ca4f28d197@philipp-wagner.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-For the NoC,we have our NoC.For testing a soft c code;  I  must installing  his toolchain ?Thanks 
+Hi,
 
-    Le Mardi 18 juillet 2017 17h57, Philipp Wagner <lists@philipp-wagner.com> a écrit :
- 
+On 07/18/2017 06:09 PM, jallouli kais wrote:
+> For testing a soft c code;  I  must installing  his toolchain ?
 
- [Please reply to the openrisc mailing list.]
-
-Hello,
-
-Am 18.07.2017 um 17:49 schrieb jallouli kais:
-> I know that mor1kx is more perfermant than or1200. But I chose or1200
-> since it contains a dsp block. Does mor1kx contain a dsp?
-
-what do you mean by a "dsp block"? It's a CPU, after all. The
-performance is pretty similar IIRC, 1 cycle per instruction for most
-instructions.
-
-> I just want to test it on an example c soft to verify its working.
-> Can you help me. I am a debutant.
-
-In this case, us or1ksim.
-
-> I want to use it later in order to integrate it in network on chip
-
-If you are looking for a system including a NoC you could have a look at
-OpTiMSoC (https://optimsoc.org).
+What do you mean by "his toolchain"? For information how to use or1ksim, 
+see https://github.com/openrisc/tutorials/tree/master/or1ksim and many 
+other resources on the Internet.
 
 Philipp
-
-
-   
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20170718/b6805fc0/attachment.html>
