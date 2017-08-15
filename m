@@ -1,185 +1,93 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 10 Aug 2017 22:22:12 +0900
-Subject: [OpenRISC] [PATCH v4 0/5] sim port for OpenRISC
-In-Reply-To: <20170613101549.GG6190@lianli.shorne-pla.net>
-References: <cover.1496066478.git.shorne@gmail.com>
- <20170613101549.GG6190@lianli.shorne-pla.net>
-Message-ID: <20170810132212.GC3031@lianli.shorne-pla.net>
+From: Julius Baxter <julius@fossi-foundation.org>
+Date: Wed, 16 Aug 2017 09:49:11 +1000
+Subject: [OpenRISC] ORConf 2017 update
+Message-ID: <CA+5O_KuyxFdYzCitEH8e+hj-h+KBrEw_wzWL7TsCaJi2diE4TA@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hello Again,
+Hi all,
 
-Would anyone be willing to review these sim changes?  Last reviewr was
-Mike, please let me know.
+It's just under 4 weeks until ORConf 2017 in Hebden Bridge, England as
+part of the Wuthering Bytes Festival of Technology, and we'd like to
+share some updates.
 
-On Tue, Jun 13, 2017 at 07:15:49PM +0900, Stafford Horne wrote:
-> Hi Mike,
-> 
-> Sorry to bother you,
-> Did you have a chance to look at this?
-> 
-> -Stafford
-> 
-> On Mon, May 29, 2017 at 11:47:25PM +0900, Stafford Horne wrote:
-> > Hello,
-> > 
-> > Please find attached the sim patches that allow to get a basic OpenRISC
-> > system running.  This was used to verify the OpenRISC gdb port.
-> > 
-> > The main author is Peter Gavin who should have his FSF copyright in place.
-> > 
-> > Request for comments on:
-> >  - Openrisc supports a l.rem instruction which has been implemented here
-> >    using the remainder() function from libmath.  It seems no other
-> >    functions use libmath now, I hope this is ok.
-> > 
-> > Sim dejagnu tests were added specifically for openrisc and used to test
-> > this.  Please see the details of running the testsuite for sim below:
-> > 
-> > === sim Summary ===
-> > 
-> > # of expected passes            17
-> > /home/shorne/work/openrisc/build-gdb/sim/or1k/run 0.5
-> > 
-> > -Stafford
-> > 
-> > --
-> > 
-> > Changes since v3
-> >  * Cleaned up indentation and style of sim testsuite
-> >  * Cleaned up TODOs in testsuite
-> >  * Implemented range exception
-> > 
-> > Changes since v2
-> >  * Removed 64-bit implementation (reduced files)
-> >  * Removed cgen suffix patch
-> >  * Removed different builds for linux
-> >  * Removed unused macros
-> >  * Fixed gnu style issues pointed out by Mike
-> >  * Fixed copyrights (not Cygnus, added to each file)
-> > 
-> > Changes since v1
-> >  * Squashed sim patches into single sim patch
-> >  * Put Generated files in separate patch
-> >  * I have my sim/gdb copyright assignment complete
-> > 
-> > --
-> > 
-> > Peter Gavin (3):
-> >   sim: cgen: add remainder functions (needed for OR1K lf.rem.[sd])
-> >   sim: cgen: add MUL2OFSI and MUL1OFSI macros (needed for OR1K l.mul[u])
-> >   sim: testsuite: add testsuite for or1k sim
-> > 
-> > Stafford Horne (2):
-> >   sim: or1k: add or1k target to sim
-> >   sim: or1k: Add generated files.
-> > 
-> >  sim/common/cgen-accfp.c                        |    40 +
-> >  sim/common/cgen-fpu.h                          |     4 +
-> >  sim/common/cgen-ops.h                          |    18 +
-> >  sim/common/sim-fpu.c                           |    63 +
-> >  sim/common/sim-fpu.h                           |     3 +
-> >  sim/configure                                  |     9 +
-> >  sim/configure.tgt                              |     4 +
-> >  sim/or1k/Makefile.in                           |   142 +
-> >  sim/or1k/aclocal.m4                            |   119 +
-> >  sim/or1k/arch.c                                |    38 +
-> >  sim/or1k/arch.h                                |    50 +
-> >  sim/or1k/config.in                             |   248 +
-> >  sim/or1k/configure                             | 16043 +++++++++++++++++++++++
-> >  sim/or1k/configure.ac                          |    17 +
-> >  sim/or1k/cpu.c                                 | 10181 ++++++++++++++
-> >  sim/or1k/cpu.h                                 |  5024 +++++++
-> >  sim/or1k/cpuall.h                              |    66 +
-> >  sim/or1k/decode.c                              |  2559 ++++
-> >  sim/or1k/decode.h                              |    94 +
-> >  sim/or1k/eng.h                                 |    34 +
-> >  sim/or1k/mloop.in                              |   242 +
-> >  sim/or1k/model.c                               |  3809 ++++++
-> >  sim/or1k/or1k-sim.h                            |    94 +
-> >  sim/or1k/or1k.c                                |   328 +
-> >  sim/or1k/sem-switch.c                          |  2748 ++++
-> >  sim/or1k/sem.c                                 |  2953 +++++
-> >  sim/or1k/sim-if.c                              |   270 +
-> >  sim/or1k/sim-main.h                            |    80 +
-> >  sim/or1k/traps.c                               |   209 +
-> >  sim/testsuite/configure                        |     4 +
-> >  sim/testsuite/sim/or1k/add.S                   |   606 +
-> >  sim/testsuite/sim/or1k/alltests.exp            |    34 +
-> >  sim/testsuite/sim/or1k/and.S                   |   198 +
-> >  sim/testsuite/sim/or1k/basic.S                 |   522 +
-> >  sim/testsuite/sim/or1k/div.S                   |   290 +
-> >  sim/testsuite/sim/or1k/ext.S                   |   236 +
-> >  sim/testsuite/sim/or1k/find.S                  |   100 +
-> >  sim/testsuite/sim/or1k/flag.S                  |   378 +
-> >  sim/testsuite/sim/or1k/jump.S                  |   104 +
-> >  sim/testsuite/sim/or1k/load.S                  |   358 +
-> >  sim/testsuite/sim/or1k/mac.S                   |   778 ++
-> >  sim/testsuite/sim/or1k/mfspr.S                 |   171 +
-> >  sim/testsuite/sim/or1k/mul.S                   |   573 +
-> >  sim/testsuite/sim/or1k/or.S                    |   199 +
-> >  sim/testsuite/sim/or1k/or1k-asm-test-env.h     |    59 +
-> >  sim/testsuite/sim/or1k/or1k-asm-test-helpers.h |   121 +
-> >  sim/testsuite/sim/or1k/or1k-asm-test.h         |   225 +
-> >  sim/testsuite/sim/or1k/or1k-asm.h              |    37 +
-> >  sim/testsuite/sim/or1k/or1k-test.ld            |    75 +
-> >  sim/testsuite/sim/or1k/ror.S                   |   159 +
-> >  sim/testsuite/sim/or1k/shift.S                 |   541 +
-> >  sim/testsuite/sim/or1k/spr-defs.h              |   120 +
-> >  sim/testsuite/sim/or1k/sub.S                   |   201 +
-> >  sim/testsuite/sim/or1k/xor.S                   |   200 +
-> >  54 files changed, 51778 insertions(+)
-> >  create mode 100644 sim/or1k/Makefile.in
-> >  create mode 100644 sim/or1k/aclocal.m4
-> >  create mode 100644 sim/or1k/arch.c
-> >  create mode 100644 sim/or1k/arch.h
-> >  create mode 100644 sim/or1k/config.in
-> >  create mode 100755 sim/or1k/configure
-> >  create mode 100644 sim/or1k/configure.ac
-> >  create mode 100644 sim/or1k/cpu.c
-> >  create mode 100644 sim/or1k/cpu.h
-> >  create mode 100644 sim/or1k/cpuall.h
-> >  create mode 100644 sim/or1k/decode.c
-> >  create mode 100644 sim/or1k/decode.h
-> >  create mode 100644 sim/or1k/eng.h
-> >  create mode 100644 sim/or1k/mloop.in
-> >  create mode 100644 sim/or1k/model.c
-> >  create mode 100644 sim/or1k/or1k-sim.h
-> >  create mode 100644 sim/or1k/or1k.c
-> >  create mode 100644 sim/or1k/sem-switch.c
-> >  create mode 100644 sim/or1k/sem.c
-> >  create mode 100644 sim/or1k/sim-if.c
-> >  create mode 100644 sim/or1k/sim-main.h
-> >  create mode 100644 sim/or1k/traps.c
-> >  create mode 100644 sim/testsuite/sim/or1k/add.S
-> >  create mode 100644 sim/testsuite/sim/or1k/alltests.exp
-> >  create mode 100644 sim/testsuite/sim/or1k/and.S
-> >  create mode 100644 sim/testsuite/sim/or1k/basic.S
-> >  create mode 100644 sim/testsuite/sim/or1k/div.S
-> >  create mode 100644 sim/testsuite/sim/or1k/ext.S
-> >  create mode 100644 sim/testsuite/sim/or1k/find.S
-> >  create mode 100644 sim/testsuite/sim/or1k/flag.S
-> >  create mode 100644 sim/testsuite/sim/or1k/jump.S
-> >  create mode 100644 sim/testsuite/sim/or1k/load.S
-> >  create mode 100644 sim/testsuite/sim/or1k/mac.S
-> >  create mode 100644 sim/testsuite/sim/or1k/mfspr.S
-> >  create mode 100644 sim/testsuite/sim/or1k/mul.S
-> >  create mode 100644 sim/testsuite/sim/or1k/or.S
-> >  create mode 100644 sim/testsuite/sim/or1k/or1k-asm-test-env.h
-> >  create mode 100644 sim/testsuite/sim/or1k/or1k-asm-test-helpers.h
-> >  create mode 100644 sim/testsuite/sim/or1k/or1k-asm-test.h
-> >  create mode 100644 sim/testsuite/sim/or1k/or1k-asm.h
-> >  create mode 100644 sim/testsuite/sim/or1k/or1k-test.ld
-> >  create mode 100644 sim/testsuite/sim/or1k/ror.S
-> >  create mode 100644 sim/testsuite/sim/or1k/shift.S
-> >  create mode 100644 sim/testsuite/sim/or1k/spr-defs.h
-> >  create mode 100644 sim/testsuite/sim/or1k/sub.S
-> >  create mode 100644 sim/testsuite/sim/or1k/xor.S
-> > 
-> > -- 
-> > 2.9.4
-> > 
+* Sponsors
+
+First we'd like to announce that our major sponsor for the event will
+be RS Components, who are sponsoring the conference dinner on Saturday
+evening. We're also pleased to announce that AB Open, AMIQ, Antmicro
+and Roa Logic are also sponsoring ORConf this year.
+
+* Registration
+
+ORConf will be held over the weekend of September 8th to 10th in
+Hebden Bridge, England. Event details may be found at
+https://orconf.org
+
+You can expect presentations and discussion on open source digital
+design from developers, users and evangelists.
+
+We ask that if you're planning on joining us for the event, or
+interested in giving a presentation, that you submit your registration
+or presentation submission by August 29th, which is in a little over
+two weeks time.
+
+Register to attend here: https://goo.gl/forms/ALKx6xPRZWhaW1sh1
+
+Submit a presentation here: https://goo.gl/forms/fwALSQvbyUfE83Fh1
+
+We can accommodate anyone who can't meet those deadlines, but it does
+help us if you can register as soon as possible if you're intending on
+joining us, likewise please let us know if now can't make it.
+
+* Presentations
+
+We've already received a number of great abstracts and we're looking
+forward to seeing the presentations! Details at
+https://orconf.org/#presentations
+
+We should have the schedule up a week or so before the event and will
+let you know when that's done, but there's still room in the schedule
+for talks, so please do get in touch and let us know if there's
+anything you'd like to present, from lightning talks to discussion
+forums
+
+One area we'd really like to see more of is open source EDA, so please
+do join in if you contribute to, or even have a good story about a
+tool you hack on and use.
+
+We'll also have a number of posters and hardware displays and demos
+set up in the venue. Do let us know if you'd like to bring along
+something to set up as a display by submitting a description through
+the presentation form: https://goo.gl/forms/fwALSQvbyUfE83Fh1
+
+* Catering
+
+ORConf is free to attend and thanks to our sponsors we're also able to
+provide complementary coffee breaks and lunch during the event.
+
+As mentioned above, Saturday's conference dinner, sponsored by RS
+Components, will be free to all conference attendees, and we'd
+encourage everyone to join us for that. We'll be in touch with
+attendees soon with further details.
+
+* Questions
+
+If you have any questions or queries about the event or making a
+submission please don't hesitate to contact us at
+orconf at fossi-foundation.org and we'll get back to you as soon as
+humanly possible.
+
+* Thanks
+
+A big thanks to Judith Jones of Embecosm, Andrew Back of AB Open and
+the volunteers at the FOSSi Foundation for their work arranging events
+this year. We're very much looking forward to seeing everybody there
+soon for what should be another great few days.
+
+Cheers,
+
+The ORConf Team
