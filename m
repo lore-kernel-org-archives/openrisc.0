@@ -1,89 +1,234 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 31 Aug 2017 06:58:35 +0900
-Subject: [OpenRISC] [PATCH 04/13] openrisc: use qspinlocks and qrwlocks
+Date: Thu, 31 Aug 2017 06:58:36 +0900
+Subject: [OpenRISC] [PATCH 05/13] irqchip: add initial support for ompic
 In-Reply-To: <cover.1504129273.git.shorne@gmail.com>
 References: <cover.1504129273.git.shorne@gmail.com>
-Message-ID: <1c4f22327b44892b38eac0c4a6f045ea8fb0b8dd.1504129273.git.shorne@gmail.com>
+Message-ID: <538699c64b5601e8800b77da29f7951bf23f57ce.1504129273.git.shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Enable OpenRISC to use qspinlocks and qrwlocks for upcoming SMP support.
+From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
 
+IPI driver for OpenRISC Multicore programmable interrupt controller as
+described in the Multicore support section of the OpenRISC 1.2
+proposed architecture specification:
+
+  https://github.com/stffrdhrn/doc/raw/arch-1.2-proposal/openrisc-arch-1.2-rev0.pdf
+
+Each OpenRISC core contains a full interrupt controller which is used in
+the SMP architecture for interrupt balancing.  This IPI device is the
+only external device required for enabling SMP on OpenRISC.
+
+Pending ops are stored in a memory bit mask which can allow multiple
+pending operations to be set and serviced at a time. This is mostly
+borrowed from the alpha IPI implementation.
+
+Signed-off-by: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+[shorne at gmail.com: converted ops to bitmask, wrote commit message]
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/Kconfig                      |  2 ++
- arch/openrisc/include/asm/Kbuild           |  4 ++++
- arch/openrisc/include/asm/spinlock.h       | 12 +++++++++++-
- arch/openrisc/include/asm/spinlock_types.h |  7 +++++++
- 4 files changed, 24 insertions(+), 1 deletion(-)
- create mode 100644 arch/openrisc/include/asm/spinlock_types.h
+ .../bindings/interrupt-controller/ompic.txt        |  22 ++++
+ arch/openrisc/Kconfig                              |   1 +
+ drivers/irqchip/Kconfig                            |   4 +
+ drivers/irqchip/Makefile                           |   1 +
+ drivers/irqchip/irq-ompic.c                        | 117 +++++++++++++++++++++
+ 5 files changed, 145 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/interrupt-controller/ompic.txt
+ create mode 100644 drivers/irqchip/irq-ompic.c
 
+diff --git a/Documentation/devicetree/bindings/interrupt-controller/ompic.txt b/Documentation/devicetree/bindings/interrupt-controller/ompic.txt
+new file mode 100644
+index 000000000000..4176ecc3366d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/interrupt-controller/ompic.txt
+@@ -0,0 +1,22 @@
++OpenRISC Multicore Programmable Interrupt Controller
++
++Required properties:
++
++- compatible : This should be "ompic"
++- reg : Specifies base physical address and size of the register space. The
++  size can be arbitrary based on the number of cores the controller has
++  been configured to handle, typically 8 bytes per core.
++- interrupt-controller : Identifies the node as an interrupt controller
++- #interrupt-cells : Specifies the number of cells needed to encode an
++  interrupt source. The value shall be 1.
++- interrupts : Specifies the interrupt line to which the ompic is wired.
++
++Example:
++
++ompic: ompic {
++	compatible = "ompic";
++	reg = <0x98000000 16>;
++	#interrupt-cells = <1>;
++	interrupt-controller;
++	interrupts = <1>;
++};
 diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index 8ddfc92ab813..214c837ce597 100644
+index 214c837ce597..dd7e55e7e42d 100644
 --- a/arch/openrisc/Kconfig
 +++ b/arch/openrisc/Kconfig
-@@ -28,6 +28,8 @@ config OPENRISC
- 	select OR1K_PIC
- 	select CPU_NO_EFFICIENT_FFS if !OPENRISC_HAVE_INST_FF1
+@@ -30,6 +30,7 @@ config OPENRISC
  	select NO_BOOTMEM
-+	select ARCH_USE_QUEUED_SPINLOCKS
-+	select ARCH_USE_QUEUED_RWLOCKS
+ 	select ARCH_USE_QUEUED_SPINLOCKS
+ 	select ARCH_USE_QUEUED_RWLOCKS
++	select OMPIC if SMP
  
  config CPU_BIG_ENDIAN
  	def_bool y
-diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
-index 5bea416a7792..5f066780d870 100644
---- a/arch/openrisc/include/asm/Kbuild
-+++ b/arch/openrisc/include/asm/Kbuild
-@@ -28,6 +28,10 @@ generic-y += module.h
- generic-y += pci.h
- generic-y += percpu.h
- generic-y += preempt.h
-+generic-y += qspinlock_types.h
-+generic-y += qspinlock.h
-+generic-y += qrwlock_types.h
-+generic-y += qrwlock.h
- generic-y += sections.h
- generic-y += segment.h
- generic-y += string.h
-diff --git a/arch/openrisc/include/asm/spinlock.h b/arch/openrisc/include/asm/spinlock.h
-index fd00a3a24123..9b761e0e22c3 100644
---- a/arch/openrisc/include/asm/spinlock.h
-+++ b/arch/openrisc/include/asm/spinlock.h
-@@ -19,6 +19,16 @@
- #ifndef __ASM_OPENRISC_SPINLOCK_H
- #define __ASM_OPENRISC_SPINLOCK_H
+diff --git a/drivers/irqchip/Kconfig b/drivers/irqchip/Kconfig
+index f1fd5f44d1d4..3fa60e6667a7 100644
+--- a/drivers/irqchip/Kconfig
++++ b/drivers/irqchip/Kconfig
+@@ -145,6 +145,10 @@ config CLPS711X_IRQCHIP
+ 	select SPARSE_IRQ
+ 	default y
  
--#error "or32 doesn't do SMP yet"
-+#include <asm/qspinlock.h>
++config OMPIC
++	bool
++	select IRQ_DOMAIN
 +
-+#include <asm/qrwlock.h>
-+
-+#define arch_read_lock_flags(lock, flags) arch_read_lock(lock)
-+#define arch_write_lock_flags(lock, flags) arch_write_lock(lock)
-+
-+#define arch_spin_relax(lock)	cpu_relax()
-+#define arch_read_relax(lock)	cpu_relax()
-+#define arch_write_relax(lock)	cpu_relax()
-+
- 
- #endif
-diff --git a/arch/openrisc/include/asm/spinlock_types.h b/arch/openrisc/include/asm/spinlock_types.h
+ config OR1K_PIC
+ 	bool
+ 	select IRQ_DOMAIN
+diff --git a/drivers/irqchip/Makefile b/drivers/irqchip/Makefile
+index e88d856cc09c..123047d7a20d 100644
+--- a/drivers/irqchip/Makefile
++++ b/drivers/irqchip/Makefile
+@@ -17,6 +17,7 @@ obj-$(CONFIG_DW_APB_ICTL)		+= irq-dw-apb-ictl.o
+ obj-$(CONFIG_METAG)			+= irq-metag-ext.o
+ obj-$(CONFIG_METAG_PERFCOUNTER_IRQS)	+= irq-metag.o
+ obj-$(CONFIG_CLPS711X_IRQCHIP)		+= irq-clps711x.o
++obj-$(CONFIG_OMPIC)			+= irq-ompic.o
+ obj-$(CONFIG_OR1K_PIC)			+= irq-or1k-pic.o
+ obj-$(CONFIG_ORION_IRQCHIP)		+= irq-orion.o
+ obj-$(CONFIG_OMAP_IRQCHIP)		+= irq-omap-intc.o
+diff --git a/drivers/irqchip/irq-ompic.c b/drivers/irqchip/irq-ompic.c
 new file mode 100644
-index 000000000000..7c6fb1208c88
+index 000000000000..438819f8a5a7
 --- /dev/null
-+++ b/arch/openrisc/include/asm/spinlock_types.h
-@@ -0,0 +1,7 @@
-+#ifndef _ASM_OPENRISC_SPINLOCK_TYPES_H
-+#define _ASM_OPENRISC_SPINLOCK_TYPES_H
++++ b/drivers/irqchip/irq-ompic.c
+@@ -0,0 +1,117 @@
++/*
++ * Open Multi-Processor Interrupt Controller driver
++ *
++ * Copyright (C) 2014 Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
 +
-+#include <asm/qspinlock_types.h>
-+#include <asm/qrwlock_types.h>
++#include <linux/io.h>
++#include <linux/interrupt.h>
++#include <linux/smp.h>
++#include <linux/of.h>
++#include <linux/of_irq.h>
++#include <linux/of_address.h>
++#include <linux/irqchip/chained_irq.h>
++#include <linux/delay.h>
 +
-+#endif /* _ASM_OPENRISC_SPINLOCK_TYPES_H */
++#include <linux/irqchip.h>
++
++#define OMPIC_IPI_BASE			0x0
++#define OMPIC_IPI_CTRL(cpu)		(OMPIC_IPI_BASE + 0x0 + (cpu)*8)
++#define OMPIC_IPI_STAT(cpu)		(OMPIC_IPI_BASE + 0x4 + (cpu)*8)
++
++#define OMPIC_IPI_CTRL_IRQ_ACK		(1 << 31)
++#define OMPIC_IPI_CTRL_IRQ_GEN		(1 << 30)
++#define OMPIC_IPI_CTRL_DST(cpu)		(((cpu) & 0x3fff) << 16)
++
++#define OMPIC_IPI_STAT_IRQ_PENDING	(1 << 30)
++
++#define OMPIC_IPI_DATA(x)		((x) & 0xffff)
++
++static struct {
++	unsigned long ops;
++} ipi_data[NR_CPUS];
++
++static void __iomem *ompic_base;
++
++static inline u32 ompic_readreg(void __iomem *base, loff_t offset)
++{
++	return ioread32be(base + offset);
++}
++
++static void ompic_writereg(void __iomem *base, loff_t offset, u32 data)
++{
++	iowrite32be(data, base + offset);
++}
++
++#ifdef CONFIG_SMP
++void ompic_raise_softirq(const struct cpumask *mask, unsigned int irq)
++{
++	unsigned int dst_cpu;
++	unsigned int src_cpu = smp_processor_id();
++
++	for_each_cpu(dst_cpu, mask) {
++		set_bit(irq, &ipi_data[dst_cpu].ops);
++
++		ompic_writereg(ompic_base, OMPIC_IPI_CTRL(src_cpu),
++			       OMPIC_IPI_CTRL_IRQ_GEN |
++			       OMPIC_IPI_CTRL_DST(dst_cpu) |
++			       OMPIC_IPI_DATA(1));
++	}
++}
++#endif
++
++irqreturn_t ompic_ipi_handler(int irq, void *dev_id)
++{
++	unsigned int cpu = smp_processor_id();
++	unsigned long *pending_ops = &ipi_data[cpu].ops;
++	unsigned long ops;
++
++	ompic_writereg(ompic_base, OMPIC_IPI_CTRL(cpu), OMPIC_IPI_CTRL_IRQ_ACK);
++	while ((ops = xchg(pending_ops, 0)) != 0) {
++		do {
++			unsigned long ipi;
++
++			ipi = ops & -ops;
++			ops &= ~ipi;
++			ipi = __ffs(ipi);
++
++			handle_IPI(ipi);
++		} while (ops);
++	}
++
++	return IRQ_HANDLED;
++}
++
++static struct irqaction ompi_ipi_irqaction = {
++	.handler =      ompic_ipi_handler,
++	.flags =        IRQF_PERCPU,
++	.name =         "ompic_ipi",
++};
++
++#ifdef CONFIG_OF
++int __init ompic_of_init(struct device_node *node, struct device_node *parent)
++{
++	int irq;
++
++	if (WARN_ON(!node))
++		return -ENODEV;
++
++	memset(ipi_data, 0, sizeof(ipi_data));
++
++	ompic_base = of_iomap(node, 0);
++
++	irq = irq_of_parse_and_map(node, 0);
++	setup_irq(irq, &ompi_ipi_irqaction);
++
++#ifdef CONFIG_SMP
++	set_smp_cross_call(ompic_raise_softirq);
++#endif
++
++	return 0;
++}
++IRQCHIP_DECLARE(ompic, "ompic", ompic_of_init);
++#endif
 -- 
 2.13.5
 
