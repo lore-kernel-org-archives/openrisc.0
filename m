@@ -1,118 +1,79 @@
-From: Simon Marchi <simon.marchi@polymtl.ca>
-Date: Thu, 31 Aug 2017 23:10:47 +0200
-Subject: [OpenRISC] [PATCH v4 1/5] sim: cgen: add remainder functions
- (needed for OR1K lf.rem.[sd])
-In-Reply-To: <643da7dcb7d9913a1b239f3aae0ebaebb85a00d7.1496066478.git.shorne@gmail.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Fri, 1 Sep 2017 06:58:28 +0900
+Subject: [OpenRISC] [PATCH v4 0/5] sim port for OpenRISC
+In-Reply-To: <c233c8b2bda3a47b4ca169571300df95@polymtl.ca>
 References: <cover.1496066478.git.shorne@gmail.com>
- <643da7dcb7d9913a1b239f3aae0ebaebb85a00d7.1496066478.git.shorne@gmail.com>
-Message-ID: <fefc0514a4141b314871eb50efc9abf8@polymtl.ca>
+ <20170613101549.GG6190@lianli.shorne-pla.net>
+ <20170810132212.GC3031@lianli.shorne-pla.net>
+ <20170823062847.GB2587@lianli.shorne-pla.net>
+ <c233c8b2bda3a47b4ca169571300df95@polymtl.ca>
+Message-ID: <20170831215828.GD2609@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 2017-05-29 16:47, Stafford Horne wrote:
-> diff --git a/sim/common/sim-fpu.c b/sim/common/sim-fpu.c
-> index 0d4d08a..1a79e71 100644
-> --- a/sim/common/sim-fpu.c
-> +++ b/sim/common/sim-fpu.c
-> @@ -41,6 +41,7 @@ along with this program.  If not, see
-> <http://www.gnu.org/licenses/>.  */
->  #include "sim-io.h"
->  #include "sim-assert.h"
+On Thu, Aug 31, 2017 at 09:56:46PM +0200, Simon Marchi wrote:
+> On 2017-08-23 08:28, Stafford Horne wrote:
+> > Hello Global Maintainers,
+> > 
+> > Its been about a week since I sent the last ping Mike.  It looks like he
+> > hasnt been active on the list since April.  This is my patch series for
+> > the
+> > OpenRISC sim implementation needed to test and verify gdb.  If possible
+> > I
+> > would like to have it reviewed so I commit this and gdb to upstream.
+> > 
+> > At the moment it appears Mike may not be about to continue with the
+> > review.
+> > 
+> > If someone knows more details please let us know.
+> > 
+> > -Stafford
 > 
-> +#include <math.h> /* for drem, remove when soft-float version is 
-> implemented */
+> Hi Stafford,
 > 
->  /* Debugging support.
->     If digits is -1, then print all digits.  */
-> @@ -1551,6 +1552,68 @@ sim_fpu_div (sim_fpu *f,
+> I'll start getting familiar with the patch series and the previous versions.
+> However, it seems like patch 4/5, "sim: or1k: Add generated files.", didn't
+> go through.  I don't see it in the archive either:
 > 
+>   https://sourceware.org/ml/gdb-patches/2017-05/threads.html#00594
 > 
->  INLINE_SIM_FPU (int)
-> +sim_fpu_rem (sim_fpu *f,
-> +	     const sim_fpu *l,
-> +	     const sim_fpu *r)
-> +{
-> +  if (sim_fpu_is_snan (l))
-> +    {
-> +      *f = *l;
-> +      f->class = sim_fpu_class_qnan;
-> +      return sim_fpu_status_invalid_snan;
-> +    }
-> +  if (sim_fpu_is_snan (r))
-> +    {
-> +      *f = *r;
-> +      f->class = sim_fpu_class_qnan;
-> +      return sim_fpu_status_invalid_snan;
-> +    }
-> +  if (sim_fpu_is_qnan (l))
-> +    {
-> +      *f = *l;
-> +      f->class = sim_fpu_class_qnan;
-> +      return 0;
-> +    }
-> +  if (sim_fpu_is_qnan (r))
-> +    {
-> +      *f = *r;
-> +      f->class = sim_fpu_class_qnan;
-> +      return 0;
-> +    }
-> +  if (sim_fpu_is_infinity (l))
-> +    {
-> +      *f = sim_fpu_qnan;
-> +      return sim_fpu_status_invalid_irx;
-> +    }
-> +  if (sim_fpu_is_zero (r))
-> +    {
-> +      *f = sim_fpu_qnan;
-> +      return sim_fpu_status_invalid_div0;
-> +    }
-> +  if (sim_fpu_is_zero (l))
-> +    {
-> +      *f = *l;
-> +      return 0;
-> +    }
-> +  if (sim_fpu_is_infinity (r))
-> +    {
-> +      *f = *l;
-> +      return 0;
-> +    }
-> +  {
-> +    /* TODO: Implement remainder here.  */
-> +
-> +    sim_fpu_map lval, rval, fval;
-> +    lval.i = pack_fpu(l, 1);
-> +    rval.i = pack_fpu(r, 1);
-> +    fval.d = remainder(lval.d, rval.d);
-> +    unpack_fpu(f, fval.i, 1);
-> +    return 0;
-> +  }
+> Is it possible that it was too big and bounced?  If so, is it possible to
+> split it?  If not, we'll need to find some other way, maybe you can compress
+> it and send it as an attachment?
 
-I can't tell for sure because I'm not maintainer of sim/, but I suppose 
-that we would need a proper implementation that doesn't use the host fpu 
-here.
+Hello,
 
-> +}
-> +
-> +
-> +INLINE_SIM_FPU (int)
->  sim_fpu_max (sim_fpu *f,
->  	     const sim_fpu *l,
->  	     const sim_fpu *r)
-> diff --git a/sim/common/sim-fpu.h b/sim/common/sim-fpu.h
-> index d27d80a..c108f1f 100644
-> --- a/sim/common/sim-fpu.h
-> +++ b/sim/common/sim-fpu.h
-> @@ -151,6 +151,7 @@ typedef enum
->    sim_fpu_status_overflow = 4096,
->    sim_fpu_status_underflow = 8192,
->    sim_fpu_status_denorm = 16384,
-> +  sim_fpu_status_invalid_irx = 32768, /* (inf % X) */
->  } sim_fpu_status;
+Thanks for having a look at this.
 
-I think it would make sense to put the new entry with the other 
-"invalid" ones and shift the others.
+That is right this one file was too large to make it through the list
+filters.  I had mentioned that on the v3 series but not here, sorry.
 
-Simon
+One way to have a look is via my git repo the signed tag here:
+
+~~~
+The following changes since commit dbb2bcd0059f8d91de5a792f8684c8908c316720:
+
+  Revert "[AArch64] Allow COPY relocation elimination" (2017-06-09 12:04:44 +0100)
+
+are available in the git repository at:
+
+  https://github.com/stffrdhrn/binutils-gdb.git tags/for-upstream
+
+for you to fetch changes up to c30a4b8ddf8f133d556a4ce5486b9a95e0544720:
+
+  sim: testsuite: add testsuite for or1k sim (2017-06-13 19:17:58 +0900)
+~~~
+
+Otherwise, Please find attached as well.
+
+-Stafford
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: 0001-sim-or1k-Add-generated-files.patch.bz2
+Type: application/x-bzip2
+Size: 124467 bytes
+Desc: not available
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20170901/55af987d/attachment-0001.bin>
