@@ -1,297 +1,112 @@
-From: Marc Zyngier <marc.zyngier@arm.com>
-Date: Thu, 31 Aug 2017 10:28:01 +0100
-Subject: [OpenRISC] [PATCH 05/13] irqchip: add initial support for ompic
-In-Reply-To: <538699c64b5601e8800b77da29f7951bf23f57ce.1504129273.git.shorne@gmail.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Thu, 31 Aug 2017 22:05:10 +0900
+Subject: [OpenRISC] [PATCH 10/13] openrisc: add simple_smp dts and
+ defconfig for simulators
+In-Reply-To: <20170831104110.GD15031@leverpostej>
 References: <cover.1504129273.git.shorne@gmail.com>
- <538699c64b5601e8800b77da29f7951bf23f57ce.1504129273.git.shorne@gmail.com>
-Message-ID: <1b062d84-7335-8553-39c7-2e60973b4396@arm.com>
+ <37f0d48de4690694c18be3d32483dafee0730859.1504129273.git.shorne@gmail.com>
+ <20170831104110.GD15031@leverpostej>
+Message-ID: <20170831130510.GC2609@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 30/08/17 22:58, Stafford Horne wrote:
-> From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+On Thu, Aug 31, 2017 at 11:41:10AM +0100, Mark Rutland wrote:
+> On Thu, Aug 31, 2017 at 07:03:11AM +0900, Stafford Horne wrote:
+> > From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+> > 
+> > Simple enough to be compatible with simulation environments,
+> > such as verilated systems, QEMU and other targets supporting OpenRISC
+> > SMP.  This also supports our base FPGA SoC's if the cpu frequency is
+> > upped to 50Mhz.
+> > 
+> > Signed-off-by: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+> > [shorne at gmail.com: Added defconfig]
+> > Signed-off-by: Stafford Horne <shorne@gmail.com>
+> > ---
+> >  arch/openrisc/boot/dts/simple_smp.dts      | 58 ++++++++++++++++++++++++++
+> >  arch/openrisc/configs/simple_smp_defconfig | 66 ++++++++++++++++++++++++++++++
+> >  2 files changed, 124 insertions(+)
+> >  create mode 100644 arch/openrisc/boot/dts/simple_smp.dts
+> >  create mode 100644 arch/openrisc/configs/simple_smp_defconfig
+> > 
+> > diff --git a/arch/openrisc/boot/dts/simple_smp.dts b/arch/openrisc/boot/dts/simple_smp.dts
+> > new file mode 100644
+> > index 000000000000..47c54101baae
+> > --- /dev/null
+> > +++ b/arch/openrisc/boot/dts/simple_smp.dts
+> > @@ -0,0 +1,58 @@
+> > +/dts-v1/;
+> > +/ {
+> > +	compatible = "opencores,or1ksim";
+> > +	#address-cells = <1>;
+> > +	#size-cells = <1>;
+> > +	interrupt-parent = <&pic>;
+> > +
+> > +	chosen {
+> > +		bootargs = "console=uart,mmio,0x90000000,115200";
+> > +	};
 > 
-> IPI driver for OpenRISC Multicore programmable interrupt controller as
-> described in the Multicore support section of the OpenRISC 1.2
-> proposed architecture specification:
+> Any reason this isn't using stdout-path?
+
+I didn't know about stdout-path.  I will add it.
+
+> > +
+> > +	memory at 0 {
+> > +		device_type = "memory";
+> > +		reg = <0x00000000 0x02000000>;
+> > +	};
+> > +
+> > +	cpus {
+> > +		#address-cells = <1>;
+> > +		#size-cells = <0>;
+> > +		cpu at 0 {
+> > +			compatible = "opencores,or1200-rtlsvn481";
+> > +			reg = <0>;
+> > +			clock-frequency = <20000000>;
+> > +		};
+> > +		cpu at 1 {
+> > +			compatible = "opencores,or1200-rtlsvn481";
+> > +			reg = <1>;
+> > +			clock-frequency = <20000000>;
+> > +		};
+> > +	};
 > 
->   https://github.com/stffrdhrn/doc/raw/arch-1.2-proposal/openrisc-arch-1.2-rev0.pdf
+> No enable-method or similar?
 > 
-> Each OpenRISC core contains a full interrupt controller which is used in
-> the SMP architecture for interrupt balancing.  This IPI device is the
-> only external device required for enabling SMP on OpenRISC.
+> Is your SMP bringup/teardown architected?
+
+There is no configurable enable-method yet.  The current SMP bringup method
+is described in the architecture manual (SMP still under review).  If you
+have any pointers that would be great.  See section 10.4
+
+  https://github.com/stffrdhrn/doc/raw/arch-1.2-proposal/openrisc-arch-1.2-rev0.pdf
+
+In brief, Currently for SMP bringup both CPU's are expected to reset
+directly to the startup vectors.  The main CPU (coreid == 0) will start
+initialization where the secondary cpu's either spin or sleep until
+signalled by the main CPU.
+
+Original patch had cpu's spinning, but after [8/13] secondary cpus will go
+into Doze mode.
+
 > 
-> Pending ops are stored in a memory bit mask which can allow multiple
-> pending operations to be set and serviced at a time. This is mostly
-> borrowed from the alpha IPI implementation.
+> > +
+> > +	ompic: ompic {
+> > +		compatible = "ompic";
 > 
-> Signed-off-by: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-> [shorne at gmail.com: converted ops to bitmask, wrote commit message]
-> Signed-off-by: Stafford Horne <shorne@gmail.com>
-> ---
->  .../bindings/interrupt-controller/ompic.txt        |  22 ++++
->  arch/openrisc/Kconfig                              |   1 +
->  drivers/irqchip/Kconfig                            |   4 +
->  drivers/irqchip/Makefile                           |   1 +
->  drivers/irqchip/irq-ompic.c                        | 117 +++++++++++++++++++++
->  5 files changed, 145 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/interrupt-controller/ompic.txt
->  create mode 100644 drivers/irqchip/irq-ompic.c
-> 
-> diff --git a/Documentation/devicetree/bindings/interrupt-controller/ompic.txt b/Documentation/devicetree/bindings/interrupt-controller/ompic.txt
-> new file mode 100644
-> index 000000000000..4176ecc3366d
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/interrupt-controller/ompic.txt
-> @@ -0,0 +1,22 @@
-> +OpenRISC Multicore Programmable Interrupt Controller
-> +
-> +Required properties:
-> +
-> +- compatible : This should be "ompic"
-> +- reg : Specifies base physical address and size of the register space. The
-> +  size can be arbitrary based on the number of cores the controller has
-> +  been configured to handle, typically 8 bytes per core.
-> +- interrupt-controller : Identifies the node as an interrupt controller
-> +- #interrupt-cells : Specifies the number of cells needed to encode an
-> +  interrupt source. The value shall be 1.
-> +- interrupts : Specifies the interrupt line to which the ompic is wired.
-> +
-> +Example:
-> +
-> +ompic: ompic {
-> +	compatible = "ompic";
-> +	reg = <0x98000000 16>;
-> +	#interrupt-cells = <1>;
-> +	interrupt-controller;
-> +	interrupts = <1>;
-> +};
-> diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-> index 214c837ce597..dd7e55e7e42d 100644
-> --- a/arch/openrisc/Kconfig
-> +++ b/arch/openrisc/Kconfig
-> @@ -30,6 +30,7 @@ config OPENRISC
->  	select NO_BOOTMEM
->  	select ARCH_USE_QUEUED_SPINLOCKS
->  	select ARCH_USE_QUEUED_RWLOCKS
-> +	select OMPIC if SMP
->  
->  config CPU_BIG_ENDIAN
->  	def_bool y
-> diff --git a/drivers/irqchip/Kconfig b/drivers/irqchip/Kconfig
-> index f1fd5f44d1d4..3fa60e6667a7 100644
-> --- a/drivers/irqchip/Kconfig
-> +++ b/drivers/irqchip/Kconfig
-> @@ -145,6 +145,10 @@ config CLPS711X_IRQCHIP
->  	select SPARSE_IRQ
->  	default y
->  
-> +config OMPIC
-> +	bool
-> +	select IRQ_DOMAIN
+> This needs a vendor prefix.
 
-Why do you need to select IRQ_DOMAIN? This driver doesn't seem to use any...
+This has also been brought up on [5/13], the question of vendor was
+anticipated and I discussed with Stefan before sending the patch.
+OpenRISC is not part of opencores any longer and this ompic was definitely
+not implemented with an existing vendor in mind.
 
-> +
->  config OR1K_PIC
->  	bool
->  	select IRQ_DOMAIN
-> diff --git a/drivers/irqchip/Makefile b/drivers/irqchip/Makefile
-> index e88d856cc09c..123047d7a20d 100644
-> --- a/drivers/irqchip/Makefile
-> +++ b/drivers/irqchip/Makefile
-> @@ -17,6 +17,7 @@ obj-$(CONFIG_DW_APB_ICTL)		+= irq-dw-apb-ictl.o
->  obj-$(CONFIG_METAG)			+= irq-metag-ext.o
->  obj-$(CONFIG_METAG_PERFCOUNTER_IRQS)	+= irq-metag.o
->  obj-$(CONFIG_CLPS711X_IRQCHIP)		+= irq-clps711x.o
-> +obj-$(CONFIG_OMPIC)			+= irq-ompic.o
->  obj-$(CONFIG_OR1K_PIC)			+= irq-or1k-pic.o
->  obj-$(CONFIG_ORION_IRQCHIP)		+= irq-orion.o
->  obj-$(CONFIG_OMAP_IRQCHIP)		+= irq-omap-intc.o
-> diff --git a/drivers/irqchip/irq-ompic.c b/drivers/irqchip/irq-ompic.c
-> new file mode 100644
-> index 000000000000..438819f8a5a7
-> --- /dev/null
-> +++ b/drivers/irqchip/irq-ompic.c
-> @@ -0,0 +1,117 @@
-> +/*
-> + * Open Multi-Processor Interrupt Controller driver
-> + *
-> + * Copyright (C) 2014 Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-> + *
-> + * This file is licensed under the terms of the GNU General Public License
-> + * version 2.  This program is licensed "as is" without any warranty of any
-> + * kind, whether express or implied.
-> + */
-> +
-> +#include <linux/io.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/smp.h>
-> +#include <linux/of.h>
-> +#include <linux/of_irq.h>
-> +#include <linux/of_address.h>
-> +#include <linux/irqchip/chained_irq.h>
+Perhaps we can just call it openrisc,ompic.  I will comment more on the
+other thread.
 
-Don't think you need this.
+Thanks for the review.
 
-> +#include <linux/delay.h>
-
-Nor this.
-
-> +
-> +#include <linux/irqchip.h>
-> +
-> +#define OMPIC_IPI_BASE			0x0
-> +#define OMPIC_IPI_CTRL(cpu)		(OMPIC_IPI_BASE + 0x0 + (cpu)*8)
-> +#define OMPIC_IPI_STAT(cpu)		(OMPIC_IPI_BASE + 0x4 + (cpu)*8)
-
-In the DT binding you say that "size can be arbitrary based on the
-number of cores the controller has been configured to handle, typically
-8 bytes per core". Here, this is 8 bytes, always, which is not exactly
-the same. What is the architectural value, if any? If there is none,
-then the per-core size should either come from DT or some other mean
-(register?).
-
-> +
-> +#define OMPIC_IPI_CTRL_IRQ_ACK		(1 << 31)
-> +#define OMPIC_IPI_CTRL_IRQ_GEN		(1 << 30)
-> +#define OMPIC_IPI_CTRL_DST(cpu)		(((cpu) & 0x3fff) << 16)
-> +
-> +#define OMPIC_IPI_STAT_IRQ_PENDING	(1 << 30)
-> +
-> +#define OMPIC_IPI_DATA(x)		((x) & 0xffff)
-> +
-> +static struct {
-> +	unsigned long ops;
-> +} ipi_data[NR_CPUS];
-
-In general, a per cpu data structure is better expressed as a percpu
-data structure (yes, I'm in a funny mood this morning). Otherwise,
-you're going to thrash more than just the receiver and the sender, but
-also all the other CPUs that have their data in the same cache line.
-
-> +
-> +static void __iomem *ompic_base;
-> +
-> +static inline u32 ompic_readreg(void __iomem *base, loff_t offset)
-> +{
-> +	return ioread32be(base + offset);
-> +}
-> +
-> +static void ompic_writereg(void __iomem *base, loff_t offset, u32 data)
-> +{
-> +	iowrite32be(data, base + offset);
-> +}
-> +
-> +#ifdef CONFIG_SMP
-
-This code is only selected when CONFIG_SMP=y.
-
-> +void ompic_raise_softirq(const struct cpumask *mask, unsigned int irq)
-> +{
-
-What is "irq" here? How is it guaranteed to fit in an unsigned long?
-
-> +	unsigned int dst_cpu;
-> +	unsigned int src_cpu = smp_processor_id();
-> +
-> +	for_each_cpu(dst_cpu, mask) {
-> +		set_bit(irq, &ipi_data[dst_cpu].ops);
-> +
-> +		ompic_writereg(ompic_base, OMPIC_IPI_CTRL(src_cpu),
-> +			       OMPIC_IPI_CTRL_IRQ_GEN |
-> +			       OMPIC_IPI_CTRL_DST(dst_cpu) |
-> +			       OMPIC_IPI_DATA(1));
-
-What guarantees that the action of set_bit can be observed by the target
-CPU? set-bit gives you atomicity, but no barrier.
-
-> +	}
-> +}
-> +#endif
-> +
-> +irqreturn_t ompic_ipi_handler(int irq, void *dev_id)
-> +{
-> +	unsigned int cpu = smp_processor_id();
-> +	unsigned long *pending_ops = &ipi_data[cpu].ops;
-> +	unsigned long ops;
-> +
-> +	ompic_writereg(ompic_base, OMPIC_IPI_CTRL(cpu), OMPIC_IPI_CTRL_IRQ_ACK);
-> +	while ((ops = xchg(pending_ops, 0)) != 0) {
-
-Barrier again?
-
-> +		do {
-> +			unsigned long ipi;
-> +
-> +			ipi = ops & -ops;
-> +			ops &= ~ipi;
-> +			ipi = __ffs(ipi);
-
-This feels pointlessly convoluted. Is there any reason why you can't
-write it as:
-
-			ipi = __ffs(ops);
-			ops &= ~(1UL << ipi);
-
-which feels like a much more common idiom?
-
-> +
-> +			handle_IPI(ipi);
-> +		} while (ops);
-> +	}
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static struct irqaction ompi_ipi_irqaction = {
-> +	.handler =      ompic_ipi_handler,
-> +	.flags =        IRQF_PERCPU,
-> +	.name =         "ompic_ipi",
-> +};
-> +
-> +#ifdef CONFIG_OF
-
-This code is useless if you don't have CONFIG_OF. So either you make the
-driver depend on CONFIG_OF, or you actively select it. And given that
-CONFIG_OPENRISC already selects CONFIG_OF, you can happily get rid of
-all the #ifdefery here.
-
-> +int __init ompic_of_init(struct device_node *node, struct device_node *parent)
-> +{
-> +	int irq;
-> +
-> +	if (WARN_ON(!node))
-> +		return -ENODEV;
-
-How do you end-up here if node == NULL?
-
-> +
-> +	memset(ipi_data, 0, sizeof(ipi_data));
-
-The kernel should do this for you already.
-
-> +
-> +	ompic_base = of_iomap(node, 0);
-> +
-> +	irq = irq_of_parse_and_map(node, 0);
-> +	setup_irq(irq, &ompi_ipi_irqaction);
-> +
-> +#ifdef CONFIG_SMP
-> +	set_smp_cross_call(ompic_raise_softirq);
-> +#endif
-> +
-> +	return 0;
-> +}
-> +IRQCHIP_DECLARE(ompic, "ompic", ompic_of_init);
-> +#endif
-> 
-
-Thanks,
-
-	M.
--- 
-Jazz is not dead. It just smells funny...
+-Stafford
