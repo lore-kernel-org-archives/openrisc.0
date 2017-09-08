@@ -1,35 +1,48 @@
-From: Simon Marchi <simon.marchi@polymtl.ca>
-Date: Tue, 05 Sep 2017 20:52:53 +0200
-Subject: [OpenRISC] [PATCH v4 3/5] sim: or1k: add or1k target to sim
-In-Reply-To: <20170904214854.GN2609@lianli.shorne-pla.net>
-References: <cover.1496066478.git.shorne@gmail.com>
- <aaf9bb46e9b3a59d1fff197c08fa25c7e0bd3b16.1496066478.git.shorne@gmail.com>
- <617acff0490f4ae9ffcf961fb55b2ef1@polymtl.ca>
- <20170904214854.GN2609@lianli.shorne-pla.net>
-Message-ID: <1735cd0e32315069945129777d92710f@polymtl.ca>
+From: Tobias Klauser <tklauser@distanz.ch>
+Date: Fri,  8 Sep 2017 10:25:08 +0200
+Subject: [OpenRISC] [PATCH] openrisc: add forward declaration for struct
+	vm_area_struct
+In-Reply-To: <201709080345.bk1IOlp7%fengguang.wu@intel.com>
+References: <201709080345.bk1IOlp7%fengguang.wu@intel.com>
+Message-ID: <20170908082508.14325-1-tklauser@distanz.ch>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 2017-09-04 23:48, Stafford Horne wrote:
-> This is here to configure the UPR[UP] (UPR is present flag) to 1, even 
-> in
-> case we didnt set it above when we do:
-> 
->   SET_H_SYS_UPR (or1k_upr);
-> 
-> The call to SET_H_SYS_UPR() sets all of the flags in the UPR as sent in
-> from the user arguments.  If they didn't set UPR[UP] we make sure it 
-> gets
-> set.
+After removing linux/vmalloc.h from asm-generic/io.h, the following
+warning occurs on openrisc:
 
-Oh ok for some reason I though that CHECK_SPR_FIELD was throwing an 
-error when a check failed, but actually it just prints a warning.  
-That's why I thought that the UP bit would necessarily already be set at 
-this point.
+   In file included from arch/openrisc/include/asm/io.h:33:0,
+                    from include/linux/io.h:25,
+                    from drivers/tty/serial/earlycon.c:19:
+   arch/openrisc/include/asm/pgtable.h:424:2: warning: 'struct vm_area_struct' declared inside parameter list
+     unsigned long address, pte_t *pte)
+     ^
+   arch/openrisc/include/asm/pgtable.h:424:2: warning: its scope is only this definition or declaration, which is probably not what you want
 
-Sorry about that.
+Reported-by: kbuild test robot <lkp@intel.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+---
+ arch/openrisc/include/asm/pgtable.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Simon
+diff --git a/arch/openrisc/include/asm/pgtable.h b/arch/openrisc/include/asm/pgtable.h
+index ff97374ca069..71a6f08de8f2 100644
+--- a/arch/openrisc/include/asm/pgtable.h
++++ b/arch/openrisc/include/asm/pgtable.h
+@@ -414,6 +414,8 @@ static inline void pmd_set(pmd_t *pmdp, pte_t *ptep)
+ 
+ extern pgd_t swapper_pg_dir[PTRS_PER_PGD]; /* defined in head.S */
+ 
++struct vm_area_struct;
++
+ /*
+  * or32 doesn't have any external MMU info: the kernel page
+  * tables contain all the necessary information.
+-- 
+2.13.0
+
+
