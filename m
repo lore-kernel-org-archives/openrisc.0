@@ -1,153 +1,229 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 10 Sep 2017 15:49:12 +0900
-Subject: [OpenRISC] [PATCH v2 00/14] OpenRISC SMP Support
-Message-ID: <20170910064926.5874-1-shorne@gmail.com>
+Date: Sun, 10 Sep 2017 15:49:13 +0900
+Subject: [OpenRISC] [PATCH v2 01/14] openrisc: use shadow registers to save
+	regs on exception
+In-Reply-To: <20170910064926.5874-1-shorne@gmail.com>
+References: <20170910064926.5874-1-shorne@gmail.com>
+Message-ID: <20170910064926.5874-2-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hello Again,
+From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
 
-This series adds SMP support for OpenRISC.  The OpenRISC multicore platform
-and SMP linux support is based on the work that Stefan Kristiansson did
-around 2012 implemented in Verilog and run on FPGAs.  I have been working
-to upstream this work. I have additionally tested this on QEMU, which I
-patched for OpenRISC multicore support, as well as FPGA.
+Previously, the area between 0x0-0x100 have been used as a "scratch"
+memory area to temporarily store regs during exception entry. In a
+multi-core environment, this will not work.
 
-I have documented the architecture in the OpenRISC 1.2 specification
-proposal available here:
-  https://github.com/stffrdhrn/doc/raw/arch-1.2-proposal/openrisc-arch-1.2-rev0.pdf
+This change is to use shadow registers for nested context.
 
-The QEMU patches are still under review but are available here for testers
-and anyone interested:
-  https://github.com/stffrdhrn/qemu.git openrisc-smp-v1
+Currently only the "critical" temp load/stores are covered, the
+EMERGENCY_PRINT ones are left as is (when they are used, it's game over
+anyway), they need to be handled as well in the future.
 
-This series contains a bit of a mix of patches to get everything working.
- o First the "use shadow registers" and "define CPU_BIG_ENDIAN as true" get
-   the architecture ready for SMP.
- o The "add 1 and 2 byte cmpxchg support" and "use qspinlocks and qrwlocks"
-   add the SMP locking infrastructure as needed.  Using the qspinlocks and
-   qrwlocks as suggested by Peter Z while reviewing the original spinlocks
-   implementation.
- o The "support for ompic" adds a new irqchip device which is used for IPI
-   communication to support SMP.  (Perhaps this patch should go via another
-   route but included here for completeness - confirmed this is ok)
- o The "initial SMP support" adds smp.c and makes changes to all of the
-   necessary data-structures to be per-cpu.
- o The remaining patches are bug fixes and debug helpers which I wanted
-   to keep separate from the "initial SMP support" in order to allow them
-   to be reviewed on their own. This includes:
-    - add cacheflush support to fix icache aliasing
-    - fix initial preempt state for secondary cpu tasks
-    - sleep instead of spin on secondary wait
-    - support framepointers and STACKTRACE_SUPPORT
-    - enable LOCKDEP_SUPPORT and irqflags tracing
-    - timer sync: Add tick timer sync logic
-
---
+Signed-off-by: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
 
 Changes since v1
-  - refactor of timer headers to not require extern openrisc_timer_init()
-    in smp.c
-  - check for power management unit when sleeping on secondary cpu wait
-  - fixed cpuinfo to print online CPUs only
-  - cleanups for the ompic suggested by Marc Zyngier and Mark Rutland
-    > don't say size is arbitrary, it's 8 bytes per CPU
-    > validate register size vs cpus
-    > add validations for all initialization failures
-    > use percpu for percpu ipi ops
-    > remove SMP and OF #ifdefs
-    > document details about OpenRISC implied barriers
-    > use vendor prefix openrisc,
-    > removed #interrupt-cells as this will not be a parent
-    > added some architecture documentation into the source
-  - enforce shadow register usage for SMP as suggested by Geert
-  - DTS updates suggested by Mark Rutland
-    > Add and use vendor prefix openrisc, for ompic
-    > Use stdout-path
+ - Added SMP checks in Kconfig
 
--Stafford
+ arch/openrisc/Kconfig       | 11 ++++++
+ arch/openrisc/kernel/head.S | 95 ++++++++++++++++++++++++++++++++-------------
+ 2 files changed, 80 insertions(+), 26 deletions(-)
 
-
-
-Jan Henrik Weinstock (1):
-  openrisc: add cacheflush support to fix icache aliasing
-
-Stafford Horne (9):
-  openrisc: define CPU_BIG_ENDIAN as true
-  openrisc: add 1 and 2 byte cmpxchg support
-  openrisc: use qspinlocks and qrwlocks
-  dt-bindings: add openrisc to vendor prefixes list
-  openrisc: fix initial preempt state for secondary cpu tasks
-  openrisc: sleep instead of spin on secondary wait
-  openrisc: support framepointers and STACKTRACE_SUPPORT
-  openrisc: enable LOCKDEP_SUPPORT and irqflags tracing
-  openrisc: add tick timer multicore sync logic
-
-Stefan Kristiansson (4):
-  openrisc: use shadow registers to save regs on exception
-  irqchip: add initial support for ompic
-  openrisc: initial SMP support
-  openrisc: add simple_smp dts and defconfig for simulators
-
- .../interrupt-controller/openrisc,ompic.txt        |  19 ++
- .../devicetree/bindings/vendor-prefixes.txt        |   1 +
- arch/openrisc/Kconfig                              |  52 ++++-
- arch/openrisc/boot/dts/simple_smp.dts              |  58 +++++
- arch/openrisc/configs/simple_smp_defconfig         |  66 ++++++
- arch/openrisc/include/asm/Kbuild                   |   5 +-
- arch/openrisc/include/asm/cacheflush.h             |  96 ++++++++
- arch/openrisc/include/asm/cmpxchg.h                | 147 +++++++++---
- arch/openrisc/include/asm/cpuinfo.h                |   7 +-
- arch/openrisc/include/asm/mmu_context.h            |   2 +-
- arch/openrisc/include/asm/pgtable.h                |  18 +-
- arch/openrisc/include/asm/serial.h                 |   2 +-
- arch/openrisc/include/asm/smp.h                    |  26 +++
- arch/openrisc/include/asm/spinlock.h               |  12 +-
- arch/openrisc/include/asm/spinlock_types.h         |   7 +
- arch/openrisc/include/asm/spr_defs.h               |  14 ++
- arch/openrisc/include/asm/thread_info.h            |   2 +-
- arch/openrisc/include/asm/time.h                   |  23 ++
- arch/openrisc/include/asm/tlbflush.h               |  25 +-
- arch/openrisc/include/asm/unwinder.h               |  20 ++
- arch/openrisc/kernel/Makefile                      |   4 +-
- arch/openrisc/kernel/dma.c                         |  14 +-
- arch/openrisc/kernel/entry.S                       |  74 +++++-
- arch/openrisc/kernel/head.S                        | 239 ++++++++++++++++---
- arch/openrisc/kernel/setup.c                       | 165 ++++++++-----
- arch/openrisc/kernel/smp.c                         | 259 +++++++++++++++++++++
- arch/openrisc/kernel/stacktrace.c                  |  86 +++++++
- arch/openrisc/kernel/sync-timer.c                  | 120 ++++++++++
- arch/openrisc/kernel/time.c                        |  66 ++++--
- arch/openrisc/kernel/traps.c                       |  54 +----
- arch/openrisc/kernel/unwinder.c                    | 105 +++++++++
- arch/openrisc/lib/delay.c                          |   2 +-
- arch/openrisc/mm/Makefile                          |   2 +-
- arch/openrisc/mm/cache.c                           |  61 +++++
- arch/openrisc/mm/fault.c                           |   4 +-
- arch/openrisc/mm/init.c                            |   2 +-
- arch/openrisc/mm/tlb.c                             |  16 +-
- drivers/irqchip/Kconfig                            |   3 +
- drivers/irqchip/Makefile                           |   1 +
- drivers/irqchip/irq-ompic.c                        | 205 ++++++++++++++++
- 40 files changed, 1850 insertions(+), 234 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/interrupt-controller/openrisc,ompic.txt
- create mode 100644 arch/openrisc/boot/dts/simple_smp.dts
- create mode 100644 arch/openrisc/configs/simple_smp_defconfig
- create mode 100644 arch/openrisc/include/asm/cacheflush.h
- create mode 100644 arch/openrisc/include/asm/smp.h
- create mode 100644 arch/openrisc/include/asm/spinlock_types.h
- create mode 100644 arch/openrisc/include/asm/time.h
- create mode 100644 arch/openrisc/include/asm/unwinder.h
- create mode 100644 arch/openrisc/kernel/smp.c
- create mode 100644 arch/openrisc/kernel/stacktrace.c
- create mode 100644 arch/openrisc/kernel/sync-timer.c
- create mode 100644 arch/openrisc/kernel/unwinder.c
- create mode 100644 arch/openrisc/mm/cache.c
- create mode 100644 drivers/irqchip/irq-ompic.c
-
+diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+index 1e95920b0737..ee34d94f7aa2 100644
+--- a/arch/openrisc/Kconfig
++++ b/arch/openrisc/Kconfig
+@@ -121,6 +121,17 @@ config OPENRISC_NO_SPR_SR_DSX
+ 	  Say N here if you know that your OpenRISC processor has
+ 	  SPR_SR_DSX bit implemented. Say Y if you are unsure.
+ 
++config OPENRISC_HAVE_SHADOW_GPRS
++	bool "Support for shadow gpr files" if !SMP
++	default y if SMP
++	help
++	  Say Y here if your OpenRISC processor features shadowed
++	  register files. They will in such case be used as a
++	  scratch reg storage on exception entry.
++
++	  On SMP systems, this feature is mandatory.
++	  On a unicore system it's safe to say N here if you are unsure.
++
+ config CMDLINE
+         string "Default kernel command string"
+         default ""
+diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
+index 1e87913576e3..1e49895408f4 100644
+--- a/arch/openrisc/kernel/head.S
++++ b/arch/openrisc/kernel/head.S
+@@ -49,9 +49,31 @@
+ 
+ /* ============================================[ tmp store locations ]=== */
+ 
++#define SPR_SHADOW_GPR(x)	((x) + SPR_GPR_BASE + 32)
++
+ /*
+  * emergency_print temporary stores
+  */
++#ifdef CONFIG_OPENRISC_HAVE_SHADOW_GPRS
++#define EMERGENCY_PRINT_STORE_GPR4	l.mtspr r0,r4,SPR_SHADOW_GPR(14)
++#define EMERGENCY_PRINT_LOAD_GPR4	l.mfspr r4,r0,SPR_SHADOW_GPR(14)
++
++#define EMERGENCY_PRINT_STORE_GPR5	l.mtspr r0,r5,SPR_SHADOW_GPR(15)
++#define EMERGENCY_PRINT_LOAD_GPR5	l.mfspr r5,r0,SPR_SHADOW_GPR(15)
++
++#define EMERGENCY_PRINT_STORE_GPR6	l.mtspr r0,r6,SPR_SHADOW_GPR(16)
++#define EMERGENCY_PRINT_LOAD_GPR6	l.mfspr r6,r0,SPR_SHADOW_GPR(16)
++
++#define EMERGENCY_PRINT_STORE_GPR7	l.mtspr r0,r7,SPR_SHADOW_GPR(7)
++#define EMERGENCY_PRINT_LOAD_GPR7	l.mfspr r7,r0,SPR_SHADOW_GPR(7)
++
++#define EMERGENCY_PRINT_STORE_GPR8	l.mtspr r0,r8,SPR_SHADOW_GPR(8)
++#define EMERGENCY_PRINT_LOAD_GPR8	l.mfspr r8,r0,SPR_SHADOW_GPR(8)
++
++#define EMERGENCY_PRINT_STORE_GPR9	l.mtspr r0,r9,SPR_SHADOW_GPR(9)
++#define EMERGENCY_PRINT_LOAD_GPR9	l.mfspr r9,r0,SPR_SHADOW_GPR(9)
++
++#else /* !CONFIG_OPENRISC_HAVE_SHADOW_GPRS */
+ #define EMERGENCY_PRINT_STORE_GPR4	l.sw    0x20(r0),r4
+ #define EMERGENCY_PRINT_LOAD_GPR4	l.lwz   r4,0x20(r0)
+ 
+@@ -70,13 +92,28 @@
+ #define EMERGENCY_PRINT_STORE_GPR9	l.sw    0x34(r0),r9
+ #define EMERGENCY_PRINT_LOAD_GPR9	l.lwz   r9,0x34(r0)
+ 
++#endif
+ 
+ /*
+  * TLB miss handlers temorary stores
+  */
+-#define EXCEPTION_STORE_GPR9		l.sw    0x10(r0),r9
+-#define EXCEPTION_LOAD_GPR9		l.lwz   r9,0x10(r0)
++#ifdef CONFIG_OPENRISC_HAVE_SHADOW_GPRS
++#define EXCEPTION_STORE_GPR2		l.mtspr r0,r2,SPR_SHADOW_GPR(2)
++#define EXCEPTION_LOAD_GPR2		l.mfspr r2,r0,SPR_SHADOW_GPR(2)
++
++#define EXCEPTION_STORE_GPR3		l.mtspr r0,r3,SPR_SHADOW_GPR(3)
++#define EXCEPTION_LOAD_GPR3		l.mfspr r3,r0,SPR_SHADOW_GPR(3)
+ 
++#define EXCEPTION_STORE_GPR4		l.mtspr r0,r4,SPR_SHADOW_GPR(4)
++#define EXCEPTION_LOAD_GPR4		l.mfspr r4,r0,SPR_SHADOW_GPR(4)
++
++#define EXCEPTION_STORE_GPR5		l.mtspr r0,r5,SPR_SHADOW_GPR(5)
++#define EXCEPTION_LOAD_GPR5		l.mfspr r5,r0,SPR_SHADOW_GPR(5)
++
++#define EXCEPTION_STORE_GPR6		l.mtspr r0,r6,SPR_SHADOW_GPR(6)
++#define EXCEPTION_LOAD_GPR6		l.mfspr r6,r0,SPR_SHADOW_GPR(6)
++
++#else /* !CONFIG_OPENRISC_HAVE_SHADOW_GPRS */
+ #define EXCEPTION_STORE_GPR2		l.sw    0x64(r0),r2
+ #define EXCEPTION_LOAD_GPR2		l.lwz   r2,0x64(r0)
+ 
+@@ -92,26 +129,32 @@
+ #define EXCEPTION_STORE_GPR6		l.sw    0x74(r0),r6
+ #define EXCEPTION_LOAD_GPR6		l.lwz   r6,0x74(r0)
+ 
++#endif
+ 
+ /*
+  * EXCEPTION_HANDLE temporary stores
+  */
+ 
++#ifdef CONFIG_OPENRISC_HAVE_SHADOW_GPRS
++#define EXCEPTION_T_STORE_GPR30		l.mtspr r0,r30,SPR_SHADOW_GPR(30)
++#define EXCEPTION_T_LOAD_GPR30(reg)	l.mfspr reg,r0,SPR_SHADOW_GPR(30)
++
++#define EXCEPTION_T_STORE_GPR10		l.mtspr r0,r10,SPR_SHADOW_GPR(10)
++#define EXCEPTION_T_LOAD_GPR10(reg)	l.mfspr reg,r0,SPR_SHADOW_GPR(10)
++
++#define EXCEPTION_T_STORE_SP		l.mtspr r0,r1,SPR_SHADOW_GPR(1)
++#define EXCEPTION_T_LOAD_SP(reg)	l.mfspr reg,r0,SPR_SHADOW_GPR(1)
++
++#else /* !CONFIG_OPENRISC_HAVE_SHADOW_GPRS */
+ #define EXCEPTION_T_STORE_GPR30		l.sw    0x78(r0),r30
+ #define EXCEPTION_T_LOAD_GPR30(reg)	l.lwz   reg,0x78(r0)
+ 
+ #define EXCEPTION_T_STORE_GPR10		l.sw    0x7c(r0),r10
+ #define EXCEPTION_T_LOAD_GPR10(reg)	l.lwz   reg,0x7c(r0)
+ 
+-#define EXCEPTION_T_STORE_SP		l.sw	0x80(r0),r1
++#define EXCEPTION_T_STORE_SP		l.sw    0x80(r0),r1
+ #define EXCEPTION_T_LOAD_SP(reg)	l.lwz   reg,0x80(r0)
+-
+-/*
+- * For UNHANLDED_EXCEPTION
+- */
+-
+-#define EXCEPTION_T_STORE_GPR31		l.sw    0x84(r0),r31
+-#define EXCEPTION_T_LOAD_GPR31(reg)	l.lwz   reg,0x84(r0)
++#endif
+ 
+ /* =========================================================[ macros ]=== */
+ 
+@@ -226,7 +269,7 @@
+  *
+  */
+ #define UNHANDLED_EXCEPTION(handler)				\
+-	EXCEPTION_T_STORE_GPR31					;\
++	EXCEPTION_T_STORE_GPR30					;\
+ 	EXCEPTION_T_STORE_GPR10					;\
+ 	EXCEPTION_T_STORE_SP					;\
+ 	/* temporary store r3, r9 into r1, r10 */		;\
+@@ -255,35 +298,35 @@
+ 	/* r1: KSP, r10: current, r31: __pa(KSP) */		;\
+ 	/* r12:	temp, syscall indicator, r13 temp */		;\
+ 	l.addi  r1,r1,-(INT_FRAME_SIZE)				;\
+-	/* r1 is KSP, r31 is __pa(KSP) */			;\
+-	tophys  (r31,r1)					;\
+-	l.sw    PT_GPR12(r31),r12					;\
++	/* r1 is KSP, r30 is __pa(KSP) */			;\
++	tophys  (r30,r1)					;\
++	l.sw    PT_GPR12(r30),r12					;\
+ 	l.mfspr r12,r0,SPR_EPCR_BASE				;\
+-	l.sw    PT_PC(r31),r12					;\
++	l.sw    PT_PC(r30),r12					;\
+ 	l.mfspr r12,r0,SPR_ESR_BASE				;\
+-	l.sw    PT_SR(r31),r12					;\
++	l.sw    PT_SR(r30),r12					;\
+ 	/* save r31 */						;\
+-	EXCEPTION_T_LOAD_GPR31(r12)				;\
+-	l.sw	PT_GPR31(r31),r12					;\
++	EXCEPTION_T_LOAD_GPR30(r12)				;\
++	l.sw	PT_GPR30(r30),r12					;\
+ 	/* save r10 as was prior to exception */		;\
+ 	EXCEPTION_T_LOAD_GPR10(r12)				;\
+-	l.sw	PT_GPR10(r31),r12					;\
++	l.sw	PT_GPR10(r30),r12					;\
+ 	/* save PT_SP as was prior to exception */			;\
+ 	EXCEPTION_T_LOAD_SP(r12)				;\
+-	l.sw	PT_SP(r31),r12					;\
+-	l.sw    PT_GPR13(r31),r13					;\
++	l.sw	PT_SP(r30),r12					;\
++	l.sw    PT_GPR13(r30),r13					;\
+ 	/* --> */						;\
+ 	/* save exception r4, set r4 = EA */			;\
+-	l.sw	PT_GPR4(r31),r4					;\
++	l.sw	PT_GPR4(r30),r4					;\
+ 	l.mfspr r4,r0,SPR_EEAR_BASE				;\
+ 	/* r12 == 1 if we come from syscall */			;\
+ 	CLEAR_GPR(r12)						;\
+ 	/* ----- play a MMU trick ----- */			;\
+-	l.ori	r31,r0,(EXCEPTION_SR)				;\
+-	l.mtspr	r0,r31,SPR_ESR_BASE				;\
++	l.ori	r30,r0,(EXCEPTION_SR)				;\
++	l.mtspr	r0,r30,SPR_ESR_BASE				;\
+ 	/* r31:	EA address of handler */			;\
+-	LOAD_SYMBOL_2_GPR(r31,handler)				;\
+-	l.mtspr r0,r31,SPR_EPCR_BASE				;\
++	LOAD_SYMBOL_2_GPR(r30,handler)				;\
++	l.mtspr r0,r30,SPR_EPCR_BASE				;\
+ 	l.rfe
+ 
+ /* =====================================================[ exceptions] === */
 -- 
 2.13.5
 
