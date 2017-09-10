@@ -1,177 +1,248 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 10 Sep 2017 15:49:25 +0900
-Subject: [OpenRISC] [PATCH v2 13/14] openrisc: enable LOCKDEP_SUPPORT and
-	irqflags tracing
+Date: Sun, 10 Sep 2017 15:49:26 +0900
+Subject: [OpenRISC] [PATCH v2 14/14] openrisc: add tick timer multicore sync
+	logic
 In-Reply-To: <20170910064926.5874-1-shorne@gmail.com>
 References: <20170910064926.5874-1-shorne@gmail.com>
-Message-ID: <20170910064926.5874-14-shorne@gmail.com>
+Message-ID: <20170910064926.5874-15-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Lockdep is needed for proving the spinlocks and rwlocks work fine on our
-platform.  It also requires calling the trace_hardirqs_off() and
-trace_hardirqs_on() pair of routines when entering and exiting an
-interrupt.
+In case timers are not in sync when cpus start (i.e. hot plug / offset
+resets) we need to synchronize the secondary cpus internal timer with
+the main cpu.  This is needed as in OpenRISC SMP there is only one
+clocksource registered which reads from the same ttcr register on each
+cpu.
 
-For OpenRISC the interrupt stack frame does not support frame pointers,
-so to call trace_hardirqs_on() and trace_hardirqs_off() here the macro's
-build up a stack frame each time.
-
-There is one necessary small change in _sys_call_handler to move
-interrupt enabling later so they can get re-enabled during syscall
-restart. This was done to fix lockdep warnings that are now possible due
-to this
-patch.
+This synchronization routine heavily borrows from mips implementation that
+does something similar.
 
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/Kconfig        |  3 ++
- arch/openrisc/kernel/entry.S | 74 ++++++++++++++++++++++++++++++++++++++++++--
- 2 files changed, 74 insertions(+), 3 deletions(-)
+Changes since v1
+ - change from timer-sync.h header to just time.h
 
-diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index 399f55e82dcb..f8cfb3ba9e89 100644
---- a/arch/openrisc/Kconfig
-+++ b/arch/openrisc/Kconfig
-@@ -64,6 +64,9 @@ config GENERIC_CSUM
- config STACKTRACE_SUPPORT
- 	def_bool y
+ arch/openrisc/include/asm/time.h  |   8 +++
+ arch/openrisc/kernel/Makefile     |   2 +-
+ arch/openrisc/kernel/smp.c        |   3 +
+ arch/openrisc/kernel/sync-timer.c | 120 ++++++++++++++++++++++++++++++++++++++
+ arch/openrisc/kernel/time.c       |  15 ++++-
+ 5 files changed, 145 insertions(+), 3 deletions(-)
+ create mode 100644 arch/openrisc/kernel/sync-timer.c
+
+diff --git a/arch/openrisc/include/asm/time.h b/arch/openrisc/include/asm/time.h
+index fe83a34a7d68..313ee975774b 100644
+--- a/arch/openrisc/include/asm/time.h
++++ b/arch/openrisc/include/asm/time.h
+@@ -12,4 +12,12 @@
  
-+config LOCKDEP_SUPPORT
-+	def_bool  y
+ extern void openrisc_clockevent_init(void);
+ 
++extern void openrisc_timer_set(unsigned long count);
++extern void openrisc_timer_set_next(unsigned long delta);
 +
- source "init/Kconfig"
- 
- source "kernel/Kconfig.freezer"
-diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
-index 1b7160c79646..690d55272ba6 100644
---- a/arch/openrisc/kernel/entry.S
-+++ b/arch/openrisc/kernel/entry.S
-@@ -42,6 +42,61 @@
- 
- /* =========================================================[ macros ]=== */
- 
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+/*
-+ * Trace irq on/off creating a stack frame.
-+ */
-+#define TRACE_IRQS_OP(trace_op)					\
-+	l.sw 	-8(r1),r2	/* store frame pointer */		;\
-+	l.sw	-4(r1),r9	/* store return address */		;\
-+	l.addi	r2,r1,0		/* move sp to fp */			;\
-+	l.jal	trace_op						;\
-+	 l.addi	r1,r1,-8						;\
-+	l.ori	r1,r2,0		/* restore sp */			;\
-+	l.lwz	r9,-4(r1)	/* restore return address */		;\
-+	l.lwz	r2,-8(r1)	/* restore fp */			;\
-+/*
-+ * Trace irq on/off and save registers we need that would otherwise be
-+ * clobbered.
-+ */
-+#define TRACE_IRQS_SAVE(t1,trace_op)					\
-+	l.sw	-12(r1),t1	/* save extra reg */			;\
-+	l.sw 	-8(r1),r2	/* store frame pointer */		;\
-+	l.sw	-4(r1),r9	/* store return address */		;\
-+	l.addi	r2,r1,0		/* move sp to fp */			;\
-+	l.jal	trace_op						;\
-+	 l.addi	r1,r1,-12						;\
-+	l.ori	r1,r2,0		/* restore sp */			;\
-+	l.lwz	r9,-4(r1)	/* restore return address */		;\
-+	l.lwz	r2,-8(r1)	/* restore fp */			;\
-+	l.lwz	t1,-12(r1)	/* restore extra reg */
-+
-+#define TRACE_IRQS_OFF	TRACE_IRQS_OP(trace_hardirqs_off)
-+#define TRACE_IRQS_ON	TRACE_IRQS_OP(trace_hardirqs_on)
-+#define TRACE_IRQS_ON_SYSCALL						\
-+	TRACE_IRQS_SAVE(r10,trace_hardirqs_on)				;\
-+	l.lwz	r3,PT_GPR3(r1)						;\
-+	l.lwz	r4,PT_GPR4(r1)						;\
-+	l.lwz	r5,PT_GPR5(r1)						;\
-+	l.lwz	r6,PT_GPR6(r1)						;\
-+	l.lwz	r7,PT_GPR7(r1)						;\
-+	l.lwz	r8,PT_GPR8(r1)						;\
-+	l.lwz	r11,PT_GPR11(r1)
-+#define TRACE_IRQS_OFF_ENTRY						\
-+	l.lwz	r5,PT_SR(r1)						;\
-+	l.andi	r3,r5,(SPR_SR_IEE|SPR_SR_TEE)				;\
-+	l.sfeq	r5,r0		/* skip trace if irqs were already off */;\
-+	l.bf	1f							;\
-+	 l.nop								;\
-+	TRACE_IRQS_SAVE(r4,trace_hardirqs_off)				;\
-+1:
-+#else
-+#define TRACE_IRQS_OFF
-+#define TRACE_IRQS_ON
-+#define TRACE_IRQS_OFF_ENTRY
-+#define TRACE_IRQS_ON_SYSCALL
++#ifdef CONFIG_SMP
++extern void synchronise_count_master(int cpu);
++extern void synchronise_count_slave(int cpu);
 +#endif
 +
- /*
-  * We need to disable interrupts at beginning of RESTORE_ALL
-  * since interrupt might come in after we've loaded EPC return address
-@@ -124,6 +179,7 @@ handler:							;\
- 	/* r30 already save */					;\
- /*        l.sw    PT_GPR30(r1),r30*/					;\
- 	l.sw    PT_GPR31(r1),r31					;\
-+	TRACE_IRQS_OFF_ENTRY						;\
- 	/* Store -1 in orig_gpr11 for non-syscall exceptions */	;\
- 	l.addi	r30,r0,-1					;\
- 	l.sw	PT_ORIG_GPR11(r1),r30
-@@ -557,9 +613,6 @@ _string_syscall_return:
- 	.align 4
+ #endif /* __ASM_OR1K_TIME_H */
+diff --git a/arch/openrisc/kernel/Makefile b/arch/openrisc/kernel/Makefile
+index b4b51a07016a..9028e5a1fdd7 100644
+--- a/arch/openrisc/kernel/Makefile
++++ b/arch/openrisc/kernel/Makefile
+@@ -8,7 +8,7 @@ obj-y	:= setup.o or32_ksyms.o process.o dma.o \
+ 	   traps.o time.o irq.o entry.o ptrace.o signal.o \
+ 	   sys_call_table.o unwinder.o
  
- ENTRY(_sys_call_handler)
--	/* syscalls run with interrupts enabled */
--	ENABLE_INTERRUPTS(r29)		// enable interrupts, r29 is temp
--
- 	/* r1, EPCR, ESR a already saved */
- 	l.sw	PT_GPR2(r1),r2
- 	/* r3-r8 must be saved because syscall restart relies
-@@ -597,6 +650,10 @@ ENTRY(_sys_call_handler)
- /*	l.sw    PT_GPR30(r1),r30 */
+-obj-$(CONFIG_SMP)		+= smp.o
++obj-$(CONFIG_SMP)		+= smp.o sync-timer.o
+ obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
+ obj-$(CONFIG_MODULES)		+= module.o
+ obj-$(CONFIG_OF)		+= prom.o
+diff --git a/arch/openrisc/kernel/smp.c b/arch/openrisc/kernel/smp.c
+index 4763b8b9161e..4d80ce6fa045 100644
+--- a/arch/openrisc/kernel/smp.c
++++ b/arch/openrisc/kernel/smp.c
+@@ -100,6 +100,7 @@ int __cpu_up(unsigned int cpu, struct task_struct *idle)
+ 		pr_crit("CPU%u: failed to start\n", cpu);
+ 		return -EIO;
+ 	}
++	synchronise_count_master(cpu);
  
- _syscall_check_trace_enter:
-+	/* syscalls run with interrupts enabled */
-+	TRACE_IRQS_ON_SYSCALL
-+	ENABLE_INTERRUPTS(r29)		// enable interrupts, r29 is temp
+ 	return 0;
+ }
+@@ -129,6 +130,8 @@ asmlinkage __init void secondary_start_kernel(void)
+ 	set_cpu_online(cpu, true);
+ 	complete(&cpu_running);
+ 
++	synchronise_count_slave(cpu);
 +
- 	/* If TIF_SYSCALL_TRACE is set, then we want to do syscall tracing */
- 	l.lwz	r30,TI_FLAGS(r10)
- 	l.andi	r30,r30,_TIF_SYSCALL_TRACE
-@@ -657,6 +714,7 @@ _syscall_check_trace_leave:
- _syscall_check_work:
- 	/* Here we need to disable interrupts */
- 	DISABLE_INTERRUPTS(r27,r29)
-+	TRACE_IRQS_OFF
- 	l.lwz	r30,TI_FLAGS(r10)
- 	l.andi	r30,r30,_TIF_WORK_MASK
- 	l.sfne	r30,r0
-@@ -871,6 +929,7 @@ UNHANDLED_EXCEPTION(_vector_0x1f00,0x1f00)
+ 	local_irq_enable();
  
- _resume_userspace:
- 	DISABLE_INTERRUPTS(r3,r4)
-+	TRACE_IRQS_OFF
- 	l.lwz	r4,TI_FLAGS(r10)
- 	l.andi	r13,r4,_TIF_WORK_MASK
- 	l.sfeqi	r13,0
-@@ -909,6 +968,15 @@ _work_pending:
- 	 l.lwz	r8,PT_GPR8(r1)
+ 	preempt_disable();
+diff --git a/arch/openrisc/kernel/sync-timer.c b/arch/openrisc/kernel/sync-timer.c
+new file mode 100644
+index 000000000000..ed8d835caca1
+--- /dev/null
++++ b/arch/openrisc/kernel/sync-timer.c
+@@ -0,0 +1,120 @@
++/*
++ * OR1K timer synchronisation
++ *
++ * Based on work from MIPS implementation.
++ *
++ * All CPUs will have their count registers synchronised to the CPU0 next time
++ * value. This can cause a small timewarp for CPU0. All other CPU's should
++ * not have done anything significant (but they may have had interrupts
++ * enabled briefly - prom_smp_finish() should not be responsible for enabling
++ * interrupts...)
++ */
++
++#include <linux/kernel.h>
++#include <linux/irqflags.h>
++#include <linux/cpumask.h>
++
++#include <asm/time.h>
++#include <asm/timex.h>
++#include <linux/atomic.h>
++#include <asm/barrier.h>
++
++#include <asm/spr.h>
++
++static unsigned int initcount;
++static atomic_t count_count_start = ATOMIC_INIT(0);
++static atomic_t count_count_stop = ATOMIC_INIT(0);
++
++#define COUNTON 100
++#define NR_LOOPS 3
++
++void synchronise_count_master(int cpu)
++{
++	int i;
++	unsigned long flags;
++
++	pr_info("Synchronize counters for CPU %u: ", cpu);
++
++	local_irq_save(flags);
++
++	/*
++	 * We loop a few times to get a primed instruction cache,
++	 * then the last pass is more or less synchronised and
++	 * the master and slaves each set their cycle counters to a known
++	 * value all at once. This reduces the chance of having random offsets
++	 * between the processors, and guarantees that the maximum
++	 * delay between the cycle counters is never bigger than
++	 * the latency of information-passing (cachelines) between
++	 * two CPUs.
++	 */
++
++	for (i = 0; i < NR_LOOPS; i++) {
++		/* slaves loop on '!= 2' */
++		while (atomic_read(&count_count_start) != 1)
++			mb();
++		atomic_set(&count_count_stop, 0);
++		smp_wmb();
++
++		/* Let the slave writes its count register */
++		atomic_inc(&count_count_start);
++
++		/* Count will be initialised to current timer */
++		if (i == 1)
++			initcount = get_cycles();
++
++		/*
++		 * Everyone initialises count in the last loop:
++		 */
++		if (i == NR_LOOPS-1)
++			openrisc_timer_set(initcount);
++
++		/*
++		 * Wait for slave to leave the synchronization point:
++		 */
++		while (atomic_read(&count_count_stop) != 1)
++			mb();
++		atomic_set(&count_count_start, 0);
++		smp_wmb();
++		atomic_inc(&count_count_stop);
++	}
++	/* Arrange for an interrupt in a short while */
++	openrisc_timer_set_next(COUNTON);
++
++	local_irq_restore(flags);
++
++	/*
++	 * i386 code reported the skew here, but the
++	 * count registers were almost certainly out of sync
++	 * so no point in alarming people
++	 */
++	pr_cont("done.\n");
++}
++
++void synchronise_count_slave(int cpu)
++{
++	int i;
++
++	/*
++	 * Not every cpu is online@the time this gets called,
++	 * so we first wait for the master to say everyone is ready
++	 */
++
++	for (i = 0; i < NR_LOOPS; i++) {
++		atomic_inc(&count_count_start);
++		while (atomic_read(&count_count_start) != 2)
++			mb();
++
++		/*
++		 * Everyone initialises count in the last loop:
++		 */
++		if (i == NR_LOOPS-1)
++			openrisc_timer_set(initcount);
++
++		atomic_inc(&count_count_stop);
++		while (atomic_read(&count_count_stop) != 2)
++			mb();
++	}
++	/* Arrange for an interrupt in a short while */
++	openrisc_timer_set_next(COUNTON);
++}
++#undef NR_LOOPS
+diff --git a/arch/openrisc/kernel/time.c b/arch/openrisc/kernel/time.c
+index ab04eaedbf8d..6baecea27080 100644
+--- a/arch/openrisc/kernel/time.c
++++ b/arch/openrisc/kernel/time.c
+@@ -27,8 +27,14 @@
  
- _restore_all:
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+	l.lwz	r4,PT_SR(r1)
-+	l.andi	r3,r4,(SPR_SR_IEE|SPR_SR_TEE)
-+	l.sfeq	r3,r0		/* skip trace if irqs were off */
-+	l.bf	skip_hardirqs_on
-+	 l.nop
-+	TRACE_IRQS_ON
-+skip_hardirqs_on:
-+#endif
- 	RESTORE_ALL
- 	/* This returns to userspace code */
+ #include <asm/cpuinfo.h>
+ 
+-static int openrisc_timer_set_next_event(unsigned long delta,
+-					 struct clock_event_device *dev)
++/* Test the timer ticks to count, used in sync routine */
++inline void openrisc_timer_set(unsigned long count)
++{
++	mtspr(SPR_TTCR, count);
++}
++
++/* Set the timer to trigger in delta cycles */
++inline void openrisc_timer_set_next(unsigned long delta)
+ {
+ 	u32 c;
+ 
+@@ -44,7 +50,12 @@ static int openrisc_timer_set_next_event(unsigned long delta,
+ 	 * Keep timer in continuous mode always.
+ 	 */
+ 	mtspr(SPR_TTMR, SPR_TTMR_CR | SPR_TTMR_IE | c);
++}
+ 
++static int openrisc_timer_set_next_event(unsigned long delta,
++					 struct clock_event_device *dev)
++{
++	openrisc_timer_set_next(delta);
+ 	return 0;
+ }
  
 -- 
 2.13.5
