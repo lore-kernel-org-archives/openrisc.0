@@ -1,63 +1,40 @@
-From: Tobias Klauser <tklauser@distanz.ch>
-Date: Tue, 12 Sep 2017 13:16:05 +0200
-Subject: [OpenRISC] [PATCH] openrisc: add forward declaration for struct
- vm_area_struct
-In-Reply-To: <20170912103716.GR2609@lianli.shorne-pla.net>
-References: <201709080345.bk1IOlp7%fengguang.wu@intel.com>
- <20170908082508.14325-1-tklauser@distanz.ch>
- <20170908152911.GQ2609@lianli.shorne-pla.net>
- <20170912074204.GF5028@distanz.ch>
- <20170912103716.GR2609@lianli.shorne-pla.net>
-Message-ID: <20170912111605.GG5028@distanz.ch>
+From: Stafford Horne <shorne@gmail.com>
+Date: Wed, 13 Sep 2017 06:22:52 +0900
+Subject: [OpenRISC] [GIT PULL] OpenRISC patches for 4.14
+Message-ID: <20170912212252.GS2609@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 2017-09-12 at 12:37:16 +0200, Stafford Horne <shorne@gmail.com> wrote:
-> On Tue, Sep 12, 2017 at 09:42:05AM +0200, Tobias Klauser wrote:
-> > On 2017-09-08 at 17:29:11 +0200, Stafford Horne <shorne@gmail.com> wrote:
-> > > On Fri, Sep 08, 2017 at 10:25:08AM +0200, Tobias Klauser wrote:
-> > > > After removing linux/vmalloc.h from asm-generic/io.h, the following
-> > > > warning occurs on openrisc:
-> > > > 
-> > > >    In file included from arch/openrisc/include/asm/io.h:33:0,
-> > > >                     from include/linux/io.h:25,
-> > > >                     from drivers/tty/serial/earlycon.c:19:
-> > > >    arch/openrisc/include/asm/pgtable.h:424:2: warning: 'struct vm_area_struct' declared inside parameter list
-> > > >      unsigned long address, pte_t *pte)
-> > > >      ^
-> > > [..]
-> > > > @@ -414,6 +414,8 @@ static inline void pmd_set(pmd_t *pmdp, pte_t *ptep)
-> > > >  
-> > > >  extern pgd_t swapper_pg_dir[PTRS_PER_PGD]; /* defined in head.S */
-> > > >  
-> > > > +struct vm_area_struct;
-> > > > +
-> > > 
-> > > Acked-by: Stafford Horne <shorne@gmail.com>
-> > > 
-> > > I was kind of wondering whether is better to include linux/mm_types.h or
-> > > linux/vmalloc.h here instead of the forward declaration.  But looking at
-> > > how other architectures do it; about half do the forward declaration, and
-> > > half use an include.  So I guess this is fine.
-> > > 
-> > > I noticed you were getting a lot of these patches done for removing
-> > > linux/vmalloc.h from asm-generic/io.h.   Do you want me to push this
-> > > through my queue or are you planning sending them through another route?
-> > 
-> > Arnd has applied the patch removing linux/vmalloc.h from
-> > asm-generic/io.h to his testing tree to give it a good amount of testing
-> > before it comes anywhere near linux-next.  I'd say it's fine if you push
-> > this through your queue as long as it hits Linus' tree before my
-> > patch (which Arnd will submit, I suppose?).
-> > 
-> > Arnd, what would you prefer?
-> 
-> No worries,
-> 
-> I already have this queued up.  I dont have anything else on my queue
-> thought.  I will push this tomorrow.
+Hello Linus
 
-Great, thank you!
+Please consider for pull
+
+The following changes since commit 569dbb88e80deb68974ef6fdd6a13edb9d686261:
+
+  Linux 4.13 (2017-09-03 13:56:17 -0700)
+
+are available in the git repository at:
+
+  https://github.com/openrisc/linux.git tags/openrisc-for-linus
+
+for you to fetch changes up to 56ce2f25ab0d8830d914e626bc88e45b42e11661:
+
+  openrisc: add forward declaration for struct vm_area_struct (2017-09-11 07:22:05 +0900)
+
+----------------------------------------------------------------
+OpenRISC patches for 4.14
+
+Just one thing here:
+ - Fix warning for upcoming work to remove linux/vmalloc.h from
+   asm-generic/io.h
+
+----------------------------------------------------------------
+Tobias Klauser (1):
+      openrisc: add forward declaration for struct vm_area_struct
+
+ arch/openrisc/include/asm/pgtable.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
