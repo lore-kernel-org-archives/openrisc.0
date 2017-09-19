@@ -1,97 +1,52 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Tue, 19 Sep 2017 21:10:39 +0900
+Date: Tue, 19 Sep 2017 21:14:01 +0900
 Subject: [OpenRISC] [PATCH v2 06/14] irqchip: add initial support for
 	ompic
-In-Reply-To: <20170918204339.gvfenavdi4frdnqe@rob-hp-laptop>
+In-Reply-To: <20170918202958.sayo3t7xnok3do72@rob-hp-laptop>
 References: <20170910064926.5874-1-shorne@gmail.com>
- <20170910064926.5874-7-shorne@gmail.com>
- <20170918204339.gvfenavdi4frdnqe@rob-hp-laptop>
-Message-ID: <20170919121039.GW2609@lianli.shorne-pla.net>
+ <20170910064926.5874-7-shorne@gmail.com> <86h8w6see4.fsf@arm.com>
+ <20170914065402.GU2609@lianli.shorne-pla.net>
+ <20170918202958.sayo3t7xnok3do72@rob-hp-laptop>
+Message-ID: <20170919121401.GX2609@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Sep 18, 2017 at 03:43:39PM -0500, Rob Herring wrote:
-> On Sun, Sep 10, 2017 at 03:49:18PM +0900, Stafford Horne wrote:
-> > From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+On Mon, Sep 18, 2017 at 03:29:58PM -0500, Rob Herring wrote:
+> On Thu, Sep 14, 2017 at 03:54:02PM +0900, Stafford Horne wrote:
+> > On Wed, Sep 13, 2017 at 06:21:39PM +0100, Marc Zyngier wrote:
+> > > On Sun, Sep 10 2017 at  3:49:18 pm BST, Stafford Horne <shorne@gmail.com> wrote:
+> > > > From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+> > > >
+[..]
+> > > > diff --git a/drivers/irqchip/irq-ompic.c b/drivers/irqchip/irq-ompic.c
+> > > > new file mode 100644
+> > > > index 000000000000..cd2616b6639b
+> > > > --- /dev/null
+> > > > +++ b/drivers/irqchip/irq-ompic.c
+> > > > @@ -0,0 +1,205 @@
+> > > > +/*
+> > > > + * Open Multi-Processor Interrupt Controller driver
+> > > > + *
+> > > > + * Copyright (C) 2014 Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+> > > > + * Copyright (C) 2017 Stafford Horne <shorne@gmail.com>
+> > > > + *
+> > > > + * This file is licensed under the terms of the GNU General Public License
+> > > > + * version 2.  This program is licensed "as is" without any warranty of any
+> > > > + * kind, whether express or implied.
+> > > > + *
+> > > > + * The ompic device handles IPI communication because cores in mulicore
+> > > > + * OpenRISC systems.
+> > > 
+> > > Should the above read "between cores"?
 > > 
-> > IPI driver for the Open Multi-Processor Interrupt Controller (ompic) as
-> > described in the Multicore support section of the OpenRISC 1.2
-> > proposed architecture specification:
-> > 
-> >   https://github.com/stffrdhrn/doc/raw/arch-1.2-proposal/openrisc-arch-1.2-rev0.pdf
-> > 
-> > Each OpenRISC core contains a full interrupt controller which is used in
-> > the SMP architecture for interrupt balancing.  This IPI device, the
-> > ompic, is the only external device required for enabling SMP on
-> > OpenRISC.
-> > 
-> > Pending ops are stored in a memory bit mask which can allow multiple
-> > pending operations to be set and serviced at a time. This is mostly
-> > borrowed from the alpha IPI implementation.
-> > 
-> > Signed-off-by: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-> > [shorne at gmail.com: converted ops to bitmask, wrote commit message]
-> > Signed-off-by: Stafford Horne <shorne@gmail.com>
-> > ---
-> > 
-> > Changes since v1
-> >  - Added openrisc, prefix
-> >  - Clarified 8 bytes per cpu
-> >  - Removed #interrupt-cells as this will not be an irq parent
+> > Yes, it should be, I am bad with these kind of typos.
 > 
-> You should still have #interrupt-cells as that is required with 
-> "interrupt-controller". It could be 0 though.
+> And "multi-core"
 
-Thanks, I didn't notice that from reading the code.  I will update it.
-
-> >  - Changed ops to be percpu
-> >  - Added DTS and intialization failure validations
-> > 
-> >  .../interrupt-controller/openrisc,ompic.txt        |  19 ++
-> >  arch/openrisc/Kconfig                              |   1 +
-> >  drivers/irqchip/Kconfig                            |   3 +
-> >  drivers/irqchip/Makefile                           |   1 +
-> >  drivers/irqchip/irq-ompic.c                        | 205 +++++++++++++++++++++
-> >  5 files changed, 229 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/interrupt-controller/openrisc,ompic.txt
-> >  create mode 100644 drivers/irqchip/irq-ompic.c
-> > 
-> > diff --git a/Documentation/devicetree/bindings/interrupt-controller/openrisc,ompic.txt b/Documentation/devicetree/bindings/interrupt-controller/openrisc,ompic.txt
-> > new file mode 100644
-> > index 000000000000..346e6042d62f
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/interrupt-controller/openrisc,ompic.txt
-> > @@ -0,0 +1,19 @@
-> > +Open Multi-Processor Interrupt Controller
-> > +
-> > +Required properties:
-> > +
-> > +- compatible : This should be "openrisc,ompic"
-> > +- reg : Specifies base physical address and size of the register space. The
-> > +  size is based on the number of cores the controller has been configured
-> > +  to handle, this should be set to 8 bytes per cpu core.
-> > +- interrupt-controller : Identifies the node as an interrupt controller
-> > +- interrupts : Specifies the interrupt line to which the ompic is wired.
-> > +
-> > +Example:
-> > +
-> > +ompic: ompic {
-> 
-> interrupt-controller at 98000000 {
-
-OK, I will change to the format. But I notice many other docs like this:
-
-  ompic: interrupt-controller at 98000000 {
-
-> > +	compatible = "openrisc,ompic";
-> > +	reg = <0x98000000 16>;
-> > +	interrupt-controller;
-> > +	interrupts = <1>;
-> > +};
-
-Thanks for the review.
+Thanks, and I have many s/multicore/multi-core/ issues throughout the patch
+series as well.
 
 -Stafford
