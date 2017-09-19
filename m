@@ -1,34 +1,33 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Tue, 19 Sep 2017 23:00:24 +0900
-Subject: [OpenRISC] [PATCH] openrisc: dts: or1ksim: Add stdout-path
-Message-ID: <20170919140024.32563-1-shorne@gmail.com>
+Date: Tue, 19 Sep 2017 23:01:24 +0900
+Subject: [OpenRISC] [PATCH] MAINTAINERS: Add OpenRISC pic maintainer
+Message-ID: <20170919140135.32646-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-During reviews of the OpenRISC SMP patch series it was suggested to add
-stdout-path to the SMP dts file.  Add stdout-path to our other dts files
-to be a good example.
+The OpenRISC team is the maintainer of the irqchip or1k-pic driver under
+drivers/irqchip.
 
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/boot/dts/or1ksim.dts | 1 +
+ MAINTAINERS | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/openrisc/boot/dts/or1ksim.dts b/arch/openrisc/boot/dts/or1ksim.dts
-index 5d4f9027afaf..ecc30968cbcb 100644
---- a/arch/openrisc/boot/dts/or1ksim.dts
-+++ b/arch/openrisc/boot/dts/or1ksim.dts
-@@ -7,6 +7,7 @@
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 2281af4b41b6..8ce029872089 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -10009,6 +10009,7 @@ L:	openrisc at lists.librecores.org
+ W:	http://openrisc.io
+ S:	Maintained
+ F:	arch/openrisc/
++F:	drivers/irqchip/irq-or1k-*
  
- 	chosen {
- 		bootargs = "console=uart,mmio,0x90000000,115200";
-+		stdout-path = &serial0;
- 	};
- 
- 	memory at 0 {
+ OPENVSWITCH
+ M:	Pravin Shelar <pshelar@nicira.com>
 -- 
 2.13.5
 
