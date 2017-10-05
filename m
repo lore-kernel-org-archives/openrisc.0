@@ -1,31 +1,27 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 5 Oct 2017 22:57:19 +0900
+Date: Thu, 5 Oct 2017 23:23:00 +0900
 Subject: [OpenRISC] [PATCH v5 0/6] sim port for OpenRISC
 In-Reply-To: <20171005134912.26799-1-shorne@gmail.com>
 References: <20171005134912.26799-1-shorne@gmail.com>
-Message-ID: <20171005135719.GA2630@lianli.shorne-pla.net>
+Message-ID: <20171005142300.GB2630@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi All,
+Hello,
 
-In case people are looking for it the patch [5/6] containing a 16k line
-generated configure script was dropped my the mta.
+Sorry about that, also, the CGEN generated files did not make it through.
 
-Please let me know if you need it and I can send a .gz, the shortlog is:
+If you would like to retrieve them please ask me for them and ill send you
+a .gz.  Or you can pull from my branch:
 
-sim/ChangeLog:
+ https://github.com/stffrdhrn/binutils-gdb.git or1k-upstream-v8
 
-yyyy-mm-dd  Stafford Horne  <shorne@gmail.com>
-	    Peter Gavin  <pgavin@gmail.com>
+This is the commit:
 
-	* configure: Regenerated.
-	* or1k/aclocal.m4: Generated.
-	* or1k/config.in: Generated.
-	* or1k/configure: Generated.
+ https://github.com/stffrdhrn/binutils-gdb/commit/29922870480ae4fdfb37ad115db29b79f2eb47c9
 
 -Stafford
 
