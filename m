@@ -1,9 +1,10 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 7 Oct 2017 09:21:44 +0900
-Subject: [OpenRISC] [PATCH 0/5] OpenRISC SMP Support
-In-Reply-To: <cover.1503467674.git.shorne@gmail.com>
-References: <cover.1503467674.git.shorne@gmail.com>
-Message-ID: <CAAfxs76NSQFnQ0D23yUcbGzcY9a_VHOH7SyBiBHJk4YdR7V7sw@mail.gmail.com>
+Date: Sun, 8 Oct 2017 00:08:02 +0900
+Subject: [OpenRISC] OpenRISC Specification updates for Multicore
+In-Reply-To: <20170821072848.GA2587@lianli.shorne-pla.net>
+References: <20170819150129.GG3031@lianli.shorne-pla.net>
+ <20170821072848.GA2587@lianli.shorne-pla.net>
+Message-ID: <CAAfxs77zr=y_ESYMFBqv8Cbnxc9FaMRYW_2FF9KiYNYQqHiUOQ@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -12,45 +13,95 @@ To: openrisc@lists.librecores.org
 
 Hello,
 
-Any takers on this?  If not Ill consider sending a pull request
-if/when the merge window is open.
+Last it was mentioned that people might want to start looking into the
+architecture updates after orconf.  I think enough time has passed.
 
--Stafford
+Today Olof gave a few comments on the Pull Request:
+  https://github.com/openrisc/doc/pull/1
 
-On Wed, Aug 23, 2017 at 2:57 PM, Stafford Horne <shorne@gmail.com> wrote:
+If anyone else has any suggestions for issues with the changes please
+let me know.  Otherwise I will merge and make a news announcement.
+
+One discussion that came up on the Linux SMP patch reviews was making
+it clear that our memory model transitivity [0] is defined.  I think
+this is covered by the atomic functionality and cache coherency
+mechanism docs.  But if anyone has a better idea please explain.
+
+P.S. After this architecture change I think its worth adding the
+proposals that Richard Henderson has made to the ORBIS64/ORFPX64 [1].
+He has also posted GCC and mor1kx patches for those proposals. Any
+volunteers?
+
+
+[0]  https://lkml.org/lkml/2017/9/14/487
+[1] https://openrisc.io/architecture
+
+On Mon, Aug 21, 2017 at 4:28 PM, Stafford Horne <shorne@gmail.com> wrote:
+>
+> On Sun, Aug 20, 2017 at 12:01:29AM +0900, Stafford Horne wrote:
+>> It has been on my todo list for a while to update the OpenRISC
+>> specification to add some of the mutlicore features which have been
+>> implemented but not yet made it into the spec.
+>>
+>> I have created 2 new architecture proposals:
+>>
+>>   https://openrisc.io/proposals/tls
+>>   Here the proposal is to formally designate r10 as the TLS reserved
+>>   register in the spec.  Please help to review my proposed wording and
+>>   change. (This is not related to multicore)
+>>
+>>   https://openrisc.io/proposals/atomic-boundary
+>>   Here the proposal is one that came from Peter Zijlstra when reviewing
+>>   OpenRISC locking.  We should clarify that atomic reservations will be
+>>   cancelled for any storage overlapping the load address reservation.  This
+>>   includes byte and half-word offset stores.
+>>
+>> Also, I propose to finally add the following:
+>>
+>>   https://openrisc.io/proposals/core-identifier-and-number-of-cores
+>>   The coreid and numcores SPRs have been implemented in several cores but
+>>   are not yet part of the spec.  We would like to formally add them as they
+>>   have been implemented.
+>>
+>> Also, I am planning to add a section to the specification about OpenRISC
+>> Multicore Systems.  With a quick overview of:
+>>
+>>   - Atomic Instructions
+>>   - Cache Coherency
+>>   - Core identification
+>>   - Bootstrapping Multicore Systems
+>>   - Timer synchronization
+>>     * Via global timer hardware
+>>     * Via software lock-sync routines
+>>   - Details on inter processor communication via the OMPIC
+>>
+>> Please let me know if you think anything else is relevant.
+>>
+>> Also if I get any Yay or Nay I will start incorporating the above into the
+>> spec.
+>
 > Hello,
 >
-> This series adds SMP support for OpenRISC.  The platform is based on the
-> work that Stefan Kristiansson did around 2012 implemented in Verilog and
-> run on FPGAs.  I have been working to upstream this work, these are my QEMU
-> patches I have been used to help with testing.
+> I don't think I will get many Nay's on the above idea's so I started to
+> perform the updates.
 >
-> I have documented the platform in the OpenRISC 1.2 specification proposal
-> available here:
->   https://github.com/stffrdhrn/doc/raw/arch-1.2-proposal/openrisc-arch-1.2-rev0.pdf
+> Please find the draft available here:
 >
-> My latest kernel patches are available here:
->   https://github.com/stffrdhrn/linux.git openrisc-4.13-smp-qspinlock
+>  https://github.com/stffrdhrn/doc/blob/arch-1.2-proposal/openrisc-arch-1.2-rev0.pdf
 >
-> Stafford Horne (5):
->   openrisc/ompic: Add OpenRISC Multicore PIC (OMPIC)
->   target/openrisc: Make coreid and numcores configurable in state
->   openrisc/cputimer: Perparation for Multicore
->   openrisc: Initial SMP support
->   openrisc: Only kick cpu on timeout, not on update
+> This is based on some work that Stefan Wallentowitz started in March 2015,
+> which fixed typos and had a few cleanups.  I have added:
 >
->  default-configs/or1k-softmmu.mak |   1 +
->  hw/intc/Makefile.objs            |   1 +
->  hw/intc/ompic.c                  | 179 +++++++++++++++++++++++++++++++++++++++
->  hw/openrisc/cputimer.c           |  64 ++++++++++----
->  hw/openrisc/openrisc_sim.c       |  87 ++++++++++++++-----
->  target/openrisc/cpu.c            |   1 -
->  target/openrisc/cpu.h            |   7 +-
->  target/openrisc/machine.c        |   8 +-
->  target/openrisc/sys_helper.c     |   8 +-
->  9 files changed, 308 insertions(+), 48 deletions(-)
->  create mode 100644 hw/intc/ompic.c
+>  - The items above
+>  - Details on using Shadow Registers for temporary storage in multicore
+>    configurations.  Previously memory between 0x0 and 0x100 was being used
+>    which would not be workable in multicore.
+>  - Details on the OpenRISC Multicore Programmable Interrupt Controller (OMPIC)
+>  - A new chapter 10 highlighting "Multicore Support"
 >
-> --
-> 2.13.5
+> I am not really sure of my writing style as I haven't written formal
+> specifications for some time.  So please bare with me.
 >
+> Enjoy!
+>
+> -Stafford
