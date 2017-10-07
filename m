@@ -1,107 +1,125 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 8 Oct 2017 00:08:02 +0900
-Subject: [OpenRISC] OpenRISC Specification updates for Multicore
-In-Reply-To: <20170821072848.GA2587@lianli.shorne-pla.net>
-References: <20170819150129.GG3031@lianli.shorne-pla.net>
- <20170821072848.GA2587@lianli.shorne-pla.net>
-Message-ID: <CAAfxs77zr=y_ESYMFBqv8Cbnxc9FaMRYW_2FF9KiYNYQqHiUOQ@mail.gmail.com>
+From: Simon Marchi <simon.marchi@polymtl.ca>
+Date: Sat, 7 Oct 2017 11:52:30 -0400
+Subject: [OpenRISC] [PATCH v5 1/6] sim: cgen: add remainder functions
+ (needed for OR1K lf.rem.[sd])
+In-Reply-To: <20171005134912.26799-2-shorne@gmail.com>
+References: <20171005134912.26799-1-shorne@gmail.com>
+ <20171005134912.26799-2-shorne@gmail.com>
+Message-ID: <22127605-6ea8-05c4-03a6-cc37478bd459@polymtl.ca>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hello,
+As far as I can tell, this patch looks good, but I'm more or less clueless about floating point stuff...
 
-Last it was mentioned that people might want to start looking into the
-architecture updates after orconf.  I think enough time has passed.
+I just pointed out nits:
 
-Today Olof gave a few comments on the Pull Request:
-  https://github.com/openrisc/doc/pull/1
+On 2017-10-05 09:49 AM, Stafford Horne wrote:
+> From: Peter Gavin <pgavin@gmail.com>
+>
+> * sim/common/ChangeLog:
+>
+> 2016-05-21  Peter Gavin  <pgavin@gmail.com>
+> 	    Stafford Horne <shorne@gmail.com>
+>
+> 	* cgen-accfp.c (remsf, remdf): New function.
+> 	(cgen_init_accurate_fpu): Add remsf and remdf.
+> 	* cgen-fpu.h (cgen_fp_ops): Add remsf, remdf, remxf and remtf.
+> 	* sim-fpu.c (sim_fpu_rem): New function.
 
-If anyone else has any suggestions for issues with the changes please
-let me know.  Otherwise I will merge and make a news announcement.
+Mention the change to sim_fpu_print_status.
 
-One discussion that came up on the Linux SMP patch reviews was making
-it clear that our memory model transitivity [0] is defined.  I think
-this is covered by the atomic functionality and cache coherency
-mechanism docs.  But if anyone has a better idea please explain.
+sim-fpu.c contains other changes (comments added, lines removed).  If you think the changes belong with this patch, mention them here, otherwise submit them as a separate patch.
+> @@ -1551,6 +1551,89 @@ sim_fpu_div (sim_fpu *f,
+>
+>
+>  INLINE_SIM_FPU (int)
+> +sim_fpu_rem (sim_fpu *f,
+> +	     const sim_fpu *l,
+> +	     const sim_fpu *r)
+> +{
+> +  if (sim_fpu_is_snan (l))
+> +    {
+> +      *f = *l;
+> +      f->class = sim_fpu_class_qnan;
+> +      return sim_fpu_status_invalid_snan;
+> +    }
+> +  if (sim_fpu_is_snan (r))
+> +    {
+> +      *f = *r;
+> +      f->class = sim_fpu_class_qnan;
+> +      return sim_fpu_status_invalid_snan;
+> +    }
+> +  if (sim_fpu_is_qnan (l))
+> +    {
+> +      *f = *l;
+> +      f->class = sim_fpu_class_qnan;
+> +      return 0;
+> +    }
+> +  if (sim_fpu_is_qnan (r))
+> +    {
+> +      *f = *r;
+> +      f->class = sim_fpu_class_qnan;
+> +      return 0;
+> +    }
+> +  if (sim_fpu_is_infinity (l))
+> +    {
+> +      *f = sim_fpu_qnan;
+> +      return sim_fpu_status_invalid_irx;
+> +    }
+> +  if (sim_fpu_is_zero (r))
+> +    {
+> +      *f = sim_fpu_qnan;
+> +      return sim_fpu_status_invalid_div0;
+> +    }
+> +  if (sim_fpu_is_zero (l))
+> +    {
+> +      *f = *l;
+> +      return 0;
+> +    }
+> +  if (sim_fpu_is_infinity (r))
+> +    {
+> +      *f = *l;
+> +      return 0;
+> +    }
+> +  {
+> +    sim_fpu n, tmp;
+> +
+> +    /* Remainder is calculated as l-n*r, where n is l/r rounded to the
+> +       nearest integer.  The variable n is rounded half even.  */
+> +
+> +    sim_fpu_div (&n, l, r);
+> +    sim_fpu_round_64 (&n, 0, 0);
+> +
+> +    if (n.normal_exp < -1) /* If n looks like zero just return l.  */
+> +      {
+> +	*f = *l;
+> +	return 0;
+> +      }
+> +    else if (n.class == sim_fpu_class_number
+> +	&& n.normal_exp <= (NR_FRAC_GUARD)) /* If not too large round.  */
 
-P.S. After this architecture change I think its worth adding the
-proposals that Richard Henderson has made to the ORBIS64/ORFPX64 [1].
-He has also posted GCC and mor1kx patches for those proposals. Any
-volunteers?
+This line should be aligned with the opening parenthesis (well, one char to the right).
 
+> +      do_normal_round (&n, (NR_FRAC_GUARD) - n.normal_exp, sim_fpu_round_near);
+> +
+> +    /* Mark 0's as zero so multiply can detect zero.  */
+> +    if (n.fraction == 0)
+> +      n.class = sim_fpu_class_zero;
+> +
+> +    /* Calculate n*r.  */
+> +    sim_fpu_mul (&tmp, &n, r);
+> +    sim_fpu_round_64 (&tmp, 0, 0);
+> +
+> +    /* Finally calculate l-n*r.  */
+> +    sim_fpu_sub (f, l, &tmp);
+> +
+> +    return 0;
+> +  }
+> +}
 
-[0]  https://lkml.org/lkml/2017/9/14/487
-[1] https://openrisc.io/architecture
+Thanks,
 
-On Mon, Aug 21, 2017 at 4:28 PM, Stafford Horne <shorne@gmail.com> wrote:
->
-> On Sun, Aug 20, 2017 at 12:01:29AM +0900, Stafford Horne wrote:
->> It has been on my todo list for a while to update the OpenRISC
->> specification to add some of the mutlicore features which have been
->> implemented but not yet made it into the spec.
->>
->> I have created 2 new architecture proposals:
->>
->>   https://openrisc.io/proposals/tls
->>   Here the proposal is to formally designate r10 as the TLS reserved
->>   register in the spec.  Please help to review my proposed wording and
->>   change. (This is not related to multicore)
->>
->>   https://openrisc.io/proposals/atomic-boundary
->>   Here the proposal is one that came from Peter Zijlstra when reviewing
->>   OpenRISC locking.  We should clarify that atomic reservations will be
->>   cancelled for any storage overlapping the load address reservation.  This
->>   includes byte and half-word offset stores.
->>
->> Also, I propose to finally add the following:
->>
->>   https://openrisc.io/proposals/core-identifier-and-number-of-cores
->>   The coreid and numcores SPRs have been implemented in several cores but
->>   are not yet part of the spec.  We would like to formally add them as they
->>   have been implemented.
->>
->> Also, I am planning to add a section to the specification about OpenRISC
->> Multicore Systems.  With a quick overview of:
->>
->>   - Atomic Instructions
->>   - Cache Coherency
->>   - Core identification
->>   - Bootstrapping Multicore Systems
->>   - Timer synchronization
->>     * Via global timer hardware
->>     * Via software lock-sync routines
->>   - Details on inter processor communication via the OMPIC
->>
->> Please let me know if you think anything else is relevant.
->>
->> Also if I get any Yay or Nay I will start incorporating the above into the
->> spec.
->
-> Hello,
->
-> I don't think I will get many Nay's on the above idea's so I started to
-> perform the updates.
->
-> Please find the draft available here:
->
->  https://github.com/stffrdhrn/doc/blob/arch-1.2-proposal/openrisc-arch-1.2-rev0.pdf
->
-> This is based on some work that Stefan Wallentowitz started in March 2015,
-> which fixed typos and had a few cleanups.  I have added:
->
->  - The items above
->  - Details on using Shadow Registers for temporary storage in multicore
->    configurations.  Previously memory between 0x0 and 0x100 was being used
->    which would not be workable in multicore.
->  - Details on the OpenRISC Multicore Programmable Interrupt Controller (OMPIC)
->  - A new chapter 10 highlighting "Multicore Support"
->
-> I am not really sure of my writing style as I haven't written formal
-> specifications for some time.  So please bare with me.
->
-> Enjoy!
->
-> -Stafford
+Simon
