@@ -1,139 +1,69 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 8 Oct 2017 21:23:57 +0900
-Subject: [OpenRISC] [PATCH v5 1/6] sim: cgen: add remainder functions
- (needed for OR1K lf.rem.[sd])
-In-Reply-To: <22127605-6ea8-05c4-03a6-cc37478bd459@polymtl.ca>
+Date: Sun, 8 Oct 2017 21:27:23 +0900
+Subject: [OpenRISC] [PATCH v5 2/6] sim: cgen: add MUL2OFSI and MUL1OFSI
+ macros (needed for OR1K l.mul[u])
+In-Reply-To: <f0353e98-f249-0f7d-ad21-954671958d84@polymtl.ca>
 References: <20171005134912.26799-1-shorne@gmail.com>
- <20171005134912.26799-2-shorne@gmail.com>
- <22127605-6ea8-05c4-03a6-cc37478bd459@polymtl.ca>
-Message-ID: <20171008122357.GA2958@lianli.shorne-pla.net>
+ <20171005134912.26799-3-shorne@gmail.com>
+ <f0353e98-f249-0f7d-ad21-954671958d84@polymtl.ca>
+Message-ID: <20171008122723.GB2958@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sat, Oct 07, 2017 at 11:52:30AM -0400, Simon Marchi wrote:
-> As far as I can tell, this patch looks good, but I'm more or less clueless about floating point stuff...
-> 
-> I just pointed out nits:
-> 
+On Sat, Oct 07, 2017 at 12:00:55PM -0400, Simon Marchi wrote:
 > On 2017-10-05 09:49 AM, Stafford Horne wrote:
 > > From: Peter Gavin <pgavin@gmail.com>
-> >
-> > * sim/common/ChangeLog:
-> >
-> > 2016-05-21  Peter Gavin  <pgavin@gmail.com>
-> > 	    Stafford Horne <shorne@gmail.com>
-> >
-> > 	* cgen-accfp.c (remsf, remdf): New function.
-> > 	(cgen_init_accurate_fpu): Add remsf and remdf.
-> > 	* cgen-fpu.h (cgen_fp_ops): Add remsf, remdf, remxf and remtf.
-> > 	* sim-fpu.c (sim_fpu_rem): New function.
+> > 
+> > sim/common/ChangeLog:
+> > 
+> > 2012-03-14  Peter Gavin  <pgavin@gmail.com>
+> > 
+> > 	* cgen-ops.h (MUL2OFSI): New macro, 1's complement overflow.
+> > 	(MUL1OFSI): New macro, 2's complement overflow.
 > 
-> Mention the change to sim_fpu_print_status.
+> Macro?  Aren't they functions?
 
-Right, Thank you.
+Yes, I am not sure where macro came from.  Maybe I added that, maybe it was
+there before.
 
-> sim-fpu.c contains other changes (comments added, lines removed).  If you think the changes belong with this patch, mention them here, otherwise submit them as a separate patch.
-
-I just removed them, they are noise.  I saw them when I reviewed the patch
-but was not sure if it would be an issue to keep them.
-
-> > @@ -1551,6 +1551,89 @@ sim_fpu_div (sim_fpu *f,
-> >
-> >
-> >  INLINE_SIM_FPU (int)
-> > +sim_fpu_rem (sim_fpu *f,
-> > +	     const sim_fpu *l,
-> > +	     const sim_fpu *r)
+> > ---
+> >  sim/common/cgen-ops.h | 18 ++++++++++++++++++
+> >  1 file changed, 18 insertions(+)
+> > 
+> > diff --git a/sim/common/cgen-ops.h b/sim/common/cgen-ops.h
+> > index 97585d7943..ffbdf3fd6e 100644
+> > --- a/sim/common/cgen-ops.h
+> > +++ b/sim/common/cgen-ops.h
+> > @@ -631,6 +631,22 @@ SUBOFQI (QI a, QI b, BI c)
+> >    return res;
+> >  }
+> >  
+> > +SEMOPS_INLINE BI
+> > +MUL2OFSI (SI a, SI b)
 > > +{
-> > +  if (sim_fpu_is_snan (l))
-> > +    {
-> > +      *f = *l;
-> > +      f->class = sim_fpu_class_qnan;
-> > +      return sim_fpu_status_invalid_snan;
-> > +    }
-> > +  if (sim_fpu_is_snan (r))
-> > +    {
-> > +      *f = *r;
-> > +      f->class = sim_fpu_class_qnan;
-> > +      return sim_fpu_status_invalid_snan;
-> > +    }
-> > +  if (sim_fpu_is_qnan (l))
-> > +    {
-> > +      *f = *l;
-> > +      f->class = sim_fpu_class_qnan;
-> > +      return 0;
-> > +    }
-> > +  if (sim_fpu_is_qnan (r))
-> > +    {
-> > +      *f = *r;
-> > +      f->class = sim_fpu_class_qnan;
-> > +      return 0;
-> > +    }
-> > +  if (sim_fpu_is_infinity (l))
-> > +    {
-> > +      *f = sim_fpu_qnan;
-> > +      return sim_fpu_status_invalid_irx;
-> > +    }
-> > +  if (sim_fpu_is_zero (r))
-> > +    {
-> > +      *f = sim_fpu_qnan;
-> > +      return sim_fpu_status_invalid_div0;
-> > +    }
-> > +  if (sim_fpu_is_zero (l))
-> > +    {
-> > +      *f = *l;
-> > +      return 0;
-> > +    }
-> > +  if (sim_fpu_is_infinity (r))
-> > +    {
-> > +      *f = *l;
-> > +      return 0;
-> > +    }
-> > +  {
-> > +    sim_fpu n, tmp;
-> > +
-> > +    /* Remainder is calculated as l-n*r, where n is l/r rounded to the
-> > +       nearest integer.  The variable n is rounded half even.  */
-> > +
-> > +    sim_fpu_div (&n, l, r);
-> > +    sim_fpu_round_64 (&n, 0, 0);
-> > +
-> > +    if (n.normal_exp < -1) /* If n looks like zero just return l.  */
-> > +      {
-> > +	*f = *l;
-> > +	return 0;
-> > +      }
-> > +    else if (n.class == sim_fpu_class_number
-> > +	&& n.normal_exp <= (NR_FRAC_GUARD)) /* If not too large round.  */
+> > +  DI tmp = MULDI (EXTSIDI(a), EXTSIDI(b));
 > 
-> This line should be aligned with the opening parenthesis (well, one char to the right).
+> Add spaces before the parentheses.
 
-Right, that does move the comment out of the 80 char range, but just the
-ending '*/'.  I hope thats ok.
+Right, fixed.
 
-> > +      do_normal_round (&n, (NR_FRAC_GUARD) - n.normal_exp, sim_fpu_round_near);
-> > +
-> > +    /* Mark 0's as zero so multiply can detect zero.  */
-> > +    if (n.fraction == 0)
-> > +      n.class = sim_fpu_class_zero;
-> > +
-> > +    /* Calculate n*r.  */
-> > +    sim_fpu_mul (&tmp, &n, r);
-> > +    sim_fpu_round_64 (&tmp, 0, 0);
-> > +
-> > +    /* Finally calculate l-n*r.  */
-> > +    sim_fpu_sub (f, l, &tmp);
-> > +
-> > +    return 0;
-> > +  }
+> > +  BI res = tmp < -0x80000000LL || tmp > 0x7fffffffLL;
+> > +  return res;
 > > +}
+> > +
+> > +SEMOPS_INLINE BI
+> > +MUL1OFSI (USI a, USI b)
+> > +{
+> > +  UDI tmp = MULDI (ZEXTSIDI(a), ZEXTSIDI(b));
 > 
-> Thanks,
->
+> Here too.
+> 
+> Otherwise, this patch makes sense to me.
+> 
 > Simon
 
-Thank you,
--Stafford
+Thank You
+ -Stafford
