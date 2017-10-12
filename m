@@ -1,167 +1,76 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 14 Oct 2017 10:39:20 +0900
-Subject: [OpenRISC] [linux-litex] Linux early_printk on Arty!
-In-Reply-To: <CAKaYPCPge8WaDVfXk2YjzWLxdtmaG2JrMJDUXda2gELKsVDzBg@mail.gmail.com>
-References: <CAHLUNMyJFPVbuupijW4eNg3N-zLjMMY-LA1Vqfc3vBRxkPseGg@mail.gmail.com>
- <CAKaYPCO3d6-=NUV701Ly=FUkZ3BW+-QMzrfFZWHMuLChyj0Qnw@mail.gmail.com>
- <CAKaYPCOoh2Xerq6hp2wJ1TwWxjYVTA7vR7o8ZqJsZVc7XHjOtQ@mail.gmail.com>
- <CAHLUNMyB+Z=3sM4oV8AAVUiCJLMnB965Aj5SgHR+GMQ89grBxQ@mail.gmail.com>
- <CAKaYPCPge8WaDVfXk2YjzWLxdtmaG2JrMJDUXda2gELKsVDzBg@mail.gmail.com>
-Message-ID: <CAAfxs76oGvfDOxidjMJQCvx6_Ag14K1w6JuOOiJR4ZhQwkVsMQ@mail.gmail.com>
+From: Richard Henderson <richard.henderson@linaro.org>
+Date: Thu, 12 Oct 2017 13:48:13 -0700
+Subject: [OpenRISC] [Qemu-devel] [PATCH 2/5] target/openrisc: Make
+ coreid and numcores configurable in state
+In-Reply-To: <88d5624e0d2f52db9072fcb36406baadf31d96bd.1503467674.git.shorne@gmail.com>
+References: <cover.1503467674.git.shorne@gmail.com>
+ <88d5624e0d2f52db9072fcb36406baadf31d96bd.1503467674.git.shorne@gmail.com>
+Message-ID: <96862cfe-263b-78fc-e471-ed04966791f8@linaro.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-+CC Openrisc
+On 08/22/2017 10:57 PM, Stafford Horne wrote:
+> Previously coreid and numcores were hard coded as 0 and 1 respectively
+> as OpenRISC QEMU did not have multicore support.
+> 
+> Multicore support is now being added so these registers need to have
+> configured values.
+> 
+> Signed-off-by: Stafford Horne <shorne@gmail.com>
+> ---
+>  hw/openrisc/openrisc_sim.c   | 3 +++
+>  target/openrisc/cpu.h        | 3 +++
+>  target/openrisc/machine.c    | 7 +++++--
+>  target/openrisc/sys_helper.c | 4 ++--
+>  4 files changed, 13 insertions(+), 4 deletions(-)
+> 
+> diff --git a/hw/openrisc/openrisc_sim.c b/hw/openrisc/openrisc_sim.c
+> index e1eeffc490..44a657753d 100644
+> --- a/hw/openrisc/openrisc_sim.c
+> +++ b/hw/openrisc/openrisc_sim.c
+> @@ -110,6 +110,9 @@ static void openrisc_sim_init(MachineState *machine)
+>  
+>      for (n = 0; n < smp_cpus; n++) {
+>          cpu = cpu_openrisc_init(cpu_model);
+> +        cpu->env.coreid = n;
+> +        cpu->env.numcores = smp_cpus;
 
-This is good news.  I am working on getting this up on qemu now.  Then
-I will move onto the boards (I have an Arty).
+This duplicates cpu->parent_obj.cpu_index.  Also c.f. max_cpus vs smp_cpus; the
+latter can change via hot-plug.
 
-I agree it would be good to use the or1k standards for IRQs, and reset
-locations.  But just to give some background (to best of my
-understanding) the litex runs a very similar SoC and software stack
-with different cpu cores including lm32 and riscv.  Which explains a
-bit about why they are using non openrisc standards.
+> @@ -104,8 +104,8 @@ static const VMStateInfo vmstate_sr = {
+>  
+>  static const VMStateDescription vmstate_env = {
+>      .name = "env",
+> -    .version_id = 6,
+> -    .minimum_version_id = 6,
+> +    .version_id = 7,
+> +    .minimum_version_id = 7,
+>      .post_load = env_post_load,
+>      .fields = (VMStateField[]) {
+>          VMSTATE_UINTTL_2DARRAY(shadow_gpr, CPUOpenRISCState, 16, 32),
+> @@ -152,6 +152,9 @@ static const VMStateDescription vmstate_env = {
+>          VMSTATE_UINT32(picmr, CPUOpenRISCState),
+>          VMSTATE_UINT32(picsr, CPUOpenRISCState),
+>  
+> +        VMSTATE_UINT32(coreid, CPUOpenRISCState),
+> +        VMSTATE_UINT32(numcores, CPUOpenRISCState),
 
-With that said, I will be seeing what I can do to keep it OpenRISC standard.
+If you use the above directly you don't need to save/restore these yourself.
 
--Stafford
+>      case TO_SPR(0, 128): /* COREID */
+> -        return 0;
+> +        return env->coreid;
 
-On Fri, Oct 13, 2017 at 6:41 PM, Olof Kindgren <olof.kindgren@gmail.com> wrote:
->
->
-> Den 13 okt. 2017 11:40 skrev "Tim Ansell" <mithro@mithis.com>:
->
-> Where is the openrisc mailing list?
->
->
-> https://lists.librecores.org/listinfo/openrisc
->
-> //Olof
->
->
-> Thanks!
->
-> Tim 'mithro' Ansell
->
-> On 13 October 2017 at 20:36, Olof Kindgren <olof.kindgren@gmail.com> wrote:
->>
->>
->>
->> Den 13 okt. 2017 11:35 skrev "Olof Kindgren" <olof.kindgren@gmail.com>:
->>
->>
->>
->> Den 13 okt. 2017 11:12 skrev "Tim Ansell" <mithro@mithis.com>:
->>
->> Hi everyone,
->>
->> Thanks to Florent fixing an issue with Ethernet on Arty, we have now
->> successfully gotten Linux early_printk output on the Arty when tftp booting!
->>
->> You can see the output here -> http://pastebin.ubuntu.com/25730949/
->>
->> To get this working you need;
->>  - mithro/HDMI2USB-litex-firmware at merge-arty-soc
->>  - Go into third_party/litex and checkout or1k-linux branch (this enables
->> the MMU and or1k timer peripheral).
->>  - mithro/linux-litex at litex-minimal
->>
->> I'm hoping to get the merge-arty-soc branch into
->> timvideos/HDMI2USB-litex-firmware very soon. I have a pending change to
->> LiteX which would make
->>
->> The behaviour of the kernel on the Arty seems to match the behavior on the
->> Opsis board, so we need help from the Linux experts to figure out what is
->> going on.
->>
->> I don't quite understand why we don't get a full stack trace / dump on the
->> kernel panic?
->>
->> shenki thought this behaviour had something to do with IRQs? I'm guessing
->> that we haven't gotten that quite right yet.
->>
->> Couple of things I noticed that were unusual;
->>  * Linux doesn't seem to like IRQs starting at zero.
->>  * The DeviceTree currently in litex-minimal lists the IRQ for the UART as
->> "2" but LiteX we currently define the UART to be at "0".
->>
->> I don't quite yet understand if there is some type of special mapping for
->> the IRQs in the Linux kernel, nor how LiteX maps the IRQs into the or1k PIC
->> register.
->>
->> The SoC does the IRQ mapping here.
->> The IRQs are a 32bit Signal passed into the mor1kx and we use
->> "OPTION_PIC_TRIGGER="LEVEL".
->> I assume this ends up in the mor1kx code here.
->> The register definitions for the SPRs for the PIC can be found here and
->> here.
->> The OpenRISC Linux IRQ code seems to be here.
->>
->> Can other people try and see if they can reproduce?
->>
->> Thanks!
->>
->> Tim 'mithro' Ansell
->>
->> --
->> You received this message because you are subscribed to the Google Groups
->> "Linux for LiteX FPGA SoC" group.
->> To unsubscribe from this group and stop receiving emails from it, send an
->> email to linux-litex+unsubscribe at googlegroups.com.
->> To post to this group, send email to linux-litex at googlegroups.com.
->> To view this discussion on the web, visit
->> https://groups.google.com/d/msgid/linux-litex/CAHLUNMyJFPVbuupijW4eNg3N-zLjMMY-LA1Vqfc3vBRxkPseGg%40mail.gmail.com.
->> For more options, visit https://groups.google.com/d/optout.
->>
->>
->> Could you try mapping the UART to IRQ2? That is the de-facto standard on
->> all OpenRISC SoCs and would help to make sw more compatible across SoCs.
->> Also, I wonder if irq 0 and 1 works for mor1kx. At least on or1200 the two
->> lowest IRQ were non-maskable and I believe internal to the CPU
->>
->> //Olof
->>
->>
->>
->> You should also consider moving this discussion to the main OpenRISC
->> mailing list to reach a larger audience
->>
->> //Olof
->>
->> --
->> You received this message because you are subscribed to the Google Groups
->> "Linux for LiteX FPGA SoC" group.
->> To unsubscribe from this group and stop receiving emails from it, send an
->> email to linux-litex+unsubscribe at googlegroups.com.
->> To post to this group, send email to linux-litex at googlegroups.com.
->> To view this discussion on the web, visit
->> https://groups.google.com/d/msgid/linux-litex/CAKaYPCOoh2Xerq6hp2wJ1TwWxjYVTA7vR7o8ZqJsZVc7XHjOtQ%40mail.gmail.com.
->>
->> For more options, visit https://groups.google.com/d/optout.
->
->
-> --
-> You received this message because you are subscribed to the Google Groups
-> "Linux for LiteX FPGA SoC" group.
-> To unsubscribe from this group and stop receiving emails from it, send an
-> email to linux-litex+unsubscribe at googlegroups.com.
-> To post to this group, send email to linux-litex at googlegroups.com.
-> To view this discussion on the web, visit
-> https://groups.google.com/d/msgid/linux-litex/CAHLUNMyB%2BZ%3D3sM4oV8AAVUiCJLMnB965Aj5SgHR%2BGMQ89grBxQ%40mail.gmail.com.
->
-> For more options, visit https://groups.google.com/d/optout.
->
->
-> --
-> You received this message because you are subscribed to the Google Groups
-> "Linux for LiteX FPGA SoC" group.
-> To unsubscribe from this group and stop receiving emails from it, send an
-> email to linux-litex+unsubscribe at googlegroups.com.
-> To post to this group, send email to linux-litex at googlegroups.com.
-> To view this discussion on the web, visit
-> https://groups.google.com/d/msgid/linux-litex/CAKaYPCPge8WaDVfXk2YjzWLxdtmaG2JrMJDUXda2gELKsVDzBg%40mail.gmail.com.
->
-> For more options, visit https://groups.google.com/d/optout.
+>      case TO_SPR(0, 129): /* NUMCORES */
+> -        return 1;
+> +        return env->numcores;
+
+Just use the global variable directly here, IMO.
+
+
+r~
+
