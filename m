@@ -1,11 +1,11 @@
 From: Richard Henderson <richard.henderson@linaro.org>
-Date: Thu, 12 Oct 2017 13:48:42 -0700
-Subject: [OpenRISC] [Qemu-devel] [PATCH 1/5] openrisc/ompic: Add
- OpenRISC Multicore PIC (OMPIC)
-In-Reply-To: <ededad1a3abe4ca8dc25fc6eb368fe15a4ccfe12.1503467674.git.shorne@gmail.com>
+Date: Thu, 12 Oct 2017 13:50:58 -0700
+Subject: [OpenRISC] [Qemu-devel] [PATCH 3/5] openrisc/cputimer:
+ Perparation for Multicore
+In-Reply-To: <9ff134a8c36d63ad667d94cacb5ef490e2227e1e.1503467674.git.shorne@gmail.com>
 References: <cover.1503467674.git.shorne@gmail.com>
- <ededad1a3abe4ca8dc25fc6eb368fe15a4ccfe12.1503467674.git.shorne@gmail.com>
-Message-ID: <aedb9d6c-6123-9628-0630-21810a1e3f2e@linaro.org>
+ <9ff134a8c36d63ad667d94cacb5ef490e2227e1e.1503467674.git.shorne@gmail.com>
+Message-ID: <05f62b13-b759-1b12-89fc-59d4eedf3791@linaro.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,17 +13,22 @@ Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
 On 08/22/2017 10:57 PM, Stafford Horne wrote:
-> Add OpenRISC Multicore PIC which handles inter processor interrupts
-> (IPI) between cores.  In OpenRISC all device interrupts are routed to
-> each core enabling this device to be simple.
+> In order to support multicore system we move some of the previously
+> static state variables into the state of each core.
+> 
+> On the other hand in order to allow timers to be synced between each
+> code the ttcr (tick timer count register) is moved out of the core.
+> This is not as per real hardware spec which has a separate timer counter
+> per core, but it seems the most simple way to keep each clock in sync.
 > 
 > Signed-off-by: Stafford Horne <shorne@gmail.com>
 > ---
->  default-configs/or1k-softmmu.mak |   1 +
->  hw/intc/Makefile.objs            |   1 +
->  hw/intc/ompic.c                  | 179 +++++++++++++++++++++++++++++++++++++++
->  3 files changed, 181 insertions(+)
->  create mode 100644 hw/intc/ompic.c
+>  hw/openrisc/cputimer.c       | 62 +++++++++++++++++++++++++++++++++-----------
+>  target/openrisc/cpu.c        |  1 -
+>  target/openrisc/cpu.h        |  4 ++-
+>  target/openrisc/machine.c    |  1 -
+>  target/openrisc/sys_helper.c |  4 +--
+>  5 files changed, 52 insertions(+), 20 deletions(-)
 
 Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
 
