@@ -1,193 +1,280 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Fri, 13 Oct 2017 21:36:40 +0900
-Subject: [OpenRISC] [PATCH v6 0/6] sim port for OpenRISC
-Message-ID: <20171013123646.8206-1-shorne@gmail.com>
+Date: Fri, 13 Oct 2017 21:36:41 +0900
+Subject: [OpenRISC] [PATCH v6 1/6] sim: cgen: add remainder functions
+	(needed for OR1K lf.rem.[sd])
+In-Reply-To: <20171013123646.8206-1-shorne@gmail.com>
+References: <20171013123646.8206-1-shorne@gmail.com>
+Message-ID: <20171013123646.8206-2-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hello,
+From: Peter Gavin <pgavin@gmail.com>
 
-Please find attached the sim patches that allow to get a basic OpenRISC
-system running.  This was used to verify the OpenRISC gdb port.
+* sim/common/ChangeLog:
 
-The main author is Peter Gavin who should have his FSF copyright in place.
+2016-05-21  Peter Gavin  <pgavin@gmail.com>
+	    Stafford Horne <shorne@gmail.com>
 
-Request for comments on:
- - The testcase has a few tests commented out. I do not plan to fix now,
-   but hopefully be addressed after upstreaming.
+	* cgen-accfp.c (remsf, remdf): New function.
+	(cgen_init_accurate_fpu): Add remsf and remdf.
+	* cgen-fpu.h (cgen_fp_ops): Add remsf, remdf, remxf and remtf.
+	* sim-fpu.c (sim_fpu_rem): New function.
+	* sim-fpu.h (sim_fpu_status_invalid_irx): New enum.
+	(sim_fpu_rem): New function.
+	(sim_fpu_print_status): Add case for sim_fpu_status_invalid_irx.
+---
+ sim/common/cgen-accfp.c | 40 +++++++++++++++++++++++
+ sim/common/cgen-fpu.h   |  4 +++
+ sim/common/sim-fpu.c    | 86 +++++++++++++++++++++++++++++++++++++++++++++++++
+ sim/common/sim-fpu.h    | 13 +++++---
+ 4 files changed, 138 insertions(+), 5 deletions(-)
 
-                        # Test Results #
-
-Sim dejagnu tests were added specifically for openrisc and used to test
-this.  Please see the details of running the testsuite for sim below:
-
-=== sim Summary ===
-
-# of expected passes            18
-/home/shorne/work/openrisc/build-gdb/sim/or1k/run 0.5
-
-
-Thanks,
--Stafford
-
-Changes since v5
- * Moved the cover letter docs into a README as suggested by Doug
- * Fixes in sim-fpu suggested by Simon
-   - removed some spurious comments
-   - added a missing changelog entry for sim_fpu_print_status
-   - fixed an indent issue
- * Fixed changelog of MUL2OFSI and MUL1OFSI
-   - comment was flipped
-   - switched from saying macro to function
- * Fixes to sim & testsuite patch
-   - removed 1996 copyrights throughout
-   - fixed 80 char column issues
-   - fixed comment typos
-   - fixed issue with '* current_cpu' vs '*current_cpu' throughout
-   - added comments about SR[LEE]
-
-Changes since v4
- * Added comments to most of the functions
- * Implemented remainder fpu function
- * Actually wire in fpu and error handling logic
- * Added fpu test case
-
-Changes since v3
- * Cleaned up indentation and style of sim testsuite
- * Cleaned up TODOs in testsuite
- * Implemented range exception
-
-Changes since v2
- * Removed 64-bit implementation (reduced files)
- * Removed cgen suffix patch
- * Removed different builds for linux
- * Removed unused macros
- * Fixed gnu style issues pointed out by Mike
- * Fixed copyrights (not Cygnus, added to each file)
-
-Changes since v1
- * Squashed sim patches into single sim patch
- * Put Generated files in separate patch
- * I have my sim/gdb copyright assignment complete
-
-Peter Gavin (3):
-  sim: cgen: add remainder functions (needed for OR1K lf.rem.[sd])
-  sim: cgen: add MUL2OFSI and MUL1OFSI functions (needed for OR1K
-    l.mul[u])
-  sim: testsuite: add testsuite for or1k sim
-
-Stafford Horne (3):
-  sim: or1k: add or1k target to sim
-  sim: or1k: add cgen generated files
-  sim: or1k: add autoconf generated files
-
- sim/common/cgen-accfp.c                        |    40 +
- sim/common/cgen-fpu.h                          |     4 +
- sim/common/cgen-ops.h                          |    18 +
- sim/common/sim-fpu.c                           |    86 +
- sim/common/sim-fpu.h                           |    13 +-
- sim/configure                                  |     9 +
- sim/configure.tgt                              |     3 +
- sim/or1k/Makefile.in                           |   147 +
- sim/or1k/README                                |   107 +
- sim/or1k/aclocal.m4                            |   119 +
- sim/or1k/arch.c                                |    38 +
- sim/or1k/arch.h                                |    50 +
- sim/or1k/config.in                             |   248 +
- sim/or1k/configure                             | 16043 +++++++++++++++++++++++
- sim/or1k/configure.ac                          |    17 +
- sim/or1k/cpu.c                                 | 10181 ++++++++++++++
- sim/or1k/cpu.h                                 |  5024 +++++++
- sim/or1k/cpuall.h                              |    66 +
- sim/or1k/decode.c                              |  2559 ++++
- sim/or1k/decode.h                              |    94 +
- sim/or1k/mloop.in                              |   241 +
- sim/or1k/model.c                               |  3809 ++++++
- sim/or1k/or1k-sim.h                            |    93 +
- sim/or1k/or1k.c                                |   356 +
- sim/or1k/sem-switch.c                          |  2748 ++++
- sim/or1k/sem.c                                 |  2953 +++++
- sim/or1k/sim-if.c                              |   279 +
- sim/or1k/sim-main.h                            |    81 +
- sim/or1k/traps.c                               |   299 +
- sim/testsuite/configure                        |     4 +
- sim/testsuite/sim/or1k/add.S                   |   639 +
- sim/testsuite/sim/or1k/alltests.exp            |    34 +
- sim/testsuite/sim/or1k/and.S                   |   198 +
- sim/testsuite/sim/or1k/basic.S                 |   522 +
- sim/testsuite/sim/or1k/div.S                   |   291 +
- sim/testsuite/sim/or1k/ext.S                   |   236 +
- sim/testsuite/sim/or1k/find.S                  |   100 +
- sim/testsuite/sim/or1k/flag.S                  |   386 +
- sim/testsuite/sim/or1k/fpu.S                   |   129 +
- sim/testsuite/sim/or1k/jump.S                  |   105 +
- sim/testsuite/sim/or1k/load.S                  |   358 +
- sim/testsuite/sim/or1k/mac.S                   |   778 ++
- sim/testsuite/sim/or1k/mfspr.S                 |   171 +
- sim/testsuite/sim/or1k/mul.S                   |   574 +
- sim/testsuite/sim/or1k/or.S                    |   199 +
- sim/testsuite/sim/or1k/or1k-asm-test-env.h     |    59 +
- sim/testsuite/sim/or1k/or1k-asm-test-helpers.h |   121 +
- sim/testsuite/sim/or1k/or1k-asm-test.h         |   226 +
- sim/testsuite/sim/or1k/or1k-asm.h              |    37 +
- sim/testsuite/sim/or1k/or1k-test.ld            |    75 +
- sim/testsuite/sim/or1k/ror.S                   |   159 +
- sim/testsuite/sim/or1k/shift.S                 |   541 +
- sim/testsuite/sim/or1k/spr-defs.h              |   120 +
- sim/testsuite/sim/or1k/sub.S                   |   215 +
- sim/testsuite/sim/or1k/xor.S                   |   200 +
- 55 files changed, 52197 insertions(+), 5 deletions(-)
- create mode 100644 sim/or1k/Makefile.in
- create mode 100644 sim/or1k/README
- create mode 100644 sim/or1k/aclocal.m4
- create mode 100644 sim/or1k/arch.c
- create mode 100644 sim/or1k/arch.h
- create mode 100644 sim/or1k/config.in
- create mode 100755 sim/or1k/configure
- create mode 100644 sim/or1k/configure.ac
- create mode 100644 sim/or1k/cpu.c
- create mode 100644 sim/or1k/cpu.h
- create mode 100644 sim/or1k/cpuall.h
- create mode 100644 sim/or1k/decode.c
- create mode 100644 sim/or1k/decode.h
- create mode 100644 sim/or1k/mloop.in
- create mode 100644 sim/or1k/model.c
- create mode 100644 sim/or1k/or1k-sim.h
- create mode 100644 sim/or1k/or1k.c
- create mode 100644 sim/or1k/sem-switch.c
- create mode 100644 sim/or1k/sem.c
- create mode 100644 sim/or1k/sim-if.c
- create mode 100644 sim/or1k/sim-main.h
- create mode 100644 sim/or1k/traps.c
- create mode 100644 sim/testsuite/sim/or1k/add.S
- create mode 100644 sim/testsuite/sim/or1k/alltests.exp
- create mode 100644 sim/testsuite/sim/or1k/and.S
- create mode 100644 sim/testsuite/sim/or1k/basic.S
- create mode 100644 sim/testsuite/sim/or1k/div.S
- create mode 100644 sim/testsuite/sim/or1k/ext.S
- create mode 100644 sim/testsuite/sim/or1k/find.S
- create mode 100644 sim/testsuite/sim/or1k/flag.S
- create mode 100644 sim/testsuite/sim/or1k/fpu.S
- create mode 100644 sim/testsuite/sim/or1k/jump.S
- create mode 100644 sim/testsuite/sim/or1k/load.S
- create mode 100644 sim/testsuite/sim/or1k/mac.S
- create mode 100644 sim/testsuite/sim/or1k/mfspr.S
- create mode 100644 sim/testsuite/sim/or1k/mul.S
- create mode 100644 sim/testsuite/sim/or1k/or.S
- create mode 100644 sim/testsuite/sim/or1k/or1k-asm-test-env.h
- create mode 100644 sim/testsuite/sim/or1k/or1k-asm-test-helpers.h
- create mode 100644 sim/testsuite/sim/or1k/or1k-asm-test.h
- create mode 100644 sim/testsuite/sim/or1k/or1k-asm.h
- create mode 100644 sim/testsuite/sim/or1k/or1k-test.ld
- create mode 100644 sim/testsuite/sim/or1k/ror.S
- create mode 100644 sim/testsuite/sim/or1k/shift.S
- create mode 100644 sim/testsuite/sim/or1k/spr-defs.h
- create mode 100644 sim/testsuite/sim/or1k/sub.S
- create mode 100644 sim/testsuite/sim/or1k/xor.S
-
+diff --git a/sim/common/cgen-accfp.c b/sim/common/cgen-accfp.c
+index afbca6d582..5d600c6e41 100644
+--- a/sim/common/cgen-accfp.c
++++ b/sim/common/cgen-accfp.c
+@@ -93,6 +93,25 @@ divsf (CGEN_FPU* fpu, SF x, SF y)
+ }
+ 
+ static SF
++remsf (CGEN_FPU* fpu, SF x, SF y)
++{
++  sim_fpu op1;
++  sim_fpu op2;
++  sim_fpu ans;
++  unsigned32 res;
++  sim_fpu_status status;
++
++  sim_fpu_32to (&op1, x);
++  sim_fpu_32to (&op2, y);
++  status = sim_fpu_rem (&ans, &op1, &op2);
++  if (status != 0)
++    (*fpu->ops->error) (fpu, status);
++  sim_fpu_to32 (&res, &ans);
++
++  return res;
++}
++
++static SF
+ negsf (CGEN_FPU* fpu, SF x)
+ {
+   sim_fpu op1;
+@@ -453,6 +472,25 @@ divdf (CGEN_FPU* fpu, DF x, DF y)
+ }
+ 
+ static DF
++remdf (CGEN_FPU* fpu, DF x, DF y)
++{
++  sim_fpu op1;
++  sim_fpu op2;
++  sim_fpu ans;
++  unsigned64 res;
++  sim_fpu_status status;
++
++  sim_fpu_64to (&op1, x);
++  sim_fpu_64to (&op2, y);
++  status = sim_fpu_rem (&ans, &op1, &op2);
++  if (status != 0)
++    (*fpu->ops->error) (fpu, status);
++  sim_fpu_to64(&res, &ans);
++
++  return res;
++}
++
++static DF
+ negdf (CGEN_FPU* fpu, DF x)
+ {
+   sim_fpu op1;
+@@ -664,6 +702,7 @@ cgen_init_accurate_fpu (SIM_CPU* cpu, CGEN_FPU* fpu, CGEN_FPU_ERROR_FN* error)
+   o->subsf = subsf;
+   o->mulsf = mulsf;
+   o->divsf = divsf;
++  o->remsf = remsf;
+   o->negsf = negsf;
+   o->abssf = abssf;
+   o->sqrtsf = sqrtsf;
+@@ -682,6 +721,7 @@ cgen_init_accurate_fpu (SIM_CPU* cpu, CGEN_FPU* fpu, CGEN_FPU_ERROR_FN* error)
+   o->subdf = subdf;
+   o->muldf = muldf;
+   o->divdf = divdf;
++  o->remdf = remdf;
+   o->negdf = negdf;
+   o->absdf = absdf;
+   o->sqrtdf = sqrtdf;
+diff --git a/sim/common/cgen-fpu.h b/sim/common/cgen-fpu.h
+index 134b4d031c..5f9b55d32e 100644
+--- a/sim/common/cgen-fpu.h
++++ b/sim/common/cgen-fpu.h
+@@ -69,6 +69,7 @@ struct cgen_fp_ops {
+   SF (*subsf) (CGEN_FPU*, SF, SF);
+   SF (*mulsf) (CGEN_FPU*, SF, SF);
+   SF (*divsf) (CGEN_FPU*, SF, SF);
++  SF (*remsf) (CGEN_FPU*, SF, SF);
+   SF (*negsf) (CGEN_FPU*, SF);
+   SF (*abssf) (CGEN_FPU*, SF);
+   SF (*sqrtsf) (CGEN_FPU*, SF);
+@@ -93,6 +94,7 @@ struct cgen_fp_ops {
+   DF (*subdf) (CGEN_FPU*, DF, DF);
+   DF (*muldf) (CGEN_FPU*, DF, DF);
+   DF (*divdf) (CGEN_FPU*, DF, DF);
++  DF (*remdf) (CGEN_FPU*, DF, DF);
+   DF (*negdf) (CGEN_FPU*, DF);
+   DF (*absdf) (CGEN_FPU*, DF);
+   DF (*sqrtdf) (CGEN_FPU*, DF);
+@@ -142,6 +144,7 @@ struct cgen_fp_ops {
+   XF (*subxf) (CGEN_FPU*, XF, XF);
+   XF (*mulxf) (CGEN_FPU*, XF, XF);
+   XF (*divxf) (CGEN_FPU*, XF, XF);
++  XF (*remxf) (CGEN_FPU*, XF, XF);
+   XF (*negxf) (CGEN_FPU*, XF);
+   XF (*absxf) (CGEN_FPU*, XF);
+   XF (*sqrtxf) (CGEN_FPU*, XF);
+@@ -180,6 +183,7 @@ struct cgen_fp_ops {
+   TF (*subtf) (CGEN_FPU*, TF, TF);
+   TF (*multf) (CGEN_FPU*, TF, TF);
+   TF (*divtf) (CGEN_FPU*, TF, TF);
++  TF (*remtf) (CGEN_FPU*, TF, TF);
+   TF (*negtf) (CGEN_FPU*, TF);
+   TF (*abstf) (CGEN_FPU*, TF);
+   TF (*sqrttf) (CGEN_FPU*, TF);
+diff --git a/sim/common/sim-fpu.c b/sim/common/sim-fpu.c
+index 0d4d08ae86..8d0fb17552 100644
+--- a/sim/common/sim-fpu.c
++++ b/sim/common/sim-fpu.c
+@@ -1551,6 +1551,89 @@ sim_fpu_div (sim_fpu *f,
+ 
+ 
+ INLINE_SIM_FPU (int)
++sim_fpu_rem (sim_fpu *f,
++	     const sim_fpu *l,
++	     const sim_fpu *r)
++{
++  if (sim_fpu_is_snan (l))
++    {
++      *f = *l;
++      f->class = sim_fpu_class_qnan;
++      return sim_fpu_status_invalid_snan;
++    }
++  if (sim_fpu_is_snan (r))
++    {
++      *f = *r;
++      f->class = sim_fpu_class_qnan;
++      return sim_fpu_status_invalid_snan;
++    }
++  if (sim_fpu_is_qnan (l))
++    {
++      *f = *l;
++      f->class = sim_fpu_class_qnan;
++      return 0;
++    }
++  if (sim_fpu_is_qnan (r))
++    {
++      *f = *r;
++      f->class = sim_fpu_class_qnan;
++      return 0;
++    }
++  if (sim_fpu_is_infinity (l))
++    {
++      *f = sim_fpu_qnan;
++      return sim_fpu_status_invalid_irx;
++    }
++  if (sim_fpu_is_zero (r))
++    {
++      *f = sim_fpu_qnan;
++      return sim_fpu_status_invalid_div0;
++    }
++  if (sim_fpu_is_zero (l))
++    {
++      *f = *l;
++      return 0;
++    }
++  if (sim_fpu_is_infinity (r))
++    {
++      *f = *l;
++      return 0;
++    }
++  {
++    sim_fpu n, tmp;
++
++    /* Remainder is calculated as l-n*r, where n is l/r rounded to the
++       nearest integer.  The variable n is rounded half even.  */
++
++    sim_fpu_div (&n, l, r);
++    sim_fpu_round_64 (&n, 0, 0);
++
++    if (n.normal_exp < -1) /* If n looks like zero just return l.  */
++      {
++	*f = *l;
++	return 0;
++      }
++    else if (n.class == sim_fpu_class_number
++	     && n.normal_exp <= (NR_FRAC_GUARD)) /* If not too large round.  */
++      do_normal_round (&n, (NR_FRAC_GUARD) - n.normal_exp, sim_fpu_round_near);
++
++    /* Mark 0's as zero so multiply can detect zero.  */
++    if (n.fraction == 0)
++      n.class = sim_fpu_class_zero;
++
++    /* Calculate n*r.  */
++    sim_fpu_mul (&tmp, &n, r);
++    sim_fpu_round_64 (&tmp, 0, 0);
++
++    /* Finally calculate l-n*r.  */
++    sim_fpu_sub (f, l, &tmp);
++
++    return 0;
++  }
++}
++
++
++INLINE_SIM_FPU (int)
+ sim_fpu_max (sim_fpu *f,
+ 	     const sim_fpu *l,
+ 	     const sim_fpu *r)
+@@ -2533,6 +2616,9 @@ sim_fpu_print_status (int status,
+ 	case sim_fpu_status_invalid_sqrt:
+ 	  print (arg, "%sSQRT", prefix);
+ 	  break;
++	case sim_fpu_status_invalid_irx:
++	  print (arg, "%sIRX", prefix);
++	  break;
+ 	case sim_fpu_status_inexact:
+ 	  print (arg, "%sX", prefix);
+ 	  break;
+diff --git a/sim/common/sim-fpu.h b/sim/common/sim-fpu.h
+index d27d80a513..adf3b1904a 100644
+--- a/sim/common/sim-fpu.h
++++ b/sim/common/sim-fpu.h
+@@ -146,11 +146,12 @@ typedef enum
+   sim_fpu_status_invalid_div0 = 128, /* (X / 0) */
+   sim_fpu_status_invalid_cmp = 256, /* compare */
+   sim_fpu_status_invalid_sqrt = 512,
+-  sim_fpu_status_rounded = 1024,
+-  sim_fpu_status_inexact = 2048,
+-  sim_fpu_status_overflow = 4096,
+-  sim_fpu_status_underflow = 8192,
+-  sim_fpu_status_denorm = 16384,
++  sim_fpu_status_invalid_irx = 1024, /* (inf % X) */
++  sim_fpu_status_rounded = 2048,
++  sim_fpu_status_inexact = 4096,
++  sim_fpu_status_overflow = 8192,
++  sim_fpu_status_underflow = 16384,
++  sim_fpu_status_denorm = 32768,
+ } sim_fpu_status;
+ 
+ 
+@@ -230,6 +231,8 @@ INLINE_SIM_FPU (int) sim_fpu_mul (sim_fpu *f,
+ 				  const sim_fpu *l, const sim_fpu *r);
+ INLINE_SIM_FPU (int) sim_fpu_div (sim_fpu *f,
+ 				  const sim_fpu *l, const sim_fpu *r);
++INLINE_SIM_FPU (int) sim_fpu_rem (sim_fpu *f,
++				  const sim_fpu *l, const sim_fpu *r);
+ INLINE_SIM_FPU (int) sim_fpu_max (sim_fpu *f,
+ 				  const sim_fpu *l, const sim_fpu *r);
+ INLINE_SIM_FPU (int) sim_fpu_min (sim_fpu *f,
 -- 
 2.13.6
 
