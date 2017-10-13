@@ -1,46 +1,36 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Fri, 13 Oct 2017 22:49:30 +0900
-Subject: [OpenRISC] [PATCH v2 5/5] openrisc: Only kick cpu on timeout,
-	not on update
-In-Reply-To: <20171013134930.32547-1-shorne@gmail.com>
+Date: Fri, 13 Oct 2017 23:31:54 +0900
+Subject: [OpenRISC] [PATCH v2 2/5] target/openrisc: Make coreid and
+	numcores variable
+In-Reply-To: <068db9d2-2805-2dac-4c19-efc6d187db44@linaro.org>
 References: <20171013134930.32547-1-shorne@gmail.com>
-Message-ID: <20171013134930.32547-6-shorne@gmail.com>
+ <20171013134930.32547-3-shorne@gmail.com>
+ <068db9d2-2805-2dac-4c19-efc6d187db44@linaro.org>
+Message-ID: <20171013143154.GF2958@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Previously we were kicking the cpu on every update.  This caused
-problems noticeable in SMP configurations where one CPU got pinned
-continuously servicing timer exceptions.
+On Fri, Oct 13, 2017 at 06:58:21AM -0700, Richard Henderson wrote:
+> On 10/13/2017 06:49 AM, Stafford Horne wrote:
+> > Previously coreid and numcores were hard coded as 0 and 1 respectively
+> > as OpenRISC QEMU did not have multicore support.
+> > 
+> > Multicore support is now being added so these registers need to have
+> > configured values.
+> > 
+> > Signed-off-by: Stafford Horne <shorne@gmail.com>
+> > ---
+> >  target/openrisc/sys_helper.c | 5 +++--
+> >  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+> 
+> 
+> r~
 
-Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- hw/openrisc/cputimer.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thank you for the review.
 
-diff --git a/hw/openrisc/cputimer.c b/hw/openrisc/cputimer.c
-index 4c5415ff75..850f88761c 100644
---- a/hw/openrisc/cputimer.c
-+++ b/hw/openrisc/cputimer.c
-@@ -78,7 +78,6 @@ void cpu_openrisc_timer_update(OpenRISCCPU *cpu)
-     }
-     next = now + (uint64_t)wait * TIMER_PERIOD;
-     timer_mod(cpu->env.timer, next);
--    qemu_cpu_kick(CPU(cpu));
- }
- 
- void cpu_openrisc_count_start(OpenRISCCPU *cpu)
-@@ -120,6 +119,7 @@ static void openrisc_timer_cb(void *opaque)
-     }
- 
-     cpu_openrisc_timer_update(cpu);
-+    qemu_cpu_kick(CPU(cpu));
- }
- 
- static const VMStateDescription vmstate_or1k_timer = {
--- 
-2.13.6
-
+-Stafford
