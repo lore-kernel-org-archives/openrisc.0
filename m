@@ -1,89 +1,31 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 22 Oct 2017 12:15:50 +0900
-Subject: [OpenRISC] [PATCH v3 03/13] openrisc: use qspinlocks and qrwlocks
+Date: Sun, 22 Oct 2017 12:15:51 +0900
+Subject: [OpenRISC] [PATCH v3 04/13] dt-bindings: add openrisc to vendor
+	prefixes list
 In-Reply-To: <20171022031600.29612-1-shorne@gmail.com>
 References: <20171022031600.29612-1-shorne@gmail.com>
-Message-ID: <20171022031600.29612-4-shorne@gmail.com>
+Message-ID: <20171022031600.29612-5-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="windows-1250"
+Content-Transfer-Encoding: base64
 To: openrisc@lists.librecores.org
 
-Enable OpenRISC to use qspinlocks and qrwlocks for upcoming SMP support.
-
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- arch/openrisc/Kconfig                      |  2 ++
- arch/openrisc/include/asm/Kbuild           |  4 ++++
- arch/openrisc/include/asm/spinlock.h       | 12 +++++++++++-
- arch/openrisc/include/asm/spinlock_types.h |  7 +++++++
- 4 files changed, 24 insertions(+), 1 deletion(-)
- create mode 100644 arch/openrisc/include/asm/spinlock_types.h
-
-diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index 356dd67a86ea..b49acda5e8f4 100644
---- a/arch/openrisc/Kconfig
-+++ b/arch/openrisc/Kconfig
-@@ -28,6 +28,8 @@ config OPENRISC
- 	select OR1K_PIC
- 	select CPU_NO_EFFICIENT_FFS if !OPENRISC_HAVE_INST_FF1
- 	select NO_BOOTMEM
-+	select ARCH_USE_QUEUED_SPINLOCKS
-+	select ARCH_USE_QUEUED_RWLOCKS
- 
- config CPU_BIG_ENDIAN
- 	def_bool y
-diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
-index 5bea416a7792..5f066780d870 100644
---- a/arch/openrisc/include/asm/Kbuild
-+++ b/arch/openrisc/include/asm/Kbuild
-@@ -28,6 +28,10 @@ generic-y += module.h
- generic-y += pci.h
- generic-y += percpu.h
- generic-y += preempt.h
-+generic-y += qspinlock_types.h
-+generic-y += qspinlock.h
-+generic-y += qrwlock_types.h
-+generic-y += qrwlock.h
- generic-y += sections.h
- generic-y += segment.h
- generic-y += string.h
-diff --git a/arch/openrisc/include/asm/spinlock.h b/arch/openrisc/include/asm/spinlock.h
-index fd00a3a24123..9b761e0e22c3 100644
---- a/arch/openrisc/include/asm/spinlock.h
-+++ b/arch/openrisc/include/asm/spinlock.h
-@@ -19,6 +19,16 @@
- #ifndef __ASM_OPENRISC_SPINLOCK_H
- #define __ASM_OPENRISC_SPINLOCK_H
- 
--#error "or32 doesn't do SMP yet"
-+#include <asm/qspinlock.h>
-+
-+#include <asm/qrwlock.h>
-+
-+#define arch_read_lock_flags(lock, flags) arch_read_lock(lock)
-+#define arch_write_lock_flags(lock, flags) arch_write_lock(lock)
-+
-+#define arch_spin_relax(lock)	cpu_relax()
-+#define arch_read_relax(lock)	cpu_relax()
-+#define arch_write_relax(lock)	cpu_relax()
-+
- 
- #endif
-diff --git a/arch/openrisc/include/asm/spinlock_types.h b/arch/openrisc/include/asm/spinlock_types.h
-new file mode 100644
-index 000000000000..7c6fb1208c88
---- /dev/null
-+++ b/arch/openrisc/include/asm/spinlock_types.h
-@@ -0,0 +1,7 @@
-+#ifndef _ASM_OPENRISC_SPINLOCK_TYPES_H
-+#define _ASM_OPENRISC_SPINLOCK_TYPES_H
-+
-+#include <asm/qspinlock_types.h>
-+#include <asm/qrwlock_types.h>
-+
-+#endif /* _ASM_OPENRISC_SPINLOCK_TYPES_H */
--- 
-2.13.6
-
+QWRkIE9wZW5SSVNDLmlvIHRvIHZlbmRvciBwcmVmaXhlcy4gIFRoaXMgaXMgcmVzZXJ2ZWQgZm9y
+IHNvZnRjb3JlcwpkZXZlbG9wZWQgYnkgdGhlIE9wZW5SSVNDIGNvbW11bml0eS4gIFRoZSBPcGVu
+UklTQyBjb21tdW5pdHkgaGFzCnNlcGFyYXRlZCBmcm9tIE9wZW5Db3Jlcy5vcmcgcmVxdWlyaW5n
+IGEgbmV3IHByZWZpeC4KClJldmlld2VkLWJ5OiBBbmRyZWFzIEbDpHJiZXIgPGFmYWVyYmVyQHN1
+c2UuZGU+CkFja2VkLWJ5OiBSb2IgSGVycmluZyA8cm9iaEBrZXJuZWwub3JnPgpTaWduZWQtb2Zm
+LWJ5OiBTdGFmZm9yZCBIb3JuZSA8c2hvcm5lQGdtYWlsLmNvbT4KLS0tCgpDaGFuZ2VzIHNpbmNl
+IHYyCiAtIE5vbmUKCkNoYW5nZXMgc2luY2UgdjEKIC0gTmV3IHBhdGNoCgogRG9jdW1lbnRhdGlv
+bi9kZXZpY2V0cmVlL2JpbmRpbmdzL3ZlbmRvci1wcmVmaXhlcy50eHQgfCAxICsKIDEgZmlsZSBj
+aGFuZ2VkLCAxIGluc2VydGlvbigrKQoKZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRpb24vZGV2aWNl
+dHJlZS9iaW5kaW5ncy92ZW5kb3ItcHJlZml4ZXMudHh0IGIvRG9jdW1lbnRhdGlvbi9kZXZpY2V0
+cmVlL2JpbmRpbmdzL3ZlbmRvci1wcmVmaXhlcy50eHQKaW5kZXggMWVhMWZkNDIzMmFiLi4xNDc4
+YWFkODc1MzIgMTAwNjQ0Ci0tLSBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy92
+ZW5kb3ItcHJlZml4ZXMudHh0CisrKyBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5n
+cy92ZW5kb3ItcHJlZml4ZXMudHh0CkBAIC0yNDYsNiArMjQ2LDcgQEAgb25pb24JT25pb24gQ29y
+cG9yYXRpb24KIG9ubm4JT04gU2VtaWNvbmR1Y3RvciBDb3JwLgogb250YXQJT24gVGF0IEluZHVz
+dHJpYWwgQ29tcGFueQogb3BlbmNvcmVzCU9wZW5Db3Jlcy5vcmcKK29wZW5yaXNjCU9wZW5SSVND
+LmlvCiBvcHRpb24JT3B0aW9uIE5WCiBPUkNMCU9yYWNsZSBDb3Jwb3JhdGlvbgogb3J0dXN0ZWNo
+CU9ydHVzIFRlY2hub2xvZ3kgQ28uLCBMdGQuCi0tIAoyLjEzLjYKCg==
