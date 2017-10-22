@@ -1,90 +1,89 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 22 Oct 2017 11:46:41 +0900
-Subject: [OpenRISC] [PATCH 3/3] openrisc: dts: Add OpenRISC platform SoC
-In-Reply-To: <20171022024641.28478-1-shorne@gmail.com>
-References: <20171022024641.28478-1-shorne@gmail.com>
-Message-ID: <20171022024641.28478-4-shorne@gmail.com>
+Date: Sun, 22 Oct 2017 12:15:50 +0900
+Subject: [OpenRISC] [PATCH v3 03/13] openrisc: use qspinlocks and qrwlocks
+In-Reply-To: <20171022031600.29612-1-shorne@gmail.com>
+References: <20171022031600.29612-1-shorne@gmail.com>
+Message-ID: <20171022031600.29612-4-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Add devicetree binding documentation for the OpenRISC platform
-opencores,or1ksim.  This is the main OpenRISC reference platform
-supporting multiple FPGA SoC's.
+Enable OpenRISC to use qspinlocks and qrwlocks for upcoming SMP support.
 
-This format is based on some of the mips binding docs as we have
-similar requirements.
-
-Also, update maintainers so openrisc related binding changes are visible
-to the openrisc team.
-
-Suggested-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- .../bindings/openrisc/opencores/or1ksim.txt        | 39 ++++++++++++++++++++++
- MAINTAINERS                                        |  1 +
- 2 files changed, 40 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/openrisc/opencores/or1ksim.txt
+ arch/openrisc/Kconfig                      |  2 ++
+ arch/openrisc/include/asm/Kbuild           |  4 ++++
+ arch/openrisc/include/asm/spinlock.h       | 12 +++++++++++-
+ arch/openrisc/include/asm/spinlock_types.h |  7 +++++++
+ 4 files changed, 24 insertions(+), 1 deletion(-)
+ create mode 100644 arch/openrisc/include/asm/spinlock_types.h
 
-diff --git a/Documentation/devicetree/bindings/openrisc/opencores/or1ksim.txt b/Documentation/devicetree/bindings/openrisc/opencores/or1ksim.txt
+diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+index 356dd67a86ea..b49acda5e8f4 100644
+--- a/arch/openrisc/Kconfig
++++ b/arch/openrisc/Kconfig
+@@ -28,6 +28,8 @@ config OPENRISC
+ 	select OR1K_PIC
+ 	select CPU_NO_EFFICIENT_FFS if !OPENRISC_HAVE_INST_FF1
+ 	select NO_BOOTMEM
++	select ARCH_USE_QUEUED_SPINLOCKS
++	select ARCH_USE_QUEUED_RWLOCKS
+ 
+ config CPU_BIG_ENDIAN
+ 	def_bool y
+diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
+index 5bea416a7792..5f066780d870 100644
+--- a/arch/openrisc/include/asm/Kbuild
++++ b/arch/openrisc/include/asm/Kbuild
+@@ -28,6 +28,10 @@ generic-y += module.h
+ generic-y += pci.h
+ generic-y += percpu.h
+ generic-y += preempt.h
++generic-y += qspinlock_types.h
++generic-y += qspinlock.h
++generic-y += qrwlock_types.h
++generic-y += qrwlock.h
+ generic-y += sections.h
+ generic-y += segment.h
+ generic-y += string.h
+diff --git a/arch/openrisc/include/asm/spinlock.h b/arch/openrisc/include/asm/spinlock.h
+index fd00a3a24123..9b761e0e22c3 100644
+--- a/arch/openrisc/include/asm/spinlock.h
++++ b/arch/openrisc/include/asm/spinlock.h
+@@ -19,6 +19,16 @@
+ #ifndef __ASM_OPENRISC_SPINLOCK_H
+ #define __ASM_OPENRISC_SPINLOCK_H
+ 
+-#error "or32 doesn't do SMP yet"
++#include <asm/qspinlock.h>
++
++#include <asm/qrwlock.h>
++
++#define arch_read_lock_flags(lock, flags) arch_read_lock(lock)
++#define arch_write_lock_flags(lock, flags) arch_write_lock(lock)
++
++#define arch_spin_relax(lock)	cpu_relax()
++#define arch_read_relax(lock)	cpu_relax()
++#define arch_write_relax(lock)	cpu_relax()
++
+ 
+ #endif
+diff --git a/arch/openrisc/include/asm/spinlock_types.h b/arch/openrisc/include/asm/spinlock_types.h
 new file mode 100644
-index 000000000000..4950c794ecbb
+index 000000000000..7c6fb1208c88
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/openrisc/opencores/or1ksim.txt
-@@ -0,0 +1,39 @@
-+OpenRISC Generic SoC
-+====================
++++ b/arch/openrisc/include/asm/spinlock_types.h
+@@ -0,0 +1,7 @@
++#ifndef _ASM_OPENRISC_SPINLOCK_TYPES_H
++#define _ASM_OPENRISC_SPINLOCK_TYPES_H
 +
-+Boards and FPGA SoC's which support the OpenRISC standard platform.  The
-+platform essentially follows the conventions of the OpenRISC architecture
-+specification, however some aspects, such as the boot protocol have been defined
-+by the Linux port.
++#include <asm/qspinlock_types.h>
++#include <asm/qrwlock_types.h>
 +
-+Required properties
-+-------------------
-+ - compatible: Must include "opencores,or1ksim"
-+
-+CPU nodes:
-+----------
-+A "cpus" node is required.  Required properties:
-+ - #address-cells: Must be 1.
-+ - #size-cells: Must be 0.
-+A CPU sub-node is also required for at least CPU 0.  Since the topology may
-+be probed via CPS, it is not necessary to specify secondary CPUs.  Required
-+properties:
-+ - compatible: Must be "opencores,or1200-rtlsvn481".
-+ - reg: CPU number.
-+ - clock-frequency: The CPU clock frequency in Hz.
-+Example:
-+	cpus {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		cpu at 0 {
-+			compatible = "opencores,or1200-rtlsvn481";
-+			reg = <0>;
-+			clock-frequency = <20000000>;
-+		};
-+	};
-+
-+
-+Boot protocol
-+-------------
-+The bootloader may pass the following arguments to the kernel:
-+ - r3:  address of a flattened device-tree blob or 0x0.
-diff --git a/MAINTAINERS b/MAINTAINERS
-index a57d13cb414d..71e4f6762196 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -10008,6 +10008,7 @@ T:	git git://github.com/openrisc/linux.git
- L:	openrisc at lists.librecores.org
- W:	http://openrisc.io
- S:	Maintained
-+F;	Documentation/devicetree/bindings/openrisc/
- F:	Documentation/openrisc/
- F:	arch/openrisc/
- F:	drivers/irqchip/irq-or1k-*
++#endif /* _ASM_OPENRISC_SPINLOCK_TYPES_H */
 -- 
 2.13.6
 
