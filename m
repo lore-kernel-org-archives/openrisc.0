@@ -1,183 +1,408 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 22 Oct 2017 12:15:57 +0900
-Subject: [OpenRISC] [PATCH v3 10/13] openrisc: add simple_smp dts and
-	defconfig for simulators
+Date: Sun, 22 Oct 2017 12:15:58 +0900
+Subject: [OpenRISC] [PATCH v3 11/13] openrisc: support framepointers and
+	STACKTRACE_SUPPORT
 In-Reply-To: <20171022031600.29612-1-shorne@gmail.com>
 References: <20171022031600.29612-1-shorne@gmail.com>
-Message-ID: <20171022031600.29612-11-shorne@gmail.com>
+Message-ID: <20171022031600.29612-12-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+For lockdep support a reliable stack trace mechanism is needed.  This
+patch adds support in OpenRISC for the stacktrace framework, implemented
+by a simple unwinder api.  The unwinder api supports both framepointer
+and basic stack tracing.
 
-Simple enough to be compatible with simulation environments,
-such as verilated systems, QEMU and other targets supporting OpenRISC
-SMP.  This also supports our base FPGA SoC's if the cpu frequency is
-upped to 50Mhz.
+The unwinder is now used to replace the stack_dump() implementation as
+well. The new traces are inline with other architectures trace format:
 
-Signed-off-by: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-[shorne at gmail.com: Added defconfig]
+ Call trace:
+ [<c0004448>] show_stack+0x3c/0x58
+ [<c031c940>] dump_stack+0xa8/0xe4
+ [<c0008104>] __cpu_up+0x64/0x130
+ [<c000d268>] bringup_cpu+0x3c/0x178
+ [<c000d038>] cpuhp_invoke_callback+0xa8/0x1fc
+ [<c000d680>] cpuhp_up_callbacks+0x44/0x14c
+ [<c000e400>] cpu_up+0x14c/0x1bc
+ [<c041da60>] smp_init+0x104/0x15c
+ [<c033843c>] ? kernel_init+0x0/0x140
+ [<c0415e04>] kernel_init_freeable+0xbc/0x25c
+ [<c033843c>] ? kernel_init+0x0/0x140
+ [<c0338458>] kernel_init+0x1c/0x140
+ [<c003a174>] ? schedule_tail+0x18/0xa0
+ [<c0006b80>] ret_from_fork+0x1c/0x9c
+
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
+ arch/openrisc/Kconfig                |   4 ++
+ arch/openrisc/include/asm/unwinder.h |  20 +++++++
+ arch/openrisc/kernel/Makefile        |   3 +-
+ arch/openrisc/kernel/stacktrace.c    |  86 ++++++++++++++++++++++++++++
+ arch/openrisc/kernel/traps.c         |  54 +++---------------
+ arch/openrisc/kernel/unwinder.c      | 105 +++++++++++++++++++++++++++++++++++
+ 6 files changed, 224 insertions(+), 48 deletions(-)
+ create mode 100644 arch/openrisc/include/asm/unwinder.h
+ create mode 100644 arch/openrisc/kernel/stacktrace.c
+ create mode 100644 arch/openrisc/kernel/unwinder.c
 
-Changes since v2
- - Fix stdout-path
-
-Changes since v1
- - Use openrisc, prefix for ompic
- - Add stdout-path
- - Remove @interrupt cells
-
- arch/openrisc/boot/dts/simple_smp.dts      | 63 ++++++++++++++++++++++++++++
- arch/openrisc/configs/simple_smp_defconfig | 66 ++++++++++++++++++++++++++++++
- 2 files changed, 129 insertions(+)
- create mode 100644 arch/openrisc/boot/dts/simple_smp.dts
- create mode 100644 arch/openrisc/configs/simple_smp_defconfig
-
-diff --git a/arch/openrisc/boot/dts/simple_smp.dts b/arch/openrisc/boot/dts/simple_smp.dts
+diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+index bfff04ae7f7d..399f55e82dcb 100644
+--- a/arch/openrisc/Kconfig
++++ b/arch/openrisc/Kconfig
+@@ -33,6 +33,7 @@ config OPENRISC
+ 	select ARCH_USE_QUEUED_SPINLOCKS
+ 	select ARCH_USE_QUEUED_RWLOCKS
+ 	select OMPIC if SMP
++	select ARCH_WANT_FRAME_POINTERS
+ 
+ config CPU_BIG_ENDIAN
+ 	def_bool y
+@@ -60,6 +61,9 @@ config TRACE_IRQFLAGS_SUPPORT
+ config GENERIC_CSUM
+         def_bool y
+ 
++config STACKTRACE_SUPPORT
++	def_bool y
++
+ source "init/Kconfig"
+ 
+ source "kernel/Kconfig.freezer"
+diff --git a/arch/openrisc/include/asm/unwinder.h b/arch/openrisc/include/asm/unwinder.h
 new file mode 100644
-index 000000000000..defbb92714ec
+index 000000000000..165ec6f02ab8
 --- /dev/null
-+++ b/arch/openrisc/boot/dts/simple_smp.dts
-@@ -0,0 +1,63 @@
-+/dts-v1/;
-+/ {
-+	compatible = "opencores,or1ksim";
-+	#address-cells = <1>;
-+	#size-cells = <1>;
-+	interrupt-parent = <&pic>;
++++ b/arch/openrisc/include/asm/unwinder.h
+@@ -0,0 +1,20 @@
++/*
++ * OpenRISC unwinder.h
++ *
++ * Architecture API for unwinding stacks.
++ *
++ * Copyright (C) 2017 Stafford Horne <shorne@gmail.com>
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
 +
-+	aliases {
-+		uart0 = &serial0;
-+	};
++#ifndef __ASM_OPENRISC_UNWINDER_H
++#define __ASM_OPENRISC_UNWINDER_H
 +
-+	chosen {
-+		bootargs = "earlycon";
-+		stdout-path = "uart0:115200";
-+	};
++void unwind_stack(void *data, unsigned long *stack,
++		  void (*trace)(void *data, unsigned long addr,
++				int reliable));
 +
-+	memory at 0 {
-+		device_type = "memory";
-+		reg = <0x00000000 0x02000000>;
-+	};
++#endif /* __ASM_OPENRISC_UNWINDER_H */
+diff --git a/arch/openrisc/kernel/Makefile b/arch/openrisc/kernel/Makefile
+index 7d94643c878d..b4b51a07016a 100644
+--- a/arch/openrisc/kernel/Makefile
++++ b/arch/openrisc/kernel/Makefile
+@@ -6,9 +6,10 @@ extra-y	:= head.o vmlinux.lds
+ 
+ obj-y	:= setup.o or32_ksyms.o process.o dma.o \
+ 	   traps.o time.o irq.o entry.o ptrace.o signal.o \
+-	   sys_call_table.o
++	   sys_call_table.o unwinder.o
+ 
+ obj-$(CONFIG_SMP)		+= smp.o
++obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
+ obj-$(CONFIG_MODULES)		+= module.o
+ obj-$(CONFIG_OF)		+= prom.o
+ 
+diff --git a/arch/openrisc/kernel/stacktrace.c b/arch/openrisc/kernel/stacktrace.c
+new file mode 100644
+index 000000000000..43f140a28bc7
+--- /dev/null
++++ b/arch/openrisc/kernel/stacktrace.c
+@@ -0,0 +1,86 @@
++/*
++ * Stack trace utility for OpenRISC
++ *
++ * Copyright (C) 2017 Stafford Horne <shorne@gmail.com>
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ *
++ * Losely based on work from sh and powerpc.
++ */
 +
-+	cpus {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		cpu at 0 {
-+			compatible = "opencores,or1200-rtlsvn481";
-+			reg = <0>;
-+			clock-frequency = <20000000>;
-+		};
-+		cpu at 1 {
-+			compatible = "opencores,or1200-rtlsvn481";
-+			reg = <1>;
-+			clock-frequency = <20000000>;
-+		};
-+	};
++#include <linux/export.h>
++#include <linux/sched.h>
++#include <linux/sched/debug.h>
++#include <linux/stacktrace.h>
 +
-+	ompic: ompic at 98000000 {
-+		compatible = "openrisc,ompic";
-+		reg = <0x98000000 16>;
-+		interrupt-controller;
-+		#interrupt-cells = <0>;
-+		interrupts = <1>;
-+	};
++#include <asm/processor.h>
++#include <asm/unwinder.h>
 +
-+	/*
-+	 * OR1K PIC is built into CPU and accessed via special purpose
-+	 * registers.  It is not addressable and, hence, has no 'reg'
-+	 * property.
-+	 */
-+	pic: pic {
-+		compatible = "opencores,or1k-pic-level";
-+		#interrupt-cells = <1>;
-+		interrupt-controller;
-+	};
++/*
++ * Save stack-backtrace addresses into a stack_trace buffer.
++ */
++static void
++save_stack_address(void *data, unsigned long addr, int reliable)
++{
++	struct stack_trace *trace = data;
 +
-+	serial0: serial at 90000000 {
-+		compatible = "opencores,uart16550-rtlsvn105", "ns16550a";
-+		reg = <0x90000000 0x100>;
-+		interrupts = <2>;
-+		clock-frequency = <20000000>;
-+	};
++	if (!reliable)
++		return;
 +
++	if (trace->skip > 0) {
++		trace->skip--;
++		return;
++	}
++
++	if (trace->nr_entries < trace->max_entries)
++		trace->entries[trace->nr_entries++] = addr;
++}
++
++void save_stack_trace(struct stack_trace *trace)
++{
++	unwind_stack(trace, (unsigned long *) &trace, save_stack_address);
++}
++EXPORT_SYMBOL_GPL(save_stack_trace);
++
++static void
++save_stack_address_nosched(void *data, unsigned long addr, int reliable)
++{
++	struct stack_trace *trace = (struct stack_trace *)data;
++
++	if (!reliable)
++		return;
++
++	if (in_sched_functions(addr))
++		return;
++
++	if (trace->skip > 0) {
++		trace->skip--;
++		return;
++	}
++
++	if (trace->nr_entries < trace->max_entries)
++		trace->entries[trace->nr_entries++] = addr;
++}
++
++void save_stack_trace_tsk(struct task_struct *tsk, struct stack_trace *trace)
++{
++	unsigned long *sp = NULL;
++
++	if (tsk == current)
++		sp = (unsigned long *) &sp;
++	else
++		sp = (unsigned long *) KSTK_ESP(tsk);
++
++	unwind_stack(trace, sp, save_stack_address_nosched);
++}
++EXPORT_SYMBOL_GPL(save_stack_trace_tsk);
++
++void
++save_stack_trace_regs(struct pt_regs *regs, struct stack_trace *trace)
++{
++	unwind_stack(trace, (unsigned long *) regs->sp,
++		     save_stack_address_nosched);
++}
++EXPORT_SYMBOL_GPL(save_stack_trace_regs);
+diff --git a/arch/openrisc/kernel/traps.c b/arch/openrisc/kernel/traps.c
+index 803e9e756f77..4085d72fa5ae 100644
+--- a/arch/openrisc/kernel/traps.c
++++ b/arch/openrisc/kernel/traps.c
+@@ -38,6 +38,7 @@
+ #include <asm/segment.h>
+ #include <asm/io.h>
+ #include <asm/pgtable.h>
++#include <asm/unwinder.h>
+ 
+ extern char _etext, _stext;
+ 
+@@ -45,61 +46,20 @@ int kstack_depth_to_print = 0x180;
+ int lwa_flag;
+ unsigned long __user *lwa_addr;
+ 
+-static inline int valid_stack_ptr(struct thread_info *tinfo, void *p)
++void print_trace(void *data, unsigned long addr, int reliable)
+ {
+-	return p > (void *)tinfo && p < (void *)tinfo + THREAD_SIZE - 3;
+-}
+-
+-void show_trace(struct task_struct *task, unsigned long *stack)
+-{
+-	struct thread_info *context;
+-	unsigned long addr;
+-
+-	context = (struct thread_info *)
+-	    ((unsigned long)stack & (~(THREAD_SIZE - 1)));
+-
+-	while (valid_stack_ptr(context, stack)) {
+-		addr = *stack++;
+-		if (__kernel_text_address(addr)) {
+-			printk(" [<%08lx>]", addr);
+-			print_symbol(" %s", addr);
+-			printk("\n");
+-		}
+-	}
+-	printk(" =======================\n");
++	pr_emerg("[<%p>] %s%pS\n", (void *) addr, reliable ? "" : "? ",
++	       (void *) addr);
+ }
+ 
+ /* displays a short stack trace */
+ void show_stack(struct task_struct *task, unsigned long *esp)
+ {
+-	unsigned long addr, *stack;
+-	int i;
+-
+ 	if (esp == NULL)
+ 		esp = (unsigned long *)&esp;
+ 
+-	stack = esp;
+-
+-	printk("Stack dump [0x%08lx]:\n", (unsigned long)esp);
+-	for (i = 0; i < kstack_depth_to_print; i++) {
+-		if (kstack_end(stack))
+-			break;
+-		if (__get_user(addr, stack)) {
+-			/* This message matches "failing address" marked
+-			   s390 in ksymoops, so lines containing it will
+-			   not be filtered out by ksymoops.  */
+-			printk("Failing address 0x%lx\n", (unsigned long)stack);
+-			break;
+-		}
+-		stack++;
+-
+-		printk("sp + %02d: 0x%08lx\n", i * 4, addr);
+-	}
+-	printk("\n");
+-
+-	show_trace(task, esp);
+-
+-	return;
++	pr_emerg("Call trace:\n");
++	unwind_stack(NULL, esp, print_trace);
+ }
+ 
+ void show_trace_task(struct task_struct *tsk)
+@@ -115,7 +75,7 @@ void show_registers(struct pt_regs *regs)
+ 	int in_kernel = 1;
+ 	unsigned long esp;
+ 
+-	esp = (unsigned long)(&regs->sp);
++	esp = (unsigned long)(regs->sp);
+ 	if (user_mode(regs))
+ 		in_kernel = 0;
+ 
+diff --git a/arch/openrisc/kernel/unwinder.c b/arch/openrisc/kernel/unwinder.c
+new file mode 100644
+index 000000000000..8ae15c2c1845
+--- /dev/null
++++ b/arch/openrisc/kernel/unwinder.c
+@@ -0,0 +1,105 @@
++/*
++ * OpenRISC unwinder.c
++ *
++ * Reusable arch specific api for unwinding stacks.
++ *
++ * Copyright (C) 2017 Stafford Horne <shorne@gmail.com>
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++#include <linux/sched/task_stack.h>
++#include <linux/kernel.h>
++
++#include <asm/unwinder.h>
++
++#ifdef CONFIG_FRAME_POINTER
++struct or1k_frameinfo {
++	unsigned long *fp;
++	unsigned long ra;
++	unsigned long top;
 +};
-diff --git a/arch/openrisc/configs/simple_smp_defconfig b/arch/openrisc/configs/simple_smp_defconfig
-new file mode 100644
-index 000000000000..b6e3c7e158e7
---- /dev/null
-+++ b/arch/openrisc/configs/simple_smp_defconfig
-@@ -0,0 +1,66 @@
-+CONFIG_CROSS_COMPILE="or1k-linux-"
-+CONFIG_LOCALVERSION="-simple-smp"
-+CONFIG_NO_HZ=y
-+CONFIG_LOG_BUF_SHIFT=14
-+CONFIG_BLK_DEV_INITRD=y
-+# CONFIG_RD_GZIP is not set
-+# CONFIG_RD_BZIP2 is not set
-+# CONFIG_RD_LZMA is not set
-+# CONFIG_RD_XZ is not set
-+# CONFIG_RD_LZO is not set
-+# CONFIG_RD_LZ4 is not set
-+CONFIG_EXPERT=y
-+# CONFIG_KALLSYMS is not set
-+# CONFIG_EPOLL is not set
-+# CONFIG_TIMERFD is not set
-+# CONFIG_EVENTFD is not set
-+# CONFIG_AIO is not set
-+# CONFIG_VM_EVENT_COUNTERS is not set
-+# CONFIG_COMPAT_BRK is not set
-+CONFIG_SLOB=y
-+CONFIG_MODULES=y
-+# CONFIG_BLOCK is not set
-+CONFIG_OPENRISC_BUILTIN_DTB="simple_smp"
-+CONFIG_SMP=y
-+CONFIG_HZ_100=y
-+CONFIG_OPENRISC_HAVE_SHADOW_GPRS=y
-+CONFIG_NET=y
-+CONFIG_PACKET=y
-+CONFIG_UNIX=y
-+CONFIG_INET=y
-+# CONFIG_INET_XFRM_MODE_TRANSPORT is not set
-+# CONFIG_INET_XFRM_MODE_TUNNEL is not set
-+# CONFIG_INET_XFRM_MODE_BEET is not set
-+# CONFIG_INET_DIAG is not set
-+CONFIG_TCP_CONG_ADVANCED=y
-+# CONFIG_TCP_CONG_BIC is not set
-+# CONFIG_TCP_CONG_CUBIC is not set
-+# CONFIG_TCP_CONG_WESTWOOD is not set
-+# CONFIG_TCP_CONG_HTCP is not set
-+# CONFIG_IPV6 is not set
-+# CONFIG_WIRELESS is not set
-+CONFIG_DEVTMPFS=y
-+CONFIG_DEVTMPFS_MOUNT=y
-+# CONFIG_PREVENT_FIRMWARE_BUILD is not set
-+# CONFIG_FW_LOADER is not set
-+CONFIG_NETDEVICES=y
-+CONFIG_ETHOC=y
-+CONFIG_MICREL_PHY=y
-+# CONFIG_WLAN is not set
-+# CONFIG_INPUT is not set
-+# CONFIG_SERIO is not set
-+# CONFIG_VT is not set
-+# CONFIG_LEGACY_PTYS is not set
-+CONFIG_SERIAL_8250=y
-+CONFIG_SERIAL_8250_CONSOLE=y
-+CONFIG_SERIAL_OF_PLATFORM=y
-+# CONFIG_HW_RANDOM is not set
-+# CONFIG_HWMON is not set
-+# CONFIG_USB_SUPPORT is not set
-+# CONFIG_DNOTIFY is not set
-+CONFIG_TMPFS=y
-+CONFIG_NFS_FS=y
-+CONFIG_XZ_DEC=y
-+# CONFIG_ENABLE_WARN_DEPRECATED is not set
-+# CONFIG_ENABLE_MUST_CHECK is not set
-+# CONFIG_RCU_TRACE is not set
++
++/*
++ * Verify a frameinfo structure.  The return address should be a valid text
++ * address.  The frame pointer may be null if its the last frame, otherwise
++ * the frame pointer should point to a location in the stack after the the
++ * top of the next frame up.
++ */
++static inline int or1k_frameinfo_valid(struct or1k_frameinfo *frameinfo)
++{
++	return (frameinfo->fp == NULL ||
++		(!kstack_end(frameinfo->fp) &&
++		 frameinfo->fp > &frameinfo->top)) &&
++	       __kernel_text_address(frameinfo->ra);
++}
++
++/*
++ * Create a stack trace doing scanning which is frame pointer aware. We can
++ * get reliable stack traces by matching the previously found frame
++ * pointer with the top of the stack address every time we find a valid
++ * or1k_frameinfo.
++ *
++ * Ideally the stack parameter will be passed as FP, but it can not be
++ * guaranteed.  Therefore we scan each address looking for the first sign
++ * of a return address.
++ *
++ * The OpenRISC stack frame looks something like the following.  The
++ * location SP is held in r1 and location FP is held in r2 when frame pointers
++ * enabled.
++ *
++ * SP   -> (top of stack)
++ *      -  (callee saved registers)
++ *      -  (local variables)
++ * FP-8 -> previous FP             \
++ * FP-4 -> return address          |- or1k_frameinfo
++ * FP   -> (previous top of stack) /
++ */
++void unwind_stack(void *data, unsigned long *stack,
++		  void (*trace)(void *data, unsigned long addr, int reliable))
++{
++	unsigned long *next_fp = NULL;
++	struct or1k_frameinfo *frameinfo = NULL;
++	int reliable = 0;
++
++	while (!kstack_end(stack)) {
++		frameinfo = container_of(stack,
++					 struct or1k_frameinfo,
++					 top);
++
++		if (__kernel_text_address(frameinfo->ra)) {
++			if (or1k_frameinfo_valid(frameinfo) &&
++			    (next_fp == NULL ||
++			     next_fp == &frameinfo->top)) {
++				reliable = 1;
++				next_fp = frameinfo->fp;
++			} else
++				reliable = 0;
++
++			trace(data, frameinfo->ra, reliable);
++		}
++		stack++;
++	}
++}
++
++#else /* CONFIG_FRAME_POINTER */
++
++/*
++ * Create a stack trace by doing a simple scan treating all text addresses
++ * as return addresses.
++ */
++void unwind_stack(void *data, unsigned long *stack,
++		   void (*trace)(void *data, unsigned long addr, int reliable))
++{
++	unsigned long addr;
++
++	while (!kstack_end(stack)) {
++		addr = *stack++;
++		if (__kernel_text_address(addr))
++			trace(data, addr, 0);
++	}
++}
++#endif /* CONFIG_FRAME_POINTER */
++
 -- 
 2.13.6
 
