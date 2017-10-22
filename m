@@ -1,46 +1,36 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 22 Oct 2017 11:23:53 +0900
-Subject: [OpenRISC] [PATCH v2] openrisc: dts: or1ksim: Add stdout-path
-Message-ID: <20171022022353.27464-1-shorne@gmail.com>
+Date: Sun, 22 Oct 2017 11:46:38 +0900
+Subject: [OpenRISC] [PATCH 0/3] OpenRISC doc updates
+Message-ID: <20171022024641.28478-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-During reviews of the OpenRISC SMP patch series it was suggested to add
-stdout-path to the SMP dts file.  Add stdout-path to our other dts files
-to be a good example.
+Hello,
 
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
+This series moves OpenRISC documentation out of the arch/ folder and into the
+Documentation folder.  I have also done some updates the README to bring to
+better match the current state of OpenRISC.
 
-Changes since v1
- - Complete rewrite with input from Geert
+Also, this adds documentation to the openrisc,or1ksim device tree binding which
+was previously not documented.
 
- arch/openrisc/boot/dts/or1ksim.dts | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+Stafford Horne (3):
+  Documentation: Move OpenRISC docs out of arch/
+  Documentation: openrisc: Updates to README
+  openrisc: dts: Add OpenRISC platform SoC
 
-diff --git a/arch/openrisc/boot/dts/or1ksim.dts b/arch/openrisc/boot/dts/or1ksim.dts
-index 5d4f9027afaf..8f41bd8c9f84 100644
---- a/arch/openrisc/boot/dts/or1ksim.dts
-+++ b/arch/openrisc/boot/dts/or1ksim.dts
-@@ -5,8 +5,13 @@
- 	#size-cells = <1>;
- 	interrupt-parent = <&pic>;
- 
-+	aliases {
-+		uart0 = &serial0;
-+	};
-+
- 	chosen {
--		bootargs = "console=uart,mmio,0x90000000,115200";
-+		bootargs = "earlycon";
-+		stdout-path = "uart0:115200";
- 	};
- 
- 	memory at 0 {
+ .../bindings/openrisc/opencores/or1ksim.txt        | 39 +++++++++++++
+ .../openrisc/README                                | 65 +++++++++++++---------
+ .../TODO.openrisc => Documentation/openrisc/TODO   |  0
+ MAINTAINERS                                        |  2 +
+ 4 files changed, 79 insertions(+), 27 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/openrisc/opencores/or1ksim.txt
+ rename arch/openrisc/README.openrisc => Documentation/openrisc/README (56%)
+ rename arch/openrisc/TODO.openrisc => Documentation/openrisc/TODO (100%)
+
 -- 
 2.13.6
 
