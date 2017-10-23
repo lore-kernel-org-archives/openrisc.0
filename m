@@ -1,63 +1,41 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 23 Oct 2017 21:57:27 +0900
-Subject: [OpenRISC] [PATCH v3 05/13] irqchip: add initial support for
-	ompic
-In-Reply-To: <86d15egupi.fsf@arm.com>
-References: <20171022031600.29612-1-shorne@gmail.com>
- <20171022031600.29612-6-shorne@gmail.com> <86d15egupi.fsf@arm.com>
-Message-ID: <20171023125727.GG2694@lianli.shorne-pla.net>
+From: Olof Kindgren <olof.kindgren@gmail.com>
+Date: Mon, 23 Oct 2017 22:34:42 +0200
+Subject: [OpenRISC] OpenRISC Architecture 1.2
+In-Reply-To: <CAAfxs75dDE12CjPdBFiJ1XQcjBCUbMNgJPMTRxeif+OVH-ocZw@mail.gmail.com>
+References: <CAAfxs76Onjs6R1NE-pacON015KLTTDys9YYHJHDPDskL9_060w@mail.gmail.com>
+ <CAAfxs760Zb15z37170G23caHp___yXOykY7UvHfdJGud7f70xQ@mail.gmail.com>
+ <CAAfxs75dDE12CjPdBFiJ1XQcjBCUbMNgJPMTRxeif+OVH-ocZw@mail.gmail.com>
+Message-ID: <CAKaYPCMBJ-WTFtKzXrBDA4pKTygVHf7Wzr_n7-kVTFmUrYyPdw@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Oct 23, 2017 at 09:00:09AM +0100, Marc Zyngier wrote:
-> On Sun, Oct 22 2017 at 12:15:52 pm BST, Stafford Horne <shorne@gmail.com> wrote:
-> > From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-> >
+On Mon, Oct 23, 2017 at 3:58 AM, Stafford Horne <shorne@gmail.com> wrote:
 
-[...]
+> Hi All,
+>
+> We didn't have too many issues reported with the architecture proposal for
+> 1.2 so I went ahead and merged it.
+>
+> Please have a read and download the pdf for your reference.
+>
+> For details see:
+>   https://openrisc.io/2017/10/22/openrisc-arch1.2
+>
+> -Stafford
+>
+> _______________________________________________
+> OpenRISC mailing list
+> OpenRISC at lists.librecores.org
+> https://lists.librecores.org/listinfo/openrisc
+>
+>
+Well done! These are some well-needed additions and fixes.
 
-> > +
-> > +	ret = setup_irq(irq, &ompi_ipi_irqaction);
-> > +	if (ret)
-> > +		goto out_irq_disp;
-> 
-> Is there a particular reason why this cannot be turned request_irq()
-> call? setup_irq is something we try to avoid these days...
-
-No reason, its just an old patch and I didn't know we should be avoiding
-setup_irq().
-
-I have just removed ompic_ipi_irqaction and replaced setup_irq() with this:
-
-	ret = request_irq(irq, ompic_ipi_handler, IRQF_PERCPU,
-				"ompic_ipi", NULL);
-	if (ret)
-		goto out_irq_disp;
-
-I did some testing and it looks to be working fine.
-
-> > +
-> > +	set_smp_cross_call(ompic_raise_softirq);
-> > +
-> > +	return 0;
-> > +
-> > +out_irq_disp:
-> > +	irq_dispose_mapping(irq);
-> > +out_unmap:
-> > +	iounmap(ompic_base);
-> > +	ompic_base = NULL;
-> > +	return ret;
-> > +}
-> > +IRQCHIP_DECLARE(ompic, "openrisc,ompic", ompic_of_init);
-> 
-> Otherwise looks good to me.
-
-Thank You,
-
-I will send another V once I get a bit more feedback on the other parts of the
-series.
-
--Stafford
+Thanks,
+Olof
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20171023/82745153/attachment-0001.html>
