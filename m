@@ -1,64 +1,89 @@
-From: Rob Herring <robh@kernel.org>
-Date: Thu, 26 Oct 2017 22:19:50 -0500
-Subject: [OpenRISC] [PATCH v3 05/13] irqchip: add initial support for
-	ompic
-In-Reply-To: <20171022031600.29612-6-shorne@gmail.com>
-References: <20171022031600.29612-1-shorne@gmail.com>
- <20171022031600.29612-6-shorne@gmail.com>
-Message-ID: <20171027031950.wce52pj3eklsbwyj@rob-hp-laptop>
+From: Stafford Horne <shorne@gmail.com>
+Date: Mon, 30 Oct 2017 08:11:13 +0900
+Subject: [OpenRISC] [PATCH v4 03/13] openrisc: use qspinlocks and qrwlocks
+In-Reply-To: <20171029231123.27281-1-shorne@gmail.com>
+References: <20171029231123.27281-1-shorne@gmail.com>
+Message-ID: <20171029231123.27281-4-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sun, Oct 22, 2017 at 12:15:52PM +0900, Stafford Horne wrote:
-> From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-> 
-> IPI driver for the Open Multi-Processor Interrupt Controller (ompic) as
-> described in the Multi-core support section of the OpenRISC 1.2
-> proposed architecture specification:
-> 
->   https://github.com/stffrdhrn/doc/raw/arch-1.2-proposal/openrisc-arch-1.2-rev0.pdf
-> 
-> Each OpenRISC core contains a full interrupt controller which is used in
-> the SMP architecture for interrupt balancing.  This IPI device, the
-> ompic, is the only external device required for enabling SMP on
-> OpenRISC.
-> 
-> Pending ops are stored in a memory bit mask which can allow multiple
-> pending operations to be set and serviced at a time. This is mostly
-> borrowed from the alpha IPI implementation.
-> 
-> Cc: Marc Zyngier <marc.zyngier@arm.com>
-> Cc: Rob Herring <robh@kernel.org>
-> Signed-off-by: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-> [shorne at gmail.com: converted ops to bitmask, wrote commit message]
-> Signed-off-by: Stafford Horne <shorne@gmail.com>
-> ---
-> 
-> Changes since v2
->  - Fixed some issues with missing static
->  - Fixed spelling issue with multi-core
->  - Added back #interrupt-cells
-> 
-> Changes since v1
->  - Added openrisc, prefix
->  - Clarified 8 bytes per cpu
->  - Removed #interrupt-cells as this will not be an irq parent
->  - Changed ops to be percpu
->  - Added DTS and intialization failure validations
-> 
-> 
->  .../interrupt-controller/openrisc,ompic.txt        |  22 +++
+Enable OpenRISC to use qspinlocks and qrwlocks for upcoming SMP support.
 
-Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+ arch/openrisc/Kconfig                      |  2 ++
+ arch/openrisc/include/asm/Kbuild           |  4 ++++
+ arch/openrisc/include/asm/spinlock.h       | 12 +++++++++++-
+ arch/openrisc/include/asm/spinlock_types.h |  7 +++++++
+ 4 files changed, 24 insertions(+), 1 deletion(-)
+ create mode 100644 arch/openrisc/include/asm/spinlock_types.h
 
->  MAINTAINERS                                        |   1 +
->  arch/openrisc/Kconfig                              |   1 +
->  drivers/irqchip/Kconfig                            |   3 +
->  drivers/irqchip/Makefile                           |   1 +
->  drivers/irqchip/irq-ompic.c                        | 205 +++++++++++++++++++++
->  6 files changed, 233 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/interrupt-controller/openrisc,ompic.txt
->  create mode 100644 drivers/irqchip/irq-ompic.c
+diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+index 356dd67a86ea..b49acda5e8f4 100644
+--- a/arch/openrisc/Kconfig
++++ b/arch/openrisc/Kconfig
+@@ -28,6 +28,8 @@ config OPENRISC
+ 	select OR1K_PIC
+ 	select CPU_NO_EFFICIENT_FFS if !OPENRISC_HAVE_INST_FF1
+ 	select NO_BOOTMEM
++	select ARCH_USE_QUEUED_SPINLOCKS
++	select ARCH_USE_QUEUED_RWLOCKS
+ 
+ config CPU_BIG_ENDIAN
+ 	def_bool y
+diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
+index 5bea416a7792..5f066780d870 100644
+--- a/arch/openrisc/include/asm/Kbuild
++++ b/arch/openrisc/include/asm/Kbuild
+@@ -28,6 +28,10 @@ generic-y += module.h
+ generic-y += pci.h
+ generic-y += percpu.h
+ generic-y += preempt.h
++generic-y += qspinlock_types.h
++generic-y += qspinlock.h
++generic-y += qrwlock_types.h
++generic-y += qrwlock.h
+ generic-y += sections.h
+ generic-y += segment.h
+ generic-y += string.h
+diff --git a/arch/openrisc/include/asm/spinlock.h b/arch/openrisc/include/asm/spinlock.h
+index fd00a3a24123..9b761e0e22c3 100644
+--- a/arch/openrisc/include/asm/spinlock.h
++++ b/arch/openrisc/include/asm/spinlock.h
+@@ -19,6 +19,16 @@
+ #ifndef __ASM_OPENRISC_SPINLOCK_H
+ #define __ASM_OPENRISC_SPINLOCK_H
+ 
+-#error "or32 doesn't do SMP yet"
++#include <asm/qspinlock.h>
++
++#include <asm/qrwlock.h>
++
++#define arch_read_lock_flags(lock, flags) arch_read_lock(lock)
++#define arch_write_lock_flags(lock, flags) arch_write_lock(lock)
++
++#define arch_spin_relax(lock)	cpu_relax()
++#define arch_read_relax(lock)	cpu_relax()
++#define arch_write_relax(lock)	cpu_relax()
++
+ 
+ #endif
+diff --git a/arch/openrisc/include/asm/spinlock_types.h b/arch/openrisc/include/asm/spinlock_types.h
+new file mode 100644
+index 000000000000..7c6fb1208c88
+--- /dev/null
++++ b/arch/openrisc/include/asm/spinlock_types.h
+@@ -0,0 +1,7 @@
++#ifndef _ASM_OPENRISC_SPINLOCK_TYPES_H
++#define _ASM_OPENRISC_SPINLOCK_TYPES_H
++
++#include <asm/qspinlock_types.h>
++#include <asm/qrwlock_types.h>
++
++#endif /* _ASM_OPENRISC_SPINLOCK_TYPES_H */
+-- 
+2.13.6
+
