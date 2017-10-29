@@ -1,232 +1,222 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 30 Oct 2017 08:11:11 +0900
-Subject: [OpenRISC] [PATCH v4 01/13] openrisc: use shadow registers to save
-	regs on exception
+Date: Mon, 30 Oct 2017 08:11:12 +0900
+Subject: [OpenRISC] [PATCH v4 02/13] openrisc: add 1 and 2 byte cmpxchg
+	support
 In-Reply-To: <20171029231123.27281-1-shorne@gmail.com>
 References: <20171029231123.27281-1-shorne@gmail.com>
-Message-ID: <20171029231123.27281-2-shorne@gmail.com>
+Message-ID: <20171029231123.27281-3-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+OpenRISC only supports hardware instructions that perform 4 byte atomic
+operations.  For enabling qrwlocks for upcoming SMP support 1 and 2 byte
+implementations are needed.  To do this we leverage the 4 byte atomic
+operations and shift/mask the 1 and 2 byte areas as needed.
 
-Previously, the area between 0x0-0x100 have been used as a "scratch"
-memory area to temporarily store regs during exception entry. In a
-multi-core environment, this will not work.
+This heavily borrows ideas and routines from sh and mips, which do
+something similar.
 
-This change is to use shadow registers for nested context.
-
-Currently only the "critical" temp load/stores are covered, the
-EMERGENCY_PRINT ones are left as is (when they are used, it's game over
-anyway), they need to be handled as well in the future.
-
-Signed-off-by: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Cc: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
+ arch/openrisc/include/asm/cmpxchg.h | 147 ++++++++++++++++++++++++++++--------
+ 1 file changed, 115 insertions(+), 32 deletions(-)
 
-Changes since v2
- - None
-
-Changes since v1
- - Added SMP checks in Kconfig
-
- arch/openrisc/Kconfig       | 11 ++++++
- arch/openrisc/kernel/head.S | 95 ++++++++++++++++++++++++++++++++-------------
- 2 files changed, 80 insertions(+), 26 deletions(-)
-
-diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index a0f2e4a323c1..356dd67a86ea 100644
---- a/arch/openrisc/Kconfig
-+++ b/arch/openrisc/Kconfig
-@@ -124,6 +124,17 @@ config OPENRISC_NO_SPR_SR_DSX
- 	  Say N here if you know that your OpenRISC processor has
- 	  SPR_SR_DSX bit implemented. Say Y if you are unsure.
- 
-+config OPENRISC_HAVE_SHADOW_GPRS
-+	bool "Support for shadow gpr files" if !SMP
-+	default y if SMP
-+	help
-+	  Say Y here if your OpenRISC processor features shadowed
-+	  register files. They will in such case be used as a
-+	  scratch reg storage on exception entry.
-+
-+	  On SMP systems, this feature is mandatory.
-+	  On a unicore system it's safe to say N here if you are unsure.
-+
- config CMDLINE
-         string "Default kernel command string"
-         default ""
-diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
-index 1e87913576e3..1e49895408f4 100644
---- a/arch/openrisc/kernel/head.S
-+++ b/arch/openrisc/kernel/head.S
-@@ -49,9 +49,31 @@
- 
- /* ============================================[ tmp store locations ]=== */
- 
-+#define SPR_SHADOW_GPR(x)	((x) + SPR_GPR_BASE + 32)
-+
+diff --git a/arch/openrisc/include/asm/cmpxchg.h b/arch/openrisc/include/asm/cmpxchg.h
+index f0a5d8b844d6..d29f7db53906 100644
+--- a/arch/openrisc/include/asm/cmpxchg.h
++++ b/arch/openrisc/include/asm/cmpxchg.h
+@@ -1,32 +1,29 @@
  /*
-  * emergency_print temporary stores
-  */
-+#ifdef CONFIG_OPENRISC_HAVE_SHADOW_GPRS
-+#define EMERGENCY_PRINT_STORE_GPR4	l.mtspr r0,r4,SPR_SHADOW_GPR(14)
-+#define EMERGENCY_PRINT_LOAD_GPR4	l.mfspr r4,r0,SPR_SHADOW_GPR(14)
-+
-+#define EMERGENCY_PRINT_STORE_GPR5	l.mtspr r0,r5,SPR_SHADOW_GPR(15)
-+#define EMERGENCY_PRINT_LOAD_GPR5	l.mfspr r5,r0,SPR_SHADOW_GPR(15)
-+
-+#define EMERGENCY_PRINT_STORE_GPR6	l.mtspr r0,r6,SPR_SHADOW_GPR(16)
-+#define EMERGENCY_PRINT_LOAD_GPR6	l.mfspr r6,r0,SPR_SHADOW_GPR(16)
-+
-+#define EMERGENCY_PRINT_STORE_GPR7	l.mtspr r0,r7,SPR_SHADOW_GPR(7)
-+#define EMERGENCY_PRINT_LOAD_GPR7	l.mfspr r7,r0,SPR_SHADOW_GPR(7)
-+
-+#define EMERGENCY_PRINT_STORE_GPR8	l.mtspr r0,r8,SPR_SHADOW_GPR(8)
-+#define EMERGENCY_PRINT_LOAD_GPR8	l.mfspr r8,r0,SPR_SHADOW_GPR(8)
-+
-+#define EMERGENCY_PRINT_STORE_GPR9	l.mtspr r0,r9,SPR_SHADOW_GPR(9)
-+#define EMERGENCY_PRINT_LOAD_GPR9	l.mfspr r9,r0,SPR_SHADOW_GPR(9)
-+
-+#else /* !CONFIG_OPENRISC_HAVE_SHADOW_GPRS */
- #define EMERGENCY_PRINT_STORE_GPR4	l.sw    0x20(r0),r4
- #define EMERGENCY_PRINT_LOAD_GPR4	l.lwz   r4,0x20(r0)
- 
-@@ -70,13 +92,28 @@
- #define EMERGENCY_PRINT_STORE_GPR9	l.sw    0x34(r0),r9
- #define EMERGENCY_PRINT_LOAD_GPR9	l.lwz   r9,0x34(r0)
- 
-+#endif
- 
- /*
-  * TLB miss handlers temorary stores
-  */
--#define EXCEPTION_STORE_GPR9		l.sw    0x10(r0),r9
--#define EXCEPTION_LOAD_GPR9		l.lwz   r9,0x10(r0)
-+#ifdef CONFIG_OPENRISC_HAVE_SHADOW_GPRS
-+#define EXCEPTION_STORE_GPR2		l.mtspr r0,r2,SPR_SHADOW_GPR(2)
-+#define EXCEPTION_LOAD_GPR2		l.mfspr r2,r0,SPR_SHADOW_GPR(2)
-+
-+#define EXCEPTION_STORE_GPR3		l.mtspr r0,r3,SPR_SHADOW_GPR(3)
-+#define EXCEPTION_LOAD_GPR3		l.mfspr r3,r0,SPR_SHADOW_GPR(3)
- 
-+#define EXCEPTION_STORE_GPR4		l.mtspr r0,r4,SPR_SHADOW_GPR(4)
-+#define EXCEPTION_LOAD_GPR4		l.mfspr r4,r0,SPR_SHADOW_GPR(4)
-+
-+#define EXCEPTION_STORE_GPR5		l.mtspr r0,r5,SPR_SHADOW_GPR(5)
-+#define EXCEPTION_LOAD_GPR5		l.mfspr r5,r0,SPR_SHADOW_GPR(5)
-+
-+#define EXCEPTION_STORE_GPR6		l.mtspr r0,r6,SPR_SHADOW_GPR(6)
-+#define EXCEPTION_LOAD_GPR6		l.mfspr r6,r0,SPR_SHADOW_GPR(6)
-+
-+#else /* !CONFIG_OPENRISC_HAVE_SHADOW_GPRS */
- #define EXCEPTION_STORE_GPR2		l.sw    0x64(r0),r2
- #define EXCEPTION_LOAD_GPR2		l.lwz   r2,0x64(r0)
- 
-@@ -92,26 +129,32 @@
- #define EXCEPTION_STORE_GPR6		l.sw    0x74(r0),r6
- #define EXCEPTION_LOAD_GPR6		l.lwz   r6,0x74(r0)
- 
-+#endif
- 
- /*
-  * EXCEPTION_HANDLE temporary stores
++ * 1,2 and 4 byte cmpxchg and xchg implementations for OpenRISC.
++ *
+  * Copyright (C) 2014 Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
++ * Copyright (C) 2017 Stafford Horne <shorne@gmail.com>
+  *
+  * This file is licensed under the terms of the GNU General Public License
+  * version 2.  This program is licensed "as is" without any warranty of any
+  * kind, whether express or implied.
++ *
++ * Note:
++ * The portable implementations of 1 and 2 byte xchg and cmpxchg using a 4
++ * byte cmpxchg is sourced heavily from the sh and mips implementations.
   */
  
-+#ifdef CONFIG_OPENRISC_HAVE_SHADOW_GPRS
-+#define EXCEPTION_T_STORE_GPR30		l.mtspr r0,r30,SPR_SHADOW_GPR(30)
-+#define EXCEPTION_T_LOAD_GPR30(reg)	l.mfspr reg,r0,SPR_SHADOW_GPR(30)
-+
-+#define EXCEPTION_T_STORE_GPR10		l.mtspr r0,r10,SPR_SHADOW_GPR(10)
-+#define EXCEPTION_T_LOAD_GPR10(reg)	l.mfspr reg,r0,SPR_SHADOW_GPR(10)
-+
-+#define EXCEPTION_T_STORE_SP		l.mtspr r0,r1,SPR_SHADOW_GPR(1)
-+#define EXCEPTION_T_LOAD_SP(reg)	l.mfspr reg,r0,SPR_SHADOW_GPR(1)
-+
-+#else /* !CONFIG_OPENRISC_HAVE_SHADOW_GPRS */
- #define EXCEPTION_T_STORE_GPR30		l.sw    0x78(r0),r30
- #define EXCEPTION_T_LOAD_GPR30(reg)	l.lwz   reg,0x78(r0)
+ #ifndef __ASM_OPENRISC_CMPXCHG_H
+ #define __ASM_OPENRISC_CMPXCHG_H
  
- #define EXCEPTION_T_STORE_GPR10		l.sw    0x7c(r0),r10
- #define EXCEPTION_T_LOAD_GPR10(reg)	l.lwz   reg,0x7c(r0)
- 
--#define EXCEPTION_T_STORE_SP		l.sw	0x80(r0),r1
-+#define EXCEPTION_T_STORE_SP		l.sw    0x80(r0),r1
- #define EXCEPTION_T_LOAD_SP(reg)	l.lwz   reg,0x80(r0)
+ #include  <linux/types.h>
 -
 -/*
-- * For UNHANLDED_EXCEPTION
+- * This function doesn't exist, so you'll get a linker error
+- * if something tries to do an invalid cmpxchg().
 - */
+-extern void __cmpxchg_called_with_bad_pointer(void);
++#include  <linux/bitops.h>
+ 
+ #define __HAVE_ARCH_CMPXCHG 1
+ 
+-static inline unsigned long
+-__cmpxchg(volatile void *ptr, unsigned long old, unsigned long new, int size)
++static inline unsigned long cmpxchg_u32(volatile void *ptr,
++		unsigned long old, unsigned long new)
+ {
+-	if (size != 4) {
+-		__cmpxchg_called_with_bad_pointer();
+-		return old;
+-	}
 -
--#define EXCEPTION_T_STORE_GPR31		l.sw    0x84(r0),r31
--#define EXCEPTION_T_LOAD_GPR31(reg)	l.lwz   reg,0x84(r0)
+ 	__asm__ __volatile__(
+ 		"1:	l.lwa %0, 0(%1)		\n"
+ 		"	l.sfeq %0, %2		\n"
+@@ -43,6 +40,97 @@ __cmpxchg(volatile void *ptr, unsigned long old, unsigned long new, int size)
+ 	return old;
+ }
+ 
++static inline unsigned long xchg_u32(volatile void *ptr,
++		unsigned long val)
++{
++	__asm__ __volatile__(
++		"1:	l.lwa %0, 0(%1)		\n"
++		"	l.swa 0(%1), %2		\n"
++		"	l.bnf 1b		\n"
++		"	 l.nop			\n"
++		: "=&r"(val)
++		: "r"(ptr), "r"(val)
++		: "cc", "memory");
++
++	return val;
++}
++
++static inline u32 cmpxchg_small(volatile void *ptr, u32 old, u32 new,
++				int size)
++{
++	int off = (unsigned long)ptr % sizeof(u32);
++	volatile u32 *p = ptr - off;
++#ifdef __BIG_ENDIAN
++	int bitoff = (sizeof(u32) - size - off) * BITS_PER_BYTE;
++#else
++	int bitoff = off * BITS_PER_BYTE;
 +#endif
- 
- /* =========================================================[ macros ]=== */
- 
-@@ -226,7 +269,7 @@
-  *
++	u32 bitmask = ((0x1 << size * BITS_PER_BYTE) - 1) << bitoff;
++	u32 load32, old32, new32;
++	u32 ret;
++
++	load32 = READ_ONCE(*p);
++
++	while (true) {
++		ret = (load32 & bitmask) >> bitoff;
++		if (old != ret)
++			return ret;
++
++		old32 = (load32 & ~bitmask) | (old << bitoff);
++		new32 = (load32 & ~bitmask) | (new << bitoff);
++
++		/* Do 32 bit cmpxchg */
++		load32 = cmpxchg_u32(p, old32, new32);
++		if (load32 == old32)
++			return old;
++	}
++}
++
++/* xchg */
++
++static inline u32 xchg_small(volatile void *ptr, u32 x, int size)
++{
++	int off = (unsigned long)ptr % sizeof(u32);
++	volatile u32 *p = ptr - off;
++#ifdef __BIG_ENDIAN
++	int bitoff = (sizeof(u32) - size - off) * BITS_PER_BYTE;
++#else
++	int bitoff = off * BITS_PER_BYTE;
++#endif
++	u32 bitmask = ((0x1 << size * BITS_PER_BYTE) - 1) << bitoff;
++	u32 oldv, newv;
++	u32 ret;
++
++	do {
++		oldv = READ_ONCE(*p);
++		ret = (oldv & bitmask) >> bitoff;
++		newv = (oldv & ~bitmask) | (x << bitoff);
++	} while (cmpxchg_u32(p, oldv, newv) != oldv);
++
++	return ret;
++}
++
++/*
++ * This function doesn't exist, so you'll get a linker error
++ * if something tries to do an invalid cmpxchg().
++ */
++extern unsigned long __cmpxchg_called_with_bad_pointer(void)
++	__compiletime_error("Bad argument size for cmpxchg");
++
++static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
++		unsigned long new, int size)
++{
++	switch (size) {
++	case 1:
++	case 2:
++		return cmpxchg_small(ptr, old, new, size);
++	case 4:
++		return cmpxchg_u32(ptr, old, new);
++	default:
++		return __cmpxchg_called_with_bad_pointer();
++	}
++}
++
+ #define cmpxchg(ptr, o, n)						\
+ 	({								\
+ 		(__typeof__(*(ptr))) __cmpxchg((ptr),			\
+@@ -55,32 +143,27 @@ __cmpxchg(volatile void *ptr, unsigned long old, unsigned long new, int size)
+  * This function doesn't exist, so you'll get a linker error if
+  * something tries to do an invalidly-sized xchg().
   */
- #define UNHANDLED_EXCEPTION(handler)				\
--	EXCEPTION_T_STORE_GPR31					;\
-+	EXCEPTION_T_STORE_GPR30					;\
- 	EXCEPTION_T_STORE_GPR10					;\
- 	EXCEPTION_T_STORE_SP					;\
- 	/* temporary store r3, r9 into r1, r10 */		;\
-@@ -255,35 +298,35 @@
- 	/* r1: KSP, r10: current, r31: __pa(KSP) */		;\
- 	/* r12:	temp, syscall indicator, r13 temp */		;\
- 	l.addi  r1,r1,-(INT_FRAME_SIZE)				;\
--	/* r1 is KSP, r31 is __pa(KSP) */			;\
--	tophys  (r31,r1)					;\
--	l.sw    PT_GPR12(r31),r12					;\
-+	/* r1 is KSP, r30 is __pa(KSP) */			;\
-+	tophys  (r30,r1)					;\
-+	l.sw    PT_GPR12(r30),r12					;\
- 	l.mfspr r12,r0,SPR_EPCR_BASE				;\
--	l.sw    PT_PC(r31),r12					;\
-+	l.sw    PT_PC(r30),r12					;\
- 	l.mfspr r12,r0,SPR_ESR_BASE				;\
--	l.sw    PT_SR(r31),r12					;\
-+	l.sw    PT_SR(r30),r12					;\
- 	/* save r31 */						;\
--	EXCEPTION_T_LOAD_GPR31(r12)				;\
--	l.sw	PT_GPR31(r31),r12					;\
-+	EXCEPTION_T_LOAD_GPR30(r12)				;\
-+	l.sw	PT_GPR30(r30),r12					;\
- 	/* save r10 as was prior to exception */		;\
- 	EXCEPTION_T_LOAD_GPR10(r12)				;\
--	l.sw	PT_GPR10(r31),r12					;\
-+	l.sw	PT_GPR10(r30),r12					;\
- 	/* save PT_SP as was prior to exception */			;\
- 	EXCEPTION_T_LOAD_SP(r12)				;\
--	l.sw	PT_SP(r31),r12					;\
--	l.sw    PT_GPR13(r31),r13					;\
-+	l.sw	PT_SP(r30),r12					;\
-+	l.sw    PT_GPR13(r30),r13					;\
- 	/* --> */						;\
- 	/* save exception r4, set r4 = EA */			;\
--	l.sw	PT_GPR4(r31),r4					;\
-+	l.sw	PT_GPR4(r30),r4					;\
- 	l.mfspr r4,r0,SPR_EEAR_BASE				;\
- 	/* r12 == 1 if we come from syscall */			;\
- 	CLEAR_GPR(r12)						;\
- 	/* ----- play a MMU trick ----- */			;\
--	l.ori	r31,r0,(EXCEPTION_SR)				;\
--	l.mtspr	r0,r31,SPR_ESR_BASE				;\
-+	l.ori	r30,r0,(EXCEPTION_SR)				;\
-+	l.mtspr	r0,r30,SPR_ESR_BASE				;\
- 	/* r31:	EA address of handler */			;\
--	LOAD_SYMBOL_2_GPR(r31,handler)				;\
--	l.mtspr r0,r31,SPR_EPCR_BASE				;\
-+	LOAD_SYMBOL_2_GPR(r30,handler)				;\
-+	l.mtspr r0,r30,SPR_EPCR_BASE				;\
- 	l.rfe
+-extern void __xchg_called_with_bad_pointer(void);
++extern unsigned long __xchg_called_with_bad_pointer(void)
++	__compiletime_error("Bad argument size for xchg");
  
- /* =====================================================[ exceptions] === */
+-static inline unsigned long __xchg(unsigned long val, volatile void *ptr,
+-				   int size)
++static inline unsigned long __xchg(volatile void *ptr, unsigned long with,
++		int size)
+ {
+-	if (size != 4) {
+-		__xchg_called_with_bad_pointer();
+-		return val;
++	switch (size) {
++	case 1:
++	case 2:
++		return xchg_small(ptr, with, size);
++	case 4:
++		return xchg_u32(ptr, with);
++	default:
++		return __xchg_called_with_bad_pointer();
+ 	}
+-
+-	__asm__ __volatile__(
+-		"1:	l.lwa %0, 0(%1)		\n"
+-		"	l.swa 0(%1), %2		\n"
+-		"	l.bnf 1b		\n"
+-		"	 l.nop			\n"
+-		: "=&r"(val)
+-		: "r"(ptr), "r"(val)
+-		: "cc", "memory");
+-
+-	return val;
+ }
+ 
+ #define xchg(ptr, with) 						\
+ 	({								\
+-		(__typeof__(*(ptr))) __xchg((unsigned long)(with),	\
+-					    (ptr),			\
++		(__typeof__(*(ptr))) __xchg((ptr),			\
++					    (unsigned long)(with),	\
+ 					    sizeof(*(ptr)));		\
+ 	})
+ 
 -- 
 2.13.6
 
