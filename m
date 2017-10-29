@@ -1,142 +1,186 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 30 Oct 2017 08:11:18 +0900
-Subject: [OpenRISC] [PATCH v4 08/13] openrisc: sleep instead of spin on
-	secondary wait
+Date: Mon, 30 Oct 2017 08:11:20 +0900
+Subject: [OpenRISC] [PATCH v4 10/13] openrisc: add simple_smp dts and
+	defconfig for simulators
 In-Reply-To: <20171029231123.27281-1-shorne@gmail.com>
 References: <20171029231123.27281-1-shorne@gmail.com>
-Message-ID: <20171029231123.27281-9-shorne@gmail.com>
+Message-ID: <20171029231123.27281-11-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Currently we do a spin on secondary cpus when waiting to boot.  This
-theoretically causes issues with power consumption and does cause issues
-with qemu cycle burning (it starves cpu 0 from actually being able to
-boot.)
+From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
 
-This change puts each secondary cpu to sleep if they have a power
-management unit, then signals them to wake via IPI when its time to boot.
-If the cpus have no power management unit they will loop as before.
+Simple enough to be compatible with simulation environments,
+such as verilated systems, QEMU and other targets supporting OpenRISC
+SMP.  This also supports our base FPGA SoC's if the cpu frequency is
+upped to 50Mhz.
 
-Note: The wakeup IPI requires a special interrupt handler as on secondary
-cpu's the interrupt infrastructure is not yet established.  This
-interrupt handler is set and reset by updating SPR_EVBAR.
-
+Signed-off-by: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+[shorne at gmail.com: Added defconfig]
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
 
-Changes since v2
+Changes since v3
  - none
 
+Changes since v2
+ - Fix stdout-path
+
 Changes since v1
- - Check if power management exists before sleeping
+ - Use openrisc, prefix for ompic
+ - Add stdout-path
+ - Remove @interrupt cells
 
- arch/openrisc/kernel/head.S | 51 +++++++++++++++++++++++++++++++++++++++++++--
- arch/openrisc/kernel/smp.c  |  5 +++++
- 2 files changed, 54 insertions(+), 2 deletions(-)
+ arch/openrisc/boot/dts/simple_smp.dts      | 63 ++++++++++++++++++++++++++++
+ arch/openrisc/configs/simple_smp_defconfig | 66 ++++++++++++++++++++++++++++++
+ 2 files changed, 129 insertions(+)
+ create mode 100644 arch/openrisc/boot/dts/simple_smp.dts
+ create mode 100644 arch/openrisc/configs/simple_smp_defconfig
 
-diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
-index a9972dc103f8..fb02b2a1d6f2 100644
---- a/arch/openrisc/kernel/head.S
-+++ b/arch/openrisc/kernel/head.S
-@@ -712,9 +712,45 @@ _flush_tlb:
- 
- #ifdef CONFIG_SMP
- secondary_wait:
-+	/* Doze the cpu until we are asked to run */
-+	/* If we dont have power management skip doze */
-+	l.mfspr r25,r0,SPR_UPR
-+	l.andi  r25,r25,SPR_UPR_PMP
-+	l.sfeq  r25,r0
-+	l.bf	secondary_check_release
-+	 l.nop
+diff --git a/arch/openrisc/boot/dts/simple_smp.dts b/arch/openrisc/boot/dts/simple_smp.dts
+new file mode 100644
+index 000000000000..defbb92714ec
+--- /dev/null
++++ b/arch/openrisc/boot/dts/simple_smp.dts
+@@ -0,0 +1,63 @@
++/dts-v1/;
++/ {
++	compatible = "opencores,or1ksim";
++	#address-cells = <1>;
++	#size-cells = <1>;
++	interrupt-parent = <&pic>;
 +
-+	/* Setup special secondary exception handler */
-+	LOAD_SYMBOL_2_GPR(r3, _secondary_evbar)
-+	tophys(r25,r3)
-+	l.mtspr	r0,r25,SPR_EVBAR
++	aliases {
++		uart0 = &serial0;
++	};
 +
-+	/* Enable Interrupts */
-+	l.mfspr	r25,r0,SPR_SR
-+	l.ori	r25,r25,SPR_SR_IEE
-+	l.mtspr	r0,r25,SPR_SR
++	chosen {
++		bootargs = "earlycon";
++		stdout-path = "uart0:115200";
++	};
 +
-+	/* Unmask interrupts interrupts */
-+	l.mfspr r25,r0,SPR_PICMR
-+	l.ori   r25,r25,0xffff
-+	l.mtspr	r0,r25,SPR_PICMR
++	memory at 0 {
++		device_type = "memory";
++		reg = <0x00000000 0x02000000>;
++	};
 +
-+	/* Doze */
-+	l.mfspr r25,r0,SPR_PMR
-+	LOAD_SYMBOL_2_GPR(r3, SPR_PMR_DME)
-+	l.or    r25,r25,r3
-+	l.mtspr r0,r25,SPR_PMR
++	cpus {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		cpu at 0 {
++			compatible = "opencores,or1200-rtlsvn481";
++			reg = <0>;
++			clock-frequency = <20000000>;
++		};
++		cpu at 1 {
++			compatible = "opencores,or1200-rtlsvn481";
++			reg = <1>;
++			clock-frequency = <20000000>;
++		};
++	};
 +
-+	/* Wakeup - Restore exception handler */
-+	l.mtspr	r0,r0,SPR_EVBAR
++	ompic: ompic at 98000000 {
++		compatible = "openrisc,ompic";
++		reg = <0x98000000 16>;
++		interrupt-controller;
++		#interrupt-cells = <0>;
++		interrupts = <1>;
++	};
 +
-+secondary_check_release:
 +	/*
-+	 * Check if we actually got the release signal, if not go-back to
-+	 * sleep.
++	 * OR1K PIC is built into CPU and accessed via special purpose
++	 * registers.  It is not addressable and, hence, has no 'reg'
++	 * property.
 +	 */
- 	l.mfspr	r25,r0,SPR_COREID
--	l.movhi	r3,hi(secondary_release)
--	l.ori	r3,r3,lo(secondary_release)
-+	LOAD_SYMBOL_2_GPR(r3, secondary_release)
- 	tophys(r4, r3)
- 	l.lwz	r3,0(r4)
- 	l.sfeq	r25,r3
-@@ -1663,6 +1699,17 @@ ENTRY(_early_uart_init)
- 	l.jr	r9
- 	l.nop
- 
-+	.align	0x1000
-+	.global _secondary_evbar
-+_secondary_evbar:
++	pic: pic {
++		compatible = "opencores,or1k-pic-level";
++		#interrupt-cells = <1>;
++		interrupt-controller;
++	};
 +
-+	.space 0x800
-+	/* Just disable interrupts and Return */
-+	l.ori	r3,r0,SPR_SR_SM
-+	l.mtspr	r0,r3,SPR_ESR_BASE
-+	l.rfe
++	serial0: serial at 90000000 {
++		compatible = "opencores,uart16550-rtlsvn105", "ns16550a";
++		reg = <0x90000000 0x100>;
++		interrupts = <2>;
++		clock-frequency = <20000000>;
++	};
 +
-+
- 	.section .rodata
- _string_unhandled_exception:
- 	.string "\n\rRunarunaround: Unhandled exception 0x\0"
-diff --git a/arch/openrisc/kernel/smp.c b/arch/openrisc/kernel/smp.c
-index 154c94a0cfbc..685b4934fa39 100644
---- a/arch/openrisc/kernel/smp.c
-+++ b/arch/openrisc/kernel/smp.c
-@@ -26,6 +26,7 @@ unsigned long secondary_release = -1;
- struct thread_info *secondary_thread_info;
- 
- enum ipi_msg_type {
-+	IPI_WAKEUP,
- 	IPI_RESCHEDULE,
- 	IPI_CALL_FUNC,
- 	IPI_CALL_FUNC_SINGLE,
-@@ -42,6 +43,7 @@ static void boot_secondary(unsigned int cpu, struct task_struct *idle)
- 	spin_lock(&boot_lock);
- 
- 	secondary_release = cpu;
-+	smp_cross_call(cpumask_of(cpu), IPI_WAKEUP);
- 
- 	/*
- 	 * now the secondary core is starting up let it run its
-@@ -140,6 +142,9 @@ void handle_IPI(unsigned int ipi_msg)
- 	unsigned int cpu = smp_processor_id();
- 
- 	switch (ipi_msg) {
-+	case IPI_WAKEUP:
-+		break;
-+
- 	case IPI_RESCHEDULE:
- 		scheduler_ipi();
- 		break;
++};
+diff --git a/arch/openrisc/configs/simple_smp_defconfig b/arch/openrisc/configs/simple_smp_defconfig
+new file mode 100644
+index 000000000000..b6e3c7e158e7
+--- /dev/null
++++ b/arch/openrisc/configs/simple_smp_defconfig
+@@ -0,0 +1,66 @@
++CONFIG_CROSS_COMPILE="or1k-linux-"
++CONFIG_LOCALVERSION="-simple-smp"
++CONFIG_NO_HZ=y
++CONFIG_LOG_BUF_SHIFT=14
++CONFIG_BLK_DEV_INITRD=y
++# CONFIG_RD_GZIP is not set
++# CONFIG_RD_BZIP2 is not set
++# CONFIG_RD_LZMA is not set
++# CONFIG_RD_XZ is not set
++# CONFIG_RD_LZO is not set
++# CONFIG_RD_LZ4 is not set
++CONFIG_EXPERT=y
++# CONFIG_KALLSYMS is not set
++# CONFIG_EPOLL is not set
++# CONFIG_TIMERFD is not set
++# CONFIG_EVENTFD is not set
++# CONFIG_AIO is not set
++# CONFIG_VM_EVENT_COUNTERS is not set
++# CONFIG_COMPAT_BRK is not set
++CONFIG_SLOB=y
++CONFIG_MODULES=y
++# CONFIG_BLOCK is not set
++CONFIG_OPENRISC_BUILTIN_DTB="simple_smp"
++CONFIG_SMP=y
++CONFIG_HZ_100=y
++CONFIG_OPENRISC_HAVE_SHADOW_GPRS=y
++CONFIG_NET=y
++CONFIG_PACKET=y
++CONFIG_UNIX=y
++CONFIG_INET=y
++# CONFIG_INET_XFRM_MODE_TRANSPORT is not set
++# CONFIG_INET_XFRM_MODE_TUNNEL is not set
++# CONFIG_INET_XFRM_MODE_BEET is not set
++# CONFIG_INET_DIAG is not set
++CONFIG_TCP_CONG_ADVANCED=y
++# CONFIG_TCP_CONG_BIC is not set
++# CONFIG_TCP_CONG_CUBIC is not set
++# CONFIG_TCP_CONG_WESTWOOD is not set
++# CONFIG_TCP_CONG_HTCP is not set
++# CONFIG_IPV6 is not set
++# CONFIG_WIRELESS is not set
++CONFIG_DEVTMPFS=y
++CONFIG_DEVTMPFS_MOUNT=y
++# CONFIG_PREVENT_FIRMWARE_BUILD is not set
++# CONFIG_FW_LOADER is not set
++CONFIG_NETDEVICES=y
++CONFIG_ETHOC=y
++CONFIG_MICREL_PHY=y
++# CONFIG_WLAN is not set
++# CONFIG_INPUT is not set
++# CONFIG_SERIO is not set
++# CONFIG_VT is not set
++# CONFIG_LEGACY_PTYS is not set
++CONFIG_SERIAL_8250=y
++CONFIG_SERIAL_8250_CONSOLE=y
++CONFIG_SERIAL_OF_PLATFORM=y
++# CONFIG_HW_RANDOM is not set
++# CONFIG_HWMON is not set
++# CONFIG_USB_SUPPORT is not set
++# CONFIG_DNOTIFY is not set
++CONFIG_TMPFS=y
++CONFIG_NFS_FS=y
++CONFIG_XZ_DEC=y
++# CONFIG_ENABLE_WARN_DEPRECATED is not set
++# CONFIG_ENABLE_MUST_CHECK is not set
++# CONFIG_RCU_TRACE is not set
 -- 
 2.13.6
 
