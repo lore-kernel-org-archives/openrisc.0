@@ -1,118 +1,67 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 1 Nov 2017 21:15:49 +0900
-Subject: [OpenRISC] [PATCH v4 13/13] openrisc: add tick timer multi-core
-	sync logic
-In-Reply-To: <132de3e6-52b5-b5fe-8199-9da427a1baf4@mips.com>
+Date: Wed, 1 Nov 2017 21:17:16 +0900
+Subject: [OpenRISC] [PATCH v4 05/13] irqchip: add initial support for
+	ompic
+In-Reply-To: <86vaix5fmr.fsf@arm.com>
 References: <20171029231123.27281-1-shorne@gmail.com>
- <20171029231123.27281-14-shorne@gmail.com>
- <05333dd1-f8df-c96e-03df-1623ff67ab39@mips.com>
- <20171031231759.GB29237@lianli.shorne-pla.net>
- <20171101003447.GC29237@lianli.shorne-pla.net>
- <132de3e6-52b5-b5fe-8199-9da427a1baf4@mips.com>
-Message-ID: <20171101121549.GG29237@lianli.shorne-pla.net>
+ <20171029231123.27281-6-shorne@gmail.com> <86mv4974ht.fsf@arm.com>
+ <20171030041806.GA29237@lianli.shorne-pla.net>
+ <86vaix5fmr.fsf@arm.com>
+Message-ID: <20171101121716.GH29237@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Nov 01, 2017 at 09:26:43AM +0000, Matt Redfearn wrote:
+On Mon, Oct 30, 2017 at 06:11:40AM +0000, Marc Zyngier wrote:
+> On Mon, Oct 30 2017 at  1:18:06 pm GMT, Stafford Horne <shorne@gmail.com> wrote:
+> > On Mon, Oct 30, 2017 at 02:29:18AM +0000, Marc Zyngier wrote:
+> >> On Mon, Oct 30 2017 at  8:11:15 am GMT, Stafford Horne <shorne@gmail.com> wrote:
+> >> > From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+> >> >
+> >> > IPI driver for the Open Multi-Processor Interrupt Controller (ompic) as
+> >> > described in the Multi-core support section of the OpenRISC 1.2
+> >> > architecture specification:
+> >> >
+> >> >   https://github.com/openrisc/doc/raw/master/openrisc-arch-1.2-rev0.pdf
+> >> >
+> >> > Each OpenRISC core contains a full interrupt controller which is used in
+> >> > the SMP architecture for interrupt balancing.  This IPI device, the
+> >> > ompic, is the only external device required for enabling SMP on
+> >> > OpenRISC.
+> >> >
+> >> > Pending ops are stored in a memory bit mask which can allow multiple
+> >> > pending operations to be set and serviced at a time. This is mostly
+> >> > borrowed from the alpha IPI implementation.
+> >> >
+> >> > Cc: Marc Zyngier <marc.zyngier@arm.com>
+> >> > Acked-by: Rob Herring <robh@kernel.org>
+> >> > Signed-off-by: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+> >> > [shorne at gmail.com: converted ops to bitmask, wrote commit message]
+> >> > Signed-off-by: Stafford Horne <shorne@gmail.com>
+> >> 
+> >> Reviewed-by: Marc Zyngier <marc.zyngier@arm.com>
+> >
+> > Thanks
+> >
+> >> Side question: what is your merge strategy for this? I can take it
+> >> through the irqchip tree as it is standalone, but I'm open to other
+> >> suggestions.
+> >
+> > For me its easier if I just take it through the openrisc tree, as
+> > there are dependencies between this series and the irqchip driver.
+> > If you are ok with that I can make a note to Linus indicating so in
+> > the pull request.
 > 
-> 
-> On 01/11/17 00:34, Stafford Horne wrote:
-> > On Wed, Nov 01, 2017 at 08:17:59AM +0900, Stafford Horne wrote:
-> > > On Tue, Oct 31, 2017 at 02:06:21PM +0000, Matt Redfearn wrote:
-> > > > Hi,
-> > > > 
-> > > > 
-> > > > On 29/10/17 23:11, Stafford Horne wrote:
-> > > > > In case timers are not in sync when cpus start (i.e. hot plug / offset
-> > > > > resets) we need to synchronize the secondary cpus internal timer with
-> > > > > the main cpu.  This is needed as in OpenRISC SMP there is only one
-> > > > > clocksource registered which reads from the same ttcr register on each
-> > > > > cpu.
-> > > > > 
-> > > > > This synchronization routine heavily borrows from mips implementation that
-> > > > > does something similar.
-> > > [..]
-> > > > > diff --git a/arch/openrisc/kernel/smp.c b/arch/openrisc/kernel/smp.c
-> > > > > index 4763b8b9161e..4d80ce6fa045 100644
-> > > > > --- a/arch/openrisc/kernel/smp.c
-> > > > > +++ b/arch/openrisc/kernel/smp.c
-> > > > > @@ -100,6 +100,7 @@ int __cpu_up(unsigned int cpu, struct task_struct *idle)
-> > > > >    		pr_crit("CPU%u: failed to start\n", cpu);
-> > > > >    		return -EIO;
-> > > > >    	}
-> > > > > +	synchronise_count_master(cpu);
-> > > > >    	return 0;
-> > > > >    }
-> > > > > @@ -129,6 +130,8 @@ asmlinkage __init void secondary_start_kernel(void)
-> > > > >    	set_cpu_online(cpu, true);
-> > > > >    	complete(&cpu_running);
-> > > > > +	synchronise_count_slave(cpu);
-> > > > > +
-> > > > 
-> > > > Note that until 8f46cca1e6c06a058374816887059bcc017b382f, the MIPS timer
-> > > > synchronization code contained the possibility of deadlock. If you mark a
-> > > > CPU online before it goes into the synchronize loop, then the boot CPU can
-> > > > schedule a different thread and send IPIs to all "online" CPUs. It gets
-> > > > stuck waiting for the secondary to ack it's IPI, since this secondary CPU
-> > > > has not enabled IRQs yet, and is stuck waiting for the master to synchronise
-> > > > with it. The system then deadlocks.
-> > > > Commit 8f46cca1e6c06a058374816887059bcc017b382f fixed this for MIPS and you
-> > > > might want to similarly move the
-> > > > 
-> > > > set_cpu_online(cpu, true);
-> > > > 
-> > > > after counters are synchronized.
-> > > Thank you for the heads up.  I do remember having interim issues with the timer
-> > > syncing but I havent seen it for a while.  I think I fixed it by also moving
-> > > synchronise_count_slave.
-> > > 
-> > > Let me double check.  Also, I see your patch 8f46cca1e6c06a0583748168 was merged
-> > > last year?
-> > Hello,
-> > 
-> > I should have read a bit more closely, definitely this could be an issue if the
-> > boot cpu has other things running.
-> > 
-> > However, looking at mainline I can see the clock sync comes after set_cpu_online
-> > again after this patch in mips.
-> > 
-> >    6f542ebeaee0 MIPS: Fix race on setting and getting cpu_online_mask
-> >    Author: Matija Glavinic Pecotic <matija.glavinic-pecotic.ext@nokia.com>
-> > 
-> > Is this deadlock an issue in mips again?
-> > 
-> > -Stafford
-> 
-> Hi Stafford,
-> 
-> Yes - the deadlock is an issue again, it was re-introduced by 6f542ebeaee0.
-> That patch was based on testing with 4.4, where the core CPU hotplug code
-> did not contain it's own completion event. Since commit 8df3e07e7f21f
-> ("cpu/hotplug: Let upcoming cpu bring itself fully up"), which was added in
-> 4.6, this is no longer the case and there is no race condition. I have
-> https://patchwork.linux-mips.org/patch/17376/ pending which fixes this race
-> in pre-4.6 stable kernels, and guards against the deadlock as well.
-> Unfortunately because of the backport to stable this gets a little more
-> complex.
-> 
-> Unless your patches to add SMP are going to be applied to pre-4.6 kernels,
-> then you will not suffer the race condition. The potential deadlock is the
-> only pitfall you need to guard against - which will be OK if you put the
-> clock sync before marking the CPU online.
-> 
-> Thanks,
-> Matt
+> No problem, that's OK with me.
 
-Hi Matt,
+Acknowledged
 
-Thanks for the details.  I will make the patch and test it out.
+> > My plan is to send this series during the 4.15 merge window.
+> 
+> Make sure this is in -next (when it comes back to life...).
 
-On a side note, I was thinking to pull the sync code out into asm-generic in
-case any other architectures want to use it, it seems generic enough to work for
-other architectures.  Any thoughts?
+Its there now, and it looks like -next is almost back to life.
 
 -Stafford
-
