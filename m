@@ -1,67 +1,50 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 1 Nov 2017 21:17:16 +0900
-Subject: [OpenRISC] [PATCH v4 05/13] irqchip: add initial support for
-	ompic
-In-Reply-To: <86vaix5fmr.fsf@arm.com>
-References: <20171029231123.27281-1-shorne@gmail.com>
- <20171029231123.27281-6-shorne@gmail.com> <86mv4974ht.fsf@arm.com>
- <20171030041806.GA29237@lianli.shorne-pla.net>
- <86vaix5fmr.fsf@arm.com>
-Message-ID: <20171101121716.GH29237@lianli.shorne-pla.net>
+Date: Fri,  3 Nov 2017 13:33:22 +0900
+Subject: [OpenRISC] [PATCH for-next] openrisc: fix possible deadlock
+	scenario during timer sync
+Message-ID: <20171103043325.20646-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Oct 30, 2017 at 06:11:40AM +0000, Marc Zyngier wrote:
-> On Mon, Oct 30 2017 at  1:18:06 pm GMT, Stafford Horne <shorne@gmail.com> wrote:
-> > On Mon, Oct 30, 2017 at 02:29:18AM +0000, Marc Zyngier wrote:
-> >> On Mon, Oct 30 2017 at  8:11:15 am GMT, Stafford Horne <shorne@gmail.com> wrote:
-> >> > From: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-> >> >
-> >> > IPI driver for the Open Multi-Processor Interrupt Controller (ompic) as
-> >> > described in the Multi-core support section of the OpenRISC 1.2
-> >> > architecture specification:
-> >> >
-> >> >   https://github.com/openrisc/doc/raw/master/openrisc-arch-1.2-rev0.pdf
-> >> >
-> >> > Each OpenRISC core contains a full interrupt controller which is used in
-> >> > the SMP architecture for interrupt balancing.  This IPI device, the
-> >> > ompic, is the only external device required for enabling SMP on
-> >> > OpenRISC.
-> >> >
-> >> > Pending ops are stored in a memory bit mask which can allow multiple
-> >> > pending operations to be set and serviced at a time. This is mostly
-> >> > borrowed from the alpha IPI implementation.
-> >> >
-> >> > Cc: Marc Zyngier <marc.zyngier@arm.com>
-> >> > Acked-by: Rob Herring <robh@kernel.org>
-> >> > Signed-off-by: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-> >> > [shorne at gmail.com: converted ops to bitmask, wrote commit message]
-> >> > Signed-off-by: Stafford Horne <shorne@gmail.com>
-> >> 
-> >> Reviewed-by: Marc Zyngier <marc.zyngier@arm.com>
-> >
-> > Thanks
-> >
-> >> Side question: what is your merge strategy for this? I can take it
-> >> through the irqchip tree as it is standalone, but I'm open to other
-> >> suggestions.
-> >
-> > For me its easier if I just take it through the openrisc tree, as
-> > there are dependencies between this series and the irqchip driver.
-> > If you are ok with that I can make a note to Linus indicating so in
-> > the pull request.
-> 
-> No problem, that's OK with me.
+OpenRISC borrows its timer sync logic from MIPS, Matt helped to review
+the OpenRISC implementation and noted that we may suffer the same
+deadlock case that MIPS has faced. The case being:
 
-Acknowledged
+  "the MIPS timer synchronization code contained the possibility of
+  deadlock. If you mark a CPU online before it goes into the synchronize
+  loop, then the boot CPU can schedule a different thread and send IPIs to
+  all "online" CPUs. It gets stuck waiting for the secondary to ack it's
+  IPI, since this secondary CPU has not enabled IRQs yet, and is stuck
+  waiting for the master to synchronise with it.  The system then
+  deadlocks."
 
-> > My plan is to send this series during the 4.15 merge window.
-> 
-> Make sure this is in -next (when it comes back to life...).
+Fix this by moving set_cpu_online() to after timer sync.
 
-Its there now, and it looks like -next is almost back to life.
+Reported-by: Matt Redfearn <matt.redfearn@mips.com>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+ arch/openrisc/kernel/smp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
--Stafford
+diff --git a/arch/openrisc/kernel/smp.c b/arch/openrisc/kernel/smp.c
+index 4d80ce6fa045..7d518ee8bddc 100644
+--- a/arch/openrisc/kernel/smp.c
++++ b/arch/openrisc/kernel/smp.c
+@@ -127,10 +127,10 @@ asmlinkage __init void secondary_start_kernel(void)
+ 	/*
+ 	 * OK, now it's safe to let the boot CPU continue
+ 	 */
+-	set_cpu_online(cpu, true);
+ 	complete(&cpu_running);
+ 
+ 	synchronise_count_slave(cpu);
++	set_cpu_online(cpu, true);
+ 
+ 	local_irq_enable();
+ 
+-- 
+2.13.6
+
