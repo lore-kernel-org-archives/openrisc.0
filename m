@@ -1,50 +1,45 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Fri,  3 Nov 2017 13:33:22 +0900
-Subject: [OpenRISC] [PATCH for-next] openrisc: fix possible deadlock
-	scenario during timer sync
-Message-ID: <20171103043325.20646-1-shorne@gmail.com>
+Date: Fri, 3 Nov 2017 14:04:42 +0900
+Subject: [OpenRISC] [PATCH 3/3] openrisc: dts: Add OpenRISC platform SoC
+In-Reply-To: <20171022024641.28478-4-shorne@gmail.com>
+References: <20171022024641.28478-1-shorne@gmail.com>
+ <20171022024641.28478-4-shorne@gmail.com>
+Message-ID: <20171103050442.GJ29237@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-OpenRISC borrows its timer sync logic from MIPS, Matt helped to review
-the OpenRISC implementation and noted that we may suffer the same
-deadlock case that MIPS has faced. The case being:
+On Sun, Oct 22, 2017 at 11:46:41AM +0900, Stafford Horne wrote:
+> Add devicetree binding documentation for the OpenRISC platform
+> opencores,or1ksim.  This is the main OpenRISC reference platform
+> supporting multiple FPGA SoC's.
+> 
+> This format is based on some of the mips binding docs as we have
+> similar requirements.
+> 
+> Also, update maintainers so openrisc related binding changes are visible
+> to the openrisc team.
+> 
 
-  "the MIPS timer synchronization code contained the possibility of
-  deadlock. If you mark a CPU online before it goes into the synchronize
-  loop, then the boot CPU can schedule a different thread and send IPIs to
-  all "online" CPUs. It gets stuck waiting for the secondary to ack it's
-  IPI, since this secondary CPU has not enabled IRQs yet, and is stuck
-  waiting for the master to synchronise with it.  The system then
-  deadlocks."
+[..]
 
-Fix this by moving set_cpu_online() to after timer sync.
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index a57d13cb414d..71e4f6762196 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -10008,6 +10008,7 @@ T:	git git://github.com/openrisc/linux.git
+>  L:	openrisc at lists.librecores.org
+>  W:	http://openrisc.io
+>  S:	Maintained
+> +F;	Documentation/devicetree/bindings/openrisc/
 
-Reported-by: Matt Redfearn <matt.redfearn@mips.com>
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- arch/openrisc/kernel/smp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+FYI, I found this typo (; vs :) which I have fixed and am pushing to next.
 
-diff --git a/arch/openrisc/kernel/smp.c b/arch/openrisc/kernel/smp.c
-index 4d80ce6fa045..7d518ee8bddc 100644
---- a/arch/openrisc/kernel/smp.c
-+++ b/arch/openrisc/kernel/smp.c
-@@ -127,10 +127,10 @@ asmlinkage __init void secondary_start_kernel(void)
- 	/*
- 	 * OK, now it's safe to let the boot CPU continue
- 	 */
--	set_cpu_online(cpu, true);
- 	complete(&cpu_running);
- 
- 	synchronise_count_slave(cpu);
-+	set_cpu_online(cpu, true);
- 
- 	local_irq_enable();
- 
--- 
-2.13.6
-
+>  F:	Documentation/openrisc/
+>  F:	arch/openrisc/
+>  F:	drivers/irqchip/irq-or1k-*
+> -- 
+> 2.13.6
+> 
