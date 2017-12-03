@@ -1,121 +1,68 @@
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Date: Wed, 29 Nov 2017 11:39:59 +0900
-Subject: [OpenRISC] [PATCH v3] kbuild: Set KBUILD_CFLAGS before incl.
-	arch Makefile
-In-Reply-To: <CAKwvOdmcthyd1KbxRr54QztBcmeZ7JA=M_7N1xfmVurVOG=77w@mail.gmail.com>
-References: <CAK7LNAS1NaqPRhK6FOXN=YTMhLagpSrR2=tXn-uWZbpzr=NeoQ@mail.gmail.com>
- <20171115204231.34914-1-ndesaulniers@google.com>
- <CAK7LNAQNEHRapzFem3nr7=EWJPYvZby9K7vem-R99ijYNoguEg@mail.gmail.com>
- <CAK7LNASGYZfQFkM3yMRQaHLUwW5Lhp8CxHGX0bJ9sVja0f=n+A@mail.gmail.com>
- <CAKwvOdmcthyd1KbxRr54QztBcmeZ7JA=M_7N1xfmVurVOG=77w@mail.gmail.com>
-Message-ID: <CAK7LNATx=3k3o+hEpa2k3f67MfsEnWAyWsBSkKmPYQTUK9RYmg@mail.gmail.com>
+From: BAndViG <bandvig@mail.ru>
+Date: Sun, 3 Dec 2017 17:37:19 +0300
+Subject: [OpenRISC] OR1K muti-core machine specifications
+Message-ID: <21EACD1242BF4A2CB29FBDF7DB905144@BAndViG>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Nick,
+Hello, colleagues.
+With the mail I would like to start discussion on potential improvement in 
+OR1K specification regarding multi-core machine design.
+The background for this could be found in IRC 
+http://juliusbaxter.net/openrisc-irc/%23openrisc.2017-12-03.log.html
+In fact, OR1K spec (including v.1.2) is very abstract in the field.
+Lets start with memory access order definitions. Actual spec declares two 
+extra-poles: strong ordering and weakly ordering. It looks like "strong 
+ordering" could be implemented only in uniprocessor machine while "weakly 
+ordering" is so weakly that ... let me cite Stafford Horne "probably no one 
+sane would would to go with a really relaxed model like alpha had". 
+Additionally, I'm not sure that "strong/weakly" terminology is good enough 
+for description memory consistency models. I think the "strong/weakly" are 
+mostly comparative categories. For example, SPARC TSO is "weaker" than 
+Sequential Consistency, but "stronger" than SPARC PSO. At last, existing SMP 
+implementation is most close to  SPARC TSO.
+I also agree with Stefan Wallentowitz that consistency model should be 
+simple. My 5 cents here "at least initially".
 
-2017-11-29 3:18 GMT+09:00 Nick Desaulniers <ndesaulniers@google.com>:
-> Hi Masahiro,
->
-> Thanks for merging Chris' patch, and sorry for taking so long to respond.
->
-> On Wed, Nov 22, 2017 at 8:24 PM, Masahiro Yamada
-> <yamada.masahiro@socionext.com> wrote:
->> Linus suggests to move compiler flag testing to Kconfig.
->
-> Do you have an LKML link for context?
+Well, getting all together.
 
+1) I think regarding OR1K SMP machine specification we should borrow SPARC 
+approach and terminology and start with description of Total Store Ordering 
+(TSO) machine with possible (some time in future) relaxation to Partial 
+Store Ordering (PSO) and even to Relaxed Memory Ordering (RMO). 
+"Strong/weakly" categories should be used only for comparison of different 
+consistency models.
 
-https://lkml.org/lkml/2017/11/19/291
+2) Perhaps it could be useful to include description of several hardware 
+variants with proof that the machines meet TSO. Perhaps, proof approach 
+could be the one described in 
+https://pages.cpsc.ucalgary.ca/~higham/Research/papers/WriteBuffers.pdf
+By the way, such proof could be good exercises for students. :)
 
+3) Stafford Horn's request. "one thing I see in other architecture is the 
+memory barriers (write barrier, read barrier) which we don't really have ".
+I think we should do one of the following:
+(3a) prove that on TSO machine barriers could be implemented completely in 
+software and no special HW- side support is required
+(3b) either proof that even on TSO machine barriers could be correctly 
+implemented with HW- support only or some how investigate that HW- side 
+support increases performance dramatically (or dramatically decreases 
+programming efforts or both) while not much costly. In the case we should 
+extend instruction set appropriately.
 
+Well, lets start discussion.
 
-> On Wed, Nov 15, 2017 at 6:32 PM, Masahiro Yamada
-> <yamada.masahiro@socionext.com> wrote:
->> BTW, I notice another issue.
->>
->> If we move clang settings before including arch Makefile,
->> "ifneq ($(CROSS_COMPILE),)" comes early.
->>
->> Some arch Makefiles (arch/mips/Makefile, arch/blackfin/Makefile, etc.)
->> set CROSS_COMPILE there if CROSS_COMPILE is not given.
->>
->> Then, we have a conflict between two requirements among arch.
->>
->> [1] arm64, powerpc use ld-option in their Makefile.
->>     So, clang flags must be set before inc. arch Makefile.
->> [2] mips, blackfin, etc. may set CROSS_COMPILE in their Makefile.
->>     So, we want to reference CROSS_COMPILE only after inc. arch Makefile
->>
->> I have no idea how to solve it.
->>
->> At this moment, I guess clang is intended to support
->> only limited architectures.
->>
->> It might be OK to be compromised here.
->
-> I definitely find it curious that certain arch's define CROSS_COMPILE
-> themselves.  The benefit is one less argument to supply at compile
-> time, but it assumes that the toolchain always has a certain prefix.
-> This makes sense to me when cross compiling, but seems odd when
-> compiling natively on that arch as the host and target.  Maybe those
-> arch's use that convention, or simply are always cross compiled for?
->
-> Taking a survey of all arch's currently in the kernel via `cd arch; ag
-> CROSS_COMPILE` and quickly eyeballing the result:
->
-> m68k if not set
-> arc if not set
-> openrisc for some configs (openrisc/configs/or1ksim_defconfig,
-> openrisc/configs/simple_smp_defconfig)
-> blackfin if not set
-> hexagon for some configs (hexagon/configs/comet_defconfig)
-> parisc if not set
-> sh if not set
-> xtensa if not set
-> score always
-> arm for some configs (arm/configs/lpc18xx_defconfig)
-> h8300 if not set
-> mips if not set (and explicitly emptied for some configs,
-> mips/configs/nlm_xlr_defconfig )
-> unicore32 if not set
-> tile if not set
->
-> The * if not set (or not being on the list) seems correct, as the top
-> level Makefile will handle this correctly.  Setting it for some
-> configs seems curious (not necessarily wrong?),
+Just now I've got questions about l.msync.
+(I) Could it be involved in memory barriers implementation as Stafford 
+requested? Or its functionality isn't enough?
+(II) OR1K spec stays "The memory sync instruction ensures that all memory 
+accesses initiated by a program have been performed before the next 
+instruction is executed." Could it be relaxed to "... before a next 
+load/store instruction is executed."?
 
-Perhaps, the maintainer of those platforms may want to save
-one command-line argument at compile time.
+WBR
+Andrey 
 
-> emptying it/always
-> setting it via config sounds wrong to me,
-
-arch/mips/configs/nlm_xlr_defconfig explicitly empties it.
-It is just redundant because CONFIG_CROSS_COMPILE=""
-is the default in Kconfig.
-Not necessarily wrong, I think.
-
-
-> but maybe those hosts don't
-> have toolchains and must always be cross compiled for?
->
-> For reference, this file in LLVM source defines the supported backend
-> targets: https://llvm.org/doxygen/Triple_8h_source.html
->
-> Either way, it sounds like we're all set here, I guess I'm just
-> curious about the LKML link/context and why some configs set
-> CROSS_COMPILE themselves?
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kbuild" in
-> the body of a message to majordomo at vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-
-
--- 
-Best Regards
-Masahiro Yamada
