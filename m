@@ -1,120 +1,54 @@
-From: Richard Biener <rguenther@suse.de>
-Date: Tue, 12 Dec 2017 15:05:41 +0100 (CET)
-Subject: [OpenRISC] [PATCH v7 4/4] Add gdb for or1k build
-In-Reply-To: <20171212140446.GB3483@lianli.shorne-pla.net>
-References: <cover.1496068645.git.shorne@gmail.com>
- <9f7c01d33d453186963b6b13f0f1ef4394b4e98b.1496068645.git.shorne@gmail.com>
- <CAAfxs75FzHZL7PLeR9A3kHEBb_oAPcy6h_=KOP=s0w2eh6=LFQ@mail.gmail.com>
- <20171212140446.GB3483@lianli.shorne-pla.net>
-Message-ID: <alpine.LSU.2.20.1712121505310.12252@zhemvz.fhfr.qr>
+From: Joel Stanley <joel@jms.id.au>
+Date: Wed, 13 Dec 2017 14:12:12 +1030
+Subject: [OpenRISC] [PATCH] openrisc: Fix conflicting types for _exext and
+	_stext
+Message-ID: <20171213034212.25910-1-joel@jms.id.au>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-On Tue, 12 Dec 2017, Stafford Horne wrote:
+The printk tree in linux-next has a patch "symbol lookup: introduce
+dereference_symbol_descriptor()" that includes sections.h in kallsyms.h,
+so arch/openrisc/kernel/traps.c gets a second extern definition for
+_etext and _stext.
 
-> Hello,
-> 
-> I brought this up on the #gcc chat room.  I was asked to check with Jakub and
-> Richi.
-> 
-> This is a small patch to configure/configure.ac to enable gdb to build for the
-> or1k target.  I am working on upstreaming the gdb port and have everything OKed
-> and all copyrights in place for the binutils/gdb/sim projects.
-> 
-> Since binutils copies the configure/configure.ac from the gcc project I would
-> like to get this patch incorporated into gcc before committing the
-> binutils/gdb/sim patches.
-> 
-> Please let me know if there are any questions/concerns.
+Remove the local definitions and include sections.h directly in
+preparation for the kallsyms.h change.
 
-Ok.
+This fixes the following (future) build error:
 
-Thanks,
-Richard.
+  CC      arch/openrisc/kernel/traps.o
+arch/openrisc/kernel/traps.c:43:13: error: conflicting types for ‘_etext’
+ extern char _etext, _stext;
+             ^
+In file included from ./arch/openrisc/include/generated/asm/sections.h:1:0,
+                 from ./include/linux/kallsyms.h:15,
+                 from arch/openrisc/kernel/traps.c:35:
+./include/asm-generic/sections.h:35:32: note: previous declaration of ‘_etext’ was here
+ extern char _text[], _stext[], _etext[];
+                                ^
 
-> -Stafford
-> 
-> On Sat, Dec 09, 2017 at 06:28:28AM +0900, Stafford Horne wrote:
-> > Hello,
-> > 
-> > This patch was sent in May, now everything is in place to commit the
-> > OpenRISC gdb port upstream except for the OK from GCC on this patch.
-> > 
-> > Are there any concerns?  Who will commit this to GCC?
-> > 
-> > On Mon, May 29, 2017 at 11:48 PM, Stafford Horne <shorne@gmail.com> wrote:
-> > > * ChangeLog:
-> > >
-> > > 2017-02-12  Stafford Horne  <shorne@gmail.com>
-> > >
-> > >         * configure.ac: Remove logic adding gdb to noconfigsdirs for or1k.
-> > >         * configure: Regenerate.
-> > >
-> > > Cc: gcc-patches at gcc.gnu.org
-> > > ---
-> > >  configure    | 7 -------
-> > >  configure.ac | 7 -------
-> > >  2 files changed, 14 deletions(-)
-> > >
-> > > diff --git a/configure b/configure
-> > > index be9dd89..0bf47fa 100755
-> > > --- a/configure
-> > > +++ b/configure
-> > > @@ -3632,10 +3632,6 @@ case "${target}" in
-> > >      ;;
-> > >    *-*-rtems*)
-> > >      noconfigdirs="$noconfigdirs target-libgloss"
-> > > -    # this is not caught below because this stanza matches earlier
-> > > -    case $target in
-> > > -      or1k*-*-*) noconfigdirs="$noconfigdirs gdb" ;;
-> > > -    esac
-> > >      ;;
-> > >      # The tpf target doesn't support gdb yet.
-> > >    *-*-tpf*)
-> > > @@ -3841,9 +3837,6 @@ case "${target}" in
-> > >    nvptx*-*-*)
-> > >      noconfigdirs="$noconfigdirs target-libssp target-libstdc++-v3 target-libobjc"
-> > >      ;;
-> > > -  or1k*-*-*)
-> > > -    noconfigdirs="$noconfigdirs gdb"
-> > > -    ;;
-> > >    sh-*-*)
-> > >      case "${target}" in
-> > >        sh*-*-elf)
-> > > diff --git a/configure.ac b/configure.ac
-> > > index 532c5c2..9d16792 100644
-> > > --- a/configure.ac
-> > > +++ b/configure.ac
-> > > @@ -966,10 +966,6 @@ case "${target}" in
-> > >      ;;
-> > >    *-*-rtems*)
-> > >      noconfigdirs="$noconfigdirs target-libgloss"
-> > > -    # this is not caught below because this stanza matches earlier
-> > > -    case $target in
-> > > -      or1k*-*-*) noconfigdirs="$noconfigdirs gdb" ;;
-> > > -    esac
-> > >      ;;
-> > >      # The tpf target doesn't support gdb yet.
-> > >    *-*-tpf*)
-> > > @@ -1175,9 +1171,6 @@ case "${target}" in
-> > >    nvptx*-*-*)
-> > >      noconfigdirs="$noconfigdirs target-libssp target-libstdc++-v3 target-libobjc"
-> > >      ;;
-> > > -  or1k*-*-*)
-> > > -    noconfigdirs="$noconfigdirs gdb"
-> > > -    ;;
-> > >    sh-*-*)
-> > >      case "${target}" in
-> > >        sh*-*-elf)
-> > > --
-> > > 2.9.4
-> > >
-> 
-> 
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+---
+ arch/openrisc/kernel/traps.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
+diff --git a/arch/openrisc/kernel/traps.c b/arch/openrisc/kernel/traps.c
+index 4085d72fa5ae..5fb6d512502d 100644
+--- a/arch/openrisc/kernel/traps.c
++++ b/arch/openrisc/kernel/traps.c
+@@ -39,8 +39,7 @@
+ #include <asm/io.h>
+ #include <asm/pgtable.h>
+ #include <asm/unwinder.h>
+-
+-extern char _etext, _stext;
++#include <asm/sections.h>
+ 
+ int kstack_depth_to_print = 0x180;
+ int lwa_flag;
 -- 
-Richard Biener <rguenther@suse.de>
-SUSE LINUX GmbH, GF: Felix Imendoerffer, Jane Smithard, Graham Norton, HRB 21284 (AG Nuernberg)
+2.14.1
+
