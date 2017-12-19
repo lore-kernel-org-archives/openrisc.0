@@ -1,167 +1,87 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Tue, 19 Dec 2017 23:22:54 +0900
-Subject: [OpenRISC] [PATCH v3 1/4] reggroups: Add test and docs for `info
-	reg $reggroup` feature
+Date: Tue, 19 Dec 2017 23:22:55 +0900
+Subject: [OpenRISC] [PATCH v3 2/4] reggroups: Convert reggroups from
+	post_init to pre_init
 In-Reply-To: <20171219142257.13402-1-shorne@gmail.com>
 References: <20171219142257.13402-1-shorne@gmail.com>
-Message-ID: <20171219142257.13402-2-shorne@gmail.com>
+Message-ID: <20171219142257.13402-3-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Until now this feature has existed but was not documented.  Adding docs
-and tests.
+Currently the reggroups gdbarch_data cannot be manipulated until after
+the gdbarch is completely initialized.  This is usually done when the
+object init depends on architecture specific fields.  In the case of
+reggroups it only depends on the obstack being available.
+
+Coverting this to pre_init allows using reggroups during gdbarch
+initialization.  This is needed to allow registering arbitrary reggroups
+during gdbarch initializations.
 
 gdb/ChangeLog:
 
 2017-06-06  Stafford Horne  <shorne@gmail.com>
 
-	* infcmd.c (_initialize_infcmd): Add help for info reg $reggroup
-	feature.
-
-gdb/doc/ChangeLog:
-
-2017-06-06  Stafford Horne  <shorne@gmail.com>
-
-	* gdb.texinfo (Registers): Document info reg $reggroup feature.
-
-gdb/testsuite/ChangeLog:
-
-2017-06-06  Stafford Horne  <shorne@gmail.com>
-
-	* gdb.base/reggroups.c: New file.
-	* gdb.base/reggroups.exp: New file.
+	* reggroups.c (reggroups_init): Change to depend only on
+	obstack rather than gdbarch.
+	(reggroup_add): Remove logic for forcing premature init.
+	(_initialize_reggroup): Set `reggroups_data` with
+	gdbarch_data_register_pre_init() rather than
+	gdbarch_data_register_post_init().
 ---
- gdb/doc/gdb.texinfo                  |  5 +++
- gdb/infcmd.c                         |  8 +++--
- gdb/testsuite/gdb.base/reggroups.c   |  5 +++
- gdb/testsuite/gdb.base/reggroups.exp | 63 ++++++++++++++++++++++++++++++++++++
- 4 files changed, 79 insertions(+), 2 deletions(-)
- create mode 100644 gdb/testsuite/gdb.base/reggroups.c
- create mode 100644 gdb/testsuite/gdb.base/reggroups.exp
+ gdb/reggroups.c | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
 
-diff --git a/gdb/doc/gdb.texinfo b/gdb/doc/gdb.texinfo
-index 60ed80c363..e169260e7e 100644
---- a/gdb/doc/gdb.texinfo
-+++ b/gdb/doc/gdb.texinfo
-@@ -11023,6 +11023,11 @@ and vector registers (in the selected stack frame).
- Print the names and values of all registers, including floating-point
- and vector registers (in the selected stack frame).
+diff --git a/gdb/reggroups.c b/gdb/reggroups.c
+index 2ecd0b494f..5d5e33f2a3 100644
+--- a/gdb/reggroups.c
++++ b/gdb/reggroups.c
+@@ -26,6 +26,7 @@
+ #include "regcache.h"
+ #include "command.h"
+ #include "gdbcmd.h"		/* For maintenanceprintlist.  */
++#include "gdb_obstack.h"
  
-+ at item info registers @var{reggroup} @dots{}
-+Print the name and value of the registers in each of the specified
-+ at var{reggroup}.  The @var{reggoup} can be any of those returned by
-+ at code{maint print reggroups}.
-+
- @item info registers @var{regname} @dots{}
- Print the @dfn{relativized} value of each specified register @var{regname}.
- As discussed in detail below, register values are normally relative to
-diff --git a/gdb/infcmd.c b/gdb/infcmd.c
-index 8bde28eab6..6e449d4a0e 100644
---- a/gdb/infcmd.c
-+++ b/gdb/infcmd.c
-@@ -3460,13 +3460,17 @@ interrupt all running threads in non-stop mode, use the -a option."));
+ /* Individual register groups.  */
  
-   c = add_info ("registers", info_registers_command, _("\
- List of integer registers and their contents, for selected stack frame.\n\
--Register name as argument means describe only that register."));
-+Register name as argument means describe only that register.\n\
-+Register group name as argument means describe the registers in the\n\
-+named register group."));
-   add_info_alias ("r", "registers", 1);
-   set_cmd_completer (c, reg_or_group_completer);
+@@ -76,10 +77,9 @@ struct reggroups
+ static struct gdbarch_data *reggroups_data;
  
-   c = add_info ("all-registers", info_all_registers_command, _("\
- List of all registers and their contents, for selected stack frame.\n\
--Register name as argument means describe only that register."));
-+Register name as argument means describe only that register.\n\
-+Register group name as argument means describe the registers in the\n\
-+named register group."));
-   set_cmd_completer (c, reg_or_group_completer);
+ static void *
+-reggroups_init (struct gdbarch *gdbarch)
++reggroups_init (struct obstack *obstack)
+ {
+-  struct reggroups *groups = GDBARCH_OBSTACK_ZALLOC (gdbarch,
+-						     struct reggroups);
++  struct reggroups *groups = OBSTACK_ZALLOC (obstack, struct reggroups);
  
-   add_info ("program", info_program_command,
-diff --git a/gdb/testsuite/gdb.base/reggroups.c b/gdb/testsuite/gdb.base/reggroups.c
-new file mode 100644
-index 0000000000..8e8f518aae
---- /dev/null
-+++ b/gdb/testsuite/gdb.base/reggroups.c
-@@ -0,0 +1,5 @@
-+int
-+main()
-+{
-+  return 0;
-+}
-diff --git a/gdb/testsuite/gdb.base/reggroups.exp b/gdb/testsuite/gdb.base/reggroups.exp
-new file mode 100644
-index 0000000000..c10f02567d
---- /dev/null
-+++ b/gdb/testsuite/gdb.base/reggroups.exp
-@@ -0,0 +1,63 @@
-+# This testcase is part of GDB, the GNU debugger.
-+
-+# Copyright 2017 Free Software Foundation, Inc.
-+
-+# This program is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 3 of the License, or
-+# (at your option) any later version.
-+#
-+# This program is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+#
-+# You should have received a copy of the GNU General Public License
-+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-+
-+# Test listing reggroups and the registers in each group.
-+
-+standard_testfile
-+
-+if {[prepare_for_testing "failed to prepare" $testfile $srcfile debug]} {
-+    return -1
-+}
-+
-+if ![runto_main] then {
-+    fail "can't run to main"
-+    return 0
-+}
-+
-+proc fetch_reggroups {test} {
-+    global gdb_prompt
-+    global expect_out
-+
-+    set reggroups {}
-+    gdb_test_multiple "maint print reggroups" "get reggroups" {
-+	-re "maint print reggroups\r\n" {
-+	    exp_continue
-+	}
-+	-re "^ Group\[ \t\]+Type\[ \t\]+\r\n" {
-+	    exp_continue
-+	}
-+	-re "^ (\[0-9a-zA-Z\-\]+)\[ \t\]+(user|internal)\[ \t\]+\r\n" {
-+	    lappend reggroups $expect_out(1,string)
-+	    exp_continue
-+	}
-+	-re ".*$gdb_prompt $" {
-+	    if { [llength $reggroups] != 0 } {
-+		pass $test
-+	    } else {
-+		fail "$test - didn't fetch any reggroups"
-+	    }
-+	}
-+    }
-+
-+    return $reggroups
-+}
-+
-+set reggroups [fetch_reggroups "fetch reggroups"]
-+
-+foreach reggroup $reggroups {
-+    gdb_test "info reg $reggroup" ".*" "info reg $reggroup"
-+}
+   groups->last = &groups->first;
+   return groups;
+@@ -105,13 +105,6 @@ reggroup_add (struct gdbarch *gdbarch, struct reggroup *group)
+   struct reggroups *groups
+     = (struct reggroups *) gdbarch_data (gdbarch, reggroups_data);
+ 
+-  if (groups == NULL)
+-    {
+-      /* ULGH, called during architecture initialization.  Patch
+-         things up.  */
+-      groups = (struct reggroups *) reggroups_init (gdbarch);
+-      deprecated_set_gdbarch_data (gdbarch, reggroups_data, groups);
+-    }
+   add_group (groups, group,
+ 	     GDBARCH_OBSTACK_ZALLOC (gdbarch, struct reggroup_el));
+ }
+@@ -298,7 +291,7 @@ struct reggroup *const restore_reggroup = &restore_group;
+ void
+ _initialize_reggroup (void)
+ {
+-  reggroups_data = gdbarch_data_register_post_init (reggroups_init);
++  reggroups_data = gdbarch_data_register_pre_init (reggroups_init);
+ 
+   /* The pre-defined list of groups.  */
+   add_group (&default_groups, general_reggroup, XNEW (struct reggroup_el));
 -- 
 2.13.6
 
