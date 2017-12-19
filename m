@@ -1,78 +1,167 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Tue, 19 Dec 2017 23:22:53 +0900
-Subject: [OpenRISC] [PATCH v3 0/4] Support for arbitrary reggroups
-Message-ID: <20171219142257.13402-1-shorne@gmail.com>
+Date: Tue, 19 Dec 2017 23:22:54 +0900
+Subject: [OpenRISC] [PATCH v3 1/4] reggroups: Add test and docs for `info
+	reg $reggroup` feature
+In-Reply-To: <20171219142257.13402-1-shorne@gmail.com>
+References: <20171219142257.13402-1-shorne@gmail.com>
+Message-ID: <20171219142257.13402-2-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hello,
+Until now this feature has existed but was not documented.  Adding docs
+and tests.
 
-(Its been some time since v2, but now that openrisc is upstream I can focus on
-this
+gdb/ChangeLog:
 
-There were not many concerns raised with v2.  One possible issue with v3 is that
-the reggroups struct uses 'char *' for strings.  We now compare std::string vs
-'char *' which is a bit clumsy,  but I didnt think it calls for converting
-reggroups strings to 'std::string' yet.)
+2017-06-06  Stafford Horne  <shorne@gmail.com>
 
-Onto the change:
+	* infcmd.c (_initialize_infcmd): Add help for info reg $reggroup
+	feature.
 
-Traditionally registers have been limited to names like "vector",
-"general", "system" which are hard coded in the gdbarch.  This patch allows
-additional reggroups to be defined by the xml target description.
+gdb/doc/ChangeLog:
 
-This is necessary for architectures like OpenRISC which have many
-registers.
+2017-06-06  Stafford Horne  <shorne@gmail.com>
 
-This series also adds documentation on tests for the feature of listing
-register groups via the "info reg $reggroup" command.
+	* gdb.texinfo (Registers): Document info reg $reggroup feature.
 
--Stafford
+gdb/testsuite/ChangeLog:
 
---
+2017-06-06  Stafford Horne  <shorne@gmail.com>
 
-Changes since v2
- * Fixed NEWS entry XML/descriptions typo seggested by Petro
- * Rebased on latest upstream/master.
-
-Changes since v1
- * On 'info reg $reggroup' test and docs patch
-  - Suggested by Eli - Fix changelog
-  - Suggested by Simon
-    > Added help text in 'help info registers'
-    > Fixed 'register' typos
-    > Fixed style of test program
-    > Fixed copyright '2017'
-    > Fixed code styles in expect
- * On 'arbitrary strings' patch
-  - Suggested by Simon
-    > Allow for freeing reggroups
-  - Suggested by Eli
-    > Add documentation for this feature
-
-Stafford Horne (4):
-  reggroups: Add test and docs for `info reg $reggroup` feature
-  reggroups: Convert reggroups from post_init to pre_init
-  reggroups: Create reggroup_gdbarch_new for dynamic reggroups
-  tdesc: handle arbitrary strings in tdesc_register_in_reggroup_p
-
- gdb/NEWS                             |  7 ++++
- gdb/doc/gdb.texinfo                  | 14 +++++--
- gdb/infcmd.c                         |  8 +++-
- gdb/reggroups.c                      | 27 +++++++------
- gdb/reggroups.h                      |  4 ++
- gdb/target-descriptions.c            | 74 ++++++++++++++++++------------------
+	* gdb.base/reggroups.c: New file.
+	* gdb.base/reggroups.exp: New file.
+---
+ gdb/doc/gdb.texinfo                  |  5 +++
+ gdb/infcmd.c                         |  8 +++--
  gdb/testsuite/gdb.base/reggroups.c   |  5 +++
- gdb/testsuite/gdb.base/reggroups.exp | 63 ++++++++++++++++++++++++++++++
- gdb/testsuite/gdb.xml/extra-regs.xml |  1 +
- gdb/testsuite/gdb.xml/tdesc-regs.exp |  3 ++
- 10 files changed, 152 insertions(+), 54 deletions(-)
+ gdb/testsuite/gdb.base/reggroups.exp | 63 ++++++++++++++++++++++++++++++++++++
+ 4 files changed, 79 insertions(+), 2 deletions(-)
  create mode 100644 gdb/testsuite/gdb.base/reggroups.c
  create mode 100644 gdb/testsuite/gdb.base/reggroups.exp
 
+diff --git a/gdb/doc/gdb.texinfo b/gdb/doc/gdb.texinfo
+index 60ed80c363..e169260e7e 100644
+--- a/gdb/doc/gdb.texinfo
++++ b/gdb/doc/gdb.texinfo
+@@ -11023,6 +11023,11 @@ and vector registers (in the selected stack frame).
+ Print the names and values of all registers, including floating-point
+ and vector registers (in the selected stack frame).
+ 
++ at item info registers @var{reggroup} @dots{}
++Print the name and value of the registers in each of the specified
++ at var{reggroup}.  The @var{reggoup} can be any of those returned by
++ at code{maint print reggroups}.
++
+ @item info registers @var{regname} @dots{}
+ Print the @dfn{relativized} value of each specified register @var{regname}.
+ As discussed in detail below, register values are normally relative to
+diff --git a/gdb/infcmd.c b/gdb/infcmd.c
+index 8bde28eab6..6e449d4a0e 100644
+--- a/gdb/infcmd.c
++++ b/gdb/infcmd.c
+@@ -3460,13 +3460,17 @@ interrupt all running threads in non-stop mode, use the -a option."));
+ 
+   c = add_info ("registers", info_registers_command, _("\
+ List of integer registers and their contents, for selected stack frame.\n\
+-Register name as argument means describe only that register."));
++Register name as argument means describe only that register.\n\
++Register group name as argument means describe the registers in the\n\
++named register group."));
+   add_info_alias ("r", "registers", 1);
+   set_cmd_completer (c, reg_or_group_completer);
+ 
+   c = add_info ("all-registers", info_all_registers_command, _("\
+ List of all registers and their contents, for selected stack frame.\n\
+-Register name as argument means describe only that register."));
++Register name as argument means describe only that register.\n\
++Register group name as argument means describe the registers in the\n\
++named register group."));
+   set_cmd_completer (c, reg_or_group_completer);
+ 
+   add_info ("program", info_program_command,
+diff --git a/gdb/testsuite/gdb.base/reggroups.c b/gdb/testsuite/gdb.base/reggroups.c
+new file mode 100644
+index 0000000000..8e8f518aae
+--- /dev/null
++++ b/gdb/testsuite/gdb.base/reggroups.c
+@@ -0,0 +1,5 @@
++int
++main()
++{
++  return 0;
++}
+diff --git a/gdb/testsuite/gdb.base/reggroups.exp b/gdb/testsuite/gdb.base/reggroups.exp
+new file mode 100644
+index 0000000000..c10f02567d
+--- /dev/null
++++ b/gdb/testsuite/gdb.base/reggroups.exp
+@@ -0,0 +1,63 @@
++# This testcase is part of GDB, the GNU debugger.
++
++# Copyright 2017 Free Software Foundation, Inc.
++
++# This program is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 3 of the License, or
++# (at your option) any later version.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program.  If not, see <http://www.gnu.org/licenses/>.
++
++# Test listing reggroups and the registers in each group.
++
++standard_testfile
++
++if {[prepare_for_testing "failed to prepare" $testfile $srcfile debug]} {
++    return -1
++}
++
++if ![runto_main] then {
++    fail "can't run to main"
++    return 0
++}
++
++proc fetch_reggroups {test} {
++    global gdb_prompt
++    global expect_out
++
++    set reggroups {}
++    gdb_test_multiple "maint print reggroups" "get reggroups" {
++	-re "maint print reggroups\r\n" {
++	    exp_continue
++	}
++	-re "^ Group\[ \t\]+Type\[ \t\]+\r\n" {
++	    exp_continue
++	}
++	-re "^ (\[0-9a-zA-Z\-\]+)\[ \t\]+(user|internal)\[ \t\]+\r\n" {
++	    lappend reggroups $expect_out(1,string)
++	    exp_continue
++	}
++	-re ".*$gdb_prompt $" {
++	    if { [llength $reggroups] != 0 } {
++		pass $test
++	    } else {
++		fail "$test - didn't fetch any reggroups"
++	    }
++	}
++    }
++
++    return $reggroups
++}
++
++set reggroups [fetch_reggroups "fetch reggroups"]
++
++foreach reggroup $reggroups {
++    gdb_test "info reg $reggroup" ".*" "info reg $reggroup"
++}
 -- 
 2.13.6
 
