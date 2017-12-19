@@ -1,72 +1,78 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 13 Dec 2017 23:53:42 +0900
-Subject: [OpenRISC] [PATCH] openrisc: Fix conflicting types for _exext
-	and _stext
-In-Reply-To: <20171213061544.GA738@jagdpanzerIV>
-References: <20171213034212.25910-1-joel@jms.id.au>
- <20171213061544.GA738@jagdpanzerIV>
-Message-ID: <20171213145342.GA21872@lianli.shorne-pla.net>
+Date: Tue, 19 Dec 2017 23:22:53 +0900
+Subject: [OpenRISC] [PATCH v3 0/4] Support for arbitrary reggroups
+Message-ID: <20171219142257.13402-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Dec 13, 2017 at 03:15:44PM +0900, Sergey Senozhatsky wrote:
-> On (12/13/17 14:12), Joel Stanley wrote:
-> > The printk tree in linux-next has a patch "symbol lookup: introduce
-> > dereference_symbol_descriptor()" that includes sections.h in kallsyms.h,
-> > so arch/openrisc/kernel/traps.c gets a second extern definition for
-> > _etext and _stext.
-> > 
-> > Remove the local definitions and include sections.h directly in
-> > preparation for the kallsyms.h change.
-> > 
-> > This fixes the following (future) build error:
-> > 
-> >   CC      arch/openrisc/kernel/traps.o
-> > arch/openrisc/kernel/traps.c:43:13: error: conflicting types for ‘_etext’
-> >  extern char _etext, _stext;
-> >              ^
+Hello,
 
-Oh man, why would this have been like this?
+(Its been some time since v2, but now that openrisc is upstream I can focus on
+this
 
-> > In file included from ./arch/openrisc/include/generated/asm/sections.h:1:0,
-> >                  from ./include/linux/kallsyms.h:15,
-> >                  from arch/openrisc/kernel/traps.c:35:
-> > ./include/asm-generic/sections.h:35:32: note: previous declaration of ‘_etext’ was here
-> >  extern char _text[], _stext[], _etext[];
-> >                                 ^
-> > 
-> > Signed-off-by: Joel Stanley <joel@jms.id.au>
-> 
-> FWIW, looks good to me,
-> Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+There were not many concerns raised with v2.  One possible issue with v3 is that
+the reggroups struct uses 'char *' for strings.  We now compare std::string vs
+'char *' which is a bit clumsy,  but I didnt think it calls for converting
+reggroups strings to 'std::string' yet.)
 
-Thanks. Applied for 4.16.
+Onto the change:
+
+Traditionally registers have been limited to names like "vector",
+"general", "system" which are hard coded in the gdbarch.  This patch allows
+additional reggroups to be defined by the xml target description.
+
+This is necessary for architectures like OpenRISC which have many
+registers.
+
+This series also adds documentation on tests for the feature of listing
+register groups via the "info reg $reggroup" command.
 
 -Stafford
 
-> 	-ss
-> 
-> > ---
-> >  arch/openrisc/kernel/traps.c | 3 +--
-> >  1 file changed, 1 insertion(+), 2 deletions(-)
-> > 
-> > diff --git a/arch/openrisc/kernel/traps.c b/arch/openrisc/kernel/traps.c
-> > index 4085d72fa5ae..5fb6d512502d 100644
-> > --- a/arch/openrisc/kernel/traps.c
-> > +++ b/arch/openrisc/kernel/traps.c
-> > @@ -39,8 +39,7 @@
-> >  #include <asm/io.h>
-> >  #include <asm/pgtable.h>
-> >  #include <asm/unwinder.h>
-> > -
-> > -extern char _etext, _stext;
-> > +#include <asm/sections.h>
-> >  
-> >  int kstack_depth_to_print = 0x180;
-> >  int lwa_flag;
-> > -- 
-> > 2.14.1
-> > 
+--
+
+Changes since v2
+ * Fixed NEWS entry XML/descriptions typo seggested by Petro
+ * Rebased on latest upstream/master.
+
+Changes since v1
+ * On 'info reg $reggroup' test and docs patch
+  - Suggested by Eli - Fix changelog
+  - Suggested by Simon
+    > Added help text in 'help info registers'
+    > Fixed 'register' typos
+    > Fixed style of test program
+    > Fixed copyright '2017'
+    > Fixed code styles in expect
+ * On 'arbitrary strings' patch
+  - Suggested by Simon
+    > Allow for freeing reggroups
+  - Suggested by Eli
+    > Add documentation for this feature
+
+Stafford Horne (4):
+  reggroups: Add test and docs for `info reg $reggroup` feature
+  reggroups: Convert reggroups from post_init to pre_init
+  reggroups: Create reggroup_gdbarch_new for dynamic reggroups
+  tdesc: handle arbitrary strings in tdesc_register_in_reggroup_p
+
+ gdb/NEWS                             |  7 ++++
+ gdb/doc/gdb.texinfo                  | 14 +++++--
+ gdb/infcmd.c                         |  8 +++-
+ gdb/reggroups.c                      | 27 +++++++------
+ gdb/reggroups.h                      |  4 ++
+ gdb/target-descriptions.c            | 74 ++++++++++++++++++------------------
+ gdb/testsuite/gdb.base/reggroups.c   |  5 +++
+ gdb/testsuite/gdb.base/reggroups.exp | 63 ++++++++++++++++++++++++++++++
+ gdb/testsuite/gdb.xml/extra-regs.xml |  1 +
+ gdb/testsuite/gdb.xml/tdesc-regs.exp |  3 ++
+ 10 files changed, 152 insertions(+), 54 deletions(-)
+ create mode 100644 gdb/testsuite/gdb.base/reggroups.c
+ create mode 100644 gdb/testsuite/gdb.base/reggroups.exp
+
+-- 
+2.13.6
+
