@@ -1,57 +1,69 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 20 Dec 2017 19:40:10 +0900
-Subject: [OpenRISC] [PATCH v3 1/4] reggroups: Add test and docs for
- `info reg $reggroup` feature
-In-Reply-To: <837etiptz2.fsf@gnu.org>
+Date: Wed, 20 Dec 2017 22:34:54 +0900
+Subject: [OpenRISC] [PATCH v3 4/4] tdesc: handle arbitrary strings in
+ tdesc_register_in_reggroup_p
+In-Reply-To: <20171219221300.GB32243@lianli.shorne-pla.net>
 References: <20171219142257.13402-1-shorne@gmail.com>
- <20171219142257.13402-2-shorne@gmail.com> <837etiptz2.fsf@gnu.org>
-Message-ID: <20171220104010.GC32243@lianli.shorne-pla.net>
+ <20171219142257.13402-5-shorne@gmail.com> <836092ptsa.fsf@gnu.org>
+ <20171219221300.GB32243@lianli.shorne-pla.net>
+Message-ID: <20171220133454.GD32243@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Dec 19, 2017 at 06:23:29PM +0200, Eli Zaretskii wrote:
-> > From: Stafford Horne <shorne@gmail.com>
-> > Cc: Openrisc <openrisc@lists.librecores.org>,	Stafford Horne <shorne@gmail.com>
-> > Date: Tue, 19 Dec 2017 23:22:54 +0900
+Hi Eli
+
+On Wed, Dec 20, 2017 at 07:13:00AM +0900, Stafford Horne wrote:
+> On Tue, Dec 19, 2017 at 06:27:33PM +0200, Eli Zaretskii wrote:
+> > > From: Stafford Horne <shorne@gmail.com>
+> > > Cc: Openrisc <openrisc@lists.librecores.org>,	Stafford Horne <shorne@gmail.com>
+> > > diff --git a/gdb/NEWS b/gdb/NEWS
+> > > index 44f481d1f5..7d27262aee 100644
+> > > --- a/gdb/NEWS
+> > > +++ b/gdb/NEWS
+> > > @@ -3,6 +3,13 @@
+> > >  
+> > >  *** Changes since GDB 8.0
+> > >  
+> > > +* GDB now supports dynamically creating arbitrary register groups specified
+> > > +  in XML target descriptions.  This allows for finer grain grouping of
+> > > +  registers on systems with a large amount of registers.
+> > > +
+> > > +* On Unix systems, GDBserver now does globbing expansion and variable
+> > > +  substitution in inferior command line arguments.
 > > 
-> > Until now this feature has existed but was not documented.  Adding docs
-> > and tests.
+> > The second paragraph doesn't belong to this changeset, right?
 > 
-> Thanks!
+> Right, I accidently brought this in during conflict resolution.  Will fix.
 > 
-> > + at item info registers @var{reggroup} @dots{}
-> > +Print the name and value of the registers in each of the specified
-> > + at var{reggroup}.  The @var{reggoup} can be any of those returned by
+> > >  @item group
+> > > -The register group to which this register belongs.  It must
+> > > -be either @code{general}, @code{float}, or @code{vector}.  If no
+> > > - at var{group} is specified, @value{GDBN} will not display the register
+> > > -in @code{info registers}.
+> > > +The register group to which this register belongs.  It can be one of the
+> > > +standard register groups @code{general}, @code{float}, @code{vector} or an
+> > > +arbitrary string.  The string should be limited to alphanumeric characters
+> > > +and internal hyphens.  If no @var{group} is specified, @value{GDBN} will
+> > 
+> > What do you mean by "internal hyphens"?
 > 
-> Please use "@var{reggroup}s", with the trailing "s", otherwise this is
-> not correct English.
+> This means, hyphens withing the register group name, not starting or ending with
+> hyphens.  (i.e. special-spr,  but not rg1- or -rg2)
 
-OK.
+I looked a bit into this,  I seem to have pulled this text from the
+target-descriptions.c file.  The line saying ".. and internal hyphens" was added
+as a comment in 2007 in commit 123dc839145 by Daniel Jacobowitz.  The commit was
+the introduction of the target descriptions code.
 
-> > + at code{maint print reggroups}.
+I don't see any actual enforcement of the name format.  I can leave that whole
+sentence out.
 
-OK.
-
-> Please add here a cross-reference to the node where "maint print
-> reggroups" is described.
-> 
-> >    c = add_info ("registers", info_registers_command, _("\
-> >  List of integer registers and their contents, for selected stack frame.\n\
-> > -Register name as argument means describe only that register."));
-> > +Register name as argument means describe only that register.\n\
-> > +Register group name as argument means describe the registers in the\n\
-> > +named register group."));
-> 
-> Since this command accepts more than one reggroup, I think the doc
-> string should mention that.
-
-OK.
-
-> The documentation parts are okay with these nits fixed.
-
-Thank you.
+But I think its useful to mention as it is the intended format.  I could change
+it to say something like "alphanumeric characters and hyphens as word
+separators."  or "The group name should be limited to hyphen-separated
+alphanumeric strings."
 
 -Stafford
