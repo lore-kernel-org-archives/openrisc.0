@@ -1,42 +1,22 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 20 Dec 2017 22:34:54 +0900
+From: Eli Zaretskii <eliz@gnu.org>
+Date: Wed, 20 Dec 2017 17:53:52 +0200
 Subject: [OpenRISC] [PATCH v3 4/4] tdesc: handle arbitrary strings in
  tdesc_register_in_reggroup_p
-In-Reply-To: <20171219221300.GB32243@lianli.shorne-pla.net>
+In-Reply-To: <20171219221300.GB32243@lianli.shorne-pla.net> (message from
+ Stafford Horne on Wed, 20 Dec 2017 07:13:00 +0900)
 References: <20171219142257.13402-1-shorne@gmail.com>
- <20171219142257.13402-5-shorne@gmail.com> <836092ptsa.fsf@gnu.org>
- <20171219221300.GB32243@lianli.shorne-pla.net>
-Message-ID: <20171220133454.GD32243@lianli.shorne-pla.net>
+ <20171219142257.13402-5-shorne@gmail.com>
+ <836092ptsa.fsf@gnu.org> <20171219221300.GB32243@lianli.shorne-pla.net>
+Message-ID: <83r2rpo0of.fsf@gnu.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Eli
-
-On Wed, Dec 20, 2017 at 07:13:00AM +0900, Stafford Horne wrote:
-> On Tue, Dec 19, 2017 at 06:27:33PM +0200, Eli Zaretskii wrote:
-> > > From: Stafford Horne <shorne@gmail.com>
-> > > Cc: Openrisc <openrisc@lists.librecores.org>,	Stafford Horne <shorne@gmail.com>
-> > > diff --git a/gdb/NEWS b/gdb/NEWS
-> > > index 44f481d1f5..7d27262aee 100644
-> > > --- a/gdb/NEWS
-> > > +++ b/gdb/NEWS
-> > > @@ -3,6 +3,13 @@
-> > >  
-> > >  *** Changes since GDB 8.0
-> > >  
-> > > +* GDB now supports dynamically creating arbitrary register groups specified
-> > > +  in XML target descriptions.  This allows for finer grain grouping of
-> > > +  registers on systems with a large amount of registers.
-> > > +
-> > > +* On Unix systems, GDBserver now does globbing expansion and variable
-> > > +  substitution in inferior command line arguments.
-> > 
-> > The second paragraph doesn't belong to this changeset, right?
-> 
-> Right, I accidently brought this in during conflict resolution.  Will fix.
+> Date: Wed, 20 Dec 2017 07:13:00 +0900
+> From: Stafford Horne <shorne@gmail.com>
+> Cc: gdb-patches at sourceware.org, openrisc at lists.librecores.org
 > 
 > > >  @item group
 > > > -The register group to which this register belongs.  It must
@@ -53,17 +33,9 @@ On Wed, Dec 20, 2017 at 07:13:00AM +0900, Stafford Horne wrote:
 > This means, hyphens withing the register group name, not starting or ending with
 > hyphens.  (i.e. special-spr,  but not rg1- or -rg2)
 
-I looked a bit into this,  I seem to have pulled this text from the
-target-descriptions.c file.  The line saying ".. and internal hyphens" was added
-as a comment in 2007 in commit 123dc839145 by Daniel Jacobowitz.  The commit was
-the introduction of the target descriptions code.
+Then I think this text needs to be rephrased, so that it first says
+what are the characters allowed in a reggroup name, and then says that
+ranges of groups, with 2 group names separated by hyphens, are also
+accepted.
 
-I don't see any actual enforcement of the name format.  I can leave that whole
-sentence out.
-
-But I think its useful to mention as it is the intended format.  I could change
-it to say something like "alphanumeric characters and hyphens as word
-separators."  or "The group name should be limited to hyphen-separated
-alphanumeric strings."
-
--Stafford
+Thanks.
