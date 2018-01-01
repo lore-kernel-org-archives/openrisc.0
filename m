@@ -1,89 +1,114 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 24 Dec 2017 23:47:34 +0900
-Subject: [OpenRISC] [PATCH v3 1/4] reggroups: Add test and docs for
- `info reg $reggroup` feature
-In-Reply-To: <00b5d74739aced5252fd0a035397b11f@polymtl.ca>
-References: <20171219142257.13402-1-shorne@gmail.com>
- <20171219142257.13402-2-shorne@gmail.com>
- <00b5d74739aced5252fd0a035397b11f@polymtl.ca>
-Message-ID: <20171224144734.GF32243@lianli.shorne-pla.net>
+Date: Mon, 1 Jan 2018 21:55:46 +0900
+Subject: [OpenRISC] OpenRISC GCC upstream plan
+Message-ID: <20180101125546.GH32243@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Dec 20, 2017 at 09:58:45PM -0500, Simon Marchi wrote:
-> On 2017-12-19 09:22, Stafford Horne wrote:
-> > Until now this feature has existed but was not documented.  Adding docs
-> > and tests.
-> > 
+Hello,
 
-...
+Last year Richard sent his work on gcc7 for openrisc.
 
-> > +proc fetch_reggroups {test} {
-> > +    global gdb_prompt
-> > +    global expect_out
-> > +
-> > +    set reggroups {}
-> > +    gdb_test_multiple "maint print reggroups" "get reggroups" {
-> > +	-re "maint print reggroups\r\n" {
-> > +	    exp_continue
-> > +	}
-> > +	-re "^ Group\[ \t\]+Type\[ \t\]+\r\n" {
-> > +	    exp_continue
-> > +	}
-> > +	-re "^ (\[0-9a-zA-Z\-\]+)\[ \t\]+(user|internal)\[ \t\]+\r\n" {
-> > +	    lappend reggroups $expect_out(1,string)
-> > +	    exp_continue
-> > +	}
-> > +	-re ".*$gdb_prompt $" {
-> 
-> The .* should not be necessary here.
+You can find it here:
 
-OK.
+    git://github.com/rth7680/binutils-gdb.git or1k-3
+    git://github.com/rth7680/gcc.git or1k-7-1
 
-> > +	    if { [llength $reggroups] != 0 } {
-> > +		pass $test
-> > +	    } else {
-> > +		fail "$test - didn't fetch any reggroups"
-> > +	    }
-> > +	}
-> > +    }
-> > +
-> > +    return $reggroups
-> > +}
-> > +
-> > +set reggroups [fetch_reggroups "fetch reggroups"]
-> > +
-> > +foreach reggroup $reggroups {
-> > +    gdb_test "info reg $reggroup" ".*" "info reg $reggroup"
-> > +}
-> 
-> This doesn't really test anything.  If you change the line to
-> 
->   gdb_test "info reg hello$reggroup" ".*" "info reg $reggroup"
-> 
-> to fake that the command doesn't work, the test still passes.  So if
-> something breaks the feature of "info registers" handling reg groups, the
-> test won't catch it.  But I understand the problem, the output is not really
-> predictable.  I thought about matching at least one $hex number, but it's
-> not even guaranteed (some groups like mmx output nothing).
-> 
-> What we could do (I'm open to better suggestions) is at least validate that
-> it doesn't output "Invalid register", which is the message given when
-> passing a register that doesn't exist.  But then, if that message changes
-> one day for some reason, the test will become moot again (because GDB will
-> output something else than "Invalid register" if the functionality breaks,
-> but the test won't catch it).  So in addition, we could also validate that
-> "info registers a_non_existent_register" does output "Invalid register".
-> This way, if some GDB developers of the future change the message, the test
-> will fail, they will go look at your test file, read the comment that you
-> will have left, and update the test accordingly.
+  which includes the additional relocations both for unmodified or1k, as well as
+  implementing the l.adrp proposal from
 
-Right, I will do this.   I will also try to match at least one $hex number
-accross all reggroups.  Some will be blank, but if all are blank its probably an
-issue.
+    http://openrisc.io/proposals/ladrp
+
+Now that gdb and most of the kernel patches are upstream I have started to look
+at these.  (sorry for the long delay).  The improvements are great, but I would
+like to discuss upstream plans for GCC.
+
+From what we know GCC cannot go upstream due to early patches from Matjaz, and
+he has not assigned his FSF copyright.
+
+Options;
+
+  1.  Continue to keep Or1k GCC out of upstream.
+  2.  Clean-room rewrite.
+  3.  Determine if Matjaz's contributions can be deem trivial and upstream the
+      current gcc.
+  4.  Convince Matjaz to do FSF copyright assignment.
+
+## GCC development History ##
+
+From CVS, SVN and Git history I have been able to track the following:
+
+  2001 - [simons, lampret] Initial development on gcc port in CVS
+  2002-2003 - [phoenix, simons, mohor] development on gcc-3.1 port CVS
+  2005 - [phoenix] imported gcc-3.4.4 patches stating (major optimizations for
+         or32 target) SVN [1]
+  2009-2010 [Jeremy Bennett, Jungsook] work on gcc 4.2.2 SVN [2]
+    - floating point support
+    - dwarf support
+  2010-2012 [Jeremy Bennett, Joern Rennecke] work on gcc 4.5.1 SVN [3]
+    - nested functions
+    - support for c++
+  2012-2015 [pgavin, julius, stekern, bluecmd] work on gcc-4 and gcc-5 [4]
+    - rename or32 to or1k
+    - support PIC
+    - support TLS
+    - support Atomics
+  2016-207 [rth] work on gcc7 [5]
+    - major optimizations and cleanups
+    - support for tailcalls
+    - fix delayslot
+    - new relocations
+
+Notes:
+  - phoenix is Matjaz.
+  - from 2001 to 2005 we have no history, the original import of gcc with
+    history is Matjaz's in 2005
+
+If anyone has some more input on the history or an old repo copy it would be
+helpful.
+
+From what I can gather Matjaz did a bit of work on gcc-3, but I cannot really
+determine what.  The bulk of the work seems to be the initial bootstrap from
+Damjan the work from Jeremy's team and the work from 2012 on.
+
+## Option 3 (Derived works) ##
+
+From previous discussions I have heard that even if we can determine that
+Matjaz's code has been removed/overwritten we cannot upstream the work. That
+being because all work since his contributions are derived works.
+
+I have a new argument, that his work is not significant.  But its hard to
+determine if its trivial compared to the main development.
+
+## Option 2 (Rewrite) ##
+
+If we cannot go ahead with the current code base I would like to start a
+cleanroom rewrite.   I have looked at the code enough to understand current
+features but not enough to be influenced if I start writing from scratch.
+
+Since big chucks of the work are independent works can we reuse them in the
+rewrite?  For example:
+  - PIC support
+  - TLS support
+  - Floating Point
+  - Atomics
+  - Tail Call optimization
+
+Anyone want to help?
+
+## Next Steps ##
+
+  - Create a toolchain release of Richards 7.x branch (I have rebased on 7.2.0)
+  - Gather feedback on Upstreaming/rewrite
 
 -Stafford
 
+[0] ftp://ftp.gwdg.de/pub/misc/opencores/ml-archive/archives/cvs-checkins/0212/maillist.html#00015 - ftp.gwdg.de cvs-checkin mails
+[1] https://opencores.org/websvn,log?repname=or1k&path=%2For1k%2Ftrunk%2Fgcc%2Fgcc-3.4.4%2Fgcc%2Fconfig%2For32%2F&rev=0&isdir=1 - web svn or1k/trunk/gcc/gcc/3.4.4
+[2] https://opencores.org/websvn,log?repname=openrisc&path=%2Fopenrisc%2Ftrunk%2Fgnu-old%2Fgcc-4.2.2%2Fgcc%2F&rev=0&isdir=1
+[3] https://opencores.org/websvn,log?repname=openrisc&path=%2Fopenrisc%2Ftrunk%2Fgnu-stable%2Fgcc-4.5.1%2Fgcc%2F&rev=0&isdir=1
+[4] https://github.com/openrisc/or1k-gcc/commits/or1k-5.4.0?before=9310fdc97ee9bd21bcc73a02ff10c8b9ecdf066f+35&path%5B%5D=gcc&path%5B%5D=config&path%5B%5D=or1k
+[5] https://github.com/rth7680/gcc/commits/or1k-7-2
