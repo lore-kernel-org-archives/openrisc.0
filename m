@@ -1,42 +1,52 @@
-From: Richard Henderson <rth@twiddle.net>
-Date: Mon, 1 Jan 2018 14:48:02 -0800
-Subject: [OpenRISC] OpenRISC GCC upstream plan
-In-Reply-To: <20180101125546.GH32243@lianli.shorne-pla.net>
-References: <20180101125546.GH32243@lianli.shorne-pla.net>
-Message-ID: <c6104ef7-0dba-fcd7-e57e-f925b85fc553@twiddle.net>
+From: Stafford Horne <shorne@gmail.com>
+Date: Wed, 3 Jan 2018 23:41:29 +0900
+Subject: [OpenRISC] [PATCH -next] irqchip/ompic: fix return value check
+ in ompic_of_init()
+In-Reply-To: <1514893639-70586-1-git-send-email-weiyongjun1@huawei.com>
+References: <1514893639-70586-1-git-send-email-weiyongjun1@huawei.com>
+Message-ID: <20180103144129.GJ32243@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 01/01/2018 04:55 AM, Stafford Horne wrote:
->>From what we know GCC cannot go upstream due to early patches from Matjaz, and
-> he has not assigned his FSF copyright.
+On Tue, Jan 02, 2018 at 11:47:19AM +0000, Wei Yongjun wrote:
+> In case of error, the function ioremap() returns NULL pointer not
+> ERR_PTR(). The IS_ERR() test in the return value check should be
+> replaced with NULL test.
+
+Thanks, I am not sure why I was using the *ERR*() macros.  2 questions:
+
+ - How did you notice this?
+ - Should I pull this in through my tree or do you have another route? i.e.
+   Marc?
+
+> Fixes: 9b54470afd83 ("irqchip: add initial support for ompic")
+> Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+
+Acked-by: Stafford Horne <shorne@gmail.com>
+
+-Stafford
+
+> ---
+>  drivers/irqchip/irq-ompic.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> Options;
+> diff --git a/drivers/irqchip/irq-ompic.c b/drivers/irqchip/irq-ompic.c
+> index cf6d0c4..400b119 100644
+> --- a/drivers/irqchip/irq-ompic.c
+> +++ b/drivers/irqchip/irq-ompic.c
+> @@ -171,9 +171,9 @@ static int __init ompic_of_init(struct device_node *node,
+>  
+>  	/* Setup the device */
+>  	ompic_base = ioremap(res.start, resource_size(&res));
+> -	if (IS_ERR(ompic_base)) {
+> +	if (!ompic_base) {
+>  		pr_err("ompic: unable to map registers");
+> -		return PTR_ERR(ompic_base);
+> +		return -ENOMEM;
+>  	}
+>  
+>  	irq = irq_of_parse_and_map(node, 0);
 > 
->   1.  Continue to keep Or1k GCC out of upstream.
->   2.  Clean-room rewrite.
->   3.  Determine if Matjaz's contributions can be deem trivial and upstream the
->       current gcc.
->   4.  Convince Matjaz to do FSF copyright assignment.
-
-IANAL, so I won't opine on (3).  I think (4) would obviously be the best route,
-if that is at all a possibility.
-
-Failing that, I'm willing to mentor (2) for any volunteers.  I'm not currently
-active in gcc, but I expect most backend advice is still current.
-
-There's also my to-do list that I never finished: primarily, support Sparcv9
-style double-offset relocations.
-
-This takes advantage of the fact that the page-offset relocation requires 13
-bits, but the load/store instructions that use the page-offset relocation have
-16 bits.  Thus one can be certain that an addend between -32768 and 24576
-cannot overflow the field.  That is quite a significant range and can easily be
-combined with the section anchor support to minimize the number of l.adrp
-instructions required to address lots of local variables.
-
-
-r~
