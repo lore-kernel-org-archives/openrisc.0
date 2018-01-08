@@ -1,10 +1,10 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 8 Jan 2018 22:07:41 +0900
+From: Guenter Roeck <linux@roeck-us.net>
+Date: Mon, 8 Jan 2018 08:58:19 -0800
 Subject: [OpenRISC] [RFC PATCH] openrisc: Make THREAD_SIZE available to
 	vmlinux.lds
 In-Reply-To: <151541010076.29169.14786412338552538306.stgit@warthog.procyon.org.uk>
 References: <151541010076.29169.14786412338552538306.stgit@warthog.procyon.org.uk>
-Message-ID: <20180108130741.GE13019@lianli.shorne-pla.net>
+Message-ID: <20180108165818.GC26729@roeck-us.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -17,18 +17,12 @@ On Mon, Jan 08, 2018 at 11:15:00AM +0000, David Howells wrote:
 > 
 > This allows init_stack to be allocated in the linker script in a subsequent
 > patch.
-
-This looks fine, I see your patch "7e7a20a2058dc8a5106593692cfb0876de028892"
-(Construct init thread stack in the linker script rather than by union) already
-has some updates for openrisc, which are good cleanups too.
-
-Since the two patches depend on eachother do you want to put this in the queue
-with your other patches?
-
-Acked-by: Stafford Horne <shorne@gmail.com>
-
+> 
 > Reported-by: Guenter Roeck <linux@roeck-us.net>
 > Signed-off-by: David Howells <dhowells@redhat.com>
+
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+
 > cc: Guenter Roeck <linux@roeck-us.net>
 > cc: Jonas Bonn <jonas@southpole.se>
 > cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
