@@ -1,32 +1,54 @@
-From: weiyongjun (A) <weiyongjun1@huawei.com>
-Date: Thu, 4 Jan 2018 03:56:41 +0000
-Subject: [OpenRISC] [PATCH -next] irqchip/ompic: fix return value check
- in ompic_of_init()
-In-Reply-To: <20180103144129.GJ32243@lianli.shorne-pla.net>
-References: <1514893639-70586-1-git-send-email-weiyongjun1@huawei.com>
- <20180103144129.GJ32243@lianli.shorne-pla.net>
-Message-ID: <6AADFAC011213A4C87B956458587ADB40131FAB5@dggemi507-mbx.china.huawei.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Mon, 8 Jan 2018 22:07:41 +0900
+Subject: [OpenRISC] [RFC PATCH] openrisc: Make THREAD_SIZE available to
+	vmlinux.lds
+In-Reply-To: <151541010076.29169.14786412338552538306.stgit@warthog.procyon.org.uk>
+References: <151541010076.29169.14786412338552538306.stgit@warthog.procyon.org.uk>
+Message-ID: <20180108130741.GE13019@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Jan 03, 2018 10:41 PM, Stafford Horne wrote:
-> On Tue, Jan 02, 2018 at 11:47:19AM +0000, Wei Yongjun wrote:
-> > In case of error, the function ioremap() returns NULL pointer not
-> > ERR_PTR(). The IS_ERR() test in the return value check should be
-> > replaced with NULL test.
+On Mon, Jan 08, 2018 at 11:15:00AM +0000, David Howells wrote:
+> Make THREAD_SIZE available to vmlinux.lds on openrisc by including
+> asm/thread_info.h the linker script.
 > 
-> Thanks, I am not sure why I was using the *ERR*() macros.  2 questions:
+> This allows init_stack to be allocated in the linker script in a subsequent
+> patch.
+
+This looks fine, I see your patch "7e7a20a2058dc8a5106593692cfb0876de028892"
+(Construct init thread stack in the linker script rather than by union) already
+has some updates for openrisc, which are good cleanups too.
+
+Since the two patches depend on eachother do you want to put this in the queue
+with your other patches?
+
+Acked-by: Stafford Horne <shorne@gmail.com>
+
+> Reported-by: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: David Howells <dhowells@redhat.com>
+> cc: Guenter Roeck <linux@roeck-us.net>
+> cc: Jonas Bonn <jonas@southpole.se>
+> cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+> cc: Stafford Horne <shorne@gmail.com>
+> cc: openrisc at lists.librecores.org
+> ---
 > 
->  - How did you notice this?
-
-This is detected by Coccinelle semantic patch. 
-
->  - Should I pull this in through my tree or do you have another route? i.e.
->    Marc?
-
-Feel free to pull this through your tree.
-
-
+>  arch/openrisc/kernel/vmlinux.lds.S |    1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/arch/openrisc/kernel/vmlinux.lds.S b/arch/openrisc/kernel/vmlinux.lds.S
+> index 00ddb7804be4..953bdcd54efe 100644
+> --- a/arch/openrisc/kernel/vmlinux.lds.S
+> +++ b/arch/openrisc/kernel/vmlinux.lds.S
+> @@ -28,6 +28,7 @@
+>  
+>  #include <asm/page.h>
+>  #include <asm/cache.h>
+> +#include <asm/thread_info.h>
+>  #include <asm-generic/vmlinux.lds.h>
+>  
+>  #ifdef __OR1K__
+> 
