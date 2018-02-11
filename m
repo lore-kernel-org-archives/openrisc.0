@@ -1,54 +1,117 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 29 Jan 2018 07:33:55 +0900
-Subject: [OpenRISC] Linux4 does not boot on Atlys SoC
-In-Reply-To: <CADzBsGM_4riVz67CyK=CssJHavTTv76SQG7vnMWh6BpKw2HaMg@mail.gmail.com>
-References: <AB8A0ACF1D594E2A874B40F24E1C27E9@BAndViG>
- <D07B6A366A7B448CBE61BFAA6BBCD03C@BAndViG>
- <CADzBsGM_4riVz67CyK=CssJHavTTv76SQG7vnMWh6BpKw2HaMg@mail.gmail.com>
-Message-ID: <20180128223355.GB30895@lianli.shorne-pla.net>
+From: BAndViG <bandvig@mail.ru>
+Date: Sun, 11 Feb 2018 17:03:43 +0300
+Subject: [OpenRISC] Problem with Marvell PHY connection to ETHOC
+Message-ID: <CCDCD6D7A3674361AF43E1531DF60BFA@BAndViG>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sun, Jan 28, 2018 at 10:31:02PM +0200, Stefan Kristiansson wrote:
-> >If I remember correctly it isn't possible to force simulation of atomic instructions at compile time in Linux-4.x. Instead, Linux-4.x should switch on such simulation by appropriate "instruction invalid" exception. However, it looks like the approach works in Stafford's development
-> > environment (I mean QEMU), but doesn't in HW- implemented pipe.
-> 
-> I tested the implementation that I did (that Stafford then improved)
-> on hardware, but that was many moons ago.
+Hello all!
+I'm continue plying with Linux4 on Atlys SoC. And it looks like there is 
+problem with connection Marvell's PHY to ETHOC.
+Initially my device tree had Ethernet node in the form:
 
-Yes, I have a feeling that there is a difference with exception handling on qemu
-and hardware.  I also noticed that enabling using the DSX flag causes the kernel
-to boot on hardware, but works on the simulator (QEMU).  This we can workaround
-turning on emulation.
+eth0: ethoc at 92000000 {
+  compatible = "opencores,ethoc";
+  device_type = "network";
+  reg = <0x92000000 0x100>;
+  interrupts = <4>;
+  local-mac-address = [ 00 12 34 56 78 9a ];
+};
 
-This is not a good thing but I havent taken the time to trace it.
+Linux boot messages (related to ETHOC and PHYs):
 
-I think we need patches for the kernel and qemu to sort it out.
+/* begin */
 
--Stafford
+Registering platform device 'Fixed MDIO bus.0'. Parent at platform
+device: 'Fixed MDIO bus.0': device_add
+bus: 'platform': add device Fixed MDIO bus.0
+device: 'fixed-0': device_add
+libphy: Fixed MDIO Bus: probed
+bus: 'mdio_bus': add driver Marvell 88E1101
+bus: 'mdio_bus': add driver Marvell 88E1112
+bus: 'mdio_bus': add driver Marvell 88E1111
+bus: 'mdio_bus': add driver Marvell 88E1118
+bus: 'mdio_bus': add driver Marvell 88E1121R
+bus: 'mdio_bus': add driver Marvell 88E1318S
+bus: 'mdio_bus': add driver Marvell 88E1145
+bus: 'mdio_bus': add driver Marvell 88E1149R
+bus: 'mdio_bus': add driver Marvell 88E1240
+bus: 'mdio_bus': add driver Marvell 88E1116R
+bus: 'mdio_bus': add driver Marvell 88E1510
+bus: 'mdio_bus': add driver Marvell 88E1540
+bus: 'mdio_bus': add driver Marvell 88E1545
+bus: 'mdio_bus': add driver Marvell 88E3016
+bus: 'mdio_bus': add driver Marvell 88E6390
+bus: 'platform': add driver ethoc
+bus: 'platform': driver_probe_device: matched device 92000000.ethoc with 
+driver ethoc
+bus: 'platform': really_probe: probing driver ethoc with device 
+92000000.ethoc
+devices_kset: Moving 92000000.ethoc to end of list
+device: 'ethoc-mdio--1': device_add
+device: 'ethoc-mdio--1:00': device_add
+bus: 'mdio_bus': add device ethoc-mdio--1:00
+device: 'ethoc-mdio--1:01': device_add
 
-> On Sun, Jan 28, 2018 at 9:22 PM, BAndViG <bandvig@mail.ru> wrote:
-> > It looks like it is definitely a problem with lwa/swa implementation in
-> > CAPPUCCINO.
-> > I'm working  with pseudo- clock domain crossing support for MAROCCHINO
-> > pipeline  (https://github.com/bandvig/mor1kx/tree/wb_cdc_75). "Pseudo" means
-> > two assumptions (1) core clock must be greater or equal to Wishbone clock
-> > and (2) core clock and Wishbone clock must be aligned. Almost all things are
-> > implemented for multi-core support. In fact just DCACHE snoop is the rest.
-> > Atomic instructions are already implemented and I've tested them in single
-> > core SoC (modified Atlys SoC) with successful run of Linux-4.15.
-> >
-> >
-> > BR
-> > Andrey Bacherov
-> > _______________________________________________
-> > OpenRISC mailing list
-> > OpenRISC at lists.librecores.org
-> > https://lists.librecores.org/listinfo/openrisc
-> _______________________________________________
-> OpenRISC mailing list
-> OpenRISC at lists.librecores.org
-> https://lists.librecores.org/listinfo/openrisc
+/* skip similar messages for  ethoc-mdio--1:01 ... 1:1e */
+
+device: 'ethoc-mdio--1:1f': device_add
+bus: 'mdio_bus': add device ethoc-mdio--1:1f
+libphy: ethoc-mdio: probed
+driver: 'Generic PHY': driver_bound: bound to device 'ethoc-mdio--1:00'
+device: 'eth0': device_add
+driver: 'ethoc': driver_bound: bound to device '92000000.ethoc'
+bus: 'platform': really_probe: bound device 92000000.ethoc to driver ethoc
+
+/* end */
+
+It looks incorrectly because:
+1) ETHOC is connected to Marvell 88E1111 PHY on  Atlys board
+2) PHY MDIO address = 00111 (from Atlys reference manual)
+
+As the result:
+  ifconfig eth0 inet 192.168.2.100 netmask 255.255.255.0 &
+(from init.d) reports "ethoc 92000000.ethoc eth0: Link is Down" and 
+networking applications (like ping) don't work.
+
+If I understand correctly the two MDIO buses are registered
+1) device 'Fixed MDIO bus.0'. Parent at platform
+2) "ethoc-mdio" which is internal for ETHOC
+
+And I need to describe that Marvell's PHY is connected to "ethoc-mdio" 
+rather than to 'Fixed MDIO bus.0'.
+After some investigation I tried the variant:
+
+eth0: ethoc at 92000000 {
+  compatible = "opencores,ethoc";
+  device_type = "network";
+  reg = <0x92000000 0x100>;
+  interrupts = <4>;
+  local-mac-address = [ 00 12 34 56 78 9a ];
+  phy-handle = <&ethphy>;
+
+  mdio {
+    #address-cells = <1>;
+    #size-cells = <0>;
+
+    ethphy: ethernet-phy at 7 {
+      /* Marvell 88E1111 */
+      compatible = "ethernet-phy-id0141.0cc0",
+                   "ethernet-phy-ieee802.3-c22";
+      device_type = "ethernet-phy";
+      reg = <0x7>;
+    };
+  };
+};
+
+However the result was the same.
+
+How should I describe "ethoc-mdio" in device tree correctly?
+
+BR
+Andrey Bacherov
+
+
