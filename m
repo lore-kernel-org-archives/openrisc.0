@@ -1,117 +1,70 @@
-From: BAndViG <bandvig@mail.ru>
-Date: Sun, 11 Feb 2018 17:03:43 +0300
-Subject: [OpenRISC] Problem with Marvell PHY connection to ETHOC
-Message-ID: <CCDCD6D7A3674361AF43E1531DF60BFA@BAndViG>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Thu, 15 Feb 2018 16:17:28 +0100
+Subject: [OpenRISC] [PATCH 3.18 37/45] signal/openrisc: Fix
+	do_unaligned_access to send the proper signal
+In-Reply-To: <20180215144115.863307741@linuxfoundation.org>
+References: <20180215144115.863307741@linuxfoundation.org>
+Message-ID: <20180215144123.809884631@linuxfoundation.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hello all!
-I'm continue plying with Linux4 on Atlys SoC. And it looks like there is 
-problem with connection Marvell's PHY to ETHOC.
-Initially my device tree had Ethernet node in the form:
+3.18-stable review patch.  If anyone has any objections, please let me know.
 
-eth0: ethoc at 92000000 {
-  compatible = "opencores,ethoc";
-  device_type = "network";
-  reg = <0x92000000 0x100>;
-  interrupts = <4>;
-  local-mac-address = [ 00 12 34 56 78 9a ];
-};
+------------------
 
-Linux boot messages (related to ETHOC and PHYs):
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-/* begin */
+commit 500d58300571b6602341b041f97c082a461ef994 upstream.
 
-Registering platform device 'Fixed MDIO bus.0'. Parent at platform
-device: 'Fixed MDIO bus.0': device_add
-bus: 'platform': add device Fixed MDIO bus.0
-device: 'fixed-0': device_add
-libphy: Fixed MDIO Bus: probed
-bus: 'mdio_bus': add driver Marvell 88E1101
-bus: 'mdio_bus': add driver Marvell 88E1112
-bus: 'mdio_bus': add driver Marvell 88E1111
-bus: 'mdio_bus': add driver Marvell 88E1118
-bus: 'mdio_bus': add driver Marvell 88E1121R
-bus: 'mdio_bus': add driver Marvell 88E1318S
-bus: 'mdio_bus': add driver Marvell 88E1145
-bus: 'mdio_bus': add driver Marvell 88E1149R
-bus: 'mdio_bus': add driver Marvell 88E1240
-bus: 'mdio_bus': add driver Marvell 88E1116R
-bus: 'mdio_bus': add driver Marvell 88E1510
-bus: 'mdio_bus': add driver Marvell 88E1540
-bus: 'mdio_bus': add driver Marvell 88E1545
-bus: 'mdio_bus': add driver Marvell 88E3016
-bus: 'mdio_bus': add driver Marvell 88E6390
-bus: 'platform': add driver ethoc
-bus: 'platform': driver_probe_device: matched device 92000000.ethoc with 
-driver ethoc
-bus: 'platform': really_probe: probing driver ethoc with device 
-92000000.ethoc
-devices_kset: Moving 92000000.ethoc to end of list
-device: 'ethoc-mdio--1': device_add
-device: 'ethoc-mdio--1:00': device_add
-bus: 'mdio_bus': add device ethoc-mdio--1:00
-device: 'ethoc-mdio--1:01': device_add
+While reviewing the signal sending on openrisc the do_unaligned_access
+function stood out because it is obviously wrong.  A comment about an
+si_code set above when actually si_code is never set.  Leading to a
+random si_code being sent to userspace in the event of an unaligned
+access.
 
-/* skip similar messages for  ethoc-mdio--1:01 ... 1:1e */
+Looking further SIGBUS BUS_ADRALN is the proper pair of signal and
+si_code to send for an unaligned access. That is what other
+architectures do and what is required by posix.
 
-device: 'ethoc-mdio--1:1f': device_add
-bus: 'mdio_bus': add device ethoc-mdio--1:1f
-libphy: ethoc-mdio: probed
-driver: 'Generic PHY': driver_bound: bound to device 'ethoc-mdio--1:00'
-device: 'eth0': device_add
-driver: 'ethoc': driver_bound: bound to device '92000000.ethoc'
-bus: 'platform': really_probe: bound device 92000000.ethoc to driver ethoc
+Given that do_unaligned_access is broken in a way that no one can be
+relying on it on openrisc fix the code to just do the right thing.
 
-/* end */
+Fixes: 769a8a96229e ("OpenRISC: Traps")
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Cc: Stafford Horne <shorne@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: openrisc at lists.librecores.org
+Acked-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-It looks incorrectly because:
-1) ETHOC is connected to Marvell 88E1111 PHY on  Atlys board
-2) PHY MDIO address = 00111 (from Atlys reference manual)
+---
+ arch/openrisc/kernel/traps.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-As the result:
-  ifconfig eth0 inet 192.168.2.100 netmask 255.255.255.0 &
-(from init.d) reports "ethoc 92000000.ethoc eth0: Link is Down" and 
-networking applications (like ping) don't work.
-
-If I understand correctly the two MDIO buses are registered
-1) device 'Fixed MDIO bus.0'. Parent at platform
-2) "ethoc-mdio" which is internal for ETHOC
-
-And I need to describe that Marvell's PHY is connected to "ethoc-mdio" 
-rather than to 'Fixed MDIO bus.0'.
-After some investigation I tried the variant:
-
-eth0: ethoc at 92000000 {
-  compatible = "opencores,ethoc";
-  device_type = "network";
-  reg = <0x92000000 0x100>;
-  interrupts = <4>;
-  local-mac-address = [ 00 12 34 56 78 9a ];
-  phy-handle = <&ethphy>;
-
-  mdio {
-    #address-cells = <1>;
-    #size-cells = <0>;
-
-    ethphy: ethernet-phy at 7 {
-      /* Marvell 88E1111 */
-      compatible = "ethernet-phy-id0141.0cc0",
-                   "ethernet-phy-ieee802.3-c22";
-      device_type = "ethernet-phy";
-      reg = <0x7>;
-    };
-  };
-};
-
-However the result was the same.
-
-How should I describe "ethoc-mdio" in device tree correctly?
-
-BR
-Andrey Bacherov
+--- a/arch/openrisc/kernel/traps.c
++++ b/arch/openrisc/kernel/traps.c
+@@ -302,12 +302,12 @@ asmlinkage void do_unaligned_access(stru
+ 	siginfo_t info;
+ 
+ 	if (user_mode(regs)) {
+-		/* Send a SIGSEGV */
+-		info.si_signo = SIGSEGV;
++		/* Send a SIGBUS */
++		info.si_signo = SIGBUS;
+ 		info.si_errno = 0;
+-		/* info.si_code has been set above */
+-		info.si_addr = (void *)address;
+-		force_sig_info(SIGSEGV, &info, current);
++		info.si_code = BUS_ADRALN;
++		info.si_addr = (void __user *)address;
++		force_sig_info(SIGBUS, &info, current);
+ 	} else {
+ 		printk("KERNEL: Unaligned Access 0x%.8lx\n", address);
+ 		show_registers(regs);
 
 
