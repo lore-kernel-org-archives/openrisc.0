@@ -1,17 +1,17 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Thu, 15 Feb 2018 16:17:28 +0100
-Subject: [OpenRISC] [PATCH 3.18 37/45] signal/openrisc: Fix
+Date: Thu, 15 Feb 2018 16:17:33 +0100
+Subject: [OpenRISC] [PATCH 4.4 096/108] signal/openrisc: Fix
 	do_unaligned_access to send the proper signal
-In-Reply-To: <20180215144115.863307741@linuxfoundation.org>
-References: <20180215144115.863307741@linuxfoundation.org>
-Message-ID: <20180215144123.809884631@linuxfoundation.org>
+In-Reply-To: <20180215151222.267507937@linuxfoundation.org>
+References: <20180215151222.267507937@linuxfoundation.org>
+Message-ID: <20180215151235.732345205@linuxfoundation.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-3.18-stable review patch.  If anyone has any objections, please let me know.
+4.4-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
