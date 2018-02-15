@@ -1,17 +1,17 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Thu, 15 Feb 2018 16:17:33 +0100
-Subject: [OpenRISC] [PATCH 4.14 162/195] signal/openrisc: Fix
+Date: Thu, 15 Feb 2018 16:17:46 +0100
+Subject: [OpenRISC] [PATCH 4.15 166/202] signal/openrisc: Fix
 	do_unaligned_access to send the proper signal
-In-Reply-To: <20180215151705.738773577@linuxfoundation.org>
-References: <20180215151705.738773577@linuxfoundation.org>
-Message-ID: <20180215151714.057556782@linuxfoundation.org>
+In-Reply-To: <20180215151712.768794354@linuxfoundation.org>
+References: <20180215151712.768794354@linuxfoundation.org>
+Message-ID: <20180215151721.558986600@linuxfoundation.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-4.14-stable review patch.  If anyone has any objections, please let me know.
+4.15-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -48,7 +48,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/openrisc/kernel/traps.c
 +++ b/arch/openrisc/kernel/traps.c
-@@ -306,12 +306,12 @@ asmlinkage void do_unaligned_access(stru
+@@ -266,12 +266,12 @@ asmlinkage void do_unaligned_access(stru
  	siginfo_t info;
  
  	if (user_mode(regs)) {
