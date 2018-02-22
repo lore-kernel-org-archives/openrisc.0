@@ -1,70 +1,77 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Thu, 15 Feb 2018 16:17:46 +0100
-Subject: [OpenRISC] [PATCH 4.15 166/202] signal/openrisc: Fix
-	do_unaligned_access to send the proper signal
-In-Reply-To: <20180215151712.768794354@linuxfoundation.org>
-References: <20180215151712.768794354@linuxfoundation.org>
-Message-ID: <20180215151721.558986600@linuxfoundation.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Thu, 22 Feb 2018 16:45:06 +0100
+Subject: [OpenRISC] Removing architectures without upstream gcc support
+Message-ID: <CAK8P3a2-6YwRR3j7J78fVHSvDpq8Kf4wRj6d9mnGgAxgkYypxg@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-4.15-stable review patch.  If anyone has any objections, please let me know.
+While building the cross-toolchains, I noticed that overall, we can build almost
+all linux target architectures with upstream binutils and gcc these days,
+however there are still some exceptions, and I'd like to find out if anyone
+has objections to removing the ones that do not have upstream support.
+This are the four architectures I found:
 
-------------------
+* score (s+core, sunplus core) was a proprietary RISC architecture
+  made by sunplus. It is unclear if they still ship any products based on
+  this architecture, all they list is either ARM Cortex-A9 or an unspecified
+  RISC core that could be any of arm, mips, nds32, arc, xtensa or
+  something completely different. The two maintainers have both left the
+  company many years ago and have not contributed any patches in
+  at least five years. There was an upstream gcc port, which was marked
+  'obsolete' in 2013 and got removed in gcc-5.0.
+  I conclude that this is dead in Linux and can be removed
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+* unicore32 was a research project at Peking University with a SoC
+  based on the Intel PXA design. No gcc source code has ever been
+  published, the only toolchain available is a set of binaries that include
+  a gcc-4.4 compiler. The project page at
+  http://mprc.pku.edu.cn/~guanxuetao/linux/ has a TODO list that has
+  not been modified since 2011. The maintainer still Acks patches
+  and has last sent a pull request in 2014 and last sent a patch of
+  his own in 2012 when the project appears to have stalled.
+  I would suggest removing this one.
 
-commit 500d58300571b6602341b041f97c082a461ef994 upstream.
+* Hexagon is Qualcomm's DSP architecture. It is being actively used
+  in all Snapdragon ARM SoCs, but the kernel code appears to be
+  the result of a failed research project to make a standalone Hexagon
+  SoC without an ARM core. There is some information about the
+  project at https://wiki.codeaurora.org/xwiki/bin/Hexagon/ and
+  https://unix.stackexchange.com/questions/246243/what-is-was-the-qualcomm-hexagon-comet-board
+  There is a port to gcc-4.5 on the project page, which is evidently
+  abandoned, but there is an active upstream LLVM port that is
+  apparently used to build non-Linux programs.
+  I would consider this one a candidate for removal as well, given that
+  there were never any machines outside of Qualcomm that used this,
+  and they are no longer interested themselves.
 
-While reviewing the signal sending on openrisc the do_unaligned_access
-function stood out because it is obviously wrong.  A comment about an
-si_code set above when actually si_code is never set.  Leading to a
-random si_code being sent to userspace in the event of an unaligned
-access.
+* Meta was ImgTec's own architecture and they upstreamed the kernel
+  port just before they acquired MIPS. Apparently Meta was abandoned
+  shortly afterwards and disappeared from imgtec's website in 2014.
+  The maintainer is still fixing bugs in the port, but I could not find
+  any toolchain more recent than
+  https://github.com/img-meta/metag-buildroot/tree/metag-core/toolchain/gcc/4.2.4
+  Not sure about this one, I'd be interested in more background
+  from James Hogan, who probably has an opinion and might have
+  newer toolchain sources.
 
-Looking further SIGBUS BUS_ADRALN is the proper pair of signal and
-si_code to send for an unaligned access. That is what other
-architectures do and what is required by posix.
+* OpenRISC is a RISC architecture with a free license and an
+  active community. It seems to have lost a bit of steam after RISC-V
+  is rapidly taking over that niche, but there are chips out there and
+  the design isn't going away. Listing it here for completeness only
+  because there is no upstream gcc port yet, but this will hopefully
+  change in the future based on
+  https://lists.librecores.org/pipermail/openrisc/2018-January/000958.html
+  and I had no problems locating the gcc-7.x tree for building my
+  toolchains. The port is actively being maintained.
 
-Given that do_unaligned_access is broken in a way that no one can be
-relying on it on openrisc fix the code to just do the right thing.
+There are also a couple of architectures that are more or less
+unmaintained but do have working gcc support: FR-V and M32R
+have been orphaned for a while and are not getting updated
+MN10300 is still maintained officially by David Howells but doesn't
+seem any more active than the other two, the last real updates were
+in 2013.
 
-Fixes: 769a8a96229e ("OpenRISC: Traps")
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: openrisc at lists.librecores.org
-Acked-by: Stafford Horne <shorne@gmail.com>
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- arch/openrisc/kernel/traps.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
-
---- a/arch/openrisc/kernel/traps.c
-+++ b/arch/openrisc/kernel/traps.c
-@@ -266,12 +266,12 @@ asmlinkage void do_unaligned_access(stru
- 	siginfo_t info;
- 
- 	if (user_mode(regs)) {
--		/* Send a SIGSEGV */
--		info.si_signo = SIGSEGV;
-+		/* Send a SIGBUS */
-+		info.si_signo = SIGBUS;
- 		info.si_errno = 0;
--		/* info.si_code has been set above */
--		info.si_addr = (void *)address;
--		force_sig_info(SIGSEGV, &info, current);
-+		info.si_code = BUS_ADRALN;
-+		info.si_addr = (void __user *)address;
-+		force_sig_info(SIGBUS, &info, current);
- 	} else {
- 		printk("KERNEL: Unaligned Access 0x%.8lx\n", address);
- 		show_registers(regs);
-
-
+       Arnd
