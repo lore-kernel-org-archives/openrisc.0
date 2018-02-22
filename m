@@ -1,38 +1,56 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Thu, 22 Feb 2018 17:19:04 +0100
+From: James Hogan <jhogan@kernel.org>
+Date: Thu, 22 Feb 2018 16:28:46 +0000
 Subject: [OpenRISC] Removing architectures without upstream gcc support
-In-Reply-To: <20180222160217.GA18243@infradead.org>
+In-Reply-To: <CAK8P3a2-6YwRR3j7J78fVHSvDpq8Kf4wRj6d9mnGgAxgkYypxg@mail.gmail.com>
 References: <CAK8P3a2-6YwRR3j7J78fVHSvDpq8Kf4wRj6d9mnGgAxgkYypxg@mail.gmail.com>
- <20180222160217.GA18243@infradead.org>
-Message-ID: <CAK8P3a1ZMQTPq1Szvgdg3yzpr+LdsoDaO6YtzNUycYcbOzDPSQ@mail.gmail.com>
+Message-ID: <20180222162845.GC9891@saruman>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Thu, Feb 22, 2018 at 5:02 PM, Christoph Hellwig <hch@infradead.org> wrote:
-> On Thu, Feb 22, 2018 at 04:45:06PM +0100, Arnd Bergmann wrote:
->> There are also a couple of architectures that are more or less
->> unmaintained but do have working gcc support: FR-V and M32R
->> have been orphaned for a while and are not getting updated
->> MN10300 is still maintained officially by David Howells but doesn't
->> seem any more active than the other two, the last real updates were
->> in 2013.
->
-> I'd love to see dead architecture ports dropped if they really are
-> more or less abandoned.  In addition to your missing gcc port ones
-> above (minus openrisc) it seems like frv and m32r certainly qualify,
-> and xtensa seems to be going that way with the glibc port being dropped
-> now.
+Hi Arnd,
 
-Regarding xtensa, I looked at that one while I wrote my list and it seems
-quite a bit more active than the others. Cris and xtensa are two architectures
-that don't see much maintenance over long periods of time but occasionally
-get a proper update. For xtensa this just happened, see [1]. Unlike cris,
-xtensa is also commercially still very successful, just less so in the
-Linux+glibc space.
+On Thu, Feb 22, 2018 at 04:45:06PM +0100, Arnd Bergmann wrote:
+> * Meta was ImgTec's own architecture and they upstreamed the kernel
+>   port just before they acquired MIPS. Apparently Meta was abandoned
+>   shortly afterwards and disappeared from imgtec's website in 2014.
+>   The maintainer is still fixing bugs in the port, but I could not find
+>   any toolchain more recent than
+>   https://github.com/img-meta/metag-buildroot/tree/metag-core/toolchain/gcc/4.2.4
+>   Not sure about this one, I'd be interested in more background
+>   from James Hogan, who probably has an opinion and might have
+>   newer toolchain sources.
 
-       Arnd
+Interesting timing! Have you seen this (which I'll send for 4.17, and
+leave 4.16 broken)?
 
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=d0bd31dc5c0b46b9c778112900cf8f910ac26e1b
+https://marc.info/?l=linux-kernel&m=151925667323732&w=2
+
+The Meta port is essentially unused and for a while I have only looked
+at it when something went wrong. PURE's Linux based digital radios I
+believe were never updated to 3.10. The fact that the GCC port wasn't
+upstreamed before the MIPS acquisition meant it was always a ticking
+time bomb (though binutils was upstreamed).
+
+Sad really, given that at least 9 years of effort went into the port
+before permission was finally given to upstream it, and within a week or
+so of the first patchset the intention to acquire MIPS was announced.
+
+FWIW, my experience was that upstreaming the port caught a whole lot of
+issues (Al Viro's review of signal handling alone was tremendously
+valuable), and drastically reduced the effort required to forward port
+to each new kernel version. Updating an out of tree arch tends to result
+in a lot of runtime failures that require digging, which reduced
+drastically once the port was upstreamed.
+
+Cheers
+James
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 833 bytes
+Desc: Digital signature
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20180222/514d156f/attachment-0001.sig>
