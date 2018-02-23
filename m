@@ -1,33 +1,34 @@
-From: Al Viro <viro@ZenIV.linux.org.uk>
-Date: Fri, 23 Feb 2018 18:19:44 +0000
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+Date: Fri, 23 Feb 2018 14:32:08 -0500
 Subject: [OpenRISC] Removing architectures without upstream gcc support
-In-Reply-To: <20180223171019.GA1125@roeck-us.net>
+In-Reply-To: <20180223181943.GF30522@ZenIV.linux.org.uk>
 References: <CAK8P3a2-6YwRR3j7J78fVHSvDpq8Kf4wRj6d9mnGgAxgkYypxg@mail.gmail.com>
  <20180222234833.GA3047@roeck-us.net>
  <CAK8P3a3Y2b-DivYz1ZqhFGUqQaiF=5SDB6RFLtCknwY2--09OQ@mail.gmail.com>
  <20180223154316.35b26857@alans-desktop>
  <20180223171019.GA1125@roeck-us.net>
-Message-ID: <20180223181943.GF30522@ZenIV.linux.org.uk>
+ <20180223181943.GF30522@ZenIV.linux.org.uk>
+Message-ID: <1519414328.30443.29.camel@HansenPartnership.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-On Fri, Feb 23, 2018 at 09:10:19AM -0800, Guenter Roeck wrote:
+On Fri, 2018-02-23 at 18:19 +0000, Al Viro wrote:
+[...]
+> IIRC, parisc/qemu stuff had been announced a while ago;
 
-> FWIW, alpha and m68k are known boot with qemu (even though m68k
-> generates a warning traceback with the mainline kernel).
+I have, but it didn't work sufficiently for me to either boot a kernel
+using system emulation or start an architecture container using user
+emulation.  I'll try again now that qemu has gone through several
+revisions.
 
-alpha works with qemu (I considered putting together a debian
-autobuilder on that, got mired in the scripts; builds AFAICS
-happen the same way as on the actual hardware, and considerably
-faster than any of the alpha boxen I've got here).  For m68k,
-IIRC, qemu is mostly for coldfire and friends with aranym
-working for m68k/MMU testing.
+>  I hadn't tried that yet (got an old parisc box, so 32bit testing can
+> be done on that).
 
-IIRC, parisc/qemu stuff had been announced a while ago; I hadn't
-tried that yet (got an old parisc box, so 32bit testing can be
-done on that).  Itanic... ski(1) is, IME, not usable for kernel
-testing and AFAIK no usable ia64/qemu exists.  That's another
-one that has to be tested on actual hardware.
+The mailing list (linux-parisc at vger.kernel.org) does regular build
+testing on a variety of 32 and 64 bit hardware.
+
+James
+
