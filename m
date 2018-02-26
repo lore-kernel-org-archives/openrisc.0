@@ -1,31 +1,56 @@
-From: whitequark <whitequark@whitequark.org>
-Date: Mon, 26 Feb 2018 15:24:25 +0000
+From: Eric W. Biederman <ebiederm@xmission.com>
+Date: Mon, 26 Feb 2018 16:11:54 -0600
 Subject: [OpenRISC] Removing architectures without upstream gcc support
-In-Reply-To: <57602e7e-a9c6-3480-7e99-7d274e836ed6@philipp-wagner.com>
+In-Reply-To: <CAK8P3a2GP8uQWe+DCD=p-JLHxXBUTBpx9nnpNzF_Hz49XA9a8A@mail.gmail.com>
+ (Arnd Bergmann's message of "Mon, 26 Feb 2018 09:26:57 +0100")
 References: <CAK8P3a2-6YwRR3j7J78fVHSvDpq8Kf4wRj6d9mnGgAxgkYypxg@mail.gmail.com>
- <155284c9-7fd4-2f2c-0216-1c43622f88c3@philipp-wagner.com>
- <CAK8P3a1Pd5+mGocnpQyPNYEqqqwpDJAb+FnWS6OJxuO1d-R=2A@mail.gmail.com>
- <57602e7e-a9c6-3480-7e99-7d274e836ed6@philipp-wagner.com>
-Message-ID: <9dda26a68c1174933e456227efb6ae01@whitequark.org>
+ <2d12dc77-16b9-417d-72e3-2b1ffa38803d@gmail.com>
+ <CAK8P3a2GP8uQWe+DCD=p-JLHxXBUTBpx9nnpNzF_Hz49XA9a8A@mail.gmail.com>
+Message-ID: <877eqz1jv9.fsf@xmission.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 2018-02-26 12:10, Philipp Wagner wrote:
-> Actually the LLVM port of or1k isn't upstream either. CCing
-> whitequark, who might know more about the (non-)plans of getting the
-> backend upstream. I also don't know of anyone having tried to build
-> the openrisc kernel with LLVM, would certainly be an interesting thing
-> to try.
+Arnd Bergmann <arnd@arndb.de> writes:
 
-I keep the OR1K backend up-to-date and generally in good shape (e.g.
-I've got exception handling work and added all missing instructions
-to the internal assembler) but upstreaming it is many weeks of work
-that I personally cannot spare, and the LLVM community requests that
-those who upstream backends maintain buildbots running hardware tests
-indefinitely, which I personally cannot afford.
+> On Sat, Feb 24, 2018 at 1:15 AM, Florian Fainelli <f.fainelli@gmail.com> wrote:
+>> On 02/22/2018 07:45 AM, Arnd Bergmann wrote:
+>>
+>> Add blackfin to that list, there have been no responses from the
+>> maintainers last time I posted patches to remove DSA header files, so we
+>> had to go these through the networking tree. Have not see a Blackfin
+>> pull request since forever, Aaron himself seems to agree this should be
+>> removed:
+>>
+>> http://lkml.iu.edu/hypermail/linux/kernel/1801.1/04345.html
+>
+> Peter Zijlstra also mentioned that one on IRC, I didn't have it on my radar
+> before. Like Tile, it has only recently been marked as Orphaned in MAINTAINERS,
+> so I'd be inclined to wait a little while to give possible users a
+> chance to step
+> up as new maintainers.
+>
+> My plan for v4.17 is now:
+>
+> - remove score, unicore and metag due to lack of toolchain
+>   or interest from the maintainers.
+> - keep hexagon, and try to build an llvm/clang toolchain
+> - remove frv and m32r due to being abandoned for several years
+> - mark tile and blackfin for pending removal later this year unless
+>   a new maintainer steps up
+> - mark mn10300 for pending removal unless it gets updated to
+>   support chips that were made in the past 12 years and to build
+>   properly.
 
--- 
-whitequark
+My frustration says please please please remove blackfin with sugar on
+top.   If you look at the new unified siginfo.h you will notice that
+blackfin has the majority of conflicting si_code definitions.
+
+Given that I have already dealt with the frustrating situations I can
+wait a release or two.  But even though I found a cross compiler for
+blackfin there is a real cost to keeping it in the tree.
+
+Eric
+
