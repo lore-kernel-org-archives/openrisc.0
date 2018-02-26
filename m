@@ -1,43 +1,67 @@
-From: Pavel Machek <pavel@ucw.cz>
-Date: Sun, 25 Feb 2018 23:50:02 +0100
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Mon, 26 Feb 2018 09:00:22 +0100
 Subject: [OpenRISC] Removing architectures without upstream gcc support
-In-Reply-To: <20180225202806.735a6870@alans-desktop>
+In-Reply-To: <155284c9-7fd4-2f2c-0216-1c43622f88c3@philipp-wagner.com>
 References: <CAK8P3a2-6YwRR3j7J78fVHSvDpq8Kf4wRj6d9mnGgAxgkYypxg@mail.gmail.com>
- <20180222234833.GA3047@roeck-us.net>
- <CAK8P3a3Y2b-DivYz1ZqhFGUqQaiF=5SDB6RFLtCknwY2--09OQ@mail.gmail.com>
- <20180223154316.35b26857@alans-desktop>
- <20180223171019.GA1125@roeck-us.net>
- <20180225202806.735a6870@alans-desktop>
-Message-ID: <20180225225002.GA6078@amd>
+ <155284c9-7fd4-2f2c-0216-1c43622f88c3@philipp-wagner.com>
+Message-ID: <CAK8P3a1Pd5+mGocnpQyPNYEqqqwpDJAb+FnWS6OJxuO1d-R=2A@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi!
+On Sun, Feb 25, 2018 at 4:43 PM, Philipp Wagner
+<lists@philipp-wagner.com> wrote:
+> Am 22.02.2018 um 16:45 schrieb Arnd Bergmann:
+>> While building the cross-toolchains, I noticed that overall, we can build almost
+>> all linux target architectures with upstream binutils and gcc these days,
+>> however there are still some exceptions, and I'd like to find out if anyone
+>> has objections to removing the ones that do not have upstream support.
+>> This are the four architectures I found:
+>> [...]
+>> * OpenRISC is a RISC architecture with a free license and an
+>>   active community. It seems to have lost a bit of steam after RISC-V
+>>   is rapidly taking over that niche, but there are chips out there and
+>>   the design isn't going away. Listing it here for completeness only
+>>   because there is no upstream gcc port yet, but this will hopefully
+>>   change in the future based on
+>>   https://lists.librecores.org/pipermail/openrisc/2018-January/000958.html
+>>   and I had no problems locating the gcc-7.x tree for building my
+>>   toolchains. The port is actively being maintained.
+>
+> It's mostly mentioned in the mailing list thread you linked to, but just
+> for completeness in this thread:
+>
+> The OpenRISC GCC port is maintained and regularly updated to newer GCC
+> versions. It is not, however, upstreamed to the FSF due to a single
+> missing FSF copyright assignment from a developer who has written large
+> parts of the initial port. All code which has copyright assignments in
+> place (binutils, GDB, etc.) has been upstreamed lately.
+>
+> For GCC, Stafford Horne is actively working on rewriting the parts which
+> we don't have the FSF copyright assignment for (and unless something
+> very surprising happens, won't get). [If anyone wants to help, there's
+> GSoC project for it as well:
+> https://fossi-foundation.org/gsoc18-ideas#openrisc-gcc-port]
+>
+> So I'd be very sad if the openrisc port gets dropped from Linux upstream.
 
-On Sun 2018-02-25 20:28:06, Alan Cox wrote:
-> > FWIW, alpha and m68k are known boot with qemu (even though m68k
-> > generates a warning traceback with the mainline kernel).
-> 
-> M68K works - people actively use it. Crazy people true 8). Alpha I
-> believe one or two people boot. I just need to track down some discs for
-> my Alpha 8)
+Yes, definitely. What I was really trying to say here is I consider openrisc
+an obvious exception to the 'no more ports without upstream gcc' rule
+because of the above.
 
-I guess it would be useful to track who tested what kernel on what
-hardware ... and I created a project for
-that. Feel free to contribute: https://github.com/pavelmachek/missy --
-I'd like to get some data from "big" iron...
+On a related note, has anyone successfully built an openrisc kernel with
+llvm/clang? As we discussed for arch/hexagon/, that architecture is unlikely
+to ever get an upstream gcc port, but like openrisc does have an upstream
+llvm port and they actually use that.
 
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
--------------- next part --------------
-A non-text attachment was scrubbed...
-Name: signature.asc
-Type: application/pgp-signature
-Size: 181 bytes
-Desc: Digital signature
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20180225/cd29939c/attachment.sig>
+I know that x86 and arm64 mostly work with llvm, arm32 works in some of
+the more common configurations at least (not big-endian or older CPUs
+though) and some others probably work as well. I have already build both
+gcc-5.5 and gcc-7.3 for openrisc and uploaded those to
+https://www.kernel.org/pub/tools/crosstool/files/bin/, but if llvm works as
+well, that could be one more reason to try to build a working set of
+clang based cross toolchains.
+
+     Arnd
