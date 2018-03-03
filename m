@@ -1,34 +1,57 @@
-From: Florian Weimer <fweimer@redhat.com>
-Date: Wed, 28 Feb 2018 09:59:24 +0100
+From: Richard Kuo <rkuo@codeaurora.org>
+Date: Fri, 2 Mar 2018 19:43:06 -0600
 Subject: [OpenRISC] Removing architectures without upstream gcc support
-In-Reply-To: <CAK8P3a2VMbAARCFuBjY7TMuAfGM_h4BU3PfQA2C_pUFT34UHAA@mail.gmail.com>
+In-Reply-To: <CAK8P3a13VDiH8+NG00p5oM2j5KMNU3JnCUurFn6EdJgztZsKHg@mail.gmail.com>
 References: <CAK8P3a2-6YwRR3j7J78fVHSvDpq8Kf4wRj6d9mnGgAxgkYypxg@mail.gmail.com>
- <20180222160217.GA18243@infradead.org>
- <CAMo8BfLoqat+6CyOM2VV5Wz13NFMj54YisCogiVm95oDwdnTFQ@mail.gmail.com>
- <20180222180420.GA17956@infradead.org>
- <CAK8P3a2VMbAARCFuBjY7TMuAfGM_h4BU3PfQA2C_pUFT34UHAA@mail.gmail.com>
-Message-ID: <6357df10-c3bd-587f-69d1-efb1855aaf85@redhat.com>
+ <20180222191758.GB5180@codeaurora.org>
+ <CAK8P3a3r=3wDtqV5feLUT-hOkE+9yWOLjLVm+nejqdaN7MtMFw@mail.gmail.com>
+ <20180228020631.GB3780@codeaurora.org>
+ <CAK8P3a13VDiH8+NG00p5oM2j5KMNU3JnCUurFn6EdJgztZsKHg@mail.gmail.com>
+Message-ID: <20180303014306.GA6911@codeaurora.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 02/23/2018 12:37 PM, Arnd Bergmann wrote:
-> That makes more sense, yes. I'm still unsure about this one though. Chris in
-> fact made the suggestion to remove the architecture from both glibc and kernel
-> as with his departure from Mellanox there is nobody left from to maintain it.
+On Wed, Feb 28, 2018 at 09:37:09AM +0100, Arnd Bergmann wrote:
+> On Wed, Feb 28, 2018 at 3:06 AM, Richard Kuo <rkuo@codeaurora.org> wrote:
+> > On Thu, Feb 22, 2018 at 11:43:10PM +0100, Arnd Bergmann wrote:
+> >> - How do I build an llvm based toolchain for Hexagon? Do I need patches
+> >>   on top of the llvm-6 release branch? Where can I find the corresponding
+> >>   binutils-2.30 sources?
+> >
+> > Just to follow up on this, the closest thing right now to compile the kernel
+> > for Hexagon is the toolchain included with the Hexagon SDK.  However, the
+> > linker will fail because of something in the kernel build process that
+> > I think produces empty sections, which that linker can't handle.  A newer
+> > linker can handle it, but that's not scheduled to be released until much later
+> > this year.
+> >
+> > That's actually the closest option currently.  I tried the upstream source
+> > but it seems to lack some specific patches to support kernel compilation,
+> > so I will need to chase those down.
 > 
-> I suggested keeping it as 'Orphaned' for the time being, given that the port
-> is still in a good shape, much better than many other ports.
-> 
-> The known customers that sold TileGX based appliances (Cisco, Brocade,
-> Checkpoint, Mikrotik, ...) tend to have long support cycles, and there have
-> been attempts at getting Debian, OpenWRT and Centos distro support
-> at least a few years ago.
+> Thanks for trying it out. Can you point me to the sources? I tried downloading
+> a Hexagon SDK when I first looked at it, but only got a huge chunk of binary
+> java files and gave up before finding the llvm patches.
 
-Note that there is tilegx-*-linux-gnu and tilepro-*-linux-gnu.  Only the 
-latter was removed from glibc.
+
+I don't think the SDK patches are available externally.
+
+The good news is I think we're now one patch away from the upstream LLVM
+compiling a functional kernel for Hexagon (a few fixes to LLVM/clang have
+been committed already).  It technically compiles but produces an abort (from
+a null deref) which the linker doesn't like.
+
+The linker itself unfortunately is going to be a different matter.
+
 
 Thanks,
-Florian
+Richard Kuo
+
+
+-- 
+Employee of Qualcomm Innovation Center, Inc.
+Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, 
+a Linux Foundation Collaborative Project
