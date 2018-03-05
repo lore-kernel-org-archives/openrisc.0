@@ -1,57 +1,80 @@
-From: Richard Kuo <rkuo@codeaurora.org>
-Date: Fri, 2 Mar 2018 19:43:06 -0600
+From: Wu, Aaron <Aaron.Wu@analog.com>
+Date: Mon, 5 Mar 2018 10:57:12 +0000
 Subject: [OpenRISC] Removing architectures without upstream gcc support
-In-Reply-To: <CAK8P3a13VDiH8+NG00p5oM2j5KMNU3JnCUurFn6EdJgztZsKHg@mail.gmail.com>
-References: <CAK8P3a2-6YwRR3j7J78fVHSvDpq8Kf4wRj6d9mnGgAxgkYypxg@mail.gmail.com>
- <20180222191758.GB5180@codeaurora.org>
- <CAK8P3a3r=3wDtqV5feLUT-hOkE+9yWOLjLVm+nejqdaN7MtMFw@mail.gmail.com>
- <20180228020631.GB3780@codeaurora.org>
- <CAK8P3a13VDiH8+NG00p5oM2j5KMNU3JnCUurFn6EdJgztZsKHg@mail.gmail.com>
-Message-ID: <20180303014306.GA6911@codeaurora.org>
+In-Reply-To: <5ef16c51-7cc5-9111-7e54-edfe77f39f4b@metafoo.de>
+References: <CAK8P3a2GP8uQWe+DCD=p-JLHxXBUTBpx9nnpNzF_Hz49XA9a8A@mail.gmail.com>
+ <5ef16c51-7cc5-9111-7e54-edfe77f39f4b@metafoo.de>
+Message-ID: <649EF91064D35D40B9C93A225BF41674ADE252E2@NWD2MBX6.ad.analog.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-On Wed, Feb 28, 2018 at 09:37:09AM +0100, Arnd Bergmann wrote:
-> On Wed, Feb 28, 2018 at 3:06 AM, Richard Kuo <rkuo@codeaurora.org> wrote:
-> > On Thu, Feb 22, 2018 at 11:43:10PM +0100, Arnd Bergmann wrote:
-> >> - How do I build an llvm based toolchain for Hexagon? Do I need patches
-> >>   on top of the llvm-6 release branch? Where can I find the corresponding
-> >>   binutils-2.30 sources?
-> >
-> > Just to follow up on this, the closest thing right now to compile the kernel
-> > for Hexagon is the toolchain included with the Hexagon SDK.  However, the
-> > linker will fail because of something in the kernel build process that
-> > I think produces empty sections, which that linker can't handle.  A newer
-> > linker can handle it, but that's not scheduled to be released until much later
-> > this year.
-> >
-> > That's actually the closest option currently.  I tried the upstream source
-> > but it seems to lack some specific patches to support kernel compilation,
-> > so I will need to chase those down.
+
+
+> -----Original Message-----
+> From: Lars-Peter Clausen [mailto:lars at metafoo.de]
+> Sent: 2018年3月5日 17:56
+> To: Wu, Aaron <Aaron.Wu@analog.com>
+> Subject: Fwd: Re: Removing architectures without upstream gcc support
 > 
-> Thanks for trying it out. Can you point me to the sources? I tried downloading
-> a Hexagon SDK when I first looked at it, but only got a huge chunk of binary
-> java files and gave up before finding the llvm patches.
+> 
+> 
+> 
+> -------- Forwarded Message --------
+> Subject: Re: Removing architectures without upstream gcc support
+> Date: Mon, 26 Feb 2018 09:26:57 +0100
+> From: Arnd Bergmann <arnd@arndb.de>
+> To: Florian Fainelli <f.fainelli@gmail.com>
+> CC: linux-arch <linux-arch@vger.kernel.org>, Linux Kernel Mailing List <linux-
+> kernel at vger.kernel.org>, Richard Kuo <rkuo@codeaurora.org>, open
+> list:QUALCOMM HEXAGON... <linux-hexagon@vger.kernel.org>, Chen Liqin
+> <liqin.linux@gmail.com>, Lennox Wu <lennox.wu@gmail.com>, Guan Xuetao
+> <gxt@mprc.pku.edu.cn>, Guenter Roeck <linux@roeck-us.net>, Al Viro
+> <viro@zeniv.linux.org.uk>, James Hogan <jhogan@kernel.org>, open
+> list:METAG ARCHITECTURE <linux-metag@vger.kernel.org>, Jonas Bonn
+> <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+> Stafford Horne <shorne@gmail.com>, openrisc at lists.librecores.org, David
+> Howells <dhowells@redhat.com>, Peter Zijlstra <peterz@infradead.org>
+> 
+> On Sat, Feb 24, 2018 at 1:15 AM, Florian Fainelli <f.fainelli@gmail.com> wrote:
+> > On 02/22/2018 07:45 AM, Arnd Bergmann wrote:
+> >
+> > Add blackfin to that list, there have been no responses from the
+> > maintainers last time I posted patches to remove DSA header files, so
+> > we had to go these through the networking tree. Have not see a
+> > Blackfin pull request since forever, Aaron himself seems to agree this
+> > should be
+> > removed:
+> >
+> > http://lkml.iu.edu/hypermail/linux/kernel/1801.1/04345.html
+>
 
+I'm sorry to confirm that ADI can no longer provide maintenance for Blackfin in
+Kernel community. We will try to provide a patch to remove it.
+Apologize... and sincerely thanks to community and all used and contributed to
+Blackfin Linux. Looking forward we are working on supporting Linux from the
+newer SC5xx mutli-core processors with ARM and SHARC DSPs in it.  
 
-I don't think the SDK patches are available externally.
+> Peter Zijlstra also mentioned that one on IRC, I didn't have it on my radar before.
+> Like Tile, it has only recently been marked as Orphaned in MAINTAINERS, so I'd
+> be inclined to wait a little while to give possible users a chance to step up as new
+> maintainers.
+> 
+> My plan for v4.17 is now:
+> 
+> - remove score, unicore and metag due to lack of toolchain
+>   or interest from the maintainers.
+> - keep hexagon, and try to build an llvm/clang toolchain
+> - remove frv and m32r due to being abandoned for several years
+> - mark tile and blackfin for pending removal later this year unless
+>   a new maintainer steps up
+> - mark mn10300 for pending removal unless it gets updated to
+>   support chips that were made in the past 12 years and to build
+>   properly.
+> 
+>        Arnd
 
-The good news is I think we're now one patch away from the upstream LLVM
-compiling a functional kernel for Hexagon (a few fixes to LLVM/clang have
-been committed already).  It technically compiles but produces an abort (from
-a null deref) which the linker doesn't like.
-
-The linker itself unfortunately is going to be a different matter.
-
-
-Thanks,
-Richard Kuo
-
-
--- 
-Employee of Qualcomm Innovation Center, Inc.
-Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, 
-a Linux Foundation Collaborative Project
+Thanks and Best regards,
+Aaron Wu
