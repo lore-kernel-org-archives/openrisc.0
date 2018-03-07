@@ -1,102 +1,98 @@
 From: Palmer Dabbelt <palmer@sifive.com>
-Date: Wed,  7 Mar 2018 15:57:27 -0800
-Subject: [OpenRISC] [PATCH v3 1/5] irq: Add CONFIG_GENERIC_IRQ_MULTI_HANDLER
+Date: Wed,  7 Mar 2018 15:57:28 -0800
+Subject: [OpenRISC] [PATCH v3 2/5] RISC-V: Move to the new
+	GENERIC_IRQ_MULTI_HANDLER handler
 In-Reply-To: <20180307235731.22627-1-palmer@sifive.com>
 References: <20180307235731.22627-1-palmer@sifive.com>
-Message-ID: <20180307235731.22627-2-palmer@sifive.com>
+Message-ID: <20180307235731.22627-3-palmer@sifive.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-It looks like the arm irqchip registration mechanism has been copied
-into a handful of ports, including arm64 and openrisc.  I want to use
-this in the RISC-V port, so I thought it would be good to make this
-generic instead.
+The old mechanism for handling IRQs on RISC-V was pretty ugly: the arch
+code looked at the Kconfig entry for our first-level irqchip driver and
+called into it directly.
 
-This patch copies the arm definition of CONFIG_MULTI_IRQ_HANDLER into
-kernel/irq under CONFIG_GENERIC_MULTI_IRQ_HANDLER.  This patch is
-currently all dead code, but it will be enabled in the various other
-architectures in subsequent patches.
+This patch uses the new generic IRQ handling infastructure, which
+essentially just deletes a bunch of code.  This does add an additional
+load to the interrupt latency, but there's a lot of tuning left to be
+done there on RISC-V so I think it's OK for now.
 
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Stafford Horne <shorne@gmail.com>
 Signed-off-by: Palmer Dabbelt <palmer@sifive.com>
 ---
- include/linux/irq.h | 18 ++++++++++++++++++
- kernel/irq/Kconfig  |  5 +++++
- kernel/irq/handle.c | 15 +++++++++++++++
- 3 files changed, 38 insertions(+)
+ arch/riscv/Kconfig            |  1 +
+ arch/riscv/include/asm/Kbuild |  1 +
+ arch/riscv/kernel/entry.S     |  7 +++----
+ arch/riscv/kernel/irq.c       | 13 -------------
+ 4 files changed, 5 insertions(+), 17 deletions(-)
 
-diff --git a/include/linux/irq.h b/include/linux/irq.h
-index a0231e96a578..77e97872a13e 100644
---- a/include/linux/irq.h
-+++ b/include/linux/irq.h
-@@ -1170,4 +1170,22 @@ int __ipi_send_mask(struct irq_desc *desc, const struct cpumask *dest);
- int ipi_send_single(unsigned int virq, unsigned int cpu);
- int ipi_send_mask(unsigned int virq, const struct cpumask *dest);
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 04807c7f64cc..148865de1692 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -33,6 +33,7 @@ config RISCV
+ 	select MODULES_USE_ELF_RELA if MODULES
+ 	select THREAD_INFO_IN_TASK
+ 	select RISCV_TIMER
++	select GENERIC_IRQ_MULTI_HANDLER
  
-+#ifdef CONFIG_GENERIC_IRQ_MULTI_HANDLER
-+/*
-+ * Registers a generic IRQ handling function as the top-level IRQ handler in
-+ * the system, which is generally the first C code called from an assembly
-+ * architecture-specific interrupt handler.
-+ *
-+ * Returns 0 on success, or -EBUSY if an IRQ handler has already been
-+ * registered.
-+ */
-+int __init set_handle_irq(void (*handle_irq)(struct pt_regs *));
-+
-+/*
-+ * Allows interrupt handlers to find the irqchip that's been registered as the
-+ * top-level IRQ handler.
-+ */
-+extern void (*handle_arch_irq)(struct pt_regs *) __ro_after_init;
-+#endif
-+
- #endif /* _LINUX_IRQ_H */
-diff --git a/kernel/irq/Kconfig b/kernel/irq/Kconfig
-index 6fc87ccda1d7..116a6972f124 100644
---- a/kernel/irq/Kconfig
-+++ b/kernel/irq/Kconfig
-@@ -132,3 +132,8 @@ config GENERIC_IRQ_DEBUGFS
- 	  If you don't know what to do here, say N.
+ config MMU
+ 	def_bool y
+diff --git a/arch/riscv/include/asm/Kbuild b/arch/riscv/include/asm/Kbuild
+index 4286a5f83876..1e5fd280fb4d 100644
+--- a/arch/riscv/include/asm/Kbuild
++++ b/arch/riscv/include/asm/Kbuild
+@@ -15,6 +15,7 @@ generic-y += fcntl.h
+ generic-y += futex.h
+ generic-y += hardirq.h
+ generic-y += hash.h
++generic-y += handle_irq.h
+ generic-y += hw_irq.h
+ generic-y += ioctl.h
+ generic-y += ioctls.h
+diff --git a/arch/riscv/kernel/entry.S b/arch/riscv/kernel/entry.S
+index 56fa592cfa34..9aaf6c986771 100644
+--- a/arch/riscv/kernel/entry.S
++++ b/arch/riscv/kernel/entry.S
+@@ -167,10 +167,9 @@ ENTRY(handle_exception)
+ 	bge s4, zero, 1f
  
- endmenu
-+
-+config GENERIC_IRQ_MULTI_HANDLER
-+	bool
-+	help
-+	  Allow each machine to specify it's own IRQ handler at run time.
-diff --git a/kernel/irq/handle.c b/kernel/irq/handle.c
-index 79f987b942b8..3570c715c3e7 100644
---- a/kernel/irq/handle.c
-+++ b/kernel/irq/handle.c
-@@ -20,6 +20,10 @@
- 
- #include "internals.h"
- 
-+#ifdef CONFIG_GENERIC_IRQ_MULTI_HANDLER
-+void (*handle_arch_irq)(struct pt_regs *) __ro_after_init;
-+#endif
-+
- /**
-  * handle_bad_irq - handle spurious and unhandled irqs
-  * @desc:      description of the interrupt
-@@ -207,3 +211,14 @@ irqreturn_t handle_irq_event(struct irq_desc *desc)
- 	irqd_clear(&desc->irq_data, IRQD_IRQ_INPROGRESS);
- 	return ret;
+ 	/* Handle interrupts */
+-	slli a0, s4, 1
+-	srli a0, a0, 1
+-	move a1, sp /* pt_regs */
+-	tail do_IRQ
++	move a0, sp /* pt_regs */
++	REG_L a1, handle_arch_irq
++	jr a1
+ 1:
+ 	/* Exceptions run with interrupts enabled */
+ 	csrs sstatus, SR_SIE
+diff --git a/arch/riscv/kernel/irq.c b/arch/riscv/kernel/irq.c
+index 328718e8026e..b74cbfbce2d0 100644
+--- a/arch/riscv/kernel/irq.c
++++ b/arch/riscv/kernel/irq.c
+@@ -24,16 +24,3 @@ void __init init_IRQ(void)
+ {
+ 	irqchip_init();
  }
-+
-+#ifdef CONFIG_GENERIC_IRQ_MULTI_HANDLER
-+int __init set_handle_irq(void (*handle_irq)(struct pt_regs *))
-+{
-+	if (handle_arch_irq)
-+		return -EBUSY;
-+
-+	handle_arch_irq = handle_irq;
-+	return 0;
-+}
-+#endif
+-
+-asmlinkage void __irq_entry do_IRQ(unsigned int cause, struct pt_regs *regs)
+-{
+-#ifdef CONFIG_RISCV_INTC
+-	/*
+-	 * FIXME: We don't want a direct call to riscv_intc_irq here.  The plan
+-	 * is to put an IRQ domain here and let the interrupt controller
+-	 * register with that, but I poked around the arm64 code a bit and
+-	 * there might be a better way to do it (ie, something fully generic).
+-	 */
+-	riscv_intc_irq(cause, regs);
+-#endif
+-}
 -- 
 2.16.1
 
