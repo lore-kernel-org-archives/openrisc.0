@@ -1,62 +1,55 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Tue, 6 Mar 2018 11:38:45 +0100
-Subject: [OpenRISC] Removing architectures without upstream gcc support
-In-Reply-To: <649EF91064D35D40B9C93A225BF41674ADE25B7B@NWD2MBX6.ad.analog.com>
-References: <CAK8P3a2GP8uQWe+DCD=p-JLHxXBUTBpx9nnpNzF_Hz49XA9a8A@mail.gmail.com>
- <5ef16c51-7cc5-9111-7e54-edfe77f39f4b@metafoo.de>
- <649EF91064D35D40B9C93A225BF41674ADE252E2@NWD2MBX6.ad.analog.com>
- <CAK8P3a2Jg93i-DCU0jVMUqX6b9tEx3odsEGj8dTBNjSoN-8ZRQ@mail.gmail.com>
- <649EF91064D35D40B9C93A225BF41674ADE25B7B@NWD2MBX6.ad.analog.com>
-Message-ID: <CAK8P3a22wAv2kjkhdBpAkdhzMD9m6y_bmLjOba+1sVe7m713ww@mail.gmail.com>
+From: Palmer Dabbelt <palmer@sifive.com>
+Date: Wed,  7 Mar 2018 15:57:26 -0800
+Subject: [OpenRISC] Make set_handle_irq and handle_arch_irq generic, v3
+Message-ID: <20180307235731.22627-1-palmer@sifive.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Mar 6, 2018 at 11:35 AM, Wu, Aaron <Aaron.Wu@analog.com> wrote:
->> >>
->> >> On Sat, Feb 24, 2018 at 1:15 AM, Florian Fainelli <f.fainelli@gmail.com>
->> wrote:
->> >> > On 02/22/2018 07:45 AM, Arnd Bergmann wrote:
->> >> >
->> >> > Add blackfin to that list, there have been no responses from the
->> >> > maintainers last time I posted patches to remove DSA header files,
->> >> > so we had to go these through the networking tree. Have not see a
->> >> > Blackfin pull request since forever, Aaron himself seems to agree
->> >> > this should be
->> >> > removed:
->> >> >
->> >> > http://lkml.iu.edu/hypermail/linux/kernel/1801.1/04345.html
->> >>
->> >
->> > I'm sorry to confirm that ADI can no longer provide maintenance for
->> > Blackfin in Kernel community. We will try to provide a patch to remove it.
->> > Apologize... and sincerely thanks to community and all used and
->> > contributed to Blackfin Linux. Looking forward we are working on
->> > supporting Linux from the newer SC5xx mutli-core processors with ARM and
->> SHARC DSPs in it.
->>
->> Thanks a lot for your reply. I already compiled a list for files related to all of the
->> architectures under discussion, but it will certainly help to have a patch from you
->> as well, then I can see if one of use missed any files.
->>
->> I'm looking forward to your patches for the SHARC ARM platform, I was already
->> wondering about why we don't already have that platform in Linux.
->> Let me know if you need any help getting that port ready for inclusion.
->
-> Thanks again, Arnd and the Community.
->>
->> One more question: I see that there are a number of drivers that are only used
->> on blackfin today. Do you know if any of those are shared with SHARC and still
->> needed, or can we remove everything related to blackfin?
->
-> Some of them can be shared with the ARM-SHARCs processors, as of now
-> we may go ahead to remove everything, when merging SHARC we can revert
-> them back, probably with new file names without "bfin", if this sounds right.
+This is my third version of this patch set, but the original cover
+letter is still the most relevant description I can come up with.
 
-Yes, sounds good. That also gives us a chance to review the drivers again
-and update them to modern interfaces where necessary. At the minimum,
-we will replace the traditional platform_data based probing with DT properties.
+    This patch set has been sitting around for a while, but it got a bit lost
+    in the shuffle.  In RISC-V land we currently couple do_IRQ (the C entry
+    point for interrupt handling) to our first-level interrupt controller.
+    While this isn't completely crazy (as the first-level interrupt controller
+    is specified by the ISA), it is a bit awkward.
 
-        Arnd
+    This patch set decouples our trap handler from our first-level IRQ chip
+    driver by copying what a handful of other architectures are doing.  This
+    does add an additional load to the interrupt handling path, but there's a
+    handful of performance problems in there that I've been meaning to look at
+    so I don't mind adding another one for now.  The advantage is that our
+    irqchip driver is decoupled from our arch port, at least at compile time.
+
+I've build tested this with defconfigs on all the modified architectures
+after both patch 1 and 5.  I've left the old acks in for the later
+patches as the patch set has changed very little since I last submitted
+it.
+
+Changes since v2:
+
+* This is now called CONFIG_GENERIC_IRQ_MULTI_HANDLER instead of
+  MULTI_IRQ_HANDLER.
+* Rather than converting the ARM code to generic code, this adds new
+  generic code (based on the ARM implementation) and then provides
+  separate patches to convert each architecture over to use
+  CONFIG_GENERIC_IRQ_MULTI_HANDLER.
+
+Changes since v1:
+
+* I based this on arm instead of arm64, which means we guard the selection of
+  these routines with CONFIG_MULTI_IRQ_HANDLER.
+* The changes are in kernel/irq/handle.c and include/linux/irq.h instead of
+  lib.
+* I've converted the arm, arm64, and openrisc ports to use the generic versions
+  of these routines.
+
+
+[PATCH v3 1/5] irq: Add CONFIG_GENERIC_IRQ_MULTI_HANDLER
+[PATCH v3 2/5] RISC-V: Move to the new GENERIC_IRQ_MULTI_HANDLER
+[PATCH v3 3/5] arm: Convert to GENERIC_IRQ_MULTI_HANDLER
+[PATCH v3 4/5] arm64: Use the new GENERIC_IRQ_MULTI_HANDLER
+[PATCH v3 5/5] openrisc: Use the new GENERIC_IRQ_MULTI_HANDLER
