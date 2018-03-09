@@ -1,58 +1,49 @@
-From: Palmer Dabbelt <palmer@sifive.com>
-Date: Wed,  7 Mar 2018 15:57:31 -0800
-Subject: [OpenRISC] [PATCH v3 5/5] openrisc: Use the new
-	GENERIC_IRQ_MULTI_HANDLER
+From: Thomas Gleixner <tglx@linutronix.de>
+Date: Fri, 9 Mar 2018 11:20:12 +0100 (CET)
+Subject: [OpenRISC] Make set_handle_irq and handle_arch_irq generic, v3
 In-Reply-To: <20180307235731.22627-1-palmer@sifive.com>
 References: <20180307235731.22627-1-palmer@sifive.com>
-Message-ID: <20180307235731.22627-6-palmer@sifive.com>
+Message-ID: <alpine.DEB.2.21.1803091113460.1364@nanos.tec.linutronix.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-It appears that openrisc copied arm64's GENERIC_IRQ_MULTI_HANDLER code
-(which came from arm).  I wanted to make this generic so I could use it
-in the RISC-V port.  This patch converts the openrisc code to use the
-generic version.
+On Wed, 7 Mar 2018, Palmer Dabbelt wrote:
 
-Acked-by: Stafford Horne <shorne@gmail.com>
-Signed-off-by: Palmer Dabbelt <palmer@sifive.com>
----
- arch/openrisc/Kconfig      | 1 +
- arch/openrisc/kernel/irq.c | 7 -------
- 2 files changed, 1 insertion(+), 7 deletions(-)
+> This is my third version of this patch set, but the original cover
+> letter is still the most relevant description I can come up with.
+> 
+>     This patch set has been sitting around for a while, but it got a bit lost
+>     in the shuffle.  In RISC-V land we currently couple do_IRQ (the C entry
+>     point for interrupt handling) to our first-level interrupt controller.
+>     While this isn't completely crazy (as the first-level interrupt controller
+>     is specified by the ISA), it is a bit awkward.
+> 
+>     This patch set decouples our trap handler from our first-level IRQ chip
+>     driver by copying what a handful of other architectures are doing.  This
+>     does add an additional load to the interrupt handling path, but there's a
+>     handful of performance problems in there that I've been meaning to look at
+>     so I don't mind adding another one for now.  The advantage is that our
+>     irqchip driver is decoupled from our arch port, at least at compile time.
+> 
+> I've build tested this with defconfigs on all the modified architectures
+> after both patch 1 and 5.  I've left the old acks in for the later
+> patches as the patch set has changed very little since I last submitted
+> it.
 
-diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index 339df7324e9c..dfb6a79ba7ff 100644
---- a/arch/openrisc/Kconfig
-+++ b/arch/openrisc/Kconfig
-@@ -35,6 +35,7 @@ config OPENRISC
- 	select ARCH_USE_QUEUED_RWLOCKS
- 	select OMPIC if SMP
- 	select ARCH_WANT_FRAME_POINTERS
-+	select GENERIC_IRQ_MULTI_HANDLER
- 
- config CPU_BIG_ENDIAN
- 	def_bool y
-diff --git a/arch/openrisc/kernel/irq.c b/arch/openrisc/kernel/irq.c
-index 35e478a93116..5f9445effaf8 100644
---- a/arch/openrisc/kernel/irq.c
-+++ b/arch/openrisc/kernel/irq.c
-@@ -41,13 +41,6 @@ void __init init_IRQ(void)
- 	irqchip_init();
- }
- 
--static void (*handle_arch_irq)(struct pt_regs *);
--
--void __init set_handle_irq(void (*handle_irq)(struct pt_regs *))
--{
--	handle_arch_irq = handle_irq;
--}
--
- void __irq_entry do_IRQ(struct pt_regs *regs)
- {
- 	handle_arch_irq(regs);
--- 
-2.16.1
+This looks sensible. We have two options for getting this merged:
 
+1)   I'll take the whole lot through tip/irq/core
+
+2)   I'll apply patch 1/N to a special branch in tip. That branch will contain
+     only this commit on top of 4.16-rc4 and can be pulled by the relevant
+     architecture maintainers, so they can apply their architecture specific
+     patches.
+
+Please let me know how you want to proceed.
+
+Thanks,
+
+	tglx
