@@ -1,66 +1,37 @@
-From: Palmer Dabbelt <palmer@sifive.com>
-Date: Fri, 09 Mar 2018 09:56:20 -0800 (PST)
-Subject: [OpenRISC] Make set_handle_irq and handle_arch_irq generic, v3
-In-Reply-To: <alpine.DEB.2.21.1803091113460.1364@nanos.tec.linutronix.de>
-Message-ID: <mhng-df44504d-acc2-4ef9-9660-9959298ae26c@palmer-si-x1c4>
+From: Andrey Konovalov <andreyknvl@google.com>
+Date: Fri, 9 Mar 2018 18:58:00 +0100
+Subject: [OpenRISC] [RFC PATCH 0/6] arm64: untag user pointers passed to
+	the kernel
+In-Reply-To: <963e112a-88a0-94bc-e6eb-0e9f9a6ee14a@arm.com>
+References: <cover.1520600533.git.andreyknvl@google.com>
+ <963e112a-88a0-94bc-e6eb-0e9f9a6ee14a@arm.com>
+Message-ID: <CAAeHK+xTEp-jcMDxNK4kCKcNtVbu4s4VXxzThsKMMFaTdBv0RQ@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, 09 Mar 2018 02:20:12 PST (-0800), tglx at linutronix.de wrote:
-> On Wed, 7 Mar 2018, Palmer Dabbelt wrote:
+On Fri, Mar 9, 2018 at 3:15 PM, Robin Murphy <robin.murphy@arm.com> wrote:
+> Hi Andrey,
 >
->> This is my third version of this patch set, but the original cover
->> letter is still the most relevant description I can come up with.
+> On 09/03/18 14:01, Andrey Konovalov wrote:
 >>
->>     This patch set has been sitting around for a while, but it got a bit lost
->>     in the shuffle.  In RISC-V land we currently couple do_IRQ (the C entry
->>     point for interrupt handling) to our first-level interrupt controller.
->>     While this isn't completely crazy (as the first-level interrupt controller
->>     is specified by the ISA), it is a bit awkward.
->>
->>     This patch set decouples our trap handler from our first-level IRQ chip
->>     driver by copying what a handful of other architectures are doing.  This
->>     does add an additional load to the interrupt handling path, but there's a
->>     handful of performance problems in there that I've been meaning to look at
->>     so I don't mind adding another one for now.  The advantage is that our
->>     irqchip driver is decoupled from our arch port, at least at compile time.
->>
->> I've build tested this with defconfigs on all the modified architectures
->> after both patch 1 and 5.  I've left the old acks in for the later
->> patches as the patch set has changed very little since I last submitted
->> it.
+>> arm64 has a feature called Top Byte Ignore, which allows to embed pointer
+>> tags into the top byte of each pointer. Userspace programs (such as
+>> HWASan, a memory debugging tool [1]) might use this feature and pass
+>> tagged user pointers to the kernel through syscalls or other interfaces.
 >
-> This looks sensible. We have two options for getting this merged:
 >
-> 1)   I'll take the whole lot through tip/irq/core
+> If you propose changing the ABI, then
+> Documentation/arm64/tagged-pointers.txt needs to reflect the new one, since
+> passing nonzero tags via syscalls is currently explicitly forbidden.
 >
-> 2)   I'll apply patch 1/N to a special branch in tip. That branch will contain
->      only this commit on top of 4.16-rc4 and can be pulled by the relevant
->      architecture maintainers, so they can apply their architecture specific
->      patches.
+> Robin.
 
-Option 1 seems like the lowest overhead, as that way we don't need to sequence
-the patches between multiple trees.  If all the other arch maintianers are OK
-with it then that works for me.  The 0-day robot found a new build warning on
-openrisc.  I was plannning on submitting a v4 with this fix in it
+Hi Robin!
 
-    diff --git a/arch/openrisc/include/asm/irq.h b/arch/openrisc/include/asm/irq.h
-    index d9eee0a2b7b4..eb612b1865d2 100644
-    --- a/arch/openrisc/include/asm/irq.h
-    +++ b/arch/openrisc/include/asm/irq.h
-    @@ -24,6 +24,4 @@
-    
-     #define NO_IRQ         (-1)
-    
-    -extern void set_handle_irq(void (*handle_irq)(struct pt_regs *));
-    -
-     #endif /* __ASM_OPENRISC_IRQ_H__ */
-
-I can submit a v4, or you can just grab it from
-
-    https://git.kernel.org/pub/scm/linux/kernel/git/palmer/linux.git/log/?h=review-irq-1-cleanup
+I will include changes to Documentation/arm64/tagged-pointers.txt in
+the next version.
 
 Thanks!
