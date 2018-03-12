@@ -1,70 +1,51 @@
 From: Palmer Dabbelt <palmer@sifive.com>
-Date: Mon, 12 Mar 2018 11:44:29 -0700
-Subject: [OpenRISC] [PATCH v4] openrisc: Use the new
-	GENERIC_IRQ_MULTI_HANDLER
-In-Reply-To: <20180307235731.22627-6-palmer@sifive.com>
-References: <20180307235731.22627-6-palmer@sifive.com>
-Message-ID: <20180312184429.20515-1-palmer@sifive.com>
+Date: Mon, 12 Mar 2018 12:24:26 -0700 (PDT)
+Subject: [OpenRISC] Make set_handle_irq and handle_arch_irq generic, v3
+In-Reply-To: <alpine.DEB.2.21.1803092358120.1570@nanos.tec.linutronix.de>
+Message-ID: <mhng-da14b043-f8f5-4339-879e-aa45b877fcb1@palmer-si-x1c4>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-It appears that openrisc copied arm64's GENERIC_IRQ_MULTI_HANDLER code
-(which came from arm).  I wanted to make this generic so I could use it
-in the RISC-V port.  This patch converts the openrisc code to use the
-generic version.
+On Fri, 09 Mar 2018 15:00:56 PST (-0800), tglx at linutronix.de wrote:
+> On Fri, 9 Mar 2018, Palmer Dabbelt wrote:
+>> On Fri, 09 Mar 2018 02:20:12 PST (-0800), tglx at linutronix.de wrote:
+>> > This looks sensible. We have two options for getting this merged:
+>> >
+>> > 1)   I'll take the whole lot through tip/irq/core
+>> >
+>> > 2)   I'll apply patch 1/N to a special branch in tip. That branch will
+>> > contain
+>> >      only this commit on top of 4.16-rc4 and can be pulled by the relevant
+>> >      architecture maintainers, so they can apply their architecture specific
+>> >      patches.
+>>
+>> Option 1 seems like the lowest overhead, as that way we don't need to sequence
+>> the patches between multiple trees.  If all the other arch maintianers are OK
+>> with it then that works for me.
+>
+> Ok, I wait for someone to yell NO until tuesday. If that doesn't happen I
+> pick it up.
+>
+>> The 0-day robot found a new build warning on openrisc.  I was plannning
+>> on submitting a v4 with this fix in it
+>>
+>>    diff --git a/arch/openrisc/include/asm/irq.h
+>> b/arch/openrisc/include/asm/irq.h
+>>    index d9eee0a2b7b4..eb612b1865d2 100644
+>>    --- a/arch/openrisc/include/asm/irq.h
+>>    +++ b/arch/openrisc/include/asm/irq.h
+>>    @@ -24,6 +24,4 @@
+>>        #define NO_IRQ         (-1)
+>>       -extern void set_handle_irq(void (*handle_irq)(struct pt_regs *));
+>>    -
+>>     #endif /* __ASM_OPENRISC_IRQ_H__ */
+>>
+>> I can submit a v4, or you can just grab it from
+>
+> Just reply on the v3 openrisc patch with a v4 and I grab it from there.
 
-Acked-by: Stafford Horne <shorne@gmail.com>
-Signed-off-by: Palmer Dabbelt <palmer@sifive.com>
----
- arch/openrisc/Kconfig           | 1 +
- arch/openrisc/include/asm/irq.h | 2 --
- arch/openrisc/kernel/irq.c      | 7 -------
- 3 files changed, 1 insertion(+), 9 deletions(-)
-
-diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index 339df7324e9c..dfb6a79ba7ff 100644
---- a/arch/openrisc/Kconfig
-+++ b/arch/openrisc/Kconfig
-@@ -35,6 +35,7 @@ config OPENRISC
- 	select ARCH_USE_QUEUED_RWLOCKS
- 	select OMPIC if SMP
- 	select ARCH_WANT_FRAME_POINTERS
-+	select GENERIC_IRQ_MULTI_HANDLER
- 
- config CPU_BIG_ENDIAN
- 	def_bool y
-diff --git a/arch/openrisc/include/asm/irq.h b/arch/openrisc/include/asm/irq.h
-index d9eee0a2b7b4..eb612b1865d2 100644
---- a/arch/openrisc/include/asm/irq.h
-+++ b/arch/openrisc/include/asm/irq.h
-@@ -24,6 +24,4 @@
- 
- #define NO_IRQ		(-1)
- 
--extern void set_handle_irq(void (*handle_irq)(struct pt_regs *));
--
- #endif /* __ASM_OPENRISC_IRQ_H__ */
-diff --git a/arch/openrisc/kernel/irq.c b/arch/openrisc/kernel/irq.c
-index 35e478a93116..5f9445effaf8 100644
---- a/arch/openrisc/kernel/irq.c
-+++ b/arch/openrisc/kernel/irq.c
-@@ -41,13 +41,6 @@ void __init init_IRQ(void)
- 	irqchip_init();
- }
- 
--static void (*handle_arch_irq)(struct pt_regs *);
--
--void __init set_handle_irq(void (*handle_irq)(struct pt_regs *))
--{
--	handle_arch_irq = handle_irq;
--}
--
- void __irq_entry do_IRQ(struct pt_regs *regs)
- {
- 	handle_arch_irq(regs);
--- 
-2.16.1
-
+OK, I just did -- sorry it took a while, I had to prepare for the ELC
+hackathon.
