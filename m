@@ -1,10 +1,10 @@
 From: Aaron Wu <aaron.wu@analog.com>
-Date: Thu, 15 Mar 2018 18:50:18 +0800
-Subject: [OpenRISC] [Blackfin removal] [PATCH 18/28] crypto: Remove Blackfin
-	crypto support
+Date: Thu, 15 Mar 2018 18:50:19 +0800
+Subject: [OpenRISC] [Blackfin removal] [PATCH 19/28] ata: Remove Blackfin
+	PATA support
 In-Reply-To: <1521111028-19856-1-git-send-email-aaron.wu@analog.com>
 References: <1521111028-19856-1-git-send-email-aaron.wu@analog.com>
-Message-ID: <1521111028-19856-18-git-send-email-aaron.wu@analog.com>
+Message-ID: <1521111028-19856-19-git-send-email-aaron.wu@analog.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,1043 +13,1755 @@ To: openrisc@lists.librecores.org
 
 Signed-off-by: Aaron Wu <aaron.wu@analog.com>
 
-Remove Blackfin crypto support
+Remove Blackfin PATA support
 ---
- crypto/testmgr.c          |   6 -
- crypto/testmgr.h          |  88 ------
- drivers/crypto/Kconfig    |   7 -
- drivers/crypto/Makefile   |   1 -
- drivers/crypto/bfin_crc.c | 743 ----------------------------------------------
- drivers/crypto/bfin_crc.h | 124 --------
- 6 files changed, 969 deletions(-)
- delete mode 100644 drivers/crypto/bfin_crc.c
- delete mode 100644 drivers/crypto/bfin_crc.h
+ drivers/ata/Kconfig      |    9 -
+ drivers/ata/Makefile     |    1 -
+ drivers/ata/pata_bf54x.c | 1703 ----------------------------------------------
+ 3 files changed, 1713 deletions(-)
+ delete mode 100644 drivers/ata/pata_bf54x.c
 
-diff --git a/crypto/testmgr.c b/crypto/testmgr.c
-index d5e23a1..8dacd69 100644
---- a/crypto/testmgr.c
-+++ b/crypto/testmgr.c
-@@ -3070,12 +3070,6 @@ static const struct alg_test_desc alg_test_descs[] = {
- 			.hash = __VECS(ghash_tv_template)
- 		}
- 	}, {
--		.alg = "hmac(crc32)",
--		.test = alg_test_hash,
--		.suite = {
--			.hash = __VECS(bfin_crc_tv_template)
--		}
--	}, {
- 		.alg = "hmac(md5)",
- 		.test = alg_test_hash,
- 		.suite = {
-diff --git a/crypto/testmgr.h b/crypto/testmgr.h
-index 6044f69..021e953 100644
---- a/crypto/testmgr.h
-+++ b/crypto/testmgr.h
-@@ -35045,94 +35045,6 @@ static const struct hash_testvec crc32c_tv_template[] = {
- 	}
- };
+diff --git a/drivers/ata/Kconfig b/drivers/ata/Kconfig
+index a7120d6..4582fa2 100644
+--- a/drivers/ata/Kconfig
++++ b/drivers/ata/Kconfig
+@@ -549,15 +549,6 @@ config PATA_ATP867X
  
--/*
-- * Blakcifn CRC test vectors
-- */
--static const struct hash_testvec bfin_crc_tv_template[] = {
--	{
--		.psize = 0,
--		.digest = "\x00\x00\x00\x00",
--	},
--	{
--		.key = "\x87\xa9\xcb\xed",
--		.ksize = 4,
--		.psize = 0,
--		.digest = "\x87\xa9\xcb\xed",
--	},
--	{
--		.key = "\xff\xff\xff\xff",
--		.ksize = 4,
--		.plaintext = "\x01\x02\x03\x04\x05\x06\x07\x08"
--			     "\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10"
--			     "\x11\x12\x13\x14\x15\x16\x17\x18"
--			     "\x19\x1a\x1b\x1c\x1d\x1e\x1f\x20"
--			     "\x21\x22\x23\x24\x25\x26\x27\x28",
--		.psize = 40,
--		.digest = "\x84\x0c\x8d\xa2",
--	},
--	{
--		.key = "\xff\xff\xff\xff",
--		.ksize = 4,
--		.plaintext = "\x01\x02\x03\x04\x05\x06\x07\x08"
--			     "\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10"
--			     "\x11\x12\x13\x14\x15\x16\x17\x18"
--			     "\x19\x1a\x1b\x1c\x1d\x1e\x1f\x20"
--			     "\x21\x22\x23\x24\x25\x26",
--		.psize = 38,
--		.digest = "\x8c\x58\xec\xb7",
--	},
--	{
--		.key = "\xff\xff\xff\xff",
--		.ksize = 4,
--		.plaintext = "\x01\x02\x03\x04\x05\x06\x07\x08"
--			     "\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10"
--			     "\x11\x12\x13\x14\x15\x16\x17\x18"
--			     "\x19\x1a\x1b\x1c\x1d\x1e\x1f\x20"
--			     "\x21\x22\x23\x24\x25\x26\x27",
--		.psize = 39,
--		.digest = "\xdc\x50\x28\x7b",
--	},
--	{
--		.key = "\xff\xff\xff\xff",
--		.ksize = 4,
--		.plaintext = "\x01\x02\x03\x04\x05\x06\x07\x08"
--			     "\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10"
--			     "\x11\x12\x13\x14\x15\x16\x17\x18"
--			     "\x19\x1a\x1b\x1c\x1d\x1e\x1f\x20"
--			     "\x21\x22\x23\x24\x25\x26\x27\x28"
--			     "\x29\x2a\x2b\x2c\x2d\x2e\x2f\x30"
--			     "\x31\x32\x33\x34\x35\x36\x37\x38"
--			     "\x39\x3a\x3b\x3c\x3d\x3e\x3f\x40"
--			     "\x41\x42\x43\x44\x45\x46\x47\x48"
--			     "\x49\x4a\x4b\x4c\x4d\x4e\x4f\x50"
--			     "\x51\x52\x53\x54\x55\x56\x57\x58"
--			     "\x59\x5a\x5b\x5c\x5d\x5e\x5f\x60"
--			     "\x61\x62\x63\x64\x65\x66\x67\x68"
--			     "\x69\x6a\x6b\x6c\x6d\x6e\x6f\x70"
--			     "\x71\x72\x73\x74\x75\x76\x77\x78"
--			     "\x79\x7a\x7b\x7c\x7d\x7e\x7f\x80"
--			     "\x81\x82\x83\x84\x85\x86\x87\x88"
--			     "\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90"
--			     "\x91\x92\x93\x94\x95\x96\x97\x98"
--			     "\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0"
--			     "\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8"
--			     "\xa9\xaa\xab\xac\xad\xae\xaf\xb0"
--			     "\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8"
--			     "\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0"
--			     "\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8"
--			     "\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0"
--			     "\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8"
--			     "\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0"
--			     "\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8"
--			     "\xe9\xea\xeb\xec\xed\xee\xef\xf0",
--		.psize = 240,
--		.digest = "\x10\x19\x4a\x5c",
--		.np = 2,
--		.tap = { 31, 209 }
--	},
--
--};
--
- static const struct comp_testvec lz4_comp_tv_template[] = {
- 	{
- 		.inlen	= 255,
-diff --git a/drivers/crypto/Kconfig b/drivers/crypto/Kconfig
-index 4b741b8..c17368c 100644
---- a/drivers/crypto/Kconfig
-+++ b/drivers/crypto/Kconfig
-@@ -464,13 +464,6 @@ if CRYPTO_DEV_UX500
- 	source "drivers/crypto/ux500/Kconfig"
- endif # if CRYPTO_DEV_UX500
+ 	  If unsure, say N.
  
--config CRYPTO_DEV_BFIN_CRC
--	tristate "Support for Blackfin CRC hardware"
--	depends on BF60x
+-config PATA_BF54X
+-	tristate "Blackfin 54x ATAPI support"
+-	depends on BF542 || BF548 || BF549
 -	help
--	  Newer Blackfin processors have CRC hardware. Select this if you
--	  want to use the Blackfin CRC module.
+-	  This option enables support for the built-in ATAPI controller on
+-	  Blackfin 54x family chips.
 -
- config CRYPTO_DEV_ATMEL_AUTHENC
- 	tristate "Support for Atmel IPSEC/SSL hw accelerator"
- 	depends on HAS_DMA
-diff --git a/drivers/crypto/Makefile b/drivers/crypto/Makefile
-index 2513d13..c08622b 100644
---- a/drivers/crypto/Makefile
-+++ b/drivers/crypto/Makefile
-@@ -3,7 +3,6 @@ obj-$(CONFIG_CRYPTO_DEV_ATMEL_AES) += atmel-aes.o
- obj-$(CONFIG_CRYPTO_DEV_ATMEL_SHA) += atmel-sha.o
- obj-$(CONFIG_CRYPTO_DEV_ATMEL_TDES) += atmel-tdes.o
- obj-$(CONFIG_CRYPTO_DEV_ATMEL_ECC) += atmel-ecc.o
--obj-$(CONFIG_CRYPTO_DEV_BFIN_CRC) += bfin_crc.o
- obj-$(CONFIG_CRYPTO_DEV_CAVIUM_ZIP) += cavium/
- obj-$(CONFIG_CRYPTO_DEV_CCP) += ccp/
- obj-$(CONFIG_CRYPTO_DEV_CHELSIO) += chelsio/
-diff --git a/drivers/crypto/bfin_crc.c b/drivers/crypto/bfin_crc.c
+-	  If unsure, say N.
+-
+ config PATA_BK3710
+ 	tristate "Palmchip BK3710 PATA support"
+ 	depends on ARCH_DAVINCI
+diff --git a/drivers/ata/Makefile b/drivers/ata/Makefile
+index f1f5a3f..6dae8c9 100644
+--- a/drivers/ata/Makefile
++++ b/drivers/ata/Makefile
+@@ -53,7 +53,6 @@ obj-$(CONFIG_PATA_AMD)		+= pata_amd.o
+ obj-$(CONFIG_PATA_ARTOP)	+= pata_artop.o
+ obj-$(CONFIG_PATA_ATIIXP)	+= pata_atiixp.o
+ obj-$(CONFIG_PATA_ATP867X)	+= pata_atp867x.o
+-obj-$(CONFIG_PATA_BF54X)	+= pata_bf54x.o
+ obj-$(CONFIG_PATA_BK3710)	+= pata_bk3710.o
+ obj-$(CONFIG_PATA_CMD64X)	+= pata_cmd64x.o
+ obj-$(CONFIG_PATA_CS5520)	+= pata_cs5520.o
+diff --git a/drivers/ata/pata_bf54x.c b/drivers/ata/pata_bf54x.c
 deleted file mode 100644
-index bfbf8bf..0000000
---- a/drivers/crypto/bfin_crc.c
+index 0e55a8d..0000000
+--- a/drivers/ata/pata_bf54x.c
 +++ /dev/null
-@@ -1,743 +0,0 @@
+@@ -1,1703 +0,0 @@
 -/*
-- * Cryptographic API.
+- * File:         drivers/ata/pata_bf54x.c
+- * Author:       Sonic Zhang <sonic.zhang@analog.com>
 - *
-- * Support Blackfin CRC HW acceleration.
+- * Created:
+- * Description:  PATA Driver for blackfin 54x
 - *
-- * Copyright 2012 Analog Devices Inc.
+- * Modified:
+- *               Copyright 2007 Analog Devices Inc.
 - *
-- * Licensed under the GPL-2.
+- * Bugs:         Enter bugs at http://blackfin.uclinux.org/
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, see the file COPYING, or write
+- * to the Free Software Foundation, Inc.,
+- * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 - */
 -
--#include <linux/err.h>
--#include <linux/device.h>
--#include <linux/module.h>
--#include <linux/init.h>
--#include <linux/errno.h>
--#include <linux/interrupt.h>
 -#include <linux/kernel.h>
--#include <linux/irq.h>
--#include <linux/io.h>
--#include <linux/platform_device.h>
--#include <linux/scatterlist.h>
--#include <linux/dma-mapping.h>
+-#include <linux/module.h>
+-#include <linux/pci.h>
+-#include <linux/init.h>
+-#include <linux/blkdev.h>
 -#include <linux/delay.h>
--#include <linux/crypto.h>
--#include <linux/cryptohash.h>
--#include <crypto/scatterwalk.h>
--#include <crypto/algapi.h>
--#include <crypto/hash.h>
--#include <crypto/internal/hash.h>
--#include <asm/unaligned.h>
--
+-#include <linux/device.h>
+-#include <scsi/scsi_host.h>
+-#include <linux/libata.h>
+-#include <linux/platform_device.h>
+-#include <linux/gpio.h>
 -#include <asm/dma.h>
 -#include <asm/portmux.h>
--#include <asm/io.h>
 -
--#include "bfin_crc.h"
+-#define DRV_NAME		"pata-bf54x"
+-#define DRV_VERSION		"0.9"
 -
--#define CRC_CCRYPTO_QUEUE_LENGTH	5
+-#define ATA_REG_CTRL		0x0E
+-#define ATA_REG_ALTSTATUS	ATA_REG_CTRL
 -
--#define DRIVER_NAME "bfin-hmac-crc"
--#define CHKSUM_DIGEST_SIZE      4
--#define CHKSUM_BLOCK_SIZE       1
+-/* These are the offset of the controller's registers */
+-#define ATAPI_OFFSET_CONTROL		0x00
+-#define ATAPI_OFFSET_STATUS		0x04
+-#define ATAPI_OFFSET_DEV_ADDR		0x08
+-#define ATAPI_OFFSET_DEV_TXBUF		0x0c
+-#define ATAPI_OFFSET_DEV_RXBUF		0x10
+-#define ATAPI_OFFSET_INT_MASK		0x14
+-#define ATAPI_OFFSET_INT_STATUS		0x18
+-#define ATAPI_OFFSET_XFER_LEN		0x1c
+-#define ATAPI_OFFSET_LINE_STATUS	0x20
+-#define ATAPI_OFFSET_SM_STATE		0x24
+-#define ATAPI_OFFSET_TERMINATE		0x28
+-#define ATAPI_OFFSET_PIO_TFRCNT		0x2c
+-#define ATAPI_OFFSET_DMA_TFRCNT		0x30
+-#define ATAPI_OFFSET_UMAIN_TFRCNT	0x34
+-#define ATAPI_OFFSET_UDMAOUT_TFRCNT	0x38
+-#define ATAPI_OFFSET_REG_TIM_0		0x40
+-#define ATAPI_OFFSET_PIO_TIM_0		0x44
+-#define ATAPI_OFFSET_PIO_TIM_1		0x48
+-#define ATAPI_OFFSET_MULTI_TIM_0	0x50
+-#define ATAPI_OFFSET_MULTI_TIM_1	0x54
+-#define ATAPI_OFFSET_MULTI_TIM_2	0x58
+-#define ATAPI_OFFSET_ULTRA_TIM_0	0x60
+-#define ATAPI_OFFSET_ULTRA_TIM_1	0x64
+-#define ATAPI_OFFSET_ULTRA_TIM_2	0x68
+-#define ATAPI_OFFSET_ULTRA_TIM_3	0x6c
 -
--#define CRC_MAX_DMA_DESC	100
 -
--#define CRC_CRYPTO_STATE_UPDATE		1
--#define CRC_CRYPTO_STATE_FINALUPDATE	2
--#define CRC_CRYPTO_STATE_FINISH		3
+-#define ATAPI_GET_CONTROL(base)\
+-	bfin_read16(base + ATAPI_OFFSET_CONTROL)
+-#define ATAPI_SET_CONTROL(base, val)\
+-	bfin_write16(base + ATAPI_OFFSET_CONTROL, val)
+-#define ATAPI_GET_STATUS(base)\
+-	bfin_read16(base + ATAPI_OFFSET_STATUS)
+-#define ATAPI_GET_DEV_ADDR(base)\
+-	bfin_read16(base + ATAPI_OFFSET_DEV_ADDR)
+-#define ATAPI_SET_DEV_ADDR(base, val)\
+-	bfin_write16(base + ATAPI_OFFSET_DEV_ADDR, val)
+-#define ATAPI_GET_DEV_TXBUF(base)\
+-	bfin_read16(base + ATAPI_OFFSET_DEV_TXBUF)
+-#define ATAPI_SET_DEV_TXBUF(base, val)\
+-	bfin_write16(base + ATAPI_OFFSET_DEV_TXBUF, val)
+-#define ATAPI_GET_DEV_RXBUF(base)\
+-	bfin_read16(base + ATAPI_OFFSET_DEV_RXBUF)
+-#define ATAPI_SET_DEV_RXBUF(base, val)\
+-	bfin_write16(base + ATAPI_OFFSET_DEV_RXBUF, val)
+-#define ATAPI_GET_INT_MASK(base)\
+-	bfin_read16(base + ATAPI_OFFSET_INT_MASK)
+-#define ATAPI_SET_INT_MASK(base, val)\
+-	bfin_write16(base + ATAPI_OFFSET_INT_MASK, val)
+-#define ATAPI_GET_INT_STATUS(base)\
+-	bfin_read16(base + ATAPI_OFFSET_INT_STATUS)
+-#define ATAPI_SET_INT_STATUS(base, val)\
+-	bfin_write16(base + ATAPI_OFFSET_INT_STATUS, val)
+-#define ATAPI_GET_XFER_LEN(base)\
+-	bfin_read16(base + ATAPI_OFFSET_XFER_LEN)
+-#define ATAPI_SET_XFER_LEN(base, val)\
+-	bfin_write16(base + ATAPI_OFFSET_XFER_LEN, val)
+-#define ATAPI_GET_LINE_STATUS(base)\
+-	bfin_read16(base + ATAPI_OFFSET_LINE_STATUS)
+-#define ATAPI_GET_SM_STATE(base)\
+-	bfin_read16(base + ATAPI_OFFSET_SM_STATE)
+-#define ATAPI_GET_TERMINATE(base)\
+-	bfin_read16(base + ATAPI_OFFSET_TERMINATE)
+-#define ATAPI_SET_TERMINATE(base, val)\
+-	bfin_write16(base + ATAPI_OFFSET_TERMINATE, val)
+-#define ATAPI_GET_PIO_TFRCNT(base)\
+-	bfin_read16(base + ATAPI_OFFSET_PIO_TFRCNT)
+-#define ATAPI_GET_DMA_TFRCNT(base)\
+-	bfin_read16(base + ATAPI_OFFSET_DMA_TFRCNT)
+-#define ATAPI_GET_UMAIN_TFRCNT(base)\
+-	bfin_read16(base + ATAPI_OFFSET_UMAIN_TFRCNT)
+-#define ATAPI_GET_UDMAOUT_TFRCNT(base)\
+-	bfin_read16(base + ATAPI_OFFSET_UDMAOUT_TFRCNT)
+-#define ATAPI_GET_REG_TIM_0(base)\
+-	bfin_read16(base + ATAPI_OFFSET_REG_TIM_0)
+-#define ATAPI_SET_REG_TIM_0(base, val)\
+-	bfin_write16(base + ATAPI_OFFSET_REG_TIM_0, val)
+-#define ATAPI_GET_PIO_TIM_0(base)\
+-	bfin_read16(base + ATAPI_OFFSET_PIO_TIM_0)
+-#define ATAPI_SET_PIO_TIM_0(base, val)\
+-	bfin_write16(base + ATAPI_OFFSET_PIO_TIM_0, val)
+-#define ATAPI_GET_PIO_TIM_1(base)\
+-	bfin_read16(base + ATAPI_OFFSET_PIO_TIM_1)
+-#define ATAPI_SET_PIO_TIM_1(base, val)\
+-	bfin_write16(base + ATAPI_OFFSET_PIO_TIM_1, val)
+-#define ATAPI_GET_MULTI_TIM_0(base)\
+-	bfin_read16(base + ATAPI_OFFSET_MULTI_TIM_0)
+-#define ATAPI_SET_MULTI_TIM_0(base, val)\
+-	bfin_write16(base + ATAPI_OFFSET_MULTI_TIM_0, val)
+-#define ATAPI_GET_MULTI_TIM_1(base)\
+-	bfin_read16(base + ATAPI_OFFSET_MULTI_TIM_1)
+-#define ATAPI_SET_MULTI_TIM_1(base, val)\
+-	bfin_write16(base + ATAPI_OFFSET_MULTI_TIM_1, val)
+-#define ATAPI_GET_MULTI_TIM_2(base)\
+-	bfin_read16(base + ATAPI_OFFSET_MULTI_TIM_2)
+-#define ATAPI_SET_MULTI_TIM_2(base, val)\
+-	bfin_write16(base + ATAPI_OFFSET_MULTI_TIM_2, val)
+-#define ATAPI_GET_ULTRA_TIM_0(base)\
+-	bfin_read16(base + ATAPI_OFFSET_ULTRA_TIM_0)
+-#define ATAPI_SET_ULTRA_TIM_0(base, val)\
+-	bfin_write16(base + ATAPI_OFFSET_ULTRA_TIM_0, val)
+-#define ATAPI_GET_ULTRA_TIM_1(base)\
+-	bfin_read16(base + ATAPI_OFFSET_ULTRA_TIM_1)
+-#define ATAPI_SET_ULTRA_TIM_1(base, val)\
+-	bfin_write16(base + ATAPI_OFFSET_ULTRA_TIM_1, val)
+-#define ATAPI_GET_ULTRA_TIM_2(base)\
+-	bfin_read16(base + ATAPI_OFFSET_ULTRA_TIM_2)
+-#define ATAPI_SET_ULTRA_TIM_2(base, val)\
+-	bfin_write16(base + ATAPI_OFFSET_ULTRA_TIM_2, val)
+-#define ATAPI_GET_ULTRA_TIM_3(base)\
+-	bfin_read16(base + ATAPI_OFFSET_ULTRA_TIM_3)
+-#define ATAPI_SET_ULTRA_TIM_3(base, val)\
+-	bfin_write16(base + ATAPI_OFFSET_ULTRA_TIM_3, val)
 -
--struct bfin_crypto_crc {
--	struct list_head	list;
--	struct device		*dev;
--	spinlock_t		lock;
--
--	int			irq;
--	int			dma_ch;
--	u32			poly;
--	struct crc_register	*regs;
--
--	struct ahash_request	*req; /* current request in operation */
--	struct dma_desc_array	*sg_cpu; /* virt addr of sg dma descriptors */
--	dma_addr_t		sg_dma; /* phy addr of sg dma descriptors */
--	u8			*sg_mid_buf;
--	dma_addr_t		sg_mid_dma; /* phy addr of sg mid buffer */
--
--	struct tasklet_struct	done_task;
--	struct crypto_queue	queue; /* waiting requests */
--
--	u8			busy:1; /* crc device in operation flag */
--};
--
--static struct bfin_crypto_crc_list {
--	struct list_head	dev_list;
--	spinlock_t		lock;
--} crc_list;
--
--struct bfin_crypto_crc_reqctx {
--	struct bfin_crypto_crc	*crc;
--
--	unsigned int		total;	/* total request bytes */
--	size_t			sg_buflen; /* bytes for this update */
--	unsigned int		sg_nents;
--	struct scatterlist	*sg; /* sg list head for this update*/
--	struct scatterlist	bufsl[2]; /* chained sg list */
--
--	size_t			bufnext_len;
--	size_t			buflast_len;
--	u8			bufnext[CHKSUM_DIGEST_SIZE]; /* extra bytes for next udpate */
--	u8			buflast[CHKSUM_DIGEST_SIZE]; /* extra bytes from last udpate */
--
--	u8			flag;
--};
--
--struct bfin_crypto_crc_ctx {
--	struct bfin_crypto_crc	*crc;
--	u32			key;
--};
--
--/*
-- * get element in scatter list by given index
+-/**
+- * PIO Mode - Frequency compatibility
 - */
--static struct scatterlist *sg_get(struct scatterlist *sg_list, unsigned int nents,
--				unsigned int index)
+-/* mode: 0         1         2         3         4 */
+-static const u32 pio_fsclk[] =
+-{ 33333333, 33333333, 33333333, 33333333, 33333333 };
+-
+-/**
+- * MDMA Mode - Frequency compatibility
+- */
+-/*               mode:      0         1         2        */
+-static const u32 mdma_fsclk[] = { 33333333, 33333333, 33333333 };
+-
+-/**
+- * UDMA Mode - Frequency compatibility
+- *
+- * UDMA5 - 100 MB/s   - SCLK  = 133 MHz
+- * UDMA4 - 66 MB/s    - SCLK >=  80 MHz
+- * UDMA3 - 44.4 MB/s  - SCLK >=  50 MHz
+- * UDMA2 - 33 MB/s    - SCLK >=  40 MHz
+- */
+-/* mode: 0         1         2         3         4          5 */
+-static const u32 udma_fsclk[] =
+-{ 33333333, 33333333, 40000000, 50000000, 80000000, 133333333 };
+-
+-/**
+- * Register transfer timing table
+- */
+-/*               mode:       0    1    2    3    4    */
+-/* Cycle Time                     */
+-static const u32 reg_t0min[]   = { 600, 383, 330, 180, 120 };
+-/* DIOR/DIOW to end cycle         */
+-static const u32 reg_t2min[]   = { 290, 290, 290, 70,  25  };
+-/* DIOR/DIOW asserted pulse width */
+-static const u32 reg_teocmin[] = { 290, 290, 290, 80,  70  };
+-
+-/**
+- * PIO timing table
+- */
+-/*               mode:       0    1    2    3    4    */
+-/* Cycle Time                     */
+-static const u32 pio_t0min[]   = { 600, 383, 240, 180, 120 };
+-/* Address valid to DIOR/DIORW    */
+-static const u32 pio_t1min[]   = { 70,  50,  30,  30,  25  };
+-/* DIOR/DIOW to end cycle         */
+-static const u32 pio_t2min[]   = { 165, 125, 100, 80,  70  };
+-/* DIOR/DIOW asserted pulse width */
+-static const u32 pio_teocmin[] = { 165, 125, 100, 70,  25  };
+-/* DIOW data hold                 */
+-static const u32 pio_t4min[]   = { 30,  20,  15,  10,  10  };
+-
+-/* ******************************************************************
+- * Multiword DMA timing table
+- * ******************************************************************
+- */
+-/*               mode:       0   1    2        */
+-/* Cycle Time                     */
+-static const u32 mdma_t0min[]  = { 480, 150, 120 };
+-/* DIOR/DIOW asserted pulse width */
+-static const u32 mdma_tdmin[]  = { 215, 80,  70  };
+-/* DMACK to read data released    */
+-static const u32 mdma_thmin[]  = { 20,  15,  10  };
+-/* DIOR/DIOW to DMACK hold        */
+-static const u32 mdma_tjmin[]  = { 20,  5,   5   };
+-/* DIOR negated pulse width       */
+-static const u32 mdma_tkrmin[] = { 50,  50,  25  };
+-/* DIOR negated pulse width       */
+-static const u32 mdma_tkwmin[] = { 215, 50,  25  };
+-/* CS[1:0] valid to DIOR/DIOW     */
+-static const u32 mdma_tmmin[]  = { 50,  30,  25  };
+-/* DMACK to read data released    */
+-static const u32 mdma_tzmax[]  = { 20,  25,  25  };
+-
+-/**
+- * Ultra DMA timing table
+- */
+-/*               mode:         0    1    2    3    4    5       */
+-static const u32 udma_tcycmin[]  = { 112, 73,  54,  39,  25,  17 };
+-static const u32 udma_tdvsmin[]  = { 70,  48,  31,  20,  7,   5  };
+-static const u32 udma_tenvmax[]  = { 70,  70,  70,  55,  55,  50 };
+-static const u32 udma_trpmin[]   = { 160, 125, 100, 100, 100, 85 };
+-static const u32 udma_tmin[]     = { 5,   5,   5,   5,   3,   3  };
+-
+-
+-static const u32 udma_tmlimin = 20;
+-static const u32 udma_tzahmin = 20;
+-static const u32 udma_tenvmin = 20;
+-static const u32 udma_tackmin = 20;
+-static const u32 udma_tssmin = 50;
+-
+-#define BFIN_MAX_SG_SEGMENTS 4
+-
+-/**
+- *
+- *	Function:       num_clocks_min
+- *
+- *	Description:
+- *	calculate number of SCLK cycles to meet minimum timing
+- */
+-static unsigned short num_clocks_min(unsigned long tmin,
+-				unsigned long fsclk)
 -{
--	struct scatterlist *sg = NULL;
+-	unsigned long tmp ;
+-	unsigned short result;
+-
+-	tmp = tmin * (fsclk/1000/1000) / 1000;
+-	result = (unsigned short)tmp;
+-	if ((tmp*1000*1000) < (tmin*(fsclk/1000))) {
+-		result++;
+-	}
+-
+-	return result;
+-}
+-
+-/**
+- *	bfin_set_piomode - Initialize host controller PATA PIO timings
+- *	@ap: Port whose timings we are configuring
+- *	@adev: um
+- *
+- *	Set PIO mode for device.
+- *
+- *	LOCKING:
+- *	None (inherited from caller).
+- */
+-
+-static void bfin_set_piomode(struct ata_port *ap, struct ata_device *adev)
+-{
+-	int mode = adev->pio_mode - XFER_PIO_0;
+-	void __iomem *base = (void __iomem *)ap->ioaddr.ctl_addr;
+-	unsigned int fsclk = get_sclk();
+-	unsigned short teoc_reg, t2_reg, teoc_pio;
+-	unsigned short t4_reg, t2_pio, t1_reg;
+-	unsigned short n0, n6, t6min = 5;
+-
+-	/* the most restrictive timing value is t6 and tc, the DIOW - data hold
+-	* If one SCLK pulse is longer than this minimum value then register
+-	* transfers cannot be supported at this frequency.
+-	*/
+-	n6 = num_clocks_min(t6min, fsclk);
+-	if (mode >= 0 && mode <= 4 && n6 >= 1) {
+-		dev_dbg(adev->link->ap->dev, "set piomode: mode=%d, fsclk=%ud\n", mode, fsclk);
+-		/* calculate the timing values for register transfers. */
+-		while (mode > 0 && pio_fsclk[mode] > fsclk)
+-			mode--;
+-
+-		/* DIOR/DIOW to end cycle time */
+-		t2_reg = num_clocks_min(reg_t2min[mode], fsclk);
+-		/* DIOR/DIOW asserted pulse width */
+-		teoc_reg = num_clocks_min(reg_teocmin[mode], fsclk);
+-		/* Cycle Time */
+-		n0  = num_clocks_min(reg_t0min[mode], fsclk);
+-
+-		/* increase t2 until we meed the minimum cycle length */
+-		if (t2_reg + teoc_reg < n0)
+-			t2_reg = n0 - teoc_reg;
+-
+-		/* calculate the timing values for pio transfers. */
+-
+-		/* DIOR/DIOW to end cycle time */
+-		t2_pio = num_clocks_min(pio_t2min[mode], fsclk);
+-		/* DIOR/DIOW asserted pulse width */
+-		teoc_pio = num_clocks_min(pio_teocmin[mode], fsclk);
+-		/* Cycle Time */
+-		n0  = num_clocks_min(pio_t0min[mode], fsclk);
+-
+-		/* increase t2 until we meed the minimum cycle length */
+-		if (t2_pio + teoc_pio < n0)
+-			t2_pio = n0 - teoc_pio;
+-
+-		/* Address valid to DIOR/DIORW */
+-		t1_reg = num_clocks_min(pio_t1min[mode], fsclk);
+-
+-		/* DIOW data hold */
+-		t4_reg = num_clocks_min(pio_t4min[mode], fsclk);
+-
+-		ATAPI_SET_REG_TIM_0(base, (teoc_reg<<8 | t2_reg));
+-		ATAPI_SET_PIO_TIM_0(base, (t4_reg<<12 | t2_pio<<4 | t1_reg));
+-		ATAPI_SET_PIO_TIM_1(base, teoc_pio);
+-		if (mode > 2) {
+-			ATAPI_SET_CONTROL(base,
+-				ATAPI_GET_CONTROL(base) | IORDY_EN);
+-		} else {
+-			ATAPI_SET_CONTROL(base,
+-				ATAPI_GET_CONTROL(base) & ~IORDY_EN);
+-		}
+-
+-		/* Disable host ATAPI PIO interrupts */
+-		ATAPI_SET_INT_MASK(base, ATAPI_GET_INT_MASK(base)
+-			& ~(PIO_DONE_MASK | HOST_TERM_XFER_MASK));
+-		SSYNC();
+-	}
+-}
+-
+-/**
+- *	bfin_set_dmamode - Initialize host controller PATA DMA timings
+- *	@ap: Port whose timings we are configuring
+- *	@adev: um
+- *
+- *	Set UDMA mode for device.
+- *
+- *	LOCKING:
+- *	None (inherited from caller).
+- */
+-
+-static void bfin_set_dmamode(struct ata_port *ap, struct ata_device *adev)
+-{
+-	int mode;
+-	void __iomem *base = (void __iomem *)ap->ioaddr.ctl_addr;
+-	unsigned long fsclk = get_sclk();
+-	unsigned short tenv, tack, tcyc_tdvs, tdvs, tmli, tss, trp, tzah;
+-	unsigned short tm, td, tkr, tkw, teoc, th;
+-	unsigned short n0, nf, tfmin = 5;
+-	unsigned short nmin, tcyc;
+-
+-	mode = adev->dma_mode - XFER_UDMA_0;
+-	if (mode >= 0 && mode <= 5) {
+-		dev_dbg(adev->link->ap->dev, "set udmamode: mode=%d\n", mode);
+-		/* the most restrictive timing value is t6 and tc,
+-		 * the DIOW - data hold. If one SCLK pulse is longer
+-		 * than this minimum value then register
+-		 * transfers cannot be supported at this frequency.
+-		 */
+-		while (mode > 0 && udma_fsclk[mode] > fsclk)
+-			mode--;
+-
+-		nmin = num_clocks_min(udma_tmin[mode], fsclk);
+-		if (nmin >= 1) {
+-			/* calculate the timing values for Ultra DMA. */
+-			tdvs = num_clocks_min(udma_tdvsmin[mode], fsclk);
+-			tcyc = num_clocks_min(udma_tcycmin[mode], fsclk);
+-			tcyc_tdvs = 2;
+-
+-			/* increase tcyc - tdvs (tcyc_tdvs) until we meed
+-			 * the minimum cycle length
+-			 */
+-			if (tdvs + tcyc_tdvs < tcyc)
+-				tcyc_tdvs = tcyc - tdvs;
+-
+-			/* Mow assign the values required for the timing
+-			 * registers
+-			 */
+-			if (tcyc_tdvs < 2)
+-				tcyc_tdvs = 2;
+-
+-			if (tdvs < 2)
+-				tdvs = 2;
+-
+-			tack = num_clocks_min(udma_tackmin, fsclk);
+-			tss = num_clocks_min(udma_tssmin, fsclk);
+-			tmli = num_clocks_min(udma_tmlimin, fsclk);
+-			tzah = num_clocks_min(udma_tzahmin, fsclk);
+-			trp = num_clocks_min(udma_trpmin[mode], fsclk);
+-			tenv = num_clocks_min(udma_tenvmin, fsclk);
+-			if (tenv <= udma_tenvmax[mode]) {
+-				ATAPI_SET_ULTRA_TIM_0(base, (tenv<<8 | tack));
+-				ATAPI_SET_ULTRA_TIM_1(base,
+-					(tcyc_tdvs<<8 | tdvs));
+-				ATAPI_SET_ULTRA_TIM_2(base, (tmli<<8 | tss));
+-				ATAPI_SET_ULTRA_TIM_3(base, (trp<<8 | tzah));
+-			}
+-		}
+-	}
+-
+-	mode = adev->dma_mode - XFER_MW_DMA_0;
+-	if (mode >= 0 && mode <= 2) {
+-		dev_dbg(adev->link->ap->dev, "set mdmamode: mode=%d\n", mode);
+-		/* the most restrictive timing value is tf, the DMACK to
+-		 * read data released. If one SCLK pulse is longer than
+-		 * this maximum value then the MDMA mode
+-		 * cannot be supported at this frequency.
+-		 */
+-		while (mode > 0 && mdma_fsclk[mode] > fsclk)
+-			mode--;
+-
+-		nf = num_clocks_min(tfmin, fsclk);
+-		if (nf >= 1) {
+-			/* calculate the timing values for Multi-word DMA. */
+-
+-			/* DIOR/DIOW asserted pulse width */
+-			td = num_clocks_min(mdma_tdmin[mode], fsclk);
+-
+-			/* DIOR negated pulse width */
+-			tkw = num_clocks_min(mdma_tkwmin[mode], fsclk);
+-
+-			/* Cycle Time */
+-			n0  = num_clocks_min(mdma_t0min[mode], fsclk);
+-
+-			/* increase tk until we meed the minimum cycle length */
+-			if (tkw + td < n0)
+-				tkw = n0 - td;
+-
+-			/* DIOR negated pulse width - read */
+-			tkr = num_clocks_min(mdma_tkrmin[mode], fsclk);
+-			/* CS{1:0] valid to DIOR/DIOW */
+-			tm = num_clocks_min(mdma_tmmin[mode], fsclk);
+-			/* DIOR/DIOW to DMACK hold */
+-			teoc = num_clocks_min(mdma_tjmin[mode], fsclk);
+-			/* DIOW Data hold */
+-			th = num_clocks_min(mdma_thmin[mode], fsclk);
+-
+-			ATAPI_SET_MULTI_TIM_0(base, (tm<<8 | td));
+-			ATAPI_SET_MULTI_TIM_1(base, (tkr<<8 | tkw));
+-			ATAPI_SET_MULTI_TIM_2(base, (teoc<<8 | th));
+-			SSYNC();
+-		}
+-	}
+-	return;
+-}
+-
+-/**
+- *
+- *    Function:       wait_complete
+- *
+- *    Description:    Waits the interrupt from device
+- *
+- */
+-static inline void wait_complete(void __iomem *base, unsigned short mask)
+-{
+-	unsigned short status;
+-	unsigned int i = 0;
+-
+-#define PATA_BF54X_WAIT_TIMEOUT		10000
+-
+-	for (i = 0; i < PATA_BF54X_WAIT_TIMEOUT; i++) {
+-		status = ATAPI_GET_INT_STATUS(base) & mask;
+-		if (status)
+-			break;
+-	}
+-
+-	ATAPI_SET_INT_STATUS(base, mask);
+-}
+-
+-/**
+- *
+- *    Function:       write_atapi_register
+- *
+- *    Description:    Writes to ATA Device Resgister
+- *
+- */
+-
+-static void write_atapi_register(void __iomem *base,
+-		unsigned long ata_reg, unsigned short value)
+-{
+-	/* Program the ATA_DEV_TXBUF register with write data (to be
+-	 * written into the device).
+-	 */
+-	ATAPI_SET_DEV_TXBUF(base, value);
+-
+-	/* Program the ATA_DEV_ADDR register with address of the
+-	 * device register (0x01 to 0x0F).
+-	 */
+-	ATAPI_SET_DEV_ADDR(base, ata_reg);
+-
+-	/* Program the ATA_CTRL register with dir set to write (1)
+-	 */
+-	ATAPI_SET_CONTROL(base, (ATAPI_GET_CONTROL(base) | XFER_DIR));
+-
+-	/* ensure PIO DMA is not set */
+-	ATAPI_SET_CONTROL(base, (ATAPI_GET_CONTROL(base) & ~PIO_USE_DMA));
+-
+-	/* and start the transfer */
+-	ATAPI_SET_CONTROL(base, (ATAPI_GET_CONTROL(base) | PIO_START));
+-
+-	/* Wait for the interrupt to indicate the end of the transfer.
+-	 * (We need to wait on and clear rhe ATA_DEV_INT interrupt status)
+-	 */
+-	wait_complete(base, PIO_DONE_INT);
+-}
+-
+-/**
+- *
+- *	Function:       read_atapi_register
+- *
+- *Description:    Reads from ATA Device Resgister
+- *
+- */
+-
+-static unsigned short read_atapi_register(void __iomem *base,
+-		unsigned long ata_reg)
+-{
+-	/* Program the ATA_DEV_ADDR register with address of the
+-	 * device register (0x01 to 0x0F).
+-	 */
+-	ATAPI_SET_DEV_ADDR(base, ata_reg);
+-
+-	/* Program the ATA_CTRL register with dir set to read (0) and
+-	 */
+-	ATAPI_SET_CONTROL(base, (ATAPI_GET_CONTROL(base) & ~XFER_DIR));
+-
+-	/* ensure PIO DMA is not set */
+-	ATAPI_SET_CONTROL(base, (ATAPI_GET_CONTROL(base) & ~PIO_USE_DMA));
+-
+-	/* and start the transfer */
+-	ATAPI_SET_CONTROL(base, (ATAPI_GET_CONTROL(base) | PIO_START));
+-
+-	/* Wait for the interrupt to indicate the end of the transfer.
+-	 * (PIO_DONE interrupt is set and it doesn't seem to matter
+-	 * that we don't clear it)
+-	 */
+-	wait_complete(base, PIO_DONE_INT);
+-
+-	/* Read the ATA_DEV_RXBUF register with write data (to be
+-	 * written into the device).
+-	 */
+-	return ATAPI_GET_DEV_RXBUF(base);
+-}
+-
+-/**
+- *
+- *    Function:       write_atapi_register_data
+- *
+- *    Description:    Writes to ATA Device Resgister
+- *
+- */
+-
+-static void write_atapi_data(void __iomem *base,
+-		int len, unsigned short *buf)
+-{
 -	int i;
 -
--	for_each_sg(sg_list, sg, nents, i)
--		if (i == index)
--			break;
+-	/* Set transfer length to 1 */
+-	ATAPI_SET_XFER_LEN(base, 1);
 -
--	return sg;
--}
+-	/* Program the ATA_DEV_ADDR register with address of the
+-	 * ATA_REG_DATA
+-	 */
+-	ATAPI_SET_DEV_ADDR(base, ATA_REG_DATA);
 -
--static int bfin_crypto_crc_init_hw(struct bfin_crypto_crc *crc, u32 key)
--{
--	writel(0, &crc->regs->datacntrld);
--	writel(MODE_CALC_CRC << OPMODE_OFFSET, &crc->regs->control);
--	writel(key, &crc->regs->curresult);
+-	/* Program the ATA_CTRL register with dir set to write (1)
+-	 */
+-	ATAPI_SET_CONTROL(base, (ATAPI_GET_CONTROL(base) | XFER_DIR));
 -
--	/* setup CRC interrupts */
--	writel(CMPERRI | DCNTEXPI, &crc->regs->status);
--	writel(CMPERRI | DCNTEXPI, &crc->regs->intrenset);
+-	/* ensure PIO DMA is not set */
+-	ATAPI_SET_CONTROL(base, (ATAPI_GET_CONTROL(base) & ~PIO_USE_DMA));
 -
--	return 0;
--}
+-	for (i = 0; i < len; i++) {
+-		/* Program the ATA_DEV_TXBUF register with write data (to be
+-		 * written into the device).
+-		 */
+-		ATAPI_SET_DEV_TXBUF(base, buf[i]);
 -
--static int bfin_crypto_crc_init(struct ahash_request *req)
--{
--	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
--	struct bfin_crypto_crc_ctx *crc_ctx = crypto_ahash_ctx(tfm);
--	struct bfin_crypto_crc_reqctx *ctx = ahash_request_ctx(req);
--	struct bfin_crypto_crc *crc;
+-		/* and start the transfer */
+-		ATAPI_SET_CONTROL(base, (ATAPI_GET_CONTROL(base) | PIO_START));
 -
--	dev_dbg(ctx->crc->dev, "crc_init\n");
--	spin_lock_bh(&crc_list.lock);
--	list_for_each_entry(crc, &crc_list.dev_list, list) {
--		crc_ctx->crc = crc;
--		break;
+-		/* Wait for the interrupt to indicate the end of the transfer.
+-		 * (We need to wait on and clear rhe ATA_DEV_INT
+-		 * interrupt status)
+-		 */
+-		wait_complete(base, PIO_DONE_INT);
 -	}
--	spin_unlock_bh(&crc_list.lock);
--
--	if (sg_nents(req->src) > CRC_MAX_DMA_DESC) {
--		dev_dbg(ctx->crc->dev, "init: requested sg list is too big > %d\n",
--			CRC_MAX_DMA_DESC);
--		return -EINVAL;
--	}
--
--	ctx->crc = crc;
--	ctx->bufnext_len = 0;
--	ctx->buflast_len = 0;
--	ctx->sg_buflen = 0;
--	ctx->total = 0;
--	ctx->flag = 0;
--
--	/* init crc results */
--	put_unaligned_le32(crc_ctx->key, req->result);
--
--	dev_dbg(ctx->crc->dev, "init: digest size: %d\n",
--		crypto_ahash_digestsize(tfm));
--
--	return bfin_crypto_crc_init_hw(crc, crc_ctx->key);
 -}
 -
--static void bfin_crypto_crc_config_dma(struct bfin_crypto_crc *crc)
+-/**
+- *
+- *	Function:       read_atapi_register_data
+- *
+- *	Description:    Reads from ATA Device Resgister
+- *
+- */
+-
+-static void read_atapi_data(void __iomem *base,
+-		int len, unsigned short *buf)
 -{
+-	int i;
+-
+-	/* Set transfer length to 1 */
+-	ATAPI_SET_XFER_LEN(base, 1);
+-
+-	/* Program the ATA_DEV_ADDR register with address of the
+-	 * ATA_REG_DATA
+-	 */
+-	ATAPI_SET_DEV_ADDR(base, ATA_REG_DATA);
+-
+-	/* Program the ATA_CTRL register with dir set to read (0) and
+-	 */
+-	ATAPI_SET_CONTROL(base, (ATAPI_GET_CONTROL(base) & ~XFER_DIR));
+-
+-	/* ensure PIO DMA is not set */
+-	ATAPI_SET_CONTROL(base, (ATAPI_GET_CONTROL(base) & ~PIO_USE_DMA));
+-
+-	for (i = 0; i < len; i++) {
+-		/* and start the transfer */
+-		ATAPI_SET_CONTROL(base, (ATAPI_GET_CONTROL(base) | PIO_START));
+-
+-		/* Wait for the interrupt to indicate the end of the transfer.
+-		 * (PIO_DONE interrupt is set and it doesn't seem to matter
+-		 * that we don't clear it)
+-		 */
+-		wait_complete(base, PIO_DONE_INT);
+-
+-		/* Read the ATA_DEV_RXBUF register with write data (to be
+-		 * written into the device).
+-		 */
+-		buf[i] = ATAPI_GET_DEV_RXBUF(base);
+-	}
+-}
+-
+-/**
+- *	bfin_tf_load - send taskfile registers to host controller
+- *	@ap: Port to which output is sent
+- *	@tf: ATA taskfile register set
+- *
+- *	Note: Original code is ata_sff_tf_load().
+- */
+-
+-static void bfin_tf_load(struct ata_port *ap, const struct ata_taskfile *tf)
+-{
+-	void __iomem *base = (void __iomem *)ap->ioaddr.ctl_addr;
+-	unsigned int is_addr = tf->flags & ATA_TFLAG_ISADDR;
+-
+-	if (tf->ctl != ap->last_ctl) {
+-		write_atapi_register(base, ATA_REG_CTRL, tf->ctl);
+-		ap->last_ctl = tf->ctl;
+-		ata_wait_idle(ap);
+-	}
+-
+-	if (is_addr) {
+-		if (tf->flags & ATA_TFLAG_LBA48) {
+-			write_atapi_register(base, ATA_REG_FEATURE,
+-						tf->hob_feature);
+-			write_atapi_register(base, ATA_REG_NSECT,
+-						tf->hob_nsect);
+-			write_atapi_register(base, ATA_REG_LBAL, tf->hob_lbal);
+-			write_atapi_register(base, ATA_REG_LBAM, tf->hob_lbam);
+-			write_atapi_register(base, ATA_REG_LBAH, tf->hob_lbah);
+-			dev_dbg(ap->dev, "hob: feat 0x%X nsect 0x%X, lba 0x%X "
+-				 "0x%X 0x%X\n",
+-				tf->hob_feature,
+-				tf->hob_nsect,
+-				tf->hob_lbal,
+-				tf->hob_lbam,
+-				tf->hob_lbah);
+-		}
+-
+-		write_atapi_register(base, ATA_REG_FEATURE, tf->feature);
+-		write_atapi_register(base, ATA_REG_NSECT, tf->nsect);
+-		write_atapi_register(base, ATA_REG_LBAL, tf->lbal);
+-		write_atapi_register(base, ATA_REG_LBAM, tf->lbam);
+-		write_atapi_register(base, ATA_REG_LBAH, tf->lbah);
+-		dev_dbg(ap->dev, "feat 0x%X nsect 0x%X lba 0x%X 0x%X 0x%X\n",
+-			tf->feature,
+-			tf->nsect,
+-			tf->lbal,
+-			tf->lbam,
+-			tf->lbah);
+-	}
+-
+-	if (tf->flags & ATA_TFLAG_DEVICE) {
+-		write_atapi_register(base, ATA_REG_DEVICE, tf->device);
+-		dev_dbg(ap->dev, "device 0x%X\n", tf->device);
+-	}
+-
+-	ata_wait_idle(ap);
+-}
+-
+-/**
+- *	bfin_check_status - Read device status reg & clear interrupt
+- *	@ap: port where the device is
+- *
+- *	Note: Original code is ata_check_status().
+- */
+-
+-static u8 bfin_check_status(struct ata_port *ap)
+-{
+-	void __iomem *base = (void __iomem *)ap->ioaddr.ctl_addr;
+-	return read_atapi_register(base, ATA_REG_STATUS);
+-}
+-
+-/**
+- *	bfin_tf_read - input device's ATA taskfile shadow registers
+- *	@ap: Port from which input is read
+- *	@tf: ATA taskfile register set for storing input
+- *
+- *	Note: Original code is ata_sff_tf_read().
+- */
+-
+-static void bfin_tf_read(struct ata_port *ap, struct ata_taskfile *tf)
+-{
+-	void __iomem *base = (void __iomem *)ap->ioaddr.ctl_addr;
+-
+-	tf->command = bfin_check_status(ap);
+-	tf->feature = read_atapi_register(base, ATA_REG_ERR);
+-	tf->nsect = read_atapi_register(base, ATA_REG_NSECT);
+-	tf->lbal = read_atapi_register(base, ATA_REG_LBAL);
+-	tf->lbam = read_atapi_register(base, ATA_REG_LBAM);
+-	tf->lbah = read_atapi_register(base, ATA_REG_LBAH);
+-	tf->device = read_atapi_register(base, ATA_REG_DEVICE);
+-
+-	if (tf->flags & ATA_TFLAG_LBA48) {
+-		write_atapi_register(base, ATA_REG_CTRL, tf->ctl | ATA_HOB);
+-		tf->hob_feature = read_atapi_register(base, ATA_REG_ERR);
+-		tf->hob_nsect = read_atapi_register(base, ATA_REG_NSECT);
+-		tf->hob_lbal = read_atapi_register(base, ATA_REG_LBAL);
+-		tf->hob_lbam = read_atapi_register(base, ATA_REG_LBAM);
+-		tf->hob_lbah = read_atapi_register(base, ATA_REG_LBAH);
+-	}
+-}
+-
+-/**
+- *	bfin_exec_command - issue ATA command to host controller
+- *	@ap: port to which command is being issued
+- *	@tf: ATA taskfile register set
+- *
+- *	Note: Original code is ata_sff_exec_command().
+- */
+-
+-static void bfin_exec_command(struct ata_port *ap,
+-			      const struct ata_taskfile *tf)
+-{
+-	void __iomem *base = (void __iomem *)ap->ioaddr.ctl_addr;
+-	dev_dbg(ap->dev, "ata%u: cmd 0x%X\n", ap->print_id, tf->command);
+-
+-	write_atapi_register(base, ATA_REG_CMD, tf->command);
+-	ata_sff_pause(ap);
+-}
+-
+-/**
+- *	bfin_check_altstatus - Read device alternate status reg
+- *	@ap: port where the device is
+- */
+-
+-static u8 bfin_check_altstatus(struct ata_port *ap)
+-{
+-	void __iomem *base = (void __iomem *)ap->ioaddr.ctl_addr;
+-	return read_atapi_register(base, ATA_REG_ALTSTATUS);
+-}
+-
+-/**
+- *	bfin_dev_select - Select device 0/1 on ATA bus
+- *	@ap: ATA channel to manipulate
+- *	@device: ATA device (numbered from zero) to select
+- *
+- *	Note: Original code is ata_sff_dev_select().
+- */
+-
+-static void bfin_dev_select(struct ata_port *ap, unsigned int device)
+-{
+-	void __iomem *base = (void __iomem *)ap->ioaddr.ctl_addr;
+-	u8 tmp;
+-
+-	if (device == 0)
+-		tmp = ATA_DEVICE_OBS;
+-	else
+-		tmp = ATA_DEVICE_OBS | ATA_DEV1;
+-
+-	write_atapi_register(base, ATA_REG_DEVICE, tmp);
+-	ata_sff_pause(ap);
+-}
+-
+-/**
+- *	bfin_set_devctl - Write device control reg
+- *	@ap: port where the device is
+- *	@ctl: value to write
+- */
+-
+-static void bfin_set_devctl(struct ata_port *ap, u8 ctl)
+-{
+-	void __iomem *base = (void __iomem *)ap->ioaddr.ctl_addr;
+-	write_atapi_register(base, ATA_REG_CTRL, ctl);
+-}
+-
+-/**
+- *	bfin_bmdma_setup - Set up IDE DMA transaction
+- *	@qc: Info associated with this ATA transaction.
+- *
+- *	Note: Original code is ata_bmdma_setup().
+- */
+-
+-static void bfin_bmdma_setup(struct ata_queued_cmd *qc)
+-{
+-	struct ata_port *ap = qc->ap;
+-	struct dma_desc_array *dma_desc_cpu = (struct dma_desc_array *)ap->bmdma_prd;
+-	void __iomem *base = (void __iomem *)ap->ioaddr.ctl_addr;
+-	unsigned short config = DMAFLOW_ARRAY | NDSIZE_5 | RESTART | WDSIZE_16 | DMAEN;
 -	struct scatterlist *sg;
--	struct bfin_crypto_crc_reqctx *ctx = ahash_request_ctx(crc->req);
--	int i = 0, j = 0;
--	unsigned long dma_config;
--	unsigned int dma_count;
--	unsigned int dma_addr;
--	unsigned int mid_dma_count = 0;
--	int dma_mod;
+-	unsigned int si;
+-	unsigned int channel;
+-	unsigned int dir;
+-	unsigned int size = 0;
 -
--	dma_map_sg(crc->dev, ctx->sg, ctx->sg_nents, DMA_TO_DEVICE);
--
--	for_each_sg(ctx->sg, sg, ctx->sg_nents, j) {
--		dma_addr = sg_dma_address(sg);
--		/* deduce extra bytes in last sg */
--		if (sg_is_last(sg))
--			dma_count = sg_dma_len(sg) - ctx->bufnext_len;
--		else
--			dma_count = sg_dma_len(sg);
--
--		if (mid_dma_count) {
--			/* Append last middle dma buffer to 4 bytes with first
--			   bytes in current sg buffer. Move addr of current
--			   sg and deduce the length of current sg.
--			 */
--			memcpy(crc->sg_mid_buf +(i << 2) + mid_dma_count,
--				sg_virt(sg),
--				CHKSUM_DIGEST_SIZE - mid_dma_count);
--			dma_addr += CHKSUM_DIGEST_SIZE - mid_dma_count;
--			dma_count -= CHKSUM_DIGEST_SIZE - mid_dma_count;
--
--			dma_config = DMAFLOW_ARRAY | RESTART | NDSIZE_3 |
--				DMAEN | PSIZE_32 | WDSIZE_32;
--
--			/* setup new dma descriptor for next middle dma */
--			crc->sg_cpu[i].start_addr = crc->sg_mid_dma + (i << 2);
--			crc->sg_cpu[i].cfg = dma_config;
--			crc->sg_cpu[i].x_count = 1;
--			crc->sg_cpu[i].x_modify = CHKSUM_DIGEST_SIZE;
--			dev_dbg(crc->dev, "%d: crc_dma: start_addr:0x%lx, "
--				"cfg:0x%x, x_count:0x%x, x_modify:0x%x\n",
--				i, crc->sg_cpu[i].start_addr,
--				crc->sg_cpu[i].cfg, crc->sg_cpu[i].x_count,
--				crc->sg_cpu[i].x_modify);
--			i++;
--		}
--
--		dma_config = DMAFLOW_ARRAY | RESTART | NDSIZE_3 | DMAEN | PSIZE_32;
--		/* chop current sg dma len to multiple of 32 bits */
--		mid_dma_count = dma_count % 4;
--		dma_count &= ~0x3;
--
--		if (dma_addr % 4 == 0) {
--			dma_config |= WDSIZE_32;
--			dma_count >>= 2;
--			dma_mod = 4;
--		} else if (dma_addr % 2 == 0) {
--			dma_config |= WDSIZE_16;
--			dma_count >>= 1;
--			dma_mod = 2;
--		} else {
--			dma_config |= WDSIZE_8;
--			dma_mod = 1;
--		}
--
--		crc->sg_cpu[i].start_addr = dma_addr;
--		crc->sg_cpu[i].cfg = dma_config;
--		crc->sg_cpu[i].x_count = dma_count;
--		crc->sg_cpu[i].x_modify = dma_mod;
--		dev_dbg(crc->dev, "%d: crc_dma: start_addr:0x%lx, "
--			"cfg:0x%x, x_count:0x%x, x_modify:0x%x\n",
--			i, crc->sg_cpu[i].start_addr,
--			crc->sg_cpu[i].cfg, crc->sg_cpu[i].x_count,
--			crc->sg_cpu[i].x_modify);
--		i++;
--
--		if (mid_dma_count) {
--			/* copy extra bytes to next middle dma buffer */
--			memcpy(crc->sg_mid_buf + (i << 2),
--				(u8*)sg_virt(sg) + (dma_count << 2),
--				mid_dma_count);
--		}
+-	dev_dbg(qc->ap->dev, "in atapi dma setup\n");
+-	/* Program the ATA_CTRL register with dir */
+-	if (qc->tf.flags & ATA_TFLAG_WRITE) {
+-		channel = CH_ATAPI_TX;
+-		dir = DMA_TO_DEVICE;
+-	} else {
+-		channel = CH_ATAPI_RX;
+-		dir = DMA_FROM_DEVICE;
+-		config |= WNR;
 -	}
 -
--	dma_config = DMAFLOW_ARRAY | RESTART | NDSIZE_3 | DMAEN | PSIZE_32 | WDSIZE_32;
--	/* For final update req, append the buffer for next update as well*/
--	if (ctx->bufnext_len && (ctx->flag == CRC_CRYPTO_STATE_FINALUPDATE ||
--		ctx->flag == CRC_CRYPTO_STATE_FINISH)) {
--		crc->sg_cpu[i].start_addr = dma_map_single(crc->dev, ctx->bufnext,
--						CHKSUM_DIGEST_SIZE, DMA_TO_DEVICE);
--		crc->sg_cpu[i].cfg = dma_config;
--		crc->sg_cpu[i].x_count = 1;
--		crc->sg_cpu[i].x_modify = CHKSUM_DIGEST_SIZE;
--		dev_dbg(crc->dev, "%d: crc_dma: start_addr:0x%lx, "
--			"cfg:0x%x, x_count:0x%x, x_modify:0x%x\n",
--			i, crc->sg_cpu[i].start_addr,
--			crc->sg_cpu[i].cfg, crc->sg_cpu[i].x_count,
--			crc->sg_cpu[i].x_modify);
--		i++;
--	}
+-	dma_map_sg(ap->dev, qc->sg, qc->n_elem, dir);
 -
--	if (i == 0)
--		return;
+-	/* fill the ATAPI DMA controller */
+-	for_each_sg(qc->sg, sg, qc->n_elem, si) {
+-		dma_desc_cpu[si].start_addr = sg_dma_address(sg);
+-		dma_desc_cpu[si].cfg = config;
+-		dma_desc_cpu[si].x_count = sg_dma_len(sg) >> 1;
+-		dma_desc_cpu[si].x_modify = 2;
+-		size += sg_dma_len(sg);
+-	}
 -
 -	/* Set the last descriptor to stop mode */
--	crc->sg_cpu[i - 1].cfg &= ~(DMAFLOW | NDSIZE);
--	crc->sg_cpu[i - 1].cfg |= DI_EN;
--	set_dma_curr_desc_addr(crc->dma_ch, (unsigned long *)crc->sg_dma);
--	set_dma_x_count(crc->dma_ch, 0);
--	set_dma_x_modify(crc->dma_ch, 0);
--	set_dma_config(crc->dma_ch, dma_config);
--}
+-	dma_desc_cpu[qc->n_elem - 1].cfg &= ~(DMAFLOW | NDSIZE);
 -
--static int bfin_crypto_crc_handle_queue(struct bfin_crypto_crc *crc,
--				  struct ahash_request *req)
--{
--	struct crypto_async_request *async_req, *backlog;
--	struct bfin_crypto_crc_reqctx *ctx;
--	struct scatterlist *sg;
--	int ret = 0;
--	int nsg, i, j;
--	unsigned int nextlen;
--	unsigned long flags;
--	u32 reg;
+-	flush_dcache_range((unsigned int)dma_desc_cpu,
+-		(unsigned int)dma_desc_cpu +
+-			qc->n_elem * sizeof(struct dma_desc_array));
 -
--	spin_lock_irqsave(&crc->lock, flags);
--	if (req)
--		ret = ahash_enqueue_request(&crc->queue, req);
--	if (crc->busy) {
--		spin_unlock_irqrestore(&crc->lock, flags);
--		return ret;
--	}
--	backlog = crypto_get_backlog(&crc->queue);
--	async_req = crypto_dequeue_request(&crc->queue);
--	if (async_req)
--		crc->busy = 1;
--	spin_unlock_irqrestore(&crc->lock, flags);
+-	/* Enable ATA DMA operation*/
+-	set_dma_curr_desc_addr(channel, (unsigned long *)ap->bmdma_prd_dma);
+-	set_dma_x_count(channel, 0);
+-	set_dma_x_modify(channel, 0);
+-	set_dma_config(channel, config);
 -
--	if (!async_req)
--		return ret;
+-	SSYNC();
 -
--	if (backlog)
--		backlog->complete(backlog, -EINPROGRESS);
+-	/* Send ATA DMA command */
+-	bfin_exec_command(ap, &qc->tf);
 -
--	req = ahash_request_cast(async_req);
--	crc->req = req;
--	ctx = ahash_request_ctx(req);
--	ctx->sg = NULL;
--	ctx->sg_buflen = 0;
--	ctx->sg_nents = 0;
--
--	dev_dbg(crc->dev, "handling new req, flag=%u, nbytes: %d\n",
--						ctx->flag, req->nbytes);
--
--	if (ctx->flag == CRC_CRYPTO_STATE_FINISH) {
--		if (ctx->bufnext_len == 0) {
--			crc->busy = 0;
--			return 0;
--		}
--
--		/* Pack last crc update buffer to 32bit */
--		memset(ctx->bufnext + ctx->bufnext_len, 0,
--				CHKSUM_DIGEST_SIZE - ctx->bufnext_len);
+-	if (qc->tf.flags & ATA_TFLAG_WRITE) {
+-		/* set ATA DMA write direction */
+-		ATAPI_SET_CONTROL(base, (ATAPI_GET_CONTROL(base)
+-			| XFER_DIR));
 -	} else {
--		/* Pack small data which is less than 32bit to buffer for next update. */
--		if (ctx->bufnext_len + req->nbytes < CHKSUM_DIGEST_SIZE) {
--			memcpy(ctx->bufnext + ctx->bufnext_len,
--				sg_virt(req->src), req->nbytes);
--			ctx->bufnext_len += req->nbytes;
--			if (ctx->flag == CRC_CRYPTO_STATE_FINALUPDATE &&
--				ctx->bufnext_len) {
--				goto finish_update;
--			} else {
--				crc->busy = 0;
--				return 0;
--			}
--		}
--
--		if (ctx->bufnext_len) {
--			/* Chain in extra bytes of last update */
--			ctx->buflast_len = ctx->bufnext_len;
--			memcpy(ctx->buflast, ctx->bufnext, ctx->buflast_len);
--
--			nsg = ctx->sg_buflen ? 2 : 1;
--			sg_init_table(ctx->bufsl, nsg);
--			sg_set_buf(ctx->bufsl, ctx->buflast, ctx->buflast_len);
--			if (nsg > 1)
--				sg_chain(ctx->bufsl, nsg, req->src);
--			ctx->sg = ctx->bufsl;
--		} else
--			ctx->sg = req->src;
--
--		/* Chop crc buffer size to multiple of 32 bit */
--		nsg = sg_nents(ctx->sg);
--		ctx->sg_nents = nsg;
--		ctx->sg_buflen = ctx->buflast_len + req->nbytes;
--		ctx->bufnext_len = ctx->sg_buflen % 4;
--		ctx->sg_buflen &= ~0x3;
--
--		if (ctx->bufnext_len) {
--			/* copy extra bytes to buffer for next update */
--			memset(ctx->bufnext, 0, CHKSUM_DIGEST_SIZE);
--			nextlen = ctx->bufnext_len;
--			for (i = nsg - 1; i >= 0; i--) {
--				sg = sg_get(ctx->sg, nsg, i);
--				j = min(nextlen, sg_dma_len(sg));
--				memcpy(ctx->bufnext + nextlen - j,
--					sg_virt(sg) + sg_dma_len(sg) - j, j);
--				if (j == sg_dma_len(sg))
--					ctx->sg_nents--;
--				nextlen -= j;
--				if (nextlen == 0)
--					break;
--			}
--		}
+-		/* set ATA DMA read direction */
+-		ATAPI_SET_CONTROL(base, (ATAPI_GET_CONTROL(base)
+-			& ~XFER_DIR));
 -	}
 -
--finish_update:
--	if (ctx->bufnext_len && (ctx->flag == CRC_CRYPTO_STATE_FINALUPDATE ||
--		ctx->flag == CRC_CRYPTO_STATE_FINISH))
--		ctx->sg_buflen += CHKSUM_DIGEST_SIZE;
+-	/* Reset all transfer count */
+-	ATAPI_SET_CONTROL(base, ATAPI_GET_CONTROL(base) | TFRCNT_RST);
 -
--	/* set CRC data count before start DMA */
--	writel(ctx->sg_buflen >> 2, &crc->regs->datacnt);
+-	/* Set ATAPI state machine contorl in terminate sequence */
+-	ATAPI_SET_CONTROL(base, ATAPI_GET_CONTROL(base) | END_ON_TERM);
 -
--	/* setup and enable CRC DMA */
--	bfin_crypto_crc_config_dma(crc);
--
--	/* finally kick off CRC operation */
--	reg = readl(&crc->regs->control);
--	writel(reg | BLKEN, &crc->regs->control);
--
--	return -EINPROGRESS;
+-	/* Set transfer length to the total size of sg buffers */
+-	ATAPI_SET_XFER_LEN(base, size >> 1);
 -}
 -
--static int bfin_crypto_crc_update(struct ahash_request *req)
--{
--	struct bfin_crypto_crc_reqctx *ctx = ahash_request_ctx(req);
+-/**
+- *	bfin_bmdma_start - Start an IDE DMA transaction
+- *	@qc: Info associated with this ATA transaction.
+- *
+- *	Note: Original code is ata_bmdma_start().
+- */
 -
--	if (!req->nbytes)
+-static void bfin_bmdma_start(struct ata_queued_cmd *qc)
+-{
+-	struct ata_port *ap = qc->ap;
+-	void __iomem *base = (void __iomem *)ap->ioaddr.ctl_addr;
+-
+-	dev_dbg(qc->ap->dev, "in atapi dma start\n");
+-
+-	if (!(ap->udma_mask || ap->mwdma_mask))
+-		return;
+-
+-	/* start ATAPI transfer*/
+-	if (ap->udma_mask)
+-		ATAPI_SET_CONTROL(base, ATAPI_GET_CONTROL(base)
+-			| ULTRA_START);
+-	else
+-		ATAPI_SET_CONTROL(base, ATAPI_GET_CONTROL(base)
+-			| MULTI_START);
+-}
+-
+-/**
+- *	bfin_bmdma_stop - Stop IDE DMA transfer
+- *	@qc: Command we are ending DMA for
+- */
+-
+-static void bfin_bmdma_stop(struct ata_queued_cmd *qc)
+-{
+-	struct ata_port *ap = qc->ap;
+-	unsigned int dir;
+-
+-	dev_dbg(qc->ap->dev, "in atapi dma stop\n");
+-
+-	if (!(ap->udma_mask || ap->mwdma_mask))
+-		return;
+-
+-	/* stop ATAPI DMA controller*/
+-	if (qc->tf.flags & ATA_TFLAG_WRITE) {
+-		dir = DMA_TO_DEVICE;
+-		disable_dma(CH_ATAPI_TX);
+-	} else {
+-		dir = DMA_FROM_DEVICE;
+-		disable_dma(CH_ATAPI_RX);
+-	}
+-
+-	dma_unmap_sg(ap->dev, qc->sg, qc->n_elem, dir);
+-}
+-
+-/**
+- *	bfin_devchk - PATA device presence detection
+- *	@ap: ATA channel to examine
+- *	@device: Device to examine (starting at zero)
+- *
+- *	Note: Original code is ata_devchk().
+- */
+-
+-static unsigned int bfin_devchk(struct ata_port *ap,
+-				unsigned int device)
+-{
+-	void __iomem *base = (void __iomem *)ap->ioaddr.ctl_addr;
+-	u8 nsect, lbal;
+-
+-	bfin_dev_select(ap, device);
+-
+-	write_atapi_register(base, ATA_REG_NSECT, 0x55);
+-	write_atapi_register(base, ATA_REG_LBAL, 0xaa);
+-
+-	write_atapi_register(base, ATA_REG_NSECT, 0xaa);
+-	write_atapi_register(base, ATA_REG_LBAL, 0x55);
+-
+-	write_atapi_register(base, ATA_REG_NSECT, 0x55);
+-	write_atapi_register(base, ATA_REG_LBAL, 0xaa);
+-
+-	nsect = read_atapi_register(base, ATA_REG_NSECT);
+-	lbal = read_atapi_register(base, ATA_REG_LBAL);
+-
+-	if ((nsect == 0x55) && (lbal == 0xaa))
+-		return 1;	/* we found a device */
+-
+-	return 0;		/* nothing found */
+-}
+-
+-/**
+- *	bfin_bus_post_reset - PATA device post reset
+- *
+- *	Note: Original code is ata_bus_post_reset().
+- */
+-
+-static void bfin_bus_post_reset(struct ata_port *ap, unsigned int devmask)
+-{
+-	void __iomem *base = (void __iomem *)ap->ioaddr.ctl_addr;
+-	unsigned int dev0 = devmask & (1 << 0);
+-	unsigned int dev1 = devmask & (1 << 1);
+-	unsigned long deadline;
+-
+-	/* if device 0 was found in ata_devchk, wait for its
+-	 * BSY bit to clear
+-	 */
+-	if (dev0)
+-		ata_sff_busy_sleep(ap, ATA_TMOUT_BOOT_QUICK, ATA_TMOUT_BOOT);
+-
+-	/* if device 1 was found in ata_devchk, wait for
+-	 * register access, then wait for BSY to clear
+-	 */
+-	deadline = ata_deadline(jiffies, ATA_TMOUT_BOOT);
+-	while (dev1) {
+-		u8 nsect, lbal;
+-
+-		bfin_dev_select(ap, 1);
+-		nsect = read_atapi_register(base, ATA_REG_NSECT);
+-		lbal = read_atapi_register(base, ATA_REG_LBAL);
+-		if ((nsect == 1) && (lbal == 1))
+-			break;
+-		if (time_after(jiffies, deadline)) {
+-			dev1 = 0;
+-			break;
+-		}
+-		ata_msleep(ap, 50);	/* give drive a breather */
+-	}
+-	if (dev1)
+-		ata_sff_busy_sleep(ap, ATA_TMOUT_BOOT_QUICK, ATA_TMOUT_BOOT);
+-
+-	/* is all this really necessary? */
+-	bfin_dev_select(ap, 0);
+-	if (dev1)
+-		bfin_dev_select(ap, 1);
+-	if (dev0)
+-		bfin_dev_select(ap, 0);
+-}
+-
+-/**
+- *	bfin_bus_softreset - PATA device software reset
+- *
+- *	Note: Original code is ata_bus_softreset().
+- */
+-
+-static unsigned int bfin_bus_softreset(struct ata_port *ap,
+-				       unsigned int devmask)
+-{
+-	void __iomem *base = (void __iomem *)ap->ioaddr.ctl_addr;
+-
+-	/* software reset.  causes dev0 to be selected */
+-	write_atapi_register(base, ATA_REG_CTRL, ap->ctl);
+-	udelay(20);
+-	write_atapi_register(base, ATA_REG_CTRL, ap->ctl | ATA_SRST);
+-	udelay(20);
+-	write_atapi_register(base, ATA_REG_CTRL, ap->ctl);
+-
+-	/* spec mandates ">= 2ms" before checking status.
+-	 * We wait 150ms, because that was the magic delay used for
+-	 * ATAPI devices in Hale Landis's ATADRVR, for the period of time
+-	 * between when the ATA command register is written, and then
+-	 * status is checked.  Because waiting for "a while" before
+-	 * checking status is fine, post SRST, we perform this magic
+-	 * delay here as well.
+-	 *
+-	 * Old drivers/ide uses the 2mS rule and then waits for ready
+-	 */
+-	ata_msleep(ap, 150);
+-
+-	/* Before we perform post reset processing we want to see if
+-	 * the bus shows 0xFF because the odd clown forgets the D7
+-	 * pulldown resistor.
+-	 */
+-	if (bfin_check_status(ap) == 0xFF)
 -		return 0;
 -
--	dev_dbg(ctx->crc->dev, "crc_update\n");
--	ctx->total += req->nbytes;
--	ctx->flag = CRC_CRYPTO_STATE_UPDATE;
+-	bfin_bus_post_reset(ap, devmask);
 -
--	return bfin_crypto_crc_handle_queue(ctx->crc, req);
+-	return 0;
 -}
 -
--static int bfin_crypto_crc_final(struct ahash_request *req)
+-/**
+- *	bfin_softreset - reset host port via ATA SRST
+- *	@ap: port to reset
+- *	@classes: resulting classes of attached devices
+- *
+- *	Note: Original code is ata_sff_softreset().
+- */
+-
+-static int bfin_softreset(struct ata_link *link, unsigned int *classes,
+-			  unsigned long deadline)
 -{
--	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
--	struct bfin_crypto_crc_ctx *crc_ctx = crypto_ahash_ctx(tfm);
--	struct bfin_crypto_crc_reqctx *ctx = ahash_request_ctx(req);
+-	struct ata_port *ap = link->ap;
+-	unsigned int slave_possible = ap->flags & ATA_FLAG_SLAVE_POSS;
+-	unsigned int devmask = 0, err_mask;
+-	u8 err;
 -
--	dev_dbg(ctx->crc->dev, "crc_final\n");
--	ctx->flag = CRC_CRYPTO_STATE_FINISH;
--	crc_ctx->key = 0;
+-	/* determine if device 0/1 are present */
+-	if (bfin_devchk(ap, 0))
+-		devmask |= (1 << 0);
+-	if (slave_possible && bfin_devchk(ap, 1))
+-		devmask |= (1 << 1);
 -
--	return bfin_crypto_crc_handle_queue(ctx->crc, req);
+-	/* select device 0 again */
+-	bfin_dev_select(ap, 0);
+-
+-	/* issue bus reset */
+-	err_mask = bfin_bus_softreset(ap, devmask);
+-	if (err_mask) {
+-		ata_port_err(ap, "SRST failed (err_mask=0x%x)\n",
+-				err_mask);
+-		return -EIO;
+-	}
+-
+-	/* determine by signature whether we have ATA or ATAPI devices */
+-	classes[0] = ata_sff_dev_classify(&ap->link.device[0],
+-				devmask & (1 << 0), &err);
+-	if (slave_possible && err != 0x81)
+-		classes[1] = ata_sff_dev_classify(&ap->link.device[1],
+-					devmask & (1 << 1), &err);
+-
+-	return 0;
 -}
 -
--static int bfin_crypto_crc_finup(struct ahash_request *req)
+-/**
+- *	bfin_bmdma_status - Read IDE DMA status
+- *	@ap: Port associated with this ATA transaction.
+- */
+-
+-static unsigned char bfin_bmdma_status(struct ata_port *ap)
 -{
--	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
--	struct bfin_crypto_crc_ctx *crc_ctx = crypto_ahash_ctx(tfm);
--	struct bfin_crypto_crc_reqctx *ctx = ahash_request_ctx(req);
+-	unsigned char host_stat = 0;
+-	void __iomem *base = (void __iomem *)ap->ioaddr.ctl_addr;
 -
--	dev_dbg(ctx->crc->dev, "crc_finishupdate\n");
--	ctx->total += req->nbytes;
--	ctx->flag = CRC_CRYPTO_STATE_FINALUPDATE;
--	crc_ctx->key = 0;
+-	if (ATAPI_GET_STATUS(base) & (MULTI_XFER_ON | ULTRA_XFER_ON))
+-		host_stat |= ATA_DMA_ACTIVE;
+-	if (ATAPI_GET_INT_STATUS(base) & ATAPI_DEV_INT)
+-		host_stat |= ATA_DMA_INTR;
 -
--	return bfin_crypto_crc_handle_queue(ctx->crc, req);
+-	dev_dbg(ap->dev, "ATAPI: host_stat=0x%x\n", host_stat);
+-
+-	return host_stat;
 -}
 -
--static int bfin_crypto_crc_digest(struct ahash_request *req)
+-/**
+- *	bfin_data_xfer - Transfer data by PIO
+- *	@qc: queued command
+- *	@buf: data buffer
+- *	@buflen: buffer length
+- *	@write_data: read/write
+- *
+- *	Note: Original code is ata_sff_data_xfer().
+- */
+-
+-static unsigned int bfin_data_xfer(struct ata_queued_cmd *qc,
+-				   unsigned char *buf,
+-				   unsigned int buflen, int rw)
 -{
--	int ret;
+-	struct ata_port *ap = qc->dev->link->ap;
+-	void __iomem *base = (void __iomem *)ap->ioaddr.ctl_addr;
+-	unsigned int words = buflen >> 1;
+-	unsigned short *buf16 = (u16 *)buf;
 -
--	ret = bfin_crypto_crc_init(req);
--	if (ret)
--		return ret;
+-	/* Transfer multiple of 2 bytes */
+-	if (rw == READ)
+-		read_atapi_data(base, words, buf16);
+-	else
+-		write_atapi_data(base, words, buf16);
 -
--	return bfin_crypto_crc_finup(req);
+-	/* Transfer trailing 1 byte, if any. */
+-	if (unlikely(buflen & 0x01)) {
+-		unsigned short align_buf[1] = { 0 };
+-		unsigned char *trailing_buf = buf + buflen - 1;
+-
+-		if (rw == READ) {
+-			read_atapi_data(base, 1, align_buf);
+-			memcpy(trailing_buf, align_buf, 1);
+-		} else {
+-			memcpy(align_buf, trailing_buf, 1);
+-			write_atapi_data(base, 1, align_buf);
+-		}
+-		words++;
+-	}
+-
+-	return words << 1;
 -}
 -
--static int bfin_crypto_crc_setkey(struct crypto_ahash *tfm, const u8 *key,
--			unsigned int keylen)
--{
--	struct bfin_crypto_crc_ctx *crc_ctx = crypto_ahash_ctx(tfm);
+-/**
+- *	bfin_irq_clear - Clear ATAPI interrupt.
+- *	@ap: Port associated with this ATA transaction.
+- *
+- *	Note: Original code is ata_bmdma_irq_clear().
+- */
 -
--	dev_dbg(crc_ctx->crc->dev, "crc_setkey\n");
--	if (keylen != CHKSUM_DIGEST_SIZE) {
--		crypto_ahash_set_flags(tfm, CRYPTO_TFM_RES_BAD_KEY_LEN);
+-static void bfin_irq_clear(struct ata_port *ap)
+-{
+-	void __iomem *base = (void __iomem *)ap->ioaddr.ctl_addr;
+-
+-	dev_dbg(ap->dev, "in atapi irq clear\n");
+-	ATAPI_SET_INT_STATUS(base, ATAPI_GET_INT_STATUS(base)|ATAPI_DEV_INT
+-		| MULTI_DONE_INT | UDMAIN_DONE_INT | UDMAOUT_DONE_INT
+-		| MULTI_TERM_INT | UDMAIN_TERM_INT | UDMAOUT_TERM_INT);
+-}
+-
+-/**
+- *	bfin_thaw - Thaw DMA controller port
+- *	@ap: port to thaw
+- *
+- *	Note: Original code is ata_sff_thaw().
+- */
+-
+-void bfin_thaw(struct ata_port *ap)
+-{
+-	dev_dbg(ap->dev, "in atapi dma thaw\n");
+-	bfin_check_status(ap);
+-	ata_sff_irq_on(ap);
+-}
+-
+-/**
+- *	bfin_postreset - standard postreset callback
+- *	@ap: the target ata_port
+- *	@classes: classes of attached devices
+- *
+- *	Note: Original code is ata_sff_postreset().
+- */
+-
+-static void bfin_postreset(struct ata_link *link, unsigned int *classes)
+-{
+-	struct ata_port *ap = link->ap;
+-	void __iomem *base = (void __iomem *)ap->ioaddr.ctl_addr;
+-
+-	/* re-enable interrupts */
+-	ata_sff_irq_on(ap);
+-
+-	/* is double-select really necessary? */
+-	if (classes[0] != ATA_DEV_NONE)
+-		bfin_dev_select(ap, 1);
+-	if (classes[1] != ATA_DEV_NONE)
+-		bfin_dev_select(ap, 0);
+-
+-	/* bail out if no device is present */
+-	if (classes[0] == ATA_DEV_NONE && classes[1] == ATA_DEV_NONE) {
+-		return;
+-	}
+-
+-	/* set up device control */
+-	write_atapi_register(base, ATA_REG_CTRL, ap->ctl);
+-}
+-
+-static void bfin_port_stop(struct ata_port *ap)
+-{
+-	dev_dbg(ap->dev, "in atapi port stop\n");
+-	if (ap->udma_mask != 0 || ap->mwdma_mask != 0) {
+-		dma_free_coherent(ap->dev,
+-			BFIN_MAX_SG_SEGMENTS * sizeof(struct dma_desc_array),
+-			ap->bmdma_prd,
+-			ap->bmdma_prd_dma);
+-
+-		free_dma(CH_ATAPI_RX);
+-		free_dma(CH_ATAPI_TX);
+-	}
+-}
+-
+-static int bfin_port_start(struct ata_port *ap)
+-{
+-	dev_dbg(ap->dev, "in atapi port start\n");
+-	if (!(ap->udma_mask || ap->mwdma_mask))
+-		return 0;
+-
+-	ap->bmdma_prd = dma_alloc_coherent(ap->dev,
+-				BFIN_MAX_SG_SEGMENTS * sizeof(struct dma_desc_array),
+-				&ap->bmdma_prd_dma,
+-				GFP_KERNEL);
+-
+-	if (ap->bmdma_prd == NULL) {
+-		dev_info(ap->dev, "Unable to allocate DMA descriptor array.\n");
+-		goto out;
+-	}
+-
+-	if (request_dma(CH_ATAPI_RX, "BFIN ATAPI RX DMA") >= 0) {
+-		if (request_dma(CH_ATAPI_TX,
+-			"BFIN ATAPI TX DMA") >= 0)
+-			return 0;
+-
+-		free_dma(CH_ATAPI_RX);
+-		dma_free_coherent(ap->dev,
+-			BFIN_MAX_SG_SEGMENTS * sizeof(struct dma_desc_array),
+-			ap->bmdma_prd,
+-			ap->bmdma_prd_dma);
+-	}
+-
+-out:
+-	ap->udma_mask = 0;
+-	ap->mwdma_mask = 0;
+-	dev_err(ap->dev, "Unable to request ATAPI DMA!"
+-		" Continue in PIO mode.\n");
+-
+-	return 0;
+-}
+-
+-static unsigned int bfin_ata_host_intr(struct ata_port *ap,
+-				   struct ata_queued_cmd *qc)
+-{
+-	struct ata_eh_info *ehi = &ap->link.eh_info;
+-	u8 status, host_stat = 0;
+-
+-	VPRINTK("ata%u: protocol %d task_state %d\n",
+-		ap->print_id, qc->tf.protocol, ap->hsm_task_state);
+-
+-	/* Check whether we are expecting interrupt in this state */
+-	switch (ap->hsm_task_state) {
+-	case HSM_ST_FIRST:
+-		/* Some pre-ATAPI-4 devices assert INTRQ
+-		 * at this state when ready to receive CDB.
+-		 */
+-
+-		/* Check the ATA_DFLAG_CDB_INTR flag is enough here.
+-		 * The flag was turned on only for atapi devices.
+-		 * No need to check is_atapi_taskfile(&qc->tf) again.
+-		 */
+-		if (!(qc->dev->flags & ATA_DFLAG_CDB_INTR))
+-			goto idle_irq;
+-		break;
+-	case HSM_ST_LAST:
+-		if (qc->tf.protocol == ATA_PROT_DMA ||
+-		    qc->tf.protocol == ATAPI_PROT_DMA) {
+-			/* check status of DMA engine */
+-			host_stat = ap->ops->bmdma_status(ap);
+-			VPRINTK("ata%u: host_stat 0x%X\n",
+-				ap->print_id, host_stat);
+-
+-			/* if it's not our irq... */
+-			if (!(host_stat & ATA_DMA_INTR))
+-				goto idle_irq;
+-
+-			/* before we do anything else, clear DMA-Start bit */
+-			ap->ops->bmdma_stop(qc);
+-
+-			if (unlikely(host_stat & ATA_DMA_ERR)) {
+-				/* error when transferring data to/from memory */
+-				qc->err_mask |= AC_ERR_HOST_BUS;
+-				ap->hsm_task_state = HSM_ST_ERR;
+-			}
+-		}
+-		break;
+-	case HSM_ST:
+-		break;
+-	default:
+-		goto idle_irq;
+-	}
+-
+-	/* check altstatus */
+-	status = ap->ops->sff_check_altstatus(ap);
+-	if (status & ATA_BUSY)
+-		goto busy_ata;
+-
+-	/* check main status, clearing INTRQ */
+-	status = ap->ops->sff_check_status(ap);
+-	if (unlikely(status & ATA_BUSY))
+-		goto busy_ata;
+-
+-	/* ack bmdma irq events */
+-	ap->ops->sff_irq_clear(ap);
+-
+-	ata_sff_hsm_move(ap, qc, status, 0);
+-
+-	if (unlikely(qc->err_mask) && (qc->tf.protocol == ATA_PROT_DMA ||
+-				       qc->tf.protocol == ATAPI_PROT_DMA))
+-		ata_ehi_push_desc(ehi, "BMDMA stat 0x%x", host_stat);
+-
+-busy_ata:
+-	return 1;	/* irq handled */
+-
+-idle_irq:
+-	ap->stats.idle_irq++;
+-
+-#ifdef ATA_IRQ_TRAP
+-	if ((ap->stats.idle_irq % 1000) == 0) {
+-		ap->ops->irq_ack(ap, 0); /* debug trap */
+-		ata_port_warn(ap, "irq trap\n");
+-		return 1;
+-	}
+-#endif
+-	return 0;	/* irq not handled */
+-}
+-
+-static irqreturn_t bfin_ata_interrupt(int irq, void *dev_instance)
+-{
+-	struct ata_host *host = dev_instance;
+-	unsigned int i;
+-	unsigned int handled = 0;
+-	unsigned long flags;
+-
+-	/* TODO: make _irqsave conditional on x86 PCI IDE legacy mode */
+-	spin_lock_irqsave(&host->lock, flags);
+-
+-	for (i = 0; i < host->n_ports; i++) {
+-		struct ata_port *ap = host->ports[i];
+-		struct ata_queued_cmd *qc;
+-
+-		qc = ata_qc_from_tag(ap, ap->link.active_tag);
+-		if (qc && (!(qc->tf.flags & ATA_TFLAG_POLLING)))
+-			handled |= bfin_ata_host_intr(ap, qc);
+-	}
+-
+-	spin_unlock_irqrestore(&host->lock, flags);
+-
+-	return IRQ_RETVAL(handled);
+-}
+-
+-
+-static struct scsi_host_template bfin_sht = {
+-	ATA_BASE_SHT(DRV_NAME),
+-	.sg_tablesize		= BFIN_MAX_SG_SEGMENTS,
+-	.dma_boundary		= ATA_DMA_BOUNDARY,
+-};
+-
+-static struct ata_port_operations bfin_pata_ops = {
+-	.inherits		= &ata_bmdma_port_ops,
+-
+-	.set_piomode		= bfin_set_piomode,
+-	.set_dmamode		= bfin_set_dmamode,
+-
+-	.sff_tf_load		= bfin_tf_load,
+-	.sff_tf_read		= bfin_tf_read,
+-	.sff_exec_command	= bfin_exec_command,
+-	.sff_check_status	= bfin_check_status,
+-	.sff_check_altstatus	= bfin_check_altstatus,
+-	.sff_dev_select		= bfin_dev_select,
+-	.sff_set_devctl		= bfin_set_devctl,
+-
+-	.bmdma_setup		= bfin_bmdma_setup,
+-	.bmdma_start		= bfin_bmdma_start,
+-	.bmdma_stop		= bfin_bmdma_stop,
+-	.bmdma_status		= bfin_bmdma_status,
+-	.sff_data_xfer		= bfin_data_xfer,
+-
+-	.qc_prep		= ata_noop_qc_prep,
+-
+-	.thaw			= bfin_thaw,
+-	.softreset		= bfin_softreset,
+-	.postreset		= bfin_postreset,
+-
+-	.sff_irq_clear		= bfin_irq_clear,
+-
+-	.port_start		= bfin_port_start,
+-	.port_stop		= bfin_port_stop,
+-};
+-
+-static struct ata_port_info bfin_port_info[] = {
+-	{
+-		.flags		= ATA_FLAG_SLAVE_POSS,
+-		.pio_mask	= ATA_PIO4,
+-		.mwdma_mask	= 0,
+-		.udma_mask	= 0,
+-		.port_ops	= &bfin_pata_ops,
+-	},
+-};
+-
+-/**
+- *	bfin_reset_controller - initialize BF54x ATAPI controller.
+- */
+-
+-static int bfin_reset_controller(struct ata_host *host)
+-{
+-	void __iomem *base = (void __iomem *)host->ports[0]->ioaddr.ctl_addr;
+-	int count;
+-	unsigned short status;
+-
+-	/* Disable all ATAPI interrupts */
+-	ATAPI_SET_INT_MASK(base, 0);
+-	SSYNC();
+-
+-	/* Assert the RESET signal 25us*/
+-	ATAPI_SET_CONTROL(base, ATAPI_GET_CONTROL(base) | DEV_RST);
+-	udelay(30);
+-
+-	/* Negate the RESET signal for 2ms*/
+-	ATAPI_SET_CONTROL(base, ATAPI_GET_CONTROL(base) & ~DEV_RST);
+-	msleep(2);
+-
+-	/* Wait on Busy flag to clear */
+-	count = 10000000;
+-	do {
+-		status = read_atapi_register(base, ATA_REG_STATUS);
+-	} while (--count && (status & ATA_BUSY));
+-
+-	/* Enable only ATAPI Device interrupt */
+-	ATAPI_SET_INT_MASK(base, 1);
+-	SSYNC();
+-
+-	return (!count);
+-}
+-
+-/**
+- *	atapi_io_port - define atapi peripheral port pins.
+- */
+-static unsigned short atapi_io_port[] = {
+-	P_ATAPI_RESET,
+-	P_ATAPI_DIOR,
+-	P_ATAPI_DIOW,
+-	P_ATAPI_CS0,
+-	P_ATAPI_CS1,
+-	P_ATAPI_DMACK,
+-	P_ATAPI_DMARQ,
+-	P_ATAPI_INTRQ,
+-	P_ATAPI_IORDY,
+-	P_ATAPI_D0A,
+-	P_ATAPI_D1A,
+-	P_ATAPI_D2A,
+-	P_ATAPI_D3A,
+-	P_ATAPI_D4A,
+-	P_ATAPI_D5A,
+-	P_ATAPI_D6A,
+-	P_ATAPI_D7A,
+-	P_ATAPI_D8A,
+-	P_ATAPI_D9A,
+-	P_ATAPI_D10A,
+-	P_ATAPI_D11A,
+-	P_ATAPI_D12A,
+-	P_ATAPI_D13A,
+-	P_ATAPI_D14A,
+-	P_ATAPI_D15A,
+-	P_ATAPI_A0A,
+-	P_ATAPI_A1A,
+-	P_ATAPI_A2A,
+-	0
+-};
+-
+-/**
+- *	bfin_atapi_probe	-	attach a bfin atapi interface
+- *	@pdev: platform device
+- *
+- *	Register a bfin atapi interface.
+- *
+- *
+- *	Platform devices are expected to contain 2 resources per port:
+- *
+- *		- I/O Base (IORESOURCE_IO)
+- *		- IRQ	   (IORESOURCE_IRQ)
+- *
+- */
+-static int bfin_atapi_probe(struct platform_device *pdev)
+-{
+-	int board_idx = 0;
+-	struct resource *res;
+-	struct ata_host *host;
+-	unsigned int fsclk = get_sclk();
+-	int udma_mode = 5;
+-	const struct ata_port_info *ppi[] =
+-		{ &bfin_port_info[board_idx], NULL };
+-
+-	/*
+-	 * Simple resource validation ..
+-	 */
+-	if (unlikely(pdev->num_resources != 2)) {
+-		dev_err(&pdev->dev, "invalid number of resources\n");
 -		return -EINVAL;
 -	}
 -
--	crc_ctx->key = get_unaligned_le32(key);
+-	/*
+-	 * Get the register base first
+-	 */
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (res == NULL)
+-		return -EINVAL;
 -
--	return 0;
--}
--
--static int bfin_crypto_crc_cra_init(struct crypto_tfm *tfm)
--{
--	struct bfin_crypto_crc_ctx *crc_ctx = crypto_tfm_ctx(tfm);
--
--	crc_ctx->key = 0;
--	crypto_ahash_set_reqsize(__crypto_ahash_cast(tfm),
--				 sizeof(struct bfin_crypto_crc_reqctx));
--
--	return 0;
--}
--
--static void bfin_crypto_crc_cra_exit(struct crypto_tfm *tfm)
--{
--}
--
--static struct ahash_alg algs = {
--	.init		= bfin_crypto_crc_init,
--	.update		= bfin_crypto_crc_update,
--	.final		= bfin_crypto_crc_final,
--	.finup		= bfin_crypto_crc_finup,
--	.digest		= bfin_crypto_crc_digest,
--	.setkey		= bfin_crypto_crc_setkey,
--	.halg.digestsize	= CHKSUM_DIGEST_SIZE,
--	.halg.base	= {
--		.cra_name		= "hmac(crc32)",
--		.cra_driver_name	= DRIVER_NAME,
--		.cra_priority		= 100,
--		.cra_flags		= CRYPTO_ALG_TYPE_AHASH |
--						CRYPTO_ALG_ASYNC |
--						CRYPTO_ALG_OPTIONAL_KEY,
--		.cra_blocksize		= CHKSUM_BLOCK_SIZE,
--		.cra_ctxsize		= sizeof(struct bfin_crypto_crc_ctx),
--		.cra_alignmask		= 3,
--		.cra_module		= THIS_MODULE,
--		.cra_init		= bfin_crypto_crc_cra_init,
--		.cra_exit		= bfin_crypto_crc_cra_exit,
+-	while (bfin_port_info[board_idx].udma_mask > 0 &&
+-			udma_fsclk[udma_mode] > fsclk) {
+-		udma_mode--;
+-		bfin_port_info[board_idx].udma_mask >>= 1;
 -	}
--};
 -
--static void bfin_crypto_crc_done_task(unsigned long data)
--{
--	struct bfin_crypto_crc *crc = (struct bfin_crypto_crc *)data;
+-	/*
+-	 * Now that that's out of the way, wire up the port..
+-	 */
+-	host = ata_host_alloc_pinfo(&pdev->dev, ppi, 1);
+-	if (!host)
+-		return -ENOMEM;
 -
--	bfin_crypto_crc_handle_queue(crc, NULL);
+-	host->ports[0]->ioaddr.ctl_addr = (void *)res->start;
+-
+-	if (peripheral_request_list(atapi_io_port, "atapi-io-port")) {
+-		dev_err(&pdev->dev, "Requesting Peripherals failed\n");
+-		return -EFAULT;
+-	}
+-
+-	if (bfin_reset_controller(host)) {
+-		peripheral_free_list(atapi_io_port);
+-		dev_err(&pdev->dev, "Fail to reset ATAPI device\n");
+-		return -EFAULT;
+-	}
+-
+-	if (ata_host_activate(host, platform_get_irq(pdev, 0),
+-		bfin_ata_interrupt, IRQF_SHARED, &bfin_sht) != 0) {
+-		peripheral_free_list(atapi_io_port);
+-		dev_err(&pdev->dev, "Fail to attach ATAPI device\n");
+-		return -ENODEV;
+-	}
+-
+-	return 0;
 -}
 -
--static irqreturn_t bfin_crypto_crc_handler(int irq, void *dev_id)
--{
--	struct bfin_crypto_crc *crc = dev_id;
--	u32 reg;
--
--	if (readl(&crc->regs->status) & DCNTEXP) {
--		writel(DCNTEXP, &crc->regs->status);
--
--		/* prepare results */
--		put_unaligned_le32(readl(&crc->regs->result),
--			crc->req->result);
--
--		reg = readl(&crc->regs->control);
--		writel(reg & ~BLKEN, &crc->regs->control);
--		crc->busy = 0;
--
--		if (crc->req->base.complete)
--			crc->req->base.complete(&crc->req->base, 0);
--
--		tasklet_schedule(&crc->done_task);
--
--		return IRQ_HANDLED;
--	} else
--		return IRQ_NONE;
--}
--
--#ifdef CONFIG_PM
 -/**
-- *	bfin_crypto_crc_suspend - suspend crc device
-- *	@pdev: device being suspended
-- *	@state: requested suspend state
+- *	bfin_atapi_remove	-	unplug a bfin atapi interface
+- *	@pdev: platform device
+- *
+- *	A bfin atapi device has been unplugged. Perform the needed
+- *	cleanup. Also called on module unload for any active devices.
 - */
--static int bfin_crypto_crc_suspend(struct platform_device *pdev, pm_message_t state)
+-static int bfin_atapi_remove(struct platform_device *pdev)
 -{
--	struct bfin_crypto_crc *crc = platform_get_drvdata(pdev);
--	int i = 100000;
+-	struct ata_host *host = platform_get_drvdata(pdev);
 -
--	while ((readl(&crc->regs->control) & BLKEN) && --i)
--		cpu_relax();
+-	ata_host_detach(host);
 -
--	if (i == 0)
--		return -EBUSY;
+-	peripheral_free_list(atapi_io_port);
+-
+-	return 0;
+-}
+-
+-#ifdef CONFIG_PM_SLEEP
+-static int bfin_atapi_suspend(struct platform_device *pdev, pm_message_t state)
+-{
+-	struct ata_host *host = platform_get_drvdata(pdev);
+-	if (host)
+-		return ata_host_suspend(host, state);
+-	else
+-		return 0;
+-}
+-
+-static int bfin_atapi_resume(struct platform_device *pdev)
+-{
+-	struct ata_host *host = platform_get_drvdata(pdev);
+-	int ret;
+-
+-	if (host) {
+-		ret = bfin_reset_controller(host);
+-		if (ret) {
+-			printk(KERN_ERR DRV_NAME ": Error during HW init\n");
+-			return ret;
+-		}
+-		ata_host_resume(host);
+-	}
 -
 -	return 0;
 -}
 -#else
--# define bfin_crypto_crc_suspend NULL
+-#define bfin_atapi_suspend NULL
+-#define bfin_atapi_resume NULL
 -#endif
 -
--#define bfin_crypto_crc_resume NULL
--
--/**
-- *	bfin_crypto_crc_probe - Initialize module
-- *
-- */
--static int bfin_crypto_crc_probe(struct platform_device *pdev)
--{
--	struct device *dev = &pdev->dev;
--	struct resource *res;
--	struct bfin_crypto_crc *crc;
--	unsigned int timeout = 100000;
--	int ret;
--
--	crc = devm_kzalloc(dev, sizeof(*crc), GFP_KERNEL);
--	if (!crc) {
--		dev_err(&pdev->dev, "fail to malloc bfin_crypto_crc\n");
--		return -ENOMEM;
--	}
--
--	crc->dev = dev;
--
--	INIT_LIST_HEAD(&crc->list);
--	spin_lock_init(&crc->lock);
--	tasklet_init(&crc->done_task, bfin_crypto_crc_done_task, (unsigned long)crc);
--	crypto_init_queue(&crc->queue, CRC_CCRYPTO_QUEUE_LENGTH);
--
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	crc->regs = devm_ioremap_resource(dev, res);
--	if (IS_ERR((void *)crc->regs)) {
--		dev_err(&pdev->dev, "Cannot map CRC IO\n");
--		return PTR_ERR((void *)crc->regs);
--	}
--
--	crc->irq = platform_get_irq(pdev, 0);
--	if (crc->irq < 0) {
--		dev_err(&pdev->dev, "No CRC DCNTEXP IRQ specified\n");
--		return -ENOENT;
--	}
--
--	ret = devm_request_irq(dev, crc->irq, bfin_crypto_crc_handler,
--			IRQF_SHARED, dev_name(dev), crc);
--	if (ret) {
--		dev_err(&pdev->dev, "Unable to request blackfin crc irq\n");
--		return ret;
--	}
--
--	res = platform_get_resource(pdev, IORESOURCE_DMA, 0);
--	if (res == NULL) {
--		dev_err(&pdev->dev, "No CRC DMA channel specified\n");
--		return -ENOENT;
--	}
--	crc->dma_ch = res->start;
--
--	ret = request_dma(crc->dma_ch, dev_name(dev));
--	if (ret) {
--		dev_err(&pdev->dev, "Unable to attach Blackfin CRC DMA channel\n");
--		return ret;
--	}
--
--	crc->sg_cpu = dma_alloc_coherent(&pdev->dev, PAGE_SIZE, &crc->sg_dma, GFP_KERNEL);
--	if (crc->sg_cpu == NULL) {
--		ret = -ENOMEM;
--		goto out_error_dma;
--	}
--	/*
--	 * need at most CRC_MAX_DMA_DESC sg + CRC_MAX_DMA_DESC middle  +
--	 * 1 last + 1 next dma descriptors
--	 */
--	crc->sg_mid_buf = (u8 *)(crc->sg_cpu + ((CRC_MAX_DMA_DESC + 1) << 1));
--	crc->sg_mid_dma = crc->sg_dma + sizeof(struct dma_desc_array)
--			* ((CRC_MAX_DMA_DESC + 1) << 1);
--
--	writel(0, &crc->regs->control);
--	crc->poly = (u32)pdev->dev.platform_data;
--	writel(crc->poly, &crc->regs->poly);
--
--	while (!(readl(&crc->regs->status) & LUTDONE) && (--timeout) > 0)
--		cpu_relax();
--
--	if (timeout == 0)
--		dev_info(&pdev->dev, "init crc poly timeout\n");
--
--	platform_set_drvdata(pdev, crc);
--
--	spin_lock(&crc_list.lock);
--	list_add(&crc->list, &crc_list.dev_list);
--	spin_unlock(&crc_list.lock);
--
--	if (list_is_singular(&crc_list.dev_list)) {
--		ret = crypto_register_ahash(&algs);
--		if (ret) {
--			dev_err(&pdev->dev,
--				"Can't register crypto ahash device\n");
--			goto out_error_dma;
--		}
--	}
--
--	dev_info(&pdev->dev, "initialized\n");
--
--	return 0;
--
--out_error_dma:
--	if (crc->sg_cpu)
--		dma_free_coherent(&pdev->dev, PAGE_SIZE, crc->sg_cpu, crc->sg_dma);
--	free_dma(crc->dma_ch);
--
--	return ret;
--}
--
--/**
-- *	bfin_crypto_crc_remove - Initialize module
-- *
-- */
--static int bfin_crypto_crc_remove(struct platform_device *pdev)
--{
--	struct bfin_crypto_crc *crc = platform_get_drvdata(pdev);
--
--	if (!crc)
--		return -ENODEV;
--
--	spin_lock(&crc_list.lock);
--	list_del(&crc->list);
--	spin_unlock(&crc_list.lock);
--
--	crypto_unregister_ahash(&algs);
--	tasklet_kill(&crc->done_task);
--	free_dma(crc->dma_ch);
--
--	return 0;
--}
--
--static struct platform_driver bfin_crypto_crc_driver = {
--	.probe     = bfin_crypto_crc_probe,
--	.remove    = bfin_crypto_crc_remove,
--	.suspend   = bfin_crypto_crc_suspend,
--	.resume    = bfin_crypto_crc_resume,
--	.driver    = {
--		.name  = DRIVER_NAME,
+-static struct platform_driver bfin_atapi_driver = {
+-	.probe			= bfin_atapi_probe,
+-	.remove			= bfin_atapi_remove,
+-	.suspend		= bfin_atapi_suspend,
+-	.resume			= bfin_atapi_resume,
+-	.driver = {
+-		.name		= DRV_NAME,
 -	},
 -};
 -
--/**
-- *	bfin_crypto_crc_mod_init - Initialize module
-- *
-- *	Checks the module params and registers the platform driver.
-- *	Real work is in the platform probe function.
-- */
--static int __init bfin_crypto_crc_mod_init(void)
+-#define ATAPI_MODE_SIZE		10
+-static char bfin_atapi_mode[ATAPI_MODE_SIZE];
+-
+-static int __init bfin_atapi_init(void)
 -{
--	int ret;
+-	pr_info("register bfin atapi driver\n");
 -
--	pr_info("Blackfin hardware CRC crypto driver\n");
+-	switch(bfin_atapi_mode[0]) {
+-	case 'p':
+-	case 'P':
+-		break;
+-	case 'm':
+-	case 'M':
+-		bfin_port_info[0].mwdma_mask = ATA_MWDMA2;
+-		break;
+-	default:
+-		bfin_port_info[0].udma_mask = ATA_UDMA5;
+-	};
 -
--	INIT_LIST_HEAD(&crc_list.dev_list);
--	spin_lock_init(&crc_list.lock);
--
--	ret = platform_driver_register(&bfin_crypto_crc_driver);
--	if (ret) {
--		pr_err("unable to register driver\n");
--		return ret;
--	}
--
--	return 0;
+-	return platform_driver_register(&bfin_atapi_driver);
 -}
 -
--/**
-- *	bfin_crypto_crc_mod_exit - Deinitialize module
-- */
--static void __exit bfin_crypto_crc_mod_exit(void)
+-static void __exit bfin_atapi_exit(void)
 -{
--	platform_driver_unregister(&bfin_crypto_crc_driver);
+-	platform_driver_unregister(&bfin_atapi_driver);
 -}
 -
--module_init(bfin_crypto_crc_mod_init);
--module_exit(bfin_crypto_crc_mod_exit);
+-module_init(bfin_atapi_init);
+-module_exit(bfin_atapi_exit);
+-/*
+- * ATAPI mode:
+- * pio/PIO
+- * udma/UDMA (default)
+- * mwdma/MWDMA
+- */
+-module_param_string(bfin_atapi_mode, bfin_atapi_mode, ATAPI_MODE_SIZE, 0);
 -
 -MODULE_AUTHOR("Sonic Zhang <sonic.zhang@analog.com>");
--MODULE_DESCRIPTION("Blackfin CRC hardware crypto driver");
+-MODULE_DESCRIPTION("PATA driver for blackfin 54x ATAPI controller");
 -MODULE_LICENSE("GPL");
-diff --git a/drivers/crypto/bfin_crc.h b/drivers/crypto/bfin_crc.h
-deleted file mode 100644
-index 786ef74..0000000
---- a/drivers/crypto/bfin_crc.h
-+++ /dev/null
-@@ -1,124 +0,0 @@
--/*
-- * bfin_crc.h - interface to Blackfin CRC controllers
-- *
-- * Copyright 2012 Analog Devices Inc.
-- *
-- * Licensed under the GPL-2 or later.
-- */
--
--#ifndef __BFIN_CRC_H__
--#define __BFIN_CRC_H__
--
--/* Function driver which use hardware crc must initialize the structure */
--struct crc_info {
--	/* Input data address */
--	unsigned char *in_addr;
--	/* Output data address */
--	unsigned char *out_addr;
--	/* Input or output bytes */
--	unsigned long datasize;
--	union {
--	/* CRC to compare with that of input buffer */
--	unsigned long crc_compare;
--	/* Value to compare with input data */
--	unsigned long val_verify;
--	/* Value to fill */
--	unsigned long val_fill;
--	};
--	/* Value to program the 32b CRC Polynomial */
--	unsigned long crc_poly;
--	union {
--	/* CRC calculated from the input data */
--	unsigned long crc_result;
--	/* First failed position to verify input data */
--	unsigned long pos_verify;
--	};
--	/* CRC mirror flags */
--	unsigned int bitmirr:1;
--	unsigned int bytmirr:1;
--	unsigned int w16swp:1;
--	unsigned int fdsel:1;
--	unsigned int rsltmirr:1;
--	unsigned int polymirr:1;
--	unsigned int cmpmirr:1;
--};
--
--/* Userspace interface */
--#define CRC_IOC_MAGIC		'C'
--#define CRC_IOC_CALC_CRC	_IOWR('C', 0x01, unsigned int)
--#define CRC_IOC_MEMCPY_CRC	_IOWR('C', 0x02, unsigned int)
--#define CRC_IOC_VERIFY_VAL	_IOWR('C', 0x03, unsigned int)
--#define CRC_IOC_FILL_VAL	_IOWR('C', 0x04, unsigned int)
--
--
--#ifdef __KERNEL__
--
--#include <linux/types.h>
--#include <linux/spinlock.h>
--
--struct crc_register {
--	u32 control;
--	u32 datacnt;
--	u32 datacntrld;
--	u32 __pad_1[2];
--	u32 compare;
--	u32 fillval;
--	u32 datafifo;
--	u32 intren;
--	u32 intrenset;
--	u32 intrenclr;
--	u32 poly;
--	u32 __pad_2[4];
--	u32 status;
--	u32 datacntcap;
--	u32 __pad_3;
--	u32 result;
--	u32 curresult;
--	u32 __pad_4[3];
--	u32 revid;
--};
--
--/* CRC_STATUS Masks */
--#define CMPERR			0x00000002	/* Compare error */
--#define DCNTEXP			0x00000010	/* datacnt register expired */
--#define IBR			0x00010000	/* Input buffer ready */
--#define OBR			0x00020000	/* Output buffer ready */
--#define IRR			0x00040000	/* Immediate result readt */
--#define LUTDONE			0x00080000	/* Look-up table generation done */
--#define FSTAT			0x00700000	/* FIFO status */
--#define MAX_FIFO		4		/* Max fifo size */
--
--/* CRC_CONTROL Masks */
--#define BLKEN			0x00000001	/* Block enable */
--#define OPMODE			0x000000F0	/* Operation mode */
--#define OPMODE_OFFSET		4		/* Operation mode mask offset*/
--#define MODE_DMACPY_CRC		1		/* MTM CRC compute and compare */
--#define MODE_DATA_FILL		2		/* MTM data fill */
--#define MODE_CALC_CRC		3		/* MSM CRC compute and compare */
--#define MODE_DATA_VERIFY	4		/* MSM data verify */
--#define AUTOCLRZ		0x00000100	/* Auto clear to zero */
--#define AUTOCLRF		0x00000200	/* Auto clear to one */
--#define OBRSTALL		0x00001000	/* Stall on output buffer ready */
--#define IRRSTALL		0x00002000	/* Stall on immediate result ready */
--#define BITMIRR			0x00010000	/* Mirror bits within each byte of 32-bit input data */
--#define BITMIRR_OFFSET		16		/* Mirror bits offset */
--#define BYTMIRR			0x00020000	/* Mirror bytes of 32-bit input data */
--#define BYTMIRR_OFFSET		17		/* Mirror bytes offset */
--#define W16SWP			0x00040000	/* Mirror uppper and lower 16-bit word of 32-bit input data */
--#define W16SWP_OFFSET		18		/* Mirror 16-bit word offset */
--#define FDSEL			0x00080000	/* FIFO is written after input data is mirrored */
--#define FDSEL_OFFSET		19		/* Mirror FIFO offset */
--#define RSLTMIRR		0x00100000	/* CRC result registers are mirrored. */
--#define RSLTMIRR_OFFSET		20		/* Mirror CRC result offset. */
--#define POLYMIRR		0x00200000	/* CRC poly register is mirrored. */
--#define POLYMIRR_OFFSET		21		/* Mirror CRC poly offset. */
--#define CMPMIRR			0x00400000	/* CRC compare register is mirrored. */
--#define CMPMIRR_OFFSET		22		/* Mirror CRC compare offset. */
--
--/* CRC_INTREN Masks */
--#define CMPERRI 		0x02		/* CRC_ERROR_INTR */
--#define DCNTEXPI 		0x10		/* CRC_STATUS_INTR */
--
--#endif
--
--#endif
+-MODULE_VERSION(DRV_VERSION);
+-MODULE_ALIAS("platform:" DRV_NAME);
 -- 
 2.7.4
 
