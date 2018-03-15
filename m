@@ -1,10 +1,10 @@
 From: Aaron Wu <aaron.wu@analog.com>
-Date: Thu, 15 Mar 2018 18:50:17 +0800
-Subject: [OpenRISC] [Blackfin removal] [PATCH 17/28] usb: Remove Blackfin
-	USB support
+Date: Thu, 15 Mar 2018 18:50:18 +0800
+Subject: [OpenRISC] [Blackfin removal] [PATCH 18/28] crypto: Remove Blackfin
+	crypto support
 In-Reply-To: <1521111028-19856-1-git-send-email-aaron.wu@analog.com>
 References: <1521111028-19856-1-git-send-email-aaron.wu@analog.com>
-Message-ID: <1521111028-19856-17-git-send-email-aaron.wu@analog.com>
+Message-ID: <1521111028-19856-18-git-send-email-aaron.wu@analog.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,1417 +13,1043 @@ To: openrisc@lists.librecores.org
 
 Signed-off-by: Aaron Wu <aaron.wu@analog.com>
 
-Remove Blackfin USB support
+Remove Blackfin crypto support
 ---
- drivers/usb/gadget/function/f_uac1_legacy.c |   2 -
- drivers/usb/gadget/function/u_uac1_legacy.c |   2 -
- drivers/usb/gadget/function/u_uac1_legacy.h |   2 -
- drivers/usb/gadget/legacy/audio.c           |   2 -
- drivers/usb/host/isp1362.h                  |  45 --
- drivers/usb/musb/Kconfig                    |  12 +-
- drivers/usb/musb/Makefile                   |   1 -
- drivers/usb/musb/blackfin.c                 | 623 ----------------------------
- drivers/usb/musb/blackfin.h                 |  81 ----
- drivers/usb/musb/musb_core.c                |   7 +-
- drivers/usb/musb/musb_core.h                |  42 --
- drivers/usb/musb/musb_debugfs.c             |   2 -
- drivers/usb/musb/musb_dma.h                 |  11 -
- drivers/usb/musb/musb_gadget.c              |  32 --
- drivers/usb/musb/musb_regs.h                | 182 --------
- drivers/usb/musb/musbhsdma.c                |   5 -
- drivers/usb/musb/musbhsdma.h                |  90 ----
- drivers/usb/serial/ftdi_sio_ids.h           |   8 -
- include/linux/usb/musb.h                    |   7 -
- 19 files changed, 3 insertions(+), 1153 deletions(-)
- delete mode 100644 drivers/usb/musb/blackfin.c
- delete mode 100644 drivers/usb/musb/blackfin.h
+ crypto/testmgr.c          |   6 -
+ crypto/testmgr.h          |  88 ------
+ drivers/crypto/Kconfig    |   7 -
+ drivers/crypto/Makefile   |   1 -
+ drivers/crypto/bfin_crc.c | 743 ----------------------------------------------
+ drivers/crypto/bfin_crc.h | 124 --------
+ 6 files changed, 969 deletions(-)
+ delete mode 100644 drivers/crypto/bfin_crc.c
+ delete mode 100644 drivers/crypto/bfin_crc.h
 
-diff --git a/drivers/usb/gadget/function/f_uac1_legacy.c b/drivers/usb/gadget/function/f_uac1_legacy.c
-index 04f4b28..24c086b 100644
---- a/drivers/usb/gadget/function/f_uac1_legacy.c
-+++ b/drivers/usb/gadget/function/f_uac1_legacy.c
-@@ -4,8 +4,6 @@
-   *
-  * Copyright (C) 2008 Bryan Wu <cooloney@kernel.org>
-  * Copyright (C) 2008 Analog Devices, Inc
-- *
-- * Enter bugs at http://blackfin.uclinux.org/
-  */
+diff --git a/crypto/testmgr.c b/crypto/testmgr.c
+index d5e23a1..8dacd69 100644
+--- a/crypto/testmgr.c
++++ b/crypto/testmgr.c
+@@ -3070,12 +3070,6 @@ static const struct alg_test_desc alg_test_descs[] = {
+ 			.hash = __VECS(ghash_tv_template)
+ 		}
+ 	}, {
+-		.alg = "hmac(crc32)",
+-		.test = alg_test_hash,
+-		.suite = {
+-			.hash = __VECS(bfin_crc_tv_template)
+-		}
+-	}, {
+ 		.alg = "hmac(md5)",
+ 		.test = alg_test_hash,
+ 		.suite = {
+diff --git a/crypto/testmgr.h b/crypto/testmgr.h
+index 6044f69..021e953 100644
+--- a/crypto/testmgr.h
++++ b/crypto/testmgr.h
+@@ -35045,94 +35045,6 @@ static const struct hash_testvec crc32c_tv_template[] = {
+ 	}
+ };
  
- #include <linux/slab.h>
-diff --git a/drivers/usb/gadget/function/u_uac1_legacy.c b/drivers/usb/gadget/function/u_uac1_legacy.c
-index cbc868d..5393e5c 100644
---- a/drivers/usb/gadget/function/u_uac1_legacy.c
-+++ b/drivers/usb/gadget/function/u_uac1_legacy.c
-@@ -4,8 +4,6 @@
-  *
-  * Copyright (C) 2008 Bryan Wu <cooloney@kernel.org>
-  * Copyright (C) 2008 Analog Devices, Inc
-- *
-- * Enter bugs at http://blackfin.uclinux.org/
-  */
- 
- #include <linux/kernel.h>
-diff --git a/drivers/usb/gadget/function/u_uac1_legacy.h b/drivers/usb/gadget/function/u_uac1_legacy.h
-index dd69e40..5c1bdf4 100644
---- a/drivers/usb/gadget/function/u_uac1_legacy.h
-+++ b/drivers/usb/gadget/function/u_uac1_legacy.h
-@@ -4,8 +4,6 @@
-  *
-  * Copyright (C) 2008 Bryan Wu <cooloney@kernel.org>
-  * Copyright (C) 2008 Analog Devices, Inc
-- *
-- * Enter bugs at http://blackfin.uclinux.org/
-  */
- 
- #ifndef __U_UAC1_LEGACY_H
-diff --git a/drivers/usb/gadget/legacy/audio.c b/drivers/usb/gadget/legacy/audio.c
-index 7b11dce..dd81fd5 100644
---- a/drivers/usb/gadget/legacy/audio.c
-+++ b/drivers/usb/gadget/legacy/audio.c
-@@ -4,8 +4,6 @@
-  *
-  * Copyright (C) 2008 Bryan Wu <cooloney@kernel.org>
-  * Copyright (C) 2008 Analog Devices, Inc
-- *
-- * Enter bugs at http://blackfin.uclinux.org/
-  */
- 
- /* #define VERBOSE_DEBUG */
-diff --git a/drivers/usb/host/isp1362.h b/drivers/usb/host/isp1362.h
-index da79e36..891402a 100644
---- a/drivers/usb/host/isp1362.h
-+++ b/drivers/usb/host/isp1362.h
-@@ -6,49 +6,6 @@
-  */
- 
- /* ------------------------------------------------------------------------- */
 -/*
-- * Platform specific compile time options
+- * Blakcifn CRC test vectors
 - */
--#if defined(CONFIG_BLACKFIN)
+-static const struct hash_testvec bfin_crc_tv_template[] = {
+-	{
+-		.psize = 0,
+-		.digest = "\x00\x00\x00\x00",
+-	},
+-	{
+-		.key = "\x87\xa9\xcb\xed",
+-		.ksize = 4,
+-		.psize = 0,
+-		.digest = "\x87\xa9\xcb\xed",
+-	},
+-	{
+-		.key = "\xff\xff\xff\xff",
+-		.ksize = 4,
+-		.plaintext = "\x01\x02\x03\x04\x05\x06\x07\x08"
+-			     "\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10"
+-			     "\x11\x12\x13\x14\x15\x16\x17\x18"
+-			     "\x19\x1a\x1b\x1c\x1d\x1e\x1f\x20"
+-			     "\x21\x22\x23\x24\x25\x26\x27\x28",
+-		.psize = 40,
+-		.digest = "\x84\x0c\x8d\xa2",
+-	},
+-	{
+-		.key = "\xff\xff\xff\xff",
+-		.ksize = 4,
+-		.plaintext = "\x01\x02\x03\x04\x05\x06\x07\x08"
+-			     "\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10"
+-			     "\x11\x12\x13\x14\x15\x16\x17\x18"
+-			     "\x19\x1a\x1b\x1c\x1d\x1e\x1f\x20"
+-			     "\x21\x22\x23\x24\x25\x26",
+-		.psize = 38,
+-		.digest = "\x8c\x58\xec\xb7",
+-	},
+-	{
+-		.key = "\xff\xff\xff\xff",
+-		.ksize = 4,
+-		.plaintext = "\x01\x02\x03\x04\x05\x06\x07\x08"
+-			     "\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10"
+-			     "\x11\x12\x13\x14\x15\x16\x17\x18"
+-			     "\x19\x1a\x1b\x1c\x1d\x1e\x1f\x20"
+-			     "\x21\x22\x23\x24\x25\x26\x27",
+-		.psize = 39,
+-		.digest = "\xdc\x50\x28\x7b",
+-	},
+-	{
+-		.key = "\xff\xff\xff\xff",
+-		.ksize = 4,
+-		.plaintext = "\x01\x02\x03\x04\x05\x06\x07\x08"
+-			     "\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10"
+-			     "\x11\x12\x13\x14\x15\x16\x17\x18"
+-			     "\x19\x1a\x1b\x1c\x1d\x1e\x1f\x20"
+-			     "\x21\x22\x23\x24\x25\x26\x27\x28"
+-			     "\x29\x2a\x2b\x2c\x2d\x2e\x2f\x30"
+-			     "\x31\x32\x33\x34\x35\x36\x37\x38"
+-			     "\x39\x3a\x3b\x3c\x3d\x3e\x3f\x40"
+-			     "\x41\x42\x43\x44\x45\x46\x47\x48"
+-			     "\x49\x4a\x4b\x4c\x4d\x4e\x4f\x50"
+-			     "\x51\x52\x53\x54\x55\x56\x57\x58"
+-			     "\x59\x5a\x5b\x5c\x5d\x5e\x5f\x60"
+-			     "\x61\x62\x63\x64\x65\x66\x67\x68"
+-			     "\x69\x6a\x6b\x6c\x6d\x6e\x6f\x70"
+-			     "\x71\x72\x73\x74\x75\x76\x77\x78"
+-			     "\x79\x7a\x7b\x7c\x7d\x7e\x7f\x80"
+-			     "\x81\x82\x83\x84\x85\x86\x87\x88"
+-			     "\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90"
+-			     "\x91\x92\x93\x94\x95\x96\x97\x98"
+-			     "\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0"
+-			     "\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8"
+-			     "\xa9\xaa\xab\xac\xad\xae\xaf\xb0"
+-			     "\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8"
+-			     "\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0"
+-			     "\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8"
+-			     "\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0"
+-			     "\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8"
+-			     "\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0"
+-			     "\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8"
+-			     "\xe9\xea\xeb\xec\xed\xee\xef\xf0",
+-		.psize = 240,
+-		.digest = "\x10\x19\x4a\x5c",
+-		.np = 2,
+-		.tap = { 31, 209 }
+-	},
 -
--#include <linux/io.h>
--#define USE_32BIT		0
--#define MAX_ROOT_PORTS		2
--#define USE_PLATFORM_DELAY	0
--#define USE_NDELAY		1
+-};
 -
--#define DUMMY_DELAY_ACCESS \
--	do { \
--		bfin_read16(ASYNC_BANK0_BASE); \
--		bfin_read16(ASYNC_BANK0_BASE); \
--		bfin_read16(ASYNC_BANK0_BASE); \
--	} while (0)
+ static const struct comp_testvec lz4_comp_tv_template[] = {
+ 	{
+ 		.inlen	= 255,
+diff --git a/drivers/crypto/Kconfig b/drivers/crypto/Kconfig
+index 4b741b8..c17368c 100644
+--- a/drivers/crypto/Kconfig
++++ b/drivers/crypto/Kconfig
+@@ -464,13 +464,6 @@ if CRYPTO_DEV_UX500
+ 	source "drivers/crypto/ux500/Kconfig"
+ endif # if CRYPTO_DEV_UX500
+ 
+-config CRYPTO_DEV_BFIN_CRC
+-	tristate "Support for Blackfin CRC hardware"
+-	depends on BF60x
+-	help
+-	  Newer Blackfin processors have CRC hardware. Select this if you
+-	  want to use the Blackfin CRC module.
 -
--#undef insw
--#undef outsw
--
--#define insw  delayed_insw
--#define outsw  delayed_outsw
--
--static inline void delayed_outsw(unsigned int addr, void *buf, int len)
--{
--	unsigned short *bp = (unsigned short *)buf;
--	while (len--) {
--		DUMMY_DELAY_ACCESS;
--		outw(*bp++, addr);
--	}
--}
--
--static inline void delayed_insw(unsigned int addr, void *buf, int len)
--{
--	unsigned short *bp = (unsigned short *)buf;
--	while (len--) {
--		DUMMY_DELAY_ACCESS;
--		*bp++ = inw(addr);
--	}
--}
--
--#else
- 
- #define MAX_ROOT_PORTS		2
- 
-@@ -60,8 +17,6 @@ static inline void delayed_insw(unsigned int addr, void *buf, int len)
- 
- #define DUMMY_DELAY_ACCESS do {} while (0)
- 
--#endif
--
- 
- /* ------------------------------------------------------------------------- */
- 
-diff --git a/drivers/usb/musb/Kconfig b/drivers/usb/musb/Kconfig
-index 5506a9c..a424cc5 100644
---- a/drivers/usb/musb/Kconfig
-+++ b/drivers/usb/musb/Kconfig
-@@ -18,9 +18,6 @@ config USB_MUSB_HDRC
- 	  Texas Instruments families using this IP include DaVinci
- 	  (35x, 644x ...), OMAP 243x, OMAP 3, and TUSB 6010.
- 
--	  Analog Devices parts using this IP include Blackfin BF54x,
--	  BF525 and BF527.
--
- 	  Allwinner SoCs using this IP include A10, A13, A20, ...
- 
- 	  If you do not know what this is, please say N.
-@@ -87,7 +84,7 @@ config USB_MUSB_DA8XX
- config USB_MUSB_TUSB6010
- 	tristate "TUSB6010"
- 	depends on HAS_IOMEM
--	depends on (ARCH_OMAP2PLUS || COMPILE_TEST) && !BLACKFIN
-+	depends on (ARCH_OMAP2PLUS || COMPILE_TEST)
- 	depends on NOP_USB_XCEIV = USB_MUSB_HDRC # both built-in or both modules
- 
- config USB_MUSB_OMAP2PLUS
-@@ -107,11 +104,6 @@ config USB_MUSB_DSPS
- 	depends on ARCH_OMAP2PLUS || COMPILE_TEST
- 	depends on OF_IRQ
- 
--config USB_MUSB_BLACKFIN
--	tristate "Blackfin"
--	depends on (BF54x && !BF544) || (BF52x && ! BF522 && !BF523)
--	depends on NOP_USB_XCEIV
--
- config USB_MUSB_UX500
- 	tristate "Ux500 platforms"
- 	depends on ARCH_U8500 || COMPILE_TEST
-@@ -149,7 +141,7 @@ config USB_UX500_DMA
- 
- config USB_INVENTRA_DMA
- 	bool 'Inventra'
--	depends on USB_MUSB_OMAP2PLUS || USB_MUSB_BLACKFIN
-+	depends on USB_MUSB_OMAP2PLUS
- 	help
- 	  Enable DMA transfers using Mentor's engine.
- 
-diff --git a/drivers/usb/musb/Makefile b/drivers/usb/musb/Makefile
-index 79d4d54..3a88c79 100644
---- a/drivers/usb/musb/Makefile
-+++ b/drivers/usb/musb/Makefile
-@@ -21,7 +21,6 @@ obj-$(CONFIG_USB_MUSB_DSPS)			+= musb_dsps.o
- obj-$(CONFIG_USB_MUSB_TUSB6010)			+= tusb6010.o
- obj-$(CONFIG_USB_MUSB_DAVINCI)			+= davinci.o
- obj-$(CONFIG_USB_MUSB_DA8XX)			+= da8xx.o
--obj-$(CONFIG_USB_MUSB_BLACKFIN)			+= blackfin.o
- obj-$(CONFIG_USB_MUSB_UX500)			+= ux500.o
- obj-$(CONFIG_USB_MUSB_JZ4740)			+= jz4740.o
- obj-$(CONFIG_USB_MUSB_SUNXI)			+= sunxi.o
-diff --git a/drivers/usb/musb/blackfin.c b/drivers/usb/musb/blackfin.c
+ config CRYPTO_DEV_ATMEL_AUTHENC
+ 	tristate "Support for Atmel IPSEC/SSL hw accelerator"
+ 	depends on HAS_DMA
+diff --git a/drivers/crypto/Makefile b/drivers/crypto/Makefile
+index 2513d13..c08622b 100644
+--- a/drivers/crypto/Makefile
++++ b/drivers/crypto/Makefile
+@@ -3,7 +3,6 @@ obj-$(CONFIG_CRYPTO_DEV_ATMEL_AES) += atmel-aes.o
+ obj-$(CONFIG_CRYPTO_DEV_ATMEL_SHA) += atmel-sha.o
+ obj-$(CONFIG_CRYPTO_DEV_ATMEL_TDES) += atmel-tdes.o
+ obj-$(CONFIG_CRYPTO_DEV_ATMEL_ECC) += atmel-ecc.o
+-obj-$(CONFIG_CRYPTO_DEV_BFIN_CRC) += bfin_crc.o
+ obj-$(CONFIG_CRYPTO_DEV_CAVIUM_ZIP) += cavium/
+ obj-$(CONFIG_CRYPTO_DEV_CCP) += ccp/
+ obj-$(CONFIG_CRYPTO_DEV_CHELSIO) += chelsio/
+diff --git a/drivers/crypto/bfin_crc.c b/drivers/crypto/bfin_crc.c
 deleted file mode 100644
-index 0a98dcd..0000000
---- a/drivers/usb/musb/blackfin.c
+index bfbf8bf..0000000
+--- a/drivers/crypto/bfin_crc.c
 +++ /dev/null
-@@ -1,623 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0+
+@@ -1,743 +0,0 @@
 -/*
-- * MUSB OTG controller driver for Blackfin Processors
+- * Cryptographic API.
 - *
-- * Copyright 2006-2008 Analog Devices Inc.
+- * Support Blackfin CRC HW acceleration.
 - *
-- * Enter bugs at http://blackfin.uclinux.org/
+- * Copyright 2012 Analog Devices Inc.
+- *
+- * Licensed under the GPL-2.
 - */
 -
--#include <linux/module.h>
--#include <linux/kernel.h>
--#include <linux/sched.h>
--#include <linux/list.h>
--#include <linux/gpio.h>
--#include <linux/io.h>
 -#include <linux/err.h>
+-#include <linux/device.h>
+-#include <linux/module.h>
+-#include <linux/init.h>
+-#include <linux/errno.h>
+-#include <linux/interrupt.h>
+-#include <linux/kernel.h>
+-#include <linux/irq.h>
+-#include <linux/io.h>
 -#include <linux/platform_device.h>
+-#include <linux/scatterlist.h>
 -#include <linux/dma-mapping.h>
--#include <linux/prefetch.h>
--#include <linux/usb/usb_phy_generic.h>
+-#include <linux/delay.h>
+-#include <linux/crypto.h>
+-#include <linux/cryptohash.h>
+-#include <crypto/scatterwalk.h>
+-#include <crypto/algapi.h>
+-#include <crypto/hash.h>
+-#include <crypto/internal/hash.h>
+-#include <asm/unaligned.h>
 -
--#include <asm/cacheflush.h>
+-#include <asm/dma.h>
+-#include <asm/portmux.h>
+-#include <asm/io.h>
 -
--#include "musb_core.h"
--#include "musbhsdma.h"
--#include "blackfin.h"
+-#include "bfin_crc.h"
 -
--struct bfin_glue {
+-#define CRC_CCRYPTO_QUEUE_LENGTH	5
+-
+-#define DRIVER_NAME "bfin-hmac-crc"
+-#define CHKSUM_DIGEST_SIZE      4
+-#define CHKSUM_BLOCK_SIZE       1
+-
+-#define CRC_MAX_DMA_DESC	100
+-
+-#define CRC_CRYPTO_STATE_UPDATE		1
+-#define CRC_CRYPTO_STATE_FINALUPDATE	2
+-#define CRC_CRYPTO_STATE_FINISH		3
+-
+-struct bfin_crypto_crc {
+-	struct list_head	list;
 -	struct device		*dev;
--	struct platform_device	*musb;
--	struct platform_device	*phy;
+-	spinlock_t		lock;
+-
+-	int			irq;
+-	int			dma_ch;
+-	u32			poly;
+-	struct crc_register	*regs;
+-
+-	struct ahash_request	*req; /* current request in operation */
+-	struct dma_desc_array	*sg_cpu; /* virt addr of sg dma descriptors */
+-	dma_addr_t		sg_dma; /* phy addr of sg dma descriptors */
+-	u8			*sg_mid_buf;
+-	dma_addr_t		sg_mid_dma; /* phy addr of sg mid buffer */
+-
+-	struct tasklet_struct	done_task;
+-	struct crypto_queue	queue; /* waiting requests */
+-
+-	u8			busy:1; /* crc device in operation flag */
 -};
--#define glue_to_musb(g)		platform_get_drvdata(g->musb)
 -
--static u32 bfin_fifo_offset(u8 epnum)
--{
--	return USB_OFFSET(USB_EP0_FIFO) + (epnum * 8);
--}
+-static struct bfin_crypto_crc_list {
+-	struct list_head	dev_list;
+-	spinlock_t		lock;
+-} crc_list;
 -
--static u8 bfin_readb(const void __iomem *addr, unsigned offset)
--{
--	return (u8)(bfin_read16(addr + offset));
--}
+-struct bfin_crypto_crc_reqctx {
+-	struct bfin_crypto_crc	*crc;
 -
--static u16 bfin_readw(const void __iomem *addr, unsigned offset)
--{
--	return bfin_read16(addr + offset);
--}
+-	unsigned int		total;	/* total request bytes */
+-	size_t			sg_buflen; /* bytes for this update */
+-	unsigned int		sg_nents;
+-	struct scatterlist	*sg; /* sg list head for this update*/
+-	struct scatterlist	bufsl[2]; /* chained sg list */
 -
--static u32 bfin_readl(const void __iomem *addr, unsigned offset)
--{
--	return (u32)(bfin_read16(addr + offset));
--}
+-	size_t			bufnext_len;
+-	size_t			buflast_len;
+-	u8			bufnext[CHKSUM_DIGEST_SIZE]; /* extra bytes for next udpate */
+-	u8			buflast[CHKSUM_DIGEST_SIZE]; /* extra bytes from last udpate */
 -
--static void bfin_writeb(void __iomem *addr, unsigned offset, u8 data)
--{
--	bfin_write16(addr + offset, (u16)data);
--}
+-	u8			flag;
+-};
 -
--static void bfin_writew(void __iomem *addr, unsigned offset, u16 data)
--{
--	bfin_write16(addr + offset, data);
--}
--
--static void bfin_writel(void __iomem *addr, unsigned offset, u32 data)
--{
--	bfin_write16(addr + offset, (u16)data);
--}
+-struct bfin_crypto_crc_ctx {
+-	struct bfin_crypto_crc	*crc;
+-	u32			key;
+-};
 -
 -/*
-- * Load an endpoint's FIFO
+- * get element in scatter list by given index
 - */
--static void bfin_write_fifo(struct musb_hw_ep *hw_ep, u16 len, const u8 *src)
+-static struct scatterlist *sg_get(struct scatterlist *sg_list, unsigned int nents,
+-				unsigned int index)
 -{
--	struct musb *musb = hw_ep->musb;
--	void __iomem *fifo = hw_ep->fifo;
--	void __iomem *epio = hw_ep->regs;
--	u8 epnum = hw_ep->epnum;
+-	struct scatterlist *sg = NULL;
+-	int i;
 -
--	prefetch((u8 *)src);
+-	for_each_sg(sg_list, sg, nents, i)
+-		if (i == index)
+-			break;
 -
--	musb_writew(epio, MUSB_TXCOUNT, len);
+-	return sg;
+-}
 -
--	dev_dbg(musb->controller, "TX ep%d fifo %p count %d buf %p, epio %p\n",
--			hw_ep->epnum, fifo, len, src, epio);
+-static int bfin_crypto_crc_init_hw(struct bfin_crypto_crc *crc, u32 key)
+-{
+-	writel(0, &crc->regs->datacntrld);
+-	writel(MODE_CALC_CRC << OPMODE_OFFSET, &crc->regs->control);
+-	writel(key, &crc->regs->curresult);
 -
--	dump_fifo_data(src, len);
+-	/* setup CRC interrupts */
+-	writel(CMPERRI | DCNTEXPI, &crc->regs->status);
+-	writel(CMPERRI | DCNTEXPI, &crc->regs->intrenset);
 -
--	if (!ANOMALY_05000380 && epnum != 0) {
--		u16 dma_reg;
+-	return 0;
+-}
 -
--		flush_dcache_range((unsigned long)src,
--			(unsigned long)(src + len));
+-static int bfin_crypto_crc_init(struct ahash_request *req)
+-{
+-	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
+-	struct bfin_crypto_crc_ctx *crc_ctx = crypto_ahash_ctx(tfm);
+-	struct bfin_crypto_crc_reqctx *ctx = ahash_request_ctx(req);
+-	struct bfin_crypto_crc *crc;
 -
--		/* Setup DMA address register */
--		dma_reg = (u32)src;
--		bfin_write16(USB_DMA_REG(epnum, USB_DMAx_ADDR_LOW), dma_reg);
--		SSYNC();
+-	dev_dbg(ctx->crc->dev, "crc_init\n");
+-	spin_lock_bh(&crc_list.lock);
+-	list_for_each_entry(crc, &crc_list.dev_list, list) {
+-		crc_ctx->crc = crc;
+-		break;
+-	}
+-	spin_unlock_bh(&crc_list.lock);
 -
--		dma_reg = (u32)src >> 16;
--		bfin_write16(USB_DMA_REG(epnum, USB_DMAx_ADDR_HIGH), dma_reg);
--		SSYNC();
+-	if (sg_nents(req->src) > CRC_MAX_DMA_DESC) {
+-		dev_dbg(ctx->crc->dev, "init: requested sg list is too big > %d\n",
+-			CRC_MAX_DMA_DESC);
+-		return -EINVAL;
+-	}
 -
--		/* Setup DMA count register */
--		bfin_write16(USB_DMA_REG(epnum, USB_DMAx_COUNT_LOW), len);
--		bfin_write16(USB_DMA_REG(epnum, USB_DMAx_COUNT_HIGH), 0);
--		SSYNC();
+-	ctx->crc = crc;
+-	ctx->bufnext_len = 0;
+-	ctx->buflast_len = 0;
+-	ctx->sg_buflen = 0;
+-	ctx->total = 0;
+-	ctx->flag = 0;
 -
--		/* Enable the DMA */
--		dma_reg = (epnum << 4) | DMA_ENA | INT_ENA | DIRECTION;
--		bfin_write16(USB_DMA_REG(epnum, USB_DMAx_CTRL), dma_reg);
--		SSYNC();
+-	/* init crc results */
+-	put_unaligned_le32(crc_ctx->key, req->result);
 -
--		/* Wait for complete */
--		while (!(bfin_read_USB_DMA_INTERRUPT() & (1 << epnum)))
--			cpu_relax();
+-	dev_dbg(ctx->crc->dev, "init: digest size: %d\n",
+-		crypto_ahash_digestsize(tfm));
 -
--		/* acknowledge dma interrupt */
--		bfin_write_USB_DMA_INTERRUPT(1 << epnum);
--		SSYNC();
+-	return bfin_crypto_crc_init_hw(crc, crc_ctx->key);
+-}
 -
--		/* Reset DMA */
--		bfin_write16(USB_DMA_REG(epnum, USB_DMAx_CTRL), 0);
--		SSYNC();
--	} else {
--		SSYNC();
+-static void bfin_crypto_crc_config_dma(struct bfin_crypto_crc *crc)
+-{
+-	struct scatterlist *sg;
+-	struct bfin_crypto_crc_reqctx *ctx = ahash_request_ctx(crc->req);
+-	int i = 0, j = 0;
+-	unsigned long dma_config;
+-	unsigned int dma_count;
+-	unsigned int dma_addr;
+-	unsigned int mid_dma_count = 0;
+-	int dma_mod;
 -
--		if (unlikely((unsigned long)src & 0x01))
--			outsw_8((unsigned long)fifo, src, (len + 1) >> 1);
+-	dma_map_sg(crc->dev, ctx->sg, ctx->sg_nents, DMA_TO_DEVICE);
+-
+-	for_each_sg(ctx->sg, sg, ctx->sg_nents, j) {
+-		dma_addr = sg_dma_address(sg);
+-		/* deduce extra bytes in last sg */
+-		if (sg_is_last(sg))
+-			dma_count = sg_dma_len(sg) - ctx->bufnext_len;
 -		else
--			outsw((unsigned long)fifo, src, (len + 1) >> 1);
--	}
--}
--/*
-- * Unload an endpoint's FIFO
-- */
--static void bfin_read_fifo(struct musb_hw_ep *hw_ep, u16 len, u8 *dst)
--{
--	struct musb *musb = hw_ep->musb;
--	void __iomem *fifo = hw_ep->fifo;
--	u8 epnum = hw_ep->epnum;
+-			dma_count = sg_dma_len(sg);
 -
--	if (ANOMALY_05000467 && epnum != 0) {
--		u16 dma_reg;
+-		if (mid_dma_count) {
+-			/* Append last middle dma buffer to 4 bytes with first
+-			   bytes in current sg buffer. Move addr of current
+-			   sg and deduce the length of current sg.
+-			 */
+-			memcpy(crc->sg_mid_buf +(i << 2) + mid_dma_count,
+-				sg_virt(sg),
+-				CHKSUM_DIGEST_SIZE - mid_dma_count);
+-			dma_addr += CHKSUM_DIGEST_SIZE - mid_dma_count;
+-			dma_count -= CHKSUM_DIGEST_SIZE - mid_dma_count;
 -
--		invalidate_dcache_range((unsigned long)dst,
--			(unsigned long)(dst + len));
+-			dma_config = DMAFLOW_ARRAY | RESTART | NDSIZE_3 |
+-				DMAEN | PSIZE_32 | WDSIZE_32;
 -
--		/* Setup DMA address register */
--		dma_reg = (u32)dst;
--		bfin_write16(USB_DMA_REG(epnum, USB_DMAx_ADDR_LOW), dma_reg);
--		SSYNC();
+-			/* setup new dma descriptor for next middle dma */
+-			crc->sg_cpu[i].start_addr = crc->sg_mid_dma + (i << 2);
+-			crc->sg_cpu[i].cfg = dma_config;
+-			crc->sg_cpu[i].x_count = 1;
+-			crc->sg_cpu[i].x_modify = CHKSUM_DIGEST_SIZE;
+-			dev_dbg(crc->dev, "%d: crc_dma: start_addr:0x%lx, "
+-				"cfg:0x%x, x_count:0x%x, x_modify:0x%x\n",
+-				i, crc->sg_cpu[i].start_addr,
+-				crc->sg_cpu[i].cfg, crc->sg_cpu[i].x_count,
+-				crc->sg_cpu[i].x_modify);
+-			i++;
+-		}
 -
--		dma_reg = (u32)dst >> 16;
--		bfin_write16(USB_DMA_REG(epnum, USB_DMAx_ADDR_HIGH), dma_reg);
--		SSYNC();
+-		dma_config = DMAFLOW_ARRAY | RESTART | NDSIZE_3 | DMAEN | PSIZE_32;
+-		/* chop current sg dma len to multiple of 32 bits */
+-		mid_dma_count = dma_count % 4;
+-		dma_count &= ~0x3;
 -
--		/* Setup DMA count register */
--		bfin_write16(USB_DMA_REG(epnum, USB_DMAx_COUNT_LOW), len);
--		bfin_write16(USB_DMA_REG(epnum, USB_DMAx_COUNT_HIGH), 0);
--		SSYNC();
+-		if (dma_addr % 4 == 0) {
+-			dma_config |= WDSIZE_32;
+-			dma_count >>= 2;
+-			dma_mod = 4;
+-		} else if (dma_addr % 2 == 0) {
+-			dma_config |= WDSIZE_16;
+-			dma_count >>= 1;
+-			dma_mod = 2;
+-		} else {
+-			dma_config |= WDSIZE_8;
+-			dma_mod = 1;
+-		}
 -
--		/* Enable the DMA */
--		dma_reg = (epnum << 4) | DMA_ENA | INT_ENA;
--		bfin_write16(USB_DMA_REG(epnum, USB_DMAx_CTRL), dma_reg);
--		SSYNC();
+-		crc->sg_cpu[i].start_addr = dma_addr;
+-		crc->sg_cpu[i].cfg = dma_config;
+-		crc->sg_cpu[i].x_count = dma_count;
+-		crc->sg_cpu[i].x_modify = dma_mod;
+-		dev_dbg(crc->dev, "%d: crc_dma: start_addr:0x%lx, "
+-			"cfg:0x%x, x_count:0x%x, x_modify:0x%x\n",
+-			i, crc->sg_cpu[i].start_addr,
+-			crc->sg_cpu[i].cfg, crc->sg_cpu[i].x_count,
+-			crc->sg_cpu[i].x_modify);
+-		i++;
 -
--		/* Wait for complete */
--		while (!(bfin_read_USB_DMA_INTERRUPT() & (1 << epnum)))
--			cpu_relax();
--
--		/* acknowledge dma interrupt */
--		bfin_write_USB_DMA_INTERRUPT(1 << epnum);
--		SSYNC();
--
--		/* Reset DMA */
--		bfin_write16(USB_DMA_REG(epnum, USB_DMAx_CTRL), 0);
--		SSYNC();
--	} else {
--		SSYNC();
--		/* Read the last byte of packet with odd size from address fifo + 4
--		 * to trigger 1 byte access to EP0 FIFO.
--		 */
--		if (len == 1)
--			*dst = (u8)inw((unsigned long)fifo + 4);
--		else {
--			if (unlikely((unsigned long)dst & 0x01))
--				insw_8((unsigned long)fifo, dst, len >> 1);
--			else
--				insw((unsigned long)fifo, dst, len >> 1);
--
--			if (len & 0x01)
--				*(dst + len - 1) = (u8)inw((unsigned long)fifo + 4);
+-		if (mid_dma_count) {
+-			/* copy extra bytes to next middle dma buffer */
+-			memcpy(crc->sg_mid_buf + (i << 2),
+-				(u8*)sg_virt(sg) + (dma_count << 2),
+-				mid_dma_count);
 -		}
 -	}
--	dev_dbg(musb->controller, "%cX ep%d fifo %p count %d buf %p\n",
--			'R', hw_ep->epnum, fifo, len, dst);
 -
--	dump_fifo_data(dst, len);
--}
--
--static irqreturn_t blackfin_interrupt(int irq, void *__hci)
--{
--	unsigned long	flags;
--	irqreturn_t	retval = IRQ_NONE;
--	struct musb	*musb = __hci;
--
--	spin_lock_irqsave(&musb->lock, flags);
--
--	musb->int_usb = musb_readb(musb->mregs, MUSB_INTRUSB);
--	musb->int_tx = musb_readw(musb->mregs, MUSB_INTRTX);
--	musb->int_rx = musb_readw(musb->mregs, MUSB_INTRRX);
--
--	if (musb->int_usb || musb->int_tx || musb->int_rx) {
--		musb_writeb(musb->mregs, MUSB_INTRUSB, musb->int_usb);
--		musb_writew(musb->mregs, MUSB_INTRTX, musb->int_tx);
--		musb_writew(musb->mregs, MUSB_INTRRX, musb->int_rx);
--		retval = musb_interrupt(musb);
+-	dma_config = DMAFLOW_ARRAY | RESTART | NDSIZE_3 | DMAEN | PSIZE_32 | WDSIZE_32;
+-	/* For final update req, append the buffer for next update as well*/
+-	if (ctx->bufnext_len && (ctx->flag == CRC_CRYPTO_STATE_FINALUPDATE ||
+-		ctx->flag == CRC_CRYPTO_STATE_FINISH)) {
+-		crc->sg_cpu[i].start_addr = dma_map_single(crc->dev, ctx->bufnext,
+-						CHKSUM_DIGEST_SIZE, DMA_TO_DEVICE);
+-		crc->sg_cpu[i].cfg = dma_config;
+-		crc->sg_cpu[i].x_count = 1;
+-		crc->sg_cpu[i].x_modify = CHKSUM_DIGEST_SIZE;
+-		dev_dbg(crc->dev, "%d: crc_dma: start_addr:0x%lx, "
+-			"cfg:0x%x, x_count:0x%x, x_modify:0x%x\n",
+-			i, crc->sg_cpu[i].start_addr,
+-			crc->sg_cpu[i].cfg, crc->sg_cpu[i].x_count,
+-			crc->sg_cpu[i].x_modify);
+-		i++;
 -	}
 -
--	/* Start sampling ID pin, when plug is removed from MUSB */
--	if ((musb->xceiv->otg->state == OTG_STATE_B_IDLE
--		|| musb->xceiv->otg->state == OTG_STATE_A_WAIT_BCON) ||
--		(musb->int_usb & MUSB_INTR_DISCONNECT && is_host_active(musb))) {
--		mod_timer(&musb->dev_timer, jiffies + TIMER_DELAY);
--		musb->a_wait_bcon = TIMER_DELAY;
--	}
+-	if (i == 0)
+-		return;
 -
--	spin_unlock_irqrestore(&musb->lock, flags);
--
--	return retval;
+-	/* Set the last descriptor to stop mode */
+-	crc->sg_cpu[i - 1].cfg &= ~(DMAFLOW | NDSIZE);
+-	crc->sg_cpu[i - 1].cfg |= DI_EN;
+-	set_dma_curr_desc_addr(crc->dma_ch, (unsigned long *)crc->sg_dma);
+-	set_dma_x_count(crc->dma_ch, 0);
+-	set_dma_x_modify(crc->dma_ch, 0);
+-	set_dma_config(crc->dma_ch, dma_config);
 -}
 -
--static void musb_conn_timer_handler(struct timer_list *t)
+-static int bfin_crypto_crc_handle_queue(struct bfin_crypto_crc *crc,
+-				  struct ahash_request *req)
 -{
--	struct musb *musb = from_timer(musb, t, dev_timer);
+-	struct crypto_async_request *async_req, *backlog;
+-	struct bfin_crypto_crc_reqctx *ctx;
+-	struct scatterlist *sg;
+-	int ret = 0;
+-	int nsg, i, j;
+-	unsigned int nextlen;
 -	unsigned long flags;
--	u16 val;
--	static u8 toggle;
+-	u32 reg;
 -
--	spin_lock_irqsave(&musb->lock, flags);
--	switch (musb->xceiv->otg->state) {
--	case OTG_STATE_A_IDLE:
--	case OTG_STATE_A_WAIT_BCON:
--		/* Start a new session */
--		val = musb_readw(musb->mregs, MUSB_DEVCTL);
--		val &= ~MUSB_DEVCTL_SESSION;
--		musb_writew(musb->mregs, MUSB_DEVCTL, val);
--		val |= MUSB_DEVCTL_SESSION;
--		musb_writew(musb->mregs, MUSB_DEVCTL, val);
--		/* Check if musb is host or peripheral. */
--		val = musb_readw(musb->mregs, MUSB_DEVCTL);
+-	spin_lock_irqsave(&crc->lock, flags);
+-	if (req)
+-		ret = ahash_enqueue_request(&crc->queue, req);
+-	if (crc->busy) {
+-		spin_unlock_irqrestore(&crc->lock, flags);
+-		return ret;
+-	}
+-	backlog = crypto_get_backlog(&crc->queue);
+-	async_req = crypto_dequeue_request(&crc->queue);
+-	if (async_req)
+-		crc->busy = 1;
+-	spin_unlock_irqrestore(&crc->lock, flags);
 -
--		if (!(val & MUSB_DEVCTL_BDEVICE)) {
--			gpio_set_value(musb->config->gpio_vrsel, 1);
--			musb->xceiv->otg->state = OTG_STATE_A_WAIT_BCON;
--		} else {
--			gpio_set_value(musb->config->gpio_vrsel, 0);
--			/* Ignore VBUSERROR and SUSPEND IRQ */
--			val = musb_readb(musb->mregs, MUSB_INTRUSBE);
--			val &= ~MUSB_INTR_VBUSERROR;
--			musb_writeb(musb->mregs, MUSB_INTRUSBE, val);
+-	if (!async_req)
+-		return ret;
 -
--			val = MUSB_INTR_SUSPEND | MUSB_INTR_VBUSERROR;
--			musb_writeb(musb->mregs, MUSB_INTRUSB, val);
--			musb->xceiv->otg->state = OTG_STATE_B_IDLE;
+-	if (backlog)
+-		backlog->complete(backlog, -EINPROGRESS);
+-
+-	req = ahash_request_cast(async_req);
+-	crc->req = req;
+-	ctx = ahash_request_ctx(req);
+-	ctx->sg = NULL;
+-	ctx->sg_buflen = 0;
+-	ctx->sg_nents = 0;
+-
+-	dev_dbg(crc->dev, "handling new req, flag=%u, nbytes: %d\n",
+-						ctx->flag, req->nbytes);
+-
+-	if (ctx->flag == CRC_CRYPTO_STATE_FINISH) {
+-		if (ctx->bufnext_len == 0) {
+-			crc->busy = 0;
+-			return 0;
 -		}
--		mod_timer(&musb->dev_timer, jiffies + TIMER_DELAY);
--		break;
--	case OTG_STATE_B_IDLE:
--		/*
--		 * Start a new session.  It seems that MUSB needs taking
--		 * some time to recognize the type of the plug inserted?
--		 */
--		val = musb_readw(musb->mregs, MUSB_DEVCTL);
--		val |= MUSB_DEVCTL_SESSION;
--		musb_writew(musb->mregs, MUSB_DEVCTL, val);
--		val = musb_readw(musb->mregs, MUSB_DEVCTL);
 -
--		if (!(val & MUSB_DEVCTL_BDEVICE)) {
--			gpio_set_value(musb->config->gpio_vrsel, 1);
--			musb->xceiv->otg->state = OTG_STATE_A_WAIT_BCON;
--		} else {
--			gpio_set_value(musb->config->gpio_vrsel, 0);
--
--			/* Ignore VBUSERROR and SUSPEND IRQ */
--			val = musb_readb(musb->mregs, MUSB_INTRUSBE);
--			val &= ~MUSB_INTR_VBUSERROR;
--			musb_writeb(musb->mregs, MUSB_INTRUSBE, val);
--
--			val = MUSB_INTR_SUSPEND | MUSB_INTR_VBUSERROR;
--			musb_writeb(musb->mregs, MUSB_INTRUSB, val);
--
--			/* Toggle the Soft Conn bit, so that we can response to
--			 * the inserting of either A-plug or B-plug.
--			 */
--			if (toggle) {
--				val = musb_readb(musb->mregs, MUSB_POWER);
--				val &= ~MUSB_POWER_SOFTCONN;
--				musb_writeb(musb->mregs, MUSB_POWER, val);
--				toggle = 0;
+-		/* Pack last crc update buffer to 32bit */
+-		memset(ctx->bufnext + ctx->bufnext_len, 0,
+-				CHKSUM_DIGEST_SIZE - ctx->bufnext_len);
+-	} else {
+-		/* Pack small data which is less than 32bit to buffer for next update. */
+-		if (ctx->bufnext_len + req->nbytes < CHKSUM_DIGEST_SIZE) {
+-			memcpy(ctx->bufnext + ctx->bufnext_len,
+-				sg_virt(req->src), req->nbytes);
+-			ctx->bufnext_len += req->nbytes;
+-			if (ctx->flag == CRC_CRYPTO_STATE_FINALUPDATE &&
+-				ctx->bufnext_len) {
+-				goto finish_update;
 -			} else {
--				val = musb_readb(musb->mregs, MUSB_POWER);
--				val |= MUSB_POWER_SOFTCONN;
--				musb_writeb(musb->mregs, MUSB_POWER, val);
--				toggle = 1;
+-				crc->busy = 0;
+-				return 0;
 -			}
--			/* The delay time is set to 1/4 second by default,
--			 * shortening it, if accelerating A-plug detection
--			 * is needed in OTG mode.
--			 */
--			mod_timer(&musb->dev_timer, jiffies + TIMER_DELAY / 4);
 -		}
--		break;
--	default:
--		dev_dbg(musb->controller, "%s state not handled\n",
--			usb_otg_state_string(musb->xceiv->otg->state));
--		break;
--	}
--	spin_unlock_irqrestore(&musb->lock, flags);
 -
--	dev_dbg(musb->controller, "state is %s\n",
--		usb_otg_state_string(musb->xceiv->otg->state));
--}
+-		if (ctx->bufnext_len) {
+-			/* Chain in extra bytes of last update */
+-			ctx->buflast_len = ctx->bufnext_len;
+-			memcpy(ctx->buflast, ctx->bufnext, ctx->buflast_len);
 -
--static void bfin_musb_enable(struct musb *musb)
--{
--	/* REVISIT is this really correct ? */
--}
+-			nsg = ctx->sg_buflen ? 2 : 1;
+-			sg_init_table(ctx->bufsl, nsg);
+-			sg_set_buf(ctx->bufsl, ctx->buflast, ctx->buflast_len);
+-			if (nsg > 1)
+-				sg_chain(ctx->bufsl, nsg, req->src);
+-			ctx->sg = ctx->bufsl;
+-		} else
+-			ctx->sg = req->src;
 -
--static void bfin_musb_disable(struct musb *musb)
--{
--}
+-		/* Chop crc buffer size to multiple of 32 bit */
+-		nsg = sg_nents(ctx->sg);
+-		ctx->sg_nents = nsg;
+-		ctx->sg_buflen = ctx->buflast_len + req->nbytes;
+-		ctx->bufnext_len = ctx->sg_buflen % 4;
+-		ctx->sg_buflen &= ~0x3;
 -
--static void bfin_musb_set_vbus(struct musb *musb, int is_on)
--{
--	int value = musb->config->gpio_vrsel_active;
--	if (!is_on)
--		value = !value;
--	gpio_set_value(musb->config->gpio_vrsel, value);
--
--	dev_dbg(musb->controller, "VBUS %s, devctl %02x "
--		/* otg %3x conf %08x prcm %08x */ "\n",
--		usb_otg_state_string(musb->xceiv->otg->state),
--		musb_readb(musb->mregs, MUSB_DEVCTL));
--}
--
--static int bfin_musb_set_power(struct usb_phy *x, unsigned mA)
--{
--	return 0;
--}
--
--static int bfin_musb_vbus_status(struct musb *musb)
--{
--	return 0;
--}
--
--static int bfin_musb_set_mode(struct musb *musb, u8 musb_mode)
--{
--	return -EIO;
--}
--
--static int bfin_musb_adjust_channel_params(struct dma_channel *channel,
--				u16 packet_sz, u8 *mode,
--				dma_addr_t *dma_addr, u32 *len)
--{
--	struct musb_dma_channel *musb_channel = channel->private_data;
--
--	/*
--	 * Anomaly 05000450 might cause data corruption when using DMA
--	 * MODE 1 transmits with short packet.  So to work around this,
--	 * we truncate all MODE 1 transfers down to a multiple of the
--	 * max packet size, and then do the last short packet transfer
--	 * (if there is any) using MODE 0.
--	 */
--	if (ANOMALY_05000450) {
--		if (musb_channel->transmit && *mode == 1)
--			*len = *len - (*len % packet_sz);
+-		if (ctx->bufnext_len) {
+-			/* copy extra bytes to buffer for next update */
+-			memset(ctx->bufnext, 0, CHKSUM_DIGEST_SIZE);
+-			nextlen = ctx->bufnext_len;
+-			for (i = nsg - 1; i >= 0; i--) {
+-				sg = sg_get(ctx->sg, nsg, i);
+-				j = min(nextlen, sg_dma_len(sg));
+-				memcpy(ctx->bufnext + nextlen - j,
+-					sg_virt(sg) + sg_dma_len(sg) - j, j);
+-				if (j == sg_dma_len(sg))
+-					ctx->sg_nents--;
+-				nextlen -= j;
+-				if (nextlen == 0)
+-					break;
+-			}
+-		}
 -	}
 -
--	return 0;
+-finish_update:
+-	if (ctx->bufnext_len && (ctx->flag == CRC_CRYPTO_STATE_FINALUPDATE ||
+-		ctx->flag == CRC_CRYPTO_STATE_FINISH))
+-		ctx->sg_buflen += CHKSUM_DIGEST_SIZE;
+-
+-	/* set CRC data count before start DMA */
+-	writel(ctx->sg_buflen >> 2, &crc->regs->datacnt);
+-
+-	/* setup and enable CRC DMA */
+-	bfin_crypto_crc_config_dma(crc);
+-
+-	/* finally kick off CRC operation */
+-	reg = readl(&crc->regs->control);
+-	writel(reg | BLKEN, &crc->regs->control);
+-
+-	return -EINPROGRESS;
 -}
 -
--static void bfin_musb_reg_init(struct musb *musb)
+-static int bfin_crypto_crc_update(struct ahash_request *req)
 -{
--	if (ANOMALY_05000346) {
--		bfin_write_USB_APHY_CALIB(ANOMALY_05000346_value);
--		SSYNC();
--	}
+-	struct bfin_crypto_crc_reqctx *ctx = ahash_request_ctx(req);
 -
--	if (ANOMALY_05000347) {
--		bfin_write_USB_APHY_CNTRL(0x0);
--		SSYNC();
--	}
+-	if (!req->nbytes)
+-		return 0;
 -
--	/* Configure PLL oscillator register */
--	bfin_write_USB_PLLOSC_CTRL(0x3080 |
--			((480/musb->config->clkin) << 1));
--	SSYNC();
+-	dev_dbg(ctx->crc->dev, "crc_update\n");
+-	ctx->total += req->nbytes;
+-	ctx->flag = CRC_CRYPTO_STATE_UPDATE;
 -
--	bfin_write_USB_SRP_CLKDIV((get_sclk()/1000) / 32 - 1);
--	SSYNC();
--
--	bfin_write_USB_EP_NI0_RXMAXP(64);
--	SSYNC();
--
--	bfin_write_USB_EP_NI0_TXMAXP(64);
--	SSYNC();
--
--	/* Route INTRUSB/INTR_RX/INTR_TX to USB_INT0*/
--	bfin_write_USB_GLOBINTR(0x7);
--	SSYNC();
--
--	bfin_write_USB_GLOBAL_CTL(GLOBAL_ENA | EP1_TX_ENA | EP2_TX_ENA |
--				EP3_TX_ENA | EP4_TX_ENA | EP5_TX_ENA |
--				EP6_TX_ENA | EP7_TX_ENA | EP1_RX_ENA |
--				EP2_RX_ENA | EP3_RX_ENA | EP4_RX_ENA |
--				EP5_RX_ENA | EP6_RX_ENA | EP7_RX_ENA);
--	SSYNC();
+-	return bfin_crypto_crc_handle_queue(ctx->crc, req);
 -}
 -
--static int bfin_musb_init(struct musb *musb)
+-static int bfin_crypto_crc_final(struct ahash_request *req)
 -{
+-	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
+-	struct bfin_crypto_crc_ctx *crc_ctx = crypto_ahash_ctx(tfm);
+-	struct bfin_crypto_crc_reqctx *ctx = ahash_request_ctx(req);
 -
--	/*
--	 * Rev 1.0 BF549 EZ-KITs require PE7 to be high for both DEVICE
--	 * and OTG HOST modes, while rev 1.1 and greater require PE7 to
--	 * be low for DEVICE mode and high for HOST mode. We set it high
--	 * here because we are in host mode
--	 */
+-	dev_dbg(ctx->crc->dev, "crc_final\n");
+-	ctx->flag = CRC_CRYPTO_STATE_FINISH;
+-	crc_ctx->key = 0;
 -
--	if (gpio_request(musb->config->gpio_vrsel, "USB_VRSEL")) {
--		printk(KERN_ERR "Failed ro request USB_VRSEL GPIO_%d\n",
--			musb->config->gpio_vrsel);
--		return -ENODEV;
+-	return bfin_crypto_crc_handle_queue(ctx->crc, req);
+-}
+-
+-static int bfin_crypto_crc_finup(struct ahash_request *req)
+-{
+-	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
+-	struct bfin_crypto_crc_ctx *crc_ctx = crypto_ahash_ctx(tfm);
+-	struct bfin_crypto_crc_reqctx *ctx = ahash_request_ctx(req);
+-
+-	dev_dbg(ctx->crc->dev, "crc_finishupdate\n");
+-	ctx->total += req->nbytes;
+-	ctx->flag = CRC_CRYPTO_STATE_FINALUPDATE;
+-	crc_ctx->key = 0;
+-
+-	return bfin_crypto_crc_handle_queue(ctx->crc, req);
+-}
+-
+-static int bfin_crypto_crc_digest(struct ahash_request *req)
+-{
+-	int ret;
+-
+-	ret = bfin_crypto_crc_init(req);
+-	if (ret)
+-		return ret;
+-
+-	return bfin_crypto_crc_finup(req);
+-}
+-
+-static int bfin_crypto_crc_setkey(struct crypto_ahash *tfm, const u8 *key,
+-			unsigned int keylen)
+-{
+-	struct bfin_crypto_crc_ctx *crc_ctx = crypto_ahash_ctx(tfm);
+-
+-	dev_dbg(crc_ctx->crc->dev, "crc_setkey\n");
+-	if (keylen != CHKSUM_DIGEST_SIZE) {
+-		crypto_ahash_set_flags(tfm, CRYPTO_TFM_RES_BAD_KEY_LEN);
+-		return -EINVAL;
 -	}
--	gpio_direction_output(musb->config->gpio_vrsel, 0);
 -
--	musb->xceiv = usb_get_phy(USB_PHY_TYPE_USB2);
--	if (IS_ERR_OR_NULL(musb->xceiv)) {
--		gpio_free(musb->config->gpio_vrsel);
--		return -EPROBE_DEFER;
--	}
--
--	bfin_musb_reg_init(musb);
--
--	timer_setup(&musb->dev_timer, musb_conn_timer_handler, 0);
--
--	musb->xceiv->set_power = bfin_musb_set_power;
--
--	musb->isr = blackfin_interrupt;
--	musb->double_buffer_not_ok = true;
+-	crc_ctx->key = get_unaligned_le32(key);
 -
 -	return 0;
 -}
 -
--static int bfin_musb_exit(struct musb *musb)
+-static int bfin_crypto_crc_cra_init(struct crypto_tfm *tfm)
 -{
--	gpio_free(musb->config->gpio_vrsel);
--	usb_put_phy(musb->xceiv);
+-	struct bfin_crypto_crc_ctx *crc_ctx = crypto_tfm_ctx(tfm);
+-
+-	crc_ctx->key = 0;
+-	crypto_ahash_set_reqsize(__crypto_ahash_cast(tfm),
+-				 sizeof(struct bfin_crypto_crc_reqctx));
 -
 -	return 0;
 -}
 -
--static const struct musb_platform_ops bfin_ops = {
--	.quirks		= MUSB_DMA_INVENTRA,
--	.init		= bfin_musb_init,
--	.exit		= bfin_musb_exit,
+-static void bfin_crypto_crc_cra_exit(struct crypto_tfm *tfm)
+-{
+-}
 -
--	.fifo_offset	= bfin_fifo_offset,
--	.readb		= bfin_readb,
--	.writeb		= bfin_writeb,
--	.readw		= bfin_readw,
--	.writew		= bfin_writew,
--	.readl		= bfin_readl,
--	.writel		= bfin_writel,
--	.fifo_mode	= 2,
--	.read_fifo	= bfin_read_fifo,
--	.write_fifo	= bfin_write_fifo,
--#ifdef CONFIG_USB_INVENTRA_DMA
--	.dma_init	= musbhs_dma_controller_create,
--	.dma_exit	= musbhs_dma_controller_destroy,
--#endif
--	.enable		= bfin_musb_enable,
--	.disable	= bfin_musb_disable,
--
--	.set_mode	= bfin_musb_set_mode,
--
--	.vbus_status	= bfin_musb_vbus_status,
--	.set_vbus	= bfin_musb_set_vbus,
--
--	.adjust_channel_params = bfin_musb_adjust_channel_params,
+-static struct ahash_alg algs = {
+-	.init		= bfin_crypto_crc_init,
+-	.update		= bfin_crypto_crc_update,
+-	.final		= bfin_crypto_crc_final,
+-	.finup		= bfin_crypto_crc_finup,
+-	.digest		= bfin_crypto_crc_digest,
+-	.setkey		= bfin_crypto_crc_setkey,
+-	.halg.digestsize	= CHKSUM_DIGEST_SIZE,
+-	.halg.base	= {
+-		.cra_name		= "hmac(crc32)",
+-		.cra_driver_name	= DRIVER_NAME,
+-		.cra_priority		= 100,
+-		.cra_flags		= CRYPTO_ALG_TYPE_AHASH |
+-						CRYPTO_ALG_ASYNC |
+-						CRYPTO_ALG_OPTIONAL_KEY,
+-		.cra_blocksize		= CHKSUM_BLOCK_SIZE,
+-		.cra_ctxsize		= sizeof(struct bfin_crypto_crc_ctx),
+-		.cra_alignmask		= 3,
+-		.cra_module		= THIS_MODULE,
+-		.cra_init		= bfin_crypto_crc_cra_init,
+-		.cra_exit		= bfin_crypto_crc_cra_exit,
+-	}
 -};
 -
--static u64 bfin_dmamask = DMA_BIT_MASK(32);
--
--static int bfin_probe(struct platform_device *pdev)
+-static void bfin_crypto_crc_done_task(unsigned long data)
 -{
--	struct resource musb_resources[2];
--	struct musb_hdrc_platform_data	*pdata = dev_get_platdata(&pdev->dev);
--	struct platform_device		*musb;
--	struct bfin_glue		*glue;
+-	struct bfin_crypto_crc *crc = (struct bfin_crypto_crc *)data;
 -
--	int				ret = -ENOMEM;
+-	bfin_crypto_crc_handle_queue(crc, NULL);
+-}
 -
--	glue = devm_kzalloc(&pdev->dev, sizeof(*glue), GFP_KERNEL);
--	if (!glue)
--		goto err0;
+-static irqreturn_t bfin_crypto_crc_handler(int irq, void *dev_id)
+-{
+-	struct bfin_crypto_crc *crc = dev_id;
+-	u32 reg;
 -
--	musb = platform_device_alloc("musb-hdrc", PLATFORM_DEVID_AUTO);
--	if (!musb)
--		goto err0;
+-	if (readl(&crc->regs->status) & DCNTEXP) {
+-		writel(DCNTEXP, &crc->regs->status);
 -
--	musb->dev.parent		= &pdev->dev;
--	musb->dev.dma_mask		= &bfin_dmamask;
--	musb->dev.coherent_dma_mask	= bfin_dmamask;
+-		/* prepare results */
+-		put_unaligned_le32(readl(&crc->regs->result),
+-			crc->req->result);
 -
--	glue->dev			= &pdev->dev;
--	glue->musb			= musb;
+-		reg = readl(&crc->regs->control);
+-		writel(reg & ~BLKEN, &crc->regs->control);
+-		crc->busy = 0;
 -
--	pdata->platform_ops		= &bfin_ops;
+-		if (crc->req->base.complete)
+-			crc->req->base.complete(&crc->req->base, 0);
 -
--	glue->phy = usb_phy_generic_register();
--	if (IS_ERR(glue->phy))
--		goto err1;
--	platform_set_drvdata(pdev, glue);
+-		tasklet_schedule(&crc->done_task);
 -
--	memset(musb_resources, 0x00, sizeof(*musb_resources) *
--			ARRAY_SIZE(musb_resources));
+-		return IRQ_HANDLED;
+-	} else
+-		return IRQ_NONE;
+-}
 -
--	musb_resources[0].name = pdev->resource[0].name;
--	musb_resources[0].start = pdev->resource[0].start;
--	musb_resources[0].end = pdev->resource[0].end;
--	musb_resources[0].flags = pdev->resource[0].flags;
+-#ifdef CONFIG_PM
+-/**
+- *	bfin_crypto_crc_suspend - suspend crc device
+- *	@pdev: device being suspended
+- *	@state: requested suspend state
+- */
+-static int bfin_crypto_crc_suspend(struct platform_device *pdev, pm_message_t state)
+-{
+-	struct bfin_crypto_crc *crc = platform_get_drvdata(pdev);
+-	int i = 100000;
 -
--	musb_resources[1].name = pdev->resource[1].name;
--	musb_resources[1].start = pdev->resource[1].start;
--	musb_resources[1].end = pdev->resource[1].end;
--	musb_resources[1].flags = pdev->resource[1].flags;
+-	while ((readl(&crc->regs->control) & BLKEN) && --i)
+-		cpu_relax();
 -
--	ret = platform_device_add_resources(musb, musb_resources,
--			ARRAY_SIZE(musb_resources));
--	if (ret) {
--		dev_err(&pdev->dev, "failed to add resources\n");
--		goto err2;
+-	if (i == 0)
+-		return -EBUSY;
+-
+-	return 0;
+-}
+-#else
+-# define bfin_crypto_crc_suspend NULL
+-#endif
+-
+-#define bfin_crypto_crc_resume NULL
+-
+-/**
+- *	bfin_crypto_crc_probe - Initialize module
+- *
+- */
+-static int bfin_crypto_crc_probe(struct platform_device *pdev)
+-{
+-	struct device *dev = &pdev->dev;
+-	struct resource *res;
+-	struct bfin_crypto_crc *crc;
+-	unsigned int timeout = 100000;
+-	int ret;
+-
+-	crc = devm_kzalloc(dev, sizeof(*crc), GFP_KERNEL);
+-	if (!crc) {
+-		dev_err(&pdev->dev, "fail to malloc bfin_crypto_crc\n");
+-		return -ENOMEM;
 -	}
 -
--	ret = platform_device_add_data(musb, pdata, sizeof(*pdata));
--	if (ret) {
--		dev_err(&pdev->dev, "failed to add platform_data\n");
--		goto err2;
+-	crc->dev = dev;
+-
+-	INIT_LIST_HEAD(&crc->list);
+-	spin_lock_init(&crc->lock);
+-	tasklet_init(&crc->done_task, bfin_crypto_crc_done_task, (unsigned long)crc);
+-	crypto_init_queue(&crc->queue, CRC_CCRYPTO_QUEUE_LENGTH);
+-
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	crc->regs = devm_ioremap_resource(dev, res);
+-	if (IS_ERR((void *)crc->regs)) {
+-		dev_err(&pdev->dev, "Cannot map CRC IO\n");
+-		return PTR_ERR((void *)crc->regs);
 -	}
 -
--	ret = platform_device_add(musb);
--	if (ret) {
--		dev_err(&pdev->dev, "failed to register musb device\n");
--		goto err2;
+-	crc->irq = platform_get_irq(pdev, 0);
+-	if (crc->irq < 0) {
+-		dev_err(&pdev->dev, "No CRC DCNTEXP IRQ specified\n");
+-		return -ENOENT;
 -	}
+-
+-	ret = devm_request_irq(dev, crc->irq, bfin_crypto_crc_handler,
+-			IRQF_SHARED, dev_name(dev), crc);
+-	if (ret) {
+-		dev_err(&pdev->dev, "Unable to request blackfin crc irq\n");
+-		return ret;
+-	}
+-
+-	res = platform_get_resource(pdev, IORESOURCE_DMA, 0);
+-	if (res == NULL) {
+-		dev_err(&pdev->dev, "No CRC DMA channel specified\n");
+-		return -ENOENT;
+-	}
+-	crc->dma_ch = res->start;
+-
+-	ret = request_dma(crc->dma_ch, dev_name(dev));
+-	if (ret) {
+-		dev_err(&pdev->dev, "Unable to attach Blackfin CRC DMA channel\n");
+-		return ret;
+-	}
+-
+-	crc->sg_cpu = dma_alloc_coherent(&pdev->dev, PAGE_SIZE, &crc->sg_dma, GFP_KERNEL);
+-	if (crc->sg_cpu == NULL) {
+-		ret = -ENOMEM;
+-		goto out_error_dma;
+-	}
+-	/*
+-	 * need at most CRC_MAX_DMA_DESC sg + CRC_MAX_DMA_DESC middle  +
+-	 * 1 last + 1 next dma descriptors
+-	 */
+-	crc->sg_mid_buf = (u8 *)(crc->sg_cpu + ((CRC_MAX_DMA_DESC + 1) << 1));
+-	crc->sg_mid_dma = crc->sg_dma + sizeof(struct dma_desc_array)
+-			* ((CRC_MAX_DMA_DESC + 1) << 1);
+-
+-	writel(0, &crc->regs->control);
+-	crc->poly = (u32)pdev->dev.platform_data;
+-	writel(crc->poly, &crc->regs->poly);
+-
+-	while (!(readl(&crc->regs->status) & LUTDONE) && (--timeout) > 0)
+-		cpu_relax();
+-
+-	if (timeout == 0)
+-		dev_info(&pdev->dev, "init crc poly timeout\n");
+-
+-	platform_set_drvdata(pdev, crc);
+-
+-	spin_lock(&crc_list.lock);
+-	list_add(&crc->list, &crc_list.dev_list);
+-	spin_unlock(&crc_list.lock);
+-
+-	if (list_is_singular(&crc_list.dev_list)) {
+-		ret = crypto_register_ahash(&algs);
+-		if (ret) {
+-			dev_err(&pdev->dev,
+-				"Can't register crypto ahash device\n");
+-			goto out_error_dma;
+-		}
+-	}
+-
+-	dev_info(&pdev->dev, "initialized\n");
 -
 -	return 0;
 -
--err2:
--	usb_phy_generic_unregister(glue->phy);
+-out_error_dma:
+-	if (crc->sg_cpu)
+-		dma_free_coherent(&pdev->dev, PAGE_SIZE, crc->sg_cpu, crc->sg_dma);
+-	free_dma(crc->dma_ch);
 -
--err1:
--	platform_device_put(musb);
--
--err0:
 -	return ret;
 -}
 -
--static int bfin_remove(struct platform_device *pdev)
+-/**
+- *	bfin_crypto_crc_remove - Initialize module
+- *
+- */
+-static int bfin_crypto_crc_remove(struct platform_device *pdev)
 -{
--	struct bfin_glue		*glue = platform_get_drvdata(pdev);
+-	struct bfin_crypto_crc *crc = platform_get_drvdata(pdev);
 -
--	platform_device_unregister(glue->musb);
--	usb_phy_generic_unregister(glue->phy);
+-	if (!crc)
+-		return -ENODEV;
+-
+-	spin_lock(&crc_list.lock);
+-	list_del(&crc->list);
+-	spin_unlock(&crc_list.lock);
+-
+-	crypto_unregister_ahash(&algs);
+-	tasklet_kill(&crc->done_task);
+-	free_dma(crc->dma_ch);
 -
 -	return 0;
 -}
 -
--static int __maybe_unused bfin_suspend(struct device *dev)
--{
--	struct bfin_glue	*glue = dev_get_drvdata(dev);
--	struct musb		*musb = glue_to_musb(glue);
--
--	if (is_host_active(musb))
--		/*
--		 * During hibernate gpio_vrsel will change from high to low
--		 * low which will generate wakeup event resume the system
--		 * immediately.  Set it to 0 before hibernate to avoid this
--		 * wakeup event.
--		 */
--		gpio_set_value(musb->config->gpio_vrsel, 0);
--
--	return 0;
--}
--
--static int __maybe_unused bfin_resume(struct device *dev)
--{
--	struct bfin_glue	*glue = dev_get_drvdata(dev);
--	struct musb		*musb = glue_to_musb(glue);
--
--	bfin_musb_reg_init(musb);
--
--	return 0;
--}
--
--static SIMPLE_DEV_PM_OPS(bfin_pm_ops, bfin_suspend, bfin_resume);
--
--static struct platform_driver bfin_driver = {
--	.probe		= bfin_probe,
--	.remove		= bfin_remove,
--	.driver		= {
--		.name	= "musb-blackfin",
--		.pm	= &bfin_pm_ops,
+-static struct platform_driver bfin_crypto_crc_driver = {
+-	.probe     = bfin_crypto_crc_probe,
+-	.remove    = bfin_crypto_crc_remove,
+-	.suspend   = bfin_crypto_crc_suspend,
+-	.resume    = bfin_crypto_crc_resume,
+-	.driver    = {
+-		.name  = DRIVER_NAME,
 -	},
 -};
 -
--MODULE_DESCRIPTION("Blackfin MUSB Glue Layer");
--MODULE_AUTHOR("Bryan Wy <cooloney@kernel.org>");
--MODULE_LICENSE("GPL v2");
--module_platform_driver(bfin_driver);
-diff --git a/drivers/usb/musb/blackfin.h b/drivers/usb/musb/blackfin.h
+-/**
+- *	bfin_crypto_crc_mod_init - Initialize module
+- *
+- *	Checks the module params and registers the platform driver.
+- *	Real work is in the platform probe function.
+- */
+-static int __init bfin_crypto_crc_mod_init(void)
+-{
+-	int ret;
+-
+-	pr_info("Blackfin hardware CRC crypto driver\n");
+-
+-	INIT_LIST_HEAD(&crc_list.dev_list);
+-	spin_lock_init(&crc_list.lock);
+-
+-	ret = platform_driver_register(&bfin_crypto_crc_driver);
+-	if (ret) {
+-		pr_err("unable to register driver\n");
+-		return ret;
+-	}
+-
+-	return 0;
+-}
+-
+-/**
+- *	bfin_crypto_crc_mod_exit - Deinitialize module
+- */
+-static void __exit bfin_crypto_crc_mod_exit(void)
+-{
+-	platform_driver_unregister(&bfin_crypto_crc_driver);
+-}
+-
+-module_init(bfin_crypto_crc_mod_init);
+-module_exit(bfin_crypto_crc_mod_exit);
+-
+-MODULE_AUTHOR("Sonic Zhang <sonic.zhang@analog.com>");
+-MODULE_DESCRIPTION("Blackfin CRC hardware crypto driver");
+-MODULE_LICENSE("GPL");
+diff --git a/drivers/crypto/bfin_crc.h b/drivers/crypto/bfin_crc.h
 deleted file mode 100644
-index 5b14991..0000000
---- a/drivers/usb/musb/blackfin.h
+index 786ef74..0000000
+--- a/drivers/crypto/bfin_crc.h
 +++ /dev/null
-@@ -1,81 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
+@@ -1,124 +0,0 @@
 -/*
-- * Copyright (C) 2007 by Analog Devices, Inc.
-- */
--
--#ifndef __MUSB_BLACKFIN_H__
--#define __MUSB_BLACKFIN_H__
--
--/*
-- * Blackfin specific definitions
-- */
--
--/* Anomalies notes:
+- * bfin_crc.h - interface to Blackfin CRC controllers
 - *
-- *  05000450 - USB DMA Mode 1 Short Packet Data Corruption:
-- *             MUSB driver is designed to transfer buffer of N * maxpacket size
-- *             in DMA mode 1 and leave the rest of the data to the next
-- *             transfer in DMA mode 0, so we never transmit a short packet in
-- *             DMA mode 1.
+- * Copyright 2012 Analog Devices Inc.
 - *
-- *  05000463 - This anomaly doesn't affect this driver since it
-- *             never uses L1 or L2 memory as data destination.
-- *
-- *  05000464 - This anomaly doesn't affect this driver since it
-- *             never uses L1 or L2 memory as data source.
-- *
-- *  05000465 - The anomaly can be seen when SCLK is over 100 MHz, and there is
-- *             no way to workaround for bulk endpoints.  Since the wMaxPackSize
-- *             of bulk is less than or equal to 512, while the fifo size of
-- *             endpoint 5, 6, 7 is 1024, the double buffer mode is enabled
-- *             automatically when these endpoints are used for bulk OUT.
-- *
-- *  05000466 - This anomaly doesn't affect this driver since it never mixes
-- *             concurrent DMA and core accesses to the TX endpoint FIFOs.
-- *
-- *  05000467 - The workaround for this anomaly will introduce another
-- *             anomaly - 05000465.
+- * Licensed under the GPL-2 or later.
 - */
 -
--/* The Mentor USB DMA engine on BF52x (silicon v0.0 and v0.1) seems to be
-- * unstable in host mode.  This may be caused by Anomaly 05000380.  After
-- * digging out the root cause, we will change this number accordingly.
-- * So, need to either use silicon v0.2+ or disable DMA mode in MUSB.
-- */
--#if ANOMALY_05000380 && defined(CONFIG_BF52x) && \
--	!defined(CONFIG_MUSB_PIO_ONLY)
--# error "Please use PIO mode in MUSB driver on bf52x chip v0.0 and v0.1"
+-#ifndef __BFIN_CRC_H__
+-#define __BFIN_CRC_H__
+-
+-/* Function driver which use hardware crc must initialize the structure */
+-struct crc_info {
+-	/* Input data address */
+-	unsigned char *in_addr;
+-	/* Output data address */
+-	unsigned char *out_addr;
+-	/* Input or output bytes */
+-	unsigned long datasize;
+-	union {
+-	/* CRC to compare with that of input buffer */
+-	unsigned long crc_compare;
+-	/* Value to compare with input data */
+-	unsigned long val_verify;
+-	/* Value to fill */
+-	unsigned long val_fill;
+-	};
+-	/* Value to program the 32b CRC Polynomial */
+-	unsigned long crc_poly;
+-	union {
+-	/* CRC calculated from the input data */
+-	unsigned long crc_result;
+-	/* First failed position to verify input data */
+-	unsigned long pos_verify;
+-	};
+-	/* CRC mirror flags */
+-	unsigned int bitmirr:1;
+-	unsigned int bytmirr:1;
+-	unsigned int w16swp:1;
+-	unsigned int fdsel:1;
+-	unsigned int rsltmirr:1;
+-	unsigned int polymirr:1;
+-	unsigned int cmpmirr:1;
+-};
+-
+-/* Userspace interface */
+-#define CRC_IOC_MAGIC		'C'
+-#define CRC_IOC_CALC_CRC	_IOWR('C', 0x01, unsigned int)
+-#define CRC_IOC_MEMCPY_CRC	_IOWR('C', 0x02, unsigned int)
+-#define CRC_IOC_VERIFY_VAL	_IOWR('C', 0x03, unsigned int)
+-#define CRC_IOC_FILL_VAL	_IOWR('C', 0x04, unsigned int)
+-
+-
+-#ifdef __KERNEL__
+-
+-#include <linux/types.h>
+-#include <linux/spinlock.h>
+-
+-struct crc_register {
+-	u32 control;
+-	u32 datacnt;
+-	u32 datacntrld;
+-	u32 __pad_1[2];
+-	u32 compare;
+-	u32 fillval;
+-	u32 datafifo;
+-	u32 intren;
+-	u32 intrenset;
+-	u32 intrenclr;
+-	u32 poly;
+-	u32 __pad_2[4];
+-	u32 status;
+-	u32 datacntcap;
+-	u32 __pad_3;
+-	u32 result;
+-	u32 curresult;
+-	u32 __pad_4[3];
+-	u32 revid;
+-};
+-
+-/* CRC_STATUS Masks */
+-#define CMPERR			0x00000002	/* Compare error */
+-#define DCNTEXP			0x00000010	/* datacnt register expired */
+-#define IBR			0x00010000	/* Input buffer ready */
+-#define OBR			0x00020000	/* Output buffer ready */
+-#define IRR			0x00040000	/* Immediate result readt */
+-#define LUTDONE			0x00080000	/* Look-up table generation done */
+-#define FSTAT			0x00700000	/* FIFO status */
+-#define MAX_FIFO		4		/* Max fifo size */
+-
+-/* CRC_CONTROL Masks */
+-#define BLKEN			0x00000001	/* Block enable */
+-#define OPMODE			0x000000F0	/* Operation mode */
+-#define OPMODE_OFFSET		4		/* Operation mode mask offset*/
+-#define MODE_DMACPY_CRC		1		/* MTM CRC compute and compare */
+-#define MODE_DATA_FILL		2		/* MTM data fill */
+-#define MODE_CALC_CRC		3		/* MSM CRC compute and compare */
+-#define MODE_DATA_VERIFY	4		/* MSM data verify */
+-#define AUTOCLRZ		0x00000100	/* Auto clear to zero */
+-#define AUTOCLRF		0x00000200	/* Auto clear to one */
+-#define OBRSTALL		0x00001000	/* Stall on output buffer ready */
+-#define IRRSTALL		0x00002000	/* Stall on immediate result ready */
+-#define BITMIRR			0x00010000	/* Mirror bits within each byte of 32-bit input data */
+-#define BITMIRR_OFFSET		16		/* Mirror bits offset */
+-#define BYTMIRR			0x00020000	/* Mirror bytes of 32-bit input data */
+-#define BYTMIRR_OFFSET		17		/* Mirror bytes offset */
+-#define W16SWP			0x00040000	/* Mirror uppper and lower 16-bit word of 32-bit input data */
+-#define W16SWP_OFFSET		18		/* Mirror 16-bit word offset */
+-#define FDSEL			0x00080000	/* FIFO is written after input data is mirrored */
+-#define FDSEL_OFFSET		19		/* Mirror FIFO offset */
+-#define RSLTMIRR		0x00100000	/* CRC result registers are mirrored. */
+-#define RSLTMIRR_OFFSET		20		/* Mirror CRC result offset. */
+-#define POLYMIRR		0x00200000	/* CRC poly register is mirrored. */
+-#define POLYMIRR_OFFSET		21		/* Mirror CRC poly offset. */
+-#define CMPMIRR			0x00400000	/* CRC compare register is mirrored. */
+-#define CMPMIRR_OFFSET		22		/* Mirror CRC compare offset. */
+-
+-/* CRC_INTREN Masks */
+-#define CMPERRI 		0x02		/* CRC_ERROR_INTR */
+-#define DCNTEXPI 		0x10		/* CRC_STATUS_INTR */
+-
 -#endif
 -
--#undef DUMP_FIFO_DATA
--#ifdef DUMP_FIFO_DATA
--static void dump_fifo_data(u8 *buf, u16 len)
--{
--	u8 *tmp = buf;
--	int i;
--
--	for (i = 0; i < len; i++) {
--		if (!(i % 16) && i)
--			pr_debug("\n");
--		pr_debug("%02x ", *tmp++);
--	}
--	pr_debug("\n");
--}
--#else
--#define dump_fifo_data(buf, len)	do {} while (0)
 -#endif
--
--
--#define USB_DMA_BASE		USB_DMA_INTERRUPT
--#define USB_DMAx_CTRL		0x04
--#define USB_DMAx_ADDR_LOW	0x08
--#define USB_DMAx_ADDR_HIGH	0x0C
--#define USB_DMAx_COUNT_LOW	0x10
--#define USB_DMAx_COUNT_HIGH	0x14
--
--#define USB_DMA_REG(ep, reg)	(USB_DMA_BASE + 0x20 * ep + reg)
--
--/* Almost 1 second */
--#define TIMER_DELAY	(1 * HZ)
--
--#endif	/* __MUSB_BLACKFIN_H__ */
-diff --git a/drivers/usb/musb/musb_core.c b/drivers/usb/musb/musb_core.c
-index eef4ad5..1348658 100644
---- a/drivers/usb/musb/musb_core.c
-+++ b/drivers/usb/musb/musb_core.c
-@@ -126,7 +126,6 @@ EXPORT_SYMBOL_GPL(musb_get_mode);
- 
- /*-------------------------------------------------------------------------*/
- 
--#ifndef CONFIG_BLACKFIN
- static int musb_ulpi_read(struct usb_phy *phy, u32 reg)
- {
- 	void __iomem *addr = phy->io_priv;
-@@ -208,10 +207,6 @@ static int musb_ulpi_write(struct usb_phy *phy, u32 val, u32 reg)
- 
- 	return ret;
- }
--#else
--#define musb_ulpi_read		NULL
--#define musb_ulpi_write		NULL
--#endif
- 
- static struct usb_phy_io_ops musb_ulpi_access = {
- 	.read = musb_ulpi_read,
-@@ -2171,7 +2166,7 @@ musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl)
- 	 *   - initializes musb->xceiv, usually by otg_get_phy()
- 	 *   - stops powering VBUS
- 	 *
--	 * There are various transceiver configurations.  Blackfin,
-+	 * There are various transceiver configurations.
- 	 * DaVinci, TUSB60x0, and others integrate them.  OMAP3 uses
- 	 * external/discrete ones in various flavors (twl4030 family,
- 	 * isp1504, non-OTG, etc) mostly hooking up through ULPI.
-diff --git a/drivers/usb/musb/musb_core.h b/drivers/usb/musb/musb_core.h
-index 385841e..d91bb28 100644
---- a/drivers/usb/musb/musb_core.h
-+++ b/drivers/usb/musb/musb_core.h
-@@ -414,19 +414,6 @@ struct musb {
- 	struct usb_gadget_driver *gadget_driver;	/* its driver */
- 	struct usb_hcd		*hcd;			/* the usb hcd */
- 
--	/*
--	 * FIXME: Remove this flag.
--	 *
--	 * This is only added to allow Blackfin to work
--	 * with current driver. For some unknown reason
--	 * Blackfin doesn't work with double buffering
--	 * and that's enabled by default.
--	 *
--	 * We added this flag to forcefully disable double
--	 * buffering until we get it working.
--	 */
--	unsigned                double_buffer_not_ok:1;
--
- 	const struct musb_hdrc_config *config;
- 
- 	int			xceiv_old_state;
-@@ -467,34 +454,6 @@ static inline char *musb_ep_xfertype_string(u8 type)
- 	return s;
- }
- 
--#ifdef CONFIG_BLACKFIN
--static inline int musb_read_fifosize(struct musb *musb,
--		struct musb_hw_ep *hw_ep, u8 epnum)
--{
--	musb->nr_endpoints++;
--	musb->epmask |= (1 << epnum);
--
--	if (epnum < 5) {
--		hw_ep->max_packet_sz_tx = 128;
--		hw_ep->max_packet_sz_rx = 128;
--	} else {
--		hw_ep->max_packet_sz_tx = 1024;
--		hw_ep->max_packet_sz_rx = 1024;
--	}
--	hw_ep->is_shared_fifo = false;
--
--	return 0;
--}
--
--static inline void musb_configure_ep0(struct musb *musb)
--{
--	musb->endpoints[0].max_packet_sz_tx = MUSB_EP0_FIFOSIZE;
--	musb->endpoints[0].max_packet_sz_rx = MUSB_EP0_FIFOSIZE;
--	musb->endpoints[0].is_shared_fifo = true;
--}
--
--#else
--
- static inline int musb_read_fifosize(struct musb *musb,
- 		struct musb_hw_ep *hw_ep, u8 epnum)
- {
-@@ -531,7 +490,6 @@ static inline void musb_configure_ep0(struct musb *musb)
- 	musb->endpoints[0].max_packet_sz_rx = MUSB_EP0_FIFOSIZE;
- 	musb->endpoints[0].is_shared_fifo = true;
- }
--#endif /* CONFIG_BLACKFIN */
- 
- 
- /***************************** Glue it together *****************************/
-diff --git a/drivers/usb/musb/musb_debugfs.c b/drivers/usb/musb/musb_debugfs.c
-index 7cf5a1b..7dac456 100644
---- a/drivers/usb/musb/musb_debugfs.c
-+++ b/drivers/usb/musb/musb_debugfs.c
-@@ -70,7 +70,6 @@ static const struct musb_register_map musb_regmap[] = {
- 	{ "DMA_CNTLch7",	0x274,	16 },
- 	{ "DMA_ADDRch7",	0x278,	32 },
- 	{ "DMA_COUNTch7",	0x27C,	32 },
--#ifndef CONFIG_BLACKFIN
- 	{ "ConfigData",	MUSB_CONFIGDATA,8 },
- 	{ "BabbleCtl",	MUSB_BABBLE_CTL,8 },
- 	{ "TxFIFOsz",	MUSB_TXFIFOSZ,	8 },
-@@ -79,7 +78,6 @@ static const struct musb_register_map musb_regmap[] = {
- 	{ "RxFIFOadd",	MUSB_RXFIFOADD,	16 },
- 	{ "EPInfo",	MUSB_EPINFO,	8 },
- 	{ "RAMInfo",	MUSB_RAMINFO,	8 },
--#endif
- 	{  }	/* Terminating Entry */
- };
- 
-diff --git a/drivers/usb/musb/musb_dma.h b/drivers/usb/musb/musb_dma.h
-index a4241f4..0fc8cd0 100644
---- a/drivers/usb/musb/musb_dma.h
-+++ b/drivers/usb/musb/musb_dma.h
-@@ -80,17 +80,6 @@ struct musb_hw_ep;
- #define	is_cppi_enabled(musb)	0
- #endif
- 
--/* Anomaly 05000456 - USB Receive Interrupt Is Not Generated in DMA Mode 1
-- *	Only allow DMA mode 1 to be used when the USB will actually generate the
-- *	interrupts we expect.
-- */
--#ifdef CONFIG_BLACKFIN
--# undef USE_MODE1
--# if !ANOMALY_05000456
--#  define USE_MODE1
--# endif
--#endif
--
- /*
-  * DMA channel status ... updated by the dma controller driver whenever that
-  * status changes, and protected by the overall controller spinlock.
-diff --git a/drivers/usb/musb/musb_gadget.c b/drivers/usb/musb/musb_gadget.c
-index 293e5b8..1e40a81 100644
---- a/drivers/usb/musb/musb_gadget.c
-+++ b/drivers/usb/musb/musb_gadget.c
-@@ -1680,39 +1680,7 @@ static int musb_gadget_pullup(struct usb_gadget *gadget, int is_on)
- 	return 0;
- }
- 
--#ifdef CONFIG_BLACKFIN
--static struct usb_ep *musb_match_ep(struct usb_gadget *g,
--		struct usb_endpoint_descriptor *desc,
--		struct usb_ss_ep_comp_descriptor *ep_comp)
--{
--	struct usb_ep *ep = NULL;
--
--	switch (usb_endpoint_type(desc)) {
--	case USB_ENDPOINT_XFER_ISOC:
--	case USB_ENDPOINT_XFER_BULK:
--		if (usb_endpoint_dir_in(desc))
--			ep = gadget_find_ep_by_name(g, "ep5in");
--		else
--			ep = gadget_find_ep_by_name(g, "ep6out");
--		break;
--	case USB_ENDPOINT_XFER_INT:
--		if (usb_endpoint_dir_in(desc))
--			ep = gadget_find_ep_by_name(g, "ep1in");
--		else
--			ep = gadget_find_ep_by_name(g, "ep2out");
--		break;
--	default:
--		break;
--	}
--
--	if (ep && usb_gadget_ep_match_desc(g, ep, desc, ep_comp))
--		return ep;
--
--	return NULL;
--}
--#else
- #define musb_match_ep NULL
--#endif
- 
- static int musb_gadget_start(struct usb_gadget *g,
- 		struct usb_gadget_driver *driver);
-diff --git a/drivers/usb/musb/musb_regs.h b/drivers/usb/musb/musb_regs.h
-index a4beba1..8846662 100644
---- a/drivers/usb/musb/musb_regs.h
-+++ b/drivers/usb/musb/musb_regs.h
-@@ -195,8 +195,6 @@
- #define MUSB_HUBADDR_MULTI_TT		0x80
- 
- 
--#ifndef CONFIG_BLACKFIN
--
- /*
-  * Common USB registers
-  */
-@@ -416,184 +414,4 @@ static inline u8 musb_read_txhubport(struct musb *musb, u8 epnum)
- 			  musb->io.busctl_offset(epnum, MUSB_TXHUBPORT));
- }
- 
--#else /* CONFIG_BLACKFIN */
--
--#define USB_BASE		USB_FADDR
--#define USB_OFFSET(reg)		(reg - USB_BASE)
--
--/*
-- * Common USB registers
-- */
--#define MUSB_FADDR		USB_OFFSET(USB_FADDR)	/* 8-bit */
--#define MUSB_POWER		USB_OFFSET(USB_POWER)	/* 8-bit */
--#define MUSB_INTRTX		USB_OFFSET(USB_INTRTX)	/* 16-bit */
--#define MUSB_INTRRX		USB_OFFSET(USB_INTRRX)
--#define MUSB_INTRTXE		USB_OFFSET(USB_INTRTXE)
--#define MUSB_INTRRXE		USB_OFFSET(USB_INTRRXE)
--#define MUSB_INTRUSB		USB_OFFSET(USB_INTRUSB)	/* 8 bit */
--#define MUSB_INTRUSBE		USB_OFFSET(USB_INTRUSBE)/* 8 bit */
--#define MUSB_FRAME		USB_OFFSET(USB_FRAME)
--#define MUSB_INDEX		USB_OFFSET(USB_INDEX)	/* 8 bit */
--#define MUSB_TESTMODE		USB_OFFSET(USB_TESTMODE)/* 8 bit */
--
--/*
-- * Additional Control Registers
-- */
--
--#define MUSB_DEVCTL		USB_OFFSET(USB_OTG_DEV_CTL)	/* 8 bit */
--
--#define MUSB_LINKINFO		USB_OFFSET(USB_LINKINFO)/* 8 bit */
--#define MUSB_VPLEN		USB_OFFSET(USB_VPLEN)	/* 8 bit */
--#define MUSB_HS_EOF1		USB_OFFSET(USB_HS_EOF1)	/* 8 bit */
--#define MUSB_FS_EOF1		USB_OFFSET(USB_FS_EOF1)	/* 8 bit */
--#define MUSB_LS_EOF1		USB_OFFSET(USB_LS_EOF1)	/* 8 bit */
--
--/* Offsets to endpoint registers */
--#define MUSB_TXMAXP		0x00
--#define MUSB_TXCSR		0x04
--#define MUSB_CSR0		MUSB_TXCSR	/* Re-used for EP0 */
--#define MUSB_RXMAXP		0x08
--#define MUSB_RXCSR		0x0C
--#define MUSB_RXCOUNT		0x10
--#define MUSB_COUNT0		MUSB_RXCOUNT	/* Re-used for EP0 */
--#define MUSB_TXTYPE		0x14
--#define MUSB_TYPE0		MUSB_TXTYPE	/* Re-used for EP0 */
--#define MUSB_TXINTERVAL		0x18
--#define MUSB_NAKLIMIT0		MUSB_TXINTERVAL	/* Re-used for EP0 */
--#define MUSB_RXTYPE		0x1C
--#define MUSB_RXINTERVAL		0x20
--#define MUSB_TXCOUNT		0x28
--
--/* Offsets to endpoint registers in indexed model (using INDEX register) */
--#define MUSB_INDEXED_OFFSET(_epnum, _offset)	\
--	(0x40 + (_offset))
--
--/* Offsets to endpoint registers in flat models */
--#define MUSB_FLAT_OFFSET(_epnum, _offset)	\
--	(USB_OFFSET(USB_EP_NI0_TXMAXP) + (0x40 * (_epnum)) + (_offset))
--
--/* Not implemented - HW has separate Tx/Rx FIFO */
--#define MUSB_TXCSR_MODE			0x0000
--
--static inline void musb_write_txfifosz(void __iomem *mbase, u8 c_size)
--{
--}
--
--static inline void musb_write_txfifoadd(void __iomem *mbase, u16 c_off)
--{
--}
--
--static inline void musb_write_rxfifosz(void __iomem *mbase, u8 c_size)
--{
--}
--
--static inline void  musb_write_rxfifoadd(void __iomem *mbase, u16 c_off)
--{
--}
--
--static inline void musb_write_ulpi_buscontrol(void __iomem *mbase, u8 val)
--{
--}
--
--static inline u8 musb_read_txfifosz(void __iomem *mbase)
--{
--	return 0;
--}
--
--static inline u16 musb_read_txfifoadd(void __iomem *mbase)
--{
--	return 0;
--}
--
--static inline u8 musb_read_rxfifosz(void __iomem *mbase)
--{
--	return 0;
--}
--
--static inline u16  musb_read_rxfifoadd(void __iomem *mbase)
--{
--	return 0;
--}
--
--static inline u8 musb_read_ulpi_buscontrol(void __iomem *mbase)
--{
--	return 0;
--}
--
--static inline u8 musb_read_configdata(void __iomem *mbase)
--{
--	return 0;
--}
--
--static inline u16 musb_read_hwvers(void __iomem *mbase)
--{
--	/*
--	 * This register is invisible on Blackfin, actually the MUSB
--	 * RTL version of Blackfin is 1.9, so just hardcode its value.
--	 */
--	return MUSB_HWVERS_1900;
--}
--
--static inline void musb_write_rxfunaddr(void __iomem *mbase, u8 epnum,
--		u8 qh_addr_req)
--{
--}
--
--static inline void musb_write_rxhubaddr(void __iomem *mbase, u8 epnum,
--		u8 qh_h_addr_reg)
--{
--}
--
--static inline void musb_write_rxhubport(void __iomem *mbase, u8 epnum,
--		u8 qh_h_port_reg)
--{
--}
--
--static inline void  musb_write_txfunaddr(void __iomem *mbase, u8 epnum,
--		u8 qh_addr_reg)
--{
--}
--
--static inline void  musb_write_txhubaddr(void __iomem *mbase, u8 epnum,
--		u8 qh_addr_reg)
--{
--}
--
--static inline void  musb_write_txhubport(void __iomem *mbase, u8 epnum,
--		u8 qh_h_port_reg)
--{
--}
--
--static inline u8 musb_read_rxfunaddr(void __iomem *mbase, u8 epnum)
--{
--	return 0;
--}
--
--static inline u8 musb_read_rxhubaddr(void __iomem *mbase, u8 epnum)
--{
--	return 0;
--}
--
--static inline u8 musb_read_rxhubport(void __iomem *mbase, u8 epnum)
--{
--	return 0;
--}
--
--static inline u8  musb_read_txfunaddr(void __iomem *mbase, u8 epnum)
--{
--	return 0;
--}
--
--static inline u8  musb_read_txhubaddr(void __iomem *mbase, u8 epnum)
--{
--	return 0;
--}
--
--static inline u8 musb_read_txhubport(void __iomem *mbase, u8 epnum)
--{
--	return 0;
--}
--
--#endif /* CONFIG_BLACKFIN */
--
- #endif	/* __MUSB_REGS_H__ */
-diff --git a/drivers/usb/musb/musbhsdma.c b/drivers/usb/musb/musbhsdma.c
-index 21fb9e6..4389fc3 100644
---- a/drivers/usb/musb/musbhsdma.c
-+++ b/drivers/usb/musb/musbhsdma.c
-@@ -235,11 +235,6 @@ static irqreturn_t dma_controller_irq(int irq, void *private_data)
- 
- 	int_hsdma = musb_readb(mbase, MUSB_HSDMA_INTR);
- 
--#ifdef CONFIG_BLACKFIN
--	/* Clear DMA interrupt flags */
--	musb_writeb(mbase, MUSB_HSDMA_INTR, int_hsdma);
--#endif
--
- 	if (!int_hsdma) {
- 		musb_dbg(musb, "spurious DMA irq");
- 
-diff --git a/drivers/usb/musb/musbhsdma.h b/drivers/usb/musb/musbhsdma.h
-index 44f7983..51bc12f 100644
---- a/drivers/usb/musb/musbhsdma.h
-+++ b/drivers/usb/musb/musbhsdma.h
-@@ -6,8 +6,6 @@
-  * Copyright (C) 2005-2007 by Texas Instruments
-  */
-
--#ifndef CONFIG_BLACKFIN
--
- #define MUSB_HSDMA_BASE                0x200
- #define MUSB_HSDMA_INTR                (MUSB_HSDMA_BASE + 0)
- #define MUSB_HSDMA_CONTROL             0x4
-@@ -34,68 +32,6 @@
-        musb_writel(mbase, \
-                    MUSB_HSDMA_CHANNEL_OFFSET(bchannel, MUSB_HSDMA_COUNT), \
-                    len)
--#else
--
--#define MUSB_HSDMA_BASE                0x400
--#define MUSB_HSDMA_INTR                (MUSB_HSDMA_BASE + 0)
--#define MUSB_HSDMA_CONTROL             0x04
--#define MUSB_HSDMA_ADDR_LOW            0x08
--#define MUSB_HSDMA_ADDR_HIGH           0x0C
--#define MUSB_HSDMA_COUNT_LOW           0x10
--#define MUSB_HSDMA_COUNT_HIGH          0x14
--
--#define MUSB_HSDMA_CHANNEL_OFFSET(_bchannel, _offset)          \
--               (MUSB_HSDMA_BASE + (_bchannel * 0x20) + _offset)
--
--static inline u32 musb_read_hsdma_addr(void __iomem *mbase, u8 bchannel)
--{
--       u32 addr = musb_readw(mbase,
--               MUSB_HSDMA_CHANNEL_OFFSET(bchannel, MUSB_HSDMA_ADDR_HIGH));
--
--       addr = addr << 16;
--
--       addr |= musb_readw(mbase,
--               MUSB_HSDMA_CHANNEL_OFFSET(bchannel, MUSB_HSDMA_ADDR_LOW));
--
--       return addr;
--}
--
--static inline void musb_write_hsdma_addr(void __iomem *mbase,
--                               u8 bchannel, dma_addr_t dma_addr)
--{
--       musb_writew(mbase,
--               MUSB_HSDMA_CHANNEL_OFFSET(bchannel, MUSB_HSDMA_ADDR_LOW),
--               dma_addr);
--       musb_writew(mbase,
--               MUSB_HSDMA_CHANNEL_OFFSET(bchannel, MUSB_HSDMA_ADDR_HIGH),
--               (dma_addr >> 16));
--}
--
--static inline u32 musb_read_hsdma_count(void __iomem *mbase, u8 bchannel)
--{
--       u32 count = musb_readw(mbase,
--               MUSB_HSDMA_CHANNEL_OFFSET(bchannel, MUSB_HSDMA_COUNT_HIGH));
--
--       count = count << 16;
--
--       count |= musb_readw(mbase,
--               MUSB_HSDMA_CHANNEL_OFFSET(bchannel, MUSB_HSDMA_COUNT_LOW));
--
--       return count;
--}
--
--static inline void musb_write_hsdma_count(void __iomem *mbase,
--                               u8 bchannel, u32 len)
--{
--       musb_writew(mbase,
--               MUSB_HSDMA_CHANNEL_OFFSET(bchannel, MUSB_HSDMA_COUNT_LOW),len);
--       musb_writew(mbase,
--               MUSB_HSDMA_CHANNEL_OFFSET(bchannel, MUSB_HSDMA_COUNT_HIGH),
--               (len >> 16));
--}
--
--#endif /* CONFIG_BLACKFIN */
--
- /* control register (16-bit): */
- #define MUSB_HSDMA_ENABLE_SHIFT                0
- #define MUSB_HSDMA_TRANSMIT_SHIFT      1
-diff --git a/include/linux/usb/musb.h b/include/linux/usb/musb.h
-index 5d19e67..9eb908a 100644
---- a/include/linux/usb/musb.h
-+++ b/include/linux/usb/musb.h
-@@ -89,13 +89,6 @@ struct musb_hdrc_config {
- 	u8		ram_bits;	/* ram address size */
- 
- 	struct musb_hdrc_eps_bits *eps_bits __deprecated;
--#ifdef CONFIG_BLACKFIN
--	/* A GPIO controlling VRSEL in Blackfin */
--	unsigned int	gpio_vrsel;
--	unsigned int	gpio_vrsel_active;
--	/* musb CLKIN in Blackfin in MHZ */
--	unsigned char   clkin;
--#endif
- 	u32		maximum_speed;
- };
- 
 -- 
 2.7.4
 
