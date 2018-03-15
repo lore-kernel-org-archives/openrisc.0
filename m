@@ -1,10 +1,10 @@
 From: Aaron Wu <aaron.wu@analog.com>
-Date: Thu, 15 Mar 2018 18:50:21 +0800
-Subject: [OpenRISC] [Blackfin removal] [PATCH 21/28] pcmcia: Remove Blackfin
-	PCMCIA support
+Date: Thu, 15 Mar 2018 18:50:23 +0800
+Subject: [OpenRISC] [Blackfin removal] [PATCH 23/28] char: Remove Blackfin
+	OTP support
 In-Reply-To: <1521111028-19856-1-git-send-email-aaron.wu@analog.com>
 References: <1521111028-19856-1-git-send-email-aaron.wu@analog.com>
-Message-ID: <1521111028-19856-21-git-send-email-aaron.wu@analog.com>
+Message-ID: <1521111028-19856-23-git-send-email-aaron.wu@analog.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,365 +13,307 @@ To: openrisc@lists.librecores.org
 
 Signed-off-by: Aaron Wu <aaron.wu@analog.com>
 
-Remove Blackfin PCMCIA support
+Remove Blackfin OTP support
 ---
- drivers/pcmcia/Kconfig          |   7 -
- drivers/pcmcia/Makefile         |   1 -
- drivers/pcmcia/bfin_cf_pcmcia.c | 316 ----------------------------------------
- 3 files changed, 324 deletions(-)
- delete mode 100644 drivers/pcmcia/bfin_cf_pcmcia.c
+ drivers/char/Kconfig    |  28 ------
+ drivers/char/Makefile   |   1 -
+ drivers/char/bfin-otp.c | 237 ------------------------------------------------
+ 3 files changed, 266 deletions(-)
+ delete mode 100644 drivers/char/bfin-otp.c
 
-diff --git a/drivers/pcmcia/Kconfig b/drivers/pcmcia/Kconfig
-index d3c378b..9f63c66 100644
---- a/drivers/pcmcia/Kconfig
-+++ b/drivers/pcmcia/Kconfig
-@@ -266,13 +266,6 @@ config OMAP_CF
- 	  Say Y here to support the CompactFlash controller on OMAP.
- 	  Note that this doesn't support "True IDE" mode.
+diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
+index c28dca0..8f64ce8 100644
+--- a/drivers/char/Kconfig
++++ b/drivers/char/Kconfig
+@@ -66,34 +66,6 @@ config TTY_PRINTK
  
--config BFIN_CFPCMCIA
--	tristate "Blackfin CompactFlash PCMCIA Driver"
--	depends on PCMCIA && BLACKFIN
+ 	  If unsure, say N.
+ 
+-config BFIN_OTP
+-	tristate "Blackfin On-Chip OTP Memory Support"
+-	depends on BLACKFIN && (BF51x || BF52x || BF54x)
+-	default y
 -	help
--	  Say Y here to support the CompactFlash PCMCIA driver for Blackfin.
+-	  If you say Y here, you will get support for a character device
+-	  interface into the One Time Programmable memory pages that are
+-	  stored on the Blackfin processor.  This will not get you access
+-	  to the secure memory pages however.  You will need to write your
+-	  own secure code and reader for that.
 -
+-	  To compile this driver as a module, choose M here: the module
+-	  will be called bfin-otp.
 -
- config AT91_CF
- 	tristate "AT91 CompactFlash Controller"
- 	depends on PCI
-diff --git a/drivers/pcmcia/Makefile b/drivers/pcmcia/Makefile
-index e7dae16..55a2268 100644
---- a/drivers/pcmcia/Makefile
-+++ b/drivers/pcmcia/Makefile
-@@ -34,7 +34,6 @@ obj-$(CONFIG_PCMCIA_BCM63XX)			+= bcm63xx_pcmcia.o
- obj-$(CONFIG_PCMCIA_VRC4171)			+= vrc4171_card.o
- obj-$(CONFIG_PCMCIA_VRC4173)			+= vrc4173_cardu.o
- obj-$(CONFIG_OMAP_CF)				+= omap_cf.o
--obj-$(CONFIG_BFIN_CFPCMCIA)			+= bfin_cf_pcmcia.o
- obj-$(CONFIG_AT91_CF)				+= at91_cf.o
- obj-$(CONFIG_ELECTRA_CF)			+= electra_cf.o
- obj-$(CONFIG_PCMCIA_ALCHEMY_DEVBOARD)		+= db1xxx_ss.o
-diff --git a/drivers/pcmcia/bfin_cf_pcmcia.c b/drivers/pcmcia/bfin_cf_pcmcia.c
+-	  If unsure, it is safe to say Y.
+-
+-config BFIN_OTP_WRITE_ENABLE
+-	bool "Enable writing support of OTP pages"
+-	depends on BFIN_OTP
+-	default n
+-	help
+-	  If you say Y here, you will enable support for writing of the
+-	  OTP pages.  This is dangerous by nature as you can only program
+-	  the pages once, so only enable this option when you actually
+-	  need it so as to not inadvertently clobber data.
+-
+-	  If unsure, say N.
+-
+ config PRINTER
+ 	tristate "Parallel printer support"
+ 	depends on PARPORT
+diff --git a/drivers/char/Makefile b/drivers/char/Makefile
+index 7dc3abe..f28d07b 100644
+--- a/drivers/char/Makefile
++++ b/drivers/char/Makefile
+@@ -14,7 +14,6 @@ obj-$(CONFIG_MSPEC)		+= mspec.o
+ obj-$(CONFIG_UV_MMTIMER)	+= uv_mmtimer.o
+ obj-$(CONFIG_IBM_BSR)		+= bsr.o
+ obj-$(CONFIG_SGI_MBCS)		+= mbcs.o
+-obj-$(CONFIG_BFIN_OTP)		+= bfin-otp.o
+ 
+ obj-$(CONFIG_PRINTER)		+= lp.o
+ 
+diff --git a/drivers/char/bfin-otp.c b/drivers/char/bfin-otp.c
 deleted file mode 100644
-index 00a296d..0000000
---- a/drivers/pcmcia/bfin_cf_pcmcia.c
+index 0584025..0000000
+--- a/drivers/char/bfin-otp.c
 +++ /dev/null
-@@ -1,316 +0,0 @@
+@@ -1,237 +0,0 @@
 -/*
-- * file: drivers/pcmcia/bfin_cf.c
+- * Blackfin On-Chip OTP Memory Interface
 - *
-- * based on: drivers/pcmcia/omap_cf.c
-- * omap_cf.c -- OMAP 16xx CompactFlash controller driver
+- * Copyright 2007-2009 Analog Devices Inc.
 - *
-- * Copyright (c) 2005 David Brownell
-- * Copyright (c) 2006-2008 Michael Hennerich Analog Devices Inc.
+- * Enter bugs at http://blackfin.uclinux.org/
 - *
-- * bugs:         enter bugs at http://blackfin.uclinux.org/
-- *
-- * this program is free software; you can redistribute it and/or modify
-- * it under the terms of the gnu general public license as published by
-- * the free software foundation; either version 2, or (at your option)
-- * any later version.
-- *
-- * this program is distributed in the hope that it will be useful,
-- * but without any warranty; without even the implied warranty of
-- * merchantability or fitness for a particular purpose.  see the
-- * gnu general public license for more details.
-- *
-- * you should have received a copy of the gnu general public license
-- * along with this program; see the file copying.
-- * if not, write to the free software foundation,
-- * 59 temple place - suite 330, boston, ma 02111-1307, usa.
+- * Licensed under the GPL-2 or later.
 - */
 -
--#include <linux/module.h>
--#include <linux/kernel.h>
--#include <linux/sched.h>
--#include <linux/platform_device.h>
+-#include <linux/device.h>
 -#include <linux/errno.h>
+-#include <linux/fs.h>
 -#include <linux/init.h>
--#include <linux/slab.h>
--#include <linux/delay.h>
--#include <linux/interrupt.h>
--#include <linux/irq.h>
--#include <linux/io.h>
--#include <linux/gpio.h>
+-#include <linux/miscdevice.h>
+-#include <linux/module.h>
+-#include <linux/mutex.h>
+-#include <linux/types.h>
+-#include <mtd/mtd-abi.h>
 -
--#include <pcmcia/ss.h>
--#include <pcmcia/cisreg.h>
+-#include <asm/blackfin.h>
+-#include <asm/bfrom.h>
+-#include <linux/uaccess.h>
 -
--#define	SZ_1K	0x00000400
--#define	SZ_8K	0x00002000
--#define	SZ_2K	(2 * SZ_1K)
+-#define stamp(fmt, args...) pr_debug("%s:%i: " fmt "\n", __func__, __LINE__, ## args)
+-#define stampit() stamp("here i am")
+-#define pr_init(fmt, args...) ({ static const __initconst char __fmt[] = fmt; printk(__fmt, ## args); })
 -
--#define	POLL_INTERVAL	(2 * HZ)
+-#define DRIVER_NAME "bfin-otp"
+-#define PFX DRIVER_NAME ": "
 -
--#define	CF_ATASEL_ENA 	0x20311802	/* Inverts RESET */
--#define	CF_ATASEL_DIS 	0x20311800
+-static DEFINE_MUTEX(bfin_otp_lock);
 -
--#define bfin_cf_present(pfx) (gpio_get_value(pfx))
+-/**
+- *	bfin_otp_read - Read OTP pages
+- *
+- *	All reads must be in half page chunks (half page == 64 bits).
+- */
+-static ssize_t bfin_otp_read(struct file *file, char __user *buff, size_t count, loff_t *pos)
+-{
+-	ssize_t bytes_done;
+-	u32 page, flags, ret;
+-	u64 content;
 -
--/*--------------------------------------------------------------------------*/
+-	stampit();
 -
--static const char driver_name[] = "bfin_cf_pcmcia";
+-	if (count % sizeof(u64))
+-		return -EMSGSIZE;
 -
--struct bfin_cf_socket {
--	struct pcmcia_socket socket;
+-	if (mutex_lock_interruptible(&bfin_otp_lock))
+-		return -ERESTARTSYS;
 -
--	struct timer_list timer;
--	unsigned present:1;
--	unsigned active:1;
+-	bytes_done = 0;
+-	page = *pos / (sizeof(u64) * 2);
+-	while (bytes_done < count) {
+-		flags = (*pos % (sizeof(u64) * 2) ? OTP_UPPER_HALF : OTP_LOWER_HALF);
+-		stamp("processing page %i (0x%x:%s)", page, flags,
+-			(flags & OTP_UPPER_HALF ? "upper" : "lower"));
+-		ret = bfrom_OtpRead(page, flags, &content);
+-		if (ret & OTP_MASTER_ERROR) {
+-			stamp("error from otp: 0x%x", ret);
+-			bytes_done = -EIO;
+-			break;
+-		}
+-		if (copy_to_user(buff + bytes_done, &content, sizeof(content))) {
+-			bytes_done = -EFAULT;
+-			break;
+-		}
+-		if (flags & OTP_UPPER_HALF)
+-			++page;
+-		bytes_done += sizeof(content);
+-		*pos += sizeof(content);
+-	}
 -
--	struct platform_device *pdev;
--	unsigned long phys_cf_io;
--	unsigned long phys_cf_attr;
--	u_int irq;
--	u_short cd_pfx;
+-	mutex_unlock(&bfin_otp_lock);
+-
+-	return bytes_done;
+-}
+-
+-#ifdef CONFIG_BFIN_OTP_WRITE_ENABLE
+-static bool allow_writes;
+-
+-/**
+- *	bfin_otp_init_timing - setup OTP timing parameters
+- *
+- *	Required before doing any write operation.  Algorithms from HRM.
+- */
+-static u32 bfin_otp_init_timing(void)
+-{
+-	u32 tp1, tp2, tp3, timing;
+-
+-	tp1 = get_sclk() / 1000000;
+-	tp2 = (2 * get_sclk() / 10000000) << 8;
+-	tp3 = (0x1401) << 15;
+-	timing = tp1 | tp2 | tp3;
+-	if (bfrom_OtpCommand(OTP_INIT, timing))
+-		return 0;
+-
+-	return timing;
+-}
+-
+-/**
+- *	bfin_otp_deinit_timing - set timings to only allow reads
+- *
+- *	Should be called after all writes are done.
+- */
+-static void bfin_otp_deinit_timing(u32 timing)
+-{
+-	/* mask bits [31:15] so that any attempts to write fail */
+-	bfrom_OtpCommand(OTP_CLOSE, 0);
+-	bfrom_OtpCommand(OTP_INIT, timing & ~(-1 << 15));
+-	bfrom_OtpCommand(OTP_CLOSE, 0);
+-}
+-
+-/**
+- *	bfin_otp_write - write OTP pages
+- *
+- *	All writes must be in half page chunks (half page == 64 bits).
+- */
+-static ssize_t bfin_otp_write(struct file *filp, const char __user *buff, size_t count, loff_t *pos)
+-{
+-	ssize_t bytes_done;
+-	u32 timing, page, base_flags, flags, ret;
+-	u64 content;
+-
+-	if (!allow_writes)
+-		return -EACCES;
+-
+-	if (count % sizeof(u64))
+-		return -EMSGSIZE;
+-
+-	if (mutex_lock_interruptible(&bfin_otp_lock))
+-		return -ERESTARTSYS;
+-
+-	stampit();
+-
+-	timing = bfin_otp_init_timing();
+-	if (timing == 0) {
+-		mutex_unlock(&bfin_otp_lock);
+-		return -EIO;
+-	}
+-
+-	base_flags = OTP_CHECK_FOR_PREV_WRITE;
+-
+-	bytes_done = 0;
+-	page = *pos / (sizeof(u64) * 2);
+-	while (bytes_done < count) {
+-		flags = base_flags | (*pos % (sizeof(u64) * 2) ? OTP_UPPER_HALF : OTP_LOWER_HALF);
+-		stamp("processing page %i (0x%x:%s) from %p", page, flags,
+-			(flags & OTP_UPPER_HALF ? "upper" : "lower"), buff + bytes_done);
+-		if (copy_from_user(&content, buff + bytes_done, sizeof(content))) {
+-			bytes_done = -EFAULT;
+-			break;
+-		}
+-		ret = bfrom_OtpWrite(page, flags, &content);
+-		if (ret & OTP_MASTER_ERROR) {
+-			stamp("error from otp: 0x%x", ret);
+-			bytes_done = -EIO;
+-			break;
+-		}
+-		if (flags & OTP_UPPER_HALF)
+-			++page;
+-		bytes_done += sizeof(content);
+-		*pos += sizeof(content);
+-	}
+-
+-	bfin_otp_deinit_timing(timing);
+-
+-	mutex_unlock(&bfin_otp_lock);
+-
+-	return bytes_done;
+-}
+-
+-static long bfin_otp_ioctl(struct file *filp, unsigned cmd, unsigned long arg)
+-{
+-	stampit();
+-
+-	switch (cmd) {
+-	case OTPLOCK: {
+-		u32 timing;
+-		int ret = -EIO;
+-
+-		if (!allow_writes)
+-			return -EACCES;
+-
+-		if (mutex_lock_interruptible(&bfin_otp_lock))
+-			return -ERESTARTSYS;
+-
+-		timing = bfin_otp_init_timing();
+-		if (timing) {
+-			u32 otp_result = bfrom_OtpWrite(arg, OTP_LOCK, NULL);
+-			stamp("locking page %lu resulted in 0x%x", arg, otp_result);
+-			if (!(otp_result & OTP_MASTER_ERROR))
+-				ret = 0;
+-
+-			bfin_otp_deinit_timing(timing);
+-		}
+-
+-		mutex_unlock(&bfin_otp_lock);
+-
+-		return ret;
+-	}
+-
+-	case MEMLOCK:
+-		allow_writes = false;
+-		return 0;
+-
+-	case MEMUNLOCK:
+-		allow_writes = true;
+-		return 0;
+-	}
+-
+-	return -EINVAL;
+-}
+-#else
+-# define bfin_otp_write NULL
+-# define bfin_otp_ioctl NULL
+-#endif
+-
+-static const struct file_operations bfin_otp_fops = {
+-	.owner          = THIS_MODULE,
+-	.unlocked_ioctl = bfin_otp_ioctl,
+-	.read           = bfin_otp_read,
+-	.write          = bfin_otp_write,
+-	.llseek		= default_llseek,
 -};
 -
--/*--------------------------------------------------------------------------*/
--static int bfin_cf_reset(void)
--{
--	outw(0, CF_ATASEL_ENA);
--	mdelay(200);
--	outw(0, CF_ATASEL_DIS);
--
--	return 0;
--}
--
--static int bfin_cf_ss_init(struct pcmcia_socket *s)
--{
--	return 0;
--}
--
--/* the timer is primarily to kick this socket's pccardd */
--static void bfin_cf_timer(struct timer_list *t)
--{
--	struct bfin_cf_socket *cf = from_timer(cf, t, timer);
--	unsigned short present = bfin_cf_present(cf->cd_pfx);
--
--	if (present != cf->present) {
--		cf->present = present;
--		dev_dbg(&cf->pdev->dev, ": card %s\n",
--			 present ? "present" : "gone");
--		pcmcia_parse_events(&cf->socket, SS_DETECT);
--	}
--
--	if (cf->active)
--		mod_timer(&cf->timer, jiffies + POLL_INTERVAL);
--}
--
--static int bfin_cf_get_status(struct pcmcia_socket *s, u_int *sp)
--{
--	struct bfin_cf_socket *cf;
--
--	if (!sp)
--		return -EINVAL;
--
--	cf = container_of(s, struct bfin_cf_socket, socket);
--
--	if (bfin_cf_present(cf->cd_pfx)) {
--		*sp = SS_READY | SS_DETECT | SS_POWERON | SS_3VCARD;
--		s->pcmcia_irq = 0;
--		s->pci_irq = cf->irq;
--
--	} else
--		*sp = 0;
--	return 0;
--}
--
--static int
--bfin_cf_set_socket(struct pcmcia_socket *sock, struct socket_state_t *s)
--{
--
--	struct bfin_cf_socket *cf;
--	cf = container_of(sock, struct bfin_cf_socket, socket);
--
--	switch (s->Vcc) {
--	case 0:
--	case 33:
--		break;
--	case 50:
--		break;
--	default:
--		return -EINVAL;
--	}
--
--	if (s->flags & SS_RESET) {
--		disable_irq(cf->irq);
--		bfin_cf_reset();
--		enable_irq(cf->irq);
--	}
--
--	dev_dbg(&cf->pdev->dev, ": Vcc %d, io_irq %d, flags %04x csc %04x\n",
--		 s->Vcc, s->io_irq, s->flags, s->csc_mask);
--
--	return 0;
--}
--
--static int bfin_cf_ss_suspend(struct pcmcia_socket *s)
--{
--	return bfin_cf_set_socket(s, &dead_socket);
--}
--
--/* regions are 2K each:  mem, attrib, io (and reserved-for-ide) */
--
--static int bfin_cf_set_io_map(struct pcmcia_socket *s, struct pccard_io_map *io)
--{
--	struct bfin_cf_socket *cf;
--
--	cf = container_of(s, struct bfin_cf_socket, socket);
--	io->flags &= MAP_ACTIVE | MAP_ATTRIB | MAP_16BIT;
--	io->start = cf->phys_cf_io;
--	io->stop = io->start + SZ_2K - 1;
--	return 0;
--}
--
--static int
--bfin_cf_set_mem_map(struct pcmcia_socket *s, struct pccard_mem_map *map)
--{
--	struct bfin_cf_socket *cf;
--
--	if (map->card_start)
--		return -EINVAL;
--	cf = container_of(s, struct bfin_cf_socket, socket);
--	map->static_start = cf->phys_cf_io;
--	map->flags &= MAP_ACTIVE | MAP_ATTRIB | MAP_16BIT;
--	if (map->flags & MAP_ATTRIB)
--		map->static_start = cf->phys_cf_attr;
--
--	return 0;
--}
--
--static struct pccard_operations bfin_cf_ops = {
--	.init = bfin_cf_ss_init,
--	.suspend = bfin_cf_ss_suspend,
--	.get_status = bfin_cf_get_status,
--	.set_socket = bfin_cf_set_socket,
--	.set_io_map = bfin_cf_set_io_map,
--	.set_mem_map = bfin_cf_set_mem_map,
+-static struct miscdevice bfin_otp_misc_device = {
+-	.minor    = MISC_DYNAMIC_MINOR,
+-	.name     = DRIVER_NAME,
+-	.fops     = &bfin_otp_fops,
 -};
+-module_misc_device(bfin_otp_misc_device);
 -
--/*--------------------------------------------------------------------------*/
--
--static int bfin_cf_probe(struct platform_device *pdev)
--{
--	struct bfin_cf_socket *cf;
--	struct resource *io_mem, *attr_mem;
--	int irq;
--	unsigned short cd_pfx;
--	int status = 0;
--
--	dev_info(&pdev->dev, "Blackfin CompactFlash/PCMCIA Socket Driver\n");
--
--	irq = platform_get_irq(pdev, 0);
--	if (irq <= 0)
--		return -EINVAL;
--
--	cd_pfx = platform_get_irq(pdev, 1);	/*Card Detect GPIO PIN */
--
--	if (gpio_request(cd_pfx, "pcmcia: CD")) {
--		dev_err(&pdev->dev,
--		       "Failed ro request Card Detect GPIO_%d\n",
--		       cd_pfx);
--		return -EBUSY;
--	}
--	gpio_direction_input(cd_pfx);
--
--	cf = kzalloc(sizeof *cf, GFP_KERNEL);
--	if (!cf) {
--		gpio_free(cd_pfx);
--		return -ENOMEM;
--	}
--
--	cf->cd_pfx = cd_pfx;
--
--	timer_setup(&cf->timer, bfin_cf_timer, 0);
--
--	cf->pdev = pdev;
--	platform_set_drvdata(pdev, cf);
--
--	cf->irq = irq;
--	cf->socket.pci_irq = irq;
--
--	irq_set_irq_type(irq, IRQF_TRIGGER_LOW);
--
--	io_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	attr_mem = platform_get_resource(pdev, IORESOURCE_MEM, 1);
--
--	if (!io_mem || !attr_mem)
--		goto fail0;
--
--	cf->phys_cf_io = io_mem->start;
--	cf->phys_cf_attr = attr_mem->start;
--
--	/* pcmcia layer only remaps "real" memory */
--	cf->socket.io_offset = (unsigned long)
--	    ioremap(cf->phys_cf_io, SZ_2K);
--
--	if (!cf->socket.io_offset)
--		goto fail0;
--
--	dev_err(&pdev->dev, ": on irq %d\n", irq);
--
--	dev_dbg(&pdev->dev, ": %s\n",
--		 bfin_cf_present(cf->cd_pfx) ? "present" : "(not present)");
--
--	cf->socket.owner = THIS_MODULE;
--	cf->socket.dev.parent = &pdev->dev;
--	cf->socket.ops = &bfin_cf_ops;
--	cf->socket.resource_ops = &pccard_static_ops;
--	cf->socket.features = SS_CAP_PCCARD | SS_CAP_STATIC_MAP
--	    | SS_CAP_MEM_ALIGN;
--	cf->socket.map_size = SZ_2K;
--
--	status = pcmcia_register_socket(&cf->socket);
--	if (status < 0)
--		goto fail2;
--
--	cf->active = 1;
--	mod_timer(&cf->timer, jiffies + POLL_INTERVAL);
--	return 0;
--
--fail2:
--	iounmap((void __iomem *)cf->socket.io_offset);
--	release_mem_region(cf->phys_cf_io, SZ_8K);
--
--fail0:
--	gpio_free(cf->cd_pfx);
--	kfree(cf);
--	platform_set_drvdata(pdev, NULL);
--
--	return status;
--}
--
--static int bfin_cf_remove(struct platform_device *pdev)
--{
--	struct bfin_cf_socket *cf = platform_get_drvdata(pdev);
--
--	gpio_free(cf->cd_pfx);
--	cf->active = 0;
--	pcmcia_unregister_socket(&cf->socket);
--	del_timer_sync(&cf->timer);
--	iounmap((void __iomem *)cf->socket.io_offset);
--	release_mem_region(cf->phys_cf_io, SZ_8K);
--	platform_set_drvdata(pdev, NULL);
--	kfree(cf);
--	return 0;
--}
--
--static struct platform_driver bfin_cf_driver = {
--	.driver = {
--		   .name = driver_name,
--		   },
--	.probe = bfin_cf_probe,
--	.remove = bfin_cf_remove,
--};
--
--module_platform_driver(bfin_cf_driver);
--
--MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
--MODULE_DESCRIPTION("BFIN CF/PCMCIA Driver");
+-MODULE_AUTHOR("Mike Frysinger <vapier@gentoo.org>");
+-MODULE_DESCRIPTION("Blackfin OTP Memory Interface");
 -MODULE_LICENSE("GPL");
 -- 
 2.7.4
