@@ -1,10 +1,10 @@
 From: Aaron Wu <aaron.wu@analog.com>
-Date: Thu, 15 Mar 2018 18:50:25 +0800
-Subject: [OpenRISC] [Blackfin removal] [PATCH 25/28] staging: Remove
-	Blackfin iio trigger timer support
+Date: Thu, 15 Mar 2018 18:50:27 +0800
+Subject: [OpenRISC] [Blackfin removal] [PATCH 27/28] documentation: Remove
+	Blackfin documentation
 In-Reply-To: <1521111028-19856-1-git-send-email-aaron.wu@analog.com>
 References: <1521111028-19856-1-git-send-email-aaron.wu@analog.com>
-Message-ID: <1521111028-19856-25-git-send-email-aaron.wu@analog.com>
+Message-ID: <1521111028-19856-27-git-send-email-aaron.wu@analog.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,405 +13,739 @@ To: openrisc@lists.librecores.org
 
 Signed-off-by: Aaron Wu <aaron.wu@analog.com>
 
-Remove Blackfin iio trigger timer support
+Remove Blackfin documentation
 ---
- drivers/staging/iio/Kconfig                       |   1 -
- drivers/staging/iio/Makefile                      |   1 -
- drivers/staging/iio/trigger/Kconfig               |  19 --
- drivers/staging/iio/trigger/Makefile              |   5 -
- drivers/staging/iio/trigger/iio-trig-bfin-timer.c | 292 ----------------------
- drivers/staging/iio/trigger/iio-trig-bfin-timer.h |  25 --
- 6 files changed, 343 deletions(-)
- delete mode 100644 drivers/staging/iio/trigger/Kconfig
- delete mode 100644 drivers/staging/iio/trigger/Makefile
- delete mode 100644 drivers/staging/iio/trigger/iio-trig-bfin-timer.c
- delete mode 100644 drivers/staging/iio/trigger/iio-trig-bfin-timer.h
+ Documentation/00-INDEX                             |  2 -
+ Documentation/admin-guide/kernel-parameters.rst    |  1 -
+ Documentation/admin-guide/kernel-parameters.txt    |  2 +-
+ Documentation/blackfin/00-INDEX                    |  6 --
+ Documentation/blackfin/bfin-gpio-notes.txt         | 71 ----------------------
+ Documentation/blackfin/bfin-spi-notes.txt          | 16 -----
+ .../driver-api/usb/writing_musb_glue_layer.rst     |  3 -
+ .../features/core/BPF-JIT/arch-support.txt         |  1 -
+ .../core/generic-idle-thread/arch-support.txt      |  1 -
+ .../features/core/jump-labels/arch-support.txt     |  1 -
+ .../features/core/tracehook/arch-support.txt       |  1 -
+ .../features/debug/KASAN/arch-support.txt          |  1 -
+ .../debug/gcov-profile-all/arch-support.txt        |  1 -
+ Documentation/features/debug/kgdb/arch-support.txt |  1 -
+ .../debug/kprobes-on-ftrace/arch-support.txt       |  1 -
+ .../features/debug/kprobes/arch-support.txt        |  1 -
+ .../features/debug/kretprobes/arch-support.txt     |  1 -
+ .../features/debug/optprobes/arch-support.txt      |  1 -
+ .../features/debug/stackprotector/arch-support.txt |  1 -
+ .../features/debug/uprobes/arch-support.txt        |  1 -
+ .../debug/user-ret-profiler/arch-support.txt       |  1 -
+ .../features/io/dma-api-debug/arch-support.txt     |  1 -
+ .../features/io/dma-contiguous/arch-support.txt    |  1 -
+ .../features/io/sg-chain/arch-support.txt          |  1 -
+ .../features/lib/strncasecmp/arch-support.txt      |  1 -
+ .../locking/cmpxchg-local/arch-support.txt         |  1 -
+ .../features/locking/lockdep/arch-support.txt      |  1 -
+ .../locking/queued-rwlocks/arch-support.txt        |  1 -
+ .../locking/queued-spinlocks/arch-support.txt      |  1 -
+ .../locking/rwsem-optimized/arch-support.txt       |  1 -
+ .../features/perf/kprobes-event/arch-support.txt   |  1 -
+ .../features/perf/perf-regs/arch-support.txt       |  1 -
+ .../features/perf/perf-stackdump/arch-support.txt  |  1 -
+ .../sched/membarrier-sync-core/arch-support.txt    |  1 -
+ .../features/sched/numa-balancing/arch-support.txt |  1 -
+ .../seccomp/seccomp-filter/arch-support.txt        |  1 -
+ .../time/arch-tick-broadcast/arch-support.txt      |  1 -
+ .../features/time/clockevents/arch-support.txt     |  1 -
+ .../time/context-tracking/arch-support.txt         |  1 -
+ .../features/time/irq-time-acct/arch-support.txt   |  1 -
+ .../time/modern-timekeeping/arch-support.txt       |  1 -
+ .../features/time/virt-cpuacct/arch-support.txt    |  1 -
+ .../features/vm/ELF-ASLR/arch-support.txt          |  1 -
+ .../features/vm/PG_uncached/arch-support.txt       |  1 -
+ Documentation/features/vm/THP/arch-support.txt     |  1 -
+ Documentation/features/vm/TLB/arch-support.txt     |  1 -
+ .../features/vm/huge-vmap/arch-support.txt         |  1 -
+ .../features/vm/ioremap_prot/arch-support.txt      |  1 -
+ .../features/vm/numa-memblock/arch-support.txt     |  1 -
+ .../features/vm/pte_special/arch-support.txt       |  1 -
+ 50 files changed, 1 insertion(+), 143 deletions(-)
+ delete mode 100644 Documentation/blackfin/00-INDEX
+ delete mode 100644 Documentation/blackfin/bfin-gpio-notes.txt
+ delete mode 100644 Documentation/blackfin/bfin-spi-notes.txt
 
-diff --git a/drivers/staging/iio/Kconfig b/drivers/staging/iio/Kconfig
-index 8abc1ab..bd94459 100644
---- a/drivers/staging/iio/Kconfig
-+++ b/drivers/staging/iio/Kconfig
-@@ -14,6 +14,5 @@ source "drivers/staging/iio/impedance-analyzer/Kconfig"
- source "drivers/staging/iio/light/Kconfig"
- source "drivers/staging/iio/meter/Kconfig"
- source "drivers/staging/iio/resolver/Kconfig"
--source "drivers/staging/iio/trigger/Kconfig"
+diff --git a/Documentation/00-INDEX b/Documentation/00-INDEX
+index 7f3a072..2956d7f 100644
+--- a/Documentation/00-INDEX
++++ b/Documentation/00-INDEX
+@@ -66,8 +66,6 @@ backlight/
+ 	- directory with info on controlling backlights in flat panel displays
+ bcache.txt
+ 	- Block-layer cache on fast SSDs to improve slow (raid) I/O performance.
+-blackfin/
+-	- directory with documentation for the Blackfin arch.
+ block/
+ 	- info on the Block I/O (BIO) layer.
+ blockdev/
+diff --git a/Documentation/admin-guide/kernel-parameters.rst b/Documentation/admin-guide/kernel-parameters.rst
+index 7242cbd..b8d0bc0 100644
+--- a/Documentation/admin-guide/kernel-parameters.rst
++++ b/Documentation/admin-guide/kernel-parameters.rst
+@@ -89,7 +89,6 @@ parameter is applicable::
+ 	APM	Advanced Power Management support is enabled.
+ 	ARM	ARM architecture is enabled.
+ 	AX25	Appropriate AX.25 support is enabled.
+-	BLACKFIN Blackfin architecture is enabled.
+ 	CLK	Common clock infrastructure is enabled.
+ 	CMA	Contiguous Memory Area support is enabled.
+ 	DRM	Direct Rendering Management support is enabled.
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index 1d1d53f..0d9b5b7 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -1025,7 +1025,7 @@
+ 			address. The serial port must already be setup
+ 			and configured. Options are not yet supported.
  
- endmenu
-diff --git a/drivers/staging/iio/Makefile b/drivers/staging/iio/Makefile
-index 455bffc..e99a375 100644
---- a/drivers/staging/iio/Makefile
-+++ b/drivers/staging/iio/Makefile
-@@ -13,4 +13,3 @@ obj-y += impedance-analyzer/
- obj-y += light/
- obj-y += meter/
- obj-y += resolver/
--obj-y += trigger/
-diff --git a/drivers/staging/iio/trigger/Kconfig b/drivers/staging/iio/trigger/Kconfig
+-	earlyprintk=	[X86,SH,BLACKFIN,ARM,M68k,S390]
++	earlyprintk=	[X86,SH,ARM,M68k,S390]
+ 			earlyprintk=vga
+ 			earlyprintk=efi
+ 			earlyprintk=sclp
+diff --git a/Documentation/blackfin/00-INDEX b/Documentation/blackfin/00-INDEX
 deleted file mode 100644
-index 0b01d24..0000000
---- a/drivers/staging/iio/trigger/Kconfig
+index 265a1ef..0000000
+--- a/Documentation/blackfin/00-INDEX
 +++ /dev/null
-@@ -1,19 +0,0 @@
--  #
--# Industrial I/O standalone triggers
--#
--comment "Triggers - standalone"
--
--if IIO_TRIGGER
--
--config IIO_BFIN_TMR_TRIGGER
--	tristate "Blackfin TIMER trigger"
--	depends on BLACKFIN
--	select BFIN_GPTIMERS
--	help
--	  Provides support for using a Blackfin timer as IIO triggers.
--	  If unsure, say N (but it's safe to say "Y").
--
--	  To compile this driver as a module, choose M here: the
--	  module will be called iio-trig-bfin-timer.
--
--endif # IIO_TRIGGER
-diff --git a/drivers/staging/iio/trigger/Makefile b/drivers/staging/iio/trigger/Makefile
+@@ -1,6 +0,0 @@
+-00-INDEX
+-	- This file
+-bfin-gpio-notes.txt
+-	- Notes in developing/using bfin-gpio driver.
+-bfin-spi-notes.txt
+-	- Notes for using bfin spi bus driver.
+diff --git a/Documentation/blackfin/bfin-gpio-notes.txt b/Documentation/blackfin/bfin-gpio-notes.txt
 deleted file mode 100644
-index 1300a21..0000000
---- a/drivers/staging/iio/trigger/Makefile
+index d245f39..0000000
+--- a/Documentation/blackfin/bfin-gpio-notes.txt
 +++ /dev/null
-@@ -1,5 +0,0 @@
--#
--# Makefile for triggers not associated with iio-devices
--#
--
--obj-$(CONFIG_IIO_BFIN_TMR_TRIGGER) += iio-trig-bfin-timer.o
-diff --git a/drivers/staging/iio/trigger/iio-trig-bfin-timer.c b/drivers/staging/iio/trigger/iio-trig-bfin-timer.c
-deleted file mode 100644
-index 71f11d7..0000000
---- a/drivers/staging/iio/trigger/iio-trig-bfin-timer.c
-+++ /dev/null
-@@ -1,292 +0,0 @@
+@@ -1,71 +0,0 @@
 -/*
-- * Copyright 2011 Analog Devices Inc.
+- * File:         Documentation/blackfin/bfin-gpio-notes.txt
+- * Based on:
+- * Author:
 - *
-- * Licensed under the GPL-2.
+- * Created:      $Id: bfin-gpio-note.txt 2008-11-24 16:42 grafyang $
+- * Description:  This file contains the notes in developing/using bfin-gpio.
+- *
+- *
+- * Rev:
+- *
+- * Modified:
+- *               Copyright 2004-2008 Analog Devices Inc.
+- *
+- * Bugs:         Enter bugs at http://blackfin.uclinux.org/
 - *
 - */
 -
--#include <linux/kernel.h>
--#include <linux/module.h>
--#include <linux/platform_device.h>
--#include <linux/slab.h>
--#include <linux/interrupt.h>
--#include <linux/irq.h>
--#include <linux/delay.h>
 -
--#include <asm/gptimers.h>
--#include <asm/portmux.h>
+-1. Blackfin GPIO introduction
 -
--#include <linux/iio/iio.h>
--#include <linux/iio/trigger.h>
+-    There are many GPIO pins on Blackfin. Most of these pins are muxed to
+-    multi-functions. They can be configured as peripheral, or just as GPIO,
+-    configured to input with interrupt enabled, or output.
 -
--#include "iio-trig-bfin-timer.h"
+-    For detailed information, please see "arch/blackfin/kernel/bfin_gpio.c",
+-    or the relevant HRM.
 -
--struct bfin_timer {
--	unsigned short id, bit;
--	unsigned long irqbit;
--	int irq;
--	int pin;
--};
 -
--/*
-- * this covers all hardware timer configurations on
-- * all Blackfin derivatives out there today
-- */
+-2. Avoiding resource conflict
 -
--static struct bfin_timer iio_bfin_timer_code[MAX_BLACKFIN_GPTIMERS] = {
--	{TIMER0_id,  TIMER0bit,  TIMER_STATUS_TIMIL0,  IRQ_TIMER0, P_TMR0},
--	{TIMER1_id,  TIMER1bit,  TIMER_STATUS_TIMIL1,  IRQ_TIMER1, P_TMR1},
--	{TIMER2_id,  TIMER2bit,  TIMER_STATUS_TIMIL2,  IRQ_TIMER2, P_TMR2},
--#if (MAX_BLACKFIN_GPTIMERS > 3)
--	{TIMER3_id,  TIMER3bit,  TIMER_STATUS_TIMIL3,  IRQ_TIMER3, P_TMR3},
--	{TIMER4_id,  TIMER4bit,  TIMER_STATUS_TIMIL4,  IRQ_TIMER4, P_TMR4},
--	{TIMER5_id,  TIMER5bit,  TIMER_STATUS_TIMIL5,  IRQ_TIMER5, P_TMR5},
--	{TIMER6_id,  TIMER6bit,  TIMER_STATUS_TIMIL6,  IRQ_TIMER6, P_TMR6},
--	{TIMER7_id,  TIMER7bit,  TIMER_STATUS_TIMIL7,  IRQ_TIMER7, P_TMR7},
--#endif
--#if (MAX_BLACKFIN_GPTIMERS > 8)
--	{TIMER8_id,  TIMER8bit,  TIMER_STATUS_TIMIL8,  IRQ_TIMER8, P_TMR8},
--	{TIMER9_id,  TIMER9bit,  TIMER_STATUS_TIMIL9,  IRQ_TIMER9, P_TMR9},
--	{TIMER10_id, TIMER10bit, TIMER_STATUS_TIMIL10, IRQ_TIMER10, P_TMR10},
--#if (MAX_BLACKFIN_GPTIMERS > 11)
--	{TIMER11_id, TIMER11bit, TIMER_STATUS_TIMIL11, IRQ_TIMER11, P_TMR11},
--#endif
--#endif
--};
+-    Followed function groups are used to avoiding resource conflict,
+-    - Use the pin as peripheral,
+-	int peripheral_request(unsigned short per, const char *label);
+-	int peripheral_request_list(const unsigned short per[], const char *label);
+-	void peripheral_free(unsigned short per);
+-	void peripheral_free_list(const unsigned short per[]);
+-    - Use the pin as GPIO,
+-	int bfin_gpio_request(unsigned gpio, const char *label);
+-	void bfin_gpio_free(unsigned gpio);
+-    - Use the pin as GPIO interrupt,
+-	int bfin_gpio_irq_request(unsigned gpio, const char *label);
+-	void bfin_gpio_irq_free(unsigned gpio);
 -
--struct bfin_tmr_state {
--	struct iio_trigger	*trig;
--	struct bfin_timer	*t;
--	unsigned int		timer_num;
--	bool			output_enable;
--	unsigned int		duty;
--	int			irq;
--};
+-    The request functions will record the function state for a certain pin,
+-    the free functions will clear its function state.
+-    Once a pin is requested, it can't be requested again before it is freed by
+-    previous caller, otherwise kernel will dump stacks, and the request
+-    function fail.
+-    These functions are wrapped by other functions, most of the users need not
+-    care.
 -
--static int iio_bfin_tmr_set_state(struct iio_trigger *trig, bool state)
--{
--	struct bfin_tmr_state *st = iio_trigger_get_drvdata(trig);
 -
--	if (get_gptimer_period(st->t->id) == 0)
--		return -EINVAL;
+-3. But there are some exceptions
+-    - Kernel permit the identical GPIO be requested both as GPIO and GPIO
+-    interrupt.
+-    Some drivers, like gpio-keys, need this behavior. Kernel only print out
+-    warning messages like,
+-	bfin-gpio: GPIO 24 is already reserved by gpio-keys: BTN0, and you are
+-configuring it as IRQ!
 -
--	if (state)
--		enable_gptimers(st->t->bit);
--	else
--		disable_gptimers(st->t->bit);
+-        Note: Consider the case that, if there are two drivers need the
+-	identical GPIO, one of them use it as GPIO, the other use it as
+-	GPIO interrupt. This will really cause resource conflict. So if
+-	there is any abnormal driver behavior, please check the bfin-gpio
+-	warning messages.
 -
--	return 0;
--}
+-    - Kernel permit the identical GPIO be requested from the same driver twice.
 -
--static ssize_t frequency_store(struct device *dev,
--			       struct device_attribute *attr,
--			       const char *buf, size_t count)
--{
--	struct iio_trigger *trig = to_iio_trigger(dev);
--	struct bfin_tmr_state *st = iio_trigger_get_drvdata(trig);
--	unsigned int val;
--	bool enabled;
--	int ret;
 -
--	ret = kstrtouint(buf, 10, &val);
--	if (ret)
--		return ret;
 -
--	if (val > 100000)
--		return -EINVAL;
--
--	enabled = get_enabled_gptimers() & st->t->bit;
--
--	if (enabled)
--		disable_gptimers(st->t->bit);
--
--	if (!val)
--		return count;
--
--	val = get_sclk() / val;
--	if (val <= 4 || val <= st->duty)
--		return -EINVAL;
--
--	set_gptimer_period(st->t->id, val);
--	set_gptimer_pwidth(st->t->id, val - st->duty);
--
--	if (enabled)
--		enable_gptimers(st->t->bit);
--
--	return count;
--}
--
--static ssize_t frequency_show(struct device *dev,
--			      struct device_attribute *attr,
--			      char *buf)
--{
--	struct iio_trigger *trig = to_iio_trigger(dev);
--	struct bfin_tmr_state *st = iio_trigger_get_drvdata(trig);
--	unsigned int period = get_gptimer_period(st->t->id);
--	unsigned long val;
--
--	if (!period)
--		val = 0;
--	else
--		val = get_sclk() / get_gptimer_period(st->t->id);
--
--	return sprintf(buf, "%lu\n", val);
--}
--
--static DEVICE_ATTR_RW(frequency);
--
--static struct attribute *iio_bfin_tmr_trigger_attrs[] = {
--	&dev_attr_frequency.attr,
--	NULL,
--};
--
--static const struct attribute_group iio_bfin_tmr_trigger_attr_group = {
--	.attrs = iio_bfin_tmr_trigger_attrs,
--};
--
--static const struct attribute_group *iio_bfin_tmr_trigger_attr_groups[] = {
--	&iio_bfin_tmr_trigger_attr_group,
--	NULL
--};
--
--static irqreturn_t iio_bfin_tmr_trigger_isr(int irq, void *devid)
--{
--	struct bfin_tmr_state *st = devid;
--
--	clear_gptimer_intr(st->t->id);
--	iio_trigger_poll(st->trig);
--
--	return IRQ_HANDLED;
--}
--
--static int iio_bfin_tmr_get_number(int irq)
--{
--	int i;
--
--	for (i = 0; i < MAX_BLACKFIN_GPTIMERS; i++)
--		if (iio_bfin_timer_code[i].irq == irq)
--			return i;
--
--	return -ENODEV;
--}
--
--static const struct iio_trigger_ops iio_bfin_tmr_trigger_ops = {
--	.set_trigger_state = iio_bfin_tmr_set_state,
--};
--
--static int iio_bfin_tmr_trigger_probe(struct platform_device *pdev)
--{
--	struct iio_bfin_timer_trigger_pdata *pdata;
--	struct bfin_tmr_state *st;
--	unsigned int config;
--	int ret;
--
--	st = devm_kzalloc(&pdev->dev, sizeof(*st), GFP_KERNEL);
--	if (!st)
--		return -ENOMEM;
--
--	st->irq = platform_get_irq(pdev, 0);
--	if (st->irq < 0) {
--		dev_err(&pdev->dev, "No IRQs specified");
--		return st->irq;
--	}
--
--	ret = iio_bfin_tmr_get_number(st->irq);
--	if (ret < 0)
--		return ret;
--
--	st->timer_num = ret;
--	st->t = &iio_bfin_timer_code[st->timer_num];
--
--	st->trig = iio_trigger_alloc("bfintmr%d", st->timer_num);
--	if (!st->trig)
--		return -ENOMEM;
--
--	st->trig->ops = &iio_bfin_tmr_trigger_ops;
--	st->trig->dev.groups = iio_bfin_tmr_trigger_attr_groups;
--	iio_trigger_set_drvdata(st->trig, st);
--	ret = iio_trigger_register(st->trig);
--	if (ret)
--		goto out;
--
--	ret = request_irq(st->irq, iio_bfin_tmr_trigger_isr,
--			  0, st->trig->name, st);
--	if (ret) {
--		dev_err(&pdev->dev,
--			"request IRQ-%d failed", st->irq);
--		goto out1;
--	}
--
--	config = PWM_OUT | PERIOD_CNT | IRQ_ENA;
--
--	pdata =	dev_get_platdata(&pdev->dev);
--	if (pdata && pdata->output_enable) {
--		unsigned long long val;
--
--		st->output_enable = true;
--
--		ret = peripheral_request(st->t->pin, st->trig->name);
--		if (ret)
--			goto out_free_irq;
--
--		val = (unsigned long long)get_sclk() * pdata->duty_ns;
--		do_div(val, NSEC_PER_SEC);
--		st->duty = val;
--
--		/**
--		 * The interrupt will be generated at the end of the period,
--		 * since we want the interrupt to be generated at end of the
--		 * pulse we invert both polarity and duty cycle, so that the
--		 * pulse will be generated directly before the interrupt.
--		 */
--		if (pdata->active_low)
--			config |= PULSE_HI;
--	} else {
--		st->duty = 1;
--		config |= OUT_DIS;
--	}
--
--	set_gptimer_config(st->t->id, config);
--
--	dev_info(&pdev->dev, "iio trigger Blackfin TMR%d, IRQ-%d",
--		 st->timer_num, st->irq);
--	platform_set_drvdata(pdev, st);
--
--	return 0;
--out_free_irq:
--	free_irq(st->irq, st);
--out1:
--	iio_trigger_unregister(st->trig);
--out:
--	iio_trigger_free(st->trig);
--	return ret;
--}
--
--static int iio_bfin_tmr_trigger_remove(struct platform_device *pdev)
--{
--	struct bfin_tmr_state *st = platform_get_drvdata(pdev);
--
--	disable_gptimers(st->t->bit);
--	if (st->output_enable)
--		peripheral_free(st->t->pin);
--	free_irq(st->irq, st);
--	iio_trigger_unregister(st->trig);
--	iio_trigger_free(st->trig);
--
--	return 0;
--}
--
--static struct platform_driver iio_bfin_tmr_trigger_driver = {
--	.driver = {
--		.name = "iio_bfin_tmr_trigger",
--	},
--	.probe = iio_bfin_tmr_trigger_probe,
--	.remove = iio_bfin_tmr_trigger_remove,
--};
--
--module_platform_driver(iio_bfin_tmr_trigger_driver);
--
--MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
--MODULE_DESCRIPTION("Blackfin system timer based trigger for the iio subsystem");
--MODULE_LICENSE("GPL v2");
--MODULE_ALIAS("platform:iio-trig-bfin-timer");
-diff --git a/drivers/staging/iio/trigger/iio-trig-bfin-timer.h b/drivers/staging/iio/trigger/iio-trig-bfin-timer.h
+diff --git a/Documentation/blackfin/bfin-spi-notes.txt b/Documentation/blackfin/bfin-spi-notes.txt
 deleted file mode 100644
-index fb05a2a..0000000
---- a/drivers/staging/iio/trigger/iio-trig-bfin-timer.h
+index eae6eaf..0000000
+--- a/Documentation/blackfin/bfin-spi-notes.txt
 +++ /dev/null
-@@ -1,25 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--#ifndef __IIO_BFIN_TIMER_TRIGGER_H__
--#define __IIO_BFIN_TIMER_TRIGGER_H__
+@@ -1,16 +0,0 @@
+-SPI Chip Select behavior:
 -
--/**
-- * struct iio_bfin_timer_trigger_pdata - timer trigger platform data
-- * @output_enable: Enable external trigger pulse generation.
-- * @active_low: Whether the trigger pulse is active low.
-- * @duty_ns: Length of the trigger pulse in nanoseconds.
-- *
-- * This struct is used to configure the output pulse generation of the blackfin
-- * timer trigger. If output_enable is set to true an external trigger signal
-- * will generated on the pin corresponding to the timer. This is useful for
-- * converters which needs an external signal to start conversion. active_low and
-- * duty_ns are used to configure the type of the trigger pulse. If output_enable
-- * is set to false no external trigger pulse will be generated and active_low
-- * and duty_ns are ignored.
-- **/
--struct iio_bfin_timer_trigger_pdata {
--	bool output_enable;
--	bool active_low;
--	unsigned int duty_ns;
--};
+-With the Blackfin on-chip SPI peripheral, there is some logic tied to the CPHA
+-bit whether the Slave Select Line is controlled by hardware (CPHA=0) or
+-controlled by software (CPHA=1). However, the Linux SPI bus driver assumes that
+-the Slave Select is always under software control and being asserted during
+-the entire SPI transfer. - And not just bits_per_word duration.
 -
--#endif
+-In most cases you can utilize SPI MODE_3 instead of MODE_0 to work-around this
+-behavior. If your SPI slave device in question requires SPI MODE_0 or MODE_2
+-timing, you can utilize the GPIO controlled SPI Slave Select option instead.
+-In this case, you should use GPIO based CS for all of your slaves and not just
+-the ones using mode 0 or 2 in order to guarantee correct CS toggling behavior.
+-
+-You can even use the same pin whose peripheral role is a SSEL,
+-but use it as a GPIO instead.
+diff --git a/Documentation/driver-api/usb/writing_musb_glue_layer.rst b/Documentation/driver-api/usb/writing_musb_glue_layer.rst
+index e90e8fa..5bf7152 100644
+--- a/Documentation/driver-api/usb/writing_musb_glue_layer.rst
++++ b/Documentation/driver-api/usb/writing_musb_glue_layer.rst
+@@ -718,6 +718,3 @@ http://www.maximintegrated.com/app-notes/index.mvp/id/1822
+ 
+ Texas Instruments USB Configuration Wiki Page:
+ http://processors.wiki.ti.com/index.php/Usbgeneralpage
+-
+-Analog Devices Blackfin MUSB Configuration:
+-http://docs.blackfin.uclinux.org/doku.php?id=linux-kernel:drivers:musb
+diff --git a/Documentation/features/core/BPF-JIT/arch-support.txt b/Documentation/features/core/BPF-JIT/arch-support.txt
+index 5575d2d..740879c 100644
+--- a/Documentation/features/core/BPF-JIT/arch-support.txt
++++ b/Documentation/features/core/BPF-JIT/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/core/generic-idle-thread/arch-support.txt b/Documentation/features/core/generic-idle-thread/arch-support.txt
+index abb5f27..eff8cc3 100644
+--- a/Documentation/features/core/generic-idle-thread/arch-support.txt
++++ b/Documentation/features/core/generic-idle-thread/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: |  ok  |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: |  ok  |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/core/jump-labels/arch-support.txt b/Documentation/features/core/jump-labels/arch-support.txt
+index dbdaffc..7f90c27 100644
+--- a/Documentation/features/core/jump-labels/arch-support.txt
++++ b/Documentation/features/core/jump-labels/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/core/tracehook/arch-support.txt b/Documentation/features/core/tracehook/arch-support.txt
+index dfb638c..9239b54 100644
+--- a/Documentation/features/core/tracehook/arch-support.txt
++++ b/Documentation/features/core/tracehook/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: |  ok  |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: |  ok  |
+     |         c6x: |  ok  |
+     |        cris: | TODO |
+     |         frv: |  ok  |
+diff --git a/Documentation/features/debug/KASAN/arch-support.txt b/Documentation/features/debug/KASAN/arch-support.txt
+index 3406fae..38f2b5f 100644
+--- a/Documentation/features/debug/KASAN/arch-support.txt
++++ b/Documentation/features/debug/KASAN/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: | TODO |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/debug/gcov-profile-all/arch-support.txt b/Documentation/features/debug/gcov-profile-all/arch-support.txt
+index 830dbe8..d5f6330 100644
+--- a/Documentation/features/debug/gcov-profile-all/arch-support.txt
++++ b/Documentation/features/debug/gcov-profile-all/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/debug/kgdb/arch-support.txt b/Documentation/features/debug/kgdb/arch-support.txt
+index 0217bf6..1100345 100644
+--- a/Documentation/features/debug/kgdb/arch-support.txt
++++ b/Documentation/features/debug/kgdb/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: |  ok  |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: |  ok  |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/debug/kprobes-on-ftrace/arch-support.txt b/Documentation/features/debug/kprobes-on-ftrace/arch-support.txt
+index 1e84be3c..250248d 100644
+--- a/Documentation/features/debug/kprobes-on-ftrace/arch-support.txt
++++ b/Documentation/features/debug/kprobes-on-ftrace/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: | TODO |
+     |       arm64: | TODO |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/debug/kprobes/arch-support.txt b/Documentation/features/debug/kprobes/arch-support.txt
+index 529f66e..a23d2f3 100644
+--- a/Documentation/features/debug/kprobes/arch-support.txt
++++ b/Documentation/features/debug/kprobes/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: |  ok  |
+     |         arm: |  ok  |
+     |       arm64: | TODO |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/debug/kretprobes/arch-support.txt b/Documentation/features/debug/kretprobes/arch-support.txt
+index 4335324..145f65b 100644
+--- a/Documentation/features/debug/kretprobes/arch-support.txt
++++ b/Documentation/features/debug/kretprobes/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: |  ok  |
+     |         arm: |  ok  |
+     |       arm64: | TODO |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/debug/optprobes/arch-support.txt b/Documentation/features/debug/optprobes/arch-support.txt
+index f559f1b..6a4bb93 100644
+--- a/Documentation/features/debug/optprobes/arch-support.txt
++++ b/Documentation/features/debug/optprobes/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: |  ok  |
+     |       arm64: | TODO |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/debug/stackprotector/arch-support.txt b/Documentation/features/debug/stackprotector/arch-support.txt
+index 59a4c9f..38f2ed4 100644
+--- a/Documentation/features/debug/stackprotector/arch-support.txt
++++ b/Documentation/features/debug/stackprotector/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/debug/uprobes/arch-support.txt b/Documentation/features/debug/uprobes/arch-support.txt
+index 53ed42b..6f617f7 100644
+--- a/Documentation/features/debug/uprobes/arch-support.txt
++++ b/Documentation/features/debug/uprobes/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: |  ok  |
+     |       arm64: | TODO |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/debug/user-ret-profiler/arch-support.txt b/Documentation/features/debug/user-ret-profiler/arch-support.txt
+index 1494439..6b772ed0 100644
+--- a/Documentation/features/debug/user-ret-profiler/arch-support.txt
++++ b/Documentation/features/debug/user-ret-profiler/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: | TODO |
+     |       arm64: | TODO |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/io/dma-api-debug/arch-support.txt b/Documentation/features/io/dma-api-debug/arch-support.txt
+index 6be9206..1c07e83b 100644
+--- a/Documentation/features/io/dma-api-debug/arch-support.txt
++++ b/Documentation/features/io/dma-api-debug/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: |  ok  |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/io/dma-contiguous/arch-support.txt b/Documentation/features/io/dma-contiguous/arch-support.txt
+index 0eb08e1..2d86648 100644
+--- a/Documentation/features/io/dma-contiguous/arch-support.txt
++++ b/Documentation/features/io/dma-contiguous/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/io/sg-chain/arch-support.txt b/Documentation/features/io/sg-chain/arch-support.txt
+index 514ad34..62bc1e0 100644
+--- a/Documentation/features/io/sg-chain/arch-support.txt
++++ b/Documentation/features/io/sg-chain/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: |  ok  |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/lib/strncasecmp/arch-support.txt b/Documentation/features/lib/strncasecmp/arch-support.txt
+index 532c6f0..d71b852 100644
+--- a/Documentation/features/lib/strncasecmp/arch-support.txt
++++ b/Documentation/features/lib/strncasecmp/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: | TODO |
+     |       arm64: | TODO |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/locking/cmpxchg-local/arch-support.txt b/Documentation/features/locking/cmpxchg-local/arch-support.txt
+index f3eec26..4e9f51b 100644
+--- a/Documentation/features/locking/cmpxchg-local/arch-support.txt
++++ b/Documentation/features/locking/cmpxchg-local/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: | TODO |
+     |       arm64: | TODO |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/locking/lockdep/arch-support.txt b/Documentation/features/locking/lockdep/arch-support.txt
+index 9756abc..4632644 100644
+--- a/Documentation/features/locking/lockdep/arch-support.txt
++++ b/Documentation/features/locking/lockdep/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: |  ok  |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: |  ok  |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/locking/queued-rwlocks/arch-support.txt b/Documentation/features/locking/queued-rwlocks/arch-support.txt
+index 62f4ee5..1cf417e 100644
+--- a/Documentation/features/locking/queued-rwlocks/arch-support.txt
++++ b/Documentation/features/locking/queued-rwlocks/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: | TODO |
+     |       arm64: | TODO |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/locking/queued-spinlocks/arch-support.txt b/Documentation/features/locking/queued-spinlocks/arch-support.txt
+index 321b32f..aea2efa 100644
+--- a/Documentation/features/locking/queued-spinlocks/arch-support.txt
++++ b/Documentation/features/locking/queued-spinlocks/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: | TODO |
+     |       arm64: | TODO |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/locking/rwsem-optimized/arch-support.txt b/Documentation/features/locking/rwsem-optimized/arch-support.txt
+index 79bfa4d..7414867 100644
+--- a/Documentation/features/locking/rwsem-optimized/arch-support.txt
++++ b/Documentation/features/locking/rwsem-optimized/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: | TODO |
+     |       arm64: | TODO |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/perf/kprobes-event/arch-support.txt b/Documentation/features/perf/kprobes-event/arch-support.txt
+index 00f1606..f0f6cec 100644
+--- a/Documentation/features/perf/kprobes-event/arch-support.txt
++++ b/Documentation/features/perf/kprobes-event/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: |  ok  |
+     |       arm64: | TODO |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/perf/perf-regs/arch-support.txt b/Documentation/features/perf/perf-regs/arch-support.txt
+index 7d516ea..6b305e6 100644
+--- a/Documentation/features/perf/perf-regs/arch-support.txt
++++ b/Documentation/features/perf/perf-regs/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/perf/perf-stackdump/arch-support.txt b/Documentation/features/perf/perf-stackdump/arch-support.txt
+index f974b8d..cafa704 100644
+--- a/Documentation/features/perf/perf-stackdump/arch-support.txt
++++ b/Documentation/features/perf/perf-stackdump/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/sched/membarrier-sync-core/arch-support.txt b/Documentation/features/sched/membarrier-sync-core/arch-support.txt
+index 2c815a7..ccbfb24 100644
+--- a/Documentation/features/sched/membarrier-sync-core/arch-support.txt
++++ b/Documentation/features/sched/membarrier-sync-core/arch-support.txt
+@@ -33,7 +33,6 @@
+     |         arc: | TODO |
+     |         arm: | TODO |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/sched/numa-balancing/arch-support.txt b/Documentation/features/sched/numa-balancing/arch-support.txt
+index 1d3c0f6..54fa603 100644
+--- a/Documentation/features/sched/numa-balancing/arch-support.txt
++++ b/Documentation/features/sched/numa-balancing/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: |  ..  |
+     |         arm: |  ..  |
+     |       arm64: |  ..  |
+-    |    blackfin: |  ..  |
+     |         c6x: |  ..  |
+     |        cris: |  ..  |
+     |         frv: |  ..  |
+diff --git a/Documentation/features/seccomp/seccomp-filter/arch-support.txt b/Documentation/features/seccomp/seccomp-filter/arch-support.txt
+index a32d5b2..dc0a901 100644
+--- a/Documentation/features/seccomp/seccomp-filter/arch-support.txt
++++ b/Documentation/features/seccomp/seccomp-filter/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/time/arch-tick-broadcast/arch-support.txt b/Documentation/features/time/arch-tick-broadcast/arch-support.txt
+index caee8f6..ca3aa5c 100644
+--- a/Documentation/features/time/arch-tick-broadcast/arch-support.txt
++++ b/Documentation/features/time/arch-tick-broadcast/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/time/clockevents/arch-support.txt b/Documentation/features/time/clockevents/arch-support.txt
+index 1cd87f6..8535d3c 100644
+--- a/Documentation/features/time/clockevents/arch-support.txt
++++ b/Documentation/features/time/clockevents/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: |  ok  |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: |  ok  |
+     |         c6x: |  ok  |
+     |        cris: |  ok  |
+     |         frv: | TODO |
+diff --git a/Documentation/features/time/context-tracking/arch-support.txt b/Documentation/features/time/context-tracking/arch-support.txt
+index e6d7c7b..cffcf08 100644
+--- a/Documentation/features/time/context-tracking/arch-support.txt
++++ b/Documentation/features/time/context-tracking/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/time/irq-time-acct/arch-support.txt b/Documentation/features/time/irq-time-acct/arch-support.txt
+index 15c6071..9b1ab68 100644
+--- a/Documentation/features/time/irq-time-acct/arch-support.txt
++++ b/Documentation/features/time/irq-time-acct/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/time/modern-timekeeping/arch-support.txt b/Documentation/features/time/modern-timekeeping/arch-support.txt
+index baee761..fe4df2f 100644
+--- a/Documentation/features/time/modern-timekeeping/arch-support.txt
++++ b/Documentation/features/time/modern-timekeeping/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: |  ok  |
+     |         arm: | TODO |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: |  ok  |
+     |        cris: | TODO |
+     |         frv: |  ok  |
+diff --git a/Documentation/features/time/virt-cpuacct/arch-support.txt b/Documentation/features/time/virt-cpuacct/arch-support.txt
+index 9129530..304b941 100644
+--- a/Documentation/features/time/virt-cpuacct/arch-support.txt
++++ b/Documentation/features/time/virt-cpuacct/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/vm/ELF-ASLR/arch-support.txt b/Documentation/features/vm/ELF-ASLR/arch-support.txt
+index f6829af..3efb2ae 100644
+--- a/Documentation/features/vm/ELF-ASLR/arch-support.txt
++++ b/Documentation/features/vm/ELF-ASLR/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/vm/PG_uncached/arch-support.txt b/Documentation/features/vm/PG_uncached/arch-support.txt
+index 1a09ea9..aadc97f 100644
+--- a/Documentation/features/vm/PG_uncached/arch-support.txt
++++ b/Documentation/features/vm/PG_uncached/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: | TODO |
+     |       arm64: | TODO |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/vm/THP/arch-support.txt b/Documentation/features/vm/THP/arch-support.txt
+index d170e62..76cfb97 100644
+--- a/Documentation/features/vm/THP/arch-support.txt
++++ b/Documentation/features/vm/THP/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: |  ok  |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: |  ..  |
+     |         c6x: |  ..  |
+     |        cris: |  ..  |
+     |         frv: |  ..  |
+diff --git a/Documentation/features/vm/TLB/arch-support.txt b/Documentation/features/vm/TLB/arch-support.txt
+index abfab40..3a6546a 100644
+--- a/Documentation/features/vm/TLB/arch-support.txt
++++ b/Documentation/features/vm/TLB/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: | TODO |
+     |       arm64: | TODO |
+-    |    blackfin: | TODO |
+     |         c6x: |  ..  |
+     |        cris: |  ..  |
+     |         frv: |  ..  |
+diff --git a/Documentation/features/vm/huge-vmap/arch-support.txt b/Documentation/features/vm/huge-vmap/arch-support.txt
+index f81f09b..fe1e3b2 100644
+--- a/Documentation/features/vm/huge-vmap/arch-support.txt
++++ b/Documentation/features/vm/huge-vmap/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: | TODO |
+     |         arm: | TODO |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/vm/ioremap_prot/arch-support.txt b/Documentation/features/vm/ioremap_prot/arch-support.txt
+index 0cc3e11..d42dbe0 100644
+--- a/Documentation/features/vm/ioremap_prot/arch-support.txt
++++ b/Documentation/features/vm/ioremap_prot/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: |  ok  |
+     |         arm: | TODO |
+     |       arm64: | TODO |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
+diff --git a/Documentation/features/vm/numa-memblock/arch-support.txt b/Documentation/features/vm/numa-memblock/arch-support.txt
+index 9a3fdac..bb9cd30 100644
+--- a/Documentation/features/vm/numa-memblock/arch-support.txt
++++ b/Documentation/features/vm/numa-memblock/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: |  ..  |
+     |         arm: |  ..  |
+     |       arm64: |  ..  |
+-    |    blackfin: |  ..  |
+     |         c6x: |  ..  |
+     |        cris: |  ..  |
+     |         frv: |  ..  |
+diff --git a/Documentation/features/vm/pte_special/arch-support.txt b/Documentation/features/vm/pte_special/arch-support.txt
+index dfaa39e..f7b7626 100644
+--- a/Documentation/features/vm/pte_special/arch-support.txt
++++ b/Documentation/features/vm/pte_special/arch-support.txt
+@@ -10,7 +10,6 @@
+     |         arc: |  ok  |
+     |         arm: |  ok  |
+     |       arm64: |  ok  |
+-    |    blackfin: | TODO |
+     |         c6x: | TODO |
+     |        cris: | TODO |
+     |         frv: | TODO |
 -- 
 2.7.4
 
