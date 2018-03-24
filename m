@@ -1,9 +1,9 @@
 From: Shea Levy <shea@shealevy.com>
-Date: Sat, 24 Mar 2018 13:44:56 -0400
-Subject: [OpenRISC] [PATCH 14/16] powerpc: Use INITRAMFS_GENERIC_UNLOAD
+Date: Sat, 24 Mar 2018 13:44:57 -0400
+Subject: [OpenRISC] [PATCH 15/16] sh: Use INITRAMFS_GENERIC_UNLOAD
 In-Reply-To: <20180324174458.26423-1-shea@shealevy.com>
 References: <20180324174458.26423-1-shea@shealevy.com>
-Message-ID: <20180324174458.26423-15-shea@shealevy.com>
+Message-ID: <20180324174458.26423-16-shea@shealevy.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -12,40 +12,40 @@ To: openrisc@lists.librecores.org
 
 Signed-off-by: Shea Levy <shea@shealevy.com>
 ---
- arch/powerpc/Kconfig  | 1 +
- arch/powerpc/mm/mem.c | 7 -------
+ arch/sh/Kconfig   | 1 +
+ arch/sh/mm/init.c | 7 -------
  2 files changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 73ce5dd07642..8cf384068e79 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -223,6 +223,7 @@ config PPC
- 	select HAVE_SYSCALL_TRACEPOINTS
- 	select HAVE_VIRT_CPU_ACCOUNTING
- 	select HAVE_IRQ_TIME_ACCOUNTING
+diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
+index 97fe29316476..b6f80dad2152 100644
+--- a/arch/sh/Kconfig
++++ b/arch/sh/Kconfig
+@@ -50,6 +50,7 @@ config SUPERH
+ 	select HAVE_ARCH_AUDITSYSCALL
+ 	select HAVE_FUTEX_CMPXCHG if FUTEX
+ 	select HAVE_NMI
 +	select INITRAMFS_GENERIC_UNLOAD
- 	select IRQ_DOMAIN
- 	select IRQ_FORCED_THREADING
- 	select MODULES_USE_ELF_RELA
-diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-index fe8c61149fb8..e85b2a3cd264 100644
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -404,13 +404,6 @@ void free_initmem(void)
- 	free_initmem_default(POISON_FREE_INITMEM);
+ 	help
+ 	  The SuperH is a RISC processor targeted for use in embedded systems
+ 	  and consumer electronics; it was also used in the Sega Dreamcast
+diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
+index ce0bbaa7e404..7451459d0725 100644
+--- a/arch/sh/mm/init.c
++++ b/arch/sh/mm/init.c
+@@ -477,13 +477,6 @@ void free_initmem(void)
+ 	free_initmem_default(-1);
  }
  
 -#ifdef CONFIG_BLK_DEV_INITRD
--void __init free_initrd_mem(unsigned long start, unsigned long end)
+-void free_initrd_mem(unsigned long start, unsigned long end)
 -{
 -	free_reserved_area((void *)start, (void *)end, -1, "initrd");
 -}
 -#endif
 -
- /*
-  * This is called when a page has been modified by the kernel.
-  * It just marks the page as not i-cache clean.  We do the i-cache
+ #ifdef CONFIG_MEMORY_HOTPLUG
+ int arch_add_memory(int nid, u64 start, u64 size, struct vmem_altmap *altmap,
+ 		bool want_memblock)
 -- 
 2.16.2
 
