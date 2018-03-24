@@ -1,9 +1,9 @@
 From: Shea Levy <shea@shealevy.com>
-Date: Sat, 24 Mar 2018 13:44:44 -0400
-Subject: [OpenRISC] [PATCH 02/16] riscv: Use INITRAMFS_GENERIC_UNLOAD.
+Date: Sat, 24 Mar 2018 13:44:45 -0400
+Subject: [OpenRISC] [PATCH 03/16] alpha: Use INITRAMFS_GENERIC_UNLOAD
 In-Reply-To: <20180324174458.26423-1-shea@shealevy.com>
 References: <20180324174458.26423-1-shea@shealevy.com>
-Message-ID: <20180324174458.26423-3-shea@shealevy.com>
+Message-ID: <20180324174458.26423-4-shea@shealevy.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -12,36 +12,38 @@ To: openrisc@lists.librecores.org
 
 Signed-off-by: Shea Levy <shea@shealevy.com>
 ---
- arch/riscv/Kconfig   | 1 +
- arch/riscv/mm/init.c | 6 ------
- 2 files changed, 1 insertion(+), 6 deletions(-)
+ arch/alpha/Kconfig   | 1 +
+ arch/alpha/mm/init.c | 8 --------
+ 2 files changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index c22ebe08e902..ab1b4cee84fc 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -37,6 +37,7 @@ config RISCV
- 	select THREAD_INFO_IN_TASK
- 	select RISCV_TIMER
- 	select GENERIC_IRQ_MULTI_HANDLER
+diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
+index e96adcbcab41..238d743ae8f2 100644
+--- a/arch/alpha/Kconfig
++++ b/arch/alpha/Kconfig
+@@ -27,6 +27,7 @@ config ALPHA
+ 	select ODD_RT_SIGACTION
+ 	select OLD_SIGSUSPEND
+ 	select CPU_NO_EFFICIENT_FFS if !ALPHA_EV67
 +	select INITRAMFS_GENERIC_UNLOAD
- 
- config MMU
- 	def_bool y
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index c77df8142be2..36f83fe8a726 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -62,9 +62,3 @@ void free_initmem(void)
+ 	help
+ 	  The Alpha is a 64-bit general-purpose processor designed and
+ 	  marketed by the Digital Equipment Corporation of blessed memory,
+diff --git a/arch/alpha/mm/init.c b/arch/alpha/mm/init.c
+index 9d74520298ab..55f7c8efa962 100644
+--- a/arch/alpha/mm/init.c
++++ b/arch/alpha/mm/init.c
+@@ -291,11 +291,3 @@ free_initmem(void)
  {
- 	free_initmem_default(0);
+ 	free_initmem_default(-1);
  }
 -
 -#ifdef CONFIG_BLK_DEV_INITRD
--void free_initrd_mem(unsigned long start, unsigned long end)
+-void
+-free_initrd_mem(unsigned long start, unsigned long end)
 -{
+-	free_reserved_area((void *)start, (void *)end, -1, "initrd");
 -}
--#endif /* CONFIG_BLK_DEV_INITRD */
+-#endif
 -- 
 2.16.2
 
