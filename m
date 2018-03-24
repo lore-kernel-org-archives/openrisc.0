@@ -1,9 +1,9 @@
 From: Shea Levy <shea@shealevy.com>
-Date: Sat, 24 Mar 2018 13:44:50 -0400
-Subject: [OpenRISC] [PATCH 08/16] m32r: Use INITRAMFS_GENERIC_UNLOAD
+Date: Sat, 24 Mar 2018 13:44:51 -0400
+Subject: [OpenRISC] [PATCH 09/16] m68k: Use INITRAMFS_GENERIC_UNLOAD
 In-Reply-To: <20180324174458.26423-1-shea@shealevy.com>
 References: <20180324174458.26423-1-shea@shealevy.com>
-Message-ID: <20180324174458.26423-9-shea@shealevy.com>
+Message-ID: <20180324174458.26423-10-shea@shealevy.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -12,36 +12,32 @@ To: openrisc@lists.librecores.org
 
 Signed-off-by: Shea Levy <shea@shealevy.com>
 ---
- arch/m32r/Kconfig   |  1 +
- arch/m32r/mm/init.c | 11 -----------
- 2 files changed, 1 insertion(+), 11 deletions(-)
+ arch/m68k/Kconfig   | 1 +
+ arch/m68k/mm/init.c | 7 -------
+ 2 files changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/arch/m32r/Kconfig b/arch/m32r/Kconfig
-index dd84ee194579..010a2b999181 100644
---- a/arch/m32r/Kconfig
-+++ b/arch/m32r/Kconfig
-@@ -21,6 +21,7 @@ config M32R
- 	select CPU_NO_EFFICIENT_FFS
- 	select DMA_DIRECT_OPS
- 	select ARCH_NO_COHERENT_DMA_MMAP if !MMU
+diff --git a/arch/m68k/Kconfig b/arch/m68k/Kconfig
+index 785612b576f7..47913a68529e 100644
+--- a/arch/m68k/Kconfig
++++ b/arch/m68k/Kconfig
+@@ -24,6 +24,7 @@ config M68K
+ 	select MODULES_USE_ELF_RELA
+ 	select OLD_SIGSUSPEND3
+ 	select OLD_SIGACTION
 +	select INITRAMFS_GENERIC_UNLOAD
  
- config SBUS
- 	bool
-diff --git a/arch/m32r/mm/init.c b/arch/m32r/mm/init.c
-index 93abc8c3a46e..e2b5f09209ee 100644
---- a/arch/m32r/mm/init.c
-+++ b/arch/m32r/mm/init.c
-@@ -139,14 +139,3 @@ void free_initmem(void)
- {
- 	free_initmem_default(-1);
+ config CPU_BIG_ENDIAN
+ 	def_bool y
+diff --git a/arch/m68k/mm/init.c b/arch/m68k/mm/init.c
+index e85acd131fa8..e20bef09258c 100644
+--- a/arch/m68k/mm/init.c
++++ b/arch/m68k/mm/init.c
+@@ -172,10 +172,3 @@ void __init mem_init(void)
+ 	mem_init_print_info(NULL);
+ 	print_memmap();
  }
 -
 -#ifdef CONFIG_BLK_DEV_INITRD
--/*======================================================================*
-- * free_initrd_mem() :
-- * orig : arch/sh/mm/init.c
-- *======================================================================*/
 -void free_initrd_mem(unsigned long start, unsigned long end)
 -{
 -	free_reserved_area((void *)start, (void *)end, -1, "initrd");
