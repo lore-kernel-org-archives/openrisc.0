@@ -1,9 +1,9 @@
 From: Shea Levy <shea@shealevy.com>
-Date: Sat, 24 Mar 2018 13:44:52 -0400
-Subject: [OpenRISC] [PATCH 10/16] microblaze: Use INITRAMFS_GENERIC_UNLOAD
+Date: Sat, 24 Mar 2018 13:44:53 -0400
+Subject: [OpenRISC] [PATCH 11/16] nios2: Use INITRAMFS_GENERIC_UNLOAD
 In-Reply-To: <20180324174458.26423-1-shea@shealevy.com>
 References: <20180324174458.26423-1-shea@shealevy.com>
-Message-ID: <20180324174458.26423-11-shea@shealevy.com>
+Message-ID: <20180324174458.26423-12-shea@shealevy.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -12,38 +12,38 @@ To: openrisc@lists.librecores.org
 
 Signed-off-by: Shea Levy <shea@shealevy.com>
 ---
- arch/microblaze/Kconfig   | 1 +
- arch/microblaze/mm/init.c | 7 -------
+ arch/nios2/Kconfig   | 1 +
+ arch/nios2/mm/init.c | 7 -------
  2 files changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/arch/microblaze/Kconfig b/arch/microblaze/Kconfig
-index 3817a3e2146c..ef23e8410b4b 100644
---- a/arch/microblaze/Kconfig
-+++ b/arch/microblaze/Kconfig
-@@ -36,6 +36,7 @@ config MICROBLAZE
- 	select TRACING_SUPPORT
- 	select VIRT_TO_BUS
+diff --git a/arch/nios2/Kconfig b/arch/nios2/Kconfig
+index 3d4ec88f1db1..d3b72d5c8967 100644
+--- a/arch/nios2/Kconfig
++++ b/arch/nios2/Kconfig
+@@ -19,6 +19,7 @@ config NIOS2
+ 	select SPARSE_IRQ
+ 	select USB_ARCH_HAS_HCD if USB_SUPPORT
  	select CPU_NO_EFFICIENT_FFS
 +	select INITRAMFS_GENERIC_UNLOAD
  
- # Endianness selection
- choice
-diff --git a/arch/microblaze/mm/init.c b/arch/microblaze/mm/init.c
-index df6de7ccdc2e..ea058dfda222 100644
---- a/arch/microblaze/mm/init.c
-+++ b/arch/microblaze/mm/init.c
-@@ -187,13 +187,6 @@ void __init setup_memory(void)
- 	paging_init();
+ config GENERIC_CSUM
+ 	def_bool y
+diff --git a/arch/nios2/mm/init.c b/arch/nios2/mm/init.c
+index c92fe4234009..3df75ff8c768 100644
+--- a/arch/nios2/mm/init.c
++++ b/arch/nios2/mm/init.c
+@@ -82,13 +82,6 @@ void __init mmu_init(void)
+ 	flush_tlb_all();
  }
  
 -#ifdef CONFIG_BLK_DEV_INITRD
--void free_initrd_mem(unsigned long start, unsigned long end)
+-void __init free_initrd_mem(unsigned long start, unsigned long end)
 -{
 -	free_reserved_area((void *)start, (void *)end, -1, "initrd");
 -}
 -#endif
 -
- void free_initmem(void)
+ void __ref free_initmem(void)
  {
  	free_initmem_default(-1);
 -- 
