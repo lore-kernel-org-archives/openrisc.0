@@ -1,63 +1,50 @@
-From: LEROY Christophe <christophe.leroy@c-s.fr>
-Date: Sun, 25 Mar 2018 19:17:40 +0200
-Subject: [OpenRISC] [PATCH 01/16] initrd: Add generic code path for
- common initrd unloading logic.
-In-Reply-To: <20180324174458.26423-2-shea@shealevy.com>
+From: Shea Levy <shea@shealevy.com>
+Date: Sun, 25 Mar 2018 18:18:40 -0400
+Subject: [OpenRISC] [PATCH v2 03/16] alpha: Use INITRAMFS_GENERIC_UNLOAD
+In-Reply-To: <20180325221853.10839-1-shea@shealevy.com>
 References: <20180324174458.26423-1-shea@shealevy.com>
- <20180324174458.26423-2-shea@shealevy.com>
-Message-ID: <20180325191740.Horde.Cymi0yr0xcQQV1s42wkNkg2@messagerie.si.c-s.fr>
+ <20180325221853.10839-1-shea@shealevy.com>
+Message-ID: <20180325221853.10839-4-shea@shealevy.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Shea Levy <shea@shealevy.com> a écrit :
+Signed-off-by: Shea Levy <shea@shealevy.com>
+---
+ arch/alpha/Kconfig   | 1 +
+ arch/alpha/mm/init.c | 8 --------
+ 2 files changed, 1 insertion(+), 8 deletions(-)
 
-> Signed-off-by: Shea Levy <shea@shealevy.com>
-> ---
->  init/initramfs.c | 7 +++++++
->  usr/Kconfig      | 4 ++++
->  2 files changed, 11 insertions(+)
->
-> diff --git a/init/initramfs.c b/init/initramfs.c
-> index 7e99a0038942..de5ce873eb5a 100644
-> --- a/init/initramfs.c
-> +++ b/init/initramfs.c
-> @@ -526,6 +526,13 @@ extern unsigned long __initramfs_size;
->  #include <linux/initrd.h>
->  #include <linux/kexec.h>
->
-> +#ifdef CONFIG_INITRAMFS_GENERIC_UNLOAD
-> +void free_initrd_mem(unsigned long start, unsigned long end)
-> +{
-> +       free_reserved_area((void *)start, (void *)end, -1, "initrd");
-> +}
-> +#endif
-
-In powerpc this was an __init function. Why not also put the generic  
-one in __init section ?
-
-Christophe
-
-
-> +
->  static void __init free_initrd(void)
->  {
->  #ifdef CONFIG_KEXEC_CORE
-> diff --git a/usr/Kconfig b/usr/Kconfig
-> index 43658b8a975e..fd79d4d6fa26 100644
-> --- a/usr/Kconfig
-> +++ b/usr/Kconfig
-> @@ -233,3 +233,7 @@ config INITRAMFS_COMPRESSION
->  	default ".lzma" if RD_LZMA
->  	default ".bz2"  if RD_BZIP2
->  	default ""
-> +
-> +# Arches can select this for a generic initrd unloading codepath
-> +config INITRAMFS_GENERIC_UNLOAD
-> +	bool
-> --
-> 2.16.2
-
+diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
+index e96adcbcab41..238d743ae8f2 100644
+--- a/arch/alpha/Kconfig
++++ b/arch/alpha/Kconfig
+@@ -27,6 +27,7 @@ config ALPHA
+ 	select ODD_RT_SIGACTION
+ 	select OLD_SIGSUSPEND
+ 	select CPU_NO_EFFICIENT_FFS if !ALPHA_EV67
++	select INITRAMFS_GENERIC_UNLOAD
+ 	help
+ 	  The Alpha is a 64-bit general-purpose processor designed and
+ 	  marketed by the Digital Equipment Corporation of blessed memory,
+diff --git a/arch/alpha/mm/init.c b/arch/alpha/mm/init.c
+index 9d74520298ab..55f7c8efa962 100644
+--- a/arch/alpha/mm/init.c
++++ b/arch/alpha/mm/init.c
+@@ -291,11 +291,3 @@ free_initmem(void)
+ {
+ 	free_initmem_default(-1);
+ }
+-
+-#ifdef CONFIG_BLK_DEV_INITRD
+-void
+-free_initrd_mem(unsigned long start, unsigned long end)
+-{
+-	free_reserved_area((void *)start, (void *)end, -1, "initrd");
+-}
+-#endif
+-- 
+2.16.2
 
