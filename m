@@ -1,11 +1,10 @@
 From: Shea Levy <shea@shealevy.com>
-Date: Sun, 25 Mar 2018 18:18:38 -0400
-Subject: [OpenRISC] [PATCH v2 01/16] initrd: Add generic code path for
-	common initrd unloading logic.
+Date: Sun, 25 Mar 2018 18:18:39 -0400
+Subject: [OpenRISC] [PATCH v2 02/16] riscv: Use INITRAMFS_GENERIC_UNLOAD.
 In-Reply-To: <20180325221853.10839-1-shea@shealevy.com>
 References: <20180324174458.26423-1-shea@shealevy.com>
  <20180325221853.10839-1-shea@shealevy.com>
-Message-ID: <20180325221853.10839-2-shea@shealevy.com>
+Message-ID: <20180325221853.10839-3-shea@shealevy.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -14,40 +13,36 @@ To: openrisc@lists.librecores.org
 
 Signed-off-by: Shea Levy <shea@shealevy.com>
 ---
- init/initramfs.c | 7 +++++++
- usr/Kconfig      | 4 ++++
- 2 files changed, 11 insertions(+)
+ arch/riscv/Kconfig   | 1 +
+ arch/riscv/mm/init.c | 6 ------
+ 2 files changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/init/initramfs.c b/init/initramfs.c
-index 7e99a0038942..5f2e3dba4822 100644
---- a/init/initramfs.c
-+++ b/init/initramfs.c
-@@ -526,6 +526,13 @@ extern unsigned long __initramfs_size;
- #include <linux/initrd.h>
- #include <linux/kexec.h>
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index c22ebe08e902..ab1b4cee84fc 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -37,6 +37,7 @@ config RISCV
+ 	select THREAD_INFO_IN_TASK
+ 	select RISCV_TIMER
+ 	select GENERIC_IRQ_MULTI_HANDLER
++	select INITRAMFS_GENERIC_UNLOAD
  
-+#ifdef CONFIG_INITRAMFS_GENERIC_UNLOAD
-+void __init free_initrd_mem(unsigned long start, unsigned long end)
-+{
-+       free_reserved_area((void *)start, (void *)end, -1, "initrd");
-+}
-+#endif
-+
- static void __init free_initrd(void)
+ config MMU
+ 	def_bool y
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index c77df8142be2..36f83fe8a726 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -62,9 +62,3 @@ void free_initmem(void)
  {
- #ifdef CONFIG_KEXEC_CORE
-diff --git a/usr/Kconfig b/usr/Kconfig
-index 43658b8a975e..fd79d4d6fa26 100644
---- a/usr/Kconfig
-+++ b/usr/Kconfig
-@@ -233,3 +233,7 @@ config INITRAMFS_COMPRESSION
- 	default ".lzma" if RD_LZMA
- 	default ".bz2"  if RD_BZIP2
- 	default ""
-+
-+# Arches can select this for a generic initrd unloading codepath
-+config INITRAMFS_GENERIC_UNLOAD
-+	bool
+ 	free_initmem_default(0);
+ }
+-
+-#ifdef CONFIG_BLK_DEV_INITRD
+-void free_initrd_mem(unsigned long start, unsigned long end)
+-{
+-}
+-#endif /* CONFIG_BLK_DEV_INITRD */
 -- 
 2.16.2
 
