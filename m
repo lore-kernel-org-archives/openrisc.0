@@ -1,10 +1,10 @@
 From: Shea Levy <shea@shealevy.com>
-Date: Sun, 25 Mar 2018 18:18:44 -0400
-Subject: [OpenRISC] [PATCH v2 07/16] h8300: Use INITRAMFS_GENERIC_UNLOAD
+Date: Sun, 25 Mar 2018 18:18:45 -0400
+Subject: [OpenRISC] [PATCH v2 08/16] m32r: Use INITRAMFS_GENERIC_UNLOAD
 In-Reply-To: <20180325221853.10839-1-shea@shealevy.com>
 References: <20180324174458.26423-1-shea@shealevy.com>
  <20180325221853.10839-1-shea@shealevy.com>
-Message-ID: <20180325221853.10839-8-shea@shealevy.com>
+Message-ID: <20180325221853.10839-9-shea@shealevy.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,40 +13,41 @@ To: openrisc@lists.librecores.org
 
 Signed-off-by: Shea Levy <shea@shealevy.com>
 ---
- arch/h8300/Kconfig   | 1 +
- arch/h8300/mm/init.c | 7 -------
- 2 files changed, 1 insertion(+), 7 deletions(-)
+ arch/m32r/Kconfig   |  1 +
+ arch/m32r/mm/init.c | 11 -----------
+ 2 files changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/arch/h8300/Kconfig b/arch/h8300/Kconfig
-index 091d6d04b5e5..58c9b6b1df16 100644
---- a/arch/h8300/Kconfig
-+++ b/arch/h8300/Kconfig
-@@ -24,6 +24,7 @@ config H8300
- 	select HAVE_ARCH_HASH
+diff --git a/arch/m32r/Kconfig b/arch/m32r/Kconfig
+index dd84ee194579..010a2b999181 100644
+--- a/arch/m32r/Kconfig
++++ b/arch/m32r/Kconfig
+@@ -21,6 +21,7 @@ config M32R
  	select CPU_NO_EFFICIENT_FFS
  	select DMA_DIRECT_OPS
+ 	select ARCH_NO_COHERENT_DMA_MMAP if !MMU
 +	select INITRAMFS_GENERIC_UNLOAD
  
- config CPU_BIG_ENDIAN
- 	def_bool y
-diff --git a/arch/h8300/mm/init.c b/arch/h8300/mm/init.c
-index 015287ac8ce8..37574332b202 100644
---- a/arch/h8300/mm/init.c
-+++ b/arch/h8300/mm/init.c
-@@ -102,13 +102,6 @@ void __init mem_init(void)
+ config SBUS
+ 	bool
+diff --git a/arch/m32r/mm/init.c b/arch/m32r/mm/init.c
+index 93abc8c3a46e..e2b5f09209ee 100644
+--- a/arch/m32r/mm/init.c
++++ b/arch/m32r/mm/init.c
+@@ -139,14 +139,3 @@ void free_initmem(void)
+ {
+ 	free_initmem_default(-1);
  }
- 
- 
+-
 -#ifdef CONFIG_BLK_DEV_INITRD
+-/*======================================================================*
+- * free_initrd_mem() :
+- * orig : arch/sh/mm/init.c
+- *======================================================================*/
 -void free_initrd_mem(unsigned long start, unsigned long end)
 -{
 -	free_reserved_area((void *)start, (void *)end, -1, "initrd");
 -}
 -#endif
--
- void
- free_initmem(void)
- {
 -- 
 2.16.2
 
