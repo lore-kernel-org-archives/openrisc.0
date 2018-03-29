@@ -1,121 +1,47 @@
-From: Palmer Dabbelt <palmer@sifive.com>
-Date: Tue, 27 Mar 2018 09:19:11 -0700
-Subject: [OpenRISC] [PATCH v4 8/8] irq: Remove MULTI_IRQ_HANDLER as it's now
-	obselete
-In-Reply-To: <20180327161911.14086-1-palmer@sifive.com>
-References: <20180327161911.14086-1-palmer@sifive.com>
-Message-ID: <20180327161911.14086-9-palmer@sifive.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Thu, 29 Mar 2018 20:50:51 +0900
+Subject: [OpenRISC] [PATCH v5 12/16] openrisc: Switch to generic
+	free_initrd_mem.
+In-Reply-To: <20180329113207.30674-12-shea@shealevy.com>
+References: <20180328203659.18692-1-shea@shealevy.com>
+ <20180329113207.30674-1-shea@shealevy.com>
+ <20180329113207.30674-12-shea@shealevy.com>
+Message-ID: <20180329115051.GF2836@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Now that every user of MULTI_IRQ_HANDLER has been convereted over to use
-GENERIC_IRQ_MULTI_HANDLER we can remove the references to
-MULTI_IRQ_HANDLER.
+On Thu, Mar 29, 2018 at 07:32:03AM -0400, Shea Levy wrote:
+> The generic implementation is functionally identical.
+> 
+> Signed-off-by: Shea Levy <shea@shealevy.com>
 
-Signed-off-by: Palmer Dabbelt <palmer@sifive.com>
----
- drivers/irqchip/Kconfig | 24 ++++++++----------------
- kernel/irq/Kconfig      |  1 -
- 2 files changed, 8 insertions(+), 17 deletions(-)
+Acked-by: Stafford Horne <shorne@gmail.com>
 
-diff --git a/drivers/irqchip/Kconfig b/drivers/irqchip/Kconfig
-index 5af28ac6ce35..70157a257ce0 100644
---- a/drivers/irqchip/Kconfig
-+++ b/drivers/irqchip/Kconfig
-@@ -8,8 +8,7 @@ config ARM_GIC
- 	bool
- 	select IRQ_DOMAIN
- 	select IRQ_DOMAIN_HIERARCHY
--	select MULTI_IRQ_HANDLER
--	select GENERIC_IRQ_MULTI_HANDLER if !MULTI_IRQ_HANDLER
-+	select GENERIC_IRQ_MULTI_HANDLER
- 	select GENERIC_IRQ_EFFECTIVE_AFF_MASK
- 
- config ARM_GIC_PM
-@@ -35,8 +34,7 @@ config GIC_NON_BANKED
- config ARM_GIC_V3
- 	bool
- 	select IRQ_DOMAIN
--	select MULTI_IRQ_HANDLER
--	select GENERIC_IRQ_MULTI_HANDLER if !MULTI_IRQ_HANDLER
-+	select GENERIC_IRQ_MULTI_HANDLER
- 	select IRQ_DOMAIN_HIERARCHY
- 	select PARTITION_PERCPU
- 	select GENERIC_IRQ_EFFECTIVE_AFF_MASK
-@@ -62,8 +60,7 @@ config ARM_NVIC
- config ARM_VIC
- 	bool
- 	select IRQ_DOMAIN
--	select MULTI_IRQ_HANDLER
--	select GENERIC_IRQ_MULTI_HANDLER if !MULTI_IRQ_HANDLER
-+	select GENERIC_IRQ_MULTI_HANDLER
- 
- config ARM_VIC_NR
- 	int
-@@ -90,16 +87,14 @@ config ATMEL_AIC_IRQ
- 	bool
- 	select GENERIC_IRQ_CHIP
- 	select IRQ_DOMAIN
--	select MULTI_IRQ_HANDLER
--	select GENERIC_IRQ_MULTI_HANDLER if !MULTI_IRQ_HANDLER
-+	select GENERIC_IRQ_MULTI_HANDLER
- 	select SPARSE_IRQ
- 
- config ATMEL_AIC5_IRQ
- 	bool
- 	select GENERIC_IRQ_CHIP
- 	select IRQ_DOMAIN
--	select MULTI_IRQ_HANDLER
--	select GENERIC_IRQ_MULTI_HANDLER if !MULTI_IRQ_HANDLER
-+	select GENERIC_IRQ_MULTI_HANDLER
- 	select SPARSE_IRQ
- 
- config I8259
-@@ -136,8 +131,7 @@ config DW_APB_ICTL
- config FARADAY_FTINTC010
- 	bool
- 	select IRQ_DOMAIN
--	select MULTI_IRQ_HANDLER
--	select GENERIC_IRQ_MULTI_HANDLER if !MULTI_IRQ_HANDLER
-+	select GENERIC_IRQ_MULTI_HANDLER
- 	select SPARSE_IRQ
- 
- config HISILICON_IRQ_MBIGEN
-@@ -162,8 +156,7 @@ config CLPS711X_IRQCHIP
- 	bool
- 	depends on ARCH_CLPS711X
- 	select IRQ_DOMAIN
--	select MULTI_IRQ_HANDLER
--	select GENERIC_IRQ_MULTI_HANDLER if !MULTI_IRQ_HANDLER
-+	select GENERIC_IRQ_MULTI_HANDLER
- 	select SPARSE_IRQ
- 	default y
- 
-@@ -182,8 +175,7 @@ config OMAP_IRQCHIP
- config ORION_IRQCHIP
- 	bool
- 	select IRQ_DOMAIN
--	select MULTI_IRQ_HANDLER
--	select GENERIC_IRQ_MULTI_HANDLER if !MULTI_IRQ_HANDLER
-+	select GENERIC_IRQ_MULTI_HANDLER
- 
- config PIC32_EVIC
- 	bool
-diff --git a/kernel/irq/Kconfig b/kernel/irq/Kconfig
-index 8596baa8e53d..116a6972f124 100644
---- a/kernel/irq/Kconfig
-+++ b/kernel/irq/Kconfig
-@@ -134,7 +134,6 @@ config GENERIC_IRQ_DEBUGFS
- endmenu
- 
- config GENERIC_IRQ_MULTI_HANDLER
--	depends on !MULTI_IRQ_HANDLER
- 	bool
- 	help
- 	  Allow each machine to specify it's own IRQ handler at run time.
--- 
-2.16.1
-
+> ---
+>  arch/openrisc/mm/init.c | 7 -------
+>  1 file changed, 7 deletions(-)
+> 
+> diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
+> index 6972d5d6f23f..c1a3dcf9ad40 100644
+> --- a/arch/openrisc/mm/init.c
+> +++ b/arch/openrisc/mm/init.c
+> @@ -222,13 +222,6 @@ void __init mem_init(void)
+>  	return;
+>  }
+>  
+> -#ifdef CONFIG_BLK_DEV_INITRD
+> -void free_initrd_mem(unsigned long start, unsigned long end)
+> -{
+> -	free_reserved_area((void *)start, (void *)end, -1, "initrd");
+> -}
+> -#endif
+> -
+>  void free_initmem(void)
+>  {
+>  	free_initmem_default(-1);
+> -- 
+> 2.16.2
+> 
