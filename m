@@ -1,55 +1,56 @@
-From: Wei Yang <richard.weiyang@gmail.com>
-Date: Thu, 29 Mar 2018 09:12:10 +0800
-Subject: [OpenRISC] [PATCH] Extract initrd free logic from arch-specific
-	code.
-In-Reply-To: <CAGXu5jLioqnOQniXuuNS=PjeAgJr1=BL78Cqu0cwu_Y5e-NDZA@mail.gmail.com>
-References: <20180325221853.10839-1-shea@shealevy.com>
- <20180328152714.6103-1-shea@shealevy.com>
- <CAGXu5jLioqnOQniXuuNS=PjeAgJr1=BL78Cqu0cwu_Y5e-NDZA@mail.gmail.com>
-Message-ID: <20180329011210.GA4275@WeideMacBook-Pro.local>
+From: Stafford Horne <shorne@gmail.com>
+Date: Thu, 29 Mar 2018 14:01:44 +0900
+Subject: [OpenRISC] [PATCH v4 2/8] openrisc: Set CONFIG_MULTI_IRQ_HANDLER
+In-Reply-To: <20180327161911.14086-3-palmer@sifive.com>
+References: <20180327161911.14086-1-palmer@sifive.com>
+ <20180327161911.14086-3-palmer@sifive.com>
+Message-ID: <20180329050144.GD2836@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Mar 28, 2018 at 09:55:07AM -0700, Kees Cook wrote:
->On Wed, Mar 28, 2018 at 8:26 AM, Shea Levy <shea@shealevy.com> wrote:
->> Now only those architectures that have custom initrd free requirements
->> need to define free_initrd_mem.
->>
->> Signed-off-by: Shea Levy <shea@shealevy.com>
->
->Yay consolidation! :)
->
->> --- a/usr/Kconfig
->> +++ b/usr/Kconfig
->> @@ -233,3 +233,7 @@ config INITRAMFS_COMPRESSION
->>         default ".lzma" if RD_LZMA
->>         default ".bz2"  if RD_BZIP2
->>         default ""
->> +
->> +config HAVE_ARCH_FREE_INITRD_MEM
->> +       bool
->> +       default n
->
->If you keep the Kconfig, you can leave off "default n", and I'd
->suggest adding a help section just to describe what the per-arch
->responsibilities are when select-ing the config. (See
->HAVE_ARCH_SECCOMP_FILTER for an example.)
->
+On Tue, Mar 27, 2018 at 09:19:05AM -0700, Palmer Dabbelt wrote:
+> arm has an optional MULTI_IRQ_HANDLER, which openrisc copied but didn't
+> make optional.  I'm converting this to generic code, but in order to
+> ensure everything stays bisectable I want this defined on openrisc for
+> now.  This will go away by the end of the patch set.
+> 
+> Signed-off-by: Palmer Dabbelt <palmer@sifive.com>
 
-One question about this change.
+Hi Palmer,
+Thanks for doing this work, its always nice to see generic code pulled out of
+architecture ports.
 
-The original code would "select" HAVE_ARCH_FREE_INITRD_MEM on those arch.
-After this change, we need to manually "select" this?
+Acked-by: Stafford Horne <shorne@gmail.com>
 
->-Kees
->
->-- 
->Kees Cook
->Pixel Security
-
--- 
-Wei Yang
-Help you, Help me
+> ---
+>  arch/openrisc/Kconfig | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+> index 339df7324e9c..9ecad05bfc73 100644
+> --- a/arch/openrisc/Kconfig
+> +++ b/arch/openrisc/Kconfig
+> @@ -27,6 +27,7 @@ config OPENRISC
+>  	select GENERIC_STRNLEN_USER
+>  	select GENERIC_SMP_IDLE_THREAD
+>  	select MODULES_USE_ELF_RELA
+> +	select MULTI_IRQ_HANDLER
+>  	select HAVE_DEBUG_STACKOVERFLOW
+>  	select OR1K_PIC
+>  	select CPU_NO_EFFICIENT_FFS if !OPENRISC_HAVE_INST_FF1
+> @@ -68,6 +69,9 @@ config STACKTRACE_SUPPORT
+>  config LOCKDEP_SUPPORT
+>  	def_bool  y
+>  
+> +config MULTI_IRQ_HANDLER
+> +	def_bool y
+> +
+>  source "init/Kconfig"
+>  
+>  source "kernel/Kconfig.freezer"
+> -- 
+> 2.16.1
+> 
