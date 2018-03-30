@@ -1,46 +1,45 @@
-From: Marc Zyngier <marc.zyngier@arm.com>
-Date: Thu, 29 Mar 2018 18:53:43 +0100
+From: kbuild test robot <lkp@intel.com>
+Date: Fri, 30 Mar 2018 09:43:19 +0800
 Subject: [OpenRISC] [PATCH] Extract initrd free logic from arch-specific
 	code.
-In-Reply-To: <20180329173247.GF16141@n2100.armlinux.org.uk>
+In-Reply-To: <20180328152714.6103-1-shea@shealevy.com>
 References: <20180328152714.6103-1-shea@shealevy.com>
- <05620fee-e8b5-0668-77b8-da073dc78c40@landley.net>
- <20180328164813.GA3888@n2100.armlinux.org.uk>
- <de092e7f-0bc9-bb06-9798-12784930a6bd@landley.net>
- <20180328221401.GA14084@n2100.armlinux.org.uk>
- <CAOSf1CG8gQjoL5rDMRMcZp=D8jBEQ9JBSG68=CiXnitC+4Kjvg@mail.gmail.com>
- <20180329152749.GC16141@n2100.armlinux.org.uk>
- <CAMuHMdXAckNiUQKT2WU6xaJjbECrifmH6fg_mET+h3iXf_RgDQ@mail.gmail.com>
- <20180329155827.GD16141@n2100.armlinux.org.uk>
- <86zi2qrfgl.wl-marc.zyngier@arm.com>
- <20180329173247.GF16141@n2100.armlinux.org.uk>
-Message-ID: <86y3iarcns.wl-marc.zyngier@arm.com>
+Message-ID: <201803300950.Egf6dCw2%fengguang.wu@intel.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Thu, 29 Mar 2018 18:32:47 +0100,
-Russell King - ARM Linux wrote:
-> 
-> On Thu, Mar 29, 2018 at 05:53:14PM +0100, Marc Zyngier wrote:
-> > On Thu, 29 Mar 2018 16:58:27 +0100,
-> > Russell King - ARM Linux wrote:
+Hi Shea,
 
-[...]
+Thank you for the patch! Perhaps something to improve:
 
-> > > I'm not aware of there being an emulated UART in the guest's address
-> > > space, so serial based stuff doesn't work.
-> > 
-> > "earlycon=uart,mmio,0x3f8" is what you're looking for:
-> 
-> Does that also mean that we have a RTC at the standard PC IO addresses
-> as well, but in mmio space?
+[auto build test WARNING on linus/master]
+[also build test WARNING on v4.16-rc7]
+[cannot apply to next-20180329]
+[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
 
-There is one, together with an i8042. Not exposed in the DT though.
+url:    https://github.com/0day-ci/linux/commits/Shea-Levy/Extract-initrd-free-logic-from-arch-specific-code/20180330-085507
+config: ia64-allnoconfig (attached as .config)
+compiler: ia64-linux-gcc (GCC) 7.2.0
+reproduce:
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # save the attached .config to linux build tree
+        make.cross ARCH=ia64 
 
-	M.
+All warnings (new ones prefixed by >>):
 
--- 
-Jazz is not dead, it just smell funny.
+warning: (IA64) selects HAVE_ARCH_FREE_INITRD_MEM which has unmet direct dependencies (BLK_DEV_INITRD)
+
+---
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: .config.gz
+Type: application/gzip
+Size: 5949 bytes
+Desc: not available
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20180330/98d37ab0/attachment-0001.gz>
