@@ -1,29 +1,39 @@
-From: Ingo Molnar <mingo@kernel.org>
-Date: Mon, 2 Apr 2018 07:59:33 +0200
-Subject: [OpenRISC] [PATCH] Extract initrd free logic from arch-specific
-	code.
-In-Reply-To: <87bmf3rmq6.fsf@xps13.shealevy.com>
-References: <20180325221853.10839-1-shea@shealevy.com>
- <20180328152714.6103-1-shea@shealevy.com>
- <20180330111517.rrx6gs2skkgk336j@gmail.com>
- <87bmf3rmq6.fsf@xps13.shealevy.com>
-Message-ID: <20180402055933.zbpyorktot2owzzu@gmail.com>
+From: Julius Baxter <julius@fossi-foundation.org>
+Date: Wed, 4 Apr 2018 16:54:50 +1000
+Subject: [OpenRISC] ORConf 2018
+Message-ID: <CA+5O_Ktwa_MZS285MCK6u=TfjMCvctWdOfVSXHh6jy0nmK0AhA@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
+Hi all,
 
-* Shea Levy <shea@shealevy.com> wrote:
+This is a save-the-date for ORConf 2018, which will be held in Gdansk,
+Poland over September 21 to 23 at the Gdansk University of Technology.
 
-> > Please also put it into Documentation/features/.
-> 
-> I switched this patch series (the latest revision v6 was just posted) to
-> using weak symbols instead of Kconfig. Does it still warrant documentation?
+ORConf is a conference for open source digital, semiconductor and
+embedded systems designers and users. Each year attendees are treated
+to an ever-impressive array of presentations from all corners of the
+open source hardware space.
 
-Probably not.
+Proceedings will follow the same formula again this year; with 3 days
+of presentations, a dinner, and as always it will be free to attend.
+Sponsorship packages are available so please get in touch if you'd
+like more information about supporting the event.
 
-Thanks,
+You can now register to attend via this form:
+https://goo.gl/forms/96HgBQGARX8R1Lmk2
 
-	Ingo
+Presentations submissions are also being accepted too:
+https://goo.gl/forms/sP5otWAbv72gheU33
+
+Visit https://orconf.org for all of the latest information about the event.
+
+We hope to see as many of you as possible again this year for what is
+always a great few days!
+
+Cheers,
+
+The ORConf team
