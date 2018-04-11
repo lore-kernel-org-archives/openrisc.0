@@ -1,44 +1,71 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Date: Mon, 9 Apr 2018 10:32:48 +0200
-Subject: [OpenRISC] [PATCH] openrisc: define mb() as its mandatory
-In-Reply-To: <20180408000729.GM2836@lianli.shorne-pla.net>
-References: <20180406205852.14821-1-shorne@gmail.com>
- <20180407090905.GQ4082@hirez.programming.kicks-ass.net>
- <20180408000729.GM2836@lianli.shorne-pla.net>
-Message-ID: <20180409083248.GV4082@hirez.programming.kicks-ass.net>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Wed, 11 Apr 2018 17:40:02 +0200
+Subject: [OpenRISC] [GIT PULL] asm-generic fixes for v4.17-rc1
+Message-ID: <CAK8P3a081_hkr5d0FRWpTaT-AsJoqznsS1=_WF4JVLTUOupUgg@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sun, Apr 08, 2018 at 09:07:29AM +0900, Stafford Horne wrote:
-> On Sat, Apr 07, 2018 at 11:09:05AM +0200, Peter Zijlstra wrote:
-> > On Sat, Apr 07, 2018 at 05:58:49AM +0900, Stafford Horne wrote:
-> > > Following Peter Z's patch ("asm-generic: Disallow no-op mb() for SMP
-> > > systems") which makes mb() mandatory for SMP architectures we define it
-> > > as l.msync.  On OpenRISC this will flush the current cores write buffer
-> > > and trigger remote cores to invalidate their caches of the written
-> > > memory.
-> > > 
-> > > Signed-off-by: Stafford Horne <shorne@gmail.com>
-> > > Link: https://lkml.org/lkml/2018/1/31/254
-> > > Cc: Peter Zijlstra <peterz@infradead.org>
-> > > Cc: Will Deacon <will.deacon@arm.com>
-> > > ---
-> > > 
-> > > Notes:
-> > >   - Sorry, its been a while since we discussed this patch is the parent to this 
-> > >     still going in Peter?
-> > 
-> > Oops.. yes it should. It seems I also lost track of it. Thanks for the
-> > reminder!
-> 
-> No Problem,
-> 
-> If you think this patch makes sense I can just put it into my OpenRISC queue for
-> 4.17.  I dont see any reason to wait for yours. Any thoughts?
+The following changes since commit 0adb32858b0bddf4ada5f364a84ed60b196dbcda:
 
-I'm fine with you taking the patch, but I just saw the build robot found
-two failure cases: PARISC and 32-bit SPARC. I send patches for both, if
-their respective maintainers agree you could do the lot.
+  Linux 4.16 (2018-04-01 14:20:27 -0700)
+
+are available in the git repository at:
+
+  git+ssh://gitolite at ra.kernel.org/pub/scm/linux/kernel/git/arnd/asm-generic.git
+tags/asm-generic
+
+for you to fetch changes up to a71e7c44ffb7baea0c0795824afc34cc0bc1a301:
+
+  io: change writeX_relaxed() to remove barriers (2018-04-10 16:37:34 +0200)
+
+----------------------------------------------------------------
+asm-generic fixes for v4.17-rc1
+
+I have one regression fix for a minor build problem after the architecture
+removal series, plus a rework of the barriers in the readl/writel
+functions, thanks to work by Sinan Kaya:
+
+This started from a discussion on the linuxpcc and rdma mailing lists
+[1]. To summarize, we decided that architectures are responsible to
+serialize readl() and writel() accesses on a device MMIO space relative
+to DMA performed by that device.
+
+This series provides a pessimistic implementation of that behavior for
+asm-generic/io.h, which is in turn used by a number of architectures
+(h8300, microblaze, nios2, openrisc, s390, sparc, um, unicore32, and
+xtensa). Some of those presumably need no extra barriers, or something
+weaker than rmb()/wmb(), and they are advised to override the new default
+for better performance.
+
+For inb()/outb(), the same barriers are used, but architectures might
+want to add another barrier to outb() here if that can guarantee
+non-posted behavior (some architectures can, others cannot do that).
+
+The readl_relaxed()/writel_relaxed() family of functions retains the
+existing behavior with no extra barriers.
+
+[1]: https://lists.ozlabs.org/pipermail/linuxppc-dev/2018-March/170481.html
+
+----------------------------------------------------------------
+Liu, Changcheng (1):
+      dts: remove cris & metag dts hard link file
+
+Sinan Kaya (7):
+      io: define several IO & PIO barrier types for the asm-generic version
+      io: define stronger ordering for the default readX() implementation
+      io: define stronger ordering for the default writeX() implementation
+      io: change outX() to have their own IO barrier overrides
+      io: change inX() to have their own IO barrier overrides
+      io: change readX_relaxed() to remove barriers
+      io: change writeX_relaxed() to remove barriers
+
+ include/asm-generic/io.h           | 161
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++------------
+ scripts/dtc/include-prefixes/cris  |   1 -
+ scripts/dtc/include-prefixes/metag |   1 -
+ 3 files changed, 143 insertions(+), 20 deletions(-)
+ delete mode 120000 scripts/dtc/include-prefixes/cris
+ delete mode 120000 scripts/dtc/include-prefixes/metag
