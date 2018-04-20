@@ -1,102 +1,174 @@
 From: Eric W. Biederman <ebiederm@xmission.com>
-Date: Fri, 20 Apr 2018 09:35:52 -0500
-Subject: [OpenRISC] [REVIEW][PATCH 00/22] Simplifying siginfo users
-In-Reply-To: <878t9ilmhv.fsf@xmission.com> (Eric W. Biederman's message of
- "Thu, 19 Apr 2018 20:01:16 -0500")
-References: <878t9ilmhv.fsf@xmission.com>
-Message-ID: <87604mhrnb.fsf@xmission.com>
+Date: Fri, 20 Apr 2018 09:38:00 -0500
+Subject: [OpenRISC] [REVIEW][PATCH 11/22] signal/openrisc: Use
+	force_sig_fault where appropriate
+In-Reply-To: <87604mhrnb.fsf@xmission.com>
+References: <87604mhrnb.fsf@xmission.com>
+Message-ID: <20180420143811.9994-11-ebiederm@xmission.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
+Filling in struct siginfo before calling force_sig_info a tedious and
+error prone process, where once in a great while the wrong fields
+are filled out, and siginfo has been inconsistently cleared.
 
-This patchset is almost completely updating the various pieces of
-architecture code from filling out a struct siginfo and then calling
-force_sig_info.  To using the helper force_sig_fault instead.  Which
-takes the values that would have gone in siginfo as arguments.
+Simplify this process by using the helper force_sig_fault.  Which
+takes as a parameters all of the information it needs, ensures
+all of the fiddly bits of filling in struct siginfo are done properly
+and then calls force_sig_info.
 
-As the diffstat below shows this noticeable reduces the amount of code.
+In short about a 5 line reduction in code for every time force_sig_info
+is called, which makes the calling function clearer.
 
-There are a couple of minor and straight forward bug fixes as well
-that I came across while working on the aforementioned changes.
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Cc: Stafford Horne <shorne@gmail.com>
+Cc: openrisc at lists.librecores.org
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+---
+ arch/openrisc/kernel/traps.c | 33 ++++-----------------------------
+ arch/openrisc/mm/fault.c     | 19 +++++--------------
+ 2 files changed, 9 insertions(+), 43 deletions(-)
 
-This applies on my last round of siginfo changes simply to remove the
-possibility of conflicts.  The changes should be semantically separate.
+diff --git a/arch/openrisc/kernel/traps.c b/arch/openrisc/kernel/traps.c
+index 1610b1d65a11..fac246e6f37a 100644
+--- a/arch/openrisc/kernel/traps.c
++++ b/arch/openrisc/kernel/traps.c
+@@ -250,28 +250,16 @@ void __init trap_init(void)
+ 
+ asmlinkage void do_trap(struct pt_regs *regs, unsigned long address)
+ {
+-	siginfo_t info;
+-	clear_siginfo(&info);
+-	info.si_signo = SIGTRAP;
+-	info.si_code = TRAP_TRACE;
+-	info.si_addr = (void *)address;
+-	force_sig_info(SIGTRAP, &info, current);
++	force_sig_fault(SIGTRAP, TRAP_TRACE, (void __user *)address, current);
+ 
+ 	regs->pc += 4;
+ }
+ 
+ asmlinkage void do_unaligned_access(struct pt_regs *regs, unsigned long address)
+ {
+-	siginfo_t info;
+-
+ 	if (user_mode(regs)) {
+ 		/* Send a SIGBUS */
+-		clear_siginfo(&info);
+-		info.si_signo = SIGBUS;
+-		info.si_errno = 0;
+-		info.si_code = BUS_ADRALN;
+-		info.si_addr = (void __user *)address;
+-		force_sig_info(SIGBUS, &info, current);
++		force_sig_fault(SIGBUS, BUS_ADRALN, (void __user *)address, current);
+ 	} else {
+ 		printk("KERNEL: Unaligned Access 0x%.8lx\n", address);
+ 		show_registers(regs);
+@@ -282,16 +270,9 @@ asmlinkage void do_unaligned_access(struct pt_regs *regs, unsigned long address)
+ 
+ asmlinkage void do_bus_fault(struct pt_regs *regs, unsigned long address)
+ {
+-	siginfo_t info;
+-
+ 	if (user_mode(regs)) {
+ 		/* Send a SIGBUS */
+-		clear_siginfo(&info);
+-		info.si_signo = SIGBUS;
+-		info.si_errno = 0;
+-		info.si_code = BUS_ADRERR;
+-		info.si_addr = (void *)address;
+-		force_sig_info(SIGBUS, &info, current);
++		force_sig_fault(SIGBUS, BUS_ADRERR, (void __user *)address, current);
+ 	} else {		/* Kernel mode */
+ 		printk("KERNEL: Bus error (SIGBUS) 0x%.8lx\n", address);
+ 		show_registers(regs);
+@@ -466,7 +447,6 @@ static inline void simulate_swa(struct pt_regs *regs, unsigned long address,
+ asmlinkage void do_illegal_instruction(struct pt_regs *regs,
+ 				       unsigned long address)
+ {
+-	siginfo_t info;
+ 	unsigned int op;
+ 	unsigned int insn = *((unsigned int *)address);
+ 
+@@ -487,12 +467,7 @@ asmlinkage void do_illegal_instruction(struct pt_regs *regs,
+ 
+ 	if (user_mode(regs)) {
+ 		/* Send a SIGILL */
+-		clear_siginfo(&info);
+-		info.si_signo = SIGILL;
+-		info.si_errno = 0;
+-		info.si_code = ILL_ILLOPC;
+-		info.si_addr = (void *)address;
+-		force_sig_info(SIGBUS, &info, current);
++		force_sig_fault(SIGILL, ILL_ILLOPC, (void __user *)address, current);
+ 	} else {		/* Kernel mode */
+ 		printk("KERNEL: Illegal instruction (SIGILL) 0x%.8lx\n",
+ 		       address);
+diff --git a/arch/openrisc/mm/fault.c b/arch/openrisc/mm/fault.c
+index 68be33e4ae17..9f011d16cc46 100644
+--- a/arch/openrisc/mm/fault.c
++++ b/arch/openrisc/mm/fault.c
+@@ -52,11 +52,10 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	struct task_struct *tsk;
+ 	struct mm_struct *mm;
+ 	struct vm_area_struct *vma;
+-	siginfo_t info;
++	int si_code;
+ 	int fault;
+ 	unsigned int flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
+ 
+-	clear_siginfo(&info);
+ 	tsk = current;
+ 
+ 	/*
+@@ -98,7 +97,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	}
+ 
+ 	mm = tsk->mm;
+-	info.si_code = SEGV_MAPERR;
++	si_code = SEGV_MAPERR;
+ 
+ 	/*
+ 	 * If we're in an interrupt or have no user
+@@ -140,7 +139,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	 */
+ 
+ good_area:
+-	info.si_code = SEGV_ACCERR;
++	si_code = SEGV_ACCERR;
+ 
+ 	/* first do some preliminary protection checks */
+ 
+@@ -214,11 +213,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	/* User mode accesses just cause a SIGSEGV */
+ 
+ 	if (user_mode(regs)) {
+-		info.si_signo = SIGSEGV;
+-		info.si_errno = 0;
+-		/* info.si_code has been set above */
+-		info.si_addr = (void *)address;
+-		force_sig_info(SIGSEGV, &info, tsk);
++		force_sig_fault(SIGSEGV, si_code, (void __user *)address, tsk);
+ 		return;
+ 	}
+ 
+@@ -283,11 +278,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	 * Send a sigbus, regardless of whether we were in kernel
+ 	 * or user mode.
+ 	 */
+-	info.si_signo = SIGBUS;
+-	info.si_errno = 0;
+-	info.si_code = BUS_ADRERR;
+-	info.si_addr = (void *)address;
+-	force_sig_info(SIGBUS, &info, tsk);
++	force_sig_fault(SIGBUS, BUS_ADRERR, (void __user *)address, tsk);
+ 
+ 	/* Kernel mode? Handle exceptions or die */
+ 	if (!user_mode(regs))
+-- 
+2.14.1
 
-I intend to merge these changes through my siginfo tree.  If you have
-any objections or would prefer to carry these changes in your
-architecture trees please let me know.
-
-The changes are also available at:
-  git://git.kernel.org/pub/scm/linux/kernel/git/ebiederm/user-namespace.git siginfo-review2
-
-Eric W. Biederman (22):
-      signal/alpha: Use send_sig_fault where appropriate
-      signal/alpha: Use force_sig_fault where appropriate
-      signal/c6x: Use force_sig_fault where appropriate
-      signal/hexagon: Use force_sig_fault as appropriate
-      signal/m68k: Use force_sig_fault where appropriate
-      signal/microblaze: Remove the commented out force_sig_info in do_page_fault
-      signal/microblaze: Use force_sig_fault where appropriate
-      signal/mips: Use force_sig_fault where appropriate
-      signal/nds32: Use force_sig_fault where appropriate
-      signal/nios2: Use force_sig_fault where appropriate
-      signal/openrisc: Use force_sig_fault where appropriate
-      signal/parisc: Use force_sig_mceerr where appropriate
-      signal/parisc: Use force_sig_fault where appropriate
-      signal/riscv: Use force_sig_fault where appropriate
-      signal/s390: Use force_sig_fault where appropriate
-      signal/sh: Use force_sig_fault where appropriate
-      signal/sparc: Use send_sig_fault where appropriate
-      signal/sparc: Use force_sig_fault where appropriate
-      signal/um: Use force_sig_fault in relay_signal.
-      signal/um: Use force_sig_fault where appropriate
-      signal/xtensa: Consistenly use SIGBUS in do_unaligned_user
-      signal/xtensa: Use force_sig_fault where appropriate
-
- arch/alpha/kernel/osf_sys.c         |  10 +--
- arch/alpha/kernel/signal.c          |  22 +-----
- arch/alpha/kernel/traps.c           |  80 +++++---------------
- arch/alpha/mm/fault.c               |  15 +---
- arch/c6x/kernel/traps.c             |  10 +--
- arch/hexagon/kernel/traps.c         |  10 +--
- arch/hexagon/mm/vm_fault.c          |  21 ++----
- arch/m68k/kernel/traps.c            |  60 +++++++--------
- arch/m68k/mm/fault.c                |  25 +++----
- arch/microblaze/kernel/exceptions.c |   9 +--
- arch/microblaze/mm/fault.c          |  14 +---
- arch/mips/kernel/traps.c            |  65 +++++-----------
- arch/mips/mm/fault.c                |  19 ++---
- arch/nds32/kernel/traps.c           |  20 +----
- arch/nds32/mm/fault.c               |  19 ++---
- arch/nios2/kernel/traps.c           |   9 +--
- arch/openrisc/kernel/traps.c        |  33 +-------
- arch/openrisc/mm/fault.c            |  19 ++---
- arch/parisc/kernel/ptrace.c         |  11 +--
- arch/parisc/kernel/traps.c          |  63 +++++-----------
- arch/parisc/kernel/unaligned.c      |  16 +---
- arch/parisc/math-emu/driver.c       |   9 +--
- arch/parisc/mm/fault.c              |  55 +++++++-------
- arch/riscv/kernel/traps.c           |   9 +--
- arch/s390/kernel/traps.c            |  32 ++------
- arch/s390/mm/fault.c                |  23 ++----
- arch/sh/kernel/traps_32.c           |  19 ++---
- arch/sh/math-emu/math.c             |   9 +--
- arch/sh/mm/fault.c                  |  10 +--
- arch/sparc/kernel/process_64.c      |  10 +--
- arch/sparc/kernel/sys_sparc_32.c    |   9 +--
- arch/sparc/kernel/sys_sparc_64.c    |   8 +-
- arch/sparc/kernel/traps_32.c        | 114 +++++-----------------------
- arch/sparc/kernel/traps_64.c        | 145 +++++++-----------------------------
- arch/sparc/kernel/unaligned_32.c    |  12 +--
- arch/sparc/mm/fault_32.c            |  13 +---
- arch/sparc/mm/fault_64.c            |   9 +--
- arch/um/kernel/ptrace.c             |  13 +---
- arch/um/kernel/trap.c               |  54 ++++++--------
- arch/xtensa/kernel/traps.c          |  10 +--
- arch/xtensa/mm/fault.c              |  19 ++---
- 41 files changed, 280 insertions(+), 852 deletions(-)
-
-Eric
