@@ -1,102 +1,102 @@
-From: Robin Murphy <robin.murphy@arm.com>
-Date: Fri, 20 Apr 2018 11:23:43 +0100
-Subject: [OpenRISC] [PATCH 01/22] dma-debug: move initialization to
-	common code
-In-Reply-To: <20180420080313.18796-2-hch@lst.de>
-References: <20180420080313.18796-1-hch@lst.de>
- <20180420080313.18796-2-hch@lst.de>
-Message-ID: <294a1469-01d6-10fb-5de1-b1d4513a066c@arm.com>
+From: Eric W. Biederman <ebiederm@xmission.com>
+Date: Fri, 20 Apr 2018 09:35:52 -0500
+Subject: [OpenRISC] [REVIEW][PATCH 00/22] Simplifying siginfo users
+In-Reply-To: <878t9ilmhv.fsf@xmission.com> (Eric W. Biederman's message of
+ "Thu, 19 Apr 2018 20:01:16 -0500")
+References: <878t9ilmhv.fsf@xmission.com>
+Message-ID: <87604mhrnb.fsf@xmission.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Christoph,
 
-Nice cleanup! Looks good overall, just a couple of nits.
+This patchset is almost completely updating the various pieces of
+architecture code from filling out a struct siginfo and then calling
+force_sig_info.  To using the helper force_sig_fault instead.  Which
+takes the values that would have gone in siginfo as arguments.
 
-On 20/04/18 09:02, Christoph Hellwig wrote:
-[...]
-> diff --git a/lib/dma-debug.c b/lib/dma-debug.c
-> index 7f5cdc1e6b29..712a897174e4 100644
-> --- a/lib/dma-debug.c
-> +++ b/lib/dma-debug.c
-> @@ -41,6 +41,11 @@
->   #define HASH_FN_SHIFT   13
->   #define HASH_FN_MASK    (HASH_SIZE - 1)
->   
-> +/* allow architectures to override this if absolutely required */
-> +#ifndef PREALLOC_DMA_DEBUG_ENTRIES
-> +#define PREALLOC_DMA_DEBUG_ENTRIES (1 << 16)
-> +#endif
-> +
->   enum {
->   	dma_debug_single,
->   	dma_debug_page,
-> @@ -1004,18 +1009,16 @@ void dma_debug_add_bus(struct bus_type *bus)
->   	bus_register_notifier(bus, nb);
->   }
->   
-> -/*
-> - * Let the architectures decide how many entries should be preallocated.
-> - */
-> -void dma_debug_init(u32 num_entries)
-> +static int dma_debug_init(void)
->   {
-> +	u32 num_entries;
+As the diffstat below shows this noticeable reduces the amount of code.
 
-Maybe initialise it to PREALLOC_DMA_DEBUG_ENTRIES?
+There are a couple of minor and straight forward bug fixes as well
+that I came across while working on the aforementioned changes.
 
->   	int i;
->   
->   	/* Do not use dma_debug_initialized here, since we really want to be
->   	 * called to set dma_debug_initialized
->   	 */
->   	if (global_disable)
-> -		return;
-> +		return 0;
->   
->   	for (i = 0; i < HASH_SIZE; ++i) {
->   		INIT_LIST_HEAD(&dma_entry_hash[i].list);
-> @@ -1026,17 +1029,19 @@ void dma_debug_init(u32 num_entries)
->   		pr_err("DMA-API: error creating debugfs entries - disabling\n");
->   		global_disable = true;
->   
-> -		return;
-> +		return 0;
->   	}
->   
->   	if (req_entries)
->   		num_entries = req_entries;
-> +	else
-> +		num_entries = PREALLOC_DMA_DEBUG_ENTRIES;
->   
->   	if (prealloc_memory(num_entries) != 0) {
->   		pr_err("DMA-API: debugging out of memory error - disabled\n");
->   		global_disable = true;
->   
-> -		return;
-> +		return 0;
->   	}
->   
->   	nr_total_entries = num_free_entries;
-> @@ -1044,7 +1049,9 @@ void dma_debug_init(u32 num_entries)
->   	dma_debug_initialized = true;
->   
->   	pr_info("DMA-API: debugging enabled by kernel config\n");
-> +	return 0;
->   }
-> +core_initcall(dma_debug_init);
+This applies on my last round of siginfo changes simply to remove the
+possibility of conflicts.  The changes should be semantically separate.
 
-I think it's worth noting that for most users this now happens much 
-earlier than before. In general that's probably good (e.g. on arm64 it 
-should prevent false-positives from the Arm SMMU drivers under ACPI), 
-and I can't imagine it's high-risk, but it is a behaviour change.
+I intend to merge these changes through my siginfo tree.  If you have
+any objections or would prefer to carry these changes in your
+architecture trees please let me know.
 
-Robin.
+The changes are also available at:
+  git://git.kernel.org/pub/scm/linux/kernel/git/ebiederm/user-namespace.git siginfo-review2
 
->   
->   static __init int dma_debug_cmdline(char *str)
->   {
-> 
+Eric W. Biederman (22):
+      signal/alpha: Use send_sig_fault where appropriate
+      signal/alpha: Use force_sig_fault where appropriate
+      signal/c6x: Use force_sig_fault where appropriate
+      signal/hexagon: Use force_sig_fault as appropriate
+      signal/m68k: Use force_sig_fault where appropriate
+      signal/microblaze: Remove the commented out force_sig_info in do_page_fault
+      signal/microblaze: Use force_sig_fault where appropriate
+      signal/mips: Use force_sig_fault where appropriate
+      signal/nds32: Use force_sig_fault where appropriate
+      signal/nios2: Use force_sig_fault where appropriate
+      signal/openrisc: Use force_sig_fault where appropriate
+      signal/parisc: Use force_sig_mceerr where appropriate
+      signal/parisc: Use force_sig_fault where appropriate
+      signal/riscv: Use force_sig_fault where appropriate
+      signal/s390: Use force_sig_fault where appropriate
+      signal/sh: Use force_sig_fault where appropriate
+      signal/sparc: Use send_sig_fault where appropriate
+      signal/sparc: Use force_sig_fault where appropriate
+      signal/um: Use force_sig_fault in relay_signal.
+      signal/um: Use force_sig_fault where appropriate
+      signal/xtensa: Consistenly use SIGBUS in do_unaligned_user
+      signal/xtensa: Use force_sig_fault where appropriate
+
+ arch/alpha/kernel/osf_sys.c         |  10 +--
+ arch/alpha/kernel/signal.c          |  22 +-----
+ arch/alpha/kernel/traps.c           |  80 +++++---------------
+ arch/alpha/mm/fault.c               |  15 +---
+ arch/c6x/kernel/traps.c             |  10 +--
+ arch/hexagon/kernel/traps.c         |  10 +--
+ arch/hexagon/mm/vm_fault.c          |  21 ++----
+ arch/m68k/kernel/traps.c            |  60 +++++++--------
+ arch/m68k/mm/fault.c                |  25 +++----
+ arch/microblaze/kernel/exceptions.c |   9 +--
+ arch/microblaze/mm/fault.c          |  14 +---
+ arch/mips/kernel/traps.c            |  65 +++++-----------
+ arch/mips/mm/fault.c                |  19 ++---
+ arch/nds32/kernel/traps.c           |  20 +----
+ arch/nds32/mm/fault.c               |  19 ++---
+ arch/nios2/kernel/traps.c           |   9 +--
+ arch/openrisc/kernel/traps.c        |  33 +-------
+ arch/openrisc/mm/fault.c            |  19 ++---
+ arch/parisc/kernel/ptrace.c         |  11 +--
+ arch/parisc/kernel/traps.c          |  63 +++++-----------
+ arch/parisc/kernel/unaligned.c      |  16 +---
+ arch/parisc/math-emu/driver.c       |   9 +--
+ arch/parisc/mm/fault.c              |  55 +++++++-------
+ arch/riscv/kernel/traps.c           |   9 +--
+ arch/s390/kernel/traps.c            |  32 ++------
+ arch/s390/mm/fault.c                |  23 ++----
+ arch/sh/kernel/traps_32.c           |  19 ++---
+ arch/sh/math-emu/math.c             |   9 +--
+ arch/sh/mm/fault.c                  |  10 +--
+ arch/sparc/kernel/process_64.c      |  10 +--
+ arch/sparc/kernel/sys_sparc_32.c    |   9 +--
+ arch/sparc/kernel/sys_sparc_64.c    |   8 +-
+ arch/sparc/kernel/traps_32.c        | 114 +++++-----------------------
+ arch/sparc/kernel/traps_64.c        | 145 +++++++-----------------------------
+ arch/sparc/kernel/unaligned_32.c    |  12 +--
+ arch/sparc/mm/fault_32.c            |  13 +---
+ arch/sparc/mm/fault_64.c            |   9 +--
+ arch/um/kernel/ptrace.c             |  13 +---
+ arch/um/kernel/trap.c               |  54 ++++++--------
+ arch/xtensa/kernel/traps.c          |  10 +--
+ arch/xtensa/mm/fault.c              |  19 ++---
+ 41 files changed, 280 insertions(+), 852 deletions(-)
+
+Eric
