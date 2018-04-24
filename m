@@ -1,43 +1,54 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Tue, 24 Apr 2018 16:02:35 +0200
-Subject: [OpenRISC] [PATCH 3/3] dma-debug: unexport dma_debug_resize_entries
-	and debug_dma_dump_mappings
-In-Reply-To: <20180424140235.9125-1-hch@lst.de>
-References: <20180424140235.9125-1-hch@lst.de>
-Message-ID: <20180424140235.9125-4-hch@lst.de>
+Date: Tue, 24 Apr 2018 21:16:40 +0200
+Subject: [OpenRISC] [PATCH 13/22] nds32: use generic dma_noncoherent_ops
+In-Reply-To: <CAEbi=3fkakVD2vxGu6SgJM77JnNM8Y79xS8_o6m9d_85BJpMFQ@mail.gmail.com>
+References: <20180420080313.18796-1-hch@lst.de>
+ <20180420080313.18796-14-hch@lst.de>
+ <CAEbi=3fkakVD2vxGu6SgJM77JnNM8Y79xS8_o6m9d_85BJpMFQ@mail.gmail.com>
+Message-ID: <20180424191640.GA32495@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Only used by the AMD GART driver, which must be built in.
+Hi Greentime,
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- lib/dma-debug.c | 2 --
- 1 file changed, 2 deletions(-)
+thanks for testing the patch!
 
-diff --git a/lib/dma-debug.c b/lib/dma-debug.c
-index 075253cb613b..6a1ebaa83623 100644
---- a/lib/dma-debug.c
-+++ b/lib/dma-debug.c
-@@ -444,7 +444,6 @@ void debug_dma_dump_mappings(struct device *dev)
- 		spin_unlock_irqrestore(&bucket->lock, flags);
- 	}
- }
--EXPORT_SYMBOL(debug_dma_dump_mappings);
- 
- /*
-  * For each mapping (initial cacheline in the case of
-@@ -753,7 +752,6 @@ int dma_debug_resize_entries(u32 num_entries)
- 
- 	return ret;
- }
--EXPORT_SYMBOL(dma_debug_resize_entries);
- 
- /*
-  * DMA-API debugging init code
--- 
-2.17.0
+It looks like nds32 doesn't have a buildbot yet, so this code didn't
+even get syntax checkin, sorry.
 
+Below is the incremental fixes based on this thread.
+
+Can you check if my tree works if you just revert the
+"nds32: use generic dma_noncoherent_ops" commit?
+
+diff --git a/arch/nds32/kernel/dma.c b/arch/nds32/kernel/dma.c
+index 688f1a03dee6..48018275e7f4 100644
+--- a/arch/nds32/kernel/dma.c
++++ b/arch/nds32/kernel/dma.c
+@@ -330,7 +330,7 @@ void arch_sync_dma_for_device(struct device *dev, phys_addr_t paddr,
+ 	void *addr = kmap_atomic_pfn(PHYS_PFN(paddr));
+ 	unsigned long start = (unsigned long)addr;
+ 
+-	switch (direction) {
++	switch (dir) {
+ 	case DMA_FROM_DEVICE:
+ 		break;
+ 	case DMA_TO_DEVICE:
+@@ -350,12 +350,12 @@ void arch_sync_dma_for_cpu(struct device *dev, phys_addr_t paddr,
+ 	void *addr = kmap_atomic_pfn(PHYS_PFN(paddr));
+ 	unsigned long start = (unsigned long)addr;
+ 
+-	switch (direction) {
++	switch (dir) {
+ 	case DMA_TO_DEVICE:
+ 		break;
+ 	case DMA_FROM_DEVICE:
+ 	case DMA_BIDIRECTIONAL:
+-		cpu_dma_inval_range(start, end);
++		cpu_dma_inval_range(start, start + size);
+ 		break;
+ 	default:
+ 		BUG();
