@@ -1,36 +1,40 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Tue, 24 Apr 2018 09:35:24 +0200
-Subject: [OpenRISC] [PATCH 01/22] dma-debug: move initialization to
-	common code
-In-Reply-To: <294a1469-01d6-10fb-5de1-b1d4513a066c@arm.com>
+Date: Tue, 24 Apr 2018 10:20:23 +0200
+Subject: [OpenRISC] [PATCH 22/22] parisc: use generic dma_noncoherent_ops
+In-Reply-To: <1524346967.3335.9.camel@HansenPartnership.com>
 References: <20180420080313.18796-1-hch@lst.de>
- <20180420080313.18796-2-hch@lst.de>
- <294a1469-01d6-10fb-5de1-b1d4513a066c@arm.com>
-Message-ID: <20180424073524.GB18945@lst.de>
+ <20180420080313.18796-23-hch@lst.de>
+ <1524346967.3335.9.camel@HansenPartnership.com>
+Message-ID: <20180424082023.GA19725@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, Apr 20, 2018 at 11:23:43AM +0100, Robin Murphy wrote:
->> -void dma_debug_init(u32 num_entries)
->> +static int dma_debug_init(void)
->>   {
->> +	u32 num_entries;
->
-> Maybe initialise it to PREALLOC_DMA_DEBUG_ENTRIES?
+On Sat, Apr 21, 2018 at 10:42:47PM +0100, James Bottomley wrote:
+> Well, this is wrong: you just made every 32 bit parisc system
+> unnecessarily use non-coherent.  We actually only have a small small
+> set of non-coherent systems.  The pxcs and pcxt systems (which are
+> about 99% of the user base) can use coherent dma ops.  The problem
+> seems to be in your new world you only have one dma_noncoherent_ops
+> pointer ... we definitely need two on parisc, so whether
+> arch_dma_cache_sync is present or not needs to be dynamic not config
+> defined.
 
-We initialize it down in an if/else clause which seems a little more clear
-to me, at the cost of two extra lines of code.  But I suspect I should
-just go a little further and merge the global req_entries and the local
-num_entries into a single variable with a better name.
+The changelog explicitly mentions merging the two noncoherent
+implementations, they only differ in the alloc and free callsbacks,
+and we now runtime switch between them.  Before the pcxs and pcxt
+cases used pcx_dma_ops, and pcxl and pxcl2 used pcxl_dma_ops, now
+all four use dma_noncoherent_ops and arch_dma_alloc/arch_dma_free
+branch out to different behavior.
 
->> +core_initcall(dma_debug_init);
->
-> I think it's worth noting that for most users this now happens much earlier 
-> than before. In general that's probably good (e.g. on arm64 it should 
-> prevent false-positives from the Arm SMMU drivers under ACPI), and I can't 
-> imagine it's high-risk, but it is a behaviour change.
+Both pcx_dma_ops and pcxl_dma_ops do define the cache_sync
+method in the existing code, so that isn't the issue.
 
-I'll mention this in the changelog, thanks!
+I'll take a deeper look at what sort of behavior change might have
+been introduced.
+
+> 
+> James
+---end quoted text---
