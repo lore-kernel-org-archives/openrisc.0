@@ -1,7 +1,7 @@
-From: Greentime Hu <green.hu@gmail.com>
-Date: Thu, 26 Apr 2018 16:06:34 +0800
+From: Christoph Hellwig <hch@lst.de>
+Date: Thu, 26 Apr 2018 10:24:29 +0200
 Subject: [OpenRISC] [PATCH 13/22] nds32: use generic dma_noncoherent_ops
-In-Reply-To: <20180426064239.GA13895@lst.de>
+In-Reply-To: <CAEbi=3e3gM_WpQOtKZXP4Xj2Az4bLf_u6BjDELqXy6-d9HurMQ@mail.gmail.com>
 References: <20180420080313.18796-1-hch@lst.de>
  <20180420080313.18796-14-hch@lst.de>
  <CAEbi=3fkakVD2vxGu6SgJM77JnNM8Y79xS8_o6m9d_85BJpMFQ@mail.gmail.com>
@@ -10,38 +10,20 @@ References: <20180420080313.18796-1-hch@lst.de>
  <20180425064055.GA11460@lst.de>
  <CAEbi=3fcd8E=xi_hbef45LnPsBZhZv37yPO-xfZmU1gMaWnDvg@mail.gmail.com>
  <20180426064239.GA13895@lst.de>
-Message-ID: <CAEbi=3e3gM_WpQOtKZXP4Xj2Az4bLf_u6BjDELqXy6-d9HurMQ@mail.gmail.com>
+ <CAEbi=3e3gM_WpQOtKZXP4Xj2Az4bLf_u6BjDELqXy6-d9HurMQ@mail.gmail.com>
+Message-ID: <20180426082429.GA15580@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-2018-04-26 14:42 GMT+08:00 Christoph Hellwig <hch@lst.de>:
-> Can you try this patch ontop of either the new or original one?
->
-> ---
-> diff --git a/lib/dma-noncoherent.c b/lib/dma-noncoherent.c
-> index f4b8532c20ac..a2c192b3508d 100644
-> --- a/lib/dma-noncoherent.c
-> +++ b/lib/dma-noncoherent.c
-> @@ -48,7 +48,7 @@ static int dma_noncoherent_map_sg(struct device *dev, struct scatterlist *sgl,
->         return nents;
->  }
->
-> -#ifdef CONFIG_DMA_NONCOHERENT_SYNC_FOR_CPU
-> +#ifdef CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU
->  static void dma_noncoherent_sync_single_for_cpu(struct device *dev,
->                 dma_addr_t addr, size_t size, enum dma_data_direction dir)
->  {
-> @@ -88,7 +88,7 @@ const struct dma_map_ops dma_noncoherent_ops = {
->         .sync_sg_for_device     = dma_noncoherent_sync_sg_for_device,
->         .map_page               = dma_noncoherent_map_page,
->         .map_sg                 = dma_noncoherent_map_sg,
-> -#ifdef CONFIG_DMA_NONCOHERENT_SYNC_FOR_CPU
-> +#ifdef CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU
->         .sync_single_for_cpu    = dma_noncoherent_sync_single_for_cpu,
->         .sync_sg_for_cpu        = dma_noncoherent_sync_sg_for_cpu,
->         .unmap_page             = dma_noncoherent_unmap_page,
+On Thu, Apr 26, 2018 at 04:06:34PM +0800, Greentime Hu wrote:
+> It works!!!
 
-It works!!!
+Thanks!
+
+Can you retest the updated tree here with all the fixes and give me
+your Tested-by: for the generic and nds32 patches?
+
+git://git.infradead.org/users/hch/misc.git generic-dma-noncoherent
