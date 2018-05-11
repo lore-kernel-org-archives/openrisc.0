@@ -1,42 +1,44 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Fri, 11 May 2018 09:59:25 +0200
-Subject: [OpenRISC] common non-cache coherent direct dma mapping ops
-Message-ID: <20180511075945.16548-1-hch@lst.de>
+Date: Fri, 11 May 2018 09:59:26 +0200
+Subject: [OpenRISC] [PATCH 01/20] dma-mapping: simplify Kconfig dependencies
+In-Reply-To: <20180511075945.16548-1-hch@lst.de>
+References: <20180511075945.16548-1-hch@lst.de>
+Message-ID: <20180511075945.16548-2-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi all,
+ARCH_DMA_ADDR_T_64BIT is always true for 64-bit architectures now, so we
+can skip the clause requiring it.  'n' is the default default, so no need
+to explicitly state it.
 
-this series continues consolidating the dma-mapping code, with a focus
-on architectures that do not (always) provide cache coherence for DMA.
-Three architectures (arm, mips and powerpc) are still left to be
-converted later due to complexity of their dma ops selection.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ lib/Kconfig | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-The dma-noncoherent ops calls the dma-direct ops for the actual
-translation of streaming mappins and allow the architecture to provide
-any cache flushing required for cpu to device and/or device to cpu
-ownership transfers.  The dma coherent allocator is for now still left
-entirely to architecture supplied implementations due the amount of
-variations.  Hopefully we can do some consolidation for them later on
-as well.
+diff --git a/lib/Kconfig b/lib/Kconfig
+index 1d84e61cccfe..6c4e9d0ce5d1 100644
+--- a/lib/Kconfig
++++ b/lib/Kconfig
+@@ -443,13 +443,11 @@ config IOMMU_HELPER
+ 
+ config DMA_DIRECT_OPS
+ 	bool
+-	depends on HAS_DMA && (!64BIT || ARCH_DMA_ADDR_T_64BIT)
+-	default n
++	depends on HAS_DMA
+ 
+ config DMA_VIRT_OPS
+ 	bool
+-	depends on HAS_DMA && (!64BIT || ARCH_DMA_ADDR_T_64BIT)
+-	default n
++	depends on HAS_DMA
+ 
+ config SWIOTLB
+ 	bool
+-- 
+2.17.0
 
-A lot of architectures are currently doing very questionable things
-in their dma mapping routines, which are documented in the changelogs
-for each patch.  Please review them very careful and correct me on
-incorrect assumptions.
-
-Because this series sits on top of two previously submitted series
-a git tree might be useful to actually test it.  It is provided here:
-
-    git://git.infradead.org/users/hch/misc.git generic-dma-noncoherent
-
-Gitweb:
-
-    http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/generic-dma-noncoherent
-
-Changes since RFC:
- - fix a typo accidentally disabling the device to cpu transfer sync
- - fixed a few compile failures
