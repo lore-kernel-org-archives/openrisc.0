@@ -1,30 +1,42 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Tue, 8 May 2018 12:45:56 +0200
-Subject: [OpenRISC] [PATCH 3/3] dma-debug: unexport
-	dma_debug_resize_entries and	debug_dma_dump_mappings
-In-Reply-To: <bb5bb25f-24da-9729-a39b-3b88c65ef628@arm.com>
-References: <20180424140235.9125-1-hch@lst.de>
- <20180424140235.9125-4-hch@lst.de>
- <bb5bb25f-24da-9729-a39b-3b88c65ef628@arm.com>
-Message-ID: <20180508104556.GA26841@lst.de>
+Date: Fri, 11 May 2018 09:59:25 +0200
+Subject: [OpenRISC] common non-cache coherent direct dma mapping ops
+Message-ID: <20180511075945.16548-1-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, May 08, 2018 at 11:05:20AM +0100, Robin Murphy wrote:
-> On 24/04/18 15:02, Christoph Hellwig wrote:
->> Only used by the AMD GART driver, which must be built in.
->
-> FWIW debug_dma_dump_mappings() is also called by the Intel VT-d driver, but 
-> the same reasoning still applies.
+Hi all,
 
-I'll update the changelog.
+this series continues consolidating the dma-mapping code, with a focus
+on architectures that do not (always) provide cache coherence for DMA.
+Three architectures (arm, mips and powerpc) are still left to be
+converted later due to complexity of their dma ops selection.
 
-> This does rather beg the question of 
-> whether it's right to have bits of low-level dma-debug internals *only* 
-> called by a couple of IOMMU drivers, but that can wait for another day.
+The dma-noncoherent ops calls the dma-direct ops for the actual
+translation of streaming mappins and allow the architecture to provide
+any cache flushing required for cpu to device and/or device to cpu
+ownership transfers.  The dma coherent allocator is for now still left
+entirely to architecture supplied implementations due the amount of
+variations.  Hopefully we can do some consolidation for them later on
+as well.
 
-My gut feeling is that it is wrong, but I didn't have time to look into
-the details and history of how this happened.
+A lot of architectures are currently doing very questionable things
+in their dma mapping routines, which are documented in the changelogs
+for each patch.  Please review them very careful and correct me on
+incorrect assumptions.
+
+Because this series sits on top of two previously submitted series
+a git tree might be useful to actually test it.  It is provided here:
+
+    git://git.infradead.org/users/hch/misc.git generic-dma-noncoherent
+
+Gitweb:
+
+    http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/generic-dma-noncoherent
+
+Changes since RFC:
+ - fix a typo accidentally disabling the device to cpu transfer sync
+ - fixed a few compile failures
