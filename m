@@ -1,46 +1,54 @@
-From: John Garry <john.garry@huawei.com>
-Date: Fri, 11 May 2018 14:56:16 +0100
-Subject: [OpenRISC] [PATCH 04/20] arm-nommu: use generic
-	dma_noncoherent_ops
-In-Reply-To: <20180511075945.16548-5-hch@lst.de>
+From: Helge Deller <deller@gmx.de>
+Date: Sun, 13 May 2018 15:26:20 +0200
+Subject: [OpenRISC] common non-cache coherent direct dma mapping ops
+In-Reply-To: <20180511075945.16548-1-hch@lst.de>
 References: <20180511075945.16548-1-hch@lst.de>
- <20180511075945.16548-5-hch@lst.de>
-Message-ID: <73603c68-da05-22bd-efab-d0387a98225d@huawei.com>
+Message-ID: <1834767f-0430-8f7f-61b1-560353cd6e5f@gmx.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 11/05/2018 08:59, Christoph Hellwig wrote:
-> Switch to the generic noncoherent direct mapping implementation for
-> the nommu dma map implementation.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  arch/arc/Kconfig                |   1 +
->  arch/arm/Kconfig                |   4 +
->  arch/arm/mm/dma-mapping-nommu.c | 139 +++++---------------------------
->  3 files changed, 23 insertions(+), 121 deletions(-)
->
-> diff --git a/arch/arc/Kconfig b/arch/arc/Kconfig
-> index 89d47eac18b2..3a492a9aeaad 100644
-> --- a/arch/arc/Kconfig
-> +++ b/arch/arc/Kconfig
-> @@ -9,6 +9,7 @@
->  config ARC
->  	def_bool y
->  	select ARC_TIMERS
-> +	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
->  	select ARCH_HAS_SYNC_DMA_FOR_CPU
->  	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
+On 11.05.2018 09:59, Christoph Hellwig wrote:
+> this series continues consolidating the dma-mapping code, with a focus
+> on architectures that do not (always) provide cache coherence for DMA.
+> Three architectures (arm, mips and powerpc) are still left to be
+> converted later due to complexity of their dma ops selection.
+> 
+> The dma-noncoherent ops calls the dma-direct ops for the actual
+> translation of streaming mappins and allow the architecture to provide
+> any cache flushing required for cpu to device and/or device to cpu
+> ownership transfers.  The dma coherent allocator is for now still left
+> entirely to architecture supplied implementations due the amount of
+> variations.  Hopefully we can do some consolidation for them later on
+> as well.
+> 
+> A lot of architectures are currently doing very questionable things
+> in their dma mapping routines, which are documented in the changelogs
+> for each patch.  Please review them very careful and correct me on
+> incorrect assumptions.
+> 
+> Because this series sits on top of two previously submitted series
+> a git tree might be useful to actually test it.  It is provided here:
+> 
+>     git://git.infradead.org/users/hch/misc.git generic-dma-noncoherent
+> 
+> Gitweb:
+> 
+>     http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/generic-dma-noncoherent
+> 
+> Changes since RFC:
+>  - fix a typo accidentally disabling the device to cpu transfer sync
+>  - fixed a few compile failures
 
-I guess that this arc change is here by accident, no? And isn't 
-ARCH_HAS_SYNC_DMA_FOR_DEVICE already selected (by 3/20)?
 
->  	select ARCH_HAS_SG_CHAIN
-> diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-> index c43f5bb55ac8..76ddd0064f87 100644
-> --- a/arch/arm/Kconfig
-> +++ b/arch/arm/Kconfig
+I tested it again on parisc (this time again on top of git head) and it still breaks
+the same way as I reported in my mail on April 21st: the lasi82956 network driver works
+unreliable. NIC gets IP, but ping doesn't work.
+See drivers/net/ethernet/i825xx/lasi_82596.c, it uses dma*sync() functions.
 
+See comment in James mail from April 21st too:
+-> you just made every 32 bit parisc system unnecessarily use non-coherent.
+
+Helge
