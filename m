@@ -1,8 +1,8 @@
 From: gregkh@linuxfoundation.org <gregkh@linuxfoundation.org>
-Date: Thu, 17 May 2018 11:38:53 +0200
+Date: Thu, 17 May 2018 11:39:09 +0200
 Subject: [OpenRISC] Patch "futex: Remove duplicated code and fix undefined
-	behaviour" has been added to the 4.4-stable tree
-Message-ID: <15265499332582@kroah.com>
+	behaviour" has been added to the 4.9-stable tree
+Message-ID: <152654994912565@kroah.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -14,12 +14,12 @@ This is a note to let you know that I've just added the patch titled
 
     futex: Remove duplicated code and fix undefined behaviour
 
-to the 4.4-stable tree which can be found at:
+to the 4.9-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
      futex-remove-duplicated-code-and-fix-undefined-behaviour.patch
-and it can be found in the queue-4.4 subdirectory.
+and it can be found in the queue-4.9 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
@@ -109,14 +109,14 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  arch/alpha/include/asm/futex.h      |   26 +++---------------
  arch/arc/include/asm/futex.h        |   40 +++-------------------------
  arch/arm/include/asm/futex.h        |   26 ++----------------
- arch/arm64/include/asm/futex.h      |   26 ++----------------
+ arch/arm64/include/asm/futex.h      |   27 ++-----------------
  arch/frv/include/asm/futex.h        |    3 +-
  arch/frv/kernel/futex.c             |   27 ++-----------------
  arch/hexagon/include/asm/futex.h    |   38 ++-------------------------
  arch/ia64/include/asm/futex.h       |   25 ++----------------
  arch/microblaze/include/asm/futex.h |   38 ++-------------------------
  arch/mips/include/asm/futex.h       |   25 ++----------------
- arch/parisc/include/asm/futex.h     |   25 ++----------------
+ arch/parisc/include/asm/futex.h     |   26 ++----------------
  arch/powerpc/include/asm/futex.h    |   26 +++---------------
  arch/s390/include/asm/futex.h       |   23 +++-------------
  arch/sh/include/asm/futex.h         |   26 ++----------------
@@ -126,7 +126,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  arch/xtensa/include/asm/futex.h     |   27 +++----------------
  include/asm-generic/futex.h         |   50 ++++++------------------------------
  kernel/futex.c                      |   39 ++++++++++++++++++++++++++++
- 20 files changed, 126 insertions(+), 470 deletions(-)
+ 20 files changed, 126 insertions(+), 472 deletions(-)
 
 --- a/arch/alpha/include/asm/futex.h
 +++ b/arch/alpha/include/asm/futex.h
@@ -278,11 +278,11 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
 --- a/arch/arm64/include/asm/futex.h
 +++ b/arch/arm64/include/asm/futex.h
-@@ -53,20 +53,10 @@
+@@ -51,20 +51,9 @@
  	: "memory")
  
  static inline int
--futex_atomic_op_inuser(unsigned int encoded_op, u32 __user *uaddr)
+-futex_atomic_op_inuser(unsigned int encoded_op, u32 __user *_uaddr)
 +arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *uaddr)
  {
 -	int op = (encoded_op >> 28) & 7;
@@ -290,17 +290,17 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 -	int oparg = (int)(encoded_op << 8) >> 20;
 -	int cmparg = (int)(encoded_op << 20) >> 20;
  	int oldval = 0, ret, tmp;
- 
+-	u32 __user *uaddr = __uaccess_mask_ptr(_uaddr);
+-
 -	if (encoded_op & (FUTEX_OP_OPARG_SHIFT << 28))
 -		oparg = 1U << (oparg & 0x1f);
 -
 -	if (!access_ok(VERIFY_WRITE, uaddr, sizeof(u32)))
 -		return -EFAULT;
--
+ 
  	pagefault_disable();
  
- 	switch (op) {
-@@ -96,17 +86,9 @@ futex_atomic_op_inuser(unsigned int enco
+@@ -95,17 +84,9 @@ futex_atomic_op_inuser(unsigned int enco
  
  	pagefault_enable();
  
@@ -579,7 +579,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
 --- a/arch/parisc/include/asm/futex.h
 +++ b/arch/parisc/include/asm/futex.h
-@@ -32,20 +32,11 @@ _futex_spin_unlock_irqrestore(u32 __user
+@@ -32,22 +32,12 @@ _futex_spin_unlock_irqrestore(u32 __user
  }
  
  static inline int
@@ -587,25 +587,27 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *uaddr)
  {
  	unsigned long int flags;
- 	u32 val;
 -	int op = (encoded_op >> 28) & 7;
 -	int cmp = (encoded_op >> 24) & 15;
 -	int oparg = (encoded_op << 8) >> 20;
 -	int cmparg = (encoded_op << 20) >> 20;
- 	int oldval = 0, ret;
+ 	int oldval, ret;
+ 	u32 tmp;
+ 
 -	if (encoded_op & (FUTEX_OP_OPARG_SHIFT << 28))
 -		oparg = 1 << oparg;
 -
 -	if (!access_ok(VERIFY_WRITE, uaddr, sizeof(*uaddr)))
 -		return -EFAULT;
- 
+-
+ 	_futex_spin_lock_irqsave(uaddr, &flags);
  	pagefault_disable();
  
-@@ -98,17 +89,9 @@ futex_atomic_op_inuser (int encoded_op,
- 
+@@ -85,17 +75,9 @@ out_pagefault_enable:
  	pagefault_enable();
+ 	_futex_spin_unlock_irqrestore(uaddr, &flags);
  
--	if (!ret) {
+-	if (ret == 0) {
 -		switch (cmp) {
 -		case FUTEX_OP_CMP_EQ: ret = (oldval == cmparg); break;
 -		case FUTEX_OP_CMP_NE: ret = (oldval != cmparg); break;
@@ -711,9 +713,9 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
 --- a/arch/sh/include/asm/futex.h
 +++ b/arch/sh/include/asm/futex.h
-@@ -10,20 +10,11 @@
- /* XXX: UP variants, fix for SH-4A and SMP.. */
- #include <asm/futex-irq.h>
+@@ -27,21 +27,12 @@ futex_atomic_cmpxchg_inatomic(u32 *uval,
+ 	return atomic_futex_op_cmpxchg_inatomic(uval, uaddr, oldval, newval);
+ }
  
 -static inline int futex_atomic_op_inuser(int encoded_op, u32 __user *uaddr)
 +static inline int arch_futex_atomic_op_inuser(int op, u32 oparg, int *oval,
@@ -721,9 +723,10 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
 -	int op = (encoded_op >> 28) & 7;
 -	int cmp = (encoded_op >> 24) & 15;
--	int oparg = (encoded_op << 8) >> 20;
--	int cmparg = (encoded_op << 20) >> 20;
- 	int oldval = 0, ret;
+-	u32 oparg = (encoded_op << 8) >> 20;
+-	u32 cmparg = (encoded_op << 20) >> 20;
+ 	u32 oldval, newval, prev;
+ 	int ret;
  
 -	if (encoded_op & (FUTEX_OP_OPARG_SHIFT << 28))
 -		oparg = 1 << oparg;
@@ -733,8 +736,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 -
  	pagefault_disable();
  
- 	switch (op) {
-@@ -49,17 +40,8 @@ static inline int futex_atomic_op_inuser
+ 	do {
+@@ -80,17 +71,8 @@ static inline int futex_atomic_op_inuser
  
  	pagefault_enable();
  
@@ -742,10 +745,10 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 -		switch (cmp) {
 -		case FUTEX_OP_CMP_EQ: ret = (oldval == cmparg); break;
 -		case FUTEX_OP_CMP_NE: ret = (oldval != cmparg); break;
--		case FUTEX_OP_CMP_LT: ret = (oldval < cmparg); break;
--		case FUTEX_OP_CMP_GE: ret = (oldval >= cmparg); break;
--		case FUTEX_OP_CMP_LE: ret = (oldval <= cmparg); break;
--		case FUTEX_OP_CMP_GT: ret = (oldval > cmparg); break;
+-		case FUTEX_OP_CMP_LT: ret = ((int)oldval < (int)cmparg); break;
+-		case FUTEX_OP_CMP_GE: ret = ((int)oldval >= (int)cmparg); break;
+-		case FUTEX_OP_CMP_LE: ret = ((int)oldval <= (int)cmparg); break;
+-		case FUTEX_OP_CMP_GT: ret = ((int)oldval > (int)cmparg); break;
 -		default: ret = -ENOSYS;
 -		}
 -	}
@@ -1066,7 +1069,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
 --- a/kernel/futex.c
 +++ b/kernel/futex.c
-@@ -1453,6 +1453,45 @@ out:
+@@ -1458,6 +1458,45 @@ out:
  	return ret;
  }
  
@@ -1116,4 +1119,4 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 Patches currently in stable-queue which might be from jslaby at suse.cz are
 
-queue-4.4/futex-remove-duplicated-code-and-fix-undefined-behaviour.patch
+queue-4.9/futex-remove-duplicated-code-and-fix-undefined-behaviour.patch
