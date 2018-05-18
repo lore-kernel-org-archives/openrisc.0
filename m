@@ -1,34 +1,19 @@
-From: gregkh@linuxfoundation.org <gregkh@linuxfoundation.org>
-Date: Thu, 17 May 2018 11:39:09 +0200
-Subject: [OpenRISC] Patch "futex: Remove duplicated code and fix undefined
-	behaviour" has been added to the 4.9-stable tree
-Message-ID: <152654994912565@kroah.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Fri, 18 May 2018 10:16:06 +0200
+Subject: [OpenRISC] [PATCH 4.9 27/33] futex: Remove duplicated code and fix
+	undefined behaviour
+In-Reply-To: <20180518081535.096308218@linuxfoundation.org>
+References: <20180518081535.096308218@linuxfoundation.org>
+Message-ID: <20180518081536.166573281@linuxfoundation.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
+4.9-stable review patch.  If anyone has any objections, please let me know.
 
-This is a note to let you know that I've just added the patch titled
-
-    futex: Remove duplicated code and fix undefined behaviour
-
-to the 4.9-stable tree which can be found at:
-    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-
-The filename of the patch is:
-     futex-remove-duplicated-code-and-fix-undefined-behaviour.patch
-and it can be found in the queue-4.9 subdirectory.
-
-If you, or anyone else, feels it should not be added to the stable tree,
-please let <stable@vger.kernel.org> know about it.
-
-
-From 30d6e0a4190d37740e9447e4e4815f06992dd8c3 Mon Sep 17 00:00:00 2001
-From: Jiri Slaby <jslaby@suse.cz>
-Date: Thu, 24 Aug 2017 09:31:05 +0200
-Subject: futex: Remove duplicated code and fix undefined behaviour
+------------------
 
 From: Jiri Slaby <jslaby@suse.cz>
 
@@ -1117,6 +1102,3 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
   * to this virtual address:
 
 
-Patches currently in stable-queue which might be from jslaby at suse.cz are
-
-queue-4.9/futex-remove-duplicated-code-and-fix-undefined-behaviour.patch
