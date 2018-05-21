@@ -1,40 +1,48 @@
-From: Davidson Francis <davidsondfgl@gmail.com>
-Date: Sun, 20 May 2018 00:31:50 -0300
-Subject: [OpenRISC] OpenRISC - SPR_PICMR always 'OR-ing' the values
-In-Reply-To: <20180520025454.GH3652@lianli.shorne-pla.net>
-References: <CALAE4RoqNTXyGEUbV3LmonNcyA=o8toPhRrDS23w4W_Zg3z3qg@mail.gmail.com>
- <20180520025454.GH3652@lianli.shorne-pla.net>
-Message-ID: <CALAE4RpKFttWOBaw-15bTKsU4LG=h6K=K9=U08ThDsGieSJ1=g@mail.gmail.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Mon, 21 May 2018 19:50:54 +0900
+Subject: [OpenRISC] OpenRISC GCC porting, hello world working
+In-Reply-To: <20180519095449.GD3652@lianli.shorne-pla.net>
+References: <20180516000411.GA3652@lianli.shorne-pla.net>
+ <4a01e543-dccc-ea9e-ed05-b0f903ff42ff@twiddle.net>
+ <20180518220944.GB3652@lianli.shorne-pla.net>
+ <8c935284-acda-aea4-5a47-01af6223a219@twiddle.net>
+ <20180519095449.GD3652@lianli.shorne-pla.net>
+Message-ID: <20180521105054.GK3652@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Thank you for quick reply,
+Hi All,
 
-Yes, I've tried, after that, the register works as expected, but even so, if I
-enable the interrupts right after, I still receive interrupts from the same IRQ,
-but maybe there is something wrong with my code.
+Another update on the GCC port
 
-Regards,
-Davidson Francis.
+Richard has reached out to me and has already fixed many cases and added a few
+optimizations over the weekend.  The core of gcc backend is looking good and
+already looks to have some features the old port didn't.
 
-2018-05-19 23:54 GMT-03:00 Stafford Horne <shorne@gmail.com>:
-> On Sat, May 19, 2018 at 08:08:47PM -0300, Davidson Francis wrote:
->> Hello Stafford,
->>
->> I'm currently using or1k as a target CPU in an operating system that
->> I'm working.
->> It happens that I'm having some issues regarding the PICMR register: I realize
->> that in the latest Qemu version (2.12) when I write into PICMR, the Qemu is
->> actually 'OR-ing' the values (as I could note in target/openrisc/sys_helper.c
->> file), so I can't mask an already enabled interrupt.
->>
->> I don't know if this behaviour is expected and if so, I'm sorry, but this does
->> not occurs in the or1ksim, so I thought this could be might an issue.
->
-> Hello, thanks for pointing this out.  It looks wrong to me too.  Have you tested
-> changing it to just `env->picmr = rb;`?
->
-> -Stafford
+A few highlights:
+  - Remapping of registers to get around storing 64-bit temporaries accross
+    function calls  (GCC needs temp/callee saved registers to be adjacent, but
+    openrisc's are odd/even)
+  - varargs/pass by reference conventions matching old port
+  - implemented nested functions
+  - implemented sibcall handling (tailcall optimizations)
+  - Many other fixups
+
+From my milestone 2 list almost everything is complete.  Next he will be looking
+at -fpic.
+
+                === gcc Summary ===
+
+# of expected passes            91749
+# of unexpected failures        72
+# of unexpected successes       3
+# of expected failures          211
+# of unresolved testcases       16
+# of unsupported tests          2630
+/home/shorne/work/gnu-toolchain/build-gcc/gcc/xgcc  version 9.0.0 20180426
+(experimental) (GCC)
+
+-Stafford
