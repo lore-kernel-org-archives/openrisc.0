@@ -1,212 +1,60 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Tue, 22 May 2018 14:04:28 +0200
-Subject: [OpenRISC] [PATCH 23/25] parisc: merge pcx_dma_ops and pcxl_dma_ops
+Date: Tue, 22 May 2018 14:04:29 +0200
+Subject: [OpenRISC] [PATCH 24/25] parisc: always use
+	flush_kernel_dcache_range for DMA cache maintainance
 In-Reply-To: <20180522120430.28709-1-hch@lst.de>
 References: <20180522120430.28709-1-hch@lst.de>
-Message-ID: <20180522120430.28709-24-hch@lst.de>
+Message-ID: <20180522120430.28709-25-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The only difference is that pcxl supports dma coherent allocations, while
-pcx only supports non-consistent allocations and otherwise fails.
-
-But dma_alloc* is not in the fast path, and merging these two allows an
-easy migration path to the generic dma-noncoherent implementation, so
-do it.
+Current the S/G list based DMA ops use flush_kernel_vmap_range which
+contains a few UP optimizations, while the rest of the DMA operations
+uses flush_kernel_dcache_range.  The single vs sg operations are supposed
+to have the same effect, so they should use the same routines.  Use
+the more conservation version for now, but if people more familiar with
+parisc think the vmap version is generally fine for DMA we should switch
+all interfaces over to it.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/parisc/include/asm/dma-mapping.h |  3 +-
- arch/parisc/kernel/pci-dma.c          | 80 ++++++++++++---------------
- arch/parisc/kernel/setup.c            |  8 +--
- arch/parisc/mm/init.c                 | 11 +---
- 4 files changed, 43 insertions(+), 59 deletions(-)
+ arch/parisc/kernel/pci-dma.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/parisc/include/asm/dma-mapping.h b/arch/parisc/include/asm/dma-mapping.h
-index 01e1fc057c83..eeec8dd18e74 100644
---- a/arch/parisc/include/asm/dma-mapping.h
-+++ b/arch/parisc/include/asm/dma-mapping.h
-@@ -22,8 +22,7 @@
- */
- 
- #ifdef CONFIG_PA11
--extern const struct dma_map_ops pcxl_dma_ops;
--extern const struct dma_map_ops pcx_dma_ops;
-+extern const struct dma_map_ops pa11_dma_ops;
- #endif
- 
- extern const struct dma_map_ops *hppa_dma_ops;
 diff --git a/arch/parisc/kernel/pci-dma.c b/arch/parisc/kernel/pci-dma.c
-index 91bc0cac03a1..52304cb290f9 100644
+index 52304cb290f9..4d7506336918 100644
 --- a/arch/parisc/kernel/pci-dma.c
 +++ b/arch/parisc/kernel/pci-dma.c
-@@ -408,7 +408,7 @@ pcxl_dma_init(void)
+@@ -550,7 +550,7 @@ static void pa11_dma_unmap_sg(struct device *dev, struct scatterlist *sglist,
+ 	/* once we do combining we'll need to use phys_to_virt(sg_dma_address(sglist)) */
  
- __initcall(pcxl_dma_init);
- 
--static void *pa11_dma_alloc(struct device *dev, size_t size,
-+static void *pcxl_dma_alloc(struct device *dev, size_t size,
- 		dma_addr_t *dma_handle, gfp_t flag, unsigned long attrs)
- {
- 	unsigned long vaddr;
-@@ -435,16 +435,44 @@ static void *pa11_dma_alloc(struct device *dev, size_t size,
- 	return (void *)vaddr;
+ 	for_each_sg(sglist, sg, nents, i)
+-		flush_kernel_vmap_range(sg_virt(sg), sg->length);
++		flush_kernel_dcache_range(sg_virt(sg), sg->length);
  }
  
-+static void *pcx_dma_alloc(struct device *dev, size_t size,
-+		dma_addr_t *dma_handle, gfp_t flag, unsigned long attrs)
-+{
-+	void *addr;
-+
-+	if ((attrs & DMA_ATTR_NON_CONSISTENT) == 0)
-+		return NULL;
-+
-+	addr = (void *)__get_free_pages(flag, get_order(size));
-+	if (addr)
-+		*dma_handle = (dma_addr_t)virt_to_phys(addr);
-+
-+	return addr;
-+}
-+
-+static void *pa11_dma_alloc(struct device *dev, size_t size,
-+		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
-+{
-+
-+	if (boot_cpu_data.cpu_type == pcxl2 || boot_cpu_data.cpu_type == pcxl)
-+		return pcxl_dma_alloc(dev, size, dma_handle, gfp, attrs);
-+	else
-+		return pcx_dma_alloc(dev, size, dma_handle, gfp, attrs);
-+}
-+
- static void pa11_dma_free(struct device *dev, size_t size, void *vaddr,
- 		dma_addr_t dma_handle, unsigned long attrs)
- {
--	int order;
-+	int order = get_order(size);
+ static void pa11_dma_sync_single_for_cpu(struct device *dev,
+@@ -581,7 +581,7 @@ static void pa11_dma_sync_sg_for_cpu(struct device *dev, struct scatterlist *sgl
+ 	/* once we do combining we'll need to use phys_to_virt(sg_dma_address(sglist)) */
  
--	order = get_order(size);
--	size = 1 << (order + PAGE_SHIFT);
--	unmap_uncached_pages((unsigned long)vaddr, size);
--	pcxl_free_range((unsigned long)vaddr, size);
--	free_pages((unsigned long)__va(dma_handle), order);
-+	if (boot_cpu_data.cpu_type == pcxl2 || boot_cpu_data.cpu_type == pcxl) {
-+		size = 1 << (order + PAGE_SHIFT);
-+		unmap_uncached_pages((unsigned long)vaddr, size);
-+		pcxl_free_range((unsigned long)vaddr, size);
-+
-+		vaddr = __va(dma_handle);
-+	}
-+	free_pages((unsigned long)vaddr, get_order(size));
+ 	for_each_sg(sglist, sg, nents, i)
+-		flush_kernel_vmap_range(sg_virt(sg), sg->length);
++		flush_kernel_dcache_range(sg_virt(sg), sg->length);
  }
  
- static dma_addr_t pa11_dma_map_page(struct device *dev, struct page *page,
-@@ -573,7 +601,7 @@ static void pa11_dma_cache_sync(struct device *dev, void *vaddr, size_t size,
- 	flush_kernel_dcache_range((unsigned long)vaddr, size);
+ static void pa11_dma_sync_sg_for_device(struct device *dev, struct scatterlist *sglist, int nents, enum dma_data_direction direction)
+@@ -592,7 +592,7 @@ static void pa11_dma_sync_sg_for_device(struct device *dev, struct scatterlist *
+ 	/* once we do combining we'll need to use phys_to_virt(sg_dma_address(sglist)) */
+ 
+ 	for_each_sg(sglist, sg, nents, i)
+-		flush_kernel_vmap_range(sg_virt(sg), sg->length);
++		flush_kernel_dcache_range(sg_virt(sg), sg->length);
  }
  
--const struct dma_map_ops pcxl_dma_ops = {
-+const struct dma_map_ops pa11_dma_ops = {
- 	.alloc =		pa11_dma_alloc,
- 	.free =			pa11_dma_free,
- 	.map_page =		pa11_dma_map_page,
-@@ -586,39 +614,3 @@ const struct dma_map_ops pcxl_dma_ops = {
- 	.sync_sg_for_device =	pa11_dma_sync_sg_for_device,
- 	.cache_sync =		pa11_dma_cache_sync,
- };
--
--static void *pcx_dma_alloc(struct device *dev, size_t size,
--		dma_addr_t *dma_handle, gfp_t flag, unsigned long attrs)
--{
--	void *addr;
--
--	if ((attrs & DMA_ATTR_NON_CONSISTENT) == 0)
--		return NULL;
--
--	addr = (void *)__get_free_pages(flag, get_order(size));
--	if (addr)
--		*dma_handle = (dma_addr_t)virt_to_phys(addr);
--
--	return addr;
--}
--
--static void pcx_dma_free(struct device *dev, size_t size, void *vaddr,
--		dma_addr_t iova, unsigned long attrs)
--{
--	free_pages((unsigned long)vaddr, get_order(size));
--	return;
--}
--
--const struct dma_map_ops pcx_dma_ops = {
--	.alloc =		pcx_dma_alloc,
--	.free =			pcx_dma_free,
--	.map_page =		pa11_dma_map_page,
--	.unmap_page =		pa11_dma_unmap_page,
--	.map_sg =		pa11_dma_map_sg,
--	.unmap_sg =		pa11_dma_unmap_sg,
--	.sync_single_for_cpu =	pa11_dma_sync_single_for_cpu,
--	.sync_single_for_device = pa11_dma_sync_single_for_device,
--	.sync_sg_for_cpu =	pa11_dma_sync_sg_for_cpu,
--	.sync_sg_for_device =	pa11_dma_sync_sg_for_device,
--	.cache_sync =		pa11_dma_cache_sync,
--};
-diff --git a/arch/parisc/kernel/setup.c b/arch/parisc/kernel/setup.c
-index 8d3a7b80ac42..5c8450a22255 100644
---- a/arch/parisc/kernel/setup.c
-+++ b/arch/parisc/kernel/setup.c
-@@ -97,14 +97,12 @@ void __init dma_ops_init(void)
- 		panic(	"PA-RISC Linux currently only supports machines that conform to\n"
- 			"the PA-RISC 1.1 or 2.0 architecture specification.\n");
- 
--	case pcxs:
--	case pcxt:
--		hppa_dma_ops = &pcx_dma_ops;
--		break;
- 	case pcxl2:
- 		pa7300lc_init();
- 	case pcxl: /* falls through */
--		hppa_dma_ops = &pcxl_dma_ops;
-+	case pcxs:
-+	case pcxt:
-+		hppa_dma_ops = &pa11_dma_ops;
- 		break;
- 	default:
- 		break;
-diff --git a/arch/parisc/mm/init.c b/arch/parisc/mm/init.c
-index cab32ee824d2..4ad91c28ecbe 100644
---- a/arch/parisc/mm/init.c
-+++ b/arch/parisc/mm/init.c
-@@ -19,7 +19,6 @@
- #include <linux/gfp.h>
- #include <linux/delay.h>
- #include <linux/init.h>
--#include <linux/pci.h>		/* for hppa_dma_ops and pcxl_dma_ops */
- #include <linux/initrd.h>
- #include <linux/swap.h>
- #include <linux/unistd.h>
-@@ -616,17 +615,13 @@ void __init mem_init(void)
- 	free_all_bootmem();
- 
- #ifdef CONFIG_PA11
--	if (hppa_dma_ops == &pcxl_dma_ops) {
-+	if (boot_cpu_data.cpu_type == pcxl2 || boot_cpu_data.cpu_type == pcxl) {
- 		pcxl_dma_start = (unsigned long)SET_MAP_OFFSET(MAP_START);
- 		parisc_vmalloc_start = SET_MAP_OFFSET(pcxl_dma_start
- 						+ PCXL_DMA_MAP_SIZE);
--	} else {
--		pcxl_dma_start = 0;
--		parisc_vmalloc_start = SET_MAP_OFFSET(MAP_START);
--	}
--#else
--	parisc_vmalloc_start = SET_MAP_OFFSET(MAP_START);
-+	} else
- #endif
-+		parisc_vmalloc_start = SET_MAP_OFFSET(MAP_START);
- 
- 	mem_init_print_info(NULL);
- 
+ static void pa11_dma_cache_sync(struct device *dev, void *vaddr, size_t size,
 -- 
 2.17.0
 
