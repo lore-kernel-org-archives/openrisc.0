@@ -1,49 +1,53 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Tue, 22 May 2018 14:04:05 +0200
-Subject: [OpenRISC] common non-cache coherent direct dma mapping ops v2
-Message-ID: <20180522120430.28709-1-hch@lst.de>
+Date: Tue, 22 May 2018 14:04:06 +0200
+Subject: [OpenRISC] [PATCH 01/25] hexagon: remove the sync_single_for_cpu
+	DMA operation
+In-Reply-To: <20180522120430.28709-1-hch@lst.de>
+References: <20180522120430.28709-1-hch@lst.de>
+Message-ID: <20180522120430.28709-2-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi all,
+hexagon does all the required cache maintainance at dma map time, and none
+at unmap time.  It thus has to implement sync_single_for_device to match
+the map cace for buffer reuse, but there is no point in doing another
+invalidation in the sync_single_cpu_case, which in terms of cache
+maintainance is equivalent to the unmap case.
 
-this series continues consolidating the dma-mapping code, with a focus
-on architectures that do not (always) provide cache coherence for DMA.
-Three architectures (arm, mips and powerpc) are still left to be
-converted later due to complexity of their dma ops selection.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ arch/hexagon/kernel/dma.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-The dma-noncoherent ops calls the dma-direct ops for the actual
-translation of streaming mappins and allow the architecture to provide
-any cache flushing required for cpu to device and/or device to cpu
-ownership transfers.  The dma coherent allocator is for now still left
-entirely to architecture supplied implementations due the amount of
-variations.  Hopefully we can do some consolidation for them later on
-as well.
+diff --git a/arch/hexagon/kernel/dma.c b/arch/hexagon/kernel/dma.c
+index 77459df34e2e..d2b717f352f4 100644
+--- a/arch/hexagon/kernel/dma.c
++++ b/arch/hexagon/kernel/dma.c
+@@ -181,13 +181,6 @@ static dma_addr_t hexagon_map_page(struct device *dev, struct page *page,
+ 	return bus;
+ }
+ 
+-static void hexagon_sync_single_for_cpu(struct device *dev,
+-					dma_addr_t dma_handle, size_t size,
+-					enum dma_data_direction dir)
+-{
+-	dma_sync(dma_addr_to_virt(dma_handle), size, dir);
+-}
+-
+ static void hexagon_sync_single_for_device(struct device *dev,
+ 					dma_addr_t dma_handle, size_t size,
+ 					enum dma_data_direction dir)
+@@ -205,7 +198,6 @@ const struct dma_map_ops hexagon_dma_ops = {
+ 	.free		= hexagon_free_coherent,
+ 	.map_sg		= hexagon_map_sg,
+ 	.map_page	= hexagon_map_page,
+-	.sync_single_for_cpu = hexagon_sync_single_for_cpu,
+ 	.sync_single_for_device = hexagon_sync_single_for_device,
+ 	.mapping_error	= hexagon_mapping_error,
+ };
+-- 
+2.17.0
 
-A lot of architectures are currently doing very questionable things
-in their dma mapping routines, which are documented in the changelogs
-for each patch.  Please review them very careful and correct me on
-incorrect assumptions.
-
-Because this series sits on top of three previously submitted series
-a git tree might be useful to actually test it.  It is provided here:
-
-    git://git.infradead.org/users/hch/misc.git generic-dma-noncoherent.2
-
-Gitweb:
-
-    http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/generic-dma-noncoherent.2
-
-Changes since v1:
- - dropped the already merged generic, arc and c6x patches
-   (with the map_single offset fix from Alexey Brodkin)
- - split various changes into smaller patches
- - dropped the arm-nommu changes for now
- - fixed a typo
-
-Changes since RFC:
- - fix a typo accidentally disabling the device to cpu transfer sync
- - fixed a few compile failures
