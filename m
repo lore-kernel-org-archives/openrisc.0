@@ -1,65 +1,45 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Tue, 22 May 2018 19:14:34 +0900
+Date: Tue, 22 May 2018 20:56:13 +0900
 Subject: [OpenRISC] problems debugging
-In-Reply-To: <2809101268-5468@mail.famsneijers.nl>
-References: <2809101268-5468@mail.famsneijers.nl>
-Message-ID: <CAAfxs77tq6-+wTG2mS9ezURGbto_A6fA4X1Q7VvvN30ymdS33w@mail.gmail.com>
+In-Reply-To: <165182593-7748@mail.famsneijers.nl>
+References: <CAAfxs77tq6-+wTG2mS9ezURGbto_A6fA4X1Q7VvvN30ymdS33w@mail.gmail.com>
+ <165182593-7748@mail.famsneijers.nl>
+Message-ID: <20180522115613.GM3652@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hello,
+On Tue, May 22, 2018 at 01:20:05PM +0200, Wesley Sneijers wrote:
+> 
+> Hi,
+> 
+> I am currently using version 8.1.50.20180203-git of GDB. Indeed I am running a
+> C program (I added the comment about R1 to point out that I checked the
+> registers). Since I posted the problem I've gotten a bit further in tracking
+> down the cause. I now think it is a problem with the espresso / pronto
+> espresso variants. It seems like there is an issue between the softcore and
+> the debugging hardware. I made an issue on github about it
+> (https://github.com/openrisc/mor1kx/issues/60). The result is that all
+> registers read by GDB return 0 (I'm sure they aren't). When I use the
+> cappuccino variant this problem does not exist.
 
-What version of gdb are you using?  Also, are you debugging c code? It's
-strange that you mentioned needing to set r1.  If it's assembly gdb needs
-more than just r1 to understand the stack.
+This explains it, I just had a look at the _espresso core and cant really see
+its missing anything.  If you are up for debugging the RTL you can try probing
+the du_* signals in mor1kx_ctrl_espresso.v.
 
-Can you read variables with direct addressing?
+Or you can try an ping some of the authors to see if someone picks up the github
+issue.
 
-Can you try to run some of the steps in this tutorial? Let us know which
-things work and don't.
+> Back to your questions. It is possible to read / write to memory using GDB.
+> Also the values returned are correct. The registers themselves are set to
+> correct values (validated using simulation and running same C code with
+> cappuccino). I read through the steps on the debugging page. The steps
+> accessing memory all work. However when reading out registers from the
+> register file (R1 etc.) they return 0.
+> 
+I think we will need to figure out why you cant read registers.  Its important
+for debugging.
 
-https://github.com/openrisc/tutorials/blob/master/docs/Debugging.md
-
-On Tue, May 22, 2018, 5:42 AM Wesley Sneijers <wsneijers@famsneijers.nl>
-wrote:
-
-> Dear all,
->
-> For a graduate project I am implementing the mor1kx espresso. It will be
-> used as a PTP time component in a larger design. The system will be
-> implemented on a FPGA and contains the mor1kx espresso (release 4.1), 32Kb
-> on-chip RAM and a PTP hardware component. The HDL components themselves are
-> all working. However I've hit quite a wall when trying to debug the system
-> using openocd and GDB. I am able to load the executable and run them on
-> target. Also setting breakpoints works. However reading out variables and
-> locals doesn't.
->
-> To be more precise it tries to read the variables and locals but at the
-> wrong address. The on-chip ram is located at 0x0. I have already setup
-> register R1 as stack-pointer (0x8000) and validated the stack working
-> correctly. However GDB tries to read the variables at address 0xFFFFFFF0
-> (for example). I assume GDB also reads the stack-pointer from R1 and
-> calculates the correct addresses from it (please correct me if i'm wrong).
-> When I look at the register values (using info reg in GDB) they appear to
-> be all zero. I am sure their not (checked in hardware). Could this be the
-> problem? If so is this a common problem (I don't know where to look
-> anymore).
->
-> I already tried several versions of openocd (0.10, 0.9.0, 0.7), the mor1kx
-> (4.1, 4.0, latest) and the advanced debug interface (3.1.0, latest
-> version). Any pointers you can give are greatly appreciated!
->
-> Thanks,
->
-> Wesley Sneijers
-> _______________________________________________
-> OpenRISC mailing list
-> OpenRISC at lists.librecores.org
-> https://lists.librecores.org/listinfo/openrisc
->
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20180522/ac8406bc/attachment.html>
+-Stafford
