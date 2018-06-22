@@ -1,45 +1,53 @@
 From: Palmer Dabbelt <palmer@sifive.com>
-Date: Fri, 22 Jun 2018 10:01:24 -0700
-Subject: [OpenRISC] [PATCH 3/5] arm64: Use the new GENERIC_IRQ_MULTI_HANDLER
+Date: Fri, 22 Jun 2018 10:01:25 -0700
+Subject: [OpenRISC] [PATCH 4/5] openrisc: Use the new
+	GENERIC_IRQ_MULTI_HANDLER
 In-Reply-To: <20180622170126.6308-1-palmer@sifive.com>
 References: <20180621181756.12493-1-palmer@sifive.com>
  <20180622170126.6308-1-palmer@sifive.com>
-Message-ID: <20180622170126.6308-4-palmer@sifive.com>
+Message-ID: <20180622170126.6308-5-palmer@sifive.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-It appears arm64 copied arm's GENERIC_IRQ_MULTI_HANDLER code, but made
-it unconditional.  I wanted to make this generic so it could be used by
-the RISC-V port.  This patch converts the arm64 code to use the new
-generic code, which simply consists of deleting the arm64 code and
-setting MULTI_IRQ_HANDLER instead.
+It appears that openrisc copied arm64's GENERIC_IRQ_MULTI_HANDLER code
+(which came from arm).  I wanted to make this generic so I could use it
+in the RISC-V port.  This patch converts the openrisc code to use the
+generic version.
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Stafford Horne <shorne@gmail.com>
 Signed-off-by: Palmer Dabbelt <palmer@sifive.com>
 ---
- arch/arm64/Kconfig           |  4 +---
- arch/arm64/include/asm/irq.h |  2 --
- arch/arm64/kernel/irq.c      | 10 ----------
- 3 files changed, 1 insertion(+), 15 deletions(-)
+ arch/openrisc/Kconfig           | 5 +----
+ arch/openrisc/include/asm/irq.h | 2 --
+ arch/openrisc/kernel/irq.c      | 7 -------
+ 3 files changed, 1 insertion(+), 13 deletions(-)
 
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 42c090cf0292..3d1011957823 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -74,6 +74,7 @@ config ARM64
- 	select GENERIC_CPU_AUTOPROBE
- 	select GENERIC_EARLY_IOREMAP
- 	select GENERIC_IDLE_POLL_SETUP
+diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+index 9ecad05bfc73..dfb6a79ba7ff 100644
+--- a/arch/openrisc/Kconfig
++++ b/arch/openrisc/Kconfig
+@@ -27,7 +27,6 @@ config OPENRISC
+ 	select GENERIC_STRNLEN_USER
+ 	select GENERIC_SMP_IDLE_THREAD
+ 	select MODULES_USE_ELF_RELA
+-	select MULTI_IRQ_HANDLER
+ 	select HAVE_DEBUG_STACKOVERFLOW
+ 	select OR1K_PIC
+ 	select CPU_NO_EFFICIENT_FFS if !OPENRISC_HAVE_INST_FF1
+@@ -36,6 +35,7 @@ config OPENRISC
+ 	select ARCH_USE_QUEUED_RWLOCKS
+ 	select OMPIC if SMP
+ 	select ARCH_WANT_FRAME_POINTERS
 +	select GENERIC_IRQ_MULTI_HANDLER
- 	select GENERIC_IRQ_PROBE
- 	select GENERIC_IRQ_SHOW
- 	select GENERIC_IRQ_SHOW_LEVEL
-@@ -264,9 +265,6 @@ config ARCH_SUPPORTS_UPROBES
- config ARCH_PROC_KCORE_TEXT
+ 
+ config CPU_BIG_ENDIAN
  	def_bool y
+@@ -69,9 +69,6 @@ config STACKTRACE_SUPPORT
+ config LOCKDEP_SUPPORT
+ 	def_bool  y
  
 -config MULTI_IRQ_HANDLER
 -	def_bool y
@@ -47,40 +55,35 @@ index 42c090cf0292..3d1011957823 100644
  source "init/Kconfig"
  
  source "kernel/Kconfig.freezer"
-diff --git a/arch/arm64/include/asm/irq.h b/arch/arm64/include/asm/irq.h
-index a0fee6985e6a..b2b0c6405eb0 100644
---- a/arch/arm64/include/asm/irq.h
-+++ b/arch/arm64/include/asm/irq.h
-@@ -8,8 +8,6 @@
+diff --git a/arch/openrisc/include/asm/irq.h b/arch/openrisc/include/asm/irq.h
+index d9eee0a2b7b4..eb612b1865d2 100644
+--- a/arch/openrisc/include/asm/irq.h
++++ b/arch/openrisc/include/asm/irq.h
+@@ -24,6 +24,4 @@
  
- struct pt_regs;
+ #define NO_IRQ		(-1)
  
 -extern void set_handle_irq(void (*handle_irq)(struct pt_regs *));
 -
- static inline int nr_legacy_irqs(void)
- {
- 	return 0;
-diff --git a/arch/arm64/kernel/irq.c b/arch/arm64/kernel/irq.c
-index 60e5fc661f74..780a12f59a8f 100644
---- a/arch/arm64/kernel/irq.c
-+++ b/arch/arm64/kernel/irq.c
-@@ -42,16 +42,6 @@ int arch_show_interrupts(struct seq_file *p, int prec)
- 	return 0;
+ #endif /* __ASM_OPENRISC_IRQ_H__ */
+diff --git a/arch/openrisc/kernel/irq.c b/arch/openrisc/kernel/irq.c
+index 35e478a93116..5f9445effaf8 100644
+--- a/arch/openrisc/kernel/irq.c
++++ b/arch/openrisc/kernel/irq.c
+@@ -41,13 +41,6 @@ void __init init_IRQ(void)
+ 	irqchip_init();
  }
  
--void (*handle_arch_irq)(struct pt_regs *) = NULL;
+-static void (*handle_arch_irq)(struct pt_regs *);
 -
 -void __init set_handle_irq(void (*handle_irq)(struct pt_regs *))
 -{
--	if (handle_arch_irq)
--		return;
--
 -	handle_arch_irq = handle_irq;
 -}
 -
- #ifdef CONFIG_VMAP_STACK
- static void init_irq_stacks(void)
+ void __irq_entry do_IRQ(struct pt_regs *regs)
  {
+ 	handle_arch_irq(regs);
 -- 
 2.16.4
 
