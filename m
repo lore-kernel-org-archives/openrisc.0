@@ -1,122 +1,40 @@
-From: Palmer Dabbelt <palmer@sifive.com>
-Date: Fri, 22 Jun 2018 10:01:26 -0700
-Subject: [OpenRISC] [PATCH 5/5] irq: Remove MULTI_IRQ_HANDLER as it's now
-	obselete
-In-Reply-To: <20180622170126.6308-1-palmer@sifive.com>
+From: Thomas Gleixner <tglx@linutronix.de>
+Date: Sun, 24 Jun 2018 15:15:25 +0200 (CEST)
+Subject: [OpenRISC] Finish the GENERIC_IRQ_MULTI_HANDLER conversion
+In-Reply-To: <20180621181756.12493-1-palmer@sifive.com>
 References: <20180621181756.12493-1-palmer@sifive.com>
- <20180622170126.6308-1-palmer@sifive.com>
-Message-ID: <20180622170126.6308-6-palmer@sifive.com>
+Message-ID: <alpine.DEB.2.21.1806241513260.8650@nanos.tec.linutronix.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Now that every user of MULTI_IRQ_HANDLER has been convereted over to use
-GENERIC_IRQ_MULTI_HANDLER we can remove the references to
-MULTI_IRQ_HANDLER.
+On Thu, 21 Jun 2018, Palmer Dabbelt wrote:
+> A while ago I sent a patch set that adds a GENERIC_IRQ_MULTI_HANDLER,
+> which is an exact copy of the existing IRQ_MULTI_HANDLER support in the
+> arm port, which is being used unconditionally by arm64 and openrisc.
+> GENERIC_IRQ_MULTI_HANDLER is currently being used by the RISC-V port.  I
+> managed to make a few mistakes in my original patch set and as a result
+> my conversion of the other architectures of GENERIC_IRQ_MULTI_HANDLER
+> was dropped.
+> 
+> This patch set finishes up my original patch set by converting arm,
+> arm64, and openrisc over to the new GENERIC_IRQ_MULTI_HANDLER support
+> and then removing MULTI_IRQ_HANDLER as it's obselete.
+> 
+> At the time I wrote this I gave it fairly extensive build testing, but
+> went I recently rebased it I just tested the full patch set on arm,
+> arm64, and openrisc defconfigs.
+> 
+> Various flavors of this patch set have bounced around a few times
+> before, but I'm calling this a whole new patch set as it builds on top
+> of what was merged.
 
-Signed-off-by: Palmer Dabbelt <palmer@sifive.com>
----
- drivers/irqchip/Kconfig | 24 ++++++++----------------
- kernel/irq/Kconfig      |  1 -
- 2 files changed, 8 insertions(+), 17 deletions(-)
+I'll take the whole pile through tip irq/core which probably makes the most
+sense unless there are any objections from architecture maintainers.
 
-diff --git a/drivers/irqchip/Kconfig b/drivers/irqchip/Kconfig
-index 7527f6a9adae..d564d21245c5 100644
---- a/drivers/irqchip/Kconfig
-+++ b/drivers/irqchip/Kconfig
-@@ -8,8 +8,7 @@ config ARM_GIC
- 	bool
- 	select IRQ_DOMAIN
- 	select IRQ_DOMAIN_HIERARCHY
--	select MULTI_IRQ_HANDLER
--	select GENERIC_IRQ_MULTI_HANDLER if !MULTI_IRQ_HANDLER
-+	select GENERIC_IRQ_MULTI_HANDLER
- 	select GENERIC_IRQ_EFFECTIVE_AFF_MASK
- 
- config ARM_GIC_PM
-@@ -35,8 +34,7 @@ config GIC_NON_BANKED
- config ARM_GIC_V3
- 	bool
- 	select IRQ_DOMAIN
--	select MULTI_IRQ_HANDLER
--	select GENERIC_IRQ_MULTI_HANDLER if !MULTI_IRQ_HANDLER
-+	select GENERIC_IRQ_MULTI_HANDLER
- 	select IRQ_DOMAIN_HIERARCHY
- 	select PARTITION_PERCPU
- 	select GENERIC_IRQ_EFFECTIVE_AFF_MASK
-@@ -68,8 +66,7 @@ config ARM_NVIC
- config ARM_VIC
- 	bool
- 	select IRQ_DOMAIN
--	select MULTI_IRQ_HANDLER
--	select GENERIC_IRQ_MULTI_HANDLER if !MULTI_IRQ_HANDLER
-+	select GENERIC_IRQ_MULTI_HANDLER
- 
- config ARM_VIC_NR
- 	int
-@@ -96,16 +93,14 @@ config ATMEL_AIC_IRQ
- 	bool
- 	select GENERIC_IRQ_CHIP
- 	select IRQ_DOMAIN
--	select MULTI_IRQ_HANDLER
--	select GENERIC_IRQ_MULTI_HANDLER if !MULTI_IRQ_HANDLER
-+	select GENERIC_IRQ_MULTI_HANDLER
- 	select SPARSE_IRQ
- 
- config ATMEL_AIC5_IRQ
- 	bool
- 	select GENERIC_IRQ_CHIP
- 	select IRQ_DOMAIN
--	select MULTI_IRQ_HANDLER
--	select GENERIC_IRQ_MULTI_HANDLER if !MULTI_IRQ_HANDLER
-+	select GENERIC_IRQ_MULTI_HANDLER
- 	select SPARSE_IRQ
- 
- config I8259
-@@ -142,8 +137,7 @@ config DW_APB_ICTL
- config FARADAY_FTINTC010
- 	bool
- 	select IRQ_DOMAIN
--	select MULTI_IRQ_HANDLER
--	select GENERIC_IRQ_MULTI_HANDLER if !MULTI_IRQ_HANDLER
-+	select GENERIC_IRQ_MULTI_HANDLER
- 	select SPARSE_IRQ
- 
- config HISILICON_IRQ_MBIGEN
-@@ -168,8 +162,7 @@ config CLPS711X_IRQCHIP
- 	bool
- 	depends on ARCH_CLPS711X
- 	select IRQ_DOMAIN
--	select MULTI_IRQ_HANDLER
--	select GENERIC_IRQ_MULTI_HANDLER if !MULTI_IRQ_HANDLER
-+	select GENERIC_IRQ_MULTI_HANDLER
- 	select SPARSE_IRQ
- 	default y
- 
-@@ -188,8 +181,7 @@ config OMAP_IRQCHIP
- config ORION_IRQCHIP
- 	bool
- 	select IRQ_DOMAIN
--	select MULTI_IRQ_HANDLER
--	select GENERIC_IRQ_MULTI_HANDLER if !MULTI_IRQ_HANDLER
-+	select GENERIC_IRQ_MULTI_HANDLER
- 
- config PIC32_EVIC
- 	bool
-diff --git a/kernel/irq/Kconfig b/kernel/irq/Kconfig
-index c6766f326072..5f3e2baefca9 100644
---- a/kernel/irq/Kconfig
-+++ b/kernel/irq/Kconfig
-@@ -134,7 +134,6 @@ config GENERIC_IRQ_DEBUGFS
- endmenu
- 
- config GENERIC_IRQ_MULTI_HANDLER
--	depends on !MULTI_IRQ_HANDLER
- 	bool
- 	help
- 	  Allow to specify the low level IRQ handler at run time.
--- 
-2.16.4
+Thanks,
+
+	tglx
 
