@@ -1,40 +1,71 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Date: Sun, 24 Jun 2018 15:15:25 +0200 (CEST)
-Subject: [OpenRISC] Finish the GENERIC_IRQ_MULTI_HANDLER conversion
-In-Reply-To: <20180621181756.12493-1-palmer@sifive.com>
-References: <20180621181756.12493-1-palmer@sifive.com>
-Message-ID: <alpine.DEB.2.21.1806241513260.8650@nanos.tec.linutronix.de>
+From: Stafford Horne <shorne@gmail.com>
+Date: Sun,  1 Jul 2018 14:11:47 +0900
+Subject: [OpenRISC] [PATCH] target/openrisc: Fix delay slot exception flag
+	to match spec
+Message-ID: <20180701051147.31649-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Thu, 21 Jun 2018, Palmer Dabbelt wrote:
-> A while ago I sent a patch set that adds a GENERIC_IRQ_MULTI_HANDLER,
-> which is an exact copy of the existing IRQ_MULTI_HANDLER support in the
-> arm port, which is being used unconditionally by arm64 and openrisc.
-> GENERIC_IRQ_MULTI_HANDLER is currently being used by the RISC-V port.  I
-> managed to make a few mistakes in my original patch set and as a result
-> my conversion of the other architectures of GENERIC_IRQ_MULTI_HANDLER
-> was dropped.
-> 
-> This patch set finishes up my original patch set by converting arm,
-> arm64, and openrisc over to the new GENERIC_IRQ_MULTI_HANDLER support
-> and then removing MULTI_IRQ_HANDLER as it's obselete.
-> 
-> At the time I wrote this I gave it fairly extensive build testing, but
-> went I recently rebased it I just tested the full patch set on arm,
-> arm64, and openrisc defconfigs.
-> 
-> Various flavors of this patch set have bounced around a few times
-> before, but I'm calling this a whole new patch set as it builds on top
-> of what was merged.
+The delay slot exception flag is only set on the SR register during
+exception.  Previously it was being set on both the ESR and SR this
+caused QEMU to differ from the spec.  The was apparent as the linux
+kernel had a bug where it could boot on QEMU but not on real hardware.
 
-I'll take the whole pile through tip irq/core which probably makes the most
-sense unless there are any objections from architecture maintainers.
+The fixed logic now matches hardware.
 
-Thanks,
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+ target/openrisc/interrupt.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-	tglx
+diff --git a/target/openrisc/interrupt.c b/target/openrisc/interrupt.c
+index 138ad17f00..bbae956361 100644
+--- a/target/openrisc/interrupt.c
++++ b/target/openrisc/interrupt.c
+@@ -35,13 +35,6 @@ void openrisc_cpu_do_interrupt(CPUState *cs)
+     int exception = cs->exception_index;
+ 
+     env->epcr = env->pc;
+-    if (env->dflag) {
+-        env->dflag = 0;
+-        env->sr |= SR_DSX;
+-        env->epcr -= 4;
+-    } else {
+-        env->sr &= ~SR_DSX;
+-    }
+     if (exception == EXCP_SYSCALL) {
+         env->epcr += 4;
+     }
+@@ -51,7 +44,10 @@ void openrisc_cpu_do_interrupt(CPUState *cs)
+         env->eear = env->pc;
+     }
+ 
++    /* During exceptions esr is populared with the pre-exception sr.  */
+     env->esr = cpu_get_sr(env);
++    /* In parallel sr is updated to disable mmu, interrupts, timers and
++       set the delay slot exception flag.  */
+     env->sr &= ~SR_DME;
+     env->sr &= ~SR_IME;
+     env->sr |= SR_SM;
+@@ -61,6 +57,15 @@ void openrisc_cpu_do_interrupt(CPUState *cs)
+     env->pmr &= ~PMR_SME;
+     env->lock_addr = -1;
+ 
++    /* Set/clear dsx to indicate if we are in a delay slot exception.  */
++    if (env->dflag) {
++        env->dflag = 0;
++        env->sr |= SR_DSX;
++        env->epcr -= 4;
++    } else {
++        env->sr &= ~SR_DSX;
++    }
++
+     if (exception > 0 && exception < EXCP_NR) {
+         static const char * const int_name[EXCP_NR] = {
+             [EXCP_RESET]    = "RESET",
+-- 
+2.17.0
 
