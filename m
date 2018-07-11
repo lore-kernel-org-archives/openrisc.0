@@ -1,48 +1,51 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 2 Jul 2018 23:12:44 +0900
-Subject: [OpenRISC] [GIT PULL] OpenRISC fixes for 4.18
-Message-ID: <20180702141244.GQ24595@lianli.shorne-pla.net>
+Date: Wed, 11 Jul 2018 23:49:43 +0900
+Subject: [OpenRISC] GCC testing and dynamic linker
+Message-ID: <20180711144943.GA9742@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Linus,
+Hi Richard,
 
-I hope you enjoyed yourself in Japan, please consider for pull,
+I was able to finally figure out how to get the GCC tests for the musl toolchain
+to work under qemu.  I think I am able to pretty much reproduce the results you
+have seen:
+
+                  === gcc Summary ===
+
+    # of expected passes            95846
+    # of unexpected failures        8
+    # of expected failures          266
+    # of unresolved testcases       1
+    # of unsupported tests          2405
+    /opt/crossbuild/linux-musl/musl-cross-make/build/local/or1k-linux-musl/obj_gcc/gcc/xgcc
+    version 9.0.0 20180426 (experimental) (GCC)
 
 
-The following changes since commit 7daf201d7fe8334e2d2364d4e8ed3394ec9af819:
+                === g++ Summary ===
 
-  Linux 4.18-rc2 (2018-06-24 20:54:29 +0800)
+    # of expected passes            110759
+    # of unexpected failures        12
+    # of expected failures          489
+    # of unsupported tests          5234
+    /opt/crossbuild/linux-musl/musl-cross-make/build/local/or1k-linux-musl/obj_gcc/gcc/testsuite/g++/../../xg++
+    version 9.0.0 20180426 (experimental) (GCC)
 
-are available in the Git repository at:
+For others, my site.exp is here:
 
-  git://github.com/stffrdhrn/linux.git tags/for-linus
+  https://github.com/stffrdhrn/or1k-utils
 
-for you to fetch changes up to ae15a41a641449f536578b0d9ec0e4ade130deb5:
+I am hoping to get the testing setup as part of my continuous integration build.
 
-  openrisc: entry: Fix delay slot exception detection (2018-07-01 16:48:24 +0900)
 
-----------------------------------------------------------------
-OpenRISC fixes for 4.18
+I have a question, I noticed in `gcc\config\or1k\linux.h` you have put:
 
-Two fixes here which were breaking OpenRISC boot.
- - Fix bug in __pte_free_tlb() exposed in 4.18 by Matthew Wilcox's page
-   table flag addition.
- - Fix issue booting on real hardware if delay slot detection emulation
-   is disabled.
+  #define MUSL_DYNAMIC_LINKER  "/lib/ld.so.1"
 
-----------------------------------------------------------------
-Stafford Horne (2):
-      openrisc: Call destructor during __pte_free_tlb
-      openrisc: entry: Fix delay slot exception detection
-
- arch/openrisc/include/asm/pgalloc.h | 6 +++++-
- arch/openrisc/kernel/entry.S        | 8 +-------
- arch/openrisc/kernel/head.S         | 9 ++++++---
- arch/openrisc/kernel/traps.c        | 2 +-
- 4 files changed, 13 insertions(+), 12 deletions(-)
+It seems musl produces the file as `ld-musl-or1k.so.1`.  Do you mind if I change
+it?
 
 -Stafford
