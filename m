@@ -1,65 +1,66 @@
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Date: Thu, 12 Jul 2018 17:01:35 +0900
-Subject: [OpenRISC] [PATCH 5/6] kbuild: change ld_flags to contain
-	LDFLAGS_$(@F)
-In-Reply-To: <1531382496-3719-1-git-send-email-yamada.masahiro@socionext.com>
-References: <1531382496-3719-1-git-send-email-yamada.masahiro@socionext.com>
-Message-ID: <1531382496-3719-6-git-send-email-yamada.masahiro@socionext.com>
+Date: Thu, 12 Jul 2018 17:01:30 +0900
+Subject: [OpenRISC] [PATCH 0/6] kbuild: clean-up and rename LDFLAGS to
+	KBUILD_LDFLAGS
+Message-ID: <1531382496-3719-1-git-send-email-yamada.masahiro@socionext.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Put $(LDFLAGS_$(@F)) into ld_flags so that $(LDFLAGS_pcap.o) and
-$(LDFLAGS_vde.o) in arch/um/drivers/Makefile are absorbed.
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
----
+This series renames LDFLAGS to KBUILD_LDFLAGS
+after some Makefile cleanups.
 
- arch/um/drivers/Makefile | 4 ++--
- scripts/Makefile.lib     | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+Currently, the last patch does not apply to Linus' tree
+due to missing pre-requisite patches.
 
-diff --git a/arch/um/drivers/Makefile b/arch/um/drivers/Makefile
-index 16b3ceb..69331983 100644
---- a/arch/um/drivers/Makefile
-+++ b/arch/um/drivers/Makefile
-@@ -25,10 +25,10 @@ LDFLAGS_vde.o := -r $(shell $(CC) $(CFLAGS) -print-file-name=libvdeplug.a)
- targets := pcap_kern.o pcap_user.o vde_kern.o vde_user.o
- 
- $(obj)/pcap.o: $(obj)/pcap_kern.o $(obj)/pcap_user.o
--	$(LD) -r -dp -o $@ $^ $(LDFLAGS) $(LDFLAGS_pcap.o)
-+	$(LD) -r -dp -o $@ $^ $(ld_flags)
- 
- $(obj)/vde.o: $(obj)/vde_kern.o $(obj)/vde_user.o
--	$(LD) -r -dp -o $@ $^ $(LDFLAGS) $(LDFLAGS_vde.o)
-+	$(LD) -r -dp -o $@ $^ $(ld_flags)
- 
- #XXX: The call below does not work because the flags are added before the
- # object name, so nothing from the library gets linked.
-diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
-index 1915574..f56bb4b 100644
---- a/scripts/Makefile.lib
-+++ b/scripts/Makefile.lib
-@@ -162,7 +162,7 @@ a_flags        = -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(LINUXINCLUDE)     \
- cpp_flags      = -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(LINUXINCLUDE)     \
- 		 $(__cpp_flags)
- 
--ld_flags       = $(LDFLAGS) $(ldflags-y)
-+ld_flags       = $(LDFLAGS) $(ldflags-y) $(LDFLAGS_$(@F))
- 
- DTC_INCLUDE    := $(srctree)/scripts/dtc/include-prefixes
- 
-@@ -225,7 +225,7 @@ $(obj)/%: $(src)/%_shipped
- # ---------------------------------------------------------------------------
- 
- quiet_cmd_ld = LD      $@
--cmd_ld = $(LD) $(ld_flags) $(LDFLAGS_$(@F)) $(filter-out FORCE,$^) -o $@
-+cmd_ld = $(LD) $(ld_flags) $(filter-out FORCE,$^) -o $@
- 
- # Objcopy
- # ---------------------------------------------------------------------------
+I will resolve conflicts as needed.
+
+
+
+Masahiro Yamada (6):
+  um: remove redundant 'export LDFLAGS' in arch/x86/Makefile.um
+  ARM: vfp: clean-up arch/arm/vfp/Makefile
+  kbuild: remove redundant LDFLAGS clearing in arch/*/Makefile
+  kbuild: replace $(LDFLAGS) $(ldflags-y) with $(ld_flags)
+  kbuild: change ld_flags to contain LDFLAGS_$(@F)
+  kbuild: rename LDFLAGS to KBUILD_LDFLAGS
+
+ Makefile                           | 6 +++---
+ arch/arc/Makefile                  | 2 +-
+ arch/arm/Makefile                  | 7 ++-----
+ arch/arm/vfp/Makefile              | 5 +----
+ arch/arm64/Makefile                | 4 ++--
+ arch/c6x/Makefile                  | 3 +--
+ arch/h8300/Makefile                | 2 +-
+ arch/hexagon/Makefile              | 4 +---
+ arch/m68k/Makefile                 | 2 +-
+ arch/microblaze/Makefile           | 4 ++--
+ arch/mips/Makefile                 | 2 +-
+ arch/mips/boot/compressed/Makefile | 2 +-
+ arch/mips/lasat/image/Makefile     | 2 +-
+ arch/nds32/Makefile                | 4 ++--
+ arch/openrisc/Makefile             | 1 -
+ arch/powerpc/Makefile              | 6 +++---
+ arch/riscv/Makefile                | 5 ++---
+ arch/s390/Makefile                 | 2 +-
+ arch/sh/Makefile                   | 4 ++--
+ arch/sparc/Makefile                | 4 ++--
+ arch/um/Makefile                   | 2 +-
+ arch/um/drivers/Makefile           | 4 ++--
+ arch/x86/Makefile                  | 4 ++--
+ arch/x86/Makefile.um               | 4 +---
+ arch/x86/boot/compressed/Makefile  | 6 +++---
+ arch/xtensa/Makefile               | 2 +-
+ arch/xtensa/boot/boot-elf/Makefile | 2 +-
+ scripts/Kbuild.include             | 4 ++--
+ scripts/Makefile.build             | 4 ++--
+ scripts/Makefile.lib               | 5 ++---
+ scripts/Makefile.modpost           | 2 +-
+ 31 files changed, 48 insertions(+), 62 deletions(-)
+
 -- 
 2.7.4
 
