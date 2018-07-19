@@ -1,48 +1,97 @@
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Date: Thu, 19 Jul 2018 08:41:04 +0900
-Subject: [OpenRISC] [PATCH 0/6] kbuild: clean-up and rename LDFLAGS to
-	KBUILD_LDFLAGS
-In-Reply-To: <20180712140539.4b5xdraq34i5dbii@kshutemo-mobl1>
-References: <1531382496-3719-1-git-send-email-yamada.masahiro@socionext.com>
- <20180712140539.4b5xdraq34i5dbii@kshutemo-mobl1>
-Message-ID: <CAK7LNAThEpLsFgD_pv4ZgLWfbXcNPBiPEU7qZ5ah_R=x8LQA0w@mail.gmail.com>
+From: Christoph Hellwig <hch@lst.de>
+Date: Thu, 19 Jul 2018 06:02:31 -0700
+Subject: [OpenRISC] [PATCH 3/4] openrisc: fix cache maintainance the the
+	sync_single_for_device DMA operation
+In-Reply-To: <20180719130232.1819-1-hch@lst.de>
+References: <20180719130232.1819-1-hch@lst.de>
+Message-ID: <20180719130232.1819-4-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-2018-07-12 23:05 GMT+09:00 Kirill A. Shutemov <kirill@shutemov.name>:
-> On Thu, Jul 12, 2018 at 05:01:30PM +0900, Masahiro Yamada wrote:
->>
->> This series renames LDFLAGS to KBUILD_LDFLAGS
->> after some Makefile cleanups.
->>
->> Currently, the last patch does not apply to Linus' tree
->> due to missing pre-requisite patches.
->>
->> I will resolve conflicts as needed.
->>
->>
->>
->> Masahiro Yamada (6):
->>   um: remove redundant 'export LDFLAGS' in arch/x86/Makefile.um
->>   ARM: vfp: clean-up arch/arm/vfp/Makefile
->>   kbuild: remove redundant LDFLAGS clearing in arch/*/Makefile
->>   kbuild: replace $(LDFLAGS) $(ldflags-y) with $(ld_flags)
->>   kbuild: change ld_flags to contain LDFLAGS_$(@F)
->>   kbuild: rename LDFLAGS to KBUILD_LDFLAGS
->
-> Thanks! Looks sane to me
->
-> Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
->
+The cache maintaince in the sync_single_for_device operation should be
+equivalent to the map_page operation to facilitate reusing buffers.  Fix the
+openrisc implementation by moving the cache maintaince performed in map_page
+into the sync_single method, and calling that from map_page.
 
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ arch/openrisc/kernel/dma.c | 42 +++++++++++++++++---------------------
+ 1 file changed, 19 insertions(+), 23 deletions(-)
 
-Patch 1, 3, 4, 5 applied to linux-kbuild.
-
-
-
+diff --git a/arch/openrisc/kernel/dma.c b/arch/openrisc/kernel/dma.c
+index 7cadff93d179..d6a0bf1fa713 100644
+--- a/arch/openrisc/kernel/dma.c
++++ b/arch/openrisc/kernel/dma.c
+@@ -133,19 +133,15 @@ or1k_dma_free(struct device *dev, size_t size, void *vaddr,
+ 	free_pages_exact(vaddr, size);
+ }
+ 
+-static dma_addr_t
+-or1k_map_page(struct device *dev, struct page *page,
+-	      unsigned long offset, size_t size,
+-	      enum dma_data_direction dir,
+-	      unsigned long attrs)
++static void
++or1k_sync_single_for_device(struct device *dev,
++			    dma_addr_t dma_handle, size_t size,
++			    enum dma_data_direction dir)
+ {
+ 	unsigned long cl;
+-	dma_addr_t addr = page_to_phys(page) + offset;
++	dma_addr_t addr = dma_handle;
+ 	struct cpuinfo_or1k *cpuinfo = &cpuinfo_or1k[smp_processor_id()];
+ 
+-	if (attrs & DMA_ATTR_SKIP_CPU_SYNC)
+-		return addr;
+-
+ 	switch (dir) {
+ 	case DMA_TO_DEVICE:
+ 		/* Flush the dcache for the requested range */
+@@ -168,6 +164,20 @@ or1k_map_page(struct device *dev, struct page *page,
+ 		break;
+ 	}
+ 
++}
++
++static dma_addr_t
++or1k_map_page(struct device *dev, struct page *page,
++	      unsigned long offset, size_t size,
++	      enum dma_data_direction dir,
++	      unsigned long attrs)
++{
++	unsigned long cl;
++	dma_addr_t addr = page_to_phys(page) + offset;
++	struct cpuinfo_or1k *cpuinfo = &cpuinfo_or1k[smp_processor_id()];
++
++	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
++		or1k_sync_single_for_device(dev, addr, size, dir);
+ 	return addr;
+ }
+ 
+@@ -187,20 +197,6 @@ or1k_map_sg(struct device *dev, struct scatterlist *sg,
+ 	return nents;
+ }
+ 
+-static void
+-or1k_sync_single_for_device(struct device *dev,
+-			    dma_addr_t dma_handle, size_t size,
+-			    enum dma_data_direction dir)
+-{
+-	unsigned long cl;
+-	dma_addr_t addr = dma_handle;
+-	struct cpuinfo_or1k *cpuinfo = &cpuinfo_or1k[smp_processor_id()];
+-
+-	/* Flush the dcache for the requested range */
+-	for (cl = addr; cl < addr + size; cl += cpuinfo->dcache_block_size)
+-		mtspr(SPR_DCBFR, cl);
+-}
+-
+ const struct dma_map_ops or1k_dma_map_ops = {
+ 	.alloc = or1k_dma_alloc,
+ 	.free = or1k_dma_free,
 -- 
-Best Regards
-Masahiro Yamada
+2.18.0
+
