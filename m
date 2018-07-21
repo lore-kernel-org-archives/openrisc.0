@@ -1,196 +1,33 @@
-From: Christoph Hellwig <hch@lst.de>
-Date: Thu, 19 Jul 2018 06:02:32 -0700
-Subject: [OpenRISC] [PATCH 4/4] openrisc: use generic dma_noncoherent_ops
+From: Stafford Horne <shorne@gmail.com>
+Date: Sat, 21 Jul 2018 14:31:42 +0900
+Subject: [OpenRISC] use the generic dma-noncoherent code for openrisc
 In-Reply-To: <20180719130232.1819-1-hch@lst.de>
 References: <20180719130232.1819-1-hch@lst.de>
-Message-ID: <20180719130232.1819-5-hch@lst.de>
+Message-ID: <20180721053142.GC9742@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Switch to the generic noncoherent direct mapping implementation.
+On Thu, Jul 19, 2018 at 06:02:28AM -0700, Christoph Hellwig wrote:
+> Hi Openrisc maintainers,
+> 
+> can you review these patches to switch openrisc to use the generic
+> dma-noncoherent code?  All the requirements are in mainline already
+> and we've switched various architectures over to it already.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- arch/openrisc/Kconfig                   |  2 +
- arch/openrisc/include/asm/Kbuild        |  1 +
- arch/openrisc/include/asm/dma-mapping.h | 35 -------------
- arch/openrisc/kernel/dma.c              | 65 ++++---------------------
- 4 files changed, 12 insertions(+), 91 deletions(-)
- delete mode 100644 arch/openrisc/include/asm/dma-mapping.h
+Hi Christoph,
 
-diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index 9ecad05bfc73..65e3c574c9d3 100644
---- a/arch/openrisc/Kconfig
-+++ b/arch/openrisc/Kconfig
-@@ -6,6 +6,8 @@
- 
- config OPENRISC
- 	def_bool y
-+	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
-+	select DMA_NONCOHERENT_OPS
- 	select OF
- 	select OF_EARLY_FLATTREE
- 	select IRQ_DOMAIN
-diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
-index 65964d390b10..eb87cd8327c8 100644
---- a/arch/openrisc/include/asm/Kbuild
-+++ b/arch/openrisc/include/asm/Kbuild
-@@ -7,6 +7,7 @@ generic-y += current.h
- generic-y += device.h
- generic-y += div64.h
- generic-y += dma.h
-+generic-y += dma-mapping.h
- generic-y += emergency-restart.h
- generic-y += exec.h
- generic-y += extable.h
-diff --git a/arch/openrisc/include/asm/dma-mapping.h b/arch/openrisc/include/asm/dma-mapping.h
-deleted file mode 100644
-index e212a1f0b6d2..000000000000
---- a/arch/openrisc/include/asm/dma-mapping.h
-+++ /dev/null
-@@ -1,35 +0,0 @@
--/*
-- * OpenRISC Linux
-- *
-- * Linux architectural port borrowing liberally from similar works of
-- * others.  All original copyrights apply as per the original source
-- * declaration.
-- *
-- * OpenRISC implementation:
-- * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- */
--
--#ifndef __ASM_OPENRISC_DMA_MAPPING_H
--#define __ASM_OPENRISC_DMA_MAPPING_H
--
--/*
-- * See Documentation/DMA-API-HOWTO.txt and
-- * Documentation/DMA-API.txt for documentation.
-- */
--
--#include <linux/dma-debug.h>
--#include <linux/dma-mapping.h>
--
--extern const struct dma_map_ops or1k_dma_map_ops;
--
--static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
--{
--	return &or1k_dma_map_ops;
--}
--
--#endif	/* __ASM_OPENRISC_DMA_MAPPING_H */
-diff --git a/arch/openrisc/kernel/dma.c b/arch/openrisc/kernel/dma.c
-index d6a0bf1fa713..159336adfa2f 100644
---- a/arch/openrisc/kernel/dma.c
-+++ b/arch/openrisc/kernel/dma.c
-@@ -19,9 +19,7 @@
-  * the only thing implemented properly.  The rest need looking into...
-  */
- 
--#include <linux/dma-mapping.h>
--#include <linux/dma-debug.h>
--#include <linux/export.h>
-+#include <linux/dma-noncoherent.h>
- 
- #include <asm/cpuinfo.h>
- #include <asm/spr_defs.h>
-@@ -80,10 +78,9 @@ page_clear_nocache(pte_t *pte, unsigned long addr,
-  * is being ignored for now; uncached but write-combined memory is a
-  * missing feature of the OR1K.
-  */
--static void *
--or1k_dma_alloc(struct device *dev, size_t size,
--	       dma_addr_t *dma_handle, gfp_t gfp,
--	       unsigned long attrs)
-+void *
-+arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
-+		gfp_t gfp, unsigned long attrs)
- {
- 	unsigned long va;
- 	void *page;
-@@ -115,9 +112,9 @@ or1k_dma_alloc(struct device *dev, size_t size,
- 	return (void *)va;
- }
- 
--static void
--or1k_dma_free(struct device *dev, size_t size, void *vaddr,
--	      dma_addr_t dma_handle, unsigned long attrs)
-+void
-+arch_dma_free(struct device *dev, size_t size, void *vaddr,
-+		dma_addr_t dma_handle, unsigned long attrs)
- {
- 	unsigned long va = (unsigned long)vaddr;
- 	struct mm_walk walk = {
-@@ -133,13 +130,10 @@ or1k_dma_free(struct device *dev, size_t size, void *vaddr,
- 	free_pages_exact(vaddr, size);
- }
- 
--static void
--or1k_sync_single_for_device(struct device *dev,
--			    dma_addr_t dma_handle, size_t size,
--			    enum dma_data_direction dir)
-+void arch_sync_dma_for_device(struct device *dev, phys_addr_t addr, size_t size,
-+		enum dma_data_direction dir)
- {
- 	unsigned long cl;
--	dma_addr_t addr = dma_handle;
- 	struct cpuinfo_or1k *cpuinfo = &cpuinfo_or1k[smp_processor_id()];
- 
- 	switch (dir) {
-@@ -163,45 +157,4 @@ or1k_sync_single_for_device(struct device *dev,
- 		 */
- 		break;
- 	}
--
--}
--
--static dma_addr_t
--or1k_map_page(struct device *dev, struct page *page,
--	      unsigned long offset, size_t size,
--	      enum dma_data_direction dir,
--	      unsigned long attrs)
--{
--	unsigned long cl;
--	dma_addr_t addr = page_to_phys(page) + offset;
--	struct cpuinfo_or1k *cpuinfo = &cpuinfo_or1k[smp_processor_id()];
--
--	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
--		or1k_sync_single_for_device(dev, addr, size, dir);
--	return addr;
- }
--
--static int
--or1k_map_sg(struct device *dev, struct scatterlist *sg,
--	    int nents, enum dma_data_direction dir,
--	    unsigned long attrs)
--{
--	struct scatterlist *s;
--	int i;
--
--	for_each_sg(sg, s, nents, i) {
--		s->dma_address = or1k_map_page(dev, sg_page(s), s->offset,
--					       s->length, dir, 0);
--	}
--
--	return nents;
--}
--
--const struct dma_map_ops or1k_dma_map_ops = {
--	.alloc = or1k_dma_alloc,
--	.free = or1k_dma_free,
--	.map_page = or1k_map_page,
--	.map_sg = or1k_map_sg,
--	.sync_single_for_device = or1k_sync_single_for_device,
--};
--EXPORT_SYMBOL(or1k_dma_map_ops);
--- 
-2.18.0
+Thanks for this, these look good to me.  I don't know much about the dma
+infrastructure in the kernel to tell the truth, but the patches do maintain the
+original cache flushing and invalidation core logic and I don't see any
+problems.
 
+I have applied these and ran my regular tests, but I don't really have any DMA
+hardware so the testing doesn't mean much.
+
+For upstreaming, do you want me to send these through the openrisc tree, or do
+you want to send with the dma tree?
+
+-Stafford
