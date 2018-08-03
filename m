@@ -1,38 +1,44 @@
-From: Palmer Dabbelt <palmer@sifive.com>
-Date: Thu, 02 Aug 2018 11:30:53 -0700 (PDT)
+From: Thomas Gleixner <tglx@linutronix.de>
+Date: Fri, 3 Aug 2018 12:09:32 +0200 (CEST)
 Subject: [OpenRISC] Finish the GENERIC_IRQ_MULTI_HANDLER conversion
-In-Reply-To: <alpine.DEB.2.21.1806241513260.8650@nanos.tec.linutronix.de>
-Message-ID: <mhng-ef3db5ea-d5f5-4d51-b32c-1b9ca38abccf@palmer-si-x1c4>
+In-Reply-To: <mhng-ef3db5ea-d5f5-4d51-b32c-1b9ca38abccf@palmer-si-x1c4>
+References: <mhng-ef3db5ea-d5f5-4d51-b32c-1b9ca38abccf@palmer-si-x1c4>
+Message-ID: <alpine.DEB.2.21.1808031209070.1745@nanos.tec.linutronix.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sun, 24 Jun 2018 06:15:25 PDT (-0700), tglx at linutronix.de wrote:
-> On Thu, 21 Jun 2018, Palmer Dabbelt wrote:
->> A while ago I sent a patch set that adds a GENERIC_IRQ_MULTI_HANDLER,
->> which is an exact copy of the existing IRQ_MULTI_HANDLER support in the
->> arm port, which is being used unconditionally by arm64 and openrisc.
->> GENERIC_IRQ_MULTI_HANDLER is currently being used by the RISC-V port.  I
->> managed to make a few mistakes in my original patch set and as a result
->> my conversion of the other architectures of GENERIC_IRQ_MULTI_HANDLER
->> was dropped.
->>
->> This patch set finishes up my original patch set by converting arm,
->> arm64, and openrisc over to the new GENERIC_IRQ_MULTI_HANDLER support
->> and then removing MULTI_IRQ_HANDLER as it's obselete.
->>
->> At the time I wrote this I gave it fairly extensive build testing, but
->> went I recently rebased it I just tested the full patch set on arm,
->> arm64, and openrisc defconfigs.
->>
->> Various flavors of this patch set have bounced around a few times
->> before, but I'm calling this a whole new patch set as it builds on top
->> of what was merged.
->
-> I'll take the whole pile through tip irq/core which probably makes the most
-> sense unless there are any objections from architecture maintainers.
+On Thu, 2 Aug 2018, Palmer Dabbelt wrote:
 
-Thanks!  Unless I've managed to screw something up I don't see these in your 
-tree, but I also don't see any feedback from anyone else.
+> On Sun, 24 Jun 2018 06:15:25 PDT (-0700), tglx at linutronix.de wrote:
+> > On Thu, 21 Jun 2018, Palmer Dabbelt wrote:
+> > > A while ago I sent a patch set that adds a GENERIC_IRQ_MULTI_HANDLER,
+> > > which is an exact copy of the existing IRQ_MULTI_HANDLER support in the
+> > > arm port, which is being used unconditionally by arm64 and openrisc.
+> > > GENERIC_IRQ_MULTI_HANDLER is currently being used by the RISC-V port.  I
+> > > managed to make a few mistakes in my original patch set and as a result
+> > > my conversion of the other architectures of GENERIC_IRQ_MULTI_HANDLER
+> > > was dropped.
+> > > 
+> > > This patch set finishes up my original patch set by converting arm,
+> > > arm64, and openrisc over to the new GENERIC_IRQ_MULTI_HANDLER support
+> > > and then removing MULTI_IRQ_HANDLER as it's obselete.
+> > > 
+> > > At the time I wrote this I gave it fairly extensive build testing, but
+> > > went I recently rebased it I just tested the full patch set on arm,
+> > > arm64, and openrisc defconfigs.
+> > > 
+> > > Various flavors of this patch set have bounced around a few times
+> > > before, but I'm calling this a whole new patch set as it builds on top
+> > > of what was merged.
+> > 
+> > I'll take the whole pile through tip irq/core which probably makes the most
+> > sense unless there are any objections from architecture maintainers.
+> 
+> Thanks!  Unless I've managed to screw something up I don't see these in your
+> tree, but I also don't see any feedback from anyone else.
+
+Yeah, I somehow managed to lose track of them. Picking them up now.
+
