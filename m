@@ -1,89 +1,64 @@
-From: Amit Pundir <amit.pundir@linaro.org>
-Date: Wed, 29 Aug 2018 01:43:14 +0530
-Subject: [OpenRISC] [PATCH for-4.9.y 03/14] kthread: fix boot hang
-	(regression) on MIPS/OpenRISC
-In-Reply-To: <1535487205-26280-1-git-send-email-amit.pundir@linaro.org>
-References: <1535487205-26280-1-git-send-email-amit.pundir@linaro.org>
-Message-ID: <1535487205-26280-4-git-send-email-amit.pundir@linaro.org>
+From: Nick Desaulniers <ndesaulniers@google.com>
+Date: Fri, 31 Aug 2018 09:48:56 -0700
+Subject: [OpenRISC] [PATCH] treewide: remove current_text_addr
+In-Reply-To: <4d1a8f35-e2fc-70d2-ca0e-44b8574c86f1@zytor.com>
+References: <20180821202900.208417-1-ndesaulniers@google.com>
+ <207784db-4fcc-85e7-a0b2-fec26b7dab81@gmx.de>
+ <c62e4e00-fb8f-19a6-f3eb-bde60118cb1a@zytor.com>
+ <81141365-8168-799b-f34f-da5f92efaaf9@zytor.com>
+ <7f49eeab-a5cc-867f-58fb-abd266f9c2c9@zytor.com>
+ <6ca8a1d3-ff95-e9f4-f003-0a5af85bcb6f@zytor.com>
+ <CA+55aFzuSCKfmgT9efHuwtan+m3+bPh4BpwbZwn5gGX_H=Thuw@mail.gmail.com>
+ <CAKwvOd=wAaPBkFHAcWxgMW91a--9gbvu7xrt3j-q8c+-mT=7Lw@mail.gmail.com>
+ <20180827073358.GV24124@hirez.programming.kicks-ass.net>
+ <f9896d68-4a49-e666-cea5-a9c0522f1658@zytor.com>
+ <20180827131103.GD24124@hirez.programming.kicks-ass.net>
+ <4d1a8f35-e2fc-70d2-ca0e-44b8574c86f1@zytor.com>
+Message-ID: <CAKwvOdmXhRZJ5bQw+W0Ro+oeWSTRJzG1UAJnjyjciR1JFs+ubA@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-From: Vegard Nossum <vegard.nossum@oracle.com>
+On Mon, Aug 27, 2018 at 6:34 AM H. Peter Anvin <hpa@zytor.com> wrote:
+>
+> On 08/27/18 06:11, Peter Zijlstra wrote:
+> > On Mon, Aug 27, 2018 at 05:26:53AM -0700, H. Peter Anvin wrote:
+> >
+> >> _THIS_IP_, however, is completely ill-defined, other than being an
+> >> address *somewhere* in the same global function (not even necessarily
+> >> the same function if the function is static!)  As my experiment show, in
+> >> many (nearly) cases gcc will hoist the address all the way to the top of
+> >> the function, at least for the current generic implementation.
+> >
+> > It seems to have mostly worked so far... did anything change?
+> >
+>
+> Most likely because the major architectures contain a arch-specific
+> assembly implementation.  The generic implementation used in some places
+> is completely broken, as my experiments show.
+>
+> >> For the case where _THIS_IP_ is passed to an out-of-line function in all
+> >> cases, it is extra pointless because all it does is increase the
+> >> footprint of every caller: _RET_IP_ is inherently passed to the function
+> >> anyway, and with tailcall protection it will uniquely identify a callsite.
+> >
+> > So I think we can convert many of the lockdep _THIS_IP_ calls to
+> > _RET_IP_ on the other side, with a wee bit of care.
+> >
+> > A little something like so perhaps...
+>
+> I don't have time to look at this right now (I'm on sabbatical, and I'm
+> dealing with personal legal stuff right at the moment), but I think it
+> is the right direction.
+>
+>         -hpa
 
-commit b0f5a8f32e8bbdaae1abb8abe2d3cbafaba57e08 upstream.
+Linus,
+Can this patch please be merged?  Then we can polish off Peter's
+change to lockdep to not even use _THIS_IP_.
 
-This fixes a regression in commit 4d6501dce079 where I didn't notice
-that MIPS and OpenRISC were reinitialising p->{set,clear}_child_tid to
-NULL after our initialisation in copy_process().
-
-We can simply get rid of the arch-specific initialisation here since it
-is now always done in copy_process() before hitting copy_thread{,_tls}().
-
-Review notes:
-
- - As far as I can tell, copy_process() is the only user of
-   copy_thread_tls(), which is the only caller of copy_thread() for
-   architectures that don't implement copy_thread_tls().
-
- - After this patch, there is no arch-specific code touching
-   p->set_child_tid or p->clear_child_tid whatsoever.
-
- - It may look like MIPS/OpenRISC wanted to always have these fields be
-   NULL, but that's not true, as copy_process() would unconditionally
-   set them again _after_ calling copy_thread_tls() before commit
-   4d6501dce079.
-
-Fixes: 4d6501dce079c1eb6bf0b1d8f528a5e81770109e ("kthread: Fix use-after-free if kthread fork fails")
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Guenter Roeck <linux@roeck-us.net> # MIPS only
-Acked-by: Stafford Horne <shorne@gmail.com>
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: linux-mips at linux-mips.org
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: openrisc at lists.librecores.org
-Cc: Jamie Iles <jamie.iles@oracle.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Amit Pundir <amit.pundir@linaro.org>
----
-To be applied on 4.4.y and 3.18.y as well.
-Build tested on v4.4.153 and v3.18.120.
-
- arch/mips/kernel/process.c     | 1 -
- arch/openrisc/kernel/process.c | 2 --
- 2 files changed, 3 deletions(-)
-
-diff --git a/arch/mips/kernel/process.c b/arch/mips/kernel/process.c
-index 513a63b9b991..ba315e523b33 100644
---- a/arch/mips/kernel/process.c
-+++ b/arch/mips/kernel/process.c
-@@ -118,7 +118,6 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
- 	struct thread_info *ti = task_thread_info(p);
- 	struct pt_regs *childregs, *regs = current_pt_regs();
- 	unsigned long childksp;
--	p->set_child_tid = p->clear_child_tid = NULL;
- 
- 	childksp = (unsigned long)task_stack_page(p) + THREAD_SIZE - 32;
- 
-diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
-index 7095dfe7666b..962372143fda 100644
---- a/arch/openrisc/kernel/process.c
-+++ b/arch/openrisc/kernel/process.c
-@@ -152,8 +152,6 @@ copy_thread(unsigned long clone_flags, unsigned long usp,
- 
- 	top_of_kernel_stack = sp;
- 
--	p->set_child_tid = p->clear_child_tid = NULL;
--
- 	/* Locate userspace context on stack... */
- 	sp -= STACK_FRAME_OVERHEAD;	/* redzone */
- 	sp -= sizeof(struct pt_regs);
 -- 
-2.7.4
-
+Thanks,
+~Nick Desaulniers
