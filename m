@@ -1,109 +1,73 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 9 Sep 2018 06:35:15 +0900
-Subject: [OpenRISC] [PATCH 0/4] OpenRISC binutils updates and new relocs
-In-Reply-To: <20180821143823.16985-1-shorne@gmail.com>
-References: <20180821143823.16985-1-shorne@gmail.com>
-Message-ID: <20180908213515.GN4594@lianli.shorne-pla.net>
+From: Rob Herring <robh@kernel.org>
+Date: Wed,  5 Sep 2018 14:37:17 -0500
+Subject: [OpenRISC] [PATCH 00/21] DT cpu node iterator
+Message-ID: <20180905193738.19325-1-robh@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hello,
+This series adds an iterator for cpu nodes and converts users over to use
+it or of_get_cpu_node in some cases. This allows us to remove the
+dependency on device_type property for cpu nodes though removing that
+from DTS files will have to wait for some time. In some cases, this makes
+the DT search more strict by only looking in /cpus child nodes rather
+than any node with the device_type == cpu. The iterator also honors the
+status property which is often forgotten.
 
-Does anyone have concerns with these patches?  Mostly they are for openrisc
-parts only.
+I've only tested on ARM under QEMU and compiled powerpc.
 
-Thoughts; We have new relocations here, maybe I need to add documentation?
+Rob
 
-Other than that I think it looks ok.
+Rob Herring (21):
+  of: Add cpu node iterator for_each_of_cpu_node()
+  of: Support matching cpu nodes with no 'reg' property
+  ARM: use for_each_of_cpu_node iterator
+  ARM: topology: remove unneeded check for /cpus node
+  ARM: shmobile: use for_each_of_cpu_node iterator
+  arm64: use for_each_of_cpu_node iterator
+  c6x: use for_each_of_cpu_node iterator
+  microblaze: get cpu node with of_get_cpu_node
+  nios2: get cpu node with of_get_cpu_node
+  openrisc: use for_each_of_cpu_node iterator
+  powerpc: use for_each_of_cpu_node iterator
+  powerpc: 4xx: get cpu node with of_get_cpu_node
+  powerpc: 8xx: get cpu node with of_get_cpu_node
+  riscv: use for_each_of_cpu_node iterator
+  SH: use for_each_of_cpu_node iterator
+  x86: DT: use for_each_of_cpu_node iterator
+  clk: mvebu: use for_each_of_cpu_node iterator
+  edac: cpc925: use for_each_of_cpu_node iterator
+  iommu: fsl_pamu: use for_each_of_cpu_node iterator
+  of: use for_each_of_cpu_node iterator
+  fbdev: fsl-diu: get cpu node with of_get_cpu_node
 
--Stafford
+ arch/arm/kernel/devtree.c                 |  5 +--
+ arch/arm/kernel/topology.c                |  6 ---
+ arch/arm/mach-shmobile/pm-rcar-gen2.c     |  8 +---
+ arch/arm/mach-shmobile/pm-rmobile.c       |  2 +-
+ arch/arm/mach-shmobile/timer.c            | 10 +----
+ arch/arm64/kernel/smp.c                   |  2 +-
+ arch/c6x/kernel/setup.c                   | 11 ++---
+ arch/microblaze/kernel/cpu/cpuinfo.c      |  4 +-
+ arch/nios2/kernel/cpuinfo.c               |  4 +-
+ arch/openrisc/kernel/setup.c              |  3 +-
+ arch/powerpc/platforms/4xx/soc.c          |  2 +-
+ arch/powerpc/platforms/8xx/m8xx_setup.c   |  5 ++-
+ arch/powerpc/platforms/powermac/feature.c | 51 ++++++++---------------
+ arch/powerpc/platforms/powermac/setup.c   | 15 +++----
+ arch/riscv/kernel/smpboot.c               |  2 +-
+ arch/sh/boards/of-generic.c               |  2 +-
+ arch/x86/kernel/devicetree.c              |  2 +-
+ drivers/clk/mvebu/clk-cpu.c               |  4 +-
+ drivers/edac/cpc925_edac.c                | 20 +--------
+ drivers/iommu/fsl_pamu.c                  |  2 +-
+ drivers/of/base.c                         | 43 ++++++++++++++++++-
+ drivers/of/of_numa.c                      | 15 +------
+ drivers/video/fbdev/fsl-diu-fb.c          |  2 +-
+ include/linux/of.h                        | 11 +++++
+ 24 files changed, 111 insertions(+), 120 deletions(-)
 
-On Tue, Aug 21, 2018 at 11:38:19PM +0900, Stafford Horne wrote:
-> Hello,
-> 
-> This series contains a lot of updates for OpenRISC binutils.  Including:
->   - Definitions for missing instructions.
->   - New relocations used in the new GCC OpenRISC port
->   - A new instruction l.adrp
-> 
-> The patches were for the most part written by Richard Henderson, I have fixed a
-> few bugs, added additional tests and wrote the ChangeLogs.
-> 
-> These patches have been tested and used in the new OpenRISC GCC clean-room
-> rewrite done by Richard and Me.
-> 
->   http://stffrdhrn.github.io/software/embedded/openrisc/2018/02/03/openrisc_gcc_rewrite.html
-> 
-> -Stafford
-> 
-> Richard Henderson (2):
->   or1k: Add relocations for high-signed and low-stores
->   or1k: Add the l.muld, l.muldu, l.macu, l.msbu insns
-> 
-> Stafford Horne (2):
->   or1k: Fix messages for relocations in shared libraries
->   or1k: Add the l.adrp insn and supporting relocations
-> 
->  bfd/bfd-in2.h                                 |   19 +-
->  bfd/elf32-or1k.c                              | 1002 +++++++++++++----
->  bfd/libbfd.h                                  |   19 +-
->  bfd/reloc.c                                   |   34 +-
->  cpu/or1k.opc                                  |  582 +++++-----
->  cpu/or1korbis.cpu                             |  300 +++--
->  gas/config/tc-or1k.c                          |    6 +
->  gas/testsuite/gas/or1k/allinsn.d              |   50 +-
->  gas/testsuite/gas/or1k/allinsn.s              |   25 +
->  .../gas/or1k/{allinsn.exp => or1k.exp}        |    1 +
->  gas/testsuite/gas/or1k/reloc-1.d              |   72 ++
->  gas/testsuite/gas/or1k/reloc-1.s              |   76 ++
->  gas/testsuite/gas/or1k/reloc-2.l              |   11 +
->  gas/testsuite/gas/or1k/reloc-2.s              |   13 +
->  include/elf/or1k.h                            |   19 +
->  ld/testsuite/ld-or1k/offsets1.d               |  212 ++++
->  ld/testsuite/ld-or1k/offsets1.s               |   14 +
->  ld/testsuite/ld-or1k/or1k.exp                 |   91 ++
->  ld/testsuite/ld-or1k/plt1.dd                  |   27 +
->  ld/testsuite/ld-or1k/plt1.s                   |   11 +
->  ld/testsuite/ld-or1k/plt1.x.dd                |   27 +
->  ld/testsuite/ld-or1k/plta1.dd                 |   27 +
->  ld/testsuite/ld-or1k/plta1.s                  |   11 +
->  ld/testsuite/ld-or1k/pltlib.s                 |   12 +
->  opcodes/or1k-asm.c                            |  587 +++++-----
->  opcodes/or1k-desc.c                           |   34 +-
->  opcodes/or1k-desc.h                           |   48 +-
->  opcodes/or1k-dis.c                            |    3 +
->  opcodes/or1k-ibld.c                           |   29 +-
->  opcodes/or1k-opc.c                            |   44 +-
->  opcodes/or1k-opc.h                            |   65 +-
->  opcodes/or1k-opinst.c                         |   98 +-
->  sim/common/cgen-ops.h                         |   36 +
->  sim/or1k/cpu.h                                |   32 +
->  sim/or1k/decode.c                             |  239 +++-
->  sim/or1k/decode.h                             |   82 +-
->  sim/or1k/model.c                              |  186 ++-
->  sim/or1k/sem-switch.c                         |  281 ++++-
->  sim/or1k/sem.c                                |  293 ++++-
->  sim/testsuite/sim/or1k/div.S                  |   12 +-
->  sim/testsuite/sim/or1k/mul.S                  |  109 +-
->  41 files changed, 3643 insertions(+), 1196 deletions(-)
->  rename gas/testsuite/gas/or1k/{allinsn.exp => or1k.exp} (83%)
->  create mode 100644 gas/testsuite/gas/or1k/reloc-1.d
->  create mode 100644 gas/testsuite/gas/or1k/reloc-1.s
->  create mode 100644 gas/testsuite/gas/or1k/reloc-2.l
->  create mode 100644 gas/testsuite/gas/or1k/reloc-2.s
->  create mode 100644 ld/testsuite/ld-or1k/offsets1.d
->  create mode 100644 ld/testsuite/ld-or1k/offsets1.s
->  create mode 100644 ld/testsuite/ld-or1k/or1k.exp
->  create mode 100644 ld/testsuite/ld-or1k/plt1.dd
->  create mode 100644 ld/testsuite/ld-or1k/plt1.s
->  create mode 100644 ld/testsuite/ld-or1k/plt1.x.dd
->  create mode 100644 ld/testsuite/ld-or1k/plta1.dd
->  create mode 100644 ld/testsuite/ld-or1k/plta1.s
->  create mode 100644 ld/testsuite/ld-or1k/pltlib.s
-> 
-> -- 
-> 2.17.1
-> 
+--
+2.17.1
