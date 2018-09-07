@@ -1,35 +1,20 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Fri, 7 Sep 2018 20:27:34 +0900
+From: BAndViG <bandvig@mail.ru>
+Date: Fri, 7 Sep 2018 22:58:44 +0300
 Subject: [OpenRISC] OpenRISC GCC requirements
-Message-ID: <CAAfxs77YuyjFts4h1ZECHoCV=kw3Y2LGy9k8dVQ_i9v1HobD_A@mail.gmail.com>
+In-Reply-To: <CAAfxs77YuyjFts4h1ZECHoCV=kw3Y2LGy9k8dVQ_i9v1HobD_A@mail.gmail.com>
+References: <CAAfxs77YuyjFts4h1ZECHoCV=kw3Y2LGy9k8dVQ_i9v1HobD_A@mail.gmail.com>
+Message-ID: <FCD5AB41F50145BE80291B4A373BFC9E@BAndViG>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="windows-1250"
+Content-Transfer-Encoding: base64
 To: openrisc@lists.librecores.org
 
-Hi All,
-
-As many of us know OpenRISC has different classes for instructions.
-i.e. Class I and Class II.
-
-The Class I instructions are required for all implementation and Class
-II instructions are optional.   For the new GCC port I have used a few
-class II instructions.
-
-Does anyone have any opinion if this would be bad or cause issues?  To
-me I think its OK as I haven't seen a core without these.
-
-Class II Instructions used:
-       l.extbs  - sign extend byte
-       l.extbz  - zero extend byte
-       l.exths  - sign extend half-word
-       l.exthz  - zero extend half-word
-       l.cmov  - conditional move
-
-
-The alternative would be to substitute the instructions with something
-else.   But I don't expect there would be many/any cores running C
-code that would be missing these instructions.
-
--Stafford
+U3RhZmZvcmQsCgpJZiBJIHJlbWVtYmVyIGNvcnJlY3RseSwgYWxsIG9mIHRoZXNlIGluc3RydWN0
+aW9ucyBhcmUgZGlzYWJsZWQgYnkgZGVmYXVsdC4gCk1vcmVvdmVyLCBtb3N0IG9mIG1vcjFreCBw
+aXBlcyBzdXBwb3J0IGwuY21vdiBvbmx5IGlmIEZFQVRVUkVfQ01PViBpcyAKIkVOQUJMRUQiLCB3
+aGlsZSBsLmV4dCogaW5zdHJ1Y3Rpb25zIGFyZW7igJl0IGltcGxlbWVudGVkIGF0IGFsbC4gRXZl
+biBzbyAKRkVBVFVSRV9FWFQgaXMgcHJlc2VudCBpbiBzb3VyY2UgY29kZSBpdCdzIG9ubHkgbGVn
+YWwgdmFsdWUgaXMgIk5PTkUiLgpUaGUgb25seSBtb3Ixa3ggcGlwZSB3aGljaCBzdXBwb3J0cyBs
+LmNtb3YgcGVybWFuZW50bHkgaXMgTUFST0NDSElOTywgYnV0IApmb2xsb3dpbmcgb3RoZXJzIE1B
+Uk9DQ0hJTk8gZG9lc24ndCBzdXBwb3J0IGwuZXh0KiB0b28uCgpXQlIKQW5kcmV5IAoK
