@@ -1,53 +1,35 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 6 Sep 2018 18:12:09 +0900
-Subject: [OpenRISC] [PATCH 10/21] openrisc: use for_each_of_cpu_node
-	iterator
-In-Reply-To: <20180905193738.19325-11-robh@kernel.org>
-References: <20180905193738.19325-1-robh@kernel.org>
- <20180905193738.19325-11-robh@kernel.org>
-Message-ID: <20180906091209.GJ4594@lianli.shorne-pla.net>
+Date: Fri, 7 Sep 2018 20:27:34 +0900
+Subject: [OpenRISC] OpenRISC GCC requirements
+Message-ID: <CAAfxs77YuyjFts4h1ZECHoCV=kw3Y2LGy9k8dVQ_i9v1HobD_A@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Sep 05, 2018 at 02:37:27PM -0500, Rob Herring wrote:
-> Use the for_each_of_cpu_node iterator to iterate over cpu nodes. This
-> has the side effect of defaulting to iterating using "cpu" node names in
-> preference to the deprecated (for FDT) device_type == "cpu".
-> 
-> This also fixes a leaked reference for cpus node.
-> 
-> Cc: Jonas Bonn <jonas@southpole.se>
-> Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-> Cc: Stafford Horne <shorne@gmail.com>
-> Cc: openrisc at lists.librecores.org
-> Signed-off-by: Rob Herring <robh@kernel.org>
-> ---
-> Please ack and I will take via the DT tree. This is dependent on the
-> first 2 patches.
-> 
->  arch/openrisc/kernel/setup.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
-> index 9d28ab14d139..e17fcd83120f 100644
-> --- a/arch/openrisc/kernel/setup.c
-> +++ b/arch/openrisc/kernel/setup.c
-> @@ -158,9 +158,8 @@ static struct device_node *setup_find_cpu_node(int cpu)
->  {
->  	u32 hwid;
->  	struct device_node *cpun;
-> -	struct device_node *cpus = of_find_node_by_path("/cpus");
-> 
-> -	for_each_available_child_of_node(cpus, cpun) {
-> +	for_each_of_cpu_node(cpun) {
->  		if (of_property_read_u32(cpun, "reg", &hwid))
->  			continue;
->  		if (hwid == cpu)
+Hi All,
 
-This looks fine to me.  Thanks Rob
+As many of us know OpenRISC has different classes for instructions.
+i.e. Class I and Class II.
 
-Acked-by: Stafford Horne <shorne@gmail.com>
+The Class I instructions are required for all implementation and Class
+II instructions are optional.   For the new GCC port I have used a few
+class II instructions.
 
+Does anyone have any opinion if this would be bad or cause issues?  To
+me I think its OK as I haven't seen a core without these.
+
+Class II Instructions used:
+       l.extbs  - sign extend byte
+       l.extbz  - zero extend byte
+       l.exths  - sign extend half-word
+       l.exthz  - zero extend half-word
+       l.cmov  - conditional move
+
+
+The alternative would be to substitute the instructions with something
+else.   But I don't expect there would be many/any cores running C
+code that would be missing these instructions.
+
+-Stafford
