@@ -1,48 +1,109 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 8 Sep 2018 09:29:22 +0900
-Subject: [OpenRISC] OpenRISC GCC requirements
-In-Reply-To: <3bf53e07-2a8b-eae8-6a70-aa81f5c86b32@sholland.org>
-References: <CAAfxs77YuyjFts4h1ZECHoCV=kw3Y2LGy9k8dVQ_i9v1HobD_A@mail.gmail.com>
- <3bf53e07-2a8b-eae8-6a70-aa81f5c86b32@sholland.org>
-Message-ID: <20180908002922.GL4594@lianli.shorne-pla.net>
+Date: Sun, 9 Sep 2018 06:35:15 +0900
+Subject: [OpenRISC] [PATCH 0/4] OpenRISC binutils updates and new relocs
+In-Reply-To: <20180821143823.16985-1-shorne@gmail.com>
+References: <20180821143823.16985-1-shorne@gmail.com>
+Message-ID: <20180908213515.GN4594@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, Sep 07, 2018 at 05:29:09PM -0500, Samuel Holland wrote:
-> On 09/07/18 06:27, Stafford Horne wrote:
-> > As many of us know OpenRISC has different classes for instructions.
-> > i.e. Class I and Class II.
-> > 
-> > The Class I instructions are required for all implementation and Class
-> > II instructions are optional.   For the new GCC port I have used a few
-> > class II instructions.
-> > 
-> > Does anyone have any opinion if this would be bad or cause issues?  To
-> > me I think its OK as I haven't seen a core without these.
-> 
-> I know of at least one currently-produced silicon implementation[1] based on an
-> old or1200 that has a broken l.cmov.
-> 
-> [1]: https://linux-sunxi.org/AR100
-> 
-> > Class II Instructions used:
-> >        l.extbs  - sign extend byte
-> >        l.extbz  - zero extend byte
-> >        l.exths  - sign extend half-word
-> >        l.exthz  - zero extend half-word
-> >        l.cmov  - conditional move
-> 
-> Looking at or1k.md, you used l.msync and l.ror, and l.sf*i as well. And l.cmov
-> and l.sf*i are also used in the libgcc implementation. Those also need to be
-> considered.
+Hello,
 
-Thanks, so it looks like we will have to make a flag to enable/disable the class
-II instructions to be generated in the output code.
+Does anyone have concerns with these patches?  Mostly they are for openrisc
+parts only.
 
-Thanks for the details.  I didnt know it was such a large set of cores missing
-those instructions.
+Thoughts; We have new relocations here, maybe I need to add documentation?
+
+Other than that I think it looks ok.
 
 -Stafford
+
+On Tue, Aug 21, 2018 at 11:38:19PM +0900, Stafford Horne wrote:
+> Hello,
+> 
+> This series contains a lot of updates for OpenRISC binutils.  Including:
+>   - Definitions for missing instructions.
+>   - New relocations used in the new GCC OpenRISC port
+>   - A new instruction l.adrp
+> 
+> The patches were for the most part written by Richard Henderson, I have fixed a
+> few bugs, added additional tests and wrote the ChangeLogs.
+> 
+> These patches have been tested and used in the new OpenRISC GCC clean-room
+> rewrite done by Richard and Me.
+> 
+>   http://stffrdhrn.github.io/software/embedded/openrisc/2018/02/03/openrisc_gcc_rewrite.html
+> 
+> -Stafford
+> 
+> Richard Henderson (2):
+>   or1k: Add relocations for high-signed and low-stores
+>   or1k: Add the l.muld, l.muldu, l.macu, l.msbu insns
+> 
+> Stafford Horne (2):
+>   or1k: Fix messages for relocations in shared libraries
+>   or1k: Add the l.adrp insn and supporting relocations
+> 
+>  bfd/bfd-in2.h                                 |   19 +-
+>  bfd/elf32-or1k.c                              | 1002 +++++++++++++----
+>  bfd/libbfd.h                                  |   19 +-
+>  bfd/reloc.c                                   |   34 +-
+>  cpu/or1k.opc                                  |  582 +++++-----
+>  cpu/or1korbis.cpu                             |  300 +++--
+>  gas/config/tc-or1k.c                          |    6 +
+>  gas/testsuite/gas/or1k/allinsn.d              |   50 +-
+>  gas/testsuite/gas/or1k/allinsn.s              |   25 +
+>  .../gas/or1k/{allinsn.exp => or1k.exp}        |    1 +
+>  gas/testsuite/gas/or1k/reloc-1.d              |   72 ++
+>  gas/testsuite/gas/or1k/reloc-1.s              |   76 ++
+>  gas/testsuite/gas/or1k/reloc-2.l              |   11 +
+>  gas/testsuite/gas/or1k/reloc-2.s              |   13 +
+>  include/elf/or1k.h                            |   19 +
+>  ld/testsuite/ld-or1k/offsets1.d               |  212 ++++
+>  ld/testsuite/ld-or1k/offsets1.s               |   14 +
+>  ld/testsuite/ld-or1k/or1k.exp                 |   91 ++
+>  ld/testsuite/ld-or1k/plt1.dd                  |   27 +
+>  ld/testsuite/ld-or1k/plt1.s                   |   11 +
+>  ld/testsuite/ld-or1k/plt1.x.dd                |   27 +
+>  ld/testsuite/ld-or1k/plta1.dd                 |   27 +
+>  ld/testsuite/ld-or1k/plta1.s                  |   11 +
+>  ld/testsuite/ld-or1k/pltlib.s                 |   12 +
+>  opcodes/or1k-asm.c                            |  587 +++++-----
+>  opcodes/or1k-desc.c                           |   34 +-
+>  opcodes/or1k-desc.h                           |   48 +-
+>  opcodes/or1k-dis.c                            |    3 +
+>  opcodes/or1k-ibld.c                           |   29 +-
+>  opcodes/or1k-opc.c                            |   44 +-
+>  opcodes/or1k-opc.h                            |   65 +-
+>  opcodes/or1k-opinst.c                         |   98 +-
+>  sim/common/cgen-ops.h                         |   36 +
+>  sim/or1k/cpu.h                                |   32 +
+>  sim/or1k/decode.c                             |  239 +++-
+>  sim/or1k/decode.h                             |   82 +-
+>  sim/or1k/model.c                              |  186 ++-
+>  sim/or1k/sem-switch.c                         |  281 ++++-
+>  sim/or1k/sem.c                                |  293 ++++-
+>  sim/testsuite/sim/or1k/div.S                  |   12 +-
+>  sim/testsuite/sim/or1k/mul.S                  |  109 +-
+>  41 files changed, 3643 insertions(+), 1196 deletions(-)
+>  rename gas/testsuite/gas/or1k/{allinsn.exp => or1k.exp} (83%)
+>  create mode 100644 gas/testsuite/gas/or1k/reloc-1.d
+>  create mode 100644 gas/testsuite/gas/or1k/reloc-1.s
+>  create mode 100644 gas/testsuite/gas/or1k/reloc-2.l
+>  create mode 100644 gas/testsuite/gas/or1k/reloc-2.s
+>  create mode 100644 ld/testsuite/ld-or1k/offsets1.d
+>  create mode 100644 ld/testsuite/ld-or1k/offsets1.s
+>  create mode 100644 ld/testsuite/ld-or1k/or1k.exp
+>  create mode 100644 ld/testsuite/ld-or1k/plt1.dd
+>  create mode 100644 ld/testsuite/ld-or1k/plt1.s
+>  create mode 100644 ld/testsuite/ld-or1k/plt1.x.dd
+>  create mode 100644 ld/testsuite/ld-or1k/plta1.dd
+>  create mode 100644 ld/testsuite/ld-or1k/plta1.s
+>  create mode 100644 ld/testsuite/ld-or1k/pltlib.s
+> 
+> -- 
+> 2.17.1
+> 
