@@ -1,38 +1,46 @@
 From: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Date: Fri, 14 Sep 2018 15:10:24 +0300
-Subject: [OpenRISC] [PATCH 09/30] memblock: replace alloc_bootmem_low with
-	memblock_alloc_low
+Date: Fri, 14 Sep 2018 15:10:25 +0300
+Subject: [OpenRISC] [PATCH 10/30] memblock: replace
+	__alloc_bootmem_node_nopanic with memblock_alloc_try_nid_nopanic
 In-Reply-To: <1536927045-23536-1-git-send-email-rppt@linux.vnet.ibm.com>
 References: <1536927045-23536-1-git-send-email-rppt@linux.vnet.ibm.com>
-Message-ID: <1536927045-23536-10-git-send-email-rppt@linux.vnet.ibm.com>
+Message-ID: <1536927045-23536-11-git-send-email-rppt@linux.vnet.ibm.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The functions are equivalent, just the later does not require nobootmem
-translation layer.
+The __alloc_bootmem_node_nopanic() attempts to allocate memory for a
+specified node. If the allocation fails it then retries to allocate memory
+from any node. Upon success, the allocated memory is set to 0.
+
+The memblock_alloc_try_nid_nopanic() does exactly the same thing and can be
+used instead.
 
 Signed-off-by: Mike Rapoport <rppt@linux.vnet.ibm.com>
 Acked-by: Michal Hocko <mhocko@suse.com>
 ---
- arch/x86/kernel/tce_64.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/setup_percpu.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/tce_64.c b/arch/x86/kernel/tce_64.c
-index f386bad..54c9b5a 100644
---- a/arch/x86/kernel/tce_64.c
-+++ b/arch/x86/kernel/tce_64.c
-@@ -173,7 +173,7 @@ void * __init alloc_tce_table(void)
- 	size = table_size_to_number_of_entries(specified_table_size);
- 	size *= TCE_ENTRY_SIZE;
- 
--	return __alloc_bootmem_low(size, size, 0);
-+	return memblock_alloc_low(size, size);
- }
- 
- void __init free_tce_table(void *tbl)
+diff --git a/arch/x86/kernel/setup_percpu.c b/arch/x86/kernel/setup_percpu.c
+index ea554f8..67d48e26 100644
+--- a/arch/x86/kernel/setup_percpu.c
++++ b/arch/x86/kernel/setup_percpu.c
+@@ -112,8 +112,10 @@ static void * __init pcpu_alloc_bootmem(unsigned int cpu, unsigned long size,
+ 		pr_debug("per cpu data for cpu%d %lu bytes at %016lx\n",
+ 			 cpu, size, __pa(ptr));
+ 	} else {
+-		ptr = __alloc_bootmem_node_nopanic(NODE_DATA(node),
+-						   size, align, goal);
++		ptr = memblock_alloc_try_nid_nopanic(size, align, goal,
++						     BOOTMEM_ALLOC_ACCESSIBLE,
++						     node);
++
+ 		pr_debug("per cpu data for cpu%d %lu bytes on node%d at %016lx\n",
+ 			 cpu, size, node, __pa(ptr));
+ 	}
 -- 
 2.7.4
 
