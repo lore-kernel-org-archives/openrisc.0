@@ -1,8 +1,8 @@
 From: gregkh@linuxfoundation.org <gregkh@linuxfoundation.org>
-Date: Sun, 16 Sep 2018 15:40:19 +0200
+Date: Sun, 16 Sep 2018 15:40:38 +0200
 Subject: [OpenRISC] Patch "kthread: fix boot hang (regression) on
-	MIPS/OpenRISC" has been added to the 4.4-stable tree
-Message-ID: <1537105219230145@kroah.com>
+	MIPS/OpenRISC" has been added to the 4.9-stable tree
+Message-ID: <153710523813649@kroah.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -14,12 +14,12 @@ This is a note to let you know that I've just added the patch titled
 
     kthread: fix boot hang (regression) on MIPS/OpenRISC
 
-to the 4.4-stable tree which can be found at:
+to the 4.9-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
      kthread-fix-boot-hang-regression-on-mips-openrisc.patch
-and it can be found in the queue-4.4 subdirectory.
+and it can be found in the queue-4.9 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
@@ -79,7 +79,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/mips/kernel/process.c
 +++ b/arch/mips/kernel/process.c
-@@ -115,7 +115,6 @@ int copy_thread(unsigned long clone_flag
+@@ -118,7 +118,6 @@ int copy_thread(unsigned long clone_flag
  	struct thread_info *ti = task_thread_info(p);
  	struct pt_regs *childregs, *regs = current_pt_regs();
  	unsigned long childksp;
@@ -102,5 +102,5 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 Patches currently in stable-queue which might be from vegard.nossum at oracle.com are
 
-queue-4.4/kthread-fix-use-after-free-if-kthread-fork-fails.patch
-queue-4.4/kthread-fix-boot-hang-regression-on-mips-openrisc.patch
+queue-4.9/kthread-fix-use-after-free-if-kthread-fork-fails.patch
+queue-4.9/kthread-fix-boot-hang-regression-on-mips-openrisc.patch
