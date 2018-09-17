@@ -1,17 +1,17 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Tue, 18 Sep 2018 00:41:39 +0200
-Subject: [OpenRISC] [PATCH 4.4 06/56] kthread: fix boot hang (regression) on
+Date: Tue, 18 Sep 2018 00:41:40 +0200
+Subject: [OpenRISC] [PATCH 4.9 07/70] kthread: fix boot hang (regression) on
 	MIPS/OpenRISC
-In-Reply-To: <20180917213827.913122591@linuxfoundation.org>
-References: <20180917213827.913122591@linuxfoundation.org>
-Message-ID: <20180917213828.234588179@linuxfoundation.org>
+In-Reply-To: <20180917211649.099135838@linuxfoundation.org>
+References: <20180917211649.099135838@linuxfoundation.org>
+Message-ID: <20180917211649.775405318@linuxfoundation.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-4.4-stable review patch.  If anyone has any objections, please let me know.
+4.9-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -64,7 +64,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/mips/kernel/process.c
 +++ b/arch/mips/kernel/process.c
-@@ -115,7 +115,6 @@ int copy_thread(unsigned long clone_flag
+@@ -118,7 +118,6 @@ int copy_thread(unsigned long clone_flag
  	struct thread_info *ti = task_thread_info(p);
  	struct pt_regs *childregs, *regs = current_pt_regs();
  	unsigned long childksp;
