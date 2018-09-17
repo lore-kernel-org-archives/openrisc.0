@@ -1,39 +1,38 @@
-From: Richard Henderson <rth@twiddle.net>
-Date: Mon, 17 Sep 2018 09:29:28 -0700
-Subject: [OpenRISC] [PATCH 0/4] OpenRISC binutils updates and new relocs
-In-Reply-To: <aceede44-4ab0-9267-a949-5cd5f3c5e81e@redhat.com>
-References: <20180821143823.16985-1-shorne@gmail.com>
- <20180908213515.GN4594@lianli.shorne-pla.net>
- <aceede44-4ab0-9267-a949-5cd5f3c5e81e@redhat.com>
-Message-ID: <0aad2c15-5329-1d01-028f-2e9fcb14a783@twiddle.net>
+From: BAndViG <bandvig@mail.ru>
+Date: Mon, 17 Sep 2018 21:44:11 +0300
+Subject: [OpenRISC] OpenRISC GCC requirements
+In-Reply-To: <CAAfxs74t+dWRK6ydHY3d+6rNOHFGHF0RkGP4AqZ4HmZDTVVxuw@mail.gmail.com>
+References: <CAAfxs77YuyjFts4h1ZECHoCV=kw3Y2LGy9k8dVQ_i9v1HobD_A@mail.gmail.com>
+ <3bf53e07-2a8b-eae8-6a70-aa81f5c86b32@sholland.org>
+ <20180908002922.GL4594@lianli.shorne-pla.net>
+ <CAAfxs74a5NjKrpVPLnYX1=w=wS8Cirn6CMTvoFuvuZ0_YSmj8Q@mail.gmail.com>
+ <5452543D6EF34B21985854C2E5DC1200@BAndViG>
+ <CAAfxs74t+dWRK6ydHY3d+6rNOHFGHF0RkGP4AqZ4HmZDTVVxuw@mail.gmail.com>
+Message-ID: <36C30435CA9F4EE88B9DDD304398F854@BAndViG>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-On 9/17/18 8:07 AM, Nick Clifton wrote:
-> I do not see any need to add extra document for the new relocs, unless you
-> have created new assembler pseudo-ops to generate them.  (I did not see any
-> code to add such operators, but I may have missed something).
+>My though was to first have the mclass2 blanket argument to enable everything.  
+>Then, if anyone wants to have instruction specific switches it should be pretty easy to add.  
+>So I don't plan to add at first. Is that fair?
 
-There is new syntax for these new relocs, in the form of function-like markup.
+Yes, absolutely.
 
-E.g:
+>One thing I will do now is expose these via configure as suggested by Samuel. 
+>I.e. ./configure --enable-class2.
 
-	l.ori	r3,r4, at lo(foo)		# an existing reloc
-	l.ori	r3,r4, at po(foo)		# a new reloc added here
+I think, it would be useful to implement similar ability for each “–m*” option. The approach is more elegant than editing source code to select default options configurations.
 
-> I do have one question though.  Is there a need to be able to distinguish 
-> between binaries that use the new l.adrp instruction and those that don't.
-> For example if a library is built using the new instruction but then it is
-> linked into an executable which is supposed to run on silicon which does
-> not support the new instruction, should the linker issue an error ?  If so,
-> how does it detect this situation ?
+>Note, my most recent patches have cause a few hundred tests to fail. 
+>Please use the releases from GitHub if you want to play with the toolchain.
 
-I have never been a fan of how this is handled e.g. for mips.
-To that end, I have done nothing at all.  This is more in line
-with how we (do not) handle this situation for x86.
+It is exaclty which I do.
 
-
-r~
+WBR
+Andrey
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20180917/845be244/attachment.html>
