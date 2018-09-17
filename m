@@ -1,36 +1,87 @@
-From: Nick Clifton <nickc@redhat.com>
-Date: Mon, 17 Sep 2018 16:07:44 +0100
-Subject: [OpenRISC] [PATCH 0/4] OpenRISC binutils updates and new relocs
-In-Reply-To: <20180908213515.GN4594@lianli.shorne-pla.net>
-References: <20180821143823.16985-1-shorne@gmail.com>
- <20180908213515.GN4594@lianli.shorne-pla.net>
-Message-ID: <aceede44-4ab0-9267-a949-5cd5f3c5e81e@redhat.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Tue, 18 Sep 2018 00:41:39 +0200
+Subject: [OpenRISC] [PATCH 4.4 06/56] kthread: fix boot hang (regression) on
+	MIPS/OpenRISC
+In-Reply-To: <20180917213827.913122591@linuxfoundation.org>
+References: <20180917213827.913122591@linuxfoundation.org>
+Message-ID: <20180917213828.234588179@linuxfoundation.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Stafford,
+4.4-stable review patch.  If anyone has any objections, please let me know.
 
-> Does anyone have concerns with these patches?  Mostly they are for openrisc
-> parts only.
+------------------
 
-Sorry for the long silence - I have been very busy of late.
+From: Vegard Nossum <vegard.nossum@oracle.com>
 
-The patch series looks basically fine to me, so I have no concerns there.
-There are a few minor formatting glitches, but nothing serious.
+commit b0f5a8f32e8bbdaae1abb8abe2d3cbafaba57e08 upstream.
 
-I do not see any need to add extra document for the new relocs, unless you
-have created new assembler pseudo-ops to generate them.  (I did not see any
-code to add such operators, but I may have missed something).
+This fixes a regression in commit 4d6501dce079 where I didn't notice
+that MIPS and OpenRISC were reinitialising p->{set,clear}_child_tid to
+NULL after our initialisation in copy_process().
 
-I do have one question though.  Is there a need to be able to distinguish 
-between binaries that use the new l.adrp instruction and those that don't.
-For example if a library is built using the new instruction but then it is
-linked into an executable which is supposed to run on silicon which does
-not support the new instruction, should the linker issue an error ?  If so,
-how does it detect this situation ?
+We can simply get rid of the arch-specific initialisation here since it
+is now always done in copy_process() before hitting copy_thread{,_tls}().
 
-Cheers
-  Nick
+Review notes:
+
+ - As far as I can tell, copy_process() is the only user of
+   copy_thread_tls(), which is the only caller of copy_thread() for
+   architectures that don't implement copy_thread_tls().
+
+ - After this patch, there is no arch-specific code touching
+   p->set_child_tid or p->clear_child_tid whatsoever.
+
+ - It may look like MIPS/OpenRISC wanted to always have these fields be
+   NULL, but that's not true, as copy_process() would unconditionally
+   set them again _after_ calling copy_thread_tls() before commit
+   4d6501dce079.
+
+Fixes: 4d6501dce079c1eb6bf0b1d8f528a5e81770109e ("kthread: Fix use-after-free if kthread fork fails")
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Guenter Roeck <linux@roeck-us.net> # MIPS only
+Acked-by: Stafford Horne <shorne@gmail.com>
+Acked-by: Oleg Nesterov <oleg@redhat.com>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: linux-mips at linux-mips.org
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Cc: openrisc at lists.librecores.org
+Cc: Jamie Iles <jamie.iles@oracle.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Amit Pundir <amit.pundir@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/mips/kernel/process.c     |    1 -
+ arch/openrisc/kernel/process.c |    2 --
+ 2 files changed, 3 deletions(-)
+
+--- a/arch/mips/kernel/process.c
++++ b/arch/mips/kernel/process.c
+@@ -115,7 +115,6 @@ int copy_thread(unsigned long clone_flag
+ 	struct thread_info *ti = task_thread_info(p);
+ 	struct pt_regs *childregs, *regs = current_pt_regs();
+ 	unsigned long childksp;
+-	p->set_child_tid = p->clear_child_tid = NULL;
+ 
+ 	childksp = (unsigned long)task_stack_page(p) + THREAD_SIZE - 32;
+ 
+--- a/arch/openrisc/kernel/process.c
++++ b/arch/openrisc/kernel/process.c
+@@ -152,8 +152,6 @@ copy_thread(unsigned long clone_flags, u
+ 
+ 	top_of_kernel_stack = sp;
+ 
+-	p->set_child_tid = p->clear_child_tid = NULL;
+-
+ 	/* Locate userspace context on stack... */
+ 	sp -= STACK_FRAME_OVERHEAD;	/* redzone */
+ 	sp -= sizeof(struct pt_regs);
+
+
