@@ -1,106 +1,39 @@
-From: gregkh@linuxfoundation.org <gregkh@linuxfoundation.org>
-Date: Sun, 16 Sep 2018 15:40:38 +0200
-Subject: [OpenRISC] Patch "kthread: fix boot hang (regression) on
-	MIPS/OpenRISC" has been added to the 4.9-stable tree
-Message-ID: <153710523813649@kroah.com>
+From: Richard Henderson <rth@twiddle.net>
+Date: Mon, 17 Sep 2018 09:29:28 -0700
+Subject: [OpenRISC] [PATCH 0/4] OpenRISC binutils updates and new relocs
+In-Reply-To: <aceede44-4ab0-9267-a949-5cd5f3c5e81e@redhat.com>
+References: <20180821143823.16985-1-shorne@gmail.com>
+ <20180908213515.GN4594@lianli.shorne-pla.net>
+ <aceede44-4ab0-9267-a949-5cd5f3c5e81e@redhat.com>
+Message-ID: <0aad2c15-5329-1d01-028f-2e9fcb14a783@twiddle.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
+On 9/17/18 8:07 AM, Nick Clifton wrote:
+> I do not see any need to add extra document for the new relocs, unless you
+> have created new assembler pseudo-ops to generate them.  (I did not see any
+> code to add such operators, but I may have missed something).
 
-This is a note to let you know that I've just added the patch titled
+There is new syntax for these new relocs, in the form of function-like markup.
 
-    kthread: fix boot hang (regression) on MIPS/OpenRISC
+E.g:
 
-to the 4.9-stable tree which can be found at:
-    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+	l.ori	r3,r4, at lo(foo)		# an existing reloc
+	l.ori	r3,r4, at po(foo)		# a new reloc added here
 
-The filename of the patch is:
-     kthread-fix-boot-hang-regression-on-mips-openrisc.patch
-and it can be found in the queue-4.9 subdirectory.
+> I do have one question though.  Is there a need to be able to distinguish 
+> between binaries that use the new l.adrp instruction and those that don't.
+> For example if a library is built using the new instruction but then it is
+> linked into an executable which is supposed to run on silicon which does
+> not support the new instruction, should the linker issue an error ?  If so,
+> how does it detect this situation ?
 
-If you, or anyone else, feels it should not be added to the stable tree,
-please let <stable@vger.kernel.org> know about it.
-
-
-From b0f5a8f32e8bbdaae1abb8abe2d3cbafaba57e08 Mon Sep 17 00:00:00 2001
-From: Vegard Nossum <vegard.nossum@oracle.com>
-Date: Mon, 29 May 2017 09:22:07 +0200
-Subject: kthread: fix boot hang (regression) on MIPS/OpenRISC
-
-From: Vegard Nossum <vegard.nossum@oracle.com>
-
-commit b0f5a8f32e8bbdaae1abb8abe2d3cbafaba57e08 upstream.
-
-This fixes a regression in commit 4d6501dce079 where I didn't notice
-that MIPS and OpenRISC were reinitialising p->{set,clear}_child_tid to
-NULL after our initialisation in copy_process().
-
-We can simply get rid of the arch-specific initialisation here since it
-is now always done in copy_process() before hitting copy_thread{,_tls}().
-
-Review notes:
-
- - As far as I can tell, copy_process() is the only user of
-   copy_thread_tls(), which is the only caller of copy_thread() for
-   architectures that don't implement copy_thread_tls().
-
- - After this patch, there is no arch-specific code touching
-   p->set_child_tid or p->clear_child_tid whatsoever.
-
- - It may look like MIPS/OpenRISC wanted to always have these fields be
-   NULL, but that's not true, as copy_process() would unconditionally
-   set them again _after_ calling copy_thread_tls() before commit
-   4d6501dce079.
-
-Fixes: 4d6501dce079c1eb6bf0b1d8f528a5e81770109e ("kthread: Fix use-after-free if kthread fork fails")
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Guenter Roeck <linux@roeck-us.net> # MIPS only
-Acked-by: Stafford Horne <shorne@gmail.com>
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: linux-mips at linux-mips.org
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: openrisc at lists.librecores.org
-Cc: Jamie Iles <jamie.iles@oracle.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Amit Pundir <amit.pundir@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- arch/mips/kernel/process.c     |    1 -
- arch/openrisc/kernel/process.c |    2 --
- 2 files changed, 3 deletions(-)
-
---- a/arch/mips/kernel/process.c
-+++ b/arch/mips/kernel/process.c
-@@ -118,7 +118,6 @@ int copy_thread(unsigned long clone_flag
- 	struct thread_info *ti = task_thread_info(p);
- 	struct pt_regs *childregs, *regs = current_pt_regs();
- 	unsigned long childksp;
--	p->set_child_tid = p->clear_child_tid = NULL;
- 
- 	childksp = (unsigned long)task_stack_page(p) + THREAD_SIZE - 32;
- 
---- a/arch/openrisc/kernel/process.c
-+++ b/arch/openrisc/kernel/process.c
-@@ -152,8 +152,6 @@ copy_thread(unsigned long clone_flags, u
- 
- 	top_of_kernel_stack = sp;
- 
--	p->set_child_tid = p->clear_child_tid = NULL;
--
- 	/* Locate userspace context on stack... */
- 	sp -= STACK_FRAME_OVERHEAD;	/* redzone */
- 	sp -= sizeof(struct pt_regs);
+I have never been a fan of how this is handled e.g. for mips.
+To that end, I have done nothing at all.  This is more in line
+with how we (do not) handle this situation for x86.
 
 
-Patches currently in stable-queue which might be from vegard.nossum at oracle.com are
-
-queue-4.9/kthread-fix-use-after-free-if-kthread-fork-fails.patch
-queue-4.9/kthread-fix-boot-hang-regression-on-mips-openrisc.patch
+r~
