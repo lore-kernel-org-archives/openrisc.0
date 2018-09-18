@@ -1,38 +1,56 @@
-From: BAndViG <bandvig@mail.ru>
-Date: Mon, 17 Sep 2018 21:44:11 +0300
-Subject: [OpenRISC] OpenRISC GCC requirements
-In-Reply-To: <CAAfxs74t+dWRK6ydHY3d+6rNOHFGHF0RkGP4AqZ4HmZDTVVxuw@mail.gmail.com>
-References: <CAAfxs77YuyjFts4h1ZECHoCV=kw3Y2LGy9k8dVQ_i9v1HobD_A@mail.gmail.com>
- <3bf53e07-2a8b-eae8-6a70-aa81f5c86b32@sholland.org>
- <20180908002922.GL4594@lianli.shorne-pla.net>
- <CAAfxs74a5NjKrpVPLnYX1=w=wS8Cirn6CMTvoFuvuZ0_YSmj8Q@mail.gmail.com>
- <5452543D6EF34B21985854C2E5DC1200@BAndViG>
- <CAAfxs74t+dWRK6ydHY3d+6rNOHFGHF0RkGP4AqZ4HmZDTVVxuw@mail.gmail.com>
-Message-ID: <36C30435CA9F4EE88B9DDD304398F854@BAndViG>
+From: Stafford Horne <shorne@gmail.com>
+Date: Tue, 18 Sep 2018 18:52:34 +0900
+Subject: [OpenRISC] [PATCH 0/4] OpenRISC binutils updates and new relocs
+In-Reply-To: <aceede44-4ab0-9267-a949-5cd5f3c5e81e@redhat.com>
+References: <20180821143823.16985-1-shorne@gmail.com>
+ <20180908213515.GN4594@lianli.shorne-pla.net>
+ <aceede44-4ab0-9267-a949-5cd5f3c5e81e@redhat.com>
+Message-ID: <20180918095234.GP4594@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
->My though was to first have the mclass2 blanket argument to enable everything.  
->Then, if anyone wants to have instruction specific switches it should be pretty easy to add.  
->So I don't plan to add at first. Is that fair?
+On Mon, Sep 17, 2018 at 04:07:44PM +0100, Nick Clifton wrote:
+> Hi Stafford,
+> 
+> > Does anyone have concerns with these patches?  Mostly they are for openrisc
+> > parts only.
+> 
+> Sorry for the long silence - I have been very busy of late.
+> 
+> The patch series looks basically fine to me, so I have no concerns there.
+> There are a few minor formatting glitches, but nothing serious.
 
-Yes, absolutely.
+Will you be able to point them out?  Even just some hints?  We have tried to
+follow conventions, but there might be some missed spots.  I will go over
+everything again just in case and run any formatting tools I have, but any tips
+will be helpful.
 
->One thing I will do now is expose these via configure as suggested by Samuel. 
->I.e. ./configure --enable-class2.
+> I do not see any need to add extra document for the new relocs, unless you
+> have created new assembler pseudo-ops to generate them.  (I did not see any
+> code to add such operators, but I may have missed something).
 
-I think, it would be useful to implement similar ability for each “–m*” option. The approach is more elegant than editing source code to select default options configurations.
+As Richard mentioned we have added a few, see PATCH 3/4 in cpu/or1k.opc the
+change:
 
->Note, my most recent patches have cause a few hundred tests to fail. 
->Please use the releases from GitHub if you want to play with the toolchain.
+	(parse_reloc): Add new po(), gotpo() and gottppo() for LO13 relocations.
 
-It is exaclty which I do.
+Is this what you mean?  I will look into adding the documentation for these.
 
-WBR
-Andrey
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20180917/845be244/attachment.html>
+> I do have one question though.  Is there a need to be able to distinguish 
+> between binaries that use the new l.adrp instruction and those that don't.
+> For example if a library is built using the new instruction but then it is
+> linked into an executable which is supposed to run on silicon which does
+> not support the new instruction, should the linker issue an error ?  If so,
+> how does it detect this situation ?
+
+As Richard mentioned we don't handle this.
+
+We have cases like this right now as well, i.e. binaries generated with `l.mul`
+or `l.div` instructions will link fine into an executable that assume those
+instrunctions should be emulated.  That doesn't throw an error and I don't think
+it has been a problem.
+
+-Stafford
