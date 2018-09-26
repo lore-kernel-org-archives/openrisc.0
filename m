@@ -1,34 +1,38 @@
 From: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Date: Wed, 26 Sep 2018 14:54:05 +0300
-Subject: [OpenRISC] [PATCH 03/30] mm: remove CONFIG_HAVE_MEMBLOCK
-In-Reply-To: <20180926092404.GL6278@dhcp22.suse.cz>
+Date: Wed, 26 Sep 2018 16:43:35 +0300
+Subject: [OpenRISC] [PATCH 14/30] memblock: add align parameter to
+ memblock_alloc_node()
+In-Reply-To: <20180926093648.GP6278@dhcp22.suse.cz>
 References: <1536927045-23536-1-git-send-email-rppt@linux.vnet.ibm.com>
- <1536927045-23536-4-git-send-email-rppt@linux.vnet.ibm.com>
- <20180926092404.GL6278@dhcp22.suse.cz>
-Message-ID: <20180926115404.GE4628@rapoport-lnx>
+ <1536927045-23536-15-git-send-email-rppt@linux.vnet.ibm.com>
+ <20180926093127.GO6278@dhcp22.suse.cz>
+ <20180926093648.GP6278@dhcp22.suse.cz>
+Message-ID: <20180926134335.GF4628@rapoport-lnx>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Sep 26, 2018 at 11:24:04AM +0200, Michal Hocko wrote:
-> On Fri 14-09-18 15:10:18, Mike Rapoport wrote:
-> > All architecures use memblock for early memory management. There is no need
-> > for the CONFIG_HAVE_MEMBLOCK configuration option.
+On Wed, Sep 26, 2018 at 11:36:48AM +0200, Michal Hocko wrote:
+> On Wed 26-09-18 11:31:27, Michal Hocko wrote:
+> > On Fri 14-09-18 15:10:29, Mike Rapoport wrote:
+> > > With the align parameter memblock_alloc_node() can be used as drop in
+> > > replacement for alloc_bootmem_pages_node() and __alloc_bootmem_node(),
+> > > which is done in the following patches.
+> > 
+> > /me confused. Why do we need this patch at all? Maybe it should be
+> > folded into the later patch you are refereing here?
 > 
-> git grep says
-> arch/csky/Kconfig:  select HAVE_MEMBLOCK
- 
-Not only that, there are other bootmem leftovers in csky.
-I've sent the patch with the necessary fixups [1]
+> OK, I can see 1536927045-23536-17-git-send-email-rppt at linux.vnet.ibm.com
+> now. If you are going to repost for whatever reason please merge those
+> two. Also I would get rid of the implicit "0 implies SMP_CACHE_BYTES"
+> behavior. It is subtle and you have to dig deep to find that out. Why
+> not make it explicit?
 
-[1] https://lkml.kernel.org/lkml/20180926112744.GC4628 at rapoport-lnx/
+Agree. I'd just prefer to make it a separate patch rather then resend the
+whole series. 
 
-> > Signed-off-by: Mike Rapoport <rppt@linux.vnet.ibm.com>
-> 
-> Other than that
-> Acked-by: Michal Hocko <mhocko@suse.com>
 > -- 
 > Michal Hocko
 > SUSE Labs
