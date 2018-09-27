@@ -1,87 +1,68 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Mon, 24 Sep 2018 13:33:22 +0200
-Subject: [OpenRISC] [PATCH 3.18 036/105] kthread: fix boot hang (regression)
-	on MIPS/OpenRISC
-In-Reply-To: <20180924113113.268650190@linuxfoundation.org>
-References: <20180924113113.268650190@linuxfoundation.org>
-Message-ID: <20180924113117.566426729@linuxfoundation.org>
+From: Stafford Horne <shorne@gmail.com>
+Date: Thu, 27 Sep 2018 15:07:56 +0900
+Subject: [OpenRISC] [PATCH 0/4] OpenRISC binutils updates and new relocs
+In-Reply-To: <20b65fc3-5bbb-6e77-f598-4582204ee0e5@redhat.com>
+References: <20180821143823.16985-1-shorne@gmail.com>
+ <20180908213515.GN4594@lianli.shorne-pla.net>
+ <aceede44-4ab0-9267-a949-5cd5f3c5e81e@redhat.com>
+ <20180918095234.GP4594@lianli.shorne-pla.net>
+ <20b65fc3-5bbb-6e77-f598-4582204ee0e5@redhat.com>
+Message-ID: <20180927060756.GB3318@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-3.18-stable review patch.  If anyone has any objections, please let me know.
+Hi Nick,
 
-------------------
+On Tue, Sep 18, 2018 at 12:55:48PM +0100, Nick Clifton wrote:
+> One other thing:  There are several places where you add calls to 
+> abort().  Now this is not wrong, and certainly not a reason to 
+> reject the patch, but I consider it to be unhelpful.  To my mind
+> a library, or tool, should generate an error message when something
+> goes wrong and not leave the user wondering why they have suddenly
+> got a segmentation fault.
+> 
+> Plus if you have a call to abort() in the code you can bet that some 
+> enterprising person with a binary fuzzer will find a way to trigger 
+> it, and then file a CVE about it.  (Fixing CVEs is the bane of my 
+> life as they involve lots of extra administrivia).
 
-From: Vegard Nossum <vegard.nossum@oracle.com>
+I have been away the last week and am just getting to fixing these abort()'s
+now.  However, I have a question.
 
-commit b0f5a8f32e8bbdaae1abb8abe2d3cbafaba57e08 upstream.
+The aborts I see are:
 
-This fixes a regression in commit 4d6501dce079 where I didn't notice
-that MIPS and OpenRISC were reinitialising p->{set,clear}_child_tid to
-NULL after our initialisation in copy_process().
+  bfd/elf32-or1k.c (or1k_final_link_relocate) - 2 places
+  cpu/or1k-asm.c (parse_imm16) - 1 place
 
-We can simply get rid of the arch-specific initialisation here since it
-is now always done in copy_process() before hitting copy_thread{,_tls}().
+In these cases we call abort if a switch statement falls through to the default
+case. If we get an abort its definitely a bug.
 
-Review notes:
+To produce these errors I need to change the code, Using abort we see:
 
- - As far as I can tell, copy_process() is the only user of
-   copy_thread_tls(), which is the only caller of copy_thread() for
-   architectures that don't implement copy_thread_tls().
+   /home/shorne/work/gnu-toolchain/local/lib/gcc/or1k-elf/9.0.0/../../../../or1k-elf/bin/ld: \
+      BFD (GNU Binutils) 2.31.51.20180927 internal error, \
+      aborting at ../../binutils-gdb/bfd/elf32-or1k.c:1152 in or1k_final_link_relocate
 
- - After this patch, there is no arch-specific code touching
-   p->set_child_tid or p->clear_child_tid whatsoever.
+   /home/shorne/work/gnu-toolchain/local/lib/gcc/or1k-elf/9.0.0/../../../../or1k-elf/bin/ld: \
+      Please report this bug.
 
- - It may look like MIPS/OpenRISC wanted to always have these fields be
-   NULL, but that's not true, as copy_process() would unconditionally
-   set them again _after_ calling copy_thread_tls() before commit
-   4d6501dce079.
+   collect2: error: ld returned 1 exit status
 
-Fixes: 4d6501dce079c1eb6bf0b1d8f528a5e81770109e ("kthread: Fix use-after-free if kthread fork fails")
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Guenter Roeck <linux@roeck-us.net> # MIPS only
-Acked-by: Stafford Horne <shorne@gmail.com>
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: linux-mips at linux-mips.org
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: openrisc at lists.librecores.org
-Cc: Jamie Iles <jamie.iles@oracle.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Amit Pundir <amit.pundir@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+There is no segmentation fault.  I agree, it is more nice to create a message
+inform which error triggered the issue.
 
----
- arch/mips/kernel/process.c     |    1 -
- arch/openrisc/kernel/process.c |    2 --
- 2 files changed, 3 deletions(-)
+Is something like this ok?
 
---- a/arch/mips/kernel/process.c
-+++ b/arch/mips/kernel/process.c
-@@ -87,7 +87,6 @@ int copy_thread(unsigned long clone_flag
- 	struct thread_info *ti = task_thread_info(p);
- 	struct pt_regs *childregs, *regs = current_pt_regs();
- 	unsigned long childksp;
--	p->set_child_tid = p->clear_child_tid = NULL;
- 
- 	childksp = (unsigned long)task_stack_page(p) + THREAD_SIZE - 32;
- 
---- a/arch/openrisc/kernel/process.c
-+++ b/arch/openrisc/kernel/process.c
-@@ -152,8 +152,6 @@ copy_thread(unsigned long clone_flags, u
- 
- 	top_of_kernel_stack = sp;
- 
--	p->set_child_tid = p->clear_child_tid = NULL;
--
- 	/* Locate userspace context on stack... */
- 	sp -= STACK_FRAME_OVERHEAD;	/* redzone */
- 	sp -= sizeof(struct pt_regs);
+    default:
+      _bfd_error_handler
+	(_("%pB: Unknown complain on overflow value on howto specified %d"),
+	 input_bfd, (int) howto->complain_on_overflow);
+      abort();
 
+i.e. _bfd_error_handler() followed by abort().  I couldn't really see a way to
+_bfd_error_handler() to actually cause the program to exit.
 
+-Stafford
