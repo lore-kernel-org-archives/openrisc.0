@@ -1,70 +1,57 @@
-From: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Date: Thu, 27 Sep 2018 07:50:20 +0300
-Subject: [OpenRISC] [PATCH 03/30] mm: remove CONFIG_HAVE_MEMBLOCK
-In-Reply-To: <CAKgT0UcC-GTtyPK9ynvj6r3YFqy8kE40iMJxzPowbNoXGf9iWg@mail.gmail.com>
-References: <1536927045-23536-1-git-send-email-rppt@linux.vnet.ibm.com>
- <1536927045-23536-4-git-send-email-rppt@linux.vnet.ibm.com>
- <CAKgT0UdP=78RsWHMxFu4PD8a3AhA3eNcG68Z_9aGY0vhOKf7xA@mail.gmail.com>
- <20180926183152.GA4597@rapoport-lnx>
- <CAKgT0UcC-GTtyPK9ynvj6r3YFqy8kE40iMJxzPowbNoXGf9iWg@mail.gmail.com>
-Message-ID: <20180927045019.GA16740@rapoport-lnx>
+From: Nick Clifton <nickc@redhat.com>
+Date: Fri, 28 Sep 2018 16:39:03 +0100
+Subject: [OpenRISC] [PATCH 0/4] OpenRISC binutils updates and new relocs
+In-Reply-To: <20180927060756.GB3318@lianli.shorne-pla.net>
+References: <20180821143823.16985-1-shorne@gmail.com>
+ <20180908213515.GN4594@lianli.shorne-pla.net>
+ <aceede44-4ab0-9267-a949-5cd5f3c5e81e@redhat.com>
+ <20180918095234.GP4594@lianli.shorne-pla.net>
+ <20b65fc3-5bbb-6e77-f598-4582204ee0e5@redhat.com>
+ <20180927060756.GB3318@lianli.shorne-pla.net>
+Message-ID: <271e3bfa-4958-0387-9a82-ecfdb58f1e26@redhat.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Sep 26, 2018 at 05:34:32PM -0700, Alexander Duyck wrote:
-> On Wed, Sep 26, 2018 at 11:32 AM Mike Rapoport <rppt@linux.vnet.ibm.com> wrote:
-> >
-> > On Wed, Sep 26, 2018 at 09:58:41AM -0700, Alexander Duyck wrote:
-> > > On Fri, Sep 14, 2018 at 5:11 AM Mike Rapoport <rppt@linux.vnet.ibm.com> wrote:
-> > > >
-> > > > All architecures use memblock for early memory management. There is no need
-> > > > for the CONFIG_HAVE_MEMBLOCK configuration option.
-> > > >
-> > > > Signed-off-by: Mike Rapoport <rppt@linux.vnet.ibm.com>
-> > >
-> > > <snip>
-> > >
-> > > > diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-> > > > index 5169205..4ae91fc 100644
-> > > > --- a/include/linux/memblock.h
-> > > > +++ b/include/linux/memblock.h
-> > > > @@ -2,7 +2,6 @@
-> > > >  #define _LINUX_MEMBLOCK_H
-> > > >  #ifdef __KERNEL__
-> > > >
-> > > > -#ifdef CONFIG_HAVE_MEMBLOCK
-> > > >  /*
-> > > >   * Logical memory blocks.
-> > > >   *
-> > > > @@ -460,7 +459,6 @@ static inline phys_addr_t memblock_alloc(phys_addr_t size, phys_addr_t align)
-> > > >  {
-> > > >         return 0;
-> > > >  }
-> > > > -#endif /* CONFIG_HAVE_MEMBLOCK */
-> > > >
-> > > >  #endif /* __KERNEL__ */
-> > >
-> > > There was an #else above this section and I believe it and the code
-> > > after it needs to be stripped as well.
-> >
-> > Right, I've already sent the fix [1] and it's in mmots.
-> >
-> > [1] https://lkml.org/lkml/2018/9/19/416
-> >
-> 
-> Are you sure? The patch you reference appears to be for
-> drivers/of/fdt.c, and the bit I pointed out here is in
-> include/linux/memblock.h.
+Hi Stafford,
 
-Ah, sorry. You are right, will fix. Thanks for spotting it!
- 
-> - Alex
+> To produce these errors I need to change the code, Using abort we see:
 > 
+>    /home/shorne/work/gnu-toolchain/local/lib/gcc/or1k-elf/9.0.0/../../../../or1k-elf/bin/ld: \
+>       BFD (GNU Binutils) 2.31.51.20180927 internal error, \
+>       aborting at ../../binutils-gdb/bfd/elf32-or1k.c:1152 in or1k_final_link_relocate
 
--- 
-Sincerely yours,
-Mike.
+> There is no segmentation fault.
+
+Sorry, you are right - the abort does not trigger a segmentation fault.
+
+
+
+> I agree, it is more nice to create a message
+> inform which error triggered the issue.
+> 
+> Is something like this ok?
+> 
+>     default:
+>       _bfd_error_handler
+> 	(_("%pB: Unknown complain on overflow value on howto specified %d"),
+> 	 input_bfd, (int) howto->complain_on_overflow);
+>       abort();
+> 
+> i.e. _bfd_error_handler() followed by abort().  I couldn't really see a way to
+> _bfd_error_handler() to actually cause the program to exit.
+
+Depending upon where you are in your code, if you have access to the link_info
+structure you can use its einfo() routine instead of bfd_error_handler.  This
+has the advantage that it allows a %X formatting directive, which causes the 
+program to terminate with an error exit code.
+
+But otherwise, if there is no reasonable way to return to the caller, then
+caryr on using abort.  Adding the error messages still helps though.
+
+Cheers
+  Nick
+
 
