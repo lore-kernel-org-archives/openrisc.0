@@ -1,2672 +1,3087 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu,  4 Oct 2018 12:23:15 +0900
-Subject: [OpenRISC] [PATCH v3 3/5] or1k: Add the l.adrp insn and supporting
-	relocations
+Date: Thu,  4 Oct 2018 12:23:16 +0900
+Subject: [OpenRISC] [PATCH v3 4/5] or1k: Add the l.muld, l.muldu, l.macu,
+	l.msbu insns
 In-Reply-To: <20181004032317.17478-1-shorne@gmail.com>
 References: <20181004032317.17478-1-shorne@gmail.com>
-Message-ID: <20181004032317.17478-4-shorne@gmail.com>
+Message-ID: <20181004032317.17478-5-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-This patch adds the new instruction and relocation as per proposal:
-   https://openrisc.io/proposals/ladrp
+From: Richard Henderson <rth@redhat.com>
 
-This is to be added to the spec in an upcoming revision.  The new instruction
-l.adrp loads the page offset of the current instruction offset by
-a 21-bit immediate shifted left 13-bits.  This is meant to be used with
-a 13-bit lower bit page offset.  This allows us to free up the got
-register r16.
+Also fix the incorrect definitions of multiply and divide carry and
+overflow float.
 
-  l.adrp  r3, foo
-  l.ori   r4, r3, po(foo)
-  l.lbz   r5, po(foo)(r3)
-  l.sb    po(foo)(r3), r6
+Changes to the instructions are made in the .cpu file, then we
+regenerate the binutils and sim files.
 
-The relocations we add are:
-
- - BFD_RELOC_OR1K_PLTA26	For PLT jump relocation with PLT entry
-   asm: plta()			implemented using l.ardp, meaning
-				no need for r16 (the GOT reg)
-
- - BFD_RELOC_OR1K_GOT_PG21	Upper 21-bit Page offset got address
-   asm: got()
- - BFD_RELOC_OR1K_TLS_GD_PG21	Upper 21-bit Page offset with TLS General
-   asm: tlsgd()			Dynamic calculation
- - BFD_RELOC_OR1K_TLS_LDM_PG21	Upper 21-bit Page offset with TLS local
-   asm: tlsldm()		dynamic calculation
- - BFD_RELOC_OR1K_TLS_IE_PG21	Upper 21-bit Page offset with TLS Initial
-   asm: gottp() 		Executable calculation
- - BFD_RELOC_OR1K_PCREL_PG21	Default relocation for disp21 (l.adrp
-				instructions)
-
- - BFD_RELOC_OR1K_LO13		low 13-bit page offset relocation
-   asm: po()			i.e. mem loads, addi etc
- - BFD_RELOC_OR1K_SLO13		low 13-bit page offset relocation
-   asm: po()			i.e. mem stores, with split immediate
- - BFD_RELOC_OR1K_GOT_LO13,	low 13-bit page offset with GOT calcs
-   asm: gotpo()
- - BFD_RELOC_OR1K_TLS_GD_LO13	Lower 13-bit offset with TLS GD calcs
-   asm: tlsgdpo()
- - BFD_RELOC_OR1K_TLS_LDM_LO13	Lower 13-bit offset with TLS LD calcs
-   asm: tlsldmpo()
- - BFD_RELOC_OR1K_TLS_IE_LO13	Lower 13-bit offset with TLS IE calcs
-   asm: gottppo()
+The changes also required a few fixups for tests and additional sim helpers.
 
 yyyy-mm-dd  Richard Henderson  <rth@twiddle.net>
-
-bfd/ChangeLog:
-
-	* bfd-in2.h: Regenerated.
-	* elf32-or1k.c: (or1k_elf_howto_table): Fix formatting for
-	R_OR1K_PLT26, Add R_OR1K_PCREL_PG21, R_OR1K_GOT_PG21,
-	R_OR1K_TLS_GD_PG21, R_OR1K_TLS_LDM_PG21, R_OR1K_TLS_IE_PG21,
-	R_OR1K_LO13, R_OR1K_GOT_LO13, R_OR1K_TLS_GD_LO13, R_OR1K_TLS_LDM_LO13,
-	R_OR1K_TLS_IE_LO13, R_OR1K_SLO13, R_OR1K_PLTA26.
-	(or1k_reloc_map): Add BFD_RELOC_OR1K_PCREL_PG21,
-	BFD_RELOC_OR1K_GOT_PG21, BFD_RELOC_OR1K_TLS_GD_PG21,
-	BFD_RELOC_OR1K_TLS_LDM_PG21, BFD_RELOC_OR1K_TLS_IE_PG21,
-	BFD_RELOC_OR1K_LO13, BFD_RELOC_OR1K_GOT_LO13,
-	BFD_RELOC_OR1K_TLS_GD_LO13, BFD_RELOC_OR1K_TLS_GD_LO13,
-	BFD_RELOC_OR1K_TLS_LDM_LO13, BFD_RELOC_OR1K_TLS_IE_LO13,
-	BFD_RELOC_OR1K_SLO13, BFD_RELOC_OR1K_PLTA26.
-	(elf_or1k_link_hash_table): Add field saw_plta.
-	(or1k_final_link_relocate): Add value calculations for new relocations.
-	(or1k_elf_relocate_section): Add section relocations for new
-	relocations.
-	(or1k_write_plt_entry): New function.
-	(or1k_elf_finish_dynamic_sections): Add support for PLTA relocations
-	using new l.adrp instruction.  Cleanup PLT relocation code generation.
-	* libbfd.h: Regenerated.
-	* reloc.c: Add BFD_RELOC_OR1K_PCREL_PG21, BFD_RELOC_OR1K_LO13,
-	BFD_RELOC_OR1K_SLO13, BFD_RELOC_OR1K_GOT_PG21, BFD_RELOC_OR1K_GOT_LO13,
-	BFD_RELOC_OR1K_PLTA26, BFD_RELOC_OR1K_TLS_GD_PG21,
-	BFD_RELOC_OR1K_TLS_GD_LO13, BFD_RELOC_OR1K_TLS_LDM_PG21,
-	BFD_RELOC_OR1K_TLS_LDM_LO13, BFD_RELOC_OR1K_TLS_IE_PG21,
-	BFD_RELOC_OR1K_TLS_IE_LO13.
+	    Stafford Horne  <shorne@gmail.com>
 
 cpu/ChangeLog:
 
-	* or1k.opc (parse_disp26): Add support for plta() relocations.
-	(parse_disp21): New function.
-	(or1k_rclass): New enum.
-	(or1k_rtype): New enum.
-	(or1k_imm16_relocs): Define new PO and SPO relocation mappings.
-	(parse_reloc): Add new po(), gotpo() and gottppo() for LO13 relocations.
-	(parse_imm16): Add support for the new 21bit and 13bit relocations.
-	* or1korbis.cpu (f-disp26): Don't assume SI.
-	(f-disp21): New pc-relative 21-bit 13 shifted to right.
-	(insn-opcode): Add ADRP.
-	(l-adrp): New instruction.
-
-gas/ChangeLog:
-
-	* config/tc-or1k.c (or1k_apply_fix): Add BFD_RELOC_OR1K_TLS_GD_PG21,
-	BFD_RELOC_OR1K_TLS_GD_LO13, BFD_RELOC_OR1K_TLS_LDM_PG21,
-	BFD_RELOC_OR1K_TLS_LDM_LO13, BFD_RELOC_OR1K_TLS_IE_PG21,
-	BFD_RELOC_OR1K_TLS_IE_LO13.
-	* testsuite/gas/or1k/allinsn.s: Add test for l.adrp.
-	* testsuite/gas/or1k/allinsn.d: Add test results for new
-	instructions.
-	* testsuite/gas/or1k/reloc-1.s: Add tests to generate
-	R_OR1K_PLTA26, R_OR1K_GOT_PG21, R_OR1K_TLS_GD_PG21, R_OR1K_TLS_LDM_PG21,
-	R_OR1K_TLS_IE_PG21, R_OR1K_LO13, R_OR1K_GOT_LO13, R_OR1K_TLS_GD_LO13,
-	R_OR1K_TLD_LDM_LO13, R_OR1K_TLS_IE_LO13, R_OR1K_LO13, R_OR1K_SLO13
-	relocations.
-	* testsuite/gas/or1k/reloc-1.d: Add relocation results for
-	tests.
-	* testsuite/gas/or1k/reloc-2.s: Add negative tests for store to
-	gotpo().
-	* testsuite/gas/or1k/reloc-2.l: Add expected error test results.
-
-ld/ChangeLog:
-
-	* testsuite/ld-or1k/or1k.exp: Add test cases for plt generation.
-	* testsuite/ld-or1k/plt1.dd: New file.
-	* testsuite/ld-or1k/plt1.s: New file.
-	* testsuite/ld-or1k/plt1.x.dd: New file.
-	* testsuite/ld-or1k/plta1.dd: New file.
-	* testsuite/ld-or1k/plta1.s: New file.
-	* testsuite/ld-or1k/pltlib.s: New file.
-
-include/ChangeLog:
-
-	* elf/or1k.h (elf_or1k_reloc_type): Add R_OR1K_PCREL_PG21,
-	R_OR1K_GOT_PG21, R_OR1K_TLS_GD_PG21, R_OR1K_TLS_LDM_PG21,
-	R_OR1K_TLS_IE_PG21, R_OR1K_LO13, R_OR1K_GOT_LO13,
-	R_OR1K_TLS_GD_LO13, R_OR1K_TLS_LDM_LO13, R_OR1K_TLS_IE_LO13,
-	R_OR1K_SLO13, R_OR1K_PLTA26.
+	* or1korbis.cpu (insn-opcode-mac): Add opcodes for MACU and MSBU.
+	(insn-opcode-alu-regreg): Add opcodes for MULD and MULDU.
+	(l-mul): Fix overflow support and indentation.
+	(l-mulu): Fix overflow support and indentation.
+	(l-muld, l-muldu, l-msbu, l-macu): New instructions.
+	(l-div); Remove incorrect carry behavior.
+	(l-divu): Fix carry and overflow behavior.
+	(l-mac): Add overflow support.
+	(l-msb, l-msbu): Add carry and overflow support.
 
 opcodes/ChangeLog:
 
-	* or1k-asm.c: Regenerated.
-	* or1k-desc.c: Regenerated.
-	* or1k-desc.h: Regenerated.
-	* or1k-dis.c: Regenerated.
-	* or1k-ibld.c: Regenerated.
-	* or1k-opc.c: Regenerated.
-	* or1k-opc.h: Regenerated.
-	* or1k-opinst.c: Regenerated.
----
- bfd/bfd-in2.h                    |  12 +
- bfd/elf32-or1k.c                 | 526 +++++++++++++++++++++++--------
- bfd/libbfd.h                     |  12 +
- bfd/reloc.c                      |  24 ++
- cpu/or1k.opc                     | 226 +++++++++----
- cpu/or1korbis.cpu                |  35 +-
- gas/config/tc-or1k.c             |   6 +
- gas/testsuite/gas/or1k/allinsn.d |   6 +
- gas/testsuite/gas/or1k/allinsn.s |   3 +
- gas/testsuite/gas/or1k/reloc-1.d |  16 +
- gas/testsuite/gas/or1k/reloc-1.s |  20 ++
- gas/testsuite/gas/or1k/reloc-2.l |   1 +
- gas/testsuite/gas/or1k/reloc-2.s |   1 +
- include/elf/or1k.h               |  12 +
- ld/testsuite/ld-or1k/or1k.exp    |  22 ++
- ld/testsuite/ld-or1k/plt1.dd     |  27 ++
- ld/testsuite/ld-or1k/plt1.s      |  11 +
- ld/testsuite/ld-or1k/plt1.x.dd   |  27 ++
- ld/testsuite/ld-or1k/plta1.dd    |  27 ++
- ld/testsuite/ld-or1k/plta1.s     |  11 +
- ld/testsuite/ld-or1k/pltlib.s    |  12 +
- opcodes/or1k-asm.c               | 286 ++++++++++++-----
- opcodes/or1k-desc.c              |  10 +
- opcodes/or1k-desc.h              |  37 +--
- opcodes/or1k-dis.c               |   3 +
- opcodes/or1k-ibld.c              |  29 +-
- opcodes/or1k-opc.c               |  10 +
- opcodes/or1k-opc.h               |  64 ++--
- opcodes/or1k-opinst.c            |   7 +
- 29 files changed, 1158 insertions(+), 325 deletions(-)
- create mode 100644 ld/testsuite/ld-or1k/plt1.dd
- create mode 100644 ld/testsuite/ld-or1k/plt1.s
- create mode 100644 ld/testsuite/ld-or1k/plt1.x.dd
- create mode 100644 ld/testsuite/ld-or1k/plta1.dd
- create mode 100644 ld/testsuite/ld-or1k/plta1.s
- create mode 100644 ld/testsuite/ld-or1k/pltlib.s
+	* or1k-desc.c: Regenerate.
+	* or1k-desc.h: Regenerate.
+	* or1k-opc.c: Regenerate.
+	* or1k-opc.h: Regenerate.
+	* or1k-opinst.c: Regenerate.
 
-diff --git a/bfd/bfd-in2.h b/bfd/bfd-in2.h
-index cc112f1b49..662ef41a47 100644
---- a/bfd/bfd-in2.h
-+++ b/bfd/bfd-in2.h
-@@ -5473,10 +5473,16 @@ then it may be truncated to 8 bits.  */
- /* OpenRISC 1000 Relocations.  */
-   BFD_RELOC_OR1K_REL_26,
-   BFD_RELOC_OR1K_SLO16,
-+  BFD_RELOC_OR1K_PCREL_PG21,
-+  BFD_RELOC_OR1K_LO13,
-+  BFD_RELOC_OR1K_SLO13,
-   BFD_RELOC_OR1K_GOTPC_HI16,
-   BFD_RELOC_OR1K_GOTPC_LO16,
-   BFD_RELOC_OR1K_GOT16,
-+  BFD_RELOC_OR1K_GOT_PG21,
-+  BFD_RELOC_OR1K_GOT_LO13,
-   BFD_RELOC_OR1K_PLT26,
-+  BFD_RELOC_OR1K_PLTA26,
-   BFD_RELOC_OR1K_GOTOFF_SLO16,
-   BFD_RELOC_OR1K_COPY,
-   BFD_RELOC_OR1K_GLOB_DAT,
-@@ -5484,13 +5490,19 @@ then it may be truncated to 8 bits.  */
-   BFD_RELOC_OR1K_RELATIVE,
-   BFD_RELOC_OR1K_TLS_GD_HI16,
-   BFD_RELOC_OR1K_TLS_GD_LO16,
-+  BFD_RELOC_OR1K_TLS_GD_PG21,
-+  BFD_RELOC_OR1K_TLS_GD_LO13,
-   BFD_RELOC_OR1K_TLS_LDM_HI16,
-   BFD_RELOC_OR1K_TLS_LDM_LO16,
-+  BFD_RELOC_OR1K_TLS_LDM_PG21,
-+  BFD_RELOC_OR1K_TLS_LDM_LO13,
-   BFD_RELOC_OR1K_TLS_LDO_HI16,
-   BFD_RELOC_OR1K_TLS_LDO_LO16,
-   BFD_RELOC_OR1K_TLS_IE_HI16,
-   BFD_RELOC_OR1K_TLS_IE_AHI16,
-   BFD_RELOC_OR1K_TLS_IE_LO16,
-+  BFD_RELOC_OR1K_TLS_IE_PG21,
-+  BFD_RELOC_OR1K_TLS_IE_LO13,
-   BFD_RELOC_OR1K_TLS_LE_HI16,
-   BFD_RELOC_OR1K_TLS_LE_AHI16,
-   BFD_RELOC_OR1K_TLS_LE_LO16,
-diff --git a/bfd/elf32-or1k.c b/bfd/elf32-or1k.c
-index 451253d0e7..a2b0ff147f 100644
---- a/bfd/elf32-or1k.c
-+++ b/bfd/elf32-or1k.c
-@@ -29,31 +29,14 @@
- 
- #define N_ONES(X)	(((bfd_vma)2 << (X)) - 1)
- 
--#define PLT_ENTRY_SIZE 20
--
--#define PLT0_ENTRY_WORD0 0x19800000 /* l.movhi r12, 0 <- hi(.got+4) */
--#define PLT0_ENTRY_WORD1 0xa98c0000 /* l.ori r12, r12, 0 <- lo(.got+4) */
--#define PLT0_ENTRY_WORD2 0x85ec0004 /* l.lwz r15, 4(r12) <- *(.got+8)*/
--#define PLT0_ENTRY_WORD3 0x44007800 /* l.jr r15 */
--#define PLT0_ENTRY_WORD4 0x858c0000 /* l.lwz r12, 0(r12) */
--
--#define PLT0_PIC_ENTRY_WORD0 0x85900004 /* l.lwz r12, 4(r16) */
--#define PLT0_PIC_ENTRY_WORD1 0x85f00008 /* l.lwz r15, 8(r16) */
--#define PLT0_PIC_ENTRY_WORD2 0x44007800 /* l.jr r15 */
--#define PLT0_PIC_ENTRY_WORD3 0x15000000 /* l.nop */
--#define PLT0_PIC_ENTRY_WORD4 0x15000000 /* l.nop */
--
--#define PLT_ENTRY_WORD0 0x19800000 /* l.movhi r12, 0 <- hi(got idx addr) */
--#define PLT_ENTRY_WORD1 0xa98c0000 /* l.ori r12, r12, 0 <- lo(got idx addr) */
--#define PLT_ENTRY_WORD2 0x858c0000 /* l.lwz r12, 0(r12) */
--#define PLT_ENTRY_WORD3 0x44006000 /* l.jr r12 */
--#define PLT_ENTRY_WORD4 0xa9600000 /* l.ori r11, r0, 0 <- reloc offset */
--
--#define PLT_PIC_ENTRY_WORD0 0x85900000 /* l.lwz r12, 0(r16) <- index in got */
--#define PLT_PIC_ENTRY_WORD1 0xa9600000 /* l.ori r11, r0, 0 <- reloc offset */
--#define PLT_PIC_ENTRY_WORD2 0x44006000 /* l.jr r12 */
--#define PLT_PIC_ENTRY_WORD3 0x15000000 /* l.nop */
--#define PLT_PIC_ENTRY_WORD4 0x15000000 /* l.nop */
-+#define PLT_ENTRY_SIZE 16
-+
-+#define OR1K_MOVHI(D)		(0x18000000 | (D << 21))
-+#define OR1K_ADRP(D)		(0x08000000 | (D << 21))
-+#define OR1K_LWZ(D,A)		(0x84000000 | (D << 21) | (A << 16))
-+#define OR1K_ORI0(D)		(0xA8000000 | (D << 21))
-+#define OR1K_JR(B)		(0x44000000 | (B << 11))
-+#define OR1K_NOP		0x15000000
- 
- #define ELF_DYNAMIC_INTERPRETER "/usr/lib/ld.so.1"
- 
-@@ -274,16 +257,16 @@ static reloc_howto_type or1k_elf_howto_table[] =
- 	 FALSE),		/* pcrel_offset */
- 
-   /* A 26 bit PLT relocation.  Shifted by 2.  */
--  HOWTO (R_OR1K_PLT26,	/* Type.  */
-+  HOWTO (R_OR1K_PLT26,		/* Type.  */
- 	 2,			/* Rightshift.  */
- 	 2,			/* Size (0 = byte, 1 = short, 2 = long).  */
- 	 26,			/* Bitsize.  */
--	 TRUE,			/* PC_relative.  */
-+	 TRUE,			/* pc_relative.  */
- 	 0,			/* Bitpos.  */
- 	 complain_overflow_signed, /* Complain on overflow.  */
--	 bfd_elf_generic_reloc,/* Special Function.  */
-+	 bfd_elf_generic_reloc, /* Special Function.  */
- 	 "R_OR1K_PLT26",	/* Name.  */
--	 FALSE,		/* Partial Inplace.  */
-+	 FALSE,			/* Partial Inplace.  */
- 	 0,			/* Source Mask.  */
- 	 0x03ffffff,		/* Dest Mask.  */
- 	 TRUE),			/* PC relative offset?  */
-@@ -651,6 +634,180 @@ static reloc_howto_type or1k_elf_howto_table[] =
- 	 0x0,			/* src_mask */
- 	 0xffff,		/* dst_mask */
- 	 FALSE),		/* pcrel_offset */
-+
-+  /* A page relative 21 bit relocation, right shifted by 13, aligned.
-+     Note that this is *page* relative, not pc relative.  The idea is
-+     similar, but normally the section alignment is not such that the
-+     assembler can infer a final value, which it attempts to do with
-+     pc-relative relocations to local symbols.  */
-+  HOWTO (R_OR1K_PCREL_PG21,    /* type */
-+	 13,			/* rightshift */
-+	 2,			/* size (0 = byte, 1 = short, 2 = long) */
-+	 21,			/* bitsize */
-+	 FALSE,			/* pc_relative */
-+	 0,			/* bitpos */
-+	 complain_overflow_signed, /* complain_on_overflow */
-+	 bfd_elf_generic_reloc, /* special_function */
-+	 "R_OR1K_PCREL_PG21",   /* name */
-+	 FALSE,			/* partial_inplace */
-+	 0,			/* src_mask */
-+	 0x001fffff,		/* dst_mask */
-+	 TRUE),			/* pcrel_offset */
-+
-+  HOWTO (R_OR1K_GOT_PG21,       /* type */
-+	 13,			/* rightshift */
-+	 2,			/* size (0 = byte, 1 = short, 2 = long) */
-+	 21,			/* bitsize */
-+	 FALSE,			/* pc_relative */
-+	 0,			/* bitpos */
-+	 complain_overflow_signed, /* complain_on_overflow */
-+	 bfd_elf_generic_reloc, /* special_function */
-+	 "R_OR1K_GOT_PG21",     /* name */
-+	 FALSE,			/* partial_inplace */
-+	 0,			/* src_mask */
-+	 0x001fffff,		/* dst_mask */
-+	 TRUE),			/* pcrel_offset */
-+
-+  HOWTO (R_OR1K_TLS_GD_PG21,    /* type */
-+	 13,			/* rightshift */
-+	 2,			/* size (0 = byte, 1 = short, 2 = long) */
-+	 21,			/* bitsize */
-+	 FALSE,			/* pc_relative */
-+	 0,			/* bitpos */
-+	 complain_overflow_signed, /* complain_on_overflow */
-+	 bfd_elf_generic_reloc, /* special_function */
-+	 "R_OR1K_TLS_GD_PG21",  /* name */
-+	 FALSE,			/* partial_inplace */
-+	 0,			/* src_mask */
-+	 0x001fffff,		/* dst_mask */
-+	 TRUE),			/* pcrel_offset */
-+
-+  HOWTO (R_OR1K_TLS_LDM_PG21,   /* type */
-+	 13,			/* rightshift */
-+	 2,			/* size (0 = byte, 1 = short, 2 = long) */
-+	 21,			/* bitsize */
-+	 FALSE,			/* pc_relative */
-+	 0,			/* bitpos */
-+	 complain_overflow_signed, /* complain_on_overflow */
-+	 bfd_elf_generic_reloc, /* special_function */
-+	 "R_OR1K_TLS_LDM_PG21", /* name */
-+	 FALSE,			/* partial_inplace */
-+	 0,			/* src_mask */
-+	 0x001fffff,		/* dst_mask */
-+	 TRUE),			/* pcrel_offset */
-+
-+  HOWTO (R_OR1K_TLS_IE_PG21,    /* type */
-+	 13,			/* rightshift */
-+	 2,			/* size (0 = byte, 1 = short, 2 = long) */
-+	 21,			/* bitsize */
-+	 FALSE,			/* pc_relative */
-+	 0,			/* bitpos */
-+	 complain_overflow_signed, /* complain_on_overflow */
-+	 bfd_elf_generic_reloc, /* special_function */
-+	 "R_OR1K_TLS_IE_PG21",  /* name */
-+	 FALSE,			/* partial_inplace */
-+	 0,			/* src_mask */
-+	 0x001fffff,		/* dst_mask */
-+	 TRUE),			/* pcrel_offset */
-+
-+  HOWTO (R_OR1K_LO13,		/* type */
-+	 0,			/* rightshift */
-+	 2,			/* size (0 = byte, 1 = short, 2 = long) */
-+	 16,			/* bitsize */
-+	 FALSE,			/* pc_relative */
-+	 0,			/* bitpos */
-+	 complain_overflow_dont, /* complain_on_overflow */
-+	 bfd_elf_generic_reloc, /* special_function */
-+	 "R_OR1K_LO13",		/* name */
-+	 FALSE,			/* partial_inplace */
-+	 0x0,			/* src_mask */
-+	 0xffff,		/* dst_mask */
-+	 FALSE),		/* pcrel_offset */
-+
-+  HOWTO (R_OR1K_GOT_LO13,       /* type */
-+	 0,			/* rightshift */
-+	 2,			/* size (0 = byte, 1 = short, 2 = long) */
-+	 16,			/* bitsize */
-+	 FALSE,			/* pc_relative */
-+	 0,			/* bitpos */
-+	 complain_overflow_dont, /* complain_on_overflow */
-+	 bfd_elf_generic_reloc, /* special_function */
-+	 "R_OR1K_GOT_LO13",     /* name */
-+	 FALSE,			/* partial_inplace */
-+	 0x0,			/* src_mask */
-+	 0xffff,		/* dst_mask */
-+	 FALSE),		/* pcrel_offset */
-+
-+  HOWTO (R_OR1K_TLS_GD_LO13,    /* type */
-+	 0,			/* rightshift */
-+	 2,			/* size (0 = byte, 1 = short, 2 = long) */
-+	 16,			/* bitsize */
-+	 FALSE,			/* pc_relative */
-+	 0,			/* bitpos */
-+	 complain_overflow_dont, /* complain_on_overflow */
-+	 bfd_elf_generic_reloc, /* special_function */
-+	 "R_OR1K_TLS_GD_LO13",  /* name */
-+	 FALSE,			/* partial_inplace */
-+	 0x0,			/* src_mask */
-+	 0xffff,		/* dst_mask */
-+	 FALSE),		/* pcrel_offset */
-+
-+  HOWTO (R_OR1K_TLS_LDM_LO13,   /* type */
-+	 0,			/* rightshift */
-+	 2,			/* size (0 = byte, 1 = short, 2 = long) */
-+	 16,			/* bitsize */
-+	 FALSE,			/* pc_relative */
-+	 0,			/* bitpos */
-+	 complain_overflow_dont, /* complain_on_overflow */
-+	 bfd_elf_generic_reloc, /* special_function */
-+	 "R_OR1K_TLD_LDM_LO13", /* name */
-+	 FALSE,			/* partial_inplace */
-+	 0x0,			/* src_mask */
-+	 0xffff,		/* dst_mask */
-+	 FALSE),		/* pcrel_offset */
-+
-+  HOWTO (R_OR1K_TLS_IE_LO13,    /* type */
-+	 0,			/* rightshift */
-+	 2,			/* size (0 = byte, 1 = short, 2 = long) */
-+	 16,			/* bitsize */
-+	 FALSE,			/* pc_relative */
-+	 0,			/* bitpos */
-+	 complain_overflow_dont, /* complain_on_overflow */
-+	 bfd_elf_generic_reloc, /* special_function */
-+	 "R_OR1K_TLS_IE_LO13",  /* name */
-+	 FALSE,			/* partial_inplace */
-+	 0x0,			/* src_mask */
-+	 0xffff,		/* dst_mask */
-+	 FALSE),		/* pcrel_offset */
-+
-+  HOWTO (R_OR1K_SLO13,		/* type */
-+	 0,			/* rightshift */
-+	 2,			/* size (0 = byte, 1 = short, 2 = long) */
-+	 16,			/* bitsize */
-+	 FALSE,			/* pc_relative */
-+	 0,			/* bitpos */
-+	 complain_overflow_dont, /* complain_on_overflow */
-+	 bfd_elf_generic_reloc, /* special_function */
-+	 "R_OR1K_SLO13",	/* name */
-+	 FALSE,			/* partial_inplace */
-+	 0x0,			/* src_mask */
-+	 0xffff,		/* dst_mask */
-+	 FALSE),		/* pcrel_offset */
-+
-+  /* A 26 bit PLT relocation, using ADRP.  Shifted by 2.  */
-+  HOWTO (R_OR1K_PLTA26,		/* Type.  */
-+	 2,			/* Rightshift.  */
-+	 2,			/* Size (0 = byte, 1 = short, 2 = long).  */
-+	 26,			/* Bitsize.  */
-+	 TRUE,			/* pc_relative.  */
-+	 0,			/* Bitpos.  */
-+	 complain_overflow_signed, /* Complain on overflow.  */
-+	 bfd_elf_generic_reloc,	/* Special Function.  */
-+	 "R_OR1K_PLTA26",	/* Name.  */
-+	 FALSE,			/* Partial Inplace.  */
-+	 0,			/* Source Mask.  */
-+	 0x03ffffff,		/* Dest Mask.  */
-+	 TRUE),			/* PC relative offset?  */
- };
- 
- /* Map BFD reloc types to Or1k ELF reloc types.  */
-@@ -702,6 +859,18 @@ static const struct or1k_reloc_map or1k_reloc_map[] =
-   { BFD_RELOC_OR1K_SLO16,	R_OR1K_SLO16 },
-   { BFD_RELOC_OR1K_GOTOFF_SLO16, R_OR1K_GOTOFF_SLO16 },
-   { BFD_RELOC_OR1K_TLS_LE_SLO16, R_OR1K_TLS_LE_SLO16 },
-+  { BFD_RELOC_OR1K_PCREL_PG21,	R_OR1K_PCREL_PG21 },
-+  { BFD_RELOC_OR1K_GOT_PG21,	R_OR1K_GOT_PG21 },
-+  { BFD_RELOC_OR1K_TLS_GD_PG21,	R_OR1K_TLS_GD_PG21 },
-+  { BFD_RELOC_OR1K_TLS_LDM_PG21, R_OR1K_TLS_LDM_PG21 },
-+  { BFD_RELOC_OR1K_TLS_IE_PG21,	R_OR1K_TLS_IE_PG21 },
-+  { BFD_RELOC_OR1K_LO13,	R_OR1K_LO13 },
-+  { BFD_RELOC_OR1K_GOT_LO13,	R_OR1K_GOT_LO13 },
-+  { BFD_RELOC_OR1K_TLS_GD_LO13,	R_OR1K_TLS_GD_LO13 },
-+  { BFD_RELOC_OR1K_TLS_LDM_LO13, R_OR1K_TLS_LDM_LO13 },
-+  { BFD_RELOC_OR1K_TLS_IE_LO13,	R_OR1K_TLS_IE_LO13 },
-+  { BFD_RELOC_OR1K_SLO13,	R_OR1K_SLO13 },
-+  { BFD_RELOC_OR1K_PLTA26,	R_OR1K_PLTA26 },
- };
- 
- #define TLS_UNKNOWN    0
-@@ -745,6 +914,8 @@ struct elf_or1k_link_hash_table
- 
-   /* Small local sym to section mapping cache.  */
-   struct sym_cache sym_sec;
-+
-+  bfd_boolean saw_plta;
- };
- 
- /* Get the ELF linker hash table from a link_info structure.  */
-@@ -896,19 +1067,15 @@ or1k_final_link_relocate (reloc_howto_type *howto, bfd *input_bfd,
- {
-   bfd_reloc_status_type status = bfd_reloc_ok;
-   int size = bfd_get_reloc_size (howto);
--  bfd_vma x;
-+  bfd_vma x, place;
- 
-   /* Sanity check the address.  */
-   if (offset + size > bfd_get_section_limit_octets (input_bfd, input_section))
-     return bfd_reloc_outofrange;
- 
--  if (howto->pc_relative)
--    {
--      value -= (input_section->output_section->vma
--		+ input_section->output_offset);
--      if (howto->pcrel_offset)
--	value -= offset;
--    }
-+  place = (input_section->output_section->vma
-+	   + input_section->output_offset
-+	   + (howto->pcrel_offset ? offset : 0));
- 
-   switch (howto->type)
-     {
-@@ -921,10 +1088,33 @@ or1k_final_link_relocate (reloc_howto_type *howto, bfd *input_bfd,
-       break;
- 
-     case R_OR1K_INSN_REL_26:
-+      value -= place;
-       /* Diagnose mis-aligned branch targets.  */
-       if (value & 3)
- 	status = bfd_reloc_dangerous;
-       break;
-+
-+    case R_OR1K_PCREL_PG21:
-+    case R_OR1K_GOT_PG21:
-+    case R_OR1K_TLS_GD_PG21:
-+    case R_OR1K_TLS_LDM_PG21:
-+    case R_OR1K_TLS_IE_PG21:
-+      value = (value & -8192) - (place & -8192);
-+      break;
-+
-+    case R_OR1K_LO13:
-+    case R_OR1K_GOT_LO13:
-+    case R_OR1K_TLS_GD_LO13:
-+    case R_OR1K_TLS_LDM_LO13:
-+    case R_OR1K_TLS_IE_LO13:
-+    case R_OR1K_SLO13:
-+      value &= 8191;
-+      break;
-+
-+    default:
-+      if (howto->pc_relative)
-+	value -= place;
-+      break;
-     }
- 
-   status = bfd_check_overflow (howto->complain_on_overflow,
-@@ -949,6 +1139,7 @@ or1k_final_link_relocate (reloc_howto_type *howto, bfd *input_bfd,
-     case R_OR1K_SLO16:
-     case R_OR1K_GOTOFF_SLO16:
-     case R_OR1K_TLS_LE_SLO16:
-+    case R_OR1K_SLO13:
-       /* The split imm16 field used for stores.  */
-       x = (x & ~0x3e007ff) | ((value & 0xf800) << 10) | (value & 0x7ff);
-       break;
-@@ -1039,7 +1230,7 @@ or1k_elf_relocate_section (bfd *output_bfd,
-   asection *sreloc;
-   bfd_vma *local_got_offsets;
-   asection *sgot, *splt;
--  bfd_vma plt_base, got_base;
-+  bfd_vma plt_base, got_base, got_sym_value;
-   bfd_boolean ret_val = TRUE;
- 
-   if (htab == NULL)
-@@ -1056,9 +1247,15 @@ or1k_elf_relocate_section (bfd *output_bfd,
-     plt_base = splt->output_section->vma + splt->output_offset;
- 
-   sgot = htab->root.sgot;
--  got_base = 0;
-+  got_sym_value = got_base = 0;
-   if (sgot != NULL)
-+    {
-+      struct elf_link_hash_entry *hgot = htab->root.hgot;
-+      got_sym_value = (hgot->root.u.def.value
-+		       + hgot->root.u.def.section->output_section->vma
-+		       + hgot->root.u.def.section->output_offset);
-     got_base = sgot->output_section->vma + sgot->output_offset;
-+    }
- 
-   symtab_hdr = &elf_tdata (input_bfd)->symtab_hdr;
-   sym_hashes = elf_sym_hashes (input_bfd);
-@@ -1129,13 +1326,12 @@ or1k_elf_relocate_section (bfd *output_bfd,
-       switch (howto->type)
- 	{
- 	case R_OR1K_PLT26:
-+	case R_OR1K_PLTA26:
- 	  /* If the call is not local, redirect the branch to the PLT.
- 	     Otherwise do nothing to send the branch to the symbol direct.  */
--	  if (!SYMBOL_CALLS_LOCAL (info, h))
--	    {
--	      BFD_ASSERT (h->plt.offset != (bfd_vma) -1);
--	      relocation = plt_base + h->plt.offset;
--	    }
-+	  if (!SYMBOL_CALLS_LOCAL (info, h)
-+	      && h->plt.offset != (bfd_vma) -1)
-+	    relocation = plt_base + h->plt.offset;
- 
- 	  /* Addend should be zero.  */
- 	  if (rel->r_addend != 0)
-@@ -1149,13 +1345,17 @@ or1k_elf_relocate_section (bfd *output_bfd,
- 	  break;
- 
- 	case R_OR1K_GOT16:
--	  /* Relocation is to the entry for this symbol in the global
--	     offset table.  */
-+	case R_OR1K_GOT_PG21:
-+	case R_OR1K_GOT_LO13:
-+	  {
-+	    bfd_vma off;
-+
-+	    /* Relocation is to the entry for this symbol
-+	       in the global offset table.  */
- 	  BFD_ASSERT (sgot != NULL);
- 	  if (h != NULL)
- 	    {
- 	      bfd_boolean dyn;
--	      bfd_vma off;
- 
- 	      off = h->got.offset;
- 	      BFD_ASSERT (off != (bfd_vma) -1);
-@@ -1167,14 +1367,13 @@ or1k_elf_relocate_section (bfd *output_bfd,
- 		  || (bfd_link_pic (info)
- 		      && SYMBOL_REFERENCES_LOCAL (info, h)))
- 		{
--		  /* This is actually a static link, or it is a
--		     -Bsymbolic link and the symbol is defined
--		     locally, or the symbol was forced to be local
--		     because of a version file.  We must initialize
--		     this entry in the global offset table.  Since the
--		     offset must always be a multiple of 4, we use the
--		     least significant bit to record whether we have
--		     initialized it already.
-+		    /* This is actually a static link, or it is a -Bsymbolic
-+		       link and the symbol is defined locally, or the symbol
-+		       was forced to be local because of a version file.
-+		       We must initialize this entry in the GOT.  Since the
-+		       offset must always be a multiple of 4, we use the least
-+		       significant bit to record whether we have initialized
-+		       it already.
- 
- 		     When doing a dynamic link, we create a .rela.got
- 		     relocation entry to initialize the value.  This
-@@ -1190,12 +1389,9 @@ or1k_elf_relocate_section (bfd *output_bfd,
- 		      h->got.offset |= 1;
- 		    }
- 		}
--
--	      relocation = sgot->output_offset + off;
- 	    }
- 	  else
- 	    {
--	      bfd_vma off;
- 	      bfd_byte *loc;
- 
- 	      BFD_ASSERT (local_got_offsets != NULL
-@@ -1220,23 +1416,28 @@ or1k_elf_relocate_section (bfd *output_bfd,
- 
- 		      /* We need to generate a R_OR1K_RELATIVE reloc
- 			 for the dynamic linker.  */
--		      srelgot = htab->root.srelgot;
-+			srelgot = bfd_get_section_by_name (dynobj, ".rela.got");
- 		      BFD_ASSERT (srelgot != NULL);
- 
- 		      outrel.r_offset = got_base + off;
- 		      outrel.r_info = ELF32_R_INFO (0, R_OR1K_RELATIVE);
- 		      outrel.r_addend = relocation;
- 		      loc = srelgot->contents;
--		      loc += srelgot->reloc_count * sizeof (Elf32_External_Rela);
-+			loc += (srelgot->reloc_count
-+				* sizeof (Elf32_External_Rela));
- 		      bfd_elf32_swap_reloca_out (output_bfd, &outrel,loc);
- 		      ++srelgot->reloc_count;
- 		    }
--
- 		  local_got_offsets[r_symndx] |= 1;
- 		}
--	      relocation = sgot->output_offset + off;
- 	    }
- 
-+	    /* The GOT_PG21 and GOT_LO13 relocs are pc-relative,
-+	       while the GOT16 reloc is GOT relative.  */
-+	    relocation = got_base + off;
-+	    if (r_type == R_OR1K_GOT16)
-+	      relocation -= got_sym_value;
-+
- 	  /* Addend should be zero.  */
- 	  if (rel->r_addend != 0)
- 	    {
-@@ -1246,6 +1447,7 @@ or1k_elf_relocate_section (bfd *output_bfd,
- 	      bfd_set_error (bfd_error_bad_value);
- 	      ret_val = FALSE;
- 	    }
-+	  }
- 	  break;
- 
- 	case R_OR1K_GOTOFF_LO16:
-@@ -1262,10 +1464,13 @@ or1k_elf_relocate_section (bfd *output_bfd,
- 	      ret_val = FALSE;
- 	      bfd_set_error (bfd_error_bad_value);
- 	    }
--	  relocation -= got_base;
-+	  relocation -= got_sym_value;
- 	  break;
- 
- 	case R_OR1K_INSN_REL_26:
-+	case R_OR1K_PCREL_PG21:
-+	case R_OR1K_LO13:
-+	case R_OR1K_SLO13:
- 	  /* For a non-shared link, these will reference either the plt
- 	     or a .dynbss copy of the symbol.  */
- 	  if (bfd_link_pic (info) && !SYMBOL_REFERENCES_LOCAL (info, h))
-@@ -1362,6 +1567,8 @@ or1k_elf_relocate_section (bfd *output_bfd,
- 
- 	case R_OR1K_TLS_LDM_HI16:
- 	case R_OR1K_TLS_LDM_LO16:
-+	case R_OR1K_TLS_LDM_PG21:
-+	case R_OR1K_TLS_LDM_LO13:
- 	case R_OR1K_TLS_LDO_HI16:
- 	case R_OR1K_TLS_LDO_LO16:
- 	  /* TODO: implement support for local dynamic.  */
-@@ -1374,8 +1581,12 @@ or1k_elf_relocate_section (bfd *output_bfd,
- 
- 	case R_OR1K_TLS_GD_HI16:
- 	case R_OR1K_TLS_GD_LO16:
-+	case R_OR1K_TLS_GD_PG21:
-+	case R_OR1K_TLS_GD_LO13:
- 	case R_OR1K_TLS_IE_HI16:
- 	case R_OR1K_TLS_IE_LO16:
-+	case R_OR1K_TLS_IE_PG21:
-+	case R_OR1K_TLS_IE_LO13:
- 	case R_OR1K_TLS_IE_AHI16:
- 	  {
- 	    bfd_vma gotoff;
-@@ -1417,8 +1628,11 @@ or1k_elf_relocate_section (bfd *output_bfd,
- 		  && (h->root.type == bfd_link_hash_defweak || !h->def_regular));
- 
- 	    /* Shared GD.  */
--	    if (dynamic && (howto->type == R_OR1K_TLS_GD_HI16
--			    || howto->type == R_OR1K_TLS_GD_LO16))
-+	    if (dynamic
-+		&& (howto->type == R_OR1K_TLS_GD_HI16
-+		    || howto->type == R_OR1K_TLS_GD_LO16
-+		    || howto->type == R_OR1K_TLS_GD_PG21
-+		    || howto->type == R_OR1K_TLS_GD_LO13))
- 	      {
- 		int i;
- 
-@@ -1449,7 +1663,9 @@ or1k_elf_relocate_section (bfd *output_bfd,
- 	      }
- 	    /* Static GD.  */
- 	    else if (howto->type == R_OR1K_TLS_GD_HI16
--		     || howto->type == R_OR1K_TLS_GD_LO16)
-+		     || howto->type == R_OR1K_TLS_GD_LO16
-+		     || howto->type == R_OR1K_TLS_GD_PG21
-+		     || howto->type == R_OR1K_TLS_GD_LO13)
- 	      {
- 		bfd_put_32 (output_bfd, 1, sgot->contents + gotoff);
- 		bfd_put_32 (output_bfd, tpoff (info, relocation),
-@@ -1483,9 +1699,17 @@ or1k_elf_relocate_section (bfd *output_bfd,
- 		bfd_put_32 (output_bfd, tpoff (info, relocation),
- 			    sgot->contents + gotoff);
- 	      }
--	    relocation = sgot->output_offset + gotoff;
--	    break;
-+
-+	    /* The PG21 and LO13 relocs are pc-relative, while the
-+	       rest are GOT relative.  */
-+	    relocation = got_base + gotoff;
-+	    if (!(r_type == R_OR1K_TLS_GD_PG21
-+		  || r_type == R_OR1K_TLS_GD_LO13
-+		  || r_type == R_OR1K_TLS_IE_PG21
-+		  || r_type == R_OR1K_TLS_IE_LO13))
-+	      relocation -= got_sym_value;
- 	  }
-+	  break;
- 
- 	case R_OR1K_TLS_LE_HI16:
- 	case R_OR1K_TLS_LE_LO16:
-@@ -1640,16 +1864,22 @@ or1k_elf_check_relocs (bfd *abfd,
- 	{
- 	case R_OR1K_TLS_GD_HI16:
- 	case R_OR1K_TLS_GD_LO16:
-+	case R_OR1K_TLS_GD_PG21:
-+	case R_OR1K_TLS_GD_LO13:
- 	  tls_type = TLS_GD;
- 	  break;
- 	case R_OR1K_TLS_LDM_HI16:
- 	case R_OR1K_TLS_LDM_LO16:
-+	case R_OR1K_TLS_LDM_PG21:
-+	case R_OR1K_TLS_LDM_LO13:
- 	case R_OR1K_TLS_LDO_HI16:
- 	case R_OR1K_TLS_LDO_LO16:
- 	  tls_type = TLS_LD;
- 	  break;
- 	case R_OR1K_TLS_IE_HI16:
- 	case R_OR1K_TLS_IE_LO16:
-+	case R_OR1K_TLS_IE_PG21:
-+	case R_OR1K_TLS_IE_LO13:
- 	case R_OR1K_TLS_IE_AHI16:
- 	  tls_type = TLS_IE;
- 	  break;
-@@ -1704,6 +1934,9 @@ or1k_elf_check_relocs (bfd *abfd,
- 	  break;
- 
- 	  /* This relocation requires .plt entry.  */
-+	case R_OR1K_PLTA26:
-+	  htab->saw_plta = TRUE;
-+	  /* FALLTHRU */
- 	case R_OR1K_PLT26:
- 	  if (h != NULL)
- 	    {
-@@ -1713,10 +1946,16 @@ or1k_elf_check_relocs (bfd *abfd,
- 	  break;
- 
- 	case R_OR1K_GOT16:
-+	case R_OR1K_GOT_PG21:
-+	case R_OR1K_GOT_LO13:
- 	case R_OR1K_TLS_GD_HI16:
- 	case R_OR1K_TLS_GD_LO16:
-+	case R_OR1K_TLS_GD_PG21:
-+	case R_OR1K_TLS_GD_LO13:
- 	case R_OR1K_TLS_IE_HI16:
- 	case R_OR1K_TLS_IE_LO16:
-+	case R_OR1K_TLS_IE_PG21:
-+	case R_OR1K_TLS_IE_LO13:
- 	case R_OR1K_TLS_IE_AHI16:
- 	      if (h != NULL)
- 		h->got.refcount += 1;
-@@ -1760,6 +1999,9 @@ or1k_elf_check_relocs (bfd *abfd,
- 	case R_OR1K_AHI16:
- 	case R_OR1K_SLO16:
- 	case R_OR1K_32:
-+	case R_OR1K_PCREL_PG21:
-+	case R_OR1K_LO13:
-+	case R_OR1K_SLO13:
- 	  {
- 	    if (h != NULL && !bfd_link_pic (info))
- 	      {
-@@ -1903,6 +2145,36 @@ or1k_elf_check_relocs (bfd *abfd,
-   return TRUE;
- }
- 
-+static void
-+or1k_write_plt_entry (bfd *output_bfd, bfd_byte *contents, unsigned insn1,
-+		      unsigned insn2, unsigned insn3, unsigned insnj)
-+{
-+  unsigned nodelay = elf_elfheader (output_bfd)->e_flags & EF_OR1K_NODELAY;
-+  unsigned insn4;
-+
-+  /* Honor the no-delay-slot setting.  */
-+  if (insn3 == OR1K_NOP)
-+    {
-+      insn4 = insn3;
-+      if (nodelay)
-+	insn3 = insnj;
-+      else
-+	insn3 = insn2, insn2 = insnj;
-+    }
-+  else
-+    {
-+      if (nodelay)
-+	insn4 = insnj;
-+      else
-+	insn4 = insn3, insn3 = insnj;
-+    }
-+
-+  bfd_put_32 (output_bfd, insn1, contents);
-+  bfd_put_32 (output_bfd, insn2, contents + 4);
-+  bfd_put_32 (output_bfd, insn3, contents + 8);
-+  bfd_put_32 (output_bfd, insn4, contents + 12);
-+}
-+
- /* Finish up the dynamic sections.  */
- 
- static bfd_boolean
-@@ -1967,35 +2239,39 @@ or1k_elf_finish_dynamic_sections (bfd *output_bfd,
-       splt = htab->root.splt;
-       if (splt && splt->size > 0)
- 	{
--	  if (bfd_link_pic (info))
-+	  unsigned plt0, plt1, plt2;
-+	  bfd_vma got_addr = sgot->output_section->vma + sgot->output_offset;
-+
-+	  /* Note we force 16 byte alignment on the .got, so that
-+	     the movhi/adrp can be shared between the two loads.  */
-+
-+	  if (htab->saw_plta)
- 	    {
--	      bfd_put_32 (output_bfd, PLT0_PIC_ENTRY_WORD0,
--			  splt->contents);
--	      bfd_put_32 (output_bfd, PLT0_PIC_ENTRY_WORD1,
--			  splt->contents + 4);
--	      bfd_put_32 (output_bfd, PLT0_PIC_ENTRY_WORD2,
--			  splt->contents + 8);
--	      bfd_put_32 (output_bfd, PLT0_PIC_ENTRY_WORD3,
--			  splt->contents + 12);
--	      bfd_put_32 (output_bfd, PLT0_PIC_ENTRY_WORD4,
--			  splt->contents + 16);
-+	      bfd_vma pc = splt->output_section->vma + splt->output_offset;
-+	      unsigned pa = ((got_addr >> 13) - (pc >> 13)) & 0x1fffff;
-+	      unsigned po = got_addr & 0x1fff;
-+	      plt0 = OR1K_ADRP(12) | pa;
-+	      plt1 = OR1K_LWZ(15,12) | (po + 8);
-+	      plt2 = OR1K_LWZ(12,12) | (po + 4);
-+	    }
-+	  else if (bfd_link_pic (info))
-+	    {
-+	      plt0 = OR1K_LWZ(15, 16) | 8;	/* .got+8 */
-+	      plt1 = OR1K_LWZ(12, 16) | 4;	/* .got+4 */
-+	      plt2 = OR1K_NOP;
- 	    }
- 	  else
- 	    {
--	      unsigned long addr;
--	      /* addr = .got + 4 */
--	      addr = sgot->output_section->vma + sgot->output_offset + 4;
--	      bfd_put_32 (output_bfd,
--			  PLT0_ENTRY_WORD0 | ((addr >> 16) & 0xffff),
--			  splt->contents);
--	      bfd_put_32 (output_bfd,
--			  PLT0_ENTRY_WORD1 | (addr & 0xffff),
--			  splt->contents + 4);
--	      bfd_put_32 (output_bfd, PLT0_ENTRY_WORD2, splt->contents + 8);
--	      bfd_put_32 (output_bfd, PLT0_ENTRY_WORD3, splt->contents + 12);
--	      bfd_put_32 (output_bfd, PLT0_ENTRY_WORD4, splt->contents + 16);
-+	      unsigned ha = ((got_addr + 0x8000) >> 16) & 0xffff;
-+	      unsigned lo = got_addr & 0xffff;
-+	      plt0 = OR1K_MOVHI(12) | ha;
-+	      plt1 = OR1K_LWZ(15,12) | (lo + 8);
-+	      plt2 = OR1K_LWZ(12,12) | (lo + 4);
- 	    }
- 
-+	  or1k_write_plt_entry (output_bfd, splt->contents,
-+				plt0, plt1, plt2, OR1K_JR(15));
-+
- 	  elf_section_data (splt->output_section)->this_hdr.sh_entsize = 4;
- 	}
-     }
-@@ -2037,11 +2313,15 @@ or1k_elf_finish_dynamic_symbol (bfd *output_bfd,
- 
-   if (h->plt.offset != (bfd_vma) -1)
-     {
-+      unsigned int plt0, plt1, plt2;
-       asection *splt;
-       asection *sgot;
-       asection *srela;
--
-+      bfd_vma plt_base_addr;
-+      bfd_vma plt_addr;
-       bfd_vma plt_index;
-+      bfd_vma plt_reloc;
-+      bfd_vma got_base_addr;
-       bfd_vma got_offset;
-       bfd_vma got_addr;
-       Elf_Internal_Rela rela;
-@@ -2055,60 +2335,55 @@ or1k_elf_finish_dynamic_symbol (bfd *output_bfd,
-       srela = htab->root.srelplt;
-       BFD_ASSERT (splt != NULL && sgot != NULL && srela != NULL);
- 
-+      plt_base_addr = splt->output_section->vma + splt->output_offset;
-+      got_base_addr = sgot->output_section->vma + sgot->output_offset;
-+
-       /* Get the index in the procedure linkage table which
- 	 corresponds to this symbol.  This is the index of this symbol
- 	 in all the symbols for which we are making plt entries.  The
- 	 first entry in the procedure linkage table is reserved.  */
-       plt_index = h->plt.offset / PLT_ENTRY_SIZE - 1;
-+      plt_addr = plt_base_addr + h->plt.offset;
-+      plt_reloc = plt_index * sizeof (Elf32_External_Rela);
- 
-       /* Get the offset into the .got table of the entry that
- 	corresponds to this function.  Each .got entry is 4 bytes.
- 	The first three are reserved.  */
-       got_offset = (plt_index + 3) * 4;
--      got_addr = got_offset;
-+      got_addr = got_base_addr + got_offset;
- 
-       /* Fill in the entry in the procedure linkage table.  */
--      if (! bfd_link_pic (info))
-+      if (htab->saw_plta)
- 	{
--	  got_addr += htab->root.sgotplt->output_section->vma
--	    + htab->root.sgotplt->output_offset;
--	  bfd_put_32 (output_bfd, PLT_ENTRY_WORD0 | ((got_addr >> 16) & 0xffff),
--		      splt->contents + h->plt.offset);
--	  bfd_put_32 (output_bfd, PLT_ENTRY_WORD1 | (got_addr & 0xffff),
--		      splt->contents + h->plt.offset + 4);
--	  bfd_put_32 (output_bfd, (bfd_vma) PLT_ENTRY_WORD2,
--		      splt->contents + h->plt.offset + 8);
--	  bfd_put_32 (output_bfd, (bfd_vma) PLT_ENTRY_WORD3,
--		      splt->contents + h->plt.offset + 12);
--	  bfd_put_32 (output_bfd, PLT_ENTRY_WORD4
--		      | plt_index * sizeof (Elf32_External_Rela),
--		      splt->contents + h->plt.offset + 16);
-+	  unsigned pa = ((got_addr >> 13) - (plt_addr >> 13)) & 0x1fffff;
-+	  unsigned po = (got_addr & 0x1fff);
-+	  plt0 = OR1K_ADRP(12) | pa;
-+	  plt1 = OR1K_LWZ(12,12) | po;
-+	  plt2 = OR1K_ORI0(11) | plt_reloc;
-+	}
-+      else if (bfd_link_pic (info))
-+	{
-+	  plt0 = OR1K_LWZ(12,16) | got_offset;
-+	  plt1 = OR1K_ORI0(11) | plt_reloc;
-+	  plt2 = OR1K_NOP;
- 	}
-       else
- 	{
--	  bfd_put_32 (output_bfd, PLT_PIC_ENTRY_WORD0 | (got_addr & 0xffff),
--		      splt->contents + h->plt.offset);
--	  bfd_put_32 (output_bfd, PLT_PIC_ENTRY_WORD1
--		      | plt_index * sizeof (Elf32_External_Rela),
--		      splt->contents + h->plt.offset + 4);
--	  bfd_put_32 (output_bfd, (bfd_vma) PLT_PIC_ENTRY_WORD2,
--		      splt->contents + h->plt.offset + 8);
--	  bfd_put_32 (output_bfd, (bfd_vma) PLT_PIC_ENTRY_WORD3,
--		      splt->contents + h->plt.offset + 12);
--	  bfd_put_32 (output_bfd, (bfd_vma) PLT_PIC_ENTRY_WORD4,
--		      splt->contents + h->plt.offset + 16);
-+	  unsigned ha = ((got_addr + 0x8000) >> 16) & 0xffff;
-+	  unsigned lo = got_addr & 0xffff;
-+	  plt0 = OR1K_MOVHI(12) | ha;
-+	  plt1 = OR1K_LWZ(12,12) | lo;
-+	  plt2 = OR1K_ORI0(11) | plt_reloc;
- 	}
- 
-+      or1k_write_plt_entry (output_bfd, splt->contents + h->plt.offset,
-+			    plt0, plt1, plt2, OR1K_JR(12));
-+
-       /* Fill in the entry in the global offset table.  */
--      bfd_put_32 (output_bfd,
--		  (splt->output_section->vma
--		   + splt->output_offset), /* Same offset.  */
--		  sgot->contents + got_offset);
-+      bfd_put_32 (output_bfd, plt_addr, sgot->contents + got_offset);
- 
-       /* Fill in the entry in the .rela.plt section.  */
--      rela.r_offset = (sgot->output_section->vma
--		       + sgot->output_offset
--		       + got_offset);
-+      rela.r_offset = got_addr;
-       rela.r_info = ELF32_R_INFO (h->dynindx, R_OR1K_JMP_SLOT);
-       rela.r_addend = 0;
-       loc = srela->contents;
-@@ -2121,7 +2396,6 @@ or1k_elf_finish_dynamic_symbol (bfd *output_bfd,
- 	     the .plt section.  Leave the value alone.  */
- 	  sym->st_shndx = SHN_UNDEF;
- 	}
--
-     }
- 
-   if (h->got.offset != (bfd_vma) -1
-diff --git a/bfd/libbfd.h b/bfd/libbfd.h
-index 6cb0caef7e..a8851c8026 100644
---- a/bfd/libbfd.h
-+++ b/bfd/libbfd.h
-@@ -2665,10 +2665,16 @@ static const char *const bfd_reloc_code_real_names[] = { "@@uninitialized@@",
-   "BFD_RELOC_CRIS_32_IE",
-   "BFD_RELOC_OR1K_REL_26",
-   "BFD_RELOC_OR1K_SLO16",
-+  "BFD_RELOC_OR1K_PCREL_PG21",
-+  "BFD_RELOC_OR1K_LO13",
-+  "BFD_RELOC_OR1K_SLO13",
-   "BFD_RELOC_OR1K_GOTPC_HI16",
-   "BFD_RELOC_OR1K_GOTPC_LO16",
-   "BFD_RELOC_OR1K_GOT16",
-+  "BFD_RELOC_OR1K_GOT_PG21",
-+  "BFD_RELOC_OR1K_GOT_LO13",
-   "BFD_RELOC_OR1K_PLT26",
-+  "BFD_RELOC_OR1K_PLTA26",
-   "BFD_RELOC_OR1K_GOTOFF_SLO16",
-   "BFD_RELOC_OR1K_COPY",
-   "BFD_RELOC_OR1K_GLOB_DAT",
-@@ -2676,13 +2682,19 @@ static const char *const bfd_reloc_code_real_names[] = { "@@uninitialized@@",
-   "BFD_RELOC_OR1K_RELATIVE",
-   "BFD_RELOC_OR1K_TLS_GD_HI16",
-   "BFD_RELOC_OR1K_TLS_GD_LO16",
-+  "BFD_RELOC_OR1K_TLS_GD_PG21",
-+  "BFD_RELOC_OR1K_TLS_GD_LO13",
-   "BFD_RELOC_OR1K_TLS_LDM_HI16",
-   "BFD_RELOC_OR1K_TLS_LDM_LO16",
-+  "BFD_RELOC_OR1K_TLS_LDM_PG21",
-+  "BFD_RELOC_OR1K_TLS_LDM_LO13",
-   "BFD_RELOC_OR1K_TLS_LDO_HI16",
-   "BFD_RELOC_OR1K_TLS_LDO_LO16",
-   "BFD_RELOC_OR1K_TLS_IE_HI16",
-   "BFD_RELOC_OR1K_TLS_IE_AHI16",
-   "BFD_RELOC_OR1K_TLS_IE_LO16",
-+  "BFD_RELOC_OR1K_TLS_IE_PG21",
-+  "BFD_RELOC_OR1K_TLS_IE_LO13",
-   "BFD_RELOC_OR1K_TLS_LE_HI16",
-   "BFD_RELOC_OR1K_TLS_LE_AHI16",
-   "BFD_RELOC_OR1K_TLS_LE_LO16",
-diff --git a/bfd/reloc.c b/bfd/reloc.c
-index 353a240477..8dbb8896d3 100644
---- a/bfd/reloc.c
-+++ b/bfd/reloc.c
-@@ -6147,14 +6147,26 @@ ENUM
-   BFD_RELOC_OR1K_REL_26
- ENUMX
-   BFD_RELOC_OR1K_SLO16
-+ENUMX
-+  BFD_RELOC_OR1K_PCREL_PG21
-+ENUMX
-+  BFD_RELOC_OR1K_LO13
-+ENUMX
-+  BFD_RELOC_OR1K_SLO13
- ENUMX
-   BFD_RELOC_OR1K_GOTPC_HI16
- ENUMX
-   BFD_RELOC_OR1K_GOTPC_LO16
- ENUMX
-   BFD_RELOC_OR1K_GOT16
-+ENUMX
-+  BFD_RELOC_OR1K_GOT_PG21
-+ENUMX
-+  BFD_RELOC_OR1K_GOT_LO13
- ENUMX
-   BFD_RELOC_OR1K_PLT26
-+ENUMX
-+  BFD_RELOC_OR1K_PLTA26
- ENUMX
-   BFD_RELOC_OR1K_GOTOFF_SLO16
- ENUMX
-@@ -6169,10 +6181,18 @@ ENUMX
-   BFD_RELOC_OR1K_TLS_GD_HI16
- ENUMX
-   BFD_RELOC_OR1K_TLS_GD_LO16
-+ENUMX
-+  BFD_RELOC_OR1K_TLS_GD_PG21
-+ENUMX
-+  BFD_RELOC_OR1K_TLS_GD_LO13
- ENUMX
-   BFD_RELOC_OR1K_TLS_LDM_HI16
- ENUMX
-   BFD_RELOC_OR1K_TLS_LDM_LO16
-+ENUMX
-+  BFD_RELOC_OR1K_TLS_LDM_PG21
-+ENUMX
-+  BFD_RELOC_OR1K_TLS_LDM_LO13
- ENUMX
-   BFD_RELOC_OR1K_TLS_LDO_HI16
- ENUMX
-@@ -6183,6 +6203,10 @@ ENUMX
-   BFD_RELOC_OR1K_TLS_IE_AHI16
- ENUMX
-   BFD_RELOC_OR1K_TLS_IE_LO16
-+ENUMX
-+  BFD_RELOC_OR1K_TLS_IE_PG21
-+ENUMX
-+  BFD_RELOC_OR1K_TLS_IE_LO13
- ENUMX
-   BFD_RELOC_OR1K_TLS_LE_HI16
- ENUMX
-diff --git a/cpu/or1k.opc b/cpu/or1k.opc
-index 1d55fbc284..5082a30cee 100644
---- a/cpu/or1k.opc
-+++ b/cpu/or1k.opc
-@@ -57,156 +57,251 @@ static const char *
- parse_disp26 (CGEN_CPU_DESC cd,
- 	      const char ** strp,
- 	      int opindex,
--	      int opinfo,
-+	      int opinfo ATTRIBUTE_UNUSED,
- 	      enum cgen_parse_operand_result * resultp,
- 	      bfd_vma * valuep)
- {
-+  const char *str = *strp;
-   const char *errmsg = NULL;
--  enum cgen_parse_operand_result result_type;
-+  bfd_reloc_code_real_type reloc = BFD_RELOC_OR1K_REL_26;
- 
--  if (strncasecmp (*strp, "plt(", 4) == 0)
-+  if (strncasecmp (str, "plta(", 5) == 0)
-     {
--      bfd_vma value;
-+      *strp = str + 5;
-+      reloc = BFD_RELOC_OR1K_PLTA26;
-+    }
-+  else if (strncasecmp (str, "plt(", 4) == 0)
-+    {
-+      *strp = str + 4;
-+      reloc = BFD_RELOC_OR1K_PLT26;
-+    }
- 
--      *strp += 4;
--      errmsg = cgen_parse_address (cd, strp, opindex, BFD_RELOC_OR1K_PLT26,
--				   & result_type, & value);
-+  errmsg = cgen_parse_address (cd, strp, opindex, reloc, resultp, valuep);
-+
-+  if (reloc != BFD_RELOC_OR1K_REL_26)
-+    {
-       if (**strp != ')')
--	return MISSING_CLOSING_PARENTHESIS;
--      ++*strp;
--      if (errmsg == NULL
--	  && result_type == CGEN_PARSE_OPERAND_RESULT_NUMBER)
--	value = (value >> 2) & 0xffff;
--      *valuep = value;
--      return errmsg;
-+	errmsg = MISSING_CLOSING_PARENTHESIS;
-+      else
-+	++*strp;
-     }
--  return cgen_parse_address (cd, strp, opindex, opinfo, resultp, valuep);
-+
-+  return errmsg;
- }
- 
--enum
-+static const char *
-+parse_disp21 (CGEN_CPU_DESC cd,
-+	      const char ** strp,
-+	      int opindex,
-+	      int opinfo ATTRIBUTE_UNUSED,
-+	      enum cgen_parse_operand_result * resultp,
-+	      bfd_vma * valuep)
-+{
-+  const char *str = *strp;
-+  const char *errmsg = NULL;
-+  bfd_reloc_code_real_type reloc = BFD_RELOC_OR1K_PCREL_PG21;
-+
-+  if (strncasecmp (str, "got(", 4) == 0)
-+    {
-+      *strp = str + 4;
-+      reloc = BFD_RELOC_OR1K_GOT_PG21;
-+    }
-+  else if (strncasecmp (str, "tlsgd(", 6) == 0)
-+    {
-+      *strp = str + 6;
-+      reloc = BFD_RELOC_OR1K_TLS_GD_PG21;
-+    }
-+  else if (strncasecmp (str, "tlsldm(", 7) == 0)
-+    {
-+      *strp = str + 7;
-+      reloc = BFD_RELOC_OR1K_TLS_LDM_PG21;
-+    }
-+  else if (strncasecmp (str, "gottp(", 6) == 0)
-+    {
-+      *strp = str + 6;
-+      reloc = BFD_RELOC_OR1K_TLS_IE_PG21;
-+    }
-+
-+  errmsg = cgen_parse_address (cd, strp, opindex, reloc, resultp, valuep);
-+
-+  if (reloc != BFD_RELOC_OR1K_PCREL_PG21)
-+    {
-+      if (**strp != ')')
-+	errmsg = MISSING_CLOSING_PARENTHESIS;
-+      else
-+	++*strp;
-+    }
-+
-+  return errmsg;
-+}
-+
-+enum or1k_rclass
-+{
-+  RCLASS_DIRECT   = 0,
-+  RCLASS_GOT      = 1,
-+  RCLASS_GOTPC    = 2,
-+  RCLASS_GOTOFF   = 3,
-+  RCLASS_TLSGD    = 4,
-+  RCLASS_TLSLDM   = 5,
-+  RCLASS_DTPOFF   = 6,
-+  RCLASS_GOTTPOFF = 7,
-+  RCLASS_TPOFF    = 8,
-+};
-+
-+enum or1k_rtype
- {
-   RTYPE_LO = 0,
--  RTYPE_HI = 1,
--  RTYPE_AHI = 2,
--  RTYPE_SLO = 3,
--
--  RTYPE_GOT      = (1 << 2),
--  RTYPE_GOTPC    = (2 << 2),
--  RTYPE_GOTOFF   = (3 << 2),
--  RTYPE_TLSGD    = (4 << 2),
--  RTYPE_TLSLDM   = (5 << 2),
--  RTYPE_DTPOFF   = (6 << 2),
--  RTYPE_GOTTPOFF = (7 << 2),
--  RTYPE_TPOFF    = (8 << 2),
-+  RTYPE_SLO = 1,
-+  RTYPE_PO = 2,
-+  RTYPE_SPO = 3,
-+  RTYPE_HI = 4,
-+  RTYPE_AHI = 5,
- };
- 
--static const bfd_reloc_code_real_type or1k_imm16_relocs[][4] = {
-+#define RCLASS_SHIFT 3
-+#define RTYPE_MASK   7
-+
-+static const bfd_reloc_code_real_type or1k_imm16_relocs[][6] = {
-   { BFD_RELOC_LO16,
-+    BFD_RELOC_OR1K_SLO16,
-+    BFD_RELOC_OR1K_LO13,
-+    BFD_RELOC_OR1K_SLO13,
-     BFD_RELOC_HI16,
--    BFD_RELOC_HI16_S,
--    BFD_RELOC_OR1K_SLO16 },
-+    BFD_RELOC_HI16_S, },
-   { BFD_RELOC_OR1K_GOT16,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_OR1K_GOT_LO13,
-     BFD_RELOC_UNUSED,
-     BFD_RELOC_UNUSED,
-     BFD_RELOC_UNUSED },
-   { BFD_RELOC_OR1K_GOTPC_LO16,
--    BFD_RELOC_OR1K_GOTPC_HI16,
-     BFD_RELOC_UNUSED,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_OR1K_GOTPC_HI16,
-     BFD_RELOC_UNUSED },
-   { BFD_RELOC_LO16_GOTOFF,
-+    BFD_RELOC_OR1K_GOTOFF_SLO16,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_UNUSED,
-     BFD_RELOC_HI16_GOTOFF,
--    BFD_RELOC_HI16_S_GOTOFF,
--    BFD_RELOC_OR1K_GOTOFF_SLO16 },
-+    BFD_RELOC_HI16_S_GOTOFF },
-   { BFD_RELOC_OR1K_TLS_GD_LO16,
--    BFD_RELOC_OR1K_TLS_GD_HI16,
-     BFD_RELOC_UNUSED,
-+    BFD_RELOC_OR1K_TLS_GD_LO13,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_OR1K_TLS_GD_HI16,
-     BFD_RELOC_UNUSED },
-   { BFD_RELOC_OR1K_TLS_LDM_LO16,
--    BFD_RELOC_OR1K_TLS_LDM_HI16,
-     BFD_RELOC_UNUSED,
-+    BFD_RELOC_OR1K_TLS_LDM_LO13,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_OR1K_TLS_LDM_HI16,
-     BFD_RELOC_UNUSED },
-   { BFD_RELOC_OR1K_TLS_LDO_LO16,
--    BFD_RELOC_OR1K_TLS_LDO_HI16,
-     BFD_RELOC_UNUSED,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_OR1K_TLS_LDO_HI16,
-     BFD_RELOC_UNUSED },
-   { BFD_RELOC_OR1K_TLS_IE_LO16,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_OR1K_TLS_IE_LO13,
-+    BFD_RELOC_UNUSED,
-     BFD_RELOC_OR1K_TLS_IE_HI16,
--    BFD_RELOC_OR1K_TLS_IE_AHI16,
--    BFD_RELOC_UNUSED },
-+    BFD_RELOC_OR1K_TLS_IE_AHI16 },
-   { BFD_RELOC_OR1K_TLS_LE_LO16,
-+    BFD_RELOC_OR1K_TLS_LE_SLO16,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_UNUSED,
-     BFD_RELOC_OR1K_TLS_LE_HI16,
--    BFD_RELOC_OR1K_TLS_LE_AHI16,
--    BFD_RELOC_OR1K_TLS_LE_SLO16 }
-+    BFD_RELOC_OR1K_TLS_LE_AHI16 },
- };
- 
- static int
- parse_reloc (const char **strp)
- {
-     const char *str = *strp;
--    int ret = 0;
-+    enum or1k_rclass cls = RCLASS_DIRECT;
-+    enum or1k_rtype typ;
- 
-     if (strncasecmp (str, "got(", 4) == 0)
-       {
- 	*strp = str + 4;
--	return RTYPE_GOT | RTYPE_LO;
-+	return (RCLASS_GOT << RCLASS_SHIFT) | RTYPE_LO;
-+      }
-+    if (strncasecmp (str, "gotpo(", 6) == 0)
-+      {
-+	*strp = str + 6;
-+	return (RCLASS_GOT << RCLASS_SHIFT) | RTYPE_PO;
-+      }
-+    if (strncasecmp (str, "gottppo(", 8) == 0)
-+      {
-+	*strp = str + 8;
-+	return (RCLASS_GOTTPOFF << RCLASS_SHIFT) | RTYPE_PO;
-       }
- 
-     if (strncasecmp (str, "gotpc", 5) == 0)
-       {
- 	str += 5;
--	ret = RTYPE_GOTPC;
-+	cls = RCLASS_GOTPC;
-       }
-     else if (strncasecmp (str, "gotoff", 6) == 0)
-       {
- 	str += 6;
--	ret = RTYPE_GOTOFF;
-+	cls = RCLASS_GOTOFF;
-       }
-     else if (strncasecmp (str, "tlsgd", 5) == 0)
-       {
- 	str += 5;
--	ret = RTYPE_TLSGD;
-+	cls = RCLASS_TLSGD;
-       }
-     else if (strncasecmp (str, "tlsldm", 6) == 0)
-       {
- 	str += 6;
--	ret = RTYPE_TLSLDM;
-+	cls = RCLASS_TLSLDM;
-       }
-     else if (strncasecmp (str, "dtpoff", 6) == 0)
-       {
- 	str += 6;
--	ret = RTYPE_DTPOFF;
-+	cls = RCLASS_DTPOFF;
-       }
-     else if (strncasecmp (str, "gottpoff", 8) == 0)
-       {
- 	str += 8;
--	ret = RTYPE_GOTTPOFF;
-+	cls = RCLASS_GOTTPOFF;
-       }
-     else if (strncasecmp (str, "tpoff", 5) == 0)
-       {
- 	str += 5;
--	ret = RTYPE_TPOFF;
-+	cls = RCLASS_TPOFF;
-       }
- 
-     if (strncasecmp (str, "hi(", 3) == 0)
-       {
- 	str += 3;
--	ret |= RTYPE_HI;
-+	typ = RTYPE_HI;
-       }
-     else if (strncasecmp (str, "lo(", 3) == 0)
-       {
- 	str += 3;
--	ret |= RTYPE_LO;
-+	typ = RTYPE_LO;
-       }
-     else if (strncasecmp (str, "ha(", 3) == 0)
-       {
- 	str += 3;
--	ret |= RTYPE_AHI;
-+	typ = RTYPE_AHI;
-+      }
-+    else if (strncasecmp (str, "po(", 3) == 0 && cls != RCLASS_GOTTPOFF)
-+      {
-+	str += 3;
-+	typ = RTYPE_PO;
-       }
-     else
-       return -1;
- 
-     *strp = str;
--    return ret;
-+    return (cls << RCLASS_SHIFT) | typ;
- }
- 
- static const char *
-@@ -216,23 +311,28 @@ parse_imm16 (CGEN_CPU_DESC cd, const char **strp, int opindex,
-   const char *errmsg;
-   enum cgen_parse_operand_result result_type;
-   bfd_reloc_code_real_type reloc = BFD_RELOC_UNUSED;
--  int reloc_type;
-+  enum or1k_rtype reloc_type;
-+  int reloc_code;
-   bfd_vma ret;
- 
-   if (**strp == '#')
-     ++*strp;
- 
--  reloc_type = parse_reloc (strp);
--  if (reloc_type >= 0)
-+  reloc_code = parse_reloc (strp);
-+  reloc_type = reloc_code & RTYPE_MASK;
-+  if (reloc_code >= 0)
-     {
-+      enum or1k_rclass reloc_class = reloc_code >> RCLASS_SHIFT;
-       if (splitp)
- 	{
--	  if ((reloc_type & 3) == RTYPE_LO && reloc_type != RTYPE_GOT)
--	    reloc_type |= RTYPE_SLO;
-+	  if ((reloc_type == RTYPE_LO || reloc_type == RTYPE_PO)
-+	      && reloc_class != RCLASS_GOT)
-+	    /* If split we or up the type to RTYPE_SLO or RTYPE_SPO.  */
-+	    reloc_type |= 1;
- 	  else
- 	    return INVALID_STORE_RELOC;
- 	}
--      reloc = or1k_imm16_relocs[reloc_type >> 2][reloc_type & 3];
-+      reloc = or1k_imm16_relocs[reloc_class][reloc_type];
-     }
- 
-   if (reloc != BFD_RELOC_UNUSED)
-@@ -248,7 +348,7 @@ parse_imm16 (CGEN_CPU_DESC cd, const char **strp, int opindex,
-       ret = value;
- 
-       if (errmsg == NULL && result_type == CGEN_PARSE_OPERAND_RESULT_NUMBER)
--	switch (reloc_type & 3)
-+	switch (reloc_type)
- 	  {
- 	  case RTYPE_AHI:
- 	    ret += 0x8000;
-@@ -261,6 +361,10 @@ parse_imm16 (CGEN_CPU_DESC cd, const char **strp, int opindex,
- 	    ret &= 0xffff;
- 	    ret = (ret ^ 0x8000) - 0x8000;
- 	    break;
-+	  case RTYPE_PO:
-+	  case RTYPE_SPO:
-+	    ret &= 0x1fff;
-+	    break;
- 	  default:
- 	    errmsg = INVALID_RELOC_TYPE;
- 	  }
+sim/common/ChangeLog:
+
+	* cgen-ops.h (ADDCFDI): New function, add carry flag DI variant.
+	(ADDOFDI): New function, add overflow flag DI variant.
+	(SUBCFDI): New function, subtract carry flag DI variant.
+	(SUBOFDI): New function, subtract overflow flag DI variant.
+
+sim/or1k/ChangeLog:
+
+	* or1k/cpu.h: Regenerate.
+	* or1k/decode.c: Regenerate.
+	* or1k/decode.h: Regenerate.
+	* or1k/model.c: Regenerate.
+	* or1k/sem-switch.c: Regenerate.
+	* or1k/sem.c: Regenerate:
+
+sim/testsuite/sim/or1k/ChangeLog:
+
+	* div.S: Fix tests to match correct overflow/carry semantics.
+	* mul.S: Likewise.
+
+yyyy-mm-dd  Stafford Horne  <shorne@gmail.com>
+
+gas/ChangeLog:
+
+	* testsuite/gas/or1k/allinsn.s: Add instruction tests for
+	l.muld, l.muldu, l.macu, l.msb, l.msbu.
+	* testsuite/gas/or1k/allinsn.d: Add test results for new
+	instructions.
+---
+ cpu/or1korbis.cpu                | 261 +++++++++++++++++----------
+ gas/testsuite/gas/or1k/allinsn.d |  25 +++
+ gas/testsuite/gas/or1k/allinsn.s |  20 +++
+ opcodes/or1k-desc.c              |  24 ++-
+ opcodes/or1k-desc.h              |  11 +-
+ opcodes/or1k-opc.c               |  34 +++-
+ opcodes/or1k-opc.h               |  23 +--
+ opcodes/or1k-opinst.c            |  91 +++++++++-
+ sim/common/cgen-ops.h            |  36 ++++
+ sim/or1k/cpu.h                   |  32 ++++
+ sim/or1k/decode.c                | 239 +++++++++++++++++++++++--
+ sim/or1k/decode.h                |  82 ++++-----
+ sim/or1k/model.c                 | 186 +++++++++++++++++++-
+ sim/or1k/sem-switch.c            | 281 +++++++++++++++++++++++------
+ sim/or1k/sem.c                   | 293 +++++++++++++++++++++++++------
+ sim/testsuite/sim/or1k/div.S     |  12 +-
+ sim/testsuite/sim/or1k/mul.S     | 109 ++++++------
+ 17 files changed, 1404 insertions(+), 355 deletions(-)
+
 diff --git a/cpu/or1korbis.cpu b/cpu/or1korbis.cpu
-index 535bd28bff..6fbf40ad99 100644
+index 6fbf40ad99..094f0185a7 100644
 --- a/cpu/or1korbis.cpu
 +++ b/cpu/or1korbis.cpu
-@@ -74,10 +74,25 @@
-     25
-     26
-     INT
--    ((value pc) (sra SI (sub IAI value pc) (const 2)))
-+    ((value pc) (sra IAI (sub IAI value pc) (const 2)))
-     ((value pc) (add IAI (sll IAI value (const 2)) pc))
-     )
- 
-+; PC relative, 21-bit, 13 shifted to right, aligned.
-+; Note that the alignment means that we can't simplify relocations in the
-+; same way as we do for pc-relative, so we use ABS-ADDR instead of PCREL-ADDR.
-+(df f-disp21
-+    "disp21"
-+    ((MACH ORBIS-MACHS) ABS-ADDR)
-+    20
-+    21
-+    INT
-+    ((value pc)
-+     (sub IAI (sra IAI value (const 13)) (sra IAI pc (const 13))))
-+    ((value pc)
-+     (sll IAI (add IAI value (sra IAI pc (const 13))) (const 13)))
-+    )
-+
- ; Immediates.
- (dnf f-uimm16    "uimm16"                      ((MACH ORBIS-MACHS))          15 16)
- (df  f-simm16    "simm16"                      ((MACH ORBIS-MACHS) SIGN-OPT) 15 16 INT #f #f)
-@@ -134,6 +149,7 @@
-   insn-opcode "insn main opcode enums" ((MACH ORBIS-MACHS)) OPC_ f-opcode
-   (("J"            #x00)
-    ("JAL"          #x01)
-+   ("ADRP"	   #x02)
-    ("BNF"          #x03)
-    ("BF"           #x04)
-    ("NOP"          #x05)
-@@ -311,6 +327,15 @@
-   (handlers (parse "disp26"))
+@@ -220,8 +220,10 @@
+ (define-normal-insn-enum insn-opcode-mac
+   "multiply/accumulate insn opcode enums" ((MACH ORBIS-MACHS))
+   OPC_MAC_ f-op-3-4
+-  (("MAC" #x1)
+-   ("MSB" #x2)
++  (("MAC"   #x1)
++   ("MSB"   #x2)
++   ("MACU"  #x3)
++   ("MSBU"  #x4)
+    )
    )
  
-+(define-operand
-+  (name disp21)
-+  (comment "pc-rel 21 bit")
-+  (attrs (MACH ORBIS-MACHS))
-+  (type h-iaddr)
-+  (index f-disp21)
-+  (handlers (parse "disp21"))
-+  )
-+
- (define-operand
-   (name simm16)
-   (comment "16-bit signed immediate")
-@@ -403,6 +428,14 @@
-            )
-   )
+@@ -263,12 +265,14 @@
+    ("OR"    #x4)
+    ("XOR"   #x5)
+    ("MUL"   #x6)
++   ("MULD"  #x7)
+    ("SHROT" #x8)
+    ("DIV"   #x9)
+    ("DIVU"  #xA)
+    ("MULU"  #xB)
+    ("EXTBH" #xC)
+    ("EXTW"  #xD)
++   ("MULDU" #xD)
+    ("CMOV"  #xE)
+    ("FFL1"  #xF)
+    )
+@@ -595,7 +599,7 @@
+                (set UWI mac-machi 0)
+                )
+      ()
+-     )
++)
  
-+(dni l-adrp "adrp reg/disp21"
-+    ((MACH ORBIS-MACHS))
-+    "l.adrp $rD,${disp21}"
-+    (+ OPC_ADRP rD disp21)
-+    (set UWI rD disp21)
-+    ()
-+  )
+ 
+ ; System releated instructions
+@@ -816,77 +820,93 @@
+ )
+ 
+ (dni (l-mul) "l.mul reg/reg/reg"
+-          ((MACH ORBIS-MACHS))
+-          ("l.mul $rD,$rA,$rB")
+-          (+ OPC_ALU rD rA rB (f-resv-10-7 #x30) OPC_ALU_REGREG_MUL)
+-          (sequence ()
+-                    (sequence ()
+-                              ; 2's complement overflow
+-                              (set BI sys-sr-ov (mul-o2flag WI rA rB))
+-                              ; 1's complement overflow
+-                              (set BI sys-sr-cy (mul-o1flag WI rA rB))
+-                              (set rD (mul WI rA rB))
+-                              )
+-                    (if (andif sys-sr-ov sys-sr-ove)
+-                        (raise-exception EXCEPT-RANGE))
+-                    )
+-          ()
++     ((MACH ORBIS-MACHS))
++     ("l.mul $rD,$rA,$rB")
++     (+ OPC_ALU rD rA rB (f-resv-10-7 #x30) OPC_ALU_REGREG_MUL)
++     (sequence ()
++	(sequence ()
++	   (set BI sys-sr-ov (mul-o2flag WI rA rB))
++	   (set rD (mul WI rA rB))
++	)
++	(if (andif sys-sr-ov sys-sr-ove)
++	    (raise-exception EXCEPT-RANGE))
++     )
++     ()
++)
 +
- (define-cti
-   l-jal
-   "jump and link (pc-relative iaddr)"
-diff --git a/gas/config/tc-or1k.c b/gas/config/tc-or1k.c
-index 8862c35480..c7dd457c36 100644
---- a/gas/config/tc-or1k.c
-+++ b/gas/config/tc-or1k.c
-@@ -362,12 +362,18 @@ or1k_apply_fix (struct fix *f, valueT *t, segT s)
-     {
-     case BFD_RELOC_OR1K_TLS_GD_HI16:
-     case BFD_RELOC_OR1K_TLS_GD_LO16:
-+    case BFD_RELOC_OR1K_TLS_GD_PG21:
-+    case BFD_RELOC_OR1K_TLS_GD_LO13:
-     case BFD_RELOC_OR1K_TLS_LDM_HI16:
-     case BFD_RELOC_OR1K_TLS_LDM_LO16:
-+    case BFD_RELOC_OR1K_TLS_LDM_PG21:
-+    case BFD_RELOC_OR1K_TLS_LDM_LO13:
-     case BFD_RELOC_OR1K_TLS_LDO_HI16:
-     case BFD_RELOC_OR1K_TLS_LDO_LO16:
-     case BFD_RELOC_OR1K_TLS_IE_HI16:
-     case BFD_RELOC_OR1K_TLS_IE_LO16:
-+    case BFD_RELOC_OR1K_TLS_IE_PG21:
-+    case BFD_RELOC_OR1K_TLS_IE_LO13:
-     case BFD_RELOC_OR1K_TLS_LE_HI16:
-     case BFD_RELOC_OR1K_TLS_LE_LO16:
-       S_SET_THREAD_LOCAL (f->fx_addsy);
++(dni (l-muld) "l.muld reg/reg"
++     ((MACH ORBIS-MACHS))
++     ("l.muld $rA,$rB")
++     (+ OPC_ALU (f-resv-25-5 0) rA rB (f-resv-10-7 #x30) OPC_ALU_REGREG_MULD)
++     (sequence ((DI result))
++	(set DI result (mul DI (ext DI rA) (ext DI rB)))
++	(set SI mac-machi (subword SI result 0))
++	(set SI mac-maclo (subword SI result 1))
++     )
++     ()
+ )
+ 
+ (dni (l-mulu) "l.mulu reg/reg/reg"
+-          ((MACH ORBIS-MACHS))
+-          ("l.mulu $rD,$rA,$rB")
+-          (+ OPC_ALU rD rA rB (f-resv-10-7 #x30) OPC_ALU_REGREG_MULU)
+-          (sequence ()
+-                    (sequence ()
+-                              ; 2's complement overflow
+-                              (set BI sys-sr-ov 0)
+-                              ; 1's complement overflow
+-                              (set BI sys-sr-cy (mul-o1flag UWI rA rB))
+-                              (set rD (mul UWI rA rB))
+-                              )
+-                    (if (andif sys-sr-ov sys-sr-ove)
+-                        (raise-exception EXCEPT-RANGE))
+-                    )
+-          ()
++     ((MACH ORBIS-MACHS))
++     ("l.mulu $rD,$rA,$rB")
++     (+ OPC_ALU rD rA rB (f-resv-10-7 #x30) OPC_ALU_REGREG_MULU)
++     (sequence ()
++	(sequence ()
++	   (set BI sys-sr-cy (mul-o1flag UWI rA rB))
++	   (set rD (mul UWI rA rB))
++	)
++	(if (andif sys-sr-cy sys-sr-ove)
++	    (raise-exception EXCEPT-RANGE))
++     )
++     ()
++)
++
++(dni (l-muldu) "l.muld reg/reg"
++     ((MACH ORBIS-MACHS))
++     ("l.muldu $rA,$rB")
++     (+ OPC_ALU (f-resv-25-5 0) rA rB (f-resv-10-7 #x30) OPC_ALU_REGREG_MULDU)
++     (sequence ((DI result))
++	(set DI result (mul DI (zext DI rA) (zext DI rB)))
++	(set SI mac-machi (subword SI result 0))
++	(set SI mac-maclo (subword SI result 1))
++     )
++     ()
+ )
+ 
+ (dni l-div "divide (signed)"
+-          ((MACH ORBIS-MACHS))
+-          "l.div $rD,$rA,$rB"
+-          (+ OPC_ALU rD rA rB (f-resv-10-7 #x30) OPC_ALU_REGREG_DIV)
+-          (sequence ()
+-                    (if (ne rB 0)
+-                        (sequence ()
+-                                  (set BI sys-sr-cy 0)
+-                                  (set WI rD (div WI rA rB))
+-                                  )
+-                        (set BI sys-sr-cy 1)
+-                        )
+-                    (set BI sys-sr-ov 0)
+-                    (if (andif sys-sr-cy sys-sr-ove)
+-                        (raise-exception EXCEPT-RANGE))
+-                    )
+-          ()
++     ((MACH ORBIS-MACHS))
++     "l.div $rD,$rA,$rB"
++     (+ OPC_ALU rD rA rB (f-resv-10-7 #x30) OPC_ALU_REGREG_DIV)
++     (if (ne rB 0)
++	(sequence ()
++	   (set BI sys-sr-ov 0)
++	   (set WI rD (div WI rA rB))
++	)
++	(sequence ()
++	   (set BI sys-sr-ov 1)
++	   (if sys-sr-ove
++	      (raise-exception EXCEPT-RANGE))
++	)
++     )
++     ()
+ )
+ 
+ (dni l-divu "divide (unsigned)"
+-          ((MACH ORBIS-MACHS))
+-          "l.divu $rD,$rA,$rB"
+-          (+ OPC_ALU rD rA rB (f-resv-10-7 #x30) OPC_ALU_REGREG_DIVU)
+-          (sequence ()
+-                    (if (ne rB 0)
+-                        (sequence ()
+-                                  (set BI sys-sr-cy 0)
+-                                  (set rD (udiv UWI rA rB))
+-                                  )
+-                        (set BI sys-sr-cy 1)
+-                        )
+-                    (set BI sys-sr-ov 0)
+-                    (if (andif sys-sr-cy sys-sr-ove)
+-                        (raise-exception EXCEPT-RANGE))
+-                    )
+-          ()
++     ((MACH ORBIS-MACHS))
++     "l.divu $rD,$rA,$rB"
++     (+ OPC_ALU rD rA rB (f-resv-10-7 #x30) OPC_ALU_REGREG_DIVU)
++     (if (ne rB 0)
++	(sequence ()
++	   (set BI sys-sr-cy 0)
++	   (set rD (udiv UWI rA rB))
++	)
++	(sequence ()
++	   (set BI sys-sr-cy 1)
++	   (if sys-sr-ove
++	       (raise-exception EXCEPT-RANGE))
++	)
++     )
++     ()
+ )
+ 
+ (dni l-ff1 "find first '1'"
+@@ -984,17 +1004,14 @@
+      (+ OPC_MULI rD rA simm16)
+      (sequence ()
+                (sequence ()
+-                         ; 2's complement overflow
+                          (set sys-sr-ov (mul-o2flag WI rA (ext WI simm16)))
+-                         ; 1's complement overflow
+-                         (set sys-sr-cy (mul-o1flag UWI rA (ext UWI simm16)))
+                          (set rD (mul WI rA (ext WI simm16)))
+                          )
+                (if (andif sys-sr-ov sys-sr-ove)
+                    (raise-exception EXCEPT-RANGE))
+                )
+      ()
+-     )
++)
+ 
+ (define-pmacro (extbh-insn mnemonic extop extmode truncmode)
+   (begin
+@@ -1118,42 +1135,100 @@
+      ((MACH ORBIS-MACHS))
+      "l.mac $rA,$rB"
+      (+  OPC_MAC (f-op-25-5 0) rA rB (f-resv-10-7 0) OPC_MAC_MAC)
+-     (sequence ((WI prod) (DI result))
+-               (set WI prod (mul WI rA rB))
+-               (set DI result (add (join DI SI mac-machi mac-maclo) (ext DI prod)))
+-               (set SI mac-machi (subword SI result 0))
+-               (set SI mac-maclo (subword SI result 1))
+-               )
++     (sequence ()
++	(sequence ((DI prod) (DI mac) (DI result))
++	   (set DI prod (mul DI (ext DI rA) (ext DI rB)))
++	   (set DI mac (join DI SI mac-machi mac-maclo))
++	   (set DI result (add prod mac))
++	   (set SI mac-machi (subword SI result 0))
++	   (set SI mac-maclo (subword SI result 1))
++	   (set BI sys-sr-ov (addc-oflag prod mac 0))
++	)
++	(if (andif sys-sr-ov sys-sr-ove)
++	    (raise-exception EXCEPT-RANGE))
++     )
+      ()
++)
++
++(dni l-maci
++     "l.maci reg/simm16"
++     ((MACH ORBIS-MACHS))
++     "l.maci $rA,${simm16}"
++     (+ OPC_MACI (f-resv-25-5 0) rA simm16)
++     (sequence ()
++	(sequence ((DI prod) (DI mac) (DI result))
++	   (set DI prod (mul DI (ext DI rA) (ext DI simm16)))
++	   (set DI mac (join DI SI mac-machi mac-maclo))
++	   (set DI result (add mac prod))
++	   (set SI mac-machi (subword SI result 0))
++	   (set SI mac-maclo (subword SI result 1))
++	   (set BI sys-sr-ov (addc-oflag prod mac 0))
++	)
++	(if (andif sys-sr-ov sys-sr-ove)
++	    (raise-exception EXCEPT-RANGE))
+      )
++     ()
++)
++
++(dni l-macu
++     "l.macu reg/reg"
++     ((MACH ORBIS-MACHS))
++     "l.macu $rA,$rB"
++     (+  OPC_MAC (f-op-25-5 0) rA rB (f-resv-10-7 0) OPC_MAC_MACU)
++     (sequence ()
++	(sequence ((DI prod) (DI mac) (DI result))
++	   (set DI prod (mul DI (zext DI rA) (zext DI rB)))
++	   (set DI mac (join DI SI mac-machi mac-maclo))
++	   (set DI result (add prod mac))
++	   (set SI mac-machi (subword SI result 0))
++	   (set SI mac-maclo (subword SI result 1))
++	   (set BI sys-sr-cy (addc-cflag prod mac 0))
++	)
++	(if (andif sys-sr-cy sys-sr-ove)
++	    (raise-exception EXCEPT-RANGE))
++     )
++     ()
++)
+ 
+ (dni l-msb
+      "l.msb reg/reg"
+      ((MACH ORBIS-MACHS))
+      "l.msb $rA,$rB"
+      (+  OPC_MAC (f-op-25-5 0) rA rB (f-resv-10-7 0) OPC_MAC_MSB)
+-     (sequence ((WI prod) (DI result))
+-               (set WI prod (mul WI rA rB))
+-               (set DI result (sub (join DI SI mac-machi mac-maclo) (ext DI prod)))
+-               (set SI mac-machi (subword SI result 0))
+-               (set SI mac-maclo (subword SI result 1))
+-               )
+-     ()
++     (sequence ()
++	(sequence ((DI prod) (DI mac) (DI result))
++	   (set DI prod (mul DI (ext DI rA) (ext DI rB)))
++	   (set DI mac (join DI SI mac-machi mac-maclo))
++	   (set DI result (sub mac prod))
++	   (set SI mac-machi (subword SI result 0))
++	   (set SI mac-maclo (subword SI result 1))
++	   (set BI sys-sr-ov (subc-oflag mac result 0))
++	)
++	(if (andif sys-sr-ov sys-sr-ove)
++	    (raise-exception EXCEPT-RANGE))
+      )
++     ()
++)
+ 
+-(dni l-maci
+-     "l.maci reg/simm16"
++(dni l-msbu
++     "l.msbu reg/reg"
+      ((MACH ORBIS-MACHS))
+-     "l.maci $rA,${simm16}"
+-     (+ OPC_MACI (f-resv-25-5 0) rA simm16)
+-     (sequence ((WI prod) (DI result))
+-               (set WI prod (mul WI (ext WI simm16) rA))
+-               (set DI result (add (join DI SI mac-machi mac-maclo) (ext DI prod)))
+-               (set SI mac-machi (subword SI result 0))
+-               (set SI mac-maclo (subword SI result 1))
+-               )
+-     ()
++     "l.msbu $rA,$rB"
++     (+  OPC_MAC (f-op-25-5 0) rA rB (f-resv-10-7 0) OPC_MAC_MSBU)
++     (sequence ()
++	(sequence ((DI prod) (DI mac) (DI result))
++	   (set DI prod (mul DI (zext DI rA) (zext DI rB)))
++	   (set DI mac (join DI SI mac-machi mac-maclo))
++	   (set DI result (sub mac prod))
++	   (set SI mac-machi (subword SI result 0))
++	   (set SI mac-maclo (subword SI result 1))
++	   (set BI sys-sr-cy (subc-cflag mac result 0))
++	)
++	(if (andif sys-sr-cy sys-sr-ove)
++	    (raise-exception EXCEPT-RANGE))
+      )
++     ()
++)
+ 
+ (define-pmacro (cust-insn cust-num)
+   (begin
 diff --git a/gas/testsuite/gas/or1k/allinsn.d b/gas/testsuite/gas/or1k/allinsn.d
-index 1b36cce1bc..a4ffe43f0b 100644
+index a4ffe43f0b..4260498fdb 100644
 --- a/gas/testsuite/gas/or1k/allinsn.d
 +++ b/gas/testsuite/gas/or1k/allinsn.d
-@@ -690,3 +690,9 @@ Disassembly of section \.text:
-  834:	4c 02 ff ff 	l\.maci r2,-1
-  838:	4c 02 7f ff 	l\.maci r2,32767
-  83c:	4c 02 80 00 	l\.maci r2,-32768
+@@ -696,3 +696,28 @@ Disassembly of section \.text:
+ 			840: R_OR1K_PCREL_PG21	globaldata
+  844:	08 60 00 00 	l\.adrp r3,0 <localtext>
+ 			844: R_OR1K_PCREL_PG21	\.data
 +
-+00000840 <l_adrp>:
-+ 840:	08 60 00 00 	l\.adrp r3,0 <localtext>
-+			840: R_OR1K_PCREL_PG21	globaldata
-+ 844:	08 60 00 00 	l\.adrp r3,0 <localtext>
-+			844: R_OR1K_PCREL_PG21	\.data
++00000848 <l_muld>:
++ 848:	e0 00 03 07 	l\.muld r0,r0
++ 84c:	e0 1f fb 07 	l\.muld r31,r31
++ 850:	e0 03 23 07 	l\.muld r3,r4
++
++00000854 <l_muldu>:
++ 854:	e0 00 03 0d 	l\.muldu r0,r0
++ 858:	e0 1f fb 0d 	l\.muldu r31,r31
++ 85c:	e0 03 23 0d 	l\.muldu r3,r4
++
++00000860 <l_macu>:
++ 860:	c4 00 00 03 	l\.macu r0,r0
++ 864:	c4 1f f8 03 	l\.macu r31,r31
++ 868:	c4 03 20 03 	l\.macu r3,r4
++
++0000086c <l_msb>:
++ 86c:	c4 00 00 02 	l\.msb r0,r0
++ 870:	c4 1f f8 02 	l\.msb r31,r31
++ 874:	c4 03 20 02 	l\.msb r3,r4
++
++00000878 <l_msbu>:
++ 878:	c4 00 00 04 	l\.msbu r0,r0
++ 87c:	c4 1f f8 04 	l\.msbu r31,r31
++ 880:	c4 03 20 04 	l\.msbu r3,r4
 diff --git a/gas/testsuite/gas/or1k/allinsn.s b/gas/testsuite/gas/or1k/allinsn.s
-index 321aea3036..55d703734e 100644
+index 55d703734e..e5a7906464 100644
 --- a/gas/testsuite/gas/or1k/allinsn.s
 +++ b/gas/testsuite/gas/or1k/allinsn.s
-@@ -677,3 +677,6 @@ l_maci:
- 	l.maci r2,-1
- 	l.maci r2,32767
- 	l.maci r2,-32768
-+l_adrp:
-+	l.adrp r3,globaldata
-+	l.adrp r3,localdata
-diff --git a/gas/testsuite/gas/or1k/reloc-1.d b/gas/testsuite/gas/or1k/reloc-1.d
-index f90a1ae269..d1bcf5608b 100644
---- a/gas/testsuite/gas/or1k/reloc-1.d
-+++ b/gas/testsuite/gas/or1k/reloc-1.d
-@@ -52,5 +52,21 @@ OFFSET   TYPE              VALUE
- 000000ac R_OR1K_TLS_LE_AHI16  x
- 000000b0 R_OR1K_TLS_LE_LO16  x
- 000000b4 R_OR1K_TLS_LE_SLO16  x
-+000000b8 R_OR1K_PLTA26     x
-+000000bc R_OR1K_PLTA26     x
-+000000c0 R_OR1K_PLTA26     x
-+000000c4 R_OR1K_PLTA26     x
-+000000c8 R_OR1K_GOT_PG21   x
-+000000cc R_OR1K_TLS_GD_PG21  x
-+000000d0 R_OR1K_TLS_LDM_PG21  x
-+000000d4 R_OR1K_TLS_IE_PG21  x
-+000000d8 R_OR1K_LO13       x
-+000000dc R_OR1K_GOT_LO13   x
-+000000e0 R_OR1K_TLS_GD_LO13  x
-+000000e4 R_OR1K_TLD_LDM_LO13  x
-+000000e8 R_OR1K_TLS_IE_LO13  x
-+000000ec R_OR1K_LO13       x
-+000000f0 R_OR1K_GOT_LO13   x
-+000000f4 R_OR1K_SLO13      x
- 
- 
-diff --git a/gas/testsuite/gas/or1k/reloc-1.s b/gas/testsuite/gas/or1k/reloc-1.s
-index 4966dc56be..e76abef653 100644
---- a/gas/testsuite/gas/or1k/reloc-1.s
-+++ b/gas/testsuite/gas/or1k/reloc-1.s
-@@ -54,3 +54,23 @@
- 	l.movhi	r3,tpoffha(x)
- 	l.lwz	r3,tpofflo(x)(r3)
- 	l.sw	tpofflo(x)(r3),r3
-+
-+	l.j	plta(x)
-+	l.jal	plta(x)
-+	l.bf	plta(x)
-+	l.bnf	plta(x)
-+
-+	l.adrp	r3,got(x)
-+	l.adrp	r3,tlsgd(x)
-+	l.adrp	r3,tlsldm(x)
-+	l.adrp	r3,gottp(x)
-+
-+	l.ori	r4,r3,po(x)
-+	l.ori	r4,r3,gotpo(x)
-+	l.ori	r4,r3,tlsgdpo(x)
-+	l.ori	r4,r3,tlsldmpo(x)
-+	l.ori	r4,r3,gottppo(x)
-+
-+	l.lbz	r5,po(x)(r3)
-+	l.lbz	r5,gotpo(x)(r3)
-+	l.sb	po(x)(r3),r6
-diff --git a/gas/testsuite/gas/or1k/reloc-2.l b/gas/testsuite/gas/or1k/reloc-2.l
-index 7a32a7dc14..c104fd9d6e 100644
---- a/gas/testsuite/gas/or1k/reloc-2.l
-+++ b/gas/testsuite/gas/or1k/reloc-2.l
-@@ -8,3 +8,4 @@
- .*:9: Error: relocation invalid for store .*
- .*:11: Error: relocation invalid for store .*
- .*:12: Error: relocation invalid for store .*
-+.*:13: Error: relocation invalid for store .*
-diff --git a/gas/testsuite/gas/or1k/reloc-2.s b/gas/testsuite/gas/or1k/reloc-2.s
-index 835dd1c84b..4d20aa7ba0 100644
---- a/gas/testsuite/gas/or1k/reloc-2.s
-+++ b/gas/testsuite/gas/or1k/reloc-2.s
-@@ -10,3 +10,4 @@
- 	l.sw	tpofflo(x)(r4),r3
- 	l.sw	tpoffhi(x)(r4),r3
- 	l.sw	tpoffha(x)(r4),r3
-+	l.sw	gotpo(x)(r4),r3
-diff --git a/include/elf/or1k.h b/include/elf/or1k.h
-index e3291d31d3..4369e6250d 100644
---- a/include/elf/or1k.h
-+++ b/include/elf/or1k.h
-@@ -65,6 +65,18 @@ START_RELOC_NUMBERS (elf_or1k_reloc_type)
-   RELOC_NUMBER (R_OR1K_SLO16,         39)
-   RELOC_NUMBER (R_OR1K_GOTOFF_SLO16,  40)
-   RELOC_NUMBER (R_OR1K_TLS_LE_SLO16,  41)
-+  RELOC_NUMBER (R_OR1K_PCREL_PG21,    42)
-+  RELOC_NUMBER (R_OR1K_GOT_PG21,      43)
-+  RELOC_NUMBER (R_OR1K_TLS_GD_PG21,   44)
-+  RELOC_NUMBER (R_OR1K_TLS_LDM_PG21,  45)
-+  RELOC_NUMBER (R_OR1K_TLS_IE_PG21,   46)
-+  RELOC_NUMBER (R_OR1K_LO13,          47)
-+  RELOC_NUMBER (R_OR1K_GOT_LO13,      48)
-+  RELOC_NUMBER (R_OR1K_TLS_GD_LO13,   49)
-+  RELOC_NUMBER (R_OR1K_TLS_LDM_LO13,  50)
-+  RELOC_NUMBER (R_OR1K_TLS_IE_LO13,   51)
-+  RELOC_NUMBER (R_OR1K_SLO13,         52)
-+  RELOC_NUMBER (R_OR1K_PLTA26,        53)
- END_RELOC_NUMBERS (R_OR1K_max)
- 
- #define EF_OR1K_NODELAY (1UL << 0)
-diff --git a/ld/testsuite/ld-or1k/or1k.exp b/ld/testsuite/ld-or1k/or1k.exp
-index 8f09a7c40e..540ca29ed4 100644
---- a/ld/testsuite/ld-or1k/or1k.exp
-+++ b/ld/testsuite/ld-or1k/or1k.exp
-@@ -38,6 +38,23 @@ set or1ktests {
-      "offsets1"}
- }
- 
-+set or1kplttests {
-+    {"PLTA -fpic -shared" "-fpic -shared" ""
-+     "" {plta1.s}
-+     {{objdump -dr plta1.dd}}
-+     "libplta1.so"}
-+    {"PLT -fpic -shared" "-fpic -shared" ""
-+     "" {plt1.s}
-+     {{objdump -dr plt1.dd}}
-+     "libplt1.so"}
-+    {"Helper shared library" "-fpic -shared" ""
-+     "" {pltlib.s} {} "libpltlib.so"}
-+    {"PLT -fno-pic exec -relax" "-relax tmpdir/libpltlib.so" ""
-+     "" {plt1.s}
-+     {{objdump -dr plt1.x.dd}}
-+     "plt1.x"}
-+}
-+
- # Not implemented yet
- #   {"TLS -fpic -shared" "-shared -melf64alpha" ""
- #    "" {align.s tlspic1.s tlspic2.s}
-@@ -66,4 +83,9 @@ set or1ktests {
- #    "" {tlsg.s}
- #    {{objdump -sj.debug_foobar tlsg.sd}} "tlsg"}
- 
-+# Shared objects not supported on newlib
- run_ld_link_tests $or1ktests
-+if { ![istarget "or1k*-*-elf*"] } {
-+    run_ld_link_tests $or1kplttests
-+    return
-+}
-diff --git a/ld/testsuite/ld-or1k/plt1.dd b/ld/testsuite/ld-or1k/plt1.dd
-new file mode 100644
-index 0000000000..a982530fa9
---- /dev/null
-+++ b/ld/testsuite/ld-or1k/plt1.dd
-@@ -0,0 +1,27 @@
-+
-+.*\.so:     file format elf32-or1k
-+
-+
-+Disassembly of section \.plt:
-+
-+[0-9a-f]+ <\.plt>:
-+ [0-9a-f]+:	85 f0 00 08 	l\.lwz r15,8\(r16\)
-+ [0-9a-f]+:	44 00 78 00 	l\.jr r15
-+ [0-9a-f]+:	85 90 00 04 	l\.lwz r12,4\(r16\)
-+ [0-9a-f]+:	15 00 00 00 	l\.nop 0x0
-+ [0-9a-f]+:	85 90 00 0c 	l\.lwz r12,12\(r16\)
-+ [0-9a-f]+:	44 00 60 00 	l\.jr r12
-+ [0-9a-f]+:	a9 60 00 00 	l\.ori r11,r0,0x0
-+ [0-9a-f]+:	15 00 00 00 	l\.nop 0x0
-+ [0-9a-f]+:	85 90 00 10 	l\.lwz r12,16\(r16\)
-+ [0-9a-f]+:	44 00 60 00 	l\.jr r12
-+ [0-9a-f]+:	a9 60 00 0c 	l\.ori r11,r0,0xc
-+ [0-9a-f]+:	15 00 00 00 	l\.nop 0x0
-+
-+Disassembly of section \.text:
-+
-+[0-9a-f]+ <_start>:
-+ [0-9a-f]+:	03 ff ff f8 	l\.j [0-9a-f]+ <.plt\+0x10>
-+ [0-9a-f]+:	15 00 00 00 	l\.nop 0x0
-+ [0-9a-f]+:	03 ff ff fa 	l\.j [0-9a-f]+ <.plt\+0x20>
-+ [0-9a-f]+:	15 00 00 00 	l\.nop 0x0
-diff --git a/ld/testsuite/ld-or1k/plt1.s b/ld/testsuite/ld-or1k/plt1.s
-new file mode 100644
-index 0000000000..a5573bdc2f
---- /dev/null
-+++ b/ld/testsuite/ld-or1k/plt1.s
-@@ -0,0 +1,11 @@
-+	.data
-+	.p2align 16
-+
-+	.text
-+	.globl	_start
-+_start:
-+
-+	l.j plt(x)
-+	 l.nop
-+	l.j plt(y)
-+	 l.nop
-diff --git a/ld/testsuite/ld-or1k/plt1.x.dd b/ld/testsuite/ld-or1k/plt1.x.dd
-new file mode 100644
-index 0000000000..d2f47a1257
---- /dev/null
-+++ b/ld/testsuite/ld-or1k/plt1.x.dd
-@@ -0,0 +1,27 @@
-+
-+.*\.x:     file format elf32-or1k
-+
-+
-+Disassembly of section \.plt:
-+
-+[0-9a-f]+ <\.plt>:
-+ +[0-9a-f]+:	19 80 00 00 	l\.movhi r12,0x0
-+ +[0-9a-f]+:	85 ec [0-9a-f]+ [0-9a-f]+ 	l\.lwz r15,[0-9]+\(r12\)
-+ +[0-9a-f]+:	44 00 78 00 	l\.jr r15
-+ +[0-9a-f]+:	85 8c [0-9a-f]+ [0-9a-f]+ 	l\.lwz r12,[0-9]+\(r12\)
-+ +[0-9a-f]+:	19 80 00 00 	l\.movhi r12,0x0
-+ +[0-9a-f]+:	85 8c [0-9a-f]+ [0-9a-f]+ 	l\.lwz r12,[0-9]+\(r12\)
-+ +[0-9a-f]+:	44 00 60 00 	l\.jr r12
-+ +[0-9a-f]+:	a9 60 00 00 	l\.ori r11,r0,0x0
-+ +[0-9a-f]+:	19 80 00 00 	l\.movhi r12,0x0
-+ +[0-9a-f]+:	85 8c [0-9a-f]+ [0-9a-f]+ 	l\.lwz r12,[0-9]+\(r12\)
-+ +[0-9a-f]+:	44 00 60 00 	l\.jr r12
-+ +[0-9a-f]+:	a9 60 00 0c 	l\.ori r11,r0,0xc
-+
-+Disassembly of section \.text:
-+
-+[0-9a-f]+ <_start>:
-+ +[0-9a-f]+:	03 ff ff f8 	l\.j [0-9a-f]+ <.plt\+0x10>
-+ +[0-9a-f]+:	15 00 00 00 	l\.nop 0x0
-+ +[0-9a-f]+:	03 ff ff fa 	l\.j [0-9a-f]+ <.plt\+0x20>
-+ +[0-9a-f]+:	15 00 00 00 	l\.nop 0x0
-diff --git a/ld/testsuite/ld-or1k/plta1.dd b/ld/testsuite/ld-or1k/plta1.dd
-new file mode 100644
-index 0000000000..6767c41607
---- /dev/null
-+++ b/ld/testsuite/ld-or1k/plta1.dd
-@@ -0,0 +1,27 @@
-+
-+.*\.so:     file format elf32-or1k
-+
-+
-+Disassembly of section .plt:
-+
-+[0-9a-f]+ <.plt>:
-+ [0-9a-f]+:	09 80 00 01 	l\.adrp r12,2000 <.*>
-+ [0-9a-f]+:	85 ec 02 10 	l\.lwz r15,528\(r12\)
-+ [0-9a-f]+:	44 00 78 00 	l\.jr r15
-+ [0-9a-f]+:	85 8c 02 0c 	l\.lwz r12,524\(r12\)
-+ [0-9a-f]+:	09 80 00 01 	l\.adrp r12,2000 <.*>
-+ [0-9a-f]+:	85 8c 02 14 	l\.lwz r12,532\(r12\)
-+ [0-9a-f]+:	44 00 60 00 	l\.jr r12
-+ [0-9a-f]+:	a9 60 00 00 	l\.ori r11,r0,0x0
-+ [0-9a-f]+:	09 80 00 01 	l\.adrp r12,2000 <.*>
-+ [0-9a-f]+:	85 8c 02 18 	l\.lwz r12,536\(r12\)
-+ [0-9a-f]+:	44 00 60 00 	l\.jr r12
-+ [0-9a-f]+:	a9 60 00 0c 	l\.ori r11,r0,0xc
-+
-+Disassembly of section .text:
-+
-+[0-9a-f]+ <_start>:
-+ [0-9a-f]+:	03 ff ff f8 	l\.j [0-9a-f]+ <.plt\+0x10>
-+ [0-9a-f]+:	15 00 00 00 	l\.nop 0x0
-+ [0-9a-f]+:	03 ff ff fa 	l\.j [0-9a-f]+ <.plt\+0x20>
-+ [0-9a-f]+:	15 00 00 00 	l\.nop 0x0
-diff --git a/ld/testsuite/ld-or1k/plta1.s b/ld/testsuite/ld-or1k/plta1.s
-new file mode 100644
-index 0000000000..82f8175b16
---- /dev/null
-+++ b/ld/testsuite/ld-or1k/plta1.s
-@@ -0,0 +1,11 @@
-+	.data
-+	.p2align 16
-+
-+	.text
-+	.globl	_start
-+_start:
-+
-+	l.j plta(x)
-+	 l.nop
-+	l.j plta(y)
-+	 l.nop
-diff --git a/ld/testsuite/ld-or1k/pltlib.s b/ld/testsuite/ld-or1k/pltlib.s
-new file mode 100644
-index 0000000000..baf76ca1af
---- /dev/null
-+++ b/ld/testsuite/ld-or1k/pltlib.s
-@@ -0,0 +1,12 @@
-+	.section .data
-+	.globl x, y
-+x:	.long 33
-+y:	.long 44
-+
-+	.section .text
-+	.align 4
-+	.global	func
-+	.type	func, @function
-+func:
-+	l.jr	r9
-+	 l.nop
-diff --git a/opcodes/or1k-asm.c b/opcodes/or1k-asm.c
-index 751fbef398..bd73ab732b 100644
---- a/opcodes/or1k-asm.c
-+++ b/opcodes/or1k-asm.c
-@@ -61,155 +61,251 @@ static const char *
- parse_disp26 (CGEN_CPU_DESC cd,
- 	      const char ** strp,
- 	      int opindex,
--	      int opinfo,
-+	      int opinfo ATTRIBUTE_UNUSED,
- 	      enum cgen_parse_operand_result * resultp,
- 	      bfd_vma * valuep)
- {
-+  const char *str = *strp;
-   const char *errmsg = NULL;
--  enum cgen_parse_operand_result result_type;
-+  bfd_reloc_code_real_type reloc = BFD_RELOC_OR1K_REL_26;
- 
--  if (strncasecmp (*strp, "plt(", 4) == 0)
-+  if (strncasecmp (str, "plta(", 5) == 0)
-     {
--      bfd_vma value;
-+      *strp = str + 5;
-+      reloc = BFD_RELOC_OR1K_PLTA26;
-+    }
-+  else if (strncasecmp (str, "plt(", 4) == 0)
-+    {
-+      *strp = str + 4;
-+      reloc = BFD_RELOC_OR1K_PLT26;
-+    }
- 
--      *strp += 4;
--      errmsg = cgen_parse_address (cd, strp, opindex, BFD_RELOC_OR1K_PLT26,
--				   & result_type, & value);
-+  errmsg = cgen_parse_address (cd, strp, opindex, reloc, resultp, valuep);
-+
-+  if (reloc != BFD_RELOC_OR1K_REL_26)
-+    {
-       if (**strp != ')')
--	return MISSING_CLOSING_PARENTHESIS;
--      ++*strp;
--      if (errmsg == NULL
--	  && result_type == CGEN_PARSE_OPERAND_RESULT_NUMBER)
--	value = (value >> 2) & 0xffff;
--      *valuep = value;
--      return errmsg;
-+	errmsg = MISSING_CLOSING_PARENTHESIS;
-+      else
-+	++*strp;
-+    }
-+
-+  return errmsg;
-+}
-+
-+static const char *
-+parse_disp21 (CGEN_CPU_DESC cd,
-+	      const char ** strp,
-+	      int opindex,
-+	      int opinfo ATTRIBUTE_UNUSED,
-+	      enum cgen_parse_operand_result * resultp,
-+	      bfd_vma * valuep)
-+{
-+  const char *str = *strp;
-+  const char *errmsg = NULL;
-+  bfd_reloc_code_real_type reloc = BFD_RELOC_OR1K_PCREL_PG21;
-+
-+  if (strncasecmp (str, "got(", 4) == 0)
-+    {
-+      *strp = str + 4;
-+      reloc = BFD_RELOC_OR1K_GOT_PG21;
-+    }
-+  else if (strncasecmp (str, "tlsgd(", 6) == 0)
-+    {
-+      *strp = str + 6;
-+      reloc = BFD_RELOC_OR1K_TLS_GD_PG21;
-+    }
-+  else if (strncasecmp (str, "tlsldm(", 7) == 0)
-+    {
-+      *strp = str + 7;
-+      reloc = BFD_RELOC_OR1K_TLS_LDM_PG21;
-+    }
-+  else if (strncasecmp (str, "gottp(", 6) == 0)
-+    {
-+      *strp = str + 6;
-+      reloc = BFD_RELOC_OR1K_TLS_IE_PG21;
-     }
--  return cgen_parse_address (cd, strp, opindex, opinfo, resultp, valuep);
-+
-+  errmsg = cgen_parse_address (cd, strp, opindex, reloc, resultp, valuep);
-+
-+  if (reloc != BFD_RELOC_OR1K_PCREL_PG21)
-+    {
-+      if (**strp != ')')
-+	errmsg = MISSING_CLOSING_PARENTHESIS;
-+      else
-+	++*strp;
-+    }
-+
-+  return errmsg;
- }
- 
--enum {
-+enum or1k_rclass
-+{
-+  RCLASS_DIRECT   = 0,
-+  RCLASS_GOT      = 1,
-+  RCLASS_GOTPC    = 2,
-+  RCLASS_GOTOFF   = 3,
-+  RCLASS_TLSGD    = 4,
-+  RCLASS_TLSLDM   = 5,
-+  RCLASS_DTPOFF   = 6,
-+  RCLASS_GOTTPOFF = 7,
-+  RCLASS_TPOFF    = 8,
-+};
-+
-+enum or1k_rtype
-+{
-   RTYPE_LO = 0,
--  RTYPE_HI = 1,
--  RTYPE_AHI = 2,
--  RTYPE_SLO = 3,
--
--  RTYPE_GOT      = (1 << 2),
--  RTYPE_GOTPC    = (2 << 2),
--  RTYPE_GOTOFF   = (3 << 2),
--  RTYPE_TLSGD    = (4 << 2),
--  RTYPE_TLSLDM   = (5 << 2),
--  RTYPE_DTPOFF   = (6 << 2),
--  RTYPE_GOTTPOFF = (7 << 2),
--  RTYPE_TPOFF    = (8 << 2),
-+  RTYPE_SLO = 1,
-+  RTYPE_PO = 2,
-+  RTYPE_SPO = 3,
-+  RTYPE_HI = 4,
-+  RTYPE_AHI = 5,
- };
- 
--static const bfd_reloc_code_real_type or1k_imm16_relocs[][4] = {
-+#define RCLASS_SHIFT 3
-+#define RTYPE_MASK   7
-+
-+static const bfd_reloc_code_real_type or1k_imm16_relocs[][6] = {
-   { BFD_RELOC_LO16,
-+    BFD_RELOC_OR1K_SLO16,
-+    BFD_RELOC_OR1K_LO13,
-+    BFD_RELOC_OR1K_SLO13,
-     BFD_RELOC_HI16,
--    BFD_RELOC_HI16_S,
--    BFD_RELOC_OR1K_SLO16 },
-+    BFD_RELOC_HI16_S, },
-   { BFD_RELOC_OR1K_GOT16,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_OR1K_GOT_LO13,
-     BFD_RELOC_UNUSED,
-     BFD_RELOC_UNUSED,
-     BFD_RELOC_UNUSED },
-   { BFD_RELOC_OR1K_GOTPC_LO16,
--    BFD_RELOC_OR1K_GOTPC_HI16,
-     BFD_RELOC_UNUSED,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_OR1K_GOTPC_HI16,
-     BFD_RELOC_UNUSED },
-   { BFD_RELOC_LO16_GOTOFF,
-+    BFD_RELOC_OR1K_GOTOFF_SLO16,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_UNUSED,
-     BFD_RELOC_HI16_GOTOFF,
--    BFD_RELOC_HI16_S_GOTOFF,
--    BFD_RELOC_OR1K_GOTOFF_SLO16 },
-+    BFD_RELOC_HI16_S_GOTOFF },
-   { BFD_RELOC_OR1K_TLS_GD_LO16,
--    BFD_RELOC_OR1K_TLS_GD_HI16,
-     BFD_RELOC_UNUSED,
-+    BFD_RELOC_OR1K_TLS_GD_LO13,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_OR1K_TLS_GD_HI16,
-     BFD_RELOC_UNUSED },
-   { BFD_RELOC_OR1K_TLS_LDM_LO16,
--    BFD_RELOC_OR1K_TLS_LDM_HI16,
-     BFD_RELOC_UNUSED,
-+    BFD_RELOC_OR1K_TLS_LDM_LO13,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_OR1K_TLS_LDM_HI16,
-     BFD_RELOC_UNUSED },
-   { BFD_RELOC_OR1K_TLS_LDO_LO16,
--    BFD_RELOC_OR1K_TLS_LDO_HI16,
-     BFD_RELOC_UNUSED,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_OR1K_TLS_LDO_HI16,
-     BFD_RELOC_UNUSED },
-   { BFD_RELOC_OR1K_TLS_IE_LO16,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_OR1K_TLS_IE_LO13,
-+    BFD_RELOC_UNUSED,
-     BFD_RELOC_OR1K_TLS_IE_HI16,
--    BFD_RELOC_OR1K_TLS_IE_AHI16,
--    BFD_RELOC_UNUSED },
-+    BFD_RELOC_OR1K_TLS_IE_AHI16 },
-   { BFD_RELOC_OR1K_TLS_LE_LO16,
-+    BFD_RELOC_OR1K_TLS_LE_SLO16,
-+    BFD_RELOC_UNUSED,
-+    BFD_RELOC_UNUSED,
-     BFD_RELOC_OR1K_TLS_LE_HI16,
--    BFD_RELOC_OR1K_TLS_LE_AHI16,
--    BFD_RELOC_OR1K_TLS_LE_SLO16 }
-+    BFD_RELOC_OR1K_TLS_LE_AHI16 },
- };
- 
- static int
--parse_reloc(const char **strp)
-+parse_reloc (const char **strp)
- {
-     const char *str = *strp;
--    int ret = 0;
-+    enum or1k_rclass cls = RCLASS_DIRECT;
-+    enum or1k_rtype typ;
- 
-     if (strncasecmp (str, "got(", 4) == 0)
--	{
-+      {
- 	*strp = str + 4;
--	return RTYPE_GOT | RTYPE_LO;
--	}
-+	return (RCLASS_GOT << RCLASS_SHIFT) | RTYPE_LO;
-+      }
-+    if (strncasecmp (str, "gotpo(", 6) == 0)
-+      {
-+	*strp = str + 6;
-+	return (RCLASS_GOT << RCLASS_SHIFT) | RTYPE_PO;
-+      }
-+    if (strncasecmp (str, "gottppo(", 8) == 0)
-+      {
-+	*strp = str + 8;
-+	return (RCLASS_GOTTPOFF << RCLASS_SHIFT) | RTYPE_PO;
-+      }
- 
-     if (strncasecmp (str, "gotpc", 5) == 0)
--	{
-+      {
- 	str += 5;
--	ret = RTYPE_GOTPC;
--	}
-+	cls = RCLASS_GOTPC;
-+      }
-     else if (strncasecmp (str, "gotoff", 6) == 0)
--    {
-+      {
- 	str += 6;
--	ret = RTYPE_GOTOFF;
--    }
-+	cls = RCLASS_GOTOFF;
-+      }
-     else if (strncasecmp (str, "tlsgd", 5) == 0)
--    {
-+      {
- 	str += 5;
--	ret = RTYPE_TLSGD;
--    }
-+	cls = RCLASS_TLSGD;
-+      }
-     else if (strncasecmp (str, "tlsldm", 6) == 0)
--    {
-+      {
- 	str += 6;
--	ret = RTYPE_TLSLDM;
--    }
-+	cls = RCLASS_TLSLDM;
-+      }
-     else if (strncasecmp (str, "dtpoff", 6) == 0)
--    {
-+      {
- 	str += 6;
--	ret = RTYPE_DTPOFF;
--    }
-+	cls = RCLASS_DTPOFF;
-+      }
-     else if (strncasecmp (str, "gottpoff", 8) == 0)
--    {
-+      {
- 	str += 8;
--	ret = RTYPE_GOTTPOFF;
--    }
-+	cls = RCLASS_GOTTPOFF;
-+      }
-     else if (strncasecmp (str, "tpoff", 5) == 0)
--    {
-+      {
- 	str += 5;
--	ret = RTYPE_TPOFF;
--    }
-+	cls = RCLASS_TPOFF;
-+      }
- 
-     if (strncasecmp (str, "hi(", 3) == 0)
--    {
-+      {
- 	str += 3;
--	ret |= RTYPE_HI;
--    }
-+	typ = RTYPE_HI;
-+      }
-     else if (strncasecmp (str, "lo(", 3) == 0)
--    {
-+      {
- 	str += 3;
--	ret |= RTYPE_LO;
--    }
-+	typ = RTYPE_LO;
-+      }
-     else if (strncasecmp (str, "ha(", 3) == 0)
--    {
-+      {
- 	str += 3;
--	ret |= RTYPE_AHI;
--    }
-+	typ = RTYPE_AHI;
-+      }
-+    else if (strncasecmp (str, "po(", 3) == 0 && cls != RCLASS_GOTTPOFF)
-+      {
-+	str += 3;
-+	typ = RTYPE_PO;
-+      }
-     else
-       return -1;
- 
-     *strp = str;
--    return ret;
-+    return (cls << RCLASS_SHIFT) | typ;
- }
- 
- static const char *
-@@ -219,23 +315,28 @@ parse_imm16 (CGEN_CPU_DESC cd, const char **strp, int opindex,
-   const char *errmsg;
-   enum cgen_parse_operand_result result_type;
-   bfd_reloc_code_real_type reloc = BFD_RELOC_UNUSED;
--  int reloc_type;
-+  enum or1k_rtype reloc_type;
-+  int reloc_code;
-   bfd_vma ret;
- 
-   if (**strp == '#')
--      ++*strp;
-+    ++*strp;
- 
--  reloc_type = parse_reloc (strp);
--  if (reloc_type >= 0)
-+  reloc_code = parse_reloc (strp);
-+  reloc_type = reloc_code & RTYPE_MASK;
-+  if (reloc_code >= 0)
-     {
-+      enum or1k_rclass reloc_class = reloc_code >> RCLASS_SHIFT;
-       if (splitp)
- 	{
--	  if ((reloc_type & 3) == RTYPE_LO && reloc_type != RTYPE_GOT)
--	    reloc_type |= RTYPE_SLO;
-+	  if ((reloc_type == RTYPE_LO || reloc_type == RTYPE_PO)
-+	      && reloc_class != RCLASS_GOT)
-+	    /* If split we or up the type to RTYPE_SLO or RTYPE_SPO.  */
-+	    reloc_type |= 1;
- 	  else
- 	    return INVALID_STORE_RELOC;
--    }
--      reloc = or1k_imm16_relocs[reloc_type >> 2][reloc_type & 3];
-+	}
-+      reloc = or1k_imm16_relocs[reloc_class][reloc_type];
-     }
- 
-   if (reloc != BFD_RELOC_UNUSED)
-@@ -251,8 +352,8 @@ parse_imm16 (CGEN_CPU_DESC cd, const char **strp, int opindex,
-       ret = value;
- 
-       if (errmsg == NULL && result_type == CGEN_PARSE_OPERAND_RESULT_NUMBER)
--	switch (reloc_type & 3)
--    {
-+	switch (reloc_type)
-+	  {
- 	  case RTYPE_AHI:
- 	    ret += 0x8000;
- 	    /* FALLTHRU */
-@@ -264,6 +365,10 @@ parse_imm16 (CGEN_CPU_DESC cd, const char **strp, int opindex,
- 	    ret &= 0xffff;
- 	    ret = (ret ^ 0x8000) - 0x8000;
- 	    break;
-+	  case RTYPE_PO:
-+	  case RTYPE_SPO:
-+	    ret &= 0x1fff;
-+	    break;
- 	  default:
- 	    errmsg = INVALID_RELOC_TYPE;
- 	  }
-@@ -344,6 +449,13 @@ or1k_cgen_parse_operand (CGEN_CPU_DESC cd,
- 
-   switch (opindex)
-     {
-+    case OR1K_OPERAND_DISP21 :
-+      {
-+        bfd_vma value = 0;
-+        errmsg = parse_disp21 (cd, strp, OR1K_OPERAND_DISP21, 0, NULL,  & value);
-+        fields->f_disp21 = value;
-+      }
-+      break;
-     case OR1K_OPERAND_DISP26 :
-       {
-         bfd_vma value = 0;
+@@ -680,3 +680,23 @@ l_maci:
+ l_adrp:
+ 	l.adrp r3,globaldata
+ 	l.adrp r3,localdata
++l_muld:
++	l.muld r0,r0
++	l.muld r31,r31
++	l.muld r3,r4
++l_muldu:
++	l.muldu r0,r0
++	l.muldu r31,r31
++	l.muldu r3,r4
++l_macu:
++	l.macu r0,r0
++	l.macu r31,r31
++	l.macu r3,r4
++l_msb:
++	l.msb r0,r0
++	l.msb r31,r31
++	l.msb r3,r4
++l_msbu:
++	l.msbu r0,r0
++	l.msbu r31,r31
++	l.msbu r3,r4
 diff --git a/opcodes/or1k-desc.c b/opcodes/or1k-desc.c
-index f1c0768e9c..91c2fbd73d 100644
+index 91c2fbd73d..f3c4e9ee23 100644
 --- a/opcodes/or1k-desc.c
 +++ b/opcodes/or1k-desc.c
-@@ -967,6 +967,7 @@ const CGEN_IFLD or1k_cgen_ifld_table[] =
-   { OR1K_F_IMM16_25_5, "f-imm16-25-5", 0, 32, 25, 5, { 0, { { { (1<<MACH_OR32)|(1<<MACH_OR32ND)|(1<<MACH_OR64)|(1<<MACH_OR64ND), 0 } } } }  },
-   { OR1K_F_IMM16_10_11, "f-imm16-10-11", 0, 32, 10, 11, { 0, { { { (1<<MACH_OR32)|(1<<MACH_OR32ND)|(1<<MACH_OR64)|(1<<MACH_OR64ND), 0 } } } }  },
-   { OR1K_F_DISP26, "f-disp26", 0, 32, 25, 26, { 0|A(PCREL_ADDR), { { { (1<<MACH_OR32)|(1<<MACH_OR32ND)|(1<<MACH_OR64)|(1<<MACH_OR64ND), 0 } } } }  },
-+  { OR1K_F_DISP21, "f-disp21", 0, 32, 20, 21, { 0|A(ABS_ADDR), { { { (1<<MACH_OR32)|(1<<MACH_OR32ND)|(1<<MACH_OR64)|(1<<MACH_OR64ND), 0 } } } }  },
-   { OR1K_F_UIMM16, "f-uimm16", 0, 32, 15, 16, { 0, { { { (1<<MACH_OR32)|(1<<MACH_OR32ND)|(1<<MACH_OR64)|(1<<MACH_OR64ND), 0 } } } }  },
-   { OR1K_F_SIMM16, "f-simm16", 0, 32, 15, 16, { 0|A(SIGN_OPT), { { { (1<<MACH_OR32)|(1<<MACH_OR32ND)|(1<<MACH_OR64)|(1<<MACH_OR64ND), 0 } } } }  },
-   { OR1K_F_UIMM6, "f-uimm6", 0, 32, 5, 6, { 0, { { { (1<<MACH_OR32)|(1<<MACH_OR32ND)|(1<<MACH_OR64)|(1<<MACH_OR64ND), 0 } } } }  },
-@@ -1091,6 +1092,10 @@ const CGEN_OPERAND or1k_cgen_operand_table[] =
-   { "disp26", OR1K_OPERAND_DISP26, HW_H_IADDR, 25, 26,
-     { 0, { (const PTR) &or1k_cgen_ifld_table[OR1K_F_DISP26] } },
-     { 0|A(PCREL_ADDR), { { { (1<<MACH_OR32)|(1<<MACH_OR32ND)|(1<<MACH_OR64)|(1<<MACH_OR64ND), 0 } } } }  },
-+/* disp21: pc-rel 21 bit */
-+  { "disp21", OR1K_OPERAND_DISP21, HW_H_IADDR, 20, 21,
-+    { 0, { (const PTR) &or1k_cgen_ifld_table[OR1K_F_DISP21] } },
-+    { 0|A(ABS_ADDR), { { { (1<<MACH_OR32)|(1<<MACH_OR32ND)|(1<<MACH_OR64)|(1<<MACH_OR64ND), 0 } } } }  },
- /* simm16: 16-bit signed immediate */
-   { "simm16", OR1K_OPERAND_SIMM16, HW_H_SIMM16, 15, 16,
-     { 0, { (const PTR) &or1k_cgen_ifld_table[OR1K_F_SIMM16] } },
-@@ -1156,6 +1161,11 @@ static const CGEN_IBASE or1k_cgen_insn_table[MAX_INSNS] =
-     OR1K_INSN_L_J, "l-j", "l.j", 32,
-     { 0|A(UNCOND_CTI)|A(NOT_IN_DELAY_SLOT)|A(DELAYED_CTI)|A(SKIP_CTI)|A(DELAY_SLOT), { { { (1<<MACH_OR32)|(1<<MACH_OR32ND)|(1<<MACH_OR64)|(1<<MACH_OR64ND), 0 } } } }
+@@ -1381,11 +1381,21 @@ static const CGEN_IBASE or1k_cgen_insn_table[MAX_INSNS] =
+     OR1K_INSN_L_MUL, "l-mul", "l.mul", 32,
+     { 0, { { { (1<<MACH_OR32)|(1<<MACH_OR32ND)|(1<<MACH_OR64)|(1<<MACH_OR64ND), 0 } } } }
    },
-+/* l.adrp $rD,${disp21} */
++/* l.muld $rA,$rB */
 +  {
-+    OR1K_INSN_L_ADRP, "l-adrp", "l.adrp", 32,
++    OR1K_INSN_L_MULD, "l-muld", "l.muld", 32,
 +    { 0, { { { (1<<MACH_OR32)|(1<<MACH_OR32ND)|(1<<MACH_OR64)|(1<<MACH_OR64ND), 0 } } } }
 +  },
- /* l.jal ${disp26} */
+ /* l.mulu $rD,$rA,$rB */
    {
-     OR1K_INSN_L_JAL, "l-jal", "l.jal", 32,
+     OR1K_INSN_L_MULU, "l-mulu", "l.mulu", 32,
+     { 0, { { { (1<<MACH_OR32)|(1<<MACH_OR32ND)|(1<<MACH_OR64)|(1<<MACH_OR64ND), 0 } } } }
+   },
++/* l.muldu $rA,$rB */
++  {
++    OR1K_INSN_L_MULDU, "l-muldu", "l.muldu", 32,
++    { 0, { { { (1<<MACH_OR32)|(1<<MACH_OR32ND)|(1<<MACH_OR64)|(1<<MACH_OR64ND), 0 } } } }
++  },
+ /* l.div $rD,$rA,$rB */
+   {
+     OR1K_INSN_L_DIV, "l-div", "l.div", 32,
+@@ -1576,14 +1586,24 @@ static const CGEN_IBASE or1k_cgen_insn_table[MAX_INSNS] =
+     OR1K_INSN_L_MAC, "l-mac", "l.mac", 32,
+     { 0, { { { (1<<MACH_OR32)|(1<<MACH_OR32ND)|(1<<MACH_OR64)|(1<<MACH_OR64ND), 0 } } } }
+   },
++/* l.maci $rA,${simm16} */
++  {
++    OR1K_INSN_L_MACI, "l-maci", "l.maci", 32,
++    { 0, { { { (1<<MACH_OR32)|(1<<MACH_OR32ND)|(1<<MACH_OR64)|(1<<MACH_OR64ND), 0 } } } }
++  },
++/* l.macu $rA,$rB */
++  {
++    OR1K_INSN_L_MACU, "l-macu", "l.macu", 32,
++    { 0, { { { (1<<MACH_OR32)|(1<<MACH_OR32ND)|(1<<MACH_OR64)|(1<<MACH_OR64ND), 0 } } } }
++  },
+ /* l.msb $rA,$rB */
+   {
+     OR1K_INSN_L_MSB, "l-msb", "l.msb", 32,
+     { 0, { { { (1<<MACH_OR32)|(1<<MACH_OR32ND)|(1<<MACH_OR64)|(1<<MACH_OR64ND), 0 } } } }
+   },
+-/* l.maci $rA,${simm16} */
++/* l.msbu $rA,$rB */
+   {
+-    OR1K_INSN_L_MACI, "l-maci", "l.maci", 32,
++    OR1K_INSN_L_MSBU, "l-msbu", "l.msbu", 32,
+     { 0, { { { (1<<MACH_OR32)|(1<<MACH_OR32ND)|(1<<MACH_OR64)|(1<<MACH_OR64ND), 0 } } } }
+   },
+ /* l.cust1 */
 diff --git a/opcodes/or1k-desc.h b/opcodes/or1k-desc.h
-index 894a8bb462..d84f0fa52a 100644
+index d84f0fa52a..040bd926c5 100644
 --- a/opcodes/or1k-desc.h
 +++ b/opcodes/or1k-desc.h
-@@ -279,18 +279,18 @@ typedef enum spr_field_masks {
+@@ -306,7 +306,7 @@ typedef enum insn_opcode_movehimacrc {
  
- /* Enum declaration for insn main opcode enums.  */
- typedef enum insn_opcode {
--  OPC_J = 0, OPC_JAL = 1, OPC_BNF = 3, OPC_BF = 4
-- , OPC_NOP = 5, OPC_MOVHIMACRC = 6, OPC_SYSTRAPSYNCS = 8, OPC_RFE = 9
-- , OPC_VECTOR = 10, OPC_JR = 17, OPC_JALR = 18, OPC_MACI = 19
-- , OPC_LWA = 27, OPC_CUST1 = 28, OPC_CUST2 = 29, OPC_CUST3 = 30
-- , OPC_CUST4 = 31, OPC_LD = 32, OPC_LWZ = 33, OPC_LWS = 34
-- , OPC_LBZ = 35, OPC_LBS = 36, OPC_LHZ = 37, OPC_LHS = 38
-- , OPC_ADDI = 39, OPC_ADDIC = 40, OPC_ANDI = 41, OPC_ORI = 42
-- , OPC_XORI = 43, OPC_MULI = 44, OPC_MFSPR = 45, OPC_SHROTI = 46
-- , OPC_SFI = 47, OPC_MTSPR = 48, OPC_MAC = 49, OPC_FLOAT = 50
-- , OPC_SWA = 51, OPC_SD = 52, OPC_SW = 53, OPC_SB = 54
-- , OPC_SH = 55, OPC_ALU = 56, OPC_SF = 57, OPC_CUST5 = 60
-- , OPC_CUST6 = 61, OPC_CUST7 = 62, OPC_CUST8 = 63
-+  OPC_J = 0, OPC_JAL = 1, OPC_ADRP = 2, OPC_BNF = 3
-+ , OPC_BF = 4, OPC_NOP = 5, OPC_MOVHIMACRC = 6, OPC_SYSTRAPSYNCS = 8
-+ , OPC_RFE = 9, OPC_VECTOR = 10, OPC_JR = 17, OPC_JALR = 18
-+ , OPC_MACI = 19, OPC_LWA = 27, OPC_CUST1 = 28, OPC_CUST2 = 29
-+ , OPC_CUST3 = 30, OPC_CUST4 = 31, OPC_LD = 32, OPC_LWZ = 33
-+ , OPC_LWS = 34, OPC_LBZ = 35, OPC_LBS = 36, OPC_LHZ = 37
-+ , OPC_LHS = 38, OPC_ADDI = 39, OPC_ADDIC = 40, OPC_ANDI = 41
-+ , OPC_ORI = 42, OPC_XORI = 43, OPC_MULI = 44, OPC_MFSPR = 45
-+ , OPC_SHROTI = 46, OPC_SFI = 47, OPC_MTSPR = 48, OPC_MAC = 49
-+ , OPC_FLOAT = 50, OPC_SWA = 51, OPC_SD = 52, OPC_SW = 53
-+ , OPC_SB = 54, OPC_SH = 55, OPC_ALU = 56, OPC_SF = 57
-+ , OPC_CUST5 = 60, OPC_CUST6 = 61, OPC_CUST7 = 62, OPC_CUST8 = 63
- } INSN_OPCODE;
+ /* Enum declaration for multiply/accumulate insn opcode enums.  */
+ typedef enum insn_opcode_mac {
+-  OPC_MAC_MAC = 1, OPC_MAC_MSB = 2
++  OPC_MAC_MAC = 1, OPC_MAC_MSB = 2, OPC_MAC_MACU = 3, OPC_MAC_MSBU = 4
+ } INSN_OPCODE_MAC;
  
- /* Enum declaration for systrapsync insn opcode enums.  */
-@@ -401,8 +401,8 @@ typedef enum ifield_type {
-  , OR1K_F_RESV_20_5, OR1K_F_RESV_20_4, OR1K_F_RESV_15_8, OR1K_F_RESV_15_6
-  , OR1K_F_RESV_10_11, OR1K_F_RESV_10_7, OR1K_F_RESV_10_3, OR1K_F_RESV_10_1
-  , OR1K_F_RESV_7_4, OR1K_F_RESV_5_2, OR1K_F_IMM16_25_5, OR1K_F_IMM16_10_11
-- , OR1K_F_DISP26, OR1K_F_UIMM16, OR1K_F_SIMM16, OR1K_F_UIMM6
-- , OR1K_F_UIMM16_SPLIT, OR1K_F_SIMM16_SPLIT, OR1K_F_MAX
-+ , OR1K_F_DISP26, OR1K_F_DISP21, OR1K_F_UIMM16, OR1K_F_SIMM16
-+ , OR1K_F_UIMM6, OR1K_F_UIMM16_SPLIT, OR1K_F_SIMM16_SPLIT, OR1K_F_MAX
- } IFIELD_TYPE;
+ /* Enum declaration for shift/rotate insn opcode enums.  */
+@@ -327,9 +327,10 @@ typedef enum insn_opcode_extws {
+ /* Enum declaration for alu reg/reg insn opcode enums.  */
+ typedef enum insn_opcode_alu_regreg {
+   OPC_ALU_REGREG_ADD = 0, OPC_ALU_REGREG_ADDC = 1, OPC_ALU_REGREG_SUB = 2, OPC_ALU_REGREG_AND = 3
+- , OPC_ALU_REGREG_OR = 4, OPC_ALU_REGREG_XOR = 5, OPC_ALU_REGREG_MUL = 6, OPC_ALU_REGREG_SHROT = 8
+- , OPC_ALU_REGREG_DIV = 9, OPC_ALU_REGREG_DIVU = 10, OPC_ALU_REGREG_MULU = 11, OPC_ALU_REGREG_EXTBH = 12
+- , OPC_ALU_REGREG_EXTW = 13, OPC_ALU_REGREG_CMOV = 14, OPC_ALU_REGREG_FFL1 = 15
++ , OPC_ALU_REGREG_OR = 4, OPC_ALU_REGREG_XOR = 5, OPC_ALU_REGREG_MUL = 6, OPC_ALU_REGREG_MULD = 7
++ , OPC_ALU_REGREG_SHROT = 8, OPC_ALU_REGREG_DIV = 9, OPC_ALU_REGREG_DIVU = 10, OPC_ALU_REGREG_MULU = 11
++ , OPC_ALU_REGREG_EXTBH = 12, OPC_ALU_REGREG_EXTW = 13, OPC_ALU_REGREG_MULDU = 13, OPC_ALU_REGREG_CMOV = 14
++ , OPC_ALU_REGREG_FFL1 = 15
+ } INSN_OPCODE_ALU_REGREG;
  
- #define MAX_IFLD ((int) OR1K_F_MAX)
-@@ -622,13 +622,14 @@ typedef enum cgen_operand_type {
-  , OR1K_OPERAND_SYS_SR_OVE, OR1K_OPERAND_SYS_CPUCFGR_OB64S, OR1K_OPERAND_SYS_CPUCFGR_ND, OR1K_OPERAND_SYS_FPCSR_RM
-  , OR1K_OPERAND_MAC_MACHI, OR1K_OPERAND_MAC_MACLO, OR1K_OPERAND_ATOMIC_RESERVE, OR1K_OPERAND_ATOMIC_ADDRESS
-  , OR1K_OPERAND_UIMM6, OR1K_OPERAND_RD, OR1K_OPERAND_RA, OR1K_OPERAND_RB
-- , OR1K_OPERAND_DISP26, OR1K_OPERAND_SIMM16, OR1K_OPERAND_UIMM16, OR1K_OPERAND_SIMM16_SPLIT
-- , OR1K_OPERAND_UIMM16_SPLIT, OR1K_OPERAND_RDSF, OR1K_OPERAND_RASF, OR1K_OPERAND_RBSF
-- , OR1K_OPERAND_RDDF, OR1K_OPERAND_RADF, OR1K_OPERAND_RBDF, OR1K_OPERAND_MAX
-+ , OR1K_OPERAND_DISP26, OR1K_OPERAND_DISP21, OR1K_OPERAND_SIMM16, OR1K_OPERAND_UIMM16
-+ , OR1K_OPERAND_SIMM16_SPLIT, OR1K_OPERAND_UIMM16_SPLIT, OR1K_OPERAND_RDSF, OR1K_OPERAND_RASF
-+ , OR1K_OPERAND_RBSF, OR1K_OPERAND_RDDF, OR1K_OPERAND_RADF, OR1K_OPERAND_RBDF
-+ , OR1K_OPERAND_MAX
- } CGEN_OPERAND_TYPE;
- 
- /* Number of operands types.  */
--#define MAX_OPERANDS 31
-+#define MAX_OPERANDS 32
+ /* Enum declaration for setflag insn opcode enums.  */
+@@ -632,7 +633,7 @@ typedef enum cgen_operand_type {
+ #define MAX_OPERANDS 32
  
  /* Maximum number of operands referenced by any insn.  */
- #define MAX_OPERAND_INSTANCES 9
-diff --git a/opcodes/or1k-dis.c b/opcodes/or1k-dis.c
-index f54b6b411f..6f8001a2be 100644
---- a/opcodes/or1k-dis.c
-+++ b/opcodes/or1k-dis.c
-@@ -90,6 +90,9 @@ or1k_cgen_print_operand (CGEN_CPU_DESC cd,
+-#define MAX_OPERAND_INSTANCES 9
++#define MAX_OPERAND_INSTANCES 10
  
-   switch (opindex)
-     {
-+    case OR1K_OPERAND_DISP21 :
-+      print_address (cd, info, fields->f_disp21, 0|(1<<CGEN_OPERAND_ABS_ADDR), pc, length);
-+      break;
-     case OR1K_OPERAND_DISP26 :
-       print_address (cd, info, fields->f_disp26, 0|(1<<CGEN_OPERAND_PCREL_ADDR), pc, length);
-       break;
-diff --git a/opcodes/or1k-ibld.c b/opcodes/or1k-ibld.c
-index 139457c080..acfede7639 100644
---- a/opcodes/or1k-ibld.c
-+++ b/opcodes/or1k-ibld.c
-@@ -573,10 +573,17 @@ or1k_cgen_insert_operand (CGEN_CPU_DESC cd,
+ /* Insn attribute indices.  */
  
-   switch (opindex)
-     {
-+    case OR1K_OPERAND_DISP21 :
-+      {
-+        long value = fields->f_disp21;
-+        value = ((((DI) (value) >> (13))) - (((DI) (pc) >> (13))));
-+        errmsg = insert_normal (cd, value, 0|(1<<CGEN_IFLD_SIGNED)|(1<<CGEN_IFLD_ABS_ADDR), 0, 20, 21, 32, total_length, buffer);
-+      }
-+      break;
-     case OR1K_OPERAND_DISP26 :
-       {
-         long value = fields->f_disp26;
--        value = ((SI) (((value) - (pc))) >> (2));
-+        value = ((DI) (((value) - (pc))) >> (2));
-         errmsg = insert_normal (cd, value, 0|(1<<CGEN_IFLD_SIGNED)|(1<<CGEN_IFLD_PCREL_ADDR), 0, 25, 26, 32, total_length, buffer);
-       }
-       break;
-@@ -688,6 +695,14 @@ or1k_cgen_extract_operand (CGEN_CPU_DESC cd,
- 
-   switch (opindex)
-     {
-+    case OR1K_OPERAND_DISP21 :
-+      {
-+        long value;
-+        length = extract_normal (cd, ex_info, insn_value, 0|(1<<CGEN_IFLD_SIGNED)|(1<<CGEN_IFLD_ABS_ADDR), 0, 20, 21, 32, total_length, pc, & value);
-+        value = ((((value) + (((DI) (pc) >> (13))))) << (13));
-+        fields->f_disp21 = value;
-+      }
-+      break;
-     case OR1K_OPERAND_DISP26 :
-       {
-         long value;
-@@ -789,6 +804,9 @@ or1k_cgen_get_int_operand (CGEN_CPU_DESC cd ATTRIBUTE_UNUSED,
- 
-   switch (opindex)
-     {
-+    case OR1K_OPERAND_DISP21 :
-+      value = fields->f_disp21;
-+      break;
-     case OR1K_OPERAND_DISP26 :
-       value = fields->f_disp26;
-       break;
-@@ -855,6 +873,9 @@ or1k_cgen_get_vma_operand (CGEN_CPU_DESC cd ATTRIBUTE_UNUSED,
- 
-   switch (opindex)
-     {
-+    case OR1K_OPERAND_DISP21 :
-+      value = fields->f_disp21;
-+      break;
-     case OR1K_OPERAND_DISP26 :
-       value = fields->f_disp26;
-       break;
-@@ -928,6 +949,9 @@ or1k_cgen_set_int_operand (CGEN_CPU_DESC cd ATTRIBUTE_UNUSED,
- {
-   switch (opindex)
-     {
-+    case OR1K_OPERAND_DISP21 :
-+      fields->f_disp21 = value;
-+      break;
-     case OR1K_OPERAND_DISP26 :
-       fields->f_disp26 = value;
-       break;
-@@ -991,6 +1015,9 @@ or1k_cgen_set_vma_operand (CGEN_CPU_DESC cd ATTRIBUTE_UNUSED,
- {
-   switch (opindex)
-     {
-+    case OR1K_OPERAND_DISP21 :
-+      fields->f_disp21 = value;
-+      break;
-     case OR1K_OPERAND_DISP26 :
-       fields->f_disp26 = value;
-       break;
 diff --git a/opcodes/or1k-opc.c b/opcodes/or1k-opc.c
-index 0352bc3ebf..ba820a4c57 100644
+index ba820a4c57..337dda5306 100644
 --- a/opcodes/or1k-opc.c
 +++ b/opcodes/or1k-opc.c
-@@ -52,6 +52,10 @@ static const CGEN_IFMT ifmt_l_j ATTRIBUTE_UNUSED = {
-   32, 32, 0xfc000000, { { F (F_OPCODE) }, { F (F_DISP26) }, { 0 } }
+@@ -116,6 +116,10 @@ static const CGEN_IFMT ifmt_l_and ATTRIBUTE_UNUSED = {
+   32, 32, 0xfc0007ff, { { F (F_OPCODE) }, { F (F_R1) }, { F (F_R2) }, { F (F_R3) }, { F (F_RESV_10_7) }, { F (F_OP_3_4) }, { 0 } }
  };
  
-+static const CGEN_IFMT ifmt_l_adrp ATTRIBUTE_UNUSED = {
-+  32, 32, 0xfc000000, { { F (F_OPCODE) }, { F (F_R1) }, { F (F_DISP21) }, { 0 } }
++static const CGEN_IFMT ifmt_l_muld ATTRIBUTE_UNUSED = {
++  32, 32, 0xffe007ff, { { F (F_OPCODE) }, { F (F_RESV_25_5) }, { F (F_R2) }, { F (F_R3) }, { F (F_RESV_10_7) }, { F (F_OP_3_4) }, { 0 } }
 +};
 +
- static const CGEN_IFMT ifmt_l_jr ATTRIBUTE_UNUSED = {
-   32, 32, 0xffff07ff, { { F (F_OPCODE) }, { F (F_RESV_25_10) }, { F (F_R3) }, { F (F_RESV_10_11) }, { 0 } }
+ static const CGEN_IFMT ifmt_l_exths ATTRIBUTE_UNUSED = {
+   32, 32, 0xfc00ffff, { { F (F_OPCODE) }, { F (F_R1) }, { F (F_R2) }, { F (F_RESV_15_6) }, { F (F_OP_9_4) }, { F (F_RESV_5_2) }, { F (F_OP_3_4) }, { 0 } }
  };
-@@ -189,6 +193,12 @@ static const CGEN_OPCODE or1k_cgen_insn_opcode_table[MAX_INSNS] =
-     { { MNEM, ' ', OP (DISP26), 0 } },
-     & ifmt_l_j, { 0x0 }
+@@ -457,12 +461,24 @@ static const CGEN_OPCODE or1k_cgen_insn_opcode_table[MAX_INSNS] =
+     { { MNEM, ' ', OP (RD), ',', OP (RA), ',', OP (RB), 0 } },
+     & ifmt_l_and, { 0xe0000306 }
    },
-+/* l.adrp $rD,${disp21} */
++/* l.muld $rA,$rB */
 +  {
 +    { 0, 0, 0, 0 },
-+    { { MNEM, ' ', OP (RD), ',', OP (DISP21), 0 } },
-+    & ifmt_l_adrp, { 0x8000000 }
++    { { MNEM, ' ', OP (RA), ',', OP (RB), 0 } },
++    & ifmt_l_muld, { 0xe0000307 }
 +  },
- /* l.jal ${disp26} */
+ /* l.mulu $rD,$rA,$rB */
    {
      { 0, 0, 0, 0 },
+     { { MNEM, ' ', OP (RD), ',', OP (RA), ',', OP (RB), 0 } },
+     & ifmt_l_and, { 0xe000030b }
+   },
++/* l.muldu $rA,$rB */
++  {
++    { 0, 0, 0, 0 },
++    { { MNEM, ' ', OP (RA), ',', OP (RB), 0 } },
++    & ifmt_l_muld, { 0xe000030d }
++  },
+ /* l.div $rD,$rA,$rB */
+   {
+     { 0, 0, 0, 0 },
+@@ -691,17 +707,29 @@ static const CGEN_OPCODE or1k_cgen_insn_opcode_table[MAX_INSNS] =
+     { { MNEM, ' ', OP (RA), ',', OP (RB), 0 } },
+     & ifmt_l_mac, { 0xc4000001 }
+   },
++/* l.maci $rA,${simm16} */
++  {
++    { 0, 0, 0, 0 },
++    { { MNEM, ' ', OP (RA), ',', OP (SIMM16), 0 } },
++    & ifmt_l_maci, { 0x4c000000 }
++  },
++/* l.macu $rA,$rB */
++  {
++    { 0, 0, 0, 0 },
++    { { MNEM, ' ', OP (RA), ',', OP (RB), 0 } },
++    & ifmt_l_mac, { 0xc4000003 }
++  },
+ /* l.msb $rA,$rB */
+   {
+     { 0, 0, 0, 0 },
+     { { MNEM, ' ', OP (RA), ',', OP (RB), 0 } },
+     & ifmt_l_mac, { 0xc4000002 }
+   },
+-/* l.maci $rA,${simm16} */
++/* l.msbu $rA,$rB */
+   {
+     { 0, 0, 0, 0 },
+-    { { MNEM, ' ', OP (RA), ',', OP (SIMM16), 0 } },
+-    & ifmt_l_maci, { 0x4c000000 }
++    { { MNEM, ' ', OP (RA), ',', OP (RB), 0 } },
++    & ifmt_l_mac, { 0xc4000004 }
+   },
+ /* l.cust1 */
+   {
 diff --git a/opcodes/or1k-opc.h b/opcodes/or1k-opc.h
-index 5692ea95f1..d2a377257f 100644
+index d2a377257f..66d077361f 100644
 --- a/opcodes/or1k-opc.h
 +++ b/opcodes/or1k-opc.h
-@@ -40,37 +40,38 @@ extern "C" {
- /* -- */
- /* Enum declaration for or1k instruction types.  */
- typedef enum cgen_insn_type {
--  OR1K_INSN_INVALID, OR1K_INSN_L_J, OR1K_INSN_L_JAL, OR1K_INSN_L_JR
-- , OR1K_INSN_L_JALR, OR1K_INSN_L_BNF, OR1K_INSN_L_BF, OR1K_INSN_L_TRAP
-- , OR1K_INSN_L_SYS, OR1K_INSN_L_MSYNC, OR1K_INSN_L_PSYNC, OR1K_INSN_L_CSYNC
-- , OR1K_INSN_L_RFE, OR1K_INSN_L_NOP_IMM, OR1K_INSN_L_NOP, OR1K_INSN_L_MOVHI
-- , OR1K_INSN_L_MACRC, OR1K_INSN_L_MFSPR, OR1K_INSN_L_MTSPR, OR1K_INSN_L_LWZ
-- , OR1K_INSN_L_LWS, OR1K_INSN_L_LWA, OR1K_INSN_L_LBZ, OR1K_INSN_L_LBS
-- , OR1K_INSN_L_LHZ, OR1K_INSN_L_LHS, OR1K_INSN_L_SW, OR1K_INSN_L_SB
-- , OR1K_INSN_L_SH, OR1K_INSN_L_SWA, OR1K_INSN_L_SLL, OR1K_INSN_L_SLLI
-- , OR1K_INSN_L_SRL, OR1K_INSN_L_SRLI, OR1K_INSN_L_SRA, OR1K_INSN_L_SRAI
-- , OR1K_INSN_L_ROR, OR1K_INSN_L_RORI, OR1K_INSN_L_AND, OR1K_INSN_L_OR
-- , OR1K_INSN_L_XOR, OR1K_INSN_L_ADD, OR1K_INSN_L_SUB, OR1K_INSN_L_ADDC
-- , OR1K_INSN_L_MUL, OR1K_INSN_L_MULU, OR1K_INSN_L_DIV, OR1K_INSN_L_DIVU
-- , OR1K_INSN_L_FF1, OR1K_INSN_L_FL1, OR1K_INSN_L_ANDI, OR1K_INSN_L_ORI
-- , OR1K_INSN_L_XORI, OR1K_INSN_L_ADDI, OR1K_INSN_L_ADDIC, OR1K_INSN_L_MULI
-- , OR1K_INSN_L_EXTHS, OR1K_INSN_L_EXTBS, OR1K_INSN_L_EXTHZ, OR1K_INSN_L_EXTBZ
-- , OR1K_INSN_L_EXTWS, OR1K_INSN_L_EXTWZ, OR1K_INSN_L_CMOV, OR1K_INSN_L_SFGTS
-- , OR1K_INSN_L_SFGTSI, OR1K_INSN_L_SFGTU, OR1K_INSN_L_SFGTUI, OR1K_INSN_L_SFGES
-- , OR1K_INSN_L_SFGESI, OR1K_INSN_L_SFGEU, OR1K_INSN_L_SFGEUI, OR1K_INSN_L_SFLTS
-- , OR1K_INSN_L_SFLTSI, OR1K_INSN_L_SFLTU, OR1K_INSN_L_SFLTUI, OR1K_INSN_L_SFLES
-- , OR1K_INSN_L_SFLESI, OR1K_INSN_L_SFLEU, OR1K_INSN_L_SFLEUI, OR1K_INSN_L_SFEQ
-- , OR1K_INSN_L_SFEQI, OR1K_INSN_L_SFNE, OR1K_INSN_L_SFNEI, OR1K_INSN_L_MAC
-- , OR1K_INSN_L_MSB, OR1K_INSN_L_MACI, OR1K_INSN_L_CUST1, OR1K_INSN_L_CUST2
-- , OR1K_INSN_L_CUST3, OR1K_INSN_L_CUST4, OR1K_INSN_L_CUST5, OR1K_INSN_L_CUST6
-- , OR1K_INSN_L_CUST7, OR1K_INSN_L_CUST8, OR1K_INSN_LF_ADD_S, OR1K_INSN_LF_ADD_D
-- , OR1K_INSN_LF_SUB_S, OR1K_INSN_LF_SUB_D, OR1K_INSN_LF_MUL_S, OR1K_INSN_LF_MUL_D
-- , OR1K_INSN_LF_DIV_S, OR1K_INSN_LF_DIV_D, OR1K_INSN_LF_REM_S, OR1K_INSN_LF_REM_D
-- , OR1K_INSN_LF_ITOF_S, OR1K_INSN_LF_ITOF_D, OR1K_INSN_LF_FTOI_S, OR1K_INSN_LF_FTOI_D
-- , OR1K_INSN_LF_EQ_S, OR1K_INSN_LF_EQ_D, OR1K_INSN_LF_NE_S, OR1K_INSN_LF_NE_D
-- , OR1K_INSN_LF_GE_S, OR1K_INSN_LF_GE_D, OR1K_INSN_LF_GT_S, OR1K_INSN_LF_GT_D
-- , OR1K_INSN_LF_LT_S, OR1K_INSN_LF_LT_D, OR1K_INSN_LF_LE_S, OR1K_INSN_LF_LE_D
-- , OR1K_INSN_LF_MADD_S, OR1K_INSN_LF_MADD_D, OR1K_INSN_LF_CUST1_S, OR1K_INSN_LF_CUST1_D
-+  OR1K_INSN_INVALID, OR1K_INSN_L_J, OR1K_INSN_L_ADRP, OR1K_INSN_L_JAL
-+ , OR1K_INSN_L_JR, OR1K_INSN_L_JALR, OR1K_INSN_L_BNF, OR1K_INSN_L_BF
-+ , OR1K_INSN_L_TRAP, OR1K_INSN_L_SYS, OR1K_INSN_L_MSYNC, OR1K_INSN_L_PSYNC
-+ , OR1K_INSN_L_CSYNC, OR1K_INSN_L_RFE, OR1K_INSN_L_NOP_IMM, OR1K_INSN_L_NOP
-+ , OR1K_INSN_L_MOVHI, OR1K_INSN_L_MACRC, OR1K_INSN_L_MFSPR, OR1K_INSN_L_MTSPR
-+ , OR1K_INSN_L_LWZ, OR1K_INSN_L_LWS, OR1K_INSN_L_LWA, OR1K_INSN_L_LBZ
-+ , OR1K_INSN_L_LBS, OR1K_INSN_L_LHZ, OR1K_INSN_L_LHS, OR1K_INSN_L_SW
-+ , OR1K_INSN_L_SB, OR1K_INSN_L_SH, OR1K_INSN_L_SWA, OR1K_INSN_L_SLL
-+ , OR1K_INSN_L_SLLI, OR1K_INSN_L_SRL, OR1K_INSN_L_SRLI, OR1K_INSN_L_SRA
-+ , OR1K_INSN_L_SRAI, OR1K_INSN_L_ROR, OR1K_INSN_L_RORI, OR1K_INSN_L_AND
-+ , OR1K_INSN_L_OR, OR1K_INSN_L_XOR, OR1K_INSN_L_ADD, OR1K_INSN_L_SUB
-+ , OR1K_INSN_L_ADDC, OR1K_INSN_L_MUL, OR1K_INSN_L_MULU, OR1K_INSN_L_DIV
-+ , OR1K_INSN_L_DIVU, OR1K_INSN_L_FF1, OR1K_INSN_L_FL1, OR1K_INSN_L_ANDI
-+ , OR1K_INSN_L_ORI, OR1K_INSN_L_XORI, OR1K_INSN_L_ADDI, OR1K_INSN_L_ADDIC
-+ , OR1K_INSN_L_MULI, OR1K_INSN_L_EXTHS, OR1K_INSN_L_EXTBS, OR1K_INSN_L_EXTHZ
-+ , OR1K_INSN_L_EXTBZ, OR1K_INSN_L_EXTWS, OR1K_INSN_L_EXTWZ, OR1K_INSN_L_CMOV
-+ , OR1K_INSN_L_SFGTS, OR1K_INSN_L_SFGTSI, OR1K_INSN_L_SFGTU, OR1K_INSN_L_SFGTUI
-+ , OR1K_INSN_L_SFGES, OR1K_INSN_L_SFGESI, OR1K_INSN_L_SFGEU, OR1K_INSN_L_SFGEUI
-+ , OR1K_INSN_L_SFLTS, OR1K_INSN_L_SFLTSI, OR1K_INSN_L_SFLTU, OR1K_INSN_L_SFLTUI
-+ , OR1K_INSN_L_SFLES, OR1K_INSN_L_SFLESI, OR1K_INSN_L_SFLEU, OR1K_INSN_L_SFLEUI
-+ , OR1K_INSN_L_SFEQ, OR1K_INSN_L_SFEQI, OR1K_INSN_L_SFNE, OR1K_INSN_L_SFNEI
-+ , OR1K_INSN_L_MAC, OR1K_INSN_L_MSB, OR1K_INSN_L_MACI, OR1K_INSN_L_CUST1
-+ , OR1K_INSN_L_CUST2, OR1K_INSN_L_CUST3, OR1K_INSN_L_CUST4, OR1K_INSN_L_CUST5
-+ , OR1K_INSN_L_CUST6, OR1K_INSN_L_CUST7, OR1K_INSN_L_CUST8, OR1K_INSN_LF_ADD_S
-+ , OR1K_INSN_LF_ADD_D, OR1K_INSN_LF_SUB_S, OR1K_INSN_LF_SUB_D, OR1K_INSN_LF_MUL_S
-+ , OR1K_INSN_LF_MUL_D, OR1K_INSN_LF_DIV_S, OR1K_INSN_LF_DIV_D, OR1K_INSN_LF_REM_S
-+ , OR1K_INSN_LF_REM_D, OR1K_INSN_LF_ITOF_S, OR1K_INSN_LF_ITOF_D, OR1K_INSN_LF_FTOI_S
-+ , OR1K_INSN_LF_FTOI_D, OR1K_INSN_LF_EQ_S, OR1K_INSN_LF_EQ_D, OR1K_INSN_LF_NE_S
-+ , OR1K_INSN_LF_NE_D, OR1K_INSN_LF_GE_S, OR1K_INSN_LF_GE_D, OR1K_INSN_LF_GT_S
-+ , OR1K_INSN_LF_GT_D, OR1K_INSN_LF_LT_S, OR1K_INSN_LF_LT_D, OR1K_INSN_LF_LE_S
-+ , OR1K_INSN_LF_LE_D, OR1K_INSN_LF_MADD_S, OR1K_INSN_LF_MADD_D, OR1K_INSN_LF_CUST1_S
-+ , OR1K_INSN_LF_CUST1_D
- } CGEN_INSN_TYPE;
- 
- /* Index of `invalid' insn place holder.  */
-@@ -116,6 +117,7 @@ struct cgen_fields
-   long f_imm16_25_5;
-   long f_imm16_10_11;
-   long f_disp26;
-+  long f_disp21;
-   long f_uimm16;
-   long f_simm16;
-   long f_uimm6;
+@@ -51,17 +51,18 @@ typedef enum cgen_insn_type {
+  , OR1K_INSN_L_SLLI, OR1K_INSN_L_SRL, OR1K_INSN_L_SRLI, OR1K_INSN_L_SRA
+  , OR1K_INSN_L_SRAI, OR1K_INSN_L_ROR, OR1K_INSN_L_RORI, OR1K_INSN_L_AND
+  , OR1K_INSN_L_OR, OR1K_INSN_L_XOR, OR1K_INSN_L_ADD, OR1K_INSN_L_SUB
+- , OR1K_INSN_L_ADDC, OR1K_INSN_L_MUL, OR1K_INSN_L_MULU, OR1K_INSN_L_DIV
+- , OR1K_INSN_L_DIVU, OR1K_INSN_L_FF1, OR1K_INSN_L_FL1, OR1K_INSN_L_ANDI
+- , OR1K_INSN_L_ORI, OR1K_INSN_L_XORI, OR1K_INSN_L_ADDI, OR1K_INSN_L_ADDIC
+- , OR1K_INSN_L_MULI, OR1K_INSN_L_EXTHS, OR1K_INSN_L_EXTBS, OR1K_INSN_L_EXTHZ
+- , OR1K_INSN_L_EXTBZ, OR1K_INSN_L_EXTWS, OR1K_INSN_L_EXTWZ, OR1K_INSN_L_CMOV
+- , OR1K_INSN_L_SFGTS, OR1K_INSN_L_SFGTSI, OR1K_INSN_L_SFGTU, OR1K_INSN_L_SFGTUI
+- , OR1K_INSN_L_SFGES, OR1K_INSN_L_SFGESI, OR1K_INSN_L_SFGEU, OR1K_INSN_L_SFGEUI
+- , OR1K_INSN_L_SFLTS, OR1K_INSN_L_SFLTSI, OR1K_INSN_L_SFLTU, OR1K_INSN_L_SFLTUI
+- , OR1K_INSN_L_SFLES, OR1K_INSN_L_SFLESI, OR1K_INSN_L_SFLEU, OR1K_INSN_L_SFLEUI
+- , OR1K_INSN_L_SFEQ, OR1K_INSN_L_SFEQI, OR1K_INSN_L_SFNE, OR1K_INSN_L_SFNEI
+- , OR1K_INSN_L_MAC, OR1K_INSN_L_MSB, OR1K_INSN_L_MACI, OR1K_INSN_L_CUST1
++ , OR1K_INSN_L_ADDC, OR1K_INSN_L_MUL, OR1K_INSN_L_MULD, OR1K_INSN_L_MULU
++ , OR1K_INSN_L_MULDU, OR1K_INSN_L_DIV, OR1K_INSN_L_DIVU, OR1K_INSN_L_FF1
++ , OR1K_INSN_L_FL1, OR1K_INSN_L_ANDI, OR1K_INSN_L_ORI, OR1K_INSN_L_XORI
++ , OR1K_INSN_L_ADDI, OR1K_INSN_L_ADDIC, OR1K_INSN_L_MULI, OR1K_INSN_L_EXTHS
++ , OR1K_INSN_L_EXTBS, OR1K_INSN_L_EXTHZ, OR1K_INSN_L_EXTBZ, OR1K_INSN_L_EXTWS
++ , OR1K_INSN_L_EXTWZ, OR1K_INSN_L_CMOV, OR1K_INSN_L_SFGTS, OR1K_INSN_L_SFGTSI
++ , OR1K_INSN_L_SFGTU, OR1K_INSN_L_SFGTUI, OR1K_INSN_L_SFGES, OR1K_INSN_L_SFGESI
++ , OR1K_INSN_L_SFGEU, OR1K_INSN_L_SFGEUI, OR1K_INSN_L_SFLTS, OR1K_INSN_L_SFLTSI
++ , OR1K_INSN_L_SFLTU, OR1K_INSN_L_SFLTUI, OR1K_INSN_L_SFLES, OR1K_INSN_L_SFLESI
++ , OR1K_INSN_L_SFLEU, OR1K_INSN_L_SFLEUI, OR1K_INSN_L_SFEQ, OR1K_INSN_L_SFEQI
++ , OR1K_INSN_L_SFNE, OR1K_INSN_L_SFNEI, OR1K_INSN_L_MAC, OR1K_INSN_L_MACI
++ , OR1K_INSN_L_MACU, OR1K_INSN_L_MSB, OR1K_INSN_L_MSBU, OR1K_INSN_L_CUST1
+  , OR1K_INSN_L_CUST2, OR1K_INSN_L_CUST3, OR1K_INSN_L_CUST4, OR1K_INSN_L_CUST5
+  , OR1K_INSN_L_CUST6, OR1K_INSN_L_CUST7, OR1K_INSN_L_CUST8, OR1K_INSN_LF_ADD_S
+  , OR1K_INSN_LF_ADD_D, OR1K_INSN_LF_SUB_S, OR1K_INSN_LF_SUB_D, OR1K_INSN_LF_MUL_S
 diff --git a/opcodes/or1k-opinst.c b/opcodes/or1k-opinst.c
-index 936ed67f1b..c267efb6c4 100644
+index c267efb6c4..53268e21f4 100644
 --- a/opcodes/or1k-opinst.c
 +++ b/opcodes/or1k-opinst.c
-@@ -49,6 +49,12 @@ static const CGEN_OPINST sfmt_l_j_ops[] ATTRIBUTE_UNUSED = {
+@@ -278,15 +278,53 @@ static const CGEN_OPINST sfmt_l_addc_ops[] ATTRIBUTE_UNUSED = {
    { END, (const char *)0, (enum cgen_hw_type)0, (enum cgen_mode)0, (enum cgen_operand_type)0, 0, 0 }
  };
  
-+static const CGEN_OPINST sfmt_l_adrp_ops[] ATTRIBUTE_UNUSED = {
-+  { INPUT, "disp21", HW_H_IADDR, CGEN_MODE_UDI, OP_ENT (DISP21), 0, 0 },
+-static const CGEN_OPINST sfmt_l_div_ops[] ATTRIBUTE_UNUSED = {
++static const CGEN_OPINST sfmt_l_mul_ops[] ATTRIBUTE_UNUSED = {
+   { INPUT, "pc", HW_H_PC, CGEN_MODE_UDI, 0, 0, COND_REF },
+-  { INPUT, "rA", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RA), 0, COND_REF },
++  { INPUT, "rA", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RA), 0, 0 },
++  { INPUT, "rB", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RB), 0, 0 },
++  { INPUT, "sys_sr_ov", HW_H_SYS_SR_OV, CGEN_MODE_UDI, 0, 0, 0 },
++  { INPUT, "sys_sr_ove", HW_H_SYS_SR_OVE, CGEN_MODE_UDI, 0, 0, 0 },
 +  { OUTPUT, "rD", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RD), 0, 0 },
++  { OUTPUT, "sys_sr_ov", HW_H_SYS_SR_OV, CGEN_MODE_UDI, 0, 0, 0 },
 +  { END, (const char *)0, (enum cgen_hw_type)0, (enum cgen_mode)0, (enum cgen_operand_type)0, 0, 0 }
 +};
 +
- static const CGEN_OPINST sfmt_l_jal_ops[] ATTRIBUTE_UNUSED = {
-   { INPUT, "disp26", HW_H_IADDR, CGEN_MODE_UDI, OP_ENT (DISP26), 0, 0 },
-   { INPUT, "pc", HW_H_PC, CGEN_MODE_UDI, 0, 0, 0 },
-@@ -453,6 +459,7 @@ static const CGEN_OPINST sfmt_lf_madd_d_ops[] ATTRIBUTE_UNUSED = {
- static const CGEN_OPINST *or1k_cgen_opinst_table[MAX_INSNS] = {
-   0,
-   & sfmt_l_j_ops[0],
-+  & sfmt_l_adrp_ops[0],
-   & sfmt_l_jal_ops[0],
-   & sfmt_l_jr_ops[0],
-   & sfmt_l_jalr_ops[0],
++static const CGEN_OPINST sfmt_l_muld_ops[] ATTRIBUTE_UNUSED = {
++  { INPUT, "rA", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RA), 0, 0 },
++  { INPUT, "rB", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RB), 0, 0 },
++  { OUTPUT, "mac_machi", HW_H_MAC_MACHI, CGEN_MODE_UDI, 0, 0, 0 },
++  { OUTPUT, "mac_maclo", HW_H_MAC_MACLO, CGEN_MODE_UDI, 0, 0, 0 },
++  { END, (const char *)0, (enum cgen_hw_type)0, (enum cgen_mode)0, (enum cgen_operand_type)0, 0, 0 }
++};
++
++static const CGEN_OPINST sfmt_l_mulu_ops[] ATTRIBUTE_UNUSED = {
++  { INPUT, "pc", HW_H_PC, CGEN_MODE_UDI, 0, 0, COND_REF },
++  { INPUT, "rA", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RA), 0, 0 },
+   { INPUT, "rB", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RB), 0, 0 },
+   { INPUT, "sys_sr_cy", HW_H_SYS_SR_CY, CGEN_MODE_UDI, 0, 0, 0 },
+   { INPUT, "sys_sr_ove", HW_H_SYS_SR_OVE, CGEN_MODE_UDI, 0, 0, 0 },
++  { OUTPUT, "rD", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RD), 0, 0 },
++  { OUTPUT, "sys_sr_cy", HW_H_SYS_SR_CY, CGEN_MODE_UDI, 0, 0, 0 },
++  { END, (const char *)0, (enum cgen_hw_type)0, (enum cgen_mode)0, (enum cgen_operand_type)0, 0, 0 }
++};
++
++static const CGEN_OPINST sfmt_l_div_ops[] ATTRIBUTE_UNUSED = {
++  { INPUT, "pc", HW_H_PC, CGEN_MODE_UDI, 0, 0, COND_REF },
++  { INPUT, "rA", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RA), 0, COND_REF },
++  { INPUT, "rB", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RB), 0, 0 },
++  { INPUT, "sys_sr_ove", HW_H_SYS_SR_OVE, CGEN_MODE_UDI, 0, 0, COND_REF },
++  { OUTPUT, "rD", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RD), 0, COND_REF },
++  { OUTPUT, "sys_sr_ov", HW_H_SYS_SR_OV, CGEN_MODE_UDI, 0, 0, COND_REF },
++  { END, (const char *)0, (enum cgen_hw_type)0, (enum cgen_mode)0, (enum cgen_operand_type)0, 0, 0 }
++};
++
++static const CGEN_OPINST sfmt_l_divu_ops[] ATTRIBUTE_UNUSED = {
++  { INPUT, "pc", HW_H_PC, CGEN_MODE_UDI, 0, 0, COND_REF },
++  { INPUT, "rA", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RA), 0, COND_REF },
++  { INPUT, "rB", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RB), 0, 0 },
++  { INPUT, "sys_sr_ove", HW_H_SYS_SR_OVE, CGEN_MODE_UDI, 0, 0, COND_REF },
+   { OUTPUT, "rD", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RD), 0, COND_REF },
+   { OUTPUT, "sys_sr_cy", HW_H_SYS_SR_CY, CGEN_MODE_UDI, 0, 0, COND_REF },
+-  { OUTPUT, "sys_sr_ov", HW_H_SYS_SR_OV, CGEN_MODE_UDI, 0, 0, 0 },
+   { END, (const char *)0, (enum cgen_hw_type)0, (enum cgen_mode)0, (enum cgen_operand_type)0, 0, 0 }
+ };
+ 
+@@ -328,6 +366,17 @@ static const CGEN_OPINST sfmt_l_addic_ops[] ATTRIBUTE_UNUSED = {
+   { END, (const char *)0, (enum cgen_hw_type)0, (enum cgen_mode)0, (enum cgen_operand_type)0, 0, 0 }
+ };
+ 
++static const CGEN_OPINST sfmt_l_muli_ops[] ATTRIBUTE_UNUSED = {
++  { INPUT, "pc", HW_H_PC, CGEN_MODE_UDI, 0, 0, COND_REF },
++  { INPUT, "rA", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RA), 0, 0 },
++  { INPUT, "simm16", HW_H_SIMM16, CGEN_MODE_INT, OP_ENT (SIMM16), 0, 0 },
++  { INPUT, "sys_sr_ov", HW_H_SYS_SR_OV, CGEN_MODE_UDI, 0, 0, 0 },
++  { INPUT, "sys_sr_ove", HW_H_SYS_SR_OVE, CGEN_MODE_UDI, 0, 0, 0 },
++  { OUTPUT, "rD", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RD), 0, 0 },
++  { OUTPUT, "sys_sr_ov", HW_H_SYS_SR_OV, CGEN_MODE_UDI, 0, 0, 0 },
++  { END, (const char *)0, (enum cgen_hw_type)0, (enum cgen_mode)0, (enum cgen_operand_type)0, 0, 0 }
++};
++
+ static const CGEN_OPINST sfmt_l_exths_ops[] ATTRIBUTE_UNUSED = {
+   { INPUT, "rA", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RA), 0, 0 },
+   { OUTPUT, "rD", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RD), 0, 0 },
+@@ -359,20 +408,42 @@ static const CGEN_OPINST sfmt_l_sfgtsi_ops[] ATTRIBUTE_UNUSED = {
+ static const CGEN_OPINST sfmt_l_mac_ops[] ATTRIBUTE_UNUSED = {
+   { INPUT, "mac_machi", HW_H_MAC_MACHI, CGEN_MODE_UDI, 0, 0, 0 },
+   { INPUT, "mac_maclo", HW_H_MAC_MACLO, CGEN_MODE_UDI, 0, 0, 0 },
++  { INPUT, "pc", HW_H_PC, CGEN_MODE_UDI, 0, 0, COND_REF },
+   { INPUT, "rA", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RA), 0, 0 },
+   { INPUT, "rB", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RB), 0, 0 },
++  { INPUT, "sys_sr_ov", HW_H_SYS_SR_OV, CGEN_MODE_UDI, 0, 0, 0 },
++  { INPUT, "sys_sr_ove", HW_H_SYS_SR_OVE, CGEN_MODE_UDI, 0, 0, 0 },
+   { OUTPUT, "mac_machi", HW_H_MAC_MACHI, CGEN_MODE_UDI, 0, 0, 0 },
+   { OUTPUT, "mac_maclo", HW_H_MAC_MACLO, CGEN_MODE_UDI, 0, 0, 0 },
++  { OUTPUT, "sys_sr_ov", HW_H_SYS_SR_OV, CGEN_MODE_UDI, 0, 0, 0 },
+   { END, (const char *)0, (enum cgen_hw_type)0, (enum cgen_mode)0, (enum cgen_operand_type)0, 0, 0 }
+ };
+ 
+ static const CGEN_OPINST sfmt_l_maci_ops[] ATTRIBUTE_UNUSED = {
+   { INPUT, "mac_machi", HW_H_MAC_MACHI, CGEN_MODE_UDI, 0, 0, 0 },
+   { INPUT, "mac_maclo", HW_H_MAC_MACLO, CGEN_MODE_UDI, 0, 0, 0 },
++  { INPUT, "pc", HW_H_PC, CGEN_MODE_UDI, 0, 0, COND_REF },
+   { INPUT, "rA", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RA), 0, 0 },
+   { INPUT, "simm16", HW_H_SIMM16, CGEN_MODE_INT, OP_ENT (SIMM16), 0, 0 },
++  { INPUT, "sys_sr_ov", HW_H_SYS_SR_OV, CGEN_MODE_UDI, 0, 0, 0 },
++  { INPUT, "sys_sr_ove", HW_H_SYS_SR_OVE, CGEN_MODE_UDI, 0, 0, 0 },
+   { OUTPUT, "mac_machi", HW_H_MAC_MACHI, CGEN_MODE_UDI, 0, 0, 0 },
+   { OUTPUT, "mac_maclo", HW_H_MAC_MACLO, CGEN_MODE_UDI, 0, 0, 0 },
++  { OUTPUT, "sys_sr_ov", HW_H_SYS_SR_OV, CGEN_MODE_UDI, 0, 0, 0 },
++  { END, (const char *)0, (enum cgen_hw_type)0, (enum cgen_mode)0, (enum cgen_operand_type)0, 0, 0 }
++};
++
++static const CGEN_OPINST sfmt_l_macu_ops[] ATTRIBUTE_UNUSED = {
++  { INPUT, "mac_machi", HW_H_MAC_MACHI, CGEN_MODE_UDI, 0, 0, 0 },
++  { INPUT, "mac_maclo", HW_H_MAC_MACLO, CGEN_MODE_UDI, 0, 0, 0 },
++  { INPUT, "pc", HW_H_PC, CGEN_MODE_UDI, 0, 0, COND_REF },
++  { INPUT, "rA", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RA), 0, 0 },
++  { INPUT, "rB", HW_H_GPR, CGEN_MODE_UDI, OP_ENT (RB), 0, 0 },
++  { INPUT, "sys_sr_cy", HW_H_SYS_SR_CY, CGEN_MODE_UDI, 0, 0, 0 },
++  { INPUT, "sys_sr_ove", HW_H_SYS_SR_OVE, CGEN_MODE_UDI, 0, 0, 0 },
++  { OUTPUT, "mac_machi", HW_H_MAC_MACHI, CGEN_MODE_UDI, 0, 0, 0 },
++  { OUTPUT, "mac_maclo", HW_H_MAC_MACLO, CGEN_MODE_UDI, 0, 0, 0 },
++  { OUTPUT, "sys_sr_cy", HW_H_SYS_SR_CY, CGEN_MODE_UDI, 0, 0, 0 },
+   { END, (const char *)0, (enum cgen_hw_type)0, (enum cgen_mode)0, (enum cgen_operand_type)0, 0, 0 }
+ };
+ 
+@@ -502,10 +573,12 @@ static const CGEN_OPINST *or1k_cgen_opinst_table[MAX_INSNS] = {
+   & sfmt_l_add_ops[0],
+   & sfmt_l_add_ops[0],
+   & sfmt_l_addc_ops[0],
+-  & sfmt_l_add_ops[0],
+-  & sfmt_l_add_ops[0],
+-  & sfmt_l_div_ops[0],
++  & sfmt_l_mul_ops[0],
++  & sfmt_l_muld_ops[0],
++  & sfmt_l_mulu_ops[0],
++  & sfmt_l_muld_ops[0],
+   & sfmt_l_div_ops[0],
++  & sfmt_l_divu_ops[0],
+   & sfmt_l_ff1_ops[0],
+   & sfmt_l_ff1_ops[0],
+   & sfmt_l_mfspr_ops[0],
+@@ -513,7 +586,7 @@ static const CGEN_OPINST *or1k_cgen_opinst_table[MAX_INSNS] = {
+   & sfmt_l_xori_ops[0],
+   & sfmt_l_addi_ops[0],
+   & sfmt_l_addic_ops[0],
+-  & sfmt_l_addi_ops[0],
++  & sfmt_l_muli_ops[0],
+   & sfmt_l_exths_ops[0],
+   & sfmt_l_exths_ops[0],
+   & sfmt_l_exths_ops[0],
+@@ -542,8 +615,10 @@ static const CGEN_OPINST *or1k_cgen_opinst_table[MAX_INSNS] = {
+   & sfmt_l_sfgts_ops[0],
+   & sfmt_l_sfgtsi_ops[0],
+   & sfmt_l_mac_ops[0],
+-  & sfmt_l_mac_ops[0],
+   & sfmt_l_maci_ops[0],
++  & sfmt_l_macu_ops[0],
++  & sfmt_l_mac_ops[0],
++  & sfmt_l_macu_ops[0],
+   & sfmt_l_msync_ops[0],
+   & sfmt_l_msync_ops[0],
+   & sfmt_l_msync_ops[0],
+diff --git a/sim/common/cgen-ops.h b/sim/common/cgen-ops.h
+index 87ca4836ba..0ce7e58bba 100644
+--- a/sim/common/cgen-ops.h
++++ b/sim/common/cgen-ops.h
+@@ -647,6 +647,38 @@ MUL1OFSI (USI a, USI b)
+   return res;
+ }
+ 
++SEMOPS_INLINE BI
++ADDCFDI (DI a, DI b, BI c)
++{
++  DI tmp = ADDDI (a, ADDDI (b, c));
++  BI res = ((UDI) tmp < (UDI) a) || (c && tmp == a);
++  return res;
++}
++
++SEMOPS_INLINE BI
++ADDOFDI (DI a, DI b, BI c)
++{
++  DI tmp = ADDDI (a, ADDDI (b, c));
++  BI res = (((a < 0) == (b < 0))
++	    && ((a < 0) != (tmp < 0)));
++  return res;
++}
++
++SEMOPS_INLINE BI
++SUBCFDI (DI a, DI b, BI c)
++{
++  BI res = ((UDI) a < (UDI) b) || (c && a == b);
++  return res;
++}
++
++SEMOPS_INLINE BI
++SUBOFDI (DI a, DI b, BI c)
++{
++  DI tmp = SUBDI (a, ADDSI (b, c));
++  BI res = (((a < 0) != (b < 0))
++	    && ((a < 0) != (tmp < 0)));
++  return res;
++}
+ #else
+ 
+ SI ADDCSI (SI, SI, BI);
+@@ -669,6 +701,10 @@ UBI SUBCFQI (QI, QI, BI);
+ UBI SUBOFQI (QI, QI, BI);
+ BI MUL1OFSI (SI a, SI b);
+ BI MUL2OFSI (SI a, SI b);
++BI ADDCFDI (DI a, DI b, BI c);
++BI ADDOFDI (DI a, DI b, BI c);
++BI SUBCFDI (DI a, DI b, BI c);
++BI SUBOFDI (DI a, DI b, BI c);
+ 
+ #endif
+ 
+diff --git a/sim/or1k/cpu.h b/sim/or1k/cpu.h
+index 9646c33df6..b847f53032 100644
+--- a/sim/or1k/cpu.h
++++ b/sim/or1k/cpu.h
+@@ -4515,6 +4515,10 @@ union sem_fields {
+   struct { /*  */
+     IADDR i_disp26;
+   } sfmt_l_j;
++  struct { /*  */
++    IADDR i_disp21;
++    UINT f_r1;
++  } sfmt_l_adrp;
+   struct { /*  */
+     UINT f_r1;
+     UINT f_r2;
+@@ -4614,6 +4618,17 @@ struct scache {
+   f_opcode = EXTRACT_LSB0_UINT (insn, 32, 31, 6); \
+   f_disp26 = ((((EXTRACT_LSB0_SINT (insn, 32, 25, 26)) << (2))) + (pc)); \
+ 
++#define EXTRACT_IFMT_L_ADRP_VARS \
++  UINT f_opcode; \
++  UINT f_r1; \
++  USI f_disp21; \
++  unsigned int length;
++#define EXTRACT_IFMT_L_ADRP_CODE \
++  length = 4; \
++  f_opcode = EXTRACT_LSB0_UINT (insn, 32, 31, 6); \
++  f_r1 = EXTRACT_LSB0_UINT (insn, 32, 25, 5); \
++  f_disp21 = ((((EXTRACT_LSB0_SINT (insn, 32, 20, 21)) + (((SI) (pc) >> (13))))) << (13)); \
++
+ #define EXTRACT_IFMT_L_JR_VARS \
+   UINT f_opcode; \
+   UINT f_resv_25_10; \
+@@ -4831,6 +4846,23 @@ struct scache {
+   f_resv_10_7 = EXTRACT_LSB0_UINT (insn, 32, 10, 7); \
+   f_op_3_4 = EXTRACT_LSB0_UINT (insn, 32, 3, 4); \
+ 
++#define EXTRACT_IFMT_L_MULD_VARS \
++  UINT f_opcode; \
++  UINT f_resv_25_5; \
++  UINT f_r2; \
++  UINT f_r3; \
++  UINT f_resv_10_7; \
++  UINT f_op_3_4; \
++  unsigned int length;
++#define EXTRACT_IFMT_L_MULD_CODE \
++  length = 4; \
++  f_opcode = EXTRACT_LSB0_UINT (insn, 32, 31, 6); \
++  f_resv_25_5 = EXTRACT_LSB0_UINT (insn, 32, 25, 5); \
++  f_r2 = EXTRACT_LSB0_UINT (insn, 32, 20, 5); \
++  f_r3 = EXTRACT_LSB0_UINT (insn, 32, 15, 5); \
++  f_resv_10_7 = EXTRACT_LSB0_UINT (insn, 32, 10, 7); \
++  f_op_3_4 = EXTRACT_LSB0_UINT (insn, 32, 3, 4); \
++
+ #define EXTRACT_IFMT_L_EXTHS_VARS \
+   UINT f_opcode; \
+   UINT f_r1; \
+diff --git a/sim/or1k/decode.c b/sim/or1k/decode.c
+index bc99cc2819..e62476f559 100644
+--- a/sim/or1k/decode.c
++++ b/sim/or1k/decode.c
+@@ -47,6 +47,7 @@ static const struct insn_sem or1k32bf_insn_sem[] =
+   { VIRTUAL_INSN_X_CHAIN, OR1K32BF_INSN_X_CHAIN, OR1K32BF_SFMT_EMPTY },
+   { VIRTUAL_INSN_X_BEGIN, OR1K32BF_INSN_X_BEGIN, OR1K32BF_SFMT_EMPTY },
+   { OR1K_INSN_L_J, OR1K32BF_INSN_L_J, OR1K32BF_SFMT_L_J },
++  { OR1K_INSN_L_ADRP, OR1K32BF_INSN_L_ADRP, OR1K32BF_SFMT_L_ADRP },
+   { OR1K_INSN_L_JAL, OR1K32BF_INSN_L_JAL, OR1K32BF_SFMT_L_JAL },
+   { OR1K_INSN_L_JR, OR1K32BF_INSN_L_JR, OR1K32BF_SFMT_L_JR },
+   { OR1K_INSN_L_JALR, OR1K32BF_INSN_L_JALR, OR1K32BF_SFMT_L_JALR },
+@@ -88,10 +89,12 @@ static const struct insn_sem or1k32bf_insn_sem[] =
+   { OR1K_INSN_L_ADD, OR1K32BF_INSN_L_ADD, OR1K32BF_SFMT_L_ADD },
+   { OR1K_INSN_L_SUB, OR1K32BF_INSN_L_SUB, OR1K32BF_SFMT_L_ADD },
+   { OR1K_INSN_L_ADDC, OR1K32BF_INSN_L_ADDC, OR1K32BF_SFMT_L_ADDC },
+-  { OR1K_INSN_L_MUL, OR1K32BF_INSN_L_MUL, OR1K32BF_SFMT_L_ADD },
+-  { OR1K_INSN_L_MULU, OR1K32BF_INSN_L_MULU, OR1K32BF_SFMT_L_ADD },
++  { OR1K_INSN_L_MUL, OR1K32BF_INSN_L_MUL, OR1K32BF_SFMT_L_MUL },
++  { OR1K_INSN_L_MULD, OR1K32BF_INSN_L_MULD, OR1K32BF_SFMT_L_MULD },
++  { OR1K_INSN_L_MULU, OR1K32BF_INSN_L_MULU, OR1K32BF_SFMT_L_MULU },
++  { OR1K_INSN_L_MULDU, OR1K32BF_INSN_L_MULDU, OR1K32BF_SFMT_L_MULD },
+   { OR1K_INSN_L_DIV, OR1K32BF_INSN_L_DIV, OR1K32BF_SFMT_L_DIV },
+-  { OR1K_INSN_L_DIVU, OR1K32BF_INSN_L_DIVU, OR1K32BF_SFMT_L_DIV },
++  { OR1K_INSN_L_DIVU, OR1K32BF_INSN_L_DIVU, OR1K32BF_SFMT_L_DIVU },
+   { OR1K_INSN_L_FF1, OR1K32BF_INSN_L_FF1, OR1K32BF_SFMT_L_FF1 },
+   { OR1K_INSN_L_FL1, OR1K32BF_INSN_L_FL1, OR1K32BF_SFMT_L_FF1 },
+   { OR1K_INSN_L_ANDI, OR1K32BF_INSN_L_ANDI, OR1K32BF_SFMT_L_MFSPR },
+@@ -99,7 +102,7 @@ static const struct insn_sem or1k32bf_insn_sem[] =
+   { OR1K_INSN_L_XORI, OR1K32BF_INSN_L_XORI, OR1K32BF_SFMT_L_XORI },
+   { OR1K_INSN_L_ADDI, OR1K32BF_INSN_L_ADDI, OR1K32BF_SFMT_L_ADDI },
+   { OR1K_INSN_L_ADDIC, OR1K32BF_INSN_L_ADDIC, OR1K32BF_SFMT_L_ADDIC },
+-  { OR1K_INSN_L_MULI, OR1K32BF_INSN_L_MULI, OR1K32BF_SFMT_L_ADDI },
++  { OR1K_INSN_L_MULI, OR1K32BF_INSN_L_MULI, OR1K32BF_SFMT_L_MULI },
+   { OR1K_INSN_L_EXTHS, OR1K32BF_INSN_L_EXTHS, OR1K32BF_SFMT_L_EXTHS },
+   { OR1K_INSN_L_EXTBS, OR1K32BF_INSN_L_EXTBS, OR1K32BF_SFMT_L_EXTHS },
+   { OR1K_INSN_L_EXTHZ, OR1K32BF_INSN_L_EXTHZ, OR1K32BF_SFMT_L_EXTHS },
+@@ -128,8 +131,10 @@ static const struct insn_sem or1k32bf_insn_sem[] =
+   { OR1K_INSN_L_SFNE, OR1K32BF_INSN_L_SFNE, OR1K32BF_SFMT_L_SFGTS },
+   { OR1K_INSN_L_SFNEI, OR1K32BF_INSN_L_SFNEI, OR1K32BF_SFMT_L_SFGTSI },
+   { OR1K_INSN_L_MAC, OR1K32BF_INSN_L_MAC, OR1K32BF_SFMT_L_MAC },
+-  { OR1K_INSN_L_MSB, OR1K32BF_INSN_L_MSB, OR1K32BF_SFMT_L_MAC },
+   { OR1K_INSN_L_MACI, OR1K32BF_INSN_L_MACI, OR1K32BF_SFMT_L_MACI },
++  { OR1K_INSN_L_MACU, OR1K32BF_INSN_L_MACU, OR1K32BF_SFMT_L_MACU },
++  { OR1K_INSN_L_MSB, OR1K32BF_INSN_L_MSB, OR1K32BF_SFMT_L_MAC },
++  { OR1K_INSN_L_MSBU, OR1K32BF_INSN_L_MSBU, OR1K32BF_SFMT_L_MACU },
+   { OR1K_INSN_L_CUST1, OR1K32BF_INSN_L_CUST1, OR1K32BF_SFMT_L_MSYNC },
+   { OR1K_INSN_L_CUST2, OR1K32BF_INSN_L_CUST2, OR1K32BF_SFMT_L_MSYNC },
+   { OR1K_INSN_L_CUST3, OR1K32BF_INSN_L_CUST3, OR1K32BF_SFMT_L_MSYNC },
+@@ -297,6 +302,38 @@ or1k32bf_decode (SIM_CPU *current_cpu, IADDR pc,
+       case 61 : /* fall through */
+       case 62 : /* fall through */
+       case 63 : itype = OR1K32BF_INSN_L_JAL; goto extract_sfmt_l_jal;
++      case 64 : /* fall through */
++      case 65 : /* fall through */
++      case 66 : /* fall through */
++      case 67 : /* fall through */
++      case 68 : /* fall through */
++      case 69 : /* fall through */
++      case 70 : /* fall through */
++      case 71 : /* fall through */
++      case 72 : /* fall through */
++      case 73 : /* fall through */
++      case 74 : /* fall through */
++      case 75 : /* fall through */
++      case 76 : /* fall through */
++      case 77 : /* fall through */
++      case 78 : /* fall through */
++      case 79 : /* fall through */
++      case 80 : /* fall through */
++      case 81 : /* fall through */
++      case 82 : /* fall through */
++      case 83 : /* fall through */
++      case 84 : /* fall through */
++      case 85 : /* fall through */
++      case 86 : /* fall through */
++      case 87 : /* fall through */
++      case 88 : /* fall through */
++      case 89 : /* fall through */
++      case 90 : /* fall through */
++      case 91 : /* fall through */
++      case 92 : /* fall through */
++      case 93 : /* fall through */
++      case 94 : /* fall through */
++      case 95 : itype = OR1K32BF_INSN_L_ADRP; goto extract_sfmt_l_adrp;
+       case 96 : /* fall through */
+       case 97 : /* fall through */
+       case 98 : /* fall through */
+@@ -998,7 +1035,7 @@ or1k32bf_decode (SIM_CPU *current_cpu, IADDR pc,
+       case 1436 : /* fall through */
+       case 1437 : /* fall through */
+       case 1438 : /* fall through */
+-      case 1439 : itype = OR1K32BF_INSN_L_MULI; goto extract_sfmt_l_addi;
++      case 1439 : itype = OR1K32BF_INSN_L_MULI; goto extract_sfmt_l_muli;
+       case 1440 : /* fall through */
+       case 1441 : /* fall through */
+       case 1442 : /* fall through */
+@@ -1212,6 +1249,14 @@ or1k32bf_decode (SIM_CPU *current_cpu, IADDR pc,
+         if ((entire_insn & 0xffe007ff) == 0xc4000002)
+           { itype = OR1K32BF_INSN_L_MSB; goto extract_sfmt_l_mac; }
+         itype = OR1K32BF_INSN_X_INVALID; goto extract_sfmt_empty;
++      case 1571 :
++        if ((entire_insn & 0xffe007ff) == 0xc4000003)
++          { itype = OR1K32BF_INSN_L_MACU; goto extract_sfmt_l_macu; }
++        itype = OR1K32BF_INSN_X_INVALID; goto extract_sfmt_empty;
++      case 1572 :
++        if ((entire_insn & 0xffe007ff) == 0xc4000004)
++          { itype = OR1K32BF_INSN_L_MSBU; goto extract_sfmt_l_macu; }
++        itype = OR1K32BF_INSN_X_INVALID; goto extract_sfmt_empty;
+       case 1600 :
+         if ((entire_insn & 0xfc0007ff) == 0xc8000000)
+           { itype = OR1K32BF_INSN_LF_ADD_S; goto extract_sfmt_lf_add_s; }
+@@ -1426,7 +1471,11 @@ or1k32bf_decode (SIM_CPU *current_cpu, IADDR pc,
+         itype = OR1K32BF_INSN_X_INVALID; goto extract_sfmt_empty;
+       case 1798 :
+         if ((entire_insn & 0xfc0007ff) == 0xe0000306)
+-          { itype = OR1K32BF_INSN_L_MUL; goto extract_sfmt_l_add; }
++          { itype = OR1K32BF_INSN_L_MUL; goto extract_sfmt_l_mul; }
++        itype = OR1K32BF_INSN_X_INVALID; goto extract_sfmt_empty;
++      case 1799 :
++        if ((entire_insn & 0xffe007ff) == 0xe0000307)
++          { itype = OR1K32BF_INSN_L_MULD; goto extract_sfmt_l_muld; }
+         itype = OR1K32BF_INSN_X_INVALID; goto extract_sfmt_empty;
+       case 1800 :
+         {
+@@ -1450,11 +1499,11 @@ or1k32bf_decode (SIM_CPU *current_cpu, IADDR pc,
+         itype = OR1K32BF_INSN_X_INVALID; goto extract_sfmt_empty;
+       case 1802 :
+         if ((entire_insn & 0xfc0007ff) == 0xe000030a)
+-          { itype = OR1K32BF_INSN_L_DIVU; goto extract_sfmt_l_div; }
++          { itype = OR1K32BF_INSN_L_DIVU; goto extract_sfmt_l_divu; }
+         itype = OR1K32BF_INSN_X_INVALID; goto extract_sfmt_empty;
+       case 1803 :
+         if ((entire_insn & 0xfc0007ff) == 0xe000030b)
+-          { itype = OR1K32BF_INSN_L_MULU; goto extract_sfmt_l_add; }
++          { itype = OR1K32BF_INSN_L_MULU; goto extract_sfmt_l_mulu; }
+         itype = OR1K32BF_INSN_X_INVALID; goto extract_sfmt_empty;
+       case 1804 :
+         {
+@@ -1473,9 +1522,21 @@ or1k32bf_decode (SIM_CPU *current_cpu, IADDR pc,
+           }
+         }
+       case 1805 :
+-        if ((entire_insn & 0xfc00ffff) == 0xe000000d)
+-          { itype = OR1K32BF_INSN_L_EXTWS; goto extract_sfmt_l_exths; }
+-        itype = OR1K32BF_INSN_X_INVALID; goto extract_sfmt_empty;
++        {
++          unsigned int val = (((insn >> 8) & (3 << 0)));
++          switch (val)
++          {
++          case 0 :
++            if ((entire_insn & 0xfc00ffff) == 0xe000000d)
++              { itype = OR1K32BF_INSN_L_EXTWS; goto extract_sfmt_l_exths; }
++            itype = OR1K32BF_INSN_X_INVALID; goto extract_sfmt_empty;
++          case 3 :
++            if ((entire_insn & 0xffe007ff) == 0xe000030d)
++              { itype = OR1K32BF_INSN_L_MULDU; goto extract_sfmt_l_muld; }
++            itype = OR1K32BF_INSN_X_INVALID; goto extract_sfmt_empty;
++          default : itype = OR1K32BF_INSN_X_INVALID; goto extract_sfmt_empty;
++          }
++        }
+       case 1806 :
+         if ((entire_insn & 0xfc0007ff) == 0xe000000e)
+           { itype = OR1K32BF_INSN_L_CMOV; goto extract_sfmt_l_cmov; }
+@@ -1629,6 +1690,26 @@ or1k32bf_decode (SIM_CPU *current_cpu, IADDR pc,
+   FLD (i_disp26) = f_disp26;
+   TRACE_EXTRACT (current_cpu, abuf, (current_cpu, pc, "sfmt_l_j", "disp26 0x%x", 'x', f_disp26, (char *) 0));
+ 
++#undef FLD
++    return idesc;
++  }
++
++ extract_sfmt_l_adrp:
++  {
++    const IDESC *idesc = &or1k32bf_insn_data[itype];
++    CGEN_INSN_WORD insn = entire_insn;
++#define FLD(f) abuf->fields.sfmt_l_adrp.f
++    UINT f_r1;
++    USI f_disp21;
++
++    f_r1 = EXTRACT_LSB0_UINT (insn, 32, 25, 5);
++    f_disp21 = ((((EXTRACT_LSB0_SINT (insn, 32, 20, 21)) + (((SI) (pc) >> (13))))) << (13));
++
++  /* Record the fields for the semantic handler.  */
++  FLD (f_r1) = f_r1;
++  FLD (i_disp21) = f_disp21;
++  TRACE_EXTRACT (current_cpu, abuf, (current_cpu, pc, "sfmt_l_adrp", "f_r1 0x%x", 'x', f_r1, "disp21 0x%x", 'x', f_disp21, (char *) 0));
++
+ #undef FLD
+     return idesc;
+   }
+@@ -1768,7 +1849,7 @@ or1k32bf_decode (SIM_CPU *current_cpu, IADDR pc,
+   {
+     const IDESC *idesc = &or1k32bf_insn_data[itype];
+     CGEN_INSN_WORD insn = entire_insn;
+-#define FLD(f) abuf->fields.sfmt_l_slli.f
++#define FLD(f) abuf->fields.sfmt_l_adrp.f
+     UINT f_r1;
+ 
+     f_r1 = EXTRACT_LSB0_UINT (insn, 32, 25, 5);
+@@ -2211,6 +2292,72 @@ or1k32bf_decode (SIM_CPU *current_cpu, IADDR pc,
+   FLD (f_r1) = f_r1;
+   TRACE_EXTRACT (current_cpu, abuf, (current_cpu, pc, "sfmt_l_addc", "f_r2 0x%x", 'x', f_r2, "f_r3 0x%x", 'x', f_r3, "f_r1 0x%x", 'x', f_r1, (char *) 0));
+ 
++#undef FLD
++    return idesc;
++  }
++
++ extract_sfmt_l_mul:
++  {
++    const IDESC *idesc = &or1k32bf_insn_data[itype];
++    CGEN_INSN_WORD insn = entire_insn;
++#define FLD(f) abuf->fields.sfmt_l_sll.f
++    UINT f_r1;
++    UINT f_r2;
++    UINT f_r3;
++
++    f_r1 = EXTRACT_LSB0_UINT (insn, 32, 25, 5);
++    f_r2 = EXTRACT_LSB0_UINT (insn, 32, 20, 5);
++    f_r3 = EXTRACT_LSB0_UINT (insn, 32, 15, 5);
++
++  /* Record the fields for the semantic handler.  */
++  FLD (f_r2) = f_r2;
++  FLD (f_r3) = f_r3;
++  FLD (f_r1) = f_r1;
++  TRACE_EXTRACT (current_cpu, abuf, (current_cpu, pc, "sfmt_l_mul", "f_r2 0x%x", 'x', f_r2, "f_r3 0x%x", 'x', f_r3, "f_r1 0x%x", 'x', f_r1, (char *) 0));
++
++#undef FLD
++    return idesc;
++  }
++
++ extract_sfmt_l_muld:
++  {
++    const IDESC *idesc = &or1k32bf_insn_data[itype];
++    CGEN_INSN_WORD insn = entire_insn;
++#define FLD(f) abuf->fields.sfmt_l_sll.f
++    UINT f_r2;
++    UINT f_r3;
++
++    f_r2 = EXTRACT_LSB0_UINT (insn, 32, 20, 5);
++    f_r3 = EXTRACT_LSB0_UINT (insn, 32, 15, 5);
++
++  /* Record the fields for the semantic handler.  */
++  FLD (f_r2) = f_r2;
++  FLD (f_r3) = f_r3;
++  TRACE_EXTRACT (current_cpu, abuf, (current_cpu, pc, "sfmt_l_muld", "f_r2 0x%x", 'x', f_r2, "f_r3 0x%x", 'x', f_r3, (char *) 0));
++
++#undef FLD
++    return idesc;
++  }
++
++ extract_sfmt_l_mulu:
++  {
++    const IDESC *idesc = &or1k32bf_insn_data[itype];
++    CGEN_INSN_WORD insn = entire_insn;
++#define FLD(f) abuf->fields.sfmt_l_sll.f
++    UINT f_r1;
++    UINT f_r2;
++    UINT f_r3;
++
++    f_r1 = EXTRACT_LSB0_UINT (insn, 32, 25, 5);
++    f_r2 = EXTRACT_LSB0_UINT (insn, 32, 20, 5);
++    f_r3 = EXTRACT_LSB0_UINT (insn, 32, 15, 5);
++
++  /* Record the fields for the semantic handler.  */
++  FLD (f_r2) = f_r2;
++  FLD (f_r3) = f_r3;
++  FLD (f_r1) = f_r1;
++  TRACE_EXTRACT (current_cpu, abuf, (current_cpu, pc, "sfmt_l_mulu", "f_r2 0x%x", 'x', f_r2, "f_r3 0x%x", 'x', f_r3, "f_r1 0x%x", 'x', f_r1, (char *) 0));
++
+ #undef FLD
+     return idesc;
+   }
+@@ -2234,6 +2381,29 @@ or1k32bf_decode (SIM_CPU *current_cpu, IADDR pc,
+   FLD (f_r1) = f_r1;
+   TRACE_EXTRACT (current_cpu, abuf, (current_cpu, pc, "sfmt_l_div", "f_r2 0x%x", 'x', f_r2, "f_r3 0x%x", 'x', f_r3, "f_r1 0x%x", 'x', f_r1, (char *) 0));
+ 
++#undef FLD
++    return idesc;
++  }
++
++ extract_sfmt_l_divu:
++  {
++    const IDESC *idesc = &or1k32bf_insn_data[itype];
++    CGEN_INSN_WORD insn = entire_insn;
++#define FLD(f) abuf->fields.sfmt_l_sll.f
++    UINT f_r1;
++    UINT f_r2;
++    UINT f_r3;
++
++    f_r1 = EXTRACT_LSB0_UINT (insn, 32, 25, 5);
++    f_r2 = EXTRACT_LSB0_UINT (insn, 32, 20, 5);
++    f_r3 = EXTRACT_LSB0_UINT (insn, 32, 15, 5);
++
++  /* Record the fields for the semantic handler.  */
++  FLD (f_r2) = f_r2;
++  FLD (f_r3) = f_r3;
++  FLD (f_r1) = f_r1;
++  TRACE_EXTRACT (current_cpu, abuf, (current_cpu, pc, "sfmt_l_divu", "f_r2 0x%x", 'x', f_r2, "f_r3 0x%x", 'x', f_r3, "f_r1 0x%x", 'x', f_r1, (char *) 0));
++
+ #undef FLD
+     return idesc;
+   }
+@@ -2323,6 +2493,29 @@ or1k32bf_decode (SIM_CPU *current_cpu, IADDR pc,
+   FLD (f_r1) = f_r1;
+   TRACE_EXTRACT (current_cpu, abuf, (current_cpu, pc, "sfmt_l_addic", "f_r2 0x%x", 'x', f_r2, "f_simm16 0x%x", 'x', f_simm16, "f_r1 0x%x", 'x', f_r1, (char *) 0));
+ 
++#undef FLD
++    return idesc;
++  }
++
++ extract_sfmt_l_muli:
++  {
++    const IDESC *idesc = &or1k32bf_insn_data[itype];
++    CGEN_INSN_WORD insn = entire_insn;
++#define FLD(f) abuf->fields.sfmt_l_lwz.f
++    UINT f_r1;
++    UINT f_r2;
++    INT f_simm16;
++
++    f_r1 = EXTRACT_LSB0_UINT (insn, 32, 25, 5);
++    f_r2 = EXTRACT_LSB0_UINT (insn, 32, 20, 5);
++    f_simm16 = EXTRACT_LSB0_SINT (insn, 32, 15, 16);
++
++  /* Record the fields for the semantic handler.  */
++  FLD (f_r2) = f_r2;
++  FLD (f_simm16) = f_simm16;
++  FLD (f_r1) = f_r1;
++  TRACE_EXTRACT (current_cpu, abuf, (current_cpu, pc, "sfmt_l_muli", "f_r2 0x%x", 'x', f_r2, "f_simm16 0x%x", 'x', f_simm16, "f_r1 0x%x", 'x', f_r1, (char *) 0));
++
+ #undef FLD
+     return idesc;
+   }
+@@ -2446,6 +2639,26 @@ or1k32bf_decode (SIM_CPU *current_cpu, IADDR pc,
+   FLD (f_simm16) = f_simm16;
+   TRACE_EXTRACT (current_cpu, abuf, (current_cpu, pc, "sfmt_l_maci", "f_r2 0x%x", 'x', f_r2, "f_simm16 0x%x", 'x', f_simm16, (char *) 0));
+ 
++#undef FLD
++    return idesc;
++  }
++
++ extract_sfmt_l_macu:
++  {
++    const IDESC *idesc = &or1k32bf_insn_data[itype];
++    CGEN_INSN_WORD insn = entire_insn;
++#define FLD(f) abuf->fields.sfmt_l_sll.f
++    UINT f_r2;
++    UINT f_r3;
++
++    f_r2 = EXTRACT_LSB0_UINT (insn, 32, 20, 5);
++    f_r3 = EXTRACT_LSB0_UINT (insn, 32, 15, 5);
++
++  /* Record the fields for the semantic handler.  */
++  FLD (f_r2) = f_r2;
++  FLD (f_r3) = f_r3;
++  TRACE_EXTRACT (current_cpu, abuf, (current_cpu, pc, "sfmt_l_macu", "f_r2 0x%x", 'x', f_r2, "f_r3 0x%x", 'x', f_r3, (char *) 0));
++
+ #undef FLD
+     return idesc;
+   }
+diff --git a/sim/or1k/decode.h b/sim/or1k/decode.h
+index 019a0aa342..b45e4f205d 100644
+--- a/sim/or1k/decode.h
++++ b/sim/or1k/decode.h
+@@ -35,50 +35,52 @@ extern void or1k32bf_semf_init_idesc_table (SIM_CPU *);
+ /* Enum declaration for instructions in cpu family or1k32bf.  */
+ typedef enum or1k32bf_insn_type {
+   OR1K32BF_INSN_X_INVALID, OR1K32BF_INSN_X_AFTER, OR1K32BF_INSN_X_BEFORE, OR1K32BF_INSN_X_CTI_CHAIN
+- , OR1K32BF_INSN_X_CHAIN, OR1K32BF_INSN_X_BEGIN, OR1K32BF_INSN_L_J, OR1K32BF_INSN_L_JAL
+- , OR1K32BF_INSN_L_JR, OR1K32BF_INSN_L_JALR, OR1K32BF_INSN_L_BNF, OR1K32BF_INSN_L_BF
+- , OR1K32BF_INSN_L_TRAP, OR1K32BF_INSN_L_SYS, OR1K32BF_INSN_L_MSYNC, OR1K32BF_INSN_L_PSYNC
+- , OR1K32BF_INSN_L_CSYNC, OR1K32BF_INSN_L_RFE, OR1K32BF_INSN_L_NOP_IMM, OR1K32BF_INSN_L_MOVHI
+- , OR1K32BF_INSN_L_MACRC, OR1K32BF_INSN_L_MFSPR, OR1K32BF_INSN_L_MTSPR, OR1K32BF_INSN_L_LWZ
+- , OR1K32BF_INSN_L_LWS, OR1K32BF_INSN_L_LWA, OR1K32BF_INSN_L_LBZ, OR1K32BF_INSN_L_LBS
+- , OR1K32BF_INSN_L_LHZ, OR1K32BF_INSN_L_LHS, OR1K32BF_INSN_L_SW, OR1K32BF_INSN_L_SB
+- , OR1K32BF_INSN_L_SH, OR1K32BF_INSN_L_SWA, OR1K32BF_INSN_L_SLL, OR1K32BF_INSN_L_SLLI
+- , OR1K32BF_INSN_L_SRL, OR1K32BF_INSN_L_SRLI, OR1K32BF_INSN_L_SRA, OR1K32BF_INSN_L_SRAI
+- , OR1K32BF_INSN_L_ROR, OR1K32BF_INSN_L_RORI, OR1K32BF_INSN_L_AND, OR1K32BF_INSN_L_OR
+- , OR1K32BF_INSN_L_XOR, OR1K32BF_INSN_L_ADD, OR1K32BF_INSN_L_SUB, OR1K32BF_INSN_L_ADDC
+- , OR1K32BF_INSN_L_MUL, OR1K32BF_INSN_L_MULU, OR1K32BF_INSN_L_DIV, OR1K32BF_INSN_L_DIVU
+- , OR1K32BF_INSN_L_FF1, OR1K32BF_INSN_L_FL1, OR1K32BF_INSN_L_ANDI, OR1K32BF_INSN_L_ORI
+- , OR1K32BF_INSN_L_XORI, OR1K32BF_INSN_L_ADDI, OR1K32BF_INSN_L_ADDIC, OR1K32BF_INSN_L_MULI
+- , OR1K32BF_INSN_L_EXTHS, OR1K32BF_INSN_L_EXTBS, OR1K32BF_INSN_L_EXTHZ, OR1K32BF_INSN_L_EXTBZ
+- , OR1K32BF_INSN_L_EXTWS, OR1K32BF_INSN_L_EXTWZ, OR1K32BF_INSN_L_CMOV, OR1K32BF_INSN_L_SFGTS
+- , OR1K32BF_INSN_L_SFGTSI, OR1K32BF_INSN_L_SFGTU, OR1K32BF_INSN_L_SFGTUI, OR1K32BF_INSN_L_SFGES
+- , OR1K32BF_INSN_L_SFGESI, OR1K32BF_INSN_L_SFGEU, OR1K32BF_INSN_L_SFGEUI, OR1K32BF_INSN_L_SFLTS
+- , OR1K32BF_INSN_L_SFLTSI, OR1K32BF_INSN_L_SFLTU, OR1K32BF_INSN_L_SFLTUI, OR1K32BF_INSN_L_SFLES
+- , OR1K32BF_INSN_L_SFLESI, OR1K32BF_INSN_L_SFLEU, OR1K32BF_INSN_L_SFLEUI, OR1K32BF_INSN_L_SFEQ
+- , OR1K32BF_INSN_L_SFEQI, OR1K32BF_INSN_L_SFNE, OR1K32BF_INSN_L_SFNEI, OR1K32BF_INSN_L_MAC
+- , OR1K32BF_INSN_L_MSB, OR1K32BF_INSN_L_MACI, OR1K32BF_INSN_L_CUST1, OR1K32BF_INSN_L_CUST2
+- , OR1K32BF_INSN_L_CUST3, OR1K32BF_INSN_L_CUST4, OR1K32BF_INSN_L_CUST5, OR1K32BF_INSN_L_CUST6
+- , OR1K32BF_INSN_L_CUST7, OR1K32BF_INSN_L_CUST8, OR1K32BF_INSN_LF_ADD_S, OR1K32BF_INSN_LF_SUB_S
+- , OR1K32BF_INSN_LF_MUL_S, OR1K32BF_INSN_LF_DIV_S, OR1K32BF_INSN_LF_REM_S, OR1K32BF_INSN_LF_ITOF_S
+- , OR1K32BF_INSN_LF_FTOI_S, OR1K32BF_INSN_LF_EQ_S, OR1K32BF_INSN_LF_NE_S, OR1K32BF_INSN_LF_GE_S
+- , OR1K32BF_INSN_LF_GT_S, OR1K32BF_INSN_LF_LT_S, OR1K32BF_INSN_LF_LE_S, OR1K32BF_INSN_LF_MADD_S
+- , OR1K32BF_INSN_LF_CUST1_S, OR1K32BF_INSN__MAX
++ , OR1K32BF_INSN_X_CHAIN, OR1K32BF_INSN_X_BEGIN, OR1K32BF_INSN_L_J, OR1K32BF_INSN_L_ADRP
++ , OR1K32BF_INSN_L_JAL, OR1K32BF_INSN_L_JR, OR1K32BF_INSN_L_JALR, OR1K32BF_INSN_L_BNF
++ , OR1K32BF_INSN_L_BF, OR1K32BF_INSN_L_TRAP, OR1K32BF_INSN_L_SYS, OR1K32BF_INSN_L_MSYNC
++ , OR1K32BF_INSN_L_PSYNC, OR1K32BF_INSN_L_CSYNC, OR1K32BF_INSN_L_RFE, OR1K32BF_INSN_L_NOP_IMM
++ , OR1K32BF_INSN_L_MOVHI, OR1K32BF_INSN_L_MACRC, OR1K32BF_INSN_L_MFSPR, OR1K32BF_INSN_L_MTSPR
++ , OR1K32BF_INSN_L_LWZ, OR1K32BF_INSN_L_LWS, OR1K32BF_INSN_L_LWA, OR1K32BF_INSN_L_LBZ
++ , OR1K32BF_INSN_L_LBS, OR1K32BF_INSN_L_LHZ, OR1K32BF_INSN_L_LHS, OR1K32BF_INSN_L_SW
++ , OR1K32BF_INSN_L_SB, OR1K32BF_INSN_L_SH, OR1K32BF_INSN_L_SWA, OR1K32BF_INSN_L_SLL
++ , OR1K32BF_INSN_L_SLLI, OR1K32BF_INSN_L_SRL, OR1K32BF_INSN_L_SRLI, OR1K32BF_INSN_L_SRA
++ , OR1K32BF_INSN_L_SRAI, OR1K32BF_INSN_L_ROR, OR1K32BF_INSN_L_RORI, OR1K32BF_INSN_L_AND
++ , OR1K32BF_INSN_L_OR, OR1K32BF_INSN_L_XOR, OR1K32BF_INSN_L_ADD, OR1K32BF_INSN_L_SUB
++ , OR1K32BF_INSN_L_ADDC, OR1K32BF_INSN_L_MUL, OR1K32BF_INSN_L_MULD, OR1K32BF_INSN_L_MULU
++ , OR1K32BF_INSN_L_MULDU, OR1K32BF_INSN_L_DIV, OR1K32BF_INSN_L_DIVU, OR1K32BF_INSN_L_FF1
++ , OR1K32BF_INSN_L_FL1, OR1K32BF_INSN_L_ANDI, OR1K32BF_INSN_L_ORI, OR1K32BF_INSN_L_XORI
++ , OR1K32BF_INSN_L_ADDI, OR1K32BF_INSN_L_ADDIC, OR1K32BF_INSN_L_MULI, OR1K32BF_INSN_L_EXTHS
++ , OR1K32BF_INSN_L_EXTBS, OR1K32BF_INSN_L_EXTHZ, OR1K32BF_INSN_L_EXTBZ, OR1K32BF_INSN_L_EXTWS
++ , OR1K32BF_INSN_L_EXTWZ, OR1K32BF_INSN_L_CMOV, OR1K32BF_INSN_L_SFGTS, OR1K32BF_INSN_L_SFGTSI
++ , OR1K32BF_INSN_L_SFGTU, OR1K32BF_INSN_L_SFGTUI, OR1K32BF_INSN_L_SFGES, OR1K32BF_INSN_L_SFGESI
++ , OR1K32BF_INSN_L_SFGEU, OR1K32BF_INSN_L_SFGEUI, OR1K32BF_INSN_L_SFLTS, OR1K32BF_INSN_L_SFLTSI
++ , OR1K32BF_INSN_L_SFLTU, OR1K32BF_INSN_L_SFLTUI, OR1K32BF_INSN_L_SFLES, OR1K32BF_INSN_L_SFLESI
++ , OR1K32BF_INSN_L_SFLEU, OR1K32BF_INSN_L_SFLEUI, OR1K32BF_INSN_L_SFEQ, OR1K32BF_INSN_L_SFEQI
++ , OR1K32BF_INSN_L_SFNE, OR1K32BF_INSN_L_SFNEI, OR1K32BF_INSN_L_MAC, OR1K32BF_INSN_L_MACI
++ , OR1K32BF_INSN_L_MACU, OR1K32BF_INSN_L_MSB, OR1K32BF_INSN_L_MSBU, OR1K32BF_INSN_L_CUST1
++ , OR1K32BF_INSN_L_CUST2, OR1K32BF_INSN_L_CUST3, OR1K32BF_INSN_L_CUST4, OR1K32BF_INSN_L_CUST5
++ , OR1K32BF_INSN_L_CUST6, OR1K32BF_INSN_L_CUST7, OR1K32BF_INSN_L_CUST8, OR1K32BF_INSN_LF_ADD_S
++ , OR1K32BF_INSN_LF_SUB_S, OR1K32BF_INSN_LF_MUL_S, OR1K32BF_INSN_LF_DIV_S, OR1K32BF_INSN_LF_REM_S
++ , OR1K32BF_INSN_LF_ITOF_S, OR1K32BF_INSN_LF_FTOI_S, OR1K32BF_INSN_LF_EQ_S, OR1K32BF_INSN_LF_NE_S
++ , OR1K32BF_INSN_LF_GE_S, OR1K32BF_INSN_LF_GT_S, OR1K32BF_INSN_LF_LT_S, OR1K32BF_INSN_LF_LE_S
++ , OR1K32BF_INSN_LF_MADD_S, OR1K32BF_INSN_LF_CUST1_S, OR1K32BF_INSN__MAX
+ } OR1K32BF_INSN_TYPE;
+ 
+ /* Enum declaration for semantic formats in cpu family or1k32bf.  */
+ typedef enum or1k32bf_sfmt_type {
+-  OR1K32BF_SFMT_EMPTY, OR1K32BF_SFMT_L_J, OR1K32BF_SFMT_L_JAL, OR1K32BF_SFMT_L_JR
+- , OR1K32BF_SFMT_L_JALR, OR1K32BF_SFMT_L_BNF, OR1K32BF_SFMT_L_TRAP, OR1K32BF_SFMT_L_MSYNC
+- , OR1K32BF_SFMT_L_NOP_IMM, OR1K32BF_SFMT_L_MOVHI, OR1K32BF_SFMT_L_MACRC, OR1K32BF_SFMT_L_MFSPR
+- , OR1K32BF_SFMT_L_MTSPR, OR1K32BF_SFMT_L_LWZ, OR1K32BF_SFMT_L_LWS, OR1K32BF_SFMT_L_LWA
+- , OR1K32BF_SFMT_L_LBZ, OR1K32BF_SFMT_L_LBS, OR1K32BF_SFMT_L_LHZ, OR1K32BF_SFMT_L_LHS
+- , OR1K32BF_SFMT_L_SW, OR1K32BF_SFMT_L_SB, OR1K32BF_SFMT_L_SH, OR1K32BF_SFMT_L_SWA
+- , OR1K32BF_SFMT_L_SLL, OR1K32BF_SFMT_L_SLLI, OR1K32BF_SFMT_L_AND, OR1K32BF_SFMT_L_ADD
+- , OR1K32BF_SFMT_L_ADDC, OR1K32BF_SFMT_L_DIV, OR1K32BF_SFMT_L_FF1, OR1K32BF_SFMT_L_XORI
+- , OR1K32BF_SFMT_L_ADDI, OR1K32BF_SFMT_L_ADDIC, OR1K32BF_SFMT_L_EXTHS, OR1K32BF_SFMT_L_CMOV
+- , OR1K32BF_SFMT_L_SFGTS, OR1K32BF_SFMT_L_SFGTSI, OR1K32BF_SFMT_L_MAC, OR1K32BF_SFMT_L_MACI
+- , OR1K32BF_SFMT_LF_ADD_S, OR1K32BF_SFMT_LF_ITOF_S, OR1K32BF_SFMT_LF_FTOI_S, OR1K32BF_SFMT_LF_EQ_S
+- , OR1K32BF_SFMT_LF_MADD_S
++  OR1K32BF_SFMT_EMPTY, OR1K32BF_SFMT_L_J, OR1K32BF_SFMT_L_ADRP, OR1K32BF_SFMT_L_JAL
++ , OR1K32BF_SFMT_L_JR, OR1K32BF_SFMT_L_JALR, OR1K32BF_SFMT_L_BNF, OR1K32BF_SFMT_L_TRAP
++ , OR1K32BF_SFMT_L_MSYNC, OR1K32BF_SFMT_L_NOP_IMM, OR1K32BF_SFMT_L_MOVHI, OR1K32BF_SFMT_L_MACRC
++ , OR1K32BF_SFMT_L_MFSPR, OR1K32BF_SFMT_L_MTSPR, OR1K32BF_SFMT_L_LWZ, OR1K32BF_SFMT_L_LWS
++ , OR1K32BF_SFMT_L_LWA, OR1K32BF_SFMT_L_LBZ, OR1K32BF_SFMT_L_LBS, OR1K32BF_SFMT_L_LHZ
++ , OR1K32BF_SFMT_L_LHS, OR1K32BF_SFMT_L_SW, OR1K32BF_SFMT_L_SB, OR1K32BF_SFMT_L_SH
++ , OR1K32BF_SFMT_L_SWA, OR1K32BF_SFMT_L_SLL, OR1K32BF_SFMT_L_SLLI, OR1K32BF_SFMT_L_AND
++ , OR1K32BF_SFMT_L_ADD, OR1K32BF_SFMT_L_ADDC, OR1K32BF_SFMT_L_MUL, OR1K32BF_SFMT_L_MULD
++ , OR1K32BF_SFMT_L_MULU, OR1K32BF_SFMT_L_DIV, OR1K32BF_SFMT_L_DIVU, OR1K32BF_SFMT_L_FF1
++ , OR1K32BF_SFMT_L_XORI, OR1K32BF_SFMT_L_ADDI, OR1K32BF_SFMT_L_ADDIC, OR1K32BF_SFMT_L_MULI
++ , OR1K32BF_SFMT_L_EXTHS, OR1K32BF_SFMT_L_CMOV, OR1K32BF_SFMT_L_SFGTS, OR1K32BF_SFMT_L_SFGTSI
++ , OR1K32BF_SFMT_L_MAC, OR1K32BF_SFMT_L_MACI, OR1K32BF_SFMT_L_MACU, OR1K32BF_SFMT_LF_ADD_S
++ , OR1K32BF_SFMT_LF_ITOF_S, OR1K32BF_SFMT_LF_FTOI_S, OR1K32BF_SFMT_LF_EQ_S, OR1K32BF_SFMT_LF_MADD_S
+ } OR1K32BF_SFMT_TYPE;
+ 
+ /* Function unit handlers (user written).  */
+diff --git a/sim/or1k/model.c b/sim/or1k/model.c
+index 35c6479fd7..bf6b00b33a 100644
+--- a/sim/or1k/model.c
++++ b/sim/or1k/model.c
+@@ -50,6 +50,22 @@ model_or1200_l_j (SIM_CPU *current_cpu, void *sem_arg)
+ #undef FLD
+ }
+ 
++static int
++model_or1200_l_adrp (SIM_CPU *current_cpu, void *sem_arg)
++{
++#define FLD(f) abuf->fields.sfmt_l_adrp.f
++  const ARGBUF * UNUSED abuf = SEM_ARGBUF ((SEM_ARG) sem_arg);
++  const IDESC * UNUSED idesc = abuf->idesc;
++  int cycles = 0;
++  {
++    int referenced = 0;
++    int UNUSED insn_referenced = abuf->written;
++    cycles += or1k32bf_model_or1200_u_exec (current_cpu, idesc, 0, referenced);
++  }
++  return cycles;
++#undef FLD
++}
++
+ static int
+ model_or1200_l_jal (SIM_CPU *current_cpu, void *sem_arg)
+ {
+@@ -261,7 +277,7 @@ model_or1200_l_movhi (SIM_CPU *current_cpu, void *sem_arg)
+ static int
+ model_or1200_l_macrc (SIM_CPU *current_cpu, void *sem_arg)
+ {
+-#define FLD(f) abuf->fields.sfmt_l_slli.f
++#define FLD(f) abuf->fields.sfmt_l_adrp.f
+   const ARGBUF * UNUSED abuf = SEM_ARGBUF ((SEM_ARG) sem_arg);
+   const IDESC * UNUSED idesc = abuf->idesc;
+   int cycles = 0;
+@@ -722,6 +738,22 @@ model_or1200_l_mul (SIM_CPU *current_cpu, void *sem_arg)
+ #undef FLD
+ }
+ 
++static int
++model_or1200_l_muld (SIM_CPU *current_cpu, void *sem_arg)
++{
++#define FLD(f) abuf->fields.sfmt_l_sll.f
++  const ARGBUF * UNUSED abuf = SEM_ARGBUF ((SEM_ARG) sem_arg);
++  const IDESC * UNUSED idesc = abuf->idesc;
++  int cycles = 0;
++  {
++    int referenced = 0;
++    int UNUSED insn_referenced = abuf->written;
++    cycles += or1k32bf_model_or1200_u_exec (current_cpu, idesc, 0, referenced);
++  }
++  return cycles;
++#undef FLD
++}
++
+ static int
+ model_or1200_l_mulu (SIM_CPU *current_cpu, void *sem_arg)
+ {
+@@ -738,6 +770,22 @@ model_or1200_l_mulu (SIM_CPU *current_cpu, void *sem_arg)
+ #undef FLD
+ }
+ 
++static int
++model_or1200_l_muldu (SIM_CPU *current_cpu, void *sem_arg)
++{
++#define FLD(f) abuf->fields.sfmt_l_sll.f
++  const ARGBUF * UNUSED abuf = SEM_ARGBUF ((SEM_ARG) sem_arg);
++  const IDESC * UNUSED idesc = abuf->idesc;
++  int cycles = 0;
++  {
++    int referenced = 0;
++    int UNUSED insn_referenced = abuf->written;
++    cycles += or1k32bf_model_or1200_u_exec (current_cpu, idesc, 0, referenced);
++  }
++  return cycles;
++#undef FLD
++}
++
+ static int
+ model_or1200_l_div (SIM_CPU *current_cpu, void *sem_arg)
+ {
+@@ -1346,6 +1394,38 @@ model_or1200_l_mac (SIM_CPU *current_cpu, void *sem_arg)
+ #undef FLD
+ }
+ 
++static int
++model_or1200_l_maci (SIM_CPU *current_cpu, void *sem_arg)
++{
++#define FLD(f) abuf->fields.sfmt_l_lwz.f
++  const ARGBUF * UNUSED abuf = SEM_ARGBUF ((SEM_ARG) sem_arg);
++  const IDESC * UNUSED idesc = abuf->idesc;
++  int cycles = 0;
++  {
++    int referenced = 0;
++    int UNUSED insn_referenced = abuf->written;
++    cycles += or1k32bf_model_or1200_u_exec (current_cpu, idesc, 0, referenced);
++  }
++  return cycles;
++#undef FLD
++}
++
++static int
++model_or1200_l_macu (SIM_CPU *current_cpu, void *sem_arg)
++{
++#define FLD(f) abuf->fields.sfmt_l_sll.f
++  const ARGBUF * UNUSED abuf = SEM_ARGBUF ((SEM_ARG) sem_arg);
++  const IDESC * UNUSED idesc = abuf->idesc;
++  int cycles = 0;
++  {
++    int referenced = 0;
++    int UNUSED insn_referenced = abuf->written;
++    cycles += or1k32bf_model_or1200_u_exec (current_cpu, idesc, 0, referenced);
++  }
++  return cycles;
++#undef FLD
++}
++
+ static int
+ model_or1200_l_msb (SIM_CPU *current_cpu, void *sem_arg)
+ {
+@@ -1363,9 +1443,9 @@ model_or1200_l_msb (SIM_CPU *current_cpu, void *sem_arg)
+ }
+ 
+ static int
+-model_or1200_l_maci (SIM_CPU *current_cpu, void *sem_arg)
++model_or1200_l_msbu (SIM_CPU *current_cpu, void *sem_arg)
+ {
+-#define FLD(f) abuf->fields.sfmt_l_lwz.f
++#define FLD(f) abuf->fields.sfmt_l_sll.f
+   const ARGBUF * UNUSED abuf = SEM_ARGBUF ((SEM_ARG) sem_arg);
+   const IDESC * UNUSED idesc = abuf->idesc;
+   int cycles = 0;
+@@ -1762,6 +1842,22 @@ model_or1200nd_l_j (SIM_CPU *current_cpu, void *sem_arg)
+ #undef FLD
+ }
+ 
++static int
++model_or1200nd_l_adrp (SIM_CPU *current_cpu, void *sem_arg)
++{
++#define FLD(f) abuf->fields.sfmt_l_adrp.f
++  const ARGBUF * UNUSED abuf = SEM_ARGBUF ((SEM_ARG) sem_arg);
++  const IDESC * UNUSED idesc = abuf->idesc;
++  int cycles = 0;
++  {
++    int referenced = 0;
++    int UNUSED insn_referenced = abuf->written;
++    cycles += or1k32bf_model_or1200nd_u_exec (current_cpu, idesc, 0, referenced);
++  }
++  return cycles;
++#undef FLD
++}
++
+ static int
+ model_or1200nd_l_jal (SIM_CPU *current_cpu, void *sem_arg)
+ {
+@@ -1973,7 +2069,7 @@ model_or1200nd_l_movhi (SIM_CPU *current_cpu, void *sem_arg)
+ static int
+ model_or1200nd_l_macrc (SIM_CPU *current_cpu, void *sem_arg)
+ {
+-#define FLD(f) abuf->fields.sfmt_l_slli.f
++#define FLD(f) abuf->fields.sfmt_l_adrp.f
+   const ARGBUF * UNUSED abuf = SEM_ARGBUF ((SEM_ARG) sem_arg);
+   const IDESC * UNUSED idesc = abuf->idesc;
+   int cycles = 0;
+@@ -2434,6 +2530,22 @@ model_or1200nd_l_mul (SIM_CPU *current_cpu, void *sem_arg)
+ #undef FLD
+ }
+ 
++static int
++model_or1200nd_l_muld (SIM_CPU *current_cpu, void *sem_arg)
++{
++#define FLD(f) abuf->fields.sfmt_l_sll.f
++  const ARGBUF * UNUSED abuf = SEM_ARGBUF ((SEM_ARG) sem_arg);
++  const IDESC * UNUSED idesc = abuf->idesc;
++  int cycles = 0;
++  {
++    int referenced = 0;
++    int UNUSED insn_referenced = abuf->written;
++    cycles += or1k32bf_model_or1200nd_u_exec (current_cpu, idesc, 0, referenced);
++  }
++  return cycles;
++#undef FLD
++}
++
+ static int
+ model_or1200nd_l_mulu (SIM_CPU *current_cpu, void *sem_arg)
+ {
+@@ -2450,6 +2562,22 @@ model_or1200nd_l_mulu (SIM_CPU *current_cpu, void *sem_arg)
+ #undef FLD
+ }
+ 
++static int
++model_or1200nd_l_muldu (SIM_CPU *current_cpu, void *sem_arg)
++{
++#define FLD(f) abuf->fields.sfmt_l_sll.f
++  const ARGBUF * UNUSED abuf = SEM_ARGBUF ((SEM_ARG) sem_arg);
++  const IDESC * UNUSED idesc = abuf->idesc;
++  int cycles = 0;
++  {
++    int referenced = 0;
++    int UNUSED insn_referenced = abuf->written;
++    cycles += or1k32bf_model_or1200nd_u_exec (current_cpu, idesc, 0, referenced);
++  }
++  return cycles;
++#undef FLD
++}
++
+ static int
+ model_or1200nd_l_div (SIM_CPU *current_cpu, void *sem_arg)
+ {
+@@ -3058,6 +3186,38 @@ model_or1200nd_l_mac (SIM_CPU *current_cpu, void *sem_arg)
+ #undef FLD
+ }
+ 
++static int
++model_or1200nd_l_maci (SIM_CPU *current_cpu, void *sem_arg)
++{
++#define FLD(f) abuf->fields.sfmt_l_lwz.f
++  const ARGBUF * UNUSED abuf = SEM_ARGBUF ((SEM_ARG) sem_arg);
++  const IDESC * UNUSED idesc = abuf->idesc;
++  int cycles = 0;
++  {
++    int referenced = 0;
++    int UNUSED insn_referenced = abuf->written;
++    cycles += or1k32bf_model_or1200nd_u_exec (current_cpu, idesc, 0, referenced);
++  }
++  return cycles;
++#undef FLD
++}
++
++static int
++model_or1200nd_l_macu (SIM_CPU *current_cpu, void *sem_arg)
++{
++#define FLD(f) abuf->fields.sfmt_l_sll.f
++  const ARGBUF * UNUSED abuf = SEM_ARGBUF ((SEM_ARG) sem_arg);
++  const IDESC * UNUSED idesc = abuf->idesc;
++  int cycles = 0;
++  {
++    int referenced = 0;
++    int UNUSED insn_referenced = abuf->written;
++    cycles += or1k32bf_model_or1200nd_u_exec (current_cpu, idesc, 0, referenced);
++  }
++  return cycles;
++#undef FLD
++}
++
+ static int
+ model_or1200nd_l_msb (SIM_CPU *current_cpu, void *sem_arg)
+ {
+@@ -3075,9 +3235,9 @@ model_or1200nd_l_msb (SIM_CPU *current_cpu, void *sem_arg)
+ }
+ 
+ static int
+-model_or1200nd_l_maci (SIM_CPU *current_cpu, void *sem_arg)
++model_or1200nd_l_msbu (SIM_CPU *current_cpu, void *sem_arg)
+ {
+-#define FLD(f) abuf->fields.sfmt_l_lwz.f
++#define FLD(f) abuf->fields.sfmt_l_sll.f
+   const ARGBUF * UNUSED abuf = SEM_ARGBUF ((SEM_ARG) sem_arg);
+   const IDESC * UNUSED idesc = abuf->idesc;
+   int cycles = 0;
+@@ -3471,6 +3631,7 @@ static const INSN_TIMING or1200_timing[] = {
+   { OR1K32BF_INSN_X_CHAIN, 0, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_X_BEGIN, 0, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_J, model_or1200_l_j, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
++  { OR1K32BF_INSN_L_ADRP, model_or1200_l_adrp, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_JAL, model_or1200_l_jal, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_JR, model_or1200_l_jr, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_JALR, model_or1200_l_jalr, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+@@ -3513,7 +3674,9 @@ static const INSN_TIMING or1200_timing[] = {
+   { OR1K32BF_INSN_L_SUB, model_or1200_l_sub, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_ADDC, model_or1200_l_addc, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_MUL, model_or1200_l_mul, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
++  { OR1K32BF_INSN_L_MULD, model_or1200_l_muld, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_MULU, model_or1200_l_mulu, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
++  { OR1K32BF_INSN_L_MULDU, model_or1200_l_muldu, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_DIV, model_or1200_l_div, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_DIVU, model_or1200_l_divu, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_FF1, model_or1200_l_ff1, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+@@ -3552,8 +3715,10 @@ static const INSN_TIMING or1200_timing[] = {
+   { OR1K32BF_INSN_L_SFNE, model_or1200_l_sfne, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_SFNEI, model_or1200_l_sfnei, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_MAC, model_or1200_l_mac, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+-  { OR1K32BF_INSN_L_MSB, model_or1200_l_msb, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_MACI, model_or1200_l_maci, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
++  { OR1K32BF_INSN_L_MACU, model_or1200_l_macu, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
++  { OR1K32BF_INSN_L_MSB, model_or1200_l_msb, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
++  { OR1K32BF_INSN_L_MSBU, model_or1200_l_msbu, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_CUST1, model_or1200_l_cust1, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_CUST2, model_or1200_l_cust2, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_CUST3, model_or1200_l_cust3, { { (int) UNIT_OR1200_U_EXEC, 1, 1 } } },
+@@ -3589,6 +3754,7 @@ static const INSN_TIMING or1200nd_timing[] = {
+   { OR1K32BF_INSN_X_CHAIN, 0, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_X_BEGIN, 0, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_J, model_or1200nd_l_j, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
++  { OR1K32BF_INSN_L_ADRP, model_or1200nd_l_adrp, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_JAL, model_or1200nd_l_jal, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_JR, model_or1200nd_l_jr, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_JALR, model_or1200nd_l_jalr, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+@@ -3631,7 +3797,9 @@ static const INSN_TIMING or1200nd_timing[] = {
+   { OR1K32BF_INSN_L_SUB, model_or1200nd_l_sub, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_ADDC, model_or1200nd_l_addc, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_MUL, model_or1200nd_l_mul, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
++  { OR1K32BF_INSN_L_MULD, model_or1200nd_l_muld, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_MULU, model_or1200nd_l_mulu, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
++  { OR1K32BF_INSN_L_MULDU, model_or1200nd_l_muldu, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_DIV, model_or1200nd_l_div, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_DIVU, model_or1200nd_l_divu, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_FF1, model_or1200nd_l_ff1, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+@@ -3670,8 +3838,10 @@ static const INSN_TIMING or1200nd_timing[] = {
+   { OR1K32BF_INSN_L_SFNE, model_or1200nd_l_sfne, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_SFNEI, model_or1200nd_l_sfnei, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_MAC, model_or1200nd_l_mac, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+-  { OR1K32BF_INSN_L_MSB, model_or1200nd_l_msb, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_MACI, model_or1200nd_l_maci, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
++  { OR1K32BF_INSN_L_MACU, model_or1200nd_l_macu, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
++  { OR1K32BF_INSN_L_MSB, model_or1200nd_l_msb, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
++  { OR1K32BF_INSN_L_MSBU, model_or1200nd_l_msbu, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_CUST1, model_or1200nd_l_cust1, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_CUST2, model_or1200nd_l_cust2, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+   { OR1K32BF_INSN_L_CUST3, model_or1200nd_l_cust3, { { (int) UNIT_OR1200ND_U_EXEC, 1, 1 } } },
+diff --git a/sim/or1k/sem-switch.c b/sim/or1k/sem-switch.c
+index 2f8e0f34da..2045567214 100644
+--- a/sim/or1k/sem-switch.c
++++ b/sim/or1k/sem-switch.c
+@@ -39,6 +39,7 @@ This file is part of the GNU simulators.
+     { OR1K32BF_INSN_X_CHAIN, && case_sem_INSN_X_CHAIN },
+     { OR1K32BF_INSN_X_BEGIN, && case_sem_INSN_X_BEGIN },
+     { OR1K32BF_INSN_L_J, && case_sem_INSN_L_J },
++    { OR1K32BF_INSN_L_ADRP, && case_sem_INSN_L_ADRP },
+     { OR1K32BF_INSN_L_JAL, && case_sem_INSN_L_JAL },
+     { OR1K32BF_INSN_L_JR, && case_sem_INSN_L_JR },
+     { OR1K32BF_INSN_L_JALR, && case_sem_INSN_L_JALR },
+@@ -81,7 +82,9 @@ This file is part of the GNU simulators.
+     { OR1K32BF_INSN_L_SUB, && case_sem_INSN_L_SUB },
+     { OR1K32BF_INSN_L_ADDC, && case_sem_INSN_L_ADDC },
+     { OR1K32BF_INSN_L_MUL, && case_sem_INSN_L_MUL },
++    { OR1K32BF_INSN_L_MULD, && case_sem_INSN_L_MULD },
+     { OR1K32BF_INSN_L_MULU, && case_sem_INSN_L_MULU },
++    { OR1K32BF_INSN_L_MULDU, && case_sem_INSN_L_MULDU },
+     { OR1K32BF_INSN_L_DIV, && case_sem_INSN_L_DIV },
+     { OR1K32BF_INSN_L_DIVU, && case_sem_INSN_L_DIVU },
+     { OR1K32BF_INSN_L_FF1, && case_sem_INSN_L_FF1 },
+@@ -120,8 +123,10 @@ This file is part of the GNU simulators.
+     { OR1K32BF_INSN_L_SFNE, && case_sem_INSN_L_SFNE },
+     { OR1K32BF_INSN_L_SFNEI, && case_sem_INSN_L_SFNEI },
+     { OR1K32BF_INSN_L_MAC, && case_sem_INSN_L_MAC },
+-    { OR1K32BF_INSN_L_MSB, && case_sem_INSN_L_MSB },
+     { OR1K32BF_INSN_L_MACI, && case_sem_INSN_L_MACI },
++    { OR1K32BF_INSN_L_MACU, && case_sem_INSN_L_MACU },
++    { OR1K32BF_INSN_L_MSB, && case_sem_INSN_L_MSB },
++    { OR1K32BF_INSN_L_MSBU, && case_sem_INSN_L_MSBU },
+     { OR1K32BF_INSN_L_CUST1, && case_sem_INSN_L_CUST1 },
+     { OR1K32BF_INSN_L_CUST2, && case_sem_INSN_L_CUST2 },
+     { OR1K32BF_INSN_L_CUST3, && case_sem_INSN_L_CUST3 },
+@@ -373,6 +378,25 @@ if (1)
+ }
+   NEXT (vpc);
+ 
++  CASE (sem, INSN_L_ADRP) : /* l.adrp $rD,${disp21} */
++{
++  SEM_ARG sem_arg = SEM_SEM_ARG (vpc, sc);
++  ARGBUF *abuf = SEM_ARGBUF (sem_arg);
++#define FLD(f) abuf->fields.sfmt_l_adrp.f
++  int UNUSED written = 0;
++  IADDR UNUSED pc = abuf->addr;
++  vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
++
++  {
++    USI opval = FLD (i_disp21);
++    SET_H_GPR (FLD (f_r1), opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "gpr", 'x', opval);
++  }
++
++#undef FLD
++}
++  NEXT (vpc);
++
+   CASE (sem, INSN_L_JAL) : /* l.jal ${disp26} */
+ {
+   SEM_ARG sem_arg = SEM_SEM_ARG (vpc, sc);
+@@ -690,7 +714,7 @@ or1k32bf_nop (current_cpu, ZEXTSISI (FLD (f_uimm16)));
+ {
+   SEM_ARG sem_arg = SEM_SEM_ARG (vpc, sc);
+   ARGBUF *abuf = SEM_ARGBUF (sem_arg);
+-#define FLD(f) abuf->fields.sfmt_l_slli.f
++#define FLD(f) abuf->fields.sfmt_l_adrp.f
+   int UNUSED written = 0;
+   IADDR UNUSED pc = abuf->addr;
+   vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
+@@ -1365,11 +1389,6 @@ or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
+     SET_H_SYS_SR_OV (opval);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-ov", 'x', opval);
+   }
+-  {
+-    BI opval = MUL1OFSI (GET_H_GPR (FLD (f_r2)), GET_H_GPR (FLD (f_r3)));
+-    SET_H_SYS_SR_CY (opval);
+-    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-cy", 'x', opval);
+-  }
+   {
+     USI opval = MULSI (GET_H_GPR (FLD (f_r2)), GET_H_GPR (FLD (f_r3)));
+     SET_H_GPR (FLD (f_r1), opval);
+@@ -1385,7 +1404,7 @@ or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
+ }
+   NEXT (vpc);
+ 
+-  CASE (sem, INSN_L_MULU) : /* l.mulu $rD,$rA,$rB */
++  CASE (sem, INSN_L_MULD) : /* l.muld $rA,$rB */
+ {
+   SEM_ARG sem_arg = SEM_SEM_ARG (vpc, sc);
+   ARGBUF *abuf = SEM_ARGBUF (sem_arg);
+@@ -1395,12 +1414,35 @@ or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
+   vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
+ 
+ {
+-{
++  DI tmp_result;
++  tmp_result = MULDI (EXTSIDI (GET_H_GPR (FLD (f_r2))), EXTSIDI (GET_H_GPR (FLD (f_r3))));
+   {
+-    BI opval = 0;
+-    SET_H_SYS_SR_OV (opval);
+-    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-ov", 'x', opval);
++    SI opval = SUBWORDDISI (tmp_result, 0);
++    SET_H_MAC_MACHI (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "mac-machi", 'x', opval);
++  }
++  {
++    SI opval = SUBWORDDISI (tmp_result, 1);
++    SET_H_MAC_MACLO (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "mac-maclo", 'x', opval);
+   }
++}
++
++#undef FLD
++}
++  NEXT (vpc);
++
++  CASE (sem, INSN_L_MULU) : /* l.mulu $rD,$rA,$rB */
++{
++  SEM_ARG sem_arg = SEM_SEM_ARG (vpc, sc);
++  ARGBUF *abuf = SEM_ARGBUF (sem_arg);
++#define FLD(f) abuf->fields.sfmt_l_sll.f
++  int UNUSED written = 0;
++  IADDR UNUSED pc = abuf->addr;
++  vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
++
++{
++{
+   {
+     BI opval = MUL1OFSI (GET_H_GPR (FLD (f_r2)), GET_H_GPR (FLD (f_r3)));
+     SET_H_SYS_SR_CY (opval);
+@@ -1412,7 +1454,7 @@ or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "gpr", 'x', opval);
+   }
+ }
+-if (ANDIF (GET_H_SYS_SR_OV (), GET_H_SYS_SR_OVE ())) {
++if (ANDIF (GET_H_SYS_SR_CY (), GET_H_SYS_SR_OVE ())) {
+ or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
+ }
+ }
+@@ -1421,7 +1463,7 @@ or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
+ }
+   NEXT (vpc);
+ 
+-  CASE (sem, INSN_L_DIV) : /* l.div $rD,$rA,$rB */
++  CASE (sem, INSN_L_MULDU) : /* l.muldu $rA,$rB */
+ {
+   SEM_ARG sem_arg = SEM_SEM_ARG (vpc, sc);
+   ARGBUF *abuf = SEM_ARGBUF (sem_arg);
+@@ -1431,37 +1473,60 @@ or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
+   vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
+ 
+ {
++  DI tmp_result;
++  tmp_result = MULDI (ZEXTSIDI (GET_H_GPR (FLD (f_r2))), ZEXTSIDI (GET_H_GPR (FLD (f_r3))));
++  {
++    SI opval = SUBWORDDISI (tmp_result, 0);
++    SET_H_MAC_MACHI (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "mac-machi", 'x', opval);
++  }
++  {
++    SI opval = SUBWORDDISI (tmp_result, 1);
++    SET_H_MAC_MACLO (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "mac-maclo", 'x', opval);
++  }
++}
++
++#undef FLD
++}
++  NEXT (vpc);
++
++  CASE (sem, INSN_L_DIV) : /* l.div $rD,$rA,$rB */
++{
++  SEM_ARG sem_arg = SEM_SEM_ARG (vpc, sc);
++  ARGBUF *abuf = SEM_ARGBUF (sem_arg);
++#define FLD(f) abuf->fields.sfmt_l_sll.f
++  int UNUSED written = 0;
++  IADDR UNUSED pc = abuf->addr;
++  vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
++
+ if (NESI (GET_H_GPR (FLD (f_r3)), 0)) {
+ {
+   {
+     BI opval = 0;
+-    SET_H_SYS_SR_CY (opval);
+-    written |= (1 << 6);
+-    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-cy", 'x', opval);
++    SET_H_SYS_SR_OV (opval);
++    written |= (1 << 5);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-ov", 'x', opval);
+   }
+   {
+     SI opval = DIVSI (GET_H_GPR (FLD (f_r2)), GET_H_GPR (FLD (f_r3)));
+     SET_H_GPR (FLD (f_r1), opval);
+-    written |= (1 << 5);
++    written |= (1 << 4);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "gpr", 'x', opval);
+   }
+ }
+ } else {
++{
+   {
+     BI opval = 1;
+-    SET_H_SYS_SR_CY (opval);
+-    written |= (1 << 6);
+-    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-cy", 'x', opval);
+-  }
+-}
+-  {
+-    BI opval = 0;
+     SET_H_SYS_SR_OV (opval);
++    written |= (1 << 5);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-ov", 'x', opval);
+   }
+-if (ANDIF (GET_H_SYS_SR_CY (), GET_H_SYS_SR_OVE ())) {
++if (GET_H_SYS_SR_OVE ()) {
+ or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
+ }
++}
+ }
+ 
+   abuf->written = written;
+@@ -1478,38 +1543,33 @@ or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
+   IADDR UNUSED pc = abuf->addr;
+   vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
+ 
+-{
+ if (NESI (GET_H_GPR (FLD (f_r3)), 0)) {
+ {
+   {
+     BI opval = 0;
+     SET_H_SYS_SR_CY (opval);
+-    written |= (1 << 6);
++    written |= (1 << 5);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-cy", 'x', opval);
+   }
+   {
+     USI opval = UDIVSI (GET_H_GPR (FLD (f_r2)), GET_H_GPR (FLD (f_r3)));
+     SET_H_GPR (FLD (f_r1), opval);
+-    written |= (1 << 5);
++    written |= (1 << 4);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "gpr", 'x', opval);
+   }
+ }
+ } else {
++{
+   {
+     BI opval = 1;
+     SET_H_SYS_SR_CY (opval);
+-    written |= (1 << 6);
++    written |= (1 << 5);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-cy", 'x', opval);
+   }
+-}
+-  {
+-    BI opval = 0;
+-    SET_H_SYS_SR_OV (opval);
+-    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-ov", 'x', opval);
+-  }
+-if (ANDIF (GET_H_SYS_SR_CY (), GET_H_SYS_SR_OVE ())) {
++if (GET_H_SYS_SR_OVE ()) {
+ or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
+ }
++}
+ }
+ 
+   abuf->written = written;
+@@ -1702,11 +1762,6 @@ or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
+     SET_H_SYS_SR_OV (opval);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-ov", 'x', opval);
+   }
+-  {
+-    USI opval = MUL1OFSI (GET_H_GPR (FLD (f_r2)), EXTSISI (FLD (f_simm16)));
+-    SET_H_SYS_SR_CY (opval);
+-    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-cy", 'x', opval);
+-  }
+   {
+     USI opval = MULSI (GET_H_GPR (FLD (f_r2)), EXTSISI (FLD (f_simm16)));
+     SET_H_GPR (FLD (f_r1), opval);
+@@ -2256,10 +2311,97 @@ if (GET_H_SYS_SR_F ()) {
+   vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
+ 
+ {
+-  SI tmp_prod;
++{
++  DI tmp_prod;
++  DI tmp_mac;
++  DI tmp_result;
++  tmp_prod = MULDI (EXTSIDI (GET_H_GPR (FLD (f_r2))), EXTSIDI (GET_H_GPR (FLD (f_r3))));
++  tmp_mac = JOINSIDI (GET_H_MAC_MACHI (), GET_H_MAC_MACLO ());
++  tmp_result = ADDDI (tmp_prod, tmp_mac);
++  {
++    SI opval = SUBWORDDISI (tmp_result, 0);
++    SET_H_MAC_MACHI (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "mac-machi", 'x', opval);
++  }
++  {
++    SI opval = SUBWORDDISI (tmp_result, 1);
++    SET_H_MAC_MACLO (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "mac-maclo", 'x', opval);
++  }
++  {
++    BI opval = ADDOFDI (tmp_prod, tmp_mac, 0);
++    SET_H_SYS_SR_OV (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-ov", 'x', opval);
++  }
++}
++if (ANDIF (GET_H_SYS_SR_OV (), GET_H_SYS_SR_OVE ())) {
++or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
++}
++}
++
++#undef FLD
++}
++  NEXT (vpc);
++
++  CASE (sem, INSN_L_MACI) : /* l.maci $rA,${simm16} */
++{
++  SEM_ARG sem_arg = SEM_SEM_ARG (vpc, sc);
++  ARGBUF *abuf = SEM_ARGBUF (sem_arg);
++#define FLD(f) abuf->fields.sfmt_l_lwz.f
++  int UNUSED written = 0;
++  IADDR UNUSED pc = abuf->addr;
++  vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
++
++{
++{
++  DI tmp_prod;
++  DI tmp_mac;
++  DI tmp_result;
++  tmp_prod = MULDI (EXTSIDI (GET_H_GPR (FLD (f_r2))), EXTSIDI (FLD (f_simm16)));
++  tmp_mac = JOINSIDI (GET_H_MAC_MACHI (), GET_H_MAC_MACLO ());
++  tmp_result = ADDDI (tmp_mac, tmp_prod);
++  {
++    SI opval = SUBWORDDISI (tmp_result, 0);
++    SET_H_MAC_MACHI (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "mac-machi", 'x', opval);
++  }
++  {
++    SI opval = SUBWORDDISI (tmp_result, 1);
++    SET_H_MAC_MACLO (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "mac-maclo", 'x', opval);
++  }
++  {
++    BI opval = ADDOFDI (tmp_prod, tmp_mac, 0);
++    SET_H_SYS_SR_OV (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-ov", 'x', opval);
++  }
++}
++if (ANDIF (GET_H_SYS_SR_OV (), GET_H_SYS_SR_OVE ())) {
++or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
++}
++}
++
++#undef FLD
++}
++  NEXT (vpc);
++
++  CASE (sem, INSN_L_MACU) : /* l.macu $rA,$rB */
++{
++  SEM_ARG sem_arg = SEM_SEM_ARG (vpc, sc);
++  ARGBUF *abuf = SEM_ARGBUF (sem_arg);
++#define FLD(f) abuf->fields.sfmt_l_sll.f
++  int UNUSED written = 0;
++  IADDR UNUSED pc = abuf->addr;
++  vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
++
++{
++{
++  DI tmp_prod;
++  DI tmp_mac;
+   DI tmp_result;
+-  tmp_prod = MULSI (GET_H_GPR (FLD (f_r2)), GET_H_GPR (FLD (f_r3)));
+-  tmp_result = ADDDI (JOINSIDI (GET_H_MAC_MACHI (), GET_H_MAC_MACLO ()), EXTSIDI (tmp_prod));
++  tmp_prod = MULDI (ZEXTSIDI (GET_H_GPR (FLD (f_r2))), ZEXTSIDI (GET_H_GPR (FLD (f_r3))));
++  tmp_mac = JOINSIDI (GET_H_MAC_MACHI (), GET_H_MAC_MACLO ());
++  tmp_result = ADDDI (tmp_prod, tmp_mac);
+   {
+     SI opval = SUBWORDDISI (tmp_result, 0);
+     SET_H_MAC_MACHI (opval);
+@@ -2270,6 +2412,15 @@ if (GET_H_SYS_SR_F ()) {
+     SET_H_MAC_MACLO (opval);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "mac-maclo", 'x', opval);
+   }
++  {
++    BI opval = ADDCFDI (tmp_prod, tmp_mac, 0);
++    SET_H_SYS_SR_CY (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-cy", 'x', opval);
++  }
++}
++if (ANDIF (GET_H_SYS_SR_CY (), GET_H_SYS_SR_OVE ())) {
++or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
++}
+ }
+ 
+ #undef FLD
+@@ -2286,10 +2437,13 @@ if (GET_H_SYS_SR_F ()) {
+   vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
+ 
+ {
+-  SI tmp_prod;
++{
++  DI tmp_prod;
++  DI tmp_mac;
+   DI tmp_result;
+-  tmp_prod = MULSI (GET_H_GPR (FLD (f_r2)), GET_H_GPR (FLD (f_r3)));
+-  tmp_result = SUBDI (JOINSIDI (GET_H_MAC_MACHI (), GET_H_MAC_MACLO ()), EXTSIDI (tmp_prod));
++  tmp_prod = MULDI (EXTSIDI (GET_H_GPR (FLD (f_r2))), EXTSIDI (GET_H_GPR (FLD (f_r3))));
++  tmp_mac = JOINSIDI (GET_H_MAC_MACHI (), GET_H_MAC_MACLO ());
++  tmp_result = SUBDI (tmp_mac, tmp_prod);
+   {
+     SI opval = SUBWORDDISI (tmp_result, 0);
+     SET_H_MAC_MACHI (opval);
+@@ -2300,26 +2454,38 @@ if (GET_H_SYS_SR_F ()) {
+     SET_H_MAC_MACLO (opval);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "mac-maclo", 'x', opval);
+   }
++  {
++    BI opval = SUBOFDI (tmp_mac, tmp_result, 0);
++    SET_H_SYS_SR_OV (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-ov", 'x', opval);
++  }
++}
++if (ANDIF (GET_H_SYS_SR_OV (), GET_H_SYS_SR_OVE ())) {
++or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
++}
+ }
+ 
+ #undef FLD
+ }
+   NEXT (vpc);
+ 
+-  CASE (sem, INSN_L_MACI) : /* l.maci $rA,${simm16} */
++  CASE (sem, INSN_L_MSBU) : /* l.msbu $rA,$rB */
+ {
+   SEM_ARG sem_arg = SEM_SEM_ARG (vpc, sc);
+   ARGBUF *abuf = SEM_ARGBUF (sem_arg);
+-#define FLD(f) abuf->fields.sfmt_l_lwz.f
++#define FLD(f) abuf->fields.sfmt_l_sll.f
+   int UNUSED written = 0;
+   IADDR UNUSED pc = abuf->addr;
+   vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
+ 
+ {
+-  SI tmp_prod;
++{
++  DI tmp_prod;
++  DI tmp_mac;
+   DI tmp_result;
+-  tmp_prod = MULSI (EXTSISI (FLD (f_simm16)), GET_H_GPR (FLD (f_r2)));
+-  tmp_result = ADDDI (JOINSIDI (GET_H_MAC_MACHI (), GET_H_MAC_MACLO ()), EXTSIDI (tmp_prod));
++  tmp_prod = MULDI (ZEXTSIDI (GET_H_GPR (FLD (f_r2))), ZEXTSIDI (GET_H_GPR (FLD (f_r3))));
++  tmp_mac = JOINSIDI (GET_H_MAC_MACHI (), GET_H_MAC_MACLO ());
++  tmp_result = SUBDI (tmp_mac, tmp_prod);
+   {
+     SI opval = SUBWORDDISI (tmp_result, 0);
+     SET_H_MAC_MACHI (opval);
+@@ -2330,6 +2496,15 @@ if (GET_H_SYS_SR_F ()) {
+     SET_H_MAC_MACLO (opval);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "mac-maclo", 'x', opval);
+   }
++  {
++    BI opval = SUBCFDI (tmp_mac, tmp_result, 0);
++    SET_H_SYS_SR_CY (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-cy", 'x', opval);
++  }
++}
++if (ANDIF (GET_H_SYS_SR_CY (), GET_H_SYS_SR_OVE ())) {
++or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
++}
+ }
+ 
+ #undef FLD
+diff --git a/sim/or1k/sem.c b/sim/or1k/sem.c
+index 6c052ac79d..f67e50e5f5 100644
+--- a/sim/or1k/sem.c
++++ b/sim/or1k/sem.c
+@@ -228,6 +228,27 @@ if (1)
+ #undef FLD
+ }
+ 
++/* l-adrp: l.adrp $rD,${disp21} */
++
++static SEM_PC
++SEM_FN_NAME (or1k32bf,l_adrp) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
++{
++#define FLD(f) abuf->fields.sfmt_l_adrp.f
++  ARGBUF *abuf = SEM_ARGBUF (sem_arg);
++  int UNUSED written = 0;
++  IADDR UNUSED pc = abuf->addr;
++  SEM_PC vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
++
++  {
++    USI opval = FLD (i_disp21);
++    SET_H_GPR (FLD (f_r1), opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "gpr", 'x', opval);
++  }
++
++  return vpc;
++#undef FLD
++}
++
+ /* l-jal: l.jal ${disp26} */
+ 
+ static SEM_PC
+@@ -572,7 +593,7 @@ SEM_FN_NAME (or1k32bf,l_movhi) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
+ static SEM_PC
+ SEM_FN_NAME (or1k32bf,l_macrc) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
+ {
+-#define FLD(f) abuf->fields.sfmt_l_slli.f
++#define FLD(f) abuf->fields.sfmt_l_adrp.f
+   ARGBUF *abuf = SEM_ARGBUF (sem_arg);
+   int UNUSED written = 0;
+   IADDR UNUSED pc = abuf->addr;
+@@ -1304,11 +1325,6 @@ SEM_FN_NAME (or1k32bf,l_mul) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
+     SET_H_SYS_SR_OV (opval);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-ov", 'x', opval);
+   }
+-  {
+-    BI opval = MUL1OFSI (GET_H_GPR (FLD (f_r2)), GET_H_GPR (FLD (f_r3)));
+-    SET_H_SYS_SR_CY (opval);
+-    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-cy", 'x', opval);
+-  }
+   {
+     USI opval = MULSI (GET_H_GPR (FLD (f_r2)), GET_H_GPR (FLD (f_r3)));
+     SET_H_GPR (FLD (f_r1), opval);
+@@ -1324,6 +1340,36 @@ or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
+ #undef FLD
+ }
+ 
++/* l-muld: l.muld $rA,$rB */
++
++static SEM_PC
++SEM_FN_NAME (or1k32bf,l_muld) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
++{
++#define FLD(f) abuf->fields.sfmt_l_sll.f
++  ARGBUF *abuf = SEM_ARGBUF (sem_arg);
++  int UNUSED written = 0;
++  IADDR UNUSED pc = abuf->addr;
++  SEM_PC vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
++
++{
++  DI tmp_result;
++  tmp_result = MULDI (EXTSIDI (GET_H_GPR (FLD (f_r2))), EXTSIDI (GET_H_GPR (FLD (f_r3))));
++  {
++    SI opval = SUBWORDDISI (tmp_result, 0);
++    SET_H_MAC_MACHI (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "mac-machi", 'x', opval);
++  }
++  {
++    SI opval = SUBWORDDISI (tmp_result, 1);
++    SET_H_MAC_MACLO (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "mac-maclo", 'x', opval);
++  }
++}
++
++  return vpc;
++#undef FLD
++}
++
+ /* l-mulu: l.mulu $rD,$rA,$rB */
+ 
+ static SEM_PC
+@@ -1337,11 +1383,6 @@ SEM_FN_NAME (or1k32bf,l_mulu) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
+ 
+ {
+ {
+-  {
+-    BI opval = 0;
+-    SET_H_SYS_SR_OV (opval);
+-    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-ov", 'x', opval);
+-  }
+   {
+     BI opval = MUL1OFSI (GET_H_GPR (FLD (f_r2)), GET_H_GPR (FLD (f_r3)));
+     SET_H_SYS_SR_CY (opval);
+@@ -1353,7 +1394,7 @@ SEM_FN_NAME (or1k32bf,l_mulu) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
+     CGEN_TRACE_RESULT (current_cpu, abuf, "gpr", 'x', opval);
+   }
+ }
+-if (ANDIF (GET_H_SYS_SR_OV (), GET_H_SYS_SR_OVE ())) {
++if (ANDIF (GET_H_SYS_SR_CY (), GET_H_SYS_SR_OVE ())) {
+ or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
+ }
+ }
+@@ -1362,6 +1403,36 @@ or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
+ #undef FLD
+ }
+ 
++/* l-muldu: l.muldu $rA,$rB */
++
++static SEM_PC
++SEM_FN_NAME (or1k32bf,l_muldu) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
++{
++#define FLD(f) abuf->fields.sfmt_l_sll.f
++  ARGBUF *abuf = SEM_ARGBUF (sem_arg);
++  int UNUSED written = 0;
++  IADDR UNUSED pc = abuf->addr;
++  SEM_PC vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
++
++{
++  DI tmp_result;
++  tmp_result = MULDI (ZEXTSIDI (GET_H_GPR (FLD (f_r2))), ZEXTSIDI (GET_H_GPR (FLD (f_r3))));
++  {
++    SI opval = SUBWORDDISI (tmp_result, 0);
++    SET_H_MAC_MACHI (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "mac-machi", 'x', opval);
++  }
++  {
++    SI opval = SUBWORDDISI (tmp_result, 1);
++    SET_H_MAC_MACLO (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "mac-maclo", 'x', opval);
++  }
++}
++
++  return vpc;
++#undef FLD
++}
++
+ /* l-div: l.div $rD,$rA,$rB */
+ 
+ static SEM_PC
+@@ -1373,38 +1444,33 @@ SEM_FN_NAME (or1k32bf,l_div) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
+   IADDR UNUSED pc = abuf->addr;
+   SEM_PC vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
+ 
+-{
+ if (NESI (GET_H_GPR (FLD (f_r3)), 0)) {
+ {
+   {
+     BI opval = 0;
+-    SET_H_SYS_SR_CY (opval);
+-    written |= (1 << 6);
+-    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-cy", 'x', opval);
++    SET_H_SYS_SR_OV (opval);
++    written |= (1 << 5);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-ov", 'x', opval);
+   }
+   {
+     SI opval = DIVSI (GET_H_GPR (FLD (f_r2)), GET_H_GPR (FLD (f_r3)));
+     SET_H_GPR (FLD (f_r1), opval);
+-    written |= (1 << 5);
++    written |= (1 << 4);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "gpr", 'x', opval);
+   }
+ }
+ } else {
++{
+   {
+     BI opval = 1;
+-    SET_H_SYS_SR_CY (opval);
+-    written |= (1 << 6);
+-    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-cy", 'x', opval);
+-  }
+-}
+-  {
+-    BI opval = 0;
+     SET_H_SYS_SR_OV (opval);
++    written |= (1 << 5);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-ov", 'x', opval);
+   }
+-if (ANDIF (GET_H_SYS_SR_CY (), GET_H_SYS_SR_OVE ())) {
++if (GET_H_SYS_SR_OVE ()) {
+ or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
+ }
++}
+ }
+ 
+   abuf->written = written;
+@@ -1423,38 +1489,33 @@ SEM_FN_NAME (or1k32bf,l_divu) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
+   IADDR UNUSED pc = abuf->addr;
+   SEM_PC vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
+ 
+-{
+ if (NESI (GET_H_GPR (FLD (f_r3)), 0)) {
+ {
+   {
+     BI opval = 0;
+     SET_H_SYS_SR_CY (opval);
+-    written |= (1 << 6);
++    written |= (1 << 5);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-cy", 'x', opval);
+   }
+   {
+     USI opval = UDIVSI (GET_H_GPR (FLD (f_r2)), GET_H_GPR (FLD (f_r3)));
+     SET_H_GPR (FLD (f_r1), opval);
+-    written |= (1 << 5);
++    written |= (1 << 4);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "gpr", 'x', opval);
+   }
+ }
+ } else {
++{
+   {
+     BI opval = 1;
+     SET_H_SYS_SR_CY (opval);
+-    written |= (1 << 6);
++    written |= (1 << 5);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-cy", 'x', opval);
+   }
+-}
+-  {
+-    BI opval = 0;
+-    SET_H_SYS_SR_OV (opval);
+-    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-ov", 'x', opval);
+-  }
+-if (ANDIF (GET_H_SYS_SR_CY (), GET_H_SYS_SR_OVE ())) {
++if (GET_H_SYS_SR_OVE ()) {
+ or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
+ }
++}
+ }
+ 
+   abuf->written = written;
+@@ -1663,11 +1724,6 @@ SEM_FN_NAME (or1k32bf,l_muli) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
+     SET_H_SYS_SR_OV (opval);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-ov", 'x', opval);
+   }
+-  {
+-    USI opval = MUL1OFSI (GET_H_GPR (FLD (f_r2)), EXTSISI (FLD (f_simm16)));
+-    SET_H_SYS_SR_CY (opval);
+-    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-cy", 'x', opval);
+-  }
+   {
+     USI opval = MULSI (GET_H_GPR (FLD (f_r2)), EXTSISI (FLD (f_simm16)));
+     SET_H_GPR (FLD (f_r1), opval);
+@@ -2273,10 +2329,13 @@ SEM_FN_NAME (or1k32bf,l_mac) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
+   SEM_PC vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
+ 
+ {
+-  SI tmp_prod;
++{
++  DI tmp_prod;
++  DI tmp_mac;
+   DI tmp_result;
+-  tmp_prod = MULSI (GET_H_GPR (FLD (f_r2)), GET_H_GPR (FLD (f_r3)));
+-  tmp_result = ADDDI (JOINSIDI (GET_H_MAC_MACHI (), GET_H_MAC_MACLO ()), EXTSIDI (tmp_prod));
++  tmp_prod = MULDI (EXTSIDI (GET_H_GPR (FLD (f_r2))), EXTSIDI (GET_H_GPR (FLD (f_r3))));
++  tmp_mac = JOINSIDI (GET_H_MAC_MACHI (), GET_H_MAC_MACLO ());
++  tmp_result = ADDDI (tmp_prod, tmp_mac);
+   {
+     SI opval = SUBWORDDISI (tmp_result, 0);
+     SET_H_MAC_MACHI (opval);
+@@ -2287,6 +2346,103 @@ SEM_FN_NAME (or1k32bf,l_mac) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
+     SET_H_MAC_MACLO (opval);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "mac-maclo", 'x', opval);
+   }
++  {
++    BI opval = ADDOFDI (tmp_prod, tmp_mac, 0);
++    SET_H_SYS_SR_OV (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-ov", 'x', opval);
++  }
++}
++if (ANDIF (GET_H_SYS_SR_OV (), GET_H_SYS_SR_OVE ())) {
++or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
++}
++}
++
++  return vpc;
++#undef FLD
++}
++
++/* l-maci: l.maci $rA,${simm16} */
++
++static SEM_PC
++SEM_FN_NAME (or1k32bf,l_maci) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
++{
++#define FLD(f) abuf->fields.sfmt_l_lwz.f
++  ARGBUF *abuf = SEM_ARGBUF (sem_arg);
++  int UNUSED written = 0;
++  IADDR UNUSED pc = abuf->addr;
++  SEM_PC vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
++
++{
++{
++  DI tmp_prod;
++  DI tmp_mac;
++  DI tmp_result;
++  tmp_prod = MULDI (EXTSIDI (GET_H_GPR (FLD (f_r2))), EXTSIDI (FLD (f_simm16)));
++  tmp_mac = JOINSIDI (GET_H_MAC_MACHI (), GET_H_MAC_MACLO ());
++  tmp_result = ADDDI (tmp_mac, tmp_prod);
++  {
++    SI opval = SUBWORDDISI (tmp_result, 0);
++    SET_H_MAC_MACHI (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "mac-machi", 'x', opval);
++  }
++  {
++    SI opval = SUBWORDDISI (tmp_result, 1);
++    SET_H_MAC_MACLO (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "mac-maclo", 'x', opval);
++  }
++  {
++    BI opval = ADDOFDI (tmp_prod, tmp_mac, 0);
++    SET_H_SYS_SR_OV (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-ov", 'x', opval);
++  }
++}
++if (ANDIF (GET_H_SYS_SR_OV (), GET_H_SYS_SR_OVE ())) {
++or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
++}
++}
++
++  return vpc;
++#undef FLD
++}
++
++/* l-macu: l.macu $rA,$rB */
++
++static SEM_PC
++SEM_FN_NAME (or1k32bf,l_macu) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
++{
++#define FLD(f) abuf->fields.sfmt_l_sll.f
++  ARGBUF *abuf = SEM_ARGBUF (sem_arg);
++  int UNUSED written = 0;
++  IADDR UNUSED pc = abuf->addr;
++  SEM_PC vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
++
++{
++{
++  DI tmp_prod;
++  DI tmp_mac;
++  DI tmp_result;
++  tmp_prod = MULDI (ZEXTSIDI (GET_H_GPR (FLD (f_r2))), ZEXTSIDI (GET_H_GPR (FLD (f_r3))));
++  tmp_mac = JOINSIDI (GET_H_MAC_MACHI (), GET_H_MAC_MACLO ());
++  tmp_result = ADDDI (tmp_prod, tmp_mac);
++  {
++    SI opval = SUBWORDDISI (tmp_result, 0);
++    SET_H_MAC_MACHI (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "mac-machi", 'x', opval);
++  }
++  {
++    SI opval = SUBWORDDISI (tmp_result, 1);
++    SET_H_MAC_MACLO (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "mac-maclo", 'x', opval);
++  }
++  {
++    BI opval = ADDCFDI (tmp_prod, tmp_mac, 0);
++    SET_H_SYS_SR_CY (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-cy", 'x', opval);
++  }
++}
++if (ANDIF (GET_H_SYS_SR_CY (), GET_H_SYS_SR_OVE ())) {
++or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
++}
+ }
+ 
+   return vpc;
+@@ -2305,10 +2461,13 @@ SEM_FN_NAME (or1k32bf,l_msb) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
+   SEM_PC vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
+ 
+ {
+-  SI tmp_prod;
++{
++  DI tmp_prod;
++  DI tmp_mac;
+   DI tmp_result;
+-  tmp_prod = MULSI (GET_H_GPR (FLD (f_r2)), GET_H_GPR (FLD (f_r3)));
+-  tmp_result = SUBDI (JOINSIDI (GET_H_MAC_MACHI (), GET_H_MAC_MACLO ()), EXTSIDI (tmp_prod));
++  tmp_prod = MULDI (EXTSIDI (GET_H_GPR (FLD (f_r2))), EXTSIDI (GET_H_GPR (FLD (f_r3))));
++  tmp_mac = JOINSIDI (GET_H_MAC_MACHI (), GET_H_MAC_MACLO ());
++  tmp_result = SUBDI (tmp_mac, tmp_prod);
+   {
+     SI opval = SUBWORDDISI (tmp_result, 0);
+     SET_H_MAC_MACHI (opval);
+@@ -2319,28 +2478,40 @@ SEM_FN_NAME (or1k32bf,l_msb) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
+     SET_H_MAC_MACLO (opval);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "mac-maclo", 'x', opval);
+   }
++  {
++    BI opval = SUBOFDI (tmp_mac, tmp_result, 0);
++    SET_H_SYS_SR_OV (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-ov", 'x', opval);
++  }
++}
++if (ANDIF (GET_H_SYS_SR_OV (), GET_H_SYS_SR_OVE ())) {
++or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
++}
+ }
+ 
+   return vpc;
+ #undef FLD
+ }
+ 
+-/* l-maci: l.maci $rA,${simm16} */
++/* l-msbu: l.msbu $rA,$rB */
+ 
+ static SEM_PC
+-SEM_FN_NAME (or1k32bf,l_maci) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
++SEM_FN_NAME (or1k32bf,l_msbu) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
+ {
+-#define FLD(f) abuf->fields.sfmt_l_lwz.f
++#define FLD(f) abuf->fields.sfmt_l_sll.f
+   ARGBUF *abuf = SEM_ARGBUF (sem_arg);
+   int UNUSED written = 0;
+   IADDR UNUSED pc = abuf->addr;
+   SEM_PC vpc = SEM_NEXT_VPC (sem_arg, pc, 4);
+ 
+ {
+-  SI tmp_prod;
++{
++  DI tmp_prod;
++  DI tmp_mac;
+   DI tmp_result;
+-  tmp_prod = MULSI (EXTSISI (FLD (f_simm16)), GET_H_GPR (FLD (f_r2)));
+-  tmp_result = ADDDI (JOINSIDI (GET_H_MAC_MACHI (), GET_H_MAC_MACLO ()), EXTSIDI (tmp_prod));
++  tmp_prod = MULDI (ZEXTSIDI (GET_H_GPR (FLD (f_r2))), ZEXTSIDI (GET_H_GPR (FLD (f_r3))));
++  tmp_mac = JOINSIDI (GET_H_MAC_MACHI (), GET_H_MAC_MACLO ());
++  tmp_result = SUBDI (tmp_mac, tmp_prod);
+   {
+     SI opval = SUBWORDDISI (tmp_result, 0);
+     SET_H_MAC_MACHI (opval);
+@@ -2351,6 +2522,15 @@ SEM_FN_NAME (or1k32bf,l_maci) (SIM_CPU *current_cpu, SEM_ARG sem_arg)
+     SET_H_MAC_MACLO (opval);
+     CGEN_TRACE_RESULT (current_cpu, abuf, "mac-maclo", 'x', opval);
+   }
++  {
++    BI opval = SUBCFDI (tmp_mac, tmp_result, 0);
++    SET_H_SYS_SR_CY (opval);
++    CGEN_TRACE_RESULT (current_cpu, abuf, "sys-sr-cy", 'x', opval);
++  }
++}
++if (ANDIF (GET_H_SYS_SR_CY (), GET_H_SYS_SR_OVE ())) {
++or1k32bf_exception (current_cpu, pc, EXCEPT_RANGE);
++}
+ }
+ 
+   return vpc;
+@@ -2814,6 +2994,7 @@ static const struct sem_fn_desc sem_fns[] = {
+   { OR1K32BF_INSN_X_CHAIN, SEM_FN_NAME (or1k32bf,x_chain) },
+   { OR1K32BF_INSN_X_BEGIN, SEM_FN_NAME (or1k32bf,x_begin) },
+   { OR1K32BF_INSN_L_J, SEM_FN_NAME (or1k32bf,l_j) },
++  { OR1K32BF_INSN_L_ADRP, SEM_FN_NAME (or1k32bf,l_adrp) },
+   { OR1K32BF_INSN_L_JAL, SEM_FN_NAME (or1k32bf,l_jal) },
+   { OR1K32BF_INSN_L_JR, SEM_FN_NAME (or1k32bf,l_jr) },
+   { OR1K32BF_INSN_L_JALR, SEM_FN_NAME (or1k32bf,l_jalr) },
+@@ -2856,7 +3037,9 @@ static const struct sem_fn_desc sem_fns[] = {
+   { OR1K32BF_INSN_L_SUB, SEM_FN_NAME (or1k32bf,l_sub) },
+   { OR1K32BF_INSN_L_ADDC, SEM_FN_NAME (or1k32bf,l_addc) },
+   { OR1K32BF_INSN_L_MUL, SEM_FN_NAME (or1k32bf,l_mul) },
++  { OR1K32BF_INSN_L_MULD, SEM_FN_NAME (or1k32bf,l_muld) },
+   { OR1K32BF_INSN_L_MULU, SEM_FN_NAME (or1k32bf,l_mulu) },
++  { OR1K32BF_INSN_L_MULDU, SEM_FN_NAME (or1k32bf,l_muldu) },
+   { OR1K32BF_INSN_L_DIV, SEM_FN_NAME (or1k32bf,l_div) },
+   { OR1K32BF_INSN_L_DIVU, SEM_FN_NAME (or1k32bf,l_divu) },
+   { OR1K32BF_INSN_L_FF1, SEM_FN_NAME (or1k32bf,l_ff1) },
+@@ -2895,8 +3078,10 @@ static const struct sem_fn_desc sem_fns[] = {
+   { OR1K32BF_INSN_L_SFNE, SEM_FN_NAME (or1k32bf,l_sfne) },
+   { OR1K32BF_INSN_L_SFNEI, SEM_FN_NAME (or1k32bf,l_sfnei) },
+   { OR1K32BF_INSN_L_MAC, SEM_FN_NAME (or1k32bf,l_mac) },
+-  { OR1K32BF_INSN_L_MSB, SEM_FN_NAME (or1k32bf,l_msb) },
+   { OR1K32BF_INSN_L_MACI, SEM_FN_NAME (or1k32bf,l_maci) },
++  { OR1K32BF_INSN_L_MACU, SEM_FN_NAME (or1k32bf,l_macu) },
++  { OR1K32BF_INSN_L_MSB, SEM_FN_NAME (or1k32bf,l_msb) },
++  { OR1K32BF_INSN_L_MSBU, SEM_FN_NAME (or1k32bf,l_msbu) },
+   { OR1K32BF_INSN_L_CUST1, SEM_FN_NAME (or1k32bf,l_cust1) },
+   { OR1K32BF_INSN_L_CUST2, SEM_FN_NAME (or1k32bf,l_cust2) },
+   { OR1K32BF_INSN_L_CUST3, SEM_FN_NAME (or1k32bf,l_cust3) },
+diff --git a/sim/testsuite/sim/or1k/div.S b/sim/testsuite/sim/or1k/div.S
+index e1e28d5621..a3202e9f8c 100644
+--- a/sim/testsuite/sim/or1k/div.S
++++ b/sim/testsuite/sim/or1k/div.S
+@@ -75,30 +75,30 @@
+ # output: report(0x0000000c);\n
+ # output: report(0x00000000);\n
+ # output: report(0xfffffffd);\n
+-# output: report(0x00000001);\n
+ # output: report(0x00000000);\n
++# output: report(0x00000001);\n
+ # output: report(0x00000000);\n
+ # output: \n
+ # output: report(0xfffffff4);\n
+ # output: report(0x00000000);\n
+ # output: report(0xfffffffd);\n
+-# output: report(0x00000001);\n
+ # output: report(0x00000000);\n
++# output: report(0x00000001);\n
+ # output: report(0x00000000);\n
+ # output: \n
+ # output: report(0x0000000c);\n
+ # output: report(0x00000000);\n
+ # output: report(0xfffffffd);\n
+-# output: report(0x00000001);\n
+ # output: report(0x00000000);\n
+ # output: report(0x00000001);\n
++# output: report(0x00000001);\n
+ # output: \n
+ # output: report(0xfffffff4);\n
+ # output: report(0x00000000);\n
+ # output: report(0xfffffffd);\n
+-# output: report(0x00000001);\n
+ # output: report(0x00000000);\n
+ # output: report(0x00000001);\n
++# output: report(0x00000001);\n
+ # output: \n
+ # output: report(0x0000000c);\n
+ # output: report(0x00000003);\n
+@@ -233,7 +233,7 @@ start_tests:
+ 	TEST_INST_I32_I32 l.div, 0x0000000c, 0xfffffffd
+ 	TEST_INST_I32_I32 l.div, 0x0000000b, 0xfffffffd
+ 
+-	/* Divide by zero.  This will set the carry flag.  */
++	/* Divide by zero.  This will set the overflow flag.  */
+ 	TEST_INST_I32_I32 l.div, 0x0000000c, 0x00000000
+ 	TEST_INST_I32_I32 l.div, 0xfffffff4, 0x00000000
+ 
+@@ -241,7 +241,7 @@ start_tests:
+ 
+ 	SET_SPR_SR_FLAGS SPR_SR_OVE, r2, r3
+ 
+-	/* Divide by zero.  This will set the carry flag and trigger an
++	/* Divide by zero.  This will set the overflow flag and trigger an
+ 	   exception.  */
+ 	TEST_INST_I32_I32 l.div, 0x0000000c, 0x00000000
+ 	TEST_INST_I32_I32 l.div, 0xfffffff4, 0x00000000
+diff --git a/sim/testsuite/sim/or1k/mul.S b/sim/testsuite/sim/or1k/mul.S
+index 964badd951..70bbc41e19 100644
+--- a/sim/testsuite/sim/or1k/mul.S
++++ b/sim/testsuite/sim/or1k/mul.S
+@@ -40,56 +40,56 @@
+ # output: report(0x00010000);\n
+ # output: report(0x00010000);\n
+ # output: report(0x00000000);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000001);\n
+ # output: report(0x00000000);\n
+ # output: \n
+ # output: report(0xfffffffe);\n
+ # output: report(0xfffffffd);\n
+ # output: report(0x00000006);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: \n
+ # output: report(0xffff7fff);\n
+ # output: report(0xffff0002);\n
+ # output: report(0x7ffffffe);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: \n
+ # output: report(0xffff7fff);\n
+ # output: report(0xffff0000);\n
+ # output: report(0x80010000);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000001);\n
+ # output: report(0x00000000);\n
+ # output: \n
+ # output: report(0xffff0000);\n
+ # output: report(0xfffeffff);\n
+ # output: report(0x00010000);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000001);\n
+ # output: report(0x00000000);\n
+ # output: \n
+ # output: report(0x00000002);\n
+ # output: report(0xfffffffd);\n
+ # output: report(0xfffffffa);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: \n
+ # output: report(0xffff8000);\n
+ # output: report(0x00010000);\n
+ # output: report(0x80000000);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: \n
+ # output: report(0xffff7fff);\n
+ # output: report(0x00010000);\n
+ # output: report(0x7fff0000);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000001);\n
+ # output: report(0x00000000);\n
+ # output: \n
+@@ -110,14 +110,14 @@
+ # output: report(0x00000002);\n
+ # output: report(0xfffffffd);\n
+ # output: report(0xfffffffa);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: \n
+ # output: report(0xffff7fff);\n
+ # output: report(0xffff0000);\n
+ # output: report(0x80010000);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000001);\n
+ # output: report(0x00000001);\n
+ # output: \n
+@@ -145,56 +145,56 @@
+ # output: report(0x00040000);\n
+ # output: report(0x00004000);\n
+ # output: report(0x00000000);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000001);\n
+ # output: report(0x00000000);\n
+ # output: \n
+ # output: report(0xfffffffe);\n
+ # output: report(0x0000fffd);\n
+ # output: report(0x00000006);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: \n
+ # output: report(0xfffefffe);\n
+ # output: report(0x00008001);\n
+ # output: report(0x7ffffffe);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: \n
+ # output: report(0xfffe0000);\n
+ # output: report(0x0000bfff);\n
+ # output: report(0x80020000);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000001);\n
+ # output: report(0x00000000);\n
+ # output: \n
+ # output: report(0xfffdfffe);\n
+ # output: report(0x00008000);\n
+ # output: report(0x00010000);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000001);\n
+ # output: report(0x00000000);\n
+ # output: \n
+ # output: report(0x00000002);\n
+ # output: report(0x0000fffd);\n
+ # output: report(0xfffffffa);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: \n
+ # output: report(0x00010000);\n
+ # output: report(0x00008000);\n
+ # output: report(0x80000000);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: \n
+ # output: report(0xfffdfffc);\n
+ # output: report(0x00004000);\n
+ # output: report(0x7fff0000);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000001);\n
+ # output: report(0x00000000);\n
+ # output: \n
+@@ -215,14 +215,14 @@
+ # output: report(0xfffffffe);\n
+ # output: report(0x0000fffd);\n
+ # output: report(0x00000006);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: report(0x00000000);\n
+ # output: \n
+ # output: report(0xfffdfffe);\n
+ # output: report(0x00008000);\n
+ # output: report(0x00010000);\n
+-# output: report(0x00000001);\n
++# output: report(0x00000000);\n
+ # output: report(0x00000001);\n
+ # output: report(0x00000001);\n
+ # output: \n
+@@ -322,14 +322,14 @@
+ # output: report(0xfffffffa);\n
+ # output: report(0x00000001);\n
+ # output: report(0x00000000);\n
+-# output: report(0x00000000);\n
++# output: report(0x00000001);\n
+ # output: \n
+ # output: report(0xffff7fff);\n
+ # output: report(0xffff0000);\n
+ # output: report(0x80010000);\n
+ # output: report(0x00000001);\n
+ # output: report(0x00000000);\n
+-# output: report(0x00000000);\n
++# output: report(0x00000001);\n
+ # output: \n
+ # output: exit(0)\n
+ 
+@@ -375,21 +375,19 @@ start_tests:
+ 	   set the overflow, but not the carry flag .  */
+ 	TEST_INST_I32_I32 l.mul, 0x00008000, 0x00010000
+ 
+-	/* Multiply two large positive numbers.  This should set both the
+-	   carry and overflow flags (even though the result is not a
+-	   negative number.  */
++	/* Multiply two large positive numbers.  This should set the
++	   overflow flags (even though the result is not a negative
++	   number.  */
+ 	TEST_INST_I32_I32 l.mul, 0x00010000, 0x00010000
+ 
+-	/* Multiply two small negative numbers.  This will set the carry
+-	   flag, but not the overflow flag.  */
++	/* Multiply two small negative numbers.  This will set no flags.  */
+ 	TEST_INST_I32_I32 l.mul, 0xfffffffe, 0xfffffffd
+ 
+-	/* Multiply two quite large negative numbers.  This will set the
+-	   carry flag, but not the overflow flag.  */
++	/* Multiply two quite large negative numbers.  This will no flags.  */
+ 	TEST_INST_I32_I32 l.mul, 0xffff7fff, 0xffff0002
+ 
+ 	/* Multiply two slightly too large negative numbers.  This should
+-	   set both the overflow, and the carry flags  */
++	   set the overflow flag.  */
+ 	TEST_INST_I32_I32 l.mul, 0xffff7fff, 0xffff0000
+ 
+ 	/* Multiply two large negative numbers.  This should set the
+@@ -398,18 +396,15 @@ start_tests:
+ 	TEST_INST_I32_I32 l.mul, 0xffff0000, 0xfffeffff
+ 
+ 	/* Multiply one small negative number and one small positive
+-	   number.  This will set the carry flag, but not the overflow
+-	   flag.  */
++	   number.  This will set the no flags.  */
+ 	TEST_INST_I32_I32 l.mul, 0x00000002, 0xfffffffd
+ 
+ 	/* Multiply one quite large negative number and one quite large
+-	   positive number.  This will set the carry, but not the
+-	   overflow flag.  */
++	   positive number.  This will set no flags.  */
+ 	TEST_INST_I32_I32 l.mul, 0xffff8000, 0x00010000
+ 
+ 	/* Multiply one slightly too large negative number and one slightly
+-	   too large positive number.  This should set both the carry and
+-	   overflow flags.  */
++	   too large positive number.  This should set the overflow flag.  */
+ 	TEST_INST_I32_I32 l.mul, 0xffff7fff, 0x00010000
+ 
+ 	/* Multiply the largest negative number by positive unity.  This
+@@ -423,10 +418,11 @@ start_tests:
+ 	/* Check that an overflow alone causes a RANGE Exception.  */
+ 	TEST_INST_I32_I32 l.mul, 0x00008000, 0x00010000
+ 
+-	/* Check that a carry alone does not cause a RANGE Exception.  */
++	/* Check multiply of a negative and positive does not cause a RANGE
++	   Exception.  */
+ 	TEST_INST_I32_I32 l.mul, 0x00000002, 0xfffffffd
+ 
+-	/* Check that carry and overflow together cause an exception.  */
++	/* Check that negative overflow causes a RANGE exception.  */
+ 	TEST_INST_I32_I32 l.mul, 0xffff7fff, 0xffff0000
+ 
+ 	CLEAR_SPR_SR_FLAGS SPR_SR_OVE, r2, r3
+@@ -445,41 +441,35 @@ start_tests:
+ 	   set the overflow, but not the carry flag.  */
+ 	TEST_INST_I32_I16 l.muli, 0x00020000, 0x4000
+ 
+-	/* Multiply two large positive numbers.  This should set both the
+-	   carry and overflow flags (even though the result is not a
+-	   negative number.  */
++	/* Multiply two large positive numbers.  This should set the
++	   overflow flag, even though the result is not a negative number.  */
+ 	TEST_INST_I32_I16 l.muli, 0x00040000, 0x4000
+ 
+-	/* Multiply two small negative numbers.  This should set the
+-	   carry flag, but not the overflow flag.  */
++	/* Multiply two small negative numbers.  This should set no flags.  */
+ 	TEST_INST_I32_I16 l.muli, 0xfffffffe, 0xfffd
+ 
+-	/* Multiply two quite large negative numbers.  This will set the
+-	   carry, but not the overflow flag.  */
++	/* Multiply two quite large negative numbers.  This will set no
++	   flags.  */
+ 	TEST_INST_I32_I16 l.muli, 0xfffefffe, 0x8001
+ 
+ 	/* Multiply two slightly too large negative numbers.  This should
+-	   set both the overflow, and the carry flags  */
++	   set the overflow flag.  */
+ 	TEST_INST_I32_I16 l.muli, 0xfffe0000, 0xbfff
+ 
+-	/* Multiply two large negative numbers.  This should set the both
+-	   the carry and overflow flags (even though the result is a
+-	   positive number.  */
++	/* Multiply two large negative numbers.  This should set the
++	   overflow flag, even though the result is a positive number.  */
+ 	TEST_INST_I32_I16 l.muli, 0xfffdfffe, 0x8000
+ 
+ 	/* Multiply one small negative number and one small positive
+-	   number.  This will set the carry flag, but not the overflow
+-	   flag.  */
++	   number.  This will set no flags.  */
+ 	TEST_INST_I32_I16 l.muli, 0x00000002, 0xfffd
+ 
+ 	/* Multiply one quite large negative number and one quite large
+-	   positive number.  This will set the carry flag, but not the
+-	   overflow flag.  */
++	   positive number.  This will set no flags.  */
+ 	TEST_INST_I32_I16 l.muli, 0x00010000, 0x8000
+ 
+ 	/* Multiply one slightly too large negative number and one slightly
+-	   too large positive number.  This should set both the carry and
+-	   overflow flags.  */
++	   too large positive number.  This will set the overflow flag.  */
+ 	TEST_INST_I32_I16 l.muli, 0xfffdfffc, 0x4000
+ 
+ 	/* Multiply the largest negative number by positive unity.  Should
+@@ -493,10 +483,11 @@ start_tests:
+ 	/* Check that an overflow alone causes a RANGE Exception.  */
+ 	TEST_INST_I32_I16 l.muli, 0x00020000, 0x4000
+ 
+-	/* Check that a carry alone does not cause a RANGE Exception.  */
++	/* Check that two negatives will not cause a RANGE Exception.  */
+ 	TEST_INST_I32_I16 l.muli, 0xfffffffe, 0xfffd
+ 
+-	/* Check that carry and overflow together cause an exception.  */
++	/* Check that multiply of larget negative and positive numbers causes
++	   a RANGE exception and overflow.  */
+ 	TEST_INST_I32_I16 l.muli, 0xfffdfffe, 0x8000
+ 
+ 	CLEAR_SPR_SR_FLAGS SPR_SR_OVE, r2, r3
+@@ -561,11 +552,11 @@ start_tests:
+ 	   does not cause a RANGE Exception.  */
+ 	TEST_INST_I32_I32 l.mulu, 0x00008000, 0x00010000
+ 
+-	/* Check that a carry alone does not cause a RANGE Exception.  */
++	/* Check that a carry causes a RANGE Exception.  */
+ 	TEST_INST_I32_I32 l.mulu, 0x00000002, 0xfffffffd
+ 
+ 	/* Check that what would cause an overflow and carry in 2's
+-	   complement does not cause a RANGE Exception.  */
++	   complement causes a RANGE Exception.  */
+ 	TEST_INST_I32_I32 l.mulu, 0xffff7fff, 0xffff0000
+ 
+ 	CLEAR_SPR_SR_FLAGS SPR_SR_OVE, r2, r3
 -- 
 2.17.1
 
