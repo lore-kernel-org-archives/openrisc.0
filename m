@@ -1,11 +1,11 @@
 From: Nick Clifton <nickc@redhat.com>
-Date: Thu, 4 Oct 2018 16:33:15 +0100
-Subject: [OpenRISC] [PATCH v3 3/5] or1k: Add the l.adrp insn and
- supporting relocations
-In-Reply-To: <20181004032317.17478-4-shorne@gmail.com>
+Date: Thu, 4 Oct 2018 16:34:04 +0100
+Subject: [OpenRISC] [PATCH v3 4/5] or1k: Add the l.muld, l.muldu, l.macu,
+ l.msbu insns
+In-Reply-To: <20181004032317.17478-5-shorne@gmail.com>
 References: <20181004032317.17478-1-shorne@gmail.com>
- <20181004032317.17478-4-shorne@gmail.com>
-Message-ID: <10dcf643-7acd-84a9-4cf1-0fc2ea2844a7@redhat.com>
+ <20181004032317.17478-5-shorne@gmail.com>
+Message-ID: <01ed0f00-6278-6157-6002-30478cd47e1d@redhat.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -15,103 +15,60 @@ To: openrisc@lists.librecores.org
 Hi Stafford,
 
 > yyyy-mm-dd  Richard Henderson  <rth@twiddle.net>
-> 
-> bfd/ChangeLog:
-> 
-> 	* bfd-in2.h: Regenerated.
-> 	* elf32-or1k.c: (or1k_elf_howto_table): Fix formatting for
-> 	R_OR1K_PLT26, Add R_OR1K_PCREL_PG21, R_OR1K_GOT_PG21,
-> 	R_OR1K_TLS_GD_PG21, R_OR1K_TLS_LDM_PG21, R_OR1K_TLS_IE_PG21,
-> 	R_OR1K_LO13, R_OR1K_GOT_LO13, R_OR1K_TLS_GD_LO13, R_OR1K_TLS_LDM_LO13,
-> 	R_OR1K_TLS_IE_LO13, R_OR1K_SLO13, R_OR1K_PLTA26.
-> 	(or1k_reloc_map): Add BFD_RELOC_OR1K_PCREL_PG21,
-> 	BFD_RELOC_OR1K_GOT_PG21, BFD_RELOC_OR1K_TLS_GD_PG21,
-> 	BFD_RELOC_OR1K_TLS_LDM_PG21, BFD_RELOC_OR1K_TLS_IE_PG21,
-> 	BFD_RELOC_OR1K_LO13, BFD_RELOC_OR1K_GOT_LO13,
-> 	BFD_RELOC_OR1K_TLS_GD_LO13, BFD_RELOC_OR1K_TLS_GD_LO13,
-> 	BFD_RELOC_OR1K_TLS_LDM_LO13, BFD_RELOC_OR1K_TLS_IE_LO13,
-> 	BFD_RELOC_OR1K_SLO13, BFD_RELOC_OR1K_PLTA26.
-> 	(elf_or1k_link_hash_table): Add field saw_plta.
-> 	(or1k_final_link_relocate): Add value calculations for new relocations.
-> 	(or1k_elf_relocate_section): Add section relocations for new
-> 	relocations.
-> 	(or1k_write_plt_entry): New function.
-> 	(or1k_elf_finish_dynamic_sections): Add support for PLTA relocations
-> 	using new l.adrp instruction.  Cleanup PLT relocation code generation.
-> 	* libbfd.h: Regenerated.
-> 	* reloc.c: Add BFD_RELOC_OR1K_PCREL_PG21, BFD_RELOC_OR1K_LO13,
-> 	BFD_RELOC_OR1K_SLO13, BFD_RELOC_OR1K_GOT_PG21, BFD_RELOC_OR1K_GOT_LO13,
-> 	BFD_RELOC_OR1K_PLTA26, BFD_RELOC_OR1K_TLS_GD_PG21,
-> 	BFD_RELOC_OR1K_TLS_GD_LO13, BFD_RELOC_OR1K_TLS_LDM_PG21,
-> 	BFD_RELOC_OR1K_TLS_LDM_LO13, BFD_RELOC_OR1K_TLS_IE_PG21,
-> 	BFD_RELOC_OR1K_TLS_IE_LO13.
+> 	    Stafford Horne  <shorne@gmail.com>
 > 
 > cpu/ChangeLog:
 > 
-> 	* or1k.opc (parse_disp26): Add support for plta() relocations.
-> 	(parse_disp21): New function.
-> 	(or1k_rclass): New enum.
-> 	(or1k_rtype): New enum.
-> 	(or1k_imm16_relocs): Define new PO and SPO relocation mappings.
-> 	(parse_reloc): Add new po(), gotpo() and gottppo() for LO13 relocations.
-> 	(parse_imm16): Add support for the new 21bit and 13bit relocations.
-> 	* or1korbis.cpu (f-disp26): Don't assume SI.
-> 	(f-disp21): New pc-relative 21-bit 13 shifted to right.
-> 	(insn-opcode): Add ADRP.
-> 	(l-adrp): New instruction.
-> 
-> gas/ChangeLog:
-> 
-> 	* config/tc-or1k.c (or1k_apply_fix): Add BFD_RELOC_OR1K_TLS_GD_PG21,
-> 	BFD_RELOC_OR1K_TLS_GD_LO13, BFD_RELOC_OR1K_TLS_LDM_PG21,
-> 	BFD_RELOC_OR1K_TLS_LDM_LO13, BFD_RELOC_OR1K_TLS_IE_PG21,
-> 	BFD_RELOC_OR1K_TLS_IE_LO13.
-> 	* testsuite/gas/or1k/allinsn.s: Add test for l.adrp.
-> 	* testsuite/gas/or1k/allinsn.d: Add test results for new
-> 	instructions.
-> 	* testsuite/gas/or1k/reloc-1.s: Add tests to generate
-> 	R_OR1K_PLTA26, R_OR1K_GOT_PG21, R_OR1K_TLS_GD_PG21, R_OR1K_TLS_LDM_PG21,
-> 	R_OR1K_TLS_IE_PG21, R_OR1K_LO13, R_OR1K_GOT_LO13, R_OR1K_TLS_GD_LO13,
-> 	R_OR1K_TLD_LDM_LO13, R_OR1K_TLS_IE_LO13, R_OR1K_LO13, R_OR1K_SLO13
-> 	relocations.
-> 	* testsuite/gas/or1k/reloc-1.d: Add relocation results for
-> 	tests.
-> 	* testsuite/gas/or1k/reloc-2.s: Add negative tests for store to
-> 	gotpo().
-> 	* testsuite/gas/or1k/reloc-2.l: Add expected error test results.
-> 
-> ld/ChangeLog:
-> 
-> 	* testsuite/ld-or1k/or1k.exp: Add test cases for plt generation.
-> 	* testsuite/ld-or1k/plt1.dd: New file.
-> 	* testsuite/ld-or1k/plt1.s: New file.
-> 	* testsuite/ld-or1k/plt1.x.dd: New file.
-> 	* testsuite/ld-or1k/plta1.dd: New file.
-> 	* testsuite/ld-or1k/plta1.s: New file.
-> 	* testsuite/ld-or1k/pltlib.s: New file.
-> 
-> include/ChangeLog:
-> 
-> 	* elf/or1k.h (elf_or1k_reloc_type): Add R_OR1K_PCREL_PG21,
-> 	R_OR1K_GOT_PG21, R_OR1K_TLS_GD_PG21, R_OR1K_TLS_LDM_PG21,
-> 	R_OR1K_TLS_IE_PG21, R_OR1K_LO13, R_OR1K_GOT_LO13,
-> 	R_OR1K_TLS_GD_LO13, R_OR1K_TLS_LDM_LO13, R_OR1K_TLS_IE_LO13,
-> 	R_OR1K_SLO13, R_OR1K_PLTA26.
+> 	* or1korbis.cpu (insn-opcode-mac): Add opcodes for MACU and MSBU.
+> 	(insn-opcode-alu-regreg): Add opcodes for MULD and MULDU.
+> 	(l-mul): Fix overflow support and indentation.
+> 	(l-mulu): Fix overflow support and indentation.
+> 	(l-muld, l-muldu, l-msbu, l-macu): New instructions.
+> 	(l-div); Remove incorrect carry behavior.
+> 	(l-divu): Fix carry and overflow behavior.
+> 	(l-mac): Add overflow support.
+> 	(l-msb, l-msbu): Add carry and overflow support.
 > 
 > opcodes/ChangeLog:
 > 
-> 	* or1k-asm.c: Regenerated.
-> 	* or1k-desc.c: Regenerated.
-> 	* or1k-desc.h: Regenerated.
-> 	* or1k-dis.c: Regenerated.
-> 	* or1k-ibld.c: Regenerated.
-> 	* or1k-opc.c: Regenerated.
-> 	* or1k-opc.h: Regenerated.
-> 	* or1k-opinst.c: Regenerated.
+> 	* or1k-desc.c: Regenerate.
+> 	* or1k-desc.h: Regenerate.
+> 	* or1k-opc.c: Regenerate.
+> 	* or1k-opc.h: Regenerate.
+> 	* or1k-opinst.c: Regenerate.
+> 
+> sim/common/ChangeLog:
+> 
+> 	* cgen-ops.h (ADDCFDI): New function, add carry flag DI variant.
+> 	(ADDOFDI): New function, add overflow flag DI variant.
+> 	(SUBCFDI): New function, subtract carry flag DI variant.
+> 	(SUBOFDI): New function, subtract overflow flag DI variant.
+> 
+> sim/or1k/ChangeLog:
+> 
+> 	* or1k/cpu.h: Regenerate.
+> 	* or1k/decode.c: Regenerate.
+> 	* or1k/decode.h: Regenerate.
+> 	* or1k/model.c: Regenerate.
+> 	* or1k/sem-switch.c: Regenerate.
+> 	* or1k/sem.c: Regenerate:
+> 
+> sim/testsuite/sim/or1k/ChangeLog:
+> 
+> 	* div.S: Fix tests to match correct overflow/carry semantics.
+> 	* mul.S: Likewise.
+> 
+> yyyy-mm-dd  Stafford Horne  <shorne@gmail.com>
+> 
+> gas/ChangeLog:
+> 
+> 	* testsuite/gas/or1k/allinsn.s: Add instruction tests for
+> 	l.muld, l.muldu, l.macu, l.msb, l.msbu.
+> 	* testsuite/gas/or1k/allinsn.d: Add test results for new
+> 	instructions. 
 
 Approved.
 
 Cheers
   Nick
-
 
