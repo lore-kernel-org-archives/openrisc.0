@@ -1,103 +1,110 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 4 Oct 2018 11:58:46 +0900
-Subject: [OpenRISC] [PATCH v2 0/5] OpenRISC binutils updates and new
-	relocs
-In-Reply-To: <70baf6b8-d26c-f518-78e5-48a6ad47ce54@redhat.com>
-References: <20181001071001.20446-1-shorne@gmail.com>
- <70baf6b8-d26c-f518-78e5-48a6ad47ce54@redhat.com>
-Message-ID: <20181004025846.GD32353@lianli.shorne-pla.net>
+Date: Thu,  4 Oct 2018 12:23:12 +0900
+Subject: [OpenRISC] [PATCH v3 0/5] OpenRISC binutils updates and new relocs
+Message-ID: <20181004032317.17478-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Oct 02, 2018 at 04:38:39PM +0100, Nick Clifton wrote:
-> Hi Stafford,
-> 
->   I just applied your v2 patch series and found one new regression:
-> 
-> Checking Binutils in: or1k-elf ... LD: 1  done
->  LD REGRESSION: ld-scripts/pr22267    
-> 
->   Would you mind taking a quick look please ?
-
 Hello,
 
-This is just a note for Richard.  Please let me know if my fix has any problems.
+Changes since v2:
+  - Fixed issue with reloc overflow detection (ld-scripts/pr22267)
 
-This issue was with the new overflow added which was thinking that OpenRISC was
-a 64-bit system.  I replaced it with the generic stuff which uses the bit width
-of the target system not host system (i.e. bfd_vma) for overflow calculations.
+Changes since v1:
+  - Added documentation for GAS
+  - Fixed format issues with enum '{' and 'function_(' space
+  - Added messages before 'abort()'
 
-Change below...
+This series contains a lot of updates for OpenRISC binutils.  Including:
+  - Definitions for missing instructions.
+  - New relocations used in the new GCC OpenRISC port
+  - A new instruction l.adrp
+
+The patches were for the most part written by Richard Henderson, I have fixed a
+few bugs, added additional tests and wrote the ChangeLogs.
+
+These patches have been tested and used in the new OpenRISC GCC clean-room
+rewrite done by Richard and Me.
+
+  http://stffrdhrn.github.io/software/embedded/openrisc/2018/02/03/openrisc_gcc_rewrite.html
 
 -Stafford
 
-diff --git a/bfd/elf32-or1k.c b/bfd/elf32-or1k.c
-index 3e5759d63f..a2b0ff147f 100644
---- a/bfd/elf32-or1k.c
-+++ b/bfd/elf32-or1k.c
-@@ -1067,7 +1067,6 @@ or1k_final_link_relocate (reloc_howto_type *howto, bfd *input_bfd,
- {
-   bfd_reloc_status_type status = bfd_reloc_ok;
-   int size = bfd_get_reloc_size (howto);
--  unsigned bitsize, bits;
-   bfd_vma x, place;
- 
-   /* Sanity check the address.  */
-@@ -1118,38 +1117,11 @@ or1k_final_link_relocate (reloc_howto_type *howto, bfd *input_bfd,
-       break;
-     }
- 
--  bitsize = howto->bitsize;
--  bits = bitsize + howto->rightshift;
--  switch (howto->complain_on_overflow)
--    {
--    case complain_overflow_dont:
--      break;
--    case complain_overflow_signed:
--      if (bits < sizeof (bfd_vma) * 8)
--	{
--	  bfd_signed_vma lim = (bfd_vma)1 << bits;
--	  bfd_signed_vma svalue = value;
--
--	  if (svalue < -lim || svalue >= lim)
--	    status = bfd_reloc_overflow;
--	}
--      break;
--    case complain_overflow_unsigned:
--      if (bits < sizeof (bfd_vma) * 8)
--	{
--	  bfd_vma lim = (bfd_vma)1 << bits;
--	  if (value >= lim)
--	    status = bfd_reloc_overflow;
--	}
--      break;
--    case complain_overflow_bitfield:
--    default:
--      _bfd_error_handler
--	(_("%pB: Unimplemented complain on overflow in howto structure: %d"),
--	 input_bfd, (int) howto->complain_on_overflow);
--      abort ();
--    }
--
-+  status = bfd_check_overflow (howto->complain_on_overflow,
-+			       howto->bitsize,
-+			       howto->rightshift,
-+			       bfd_arch_bits_per_address (input_bfd),
-+			       value);
-   value >>= howto->rightshift;
- 
-   /* If we're overwriting the entire destination,
-@@ -1206,7 +1178,6 @@ or1k_final_link_relocate (reloc_howto_type *howto, bfd *input_bfd,
- 	 input_bfd, size);
-       abort ();
-     }
--
-   return status;
- }
- 
+Richard Henderson (2):
+  or1k: Add relocations for high-signed and low-stores
+  or1k: Add the l.muld, l.muldu, l.macu, l.msbu insns
+
+Stafford Horne (3):
+  or1k: Fix messages for relocations in shared libraries
+  or1k: Add the l.adrp insn and supporting relocations
+  or1k: Add OpenRISC gas documentation
+
+ bfd/bfd-in2.h                                 |  19 +-
+ bfd/elf32-or1k.c                              | 977 ++++++++++++++----
+ bfd/libbfd.h                                  |  19 +-
+ bfd/reloc.c                                   |  34 +-
+ cpu/or1k.opc                                  | 585 +++++------
+ cpu/or1korbis.cpu                             | 300 ++++--
+ gas/config/tc-or1k.c                          |   6 +
+ gas/doc/Makefile.am                           |   1 +
+ gas/doc/Makefile.in                           |   1 +
+ gas/doc/all.texi                              |   1 +
+ gas/doc/as.texi                               |  10 +
+ gas/doc/c-or1k.texi                           | 300 ++++++
+ gas/testsuite/gas/or1k/allinsn.d              |  50 +-
+ gas/testsuite/gas/or1k/allinsn.s              |  25 +
+ .../gas/or1k/{allinsn.exp => or1k.exp}        |   1 +
+ gas/testsuite/gas/or1k/reloc-1.d              |  72 ++
+ gas/testsuite/gas/or1k/reloc-1.s              |  76 ++
+ gas/testsuite/gas/or1k/reloc-2.l              |  11 +
+ gas/testsuite/gas/or1k/reloc-2.s              |  13 +
+ include/elf/or1k.h                            |  19 +
+ ld/testsuite/ld-or1k/offsets1.d               | 212 ++++
+ ld/testsuite/ld-or1k/offsets1.s               |  14 +
+ ld/testsuite/ld-or1k/or1k.exp                 |  91 ++
+ ld/testsuite/ld-or1k/plt1.dd                  |  27 +
+ ld/testsuite/ld-or1k/plt1.s                   |  11 +
+ ld/testsuite/ld-or1k/plt1.x.dd                |  27 +
+ ld/testsuite/ld-or1k/plta1.dd                 |  27 +
+ ld/testsuite/ld-or1k/plta1.s                  |  11 +
+ ld/testsuite/ld-or1k/pltlib.s                 |  12 +
+ opcodes/or1k-asm.c                            | 590 +++++------
+ opcodes/or1k-desc.c                           |  34 +-
+ opcodes/or1k-desc.h                           |  48 +-
+ opcodes/or1k-dis.c                            |   3 +
+ opcodes/or1k-ibld.c                           |  29 +-
+ opcodes/or1k-opc.c                            |  44 +-
+ opcodes/or1k-opc.h                            |  65 +-
+ opcodes/or1k-opinst.c                         |  98 +-
+ sim/common/cgen-ops.h                         |  36 +
+ sim/or1k/cpu.h                                |  32 +
+ sim/or1k/decode.c                             | 239 ++++-
+ sim/or1k/decode.h                             |  82 +-
+ sim/or1k/model.c                              | 186 +++-
+ sim/or1k/sem-switch.c                         | 281 ++++-
+ sim/or1k/sem.c                                | 293 +++++-
+ sim/testsuite/sim/or1k/div.S                  |  12 +-
+ sim/testsuite/sim/or1k/mul.S                  | 109 +-
+ 46 files changed, 3937 insertions(+), 1196 deletions(-)
+ create mode 100644 gas/doc/c-or1k.texi
+ rename gas/testsuite/gas/or1k/{allinsn.exp => or1k.exp} (83%)
+ create mode 100644 gas/testsuite/gas/or1k/reloc-1.d
+ create mode 100644 gas/testsuite/gas/or1k/reloc-1.s
+ create mode 100644 gas/testsuite/gas/or1k/reloc-2.l
+ create mode 100644 gas/testsuite/gas/or1k/reloc-2.s
+ create mode 100644 ld/testsuite/ld-or1k/offsets1.d
+ create mode 100644 ld/testsuite/ld-or1k/offsets1.s
+ create mode 100644 ld/testsuite/ld-or1k/or1k.exp
+ create mode 100644 ld/testsuite/ld-or1k/plt1.dd
+ create mode 100644 ld/testsuite/ld-or1k/plt1.s
+ create mode 100644 ld/testsuite/ld-or1k/plt1.x.dd
+ create mode 100644 ld/testsuite/ld-or1k/plta1.dd
+ create mode 100644 ld/testsuite/ld-or1k/plta1.s
+ create mode 100644 ld/testsuite/ld-or1k/pltlib.s
+
 -- 
 2.17.1
 
