@@ -1,74 +1,46 @@
-From: Nick Clifton <nickc@redhat.com>
-Date: Thu, 4 Oct 2018 16:34:04 +0100
-Subject: [OpenRISC] [PATCH v3 4/5] or1k: Add the l.muld, l.muldu, l.macu,
- l.msbu insns
-In-Reply-To: <20181004032317.17478-5-shorne@gmail.com>
-References: <20181004032317.17478-1-shorne@gmail.com>
- <20181004032317.17478-5-shorne@gmail.com>
-Message-ID: <01ed0f00-6278-6157-6002-30478cd47e1d@redhat.com>
+From: Joseph Myers <joseph@codesourcery.com>
+Date: Thu, 4 Oct 2018 17:36:58 +0000
+Subject: [OpenRISC] [PATCH v2 1/3] or1k: libgcc: initial support for
+	openrisc
+In-Reply-To: <20181004034803.18066-2-shorne@gmail.com>
+References: <20181004034803.18066-1-shorne@gmail.com>
+ <20181004034803.18066-2-shorne@gmail.com>
+Message-ID: <alpine.DEB.2.21.1810041731350.27752@digraph.polyomino.org.uk>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Stafford,
+On Thu, 4 Oct 2018, Stafford Horne wrote:
 
-> yyyy-mm-dd  Richard Henderson  <rth@twiddle.net>
-> 	    Stafford Horne  <shorne@gmail.com>
-> 
-> cpu/ChangeLog:
-> 
-> 	* or1korbis.cpu (insn-opcode-mac): Add opcodes for MACU and MSBU.
-> 	(insn-opcode-alu-regreg): Add opcodes for MULD and MULDU.
-> 	(l-mul): Fix overflow support and indentation.
-> 	(l-mulu): Fix overflow support and indentation.
-> 	(l-muld, l-muldu, l-msbu, l-macu): New instructions.
-> 	(l-div); Remove incorrect carry behavior.
-> 	(l-divu): Fix carry and overflow behavior.
-> 	(l-mac): Add overflow support.
-> 	(l-msb, l-msbu): Add carry and overflow support.
-> 
-> opcodes/ChangeLog:
-> 
-> 	* or1k-desc.c: Regenerate.
-> 	* or1k-desc.h: Regenerate.
-> 	* or1k-opc.c: Regenerate.
-> 	* or1k-opc.h: Regenerate.
-> 	* or1k-opinst.c: Regenerate.
-> 
-> sim/common/ChangeLog:
-> 
-> 	* cgen-ops.h (ADDCFDI): New function, add carry flag DI variant.
-> 	(ADDOFDI): New function, add overflow flag DI variant.
-> 	(SUBCFDI): New function, subtract carry flag DI variant.
-> 	(SUBOFDI): New function, subtract overflow flag DI variant.
-> 
-> sim/or1k/ChangeLog:
-> 
-> 	* or1k/cpu.h: Regenerate.
-> 	* or1k/decode.c: Regenerate.
-> 	* or1k/decode.h: Regenerate.
-> 	* or1k/model.c: Regenerate.
-> 	* or1k/sem-switch.c: Regenerate.
-> 	* or1k/sem.c: Regenerate:
-> 
-> sim/testsuite/sim/or1k/ChangeLog:
-> 
-> 	* div.S: Fix tests to match correct overflow/carry semantics.
-> 	* mul.S: Likewise.
-> 
-> yyyy-mm-dd  Stafford Horne  <shorne@gmail.com>
-> 
-> gas/ChangeLog:
-> 
-> 	* testsuite/gas/or1k/allinsn.s: Add instruction tests for
-> 	l.muld, l.muldu, l.macu, l.msb, l.msbu.
-> 	* testsuite/gas/or1k/allinsn.d: Add test results for new
-> 	instructions. 
+> +or1k-*-linux*)
+> +	tmake_file="$tmake_file or1k/t-or1k"
+> +	tmake_file="$tmake_file t-softfp-sfdf t-softfp-excl t-softfp"
+> +	md_unwind_header=or1k/linux-unwind.h
+> +	;;
+> +or1k-*-*)
+> +	tmake_file="$tmake_file or1k/t-or1k"
+> +	tmake_file="$tmake_file t-softfp-sfdf t-softfp-excl t-softfp"
+> +	extra_parts="$extra_parts crti.o crtn.o"
+> +	;;
 
-Approved.
+Could you clarify why you are using t-softfp-excl?
 
-Cheers
-  Nick
+In general, for soft-float configurations it's best not to use 
+t-softfp-excl - meaning the floating-point operations from libgcc2.c get 
+implemented directly in soft-fp, rather than through libgcc2.c wrapping 
+other soft-fp operations.  While for hard-float configurations it's best 
+not to use soft-fp at all.
 
+If you have hard-float configurations using a soft-float ABI, that thus 
+need to provide all the functions in question so soft-float objects / 
+programs can be linked with hard-float libgcc, t-hardfp should be used 
+instead when building a hard-float multilib.  (It's possible to have more 
+complicated mixtures in cases where some operations or types come from 
+hardfp and others from softfp; some mips and powerpcspe configurations 
+do.)
+
+-- 
+Joseph S. Myers
+joseph at codesourcery.com
