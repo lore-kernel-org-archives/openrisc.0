@@ -1,49 +1,35 @@
-From: Joel Fernandes <joel@joelfernandes.org>
-Date: Fri, 12 Oct 2018 09:37:25 -0700
+From: Julia Lawall <julia.lawall@lip6.fr>
+Date: Fri, 12 Oct 2018 18:38:57 +0200 (CEST)
 Subject: [OpenRISC] [PATCH v2 1/2] treewide: remove unused address
  argument from pte_alloc functions
-In-Reply-To: <20181012110906.fpfttp4nhvsr2ps7@kshutemo-mobl1>
+In-Reply-To: <20181012163433.GA223066@joelaf.mtv.corp.google.com>
 References: <20181012013756.11285-1-joel@joelfernandes.org>
- <20181012110906.fpfttp4nhvsr2ps7@kshutemo-mobl1>
-Message-ID: <20181012163725.GB223066@joelaf.mtv.corp.google.com>
+ <594fc952-5e87-3162-b2f9-963479d16eb3@kot-begemot.co.uk>
+ <20181012163433.GA223066@joelaf.mtv.corp.google.com>
+Message-ID: <alpine.DEB.2.20.1810121838180.4366@hadrien>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, Oct 12, 2018 at 02:09:06PM +0300, Kirill A. Shutemov wrote:
-> On Thu, Oct 11, 2018 at 06:37:55PM -0700, Joel Fernandes (Google) wrote:
-> > diff --git a/arch/m68k/include/asm/mcf_pgalloc.h b/arch/m68k/include/asm/mcf_pgalloc.h
-> > index 12fe700632f4..4399d712f6db 100644
-> > --- a/arch/m68k/include/asm/mcf_pgalloc.h
-> > +++ b/arch/m68k/include/asm/mcf_pgalloc.h
-> > @@ -12,8 +12,7 @@ extern inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
-> >  
-> >  extern const char bad_pmd_string[];
-> >  
-> > -extern inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm,
-> > -	unsigned long address)
-> > +extern inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
-> >  {
-> >  	unsigned long page = __get_free_page(GFP_DMA);
-> >  
-> > @@ -32,8 +31,6 @@ extern inline pmd_t *pmd_alloc_kernel(pgd_t *pgd, unsigned long address)
-> >  #define pmd_alloc_one_fast(mm, address) ({ BUG(); ((pmd_t *)1); })
-> >  #define pmd_alloc_one(mm, address)      ({ BUG(); ((pmd_t *)2); })
-> >  
-> > -#define pte_alloc_one_fast(mm, addr) pte_alloc_one(mm, addr)
-> > -
-> 
-> I believe this was one done manually, right?
-> Please explicitely state everthing you did on not of sematic patch
+> I wrote something like this as below but it failed to compile, Julia any
+> suggestions on how to express this?
+>
+> @pte_alloc_func_proto depends on patch exists@
+> type T1, T2, T3, T4;
+> identifier fn =~
+> "^(__pte_alloc|pte_alloc_one|pte_alloc|__pte_alloc_kernel|pte_alloc_one_kernel)$";
+> @@
+>
+> (
+> - T3 fn(T1, T2);
+> + T3 fn(T1);
+> |
+> - T3 fn(T1, T2, T4);
+> + T3 fn(T1, T2);
+> )
 
-Ok, I can update the changelog with that information next time I send it.
-This is the only thing I didn't mention in the changelog since it was a
-trivial unused function deletion.. but I mentioned everything else..
+What goes wrong?  It seems fine to me.
 
-And sir, you are one thorough reviewer! ;-)
-
- - Joel
-
-[..]
+julia
