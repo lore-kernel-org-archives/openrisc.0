@@ -1,134 +1,162 @@
-From: Anton Ivanov <anton.ivanov@kot-begemot.co.uk>
-Date: Fri, 12 Oct 2018 15:48:15 +0100
-Subject: [OpenRISC] [PATCH v2 2/2] mm: speed up mremap by 500x on large
-	regions
-In-Reply-To: <20181012143728.t42uvr6etg7gp7fh@kshutemo-mobl1>
+From: Joel Fernandes <joel@joelfernandes.org>
+Date: Fri, 12 Oct 2018 09:34:33 -0700
+Subject: [OpenRISC] [PATCH v2 1/2] treewide: remove unused address
+ argument from pte_alloc functions
+In-Reply-To: <594fc952-5e87-3162-b2f9-963479d16eb3@kot-begemot.co.uk>
 References: <20181012013756.11285-1-joel@joelfernandes.org>
- <20181012013756.11285-2-joel@joelfernandes.org>
- <9ed82f9e-88c4-8e4f-8c45-3ef153469603@kot-begemot.co.uk>
- <20181012143728.t42uvr6etg7gp7fh@kshutemo-mobl1>
-Message-ID: <4dd52e22-5b51-9b30-7178-fde603a08f88@kot-begemot.co.uk>
+ <594fc952-5e87-3162-b2f9-963479d16eb3@kot-begemot.co.uk>
+Message-ID: <20181012163433.GA223066@joelaf.mtv.corp.google.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 12/10/2018 15:37, Kirill A. Shutemov wrote:
-> On Fri, Oct 12, 2018 at 03:09:49PM +0100, Anton Ivanov wrote:
->> On 10/12/18 2:37 AM, Joel Fernandes (Google) wrote:
->>> Android needs to mremap large regions of memory during memory management
->>> related operations. The mremap system call can be really slow if THP is
->>> not enabled. The bottleneck is move_page_tables, which is copying each
->>> pte at a time, and can be really slow across a large map. Turning on THP
->>> may not be a viable option, and is not for us. This patch speeds up the
->>> performance for non-THP system by copying at the PMD level when possible.
->>>
->>> The speed up is three orders of magnitude. On a 1GB mremap, the mremap
->>> completion times drops from 160-250 millesconds to 380-400 microseconds.
->>>
->>> Before:
->>> Total mremap time for 1GB data: 242321014 nanoseconds.
->>> Total mremap time for 1GB data: 196842467 nanoseconds.
->>> Total mremap time for 1GB data: 167051162 nanoseconds.
->>>
->>> After:
->>> Total mremap time for 1GB data: 385781 nanoseconds.
->>> Total mremap time for 1GB data: 388959 nanoseconds.
->>> Total mremap time for 1GB data: 402813 nanoseconds.
->>>
->>> Incase THP is enabled, the optimization is skipped. I also flush the
->>> tlb every time we do this optimization since I couldn't find a way to
->>> determine if the low-level PTEs are dirty. It is seen that the cost of
->>> doing so is not much compared the improvement, on both x86-64 and arm64.
->>>
->>> Cc: minchan at kernel.org
->>> Cc: pantin at google.com
->>> Cc: hughd at google.com
->>> Cc: lokeshgidra at google.com
->>> Cc: dancol at google.com
->>> Cc: mhocko at kernel.org
->>> Cc: kirill at shutemov.name
->>> Cc: akpm at linux-foundation.org
->>> Signed-off-by: Joel Fernandes (Google) <joel@joelfernandes.org>
->>> ---
->>>    mm/mremap.c | 62 +++++++++++++++++++++++++++++++++++++++++++++++++++++
->>>    1 file changed, 62 insertions(+)
->>>
->>> diff --git a/mm/mremap.c b/mm/mremap.c
->>> index 9e68a02a52b1..d82c485822ef 100644
->>> --- a/mm/mremap.c
->>> +++ b/mm/mremap.c
->>> @@ -191,6 +191,54 @@ static void move_ptes(struct vm_area_struct *vma, pmd_t *old_pmd,
->>>    		drop_rmap_locks(vma);
->>>    }
->>> +static bool move_normal_pmd(struct vm_area_struct *vma, unsigned long old_addr,
->>> +		  unsigned long new_addr, unsigned long old_end,
->>> +		  pmd_t *old_pmd, pmd_t *new_pmd, bool *need_flush)
->>> +{
->>> +	spinlock_t *old_ptl, *new_ptl;
->>> +	struct mm_struct *mm = vma->vm_mm;
->>> +
->>> +	if ((old_addr & ~PMD_MASK) || (new_addr & ~PMD_MASK)
->>> +	    || old_end - old_addr < PMD_SIZE)
->>> +		return false;
->>> +
->>> +	/*
->>> +	 * The destination pmd shouldn't be established, free_pgtables()
->>> +	 * should have release it.
->>> +	 */
->>> +	if (WARN_ON(!pmd_none(*new_pmd)))
->>> +		return false;
->>> +
->>> +	/*
->>> +	 * We don't have to worry about the ordering of src and dst
->>> +	 * ptlocks because exclusive mmap_sem prevents deadlock.
->>> +	 */
->>> +	old_ptl = pmd_lock(vma->vm_mm, old_pmd);
->>> +	if (old_ptl) {
->>> +		pmd_t pmd;
->>> +
->>> +		new_ptl = pmd_lockptr(mm, new_pmd);
->>> +		if (new_ptl != old_ptl)
->>> +			spin_lock_nested(new_ptl, SINGLE_DEPTH_NESTING);
->>> +
->>> +		/* Clear the pmd */
->>> +		pmd = *old_pmd;
->>> +		pmd_clear(old_pmd);
->>> +
->>> +		VM_BUG_ON(!pmd_none(*new_pmd));
->>> +
->>> +		/* Set the new pmd */
->>> +		set_pmd_at(mm, new_addr, new_pmd, pmd);
->> UML does not have set_pmd_at at all
-> Every architecture does. :)
+On Fri, Oct 12, 2018 at 02:56:19PM +0100, Anton Ivanov wrote:
+> 
+> On 10/12/18 2:37 AM, Joel Fernandes (Google) wrote:
+> > This series speeds up mremap(2) syscall by copying page tables at the
+> > PMD level even for non-THP systems. There is concern that the extra
+> > 'address' argument that mremap passes to pte_alloc may do something
+> > subtle architecture related in the future, that makes the scheme not
+> > work.  Also we find that there is no point in passing the 'address' to
+> > pte_alloc since its unused.
+> > 
+> > This patch therefore removes this argument tree-wide resulting in a nice
+> > negative diff as well. Also ensuring along the way that the architecture
+> > does not do anything funky with 'address' argument that goes unnoticed.
+> > 
+> > Build and boot tested on x86-64. Build tested on arm64.
+> > 
+> > The changes were obtained by applying the following Coccinelle script.
+> > The pte_fragment_alloc was manually fixed up since it was only 2
+> > occurences and could not be easily generalized (and thanks Julia for
+> > answering all my silly and not-silly Coccinelle questions!).
+> > 
+> > // Options: --include-headers --no-includes
+> > // Note: I split the 'identifier fn' line, so if you are manually
+> > // running it, please unsplit it so it runs for you.
+> > 
+> > virtual patch
+> > 
+> > @pte_alloc_func_def depends on patch exists@
+> > identifier E2;
+> > identifier fn =~
+> > "^(__pte_alloc|pte_alloc_one|pte_alloc|__pte_alloc_kernel|pte_alloc_one_kernel)$";
+> > type T2;
+> > @@
+> > 
+> >   fn(...
+> > - , T2 E2
+> >   )
+> >   { ... }
+> > 
+> > @pte_alloc_func_proto depends on patch exists@
+> > identifier E1, E2, E4;
+> > type T1, T2, T3, T4;
+> > identifier fn =~
+> > "^(__pte_alloc|pte_alloc_one|pte_alloc|__pte_alloc_kernel|pte_alloc_one_kernel)$";
+> > @@
+> > 
+> > (
+> > - T3 fn(T1 E1, T2 E2);
+> > + T3 fn(T1 E1);
+> > |
+> > - T3 fn(T1 E1, T2 E2, T4 E4);
+> > + T3 fn(T1 E1, T2 E2);
+> > )
+> > 
+> > @pte_alloc_func_call depends on patch exists@
+> > expression E2;
+> > identifier fn =~
+> > "^(__pte_alloc|pte_alloc_one|pte_alloc|__pte_alloc_kernel|pte_alloc_one_kernel)$";
+> > @@
+> > 
+> >   fn(...
+> > -,  E2
+> >   )
+> > 
+> > @pte_alloc_macro depends on patch exists@
+> > identifier fn =~
+> > "^(__pte_alloc|pte_alloc_one|pte_alloc|__pte_alloc_kernel|pte_alloc_one_kernel)$";
+> > identifier a, b, c;
+> > expression e;
+> > position p;
+> > @@
+> > 
+> > (
+> > - #define fn(a, b, c)@p e
+> > + #define fn(a, b) e
+> > |
+> > - #define fn(a, b)@p e
+> > + #define fn(a) e
+> > )
+> > 
+> > Suggested-by: Kirill A. Shutemov <kirill@shutemov.name>
+> > Cc: Michal Hocko <mhocko@kernel.org>
+> > Cc: Julia Lawall <Julia.Lawall@lip6.fr>
+> > Cc: elfring at users.sourceforge.net
+> > Signed-off-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+> > ---
+> >   arch/alpha/include/asm/pgalloc.h             |  6 +++---
+> >   arch/arc/include/asm/pgalloc.h               |  5 ++---
+> >   arch/arm/include/asm/pgalloc.h               |  4 ++--
+> >   arch/arm64/include/asm/pgalloc.h             |  4 ++--
+> >   arch/hexagon/include/asm/pgalloc.h           |  6 ++----
+> >   arch/ia64/include/asm/pgalloc.h              |  5 ++---
+> >   arch/m68k/include/asm/mcf_pgalloc.h          |  8 ++------
+> >   arch/m68k/include/asm/motorola_pgalloc.h     |  4 ++--
+> >   arch/m68k/include/asm/sun3_pgalloc.h         |  6 ++----
+> >   arch/microblaze/include/asm/pgalloc.h        | 19 ++-----------------
+> >   arch/microblaze/mm/pgtable.c                 |  3 +--
+> >   arch/mips/include/asm/pgalloc.h              |  6 ++----
+> >   arch/nds32/include/asm/pgalloc.h             |  5 ++---
+> >   arch/nios2/include/asm/pgalloc.h             |  6 ++----
+> >   arch/openrisc/include/asm/pgalloc.h          |  5 ++---
+> >   arch/openrisc/mm/ioremap.c                   |  3 +--
+> >   arch/parisc/include/asm/pgalloc.h            |  4 ++--
+> >   arch/powerpc/include/asm/book3s/32/pgalloc.h |  4 ++--
+> >   arch/powerpc/include/asm/book3s/64/pgalloc.h | 12 +++++-------
+> >   arch/powerpc/include/asm/nohash/32/pgalloc.h |  4 ++--
+> >   arch/powerpc/include/asm/nohash/64/pgalloc.h |  6 ++----
+> >   arch/powerpc/mm/pgtable-book3s64.c           |  2 +-
+> >   arch/powerpc/mm/pgtable_32.c                 |  4 ++--
+> >   arch/riscv/include/asm/pgalloc.h             |  6 ++----
+> >   arch/s390/include/asm/pgalloc.h              |  4 ++--
+> >   arch/sh/include/asm/pgalloc.h                |  6 ++----
+> >   arch/sparc/include/asm/pgalloc_32.h          |  5 ++---
+> >   arch/sparc/include/asm/pgalloc_64.h          |  6 ++----
+> >   arch/sparc/mm/init_64.c                      |  6 ++----
+> >   arch/sparc/mm/srmmu.c                        |  4 ++--
+> >   arch/um/kernel/mem.c                         |  4 ++--
+> 
+> There is a declaration of pte_alloc_one in arch/um/include/asm/pgalloc.h
+> 
+> This patch missed it.
 
-I tried to build it patching vs 4.19-rc before I made this statement and 
-ran into that.
+Ah, true. Thanks. Couldn't test every arch obviously. The reason this was
+missed is the script could not find matches with prototypes without named
+parameters:
 
-Presently it does not.
+extern pgtable_t pte_alloc_one(struct mm_struct *, unsigned long);
 
-https://elixir.bootlin.com/linux/v4.19-rc7/ident/set_pmd_at - UML is not 
-on the list.
+I wrote something like this as below but it failed to compile, Julia any
+suggestions on how to express this?
 
->
-> But it may come not from the arch code.
+@pte_alloc_func_proto depends on patch exists@
+type T1, T2, T3, T4;
+identifier fn =~
+"^(__pte_alloc|pte_alloc_one|pte_alloc|__pte_alloc_kernel|pte_alloc_one_kernel)$";
+@@
 
-There is no generic definition as far as I can see. All 12 defines in 
-4.19 are in arch specific code. Unless i am missing something...
+(
+- T3 fn(T1, T2);
++ T3 fn(T1);
+|
+- T3 fn(T1, T2, T4);
++ T3 fn(T1, T2);
+)
 
->
->> If I read the code right, MIPS completely ignores the address argument so
->> set_pmd_at there may not have the effect which this patch is trying to
->> achieve.
-> Ignoring address is fine. Most architectures do that..
-> The ideas is to move page table to the new pmd slot. It's nothing to do
-> with the address passed to set_pmd_at().
+thanks,
 
-If that is it's only function, then I am going to appropriate the code 
-out of the MIPS tree for further uml testing. It does exactly that - 
-just move the pmd the new slot.
-
->
-A.
-
+ - Joel
