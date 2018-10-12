@@ -1,42 +1,60 @@
-From: David Miller <davem@davemloft.net>
-Date: Fri, 12 Oct 2018 11:18:36 -0700 (PDT)
-Subject: [OpenRISC] [PATCH v2 2/2] mm: speed up mremap by 500x on large
-	regions
-In-Reply-To: <20181012125046.GA170912@joelaf.mtv.corp.google.com>
-References: <20181012013756.11285-2-joel@joelfernandes.org>
- <20181012113056.gxhcbrqyu7k7xnyv@kshutemo-mobl1>
- <20181012125046.GA170912@joelaf.mtv.corp.google.com>
-Message-ID: <20181012.111836.1569129998592378186.davem@davemloft.net>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Date: Fri, 12 Oct 2018 20:51:45 +0200
+Subject: [OpenRISC] [PATCH v2 1/2] treewide: remove unused address
+ argument from pte_alloc functions
+In-Reply-To: <20181012013756.11285-1-joel@joelfernandes.org>
+References: <20181012013756.11285-1-joel@joelfernandes.org>
+Message-ID: <03b524f3-5f3a-baa0-2254-9c588103d2d6@users.sourceforge.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-From: Joel Fernandes <joel@joelfernandes.org>
-Date: Fri, 12 Oct 2018 05:50:46 -0700
+> The changes were obtained by applying the following Coccinelle script.
 
-> If its an issue, then how do transparent huge pages work on Sparc?  I don't
-> see the huge page code (move_huge_pages) during mremap doing anything special
-> for Sparc architecture when moving PMDs..
+A bit of clarification happened for its implementation details.
+https://systeme.lip6.fr/pipermail/cocci/2018-October/005374.html
 
-This is because all huge pages are larger than SHMLBA.  So no cache flushing
-necessary.
+I have taken also another look at the following SmPL code.
 
-> Also, do we not flush the caches from any path when we munmap
-> address space?  We do call do_munmap on the old mapping from mremap
-> after moving to the new one.
 
-Sparc makes sure that shared mapping have consistent colors.  Therefore
-all that's left are private mappings and those will be initialized by
-block stores to clear the page out or similar.
+> identifier fn =~
+> "^(__pte_alloc|pte_alloc_one|pte_alloc|__pte_alloc_kernel|pte_alloc_one_kernel)$";
 
-Also, when creating new mappings, we flush the D-cache when necessary
-in update_mmu_cache().
+I suggest to adjust the regular expression for this constraint
+and in subsequent SmPL rules.
 
-We also maintain a bit in the page struct to track when a page which
-was potentially written to on one cpu ends up mapped into another
-address space and flush as necessary.
+"^(?:pte_alloc(?:_one(?:_kernel)?)?|__pte_alloc(?:_kernel)?)$";
 
-The cache is write-through, which simplifies the preconditions we have
-to maintain.
+
+> (
+> - T3 fn(T1 E1, T2 E2);
+> + T3 fn(T1 E1);
+> |
+> - T3 fn(T1 E1, T2 E2, T4 E4);
+> + T3 fn(T1 E1, T2 E2);
+> )
+
+I propose to take an other SmPL disjunction into account here.
+
+ T3 fn(T1 E1,
+(
+-      T2 E2
+|      T2 E2,
+-      T4 E4
+)      );
+
+
+> (
+> - #define fn(a, b, c)@p e
+> + #define fn(a, b) e
+> |
+> - #define fn(a, b)@p e
+> + #define fn(a) e
+> )
+
+How do you think about to omit the metavariable “position p” here?
+
+Regards,
+Markus
