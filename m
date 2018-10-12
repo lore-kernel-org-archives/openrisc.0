@@ -1,33 +1,42 @@
 From: David Miller <davem@davemloft.net>
-Date: Fri, 12 Oct 2018 11:02:20 -0700 (PDT)
+Date: Fri, 12 Oct 2018 11:18:36 -0700 (PDT)
 Subject: [OpenRISC] [PATCH v2 2/2] mm: speed up mremap by 500x on large
 	regions
-In-Reply-To: <20181012113056.gxhcbrqyu7k7xnyv@kshutemo-mobl1>
-References: <20181012013756.11285-1-joel@joelfernandes.org>
- <20181012013756.11285-2-joel@joelfernandes.org>
+In-Reply-To: <20181012125046.GA170912@joelaf.mtv.corp.google.com>
+References: <20181012013756.11285-2-joel@joelfernandes.org>
  <20181012113056.gxhcbrqyu7k7xnyv@kshutemo-mobl1>
-Message-ID: <20181012.110220.321284613911888246.davem@davemloft.net>
+ <20181012125046.GA170912@joelaf.mtv.corp.google.com>
+Message-ID: <20181012.111836.1569129998592378186.davem@davemloft.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-From: "Kirill A. Shutemov" <kirill@shutemov.name>
-Date: Fri, 12 Oct 2018 14:30:56 +0300
+From: Joel Fernandes <joel@joelfernandes.org>
+Date: Fri, 12 Oct 2018 05:50:46 -0700
 
-> I looked into the code more and noticed move_pte() helper called from
-> move_ptes(). It changes PTE entry to suite new address.
-> 
-> It is only defined in non-trivial way on Sparc. I don't know much about
-> Sparc and it's hard for me to say if the optimization will break anything
-> there.
-> 
-> I think it worth to disable the optimization if __HAVE_ARCH_MOVE_PTE is
-> defined. Or make architectures state explicitely that the optimization is
-> safe.
+> If its an issue, then how do transparent huge pages work on Sparc?  I don't
+> see the huge page code (move_huge_pages) during mremap doing anything special
+> for Sparc architecture when moving PMDs..
 
-What sparc is doing in move_pte() is flushing the data-cache
-(synchronously) if the virtual address color of the mapping changes.
+This is because all huge pages are larger than SHMLBA.  So no cache flushing
+necessary.
 
-Hope this helps.
+> Also, do we not flush the caches from any path when we munmap
+> address space?  We do call do_munmap on the old mapping from mremap
+> after moving to the new one.
+
+Sparc makes sure that shared mapping have consistent colors.  Therefore
+all that's left are private mappings and those will be initialized by
+block stores to clear the page out or similar.
+
+Also, when creating new mappings, we flush the D-cache when necessary
+in update_mmu_cache().
+
+We also maintain a bit in the page struct to track when a page which
+was potentially written to on one cpu ends up mapped into another
+address space and flush as necessary.
+
+The cache is write-through, which simplifies the preconditions we have
+to maintain.
