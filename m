@@ -1,83 +1,37 @@
-From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Tue, 23 Oct 2018 16:40:43 -0700
-Subject: [OpenRISC] [PATCH 2/2] arm64: Create asm/initrd.h
-In-Reply-To: <20181023234044.1138-1-f.fainelli@gmail.com>
-References: <20181023234044.1138-1-f.fainelli@gmail.com>
-Message-ID: <20181023234044.1138-3-f.fainelli@gmail.com>
+From: Uma Raman <uma.g@testandverification.com>
+Date: Wed, 24 Oct 2018 13:30:35 +0530
+Subject: [OpenRISC] Unable to find
+	minsoc/tags/release-1.0/sw/drivers/libdrivers.a
+Message-ID: <000501d46b6f$a74beda0$f5e3c8e0$@g@testandverification.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-ARM64 is the only architecture that requires a re-definition of
-__early_init_dt_declare_initrd(). Now that we added the infrastructure
-in asm-generic to provide an asm/initrd.h file, properly break up that
-definition from asm/memory.h and make use of that header in
-drivers/of/fdt.c where this is used.
+Hi,
 
-This significantly cuts the number of objects that need to be rebuilt on
-ARM64 due to the repercusions of including asm/memory.h in several
-places.
+ 
 
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
----
- arch/arm64/include/asm/initrd.h | 13 +++++++++++++
- arch/arm64/include/asm/memory.h |  8 --------
- drivers/of/fdt.c                |  1 +
- 3 files changed, 14 insertions(+), 8 deletions(-)
- create mode 100644 arch/arm64/include/asm/initrd.h
 
-diff --git a/arch/arm64/include/asm/initrd.h b/arch/arm64/include/asm/initrd.h
-new file mode 100644
-index 000000000000..0c9572485810
---- /dev/null
-+++ b/arch/arm64/include/asm/initrd.h
-@@ -0,0 +1,13 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __ASM_INITRD_H
-+#define __ASM_INITRD_H
-+
-+#ifdef CONFIG_BLK_DEV_INITRD
-+#define __early_init_dt_declare_initrd(__start, __end)			\
-+	do {								\
-+		initrd_start = (__start);				\
-+		initrd_end = (__end);					\
-+	} while (0)
-+#endif
-+
-+#endif /* __ASM_INITRD_H */
-diff --git a/arch/arm64/include/asm/memory.h b/arch/arm64/include/asm/memory.h
-index b96442960aea..dc3ca21ba240 100644
---- a/arch/arm64/include/asm/memory.h
-+++ b/arch/arm64/include/asm/memory.h
-@@ -168,14 +168,6 @@
- #define IOREMAP_MAX_ORDER	(PMD_SHIFT)
- #endif
- 
--#ifdef CONFIG_BLK_DEV_INITRD
--#define __early_init_dt_declare_initrd(__start, __end)			\
--	do {								\
--		initrd_start = (__start);				\
--		initrd_end = (__end);					\
--	} while (0)
--#endif
--
- #ifndef __ASSEMBLY__
- 
- #include <linux/bitops.h>
-diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
-index 800ad252cf9c..4e4711af907b 100644
---- a/drivers/of/fdt.c
-+++ b/drivers/of/fdt.c
-@@ -28,6 +28,7 @@
- 
- #include <asm/setup.h>  /* for COMMAND_LINE_SIZE */
- #include <asm/page.h>
-+#include <asm/initrd.h>
- 
- #include "of_private.h"
- 
--- 
-2.17.1
+I am using the minsoc database. I am stuck at the following point
 
+ 
+
+Unable to find file : minsoc/tags/release-1.0/sw/drivers/libdrivers.a
+
+ 
+
+Can you please help.
+
+ 
+
+Regards
+
+Uma
+
+ 
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20181024/e278cce0/attachment-0001.html>
