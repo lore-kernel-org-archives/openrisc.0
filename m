@@ -1,51 +1,72 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 31 Oct 2018 07:44:20 +0900
-Subject: [OpenRISC] [PATCH v3 3/3] or1k: gcc: initial support for
-	openrisc
-In-Reply-To: <0d25c0ba-7de0-668c-ebcb-350d17029846@twiddle.net>
-References: <20181027043702.18414-1-shorne@gmail.com>
- <20181027043702.18414-4-shorne@gmail.com>
- <ced5813d-aef7-1454-de4b-da327a4c2ff7@twiddle.net>
- <20181030121806.GB2843@lianli.shorne-pla.net>
- <0d25c0ba-7de0-668c-ebcb-350d17029846@twiddle.net>
-Message-ID: <20181030224420.GE2843@lianli.shorne-pla.net>
+From: Florian Fainelli <f.fainelli@gmail.com>
+Date: Fri, 26 Oct 2018 19:05:38 -0000
+Subject: [OpenRISC] [PATCH v2 0/2] arm64: Cut rebuild time when changing
+ CONFIG_BLK_DEV_INITRD
+In-Reply-To: <20181026110708.GA3814@rapoport-lnx>
+References: <20181024193256.23734-1-f.fainelli@gmail.com>
+ <CAL_Jsq+KCOv6pXXHhHDZ+7-QUrmtMDvSjEVhK15yZ3qbnn61Ag@mail.gmail.com>
+ <20181025093833.GA23607@rapoport-lnx>
+ <CAL_JsqL62ttsGSbE1BS5v-mX3pKE-p_HyvuZD6nB+GUbQyetzg@mail.gmail.com>
+ <20181025172935.GA27364@rapoport-lnx>
+ <CAL_JsqJrMq+QHvuOsqEdCFchmXsd4s2XKUD_TboKzeEQprJvjg@mail.gmail.com>
+ <1bb3bd63-a88e-b668-ea36-f0f985c0e2b1@gmail.com>
+ <20181026110708.GA3814@rapoport-lnx>
+Message-ID: <53ec9df5-ef2a-edc5-be1c-bca32959c0bc@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Oct 30, 2018 at 03:57:03PM +0000, Richard Henderson wrote:
-> On 10/30/18 12:18 PM, Stafford Horne wrote:
-> > OK, I was just being lazy allowing the spill.  Do you think the split/expand
-> > would be an RTL using left shift / right shift?  Can you think of something
-> > more clever?  Since "real" hardware does not usually support shifts with an
-> > immediate we will need 1 instruction to load shift amount. i.e.
-> > 
-> >   l.ori %0, r0, 24
-> >   l.sll %1, %1, %0
-> >   l.sra %0, %1, %0
+On 10/26/18 4:07 AM, Mike Rapoport wrote:
+> On Thu, Oct 25, 2018 at 04:07:13PM -0700, Florian Fainelli wrote:
+>> On 10/25/18 2:13 PM, Rob Herring wrote:
+>>> On Thu, Oct 25, 2018 at 12:30 PM Mike Rapoport <rppt@linux.ibm.com> wrote:
+>>>>
+>>>> On Thu, Oct 25, 2018 at 08:15:15AM -0500, Rob Herring wrote:
+>>>>> +Ard
+>>>>>
+>>>>> On Thu, Oct 25, 2018 at 4:38 AM Mike Rapoport <rppt@linux.ibm.com> wrote:
+>>>>>>
+>>>>>> On Wed, Oct 24, 2018 at 02:55:17PM -0500, Rob Herring wrote:
+>>>>>>> On Wed, Oct 24, 2018 at 2:33 PM Florian Fainelli <f.fainelli@gmail.com> wrote:
+>>>>>>>>
+>>>>>>>> Hi all,
+>>>>>>>>
+>>>>>>>> While investigating why ARM64 required a ton of objects to be rebuilt
+>>>>>>>> when toggling CONFIG_DEV_BLK_INITRD, it became clear that this was
+>>>>>>>> because we define __early_init_dt_declare_initrd() differently and we do
+>>>>>>>> that in arch/arm64/include/asm/memory.h which gets included by a fair
+>>>>>>>> amount of other header files, and translation units as well.
+>>>>>>>
+>>>>>> I think arm64 does not have to redefine __early_init_dt_declare_initrd().
+>>>>>> Something like this might be just all we need (completely untested,
+>>>>>> probably it won't even compile):
 > 
-> This clobbers %1.
-
-Right, it was just a rough idea to create another r/r pattern.
- 
-> So, ouch.  I think we will want to avoid creating this particular pattern in
-> the first place unless l.exts exists then.  We would use another pattern like
+> [ ... ]
+>  
+>> FWIW, I am extracting the ARM implementation that parses the initrd
+>> early command line parameter and the "setup" code doing the page
+>> boundary alignment and memblock checking into a helper into lib/ that
+>> other architectures can re-use. So far, this removes the need for
+>> unicore32, arc and arm to duplicate essentially the same logic.
 > 
-> (define_insn "*sign_extend_mem<mode>"
->   [(set (match_operand:SI 0 "register_operand" "=r")
-> 	(sign_extend:SI
-> 	  (match_operand:HI 1 "memory_operand" "m")))]
->   ""
->   "l.lhs\t%0, %1")
-> 
-> following the TARGET_SEXT pattern.  In this way combine can use this pattern
-> without getting us into trouble with the register allocator later.
+> Presuming you are going to need asm-generic/initrd.h for that as well,
+> using override for __early_init_dt_declare_initrd in arm64 version of
+> initrd.h might be the simplest option.
 
-OK, thats simple enough then.  I had thought you were asking for creating
-another r/r pattern using define_split.  That might be better than requiring a
-memory load/store to do sign extension, but I guess we can optimize that later
-if needed. (Thats what my original thought was.)
+What I am contemplating doing is promote
+phys_initrd_start/phys_initrd_size to be global variables (similar to
+initrd_start, initrd_end) and have a generic helper function for parsing
+the initrd= command line parameter and finally removing
+__early_init_dt_declare_initrd() because we could have
+early_init_dt_check_for_initrd() just populate
+phys_initrd_start/phys_initrd_size directly as well as
+initrd_start/initrd_end using __va() to preserve compatibility with
+architectures that rely on this. Then I would convert ARM64 to check for
+phys_initrd_start which is really what it is is trying to do in
+arch/arm64/mm/init.c::arm64_memblock_init().
 
--Stafford
+Does that sound like a reasonable approach?
+-- 
+Florian
