@@ -1,11 +1,11 @@
 From: Richard Henderson <rth@twiddle.net>
-Date: Sun, 28 Oct 2018 01:25:54 +0000
-Subject: [OpenRISC] [PATCH v3 1/3] or1k: libgcc: initial support for
+Date: Sun, 28 Oct 2018 01:27:39 +0000
+Subject: [OpenRISC] [PATCH v3 2/3] or1k: testsuite: initial support for
 	openrisc
-In-Reply-To: <20181027043702.18414-2-shorne@gmail.com>
+In-Reply-To: <20181027043702.18414-3-shorne@gmail.com>
 References: <20181027043702.18414-1-shorne@gmail.com>
- <20181027043702.18414-2-shorne@gmail.com>
-Message-ID: <494cb6a6-fcc5-04d6-346a-c91e7f8ff085@twiddle.net>
+ <20181027043702.18414-3-shorne@gmail.com>
+Message-ID: <f49de9a1-f73c-53ea-0206-3b0edbf738b3@twiddle.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,57 +13,28 @@ Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
 On 10/27/18 5:37 AM, Stafford Horne wrote:
-> +/* Here _init and _fini are empty because .init_array/.fini_array are used
-> +   exclusively.  However, the functions are still needed as required when
-> +   linking.  */
-> +	.align 4
-> +	.global	_init
-> +	.type	_init, at function
-> +_init:
-> +	.global	_fini
-> +	.type	_fini, at function
-> +_fini:
-> +	l.jr	r9
-> +	 l.nop
+> yyyy-mm-dd  Stafford Horne  <shorne@gmail.com>
+> 	    Richard Henderson  <rth@twiddle.net>
+> 
+> gcc/testsuite/ChangeLog:
+> 
+> 	* gcc.c-torture/execute/20101011-1.c: Adjust for OpenRISC.
+> 	* gcc.dg/20020312-2.c: Likewise.
+> 	* gcc.dg/attr-alloc_size-11.c: Likewise.
+> 	* gcc.dg/builtin-apply2.c: Likewise.
+> 	* gcc.dg/nop.h: Likewise.
+> 	* gcc.dg/torture/stackalign/builtin-apply-2.c: Likewise.
+> 	* gcc.dg/tree-ssa/20040204-1.c: Likewise.
+> 	* gcc.dg/tree-ssa/reassoc-33.c: Likewise.
+> 	* gcc.dg/tree-ssa/reassoc-34.c: Likewise.
+> 	* gcc.dg/tree-ssa/reassoc-35.c: Likewise.
+> 	* gcc.dg/tree-ssa/reassoc-36.c: Likewise.
+> 	* lib/target-supports.exp
+> 	(check_effective_target_logical_op_short_circuit): Add or1k*-*-*.
+> 	* gcc.target/or1k/*: New.
+> ---
 
-Where are they referenced from?  Perhaps just a binutils bug, in that the
-linker script needs adjustment?
-
-> +	/* Given R = X * Y ... */
-> +1:	l.sfeq		r4, r0			/* while (y != 0) */
-> +	l.bf		2f
-> +	 l.andi		r5, r4, 1		/* if (y & 1) ... */
-> +	l.add		r12, r11, r3
-> +	l.sfne		r5, r0
-> +#if defined(__or1k_cmov__)
-> +	l.cmov		r11, r12, r11		/* ... r += x. */
-> +	l.srli		r4, r4, 1		/* y >>= 1 */
-> +#else
-> +	l.bnf		3f
-> +	 l.srli		r4, r4, 1		/* y >>= 1 */
-> +	l.ori		r11, r12, 0
-
-This move could be the add to save 1 cycle in the !cmov case.
-
-> +	/* Shift Y back to the right again, subtracting from X.  */
-> +2:	l.add		r7, r11, r6	/* tmp1 = quot + mask */
-> +3:	l.srli		r6, r6, 1	/* mask >>= 1 */
-> +	l.sub		r8, r12, r4	/* tmp2 = x - y */
-> +	l.sfleu		r4, r12		/* y <= x */
-> +	l.srli		r4, r4, 1	/* y >>= 1 */
-> +#if defined(__or1k_cmov__)
-> +	l.cmov		r11, r7, r11	/* if (y <= x) quot = tmp1 */
-> +	l.cmov		r12, r8, r12	/* if (y <= x) x = tmp2 */
-> +#else
-> +	l.bnf		4f
-> +	 l.nop
-> +	l.ori		r11, r7, 0
-> +	l.ori		r12, r8, 0
-
-Simiarly.
-
-Although both mul nor div are correct as-is, and need not be fixed immediately.
- I'm only concerned about _init and _fini.
+Ok.
 
 
 r~
