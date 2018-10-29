@@ -1,85 +1,56 @@
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Date: Sun, 28 Oct 2018 17:54:47 -0500
+From: Stafford Horne <shorne@gmail.com>
+Date: Mon, 29 Oct 2018 22:34:25 +0900
 Subject: [OpenRISC] [PATCH v3 3/3] or1k: gcc: initial support for
 	openrisc
-In-Reply-To: <20181028214723.GD1761@lianli.shorne-pla.net>
+In-Reply-To: <ed59f12b-a2a3-fa28-0d03-de1d11bb6e42@twiddle.net>
 References: <20181027043702.18414-1-shorne@gmail.com>
  <20181027043702.18414-4-shorne@gmail.com>
  <20181028025730.GH5766@gate.crashing.org>
- <20181028214723.GD1761@lianli.shorne-pla.net>
-Message-ID: <20181028225447.GK5766@gate.crashing.org>
+ <ed59f12b-a2a3-fa28-0d03-de1d11bb6e42@twiddle.net>
+Message-ID: <20181029133425.GE1761@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi!
-
-On Mon, Oct 29, 2018 at 06:47:23AM +0900, Stafford Horne wrote:
-> On Sat, Oct 27, 2018 at 09:57:30PM -0500, Segher Boessenkool wrote:
-> > > +/* Helper for defining INITIAL_ELIMINATION_OFFSET.
-> > > +   We allow the following eliminiations:
-> > > +     FP -> HARD_FP or SP
-> > > +     AP -> HARD_FP or SP
-> > > +
-> > > +   HFP and AP are the same which is handled below.  */
-> > > +
-> > > +HOST_WIDE_INT
-> > > +or1k_initial_elimination_offset (int from, int to)
+On Sun, Oct 28, 2018 at 11:16:13PM +0000, Richard Henderson wrote:
+> On 10/28/18 2:57 AM, Segher Boessenkool wrote:
+> >> +(define_insn "xorsi3"
+> >> +  [(set (match_operand:SI 0 "register_operand" "=r,r")
+> >> +	  (xor:SI
+> >> +	   (match_operand:SI 1 "register_operand"   "%r,r")
+> >> +	   (match_operand:SI 2 "reg_or_s16_operand" " r,I")))]
+> >> +  ""
+> >> +  "@
+> >> +  l.xor\t%0, %1, %2
+> >> +  l.xori\t%0, %1, %2")
 > > 
-> > You could calculate this as  some_offset (from) - some_offset (to)  with
-> > some_offset a simple helper function.  That gives you all possible
-> > eliminations :-)
-> > 
-> > (Each offset is very cheap to compute in your case, so that's not a problem).
+> > Is this correct?  Should this be unsigned (u16 and K)?
 > 
-> Right, Do you mean something like the following?  I think it would work, but I
-> am not sure it make the code easier to read.  Do you think there would be much
-> benefits supporting all possible eliminations?
+> No, l.xori is signed.
 
-Yes, like that.  It also easily can handle the other combos (those with
-STACK_POINTER), and it is easier if you have to switch FRAME_GROWS_DOWNWARD
-("false" is better on some args, but "true" is required for ssp).
+Right, sorry, I didn't have enough time to look at this at all this morning.  It
+is correct.
 
-Your code is fine as-is of course.
+It looks like the documentation for this page [1] is generated from the cgen cpu
+descriptions that were removed from binutils-gdb back in 2014.  Ccing cgen who
+seem to maintain this web page.  How can we go about getting it regenerated?
 
-> > > +#undef TARGET_RTX_COSTS
-> > > +#define TARGET_RTX_COSTS or1k_rtx_costs
-> > 
-> > You may want TARGET_INSN_COST as well (it is easier to get (more) correct).
-> 
-> OK, I was not considering that for the first port.  Perhaps after getting this
-> in?  I think in general the OpenRISC insruction costs are fairly flat for the
-> ones are using.
+cpu/or1korbis.cpu
 
-Oh, this was just a suggestion for the future :-)
+    (alu-insn-uimm and)
+    (alu-insn-uimm or)
+    (alu-insn-simm xor)
 
-If you compile with -dp you will see the cost and length for every insn
-annotated; are most/all correct?
+    (define-pmacro (alu-carry-insn-simm mnemonic)
+      (begin
+	(dni (.sym l- mnemonic "i")
+	     (.str "l." mnemonic "i reg/reg/simm16")
+	     ((MACH ORBIS-MACHS))
+	     (.str "l." mnemonic "i $rD,$rA,$simm16")
+	     (+ (.sym OPC_ (.upcase mnemonic) "I") rD rA simm16)
 
-> > > +   This ABI has no adjacent call-saved register, which means that
-> > > +   DImode/DFmode pseudos cannot be call-saved and will always be
-> > > +   spilled across calls.  To solve this without changing the ABI,
-> > > +   remap the compiler internal register numbers to place the even
-> > > +   call-saved registers r16-r30 in 24-31, and the odd call-clobbered
-> > > +   registers r17-r31 in 16-23.  */
-> > 
-> > Ooh evilness :-)
-> 
-> Richard did this, I thought it was rather clever. :)
+[1] https://sourceware.org/cgen/gen-doc/openrisc-insn.html#insns
 
-Yes!
-
-> > > +#define FUNCTION_ARG_REGNO_P(r) (r >= 3 && r <= 8)
-> > 
-> > IN_RANGE ?
-> 
-> OK, I may change it, I think without the macro, its easy to understand that its
-> (inclusive).
-
-Yeah, you'll have to remember that IN_RANGE always is inclusive too.  Maybe
-if it were used more that woul become second nature to more people :-)
-
-
-Segher
+-Stafford
