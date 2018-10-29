@@ -1,84 +1,37 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 29 Oct 2018 22:44:24 +0900
-Subject: [OpenRISC] [PATCH v3 1/3] or1k: libgcc: initial support for
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Date: Mon, 29 Oct 2018 11:34:27 -0500
+Subject: [OpenRISC] [PATCH v3 3/3] or1k: gcc: initial support for
 	openrisc
-In-Reply-To: <494cb6a6-fcc5-04d6-346a-c91e7f8ff085@twiddle.net>
+In-Reply-To: <20181029133425.GE1761@lianli.shorne-pla.net>
 References: <20181027043702.18414-1-shorne@gmail.com>
- <20181027043702.18414-2-shorne@gmail.com>
- <494cb6a6-fcc5-04d6-346a-c91e7f8ff085@twiddle.net>
-Message-ID: <20181029134424.GF1761@lianli.shorne-pla.net>
+ <20181027043702.18414-4-shorne@gmail.com>
+ <20181028025730.GH5766@gate.crashing.org>
+ <ed59f12b-a2a3-fa28-0d03-de1d11bb6e42@twiddle.net>
+ <20181029133425.GE1761@lianli.shorne-pla.net>
+Message-ID: <20181029163426.GM5766@gate.crashing.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sun, Oct 28, 2018 at 01:25:54AM +0000, Richard Henderson wrote:
-> On 10/27/18 5:37 AM, Stafford Horne wrote:
-> > +/* Here _init and _fini are empty because .init_array/.fini_array are used
-> > +   exclusively.  However, the functions are still needed as required when
-> > +   linking.  */
-> > +	.align 4
-> > +	.global	_init
-> > +	.type	_init, at function
-> > +_init:
-> > +	.global	_fini
-> > +	.type	_fini, at function
-> > +_fini:
-> > +	l.jr	r9
-> > +	 l.nop
+On Mon, Oct 29, 2018 at 10:34:25PM +0900, Stafford Horne wrote:
+> On Sun, Oct 28, 2018 at 11:16:13PM +0000, Richard Henderson wrote:
+> > On 10/28/18 2:57 AM, Segher Boessenkool wrote:
+> > > Is this correct?  Should this be unsigned (u16 and K)?
+> > 
+> > No, l.xori is signed.
 > 
-> Where are they referenced from?  Perhaps just a binutils bug, in that the
-> linker script needs adjustment?
-
-I was getting the issue with newlib.  Here:
-
- https://sourceware.org/git/gitweb.cgi?p=newlib-cygwin.git;a=blob;f=newlib/libc/misc/init.c
- https://sourceware.org/git/gitweb.cgi?p=newlib-cygwin.git;a=blob;f=newlib/libc/misc/fini.c
-
-The HAVE_INIT_FINI was not there when I last checked. Now, thanks to risc-v, we
-can turn off the need for _init/_fini see:
-
- https://sourceware.org/git/gitweb.cgi?p=newlib-cygwin.git;a=commit;f=newlib/libc/misc/fini.c;h=6158b30e3e9b1b582ae60b15d64e775fa1705483
-
-I guess thats what you were referring to before though, I just missed it.
-
-> > +	/* Given R = X * Y ... */
-> > +1:	l.sfeq		r4, r0			/* while (y != 0) */
-> > +	l.bf		2f
-> > +	 l.andi		r5, r4, 1		/* if (y & 1) ... */
-> > +	l.add		r12, r11, r3
-> > +	l.sfne		r5, r0
-> > +#if defined(__or1k_cmov__)
-> > +	l.cmov		r11, r12, r11		/* ... r += x. */
-> > +	l.srli		r4, r4, 1		/* y >>= 1 */
-> > +#else
-> > +	l.bnf		3f
-> > +	 l.srli		r4, r4, 1		/* y >>= 1 */
-> > +	l.ori		r11, r12, 0
+> Right, sorry, I didn't have enough time to look at this at all this morning.  It
+> is correct.
 > 
-> This move could be the add to save 1 cycle in the !cmov case.
-> 
-> > +	/* Shift Y back to the right again, subtracting from X.  */
-> > +2:	l.add		r7, r11, r6	/* tmp1 = quot + mask */
-> > +3:	l.srli		r6, r6, 1	/* mask >>= 1 */
-> > +	l.sub		r8, r12, r4	/* tmp2 = x - y */
-> > +	l.sfleu		r4, r12		/* y <= x */
-> > +	l.srli		r4, r4, 1	/* y >>= 1 */
-> > +#if defined(__or1k_cmov__)
-> > +	l.cmov		r11, r7, r11	/* if (y <= x) quot = tmp1 */
-> > +	l.cmov		r12, r8, r12	/* if (y <= x) x = tmp2 */
-> > +#else
-> > +	l.bnf		4f
-> > +	 l.nop
-> > +	l.ori		r11, r7, 0
-> > +	l.ori		r12, r8, 0
-> 
-> Simiarly.
-> 
-> Although both mul nor div are correct as-is, and need not be fixed immediately.
->  I'm only concerned about _init and _fini.
+> It looks like the documentation for this page [1] is generated from the cgen cpu
+> descriptions that were removed from binutils-gdb back in 2014.  Ccing cgen who
+> seem to maintain this web page.  How can we go about getting it regenerated?
 
-Sure, let me look into them.
+Is there some better documentation available?  This is what google found
+for me.  I would have like better docs (more compact, etc.)  Links to
+such would be great to have in readings.html :-)
 
--Stafford
+
+Segher
