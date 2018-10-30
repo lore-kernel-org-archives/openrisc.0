@@ -1,45 +1,48 @@
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Date: Tue, 30 Oct 2018 10:41:18 -0500
+From: Richard Henderson <rth@twiddle.net>
+Date: Tue, 30 Oct 2018 15:57:03 +0000
 Subject: [OpenRISC] [PATCH v3 3/3] or1k: gcc: initial support for
 	openrisc
-In-Reply-To: <20181030112600.GA2843@lianli.shorne-pla.net>
+In-Reply-To: <20181030121806.GB2843@lianli.shorne-pla.net>
 References: <20181027043702.18414-1-shorne@gmail.com>
  <20181027043702.18414-4-shorne@gmail.com>
- <20181028025730.GH5766@gate.crashing.org>
- <ed59f12b-a2a3-fa28-0d03-de1d11bb6e42@twiddle.net>
- <20181029133425.GE1761@lianli.shorne-pla.net>
- <20181029163426.GM5766@gate.crashing.org>
- <4ddf1c0d-76fb-8262-a6a2-afc7f8daee14@twiddle.net>
- <20181030112600.GA2843@lianli.shorne-pla.net>
-Message-ID: <20181030154118.GB5994@gate.crashing.org>
+ <ced5813d-aef7-1454-de4b-da327a4c2ff7@twiddle.net>
+ <20181030121806.GB2843@lianli.shorne-pla.net>
+Message-ID: <0d25c0ba-7de0-668c-ebcb-350d17029846@twiddle.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Oct 30, 2018 at 08:26:00PM +0900, Stafford Horne wrote:
-> On Mon, Oct 29, 2018 at 04:42:43PM +0000, Richard Henderson wrote:
-> > On 10/29/18 4:34 PM, Segher Boessenkool wrote:
-> > > Is there some better documentation available?  This is what google found
-> > > for me.  I would have like better docs (more compact, etc.)  Links to
-> > > such would be great to have in readings.html :-)
-> > 
-> > https://openrisc.io/architecture
-> > 
-> > and especially the v1.2 pdf linked from there
-> > 
-> > https://raw.githubusercontent.com/openrisc/doc/master/openrisc-arch-1.2-rev0.pdf
+On 10/30/18 12:18 PM, Stafford Horne wrote:
+> OK, I was just being lazy allowing the spill.  Do you think the split/expand
+> would be an RTL using left shift / right shift?  Can you think of something
+> more clever?  Since "real" hardware does not usually support shifts with an
+> immediate we will need 1 instruction to load shift amount. i.e.
 > 
-> Thanks,
-> 
-> I meant to point this out during my previous reply.  Also, I will send a patch
-> for adding this to wwwdocs.
-> 
->   https://www.gnu.org/software/gcc/readings.html
+>   l.ori %0, r0, 24
+>   l.sll %1, %1, %0
+>   l.sra %0, %1, %0
 
-I figure out how I most likely found the out-of-date page btw: I googled
-"openrisc xori" (no quotes).
+This clobbers %1.
+
+So, ouch.  I think we will want to avoid creating this particular pattern in
+the first place unless l.exts exists then.  We would use another pattern like
+
+(define_insn "*sign_extend_mem<mode>"
+  [(set (match_operand:SI 0 "register_operand" "=r")
+	(sign_extend:SI
+	  (match_operand:HI 1 "memory_operand" "m")))]
+  ""
+  "l.lhs\t%0, %1")
+
+following the TARGET_SEXT pattern.  In this way combine can use this pattern
+without getting us into trouble with the register allocator later.
+
+> I am submitting patches on my git branch or1k-port-4. Just in case you want to
+> track progress.
+
+Will do.
 
 
-Segher
+r~
