@@ -1,55 +1,45 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Tue, 30 Oct 2018 21:49:18 +0900
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Date: Tue, 30 Oct 2018 10:41:18 -0500
 Subject: [OpenRISC] [PATCH v3 3/3] or1k: gcc: initial support for
 	openrisc
-In-Reply-To: <20181028225447.GK5766@gate.crashing.org>
+In-Reply-To: <20181030112600.GA2843@lianli.shorne-pla.net>
 References: <20181027043702.18414-1-shorne@gmail.com>
  <20181027043702.18414-4-shorne@gmail.com>
  <20181028025730.GH5766@gate.crashing.org>
- <20181028214723.GD1761@lianli.shorne-pla.net>
- <20181028225447.GK5766@gate.crashing.org>
-Message-ID: <20181030124918.GC2843@lianli.shorne-pla.net>
+ <ed59f12b-a2a3-fa28-0d03-de1d11bb6e42@twiddle.net>
+ <20181029133425.GE1761@lianli.shorne-pla.net>
+ <20181029163426.GM5766@gate.crashing.org>
+ <4ddf1c0d-76fb-8262-a6a2-afc7f8daee14@twiddle.net>
+ <20181030112600.GA2843@lianli.shorne-pla.net>
+Message-ID: <20181030154118.GB5994@gate.crashing.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hello,
-
-On Sun, Oct 28, 2018 at 05:54:47PM -0500, Segher Boessenkool wrote:
-> Hi!
-> 
-> On Mon, Oct 29, 2018 at 06:47:23AM +0900, Stafford Horne wrote:
-> > On Sat, Oct 27, 2018 at 09:57:30PM -0500, Segher Boessenkool wrote:
-> > > > +/* Helper for defining INITIAL_ELIMINATION_OFFSET.
-> > > > +   We allow the following eliminiations:
-> > > > +     FP -> HARD_FP or SP
-> > > > +     AP -> HARD_FP or SP
-> > > > +
-> > > > +   HFP and AP are the same which is handled below.  */
-> > > > +
-> > > > +HOST_WIDE_INT
-> > > > +or1k_initial_elimination_offset (int from, int to)
-> > > 
-> > > You could calculate this as  some_offset (from) - some_offset (to)  with
-> > > some_offset a simple helper function.  That gives you all possible
-> > > eliminations :-)
-> > > 
-> > > (Each offset is very cheap to compute in your case, so that's not a problem).
+On Tue, Oct 30, 2018 at 08:26:00PM +0900, Stafford Horne wrote:
+> On Mon, Oct 29, 2018 at 04:42:43PM +0000, Richard Henderson wrote:
+> > On 10/29/18 4:34 PM, Segher Boessenkool wrote:
+> > > Is there some better documentation available?  This is what google found
+> > > for me.  I would have like better docs (more compact, etc.)  Links to
+> > > such would be great to have in readings.html :-)
 > > 
-> > Right, Do you mean something like the following?  I think it would work, but I
-> > am not sure it make the code easier to read.  Do you think there would be much
-> > benefits supporting all possible eliminations?
+> > https://openrisc.io/architecture
+> > 
+> > and especially the v1.2 pdf linked from there
+> > 
+> > https://raw.githubusercontent.com/openrisc/doc/master/openrisc-arch-1.2-rev0.pdf
 > 
-> Yes, like that.  It also easily can handle the other combos (those with
-> STACK_POINTER), and it is easier if you have to switch FRAME_GROWS_DOWNWARD
-> ("false" is better on some args, but "true" is required for ssp).
+> Thanks,
 > 
-> Your code is fine as-is of course.
+> I meant to point this out during my previous reply.  Also, I will send a patch
+> for adding this to wwwdocs.
+> 
+>   https://www.gnu.org/software/gcc/readings.html
 
-Just to be clear, when you say 'as-is' did you mean the original v3 patch?  Or
-are you referring to followup patch I posted with the some_offset (from) -
-some_offset (to) logic.
+I figure out how I most likely found the out-of-date page btw: I googled
+"openrisc xori" (no quotes).
 
--Stafford
+
+Segher
