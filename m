@@ -1,75 +1,45 @@
-From: Szabolcs Nagy <Szabolcs.Nagy@arm.com>
-Date: Mon, 29 Oct 2018 14:28:11 +0000
+From: Jeff Law <law@redhat.com>
+Date: Wed, 31 Oct 2018 08:39:14 -0600
 Subject: [OpenRISC] [PATCH v3 3/3] or1k: gcc: initial support for
 	openrisc
-In-Reply-To: <20181027043702.18414-4-shorne@gmail.com>
+In-Reply-To: <20181030223553.GD2843@lianli.shorne-pla.net>
 References: <20181027043702.18414-1-shorne@gmail.com>
  <20181027043702.18414-4-shorne@gmail.com>
-Message-ID: <29809b24-23e5-9981-df88-6550f7f91b4c@arm.com>
+ <20181028025730.GH5766@gate.crashing.org>
+ <20181028214723.GD1761@lianli.shorne-pla.net>
+ <20181028225447.GK5766@gate.crashing.org>
+ <20181030124918.GC2843@lianli.shorne-pla.net>
+ <20181030154952.GD5994@gate.crashing.org>
+ <20181030223553.GD2843@lianli.shorne-pla.net>
+Message-ID: <0354c1e4-3482-1536-e7c0-fc23f94dc4f7@redhat.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 27/10/18 05:37, Stafford Horne wrote:
-> +++ b/gcc/config/or1k/linux.h
-> @@ -0,0 +1,44 @@
-> +/* Linux Definitions for OpenRISC.
-> +   Copyright (C) 2018 Free Software Foundation, Inc.
-> +   Contributed by Stafford Horne.
-> +
-> +   This file is part of GCC.
-> +
-> +   GCC is free software; you can redistribute it and/or modify it
-> +   under the terms of the GNU General Public License as published
-> +   by the Free Software Foundation; either version 3, or (at your
-> +   option) any later version.
-> +
-> +   GCC is distributed in the hope that it will be useful, but WITHOUT
-> +   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-> +   or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
-> +   License for more details.
-> +
-> +   You should have received a copy of the GNU General Public License
-> +   along with GCC; see the file COPYING3.  If not see
-> +   <http://www.gnu.org/licenses/>.  */
-> +
-> +#ifndef GCC_OR1K_LINUX_H
-> +#define GCC_OR1K_LINUX_H
-> +
-> +/* elfos.h should have already been included.  Now just override
-> +   any conflicting definitions and add any extras.  */
-> +
-> +#define TARGET_OS_CPP_BUILTINS() \
-> +  GNU_USER_TARGET_OS_CPP_BUILTINS ()
-> +
-> +#define GLIBC_DYNAMIC_LINKER "/lib/ld-linux-or1k.so.1"
-> +
-> +#undef MUSL_DYNAMIC_LINKER
-> +#define MUSL_DYNAMIC_LINKER  "/lib/ld-musl-or1k.so.1"
-> +
-> +#undef LINK_SPEC
-> +#define LINK_SPEC "%{h*}			\
-> +   %{static:-Bstatic}				\
-> +   %{shared:-shared}				\
-> +   %{symbolic:-Bsymbolic}			\
-> +   %{!static:					\
-> +     %{rdynamic:-export-dynamic}		\
-> +     %{!shared:-dynamic-linker " GNU_USER_DYNAMIC_LINKER "}}"
-> +
-> +#endif /* GCC_OR1K_LINUX_H */
+On 10/30/18 4:35 PM, Stafford Horne wrote:
+> On Tue, Oct 30, 2018 at 10:49:53AM -0500, Segher Boessenkool wrote:
+>> On Tue, Oct 30, 2018 at 09:49:18PM +0900, Stafford Horne wrote:
+>>> Hello,
+>>>
+>>> On Sun, Oct 28, 2018 at 05:54:47PM -0500, Segher Boessenkool wrote:
+>>>> Yes, like that.  It also easily can handle the other combos (those with
+>>>> STACK_POINTER), and it is easier if you have to switch FRAME_GROWS_DOWNWARD
+>>>> ("false" is better on some args, but "true" is required for ssp).
+>>>>
+>>>> Your code is fine as-is of course.
+>>>
+>>> Just to be clear, when you say 'as-is' did you mean the original v3 patch?  Or
+>>> are you referring to followup patch I posted with the some_offset (from) -
+>>> some_offset (to) logic.
+>>
+>> Either.  Both.  I meant the orig big patch, v3 if that's what it was.
+> 
+> Alright, thanks, I just didnt want to misunderstand.
+Also note that it's my understanding the issues I raised during my
+review have been dealt with as have Joseph's.  My inclination would be
+to accept the port when Stafford & rth think it's ready.
 
-note that because of the -static-pie mess each
-target needs a more complicated LINK_SPEC now.
 
-i think there could be a generic LINK_SPEC in
-config/linux.h or config/gnu-user.h that works
-for simple targets (the start file spec is
-already there) so this complex logic is not
-repeated everywhere.
-
-or even do the -no-dynamic-linker logic in
-LINK_PIE_SPEC in gcc.c for all targets, not
-just linux, so backends don't need to do
-anything to get static-pie to work.
+Jeff
