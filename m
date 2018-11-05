@@ -1,28 +1,55 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 10 Nov 2018 05:54:57 +0900
-Subject: [OpenRISC] OpenRISC GCC port upstream for 9.0.0
-Message-ID: <CAAfxs76_eFyUa35J6JsFY3Kk9Skdy-en6X+-b_x3TFSdDe=2Qg@mail.gmail.com>
+From: Corinna Vinschen <vinschen@redhat.com>
+Date: Mon, 5 Nov 2018 10:03:29 +0100
+Subject: [OpenRISC] [PATCH] newlib/configure.host: Set have_init_fini to
+ no for OpenRISC
+In-Reply-To: <20181102220002.29760-1-shorne@gmail.com>
+References: <20181102220002.29760-1-shorne@gmail.com>
+Message-ID: <20181105090329.GD4052@calimero.vinschen.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="windows-1250"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-SGkgQWxsLAoKSSBoYXZlIGp1c3QgcHVibGlzaGVkIHRoaXMgb250byBvcGVucmlzYy5pbzoKaHR0
-cHM6Ly9vcGVucmlzYy5pby8yMDE4LzExLzA5L2djY3Vwc3RyZWFtCgpXZSBhcmUgcHJvdWQgdG8g
-YW5ub3VuY2UgdGhhdCB0aGUgT3BlblJJU0MgcG9ydCBmb3IgZ2NjIGhhcyBiZWVuCmNvbW1pdHRl
-ZCB0byB1cHN0cmVhbS4KCk1haW5saW5lIE9wZW5SSVNDIHN1cHBvcnQgd2lsbCBiZSBhdmFpbGFi
-bGUgaW4gdGhlIHVwY29taW5nIDkuMC4wCnJlbGVhc2Ugb2YgR0NDLgoKTm90ZSwgdGhpcyBoYXMg
-YmVlbiBhIGNsZWFuIHJvb20gcmV3cml0ZSBvZiB0aGUgT3BlblJJU0MgZ2NjIHBvcnQuIFRoZQpv
-bGQgcG9ydCBjYW4gc3RpbGwgYmUgZm91bmQgaW4gdGhlIE9wZW5SSVNDIGdpdGh1YiByZXBvLiBQ
-cmUtcmVsZWFzZQp0b29sY2hhaW4gYmluYXJpZXMgZm9yIHRoZSBuZXcgdG9vbGNoYWluIGNhbiBi
-ZSBmb3VuZCBvbiBTdGFmZm9yZOKAmXMKZ2l0aHViIHJlbGVhc2VzIHBhZ2UuCgpUaGVyZSBhcmUg
-YSBmZXcgdGhpbmdzIHN0aWxsIG5vdCBzdXBwb3J0ZWQgaW4gdGhpcyBuZXcgcG9ydCB3aGljaCB3
-ZXJlCmF2YWlsYWJsZSB0aGUgcHJldmlvdXMgcG9ydC4gVGhlIGN1cnJlbnQgdXBzdHJlYW0gT3Bl
-blJJU0MgR0NDIGRvZXMKbm90IGhhdmUgc3VwcG9ydCBmb3I6CgogIC0gb3Ixa25kIChOby1icmFu
-Y2ggZGVsYXkpIHRhcmdldHMKICAtIGhhcmR3YXJlIEZQVSAoZmxvYXRpbmcgcG9pbnQgdW5pdCkK
-CklmIHlvdSBoYXZlIGFueSByZXF1ZXN0cyBvZiB3b3VsZCBsaWtlIHRvIGhlbHAgb3V0IHBsZWFz
-ZSBjb250YWN0IHVzCm9uIHRoZSBtYWlsaW5nIGxpc3QuCgotU3RhZmZvcmQKClAuUy4KClRPRE8g
-bGlzdCBmb3IgT3BlblJJU0MgdG9vbGNoYWluCiAgLSBBZGQgc3VwcG9ydCBmb3IgbmV3IGwuYWRy
-cCBpbnN0cnVjdGlvbiB0byBzcGVjLCBnY2MgYW5kIG1vcjFreAogIC0gQWRkIEdDQyBGUFUgc3Vw
-cG9ydAogIC0gQWRkIEdEQiB1bmRlciBMaW51eCBzdXBwb3J0Cg==
+On Nov  3 07:00, Stafford Horne wrote:
+> The new GCC port for OpenRISC will use the init_fini_array only and not
+> provide the init() and fini() functions.  Disable the function usage by
+> default as its no longer needed.
+> 
+> Signed-off-by: Stafford Horne <shorne@gmail.com>
+> ---
+>  newlib/configure.host | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/newlib/configure.host b/newlib/configure.host
+> index 27bce36a1..6c49cb750 100644
+> --- a/newlib/configure.host
+> +++ b/newlib/configure.host
+> @@ -279,6 +279,7 @@ case "${host_cpu}" in
+>  	;;
+>    or1k*|or1knd*)
+>  	machine_dir=or1k
+> +	have_init_fini=no
+>  	;;
+>    powerpc*)
+>  	machine_dir=powerpc
+> -- 
+> 2.17.2
+
+Pushed.
+
+
+Thanks,
+Corinna
+
+-- 
+Corinna Vinschen
+Cygwin Maintainer
+Red Hat
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 833 bytes
+Desc: not available
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20181105/4450a28b/attachment-0001.sig>
