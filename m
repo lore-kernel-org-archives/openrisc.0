@@ -1,55 +1,72 @@
-From: Corinna Vinschen <vinschen@redhat.com>
-Date: Mon, 5 Nov 2018 10:03:29 +0100
-Subject: [OpenRISC] [PATCH] newlib/configure.host: Set have_init_fini to
- no for OpenRISC
-In-Reply-To: <20181102220002.29760-1-shorne@gmail.com>
-References: <20181102220002.29760-1-shorne@gmail.com>
-Message-ID: <20181105090329.GD4052@calimero.vinschen.de>
+From: Szabolcs Nagy <Szabolcs.Nagy@arm.com>
+Date: Mon, 5 Nov 2018 11:13:53 +0000
+Subject: [OpenRISC] [PATCH v3 3/3] or1k: gcc: initial support for
+	openrisc
+In-Reply-To: <20181104090544.GB16938@lianli.shorne-pla.net>
+References: <20181027043702.18414-1-shorne@gmail.com>
+ <20181027043702.18414-4-shorne@gmail.com>
+ <29809b24-23e5-9981-df88-6550f7f91b4c@arm.com>
+ <20181104090544.GB16938@lianli.shorne-pla.net>
+Message-ID: <74dd7edd-ea59-9fd6-6c9b-82ac34574897@arm.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Nov  3 07:00, Stafford Horne wrote:
-> The new GCC port for OpenRISC will use the init_fini_array only and not
-> provide the init() and fini() functions.  Disable the function usage by
-> default as its no longer needed.
+On 04/11/18 09:05, Stafford Horne wrote:
+> On Mon, Oct 29, 2018 at 02:28:11PM +0000, Szabolcs Nagy wrote:
+>> On 27/10/18 05:37, Stafford Horne wrote:
+...
+>>> +#undef LINK_SPEC
+>>> +#define LINK_SPEC "%{h*}			\
+>>> +   %{static:-Bstatic}				\
+>>> +   %{shared:-shared}				\
+>>> +   %{symbolic:-Bsymbolic}			\
+>>> +   %{!static:					\
+>>> +     %{rdynamic:-export-dynamic}		\
+>>> +     %{!shared:-dynamic-linker " GNU_USER_DYNAMIC_LINKER "}}"
+>>> +
+>>> +#endif /* GCC_OR1K_LINUX_H */
+>>
+>> note that because of the -static-pie mess each
+>> target needs a more complicated LINK_SPEC now.
 > 
-> Signed-off-by: Stafford Horne <shorne@gmail.com>
-> ---
->  newlib/configure.host | 1 +
->  1 file changed, 1 insertion(+)
+> Hello,
 > 
-> diff --git a/newlib/configure.host b/newlib/configure.host
-> index 27bce36a1..6c49cb750 100644
-> --- a/newlib/configure.host
-> +++ b/newlib/configure.host
-> @@ -279,6 +279,7 @@ case "${host_cpu}" in
->  	;;
->    or1k*|or1knd*)
->  	machine_dir=or1k
-> +	have_init_fini=no
->  	;;
->    powerpc*)
->  	machine_dir=powerpc
-> -- 
-> 2.17.2
+> Does something like this look better?
+> 
+> --- a/gcc/config/or1k/linux.h
+> +++ b/gcc/config/or1k/linux.h
+> @@ -37,8 +37,9 @@
+>     %{static:-Bstatic}                          \
+>     %{shared:-shared}                           \
+>     %{symbolic:-Bsymbolic}                      \
+> -   %{!static:                                  \
+> +   %{!static:%{!static-pie:                    \
+>       %{rdynamic:-export-dynamic}               \
+> -     %{!shared:-dynamic-linker " GNU_USER_DYNAMIC_LINKER "}}"
+> +     %{!shared:-dynamic-linker " GNU_USER_DYNAMIC_LINKER "}}} \
+> +   %{static-pie:-Bstatic -pie --no-dynamic-linker -z text}"
+>  
+>  #endif /* GCC_OR1K_LINUX_H */
 
-Pushed.
+looks ok.
 
+> I have tested this out with or1k-linux-musl, but I get some LD complaints i.e.
+> 
+> .../or1k-linux-musl/bin/ld: .../or1k-linux-musl/lib/libc.a(exit.o): non-pic relocation against symbol __fini_array_end
+> .../or1k-linux-musl/bin/ld: .../or1k-linux-musl/lib/libc.a(exit.o): non-pic relocation against symbol __fini_array_start
+> 
+> Those are some warnings we recently added to LD, perhaps I need to rebuild the
+> libc.a with PIE as well.  I will try it out, but if anyone has some suggestions
+> that would be helpful.
 
-Thanks,
-Corinna
+yes, musl does not build libc.a with pic by default,
+either use a gcc configured with --enable-default-pie
+or CC='gcc -fPIC' when building musl.
 
--- 
-Corinna Vinschen
-Cygwin Maintainer
-Red Hat
--------------- next part --------------
-A non-text attachment was scrubbed...
-Name: signature.asc
-Type: application/pgp-signature
-Size: 833 bytes
-Desc: not available
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20181105/4450a28b/attachment-0001.sig>
+after that -static-pie linking should work.
+
+(maybe musl should have an --enable-static-pie config
+option to make this simpler)
