@@ -1,98 +1,178 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Tue, 6 Nov 2018 05:58:55 +0900
-Subject: [OpenRISC] [PATCH v3 3/3] or1k: gcc: initial support for
-	openrisc
-In-Reply-To: <20181105151022.GO5150@brightrain.aerifal.cx>
-References: <20181027043702.18414-1-shorne@gmail.com>
- <20181027043702.18414-4-shorne@gmail.com>
- <29809b24-23e5-9981-df88-6550f7f91b4c@arm.com>
- <20181104090544.GB16938@lianli.shorne-pla.net>
- <74dd7edd-ea59-9fd6-6c9b-82ac34574897@arm.com>
- <20181105151022.GO5150@brightrain.aerifal.cx>
-Message-ID: <20181105205855.GE16938@lianli.shorne-pla.net>
+Date: Wed,  7 Nov 2018 06:21:08 +0900
+Subject: [OpenRISC] [PATCH v4 0/3] OpenRISC port
+Message-ID: <20181106212111.31800-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Nov 05, 2018 at 10:10:22AM -0500, Rich Felker wrote:
-> On Mon, Nov 05, 2018 at 11:13:53AM +0000, Szabolcs Nagy wrote:
-> > On 04/11/18 09:05, Stafford Horne wrote:
-> > > On Mon, Oct 29, 2018 at 02:28:11PM +0000, Szabolcs Nagy wrote:
-> > >> On 27/10/18 05:37, Stafford Horne wrote:
-> > ...
-> > >>> +#undef LINK_SPEC
-> > >>> +#define LINK_SPEC "%{h*}			\
-> > >>> +   %{static:-Bstatic}				\
-> > >>> +   %{shared:-shared}				\
-> > >>> +   %{symbolic:-Bsymbolic}			\
-> > >>> +   %{!static:					\
-> > >>> +     %{rdynamic:-export-dynamic}		\
-> > >>> +     %{!shared:-dynamic-linker " GNU_USER_DYNAMIC_LINKER "}}"
-> > >>> +
-> > >>> +#endif /* GCC_OR1K_LINUX_H */
-> > >>
-> > >> note that because of the -static-pie mess each
-> > >> target needs a more complicated LINK_SPEC now.
-> > > 
-> > > Hello,
-> > > 
-> > > Does something like this look better?
-> > > 
-> > > --- a/gcc/config/or1k/linux.h
-> > > +++ b/gcc/config/or1k/linux.h
-> > > @@ -37,8 +37,9 @@
-> > >     %{static:-Bstatic}                          \
-> > >     %{shared:-shared}                           \
-> > >     %{symbolic:-Bsymbolic}                      \
-> > > -   %{!static:                                  \
-> > > +   %{!static:%{!static-pie:                    \
-> > >       %{rdynamic:-export-dynamic}               \
-> > > -     %{!shared:-dynamic-linker " GNU_USER_DYNAMIC_LINKER "}}"
-> > > +     %{!shared:-dynamic-linker " GNU_USER_DYNAMIC_LINKER "}}} \
-> > > +   %{static-pie:-Bstatic -pie --no-dynamic-linker -z text}"
-> > >  
-> > >  #endif /* GCC_OR1K_LINUX_H */
-> > 
-> > looks ok.
-> > 
-> > > I have tested this out with or1k-linux-musl, but I get some LD complaints i.e.
-> > > 
-> > > .../or1k-linux-musl/bin/ld: .../or1k-linux-musl/lib/libc.a(exit.o): non-pic relocation against symbol __fini_array_end
-> > > .../or1k-linux-musl/bin/ld: .../or1k-linux-musl/lib/libc.a(exit.o): non-pic relocation against symbol __fini_array_start
-> > > 
-> > > Those are some warnings we recently added to LD, perhaps I need to rebuild the
-> > > libc.a with PIE as well.  I will try it out, but if anyone has some suggestions
-> > > that would be helpful.
-> > 
-> > yes, musl does not build libc.a with pic by default,
-> > either use a gcc configured with --enable-default-pie
-> > or CC='gcc -fPIC' when building musl.
-> > 
-> > after that -static-pie linking should work.
-> > 
-> > (maybe musl should have an --enable-static-pie config
-> > option to make this simpler)
-> 
-> For practical purposes, if you want to use static pie, you need a
-> default-pie toolchain. This is because _every_ static lib you might
-> link needs to be built with -fPIE (or -fPIC), and ensuring that
-> happens on a package-by-package basis is largely impractical; at least
-> it's on the same order of magnitude of difficulty as other systems
-> integration/packaging tasks.
+Hello,
 
-Thanks, I kind of figured it out, but it was no so clear when I started.
+As you can see this is v4 of the OpenRISC port patch series, I just want to
+mention that there are a few things pointed out during the v3 review that I have
+not fixed, and do not plan before pushing upstream.  These are either because I
+didn't feel they made the code easier to read or they were things that could
+wait unil after upstreaming.  These include:
 
-> However from the musl side it might make sense to produce a libc_pic.a
-> as part of the build process. This would make it easy to replace
-> libc.a with libc_pic.a if desired, and could also be used as the basis
-> for linking libc.so and to allow production of a stripped-down libc.so
-> that only includes symbols a fixed set of binaries depend on. We could
-> discuss something like this on the musl list.
+(not changed)
+ - libgcc !cmov 1cyc improvements suggested by Richard
+ - gcc eliminations refactorings suggested by Segher
+ - leaving out empty constraint strings suggested by Segher
+ - implementing TARGET_ISNS_COST suggested by Segher
 
-That makes sense.
+Please let me know if you have concerns; now onto the patches:
 
-Thanks Rich for your input.
+
+Changes Since v3:
+ - Fix tabs formatting pointed out by Segher
+ - Fix comment formatting and typos pointed out by Segher
+ - Fix for sign/zero extention login in md file from Richard
+ - Remove usages of ATTRIBUTE_UNUSED suggested by Segher
+ - Remove need for init/fini, removing crti/n.S files
+ - Add support for -static-pie in LINK_SPEC suggsted by Szabolcs
+
+Changes Since v2:
+ - Add RTEMS patches from Joel Sherrill
+ - Disable t-softfp-excl as suggsted by Joseph Myers
+ - Add new architecture flags needed to run on real FPGA's found in testing
+   * -mror - enable l.ror (rotate right)
+   * -mshftimm - enable shift/rorate by immediate instructions
+ - Binutils requirements are now in upstream git
+
+Changes Since v1:
+ - Document options in invoke.texi suggested by Joseph Myers
+ - Remove obsolete/incorrect macros suggested by Joseph Myers
+ - Documented or1k.c functions as requested by Jeff Law
+ - Add epilogue barriers suggested by Jeff Law
+ - Define SPECULATION_SAFE_VALUE suggested by Jeff Law
+ - Switch to init/fini array suggested by Richard Henderson
+ - Define and document multilib flags to enable disable instructions only
+   available on some CPU cores as requested on OpenRISC mailing list.
+
+Since February this year I have been working on an OpenRISC clean room rewrite.
+
+  http://stffrdhrn.github.io/software/embedded/openrisc/2018/02/03/openrisc_gcc_rewrite.html
+
+As per the article, the old port had issues with some of the owners signing over
+FSF copyright.  To get around this I discussed options with the group and in the
+end I opted for a clean room rewrite.
+
+The new code base has been written by me with lots of help from Richard
+Henderson.  I trust that both of us have our FSF GCC copyright's in place.
+
+# Testing
+
+We have been running the GCC testsuite with newlib and musl libc.  The results
+are good.  See results published in a test build/release here:
+
+ - https://github.com/stffrdhrn/gcc/releases/tag/or1k-9.0.0-20181106
+
+# Building
+
+To build this requires the latest binutils upstream master i.e. 2.31.52.  Also,
+due to removing need for `init` and `fini` it requires the latest changes on
+newlib master.
 
 -Stafford
+
+Stafford Horne (3):
+  or1k: libgcc: initial support for openrisc
+  or1k: testsuite: initial support for openrisc
+  or1k: gcc: initial support for openrisc
+
+ gcc/common/config/or1k/or1k-common.c          |   41 +
+ gcc/config.gcc                                |   45 +
+ gcc/config/or1k/constraints.md                |   55 +
+ gcc/config/or1k/elf.h                         |   42 +
+ gcc/config/or1k/elf.opt                       |   33 +
+ gcc/config/or1k/linux.h                       |   45 +
+ gcc/config/or1k/or1k-protos.h                 |   38 +
+ gcc/config/or1k/or1k.c                        | 2183 +++++++++++++++++
+ gcc/config/or1k/or1k.h                        |  392 +++
+ gcc/config/or1k/or1k.md                       |  897 +++++++
+ gcc/config/or1k/or1k.opt                      |   67 +
+ gcc/config/or1k/predicates.md                 |   84 +
+ gcc/config/or1k/rtems.h                       |   30 +
+ gcc/config/or1k/t-or1k                        |   22 +
+ gcc/config/or1k/t-rtems                       |    3 +
+ gcc/configure                                 |   12 +
+ gcc/configure.ac                              |   12 +
+ gcc/doc/install.texi                          |   19 +
+ gcc/doc/invoke.texi                           |   68 +
+ gcc/doc/md.texi                               |   25 +
+ .../gcc.c-torture/execute/20101011-1.c        |    3 +
+ gcc/testsuite/gcc.dg/20020312-2.c             |    2 +
+ gcc/testsuite/gcc.dg/attr-alloc_size-11.c     |    4 +-
+ gcc/testsuite/gcc.dg/builtin-apply2.c         |    2 +-
+ gcc/testsuite/gcc.dg/nop.h                    |    2 +
+ .../torture/stackalign/builtin-apply-2.c      |    2 +-
+ gcc/testsuite/gcc.dg/tree-ssa/20040204-1.c    |    2 +-
+ gcc/testsuite/gcc.dg/tree-ssa/reassoc-33.c    |    2 +-
+ gcc/testsuite/gcc.dg/tree-ssa/reassoc-34.c    |    2 +-
+ gcc/testsuite/gcc.dg/tree-ssa/reassoc-35.c    |    2 +-
+ gcc/testsuite/gcc.dg/tree-ssa/reassoc-36.c    |    2 +-
+ gcc/testsuite/gcc.target/or1k/args-1.c        |   19 +
+ gcc/testsuite/gcc.target/or1k/args-2.c        |   15 +
+ gcc/testsuite/gcc.target/or1k/cmov-1.c        |    8 +
+ gcc/testsuite/gcc.target/or1k/cmov-2.c        |    9 +
+ gcc/testsuite/gcc.target/or1k/div-mul-1.c     |    9 +
+ gcc/testsuite/gcc.target/or1k/div-mul-2.c     |    9 +
+ gcc/testsuite/gcc.target/or1k/or1k.exp        |   41 +
+ gcc/testsuite/gcc.target/or1k/return-1.c      |   10 +
+ gcc/testsuite/gcc.target/or1k/return-2.c      |   19 +
+ gcc/testsuite/gcc.target/or1k/return-3.c      |   19 +
+ gcc/testsuite/gcc.target/or1k/return-4.c      |   19 +
+ gcc/testsuite/gcc.target/or1k/ror-1.c         |    8 +
+ gcc/testsuite/gcc.target/or1k/ror-2.c         |    9 +
+ gcc/testsuite/gcc.target/or1k/ror-3.c         |    8 +
+ gcc/testsuite/gcc.target/or1k/shftimm-1.c     |    8 +
+ gcc/testsuite/gcc.target/or1k/shftimm-2.c     |    8 +
+ gcc/testsuite/gcc.target/or1k/sibcall-1.c     |   18 +
+ gcc/testsuite/lib/target-supports.exp         |    1 +
+ libgcc/config.host                            |   12 +
+ libgcc/config/or1k/lib1funcs.S                |  222 ++
+ libgcc/config/or1k/linux-unwind.h             |   87 +
+ libgcc/config/or1k/sfp-machine.h              |   54 +
+ libgcc/config/or1k/t-or1k                     |   22 +
+ 54 files changed, 4763 insertions(+), 9 deletions(-)
+ create mode 100644 gcc/common/config/or1k/or1k-common.c
+ create mode 100644 gcc/config/or1k/constraints.md
+ create mode 100644 gcc/config/or1k/elf.h
+ create mode 100644 gcc/config/or1k/elf.opt
+ create mode 100644 gcc/config/or1k/linux.h
+ create mode 100644 gcc/config/or1k/or1k-protos.h
+ create mode 100644 gcc/config/or1k/or1k.c
+ create mode 100644 gcc/config/or1k/or1k.h
+ create mode 100644 gcc/config/or1k/or1k.md
+ create mode 100644 gcc/config/or1k/or1k.opt
+ create mode 100644 gcc/config/or1k/predicates.md
+ create mode 100644 gcc/config/or1k/rtems.h
+ create mode 100644 gcc/config/or1k/t-or1k
+ create mode 100644 gcc/config/or1k/t-rtems
+ create mode 100644 gcc/testsuite/gcc.target/or1k/args-1.c
+ create mode 100644 gcc/testsuite/gcc.target/or1k/args-2.c
+ create mode 100644 gcc/testsuite/gcc.target/or1k/cmov-1.c
+ create mode 100644 gcc/testsuite/gcc.target/or1k/cmov-2.c
+ create mode 100644 gcc/testsuite/gcc.target/or1k/div-mul-1.c
+ create mode 100644 gcc/testsuite/gcc.target/or1k/div-mul-2.c
+ create mode 100644 gcc/testsuite/gcc.target/or1k/or1k.exp
+ create mode 100644 gcc/testsuite/gcc.target/or1k/return-1.c
+ create mode 100644 gcc/testsuite/gcc.target/or1k/return-2.c
+ create mode 100644 gcc/testsuite/gcc.target/or1k/return-3.c
+ create mode 100644 gcc/testsuite/gcc.target/or1k/return-4.c
+ create mode 100644 gcc/testsuite/gcc.target/or1k/ror-1.c
+ create mode 100644 gcc/testsuite/gcc.target/or1k/ror-2.c
+ create mode 100644 gcc/testsuite/gcc.target/or1k/ror-3.c
+ create mode 100644 gcc/testsuite/gcc.target/or1k/shftimm-1.c
+ create mode 100644 gcc/testsuite/gcc.target/or1k/shftimm-2.c
+ create mode 100644 gcc/testsuite/gcc.target/or1k/sibcall-1.c
+ create mode 100644 libgcc/config/or1k/lib1funcs.S
+ create mode 100644 libgcc/config/or1k/linux-unwind.h
+ create mode 100644 libgcc/config/or1k/sfp-machine.h
+ create mode 100644 libgcc/config/or1k/t-or1k
+
+-- 
+2.17.2
+
