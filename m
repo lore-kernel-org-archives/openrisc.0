@@ -1,178 +1,473 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Wed,  7 Nov 2018 06:21:08 +0900
-Subject: [OpenRISC] [PATCH v4 0/3] OpenRISC port
-Message-ID: <20181106212111.31800-1-shorne@gmail.com>
+Date: Wed,  7 Nov 2018 06:21:09 +0900
+Subject: [OpenRISC] [PATCH v4 1/3] or1k: libgcc: initial support for openrisc
+In-Reply-To: <20181106212111.31800-1-shorne@gmail.com>
+References: <20181106212111.31800-1-shorne@gmail.com>
+Message-ID: <20181106212111.31800-2-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hello,
+yyyy-mm-dd  Stafford Horne  <shorne@gmail.com>
+	    Richard Henderson  <rth@twiddle.net>
 
-As you can see this is v4 of the OpenRISC port patch series, I just want to
-mention that there are a few things pointed out during the v3 review that I have
-not fixed, and do not plan before pushing upstream.  These are either because I
-didn't feel they made the code easier to read or they were things that could
-wait unil after upstreaming.  These include:
+libgcc/ChangeLog:
 
-(not changed)
- - libgcc !cmov 1cyc improvements suggested by Richard
- - gcc eliminations refactorings suggested by Segher
- - leaving out empty constraint strings suggested by Segher
- - implementing TARGET_ISNS_COST suggested by Segher
-
-Please let me know if you have concerns; now onto the patches:
-
-
-Changes Since v3:
- - Fix tabs formatting pointed out by Segher
- - Fix comment formatting and typos pointed out by Segher
- - Fix for sign/zero extention login in md file from Richard
- - Remove usages of ATTRIBUTE_UNUSED suggested by Segher
- - Remove need for init/fini, removing crti/n.S files
- - Add support for -static-pie in LINK_SPEC suggsted by Szabolcs
-
-Changes Since v2:
- - Add RTEMS patches from Joel Sherrill
- - Disable t-softfp-excl as suggsted by Joseph Myers
- - Add new architecture flags needed to run on real FPGA's found in testing
-   * -mror - enable l.ror (rotate right)
-   * -mshftimm - enable shift/rorate by immediate instructions
- - Binutils requirements are now in upstream git
-
-Changes Since v1:
- - Document options in invoke.texi suggested by Joseph Myers
- - Remove obsolete/incorrect macros suggested by Joseph Myers
- - Documented or1k.c functions as requested by Jeff Law
- - Add epilogue barriers suggested by Jeff Law
- - Define SPECULATION_SAFE_VALUE suggested by Jeff Law
- - Switch to init/fini array suggested by Richard Henderson
- - Define and document multilib flags to enable disable instructions only
-   available on some CPU cores as requested on OpenRISC mailing list.
-
-Since February this year I have been working on an OpenRISC clean room rewrite.
-
-  http://stffrdhrn.github.io/software/embedded/openrisc/2018/02/03/openrisc_gcc_rewrite.html
-
-As per the article, the old port had issues with some of the owners signing over
-FSF copyright.  To get around this I discussed options with the group and in the
-end I opted for a clean room rewrite.
-
-The new code base has been written by me with lots of help from Richard
-Henderson.  I trust that both of us have our FSF GCC copyright's in place.
-
-# Testing
-
-We have been running the GCC testsuite with newlib and musl libc.  The results
-are good.  See results published in a test build/release here:
-
- - https://github.com/stffrdhrn/gcc/releases/tag/or1k-9.0.0-20181106
-
-# Building
-
-To build this requires the latest binutils upstream master i.e. 2.31.52.  Also,
-due to removing need for `init` and `fini` it requires the latest changes on
-newlib master.
-
--Stafford
-
-Stafford Horne (3):
-  or1k: libgcc: initial support for openrisc
-  or1k: testsuite: initial support for openrisc
-  or1k: gcc: initial support for openrisc
-
- gcc/common/config/or1k/or1k-common.c          |   41 +
- gcc/config.gcc                                |   45 +
- gcc/config/or1k/constraints.md                |   55 +
- gcc/config/or1k/elf.h                         |   42 +
- gcc/config/or1k/elf.opt                       |   33 +
- gcc/config/or1k/linux.h                       |   45 +
- gcc/config/or1k/or1k-protos.h                 |   38 +
- gcc/config/or1k/or1k.c                        | 2183 +++++++++++++++++
- gcc/config/or1k/or1k.h                        |  392 +++
- gcc/config/or1k/or1k.md                       |  897 +++++++
- gcc/config/or1k/or1k.opt                      |   67 +
- gcc/config/or1k/predicates.md                 |   84 +
- gcc/config/or1k/rtems.h                       |   30 +
- gcc/config/or1k/t-or1k                        |   22 +
- gcc/config/or1k/t-rtems                       |    3 +
- gcc/configure                                 |   12 +
- gcc/configure.ac                              |   12 +
- gcc/doc/install.texi                          |   19 +
- gcc/doc/invoke.texi                           |   68 +
- gcc/doc/md.texi                               |   25 +
- .../gcc.c-torture/execute/20101011-1.c        |    3 +
- gcc/testsuite/gcc.dg/20020312-2.c             |    2 +
- gcc/testsuite/gcc.dg/attr-alloc_size-11.c     |    4 +-
- gcc/testsuite/gcc.dg/builtin-apply2.c         |    2 +-
- gcc/testsuite/gcc.dg/nop.h                    |    2 +
- .../torture/stackalign/builtin-apply-2.c      |    2 +-
- gcc/testsuite/gcc.dg/tree-ssa/20040204-1.c    |    2 +-
- gcc/testsuite/gcc.dg/tree-ssa/reassoc-33.c    |    2 +-
- gcc/testsuite/gcc.dg/tree-ssa/reassoc-34.c    |    2 +-
- gcc/testsuite/gcc.dg/tree-ssa/reassoc-35.c    |    2 +-
- gcc/testsuite/gcc.dg/tree-ssa/reassoc-36.c    |    2 +-
- gcc/testsuite/gcc.target/or1k/args-1.c        |   19 +
- gcc/testsuite/gcc.target/or1k/args-2.c        |   15 +
- gcc/testsuite/gcc.target/or1k/cmov-1.c        |    8 +
- gcc/testsuite/gcc.target/or1k/cmov-2.c        |    9 +
- gcc/testsuite/gcc.target/or1k/div-mul-1.c     |    9 +
- gcc/testsuite/gcc.target/or1k/div-mul-2.c     |    9 +
- gcc/testsuite/gcc.target/or1k/or1k.exp        |   41 +
- gcc/testsuite/gcc.target/or1k/return-1.c      |   10 +
- gcc/testsuite/gcc.target/or1k/return-2.c      |   19 +
- gcc/testsuite/gcc.target/or1k/return-3.c      |   19 +
- gcc/testsuite/gcc.target/or1k/return-4.c      |   19 +
- gcc/testsuite/gcc.target/or1k/ror-1.c         |    8 +
- gcc/testsuite/gcc.target/or1k/ror-2.c         |    9 +
- gcc/testsuite/gcc.target/or1k/ror-3.c         |    8 +
- gcc/testsuite/gcc.target/or1k/shftimm-1.c     |    8 +
- gcc/testsuite/gcc.target/or1k/shftimm-2.c     |    8 +
- gcc/testsuite/gcc.target/or1k/sibcall-1.c     |   18 +
- gcc/testsuite/lib/target-supports.exp         |    1 +
- libgcc/config.host                            |   12 +
- libgcc/config/or1k/lib1funcs.S                |  222 ++
- libgcc/config/or1k/linux-unwind.h             |   87 +
- libgcc/config/or1k/sfp-machine.h              |   54 +
- libgcc/config/or1k/t-or1k                     |   22 +
- 54 files changed, 4763 insertions(+), 9 deletions(-)
- create mode 100644 gcc/common/config/or1k/or1k-common.c
- create mode 100644 gcc/config/or1k/constraints.md
- create mode 100644 gcc/config/or1k/elf.h
- create mode 100644 gcc/config/or1k/elf.opt
- create mode 100644 gcc/config/or1k/linux.h
- create mode 100644 gcc/config/or1k/or1k-protos.h
- create mode 100644 gcc/config/or1k/or1k.c
- create mode 100644 gcc/config/or1k/or1k.h
- create mode 100644 gcc/config/or1k/or1k.md
- create mode 100644 gcc/config/or1k/or1k.opt
- create mode 100644 gcc/config/or1k/predicates.md
- create mode 100644 gcc/config/or1k/rtems.h
- create mode 100644 gcc/config/or1k/t-or1k
- create mode 100644 gcc/config/or1k/t-rtems
- create mode 100644 gcc/testsuite/gcc.target/or1k/args-1.c
- create mode 100644 gcc/testsuite/gcc.target/or1k/args-2.c
- create mode 100644 gcc/testsuite/gcc.target/or1k/cmov-1.c
- create mode 100644 gcc/testsuite/gcc.target/or1k/cmov-2.c
- create mode 100644 gcc/testsuite/gcc.target/or1k/div-mul-1.c
- create mode 100644 gcc/testsuite/gcc.target/or1k/div-mul-2.c
- create mode 100644 gcc/testsuite/gcc.target/or1k/or1k.exp
- create mode 100644 gcc/testsuite/gcc.target/or1k/return-1.c
- create mode 100644 gcc/testsuite/gcc.target/or1k/return-2.c
- create mode 100644 gcc/testsuite/gcc.target/or1k/return-3.c
- create mode 100644 gcc/testsuite/gcc.target/or1k/return-4.c
- create mode 100644 gcc/testsuite/gcc.target/or1k/ror-1.c
- create mode 100644 gcc/testsuite/gcc.target/or1k/ror-2.c
- create mode 100644 gcc/testsuite/gcc.target/or1k/ror-3.c
- create mode 100644 gcc/testsuite/gcc.target/or1k/shftimm-1.c
- create mode 100644 gcc/testsuite/gcc.target/or1k/shftimm-2.c
- create mode 100644 gcc/testsuite/gcc.target/or1k/sibcall-1.c
+	* config.host: Add OpenRISC support.
+	* config/or1k/*: New.
+---
+ libgcc/config.host                |  12 ++
+ libgcc/config/or1k/lib1funcs.S    | 222 ++++++++++++++++++++++++++++++
+ libgcc/config/or1k/linux-unwind.h |  87 ++++++++++++
+ libgcc/config/or1k/sfp-machine.h  |  54 ++++++++
+ libgcc/config/or1k/t-or1k         |  22 +++
+ 5 files changed, 397 insertions(+)
  create mode 100644 libgcc/config/or1k/lib1funcs.S
  create mode 100644 libgcc/config/or1k/linux-unwind.h
  create mode 100644 libgcc/config/or1k/sfp-machine.h
  create mode 100644 libgcc/config/or1k/t-or1k
 
+diff --git a/libgcc/config.host b/libgcc/config.host
+index 029f6569caf..1cbc8aca1cb 100644
+--- a/libgcc/config.host
++++ b/libgcc/config.host
+@@ -165,6 +165,9 @@ nds32*-*)
+ nios2*-*-*)
+ 	cpu_type=nios2
+ 	;;
++or1k*-*-*)
++	cpu_type=or1k
++	;;
+ powerpc*-*-*)
+ 	cpu_type=rs6000
+ 	;;
+@@ -1039,6 +1042,15 @@ nios2-*-*)
+ 	tmake_file="$tmake_file nios2/t-nios2 t-softfp-sfdf t-softfp-excl t-softfp"
+ 	extra_parts="$extra_parts crti.o crtn.o"
+ 	;;
++or1k-*-linux*)
++	tmake_file="$tmake_file or1k/t-or1k"
++	tmake_file="$tmake_file t-softfp-sfdf t-softfp"
++	md_unwind_header=or1k/linux-unwind.h
++	;;
++or1k-*-*)
++	tmake_file="$tmake_file or1k/t-or1k"
++	tmake_file="$tmake_file t-softfp-sfdf t-softfp"
++	;;
+ pdp11-*-*)
+ 	tmake_file="pdp11/t-pdp11 t-fdpbit"
+ 	;;
+diff --git a/libgcc/config/or1k/lib1funcs.S b/libgcc/config/or1k/lib1funcs.S
+new file mode 100644
+index 00000000000..0ec41c3eba1
+--- /dev/null
++++ b/libgcc/config/or1k/lib1funcs.S
+@@ -0,0 +1,222 @@
++/* Copyright (C) 2018 Free Software Foundation, Inc.
++
++This file is free software; you can redistribute it and/or modify it
++under the terms of the GNU General Public License as published by the
++Free Software Foundation; either version 3, or (at your option) any
++later version.
++
++This file is distributed in the hope that it will be useful, but
++WITHOUT ANY WARRANTY; without even the implied warranty of
++MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++General Public License for more details.
++
++Under Section 7 of GPL version 3, you are granted additional
++permissions described in the GCC Runtime Library Exception, version
++3.1, as published by the Free Software Foundation.
++
++You should have received a copy of the GNU General Public License and
++a copy of the GCC Runtime Library Exception along with this program;
++see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
++<http://www.gnu.org/licenses/>.  */
++
++
++#ifdef L__mulsi3
++	.balign 4
++	.globl	__mulsi3
++	.type	__mulsi3, @function
++__mulsi3:
++	l.movhi		r11, 0			/* initial r */
++
++	/* Given R = X * Y ... */
++1:	l.sfeq		r4, r0			/* while (y != 0) */
++	l.bf		2f
++	 l.andi		r5, r4, 1		/* if (y & 1) ... */
++	l.add		r12, r11, r3
++	l.sfne		r5, r0
++#if defined(__or1k_cmov__)
++	l.cmov		r11, r12, r11		/* ... r += x. */
++	l.srli		r4, r4, 1		/* y >>= 1 */
++#else
++	l.bnf		3f
++	 l.srli		r4, r4, 1		/* y >>= 1 */
++	l.ori		r11, r12, 0
++3:
++#endif
++	l.j		1b
++	 l.add		r3, r3, r3		/* x <<= 1 */
++
++2:	l.jr		r9
++	 l.nop
++
++	.size	__mulsi3, . - __mulsi3
++#endif
++
++#if defined(L__udivsi3) || defined(L__umodsi3) \
++    || defined(L__divsi3) || defined(L__modsi3)
++	.global	__udivmodsi3_internal
++	.hidden	__udivmodsi3_internal
++	.type	__udivmodsi3_internal, @function
++#endif
++
++#ifdef L__udivsi3
++	.balign	4
++	.global	__udivsi3
++	.type	__udivsi3, @function
++__udivsi3:
++__udivmodsi3_internal:
++	/* Note that the other division routines assume that r13
++	   is not clobbered by this routine, and use that as to
++	   save a return address without creating a stack frame.  */
++
++	l.sfeqi		r4, 0		/* division by zero; return 0.  */
++	l.ori		r11, r0, 0	/* initial quotient */
++	l.bf		9f
++	 l.ori		r12, r3, 0	/* initial remainder */
++
++	/* Given X/Y, shift Y left until Y >= X.  */
++	l.ori		r6, r0, 1	/* mask = 1 */
++1:	l.sfltsi	r4, 0		/* y has msb set */
++	l.bf		2f
++	 l.sfltu	r4, r12		/* y < x */
++	l.add		r4, r4, r4	/* y <<= 1 */
++	l.bnf		1b
++	 l.add		r6, r6, r6	/* mask <<= 1 */
++
++	/* Shift Y back to the right again, subtracting from X.  */
++2:	l.add		r7, r11, r6	/* tmp1 = quot + mask */
++3:	l.srli		r6, r6, 1	/* mask >>= 1 */
++	l.sub		r8, r12, r4	/* tmp2 = x - y */
++	l.sfleu		r4, r12		/* y <= x */
++	l.srli		r4, r4, 1	/* y >>= 1 */
++#if defined(__or1k_cmov__)
++	l.cmov		r11, r7, r11	/* if (y <= x) quot = tmp1 */
++	l.cmov		r12, r8, r12	/* if (y <= x) x = tmp2 */
++#else
++	l.bnf		4f
++	 l.nop
++	l.ori		r11, r7, 0
++	l.ori		r12, r8, 0
++4:
++#endif
++	l.sfne		r6, r0		/* loop until mask == 0 */
++	l.bf		3b
++	 l.add		r7, r11, r6	/* delay fill from loop start */
++
++9:	l.jr		r9
++	 l.nop
++
++	.size	__udivsi3, . - __udivsi3
++	.size	__udivmodsi3_internal, . - __udivmodsi3_internal
++#endif
++
++#ifdef L__umodsi3
++	.balign	4
++	.global	__umodsi3
++	.type	__umodsi3, @function
++	.cfi_startproc
++__umodsi3:
++	/* Know that __udivmodsi3_internal does not clobber r13.  */
++	l.ori		r13, r9, 0
++	.cfi_register	9, 13
++	l.jal		__udivmodsi3_internal
++	 l.nop
++	l.jr		r13		/* return to saved lr */
++	 l.ori		r11, r12, 0	/* move remainder to rv */
++
++	.cfi_endproc
++	.size	__umodsi3, . - __umodsi3
++#endif
++
++/* For signed division we do:
++
++     -x / y = x / -y = -(x / y)
++     -x % y = -(x % y)
++      x % -y = x % y
++
++   which has the property that (x/y)*y + (x%y) = x.  */
++
++#ifdef L__divsi3
++	.balign	4
++	.global	__divsi3
++	.type	__divsi3, @function
++	.cfi_startproc
++__divsi3:
++	l.xor		r6, r3, r4	/* need result negate?  */
++
++	l.sflts		r3, r0		/* abs(x) */
++#if defined(__or1k_cmov__)
++	l.sub		r5, r0, r3
++	l.cmov		r3, r5, r3
++#else
++	l.bnf		1f
++	 l.sub		r5, r0, r3
++	l.ori		r3, r5, 0
++1:
++#endif
++	l.sflts		r4, r0		/* abs(y) */
++#if defined(__or1k_cmov__)
++	l.sub		r5, r0, r4
++	l.cmov		r4, r5, r4
++#else
++	l.bnf		2f
++	 l.sub		r5, r0, r4
++	l.ori		r4, r5, 0
++2:
++#endif
++
++	/* If the result will not require sign flip, tail call.  */
++	l.sflts		r6, r0
++	l.bnf		__udivmodsi3_internal
++	 l.ori		r13, r9, 0	/* save lr */
++
++	/* Otherwise, know that __udivmodsi3_internal does not clobber r13.
++	   Perform a normal call, then negate and return via saved lr.  */
++	.cfi_register	9, 13
++	l.jal		__udivmodsi3_internal
++	 l.nop
++	l.jr		r13
++	 l.sub		r11, r0, r11
++
++	.cfi_endproc
++	.size	__divsi3, . - __divsi3
++#endif
++
++#ifdef L__modsi3
++	.balign	4
++	.global	__modsi3
++	.type	__modsi3, @function
++	.cfi_startproc
++__modsi3:
++	l.sflts		r4, r0		/* abs(y) */
++#if defined(__or1k_cmov__)
++	l.sub		r5, r0, r4
++	l.cmov		r4, r5, r4
++#else
++	l.bnf		2f
++	 l.sub		r5, r0, r4
++	l.ori		r4, r5, 0
++2:
++#endif
++
++	l.sflts		r3, r0		/* x negative? */
++	l.bf		1f
++	 l.ori		r13, r9, 0	/* save lr */
++
++	/* Know that __udivmodsi3_internal does not clobber r13.  */
++	.cfi_register	9, 13
++
++	/* X positive; no negate of the result required.  */
++	l.jal		__udivmodsi3_internal
++	 l.nop
++	l.jr		r13		/* return to saved lr */
++	 l.ori		r11, r12, 0	/* move remainder to rv */
++
++	/* X negative; negate both X and the result.  */
++1:	l.jal		__udivmodsi3_internal
++	 l.sub		r3, r0, r3
++	l.jr		r13		/* return to saved lr */
++	 l.sub		r11, r0, r12	/* negate remainder to rv */
++
++	.cfi_endproc
++	.size __modsi3, .- __modsi3
++#endif
+diff --git a/libgcc/config/or1k/linux-unwind.h b/libgcc/config/or1k/linux-unwind.h
+new file mode 100644
+index 00000000000..e80e9e0f309
+--- /dev/null
++++ b/libgcc/config/or1k/linux-unwind.h
+@@ -0,0 +1,87 @@
++/* DWARF2 EH unwinding support for OpenRISC Linux.
++   Copyright (C) 2018 Free Software Foundation, Inc.
++
++This file is part of GCC.
++
++GCC is free software; you can redistribute it and/or modify
++it under the terms of the GNU General Public License as published by
++the Free Software Foundation; either version 3, or (at your option)
++any later version.
++
++GCC is distributed in the hope that it will be useful,
++but WITHOUT ANY WARRANTY; without even the implied warranty of
++MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++GNU General Public License for more details.
++
++Under Section 7 of GPL version 3, you are granted additional
++permissions described in the GCC Runtime Library Exception, version
++3.1, as published by the Free Software Foundation.
++
++You should have received a copy of the GNU General Public License and
++a copy of the GCC Runtime Library Exception along with this program;
++see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
++<http://www.gnu.org/licenses/>.  */
++
++#ifndef inhibit_libc
++/* Do code reading to identify a signal frame, and set the frame
++   state data appropriately.  See unwind-dw2.c for the structs.  */
++
++#include <signal.h>
++#include <sys/ucontext.h>
++
++#define MD_FALLBACK_FRAME_STATE_FOR or1k_fallback_frame_state
++
++static _Unwind_Reason_Code
++or1k_fallback_frame_state (struct _Unwind_Context *context,
++			   _Unwind_FrameState *fs)
++{
++  unsigned int *pc = context->ra;
++  struct rt_sigframe {
++    siginfo_t info;
++    ucontext_t uc;
++  } *rt;
++  struct sigcontext *sc;
++  long new_cfa;
++  int i;
++
++  if (pc[0] != 0xa960008b		/* l.ori r11, r0, NR_rt_sigreturn */
++      || pc[1] != 0x20000001)		/* l.sys 1 */
++    return _URC_END_OF_STACK;
++  if (context->cfa == 0)
++    return _URC_END_OF_STACK;
++
++  rt = context->cfa;
++  sc = &rt->uc.uc_mcontext;
++
++  new_cfa = sc->regs.gpr[1];
++  fs->regs.cfa_how = CFA_REG_OFFSET;
++  fs->regs.cfa_reg = 1;
++  fs->regs.cfa_offset = new_cfa - (long) context->cfa;
++  for (i = 2; i < 32; ++i)
++    {
++      fs->regs.reg[i].how = REG_SAVED_OFFSET;
++      fs->regs.reg[i].loc.offset = (long) &sc->regs.gpr[i] - new_cfa;
++    }
++  fs->regs.reg[32].how = REG_SAVED_OFFSET;
++  fs->regs.reg[32].loc.offset = (long)&sc->regs.pc - new_cfa;
++  fs->retaddr_column = 32;
++  fs->signal_frame = 1;
++
++  return _URC_NO_REASON;
++}
++
++#define MD_FROB_UPDATE_CONTEXT or1k_frob_update_context
++
++/* Fix up for signal handlers that don't have S flag set.  */
++
++static void
++or1k_frob_update_context (struct _Unwind_Context *context,
++			   _Unwind_FrameState *fs ATTRIBUTE_UNUSED)
++{
++  unsigned int *pc = context->ra;
++
++  if (pc[0] == 0xa960008b		/* l.ori r11, r0, NR_rt_sigreturn */
++      && pc[1] == 0x20000001)		/* l.sys 1 */
++    _Unwind_SetSignalFrame (context, 1);
++}
++#endif
+diff --git a/libgcc/config/or1k/sfp-machine.h b/libgcc/config/or1k/sfp-machine.h
+new file mode 100644
+index 00000000000..5da9e84990d
+--- /dev/null
++++ b/libgcc/config/or1k/sfp-machine.h
+@@ -0,0 +1,54 @@
++#define _FP_W_TYPE_SIZE		32
++#define _FP_W_TYPE		unsigned long
++#define _FP_WS_TYPE		signed long
++#define _FP_I_TYPE		long
++
++#define _FP_MUL_MEAT_S(R,X,Y)				\
++  _FP_MUL_MEAT_1_wide(_FP_WFRACBITS_S,R,X,Y,umul_ppmm)
++#define _FP_MUL_MEAT_D(R,X,Y)				\
++  _FP_MUL_MEAT_2_wide(_FP_WFRACBITS_D,R,X,Y,umul_ppmm)
++#define _FP_MUL_MEAT_Q(R,X,Y)				\
++  _FP_MUL_MEAT_4_wide(_FP_WFRACBITS_Q,R,X,Y,umul_ppmm)
++
++#define _FP_DIV_MEAT_S(R,X,Y)	_FP_DIV_MEAT_1_loop(S,R,X,Y)
++#define _FP_DIV_MEAT_D(R,X,Y)	_FP_DIV_MEAT_2_udiv(D,R,X,Y)
++#define _FP_DIV_MEAT_Q(R,X,Y)	_FP_DIV_MEAT_4_udiv(Q,R,X,Y)
++
++#define _FP_NANFRAC_S		((_FP_QNANBIT_S << 1) - 1)
++#define _FP_NANFRAC_D		((_FP_QNANBIT_D << 1) - 1), -1
++#define _FP_NANFRAC_Q		((_FP_QNANBIT_Q << 1) - 1), -1, -1, -1
++#define _FP_NANSIGN_S		0
++#define _FP_NANSIGN_D		0
++#define _FP_NANSIGN_Q		0
++
++#define _FP_KEEPNANFRACP 1
++#define _FP_QNANNEGATEDP 0
++
++/* Someone please check this.  */
++#define _FP_CHOOSENAN(fs, wc, R, X, Y, OP)			\
++  do {								\
++    if ((_FP_FRAC_HIGH_RAW_##fs(X) & _FP_QNANBIT_##fs)		\
++	&& !(_FP_FRAC_HIGH_RAW_##fs(Y) & _FP_QNANBIT_##fs))	\
++      {								\
++	R##_s = Y##_s;						\
++	_FP_FRAC_COPY_##wc(R,Y);				\
++      }								\
++    else							\
++      {								\
++	R##_s = X##_s;						\
++	_FP_FRAC_COPY_##wc(R,X);				\
++      }								\
++    R##_c = FP_CLS_NAN;						\
++  } while (0)
++
++#define	__LITTLE_ENDIAN	1234
++#define	__BIG_ENDIAN	4321
++
++#define __BYTE_ORDER __BIG_ENDIAN
++
++#define _FP_TININESS_AFTER_ROUNDING 0
++
++/* Define ALIASNAME as a strong alias for NAME.  */
++# define strong_alias(name, aliasname) _strong_alias(name, aliasname)
++# define _strong_alias(name, aliasname) \
++  extern __typeof (name) aliasname __attribute__ ((alias (#name)));
+diff --git a/libgcc/config/or1k/t-or1k b/libgcc/config/or1k/t-or1k
+new file mode 100644
+index 00000000000..73a703ac58d
+--- /dev/null
++++ b/libgcc/config/or1k/t-or1k
+@@ -0,0 +1,22 @@
++# Libgcc Makefile fragment for OpenRISC
++# Copyright (C) 2018 Free Software Foundation, Inc.
++# Contributed by Stafford Horne.
++#
++# This file is part of GCC.
++#
++# GCC is free software; you can redistribute it and/or modify it
++# under the terms of the GNU General Public License as published
++# by the Free Software Foundation; either version 3, or (at your
++# option) any later version.
++#
++# GCC is distributed in the hope that it will be useful, but WITHOUT
++# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
++# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
++# License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with GCC; see the file COPYING3.  If not see
++# <http://www.gnu.org/licenses/>.
++
++LIB1ASMSRC = or1k/lib1funcs.S
++LIB1ASMFUNCS = __mulsi3 __udivsi3 __divsi3 __umodsi3 __modsi3
 -- 
 2.17.2
 
