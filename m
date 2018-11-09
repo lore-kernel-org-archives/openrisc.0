@@ -1,102 +1,126 @@
 From: Adam Borowski <kilobyte@angband.pl>
-Date: Fri,  9 Nov 2018 20:02:51 +0100
-Subject: [OpenRISC] [PATCH 04/17] x86: Remove support for BZIP2 and LZMA
+Date: Fri,  9 Nov 2018 20:02:55 +0100
+Subject: [OpenRISC] [PATCH 08/17] sh: Remove support for BZIP2 and LZMA
 	compressed kernel
 In-Reply-To: <20181109190304.8573-1-kilobyte@angband.pl>
 References: <20181109185953.xwyelyqnygbskkxk@angband.pl>
  <20181109190304.8573-1-kilobyte@angband.pl>
-Message-ID: <20181109190304.8573-4-kilobyte@angband.pl>
+Message-ID: <20181109190304.8573-8-kilobyte@angband.pl>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-While bzip2 used to be good in its heyday, it's been drastically eclipsed
-by newer algorithms.  In no case it's a rational choice anymore -- at any
-point of the size-to-compression curve, there's something much better.
-As we control the build process, any .configs that still select it will
-harmlessly be adjusted, thus there's no risk of breakage.
-
-Bare lzma is redundant with xz, lacks some improvements, and uses its own
-copy of code instead using the common library.
+Made redundant by newer choices.
 
 Signed-off-by: Adam Borowski <kilobyte@angband.pl>
 ---
- Documentation/x86/boot.txt        | 11 +++++------
- arch/x86/Kconfig                  |  2 --
- arch/x86/boot/compressed/Makefile | 12 +++---------
- arch/x86/boot/compressed/misc.c   |  8 --------
- arch/x86/include/asm/boot.h       |  4 +---
- 5 files changed, 9 insertions(+), 28 deletions(-)
+ arch/sh/Kconfig                  |  2 --
+ arch/sh/Makefile                 |  4 +---
+ arch/sh/boot/Makefile            | 19 ++-----------------
+ arch/sh/boot/compressed/Makefile |  5 -----
+ arch/sh/boot/compressed/misc.c   | 12 ------------
+ 5 files changed, 3 insertions(+), 39 deletions(-)
 
-diff --git a/Documentation/x86/boot.txt b/Documentation/x86/boot.txt
-index a47b6bae3356..fbd9720989e5 100644
---- a/Documentation/x86/boot.txt
-+++ b/Documentation/x86/boot.txt
-@@ -682,12 +682,11 @@ Protocol:	2.08+
-   of the protected-mode code to the payload.
- 
-   The payload may be compressed. The format of both the compressed and
--  uncompressed data should be determined using the standard magic
--  numbers.  The currently supported compression formats are gzip
--  (magic numbers 1F 8B or 1F 9E), bzip2 (magic number 42 5A), LZMA
--  (magic number 5D 00), XZ (magic number FD 37), LZ4 (magic number
--  02 21) and ZSTD (magic number 28 B5). The uncompressed payload is
--  currently always ELF (magic number 7F 45 4C 46).
-+  uncompressed data should be determined using the standard magic numbers.
-+  The currently supported compression formats are gzip (magic numbers 1F 8B
-+  or 1F 9E), XZ (magic number FD 37), LZ4 (magic number 02 21) and ZSTD
-+  (magic number 28 B5). The uncompressed payload is currently always ELF
-+  (magic number 7F 45 4C 46).
- 
- Field name:	payload_length
- Type:		read
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 203f7467f5c4..a47af31bbc62 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -158,10 +158,8 @@ config X86
- 	select HAVE_IOREMAP_PROT
- 	select HAVE_IRQ_EXIT_ON_IRQ_STACK	if X86_64
- 	select HAVE_IRQ_TIME_ACCOUNTING
--	select HAVE_KERNEL_BZIP2
+diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
+index f82a4da7adf3..fbb2e17275d1 100644
+--- a/arch/sh/Kconfig
++++ b/arch/sh/Kconfig
+@@ -23,8 +23,6 @@ config SUPERH
+ 	select HAVE_DEBUG_KMEMLEAK
  	select HAVE_KERNEL_GZIP
- 	select HAVE_KERNEL_LZ4
+ 	select CPU_NO_EFFICIENT_FFS
+-	select HAVE_KERNEL_BZIP2
 -	select HAVE_KERNEL_LZMA
- 	select HAVE_KERNEL_LZO
  	select HAVE_KERNEL_XZ
- 	select HAVE_KERNEL_ZSTD
-diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-index 6d2a8d2d378d..763aeb850658 100644
---- a/arch/x86/boot/compressed/Makefile
-+++ b/arch/x86/boot/compressed/Makefile
-@@ -7,13 +7,13 @@
- # vmlinuz is:
- #	decompression code (*.o)
- #	asm globals (piggy.S), including:
--#		vmlinux.bin.(gz|bz2|lzma|...)
-+#		vmlinux.bin.(gz|zst|xz|...)
+ 	select HAVE_KERNEL_LZO
+ 	select HAVE_UID16
+diff --git a/arch/sh/Makefile b/arch/sh/Makefile
+index c521ade2557c..70925d0cd2a8 100644
+--- a/arch/sh/Makefile
++++ b/arch/sh/Makefile
+@@ -209,7 +209,7 @@ endif
+ libs-$(CONFIG_SUPERH32)		:= arch/sh/lib/	$(libs-y)
+ libs-$(CONFIG_SUPERH64)		:= arch/sh/lib64/ $(libs-y)
+ 
+-BOOT_TARGETS = uImage uImage.bz2 uImage.gz uImage.lzma uImage.xz uImage.lzo \
++BOOT_TARGETS = uImage uImage.bz2 uImage.gz uImage.xz uImage.lzo \
+ 	       uImage.srec uImage.bin zImage vmlinux.bin vmlinux.srec \
+ 	       romImage
+ PHONY += $(BOOT_TARGETS)
+@@ -237,8 +237,6 @@ define archhelp
+ 	@echo '  uImage.srec	           - Create an S-record for U-Boot'
+ 	@echo '  uImage.bin	           - Kernel-only image for U-Boot (bin)'
+ 	@echo '* uImage.gz	           - Kernel-only image for U-Boot (gzip)'
+-	@echo '  uImage.bz2	           - Kernel-only image for U-Boot (bzip2)'
+-	@echo '  uImage.lzma	           - Kernel-only image for U-Boot (lzma)'
+ 	@echo '  uImage.xz	           - Kernel-only image for U-Boot (xz)'
+ 	@echo '  uImage.lzo	           - Kernel-only image for U-Boot (lzo)'
+ endef
+diff --git a/arch/sh/boot/Makefile b/arch/sh/boot/Makefile
+index 58592dfa5cb6..bf8cf598a5ab 100644
+--- a/arch/sh/boot/Makefile
++++ b/arch/sh/boot/Makefile
+@@ -21,15 +21,12 @@ CONFIG_PHYSICAL_START	?= $(CONFIG_MEMORY_START)
+ 
+ suffix-y := bin
+ suffix-$(CONFIG_KERNEL_GZIP)	:= gz
+-suffix-$(CONFIG_KERNEL_BZIP2)	:= bz2
+-suffix-$(CONFIG_KERNEL_LZMA)	:= lzma
+ suffix-$(CONFIG_KERNEL_XZ)	:= xz
+ suffix-$(CONFIG_KERNEL_LZO)	:= lzo
+ 
+ targets := zImage vmlinux.srec romImage uImage uImage.srec uImage.gz \
+-	   uImage.bz2 uImage.lzma uImage.xz uImage.lzo uImage.bin
+-extra-y += vmlinux.bin vmlinux.bin.gz vmlinux.bin.bz2 vmlinux.bin.lzma \
+-	   vmlinux.bin.xz vmlinux.bin.lzo
++	   uImage.xz uImage.lzo uImage.bin
++extra-y += vmlinux.bin vmlinux.bin.gz vmlinux.bin.xz vmlinux.bin.lzo
+ subdir- := compressed romimage
+ 
+ $(obj)/zImage: $(obj)/compressed/vmlinux FORCE
+@@ -68,27 +65,15 @@ $(obj)/vmlinux.bin: vmlinux FORCE
+ $(obj)/vmlinux.bin.gz: $(obj)/vmlinux.bin FORCE
+ 	$(call if_changed,gzip)
+ 
+-$(obj)/vmlinux.bin.bz2: $(obj)/vmlinux.bin FORCE
+-	$(call if_changed,bzip2)
+-
+-$(obj)/vmlinux.bin.lzma: $(obj)/vmlinux.bin FORCE
+-	$(call if_changed,lzma)
+-
+ $(obj)/vmlinux.bin.xz: $(obj)/vmlinux.bin FORCE
+ 	$(call if_changed,xzkern)
+ 
+ $(obj)/vmlinux.bin.lzo: $(obj)/vmlinux.bin FORCE
+ 	$(call if_changed,lzo)
+ 
+-$(obj)/uImage.bz2: $(obj)/vmlinux.bin.bz2
+-	$(call if_changed,uimage,bzip2)
+-
+ $(obj)/uImage.gz: $(obj)/vmlinux.bin.gz
+ 	$(call if_changed,uimage,gzip)
+ 
+-$(obj)/uImage.lzma: $(obj)/vmlinux.bin.lzma
+-	$(call if_changed,uimage,lzma)
+-
+ $(obj)/uImage.xz: $(obj)/vmlinux.bin.xz
+ 	$(call if_changed,uimage,xz)
+ 
+diff --git a/arch/sh/boot/compressed/Makefile b/arch/sh/boot/compressed/Makefile
+index f5e1bd779789..abd33fd0d525 100644
+--- a/arch/sh/boot/compressed/Makefile
++++ b/arch/sh/boot/compressed/Makefile
+@@ -6,7 +6,6 @@
  #
- # vmlinux.bin is:
- #	vmlinux stripped of debugging and comments
- # vmlinux.bin.all is:
- #	vmlinux.bin + vmlinux.relocs
--# vmlinux.bin.(gz|bz2|lzma|...) is:
-+# vmlinux.bin.(gz|zst|xz|...) is:
- #	(see scripts/Makefile.lib size_append)
- #	compressed vmlinux.bin.all + u32 size of vmlinux.bin.all
  
-@@ -23,7 +23,7 @@ OBJECT_FILES_NON_STANDARD	:= y
- # Prevents link failures: __sanitizer_cov_trace_pc() is not linked in.
- KCOV_INSTRUMENT		:= n
+ targets		:= vmlinux vmlinux.bin vmlinux.bin.gz \
+-		   vmlinux.bin.bz2 vmlinux.bin.lzma \
+ 		   vmlinux.bin.xz vmlinux.bin.lzo \
+ 		   head_$(BITS).o misc.o piggy.o
  
--targets := vmlinux vmlinux.bin vmlinux.bin.gz vmlinux.bin.bz2 vmlinux.bin.lzma \
-+targets := vmlinux vmlinux.bin vmlinux.bin.gz \
- 	vmlinux.bin.xz vmlinux.bin.lzo vmlinux.bin.lz4 vmlinux.bin.zst
- 
- KBUILD_CFLAGS := -m$(BITS) -O2
-@@ -132,10 +132,6 @@ vmlinux.bin.all-$(CONFIG_X86_NEED_RELOCS) += $(obj)/vmlinux.relocs
+@@ -64,10 +63,6 @@ vmlinux.bin.all-y := $(obj)/vmlinux.bin
  
  $(obj)/vmlinux.bin.gz: $(vmlinux.bin.all-y) FORCE
  	$(call if_changed,gzip)
@@ -107,20 +131,21 @@ index 6d2a8d2d378d..763aeb850658 100644
  $(obj)/vmlinux.bin.xz: $(vmlinux.bin.all-y) FORCE
  	$(call if_changed,xzkern)
  $(obj)/vmlinux.bin.lzo: $(vmlinux.bin.all-y) FORCE
-@@ -146,8 +142,6 @@ $(obj)/vmlinux.bin.zst: $(vmlinux.bin.all-y) FORCE
- 	$(call if_changed,zstd)
+diff --git a/arch/sh/boot/compressed/misc.c b/arch/sh/boot/compressed/misc.c
+index c15cac9251b9..c82402add51e 100644
+--- a/arch/sh/boot/compressed/misc.c
++++ b/arch/sh/boot/compressed/misc.c
+@@ -44,24 +44,12 @@ extern int _end;
+ static unsigned long free_mem_ptr;
+ static unsigned long free_mem_end_ptr;
  
- suffix-$(CONFIG_KERNEL_GZIP)	:= gz
--suffix-$(CONFIG_KERNEL_BZIP2)	:= bz2
--suffix-$(CONFIG_KERNEL_LZMA)	:= lzma
- suffix-$(CONFIG_KERNEL_XZ)	:= xz
- suffix-$(CONFIG_KERNEL_LZO) 	:= lzo
- suffix-$(CONFIG_KERNEL_LZ4) 	:= lz4
-diff --git a/arch/x86/boot/compressed/misc.c b/arch/x86/boot/compressed/misc.c
-index b6c8921100fb..c0d75b74f199 100644
---- a/arch/x86/boot/compressed/misc.c
-+++ b/arch/x86/boot/compressed/misc.c
-@@ -57,14 +57,6 @@ static int lines, cols;
+-#ifdef CONFIG_HAVE_KERNEL_BZIP2
+-#define HEAP_SIZE	0x400000
+-#else
+ #define HEAP_SIZE	0x10000
+-#endif
+ 
+ #ifdef CONFIG_KERNEL_GZIP
  #include "../../../../lib/decompress_inflate.c"
  #endif
  
@@ -135,21 +160,6 @@ index b6c8921100fb..c0d75b74f199 100644
  #ifdef CONFIG_KERNEL_XZ
  #include "../../../../lib/decompress_unxz.c"
  #endif
-diff --git a/arch/x86/include/asm/boot.h b/arch/x86/include/asm/boot.h
-index d6dd43d25d9f..afbf3d60f22e 100644
---- a/arch/x86/include/asm/boot.h
-+++ b/arch/x86/include/asm/boot.h
-@@ -24,9 +24,7 @@
- # error "Invalid value for CONFIG_PHYSICAL_ALIGN"
- #endif
- 
--#if defined(CONFIG_KERNEL_BZIP2)
--# define BOOT_HEAP_SIZE		0x400000
--#elif defined(CONFIG_KERNEL_ZSTD)
-+#if defined(CONFIG_KERNEL_ZSTD)
- # define BOOT_HEAP_SIZE		 0x30000
- #else
- # define BOOT_HEAP_SIZE		 0x10000
 -- 
 2.19.1
 
