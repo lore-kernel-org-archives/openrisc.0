@@ -1,41 +1,28 @@
-From: Richard Henderson <rth@twiddle.net>
-Date: Wed, 7 Nov 2018 09:41:34 +0000
-Subject: [OpenRISC] [PATCH v4 0/3] OpenRISC port
-In-Reply-To: <20181106212111.31800-1-shorne@gmail.com>
-References: <20181106212111.31800-1-shorne@gmail.com>
-Message-ID: <c2b12f7b-c4d9-36fc-6eae-efbf42383d7f@twiddle.net>
+From: Stafford Horne <shorne@gmail.com>
+Date: Sat, 10 Nov 2018 05:54:57 +0900
+Subject: [OpenRISC] OpenRISC GCC port upstream for 9.0.0
+Message-ID: <CAAfxs76_eFyUa35J6JsFY3Kk9Skdy-en6X+-b_x3TFSdDe=2Qg@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="windows-1250"
+Content-Transfer-Encoding: base64
 To: openrisc@lists.librecores.org
 
-On 11/6/18 9:21 PM, Stafford Horne wrote:
-> As you can see this is v4 of the OpenRISC port patch series, I just want to
-> mention that there are a few things pointed out during the v3 review that I have
-> not fixed, and do not plan before pushing upstream.  These are either because I
-> didn't feel they made the code easier to read or they were things that could
-> wait unil after upstreaming.  These include:
-> 
-> (not changed)
->  - libgcc !cmov 1cyc improvements suggested by Richard
->  - gcc eliminations refactorings suggested by Segher
->  - leaving out empty constraint strings suggested by Segher
->  - implementing TARGET_ISNS_COST suggested by Segher
-> 
-> Please let me know if you have concerns; now onto the patches:
-> 
-> 
-> Changes Since v3:
->  - Fix tabs formatting pointed out by Segher
->  - Fix comment formatting and typos pointed out by Segher
->  - Fix for sign/zero extention login in md file from Richard
->  - Remove usages of ATTRIBUTE_UNUSED suggested by Segher
->  - Remove need for init/fini, removing crti/n.S files
->  - Add support for -static-pie in LINK_SPEC suggsted by Szabolcs
-
-All ok.  I agree that the other improvements you detail above can be handled
-via normal development.
-
-
-r~
+SGkgQWxsLAoKSSBoYXZlIGp1c3QgcHVibGlzaGVkIHRoaXMgb250byBvcGVucmlzYy5pbzoKaHR0
+cHM6Ly9vcGVucmlzYy5pby8yMDE4LzExLzA5L2djY3Vwc3RyZWFtCgpXZSBhcmUgcHJvdWQgdG8g
+YW5ub3VuY2UgdGhhdCB0aGUgT3BlblJJU0MgcG9ydCBmb3IgZ2NjIGhhcyBiZWVuCmNvbW1pdHRl
+ZCB0byB1cHN0cmVhbS4KCk1haW5saW5lIE9wZW5SSVNDIHN1cHBvcnQgd2lsbCBiZSBhdmFpbGFi
+bGUgaW4gdGhlIHVwY29taW5nIDkuMC4wCnJlbGVhc2Ugb2YgR0NDLgoKTm90ZSwgdGhpcyBoYXMg
+YmVlbiBhIGNsZWFuIHJvb20gcmV3cml0ZSBvZiB0aGUgT3BlblJJU0MgZ2NjIHBvcnQuIFRoZQpv
+bGQgcG9ydCBjYW4gc3RpbGwgYmUgZm91bmQgaW4gdGhlIE9wZW5SSVNDIGdpdGh1YiByZXBvLiBQ
+cmUtcmVsZWFzZQp0b29sY2hhaW4gYmluYXJpZXMgZm9yIHRoZSBuZXcgdG9vbGNoYWluIGNhbiBi
+ZSBmb3VuZCBvbiBTdGFmZm9yZOKAmXMKZ2l0aHViIHJlbGVhc2VzIHBhZ2UuCgpUaGVyZSBhcmUg
+YSBmZXcgdGhpbmdzIHN0aWxsIG5vdCBzdXBwb3J0ZWQgaW4gdGhpcyBuZXcgcG9ydCB3aGljaCB3
+ZXJlCmF2YWlsYWJsZSB0aGUgcHJldmlvdXMgcG9ydC4gVGhlIGN1cnJlbnQgdXBzdHJlYW0gT3Bl
+blJJU0MgR0NDIGRvZXMKbm90IGhhdmUgc3VwcG9ydCBmb3I6CgogIC0gb3Ixa25kIChOby1icmFu
+Y2ggZGVsYXkpIHRhcmdldHMKICAtIGhhcmR3YXJlIEZQVSAoZmxvYXRpbmcgcG9pbnQgdW5pdCkK
+CklmIHlvdSBoYXZlIGFueSByZXF1ZXN0cyBvZiB3b3VsZCBsaWtlIHRvIGhlbHAgb3V0IHBsZWFz
+ZSBjb250YWN0IHVzCm9uIHRoZSBtYWlsaW5nIGxpc3QuCgotU3RhZmZvcmQKClAuUy4KClRPRE8g
+bGlzdCBmb3IgT3BlblJJU0MgdG9vbGNoYWluCiAgLSBBZGQgc3VwcG9ydCBmb3IgbmV3IGwuYWRy
+cCBpbnN0cnVjdGlvbiB0byBzcGVjLCBnY2MgYW5kIG1vcjFreAogIC0gQWRkIEdDQyBGUFUgc3Vw
+cG9ydAogIC0gQWRkIEdEQiB1bmRlciBMaW51eCBzdXBwb3J0Cg==
