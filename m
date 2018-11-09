@@ -1,98 +1,106 @@
 From: Adam Borowski <kilobyte@angband.pl>
-Date: Fri,  9 Nov 2018 20:02:54 +0100
-Subject: [OpenRISC] [PATCH 07/17] s390: Remove support for BZIP2 and LZMA
-	compressed kernel
+Date: Fri,  9 Nov 2018 20:02:59 +0100
+Subject: [OpenRISC] [PATCH 12/17] Kconfig: Remove support for
+	LZMA-compressed initrd
 In-Reply-To: <20181109190304.8573-1-kilobyte@angband.pl>
 References: <20181109185953.xwyelyqnygbskkxk@angband.pl>
  <20181109190304.8573-1-kilobyte@angband.pl>
-Message-ID: <20181109190304.8573-7-kilobyte@angband.pl>
+Message-ID: <20181109190304.8573-12-kilobyte@angband.pl>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Made redundant by newer choices.
+Obsoleted by XZ.
+
+The config option for compressing the kernel stays, as some archs have a
+bootloader outside the kernel that wants LZMA.
 
 Signed-off-by: Adam Borowski <kilobyte@angband.pl>
 ---
- arch/s390/Kconfig                        | 2 --
- arch/s390/boot/compressed/Makefile       | 8 +-------
- arch/s390/boot/compressed/decompressor.c | 8 --------
- 3 files changed, 1 insertion(+), 17 deletions(-)
+ Makefile    |  1 -
+ usr/Kconfig | 28 ++--------------------------
+ 2 files changed, 2 insertions(+), 27 deletions(-)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 5173366af8f3..96adb6127246 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -150,10 +150,8 @@ config S390
- 	select HAVE_FUNCTION_TRACER
- 	select HAVE_FUTEX_CMPXCHG if FUTEX
- 	select HAVE_GCC_PLUGINS
--	select HAVE_KERNEL_BZIP2
- 	select HAVE_KERNEL_GZIP
- 	select HAVE_KERNEL_LZ4
--	select HAVE_KERNEL_LZMA
- 	select HAVE_KERNEL_LZO
- 	select HAVE_KERNEL_UNCOMPRESSED
- 	select HAVE_KERNEL_XZ
-diff --git a/arch/s390/boot/compressed/Makefile b/arch/s390/boot/compressed/Makefile
-index 593039620487..ddd9d44fb7a8 100644
---- a/arch/s390/boot/compressed/Makefile
-+++ b/arch/s390/boot/compressed/Makefile
-@@ -11,7 +11,7 @@ UBSAN_SANITIZE := n
- KASAN_SANITIZE := n
+diff --git a/Makefile b/Makefile
+index c812467bfe11..97e4bf26a6d3 100644
+--- a/Makefile
++++ b/Makefile
+@@ -938,7 +938,6 @@ export mod_compress_cmd
+ # This shall be used by the dracut(8) tool while creating an initramfs image.
+ #
+ INITRD_COMPRESS-y                  := gzip
+-INITRD_COMPRESS-$(CONFIG_RD_LZMA)  := lzma
+ INITRD_COMPRESS-$(CONFIG_RD_XZ)    := xz
+ INITRD_COMPRESS-$(CONFIG_RD_LZO)   := lzo
+ INITRD_COMPRESS-$(CONFIG_RD_LZ4)   := lz4
+diff --git a/usr/Kconfig b/usr/Kconfig
+index 05b6be569041..8d99edacabc9 100644
+--- a/usr/Kconfig
++++ b/usr/Kconfig
+@@ -61,15 +61,6 @@ config RD_GZIP
+ 	  Support loading of a gzip encoded initial ramdisk or cpio buffer.
+ 	  If unsure, say Y.
  
- obj-y	:= $(if $(CONFIG_KERNEL_UNCOMPRESSED),,decompressor.o) piggy.o info.o
--targets	:= vmlinux.lds vmlinux vmlinux.bin vmlinux.bin.gz vmlinux.bin.bz2
-+targets	:= vmlinux.lds vmlinux vmlinux.bin vmlinux.bin.gz
- targets += vmlinux.bin.xz vmlinux.bin.lzma vmlinux.bin.lzo vmlinux.bin.lz4
- targets += info.bin $(obj-y)
- 
-@@ -40,20 +40,14 @@ $(obj)/vmlinux.bin: vmlinux FORCE
- vmlinux.bin.all-y := $(obj)/vmlinux.bin
- 
- suffix-$(CONFIG_KERNEL_GZIP)  := .gz
--suffix-$(CONFIG_KERNEL_BZIP2) := .bz2
- suffix-$(CONFIG_KERNEL_LZ4)  := .lz4
--suffix-$(CONFIG_KERNEL_LZMA)  := .lzma
- suffix-$(CONFIG_KERNEL_LZO)  := .lzo
- suffix-$(CONFIG_KERNEL_XZ)  := .xz
- 
- $(obj)/vmlinux.bin.gz: $(vmlinux.bin.all-y)
- 	$(call if_changed,gzip)
--$(obj)/vmlinux.bin.bz2: $(vmlinux.bin.all-y)
--	$(call if_changed,bzip2)
- $(obj)/vmlinux.bin.lz4: $(vmlinux.bin.all-y)
- 	$(call if_changed,lz4)
--$(obj)/vmlinux.bin.lzma: $(vmlinux.bin.all-y)
--	$(call if_changed,lzma)
- $(obj)/vmlinux.bin.lzo: $(vmlinux.bin.all-y)
- 	$(call if_changed,lzo)
- $(obj)/vmlinux.bin.xz: $(vmlinux.bin.all-y)
-diff --git a/arch/s390/boot/compressed/decompressor.c b/arch/s390/boot/compressed/decompressor.c
-index 45046630c56a..3995a6fe60f5 100644
---- a/arch/s390/boot/compressed/decompressor.c
-+++ b/arch/s390/boot/compressed/decompressor.c
-@@ -42,18 +42,10 @@ static unsigned long free_mem_end_ptr = (unsigned long) _end + HEAP_SIZE;
- #include "../../../../lib/decompress_inflate.c"
- #endif
- 
--#ifdef CONFIG_KERNEL_BZIP2
--#include "../../../../lib/decompress_bunzip2.c"
--#endif
+-config RD_LZMA
+-	bool "Support initial ramdisk/ramfs compressed using LZMA"
+-	default y
+-	depends on BLK_DEV_INITRD
+-	select DECOMPRESS_LZMA
+-	help
+-	  Support loading of a LZMA encoded initial ramdisk or cpio buffer
+-	  If unsure, say N.
 -
- #ifdef CONFIG_KERNEL_LZ4
- #include "../../../../lib/decompress_unlz4.c"
- #endif
+ config RD_XZ
+ 	bool "Support initial ramdisk/ramfs compressed using XZ"
+ 	depends on BLK_DEV_INITRD
+@@ -118,8 +109,8 @@ choice
+ 	  when building a kernel.  Decompression speed is relevant at
+ 	  each boot. Also the memory usage during decompression may become
+ 	  relevant on memory constrained systems. This is usually based on the
+-	  dictionary size of the algorithm with algorithms like XZ and LZMA
+-	  featuring large dictionary sizes.
++	  dictionary size of the algorithm with algorithms like XZ featuring
++	  large dictionary sizes.
  
--#ifdef CONFIG_KERNEL_LZMA
--#include "../../../../lib/decompress_unlzma.c"
--#endif
+ 	  High compression options are mostly useful for users who are
+ 	  low on RAM, since it reduces the memory consumption during
+@@ -152,19 +143,6 @@ config INITRAMFS_COMPRESSION_GZIP
+ 	  supported by your build system as the gzip tool is present by default
+ 	  on most distros.
+ 
+-config INITRAMFS_COMPRESSION_LZMA
+-	bool "LZMA"
+-	depends on RD_LZMA
+-	help
+-	  This algorithm's compression ratio is best but has a large dictionary
+-	  size which might cause issues in memory constrained systems.
+-	  Decompression speed is between the other choices. Compression is
+-	  slowest. The initramfs size is about 33% smaller with LZMA in
+-	  comparison to gzip.
 -
- #ifdef CONFIG_KERNEL_LZO
- #include "../../../../lib/decompress_unlzo.c"
- #endif
+-	  If you choose this, keep in mind that you may need to install the xz
+-	  or lzma tools to be able to compress the initram.
+-
+ config INITRAMFS_COMPRESSION_XZ
+ 	bool "XZ"
+ 	depends on RD_XZ
+@@ -219,7 +197,6 @@ config INITRAMFS_COMPRESSION
+ 	string
+ 	default ""      if INITRAMFS_COMPRESSION_NONE
+ 	default ".gz"   if INITRAMFS_COMPRESSION_GZIP
+-	default ".lzma" if INITRAMFS_COMPRESSION_LZMA
+ 	default ".xz"   if INITRAMFS_COMPRESSION_XZ
+ 	default ".lzo"  if INITRAMFS_COMPRESSION_LZO
+ 	default ".lz4"  if INITRAMFS_COMPRESSION_LZ4
+@@ -228,6 +205,5 @@ config INITRAMFS_COMPRESSION
+ 	default ".lz4"  if RD_LZ4
+ 	default ".lzo"  if RD_LZO
+ 	default ".xz"   if RD_XZ
+-	default ".lzma" if RD_LZMA
+ 	default ".zst"  if RD_ZSTD
+ 	default ""
 -- 
 2.19.1
 
