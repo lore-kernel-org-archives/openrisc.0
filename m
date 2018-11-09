@@ -1,60 +1,152 @@
 From: Adam Borowski <kilobyte@angband.pl>
-Date: Fri, 9 Nov 2018 19:59:53 +0100
-Subject: [OpenRISC] [PATCH 0/17] Kernel compression: add ZSTD,
-	remove LZMA1 and BZIP2
-Message-ID: <20181109185953.xwyelyqnygbskkxk@angband.pl>
+Date: Fri,  9 Nov 2018 20:02:49 +0100
+Subject: [OpenRISC] [PATCH 02/17] x86: Add support for ZSTD-compressed kernel
+In-Reply-To: <20181109190304.8573-1-kilobyte@angband.pl>
+References: <20181109185953.xwyelyqnygbskkxk@angband.pl>
+ <20181109190304.8573-1-kilobyte@angband.pl>
+Message-ID: <20181109190304.8573-2-kilobyte@angband.pl>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi!
-As new compressors get invented, they tend to find their way into the
-kernel, yet we never prune superseded ones.  It's time to do so.
+From: Nick Terrell <terrelln@fb.com>
 
-In particular, BZIP2 is drastically slower than other compressors we
-have, even when they achieve smaller sizes.  It takes more memory, too.
-And, BZIP2 is not used anywhere else in the kernel -- just for booting
-the kernel itself and the initrd.  Thus, we can drop it from the tree
-completely, making Linus happier by around 900 lines.
+Integrates the ZSTD decompression code to the x86 pre-boot code.
 
-LZMA1 is redundant with XZ (LZMA2), and unlike the latter, it uses its own
-copy of code that's not shared with anything else (some drivers use XZ).
-Let's drop it as well.  Some bootloaders can use it thus let's keep the
-Kconfig option, but I left no piece of code inside the kernel itself.
+Zstandard requires slightly more memory during the kernel decompression
+on x86 (192 KB vs 64 KB), and the memory usage is independent of the
+window size.
 
-On the other hand, Nick Terrell has a couple of patches adding ZSTD support
-(using code already in use in multiple pieces around the kernel).  ZSTD is
-strong and fast, obsoleting all mid-range compressors.  As the removal of
-BZIP2 and LZMA1 would be hopelessly entangled with this addition, I'm
-resending Nick's patches here.  I've been booting using them since Oct'17
-on amd64 (kernel+initrd), armhf and arm64 (initrd) without issues, other
-folks tested various other architectures as well.
+Zstandard requires memory proportional to the window size used during
+compression for decompressing the ramdisk image, since streaming mode is
+used. Newer versions of zstd (1.3.2+) list the window size of a file
+with `zstd -lv <file>'. The absolute maximum amount of memory required
+is just over 8 MB.
 
-Thus, I'd recommend people to use:
-* XZ for most machines
-* ZSTD where speed is important
-* maaaaybe LZ4 is some special cases
-(grub and u-boot are ridiculously slow at reading, making fast but weak
-decompressors a net loss.  On the other hand, XZ decompresses pretty fast
-but is very slow at compress time, making ZSTD preferred for rapid devel
-cycles.)
+Signed-off-by: Nick Terrell <terrelln@fb.com>
+---
+ Documentation/x86/boot.txt        | 6 +++---
+ arch/x86/Kconfig                  | 1 +
+ arch/x86/boot/compressed/Makefile | 5 ++++-
+ arch/x86/boot/compressed/misc.c   | 4 ++++
+ arch/x86/boot/header.S            | 8 +++++++-
+ arch/x86/include/asm/boot.h       | 6 ++++--
+ 6 files changed, 23 insertions(+), 7 deletions(-)
 
-* we can't get rid of GZIP in foreseable future
-* LZO is obsolete but is used elsewhere in the kernel
-
-Total:
- 69 files changed, 518 insertions(+), 1785 deletions(-)
-
-Not sure whose tree this patchset should go through.  I'm also not sure
-how finely split into commits you want the arch bits be; I included
-defconfig bits all together, yet separated code changes per-arch.
-
-
-Meow!
+diff --git a/Documentation/x86/boot.txt b/Documentation/x86/boot.txt
+index 7727db8f94bc..a47b6bae3356 100644
+--- a/Documentation/x86/boot.txt
++++ b/Documentation/x86/boot.txt
+@@ -685,9 +685,9 @@ Protocol:	2.08+
+   uncompressed data should be determined using the standard magic
+   numbers.  The currently supported compression formats are gzip
+   (magic numbers 1F 8B or 1F 9E), bzip2 (magic number 42 5A), LZMA
+-  (magic number 5D 00), XZ (magic number FD 37), and LZ4 (magic number
+-  02 21).  The uncompressed payload is currently always ELF (magic
+-  number 7F 45 4C 46).
++  (magic number 5D 00), XZ (magic number FD 37), LZ4 (magic number
++  02 21) and ZSTD (magic number 28 B5). The uncompressed payload is
++  currently always ELF (magic number 7F 45 4C 46).
+ 
+ Field name:	payload_length
+ Type:		read
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index ba7e3464ee92..203f7467f5c4 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -164,6 +164,7 @@ config X86
+ 	select HAVE_KERNEL_LZMA
+ 	select HAVE_KERNEL_LZO
+ 	select HAVE_KERNEL_XZ
++	select HAVE_KERNEL_ZSTD
+ 	select HAVE_KPROBES
+ 	select HAVE_KPROBES_ON_FTRACE
+ 	select HAVE_FUNCTION_ERROR_INJECTION
+diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
+index 466f66c8a7f8..6d2a8d2d378d 100644
+--- a/arch/x86/boot/compressed/Makefile
++++ b/arch/x86/boot/compressed/Makefile
+@@ -24,7 +24,7 @@ OBJECT_FILES_NON_STANDARD	:= y
+ KCOV_INSTRUMENT		:= n
+ 
+ targets := vmlinux vmlinux.bin vmlinux.bin.gz vmlinux.bin.bz2 vmlinux.bin.lzma \
+-	vmlinux.bin.xz vmlinux.bin.lzo vmlinux.bin.lz4
++	vmlinux.bin.xz vmlinux.bin.lzo vmlinux.bin.lz4 vmlinux.bin.zst
+ 
+ KBUILD_CFLAGS := -m$(BITS) -O2
+ KBUILD_CFLAGS += -fno-strict-aliasing $(call cc-option, -fPIE, -fPIC)
+@@ -142,6 +142,8 @@ $(obj)/vmlinux.bin.lzo: $(vmlinux.bin.all-y) FORCE
+ 	$(call if_changed,lzo)
+ $(obj)/vmlinux.bin.lz4: $(vmlinux.bin.all-y) FORCE
+ 	$(call if_changed,lz4)
++$(obj)/vmlinux.bin.zst: $(vmlinux.bin.all-y) FORCE
++	$(call if_changed,zstd)
+ 
+ suffix-$(CONFIG_KERNEL_GZIP)	:= gz
+ suffix-$(CONFIG_KERNEL_BZIP2)	:= bz2
+@@ -149,6 +151,7 @@ suffix-$(CONFIG_KERNEL_LZMA)	:= lzma
+ suffix-$(CONFIG_KERNEL_XZ)	:= xz
+ suffix-$(CONFIG_KERNEL_LZO) 	:= lzo
+ suffix-$(CONFIG_KERNEL_LZ4) 	:= lz4
++suffix-$(CONFIG_KERNEL_ZSTD)	:= zst
+ 
+ quiet_cmd_mkpiggy = MKPIGGY $@
+       cmd_mkpiggy = $(obj)/mkpiggy $< > $@ || ( rm -f $@ ; false )
+diff --git a/arch/x86/boot/compressed/misc.c b/arch/x86/boot/compressed/misc.c
+index 8dd1d5ccae58..b6c8921100fb 100644
+--- a/arch/x86/boot/compressed/misc.c
++++ b/arch/x86/boot/compressed/misc.c
+@@ -76,6 +76,10 @@ static int lines, cols;
+ #ifdef CONFIG_KERNEL_LZ4
+ #include "../../../../lib/decompress_unlz4.c"
+ #endif
++
++#ifdef CONFIG_KERNEL_ZSTD
++#include "../../../../lib/decompress_unzstd.c"
++#endif
+ /*
+  * NOTE: When adding a new decompressor, please update the analysis in
+  * ../header.S.
+diff --git a/arch/x86/boot/header.S b/arch/x86/boot/header.S
+index 4c881c850125..af2efb256527 100644
+--- a/arch/x86/boot/header.S
++++ b/arch/x86/boot/header.S
+@@ -526,8 +526,14 @@ pref_address:		.quad LOAD_PHYSICAL_ADDR	# preferred load addr
+ # the size-dependent part now grows so fast.
+ #
+ # extra_bytes = (uncompressed_size >> 8) + 65536
++#
++# ZSTD compressed data grows by at most 3 bytes per 128K, and only has a 22
++# byte fixed overhead but has a maximum block size of 128K, so it needs a
++# larger margin.
++#
++# extra_bytes = (uncompressed_size >> 8) + 131072
+ 
+-#define ZO_z_extra_bytes	((ZO_z_output_len >> 8) + 65536)
++#define ZO_z_extra_bytes	((ZO_z_output_len >> 8) + 131072)
+ #if ZO_z_output_len > ZO_z_input_len
+ # define ZO_z_extract_offset	(ZO_z_output_len + ZO_z_extra_bytes - \
+ 				 ZO_z_input_len)
+diff --git a/arch/x86/include/asm/boot.h b/arch/x86/include/asm/boot.h
+index 680c320363db..d6dd43d25d9f 100644
+--- a/arch/x86/include/asm/boot.h
++++ b/arch/x86/include/asm/boot.h
+@@ -24,9 +24,11 @@
+ # error "Invalid value for CONFIG_PHYSICAL_ALIGN"
+ #endif
+ 
+-#ifdef CONFIG_KERNEL_BZIP2
++#if defined(CONFIG_KERNEL_BZIP2)
+ # define BOOT_HEAP_SIZE		0x400000
+-#else /* !CONFIG_KERNEL_BZIP2 */
++#elif defined(CONFIG_KERNEL_ZSTD)
++# define BOOT_HEAP_SIZE		 0x30000
++#else
+ # define BOOT_HEAP_SIZE		 0x10000
+ #endif
+ 
 -- 
-⢀⣴⠾⠻⢶⣦⠀ 
-⣾⠁⢠⠒⠀⣿⡁ A dumb species has no way to open a tuna can.
-⢿⡄⠘⠷⠚⠋⠀ A smart species invents a can opener.
-⠈⠳⣄⠀⠀⠀⠀ A master species delegates.
+2.19.1
+
