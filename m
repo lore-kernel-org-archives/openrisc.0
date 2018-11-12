@@ -1,26 +1,44 @@
-From: Farehe Giahi <fg.farehe.giahi@gmail.com>
-Date: Mon, 12 Nov 2018 10:42:10 +0100
-Subject: [OpenRISC] FPU/Mor1kx
-Message-ID: <CAEucg_VzQ8oNJ2o5cq=muNLXhfchZnTekSTi5izK3OtD-+DWmQ@mail.gmail.com>
+From: Jeremy Bennett <jeremy.bennett@embecosm.com>
+Date: Mon, 12 Nov 2018 16:32:46 +0000
+Subject: [OpenRISC] OpenRISC GCC port upstream for 9.0.0
+In-Reply-To: <CAAfxs76_eFyUa35J6JsFY3Kk9Skdy-en6X+-b_x3TFSdDe=2Qg@mail.gmail.com>
+References: <CAAfxs76_eFyUa35J6JsFY3Kk9Skdy-en6X+-b_x3TFSdDe=2Qg@mail.gmail.com>
+Message-ID: <07f9d9a2-4ed6-0238-a8f3-31ddb3524a73@embecosm.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="windows-1250"
+Content-Transfer-Encoding: base64
 To: openrisc@lists.librecores.org
 
-Dear Madam/Sir
-
-I'm starting to work on a project which contains Optimize the Floating
-Point Unit shipped with the Mor1kx, the Mor1kx is a new concept for me I
-found lots of resource in your website but I cannot find anything for the
-architecture of floating point unit in Mor1kx.
-would you please help me with useful resources for this concept
-
-thank you in advance
-
-best regards
-Farehe giahi
-fg.farehe.giahi at gmail.com
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20181112/efb1bbcb/attachment.html>
+LS0tLS1CRUdJTiBQR1AgU0lHTkVEIE1FU1NBR0UtLS0tLQpIYXNoOiBTSEExCgpPbiAwOS8xMS8x
+OCAyMDo1NCwgU3RhZmZvcmQgSG9ybmUgd3JvdGU6Cj4gSGkgQWxsLAo+IAo+IEkgaGF2ZSBqdXN0
+IHB1Ymxpc2hlZCB0aGlzIG9udG8gb3BlbnJpc2MuaW86IAo+IGh0dHBzOi8vb3BlbnJpc2MuaW8v
+MjAxOC8xMS8wOS9nY2N1cHN0cmVhbQo+IAo+IFdlIGFyZSBwcm91ZCB0byBhbm5vdW5jZSB0aGF0
+IHRoZSBPcGVuUklTQyBwb3J0IGZvciBnY2MgaGFzIGJlZW4gCj4gY29tbWl0dGVkIHRvIHVwc3Ry
+ZWFtLgoKSGkgU3RhZmZvcmQsCgpDb25ncmF0dWxhdGlvbnMgdG8geW91IGFuZCB5b3VyIHRlYW0u
+IFdlbGwgd29ydGggd2FpdGluZyBmb3IgOi0pCgpCZXN0IHdpc2hlcywKCgpKZXJlbXkKCj4gCj4g
+TWFpbmxpbmUgT3BlblJJU0Mgc3VwcG9ydCB3aWxsIGJlIGF2YWlsYWJsZSBpbiB0aGUgdXBjb21p
+bmcgOS4wLjAgCj4gcmVsZWFzZSBvZiBHQ0MuCj4gCj4gTm90ZSwgdGhpcyBoYXMgYmVlbiBhIGNs
+ZWFuIHJvb20gcmV3cml0ZSBvZiB0aGUgT3BlblJJU0MgZ2NjIHBvcnQuCj4gVGhlIG9sZCBwb3J0
+IGNhbiBzdGlsbCBiZSBmb3VuZCBpbiB0aGUgT3BlblJJU0MgZ2l0aHViIHJlcG8uCj4gUHJlLXJl
+bGVhc2UgdG9vbGNoYWluIGJpbmFyaWVzIGZvciB0aGUgbmV3IHRvb2xjaGFpbiBjYW4gYmUgZm91
+bmQKPiBvbiBTdGFmZm9yZOKAmXMgZ2l0aHViIHJlbGVhc2VzIHBhZ2UuCj4gCj4gVGhlcmUgYXJl
+IGEgZmV3IHRoaW5ncyBzdGlsbCBub3Qgc3VwcG9ydGVkIGluIHRoaXMgbmV3IHBvcnQgd2hpY2gK
+PiB3ZXJlIGF2YWlsYWJsZSB0aGUgcHJldmlvdXMgcG9ydC4gVGhlIGN1cnJlbnQgdXBzdHJlYW0g
+T3BlblJJU0MgR0NDCj4gZG9lcyBub3QgaGF2ZSBzdXBwb3J0IGZvcjoKPiAKPiAtIG9yMWtuZCAo
+Tm8tYnJhbmNoIGRlbGF5KSB0YXJnZXRzIC0gaGFyZHdhcmUgRlBVIChmbG9hdGluZyBwb2ludAo+
+IHVuaXQpCj4gCj4gSWYgeW91IGhhdmUgYW55IHJlcXVlc3RzIG9mIHdvdWxkIGxpa2UgdG8gaGVs
+cCBvdXQgcGxlYXNlIGNvbnRhY3QKPiB1cyBvbiB0aGUgbWFpbGluZyBsaXN0Lgo+IAo+IC1TdGFm
+Zm9yZAo+IAo+IFAuUy4KPiAKPiBUT0RPIGxpc3QgZm9yIE9wZW5SSVNDIHRvb2xjaGFpbiAtIEFk
+ZCBzdXBwb3J0IGZvciBuZXcgbC5hZHJwCj4gaW5zdHJ1Y3Rpb24gdG8gc3BlYywgZ2NjIGFuZCBt
+b3Ixa3ggLSBBZGQgR0NDIEZQVSBzdXBwb3J0IC0gQWRkIEdEQgo+IHVuZGVyIExpbnV4IHN1cHBv
+cnQgCj4gX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18gT3Bl
+blJJU0MgbWFpbGluZwo+IGxpc3QgT3BlblJJU0MgYXQgbGlzdHMubGlicmVjb3Jlcy5vcmcgCj4g
+aHR0cHM6Ly9saXN0cy5saWJyZWNvcmVzLm9yZy9saXN0aW5mby9vcGVucmlzYwo+IAoKCi0gLS0g
+ClRlbDogKzQ0ICgxNTkwKSA2MTAxODQKQ2VsbDogKzQ0ICg3OTcwKSA2NzYwNTAKU2t5cGVJRDog
+amVyZW15YmVubmV0dApUd2l0dGVyOiBAamVyZW15cGJlbm5ldHQKRW1haWw6IGplcmVteS5iZW5u
+ZXR0IGF0IGVtYmVjb3NtLmNvbQpXZWI6IHd3dy5lbWJlY29zbS5jb20KUEdQIGtleTogMTAyNEQv
+QkVGNTgxNzJGQjQ3NTRFMSAyMDA5LTAzLTIwCi0tLS0tQkVHSU4gUEdQIFNJR05BVFVSRS0tLS0t
+CgppRVlFQVJFQ0FBWUZBbHZwcXk0QUNna1F2dldCY3Z0SFZPRnNMd0NmWmFnbGkwc0hLU0pTbVFL
+TTFNUnFIQ0FLCnVMMEFuMm5mUmZBUXBVWWpOY0N1Z21XQzcycmZmdTdkCj1wVWJsCi0tLS0tRU5E
+IFBHUCBTSUdOQVRVUkUtLS0tLQo=
