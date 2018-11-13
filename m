@@ -1,44 +1,61 @@
-From: Jeremy Bennett <jeremy.bennett@embecosm.com>
-Date: Mon, 12 Nov 2018 16:32:46 +0000
-Subject: [OpenRISC] OpenRISC GCC port upstream for 9.0.0
-In-Reply-To: <CAAfxs76_eFyUa35J6JsFY3Kk9Skdy-en6X+-b_x3TFSdDe=2Qg@mail.gmail.com>
-References: <CAAfxs76_eFyUa35J6JsFY3Kk9Skdy-en6X+-b_x3TFSdDe=2Qg@mail.gmail.com>
-Message-ID: <07f9d9a2-4ed6-0238-a8f3-31ddb3524a73@embecosm.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Wed, 14 Nov 2018 05:49:53 +0900
+Subject: [OpenRISC] [PATCH] openrisc: make function cache_loop() inline
+In-Reply-To: <20181112155544.7230-1-changbin.du@gmail.com>
+References: <20181112155544.7230-1-changbin.du@gmail.com>
+Message-ID: <20181113204953.GF2718@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="windows-1250"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-LS0tLS1CRUdJTiBQR1AgU0lHTkVEIE1FU1NBR0UtLS0tLQpIYXNoOiBTSEExCgpPbiAwOS8xMS8x
-OCAyMDo1NCwgU3RhZmZvcmQgSG9ybmUgd3JvdGU6Cj4gSGkgQWxsLAo+IAo+IEkgaGF2ZSBqdXN0
-IHB1Ymxpc2hlZCB0aGlzIG9udG8gb3BlbnJpc2MuaW86IAo+IGh0dHBzOi8vb3BlbnJpc2MuaW8v
-MjAxOC8xMS8wOS9nY2N1cHN0cmVhbQo+IAo+IFdlIGFyZSBwcm91ZCB0byBhbm5vdW5jZSB0aGF0
-IHRoZSBPcGVuUklTQyBwb3J0IGZvciBnY2MgaGFzIGJlZW4gCj4gY29tbWl0dGVkIHRvIHVwc3Ry
-ZWFtLgoKSGkgU3RhZmZvcmQsCgpDb25ncmF0dWxhdGlvbnMgdG8geW91IGFuZCB5b3VyIHRlYW0u
-IFdlbGwgd29ydGggd2FpdGluZyBmb3IgOi0pCgpCZXN0IHdpc2hlcywKCgpKZXJlbXkKCj4gCj4g
-TWFpbmxpbmUgT3BlblJJU0Mgc3VwcG9ydCB3aWxsIGJlIGF2YWlsYWJsZSBpbiB0aGUgdXBjb21p
-bmcgOS4wLjAgCj4gcmVsZWFzZSBvZiBHQ0MuCj4gCj4gTm90ZSwgdGhpcyBoYXMgYmVlbiBhIGNs
-ZWFuIHJvb20gcmV3cml0ZSBvZiB0aGUgT3BlblJJU0MgZ2NjIHBvcnQuCj4gVGhlIG9sZCBwb3J0
-IGNhbiBzdGlsbCBiZSBmb3VuZCBpbiB0aGUgT3BlblJJU0MgZ2l0aHViIHJlcG8uCj4gUHJlLXJl
-bGVhc2UgdG9vbGNoYWluIGJpbmFyaWVzIGZvciB0aGUgbmV3IHRvb2xjaGFpbiBjYW4gYmUgZm91
-bmQKPiBvbiBTdGFmZm9yZOKAmXMgZ2l0aHViIHJlbGVhc2VzIHBhZ2UuCj4gCj4gVGhlcmUgYXJl
-IGEgZmV3IHRoaW5ncyBzdGlsbCBub3Qgc3VwcG9ydGVkIGluIHRoaXMgbmV3IHBvcnQgd2hpY2gK
-PiB3ZXJlIGF2YWlsYWJsZSB0aGUgcHJldmlvdXMgcG9ydC4gVGhlIGN1cnJlbnQgdXBzdHJlYW0g
-T3BlblJJU0MgR0NDCj4gZG9lcyBub3QgaGF2ZSBzdXBwb3J0IGZvcjoKPiAKPiAtIG9yMWtuZCAo
-Tm8tYnJhbmNoIGRlbGF5KSB0YXJnZXRzIC0gaGFyZHdhcmUgRlBVIChmbG9hdGluZyBwb2ludAo+
-IHVuaXQpCj4gCj4gSWYgeW91IGhhdmUgYW55IHJlcXVlc3RzIG9mIHdvdWxkIGxpa2UgdG8gaGVs
-cCBvdXQgcGxlYXNlIGNvbnRhY3QKPiB1cyBvbiB0aGUgbWFpbGluZyBsaXN0Lgo+IAo+IC1TdGFm
-Zm9yZAo+IAo+IFAuUy4KPiAKPiBUT0RPIGxpc3QgZm9yIE9wZW5SSVNDIHRvb2xjaGFpbiAtIEFk
-ZCBzdXBwb3J0IGZvciBuZXcgbC5hZHJwCj4gaW5zdHJ1Y3Rpb24gdG8gc3BlYywgZ2NjIGFuZCBt
-b3Ixa3ggLSBBZGQgR0NDIEZQVSBzdXBwb3J0IC0gQWRkIEdEQgo+IHVuZGVyIExpbnV4IHN1cHBv
-cnQgCj4gX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18gT3Bl
-blJJU0MgbWFpbGluZwo+IGxpc3QgT3BlblJJU0MgYXQgbGlzdHMubGlicmVjb3Jlcy5vcmcgCj4g
-aHR0cHM6Ly9saXN0cy5saWJyZWNvcmVzLm9yZy9saXN0aW5mby9vcGVucmlzYwo+IAoKCi0gLS0g
-ClRlbDogKzQ0ICgxNTkwKSA2MTAxODQKQ2VsbDogKzQ0ICg3OTcwKSA2NzYwNTAKU2t5cGVJRDog
-amVyZW15YmVubmV0dApUd2l0dGVyOiBAamVyZW15cGJlbm5ldHQKRW1haWw6IGplcmVteS5iZW5u
-ZXR0IGF0IGVtYmVjb3NtLmNvbQpXZWI6IHd3dy5lbWJlY29zbS5jb20KUEdQIGtleTogMTAyNEQv
-QkVGNTgxNzJGQjQ3NTRFMSAyMDA5LTAzLTIwCi0tLS0tQkVHSU4gUEdQIFNJR05BVFVSRS0tLS0t
-CgppRVlFQVJFQ0FBWUZBbHZwcXk0QUNna1F2dldCY3Z0SFZPRnNMd0NmWmFnbGkwc0hLU0pTbVFL
-TTFNUnFIQ0FLCnVMMEFuMm5mUmZBUXBVWWpOY0N1Z21XQzcycmZmdTdkCj1wVWJsCi0tLS0tRU5E
-IFBHUCBTSUdOQVRVUkUtLS0tLQo=
+On Mon, Nov 12, 2018 at 11:55:44PM +0800, Changbin Du wrote:
+> The third operand of mtspr instruction must be a constraint. To guarantee
+> this condition, function cache_loop() which uses macro mtspr() must be
+> inlined. So let's force it as 'inline'. This is to fix compiling error with
+> new option CONFIG_NO_AUTO_INLINE.
+
+Thanks for looking at this.
+
+Do you mean, must be a 'constant'?
+
+I think this fix is fine for now.  Can you add it to your 'kernel hacking: GCC
+optimization for better debug experience' series?
+
+> In file included from arch/openrisc/mm/cache.c:17:0:
+> arch/openrisc/mm/cache.c: In function 'cache_loop':
+> arch/openrisc/include/asm/spr.h:20:27: warning: asm operand 0 probably doesn't match constraints
+>                               ^
+> arch/openrisc/mm/cache.c:29:3: note: in expansion of macro 'mtspr'
+>       mtspr(reg, line);
+>       ^~~~~
+> arch/openrisc/include/asm/spr.h:20:27: error: impossible constraint in 'asm'
+> 
+> Signed-off-by: Changbin Du <changbin.du@gmail.com>
+> Reported-by: kbuild test robot <lkp@intel.com>
+> Cc: Stafford Horne <shorne@gmail.com>
+> Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+
+Acked-by: Stafford Horne <shorne@gmail.com>
+
+> ---
+>  arch/openrisc/mm/cache.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/openrisc/mm/cache.c b/arch/openrisc/mm/cache.c
+> index b747bf1fc1b6..4a4b2b6e006b 100644
+> --- a/arch/openrisc/mm/cache.c
+> +++ b/arch/openrisc/mm/cache.c
+> @@ -20,7 +20,7 @@
+>  #include <asm/cacheflush.h>
+>  #include <asm/tlbflush.h>
+>  
+> -static void cache_loop(struct page *page, const unsigned int reg)
+> +static inline void cache_loop(struct page *page, const unsigned int reg)
+>  {
+>  	unsigned long paddr = page_to_pfn(page) << PAGE_SHIFT;
+>  	unsigned long line = paddr & ~(L1_CACHE_BYTES - 1);
+> -- 
+> 2.17.1
+> 
