@@ -1,48 +1,35 @@
-From: Changbin Du <changbin.du@gmail.com>
-Date: Mon, 12 Nov 2018 23:55:44 +0800
-Subject: [OpenRISC] [PATCH] openrisc: make function cache_loop() inline
-Message-ID: <20181112155544.7230-1-changbin.du@gmail.com>
+From: Paul Burton <paul.burton@mips.com>
+Date: Tue, 13 Nov 2018 22:45:54 +0000
+Subject: [OpenRISC] [PATCH 05/17] mips: Remove support for BZIP2 and
+ LZMA compressed kernel
+In-Reply-To: <20181109190304.8573-5-kilobyte@angband.pl>
+References: <20181109185953.xwyelyqnygbskkxk@angband.pl>
+ <20181109190304.8573-1-kilobyte@angband.pl>
+ <20181109190304.8573-5-kilobyte@angband.pl>
+Message-ID: <20181113224545.pamrezqxy2ay62k7@pburton-laptop>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The third operand of mtspr instruction must be a constraint. To guarantee
-this condition, function cache_loop() which uses macro mtspr() must be
-inlined. So let's force it as 'inline'. This is to fix compiling error with
-new option CONFIG_NO_AUTO_INLINE.
+Hi Adam,
 
-In file included from arch/openrisc/mm/cache.c:17:0:
-arch/openrisc/mm/cache.c: In function 'cache_loop':
-arch/openrisc/include/asm/spr.h:20:27: warning: asm operand 0 probably doesn't match constraints
-                              ^
-arch/openrisc/mm/cache.c:29:3: note: in expansion of macro 'mtspr'
-      mtspr(reg, line);
-      ^~~~~
-arch/openrisc/include/asm/spr.h:20:27: error: impossible constraint in 'asm'
+On Fri, Nov 09, 2018 at 08:02:52PM +0100, Adam Borowski wrote:
+> @@ -122,7 +104,6 @@ $(obj)/vmlinux.its.S: $(addprefix $(srctree)/arch/mips/$(PLATFORM)/,$(ITS_INPUTS
+>  
+>  targets += vmlinux.its
+>  targets += vmlinux.gz.its
+> -targets += vmlinux.bz2.its
+>  targets += vmlinux.lzmo.its
+>  targets += vmlinux.lzo.its
 
-Signed-off-by: Changbin Du <changbin.du@gmail.com>
-Reported-by: kbuild test robot <lkp@intel.com>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
----
- arch/openrisc/mm/cache.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+It looks to me like this "vmlinux.lzmo.its" was a typo & ought to have
+been vmlinux.lzma.its, and thus ought to be removed.
 
-diff --git a/arch/openrisc/mm/cache.c b/arch/openrisc/mm/cache.c
-index b747bf1fc1b6..4a4b2b6e006b 100644
---- a/arch/openrisc/mm/cache.c
-+++ b/arch/openrisc/mm/cache.c
-@@ -20,7 +20,7 @@
- #include <asm/cacheflush.h>
- #include <asm/tlbflush.h>
- 
--static void cache_loop(struct page *page, const unsigned int reg)
-+static inline void cache_loop(struct page *page, const unsigned int reg)
- {
- 	unsigned long paddr = page_to_pfn(page) << PAGE_SHIFT;
- 	unsigned long line = paddr & ~(L1_CACHE_BYTES - 1);
--- 
-2.17.1
+Apart from that I'm fine with this in general:
 
+    Acked-by: Paul Burton <paul.burton@mips.com>
+
+Thanks,
+    Paul
