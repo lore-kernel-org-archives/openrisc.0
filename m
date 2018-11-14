@@ -1,46 +1,70 @@
-From: Adam Borowski <kilobyte@angband.pl>
-Date: Wed, 14 Nov 2018 00:10:43 +0100
-Subject: [OpenRISC] [PATCH 05/17] mips: Remove support for BZIP2 and
- LZMA compressed kernel
-In-Reply-To: <20181113224545.pamrezqxy2ay62k7@pburton-laptop>
-References: <20181109185953.xwyelyqnygbskkxk@angband.pl>
- <20181109190304.8573-1-kilobyte@angband.pl>
- <20181109190304.8573-5-kilobyte@angband.pl>
- <20181113224545.pamrezqxy2ay62k7@pburton-laptop>
-Message-ID: <20181113231043.cv3qpjivxsefxpny@angband.pl>
+From: Changbin Du <changbin.du@gmail.com>
+Date: Wed, 14 Nov 2018 02:19:53 +0000
+Subject: [OpenRISC] [PATCH] openrisc: make function cache_loop() inline
+In-Reply-To: <20181113204953.GF2718@lianli.shorne-pla.net>
+References: <20181112155544.7230-1-changbin.du@gmail.com>
+ <20181113204953.GF2718@lianli.shorne-pla.net>
+Message-ID: <20181114021952.r4wvjrvgy6hb24xh@mail.google.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Nov 13, 2018 at 10:45:54PM +0000, Paul Burton wrote:
-> On Fri, Nov 09, 2018 at 08:02:52PM +0100, Adam Borowski wrote:
-> > @@ -122,7 +104,6 @@ $(obj)/vmlinux.its.S: $(addprefix $(srctree)/arch/mips/$(PLATFORM)/,$(ITS_INPUTS
+On Wed, Nov 14, 2018 at 05:49:53AM +0900, Stafford Horne wrote:
+> On Mon, Nov 12, 2018 at 11:55:44PM +0800, Changbin Du wrote:
+> > The third operand of mtspr instruction must be a constraint. To guarantee
+> > this condition, function cache_loop() which uses macro mtspr() must be
+> > inlined. So let's force it as 'inline'. This is to fix compiling error with
+> > new option CONFIG_NO_AUTO_INLINE.
+> 
+> Thanks for looking at this.
+> 
+> Do you mean, must be a 'constant'?
+>
+yes, it is 'constant'.  sorry for the misstake.
+> I think this fix is fine for now.  Can you add it to your 'kernel hacking: GCC
+> optimization for better debug experience' series?
+> 
+hi Yamada, could you add this patch to your kbuild tree? thanks!
+
+> > In file included from arch/openrisc/mm/cache.c:17:0:
+> > arch/openrisc/mm/cache.c: In function 'cache_loop':
+> > arch/openrisc/include/asm/spr.h:20:27: warning: asm operand 0 probably doesn't match constraints
+> >                               ^
+> > arch/openrisc/mm/cache.c:29:3: note: in expansion of macro 'mtspr'
+> >       mtspr(reg, line);
+> >       ^~~~~
+> > arch/openrisc/include/asm/spr.h:20:27: error: impossible constraint in 'asm'
+> > 
+> > Signed-off-by: Changbin Du <changbin.du@gmail.com>
+> > Reported-by: kbuild test robot <lkp@intel.com>
+> > Cc: Stafford Horne <shorne@gmail.com>
+> > Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+> 
+> Acked-by: Stafford Horne <shorne@gmail.com>
+> 
+> > ---
+> >  arch/openrisc/mm/cache.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/arch/openrisc/mm/cache.c b/arch/openrisc/mm/cache.c
+> > index b747bf1fc1b6..4a4b2b6e006b 100644
+> > --- a/arch/openrisc/mm/cache.c
+> > +++ b/arch/openrisc/mm/cache.c
+> > @@ -20,7 +20,7 @@
+> >  #include <asm/cacheflush.h>
+> >  #include <asm/tlbflush.h>
 > >  
-> >  targets += vmlinux.its
-> >  targets += vmlinux.gz.its
-> > -targets += vmlinux.bz2.its
-> >  targets += vmlinux.lzmo.its
-> >  targets += vmlinux.lzo.its
-> 
-> It looks to me like this "vmlinux.lzmo.its" was a typo & ought to have
-> been vmlinux.lzma.its, and thus ought to be removed.
+> > -static void cache_loop(struct page *page, const unsigned int reg)
+> > +static inline void cache_loop(struct page *page, const unsigned int reg)
+> >  {
+> >  	unsigned long paddr = page_to_pfn(page) << PAGE_SHIFT;
+> >  	unsigned long line = paddr & ~(L1_CACHE_BYTES - 1);
+> > -- 
+> > 2.17.1
+> > 
 
-Good catch!
-
-The whole series was bz2 only at first, grepping for lzma missed this.
-
-> Apart from that I'm fine with this in general:
-> 
->     Acked-by: Paul Burton <paul.burton@mips.com>
-
-Thanks.
-
-
-Meow!
 -- 
-⢀⣴⠾⠻⢶⣦⠀
-⣾⠁⢰⠒⠀⣿⡁ “This is gonna be as easy as cheating on an ethics exam!”
-⢿⡄⠘⠷⠚⠋⠀     -Cerise Brightmoon
-⠈⠳⣄⠀⠀⠀⠀
+Thanks,
+Changbin Du
