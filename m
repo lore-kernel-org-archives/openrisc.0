@@ -1,46 +1,63 @@
-From: Michael Ellerman <mpe@ellerman.id.au>
-Date: Tue, 27 Nov 2018 21:34:29 +1100
-Subject: [OpenRISC] [PATCH v2 16/15] syscall_get_arch: add "struct
-	task_struct *" argument
-In-Reply-To: <20181121004422.GA29053@altlinux.org>
-References: <20181107042751.3b519062@akathisia>
- <CALCETrV1v-DPRfDRwiH=xn29bxWxiHdZtAH1nw=dsmDtnT0YGQ@mail.gmail.com>
- <20181120001128.GA11300@altlinux.org> <20181121004422.GA29053@altlinux.org>
-Message-ID: <87in0ihkqy.fsf@concordia.ellerman.id.au>
+From: Stafford Horne <shorne@gmail.com>
+Date: Wed, 28 Nov 2018 06:16:00 +0900
+Subject: [OpenRISC] [PATCH 4/5] openrisc: simplify pte_alloc_one_kernel()
+In-Reply-To: <1543182277-8819-5-git-send-email-rppt@linux.ibm.com>
+References: <1543182277-8819-1-git-send-email-rppt@linux.ibm.com>
+ <1543182277-8819-5-git-send-email-rppt@linux.ibm.com>
+Message-ID: <20181127211600.GB3235@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-"Dmitry V. Levin" <ldv@altlinux.org> writes:
+On Sun, Nov 25, 2018 at 11:44:36PM +0200, Mike Rapoport wrote:
+> The pte_alloc_one_kernel() function allocates a page using
+> __get_free_page(GFP_KERNEL) when mm initialization is complete and
+> memblock_phys_alloc() on the earlier stages. The physical address of the
+> page allocated with memblock_phys_alloc() is converted to the virtual
+> address and in the both cases the allocated page is cleared using
+> clear_page().
+> 
+> The code is simplified by replacing __get_free_page() with
+> get_zeroed_page() and by replacing memblock_phys_alloc() with
+> memblock_alloc().
 
-> diff --git a/arch/powerpc/include/asm/syscall.h b/arch/powerpc/include/asm/syscall.h
-> index ab9f3f0a8637..d88b34179118 100644
-> --- a/arch/powerpc/include/asm/syscall.h
-> +++ b/arch/powerpc/include/asm/syscall.h
-> @@ -100,9 +100,15 @@ static inline void syscall_set_arguments(struct task_struct *task,
->  		regs->orig_gpr3 = args[0];
->  }
->  
-> -static inline int syscall_get_arch(void)
-> +static inline int syscall_get_arch(struct task_struct *task)
+Hello Mike,
+
+This looks fine to me.  How do you plan to get this merged?  Will you be taking
+care of the whole series or so you want me to queue this openrisc part?
+
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+
+Acked-by: Stafford Horne <shorne@gmail.com>
+
+> ---
+>  arch/openrisc/mm/ioremap.c | 11 ++++-------
+>  1 file changed, 4 insertions(+), 7 deletions(-)
+> 
+> diff --git a/arch/openrisc/mm/ioremap.c b/arch/openrisc/mm/ioremap.c
+> index c969752..cfef989 100644
+> --- a/arch/openrisc/mm/ioremap.c
+> +++ b/arch/openrisc/mm/ioremap.c
+> @@ -123,13 +123,10 @@ pte_t __ref *pte_alloc_one_kernel(struct mm_struct *mm,
 >  {
-> -	int arch = is_32bit_task() ? AUDIT_ARCH_PPC : AUDIT_ARCH_PPC64;
-> +	int arch;
-> +
-> +	if (IS_ENABLED(CONFIG_PPC64) && !test_tsk_thread_flag(task, TIF_32BIT))
-> +		arch = AUDIT_ARCH_PPC64;
+>  	pte_t *pte;
+>  
+> -	if (likely(mem_init_done)) {
+> -		pte = (pte_t *) __get_free_page(GFP_KERNEL);
+> -	} else {
+> -		pte = (pte_t *) __va(memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE));
+> -	}
+> +	if (likely(mem_init_done))
+> +		pte = (pte_t *)get_zeroed_page(GFP_KERNEL);
 > +	else
-> +		arch = AUDIT_ARCH_PPC;
-> +
->  #ifdef __LITTLE_ENDIAN__
->  	arch |= __AUDIT_ARCH_LE;
->  #endif
-
-LGTM.
-
-Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
-
-cheers
-
+> +		pte = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
+>  
+> -	if (pte)
+> -		clear_page(pte);
+>  	return pte;
+>  }
+> -- 
+> 2.7.4
+> 
