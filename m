@@ -1,49 +1,79 @@
-From: Rob Herring <robh@kernel.org>
-Date: Mon, 3 Dec 2018 10:27:02 -0600
-Subject: [OpenRISC] [PATCH v2 6/6] arm,
-	unicore32: remove early_alloc*() wrappers
-In-Reply-To: <1543852035-26634-7-git-send-email-rppt@linux.ibm.com>
+From: Mike Rapoport <rppt@linux.ibm.com>
+Date: Mon, 3 Dec 2018 18:28:16 +0200
+Subject: [OpenRISC] [PATCH v2 3/6] sh: prefer memblock APIs returning
+	virtual address
+In-Reply-To: <20181203161052.GA4244@ravnborg.org>
 References: <1543852035-26634-1-git-send-email-rppt@linux.ibm.com>
- <1543852035-26634-7-git-send-email-rppt@linux.ibm.com>
-Message-ID: <CABGGisySdgSma1bSF2Bk586Vf461o-U2f3w9UMgHJcVucQ0oFA@mail.gmail.com>
+ <1543852035-26634-4-git-send-email-rppt@linux.ibm.com>
+ <20181203161052.GA4244@ravnborg.org>
+Message-ID: <20181203162816.GA26700@rapoport-lnx>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Dec 3, 2018 at 9:48 AM Mike Rapoport <rppt@linux.ibm.com> wrote:
->
-> On arm and unicore32i the early_alloc_aligned() and and early_alloc() are
-> oneliner wrappers for memblock_alloc.
->
-> Replace their usage with direct call to memblock_alloc.
->
-> Suggested-by: Christoph Hellwig <hch@infradead.org>
-> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-> ---
->  arch/arm/mm/mmu.c       | 11 +++--------
->  arch/unicore32/mm/mmu.c | 12 ++++--------
->  2 files changed, 7 insertions(+), 16 deletions(-)
->
-> diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
-> index 0a04c9a5..57de0dd 100644
-> --- a/arch/arm/mm/mmu.c
-> +++ b/arch/arm/mm/mmu.c
-> @@ -719,14 +719,9 @@ EXPORT_SYMBOL(phys_mem_access_prot);
->
->  #define vectors_base() (vectors_high() ? 0xffff0000 : 0)
->
-> -static void __init *early_alloc_aligned(unsigned long sz, unsigned long align)
-> -{
-> -       return memblock_alloc(sz, align);
-> -}
-> -
->  static void __init *early_alloc(unsigned long sz)
+On Mon, Dec 03, 2018 at 05:10:52PM +0100, Sam Ravnborg wrote:
+> Hi Mike.
+> 
+> On Mon, Dec 03, 2018 at 05:47:12PM +0200, Mike Rapoport wrote:
+> > Rather than use the memblock_alloc_base that returns a physical address and
+> > then convert this address to the virtual one, use appropriate memblock
+> > function that returns a virtual address.
+> > 
+> > There is a small functional change in the allocation of then NODE_DATA().
+> > Instead of panicing if the local allocation failed, the non-local
+> > allocation attempt will be made.
+> > 
+> > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> > ---
+> >  arch/sh/mm/init.c | 18 +++++-------------
+> >  arch/sh/mm/numa.c |  5 ++---
+> >  2 files changed, 7 insertions(+), 16 deletions(-)
+> > 
+> > diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
+> > index c8c13c77..3576b5f 100644
+> > --- a/arch/sh/mm/init.c
+> > +++ b/arch/sh/mm/init.c
+> > @@ -192,24 +192,16 @@ void __init page_table_range_init(unsigned long start, unsigned long end,
+> >  void __init allocate_pgdat(unsigned int nid)
+> >  {
+> >  	unsigned long start_pfn, end_pfn;
+> > -#ifdef CONFIG_NEED_MULTIPLE_NODES
+> > -	unsigned long phys;
+> > -#endif
+> >  
+> >  	get_pfn_range_for_nid(nid, &start_pfn, &end_pfn);
+> >  
+> >  #ifdef CONFIG_NEED_MULTIPLE_NODES
+> > -	phys = __memblock_alloc_base(sizeof(struct pglist_data),
+> > -				SMP_CACHE_BYTES, end_pfn << PAGE_SHIFT);
+> > -	/* Retry with all of system memory */
+> > -	if (!phys)
+> > -		phys = __memblock_alloc_base(sizeof(struct pglist_data),
+> > -					SMP_CACHE_BYTES, memblock_end_of_DRAM());
+> > -	if (!phys)
+> > +	NODE_DATA(nid) = memblock_alloc_try_nid_nopanic(
+> > +				sizeof(struct pglist_data),
+> > +				SMP_CACHE_BYTES, MEMBLOCK_LOW_LIMIT,
+> > +				MEMBLOCK_ALLOC_ACCESSIBLE, nid);
+> > +	if (!NODE_DATA(nid))
+> >  		panic("Can't allocate pgdat for node %d\n", nid);
+> > -
+> > -	NODE_DATA(nid) = __va(phys);
+> > -	memset(NODE_DATA(nid), 0, sizeof(struct pglist_data));
+> The new code will always assign NODE_DATA(nid), where the old
+> code only assigned NODE_DATA(nid) in the good case.
+> I dunno if this is an issue, just noticed the difference and
+> wanted to point it out.
 
-Why not get rid of this wrapper like you do on unicore?
+If the allocation fails the NODE_DATA(nid) remains zero anyway and there is
+a panic() call. So I think there is no actual functional change here.
 
->  {
-> -       return early_alloc_aligned(sz, sz);
-> +       return memblock_alloc(sz, sz);
->  }
+> 	Sam
+> 
+
+-- 
+Sincerely yours,
+Mike.
+
