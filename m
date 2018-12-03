@@ -1,41 +1,68 @@
-From: Mike Rapoport <rppt@linux.ibm.com>
-Date: Mon,  3 Dec 2018 17:47:11 +0200
-Subject: [OpenRISC] [PATCH v2 2/6] microblaze: prefer memblock API returning
+From: Sam Ravnborg <sam@ravnborg.org>
+Date: Mon, 3 Dec 2018 17:10:52 +0100
+Subject: [OpenRISC] [PATCH v2 3/6] sh: prefer memblock APIs returning
 	virtual address
-In-Reply-To: <1543852035-26634-1-git-send-email-rppt@linux.ibm.com>
+In-Reply-To: <1543852035-26634-4-git-send-email-rppt@linux.ibm.com>
 References: <1543852035-26634-1-git-send-email-rppt@linux.ibm.com>
-Message-ID: <1543852035-26634-3-git-send-email-rppt@linux.ibm.com>
+ <1543852035-26634-4-git-send-email-rppt@linux.ibm.com>
+Message-ID: <20181203161052.GA4244@ravnborg.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Rather than use the memblock_alloc_base that returns a physical address and
-then convert this address to the virtual one, use appropriate memblock
-function that returns a virtual address.
+Hi Mike.
 
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
----
- arch/microblaze/mm/init.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+On Mon, Dec 03, 2018 at 05:47:12PM +0200, Mike Rapoport wrote:
+> Rather than use the memblock_alloc_base that returns a physical address and
+> then convert this address to the virtual one, use appropriate memblock
+> function that returns a virtual address.
+> 
+> There is a small functional change in the allocation of then NODE_DATA().
+> Instead of panicing if the local allocation failed, the non-local
+> allocation attempt will be made.
+> 
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> ---
+>  arch/sh/mm/init.c | 18 +++++-------------
+>  arch/sh/mm/numa.c |  5 ++---
+>  2 files changed, 7 insertions(+), 16 deletions(-)
+> 
+> diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
+> index c8c13c77..3576b5f 100644
+> --- a/arch/sh/mm/init.c
+> +++ b/arch/sh/mm/init.c
+> @@ -192,24 +192,16 @@ void __init page_table_range_init(unsigned long start, unsigned long end,
+>  void __init allocate_pgdat(unsigned int nid)
+>  {
+>  	unsigned long start_pfn, end_pfn;
+> -#ifdef CONFIG_NEED_MULTIPLE_NODES
+> -	unsigned long phys;
+> -#endif
+>  
+>  	get_pfn_range_for_nid(nid, &start_pfn, &end_pfn);
+>  
+>  #ifdef CONFIG_NEED_MULTIPLE_NODES
+> -	phys = __memblock_alloc_base(sizeof(struct pglist_data),
+> -				SMP_CACHE_BYTES, end_pfn << PAGE_SHIFT);
+> -	/* Retry with all of system memory */
+> -	if (!phys)
+> -		phys = __memblock_alloc_base(sizeof(struct pglist_data),
+> -					SMP_CACHE_BYTES, memblock_end_of_DRAM());
+> -	if (!phys)
+> +	NODE_DATA(nid) = memblock_alloc_try_nid_nopanic(
+> +				sizeof(struct pglist_data),
+> +				SMP_CACHE_BYTES, MEMBLOCK_LOW_LIMIT,
+> +				MEMBLOCK_ALLOC_ACCESSIBLE, nid);
+> +	if (!NODE_DATA(nid))
+>  		panic("Can't allocate pgdat for node %d\n", nid);
+> -
+> -	NODE_DATA(nid) = __va(phys);
+> -	memset(NODE_DATA(nid), 0, sizeof(struct pglist_data));
+The new code will always assign NODE_DATA(nid), where the old
+code only assigned NODE_DATA(nid) in the good case.
+I dunno if this is an issue, just noticed the difference and
+wanted to point it out.
 
-diff --git a/arch/microblaze/mm/init.c b/arch/microblaze/mm/init.c
-index b17fd8a..44f4b89 100644
---- a/arch/microblaze/mm/init.c
-+++ b/arch/microblaze/mm/init.c
-@@ -363,8 +363,9 @@ void __init *early_get_page(void)
- 	 * Mem start + kernel_tlb -> here is limit
- 	 * because of mem mapping from head.S
- 	 */
--	return __va(memblock_alloc_base(PAGE_SIZE, PAGE_SIZE,
--				memory_start + kernel_tlb));
-+	return memblock_alloc_try_nid_raw(PAGE_SIZE, PAGE_SIZE,
-+				MEMBLOCK_LOW_LIMIT, memory_start + kernel_tlb,
-+				NUMA_NO_NODE);
- }
- 
- #endif /* CONFIG_MMU */
--- 
-2.7.4
-
+	Sam
