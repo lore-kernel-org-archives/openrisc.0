@@ -1,90 +1,60 @@
 From: Mike Rapoport <rppt@linux.ibm.com>
-Date: Mon, 3 Dec 2018 18:49:21 +0200
-Subject: [OpenRISC] [PATCH v2 5/6] arch: simplify several early memory
-	allocations
-In-Reply-To: <20181203162908.GB4244@ravnborg.org>
+Date: Mon, 3 Dec 2018 18:55:04 +0200
+Subject: [OpenRISC] [PATCH v2 6/6] arm,
+	unicore32: remove early_alloc*() wrappers
+In-Reply-To: <CABGGisySdgSma1bSF2Bk586Vf461o-U2f3w9UMgHJcVucQ0oFA@mail.gmail.com>
 References: <1543852035-26634-1-git-send-email-rppt@linux.ibm.com>
- <1543852035-26634-6-git-send-email-rppt@linux.ibm.com>
- <20181203162908.GB4244@ravnborg.org>
-Message-ID: <20181203164920.GB26700@rapoport-lnx>
+ <1543852035-26634-7-git-send-email-rppt@linux.ibm.com>
+ <CABGGisySdgSma1bSF2Bk586Vf461o-U2f3w9UMgHJcVucQ0oFA@mail.gmail.com>
+Message-ID: <20181203165504.GC26700@rapoport-lnx>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Dec 03, 2018 at 05:29:08PM +0100, Sam Ravnborg wrote:
-> Hi Mike.
+On Mon, Dec 03, 2018 at 10:27:02AM -0600, Rob Herring wrote:
+> On Mon, Dec 3, 2018 at 9:48 AM Mike Rapoport <rppt@linux.ibm.com> wrote:
+> >
+> > On arm and unicore32i the early_alloc_aligned() and and early_alloc() are
+> > oneliner wrappers for memblock_alloc.
+> >
+> > Replace their usage with direct call to memblock_alloc.
+> >
+> > Suggested-by: Christoph Hellwig <hch@infradead.org>
+> > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> > ---
+> >  arch/arm/mm/mmu.c       | 11 +++--------
+> >  arch/unicore32/mm/mmu.c | 12 ++++--------
+> >  2 files changed, 7 insertions(+), 16 deletions(-)
+> >
+> > diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
+> > index 0a04c9a5..57de0dd 100644
+> > --- a/arch/arm/mm/mmu.c
+> > +++ b/arch/arm/mm/mmu.c
+> > @@ -719,14 +719,9 @@ EXPORT_SYMBOL(phys_mem_access_prot);
+> >
+> >  #define vectors_base() (vectors_high() ? 0xffff0000 : 0)
+> >
+> > -static void __init *early_alloc_aligned(unsigned long sz, unsigned long align)
+> > -{
+> > -       return memblock_alloc(sz, align);
+> > -}
+> > -
+> >  static void __init *early_alloc(unsigned long sz)
 > 
-> > index c37955d..2a17665 100644
-> > --- a/arch/sparc/kernel/prom_64.c
-> > +++ b/arch/sparc/kernel/prom_64.c
-> > @@ -34,16 +34,13 @@
-> >  
-> >  void * __init prom_early_alloc(unsigned long size)
+> Why not get rid of this wrapper like you do on unicore?
+
+ARM has early_alloc() and late_alloc() callbacks which in the end are
+passed as a parameter to alloc_init_pXd() functions. 
+
+Removing early_alloc() would require refactoring all the page table
+allocation code.
+ 
 > >  {
-> > -	unsigned long paddr = memblock_phys_alloc(size, SMP_CACHE_BYTES);
-> > -	void *ret;
-> > +	void *ret = memblock_alloc(size, SMP_CACHE_BYTES);
-> >  
-> > -	if (!paddr) {
-> > +	if (!ret) {
-> >  		prom_printf("prom_early_alloc(%lu) failed\n", size);
-> >  		prom_halt();
-> >  	}
-> >  
-> > -	ret = __va(paddr);
-> > -	memset(ret, 0, size);
-> >  	prom_early_allocated += size;
-> >  
-> >  	return ret;
-> 
-> memblock_alloc() calls memblock_alloc_try_nid().
-> And if allocation fails then memblock_alloc_try_nid() calls panic().
-> So will we ever hit the prom_halt() code?
-
-memblock_phys_alloc_try_nid() also calls panic if an allocation fails. So
-in either case we never reach prom_halt() code.
-
-Actually, sparc is rather an exception from the general practice to rely on
-panic() inside the early allocator rather than to check the return value.
- 
-> Do we have a panic() implementation that actually returns?
-> 
-> 
-> > diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
-> > index 3c8aac2..52884f4 100644
-> > --- a/arch/sparc/mm/init_64.c
-> > +++ b/arch/sparc/mm/init_64.c
-> > @@ -1089,16 +1089,13 @@ static void __init allocate_node_data(int nid)
-> >  	struct pglist_data *p;
-> >  	unsigned long start_pfn, end_pfn;
-> >  #ifdef CONFIG_NEED_MULTIPLE_NODES
-> > -	unsigned long paddr;
-> >  
-> > -	paddr = memblock_phys_alloc_try_nid(sizeof(struct pglist_data),
-> > -					    SMP_CACHE_BYTES, nid);
-> > -	if (!paddr) {
-> > +	NODE_DATA(nid) = memblock_alloc_node(sizeof(struct pglist_data),
-> > +					     SMP_CACHE_BYTES, nid);
-> > +	if (!NODE_DATA(nid)) {
-> >  		prom_printf("Cannot allocate pglist_data for nid[%d]\n", nid);
-> >  		prom_halt();
-> >  	}
-> > -	NODE_DATA(nid) = __va(paddr);
-> > -	memset(NODE_DATA(nid), 0, sizeof(struct pglist_data));
-> >  
-> >  	NODE_DATA(nid)->node_id = nid;
-> >  #endif
-> 
-> Same here.
-> 
-> I did not look at the other cases.
-
-I really tried to be careful and did the replacements only for the calls
-that do panic if an allocation fails.
- 
-> 	Sam
+> > -       return early_alloc_aligned(sz, sz);
+> > +       return memblock_alloc(sz, sz);
+> >  }
 > 
 
 -- 
