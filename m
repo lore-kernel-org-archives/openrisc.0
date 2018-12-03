@@ -1,272 +1,247 @@
 From: Mike Rapoport <rppt@linux.ibm.com>
-Date: Mon,  3 Dec 2018 17:47:10 +0200
-Subject: [OpenRISC] [PATCH v2 1/6] powerpc: prefer memblock APIs returning
-	virtual address
+Date: Mon,  3 Dec 2018 17:47:14 +0200
+Subject: [OpenRISC] [PATCH v2 5/6] arch: simplify several early memory
+	allocations
 In-Reply-To: <1543852035-26634-1-git-send-email-rppt@linux.ibm.com>
 References: <1543852035-26634-1-git-send-email-rppt@linux.ibm.com>
-Message-ID: <1543852035-26634-2-git-send-email-rppt@linux.ibm.com>
+Message-ID: <1543852035-26634-6-git-send-email-rppt@linux.ibm.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-There are a several places that allocate memory using memblock APIs that
-return a physical address, convert the returned address to the virtual
-address and frequently also memset(0) the allocated range.
+There are several early memory allocations in arch/ code that use
+memblock_phys_alloc() to allocate memory, convert the returned physical
+address to the virtual address and then set the allocated memory to zero.
 
-Update these places to use memblock allocators already returning a virtual
-address; use memblock functions that clear the allocated memory instead of
-calling memset(0).
+Exactly the same behaviour can be achieved simply by calling
+memblock_alloc(): it allocates the memory in the same way as
+memblock_phys_alloc(), then it performs the phys_to_virt() conversion and
+clears the allocated memory.
+
+Replace the longer sequence with a simpler call to memblock_alloc().
 
 Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 ---
- arch/powerpc/kernel/paca.c             | 14 ++++++--------
- arch/powerpc/kernel/setup_64.c         | 21 ++++++++++-----------
- arch/powerpc/mm/hash_utils_64.c        |  6 +++---
- arch/powerpc/mm/pgtable-book3e.c       |  8 ++------
- arch/powerpc/mm/pgtable-book3s64.c     |  5 +----
- arch/powerpc/mm/pgtable-radix.c        | 24 +++++++++---------------
- arch/powerpc/platforms/pasemi/iommu.c  |  5 +++--
- arch/powerpc/platforms/pseries/setup.c | 11 +++++++----
- arch/powerpc/sysdev/dart_iommu.c       |  5 +++--
- 9 files changed, 44 insertions(+), 55 deletions(-)
+ arch/arm/mm/mmu.c                     |  4 +---
+ arch/c6x/mm/dma-coherent.c            |  9 ++-------
+ arch/nds32/mm/init.c                  | 12 ++++--------
+ arch/powerpc/kernel/setup-common.c    |  4 ++--
+ arch/powerpc/mm/pgtable_32.c          |  4 +---
+ arch/powerpc/mm/ppc_mmu_32.c          |  3 +--
+ arch/powerpc/platforms/powernv/opal.c |  3 +--
+ arch/sparc/kernel/prom_64.c           |  7 ++-----
+ arch/sparc/mm/init_64.c               |  9 +++------
+ arch/unicore32/mm/mmu.c               |  4 +---
+ 10 files changed, 18 insertions(+), 41 deletions(-)
 
-diff --git a/arch/powerpc/kernel/paca.c b/arch/powerpc/kernel/paca.c
-index 913bfca..fa884ad 100644
---- a/arch/powerpc/kernel/paca.c
-+++ b/arch/powerpc/kernel/paca.c
-@@ -27,7 +27,7 @@
- static void *__init alloc_paca_data(unsigned long size, unsigned long align,
- 				unsigned long limit, int cpu)
- {
--	unsigned long pa;
-+	void *ptr;
- 	int nid;
+diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
+index f5cc1cc..0a04c9a5 100644
+--- a/arch/arm/mm/mmu.c
++++ b/arch/arm/mm/mmu.c
+@@ -721,9 +721,7 @@ EXPORT_SYMBOL(phys_mem_access_prot);
  
+ static void __init *early_alloc_aligned(unsigned long sz, unsigned long align)
+ {
+-	void *ptr = __va(memblock_phys_alloc(sz, align));
+-	memset(ptr, 0, sz);
+-	return ptr;
++	return memblock_alloc(sz, align);
+ }
+ 
+ static void __init *early_alloc(unsigned long sz)
+diff --git a/arch/c6x/mm/dma-coherent.c b/arch/c6x/mm/dma-coherent.c
+index 01305c7..ffc49e2 100644
+--- a/arch/c6x/mm/dma-coherent.c
++++ b/arch/c6x/mm/dma-coherent.c
+@@ -118,8 +118,6 @@ void arch_dma_free(struct device *dev, size_t size, void *vaddr,
+  */
+ void __init coherent_mem_init(phys_addr_t start, u32 size)
+ {
+-	phys_addr_t bitmap_phys;
+-
+ 	if (!size)
+ 		return;
+ 
+@@ -135,11 +133,8 @@ void __init coherent_mem_init(phys_addr_t start, u32 size)
+ 	if (dma_size & (PAGE_SIZE - 1))
+ 		++dma_pages;
+ 
+-	bitmap_phys = memblock_phys_alloc(BITS_TO_LONGS(dma_pages) * sizeof(long),
+-					  sizeof(long));
+-
+-	dma_bitmap = phys_to_virt(bitmap_phys);
+-	memset(dma_bitmap, 0, dma_pages * PAGE_SIZE);
++	dma_bitmap = memblock_alloc(BITS_TO_LONGS(dma_pages) * sizeof(long),
++				    sizeof(long));
+ }
+ 
+ static void c6x_dma_sync(struct device *dev, phys_addr_t paddr, size_t size,
+diff --git a/arch/nds32/mm/init.c b/arch/nds32/mm/init.c
+index 131104b..9f19be8 100644
+--- a/arch/nds32/mm/init.c
++++ b/arch/nds32/mm/init.c
+@@ -80,8 +80,7 @@ static void __init map_ram(void)
+ 		}
+ 
+ 		/* Alloc one page for holding PTE's... */
+-		pte = (pte_t *) __va(memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE));
+-		memset(pte, 0, PAGE_SIZE);
++		pte = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
+ 		set_pmd(pme, __pmd(__pa(pte) + _PAGE_KERNEL_TABLE));
+ 
+ 		/* Fill the newly allocated page with PTE'S */
+@@ -113,8 +112,7 @@ static void __init fixedrange_init(void)
+ 	pgd = swapper_pg_dir + pgd_index(vaddr);
+ 	pud = pud_offset(pgd, vaddr);
+ 	pmd = pmd_offset(pud, vaddr);
+-	fixmap_pmd_p = (pmd_t *) __va(memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE));
+-	memset(fixmap_pmd_p, 0, PAGE_SIZE);
++	fixmap_pmd_p = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
+ 	set_pmd(pmd, __pmd(__pa(fixmap_pmd_p) + _PAGE_KERNEL_TABLE));
+ 
+ #ifdef CONFIG_HIGHMEM
+@@ -126,8 +124,7 @@ static void __init fixedrange_init(void)
+ 	pgd = swapper_pg_dir + pgd_index(vaddr);
+ 	pud = pud_offset(pgd, vaddr);
+ 	pmd = pmd_offset(pud, vaddr);
+-	pte = (pte_t *) __va(memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE));
+-	memset(pte, 0, PAGE_SIZE);
++	pte = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
+ 	set_pmd(pmd, __pmd(__pa(pte) + _PAGE_KERNEL_TABLE));
+ 	pkmap_page_table = pte;
+ #endif /* CONFIG_HIGHMEM */
+@@ -152,8 +149,7 @@ void __init paging_init(void)
+ 	fixedrange_init();
+ 
+ 	/* allocate space for empty_zero_page */
+-	zero_page = __va(memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE));
+-	memset(zero_page, 0, PAGE_SIZE);
++	zero_page = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
+ 	zone_sizes_init();
+ 
+ 	empty_zero_page = virt_to_page(zero_page);
+diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
+index 93ee370..8f6c763 100644
+--- a/arch/powerpc/kernel/setup-common.c
++++ b/arch/powerpc/kernel/setup-common.c
+@@ -459,8 +459,8 @@ void __init smp_setup_cpu_maps(void)
+ 
+ 	DBG("smp_setup_cpu_maps()\n");
+ 
+-	cpu_to_phys_id = __va(memblock_phys_alloc(nr_cpu_ids * sizeof(u32), __alignof__(u32)));
+-	memset(cpu_to_phys_id, 0, nr_cpu_ids * sizeof(u32));
++	cpu_to_phys_id = memblock_alloc(nr_cpu_ids * sizeof(u32),
++					__alignof__(u32));
+ 
+ 	for_each_node_by_type(dn, "cpu") {
+ 		const __be32 *intserv;
+diff --git a/arch/powerpc/mm/pgtable_32.c b/arch/powerpc/mm/pgtable_32.c
+index bda3c6f..9931e68 100644
+--- a/arch/powerpc/mm/pgtable_32.c
++++ b/arch/powerpc/mm/pgtable_32.c
+@@ -50,9 +50,7 @@ __ref pte_t *pte_alloc_one_kernel(struct mm_struct *mm, unsigned long address)
+ 	if (slab_is_available()) {
+ 		pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_ZERO);
+ 	} else {
+-		pte = __va(memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE));
+-		if (pte)
+-			clear_page(pte);
++		pte = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
+ 	}
+ 	return pte;
+ }
+diff --git a/arch/powerpc/mm/ppc_mmu_32.c b/arch/powerpc/mm/ppc_mmu_32.c
+index f6f575b..fddf823 100644
+--- a/arch/powerpc/mm/ppc_mmu_32.c
++++ b/arch/powerpc/mm/ppc_mmu_32.c
+@@ -224,8 +224,7 @@ void __init MMU_init_hw(void)
+ 	 * Find some memory for the hash table.
+ 	 */
+ 	if ( ppc_md.progress ) ppc_md.progress("hash:find piece", 0x322);
+-	Hash = __va(memblock_phys_alloc(Hash_size, Hash_size));
+-	memset(Hash, 0, Hash_size);
++	Hash = memblock_alloc(Hash_size, Hash_size);
+ 	_SDR1 = __pa(Hash) | SDR1_LOW_BITS;
+ 
+ 	Hash_end = (struct hash_pte *) ((unsigned long)Hash + Hash_size);
+diff --git a/arch/powerpc/platforms/powernv/opal.c b/arch/powerpc/platforms/powernv/opal.c
+index beed86f..29ee2ea 100644
+--- a/arch/powerpc/platforms/powernv/opal.c
++++ b/arch/powerpc/platforms/powernv/opal.c
+@@ -171,8 +171,7 @@ int __init early_init_dt_scan_recoverable_ranges(unsigned long node,
  	/*
-@@ -42,17 +42,15 @@ static void *__init alloc_paca_data(unsigned long size, unsigned long align,
- 		nid = early_cpu_to_node(cpu);
+ 	 * Allocate a buffer to hold the MC recoverable ranges.
+ 	 */
+-	mc_recoverable_range =__va(memblock_phys_alloc(size, __alignof__(u64)));
+-	memset(mc_recoverable_range, 0, size);
++	mc_recoverable_range = memblock_alloc(size, __alignof__(u64));
+ 
+ 	for (i = 0; i < mc_recoverable_range_len; i++) {
+ 		mc_recoverable_range[i].start_addr =
+diff --git a/arch/sparc/kernel/prom_64.c b/arch/sparc/kernel/prom_64.c
+index c37955d..2a17665 100644
+--- a/arch/sparc/kernel/prom_64.c
++++ b/arch/sparc/kernel/prom_64.c
+@@ -34,16 +34,13 @@
+ 
+ void * __init prom_early_alloc(unsigned long size)
+ {
+-	unsigned long paddr = memblock_phys_alloc(size, SMP_CACHE_BYTES);
+-	void *ret;
++	void *ret = memblock_alloc(size, SMP_CACHE_BYTES);
+ 
+-	if (!paddr) {
++	if (!ret) {
+ 		prom_printf("prom_early_alloc(%lu) failed\n", size);
+ 		prom_halt();
  	}
  
--	pa = memblock_alloc_base_nid(size, align, limit, nid, MEMBLOCK_NONE);
--	if (!pa) {
--		pa = memblock_alloc_base(size, align, limit);
--		if (!pa)
--			panic("cannot allocate paca data");
--	}
-+	ptr = memblock_alloc_try_nid_raw(size, align, MEMBLOCK_LOW_LIMIT,
-+					 limit, nid);
-+	if (!ptr)
-+		panic("cannot allocate paca data");
+-	ret = __va(paddr);
+-	memset(ret, 0, size);
+ 	prom_early_allocated += size;
  
- 	if (cpu == boot_cpuid)
- 		memblock_set_bottom_up(false);
+ 	return ret;
+diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
+index 3c8aac2..52884f4 100644
+--- a/arch/sparc/mm/init_64.c
++++ b/arch/sparc/mm/init_64.c
+@@ -1089,16 +1089,13 @@ static void __init allocate_node_data(int nid)
+ 	struct pglist_data *p;
+ 	unsigned long start_pfn, end_pfn;
+ #ifdef CONFIG_NEED_MULTIPLE_NODES
+-	unsigned long paddr;
  
--	return __va(pa);
-+	return ptr;
- }
- 
- #ifdef CONFIG_PPC_PSERIES
-diff --git a/arch/powerpc/kernel/setup_64.c b/arch/powerpc/kernel/setup_64.c
-index 236c115..d11ee7f 100644
---- a/arch/powerpc/kernel/setup_64.c
-+++ b/arch/powerpc/kernel/setup_64.c
-@@ -634,19 +634,17 @@ __init u64 ppc64_bolted_size(void)
- 
- static void *__init alloc_stack(unsigned long limit, int cpu)
- {
--	unsigned long pa;
-+	void *ptr;
- 
- 	BUILD_BUG_ON(STACK_INT_FRAME_SIZE % 16);
- 
--	pa = memblock_alloc_base_nid(THREAD_SIZE, THREAD_SIZE, limit,
--					early_cpu_to_node(cpu), MEMBLOCK_NONE);
--	if (!pa) {
--		pa = memblock_alloc_base(THREAD_SIZE, THREAD_SIZE, limit);
--		if (!pa)
--			panic("cannot allocate stacks");
--	}
-+	ptr = memblock_alloc_try_nid_raw(THREAD_SIZE, THREAD_SIZE,
-+					 MEMBLOCK_LOW_LIMIT, limit,
-+					 early_cpu_to_node(cpu));
-+	if (!ptr)
-+		panic("cannot allocate stacks");
- 
--	return __va(pa);
-+	return ptr;
- }
- 
- void __init irqstack_early_init(void)
-@@ -933,8 +931,9 @@ static void __ref init_fallback_flush(void)
- 	 * hardware prefetch runoff. We don't have a recipe for load patterns to
- 	 * reliably avoid the prefetcher.
- 	 */
--	l1d_flush_fallback_area = __va(memblock_alloc_base(l1d_size * 2, l1d_size, limit));
--	memset(l1d_flush_fallback_area, 0, l1d_size * 2);
-+	l1d_flush_fallback_area = memblock_alloc_try_nid(l1d_size * 2,
-+						l1d_size, MEMBLOCK_LOW_LIMIT,
-+						limit, NUMA_NO_NODE);
- 
- 	for_each_possible_cpu(cpu) {
- 		struct paca_struct *paca = paca_ptrs[cpu];
-diff --git a/arch/powerpc/mm/hash_utils_64.c b/arch/powerpc/mm/hash_utils_64.c
-index 0cc7fbc..bc6be44 100644
---- a/arch/powerpc/mm/hash_utils_64.c
-+++ b/arch/powerpc/mm/hash_utils_64.c
-@@ -908,9 +908,9 @@ static void __init htab_initialize(void)
- #ifdef CONFIG_DEBUG_PAGEALLOC
- 	if (debug_pagealloc_enabled()) {
- 		linear_map_hash_count = memblock_end_of_DRAM() >> PAGE_SHIFT;
--		linear_map_hash_slots = __va(memblock_alloc_base(
--				linear_map_hash_count, 1, ppc64_rma_size));
--		memset(linear_map_hash_slots, 0, linear_map_hash_count);
-+		linear_map_hash_slots = memblock_alloc_try_nid(
-+				linear_map_hash_count, 1, MEMBLOCK_LOW_LIMIT,
-+				ppc64_rma_size,	NUMA_NO_NODE);
+-	paddr = memblock_phys_alloc_try_nid(sizeof(struct pglist_data),
+-					    SMP_CACHE_BYTES, nid);
+-	if (!paddr) {
++	NODE_DATA(nid) = memblock_alloc_node(sizeof(struct pglist_data),
++					     SMP_CACHE_BYTES, nid);
++	if (!NODE_DATA(nid)) {
+ 		prom_printf("Cannot allocate pglist_data for nid[%d]\n", nid);
+ 		prom_halt();
  	}
- #endif /* CONFIG_DEBUG_PAGEALLOC */
+-	NODE_DATA(nid) = __va(paddr);
+-	memset(NODE_DATA(nid), 0, sizeof(struct pglist_data));
  
-diff --git a/arch/powerpc/mm/pgtable-book3e.c b/arch/powerpc/mm/pgtable-book3e.c
-index e0ccf36..53cbc7d 100644
---- a/arch/powerpc/mm/pgtable-book3e.c
-+++ b/arch/powerpc/mm/pgtable-book3e.c
-@@ -57,12 +57,8 @@ void vmemmap_remove_mapping(unsigned long start,
- 
- static __ref void *early_alloc_pgtable(unsigned long size)
- {
--	void *pt;
--
--	pt = __va(memblock_alloc_base(size, size, __pa(MAX_DMA_ADDRESS)));
--	memset(pt, 0, size);
--
--	return pt;
-+	return memblock_alloc_try_nid(size, size, MEMBLOCK_LOW_LIMIT,
-+				      __pa(MAX_DMA_ADDRESS), NUMA_NO_NODE);
- }
- 
- /*
-diff --git a/arch/powerpc/mm/pgtable-book3s64.c b/arch/powerpc/mm/pgtable-book3s64.c
-index 9f93c9f..70d5478 100644
---- a/arch/powerpc/mm/pgtable-book3s64.c
-+++ b/arch/powerpc/mm/pgtable-book3s64.c
-@@ -195,11 +195,8 @@ void __init mmu_partition_table_init(void)
- 	unsigned long ptcr;
- 
- 	BUILD_BUG_ON_MSG((PATB_SIZE_SHIFT > 36), "Partition table size too large.");
--	partition_tb = __va(memblock_alloc_base(patb_size, patb_size,
--						MEMBLOCK_ALLOC_ANYWHERE));
--
- 	/* Initialize the Partition Table with no entries */
--	memset((void *)partition_tb, 0, patb_size);
-+	partition_tb = memblock_alloc(patb_size, patb_size);
- 
- 	/*
- 	 * update partition table control register,
-diff --git a/arch/powerpc/mm/pgtable-radix.c b/arch/powerpc/mm/pgtable-radix.c
-index 9311560..415a1eb0 100644
---- a/arch/powerpc/mm/pgtable-radix.c
-+++ b/arch/powerpc/mm/pgtable-radix.c
-@@ -51,24 +51,18 @@ static int native_register_process_table(unsigned long base, unsigned long pg_sz
- static __ref void *early_alloc_pgtable(unsigned long size, int nid,
- 			unsigned long region_start, unsigned long region_end)
- {
--	unsigned long pa = 0;
-+	phys_addr_t min_addr = MEMBLOCK_LOW_LIMIT;
-+	phys_addr_t max_addr = MEMBLOCK_ALLOC_ANYWHERE;
- 	void *pt;
- 
--	if (region_start || region_end) /* has region hint */
--		pa = memblock_alloc_range(size, size, region_start, region_end,
--						MEMBLOCK_NONE);
--	else if (nid != -1) /* has node hint */
--		pa = memblock_alloc_base_nid(size, size,
--						MEMBLOCK_ALLOC_ANYWHERE,
--						nid, MEMBLOCK_NONE);
-+	if (region_start)
-+		min_addr = region_start;
-+	if (region_end)
-+		max_addr = region_end;
- 
--	if (!pa)
--		pa = memblock_alloc_base(size, size, MEMBLOCK_ALLOC_ANYWHERE);
--
--	BUG_ON(!pa);
--
--	pt = __va(pa);
--	memset(pt, 0, size);
-+	pt = memblock_alloc_try_nid_nopanic(size, size, min_addr, max_addr,
-+					    nid);
-+	BUG_ON(!pt);
- 
- 	return pt;
- }
-diff --git a/arch/powerpc/platforms/pasemi/iommu.c b/arch/powerpc/platforms/pasemi/iommu.c
-index f297152..f62930f 100644
---- a/arch/powerpc/platforms/pasemi/iommu.c
-+++ b/arch/powerpc/platforms/pasemi/iommu.c
-@@ -208,7 +208,9 @@ static int __init iob_init(struct device_node *dn)
- 	pr_debug(" -> %s\n", __func__);
- 
- 	/* For 2G space, 8x64 pages (2^21 bytes) is max total l2 size */
--	iob_l2_base = (u32 *)__va(memblock_alloc_base(1UL<<21, 1UL<<21, 0x80000000));
-+	iob_l2_base = memblock_alloc_try_nid_raw(1UL << 21, 1UL << 21,
-+					MEMBLOCK_LOW_LIMIT, 0x80000000,
-+					NUMA_NO_NODE);
- 
- 	pr_info("IOBMAP L2 allocated at: %p\n", iob_l2_base);
- 
-@@ -269,4 +271,3 @@ void __init iommu_init_early_pasemi(void)
- 	pasemi_pci_controller_ops.dma_bus_setup = pci_dma_bus_setup_pasemi;
- 	set_pci_dma_ops(&dma_iommu_ops);
- }
--
-diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platforms/pseries/setup.c
-index 0f553dc..715ed61 100644
---- a/arch/powerpc/platforms/pseries/setup.c
-+++ b/arch/powerpc/platforms/pseries/setup.c
-@@ -130,8 +130,10 @@ static void __init fwnmi_init(void)
- 	 * It will be used in real mode mce handler, hence it needs to be
- 	 * below RMA.
- 	 */
--	mce_data_buf = __va(memblock_alloc_base(RTAS_ERROR_LOG_MAX * nr_cpus,
--					RTAS_ERROR_LOG_MAX, ppc64_rma_size));
-+	mce_data_buf = memblock_alloc_try_nid_raw(RTAS_ERROR_LOG_MAX * nr_cpus,
-+					RTAS_ERROR_LOG_MAX, MEMBLOCK_LOW_LIMIT,
-+					ppc64_rma_size, NUMA_NO_NODE);
-+
- 	for_each_possible_cpu(i) {
- 		paca_ptrs[i]->mce_data_buf = mce_data_buf +
- 						(RTAS_ERROR_LOG_MAX * i);
-@@ -140,8 +142,9 @@ static void __init fwnmi_init(void)
- #ifdef CONFIG_PPC_BOOK3S_64
- 	/* Allocate per cpu slb area to save old slb contents during MCE */
- 	size = sizeof(struct slb_entry) * mmu_slb_size * nr_cpus;
--	slb_ptr = __va(memblock_alloc_base(size, sizeof(struct slb_entry),
--					   ppc64_rma_size));
-+	slb_ptr = memblock_alloc_try_nid_raw(size, sizeof(struct slb_entry),
-+					MEMBLOCK_LOW_LIMIT, ppc64_rma_size,
-+					NUMA_NO_NODE);
- 	for_each_possible_cpu(i)
- 		paca_ptrs[i]->mce_faulty_slbs = slb_ptr + (mmu_slb_size * i);
+ 	NODE_DATA(nid)->node_id = nid;
  #endif
-diff --git a/arch/powerpc/sysdev/dart_iommu.c b/arch/powerpc/sysdev/dart_iommu.c
-index a5b40d1..ac6d235 100644
---- a/arch/powerpc/sysdev/dart_iommu.c
-+++ b/arch/powerpc/sysdev/dart_iommu.c
-@@ -251,8 +251,9 @@ static void allocate_dart(void)
- 	 * 16MB (1 << 24) alignment. We allocate a full 16Mb chuck since we
- 	 * will blow up an entire large page anyway in the kernel mapping.
- 	 */
--	dart_tablebase = __va(memblock_alloc_base(1UL<<24,
--						  1UL<<24, 0x80000000L));
-+	dart_tablebase = memblock_alloc_try_nid_raw(1UL << 24, 1UL << 24,
-+					MEMBLOCK_LOW_LIMIT, 0x80000000L,
-+					NUMA_NO_NODE);
+diff --git a/arch/unicore32/mm/mmu.c b/arch/unicore32/mm/mmu.c
+index 040a8c2..50d8c1a 100644
+--- a/arch/unicore32/mm/mmu.c
++++ b/arch/unicore32/mm/mmu.c
+@@ -143,9 +143,7 @@ static void __init build_mem_type_table(void)
  
- 	/* There is no point scanning the DART space for leaks*/
- 	kmemleak_no_scan((void *)dart_tablebase);
+ static void __init *early_alloc(unsigned long sz)
+ {
+-	void *ptr = __va(memblock_phys_alloc(sz, sz));
+-	memset(ptr, 0, sz);
+-	return ptr;
++	return memblock_alloc(sz, sz);
+ }
+ 
+ static pte_t * __init early_pte_alloc(pmd_t *pmd, unsigned long addr,
 -- 
 2.7.4
 
