@@ -1,30 +1,66 @@
-From: Christoph Hellwig <hch@infradead.org>
-Date: Wed, 5 Dec 2018 06:45:17 -0800
-Subject: [OpenRISC] [PATCH 3/3] arch: remove redundant generic-y defines
-In-Reply-To: <20181205144438.GA30692@infradead.org>
-References: <1544009286-15705-1-git-send-email-yamada.masahiro@socionext.com>
- <1544009286-15705-3-git-send-email-yamada.masahiro@socionext.com>
- <20181205144438.GA30692@infradead.org>
-Message-ID: <20181205144517.GB30692@infradead.org>
+From: Michal Simek <monstr@monstr.eu>
+Date: Wed, 5 Dec 2018 16:29:40 +0100
+Subject: [OpenRISC] [PATCH v2 2/6] microblaze: prefer memblock API
+ returning virtual address
+In-Reply-To: <1543852035-26634-3-git-send-email-rppt@linux.ibm.com>
+References: <1543852035-26634-1-git-send-email-rppt@linux.ibm.com>
+ <1543852035-26634-3-git-send-email-rppt@linux.ibm.com>
+Message-ID: <0a5e0aef-15fd-2d0c-765c-e7ba60219b00@monstr.eu>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Dec 05, 2018 at 06:44:38AM -0800, Christoph Hellwig wrote:
-> On Wed, Dec 05, 2018 at 08:28:06PM +0900, Masahiro Yamada wrote:
-> > Now that Kbuild automatically creates asm-generic wrappers for missing
-> > mandatory headers, it is redundant to list the same headers in
-> > generic-y and mandatory-y.
-> > 
-> > Suggested-by: Sam Ravnborg <sam@ravnborg.org>
-> > Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+On 03. 12. 18 16:47, Mike Rapoport wrote:
+> Rather than use the memblock_alloc_base that returns a physical address and
+> then convert this address to the virtual one, use appropriate memblock
+> function that returns a virtual address.
 > 
-> Oh, that is very useful, especially as maintainance of those
-> generic-y lines has been a mess!
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> ---
+>  arch/microblaze/mm/init.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 > 
-> Acked-by: Christoph Hellwig <hch@lst.de>
+> diff --git a/arch/microblaze/mm/init.c b/arch/microblaze/mm/init.c
+> index b17fd8a..44f4b89 100644
+> --- a/arch/microblaze/mm/init.c
+> +++ b/arch/microblaze/mm/init.c
+> @@ -363,8 +363,9 @@ void __init *early_get_page(void)
+>  	 * Mem start + kernel_tlb -> here is limit
+>  	 * because of mem mapping from head.S
+>  	 */
+> -	return __va(memblock_alloc_base(PAGE_SIZE, PAGE_SIZE,
+> -				memory_start + kernel_tlb));
+> +	return memblock_alloc_try_nid_raw(PAGE_SIZE, PAGE_SIZE,
+> +				MEMBLOCK_LOW_LIMIT, memory_start + kernel_tlb,
+> +				NUMA_NO_NODE);
+>  }
+>  
+>  #endif /* CONFIG_MMU */
+> 
 
-Actually - it seems like you are keeping some generic-y lines, what
-is the reason for that?
+I can't see any issue with functionality when this patch is applied.
+If you want me to take this via my tree please let me know.
+Otherwise:
+
+Tested-by: Michal Simek <michal.simek@xilinx.com>
+
+Thanks,
+Michal
+
+-- 
+Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
+w: www.monstr.eu p: +42-0-721842854
+Maintainer of Linux kernel - Xilinx Microblaze
+Maintainer of Linux kernel - Xilinx Zynq ARM and ZynqMP ARM64 SoCs
+U-Boot custodian - Xilinx Microblaze/Zynq/ZynqMP/Versal SoCs
+
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 198 bytes
+Desc: OpenPGP digital signature
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20181205/a9ba388b/attachment-0001.sig>
