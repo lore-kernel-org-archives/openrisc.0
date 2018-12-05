@@ -1,66 +1,114 @@
-From: Michal Simek <monstr@monstr.eu>
-Date: Wed, 5 Dec 2018 16:29:40 +0100
-Subject: [OpenRISC] [PATCH v2 2/6] microblaze: prefer memblock API
+From: Mike Rapoport <rppt@linux.ibm.com>
+Date: Wed, 5 Dec 2018 23:22:27 +0200
+Subject: [OpenRISC] [PATCH v2 1/6] powerpc: prefer memblock APIs
  returning virtual address
-In-Reply-To: <1543852035-26634-3-git-send-email-rppt@linux.ibm.com>
+In-Reply-To: <87mupkkv3b.fsf@concordia.ellerman.id.au>
 References: <1543852035-26634-1-git-send-email-rppt@linux.ibm.com>
- <1543852035-26634-3-git-send-email-rppt@linux.ibm.com>
-Message-ID: <0a5e0aef-15fd-2d0c-765c-e7ba60219b00@monstr.eu>
+ <1543852035-26634-2-git-send-email-rppt@linux.ibm.com>
+ <87woophasy.fsf@concordia.ellerman.id.au>
+ <20181204171327.GL26700@rapoport-lnx>
+ <87mupkkv3b.fsf@concordia.ellerman.id.au>
+Message-ID: <20181205212226.GF19181@rapoport-lnx>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 03. 12. 18 16:47, Mike Rapoport wrote:
-> Rather than use the memblock_alloc_base that returns a physical address and
-> then convert this address to the virtual one, use appropriate memblock
-> function that returns a virtual address.
+On Wed, Dec 05, 2018 at 11:37:44PM +1100, Michael Ellerman wrote:
+> Mike Rapoport <rppt@linux.ibm.com> writes:
+> > On Tue, Dec 04, 2018 at 08:59:41PM +1100, Michael Ellerman wrote:
+> >> Hi Mike,
+> >> 
+> >> Thanks for trying to clean these up.
+> >> 
+> >> I think a few could be improved though ...
+> >> 
+> >> Mike Rapoport <rppt@linux.ibm.com> writes:
+> >> > diff --git a/arch/powerpc/kernel/paca.c b/arch/powerpc/kernel/paca.c
+> >> > index 913bfca..fa884ad 100644
+> >> > --- a/arch/powerpc/kernel/paca.c
+> >> > +++ b/arch/powerpc/kernel/paca.c
+> >> > @@ -42,17 +42,15 @@ static void *__init alloc_paca_data(unsigned long size, unsigned long align,
+> >> >  		nid = early_cpu_to_node(cpu);
+> >> >  	}
+> >> >  
+> >> > -	pa = memblock_alloc_base_nid(size, align, limit, nid, MEMBLOCK_NONE);
+> >> > -	if (!pa) {
+> >> > -		pa = memblock_alloc_base(size, align, limit);
+> >> > -		if (!pa)
+> >> > -			panic("cannot allocate paca data");
+> >> > -	}
+> >> > +	ptr = memblock_alloc_try_nid_raw(size, align, MEMBLOCK_LOW_LIMIT,
+> >> > +					 limit, nid);
+> >> > +	if (!ptr)
+> >> > +		panic("cannot allocate paca data");
+> >>   
+> >> The old code doesn't zero, but two of the three callers of
+> >> alloc_paca_data() *do* zero the whole allocation, so I'd be happy if we
+> >> did it in here instead.
+> >
+> > I looked at the callers and couldn't tell if zeroing memory in
+> > init_lppaca() would be ok.
+> > I'll remove the _raw here.
+>   
+> Thanks.
 > 
-> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-> ---
->  arch/microblaze/mm/init.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
+> >> That would mean we could use memblock_alloc_try_nid() avoiding the need
+> >> to panic() manually.
+> >
+> > Actual, my plan was to remove panic() from all memblock_alloc* and make all
+> > callers to check the returned value.
+> > I believe it's cleaner and also allows more meaningful panic messages. Not
+> > mentioning the reduction of memblock code.
 > 
-> diff --git a/arch/microblaze/mm/init.c b/arch/microblaze/mm/init.c
-> index b17fd8a..44f4b89 100644
-> --- a/arch/microblaze/mm/init.c
-> +++ b/arch/microblaze/mm/init.c
-> @@ -363,8 +363,9 @@ void __init *early_get_page(void)
->  	 * Mem start + kernel_tlb -> here is limit
->  	 * because of mem mapping from head.S
->  	 */
-> -	return __va(memblock_alloc_base(PAGE_SIZE, PAGE_SIZE,
-> -				memory_start + kernel_tlb));
-> +	return memblock_alloc_try_nid_raw(PAGE_SIZE, PAGE_SIZE,
-> +				MEMBLOCK_LOW_LIMIT, memory_start + kernel_tlb,
-> +				NUMA_NO_NODE);
->  }
->  
->  #endif /* CONFIG_MMU */
+> Hmm, not sure.
 > 
+> I see ~200 calls to the panicking functions, that seems like a lot of
+> work to change all those.
 
-I can't see any issue with functionality when this patch is applied.
-If you want me to take this via my tree please let me know.
-Otherwise:
+Yeah, I know :)
 
-Tested-by: Michal Simek <michal.simek@xilinx.com>
+> And I think I disagree on the "more meaningful panic message". This is a
+> perfect example, compare:
+> 
+> 	panic("cannot allocate paca data");
+> to:
+> 	panic("%s: Failed to allocate %llu bytes align=0x%llx nid=%d from=%pa max_addr=%pa\n",
+> 	      __func__, (u64)size, (u64)align, nid, &min_addr, &max_addr);
+> 
+> The former is basically useless, whereas the second might at least give
+> you a hint as to *why* the allocation failed.
 
-Thanks,
-Michal
+We can easily keep the memblock message, just make it pr_err instead of
+panic.
+The message at the call site can show where the problem was without the
+need to dive into the stack dump.
+
+> I know it's kind of odd for a function to panic() rather than return an
+> error, but memblock is kind of special because it's so early in boot.
+> Most of these allocations have to succeed to get the system up and
+> running.
+
+The downside of having panic() inside some memblock functions is that it
+makes the API way too bloated. And, at least currently, it's inconsistent.
+For instance memblock_alloc_try_nid_raw() does not panic, but
+memblock_alloc_try_nid() does.
+
+When it was about 2 functions and a wrapper, it was perfectly fine, but
+since than memblock has three sets of partially overlapping APIs with
+endless convenience wrappers.
+
+I believe that patching up ~200 calls is worth the reduction of memblock
+API to saner size.
+
+Another thing, the absence of check for return value for memory allocation
+is not only odd, but it also makes the code obfuscated.
+ 
+> cheers
+> 
 
 -- 
-Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
-w: www.monstr.eu p: +42-0-721842854
-Maintainer of Linux kernel - Xilinx Microblaze
-Maintainer of Linux kernel - Xilinx Zynq ARM and ZynqMP ARM64 SoCs
-U-Boot custodian - Xilinx Microblaze/Zynq/ZynqMP/Versal SoCs
+Sincerely yours,
+Mike.
 
-
--------------- next part --------------
-A non-text attachment was scrubbed...
-Name: signature.asc
-Type: application/pgp-signature
-Size: 198 bytes
-Desc: OpenPGP digital signature
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20181205/a9ba388b/attachment-0001.sig>
