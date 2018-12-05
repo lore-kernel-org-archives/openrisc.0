@@ -1,164 +1,628 @@
-From: Mike Rapoport <rppt@linux.ibm.com>
-Date: Tue, 4 Dec 2018 19:13:28 +0200
-Subject: [OpenRISC] [PATCH v2 1/6] powerpc: prefer memblock APIs
- returning virtual address
-In-Reply-To: <87woophasy.fsf@concordia.ellerman.id.au>
-References: <1543852035-26634-1-git-send-email-rppt@linux.ibm.com>
- <1543852035-26634-2-git-send-email-rppt@linux.ibm.com>
- <87woophasy.fsf@concordia.ellerman.id.au>
-Message-ID: <20181204171327.GL26700@rapoport-lnx>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Date: Wed,  5 Dec 2018 20:28:06 +0900
+Subject: [OpenRISC] [PATCH 3/3] arch: remove redundant generic-y defines
+In-Reply-To: <1544009286-15705-1-git-send-email-yamada.masahiro@socionext.com>
+References: <1544009286-15705-1-git-send-email-yamada.masahiro@socionext.com>
+Message-ID: <1544009286-15705-3-git-send-email-yamada.masahiro@socionext.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Dec 04, 2018 at 08:59:41PM +1100, Michael Ellerman wrote:
-> Hi Mike,
-> 
-> Thanks for trying to clean these up.
-> 
-> I think a few could be improved though ...
-> 
-> Mike Rapoport <rppt@linux.ibm.com> writes:
-> > diff --git a/arch/powerpc/kernel/paca.c b/arch/powerpc/kernel/paca.c
-> > index 913bfca..fa884ad 100644
-> > --- a/arch/powerpc/kernel/paca.c
-> > +++ b/arch/powerpc/kernel/paca.c
-> > @@ -42,17 +42,15 @@ static void *__init alloc_paca_data(unsigned long size, unsigned long align,
-> >  		nid = early_cpu_to_node(cpu);
-> >  	}
-> >  
-> > -	pa = memblock_alloc_base_nid(size, align, limit, nid, MEMBLOCK_NONE);
-> > -	if (!pa) {
-> > -		pa = memblock_alloc_base(size, align, limit);
-> > -		if (!pa)
-> > -			panic("cannot allocate paca data");
-> > -	}
-> > +	ptr = memblock_alloc_try_nid_raw(size, align, MEMBLOCK_LOW_LIMIT,
-> > +					 limit, nid);
-> > +	if (!ptr)
-> > +		panic("cannot allocate paca data");
->   
-> The old code doesn't zero, but two of the three callers of
-> alloc_paca_data() *do* zero the whole allocation, so I'd be happy if we
-> did it in here instead.
+Now that Kbuild automatically creates asm-generic wrappers for missing
+mandatory headers, it is redundant to list the same headers in
+generic-y and mandatory-y.
 
-I looked at the callers and couldn't tell if zeroing memory in
-init_lppaca() would be ok.
-I'll remove the _raw here.
+Suggested-by: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+---
+
+ arch/alpha/include/uapi/asm/Kbuild      |  5 -----
+ arch/arc/include/uapi/asm/Kbuild        | 23 -----------------------
+ arch/arm/include/uapi/asm/Kbuild        | 15 ---------------
+ arch/arm64/include/uapi/asm/Kbuild      | 17 -----------------
+ arch/c6x/include/uapi/asm/Kbuild        | 25 -------------------------
+ arch/h8300/include/uapi/asm/Kbuild      | 25 -------------------------
+ arch/hexagon/include/uapi/asm/Kbuild    | 22 ----------------------
+ arch/ia64/include/uapi/asm/Kbuild       |  5 -----
+ arch/m68k/include/uapi/asm/Kbuild       | 18 ------------------
+ arch/microblaze/include/uapi/asm/Kbuild | 24 ------------------------
+ arch/mips/include/uapi/asm/Kbuild       |  1 -
+ arch/nds32/include/uapi/asm/Kbuild      | 24 ------------------------
+ arch/nios2/include/uapi/asm/Kbuild      | 24 ------------------------
+ arch/openrisc/include/uapi/asm/Kbuild   | 26 --------------------------
+ arch/parisc/include/uapi/asm/Kbuild     |  5 -----
+ arch/powerpc/include/uapi/asm/Kbuild    |  6 ------
+ arch/riscv/include/uapi/asm/Kbuild      | 25 -------------------------
+ arch/s390/include/uapi/asm/Kbuild       | 14 --------------
+ arch/sh/include/uapi/asm/Kbuild         | 17 -----------------
+ arch/sparc/include/uapi/asm/Kbuild      |  1 -
+ arch/unicore32/include/uapi/asm/Kbuild  | 27 ---------------------------
+ arch/x86/include/uapi/asm/Kbuild        |  1 -
+ arch/xtensa/include/uapi/asm/Kbuild     |  8 --------
+ 23 files changed, 358 deletions(-)
+
+diff --git a/arch/alpha/include/uapi/asm/Kbuild b/arch/alpha/include/uapi/asm/Kbuild
+index 1a5b753..14a2e9a 100644
+--- a/arch/alpha/include/uapi/asm/Kbuild
++++ b/arch/alpha/include/uapi/asm/Kbuild
+@@ -2,8 +2,3 @@
+ include include/uapi/asm-generic/Kbuild.asm
  
-> That would mean we could use memblock_alloc_try_nid() avoiding the need
-> to panic() manually.
-
-Actual, my plan was to remove panic() from all memblock_alloc* and make all
-callers to check the returned value.
-I believe it's cleaner and also allows more meaningful panic messages. Not
-mentioning the reduction of memblock code.
+ generic-y += bpf_perf_event.h
+-generic-y += ipcbuf.h
+-generic-y += msgbuf.h
+-generic-y += poll.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+diff --git a/arch/arc/include/uapi/asm/Kbuild b/arch/arc/include/uapi/asm/Kbuild
+index 170b5db..f53f8e4 100644
+--- a/arch/arc/include/uapi/asm/Kbuild
++++ b/arch/arc/include/uapi/asm/Kbuild
+@@ -1,29 +1,6 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
  
-> > diff --git a/arch/powerpc/kernel/setup_64.c b/arch/powerpc/kernel/setup_64.c
-> > index 236c115..d11ee7f 100644
-> > --- a/arch/powerpc/kernel/setup_64.c
-> > +++ b/arch/powerpc/kernel/setup_64.c
-> > @@ -634,19 +634,17 @@ __init u64 ppc64_bolted_size(void)
-> >  
-> >  static void *__init alloc_stack(unsigned long limit, int cpu)
-> >  {
-> > -	unsigned long pa;
-> > +	void *ptr;
-> >  
-> >  	BUILD_BUG_ON(STACK_INT_FRAME_SIZE % 16);
-> >  
-> > -	pa = memblock_alloc_base_nid(THREAD_SIZE, THREAD_SIZE, limit,
-> > -					early_cpu_to_node(cpu), MEMBLOCK_NONE);
-> > -	if (!pa) {
-> > -		pa = memblock_alloc_base(THREAD_SIZE, THREAD_SIZE, limit);
-> > -		if (!pa)
-> > -			panic("cannot allocate stacks");
-> > -	}
-> > +	ptr = memblock_alloc_try_nid_raw(THREAD_SIZE, THREAD_SIZE,
-> > +					 MEMBLOCK_LOW_LIMIT, limit,
-> > +					 early_cpu_to_node(cpu));
-> > +	if (!ptr)
-> > +		panic("cannot allocate stacks");
->  
-> Similarly here, several of the callers zero the stack, and I'd rather
-> all of them did.
-> 
-> So again we could use memblock_alloc_try_nid() here and remove the
-> memset()s from emergency_stack_init().
-
-Ok
+-generic-y += auxvec.h
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += posix_types.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += siginfo.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += stat.h
+-generic-y += statfs.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+ generic-y += ucontext.h
+diff --git a/arch/arm/include/uapi/asm/Kbuild b/arch/arm/include/uapi/asm/Kbuild
+index 4d1cc18..279edb1 100644
+--- a/arch/arm/include/uapi/asm/Kbuild
++++ b/arch/arm/include/uapi/asm/Kbuild
+@@ -6,19 +6,4 @@ generated-y += unistd-common.h
+ generated-y += unistd-oabi.h
+ generated-y += unistd-eabi.h
  
-> > diff --git a/arch/powerpc/mm/pgtable-radix.c b/arch/powerpc/mm/pgtable-radix.c
-> > index 9311560..415a1eb0 100644
-> > --- a/arch/powerpc/mm/pgtable-radix.c
-> > +++ b/arch/powerpc/mm/pgtable-radix.c
-> > @@ -51,24 +51,18 @@ static int native_register_process_table(unsigned long base, unsigned long pg_sz
-> >  static __ref void *early_alloc_pgtable(unsigned long size, int nid,
-> >  			unsigned long region_start, unsigned long region_end)
-> >  {
-> > -	unsigned long pa = 0;
-> > +	phys_addr_t min_addr = MEMBLOCK_LOW_LIMIT;
-> > +	phys_addr_t max_addr = MEMBLOCK_ALLOC_ANYWHERE;
-> >  	void *pt;
-> >  
-> > -	if (region_start || region_end) /* has region hint */
-> > -		pa = memblock_alloc_range(size, size, region_start, region_end,
-> > -						MEMBLOCK_NONE);
-> > -	else if (nid != -1) /* has node hint */
-> > -		pa = memblock_alloc_base_nid(size, size,
-> > -						MEMBLOCK_ALLOC_ANYWHERE,
-> > -						nid, MEMBLOCK_NONE);
-> > +	if (region_start)
-> > +		min_addr = region_start;
-> > +	if (region_end)
-> > +		max_addr = region_end;
-> >  
-> > -	if (!pa)
-> > -		pa = memblock_alloc_base(size, size, MEMBLOCK_ALLOC_ANYWHERE);
-> > -
-> > -	BUG_ON(!pa);
-> > -
-> > -	pt = __va(pa);
-> > -	memset(pt, 0, size);
-> > +	pt = memblock_alloc_try_nid_nopanic(size, size, min_addr, max_addr,
-> > +					    nid);
-> > +	BUG_ON(!pt);
-> 
-> I don't think there's any reason to BUG_ON() here rather than letting
-> memblock() call panic() for us. So this could also be memblock_alloc_try_nid().
-
-I'd prefer to panic here.
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += ioctl.h
+-generic-y += ipcbuf.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += siginfo.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += termbits.h
+-generic-y += termios.h
+diff --git a/arch/arm64/include/uapi/asm/Kbuild b/arch/arm64/include/uapi/asm/Kbuild
+index 6c5adf4..bca548a 100644
+--- a/arch/arm64/include/uapi/asm/Kbuild
++++ b/arch/arm64/include/uapi/asm/Kbuild
+@@ -2,21 +2,4 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
  
-> > diff --git a/arch/powerpc/platforms/pasemi/iommu.c b/arch/powerpc/platforms/pasemi/iommu.c
-> > index f297152..f62930f 100644
-> > --- a/arch/powerpc/platforms/pasemi/iommu.c
-> > +++ b/arch/powerpc/platforms/pasemi/iommu.c
-> > @@ -208,7 +208,9 @@ static int __init iob_init(struct device_node *dn)
-> >  	pr_debug(" -> %s\n", __func__);
-> >  
-> >  	/* For 2G space, 8x64 pages (2^21 bytes) is max total l2 size */
-> > -	iob_l2_base = (u32 *)__va(memblock_alloc_base(1UL<<21, 1UL<<21, 0x80000000));
-> > +	iob_l2_base = memblock_alloc_try_nid_raw(1UL << 21, 1UL << 21,
-> > +					MEMBLOCK_LOW_LIMIT, 0x80000000,
-> > +					NUMA_NO_NODE);
-> 
-> This isn't equivalent is it?
-> 
-> memblock_alloc_base() panics on failure but memblock_alloc_try_nid_raw()
-> doesn't?
-
-Right, this should be either a memblock function that panic()'s or a call
-to panic() if the returned value is NULL.
-My preference is for the second variant :)
+-generic-y += errno.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += poll.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += swab.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+-generic-y += siginfo.h
+diff --git a/arch/c6x/include/uapi/asm/Kbuild b/arch/c6x/include/uapi/asm/Kbuild
+index 26644e1..f53f8e4 100644
+--- a/arch/c6x/include/uapi/asm/Kbuild
++++ b/arch/c6x/include/uapi/asm/Kbuild
+@@ -1,31 +1,6 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
  
-> Same comment for the other locations that do that conversion.
-> 
-> cheers
-> 
-
+-generic-y += auxvec.h
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += posix_types.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += shmparam.h
+-generic-y += siginfo.h
+-generic-y += signal.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += stat.h
+-generic-y += statfs.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+ generic-y += ucontext.h
+diff --git a/arch/h8300/include/uapi/asm/Kbuild b/arch/h8300/include/uapi/asm/Kbuild
+index 2f65f78..f53f8e4 100644
+--- a/arch/h8300/include/uapi/asm/Kbuild
++++ b/arch/h8300/include/uapi/asm/Kbuild
+@@ -1,31 +1,6 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+-generic-y += auxvec.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += posix_types.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += setup.h
+-generic-y += shmbuf.h
+-generic-y += shmparam.h
+-generic-y += siginfo.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += stat.h
+-generic-y += statfs.h
+-generic-y += swab.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+ generic-y += ucontext.h
+diff --git a/arch/hexagon/include/uapi/asm/Kbuild b/arch/hexagon/include/uapi/asm/Kbuild
+index 41a176d..c0488dc 100644
+--- a/arch/hexagon/include/uapi/asm/Kbuild
++++ b/arch/hexagon/include/uapi/asm/Kbuild
+@@ -1,27 +1,5 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+-generic-y += auxvec.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += poll.h
+-generic-y += posix_types.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += shmparam.h
+-generic-y += siginfo.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += stat.h
+-generic-y += statfs.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+ generic-y += ucontext.h
+diff --git a/arch/ia64/include/uapi/asm/Kbuild b/arch/ia64/include/uapi/asm/Kbuild
+index 3982e67..f5c6967 100644
+--- a/arch/ia64/include/uapi/asm/Kbuild
++++ b/arch/ia64/include/uapi/asm/Kbuild
+@@ -2,9 +2,4 @@
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+ generic-y += bpf_perf_event.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += msgbuf.h
+-generic-y += poll.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+diff --git a/arch/m68k/include/uapi/asm/Kbuild b/arch/m68k/include/uapi/asm/Kbuild
+index c2e26a4..f5c6967 100644
+--- a/arch/m68k/include/uapi/asm/Kbuild
++++ b/arch/m68k/include/uapi/asm/Kbuild
+@@ -1,23 +1,5 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+-generic-y += auxvec.h
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += ioctl.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += shmparam.h
+-generic-y += siginfo.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += statfs.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+diff --git a/arch/microblaze/include/uapi/asm/Kbuild b/arch/microblaze/include/uapi/asm/Kbuild
+index 2c6a6bf..f53f8e4 100644
+--- a/arch/microblaze/include/uapi/asm/Kbuild
++++ b/arch/microblaze/include/uapi/asm/Kbuild
+@@ -1,30 +1,6 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += shmparam.h
+-generic-y += siginfo.h
+-generic-y += signal.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += stat.h
+-generic-y += statfs.h
+-generic-y += swab.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+ generic-y += ucontext.h
+diff --git a/arch/mips/include/uapi/asm/Kbuild b/arch/mips/include/uapi/asm/Kbuild
+index 7a4becd..14a2e9a 100644
+--- a/arch/mips/include/uapi/asm/Kbuild
++++ b/arch/mips/include/uapi/asm/Kbuild
+@@ -2,4 +2,3 @@
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+ generic-y += bpf_perf_event.h
+-generic-y += ipcbuf.h
+diff --git a/arch/nds32/include/uapi/asm/Kbuild b/arch/nds32/include/uapi/asm/Kbuild
+index 40be972..c0488dc 100644
+--- a/arch/nds32/include/uapi/asm/Kbuild
++++ b/arch/nds32/include/uapi/asm/Kbuild
+@@ -2,28 +2,4 @@
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+-generic-y += shmbuf.h
+-generic-y += bitsperlong.h
+-generic-y += fcntl.h
+-generic-y += stat.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += poll.h
+-generic-y += posix_types.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += setup.h
+-generic-y += siginfo.h
+-generic-y += signal.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += swab.h
+-generic-y += statfs.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+ generic-y += ucontext.h
+diff --git a/arch/nios2/include/uapi/asm/Kbuild b/arch/nios2/include/uapi/asm/Kbuild
+index 13a3d77..f53f8e4 100644
+--- a/arch/nios2/include/uapi/asm/Kbuild
++++ b/arch/nios2/include/uapi/asm/Kbuild
+@@ -1,30 +1,6 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+-generic-y += auxvec.h
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += posix_types.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += setup.h
+-generic-y += shmbuf.h
+-generic-y += siginfo.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += stat.h
+-generic-y += statfs.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+ generic-y += ucontext.h
+diff --git a/arch/openrisc/include/uapi/asm/Kbuild b/arch/openrisc/include/uapi/asm/Kbuild
+index 130c16c..f53f8e4 100644
+--- a/arch/openrisc/include/uapi/asm/Kbuild
++++ b/arch/openrisc/include/uapi/asm/Kbuild
+@@ -1,32 +1,6 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+-generic-y += auxvec.h
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += poll.h
+-generic-y += posix_types.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += setup.h
+-generic-y += shmbuf.h
+-generic-y += shmparam.h
+-generic-y += siginfo.h
+-generic-y += signal.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += stat.h
+-generic-y += statfs.h
+-generic-y += swab.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+ generic-y += ucontext.h
+diff --git a/arch/parisc/include/uapi/asm/Kbuild b/arch/parisc/include/uapi/asm/Kbuild
+index adb5c64..f5c6967 100644
+--- a/arch/parisc/include/uapi/asm/Kbuild
++++ b/arch/parisc/include/uapi/asm/Kbuild
+@@ -1,10 +1,5 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+-generic-y += auxvec.h
+ generic-y += bpf_perf_event.h
+ generic-y += kvm_para.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += resource.h
+-generic-y += siginfo.h
+diff --git a/arch/powerpc/include/uapi/asm/Kbuild b/arch/powerpc/include/uapi/asm/Kbuild
+index a658091..14a2e9a 100644
+--- a/arch/powerpc/include/uapi/asm/Kbuild
++++ b/arch/powerpc/include/uapi/asm/Kbuild
+@@ -2,9 +2,3 @@
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+ generic-y += bpf_perf_event.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += resource.h
+-generic-y += sockios.h
+-generic-y += statfs.h
+-generic-y += siginfo.h
+diff --git a/arch/riscv/include/uapi/asm/Kbuild b/arch/riscv/include/uapi/asm/Kbuild
+index 5511b99..14a2e9a 100644
+--- a/arch/riscv/include/uapi/asm/Kbuild
++++ b/arch/riscv/include/uapi/asm/Kbuild
+@@ -1,29 +1,4 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+-generic-y += setup.h
+-generic-y += unistd.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += posix_types.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += signal.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += stat.h
+-generic-y += statfs.h
+-generic-y += swab.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+-generic-y += siginfo.h
+diff --git a/arch/s390/include/uapi/asm/Kbuild b/arch/s390/include/uapi/asm/Kbuild
+index dc38a90..3e1b12d 100644
+--- a/arch/s390/include/uapi/asm/Kbuild
++++ b/arch/s390/include/uapi/asm/Kbuild
+@@ -5,17 +5,3 @@ include include/uapi/asm-generic/Kbuild.asm
+ generated-y += unistd_32.h
+ generated-y += unistd_64.h
+ 
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += sockios.h
+-generic-y += swab.h
+-generic-y += termbits.h
+-generic-y += siginfo.h
+\ No newline at end of file
+diff --git a/arch/sh/include/uapi/asm/Kbuild b/arch/sh/include/uapi/asm/Kbuild
+index ba4d39c..f53f8e4 100644
+--- a/arch/sh/include/uapi/asm/Kbuild
++++ b/arch/sh/include/uapi/asm/Kbuild
+@@ -1,23 +1,6 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += siginfo.h
+-generic-y += socket.h
+-generic-y += statfs.h
+-generic-y += termbits.h
+-generic-y += termios.h
+ generic-y += ucontext.h
+diff --git a/arch/sparc/include/uapi/asm/Kbuild b/arch/sparc/include/uapi/asm/Kbuild
+index 4680ba2..14a2e9a 100644
+--- a/arch/sparc/include/uapi/asm/Kbuild
++++ b/arch/sparc/include/uapi/asm/Kbuild
+@@ -2,4 +2,3 @@
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+ generic-y += bpf_perf_event.h
+-generic-y += types.h
+diff --git a/arch/unicore32/include/uapi/asm/Kbuild b/arch/unicore32/include/uapi/asm/Kbuild
+index 8611ef9..f53f8e4 100644
+--- a/arch/unicore32/include/uapi/asm/Kbuild
++++ b/arch/unicore32/include/uapi/asm/Kbuild
+@@ -1,33 +1,6 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+-generic-y += auxvec.h
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += posix_types.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += setup.h
+-generic-y += shmbuf.h
+-generic-y += shmparam.h
+-generic-y += siginfo.h
+-generic-y += signal.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += stat.h
+-generic-y += statfs.h
+-generic-y += swab.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+ generic-y += ucontext.h
+diff --git a/arch/x86/include/uapi/asm/Kbuild b/arch/x86/include/uapi/asm/Kbuild
+index 3226816..1e901e4 100644
+--- a/arch/x86/include/uapi/asm/Kbuild
++++ b/arch/x86/include/uapi/asm/Kbuild
+@@ -5,4 +5,3 @@ generic-y += bpf_perf_event.h
+ generated-y += unistd_32.h
+ generated-y += unistd_64.h
+ generated-y += unistd_x32.h
+-generic-y += poll.h
+diff --git a/arch/xtensa/include/uapi/asm/Kbuild b/arch/xtensa/include/uapi/asm/Kbuild
+index 837d4dd..f5c6967 100644
+--- a/arch/xtensa/include/uapi/asm/Kbuild
++++ b/arch/xtensa/include/uapi/asm/Kbuild
+@@ -1,13 +1,5 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+ generic-y += kvm_para.h
+-generic-y += resource.h
+-generic-y += siginfo.h
+-generic-y += statfs.h
+-generic-y += termios.h
 -- 
-Sincerely yours,
-Mike.
+2.7.4
 
