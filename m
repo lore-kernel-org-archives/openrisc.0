@@ -1,84 +1,67 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Sat,  8 Dec 2018 09:36:58 -0800
-Subject: [OpenRISC] [PATCH 06/10] sparc64/iommu: implement
-	DMA_ATTR_NON_CONSISTENT
-In-Reply-To: <20181208173702.15158-1-hch@lst.de>
-References: <20181208173702.15158-1-hch@lst.de>
-Message-ID: <20181208173702.15158-7-hch@lst.de>
+Date: Sat,  8 Dec 2018 09:41:10 -0800
+Subject: [OpenRISC] [PATCH 1/6] sparc: remove no needed sbus_dma_ops methods
+In-Reply-To: <20181208174115.16237-1-hch@lst.de>
+References: <20181208174115.16237-1-hch@lst.de>
+Message-ID: <20181208174115.16237-2-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Just allocate the memory and use map_page to map the memory.
+No need to BUG_ON() on the cache maintainance ops - they are no-ops
+by default, and there is nothing in the DMA API contract that prohibits
+calling them on sbus devices (even if such drivers are unlikely to
+ever appear).
+
+Similarly a dma_supported method that always returns 0 is rather
+pointless.  The only thing that indicates is that no one ever calls
+the method on sbus devices.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/sparc/kernel/iommu.c | 33 +++++++++++++++++++++++----------
- 1 file changed, 23 insertions(+), 10 deletions(-)
+ arch/sparc/kernel/ioport.c | 20 --------------------
+ 1 file changed, 20 deletions(-)
 
-diff --git a/arch/sparc/kernel/iommu.c b/arch/sparc/kernel/iommu.c
-index 4bf0497e0704..4ce24c9dc691 100644
---- a/arch/sparc/kernel/iommu.c
-+++ b/arch/sparc/kernel/iommu.c
-@@ -699,14 +699,19 @@ static void *dma_4u_alloc(struct device *dev, size_t size,
- 	first_page = (unsigned long) page_address(page);
- 	memset((char *)first_page, 0, PAGE_SIZE << order);
- 
-+	if (attrs & DMA_ATTR_NON_CONSISTENT) {
-+		*dma_addrp = dma_4u_map_page(dev, page, 0, size,
-+					     DMA_BIDIRECTIONAL, 0);
-+		if (*dma_addrp == DMA_MAPPING_ERROR)
-+			goto out_free_page;
-+		return page_address(page);
-+	}
-+
- 	iommu = dev->archdata.iommu;
- 
- 	iopte = alloc_npages(dev, iommu, size >> IO_PAGE_SHIFT);
--
--	if (unlikely(iopte == NULL)) {
--		free_pages(first_page, order);
--		return NULL;
--	}
-+	if (unlikely(iopte == NULL))
-+		goto out_free_page;
- 
- 	*dma_addrp = (iommu->tbl.table_map_base +
- 		      ((iopte - iommu->page_table) << IO_PAGE_SHIFT));
-@@ -722,18 +727,26 @@ static void *dma_4u_alloc(struct device *dev, size_t size,
- 	}
- 
- 	return ret;
-+
-+out_free_page:
-+	free_pages(first_page, order);
-+	return NULL;
+diff --git a/arch/sparc/kernel/ioport.c b/arch/sparc/kernel/ioport.c
+index 6799c93c9f27..4b2167a0ec0b 100644
+--- a/arch/sparc/kernel/ioport.c
++++ b/arch/sparc/kernel/ioport.c
+@@ -391,23 +391,6 @@ static void sbus_unmap_sg(struct device *dev, struct scatterlist *sg, int n,
+ 	mmu_release_scsi_sgl(dev, sg, n);
  }
  
- static void dma_4u_free(struct device *dev, size_t size, void *cpu,
- 			dma_addr_t dvma, unsigned long attrs)
- {
--	struct iommu *iommu;
--	unsigned long order, npages;
-+	unsigned long order;
+-static void sbus_sync_sg_for_cpu(struct device *dev, struct scatterlist *sg,
+-				 int n,	enum dma_data_direction dir)
+-{
+-	BUG();
+-}
+-
+-static void sbus_sync_sg_for_device(struct device *dev, struct scatterlist *sg,
+-				    int n, enum dma_data_direction dir)
+-{
+-	BUG();
+-}
+-
+-static int sbus_dma_supported(struct device *dev, u64 mask)
+-{
+-	return 0;
+-}
+-
+ static const struct dma_map_ops sbus_dma_ops = {
+ 	.alloc			= sbus_alloc_coherent,
+ 	.free			= sbus_free_coherent,
+@@ -415,9 +398,6 @@ static const struct dma_map_ops sbus_dma_ops = {
+ 	.unmap_page		= sbus_unmap_page,
+ 	.map_sg			= sbus_map_sg,
+ 	.unmap_sg		= sbus_unmap_sg,
+-	.sync_sg_for_cpu	= sbus_sync_sg_for_cpu,
+-	.sync_sg_for_device	= sbus_sync_sg_for_device,
+-	.dma_supported		= sbus_dma_supported,
+ };
  
--	npages = IO_PAGE_ALIGN(size) >> IO_PAGE_SHIFT;
--	iommu = dev->archdata.iommu;
-+	if (attrs & DMA_ATTR_NON_CONSISTENT) {
-+		dma_4u_unmap_page(dev, dvma, size, DMA_BIDIRECTIONAL, 0);
-+	} else {
-+		struct iommu *iommu = dev->archdata.iommu;
- 
--	iommu_tbl_range_free(&iommu->tbl, dvma, npages, IOMMU_ERROR_CODE);
-+		iommu_tbl_range_free(&iommu->tbl, dvma,
-+				     IO_PAGE_ALIGN(size) >> IO_PAGE_SHIFT,
-+				     IOMMU_ERROR_CODE);
-+	}
- 
- 	order = get_order(size);
- 	if (order < 10)
+ static int __init sparc_register_ioport(void)
 -- 
 2.19.2
 
