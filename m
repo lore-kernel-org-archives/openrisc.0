@@ -1,67 +1,71 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Sat,  8 Dec 2018 09:41:10 -0800
-Subject: [OpenRISC] [PATCH 1/6] sparc: remove no needed sbus_dma_ops methods
-In-Reply-To: <20181208174115.16237-1-hch@lst.de>
-References: <20181208174115.16237-1-hch@lst.de>
-Message-ID: <20181208174115.16237-2-hch@lst.de>
+Date: Sat,  8 Dec 2018 09:41:09 -0800
+Subject: [OpenRISC] make the non-consistent DMA allocator more userful
+	(resend)
+Message-ID: <20181208174115.16237-1-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-No need to BUG_ON() on the cache maintainance ops - they are no-ops
-by default, and there is nothing in the DMA API contract that prohibits
-calling them on sbus devices (even if such drivers are unlikely to
-ever appear).
+[sorry for the spam, had to resend due a wrongly typed linux-arm-kernel
+ address]
 
-Similarly a dma_supported method that always returns 0 is rather
-pointless.  The only thing that indicates is that no one ever calls
-the method on sbus devices.
+Hi all,
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- arch/sparc/kernel/ioport.c | 20 --------------------
- 1 file changed, 20 deletions(-)
+we had all kinds of discussions about how to best allocate DMAable memory
+without having to deal with the problem that your normal "coherent"
+DMA allocator can be very slow on platforms where DMA is not DMA
+coherent.
 
-diff --git a/arch/sparc/kernel/ioport.c b/arch/sparc/kernel/ioport.c
-index 6799c93c9f27..4b2167a0ec0b 100644
---- a/arch/sparc/kernel/ioport.c
-+++ b/arch/sparc/kernel/ioport.c
-@@ -391,23 +391,6 @@ static void sbus_unmap_sg(struct device *dev, struct scatterlist *sg, int n,
- 	mmu_release_scsi_sgl(dev, sg, n);
- }
- 
--static void sbus_sync_sg_for_cpu(struct device *dev, struct scatterlist *sg,
--				 int n,	enum dma_data_direction dir)
--{
--	BUG();
--}
--
--static void sbus_sync_sg_for_device(struct device *dev, struct scatterlist *sg,
--				    int n, enum dma_data_direction dir)
--{
--	BUG();
--}
--
--static int sbus_dma_supported(struct device *dev, u64 mask)
--{
--	return 0;
--}
--
- static const struct dma_map_ops sbus_dma_ops = {
- 	.alloc			= sbus_alloc_coherent,
- 	.free			= sbus_free_coherent,
-@@ -415,9 +398,6 @@ static const struct dma_map_ops sbus_dma_ops = {
- 	.unmap_page		= sbus_unmap_page,
- 	.map_sg			= sbus_map_sg,
- 	.unmap_sg		= sbus_unmap_sg,
--	.sync_sg_for_cpu	= sbus_sync_sg_for_cpu,
--	.sync_sg_for_device	= sbus_sync_sg_for_device,
--	.dma_supported		= sbus_dma_supported,
- };
- 
- static int __init sparc_register_ioport(void)
--- 
-2.19.2
+To work around this drivers basically two choices at the moment:
 
+ (1) just allocate memory using the page or slab allocator and the call
+     one of the dma_map_* APIs on it.  This has a few drawbacks:
+
+       - normal GFP_KERNEL memory might not actually be DMA addressable
+	 for all devices, forcing fallbacks to slow bounce buffering
+       - there is no easy way to access the CMA allocator for large
+	 chunks, or to map small pages into single device and virtually
+	 contigous chunks using the iommu and vmap
+
+ (2) use dma_alloc_attrs with the DMA_ATTR_NON_CONSISTENT flag.  This
+     has a different set of drawbacks
+
+       - only very few architectures actually implement this API fully,
+	 if it is not implemented it falls back to the potentially
+	 uncached and slow coherent allocator
+       - the dma_cache_sync API to use with it is not very well
+	 specified and problematic in that it does not clearly
+	 transfer ownership
+
+Based on that I've been planning to introduce a proper API for
+allocating DMAable memory for a while.  In the end I've ended up
+improving the DMA_ATTR_NON_CONSISTENT flag instead of designing
+something new.  To make it useful we need to:
+
+ (a) ensure we don't fall back to the slow coherent allocator except
+     on fully coherent platforms where they are the same anyway
+ (b) replace the odd dma_cache_sync calls with the proper
+     dma_sync_* APIs that we also use for other ownership trasnfers
+
+This turned out to be surprisingly simple now that we have consolidated
+most of the direct mapping code.  Note that this series is missing
+the updates for powerpc which is in the process of being migrated to
+the common direct mapping code in another series and would be covered
+by that.
+
+Note that these patches don't use iommu/vmap coalescing as they can
+be problematic depending on the cache architecture.  But we could
+opt into those when we know we don't have cache interaction problems
+based on the API.
+
+All the patches are on top of the dma-mapping for-net tree and also
+available as a git tree here:
+
+    git://git.infradead.org/users/hch/misc.git dma-noncoherent-allocator
+
+Gitweb:
+
+    http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/dma-noncoherent-allocator
