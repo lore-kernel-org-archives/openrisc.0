@@ -1,286 +1,230 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Sat,  8 Dec 2018 09:36:59 -0800
-Subject: [OpenRISC] [PATCH 07/10] sparc64/pci_sun4v: move code around a bit
+Date: Sat,  8 Dec 2018 09:36:53 -0800
+Subject: [OpenRISC] [PATCH 01/10] dma-direct: provide a generic
+	implementation of DMA_ATTR_NON_CONSISTENT
 In-Reply-To: <20181208173702.15158-1-hch@lst.de>
 References: <20181208173702.15158-1-hch@lst.de>
-Message-ID: <20181208173702.15158-8-hch@lst.de>
+Message-ID: <20181208173702.15158-2-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Move the alloc / free routines down the file so that we can easily use
-the map / unmap helpers to implement non-consistent allocations.
-
-Also drop the _coherent postfix to match the method name.
+If DMA_ATTR_NON_CONSISTENT is passed in the flags we can always just
+use the dma_direct_alloc_pages implementation given that the callers
+will take care of any cache maintainance on ownership transfers between
+the CPU and the device.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/sparc/kernel/pci_sun4v.c | 229 +++++++++++++++++-----------------
- 1 file changed, 114 insertions(+), 115 deletions(-)
+ arch/arc/mm/dma.c              | 21 ++++++--------------
+ arch/mips/mm/dma-noncoherent.c |  5 ++---
+ arch/openrisc/kernel/dma.c     | 23 +++++++++-------------
+ arch/parisc/kernel/pci-dma.c   | 35 ++++++++++++----------------------
+ kernel/dma/direct.c            |  4 ++--
+ 5 files changed, 31 insertions(+), 57 deletions(-)
 
-diff --git a/arch/sparc/kernel/pci_sun4v.c b/arch/sparc/kernel/pci_sun4v.c
-index fa0e42b4cbfb..b95c70136559 100644
---- a/arch/sparc/kernel/pci_sun4v.c
-+++ b/arch/sparc/kernel/pci_sun4v.c
-@@ -171,87 +171,6 @@ static inline long iommu_batch_end(u64 mask)
- 	return iommu_batch_flush(p, mask);
- }
+diff --git a/arch/arc/mm/dma.c b/arch/arc/mm/dma.c
+index db203ff69ccf..135759d4ea8c 100644
+--- a/arch/arc/mm/dma.c
++++ b/arch/arc/mm/dma.c
+@@ -24,7 +24,6 @@ void *arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
+ 	struct page *page;
+ 	phys_addr_t paddr;
+ 	void *kvaddr;
+-	bool need_coh = !(attrs & DMA_ATTR_NON_CONSISTENT);
  
--static void *dma_4v_alloc_coherent(struct device *dev, size_t size,
--				   dma_addr_t *dma_addrp, gfp_t gfp,
--				   unsigned long attrs)
--{
--	u64 mask;
--	unsigned long flags, order, first_page, npages, n;
--	unsigned long prot = 0;
--	struct iommu *iommu;
--	struct atu *atu;
--	struct iommu_map_table *tbl;
--	struct page *page;
--	void *ret;
--	long entry;
--	int nid;
--
--	size = IO_PAGE_ALIGN(size);
--	order = get_order(size);
--	if (unlikely(order >= MAX_ORDER))
--		return NULL;
--
--	npages = size >> IO_PAGE_SHIFT;
--
--	if (attrs & DMA_ATTR_WEAK_ORDERING)
--		prot = HV_PCI_MAP_ATTR_RELAXED_ORDER;
--
--	nid = dev->archdata.numa_node;
--	page = alloc_pages_node(nid, gfp, order);
--	if (unlikely(!page))
--		return NULL;
--
--	first_page = (unsigned long) page_address(page);
--	memset((char *)first_page, 0, PAGE_SIZE << order);
--
--	iommu = dev->archdata.iommu;
--	atu = iommu->atu;
--
--	mask = dev->coherent_dma_mask;
--	if (mask <= DMA_BIT_MASK(32))
--		tbl = &iommu->tbl;
--	else
--		tbl = &atu->tbl;
--
--	entry = iommu_tbl_range_alloc(dev, tbl, npages, NULL,
--				      (unsigned long)(-1), 0);
--
--	if (unlikely(entry == IOMMU_ERROR_CODE))
--		goto range_alloc_fail;
--
--	*dma_addrp = (tbl->table_map_base + (entry << IO_PAGE_SHIFT));
--	ret = (void *) first_page;
--	first_page = __pa(first_page);
--
--	local_irq_save(flags);
--
--	iommu_batch_start(dev,
--			  (HV_PCI_MAP_ATTR_READ | prot |
--			   HV_PCI_MAP_ATTR_WRITE),
--			  entry);
--
--	for (n = 0; n < npages; n++) {
--		long err = iommu_batch_add(first_page + (n * PAGE_SIZE), mask);
--		if (unlikely(err < 0L))
--			goto iommu_map_fail;
--	}
--
--	if (unlikely(iommu_batch_end(mask) < 0L))
--		goto iommu_map_fail;
--
--	local_irq_restore(flags);
--
--	return ret;
--
--iommu_map_fail:
--	local_irq_restore(flags);
--	iommu_tbl_range_free(tbl, *dma_addrp, npages, IOMMU_ERROR_CODE);
--
--range_alloc_fail:
--	free_pages(first_page, order);
--	return NULL;
--}
--
- unsigned long dma_4v_iotsb_bind(unsigned long devhandle,
- 				unsigned long iotsb_num,
- 				struct pci_bus *bus_dev)
-@@ -316,38 +235,6 @@ static void dma_4v_iommu_demap(struct device *dev, unsigned long devhandle,
- 	local_irq_restore(flags);
- }
- 
--static void dma_4v_free_coherent(struct device *dev, size_t size, void *cpu,
--				 dma_addr_t dvma, unsigned long attrs)
--{
--	struct pci_pbm_info *pbm;
--	struct iommu *iommu;
--	struct atu *atu;
--	struct iommu_map_table *tbl;
--	unsigned long order, npages, entry;
--	unsigned long iotsb_num;
--	u32 devhandle;
--
--	npages = IO_PAGE_ALIGN(size) >> IO_PAGE_SHIFT;
--	iommu = dev->archdata.iommu;
--	pbm = dev->archdata.host_controller;
--	atu = iommu->atu;
--	devhandle = pbm->devhandle;
--
--	if (dvma <= DMA_BIT_MASK(32)) {
--		tbl = &iommu->tbl;
--		iotsb_num = 0; /* we don't care for legacy iommu */
+ 	/*
+ 	 * __GFP_HIGHMEM flag is cleared by upper layer functions
+@@ -46,14 +45,10 @@ void *arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
+ 	 * A coherent buffer needs MMU mapping to enforce non-cachability.
+ 	 * kvaddr is kernel Virtual address (0x7000_0000 based).
+ 	 */
+-	if (need_coh) {
+-		kvaddr = ioremap_nocache(paddr, size);
+-		if (kvaddr == NULL) {
+-			__free_pages(page, order);
+-			return NULL;
+-		}
 -	} else {
--		tbl = &atu->tbl;
--		iotsb_num = atu->iotsb->iotsb_num;
--	}
--	entry = ((dvma - tbl->table_map_base) >> IO_PAGE_SHIFT);
--	dma_4v_iommu_demap(dev, devhandle, dvma, iotsb_num, entry, npages);
--	iommu_tbl_range_free(tbl, dvma, npages, IOMMU_ERROR_CODE);
--	order = get_order(size);
--	if (order < 10)
--		free_pages((unsigned long)cpu, order);
--}
+-		kvaddr = (void *)(u32)paddr;
++	kvaddr = ioremap_nocache(paddr, size);
++	if (kvaddr == NULL) {
++		__free_pages(page, order);
++		return NULL;
+ 	}
+ 
+ 	/*
+@@ -66,9 +61,7 @@ void *arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
+ 	 * Currently flush_cache_vmap nukes the L1 cache completely which
+ 	 * will be optimized as a separate commit
+ 	 */
+-	if (need_coh)
+-		dma_cache_wback_inv(paddr, size);
 -
- static dma_addr_t dma_4v_map_page(struct device *dev, struct page *page,
- 				  unsigned long offset, size_t sz,
- 				  enum dma_data_direction direction,
-@@ -671,6 +558,118 @@ static void dma_4v_unmap_sg(struct device *dev, struct scatterlist *sglist,
- 	local_irq_restore(flags);
++	dma_cache_wback_inv(paddr, size);
+ 	return kvaddr;
  }
  
-+static void *dma_4v_alloc(struct device *dev, size_t size,
-+			  dma_addr_t *dma_addrp, gfp_t gfp, unsigned long attrs)
-+{
-+	u64 mask;
-+	unsigned long flags, order, first_page, npages, n;
-+	unsigned long prot = 0;
-+	struct iommu *iommu;
-+	struct atu *atu;
-+	struct iommu_map_table *tbl;
-+	struct page *page;
-+	void *ret;
-+	long entry;
-+	int nid;
-+
-+	size = IO_PAGE_ALIGN(size);
-+	order = get_order(size);
-+	if (unlikely(order >= MAX_ORDER))
-+		return NULL;
-+
-+	npages = size >> IO_PAGE_SHIFT;
-+
-+	if (attrs & DMA_ATTR_WEAK_ORDERING)
-+		prot = HV_PCI_MAP_ATTR_RELAXED_ORDER;
-+
-+	nid = dev->archdata.numa_node;
-+	page = alloc_pages_node(nid, gfp, order);
-+	if (unlikely(!page))
-+		return NULL;
-+
-+	first_page = (unsigned long) page_address(page);
-+	memset((char *)first_page, 0, PAGE_SIZE << order);
-+
-+	iommu = dev->archdata.iommu;
-+	atu = iommu->atu;
-+
-+	mask = dev->coherent_dma_mask;
-+	if (mask <= DMA_BIT_MASK(32))
-+		tbl = &iommu->tbl;
-+	else
-+		tbl = &atu->tbl;
-+
-+	entry = iommu_tbl_range_alloc(dev, tbl, npages, NULL,
-+				      (unsigned long)(-1), 0);
-+
-+	if (unlikely(entry == IOMMU_ERROR_CODE))
-+		goto range_alloc_fail;
-+
-+	*dma_addrp = (tbl->table_map_base + (entry << IO_PAGE_SHIFT));
-+	ret = (void *) first_page;
-+	first_page = __pa(first_page);
-+
-+	local_irq_save(flags);
-+
-+	iommu_batch_start(dev,
-+			  (HV_PCI_MAP_ATTR_READ | prot |
-+			   HV_PCI_MAP_ATTR_WRITE),
-+			  entry);
-+
-+	for (n = 0; n < npages; n++) {
-+		long err = iommu_batch_add(first_page + (n * PAGE_SIZE), mask);
-+		if (unlikely(err < 0L))
-+			goto iommu_map_fail;
-+	}
-+
-+	if (unlikely(iommu_batch_end(mask) < 0L))
-+		goto iommu_map_fail;
-+
-+	local_irq_restore(flags);
-+
-+	return ret;
-+
-+iommu_map_fail:
-+	local_irq_restore(flags);
-+	iommu_tbl_range_free(tbl, *dma_addrp, npages, IOMMU_ERROR_CODE);
-+
-+range_alloc_fail:
-+	free_pages(first_page, order);
-+	return NULL;
-+}
-+
-+static void dma_4v_free(struct device *dev, size_t size, void *cpu,
-+			dma_addr_t dvma, unsigned long attrs)
-+{
-+	struct pci_pbm_info *pbm;
-+	struct iommu *iommu;
-+	struct atu *atu;
-+	struct iommu_map_table *tbl;
-+	unsigned long order, npages, entry;
-+	unsigned long iotsb_num;
-+	u32 devhandle;
-+
-+	npages = IO_PAGE_ALIGN(size) >> IO_PAGE_SHIFT;
-+	iommu = dev->archdata.iommu;
-+	pbm = dev->archdata.host_controller;
-+	atu = iommu->atu;
-+	devhandle = pbm->devhandle;
-+
-+	if (dvma <= DMA_BIT_MASK(32)) {
-+		tbl = &iommu->tbl;
-+		iotsb_num = 0; /* we don't care for legacy iommu */
-+	} else {
-+		tbl = &atu->tbl;
-+		iotsb_num = atu->iotsb->iotsb_num;
-+	}
-+	entry = ((dvma - tbl->table_map_base) >> IO_PAGE_SHIFT);
-+	dma_4v_iommu_demap(dev, devhandle, dvma, iotsb_num, entry, npages);
-+	iommu_tbl_range_free(tbl, dvma, npages, IOMMU_ERROR_CODE);
-+	order = get_order(size);
-+	if (order < 10)
-+		free_pages((unsigned long)cpu, order);
-+}
-+
- static int dma_4v_supported(struct device *dev, u64 device_mask)
+@@ -78,9 +71,7 @@ void arch_dma_free(struct device *dev, size_t size, void *vaddr,
+ 	phys_addr_t paddr = dma_handle;
+ 	struct page *page = virt_to_page(paddr);
+ 
+-	if (!(attrs & DMA_ATTR_NON_CONSISTENT))
+-		iounmap((void __force __iomem *)vaddr);
+-
++	iounmap((void __force __iomem *)vaddr);
+ 	__free_pages(page, get_order(size));
+ }
+ 
+diff --git a/arch/mips/mm/dma-noncoherent.c b/arch/mips/mm/dma-noncoherent.c
+index cb38461391cb..7576cd7193ba 100644
+--- a/arch/mips/mm/dma-noncoherent.c
++++ b/arch/mips/mm/dma-noncoherent.c
+@@ -50,7 +50,7 @@ void *arch_dma_alloc(struct device *dev, size_t size,
+ 	void *ret;
+ 
+ 	ret = dma_direct_alloc_pages(dev, size, dma_handle, gfp, attrs);
+-	if (ret && !(attrs & DMA_ATTR_NON_CONSISTENT)) {
++	if (ret) {
+ 		dma_cache_wback_inv((unsigned long) ret, size);
+ 		ret = (void *)UNCAC_ADDR(ret);
+ 	}
+@@ -61,8 +61,7 @@ void *arch_dma_alloc(struct device *dev, size_t size,
+ void arch_dma_free(struct device *dev, size_t size, void *cpu_addr,
+ 		dma_addr_t dma_addr, unsigned long attrs)
  {
- 	struct iommu *iommu = dev->archdata.iommu;
-@@ -689,8 +688,8 @@ static int dma_4v_supported(struct device *dev, u64 device_mask)
+-	if (!(attrs & DMA_ATTR_NON_CONSISTENT))
+-		cpu_addr = (void *)CAC_ADDR((unsigned long)cpu_addr);
++	cpu_addr = (void *)CAC_ADDR((unsigned long)cpu_addr);
+ 	dma_direct_free_pages(dev, size, cpu_addr, dma_addr, attrs);
  }
  
- static const struct dma_map_ops sun4v_dma_ops = {
--	.alloc				= dma_4v_alloc_coherent,
--	.free				= dma_4v_free_coherent,
-+	.alloc				= dma_4v_alloc,
-+	.free				= dma_4v_free,
- 	.map_page			= dma_4v_map_page,
- 	.unmap_page			= dma_4v_unmap_page,
- 	.map_sg				= dma_4v_map_sg,
+diff --git a/arch/openrisc/kernel/dma.c b/arch/openrisc/kernel/dma.c
+index 159336adfa2f..483adbb000bb 100644
+--- a/arch/openrisc/kernel/dma.c
++++ b/arch/openrisc/kernel/dma.c
+@@ -98,15 +98,13 @@ arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
+ 
+ 	va = (unsigned long)page;
+ 
+-	if ((attrs & DMA_ATTR_NON_CONSISTENT) == 0) {
+-		/*
+-		 * We need to iterate through the pages, clearing the dcache for
+-		 * them and setting the cache-inhibit bit.
+-		 */
+-		if (walk_page_range(va, va + size, &walk)) {
+-			free_pages_exact(page, size);
+-			return NULL;
+-		}
++	/*
++	 * We need to iterate through the pages, clearing the dcache for
++	 * them and setting the cache-inhibit bit.
++	 */
++	if (walk_page_range(va, va + size, &walk)) {
++		free_pages_exact(page, size);
++		return NULL;
+ 	}
+ 
+ 	return (void *)va;
+@@ -122,11 +120,8 @@ arch_dma_free(struct device *dev, size_t size, void *vaddr,
+ 		.mm = &init_mm
+ 	};
+ 
+-	if ((attrs & DMA_ATTR_NON_CONSISTENT) == 0) {
+-		/* walk_page_range shouldn't be able to fail here */
+-		WARN_ON(walk_page_range(va, va + size, &walk));
+-	}
+-
++	/* walk_page_range shouldn't be able to fail here */
++	WARN_ON(walk_page_range(va, va + size, &walk));
+ 	free_pages_exact(vaddr, size);
+ }
+ 
+diff --git a/arch/parisc/kernel/pci-dma.c b/arch/parisc/kernel/pci-dma.c
+index 04c48f1ef3fb..6780449e3e8b 100644
+--- a/arch/parisc/kernel/pci-dma.c
++++ b/arch/parisc/kernel/pci-dma.c
+@@ -421,29 +421,18 @@ static void *pcxl_dma_alloc(struct device *dev, size_t size,
+ 	return (void *)vaddr;
+ }
+ 
+-static void *pcx_dma_alloc(struct device *dev, size_t size,
+-		dma_addr_t *dma_handle, gfp_t flag, unsigned long attrs)
++static inline bool cpu_supports_coherent_area(void)
+ {
+-	void *addr;
+-
+-	if ((attrs & DMA_ATTR_NON_CONSISTENT) == 0)
+-		return NULL;
+-
+-	addr = (void *)__get_free_pages(flag, get_order(size));
+-	if (addr)
+-		*dma_handle = (dma_addr_t)virt_to_phys(addr);
+-
+-	return addr;
++	return boot_cpu_data.cpu_type == pcxl2 ||
++		boot_cpu_data.cpu_type == pcxl;
+ }
+ 
+ void *arch_dma_alloc(struct device *dev, size_t size,
+ 		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
+ {
+-
+-	if (boot_cpu_data.cpu_type == pcxl2 || boot_cpu_data.cpu_type == pcxl)
++	if (cpu_supports_coherent_area())
+ 		return pcxl_dma_alloc(dev, size, dma_handle, gfp, attrs);
+-	else
+-		return pcx_dma_alloc(dev, size, dma_handle, gfp, attrs);
++	return NULL;
+ }
+ 
+ void arch_dma_free(struct device *dev, size_t size, void *vaddr,
+@@ -451,14 +440,14 @@ void arch_dma_free(struct device *dev, size_t size, void *vaddr,
+ {
+ 	int order = get_order(size);
+ 
+-	if (boot_cpu_data.cpu_type == pcxl2 || boot_cpu_data.cpu_type == pcxl) {
+-		size = 1 << (order + PAGE_SHIFT);
+-		unmap_uncached_pages((unsigned long)vaddr, size);
+-		pcxl_free_range((unsigned long)vaddr, size);
++	if (WARN_ON_ONCE(!cpu_supports_coherent_area()))
++		return;
+ 
+-		vaddr = __va(dma_handle);
+-	}
+-	free_pages((unsigned long)vaddr, get_order(size));
++	size = 1 << (order + PAGE_SHIFT);
++	unmap_uncached_pages((unsigned long)vaddr, size);
++	pcxl_free_range((unsigned long)vaddr, size);
++
++	free_pages((unsigned long)__va(dma_handle), get_order(size));
+ }
+ 
+ void arch_sync_dma_for_device(struct device *dev, phys_addr_t paddr,
+diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
+index 308f88a750c8..4efe1188fd2e 100644
+--- a/kernel/dma/direct.c
++++ b/kernel/dma/direct.c
+@@ -206,7 +206,7 @@ void dma_direct_free_pages(struct device *dev, size_t size, void *cpu_addr,
+ void *dma_direct_alloc(struct device *dev, size_t size,
+ 		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
+ {
+-	if (!dev_is_dma_coherent(dev))
++	if (!dev_is_dma_coherent(dev) && !(attrs & DMA_ATTR_NON_CONSISTENT))
+ 		return arch_dma_alloc(dev, size, dma_handle, gfp, attrs);
+ 	return dma_direct_alloc_pages(dev, size, dma_handle, gfp, attrs);
+ }
+@@ -214,7 +214,7 @@ void *dma_direct_alloc(struct device *dev, size_t size,
+ void dma_direct_free(struct device *dev, size_t size,
+ 		void *cpu_addr, dma_addr_t dma_addr, unsigned long attrs)
+ {
+-	if (!dev_is_dma_coherent(dev))
++	if (!dev_is_dma_coherent(dev) && !(attrs & DMA_ATTR_NON_CONSISTENT))
+ 		arch_dma_free(dev, size, cpu_addr, dma_addr, attrs);
+ 	else
+ 		dma_direct_free_pages(dev, size, cpu_addr, dma_addr, attrs);
 -- 
 2.19.2
 
