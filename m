@@ -1,67 +1,41 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Sat,  8 Dec 2018 09:36:52 -0800
-Subject: [OpenRISC] make the non-consistent DMA allocator more userful
-Message-ID: <20181208173702.15158-1-hch@lst.de>
+Date: Sat,  8 Dec 2018 09:37:01 -0800
+Subject: [OpenRISC] [PATCH 09/10] dma-mapping: skip declared coherent memory
+	for DMA_ATTR_NON_CONSISTENT
+In-Reply-To: <20181208173702.15158-1-hch@lst.de>
+References: <20181208173702.15158-1-hch@lst.de>
+Message-ID: <20181208173702.15158-10-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi all,
+Memory declared using dma_declare_coherent is ioremapped and thus not
+always suitable for our tightened DMA_ATTR_NON_CONSISTENT definition.
 
-we had all kinds of discussions about how to best allocate DMAable memory
-without having to deal with the problem that your normal "coherent"
-DMA allocator can be very slow on platforms where DMA is not DMA
-coherent.
+Skip it given all the existing callers don't DMA_ATTR_NON_CONSISTENT
+anyway.
 
-To work around this drivers basically two choices at the moment:
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ include/linux/dma-mapping.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
- (1) just allocate memory using the page or slab allocator and the call
-     one of the dma_map_* APIs on it.  This has a few drawbacks:
+diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+index 7799c2b27849..8c81fa5d1f44 100644
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -521,7 +521,8 @@ static inline void *dma_alloc_attrs(struct device *dev, size_t size,
+ 	BUG_ON(!ops);
+ 	WARN_ON_ONCE(dev && !dev->coherent_dma_mask);
+ 
+-	if (dma_alloc_from_dev_coherent(dev, size, dma_handle, &cpu_addr))
++	if (!(attrs & DMA_ATTR_NON_CONSISTENT) &&
++	    dma_alloc_from_dev_coherent(dev, size, dma_handle, &cpu_addr))
+ 		return cpu_addr;
+ 
+ 	/* let the implementation decide on the zone to allocate from: */
+-- 
+2.19.2
 
-       - normal GFP_KERNEL memory might not actually be DMA addressable
-	 for all devices, forcing fallbacks to slow bounce buffering
-       - there is no easy way to access the CMA allocator for large
-	 chunks, or to map small pages into single device and virtually
-	 contigous chunks using the iommu and vmap
-
- (2) use dma_alloc_attrs with the DMA_ATTR_NON_CONSISTENT flag.  This
-     has a different set of drawbacks
-
-       - only very few architectures actually implement this API fully,
-	 if it is not implemented it falls back to the potentially
-	 uncached and slow coherent allocator
-       - the dma_cache_sync API to use with it is not very well
-	 specified and problematic in that it does not clearly
-	 transfer ownership
-
-Based on that I've been planning to introduce a proper API for
-allocating DMAable memory for a while.  In the end I've ended up
-improving the DMA_ATTR_NON_CONSISTENT flag instead of designing
-something new.  To make it useful we need to:
-
- (a) ensure we don't fall back to the slow coherent allocator except
-     on fully coherent platforms where they are the same anyway
- (b) replace the odd dma_cache_sync calls with the proper
-     dma_sync_* APIs that we also use for other ownership trasnfers
-
-This turned out to be surprisingly simple now that we have consolidated
-most of the direct mapping code.  Note that this series is missing
-the updates for powerpc which is in the process of being migrated to
-the common direct mapping code in another series and would be covered
-by that.
-
-Note that these patches don't use iommu/vmap coalescing as they can
-be problematic depending on the cache architecture.  But we could
-opt into those when we know we don't have cache interaction problems
-based on the API.
-
-All the patches are on top of the dma-mapping for-net tree and also
-available as a git tree here:
-
-    git://git.infradead.org/users/hch/misc.git dma-noncoherent-allocator
-
-Gitweb:
-
-    http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/dma-noncoherent-allocator
