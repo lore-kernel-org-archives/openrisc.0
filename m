@@ -1,230 +1,118 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Sat,  8 Dec 2018 09:36:53 -0800
-Subject: [OpenRISC] [PATCH 01/10] dma-direct: provide a generic
-	implementation of DMA_ATTR_NON_CONSISTENT
+Date: Sat,  8 Dec 2018 09:37:02 -0800
+Subject: [OpenRISC] [PATCH 10/10] Documentation: update the description for
+	DMA_ATTR_NON_CONSISTENT
 In-Reply-To: <20181208173702.15158-1-hch@lst.de>
 References: <20181208173702.15158-1-hch@lst.de>
-Message-ID: <20181208173702.15158-2-hch@lst.de>
+Message-ID: <20181208173702.15158-11-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-If DMA_ATTR_NON_CONSISTENT is passed in the flags we can always just
-use the dma_direct_alloc_pages implementation given that the callers
-will take care of any cache maintainance on ownership transfers between
-the CPU and the device.
+We got rid of the odd selective consistent or not behavior, and now
+want the normal dma_sync_single_* functions to be used for strict
+ownership transfers.  While dma_cache_sync hasn't been removed from
+the tree yet it should not be used in any new caller, so documentation
+for it is dropped here.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/arc/mm/dma.c              | 21 ++++++--------------
- arch/mips/mm/dma-noncoherent.c |  5 ++---
- arch/openrisc/kernel/dma.c     | 23 +++++++++-------------
- arch/parisc/kernel/pci-dma.c   | 35 ++++++++++++----------------------
- kernel/dma/direct.c            |  4 ++--
- 5 files changed, 31 insertions(+), 57 deletions(-)
+ Documentation/DMA-API.txt        | 30 ++++--------------------------
+ Documentation/DMA-attributes.txt |  9 +++++----
+ include/linux/dma-mapping.h      |  3 +++
+ 3 files changed, 12 insertions(+), 30 deletions(-)
 
-diff --git a/arch/arc/mm/dma.c b/arch/arc/mm/dma.c
-index db203ff69ccf..135759d4ea8c 100644
---- a/arch/arc/mm/dma.c
-+++ b/arch/arc/mm/dma.c
-@@ -24,7 +24,6 @@ void *arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
- 	struct page *page;
- 	phys_addr_t paddr;
- 	void *kvaddr;
--	bool need_coh = !(attrs & DMA_ATTR_NON_CONSISTENT);
+diff --git a/Documentation/DMA-API.txt b/Documentation/DMA-API.txt
+index ac66ae2509a9..c81fe8a4aeec 100644
+--- a/Documentation/DMA-API.txt
++++ b/Documentation/DMA-API.txt
+@@ -518,20 +518,9 @@ API at all.
+ 	dma_alloc_attrs(struct device *dev, size_t size, dma_addr_t *dma_handle,
+ 			gfp_t flag, unsigned long attrs)
  
- 	/*
- 	 * __GFP_HIGHMEM flag is cleared by upper layer functions
-@@ -46,14 +45,10 @@ void *arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
- 	 * A coherent buffer needs MMU mapping to enforce non-cachability.
- 	 * kvaddr is kernel Virtual address (0x7000_0000 based).
- 	 */
--	if (need_coh) {
--		kvaddr = ioremap_nocache(paddr, size);
--		if (kvaddr == NULL) {
--			__free_pages(page, order);
--			return NULL;
--		}
--	} else {
--		kvaddr = (void *)(u32)paddr;
-+	kvaddr = ioremap_nocache(paddr, size);
-+	if (kvaddr == NULL) {
-+		__free_pages(page, order);
-+		return NULL;
- 	}
- 
- 	/*
-@@ -66,9 +61,7 @@ void *arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
- 	 * Currently flush_cache_vmap nukes the L1 cache completely which
- 	 * will be optimized as a separate commit
- 	 */
--	if (need_coh)
--		dma_cache_wback_inv(paddr, size);
+-Identical to dma_alloc_coherent() except that when the
+-DMA_ATTR_NON_CONSISTENT flags is passed in the attrs argument, the
+-platform will choose to return either consistent or non-consistent memory
+-as it sees fit.  By using this API, you are guaranteeing to the platform
+-that you have all the correct and necessary sync points for this memory
+-in the driver should it choose to return non-consistent memory.
 -
-+	dma_cache_wback_inv(paddr, size);
- 	return kvaddr;
- }
- 
-@@ -78,9 +71,7 @@ void arch_dma_free(struct device *dev, size_t size, void *vaddr,
- 	phys_addr_t paddr = dma_handle;
- 	struct page *page = virt_to_page(paddr);
- 
--	if (!(attrs & DMA_ATTR_NON_CONSISTENT))
--		iounmap((void __force __iomem *)vaddr);
+-Note: where the platform can return consistent memory, it will
+-guarantee that the sync points become nops.
 -
-+	iounmap((void __force __iomem *)vaddr);
- 	__free_pages(page, get_order(size));
- }
+-Warning:  Handling non-consistent memory is a real pain.  You should
+-only use this API if you positively know your driver will be
+-required to work on one of the rare (usually non-PCI) architectures
+-that simply cannot make consistent memory.
++Similar to dma_alloc_coherent(), except that the behavior can be controlled
++in more detail using the attrs argument.  See Documentation/DMA-attributes.txt
++for more details.
  
-diff --git a/arch/mips/mm/dma-noncoherent.c b/arch/mips/mm/dma-noncoherent.c
-index cb38461391cb..7576cd7193ba 100644
---- a/arch/mips/mm/dma-noncoherent.c
-+++ b/arch/mips/mm/dma-noncoherent.c
-@@ -50,7 +50,7 @@ void *arch_dma_alloc(struct device *dev, size_t size,
- 	void *ret;
+ ::
  
- 	ret = dma_direct_alloc_pages(dev, size, dma_handle, gfp, attrs);
--	if (ret && !(attrs & DMA_ATTR_NON_CONSISTENT)) {
-+	if (ret) {
- 		dma_cache_wback_inv((unsigned long) ret, size);
- 		ret = (void *)UNCAC_ADDR(ret);
- 	}
-@@ -61,8 +61,7 @@ void *arch_dma_alloc(struct device *dev, size_t size,
- void arch_dma_free(struct device *dev, size_t size, void *cpu_addr,
- 		dma_addr_t dma_addr, unsigned long attrs)
- {
--	if (!(attrs & DMA_ATTR_NON_CONSISTENT))
--		cpu_addr = (void *)CAC_ADDR((unsigned long)cpu_addr);
-+	cpu_addr = (void *)CAC_ADDR((unsigned long)cpu_addr);
- 	dma_direct_free_pages(dev, size, cpu_addr, dma_addr, attrs);
- }
+@@ -540,7 +529,7 @@ that simply cannot make consistent memory.
+ 		       dma_addr_t dma_handle, unsigned long attrs)
  
-diff --git a/arch/openrisc/kernel/dma.c b/arch/openrisc/kernel/dma.c
-index 159336adfa2f..483adbb000bb 100644
---- a/arch/openrisc/kernel/dma.c
-+++ b/arch/openrisc/kernel/dma.c
-@@ -98,15 +98,13 @@ arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
+ Free memory allocated by the dma_alloc_attrs().  All parameters common
+-parameters must identical to those otherwise passed to dma_fre_coherent,
++parameters must identical to those otherwise passed to dma_free_coherent,
+ and the attrs argument must be identical to the attrs passed to
+ dma_alloc_attrs().
  
- 	va = (unsigned long)page;
+@@ -560,17 +549,6 @@ memory or doing partial flushes.
+ 	into the width returned by this call.  It will also always be a power
+ 	of two for easy alignment.
  
--	if ((attrs & DMA_ATTR_NON_CONSISTENT) == 0) {
--		/*
--		 * We need to iterate through the pages, clearing the dcache for
--		 * them and setting the cache-inhibit bit.
--		 */
--		if (walk_page_range(va, va + size, &walk)) {
--			free_pages_exact(page, size);
--			return NULL;
--		}
-+	/*
-+	 * We need to iterate through the pages, clearing the dcache for
-+	 * them and setting the cache-inhibit bit.
-+	 */
-+	if (walk_page_range(va, va + size, &walk)) {
-+		free_pages_exact(page, size);
-+		return NULL;
- 	}
- 
- 	return (void *)va;
-@@ -122,11 +120,8 @@ arch_dma_free(struct device *dev, size_t size, void *vaddr,
- 		.mm = &init_mm
- 	};
- 
--	if ((attrs & DMA_ATTR_NON_CONSISTENT) == 0) {
--		/* walk_page_range shouldn't be able to fail here */
--		WARN_ON(walk_page_range(va, va + size, &walk));
--	}
+-::
 -
-+	/* walk_page_range shouldn't be able to fail here */
-+	WARN_ON(walk_page_range(va, va + size, &walk));
- 	free_pages_exact(vaddr, size);
- }
- 
-diff --git a/arch/parisc/kernel/pci-dma.c b/arch/parisc/kernel/pci-dma.c
-index 04c48f1ef3fb..6780449e3e8b 100644
---- a/arch/parisc/kernel/pci-dma.c
-+++ b/arch/parisc/kernel/pci-dma.c
-@@ -421,29 +421,18 @@ static void *pcxl_dma_alloc(struct device *dev, size_t size,
- 	return (void *)vaddr;
- }
- 
--static void *pcx_dma_alloc(struct device *dev, size_t size,
--		dma_addr_t *dma_handle, gfp_t flag, unsigned long attrs)
-+static inline bool cpu_supports_coherent_area(void)
- {
--	void *addr;
+-	void
+-	dma_cache_sync(struct device *dev, void *vaddr, size_t size,
+-		       enum dma_data_direction direction)
 -
--	if ((attrs & DMA_ATTR_NON_CONSISTENT) == 0)
--		return NULL;
+-Do a partial sync of memory that was allocated by dma_alloc_attrs() with
+-the DMA_ATTR_NON_CONSISTENT flag starting at virtual address vaddr and
+-continuing on for size.  Again, you *must* observe the cache line
+-boundaries when doing this.
 -
--	addr = (void *)__get_free_pages(flag, get_order(size));
--	if (addr)
--		*dma_handle = (dma_addr_t)virt_to_phys(addr);
--
--	return addr;
-+	return boot_cpu_data.cpu_type == pcxl2 ||
-+		boot_cpu_data.cpu_type == pcxl;
- }
+ ::
  
- void *arch_dma_alloc(struct device *dev, size_t size,
- 		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
- {
--
--	if (boot_cpu_data.cpu_type == pcxl2 || boot_cpu_data.cpu_type == pcxl)
-+	if (cpu_supports_coherent_area())
- 		return pcxl_dma_alloc(dev, size, dma_handle, gfp, attrs);
--	else
--		return pcx_dma_alloc(dev, size, dma_handle, gfp, attrs);
-+	return NULL;
- }
+ 	int
+diff --git a/Documentation/DMA-attributes.txt b/Documentation/DMA-attributes.txt
+index 8f8d97f65d73..2bb3fc0a621b 100644
+--- a/Documentation/DMA-attributes.txt
++++ b/Documentation/DMA-attributes.txt
+@@ -46,10 +46,11 @@ behavior.
+ DMA_ATTR_NON_CONSISTENT
+ -----------------------
  
- void arch_dma_free(struct device *dev, size_t size, void *vaddr,
-@@ -451,14 +440,14 @@ void arch_dma_free(struct device *dev, size_t size, void *vaddr,
- {
- 	int order = get_order(size);
+-DMA_ATTR_NON_CONSISTENT lets the platform to choose to return either
+-consistent or non-consistent memory as it sees fit.  By using this API,
+-you are guaranteeing to the platform that you have all the correct and
+-necessary sync points for this memory in the driver.
++DMA_ATTR_NON_CONSISTENT specifies that the memory returned is not
++required to be consistent.  The memory is owned by the device when
++returned from this function, and ownership must be explicitly
++transferred to the CPU using dma_sync_single_for_cpu, and back to the
++device using dma_sync_single_for_device.
  
--	if (boot_cpu_data.cpu_type == pcxl2 || boot_cpu_data.cpu_type == pcxl) {
--		size = 1 << (order + PAGE_SHIFT);
--		unmap_uncached_pages((unsigned long)vaddr, size);
--		pcxl_free_range((unsigned long)vaddr, size);
-+	if (WARN_ON_ONCE(!cpu_supports_coherent_area()))
-+		return;
+ DMA_ATTR_NO_KERNEL_MAPPING
+ --------------------------
+diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+index 8c81fa5d1f44..8757ad5087c4 100644
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -432,6 +432,9 @@ dma_sync_sg_for_device(struct device *dev, struct scatterlist *sg,
+ #define dma_map_page(d, p, o, s, r) dma_map_page_attrs(d, p, o, s, r, 0)
+ #define dma_unmap_page(d, a, s, r) dma_unmap_page_attrs(d, a, s, r, 0)
  
--		vaddr = __va(dma_handle);
--	}
--	free_pages((unsigned long)vaddr, get_order(size));
-+	size = 1 << (order + PAGE_SHIFT);
-+	unmap_uncached_pages((unsigned long)vaddr, size);
-+	pcxl_free_range((unsigned long)vaddr, size);
-+
-+	free_pages((unsigned long)__va(dma_handle), get_order(size));
- }
- 
- void arch_sync_dma_for_device(struct device *dev, phys_addr_t paddr,
-diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-index 308f88a750c8..4efe1188fd2e 100644
---- a/kernel/dma/direct.c
-+++ b/kernel/dma/direct.c
-@@ -206,7 +206,7 @@ void dma_direct_free_pages(struct device *dev, size_t size, void *cpu_addr,
- void *dma_direct_alloc(struct device *dev, size_t size,
- 		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
- {
--	if (!dev_is_dma_coherent(dev))
-+	if (!dev_is_dma_coherent(dev) && !(attrs & DMA_ATTR_NON_CONSISTENT))
- 		return arch_dma_alloc(dev, size, dma_handle, gfp, attrs);
- 	return dma_direct_alloc_pages(dev, size, dma_handle, gfp, attrs);
- }
-@@ -214,7 +214,7 @@ void *dma_direct_alloc(struct device *dev, size_t size,
- void dma_direct_free(struct device *dev, size_t size,
- 		void *cpu_addr, dma_addr_t dma_addr, unsigned long attrs)
- {
--	if (!dev_is_dma_coherent(dev))
-+	if (!dev_is_dma_coherent(dev) && !(attrs & DMA_ATTR_NON_CONSISTENT))
- 		arch_dma_free(dev, size, cpu_addr, dma_addr, attrs);
- 	else
- 		dma_direct_free_pages(dev, size, cpu_addr, dma_addr, attrs);
++/*
++ * Don't use in new code, use dma_sync_single_for_{device,cpu} instead.
++ */
+ static inline void
+ dma_cache_sync(struct device *dev, void *vaddr, size_t size,
+ 		enum dma_data_direction dir)
 -- 
 2.19.2
 
