@@ -1,39 +1,63 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Sat,  8 Dec 2018 09:41:13 -0800
-Subject: [OpenRISC] [PATCH 4/6] sparc: remove not required includes from
-	dma-mapping.h
+Date: Sat,  8 Dec 2018 09:41:14 -0800
+Subject: [OpenRISC] [PATCH 5/6] sparc: move the leon PCI memory space
+	comment to <asm/leon.h>
 In-Reply-To: <20181208174115.16237-1-hch@lst.de>
 References: <20181208174115.16237-1-hch@lst.de>
-Message-ID: <20181208174115.16237-5-hch@lst.de>
+Message-ID: <20181208174115.16237-6-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The only thing we need to explicitly pull in is the defines for the
-CPU type.
+It has nothing to do with the content of the pci.h header.
 
+Suggested by: Sam Ravnborg <sam@ravnborg.org>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/sparc/include/asm/dma-mapping.h | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ arch/sparc/include/asm/leon.h   | 9 +++++++++
+ arch/sparc/include/asm/pci_32.h | 9 ---------
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/arch/sparc/include/asm/dma-mapping.h b/arch/sparc/include/asm/dma-mapping.h
-index b0bb2fcaf1c9..55a44f08a9a4 100644
---- a/arch/sparc/include/asm/dma-mapping.h
-+++ b/arch/sparc/include/asm/dma-mapping.h
-@@ -2,9 +2,7 @@
- #ifndef ___ASM_SPARC_DMA_MAPPING_H
- #define ___ASM_SPARC_DMA_MAPPING_H
+diff --git a/arch/sparc/include/asm/leon.h b/arch/sparc/include/asm/leon.h
+index c68bb5b76e3d..77ea406ff9df 100644
+--- a/arch/sparc/include/asm/leon.h
++++ b/arch/sparc/include/asm/leon.h
+@@ -255,4 +255,13 @@ extern int leon_ipi_irq;
+ #define _pfn_valid(pfn)	 ((pfn < last_valid_pfn) && (pfn >= PFN(phys_base)))
+ #define _SRMMU_PTE_PMASK_LEON 0xffffffff
  
--#include <linux/scatterlist.h>
--#include <linux/mm.h>
--#include <linux/dma-debug.h>
-+#include <asm/cpu_type.h>
- 
- extern const struct dma_map_ops *dma_ops;
- 
++/*
++ * On LEON PCI Memory space is mapped 1:1 with physical address space.
++ *
++ * I/O space is located at low 64Kbytes in PCI I/O space. The I/O addresses
++ * are converted into CPU addresses to virtual addresses that are mapped with
++ * MMU to the PCI Host PCI I/O space window which are translated to the low
++ * 64Kbytes by the Host controller.
++ */
++
+ #endif
+diff --git a/arch/sparc/include/asm/pci_32.h b/arch/sparc/include/asm/pci_32.h
+index cfc0ee9476c6..a475380ea108 100644
+--- a/arch/sparc/include/asm/pci_32.h
++++ b/arch/sparc/include/asm/pci_32.h
+@@ -23,15 +23,6 @@
+ /* generic pci stuff */
+ #include <asm-generic/pci.h>
+ #else
+-/*
+- * On LEON PCI Memory space is mapped 1:1 with physical address space.
+- *
+- * I/O space is located at low 64Kbytes in PCI I/O space. The I/O addresses
+- * are converted into CPU addresses to virtual addresses that are mapped with
+- * MMU to the PCI Host PCI I/O space window which are translated to the low
+- * 64Kbytes by the Host controller.
+- */
+-
+ static inline int pci_get_legacy_ide_irq(struct pci_dev *dev, int channel)
+ {
+ 	return PCI_IRQ_NONE;
 -- 
 2.19.2
 
