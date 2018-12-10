@@ -1,108 +1,39 @@
-From: Robin Murphy <robin.murphy@arm.com>
-Date: Mon, 10 Dec 2018 19:19:30 +0000
-Subject: [OpenRISC] [PATCH 02/10] arm64/iommu: don't remap contiguous
- allocations for coherent devices
-In-Reply-To: <20181208173702.15158-3-hch@lst.de>
-References: <20181208173702.15158-1-hch@lst.de>
- <20181208173702.15158-3-hch@lst.de>
-Message-ID: <eaf8ce49-ab5e-7c02-a028-74671172b684@arm.com>
+From: Christoph Hellwig <hch@lst.de>
+Date: Mon, 10 Dec 2018 20:22:28 +0100
+Subject: [OpenRISC] [PATCH 6/6] sparc: merge 32-bit and 64-bit version
+	of pci.h
+In-Reply-To: <20181210.101039.1882227517259366533.davem@davemloft.net>
+References: <20181208174115.16237-7-hch@lst.de>
+ <20181208.205806.42785512174962944.davem@davemloft.net>
+ <20181210163256.GA27331@lst.de>
+ <20181210.101039.1882227517259366533.davem@davemloft.net>
+Message-ID: <20181210192228.GB31178@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 08/12/2018 17:36, Christoph Hellwig wrote:
-> There is no need to have an additional kernel mapping for a contiguous
-> allocation if the device already is DMA coherent, so skip it.
-
-FWIW, the "need" was that it kept the code in this path simple and the 
-mapping behaviour consistent with the regular iommu_dma_alloc() case. 
-One could quite easily retort that there is no need for the extra 
-complexity of this patch, since vmalloc is cheap on a 64-bit architecture ;)
-
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->   arch/arm64/mm/dma-mapping.c | 35 ++++++++++++++++++++++-------------
->   1 file changed, 22 insertions(+), 13 deletions(-)
+On Mon, Dec 10, 2018 at 10:10:39AM -0800, David Miller wrote:
+> From: Christoph Hellwig <hch@lst.de>
+> Date: Mon, 10 Dec 2018 17:32:56 +0100
 > 
-> diff --git a/arch/arm64/mm/dma-mapping.c b/arch/arm64/mm/dma-mapping.c
-> index 4c0f498069e8..d39b60113539 100644
-> --- a/arch/arm64/mm/dma-mapping.c
-> +++ b/arch/arm64/mm/dma-mapping.c
-> @@ -255,13 +255,18 @@ static void *__iommu_alloc_attrs(struct device *dev, size_t size,
->   						    size >> PAGE_SHIFT);
->   			return NULL;
->   		}
-> +
-> +		if (coherent) {
-> +			memset(addr, 0, size);
-> +			return addr;
-> +		}
-> +
->   		addr = dma_common_contiguous_remap(page, size, VM_USERMAP,
->   						   prot,
->   						   __builtin_return_address(0));
->   		if (addr) {
->   			memset(addr, 0, size);
-> -			if (!coherent)
-> -				__dma_flush_area(page_to_virt(page), iosize);
-> +			__dma_flush_area(page_to_virt(page), iosize);
-
-Oh poo - seems I missed it at the time but the existing logic here is 
-wrong. Let me send a separate fix to flip those statements into the 
-correct order...
-
-Robin.
-
->   		} else {
->   			iommu_dma_unmap_page(dev, *handle, iosize, 0, attrs);
->   			dma_release_from_contiguous(dev, page,
-> @@ -309,7 +314,9 @@ static void __iommu_free_attrs(struct device *dev, size_t size, void *cpu_addr,
->   
->   		iommu_dma_unmap_page(dev, handle, iosize, 0, attrs);
->   		dma_release_from_contiguous(dev, page, size >> PAGE_SHIFT);
-> -		dma_common_free_remap(cpu_addr, size, VM_USERMAP);
-> +
-> +		if (!dev_is_dma_coherent(dev))
-> +			dma_common_free_remap(cpu_addr, size, VM_USERMAP);
->   	} else if (is_vmalloc_addr(cpu_addr)){
->   		struct vm_struct *area = find_vm_area(cpu_addr);
->   
-> @@ -336,11 +343,12 @@ static int __iommu_mmap_attrs(struct device *dev, struct vm_area_struct *vma,
->   		return ret;
->   
->   	if (attrs & DMA_ATTR_FORCE_CONTIGUOUS) {
-> -		/*
-> -		 * DMA_ATTR_FORCE_CONTIGUOUS allocations are always remapped,
-> -		 * hence in the vmalloc space.
-> -		 */
-> -		unsigned long pfn = vmalloc_to_pfn(cpu_addr);
-> +		unsigned long pfn;
-> +
-> +		if (dev_is_dma_coherent(dev))
-> +			pfn = virt_to_pfn(cpu_addr);
-> +		else
-> +			pfn = vmalloc_to_pfn(cpu_addr);
->   		return __swiotlb_mmap_pfn(vma, pfn, size);
->   	}
->   
-> @@ -359,11 +367,12 @@ static int __iommu_get_sgtable(struct device *dev, struct sg_table *sgt,
->   	struct vm_struct *area = find_vm_area(cpu_addr);
->   
->   	if (attrs & DMA_ATTR_FORCE_CONTIGUOUS) {
-> -		/*
-> -		 * DMA_ATTR_FORCE_CONTIGUOUS allocations are always remapped,
-> -		 * hence in the vmalloc space.
-> -		 */
-> -		struct page *page = vmalloc_to_page(cpu_addr);
-> +		struct page *page;
-> +
-> +		if (dev_is_dma_coherent(dev))
-> +			page = virt_to_page(cpu_addr);
-> +		else
-> +			page = vmalloc_to_page(cpu_addr);
->   		return __swiotlb_get_sgtable_page(sgt, page, size);
->   	}
->   
+> > Dave, can you pick the series up through the sparc tree?  I could also
+> > merge it through the dma-mapping tree, but given that there is no
+> > dependency on it the sparc tree seem like the better fit.
 > 
+> I thought that some of this is a prerequisite for the DMA mapping
+> work and overall consolidation you are doing.  So I kinda assumed
+> you wanted to merge it via your tree.
+> 
+> I anticipate no conflicts at all, even until the next merge window,
+> so it could very easily go through your tree.
+> 
+> Let me know if you still want me to merge this.
+
+These patches are purely cleanups I found while auditing the DMA
+mapping code, at least as of now there are no dependencies.
+
+That being said now that I looked into it a bit more they do however
+depend on the ->mapping_error removal, so I'll take them through
+the dma-mapping tree.
