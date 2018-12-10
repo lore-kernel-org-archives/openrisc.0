@@ -1,107 +1,212 @@
-From: Mike Rapoport <rppt@linux.ibm.com>
-Date: Sun,  9 Dec 2018 17:00:24 +0200
-Subject: [OpenRISC] [PATCH v3 6/6] arm,
-	unicore32: remove early_alloc*() wrappers
-In-Reply-To: <1544367624-15376-1-git-send-email-rppt@linux.ibm.com>
-References: <1544367624-15376-1-git-send-email-rppt@linux.ibm.com>
-Message-ID: <1544367624-15376-7-git-send-email-rppt@linux.ibm.com>
+From: Dmitry V. Levin <ldv@altlinux.org>
+Date: Mon, 10 Dec 2018 07:23:52 +0300
+Subject: [OpenRISC] [PATCH v5 00/25] ptrace: add PTRACE_GET_SYSCALL_INFO
+	request
+Message-ID: <20181210042352.GA6092@altlinux.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On arm and unicore32i the early_alloc_aligned() and and early_alloc() are
-oneliner wrappers for memblock_alloc.
+PTRACE_GET_SYSCALL_INFO is a generic ptrace API that lets ptracer obtain
+details of the syscall the tracee is blocked in.
 
-Replace their usage with direct call to memblock_alloc.
+There are two reasons for a special syscall-related ptrace request.
 
-Suggested-by: Christoph Hellwig <hch@infradead.org>
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
----
- arch/arm/mm/mmu.c       | 11 +++--------
- arch/unicore32/mm/mmu.c | 12 ++++--------
- 2 files changed, 7 insertions(+), 16 deletions(-)
+Firstly, with the current ptrace API there are cases when ptracer cannot
+retrieve necessary information about syscalls.  Some examples include:
+* The notorious int-0x80-from-64-bit-task issue.  See [1] for details.
+In short, if a 64-bit task performs a syscall through int 0x80, its tracer
+has no reliable means to find out that the syscall was, in fact,
+a compat syscall, and misidentifies it.
+* Syscall-enter-stop and syscall-exit-stop look the same for the tracer.
+Common practice is to keep track of the sequence of ptrace-stops in order
+not to mix the two syscall-stops up.  But it is not as simple as it looks;
+for example, strace had a (just recently fixed) long-standing bug where
+attaching strace to a tracee that is performing the execve system call
+led to the tracer identifying the following syscall-exit-stop as
+syscall-enter-stop, which messed up all the state tracking.
+* Since the introduction of commit 84d77d3f06e7e8dea057d10e8ec77ad71f721be3
+("ptrace: Don't allow accessing an undumpable mm"), both PTRACE_PEEKDATA
+and process_vm_readv become unavailable when the process dumpable flag
+is cleared.  On such architectures as ia64 this results in all syscall
+arguments being unavailable for the tracer.
 
-diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
-index 0a04c9a5..57de0dd 100644
---- a/arch/arm/mm/mmu.c
-+++ b/arch/arm/mm/mmu.c
-@@ -719,14 +719,9 @@ EXPORT_SYMBOL(phys_mem_access_prot);
- 
- #define vectors_base()	(vectors_high() ? 0xffff0000 : 0)
- 
--static void __init *early_alloc_aligned(unsigned long sz, unsigned long align)
--{
--	return memblock_alloc(sz, align);
--}
--
- static void __init *early_alloc(unsigned long sz)
- {
--	return early_alloc_aligned(sz, sz);
-+	return memblock_alloc(sz, sz);
- }
- 
- static void *__init late_alloc(unsigned long sz)
-@@ -998,7 +993,7 @@ void __init iotable_init(struct map_desc *io_desc, int nr)
- 	if (!nr)
- 		return;
- 
--	svm = early_alloc_aligned(sizeof(*svm) * nr, __alignof__(*svm));
-+	svm = memblock_alloc(sizeof(*svm) * nr, __alignof__(*svm));
- 
- 	for (md = io_desc; nr; md++, nr--) {
- 		create_mapping(md);
-@@ -1020,7 +1015,7 @@ void __init vm_reserve_area_early(unsigned long addr, unsigned long size,
- 	struct vm_struct *vm;
- 	struct static_vm *svm;
- 
--	svm = early_alloc_aligned(sizeof(*svm), __alignof__(*svm));
-+	svm = memblock_alloc(sizeof(*svm), __alignof__(*svm));
- 
- 	vm = &svm->vm;
- 	vm->addr = (void *)addr;
-diff --git a/arch/unicore32/mm/mmu.c b/arch/unicore32/mm/mmu.c
-index 50d8c1a..a402192 100644
---- a/arch/unicore32/mm/mmu.c
-+++ b/arch/unicore32/mm/mmu.c
-@@ -141,16 +141,12 @@ static void __init build_mem_type_table(void)
- 
- #define vectors_base()	(vectors_high() ? 0xffff0000 : 0)
- 
--static void __init *early_alloc(unsigned long sz)
--{
--	return memblock_alloc(sz, sz);
--}
--
- static pte_t * __init early_pte_alloc(pmd_t *pmd, unsigned long addr,
- 		unsigned long prot)
- {
- 	if (pmd_none(*pmd)) {
--		pte_t *pte = early_alloc(PTRS_PER_PTE * sizeof(pte_t));
-+		pte_t *pte = memblock_alloc(PTRS_PER_PTE * sizeof(pte_t),
-+					    PTRS_PER_PTE * sizeof(pte_t));
- 		__pmd_populate(pmd, __pa(pte) | prot);
- 	}
- 	BUG_ON(pmd_bad(*pmd));
-@@ -352,7 +348,7 @@ static void __init devicemaps_init(void)
- 	/*
- 	 * Allocate the vector page early.
- 	 */
--	vectors = early_alloc(PAGE_SIZE);
-+	vectors = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
- 
- 	for (addr = VMALLOC_END; addr; addr += PGDIR_SIZE)
- 		pmd_clear(pmd_off_k(addr));
-@@ -429,7 +425,7 @@ void __init paging_init(void)
- 	top_pmd = pmd_off_k(0xffff0000);
- 
- 	/* allocate the zero page. */
--	zero_page = early_alloc(PAGE_SIZE);
-+	zero_page = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
- 
- 	bootmem_init();
- 
+Secondly, ptracers also have to support a lot of arch-specific code for
+obtaining information about the tracee.  For some architectures, this
+requires a ptrace(PTRACE_PEEKUSER, ...) invocation for every syscall
+argument and return value.
+
+PTRACE_GET_SYSCALL_INFO returns the following structure:
+
+struct ptrace_syscall_info {
+	__u8 op;	/* PTRACE_SYSCALL_INFO_* */
+	__u8 __pad0[3];
+	__u32 arch;
+	__u64 instruction_pointer;
+	__u64 stack_pointer;
+	__u64 frame_pointer;
+	union {
+		struct {
+			__u64 nr;
+			__u64 args[6];
+		} entry;
+		struct {
+			__s64 rval;
+			__u8 is_error;
+			__u8 __pad1[7];
+		} exit;
+		struct {
+			__u64 nr;
+			__u64 args[6];
+			__u32 ret_data;
+			__u8 __pad2[4];
+		} seccomp;
+	};
+};
+
+The structure was chosen according to [2], except for the following
+changes:
+* seccomp substructure was added as a superset of entry substructure;
+* the type of nr field was changed from int to __u64 because syscall
+numbers are, as a practical matter, 64 bits;
+* stack_pointer and frame_pointer fields were added along with
+instruction_pointer field since they are readily available and can save
+the tracer from extra PTRACE_GETREGS/PTRACE_GETREGSET calls;
+* arch is always initialized to aid with tracing system calls such as
+execve();
+* instruction_pointer, stack_pointer, and frame_pointer are always
+initialized so they could be easily obtained for non-syscall stops;
+* a boolean is_error field was added along with rval field, this way
+the tracer can more reliably distinguish a return value
+from an error value.
+
+strace has been ported to PTRACE_GET_SYSCALL_INFO, you can find it
+at [3] and [4].
+
+[1] https://lore.kernel.org/lkml/CA+55aFzcSVmdDj9Lh_gdbz1OzHyEm6ZrGPBDAJnywm2LF_eVyg at mail.gmail.com/
+[2] https://lore.kernel.org/lkml/CAObL_7GM0n80N7J_DFw_eQyfLyzq+sf4y2AvsCCV88Tb3AwEHA at mail.gmail.com/
+[3] https://github.com/strace/strace/commits/ldv/PTRACE_GET_SYSCALL_INFO
+[4] https://gitlab.com/strace/strace/commits/ldv/PTRACE_GET_SYSCALL_INFO
+
+Notes:
+    v5:
+    * Merge separate series and patches into the single series.
+    * Change PTRACE_EVENTMSG_SYSCALL_{ENTRY,EXIT} values as requested by Oleg.
+    * Change struct ptrace_syscall_info: generalize instruction_pointer,
+      stack_pointer, and frame_pointer fields by moving them from
+      ptrace_syscall_info.{entry,seccomp} substructures to ptrace_syscall_info
+      and initializing them for all stops.
+    * Add PTRACE_SYSCALL_INFO_NONE, assign it to ptrace_syscall_info.op
+      when not in a syscall stop, so e.g. "strace -i" could use the same
+      PTRACE_SYSCALL_INFO_SECCOMP interface to obtain instruction_pointer
+      when the tracee is in a signal stop.
+    * Patch all remaining architectures to provide all necessary
+      syscall_get_* functions.
+    * Make available for all architectures: do not conditionalize on
+      CONFIG_HAVE_ARCH_TRACEHOOK since all syscall_get_* functions
+      are implemented on all architectures.
+    * Add a test for PTRACE_GET_SYSCALL_INFO to selftests/ptrace.
+    
+    v4:
+    * Do not introduce task_struct.ptrace_event,
+      use child->last_siginfo->si_code instead.
+    * Implement PTRACE_SYSCALL_INFO_SECCOMP and ptrace_syscall_info.seccomp
+      support along with PTRACE_SYSCALL_INFO_{ENTRY,EXIT} and
+      ptrace_syscall_info.{entry,exit}.
+    
+    v3:
+    * Change struct ptrace_syscall_info.
+    * Support PTRACE_EVENT_SECCOMP by adding ptrace_event to task_struct.
+    * Add proper defines for ptrace_syscall_info.op values.
+    * Rename PT_SYSCALL_IS_ENTERING and PT_SYSCALL_IS_EXITING to
+      PTRACE_EVENTMSG_SYSCALL_ENTRY and PTRACE_EVENTMSG_SYSCALL_EXIT
+    * and move them to uapi.
+    
+    v2:
+    * Do not use task->ptrace.
+    * Replace entry_info.is_compat with entry_info.arch, use syscall_get_arch().
+    * Use addr argument of sys_ptrace to get expected size of the struct;
+      return full size of the struct.
+
+Dmitry V. Levin (23):
+  alpha: define remaining syscall_get_* functions
+  Move EM_ARCOMPACT and EM_ARCV2 to uapi/linux/elf-em.h
+  arc: define syscall_get_arch()
+  c6x: define syscall_get_arch()
+  elf-em.h: add EM_CSKY
+  csky: define syscall_get_arch()
+  h8300: define remaining syscall_get_* functions
+  Move EM_HEXAGON to uapi/linux/elf-em.h
+  hexagon: define remaining syscall_get_* functions
+  Move EM_NDS32 to uapi/linux/elf-em.h
+  nds32: define syscall_get_arch()
+  nios2: define syscall_get_arch()
+  m68k: add asm/syscall.h
+  mips: define syscall_get_error()
+  parisc: define syscall_get_error()
+  powerpc: define syscall_get_error()
+  riscv: define syscall_get_arch()
+  Move EM_XTENSA to uapi/linux/elf-em.h
+  xtensa: define syscall_get_* functions
+  Move EM_UNICORE to uapi/linux/elf-em.h
+  unicore32: add asm/syscall.h
+  syscall_get_arch: add "struct task_struct *" argument
+  selftests/ptrace: add a test case for PTRACE_GET_SYSCALL_INFO
+
+Elvira Khabirova (2):
+  powerpc/ptrace: replace ptrace_report_syscall() with a tracehook call
+  ptrace: add PTRACE_GET_SYSCALL_INFO request
+
+ arch/alpha/include/asm/syscall.h              |  29 +-
+ arch/arc/include/asm/elf.h                    |   6 +-
+ arch/arc/include/asm/syscall.h                |  11 +
+ arch/arm/include/asm/syscall.h                |   2 +-
+ arch/arm64/include/asm/syscall.h              |   4 +-
+ arch/c6x/include/asm/syscall.h                |   7 +
+ arch/csky/include/asm/syscall.h               |   7 +
+ arch/h8300/include/asm/syscall.h              |  18 ++
+ arch/hexagon/include/asm/elf.h                |   6 +-
+ arch/hexagon/include/asm/syscall.h            |  20 ++
+ arch/ia64/include/asm/syscall.h               |   2 +-
+ arch/m68k/include/asm/syscall.h               |  39 +++
+ arch/microblaze/include/asm/syscall.h         |   2 +-
+ arch/mips/include/asm/syscall.h               |  12 +-
+ arch/mips/kernel/ptrace.c                     |   2 +-
+ arch/nds32/include/asm/elf.h                  |   3 +-
+ arch/nds32/include/asm/syscall.h              |   8 +
+ arch/nios2/include/asm/syscall.h              |   6 +
+ arch/openrisc/include/asm/syscall.h           |   2 +-
+ arch/parisc/include/asm/syscall.h             |  11 +-
+ arch/powerpc/include/asm/syscall.h            |  20 +-
+ arch/powerpc/kernel/ptrace.c                  |   7 +-
+ arch/riscv/include/asm/syscall.h              |  10 +
+ arch/s390/include/asm/syscall.h               |   4 +-
+ arch/sh/include/asm/syscall_32.h              |   2 +-
+ arch/sh/include/asm/syscall_64.h              |   2 +-
+ arch/sparc/include/asm/syscall.h              |   5 +-
+ arch/unicore32/include/asm/elf.h              |   3 +-
+ arch/unicore32/include/asm/syscall.h          |  45 +++
+ arch/x86/include/asm/syscall.h                |   8 +-
+ arch/x86/um/asm/syscall.h                     |   2 +-
+ arch/xtensa/include/asm/elf.h                 |   2 +-
+ arch/xtensa/include/asm/syscall.h             |  69 +++++
+ include/asm-generic/syscall.h                 |   5 +-
+ include/linux/tracehook.h                     |   9 +-
+ include/uapi/linux/audit.h                    |  16 ++
+ include/uapi/linux/elf-em.h                   |   8 +
+ include/uapi/linux/ptrace.h                   |  39 +++
+ kernel/auditsc.c                              |   4 +-
+ kernel/ptrace.c                               |  99 ++++++-
+ kernel/seccomp.c                              |   4 +-
+ tools/testing/selftests/ptrace/.gitignore     |   1 +
+ tools/testing/selftests/ptrace/Makefile       |   2 +-
+ .../selftests/ptrace/get_syscall_info.c       | 272 ++++++++++++++++++
+ 44 files changed, 783 insertions(+), 52 deletions(-)
+ create mode 100644 arch/m68k/include/asm/syscall.h
+ create mode 100644 arch/unicore32/include/asm/syscall.h
+ create mode 100644 tools/testing/selftests/ptrace/get_syscall_info.c
+
 -- 
-2.7.4
-
+ldv
