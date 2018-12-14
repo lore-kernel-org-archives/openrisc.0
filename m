@@ -1,67 +1,52 @@
-From: Christoph Hellwig <hch@lst.de>
-Date: Fri, 14 Dec 2018 09:25:15 +0100
-Subject: [OpenRISC] [PATCH 2/2] dma-mapping: deprecate dma_zalloc_coherent
-In-Reply-To: <20181214082515.14835-1-hch@lst.de>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Fri, 14 Dec 2018 10:54:32 +0100
+Subject: [OpenRISC] [PATCH 1/2] dma-mapping: zero memory returned from
+	dma_alloc_*
+In-Reply-To: <20181214082515.14835-2-hch@lst.de>
 References: <20181214082515.14835-1-hch@lst.de>
-Message-ID: <20181214082515.14835-3-hch@lst.de>
+ <20181214082515.14835-2-hch@lst.de>
+Message-ID: <CAMuHMdWOr0EsgFQF8tjJYLxKVXx+Jwn73N8SVKt8AQGLKQ8V-A@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-We now always return zeroed memory from dma_alloc_coherent.  Note that
-simply passing GFP_ZERO to dma_alloc_coherent wasn't always doing the
-right thing to start with given that various allocators are not backed
-by the page allocator and thus would ignore GFP_ZERO.
+Hi Christoph,
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- Documentation/DMA-API.txt   | 9 ---------
- include/linux/dma-mapping.h | 7 ++++---
- 2 files changed, 4 insertions(+), 12 deletions(-)
+On Fri, Dec 14, 2018 at 9:26 AM Christoph Hellwig <hch@lst.de> wrote:
+> If we want to map memory from the DMA allocator to userspace it must be
+> zeroed at allocation time to prevent stale data leaks.   We already do
+> this on most common architectures, but some architectures don't do this
+> yet, fix them up, either by passing GFP_ZERO when we use the normal page
+> allocator or doing a manual memset otherwise.
+>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-diff --git a/Documentation/DMA-API.txt b/Documentation/DMA-API.txt
-index 016eb6909b8a..e133ccd60228 100644
---- a/Documentation/DMA-API.txt
-+++ b/Documentation/DMA-API.txt
-@@ -58,15 +58,6 @@ specify the ``GFP_`` flags (see kmalloc()) for the allocation (the
- implementation may choose to ignore flags that affect the location of
- the returned memory, like GFP_DMA).
- 
--::
--
--	void *
--	dma_zalloc_coherent(struct device *dev, size_t size,
--			    dma_addr_t *dma_handle, gfp_t flag)
--
--Wraps dma_alloc_coherent() and also zeroes the returned memory if the
--allocation attempt succeeded.
--
- ::
- 
- 	void
-diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-index f422aec0f53c..a52c6409bdc2 100644
---- a/include/linux/dma-mapping.h
-+++ b/include/linux/dma-mapping.h
-@@ -644,12 +644,13 @@ static inline unsigned long dma_max_pfn(struct device *dev)
- }
- #endif
- 
-+/*
-+ * Please always use dma_alloc_coherent instead as it already zeroes the memory!
-+ */
- static inline void *dma_zalloc_coherent(struct device *dev, size_t size,
- 					dma_addr_t *dma_handle, gfp_t flag)
- {
--	void *ret = dma_alloc_coherent(dev, size, dma_handle,
--				       flag | __GFP_ZERO);
--	return ret;
-+	return dma_alloc_coherent(dev, size, dma_handle, flag);
- }
- 
- static inline int dma_get_cache_alignment(void)
+Thanks for your patch!
+
+> --- a/arch/m68k/kernel/dma.c
+> +++ b/arch/m68k/kernel/dma.c
+> @@ -32,7 +32,7 @@ void *arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *handle,
+>         size = PAGE_ALIGN(size);
+>         order = get_order(size);
+>
+> -       page = alloc_pages(flag, order);
+> +       page = alloc_pages(flag | GFP_ZERO, order);
+>         if (!page)
+>                 return NULL;
+
+There's second implementation below, which calls __get_free_pages() and
+does an explicit memset().  As __get_free_pages() calls alloc_pages(), perhaps
+it makes sense to replace the memset() by GFP_ZERO, to increase consistency?
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
 -- 
-2.19.2
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert at linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
