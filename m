@@ -1,39 +1,50 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Date: Sat, 15 Dec 2018 06:57:42 -0800
-Subject: [OpenRISC] [PATCH 3/6] sparc: remove the sparc32_dma_ops
-	indirection
-In-Reply-To: <20181215104720.GA1575@lst.de>
-References: <20181208174115.16237-1-hch@lst.de>
- <20181208174115.16237-4-hch@lst.de> <20181215063018.GA11415@roeck-us.net>
- <20181215104720.GA1575@lst.de>
-Message-ID: <53761fd8-06f1-6443-1997-f518e725925e@roeck-us.net>
+From: Christoph Hellwig <hch@lst.de>
+Date: Mon, 17 Dec 2018 12:59:31 +0100
+Subject: [OpenRISC] [PATCH 1/2] dma-mapping: zero memory returned from
+	dma_alloc_*
+In-Reply-To: <5ae55118-6858-9121-6b3e-9b19b41550ef@westnet.com.au>
+References: <20181214082515.14835-1-hch@lst.de>
+ <20181214082515.14835-2-hch@lst.de>
+ <CAMuHMdWOr0EsgFQF8tjJYLxKVXx+Jwn73N8SVKt8AQGLKQ8V-A@mail.gmail.com>
+ <20181214114719.GA3316@lst.de>
+ <5ae55118-6858-9121-6b3e-9b19b41550ef@westnet.com.au>
+Message-ID: <20181217115931.GA6853@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 12/15/18 2:47 AM, Christoph Hellwig wrote:
-> On Fri, Dec 14, 2018 at 10:30:18PM -0800, Guenter Roeck wrote:
->> and so on, until qemu is terminated. This is seen with all sparc32
->> qemu emulations. Reverting the patch fixes the problem.
-> 
-> Hi Guenter,
-> 
-> can you check which of the three new ops is used in this case?  Or
-> provide the qemu config and rootfs?
-> 
+On Sat, Dec 15, 2018 at 12:14:29AM +1000, Greg Ungerer wrote:
+> Yep, that is right. Certainly the MMU case is broken. Some noMMU cases work
+> by virtue of the SoC only having an instruction cache (the older V2 cores).
 
-sparc32 defconfig+CONFIG_SQUASHFS=y+CONFIG_DEVTMPFS=y, and:
+Is there a good an easy case to detect if a core has a cache?  Either
+runtime or in Kconfig?
 
-qemu-system-sparc -M SPARCClassic -kernel arch/sparc/boot/image \
-	-no-reboot -snapshot -drive file=/var/cache/buildbot/sparc/hda.sqf,if=scsi,format=raw \
-	-append 'root=/dev/sda rw init=/sbin/init.sh panic=1 console=ttyS0' \
-	-nographic
+> The MMU case is fixable, but I think it will mean changing away from
+> the fall-back virtual:physical 1:1 mapping it uses for the kernel address
+> space. So not completely trivial. Either that or a dedicated area of RAM
+> for coherent allocations that we can mark as non-cachable via the really
+> course grained and limited ACR registers - not really very appealing.
 
-qemu version doesn't seem to matter. I used gcc-7.3.0 using the toolchain from kernel.org
-to build the image.
+What about CF_PAGE_NOCACHE?  Reading arch/m68k/include/asm/mcf_pgtable.h
+suggest this would cause an uncached mapping, in which case something
+like this should work:
 
-Root file system is at https://github.com/groeck/linux-build-test/tree/master/rootfs/sparc/.
+	http://git.infradead.org/users/hch/misc.git/commitdiff/4b8711d436e8d56edbc5ca19aa2be639705bbfef
 
-Guenter
+> The noMMU case in general is probably limited to something like that same
+> type of dedicated RAM/ACR register mechamism.
+>
+> The most commonly used periperal with DMA is the FEC ethernet module,
+> and it has some "special" (used very loosely) cache flushing for
+> parts like the 532x family which probably makes it mostly work right.
+> There is a PCI bus on the 54xx family of parts, and I know general
+> ethernet cards on it (like e1000's) have problems I am sure are
+> related to the fact that coherent memory allocations aren't.
+
+If we really just care about FEC we can just switch it do use
+DMA_ATTR_NON_CONSISTENT and do explicit cache flushing.  But as far
+as I can tell FEC only uses DMA coherent allocations for the TSO
+headers anyway, is TSO even used on this SOC?
