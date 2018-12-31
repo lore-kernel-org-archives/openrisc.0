@@ -1,218 +1,92 @@
-From: BAndViG <bandvig@mail.ru>
-Date: Sun, 30 Dec 2018 22:28:22 +0300
-Subject: [OpenRISC] OR1K FPU Tools
-In-Reply-To: <CAAfxs77Z_YYKc11+rkf1L9tL_87oGgcTjWPom6u_3QnBAj0PLQ@mail.gmail.com>
-References: <B93E7844A51A4DDEAF26362A017A89D9@BAndViG>
- <20181124222244.GA3235@lianli.shorne-pla.net>
- <F20A9C40E8204267AEED14B541E3AF0E@BAndViG>
- <20181127211855.GC3235@lianli.shorne-pla.net>
- <CAAfxs77Egr55C2AJv+HE=S=8NFi_h=LSfPBe4z_OfFOROnM2kA@mail.gmail.com>
- <8BFA5ABB61214594AF57022CFD5BCBE6@BAndViG>
- <CAAfxs772YourE74w8ma1rMsbnmdf1Z4r_LmQcniHs=zbkkUw5A@mail.gmail.com>
- <CAAfxs76NvXuM8wGoQqgAzfayXfWP6+GN1n_Jhj0vThOV0QmCAQ@mail.gmail.com>
- <CAAfxs754kixej8d--PAuh-=idQ0Lt=_M=SqYqLGKSyjCVvG61w@mail.gmail.com>
- <CAAfxs74wrewjQt1uNmm0tid0_69cknfmGh4tDtMWtYj+wEhy0g@mail.gmail.com>
- <3ADA35F1727C43478E251E65657B7168@BAndViG>
- <CAAfxs77Z_YYKc11+rkf1L9tL_87oGgcTjWPom6u_3QnBAj0PLQ@mail.gmail.com>
-Message-ID: <99D3A6CAD94A4F5F8DC0635EB165E03C@BAndViG>
+From: Mike Rapoport <rppt@linux.ibm.com>
+Date: Mon, 31 Dec 2018 11:29:20 +0200
+Subject: [OpenRISC] [PATCH v4 0/6] memblock: simplify several early memory
+	allocation
+Message-ID: <1546248566-14910-1-git-send-email-rppt@linux.ibm.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Stafford,
+Hi,
+
+These patches simplify some of the early memory allocations by replacing
+usage of older memblock APIs with newer and shinier ones.
+
+Quite a few places in the arch/ code allocated memory using a memblock API
+that returns a physical address of the allocated area, then converted this
+physical address to a virtual one and then used memset(0) to clear the
+allocated range.
+
+More recent memblock APIs do all the three steps in one call and their
+usage simplifies the code.
+
+It's important to note that regardless of API used, the core allocation is
+nearly identical for any set of memblock allocators: first it tries to find
+a free memory with all the constraints specified by the caller and then
+falls back to the allocation with some or all constraints disabled.
+
+The first three patches perform the conversion of call sites that have
+exact requirements for the node and the possible memory range.
+
+The fourth patch is a bit one-off as it simplifies openrisc's
+implementation of pte_alloc_one_kernel(), and not only the memblock usage.
+
+The fifth patch takes care of simpler cases when the allocation can be
+satisfied with a simple call to memblock_alloc().
+
+The sixth patch removes one-liner wrappers for memblock_alloc on arm and
+unicore32, as suggested by Christoph.
+
+v4:
+* rebased on the current upstream
+* added conversion of s390 node data allocation
+
+v3:
+* added Tested-by from Michal Simek for microblaze changes
+* updated powerpc changes as per Michael Ellerman comments:
+  - use allocations that clear memory in alloc_paca_data() and alloc_stack()
+  - ensure the replacement is equivalent to old API
+
+v2:
+* added Ack from Stafford Horne for openrisc changes
+* entirely drop early_alloc wrappers on arm and unicore32, as per Christoph
+Hellwig
+
+Mike Rapoport (6):
+  powerpc: prefer memblock APIs returning virtual address
+  microblaze: prefer memblock API returning virtual address
+  sh: prefer memblock APIs returning virtual address
+  openrisc: simplify pte_alloc_one_kernel()
+  arch: simplify several early memory allocations
+  arm, s390, unicore32: remove oneliner wrappers for memblock_alloc()
+
+ arch/arm/mm/mmu.c                      | 13 +++----------
+ arch/c6x/mm/dma-coherent.c             |  9 ++-------
+ arch/microblaze/mm/init.c              |  5 +++--
+ arch/nds32/mm/init.c                   | 12 ++++--------
+ arch/openrisc/mm/ioremap.c             | 11 ++++-------
+ arch/powerpc/kernel/paca.c             | 16 ++++++----------
+ arch/powerpc/kernel/setup-common.c     |  4 ++--
+ arch/powerpc/kernel/setup_64.c         | 24 ++++++++++--------------
+ arch/powerpc/mm/hash_utils_64.c        |  6 +++---
+ arch/powerpc/mm/pgtable-book3e.c       |  8 ++------
+ arch/powerpc/mm/pgtable-book3s64.c     |  5 +----
+ arch/powerpc/mm/pgtable-radix.c        | 25 +++++++------------------
+ arch/powerpc/mm/ppc_mmu_32.c           |  3 +--
+ arch/powerpc/platforms/pasemi/iommu.c  |  5 +++--
+ arch/powerpc/platforms/powernv/opal.c  |  3 +--
+ arch/powerpc/platforms/pseries/setup.c | 18 ++++++++++++++----
+ arch/powerpc/sysdev/dart_iommu.c       |  7 +++++--
+ arch/s390/numa/numa.c                  | 14 +-------------
+ arch/sh/mm/init.c                      | 18 +++++-------------
+ arch/sh/mm/numa.c                      |  5 ++---
+ arch/sparc/kernel/prom_64.c            |  7 ++-----
+ arch/sparc/mm/init_64.c                |  9 +++------
+ arch/unicore32/mm/mmu.c                | 14 ++++----------
+ 23 files changed, 88 insertions(+), 153 deletions(-)
+
+-- 
+2.7.4
 
-  Starting from single precision is good idea.
-  The marocchino_devel branch (in Github’s OpenRISC organization) is quite old. Nevertheless it could be used for testing SF. I’m continue developing in my own repo because I create a lot of experimental branches. The actual branch is https://github.com/bandvig/mor1kx/tree/wb_cdc_100 . It includes pseudo- clock domain crossing and additional stages in pipe to achieve 100MHz on Spartan-6. Pseudo-CDC means that (a) core clock “cpu_clk” must be greater or equal to Wishbone clock “wb_clk” (b) core and Wishbone clocks must be aligned (if they aren't equal to each other). 
-  Re-design GPRs for {rX,rX+2} format could be hard enough for you as you aren’t familiar with MAROCCHINO sources. I’m plannig to do it with in about one or two weeks.
-  Right now I’m going to implement sign extension instructions (in my personal repo again). I think I complete them with in several days.
-
-Andrey
-
-
-From: Stafford Horne 
-Sent: Thursday, December 27, 2018 2:04 AM
-To: BAndViG 
-Cc: Openrisc 
-Subject: Re: OR1K FPU Tools
-
-Hello, 
-
-I was actually going to just start with checking marocchino with sf. Then if you didn't get around to it I was thinking to work on the GPR changes myself.  But I still have a while before getting there.
-
-One reason we maintain a verilator test bench is because we have support for debugging with gdb Via a jtag server adapter.  That will be a little helpful.
-
-It's good to know that the Icarus performance is good. It's much easier to use.
-
-This year a orconf the developer of verilator was there and gave a talk of some multithread improvements to verilator, if we need better performance I may try that.
-
-- Stafford
-
-
-
-On Tue, Dec 25, 2018, 8:46 PM BAndViG <bandvig at mail.ru wrote:
-
-  Hello
-
-  My apologize for long answer. I was busy and hadn’t got free time for MAROCCHINO.
-
-  Currently, MAROCCHINO still uses {rX,rX+1} pattern for combining GPRs, so you couldn't use MAROCHCHINO-based test bench. In MAROCCHINO I implemented GPRs as set of 4 RAM blocks: A-odd, A-even, B-odd and B-even. However, with GCC-9’s {rX,rX+2} format it have to re-design GPR-module.
-
-  Some words about Verilator. I tried to use it (version 4.006) for simulation a project (not OpeRISC-based SoC) and found that it isn’t faster than IcarusVerilog 10.1.1 for 64-bit machine.
-
-  Andrey
-
-
-  From: Stafford Horne 
-  Sent: Wednesday, December 19, 2018 1:52 AM
-  To: BAndViG 
-  Cc: Openrisc 
-  Subject: Re: OR1K FPU Tools
-
-  (ccing the list, I want to let everyone know the fpu gcc/mor1kx development status)
-
-  Hello 
-
-  Just a quick update. I got the gdb simulator working.  There looks to be a bug in the sim framework which too me a while to track down.  But now all the basic c and assembly tests are working.
-
-  Now that it's working I'll start testing with your test bench.  After that I'll have a look at getting it working on moracchino. Maybe on verilator first since we need a good mor1kx regression testbed.
-
-  - Stafford
-
-
-
-  On Fri, Dec 14, 2018, 12:37 AM Stafford Horne <shorne at gmail.com wrote:
-
-    Hello, 
-
-    Nevermind, I read through the mor1k maraschino code and could see you are using register pairs for the integer operands as well.
-
-    Example:
-    {rD,rD+n} = itof({rA,rA+n})
-    {rD,rD+n} = ftoi({rA,rA+n})
-
-
-    I needed to fix a bug in the sim and one in GCC and I am seeing better results but there are some issues.  Ill keep you posted on progress.
-
-    -Stafford
-
-
-
-    On Thu, Dec 13, 2018 at 6:37 PM Stafford Horne <shorne@gmail.com> wrote:
-
-      Hello, 
-
-      I have been able to get some simple floating point c code tests to work in the sim. 
-
-      However, there seems to be and issue with the sim running the mdouble-float code.  Question.
-
-      What are the arguments on orfpx64a32 for instructions.
-
-      lf.itof.d
-      lf.ftoi.d
-
-      Are the i's meant to both be single 32bit registers or register pairs?
-
-      Example
-
-      {rD,rD+n} = itof(rA)
-      rD = ftoi({rA,rA+n})
-
-      Is that correct? I think the sim has something different.
-
-      -stafford
-
-
-
-
-
-      On Wed, Dec 12, 2018, 6:38 AM Stafford Horne <shorne at gmail.com wrote:
-
-        Hi Andrey, 
-
-        I rebased your binutils-gdb changes.  Then I split out the  main.cpu changes from the regeneration patch.   I also regenerated and compiled the sim.  
-
-        It looks good to me so far.
-
-        Note the change I made to add 1 or 2 to the index of the pair register.
-        Also, I removed the cgen patch.  In my environment I just symlink cgen into the binutils-gdb directory.
-
-        You can review here:
-        https://github.com/stffrdhrn/binutils-gdb/commits/orfpx64a32
-
-        On Mon, Dec 10, 2018 at 3:34 AM BAndViG <bandvig@mail.ru> wrote:
-
-          Impressive progress, Stafford.
-          Unfortunately, I haven't got enough time right now to continue advancing my OpenRISC implementation. I hope I’ll be back  in 1-2 weeks.
-
-          WBR
-          Andrey
-
-
-          From: Stafford Horne 
-          Sent: Sunday, December 09, 2018 4:47 PM
-          To: BAndViG 
-          Cc: Richard Henderson 
-          Subject: Re: OR1K FPU Tools
-
-          Hello, 
-
-          I just pushed some initial patches for fpu support on baremetal gcc. I can compile some simple test programs.  Also this supports the mhard-float and mdouble-float flags. You can see here:
-
-          https://github.com/stffrdhrn/gcc/commits/or1k-fpu-1
-
-
-
-          Ccing, Richard so he can see what I'm up too.
-
-          Hi Richard, Andrey is the main developer who implemented the OpenRISC fpu.  He is still sticking with the old compiler for the fpu support, hence this is on my to-do list. 
-
-          His fpu has expiramental support for doubles on 32 bit OpenRISC via register pairs.  He will update the core to support the new rN,rN+2 pairing supported in the new gcc port once my fpu work is tested. I am planning to use gdb sim right now.
-
-          See: 
-          https://openrisc.io/proposals/orfpx64a32
-
-          -stafford
-
-
-
-          On Wed, Nov 28, 2018, 6:18 AM Stafford Horne <shorne at gmail.com wrote:
-
-            On Sun, Nov 25, 2018@07:16:31PM +0300, BAndViG wrote:
-
-            [...]
-
-            > > In the current implementation of GCC we store doubles in reigster pairs
-            > > i.e.
-            > > {r28, r30} allowing them to be preserved across function calls.  If we
-            > > could
-            > > change ORFPX64A32 to match that it would give us better performance I
-            > > think.
-            > 
-            > I'm not familiar with ABI, so it is quite difficult to me to comment this.
-            > First, if I understand correctly, you mean GCC9 while speaking "current
-            > implementation of GCC." Am I right?
-
-            Yes.
-
-            > Second, does your proposal mean that double operands and result should
-            > occupy {rx,rx+2} pairs? If "yes", I agree and will change my hardware
-
-            Yes, thats what I mean.
-
-            > implementation as soon as you complete "mdouble-float" option for GCC9.
-            > By the way, binutils also should be updated to support such layout.
-
-            I agree, the hardware should be updated after GCC and binutils/simulation is
-            available.
-
-            -Stafford
-
-  WBR
-  Andrey
-WBR
-Andrey
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20181230/2c17b441/attachment-0001.html>
