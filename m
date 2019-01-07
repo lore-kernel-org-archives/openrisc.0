@@ -1,65 +1,241 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 9 Jan 2019 07:37:48 +0900
-Subject: [OpenRISC] [PATCH] arch/openrisc: Fix issues with access_ok()
-In-Reply-To: <CAHk-=wic8HES0M_KgB3Tfaufb36r42ZKw4a0t96Xq_efCoR02Q@mail.gmail.com>
-References: <20190108131516.27903-1-shorne@gmail.com>
- <CAHk-=whR9UX8wG0CKp87sNQkNdtMPVmAmi-gjGRwWTYYAJ9v_w@mail.gmail.com>
- <CAHk-=wic8HES0M_KgB3Tfaufb36r42ZKw4a0t96Xq_efCoR02Q@mail.gmail.com>
-Message-ID: <20190108223748.GR3235@lianli.shorne-pla.net>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Date: Tue,  8 Jan 2019 08:38:27 +0900
+Subject: [OpenRISC] [PATCH] arch: unexport asm/shmparam.h for all
+	architectures
+Message-ID: <1546904307-11124-1-git-send-email-yamada.masahiro@socionext.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Jan 08, 2019 at 10:16:39AM -0800, Linus Torvalds wrote:
-> On Tue, Jan 8, 2019 at 10:10 AM Linus Torvalds
-> <torvalds@linux-foundation.org> wrote:
-> >
-> > On Tue, Jan 8, 2019 at 5:15 AM Stafford Horne <shorne@gmail.com> wrote:
-> > >
-> > > The commit 594cc251fdd0 ("make 'user_access_begin()' do 'access_ok()'")
-> > > exposed incorrect implementations of access_ok() macro in several
-> > > architectures.  This change fixes 2 issues found in OpenRISC.
-> >
-> > Looks good to me. Should I apply this directly, or expect a pull
-> > request with it later?
-> 
-> Oh, and replying to myself with a quick note: it might also be a good
-> idea to just make it an inline function.
-> 
-> The only reason I did alpha and SH as those macros with a statement
-> expression was that because I don't have a cross-build environment,
-> continuing to do it as a macro was the safest thing from a build
-> standpoint.
-> 
-> One big difference between a macro and an inline function is that the
-> inline function requires everything to be declared at the point of the
-> function definition, while the macro can use things that get declared
-> only later (like "get_fs()"). So a macro can use functions and other
-> macros that aren't declared yet, but will be declared by the time the
-> macro is actually _used_.
-> 
-> So when changing the macro "blind", it was simply safer to just keep
-> it a macro and just make it a bit more complex. But since you can
-> build-test your changes, making (for example) __range_ok() be an
-> inline function might have been the cleaner solution to the "use
-> twice" issue.
-> 
-> But your existing patch looks fine to me too, so don't worry too much
-> about it. I just wanted to point out that the reason I did alpha and
-> SH the way I did was not some "macros are better", but rather "Linus
-> is weak and lazy".
+Most architectures do not export shmparam.h to user-space.
 
-Hi Linus,
+  $ find arch -name shmparam.h  | sort
+  arch/alpha/include/asm/shmparam.h
+  arch/arc/include/asm/shmparam.h
+  arch/arm64/include/asm/shmparam.h
+  arch/arm/include/asm/shmparam.h
+  arch/csky/include/asm/shmparam.h
+  arch/ia64/include/asm/shmparam.h
+  arch/mips/include/asm/shmparam.h
+  arch/nds32/include/asm/shmparam.h
+  arch/nios2/include/asm/shmparam.h
+  arch/parisc/include/asm/shmparam.h
+  arch/powerpc/include/asm/shmparam.h
+  arch/s390/include/asm/shmparam.h
+  arch/sh/include/asm/shmparam.h
+  arch/sparc/include/asm/shmparam.h
+  arch/x86/include/asm/shmparam.h
+  arch/xtensa/include/asm/shmparam.h
 
-Please take this patch directly.
+Strangely, some users of the asm-generic wrapper export shmparam.h
 
-The inline's are a good point.  I will take some time to address this and some
-other cleanups.
+  $ git grep 'generic-y += shmparam.h'
+  arch/c6x/include/uapi/asm/Kbuild:generic-y += shmparam.h
+  arch/h8300/include/uapi/asm/Kbuild:generic-y += shmparam.h
+  arch/hexagon/include/uapi/asm/Kbuild:generic-y += shmparam.h
+  arch/m68k/include/uapi/asm/Kbuild:generic-y += shmparam.h
+  arch/microblaze/include/uapi/asm/Kbuild:generic-y += shmparam.h
+  arch/openrisc/include/uapi/asm/Kbuild:generic-y += shmparam.h
+  arch/riscv/include/asm/Kbuild:generic-y += shmparam.h
+  arch/unicore32/include/uapi/asm/Kbuild:generic-y += shmparam.h
 
-Note (for others) I had to apply patches from Masahiro Yamada to test this as
-v5.0-rc1 build was broken for OpenRISC.  Those patches are already on Linus'
-master.
+The newly added riscv correctly creates the asm-generic wrapper
+in the kernel space, but the others (c6x, h8300, hexagon, m68k,
+microblaze, openrisc, unicore32) create the one in the uapi directory.
 
--Stafford
+Digging into the git history, now I guess fcc8487d477a ("uapi:
+export all headers under uapi directories") was the misconversion.
+Prior to that commit, no architecture exported to shmparam.h
+As its commit description said, that commit exported shmparam.h
+for c6x, h8300, hexagon, m68k, openrisc, unicore32.
+
+83f0124ad81e ("microblaze: remove asm-generic wrapper headers")
+accidentally exported shmparam.h for microblaze.
+
+This commit unexports shmparam.h for those architectures.
+
+There is no more reason to export include/uapi/asm-generic/shmparam.h,
+so it has been moved to include/asm-generic/shmparam.h
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+---
+
+ arch/c6x/include/asm/Kbuild               | 1 +
+ arch/c6x/include/uapi/asm/Kbuild          | 1 -
+ arch/h8300/include/asm/Kbuild             | 1 +
+ arch/h8300/include/uapi/asm/Kbuild        | 1 -
+ arch/hexagon/include/asm/Kbuild           | 1 +
+ arch/hexagon/include/uapi/asm/Kbuild      | 1 -
+ arch/m68k/include/asm/Kbuild              | 1 +
+ arch/m68k/include/uapi/asm/Kbuild         | 1 -
+ arch/microblaze/include/asm/Kbuild        | 1 +
+ arch/microblaze/include/uapi/asm/Kbuild   | 1 -
+ arch/openrisc/include/asm/Kbuild          | 1 +
+ arch/openrisc/include/uapi/asm/Kbuild     | 1 -
+ arch/unicore32/include/asm/Kbuild         | 1 +
+ arch/unicore32/include/uapi/asm/Kbuild    | 1 -
+ include/{uapi => }/asm-generic/shmparam.h | 0
+ 15 files changed, 7 insertions(+), 7 deletions(-)
+ rename include/{uapi => }/asm-generic/shmparam.h (100%)
+
+diff --git a/arch/c6x/include/asm/Kbuild b/arch/c6x/include/asm/Kbuild
+index 33a2c94..63b4a17 100644
+--- a/arch/c6x/include/asm/Kbuild
++++ b/arch/c6x/include/asm/Kbuild
+@@ -30,6 +30,7 @@ generic-y += pgalloc.h
+ generic-y += preempt.h
+ generic-y += segment.h
+ generic-y += serial.h
++generic-y += shmparam.h
+ generic-y += tlbflush.h
+ generic-y += topology.h
+ generic-y += trace_clock.h
+diff --git a/arch/c6x/include/uapi/asm/Kbuild b/arch/c6x/include/uapi/asm/Kbuild
+index 6c6f630..0febf1a 100644
+--- a/arch/c6x/include/uapi/asm/Kbuild
++++ b/arch/c6x/include/uapi/asm/Kbuild
+@@ -1,5 +1,4 @@
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+ generic-y += kvm_para.h
+-generic-y += shmparam.h
+ generic-y += ucontext.h
+diff --git a/arch/h8300/include/asm/Kbuild b/arch/h8300/include/asm/Kbuild
+index cd400d3..961c1dc 100644
+--- a/arch/h8300/include/asm/Kbuild
++++ b/arch/h8300/include/asm/Kbuild
+@@ -40,6 +40,7 @@ generic-y += preempt.h
+ generic-y += scatterlist.h
+ generic-y += sections.h
+ generic-y += serial.h
++generic-y += shmparam.h
+ generic-y += sizes.h
+ generic-y += spinlock.h
+ generic-y += timex.h
+diff --git a/arch/h8300/include/uapi/asm/Kbuild b/arch/h8300/include/uapi/asm/Kbuild
+index 6c6f630..0febf1a 100644
+--- a/arch/h8300/include/uapi/asm/Kbuild
++++ b/arch/h8300/include/uapi/asm/Kbuild
+@@ -1,5 +1,4 @@
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+ generic-y += kvm_para.h
+-generic-y += shmparam.h
+ generic-y += ucontext.h
+diff --git a/arch/hexagon/include/asm/Kbuild b/arch/hexagon/include/asm/Kbuild
+index 47c4da3..b25fd42 100644
+--- a/arch/hexagon/include/asm/Kbuild
++++ b/arch/hexagon/include/asm/Kbuild
+@@ -30,6 +30,7 @@ generic-y += rwsem.h
+ generic-y += sections.h
+ generic-y += segment.h
+ generic-y += serial.h
++generic-y += shmparam.h
+ generic-y += sizes.h
+ generic-y += topology.h
+ generic-y += trace_clock.h
+diff --git a/arch/hexagon/include/uapi/asm/Kbuild b/arch/hexagon/include/uapi/asm/Kbuild
+index 61d955c..c1b06dc 100644
+--- a/arch/hexagon/include/uapi/asm/Kbuild
++++ b/arch/hexagon/include/uapi/asm/Kbuild
+@@ -1,4 +1,3 @@
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+-generic-y += shmparam.h
+ generic-y += ucontext.h
+diff --git a/arch/m68k/include/asm/Kbuild b/arch/m68k/include/asm/Kbuild
+index 9f1dd26..95f8f63 100644
+--- a/arch/m68k/include/asm/Kbuild
++++ b/arch/m68k/include/asm/Kbuild
+@@ -20,6 +20,7 @@ generic-y += mm-arch-hooks.h
+ generic-y += percpu.h
+ generic-y += preempt.h
+ generic-y += sections.h
++generic-y += shmparam.h
+ generic-y += spinlock.h
+ generic-y += topology.h
+ generic-y += trace_clock.h
+diff --git a/arch/m68k/include/uapi/asm/Kbuild b/arch/m68k/include/uapi/asm/Kbuild
+index b8b3525..960bf1e 100644
+--- a/arch/m68k/include/uapi/asm/Kbuild
++++ b/arch/m68k/include/uapi/asm/Kbuild
+@@ -2,4 +2,3 @@ include include/uapi/asm-generic/Kbuild.asm
+ 
+ generated-y += unistd_32.h
+ generic-y += kvm_para.h
+-generic-y += shmparam.h
+diff --git a/arch/microblaze/include/asm/Kbuild b/arch/microblaze/include/asm/Kbuild
+index 9c7d1d2..791cc8d5 100644
+--- a/arch/microblaze/include/asm/Kbuild
++++ b/arch/microblaze/include/asm/Kbuild
+@@ -26,6 +26,7 @@ generic-y += parport.h
+ generic-y += percpu.h
+ generic-y += preempt.h
+ generic-y += serial.h
++generic-y += shmparam.h
+ generic-y += syscalls.h
+ generic-y += topology.h
+ generic-y += trace_clock.h
+diff --git a/arch/microblaze/include/uapi/asm/Kbuild b/arch/microblaze/include/uapi/asm/Kbuild
+index 28823e3..97823ec 100644
+--- a/arch/microblaze/include/uapi/asm/Kbuild
++++ b/arch/microblaze/include/uapi/asm/Kbuild
+@@ -2,5 +2,4 @@ include include/uapi/asm-generic/Kbuild.asm
+ 
+ generated-y += unistd_32.h
+ generic-y += kvm_para.h
+-generic-y += shmparam.h
+ generic-y += ucontext.h
+diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
+index eb87cd8..1f04844b 100644
+--- a/arch/openrisc/include/asm/Kbuild
++++ b/arch/openrisc/include/asm/Kbuild
+@@ -34,6 +34,7 @@ generic-y += qrwlock_types.h
+ generic-y += qrwlock.h
+ generic-y += sections.h
+ generic-y += segment.h
++generic-y += shmparam.h
+ generic-y += string.h
+ generic-y += switch_to.h
+ generic-y += topology.h
+diff --git a/arch/openrisc/include/uapi/asm/Kbuild b/arch/openrisc/include/uapi/asm/Kbuild
+index 6c6f630..0febf1a 100644
+--- a/arch/openrisc/include/uapi/asm/Kbuild
++++ b/arch/openrisc/include/uapi/asm/Kbuild
+@@ -1,5 +1,4 @@
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+ generic-y += kvm_para.h
+-generic-y += shmparam.h
+ generic-y += ucontext.h
+diff --git a/arch/unicore32/include/asm/Kbuild b/arch/unicore32/include/asm/Kbuild
+index 1372553..1d1544b 100644
+--- a/arch/unicore32/include/asm/Kbuild
++++ b/arch/unicore32/include/asm/Kbuild
+@@ -28,6 +28,7 @@ generic-y += preempt.h
+ generic-y += sections.h
+ generic-y += segment.h
+ generic-y += serial.h
++generic-y += shmparam.h
+ generic-y += sizes.h
+ generic-y += syscalls.h
+ generic-y += topology.h
+diff --git a/arch/unicore32/include/uapi/asm/Kbuild b/arch/unicore32/include/uapi/asm/Kbuild
+index 6c6f630..0febf1a 100644
+--- a/arch/unicore32/include/uapi/asm/Kbuild
++++ b/arch/unicore32/include/uapi/asm/Kbuild
+@@ -1,5 +1,4 @@
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+ generic-y += kvm_para.h
+-generic-y += shmparam.h
+ generic-y += ucontext.h
+diff --git a/include/uapi/asm-generic/shmparam.h b/include/asm-generic/shmparam.h
+similarity index 100%
+rename from include/uapi/asm-generic/shmparam.h
+rename to include/asm-generic/shmparam.h
+-- 
+2.7.4
+
