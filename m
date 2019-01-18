@@ -1,241 +1,58 @@
-From: Mike Rapoport <rppt@linux.ibm.com>
-Date: Mon, 21 Jan 2019 10:03:54 +0200
-Subject: [OpenRISC] [PATCH v2 07/21] memblock: memblock_phys_alloc(): don't
-	panic
-In-Reply-To: <1548057848-15136-1-git-send-email-rppt@linux.ibm.com>
-References: <1548057848-15136-1-git-send-email-rppt@linux.ibm.com>
-Message-ID: <1548057848-15136-8-git-send-email-rppt@linux.ibm.com>
+From: Paul Burton <paul.burton@mips.com>
+Date: Fri, 18 Jan 2019 18:02:03 +0000
+Subject: [OpenRISC] [PATCH 19/21] treewide: add checks for the return
+ value of memblock_alloc*()
+In-Reply-To: <1547646261-32535-20-git-send-email-rppt@linux.ibm.com>
+References: <1547646261-32535-1-git-send-email-rppt@linux.ibm.com>
+ <1547646261-32535-20-git-send-email-rppt@linux.ibm.com>
+Message-ID: <20190118180201.uva5nhf2g23uamkn@pburton-laptop>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Make the memblock_phys_alloc() function an inline wrapper for
-memblock_phys_alloc_range() and update the memblock_phys_alloc() callers to
-check the returned value and panic in case of error.
+Hi Mike,
 
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
----
- arch/arm/mm/init.c                   | 4 ++++
- arch/arm64/mm/mmu.c                  | 2 ++
- arch/powerpc/sysdev/dart_iommu.c     | 3 +++
- arch/s390/kernel/crash_dump.c        | 3 +++
- arch/s390/kernel/setup.c             | 3 +++
- arch/sh/boards/mach-ap325rxa/setup.c | 3 +++
- arch/sh/boards/mach-ecovec24/setup.c | 6 ++++++
- arch/sh/boards/mach-kfr2r09/setup.c  | 3 +++
- arch/sh/boards/mach-migor/setup.c    | 3 +++
- arch/sh/boards/mach-se/7724/setup.c  | 6 ++++++
- arch/xtensa/mm/kasan_init.c          | 3 +++
- include/linux/memblock.h             | 7 ++++++-
- mm/memblock.c                        | 5 -----
- 13 files changed, 45 insertions(+), 6 deletions(-)
+On Wed, Jan 16, 2019 at 03:44:19PM +0200, Mike Rapoport wrote:
+> Add check for the return value of memblock_alloc*() functions and call
+> panic() in case of error.
+> The panic message repeats the one used by panicing memblock allocators with
+> adjustment of parameters to include only relevant ones.
+> 
+> The replacement was mostly automated with semantic patches like the one
+> below with manual massaging of format strings.
+> 
+> @@
+> expression ptr, size, align;
+> @@
+> ptr = memblock_alloc(size, align);
+> + if (!ptr)
+> + 	panic("%s: Failed to allocate %lu bytes align=0x%lx\n", __func__,
+> size, align);
+> 
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> ---
+>%
+> diff --git a/arch/mips/cavium-octeon/dma-octeon.c b/arch/mips/cavium-octeon/dma-octeon.c
+> index e8eb60e..db1deb2 100644
+> --- a/arch/mips/cavium-octeon/dma-octeon.c
+> +++ b/arch/mips/cavium-octeon/dma-octeon.c
+> @@ -245,6 +245,9 @@ void __init plat_swiotlb_setup(void)
+>  	swiotlbsize = swiotlb_nslabs << IO_TLB_SHIFT;
+>  
+>  	octeon_swiotlb = memblock_alloc_low(swiotlbsize, PAGE_SIZE);
+> +	if (!octeon_swiotlb)
+> +		panic("%s: Failed to allocate %lu bytes align=%lx\n",
+> +		      __func__, swiotlbsize, PAGE_SIZE);
+>  
+>  	if (swiotlb_init_with_tbl(octeon_swiotlb, swiotlb_nslabs, 1) == -ENOMEM)
+>  		panic("Cannot allocate SWIOTLB buffer");
 
-diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
-index b76b90e..15dddfe 100644
---- a/arch/arm/mm/init.c
-+++ b/arch/arm/mm/init.c
-@@ -206,6 +206,10 @@ phys_addr_t __init arm_memblock_steal(phys_addr_t size, phys_addr_t align)
- 	BUG_ON(!arm_memblock_steal_permitted);
- 
- 	phys = memblock_phys_alloc(size, align);
-+	if (!phys)
-+		panic("Failed to steal %pa bytes at %pS\n",
-+		      &size, (void *)_RET_IP_);
-+
- 	memblock_free(phys, size);
- 	memblock_remove(phys, size);
- 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index b6f5aa5..a74e4be 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -104,6 +104,8 @@ static phys_addr_t __init early_pgtable_alloc(void)
- 	void *ptr;
- 
- 	phys = memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE);
-+	if (!phys)
-+		panic("Failed to allocate page table page\n");
- 
- 	/*
- 	 * The FIX_{PGD,PUD,PMD} slots may be in active use, but the FIX_PTE
-diff --git a/arch/powerpc/sysdev/dart_iommu.c b/arch/powerpc/sysdev/dart_iommu.c
-index 25bc25f..b82c9ff 100644
---- a/arch/powerpc/sysdev/dart_iommu.c
-+++ b/arch/powerpc/sysdev/dart_iommu.c
-@@ -265,6 +265,9 @@ static void allocate_dart(void)
- 	 * prefetching into invalid pages and corrupting data
- 	 */
- 	tmp = memblock_phys_alloc(DART_PAGE_SIZE, DART_PAGE_SIZE);
-+	if (!tmp)
-+		panic("DART: table allocation failed\n");
-+
- 	dart_emptyval = DARTMAP_VALID | ((tmp >> DART_PAGE_SHIFT) &
- 					 DARTMAP_RPNMASK);
- 
-diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
-index 97eae38..f96a585 100644
---- a/arch/s390/kernel/crash_dump.c
-+++ b/arch/s390/kernel/crash_dump.c
-@@ -61,6 +61,9 @@ struct save_area * __init save_area_alloc(bool is_boot_cpu)
- 	struct save_area *sa;
- 
- 	sa = (void *) memblock_phys_alloc(sizeof(*sa), 8);
-+	if (!sa)
-+		panic("Failed to allocate save area\n");
-+
- 	if (is_boot_cpu)
- 		list_add(&sa->list, &dump_save_areas);
- 	else
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 72dd23e..da48397 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -968,6 +968,9 @@ static void __init setup_randomness(void)
- 
- 	vmms = (struct sysinfo_3_2_2 *) memblock_phys_alloc(PAGE_SIZE,
- 							    PAGE_SIZE);
-+	if (!vmms)
-+		panic("Failed to allocate memory for sysinfo structure\n");
-+
- 	if (stsi(vmms, 3, 2, 2) == 0 && vmms->count)
- 		add_device_randomness(&vmms->vm, sizeof(vmms->vm[0]) * vmms->count);
- 	memblock_free((unsigned long) vmms, PAGE_SIZE);
-diff --git a/arch/sh/boards/mach-ap325rxa/setup.c b/arch/sh/boards/mach-ap325rxa/setup.c
-index d7ceab6..08a0cc9 100644
---- a/arch/sh/boards/mach-ap325rxa/setup.c
-+++ b/arch/sh/boards/mach-ap325rxa/setup.c
-@@ -558,6 +558,9 @@ static void __init ap325rxa_mv_mem_reserve(void)
- 	phys_addr_t size = CEU_BUFFER_MEMORY_SIZE;
- 
- 	phys = memblock_phys_alloc(size, PAGE_SIZE);
-+	if (!phys)
-+		panic("Failed to allocate CEU memory\n");
-+
- 	memblock_free(phys, size);
- 	memblock_remove(phys, size);
- 
-diff --git a/arch/sh/boards/mach-ecovec24/setup.c b/arch/sh/boards/mach-ecovec24/setup.c
-index a3901806..fd264a6 100644
---- a/arch/sh/boards/mach-ecovec24/setup.c
-+++ b/arch/sh/boards/mach-ecovec24/setup.c
-@@ -1481,11 +1481,17 @@ static void __init ecovec_mv_mem_reserve(void)
- 	phys_addr_t size = CEU_BUFFER_MEMORY_SIZE;
- 
- 	phys = memblock_phys_alloc(size, PAGE_SIZE);
-+	if (!phys)
-+		panic("Failed to allocate CEU0 memory\n");
-+
- 	memblock_free(phys, size);
- 	memblock_remove(phys, size);
- 	ceu0_dma_membase = phys;
- 
- 	phys = memblock_phys_alloc(size, PAGE_SIZE);
-+	if (!phys)
-+		panic("Failed to allocate CEU1 memory\n");
-+
- 	memblock_free(phys, size);
- 	memblock_remove(phys, size);
- 	ceu1_dma_membase = phys;
-diff --git a/arch/sh/boards/mach-kfr2r09/setup.c b/arch/sh/boards/mach-kfr2r09/setup.c
-index 55bdf4a..ebe90d06 100644
---- a/arch/sh/boards/mach-kfr2r09/setup.c
-+++ b/arch/sh/boards/mach-kfr2r09/setup.c
-@@ -632,6 +632,9 @@ static void __init kfr2r09_mv_mem_reserve(void)
- 	phys_addr_t size = CEU_BUFFER_MEMORY_SIZE;
- 
- 	phys = memblock_phys_alloc(size, PAGE_SIZE);
-+	if (!phys)
-+		panic("Failed to allocate CEU memory\n");
-+
- 	memblock_free(phys, size);
- 	memblock_remove(phys, size);
- 
-diff --git a/arch/sh/boards/mach-migor/setup.c b/arch/sh/boards/mach-migor/setup.c
-index ba7eee6..1adff09 100644
---- a/arch/sh/boards/mach-migor/setup.c
-+++ b/arch/sh/boards/mach-migor/setup.c
-@@ -631,6 +631,9 @@ static void __init migor_mv_mem_reserve(void)
- 	phys_addr_t size = CEU_BUFFER_MEMORY_SIZE;
- 
- 	phys = memblock_phys_alloc(size, PAGE_SIZE);
-+	if (!phys)
-+		panic("Failed to allocate CEU memory\n");
-+
- 	memblock_free(phys, size);
- 	memblock_remove(phys, size);
- 
-diff --git a/arch/sh/boards/mach-se/7724/setup.c b/arch/sh/boards/mach-se/7724/setup.c
-index 4696e10..201631a 100644
---- a/arch/sh/boards/mach-se/7724/setup.c
-+++ b/arch/sh/boards/mach-se/7724/setup.c
-@@ -966,11 +966,17 @@ static void __init ms7724se_mv_mem_reserve(void)
- 	phys_addr_t size = CEU_BUFFER_MEMORY_SIZE;
- 
- 	phys = memblock_phys_alloc(size, PAGE_SIZE);
-+	if (!phys)
-+		panic("Failed to allocate CEU0 memory\n");
-+
- 	memblock_free(phys, size);
- 	memblock_remove(phys, size);
- 	ceu0_dma_membase = phys;
- 
- 	phys = memblock_phys_alloc(size, PAGE_SIZE);
-+	if (!phys)
-+		panic("Failed to allocate CEU1 memory\n");
-+
- 	memblock_free(phys, size);
- 	memblock_remove(phys, size);
- 	ceu1_dma_membase = phys;
-diff --git a/arch/xtensa/mm/kasan_init.c b/arch/xtensa/mm/kasan_init.c
-index 48dbb03..4852848 100644
---- a/arch/xtensa/mm/kasan_init.c
-+++ b/arch/xtensa/mm/kasan_init.c
-@@ -54,6 +54,9 @@ static void __init populate(void *start, void *end)
- 			phys_addr_t phys =
- 				memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE);
- 
-+			if (!phys)
-+				panic("Failed to allocate page table page\n");
-+
- 			set_pte(pte + j, pfn_pte(PHYS_PFN(phys), PAGE_KERNEL));
- 		}
- 	}
-diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-index 66dfdb3..7883c74 100644
---- a/include/linux/memblock.h
-+++ b/include/linux/memblock.h
-@@ -374,7 +374,12 @@ phys_addr_t memblock_phys_alloc_range(phys_addr_t size, phys_addr_t align,
- phys_addr_t memblock_phys_alloc_nid(phys_addr_t size, phys_addr_t align, int nid);
- phys_addr_t memblock_phys_alloc_try_nid(phys_addr_t size, phys_addr_t align, int nid);
- 
--phys_addr_t memblock_phys_alloc(phys_addr_t size, phys_addr_t align);
-+static inline phys_addr_t memblock_phys_alloc(phys_addr_t size,
-+					      phys_addr_t align)
-+{
-+	return memblock_phys_alloc_range(size, align, 0,
-+					 MEMBLOCK_ALLOC_ACCESSIBLE);
-+}
- 
- void *memblock_alloc_try_nid_raw(phys_addr_t size, phys_addr_t align,
- 				 phys_addr_t min_addr, phys_addr_t max_addr,
-diff --git a/mm/memblock.c b/mm/memblock.c
-index 8aabb1b..461e40a3 100644
---- a/mm/memblock.c
-+++ b/mm/memblock.c
-@@ -1382,11 +1382,6 @@ phys_addr_t __init memblock_alloc_base(phys_addr_t size, phys_addr_t align, phys
- 	return alloc;
- }
- 
--phys_addr_t __init memblock_phys_alloc(phys_addr_t size, phys_addr_t align)
--{
--	return memblock_alloc_base(size, align, MEMBLOCK_ALLOC_ACCESSIBLE);
--}
--
- phys_addr_t __init memblock_phys_alloc_try_nid(phys_addr_t size, phys_addr_t align, int nid)
- {
- 	phys_addr_t res = memblock_phys_alloc_nid(size, align, nid);
--- 
-2.7.4
+That one should be %zu rather than %lu. The rest looks good, so with
+that one tweak:
 
+    Acked-by: Paul Burton <paul.burton@mips.com> # MIPS parts
+
+Thanks,
+    Paul
