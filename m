@@ -1,60 +1,27 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Date: Fri, 18 Jan 2019 09:43:02 +0100
-Subject: [OpenRISC] [PATCH 19/21] treewide: add checks for the return
- value of memblock_alloc*()
-In-Reply-To: <1547646261-32535-20-git-send-email-rppt@linux.ibm.com>
+From: Paul Burton <paul.burton@mips.com>
+Date: Fri, 18 Jan 2019 17:53:36 +0000
+Subject: [OpenRISC] [PATCH 12/21] arch: use memblock_alloc() instead of
+ memblock_alloc_from(size, align, 0)
+In-Reply-To: <1547646261-32535-13-git-send-email-rppt@linux.ibm.com>
 References: <1547646261-32535-1-git-send-email-rppt@linux.ibm.com>
- <1547646261-32535-20-git-send-email-rppt@linux.ibm.com>
-Message-ID: <20190118084302.GA4160@osiris>
+ <1547646261-32535-13-git-send-email-rppt@linux.ibm.com>
+Message-ID: <20190118175334.mj2mahbf4onhujgz@pburton-laptop>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Jan 16, 2019 at 03:44:19PM +0200, Mike Rapoport wrote:
-> Add check for the return value of memblock_alloc*() functions and call
-> panic() in case of error.
-> The panic message repeats the one used by panicing memblock allocators with
-> adjustment of parameters to include only relevant ones.
-> 
-> The replacement was mostly automated with semantic patches like the one
-> below with manual massaging of format strings.
-> 
-> @@
-> expression ptr, size, align;
-> @@
-> ptr = memblock_alloc(size, align);
-> + if (!ptr)
-> + 	panic("%s: Failed to allocate %lu bytes align=0x%lx\n", __func__,
-> size, align);
+Hi Mike,
+
+On Wed, Jan 16, 2019 at 03:44:12PM +0200, Mike Rapoport wrote:
+> The last parameter of memblock_alloc_from() is the lower limit for the
+> memory allocation. When it is 0, the call is equivalent to
+> memblock_alloc().
 > 
 > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-...
-> diff --git a/arch/s390/numa/toptree.c b/arch/s390/numa/toptree.c
-> index 71a608c..0118c77 100644
-> --- a/arch/s390/numa/toptree.c
-> +++ b/arch/s390/numa/toptree.c
-> @@ -31,10 +31,14 @@ struct toptree __ref *toptree_alloc(int level, int id)
->  {
->  	struct toptree *res;
-> 
-> -	if (slab_is_available())
-> +	if (slab_is_available()) {
->  		res = kzalloc(sizeof(*res), GFP_KERNEL);
-> -	else
-> +	} else {
->  		res = memblock_alloc(sizeof(*res), 8);
-> +		if (!res)
-> +			panic("%s: Failed to allocate %zu bytes align=0x%x\n",
-> +			      __func__, sizeof(*res), 8);
-> +	}
->  	if (!res)
->  		return res;
 
-Please remove this hunk, since the code _should_ be able to handle
-allocation failures anyway (see end of quoted code).
+Acked-by: Paul Burton <paul.burton@mips.com> # MIPS part
 
-Otherwise for the s390 bits:
-Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-
+Thanks,
+    Paul
