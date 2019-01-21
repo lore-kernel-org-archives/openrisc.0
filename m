@@ -1,109 +1,242 @@
 From: Mike Rapoport <rppt@linux.ibm.com>
-Date: Mon, 21 Jan 2019 10:04:00 +0200
-Subject: [OpenRISC] [PATCH v2 13/21] arch: don't memset(0) memory returned
-	by memblock_alloc()
+Date: Mon, 21 Jan 2019 10:04:01 +0200
+Subject: [OpenRISC] [PATCH v2 14/21] ia64: add checks for the return value
+	of memblock_alloc*()
 In-Reply-To: <1548057848-15136-1-git-send-email-rppt@linux.ibm.com>
 References: <1548057848-15136-1-git-send-email-rppt@linux.ibm.com>
-Message-ID: <1548057848-15136-14-git-send-email-rppt@linux.ibm.com>
+Message-ID: <1548057848-15136-15-git-send-email-rppt@linux.ibm.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-memblock_alloc() already clears the allocated memory, no point in doing it
-twice.
+Add panic() calls if memblock_alloc*() returns NULL.
+
+Most of the changes are simply addition of
+
+	if(!ptr)
+		panic();
+
+statements after the calls to memblock_alloc*() variants.
+
+Exceptions are create_mem_map_page_table() and ia64_log_init() that were
+slightly refactored to accommodate the change.
 
 Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # m68k
 ---
- arch/c6x/mm/init.c          | 1 -
- arch/h8300/mm/init.c        | 1 -
- arch/ia64/kernel/mca.c      | 2 --
- arch/m68k/mm/mcfmmu.c       | 1 -
- arch/microblaze/mm/init.c   | 6 ++----
- arch/sparc/kernel/prom_32.c | 2 --
- 6 files changed, 2 insertions(+), 11 deletions(-)
+ arch/ia64/kernel/mca.c          | 20 ++++++++++++++------
+ arch/ia64/mm/contig.c           |  8 ++++++--
+ arch/ia64/mm/discontig.c        |  4 ++++
+ arch/ia64/mm/init.c             | 38 ++++++++++++++++++++++++++++++--------
+ arch/ia64/mm/tlb.c              |  6 ++++++
+ arch/ia64/sn/kernel/io_common.c |  3 +++
+ arch/ia64/sn/kernel/setup.c     | 12 +++++++++++-
+ 7 files changed, 74 insertions(+), 17 deletions(-)
 
-diff --git a/arch/c6x/mm/init.c b/arch/c6x/mm/init.c
-index af5ada0..e83c046 100644
---- a/arch/c6x/mm/init.c
-+++ b/arch/c6x/mm/init.c
-@@ -40,7 +40,6 @@ void __init paging_init(void)
- 
- 	empty_zero_page      = (unsigned long) memblock_alloc(PAGE_SIZE,
- 							      PAGE_SIZE);
--	memset((void *)empty_zero_page, 0, PAGE_SIZE);
- 
- 	/*
- 	 * Set up user data space
-diff --git a/arch/h8300/mm/init.c b/arch/h8300/mm/init.c
-index 6519252..a157890 100644
---- a/arch/h8300/mm/init.c
-+++ b/arch/h8300/mm/init.c
-@@ -68,7 +68,6 @@ void __init paging_init(void)
- 	 * to a couple of allocated pages.
- 	 */
- 	empty_zero_page = (unsigned long)memblock_alloc(PAGE_SIZE, PAGE_SIZE);
--	memset((void *)empty_zero_page, 0, PAGE_SIZE);
- 
- 	/*
- 	 * Set up SFC/DFC registers (user data space).
 diff --git a/arch/ia64/kernel/mca.c b/arch/ia64/kernel/mca.c
-index 74d148b..370bc34 100644
+index 370bc34..5cabb3f 100644
 --- a/arch/ia64/kernel/mca.c
 +++ b/arch/ia64/kernel/mca.c
-@@ -400,8 +400,6 @@ ia64_log_init(int sal_info_type)
+@@ -359,11 +359,6 @@ typedef struct ia64_state_log_s
+ 
+ static ia64_state_log_t ia64_state_log[IA64_MAX_LOG_TYPES];
+ 
+-#define IA64_LOG_ALLOCATE(it, size) \
+-	{ia64_state_log[it].isl_log[IA64_LOG_CURR_INDEX(it)] = \
+-		(ia64_err_rec_t *)memblock_alloc(size, SMP_CACHE_BYTES); \
+-	ia64_state_log[it].isl_log[IA64_LOG_NEXT_INDEX(it)] = \
+-		(ia64_err_rec_t *)memblock_alloc(size, SMP_CACHE_BYTES);}
+ #define IA64_LOG_LOCK_INIT(it) spin_lock_init(&ia64_state_log[it].isl_lock)
+ #define IA64_LOG_LOCK(it)      spin_lock_irqsave(&ia64_state_log[it].isl_lock, s)
+ #define IA64_LOG_UNLOCK(it)    spin_unlock_irqrestore(&ia64_state_log[it].isl_lock,s)
+@@ -378,6 +373,19 @@ static ia64_state_log_t ia64_state_log[IA64_MAX_LOG_TYPES];
+ #define IA64_LOG_CURR_BUFFER(it)   (void *)((ia64_state_log[it].isl_log[IA64_LOG_CURR_INDEX(it)]))
+ #define IA64_LOG_COUNT(it)         ia64_state_log[it].isl_count
+ 
++static inline void ia64_log_allocate(int it, u64 size)
++{
++	ia64_state_log[it].isl_log[IA64_LOG_CURR_INDEX(it)] =
++		(ia64_err_rec_t *)memblock_alloc(size, SMP_CACHE_BYTES);
++	if (!ia64_state_log[it].isl_log[IA64_LOG_CURR_INDEX(it)])
++		panic("%s: Failed to allocate %llu bytes\n", __func__, size);
++
++	ia64_state_log[it].isl_log[IA64_LOG_NEXT_INDEX(it)] =
++		(ia64_err_rec_t *)memblock_alloc(size, SMP_CACHE_BYTES);
++	if (!ia64_state_log[it].isl_log[IA64_LOG_NEXT_INDEX(it)])
++		panic("%s: Failed to allocate %llu bytes\n", __func__, size);
++}
++
+ /*
+  * ia64_log_init
+  *	Reset the OS ia64 log buffer
+@@ -399,7 +407,7 @@ ia64_log_init(int sal_info_type)
+ 		return;
  
  	// set up OS data structures to hold error info
- 	IA64_LOG_ALLOCATE(sal_info_type, max_size);
--	memset(IA64_LOG_CURR_BUFFER(sal_info_type), 0, max_size);
--	memset(IA64_LOG_NEXT_BUFFER(sal_info_type), 0, max_size);
+-	IA64_LOG_ALLOCATE(sal_info_type, max_size);
++	ia64_log_allocate(sal_info_type, max_size);
  }
  
  /*
-diff --git a/arch/m68k/mm/mcfmmu.c b/arch/m68k/mm/mcfmmu.c
-index 0de4999..492f953 100644
---- a/arch/m68k/mm/mcfmmu.c
-+++ b/arch/m68k/mm/mcfmmu.c
-@@ -44,7 +44,6 @@ void __init paging_init(void)
- 	int i;
- 
- 	empty_zero_page = (void *) memblock_alloc(PAGE_SIZE, PAGE_SIZE);
--	memset((void *) empty_zero_page, 0, PAGE_SIZE);
- 
- 	pg_dir = swapper_pg_dir;
- 	memset(swapper_pg_dir, 0, sizeof(swapper_pg_dir));
-diff --git a/arch/microblaze/mm/init.c b/arch/microblaze/mm/init.c
-index 44f4b89..bd1cd4b 100644
---- a/arch/microblaze/mm/init.c
-+++ b/arch/microblaze/mm/init.c
-@@ -376,10 +376,8 @@ void * __ref zalloc_maybe_bootmem(size_t size, gfp_t mask)
- 
- 	if (mem_init_done)
- 		p = kzalloc(size, mask);
--	else {
-+	else
- 		p = memblock_alloc(size, SMP_CACHE_BYTES);
--		if (p)
--			memset(p, 0, size);
--	}
+diff --git a/arch/ia64/mm/contig.c b/arch/ia64/mm/contig.c
+index 6e44723..d29fb6b 100644
+--- a/arch/ia64/mm/contig.c
++++ b/arch/ia64/mm/contig.c
+@@ -84,9 +84,13 @@ void *per_cpu_init(void)
+ static inline void
+ alloc_per_cpu_data(void)
+ {
+-	cpu_data = memblock_alloc_from(PERCPU_PAGE_SIZE * num_possible_cpus(),
+-				       PERCPU_PAGE_SIZE,
++	size_t size = PERCPU_PAGE_SIZE * num_possible_cpus();
 +
- 	return p;
++	cpu_data = memblock_alloc_from(size, PERCPU_PAGE_SIZE,
+ 				       __pa(MAX_DMA_ADDRESS));
++	if (!cpu_data)
++		panic("%s: Failed to allocate %lu bytes align=%lx from=%lx\n",
++		      __func__, size, PERCPU_PAGE_SIZE, __pa(MAX_DMA_ADDRESS));
  }
-diff --git a/arch/sparc/kernel/prom_32.c b/arch/sparc/kernel/prom_32.c
-index 38940af..e7126ca 100644
---- a/arch/sparc/kernel/prom_32.c
-+++ b/arch/sparc/kernel/prom_32.c
-@@ -33,8 +33,6 @@ void * __init prom_early_alloc(unsigned long size)
- 	void *ret;
  
- 	ret = memblock_alloc(size, SMP_CACHE_BYTES);
--	if (ret != NULL)
--		memset(ret, 0, size);
+ /**
+diff --git a/arch/ia64/mm/discontig.c b/arch/ia64/mm/discontig.c
+index f9c3675..05490dd 100644
+--- a/arch/ia64/mm/discontig.c
++++ b/arch/ia64/mm/discontig.c
+@@ -454,6 +454,10 @@ static void __init *memory_less_node_alloc(int nid, unsigned long pernodesize)
+ 				     __pa(MAX_DMA_ADDRESS),
+ 				     MEMBLOCK_ALLOC_ACCESSIBLE,
+ 				     bestnode);
++	if (!ptr)
++		panic("%s: Failed to allocate %lu bytes align=0x%lx nid=%d from=%lx\n",
++		      __func__, pernodesize, PERCPU_PAGE_SIZE, bestnode,
++		      __pa(MAX_DMA_ADDRESS));
  
- 	prom_early_allocated += size;
+ 	return ptr;
+ }
+diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
+index 29d8415..e49200e 100644
+--- a/arch/ia64/mm/init.c
++++ b/arch/ia64/mm/init.c
+@@ -444,23 +444,45 @@ int __init create_mem_map_page_table(u64 start, u64 end, void *arg)
  
+ 	for (address = start_page; address < end_page; address += PAGE_SIZE) {
+ 		pgd = pgd_offset_k(address);
+-		if (pgd_none(*pgd))
+-			pgd_populate(&init_mm, pgd, memblock_alloc_node(PAGE_SIZE, PAGE_SIZE, node));
++		if (pgd_none(*pgd)) {
++			pud = memblock_alloc_node(PAGE_SIZE, PAGE_SIZE, node);
++			if (!pud)
++				goto err_alloc;
++			pgd_populate(&init_mm, pgd, pud);
++		}
+ 		pud = pud_offset(pgd, address);
+ 
+-		if (pud_none(*pud))
+-			pud_populate(&init_mm, pud, memblock_alloc_node(PAGE_SIZE, PAGE_SIZE, node));
++		if (pud_none(*pud)) {
++			pmd = memblock_alloc_node(PAGE_SIZE, PAGE_SIZE, node);
++			if (!pmd)
++				goto err_alloc;
++			pud_populate(&init_mm, pud, pmd);
++		}
+ 		pmd = pmd_offset(pud, address);
+ 
+-		if (pmd_none(*pmd))
+-			pmd_populate_kernel(&init_mm, pmd, memblock_alloc_node(PAGE_SIZE, PAGE_SIZE, node));
++		if (pmd_none(*pmd)) {
++			pte = memblock_alloc_node(PAGE_SIZE, PAGE_SIZE, node);
++			if (!pte)
++				goto err_alloc;
++			pmd_populate_kernel(&init_mm, pmd, pte);
++		}
+ 		pte = pte_offset_kernel(pmd, address);
+ 
+-		if (pte_none(*pte))
+-			set_pte(pte, pfn_pte(__pa(memblock_alloc_node(PAGE_SIZE, PAGE_SIZE, node)) >> PAGE_SHIFT,
++		if (pte_none(*pte)) {
++			void *page = memblock_alloc_node(PAGE_SIZE, PAGE_SIZE,
++							 node);
++			if (!page)
++				goto err_alloc;
++			set_pte(pte, pfn_pte(__pa(page) >> PAGE_SHIFT,
+ 					     PAGE_KERNEL));
++		}
+ 	}
+ 	return 0;
++
++err_alloc:
++	panic("%s: Failed to allocate %lu bytes align=0x%lx nid=%d\n",
++	      __func__, PAGE_SIZE, PAGE_SIZE, node);
++	return -ENOMEM;
+ }
+ 
+ struct memmap_init_callback_data {
+diff --git a/arch/ia64/mm/tlb.c b/arch/ia64/mm/tlb.c
+index 9340bcb..5fc89aa 100644
+--- a/arch/ia64/mm/tlb.c
++++ b/arch/ia64/mm/tlb.c
+@@ -61,8 +61,14 @@ mmu_context_init (void)
+ {
+ 	ia64_ctx.bitmap = memblock_alloc((ia64_ctx.max_ctx + 1) >> 3,
+ 					 SMP_CACHE_BYTES);
++	if (!ia64_ctx.bitmap)
++		panic("%s: Failed to allocate %u bytes\n", __func__,
++		      (ia64_ctx.max_ctx + 1) >> 3);
+ 	ia64_ctx.flushmap = memblock_alloc((ia64_ctx.max_ctx + 1) >> 3,
+ 					   SMP_CACHE_BYTES);
++	if (!ia64_ctx.flushmap)
++		panic("%s: Failed to allocate %u bytes\n", __func__,
++		      (ia64_ctx.max_ctx + 1) >> 3);
+ }
+ 
+ /*
+diff --git a/arch/ia64/sn/kernel/io_common.c b/arch/ia64/sn/kernel/io_common.c
+index 8df13d0..d468473 100644
+--- a/arch/ia64/sn/kernel/io_common.c
++++ b/arch/ia64/sn/kernel/io_common.c
+@@ -394,6 +394,9 @@ void __init hubdev_init_node(nodepda_t * npda, cnodeid_t node)
+ 	hubdev_info = (struct hubdev_info *)memblock_alloc_node(size,
+ 								SMP_CACHE_BYTES,
+ 								node);
++	if (!hubdev_info)
++		panic("%s: Failed to allocate %d bytes align=0x%x nid=%d\n",
++		      __func__, size, SMP_CACHE_BYTES, node);
+ 
+ 	npda->pdinfo = (void *)hubdev_info;
+ }
+diff --git a/arch/ia64/sn/kernel/setup.c b/arch/ia64/sn/kernel/setup.c
+index a6d40a2..e6a5049 100644
+--- a/arch/ia64/sn/kernel/setup.c
++++ b/arch/ia64/sn/kernel/setup.c
+@@ -513,6 +513,10 @@ static void __init sn_init_pdas(char **cmdline_p)
+ 		nodepdaindr[cnode] =
+ 		    memblock_alloc_node(sizeof(nodepda_t), SMP_CACHE_BYTES,
+ 					cnode);
++		if (!nodepdaindr[cnode])
++			panic("%s: Failed to allocate %lu bytes align=0x%x nid=%d\n",
++			      __func__, sizeof(nodepda_t), SMP_CACHE_BYTES,
++			      cnode);
+ 		memset(nodepdaindr[cnode]->phys_cpuid, -1,
+ 		    sizeof(nodepdaindr[cnode]->phys_cpuid));
+ 		spin_lock_init(&nodepdaindr[cnode]->ptc_lock);
+@@ -521,9 +525,15 @@ static void __init sn_init_pdas(char **cmdline_p)
+ 	/*
+ 	 * Allocate & initialize nodepda for TIOs.  For now, put them on node 0.
+ 	 */
+-	for (cnode = num_online_nodes(); cnode < num_cnodes; cnode++)
++	for (cnode = num_online_nodes(); cnode < num_cnodes; cnode++) {
+ 		nodepdaindr[cnode] =
+ 		    memblock_alloc_node(sizeof(nodepda_t), SMP_CACHE_BYTES, 0);
++		if (!nodepdaindr[cnode])
++			panic("%s: Failed to allocate %lu bytes align=0x%x nid=%d\n",
++			      __func__, sizeof(nodepda_t), SMP_CACHE_BYTES,
++			      cnode);
++	}
++
+ 
+ 	/*
+ 	 * Now copy the array of nodepda pointers to each nodepda.
 -- 
 2.7.4
 
