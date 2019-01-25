@@ -1,69 +1,36 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 27 Jan 2019 19:11:47 +0900
-Subject: [OpenRISC] [RFC] Splitting out Marocchino to new Repo
-Message-ID: <CAAfxs76ysqzXWnJH02eDe0vSCLvuqwdwwKNiQoQV7Kfst4_mNw@mail.gmail.com>
+From: Catalin Marinas <catalin.marinas@arm.com>
+Date: Fri, 25 Jan 2019 17:45:02 +0000
+Subject: [OpenRISC] [PATCH v2 06/21] memblock:
+ memblock_phys_alloc_try_nid(): don't panic
+In-Reply-To: <1548057848-15136-7-git-send-email-rppt@linux.ibm.com>
+References: <1548057848-15136-1-git-send-email-rppt@linux.ibm.com>
+ <1548057848-15136-7-git-send-email-rppt@linux.ibm.com>
+Message-ID: <20190125174502.GL25901@arrakis.emea.arm.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi All,
+On Mon, Jan 21, 2019 at 10:03:53AM +0200, Mike Rapoport wrote:
+> diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
+> index ae34e3a..2c61ea4 100644
+> --- a/arch/arm64/mm/numa.c
+> +++ b/arch/arm64/mm/numa.c
+> @@ -237,6 +237,10 @@ static void __init setup_node_data(int nid, u64 start_pfn, u64 end_pfn)
+>  		pr_info("Initmem setup node %d [<memory-less node>]\n", nid);
+>  
+>  	nd_pa = memblock_phys_alloc_try_nid(nd_size, SMP_CACHE_BYTES, nid);
+> +	if (!nd_pa)
+> +		panic("Cannot allocate %zu bytes for node %d data\n",
+> +		      nd_size, nid);
+> +
+>  	nd = __va(nd_pa);
+>  
+>  	/* report and initialize */
 
-Sorry this mail got a bit long the outline is:
- - Testing Efforts
- - Marocchino Pipeline
- - Proposal to Split Marocchino to new Repo
+Does it mean that memblock_phys_alloc_try_nid() never returns valid
+physical memory starting at 0?
 
-## Testing Efforts ##
-
-Recently I have been working on adding FPU support to GCC.  The GCC
-generated FPU code is working and running on the simulator, but I have
-been taking extra time now to verify on iverilog and verilator
-simulators of mor1kx.  This has gotten me a bit sidetracked to get a
-CI environment for testing mor1kx cores.  What I have so far is:
-   - Using mor1kx + mor1kx-generic + or1k-tests to run the tests
-   - Almost all tests are passing for mor1kx cappuccino pipeline
-(multiply carry flag is not implemented, so there is one failure)
-   - Most tests are failing for the Espresso pipeline (Issue with
->1clock instructions in delay slots)
-   - Most tests are failing for the Marocchino pipeline (Its likely an
-issue with how I implemented the monitor_* signals)
-
-TODO
-  - FPU tests are not run in or1k-tests
-  - Document test coverage for each pipeline
-  - CI - Automate testing for each commit/PR
-  - Confirm debug capabilities, i.e. single-stepping
-  - Synthesize with Xilinx/Altera toolchains to verify resource usage/budget
-
-Not planning todo
-  - GCC support for no-delay-slot code which would be needed for pronto espresso
-
-## Marocchino Pipeline ##
-
-Which brings us to Marocchino.  Andrey has been working on the
-Marocchino implementation for a while.  This is a fork of the mor1kx
-cappuccino pipeline that adds many advanced features like: out of
-order instruction execution, simplify by reducing parameter options,
-separate Wishbone and CPU clocks and 64-bit FPU operations via the
-ORFPX64A32 (https://openrisc.io/proposals/orfpx64a32) specification.
-In the end this has turned into a very different internal
-architecture.
-
-Currently the work is all stored in the marocchino_devel branch of mor1kx.
-
-## Proposal to Split Marocchino to new Repo ##
-
-As we discussed in a recent PR
-(https://github.com/openrisc/mor1kx/pull/72) marocchino doesn't really
-share any code with the rest of mor1kx and even now has a separate top
-level module (mor1kx_top_marocchino).
-
-Andrey and I have proposed moving the code to a new repo
-openrisc/mor1kx_marocchino.  Though it's not really exactly a mor1kx
-pipeline swap any longer the name might be controversial.
-
-Does anyone have a objection / suggestion for this?
-
--Stafford
+-- 
+Catalin
