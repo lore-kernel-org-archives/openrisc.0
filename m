@@ -1,50 +1,46 @@
-From: Mike Rapoport <rppt@linux.ibm.com>
-Date: Fri, 25 Jan 2019 21:32:52 +0200
-Subject: [OpenRISC] [PATCH v2 06/21] memblock:
- memblock_phys_alloc_try_nid(): don't panic
-In-Reply-To: <20190125174502.GL25901@arrakis.emea.arm.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Sun, 27 Jan 2019 12:07:08 +0900
+Subject: [OpenRISC] [PATCH v2 01/21] openrisc: prefer memblock APIs
+ returning virtual address
+In-Reply-To: <1548057848-15136-2-git-send-email-rppt@linux.ibm.com>
 References: <1548057848-15136-1-git-send-email-rppt@linux.ibm.com>
- <1548057848-15136-7-git-send-email-rppt@linux.ibm.com>
- <20190125174502.GL25901@arrakis.emea.arm.com>
-Message-ID: <20190125193252.GH31519@rapoport-lnx>
+ <1548057848-15136-2-git-send-email-rppt@linux.ibm.com>
+Message-ID: <20190127030708.GU3235@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, Jan 25, 2019 at 05:45:02PM +0000, Catalin Marinas wrote:
-> On Mon, Jan 21, 2019 at 10:03:53AM +0200, Mike Rapoport wrote:
-> > diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
-> > index ae34e3a..2c61ea4 100644
-> > --- a/arch/arm64/mm/numa.c
-> > +++ b/arch/arm64/mm/numa.c
-> > @@ -237,6 +237,10 @@ static void __init setup_node_data(int nid, u64 start_pfn, u64 end_pfn)
-> >  		pr_info("Initmem setup node %d [<memory-less node>]\n", nid);
-> >  
-> >  	nd_pa = memblock_phys_alloc_try_nid(nd_size, SMP_CACHE_BYTES, nid);
-> > +	if (!nd_pa)
-> > +		panic("Cannot allocate %zu bytes for node %d data\n",
-> > +		      nd_size, nid);
-> > +
-> >  	nd = __va(nd_pa);
-> >  
-> >  	/* report and initialize */
+On Mon, Jan 21, 2019 at 10:03:48AM +0200, Mike Rapoport wrote:
+> The allocation of the page tables memory in openrics uses
+> memblock_phys_alloc() and then converts the returned physical address to
+> virtual one. Use memblock_alloc_raw() and add a panic() if the allocation
+> fails.
 > 
-> Does it mean that memblock_phys_alloc_try_nid() never returns valid
-> physical memory starting at 0?
-
-Yes, it does.
-memblock_find_in_range_node() that is used by all allocation methods
-skips the first page [1].
- 
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/mm/memblock.c#n257
-
-> -- 
-> Catalin
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> ---
+>  arch/openrisc/mm/init.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
 > 
+> diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
+> index d157310..caeb418 100644
+> --- a/arch/openrisc/mm/init.c
+> +++ b/arch/openrisc/mm/init.c
+> @@ -105,7 +105,10 @@ static void __init map_ram(void)
+>  			}
+>  
+>  			/* Alloc one page for holding PTE's... */
+> -			pte = (pte_t *) __va(memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE));
+> +			pte = memblock_alloc_raw(PAGE_SIZE, PAGE_SIZE);
+> +			if (!pte)
+> +				panic("%s: Failed to allocate page for PTEs\n",
+> +				      __func__);
+>  			set_pmd(pme, __pmd(_KERNPG_TABLE + __pa(pte)));
+>  
+>  			/* Fill the newly allocated page with PTE'S */
 
--- 
-Sincerely yours,
-Mike.
+This seems reasonable to me.
+
+Acked-by: Stafford Horne <shorne@gmail.com>
 
