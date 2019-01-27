@@ -1,114 +1,69 @@
-From: Rob Herring <robh@kernel.org>
-Date: Mon, 21 Jan 2019 11:18:21 -0600
-Subject: [OpenRISC] [PATCH v2 19/21] treewide: add checks for the return
- value of memblock_alloc*()
-In-Reply-To: <1548057848-15136-20-git-send-email-rppt@linux.ibm.com>
-References: <1548057848-15136-1-git-send-email-rppt@linux.ibm.com>
- <1548057848-15136-20-git-send-email-rppt@linux.ibm.com>
-Message-ID: <20190121171821.GA13557@bogus>
+From: Stafford Horne <shorne@gmail.com>
+Date: Sun, 27 Jan 2019 19:11:47 +0900
+Subject: [OpenRISC] [RFC] Splitting out Marocchino to new Repo
+Message-ID: <CAAfxs76ysqzXWnJH02eDe0vSCLvuqwdwwKNiQoQV7Kfst4_mNw@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Jan 21, 2019 at 10:04:06AM +0200, Mike Rapoport wrote:
-> Add check for the return value of memblock_alloc*() functions and call
-> panic() in case of error.
-> The panic message repeats the one used by panicing memblock allocators with
-> adjustment of parameters to include only relevant ones.
-> 
-> The replacement was mostly automated with semantic patches like the one
-> below with manual massaging of format strings.
-> 
-> @@
-> expression ptr, size, align;
-> @@
-> ptr = memblock_alloc(size, align);
-> + if (!ptr)
-> + 	panic("%s: Failed to allocate %lu bytes align=0x%lx\n", __func__,
-> size, align);
-> 
-> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-> Reviewed-by: Guo Ren <ren_guo@c-sky.com>             # c-sky
-> Acked-by: Paul Burton <paul.burton@mips.com>	     # MIPS
-> Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com> # s390
-> Reviewed-by: Juergen Gross <jgross@suse.com>         # Xen
-> ---
->  arch/alpha/kernel/core_cia.c              |  3 +++
->  arch/alpha/kernel/core_marvel.c           |  6 ++++++
->  arch/alpha/kernel/pci-noop.c              | 13 +++++++++++--
->  arch/alpha/kernel/pci.c                   | 11 ++++++++++-
->  arch/alpha/kernel/pci_iommu.c             | 12 ++++++++++++
->  arch/arc/mm/highmem.c                     |  4 ++++
->  arch/arm/kernel/setup.c                   |  6 ++++++
->  arch/arm/mm/mmu.c                         | 14 +++++++++++++-
->  arch/arm64/kernel/setup.c                 |  8 +++++---
->  arch/arm64/mm/kasan_init.c                | 10 ++++++++++
->  arch/c6x/mm/dma-coherent.c                |  4 ++++
->  arch/c6x/mm/init.c                        |  3 +++
->  arch/csky/mm/highmem.c                    |  5 +++++
->  arch/h8300/mm/init.c                      |  3 +++
->  arch/m68k/atari/stram.c                   |  4 ++++
->  arch/m68k/mm/init.c                       |  3 +++
->  arch/m68k/mm/mcfmmu.c                     |  6 ++++++
->  arch/m68k/mm/motorola.c                   |  9 +++++++++
->  arch/m68k/mm/sun3mmu.c                    |  6 ++++++
->  arch/m68k/sun3/sun3dvma.c                 |  3 +++
->  arch/microblaze/mm/init.c                 |  8 ++++++--
->  arch/mips/cavium-octeon/dma-octeon.c      |  3 +++
->  arch/mips/kernel/setup.c                  |  3 +++
->  arch/mips/kernel/traps.c                  |  3 +++
->  arch/mips/mm/init.c                       |  5 +++++
->  arch/nds32/mm/init.c                      | 12 ++++++++++++
->  arch/openrisc/mm/ioremap.c                |  8 ++++++--
->  arch/powerpc/kernel/dt_cpu_ftrs.c         |  5 +++++
->  arch/powerpc/kernel/pci_32.c              |  3 +++
->  arch/powerpc/kernel/setup-common.c        |  3 +++
->  arch/powerpc/kernel/setup_64.c            |  4 ++++
->  arch/powerpc/lib/alloc.c                  |  3 +++
->  arch/powerpc/mm/hash_utils_64.c           |  3 +++
->  arch/powerpc/mm/mmu_context_nohash.c      |  9 +++++++++
->  arch/powerpc/mm/pgtable-book3e.c          | 12 ++++++++++--
->  arch/powerpc/mm/pgtable-book3s64.c        |  3 +++
->  arch/powerpc/mm/pgtable-radix.c           |  9 ++++++++-
->  arch/powerpc/mm/ppc_mmu_32.c              |  3 +++
->  arch/powerpc/platforms/pasemi/iommu.c     |  3 +++
->  arch/powerpc/platforms/powermac/nvram.c   |  3 +++
->  arch/powerpc/platforms/powernv/opal.c     |  3 +++
->  arch/powerpc/platforms/powernv/pci-ioda.c |  8 ++++++++
->  arch/powerpc/platforms/ps3/setup.c        |  3 +++
->  arch/powerpc/sysdev/msi_bitmap.c          |  3 +++
->  arch/s390/kernel/setup.c                  | 13 +++++++++++++
->  arch/s390/kernel/smp.c                    |  5 ++++-
->  arch/s390/kernel/topology.c               |  6 ++++++
->  arch/s390/numa/mode_emu.c                 |  3 +++
->  arch/s390/numa/numa.c                     |  6 +++++-
->  arch/sh/mm/init.c                         |  6 ++++++
->  arch/sh/mm/numa.c                         |  4 ++++
->  arch/um/drivers/net_kern.c                |  3 +++
->  arch/um/drivers/vector_kern.c             |  3 +++
->  arch/um/kernel/initrd.c                   |  2 ++
->  arch/um/kernel/mem.c                      | 16 ++++++++++++++++
->  arch/unicore32/kernel/setup.c             |  4 ++++
->  arch/unicore32/mm/mmu.c                   | 15 +++++++++++++--
->  arch/x86/kernel/acpi/boot.c               |  3 +++
->  arch/x86/kernel/apic/io_apic.c            |  5 +++++
->  arch/x86/kernel/e820.c                    |  3 +++
->  arch/x86/platform/olpc/olpc_dt.c          |  3 +++
->  arch/x86/xen/p2m.c                        | 11 +++++++++--
->  arch/xtensa/mm/kasan_init.c               |  4 ++++
->  arch/xtensa/mm/mmu.c                      |  3 +++
->  drivers/clk/ti/clk.c                      |  3 +++
->  drivers/macintosh/smu.c                   |  3 +++
->  drivers/of/fdt.c                          |  8 +++++++-
->  drivers/of/unittest.c                     |  8 +++++++-
+Hi All,
 
-Acked-by: Rob Herring <robh@kernel.org>
+Sorry this mail got a bit long the outline is:
+ - Testing Efforts
+ - Marocchino Pipeline
+ - Proposal to Split Marocchino to new Repo
 
->  drivers/xen/swiotlb-xen.c                 |  7 +++++--
->  kernel/power/snapshot.c                   |  3 +++
->  lib/cpumask.c                             |  3 +++
->  mm/kasan/init.c                           | 10 ++++++++--
->  mm/sparse.c                               | 19 +++++++++++++++++--
->  73 files changed, 409 insertions(+), 28 deletions(-)
+## Testing Efforts ##
+
+Recently I have been working on adding FPU support to GCC.  The GCC
+generated FPU code is working and running on the simulator, but I have
+been taking extra time now to verify on iverilog and verilator
+simulators of mor1kx.  This has gotten me a bit sidetracked to get a
+CI environment for testing mor1kx cores.  What I have so far is:
+   - Using mor1kx + mor1kx-generic + or1k-tests to run the tests
+   - Almost all tests are passing for mor1kx cappuccino pipeline
+(multiply carry flag is not implemented, so there is one failure)
+   - Most tests are failing for the Espresso pipeline (Issue with
+>1clock instructions in delay slots)
+   - Most tests are failing for the Marocchino pipeline (Its likely an
+issue with how I implemented the monitor_* signals)
+
+TODO
+  - FPU tests are not run in or1k-tests
+  - Document test coverage for each pipeline
+  - CI - Automate testing for each commit/PR
+  - Confirm debug capabilities, i.e. single-stepping
+  - Synthesize with Xilinx/Altera toolchains to verify resource usage/budget
+
+Not planning todo
+  - GCC support for no-delay-slot code which would be needed for pronto espresso
+
+## Marocchino Pipeline ##
+
+Which brings us to Marocchino.  Andrey has been working on the
+Marocchino implementation for a while.  This is a fork of the mor1kx
+cappuccino pipeline that adds many advanced features like: out of
+order instruction execution, simplify by reducing parameter options,
+separate Wishbone and CPU clocks and 64-bit FPU operations via the
+ORFPX64A32 (https://openrisc.io/proposals/orfpx64a32) specification.
+In the end this has turned into a very different internal
+architecture.
+
+Currently the work is all stored in the marocchino_devel branch of mor1kx.
+
+## Proposal to Split Marocchino to new Repo ##
+
+As we discussed in a recent PR
+(https://github.com/openrisc/mor1kx/pull/72) marocchino doesn't really
+share any code with the rest of mor1kx and even now has a separate top
+level module (mor1kx_top_marocchino).
+
+Andrey and I have proposed moving the code to a new repo
+openrisc/mor1kx_marocchino.  Though it's not really exactly a mor1kx
+pipeline swap any longer the name might be controversial.
+
+Does anyone have a objection / suggestion for this?
+
+-Stafford
