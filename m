@@ -1,33 +1,104 @@
-From: Michael Ellerman <mpe@ellerman.id.au>
-Date: Tue, 29 Jan 2019 21:29:19 +1100
-Subject: [OpenRISC] [PATCH v2 09/21] memblock: drop memblock_alloc_base()
-In-Reply-To: <1548057848-15136-10-git-send-email-rppt@linux.ibm.com>
-References: <1548057848-15136-1-git-send-email-rppt@linux.ibm.com>
- <1548057848-15136-10-git-send-email-rppt@linux.ibm.com>
-Message-ID: <87sgxbrc3k.fsf@concordia.ellerman.id.au>
+From: Olof Kindgren <olof.kindgren@gmail.com>
+Date: Wed, 30 Jan 2019 10:56:42 +0100
+Subject: [OpenRISC] [RFC] Splitting out Marocchino to new Repo
+In-Reply-To: <CAAfxs76ysqzXWnJH02eDe0vSCLvuqwdwwKNiQoQV7Kfst4_mNw@mail.gmail.com>
+References: <CAAfxs76ysqzXWnJH02eDe0vSCLvuqwdwwKNiQoQV7Kfst4_mNw@mail.gmail.com>
+Message-ID: <CAKaYPCMtPDaXMRS9jmGijv2SGFP9LkUA51LFWmvtufWH7GnXLg@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Mike Rapoport <rppt@linux.ibm.com> writes:
+On Sun, Jan 27, 2019 at 11:12 AM Stafford Horne <shorne@gmail.com> wrote:
 
-> The memblock_alloc_base() function tries to allocate a memory up to the
-> limit specified by its max_addr parameter and panics if the allocation
-> fails. Replace its usage with memblock_phys_alloc_range() and make the
-> callers check the return value and panic in case of error.
+> Hi All,
 >
-> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-> ---
->  arch/powerpc/kernel/rtas.c      |  6 +++++-
->  arch/powerpc/mm/hash_utils_64.c |  8 ++++++--
->  arch/s390/kernel/smp.c          |  6 +++++-
->  drivers/macintosh/smu.c         |  2 +-
->  include/linux/memblock.h        |  2 --
->  mm/memblock.c                   | 14 --------------
->  6 files changed, 17 insertions(+), 21 deletions(-)
+> Sorry this mail got a bit long the outline is:
+>  - Testing Efforts
+>  - Marocchino Pipeline
+>  - Proposal to Split Marocchino to new Repo
+>
+> ## Testing Efforts ##
+>
+> Recently I have been working on adding FPU support to GCC.  The GCC
+> generated FPU code is working and running on the simulator, but I have
+> been taking extra time now to verify on iverilog and verilator
+> simulators of mor1kx.  This has gotten me a bit sidetracked to get a
+> CI environment for testing mor1kx cores.  What I have so far is:
+>    - Using mor1kx + mor1kx-generic + or1k-tests to run the tests
+>    - Almost all tests are passing for mor1kx cappuccino pipeline
+> (multiply carry flag is not implemented, so there is one failure)
+>    - Most tests are failing for the Espresso pipeline (Issue with
+> >1clock instructions in delay slots)
+>    - Most tests are failing for the Marocchino pipeline (Its likely an
+> issue with how I implemented the monitor_* signals)
+>
+> TODO
+>   - FPU tests are not run in or1k-tests
+>   - Document test coverage for each pipeline
+>   - CI - Automate testing for each commit/PR
+>   - Confirm debug capabilities, i.e. single-stepping
+>   - Synthesize with Xilinx/Altera toolchains to verify resource
+> usage/budget
+>
+> Not planning todo
+>   - GCC support for no-delay-slot code which would be needed for pronto
+> espresso
+>
+>
+Fantastic! Are you looking at resource usage for CI? In that case it might
+be worth building with yosys instead to avoid a dependency on a commercial
+EDA tool. Even if a synthesis with yosys would require more resources it
+doesn't that much. I guess we are more interested in the varitation between
+builds than any absolute number. It's on my TODO list to add support in the
+Edalize backends for just doing synthesis without P&R. That could be
+helpful in this case too.
 
-Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+And I think you do well in ignoring the or1k-nd versions for now. There are
+likely problems all over the place with that. Would be cool to see if
+espresso is any good though.
 
-cheers
+
+> ## Marocchino Pipeline ##
+>
+> Which brings us to Marocchino.  Andrey has been working on the
+> Marocchino implementation for a while.  This is a fork of the mor1kx
+> cappuccino pipeline that adds many advanced features like: out of
+> order instruction execution, simplify by reducing parameter options,
+> separate Wishbone and CPU clocks and 64-bit FPU operations via the
+> ORFPX64A32 (https://openrisc.io/proposals/orfpx64a32) specification.
+> In the end this has turned into a very different internal
+> architecture.
+>
+> Currently the work is all stored in the marocchino_devel branch of mor1kx.
+>
+> ## Proposal to Split Marocchino to new Repo ##
+>
+> As we discussed in a recent PR
+> (https://github.com/openrisc/mor1kx/pull/72) marocchino doesn't really
+> share any code with the rest of mor1kx and even now has a separate top
+> level module (mor1kx_top_marocchino).
+>
+> Andrey and I have proposed moving the code to a new repo
+> openrisc/mor1kx_marocchino.  Though it's not really exactly a mor1kx
+> pipeline swap any longer the name might be controversial.
+>
+> Does anyone have a objection / suggestion for this?
+>
+>
+Exciting to see all the work on Marocchino! I'm fine with the move and
+think it could make sense to drop the mor1kx name for the reasons you
+cited, but I'd leave that up to Andrey.
+
+//Olof
+
+-Stafford
+> _______________________________________________
+> OpenRISC mailing list
+> OpenRISC at lists.librecores.org
+> https://lists.librecores.org/listinfo/openrisc
+>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20190130/350fadc2/attachment.html>
