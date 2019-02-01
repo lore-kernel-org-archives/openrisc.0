@@ -1,65 +1,75 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 2 Feb 2019 08:06:23 +0900
+Date: Sat, 2 Feb 2019 08:12:26 +0900
 Subject: [OpenRISC] [RFC] Splitting out Marocchino to new Repo
-In-Reply-To: <CAF6YiZ5RrwcEj-Kqk4-MvrqZFK8WWUgU1MVjzmu2M3=90qbPdQ@mail.gmail.com>
+In-Reply-To: <CAKaYPCMtPDaXMRS9jmGijv2SGFP9LkUA51LFWmvtufWH7GnXLg@mail.gmail.com>
 References: <CAAfxs76ysqzXWnJH02eDe0vSCLvuqwdwwKNiQoQV7Kfst4_mNw@mail.gmail.com>
- <CAF6YiZ5RrwcEj-Kqk4-MvrqZFK8WWUgU1MVjzmu2M3=90qbPdQ@mail.gmail.com>
-Message-ID: <20190201230623.GZ3235@lianli.shorne-pla.net>
+ <CAKaYPCMtPDaXMRS9jmGijv2SGFP9LkUA51LFWmvtufWH7GnXLg@mail.gmail.com>
+Message-ID: <20190201231226.GA3235@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi julius
+Hi Olof,
 
-On Fri, Feb 01, 2019 at 11:51:26AM +0100, Julius Baxter wrote:
-> On Sun, 27 Jan 2019 at 11:11, Stafford Horne <shorne@gmail.com> wrote:
-...
-> > ## Marocchino Pipeline ##
-> >
-> > Which brings us to Marocchino.  Andrey has been working on the
-> > Marocchino implementation for a while.  This is a fork of the mor1kx
-> > cappuccino pipeline that adds many advanced features like: out of
-> > order instruction execution, simplify by reducing parameter options,
-> > separate Wishbone and CPU clocks and 64-bit FPU operations via the
-> > ORFPX64A32 (https://openrisc.io/proposals/orfpx64a32) specification.
-> > In the end this has turned into a very different internal
-> > architecture.
-> >
-> > Currently the work is all stored in the marocchino_devel branch of mor1kx.
-> >
+On Wed, Jan 30, 2019 at 10:56:42AM +0100, Olof Kindgren wrote:
+> On Sun, Jan 27, 2019 at 11:12 AM Stafford Horne <shorne@gmail.com> wrote:
 > 
-> This sounds great! Does CoreMark run on it yet? How much of a speedup have
-> you achieved so far?
+> > Hi All,
+> >
+> > Sorry this mail got a bit long the outline is:
+> >  - Testing Efforts
+> >  - Marocchino Pipeline
+> >  - Proposal to Split Marocchino to new Repo
+> >
+> > ## Testing Efforts ##
+> >
+> > Recently I have been working on adding FPU support to GCC.  The GCC
+> > generated FPU code is working and running on the simulator, but I have
+> > been taking extra time now to verify on iverilog and verilator
+> > simulators of mor1kx.  This has gotten me a bit sidetracked to get a
+> > CI environment for testing mor1kx cores.  What I have so far is:
+> >    - Using mor1kx + mor1kx-generic + or1k-tests to run the tests
+> >    - Almost all tests are passing for mor1kx cappuccino pipeline
+> > (multiply carry flag is not implemented, so there is one failure)
+> >    - Most tests are failing for the Espresso pipeline (Issue with
+> > >1clock instructions in delay slots)
+> >    - Most tests are failing for the Marocchino pipeline (Its likely an
+> > issue with how I implemented the monitor_* signals)
+> >
+> > TODO
+> >   - FPU tests are not run in or1k-tests
+> >   - Document test coverage for each pipeline
+> >   - CI - Automate testing for each commit/PR
+> >   - Confirm debug capabilities, i.e. single-stepping
+> >   - Synthesize with Xilinx/Altera toolchains to verify resource
+> > usage/budget
+> >
+> > Not planning todo
+> >   - GCC support for no-delay-slot code which would be needed for pronto
+> > espresso
+> >
+> >
+> Fantastic! Are you looking at resource usage for CI? In that case it might
+> be worth building with yosys instead to avoid a dependency on a commercial
+> EDA tool. Even if a synthesis with yosys would require more resources it
+> doesn't that much. I guess we are more interested in the varitation between
+> builds than any absolute number. It's on my TODO list to add support in the
+> Edalize backends for just doing synthesis without P&R. That could be
+> helpful in this case too.
 
-I have not run it yet as I am still trying to get the basic tests to pass.  Once
-that is working ill move onto the bigger tests like coremark and testfloat.
+Thats a good idea, I was thinking to do xilinx, altera and yosys to get relative
+resource usages, but thats probably flying too close to the sun.  Yosys alone
+should be good for now.
 
-Andrey might have some results.
+> And I think you do well in ignoring the or1k-nd versions for now. There are
+> likely problems all over the place with that. Would be cool to see if
+> espresso is any good though.
 
-> >
-> > ## Proposal to Split Marocchino to new Repo ##
-> >
-> > As we discussed in a recent PR
-> > (https://github.com/openrisc/mor1kx/pull/72) marocchino doesn't really
-> > share any code with the rest of mor1kx and even now has a separate top
-> > level module (mor1kx_top_marocchino).
-> >
-> > Andrey and I have proposed moving the code to a new repo
-> > openrisc/mor1kx_marocchino.  Though it's not really exactly a mor1kx
-> > pipeline swap any longer the name might be controversial.
-> >
-> > Does anyone have a objection / suggestion for this?
-> >
-> 
-> I don't mind. If it's not intended to share any of the components with the
-> other pipelines then by all means do what's best for the development of
-> that core.
-> 
-> Looking forward to seeing where this goes!
-
-Me too, this OOO core code quality and design is very nice and it will be good
-to give it the proper exposure it deserves.
+I have been having problems with espresso around delay slots.  It seems to not
+be able to properly advance if the instruction in the delay slot takes more
+than 1 clock.
 
 -Stafford
+
