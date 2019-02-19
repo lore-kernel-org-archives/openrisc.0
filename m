@@ -1,60 +1,54 @@
-From: Will Deacon <will.deacon@arm.com>
-Date: Mon, 18 Feb 2019 14:58:20 +0000
-Subject: [OpenRISC] [PATCH v4 0/3] locking/rwsem: Rwsem rearchitecture
-	part 0
-In-Reply-To: <a45d8b68-5623-d6fe-8080-072994f7625e@redhat.com>
-References: <1550095217-12047-1-git-send-email-longman@redhat.com>
- <20190214103715.GI32494@hirez.programming.kicks-ass.net>
- <20190215184056.GC15084@fuggles.cambridge.arm.com>
- <a45d8b68-5623-d6fe-8080-072994f7625e@redhat.com>
-Message-ID: <20190218145820.GA16091@fuggles.cambridge.arm.com>
+From: Luca Maria Cassano <luca.cassano@polimi.it>
+Date: Tue, 19 Feb 2019 10:04:28 +0000
+Subject: [OpenRISC] openRISC question
+Message-ID: <1a75cc63-9b02-0253-b491-9657a7a0c16a@polimi.it>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, Feb 15, 2019 at 01:58:34PM -0500, Waiman Long wrote:
-> On 02/15/2019 01:40 PM, Will Deacon wrote:
-> > On Thu, Feb 14, 2019 at 11:37:15AM +0100, Peter Zijlstra wrote:
-> >> On Wed, Feb 13, 2019 at 05:00:14PM -0500, Waiman Long wrote:
-> >>> v4:
-> >>>  - Remove rwsem-spinlock.c and make all archs use rwsem-xadd.c.
-> >>>
-> >>> v3:
-> >>>  - Optimize __down_read_trylock() for the uncontended case as suggested
-> >>>    by Linus.
-> >>>
-> >>> v2:
-> >>>  - Add patch 2 to optimize __down_read_trylock() as suggested by PeterZ.
-> >>>  - Update performance test data in patch 1.
-> >>>
-> >>> The goal of this patchset is to remove the architecture specific files
-> >>> for rwsem-xadd to make it easer to add enhancements in the later rwsem
-> >>> patches. It also removes the legacy rwsem-spinlock.c file and make all
-> >>> the architectures use one single implementation of rwsem - rwsem-xadd.c.
-> >>>
-> >>> Waiman Long (3):
-> >>>   locking/rwsem: Remove arch specific rwsem files
-> >>>   locking/rwsem: Remove rwsem-spinlock.c & use rwsem-xadd.c for all
-> >>>     archs
-> >>>   locking/rwsem: Optimize down_read_trylock()
-> >> Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> >>
-> >> with the caveat that I'm happy to exchange patch 3 back to my earlier
-> >> suggestion in case Will expesses concerns wrt the ARM64 performance of
-> >> Linus' suggestion.
-> > Right, the current proposal doesn't work well for us, unfortunately. Which
-> > was your earlier suggestion?
-> >
-> > Will
-> 
-> In my posting yesterday, I showed that most of the trylocks done were
-> actually uncontended. Assuming that pattern hold for the most of the
-> workloads, it will not that bad after all.
+Hi all,
 
-That's fair enough; if you're going to sit in a tight trylock() loop like the
-benchmark does, then you're much better off just calling lock() if you care
-at all about scalability.
+I am Luca Cassano, an assistant professor at Politecnico di Milano, Italy.
 
-Will
+
+Mattia (which one of my students) and I are trying to install and use the openRISC environment. We are running everything on a Linux virtual machine.
+
+When compiling with or1k-elf-gcc we get this error:
+
+$:~/Desktop$ /opt/toolchains/or1k-elf/bin/or1k-elf-gcc -o prova.elf hello.c
+/tmp/cciAQA5z.s: Assembler messages:
+/tmp/cciAQA5z.s:7: Error: no such instruction: `l.addi r1,r1,-8'
+/tmp/cciAQA5z.s:8: Error: no such instruction: `l.sw 0(r1),r2'
+/tmp/cciAQA5z.s:9: Error: no such instruction: `l.addi r2,r1,8'
+/tmp/cciAQA5z.s:10: Error: no such instruction: `l.sw 4(r1),r9'
+/tmp/cciAQA5z.s:11: Error: no such instruction: `l.nop'
+/tmp/cciAQA5z.s:12: Error: no such instruction: `l.lwz r2,0(r1)'
+/tmp/cciAQA5z.s:13: Error: no such instruction: `l.lwz r9,4(r1)'
+/tmp/cciAQA5z.s:14: Error: no such instruction: `l.addi r1,r1,8'
+/tmp/cciAQA5z.s:15: Error: no such instruction: `l.jr r9'
+/tmp/cciAQA5z.s:16: Error: no such instruction: `l.nop'
+
+
+Does anybody encountered (and hopefully solved) such a problem?
+
+
+Best regards,
+
+Luca and Mattia
+
+
+--
+Luca Cassano, PhD
+Assistant Professor
+web:   cassano.faculty.polimi.it
+email: luca.cassano at polimi.it<mailto:luca.cassano@polimi.it>
+tel:   02-23994174
+Department of Electronics, Information and Bioingeneering
+(room 129, Building 20, via Ponzio 35/5)
+Politecnico di Milano
+Italy
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20190219/6dff36a6/attachment-0001.html>
