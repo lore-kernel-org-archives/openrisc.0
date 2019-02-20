@@ -1,54 +1,88 @@
-From: Luca Maria Cassano <luca.cassano@polimi.it>
-Date: Tue, 19 Feb 2019 10:04:28 +0000
-Subject: [OpenRISC] openRISC question
-Message-ID: <1a75cc63-9b02-0253-b491-9657a7a0c16a@polimi.it>
+From: Will Deacon <will.deacon@arm.com>
+Date: Wed, 20 Feb 2019 14:47:17 +0000
+Subject: [OpenRISC] [PATCH v4 1/3] locking/rwsem: Remove arch specific
+	rwsem files
+In-Reply-To: <1550095217-12047-2-git-send-email-longman@redhat.com>
+References: <1550095217-12047-1-git-send-email-longman@redhat.com>
+ <1550095217-12047-2-git-send-email-longman@redhat.com>
+Message-ID: <20190220144717.GI7523@fuggles.cambridge.arm.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi all,
+On Wed, Feb 13, 2019 at 05:00:15PM -0500, Waiman Long wrote:
+> As the generic rwsem-xadd code is using the appropriate acquire and
+> release versions of the atomic operations, the arch specific rwsem.h
+> files will not be that much faster than the generic code as long as the
+> atomic functions are properly implemented. So we can remove those arch
+> specific rwsem.h and stop building asm/rwsem.h to reduce maintenance
+> effort.
+> 
+> Currently, only x86, alpha and ia64 have implemented architecture
+> specific fast paths. I don't have access to alpha and ia64 systems for
+> testing, but they are legacy systems that are not likely to be updated
+> to the latest kernel anyway.
+> 
+> By using a rwsem microbenchmark, the total locking rates on a 4-socket
+> 56-core 112-thread x86-64 system before and after the patch were as
+> follows (mixed means equal # of read and write locks):
+> 
+>                       Before Patch              After Patch
+>    # of Threads  wlock   rlock   mixed     wlock   rlock   mixed
+>    ------------  -----   -----   -----     -----   -----   -----
+>         1        29,201  30,143  29,458    28,615  30,172  29,201
+>         2         6,807  13,299   1,171     7,725  15,025   1,804
+>         4         6,504  12,755   1,520     7,127  14,286   1,345
+>         8         6,762  13,412     764     6,826  13,652     726
+>        16         6,693  15,408     662     6,599  15,938     626
+>        32         6,145  15,286     496     5,549  15,487     511
+>        64         5,812  15,495      60     5,858  15,572      60
+> 
+> There were some run-to-run variations for the multi-thread tests. For
+> x86-64, using the generic C code fast path seems to be a little bit
+> faster than the assembly version with low lock contention.  Looking at
+> the assembly version of the fast paths, there are assembly to/from C
+> code wrappers that save and restore all the callee-clobbered registers
+> (7 registers on x86-64). The assembly generated from the generic C
+> code doesn't need to do that. That may explain the slight performance
+> gain here.
+> 
+> The generic asm rwsem.h can also be merged into kernel/locking/rwsem.h
+> with no code change as no other code other than those under
+> kernel/locking needs to access the internal rwsem macros and functions.
+> 
+> Signed-off-by: Waiman Long <longman@redhat.com>
+> ---
+>  MAINTAINERS                     |   1 -
+>  arch/alpha/include/asm/rwsem.h  | 211 -----------------------------------
+>  arch/arm/include/asm/Kbuild     |   1 -
+>  arch/arm64/include/asm/Kbuild   |   1 -
+>  arch/hexagon/include/asm/Kbuild |   1 -
+>  arch/ia64/include/asm/rwsem.h   | 172 -----------------------------
+>  arch/powerpc/include/asm/Kbuild |   1 -
+>  arch/s390/include/asm/Kbuild    |   1 -
+>  arch/sh/include/asm/Kbuild      |   1 -
+>  arch/sparc/include/asm/Kbuild   |   1 -
+>  arch/x86/include/asm/rwsem.h    | 237 ----------------------------------------
+>  arch/x86/lib/Makefile           |   1 -
+>  arch/x86/lib/rwsem.S            | 156 --------------------------
+>  arch/x86/um/Makefile            |   1 -
+>  arch/xtensa/include/asm/Kbuild  |   1 -
+>  include/asm-generic/rwsem.h     | 140 ------------------------
+>  include/linux/rwsem.h           |   4 +-
+>  kernel/locking/percpu-rwsem.c   |   2 +
+>  kernel/locking/rwsem.h          | 130 ++++++++++++++++++++++
+>  19 files changed, 133 insertions(+), 930 deletions(-)
+>  delete mode 100644 arch/alpha/include/asm/rwsem.h
+>  delete mode 100644 arch/ia64/include/asm/rwsem.h
+>  delete mode 100644 arch/x86/include/asm/rwsem.h
+>  delete mode 100644 arch/x86/lib/rwsem.S
+>  delete mode 100644 include/asm-generic/rwsem.h
 
-I am Luca Cassano, an assistant professor at Politecnico di Milano, Italy.
+Looks like a nice cleanup, thanks:
 
+Acked-by: Will Deacon <will.deacon@arm.com>
 
-Mattia (which one of my students) and I are trying to install and use the openRISC environment. We are running everything on a Linux virtual machine.
-
-When compiling with or1k-elf-gcc we get this error:
-
-$:~/Desktop$ /opt/toolchains/or1k-elf/bin/or1k-elf-gcc -o prova.elf hello.c
-/tmp/cciAQA5z.s: Assembler messages:
-/tmp/cciAQA5z.s:7: Error: no such instruction: `l.addi r1,r1,-8'
-/tmp/cciAQA5z.s:8: Error: no such instruction: `l.sw 0(r1),r2'
-/tmp/cciAQA5z.s:9: Error: no such instruction: `l.addi r2,r1,8'
-/tmp/cciAQA5z.s:10: Error: no such instruction: `l.sw 4(r1),r9'
-/tmp/cciAQA5z.s:11: Error: no such instruction: `l.nop'
-/tmp/cciAQA5z.s:12: Error: no such instruction: `l.lwz r2,0(r1)'
-/tmp/cciAQA5z.s:13: Error: no such instruction: `l.lwz r9,4(r1)'
-/tmp/cciAQA5z.s:14: Error: no such instruction: `l.addi r1,r1,8'
-/tmp/cciAQA5z.s:15: Error: no such instruction: `l.jr r9'
-/tmp/cciAQA5z.s:16: Error: no such instruction: `l.nop'
-
-
-Does anybody encountered (and hopefully solved) such a problem?
-
-
-Best regards,
-
-Luca and Mattia
-
-
---
-Luca Cassano, PhD
-Assistant Professor
-web:   cassano.faculty.polimi.it
-email: luca.cassano at polimi.it<mailto:luca.cassano@polimi.it>
-tel:   02-23994174
-Department of Electronics, Information and Bioingeneering
-(room 129, Building 20, via Ponzio 35/5)
-Politecnico di Milano
-Italy
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20190219/6dff36a6/attachment-0001.html>
+Will
