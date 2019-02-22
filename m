@@ -1,126 +1,79 @@
-From: Waiman Long <longman@redhat.com>
-Date: Thu, 21 Feb 2019 22:28:47 -0500
-Subject: [OpenRISC] [PATCH v4 3/3] locking/rwsem: Optimize
-	down_read_trylock()
-In-Reply-To: <20190221141420.GC12696@fuggles.cambridge.arm.com>
-References: <1550095217-12047-1-git-send-email-longman@redhat.com>
- <1550095217-12047-4-git-send-email-longman@redhat.com>
- <20190221141420.GC12696@fuggles.cambridge.arm.com>
-Message-ID: <9dc33d11-4570-f2d9-e097-d4e6586d13e2@redhat.com>
+From: Olof Kindgren <olof.kindgren@gmail.com>
+Date: Fri, 22 Feb 2019 09:05:04 +0100
+Subject: [OpenRISC] openRISC question
+In-Reply-To: <1a75cc63-9b02-0253-b491-9657a7a0c16a@polimi.it>
+References: <1a75cc63-9b02-0253-b491-9657a7a0c16a@polimi.it>
+Message-ID: <CAKaYPCNFB97RYYBnvi0Fh36yhiCLOrt8bq8GN+U=RyKULAb8Cw@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 02/21/2019 09:14 AM, Will Deacon wrote:
-> On Wed, Feb 13, 2019 at 05:00:17PM -0500, Waiman Long wrote:
->> Modify __down_read_trylock() to optimize for an unlocked rwsem and make
->> it generate slightly better code.
->>
->> Before this patch, down_read_trylock:
->>
->>    0x0000000000000000 <+0>:     callq  0x5 <down_read_trylock+5>
->>    0x0000000000000005 <+5>:     jmp    0x18 <down_read_trylock+24>
->>    0x0000000000000007 <+7>:     lea    0x1(%rdx),%rcx
->>    0x000000000000000b <+11>:    mov    %rdx,%rax
->>    0x000000000000000e <+14>:    lock cmpxchg %rcx,(%rdi)
->>    0x0000000000000013 <+19>:    cmp    %rax,%rdx
->>    0x0000000000000016 <+22>:    je     0x23 <down_read_trylock+35>
->>    0x0000000000000018 <+24>:    mov    (%rdi),%rdx
->>    0x000000000000001b <+27>:    test   %rdx,%rdx
->>    0x000000000000001e <+30>:    jns    0x7 <down_read_trylock+7>
->>    0x0000000000000020 <+32>:    xor    %eax,%eax
->>    0x0000000000000022 <+34>:    retq
->>    0x0000000000000023 <+35>:    mov    %gs:0x0,%rax
->>    0x000000000000002c <+44>:    or     $0x3,%rax
->>    0x0000000000000030 <+48>:    mov    %rax,0x20(%rdi)
->>    0x0000000000000034 <+52>:    mov    $0x1,%eax
->>    0x0000000000000039 <+57>:    retq
->>
->> After patch, down_read_trylock:
->>
->>    0x0000000000000000 <+0>:	callq  0x5 <down_read_trylock+5>
->>    0x0000000000000005 <+5>:	xor    %eax,%eax
->>    0x0000000000000007 <+7>:	lea    0x1(%rax),%rdx
->>    0x000000000000000b <+11>:	lock cmpxchg %rdx,(%rdi)
->>    0x0000000000000010 <+16>:	jne    0x29 <down_read_trylock+41>
->>    0x0000000000000012 <+18>:	mov    %gs:0x0,%rax
->>    0x000000000000001b <+27>:	or     $0x3,%rax
->>    0x000000000000001f <+31>:	mov    %rax,0x20(%rdi)
->>    0x0000000000000023 <+35>:	mov    $0x1,%eax
->>    0x0000000000000028 <+40>:	retq
->>    0x0000000000000029 <+41>:	test   %rax,%rax
->>    0x000000000000002c <+44>:	jns    0x7 <down_read_trylock+7>
->>    0x000000000000002e <+46>:	xor    %eax,%eax
->>    0x0000000000000030 <+48>:	retq
->>
->> By using a rwsem microbenchmark, the down_read_trylock() rate (with a
->> load of 10 to lengthen the lock critical section) on a x86-64 system
->> before and after the patch were:
->>
->>                  Before Patch    After Patch
->>    # of Threads     rlock           rlock
->>    ------------     -----           -----
->>         1           14,496          14,716
->>         2            8,644           8,453
->> 	4            6,799           6,983
->> 	8            5,664           7,190
->>
->> On a ARM64 system, the performance results were:
->>
->>                  Before Patch    After Patch
->>    # of Threads     rlock           rlock
->>    ------------     -----           -----
->>         1           23,676          24,488
->>         2            7,697           9,502
->>         4            4,945           3,440
->>         8            2,641           1,603
->>
->> For the uncontended case (1 thread), the new down_read_trylock() is a
->> little bit faster. For the contended cases, the new down_read_trylock()
->> perform pretty well in x86-64, but performance degrades at high
->> contention level on ARM64.
->>
->> Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
->> Signed-off-by: Waiman Long <longman@redhat.com>
->> ---
->>  kernel/locking/rwsem.h | 13 ++++++++-----
->>  1 file changed, 8 insertions(+), 5 deletions(-)
->>
->> diff --git a/kernel/locking/rwsem.h b/kernel/locking/rwsem.h
->> index 45ee002..1f5775a 100644
->> --- a/kernel/locking/rwsem.h
->> +++ b/kernel/locking/rwsem.h
->> @@ -174,14 +174,17 @@ static inline int __down_read_killable(struct rw_semaphore *sem)
->>  
->>  static inline int __down_read_trylock(struct rw_semaphore *sem)
->>  {
->> -	long tmp;
->> +	/*
->> +	 * Optimize for the case when the rwsem is not locked at all.
->> +	 */
->> +	long tmp = RWSEM_UNLOCKED_VALUE;
->>  
->> -	while ((tmp = atomic_long_read(&sem->count)) >= 0) {
->> -		if (tmp == atomic_long_cmpxchg_acquire(&sem->count, tmp,
->> -				   tmp + RWSEM_ACTIVE_READ_BIAS)) {
->> +	do {
->> +		if (atomic_long_try_cmpxchg_acquire(&sem->count, &tmp,
->> +					tmp + RWSEM_ACTIVE_READ_BIAS)) {
->>  			return 1;
->>  		}
->> -	}
->> +	} while (tmp >= 0);
-> Nit: but I guess that should be RWSEM_UNLOCKED_VALUE instead of 0.
+On Fri, Feb 22, 2019 at 8:58 AM Luca Maria Cassano <luca.cassano@polimi.it>
+wrote:
+
+> Hi all,
 >
-> Will
+> I am Luca Cassano, an assistant professor at Politecnico di Milano, Italy.
+>
+>
+> Mattia (which one of my students) and I are trying to install and use the
+> openRISC environment. We are running everything on a Linux virtual machine.
+>
+> When compiling with *or1k-elf-gcc *we get this error:
+>
+> $:~/Desktop$ /opt/toolchains/or1k-elf/bin/or1k-elf-gcc -o prova.elf
+> hello.c
+> /tmp/cciAQA5z.s: Assembler messages:
+> /tmp/cciAQA5z.s:7: Error: no such instruction: `l.addi r1,r1,-8'
+> /tmp/cciAQA5z.s:8: Error: no such instruction: `l.sw 0(r1),r2'
+> /tmp/cciAQA5z.s:9: Error: no such instruction: `l.addi r2,r1,8'
+> /tmp/cciAQA5z.s:10: Error: no such instruction: `l.sw 4(r1),r9'
+> /tmp/cciAQA5z.s:11: Error: no such instruction: `l.nop'
+> /tmp/cciAQA5z.s:12: Error: no such instruction: `l.lwz r2,0(r1)'
+> /tmp/cciAQA5z.s:13: Error: no such instruction: `l.lwz r9,4(r1)'
+> /tmp/cciAQA5z.s:14: Error: no such instruction: `l.addi r1,r1,8'
+> /tmp/cciAQA5z.s:15: Error: no such instruction: `l.jr r9'
+> /tmp/cciAQA5z.s:16: Error: no such instruction: `l.nop'
+>
+>
+> Does anybody encountered (and hopefully solved) such a problem?
+>
+>
+> Hi Luca and Mattia,
 
-Using RWSEM_UNLOCKED_VALUE may be better. Anyway, it is not a big deal
-as I am going to change this again in a later patch.
+It's hard to tell right away what the problem could be. Just looking at the
+errors I would first suspect there is something wrong with the toolchain.
+Which instructions did you follow to install the toolchain? The easiest way
+could be to just use one of the precompiled ones (as the one found here
+https://github.com/openrisc/or1k-gcc/releases/tag/or1k-7.2.0-20180317) if
+you don't do that already.
 
-Thanks,
-Longman
+//Olof
 
-RWSEM_UNLOCKED_VALUE
 
+Best regards,
+>
+> Luca and Mattia
+>
+>
+> --
+> Luca Cassano, PhD
+> Assistant Professor
+> web:   cassano.faculty.polimi.it
+> email: luca.cassano at polimi.it
+> tel:   02-23994174
+> Department of Electronics, Information and Bioingeneering
+> (room 129, Building 20, via Ponzio 35/5)
+> Politecnico di Milano
+> Italy
+>
+> _______________________________________________
+> OpenRISC mailing list
+> OpenRISC at lists.librecores.org
+> https://lists.librecores.org/listinfo/openrisc
+>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20190222/af840a92/attachment-0001.html>
