@@ -1,79 +1,75 @@
-From: Olof Kindgren <olof.kindgren@gmail.com>
-Date: Fri, 22 Feb 2019 09:05:04 +0100
-Subject: [OpenRISC] openRISC question
-In-Reply-To: <1a75cc63-9b02-0253-b491-9657a7a0c16a@polimi.it>
-References: <1a75cc63-9b02-0253-b491-9657a7a0c16a@polimi.it>
-Message-ID: <CAKaYPCNFB97RYYBnvi0Fh36yhiCLOrt8bq8GN+U=RyKULAb8Cw@mail.gmail.com>
+From: BAndViG <bandvig@mail.ru>
+Date: Sun, 24 Feb 2019 14:06:31 +0300
+Subject: [OpenRISC] OR1K FPU Tools
+In-Reply-To: <CAAfxs74OyTpSeD2=6pJ7+_sRiObmo1m5APAPFR-t0R-nTpUTZg@mail.gmail.com>
+References: <B93E7844A51A4DDEAF26362A017A89D9@BAndViG>
+ <20181124222244.GA3235@lianli.shorne-pla.net>
+ <F20A9C40E8204267AEED14B541E3AF0E@BAndViG>
+ <20181127211855.GC3235@lianli.shorne-pla.net>
+ <CAAfxs77Egr55C2AJv+HE=S=8NFi_h=LSfPBe4z_OfFOROnM2kA@mail.gmail.com>
+ <8BFA5ABB61214594AF57022CFD5BCBE6@BAndViG>
+ <CAAfxs772YourE74w8ma1rMsbnmdf1Z4r_LmQcniHs=zbkkUw5A@mail.gmail.com>
+ <CAAfxs76NvXuM8wGoQqgAzfayXfWP6+GN1n_Jhj0vThOV0QmCAQ@mail.gmail.com>
+ <CAAfxs754kixej8d--PAuh-=idQ0Lt=_M=SqYqLGKSyjCVvG61w@mail.gmail.com>
+ <CAAfxs74wrewjQt1uNmm0tid0_69cknfmGh4tDtMWtYj+wEhy0g@mail.gmail.com>
+ <3ADA35F1727C43478E251E65657B7168@BAndViG>
+ <CAAfxs77Z_YYKc11+rkf1L9tL_87oGgcTjWPom6u_3QnBAj0PLQ@mail.gmail.com>
+ <99D3A6CAD94A4F5F8DC0635EB165E03C@BAndViG>
+ <1ABC8480744C4D40BD98B00970F56DEB@BAndViG>
+ <CAAfxs77zz3pA7_2kZwHsRLwcLHDqXjnsOLc4Xewiy-qPBpXVyw@mail.gmail.com>
+ <CAAfxs74OyTpSeD2=6pJ7+_sRiObmo1m5APAPFR-t0R-nTpUTZg@mail.gmail.com>
+Message-ID: <D895AF9F0EEE4A389D083FE663DF646A@BAndViG>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-On Fri, Feb 22, 2019 at 8:58 AM Luca Maria Cassano <luca.cassano@polimi.it>
-wrote:
+Hello,
 
-> Hi all,
->
-> I am Luca Cassano, an assistant professor at Politecnico di Milano, Italy.
->
->
-> Mattia (which one of my students) and I are trying to install and use the
-> openRISC environment. We are running everything on a Linux virtual machine.
->
-> When compiling with *or1k-elf-gcc *we get this error:
->
-> $:~/Desktop$ /opt/toolchains/or1k-elf/bin/or1k-elf-gcc -o prova.elf
-> hello.c
-> /tmp/cciAQA5z.s: Assembler messages:
-> /tmp/cciAQA5z.s:7: Error: no such instruction: `l.addi r1,r1,-8'
-> /tmp/cciAQA5z.s:8: Error: no such instruction: `l.sw 0(r1),r2'
-> /tmp/cciAQA5z.s:9: Error: no such instruction: `l.addi r2,r1,8'
-> /tmp/cciAQA5z.s:10: Error: no such instruction: `l.sw 4(r1),r9'
-> /tmp/cciAQA5z.s:11: Error: no such instruction: `l.nop'
-> /tmp/cciAQA5z.s:12: Error: no such instruction: `l.lwz r2,0(r1)'
-> /tmp/cciAQA5z.s:13: Error: no such instruction: `l.lwz r9,4(r1)'
-> /tmp/cciAQA5z.s:14: Error: no such instruction: `l.addi r1,r1,8'
-> /tmp/cciAQA5z.s:15: Error: no such instruction: `l.jr r9'
-> /tmp/cciAQA5z.s:16: Error: no such instruction: `l.nop'
->
->
-> Does anybody encountered (and hopefully solved) such a problem?
->
->
-> Hi Luca and Mattia,
+GCC9 and floating point status update.
 
-It's hard to tell right away what the problem could be. Just looking at the
-errors I would first suspect there is something wrong with the toolchain.
-Which instructions did you follow to install the toolchain? The easiest way
-could be to just use one of the precompiled ones (as the one found here
-https://github.com/openrisc/or1k-gcc/releases/tag/or1k-7.2.0-20180317) if
-you don't do that already.
+I build GCC9+NewLIB based tool-chain and tried to compile and run my FPU tools. I added “-O2” option to NewLIB’s compiler options, but without –mhard-float and –mdouble-float options. That means all math functions use soft subroutines instead of fp-instructions. As a result, it is desirable to get low performance of math functions computation.
 
-//Olof
+“TestFloat”.
+I updated systfloat.S from “testfloat” tool to meet GCC9 ABI about correct handling double precision operands (find updated version in attachment). 
+With the update all “testfloat” tests were passed for both single and double precision cases.
+
+“Whetstone”
+Excluding math functions (see note above) all other tests should operate normally.
+I build single precision version of Whetstone with options “–O2 –flto”. All tests passed. Next I’m planning to re-bulid NewLIB with –mhard-float option (but without –mdouble-float) and check full support for single precision.
+I also tried double precision version of Whetstone, however it hangs up being compiled ether with “–O2 –flto” or just “-O2” options. The only variant to get operable double precision Whetstone is to build it with “-O0” option.
+
+WBR
+Andrey
 
 
-Best regards,
->
-> Luca and Mattia
->
->
-> --
-> Luca Cassano, PhD
-> Assistant Professor
-> web:   cassano.faculty.polimi.it
-> email: luca.cassano at polimi.it
-> tel:   02-23994174
-> Department of Electronics, Information and Bioingeneering
-> (room 129, Building 20, via Ponzio 35/5)
-> Politecnico di Milano
-> Italy
->
-> _______________________________________________
-> OpenRISC mailing list
-> OpenRISC at lists.librecores.org
-> https://lists.librecores.org/listinfo/openrisc
->
+From: Stafford Horne 
+Sent: Monday, January 21, 2019 9:52 PM
+To: BAndViG 
+Cc: Openrisc 
+Subject: Re: OR1K FPU Tools
+
+Hello, 
+
+I have started adapting this to run in my test harness.  Its going to take some time as I only get about 30 minutes a day.  Some things to mention.
+   1 The tests I will run first are in stffrdhrn/or1k-tests   (mirror of openrisc/or1k-tests)
+   2 The test harness uses the SoC design stffrdhrn/mor1kx-generic (mirror of openrisc/mor1kx-generic)
+   3 The harness requires that the pipeline be in mor1kx module (I noticed marocchino is separated out, I will try to add it in)
+   4 The harness requires support for the monitor_* signals (I noticed marocchino doesn't support them)
+
+I am almost done with 3 and 4, but I have to go out now.  If you have any comments are suggestions please let me know.
+
+-Stafford
+
+ 
 -------------- next part --------------
 An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20190222/af840a92/attachment-0001.html>
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20190224/dee8dd18/attachment.html>
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: systfloat.S.zip
+Type: application/octet-stream
+Size: 1500 bytes
+Desc: not available
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20190224/dee8dd18/attachment.obj>
