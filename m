@@ -1,90 +1,94 @@
-From: Russell King - ARM Linux admin <linux@armlinux.org.uk>
-Date: Fri, 22 Mar 2019 17:25:01 +0000
+From: Waiman Long <longman@redhat.com>
+Date: Fri, 22 Mar 2019 13:41:05 -0400
 Subject: [OpenRISC] [PATCH v5 3/3] locking/rwsem: Optimize
  down_read_trylock()
-In-Reply-To: <20190322143008.21313-4-longman@redhat.com>
+In-Reply-To: <20190322172501.3nbjw6e2wqsaisgw@shell.armlinux.org.uk>
 References: <20190322143008.21313-1-longman@redhat.com>
  <20190322143008.21313-4-longman@redhat.com>
-Message-ID: <20190322172501.3nbjw6e2wqsaisgw@shell.armlinux.org.uk>
+ <20190322172501.3nbjw6e2wqsaisgw@shell.armlinux.org.uk>
+Message-ID: <27c2fb96-daa4-ba2c-da06-e559dc5b693e@redhat.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, Mar 22, 2019 at 10:30:08AM -0400, Waiman Long wrote:
-> Modify __down_read_trylock() to optimize for an unlocked rwsem and make
-> it generate slightly better code.
-> 
-> Before this patch, down_read_trylock:
-> 
->    0x0000000000000000 <+0>:     callq  0x5 <down_read_trylock+5>
->    0x0000000000000005 <+5>:     jmp    0x18 <down_read_trylock+24>
->    0x0000000000000007 <+7>:     lea    0x1(%rdx),%rcx
->    0x000000000000000b <+11>:    mov    %rdx,%rax
->    0x000000000000000e <+14>:    lock cmpxchg %rcx,(%rdi)
->    0x0000000000000013 <+19>:    cmp    %rax,%rdx
->    0x0000000000000016 <+22>:    je     0x23 <down_read_trylock+35>
->    0x0000000000000018 <+24>:    mov    (%rdi),%rdx
->    0x000000000000001b <+27>:    test   %rdx,%rdx
->    0x000000000000001e <+30>:    jns    0x7 <down_read_trylock+7>
->    0x0000000000000020 <+32>:    xor    %eax,%eax
->    0x0000000000000022 <+34>:    retq
->    0x0000000000000023 <+35>:    mov    %gs:0x0,%rax
->    0x000000000000002c <+44>:    or     $0x3,%rax
->    0x0000000000000030 <+48>:    mov    %rax,0x20(%rdi)
->    0x0000000000000034 <+52>:    mov    $0x1,%eax
->    0x0000000000000039 <+57>:    retq
-> 
-> After patch, down_read_trylock:
-> 
->    0x0000000000000000 <+0>:	callq  0x5 <down_read_trylock+5>
->    0x0000000000000005 <+5>:	xor    %eax,%eax
->    0x0000000000000007 <+7>:	lea    0x1(%rax),%rdx
->    0x000000000000000b <+11>:	lock cmpxchg %rdx,(%rdi)
->    0x0000000000000010 <+16>:	jne    0x29 <down_read_trylock+41>
->    0x0000000000000012 <+18>:	mov    %gs:0x0,%rax
->    0x000000000000001b <+27>:	or     $0x3,%rax
->    0x000000000000001f <+31>:	mov    %rax,0x20(%rdi)
->    0x0000000000000023 <+35>:	mov    $0x1,%eax
->    0x0000000000000028 <+40>:	retq
->    0x0000000000000029 <+41>:	test   %rax,%rax
->    0x000000000000002c <+44>:	jns    0x7 <down_read_trylock+7>
->    0x000000000000002e <+46>:	xor    %eax,%eax
->    0x0000000000000030 <+48>:	retq
-> 
-> By using a rwsem microbenchmark, the down_read_trylock() rate (with a
-> load of 10 to lengthen the lock critical section) on a x86-64 system
-> before and after the patch were:
-> 
->                  Before Patch    After Patch
->    # of Threads     rlock           rlock
->    ------------     -----           -----
->         1           14,496          14,716
->         2            8,644           8,453
-> 	4            6,799           6,983
-> 	8            5,664           7,190
-> 
-> On a ARM64 system, the performance results were:
-> 
->                  Before Patch    After Patch
->    # of Threads     rlock           rlock
->    ------------     -----           -----
->         1           23,676          24,488
->         2            7,697           9,502
->         4            4,945           3,440
->         8            2,641           1,603
-> 
-> For the uncontended case (1 thread), the new down_read_trylock() is a
-> little bit faster. For the contended cases, the new down_read_trylock()
-> perform pretty well in x86-64, but performance degrades at high
-> contention level on ARM64.
+On 03/22/2019 01:25 PM, Russell King - ARM Linux admin wrote:
+> On Fri, Mar 22, 2019 at 10:30:08AM -0400, Waiman Long wrote:
+>> Modify __down_read_trylock() to optimize for an unlocked rwsem and make
+>> it generate slightly better code.
+>>
+>> Before this patch, down_read_trylock:
+>>
+>>    0x0000000000000000 <+0>:     callq  0x5 <down_read_trylock+5>
+>>    0x0000000000000005 <+5>:     jmp    0x18 <down_read_trylock+24>
+>>    0x0000000000000007 <+7>:     lea    0x1(%rdx),%rcx
+>>    0x000000000000000b <+11>:    mov    %rdx,%rax
+>>    0x000000000000000e <+14>:    lock cmpxchg %rcx,(%rdi)
+>>    0x0000000000000013 <+19>:    cmp    %rax,%rdx
+>>    0x0000000000000016 <+22>:    je     0x23 <down_read_trylock+35>
+>>    0x0000000000000018 <+24>:    mov    (%rdi),%rdx
+>>    0x000000000000001b <+27>:    test   %rdx,%rdx
+>>    0x000000000000001e <+30>:    jns    0x7 <down_read_trylock+7>
+>>    0x0000000000000020 <+32>:    xor    %eax,%eax
+>>    0x0000000000000022 <+34>:    retq
+>>    0x0000000000000023 <+35>:    mov    %gs:0x0,%rax
+>>    0x000000000000002c <+44>:    or     $0x3,%rax
+>>    0x0000000000000030 <+48>:    mov    %rax,0x20(%rdi)
+>>    0x0000000000000034 <+52>:    mov    $0x1,%eax
+>>    0x0000000000000039 <+57>:    retq
+>>
+>> After patch, down_read_trylock:
+>>
+>>    0x0000000000000000 <+0>:	callq  0x5 <down_read_trylock+5>
+>>    0x0000000000000005 <+5>:	xor    %eax,%eax
+>>    0x0000000000000007 <+7>:	lea    0x1(%rax),%rdx
+>>    0x000000000000000b <+11>:	lock cmpxchg %rdx,(%rdi)
+>>    0x0000000000000010 <+16>:	jne    0x29 <down_read_trylock+41>
+>>    0x0000000000000012 <+18>:	mov    %gs:0x0,%rax
+>>    0x000000000000001b <+27>:	or     $0x3,%rax
+>>    0x000000000000001f <+31>:	mov    %rax,0x20(%rdi)
+>>    0x0000000000000023 <+35>:	mov    $0x1,%eax
+>>    0x0000000000000028 <+40>:	retq
+>>    0x0000000000000029 <+41>:	test   %rax,%rax
+>>    0x000000000000002c <+44>:	jns    0x7 <down_read_trylock+7>
+>>    0x000000000000002e <+46>:	xor    %eax,%eax
+>>    0x0000000000000030 <+48>:	retq
+>>
+>> By using a rwsem microbenchmark, the down_read_trylock() rate (with a
+>> load of 10 to lengthen the lock critical section) on a x86-64 system
+>> before and after the patch were:
+>>
+>>                  Before Patch    After Patch
+>>    # of Threads     rlock           rlock
+>>    ------------     -----           -----
+>>         1           14,496          14,716
+>>         2            8,644           8,453
+>> 	4            6,799           6,983
+>> 	8            5,664           7,190
+>>
+>> On a ARM64 system, the performance results were:
+>>
+>>                  Before Patch    After Patch
+>>    # of Threads     rlock           rlock
+>>    ------------     -----           -----
+>>         1           23,676          24,488
+>>         2            7,697           9,502
+>>         4            4,945           3,440
+>>         8            2,641           1,603
+>>
+>> For the uncontended case (1 thread), the new down_read_trylock() is a
+>> little bit faster. For the contended cases, the new down_read_trylock()
+>> perform pretty well in x86-64, but performance degrades at high
+>> contention level on ARM64.
+> So, 70% for 4 threads, 61% for 4 threads - does this trend
+> continue tailing off as the number of threads (and cores)
+> increase?
+>
+I didn't try higher number of contending threads. I won't worry too much
+about contention as trylock is a one-off event. The chance of having
+more than one trylock happening simultaneously is very small.
 
-So, 70% for 4 threads, 61% for 4 threads - does this trend
-continue tailing off as the number of threads (and cores)
-increase?
+Cheers,
+Longman
 
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line in suburbia: sync at 12.1Mbps down 622kbps up
-According to speedtest.net: 11.9Mbps down 500kbps up
