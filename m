@@ -1,77 +1,204 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 31 Mar 2019 09:40:40 +0900
-Subject: [OpenRISC] [PATCH 4/6] sim/common: Wire in df/di conversion
+Date: Sun, 31 Mar 2019 09:40:41 +0900
+Subject: [OpenRISC] [PATCH 5/6] sim/or1k: Add test for 64-bit fpu operations
 In-Reply-To: <20190331004042.12172-1-shorne@gmail.com>
 References: <20190331004042.12172-1-shorne@gmail.com>
-Message-ID: <20190331004042.12172-5-shorne@gmail.com>
+Message-ID: <20190331004042.12172-6-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Up until now these have not been used in any CGEN targets, add them as
-they are now used by OpenRISC.
+This is a very basic test but it ensure the machine is wired up
+correctly and that the assembler works.
 
-sim/common/ChangeLog:
+sim/testsuite/sim/or1k/ChangeLog:
 
-	* cgen-accfp.c (floatdidf, fixdfdi): New functions.
-	(cgen_init_accurate_fpu): Add floatdidf and fixdfdi.
+	* fpu64a32.S: New file.
 ---
- sim/common/cgen-accfp.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ sim/testsuite/sim/or1k/fpu64a32.S | 172 ++++++++++++++++++++++++++++++
+ 1 file changed, 172 insertions(+)
+ create mode 100644 sim/testsuite/sim/or1k/fpu64a32.S
 
-diff --git a/sim/common/cgen-accfp.c b/sim/common/cgen-accfp.c
-index 5d600c6e41..51f5a29fe2 100644
---- a/sim/common/cgen-accfp.c
-+++ b/sim/common/cgen-accfp.c
-@@ -349,6 +349,17 @@ floatsidf (CGEN_FPU* fpu, int how UNUSED, SI x)
-   return res;
- }
- 
-+static DF
-+floatdidf (CGEN_FPU* fpu, int how UNUSED, DI x)
-+{
-+  sim_fpu ans;
-+  unsigned64 res;
+diff --git a/sim/testsuite/sim/or1k/fpu64a32.S b/sim/testsuite/sim/or1k/fpu64a32.S
+new file mode 100644
+index 0000000000..6c40170854
+--- /dev/null
++++ b/sim/testsuite/sim/or1k/fpu64a32.S
+@@ -0,0 +1,172 @@
++/* Tests some basic fpu instructions.
 +
-+  sim_fpu_i64to (&ans, x, sim_fpu_round_near);
-+  sim_fpu_to64 (&res, &ans);
-+  return res;
-+}
++   Copyright (C) 2017-2019 Free Software Foundation, Inc.
 +
- static SF
- ufloatsisf (CGEN_FPU* fpu, int how UNUSED, USI x)
- {
-@@ -382,6 +393,17 @@ fixdfsi (CGEN_FPU* fpu, int how UNUSED, DF x)
-   return res;
- }
- 
-+static DI
-+fixdfdi (CGEN_FPU* fpu, int how UNUSED, DF x)
-+{
-+  sim_fpu op1;
-+  unsigned64 res;
++   This program is free software; you can redistribute it and/or modify
++   it under the terms of the GNU General Public License as published by
++   the Free Software Foundation; either version 3 of the License, or
++   (at your option) any later version.
 +
-+  sim_fpu_64to (&op1, x);
-+  sim_fpu_to64i (&res, &op1, sim_fpu_round_near);
-+  return res;
-+}
++   This program is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++   GNU General Public License for more details.
 +
- static USI
- ufixsfsi (CGEN_FPU* fpu, int how UNUSED, SF x)
- {
-@@ -739,8 +761,10 @@ cgen_init_accurate_fpu (SIM_CPU* cpu, CGEN_FPU* fpu, CGEN_FPU_ERROR_FN* error)
-   o->ftruncdfsf = ftruncdfsf;
-   o->floatsisf = floatsisf;
-   o->floatsidf = floatsidf;
-+  o->floatdidf = floatdidf;
-   o->ufloatsisf = ufloatsisf;
-   o->fixsfsi = fixsfsi;
-   o->fixdfsi = fixdfsi;
-+  o->fixdfdi = fixdfdi;
-   o->ufixsfsi = ufixsfsi;
- }
++   You should have received a copy of the GNU General Public License
++   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
++
++# mach: or1k
++# output: report(0x400921f9);\n
++# output: report(0xf01b866e);\n
++# output: report(0x4005bf09);\n
++# output: report(0x95aaf790);\n
++# output: report(0x00000000);\n
++# output: report(0x00001234);\n
++# output: \n
++# output: report(0x40b23400);\n
++# output: report(0x00000000);\n
++# output: report(0x40b23400);\n
++# output: report(0x00000000);\n
++# output: \n
++# output: report(0x40177081);\n
++# output: report(0xc2e33eff);\n
++# output: report(0x400921f9);\n
++# output: report(0xf01b866e);\n
++# output: \n
++# output: report(0x40211456);\n
++# output: report(0x587dfabf);\n
++# output: report(0x400921f9);\n
++# output: report(0xf01b866d);\n
++# output: \n
++# output: report(0x00000001);\n
++# output: \n
++# output: WARNING: ignoring fpu error caught in fast mode.\n
++# output: report(0x00000000);\n
++# output: \n
++# output: exit(0)\n
++
++#include "or1k-asm-test-helpers.h"
++
++	STANDARD_TEST_ENVIRONMENT
++
++	.section .exception_vectors
++
++	/* Floating point exception.  */
++	.org	0xd00
++
++	/* The handling is a bit dubious at present.  We just patch the
++	   instruction with l.nop and restart.  This will go wrong in branch
++	   delay slots.  But we don't have those in this test.  */
++	l.addi r1, r1, -EXCEPTION_STACK_SKIP_SIZE
++	PUSH r2
++	PUSH r3
++	/* Save the address of the instruction that caused the problem.  */
++	MOVE_FROM_SPR r2, SPR_EPCR_BASE
++	LOAD_IMMEDIATE r3, 0x15000000 /* Opcode for l.nop  */
++	l.sw	-4(r2), r3
++	POP r3
++	POP r2
++	l.addi r1, r1, EXCEPTION_STACK_SKIP_SIZE
++	l.rfe
++
++	.section .data
++	.align 4
++	.type   pi, @object
++	.size   pi, 8
++anchor:
++pi:
++	.double  3.14159
++
++	.type   e, @object
++	.size   e, 8
++e:
++	.double  2.71828
++
++	.type   large, @object
++	.size   large, 8
++large:
++	.long  0
++	.long  0x1234
++
++	.section .text
++start_tests:
++	PUSH LINK_REGISTER_R9
++
++	/* Test lf.itof.d int to double conversion.  Setting up:
++	 *  r11      pointer to data
++	 *  r12,r13  pi as double
++	 *  r14,r15  e  as double
++	 *  r16,r17  a long long
++	 */
++	l.ori	r11, r0, ha(anchor)
++	l.addi	r11, r11, lo(anchor)
++	l.lwz	r12, 0(r11)
++	l.lwz	r13, 4(r11)
++
++	l.lwz	r14, 8(r11)
++	l.lwz	r15, 12(r11)
++
++	l.lwz	r16, 16(r11)
++	l.lwz	r18, 20(r11)
++
++	/* Output to ensure we loaded it correctly.  */
++	REPORT_REG_TO_CONSOLE r12
++	REPORT_REG_TO_CONSOLE r13
++
++	REPORT_REG_TO_CONSOLE r14
++	REPORT_REG_TO_CONSOLE r15
++
++	REPORT_REG_TO_CONSOLE r16
++	REPORT_REG_TO_CONSOLE r18
++	PRINT_NEWLINE_TO_CONSOLE
++
++	/* Convert the big long to a double. */
++	lf.itof.d r16, r16
++	REPORT_REG_TO_CONSOLE r16
++	REPORT_REG_TO_CONSOLE r18
++
++	/* Convert the double back to a long, it should match before. */
++	lf.ftoi.d r16, r16
++	lf.itof.d r16, r16
++
++	REPORT_REG_TO_CONSOLE r16
++	REPORT_REG_TO_CONSOLE r18
++
++	PRINT_NEWLINE_TO_CONSOLE
++
++	/* Add and subtract some double values.  */
++	lf.add.d r12, r12, r14
++	REPORT_REG_TO_CONSOLE r12
++	REPORT_REG_TO_CONSOLE r13
++
++	lf.sub.d r12, r12, r14
++	REPORT_REG_TO_CONSOLE r12
++	REPORT_REG_TO_CONSOLE r13
++	PRINT_NEWLINE_TO_CONSOLE
++
++	/* Multiply and divide double values.  */
++	lf.mul.d r12, r12, r14
++	REPORT_REG_TO_CONSOLE r12
++	REPORT_REG_TO_CONSOLE r13
++
++	lf.div.d r12, r12, r14
++	REPORT_REG_TO_CONSOLE r12
++	REPORT_REG_TO_CONSOLE r13
++	PRINT_NEWLINE_TO_CONSOLE
++
++	/* Test lf.sfge.s set flag if r6 >= r10.  */
++	lf.sfge.d r12, r14
++	MOVE_FROM_SPR r2, SPR_SR
++	REPORT_BIT_TO_CONSOLE r2, SPR_SR_F
++	PRINT_NEWLINE_TO_CONSOLE
++
++	/* Test raising an exception by dividing by 0.  */
++	MOVE_FROM_SPR r2, SPR_FPCSR
++	l.ori	r2, r2, 0x1
++	MOVE_TO_SPR SPR_FPCSR, r2
++div0:	lf.div.d r2, r12, r0
++	REPORT_EXCEPTION div0
++	PRINT_NEWLINE_TO_CONSOLE
++
++	POP LINK_REGISTER_R9
++	RETURN_TO_LINK_REGISTER_R9
 -- 
 2.19.1
 
