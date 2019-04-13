@@ -1,35 +1,50 @@
 From: Richard Henderson <rth@twiddle.net>
-Date: Fri, 12 Apr 2019 22:03:50 -1000
+Date: Fri, 12 Apr 2019 22:11:41 -1000
 Subject: [OpenRISC] OpenRISC 1.3 spec
-In-Reply-To: <CAAfxs77GkWenpN0s1pM_YeVgNZabBx55fCqLfxoMffTSa-E=cw@mail.gmail.com>
+In-Reply-To: <20190412214843.GB32284@lianli.shorne-pla.net>
 References: <CAAfxs77GkWenpN0s1pM_YeVgNZabBx55fCqLfxoMffTSa-E=cw@mail.gmail.com>
-Message-ID: <935627bf-8feb-1aea-8795-d17e0bfb2f57@twiddle.net>
+ <afc760d8-0e01-6470-c8d2-6ddc366f3d10@twiddle.net>
+ <20190412214843.GB32284@lianli.shorne-pla.net>
+Message-ID: <05413d8c-395c-de51-95f6-cdaa85c834dd@twiddle.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="maccentraleurope"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-T24gNC8xMi8xOSAxMDo1NiBBTSwgU3RhZmZvcmQgSG9ybmUgd3JvdGU6Cj4gSSBwcm9wb3NlIHRv
-IGluY29ycG9yYXRlIHRoZSBmb2xsb3dpbmcgaW50byB0aGUgb3BlbnJpc2Mgc3BlYy4KPiAKPiBV
-c2UgcHJvcG9zYWxzCj4gCj4gUDYgaHR0cHM6Ly9vcGVucmlzYy5pby9wcm9wb3NhbHMvbGZtYWRk
-IC0gY2xhcmlmaWNhdGlvbiBvbiBpbnRlcm5hbCByb3VuZGluZwo+IChwb3NzaWJseSBleGNsdWRl
-IG5ldyBtYWRkIGluc3RydWN0aW9ucykKPiBQNyBodHRwczovL29wZW5yaXNjLmlvL3Byb3Bvc2Fs
-cy9sc3RvZC1sZHRvcyAtIGNvbnZlcnQgYmV0d2VlbiBkb3VibGUgYW5kIGZsb2F0Cj4gUDkgaHR0
-cHM6Ly9vcGVucmlzYy5pby9wcm9wb3NhbHMvbGFkcnAgLSBOZXcgaW5zdHJ1Y3Rpb24gZm9yIFBJ
-QyBjb2RlIChhbHJlYWR5Cj4gaW4gYmludXRpbHMpCj4gUDE0IGh0dHBzOi8vb3BlbnJpc2MuaW8v
-cHJvcG9zYWxzL29yZnB4NjRhMzIgLSA2NC1iaXQgZnB1IGltcGxlbWVudGVkIGluCj4gbWFyb2Nj
-aGlubyAoZ2NjL2JpbnR1aWxzIHBhdGNoZXMgdW5kZXIgcmV2aWV3KQo+IFAxMSBodHRwczovL29w
-ZW5yaXNjLmlvL3Byb3Bvc2Fscy9sZnNmIC0gYWRkIHN1cHBvcnQgZm9yICd1bm9yZGVyZWQnIGNv
-bXBhcmVzwqAKPiBQMTPCoGh0dHBzOi8vb3BlbnJpc2MuaW8vcHJvcG9zYWxzL2NvcnJlY3Rpb25z
-IC0gdmFyaW91cyBjb3JyZWN0aW9ucyAocG9zc2libHkKPiBleGNsdWRlIGNvcnJlY3Rpb24gZm9y
-IGwuZXh0KiBiZWluZyBtYW5kYXRvcnkgYXMgaXRzIG5vdCBpbXBsZW1lbnRlZCBldmVyeXdoZXJl
-KQoKQXMgbG9uZyBhcyB3ZSdyZSBtYWtpbmcgY2hhbmdlcywgSSBwcm9wb3NlIHRvIGFkanVzdCBP
-UkZQWDMyIGZvciBPUjY0IHN1Y2ggdGhhdAp0aGUgMzItYml0IHJlc3VsdCB3cml0dGVuIGJhY2sg
-dG8gdGhlIDY0LWJpdCByZWdpc3RlciBoYXMgdGhlIHVwcGVyIGJpdHMKd3JpdHRlbiBhcyAweGZm
-ZmZmZmZmLgoKRm9yIFJJU0MtViB0aGlzIGlzIGNhbGxlZCAiTmFOLWJveGluZyIuICBJdCBtZWFu
-cyB0aGF0IGlmIHlvdSBhdHRlbXB0IHRvIHVzZSBhbgpmMzIgcmVzdWx0IGFzIGFuIGY2NCBpbnB1
-dCB5b3UnbGwgZ2V0IGFuIGV4Y2VwdGlvbiwgc2luY2UgdGhlIGlucHV0IHdpbGwgYmUgYQpTaWdu
-YWxpbmcgTmFOLgoKSXQncyBub3QgY29tcGxldGUsIGFzIHdlIGhhdmUgbm90IGRlZmluZWQgYSAz
-Mi1iaXQgbG9hZCB0aGF0IGZpbGxzIGluCjB4ZmZmZmZmZmZfMDAwMDAwMDAsIGJ1dCBpdCdsbCBn
-ZXQgbWFueSBpbmNvcnJlY3QgdXNlcy4KCgpyfgo=
+On 4/12/19 11:48 AM, Stafford Horne wrote:
+> Thanks for your feedback, I think this can be done.  I looked through the
+> encodings and {10,9,8} look usable.
+> 
+>    31  26  21  16  11     8      0
+>   [ 0x32 | D | A | B | res | 0x10 ]    lf.add.d
+>   [ 0x32 | D | A | B | res | 0x11 ]    lf.sub.d
+>                       ...
+> 
+>    31  26    21  16  11     8      0
+>   [ 0x32 | res | A | B | res | 0x18 ]  lf.sfeq.d
+>   [ 0x32 | res | A | B | res | 0x19 ]  lf.sfne.d
+>                       ...
+> 
+>    31  26  21  16    11     8      0
+>   [ 0x32 | D | A | 0x0 | res | 0x15 ]  lf.ftoi.d
+>   [ 0x32 | D | A | 0x0 | res | 0x14 ]  lf.itof.d
+> 
+> I propose:
+> 
+>   bit-10 - 1 indicates if rd2 is +2
+>   bit-9  - 1 indicates if ra2 is +2
+>   bit-8  - 1 indicates if rb2 is +2
+
+Thanks.  LGTM.
+
+This does cancel the second half of P6, where
+I was proposing 3 inputs and 1 output from lf.madd;
+rd will have to serve as both input and output.
+
+> Its not too late if its before silicon ;)
+
+Hah!
+
+
+r~
