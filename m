@@ -1,71 +1,75 @@
-From: BAndViG <bandvig@mail.ru>
-Date: Sun, 14 Apr 2019 12:41:56 +0300
-Subject: [OpenRISC] OpenRISC 1.3 spec
-In-Reply-To: <20190413084708.GC32284@lianli.shorne-pla.net>
-References: <CAAfxs77GkWenpN0s1pM_YeVgNZabBx55fCqLfxoMffTSa-E=cw@mail.gmail.com>
- <afc760d8-0e01-6470-c8d2-6ddc366f3d10@twiddle.net>
- <20190412214843.GB32284@lianli.shorne-pla.net>
- <05413d8c-395c-de51-95f6-cdaa85c834dd@twiddle.net>
- <20190413084708.GC32284@lianli.shorne-pla.net>
-Message-ID: <3D70BAC7A5B64C0E977D84EC118F146E@BAndViG>
+From: Andrew Burgess <andrew.burgess@embecosm.com>
+Date: Sat, 13 Apr 2019 22:30:27 +0100
+Subject: [OpenRISC] [PATCH v2 6/6] sim/common: Fix issue with wrong byte
+ order on BE targets
+In-Reply-To: <20190412202145.GA32284@lianli.shorne-pla.net>
+References: <20190409213925.32699-1-shorne@gmail.com>
+ <20190409213925.32699-7-shorne@gmail.com>
+ <20190411222749.GB2737@embecosm.com>
+ <20190412202145.GA32284@lianli.shorne-pla.net>
+Message-ID: <20190413213027.GH2737@embecosm.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi, Stafford, Richard
+* Stafford Horne <shorne@gmail.com> [2019-04-13 05:21:45 +0900]:
 
-> > > I propose:
-> > >
-> > >   bit-10 - 1 indicates if rd2 is +2
-> > >   bit-9  - 1 indicates if ra2 is +2
-> > >   bit-8  - 1 indicates if rb2 is +2
-> >
-> > Thanks.  LGTM.
+> Hi Andrew,
+> 
+> On Thu, Apr 11, 2019 at 11:27:49PM +0100, Andrew Burgess wrote:
+> > * Stafford Horne <shorne@gmail.com> [2019-04-10 06:39:25 +0900]:
+> > 
+> > > Currently only the OpenRISC sim uses this JOINSIDF() function to compose a
+> > > double float from 2 registers.  The old code doesn't seem to work as the
+> > > work order gets swapped when running on a x86_64 host.  This change
+> > > fixes that, but I am not sure if its the best thing to do.
+> > > 
+> > > On mips they do similar reg pair floating point operations composing
+> > > doubles from 2 32-bit registers in sim/mips/cp1.c value_fpr().
+> > > 
+> > > sim/common/ChangeLog:
+> > > 
+> > > 	* cgen-ops.h (JOINSIDF): Fix big endian check.
+> > > ---
+> > >  sim/common/cgen-ops.h | 8 ++------
+> > >  1 file changed, 2 insertions(+), 6 deletions(-)
+> > > 
+> > > diff --git a/sim/common/cgen-ops.h b/sim/common/cgen-ops.h
+> > > index 841552066f..d718394723 100644
+> > > --- a/sim/common/cgen-ops.h
+> > > +++ b/sim/common/cgen-ops.h
+> > > @@ -431,12 +431,8 @@ JOINSIDI (SI x0, SI x1)
+> > >  SEMOPS_INLINE DF
+> > >  JOINSIDF (SI x0, SI x1)
+> > >  {
+> > > -  union { SI in[2]; DF out; } x;
+> > > -  if (CURRENT_TARGET_BYTE_ORDER == BFD_ENDIAN_BIG)
+> > 
+> > I think this is the problem with the existing code, we're using memory
+> > on the HOST to perform packing / unpacking, and so its the byte
+> > ordering of the HOST that we care about here, not the target.
+> > 
+> > If I change the above line to instead be:
+> > 
+> >      if (HOST_BYTE_ORDER == BFD_ENDIAN_BIG)
+> > 
+> > then everything works fine.
+> > 
+> > On inspection I believe all of the uses of CURRENT_TARGET_BYTE_ORDER
+> > in this file should be similarly replaced.
+> > 
+> > I've attached a patch for this change.  If you agree I'll go ahead and
+> > push it.
+> 
+> I tested this with the or1k testsuite and it does seem to work fine, thank you.
+> Please go ahead.
+> 
+> I thought I had tried this fix as well, I guess not.
 
-> I was thinking, do you think these orfpx64a32 instructions should have 
-> different
-> opcodes to distinguish between true 64-bit and 32-bit double instructions?
-> Otherwise we would not really be able to run these orfpx64a32 32-bit binaries 
-> on
-> 64-bit CPU's if 64-bit cpus ever get implemented.
+Thanks for testing this.
 
-Is it assumed that 64-bit and 32-bit OpenRISC CPUs should be binary compatible?
-If not, I think it is should be normal that:
-- assembler instructions lf.*.d look different
-- 64-bit CPU just ignores bits [10:8]
+I've pushed this patch now.
 
-Also, let me remember here that I made initial implementation for unordered 
-comparison (for MAROCCHINO pipe currently). The verilog sources are in branch
-https://github.com/openrisc/or1k_marocchino/tree/fp_unordered_cmp
-To keep full backward compatibility with current opcodes the proposed variant 
-differs from Richard's P11 and looks as following:
-
-lf.sfueq.s rA,rB (opc: 0x28)
-lf.sfueq.d rA,rB (opc: 0x38)
-lf.sfune.s rA,rB (opc: 0x29)
-lf.sfune.d rA,rB (opc: 0x39)
-lf.sfugt.s rA,rB (opc: 0x2A)
-lf.sfugt.d rA,rB (opc: 0x3A)
-lf.sfuge.s rA,rB (opc: 0x2B)
-lf.sfuge.d rA,rB (opc: 0x3B)
-lf.sfult.s rA,rB (opc: 0x2C)
-lf.sfult.d rA,rB (opc: 0x3C)
-lf.sfule.s rA,rB (opc: 0x2D)
-lf.sfule.d rA,rB (opc: 0x3D)
-lf.sfun.s rA,rB (opc: 0x2E)
-lf.sfun.d rA,rB (opc: 0x3E)
-
-OPC's bit [5] indicates that comparison is unordered and bit [4] that operands 
-are doubles.
-Additionally I’ve added fp_comparisons_table.odt document into doc/readme/ 
-folder with description of all implemented FP comparison instructions and their 
-relation to IEEE standard.
-I haven’t tested them yet as there is no tool now.
-
-Of course, as Staffor wrote "Its not too late if its before silicon ;)"
-
-WBR
-Andrey
-
+Andrew
