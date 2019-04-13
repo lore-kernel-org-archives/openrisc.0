@@ -1,75 +1,215 @@
 From: Andrew Burgess <andrew.burgess@embecosm.com>
-Date: Sat, 13 Apr 2019 22:30:27 +0100
-Subject: [OpenRISC] [PATCH v2 6/6] sim/common: Fix issue with wrong byte
- order on BE targets
-In-Reply-To: <20190412202145.GA32284@lianli.shorne-pla.net>
+Date: Sat, 13 Apr 2019 22:36:06 +0100
+Subject: [OpenRISC] [PATCH v2 5/6] sim/or1k: Add test for 64-bit fpu
+ operations
+In-Reply-To: <20190409213925.32699-6-shorne@gmail.com>
 References: <20190409213925.32699-1-shorne@gmail.com>
- <20190409213925.32699-7-shorne@gmail.com>
- <20190411222749.GB2737@embecosm.com>
- <20190412202145.GA32284@lianli.shorne-pla.net>
-Message-ID: <20190413213027.GH2737@embecosm.com>
+ <20190409213925.32699-6-shorne@gmail.com>
+Message-ID: <20190413213606.GI2737@embecosm.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-* Stafford Horne <shorne@gmail.com> [2019-04-13 05:21:45 +0900]:
+* Stafford Horne <shorne@gmail.com> [2019-04-10 06:39:24 +0900]:
 
-> Hi Andrew,
+> This is a very basic test but it ensure the machine is wired up
+> correctly and that the assembler works.
 > 
-> On Thu, Apr 11, 2019 at 11:27:49PM +0100, Andrew Burgess wrote:
-> > * Stafford Horne <shorne@gmail.com> [2019-04-10 06:39:25 +0900]:
-> > 
-> > > Currently only the OpenRISC sim uses this JOINSIDF() function to compose a
-> > > double float from 2 registers.  The old code doesn't seem to work as the
-> > > work order gets swapped when running on a x86_64 host.  This change
-> > > fixes that, but I am not sure if its the best thing to do.
-> > > 
-> > > On mips they do similar reg pair floating point operations composing
-> > > doubles from 2 32-bit registers in sim/mips/cp1.c value_fpr().
-> > > 
-> > > sim/common/ChangeLog:
-> > > 
-> > > 	* cgen-ops.h (JOINSIDF): Fix big endian check.
-> > > ---
-> > >  sim/common/cgen-ops.h | 8 ++------
-> > >  1 file changed, 2 insertions(+), 6 deletions(-)
-> > > 
-> > > diff --git a/sim/common/cgen-ops.h b/sim/common/cgen-ops.h
-> > > index 841552066f..d718394723 100644
-> > > --- a/sim/common/cgen-ops.h
-> > > +++ b/sim/common/cgen-ops.h
-> > > @@ -431,12 +431,8 @@ JOINSIDI (SI x0, SI x1)
-> > >  SEMOPS_INLINE DF
-> > >  JOINSIDF (SI x0, SI x1)
-> > >  {
-> > > -  union { SI in[2]; DF out; } x;
-> > > -  if (CURRENT_TARGET_BYTE_ORDER == BFD_ENDIAN_BIG)
-> > 
-> > I think this is the problem with the existing code, we're using memory
-> > on the HOST to perform packing / unpacking, and so its the byte
-> > ordering of the HOST that we care about here, not the target.
-> > 
-> > If I change the above line to instead be:
-> > 
-> >      if (HOST_BYTE_ORDER == BFD_ENDIAN_BIG)
-> > 
-> > then everything works fine.
-> > 
-> > On inspection I believe all of the uses of CURRENT_TARGET_BYTE_ORDER
-> > in this file should be similarly replaced.
-> > 
-> > I've attached a patch for this change.  If you agree I'll go ahead and
-> > push it.
+> sim/testsuite/sim/or1k/ChangeLog:
 > 
-> I tested this with the or1k testsuite and it does seem to work fine, thank you.
-> Please go ahead.
-> 
-> I thought I had tried this fix as well, I guess not.
+> 	* fpu64a32.S: New file.
 
-Thanks for testing this.
+This is fine.
 
-I've pushed this patch now.
-
+Thanks,
 Andrew
+
+
+> ---
+>  sim/testsuite/sim/or1k/fpu64a32.S | 172 ++++++++++++++++++++++++++++++
+>  1 file changed, 172 insertions(+)
+>  create mode 100644 sim/testsuite/sim/or1k/fpu64a32.S
+> 
+> diff --git a/sim/testsuite/sim/or1k/fpu64a32.S b/sim/testsuite/sim/or1k/fpu64a32.S
+> new file mode 100644
+> index 0000000000..6c40170854
+> --- /dev/null
+> +++ b/sim/testsuite/sim/or1k/fpu64a32.S
+> @@ -0,0 +1,172 @@
+> +/* Tests some basic fpu instructions.
+> +
+> +   Copyright (C) 2017-2019 Free Software Foundation, Inc.
+> +
+> +   This program is free software; you can redistribute it and/or modify
+> +   it under the terms of the GNU General Public License as published by
+> +   the Free Software Foundation; either version 3 of the License, or
+> +   (at your option) any later version.
+> +
+> +   This program is distributed in the hope that it will be useful,
+> +   but WITHOUT ANY WARRANTY; without even the implied warranty of
+> +   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> +   GNU General Public License for more details.
+> +
+> +   You should have received a copy of the GNU General Public License
+> +   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+> +
+> +# mach: or1k
+> +# output: report(0x400921f9);\n
+> +# output: report(0xf01b866e);\n
+> +# output: report(0x4005bf09);\n
+> +# output: report(0x95aaf790);\n
+> +# output: report(0x00000000);\n
+> +# output: report(0x00001234);\n
+> +# output: \n
+> +# output: report(0x40b23400);\n
+> +# output: report(0x00000000);\n
+> +# output: report(0x40b23400);\n
+> +# output: report(0x00000000);\n
+> +# output: \n
+> +# output: report(0x40177081);\n
+> +# output: report(0xc2e33eff);\n
+> +# output: report(0x400921f9);\n
+> +# output: report(0xf01b866e);\n
+> +# output: \n
+> +# output: report(0x40211456);\n
+> +# output: report(0x587dfabf);\n
+> +# output: report(0x400921f9);\n
+> +# output: report(0xf01b866d);\n
+> +# output: \n
+> +# output: report(0x00000001);\n
+> +# output: \n
+> +# output: WARNING: ignoring fpu error caught in fast mode.\n
+> +# output: report(0x00000000);\n
+> +# output: \n
+> +# output: exit(0)\n
+> +
+> +#include "or1k-asm-test-helpers.h"
+> +
+> +	STANDARD_TEST_ENVIRONMENT
+> +
+> +	.section .exception_vectors
+> +
+> +	/* Floating point exception.  */
+> +	.org	0xd00
+> +
+> +	/* The handling is a bit dubious at present.  We just patch the
+> +	   instruction with l.nop and restart.  This will go wrong in branch
+> +	   delay slots.  But we don't have those in this test.  */
+> +	l.addi r1, r1, -EXCEPTION_STACK_SKIP_SIZE
+> +	PUSH r2
+> +	PUSH r3
+> +	/* Save the address of the instruction that caused the problem.  */
+> +	MOVE_FROM_SPR r2, SPR_EPCR_BASE
+> +	LOAD_IMMEDIATE r3, 0x15000000 /* Opcode for l.nop  */
+> +	l.sw	-4(r2), r3
+> +	POP r3
+> +	POP r2
+> +	l.addi r1, r1, EXCEPTION_STACK_SKIP_SIZE
+> +	l.rfe
+> +
+> +	.section .data
+> +	.align 4
+> +	.type   pi, @object
+> +	.size   pi, 8
+> +anchor:
+> +pi:
+> +	.double  3.14159
+> +
+> +	.type   e, @object
+> +	.size   e, 8
+> +e:
+> +	.double  2.71828
+> +
+> +	.type   large, @object
+> +	.size   large, 8
+> +large:
+> +	.long  0
+> +	.long  0x1234
+> +
+> +	.section .text
+> +start_tests:
+> +	PUSH LINK_REGISTER_R9
+> +
+> +	/* Test lf.itof.d int to double conversion.  Setting up:
+> +	 *  r11      pointer to data
+> +	 *  r12,r13  pi as double
+> +	 *  r14,r15  e  as double
+> +	 *  r16,r17  a long long
+> +	 */
+> +	l.ori	r11, r0, ha(anchor)
+> +	l.addi	r11, r11, lo(anchor)
+> +	l.lwz	r12, 0(r11)
+> +	l.lwz	r13, 4(r11)
+> +
+> +	l.lwz	r14, 8(r11)
+> +	l.lwz	r15, 12(r11)
+> +
+> +	l.lwz	r16, 16(r11)
+> +	l.lwz	r18, 20(r11)
+> +
+> +	/* Output to ensure we loaded it correctly.  */
+> +	REPORT_REG_TO_CONSOLE r12
+> +	REPORT_REG_TO_CONSOLE r13
+> +
+> +	REPORT_REG_TO_CONSOLE r14
+> +	REPORT_REG_TO_CONSOLE r15
+> +
+> +	REPORT_REG_TO_CONSOLE r16
+> +	REPORT_REG_TO_CONSOLE r18
+> +	PRINT_NEWLINE_TO_CONSOLE
+> +
+> +	/* Convert the big long to a double. */
+> +	lf.itof.d r16, r16
+> +	REPORT_REG_TO_CONSOLE r16
+> +	REPORT_REG_TO_CONSOLE r18
+> +
+> +	/* Convert the double back to a long, it should match before. */
+> +	lf.ftoi.d r16, r16
+> +	lf.itof.d r16, r16
+> +
+> +	REPORT_REG_TO_CONSOLE r16
+> +	REPORT_REG_TO_CONSOLE r18
+> +
+> +	PRINT_NEWLINE_TO_CONSOLE
+> +
+> +	/* Add and subtract some double values.  */
+> +	lf.add.d r12, r12, r14
+> +	REPORT_REG_TO_CONSOLE r12
+> +	REPORT_REG_TO_CONSOLE r13
+> +
+> +	lf.sub.d r12, r12, r14
+> +	REPORT_REG_TO_CONSOLE r12
+> +	REPORT_REG_TO_CONSOLE r13
+> +	PRINT_NEWLINE_TO_CONSOLE
+> +
+> +	/* Multiply and divide double values.  */
+> +	lf.mul.d r12, r12, r14
+> +	REPORT_REG_TO_CONSOLE r12
+> +	REPORT_REG_TO_CONSOLE r13
+> +
+> +	lf.div.d r12, r12, r14
+> +	REPORT_REG_TO_CONSOLE r12
+> +	REPORT_REG_TO_CONSOLE r13
+> +	PRINT_NEWLINE_TO_CONSOLE
+> +
+> +	/* Test lf.sfge.s set flag if r6 >= r10.  */
+> +	lf.sfge.d r12, r14
+> +	MOVE_FROM_SPR r2, SPR_SR
+> +	REPORT_BIT_TO_CONSOLE r2, SPR_SR_F
+> +	PRINT_NEWLINE_TO_CONSOLE
+> +
+> +	/* Test raising an exception by dividing by 0.  */
+> +	MOVE_FROM_SPR r2, SPR_FPCSR
+> +	l.ori	r2, r2, 0x1
+> +	MOVE_TO_SPR SPR_FPCSR, r2
+> +div0:	lf.div.d r2, r12, r0
+> +	REPORT_EXCEPTION div0
+> +	PRINT_NEWLINE_TO_CONSOLE
+> +
+> +	POP LINK_REGISTER_R9
+> +	RETURN_TO_LINK_REGISTER_R9
+> -- 
+> 2.19.1
+> 
