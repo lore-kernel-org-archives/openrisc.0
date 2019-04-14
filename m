@@ -1,43 +1,50 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 14 Apr 2019 15:44:15 +0900
-Subject: [OpenRISC] [PATCH v2 3/6] sim/or1k: Regenerate sim for
- orfp64a32 spec
-In-Reply-To: <20190413214002.GJ2737@embecosm.com>
-References: <20190409213925.32699-1-shorne@gmail.com>
- <20190409213925.32699-4-shorne@gmail.com>
- <20190413214002.GJ2737@embecosm.com>
-Message-ID: <20190414064415.GE32284@lianli.shorne-pla.net>
+Date: Sun, 14 Apr 2019 15:48:02 +0900
+Subject: [OpenRISC] OpenRISC 1.3 spec
+In-Reply-To: <20190414063005.GD32284@lianli.shorne-pla.net>
+References: <CAAfxs77GkWenpN0s1pM_YeVgNZabBx55fCqLfxoMffTSa-E=cw@mail.gmail.com>
+ <935627bf-8feb-1aea-8795-d17e0bfb2f57@twiddle.net>
+ <20190414063005.GD32284@lianli.shorne-pla.net>
+Message-ID: <20190414064802.GF32284@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="maccentraleurope"
+Content-Transfer-Encoding: base64
 To: openrisc@lists.librecores.org
 
-On Sat, Apr 13, 2019 at 10:40:02PM +0100, Andrew Burgess wrote:
-> * Stafford Horne <shorne@gmail.com> [2019-04-10 06:39:22 +0900]:
-> 
-> > sim/ChangeLog:
-> > 
-> > 	* or1k/cpu.c: Regenerate.
-> > 	* or1k/cpu.h: Regenerate.
-> > 	* or1k/decode.c: Regenerate.
-> > 	* or1k/decode.h: Regenerate.
-> > 	* or1k/model.c: Regenerate.
-> > 	* or1k/sem-switch.c: Regenerate.
-> > 	* or1k/sem.c: Regenerate.
-> 
-> Kind-of hard to argue with that :)
-> 
-> This is fine with me,
-
-Thanks, actually after some recent reviews of the spec that this is implementing
-we may be having a revision to how we encode some of these instructions.
-
-Thread for those interested:
-
- - https://lists.librecores.org/pipermail/openrisc/2019-April/001958.html
-
-I will have to make some revisions on this and will submit the series again in a
-few weeks.
-
--Stafford
+T24gU3VuLCBBcHIgMTQsIDIwMTkgYXQgMDM6MzA6MDVQTSArMDkwMCwgU3RhZmZvcmQgSG9ybmUg
+d3JvdGU6Cj4gT24gRnJpLCBBcHIgMTIsIDIwMTkgYXQgMTA6MDM6NTBQTSAtMTAwMCwgUmljaGFy
+ZCBIZW5kZXJzb24gd3JvdGU6Cj4gPiBPbiA0LzEyLzE5IDEwOjU2IEFNLCBTdGFmZm9yZCBIb3Ju
+ZSB3cm90ZToKPiA+ID4gSSBwcm9wb3NlIHRvIGluY29ycG9yYXRlIHRoZSBmb2xsb3dpbmcgaW50
+byB0aGUgb3BlbnJpc2Mgc3BlYy4KPiA+ID4gCj4gPiA+IFVzZSBwcm9wb3NhbHMKPiA+ID4gCj4g
+PiA+IFA2IGh0dHBzOi8vb3BlbnJpc2MuaW8vcHJvcG9zYWxzL2xmbWFkZCAtIGNsYXJpZmljYXRp
+b24gb24gaW50ZXJuYWwgcm91bmRpbmcKPiA+ID4gKHBvc3NpYmx5IGV4Y2x1ZGUgbmV3IG1hZGQg
+aW5zdHJ1Y3Rpb25zKQo+ID4gPiBQNyBodHRwczovL29wZW5yaXNjLmlvL3Byb3Bvc2Fscy9sc3Rv
+ZC1sZHRvcyAtIGNvbnZlcnQgYmV0d2VlbiBkb3VibGUgYW5kIGZsb2F0Cj4gPiA+IFA5IGh0dHBz
+Oi8vb3BlbnJpc2MuaW8vcHJvcG9zYWxzL2xhZHJwIC0gTmV3IGluc3RydWN0aW9uIGZvciBQSUMg
+Y29kZSAoYWxyZWFkeQo+ID4gPiBpbiBiaW51dGlscykKPiA+ID4gUDE0IGh0dHBzOi8vb3BlbnJp
+c2MuaW8vcHJvcG9zYWxzL29yZnB4NjRhMzIgLSA2NC1iaXQgZnB1IGltcGxlbWVudGVkIGluCj4g
+PiA+IG1hcm9jY2hpbm8gKGdjYy9iaW50dWlscyBwYXRjaGVzIHVuZGVyIHJldmlldykKPiA+ID4g
+UDExIGh0dHBzOi8vb3BlbnJpc2MuaW8vcHJvcG9zYWxzL2xmc2YgLSBhZGQgc3VwcG9ydCBmb3Ig
+J3Vub3JkZXJlZCcgY29tcGFyZXPCoAo+ID4gPiBQMTPCoGh0dHBzOi8vb3BlbnJpc2MuaW8vcHJv
+cG9zYWxzL2NvcnJlY3Rpb25zIC0gdmFyaW91cyBjb3JyZWN0aW9ucyAocG9zc2libHkKPiA+ID4g
+ZXhjbHVkZSBjb3JyZWN0aW9uIGZvciBsLmV4dCogYmVpbmcgbWFuZGF0b3J5IGFzIGl0cyBub3Qg
+aW1wbGVtZW50ZWQgZXZlcnl3aGVyZSkKPiA+IAo+ID4gQXMgbG9uZyBhcyB3ZSdyZSBtYWtpbmcg
+Y2hhbmdlcywgSSBwcm9wb3NlIHRvIGFkanVzdCBPUkZQWDMyIGZvciBPUjY0IHN1Y2ggdGhhdAo+
+ID4gdGhlIDMyLWJpdCByZXN1bHQgd3JpdHRlbiBiYWNrIHRvIHRoZSA2NC1iaXQgcmVnaXN0ZXIg
+aGFzIHRoZSB1cHBlciBiaXRzCj4gPiB3cml0dGVuIGFzIDB4ZmZmZmZmZmYuCj4gPiAKPiA+IEZv
+ciBSSVNDLVYgdGhpcyBpcyBjYWxsZWQgIk5hTi1ib3hpbmciLiAgSXQgbWVhbnMgdGhhdCBpZiB5
+b3UgYXR0ZW1wdCB0byB1c2UgYW4KPiA+IGYzMiByZXN1bHQgYXMgYW4gZjY0IGlucHV0IHlvdSds
+bCBnZXQgYW4gZXhjZXB0aW9uLCBzaW5jZSB0aGUgaW5wdXQgd2lsbCBiZSBhCj4gPiBTaWduYWxp
+bmcgTmFOLgo+IAo+IFRoaXMgbWFrZXMgc2Vuc2UuICBJIHdpbGwgYWRkIHRoaXMgaW4gbXkgdXBk
+YXRlcyBhcyB3ZWxsLgo+IAo+ID4gSXQncyBub3QgY29tcGxldGUsIGFzIHdlIGhhdmUgbm90IGRl
+ZmluZWQgYSAzMi1iaXQgbG9hZCB0aGF0IGZpbGxzIGluCj4gPiAweGZmZmZmZmZmXzAwMDAwMDAw
+LCBidXQgaXQnbGwgZ2V0IG1hbnkgaW5jb3JyZWN0IHVzZXMuCj4gCj4gV2UgY2FuIGFkZCBhbiBp
+bnN0cnVjdGlvbiBsaWtlIGBsLmx3ZmAgc3BlY2lmaWNhbGx5IGZvciBsb2FkaW5nIGZsb2F0cy4K
+PiAKPiBPbiAzMi1iaXQgYXJjaGl0ZWN0dXJlcyBpdCB3b3VsZCBiZSBleGFjdGx5IHRoZSBzYW1l
+IGFzIGwubHd6LCBidXQgb24gNjQtYml0IGl0Cj4gY2FuIGZpbGwgdGhlIHVwcGVyIGJpdHMgd2l0
+aCAweGZmZmZmZmZmLgo+IAo+IFBvc3NpYmxlIGVuY29kaW5nOgo+ICAgIDMxICAgIDI2ICAgIDIx
+ICAgIDE2ICAgICAwCj4gICBbICAweDFjICB8ICBEICB8ICBBICB8ICBJICBdICAgICBsLmxmCgpB
+Y3R1YWxseSwgMHgxYSB3b3VsZCBiZSBiZXR0ZXIuICAweDFjIGlzIHJlc2VydmVkIGZvciBsLmN1
+c3QxLgoKTm90ZSB0byBtZSwgYW5vdGhlciBzcGVjIGZpeCBuZWVkZWQ6CiAgLSBhZGQgbC5jdXN0
+MSB0byBzZWN0aW9uIDE4LiBNYWNoaW5lIENvZGUgcmVmZXJlbmNlCgotU3RhZmZvcmQK
