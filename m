@@ -1,62 +1,53 @@
-From: Jeff Law <law@redhat.com>
-Date: Fri, 12 Apr 2019 09:28:55 -0600
-Subject: [OpenRISC] [PATCH 0/3] OpenRISC floating point support + fixes
-In-Reply-To: <20190410212747.18377-1-shorne@gmail.com>
-References: <20190410212747.18377-1-shorne@gmail.com>
-Message-ID: <924033b1-fcad-877b-1c7a-89e0a060d01b@redhat.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Sun, 14 Apr 2019 15:30:05 +0900
+Subject: [OpenRISC] OpenRISC 1.3 spec
+In-Reply-To: <935627bf-8feb-1aea-8795-d17e0bfb2f57@twiddle.net>
+References: <CAAfxs77GkWenpN0s1pM_YeVgNZabBx55fCqLfxoMffTSa-E=cw@mail.gmail.com>
+ <935627bf-8feb-1aea-8795-d17e0bfb2f57@twiddle.net>
+Message-ID: <20190414063005.GD32284@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="maccentraleurope"
+Content-Transfer-Encoding: base64
 To: openrisc@lists.librecores.org
 
-On 4/10/19 3:27 PM, Stafford Horne wrote:
-> Hello,
-> 
-> This is a set of patches to bring FPU support to the OpenRISC backend.  The
-> backend also add support for 64-bit floating point operations on 32-bit cores
-> using register pairs, see orfpx64a32 [0].
-> 
-> This depends on binutils patches which have also been submitted per review. [1]
-> 
-> The toolchain has been tested using the gcc and binutils testsuites as well as
-> floating point test suites running on sim and an fpga soft core or1k_marocchino.
-> [2]
-> 
-> There is also an unrelated, but trivial patch to fix a code quality issue with
-> volatile memory loads.
-> 
-> This whole patch series can be found on my github repo [3] as well.
-> 
-> -Stafford
-> 
-> [0] https://openrisc.io/proposals/orfpx64a32
-> [1] git at github.com:stffrdhrn/binutils-gdb.git orfpx64a32-2
-> [2] https://github.com/openrisc/or1k_marocchino
-> [3] git at github.com:stffrdhrn/gcc.git or1k-fpu-1a
-> 
-> Stafford Horne (3):
->   or1k: Initial support for FPU
->   or1k: Allow volatile memory for sign/zero extend loads
->   or1k: only force reg for immediates
-> 
->  gcc/config.gcc                |   1 +
->  gcc/config/or1k/or1k.c        |  10 ++--
->  gcc/config/or1k/or1k.md       | 109 ++++++++++++++++++++++++++++++++--
->  gcc/config/or1k/or1k.opt      |  15 ++++-
->  gcc/config/or1k/predicates.md |  16 +++++
->  gcc/doc/invoke.texi           |  15 +++++
->  6 files changed, 156 insertions(+), 10 deletions(-)
-> 
-So the only question is whether or not you're looking to drop this into
-gcc-9 or gcc-10.
-
-gcc-9 is in regression bugfixing stage, so technically this patch should
-wait to gcc-10.  However, we usually give maintainers a degree of
-freedom, particularly if a change doens't "bleed" into generic parts of
-the compiler.
-
-So we'll leave it up to you to decide if you want to add this to gcc-9
-or wait for gcc-10.
-
-jeff
+T24gRnJpLCBBcHIgMTIsIDIwMTkgYXQgMTA6MDM6NTBQTSAtMTAwMCwgUmljaGFyZCBIZW5kZXJz
+b24gd3JvdGU6Cj4gT24gNC8xMi8xOSAxMDo1NiBBTSwgU3RhZmZvcmQgSG9ybmUgd3JvdGU6Cj4g
+PiBJIHByb3Bvc2UgdG8gaW5jb3Jwb3JhdGUgdGhlIGZvbGxvd2luZyBpbnRvIHRoZSBvcGVucmlz
+YyBzcGVjLgo+ID4gCj4gPiBVc2UgcHJvcG9zYWxzCj4gPiAKPiA+IFA2IGh0dHBzOi8vb3BlbnJp
+c2MuaW8vcHJvcG9zYWxzL2xmbWFkZCAtIGNsYXJpZmljYXRpb24gb24gaW50ZXJuYWwgcm91bmRp
+bmcKPiA+IChwb3NzaWJseSBleGNsdWRlIG5ldyBtYWRkIGluc3RydWN0aW9ucykKPiA+IFA3IGh0
+dHBzOi8vb3BlbnJpc2MuaW8vcHJvcG9zYWxzL2xzdG9kLWxkdG9zIC0gY29udmVydCBiZXR3ZWVu
+IGRvdWJsZSBhbmQgZmxvYXQKPiA+IFA5IGh0dHBzOi8vb3BlbnJpc2MuaW8vcHJvcG9zYWxzL2xh
+ZHJwIC0gTmV3IGluc3RydWN0aW9uIGZvciBQSUMgY29kZSAoYWxyZWFkeQo+ID4gaW4gYmludXRp
+bHMpCj4gPiBQMTQgaHR0cHM6Ly9vcGVucmlzYy5pby9wcm9wb3NhbHMvb3JmcHg2NGEzMiAtIDY0
+LWJpdCBmcHUgaW1wbGVtZW50ZWQgaW4KPiA+IG1hcm9jY2hpbm8gKGdjYy9iaW50dWlscyBwYXRj
+aGVzIHVuZGVyIHJldmlldykKPiA+IFAxMSBodHRwczovL29wZW5yaXNjLmlvL3Byb3Bvc2Fscy9s
+ZnNmIC0gYWRkIHN1cHBvcnQgZm9yICd1bm9yZGVyZWQnIGNvbXBhcmVzwqAKPiA+IFAxM8KgaHR0
+cHM6Ly9vcGVucmlzYy5pby9wcm9wb3NhbHMvY29ycmVjdGlvbnMgLSB2YXJpb3VzIGNvcnJlY3Rp
+b25zIChwb3NzaWJseQo+ID4gZXhjbHVkZSBjb3JyZWN0aW9uIGZvciBsLmV4dCogYmVpbmcgbWFu
+ZGF0b3J5IGFzIGl0cyBub3QgaW1wbGVtZW50ZWQgZXZlcnl3aGVyZSkKPiAKPiBBcyBsb25nIGFz
+IHdlJ3JlIG1ha2luZyBjaGFuZ2VzLCBJIHByb3Bvc2UgdG8gYWRqdXN0IE9SRlBYMzIgZm9yIE9S
+NjQgc3VjaCB0aGF0Cj4gdGhlIDMyLWJpdCByZXN1bHQgd3JpdHRlbiBiYWNrIHRvIHRoZSA2NC1i
+aXQgcmVnaXN0ZXIgaGFzIHRoZSB1cHBlciBiaXRzCj4gd3JpdHRlbiBhcyAweGZmZmZmZmZmLgo+
+IAo+IEZvciBSSVNDLVYgdGhpcyBpcyBjYWxsZWQgIk5hTi1ib3hpbmciLiAgSXQgbWVhbnMgdGhh
+dCBpZiB5b3UgYXR0ZW1wdCB0byB1c2UgYW4KPiBmMzIgcmVzdWx0IGFzIGFuIGY2NCBpbnB1dCB5
+b3UnbGwgZ2V0IGFuIGV4Y2VwdGlvbiwgc2luY2UgdGhlIGlucHV0IHdpbGwgYmUgYQo+IFNpZ25h
+bGluZyBOYU4uCgpUaGlzIG1ha2VzIHNlbnNlLiAgSSB3aWxsIGFkZCB0aGlzIGluIG15IHVwZGF0
+ZXMgYXMgd2VsbC4KCj4gSXQncyBub3QgY29tcGxldGUsIGFzIHdlIGhhdmUgbm90IGRlZmluZWQg
+YSAzMi1iaXQgbG9hZCB0aGF0IGZpbGxzIGluCj4gMHhmZmZmZmZmZl8wMDAwMDAwMCwgYnV0IGl0
+J2xsIGdldCBtYW55IGluY29ycmVjdCB1c2VzLgoKV2UgY2FuIGFkZCBhbiBpbnN0cnVjdGlvbiBs
+aWtlIGBsLmx3ZmAgc3BlY2lmaWNhbGx5IGZvciBsb2FkaW5nIGZsb2F0cy4KCk9uIDMyLWJpdCBh
+cmNoaXRlY3R1cmVzIGl0IHdvdWxkIGJlIGV4YWN0bHkgdGhlIHNhbWUgYXMgbC5sd3osIGJ1dCBv
+biA2NC1iaXQgaXQKY2FuIGZpbGwgdGhlIHVwcGVyIGJpdHMgd2l0aCAweGZmZmZmZmZmLgoKUG9z
+c2libGUgZW5jb2Rpbmc6CiAgIDMxICAgIDI2ICAgIDIxICAgIDE2ICAgICAwCiAgWyAgMHgxYyAg
+fCAgRCAgfCAgQSAgfCAgSSAgXSAgICAgbC5sZgoKSSBjYW4gYWRkIGl0IHRvIHRoZSBzcGVjIGFz
+IGEgY2xhc3MgSUkgaW5zdHJ1Y3Rpb24uICBXZSBkb24ndCByZWFsbHkgbmVlZCB0bwppbXBsZW1l
+bnQgaXQgdW50aWwgc29tZW9uZSBpbXBsZW1lbnRzIE9SNjQuICBCdXQgaXQgd2lsbCBiZSBnb29k
+IHRvIGhhdmUgZm9yCmNvbXBsZXRlbmVzcyBhcyB5b3UgcG9pbnRlZCBvdXQuCgpDaG9vc2luZyB0
+aGUgb3Bjb2RlIGFzIDB4MWMgYXMgcGVyIGJlbG93LiAoaXRzIGNsb3NlIHRvIGwubHdhKQoKLi4u
+CjB4MWEgLSB1bnVzZWQKMHgxYiAtIGwubHdhCjB4MWMgLSB1bnVzZWQgICA8LS0gYWRkIGwubHdm
+IGhlcmUKMHgxZCAtIGwuY3VzdDIKMHgxZSAtIGwuY3VzdDMKMHgxZiAtIGwuY3VzdDQKCihMT0FE
+cykKMHgyMCAtIGwubGQKMHgyMSAtIGwubHd6CjB4MjIgLSBsLmx3cwoweDIzIC0gbC5sYnoKMHgy
+NCAtIGwubGJzCjB4MjUgLSBsLmxoegoweDI2IC0gbC5saHMKKEFMVSBJTU0pCjB4MjcgLSBsLmFk
+ZGkKLi4uCgotU3RhZmZvcmQK
