@@ -1,50 +1,71 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 14 Apr 2019 15:48:02 +0900
+From: BAndViG <bandvig@mail.ru>
+Date: Sun, 14 Apr 2019 12:41:56 +0300
 Subject: [OpenRISC] OpenRISC 1.3 spec
-In-Reply-To: <20190414063005.GD32284@lianli.shorne-pla.net>
+In-Reply-To: <20190413084708.GC32284@lianli.shorne-pla.net>
 References: <CAAfxs77GkWenpN0s1pM_YeVgNZabBx55fCqLfxoMffTSa-E=cw@mail.gmail.com>
- <935627bf-8feb-1aea-8795-d17e0bfb2f57@twiddle.net>
- <20190414063005.GD32284@lianli.shorne-pla.net>
-Message-ID: <20190414064802.GF32284@lianli.shorne-pla.net>
+ <afc760d8-0e01-6470-c8d2-6ddc366f3d10@twiddle.net>
+ <20190412214843.GB32284@lianli.shorne-pla.net>
+ <05413d8c-395c-de51-95f6-cdaa85c834dd@twiddle.net>
+ <20190413084708.GC32284@lianli.shorne-pla.net>
+Message-ID: <3D70BAC7A5B64C0E977D84EC118F146E@BAndViG>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="maccentraleurope"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-T24gU3VuLCBBcHIgMTQsIDIwMTkgYXQgMDM6MzA6MDVQTSArMDkwMCwgU3RhZmZvcmQgSG9ybmUg
-d3JvdGU6Cj4gT24gRnJpLCBBcHIgMTIsIDIwMTkgYXQgMTA6MDM6NTBQTSAtMTAwMCwgUmljaGFy
-ZCBIZW5kZXJzb24gd3JvdGU6Cj4gPiBPbiA0LzEyLzE5IDEwOjU2IEFNLCBTdGFmZm9yZCBIb3Ju
-ZSB3cm90ZToKPiA+ID4gSSBwcm9wb3NlIHRvIGluY29ycG9yYXRlIHRoZSBmb2xsb3dpbmcgaW50
-byB0aGUgb3BlbnJpc2Mgc3BlYy4KPiA+ID4gCj4gPiA+IFVzZSBwcm9wb3NhbHMKPiA+ID4gCj4g
-PiA+IFA2IGh0dHBzOi8vb3BlbnJpc2MuaW8vcHJvcG9zYWxzL2xmbWFkZCAtIGNsYXJpZmljYXRp
-b24gb24gaW50ZXJuYWwgcm91bmRpbmcKPiA+ID4gKHBvc3NpYmx5IGV4Y2x1ZGUgbmV3IG1hZGQg
-aW5zdHJ1Y3Rpb25zKQo+ID4gPiBQNyBodHRwczovL29wZW5yaXNjLmlvL3Byb3Bvc2Fscy9sc3Rv
-ZC1sZHRvcyAtIGNvbnZlcnQgYmV0d2VlbiBkb3VibGUgYW5kIGZsb2F0Cj4gPiA+IFA5IGh0dHBz
-Oi8vb3BlbnJpc2MuaW8vcHJvcG9zYWxzL2xhZHJwIC0gTmV3IGluc3RydWN0aW9uIGZvciBQSUMg
-Y29kZSAoYWxyZWFkeQo+ID4gPiBpbiBiaW51dGlscykKPiA+ID4gUDE0IGh0dHBzOi8vb3BlbnJp
-c2MuaW8vcHJvcG9zYWxzL29yZnB4NjRhMzIgLSA2NC1iaXQgZnB1IGltcGxlbWVudGVkIGluCj4g
-PiA+IG1hcm9jY2hpbm8gKGdjYy9iaW50dWlscyBwYXRjaGVzIHVuZGVyIHJldmlldykKPiA+ID4g
-UDExIGh0dHBzOi8vb3BlbnJpc2MuaW8vcHJvcG9zYWxzL2xmc2YgLSBhZGQgc3VwcG9ydCBmb3Ig
-J3Vub3JkZXJlZCcgY29tcGFyZXPCoAo+ID4gPiBQMTPCoGh0dHBzOi8vb3BlbnJpc2MuaW8vcHJv
-cG9zYWxzL2NvcnJlY3Rpb25zIC0gdmFyaW91cyBjb3JyZWN0aW9ucyAocG9zc2libHkKPiA+ID4g
-ZXhjbHVkZSBjb3JyZWN0aW9uIGZvciBsLmV4dCogYmVpbmcgbWFuZGF0b3J5IGFzIGl0cyBub3Qg
-aW1wbGVtZW50ZWQgZXZlcnl3aGVyZSkKPiA+IAo+ID4gQXMgbG9uZyBhcyB3ZSdyZSBtYWtpbmcg
-Y2hhbmdlcywgSSBwcm9wb3NlIHRvIGFkanVzdCBPUkZQWDMyIGZvciBPUjY0IHN1Y2ggdGhhdAo+
-ID4gdGhlIDMyLWJpdCByZXN1bHQgd3JpdHRlbiBiYWNrIHRvIHRoZSA2NC1iaXQgcmVnaXN0ZXIg
-aGFzIHRoZSB1cHBlciBiaXRzCj4gPiB3cml0dGVuIGFzIDB4ZmZmZmZmZmYuCj4gPiAKPiA+IEZv
-ciBSSVNDLVYgdGhpcyBpcyBjYWxsZWQgIk5hTi1ib3hpbmciLiAgSXQgbWVhbnMgdGhhdCBpZiB5
-b3UgYXR0ZW1wdCB0byB1c2UgYW4KPiA+IGYzMiByZXN1bHQgYXMgYW4gZjY0IGlucHV0IHlvdSds
-bCBnZXQgYW4gZXhjZXB0aW9uLCBzaW5jZSB0aGUgaW5wdXQgd2lsbCBiZSBhCj4gPiBTaWduYWxp
-bmcgTmFOLgo+IAo+IFRoaXMgbWFrZXMgc2Vuc2UuICBJIHdpbGwgYWRkIHRoaXMgaW4gbXkgdXBk
-YXRlcyBhcyB3ZWxsLgo+IAo+ID4gSXQncyBub3QgY29tcGxldGUsIGFzIHdlIGhhdmUgbm90IGRl
-ZmluZWQgYSAzMi1iaXQgbG9hZCB0aGF0IGZpbGxzIGluCj4gPiAweGZmZmZmZmZmXzAwMDAwMDAw
-LCBidXQgaXQnbGwgZ2V0IG1hbnkgaW5jb3JyZWN0IHVzZXMuCj4gCj4gV2UgY2FuIGFkZCBhbiBp
-bnN0cnVjdGlvbiBsaWtlIGBsLmx3ZmAgc3BlY2lmaWNhbGx5IGZvciBsb2FkaW5nIGZsb2F0cy4K
-PiAKPiBPbiAzMi1iaXQgYXJjaGl0ZWN0dXJlcyBpdCB3b3VsZCBiZSBleGFjdGx5IHRoZSBzYW1l
-IGFzIGwubHd6LCBidXQgb24gNjQtYml0IGl0Cj4gY2FuIGZpbGwgdGhlIHVwcGVyIGJpdHMgd2l0
-aCAweGZmZmZmZmZmLgo+IAo+IFBvc3NpYmxlIGVuY29kaW5nOgo+ICAgIDMxICAgIDI2ICAgIDIx
-ICAgIDE2ICAgICAwCj4gICBbICAweDFjICB8ICBEICB8ICBBICB8ICBJICBdICAgICBsLmxmCgpB
-Y3R1YWxseSwgMHgxYSB3b3VsZCBiZSBiZXR0ZXIuICAweDFjIGlzIHJlc2VydmVkIGZvciBsLmN1
-c3QxLgoKTm90ZSB0byBtZSwgYW5vdGhlciBzcGVjIGZpeCBuZWVkZWQ6CiAgLSBhZGQgbC5jdXN0
-MSB0byBzZWN0aW9uIDE4LiBNYWNoaW5lIENvZGUgcmVmZXJlbmNlCgotU3RhZmZvcmQK
+Hi, Stafford, Richard
+
+> > > I propose:
+> > >
+> > >   bit-10 - 1 indicates if rd2 is +2
+> > >   bit-9  - 1 indicates if ra2 is +2
+> > >   bit-8  - 1 indicates if rb2 is +2
+> >
+> > Thanks.  LGTM.
+
+> I was thinking, do you think these orfpx64a32 instructions should have 
+> different
+> opcodes to distinguish between true 64-bit and 32-bit double instructions?
+> Otherwise we would not really be able to run these orfpx64a32 32-bit binaries 
+> on
+> 64-bit CPU's if 64-bit cpus ever get implemented.
+
+Is it assumed that 64-bit and 32-bit OpenRISC CPUs should be binary compatible?
+If not, I think it is should be normal that:
+- assembler instructions lf.*.d look different
+- 64-bit CPU just ignores bits [10:8]
+
+Also, let me remember here that I made initial implementation for unordered 
+comparison (for MAROCCHINO pipe currently). The verilog sources are in branch
+https://github.com/openrisc/or1k_marocchino/tree/fp_unordered_cmp
+To keep full backward compatibility with current opcodes the proposed variant 
+differs from Richard's P11 and looks as following:
+
+lf.sfueq.s rA,rB (opc: 0x28)
+lf.sfueq.d rA,rB (opc: 0x38)
+lf.sfune.s rA,rB (opc: 0x29)
+lf.sfune.d rA,rB (opc: 0x39)
+lf.sfugt.s rA,rB (opc: 0x2A)
+lf.sfugt.d rA,rB (opc: 0x3A)
+lf.sfuge.s rA,rB (opc: 0x2B)
+lf.sfuge.d rA,rB (opc: 0x3B)
+lf.sfult.s rA,rB (opc: 0x2C)
+lf.sfult.d rA,rB (opc: 0x3C)
+lf.sfule.s rA,rB (opc: 0x2D)
+lf.sfule.d rA,rB (opc: 0x3D)
+lf.sfun.s rA,rB (opc: 0x2E)
+lf.sfun.d rA,rB (opc: 0x3E)
+
+OPC's bit [5] indicates that comparison is unordered and bit [4] that operands 
+are doubles.
+Additionally I’ve added fp_comparisons_table.odt document into doc/readme/ 
+folder with description of all implemented FP comparison instructions and their 
+relation to IEEE standard.
+I haven’t tested them yet as there is no tool now.
+
+Of course, as Staffor wrote "Its not too late if its before silicon ;)"
+
+WBR
+Andrey
+
