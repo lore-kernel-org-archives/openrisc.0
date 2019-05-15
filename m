@@ -1,34 +1,38 @@
-From: Bernhard Reutner-Fischer <rep.dot.nop@gmail.com>
-Date: Thu, 09 May 2019 19:44:15 +0200
-Subject: [OpenRISC] [PATCH 1/2] or1k: Fix code quality for volatile
- memory loads
-In-Reply-To: <20190506131621.29929-2-shorne@gmail.com>
-References: <20190506131621.29929-1-shorne@gmail.com>
- <20190506131621.29929-2-shorne@gmail.com>
-Message-ID: <FF41D424-46AF-4A74-BB13-2E7A3DA4924E@gmail.com>
+From: Nancy Chauhan <nancychn1@gmail.com>
+Date: Wed, 15 May 2019 08:24:33 +0530
+Subject: [OpenRISC] GSoC 2019 Introduction : Continuous Integration for
+ Hardware Projects on LibreCores CI
+Message-ID: <CAF69GorM-mvR-=v0x81f2xSAMU2eM39btii42DhqaDQ=dtHLRQ@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 6 May 2019 15:16:20 CEST, Stafford Horne <shorne@gmail.com> wrote:
->Volatile memory does not match the memory_operand predicate.  This
->causes extra extend/mask instructions instructions when reading
->from volatile memory.  On OpenRISC loading volitile memory can be
+Hello Everyone ,
 
-s/volitile/volatile/g
+I am Nancy Chauhan <http://nancychauhan.in/> and I will be working on
+Continuous
+Integration for Hardware Projects on LibreCores CI
+<https://summerofcode.withgoogle.com/projects/#4706542530592768>throughout
+my summers as a Google Summer of Code Student Developer 2019 .
 
-also at least in the test.
-Thanks,
+Librecores provides a platform to share projects and ideas, in the area of
+free and open source digital hardware design. Librecores CI is an
+approach/service to provide continuous integration to hardware projects
+hosted on Librecores <https://www.librecores.org/> to improve user
+experience and reliability. This project aims to provide automation service
+for some hardware projects that have a constantly evolving code. Jenkins,
+the automation server will be used to achieve the goals of the project.
+
+For the first part of my project I will be mostly working on Setting up
+demo CI flow for mor1kx project <https://github.com/openrisc/mor1kx>under
+the guidance of mentors : Stafford Horne , Oleg Nenashev and Stefan
+Wallentowitz . Looking forward towards an amazing summers !
 
 
->diff --git a/gcc/testsuite/gcc.target/or1k/swap-2.c
->b/gcc/testsuite/gcc.target/or1k/swap-2.c
->new file mode 100644
->index 00000000000..8ddea4e659f
->--- /dev/null
->+++ b/gcc/testsuite/gcc.target/or1k/swap-2.c
-
->+/* Check to ensure the volitile load does not get zero extended.  */
-
+Thanks
+Nancy Chauhan
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20190515/328860e7/attachment.html>
