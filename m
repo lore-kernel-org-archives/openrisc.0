@@ -1,38 +1,41 @@
-From: Nancy Chauhan <nancychn1@gmail.com>
-Date: Wed, 15 May 2019 08:24:33 +0530
-Subject: [OpenRISC] GSoC 2019 Introduction : Continuous Integration for
- Hardware Projects on LibreCores CI
-Message-ID: <CAF69GorM-mvR-=v0x81f2xSAMU2eM39btii42DhqaDQ=dtHLRQ@mail.gmail.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Sat,  1 Jun 2019 16:26:27 +0900
+Subject: [OpenRISC] [PATCH 0/2] CGEN unordered fpu compares + fixes
+Message-ID: <20190601072629.4070-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hello Everyone ,
+Hello,
 
-I am Nancy Chauhan <http://nancychauhan.in/> and I will be working on
-Continuous
-Integration for Hardware Projects on LibreCores CI
-<https://summerofcode.withgoogle.com/projects/#4706542530592768>throughout
-my summers as a Google Summer of Code Student Developer 2019 .
+As I am working on openrisc which uses cgen in binutils I have needed to make
+these changes.
 
-Librecores provides a platform to share projects and ideas, in the area of
-free and open source digital hardware design. Librecores CI is an
-approach/service to provide continuous integration to hardware projects
-hosted on Librecores <https://www.librecores.org/> to improve user
-experience and reliability. This project aims to provide automation service
-for some hardware projects that have a constantly evolving code. Jenkins,
-the automation server will be used to achieve the goals of the project.
+The Unordered compares is needed for FPU unordered (NaN detecting) comparisons.
+These have been implemented and tested in OpenRISC (both simulation and
+assembler (running on FPGA hardware)).
 
-For the first part of my project I will be mostly working on Setting up
-demo CI flow for mor1kx project <https://github.com/openrisc/mor1kx>under
-the guidance of mentors : Stafford Horne , Oleg Nenashev and Stefan
-Wallentowitz . Looking forward towards an amazing summers !
+The gen-doc changes come from me noticing the docs [0] on the cgen website are
+very much out of date.
 
+Does anyone know the process to get the regenerated docs posted?  I think they
+are beneficial and with some more updates they could be really good.
 
-Thanks
-Nancy Chauhan
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20190515/328860e7/attachment.html>
+[0] https://sourceware.org/cgen/gen-doc/
+
+Stafford Horne (2):
+  cgen: Add unordered compare operation
+  gen-doc: Updates for latest cpu definitions
+
+ gen-all-doc   | 46 ++++++++++++++++++++++++++++++++--------------
+ html.scm      |  2 +-
+ rtl-c.scm     |  4 ++++
+ rtx-funcs.scm |  7 +++++++
+ 4 files changed, 44 insertions(+), 15 deletions(-)
+ mode change 100644 => 100755 gen-all-doc
+
+-- 
+2.21.0
+
