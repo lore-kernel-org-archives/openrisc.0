@@ -1,146 +1,89 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat,  1 Jun 2019 16:26:29 +0900
-Subject: [OpenRISC] [PATCH 2/2] gen-doc: Updates for latest cpu definitions
-In-Reply-To: <20190601072629.4070-1-shorne@gmail.com>
-References: <20190601072629.4070-1-shorne@gmail.com>
-Message-ID: <20190601072629.4070-3-shorne@gmail.com>
+Date: Fri, 7 Jun 2019 07:11:30 +0900
+Subject: [OpenRISC] OpenRISC 1.3 spec
+In-Reply-To: <A49361B4A05048AD995FF588CC923E61@BAndViG>
+References: <20190413084708.GC32284@lianli.shorne-pla.net>
+ <3D70BAC7A5B64C0E977D84EC118F146E@BAndViG>
+ <20190425211702.GG32284@lianli.shorne-pla.net>
+ <e441bb74-5cea-6002-c33e-4822f082265b@twiddle.net>
+ <20190507211254.GD11006@lianli.shorne-pla.net>
+ <6CFC558D2E0643BAA8C0CFCB1AEE95BB@BAndViG>
+ <3ce42625-83fe-4ee2-b48f-23e6362ee616@twiddle.net>
+ <AED0C7019AE04A2F87CD0E432FA20A70@BAndViG>
+ <20190511100433.GA20465@lianli.shorne-pla.net>
+ <A49361B4A05048AD995FF588CC923E61@BAndViG>
+Message-ID: <20190606221130.GF3379@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Doc generation was no longer working due to several issues.
+On Sun, May 12, 2019 at 10:58:53PM +0300, BAndViG wrote:
+>>From: Stafford Horne
+>>Sent: Saturday, May 11, 2019 1:04 PM
+>
+>>> On Fri, May 10, 2019 at 10:56:05AM +0300, BAndViG wrote:
+>>> I've been thinking about a variants for R0 write protection. R0 could be
+>>> zero initialized at cpu_rst by dedicated circuits. And `invalid > 
+>>instruction`
+>>> exception should be raised if an instruction tries to write to R0. At the
+>>> same time such behavior is incompatible with current run-time > 
+>>initialization
+>>> sequences implemented in OR1K tool chains. The circle is closed.
+>
+>>We still have the option to drop the validation.  Just as we don't have
+>>validation for writing to r0, I think its fine to say r31's pair register is
+>>undefined and should be avoided. (i.e. on some machines it might go into the
+>>shadow reg space)
+>
+>On the one hand I'm a kind of perfectionist and would prefer to 
+>implement such protections. On the other hand they cost noticeable 
+>space and timing. Not trivial choice for me :).
+>
+>>On the other hand, I have finished the GCC updates for unordered comparisons.
+>>You can see the patch here, I built newlib with this enabled and was able to
+>>shake out a few bugs.  It seems to work:
+>
+>>  - https://github.com/stffrdhrn/gcc/commits/or1k-fpu-2
+>
+>>The new gcc argument is:
+>
+>>  -munordered-float
+>
+>I've build two variants of GCC9/NewLIB tool chains. One has got 
+>"-mhard-float -munordered-float" options raised by default. And 
+>another one has got "-mhard-float -mdouble-float -munordered-float" 
+>default options. First variant was used to build single precision 
+>Whetstone for mor1kx+FPU32 and second to build single and double 
+>precision Whetstone for MAROCCHINO. All variants work.
+>We could merge fp_unordered_cmp branches into master. Or should we 
+>postpone the merge till your binutils/gcc patches being upstreamed?
+>
+>WBR
+>Andrey
 
- - openrisc.cpu no longer exists (its not cpu/or1k.cpu in binutils-gdb)
- - Relavive paths for archfile no longer work due to wrong cwd.
- - Many architectures have been added and removed.
 
-I have be able to get this working and added all the architectures I
-could get working with the below changes. I have posted the results
-here:
+Hello Richard, Andrey, OpenRISCers,
 
-  http://shorne.noip.me/downloads/gen-doc/
+This is the final review for spec version 1.3.  The pdf is here:
 
-ChangeLog:
+ - https://github.com/openrisc/doc/raw/master/openrisc-arch-1.3-rev1.pdf
 
-yyyy-mm-dd  Stafford Horne  <shorne@gmail.com>
+To see a history of the changes so far check out these pull requests:
 
-	* gen-all-doc (archs): Add new archs and update locations.
-	(archfile): Prepend cgendir.
-	(index.html gen): Change name openrisc to or1k.
-	* html.scm (gen-html-trailer): Change redhat.com to
-	sourceware.org.
----
- gen-all-doc | 46 ++++++++++++++++++++++++++++++++--------------
- html.scm    |  2 +-
- 2 files changed, 33 insertions(+), 15 deletions(-)
- mode change 100644 => 100755 gen-all-doc
+ - https://github.com/openrisc/doc/pull/2 - Spec Updates from Stafford
+ - https://github.com/openrisc/doc/pull/3 - SPec Updates from Andrey
 
-diff --git a/gen-all-doc b/gen-all-doc
-old mode 100644
-new mode 100755
-index e2a49b6..5db3200
---- a/gen-all-doc
-+++ b/gen-all-doc
-@@ -18,7 +18,7 @@
- # <http://www.gnu.org/licenses/>.
- #
- 
--# Run this script in the src/cgen directory.
-+# Run this script in the binutils-gdb/cgen directory.
- 
- # Exit on any error.
- set -e
-@@ -26,28 +26,46 @@ set -e
- # For debugging.
- set -x
- 
--# ??? Some are missing, need to add them after some research.
--#../cpu/m32c.cpu
--#../cpu/xc16x.cpu
-+# ??? Broken archs not in list, grouped by error
-+# h-prefixreg error
-+#../cpu/cris.cpu
-+# Error: unexpected operand: #f
-+# ../cpu/m32c.cpu
-+# ../cpu/xc16x.cpu
-+# cpu/ia32.cpu
-+# sh64-compact.cpu:316:3: Error: Instruction has opcode bits outside of its mask
-+# ../cpu/sh.cpu
-+# ia64.cpu:924:invalid argument to %sym: (if (eq? (string-length "") 0) "" ".")
-+# ../cpu/ia64.cpu
-+# sparc.cpu:389:1: define-hardware: hardware already defined: h-gr
-+# cpu/sparc.cpu
-+
-+# Archs in parent directly should be from the binutils-gdb project. Others are
-+# hosted here in cgen.
-+
- archs="
--cpu/fr30.cpu
--cpu/arm.cpu
-+../cpu/epiphany.cpu
-+../cpu/fr30.cpu
- ../cpu/frv.cpu
--cpu/i960.cpu
--cpu/ip2k.cpu
-+../cpu/ip2k.cpu
- ../cpu/iq2000.cpu
- ../cpu/lm32.cpu
- ../cpu/m32r.cpu
--cpu/mep.cpu
-+../cpu/mep.cpu
- ../cpu/mt.cpu
--cpu/openrisc.cpu
-+../cpu/or1k.cpu
-+../cpu/xstormy16.cpu
-+cpu/arm.cpu
-+cpu/i960.cpu
-+cpu/m68k.cpu
-+cpu/play.cpu
-+cpu/powerpc.cpu
- cpu/sh.cpu
--cpu/xstormy16.cpu
- "
- 
- if [ ! -f sim.scm ]
- then
--    echo "Not in the src/cgen directory." >& 2
-+    echo "Not in the cgen source directory." >& 2
-     exit 1
- fi
- 
-@@ -66,7 +84,7 @@ export cgendir=`pwd`
- 
-   for a in $archs
-   do
--    archfile=../$a
-+    archfile=$cgendir/$a
-     arch=$(basename $archfile .cpu)
- 
-     case $arch in
-@@ -129,7 +147,7 @@ EOF
-     arm-thumb.*) name="ARM Thumb" ;;
-     frv-1.*) name="FRV FR400" ;;
-     frv-2.*) name="FRV FR500" ;;
--    openrisc.*) name="Openrisc" ;;
-+    or1k.*) name="OpenRISC" ;;
-     xstormy16.*) name="Xstormy16" ;;
-     *) name=`echo ${html/.html} | tr $lower $upper` ;;
-     esac
-diff --git a/html.scm b/html.scm
-index 3d6bb4a..0a57a73 100644
---- a/html.scm
-+++ b/html.scm
-@@ -111,7 +111,7 @@ See the input .cpu file(s) for copyright information.
-    "This documentation was machine generated from the cgen cpu description\n"
-    "files for this architecture.\n"
-    "<br>\n"
--   "<a href=\"http://sources.redhat.com/cgen/\">http://sources.redhat.com/cgen/</a>\n"
-+   "<a href=\"https://sourceware.org/cgen/\">https://sourceware.org/cgen/</a>\n"
-    "</body>\n"
-    "</html>\n"
-    )
--- 
-2.21.0
+These PRs are all merged and the last thing we have is to merge the website and
+news updates to make it official:
 
+ - https://github.com/openrisc/openrisc.github.io/pull/13
+
+I'll let it sit for a bit to see if we can collect any comments or feedback on
+the final document.  So please speak up.
+
+But anyway, if there are any issues after the fact we can always create a
+revision 2.
+
+-Stafford
