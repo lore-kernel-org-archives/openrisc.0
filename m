@@ -1,89 +1,121 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Fri, 7 Jun 2019 07:11:30 +0900
-Subject: [OpenRISC] OpenRISC 1.3 spec
-In-Reply-To: <A49361B4A05048AD995FF588CC923E61@BAndViG>
-References: <20190413084708.GC32284@lianli.shorne-pla.net>
- <3D70BAC7A5B64C0E977D84EC118F146E@BAndViG>
- <20190425211702.GG32284@lianli.shorne-pla.net>
- <e441bb74-5cea-6002-c33e-4822f082265b@twiddle.net>
- <20190507211254.GD11006@lianli.shorne-pla.net>
- <6CFC558D2E0643BAA8C0CFCB1AEE95BB@BAndViG>
- <3ce42625-83fe-4ee2-b48f-23e6362ee616@twiddle.net>
- <AED0C7019AE04A2F87CD0E432FA20A70@BAndViG>
- <20190511100433.GA20465@lianli.shorne-pla.net>
- <A49361B4A05048AD995FF588CC923E61@BAndViG>
-Message-ID: <20190606221130.GF3379@lianli.shorne-pla.net>
+Date: Sun,  9 Jun 2019 06:32:16 +0900
+Subject: [OpenRISC] [PATCH v3 0/11] OpenRISC orfpx64a32 and openrisc spec
+ 1.3 support
+Message-ID: <20190608213225.3230-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sun, May 12, 2019 at 10:58:53PM +0300, BAndViG wrote:
->>From: Stafford Horne
->>Sent: Saturday, May 11, 2019 1:04 PM
->
->>> On Fri, May 10, 2019 at 10:56:05AM +0300, BAndViG wrote:
->>> I've been thinking about a variants for R0 write protection. R0 could be
->>> zero initialized at cpu_rst by dedicated circuits. And `invalid > 
->>instruction`
->>> exception should be raised if an instruction tries to write to R0. At the
->>> same time such behavior is incompatible with current run-time > 
->>initialization
->>> sequences implemented in OR1K tool chains. The circle is closed.
->
->>We still have the option to drop the validation.  Just as we don't have
->>validation for writing to r0, I think its fine to say r31's pair register is
->>undefined and should be avoided. (i.e. on some machines it might go into the
->>shadow reg space)
->
->On the one hand I'm a kind of perfectionist and would prefer to 
->implement such protections. On the other hand they cost noticeable 
->space and timing. Not trivial choice for me :).
->
->>On the other hand, I have finished the GCC updates for unordered comparisons.
->>You can see the patch here, I built newlib with this enabled and was able to
->>shake out a few bugs.  It seems to work:
->
->>  - https://github.com/stffrdhrn/gcc/commits/or1k-fpu-2
->
->>The new gcc argument is:
->
->>  -munordered-float
->
->I've build two variants of GCC9/NewLIB tool chains. One has got 
->"-mhard-float -munordered-float" options raised by default. And 
->another one has got "-mhard-float -mdouble-float -munordered-float" 
->default options. First variant was used to build single precision 
->Whetstone for mor1kx+FPU32 and second to build single and double 
->precision Whetstone for MAROCCHINO. All variants work.
->We could merge fp_unordered_cmp branches into master. Or should we 
->postpone the merge till your binutils/gcc patches being upstreamed?
->
->WBR
->Andrey
+Hello,
 
+Its been a while since v2, but we have been busy changing direction a bit.
+Instead of just adding the orfpx64a32 extension support we have created a new
+architecture specification [0] and this series includes some of those changes.
 
-Hello Richard, Andrey, OpenRISCers,
+Changes from v2:
 
-This is the final review for spec version 1.3.  The pdf is here:
+ - Use explicit register pairs in orfpx64a32 extension instead of implicit
+   suggestioned by rth.
+ - Add unordered FPU comparison instructions.
+ - Add test for the previously added l.adrp instruction.
+ - A few non material cgen comment/symbol updates.
 
- - https://github.com/openrisc/doc/raw/master/openrisc-arch-1.3-rev1.pdf
+Changes from v1:
 
-To see a history of the changes so far check out these pull requests:
+ - Rebased
+ - Note Andrey is working on doing his FSF copyright assignment for binutils,
+   sim
 
- - https://github.com/openrisc/doc/pull/2 - Spec Updates from Stafford
- - https://github.com/openrisc/doc/pull/3 - SPec Updates from Andrey
+The orfpx64a32 extension patches are to the OpenRISC assembler and simulator to
+support 64-bit floating point operations on 32-bit cores using register pairs,
+see orfpx64a32 [1].
 
-These PRs are all merged and the last thing we have is to merge the website and
-news updates to make it official:
+The original patches were written by Andrey Bacherov and I have made some
+updates to get the simulator working and to match ABI updates for the final
+architecture 1.3 specification.
 
- - https://github.com/openrisc/openrisc.github.io/pull/13
+Example of orfpx64a32 operations:
 
-I'll let it sit for a bit to see if we can collect any comments or feedback on
-the final document.  So please speak up.
+	lf.add.d r3,r4, r5,r6, r7,r8       ; {r3,r4}   <= {r5,r6} + {r7,r8}
+	lf.add.d r16,r18, r20,r22, r24,r26 ; {r16,r18} <= {r20,r22} + {r24,r26}
 
-But anyway, if there are any issues after the fact we can always create a
-revision 2.
+Note, on 64-bit architectures the instructions will be written with 64-bit
+registers.
+
+	lf.add.d r3, r5, r7   ; r3  <= r5 + r7
+	lf.add.d r16, r20 r24 ; r16 <= r20 + r24
+
+The new unordered comparison instructions allow the OpenRISC FPU to do
+comparisons where input may include NaNs [2]
+
+These binutil patches have been used along with the GCC FPU patches [3] on the
+OpenRISC GCC 9 toolchain to test single and double precision floating point
+support including unordered comparisons.  The main 'real' implementation of this
+hardware is Andrey's or1k_marocchino [4] core implementation which we have been
+using along with simulators for verification.
+
+This whole patch series can be found on my github repo [5] as well.
+
+[0] https://github.com/openrisc/doc/blob/master/openrisc-arch-1.3-rev1.pdf
+[1] https://openrisc.io/proposals/orfpx64a32
+[2] https://openrisc.io/proposals/lfsf
+[3] git at github.com:stffrdhrn/gcc.git or1k-fpu-2
+[4] https://github.com/openrisc/or1k_marocchino
+[5] git@github.com:stffrdhrn/binutils-gdb.git orfpx64a32-3
 
 -Stafford
+
+Stafford Horne (11):
+  cpu/or1k: Add support for orfp64a32 spec
+  cpu/or1k: Define unordered comparisons
+  cpu/or1k: Document no branch delay slot architectures and l.adrp
+  cpu/or1k: Update fpu compare symbols to imply set flag
+  opcodes/or1k: Regenerate opcodes
+  sim/or1k: Regenerate sim
+  sim/common: Wire in df/di conversion
+  sim/common: wire up new unordered comparisons
+  sim/testsuite/or1k: Add test for 64-bit fpu operations
+  sim/testsuite/or1k: Add test case for l.adrp instruction
+  sim/testsuite/or1k: Add tests for unordered compares
+
+ cpu/or1k.cpu                                |   21 +-
+ cpu/or1k.opc                                |   92 ++
+ cpu/or1kcommon.cpu                          |  113 +-
+ cpu/or1korbis.cpu                           |    3 +-
+ cpu/or1korfpx.cpu                           |  214 ++-
+ opcodes/or1k-asm.c                          |   72 +-
+ opcodes/or1k-desc.c                         |  309 +++-
+ opcodes/or1k-desc.h                         |  341 ++---
+ opcodes/or1k-dis.c                          |   43 +-
+ opcodes/or1k-ibld.c                         |  234 ++-
+ opcodes/or1k-opc.c                          |  319 +++-
+ opcodes/or1k-opc.h                          |   39 +-
+ opcodes/or1k-opinst.c                       |  100 +-
+ sim/common/cgen-accfp.c                     |   49 +
+ sim/common/cgen-fpu.h                       |    2 +
+ sim/or1k/arch.c                             |    2 +-
+ sim/or1k/arch.h                             |    2 +-
+ sim/or1k/cpu.c                              |   78 +-
+ sim/or1k/cpu.h                              |  174 ++-
+ sim/or1k/cpuall.h                           |    2 +-
+ sim/or1k/decode.c                           |  568 ++++++--
+ sim/or1k/decode.h                           |   21 +-
+ sim/or1k/model.c                            | 1456 ++++++++++++++++---
+ sim/or1k/sem-switch.c                       |  602 +++++++-
+ sim/or1k/sem.c                              |  672 ++++++++-
+ sim/testsuite/sim/or1k/adrp.S               |   73 +
+ sim/testsuite/sim/or1k/fpu-unordered.S      |   97 ++
+ sim/testsuite/sim/or1k/fpu64a32-unordered.S |  100 ++
+ sim/testsuite/sim/or1k/fpu64a32.S           |  172 +++
+ 29 files changed, 5253 insertions(+), 717 deletions(-)
+ create mode 100644 sim/testsuite/sim/or1k/adrp.S
+ create mode 100644 sim/testsuite/sim/or1k/fpu-unordered.S
+ create mode 100644 sim/testsuite/sim/or1k/fpu64a32-unordered.S
+ create mode 100644 sim/testsuite/sim/or1k/fpu64a32.S
+
+-- 
+2.21.0
+
