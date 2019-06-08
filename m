@@ -1,74 +1,61 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun,  9 Jun 2019 06:32:19 +0900
-Subject: [OpenRISC] [PATCH v3 03/11] cpu/or1k: Document no branch delay slot
- architectures and l.adrp
+Date: Sun,  9 Jun 2019 06:32:20 +0900
+Subject: [OpenRISC] [PATCH v3 04/11] cpu/or1k: Update fpu compare symbols to
+ imply set flag
 In-Reply-To: <20190608213225.3230-1-shorne@gmail.com>
 References: <20190608213225.3230-1-shorne@gmail.com>
-Message-ID: <20190608213225.3230-4-shorne@gmail.com>
+Message-ID: <20190608213225.3230-5-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The 'nd' architectures did not mention what the 'nd' stands for.
-Document that these mean 'no brach delay slot'.
+The fpu compare symbols where not including 'sf' in the mnemonic.  So
+instead of `lf-sfeq` (implying set flag if operands are equal) we were
+having `lf-eq`.   This patch adds the 'sf'.  This helps with making the
+generated CGEN documentation consistent and ordered correctly.
 
 cpu/ChangeLog:
 
 yyyy-mm-dd  Stafford Horne  <shorne@gmail.com>
 
-	* or1k.cpu (or64nd, or32nd, or1200nd): Update comment.a
-	(l-adrp): Improve comment.
+	* or1korfpx.cpu (float-setflag-insn-base): Add 'sf' to symbol.
 ---
- cpu/or1k.cpu      | 6 +++---
- cpu/or1korbis.cpu | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ cpu/or1korfpx.cpu | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/cpu/or1k.cpu b/cpu/or1k.cpu
-index e1ae1b8c88..b796862d1b 100644
---- a/cpu/or1k.cpu
-+++ b/cpu/or1k.cpu
-@@ -77,7 +77,7 @@
+diff --git a/cpu/or1korfpx.cpu b/cpu/or1korfpx.cpu
+index 5e33b82a44..f43522f2e6 100644
+--- a/cpu/or1korfpx.cpu
++++ b/cpu/or1korfpx.cpu
+@@ -268,7 +268,7 @@
  
-       (define-mach
-         (name or32nd)
--        (comment "Generic OpenRISC 1000 32-bit CPU")
-+        (comment "Generic OpenRISC 1000 32-bit CPU with no branch delay slot")
-         (cpu or1k32bf)
-         (bfd-name "or1knd")
-         )
-@@ -92,7 +92,7 @@
- 
-       ; OpenRISC 1200 - 32-bit or1k CPU implementation
-       (define-model
--        (name or1200nd) (comment "OpenRISC 1200 model")
-+        (name or1200nd) (comment "OpenRISC 1200 model with no branch delay slot")
-         (attrs NO-DELAY-SLOT)
-         (mach or32nd)
-         (unit u-exec "Execution Unit" () 1 1 () () () ())
-@@ -120,7 +120,7 @@
- 
-       (define-mach
-         (name or64nd)
--        (comment "Generic OpenRISC 1000 ND 64-bit CPU")
-+        (comment "Generic OpenRISC 1000 ND 64-bit CPU with no branch delay slot")
-         (cpu or1k64bf)
-         (bfd-name "or1k64nd")
-         )
-diff --git a/cpu/or1korbis.cpu b/cpu/or1korbis.cpu
-index 308f37861d..3741d4c8f7 100644
---- a/cpu/or1korbis.cpu
-+++ b/cpu/or1korbis.cpu
-@@ -433,7 +433,7 @@
-            )
-   )
- 
--(dni l-adrp "adrp reg/disp21"
-+(dni l-adrp "load pc-relative page address"
-     ((MACH ORBIS-MACHS))
-     "l.adrp $rD,${disp21}"
-     (+ OPC_ADRP rD disp21)
+ (define-pmacro (float-setflag-insn-base mnemonic rtx-mnemonic symantics)
+   (begin
+-    (dni (.sym lf- mnemonic -s)
++    (dni (.sym lf-sf mnemonic -s)
+          (.str "lf.sf" mnemonic ".s reg/reg")
+          ((MACH ORFPX32-MACHS))
+          (.str "lf.sf" mnemonic ".s $rASF,$rBSF")
+@@ -276,7 +276,7 @@
+          (symantics rtx-mnemonic SF rASF rBSF)
+          ()
+          )
+-    (dni (.sym lf- mnemonic -d)
++    (dni (.sym lf-sf mnemonic -d)
+          (.str "lf.sf" mnemonic ".d reg/reg")
+          ((MACH ORFPX64-MACHS))
+          (.str "lf.sf" mnemonic ".d $rADF,$rBDF")
+@@ -284,7 +284,7 @@
+          (symantics rtx-mnemonic DF rADF rBDF)
+          ()
+          )
+-    (dni (.sym lf- mnemonic -d32)
++    (dni (.sym lf-sf mnemonic -d32)
+          (.str "lf.sf" mnemonic ".d regpair/regpair")
+          ((MACH ORFPX64A32-MACHS))
+          (.str "lf.sf" mnemonic ".d $rAD32F,$rBD32F")
 -- 
 2.21.0
 
