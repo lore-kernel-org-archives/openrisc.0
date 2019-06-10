@@ -1,11 +1,11 @@
 From: Federico Vaga <federico.vaga@vaga.pv.it>
-Date: Mon, 10 Jun 2019 18:25:36 +0200
+Date: Mon, 10 Jun 2019 18:48:26 +0200
 Subject: [OpenRISC] [PATCH v3 14/33] docs: kbuild: convert docs to ReST
  and rename to *.rst
 In-Reply-To: <3d40d111d0512d785b6a67573772f532f88d2359.1560045490.git.mchehab+samsung@kernel.org>
 References: <cover.1560045490.git.mchehab+samsung@kernel.org>
  <3d40d111d0512d785b6a67573772f532f88d2359.1560045490.git.mchehab+samsung@kernel.org>
-Message-ID: <6349042.qd6NX4z2Zd@harkonnen>
+Message-ID: <15154261.vasc4R9psd@harkonnen>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -97,8 +97,6 @@ Acked-by: Federico Vaga <federico.vaga@vaga.pv.it>
 > => kconfig.rst} (80%)
 >  rename Documentation/kbuild/{makefiles.txt => makefiles.rst} (83%)
 >  rename Documentation/kbuild/{modules.txt => modules.rst} (84%)
-
-
 
 
 
