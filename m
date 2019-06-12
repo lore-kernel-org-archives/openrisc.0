@@ -1,28 +1,52 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 12 Jun 2019 22:12:12 +0900
-Subject: [OpenRISC] [PATCH v3 0/11] OpenRISC orfpx64a32 and openrisc
- spec 1.3 support
-In-Reply-To: <a597b99a-bf5c-0c6b-bc8a-c81faf856f1d@redhat.com>
-References: <20190608213225.3230-1-shorne@gmail.com>
- <a597b99a-bf5c-0c6b-bc8a-c81faf856f1d@redhat.com>
-Message-ID: <20190612131212.GD2358@lianli.shorne-pla.net>
+Date: Wed, 12 Jun 2019 22:14:03 +0900
+Subject: [OpenRISC] [PATCH 0/2] CGEN unordered fpu compares + fixes
+In-Reply-To: <20190601072629.4070-1-shorne@gmail.com>
+References: <20190601072629.4070-1-shorne@gmail.com>
+Message-ID: <20190612131403.GE2358@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Jun 11, 2019 at 05:02:43PM +0100, Nick Clifton wrote:
-> Hi Stafford,
-> 
-> > Its been a while since v2, but we have been busy changing direction a bit.
-> > Instead of just adding the orfpx64a32 extension support we have created a new
-> > architecture specification [0] and this series includes some of those changes.
-> 
-> The binutils parts of the patch series are approved - please apply.
+Hello,
 
-Thanks for the review,
-
-I will apply once I get the go ahead on the cgen patches.
+Did anyone have a chance to look at this?  The binutils patches that require
+this are approved, but I rather not commit them unless this I get OK on these
+patches and push them.
 
 -Stafford
+
+On Sat, Jun 01, 2019 at 04:26:27PM +0900, Stafford Horne wrote:
+> Hello,
+> 
+> As I am working on openrisc which uses cgen in binutils I have needed to make
+> these changes.
+> 
+> The Unordered compares is needed for FPU unordered (NaN detecting) comparisons.
+> These have been implemented and tested in OpenRISC (both simulation and
+> assembler (running on FPGA hardware)).
+> 
+> The gen-doc changes come from me noticing the docs [0] on the cgen website are
+> very much out of date.
+> 
+> Does anyone know the process to get the regenerated docs posted?  I think they
+> are beneficial and with some more updates they could be really good.
+> 
+> [0] https://sourceware.org/cgen/gen-doc/
+> 
+> Stafford Horne (2):
+>   cgen: Add unordered compare operation
+>   gen-doc: Updates for latest cpu definitions
+> 
+>  gen-all-doc   | 46 ++++++++++++++++++++++++++++++++--------------
+>  html.scm      |  2 +-
+>  rtl-c.scm     |  4 ++++
+>  rtx-funcs.scm |  7 +++++++
+>  4 files changed, 44 insertions(+), 15 deletions(-)
+>  mode change 100644 => 100755 gen-all-doc
+> 
+> -- 
+> 2.21.0
+> 
