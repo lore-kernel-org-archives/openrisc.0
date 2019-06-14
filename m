@@ -1,128 +1,137 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Fri, 14 Jun 2019 16:44:29 +0200
-Subject: [OpenRISC] [PATCH 5/7] dma-direct: handle DMA_ATTR_NON_CONSISTENT
- in common code
+Date: Fri, 14 Jun 2019 16:44:31 +0200
+Subject: [OpenRISC] [PATCH 7/7] arc: use the generic remapping allocator for
+ coherent DMA allocations
 In-Reply-To: <20190614144431.21760-1-hch@lst.de>
 References: <20190614144431.21760-1-hch@lst.de>
-Message-ID: <20190614144431.21760-6-hch@lst.de>
+Message-ID: <20190614144431.21760-8-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Only call into arch_dma_alloc if we require an uncached mapping,
-and remove the parisc code manually doing normal cached
-DMA_ATTR_NON_CONSISTENT allocations.
+Replace the code that sets up uncached PTEs with the generic vmap based
+remapping code.  It also provides an atomic pool for allocations from
+non-blocking context, which we not properly supported by the existing
+arc code.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/parisc/kernel/pci-dma.c | 48 ++++++++++--------------------------
- kernel/dma/direct.c          |  4 +--
- 2 files changed, 15 insertions(+), 37 deletions(-)
+ arch/arc/Kconfig  |  2 ++
+ arch/arc/mm/dma.c | 62 ++++++++---------------------------------------
+ 2 files changed, 12 insertions(+), 52 deletions(-)
 
-diff --git a/arch/parisc/kernel/pci-dma.c b/arch/parisc/kernel/pci-dma.c
-index 239162355b58..ca35d9a76e50 100644
---- a/arch/parisc/kernel/pci-dma.c
-+++ b/arch/parisc/kernel/pci-dma.c
-@@ -394,17 +394,20 @@ pcxl_dma_init(void)
+diff --git a/arch/arc/Kconfig b/arch/arc/Kconfig
+index 23e063df5d2c..cdad7d30ff1d 100644
+--- a/arch/arc/Kconfig
++++ b/arch/arc/Kconfig
+@@ -10,6 +10,7 @@ config ARC
+ 	def_bool y
+ 	select ARC_TIMERS
+ 	select ARCH_HAS_DMA_COHERENT_TO_PFN
++	select ARCH_HAS_DMA_PREP_COHERENT
+ 	select ARCH_HAS_PTE_SPECIAL
+ 	select ARCH_HAS_SETUP_DMA_OPS
+ 	select ARCH_HAS_SYNC_DMA_FOR_CPU
+@@ -19,6 +20,7 @@ config ARC
+ 	select BUILDTIME_EXTABLE_SORT
+ 	select CLONE_BACKWARDS
+ 	select COMMON_CLK
++	select DMA_DIRECT_REMAP
+ 	select GENERIC_ATOMIC64 if !ISA_ARCV2 || !(ARC_HAS_LL64 && ARC_HAS_LLSC)
+ 	select GENERIC_CLOCKEVENTS
+ 	select GENERIC_FIND_FIRST_BIT
+diff --git a/arch/arc/mm/dma.c b/arch/arc/mm/dma.c
+index 9832928f896d..0fa850709fac 100644
+--- a/arch/arc/mm/dma.c
++++ b/arch/arc/mm/dma.c
+@@ -11,46 +11,15 @@
+ #include <asm/cacheflush.h>
  
- __initcall(pcxl_dma_init);
- 
--static void *pcxl_dma_alloc(struct device *dev, size_t size,
--		dma_addr_t *dma_handle, gfp_t flag, unsigned long attrs)
-+void *arch_dma_alloc(struct device *dev, size_t size,
-+		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
- {
- 	unsigned long vaddr;
- 	unsigned long paddr;
- 	int order;
- 
-+	if (boot_cpu_data.cpu_type != pcxl2 && boot_cpu_data.cpu_type != pcxl)
-+		return NULL;
-+
- 	order = get_order(size);
- 	size = 1 << (order + PAGE_SHIFT);
- 	vaddr = pcxl_alloc_range(size);
--	paddr = __get_free_pages(flag | __GFP_ZERO, order);
-+	paddr = __get_free_pages(gfp | __GFP_ZERO, order);
- 	flush_kernel_dcache_range(paddr, size);
- 	paddr = __pa(paddr);
- 	map_uncached_pages(vaddr, size, paddr);
-@@ -421,44 +424,19 @@ static void *pcxl_dma_alloc(struct device *dev, size_t size,
- 	return (void *)vaddr;
- }
- 
--static void *pcx_dma_alloc(struct device *dev, size_t size,
--		dma_addr_t *dma_handle, gfp_t flag, unsigned long attrs)
+ /*
+- * ARCH specific callbacks for generic noncoherent DMA ops (dma/noncoherent.c)
++ * ARCH specific callbacks for generic noncoherent DMA ops
+  *  - hardware IOC not available (or "dma-coherent" not set for device in DT)
+  *  - But still handle both coherent and non-coherent requests from caller
+  *
+  * For DMA coherent hardware (IOC) generic code suffices
+  */
+-void *arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
+-		gfp_t gfp, unsigned long attrs)
 -{
--	void *addr;
+-	unsigned long order = get_order(size);
+-	struct page *page;
+-	phys_addr_t paddr;
+-	void *kvaddr;
 -
--	if ((attrs & DMA_ATTR_NON_CONSISTENT) == 0)
+-	/*
+-	 * __GFP_HIGHMEM flag is cleared by upper layer functions
+-	 * (in include/linux/dma-mapping.h) so we should never get a
+-	 * __GFP_HIGHMEM here.
+-	 */
+-	BUG_ON(gfp & __GFP_HIGHMEM);
+-
+-	page = alloc_pages(gfp | __GFP_ZERO, order);
+-	if (!page)
 -		return NULL;
 -
--	addr = (void *)__get_free_pages(flag | __GFP_ZERO, get_order(size));
--	if (addr)
--		*dma_handle = (dma_addr_t)virt_to_phys(addr);
+-	/* This is linear addr (0x8000_0000 based) */
+-	paddr = page_to_phys(page);
 -
--	return addr;
--}
+-	*dma_handle = paddr;
 -
--void *arch_dma_alloc(struct device *dev, size_t size,
--		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
--{
--
--	if (boot_cpu_data.cpu_type == pcxl2 || boot_cpu_data.cpu_type == pcxl)
--		return pcxl_dma_alloc(dev, size, dma_handle, gfp, attrs);
--	else
--		return pcx_dma_alloc(dev, size, dma_handle, gfp, attrs);
--}
--
- void arch_dma_free(struct device *dev, size_t size, void *vaddr,
- 		dma_addr_t dma_handle, unsigned long attrs)
- {
- 	int order = get_order(size);
- 
--	if (boot_cpu_data.cpu_type == pcxl2 || boot_cpu_data.cpu_type == pcxl) {
--		size = 1 << (order + PAGE_SHIFT);
--		unmap_uncached_pages((unsigned long)vaddr, size);
--		pcxl_free_range((unsigned long)vaddr, size);
-+	WARN_ON_ONCE(boot_cpu_data.cpu_type != pcxl2 &&
-+		     boot_cpu_data.cpu_type != pcxl);
- 
--		vaddr = __va(dma_handle);
+-	/*
+-	 * A coherent buffer needs MMU mapping to enforce non-cachability.
+-	 * kvaddr is kernel Virtual address (0x7000_0000 based).
+-	 */
+-	kvaddr = ioremap_nocache(paddr, size);
+-	if (kvaddr == NULL) {
+-		__free_pages(page, order);
+-		return NULL;
 -	}
--	free_pages((unsigned long)vaddr, get_order(size));
-+	size = 1 << (order + PAGE_SHIFT);
-+	unmap_uncached_pages((unsigned long)vaddr, size);
-+	pcxl_free_range((unsigned long)vaddr, size);
-+
-+	free_pages((unsigned long)__va(dma_handle), order);
+ 
++void arch_dma_prep_coherent(struct page *page, size_t size)
++{
+ 	/*
+ 	 * Evict any existing L1 and/or L2 lines for the backing page
+ 	 * in case it was used earlier as a normal "cached" page.
+@@ -61,24 +30,7 @@ void *arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
+ 	 * Currently flush_cache_vmap nukes the L1 cache completely which
+ 	 * will be optimized as a separate commit
+ 	 */
+-	dma_cache_wback_inv(paddr, size);
+-	return kvaddr;
+-}
+-
+-void arch_dma_free(struct device *dev, size_t size, void *vaddr,
+-		dma_addr_t dma_handle, unsigned long attrs)
+-{
+-	phys_addr_t paddr = dma_handle;
+-	struct page *page = virt_to_page(paddr);
+-
+-	iounmap((void __force __iomem *)vaddr);
+-	__free_pages(page, get_order(size));
+-}
+-
+-long arch_dma_coherent_to_pfn(struct device *dev, void *cpu_addr,
+-		dma_addr_t dma_addr)
+-{
+-	return __phys_to_pfn(dma_addr);
++	dma_cache_wback_inv(page_to_phys(page), size);
  }
  
- void arch_sync_dma_for_device(struct device *dev, phys_addr_t paddr,
-diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-index c2893713bf80..fc354f4f490b 100644
---- a/kernel/dma/direct.c
-+++ b/kernel/dma/direct.c
-@@ -191,7 +191,7 @@ void *dma_direct_alloc(struct device *dev, size_t size,
- 		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
- {
- 	if (!IS_ENABLED(CONFIG_ARCH_HAS_UNCACHED_SEGMENT) &&
--	    !dev_is_dma_coherent(dev))
-+	    dma_alloc_need_uncached(dev, attrs))
- 		return arch_dma_alloc(dev, size, dma_handle, gfp, attrs);
- 	return dma_direct_alloc_pages(dev, size, dma_handle, gfp, attrs);
+ /*
+@@ -155,3 +107,9 @@ void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
+ 	dev_info(dev, "use %sncoherent DMA ops\n",
+ 		 dev->dma_coherent ? "" : "non");
  }
-@@ -200,7 +200,7 @@ void dma_direct_free(struct device *dev, size_t size,
- 		void *cpu_addr, dma_addr_t dma_addr, unsigned long attrs)
- {
- 	if (!IS_ENABLED(CONFIG_ARCH_HAS_UNCACHED_SEGMENT) &&
--	    !dev_is_dma_coherent(dev))
-+	    dma_alloc_need_uncached(dev, attrs))
- 		arch_dma_free(dev, size, cpu_addr, dma_addr, attrs);
- 	else
- 		dma_direct_free_pages(dev, size, cpu_addr, dma_addr, attrs);
++
++static int __init atomic_pool_init(void)
++{
++	return dma_atomic_pool_init(GFP_KERNEL, pgprot_noncached(PAGE_KERNEL));
++}
++postcore_initcall(atomic_pool_init);
 -- 
 2.20.1
 
