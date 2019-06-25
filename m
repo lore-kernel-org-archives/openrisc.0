@@ -1,35 +1,31 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Tue, 25 Jun 2019 08:11:04 +0200
-Subject: [OpenRISC] [PATCH 5/7] dma-direct: handle
- DMA_ATTR_NON_CONSISTENT in common code
-In-Reply-To: <20190614144431.21760-6-hch@lst.de>
+Date: Tue, 25 Jun 2019 08:13:32 +0200
+Subject: [OpenRISC] [PATCH 1/7] arm-nommu: remove the partial
+ DMA_ATTR_NON_CONSISTENT support
+In-Reply-To: <a017e704-c6c4-7718-7f8b-eb8a0eced14d@arm.com>
 References: <20190614144431.21760-1-hch@lst.de>
- <20190614144431.21760-6-hch@lst.de>
-Message-ID: <20190625061104.GB28986@lst.de>
+ <20190614144431.21760-2-hch@lst.de>
+ <a017e704-c6c4-7718-7f8b-eb8a0eced14d@arm.com>
+Message-ID: <20190625061332.GC28986@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sun, Jun 16, 2019 at 06:08:40PM +0800, Hillf Danton wrote:
-> Literally, any cpu (call it cpuW) other than pcx12 and pcx1 will no longer do
-> dma alloc for any device with this patch applied.
+On Mon, Jun 24, 2019 at 03:23:08PM +0100, Vladimir Murzin wrote:
+> On 6/14/19 3:44 PM, Christoph Hellwig wrote:
+> > The arm-nommu DMA code supports DMA_ATTR_NON_CONSISTENT allocations, but
+> > does not provide a cache_sync operation.  This means any user of it
+> > will never be able to actually transfer cache ownership and thus cause
+> > coherency bugs.
+> 
+> By the way, Documentation/DMA-attributes.txt doesn't specify cache_sync() as
+> requirement for DMA_ATTR_NON_CONSISTENT it only states that it is responsibility
+> of the driver to have all the correct and necessary sync points.
 
-Yes.  And that is not a chance from the previous code, where only
-pcx1 and pcx12 could do coherent allocations,
-
-> On the other hand, 
-> !dev_is_dma_coherent(dev) && !(attrs & DMA_ATTR_NON_CONSISTENT) will ask
-> any cpu to do dma alloc, regardless of pcx1. This patch works imo unless cpuW
-> plays games only with devices that are dma coherent. I doubt it is true.
-
-I can't parse these two sentences.  But to explains the bits mentioned
-here - dev_is_dma_coherent will return if a device is coherently
-attached vs the cpu.  This will never be true for the parisc direct
-mapping.  DMA_ATTR_NON_CONSISTENT asks for a non-coherent mapping that
-needs to be explicitly synced.  This support now is in the dma-direct
-core code, and this is what the parisc specific devices used on the
-non-pcxl systems use, as they do not support dma coherency at all.
-(the story slightly changes when using an iommu, but that is irrelevant
-here)
+True.  dma_cache_sync has always been a rather odd interface, as it
+doesn't specify in what direction we need to sync and doesn't
+participate in our ownership protocol.  So my mid-term plan is to kill
+it off and replace it with the existing dma_sync_* helpers.  This
+series is the first step towards that.
