@@ -1,81 +1,35 @@
-From: Vladimir Murzin <vladimir.murzin@arm.com>
-Date: Mon, 24 Jun 2019 15:23:08 +0100
-Subject: [OpenRISC] [PATCH 1/7] arm-nommu: remove the partial
- DMA_ATTR_NON_CONSISTENT support
-In-Reply-To: <20190614144431.21760-2-hch@lst.de>
+From: Christoph Hellwig <hch@lst.de>
+Date: Tue, 25 Jun 2019 08:11:04 +0200
+Subject: [OpenRISC] [PATCH 5/7] dma-direct: handle
+ DMA_ATTR_NON_CONSISTENT in common code
+In-Reply-To: <20190614144431.21760-6-hch@lst.de>
 References: <20190614144431.21760-1-hch@lst.de>
- <20190614144431.21760-2-hch@lst.de>
-Message-ID: <a017e704-c6c4-7718-7f8b-eb8a0eced14d@arm.com>
+ <20190614144431.21760-6-hch@lst.de>
+Message-ID: <20190625061104.GB28986@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 6/14/19 3:44 PM, Christoph Hellwig wrote:
-> The arm-nommu DMA code supports DMA_ATTR_NON_CONSISTENT allocations, but
-> does not provide a cache_sync operation.  This means any user of it
-> will never be able to actually transfer cache ownership and thus cause
-> coherency bugs.
+On Sun, Jun 16, 2019 at 06:08:40PM +0800, Hillf Danton wrote:
+> Literally, any cpu (call it cpuW) other than pcx12 and pcx1 will no longer do
+> dma alloc for any device with this patch applied.
 
-By the way, Documentation/DMA-attributes.txt doesn't specify cache_sync() as
-requirement for DMA_ATTR_NON_CONSISTENT it only states that it is responsibility
-of the driver to have all the correct and necessary sync points.
+Yes.  And that is not a chance from the previous code, where only
+pcx1 and pcx12 could do coherent allocations,
 
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  arch/arm/mm/dma-mapping-nommu.c | 24 +++---------------------
->  1 file changed, 3 insertions(+), 21 deletions(-)
-> 
-> diff --git a/arch/arm/mm/dma-mapping-nommu.c b/arch/arm/mm/dma-mapping-nommu.c
-> index f304b10e23a4..bc003df45546 100644
-> --- a/arch/arm/mm/dma-mapping-nommu.c
-> +++ b/arch/arm/mm/dma-mapping-nommu.c
-> @@ -39,18 +39,7 @@ static void *arm_nommu_dma_alloc(struct device *dev, size_t size,
->  				 unsigned long attrs)
->  
->  {
-> -	void *ret;
-> -
-> -	/*
-> -	 * Try generic allocator first if we are advertised that
-> -	 * consistency is not required.
-> -	 */
-> -
-> -	if (attrs & DMA_ATTR_NON_CONSISTENT)
-> -		return dma_direct_alloc_pages(dev, size, dma_handle, gfp,
-> -				attrs);
-> -
-> -	ret = dma_alloc_from_global_coherent(size, dma_handle);
-> +	void *ret = dma_alloc_from_global_coherent(size, dma_handle);
->  
->  	/*
->  	 * dma_alloc_from_global_coherent() may fail because:
-> @@ -70,16 +59,9 @@ static void arm_nommu_dma_free(struct device *dev, size_t size,
->  			       void *cpu_addr, dma_addr_t dma_addr,
->  			       unsigned long attrs)
->  {
-> -	if (attrs & DMA_ATTR_NON_CONSISTENT) {
-> -		dma_direct_free_pages(dev, size, cpu_addr, dma_addr, attrs);
-> -	} else {
-> -		int ret = dma_release_from_global_coherent(get_order(size),
-> -							   cpu_addr);
-> -
-> -		WARN_ON_ONCE(ret == 0);
-> -	}
-> +	int ret = dma_release_from_global_coherent(get_order(size), cpu_addr);
->  
-> -	return;
-> +	WARN_ON_ONCE(ret == 0);
->  }
->  
->  static int arm_nommu_dma_mmap(struct device *dev, struct vm_area_struct *vma,
-> 
+> On the other hand, 
+> !dev_is_dma_coherent(dev) && !(attrs & DMA_ATTR_NON_CONSISTENT) will ask
+> any cpu to do dma alloc, regardless of pcx1. This patch works imo unless cpuW
+> plays games only with devices that are dma coherent. I doubt it is true.
 
-FWIW:
-
-Reviewed-by: Vladimir Murzin <vladimir.murzin@arm.com>
-
-Cheers
-Vladimir
+I can't parse these two sentences.  But to explains the bits mentioned
+here - dev_is_dma_coherent will return if a device is coherently
+attached vs the cpu.  This will never be true for the parisc direct
+mapping.  DMA_ATTR_NON_CONSISTENT asks for a non-coherent mapping that
+needs to be explicitly synced.  This support now is in the dma-direct
+core code, and this is what the parisc specific devices used on the
+non-pcxl systems use, as they do not support dma coherency at all.
+(the story slightly changes when using an iommu, but that is irrelevant
+here)
