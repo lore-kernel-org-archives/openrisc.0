@@ -1,32 +1,31 @@
-From: Christoph Hellwig <hch@lst.de>
-Date: Tue, 25 Jun 2019 14:28:08 +0200
-Subject: [OpenRISC] [PATCH 5/7] dma-direct: handle
- DMA_ATTR_NON_CONSISTENT in common code
-In-Reply-To: <3eb32e0b-5aa4-fe1e-e581-038750e11cef@gmx.de>
+From: Guenter Roeck <linux@roeck-us.net>
+Date: Sat, 29 Jun 2019 08:09:15 -0700
+Subject: [OpenRISC] [PATCH 6/7] dma-direct: handle
+ DMA_ATTR_NO_KERNEL_MAPPING in common code
+In-Reply-To: <20190614144431.21760-7-hch@lst.de>
 References: <20190614144431.21760-1-hch@lst.de>
- <20190614144431.21760-6-hch@lst.de>
- <3eb32e0b-5aa4-fe1e-e581-038750e11cef@gmx.de>
-Message-ID: <20190625122808.GB4421@lst.de>
+ <20190614144431.21760-7-hch@lst.de>
+Message-ID: <20190629150915.GA817@roeck-us.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Jun 25, 2019 at 02:23:45PM +0200, Helge Deller wrote:
-> On 14.06.19 16:44, Christoph Hellwig wrote:
-> > Only call into arch_dma_alloc if we require an uncached mapping,
-> > and remove the parisc code manually doing normal cached
-> > DMA_ATTR_NON_CONSISTENT allocations.
-> >
-> > Signed-off-by: Christoph Hellwig <hch@lst.de>
+On Fri, Jun 14, 2019 at 04:44:30PM +0200, Christoph Hellwig wrote:
+> DMA_ATTR_NO_KERNEL_MAPPING is generally implemented by allocating
+> normal cacheable pages or CMA memory, and then returning the page
+> pointer as the opaque handle.  Lift that code from the xtensa and
+> generic dma remapping implementations into the generic dma-direct
+> code so that we don't even call arch_dma_alloc for these allocations.
 > 
-> Acked-by: Helge Deller <deller@gmx.de> # parisc
-> 
-> Boot-tested 32-bit kernel on PCX-L and PCX-W2 machines (although
-> the patches don't cleanly apply any longer against git head).
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-The series was against the dma-mapping tree, which might have diverged
-a bit already.
+This patch results in build failures for mips:nlm_xlp_defconfig and
+mips:cavium_octeon_defconfig.
 
-Thanks for testing!
+kernel/dma/direct.c:144: undefined reference to `arch_dma_prep_coherent'
+
+Reverting the patch fixes the problem.
+
+Guenter
