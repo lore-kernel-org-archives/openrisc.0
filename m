@@ -1,31 +1,42 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Date: Sat, 29 Jun 2019 08:09:15 -0700
-Subject: [OpenRISC] [PATCH 6/7] dma-direct: handle
- DMA_ATTR_NO_KERNEL_MAPPING in common code
-In-Reply-To: <20190614144431.21760-7-hch@lst.de>
-References: <20190614144431.21760-1-hch@lst.de>
- <20190614144431.21760-7-hch@lst.de>
-Message-ID: <20190629150915.GA817@roeck-us.net>
+From: Nancy Chauhan <nancychn1@gmail.com>
+Date: Mon, 1 Jul 2019 17:52:06 +0530
+Subject: [OpenRISC] [GSoC 2019] Coding Phase 2 : Continuous Integration for
+ Hardware Projects on LibreCores CI (Nancy Chauhan)
+Message-ID: <CAF69GoqLtjD3jySOto4Fu3N9PRb1Ji5CyNHK7ScYvv+bOeiYKg@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, Jun 14, 2019 at 04:44:30PM +0200, Christoph Hellwig wrote:
-> DMA_ATTR_NO_KERNEL_MAPPING is generally implemented by allocating
-> normal cacheable pages or CMA memory, and then returning the page
-> pointer as the opaque handle.  Lift that code from the xtensa and
-> generic dma remapping implementations into the generic dma-direct
-> code so that we don't even call arch_dma_alloc for these allocations.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+Hello all,
 
-This patch results in build failures for mips:nlm_xlp_defconfig and
-mips:cavium_octeon_defconfig.
+This mail is to summarize the plan for Coding phase 2 of GSoC 2019. I will
+be working to Create CI for Yosys synthesis
+<http://www.clifford.at/yosys/>required
+for monitoring resource usages in mor1kx
+<https://github.com/Nancy-Chauhan/mor1kx> and also might further extend CI
+for Ysoys synthesis if possible for place and route (
+https://github.com/YosysHQ/arachne-pnr
+). The plan will be reached to work even on Creating CI for OpenOCD/GDB
+ for CPU pipeline debugging in mor1kx  and extending Jenkinsfile (
+https://github.com/openrisc/mor1kx/pull/84 ) in mor1kx to make Ysoys and
+OpenOCD/GDB part of the build pipeline. It can be added to ci.librecores.org
+so that Pull request builder runs for the repository mor1kx .
+We can later  Detach reusable logic of mor1kx to
+https://github.com/librecores/librecores-pipeline-lib
+.
 
-kernel/dma/direct.c:144: undefined reference to `arch_dma_prep_coherent'
+The question I have is whether should we keep all these new additions in
+current Travis flow (
+https://github.com/openrisc/mor1kx/blob/master/.travis.yml
+) also ?
 
-Reverting the patch fixes the problem.
 
-Guenter
+Thank you ,
+Nancy Chauhan
+
+Chats on : https://gitter.im/librecores/librecores-ci
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20190701/d74dc9ca/attachment.html>
