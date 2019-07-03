@@ -1,82 +1,82 @@
-From: Olof Kindgren <olof.kindgren@gmail.com>
-Date: Tue, 2 Jul 2019 22:10:00 +0200
-Subject: [OpenRISC] [GSoC 2019] Coding Phase 2 : Continuous Integration
- for Hardware Projects on LibreCores CI (Nancy Chauhan)
-In-Reply-To: <CAAfxs77GYaDHJL-qLmQqTqrpAjvws=8Q52qS7eYyX52NFc9z3g@mail.gmail.com>
-References: <CAF69GoqLtjD3jySOto4Fu3N9PRb1Ji5CyNHK7ScYvv+bOeiYKg@mail.gmail.com>
- <CAAfxs77GYaDHJL-qLmQqTqrpAjvws=8Q52qS7eYyX52NFc9z3g@mail.gmail.com>
-Message-ID: <CAKaYPCPNiGT2m+9cviPFui_Dzbo1QOnQviB0s+foa093rTwGKw@mail.gmail.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Wed,  3 Jul 2019 12:33:46 +0900
+Subject: [OpenRISC] [PATCH v2 0/5] OpenRISC updates for 10 (fpu, fixes)
+Message-ID: <20190703033351.11924-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Jul 2, 2019 at 1:04 AM Stafford Horne <shorne@gmail.com> wrote:
+Hello,
 
-> Hello,
->
-> On Mon, Jul 1, 2019, 9:22 PM Nancy Chauhan <nancychn1@gmail.com> wrote:
->
->> Hello all,
->>
->> This mail is to summarize the plan for Coding phase 2 of GSoC 2019. I
->> will be working to Create CI for Yosys synthesis
->> <http://www.clifford.at/yosys/>required for monitoring resource usages
->> in mor1kx <https://github.com/Nancy-Chauhan/mor1kx> and also might
->> further extend CI for Ysoys synthesis if possible for place and route ( https://github.com/YosysHQ/arachne-pnr
->> ).
->>
->
-> Probably we want nextpnr here.
-> https://github.com/YosysHQ/nextpnr
->
+It's been about 2 months since I last sent these patches.  Sorry for the delay
+I ended up getting side tracked finishing the new OpenRISC architecture spec
+revision.
 
-I tried to do my part here and just pushed an edalize patch to only run
-synthesis in the icestorm backend by setting pnr to none.
+New since v1:
+ - Changed 64-bit FPU operations to use explicit register pairs as per spec
+   revision suggested by Richard Henderson.
+ - Added patch for new -mrori option
+ - Added patch for msoft-div fix from other series (no changes)
+ - Fixed volatile spelling pointed out by Bernhard 
+   Reutner-Fischer <rep.dot.nop@gmail.com>
 
-Tested it on my serv CPU with fusesoc run --target=tinyfpga_bx servant
---pnr=none
+This is a set of patches to bring FPU support to the OpenRISC backend.  The
+backend also add support for 64-bit floating point operations on 32-bit cores
+using register pairs, see orfpx64a32 [0].
 
-Hope this helps
+This binutils patches are already upstream.
 
-//Olof
+The toolchain has been tested using the gcc and binutils testsuites as well as
+floating point test suites running on sim and an fpga soft core or1k_marocchino.
+[1]
 
+I have also included a few fixes to PRs:
 
->
->
-> The plan will be reached to work even on Creating CI for OpenOCD/GDB  for
->> CPU pipeline debugging in mor1kx  and extending Jenkinsfile (
->> https://github.com/openrisc/mor1kx/pull/84 ) in mor1kx to make Ysoys and
->> OpenOCD/GDB part of the build pipeline. It can be added to
->> ci.librecores.org so that Pull request builder runs for the repository
->> mor1kx .
->> We can later  Detach reusable logic of mor1kx to https://github.com/librecores/librecores-pipeline-lib
->> .
->>
->> The question I have is whether should we keep all these new additions in
->> current Travis flow ( https://github.com/openrisc/mor1kx/blob/master/.travis.yml
->> ) also ?
->>
->>
-> I think we can replace Travis when
->   1. We have a new build status badge for Jenkins in the readme.
->   2. Jenkins is integrated and performs all of the same checks for pull
-> requests.
->   3. (Nice to have) Jenkins can be as fast/faster than Travis i.e. finish
-> within 5 minutes
->
->
->> Thank you ,
->> Nancy Chauhan
->>
->> Chats on : https://gitter.im/librecores/librecores-ci
->>
-> _______________________________________________
-> OpenRISC mailing list
-> OpenRISC at lists.librecores.org
-> https://lists.librecores.org/listinfo/openrisc
->
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20190702/cbb19846/attachment.html>
+ - 90362 or1k: Soft divide does not work correctly
+ - 90363 or1k: Extra mask insn after load from memory
+
+This whole patch series can be found on my github repo [2] as well.
+
+If all is OK, I plan to commit these to master (gcc 10).  Then back port the PR
+fixes to the GCC 9 branch, I will ask for guidance when I start to do the
+backporting.
+
+-Stafford
+
+[0] https://openrisc.io/proposals/orfpx64a32
+[1] https://github.com/openrisc/or1k_marocchino
+[2] git at github.com:stffrdhrn/gcc.git or1k-fpu-2
+
+Stafford Horne (5):
+  or1k: Fix code quality for volatile memory loads
+  or1k: Fix issues with msoft-div
+  or1k: Add mrori option, fix option docs
+  or1k: Initial support for FPU
+  or1k: only force reg for immediates
+
+ gcc/config.gcc                            |   2 +
+ gcc/config/or1k/constraints.md            |   4 +
+ gcc/config/or1k/elf.opt                   |   6 +-
+ gcc/config/or1k/or1k.c                    |  48 ++++++--
+ gcc/config/or1k/or1k.h                    |   3 +
+ gcc/config/or1k/or1k.md                   | 129 ++++++++++++++++++++--
+ gcc/config/or1k/or1k.opt                  |  78 +++++++++----
+ gcc/config/or1k/predicates.md             |  23 ++++
+ gcc/doc/invoke.texi                       |  77 ++++++++-----
+ gcc/testsuite/gcc.target/or1k/div-mul-3.c |  31 ++++++
+ gcc/testsuite/gcc.target/or1k/ror-4.c     |   8 ++
+ gcc/testsuite/gcc.target/or1k/shftimm-1.c |   8 +-
+ gcc/testsuite/gcc.target/or1k/swap-1.c    |  70 ++++++++++++
+ gcc/testsuite/gcc.target/or1k/swap-2.c    |  47 ++++++++
+ libgcc/config/or1k/lib1funcs.S            |   6 +-
+ 15 files changed, 465 insertions(+), 75 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/or1k/div-mul-3.c
+ create mode 100644 gcc/testsuite/gcc.target/or1k/ror-4.c
+ create mode 100644 gcc/testsuite/gcc.target/or1k/swap-1.c
+ create mode 100644 gcc/testsuite/gcc.target/or1k/swap-2.c
+
+-- 
+2.21.0
+
