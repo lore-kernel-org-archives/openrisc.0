@@ -1,55 +1,101 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Wed,  3 Jul 2019 12:33:51 +0900
-Subject: [OpenRISC] [PATCH v2 5/5] or1k: only force reg for immediates
-In-Reply-To: <20190703033351.11924-1-shorne@gmail.com>
-References: <20190703033351.11924-1-shorne@gmail.com>
-Message-ID: <20190703033351.11924-6-shorne@gmail.com>
+From: Nancy Chauhan <nancychn1@gmail.com>
+Date: Wed, 3 Jul 2019 10:32:24 +0530
+Subject: [OpenRISC] [GSoC 2019] Coding Phase 2 : Continuous Integration
+ for Hardware Projects on LibreCores CI (Nancy Chauhan)
+In-Reply-To: <CAKaYPCPNiGT2m+9cviPFui_Dzbo1QOnQviB0s+foa093rTwGKw@mail.gmail.com>
+References: <CAF69GoqLtjD3jySOto4Fu3N9PRb1Ji5CyNHK7ScYvv+bOeiYKg@mail.gmail.com>
+ <CAAfxs77GYaDHJL-qLmQqTqrpAjvws=8Q52qS7eYyX52NFc9z3g@mail.gmail.com>
+ <CAKaYPCPNiGT2m+9cviPFui_Dzbo1QOnQviB0s+foa093rTwGKw@mail.gmail.com>
+Message-ID: <CAF69Gope9f3x7-26s3L5fMiK8W2XFqR4GGW9w-BS7gX9o-PeeQ@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The force_reg in or1k_expand_compare is hard coded for SImode, which is fine as
-this used to only be used on SI expands.  However, with FP support this will
-cause issues.  In general we should only force the right hand operand to a
-register if its an immediate.  This patch adds an condition to check for that.
+On Wed, Jul 3, 2019 at 1:40 AM Olof Kindgren <olof.kindgren@gmail.com>
+wrote:
 
-gcc/ChangeLog:
+>
+>
+> On Tue, Jul 2, 2019 at 1:04 AM Stafford Horne <shorne@gmail.com> wrote:
+>
+>> Hello,
+>>
+>> On Mon, Jul 1, 2019, 9:22 PM Nancy Chauhan <nancychn1@gmail.com> wrote:
+>>
+>>> Hello all,
+>>>
+>>> This mail is to summarize the plan for Coding phase 2 of GSoC 2019. I
+>>> will be working to Create CI for Yosys synthesis
+>>> <http://www.clifford.at/yosys/>required for monitoring resource usages
+>>> in mor1kx <https://github.com/Nancy-Chauhan/mor1kx> and also might
+>>> further extend CI for Ysoys synthesis if possible for place and route ( https://github.com/YosysHQ/arachne-pnr
+>>> ).
+>>>
+>>
+>> Probably we want nextpnr here.
+>> https://github.com/YosysHQ/nextpnr
+>>
+> Hi,
 
-	* config/or1k/or1k.c (or1k_expand_compare): Check for int before
-	force_reg.
----
-Changes since v1:
- - none
+As far as I have seen https://github.com/olofk/serv/blob/master/serv.core,
+https://github.com/olofk/serv/blob/master/servant.core *example project
+using fusesoc and yosys*, I realized we might have to do changes in
+mor1kx.core https://github.com/openrisc/mor1kx/blob/master/mor1kx.core#L79
+and may also have to include target boards the repository. Can you further
+clarify on this and guide me further.
 
- gcc/config/or1k/or1k.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+>
+> I tried to do my part here and just pushed an edalize patch to only run
+> synthesis in the icestorm backend by setting pnr to none.
+>
+> Tested it on my serv CPU with fusesoc run --target=tinyfpga_bx servant
+> --pnr=none
+>
 
-diff --git a/gcc/config/or1k/or1k.c b/gcc/config/or1k/or1k.c
-index d90826b75ca..e4aff83cec7 100644
---- a/gcc/config/or1k/or1k.c
-+++ b/gcc/config/or1k/or1k.c
-@@ -1446,13 +1446,15 @@ void
- or1k_expand_compare (rtx *operands)
- {
-   rtx sr_f = gen_rtx_REG (BImode, SR_F_REGNUM);
-+  rtx righthand_op = XEXP (operands[0], 1);
-   rtx_code cmp_code = GET_CODE (operands[0]);
-   bool flag_check_ne = true;
- 
--  /* The RTL may receive an immediate in argument 1 of the compare, this is not
--     supported unless we have l.sf*i instructions, force them into registers.  */
--  if (!TARGET_SFIMM)
--    XEXP (operands[0], 1) = force_reg (SImode, XEXP (operands[0], 1));
-+  /* Integer RTL may receive an immediate in argument 1 of the compare, this is
-+     not supported unless we have l.sf*i instructions, force them into
-+     registers.  */
-+  if (!TARGET_SFIMM && CONST_INT_P (righthand_op))
-+    XEXP (operands[0], 1) = force_reg (SImode, righthand_op);
- 
-   /* Normalize comparison operators to ones OpenRISC support.  */
-   switch (cmp_code)
--- 
-2.21.0
+And also we can try this first.
 
+Hope this helps
+>
+> //Olof
+>
+>
+>>
+>>
+>> The plan will be reached to work even on Creating CI for OpenOCD/GDB  for
+>>> CPU pipeline debugging in mor1kx  and extending Jenkinsfile (
+>>> https://github.com/openrisc/mor1kx/pull/84 ) in mor1kx to make Ysoys
+>>> and OpenOCD/GDB part of the build pipeline. It can be added to
+>>> ci.librecores.org so that Pull request builder runs for the repository
+>>> mor1kx .
+>>> We can later  Detach reusable logic of mor1kx to https://github.com/librecores/librecores-pipeline-lib
+>>> .
+>>>
+>>> The question I have is whether should we keep all these new additions in
+>>> current Travis flow ( https://github.com/openrisc/mor1kx/blob/master/.travis.yml
+>>> ) also ?
+>>>
+>>>
+>> I think we can replace Travis when
+>>   1. We have a new build status badge for Jenkins in the readme.
+>>   2. Jenkins is integrated and performs all of the same checks for pull
+>> requests.
+>>   3. (Nice to have) Jenkins can be as fast/faster than Travis i.e. finish
+>> within 5 minutes
+>>
+>>
+>>> Thank you ,
+>>> Nancy Chauhan
+>>>
+>>> Chats on : https://gitter.im/librecores/librecores-ci
+>>>
+>> _______________________________________________
+>> OpenRISC mailing list
+>> OpenRISC at lists.librecores.org
+>> https://lists.librecores.org/listinfo/openrisc
+>>
+>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20190703/09c157fe/attachment.html>
