@@ -1,37 +1,73 @@
-From: Richard Henderson <rth@twiddle.net>
-Date: Wed, 3 Jul 2019 21:09:51 +0200
-Subject: [OpenRISC] [PATCH v2 4/5] or1k: Initial support for FPU
-In-Reply-To: <20190703154301.GY18316@gate.crashing.org>
+From: Stafford Horne <shorne@gmail.com>
+Date: Thu, 4 Jul 2019 06:49:17 +0900
+Subject: [OpenRISC] [PATCH v2 3/5] or1k: Add mrori option,
+ fix option docs
+In-Reply-To: <20190703144902.GX18316@gate.crashing.org>
 References: <20190703033351.11924-1-shorne@gmail.com>
- <20190703033351.11924-5-shorne@gmail.com>
- <20190703154301.GY18316@gate.crashing.org>
-Message-ID: <64def15b-f701-4a5e-2724-6fb1e859be9a@twiddle.net>
+ <20190703033351.11924-4-shorne@gmail.com>
+ <20190703144902.GX18316@gate.crashing.org>
+Message-ID: <20190703214917.GB2601@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 7/3/19 5:43 PM, Segher Boessenkool wrote:
->> @@ -212,6 +214,7 @@ enum reg_class
->>  #define REG_CLASS_CONTENTS      \
->>  { { 0x00000000, 0x00000000 },	\
->>    { SIBCALL_REGS_MASK,   0 },	\
->> +  { 0x7ffffefe, 0x00000000 },	\
+On Wed, Jul 03, 2019 at 09:49:02AM -0500, Segher Boessenkool wrote:
+> On Wed, Jul 03, 2019 at 12:33:49PM +0900, Stafford Horne wrote:
+> > @@ -179,11 +183,11 @@
+> >    [(set (match_operand:SI 0 "register_operand" "=r,r")
+> >  	(rotatert:SI (match_operand:SI 1 "register_operand"  "r,r")
+> >  		  (match_operand:SI 2 "reg_or_u6_operand" "r,n")))]
+> > -  "TARGET_ROR"
+> > +  "TARGET_ROR || TARGET_RORI"
+> >    "@
+> >     l.ror\t%0, %1, %2
+> >     l.rori\t%0, %1, %2"
+> > -  [(set_attr "insn_support" "*,shftimm")])
+> > +  [(set_attr "insn_support" "ror,rori")])
 > 
-> Above you said r0, r30, r31 are excluded, but this is r0, r8, r30, or
-> in GCC register numbers, 0, 8, and 31?  You probably should mention r8
-> somewhere (it's because it is the last arg, this avoid problems, I guess?),
-> and the 30/31 thing is confused some way.  Maybe it is all just that one
-> documentation line :-)
+> Does this work?  If you use -mno-ror -mrori?  It will then allow generating
+> a reg for the second operand, and ICE later on, as far as I can see?
 
-... and if r8 is excluded because of arguments, I suspect that this is the
-wrong fix, as there's nothing inherently wrong with r7:r8 or r8:r9 as a pair,
-at least that I can see.
+It does seem to work.  Why would it produce an internal compiler error?
 
-Perhaps function_arg and/or function_arg_advance is the right place for a fix?
-The calling convention says that 64-bit arguments are not split across
-registers+stack, so you already shouldn't have seen (r8, [sp+0]) as a pair.
+One thing I have is RegectNegative on mror and mrori, so -mno-ror will not be
+allowed and cause an error.
 
+Example: 
 
-r~
+    $ cat ./gcc/testsuite/gcc.target/or1k/ror-4.c
+
+	unsigned int rotate6 (unsigned int a) {
+	  return ( a >> 6 ) | ( a << ( 32 - 6 ) );
+	}
+
+# With rori, direct immediate.
+
+    $ or1k-elf-gcc -O2 -c -mrori ./gcc/testsuite/gcc.target/or1k/ror-4.c 
+    $ or1k-elf-objdump -d ror-4.o 
+
+	ror-4.o:     file format elf32-or1k
+
+	Disassembly of section .text:
+
+	00000000 <rotate6>:
+	   0:   44 00 48 00     l.jr r9
+	   4:   b9 63 00 c6     l.rori r11,r3,0x6
+
+# With ror, loading immediate to temporary register first.
+
+    $ or1k-elf-gcc -O2 -c -mror ./gcc/testsuite/gcc.target/or1k/ror-4.c 
+    $ or1k-elf-objdump -d ror-4.o 
+
+	ror-4.o:     file format elf32-or1k
+
+	Disassembly of section .text:
+
+	00000000 <rotate6>:
+	   0:   aa 20 00 06     l.ori r17,r0,0x6
+	   4:   44 00 48 00     l.jr r9
+	   8:   e1 63 88 c8     l.ror r11,r3,r17
+
+-Stafford
