@@ -1,367 +1,452 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Tue,  9 Jul 2019 22:06:24 +0900
-Subject: [OpenRISC] [PATCH v3 3/5] or1k: Add mrori option, fix option docs
+Date: Tue,  9 Jul 2019 22:06:25 +0900
+Subject: [OpenRISC] [PATCH v3 4/5] or1k: Initial support for FPU
 In-Reply-To: <20190709130626.11226-1-shorne@gmail.com>
 References: <20190709130626.11226-1-shorne@gmail.com>
-Message-ID: <20190709130626.11226-4-shorne@gmail.com>
+Message-ID: <20190709130626.11226-5-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
+This adds support for OpenRISC hardware floating point instructions.
+This is enabled with the -mhard-float option.
+
+Double-prevision floating point operations work using register pairing as
+specified in: https://openrisc.io/proposals/orfpx64a32.  This has just been
+added in the OpenRISC architecture specification 1.3.
+This is enabled with the -mdouble-float option.
+
+Not all architectures support unordered comparisons so an option,
+-munordered-float is added.
+
+Currently OpenRISC does not support sf/df or df/sf conversions, but this has
+also just been added in architecture specification 1.3.
+
 gcc/ChangeLog:
 
-	* config.gcc (or1k*-*-*): Add mrori and mror to validation.
-	* doc/invoke.texi (OpenRISC Options): Add mrori option, rewrite all
-	documenation to be more clear.
-	* config/or1k/elf.opt (mboard=, mnewlib): Rewrite documentation to be
-	more clear.
-	* config/or1k/or1k.opt (mrori): New option.
-	(mhard-div, msoft-div, mhard-mul, msoft-mul, mcmov, mror, msext,
-	msfimm, mshftimm): Rewrite documentation to be more clear.
-	* config/or1k/predicates.md (ror_reg_or_u6_operand): New predicate.
-	* config/or1k/or1k.md (insn_support): Add ror and rori.
-	(enabled): Add conditions for ror and rori.
-	(rotrsi3): Replace condition for shftimm with ror and rori.
-
-gcc/testsuite/ChangeLog:
-
-	* gcc.target/or1k/ror-4.c: New file.
-	* gcc.target/or1k/ror-5.c: New file.
-	* gcc.target/or1k/shftimm-1.c: Update test from rotate to shift
-	as the shftimm option no longer controls rotate.
+	* config.gcc (or1k*-*-*): Add mhard-float, mdouble-float, msoft-float
+	and munordered-float validations.
+	* config/or1k/constraints.md (d): New register constraint.
+	* config/or1k/predicates.md (fp_comparison_operator): New.
+	* config/or1k/or1k.c (or1k_print_operand): Add support for printing 'd'
+	operands.
+	(or1k_expand_compare): Normalize unordered comparisons.
+	* config/or1k/or1k.h (reg_class): Define DOUBLE_REGS.
+	(REG_CLASS_NAMES): Add "DOUBLE_REGS".
+	(REG_CLASS_CONTENTS): Add contents for DOUBLE_REGS.
+	* config/or1k/or1k.md (type): Add fpu.
+	(fpu): New instruction reservation.
+	(F, f, fr, fi, FI, FOP, fop): New.
+	(<fop><F:mode>3): New ALU instruction definition.
+	(float<fi><F:mode>2): New conversion instruction definition.
+	(fix_trunc<F:mode><fi>2): New conversion instruction definition.
+	(fpcmpcc): New code iterator.
+	(*sf_fp_insn): New instruction definition.
+	(cstore<F:mode>4): New expand definition.
+	(cbranch<F:mode>4): New expand definition.
+	* config/or1k/or1k.opt (msoft-float, mhard-float, mdouble-float,
+	munordered-float): New options.
+	* doc/invoke.texi: Document msoft-float, mhard-float, mdouble-float and
+	munordered-float.
 ---
 Changes since v2:
- - Fix issue with ror predicate pointed out by Segher.
- - Added ror-5.c test to confirm/fix ICE.
+ - Fix wrong order in double reg mask.
 
- gcc/config.gcc                            |  1 +
- gcc/config/or1k/elf.opt                   |  6 +--
- gcc/config/or1k/or1k.md                   | 14 ++++--
- gcc/config/or1k/or1k.opt                  | 56 +++++++++++++----------
- gcc/config/or1k/predicates.md             |  7 +++
- gcc/doc/invoke.texi                       | 56 +++++++++++++----------
- gcc/testsuite/gcc.target/or1k/ror-4.c     |  8 ++++
- gcc/testsuite/gcc.target/or1k/ror-5.c     |  9 ++++
- gcc/testsuite/gcc.target/or1k/shftimm-1.c |  8 ++--
- 9 files changed, 104 insertions(+), 61 deletions(-)
- create mode 100644 gcc/testsuite/gcc.target/or1k/ror-4.c
- create mode 100644 gcc/testsuite/gcc.target/or1k/ror-5.c
+ gcc/config.gcc                 |   1 +
+ gcc/config/or1k/constraints.md |   4 ++
+ gcc/config/or1k/or1k.c         |  38 ++++++++++-
+ gcc/config/or1k/or1k.h         |   3 +
+ gcc/config/or1k/or1k.md        | 111 ++++++++++++++++++++++++++++++++-
+ gcc/config/or1k/or1k.opt       |  22 +++++++
+ gcc/config/or1k/predicates.md  |   5 ++
+ gcc/doc/invoke.texi            |  21 +++++++
+ 8 files changed, 201 insertions(+), 4 deletions(-)
 
 diff --git a/gcc/config.gcc b/gcc/config.gcc
-index c281c418b28..aeab8b4544e 100644
+index aeab8b4544e..1678109131f 100644
 --- a/gcc/config.gcc
 +++ b/gcc/config.gcc
-@@ -2578,6 +2578,7 @@ or1k*-*-*)
- 	for or1k_multilib in ${or1k_multilibs}; do
+@@ -2579,6 +2579,7 @@ or1k*-*-*)
  		case ${or1k_multilib} in
  		mcmov | msext | msfimm | \
-+		mror | mrori | \
+ 		mror | mrori | \
++		mhard-float | mdouble-float | munordered-float | msoft-float | \
  		mhard-div | mhard-mul | \
  		msoft-div | msoft-mul )
  			TM_MULTILIB_CONFIG="${TM_MULTILIB_CONFIG},${or1k_multilib}"
-diff --git a/gcc/config/or1k/elf.opt b/gcc/config/or1k/elf.opt
-index 641b6ddd4be..2d4d1875d02 100644
---- a/gcc/config/or1k/elf.opt
-+++ b/gcc/config/or1k/elf.opt
-@@ -25,9 +25,9 @@
+diff --git a/gcc/config/or1k/constraints.md b/gcc/config/or1k/constraints.md
+index 93da8c058c6..8cac7eb5329 100644
+--- a/gcc/config/or1k/constraints.md
++++ b/gcc/config/or1k/constraints.md
+@@ -24,6 +24,7 @@
  
- mboard=
- Target RejectNegative Joined
--Configure board specific runtime.
-+Configure the newlib board specific runtime.  The default is or1ksim.
+ ; We use:
+ ;  c - sibcall registers
++;  d - double pair base registers (excludes r0, r30 and r31 which overflow)
+ ;  I - constant signed 16-bit
+ ;  K - constant unsigned 16-bit
+ ;  M - constant signed 16-bit shifted left 16-bits (l.movhi)
+@@ -32,6 +33,9 @@
+ (define_register_constraint "c" "SIBCALL_REGS"
+   "Registers which can hold a sibling call address")
  
- mnewlib
- Target RejectNegative
--For compatibility, it's always newlib for elf now.
--
-+This option is ignored; it is provided for compatibility purposes only.  This
-+used to select linker and preprocessor options for use with newlib.
++(define_register_constraint "d" "DOUBLE_REGS"
++  "Registers which can be used for double reg pairs.")
++
+ ;; Immediates
+ (define_constraint "I"
+   "A signed 16-bit immediate in the range -32768 to 32767."
+diff --git a/gcc/config/or1k/or1k.c b/gcc/config/or1k/or1k.c
+index 54c9e804ea5..1eea84f47e0 100644
+--- a/gcc/config/or1k/or1k.c
++++ b/gcc/config/or1k/or1k.c
+@@ -1226,6 +1226,19 @@ or1k_print_operand (FILE *file, rtx x, int code)
+ 	output_operand_lossage ("invalid %%H value");
+       break;
+ 
++    case 'd':
++      if (REG_P (x))
++	{
++	  if (GET_MODE (x) == DFmode || GET_MODE (x) == DImode)
++	    fprintf (file, "%s,%s", reg_names[REGNO (operand)],
++				    reg_names[REGNO (operand) + 1]);
++	  else
++	    fprintf (file, "%s", reg_names[REGNO (operand)]);
++	}
++      else
++	output_operand_lossage ("invalid %%d value");
++      break;
++
+     case 'h':
+       print_reloc (file, x, 0, RKIND_HI);
+       break;
+@@ -1435,21 +1448,42 @@ void
+ or1k_expand_compare (rtx *operands)
+ {
+   rtx sr_f = gen_rtx_REG (BImode, SR_F_REGNUM);
++  rtx_code cmp_code = GET_CODE (operands[0]);
++  bool flag_check_ne = true;
+ 
+   /* The RTL may receive an immediate in argument 1 of the compare, this is not
+      supported unless we have l.sf*i instructions, force them into registers.  */
+   if (!TARGET_SFIMM)
+     XEXP (operands[0], 1) = force_reg (SImode, XEXP (operands[0], 1));
+ 
++  /* Normalize comparison operators to ones OpenRISC support.  */
++  switch (cmp_code)
++    {
++      case LTGT:
++	cmp_code = UNEQ;
++	flag_check_ne = false;
++	break;
++
++      case ORDERED:
++	cmp_code = UNORDERED;
++	flag_check_ne = false;
++	break;
++
++      default:
++	break;
++    }
++
+   /* Emit the given comparison into the Flag bit.  */
+   PUT_MODE (operands[0], BImode);
++  PUT_CODE (operands[0], cmp_code);
+   emit_insn (gen_rtx_SET (sr_f, operands[0]));
+ 
+   /* Adjust the operands for use in the caller.  */
+-  operands[0] = gen_rtx_NE (VOIDmode, sr_f, const0_rtx);
++  operands[0] = flag_check_ne ? gen_rtx_NE (VOIDmode, sr_f, const0_rtx)
++			      : gen_rtx_EQ (VOIDmode, sr_f, const0_rtx);
+   operands[1] = sr_f;
+   operands[2] = const0_rtx;
+-}
++ }
+ 
+ /* Expand the patterns "call", "sibcall", "call_value" and "sibcall_value".
+    Expands a function call where argument RETVAL is an optional RTX providing
+diff --git a/gcc/config/or1k/or1k.h b/gcc/config/or1k/or1k.h
+index 6dda230f217..2b29e62fdd3 100644
+--- a/gcc/config/or1k/or1k.h
++++ b/gcc/config/or1k/or1k.h
+@@ -189,6 +189,7 @@ enum reg_class
+ {
+   NO_REGS,
+   SIBCALL_REGS,
++  DOUBLE_REGS,
+   GENERAL_REGS,
+   FLAG_REGS,
+   ALL_REGS,
+@@ -200,6 +201,7 @@ enum reg_class
+ #define REG_CLASS_NAMES {	\
+   "NO_REGS", 			\
+   "SIBCALL_REGS",		\
++  "DOUBLE_REGS",		\
+   "GENERAL_REGS",		\
+   "FLAG_REGS",			\
+   "ALL_REGS" }
+@@ -212,6 +214,7 @@ enum reg_class
+ #define REG_CLASS_CONTENTS      \
+ { { 0x00000000, 0x00000000 },	\
+   { SIBCALL_REGS_MASK,   0 },	\
++  { 0x7f7ffffe, 0x00000000 },	\
+   { 0xffffffff, 0x00000003 },	\
+   { 0x00000000, 0x00000004 },	\
+   { 0xffffffff, 0x00000007 }	\
 diff --git a/gcc/config/or1k/or1k.md b/gcc/config/or1k/or1k.md
-index 757d899c442..0faa0fa4c47 100644
+index 0faa0fa4c47..cee11d078cc 100644
 --- a/gcc/config/or1k/or1k.md
 +++ b/gcc/config/or1k/or1k.md
-@@ -63,7 +63,7 @@
-   "alu,st,ld,control,multi"
+@@ -60,7 +60,7 @@
+ (define_attr "length" "" (const_int 4))
+ 
+ (define_attr "type"
+-  "alu,st,ld,control,multi"
++  "alu,st,ld,control,multi,fpu"
    (const_string "alu"))
  
--(define_attr "insn_support" "class1,sext,sfimm,shftimm" (const_string "class1"))
-+(define_attr "insn_support" "class1,sext,sfimm,shftimm,ror,rori" (const_string "class1"))
+ (define_attr "insn_support" "class1,sext,sfimm,shftimm,ror,rori" (const_string "class1"))
+@@ -97,6 +97,10 @@
+ (define_insn_reservation "control" 1
+   (eq_attr "type" "control")
+   "cpu")
++(define_insn_reservation "fpu" 2
++  (eq_attr "type" "fpu")
++  "cpu")
++
  
- (define_attr "enabled" ""
-   (cond [(eq_attr "insn_support" "class1") (const_int 1)
-@@ -72,7 +72,11 @@
- 	 (and (eq_attr "insn_support" "sfimm")
- 	      (ne (symbol_ref "TARGET_SFIMM") (const_int 0))) (const_int 1)
- 	 (and (eq_attr "insn_support" "shftimm")
--	      (ne (symbol_ref "TARGET_SHFTIMM") (const_int 0))) (const_int 1)]
-+	      (ne (symbol_ref "TARGET_SHFTIMM") (const_int 0))) (const_int 1)
-+	 (and (eq_attr "insn_support" "ror")
-+	      (ne (symbol_ref "TARGET_ROR") (const_int 0))) (const_int 1)
-+	 (and (eq_attr "insn_support" "rori")
-+	      (ne (symbol_ref "TARGET_RORI") (const_int 0))) (const_int 1)]
- 	(const_int 0)))
+ ; Define delay slots for any branch
+ (define_delay (eq_attr "type" "control")
+@@ -159,6 +163,47 @@
+   ""
+   "l.sub\t%0, %r1, %2")
  
- ;; Describe a user's asm statement.
-@@ -178,12 +182,12 @@
- (define_insn "rotrsi3"
-   [(set (match_operand:SI 0 "register_operand" "=r,r")
- 	(rotatert:SI (match_operand:SI 1 "register_operand"  "r,r")
--		  (match_operand:SI 2 "reg_or_u6_operand" "r,n")))]
--  "TARGET_ROR"
-+		     (match_operand:SI 2 "ror_reg_or_u6_operand" "r,n")))]
-+  "TARGET_ROR || TARGET_RORI"
-   "@
-    l.ror\t%0, %1, %2
-    l.rori\t%0, %1, %2"
--  [(set_attr "insn_support" "*,shftimm")])
-+  [(set_attr "insn_support" "ror,rori")])
++;; -------------------------------------------------------------------------
++;; Floating Point Arithmetic instructions
++;; -------------------------------------------------------------------------
++
++;; Mode iterator for single/double float
++(define_mode_iterator F [(SF "TARGET_HARD_FLOAT")
++			 (DF "TARGET_DOUBLE_FLOAT")])
++(define_mode_attr f [(SF "s") (DF "d")])
++(define_mode_attr fr [(SF "r") (DF "d")])
++(define_mode_attr fi [(SF "si") (DF "di")])
++(define_mode_attr FI [(SF "SI") (DF "DI")])
++
++;; Basic arithmetic instructions
++(define_code_iterator FOP [plus minus mult div])
++(define_code_attr fop [(plus "add") (minus "sub") (mult "mul") (div "div")])
++
++(define_insn "<fop><F:mode>3"
++  [(set (match_operand:F 0 "register_operand" "=<fr>")
++	(FOP:F (match_operand:F 1 "register_operand" "<fr>")
++	       (match_operand:F 2 "register_operand" "<fr>")))]
++  "TARGET_HARD_FLOAT"
++  "lf.<fop>.<f>\t%d0, %d1, %d2"
++  [(set_attr "type" "fpu")])
++
++;; Basic float<->int conversion
++(define_insn "float<fi><F:mode>2"
++  [(set (match_operand:F 0 "register_operand" "=<fr>")
++	(float:F
++	    (match_operand:<FI> 1 "register_operand" "<fr>")))]
++  "TARGET_HARD_FLOAT"
++  "lf.itof.<f>\t%d0, %d1"
++  [(set_attr "type" "fpu")])
++
++(define_insn "fix_trunc<F:mode><fi>2"
++  [(set (match_operand:<FI> 0 "register_operand" "=<fr>")
++	(fix:<FI>
++	    (match_operand:F 1 "register_operand" "<fr>")))]
++  "TARGET_HARD_FLOAT"
++  "lf.ftoi.<f>\t%d0, %d1"
++  [(set_attr "type" "fpu")])
++
+ ;; -------------------------------------------------------------------------
+ ;; Logical operators
+ ;; -------------------------------------------------------------------------
+@@ -380,7 +425,7 @@
+ (define_code_iterator intcmpcc [ne eq lt ltu gt gtu ge le geu leu])
+ (define_code_attr insn [(ne "ne") (eq "eq") (lt "lts") (ltu "ltu")
+ 			(gt "gts") (gtu "gtu") (ge "ges") (le "les")
+-			(geu "geu") (leu "leu") ])
++			(geu "geu") (leu "leu")])
  
- (define_insn "andsi3"
-   [(set (match_operand:SI 0 "register_operand" "=r,r")
+ (define_insn "*sf_insn"
+   [(set (reg:BI SR_F_REGNUM)
+@@ -392,6 +437,36 @@
+    l.sf<insn>i\t%r0, %1"
+   [(set_attr "insn_support" "*,sfimm")])
+ 
++;; Support FP comparisons too
++
++;; The OpenRISC FPU supports these comparisons:
++;;
++;;    lf.sfeq.{d,s} - equality, r r, double or single precision
++;;    lf.sfge.{d,s} - greater than or equal, r r, double or single precision
++;;    lf.sfgt.{d,s} - greater than, r r, double or single precision
++;;    lf.sfle.{d,s} - less than or equal, r r, double or single precision
++;;    lf.sflt.{d,s} - less than, r r, double or single precision
++;;    lf.sfne.{d,s} - not equal, r r, double or single precision
++;;
++;; Double precision is only supported on some hardware.  Only register/register
++;; comparisons are supported.  All comparisons are signed.
++
++(define_code_iterator fpcmpcc [ne eq lt gt ge le uneq unle unlt ungt unge
++			       unordered])
++(define_code_attr fpcmpinsn [(ne "ne") (eq "eq") (lt "lt") (gt "gt") (ge "ge")
++			     (le "le") (uneq "ueq") (unle "ule") (unlt "ult")
++			     (ungt "ugt") (unge "uge") (unordered "un")])
++
++
++(define_insn "*sf_fp_insn"
++  [(set (reg:BI SR_F_REGNUM)
++	(fpcmpcc:BI (match_operand:F 0 "register_operand" "<fr>")
++		    (match_operand:F 1 "register_operand" "<fr>")))]
++  "TARGET_HARD_FLOAT"
++  "lf.sf<fpcmpinsn>.<f>\t%d0, %d1"
++  [(set_attr "type" "fpu")])
++
++
+ ;; -------------------------------------------------------------------------
+ ;; Conditional Store instructions
+ ;; -------------------------------------------------------------------------
+@@ -412,6 +487,23 @@
+   DONE;
+ })
+ 
++;; Support FP cstores too
++(define_expand "cstore<F:mode>4"
++  [(set (match_operand:SI 0 "register_operand" "")
++	(if_then_else:F
++	  (match_operator 1 "fp_comparison_operator"
++	    [(match_operand:F 2 "register_operand" "")
++	     (match_operand:F 3 "register_operand" "")])
++	  (match_dup 0)
++	  (const_int 0)))]
++  "TARGET_HARD_FLOAT"
++{
++  or1k_expand_compare (operands + 1);
++  PUT_MODE (operands[1], SImode);
++  emit_insn (gen_rtx_SET (operands[0], operands[1]));
++  DONE;
++})
++
+ ;; Being able to "copy" SR_F to a general register is helpful for
+ ;; the atomic insns, wherein the usual usage is to test the success
+ ;; of the compare-and-swap.  Representing the operation in this way,
+@@ -505,6 +597,21 @@
+   or1k_expand_compare (operands);
+ })
+ 
++;; Support FP branching
++
++(define_expand "cbranch<F:mode>4"
++  [(set (pc)
++	(if_then_else
++	  (match_operator 0 "fp_comparison_operator"
++	    [(match_operand:F 1 "register_operand" "")
++	     (match_operand:F 2 "register_operand" "")])
++	  (label_ref (match_operand 3 "" ""))
++	  (pc)))]
++  "TARGET_HARD_FLOAT"
++{
++  or1k_expand_compare (operands);
++})
++
+ (define_insn "*cbranch"
+   [(set (pc)
+ 	(if_then_else
 diff --git a/gcc/config/or1k/or1k.opt b/gcc/config/or1k/or1k.opt
-index 7bdbd842dd4..c2f64c5dd45 100644
+index c2f64c5dd45..15085fafa3f 100644
 --- a/gcc/config/or1k/or1k.opt
 +++ b/gcc/config/or1k/or1k.opt
-@@ -21,47 +21,55 @@
- ; See the GCC internals manual (options.texi) for a description of
- ; this file's format.
+@@ -41,6 +41,28 @@ Target RejectNegative Mask(SOFT_MUL).
+ Enable generation of binaries which use functions from libgcc to perform
+ multiply operations. The default is -mhard-mul.
  
--; Please try to keep this file in ASCII collating order.
--
- mhard-div
- Target RejectNegative InverseMask(SOFT_DIV)
--Use hardware divide instructions, use -msoft-div for emulation.
-+Enable generation of hardware divide (l.div, l.divu) instructions.  This is the
-+default; use -msoft-div to override.
-+
-+msoft-div
-+Target RejectNegative Mask(SOFT_DIV)
-+Enable generation of binaries which use functions from libgcc to perform divide
-+operations.  The default is -mhard-div.
- 
- mhard-mul
- Target RejectNegative InverseMask(SOFT_MUL).
--Use hardware multiply instructions, use -msoft-mul for emulation.
-+Enable generation of hardware multiply instructions (l.mul, l.muli) instructions.
-+This is the default; use -msoft-mul to override.
-+
-+msoft-mul
-+Target RejectNegative Mask(SOFT_MUL).
++msoft-float
++Target RejectNegative InverseMask(HARD_FLOAT)
 +Enable generation of binaries which use functions from libgcc to perform
-+multiply operations. The default is -mhard-mul.
- 
++floating point operations.  This is the default; use -mhard-float to override.
++
++mhard-float
++Target RejectNegative Mask(HARD_FLOAT)
++Enable generation of hardware floating point instructions. The default is
++-msoft-float.
++
++mdouble-float
++Target Mask(DOUBLE_FLOAT)
++When -mhard-float is selected, enables generation of double-precision floating
++point instructions.  By default functions from libgcc are used to perform
++double-precision floating point operations.
++
++munordered-float
++Target RejectNegative Mask(FP_UNORDERED)
++When -mhard-float is selected, enables generation of unordered floating point
++compare and set flag (lf.sfun*) instructions.  By default functions from libgcc
++are used to perform unordered floating point compare and set flag operations.
++
  mcmov
  Target RejectNegative Mask(CMOV)
--Allows generation of binaries which use the l.cmov instruction.  If your target
--does not support this the compiler will generate the equivalent using set and
--branch.
-+Enable generation of conditional move (l.cmov) instructions.  By default the
-+equivalent will be generated using using set and branch.
- 
- mror
- Target RejectNegative Mask(ROR)
--Allows generation of binaries which use the l.rori instructions.
-+Enable generation of rotate right (l.ror) instructions.  By default functions
-+from libgcc are used to perform rotate right operations.
-+
-+mrori
-+Target RejectNegative Mask(RORI)
-+Enable generation of rotate right with immediate (l.rori) instructions.  By
-+default functions from libgcc are used to perform rotate right with immediate
-+operations.
- 
- msext
- Target RejectNegative Mask(SEXT)
--Allows generation of binaries which use sign-extension instructions.  If your
--target does not support this the compiler will use memory loads to perform sign
--extension.
-+Enable generation of sign extension (l.ext*) instructions.  By default memory
-+loads are used to perform sign extension.
- 
- msfimm
- Target RejectNegative Mask(SFIMM)
--Allows generation of binaries which use l.sf*i instructions.  If your target
--does not support this the compiler will generate instructions to store the
--immediate to a register first.
-+Enable generation of compare and set flag with immediate (l.sf*i) instructions.
-+By default extra instructions will be generated to store the immediate to a
-+register first.
- 
- mshftimm
- Target RejectNegative Mask(SHFTIMM)
--Allows generation of binaries which support shifts and rotate instructions
--supporting immediate arguments, for example l.rori.
--
--msoft-div
--Target RejectNegative Mask(SOFT_DIV)
--Use divide emulation.
--
--msoft-mul
--Target RejectNegative Mask(SOFT_MUL).
--Use multiply emulation.
-+Enable generation of shift with immediate (l.srai, l.srli, l.slli) instructions.
-+By default extra instructions will be generated to store the immediate to a
-+register first.
+ Enable generation of conditional move (l.cmov) instructions.  By default the
 diff --git a/gcc/config/or1k/predicates.md b/gcc/config/or1k/predicates.md
-index dad1c5d4be3..5e97bf48467 100644
+index 5e97bf48467..3aa6ca3eecc 100644
 --- a/gcc/config/or1k/predicates.md
 +++ b/gcc/config/or1k/predicates.md
-@@ -53,6 +53,13 @@
-     (match_test "INTVAL (op) >= -32768 && INTVAL (op) <= 32767")
-     (match_operand 0 "register_operand")))
+@@ -90,6 +90,11 @@
+ (define_predicate "equality_comparison_operator"
+   (match_code "ne,eq"))
  
-+(define_predicate "ror_reg_or_u6_operand"
-+  (if_then_else (match_code "const_int")
-+    (and (match_test "INTVAL (op) >= 0 && INTVAL (op) <= 0x3f")
-+	 (match_test "TARGET_RORI"))
-+    (and (match_operand 0 "register_operand")
-+	 (match_test "TARGET_ROR"))))
++(define_predicate "fp_comparison_operator"
++  (if_then_else (match_test "TARGET_FP_UNORDERED")
++    (match_operand 0 "comparison_operator")
++    (match_operand 0 "ordered_comparison_operator")))
 +
- (define_predicate "call_insn_operand"
-   (ior (match_code "symbol_ref")
-        (match_operand 0 "register_operand")))
+ ;; Borrowed from rs6000
+ ;; Return true if the operand is in volatile memory.  Note that during the
+ ;; RTL generation phase, memory_operand does not return TRUE for volatile
 diff --git a/gcc/doc/invoke.texi b/gcc/doc/invoke.texi
-index 6382a840281..1f1f73672bd 100644
+index 1f1f73672bd..379e4a9b731 100644
 --- a/gcc/doc/invoke.texi
 +++ b/gcc/doc/invoke.texi
-@@ -1033,7 +1033,7 @@ Objective-C and Objective-C++ Dialects}.
+@@ -1033,6 +1033,7 @@ Objective-C and Objective-C++ Dialects}.
  @emph{OpenRISC Options}
  @gccoptlist{-mboard=@var{name}  -mnewlib  -mhard-mul  -mhard-div @gol
  -msoft-mul  -msoft-div @gol
---mcmov  -mror  -msext  -msfimm  -mshftimm}
-+-mcmov  -mror  -mrori  -msext  -msfimm  -mshftimm}
++-msoft-float  -mhard-float  -mdouble-float -munordered-float @gol
+ -mcmov  -mror  -mrori  -msext  -msfimm  -mshftimm}
  
  @emph{PDP-11 Options}
- @gccoptlist{-mfpu  -msoft-float  -mac0  -mno-ac0  -m40  -m45  -m10 @gol
-@@ -23632,50 +23632,56 @@ newlib board library linking.  The default is @code{or1ksim}.
+@@ -23649,6 +23650,26 @@ This default is hardware divide.
+ Select software or hardware multiply (@code{l.mul}, @code{l.muli}) instructions.
+ This default is hardware multiply.
  
- @item -mnewlib
- @opindex mnewlib
--For compatibility, it's always newlib for elf now.
-+This option is ignored; it is for compatibility purposes only.  This used to
-+select linker and preprocessor options for use with newlib.
- 
-- at item -mhard-div
-+ at item -msoft-div
-+ at itemx -mhard-div
-+ at opindex msoft-div
- @opindex mhard-div
--Generate code for hardware which supports divide instructions.  This is the
--default.
-+Select software or hardware divide (@code{l.div}, @code{l.divu}) instructions.
-+This default is hardware divide.
- 
-- at item -mhard-mul
-+ at item -msoft-mul
-+ at itemx -mhard-mul
-+ at opindex msoft-mul
- @opindex mhard-mul
--Generate code for hardware which supports multiply instructions.  This is the
--default.
-+Select software or hardware multiply (@code{l.mul}, @code{l.muli}) instructions.
-+This default is hardware multiply.
- 
++ at item -msoft-float
++ at itemx -mhard-float
++ at opindex msoft-float
++ at opindex mhard-float
++Select software or hardware for floating point operations.
++The default is software.
++
++ at item -mdouble-float
++ at opindex mdouble-float
++When @option{-mhard-float} is selected, enables generation of double-precision
++floating point instructions.  By default functions from @file{libgcc} are used
++to perform double-precision floating point operations.
++
++ at item -munordered-float
++ at opindex munordered-float
++When @option{-mhard-float} is selected, enables generation of unordered
++floating point compare and set flag (@code{lf.sfun*}) instructions.  By default
++functions from @file{libgcc} are used to perform unordered floating point
++compare and set flag operations.
++
  @item -mcmov
  @opindex mcmov
--Generate code for hardware which supports the conditional move (@code{l.cmov})
--instruction.
-+Enable generation of conditional move (@code{l.cmov}) instructions.  By
-+default the equivalent will be generated using using set and branch.
- 
- @item -mror
- @opindex mror
--Generate code for hardware which supports rotate right instructions.
-+Enable generation of rotate right (@code{l.ror}) instructions.  By default
-+functions from @file{libgcc} are used to perform rotate right operations.
-+
-+ at item -mrori
-+ at opindex mrori
-+Enable generation of rotate right with immediate (@code{l.rori}) instructions.
-+By default functions from @file{libgcc} are used to perform rotate right with
-+immediate operations.
- 
- @item -msext
- @opindex msext
--Generate code for hardware which supports sign-extension instructions.
-+Enable generation of sign extension (@code{l.ext*}) instructions.  By default
-+memory loads are used to perform sign extension.
- 
- @item -msfimm
- @opindex msfimm
--Generate code for hardware which supports set flag immediate (@code{l.sf*i})
--instructions.
-+Enable generation of compare and set flag with immediate (@code{l.sf*i})
-+instructions.  By default extra instructions will be generated to store the
-+immediate to a register first.
- 
- @item -mshftimm
- @opindex mshftimm
--Generate code for hardware which supports shift immediate related instructions
--(i.e. @code{l.srai}, @code{l.srli}, @code{l.slli}, @code{1.rori}).  Note, to
--enable generation of the @code{l.rori} instruction the @option{-mror} flag must
--also be specified.
-+Enable generation of shift with immediate (@code{l.srai}, @code{l.srli},
-+ at code{l.slli}) instructions.  By default extra instructions will be generated
-+to store the immediate to a register first.
- 
-- at item -msoft-div
-- at opindex msoft-div
--Generate code for hardware which requires divide instruction emulation.
--
-- at item -msoft-mul
--@opindex msoft-mul
--Generate code for hardware which requires multiply instruction emulation.
- 
- @end table
- 
-diff --git a/gcc/testsuite/gcc.target/or1k/ror-4.c b/gcc/testsuite/gcc.target/or1k/ror-4.c
-new file mode 100644
-index 00000000000..7489ce5b6a2
---- /dev/null
-+++ b/gcc/testsuite/gcc.target/or1k/ror-4.c
-@@ -0,0 +1,8 @@
-+/* { dg-do compile } */
-+/* { dg-options "-mrori -O2" } */
-+
-+unsigned int rotate6 (unsigned int a) {
-+  return ( a >> 6 ) | ( a << ( 32 - 6 ) );
-+}
-+
-+/* { dg-final { scan-assembler "l.rori" } } */
-diff --git a/gcc/testsuite/gcc.target/or1k/ror-5.c b/gcc/testsuite/gcc.target/or1k/ror-5.c
-new file mode 100644
-index 00000000000..dd56accba60
---- /dev/null
-+++ b/gcc/testsuite/gcc.target/or1k/ror-5.c
-@@ -0,0 +1,9 @@
-+/* { dg-do compile } */
-+/* { dg-options "-mrori -O2" } */
-+/* { dg-skip-if "" { *-*-* }  { "-mror" } { "" } } */
-+
-+unsigned int rotate (unsigned int a, int b) {
-+  return ( a >> b ) | ( a << ( 32 - b ) );
-+}
-+
-+/* { dg-final { scan-assembler-not "l.ror" } } */
-diff --git a/gcc/testsuite/gcc.target/or1k/shftimm-1.c b/gcc/testsuite/gcc.target/or1k/shftimm-1.c
-index be8d9e8b895..3a8dc06df79 100644
---- a/gcc/testsuite/gcc.target/or1k/shftimm-1.c
-+++ b/gcc/testsuite/gcc.target/or1k/shftimm-1.c
-@@ -1,8 +1,8 @@
- /* { dg-do compile } */
--/* { dg-options "-mror -mshftimm -O2" } */
-+/* { dg-options "-mshftimm -O2" } */
- 
--unsigned int rotate6 (unsigned int a) {
--  return ( a >> 6 ) | ( a << ( 32 - 6 ) );
-+unsigned int shift6 (unsigned int a) {
-+  return a << 6;
- }
- 
--/* { dg-final { scan-assembler "l.rori" } } */
-+/* { dg-final { scan-assembler "l.slli" } } */
+ Enable generation of conditional move (@code{l.cmov}) instructions.  By
 -- 
 2.21.0
 
