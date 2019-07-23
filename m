@@ -1,14 +1,18 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 17 Jul 2019 06:09:24 +0900
+Date: Wed, 24 Jul 2019 05:30:12 +0900
 Subject: [OpenRISC] [PATCH v3 0/5] OpenRISC updates for 10 (fpu, fixes)
 In-Reply-To: <20190709130626.11226-1-shorne@gmail.com>
 References: <20190709130626.11226-1-shorne@gmail.com>
-Message-ID: <20190716210924.GG2601@lianli.shorne-pla.net>
+Message-ID: <20190723203012.GI2601@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
+
+Hi All,
+
+This is all upstream now.  Thank you for the reviews.
 
 On Tue, Jul 09, 2019 at 10:06:21PM +0900, Stafford Horne wrote:
 > Hello,
@@ -47,13 +51,7 @@ On Tue, Jul 09, 2019 at 10:06:21PM +0900, Stafford Horne wrote:
 > If all is OK, I plan to commit these to master (gcc 10).  Then back port the PR
 > fixes to the GCC 9 branch, I will ask for guidance when I start to do the
 > backporting.
-
-Hello,
-
-Is there any concern if I commit these?
-
--Stafford
- 
+> 
 > -Stafford
 > 
 > [0] https://openrisc.io/proposals/orfpx64a32
