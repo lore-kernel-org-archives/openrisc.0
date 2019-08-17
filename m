@@ -1,75 +1,65 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Sat, 17 Aug 2019 09:32:47 +0200
-Subject: [OpenRISC] [PATCH 20/26] hexagon: remove __iounmap
+Date: Sat, 17 Aug 2019 09:32:48 +0200
+Subject: [OpenRISC] [PATCH 21/26] nios2: remove __iounmap
 In-Reply-To: <20190817073253.27819-1-hch@lst.de>
 References: <20190817073253.27819-1-hch@lst.de>
-Message-ID: <20190817073253.27819-21-hch@lst.de>
+Message-ID: <20190817073253.27819-22-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-No need to indirect iounmap for hexagon.
+No need to indirect iounmap for nios2.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/hexagon/include/asm/io.h       | 7 +------
- arch/hexagon/kernel/hexagon_ksyms.c | 2 +-
- arch/hexagon/mm/ioremap.c           | 2 +-
- 3 files changed, 3 insertions(+), 8 deletions(-)
+ arch/nios2/include/asm/io.h | 7 +------
+ arch/nios2/mm/ioremap.c     | 6 +++---
+ 2 files changed, 4 insertions(+), 9 deletions(-)
 
-diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
-index 89537dc1cf97..539e3efcf39c 100644
---- a/arch/hexagon/include/asm/io.h
-+++ b/arch/hexagon/include/asm/io.h
-@@ -27,7 +27,7 @@
- extern int remap_area_pages(unsigned long start, unsigned long phys_addr,
- 				unsigned long end, unsigned long flags);
+diff --git a/arch/nios2/include/asm/io.h b/arch/nios2/include/asm/io.h
+index d108937c321e..746853ac7d8d 100644
+--- a/arch/nios2/include/asm/io.h
++++ b/arch/nios2/include/asm/io.h
+@@ -26,12 +26,7 @@
+ #define writel_relaxed(x, addr)	writel(x, addr)
  
--extern void __iounmap(const volatile void __iomem *addr);
-+extern void iounmap(const volatile void __iomem *addr);
- 
- /* Defined in lib/io.c, needed for smc91x driver. */
- extern void __raw_readsw(const void __iomem *addr, void *data, int wordlen);
-@@ -175,11 +175,6 @@ void __iomem *ioremap(unsigned long phys_addr, unsigned long size);
- #define ioremap_nocache ioremap
- 
- 
--static inline void iounmap(volatile void __iomem *addr)
+ void __iomem *ioremap(unsigned long physaddr, unsigned long size);
+-extern void __iounmap(void __iomem *addr);
+-
+-static inline void iounmap(void __iomem *addr)
 -{
 -	__iounmap(addr);
 -}
--
- #define __raw_writel writel
++void iounmap(void __iomem *addr);
  
- static inline void memcpy_fromio(void *dst, const volatile void __iomem *src,
-diff --git a/arch/hexagon/kernel/hexagon_ksyms.c b/arch/hexagon/kernel/hexagon_ksyms.c
-index b3dbb472572e..6fb1aaab1c29 100644
---- a/arch/hexagon/kernel/hexagon_ksyms.c
-+++ b/arch/hexagon/kernel/hexagon_ksyms.c
-@@ -14,7 +14,7 @@
- EXPORT_SYMBOL(__clear_user_hexagon);
- EXPORT_SYMBOL(raw_copy_from_user);
- EXPORT_SYMBOL(raw_copy_to_user);
+ /* Pages to physical address... */
+ #define page_to_phys(page)	virt_to_phys(page_to_virt(page))
+diff --git a/arch/nios2/mm/ioremap.c b/arch/nios2/mm/ioremap.c
+index 7a1a27f3daa3..b56af759dcdf 100644
+--- a/arch/nios2/mm/ioremap.c
++++ b/arch/nios2/mm/ioremap.c
+@@ -157,11 +157,11 @@ void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
+ EXPORT_SYMBOL(ioremap);
+ 
+ /*
+- * __iounmap unmaps nearly everything, so be careful
++ * iounmap unmaps nearly everything, so be careful
+  * it doesn't free currently pointer/page tables anymore but it
+  * wasn't used anyway and might be added later.
+  */
+-void __iounmap(void __iomem *addr)
++void iounmap(void __iomem *addr)
+ {
+ 	struct vm_struct *p;
+ 
+@@ -173,4 +173,4 @@ void __iounmap(void __iomem *addr)
+ 		pr_err("iounmap: bad address %p\n", addr);
+ 	kfree(p);
+ }
 -EXPORT_SYMBOL(__iounmap);
 +EXPORT_SYMBOL(iounmap);
- EXPORT_SYMBOL(__strnlen_user);
- EXPORT_SYMBOL(__vmgetie);
- EXPORT_SYMBOL(__vmsetie);
-diff --git a/arch/hexagon/mm/ioremap.c b/arch/hexagon/mm/ioremap.c
-index b103d83b5fbb..255c5b1ee1a7 100644
---- a/arch/hexagon/mm/ioremap.c
-+++ b/arch/hexagon/mm/ioremap.c
-@@ -38,7 +38,7 @@ void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
- 	return (void __iomem *) (offset + addr);
- }
- 
--void __iounmap(const volatile void __iomem *addr)
-+void iounmap(const volatile void __iomem *addr)
- {
- 	vunmap((void *) ((unsigned long) addr & PAGE_MASK));
- }
 -- 
 2.20.1
 
