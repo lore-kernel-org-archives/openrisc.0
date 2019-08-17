@@ -1,53 +1,51 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Sat, 17 Aug 2019 09:32:30 +0200
-Subject: [OpenRISC] [PATCH 03/26] m68k, microblaze: remove ioremap_fullcache
+Date: Sat, 17 Aug 2019 09:32:31 +0200
+Subject: [OpenRISC] [PATCH 04/26] mips: remove ioremap_cachable
 In-Reply-To: <20190817073253.27819-1-hch@lst.de>
 References: <20190817073253.27819-1-hch@lst.de>
-Message-ID: <20190817073253.27819-4-hch@lst.de>
+Message-ID: <20190817073253.27819-5-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-No callers of this function.
+Just define ioremap_cache directly.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/m68k/include/asm/kmap.h     | 7 -------
- arch/microblaze/include/asm/io.h | 1 -
- 2 files changed, 8 deletions(-)
+ arch/mips/include/asm/io.h | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/arch/m68k/include/asm/kmap.h b/arch/m68k/include/asm/kmap.h
-index aac7f045f7f0..03d904fe6087 100644
---- a/arch/m68k/include/asm/kmap.h
-+++ b/arch/m68k/include/asm/kmap.h
-@@ -43,13 +43,6 @@ static inline void __iomem *ioremap_wt(unsigned long physaddr,
- 	return __ioremap(physaddr, size, IOMAP_WRITETHROUGH);
- }
+diff --git a/arch/mips/include/asm/io.h b/arch/mips/include/asm/io.h
+index 97a280640daf..c02db986ddf5 100644
+--- a/arch/mips/include/asm/io.h
++++ b/arch/mips/include/asm/io.h
+@@ -262,11 +262,11 @@ static inline void __iomem *ioremap_prot(phys_addr_t offset,
+ #define ioremap_uc ioremap_nocache
  
--#define ioremap_fullcache ioremap_fullcache
--static inline void __iomem *ioremap_fullcache(unsigned long physaddr,
--					      unsigned long size)
--{
--	return __ioremap(physaddr, size, IOMAP_FULL_CACHING);
--}
--
- #define memset_io memset_io
- static inline void memset_io(volatile void __iomem *addr, unsigned char val,
- 			     int count)
-diff --git a/arch/microblaze/include/asm/io.h b/arch/microblaze/include/asm/io.h
-index c7968139486f..86c95b2a1ce1 100644
---- a/arch/microblaze/include/asm/io.h
-+++ b/arch/microblaze/include/asm/io.h
-@@ -40,7 +40,6 @@ extern void iounmap(volatile void __iomem *addr);
+ /*
+- * ioremap_cachable -	map bus memory into CPU space
++ * ioremap_cache -	map bus memory into CPU space
+  * @offset:	    bus address of the memory
+  * @size:	    size of the resource to map
+  *
+- * ioremap_nocache performs a platform specific sequence of operations to
++ * ioremap_cache performs a platform specific sequence of operations to
+  * make bus memory CPU accessible via the readb/readw/readl/writeb/
+  * writew/writel functions and the other mmio helpers. The returned
+  * address is not guaranteed to be usable directly as a virtual
+@@ -276,9 +276,8 @@ static inline void __iomem *ioremap_prot(phys_addr_t offset,
+  * the CPU.  Also enables full write-combining.	 Useful for some
+  * memory-like regions on I/O busses.
+  */
+-#define ioremap_cachable(offset, size)					\
++#define ioremap_cache(offset, size)					\
+ 	__ioremap_mode((offset), (size), _page_cachable_default)
+-#define ioremap_cache ioremap_cachable
  
- extern void __iomem *ioremap(phys_addr_t address, unsigned long size);
- #define ioremap_nocache(addr, size)		ioremap((addr), (size))
--#define ioremap_fullcache(addr, size)		ioremap((addr), (size))
- #define ioremap_wc(addr, size)			ioremap((addr), (size))
- #define ioremap_wt(addr, size)			ioremap((addr), (size))
- 
+ /*
+  * ioremap_wc     -   map bus memory into CPU space
 -- 
 2.20.1
 
