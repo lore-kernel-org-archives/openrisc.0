@@ -1,43 +1,90 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Sat, 17 Aug 2019 09:32:41 +0200
-Subject: [OpenRISC] [PATCH 14/26] asm-generic: don't provide __ioremap
+Date: Sat, 17 Aug 2019 09:32:42 +0200
+Subject: [OpenRISC] [PATCH 15/26] asm-generic: ioremap_uc should behave the
+ same with and without MMU
 In-Reply-To: <20190817073253.27819-1-hch@lst.de>
 References: <20190817073253.27819-1-hch@lst.de>
-Message-ID: <20190817073253.27819-15-hch@lst.de>
+Message-ID: <20190817073253.27819-16-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-__ioremap is not a kernel API, but used for helpers with differing
-semantics in arch code.  We should not provide it in as-generic.
+Whatever reason there is for the existence of ioremap_uc, and the fact
+that it returns NULL by default on architectures with an MMU applies
+equally to nommu architectures, so don't provide different defaults.
+
+In practice the difference is meaningless as the only portable driver
+that uses ioremap_uc is atyfb which probably doesn't show up on nommu
+devices.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- include/asm-generic/io.h | 9 ---------
- 1 file changed, 9 deletions(-)
+ include/asm-generic/io.h | 36 ++++++++++++++++--------------------
+ 1 file changed, 16 insertions(+), 20 deletions(-)
 
 diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
-index b83e2802c969..d02806513670 100644
+index d02806513670..a98ed6325727 100644
 --- a/include/asm-generic/io.h
 +++ b/include/asm-generic/io.h
-@@ -963,15 +963,6 @@ static inline void __iomem *ioremap(phys_addr_t offset, size_t size)
- }
- #endif
- 
--#ifndef __ioremap
--#define __ioremap __ioremap
--static inline void __iomem *__ioremap(phys_addr_t offset, size_t size,
--				      unsigned long flags)
+@@ -935,18 +935,7 @@ static inline void *phys_to_virt(unsigned long address)
+  * defined your own ioremap_*() variant you must then declare your own
+  * ioremap_*() variant as defined to itself to avoid the default NULL return.
+  */
+-
+-#ifdef CONFIG_MMU
+-
+-#ifndef ioremap_uc
+-#define ioremap_uc ioremap_uc
+-static inline void __iomem *ioremap_uc(phys_addr_t offset, size_t size)
 -{
--	return ioremap(offset, size);
+-	return NULL;
 -}
 -#endif
 -
- #ifndef iounmap
- #define iounmap iounmap
+-#else /* !CONFIG_MMU */
++#ifndef CONFIG_MMU
  
+ /*
+  * Change "struct page" to physical address.
+@@ -980,14 +969,6 @@ static inline void __iomem *ioremap_nocache(phys_addr_t offset, size_t size)
+ }
+ #endif
+ 
+-#ifndef ioremap_uc
+-#define ioremap_uc ioremap_uc
+-static inline void __iomem *ioremap_uc(phys_addr_t offset, size_t size)
+-{
+-	return ioremap_nocache(offset, size);
+-}
+-#endif
+-
+ #ifndef ioremap_wc
+ #define ioremap_wc ioremap_wc
+ static inline void __iomem *ioremap_wc(phys_addr_t offset, size_t size)
+@@ -1004,6 +985,21 @@ static inline void __iomem *ioremap_wt(phys_addr_t offset, size_t size)
+ }
+ #endif
+ 
++/*
++ * ioremap_uc is special in that we do require an explicit architecture
++ * implementation.  In general you do now want to use this function in a
++ * driver and use plain ioremap, which is uncached by default.  Similarly
++ * architectures should not implement it unless they have a very good
++ * reason.
++ */
++#ifndef ioremap_uc
++#define ioremap_uc ioremap_uc
++static inline void __iomem *ioremap_uc(phys_addr_t offset, size_t size)
++{
++	return NULL;
++}
++#endif
++
+ #ifdef CONFIG_HAS_IOPORT_MAP
+ #ifndef CONFIG_GENERIC_IOMAP
+ #ifndef ioport_map
 -- 
 2.20.1
 
