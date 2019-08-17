@@ -1,28 +1,38 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Sat, 17 Aug 2019 09:32:27 +0200
-Subject: [OpenRISC] generic ioremap (and lots of cleanups)
-Message-ID: <20190817073253.27819-1-hch@lst.de>
+Date: Sat, 17 Aug 2019 09:32:28 +0200
+Subject: [OpenRISC] [PATCH 01/26] mtd/maps/pxa2xx: use ioremap_cache insted
+ of ioremap_cached
+In-Reply-To: <20190817073253.27819-1-hch@lst.de>
+References: <20190817073253.27819-1-hch@lst.de>
+Message-ID: <20190817073253.27819-2-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi all,
+pxa2xx-flash is the only user of ioremap_cached, which is an alias
+for ioremap_cache anyway.
 
-the last patches in this series add a generic ioremap implementation,
-and switch our 3 most recent and thus most tidy architeture ports over
-to use it.  With a little work and an additional arch hook or two the
-implementation should be able to eventually cover more than half of
-our ports.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ drivers/mtd/maps/pxa2xx-flash.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-The patches before that clean up various lose ends in the ioremap
-and iounmap implementations.
+diff --git a/drivers/mtd/maps/pxa2xx-flash.c b/drivers/mtd/maps/pxa2xx-flash.c
+index cebb346877a9..7d96758a8f04 100644
+--- a/drivers/mtd/maps/pxa2xx-flash.c
++++ b/drivers/mtd/maps/pxa2xx-flash.c
+@@ -68,8 +68,7 @@ static int pxa2xx_flash_probe(struct platform_device *pdev)
+ 		       info->map.name);
+ 		return -ENOMEM;
+ 	}
+-	info->map.cached =
+-		ioremap_cached(info->map.phys, info->map.size);
++	info->map.cached = ioremap_cache(info->map.phys, info->map.size);
+ 	if (!info->map.cached)
+ 		printk(KERN_WARNING "Failed to ioremap cached %s\n",
+ 		       info->map.name);
+-- 
+2.20.1
 
-A git tree is also available here:
-
-    git://git.infradead.org/users/hch/misc.git generic-ioremap
-
-Gitweb:
-
-    http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/generic-ioremap
