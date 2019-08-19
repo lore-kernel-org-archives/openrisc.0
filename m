@@ -1,23 +1,61 @@
-From: Christoph Hellwig <hch@lst.de>
-Date: Mon, 19 Aug 2019 11:18:46 +0200
-Subject: [OpenRISC] [PATCH 08/26] m68k: simplify ioremap_nocache
-In-Reply-To: <CAMuHMdWyXGjokWi7tn9JHCTz9YMb_vHn6XKeE7KzH5n-54Sy0A@mail.gmail.com>
+From: Paul Burton <paul.burton@mips.com>
+Date: Mon, 19 Aug 2019 20:57:30 +0000
+Subject: [OpenRISC] [PATCH 04/26] mips: remove ioremap_cachable
+In-Reply-To: <20190817073253.27819-5-hch@lst.de>
 References: <20190817073253.27819-1-hch@lst.de>
- <20190817073253.27819-9-hch@lst.de>
- <CAMuHMdWyXGjokWi7tn9JHCTz9YMb_vHn6XKeE7KzH5n-54Sy0A@mail.gmail.com>
-Message-ID: <20190819091846.GA27890@lst.de>
+ <20190817073253.27819-5-hch@lst.de>
+Message-ID: <20190819205722.4eir2edy6qgtgarl@pburton-laptop>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Aug 19, 2019 at 10:56:02AM +0200, Geert Uytterhoeven wrote:
-> BTW, shouldn't we get rid of the sole user of ioremap_uc(), too?
-> Seems to make a difference on x86 only, where it is "strongly uncached"
-> (whatever that may mean ;-)
+Hi Christoph,
 
-Yes, we probably should.  However that actually seems worth a discussion
-so I wanted to defer it until after this already huge series.
+On Sat, Aug 17, 2019 at 09:32:31AM +0200, Christoph Hellwig wrote:
+> Just define ioremap_cache directly.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Another thing we can do after this series is to kill of ioremap_nocache.
+Acked-by: Paul Burton <paul.burton@mips.com>
+
+Thanks,
+    Paul
+
+> ---
+>  arch/mips/include/asm/io.h | 7 +++----
+>  1 file changed, 3 insertions(+), 4 deletions(-)
+> 
+> diff --git a/arch/mips/include/asm/io.h b/arch/mips/include/asm/io.h
+> index 97a280640daf..c02db986ddf5 100644
+> --- a/arch/mips/include/asm/io.h
+> +++ b/arch/mips/include/asm/io.h
+> @@ -262,11 +262,11 @@ static inline void __iomem *ioremap_prot(phys_addr_t offset,
+>  #define ioremap_uc ioremap_nocache
+>  
+>  /*
+> - * ioremap_cachable -	map bus memory into CPU space
+> + * ioremap_cache -	map bus memory into CPU space
+>   * @offset:	    bus address of the memory
+>   * @size:	    size of the resource to map
+>   *
+> - * ioremap_nocache performs a platform specific sequence of operations to
+> + * ioremap_cache performs a platform specific sequence of operations to
+>   * make bus memory CPU accessible via the readb/readw/readl/writeb/
+>   * writew/writel functions and the other mmio helpers. The returned
+>   * address is not guaranteed to be usable directly as a virtual
+> @@ -276,9 +276,8 @@ static inline void __iomem *ioremap_prot(phys_addr_t offset,
+>   * the CPU.  Also enables full write-combining.	 Useful for some
+>   * memory-like regions on I/O busses.
+>   */
+> -#define ioremap_cachable(offset, size)					\
+> +#define ioremap_cache(offset, size)					\
+>  	__ioremap_mode((offset), (size), _page_cachable_default)
+> -#define ioremap_cache ioremap_cachable
+>  
+>  /*
+>   * ioremap_wc     -   map bus memory into CPU space
+> -- 
+> 2.20.1
+> 
