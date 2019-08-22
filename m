@@ -1,61 +1,48 @@
-From: Paul Burton <paul.burton@mips.com>
-Date: Mon, 19 Aug 2019 20:57:30 +0000
-Subject: [OpenRISC] [PATCH 04/26] mips: remove ioremap_cachable
-In-Reply-To: <20190817073253.27819-5-hch@lst.de>
-References: <20190817073253.27819-1-hch@lst.de>
- <20190817073253.27819-5-hch@lst.de>
-Message-ID: <20190819205722.4eir2edy6qgtgarl@pburton-laptop>
+From: Stafford Horne <shorne@gmail.com>
+Date: Thu, 22 Aug 2019 20:27:57 +0900
+Subject: [OpenRISC] [PATCH] or1k: Fix incorrect value in PLT GOT entries,
+ causing infinite loop
+Message-ID: <20190822112757.32751-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Christoph,
+The PLT GOT entry should point to the first PLT entry which contains the
+runtime linker function.  It was pointing back to the symbol PLT entry
+causing an infinite loop.
 
-On Sat, Aug 17, 2019 at 09:32:31AM +0200, Christoph Hellwig wrote:
-> Just define ioremap_cache directly.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+I found this when testing the OpenRISC glibc port which uses the runtime
+dynamic linker.  It seems other libc's we use so far have not been
+making use of the initial PLT GOT entries.
 
-Acked-by: Paul Burton <paul.burton@mips.com>
+bfd/ChangeLog:
 
-Thanks,
-    Paul
+	* elf32-or1k.c (or1k_elf_finish_dynamic_symbol): Use correct value for
+	PLT GOT entries.
+---
+ bfd/elf32-or1k.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-> ---
->  arch/mips/include/asm/io.h | 7 +++----
->  1 file changed, 3 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/mips/include/asm/io.h b/arch/mips/include/asm/io.h
-> index 97a280640daf..c02db986ddf5 100644
-> --- a/arch/mips/include/asm/io.h
-> +++ b/arch/mips/include/asm/io.h
-> @@ -262,11 +262,11 @@ static inline void __iomem *ioremap_prot(phys_addr_t offset,
->  #define ioremap_uc ioremap_nocache
->  
->  /*
-> - * ioremap_cachable -	map bus memory into CPU space
-> + * ioremap_cache -	map bus memory into CPU space
->   * @offset:	    bus address of the memory
->   * @size:	    size of the resource to map
->   *
-> - * ioremap_nocache performs a platform specific sequence of operations to
-> + * ioremap_cache performs a platform specific sequence of operations to
->   * make bus memory CPU accessible via the readb/readw/readl/writeb/
->   * writew/writel functions and the other mmio helpers. The returned
->   * address is not guaranteed to be usable directly as a virtual
-> @@ -276,9 +276,8 @@ static inline void __iomem *ioremap_prot(phys_addr_t offset,
->   * the CPU.  Also enables full write-combining.	 Useful for some
->   * memory-like regions on I/O busses.
->   */
-> -#define ioremap_cachable(offset, size)					\
-> +#define ioremap_cache(offset, size)					\
->  	__ioremap_mode((offset), (size), _page_cachable_default)
-> -#define ioremap_cache ioremap_cachable
->  
->  /*
->   * ioremap_wc     -   map bus memory into CPU space
-> -- 
-> 2.20.1
-> 
+diff --git a/bfd/elf32-or1k.c b/bfd/elf32-or1k.c
+index c1bbac98fb..cb7c0da5fd 100644
+--- a/bfd/elf32-or1k.c
++++ b/bfd/elf32-or1k.c
+@@ -2377,8 +2377,11 @@ or1k_elf_finish_dynamic_symbol (bfd *output_bfd,
+       or1k_write_plt_entry (output_bfd, splt->contents + h->plt.offset,
+ 			    plt0, plt1, plt2, OR1K_JR(12));
+ 
+-      /* Fill in the entry in the global offset table.  */
+-      bfd_put_32 (output_bfd, plt_addr, sgot->contents + got_offset);
++      /* Fill in the entry in the global offset table.  We initialize it to
++	 point to the top of the plt.  This is done to lazy lookup the actual
++	 symbol as the first plt entry will be setup by libc to call the
++	 runtime dynamic linker.  */
++      bfd_put_32 (output_bfd, plt_base_addr, sgot->contents + got_offset);
+ 
+       /* Fill in the entry in the .rela.plt section.  */
+       rela.r_offset = got_addr;
+-- 
+2.21.0
+
