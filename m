@@ -1,19 +1,32 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Fri, 30 Aug 2019 18:04:04 +0200
-Subject: [OpenRISC] [PATCH 14/26] asm-generic: don't provide __ioremap
-In-Reply-To: <alpine.DEB.2.21.9999.1908171357180.4130@viisi.sifive.com>
+Date: Fri, 30 Aug 2019 18:04:54 +0200
+Subject: [OpenRISC] [PATCH 12/26] x86: clean up ioremap
+In-Reply-To: <20190817103402.GA7602@gmail.com>
 References: <20190817073253.27819-1-hch@lst.de>
- <20190817073253.27819-15-hch@lst.de>
- <alpine.DEB.2.21.9999.1908171357180.4130@viisi.sifive.com>
-Message-ID: <20190830160404.GA26887@lst.de>
+ <20190817073253.27819-13-hch@lst.de> <20190817103402.GA7602@gmail.com>
+Message-ID: <20190830160454.GB26887@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Arnd, can you consider this patch for asm-generic for 5.4?  I don't
-think I'll be able to feed the actual generic ioremap implementation
-to Linus this merge window, but if we can get as many patches as
-possible in through their maintainer trees that would make my life
-much easier.
+On Sat, Aug 17, 2019 at 12:34:02PM +0200, Ingo Molnar wrote:
+> 
+> * Christoph Hellwig <hch@lst.de> wrote:
+> 
+> > Use ioremap as the main implemented function, and defined
+> > ioremap_nocache to it as a deprecated alias.
+> > 
+> > Signed-off-by: Christoph Hellwig <hch@lst.de>
+> > ---
+> >  arch/x86/include/asm/io.h | 8 ++------
+> >  arch/x86/mm/ioremap.c     | 8 ++++----
+> >  arch/x86/mm/pageattr.c    | 4 ++--
+> >  3 files changed, 8 insertions(+), 12 deletions(-)
+> 
+> Acked-by: Ingo Molnar <mingo@kernel.org>
+
+Can you pick it up through tip for 5.4?  That way we can get most
+bits in through their maintainer trees, and then I'll resubmit the
+rest for the next merge window.
