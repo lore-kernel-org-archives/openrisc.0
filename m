@@ -1,37 +1,41 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 31 Aug 2019 06:45:12 +0900
-Subject: [OpenRISC] [PATCH 05/26] openrisc: map as uncached in ioremap
-In-Reply-To: <20190830160705.GF26887@lst.de>
+From: Will Deacon <will@kernel.org>
+Date: Sat, 31 Aug 2019 17:29:38 +0100
+Subject: [OpenRISC] [PATCH 19/26] arm64: remove __iounmap
+In-Reply-To: <20190830160515.GC26887@lst.de>
 References: <20190817073253.27819-1-hch@lst.de>
- <20190817073253.27819-6-hch@lst.de>
- <20190823135539.GC24874@lianli.shorne-pla.net>
- <20190830160705.GF26887@lst.de>
-Message-ID: <20190830214512.GX24874@lianli.shorne-pla.net>
+ <20190817073253.27819-20-hch@lst.de>
+ <20190819073601.4yxjvmyjtpi7tk56@willie-the-truck>
+ <20190830160515.GC26887@lst.de>
+Message-ID: <20190831162937.5ybulvaa4eq7mybs@willie-the-truck>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, Aug 30, 2019 at 06:07:05PM +0200, Christoph Hellwig wrote:
-> On Fri, Aug 23, 2019 at 10:55:39PM +0900, Stafford Horne wrote:
-> > On Sat, Aug 17, 2019 at 09:32:32AM +0200, Christoph Hellwig wrote:
-> > > Openrisc is the only architecture not mapping ioremap as uncached,
-> > > which has been the default since the Linux 2.6.x days.  Switch it
-> > > over to implement uncached semantics by default.
+Hi Christoph,
+
+On Fri, Aug 30, 2019 at 06:05:15PM +0200, Christoph Hellwig wrote:
+> On Mon, Aug 19, 2019 at 08:36:02AM +0100, Will Deacon wrote:
+> > On Sat, Aug 17, 2019 at 09:32:46AM +0200, Christoph Hellwig wrote:
+> > > No need to indirect iounmap for arm64.
 > > > 
 > > > Signed-off-by: Christoph Hellwig <hch@lst.de>
 > > > ---
-> > >  arch/openrisc/include/asm/io.h      | 20 +++-----------------
-> > >  arch/openrisc/include/asm/pgtable.h |  2 +-
-> > >  arch/openrisc/mm/ioremap.c          |  8 ++++----
-> > >  3 files changed, 8 insertions(+), 22 deletions(-)
+> > >  arch/arm64/include/asm/io.h | 3 +--
+> > >  arch/arm64/mm/ioremap.c     | 4 ++--
+> > >  2 files changed, 3 insertions(+), 4 deletions(-)
 > > 
-> > Acked-by: Stafford Horne <shorne@gmail.com>
+> > Not sure why we did it like this...
+> > 
+> > Acked-by: Will Deacon <will@kernel.org>
 > 
-> Can you send this one to Linus for 5.4?  That would help with the
-> possibility to remove ioremap_nocache after that.
+> Can you just pick this one up through the arm64 tree for 5.4?
 
-Sure, I will pick this up.
+Unfortunately, it doesn't apply because the tree you've based it on has
+removed ioremap_wt(). If you send a version based on mainline, I can
+queue it.
 
--Stafford
+Cheers,
+
+Will
