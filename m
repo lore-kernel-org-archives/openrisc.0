@@ -1,65 +1,75 @@
-From: BAndViG <bandvig@mail.ru>
-Date: Mon, 2 Sep 2019 21:01:39 +0300
-Subject: [OpenRISC] [PATCH 2/2] or1k: dts: Add ethoc device to SMP
- devicetree
-In-Reply-To: <20190831030348.6920-3-shorne@gmail.com>
-References: <20190831030348.6920-1-shorne@gmail.com>
- <20190831030348.6920-3-shorne@gmail.com>
-Message-ID: <28B006D9DDD5477CB7AA012671DB30F8@BAndViG>
+From: Michal Simek <monstr@monstr.eu>
+Date: Mon, 2 Sep 2019 16:16:52 +0200
+Subject: [OpenRISC] [PATCH 03/26] m68k,
+ microblaze: remove ioremap_fullcache
+In-Reply-To: <20190817073253.27819-4-hch@lst.de>
+References: <20190817073253.27819-1-hch@lst.de>
+ <20190817073253.27819-4-hch@lst.de>
+Message-ID: <9a11ddb0-0799-c64a-f5aa-0504c564998f@monstr.eu>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hello All.
-I've ported these ethernet description for my Atlys-based SoC. Prior to it 
-Linux were not able even to detect Marvell's PHY. With the modifications 
-Marvell's PHY is detected correctly. However, I still can not  use ethernet 
-connection. For example, If I try to execute "ping {ip-of-my-pc}" it reports 
-"net eth0: TX: carrier sense lost". Perhaps, I have to configure correctly MDIO 
-bus and PHY itself. Have anybody got an recommendation?
+On 17. 08. 19 9:32, Christoph Hellwig wrote:
+> No callers of this function.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  arch/m68k/include/asm/kmap.h     | 7 -------
+>  arch/microblaze/include/asm/io.h | 1 -
+>  2 files changed, 8 deletions(-)
+> 
+> diff --git a/arch/m68k/include/asm/kmap.h b/arch/m68k/include/asm/kmap.h
+> index aac7f045f7f0..03d904fe6087 100644
+> --- a/arch/m68k/include/asm/kmap.h
+> +++ b/arch/m68k/include/asm/kmap.h
+> @@ -43,13 +43,6 @@ static inline void __iomem *ioremap_wt(unsigned long physaddr,
+>  	return __ioremap(physaddr, size, IOMAP_WRITETHROUGH);
+>  }
+>  
+> -#define ioremap_fullcache ioremap_fullcache
+> -static inline void __iomem *ioremap_fullcache(unsigned long physaddr,
+> -					      unsigned long size)
+> -{
+> -	return __ioremap(physaddr, size, IOMAP_FULL_CACHING);
+> -}
+> -
+>  #define memset_io memset_io
+>  static inline void memset_io(volatile void __iomem *addr, unsigned char val,
+>  			     int count)
+> diff --git a/arch/microblaze/include/asm/io.h b/arch/microblaze/include/asm/io.h
+> index c7968139486f..86c95b2a1ce1 100644
+> --- a/arch/microblaze/include/asm/io.h
+> +++ b/arch/microblaze/include/asm/io.h
+> @@ -40,7 +40,6 @@ extern void iounmap(volatile void __iomem *addr);
+>  
+>  extern void __iomem *ioremap(phys_addr_t address, unsigned long size);
+>  #define ioremap_nocache(addr, size)		ioremap((addr), (size))
+> -#define ioremap_fullcache(addr, size)		ioremap((addr), (size))
+>  #define ioremap_wc(addr, size)			ioremap((addr), (size))
+>  #define ioremap_wt(addr, size)			ioremap((addr), (size))
+>  
+> 
 
-WBR
-Andrey
+Acked-by: Michal Simek <monstr@monstr.eu> (for Microblaze)
 
------Исходное сообщение----- 
-From: Stafford Horne
-Sent: Saturday, August 31, 2019 6:03 AM
-To: LKML
-Cc: Mark Rutland ; Jonas Bonn ; devicetree at vger.kernel.org ; Rob Herring ; 
-openrisc at lists.librecores.org
-Subject: [OpenRISC] [PATCH 2/2] or1k: dts: Add ethoc device to SMP devicetree
+Thanks,
+Michal
 
-This patch adds the ethoc device configuration to the OpenRISC basic SMP
-device tree config.  This was tested with qemu.
-
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
-arch/openrisc/boot/dts/simple_smp.dts | 6 ++++++
-1 file changed, 6 insertions(+)
-
-diff --git a/arch/openrisc/boot/dts/simple_smp.dts 
-b/arch/openrisc/boot/dts/simple_smp.dts
-index defbb92714ec..71af0e117bfe 100644
---- a/arch/openrisc/boot/dts/simple_smp.dts
-+++ b/arch/openrisc/boot/dts/simple_smp.dts
-@@ -60,4 +60,10 @@
-  clock-frequency = <20000000>;
-  };
-
-+ enet0: ethoc at 92000000 {
-+ compatible = "opencores,ethoc";
-+ reg = <0x92000000 0x800>;
-+ interrupts = <4>;
-+ big-endian;
-+ };
-};
 -- 
-2.21.0
+Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
+w: www.monstr.eu p: +42-0-721842854
+Maintainer of Linux kernel - Xilinx Microblaze
+Maintainer of Linux kernel - Xilinx Zynq ARM and ZynqMP ARM64 SoCs
+U-Boot custodian - Xilinx Microblaze/Zynq/ZynqMP/Versal SoCs
 
-_______________________________________________
-OpenRISC mailing list
-OpenRISC at lists.librecores.org
-https://lists.librecores.org/listinfo/openrisc
 
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 195 bytes
+Desc: OpenPGP digital signature
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20190902/926382d9/attachment.sig>
