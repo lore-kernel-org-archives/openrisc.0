@@ -1,42 +1,65 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Mon, 2 Sep 2019 09:53:01 +0200
-Subject: [OpenRISC] [PATCH 08/26] m68k: simplify ioremap_nocache
-In-Reply-To: <20190830160620.GD26887@lst.de>
-References: <20190817073253.27819-1-hch@lst.de>
- <20190817073253.27819-9-hch@lst.de>
- <CAMuHMdWyXGjokWi7tn9JHCTz9YMb_vHn6XKeE7KzH5n-54Sy0A@mail.gmail.com>
- <20190830160620.GD26887@lst.de>
-Message-ID: <CAMuHMdXB=DWyu=Y25gih5poeanVnhLEP2MXoozvxdEY6op32FA@mail.gmail.com>
+From: BAndViG <bandvig@mail.ru>
+Date: Mon, 2 Sep 2019 21:01:39 +0300
+Subject: [OpenRISC] [PATCH 2/2] or1k: dts: Add ethoc device to SMP
+ devicetree
+In-Reply-To: <20190831030348.6920-3-shorne@gmail.com>
+References: <20190831030348.6920-1-shorne@gmail.com>
+ <20190831030348.6920-3-shorne@gmail.com>
+Message-ID: <28B006D9DDD5477CB7AA012671DB30F8@BAndViG>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-Hi Christoph,
+Hello All.
+I've ported these ethernet description for my Atlys-based SoC. Prior to it 
+Linux were not able even to detect Marvell's PHY. With the modifications 
+Marvell's PHY is detected correctly. However, I still can not  use ethernet 
+connection. For example, If I try to execute "ping {ip-of-my-pc}" it reports 
+"net eth0: TX: carrier sense lost". Perhaps, I have to configure correctly MDIO 
+bus and PHY itself. Have anybody got an recommendation?
 
-On Fri, Aug 30, 2019 at 6:06 PM Christoph Hellwig <hch@lst.de> wrote:
-> On Mon, Aug 19, 2019 at 10:56:02AM +0200, Geert Uytterhoeven wrote:
-> > On Sat, Aug 17, 2019 at 9:48 AM Christoph Hellwig <hch@lst.de> wrote:
-> > > Just define ioremap_nocache to ioremap instead of duplicating the
-> > > inline.  Also defined ioremap_uc in terms of ioremap instead of
-> > > the using a double indirection.
-> > >
-> > > Signed-off-by: Christoph Hellwig <hch@lst.de>
-> >
-> > Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
->
-> Do you mind picking this up through the m68k tree?
+WBR
+Andrey
 
-Sure. Applied and queued for v5.4.
+-----Исходное сообщение----- 
+From: Stafford Horne
+Sent: Saturday, August 31, 2019 6:03 AM
+To: LKML
+Cc: Mark Rutland ; Jonas Bonn ; devicetree at vger.kernel.org ; Rob Herring ; 
+openrisc at lists.librecores.org
+Subject: [OpenRISC] [PATCH 2/2] or1k: dts: Add ethoc device to SMP devicetree
 
-Gr{oetje,eeting}s,
+This patch adds the ethoc device configuration to the OpenRISC basic SMP
+device tree config.  This was tested with qemu.
 
-                        Geert
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+arch/openrisc/boot/dts/simple_smp.dts | 6 ++++++
+1 file changed, 6 insertions(+)
 
+diff --git a/arch/openrisc/boot/dts/simple_smp.dts 
+b/arch/openrisc/boot/dts/simple_smp.dts
+index defbb92714ec..71af0e117bfe 100644
+--- a/arch/openrisc/boot/dts/simple_smp.dts
++++ b/arch/openrisc/boot/dts/simple_smp.dts
+@@ -60,4 +60,10 @@
+  clock-frequency = <20000000>;
+  };
+
++ enet0: ethoc at 92000000 {
++ compatible = "opencores,ethoc";
++ reg = <0x92000000 0x800>;
++ interrupts = <4>;
++ big-endian;
++ };
+};
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert at linux-m68k.org
+2.21.0
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+_______________________________________________
+OpenRISC mailing list
+OpenRISC at lists.librecores.org
+https://lists.librecores.org/listinfo/openrisc
+
