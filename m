@@ -1,72 +1,37 @@
-From: Guo Ren <guoren@kernel.org>
-Date: Mon, 21 Oct 2019 15:58:28 +0800
-Subject: [OpenRISC] [PATCH 20/21] csky: remove ioremap_cache
-In-Reply-To: <20191017174554.29840-21-hch@lst.de>
+From: Thomas Gleixner <tglx@linutronix.de>
+Date: Mon, 21 Oct 2019 10:23:03 +0200 (CEST)
+Subject: [OpenRISC] [PATCH 08/21] x86: clean up ioremap
+In-Reply-To: <20191017174554.29840-9-hch@lst.de>
 References: <20191017174554.29840-1-hch@lst.de>
- <20191017174554.29840-21-hch@lst.de>
-Message-ID: <CAJF2gTQ_VeBfi1uaafgtp+uA2skq-w2px12ig=5QD1O9J+PgbA@mail.gmail.com>
+ <20191017174554.29840-9-hch@lst.de>
+Message-ID: <alpine.DEB.2.21.1910211019540.1904@nanos.tec.linutronix.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Acked-by: Guo Ren <guoren@kernel.org>
+On Thu, 17 Oct 2019, Christoph Hellwig wrote:
 
-On Fri, Oct 18, 2019 at 1:47 AM Christoph Hellwig <hch@lst.de> wrote:
->
-> No driver that can be used on csky uses ioremap_cache, and this
-> interface has been deprecated in favor of memremap.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  arch/csky/include/asm/io.h | 2 --
->  arch/csky/mm/ioremap.c     | 7 -------
->  2 files changed, 9 deletions(-)
->
-> diff --git a/arch/csky/include/asm/io.h b/arch/csky/include/asm/io.h
-> index a4b9fb616faa..f572605d5ad5 100644
-> --- a/arch/csky/include/asm/io.h
-> +++ b/arch/csky/include/asm/io.h
-> @@ -36,13 +36,11 @@
->  /*
->   * I/O memory mapping functions.
->   */
-> -extern void __iomem *ioremap_cache(phys_addr_t addr, size_t size);
->  extern void __iomem *__ioremap(phys_addr_t addr, size_t size, pgprot_t prot);
->  extern void iounmap(void *addr);
->
->  #define ioremap(addr, size)            __ioremap((addr), (size), pgprot_noncached(PAGE_KERNEL))
->  #define ioremap_wc(addr, size)         __ioremap((addr), (size), pgprot_writecombine(PAGE_KERNEL))
-> -#define ioremap_cache                  ioremap_cache
->
->  #include <asm-generic/io.h>
->
-> diff --git a/arch/csky/mm/ioremap.c b/arch/csky/mm/ioremap.c
-> index e13cd3497628..ae78256a56fd 100644
-> --- a/arch/csky/mm/ioremap.c
-> +++ b/arch/csky/mm/ioremap.c
-> @@ -44,13 +44,6 @@ void __iomem *__ioremap(phys_addr_t phys_addr, size_t size, pgprot_t prot)
->  }
->  EXPORT_SYMBOL(__ioremap);
->
-> -void __iomem *ioremap_cache(phys_addr_t phys_addr, size_t size)
-> -{
-> -       return __ioremap_caller(phys_addr, size, PAGE_KERNEL,
-> -                               __builtin_return_address(0));
-> -}
-> -EXPORT_SYMBOL(ioremap_cache);
-> -
->  void iounmap(void __iomem *addr)
->  {
->         vunmap((void *)((unsigned long)addr & PAGE_MASK));
-> --
-> 2.20.1
->
+Please change the subject to:
 
+       x86/mm: Cleanup ioremap()
 
--- 
-Best Regards
- Guo Ren
+> Use ioremap as the main implemented function, and defined
 
-ML: https://lore.kernel.org/linux-csky/
+ioremap() please
+
+s/defined/define/
+
+> ioremap_nocache to it as a deprecated alias.
+
+ioremap_nocache() as a deprecated alias of ioremap().
+
+Aside of that this lacks any form of rationale. Please add some WHY to it.
+
+Should this go with your larger series or can this be picked up
+independently?
+
+Thanks,
+
+	tglx
