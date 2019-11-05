@@ -1,18 +1,17 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Tue, 5 Nov 2019 02:26:17 +0100
-Subject: [OpenRISC] [PATCH 20/21] csky: remove ioremap_cache
-In-Reply-To: <CAJF2gTQ_VeBfi1uaafgtp+uA2skq-w2px12ig=5QD1O9J+PgbA@mail.gmail.com>
-References: <20191017174554.29840-1-hch@lst.de>
- <20191017174554.29840-21-hch@lst.de>
- <CAJF2gTQ_VeBfi1uaafgtp+uA2skq-w2px12ig=5QD1O9J+PgbA@mail.gmail.com>
-Message-ID: <20191105012617.GA31847@lst.de>
+Date: Tue, 5 Nov 2019 02:31:06 +0100
+Subject: [OpenRISC] generic ioremap (and lots of cleanups) v3
+In-Reply-To: <20191029064834.23438-1-hch@lst.de>
+References: <20191029064834.23438-1-hch@lst.de>
+Message-ID: <20191105013106.GA32497@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Oct 21, 2019 at 03:58:28PM +0800, Guo Ren wrote:
-> Acked-by: Guo Ren <guoren@kernel.org>
+Hi folks,
 
-Can you also take a look at the next patch and give me a review?
+can I get a few more reviews?  Especially for the actual generic
+ioremap implementation and the asm-generic bits?  I'd love to be able
+to queue this up for linux-next some time this week.
