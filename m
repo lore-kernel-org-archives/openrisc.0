@@ -1,79 +1,60 @@
-From: Dmitry Safonov <dima@arista.com>
-Date: Wed,  6 Nov 2019 03:05:15 +0000
-Subject: [OpenRISC] [PATCH 24/50] openrisc: Add show_stack_loglvl()
+From: Petr Mladek <pmladek@suse.com>
+Date: Wed, 6 Nov 2019 09:35:38 +0100
+Subject: [OpenRISC] [PATCH 00/50] Add log level to show_stack()
 In-Reply-To: <20191106030542.868541-1-dima@arista.com>
 References: <20191106030542.868541-1-dima@arista.com>
-Message-ID: <20191106030542.868541-25-dima@arista.com>
+Message-ID: <20191106083538.z5nlpuf64cigxigh@pathway.suse.cz>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Currently, the log-level of show_stack() depends on a platform
-realization. It creates situations where the headers are printed with
-lower log level or higher than the stacktrace (depending on
-a platform or user).
+On Wed 2019-11-06 03:04:51, Dmitry Safonov wrote:
+> Add log level argument to show_stack().
+> Done in three stages:
+> 1. Introducing show_stack_loglvl() for every architecture
+> 2. Migrating old users with an explicit log level
+> 3. Renaming show_stack_loglvl() into show_stack()
+> 
+> Justification:
+> o It's a design mistake to move a business-logic decision
+>   into platform realization detail.
+> o I have currently two patches sets that would benefit from this work:
+>   Removing console_loglevel jumps in sysrq driver [1]
 
-Furthermore, it forces the logic decision from user to an architecture
-side. In result, some users as sysrq/kdb/etc are doing tricks with
-temporary rising console_loglevel while printing their messages.
-And in result it not only may print unwanted messages from other CPUs,
-but also omit printing at all in the unlucky case where the printk()
-was deferred.
+Just to clarify. The problem in sysrq driver is a bit different.
+It modifies console_loglevel to show even less important message
+on the console.
 
-Introducing log-level parameter and KERN_UNSUPPRESSED [1] seems
-an easier approach than introducing more printk buffers.
-Also, it will consolidate printings with headers.
+IMHO, it should be solved by printing the header line with pr_error().
+It is not ideal. A cleaner solution might be to introduce another
+loglevel that will always get pushed to the console. But I am
+not sure if it is worth this single line.
 
-Introduce show_stack_loglvl(), that eventually will substitute
-show_stack().
+>   Hung task warning before panic [2] - suggested by Tetsuo (but he
+>   probably didn't realise what it would involve).
+> o While doing (1), (2) the backtraces were adjusted to headers
+>   and other messages for each situation - so there won't be a situation
+>   when the backtrace is printed, but the headers are missing because
+>   they have lesser log level (or the reverse).
+> o As the result in (2) plays with console_loglevel for kdb are removed.
 
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: openrisc at lists.librecores.org
-[1]: https://lore.kernel.org/lkml/20190528002412.1625-1-dima at arista.com/T/#u
-Signed-off-by: Dmitry Safonov <dima@arista.com>
----
- arch/openrisc/kernel/traps.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+> The least important for upstream, but maybe still worth to note that
+> every company I've worked in so far had an off-list patch to print
+> backtrace with the needed log level (but only for the architecture they
+> cared about).
+> If you have other ideas how you will benefit from show_stack() with
+> a log level - please, reply to this cover letter.
 
-diff --git a/arch/openrisc/kernel/traps.c b/arch/openrisc/kernel/traps.c
-index 932a8ec2b520..9d5a85dd1992 100644
---- a/arch/openrisc/kernel/traps.c
-+++ b/arch/openrisc/kernel/traps.c
-@@ -41,18 +41,26 @@ unsigned long __user *lwa_addr;
- 
- void print_trace(void *data, unsigned long addr, int reliable)
- {
--	pr_emerg("[<%p>] %s%pS\n", (void *) addr, reliable ? "" : "? ",
-+	const char *loglvl = data;
-+
-+	printk("%s[<%p>] %s%pS\n", loglvl, (void *) addr, reliable ? "" : "? ",
- 	       (void *) addr);
- }
- 
- /* displays a short stack trace */
--void show_stack(struct task_struct *task, unsigned long *esp)
-+void show_stack_loglvl(struct task_struct *task, unsigned long *esp,
-+		const char *loglvl)
- {
- 	if (esp == NULL)
- 		esp = (unsigned long *)&esp;
- 
--	pr_emerg("Call trace:\n");
--	unwind_stack(NULL, esp, print_trace);
-+	printk("%sCall trace:\n", loglvl);
-+	unwind_stack((void *)loglvl, esp, print_trace);
-+}
-+
-+void show_stack(struct task_struct *task, unsigned long *esp)
-+{
-+	show_stack_loglvl(task, esp, KERN_EMERG);
- }
- 
- void show_trace_task(struct task_struct *tsk)
--- 
-2.23.0
+I agree with all the other justification.
 
+I would add. The backtrace is really useful for debugging. It should
+be possible to print it even in less critical situations.
+
+I am afraid that many people use WARN() for this purpose. But WARN()
+is not always appropriate. WARN() misuse huts when panic_on_warn
+option is used.
+
+Best Regards,
+Petr
