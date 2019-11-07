@@ -1,20 +1,21 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Thu,  7 Nov 2019 18:40:33 +0100
-Subject: [OpenRISC] provide in-place uncached remapping for dma-direct
-Message-ID: <20191107174035.13783-1-hch@lst.de>
+Date: Thu, 7 Nov 2019 21:47:43 +0100
+Subject: [OpenRISC] generic-iomap tree for linux-next
+In-Reply-To: <20191029064834.23438-1-hch@lst.de>
+References: <20191029064834.23438-1-hch@lst.de>
+Message-ID: <20191107204743.GA22863@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi all,
+Hi Stephen,
 
-this series provides support for remapping places uncached in-place in
-the generic dma-direct code, and moves openrisc over from its own
-in-place remapping scheme.  The arm64 folks also had interest in such
-a scheme to avoid problems with speculating into cache aliases.
+can you add the generic-ioremap tree:
 
-Also all architectures that always use small page mappings for the
-kernel and have non-coherent DMA should look into enabling this
-scheme, as it is much more efficient than the vmap remapping.
+   git://git.infradead.org/users/hch/ioremap.git
+
+to linux-next? 
+
+Thanks!
