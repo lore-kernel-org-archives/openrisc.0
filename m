@@ -1,128 +1,119 @@
-From: Palmer Dabbelt <palmer@dabbelt.com>
-Date: Thu, 07 Nov 2019 07:29:10 -0800 (PST)
-Subject: [OpenRISC] [PATCH 17/21] lib: provide a simple generic ioremap
- implementation
-In-Reply-To: <20191029064834.23438-18-hch@lst.de>
-Message-ID: <mhng-e96b8613-e384-4e94-90f8-d1cf78c5627a@palmer-si-x1c4>
+From: Christoph Hellwig <hch@lst.de>
+Date: Thu,  7 Nov 2019 18:40:35 +0100
+Subject: [OpenRISC] [PATCH 2/2] openrisc: use the generic in-place uncached
+ DMA allocator
+In-Reply-To: <20191107174035.13783-1-hch@lst.de>
+References: <20191107174035.13783-1-hch@lst.de>
+Message-ID: <20191107174035.13783-3-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, 28 Oct 2019 23:48:30 PDT (-0700), Christoph Hellwig wrote:
-> A lot of architectures reuse the same simple ioremap implementation, so
-> start lifting the most simple variant to lib/ioremap.c.  It provides
-> ioremap_prot and iounmap, plus a default ioremap that uses prot_noncached,
-> although that can be overridden by asm/io.h.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  include/asm-generic/io.h | 20 ++++++++++++++++----
->  lib/Kconfig              |  3 +++
->  lib/ioremap.c            | 39 +++++++++++++++++++++++++++++++++++++++
->  3 files changed, 58 insertions(+), 4 deletions(-)
->
-> diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
-> index 4e45e1cb6560..4a661fdd1937 100644
-> --- a/include/asm-generic/io.h
-> +++ b/include/asm-generic/io.h
-> @@ -923,9 +923,10 @@ static inline void *phys_to_virt(unsigned long address)
->   * DOC: ioremap() and ioremap_*() variants
->   *
->   * Architectures with an MMU are expected to provide ioremap() and iounmap()
-> - * themselves.  For NOMMU architectures we provide a default nop-op
-> - * implementation that expect that the physical address used for MMIO are
-> - * already marked as uncached, and can be used as kernel virtual addresses.
-> + * themselves or rely on GENERIC_IOREMAP.  For NOMMU architectures we provide
-> + * a default nop-op implementation that expect that the physical address used
-> + * for MMIO are already marked as uncached, and can be used as kernel virtual
-> + * addresses.
->   *
->   * ioremap_wc() and ioremap_wt() can provide more relaxed caching attributes
->   * for specific drivers if the architecture choses to implement them.  If they
-> @@ -946,7 +947,18 @@ static inline void iounmap(void __iomem *addr)
->  {
->  }
->  #endif
-> -#endif /* CONFIG_MMU */
-> +#elif defined(CONFIG_GENERIC_IOREMAP)
-> +#include <asm/pgtable.h>
-> +
-> +void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot);
-> +void iounmap(volatile void __iomem *addr);
-> +
-> +static inline void __iomem *ioremap(phys_addr_t addr, size_t size)
-> +{
-> +	/* _PAGE_IOREMAP needs to be supplied by the architecture */
-> +	return ioremap_prot(addr, size, _PAGE_IOREMAP);
-> +}
-> +#endif /* !CONFIG_MMU || CONFIG_GENERIC_IOREMAP */
->
->  #ifndef ioremap_nocache
->  #define ioremap_nocache ioremap
-> diff --git a/lib/Kconfig b/lib/Kconfig
-> index 183f92a297ca..afc78aaf2b25 100644
-> --- a/lib/Kconfig
-> +++ b/lib/Kconfig
-> @@ -638,6 +638,9 @@ config STRING_SELFTEST
->
->  endmenu
->
-> +config GENERIC_IOREMAP
-> +	bool
-> +
->  config GENERIC_LIB_ASHLDI3
->  	bool
->
-> diff --git a/lib/ioremap.c b/lib/ioremap.c
-> index 0a2ffadc6d71..3f0e18543de8 100644
-> --- a/lib/ioremap.c
-> +++ b/lib/ioremap.c
-> @@ -231,3 +231,42 @@ int ioremap_page_range(unsigned long addr,
->
->  	return err;
->  }
-> +
-> +#ifdef CONFIG_GENERIC_IOREMAP
-> +void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot)
-> +{
-> +	unsigned long offset, vaddr;
-> +	phys_addr_t last_addr;
-> +	struct vm_struct *area;
-> +
-> +	/* Disallow wrap-around or zero size */
-> +	last_addr = addr + size - 1;
-> +	if (!size || last_addr < addr)
-> +		return NULL;
-> +
-> +	/* Page-align mappings */
-> +	offset = addr & (~PAGE_MASK);
-> +	addr -= offset;
-> +	size = PAGE_ALIGN(size + offset);
-> +
-> +	area = get_vm_area_caller(size, VM_IOREMAP,
-> +			__builtin_return_address(0));
-> +	if (!area)
-> +		return NULL;
-> +	vaddr = (unsigned long)area->addr;
-> +
-> +	if (ioremap_page_range(vaddr, vaddr + size, addr, __pgprot(prot))) {
-> +		free_vm_area(area);
-> +		return NULL;
-> +	}
-> +
-> +	return (void __iomem *)(vaddr + offset);
-> +}
-> +EXPORT_SYMBOL(ioremap_prot);
-> +
-> +void iounmap(volatile void __iomem *addr)
-> +{
-> +	vunmap((void *)((unsigned long)addr & PAGE_MASK));
-> +}
-> +EXPORT_SYMBOL(iounmap);
-> +#endif /* CONFIG_GENERIC_IOREMAP */
+Switch openrisc to use the dma-direct allocator and just provide the
+hooks for setting memory uncached or cached.
 
-Reviewed-by: Palmer Dabbelt <palmer@dabbelt.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ arch/openrisc/Kconfig      |  1 +
+ arch/openrisc/kernel/dma.c | 51 +++++---------------------------------
+ 2 files changed, 7 insertions(+), 45 deletions(-)
 
-Thanks!  This should let us get rid of arch/riscv/mm/ioremap.c.
+diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+index bf326f0edd2f..72469d2d2866 100644
+--- a/arch/openrisc/Kconfig
++++ b/arch/openrisc/Kconfig
+@@ -7,6 +7,7 @@
+ config OPENRISC
+ 	def_bool y
+ 	select ARCH_32BIT_OFF_T
++	select ARCH_HAS_DMA_SET_UNCACHED
+ 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
+ 	select OF
+ 	select OF_EARLY_FLATTREE
+diff --git a/arch/openrisc/kernel/dma.c b/arch/openrisc/kernel/dma.c
+index 4d5b8bd1d795..9a5b10164b08 100644
+--- a/arch/openrisc/kernel/dma.c
++++ b/arch/openrisc/kernel/dma.c
+@@ -11,8 +11,6 @@
+  * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
+  *
+  * DMA mapping callbacks...
+- * As alloc_coherent is the only DMA callback being used currently, that's
+- * the only thing implemented properly.  The rest need looking into...
+  */
+ 
+ #include <linux/dma-noncoherent.h>
+@@ -67,62 +65,25 @@ static const struct mm_walk_ops clear_nocache_walk_ops = {
+ 	.pte_entry		= page_clear_nocache,
+ };
+ 
+-/*
+- * Alloc "coherent" memory, which for OpenRISC means simply uncached.
+- *
+- * This function effectively just calls __get_free_pages, sets the
+- * cache-inhibit bit on those pages, and makes sure that the pages are
+- * flushed out of the cache before they are used.
+- *
+- * If the NON_CONSISTENT attribute is set, then this function just
+- * returns "normal", cachable memory.
+- *
+- * There are additional flags WEAK_ORDERING and WRITE_COMBINE to take
+- * into consideration here, too.  All current known implementations of
+- * the OR1K support only strongly ordered memory accesses, so that flag
+- * is being ignored for now; uncached but write-combined memory is a
+- * missing feature of the OR1K.
+- */
+-void *
+-arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
+-		gfp_t gfp, unsigned long attrs)
++int arch_dma_set_uncached(void *cpu_addr, size_t size)
+ {
+-	unsigned long va;
+-	void *page;
+-
+-	page = alloc_pages_exact(size, gfp | __GFP_ZERO);
+-	if (!page)
+-		return NULL;
+-
+-	/* This gives us the real physical address of the first page. */
+-	*dma_handle = __pa(page);
+-
+-	va = (unsigned long)page;
++	unsigned long va = (unsigned long)cpu_addr;
+ 
+ 	/*
+ 	 * We need to iterate through the pages, clearing the dcache for
+ 	 * them and setting the cache-inhibit bit.
+ 	 */
+-	if (walk_page_range(&init_mm, va, va + size, &set_nocache_walk_ops,
+-			NULL)) {
+-		free_pages_exact(page, size);
+-		return NULL;
+-	}
+-
+-	return (void *)va;
++	return walk_page_range(&init_mm, va, va + size, &set_nocache_walk_ops,
++			NULL);
+ }
+ 
+-void
+-arch_dma_free(struct device *dev, size_t size, void *vaddr,
+-		dma_addr_t dma_handle, unsigned long attrs)
++void arch_dma_clear_uncached(void *cpu_addr, size_t size)
+ {
+-	unsigned long va = (unsigned long)vaddr;
++	unsigned long va = (unsigned long)cpu_addr;
+ 
+ 	/* walk_page_range shouldn't be able to fail here */
+ 	WARN_ON(walk_page_range(&init_mm, va, va + size,
+ 			&clear_nocache_walk_ops, NULL));
+-
+-	free_pages_exact(vaddr, size);
+ }
+ 
+ void arch_sync_dma_for_device(struct device *dev, phys_addr_t addr, size_t size,
+-- 
+2.20.1
+
