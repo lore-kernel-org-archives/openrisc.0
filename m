@@ -1,32 +1,25 @@
-From: Christoph Hellwig <hch@lst.de>
-Date: Fri, 8 Nov 2019 06:14:33 +0100
-Subject: [OpenRISC] generic-iomap tree for linux-next
-In-Reply-To: <20191108155248.0a32a03a@canb.auug.org.au>
-References: <20191029064834.23438-1-hch@lst.de>
- <20191107204743.GA22863@lst.de> <20191108132000.3e7bd5b8@canb.auug.org.au>
- <20191108155248.0a32a03a@canb.auug.org.au>
-Message-ID: <20191108051433.GA29611@lst.de>
+From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+Date: Fri, 8 Nov 2019 19:37:19 +0900
+Subject: [OpenRISC] [PATCH 00/50] Add log level to show_stack()
+In-Reply-To: <20191106083538.z5nlpuf64cigxigh@pathway.suse.cz>
+References: <20191106030542.868541-1-dima@arista.com>
+ <20191106083538.z5nlpuf64cigxigh@pathway.suse.cz>
+Message-ID: <20191108103719.GB175344@google.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, Nov 08, 2019 at 03:52:48PM +1100, Stephen Rothwell wrote:
-> Hi Christoph,
+On (19/11/06 09:35), Petr Mladek wrote:
+> I agree with all the other justification.
 > 
-> On Fri, 8 Nov 2019 13:20:00 +1100 Stephen Rothwell <sfr@canb.auug.org.au> wrote:
-> >
-> > On Thu, 7 Nov 2019 21:47:43 +0100 Christoph Hellwig <hch@lst.de> wrote:
-> > >
-> > > can you add the generic-ioremap tree:
-> > > 
-> > >    git://git.infradead.org/users/hch/ioremap.git
-> > > 
-> > > to linux-next?   
-> > 
-> > I assume you mean the for-next branch?
-> 
-> With that assumption, added from today.
+> I would add. The backtrace is really useful for debugging. It should
+> be possible to print it even in less critical situations.
 
-Yes, and thanks!
+Hmm, I don't know.
+Do we really need debug/info level backtraces? May be all backtraces
+can be converted to something more severe (so we can stop playing games
+with loglvl) and then we can clean up "(ab)users"?
+
+	-ss
