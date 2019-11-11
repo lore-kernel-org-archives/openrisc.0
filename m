@@ -1,27 +1,38 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Date: Mon, 11 Nov 2019 11:29:40 +0100
+Date: Mon, 11 Nov 2019 11:31:05 +0100
 Subject: [OpenRISC] [PATCH 11/21] asm-generic: don't provide ioremap for
  CONFIG_MMU
-In-Reply-To: <20191029064834.23438-12-hch@lst.de>
-References: <20191029064834.23438-1-hch@lst.de>
- <20191029064834.23438-12-hch@lst.de>
-Message-ID: <CAK8P3a36-afn--XqG0ddj6VSPCzA_cfZqRxQXDuan7yk8CKg4w@mail.gmail.com>
+In-Reply-To: <CAMuHMdVuDp_8UDeWv8tdPAH5JS84=-yfwZjOk-YQcoYKM9za+w@mail.gmail.com>
+References: <20191029064834.23438-12-hch@lst.de>
+ <mhng-33ea9141-2440-4a2d-8133-62094486fc48@palmer-si-x1c4>
+ <CAMuHMdVuDp_8UDeWv8tdPAH5JS84=-yfwZjOk-YQcoYKM9za+w@mail.gmail.com>
+Message-ID: <CAK8P3a2a7jwmAKhh3WsowCmvdQpsde5A5nz+3NXRn7amhwUxQg@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Oct 29, 2019 at 7:49 AM Christoph Hellwig <hch@lst.de> wrote:
+On Wed, Nov 6, 2019 at 7:16 PM Geert Uytterhoeven <geert@linux-m68k.org> wrote:
 >
-> All MMU-enabled ports have a non-trivial ioremap and should thus provide
-> the prototype for their implementation instead of providing a generic
-> one unless a different symbol is not defined.  Note that this only
-> affects sparc32 nds32 as all others do provide their own version.
+> Hi Palmer,
 >
-> Also update the kerneldoc comments in asm-generic/io.h to explain the
-> situation around the default ioremap* implementations correctly.
+> On Wed, Nov 6, 2019 at 7:11 PM Palmer Dabbelt <palmer@dabbelt.com> wrote:
+> > It looks like the difference in prototype between the architectures is between
+> >
+> >     void __iomem *ioremap(resource_size_t, size_t)
+> >     void __iomem *ioremap(phys_addr_t, size_t)
+> >     void __iomem *ioremap(phys_addr_t, unsigned long)
+> >     void __iomem *ioremap(unsigned long, unsigned long)
+> >
+> > shouldn't they all just be that first one?  In other words, wouldn't it be
+> > better to always provide the generic ioremap prototype and unify the ports
+> > instead?
 >
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Agreed. But I'd go for the second one.
 
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Right, phys_addr_t is the correct type here, resource_size_t is just a generic
+type that is at least as long as any resource, and usually the same as
+phys_addr_t, which is supposed to be used for physical addresses.
+
+      Arnd
