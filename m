@@ -1,38 +1,20 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Date: Mon, 11 Nov 2019 11:31:05 +0100
-Subject: [OpenRISC] [PATCH 11/21] asm-generic: don't provide ioremap for
- CONFIG_MMU
-In-Reply-To: <CAMuHMdVuDp_8UDeWv8tdPAH5JS84=-yfwZjOk-YQcoYKM9za+w@mail.gmail.com>
-References: <20191029064834.23438-12-hch@lst.de>
- <mhng-33ea9141-2440-4a2d-8133-62094486fc48@palmer-si-x1c4>
- <CAMuHMdVuDp_8UDeWv8tdPAH5JS84=-yfwZjOk-YQcoYKM9za+w@mail.gmail.com>
-Message-ID: <CAK8P3a2a7jwmAKhh3WsowCmvdQpsde5A5nz+3NXRn7amhwUxQg@mail.gmail.com>
+Date: Mon, 11 Nov 2019 11:33:50 +0100
+Subject: [OpenRISC] [PATCH 01/21] arm: remove ioremap_cached
+In-Reply-To: <20191029064834.23438-2-hch@lst.de>
+References: <20191029064834.23438-1-hch@lst.de>
+ <20191029064834.23438-2-hch@lst.de>
+Message-ID: <CAK8P3a3xk-mQic84Cv7CYhm2DqDCyu69+qH=i8M=JoE3xkpM=g@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Nov 6, 2019 at 7:16 PM Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+On Tue, Oct 29, 2019 at 7:48 AM Christoph Hellwig <hch@lst.de> wrote:
 >
-> Hi Palmer,
+> No users of ioremap_cached are left, remove it.
 >
-> On Wed, Nov 6, 2019 at 7:11 PM Palmer Dabbelt <palmer@dabbelt.com> wrote:
-> > It looks like the difference in prototype between the architectures is between
-> >
-> >     void __iomem *ioremap(resource_size_t, size_t)
-> >     void __iomem *ioremap(phys_addr_t, size_t)
-> >     void __iomem *ioremap(phys_addr_t, unsigned long)
-> >     void __iomem *ioremap(unsigned long, unsigned long)
-> >
-> > shouldn't they all just be that first one?  In other words, wouldn't it be
-> > better to always provide the generic ioremap prototype and unify the ports
-> > instead?
->
-> Agreed. But I'd go for the second one.
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Right, phys_addr_t is the correct type here, resource_size_t is just a generic
-type that is at least as long as any resource, and usually the same as
-phys_addr_t, which is supposed to be used for physical addresses.
-
-      Arnd
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
