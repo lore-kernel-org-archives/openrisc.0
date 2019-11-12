@@ -1,7 +1,7 @@
-From: Dmitry Safonov <dima@arista.com>
-Date: Tue, 12 Nov 2019 02:40:11 +0000
+From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+Date: Tue, 12 Nov 2019 13:25:46 +0900
 Subject: [OpenRISC] [PATCH 00/50] Add log level to show_stack()
-In-Reply-To: <20191112021747.GA68506@google.com>
+In-Reply-To: <25cb9647-007a-9c18-4784-49c0aef4f54b@arista.com>
 References: <20191106030542.868541-1-dima@arista.com>
  <20191106083538.z5nlpuf64cigxigh@pathway.suse.cz>
  <20191108103719.GB175344@google.com>
@@ -9,41 +9,42 @@ References: <20191106030542.868541-1-dima@arista.com>
  <20191111012336.GA85185@google.com>
  <13e72b62-c842-8ed5-5b41-bc1692b28f53@arista.com>
  <20191112021747.GA68506@google.com>
-Message-ID: <25cb9647-007a-9c18-4784-49c0aef4f54b@arista.com>
+ <25cb9647-007a-9c18-4784-49c0aef4f54b@arista.com>
+Message-ID: <20191112042546.GA119579@google.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Sergey,
-
-On 11/12/19 2:17 AM, Sergey Senozhatsky wrote:
-> On (19/11/11 19:47), Dmitry Safonov wrote:
+On (19/11/12 02:40), Dmitry Safonov wrote:
 [..]
->> What I'm going to do - is to fix all build and reported issues, I'll
->> send v2 this week and feel free to NAK it, I will forget about those
->> patches and won't be offended.
-> 
-> Lovely.
-> And - no, I'm not going to NAK platform specific changes. Just so you know.
-> 
-> *All* I'm talking about is an alternative, less "go and touch a ton of
-> platform code" approach. The argument "I patched so many files that I'm
-> not even going to discuss anything now" is not productive, to say the
-> least. Hope this clarifies.
+> In my point of view the cost of one-time [mostly build] testing every
+> architecture is cheaper than introducing some new smart code that will
+> live forever.
 
-It probably was a wrong impression from the both sides.
-My impression was "You touch every architecture - we won't even consider
-that". Sorry for the the wrong impression from my side - I'm open for
-discussion.
+Well, there may be the need to pass loglevel deeper due to "hey __show_stack()
+on that arch invokes bar(), which invokes foo() and now foo() does printk(),
+but we don't see it". The context which decided to backtaraces decided
+to do so for a reason, probably, so I guess we can look at it as "a special
+error reporting code block".
 
-In my point of view the cost of one-time [mostly build] testing every
-architecture is cheaper than introducing some new smart code that will
-live forever. Though, again you and Petr understand more than me in
-printk() code, so I'm not any insisting.
+The proposed patch set passes loglevel via slightly unusual channel -
+via sprintf(). We probably can do it, but I would prefer to minimize
+the number of such printk-s in the kernel. The code snippet which I
+posted also does pretty unusual thing w.r.t loglevel. Both approaches
+are "non-standard" from that POV.
 
-I'll reply to your suggestion tomorrow, it's a bit late in my tz.
+> I'll reply to your suggestion tomorrow, it's a bit late in my tz.
 
-Thanks,
-          Dmitry
+Sure.
+
+To anyone who will comment on that code snippet - this is not a
+"look, here is what you need to do" type of proposal. Just an
+alternative approach with its pros and cons.
+
+We had several requests over the years to have something like "forcibly
+allow all underlying printk-s from here to here" or "forcibly suppress
+or postpone underlying printk-s from here to here", etc.
+
+	-ss
