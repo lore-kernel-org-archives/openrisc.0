@@ -1,50 +1,55 @@
 From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Date: Tue, 12 Nov 2019 13:25:46 +0900
+Date: Tue, 12 Nov 2019 13:44:47 +0900
 Subject: [OpenRISC] [PATCH 00/50] Add log level to show_stack()
-In-Reply-To: <25cb9647-007a-9c18-4784-49c0aef4f54b@arista.com>
+In-Reply-To: <20191111091207.u3lrd6cmumnx4czr@pathway.suse.cz>
 References: <20191106030542.868541-1-dima@arista.com>
  <20191106083538.z5nlpuf64cigxigh@pathway.suse.cz>
  <20191108103719.GB175344@google.com>
  <20191108130447.h3wfgo4efjkto56f@pathway.suse.cz>
  <20191111012336.GA85185@google.com>
- <13e72b62-c842-8ed5-5b41-bc1692b28f53@arista.com>
- <20191112021747.GA68506@google.com>
- <25cb9647-007a-9c18-4784-49c0aef4f54b@arista.com>
-Message-ID: <20191112042546.GA119579@google.com>
+ <20191111091207.u3lrd6cmumnx4czr@pathway.suse.cz>
+Message-ID: <20191112044447.GA121272@google.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On (19/11/12 02:40), Dmitry Safonov wrote:
+On (19/11/11 10:12), Petr Mladek wrote:
 [..]
-> In my point of view the cost of one-time [mostly build] testing every
-> architecture is cheaper than introducing some new smart code that will
-> live forever.
+> > I do recall that we talked about per-CPU printk state bit which would
+> > start/end "just print it" section. We probably can extend it to "just
+> > log_store" type of functionality. Doesn't look like a very bad idea.
+> 
+> The problem with per-CPU printk is that we would need to disable
+> interrupts.
 
-Well, there may be the need to pass loglevel deeper due to "hey __show_stack()
-on that arch invokes bar(), which invokes foo() and now foo() does printk(),
-but we don't see it". The context which decided to backtaraces decided
-to do so for a reason, probably, so I guess we can look at it as "a special
-error reporting code block".
+Or disable preemption and have loglevel per-CPU and per-context.
+preempt_count can navigate us to the right context loglevel on
+particular CPU. I'm talking here only about backtrace (error)
+reporting contexts. Those can be atomic perfectly fine.
 
-The proposed patch set passes loglevel via slightly unusual channel -
-via sprintf(). We probably can do it, but I would prefer to minimize
-the number of such printk-s in the kernel. The code snippet which I
-posted also does pretty unusual thing w.r.t loglevel. Both approaches
-are "non-standard" from that POV.
+I posted a silly code snippet.
 
-> I'll reply to your suggestion tomorrow, it's a bit late in my tz.
+[..]
+> But yes, this per-code-section loglevel is problematic. The feedback
+> against the patchset shows that people want it also the other way.
+> I mean to keep pr_debug() as pr_debug().
 
-Sure.
+Hmm. Right.
 
-To anyone who will comment on that code snippet - this is not a
-"look, here is what you need to do" type of proposal. Just an
-alternative approach with its pros and cons.
+> A solution might be to use the per-code-section loglevel only instead
+> of some special loglevel.
 
-We had several requests over the years to have something like "forcibly
-allow all underlying printk-s from here to here" or "forcibly suppress
-or postpone underlying printk-s from here to here", etc.
+So maybe we can "overwrite" only KERN_DEFAULT loglevels?
+We certainly should not mess with SCHED or with anything in between
+EMERG and ERR.
+
+> The explicitly passed loglevel makes me feel more confident that
+> all needed printk() calls were updated. But it might be a false
+> feeling. I do not really have any strong preference.
+
+I'm not like really objecting, just trying to explore some other
+options.
 
 	-ss
