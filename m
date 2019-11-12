@@ -1,66 +1,124 @@
-From: Dmitry Safonov <dima@arista.com>
-Date: Mon, 11 Nov 2019 19:47:25 +0000
+From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+Date: Tue, 12 Nov 2019 11:17:47 +0900
 Subject: [OpenRISC] [PATCH 00/50] Add log level to show_stack()
-In-Reply-To: <20191111012336.GA85185@google.com>
+In-Reply-To: <13e72b62-c842-8ed5-5b41-bc1692b28f53@arista.com>
 References: <20191106030542.868541-1-dima@arista.com>
  <20191106083538.z5nlpuf64cigxigh@pathway.suse.cz>
  <20191108103719.GB175344@google.com>
  <20191108130447.h3wfgo4efjkto56f@pathway.suse.cz>
  <20191111012336.GA85185@google.com>
-Message-ID: <13e72b62-c842-8ed5-5b41-bc1692b28f53@arista.com>
+ <13e72b62-c842-8ed5-5b41-bc1692b28f53@arista.com>
+Message-ID: <20191112021747.GA68506@google.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Sergey, Petr,
+On (19/11/11 19:47), Dmitry Safonov wrote:
+[..]
+> I don't see how bits on task_struct or in per-cpu are easier than
+> supplying a log level parameter down the stack.
+> How would it work if sysrq_handle_crash() called by key-press?
+> How would that interact with deferred printing?
+> How would it make visible prints from current context, but not from
+> something that preempted it?
 
-On 11/11/19 1:23 AM, Sergey Senozhatsky wrote:
-> On (19/11/08 14:04), Petr Mladek wrote:
-> [..]
->> I agree that it is complicated to pass the loglevel as
->> a parameter. It would be better define the default
->> log level for a given code section. It might be stored
->> in task_struct for the normal context and in per-CPU
->> variables for interrupt contexts.
-> 
-> I do recall that we talked about per-CPU printk state bit which would
-> start/end "just print it" section. We probably can extend it to "just
-> log_store" type of functionality. Doesn't look like a very bad idea.
-> "This task/context is in trouble, whatever it printk()-s is important".
+[..]
 
-I don't see how bits on task_struct or in per-cpu are easier than
-supplying a log level parameter down the stack.
-How would it work if sysrq_handle_crash() called by key-press?
-How would that interact with deferred printing?
-How would it make visible prints from current context, but not from
-something that preempted it?
+per-context log_level works pretty much the same way as per-message
+log_level.
 
-Furthermore, what problems are you trying to solve with this design?
-Only sysrq driver? Kdb?
-In my perspective it sounds too complicated and over-engineered for
-something that has two-three users.
-Also I've tried to point that I need to print backtrace sometimes with
-KERN_DEBUG loglevel to use it in production for early notices those
-needs to go only to log files and currently each architecture decides
-which log level it prefers.
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+static DEFINE_PER_CPU(int, cpu_loglevels[4]); // @INITME.. LOGLEVEL_DEBUG + 1?
 
-And what's so complicated about this patches set? I see only side of the
-testing, but the build-testing is covered with 0day bot and cost nothing
-and any visible regression may be found during -next period.
-While introducing those printk-sections may subtly break things.
+static int __printing_context(void)
+{
+	unsigned int preempt = preempt_count();
 
-I mean, I definitely know less about printk() and its internals than you
-- so my points may be a no-sense.
+	if (!(preempt & (NMI_MASK | HARDIRQ_MASK | SOFITRQ_OFFSET)))
+		return 0;
+	if (preempt & SOFITRQ_OFFSET)
+		return 1;
+	if (preempt & HARDIRQ_MASK)
+		return 2;
+	return 3;
+}
 
-What I'm going to do - is to fix all build and reported issues, I'll
-send v2 this week and feel free to NAK it, I will forget about those
-patches and won't be offended.
-I don't see many people those are "hey, we'll benefit from this".
-And doing this patches set was neither quite fun (dirty business), nor
-something I can be later proud of (hey, I've introduced the log level
-parameter to printing functions!).
+static int adj_context_loglevel(int level)
+{
+	int ctx = __printing_context();
+	int cpu_level = this_cpu_read(cpu_loglevels[ctx]);
 
-Thanks,
-          Dima
+	// this one is important
+	if (level == LOGLEVEL_SCHED)
+		return level;
+	// we are not in emergency context
+	if (cpu_level == LOGLEVEL_DEBUG + 1)
+		return level;
+	// we better not override these
+	if (LOGLEVEL_EMERG <= level && level <= LOGLEVEL_ERR)
+		return level;
+	return cpu_level;
+}
+
+void printk_emergency_enter(int log_level)
+{
+	int ctx;
+
+	preempt_disable();
+	ctx = __printing_context();
+	this_cpu_write(cpu_loglevels[ctx], log_level);
+}
+
+void printk_emergency_exit(void)
+{
+	int ctx = __printing_context();
+
+	this_cpu_write(cpu_loglevels[ctx], LOGLEVEL_DEBUG + 1);
+	preempt_enable();
+}
+
+void vprintk_emit(...)
+{
+	level = adj_context_loglevel(level);
+}
+//
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+//
+static void __show_stack(struct task_struct *task, unsigned long *sp)
+{
+	printk();
+	...
+	printk();
+}
+
+void show_stack(struct task_struct *task, unsigned long *sp, int log_level)
+{
+	printk_emergency_enter(log_level);
+	__show_stack(task, sp);
+	printk_emergency_exit();
+}
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+
+show_stack() never schedules, disabling preemption around it should
+not change anything. Should it be interrupted, we will handle it via
+preempt count.
+
+printk_emergency_enter(log_level) handles every printk() that
+__show_stack() and friends do. Not worse than printk("%s Stack", lvl);
+all over the place.
+
+> What I'm going to do - is to fix all build and reported issues, I'll
+> send v2 this week and feel free to NAK it, I will forget about those
+> patches and won't be offended.
+
+Lovely.
+And - no, I'm not going to NAK platform specific changes. Just so you know.
+
+*All* I'm talking about is an alternative, less "go and touch a ton of
+platform code" approach. The argument "I patched so many files that I'm
+not even going to discuss anything now" is not productive, to say the
+least. Hope this clarifies.
+
+	-ss
