@@ -1,171 +1,68 @@
-From: Greentime Hu <green.hu@gmail.com>
-Date: Tue, 12 Nov 2019 16:51:29 +0800
-Subject: [OpenRISC] [PATCH 19/21] nds32: use generic ioremap
-In-Reply-To: <20191029064834.23438-20-hch@lst.de>
-References: <20191029064834.23438-1-hch@lst.de>
- <20191029064834.23438-20-hch@lst.de>
-Message-ID: <CAEbi=3c58Pb=Q3BqeTLhEK8OsdTpbD5tAe6VcGOC7JBWbTjetQ@mail.gmail.com>
+From: Petr Mladek <pmladek@suse.com>
+Date: Wed, 13 Nov 2019 09:47:22 +0100
+Subject: [OpenRISC] [PATCH 00/50] Add log level to show_stack()
+In-Reply-To: <20191113063334.GA147997@google.com>
+References: <20191108130447.h3wfgo4efjkto56f@pathway.suse.cz>
+ <20191111012336.GA85185@google.com>
+ <20191111091207.u3lrd6cmumnx4czr@pathway.suse.cz>
+ <20191112044447.GA121272@google.com>
+ <20191112045704.GA138013@google.com>
+ <20191112083509.gmgjpkjffsfaw5lm@pathway.suse.cz>
+ <20191112101229.GA201294@google.com>
+ <20191113012337.GA70781@google.com>
+ <25ff45f0-6420-f660-55a8-637f11ab5ab4@arista.com>
+ <20191113063334.GA147997@google.com>
+Message-ID: <20191113084722.emzee7g34zki4kkl@pathway.suse.cz>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi,
+On Wed 2019-11-13 15:33:34, Sergey Senozhatsky wrote:
+> On (19/11/13 02:25), Dmitry Safonov wrote:
+> > I guess I've pointed that in my point of view price for one-time testing
+> > code is cheaper than adding a new printk feature to swap log levels on
+> > the fly.
+> [..]
+> > I've gone through functions used by sysrq driver and the same changes
+> > introducing log level parameter would be needed for: sched_show_task(),
+> > debug_show_all_locks(), show_regs(), show_state(), show_mem(). Some of
+> > them don't need any platform changes, but at least show_regs() needs.
+> 
+> Good points and nice conclusion.
+> 
+> Well, here we go. There is a number of generally useful functions that
+> print nice data and where people might want to have better loglevel control
+> (for debugging purposes). show_stack() is just one of them.
 
-Christoph Hellwig <hch@lst.de> 於 2019年10月29日 週二 下午2:49寫道：
->
-> Use the generic ioremap_prot and iounmap helpers.
->
-> Note that the io.h include in pgtable.h had to be removed to not create
-> an include loop.  As far as I can tell there was no need for it to
-> start with.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  arch/nds32/Kconfig               |  1 +
->  arch/nds32/include/asm/io.h      |  3 +-
->  arch/nds32/include/asm/pgtable.h |  4 ++-
->  arch/nds32/mm/Makefile           |  3 +-
->  arch/nds32/mm/ioremap.c          | 62 --------------------------------
->  5 files changed, 6 insertions(+), 67 deletions(-)
->  delete mode 100644 arch/nds32/mm/ioremap.c
->
-> diff --git a/arch/nds32/Kconfig b/arch/nds32/Kconfig
-> index fbd68329737f..12c06a833b7c 100644
-> --- a/arch/nds32/Kconfig
-> +++ b/arch/nds32/Kconfig
-> @@ -20,6 +20,7 @@ config NDS32
->         select GENERIC_CLOCKEVENTS
->         select GENERIC_IRQ_CHIP
->         select GENERIC_IRQ_SHOW
-> +       select GENERIC_IOREMAP
->         select GENERIC_LIB_ASHLDI3
->         select GENERIC_LIB_ASHRDI3
->         select GENERIC_LIB_CMPDI2
-> diff --git a/arch/nds32/include/asm/io.h b/arch/nds32/include/asm/io.h
-> index fb0e8a24c7af..e57378d04006 100644
-> --- a/arch/nds32/include/asm/io.h
-> +++ b/arch/nds32/include/asm/io.h
-> @@ -6,8 +6,6 @@
->
->  #include <linux/types.h>
->
-> -void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
-> -extern void iounmap(volatile void __iomem *addr);
->  #define __raw_writeb __raw_writeb
->  static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
->  {
-> @@ -80,6 +78,7 @@ static inline u32 __raw_readl(const volatile void __iomem *addr)
->  #define writeb(v,c)    ({ __iowmb(); writeb_relaxed((v),(c)); })
->  #define writew(v,c)    ({ __iowmb(); writew_relaxed((v),(c)); })
->  #define writel(v,c)    ({ __iowmb(); writel_relaxed((v),(c)); })
-> +
->  #include <asm-generic/io.h>
->
->  #endif /* __ASM_NDS32_IO_H */
-> diff --git a/arch/nds32/include/asm/pgtable.h b/arch/nds32/include/asm/pgtable.h
-> index 0588ec99725c..6fbf251cfc26 100644
-> --- a/arch/nds32/include/asm/pgtable.h
-> +++ b/arch/nds32/include/asm/pgtable.h
-> @@ -12,7 +12,6 @@
->  #include <asm/nds32.h>
->  #ifndef __ASSEMBLY__
->  #include <asm/fixmap.h>
-> -#include <asm/io.h>
->  #include <nds32_intrinsic.h>
->  #endif
->
-> @@ -130,6 +129,9 @@ extern void __pgd_error(const char *file, int line, unsigned long val);
->  #define _PAGE_CACHE            _PAGE_C_MEM_WB
->  #endif
->
-> +#define _PAGE_IOREMAP \
-> +       (_PAGE_V | _PAGE_M_KRW | _PAGE_D | _PAGE_G | _PAGE_C_DEV)
-> +
->  /*
->   * + Level 1 descriptor (PMD)
->   */
-> diff --git a/arch/nds32/mm/Makefile b/arch/nds32/mm/Makefile
-> index bd360e4583b5..897ecaf5cf54 100644
-> --- a/arch/nds32/mm/Makefile
-> +++ b/arch/nds32/mm/Makefile
-> @@ -1,6 +1,5 @@
->  # SPDX-License-Identifier: GPL-2.0-only
-> -obj-y                          := extable.o tlb.o \
-> -                                  fault.o init.o ioremap.o mmap.o \
-> +obj-y                          := extable.o tlb.o fault.o init.o mmap.o \
->                                     mm-nds32.o cacheflush.o proc.o
->
->  obj-$(CONFIG_ALIGNMENT_TRAP)   += alignment.o
-> diff --git a/arch/nds32/mm/ioremap.c b/arch/nds32/mm/ioremap.c
-> deleted file mode 100644
-> index 690140bb23a2..000000000000
-> --- a/arch/nds32/mm/ioremap.c
-> +++ /dev/null
-> @@ -1,62 +0,0 @@
-> -// SPDX-License-Identifier: GPL-2.0
-> -// Copyright (C) 2005-2017 Andes Technology Corporation
-> -
-> -#include <linux/vmalloc.h>
-> -#include <linux/io.h>
-> -#include <linux/mm.h>
-> -#include <asm/pgtable.h>
-> -
-> -void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
-> -
-> -static void __iomem *__ioremap_caller(phys_addr_t phys_addr, size_t size,
-> -                                     void *caller)
-> -{
-> -       struct vm_struct *area;
-> -       unsigned long addr, offset, last_addr;
-> -       pgprot_t prot;
-> -
-> -       /* Don't allow wraparound or zero size */
-> -       last_addr = phys_addr + size - 1;
-> -       if (!size || last_addr < phys_addr)
-> -               return NULL;
-> -
-> -       /*
-> -        * Mappings have to be page-aligned
-> -        */
-> -       offset = phys_addr & ~PAGE_MASK;
-> -       phys_addr &= PAGE_MASK;
-> -       size = PAGE_ALIGN(last_addr + 1) - phys_addr;
-> -
-> -       /*
-> -        * Ok, go for it..
-> -        */
-> -       area = get_vm_area_caller(size, VM_IOREMAP, caller);
-> -       if (!area)
-> -               return NULL;
-> -
-> -       area->phys_addr = phys_addr;
-> -       addr = (unsigned long)area->addr;
-> -       prot = __pgprot(_PAGE_V | _PAGE_M_KRW | _PAGE_D |
-> -                       _PAGE_G | _PAGE_C_DEV);
-> -       if (ioremap_page_range(addr, addr + size, phys_addr, prot)) {
-> -               vunmap((void *)addr);
-> -               return NULL;
-> -       }
-> -       return (__force void __iomem *)(offset + (char *)addr);
-> -
-> -}
-> -
-> -void __iomem *ioremap(phys_addr_t phys_addr, size_t size)
-> -{
-> -       return __ioremap_caller(phys_addr, size,
-> -                               __builtin_return_address(0));
-> -}
-> -
-> -EXPORT_SYMBOL(ioremap);
-> -
-> -void iounmap(volatile void __iomem * addr)
-> -{
-> -       vunmap((void *)(PAGE_MASK & (unsigned long)addr));
-> -}
-> -
-> -EXPORT_SYMBOL(iounmap);
+Could you please provide some examples so that we get an idea about
+the scope, usefulness, and requirements?
 
-Acked-by: Greentime Hu <green.hu@gmail.com>
-Looks good to me.
+> Patching all
+> those functions, which you have mentioned above, is hardly a fun task to do.
+> Hence the printk() per-CPU per-context loglevel proposition. The code there
+> is not clever or complicated and is meant for debugging purposes only, but
+> with just 3 lines of code one can do some stuff:
+> 
+> 	/* @BTW you can't do this with "%s" KERN_FOO ;P */
+> +	printk_emergency_enter(LOGLEVEL_SCHED);
+> +	debug_show_all_locks();
+> +	printk_emergency_exit();
+
+But this will not solve situations where the original loglevel should
+stay from any reason. It happened in this patchset, see
+
+https://lkml.kernel.org/r/20191106091258.GS25745 at shell.armlinux.org.uk
+https://lkml.kernel.org/r/20191106132516.GC5808 at willie-the-truck
+
+We would need to investigate more potential users of this feature to
+see eventual requirements. If there are too many exceptions and modes
+then the generic API might get pretty complicated.
+
+At the moment, I am in favor of this patchset. It is huge and
+needed a lot of manual work. But the result is straightforward and
+easy to understand.
+
+Best Regards,
+Petr
