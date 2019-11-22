@@ -1,44 +1,103 @@
-From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Date: Fri, 15 Nov 2019 12:36:57 +0900
-Subject: [OpenRISC] [PATCH 00/50] Add log level to show_stack()
-In-Reply-To: <20191113103922.3dc3e8e9@gandalf.local.home>
-References: <20191106030542.868541-1-dima@arista.com>
- <20191106083538.z5nlpuf64cigxigh@pathway.suse.cz>
- <20191108103719.GB175344@google.com>
- <20191108130447.h3wfgo4efjkto56f@pathway.suse.cz>
- <20191111012336.GA85185@google.com>
- <13e72b62-c842-8ed5-5b41-bc1692b28f53@arista.com>
- <20191112021747.GA68506@google.com>
- <20191113103922.3dc3e8e9@gandalf.local.home>
-Message-ID: <20191115033657.GA407@tigerII.localdomain>
+From: Stafford Horne <shorne@gmail.com>
+Date: Fri, 22 Nov 2019 20:39:45 +0900
+Subject: [OpenRISC] [PATCH] openrisc: Fix Kconfig indentation
+In-Reply-To: <20191120133712.12066-1-krzk@kernel.org>
+References: <20191120133712.12066-1-krzk@kernel.org>
+Message-ID: <20191122113945.GL24874@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On (19/11/13 10:39), Steven Rostedt wrote:
-[..]
-> > void show_stack(struct task_struct *task, unsigned long *sp, int log_level)
-> > {
-> > 	printk_emergency_enter(log_level);
-> > 	__show_stack(task, sp);
-> > 	printk_emergency_exit();
-> > }
-> > // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
-> >
-> > show_stack() never schedules, disabling preemption around it should
-> > not change anything. Should it be interrupted, we will handle it via
-> > preempt count.
->
-> Please no! The whole point of the printk rewrite was to allow for
-> printk to be preemptible and used in more contexts. The show_stack() can
-> be all over the place and is not a fast function. Let's not disable
-> preemption for it.
+On Wed, Nov 20, 2019 at 09:37:12PM +0800, Krzysztof Kozlowski wrote:
+> Adjust indentation from spaces to tab (+optional two spaces) as in
+> coding style with command like:
+> 	$ sed -e 's/^        /\t/' -i */Kconfig
+> 
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 
-I never said that this code should be used all over the place. What
-I did say several times was that this code is for quick debugging,
-when one sits behind a slow serial console and wants to tweak loglevel
-of all printk-s of a particular context/function only.
+Acked-by: Stafford Horne <shorne@gmail.com>
 
-	-ss
+Thanks, I must have forgot to hit the TAB button on a few of these.  I will
+queue these up for the next release unless you have a queue you want to merge
+them on.
+
+-Stafford
+
+> ---
+>  arch/openrisc/Kconfig | 26 +++++++++++++-------------
+>  1 file changed, 13 insertions(+), 13 deletions(-)
+> 
+> diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+> index bf326f0edd2f..1928e061ff96 100644
+> --- a/arch/openrisc/Kconfig
+> +++ b/arch/openrisc/Kconfig
+> @@ -13,7 +13,7 @@ config OPENRISC
+>  	select IRQ_DOMAIN
+>  	select HANDLE_DOMAIN_IRQ
+>  	select GPIOLIB
+> -        select HAVE_ARCH_TRACEHOOK
+> +	select HAVE_ARCH_TRACEHOOK
+>  	select SPARSE_IRQ
+>  	select GENERIC_IRQ_CHIP
+>  	select GENERIC_IRQ_PROBE
+> @@ -51,12 +51,12 @@ config NO_IOPORT_MAP
+>  	def_bool y
+>  
+>  config TRACE_IRQFLAGS_SUPPORT
+> -        def_bool y
+> +	def_bool y
+>  
+>  # For now, use generic checksum functions
+>  #These can be reimplemented in assembly later if so inclined
+>  config GENERIC_CSUM
+> -        def_bool y
+> +	def_bool y
+>  
+>  config STACKTRACE_SUPPORT
+>  	def_bool y
+> @@ -89,8 +89,8 @@ config DCACHE_WRITETHROUGH
+>  	  If unsure say N here
+>  
+>  config OPENRISC_BUILTIN_DTB
+> -        string "Builtin DTB"
+> -        default ""
+> +	string "Builtin DTB"
+> +	default ""
+>  
+>  menu "Class II Instructions"
+>  
+> @@ -161,13 +161,13 @@ config OPENRISC_HAVE_SHADOW_GPRS
+>  	  On a unicore system it's safe to say N here if you are unsure.
+>  
+>  config CMDLINE
+> -        string "Default kernel command string"
+> -        default ""
+> -        help
+> -          On some architectures there is currently no way for the boot loader
+> -          to pass arguments to the kernel. For these architectures, you should
+> -          supply some command-line options at build time by entering them
+> -          here.
+> +	string "Default kernel command string"
+> +	default ""
+> +	help
+> +	  On some architectures there is currently no way for the boot loader
+> +	  to pass arguments to the kernel. For these architectures, you should
+> +	  supply some command-line options at build time by entering them
+> +	  here.
+>  
+>  menu "Debugging options"
+>  
+> @@ -185,7 +185,7 @@ config OPENRISC_ESR_EXCEPTION_BUG_CHECK
+>  	default n
+>  	help
+>  	  This option enables some checks that might expose some problems
+> -          in kernel.
+> +	  in kernel.
+>  
+>  	  Say N if you are unsure.
+>  
+> -- 
+> 2.17.1
+> 
