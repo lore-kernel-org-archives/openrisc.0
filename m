@@ -1,10 +1,10 @@
 From: Sasha Levin <sashal@kernel.org>
-Date: Fri, 22 Nov 2019 01:00:39 -0500
-Subject: [OpenRISC] [PATCH AUTOSEL 4.9 41/91] openrisc: Fix broken paths to
+Date: Fri, 22 Nov 2019 01:12:27 -0500
+Subject: [OpenRISC] [PATCH AUTOSEL 4.4 34/68] openrisc: Fix broken paths to
  arch/or32
-In-Reply-To: <20191122060129.4239-1-sashal@kernel.org>
-References: <20191122060129.4239-1-sashal@kernel.org>
-Message-ID: <20191122060129.4239-40-sashal@kernel.org>
+In-Reply-To: <20191122061301.4947-1-sashal@kernel.org>
+References: <20191122061301.4947-1-sashal@kernel.org>
+Message-ID: <20191122061301.4947-33-sashal@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
