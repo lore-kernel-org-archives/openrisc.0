@@ -1,91 +1,57 @@
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Date: Wed, 20 Nov 2019 21:37:12 +0800
-Subject: [OpenRISC] [PATCH] openrisc: Fix Kconfig indentation
-Message-ID: <20191120133712.12066-1-krzk@kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Date: Fri, 22 Nov 2019 00:47:23 -0500
+Subject: [OpenRISC] [PATCH AUTOSEL 4.19 111/219] openrisc: Fix broken paths
+ to arch/or32
+In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
+References: <20191122054911.1750-1-sashal@kernel.org>
+Message-ID: <20191122054911.1750-104-sashal@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Adjust indentation from spaces to tab (+optional two spaces) as in
-coding style with command like:
-	$ sed -e 's/^        /\t/' -i */Kconfig
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+[ Upstream commit 57ce8ba0fd3a95bf29ed741df1c52bd591bf43ff ]
+
+OpenRISC was mainlined as "openrisc", not "or32".
+vmlinux.lds is generated from vmlinux.lds.S.
+
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/openrisc/Kconfig | 26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ arch/openrisc/kernel/entry.S | 2 +-
+ arch/openrisc/kernel/head.S  | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index bf326f0edd2f..1928e061ff96 100644
---- a/arch/openrisc/Kconfig
-+++ b/arch/openrisc/Kconfig
-@@ -13,7 +13,7 @@ config OPENRISC
- 	select IRQ_DOMAIN
- 	select HANDLE_DOMAIN_IRQ
- 	select GPIOLIB
--        select HAVE_ARCH_TRACEHOOK
-+	select HAVE_ARCH_TRACEHOOK
- 	select SPARSE_IRQ
- 	select GENERIC_IRQ_CHIP
- 	select GENERIC_IRQ_PROBE
-@@ -51,12 +51,12 @@ config NO_IOPORT_MAP
- 	def_bool y
+diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
+index 0c826ad6e994c..ee6159d2ed22e 100644
+--- a/arch/openrisc/kernel/entry.S
++++ b/arch/openrisc/kernel/entry.S
+@@ -240,7 +240,7 @@ handler:							;\
+  *	 occured. in fact they never do. if you need them use
+  *	 values saved on stack (for SPR_EPC, SPR_ESR) or content
+  *       of r4 (for SPR_EEAR). for details look at EXCEPTION_HANDLE()
+- *       in 'arch/or32/kernel/head.S'
++ *       in 'arch/openrisc/kernel/head.S'
+  */
  
- config TRACE_IRQFLAGS_SUPPORT
--        def_bool y
-+	def_bool y
+ /* =====================================================[ exceptions] === */
+diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
+index 9fc6b60140f00..31ed257ff0618 100644
+--- a/arch/openrisc/kernel/head.S
++++ b/arch/openrisc/kernel/head.S
+@@ -1728,7 +1728,7 @@ _string_nl:
  
- # For now, use generic checksum functions
- #These can be reimplemented in assembly later if so inclined
- config GENERIC_CSUM
--        def_bool y
-+	def_bool y
- 
- config STACKTRACE_SUPPORT
- 	def_bool y
-@@ -89,8 +89,8 @@ config DCACHE_WRITETHROUGH
- 	  If unsure say N here
- 
- config OPENRISC_BUILTIN_DTB
--        string "Builtin DTB"
--        default ""
-+	string "Builtin DTB"
-+	default ""
- 
- menu "Class II Instructions"
- 
-@@ -161,13 +161,13 @@ config OPENRISC_HAVE_SHADOW_GPRS
- 	  On a unicore system it's safe to say N here if you are unsure.
- 
- config CMDLINE
--        string "Default kernel command string"
--        default ""
--        help
--          On some architectures there is currently no way for the boot loader
--          to pass arguments to the kernel. For these architectures, you should
--          supply some command-line options at build time by entering them
--          here.
-+	string "Default kernel command string"
-+	default ""
-+	help
-+	  On some architectures there is currently no way for the boot loader
-+	  to pass arguments to the kernel. For these architectures, you should
-+	  supply some command-line options at build time by entering them
-+	  here.
- 
- menu "Debugging options"
- 
-@@ -185,7 +185,7 @@ config OPENRISC_ESR_EXCEPTION_BUG_CHECK
- 	default n
- 	help
- 	  This option enables some checks that might expose some problems
--          in kernel.
-+	  in kernel.
- 
- 	  Say N if you are unsure.
- 
+ /*
+  * .data section should be page aligned
+- *	(look into arch/or32/kernel/vmlinux.lds)
++ *	(look into arch/openrisc/kernel/vmlinux.lds.S)
+  */
+ 	.section .data,"aw"
+ 	.align	8192
 -- 
-2.17.1
+2.20.1
 
