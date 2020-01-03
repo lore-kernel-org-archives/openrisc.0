@@ -1,140 +1,25 @@
-From: Kees Cook <keescook@chromium.org>
-Date: Mon, 30 Dec 2019 10:47:30 -0800
-Subject: [OpenRISC] lib/test_user_copy.c:244: Error: unrecognized
- keyword/register name `l.lwz ?ap, 4(r18)'
-In-Reply-To: <201912271737.FW6uJ1Qa%lkp@intel.com>
-References: <201912271737.FW6uJ1Qa%lkp@intel.com>
-Message-ID: <201912301046.0C58C5E@keescook>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Date: Fri, 3 Jan 2020 15:31:00 +0300
+Subject: [OpenRISC] [PATCH 0/4] use mmgrab
+In-Reply-To: <1577634178-22530-1-git-send-email-Julia.Lawall@inria.fr>
+References: <1577634178-22530-1-git-send-email-Julia.Lawall@inria.fr>
+Message-ID: <20200103123059.GI3911@kadam>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, Dec 27, 2019 at 05:09:08PM +0800, kbuild test robot wrote:
-> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master
-> head:   46cf053efec6a3a5f343fead837777efe8252a46
-> commit: 6d13de1489b6bf539695f96d945de3860e6d5e17 uaccess: disallow > INT_MAX copy sizes
-> date:   3 weeks ago
-> config: openrisc-randconfig-a001-20191225 (attached as .config)
-> compiler: or1k-linux-gcc (GCC) 9.2.0
-> reproduce:
->         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
->         chmod +x ~/bin/make.cross
->         git checkout 6d13de1489b6bf539695f96d945de3860e6d5e17
->         # save the attached .config to linux build tree
->         GCC_VERSION=9.2.0 make.cross ARCH=openrisc 
-> 
-> If you fix the issue, kindly add following tag
-> Reported-by: kbuild test robot <lkp@intel.com>
-> 
-> All errors (new ones prefixed by >>):
-> 
->    lib/test_user_copy.c: Assembler messages:
-> >> lib/test_user_copy.c:244: Error: unrecognized keyword/register name `l.lwz ?ap,4(r18)'
-> >> lib/test_user_copy.c:249: Error: unrecognized keyword/register name `l.addi ?ap,r0,0'
+On Sun, Dec 29, 2019 at 04:42:54PM +0100, Julia Lawall wrote:
+> Mmgrab was introduced in commit f1f1007644ff ("mm: add new mmgrab()
+> helper") and most of the kernel was updated to use it. Update a few
+> remaining files.
 
-Hi!
+I wonder if there is an automatic way to generate these kind of
+Coccinelle scripts which use inlines instead of open coding.  Like maybe
+make a list of one line functions, and then auto generate a recipe.  Or
+the mmgrab() function could have multiple lines if the first few were
+just sanity checks for NULL or something...
 
-This looks like something deep in the usercopy code on openrisc?
-Something likely around 64-bit copies, I'd guess. Can someone with
-openrisc knowledge take a look at this?
-
-Thanks!
-
--Kees
-
-> 
-> vim +244 lib/test_user_copy.c
-> 
-> 3e2a4c183ace87 Kees Cook    2014-01-23  193  
-> 3e2a4c183ace87 Kees Cook    2014-01-23  194  	kmem = kmalloc(PAGE_SIZE * 2, GFP_KERNEL);
-> 3e2a4c183ace87 Kees Cook    2014-01-23  195  	if (!kmem)
-> 3e2a4c183ace87 Kees Cook    2014-01-23  196  		return -ENOMEM;
-> 3e2a4c183ace87 Kees Cook    2014-01-23  197  
-> 3e2a4c183ace87 Kees Cook    2014-01-23  198  	user_addr = vm_mmap(NULL, 0, PAGE_SIZE * 2,
-> 3e2a4c183ace87 Kees Cook    2014-01-23  199  			    PROT_READ | PROT_WRITE | PROT_EXEC,
-> 3e2a4c183ace87 Kees Cook    2014-01-23  200  			    MAP_ANONYMOUS | MAP_PRIVATE, 0);
-> 3e2a4c183ace87 Kees Cook    2014-01-23  201  	if (user_addr >= (unsigned long)(TASK_SIZE)) {
-> 3e2a4c183ace87 Kees Cook    2014-01-23  202  		pr_warn("Failed to allocate user memory\n");
-> 3e2a4c183ace87 Kees Cook    2014-01-23  203  		kfree(kmem);
-> 3e2a4c183ace87 Kees Cook    2014-01-23  204  		return -ENOMEM;
-> 3e2a4c183ace87 Kees Cook    2014-01-23  205  	}
-> 3e2a4c183ace87 Kees Cook    2014-01-23  206  
-> 3e2a4c183ace87 Kees Cook    2014-01-23  207  	usermem = (char __user *)user_addr;
-> 3e2a4c183ace87 Kees Cook    2014-01-23  208  	bad_usermem = (char *)user_addr;
-> 3e2a4c183ace87 Kees Cook    2014-01-23  209  
-> f5f893c57e37ca Kees Cook    2017-02-13  210  	/*
-> f5f893c57e37ca Kees Cook    2017-02-13  211  	 * Legitimate usage: none of these copies should fail.
-> f5f893c57e37ca Kees Cook    2017-02-13  212  	 */
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  213  	memset(kmem, 0x3a, PAGE_SIZE * 2);
-> 3e2a4c183ace87 Kees Cook    2014-01-23  214  	ret |= test(copy_to_user(usermem, kmem, PAGE_SIZE),
-> 3e2a4c183ace87 Kees Cook    2014-01-23  215  		    "legitimate copy_to_user failed");
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  216  	memset(kmem, 0x0, PAGE_SIZE);
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  217  	ret |= test(copy_from_user(kmem, usermem, PAGE_SIZE),
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  218  		    "legitimate copy_from_user failed");
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  219  	ret |= test(memcmp(kmem, kmem + PAGE_SIZE, PAGE_SIZE),
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  220  		    "legitimate usercopy failed to copy data");
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  221  
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  222  #define test_legit(size, check)						  \
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  223  	do {								  \
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  224  		val_##size = check;					  \
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  225  		ret |= test(put_user(val_##size, (size __user *)usermem), \
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  226  		    "legitimate put_user (" #size ") failed");		  \
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  227  		val_##size = 0;						  \
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  228  		ret |= test(get_user(val_##size, (size __user *)usermem), \
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  229  		    "legitimate get_user (" #size ") failed");		  \
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  230  		ret |= test(val_##size != check,			  \
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  231  		    "legitimate get_user (" #size ") failed to do copy"); \
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  232  		if (val_##size != check) {				  \
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  233  			pr_info("0x%llx != 0x%llx\n",			  \
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  234  				(unsigned long long)val_##size,		  \
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  235  				(unsigned long long)check);		  \
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  236  		}							  \
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  237  	} while (0)
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  238  
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  239  	test_legit(u8,  0x5a);
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  240  	test_legit(u16, 0x5a5b);
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  241  	test_legit(u32, 0x5a5b5c5d);
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  242  #ifdef TEST_U64
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  243  	test_legit(u64, 0x5a5b5c5d6a6b6c6d);
-> 4c5d7bc63775b4 Kees Cook    2017-02-14 @244  #endif
-> 4c5d7bc63775b4 Kees Cook    2017-02-14  245  #undef test_legit
-> 3e2a4c183ace87 Kees Cook    2014-01-23  246  
-> f5a1a536fa1489 Aleksa Sarai 2019-10-01  247  	/* Test usage of check_nonzero_user(). */
-> f5a1a536fa1489 Aleksa Sarai 2019-10-01  248  	ret |= test_check_nonzero_user(kmem, usermem, 2 * PAGE_SIZE);
-> f5a1a536fa1489 Aleksa Sarai 2019-10-01 @249  	/* Test usage of copy_struct_from_user(). */
-> f5a1a536fa1489 Aleksa Sarai 2019-10-01  250  	ret |= test_copy_struct_from_user(kmem, usermem, 2 * PAGE_SIZE);
-> f5a1a536fa1489 Aleksa Sarai 2019-10-01  251  
-> f5f893c57e37ca Kees Cook    2017-02-13  252  	/*
-> f5f893c57e37ca Kees Cook    2017-02-13  253  	 * Invalid usage: none of these copies should succeed.
-> f5f893c57e37ca Kees Cook    2017-02-13  254  	 */
-> f5f893c57e37ca Kees Cook    2017-02-13  255  
-> f5f893c57e37ca Kees Cook    2017-02-13  256  	/* Prepare kernel memory with check values. */
-> 4fbfeb8bd684d5 Hoeun Ryu    2017-02-12  257  	memset(kmem, 0x5a, PAGE_SIZE);
-> 4fbfeb8bd684d5 Hoeun Ryu    2017-02-12  258  	memset(kmem + PAGE_SIZE, 0, PAGE_SIZE);
-> f5f893c57e37ca Kees Cook    2017-02-13  259  
-> f5f893c57e37ca Kees Cook    2017-02-13  260  	/* Reject kernel-to-kernel copies through copy_from_user(). */
-> 3e2a4c183ace87 Kees Cook    2014-01-23  261  	ret |= test(!copy_from_user(kmem, (char __user *)(kmem + PAGE_SIZE),
-> 3e2a4c183ace87 Kees Cook    2014-01-23  262  				    PAGE_SIZE),
-> 3e2a4c183ace87 Kees Cook    2014-01-23  263  		    "illegal all-kernel copy_from_user passed");
-> f5f893c57e37ca Kees Cook    2017-02-13  264  
-> f5f893c57e37ca Kees Cook    2017-02-13  265  	/* Destination half of buffer should have been zeroed. */
-> 4fbfeb8bd684d5 Hoeun Ryu    2017-02-12  266  	ret |= test(memcmp(kmem + PAGE_SIZE, kmem, PAGE_SIZE),
-> 4fbfeb8bd684d5 Hoeun Ryu    2017-02-12  267  		    "zeroing failure for illegal all-kernel copy_from_user");
-> f5f893c57e37ca Kees Cook    2017-02-13  268  
-> 
-> :::::: The code at line 244 was first introduced by commit
-> :::::: 4c5d7bc63775b40631b75f6c59a3a3005455262d usercopy: Add tests for all get_user() sizes
-> 
-> :::::: TO: Kees Cook <keescook@chromium.org>
-> :::::: CC: Kees Cook <keescook@chromium.org>
-> 
-> ---
-> 0-DAY kernel test infrastructure                 Open Source Technology Center
-> https://lists.01.org/hyperkitty/list/kbuild-all at lists.01.org Intel Corporation
-
-
-
--- 
-Kees Cook
+regards,
+dan carpenter
