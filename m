@@ -1,35 +1,55 @@
-From: Julia Lawall <julia.lawall@inria.fr>
-Date: Fri, 3 Jan 2020 13:47:49 +0100 (CET)
-Subject: [OpenRISC] [PATCH 0/4] use mmgrab
-In-Reply-To: <20200103123059.GI3911@kadam>
-References: <1577634178-22530-1-git-send-email-Julia.Lawall@inria.fr>
- <20200103123059.GI3911@kadam>
-Message-ID: <alpine.DEB.2.21.2001031344480.2982@hadrien>
+From: Stafford Horne <shorne@gmail.com>
+Date: Mon, 6 Jan 2020 23:53:47 +0900
+Subject: [OpenRISC] [PATCH 4/4] openrisc: use mmgrab
+In-Reply-To: <201912301238.xfn6pKut%lkp@intel.com>
+References: <1577634178-22530-5-git-send-email-Julia.Lawall@inria.fr>
+ <201912301238.xfn6pKut%lkp@intel.com>
+Message-ID: <20200106145347.GT24874@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-
-
-On Fri, 3 Jan 2020, Dan Carpenter wrote:
-
-> On Sun, Dec 29, 2019 at 04:42:54PM +0100, Julia Lawall wrote:
-> > Mmgrab was introduced in commit f1f1007644ff ("mm: add new mmgrab()
-> > helper") and most of the kernel was updated to use it. Update a few
-> > remaining files.
+On Mon, Dec 30, 2019 at 12:49:19PM +0800, kbuild test robot wrote:
+> Hi Julia,
+> 
+> I love your patch! Yet something to improve:
 >
-> I wonder if there is an automatic way to generate these kind of
-> Coccinelle scripts which use inlines instead of open coding.  Like maybe
-> make a list of one line functions, and then auto generate a recipe.  Or
-> the mmgrab() function could have multiple lines if the first few were
-> just sanity checks for NULL or something...
+> [auto build test ERROR on vfio/next]
+> [also build test ERROR on char-misc/char-misc-testing v5.5-rc3 next-20191220]
+> [if your patch is applied to the wrong git tree, please drop us a note to help
+> improve the system. BTW, we also suggest to use '--base' option to specify the
+> base tree in git format-patch, please see https://stackoverflow.com/a/37406982]
+> 
+> url:    https://github.com/0day-ci/linux/commits/Julia-Lawall/use-mmgrab/20191230-011611
+> base:   https://github.com/awilliam/linux-vfio.git next
+> config: openrisc-simple_smp_defconfig (attached as .config)
+> compiler: or1k-linux-gcc (GCC) 9.2.0
+> reproduce:
+>         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         # save the attached .config to linux build tree
+>         GCC_VERSION=9.2.0 make.cross ARCH=openrisc 
+> 
+> If you fix the issue, kindly add following tag
+> Reported-by: kbuild test robot <lkp@intel.com>
+> 
+> All errors (new ones prefixed by >>):
+> 
+>    arch/openrisc/kernel/smp.c: In function 'secondary_start_kernel':
+> >> arch/openrisc/kernel/smp.c:116:2: error: implicit declaration of function 'mmgrab'; did you mean 'igrab'? [-Werror=implicit-function-declaration]
+>      116 |  mmgrab(mm);
+>          |  ^~~~~~
+>          |  igrab
+>    cc1: some warnings being treated as errors
 
-I tried this at one point (10 years ago!):
+Hi Julia,
 
-https://pages.lip6.fr/Julia.Lawall/acp4is09-lawall.pdf
+It looks like this is just an include issue, do you want to revise the patch?
 
-Perhaps it is worth reviving.
+Once fixed, how do you plan to get this patch series merged?  I can add the
+OpenRISC part to my queue or do you have a cleanups queue you can manage?
 
-julia
+-Stafford
+
