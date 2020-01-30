@@ -1,30 +1,63 @@
-From: Richard Henderson <richard.henderson@linaro.org>
-Date: Thu, 16 Jan 2020 14:51:02 -1000
-Subject: [OpenRISC] [PATCH] target/openrisc: Fix FPCSR mask to allow
- setting DZF
-In-Reply-To: <20200110212843.27335-1-shorne@gmail.com>
-References: <20200110212843.27335-1-shorne@gmail.com>
-Message-ID: <7cbf0cfa-2fa7-ed78-d0b4-5b93d012f265@linaro.org>
+From: Stafford Horne <shorne@gmail.com>
+Date: Fri, 31 Jan 2020 06:38:39 +0900
+Subject: [OpenRISC] [PATCH] openrisc: configs: Cleanup
+ CONFIG_CROSS_COMPILE
+In-Reply-To: <20200130191938.2444-1-krzk@kernel.org>
+References: <20200130191938.2444-1-krzk@kernel.org>
+Message-ID: <20200130213839.GW24874@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 1/10/20 11:28 AM, Stafford Horne wrote:
-> The mask used when setting FPCSR allows setting bits 10 to 1.  However,
-> OpenRISC has flags and config bits in 11 to 1, 11 being Divide by Zero
-> Flag (DZF).  This seems like an off-by-one bug.
-> 
-> This was found when testing the GLIBC test suite which has test cases to
-> set and clear all bits.
-> 
-> Signed-off-by: Stafford Horne <shorne@gmail.com>
++cc: Masahiro,
+
+On Thu, Jan 30, 2020 at 08:19:38PM +0100, Krzysztof Kozlowski wrote:
+> CONFIG_CROSS_COMPILE is gone since commit f1089c92da79 ("kbuild: remove
+> CONFIG_CROSS_COMPILE support").
+
+I see this patch is already in, but does it break 0-day test tools that depend
+on this CONFIG_CROSS_COMPILE setup?  I guess its been in since 2018, so there
+should be no problem.
+
+Can you also help to update "Documentation/openrisc/openrisc_port.rst"?  It
+mentions the build steps are:
+
+    Build the Linux kernel as usual::                                               
+                                                                                
+        make ARCH=openrisc defconfig                                            
+        make ARCH=openrisc
+
+This now changes, I used to use `make ARCH=openrisc CROSS_COMPILE=or1k-linux-`
+is this still going to work?
+
+-Stafford
+
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 > ---
->  target/openrisc/fpu_helper.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-
-Thanks, queued.
-
-
-r~
+>  arch/openrisc/configs/or1ksim_defconfig    | 1 -
+>  arch/openrisc/configs/simple_smp_defconfig | 1 -
+>  2 files changed, 2 deletions(-)
+> 
+> diff --git a/arch/openrisc/configs/or1ksim_defconfig b/arch/openrisc/configs/or1ksim_defconfig
+> index d8ff4f8ffb88..75f2da324d0e 100644
+> --- a/arch/openrisc/configs/or1ksim_defconfig
+> +++ b/arch/openrisc/configs/or1ksim_defconfig
+> @@ -1,4 +1,3 @@
+> -CONFIG_CROSS_COMPILE="or1k-linux-"
+>  CONFIG_NO_HZ=y
+>  CONFIG_LOG_BUF_SHIFT=14
+>  CONFIG_BLK_DEV_INITRD=y
+> diff --git a/arch/openrisc/configs/simple_smp_defconfig b/arch/openrisc/configs/simple_smp_defconfig
+> index 64278992df9c..ff49d868e040 100644
+> --- a/arch/openrisc/configs/simple_smp_defconfig
+> +++ b/arch/openrisc/configs/simple_smp_defconfig
+> @@ -1,4 +1,3 @@
+> -CONFIG_CROSS_COMPILE="or1k-linux-"
+>  CONFIG_LOCALVERSION="-simple-smp"
+>  CONFIG_NO_HZ=y
+>  CONFIG_LOG_BUF_SHIFT=14
+> -- 
+> 2.17.1
+> 
