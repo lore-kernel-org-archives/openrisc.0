@@ -1,54 +1,78 @@
-From: Christian Brauner <christian.brauner@ubuntu.com>
-Date: Thu, 27 Feb 2020 13:24:27 +0100
-Subject: [OpenRISC] [PATCH 3/3] openrisc: Cleanup copy_thread_tls docs
- and comments
-In-Reply-To: <20200226225625.28935-4-shorne@gmail.com>
-References: <20200226225625.28935-1-shorne@gmail.com>
- <20200226225625.28935-4-shorne@gmail.com>
-Message-ID: <20200227122427.bt3zvtdibpss46nw@wittgenstein>
+From: Mike Rapoport <rppt@kernel.org>
+Date: Wed, 19 Feb 2020 14:24:20 +0100
+Subject: [OpenRISC] [PATCH v2 07/13] powerpc: add support for folded p4d
+ page tables
+In-Reply-To: <5b7c3929-5833-8ceb-85c8-a8e92e6a138e@c-s.fr>
+References: <20200216081843.28670-1-rppt@kernel.org>
+ <20200216081843.28670-8-rppt@kernel.org>
+ <5b7c3929-5833-8ceb-85c8-a8e92e6a138e@c-s.fr>
+Message-ID: <20200219132420.GA5559@hump>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-On Thu, Feb 27, 2020 at 07:56:25AM +0900, Stafford Horne wrote:
-> Previously copy_thread_tls was copy_thread and before that something
-> else.  Remove the documentation about the regs parameter that didn't
-> exist in either version.
+On Wed, Feb 19, 2020 at 01:07:55PM +0100, Christophe Leroy wrote:
 > 
-> Next, fix comment wrapping and details about how TLS pointer gets to the
-> copy_thread_tls function.
+> Le 16/02/2020 à 09:18, Mike Rapoport a écrit :
+> > diff --git a/arch/powerpc/mm/ptdump/ptdump.c b/arch/powerpc/mm/ptdump/ptdump.c
+> > index 206156255247..7bd4b81d5b5d 100644
+> > --- a/arch/powerpc/mm/ptdump/ptdump.c
+> > +++ b/arch/powerpc/mm/ptdump/ptdump.c
+> > @@ -277,9 +277,9 @@ static void walk_pmd(struct pg_state *st, pud_t *pud, unsigned long start)
+> >   	}
+> >   }
+> > -static void walk_pud(struct pg_state *st, pgd_t *pgd, unsigned long start)
+> > +static void walk_pud(struct pg_state *st, p4d_t *p4d, unsigned long start)
+> >   {
+> > -	pud_t *pud = pud_offset(pgd, 0);
+> > +	pud_t *pud = pud_offset(p4d, 0);
+> >   	unsigned long addr;
+> >   	unsigned int i;
+> > @@ -293,6 +293,22 @@ static void walk_pud(struct pg_state *st, pgd_t *pgd, unsigned long start)
+> >   	}
+> >   }
+> > +static void walk_p4d(struct pg_state *st, pgd_t *pgd, unsigned long start)
+> > +{
+> > +	p4d_t *p4d = p4d_offset(pgd, 0);
+> > +	unsigned long addr;
+> > +	unsigned int i;
+> > +
+> > +	for (i = 0; i < PTRS_PER_P4D; i++, p4d++) {
+> > +		addr = start + i * P4D_SIZE;
+> > +		if (!p4d_none(*p4d) && !p4d_is_leaf(*p4d))
+> > +			/* p4d exists */
+> > +			walk_pud(st, p4d, addr);
+> > +		else
+> > +			note_page(st, addr, 2, p4d_val(*p4d));
 > 
-> Signed-off-by: Stafford Horne <shorne@gmail.com>
-
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-
-> ---
->  arch/openrisc/kernel/process.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+> Level 2 is already used by walk_pud().
 > 
-> diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
-> index 6695f167e126..b442e7b59e17 100644
-> --- a/arch/openrisc/kernel/process.c
-> +++ b/arch/openrisc/kernel/process.c
-> @@ -122,7 +122,6 @@ extern asmlinkage void ret_from_fork(void);
->   * @usp: user stack pointer or fn for kernel thread
->   * @arg: arg to fn for kernel thread; always NULL for userspace thread
->   * @p: the newly created task
-> - * @regs: CPU context to copy for userspace thread; always NULL for kthread
->   * @tls: the Thread Local Storate pointer for the new process
->   *
->   * At the top of a newly initialized kernel stack are two stacked pt_reg
-> @@ -180,7 +179,8 @@ copy_thread_tls(unsigned long clone_flags, unsigned long usp,
->  			userregs->sp = usp;
->  
->  		/*
-> -		 * For CLONE_SETTLS set "tp" (r10) to the TLS pointer passed to sys_clone.
-> +		 * For CLONE_SETTLS set "tp" (r10) to the TLS pointer passed
-> +		 * in clone_args to sys_clone3.
+> I think you have to increment the level used in walk_pud() and walk_pmd()
+> and walk_pte()
 
-As I said in my other reply, I'd not reference any specific caller since
-we have at least two.
+Thanks for catching this!
+I'll fix the numbers in the next version.
+ 
+> > +	}
+> > +}
+> > +
+> >   static void walk_pagetables(struct pg_state *st)
+> >   {
+> >   	unsigned int i;
+> > @@ -306,7 +322,7 @@ static void walk_pagetables(struct pg_state *st)
+> >   	for (i = pgd_index(addr); i < PTRS_PER_PGD; i++, pgd++, addr += PGDIR_SIZE) {
+> >   		if (!pgd_none(*pgd) && !pgd_is_leaf(*pgd))
+> >   			/* pgd exists */
+> > -			walk_pud(st, pgd, addr);
+> > +			walk_p4d(st, pgd, addr);
+> >   		else
+> >   			note_page(st, addr, 1, pgd_val(*pgd));
+> >   	}
+> 
+> Christophe
 
-Christian
+-- 
+Sincerely yours,
+Mike.
