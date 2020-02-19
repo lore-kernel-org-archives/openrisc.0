@@ -1,39 +1,111 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 27 Feb 2020 09:31:05 +0900
-Subject: [OpenRISC] [PATCH 1/3] openrisc: Convert copy_thread to
- copy_thread_tls
-In-Reply-To: <20200226225625.28935-2-shorne@gmail.com>
-References: <20200226225625.28935-1-shorne@gmail.com>
- <20200226225625.28935-2-shorne@gmail.com>
-Message-ID: <20200227003105.GF7926@lianli.shorne-pla.net>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
+Date: Wed, 19 Feb 2020 13:07:55 +0100
+Subject: [OpenRISC] [PATCH v2 07/13] powerpc: add support for folded p4d
+ page tables
+In-Reply-To: <20200216081843.28670-8-rppt@kernel.org>
+References: <20200216081843.28670-1-rppt@kernel.org>
+ <20200216081843.28670-8-rppt@kernel.org>
+Message-ID: <5b7c3929-5833-8ceb-85c8-a8e92e6a138e@c-s.fr>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-On Thu, Feb 27, 2020 at 07:56:23AM +0900, Stafford Horne wrote:
-> This is required for clone3 which passes the TLS value through a
-> struct rather than a register.
 
-[...]
- 
-> diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
-> index b06f84f6676f..6695f167e126 100644
-> --- a/arch/openrisc/kernel/process.c
-> +++ b/arch/openrisc/kernel/process.c
-> @@ -117,12 +117,13 @@ void release_thread(struct task_struct *dead_task)
->  extern asmlinkage void ret_from_fork(void);
->  
->  /*
-> - * copy_thread
-> + * copy_thread_tls
->   * @clone_flags: flags
->   * @usp: user stack pointer or fn for kernel thread
->   * @arg: arg to fn for kernel thread; always NULL for userspace thread
->   * @p: the newly created task
->   * @regs: CPU context to copy for userspace thread; always NULL for kthread
-> + * @tls: the Thread Local Storate pointer for the new process
 
-This should be *Storage*.
- 
+Le 16/02/2020 à 09:18, Mike Rapoport a écrit :
+> From: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> Implement primitives necessary for the 4th level folding, add walks of p4d
+> level where appropriate and replace 5level-fixup.h with pgtable-nop4d.h.
+> 
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> Tested-by: Christophe Leroy <christophe.leroy@c-s.fr> # 8xx and 83xx
+> ---
+>   arch/powerpc/include/asm/book3s/32/pgtable.h  |  1 -
+>   arch/powerpc/include/asm/book3s/64/hash.h     |  4 +-
+>   arch/powerpc/include/asm/book3s/64/pgalloc.h  |  4 +-
+>   arch/powerpc/include/asm/book3s/64/pgtable.h  | 58 ++++++++++--------
+>   arch/powerpc/include/asm/book3s/64/radix.h    |  6 +-
+>   arch/powerpc/include/asm/nohash/32/pgtable.h  |  1 -
+>   arch/powerpc/include/asm/nohash/64/pgalloc.h  |  2 +-
+>   .../include/asm/nohash/64/pgtable-4k.h        | 32 +++++-----
+>   arch/powerpc/include/asm/nohash/64/pgtable.h  |  6 +-
+>   arch/powerpc/include/asm/pgtable.h            |  8 +++
+>   arch/powerpc/kvm/book3s_64_mmu_radix.c        | 59 ++++++++++++++++---
+>   arch/powerpc/lib/code-patching.c              |  7 ++-
+>   arch/powerpc/mm/book3s32/mmu.c                |  2 +-
+>   arch/powerpc/mm/book3s32/tlb.c                |  4 +-
+>   arch/powerpc/mm/book3s64/hash_pgtable.c       |  4 +-
+>   arch/powerpc/mm/book3s64/radix_pgtable.c      | 19 ++++--
+>   arch/powerpc/mm/book3s64/subpage_prot.c       |  6 +-
+>   arch/powerpc/mm/hugetlbpage.c                 | 28 +++++----
+>   arch/powerpc/mm/kasan/kasan_init_32.c         |  8 +--
+>   arch/powerpc/mm/mem.c                         |  4 +-
+>   arch/powerpc/mm/nohash/40x.c                  |  4 +-
+>   arch/powerpc/mm/nohash/book3e_pgtable.c       | 15 +++--
+>   arch/powerpc/mm/pgtable.c                     | 25 +++++++-
+>   arch/powerpc/mm/pgtable_32.c                  | 28 +++++----
+>   arch/powerpc/mm/pgtable_64.c                  | 10 ++--
+>   arch/powerpc/mm/ptdump/hashpagetable.c        | 20 ++++++-
+>   arch/powerpc/mm/ptdump/ptdump.c               | 22 ++++++-
+>   arch/powerpc/xmon/xmon.c                      | 17 +++++-
+>   28 files changed, 284 insertions(+), 120 deletions(-)
+> 
+> diff --git a/arch/powerpc/mm/ptdump/ptdump.c b/arch/powerpc/mm/ptdump/ptdump.c
+> index 206156255247..7bd4b81d5b5d 100644
+> --- a/arch/powerpc/mm/ptdump/ptdump.c
+> +++ b/arch/powerpc/mm/ptdump/ptdump.c
+> @@ -277,9 +277,9 @@ static void walk_pmd(struct pg_state *st, pud_t *pud, unsigned long start)
+>   	}
+>   }
+>   
+> -static void walk_pud(struct pg_state *st, pgd_t *pgd, unsigned long start)
+> +static void walk_pud(struct pg_state *st, p4d_t *p4d, unsigned long start)
+>   {
+> -	pud_t *pud = pud_offset(pgd, 0);
+> +	pud_t *pud = pud_offset(p4d, 0);
+>   	unsigned long addr;
+>   	unsigned int i;
+>   
+> @@ -293,6 +293,22 @@ static void walk_pud(struct pg_state *st, pgd_t *pgd, unsigned long start)
+>   	}
+>   }
+>   
+> +static void walk_p4d(struct pg_state *st, pgd_t *pgd, unsigned long start)
+> +{
+> +	p4d_t *p4d = p4d_offset(pgd, 0);
+> +	unsigned long addr;
+> +	unsigned int i;
+> +
+> +	for (i = 0; i < PTRS_PER_P4D; i++, p4d++) {
+> +		addr = start + i * P4D_SIZE;
+> +		if (!p4d_none(*p4d) && !p4d_is_leaf(*p4d))
+> +			/* p4d exists */
+> +			walk_pud(st, p4d, addr);
+> +		else
+> +			note_page(st, addr, 2, p4d_val(*p4d));
+
+Level 2 is already used by walk_pud().
+
+I think you have to increment the level used in walk_pud() and 
+walk_pmd() and walk_pte()
+
+> +	}
+> +}
+> +
+>   static void walk_pagetables(struct pg_state *st)
+>   {
+>   	unsigned int i;
+> @@ -306,7 +322,7 @@ static void walk_pagetables(struct pg_state *st)
+>   	for (i = pgd_index(addr); i < PTRS_PER_PGD; i++, pgd++, addr += PGDIR_SIZE) {
+>   		if (!pgd_none(*pgd) && !pgd_is_leaf(*pgd))
+>   			/* pgd exists */
+> -			walk_pud(st, pgd, addr);
+> +			walk_p4d(st, pgd, addr);
+>   		else
+>   			note_page(st, addr, 1, pgd_val(*pgd));
+>   	}
+
+Christophe
