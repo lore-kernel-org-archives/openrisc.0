@@ -1,69 +1,124 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Mon, 24 Feb 2020 11:44:44 -0800
-Subject: [OpenRISC] [PATCH 4/5] dma-direct: provide a
- arch_dma_clear_uncached hook
+Date: Mon, 24 Feb 2020 11:44:45 -0800
+Subject: [OpenRISC] [PATCH 5/5] openrisc: use the generic in-place uncached
+ DMA allocator
 In-Reply-To: <20200224194446.690816-1-hch@lst.de>
 References: <20200224194446.690816-1-hch@lst.de>
-Message-ID: <20200224194446.690816-5-hch@lst.de>
+Message-ID: <20200224194446.690816-6-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-This allows the arch code to reset the page tables to cached access when
-freeing a dma coherent allocation that was set to uncached using
-arch_dma_set_uncached.
+Switch openrisc to use the dma-direct allocator and just provide the
+hooks for setting memory uncached or cached.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/Kconfig                    | 7 +++++++
- include/linux/dma-noncoherent.h | 1 +
- kernel/dma/direct.c             | 2 ++
- 3 files changed, 10 insertions(+)
+ arch/openrisc/Kconfig      |  2 ++
+ arch/openrisc/kernel/dma.c | 55 +++++++-------------------------------
+ 2 files changed, 12 insertions(+), 45 deletions(-)
 
-diff --git a/arch/Kconfig b/arch/Kconfig
-index 090cfe0c82a7..c26302f90c96 100644
---- a/arch/Kconfig
-+++ b/arch/Kconfig
-@@ -255,6 +255,13 @@ config ARCH_HAS_SET_DIRECT_MAP
- config ARCH_HAS_DMA_SET_UNCACHED
- 	bool
+diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+index 1928e061ff96..7e94fe37cb2f 100644
+--- a/arch/openrisc/Kconfig
++++ b/arch/openrisc/Kconfig
+@@ -7,6 +7,8 @@
+ config OPENRISC
+ 	def_bool y
+ 	select ARCH_32BIT_OFF_T
++	select ARCH_HAS_DMA_SET_UNCACHED
++	select ARCH_HAS_DMA_CLEAR_UNCACHED
+ 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
+ 	select OF
+ 	select OF_EARLY_FLATTREE
+diff --git a/arch/openrisc/kernel/dma.c b/arch/openrisc/kernel/dma.c
+index adec711ad39d..c152a68811dd 100644
+--- a/arch/openrisc/kernel/dma.c
++++ b/arch/openrisc/kernel/dma.c
+@@ -11,8 +11,6 @@
+  * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
+  *
+  * DMA mapping callbacks...
+- * As alloc_coherent is the only DMA callback being used currently, that's
+- * the only thing implemented properly.  The rest need looking into...
+  */
  
-+#
-+# Select if the architectures provides the arch_dma_clear_uncached symbol
-+# to undo an in-place page table remap for uncached access.
-+#
-+config ARCH_HAS_DMA_CLEAR_UNCACHED
-+	bool
-+
- # Select if arch init_task must go in the __init_task_data section
- config ARCH_TASK_STRUCT_ON_STACK
- 	bool
-diff --git a/include/linux/dma-noncoherent.h b/include/linux/dma-noncoherent.h
-index 1a4039506673..b59f1b6be3e9 100644
---- a/include/linux/dma-noncoherent.h
-+++ b/include/linux/dma-noncoherent.h
-@@ -109,5 +109,6 @@ static inline void arch_dma_prep_coherent(struct page *page, size_t size)
- #endif /* CONFIG_ARCH_HAS_DMA_PREP_COHERENT */
+ #include <linux/dma-noncoherent.h>
+@@ -67,62 +65,29 @@ static const struct mm_walk_ops clear_nocache_walk_ops = {
+ 	.pte_entry		= page_clear_nocache,
+ };
  
- void *arch_dma_set_uncached(void *addr, size_t size);
-+void arch_dma_clear_uncached(void *addr, size_t size);
+-/*
+- * Alloc "coherent" memory, which for OpenRISC means simply uncached.
+- *
+- * This function effectively just calls __get_free_pages, sets the
+- * cache-inhibit bit on those pages, and makes sure that the pages are
+- * flushed out of the cache before they are used.
+- *
+- * If the NON_CONSISTENT attribute is set, then this function just
+- * returns "normal", cachable memory.
+- *
+- * There are additional flags WEAK_ORDERING and WRITE_COMBINE to take
+- * into consideration here, too.  All current known implementations of
+- * the OR1K support only strongly ordered memory accesses, so that flag
+- * is being ignored for now; uncached but write-combined memory is a
+- * missing feature of the OR1K.
+- */
+-void *
+-arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
+-		gfp_t gfp, unsigned long attrs)
++void *arch_dma_set_uncached(void *cpu_addr, size_t size)
+ {
+-	unsigned long va;
+-	void *page;
+-
+-	page = alloc_pages_exact(size, gfp | __GFP_ZERO);
+-	if (!page)
+-		return NULL;
+-
+-	/* This gives us the real physical address of the first page. */
+-	*dma_handle = __pa(page);
+-
+-	va = (unsigned long)page;
++	unsigned long va = (unsigned long)cpu_addr;
++	int error;
  
- #endif /* _LINUX_DMA_NONCOHERENT_H */
-diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-index f01a8191fd59..a8560052a915 100644
---- a/kernel/dma/direct.c
-+++ b/kernel/dma/direct.c
-@@ -219,6 +219,8 @@ void dma_direct_free_pages(struct device *dev, size_t size, void *cpu_addr,
- 
- 	if (IS_ENABLED(CONFIG_DMA_REMAP) && is_vmalloc_addr(cpu_addr))
- 		vunmap(cpu_addr);
-+	else if (IS_ENABLED(CONFIG_ARCH_HAS_DMA_CLEAR_UNCACHED))
-+		arch_dma_clear_uncached(cpu_addr, size);
- 
- 	dma_free_contiguous(dev, dma_direct_to_page(dev, dma_addr), size);
+ 	/*
+ 	 * We need to iterate through the pages, clearing the dcache for
+ 	 * them and setting the cache-inhibit bit.
+ 	 */
+-	if (walk_page_range(&init_mm, va, va + size, &set_nocache_walk_ops,
+-			NULL)) {
+-		free_pages_exact(page, size);
+-		return NULL;
+-	}
+-
+-	return (void *)va;
++	error = walk_page_range(&init_mm, va, va + size, &set_nocache_walk_ops,
++			NULL);
++	if (error)
++		return ERR_PTR(error);
++	return cpu_addr;
  }
+ 
+-void
+-arch_dma_free(struct device *dev, size_t size, void *vaddr,
+-		dma_addr_t dma_handle, unsigned long attrs)
++void arch_dma_clear_uncached(void *cpu_addr, size_t size)
+ {
+-	unsigned long va = (unsigned long)vaddr;
++	unsigned long va = (unsigned long)cpu_addr;
+ 
+ 	/* walk_page_range shouldn't be able to fail here */
+ 	WARN_ON(walk_page_range(&init_mm, va, va + size,
+ 			&clear_nocache_walk_ops, NULL));
+-
+-	free_pages_exact(vaddr, size);
+ }
+ 
+ void arch_sync_dma_for_device(phys_addr_t addr, size_t size,
 -- 
 2.24.1
 
