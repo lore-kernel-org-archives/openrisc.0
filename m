@@ -1,23 +1,69 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Mon, 24 Feb 2020 11:44:40 -0800
-Subject: [OpenRISC] provide in-place uncached remapping for dma-direct v2
-Message-ID: <20200224194446.690816-1-hch@lst.de>
+Date: Mon, 24 Feb 2020 11:44:44 -0800
+Subject: [OpenRISC] [PATCH 4/5] dma-direct: provide a
+ arch_dma_clear_uncached hook
+In-Reply-To: <20200224194446.690816-1-hch@lst.de>
+References: <20200224194446.690816-1-hch@lst.de>
+Message-ID: <20200224194446.690816-5-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi all,
+This allows the arch code to reset the page tables to cached access when
+freeing a dma coherent allocation that was set to uncached using
+arch_dma_set_uncached.
 
-this series provides support for remapping places uncached in-place in
-the generic dma-direct code, and moves openrisc over from its own
-in-place remapping scheme.  The arm64 folks also had interest in such
-a scheme to avoid problems with speculating into cache aliases.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ arch/Kconfig                    | 7 +++++++
+ include/linux/dma-noncoherent.h | 1 +
+ kernel/dma/direct.c             | 2 ++
+ 3 files changed, 10 insertions(+)
 
-Also all architectures that always use small page mappings for the
-kernel and have non-coherent DMA should look into enabling this
-scheme, as it is much more efficient than the vmap remapping.
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 090cfe0c82a7..c26302f90c96 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -255,6 +255,13 @@ config ARCH_HAS_SET_DIRECT_MAP
+ config ARCH_HAS_DMA_SET_UNCACHED
+ 	bool
+ 
++#
++# Select if the architectures provides the arch_dma_clear_uncached symbol
++# to undo an in-place page table remap for uncached access.
++#
++config ARCH_HAS_DMA_CLEAR_UNCACHED
++	bool
++
+ # Select if arch init_task must go in the __init_task_data section
+ config ARCH_TASK_STRUCT_ON_STACK
+ 	bool
+diff --git a/include/linux/dma-noncoherent.h b/include/linux/dma-noncoherent.h
+index 1a4039506673..b59f1b6be3e9 100644
+--- a/include/linux/dma-noncoherent.h
++++ b/include/linux/dma-noncoherent.h
+@@ -109,5 +109,6 @@ static inline void arch_dma_prep_coherent(struct page *page, size_t size)
+ #endif /* CONFIG_ARCH_HAS_DMA_PREP_COHERENT */
+ 
+ void *arch_dma_set_uncached(void *addr, size_t size);
++void arch_dma_clear_uncached(void *addr, size_t size);
+ 
+ #endif /* _LINUX_DMA_NONCOHERENT_H */
+diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
+index f01a8191fd59..a8560052a915 100644
+--- a/kernel/dma/direct.c
++++ b/kernel/dma/direct.c
+@@ -219,6 +219,8 @@ void dma_direct_free_pages(struct device *dev, size_t size, void *cpu_addr,
+ 
+ 	if (IS_ENABLED(CONFIG_DMA_REMAP) && is_vmalloc_addr(cpu_addr))
+ 		vunmap(cpu_addr);
++	else if (IS_ENABLED(CONFIG_ARCH_HAS_DMA_CLEAR_UNCACHED))
++		arch_dma_clear_uncached(cpu_addr, size);
+ 
+ 	dma_free_contiguous(dev, dma_direct_to_page(dev, dma_addr), size);
+ }
+-- 
+2.24.1
 
-Changes since v1:
- - share the arch hook for inline remap and uncached segment support
