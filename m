@@ -1,24 +1,27 @@
-From: Christoph Hellwig <hch@lst.de>
-Date: Mon, 24 Feb 2020 22:56:57 +0100
-Subject: [OpenRISC] [PATCH 4/5] dma-direct: provide a
- arch_dma_clear_uncached hook
-In-Reply-To: <20200224215327.GB11565@iweiny-DESK2.sc.intel.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Tue, 25 Feb 2020 19:09:42 +0900
+Subject: [OpenRISC] [PATCH 5/5] openrisc: use the generic in-place
+ uncached DMA allocator
+In-Reply-To: <20200224194446.690816-6-hch@lst.de>
 References: <20200224194446.690816-1-hch@lst.de>
- <20200224194446.690816-5-hch@lst.de>
- <20200224215327.GB11565@iweiny-DESK2.sc.intel.com>
-Message-ID: <20200224215657.GA12618@lst.de>
+ <20200224194446.690816-6-hch@lst.de>
+Message-ID: <20200225100942.GB7926@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Feb 24, 2020 at 01:53:28PM -0800, Ira Weiny wrote:
-> > +	else if (IS_ENABLED(CONFIG_ARCH_HAS_DMA_CLEAR_UNCACHED))
-> > +		arch_dma_clear_uncached(cpu_addr, size);
+On Mon, Feb 24, 2020 at 11:44:45AM -0800, Christoph Hellwig wrote:
+> Switch openrisc to use the dma-direct allocator and just provide the
+> hooks for setting memory uncached or cached.
 > 
-> Isn't using arch_dma_clear_uncached() before patch 5 going to break
-> bisectability?
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Only if ARCH_HAS_DMA_CLEAR_UNCACHED is selected by anything, which
-only happens in patch 5.
+Reviewed-by: Stafford Horne <shorne@gmail.com>
+
+I also test booted this series with linux 5.5 on my OpenRISC target.  There are
+no issues.  Note, I had an issue with patch 3/5 not cleanly applying with 'git am'
+but it worked fine using just patch, I didn't get any other details.
+
+-Stafford
