@@ -1,24 +1,32 @@
-From: Vad Rulezz <vad@vr5.epicgamer.org>
-Date: Fri, 28 Feb 2020 17:34:21 +0300
-Subject: [OpenRISC] [PATCH] openrisc: fix syscalls table initialization
-Message-ID: <47bb03c5-85bc-c8a2-6b16-c07ff692f174@vr5.epicgamer.org>
+From: Stafford Horne <shorne@gmail.com>
+Date: Mon,  2 Mar 2020 06:38:48 +0900
+Subject: [OpenRISC] [PATCH v2 0/3] OpenRISC clone3 support
+Message-ID: <20200301213851.8096-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Some entries in syscalls table could be left uninitialized, this patch
-fixes that.
+This series fixes the clone3 not implemented warnings I have been seeing
+during recent builds.  It was a simple case of implementing copy_thread_tls
+and turning on clone3 generic support.  Testing shows no issues.
 
-Vad Rulezz
+Changes since v1:
 
---- a/arch/openrisc/kernel/sys_call_table.c	2020-02-24 03:17:42.000000000 +0300
-+++ b/arch/openrisc/kernel/sys_call_table.c	2020-02-28 17:08:57.990931846 +0300
-@@ -20,5 +20,6 @@
-  #define __SYSCALL(nr, call) [nr] = (call),
+ - Fix some comments pointed out in reviews
+ - Add Acks to 2/3 and 3/3 from Christian Brauner
 
-  void *sys_call_table[__NR_syscalls] = {
-+	[0 ... __NR_syscalls-1] = &sys_ni_syscall,
-  #include <asm/unistd.h>
-  };
+Stafford Horne (3):
+  openrisc: Convert copy_thread to copy_thread_tls
+  openrisc: Enable the clone3 syscall
+  openrisc: Cleanup copy_thread_tls docs and comments
+
+ arch/openrisc/Kconfig                   |  1 +
+ arch/openrisc/include/uapi/asm/unistd.h |  1 +
+ arch/openrisc/kernel/process.c          | 18 ++++++------------
+ 3 files changed, 8 insertions(+), 12 deletions(-)
+
+-- 
+2.21.0
+
