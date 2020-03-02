@@ -1,33 +1,39 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 2 Mar 2020 18:16:35 +0900
-Subject: [OpenRISC] [PATCH] mm/special: Create generic fallbacks for
- pte_special() and pte_mkspecial()
-In-Reply-To: <1583114190-7678-1-git-send-email-anshuman.khandual@arm.com>
-References: <1583114190-7678-1-git-send-email-anshuman.khandual@arm.com>
-Message-ID: <20200302091635.GK7926@lianli.shorne-pla.net>
+From: Robin Murphy <robin.murphy@arm.com>
+Date: Mon, 2 Mar 2020 16:05:12 +0000
+Subject: [OpenRISC] provide in-place uncached remapping for dma-direct v2
+In-Reply-To: <20200224194446.690816-1-hch@lst.de>
+References: <20200224194446.690816-1-hch@lst.de>
+Message-ID: <4fe14c57-78d4-6590-a4c4-14fbe061238e@arm.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Mar 02, 2020 at 07:26:30AM +0530, Anshuman Khandual wrote:
+On 24/02/2020 7:44 pm, Christoph Hellwig wrote:
+> Hi all,
+> 
+> this series provides support for remapping places uncached in-place in
+> the generic dma-direct code, and moves openrisc over from its own
+> in-place remapping scheme.  The arm64 folks also had interest in such
+> a scheme to avoid problems with speculating into cache aliases.
+> 
+> Also all architectures that always use small page mappings for the
+> kernel and have non-coherent DMA should look into enabling this
+> scheme, as it is much more efficient than the vmap remapping.
+> 
+> Changes since v1:
+>   - share the arch hook for inline remap and uncached segment support
+> 
 
-> diff --git a/arch/openrisc/include/asm/pgtable.h b/arch/openrisc/include/asm/pgtable.h
-> index 248d22d8faa7..7f3fb9ceb083 100644
-> --- a/arch/openrisc/include/asm/pgtable.h
-> +++ b/arch/openrisc/include/asm/pgtable.h
-> @@ -236,8 +236,6 @@ static inline int pte_write(pte_t pte) { return pte_val(pte) & _PAGE_WRITE; }
->  static inline int pte_exec(pte_t pte)  { return pte_val(pte) & _PAGE_EXEC; }
->  static inline int pte_dirty(pte_t pte) { return pte_val(pte) & _PAGE_DIRTY; }
->  static inline int pte_young(pte_t pte) { return pte_val(pte) & _PAGE_ACCESSED; }
-> -static inline int pte_special(pte_t pte) { return 0; }
-> -static inline pte_t pte_mkspecial(pte_t pte) { return pte; }
->  
->  static inline pte_t pte_wrprotect(pte_t pte)
->  {
+For the whole series:
 
-For openrisc bits:
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
 
-Acked-by: Stafford Horne <shorne@gmail.com>
- 
+I think we might ultimately want to fiddle around a bit more in 
+dma_direct_alloc_pages() to give ARCH_HAS_DMA_SET_UNCACHED clear 
+precedence over DMA_DIRECT_REMAP if they have to coexist, but let's land 
+these patches first as a solid foundation.
+
+Thanks,
+Robin.
