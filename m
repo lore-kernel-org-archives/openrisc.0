@@ -1,37 +1,34 @@
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Date: Mon, 2 Mar 2020 16:07:27 +0530
+From: Helge Deller <deller@gmx.de>
+Date: Mon, 2 Mar 2020 12:19:28 +0100
 Subject: [OpenRISC] [PATCH] mm/special: Create generic fallbacks for
  pte_special() and pte_mkspecial()
-In-Reply-To: <CAMuHMdXnUeYib2dMALyzrW8LKhTjsnGFsqALoTxVHzPGc+OUTg@mail.gmail.com>
+In-Reply-To: <1583114190-7678-1-git-send-email-anshuman.khandual@arm.com>
 References: <1583114190-7678-1-git-send-email-anshuman.khandual@arm.com>
- <CAMuHMdXnUeYib2dMALyzrW8LKhTjsnGFsqALoTxVHzPGc+OUTg@mail.gmail.com>
-Message-ID: <02997860-9374-28b9-8703-dc9b62b3f8ff@arm.com>
+Message-ID: <c026934a-02c1-8589-f925-e267fcc367ad@gmx.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
+On 02.03.20 02:56, Anshuman Khandual wrote:
+> Currently there are many platforms that dont enable HAVE_ARCH_PTE_SPECIAL
+> but required to define quite similar fallback stubs for special page table
+> entry helpers such as pte_special() and pte_mkspecial(), as they get build
+> in generic MM without a config check. This creates two generic fallback
+> stub definitions for these helpers, eliminating much code duplication.
+>
+> mips platform has a special case where pte_special() and pte_mkspecial()
+> visibility is wider than what HAVE_ARCH_PTE_SPECIAL enablement requires.
+> This restricts those symbol visibility in order to avoid redefinitions
+> which is now exposed through this new generic stubs and subsequent build
+> failure. arm platform set_pte_at() definition needs to be moved into a C
+> file just to prevent a build failure.
+>
+> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 
-On 03/02/2020 01:49 PM, Geert Uytterhoeven wrote:
-> Hi Anshuman,
-> 
-> Thanks for your patch!
-> 
-> On Mon, Mar 2, 2020 at 2:56 AM Anshuman Khandual
-> <anshuman.khandual@arm.com> wrote:
->> Currently there are many platforms that dont enable HAVE_ARCH_PTE_SPECIAL
-> ARCH_HAS_PTE_SPECIAL
-> 
->> but required to define quite similar fallback stubs for special page table
->> entry helpers such as pte_special() and pte_mkspecial(), as they get build
->> in generic MM without a config check. This creates two generic fallback
->> stub definitions for these helpers, eliminating much code duplication.
->>
->> mips platform has a special case where pte_special() and pte_mkspecial()
->> visibility is wider than what HAVE_ARCH_PTE_SPECIAL enablement requires.
-> ARCH_HAS_PTE_SPECIAL
-> 
+for parisc:
 
-Oops, will fix it. I have been juggling between too many HAVE_ARCH_* and
-ARCH_HAS_* lately :)
+Acked-by: Helge Deller <deller@gmx.de> # parisc
+
+Helge
