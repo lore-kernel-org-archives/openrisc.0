@@ -1,34 +1,33 @@
-From: Helge Deller <deller@gmx.de>
-Date: Mon, 2 Mar 2020 12:19:28 +0100
+From: Stafford Horne <shorne@gmail.com>
+Date: Mon, 2 Mar 2020 18:16:35 +0900
 Subject: [OpenRISC] [PATCH] mm/special: Create generic fallbacks for
  pte_special() and pte_mkspecial()
 In-Reply-To: <1583114190-7678-1-git-send-email-anshuman.khandual@arm.com>
 References: <1583114190-7678-1-git-send-email-anshuman.khandual@arm.com>
-Message-ID: <c026934a-02c1-8589-f925-e267fcc367ad@gmx.de>
+Message-ID: <20200302091635.GK7926@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 02.03.20 02:56, Anshuman Khandual wrote:
-> Currently there are many platforms that dont enable HAVE_ARCH_PTE_SPECIAL
-> but required to define quite similar fallback stubs for special page table
-> entry helpers such as pte_special() and pte_mkspecial(), as they get build
-> in generic MM without a config check. This creates two generic fallback
-> stub definitions for these helpers, eliminating much code duplication.
->
-> mips platform has a special case where pte_special() and pte_mkspecial()
-> visibility is wider than what HAVE_ARCH_PTE_SPECIAL enablement requires.
-> This restricts those symbol visibility in order to avoid redefinitions
-> which is now exposed through this new generic stubs and subsequent build
-> failure. arm platform set_pte_at() definition needs to be moved into a C
-> file just to prevent a build failure.
->
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+On Mon, Mar 02, 2020 at 07:26:30AM +0530, Anshuman Khandual wrote:
 
-for parisc:
+> diff --git a/arch/openrisc/include/asm/pgtable.h b/arch/openrisc/include/asm/pgtable.h
+> index 248d22d8faa7..7f3fb9ceb083 100644
+> --- a/arch/openrisc/include/asm/pgtable.h
+> +++ b/arch/openrisc/include/asm/pgtable.h
+> @@ -236,8 +236,6 @@ static inline int pte_write(pte_t pte) { return pte_val(pte) & _PAGE_WRITE; }
+>  static inline int pte_exec(pte_t pte)  { return pte_val(pte) & _PAGE_EXEC; }
+>  static inline int pte_dirty(pte_t pte) { return pte_val(pte) & _PAGE_DIRTY; }
+>  static inline int pte_young(pte_t pte) { return pte_val(pte) & _PAGE_ACCESSED; }
+> -static inline int pte_special(pte_t pte) { return 0; }
+> -static inline pte_t pte_mkspecial(pte_t pte) { return pte; }
+>  
+>  static inline pte_t pte_wrprotect(pte_t pte)
+>  {
 
-Acked-by: Helge Deller <deller@gmx.de> # parisc
+For openrisc bits:
 
-Helge
+Acked-by: Stafford Horne <shorne@gmail.com>
+ 
