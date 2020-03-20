@@ -1,42 +1,36 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 18 Mar 2020 22:17:02 +0900
-Subject: [OpenRISC] [PATCH] openrisc: Remove obsolete show_trace_task
- function
-Message-ID: <20200318131703.17601-1-shorne@gmail.com>
+Date: Fri, 20 Mar 2020 16:21:14 +0900
+Subject: [OpenRISC] Fpu tininess
+Message-ID: <CAAfxs75F6mcX_qHPYLzCbudeONXkSCOqNcXGRR4o+bgMDZ_VxQ@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The function show_trace_task() was removed during linux 2.5 development
-and replaced with show_stack().  This was never impemented for openrisc
-but must have got in via copying from another architecture.  Just remove
-it.
+Hi Andrey,
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- arch/openrisc/kernel/traps.c | 7 -------
- 1 file changed, 7 deletions(-)
+Thanks for replying to the question about fusesoc.
 
-diff --git a/arch/openrisc/kernel/traps.c b/arch/openrisc/kernel/traps.c
-index 932a8ec2b520..c11aa2e17ce0 100644
---- a/arch/openrisc/kernel/traps.c
-+++ b/arch/openrisc/kernel/traps.c
-@@ -55,13 +55,6 @@ void show_stack(struct task_struct *task, unsigned long *esp)
- 	unwind_stack(NULL, esp, print_trace);
- }
- 
--void show_trace_task(struct task_struct *tsk)
--{
--	/*
--	 * TODO: SysRq-T trace dump...
--	 */
--}
--
- void show_registers(struct pt_regs *regs)
- {
- 	int i;
--- 
-2.21.0
+I've been meaning to ask you a question about our fpu implementation.
+Currently for glibc most  floating point math routines use 64-bit double
+precision.  Anything not handled by the architecture is emulated.
 
+I have written the emulation patches but the tests are having issues with
+underflow flags being incorrectly set sometimes.
+
+I have a hunch it may be due to my tininess setting.   Do you know what we
+should set for:
+
+_FP_TININESS_AFTER_ROUNDING
+
+?
+
+The glibc patch
+https://github.com/openrisc/or1k-glibc/commit/4748177bdde92846974fc8ec523d212d6db74aa0
+
+The gcc patch
+https://github.com/stffrdhrn/gcc/commit/8e99e252edc130162b6d2d7bdef2180305389053
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20200320/457573eb/attachment.html>
