@@ -1,79 +1,56 @@
-From: Dmitry Safonov <dima@arista.com>
-Date: Mon, 16 Mar 2020 14:38:50 +0000
-Subject: [OpenRISC] [PATCHv2 24/50] openrisc: Add show_stack_loglvl()
-In-Reply-To: <20200316143916.195608-1-dima@arista.com>
-References: <20200316143916.195608-1-dima@arista.com>
-Message-ID: <20200316143916.195608-25-dima@arista.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Tue, 7 Apr 2020 21:16:28 +0900
+Subject: [OpenRISC] [GIT PULL] OpenRISC updates for v5.6
+Message-ID: <20200407121628.GP7926@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Currently, the log-level of show_stack() depends on a platform
-realization. It creates situations where the headers are printed with
-lower log level or higher than the stacktrace (depending on
-a platform or user).
+Hi Linus,
 
-Furthermore, it forces the logic decision from user to an architecture
-side. In result, some users as sysrq/kdb/etc are doing tricks with
-temporary rising console_loglevel while printing their messages.
-And in result it not only may print unwanted messages from other CPUs,
-but also omit printing at all in the unlucky case where the printk()
-was deferred.
+Please consider pulling...
 
-Introducing log-level parameter and KERN_UNSUPPRESSED [1] seems
-an easier approach than introducing more printk buffers.
-Also, it will consolidate printings with headers.
+The following changes since commit d5226fa6dbae0569ee43ecfc08bdcd6770fc4755:
 
-Introduce show_stack_loglvl(), that eventually will substitute
-show_stack().
+  Linux 5.5 (2020-01-26 16:23:03 -0800)
 
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: openrisc at lists.librecores.org
-[1]: https://lore.kernel.org/lkml/20190528002412.1625-1-dima at arista.com/T/#u
-Signed-off-by: Dmitry Safonov <dima@arista.com>
----
- arch/openrisc/kernel/traps.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+are available in the Git repository at:
 
-diff --git a/arch/openrisc/kernel/traps.c b/arch/openrisc/kernel/traps.c
-index 932a8ec2b520..9d5a85dd1992 100644
---- a/arch/openrisc/kernel/traps.c
-+++ b/arch/openrisc/kernel/traps.c
-@@ -41,18 +41,26 @@ unsigned long __user *lwa_addr;
- 
- void print_trace(void *data, unsigned long addr, int reliable)
- {
--	pr_emerg("[<%p>] %s%pS\n", (void *) addr, reliable ? "" : "? ",
-+	const char *loglvl = data;
-+
-+	printk("%s[<%p>] %s%pS\n", loglvl, (void *) addr, reliable ? "" : "? ",
- 	       (void *) addr);
- }
- 
- /* displays a short stack trace */
--void show_stack(struct task_struct *task, unsigned long *esp)
-+void show_stack_loglvl(struct task_struct *task, unsigned long *esp,
-+		const char *loglvl)
- {
- 	if (esp == NULL)
- 		esp = (unsigned long *)&esp;
- 
--	pr_emerg("Call trace:\n");
--	unwind_stack(NULL, esp, print_trace);
-+	printk("%sCall trace:\n", loglvl);
-+	unwind_stack((void *)loglvl, esp, print_trace);
-+}
-+
-+void show_stack(struct task_struct *task, unsigned long *esp)
-+{
-+	show_stack_loglvl(task, esp, KERN_EMERG);
- }
- 
- void show_trace_task(struct task_struct *tsk)
--- 
-2.25.1
+  git://github.com/openrisc/linux.git tags/for-linus
 
+for you to fetch changes up to 9737e2c5f0bc768b58416ec070bd96c91c52a153:
+
+  openrisc: Remove obsolete show_trace_task function (2020-03-18 22:10:44 +0900)
+
+----------------------------------------------------------------
+OpenRISC updates for 5.6
+
+A few cleanups all over the place, things of note:
+ - Enable the clone3 syscall
+ - Remove CONFIG_CROSS_COMPILE from Krzysztof Kozlowski
+ - Update to use mmgrab from Julia Lawall
+
+----------------------------------------------------------------
+Julia Lawall (1):
+      openrisc: use mmgrab
+
+Krzysztof Kozlowski (1):
+      openrisc: configs: Cleanup CONFIG_CROSS_COMPILE
+
+Stafford Horne (4):
+      openrisc: Convert copy_thread to copy_thread_tls
+      openrisc: Enable the clone3 syscall
+      openrisc: Cleanup copy_thread_tls docs and comments
+      openrisc: Remove obsolete show_trace_task function
+
+ Documentation/openrisc/openrisc_port.rst   |  4 ++--
+ arch/openrisc/Kconfig                      |  1 +
+ arch/openrisc/configs/or1ksim_defconfig    |  1 -
+ arch/openrisc/configs/simple_smp_defconfig |  1 -
+ arch/openrisc/include/uapi/asm/unistd.h    |  1 +
+ arch/openrisc/kernel/process.c             | 18 ++++++------------
+ arch/openrisc/kernel/smp.c                 |  3 ++-
+ arch/openrisc/kernel/traps.c               |  7 -------
+ 8 files changed, 12 insertions(+), 24 deletions(-)
