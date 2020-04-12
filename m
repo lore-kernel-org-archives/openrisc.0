@@ -1,24 +1,126 @@
-From: pr-tracker-bot@kernel.org <pr-tracker-bot@kernel.org>
-Date: Tue, 07 Apr 2020 19:55:25 +0000
-Subject: [OpenRISC] [GIT PULL] OpenRISC updates for v5.6
-In-Reply-To: <20200407121628.GP7926@lianli.shorne-pla.net>
-References: <20200407121628.GP7926@lianli.shorne-pla.net>
-Message-ID: <158628932584.3792.16656826106512591465.pr-tracker-bot@kernel.org>
+From: Mike Rapoport <rppt@kernel.org>
+Date: Sun, 12 Apr 2020 22:48:38 +0300
+Subject: [OpenRISC] [PATCH 00/21] mm: rework free_area_init*() funcitons
+Message-ID: <20200412194859.12663-1-rppt@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The pull request you sent on Tue, 7 Apr 2020 21:16:28 +0900:
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-> git://github.com/openrisc/linux.git tags/for-linus
+Hi,
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/d5d247661e869b71e4db5ca69b08b9607895d496
+After the discussion [1] about removal of CONFIG_NODES_SPAN_OTHER_NODES and
+CONFIG_HAVE_MEMBLOCK_NODE_MAP options, I took it a bit further and updated
+the node/zone initialization. 
 
-Thank you!
+Since all architectures have memblock, it is possible to use only the newer
+version of free_area_init_node() that calculates the zone and node
+boundaries based on memblock node mapping and architectural limits on
+possible zone PFNs. 
+
+The architectures that still determined zone and hole sizes can be switched
+to the generic code and the old code that took those zone and hole sizes
+can be simply removed.
+
+And, since it all started from the removal of
+CONFIG_NODES_SPAN_OTHER_NODES, the memmap_init() is now updated to iterate
+over memblocks and so it does not need to perform early_pfn_to_nid() query
+for every PFN.
+
+--
+Sincerely yours,
+Mike.
+
+[1] https://lore.kernel.org/lkml/1585420282-25630-1-git-send-email-Hoan at os.amperecomputing.com
+
+Baoquan He (1):
+  mm: memmap_init: iterate over memblock regions rather that check each PFN
+
+Mike Rapoport (20):
+  mm: memblock: replace dereferences of memblock_region.nid with API calls
+  mm: make early_pfn_to_nid() and related defintions close to each other
+  mm: remove CONFIG_HAVE_MEMBLOCK_NODE_MAP option
+  mm: free_area_init: use maximal zone PFNs rather than zone sizes
+  mm: use free_area_init() instead of free_area_init_nodes()
+  alpha: simplify detection of memory zone boundaries
+  arm: simplify detection of memory zone boundaries
+  arm64: simplify detection of memory zone boundaries for UMA configs
+  csky: simplify detection of memory zone boundaries
+  m68k: mm: simplify detection of memory zone boundaries
+  parisc: simplify detection of memory zone boundaries
+  sparc32: simplify detection of memory zone boundaries
+  unicore32: simplify detection of memory zone boundaries
+  xtensa: simplify detection of memory zone boundaries
+  mm: remove early_pfn_in_nid() and CONFIG_NODES_SPAN_OTHER_NODES
+  mm: free_area_init: allow defining max_zone_pfn in descending order
+  mm: rename free_area_init_node() to free_area_init_memoryless_node()
+  mm: clean up free_area_init_node() and its helpers
+  mm: simplify find_min_pfn_with_active_regions()
+  docs/vm: update memory-models documentation
+
+ .../vm/numa-memblock/arch-support.txt         |  34 ---
+ Documentation/vm/memory-model.rst             |   9 +-
+ arch/alpha/mm/init.c                          |  16 +-
+ arch/alpha/mm/numa.c                          |  22 +-
+ arch/arc/mm/init.c                            |  36 +--
+ arch/arm/mm/init.c                            |  66 +----
+ arch/arm64/Kconfig                            |   1 -
+ arch/arm64/mm/init.c                          |  56 +---
+ arch/arm64/mm/numa.c                          |   9 +-
+ arch/c6x/mm/init.c                            |   8 +-
+ arch/csky/kernel/setup.c                      |  26 +-
+ arch/h8300/mm/init.c                          |   6 +-
+ arch/hexagon/mm/init.c                        |   6 +-
+ arch/ia64/Kconfig                             |   1 -
+ arch/ia64/mm/contig.c                         |   2 +-
+ arch/ia64/mm/discontig.c                      |   2 +-
+ arch/m68k/mm/init.c                           |   6 +-
+ arch/m68k/mm/mcfmmu.c                         |   9 +-
+ arch/m68k/mm/motorola.c                       |  15 +-
+ arch/m68k/mm/sun3mmu.c                        |  10 +-
+ arch/microblaze/Kconfig                       |   1 -
+ arch/microblaze/mm/init.c                     |   2 +-
+ arch/mips/Kconfig                             |   1 -
+ arch/mips/loongson64/numa.c                   |   2 +-
+ arch/mips/mm/init.c                           |   2 +-
+ arch/mips/sgi-ip27/ip27-memory.c              |   2 +-
+ arch/nds32/mm/init.c                          |  11 +-
+ arch/nios2/mm/init.c                          |   8 +-
+ arch/openrisc/mm/init.c                       |   9 +-
+ arch/parisc/mm/init.c                         |  22 +-
+ arch/powerpc/Kconfig                          |  10 -
+ arch/powerpc/mm/mem.c                         |   2 +-
+ arch/riscv/Kconfig                            |   1 -
+ arch/riscv/mm/init.c                          |   2 +-
+ arch/s390/Kconfig                             |   1 -
+ arch/s390/mm/init.c                           |   2 +-
+ arch/sh/Kconfig                               |   1 -
+ arch/sh/mm/init.c                             |   2 +-
+ arch/sparc/Kconfig                            |  10 -
+ arch/sparc/mm/init_64.c                       |   2 +-
+ arch/sparc/mm/srmmu.c                         |  21 +-
+ arch/um/kernel/mem.c                          |  12 +-
+ arch/unicore32/include/asm/memory.h           |   2 +-
+ arch/unicore32/include/mach/memory.h          |   6 +-
+ arch/unicore32/kernel/pci.c                   |  14 +-
+ arch/unicore32/mm/init.c                      |  43 +--
+ arch/x86/Kconfig                              |  10 -
+ arch/x86/mm/init.c                            |   2 +-
+ arch/x86/mm/numa.c                            |  11 +-
+ arch/xtensa/mm/init.c                         |   8 +-
+ include/linux/memblock.h                      |   8 +-
+ include/linux/mm.h                            |  30 +-
+ include/linux/mmzone.h                        |  11 +-
+ mm/Kconfig                                    |   3 -
+ mm/memblock.c                                 |  19 +-
+ mm/memory_hotplug.c                           |   4 -
+ mm/page_alloc.c                               | 262 +++++++-----------
+ 57 files changed, 249 insertions(+), 650 deletions(-)
+ delete mode 100644 Documentation/features/vm/numa-memblock/arch-support.txt
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+2.25.1
+
