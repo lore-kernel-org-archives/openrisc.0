@@ -1,11 +1,11 @@
 From: Baoquan He <bhe@redhat.com>
-Date: Tue, 21 Apr 2020 10:24:35 +0800
+Date: Tue, 21 Apr 2020 11:31:14 +0800
 Subject: [OpenRISC] [PATCH 02/21] mm: make early_pfn_to_nid() and
  related defintions close to each other
 In-Reply-To: <20200412194859.12663-3-rppt@kernel.org>
 References: <20200412194859.12663-1-rppt@kernel.org>
  <20200412194859.12663-3-rppt@kernel.org>
-Message-ID: <20200421022435.GP4247@MiWiFi-R3L-srv>
+Message-ID: <20200421033114.GA29658@MiWiFi-R3L-srv>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -43,9 +43,6 @@ On 04/12/20 at 10:48pm, Mike Rapoport wrote:
 > +	BUILD_BUG_ON(IS_ENABLED(CONFIG_NUMA));
 >  	return 0;
 >  }
-
-It's better to make a separate patch to drop __early_pfn_to_nid() here.
-
 >  #else
 > diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
 > index 1b9de7d220fb..7b5b6eba402f 100644
@@ -72,23 +69,10 @@ It's better to make a separate patch to drop __early_pfn_to_nid() here.
 > --- a/mm/page_alloc.c
 > +++ b/mm/page_alloc.c
 > @@ -1504,6 +1504,31 @@ void __free_pages_core(struct page *page, unsigned int order)
-
-#if defined(CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID) || \
-        defined(CONFIG_HAVE_MEMBLOCK_NODE_MAP)
-
-This is the upper layer of ifdeffery scope.
 >  
 >  static struct mminit_pfnnid_cache early_pfnnid_cache __meminitdata;
 >  
 > +#ifndef CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID
-
-Moving __early_pfn_to_nid() here makes the upper layer of ifdeferry
-scope a little werid. But seems no better way to optimize it.
-
-Otherwise, this patch looks good to me.
-
-Reviewed-by: Baoquan He <bhe@redhat.com>
-
 > +
 > +/*
 > + * Required by SPARSEMEM. Given a PFN, return what node the PFN is on.
@@ -121,6 +105,11 @@ Reviewed-by: Baoquan He <bhe@redhat.com>
 >  }
 >  
 > -#ifdef CONFIG_HAVE_MEMBLOCK_NODE_MAP
+
+Here it's apparently removing CONFIG_HAVE_MEMBLOCK_NODE_MAP too early,
+it should be done in patch 3, and its #end is kept there. I just found
+it when I almost became dizzy in reviewing patch 3.
+
 > -#ifndef CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID
 > -
 > -/*
