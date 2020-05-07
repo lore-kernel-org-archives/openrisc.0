@@ -1,65 +1,85 @@
-From: Vineet Gupta <Vineet.Gupta1@synopsys.com>
-Date: Tue, 5 May 2020 17:27:16 +0000
-Subject: [OpenRISC] [PATCH v2 17/20] mm: free_area_init: allow defining
- max_zone_pfn in descending order
-In-Reply-To: <ca099c3e-c0bc-cd2f-cdb0-852dfc2c10db@roeck-us.net>
-References: <20200429121126.17989-1-rppt@kernel.org>
- <20200429121126.17989-18-rppt@kernel.org>
- <20200503174138.GA114085@roeck-us.net> <20200503184300.GA154219@roeck-us.net>
- <20200504153901.GM14260@kernel.org>
- <ca099c3e-c0bc-cd2f-cdb0-852dfc2c10db@roeck-us.net>
-Message-ID: <51b468f8-c05b-a019-f473-429622083045@synopsys.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+Date: Thu, 7 May 2020 14:16:56 +0200
+Subject: [OpenRISC] [PATCH v4 02/14] arm: add support for folded p4d
+ page tables
+In-Reply-To: <20200414153455.21744-3-rppt@kernel.org>
+References: <20200414153455.21744-1-rppt@kernel.org>
+ <20200414153455.21744-3-rppt@kernel.org>
+ <CGME20200507121658eucas1p240cf4a3e0fe5c22dda5ec4f72734149f@eucas1p2.samsung.com>
+Message-ID: <39ba8a04-d6b5-649d-c289-0c8b27cb66c5@samsung.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-On 5/5/20 6:18 AM, Guenter Roeck wrote:
-> On 5/4/20 8:39 AM, Mike Rapoport wrote:
->> On Sun, May 03, 2020 at 11:43:00AM -0700, Guenter Roeck wrote:
->>> On Sun, May 03, 2020 at 10:41:38AM -0700, Guenter Roeck wrote:
->>>> Hi,
->>>>
->>>> On Wed, Apr 29, 2020 at 03:11:23PM +0300, Mike Rapoport wrote:
->>>>> From: Mike Rapoport <rppt@linux.ibm.com>
->>>>>
->>>>> Some architectures (e.g. ARC) have the ZONE_HIGHMEM zone below the
->>>>> ZONE_NORMAL. Allowing free_area_init() parse max_zone_pfn array even it is
->>>>> sorted in descending order allows using free_area_init() on such
->>>>> architectures.
->>>>>
->>>>> Add top -> down traversal of max_zone_pfn array in free_area_init() and use
->>>>> the latter in ARC node/zone initialization.
->>>>>
->>>>> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
->>>> This patch causes my microblazeel qemu boot test in linux-next to fail.
->>>> Reverting it fixes the problem.
->>>>
->>> The same problem is seen with s390 emulations.
->> Yeah, this patch breaks some others as well :(
->>
->> My assumption that max_zone_pfn defines architectural limit for maximal
->> PFN that can belong to a zone was over-optimistic. Several arches
->> actually do that, but others do
->>
->> 	max_zone_pfn[ZONE_DMA] = MAX_DMA_PFN;
->> 	max_zone_pfn[ZONE_NORMAL] = max_pfn;
->>
->> where MAX_DMA_PFN is build-time constrain and max_pfn is run time limit
->> for the current system.
->>
->> So, when max_pfn is lower than MAX_DMA_PFN, the free_init_area() will
->> consider max_zone_pfn as descending and will wrongly calculate zone
->> extents.
->>
->> That said, instead of trying to create a generic way to special case
->> ARC, I suggest to simply use the below patch instead.
->>
-> As a reminder, I reported the problem against s390 and microblazeel
-> (interestingly enough, microblaze (big endian) works), not against arc.
+Hi
 
-Understood and my comment was to point to any other problems in future.
+On 14.04.2020 17:34, Mike Rapoport wrote:
+> From: Mike Rapoport <rppt@linux.ibm.com>
+>
+> Implement primitives necessary for the 4th level folding, add walks of p4d
+> level where appropriate, and remove __ARCH_USE_5LEVEL_HACK.
+>
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 
-Thx,
--Vineet
+Today I've noticed that kexec is broken on ARM 32bit. Bisecting between 
+current linux-next and v5.7-rc1 pointed to this commit. I've tested this 
+on Odroid XU4 and Raspberry Pi4 boards. Here is the relevant log:
+
+# kexec --kexec-syscall -l zImage --append "$(cat /proc/cmdline)"
+memory_range[0]:0x40000000..0xbe9fffff
+memory_range[0]:0x40000000..0xbe9fffff
+# kexec -e
+kexec_core: Starting new kernel
+8<--- cut here ---
+Unable to handle kernel paging request at virtual address c010f1f4
+pgd = c6817793
+[c010f1f4] *pgd=4000041e(bad)
+Internal error: Oops: 80d [#1] PREEMPT ARM
+Modules linked in:
+CPU: 0 PID: 1329 Comm: kexec Tainted: G        W 
+5.7.0-rc3-00127-g6cba81ed0f62 #611
+Hardware name: Samsung Exynos (Flattened Device Tree)
+PC is at machine_kexec+0x40/0xfc
+LR is@0xffffffff
+pc : [<c010f0b4>]    lr : [<ffffffff>]    psr: 60000013
+sp : ebc13e60  ip : 40008000  fp : 00000001
+r10: 00000058  r9 : fee1dead  r8 : 00000001
+r7 : c121387c  r6 : 6c224000  r5 : ece40c00  r4 : ec222000
+r3 : c010f1f4  r2 : c1100000  r1 : c1100000  r0 : 418d0000
+Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+Control: 10c5387d  Table: 6bc14059  DAC: 00000051
+Process kexec (pid: 1329, stack limit = 0x366bb4dc)
+Stack: (0xebc13e60 to 0xebc14000)
+...
+[<c010f0b4>] (machine_kexec) from [<c01c0d84>] (kernel_kexec+0x74/0x7c)
+[<c01c0d84>] (kernel_kexec) from [<c014b1bc>] (__do_sys_reboot+0x1f8/0x210)
+[<c014b1bc>] (__do_sys_reboot) from [<c0100060>] (ret_fast_syscall+0x0/0x28)
+Exception stack(0xebc13fa8 to 0xebc13ff0)
+...
+---[ end trace 3e8d6c81723c778d ]---
+1329 Segmentation fault      ./kexec -e
+
+> ---
+>   arch/arm/include/asm/pgtable.h     |  1 -
+>   arch/arm/lib/uaccess_with_memcpy.c |  7 +++++-
+>   arch/arm/mach-sa1100/assabet.c     |  2 +-
+>   arch/arm/mm/dump.c                 | 29 +++++++++++++++++-----
+>   arch/arm/mm/fault-armv.c           |  7 +++++-
+>   arch/arm/mm/fault.c                | 22 ++++++++++------
+>   arch/arm/mm/idmap.c                |  3 ++-
+>   arch/arm/mm/init.c                 |  2 +-
+>   arch/arm/mm/ioremap.c              | 12 ++++++---
+>   arch/arm/mm/mm.h                   |  2 +-
+>   arch/arm/mm/mmu.c                  | 35 +++++++++++++++++++++-----
+>   arch/arm/mm/pgd.c                  | 40 ++++++++++++++++++++++++------
+>   12 files changed, 125 insertions(+), 37 deletions(-)
+>
+> ...
+
+Best regards
+-- 
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
+
