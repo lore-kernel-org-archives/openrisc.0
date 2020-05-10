@@ -1,34 +1,34 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Sun, 10 May 2020 09:54:42 +0200
-Subject: [OpenRISC] [PATCH 03/31] MIPS: unexport __flush_icache_user_range
+Date: Sun, 10 May 2020 09:54:43 +0200
+Subject: [OpenRISC] [PATCH 04/31] nds32: unexport flush_icache_page
 In-Reply-To: <20200510075510.987823-1-hch@lst.de>
 References: <20200510075510.987823-1-hch@lst.de>
-Message-ID: <20200510075510.987823-4-hch@lst.de>
+Message-ID: <20200510075510.987823-5-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-__flush_icache_user_range is not used in modular code, so unexport it.
+flush_icache_page is only used by mm/memory.c.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/mips/mm/cache.c | 1 -
+ arch/nds32/mm/cacheflush.c | 1 -
  1 file changed, 1 deletion(-)
 
-diff --git a/arch/mips/mm/cache.c b/arch/mips/mm/cache.c
-index 33b409391ddb6..ad6df1cea866f 100644
---- a/arch/mips/mm/cache.c
-+++ b/arch/mips/mm/cache.c
-@@ -36,7 +36,6 @@ EXPORT_SYMBOL_GPL(flush_icache_range);
- void (*local_flush_icache_range)(unsigned long start, unsigned long end);
- EXPORT_SYMBOL_GPL(local_flush_icache_range);
- void (*__flush_icache_user_range)(unsigned long start, unsigned long end);
--EXPORT_SYMBOL_GPL(__flush_icache_user_range);
- void (*__local_flush_icache_user_range)(unsigned long start, unsigned long end);
- EXPORT_SYMBOL_GPL(__local_flush_icache_user_range);
+diff --git a/arch/nds32/mm/cacheflush.c b/arch/nds32/mm/cacheflush.c
+index 254703653b6f5..8f168b33065fa 100644
+--- a/arch/nds32/mm/cacheflush.c
++++ b/arch/nds32/mm/cacheflush.c
+@@ -35,7 +35,6 @@ void flush_icache_page(struct vm_area_struct *vma, struct page *page)
+ 	kunmap_atomic((void *)kaddr);
+ 	local_irq_restore(flags);
+ }
+-EXPORT_SYMBOL(flush_icache_page);
  
+ void flush_icache_user_range(struct vm_area_struct *vma, struct page *page,
+ 	                     unsigned long addr, int len)
 -- 
 2.26.2
 
