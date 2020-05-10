@@ -1,75 +1,80 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Sun, 10 May 2020 09:54:53 +0200
-Subject: [OpenRISC] [PATCH 14/31] ia64: use asm-generic/cacheflush.h
+Date: Sun, 10 May 2020 09:54:54 +0200
+Subject: [OpenRISC] [PATCH 15/31] microblaze: use asm-generic/cacheflush.h
 In-Reply-To: <20200510075510.987823-1-hch@lst.de>
 References: <20200510075510.987823-1-hch@lst.de>
-Message-ID: <20200510075510.987823-15-hch@lst.de>
+Message-ID: <20200510075510.987823-16-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-IA64 needs almost no cache flushing routines of its own.  Rely on
+Microblaze needs almost no cache flushing routines of its own.  Rely on
 asm-generic/cacheflush.h for the defaults.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/ia64/include/asm/cacheflush.h | 28 +++-------------------------
- 1 file changed, 3 insertions(+), 25 deletions(-)
+ arch/microblaze/include/asm/cacheflush.h | 29 ++----------------------
+ 1 file changed, 2 insertions(+), 27 deletions(-)
 
-diff --git a/arch/ia64/include/asm/cacheflush.h b/arch/ia64/include/asm/cacheflush.h
-index 6d3478f8abc89..a8f1c86ac242a 100644
---- a/arch/ia64/include/asm/cacheflush.h
-+++ b/arch/ia64/include/asm/cacheflush.h
-@@ -12,44 +12,22 @@
+diff --git a/arch/microblaze/include/asm/cacheflush.h b/arch/microblaze/include/asm/cacheflush.h
+index 11f56c85056bb..39f8fb6768d8b 100644
+--- a/arch/microblaze/include/asm/cacheflush.h
++++ b/arch/microblaze/include/asm/cacheflush.h
+@@ -57,9 +57,6 @@ void microblaze_cache_init(void);
+ #define invalidate_icache()				mbc->iin();
+ #define invalidate_icache_range(start, end)		mbc->iinr(start, end);
  
- #include <asm/page.h>
- 
--/*
-- * Cache flushing routines.  This is the kind of stuff that can be very expensive, so try
-- * to avoid them whenever possible.
-- */
+-#define flush_icache_user_range(vma, pg, adr, len)	flush_icache();
+-#define flush_icache_page(vma, pg)			do { } while (0)
 -
--#define flush_cache_all()			do { } while (0)
--#define flush_cache_mm(mm)			do { } while (0)
--#define flush_cache_dup_mm(mm)			do { } while (0)
--#define flush_cache_range(vma, start, end)	do { } while (0)
--#define flush_cache_page(vma, vmaddr, pfn)	do { } while (0)
--#define flush_icache_page(vma,page)		do { } while (0)
--#define flush_cache_vmap(start, end)		do { } while (0)
--#define flush_cache_vunmap(start, end)		do { } while (0)
--
- #define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 1
- #define flush_dcache_page(page)			\
- do {						\
- 	clear_bit(PG_arch_1, &(page)->flags);	\
- } while (0)
+ #define enable_dcache()					mbc->de();
+ #define disable_dcache()				mbc->dd();
+ /* FIXME for LL-temac driver */
+@@ -77,27 +74,9 @@ do { \
+ 	flush_dcache_range((unsigned) (addr), (unsigned) (addr) + PAGE_SIZE); \
+ } while (0);
  
 -#define flush_dcache_mmap_lock(mapping)		do { } while (0)
 -#define flush_dcache_mmap_unlock(mapping)	do { } while (0)
 -
--extern void flush_icache_range (unsigned long start, unsigned long end);
-+extern void flush_icache_range(unsigned long start, unsigned long end);
-+#define flush_icache_range flush_icache_range
- extern void clflush_cache_range(void *addr, int size);
- 
+-#define flush_cache_dup_mm(mm)				do { } while (0)
+-#define flush_cache_vmap(start, end)			do { } while (0)
+-#define flush_cache_vunmap(start, end)			do { } while (0)
+-#define flush_cache_mm(mm)			do { } while (0)
 -
- #define flush_icache_user_range(vma, page, user_addr, len)					\
- do {												\
- 	unsigned long _addr = (unsigned long) page_address(page) + ((user_addr) & ~PAGE_MASK);	\
- 	flush_icache_range(_addr, _addr + (len));						\
- } while (0)
+ #define flush_cache_page(vma, vmaddr, pfn) \
+ 	flush_dcache_range(pfn << PAGE_SHIFT, (pfn << PAGE_SHIFT) + PAGE_SIZE);
  
--#define copy_to_user_page(vma, page, vaddr, dst, src, len) \
--do { memcpy(dst, src, len); \
--     flush_icache_user_range(vma, page, vaddr, len); \
--} while (0)
--#define copy_from_user_page(vma, page, vaddr, dst, src, len) \
--	memcpy(dst, src, len)
+-/* MS: kgdb code use this macro, wrong len with FLASH */
+-#if 0
+-#define flush_cache_range(vma, start, len)	{	\
+-	flush_icache_range((unsigned) (start), (unsigned) (start) + (len)); \
+-	flush_dcache_range((unsigned) (start), (unsigned) (start) + (len)); \
+-}
+-#endif
+-
+-#define flush_cache_range(vma, start, len) do { } while (0)
+-
+ static inline void copy_to_user_page(struct vm_area_struct *vma,
+ 				     struct page *page, unsigned long vaddr,
+ 				     void *dst, void *src, int len)
+@@ -109,12 +88,8 @@ static inline void copy_to_user_page(struct vm_area_struct *vma,
+ 		flush_dcache_range(addr, addr + PAGE_SIZE);
+ 	}
+ }
++#define copy_to_user_page copy_to_user_page
+ 
+-static inline void copy_from_user_page(struct vm_area_struct *vma,
+-				       struct page *page, unsigned long vaddr,
+-				       void *dst, void *src, int len)
+-{
+-	memcpy(dst, src, len);
+-}
 +#include <asm-generic/cacheflush.h>
  
- #endif /* _ASM_IA64_CACHEFLUSH_H */
+ #endif /* _ASM_MICROBLAZE_CACHEFLUSH_H */
 -- 
 2.26.2
 
