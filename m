@@ -1,39 +1,36 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Sun, 10 May 2020 09:55:01 +0200
-Subject: [OpenRISC] [PATCH 22/31] asm-generic: add a flush_icache_user_range
- stub
+Date: Sun, 10 May 2020 09:55:02 +0200
+Subject: [OpenRISC] [PATCH 23/31] sh: implement flush_icache_user_range
 In-Reply-To: <20200510075510.987823-1-hch@lst.de>
 References: <20200510075510.987823-1-hch@lst.de>
-Message-ID: <20200510075510.987823-23-hch@lst.de>
+Message-ID: <20200510075510.987823-24-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Define flush_icache_user_range to flush_icache_range unless the
-architecture provides its own implementation.
+The SuperH implementation of flush_icache_range seems to be able to
+cope with user addresses.  Just define flush_icache_user_range to
+flush_icache_range.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- include/asm-generic/cacheflush.h | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/sh/include/asm/cacheflush.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/asm-generic/cacheflush.h b/include/asm-generic/cacheflush.h
-index 2c9686fefb715..907fa5d164944 100644
---- a/include/asm-generic/cacheflush.h
-+++ b/include/asm-generic/cacheflush.h
-@@ -66,6 +66,10 @@ static inline void flush_icache_range(unsigned long start, unsigned long end)
- }
- #endif
- 
-+#ifndef flush_icache_user_range
+diff --git a/arch/sh/include/asm/cacheflush.h b/arch/sh/include/asm/cacheflush.h
+index b932e42ef0284..fe7400079b97b 100644
+--- a/arch/sh/include/asm/cacheflush.h
++++ b/arch/sh/include/asm/cacheflush.h
+@@ -46,6 +46,7 @@ extern void flush_cache_range(struct vm_area_struct *vma,
+ #define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 1
+ extern void flush_dcache_page(struct page *page);
+ extern void flush_icache_range(unsigned long start, unsigned long end);
 +#define flush_icache_user_range flush_icache_range
-+#endif
-+
- #ifndef flush_icache_page
- static inline void flush_icache_page(struct vm_area_struct *vma,
- 				     struct page *page)
+ extern void flush_icache_page(struct vm_area_struct *vma,
+ 				 struct page *page);
+ extern void flush_cache_sigtramp(unsigned long address);
 -- 
 2.26.2
 
