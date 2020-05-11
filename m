@@ -1,68 +1,99 @@
-From: Christoph Hellwig <hch@lst.de>
-Date: Sun, 10 May 2020 09:55:10 +0200
-Subject: [OpenRISC] [PATCH 31/31] module: move the set_fs hack for
- flush_icache_range to m68k
-In-Reply-To: <20200510075510.987823-1-hch@lst.de>
-References: <20200510075510.987823-1-hch@lst.de>
-Message-ID: <20200510075510.987823-32-hch@lst.de>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+Date: Mon, 11 May 2020 08:36:41 +0200
+Subject: [OpenRISC] [PATCH v4 02/14] arm: add support for folded p4d
+ page tables
+In-Reply-To: <20200508174232.GA759899@linux.ibm.com>
+References: <20200414153455.21744-1-rppt@kernel.org>
+ <20200414153455.21744-3-rppt@kernel.org>
+ <CGME20200507121658eucas1p240cf4a3e0fe5c22dda5ec4f72734149f@eucas1p2.samsung.com>
+ <39ba8a04-d6b5-649d-c289-0c8b27cb66c5@samsung.com>
+ <20200507161155.GE683243@linux.ibm.com>
+ <98229ab1-fbf8-0a89-c5d6-270c828799e7@samsung.com>
+ <20200508174232.GA759899@linux.ibm.com>
+Message-ID: <665dade8-727a-3318-6779-3998080da18f@samsung.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-flush_icache_range generally operates on kernel addresses, but for some
-reason m68k needed a set_fs override.  Move that into the m68k code
-insted of keeping it in the module loader.
+Hi Mike,
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- arch/m68k/mm/cache.c | 4 ++++
- kernel/module.c      | 8 --------
- 2 files changed, 4 insertions(+), 8 deletions(-)
+On 08.05.2020 19:42, Mike Rapoport wrote:
+> On Fri, May 08, 2020 at 08:53:27AM +0200, Marek Szyprowski wrote:
+>> On 07.05.2020 18:11, Mike Rapoport wrote:
+>>> On Thu, May 07, 2020 at 02:16:56PM +0200, Marek Szyprowski wrote:
+>>>> On 14.04.2020 17:34, Mike Rapoport wrote:
+>>>>> From: Mike Rapoport <rppt@linux.ibm.com>
+>>>>>
+>>>>> Implement primitives necessary for the 4th level folding, add walks of p4d
+>>>>> level where appropriate, and remove __ARCH_USE_5LEVEL_HACK.
+>>>>>
+>>>>> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+>>>> Today I've noticed that kexec is broken on ARM 32bit. Bisecting between
+>>>> current linux-next and v5.7-rc1 pointed to this commit. I've tested this
+>>>> on Odroid XU4 and Raspberry Pi4 boards. Here is the relevant log:
+>>>>
+>>>> # kexec --kexec-syscall -l zImage --append "$(cat /proc/cmdline)"
+>>>> memory_range[0]:0x40000000..0xbe9fffff
+>>>> memory_range[0]:0x40000000..0xbe9fffff
+>>>> # kexec -e
+>>>> kexec_core: Starting new kernel
+>>>> 8<--- cut here ---
+>>>> Unable to handle kernel paging request at virtual address c010f1f4
+>>>> pgd = c6817793
+>>>> [c010f1f4] *pgd=4000041e(bad)
+>>>> Internal error: Oops: 80d [#1] PREEMPT ARM
+>>>> Modules linked in:
+>>>> CPU: 0 PID: 1329 Comm: kexec Tainted: G        W
+>>>> 5.7.0-rc3-00127-g6cba81ed0f62 #611
+>>>> Hardware name: Samsung Exynos (Flattened Device Tree)
+>>>> PC is at machine_kexec+0x40/0xfc
+>>> Any chance you have the debug info in this kernel?
+>>> scripts/faddr2line would come handy here.
+>> # ./scripts/faddr2line --list vmlinux machine_kexec+0x40
+>> machine_kexec+0x40/0xf8:
+>>
+>> machine_kexec at arch/arm/kernel/machine_kexec.c:182
+>>    177            reboot_code_buffer =
+>> page_address(image->control_code_page);
+>>    178
+>>    179            /* Prepare parameters for reboot_code_buffer*/
+>>    180            set_kernel_text_rw();
+>>    181            kexec_start_address = image->start;
+>>   >182<           kexec_indirection_page = page_list;
+>>    183            kexec_mach_type = machine_arch_type;
+>>    184            kexec_boot_atags = image->arch.kernel_r2;
+>>    185
+>>    186            /* copy our kernel relocation code to the control code
+>> page */
+>>    187            reboot_entry = fncpy(reboot_code_buffer,
+> Can you please try the patch below:
+>
+> diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
+> index 963b5284d284..f86b3d17928e 100644
+> --- a/arch/arm/mm/init.c
+> +++ b/arch/arm/mm/init.c
+> @@ -571,7 +571,7 @@ static inline void section_update(unsigned long addr, pmdval_t mask,
+>   {
+>   	pmd_t *pmd;
+>   
+> -	pmd = pmd_off_k(addr);
+> +	pmd = pmd_offset(pud_offset(p4d_offset(pgd_offset(mm, addr), addr), addr), addr);
+>   
+>   #ifdef CONFIG_ARM_LPAE
+>   	pmd[0] = __pmd((pmd_val(pmd[0]) & mask) | prot);
+This fixes kexec issue! Thanks!
 
-diff --git a/arch/m68k/mm/cache.c b/arch/m68k/mm/cache.c
-index 7915be3a09712..5ecb3310e8745 100644
---- a/arch/m68k/mm/cache.c
-+++ b/arch/m68k/mm/cache.c
-@@ -107,7 +107,11 @@ void flush_icache_user_range(unsigned long address, unsigned long endaddr)
- 
- void flush_icache_range(unsigned long address, unsigned long endaddr)
- {
-+	mm_segment_t old_fs = get_fs();
-+
-+	set_fs(KERNEL_DS);
- 	flush_icache_user_range(address, endaddr);
-+	set_fs(old_fs);
- }
- EXPORT_SYMBOL(flush_icache_range);
- 
-diff --git a/kernel/module.c b/kernel/module.c
-index 646f1e2330d2b..b1673ed49594f 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -3312,12 +3312,6 @@ static int check_module_license_and_versions(struct module *mod)
- 
- static void flush_module_icache(const struct module *mod)
- {
--	mm_segment_t old_fs;
--
--	/* flush the icache in correct context */
--	old_fs = get_fs();
--	set_fs(KERNEL_DS);
--
- 	/*
- 	 * Flush the instruction cache, since we've played with text.
- 	 * Do it before processing of module parameters, so the module
-@@ -3329,8 +3323,6 @@ static void flush_module_icache(const struct module *mod)
- 				   + mod->init_layout.size);
- 	flush_icache_range((unsigned long)mod->core_layout.base,
- 			   (unsigned long)mod->core_layout.base + mod->core_layout.size);
--
--	set_fs(old_fs);
- }
- 
- int __weak module_frob_arch_sections(Elf_Ehdr *hdr,
+
+Feel free to add:
+
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Fixes: 218f1c390557 ("arm: add support for folded p4d page tables")
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+
+Best regards
 -- 
-2.26.2
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
 
