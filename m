@@ -1,30 +1,53 @@
-From: Christoph Hellwig <hch@lst.de>
-Date: Mon, 11 May 2020 17:15:35 +0200
-Subject: [OpenRISC] [PATCH 02/31] arm64: fix the flush_icache_range
- arguments in machine_kexec
-In-Reply-To: <20200511110014.GA19176@gaia>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Mon, 11 May 2020 17:24:30 +0200
+Subject: [OpenRISC] [PATCH 31/31] module: move the set_fs hack for
+ flush_icache_range to m68k
+In-Reply-To: <20200511151120.GA28634@lst.de>
 References: <20200510075510.987823-1-hch@lst.de>
- <20200510075510.987823-3-hch@lst.de>
- <20200511075115.GA16134@willie-the-truck> <20200511110014.GA19176@gaia>
-Message-ID: <20200511151535.GC28634@lst.de>
+ <20200510075510.987823-32-hch@lst.de>
+ <CAMuHMdU_OxNoKfO=i903kx0mgk0-i2h4u2ase3m9_dn6oFh_5g@mail.gmail.com>
+ <20200511151120.GA28634@lst.de>
+Message-ID: <CAMuHMdW1S91i3x0unNcJnypHse7ifynGb4dZcVhJaemR3GH1Pg@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, May 11, 2020 at 12:00:14PM +0100, Catalin Marinas wrote:
-> Anyway, I think Christoph's patch needs to go in with a fixes tag:
-> 
-> Fixes: d28f6df1305a ("arm64/kexec: Add core kexec support")
-> Cc: <stable@vger.kernel.org> # 4.8.x-
-> 
-> and we'll change these functions/helpers going forward for arm64.
-> 
-> Happy to pick this up via the arm64 for-next/fixes branch.
+Hi Christoph,
 
-Please do, there are no dependencies on it in this series (I originally
-planned to switch flush_icache_range to pass a kernel pointer + len
-instead of the strange unsigned long start and end.  That still looks
-very useful, but the series already is way too large, so I'm going to
-defer that change for another merge window).
+On Mon, May 11, 2020 at 5:11 PM Christoph Hellwig <hch@lst.de> wrote:
+> On Mon, May 11, 2020 at 09:40:39AM +0200, Geert Uytterhoeven wrote:
+> > On Sun, May 10, 2020 at 9:57 AM Christoph Hellwig <hch@lst.de> wrote:
+> > >
+> > > flush_icache_range generally operates on kernel addresses, but for some
+> > > reason m68k needed a set_fs override.  Move that into the m68k code
+> > > insted of keeping it in the module loader.
+> > >
+> > > Signed-off-by: Christoph Hellwig <hch@lst.de>
+> >
+> > Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> > Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+>
+> Btw, do you know what part of flush_icache_range relied on set_fs?
+> Do any of the m68k maintainers have an idea how to handle that in
+> a nicer way when we can split the implementations?
+
+arch/m68k/mm/cache.c:virt_to_phys_slow()
+
+All instructions that look up addresses in the page tables look at the
+source/destination function codes (SFC/DFC) to know if they have to use
+the supervisor or user page tables.
+So the actual implementation is the same: set_fs() merely configures
+SFC/DFC, to select the address space to use.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert at linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
