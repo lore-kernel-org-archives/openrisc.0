@@ -1,161 +1,69 @@
-From: Christoph Hellwig <hch@lst.de>
-Date: Mon, 11 May 2020 18:37:44 +0200
-Subject: [OpenRISC] [PATCH 31/31] module: move the set_fs hack for
- flush_icache_range to m68k
-In-Reply-To: <CAMuHMdW1S91i3x0unNcJnypHse7ifynGb4dZcVhJaemR3GH1Pg@mail.gmail.com>
+From: Greg Ungerer <gerg@linux-m68k.org>
+Date: Wed, 13 May 2020 00:44:59 +1000
+Subject: [OpenRISC] [PATCH 16/31] m68knommu: use asm-generic/cacheflush.h
+In-Reply-To: <20200510075510.987823-17-hch@lst.de>
 References: <20200510075510.987823-1-hch@lst.de>
- <20200510075510.987823-32-hch@lst.de>
- <CAMuHMdU_OxNoKfO=i903kx0mgk0-i2h4u2ase3m9_dn6oFh_5g@mail.gmail.com>
- <20200511151120.GA28634@lst.de>
- <CAMuHMdW1S91i3x0unNcJnypHse7ifynGb4dZcVhJaemR3GH1Pg@mail.gmail.com>
-Message-ID: <20200511163744.GB32228@lst.de>
+ <20200510075510.987823-17-hch@lst.de>
+Message-ID: <fb98853b-c02a-a682-443e-2ae62d0502d9@linux-m68k.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, May 11, 2020 at 05:24:30PM +0200, Geert Uytterhoeven wrote:
-> > Btw, do you know what part of flush_icache_range relied on set_fs?
-> > Do any of the m68k maintainers have an idea how to handle that in
-> > a nicer way when we can split the implementations?
-> 
-> arch/m68k/mm/cache.c:virt_to_phys_slow()
-> 
-> All instructions that look up addresses in the page tables look at the
-> source/destination function codes (SFC/DFC) to know if they have to use
-> the supervisor or user page tables.
-> So the actual implementation is the same: set_fs() merely configures
-> SFC/DFC, to select the address space to use.
+Hi Christoph,
 
-So instead of the magic instructions could we use the normal kernel
-virt to phys helpers instead of switching the addresses space?  Something
-like this patch on top of the series:
+On 10/5/20 5:54 pm, Christoph Hellwig wrote:
+> m68knommu needs almost no cache flushing routines of its own.  Rely on
+> asm-generic/cacheflush.h for the defaults.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-diff --git a/arch/m68k/mm/cache.c b/arch/m68k/mm/cache.c
-index 5ecb3310e8745..5a861a14c1e69 100644
---- a/arch/m68k/mm/cache.c
-+++ b/arch/m68k/mm/cache.c
-@@ -71,47 +71,87 @@ static unsigned long virt_to_phys_slow(unsigned long vaddr)
- 	return 0;
- }
- 
--/* Push n pages at kernel virtual address and clear the icache */
--/* RZ: use cpush %bc instead of cpush %dc, cinv %ic */
--void flush_icache_user_range(unsigned long address, unsigned long endaddr)
-+static inline void coldfire_flush_icache_range(unsigned long start,
-+		unsigned long end)
- {
--	if (CPU_IS_COLDFIRE) {
--		unsigned long start, end;
--		start = address & ICACHE_SET_MASK;
--		end = endaddr & ICACHE_SET_MASK;
--		if (start > end) {
--			flush_cf_icache(0, end);
--			end = ICACHE_MAX_ADDR;
--		}
--		flush_cf_icache(start, end);
--	} else if (CPU_IS_040_OR_060) {
--		address &= PAGE_MASK;
--
--		do {
--			asm volatile ("nop\n\t"
--				      ".chip 68040\n\t"
--				      "cpushp %%bc,(%0)\n\t"
--				      ".chip 68k"
--				      : : "a" (virt_to_phys_slow(address)));
--			address += PAGE_SIZE;
--		} while (address < endaddr);
--	} else {
--		unsigned long tmp;
--		asm volatile ("movec %%cacr,%0\n\t"
--			      "orw %1,%0\n\t"
--			      "movec %0,%%cacr"
--			      : "=&d" (tmp)
--			      : "di" (FLUSH_I));
-+	start &= ICACHE_SET_MASK;
-+	end &= ICACHE_SET_MASK;
-+
-+	if (start > end) {
-+		flush_cf_icache(0, end);
-+		end = ICACHE_MAX_ADDR;
- 	}
-+	flush_cf_icache(start, end);
-+}
-+
-+static inline void mc68040_flush_icache_user_range(unsigned long start,
-+		unsigned long end)
-+{
-+	start &= PAGE_MASK;
-+
-+	do {
-+		asm volatile ("nop\n\t"
-+			      ".chip 68040\n\t"
-+			      "cpushp %%bc,(%0)\n\t"
-+			      ".chip 68k"
-+			      : : "a" (virt_to_phys_slow(start)));
-+		start += PAGE_SIZE;
-+	} while (start < end);
-+}
-+
-+static inline void mc68020_flush_icache_range(unsigned long start,
-+		unsigned long end)
-+{
-+	unsigned long tmp;
-+
-+	asm volatile ("movec %%cacr,%0\n\t"
-+		      "orw %1,%0\n\t"
-+		      "movec %0,%%cacr"
-+		      : "=&d" (tmp)
-+		      : "di" (FLUSH_I));
-+}
-+
-+void flush_icache_user_range(unsigned long start, unsigned long end)
-+{
-+	if (CPU_IS_COLDFIRE)
-+		coldfire_flush_icache_range(start, end);
-+	else if (CPU_IS_040_OR_060)
-+		mc68040_flush_icache_user_range(start, end);
-+	else
-+		mc68020_flush_icache_range(start, end);
- }
- 
--void flush_icache_range(unsigned long address, unsigned long endaddr)
-+static inline void mc68040_flush_icache_range(unsigned long start,
-+		unsigned long end)
- {
--	mm_segment_t old_fs = get_fs();
-+	start &= PAGE_MASK;
-+
-+	do {
-+		void *vaddr = (void *)start;
-+		phys_addr_t paddr;
-+
-+		if (is_vmalloc_addr(vaddr))
-+			paddr = page_to_phys(vmalloc_to_page(vaddr));
-+		else
-+			paddr = virt_to_phys(vaddr);
-+
-+		asm volatile ("nop\n\t"
-+			      ".chip 68040\n\t"
-+			      "cpushp %%bc,(%0)\n\t"
-+			      ".chip 68k"
-+			      : : "a" (paddr));
-+		start += PAGE_SIZE;
-+	} while (start < end);
-+}
- 
--	set_fs(KERNEL_DS);
--	flush_icache_user_range(address, endaddr);
--	set_fs(old_fs);
-+void flush_icache_range(unsigned long start, unsigned long end)
-+{
-+	if (CPU_IS_COLDFIRE)
-+		coldfire_flush_icache_range(start, end);
-+	else if (CPU_IS_040_OR_060)
-+		mc68040_flush_icache_range(start, end);
-+	else
-+		mc68020_flush_icache_range(start, end);
- }
- EXPORT_SYMBOL(flush_icache_range);
- 
+Acked-by: Greg Ungerer <gerg@linux-m68k.org>
+
+Regards
+Greg
+
+
+> ---
+>   arch/m68k/include/asm/cacheflush_no.h | 19 ++-----------------
+>   1 file changed, 2 insertions(+), 17 deletions(-)
+> 
+> diff --git a/arch/m68k/include/asm/cacheflush_no.h b/arch/m68k/include/asm/cacheflush_no.h
+> index 11e9a9dcbfb24..2731f07e7be8c 100644
+> --- a/arch/m68k/include/asm/cacheflush_no.h
+> +++ b/arch/m68k/include/asm/cacheflush_no.h
+> @@ -9,25 +9,8 @@
+>   #include <asm/mcfsim.h>
+>   
+>   #define flush_cache_all()			__flush_cache_all()
+> -#define flush_cache_mm(mm)			do { } while (0)
+> -#define flush_cache_dup_mm(mm)			do { } while (0)
+> -#define flush_cache_range(vma, start, end)	do { } while (0)
+> -#define flush_cache_page(vma, vmaddr)		do { } while (0)
+>   #define flush_dcache_range(start, len)		__flush_dcache_all()
+> -#define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 0
+> -#define flush_dcache_page(page)			do { } while (0)
+> -#define flush_dcache_mmap_lock(mapping)		do { } while (0)
+> -#define flush_dcache_mmap_unlock(mapping)	do { } while (0)
+>   #define flush_icache_range(start, len)		__flush_icache_all()
+> -#define flush_icache_page(vma,pg)		do { } while (0)
+> -#define flush_icache_user_range(vma,pg,adr,len)	do { } while (0)
+> -#define flush_cache_vmap(start, end)		do { } while (0)
+> -#define flush_cache_vunmap(start, end)		do { } while (0)
+> -
+> -#define copy_to_user_page(vma, page, vaddr, dst, src, len) \
+> -	memcpy(dst, src, len)
+> -#define copy_from_user_page(vma, page, vaddr, dst, src, len) \
+> -	memcpy(dst, src, len)
+>   
+>   void mcf_cache_push(void);
+>   
+> @@ -98,4 +81,6 @@ static inline void cache_clear(unsigned long paddr, int len)
+>   	__clear_cache_all();
+>   }
+>   
+> +#include <asm-generic/cacheflush.h>
+> +
+>   #endif /* _M68KNOMMU_CACHEFLUSH_H */
+> 
