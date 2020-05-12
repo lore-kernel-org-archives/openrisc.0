@@ -1,10 +1,11 @@
 From: Greg Ungerer <gerg@linux-m68k.org>
-Date: Wed, 13 May 2020 00:44:59 +1000
-Subject: [OpenRISC] [PATCH 16/31] m68knommu: use asm-generic/cacheflush.h
-In-Reply-To: <20200510075510.987823-17-hch@lst.de>
+Date: Wed, 13 May 2020 00:46:55 +1000
+Subject: [OpenRISC] [PATCH 29/31] binfmt_flat: use
+ flush_icache_user_range
+In-Reply-To: <20200510075510.987823-30-hch@lst.de>
 References: <20200510075510.987823-1-hch@lst.de>
- <20200510075510.987823-17-hch@lst.de>
-Message-ID: <fb98853b-c02a-a682-443e-2ae62d0502d9@linux-m68k.org>
+ <20200510075510.987823-30-hch@lst.de>
+Message-ID: <484af2c0-2450-b40a-8322-e691495c45aa@linux-m68k.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,9 +14,8 @@ To: openrisc@lists.librecores.org
 
 Hi Christoph,
 
-On 10/5/20 5:54 pm, Christoph Hellwig wrote:
-> m68knommu needs almost no cache flushing routines of its own.  Rely on
-> asm-generic/cacheflush.h for the defaults.
+On 10/5/20 5:55 pm, Christoph Hellwig wrote:
+> load_flat_file works on user addresses.
 > 
 > Signed-off-by: Christoph Hellwig <hch@lst.de>
 
@@ -25,45 +25,22 @@ Regards
 Greg
 
 
+
 > ---
->   arch/m68k/include/asm/cacheflush_no.h | 19 ++-----------------
->   1 file changed, 2 insertions(+), 17 deletions(-)
+>   fs/binfmt_flat.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/arch/m68k/include/asm/cacheflush_no.h b/arch/m68k/include/asm/cacheflush_no.h
-> index 11e9a9dcbfb24..2731f07e7be8c 100644
-> --- a/arch/m68k/include/asm/cacheflush_no.h
-> +++ b/arch/m68k/include/asm/cacheflush_no.h
-> @@ -9,25 +9,8 @@
->   #include <asm/mcfsim.h>
+> diff --git a/fs/binfmt_flat.c b/fs/binfmt_flat.c
+> index 831a2b25ba79f..6f0aca5379da2 100644
+> --- a/fs/binfmt_flat.c
+> +++ b/fs/binfmt_flat.c
+> @@ -854,7 +854,7 @@ static int load_flat_file(struct linux_binprm *bprm,
+>   #endif /* CONFIG_BINFMT_FLAT_OLD */
+>   	}
 >   
->   #define flush_cache_all()			__flush_cache_all()
-> -#define flush_cache_mm(mm)			do { } while (0)
-> -#define flush_cache_dup_mm(mm)			do { } while (0)
-> -#define flush_cache_range(vma, start, end)	do { } while (0)
-> -#define flush_cache_page(vma, vmaddr)		do { } while (0)
->   #define flush_dcache_range(start, len)		__flush_dcache_all()
-> -#define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 0
-> -#define flush_dcache_page(page)			do { } while (0)
-> -#define flush_dcache_mmap_lock(mapping)		do { } while (0)
-> -#define flush_dcache_mmap_unlock(mapping)	do { } while (0)
->   #define flush_icache_range(start, len)		__flush_icache_all()
-> -#define flush_icache_page(vma,pg)		do { } while (0)
-> -#define flush_icache_user_range(vma,pg,adr,len)	do { } while (0)
-> -#define flush_cache_vmap(start, end)		do { } while (0)
-> -#define flush_cache_vunmap(start, end)		do { } while (0)
-> -
-> -#define copy_to_user_page(vma, page, vaddr, dst, src, len) \
-> -	memcpy(dst, src, len)
-> -#define copy_from_user_page(vma, page, vaddr, dst, src, len) \
-> -	memcpy(dst, src, len)
+> -	flush_icache_range(start_code, end_code);
+> +	flush_icache_user_range(start_code, end_code);
 >   
->   void mcf_cache_push(void);
->   
-> @@ -98,4 +81,6 @@ static inline void cache_clear(unsigned long paddr, int len)
->   	__clear_cache_all();
->   }
->   
-> +#include <asm-generic/cacheflush.h>
-> +
->   #endif /* _M68KNOMMU_CACHEFLUSH_H */
+>   	/* zero the BSS,  BRK and stack areas */
+>   	if (clear_user((void __user *)(datapos + data_len), bss_len +
 > 
