@@ -1,36 +1,23 @@
-From: Mike Rapoport <rppt@kernel.org>
-Date: Wed, 13 May 2020 08:23:20 +0300
-Subject: [OpenRISC] [PATCH 08/12] mm: pgtable: add shortcuts for
- accessing kernel PMD and PTE
-In-Reply-To: <20200512192441.GZ16070@bombadil.infradead.org>
-References: <20200512184422.12418-1-rppt@kernel.org>
- <20200512184422.12418-9-rppt@kernel.org>
- <20200512192441.GZ16070@bombadil.infradead.org>
-Message-ID: <20200513052320.GO14260@kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Date: Wed, 13 May 2020 08:23:18 +0200
+Subject: [OpenRISC] [PATCH 19/31] riscv: use asm-generic/cacheflush.h
+In-Reply-To: <mhng-8adbedbc-0f91-4291-9471-2df5eb7b802b@palmerdabbelt-glaptop1>
+References: <20200510075510.987823-20-hch@lst.de>
+ <mhng-8adbedbc-0f91-4291-9471-2df5eb7b802b@palmerdabbelt-glaptop1>
+Message-ID: <20200513062318.GA24133@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, May 12, 2020 at 12:24:41PM -0700, Matthew Wilcox wrote:
-> On Tue, May 12, 2020 at 09:44:18PM +0300, Mike Rapoport wrote:
-> > +++ b/include/linux/pgtable.h
-> > @@ -28,6 +28,24 @@
-> >  #define USER_PGTABLES_CEILING	0UL
-> >  #endif
-> >  
-> > +/* FIXME: */
-> 
-> Fix you what?  Add documentation?
+On Tue, May 12, 2020 at 04:00:26PM -0700, Palmer Dabbelt wrote:
+> Reviewed-by: Palmer Dabbelt <palmerdabbelt@google.com>
+> Acked-by: Palmer Dabbelt <palmerdabbelt@google.com>
+>
+> Were you trying to get these all in at once, or do you want me to take it into
+> my tree?
 
-Ouch, indeed :)
-
-> > +static inline pmd_t *pmd_off(struct mm_struct *mm, unsigned long va)
-> > +{
-> > +	return pmd_offset(pud_offset(p4d_offset(pgd_offset(mm, va), va), va), va);
-> > +}
-
--- 
-Sincerely yours,
-Mike.
+Except for the small fixups at the beginning of the series this needs
+to go in together.  I'll have to do at least another resend, and after
+that I hope Andrew is going to pick it up.
