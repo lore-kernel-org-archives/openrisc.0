@@ -1,113 +1,43 @@
-From: Palmer Dabbelt <palmer@dabbelt.com>
-Date: Tue, 12 May 2020 16:00:26 -0700 (PDT)
-Subject: [OpenRISC] [PATCH 19/31] riscv: use asm-generic/cacheflush.h
-In-Reply-To: <20200510075510.987823-20-hch@lst.de>
-Message-ID: <mhng-8adbedbc-0f91-4291-9471-2df5eb7b802b@palmerdabbelt-glaptop1>
+From: Mike Rapoport <rppt@kernel.org>
+Date: Wed, 13 May 2020 08:21:33 +0300
+Subject: [OpenRISC] [PATCH 03/12] mm: reorder includes after
+ introduction of linux/pgtable.h
+In-Reply-To: <20200512192013.GY16070@bombadil.infradead.org>
+References: <20200512184422.12418-1-rppt@kernel.org>
+ <20200512184422.12418-4-rppt@kernel.org>
+ <20200512192013.GY16070@bombadil.infradead.org>
+Message-ID: <20200513052133.GN14260@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sun, 10 May 2020 00:54:58 PDT (-0700), Christoph Hellwig wrote:
-> RISC-V needs almost no cache flushing routines of its own.  Rely on
-> asm-generic/cacheflush.h for the defaults.
->
-> Also remove the pointless __KERNEL__ ifdef while we're at it.
-> ---
->  arch/riscv/include/asm/cacheflush.h | 62 ++---------------------------
->  1 file changed, 3 insertions(+), 59 deletions(-)
->
-> diff --git a/arch/riscv/include/asm/cacheflush.h b/arch/riscv/include/asm/cacheflush.h
-> index c8677c75f82cb..a167b4fbdf007 100644
-> --- a/arch/riscv/include/asm/cacheflush.h
-> +++ b/arch/riscv/include/asm/cacheflush.h
-> @@ -8,65 +8,6 @@
->
->  #include <linux/mm.h>
->
-> -#define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 0
-> -
-> -/*
-> - * The cache doesn't need to be flushed when TLB entries change when
-> - * the cache is mapped to physical memory, not virtual memory
-> - */
-> -static inline void flush_cache_all(void)
-> -{
-> -}
-> -
-> -static inline void flush_cache_mm(struct mm_struct *mm)
-> -{
-> -}
-> -
-> -static inline void flush_cache_dup_mm(struct mm_struct *mm)
-> -{
-> -}
-> -
-> -static inline void flush_cache_range(struct vm_area_struct *vma,
-> -				     unsigned long start,
-> -				     unsigned long end)
-> -{
-> -}
-> -
-> -static inline void flush_cache_page(struct vm_area_struct *vma,
-> -				    unsigned long vmaddr,
-> -				    unsigned long pfn)
-> -{
-> -}
-> -
-> -static inline void flush_dcache_mmap_lock(struct address_space *mapping)
-> -{
-> -}
-> -
-> -static inline void flush_dcache_mmap_unlock(struct address_space *mapping)
-> -{
-> -}
-> -
-> -static inline void flush_icache_page(struct vm_area_struct *vma,
-> -				     struct page *page)
-> -{
-> -}
-> -
-> -static inline void flush_cache_vmap(unsigned long start, unsigned long end)
-> -{
-> -}
-> -
-> -static inline void flush_cache_vunmap(unsigned long start, unsigned long end)
-> -{
-> -}
-> -
-> -#define copy_to_user_page(vma, page, vaddr, dst, src, len) \
-> -	do { \
-> -		memcpy(dst, src, len); \
-> -		flush_icache_user_range(vma, page, vaddr, len); \
-> -	} while (0)
-> -#define copy_from_user_page(vma, page, vaddr, dst, src, len) \
-> -	memcpy(dst, src, len)
-> -
->  static inline void local_flush_icache_all(void)
->  {
->  	asm volatile ("fence.i" ::: "memory");
-> @@ -79,6 +20,7 @@ static inline void flush_dcache_page(struct page *page)
->  	if (test_bit(PG_dcache_clean, &page->flags))
->  		clear_bit(PG_dcache_clean, &page->flags);
->  }
-> +#define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 1
->
->  /*
->   * RISC-V doesn't have an instruction to flush parts of the instruction cache,
-> @@ -105,4 +47,6 @@ void flush_icache_mm(struct mm_struct *mm, bool local);
->  #define SYS_RISCV_FLUSH_ICACHE_LOCAL 1UL
->  #define SYS_RISCV_FLUSH_ICACHE_ALL   (SYS_RISCV_FLUSH_ICACHE_LOCAL)
->
-> +#include <asm-generic/cacheflush.h>
-> +
->  #endif /* _ASM_RISCV_CACHEFLUSH_H */
+On Tue, May 12, 2020 at 12:20:13PM -0700, Matthew Wilcox wrote:
+> On Tue, May 12, 2020 at 09:44:13PM +0300, Mike Rapoport wrote:
+> > diff --git a/arch/alpha/kernel/proto.h b/arch/alpha/kernel/proto.h
+> > index a093cd45ec79..701a05090141 100644
+> > --- a/arch/alpha/kernel/proto.h
+> > +++ b/arch/alpha/kernel/proto.h
+> > @@ -2,8 +2,6 @@
+> >  #include <linux/interrupt.h>
+> >  #include <linux/io.h>
+> >  
+> > -#include <linux/pgtable.h>
+> > -
+> >  /* Prototypes of functions used across modules here in this directory.  */
+> >  
+> >  #define vucp	volatile unsigned char  *
+> 
+> Looks like your script has a bug if linux/pgtable.h is the last include
+> in the file?
 
-Thanks!
+Script indeed cannot handle all the corner case, but this is not one of
+them.
+I've started initially to look into removing asm/pgtable.h if it was not
+needed, but I've run out of patience very soon. This file is what
+sneaked in from that attempt.
 
-Reviewed-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Acked-by: Palmer Dabbelt <palmerdabbelt@google.com>
-
-Were you trying to get these all in at once, or do you want me to take it into
-my tree?
+-- 
+Sincerely yours,
+Mike.
