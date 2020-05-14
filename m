@@ -1,10 +1,10 @@
 From: Mike Rapoport <rppt@kernel.org>
-Date: Thu, 14 May 2020 20:03:19 +0300
-Subject: [OpenRISC] [PATCH v2 04/12] csky: replace definitions of
- __pXd_offset() with pXd_index()
+Date: Thu, 14 May 2020 20:03:20 +0300
+Subject: [OpenRISC] [PATCH v2 05/12] m68k/mm/motorola: move comment about
+ page table allocation funcitons
 In-Reply-To: <20200514170327.31389-1-rppt@kernel.org>
 References: <20200514170327.31389-1-rppt@kernel.org>
-Message-ID: <20200514170327.31389-5-rppt@kernel.org>
+Message-ID: <20200514170327.31389-6-rppt@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,78 +13,52 @@ To: openrisc@lists.librecores.org
 
 From: Mike Rapoport <rppt@linux.ibm.com>
 
-All architectures use pXd_index() to get an entry in the page table page
-corresponding to a virtual address.
+The comment about page table allocation functions resides in
+include/asm/motorola_pgtable.h while the functions live in
+include/asm/motorola_pgaloc.h.
 
-Align csky with other architectures.
+Move the comment close to the code.
 
 Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 ---
- arch/csky/include/asm/pgtable.h | 5 ++---
- arch/csky/mm/fault.c            | 2 +-
- arch/csky/mm/highmem.c          | 2 +-
- arch/csky/mm/init.c             | 6 +++---
- 4 files changed, 7 insertions(+), 8 deletions(-)
+ arch/m68k/include/asm/motorola_pgalloc.h | 6 ++++++
+ arch/m68k/include/asm/motorola_pgtable.h | 6 ------
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/csky/include/asm/pgtable.h b/arch/csky/include/asm/pgtable.h
-index 9d2d16db237d..2eff4aea51b3 100644
---- a/arch/csky/include/asm/pgtable.h
-+++ b/arch/csky/include/asm/pgtable.h
-@@ -229,9 +229,8 @@ static inline pte_t pte_mkyoung(pte_t pte)
- 	return pte;
- }
+diff --git a/arch/m68k/include/asm/motorola_pgalloc.h b/arch/m68k/include/asm/motorola_pgalloc.h
+index c66e42917912..f3cb453a07b7 100644
+--- a/arch/m68k/include/asm/motorola_pgalloc.h
++++ b/arch/m68k/include/asm/motorola_pgalloc.h
+@@ -18,6 +18,12 @@ extern void init_pointer_table(void *table, int type);
+ extern void *get_pointer_table(int type);
+ extern int free_pointer_table(void *table, int type);
  
--#define __pgd_offset(address)	pgd_index(address)
--#define __pud_offset(address)	(((address) >> PUD_SHIFT) & (PTRS_PER_PUD-1))
--#define __pmd_offset(address)	(((address) >> PMD_SHIFT) & (PTRS_PER_PMD-1))
-+#define pud_index(address)	(((address) >> PUD_SHIFT) & (PTRS_PER_PUD-1))
-+#define pmd_index(address)	(((address) >> PMD_SHIFT) & (PTRS_PER_PMD-1))
++/*
++ * Allocate and free page tables. The xxx_kernel() versions are
++ * used to allocate a kernel page table - this turns on ASN bits
++ * if any.
++ */
++
+ static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
+ {
+ 	return get_pointer_table(TABLE_PTE);
+diff --git a/arch/m68k/include/asm/motorola_pgtable.h b/arch/m68k/include/asm/motorola_pgtable.h
+index 48f19f0ab1e7..9e5a3de21e15 100644
+--- a/arch/m68k/include/asm/motorola_pgtable.h
++++ b/arch/m68k/include/asm/motorola_pgtable.h
+@@ -227,12 +227,6 @@ static inline pte_t *pte_offset_kernel(pmd_t *pmdp, unsigned long address)
+ #define pte_offset_map(pmdp,address) ((pte_t *)__pmd_page(*pmdp) + (((address) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1)))
+ #define pte_unmap(pte)		((void)0)
  
- /* to find an entry in a kernel page-table-directory */
- #define pgd_offset_k(address)	pgd_offset(&init_mm, address)
-diff --git a/arch/csky/mm/fault.c b/arch/csky/mm/fault.c
-index 4e6dc68f3258..4055d430c0c8 100644
---- a/arch/csky/mm/fault.c
-+++ b/arch/csky/mm/fault.c
-@@ -78,7 +78,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long write,
- 		 * Do _not_ use "tsk" here. We might be inside
- 		 * an interrupt in the middle of a task switch..
- 		 */
--		int offset = __pgd_offset(address);
-+		int offset = pgd_index(address);
- 		pgd_t *pgd, *pgd_k;
- 		pud_t *pud, *pud_k;
- 		pmd_t *pmd, *pmd_k;
-diff --git a/arch/csky/mm/highmem.c b/arch/csky/mm/highmem.c
-index 3b3f622f5ae9..89ec32e602a1 100644
---- a/arch/csky/mm/highmem.c
-+++ b/arch/csky/mm/highmem.c
-@@ -92,7 +92,7 @@ static void __init kmap_pages_init(void)
- 	vaddr = PKMAP_BASE;
- 	fixrange_init(vaddr, vaddr + PAGE_SIZE*LAST_PKMAP, swapper_pg_dir);
- 
--	pgd = swapper_pg_dir + __pgd_offset(vaddr);
-+	pgd = swapper_pg_dir + pgd_index(vaddr);
- 	pud = (pud_t *)pgd;
- 	pmd = pmd_offset(pud, vaddr);
- 	pte = pte_offset_kernel(pmd, vaddr);
-diff --git a/arch/csky/mm/init.c b/arch/csky/mm/init.c
-index eda2b4291485..af627128314f 100644
---- a/arch/csky/mm/init.c
-+++ b/arch/csky/mm/init.c
-@@ -157,9 +157,9 @@ void __init fixrange_init(unsigned long start, unsigned long end,
- 	unsigned long vaddr;
- 
- 	vaddr = start;
--	i = __pgd_offset(vaddr);
--	j = __pud_offset(vaddr);
--	k = __pmd_offset(vaddr);
-+	i = pgd_index(vaddr);
-+	j = pud_index(vaddr);
-+	k = pmd_index(vaddr);
- 	pgd = pgd_base + i;
- 
- 	for ( ; (i < PTRS_PER_PGD) && (vaddr != end); pgd++, i++) {
+-/*
+- * Allocate and free page tables. The xxx_kernel() versions are
+- * used to allocate a kernel page table - this turns on ASN bits
+- * if any.
+- */
+-
+ /* Prior to calling these routines, the page should have been flushed
+  * from both the cache and ATC, or the CPU might not notice that the
+  * cache setting for the page has been changed. -jskov
 -- 
 2.26.2
 
