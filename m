@@ -1,190 +1,96 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Fri, 15 May 2020 06:00:16 +0900
-Subject: [OpenRISC] [PATCH 6/8] or1k: refactor: Rename p to sec_relocs
+Date: Fri, 15 May 2020 06:00:17 +0900
+Subject: [OpenRISC] [PATCH 7/8] or1k: refactor: Rename s to sgot and splt
 In-Reply-To: <20200514210018.2749462-1-shorne@gmail.com>
 References: <20200514210018.2749462-1-shorne@gmail.com>
-Message-ID: <20200514210018.2749462-7-shorne@gmail.com>
+Message-ID: <20200514210018.2749462-8-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The symbol name p was not very meaningful and causing me confusion
-while debugging this code.  Change to a more meaninful name.
+The symbol name s for section is terse, replacing with sgot when it
+refers to the got and splt when it refers to the plt makes reading code
+a bit easier.
 
 bfd/ChangeLog:
 
 yyyy-mm-dd  Stafford Horne  <shorne@gmail.com>
 
-	* elf32-or1k.c (allocate_dynrelocs, readonly_dynrelocs,
-	or1k_elf_check_relocs, or1k_elf_size_dynamic_sections): Rename
-	p to sec_relocs.
+	* elf32-or1k.c (allocate_dynrelocs): Rename s to splt or sgot
+	based on usage.
 ---
- bfd/elf32-or1k.c | 86 ++++++++++++++++++++++++++----------------------
- 1 file changed, 47 insertions(+), 39 deletions(-)
+ bfd/elf32-or1k.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
 diff --git a/bfd/elf32-or1k.c b/bfd/elf32-or1k.c
-index ca1b61fe1c..22c316d042 100644
+index 22c316d042..7ac34737aa 100644
 --- a/bfd/elf32-or1k.c
 +++ b/bfd/elf32-or1k.c
-@@ -2104,7 +2104,7 @@ or1k_elf_check_relocs (bfd *abfd,
- 		    && (h->root.type == bfd_link_hash_defweak
- 			|| !h->def_regular)))
- 	      {
--		struct elf_dyn_relocs *p;
-+		struct elf_dyn_relocs *sec_relocs;
- 		struct elf_dyn_relocs **head;
+@@ -2780,14 +2780,14 @@ allocate_dynrelocs (struct elf_link_hash_entry *h, void * inf)
  
- 		/* When creating a shared object, we must copy these
-@@ -2172,24 +2172,26 @@ or1k_elf_check_relocs (bfd *abfd,
- 		    head = (struct elf_dyn_relocs **) vpp;
- 		  }
- 
--		p = *head;
--		if (p == NULL || p->sec != sec)
-+		sec_relocs = *head;
-+		/* Allocate this sections dynamic reolcations structure if this
-+		   is a new section.  */
-+		if (sec_relocs == NULL || sec_relocs->sec != sec)
- 		  {
--		    size_t amt = sizeof *p;
--		    p = ((struct elf_dyn_relocs *)
--			 bfd_alloc (htab->root.dynobj, amt));
--		    if (p == NULL)
-+		    size_t amt = sizeof *sec_relocs;
-+		    sec_relocs = ((struct elf_dyn_relocs *)
-+				  bfd_alloc (htab->root.dynobj, amt));
-+		    if (sec_relocs == NULL)
- 		      return FALSE;
--		    p->next = *head;
--		    *head = p;
--		    p->sec = sec;
--		    p->count = 0;
--		    p->pc_count = 0;
-+		    sec_relocs->next = *head;
-+		    *head = sec_relocs;
-+		    sec_relocs->sec = sec;
-+		    sec_relocs->count = 0;
-+		    sec_relocs->pc_count = 0;
- 		  }
- 
--		p->count += 1;
-+		sec_relocs->count += 1;
- 		if (r_type == R_OR1K_INSN_REL_26)
--		  p->pc_count += 1;
-+		  sec_relocs->pc_count += 1;
- 	      }
- 	  }
- 	  break;
-@@ -2549,15 +2551,17 @@ or1k_elf_reloc_type_class (const struct bfd_link_info *info ATTRIBUTE_UNUSED,
- static asection *
- readonly_dynrelocs (struct elf_link_hash_entry *h)
- {
--  struct elf_dyn_relocs *p;
-+  struct elf_dyn_relocs *sec_relocs;
-   struct elf_or1k_link_hash_entry *eh = (struct elf_or1k_link_hash_entry *) h;
- 
--  for (p = eh->dyn_relocs; p != NULL; p = p->next)
-+  for (sec_relocs = eh->dyn_relocs;
-+       sec_relocs != NULL;
-+       sec_relocs = sec_relocs->next)
-     {
--      asection *s = p->sec->output_section;
-+      asection *s = sec_relocs->sec->output_section;
- 
-       if (s != NULL && (s->flags & SEC_READONLY) != 0)
--	return p->sec;
-+	return sec_relocs->sec;
-     }
-   return NULL;
- }
-@@ -2750,7 +2754,7 @@ allocate_dynrelocs (struct elf_link_hash_entry *h, void * inf)
-   struct bfd_link_info *info;
-   struct elf_or1k_link_hash_table *htab;
-   struct elf_or1k_link_hash_entry *eh;
--  struct elf_dyn_relocs *p;
-+  struct elf_dyn_relocs *sec_relocs;
- 
-   if (h->root.type == bfd_link_hash_indirect)
-     return TRUE;
-@@ -2863,14 +2867,14 @@ allocate_dynrelocs (struct elf_link_hash_entry *h, void * inf)
+       if (WILL_CALL_FINISH_DYNAMIC_SYMBOL (1, bfd_link_pic (info), h))
  	{
- 	  struct elf_dyn_relocs **pp;
+-	  asection *s = htab->root.splt;
++	  asection *splt = htab->root.splt;
  
--	  for (pp = &eh->dyn_relocs; (p = *pp) != NULL;)
-+	  for (pp = &eh->dyn_relocs; (sec_relocs = *pp) != NULL;)
+ 	  /* If this is the first .plt entry, make room for the special
+ 	     first entry.  */
+-	  if (s->size == 0)
+-	    s->size = PLT_ENTRY_SIZE;
++	  if (splt->size == 0)
++	    splt->size = PLT_ENTRY_SIZE;
+ 
+-	  h->plt.offset = s->size;
++	  h->plt.offset = splt->size;
+ 
+ 	  /* If this symbol is not defined in a regular file, and we are
+ 	     not generating a shared library, then set the symbol to this
+@@ -2797,12 +2797,12 @@ allocate_dynrelocs (struct elf_link_hash_entry *h, void * inf)
+ 	  if (! bfd_link_pic (info)
+ 	      && !h->def_regular)
  	    {
--	      p->count -= p->pc_count;
--	      p->pc_count = 0;
--	      if (p->count == 0)
--		*pp = p->next;
-+	      sec_relocs->count -= sec_relocs->pc_count;
-+	      sec_relocs->pc_count = 0;
-+	      if (sec_relocs->count == 0)
-+		*pp = sec_relocs->next;
- 	      else
--		pp = &p->next;
-+		pp = &sec_relocs->next;
+-	      h->root.u.def.section = s;
++	      h->root.u.def.section = splt;
+ 	      h->root.u.def.value = h->plt.offset;
  	    }
+ 
+ 	  /* Make room for this entry.  */
+-	  s->size += PLT_ENTRY_SIZE;
++	  splt->size += PLT_ENTRY_SIZE;
+ 
+ 	  /* We also need to make an entry in the .got.plt section, which
+ 	     will be placed in the .got section by the linker script.  */
+@@ -2825,7 +2825,7 @@ allocate_dynrelocs (struct elf_link_hash_entry *h, void * inf)
+ 
+   if (h->got.refcount > 0)
+     {
+-      asection *s;
++      asection *sgot;
+       bfd_boolean dyn;
+       unsigned char tls_type;
+ 
+@@ -2838,16 +2838,16 @@ allocate_dynrelocs (struct elf_link_hash_entry *h, void * inf)
+ 	    return FALSE;
  	}
  
-@@ -2926,10 +2930,12 @@ allocate_dynrelocs (struct elf_link_hash_entry *h, void * inf)
+-      s = htab->root.sgot;
++      sgot = htab->root.sgot;
+ 
+-      h->got.offset = s->size;
++      h->got.offset = sgot->size;
+ 
+       tls_type = ((struct elf_or1k_link_hash_entry *) h)->tls_type;
+ 
+       dyn = htab->root.dynamic_sections_created;
+       dyn = WILL_CALL_FINISH_DYNAMIC_SYMBOL (dyn, bfd_link_pic (info), h);
+       or1k_set_got_and_rela_sizes (tls_type, dyn,
+-				   &s->size, &htab->root.srelgot->size);
++				   &sgot->size, &htab->root.srelgot->size);
      }
- 
-   /* Finally, allocate space.  */
--  for (p = eh->dyn_relocs; p != NULL; p = p->next)
-+  for (sec_relocs = eh->dyn_relocs;
-+       sec_relocs != NULL;
-+       sec_relocs = sec_relocs->next)
-     {
--      asection *sreloc = elf_section_data (p->sec)->sreloc;
--      sreloc->size += p->count * sizeof (Elf32_External_Rela);
-+      asection *sreloc = elf_section_data (sec_relocs->sec)->sreloc;
-+      sreloc->size += sec_relocs->count * sizeof (Elf32_External_Rela);
-     }
- 
-   return TRUE;
-@@ -3009,26 +3015,28 @@ or1k_elf_size_dynamic_sections (bfd *output_bfd ATTRIBUTE_UNUSED,
- 
-       for (s = ibfd->sections; s != NULL; s = s->next)
- 	{
--	  struct elf_dyn_relocs *p;
-+	  struct elf_dyn_relocs *sec_relocs;
- 
--	  for (p = ((struct elf_dyn_relocs *)
--		    elf_section_data (s)->local_dynrel);
--	       p != NULL;
--	       p = p->next)
-+	  for (sec_relocs = ((struct elf_dyn_relocs *)
-+			     elf_section_data (s)->local_dynrel);
-+	       sec_relocs != NULL;
-+	       sec_relocs = sec_relocs->next)
- 	    {
--	      if (! bfd_is_abs_section (p->sec)
--		  && bfd_is_abs_section (p->sec->output_section))
-+	      if (! bfd_is_abs_section (sec_relocs->sec)
-+		  && bfd_is_abs_section (sec_relocs->sec->output_section))
- 		{
- 		  /* Input section has been discarded, either because
- 		     it is a copy of a linkonce section or due to
- 		     linker script /DISCARD/, so we'll be discarding
- 		     the relocs too.  */
- 		}
--	      else if (p->count != 0)
-+	      else if (sec_relocs->count != 0)
- 		{
--		  srel = elf_section_data (p->sec)->sreloc;
--		  srel->size += p->count * sizeof (Elf32_External_Rela);
--		  if ((p->sec->output_section->flags & SEC_READONLY) != 0)
-+		  srel = elf_section_data (sec_relocs->sec)->sreloc;
-+		  srel->size += sec_relocs->count
-+				* sizeof (Elf32_External_Rela);
-+		  if ((sec_relocs->sec->output_section->flags & SEC_READONLY)
-+		      != 0)
- 		    info->flags |= DF_TEXTREL;
- 		}
- 	    }
+   else
+     h->got.offset = (bfd_vma) -1;
 -- 
 2.26.2
 
