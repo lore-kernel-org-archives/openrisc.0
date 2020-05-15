@@ -1,35 +1,42 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Fri, 15 May 2020 16:36:20 +0200
-Subject: [OpenRISC] [PATCH 03/29] powerpc: unexport flush_icache_user_range
+Date: Fri, 15 May 2020 16:36:21 +0200
+Subject: [OpenRISC] [PATCH 04/29] unicore32: remove flush_cache_user_range
 In-Reply-To: <20200515143646.3857579-1-hch@lst.de>
 References: <20200515143646.3857579-1-hch@lst.de>
-Message-ID: <20200515143646.3857579-4-hch@lst.de>
+Message-ID: <20200515143646.3857579-5-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-flush_icache_user_range is only used by copy_to_user_page, which is
-only used by core VM code.
+flush_cache_user_range is an ARMism not used by any generic or unicore32
+specific code.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/powerpc/mm/mem.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/unicore32/include/asm/cacheflush.h | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-index 041ed7cfd341a..f0d1bf0a8e14f 100644
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -587,7 +587,6 @@ void flush_icache_user_range(struct vm_area_struct *vma, struct page *page,
- 	flush_icache_range(maddr, maddr + len);
- 	kunmap(page);
- }
--EXPORT_SYMBOL(flush_icache_user_range);
+diff --git a/arch/unicore32/include/asm/cacheflush.h b/arch/unicore32/include/asm/cacheflush.h
+index dc8c0b41538f8..9393ca4047e93 100644
+--- a/arch/unicore32/include/asm/cacheflush.h
++++ b/arch/unicore32/include/asm/cacheflush.h
+@@ -132,14 +132,6 @@ extern void flush_cache_page(struct vm_area_struct *vma,
  
+ #define flush_cache_dup_mm(mm) flush_cache_mm(mm)
+ 
+-/*
+- * flush_cache_user_range is used when we want to ensure that the
+- * Harvard caches are synchronised for the user space address range.
+- * This is used for the UniCore private sys_cacheflush system call.
+- */
+-#define flush_cache_user_range(vma, start, end) \
+-	__cpuc_coherent_user_range((start) & PAGE_MASK, PAGE_ALIGN(end))
+-
  /*
-  * System memory should not be in /proc/iomem but various tools expect it
+  * Perform necessary cache operations to ensure that data previously
+  * stored within this range of addresses can be executed by the CPU.
 -- 
 2.26.2
 
