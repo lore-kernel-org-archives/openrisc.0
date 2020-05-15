@@ -1,65 +1,45 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Fri, 15 May 2020 16:36:41 +0200
-Subject: [OpenRISC] [PATCH 24/29] m68k: implement flush_icache_user_range
+Date: Fri, 15 May 2020 16:36:45 +0200
+Subject: [OpenRISC] [PATCH 28/29] nommu: use flush_icache_user_range in brk
+ and mmap
 In-Reply-To: <20200515143646.3857579-1-hch@lst.de>
 References: <20200515143646.3857579-1-hch@lst.de>
-Message-ID: <20200515143646.3857579-25-hch@lst.de>
+Message-ID: <20200515143646.3857579-29-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Rename the current flush_icache_range to flush_icache_user_range as
-per commit ae92ef8a4424 ("PATCH] flush icache in correct context") there
-seems to be an assumption that it operates on user addresses.  Add a
-flush_icache_range around it that for now is a no-op.
+These obviously operate on user addresses.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 ---
- arch/m68k/include/asm/cacheflush_mm.h | 2 ++
- arch/m68k/mm/cache.c                  | 7 ++++++-
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ mm/nommu.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/m68k/include/asm/cacheflush_mm.h b/arch/m68k/include/asm/cacheflush_mm.h
-index 95376bf84faa5..1ac55e7b47f01 100644
---- a/arch/m68k/include/asm/cacheflush_mm.h
-+++ b/arch/m68k/include/asm/cacheflush_mm.h
-@@ -257,6 +257,8 @@ static inline void __flush_page_to_ram(void *vaddr)
- extern void flush_icache_user_page(struct vm_area_struct *vma, struct page *page,
- 				    unsigned long addr, int len);
- extern void flush_icache_range(unsigned long address, unsigned long endaddr);
-+extern void flush_icache_user_range(unsigned long address,
-+		unsigned long endaddr);
- 
- static inline void copy_to_user_page(struct vm_area_struct *vma,
- 				     struct page *page, unsigned long vaddr,
-diff --git a/arch/m68k/mm/cache.c b/arch/m68k/mm/cache.c
-index 99057cd5ff7f1..7915be3a09712 100644
---- a/arch/m68k/mm/cache.c
-+++ b/arch/m68k/mm/cache.c
-@@ -73,7 +73,7 @@ static unsigned long virt_to_phys_slow(unsigned long vaddr)
- 
- /* Push n pages at kernel virtual address and clear the icache */
- /* RZ: use cpush %bc instead of cpush %dc, cinv %ic */
--void flush_icache_range(unsigned long address, unsigned long endaddr)
-+void flush_icache_user_range(unsigned long address, unsigned long endaddr)
- {
- 	if (CPU_IS_COLDFIRE) {
- 		unsigned long start, end;
-@@ -104,6 +104,11 @@ void flush_icache_range(unsigned long address, unsigned long endaddr)
- 			      : "di" (FLUSH_I));
- 	}
+diff --git a/mm/nommu.c b/mm/nommu.c
+index 318df4e236c99..aed7acaed2383 100644
+--- a/mm/nommu.c
++++ b/mm/nommu.c
+@@ -443,7 +443,7 @@ SYSCALL_DEFINE1(brk, unsigned long, brk)
+ 	/*
+ 	 * Ok, looks good - let it rip.
+ 	 */
+-	flush_icache_range(mm->brk, brk);
++	flush_icache_user_range(mm->brk, brk);
+ 	return mm->brk = brk;
  }
-+
-+void flush_icache_range(unsigned long address, unsigned long endaddr)
-+{
-+	flush_icache_user_range(address, endaddr);
-+}
- EXPORT_SYMBOL(flush_icache_range);
  
- void flush_icache_user_page(struct vm_area_struct *vma, struct page *page,
+@@ -1287,7 +1287,7 @@ unsigned long do_mmap(struct file *file,
+ 	/* we flush the region from the icache only when the first executable
+ 	 * mapping of it is made  */
+ 	if (vma->vm_flags & VM_EXEC && !region->vm_icache_flushed) {
+-		flush_icache_range(region->vm_start, region->vm_end);
++		flush_icache_user_range(region->vm_start, region->vm_end);
+ 		region->vm_icache_flushed = true;
+ 	}
+ 
 -- 
 2.26.2
 
