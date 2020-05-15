@@ -1,37 +1,56 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Fri, 15 May 2020 16:36:39 +0200
-Subject: [OpenRISC] [PATCH 22/29] xtensa: implement flush_icache_user_range
+Date: Fri, 15 May 2020 16:36:40 +0200
+Subject: [OpenRISC] [PATCH 23/29] arm: rename flush_cache_user_range to
+ flush_icache_user_range
 In-Reply-To: <20200515143646.3857579-1-hch@lst.de>
 References: <20200515143646.3857579-1-hch@lst.de>
-Message-ID: <20200515143646.3857579-23-hch@lst.de>
+Message-ID: <20200515143646.3857579-24-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The Xtensa implementation of flush_icache_range seems to be able to
-cope with user addresses.  Just define flush_icache_user_range to
-flush_icache_range.
+flush_icache_user_range will be the name for a generic primitive.
+Move the arm name so that arm already has an implementation.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/xtensa/include/asm/cacheflush.h | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/include/asm/cacheflush.h | 4 ++--
+ arch/arm/kernel/traps.c           | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/xtensa/include/asm/cacheflush.h b/arch/xtensa/include/asm/cacheflush.h
-index a0d50be5a8cb1..460e666ad0761 100644
---- a/arch/xtensa/include/asm/cacheflush.h
-+++ b/arch/xtensa/include/asm/cacheflush.h
-@@ -107,6 +107,8 @@ void flush_cache_page(struct vm_area_struct*,
- #define flush_cache_page  local_flush_cache_page
- #endif
+diff --git a/arch/arm/include/asm/cacheflush.h b/arch/arm/include/asm/cacheflush.h
+index c78e14fcfb5df..2e24e765e6d3a 100644
+--- a/arch/arm/include/asm/cacheflush.h
++++ b/arch/arm/include/asm/cacheflush.h
+@@ -258,11 +258,11 @@ extern void flush_cache_page(struct vm_area_struct *vma, unsigned long user_addr
+ #define flush_cache_dup_mm(mm) flush_cache_mm(mm)
  
-+#define flush_icache_user_range flush_icache_range
-+
- #define local_flush_cache_all()						\
- 	do {								\
- 		__flush_invalidate_dcache_all();			\
+ /*
+- * flush_cache_user_range is used when we want to ensure that the
++ * flush_icache_user_range is used when we want to ensure that the
+  * Harvard caches are synchronised for the user space address range.
+  * This is used for the ARM private sys_cacheflush system call.
+  */
+-#define flush_cache_user_range(s,e)	__cpuc_coherent_user_range(s,e)
++#define flush_icache_user_range(s,e)	__cpuc_coherent_user_range(s,e)
+ 
+ /*
+  * Perform necessary cache operations to ensure that data previously
+diff --git a/arch/arm/kernel/traps.c b/arch/arm/kernel/traps.c
+index 1e70e7227f0ff..316a7687f8133 100644
+--- a/arch/arm/kernel/traps.c
++++ b/arch/arm/kernel/traps.c
+@@ -566,7 +566,7 @@ __do_cache_op(unsigned long start, unsigned long end)
+ 		if (fatal_signal_pending(current))
+ 			return 0;
+ 
+-		ret = flush_cache_user_range(start, start + chunk);
++		ret = flush_icache_user_range(start, start + chunk);
+ 		if (ret)
+ 			return ret;
+ 
 -- 
 2.26.2
 
