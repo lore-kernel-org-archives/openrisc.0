@@ -1,44 +1,36 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Fri, 15 May 2020 16:36:42 +0200
-Subject: [OpenRISC] [PATCH 25/29] exec: only build read_code when needed
+Date: Fri, 15 May 2020 16:36:43 +0200
+Subject: [OpenRISC] [PATCH 26/29] exec: use flush_icache_user_range in
+ read_code
 In-Reply-To: <20200515143646.3857579-1-hch@lst.de>
 References: <20200515143646.3857579-1-hch@lst.de>
-Message-ID: <20200515143646.3857579-26-hch@lst.de>
+Message-ID: <20200515143646.3857579-27-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Only build read_code when binary formats that use it are built into the
-kernel.
+read_code operates on user addresses.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- fs/exec.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/exec.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/fs/exec.c b/fs/exec.c
-index 06b4c550af5d9..a4f766f296f8f 100644
+index a4f766f296f8f..c541867316a63 100644
 --- a/fs/exec.c
 +++ b/fs/exec.c
-@@ -1027,6 +1027,8 @@ int kernel_read_file_from_fd(int fd, void **buf, loff_t *size, loff_t max_size,
- }
- EXPORT_SYMBOL_GPL(kernel_read_file_from_fd);
- 
-+#if defined(CONFIG_HAVE_AOUT) || defined(CONFIG_BINFMT_FLAT) || \
-+    defined(CONFIG_BINFMT_ELF_FDPIC)
- ssize_t read_code(struct file *file, unsigned long addr, loff_t pos, size_t len)
+@@ -1033,7 +1033,7 @@ ssize_t read_code(struct file *file, unsigned long addr, loff_t pos, size_t len)
  {
  	ssize_t res = vfs_read(file, (void __user *)addr, len, &pos);
-@@ -1035,6 +1037,7 @@ ssize_t read_code(struct file *file, unsigned long addr, loff_t pos, size_t len)
+ 	if (res > 0)
+-		flush_icache_range(addr, addr + len);
++		flush_icache_user_range(addr, addr + len);
  	return res;
  }
  EXPORT_SYMBOL(read_code);
-+#endif
- 
- /*
-  * Maps the mm_struct mm into the current task struct.
 -- 
 2.26.2
 
