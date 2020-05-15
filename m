@@ -1,75 +1,65 @@
 From: Christoph Hellwig <hch@lst.de>
-Date: Fri, 15 May 2020 16:36:29 +0200
-Subject: [OpenRISC] [PATCH 12/29] ia64: use asm-generic/cacheflush.h
+Date: Fri, 15 May 2020 16:36:32 +0200
+Subject: [OpenRISC] [PATCH 15/29] openrisc: use asm-generic/cacheflush.h
 In-Reply-To: <20200515143646.3857579-1-hch@lst.de>
 References: <20200515143646.3857579-1-hch@lst.de>
-Message-ID: <20200515143646.3857579-13-hch@lst.de>
+Message-ID: <20200515143646.3857579-16-hch@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-IA64 needs almost no cache flushing routines of its own.  Rely on
+OpenRISC needs almost no cache flushing routines of its own.  Rely on
 asm-generic/cacheflush.h for the defaults.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/ia64/include/asm/cacheflush.h | 28 +++-------------------------
- 1 file changed, 3 insertions(+), 25 deletions(-)
+ arch/openrisc/include/asm/cacheflush.h | 31 +++++---------------------
+ 1 file changed, 6 insertions(+), 25 deletions(-)
 
-diff --git a/arch/ia64/include/asm/cacheflush.h b/arch/ia64/include/asm/cacheflush.h
-index 6d3478f8abc89..a8f1c86ac242a 100644
---- a/arch/ia64/include/asm/cacheflush.h
-+++ b/arch/ia64/include/asm/cacheflush.h
-@@ -12,44 +12,22 @@
- 
- #include <asm/page.h>
+diff --git a/arch/openrisc/include/asm/cacheflush.h b/arch/openrisc/include/asm/cacheflush.h
+index 79d5d7753fe4b..74d1fce4e8839 100644
+--- a/arch/openrisc/include/asm/cacheflush.h
++++ b/arch/openrisc/include/asm/cacheflush.h
+@@ -62,31 +62,12 @@ static inline void flush_dcache_page(struct page *page)
+ 	clear_bit(PG_dc_clean, &page->flags);
+ }
  
 -/*
-- * Cache flushing routines.  This is the kind of stuff that can be very expensive, so try
-- * to avoid them whenever possible.
+- * Other interfaces are not required since we do not have virtually
+- * indexed or tagged caches. So we can use the default here.
 - */
+-#define flush_cache_all()				do { } while (0)
+-#define flush_cache_mm(mm)				do { } while (0)
+-#define flush_cache_dup_mm(mm)				do { } while (0)
+-#define flush_cache_range(vma, start, end)		do { } while (0)
+-#define flush_cache_page(vma, vmaddr, pfn)		do { } while (0)
+-#define flush_dcache_mmap_lock(mapping)			do { } while (0)
+-#define flush_dcache_mmap_unlock(mapping)		do { } while (0)
+-#define flush_icache_range(start, end)			do { } while (0)
+-#define flush_icache_page(vma, pg)			do { } while (0)
+-#define flush_icache_user_range(vma, pg, adr, len)	do { } while (0)
+-#define flush_cache_vmap(start, end)			do { } while (0)
+-#define flush_cache_vunmap(start, end)			do { } while (0)
 -
--#define flush_cache_all()			do { } while (0)
--#define flush_cache_mm(mm)			do { } while (0)
--#define flush_cache_dup_mm(mm)			do { } while (0)
--#define flush_cache_range(vma, start, end)	do { } while (0)
--#define flush_cache_page(vma, vmaddr, pfn)	do { } while (0)
--#define flush_icache_page(vma,page)		do { } while (0)
--#define flush_cache_vmap(start, end)		do { } while (0)
--#define flush_cache_vunmap(start, end)		do { } while (0)
--
- #define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 1
- #define flush_dcache_page(page)			\
- do {						\
- 	clear_bit(PG_arch_1, &(page)->flags);	\
- } while (0)
+-#define copy_to_user_page(vma, page, vaddr, dst, src, len)           \
+-	do {                                                         \
+-		memcpy(dst, src, len);                               \
+-		if (vma->vm_flags & VM_EXEC)                         \
+-			sync_icache_dcache(page);                    \
+-	} while (0)
++#define flush_icache_user_range(vma, page, addr, len)	\
++do {							\
++	if (vma->vm_flags & VM_EXEC)			\
++		sync_icache_dcache(page);		\
++} while (0)
  
--#define flush_dcache_mmap_lock(mapping)		do { } while (0)
--#define flush_dcache_mmap_unlock(mapping)	do { } while (0)
--
--extern void flush_icache_range (unsigned long start, unsigned long end);
-+extern void flush_icache_range(unsigned long start, unsigned long end);
-+#define flush_icache_range flush_icache_range
- extern void clflush_cache_range(void *addr, int size);
- 
--
- #define flush_icache_user_range(vma, page, user_addr, len)					\
- do {												\
- 	unsigned long _addr = (unsigned long) page_address(page) + ((user_addr) & ~PAGE_MASK);	\
- 	flush_icache_range(_addr, _addr + (len));						\
- } while (0)
- 
--#define copy_to_user_page(vma, page, vaddr, dst, src, len) \
--do { memcpy(dst, src, len); \
--     flush_icache_user_range(vma, page, vaddr, len); \
--} while (0)
--#define copy_from_user_page(vma, page, vaddr, dst, src, len) \
+-#define copy_from_user_page(vma, page, vaddr, dst, src, len)         \
 -	memcpy(dst, src, len)
 +#include <asm-generic/cacheflush.h>
  
- #endif /* _ASM_IA64_CACHEFLUSH_H */
+ #endif /* __ASM_CACHEFLUSH_H */
 -- 
 2.26.2
 
