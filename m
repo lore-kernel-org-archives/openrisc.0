@@ -1,31 +1,68 @@
-From: Jessica Yu <jeyu@kernel.org>
-Date: Mon, 18 May 2020 15:04:44 +0200
-Subject: [OpenRISC] [PATCH 29/29] module: move the set_fs hack for
- flush_icache_range to m68k
-In-Reply-To: <20200515143646.3857579-30-hch@lst.de>
+From: Mark Salter <msalter@redhat.com>
+Date: Mon, 18 May 2020 14:20:42 -0400
+Subject: [OpenRISC] [PATCH 10/29] c6x: use asm-generic/cacheflush.h
+In-Reply-To: <20200515143646.3857579-11-hch@lst.de>
 References: <20200515143646.3857579-1-hch@lst.de>
- <20200515143646.3857579-30-hch@lst.de>
-Message-ID: <20200518130444.GA21096@linux-8ccs.fritz.box>
+ <20200515143646.3857579-11-hch@lst.de>
+Message-ID: <5260142047d0339e00d4a74865c2f0b7511c89f6.camel@redhat.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-+++ Christoph Hellwig [15/05/20 16:36 +0200]:
->flush_icache_range generally operates on kernel addresses, but for some
->reason m68k needed a set_fs override.  Move that into the m68k code
->insted of keeping it in the module loader.
->
->Signed-off-by: Christoph Hellwig <hch@lst.de>
->Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
->Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
->---
-> arch/m68k/mm/cache.c | 4 ++++
-> kernel/module.c      | 8 --------
-> 2 files changed, 4 insertions(+), 8 deletions(-)
+On Fri, 2020-05-15 at 16:36 +0200, Christoph Hellwig wrote:
+> C6x needs almost no cache flushing routines of its own.  Rely on
+> asm-generic/cacheflush.h for the defaults.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  arch/c6x/include/asm/cacheflush.h | 19 +------------------
+>  1 file changed, 1 insertion(+), 18 deletions(-)
+> 
+> diff --git a/arch/c6x/include/asm/cacheflush.h b/arch/c6x/include/asm/cacheflush.h
+> index 4540b40475e6c..10922d528de6d 100644
+> --- a/arch/c6x/include/asm/cacheflush.h
+> +++ b/arch/c6x/include/asm/cacheflush.h
+> @@ -16,21 +16,6 @@
+>  #include <asm/page.h>
+>  #include <asm/string.h>
+>  
+> -/*
+> - * virtually-indexed cache management (our cache is physically indexed)
+> - */
+> -#define flush_cache_all()			do {} while (0)
+> -#define flush_cache_mm(mm)			do {} while (0)
+> -#define flush_cache_dup_mm(mm)			do {} while (0)
+> -#define flush_cache_range(mm, start, end)	do {} while (0)
+> -#define flush_cache_page(vma, vmaddr, pfn)	do {} while (0)
+> -#define flush_cache_vmap(start, end)		do {} while (0)
+> -#define flush_cache_vunmap(start, end)		do {} while (0)
+> -#define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 0
+> -#define flush_dcache_page(page)			do {} while (0)
+> -#define flush_dcache_mmap_lock(mapping)		do {} while (0)
+> -#define flush_dcache_mmap_unlock(mapping)	do {} while (0)
+> -
+>  /*
+>   * physically-indexed cache management
+>   */
+> @@ -49,14 +34,12 @@ do {								  \
+>  			(unsigned long) page_address(page) + PAGE_SIZE)); \
+>  } while (0)
+>  
+> -
+>  #define copy_to_user_page(vma, page, vaddr, dst, src, len) \
+>  do {						     \
+>  	memcpy(dst, src, len);			     \
+>  	flush_icache_range((unsigned) (dst), (unsigned) (dst) + (len)); \
+>  } while (0)
+>  
+> -#define copy_from_user_page(vma, page, vaddr, dst, src, len) \
+> -	memcpy(dst, src, len)
+> +#include <asm-generic/cacheflush.h>
+>  
+>  #endif /* _ASM_C6X_CACHEFLUSH_H */
 
-Thanks for cleaning this up. For module.c:
+Acked-by: Mark Salter <msalter@redhat.com>
 
-Acked-by: Jessica Yu <jeyu@kernel.org>
 
