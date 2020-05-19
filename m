@@ -1,30 +1,37 @@
-From: Nick Clifton <nickc@redhat.com>
-Date: Tue, 19 May 2020 14:30:06 +0100
-Subject: [OpenRISC] [PATCH 0/8] OpenRISC BFD fixups for Glibc
-In-Reply-To: <20200514210018.2749462-1-shorne@gmail.com>
-References: <20200514210018.2749462-1-shorne@gmail.com>
-Message-ID: <2c2a4907-bb08-a112-e716-bf6f2cef3642@redhat.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Wed, 20 May 2020 05:37:45 +0900
+Subject: [OpenRISC] [PATCH 0/5] OpenRISC GCC Fixes for Glibc Support
+Message-ID: <20200519203750.401593-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Stafford,
+Hello,
 
-> Stafford Horne (8):
->   or1k: Fix static linking when with .rela.got relocations
->   or1k: Fix dynamic TLS symbol flag
->   or1k: Add TLS mask to handle multiple model access
->   or1k: Fix issue with multiple PCREL relocations
->   or1k: TLS offset to use tcb size and section alignment
->   or1k: refactor: Rename p to sec_relocs
->   or1k: refactor: Rename s to sgot and splt
->   or1k: Add dynamic flag to tpoff
+I am currently working on the glibc port for OpenRISC.  This is a series of
+patches that fix issues and add features that were missing in GCC causing glibc
+testsuite failures.
 
-Patch series approved and applied.  (Sorry for the delay...)
+Pretty much all of these changes are just adding macros.
 
-Cheers
-  Nick
+These changes have been tested via the glibc test suite.
 
+-Stafford
+
+Stafford Horne (5):
+  or1k: Implement profile hook calling _mcount
+  or1k: Add builtin define to detect hard float
+  or1k: Support for softfloat to emulate hw exceptions
+  or1k: Add note to indicate execstack
+  or1k: Fixup exception header data encodings
+
+ gcc/config/or1k/linux.h          |  2 ++
+ gcc/config/or1k/or1k.h           | 21 ++++++++++++++--
+ libgcc/config/or1k/sfp-machine.h | 41 +++++++++++++++++++++++++++++++-
+ 3 files changed, 61 insertions(+), 3 deletions(-)
+
+-- 
+2.26.2
 
