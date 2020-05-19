@@ -1,45 +1,34 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 20 May 2020 05:37:50 +0900
-Subject: [OpenRISC] [PATCH 5/5] or1k: Fixup exception header data encodings
-In-Reply-To: <20200519203750.401593-1-shorne@gmail.com>
-References: <20200519203750.401593-1-shorne@gmail.com>
-Message-ID: <20200519203750.401593-6-shorne@gmail.com>
+Date: Wed, 20 May 2020 05:42:57 +0900
+Subject: [OpenRISC] [PATCH 0/8] OpenRISC BFD fixups for Glibc
+In-Reply-To: <2c2a4907-bb08-a112-e716-bf6f2cef3642@redhat.com>
+References: <20200514210018.2749462-1-shorne@gmail.com>
+ <2c2a4907-bb08-a112-e716-bf6f2cef3642@redhat.com>
+Message-ID: <20200519204257.GC2553@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-While running glibc tests several *-textrel tests failed showing that
-relocations remained against read only sections.  It turned out this was
-related to exception headers data encoding being wrong.
+On Tue, May 19, 2020 at 02:30:06PM +0100, Nick Clifton wrote:
+> Hi Stafford,
+> 
+> > Stafford Horne (8):
+> >   or1k: Fix static linking when with .rela.got relocations
+> >   or1k: Fix dynamic TLS symbol flag
+> >   or1k: Add TLS mask to handle multiple model access
+> >   or1k: Fix issue with multiple PCREL relocations
+> >   or1k: TLS offset to use tcb size and section alignment
+> >   or1k: refactor: Rename p to sec_relocs
+> >   or1k: refactor: Rename s to sgot and splt
+> >   or1k: Add dynamic flag to tpoff
+> 
+> Patch series approved and applied.  (Sorry for the delay...)
 
-By default pointer encoding will always use the DW_EH_PE_absptr format.
+Thank you,
 
-This patch uses format DW_EH_PE_pcrel and DW_EH_PE_sdata4.  Optionally
-DW_EH_PE_indirect is included for global symbols.  This eliminates the
-relocations.
+That was not much delay at all.   However, I was about to just apply the set of
+patches myself.  Would that have been a problem?
 
-gcc/ChangeLog:
-
-	* config/or1k/or1k.h (ASM_PREFERRED_EH_DATA_FORMAT): New macro.
----
- gcc/config/or1k/or1k.h | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/gcc/config/or1k/or1k.h b/gcc/config/or1k/or1k.h
-index 0d6fed5f4ca..2fe62f0b90c 100644
---- a/gcc/config/or1k/or1k.h
-+++ b/gcc/config/or1k/or1k.h
-@@ -408,4 +408,8 @@ do {                                                    \
-     ((N) < 4 ? HW_TO_GCC_REGNO (25) + (N) : INVALID_REGNUM)
- #define EH_RETURN_STACKADJ_RTX gen_rtx_REG (Pmode, EH_RETURN_REGNUM)
- 
-+/* Select a format to encode pointers in exception handling data.  */
-+#define ASM_PREFERRED_EH_DATA_FORMAT(CODE, GLOBAL) \
-+  (((GLOBAL) ? DW_EH_PE_indirect : 0) | DW_EH_PE_pcrel | DW_EH_PE_sdata4)
-+
- #endif /* GCC_OR1K_H */
--- 
-2.26.2
-
+-Stafford
