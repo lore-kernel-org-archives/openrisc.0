@@ -1,156 +1,44 @@
-From: Hoan Tran <hoan@os.amperecomputing.com>
-Date: Mon, 18 May 2020 14:38:50 -0700
-Subject: [OpenRISC] [PATCH 16/21] mm: remove early_pfn_in_nid() and
- CONFIG_NODES_SPAN_OTHER_NODES
-In-Reply-To: <20200423011312.GY4247@MiWiFi-R3L-srv>
-References: <20200412194859.12663-1-rppt@kernel.org>
- <20200412194859.12663-17-rppt@kernel.org>
- <20200423011312.GY4247@MiWiFi-R3L-srv>
-Message-ID: <84f572b2-9e61-f9d1-008d-47ac978f5ccc@os.amperecomputing.com>
+From: Joseph Myers <joseph@codesourcery.com>
+Date: Fri, 22 May 2020 18:52:20 +0000
+Subject: [OpenRISC] [PATCH 0/1] OpenRISC port
+In-Reply-To: <20200522113633.209664-1-shorne@gmail.com>
+References: <20200522113633.209664-1-shorne@gmail.com>
+Message-ID: <alpine.DEB.2.21.2005221846590.10437@digraph.polyomino.org.uk>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Mike and Baoquan,
+On Fri, 22 May 2020, Stafford Horne via Libc-alpha wrote:
 
-On 4/22/20 6:13 PM, Baoquan He wrote:
-> On 04/12/20 at 10:48pm, Mike Rapoport wrote:
->> From: Mike Rapoport <rppt@linux.ibm.com>
->>
->> The commit f47ac088c406 ("mm: memmap_init: iterate over memblock regions
+> Hi All,
 > 
-> This commit id should be a temporary one, will be changed when merged
-> into maintainer's tree and linus's tree. Only saying last patch plus the
-> patch subject is OK?
-> 
->> rather that check each PFN") made early_pfn_in_nid() obsolete and since
->> CONFIG_NODES_SPAN_OTHER_NODES is only used to pick a stub or a real
->> implementation of early_pfn_in_nid() it is also not needed anymore.
->>
->> Remove both early_pfn_in_nid() and the CONFIG_NODES_SPAN_OTHER_NODES.
->>
->> Co-developed-by: Hoan Tran <Hoan@os.amperecomputing.com>
->> Signed-off-by: Hoan Tran <Hoan@os.amperecomputing.com>
->> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
->> ---
->>   arch/powerpc/Kconfig |  9 ---------
->>   arch/sparc/Kconfig   |  9 ---------
->>   arch/x86/Kconfig     |  9 ---------
->>   mm/page_alloc.c      | 20 --------------------
->>   4 files changed, 47 deletions(-)
->>
->> diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
->> index 5f86b22b7d2c..74f316deeae1 100644
->> --- a/arch/powerpc/Kconfig
->> +++ b/arch/powerpc/Kconfig
->> @@ -685,15 +685,6 @@ config ARCH_MEMORY_PROBE
->>   	def_bool y
->>   	depends on MEMORY_HOTPLUG
->>   
->> -# Some NUMA nodes have memory ranges that span
->> -# other nodes.  Even though a pfn is valid and
->> -# between a node's start and end pfns, it may not
->> -# reside on that node.  See memmap_init_zone()
->> -# for details.
->> -config NODES_SPAN_OTHER_NODES
->> -	def_bool y
->> -	depends on NEED_MULTIPLE_NODES
->> -
->>   config STDBINUTILS
->>   	bool "Using standard binutils settings"
->>   	depends on 44x
->> diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
->> index 795206b7b552..0e4f3891b904 100644
->> --- a/arch/sparc/Kconfig
->> +++ b/arch/sparc/Kconfig
->> @@ -286,15 +286,6 @@ config NODES_SHIFT
->>   	  Specify the maximum number of NUMA Nodes available on the target
->>   	  system.  Increases memory reserved to accommodate various tables.
->>   
->> -# Some NUMA nodes have memory ranges that span
->> -# other nodes.  Even though a pfn is valid and
->> -# between a node's start and end pfns, it may not
->> -# reside on that node.  See memmap_init_zone()
->> -# for details.
->> -config NODES_SPAN_OTHER_NODES
->> -	def_bool y
->> -	depends on NEED_MULTIPLE_NODES
->> -
->>   config ARCH_SPARSEMEM_ENABLE
->>   	def_bool y if SPARC64
->>   	select SPARSEMEM_VMEMMAP_ENABLE
->> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
->> index 9d3e95b4fb85..37dac095659e 100644
->> --- a/arch/x86/Kconfig
->> +++ b/arch/x86/Kconfig
->> @@ -1581,15 +1581,6 @@ config X86_64_ACPI_NUMA
->>   	---help---
->>   	  Enable ACPI SRAT based node topology detection.
->>   
->> -# Some NUMA nodes have memory ranges that span
->> -# other nodes.  Even though a pfn is valid and
->> -# between a node's start and end pfns, it may not
->> -# reside on that node.  See memmap_init_zone()
->> -# for details.
->> -config NODES_SPAN_OTHER_NODES
->> -	def_bool y
->> -	depends on X86_64_ACPI_NUMA
->> -
->>   config NUMA_EMU
->>   	bool "NUMA emulation"
->>   	depends on NUMA
->> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
->> index c43ce8709457..343d87b8697d 100644
->> --- a/mm/page_alloc.c
->> +++ b/mm/page_alloc.c
->> @@ -1541,26 +1541,6 @@ int __meminit early_pfn_to_nid(unsigned long pfn)
->>   }
->>   #endif /* CONFIG_NEED_MULTIPLE_NODES */
->>   
->> -#ifdef CONFIG_NODES_SPAN_OTHER_NODES
->> -/* Only safe to use early in boot when initialisation is single-threaded */
->> -static inline bool __meminit early_pfn_in_nid(unsigned long pfn, int node)
->> -{
->> -	int nid;
->> -
->> -	nid = __early_pfn_to_nid(pfn, &early_pfnnid_cache);
->> -	if (nid >= 0 && nid != node)
->> -		return false;
->> -	return true;
->> -}
->> -
->> -#else
->> -static inline bool __meminit early_pfn_in_nid(unsigned long pfn, int node)
->> -{
->> -	return true;
->> -}
->> -#endif
-> 
-> And macro early_pfn_valid() is not needed either, we may need remove it
-> too.
-> 
-> Otherwise, removing NODES_SPAN_OTHER_NODES in this patch looks good.
-> 
-> Reviewed-by: Baoquan He <bhe@redhat.com>
+> This is the patch for the OpenRISC port of glibc.
 
-I have tested this patch set on Arm64, and it worked as expected with 
-the case where the node memory spans to other nodes or the old 
-NODES_SPAN_OTHER_NODES config.
+Please see <https://sourceware.org/glibc/wiki/NewPorts> for information to 
+include in a new port submission.  That includes pointing to architecture 
+and ABI manuals.
 
-Hope to the whole patch set will be upstream soon.
+> The original patch was put together by Christian Scensson a few years ago.  I
+> have taken the patch and finished all of the TODO items and run and fixed all of
+> the test failures.
 
-Thanks and Regards
-Hoan
+Do you mean Christian Svensson?  (There's a copyright assignment from 
+Christian Svensson for GCC GLIBC BINUTILS from 2014.)
 
+> TEST RESULTS
 > 
->> -
->> -
->>   void __init memblock_free_pages(struct page *page, unsigned long pfn,
->>   							unsigned int order)
->>   {
->> -- 
->> 2.25.1
->>
-> 
+> Pretty much all tests are passing however there are several math (fpu) tests
+> which are failing due to issues with setting underflow/overflow flags.  These
+
+There should not be any such failures with a correct port and architecture 
+implementation.
+
+> I can provide more details.
+
+Full test results should be provided (see the above mentioned wiki page).
+
+-- 
+Joseph S. Myers
+joseph at codesourcery.com
