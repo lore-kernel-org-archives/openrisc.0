@@ -1,66 +1,142 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 23 May 2020 06:01:54 +0900
-Subject: [OpenRISC] [PATCH 0/1] OpenRISC port
-In-Reply-To: <alpine.DEB.2.21.2005221846590.10437@digraph.polyomino.org.uk>
+Date: Sat, 23 May 2020 06:31:23 +0900
+Subject: [OpenRISC] [PATCH 1/1] Initial support for OpenRISC
+In-Reply-To: <alpine.DEB.2.21.2005222027180.10437@digraph.polyomino.org.uk>
 References: <20200522113633.209664-1-shorne@gmail.com>
- <alpine.DEB.2.21.2005221846590.10437@digraph.polyomino.org.uk>
-Message-ID: <20200522210154.GA75760@lianli.shorne-pla.net>
+ <20200522113633.209664-2-shorne@gmail.com>
+ <alpine.DEB.2.21.2005222027180.10437@digraph.polyomino.org.uk>
+Message-ID: <20200522213123.GB75760@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, May 22, 2020 at 06:52:20PM +0000, Joseph Myers wrote:
+Hello,
+
+Thanks for the review.
+
+On Fri, May 22, 2020 at 08:56:08PM +0000, Joseph Myers wrote:
 > On Fri, 22 May 2020, Stafford Horne via Libc-alpha wrote:
 > 
-> > Hi All,
-> > 
-> > This is the patch for the OpenRISC port of glibc.
+> > This patch includes the OpenRISC glibc support for linux.
 > 
-> Please see <https://sourceware.org/glibc/wiki/NewPorts> for information to 
-> include in a new port submission.  That includes pointing to architecture 
-> and ABI manuals.
+> This is missing a build-many-glibcs.py update.  You always need to include 
+> such an update with a new port, which must build at least one 
+> configuration for each ABI supported by the port (and may build any major 
+> non-ABI variants that seem relevant).  build-many-glibcs.py results for 
+> the port must be clean (i.e. no failures in the compilation part of the 
+> testsuite), at least when building with GCC and binutils master (it's OK 
+> if you need features or bug fixes not in the most recent release branches, 
+> although distributors might prefer such fixes to be backported).  
+> Similarly, there should be NEWS and README updates.
 
-Thank you for the pointers, I will include this in v2.  But the architecture
-manual is here:
+OK.
 
- - Page: https://openrisc.io/architecture
- - PDF: https://raw.githubusercontent.com/openrisc/doc/master/openrisc-arch-1.3-rev1.pdf
+> New 32-bit ports should preferably be set up to support only 64-bit time 
+> and 64-bit offsets (see ARC and RV32 patch postings for examples).
 
- - Architecture Revision Required for Full Hard Float support:
-  - https://openrisc.io/proposals/p17-user-mode-fpcsr
+OK.
 
-> > The original patch was put together by Christian Scensson a few years ago.  I
-> > have taken the patch and finished all of the TODO items and run and fixed all of
-> > the test failures.
+> > diff --git a/sysdeps/or1k/bits/atomic.h b/sysdeps/or1k/bits/atomic.h
 > 
-> Do you mean Christian Svensson?  (There's a copyright assignment from 
-> Christian Svensson for GCC GLIBC BINUTILS from 2014.)
+> There should be no such file.  bits/ is only for installed headers, not 
+> internal ones.  See commit de071d199a8578055edf2722114788ae749823aa ("Move 
+> bits/atomic.h to atomic-machine.h (bug 14912).", 11 Sep 2015).
 
-Yes Christian Svensson, sorry for the typo.  He is listed in the changelog on
-the patch.
+OK.
 
+> > diff --git a/sysdeps/or1k/nptl/bits/semaphore.h b/sysdeps/or1k/nptl/bits/semaphore.h
 > 
-> > TEST RESULTS
-> > 
-> > Pretty much all tests are passing however there are several math (fpu) tests
-> > which are failing due to issues with setting underflow/overflow flags.  These
+> Do you really need this file?  See commit 
+> 1270fbaaeebe642db335fccaaf98c82e6647cc0d ("semaphore: consolidate arch 
+> headers into a generic one", 5 May 2020).
+
+Likely, not, I will review.
+
+> > +  # Needed for relro detection
+> > +  libc_commonpagesize=0x2000
+> > +  libc_relro_required=yes
 > 
-> There should not be any such failures with a correct port and architecture 
-> implementation.
+> See commit cb403c34c6f6e1cce5018864485958cfc2e28906 ("Remove relro 
+> configure test.", 27 Jun 2014).
 
-OK, I will look into it again.  The last I remember there was somethign strange
-happening with underflow exception not being set in the GCC FPU emulation code.
+OK.
 
-Note, the OpenRISC implementation I tested with has only 32-bit FPU hard
-support.  This meant that C API for log/cos/sin etc which internally are defined
-to use 64-bit double's all end up using emulation.
+> When you have an old out-of-tree port, it's a good idea to go through 
+> cross-architecture commits from when the port was first created onwards to 
+> identify such global changes that need to be applied to that port.
 
-> > I can provide more details.
+I did try to do this, but it started in 2014 it was hard to pick up everything.
+I also payed close attention to the riscv and csky ports.
+
+> > diff --git a/sysdeps/unix/sysv/linux/or1k/bits/mman.h b/sysdeps/unix/sysv/linux/or1k/bits/mman.h
 > 
-> Full test results should be provided (see the above mentioned wiki page).
+> You shouldn't have this file.  See the comment in 
+> sysdeps/unix/sysv/linux/bits/mman.h (and commit 
+> d3a43e49f342c4663af0fff9d95000cfe26867c3, "Unify many bits/mman.h 
+> headers.", 18 Sep 2018, and commit 
+> 61d8b5feeed36e242a043befe9b11f7f8c294f58, "Share MAP_* flags between more 
+> architectures.", 26 Sep 2018):
+> 
+> /* These definitions are appropriate for architectures that, in the
+>    Linux kernel, either have no uapi/asm/mman.h, or have one that
+>    includes asm-generic/mman.h without any changes or additions
+>    relevant to glibc.  If there are additions relevant to glibc, an
+>    architecture-specific bits/mman.h is needed.  */
 
-I will do with the next round of patches.  This is all very helpful.
+OK.
+
+> > diff --git a/sysdeps/unix/sysv/linux/or1k/configure.ac b/sysdeps/unix/sysv/linux/or1k/configure.ac
+> > new file mode 100644
+> > index 0000000000..505530d5c3
+> > --- /dev/null
+> > +++ b/sysdeps/unix/sysv/linux/or1k/configure.ac
+> > @@ -0,0 +1,4 @@
+> > +GLIBC_PROVIDES dnl See aclocal.m4 in the top level source directory.
+> > +# Local configure fragment for sysdeps/unix/sysv/linux/or1k.
+> > +
+> > +arch_minimum_kernel=3.4.0
+> 
+> You'll probably need a newer minimum kernel when requiring 64-bit time 
+> support, until all the fallback for 64-bit time on 32-bit kernels without 
+> the 64-bit-time syscalls is implemented.
+
+OK, noted.
+
+> > +#undef __ASSUME_SET_ROBUST_LIST
+> 
+> Are you sure this is never supported on this architecture?  
+> arch/openrisc/include/asm/futex.h appears to have gained 
+> futex_atomic_cmpxchg_inatomic in 4.11, so I'd expect the #undef only to be 
+> for kernels older than that.
+
+Sorry, I overlooked this thanks for catching.  I added the atomic support to the
+kernel.
+
+> > diff --git a/sysdeps/unix/sysv/linux/or1k/sys/procfs.h b/sysdeps/unix/sysv/linux/or1k/sys/procfs.h
+> 
+> See commit d62f9ec0cce26a275ec68f4564814041a33395b1 ("Complete 
+> sys/procfs.h unification.", 25 Sep 2018).  You shouldn't have an 
+> architecture-specific version of this file; add whatever bits/ headers are 
+> needed instead.
+
+OK.
+
+> In general, each architecture-specific file needs a justification that 
+> either no generic version exists or the generic one is unsuitable or 
+> suboptimal for this architecture; the default is that we want to use 
+> unified implementations of as many files as possible.
+
+This has also been my goal for OpenRISC (use as much generic code as possible),
+but when going over the original port I missed some of these.  I noticed in the
+last few months since I started fixing up the port that many more architecture
+specific parts were moved to generic code and I did those moves.  I seem to
+missed everything from before 2019 when I started the port.
+
+Thank you for pointing these out.
+
+I will work on cleaning this up, testing and posting a new version in a week or
+two.
 
 -Stafford
