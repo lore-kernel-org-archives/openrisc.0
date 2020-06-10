@@ -1,35 +1,53 @@
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Date: Wed, 10 Jun 2020 17:48:11 +0200
-Subject: [OpenRISC] Possible duplicate page fault accounting on some archs
- after commit 4064b9827063
-Message-ID: <20200610174811.44b94525@thinkpad>
+From: Peter Xu <peterx@redhat.com>
+Date: Wed, 10 Jun 2020 12:50:23 -0400
+Subject: [OpenRISC] Possible duplicate page fault accounting on some
+ archs after commit 4064b9827063
+In-Reply-To: <20200610174811.44b94525@thinkpad>
+References: <20200610174811.44b94525@thinkpad>
+Message-ID: <20200610165023.GA67179@xz-x1>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi,
+On Wed, Jun 10, 2020 at 05:48:11PM +0200, Gerald Schaefer wrote:
+> Hi,
 
-Some architectures have their page fault accounting code inside the fault
-retry loop, and rely on only going through that code once. Before commit
-4064b9827063 ("mm: allow VM_FAULT_RETRY for multiple times"), that was
-ensured by testing for and clearing FAULT_FLAG_ALLOW_RETRY.
+Hi, Gerald,
 
-That commit had to remove the clearing of FAULT_FLAG_ALLOW_RETRY for all
-architectures, and introduced a subtle change to page fault accounting
-logic in the affected archs. It is now possible to go through the retry
-loop multiple times, and the affected archs would then account multiple
-page faults instead of just one.
+> 
+> Some architectures have their page fault accounting code inside the fault
+> retry loop, and rely on only going through that code once. Before commit
+> 4064b9827063 ("mm: allow VM_FAULT_RETRY for multiple times"), that was
+> ensured by testing for and clearing FAULT_FLAG_ALLOW_RETRY.
+> 
+> That commit had to remove the clearing of FAULT_FLAG_ALLOW_RETRY for all
+> architectures, and introduced a subtle change to page fault accounting
+> logic in the affected archs. It is now possible to go through the retry
+> loop multiple times, and the affected archs would then account multiple
+> page faults instead of just one.
+> 
+> This was found by coincidence in s390 code, and a quick check showed that
+> there are quite a lot of other architectures that seem to be affected in a
+> similar way. I'm preparing a fix for s390, by moving the accounting behind
+> the retry loop, similar to x86. It is not completely straight-forward, so
+> I leave the fix for other archs to the respective maintainers.
 
-This was found by coincidence in s390 code, and a quick check showed that
-there are quite a lot of other architectures that seem to be affected in a
-similar way. I'm preparing a fix for s390, by moving the accounting behind
-the retry loop, similar to x86. It is not completely straight-forward, so
-I leave the fix for other archs to the respective maintainers.
+Sorry for not noticing this before.  The accounting part should definitely be
+put at least into a check against fault_flag_allow_retry_first() to mimic what
+was done before.  And I agree it would be even better to put it after the retry
+logic, so if any of the page faults gets a major fault, it'll be accounted as a
+major fault which makes more sense to me, just like what x86 is doing now with:
 
-Added the lists for possibly affected archs on cc, but no guarantee for
-completeness.
+	major |= fault & VM_FAULT_MAJOR;
 
-Regards,
-Gerald
+I'm not sure what's the preference of the arch maintainers, just let me know if
+it's preferred to use a single series to address this issue for all affected
+archs (or the archs besides s390), then I'll do.
+
+Thanks!
+
+-- 
+Peter Xu
+
