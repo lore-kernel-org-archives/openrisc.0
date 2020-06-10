@@ -1,25 +1,35 @@
-From: Qian Cai <cai@lca.pw>
-Date: Thu, 4 Jun 2020 05:50:23 -0400
-Subject: [OpenRISC] [PATCH v4 08/14] powerpc: add support for folded p4d
- page tables
-In-Reply-To: <20200603120522.7646d56a23088416a7d3fc1a@linux-foundation.org>
-References: <20200603120522.7646d56a23088416a7d3fc1a@linux-foundation.org>
-Message-ID: <F85B8F19-D717-411A-AFA8-466A02159F27@lca.pw>
+From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Date: Wed, 10 Jun 2020 17:48:11 +0200
+Subject: [OpenRISC] Possible duplicate page fault accounting on some archs
+ after commit 4064b9827063
+Message-ID: <20200610174811.44b94525@thinkpad>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
+Hi,
 
+Some architectures have their page fault accounting code inside the fault
+retry loop, and rely on only going through that code once. Before commit
+4064b9827063 ("mm: allow VM_FAULT_RETRY for multiple times"), that was
+ensured by testing for and clearing FAULT_FLAG_ALLOW_RETRY.
 
-> On Jun 3, 2020, at 3:05 PM, Andrew Morton <akpm@linux-foundation.org> wrote:
-> 
-> A bunch of new material just landed in linux-next/powerpc.
-> 
-> The timing is awkward!  I trust this will be going into mainline during
-> this merge window?  If not, please drop it and repull after -rc1.
+That commit had to remove the clearing of FAULT_FLAG_ALLOW_RETRY for all
+architectures, and introduced a subtle change to page fault accounting
+logic in the affected archs. It is now possible to go through the retry
+loop multiple times, and the affected archs would then account multiple
+page faults instead of just one.
 
-I have noticed the same pattern over and over again, i.e., many powerpc new material has only shown up in linux-next for only a few days before sending for a pull request to Linus.
+This was found by coincidence in s390 code, and a quick check showed that
+there are quite a lot of other architectures that seem to be affected in a
+similar way. I'm preparing a fix for s390, by moving the accounting behind
+the retry loop, similar to x86. It is not completely straight-forward, so
+I leave the fix for other archs to the respective maintainers.
 
-There are absolutely no safe net for this kind of practice. The main problem is that Linus seems totally fine with it.
+Added the lists for possibly affected archs on cc, but no guarantee for
+completeness.
+
+Regards,
+Gerald
