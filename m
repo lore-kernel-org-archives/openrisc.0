@@ -1,59 +1,70 @@
 From: Peter Xu <peterx@redhat.com>
-Date: Mon, 15 Jun 2020 17:34:31 -0400
-Subject: [OpenRISC] Possible duplicate page fault accounting on some
- archs after commit 4064b9827063
-In-Reply-To: <20200610165023.GA67179@xz-x1>
-References: <20200610174811.44b94525@thinkpad> <20200610165023.GA67179@xz-x1>
-Message-ID: <20200615213431.GC111927@xz-x1>
+Date: Mon, 15 Jun 2020 18:15:57 -0400
+Subject: [OpenRISC] [PATCH 15/25] mm/openrisc: Use mm_fault_accounting()
+In-Reply-To: <20200615221607.7764-1-peterx@redhat.com>
+References: <20200615221607.7764-1-peterx@redhat.com>
+Message-ID: <20200615221607.7764-16-peterx@redhat.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Jun 10, 2020 at 12:50:23PM -0400, Peter Xu wrote:
-> On Wed, Jun 10, 2020 at 05:48:11PM +0200, Gerald Schaefer wrote:
-> > Hi,
-> 
-> Hi, Gerald,
-> 
-> > 
-> > Some architectures have their page fault accounting code inside the fault
-> > retry loop, and rely on only going through that code once. Before commit
-> > 4064b9827063 ("mm: allow VM_FAULT_RETRY for multiple times"), that was
-> > ensured by testing for and clearing FAULT_FLAG_ALLOW_RETRY.
-> > 
-> > That commit had to remove the clearing of FAULT_FLAG_ALLOW_RETRY for all
-> > architectures, and introduced a subtle change to page fault accounting
-> > logic in the affected archs. It is now possible to go through the retry
-> > loop multiple times, and the affected archs would then account multiple
-> > page faults instead of just one.
-> > 
-> > This was found by coincidence in s390 code, and a quick check showed that
-> > there are quite a lot of other architectures that seem to be affected in a
-> > similar way. I'm preparing a fix for s390, by moving the accounting behind
-> > the retry loop, similar to x86. It is not completely straight-forward, so
-> > I leave the fix for other archs to the respective maintainers.
-> 
-> Sorry for not noticing this before.  The accounting part should definitely be
-> put at least into a check against fault_flag_allow_retry_first() to mimic what
-> was done before.  And I agree it would be even better to put it after the retry
-> logic, so if any of the page faults gets a major fault, it'll be accounted as a
-> major fault which makes more sense to me, just like what x86 is doing now with:
-> 
-> 	major |= fault & VM_FAULT_MAJOR;
-> 
-> I'm not sure what's the preference of the arch maintainers, just let me know if
-> it's preferred to use a single series to address this issue for all affected
-> archs (or the archs besides s390), then I'll do.
+Use the new mm_fault_accounting() helper for page fault accounting.
 
-To make sure this won't fall through the cracks... I'll give it a shot with a
-single series to address this issue for all archs.  Although it might not be
-easy to do accounting directly in handle_mm_fault(), it might be still a chance
-to introduce a helper so the accounting can be done in general code.
+Avoid doing page fault accounting multiple times if the page fault is retried.
+Also, the perf events for page faults will be accounted too when the config has
+CONFIG_PERF_EVENTS defined.
 
-Thanks,
+CC: Jonas Bonn <jonas@southpole.se>
+CC: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+CC: Stafford Horne <shorne@gmail.com>
+CC: openrisc at lists.librecores.org
+Signed-off-by: Peter Xu <peterx@redhat.com>
+---
+ arch/openrisc/mm/fault.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
+diff --git a/arch/openrisc/mm/fault.c b/arch/openrisc/mm/fault.c
+index 8af1cc78c4fb..594195ae8cdb 100644
+--- a/arch/openrisc/mm/fault.c
++++ b/arch/openrisc/mm/fault.c
+@@ -49,7 +49,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	struct mm_struct *mm;
+ 	struct vm_area_struct *vma;
+ 	int si_code;
+-	vm_fault_t fault;
++	vm_fault_t fault, major = 0;
+ 	unsigned int flags = FAULT_FLAG_DEFAULT;
+ 
+ 	tsk = current;
+@@ -160,6 +160,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	 */
+ 
+ 	fault = handle_mm_fault(vma, address, flags);
++	major |= fault & VM_FAULT_MAJOR;
+ 
+ 	if (fault_signal_pending(fault, regs))
+ 		return;
+@@ -176,10 +177,6 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
+ 
+ 	if (flags & FAULT_FLAG_ALLOW_RETRY) {
+ 		/*RGD modeled on Cris */
+-		if (fault & VM_FAULT_MAJOR)
+-			tsk->maj_flt++;
+-		else
+-			tsk->min_flt++;
+ 		if (fault & VM_FAULT_RETRY) {
+ 			flags |= FAULT_FLAG_TRIED;
+ 
+@@ -193,6 +190,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	}
+ 
+ 	up_read(&mm->mmap_sem);
++	mm_fault_accounting(tsk, regs, address, major);
+ 	return;
+ 
+ 	/*
 -- 
-Peter Xu
+2.26.2
 
