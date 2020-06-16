@@ -1,154 +1,92 @@
-From: Mike Rapoport <rppt@kernel.org>
-Date: Mon, 15 Jun 2020 09:22:34 +0300
-Subject: [OpenRISC] [PATCH 04/21] mm: free_area_init: use maximal zone
- PFNs rather than zone sizes
-In-Reply-To: <f53e68db-ed81-6ef6-5087-c7246d010ea2@linux-m68k.org>
-References: <20200412194859.12663-5-rppt@kernel.org>
- <f53e68db-ed81-6ef6-5087-c7246d010ea2@linux-m68k.org>
-Message-ID: <20200615062234.GA7882@kernel.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Tue, 16 Jun 2020 11:55:17 -0700
+Subject: [OpenRISC] [PATCH 00/25] mm: Page fault accounting cleanups
+In-Reply-To: <20200615221607.7764-1-peterx@redhat.com>
+References: <20200615221607.7764-1-peterx@redhat.com>
+Message-ID: <CAHk-=wiTjaXHu+uxMi0xCZQOm4KVr0MucECAK=Zm4p4YZZ1XEg@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Greg,
+On Mon, Jun 15, 2020 at 3:16 PM Peter Xu <peterx@redhat.com> wrote:
+>
+> This series tries to address all of them by introducing mm_fault_accounting()
+> first, so that we move all the page fault accounting into the common code base,
+> then call it properly from arch pf handlers just like handle_mm_fault().
 
-On Mon, Jun 15, 2020 at 01:53:42PM +1000, Greg Ungerer wrote:
-> Hi Mike,
-> 
-> From: Mike Rapoport <rppt@linux.ibm.com>
-> > Currently, architectures that use free_area_init() to initialize memory map
-> > and node and zone structures need to calculate zone and hole sizes. We can
-> > use free_area_init_nodes() instead and let it detect the zone boundaries
-> > while the architectures will only have to supply the possible limits for
-> > the zones.
-> > 
-> > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-> 
-> This is causing some new warnings for me on boot on at least one non-MMU m68k target:
+Hmm.
 
-There were a couple of changes that cause this. The free_area_init()
-now relies on memblock data and architectural limits for zone sizes
-rather than on explisit pfns calculated by the arch code. I've update
-motorola variant and missed coldfire. Angelo sent a fix for mcfmmu.c
-[1] and I've updated it to include nommu as well
+So having looked at this a bit more, I'd actually like to go even
+further, and just get rid of the per-architecture code _entirely_.
 
-[1] https://lore.kernel.org/linux-m68k/20200614225119.777702-1-angelo.dureghello at timesys.com
+Here's a straw-man patch to the generic code - the idea is mostly laid
+out in the comment that I'm just quoting here directly too:
 
-From 55b8523df2a5c4565b132c0691990f0821040fec Mon Sep 17 00:00:00 2001
-From: Angelo Dureghello <angelo.dureghello@timesys.com>
-Date: Mon, 15 Jun 2020 00:51:19 +0200
-Subject: [PATCH] m68k: fix registration of memory regions with memblock
+        /*
+         * Do accounting in the common code, to avoid unnecessary
+         * architecture differences or duplicated code.
+         *
+         * We arbitrarily make the rules be:
+         *
+         *  - faults that never even got here (because the address
+         *    wasn't valid). That includes arch_vma_access_permitted()
+         *    failing above.
+         *
+         *    So this is expressly not a "this many hardware page
+         *    faults" counter. Use the hw profiling for that.
+         *
+         *  - incomplete faults (ie RETRY) do not count (see above).
+         *    They will only count once completed.
+         *
+         *  - the fault counts as a "major" fault when the final
+         *    successful fault is VM_FAULT_MAJOR, or if it was a
+         *    retry (which implies that we couldn't handle it
+         *    immediately previously).
+         *
+         *  - if the fault is done for GUP, regs wil be NULL and
+         *    no accounting will be done (but you _could_ pass in
+         *    your own regs and it would be accounted to the thread
+         *    doing the fault, not to the target!)
+         */
 
-Commit 3f08a302f533 ("mm: remove CONFIG_HAVE_MEMBLOCK_NODE_MAP option")
-introduced assumption that UMA systems have their memory at node 0 and
-updated most of them, but it forgot nommu and coldfire variants of m68k.
+the code itself in the patch is
 
-The later change in free area initialization in commit fa3354e4ea39 ("mm:
-free_area_init: use maximal zone PFNs rather than zone sizes") exposed that
-and caused a lot of "BUG: Bad page state in process swapper" reports.
+ (a) pretty trivial and self-evident
 
-Using memblock_add_node() with nid = 0 to register memory banks solves the
-problem.
+ (b) INCOMPLETE
 
-Fixes: 3f08a302f533 ("mm: remove CONFIG_HAVE_MEMBLOCK_NODE_MAP option")
-Fixes: fa3354e4ea39 ("mm: free_area_init: use maximal zone PFNs rather than zone sizes")
-Signed-off-by: Angelo Dureghello <angelo.dureghello@timesys.com>
-Co-developed-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
----
- arch/m68k/kernel/setup_no.c | 2 +-
- arch/m68k/mm/mcfmmu.c       | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+that (b) is worth noting: this patch won't compile on its own. It
+intentionally leaves all the users without the new 'regs' argument,
+because you obviously simply need to remove all the code that
+currently tries to do any accounting.
 
-diff --git a/arch/m68k/kernel/setup_no.c b/arch/m68k/kernel/setup_no.c
-index e779b19e0193..0c4589a39ba9 100644
---- a/arch/m68k/kernel/setup_no.c
-+++ b/arch/m68k/kernel/setup_no.c
-@@ -138,7 +138,7 @@ void __init setup_arch(char **cmdline_p)
- 	pr_debug("MEMORY -> ROMFS=0x%p-0x%06lx MEM=0x%06lx-0x%06lx\n ",
- 		 __bss_stop, memory_start, memory_start, memory_end);
- 
--	memblock_add(memory_start, memory_end - memory_start);
-+	memblock_add_node(memory_start, memory_end - memory_start, 0);
- 
- 	/* Keep a copy of command line */
- 	*cmdline_p = &command_line[0];
-diff --git a/arch/m68k/mm/mcfmmu.c b/arch/m68k/mm/mcfmmu.c
-index 29f47923aa46..7d04210d34f0 100644
---- a/arch/m68k/mm/mcfmmu.c
-+++ b/arch/m68k/mm/mcfmmu.c
-@@ -174,7 +174,7 @@ void __init cf_bootmem_alloc(void)
- 	m68k_memory[0].addr = _rambase;
- 	m68k_memory[0].size = _ramend - _rambase;
- 
--	memblock_add(m68k_memory[0].addr, m68k_memory[0].size);
-+	memblock_add_node(m68k_memory[0].addr, m68k_memory[0].size, 0);
- 
- 	/* compute total pages in system */
- 	num_pages = PFN_DOWN(_ramend - _rambase);
--- 
-2.26.2
+Comments?
 
+This is a bigger change, but I think it might be worth it to _really_
+consolidate the major/minor logic.
 
-> ...
-> NET: Registered protocol family 17
-> BUG: Bad page state in process swapper  pfn:20165
-> page:41fe0ca0 refcount:0 mapcount:1 mapping:00000000 index:0x0
-> flags: 0x0()
-> raw: 00000000 00000100 00000122 00000000 00000000 00000000 00000000 00000000
-> page dumped because: nonzero mapcount
-> CPU: 0 PID: 1 Comm: swapper Not tainted 5.8.0-rc1-00001-g3a38f8a60c65-dirty #1
-> Stack from 404c9ebc:
->         404c9ebc 4029ab28 4029ab28 40088470 41fe0ca0 40299e21 40299df1 404ba2a4
->         00020165 00000000 41fd2c10 402c7ba0 41fd2c04 40088504 41fe0ca0 40299e21
->         00000000 40088a12 41fe0ca0 41fe0ca4 0000020a 00000000 00000001 402ca000
->         00000000 41fe0ca0 41fd2c10 41fd2c10 00000000 00000000 402b2388 00000001
+One detail worth noting: I do wonder if we should put the
 
-...
+    perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, addr);
 
-> 
-> System boots pretty much as normal through user space after this.
-> Seems to be fully operational despite all those BUGONs.
-> 
-> Specifically this is a M5208EVB target (arch/m68k/configs/m5208evb).
-> 
-> 
-> [snip]
-> > diff --git a/arch/m68k/mm/init.c b/arch/m68k/mm/init.c
-> > index b88d510d4fe3..6d3147662ff2 100644
-> > --- a/arch/m68k/mm/init.c
-> > +++ b/arch/m68k/mm/init.c
-> > @@ -84,7 +84,7 @@ void __init paging_init(void)
-> >  	 * page_alloc get different views of the world.
-> >  	 */
-> >  	unsigned long end_mem = memory_end & PAGE_MASK;
-> > -	unsigned long zones_size[MAX_NR_ZONES] = { 0, };
-> > +	unsigned long max_zone_pfn[MAX_NR_ZONES] = { 0, };
-> >  	high_memory = (void *) end_mem;
-> > @@ -98,8 +98,8 @@ void __init paging_init(void)
-> >  	 */
-> >  	set_fs (USER_DS);
-> > -	zones_size[ZONE_DMA] = (end_mem - PAGE_OFFSET) >> PAGE_SHIFT;
-> > -	free_area_init(zones_size);
-> > +	max_zone_pfn[ZONE_DMA] = end_mem >> PAGE_SHIFT;
-> > +	free_area_init(max_zone_pfn);
-> 
-> This worries me a little. On this target PAGE_OFFSET will be non-0.
-> Thoughts?
+just in the arch code at the top of the fault handling, and consider
+it entirely unrelated to the major/minor fault handling. The
+major/minor faults fundamnetally are about successes. But the plain
+PERF_COUNT_SW_PAGE_FAULTS could be about things that fail, including
+things that never even get to this point at all.
 
-The initialization in free_area_init() takes into account the actual
-physical memory sizing from memblock and max_zone_pfn as the
-architectural limit for possible zone extents. This (and the patch
-above) is enough to properly setup node and zones. 
+I'm not convinced it's useful to have three SW events that are defined
+to be A=B+C.
 
-> Regards
-> Greg
-> 
-> 
-> 
+But this does *not* do that part. It' sreally just an RFC patch.
 
--- 
-Sincerely yours,
-Mike.
+                    Linus
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: patch
+Type: application/octet-stream
+Size: 2918 bytes
+Desc: not available
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20200616/13879522/attachment-0001.obj>
