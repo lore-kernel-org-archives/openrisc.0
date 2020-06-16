@@ -1,70 +1,106 @@
 From: Peter Xu <peterx@redhat.com>
-Date: Mon, 15 Jun 2020 18:15:57 -0400
-Subject: [OpenRISC] [PATCH 15/25] mm/openrisc: Use mm_fault_accounting()
-In-Reply-To: <20200615221607.7764-1-peterx@redhat.com>
+Date: Tue, 16 Jun 2020 17:03:12 -0400
+Subject: [OpenRISC] [PATCH 00/25] mm: Page fault accounting cleanups
+In-Reply-To: <CAHk-=wiTjaXHu+uxMi0xCZQOm4KVr0MucECAK=Zm4p4YZZ1XEg@mail.gmail.com>
 References: <20200615221607.7764-1-peterx@redhat.com>
-Message-ID: <20200615221607.7764-16-peterx@redhat.com>
+ <CAHk-=wiTjaXHu+uxMi0xCZQOm4KVr0MucECAK=Zm4p4YZZ1XEg@mail.gmail.com>
+Message-ID: <20200616210312.GF11838@xz-x1>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Use the new mm_fault_accounting() helper for page fault accounting.
+On Tue, Jun 16, 2020 at 11:55:17AM -0700, Linus Torvalds wrote:
+> On Mon, Jun 15, 2020 at 3:16 PM Peter Xu <peterx@redhat.com> wrote:
+> >
+> > This series tries to address all of them by introducing mm_fault_accounting()
+> > first, so that we move all the page fault accounting into the common code base,
+> > then call it properly from arch pf handlers just like handle_mm_fault().
+> 
+> Hmm.
+> 
+> So having looked at this a bit more, I'd actually like to go even
+> further, and just get rid of the per-architecture code _entirely_.
+> 
+> Here's a straw-man patch to the generic code - the idea is mostly laid
+> out in the comment that I'm just quoting here directly too:
+> 
+>         /*
+>          * Do accounting in the common code, to avoid unnecessary
+>          * architecture differences or duplicated code.
+>          *
+>          * We arbitrarily make the rules be:
+>          *
+>          *  - faults that never even got here (because the address
+>          *    wasn't valid). That includes arch_vma_access_permitted()
+>          *    failing above.
+>          *
+>          *    So this is expressly not a "this many hardware page
+>          *    faults" counter. Use the hw profiling for that.
+>          *
+>          *  - incomplete faults (ie RETRY) do not count (see above).
+>          *    They will only count once completed.
+>          *
+>          *  - the fault counts as a "major" fault when the final
+>          *    successful fault is VM_FAULT_MAJOR, or if it was a
+>          *    retry (which implies that we couldn't handle it
+>          *    immediately previously).
+>          *
+>          *  - if the fault is done for GUP, regs wil be NULL and
+>          *    no accounting will be done (but you _could_ pass in
+>          *    your own regs and it would be accounted to the thread
+>          *    doing the fault, not to the target!)
+>          */
+> 
+> the code itself in the patch is
+> 
+>  (a) pretty trivial and self-evident
+> 
+>  (b) INCOMPLETE
+> 
+> that (b) is worth noting: this patch won't compile on its own. It
+> intentionally leaves all the users without the new 'regs' argument,
+> because you obviously simply need to remove all the code that
+> currently tries to do any accounting.
+> 
+> Comments?
 
-Avoid doing page fault accounting multiple times if the page fault is retried.
-Also, the perf events for page faults will be accounted too when the config has
-CONFIG_PERF_EVENTS defined.
+Looks clean to me.  The definition of "major faults" will slightly change even
+for those who has done the "major |= fault & MAJOR" operations before, but at
+least I can't see anything bad about that either...
 
-CC: Jonas Bonn <jonas@southpole.se>
-CC: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-CC: Stafford Horne <shorne@gmail.com>
-CC: openrisc at lists.librecores.org
-Signed-off-by: Peter Xu <peterx@redhat.com>
----
- arch/openrisc/mm/fault.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+To make things easier, we can use the 1st patch to introduce this change,
+however pass regs==NULL at the callers to never trigger this accounting.  Then
+we can still use one patch for each arch to do the final convertions.
 
-diff --git a/arch/openrisc/mm/fault.c b/arch/openrisc/mm/fault.c
-index 8af1cc78c4fb..594195ae8cdb 100644
---- a/arch/openrisc/mm/fault.c
-+++ b/arch/openrisc/mm/fault.c
-@@ -49,7 +49,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
- 	struct mm_struct *mm;
- 	struct vm_area_struct *vma;
- 	int si_code;
--	vm_fault_t fault;
-+	vm_fault_t fault, major = 0;
- 	unsigned int flags = FAULT_FLAG_DEFAULT;
- 
- 	tsk = current;
-@@ -160,6 +160,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
- 	 */
- 
- 	fault = handle_mm_fault(vma, address, flags);
-+	major |= fault & VM_FAULT_MAJOR;
- 
- 	if (fault_signal_pending(fault, regs))
- 		return;
-@@ -176,10 +177,6 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
- 
- 	if (flags & FAULT_FLAG_ALLOW_RETRY) {
- 		/*RGD modeled on Cris */
--		if (fault & VM_FAULT_MAJOR)
--			tsk->maj_flt++;
--		else
--			tsk->min_flt++;
- 		if (fault & VM_FAULT_RETRY) {
- 			flags |= FAULT_FLAG_TRIED;
- 
-@@ -193,6 +190,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
- 	}
- 
- 	up_read(&mm->mmap_sem);
-+	mm_fault_accounting(tsk, regs, address, major);
- 	return;
- 
- 	/*
+> 
+> This is a bigger change, but I think it might be worth it to _really_
+> consolidate the major/minor logic.
+> 
+> One detail worth noting: I do wonder if we should put the
+> 
+>     perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, addr);
+> 
+> just in the arch code at the top of the fault handling, and consider
+> it entirely unrelated to the major/minor fault handling. The
+> major/minor faults fundamnetally are about successes. But the plain
+> PERF_COUNT_SW_PAGE_FAULTS could be about things that fail, including
+> things that never even get to this point at all.
+> 
+> I'm not convinced it's useful to have three SW events that are defined
+> to be A=B+C.
+
+IMHO it's still common to have a "total" statistics in softwares even if each
+of the subsets are accounted separately.  Here it's just a bit special because
+there're only two elements so the addition is so straightforward.  It seems a
+trade-off on whether we'd like to do the accounting of errornous faults, or we
+want to make it cleaner by put them altogether but only successful page faults.
+I slightly preferred the latter due to the fact that I failed to find great
+usefulness out of keeping error fault accountings, but no strong opinions..
+
+Thanks,
+
 -- 
-2.26.2
+Peter Xu
 
