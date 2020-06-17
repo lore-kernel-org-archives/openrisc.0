@@ -1,27 +1,87 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 17 Jun 2020 03:11:48 +0900
-Subject: [OpenRISC] [PATCH 15/25] mm/openrisc: Use mm_fault_accounting()
-In-Reply-To: <20200615221607.7764-16-peterx@redhat.com>
-References: <20200615221607.7764-1-peterx@redhat.com>
- <20200615221607.7764-16-peterx@redhat.com>
-Message-ID: <20200616181148.GQ75760@lianli.shorne-pla.net>
+Date: Wed, 17 Jun 2020 18:07:01 +0900
+Subject: [OpenRISC] [PATCH] openrisc: Fix oops caused when dumping stack
+Message-ID: <20200617090702.1684812-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Jun 15, 2020 at 06:15:57PM -0400, Peter Xu wrote:
-> Use the new mm_fault_accounting() helper for page fault accounting.
-> 
-> Avoid doing page fault accounting multiple times if the page fault is retried.
-> Also, the perf events for page faults will be accounted too when the config has
-> CONFIG_PERF_EVENTS defined.
-> 
-> CC: Jonas Bonn <jonas@southpole.se>
-> CC: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-> CC: Stafford Horne <shorne@gmail.com>
-> CC: openrisc at lists.librecores.org
-> Signed-off-by: Peter Xu <peterx@redhat.com>
+When dumping a stack siwth 'cat /proc/1/stack' the kernel would oops.
+For example:
 
-Acked-by: Stafford Horne <shorne@gmail.com>
+    # cat /proc/690/stack
+    Unable to handle kernel access
+     at virtual address 0x7fc60f58
+
+    Oops#: 0000
+    CPU #: 0
+       PC: c00097fc    SR: 0000807f    SP: d6f09b9c
+    GPR00: 00000000 GPR01: d6f09b9c GPR02: d6f09bb8 GPR03: d6f09bc4
+    GPR04: 7fc60f5c GPR05: c00099b4 GPR06: 00000000 GPR07: d6f09ba3
+    GPR08: ffffff00 GPR09: c0009804 GPR10: d6f08000 GPR11: 00000000
+    GPR12: ffffe000 GPR13: dbb86000 GPR14: 00000001 GPR15: dbb86250
+    GPR16: 7fc60f63 GPR17: 00000f5c GPR18: d6f09bc4 GPR19: 00000000
+    GPR20: c00099b4 GPR21: ffffffc0 GPR22: 00000000 GPR23: 00000000
+    GPR24: 00000001 GPR25: 000002c6 GPR26: d78b6850 GPR27: 00000001
+    GPR28: 00000000 GPR29: dbb86000 GPR30: ffffffff GPR31: dbb862fc
+      RES: 00000000 oGPR11: ffffffff
+    Process cat (pid: 702, stackpage=d79d6000)
+
+    Stack:
+    Call trace:
+    [<598977f2>] save_stack_trace_tsk+0x40/0x74
+    [<95063f0e>] stack_trace_save_tsk+0x44/0x58
+    [<b557bfdd>] proc_pid_stack+0xd0/0x13c
+    [<a2df8eda>] proc_single_show+0x6c/0xf0
+    [<e5a737b7>] seq_read+0x1b4/0x688
+    [<2d6c7480>] do_iter_read+0x208/0x248
+    [<2182a2fb>] vfs_readv+0x64/0x90
+
+This was caused by the stack trace code in save_stack_trace_tsk using
+the wrong stack pointer.  It was using the user stack pointer instead of
+the kernel stack pointer.  Fix this by using the right stack.
+
+Also for good measure we add try_get_task_stack/put_task_stack to ensure
+the task is not lost while we are walking it's stack.
+
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+ arch/openrisc/kernel/stacktrace.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/arch/openrisc/kernel/stacktrace.c b/arch/openrisc/kernel/stacktrace.c
+index 43f140a28bc7..ac91614509c8 100644
+--- a/arch/openrisc/kernel/stacktrace.c
++++ b/arch/openrisc/kernel/stacktrace.c
+@@ -13,6 +13,7 @@
+ #include <linux/export.h>
+ #include <linux/sched.h>
+ #include <linux/sched/debug.h>
++#include <linux/sched/task_stack.h>
+ #include <linux/stacktrace.h>
+ 
+ #include <asm/processor.h>
+@@ -68,12 +69,17 @@ void save_stack_trace_tsk(struct task_struct *tsk, struct stack_trace *trace)
+ {
+ 	unsigned long *sp = NULL;
+ 
++	if (!try_get_task_stack(tsk))
++		return;
++
+ 	if (tsk == current)
+ 		sp = (unsigned long *) &sp;
+ 	else
+-		sp = (unsigned long *) KSTK_ESP(tsk);
++		sp = (unsigned long *) task_thread_info(tsk)->ksp;
+ 
+ 	unwind_stack(trace, sp, save_stack_address_nosched);
++
++	put_task_stack(tsk);
+ }
+ EXPORT_SYMBOL_GPL(save_stack_trace_tsk);
+ 
+-- 
+2.26.2
+
