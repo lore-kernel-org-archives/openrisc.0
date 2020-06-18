@@ -1,10 +1,10 @@
 From: Sasha Levin <sashal@kernel.org>
-Date: Wed, 17 Jun 2020 21:15:39 -0400
-Subject: [OpenRISC] [PATCH AUTOSEL 5.4 214/266] openrisc: Fix issue with
+Date: Wed, 17 Jun 2020 21:21:42 -0400
+Subject: [OpenRISC] [PATCH AUTOSEL 4.19 136/172] openrisc: Fix issue with
  argument clobbering for clone/fork
-In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
-References: <20200618011631.604574-1-sashal@kernel.org>
-Message-ID: <20200618011631.604574-214-sashal@kernel.org>
+In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
+References: <20200618012218.607130-1-sashal@kernel.org>
+Message-ID: <20200618012218.607130-136-sashal@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -32,10 +32,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
-index e4a78571f883..c6481cfc5220 100644
+index ee6159d2ed22..01b59d2ce174 100644
 --- a/arch/openrisc/kernel/entry.S
 +++ b/arch/openrisc/kernel/entry.S
-@@ -1166,13 +1166,13 @@ ENTRY(__sys_clone)
+@@ -1170,13 +1170,13 @@ ENTRY(__sys_clone)
  	l.movhi	r29,hi(sys_clone)
  	l.ori	r29,r29,lo(sys_clone)
  	l.j	_fork_save_extra_regs_and_call
