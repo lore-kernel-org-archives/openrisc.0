@@ -1,10 +1,10 @@
 From: Sasha Levin <sashal@kernel.org>
-Date: Wed, 17 Jun 2020 21:28:09 -0400
-Subject: [OpenRISC] [PATCH AUTOSEL 4.9 70/80] openrisc: Fix issue with
+Date: Wed, 17 Jun 2020 21:29:57 -0400
+Subject: [OpenRISC] [PATCH AUTOSEL 4.4 53/60] openrisc: Fix issue with
  argument clobbering for clone/fork
-In-Reply-To: <20200618012819.609778-1-sashal@kernel.org>
-References: <20200618012819.609778-1-sashal@kernel.org>
-Message-ID: <20200618012819.609778-70-sashal@kernel.org>
+In-Reply-To: <20200618013004.610532-1-sashal@kernel.org>
+References: <20200618013004.610532-1-sashal@kernel.org>
+Message-ID: <20200618013004.610532-53-sashal@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
