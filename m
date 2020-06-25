@@ -1,49 +1,46 @@
-From: Simon Cook <simon.cook@embecosm.com>
-Date: Fri, 26 Jun 2020 18:07:28 +0100
-Subject: [OpenRISC] Binary builds of or1k newlib toolchain?
-In-Reply-To: <c780c80d-18a8-9ba1-1bf2-5c10ea7c6b34@philipp-wagner.com>
-References: <c780c80d-18a8-9ba1-1bf2-5c10ea7c6b34@philipp-wagner.com>
-Message-ID: <4fabc84a-ee0e-d36b-52e6-555ccccf0045@embecosm.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Fri, 26 Jun 2020 06:17:49 +0900
+Subject: [OpenRISC] [PATCH 17/17] arch: rename copy_thread_tls() back to
+ copy_thread()
+In-Reply-To: <20200622234326.906346-18-christian.brauner@ubuntu.com>
+References: <20200622234326.906346-1-christian.brauner@ubuntu.com>
+ <20200622234326.906346-18-christian.brauner@ubuntu.com>
+Message-ID: <20200625211749.GH1401039@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Philipp,
+On Tue, Jun 23, 2020 at 01:43:26AM +0200, Christian Brauner wrote:
 
-I'm not sure if somewhere has pre-built toolchains already for the
-latest stable releases, but I've now started to do weekly builds of
-OpenRISC bare metal toolchains based on top of tree:
+> diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
+> index d7010e72450c..19045a3efb8a 100644
+> --- a/arch/openrisc/kernel/process.c
+> +++ b/arch/openrisc/kernel/process.c
+> @@ -116,7 +116,7 @@ void release_thread(struct task_struct *dead_task)
+>  extern asmlinkage void ret_from_fork(void);
+>  
+>  /*
+> - * copy_thread_tls
+> + * copy_thread
+>   * @clone_flags: flags
+>   * @usp: user stack pointer or fn for kernel thread
+>   * @arg: arg to fn for kernel thread; always NULL for userspace thread
+> @@ -147,7 +147,7 @@ extern asmlinkage void ret_from_fork(void);
+>   */
+>  
+>  int
+> -copy_thread_tls(unsigned long clone_flags, unsigned long usp,
+> +copy_thread(unsigned long clone_flags, unsigned long usp,
+>  		unsigned long arg, struct task_struct *p, unsigned long tls)
+>  {
 
-https://www.embecosm.com/resources/tool-chain-downloads/#openrisc
+For the OpenRISC bit.
 
-Our build machines generate a new set of toolchains every Sunday
-morning, and then I update that webpage on Monday morning if the tools
-look good, so that page should be pretty up to date.
+Acked-by: Stafford Horne <shorne@gmail.com>
 
-I'll probably build and publish some toolchains based on the 10.1 stable
-release early next week, but if bleeding edge is good there are some
-there now. Toolchains for those running macOS or Windows will appear at
-the same time.
+Also, I would agree with what Kees mentioned about aligning the parameters.
+Sure that would be more work but it would be appreciated.
 
-I've tested these with the GCC regression and they look ok, but if
-anything looks horribly wrong let me know and I can update build steps
-for the next weeks build.
-
-Thanks,
-Simon
-
-On 22/06/2020 10:06, Philipp Wagner wrote:
-> Hi,
-> 
-> With OpTiMSoC, we previously used prebuilt GCC/newlib toolchains from
-> https://github.com/openrisc/newlib/releases.
-> 
-> Now that everything is upstream, is there another place for pre-built
-> toolchains?
-> 
-> 
-> Thanks!
-> 
-> Philipp
+-Stafford
