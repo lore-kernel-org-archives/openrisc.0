@@ -1,30 +1,45 @@
-From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Date: Thu, 25 Jun 2020 10:25:58 +0200
-Subject: [OpenRISC] [PATCH 16/17] arch: remove HAVE_COPY_THREAD_TLS
-In-Reply-To: <20200622234326.906346-17-christian.brauner@ubuntu.com>
-References: <20200622234326.906346-1-christian.brauner@ubuntu.com>
- <20200622234326.906346-17-christian.brauner@ubuntu.com>
-Message-ID: <20200625082558.GB6319@alpha.franken.de>
+From: Stafford Horne <shorne@gmail.com>
+Date: Fri, 26 Jun 2020 06:11:08 +0900
+Subject: [OpenRISC] [PATCH] openrisc: fix __user in raw_copy_to_user()'s
+ prototype
+In-Reply-To: <20200622121124.80398-1-luc.vanoostenryck@gmail.com>
+References: <20200622121124.80398-1-luc.vanoostenryck@gmail.com>
+Message-ID: <20200625211108.GG1401039@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Jun 23, 2020 at 01:43:25AM +0200, Christian Brauner wrote:
-> All architectures support copy_thread_tls() now, so remove the legacy
-> copy_thread() function and the HAVE_COPY_THREAD_TLS config option. Everyone
-> uses the same process creation calling convention based on
-> copy_thread_tls() and struct kernel_clone_args. This will make it easier to
-> maintain the core process creation code under kernel/, simplifies the
-> callpaths and makes the identical for all architectures.
-> [..] 
->  arch/mips/Kconfig          |  1 -
+On Mon, Jun 22, 2020 at 02:11:24PM +0200, Luc Van Oostenryck wrote:
+> raw_copy_to_user()'s prototype seems to be a copy & paste of
+> raw_copy_from_user() and as such has the __user annotation
+> in the 'from' argument instead of the 'to'.
+> 
+> So, move the __user annotation in the prototype to the 'to'.
 
-Acked-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Thank you,
 
-Thomas.
+I have queued this for 5.9.  If you think its more urgent let me know.
 
--- 
-Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
-good idea.                                                [ RFC1925, 2.3 ]
+-Stafford
+
+> Reported-by: kernel test robot <lkp@intel.com>
+> Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+> ---
+>  arch/openrisc/include/asm/uaccess.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/openrisc/include/asm/uaccess.h b/arch/openrisc/include/asm/uaccess.h
+> index 17c24f14615f..46e31bb4a9ad 100644
+> --- a/arch/openrisc/include/asm/uaccess.h
+> +++ b/arch/openrisc/include/asm/uaccess.h
+> @@ -241,7 +241,7 @@ raw_copy_from_user(void *to, const void __user *from, unsigned long size)
+>  	return __copy_tofrom_user(to, (__force const void *)from, size);
+>  }
+>  static inline unsigned long
+> -raw_copy_to_user(void *to, const void __user *from, unsigned long size)
+> +raw_copy_to_user(void __user *to, const void *from, unsigned long size)
+>  {
+>  	return __copy_tofrom_user((__force void *)to, from, size);
+>  }
