@@ -1,45 +1,49 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Fri, 26 Jun 2020 06:11:08 +0900
-Subject: [OpenRISC] [PATCH] openrisc: fix __user in raw_copy_to_user()'s
- prototype
-In-Reply-To: <20200622121124.80398-1-luc.vanoostenryck@gmail.com>
-References: <20200622121124.80398-1-luc.vanoostenryck@gmail.com>
-Message-ID: <20200625211108.GG1401039@lianli.shorne-pla.net>
+From: Simon Cook <simon.cook@embecosm.com>
+Date: Fri, 26 Jun 2020 18:07:28 +0100
+Subject: [OpenRISC] Binary builds of or1k newlib toolchain?
+In-Reply-To: <c780c80d-18a8-9ba1-1bf2-5c10ea7c6b34@philipp-wagner.com>
+References: <c780c80d-18a8-9ba1-1bf2-5c10ea7c6b34@philipp-wagner.com>
+Message-ID: <4fabc84a-ee0e-d36b-52e6-555ccccf0045@embecosm.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Jun 22, 2020 at 02:11:24PM +0200, Luc Van Oostenryck wrote:
-> raw_copy_to_user()'s prototype seems to be a copy & paste of
-> raw_copy_from_user() and as such has the __user annotation
-> in the 'from' argument instead of the 'to'.
+Hi Philipp,
+
+I'm not sure if somewhere has pre-built toolchains already for the
+latest stable releases, but I've now started to do weekly builds of
+OpenRISC bare metal toolchains based on top of tree:
+
+https://www.embecosm.com/resources/tool-chain-downloads/#openrisc
+
+Our build machines generate a new set of toolchains every Sunday
+morning, and then I update that webpage on Monday morning if the tools
+look good, so that page should be pretty up to date.
+
+I'll probably build and publish some toolchains based on the 10.1 stable
+release early next week, but if bleeding edge is good there are some
+there now. Toolchains for those running macOS or Windows will appear at
+the same time.
+
+I've tested these with the GCC regression and they look ok, but if
+anything looks horribly wrong let me know and I can update build steps
+for the next weeks build.
+
+Thanks,
+Simon
+
+On 22/06/2020 10:06, Philipp Wagner wrote:
+> Hi,
 > 
-> So, move the __user annotation in the prototype to the 'to'.
-
-Thank you,
-
-I have queued this for 5.9.  If you think its more urgent let me know.
-
--Stafford
-
-> Reported-by: kernel test robot <lkp@intel.com>
-> Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-> ---
->  arch/openrisc/include/asm/uaccess.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> With OpTiMSoC, we previously used prebuilt GCC/newlib toolchains from
+> https://github.com/openrisc/newlib/releases.
 > 
-> diff --git a/arch/openrisc/include/asm/uaccess.h b/arch/openrisc/include/asm/uaccess.h
-> index 17c24f14615f..46e31bb4a9ad 100644
-> --- a/arch/openrisc/include/asm/uaccess.h
-> +++ b/arch/openrisc/include/asm/uaccess.h
-> @@ -241,7 +241,7 @@ raw_copy_from_user(void *to, const void __user *from, unsigned long size)
->  	return __copy_tofrom_user(to, (__force const void *)from, size);
->  }
->  static inline unsigned long
-> -raw_copy_to_user(void *to, const void __user *from, unsigned long size)
-> +raw_copy_to_user(void __user *to, const void *from, unsigned long size)
->  {
->  	return __copy_tofrom_user((__force void *)to, from, size);
->  }
+> Now that everything is upstream, is there another place for pre-built
+> toolchains?
+> 
+> 
+> Thanks!
+> 
+> Philipp
