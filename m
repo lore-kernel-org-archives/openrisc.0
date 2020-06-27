@@ -1,24 +1,23 @@
 From: Greentime Hu <green.hu@gmail.com>
-Date: Sat, 27 Jun 2020 11:06:08 +0800
-Subject: [OpenRISC] [PATCH 16/17] arch: remove HAVE_COPY_THREAD_TLS
-In-Reply-To: <20200622234326.906346-17-christian.brauner@ubuntu.com>
+Date: Sat, 27 Jun 2020 11:10:05 +0800
+Subject: [OpenRISC] [PATCH 17/17] arch: rename copy_thread_tls() back to
+ copy_thread()
+In-Reply-To: <20200622234326.906346-18-christian.brauner@ubuntu.com>
 References: <20200622234326.906346-1-christian.brauner@ubuntu.com>
- <20200622234326.906346-17-christian.brauner@ubuntu.com>
-Message-ID: <CAEbi=3f3o5jS7zZDo50Vq857mS9n9kDsxkseGKrWshmmp3q5wA@mail.gmail.com>
+ <20200622234326.906346-18-christian.brauner@ubuntu.com>
+Message-ID: <CAEbi=3fbt_3DBEMhWUKY04KNxR=Xv0zesFGrJJDnx5D-8KUaaw@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-Christian Brauner <christian.brauner@ubuntu.com> 於 2020年6月23日 週二 上午7:46寫道：
+Christian Brauner <christian.brauner@ubuntu.com> 於 2020年6月23日 週二 上午7:58寫道：
 >
-> All architectures support copy_thread_tls() now, so remove the legacy
-> copy_thread() function and the HAVE_COPY_THREAD_TLS config option. Everyone
-> uses the same process creation calling convention based on
-> copy_thread_tls() and struct kernel_clone_args. This will make it easier to
-> maintain the core process creation code under kernel/, simplifies the
-> callpaths and makes the identical for all architectures.
+> Now that HAVE_COPY_THREAD_TLS has been removed, rename copy_thread_tls()
+> back simply copy_thread(). It's a simpler name, and doesn't imply that only
+> tls is copied here. This finishes an outstanding chunk of internal process
+> creation work since we've added clone3().
 >
 > Cc: Richard Henderson <rth@twiddle.net>
 > Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
@@ -52,8 +51,6 @@ Christian Brauner <christian.brauner@ubuntu.com> 於 2020年6月23日 週二 上
 > Cc: Paul Walmsley <paul.walmsley@sifive.com>
 > Cc: Palmer Dabbelt <palmer@dabbelt.com>
 > Cc: Albert Ou <aou@eecs.berkeley.edu>
-> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
 > Cc: Christian Borntraeger <borntraeger@de.ibm.com>
 > Cc: Rich Felker <dalias@libc.org>
 > Cc: "David S. Miller" <davem@davemloft.net>
@@ -64,13 +61,15 @@ Christian Brauner <christian.brauner@ubuntu.com> 於 2020年6月23日 週二 上
 > Cc: Thomas Gleixner <tglx@linutronix.de>
 > Cc: Ingo Molnar <mingo@redhat.com>
 > Cc: x86 at kernel.org
-> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: "H. Peter Anvin" <hpa@zytor.com>
+> Cc: Chris Zankel <chris@zankel.net>
+> Cc: Max Filippov <jcmvbkbc@gmail.com>
 > Cc: Kees Cook <keescook@chromium.org>
-> Cc: Mike Rapoport <rppt@linux.ibm.com>
-> Cc: "Matthew Wilcox
+> Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
+> Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 > Cc: Al Viro <viro@zeniv.linux.org.uk>
-> Cc: linux-kernel at vger.kernel.org
 > Cc: linux-alpha at vger.kernel.org
+> Cc: linux-kernel at vger.kernel.org
 > Cc: linux-snps-arc at lists.infradead.org
 > Cc: linux-arm-kernel at lists.infradead.org
 > Cc: linux-c6x-dev at linux-c6x.org
@@ -90,18 +89,53 @@ Christian Brauner <christian.brauner@ubuntu.com> 於 2020年6月23日 週二 上
 > Cc: linux-um at lists.infradead.org
 > Cc: linux-xtensa at linux-xtensa.org
 > Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+> ---
+>  arch/alpha/kernel/process.c      | 2 +-
+>  arch/arc/kernel/process.c        | 2 +-
+>  arch/arm/kernel/process.c        | 2 +-
+>  arch/arm64/kernel/process.c      | 2 +-
+>  arch/c6x/kernel/process.c        | 2 +-
+>  arch/csky/kernel/process.c       | 2 +-
+>  arch/h8300/kernel/process.c      | 2 +-
+>  arch/hexagon/kernel/process.c    | 2 +-
+>  arch/ia64/kernel/process.c       | 4 ++--
+>  arch/m68k/kernel/process.c       | 2 +-
+>  arch/microblaze/kernel/process.c | 2 +-
+>  arch/mips/kernel/process.c       | 2 +-
+>  arch/nds32/kernel/process.c      | 2 +-
+>  arch/nios2/kernel/process.c      | 2 +-
+>  arch/openrisc/kernel/process.c   | 4 ++--
+>  arch/parisc/kernel/process.c     | 2 +-
+>  arch/powerpc/kernel/process.c    | 2 +-
+>  arch/riscv/kernel/process.c      | 2 +-
+>  arch/s390/kernel/process.c       | 2 +-
+>  arch/sh/kernel/process_32.c      | 2 +-
+>  arch/sparc/kernel/process.c      | 6 +++---
+>  arch/sparc/kernel/process_32.c   | 2 +-
+>  arch/sparc/kernel/process_64.c   | 2 +-
+>  arch/um/kernel/process.c         | 2 +-
+>  arch/unicore32/kernel/process.c  | 2 +-
+>  arch/x86/kernel/process.c        | 2 +-
+>  arch/x86/kernel/unwind_frame.c   | 2 +-
+>  arch/xtensa/kernel/process.c     | 2 +-
+>  include/linux/sched/task.h       | 2 +-
+>  kernel/fork.c                    | 2 +-
+>  30 files changed, 34 insertions(+), 34 deletions(-)
+>
 > [...]
-> diff --git a/arch/nds32/Kconfig b/arch/nds32/Kconfig
-> index 7b6eaca81cce..e30298e99e1b 100644
-> --- a/arch/nds32/Kconfig
-> +++ b/arch/nds32/Kconfig
-> @@ -48,7 +48,6 @@ config NDS32
->         select HAVE_FUNCTION_GRAPH_TRACER
->         select HAVE_FTRACE_MCOUNT_RECORD
->         select HAVE_DYNAMIC_FTRACE
-> -       select HAVE_COPY_THREAD_TLS
->         help
->           Andes(nds32) Linux support.
+> diff --git a/arch/nds32/kernel/process.c b/arch/nds32/kernel/process.c
+> index 7dbb1bf64165..1020e2c6dcd8 100644
+> --- a/arch/nds32/kernel/process.c
+> +++ b/arch/nds32/kernel/process.c
+> @@ -149,7 +149,7 @@ void flush_thread(void)
+>  DEFINE_PER_CPU(struct task_struct *, __entry_task);
+>
+>  asmlinkage void ret_from_fork(void) __asm__("ret_from_fork");
+> -int copy_thread_tls(unsigned long clone_flags, unsigned long stack_start,
+> +int copy_thread(unsigned long clone_flags, unsigned long stack_start,
+>                     unsigned long stk_sz, struct task_struct *p,
+>                     unsigned long tls)
+>  {
 
 Hi Christian, Thank you.
 Acked-by: Greentime Hu <green.hu@gmail.com>
