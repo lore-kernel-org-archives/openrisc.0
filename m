@@ -1,36 +1,24 @@
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Mon, 29 Jun 2020 17:41:43 +0200
-Subject: [OpenRISC] [PATCH 1/8] mm: remove unneeded includes of
- <asm/pgalloc.h>
-In-Reply-To: <20200627143453.31835-2-rppt@kernel.org>
+Date: Mon, 29 Jun 2020 17:42:28 +0200
+Subject: [OpenRISC] [PATCH 6/8] asm-generic: pgalloc: provide generic
+ pgd_free()
+In-Reply-To: <20200627143453.31835-7-rppt@kernel.org>
 References: <20200627143453.31835-1-rppt@kernel.org>
- <20200627143453.31835-2-rppt@kernel.org>
-Message-ID: <CAMuHMdUOrrrtKuhtWJvzKNNLXY1fx+Ym1oXGN2J_CZ7RqByGHQ@mail.gmail.com>
+ <20200627143453.31835-7-rppt@kernel.org>
+Message-ID: <CAMuHMdWP07XqvgrXjCG+n5FssH3BwdDEWA4fD9TQgvVy93uMhQ@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sat, Jun 27, 2020 at 4:35 PM Mike Rapoport <rppt@kernel.org> wrote:
+On Sat, Jun 27, 2020 at 4:36 PM Mike Rapoport <rppt@kernel.org> wrote:
 > From: Mike Rapoport <rppt@linux.ibm.com>
 >
-> In the most cases <asm/pgalloc.h> header is required only for allocations
-> of page table memory. Most of the .c files that include that header do not
-> use symbols declared in <asm/pgalloc.h> and do not require that header.
+> Most architectures define pgd_free() as a wrapper for free_page().
 >
-> As for the other header files that used to include <asm/pgalloc.h>, it is
-> possible to move that include into the .c file that actually uses symbols
-> from <asm/pgalloc.h> and drop the include from the header file.
->
-> The process was somewhat automated using
->
->         sed -i -E '/[<"]asm\/pgalloc\.h/d' \
->                 $(grep -L -w -f /tmp/xx \
->                         $(git grep -E -l '[<"]asm/pgalloc\.h'))
->
-> where /tmp/xx contains all the symbols defined in
-> arch/*/include/asm/pgalloc.h.
+> Provide a generic version in asm-generic/pgalloc.h and enable its use for
+> most architectures.
 >
 > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 
