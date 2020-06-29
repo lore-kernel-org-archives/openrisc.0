@@ -1,54 +1,24 @@
-From: Mike Rapoport <rppt@kernel.org>
-Date: Sun, 28 Jun 2020 10:10:44 +0300
-Subject: [OpenRISC] [PATCH 4/8] asm-generic: pgalloc: provide generic
- pmd_alloc_one() and pmd_free_one()
-In-Reply-To: <20200627190304.GG25039@casper.infradead.org>
+From: Pekka Enberg <penberg@gmail.com>
+Date: Mon, 29 Jun 2020 17:01:14 +0300
+Subject: [OpenRISC] [PATCH 0/8] mm: cleanup usage of <asm/pgalloc.h>
+In-Reply-To: <20200627143453.31835-1-rppt@kernel.org>
 References: <20200627143453.31835-1-rppt@kernel.org>
- <20200627143453.31835-5-rppt@kernel.org>
- <20200627190304.GG25039@casper.infradead.org>
-Message-ID: <20200628071044.GC576120@kernel.org>
+Message-ID: <CAOJsxLE47WP9aMY3nh=E7C1a_esHt=sBFWCnsVA2umZ7TZ6TTA@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sat, Jun 27, 2020 at 08:03:04PM +0100, Matthew Wilcox wrote:
-> On Sat, Jun 27, 2020 at 05:34:49PM +0300, Mike Rapoport wrote:
-> > More elaborate versions on arm64 and x86 account memory for the user page
-> > tables and call to pgtable_pmd_page_ctor() as the part of PMD page
-> > initialization.
-> > 
-> > Move the arm64 version to include/asm-generic/pgalloc.h and use the generic
-> > version on several architectures.
-> > 
-> > The pgtable_pmd_page_ctor() is a NOP when ARCH_ENABLE_SPLIT_PMD_PTLOCK is
-> > not enabled, so there is no functional change for most architectures except
-> > of the addition of __GFP_ACCOUNT for allocation of user page tables.
-> 
-> Thanks for including this line; it reminded me that we're not setting
-> the PageTable flag on the page, nor accounting it to the zone page stats.
-> Hope you don't mind me tagging a patch to do that on as 9/8.
-> 
-> We could also do with a pud_page_[cd]tor and maybe even p4d/pgd versions.
-> But that brings me to the next question -- could/should some of this
-> be moved over to asm-generic/pgalloc.h?  The ctor/dtor aren't called
-> from anywhere else, and there's value to reducing the total amount of
-> code in mm.h, but then there's also value to keeping all the ifdef
-> ARCH_ENABLE_SPLIT_PMD_PTLOCK code together too.  So I'm a bit torn.
-> What do you think?
+On Sat, Jun 27, 2020 at 5:35 PM Mike Rapoport <rppt@kernel.org> wrote:
+> Most architectures have very similar versions of pXd_alloc_one() and
+> pXd_free_one() for intermediate levels of page table.
+> These patches add generic versions of these functions in
+> <asm-generic/pgalloc.h> and enable use of the generic functions where
+> appropriate.
 
-There are arhcitectures that don't use asm-generic/pgalloc.h but rather
-have their own, sometimes completely different, versoins of these
-funcitons.
+Very nice cleanup series to the page table code!
 
-I've tried adding linux/pgalloc.h, but I've ended up with contradicting
-need to include asm/pgalloc.h before the generic code for some
-architecures or after the generic code for others :)
+FWIW:
 
-I think let's leave it in mm.h for now, maybe after several more cleaups
-we could do better.
-
--- 
-Sincerely yours,
-Mike.
+Reviewed-by: Pekka Enberg <penberg@kernel.org>
