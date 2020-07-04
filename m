@@ -1,51 +1,81 @@
-From: Christian Brauner <christian.brauner@ubuntu.com>
-Date: Sat, 04 Jul 2020 16:11:56 -0000
-Subject: [OpenRISC] [PATCH 17/17] arch: rename copy_thread_tls() back to
- copy_thread()
-In-Reply-To: <20200625211749.GH1401039@lianli.shorne-pla.net>
-References: <20200622234326.906346-1-christian.brauner@ubuntu.com>
- <20200622234326.906346-18-christian.brauner@ubuntu.com>
- <20200625211749.GH1401039@lianli.shorne-pla.net>
-Message-ID: <20200704161031.lcln4ez6yehgffgq@wittgenstein>
+From: Stafford Horne <shorne@gmail.com>
+Date: Sat, 04 Jul 2020 21:11:49 -0000
+Subject: [OpenRISC] [PATCH] openrisc: Add support for external initrd images
+Message-ID: <20200704211136.601768-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, Jun 26, 2020 at 06:17:49AM +0900, Stafford Horne wrote:
-> On Tue, Jun 23, 2020 at 01:43:26AM +0200, Christian Brauner wrote:
-> 
-> > diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
-> > index d7010e72450c..19045a3efb8a 100644
-> > --- a/arch/openrisc/kernel/process.c
-> > +++ b/arch/openrisc/kernel/process.c
-> > @@ -116,7 +116,7 @@ void release_thread(struct task_struct *dead_task)
-> >  extern asmlinkage void ret_from_fork(void);
-> >  
-> >  /*
-> > - * copy_thread_tls
-> > + * copy_thread
-> >   * @clone_flags: flags
-> >   * @usp: user stack pointer or fn for kernel thread
-> >   * @arg: arg to fn for kernel thread; always NULL for userspace thread
-> > @@ -147,7 +147,7 @@ extern asmlinkage void ret_from_fork(void);
-> >   */
-> >  
-> >  int
-> > -copy_thread_tls(unsigned long clone_flags, unsigned long usp,
-> > +copy_thread(unsigned long clone_flags, unsigned long usp,
-> >  		unsigned long arg, struct task_struct *p, unsigned long tls)
-> >  {
-> 
-> For the OpenRISC bit.
-> 
-> Acked-by: Stafford Horne <shorne@gmail.com>
-> 
-> Also, I would agree with what Kees mentioned about aligning the parameters.
-> Sure that would be more work but it would be appreciated.
+In OpenRISC we set the initrd_start and initrd_end based on the symbols
+we setup in vmlinux.lds.S.  However, this is not needed if we use the
+generic linker description in INIT_DATA_SECTION.
 
-Sure, this is a mechanical change. I'll update the individual patches to account for that.
+Removing our own initrd setup reduces code, but also the generic code
+supports loading external initrd images.  A bootloader can load a rootfs
+image into memory and we can configure devicetree to load it with:
 
-Thanks!
-Christian
+        chosen {
+                bootargs = "earlycon";
+                stdout-path = "uart0:115200";
+                linux,initrd-start = < 0x08000100 >;
+                linux,initrd-end = < 0x08200000 >;
+        };
+
+Reported-by: Mateusz Holenko <mholenko@antmicro.com>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+ arch/openrisc/kernel/setup.c       |  8 +++++---
+ arch/openrisc/kernel/vmlinux.lds.S | 12 ------------
+ 2 files changed, 5 insertions(+), 15 deletions(-)
+
+diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
+index 8aa438e1f51f..b18e775f8be3 100644
+--- a/arch/openrisc/kernel/setup.c
++++ b/arch/openrisc/kernel/setup.c
+@@ -292,13 +292,15 @@ void __init setup_arch(char **cmdline_p)
+ 	init_mm.brk = (unsigned long)_end;
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+-	initrd_start = (unsigned long)&__initrd_start;
+-	initrd_end = (unsigned long)&__initrd_end;
+ 	if (initrd_start == initrd_end) {
++		printk(KERN_INFO "Initial ramdisk not found\n");
+ 		initrd_start = 0;
+ 		initrd_end = 0;
++	} else {
++		printk(KERN_INFO "Initial ramdisk at: 0x%p (%lu bytes)\n",
++		       (void *)(initrd_start), initrd_end - initrd_start);
++		initrd_below_start_ok = 1;
+ 	}
+-	initrd_below_start_ok = 1;
+ #endif
+ 
+ 	/* setup memblock allocator */
+diff --git a/arch/openrisc/kernel/vmlinux.lds.S b/arch/openrisc/kernel/vmlinux.lds.S
+index 60449fd7f16f..22fbc5fb24b3 100644
+--- a/arch/openrisc/kernel/vmlinux.lds.S
++++ b/arch/openrisc/kernel/vmlinux.lds.S
+@@ -96,18 +96,6 @@ SECTIONS
+ 
+         __init_end = .;
+ 
+-	. = ALIGN(PAGE_SIZE);
+-	.initrd			: AT(ADDR(.initrd) - LOAD_OFFSET)
+-	{
+-		__initrd_start = .;
+-		*(.initrd)
+-		__initrd_end = .;
+-		FILL (0);
+-                . = ALIGN (PAGE_SIZE);
+-	}
+-
+-        __vmlinux_end = .;            /* last address of the physical file */
+-
+ 	BSS_SECTION(0, 0, 0x20)
+ 
+         _end = .;
+-- 
+2.26.2
+
