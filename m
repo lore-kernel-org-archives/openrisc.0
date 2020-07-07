@@ -1,81 +1,74 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 04 Jul 2020 21:11:49 -0000
-Subject: [OpenRISC] [PATCH] openrisc: Add support for external initrd images
-Message-ID: <20200704211136.601768-1-shorne@gmail.com>
+From: Peter Xu <peterx@redhat.com>
+Date: Tue, 07 Jul 2020 22:50:55 -0000
+Subject: [OpenRISC] [PATCH v5 14/25] mm/openrisc: Use general page fault
+ accounting
+In-Reply-To: <20200707225021.200906-1-peterx@redhat.com>
+References: <20200707225021.200906-1-peterx@redhat.com>
+Message-ID: <20200707225021.200906-15-peterx@redhat.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-In OpenRISC we set the initrd_start and initrd_end based on the symbols
-we setup in vmlinux.lds.S.  However, this is not needed if we use the
-generic linker description in INIT_DATA_SECTION.
+Use the general page fault accounting by passing regs into handle_mm_fault().
+It naturally solve the issue of multiple page fault accounting when page fault
+retry happened.
 
-Removing our own initrd setup reduces code, but also the generic code
-supports loading external initrd images.  A bootloader can load a rootfs
-image into memory and we can configure devicetree to load it with:
+Add the missing PERF_COUNT_SW_PAGE_FAULTS perf events too.  Note, the other two
+perf events (PERF_COUNT_SW_PAGE_FAULTS_[MAJ|MIN]) were done in handle_mm_fault().
 
-        chosen {
-                bootargs = "earlycon";
-                stdout-path = "uart0:115200";
-                linux,initrd-start = < 0x08000100 >;
-                linux,initrd-end = < 0x08200000 >;
-        };
-
-Reported-by: Mateusz Holenko <mholenko@antmicro.com>
-Signed-off-by: Stafford Horne <shorne@gmail.com>
+CC: Jonas Bonn <jonas@southpole.se>
+CC: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+CC: Stafford Horne <shorne@gmail.com>
+CC: openrisc at lists.librecores.org
+Acked-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Peter Xu <peterx@redhat.com>
 ---
- arch/openrisc/kernel/setup.c       |  8 +++++---
- arch/openrisc/kernel/vmlinux.lds.S | 12 ------------
- 2 files changed, 5 insertions(+), 15 deletions(-)
+ arch/openrisc/mm/fault.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
-index 8aa438e1f51f..b18e775f8be3 100644
---- a/arch/openrisc/kernel/setup.c
-+++ b/arch/openrisc/kernel/setup.c
-@@ -292,13 +292,15 @@ void __init setup_arch(char **cmdline_p)
- 	init_mm.brk = (unsigned long)_end;
+diff --git a/arch/openrisc/mm/fault.c b/arch/openrisc/mm/fault.c
+index 3daa491d1edb..ca97d9baab51 100644
+--- a/arch/openrisc/mm/fault.c
++++ b/arch/openrisc/mm/fault.c
+@@ -15,6 +15,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/extable.h>
+ #include <linux/sched/signal.h>
++#include <linux/perf_event.h>
  
- #ifdef CONFIG_BLK_DEV_INITRD
--	initrd_start = (unsigned long)&__initrd_start;
--	initrd_end = (unsigned long)&__initrd_end;
- 	if (initrd_start == initrd_end) {
-+		printk(KERN_INFO "Initial ramdisk not found\n");
- 		initrd_start = 0;
- 		initrd_end = 0;
-+	} else {
-+		printk(KERN_INFO "Initial ramdisk at: 0x%p (%lu bytes)\n",
-+		       (void *)(initrd_start), initrd_end - initrd_start);
-+		initrd_below_start_ok = 1;
- 	}
--	initrd_below_start_ok = 1;
- #endif
+ #include <linux/uaccess.h>
+ #include <asm/siginfo.h>
+@@ -103,6 +104,8 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	if (in_interrupt() || !mm)
+ 		goto no_context;
  
- 	/* setup memblock allocator */
-diff --git a/arch/openrisc/kernel/vmlinux.lds.S b/arch/openrisc/kernel/vmlinux.lds.S
-index 60449fd7f16f..22fbc5fb24b3 100644
---- a/arch/openrisc/kernel/vmlinux.lds.S
-+++ b/arch/openrisc/kernel/vmlinux.lds.S
-@@ -96,18 +96,6 @@ SECTIONS
++	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, address);
++
+ retry:
+ 	mmap_read_lock(mm);
+ 	vma = find_vma(mm, address);
+@@ -159,7 +162,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	 * the fault.
+ 	 */
  
-         __init_end = .;
+-	fault = handle_mm_fault(vma, address, flags, NULL);
++	fault = handle_mm_fault(vma, address, flags, regs);
  
--	. = ALIGN(PAGE_SIZE);
--	.initrd			: AT(ADDR(.initrd) - LOAD_OFFSET)
--	{
--		__initrd_start = .;
--		*(.initrd)
--		__initrd_end = .;
--		FILL (0);
--                . = ALIGN (PAGE_SIZE);
--	}
--
--        __vmlinux_end = .;            /* last address of the physical file */
--
- 	BSS_SECTION(0, 0, 0x20)
+ 	if (fault_signal_pending(fault, regs))
+ 		return;
+@@ -176,10 +179,6 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
  
-         _end = .;
+ 	if (flags & FAULT_FLAG_ALLOW_RETRY) {
+ 		/*RGD modeled on Cris */
+-		if (fault & VM_FAULT_MAJOR)
+-			tsk->maj_flt++;
+-		else
+-			tsk->min_flt++;
+ 		if (fault & VM_FAULT_RETRY) {
+ 			flags |= FAULT_FLAG_TRIED;
+ 
 -- 
 2.26.2
 
