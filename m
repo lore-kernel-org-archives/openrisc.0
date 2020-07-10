@@ -1,74 +1,61 @@
-From: Peter Xu <peterx@redhat.com>
-Date: Tue, 07 Jul 2020 22:50:55 -0000
-Subject: [OpenRISC] [PATCH v5 14/25] mm/openrisc: Use general page fault
- accounting
-In-Reply-To: <20200707225021.200906-1-peterx@redhat.com>
-References: <20200707225021.200906-1-peterx@redhat.com>
-Message-ID: <20200707225021.200906-15-peterx@redhat.com>
+From: Alexander A. Klimov <grandmaster@al2klimov.de>
+Date: Fri, 10 Jul 2020 08:20:19 +0200
+Subject: [OpenRISC] [PATCH] OPENRISC ARCHITECTURE: Replace HTTP links with
+ HTTPS ones
+Message-ID: <20200710062019.28755-1-grandmaster@al2klimov.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Use the general page fault accounting by passing regs into handle_mm_fault().
-It naturally solve the issue of multiple page fault accounting when page fault
-retry happened.
+Rationale:
+Reduces attack surface on kernel devs opening the links for MITM
+as HTTPS traffic is much harder to manipulate.
 
-Add the missing PERF_COUNT_SW_PAGE_FAULTS perf events too.  Note, the other two
-perf events (PERF_COUNT_SW_PAGE_FAULTS_[MAJ|MIN]) were done in handle_mm_fault().
+Deterministic algorithm:
+For each file:
+  If not .svg:
+    For each line:
+      If doesn't contain `\bxmlns\b`:
+        For each link, `\bhttp://[^# \t\r\n]*(?:\w|/)`:
+	  If neither `\bgnu\.org/license`, nor `\bmozilla\.org/MPL\b`:
+            If both the HTTP and HTTPS versions
+            return 200 OK and serve the same content:
+              Replace HTTP with HTTPS.
 
-CC: Jonas Bonn <jonas@southpole.se>
-CC: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-CC: Stafford Horne <shorne@gmail.com>
-CC: openrisc at lists.librecores.org
-Acked-by: Stafford Horne <shorne@gmail.com>
-Signed-off-by: Peter Xu <peterx@redhat.com>
+Signed-off-by: Alexander A. Klimov <grandmaster@al2klimov.de>
 ---
- arch/openrisc/mm/fault.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ Continuing my work started at 93431e0607e5.
+ See also: git log --oneline '--author=Alexander A. Klimov <grandmaster@al2klimov.de>' v5.7..master
+ (Actually letting a shell for loop submit all this stuff for me.)
 
-diff --git a/arch/openrisc/mm/fault.c b/arch/openrisc/mm/fault.c
-index 3daa491d1edb..ca97d9baab51 100644
---- a/arch/openrisc/mm/fault.c
-+++ b/arch/openrisc/mm/fault.c
-@@ -15,6 +15,7 @@
- #include <linux/interrupt.h>
- #include <linux/extable.h>
- #include <linux/sched/signal.h>
-+#include <linux/perf_event.h>
+ If there are any URLs to be removed completely or at least not HTTPSified:
+ Just clearly say so and I'll *undo my change*.
+ See also: https://lkml.org/lkml/2020/6/27/64
+
+ If there are any valid, but yet not changed URLs:
+ See: https://lkml.org/lkml/2020/6/26/837
+
+ If you apply the patch, please let me know.
+
+
+ Documentation/openrisc/openrisc_port.rst | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Documentation/openrisc/openrisc_port.rst b/Documentation/openrisc/openrisc_port.rst
+index 4b2c437942a0..657ac4af7be6 100644
+--- a/Documentation/openrisc/openrisc_port.rst
++++ b/Documentation/openrisc/openrisc_port.rst
+@@ -8,7 +8,7 @@ target architecture, specifically, is the 32-bit OpenRISC 1000 family (or1k).
+ For information about OpenRISC processors and ongoing development:
  
- #include <linux/uaccess.h>
- #include <asm/siginfo.h>
-@@ -103,6 +104,8 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
- 	if (in_interrupt() || !mm)
- 		goto no_context;
- 
-+	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, address);
-+
- retry:
- 	mmap_read_lock(mm);
- 	vma = find_vma(mm, address);
-@@ -159,7 +162,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
- 	 * the fault.
- 	 */
- 
--	fault = handle_mm_fault(vma, address, flags, NULL);
-+	fault = handle_mm_fault(vma, address, flags, regs);
- 
- 	if (fault_signal_pending(fault, regs))
- 		return;
-@@ -176,10 +179,6 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
- 
- 	if (flags & FAULT_FLAG_ALLOW_RETRY) {
- 		/*RGD modeled on Cris */
--		if (fault & VM_FAULT_MAJOR)
--			tsk->maj_flt++;
--		else
--			tsk->min_flt++;
- 		if (fault & VM_FAULT_RETRY) {
- 			flags |= FAULT_FLAG_TRIED;
+ 	=======		=============================
+-	website		http://openrisc.io
++	website		https://openrisc.io
+ 	email		openrisc at lists.librecores.org
+ 	=======		=============================
  
 -- 
-2.26.2
+2.27.0
 
