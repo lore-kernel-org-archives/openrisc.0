@@ -1,49 +1,47 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Mon,  1 Jun 2020 06:24:59 +0900
-Subject: [OpenRISC] [PATCH] openrisc: Fix issue with argument clobbering for
- clone/fork
-Message-ID: <20200531212500.826332-1-shorne@gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Tue, 14 Jul 2020 09:22:39 +0200
+Subject: [OpenRISC] [PATCH] OPENRISC ARCHITECTURE: Replace HTTP links
+ with HTTPS ones
+In-Reply-To: <20200713113430.1c1777bb@lwn.net>
+References: <20200710062019.28755-1-grandmaster@al2klimov.de>
+ <20200713113430.1c1777bb@lwn.net>
+Message-ID: <CAMuHMdXoUME_dCOZP1N0tXyMv61edfNECM4-n4NPa56YbBCncw@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Working on the OpenRISC glibc port I found that sometimes clone was
-working strange.  That the tls data argument sent in r7 was always
-wrong.  Further investigation revealed that the arguments were getting
-clobbered in the entry code.  This patch removes the code that writes to
-the argument registers.  This was likely due to some old code hanging
-around.
+On Mon, Jul 13, 2020 at 7:37 PM Jonathan Corbet <corbet@lwn.net> wrote:
+> On Fri, 10 Jul 2020 08:20:19 +0200
+> "Alexander A. Klimov" <grandmaster@al2klimov.de> wrote:
+> >  Documentation/openrisc/openrisc_port.rst | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/Documentation/openrisc/openrisc_port.rst b/Documentation/openrisc/openrisc_port.rst
+> > index 4b2c437942a0..657ac4af7be6 100644
+> > --- a/Documentation/openrisc/openrisc_port.rst
+> > +++ b/Documentation/openrisc/openrisc_port.rst
+> > @@ -8,7 +8,7 @@ target architecture, specifically, is the 32-bit OpenRISC 1000 family (or1k).
+> >  For information about OpenRISC processors and ongoing development:
+> >
+> >       =======         =============================
+> > -     website         http://openrisc.io
+> > +     website         https://openrisc.io
+> >       email           openrisc at lists.librecores.org
+> >       =======         =============================
+>
+> Applied, thanks.
 
-This patch fixes this up for clone and fork.  This fork clobber is
-harmless but also useless so remove.
+Is that site accessible for anyone? It times out for me.
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- arch/openrisc/kernel/entry.S | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Gr{oetje,eeting}s,
 
-diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
-index e4a78571f883..c6481cfc5220 100644
---- a/arch/openrisc/kernel/entry.S
-+++ b/arch/openrisc/kernel/entry.S
-@@ -1166,13 +1166,13 @@ ENTRY(__sys_clone)
- 	l.movhi	r29,hi(sys_clone)
- 	l.ori	r29,r29,lo(sys_clone)
- 	l.j	_fork_save_extra_regs_and_call
--	 l.addi	r7,r1,0
-+	 l.nop
- 
- ENTRY(__sys_fork)
- 	l.movhi	r29,hi(sys_fork)
- 	l.ori	r29,r29,lo(sys_fork)
- 	l.j	_fork_save_extra_regs_and_call
--	 l.addi	r3,r1,0
-+	 l.nop
- 
- ENTRY(sys_rt_sigreturn)
- 	l.jal	_sys_rt_sigreturn
+                        Geert
+
 -- 
-2.26.2
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert at linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
