@@ -1,100 +1,52 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Fri, 24 Jul 2020 17:37:50 +0900
-Subject: [OpenRISC] [PATCH v2] openrisc: Fix oops caused when dumping stack
-Message-ID: <20200724083751.580738-1-shorne@gmail.com>
+From: Andrey Bacherov <bandvig@mail.ru>
+Date: Sat, 25 Jul 2020 14:13:14 +0300
+Subject: [OpenRISC] Fpu tininess
+In-Reply-To: <20200322005854.GM7926@lianli.shorne-pla.net>
+References: <CAAfxs75F6mcX_qHPYLzCbudeONXkSCOqNcXGRR4o+bgMDZ_VxQ@mail.gmail.com>
+ <1cbd1694-51c1-9b3f-5bb1-6f378b4e703e@mail.ru>
+ <20200322005854.GM7926@lianli.shorne-pla.net>
+Message-ID: <d3c3f6f7-c242-876a-d99d-18a1312fc0f1@mail.ru>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-When dumping a stack with 'cat /proc/#/stack' the kernel would oops.
-For example:
+Sorry for the very late reply, Stafford.
 
-    # cat /proc/690/stack
-    Unable to handle kernel access
-     at virtual address 0x7fc60f58
+>>
+>> ORK1 FPU implements tininess after rounding.
+>>
+>> https://github.com/bandvig/or1k_testfloat/blob/994c84b8c11f3609772c318f8894ecbad860bd89/src/testfloat.c#L145
+> 
+> Thanks, I also set glibc and gcc to emulate with tininess after rounding.
+> I just tried to run all the tests after switch tininess after rounding off as
+> well and get the same results.  Perhaps the issue with the underflow flag is not
+> related to the tininess setting.
+> 
+> Right now my tests are running completely on QEMU simulators.  I was able to track
+> one of the underflow issues to the software implementation of 'log' to me it
+> looked like an issue in the soft float implementation.
+> 
+> There are so many layers here, qemu float emulation, gcc float emulation glibc
+> floating point routines.  I have probably just have something wrong on one
+> layer,  but I wanted to be sure the simulation is inline with the hardware.
 
-    Oops#: 0000
-    CPU #: 0
-       PC: c00097fc    SR: 0000807f    SP: d6f09b9c
-    GPR00: 00000000 GPR01: d6f09b9c GPR02: d6f09bb8 GPR03: d6f09bc4
-    GPR04: 7fc60f5c GPR05: c00099b4 GPR06: 00000000 GPR07: d6f09ba3
-    GPR08: ffffff00 GPR09: c0009804 GPR10: d6f08000 GPR11: 00000000
-    GPR12: ffffe000 GPR13: dbb86000 GPR14: 00000001 GPR15: dbb86250
-    GPR16: 7fc60f63 GPR17: 00000f5c GPR18: d6f09bc4 GPR19: 00000000
-    GPR20: c00099b4 GPR21: ffffffc0 GPR22: 00000000 GPR23: 00000000
-    GPR24: 00000001 GPR25: 000002c6 GPR26: d78b6850 GPR27: 00000001
-    GPR28: 00000000 GPR29: dbb86000 GPR30: ffffffff GPR31: dbb862fc
-      RES: 00000000 oGPR11: ffffffff
-    Process cat (pid: 702, stackpage=d79d6000)
+I've re-implemented tininess detection and underflow flag behavior.
+https://github.com/openrisc/or1k_marocchino/pull/20
+Now FPU perform tininess detection BEFORE rounding because the approach 
+looks simpler.
+I verified the mods with TestFloat tool with unlocked underflow check.
+As I wrote in the comment of the pull request I'm interested to have 
+ability to run glibc FP-related tests on my Atlys board. Could you guide 
+me which glibc and gcc sources would be better for that? From your forks 
+or from upstream?
+And how build and run glibc tests?
 
-    Stack:
-    Call trace:
-    [<598977f2>] save_stack_trace_tsk+0x40/0x74
-    [<95063f0e>] stack_trace_save_tsk+0x44/0x58
-    [<b557bfdd>] proc_pid_stack+0xd0/0x13c
-    [<a2df8eda>] proc_single_show+0x6c/0xf0
-    [<e5a737b7>] seq_read+0x1b4/0x688
-    [<2d6c7480>] do_iter_read+0x208/0x248
-    [<2182a2fb>] vfs_readv+0x64/0x90
+> Are your volunteering to mentor a student?  We can raise a project proposal
+> under the librecores GSoC program.
 
-This was caused by the stack trace code in save_stack_trace_tsk using
-the wrong stack pointer.  It was using the user stack pointer instead of
-the kernel stack pointer.  Fix this by using the right stack.
+I'm apologize, but supervising is definitely not for me.
 
-Also for good measure we add try_get_task_stack/put_task_stack to ensure
-the task is not lost while we are walking it's stack.
-
-Fixes: eecac38b0423a ("openrisc: support framepointers and STACKTRACE_SUPPORT")
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
-Changes since v1:
- - V1 was not properly locating the stack, adjust for redzone and pt_regs.
-
- arch/openrisc/kernel/stacktrace.c | 18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
-
-diff --git a/arch/openrisc/kernel/stacktrace.c b/arch/openrisc/kernel/stacktrace.c
-index 43f140a28bc7..54d38809e22c 100644
---- a/arch/openrisc/kernel/stacktrace.c
-+++ b/arch/openrisc/kernel/stacktrace.c
-@@ -13,6 +13,7 @@
- #include <linux/export.h>
- #include <linux/sched.h>
- #include <linux/sched/debug.h>
-+#include <linux/sched/task_stack.h>
- #include <linux/stacktrace.h>
- 
- #include <asm/processor.h>
-@@ -68,12 +69,25 @@ void save_stack_trace_tsk(struct task_struct *tsk, struct stack_trace *trace)
- {
- 	unsigned long *sp = NULL;
- 
-+	if (!try_get_task_stack(tsk))
-+		return;
-+
- 	if (tsk == current)
- 		sp = (unsigned long *) &sp;
--	else
--		sp = (unsigned long *) KSTK_ESP(tsk);
-+	else {
-+		unsigned long ksp;
-+
-+		/* Locate stack from kernel context */
-+		ksp = task_thread_info(tsk)->ksp;
-+		ksp += STACK_FRAME_OVERHEAD;	/* redzone */
-+		ksp += sizeof(struct pt_regs);
-+
-+		sp = (unsigned long *) ksp;
-+	}
- 
- 	unwind_stack(trace, sp, save_stack_address_nosched);
-+
-+	put_task_stack(tsk);
- }
- EXPORT_SYMBOL_GPL(save_stack_trace_tsk);
- 
--- 
-2.26.2
-
+WBR
+Andrey
