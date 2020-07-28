@@ -1,32 +1,39 @@
-From: Christoph Hellwig <hch@lst.de>
-Date: Tue, 28 Jul 2020 06:37:53 -0000
-Subject: [OpenRISC] [PATCH 02/15] dma-contiguous: simplify
- cma_early_percent_memory()
-In-Reply-To: <20200728051153.1590-3-rppt@kernel.org>
+From: Ingo Molnar <mingo@kernel.org>
+Date: Tue, 28 Jul 2020 10:44:45 -0000
+Subject: [OpenRISC] [PATCH 14/15] x86/numa: remove redundant iteration
+ over memblock.reserved
+In-Reply-To: <20200728051153.1590-15-rppt@kernel.org>
 References: <20200728051153.1590-1-rppt@kernel.org>
- <20200728051153.1590-3-rppt@kernel.org>
-Message-ID: <20200728063749.GA21221@lst.de>
+ <20200728051153.1590-15-rppt@kernel.org>
+Message-ID: <20200728104440.GA222284@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Jul 28, 2020 at 08:11:40AM +0300, Mike Rapoport wrote:
+
+* Mike Rapoport <rppt@kernel.org> wrote:
+
 > From: Mike Rapoport <rppt@linux.ibm.com>
 > 
-> The memory size calculation in cma_early_percent_memory() traverses
-> memblock.memory rather than simply call memblock_phys_mem_size(). The
-> comment in that function suggests that at some point there should have been
-> call to memblock_analyze() before memblock_phys_mem_size() could be used.
-> As of now, there is no memblock_analyze() at all and
-> memblock_phys_mem_size() can be used as soon as cold-plug memory is
-> registerd with memblock.
+> numa_clear_kernel_node_hotplug() function first traverses numa_meminfo
+> regions to set node ID in memblock.reserved and than traverses
+> memblock.reserved to update reserved_nodemask to include node IDs that were
+> set in the first loop.
 > 
-> Replace loop over memblock.memory with a call to memblock_phys_mem_size().
+> Remove redundant traversal over memblock.reserved and update
+> reserved_nodemask while iterating over numa_meminfo.
 > 
 > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> ---
+>  arch/x86/mm/numa.c | 26 ++++++++++----------------
+>  1 file changed, 10 insertions(+), 16 deletions(-)
 
-Looks good:
+I suspect you'd like to carry this in the -mm tree?
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Ingo Molnar <mingo@kernel.org>
+
+Thanks,
+
+	Ingo
