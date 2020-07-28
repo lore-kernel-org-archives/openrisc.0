@@ -1,178 +1,91 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 25 Jul 2020 01:01:03 -0000
-Subject: [OpenRISC] [PATCH] openrisc: Implement proper SMP tlb flushing
-Message-ID: <20200725010049.693421-1-shorne@gmail.com>
+From: Mike Rapoport <rppt@kernel.org>
+Date: Tue, 28 Jul 2020 05:12:16 -0000
+Subject: [OpenRISC] [PATCH 00/15] memblock: seasonal cleaning^w cleanup
+Message-ID: <20200728051153.1590-1-rppt@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Up until now when flushing pages from the TLB on SMP OpenRISC was always
-resorting to flush the entire TLB on all CPUs.  This patch adds the
-mechanics for flushing specific ranges and pages based on the usage.
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-The function switch_mm is updated to account for cpu usage by updating
-mm_struct's cpumask.  This is used in the SMP flush routines.
+Hi,
 
-This mostly follows the riscv implementation.
+These patches simplify several uses of memblock iterators and hide some of
+the memblock implementation details from the rest of the system.
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- arch/openrisc/kernel/smp.c | 85 ++++++++++++++++++++++++++++++++++----
- arch/openrisc/mm/tlb.c     | 17 +++++---
- 2 files changed, 89 insertions(+), 13 deletions(-)
+The patches are on top of v5.8-rc7 + cherry-pick of "mm/sparse: cleanup the
+code surrounding memory_present()" [1] from mmotm tree.
 
-diff --git a/arch/openrisc/kernel/smp.c b/arch/openrisc/kernel/smp.c
-index bd1e660bbc89..29c82ef2e207 100644
---- a/arch/openrisc/kernel/smp.c
-+++ b/arch/openrisc/kernel/smp.c
-@@ -219,30 +219,99 @@ static inline void ipi_flush_tlb_all(void *ignored)
- 	local_flush_tlb_all();
- }
- 
-+static inline void ipi_flush_tlb_mm(void *info)
-+{
-+	struct mm_struct *mm = (struct mm_struct *)info;
-+
-+	local_flush_tlb_mm(mm);
-+}
-+
-+static void smp_flush_tlb_mm(struct cpumask *cmask, struct mm_struct *mm)
-+{
-+	unsigned int cpuid;
-+
-+	if (cpumask_empty(cmask))
-+		return;
-+
-+	cpuid = get_cpu();
-+
-+	if (cpumask_any_but(cmask, cpuid) >= nr_cpu_ids) {
-+		/* local cpu is the only cpu present in cpumask */
-+		local_flush_tlb_mm(mm);
-+	} else {
-+		on_each_cpu_mask(cmask, ipi_flush_tlb_mm, mm, 1);
-+	}
-+	put_cpu();
-+}
-+
-+struct flush_tlb_data {
-+	unsigned long addr1;
-+	unsigned long addr2;
-+};
-+
-+static inline void ipi_flush_tlb_page(void *info)
-+{
-+	struct flush_tlb_data *fd = (struct flush_tlb_data *)info;
-+
-+	local_flush_tlb_page(NULL, fd->addr1);
-+}
-+
-+static inline void ipi_flush_tlb_range(void *info)
-+{
-+	struct flush_tlb_data *fd = (struct flush_tlb_data *)info;
-+
-+	local_flush_tlb_range(NULL, fd->addr1, fd->addr2);
-+}
-+
-+static void smp_flush_tlb_range(struct cpumask *cmask, unsigned long start,
-+				unsigned long end)
-+{
-+	unsigned int cpuid;
-+
-+	if (cpumask_empty(cmask))
-+		return;
-+
-+	cpuid = get_cpu();
-+
-+	if (cpumask_any_but(cmask, cpuid) >= nr_cpu_ids) {
-+		/* local cpu is the only cpu present in cpumask */
-+		if ((end - start) <= PAGE_SIZE)
-+			local_flush_tlb_page(NULL, start);
-+		else
-+			local_flush_tlb_range(NULL, start, end);
-+	} else {
-+		struct flush_tlb_data fd;
-+
-+		fd.addr1 = start;
-+		fd.addr2 = end;
-+
-+		if ((end - start) <= PAGE_SIZE)
-+			on_each_cpu_mask(cmask, ipi_flush_tlb_page, &fd, 1);
-+		else
-+			on_each_cpu_mask(cmask, ipi_flush_tlb_range, &fd, 1);
-+	}
-+	put_cpu();
-+}
-+
- void flush_tlb_all(void)
- {
- 	on_each_cpu(ipi_flush_tlb_all, NULL, 1);
- }
- 
--/*
-- * FIXME: implement proper functionality instead of flush_tlb_all.
-- * *But*, as things currently stands, the local_tlb_flush_* functions will
-- * all boil down to local_tlb_flush_all anyway.
-- */
- void flush_tlb_mm(struct mm_struct *mm)
- {
--	on_each_cpu(ipi_flush_tlb_all, NULL, 1);
-+	smp_flush_tlb_mm(mm_cpumask(mm), mm);
- }
- 
- void flush_tlb_page(struct vm_area_struct *vma, unsigned long uaddr)
- {
--	on_each_cpu(ipi_flush_tlb_all, NULL, 1);
-+	smp_flush_tlb_range(mm_cpumask(vma->vm_mm), uaddr, uaddr + PAGE_SIZE);
- }
- 
- void flush_tlb_range(struct vm_area_struct *vma,
- 		     unsigned long start, unsigned long end)
- {
--	on_each_cpu(ipi_flush_tlb_all, NULL, 1);
-+	smp_flush_tlb_range(mm_cpumask(vma->vm_mm), start, end);
- }
- 
- /* Instruction cache invalidate - performed on each cpu */
-diff --git a/arch/openrisc/mm/tlb.c b/arch/openrisc/mm/tlb.c
-index 4b680aed8f5f..2b6feabf6381 100644
---- a/arch/openrisc/mm/tlb.c
-+++ b/arch/openrisc/mm/tlb.c
-@@ -137,21 +137,28 @@ void local_flush_tlb_mm(struct mm_struct *mm)
- void switch_mm(struct mm_struct *prev, struct mm_struct *next,
- 	       struct task_struct *next_tsk)
- {
-+	unsigned int cpu;
-+
-+	if (unlikely(prev == next))
-+		return;
-+
-+	cpu = smp_processor_id();
-+
-+	cpumask_clear_cpu(cpu, mm_cpumask(prev));
-+	cpumask_set_cpu(cpu, mm_cpumask(next));
-+
- 	/* remember the pgd for the fault handlers
- 	 * this is similar to the pgd register in some other CPU's.
- 	 * we need our own copy of it because current and active_mm
- 	 * might be invalid at points where we still need to derefer
- 	 * the pgd.
- 	 */
--	current_pgd[smp_processor_id()] = next->pgd;
-+	current_pgd[cpu] = next->pgd;
- 
- 	/* We don't have context support implemented, so flush all
- 	 * entries belonging to previous map
- 	 */
--
--	if (prev != next)
--		local_flush_tlb_mm(prev);
--
-+	local_flush_tlb_mm(prev);
- }
- 
- /*
+[1] http://lkml.kernel.org/r/20200712083130.22919-1-rppt at kernel.org 
+
+Mike Rapoport (15):
+  KVM: PPC: Book3S HV: simplify kvm_cma_reserve()
+  dma-contiguous: simplify cma_early_percent_memory()
+  arm, xtensa: simplify initialization of high memory pages
+  arm64: numa: simplify dummy_numa_init()
+  h8300, nds32, openrisc: simplify detection of memory extents
+  powerpc: fadamp: simplify fadump_reserve_crash_area()
+  riscv: drop unneeded node initialization
+  mircoblaze: drop unneeded NUMA and sparsemem initializations
+  memblock: make for_each_memblock_type() iterator private
+  memblock: make memblock_debug and related functionality private
+  memblock: reduce number of parameters in for_each_mem_range()
+  arch, mm: replace for_each_memblock() with for_each_mem_pfn_range()
+  arch, drivers: replace for_each_membock() with for_each_mem_range()
+  x86/numa: remove redundant iteration over memblock.reserved
+  memblock: remove 'type' parameter from for_each_memblock()
+
+ .clang-format                            |  1 +
+ arch/arm/kernel/setup.c                  | 18 +++++---
+ arch/arm/mm/init.c                       | 59 +++++-------------------
+ arch/arm/mm/mmu.c                        | 39 ++++++----------
+ arch/arm/mm/pmsa-v7.c                    | 20 ++++----
+ arch/arm/mm/pmsa-v8.c                    | 17 ++++---
+ arch/arm/xen/mm.c                        |  7 +--
+ arch/arm64/kernel/machine_kexec_file.c   |  6 +--
+ arch/arm64/kernel/setup.c                |  2 +-
+ arch/arm64/mm/init.c                     | 11 ++---
+ arch/arm64/mm/kasan_init.c               |  8 ++--
+ arch/arm64/mm/mmu.c                      | 11 ++---
+ arch/arm64/mm/numa.c                     | 15 +++---
+ arch/c6x/kernel/setup.c                  |  9 ++--
+ arch/h8300/kernel/setup.c                |  8 ++--
+ arch/microblaze/mm/init.c                | 24 ++--------
+ arch/mips/cavium-octeon/dma-octeon.c     | 12 ++---
+ arch/mips/kernel/setup.c                 | 31 ++++++-------
+ arch/mips/netlogic/xlp/setup.c           |  2 +-
+ arch/nds32/kernel/setup.c                |  8 +---
+ arch/openrisc/kernel/setup.c             |  9 +---
+ arch/openrisc/mm/init.c                  |  8 ++--
+ arch/powerpc/kernel/fadump.c             | 58 ++++++++---------------
+ arch/powerpc/kvm/book3s_hv_builtin.c     | 11 +----
+ arch/powerpc/mm/book3s64/hash_utils.c    | 16 +++----
+ arch/powerpc/mm/book3s64/radix_pgtable.c | 11 ++---
+ arch/powerpc/mm/kasan/kasan_init_32.c    |  8 ++--
+ arch/powerpc/mm/mem.c                    | 33 +++++++------
+ arch/powerpc/mm/numa.c                   |  7 +--
+ arch/powerpc/mm/pgtable_32.c             |  8 ++--
+ arch/riscv/mm/init.c                     | 33 ++++---------
+ arch/riscv/mm/kasan_init.c               | 10 ++--
+ arch/s390/kernel/crash_dump.c            |  8 ++--
+ arch/s390/kernel/setup.c                 | 31 ++++++++-----
+ arch/s390/mm/page-states.c               |  6 +--
+ arch/s390/mm/vmem.c                      | 16 ++++---
+ arch/sh/mm/init.c                        |  9 ++--
+ arch/sparc/mm/init_64.c                  | 12 ++---
+ arch/x86/mm/numa.c                       | 26 ++++-------
+ arch/xtensa/mm/init.c                    | 55 ++++------------------
+ drivers/bus/mvebu-mbus.c                 | 12 ++---
+ drivers/s390/char/zcore.c                |  9 ++--
+ include/linux/memblock.h                 | 45 +++++++++---------
+ kernel/dma/contiguous.c                  | 11 +----
+ mm/memblock.c                            | 28 +++++++----
+ mm/page_alloc.c                          | 11 ++---
+ mm/sparse.c                              | 10 ++--
+ 47 files changed, 324 insertions(+), 485 deletions(-)
+
 -- 
 2.26.2
 
