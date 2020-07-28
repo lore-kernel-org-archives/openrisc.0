@@ -1,38 +1,49 @@
-From: Max Filippov <jcmvbkbc@gmail.com>
-Date: Tue, 28 Jul 2020 08:09:59 -0000
-Subject: [OpenRISC] [PATCH 03/15] arm,
- xtensa: simplify initialization of high memory pages
-In-Reply-To: <20200728051153.1590-4-rppt@kernel.org>
+From: Mike Rapoport <rppt@kernel.org>
+Date: Tue, 28 Jul 2020 10:56:21 -0000
+Subject: [OpenRISC] [PATCH 14/15] x86/numa: remove redundant iteration
+ over memblock.reserved
+In-Reply-To: <20200728104440.GA222284@gmail.com>
 References: <20200728051153.1590-1-rppt@kernel.org>
- <20200728051153.1590-4-rppt@kernel.org>
-Message-ID: <CAMo8Bf+VKHmAm1GV=0D9Um2mpsxjnwp9WrAJq_eKW1MK+_8r6g@mail.gmail.com>
+ <20200728051153.1590-15-rppt@kernel.org>
+ <20200728104440.GA222284@gmail.com>
+Message-ID: <20200728105602.GB3655207@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Jul 27, 2020 at 10:12 PM Mike Rapoport <rppt@kernel.org> wrote:
->
-> From: Mike Rapoport <rppt@linux.ibm.com>
->
-> The function free_highpages() in both arm and xtensa essentially open-code
-> for_each_free_mem_range() loop to detect high memory pages that were not
-> reserved and that should be initialized and passed to the buddy allocator.
->
-> Replace open-coded implementation of for_each_free_mem_range() with usage
-> of memblock API to simplify the code.
->
-> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-> ---
->  arch/arm/mm/init.c    | 48 +++++++------------------------------
->  arch/xtensa/mm/init.c | 55 ++++++++-----------------------------------
->  2 files changed, 18 insertions(+), 85 deletions(-)
+On Tue, Jul 28, 2020 at 12:44:40PM +0200, Ingo Molnar wrote:
+> 
+> * Mike Rapoport <rppt@kernel.org> wrote:
+> 
+> > From: Mike Rapoport <rppt@linux.ibm.com>
+> > 
+> > numa_clear_kernel_node_hotplug() function first traverses numa_meminfo
+> > regions to set node ID in memblock.reserved and than traverses
+> > memblock.reserved to update reserved_nodemask to include node IDs that were
+> > set in the first loop.
+> > 
+> > Remove redundant traversal over memblock.reserved and update
+> > reserved_nodemask while iterating over numa_meminfo.
+> > 
+> > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> > ---
+> >  arch/x86/mm/numa.c | 26 ++++++++++----------------
+> >  1 file changed, 10 insertions(+), 16 deletions(-)
+> 
+> I suspect you'd like to carry this in the -mm tree?
 
-For the xtensa part:
-Reviewed-by: Max Filippov <jcmvbkbc@gmail.com>
-Tested-by: Max Filippov <jcmvbkbc@gmail.com>
+Yes.
+ 
+> Acked-by: Ingo Molnar <mingo@kernel.org>
+
+Thanks!
+
+> Thanks,
+> 
+> 	Ingo
 
 -- 
-Thanks.
--- Max
+Sincerely yours,
+Mike.
