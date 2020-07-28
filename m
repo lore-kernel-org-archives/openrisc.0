@@ -1,76 +1,32 @@
-From: Nicholas Piggin <npiggin@gmail.com>
-Date: Tue, 28 Jul 2020 03:35:13 -0000
-Subject: [OpenRISC] [PATCH 14/24] openrisc: use asm-generic/mmu_context.h
- for no-op implementations
-In-Reply-To: <20200728033405.78469-1-npiggin@gmail.com>
-References: <20200728033405.78469-1-npiggin@gmail.com>
-Message-ID: <20200728033405.78469-15-npiggin@gmail.com>
+From: Christoph Hellwig <hch@lst.de>
+Date: Tue, 28 Jul 2020 06:37:53 -0000
+Subject: [OpenRISC] [PATCH 02/15] dma-contiguous: simplify
+ cma_early_percent_memory()
+In-Reply-To: <20200728051153.1590-3-rppt@kernel.org>
+References: <20200728051153.1590-1-rppt@kernel.org>
+ <20200728051153.1590-3-rppt@kernel.org>
+Message-ID: <20200728063749.GA21221@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: openrisc at lists.librecores.org
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
----
- arch/openrisc/include/asm/mmu_context.h | 8 +++-----
- arch/openrisc/mm/tlb.c                  | 2 ++
- 2 files changed, 5 insertions(+), 5 deletions(-)
+On Tue, Jul 28, 2020 at 08:11:40AM +0300, Mike Rapoport wrote:
+> From: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> The memory size calculation in cma_early_percent_memory() traverses
+> memblock.memory rather than simply call memblock_phys_mem_size(). The
+> comment in that function suggests that at some point there should have been
+> call to memblock_analyze() before memblock_phys_mem_size() could be used.
+> As of now, there is no memblock_analyze() at all and
+> memblock_phys_mem_size() can be used as soon as cold-plug memory is
+> registerd with memblock.
+> 
+> Replace loop over memblock.memory with a call to memblock_phys_mem_size().
+> 
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 
-diff --git a/arch/openrisc/include/asm/mmu_context.h b/arch/openrisc/include/asm/mmu_context.h
-index ced577542e29..a6702384c77d 100644
---- a/arch/openrisc/include/asm/mmu_context.h
-+++ b/arch/openrisc/include/asm/mmu_context.h
-@@ -17,13 +17,13 @@
- 
- #include <asm-generic/mm_hooks.h>
- 
-+#define init_new_context init_new_context
- extern int init_new_context(struct task_struct *tsk, struct mm_struct *mm);
-+#define destroy_context destroy_context
- extern void destroy_context(struct mm_struct *mm);
- extern void switch_mm(struct mm_struct *prev, struct mm_struct *next,
- 		      struct task_struct *tsk);
- 
--#define deactivate_mm(tsk, mm)	do { } while (0)
--
- #define activate_mm(prev, next) switch_mm((prev), (next), NULL)
- 
- /* current active pgd - this is similar to other processors pgd
-@@ -32,8 +32,6 @@ extern void switch_mm(struct mm_struct *prev, struct mm_struct *next,
- 
- extern volatile pgd_t *current_pgd[]; /* defined in arch/openrisc/mm/fault.c */
- 
--static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
--{
--}
-+#include <asm-generic/mmu_context.h>
- 
- #endif
-diff --git a/arch/openrisc/mm/tlb.c b/arch/openrisc/mm/tlb.c
-index 4b680aed8f5f..821aab4cf3be 100644
---- a/arch/openrisc/mm/tlb.c
-+++ b/arch/openrisc/mm/tlb.c
-@@ -159,6 +159,7 @@ void switch_mm(struct mm_struct *prev, struct mm_struct *next,
-  * instance.
-  */
- 
-+#define init_new_context init_new_context
- int init_new_context(struct task_struct *tsk, struct mm_struct *mm)
- {
- 	mm->context = NO_CONTEXT;
-@@ -170,6 +171,7 @@ int init_new_context(struct task_struct *tsk, struct mm_struct *mm)
-  * drops it.
-  */
- 
-+#define destroy_context destroy_context
- void destroy_context(struct mm_struct *mm)
- {
- 	flush_tlb_mm(mm);
--- 
-2.23.0
+Looks good:
 
+Reviewed-by: Christoph Hellwig <hch@lst.de>
