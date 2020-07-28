@@ -1,9 +1,10 @@
 From: Mike Rapoport <rppt@kernel.org>
-Date: Tue, 28 Jul 2020 05:12:54 -0000
-Subject: [OpenRISC] [PATCH 04/15] arm64: numa: simplify dummy_numa_init()
+Date: Tue, 28 Jul 2020 05:13:05 -0000
+Subject: [OpenRISC] [PATCH 05/15] h8300, nds32,
+ openrisc: simplify detection of memory extents
 In-Reply-To: <20200728051153.1590-1-rppt@kernel.org>
 References: <20200728051153.1590-1-rppt@kernel.org>
-Message-ID: <20200728051153.1590-5-rppt@kernel.org>
+Message-ID: <20200728051153.1590-6-rppt@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -12,48 +13,84 @@ To: openrisc@lists.librecores.org
 
 From: Mike Rapoport <rppt@linux.ibm.com>
 
-dummy_numa_init() loops over memblock.memory and passes nid=0 to
-numa_add_memblk() which essentially wraps memblock_set_node(). However,
-memblock_set_node() can cope with entire memory span itself, so the loop
-over memblock.memory regions is redundant.
-
-Replace the loop with a single call to memblock_set_node() to the entire
-memory.
+Instead of traversing memblock.memory regions to find memory_start and
+memory_end, simply query memblock_{start,end}_of_DRAM().
 
 Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 ---
- arch/arm64/mm/numa.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ arch/h8300/kernel/setup.c    | 8 +++-----
+ arch/nds32/kernel/setup.c    | 8 ++------
+ arch/openrisc/kernel/setup.c | 9 ++-------
+ 3 files changed, 7 insertions(+), 18 deletions(-)
 
-diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
-index aafcee3e3f7e..0cbdbcc885fb 100644
---- a/arch/arm64/mm/numa.c
-+++ b/arch/arm64/mm/numa.c
-@@ -423,19 +423,16 @@ static int __init numa_init(int (*init_func)(void))
-  */
- static int __init dummy_numa_init(void)
- {
-+	phys_addr_t start = memblock_start_of_DRAM();
-+	phys_addr_t end = memblock_end_of_DRAM();
- 	int ret;
--	struct memblock_region *mblk;
+diff --git a/arch/h8300/kernel/setup.c b/arch/h8300/kernel/setup.c
+index 28ac88358a89..0281f92eea3d 100644
+--- a/arch/h8300/kernel/setup.c
++++ b/arch/h8300/kernel/setup.c
+@@ -74,17 +74,15 @@ static void __init bootmem_init(void)
+ 	memory_end = memory_start = 0;
  
- 	if (numa_off)
- 		pr_info("NUMA disabled\n"); /* Forced off on command line. */
--	pr_info("Faking a node at [mem %#018Lx-%#018Lx]\n",
--		memblock_start_of_DRAM(), memblock_end_of_DRAM() - 1);
--
--	for_each_memblock(memory, mblk) {
--		ret = numa_add_memblk(0, mblk->base, mblk->base + mblk->size);
--		if (!ret)
--			continue;
-+	pr_info("Faking a node at [mem %#018Lx-%#018Lx]\n", start, end - 1);
+ 	/* Find main memory where is the kernel */
+-	for_each_memblock(memory, region) {
+-		memory_start = region->base;
+-		memory_end = region->base + region->size;
+-	}
++	memory_start = memblock_start_of_DRAM();
++	memory_end = memblock_end_of_DRAM();
  
-+	ret = numa_add_memblk(0, start, end);
-+	if (ret) {
- 		pr_err("NUMA init failed\n");
- 		return ret;
- 	}
+ 	if (!memory_end)
+ 		panic("No memory!");
+ 
+ 	/* setup bootmem globals (we use no_bootmem, but mm still depends on this) */
+ 	min_low_pfn = PFN_UP(memory_start);
+-	max_low_pfn = PFN_DOWN(memblock_end_of_DRAM());
++	max_low_pfn = PFN_DOWN(memory_end);
+ 	max_pfn = max_low_pfn;
+ 
+ 	memblock_reserve(__pa(_stext), _end - _stext);
+diff --git a/arch/nds32/kernel/setup.c b/arch/nds32/kernel/setup.c
+index a066efbe53c0..c356e484dcab 100644
+--- a/arch/nds32/kernel/setup.c
++++ b/arch/nds32/kernel/setup.c
+@@ -249,12 +249,8 @@ static void __init setup_memory(void)
+ 	memory_end = memory_start = 0;
+ 
+ 	/* Find main memory where is the kernel */
+-	for_each_memblock(memory, region) {
+-		memory_start = region->base;
+-		memory_end = region->base + region->size;
+-		pr_info("%s: Memory: 0x%x-0x%x\n", __func__,
+-			memory_start, memory_end);
+-	}
++	memory_start = memblock_start_of_DRAM();
++	memory_end = memblock_end_of_DRAM();
+ 
+ 	if (!memory_end) {
+ 		panic("No memory!");
+diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
+index 8aa438e1f51f..c5706153d3b6 100644
+--- a/arch/openrisc/kernel/setup.c
++++ b/arch/openrisc/kernel/setup.c
+@@ -48,17 +48,12 @@ static void __init setup_memory(void)
+ 	unsigned long ram_start_pfn;
+ 	unsigned long ram_end_pfn;
+ 	phys_addr_t memory_start, memory_end;
+-	struct memblock_region *region;
+ 
+ 	memory_end = memory_start = 0;
+ 
+ 	/* Find main memory where is the kernel, we assume its the only one */
+-	for_each_memblock(memory, region) {
+-		memory_start = region->base;
+-		memory_end = region->base + region->size;
+-		printk(KERN_INFO "%s: Memory: 0x%x-0x%x\n", __func__,
+-		       memory_start, memory_end);
+-	}
++	memory_start = memblock_start_of_DRAM();
++	memory_end = memblock_end_of_DRAM();
+ 
+ 	if (!memory_end) {
+ 		panic("No memory!");
 -- 
 2.26.2
 
