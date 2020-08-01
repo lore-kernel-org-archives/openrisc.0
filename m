@@ -1,76 +1,98 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 15 Aug 2020 05:47:59 +0900
-Subject: [OpenRISC] [GIT PULL] OpenRISC updates for v5.9
-Message-ID: <20200814204759.GT80756@lianli.shorne-pla.net>
+From: Hari Bathini <hbathini@linux.ibm.com>
+Date: Sat, 01 Aug 2020 10:54:24 -0000
+Subject: [OpenRISC] [PATCH 06/15] powerpc: fadamp: simplify
+ fadump_reserve_crash_area()
+In-Reply-To: <20200801101854.GD534153@kernel.org>
+References: <20200728051153.1590-1-rppt@kernel.org>
+ <20200728051153.1590-7-rppt@kernel.org> <87d04d5hda.fsf@mpe.ellerman.id.au>
+ <20200801101854.GD534153@kernel.org>
+Message-ID: <bb86fb93-4d52-6b58-0914-eab45b74c028@linux.ibm.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Linus,
 
-Please consider for pull:
 
-The following changes since commit bcf876870b95592b52519ed4aafcf9d95999bc9c:
+On 01/08/20 3:48 pm, Mike Rapoport wrote:
+> On Thu, Jul 30, 2020 at 10:15:13PM +1000, Michael Ellerman wrote:
+>> Mike Rapoport <rppt@kernel.org> writes:
+>>> From: Mike Rapoport <rppt@linux.ibm.com>
+>>>
+>>> fadump_reserve_crash_area() reserves memory from a specified base address
+>>> till the end of the RAM.
+>>>
+>>> Replace iteration through the memblock.memory with a single call to
+>>> memblock_reserve() with appropriate  that will take care of proper memory
+>>                                       ^
+>>                                       parameters?
+>>> reservation.
+>>>
+>>> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+>>> ---
+>>>   arch/powerpc/kernel/fadump.c | 20 +-------------------
+>>>   1 file changed, 1 insertion(+), 19 deletions(-)
+>>
+>> I think this looks OK to me, but I don't have a setup to test it easily.
+>> I've added Hari to Cc who might be able to.
+>>
+>> But I'll give you an ack in the hope that it works :)
+> 
+> Actually, I did some digging in the git log and the traversal was added
+> there on purpose by the commit b71a693d3db3 ("powerpc/fadump: exclude
+> memory holes while reserving memory in second kernel")
 
-  Linux 5.8 (2020-08-02 14:21:45 -0700)
+I was about to comment on the same :)
+memblock_reserve() was being used until we ran into the issue talked 
+about in the above commit...
 
-are available in the Git repository at:
+> Presuming this is still reqruired I'm going to drop this patch and will
 
-  git://github.com/openrisc/linux.git tags/for-linus
+Yeah, it is still required..
 
-for you to fetch changes up to 55b2662ec665cc8b592809a011fe807b05370ab8:
+> simply replace for_each_memblock() with for_each_mem_range() in v2.
 
-  openrisc: uaccess: Add user address space check to access_ok (2020-08-09 07:57:21 +0900)
+Sounds right.
 
-----------------------------------------------------------------
-OpenRISC updates for 5.9
+>   
+>> Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+>>
+>>
+>>> diff --git a/arch/powerpc/kernel/fadump.c b/arch/powerpc/kernel/fadump.c
+>>> index 78ab9a6ee6ac..2446a61e3c25 100644
+>>> --- a/arch/powerpc/kernel/fadump.c
+>>> +++ b/arch/powerpc/kernel/fadump.c
+>>> @@ -1658,25 +1658,7 @@ int __init fadump_reserve_mem(void)
+>>>   /* Preserve everything above the base address */
+>>>   static void __init fadump_reserve_crash_area(u64 base)
+>>>   {
+>>> -	struct memblock_region *reg;
+>>> -	u64 mstart, msize;
+>>> -
+>>> -	for_each_memblock(memory, reg) {
+>>> -		mstart = reg->base;
+>>> -		msize  = reg->size;
+>>> -
+>>> -		if ((mstart + msize) < base)
+>>> -			continue;
+>>> -
+>>> -		if (mstart < base) {
+>>> -			msize -= (base - mstart);
+>>> -			mstart = base;
+>>> -		}
+>>> -
+>>> -		pr_info("Reserving %lluMB of memory at %#016llx for preserving crash data",
+>>> -			(msize >> 20), mstart);
+>>> -		memblock_reserve(mstart, msize);
+>>> -	}
+>>> +	memblock_reserve(base, memblock_end_of_DRAM() - base);
+>>>   }
+>>>   
+>>>   unsigned long __init arch_reserved_kernel_pages(void)
+>>> -- 
+>>> 2.26.2
+> 
 
-A few patches all over the place during this cycle, mostly bug and
-sparse warning fixes for OpenRISC, but a few enhancements too.  Note,
-there are 2 non OpenRISC specific fixups.
-
-Non OpenRISC fixes:
-
- - In init we need to align the init_task correctly to fix an issue with
-   MUTEX_FLAGS, reviewed by Peter Z.  No one picked this up so I kept it
-   on my tree.
- - In asm-generic/io.h I fixed up some sparse warnings, OK'd by Arnd.
-   Arnd asked to merge it via my tree.
-
-OpenRISC fixes:
-
- - Many fixes for OpenRISC sprase warnings.
- - Add support OpenRISC SMP tlb flushing rather than always flushing the
-   entire TLB on every CPU.
- - Fix bug when dumping stack via /proc/xxx/stack of user threads.
-
-----------------------------------------------------------------
-Luc Van Oostenryck (1):
-      openrisc: fix __user in raw_copy_to_user()'s prototype
-
-Stafford Horne (11):
-      init: Align init_task to avoid conflict with MUTEX_FLAGS
-      openrisc: Add support for external initrd images
-      openrisc: Fix oops caused when dumping stack
-      openrisc: Implement proper SMP tlb flushing
-      asm-generic/io.h: Fix sparse warnings on big-endian architectures
-      openrisc: io: Fixup defines and move include to the end
-      openrisc: uaccess: Fix sparse address space warnings
-      openrisc: uaccess: Use static inline function in access_ok
-      openrisc: uaccess: Remove unused macro __addr_ok
-      openrisc: signal: Fix sparse address space warnings
-      openrisc: uaccess: Add user address space check to access_ok
-
- arch/openrisc/include/asm/io.h      |  9 +++-
- arch/openrisc/include/asm/uaccess.h | 23 +++++-----
- arch/openrisc/kernel/setup.c        |  8 ++--
- arch/openrisc/kernel/signal.c       | 14 +++---
- arch/openrisc/kernel/smp.c          | 85 +++++++++++++++++++++++++++++++++----
- arch/openrisc/kernel/stacktrace.c   | 18 +++++++-
- arch/openrisc/kernel/vmlinux.lds.S  | 12 ------
- arch/openrisc/mm/tlb.c              | 17 +++++---
- include/asm-generic/io.h            | 16 +++----
- init/init_task.c                    |  1 +
- 10 files changed, 145 insertions(+), 58 deletions(-)
+Thanks
+Hari
