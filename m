@@ -1,59 +1,84 @@
-From: Baoquan He <bhe@redhat.com>
-Date: Wed, 5 Aug 2020 17:29:48 +0800
-Subject: [OpenRISC] [PATCH v2 17/17] memblock: use separate iterators
- for memory and reserved regions
-In-Reply-To: <20200802163601.8189-18-rppt@kernel.org>
-References: <20200802163601.8189-1-rppt@kernel.org>
- <20200802163601.8189-18-rppt@kernel.org>
-Message-ID: <20200805092948.GX10792@MiWiFi-R3L-srv>
+From: Mike Rapoport <rppt@kernel.org>
+Date: Sat, 01 Aug 2020 10:19:13 -0000
+Subject: [OpenRISC] [PATCH 06/15] powerpc: fadamp: simplify
+ fadump_reserve_crash_area()
+In-Reply-To: <87d04d5hda.fsf@mpe.ellerman.id.au>
+References: <20200728051153.1590-1-rppt@kernel.org>
+ <20200728051153.1590-7-rppt@kernel.org>
+ <87d04d5hda.fsf@mpe.ellerman.id.au>
+Message-ID: <20200801101854.GD534153@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 08/02/20 at 07:36pm, Mike Rapoport wrote:
-> From: Mike Rapoport <rppt@linux.ibm.com>
+On Thu, Jul 30, 2020 at 10:15:13PM +1000, Michael Ellerman wrote:
+> Mike Rapoport <rppt@kernel.org> writes:
+> > From: Mike Rapoport <rppt@linux.ibm.com>
+> >
+> > fadump_reserve_crash_area() reserves memory from a specified base address
+> > till the end of the RAM.
+> >
+> > Replace iteration through the memblock.memory with a single call to
+> > memblock_reserve() with appropriate  that will take care of proper memory
+>                                      ^
+>                                      parameters?
+> > reservation.
+> >
+> > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> > ---
+> >  arch/powerpc/kernel/fadump.c | 20 +-------------------
+> >  1 file changed, 1 insertion(+), 19 deletions(-)
 > 
-> for_each_memblock() is used to iterate over memblock.memory in
-> a few places that use data from memblock_region rather than the memory
-> ranges.
+> I think this looks OK to me, but I don't have a setup to test it easily.
+> I've added Hari to Cc who might be able to.
 > 
-> Introduce separate for_each_mem_region() and for_each_reserved_mem_region()
-> to improve encapsulation of memblock internals from its users.
+> But I'll give you an ack in the hope that it works :)
+
+Actually, I did some digging in the git log and the traversal was added
+there on purpose by the commit b71a693d3db3 ("powerpc/fadump: exclude
+memory holes while reserving memory in second kernel")
+Presuming this is still reqruired I'm going to drop this patch and will
+simply replace for_each_memblock() with for_each_mem_range() in v2.
+ 
+> Acked-by: Michael Ellerman <mpe@ellerman.id.au>
 > 
-> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-> ---
->  .clang-format                  |  3 ++-
->  arch/arm64/kernel/setup.c      |  2 +-
->  arch/arm64/mm/numa.c           |  2 +-
->  arch/mips/netlogic/xlp/setup.c |  2 +-
->  arch/x86/mm/numa.c             |  2 +-
->  include/linux/memblock.h       | 19 ++++++++++++++++---
->  mm/memblock.c                  |  4 ++--
->  mm/page_alloc.c                |  8 ++++----
->  8 files changed, 28 insertions(+), 14 deletions(-)
 > 
-...
+> > diff --git a/arch/powerpc/kernel/fadump.c b/arch/powerpc/kernel/fadump.c
+> > index 78ab9a6ee6ac..2446a61e3c25 100644
+> > --- a/arch/powerpc/kernel/fadump.c
+> > +++ b/arch/powerpc/kernel/fadump.c
+> > @@ -1658,25 +1658,7 @@ int __init fadump_reserve_mem(void)
+> >  /* Preserve everything above the base address */
+> >  static void __init fadump_reserve_crash_area(u64 base)
+> >  {
+> > -	struct memblock_region *reg;
+> > -	u64 mstart, msize;
+> > -
+> > -	for_each_memblock(memory, reg) {
+> > -		mstart = reg->base;
+> > -		msize  = reg->size;
+> > -
+> > -		if ((mstart + msize) < base)
+> > -			continue;
+> > -
+> > -		if (mstart < base) {
+> > -			msize -= (base - mstart);
+> > -			mstart = base;
+> > -		}
+> > -
+> > -		pr_info("Reserving %lluMB of memory at %#016llx for preserving crash data",
+> > -			(msize >> 20), mstart);
+> > -		memblock_reserve(mstart, msize);
+> > -	}
+> > +	memblock_reserve(base, memblock_end_of_DRAM() - base);
+> >  }
+> >  
+> >  unsigned long __init arch_reserved_kernel_pages(void)
+> > -- 
+> > 2.26.2
 
-> diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-> index 9e51b3fd4134..a6970e058bd7 100644
-> --- a/include/linux/memblock.h
-> +++ b/include/linux/memblock.h
-> @@ -522,9 +522,22 @@ static inline unsigned long memblock_region_reserved_end_pfn(const struct memblo
->  	return PFN_UP(reg->base + reg->size);
->  }
->  
-> -#define for_each_memblock(memblock_type, region)					\
-> -	for (region = memblock.memblock_type.regions;					\
-> -	     region < (memblock.memblock_type.regions + memblock.memblock_type.cnt);	\
-> +/**
-> + * for_each_mem_region - itereate over registered memory regions
-                                          ~~~~~~~~~~~~~~~~~
-
-Wonder why emphasize 'registered' memory.
-
-Other than this confusion to me, this patch looks good.
-
-Reviewed-by: Baoquan He <bhe@redhat.com>
-
+-- 
+Sincerely yours,
+Mike.
