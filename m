@@ -1,11 +1,11 @@
 From: Ingo Molnar <mingo@kernel.org>
-Date: Sun, 2 Aug 2020 20:02:23 +0200
-Subject: [OpenRISC] [PATCH v2 14/17] x86/setup: simplify
- reserve_crashkernel()
-In-Reply-To: <20200802163601.8189-15-rppt@kernel.org>
+Date: Sun, 2 Aug 2020 20:03:04 +0200
+Subject: [OpenRISC] [PATCH v2 17/17] memblock: use separate iterators
+ for memory and reserved regions
+In-Reply-To: <20200802163601.8189-18-rppt@kernel.org>
 References: <20200802163601.8189-1-rppt@kernel.org>
- <20200802163601.8189-15-rppt@kernel.org>
-Message-ID: <20200802180223.GB86614@gmail.com>
+ <20200802163601.8189-18-rppt@kernel.org>
+Message-ID: <20200802180304.GC86614@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -17,16 +17,26 @@ To: openrisc@lists.librecores.org
 
 > From: Mike Rapoport <rppt@linux.ibm.com>
 > 
-> * Replace magic numbers with defines
-> * Replace memblock_find_in_range() + memblock_reserve() with
->   memblock_phys_alloc_range()
-> * Stop checking for low memory size in reserve_crashkernel_low(). The
->   allocation from limited range will anyway fail if there is no enough
->   memory, so there is no need for extra traversal of memblock.memory
+> for_each_memblock() is used to iterate over memblock.memory in
+> a few places that use data from memblock_region rather than the memory
+> ranges.
+> 
+> Introduce separate for_each_mem_region() and for_each_reserved_mem_region()
+> to improve encapsulation of memblock internals from its users.
 > 
 > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> ---
+>  .clang-format                  |  3 ++-
+>  arch/arm64/kernel/setup.c      |  2 +-
+>  arch/arm64/mm/numa.c           |  2 +-
+>  arch/mips/netlogic/xlp/setup.c |  2 +-
+>  arch/x86/mm/numa.c             |  2 +-
+>  include/linux/memblock.h       | 19 ++++++++++++++++---
+>  mm/memblock.c                  |  4 ++--
+>  mm/page_alloc.c                |  8 ++++----
+>  8 files changed, 28 insertions(+), 14 deletions(-)
 
-Assuming that this got or will get tested with a crash kernel:
+The x86 part:
 
 Acked-by: Ingo Molnar <mingo@kernel.org>
 
