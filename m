@@ -1,48 +1,42 @@
-From: Michael Ellerman <mpe@ellerman.id.au>
-Date: Sun, 02 Aug 2020 23:14:10 +1000
-Subject: [OpenRISC] [PATCH 06/15] powerpc: fadamp: simplify
- fadump_reserve_crash_area()
-In-Reply-To: <20200801101854.GD534153@kernel.org>
-References: <20200728051153.1590-1-rppt@kernel.org>
- <20200728051153.1590-7-rppt@kernel.org> <87d04d5hda.fsf@mpe.ellerman.id.au>
- <20200801101854.GD534153@kernel.org>
-Message-ID: <87o8nt197h.fsf@mpe.ellerman.id.au>
+From: Ingo Molnar <mingo@kernel.org>
+Date: Sun, 2 Aug 2020 20:01:10 +0200
+Subject: [OpenRISC] [PATCH v2 13/17] x86/setup: simplify initrd
+ relocation and reservation
+In-Reply-To: <20200802163601.8189-14-rppt@kernel.org>
+References: <20200802163601.8189-1-rppt@kernel.org>
+ <20200802163601.8189-14-rppt@kernel.org>
+Message-ID: <20200802180110.GA86614@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Mike Rapoport <rppt@kernel.org> writes:
-> On Thu, Jul 30, 2020 at 10:15:13PM +1000, Michael Ellerman wrote:
->> Mike Rapoport <rppt@kernel.org> writes:
->> > From: Mike Rapoport <rppt@linux.ibm.com>
->> >
->> > fadump_reserve_crash_area() reserves memory from a specified base address
->> > till the end of the RAM.
->> >
->> > Replace iteration through the memblock.memory with a single call to
->> > memblock_reserve() with appropriate  that will take care of proper memory
->>                                      ^
->>                                      parameters?
->> > reservation.
->> >
->> > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
->> > ---
->> >  arch/powerpc/kernel/fadump.c | 20 +-------------------
->> >  1 file changed, 1 insertion(+), 19 deletions(-)
->> 
->> I think this looks OK to me, but I don't have a setup to test it easily.
->> I've added Hari to Cc who might be able to.
->> 
->> But I'll give you an ack in the hope that it works :)
->
-> Actually, I did some digging in the git log and the traversal was added
-> there on purpose by the commit b71a693d3db3 ("powerpc/fadump: exclude
-> memory holes while reserving memory in second kernel")
-> Presuming this is still reqruired I'm going to drop this patch and will
-> simply replace for_each_memblock() with for_each_mem_range() in v2.
 
-Thanks.
+* Mike Rapoport <rppt@kernel.org> wrote:
 
-cheers
+> From: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> Currently, initrd image is reserved very early during setup and then it
+> might be relocated and re-reserved after the initial physical memory
+> mapping is created. The "late" reservation of memblock verifies that mapped
+> memory size exceeds the size of initrd, the checks whether the relocation
+> required and, if yes, relocates inirtd to a new memory allocated from
+> memblock and frees the old location.
+> 
+> The check for memory size is excessive as memblock allocation will anyway
+> fail if there is not enough memory. Besides, there is no point to allocate
+> memory from memblock using memblock_find_in_range() + memblock_reserve()
+> when there exists memblock_phys_alloc_range() with required functionality.
+> 
+> Remove the redundant check and simplify memblock allocation.
+> 
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+
+Assuming there's no hidden dependency here breaking something:
+
+  Acked-by: Ingo Molnar <mingo@kernel.org>
+
+Thanks,
+
+	Ingo
