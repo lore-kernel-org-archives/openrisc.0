@@ -1,58 +1,46 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 29 Jul 2020 11:42:04 -0000
-Subject: [OpenRISC] [PATCH 05/15] h8300, nds32,
- openrisc: simplify detection of memory extents
-In-Reply-To: <20200728051153.1590-6-rppt@kernel.org>
-References: <20200728051153.1590-1-rppt@kernel.org>
- <20200728051153.1590-6-rppt@kernel.org>
-Message-ID: <20200729114157.GF80756@lianli.shorne-pla.net>
+Date: Tue,  4 Aug 2020 13:23:49 +0900
+Subject: [OpenRISC] [PATCH 1/6] openrisc: io: Fixup defines and move include
+ to the end
+In-Reply-To: <20200804042354.3930694-1-shorne@gmail.com>
+References: <20200804042354.3930694-1-shorne@gmail.com>
+Message-ID: <20200804042354.3930694-2-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Jul 28, 2020 at 08:11:43AM +0300, Mike Rapoport wrote:
-> From: Mike Rapoport <rppt@linux.ibm.com>
-> 
-> Instead of traversing memblock.memory regions to find memory_start and
-> memory_end, simply query memblock_{start,end}_of_DRAM().
-> 
-> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-> ---
->  arch/h8300/kernel/setup.c    | 8 +++-----
->  arch/nds32/kernel/setup.c    | 8 ++------
->  arch/openrisc/kernel/setup.c | 9 ++-------
->  3 files changed, 7 insertions(+), 18 deletions(-)
+This didn't seem to cause any issues, but while working on fixing up
+sparse annotations for OpenRISC I noticed this.  This patch moves the
+include of asm-generic/io.h to the end of the file.  Also, we add
+defines of ioremap and iounmap, that way we don't get duplicate
+definitions from asm-generic/io.h.
 
-Hi Mike,
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+ arch/openrisc/include/asm/io.h | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-For the openrisc part:
+diff --git a/arch/openrisc/include/asm/io.h b/arch/openrisc/include/asm/io.h
+index db02fb2077d9..ef985540b674 100644
+--- a/arch/openrisc/include/asm/io.h
++++ b/arch/openrisc/include/asm/io.h
+@@ -25,9 +25,12 @@
+ #define PIO_OFFSET		0
+ #define PIO_MASK		0
+ 
+-#include <asm-generic/io.h>
+-
++#define ioremap ioremap
+ void __iomem *ioremap(phys_addr_t offset, unsigned long size);
++
++#define iounmap iounmap
+ extern void iounmap(void *addr);
+ 
++#include <asm-generic/io.h>
++
+ #endif
+-- 
+2.26.2
 
-Acked-by: Stafford Horne <shorne@gmail.com>
-
-> --- a/arch/openrisc/kernel/setup.c
-> +++ b/arch/openrisc/kernel/setup.c
-> @@ -48,17 +48,12 @@ static void __init setup_memory(void)
->  	unsigned long ram_start_pfn;
->  	unsigned long ram_end_pfn;
->  	phys_addr_t memory_start, memory_end;
-> -	struct memblock_region *region;
->  
->  	memory_end = memory_start = 0;
->  
->  	/* Find main memory where is the kernel, we assume its the only one */
-> -	for_each_memblock(memory, region) {
-> -		memory_start = region->base;
-> -		memory_end = region->base + region->size;
-> -		printk(KERN_INFO "%s: Memory: 0x%x-0x%x\n", __func__,
-> -		       memory_start, memory_end);
-> -	}
-> +	memory_start = memblock_start_of_DRAM();
-> +	memory_end = memblock_end_of_DRAM();
->  
->  	if (!memory_end) {
->  		panic("No memory!");
-> -- 
-> 2.26.2
-> 
