@@ -1,202 +1,77 @@
-From: Mike Rapoport <rppt@kernel.org>
-Date: Sun,  2 Aug 2020 19:36:01 +0300
-Subject: [OpenRISC] [PATCH v2 17/17] memblock: use separate iterators for
- memory and reserved regions
-In-Reply-To: <20200802163601.8189-1-rppt@kernel.org>
+From: Daniel Axtens <dja@axtens.net>
+Date: Tue, 04 Aug 2020 23:53:15 +1000
+Subject: [OpenRISC] [PATCH v2 01/17] KVM: PPC: Book3S HV: simplify
+ kvm_cma_reserve()
+In-Reply-To: <20200802163601.8189-2-rppt@kernel.org>
 References: <20200802163601.8189-1-rppt@kernel.org>
-Message-ID: <20200802163601.8189-18-rppt@kernel.org>
+ <20200802163601.8189-2-rppt@kernel.org>
+Message-ID: <87tuxio6us.fsf@dja-thinkpad.axtens.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+Hi Mike,
 
-for_each_memblock() is used to iterate over memblock.memory in
-a few places that use data from memblock_region rather than the memory
-ranges.
+>
+> The memory size calculation in kvm_cma_reserve() traverses memblock.memory
+> rather than simply call memblock_phys_mem_size(). The comment in that
+> function suggests that at some point there should have been call to
+> memblock_analyze() before memblock_phys_mem_size() could be used.
+> As of now, there is no memblock_analyze() at all and
+> memblock_phys_mem_size() can be used as soon as cold-plug memory is
+> registerd with memblock.
+>
+> Replace loop over memblock.memory with a call to memblock_phys_mem_size().
+>
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> ---
+>  arch/powerpc/kvm/book3s_hv_builtin.c | 11 ++---------
+>  1 file changed, 2 insertions(+), 9 deletions(-)
+>
+> diff --git a/arch/powerpc/kvm/book3s_hv_builtin.c b/arch/powerpc/kvm/book3s_hv_builtin.c
+> index 7cd3cf3d366b..56ab0d28de2a 100644
+> --- a/arch/powerpc/kvm/book3s_hv_builtin.c
+> +++ b/arch/powerpc/kvm/book3s_hv_builtin.c
+> @@ -95,22 +95,15 @@ EXPORT_SYMBOL_GPL(kvm_free_hpt_cma);
+>  void __init kvm_cma_reserve(void)
+>  {
+>  	unsigned long align_size;
+> -	struct memblock_region *reg;
+> -	phys_addr_t selected_size = 0;
+> +	phys_addr_t selected_size;
+>  
+>  	/*
+>  	 * We need CMA reservation only when we are in HV mode
+>  	 */
+>  	if (!cpu_has_feature(CPU_FTR_HVMODE))
+>  		return;
+> -	/*
+> -	 * We cannot use memblock_phys_mem_size() here, because
+> -	 * memblock_analyze() has not been called yet.
+> -	 */
+> -	for_each_memblock(memory, reg)
+> -		selected_size += memblock_region_memory_end_pfn(reg) -
+> -				 memblock_region_memory_base_pfn(reg);
+>  
+> +	selected_size = PHYS_PFN(memblock_phys_mem_size());
+>  	selected_size = (selected_size * kvm_cma_resv_ratio / 100) << PAGE_SHIFT;
 
-Introduce separate for_each_mem_region() and for_each_reserved_mem_region()
-to improve encapsulation of memblock internals from its users.
+I think this is correct, but PHYS_PFN does x >> PAGE_SHIFT and then the
+next line does x << PAGE_SHIFT, so I think we could combine those two
+lines as:
 
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
----
- .clang-format                  |  3 ++-
- arch/arm64/kernel/setup.c      |  2 +-
- arch/arm64/mm/numa.c           |  2 +-
- arch/mips/netlogic/xlp/setup.c |  2 +-
- arch/x86/mm/numa.c             |  2 +-
- include/linux/memblock.h       | 19 ++++++++++++++++---
- mm/memblock.c                  |  4 ++--
- mm/page_alloc.c                |  8 ++++----
- 8 files changed, 28 insertions(+), 14 deletions(-)
+selected_size = PAGE_ALIGN(memblock_phys_mem_size() * kvm_cma_resv_ratio / 100);
 
-diff --git a/.clang-format b/.clang-format
-index e28a849a1c58..cff71d345456 100644
---- a/.clang-format
-+++ b/.clang-format
-@@ -201,7 +201,7 @@ ForEachMacros:
-   - 'for_each_matching_node'
-   - 'for_each_matching_node_and_match'
-   - 'for_each_member'
--  - 'for_each_memblock'
-+  - 'for_each_mem_region'
-   - 'for_each_memblock_type'
-   - 'for_each_memcg_cache_index'
-   - 'for_each_mem_pfn_range'
-@@ -267,6 +267,7 @@ ForEachMacros:
-   - 'for_each_property_of_node'
-   - 'for_each_registered_fb'
-   - 'for_each_reserved_mem_range'
-+  - 'for_each_reserved_mem_region'
-   - 'for_each_rtd_codec_dais'
-   - 'for_each_rtd_codec_dais_rollback'
-   - 'for_each_rtd_components'
-diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
-index f3aec7244aab..52ea2f1a7184 100644
---- a/arch/arm64/kernel/setup.c
-+++ b/arch/arm64/kernel/setup.c
-@@ -217,7 +217,7 @@ static void __init request_standard_resources(void)
- 	if (!standard_resources)
- 		panic("%s: Failed to allocate %zu bytes\n", __func__, res_size);
- 
--	for_each_memblock(memory, region) {
-+	for_each_mem_region(region) {
- 		res = &standard_resources[i++];
- 		if (memblock_is_nomap(region)) {
- 			res->name  = "reserved";
-diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
-index 0cbdbcc885fb..f121e42246a6 100644
---- a/arch/arm64/mm/numa.c
-+++ b/arch/arm64/mm/numa.c
-@@ -350,7 +350,7 @@ static int __init numa_register_nodes(void)
- 	struct memblock_region *mblk;
- 
- 	/* Check that valid nid is set to memblks */
--	for_each_memblock(memory, mblk) {
-+	for_each_mem_region(mblk) {
- 		int mblk_nid = memblock_get_region_node(mblk);
- 
- 		if (mblk_nid == NUMA_NO_NODE || mblk_nid >= MAX_NUMNODES) {
-diff --git a/arch/mips/netlogic/xlp/setup.c b/arch/mips/netlogic/xlp/setup.c
-index 1a0fc5b62ba4..6e3102bcd2f1 100644
---- a/arch/mips/netlogic/xlp/setup.c
-+++ b/arch/mips/netlogic/xlp/setup.c
-@@ -70,7 +70,7 @@ static void nlm_fixup_mem(void)
- 	const int pref_backup = 512;
- 	struct memblock_region *mem;
- 
--	for_each_memblock(memory, mem) {
-+	for_each_mem_region(mem) {
- 		memblock_remove(mem->base + mem->size - pref_backup,
- 			pref_backup);
- 	}
-diff --git a/arch/x86/mm/numa.c b/arch/x86/mm/numa.c
-index 8ee952038c80..fe6ea18d6923 100644
---- a/arch/x86/mm/numa.c
-+++ b/arch/x86/mm/numa.c
-@@ -516,7 +516,7 @@ static void __init numa_clear_kernel_node_hotplug(void)
- 	 *   memory ranges, because quirks such as trim_snb_memory()
- 	 *   reserve specific pages for Sandy Bridge graphics. ]
- 	 */
--	for_each_memblock(reserved, mb_region) {
-+	for_each_reserved_mem_region(mb_region) {
- 		int nid = memblock_get_region_node(mb_region);
- 
- 		if (nid != MAX_NUMNODES)
-diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-index 9e51b3fd4134..a6970e058bd7 100644
---- a/include/linux/memblock.h
-+++ b/include/linux/memblock.h
-@@ -522,9 +522,22 @@ static inline unsigned long memblock_region_reserved_end_pfn(const struct memblo
- 	return PFN_UP(reg->base + reg->size);
- }
- 
--#define for_each_memblock(memblock_type, region)					\
--	for (region = memblock.memblock_type.regions;					\
--	     region < (memblock.memblock_type.regions + memblock.memblock_type.cnt);	\
-+/**
-+ * for_each_mem_region - itereate over registered memory regions
-+ * @region: loop variable
-+ */
-+#define for_each_mem_region(region)					\
-+	for (region = memblock.memory.regions;				\
-+	     region < (memblock.memory.regions + memblock.memory.cnt);	\
-+	     region++)
-+
-+/**
-+ * for_each_reserved_mem_region - itereate over reserved memory regions
-+ * @region: loop variable
-+ */
-+#define for_each_reserved_mem_region(region)				\
-+	for (region = memblock.reserved.regions;			\
-+	     region < (memblock.reserved.regions + memblock.reserved.cnt); \
- 	     region++)
- 
- extern void *alloc_large_system_hash(const char *tablename,
-diff --git a/mm/memblock.c b/mm/memblock.c
-index dadf579f7c53..7d30db5c539f 100644
---- a/mm/memblock.c
-+++ b/mm/memblock.c
-@@ -1653,7 +1653,7 @@ static phys_addr_t __init_memblock __find_max_addr(phys_addr_t limit)
- 	 * the memory memblock regions, if the @limit exceeds the total size
- 	 * of those regions, max_addr will keep original value PHYS_ADDR_MAX
- 	 */
--	for_each_memblock(memory, r) {
-+	for_each_mem_region(r) {
- 		if (limit <= r->size) {
- 			max_addr = r->base + limit;
- 			break;
-@@ -1823,7 +1823,7 @@ void __init_memblock memblock_trim_memory(phys_addr_t align)
- 	phys_addr_t start, end, orig_start, orig_end;
- 	struct memblock_region *r;
- 
--	for_each_memblock(memory, r) {
-+	for_each_mem_region(r) {
- 		orig_start = r->base;
- 		orig_end = r->base + r->size;
- 		start = round_up(orig_start, align);
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 95af111d69d3..948c7a754cdb 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -5927,7 +5927,7 @@ overlap_memmap_init(unsigned long zone, unsigned long *pfn)
- 
- 	if (mirrored_kernelcore && zone == ZONE_MOVABLE) {
- 		if (!r || *pfn >= memblock_region_memory_end_pfn(r)) {
--			for_each_memblock(memory, r) {
-+			for_each_mem_region(r) {
- 				if (*pfn < memblock_region_memory_end_pfn(r))
- 					break;
- 			}
-@@ -6528,7 +6528,7 @@ static unsigned long __init zone_absent_pages_in_node(int nid,
- 		unsigned long start_pfn, end_pfn;
- 		struct memblock_region *r;
- 
--		for_each_memblock(memory, r) {
-+		for_each_mem_region(r) {
- 			start_pfn = clamp(memblock_region_memory_base_pfn(r),
- 					  zone_start_pfn, zone_end_pfn);
- 			end_pfn = clamp(memblock_region_memory_end_pfn(r),
-@@ -7122,7 +7122,7 @@ static void __init find_zone_movable_pfns_for_nodes(void)
- 	 * options.
- 	 */
- 	if (movable_node_is_enabled()) {
--		for_each_memblock(memory, r) {
-+		for_each_mem_region(r) {
- 			if (!memblock_is_hotpluggable(r))
- 				continue;
- 
-@@ -7143,7 +7143,7 @@ static void __init find_zone_movable_pfns_for_nodes(void)
- 	if (mirrored_kernelcore) {
- 		bool mem_below_4gb_not_mirrored = false;
- 
--		for_each_memblock(memory, r) {
-+		for_each_mem_region(r) {
- 			if (memblock_is_mirror(r))
- 				continue;
- 
--- 
-2.26.2
+(I think that might technically change it from aligning down to aligning
+up but I don't think 1 page matters here.)
 
+Kind regards,
+Daniel
+
+
+>  	if (selected_size) {
+>  		pr_debug("%s: reserving %ld MiB for global area\n", __func__,
+> -- 
+> 2.26.2
