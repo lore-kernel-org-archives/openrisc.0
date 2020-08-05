@@ -1,71 +1,57 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu,  6 Aug 2020 06:07:21 +0900
-Subject: [OpenRISC] [PATCH v2 2/6] openrisc: uaccess: Fix sparse address
- space warnings
+Date: Thu,  6 Aug 2020 06:07:22 +0900
+Subject: [OpenRISC] [PATCH v2 3/6] openrisc: uaccess: Use static inline
+ function in access_ok
 In-Reply-To: <20200805210725.310301-1-shorne@gmail.com>
 References: <20200805210725.310301-1-shorne@gmail.com>
-Message-ID: <20200805210725.310301-3-shorne@gmail.com>
+Message-ID: <20200805210725.310301-4-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The OpenRISC user access functions put_user(), get_user() and
-clear_user() were missing proper sparse annotations.  This generated
-warnings like the below.
+As suggested by Linus when reviewing commit 9cb2feb4d21d
+("arch/openrisc: Fix issues with access_ok()") last year; making
+__range_ok an inline function also fixes the used twice issue that the
+commit was fixing.  I agree it's a good cleanup.  This patch addresses
+that as I am currently working on the access_ok macro to fixup sparse
+annotations in OpenRISC.
 
-This patch adds the annotations to fix the warnings.
-
-Example warnings:
-
-net/ipv4/ip_sockglue.c:759:29: warning: incorrect type in argument 1 (different address spaces)
-net/ipv4/ip_sockglue.c:759:29:    expected void const volatile [noderef] __user *
-net/ipv4/ip_sockglue.c:759:29:    got int const *__gu_addr
-net/ipv4/ip_sockglue.c:764:29: warning: incorrect type in initializer (different address spaces)
-net/ipv4/ip_sockglue.c:764:29:    expected unsigned char const *__gu_addr
-net/ipv4/ip_sockglue.c:764:29:    got unsigned char [noderef] __user *
-
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/include/asm/uaccess.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/openrisc/include/asm/uaccess.h | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
 diff --git a/arch/openrisc/include/asm/uaccess.h b/arch/openrisc/include/asm/uaccess.h
-index 46e31bb4a9ad..f2fc5c4b88c3 100644
+index f2fc5c4b88c3..4b59dc9ad300 100644
 --- a/arch/openrisc/include/asm/uaccess.h
 +++ b/arch/openrisc/include/asm/uaccess.h
-@@ -100,7 +100,7 @@ extern long __put_user_bad(void);
- #define __put_user_check(x, ptr, size)					\
- ({									\
- 	long __pu_err = -EFAULT;					\
--	__typeof__(*(ptr)) *__pu_addr = (ptr);				\
-+	__typeof__(*(ptr)) __user *__pu_addr = (ptr);			\
- 	if (access_ok(__pu_addr, size))			\
- 		__put_user_size((x), __pu_addr, (size), __pu_err);	\
- 	__pu_err;							\
-@@ -173,7 +173,7 @@ struct __large_struct {
- #define __get_user_check(x, ptr, size)					\
- ({									\
- 	long __gu_err = -EFAULT, __gu_val = 0;				\
--	const __typeof__(*(ptr)) * __gu_addr = (ptr);			\
-+	const __typeof__(*(ptr)) __user *__gu_addr = (ptr);		\
- 	if (access_ok(__gu_addr, size))			\
- 		__get_user_size(__gu_val, __gu_addr, (size), __gu_err);	\
- 	(x) = (__force __typeof__(*(ptr)))__gu_val;			\
-@@ -248,10 +248,10 @@ raw_copy_to_user(void __user *to, const void *from, unsigned long size)
- #define INLINE_COPY_FROM_USER
- #define INLINE_COPY_TO_USER
+@@ -48,16 +48,19 @@
+ /* Ensure that the range from addr to addr+size is all within the process'
+  * address space
+  */
+-#define __range_ok(addr, size) (size <= get_fs() && addr <= (get_fs()-size))
++static inline int __range_ok(unsigned long addr, unsigned long size)
++{
++	const mm_segment_t fs = get_fs();
++
++	return size <= fs && addr <= (fs - size);
++}
  
--extern unsigned long __clear_user(void *addr, unsigned long size);
-+extern unsigned long __clear_user(void __user *addr, unsigned long size);
+ /* Ensure that addr is below task's addr_limit */
+ #define __addr_ok(addr) ((unsigned long) addr < get_fs())
  
- static inline __must_check unsigned long
--clear_user(void *addr, unsigned long size)
-+clear_user(void __user *addr, unsigned long size)
- {
- 	if (likely(access_ok(addr, size)))
- 		size = __clear_user(addr, size);
+ #define access_ok(addr, size)						\
+ ({ 									\
+-	unsigned long __ao_addr = (unsigned long)(addr);		\
+-	unsigned long __ao_size = (unsigned long)(size);		\
+-	__range_ok(__ao_addr, __ao_size);				\
++	__range_ok((unsigned long)(addr), (size));			\
+ })
+ 
+ /*
 -- 
 2.26.2
 
