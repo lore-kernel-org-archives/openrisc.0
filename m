@@ -1,39 +1,72 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 9 Aug 2020 07:48:22 +0900
-Subject: [OpenRISC] [PATCH v2 5/6] openrisc: signal: Fix sparse address
+Date: Sun,  9 Aug 2020 08:06:43 +0900
+Subject: [OpenRISC] [PATCH v3 2/6] openrisc: uaccess: Fix sparse address
  space warnings
-In-Reply-To: <20200806190449.xqflhmbiiv5btusf@ltop.local>
-References: <20200805210725.310301-1-shorne@gmail.com>
- <20200805210725.310301-6-shorne@gmail.com>
- <20200806190449.xqflhmbiiv5btusf@ltop.local>
-Message-ID: <20200808224822.GQ80756@lianli.shorne-pla.net>
+In-Reply-To: <20200808230647.833047-1-shorne@gmail.com>
+References: <20200808230647.833047-1-shorne@gmail.com>
+Message-ID: <20200808230647.833047-3-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Thu, Aug 06, 2020 at 09:04:49PM +0200, Luc Van Oostenryck wrote:
-> On Thu, Aug 06, 2020 at 06:07:24AM +0900, Stafford Horne wrote:
-> > ---
-> >  arch/openrisc/kernel/signal.c | 14 +++++++-------
-> >  1 file changed, 7 insertions(+), 7 deletions(-)
-> > 
-> > diff --git a/arch/openrisc/kernel/signal.c b/arch/openrisc/kernel/signal.c
-> > index 4f0754874d78..7ce0728412f6 100644
-> > --- a/arch/openrisc/kernel/signal.c
-> > +++ b/arch/openrisc/kernel/signal.c
-> > @@ -76,7 +76,7 @@ asmlinkage long _sys_rt_sigreturn(struct pt_regs *regs)
-> >  	 * then frame should be dword aligned here.  If it's
-> >  	 * not, then the user is trying to mess with us.
-> >  	 */
-> > -	if (((long)frame) & 3)
-> > +	if (((__force unsigned long)frame) & 3)
-> >  		goto badframe;
-> 
-> Same as patch 6, the __force is not needed.
+The OpenRISC user access functions put_user(), get_user() and
+clear_user() were missing proper sparse annotations.  This generated
+warnings like the below.
 
-Thanks,  I thought this was complaining before, I tested now and there is no
-problem so I must have been mixed up with something else.
+This patch adds the annotations to fix the warnings.
 
--Stafford
+Example warnings:
+
+net/ipv4/ip_sockglue.c:759:29: warning: incorrect type in argument 1 (different address spaces)
+net/ipv4/ip_sockglue.c:759:29:    expected void const volatile [noderef] __user *
+net/ipv4/ip_sockglue.c:759:29:    got int const *__gu_addr
+net/ipv4/ip_sockglue.c:764:29: warning: incorrect type in initializer (different address spaces)
+net/ipv4/ip_sockglue.c:764:29:    expected unsigned char const *__gu_addr
+net/ipv4/ip_sockglue.c:764:29:    got unsigned char [noderef] __user *
+
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+Reviewed-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+---
+ arch/openrisc/include/asm/uaccess.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/openrisc/include/asm/uaccess.h b/arch/openrisc/include/asm/uaccess.h
+index 46e31bb4a9ad..f2fc5c4b88c3 100644
+--- a/arch/openrisc/include/asm/uaccess.h
++++ b/arch/openrisc/include/asm/uaccess.h
+@@ -100,7 +100,7 @@ extern long __put_user_bad(void);
+ #define __put_user_check(x, ptr, size)					\
+ ({									\
+ 	long __pu_err = -EFAULT;					\
+-	__typeof__(*(ptr)) *__pu_addr = (ptr);				\
++	__typeof__(*(ptr)) __user *__pu_addr = (ptr);			\
+ 	if (access_ok(__pu_addr, size))			\
+ 		__put_user_size((x), __pu_addr, (size), __pu_err);	\
+ 	__pu_err;							\
+@@ -173,7 +173,7 @@ struct __large_struct {
+ #define __get_user_check(x, ptr, size)					\
+ ({									\
+ 	long __gu_err = -EFAULT, __gu_val = 0;				\
+-	const __typeof__(*(ptr)) * __gu_addr = (ptr);			\
++	const __typeof__(*(ptr)) __user *__gu_addr = (ptr);		\
+ 	if (access_ok(__gu_addr, size))			\
+ 		__get_user_size(__gu_val, __gu_addr, (size), __gu_err);	\
+ 	(x) = (__force __typeof__(*(ptr)))__gu_val;			\
+@@ -248,10 +248,10 @@ raw_copy_to_user(void __user *to, const void *from, unsigned long size)
+ #define INLINE_COPY_FROM_USER
+ #define INLINE_COPY_TO_USER
+ 
+-extern unsigned long __clear_user(void *addr, unsigned long size);
++extern unsigned long __clear_user(void __user *addr, unsigned long size);
+ 
+ static inline __must_check unsigned long
+-clear_user(void *addr, unsigned long size)
++clear_user(void __user *addr, unsigned long size)
+ {
+ 	if (likely(access_ok(addr, size)))
+ 		size = __clear_user(addr, size);
+-- 
+2.26.2
+
