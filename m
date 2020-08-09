@@ -1,41 +1,49 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun,  9 Aug 2020 08:06:47 +0900
-Subject: [OpenRISC] [PATCH v3 6/6] openrisc: uaccess: Add user address space
- check to access_ok
-In-Reply-To: <20200808230647.833047-1-shorne@gmail.com>
-References: <20200808230647.833047-1-shorne@gmail.com>
-Message-ID: <20200808230647.833047-7-shorne@gmail.com>
+Date: Sun, 9 Aug 2020 17:37:29 +0900
+Subject: [OpenRISC] [PATCH v2 5/6] openrisc: signal: Fix sparse address
+ space warnings
+In-Reply-To: <20200808230842.4bdwrvuz3lbgkcom@ltop.local>
+References: <20200805210725.310301-1-shorne@gmail.com>
+ <20200805210725.310301-6-shorne@gmail.com>
+ <20200806190449.xqflhmbiiv5btusf@ltop.local>
+ <20200808224822.GQ80756@lianli.shorne-pla.net>
+ <20200808230842.4bdwrvuz3lbgkcom@ltop.local>
+Message-ID: <20200809083729.GS80756@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Now that __user annotations are fixed for openrisc uaccess api's we can
-add checking to the access_ok macro.  This patch adds the __chk_user_ptr
-check, on normal builds the added check is a nop.
+On Sun, Aug 09, 2020 at 01:08:42AM +0200, Luc Van Oostenryck wrote:
+> On Sun, Aug 09, 2020 at 07:48:22AM +0900, Stafford Horne wrote:
+> > On Thu, Aug 06, 2020 at 09:04:49PM +0200, Luc Van Oostenryck wrote:
+> > > On Thu, Aug 06, 2020 at 06:07:24AM +0900, Stafford Horne wrote:
+> > > > ---
+> > > >  arch/openrisc/kernel/signal.c | 14 +++++++-------
+> > > >  1 file changed, 7 insertions(+), 7 deletions(-)
+> > > > 
+> > > > diff --git a/arch/openrisc/kernel/signal.c b/arch/openrisc/kernel/signal.c
+> > > > index 4f0754874d78..7ce0728412f6 100644
+> > > > --- a/arch/openrisc/kernel/signal.c
+> > > > +++ b/arch/openrisc/kernel/signal.c
+> > > > @@ -76,7 +76,7 @@ asmlinkage long _sys_rt_sigreturn(struct pt_regs *regs)
+> > > >  	 * then frame should be dword aligned here.  If it's
+> > > >  	 * not, then the user is trying to mess with us.
+> > > >  	 */
+> > > > -	if (((long)frame) & 3)
+> > > > +	if (((__force unsigned long)frame) & 3)
+> > > >  		goto badframe;
+> > > 
+> > > Same as patch 6, the __force is not needed.
+> > 
+> > Thanks,  I thought this was complaining before, I tested now and there is no
+> > problem so I must have been mixed up with something else.
+> 
+> Sparse should have complained with with the cast to long but
+> purposely doesn't with unsigned long (or uintptr_t).
+> So, no mix up, I think.
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
-Reviewed-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
----
-Changes since v2:
- - Remove __force in cast suggsted by Luc
+You are right, I noticed that right after I sent that email.  Thanks a lot.
 
- arch/openrisc/include/asm/uaccess.h | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/openrisc/include/asm/uaccess.h b/arch/openrisc/include/asm/uaccess.h
-index 85a55359b244..7c5892f56765 100644
---- a/arch/openrisc/include/asm/uaccess.h
-+++ b/arch/openrisc/include/asm/uaccess.h
-@@ -57,6 +57,7 @@ static inline int __range_ok(unsigned long addr, unsigned long size)
- 
- #define access_ok(addr, size)						\
- ({ 									\
-+	__chk_user_ptr(addr);						\
- 	__range_ok((unsigned long)(addr), (size));			\
- })
- 
--- 
-2.26.2
-
+-Stafford
