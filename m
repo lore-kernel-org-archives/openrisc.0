@@ -1,89 +1,86 @@
-From: Mike Rapoport <rppt@kernel.org>
-Date: Wed, 19 Aug 2020 23:48:48 +0300
-Subject: [OpenRISC] [PATCH v3 09/17] memblock: make memblock_debug and
- related functionality private
-In-Reply-To: <20200819122405.88e9719e86ac7c3c44b4db32@linux-foundation.org>
-References: <20200818151634.14343-1-rppt@kernel.org>
- <20200818151634.14343-10-rppt@kernel.org>
- <20200819122405.88e9719e86ac7c3c44b4db32@linux-foundation.org>
-Message-ID: <20200819204848.GX752365@kernel.org>
+From: Nicholas Piggin <npiggin@gmail.com>
+Date: Thu, 27 Aug 2020 00:33:05 +1000
+Subject: [OpenRISC] [PATCH 14/24] openrisc: use
+ asm-generic/mmu_context.h for no-op implementations
+In-Reply-To: <20200729114554.GG80756@lianli.shorne-pla.net>
+References: <20200728033405.78469-1-npiggin@gmail.com>
+ <20200728033405.78469-15-npiggin@gmail.com>
+ <20200729114554.GG80756@lianli.shorne-pla.net>
+Message-ID: <1598452354.xwvdyvp4t6.astroid@bobo.none>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Aug 19, 2020 at 12:24:05PM -0700, Andrew Morton wrote:
-> On Tue, 18 Aug 2020 18:16:26 +0300 Mike Rapoport <rppt@kernel.org> wrote:
+Excerpts from Stafford Horne's message of July 29, 2020 9:45 pm:
+> On Tue, Jul 28, 2020 at 01:33:55PM +1000, Nicholas Piggin wrote:
+>> Cc: Jonas Bonn <jonas@southpole.se>
+>> Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+>> Cc: Stafford Horne <shorne@gmail.com>
+>> Cc: openrisc at lists.librecores.org
+>> Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+>> ---
+>>  arch/openrisc/include/asm/mmu_context.h | 8 +++-----
+>>  arch/openrisc/mm/tlb.c                  | 2 ++
+>>  2 files changed, 5 insertions(+), 5 deletions(-)
+>> 
+>> diff --git a/arch/openrisc/include/asm/mmu_context.h b/arch/openrisc/include/asm/mmu_context.h
+>> index ced577542e29..a6702384c77d 100644
+>> --- a/arch/openrisc/include/asm/mmu_context.h
+>> +++ b/arch/openrisc/include/asm/mmu_context.h
+>> @@ -17,13 +17,13 @@
+>>  
+>>  #include <asm-generic/mm_hooks.h>
+>>  
+>> +#define init_new_context init_new_context
+>>  extern int init_new_context(struct task_struct *tsk, struct mm_struct *mm);
+>> +#define destroy_context destroy_context
+>>  extern void destroy_context(struct mm_struct *mm);
+>>  extern void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+>>  		      struct task_struct *tsk);
+>>  
+>> -#define deactivate_mm(tsk, mm)	do { } while (0)
+>> -
+>>  #define activate_mm(prev, next) switch_mm((prev), (next), NULL)
+>>  
+>>  /* current active pgd - this is similar to other processors pgd
+>> @@ -32,8 +32,6 @@ extern void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+>>  
+>>  extern volatile pgd_t *current_pgd[]; /* defined in arch/openrisc/mm/fault.c */
+>>  
+>> -static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
+>> -{
+>> -}
+>> +#include <asm-generic/mmu_context.h>
 > 
-> > From: Mike Rapoport <rppt@linux.ibm.com>
-> > 
-> > The only user of memblock_dbg() outside memblock was s390 setup code and it
-> > is converted to use pr_debug() instead.
-> > This allows to stop exposing memblock_debug and memblock_dbg() to the rest
-> > of the kernel.
-> > 
-> > --- a/mm/memblock.c
-> > +++ b/mm/memblock.c
-> > @@ -137,7 +137,10 @@ struct memblock_type physmem = {
-> >  	     i < memblock_type->cnt;					\
-> >  	     i++, rgn = &memblock_type->regions[i])
-> >  
-> > -int memblock_debug __initdata_memblock;
-> > +#define memblock_dbg(fmt, ...) \
-> > +	if (memblock_debug) printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
-> > +
+> This looks ok.
 > 
-> checkpatch doesn't like this much.
+>>  #endif
+>> diff --git a/arch/openrisc/mm/tlb.c b/arch/openrisc/mm/tlb.c
+>> index 4b680aed8f5f..821aab4cf3be 100644
+>> --- a/arch/openrisc/mm/tlb.c
+>> +++ b/arch/openrisc/mm/tlb.c
+>> @@ -159,6 +159,7 @@ void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+>>   * instance.
+>>   */
+>>  
+>> +#define init_new_context init_new_context
+>>  int init_new_context(struct task_struct *tsk, struct mm_struct *mm)
+>>  {
+>>  	mm->context = NO_CONTEXT;
+>> @@ -170,6 +171,7 @@ int init_new_context(struct task_struct *tsk, struct mm_struct *mm)
+>>   * drops it.
+>>   */
+>>  
+>> +#define destroy_context destroy_context
+>>  void destroy_context(struct mm_struct *mm)
+>>  {
+>>  	flush_tlb_mm(mm);
 > 
-> ERROR: Macros starting with if should be enclosed by a do - while loop to avoid possible if/else logic defects
-> #101: FILE: mm/memblock.c:140:
-> +#define memblock_dbg(fmt, ...) \
-> +	if (memblock_debug) printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
-> 
-> WARNING: Prefer [subsystem eg: netdev]_info([subsystem]dev, ... then dev_info(dev, ... then pr_info(...  to printk(KERN_INFO ...
-> #102: FILE: mm/memblock.c:141:
-> +	if (memblock_debug) printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
-> 
-> ERROR: trailing statements should be on next line
-> #102: FILE: mm/memblock.c:141:
-> +	if (memblock_debug) printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
-> 
-> 
-> The first one is significant:
-> 
-> 	if (foo)
-> 		memblock_dbg(...);
-> 	else
-> 		save_the_world();
-> 
-> could end up inadvertently destroying the planet.
+> I don't think we need the #define's in the .c file.  Do we?
 
-Well, it didn't till now ;-)
+You're right, I fixed that and the same issue in another arch.
 
-> This?
-> 
-> --- a/mm/memblock.c~memblock-make-memblock_debug-and-related-functionality-private-fix
-> +++ a/mm/memblock.c
-> @@ -137,8 +137,11 @@ struct memblock_type physmem = {
->  	     i < memblock_type->cnt;					\
->  	     i++, rgn = &memblock_type->regions[i])
->  
-> -#define memblock_dbg(fmt, ...) \
-> -	if (memblock_debug) printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
-> +#define memblock_dbg(fmt, ...)						\
-> +	do {								\
-> +		if (memblock_debug)					\
-> +			pr_info(fmt, ##__VA_ARGS__);			\
-> +	} while (0)
-
-Sure, thanks!
-
->  static int memblock_debug __initdata_memblock;
->  static bool system_has_some_mirror __initdata_memblock = false;
-> _
-> 
-
--- 
-Sincerely yours,
-Mike.
+Thanks,
+Nick
