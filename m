@@ -1,42 +1,59 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 12 Sep 2020 17:42:55 +0900
-Subject: [OpenRISC] [GIT PULL] OpenRISC fixes for v5.9-rc4
-Message-ID: <20200912084255.GR3562056@lianli.shorne-pla.net>
+From: Nicholas Piggin <npiggin@gmail.com>
+Date: Wed,  2 Sep 2020 00:15:30 +1000
+Subject: [OpenRISC] [PATCH v3 14/23] openrisc: use asm-generic/mmu_context.h
+ for no-op implementations
+In-Reply-To: <20200901141539.1757549-1-npiggin@gmail.com>
+References: <20200901141539.1757549-1-npiggin@gmail.com>
+Message-ID: <20200901141539.1757549-15-npiggin@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Linus,
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Cc: Stafford Horne <shorne@gmail.com>
+Cc: openrisc at lists.librecores.org
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+---
 
-Please consider for pull.
+Please ack or nack if you object to this being mered via
+Arnd's tree.
 
-The following changes since commit d012a7190fc1fd72ed48911e77ca97ba4521bccd:
+ arch/openrisc/include/asm/mmu_context.h | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-  Linux 5.9-rc2 (2020-08-23 14:08:43 -0700)
+diff --git a/arch/openrisc/include/asm/mmu_context.h b/arch/openrisc/include/asm/mmu_context.h
+index ced577542e29..a6702384c77d 100644
+--- a/arch/openrisc/include/asm/mmu_context.h
++++ b/arch/openrisc/include/asm/mmu_context.h
+@@ -17,13 +17,13 @@
+ 
+ #include <asm-generic/mm_hooks.h>
+ 
++#define init_new_context init_new_context
+ extern int init_new_context(struct task_struct *tsk, struct mm_struct *mm);
++#define destroy_context destroy_context
+ extern void destroy_context(struct mm_struct *mm);
+ extern void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+ 		      struct task_struct *tsk);
+ 
+-#define deactivate_mm(tsk, mm)	do { } while (0)
+-
+ #define activate_mm(prev, next) switch_mm((prev), (next), NULL)
+ 
+ /* current active pgd - this is similar to other processors pgd
+@@ -32,8 +32,6 @@ extern void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+ 
+ extern volatile pgd_t *current_pgd[]; /* defined in arch/openrisc/mm/fault.c */
+ 
+-static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
+-{
+-}
++#include <asm-generic/mmu_context.h>
+ 
+ #endif
+-- 
+2.23.0
 
-are available in the Git repository at:
-
-  git://github.com/openrisc/linux.git tags/for-linus
-
-for you to fetch changes up to d877322bc1adcab9850732275670409e8bcca4c4:
-
-  openrisc: Fix issue with get_user for 64-bit values (2020-09-12 17:26:00 +0900)
-
-----------------------------------------------------------------
-OpenRISC fixes for 5.9-rc4
-
-Fixes for compile issues pointed out by kbuild and one bug I found in
-interd with the 5.9 patches.
-
-----------------------------------------------------------------
-Stafford Horne (3):
-      openrisc: Reserve memblock for initrd
-      openrisc: Fix cache API compile issue when not inlining
-      openrisc: Fix issue with get_user for 64-bit values
-
- arch/openrisc/include/asm/uaccess.h | 33 +++++++++++++++++++++------------
- arch/openrisc/kernel/setup.c        | 10 ++++++++++
- arch/openrisc/mm/cache.c            |  2 +-
- 3 files changed, 32 insertions(+), 13 deletions(-)
