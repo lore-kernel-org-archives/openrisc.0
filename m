@@ -1,59 +1,30 @@
-From: Nicholas Piggin <npiggin@gmail.com>
-Date: Wed,  2 Sep 2020 00:15:30 +1000
-Subject: [OpenRISC] [PATCH v3 14/23] openrisc: use asm-generic/mmu_context.h
- for no-op implementations
-In-Reply-To: <20200901141539.1757549-1-npiggin@gmail.com>
-References: <20200901141539.1757549-1-npiggin@gmail.com>
-Message-ID: <20200901141539.1757549-15-npiggin@gmail.com>
+From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Date: Sat, 5 Sep 2020 15:57:14 +0200
+Subject: [OpenRISC] [PATCH v2 3/3] openrisc: Fix issue with get_user for
+ 64-bit values
+In-Reply-To: <20200905131935.972386-4-shorne@gmail.com>
+References: <20200905131935.972386-1-shorne@gmail.com>
+ <20200905131935.972386-4-shorne@gmail.com>
+Message-ID: <20200905135714.74bsr5h423k7guw4@ltop.local>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: openrisc at lists.librecores.org
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
----
+On Sat, Sep 05, 2020 at 10:19:35PM +0900, Stafford Horne wrote:
 
-Please ack or nack if you object to this being mered via
-Arnd's tree.
+Hi,
 
- arch/openrisc/include/asm/mmu_context.h | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+The change for 64-bit get_user() looks good to me.
+But I wonder, given that openrisc is big-endian, what will happen
+you have the opposite situation:
+	u32 *ptr;
+	u64 val;
+	...
+	get_user(val, ptr);
 
-diff --git a/arch/openrisc/include/asm/mmu_context.h b/arch/openrisc/include/asm/mmu_context.h
-index ced577542e29..a6702384c77d 100644
---- a/arch/openrisc/include/asm/mmu_context.h
-+++ b/arch/openrisc/include/asm/mmu_context.h
-@@ -17,13 +17,13 @@
- 
- #include <asm-generic/mm_hooks.h>
- 
-+#define init_new_context init_new_context
- extern int init_new_context(struct task_struct *tsk, struct mm_struct *mm);
-+#define destroy_context destroy_context
- extern void destroy_context(struct mm_struct *mm);
- extern void switch_mm(struct mm_struct *prev, struct mm_struct *next,
- 		      struct task_struct *tsk);
- 
--#define deactivate_mm(tsk, mm)	do { } while (0)
--
- #define activate_mm(prev, next) switch_mm((prev), (next), NULL)
- 
- /* current active pgd - this is similar to other processors pgd
-@@ -32,8 +32,6 @@ extern void switch_mm(struct mm_struct *prev, struct mm_struct *next,
- 
- extern volatile pgd_t *current_pgd[]; /* defined in arch/openrisc/mm/fault.c */
- 
--static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
--{
--}
-+#include <asm-generic/mmu_context.h>
- 
- #endif
--- 
-2.23.0
+Won't you end with the value in the most significant part of
+the register pair?
 
+-- Luc
