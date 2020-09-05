@@ -1,48 +1,60 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat,  5 Sep 2020 22:19:33 +0900
-Subject: [OpenRISC] [PATCH v2 1/3] openrisc: Reserve memblock for initrd
+Date: Sat,  5 Sep 2020 22:19:34 +0900
+Subject: [OpenRISC] [PATCH v2 2/3] openrisc: Fix cache API compile issue
+ when not inlining
 In-Reply-To: <20200905131935.972386-1-shorne@gmail.com>
 References: <20200905131935.972386-1-shorne@gmail.com>
-Message-ID: <20200905131935.972386-2-shorne@gmail.com>
+Message-ID: <20200905131935.972386-3-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Recently OpenRISC added support for external initrd images, but I found
-some instability when using larger buildroot initrd images. It turned
-out that I forgot to reserve the memblock space for the initrd image.
+I found this when compiling a kbuild random config with GCC 11.  The
+config enables CONFIG_DEBUG_SECTION_MISMATCH, which sets CFLAGS
+-fno-inline-functions-called-once. This causes the call to cache_loop in
+cache.c to not be inlined causing the below compile error.
 
-This patch fixes the instability issue by reserving memblock space.
+    In file included from arch/openrisc/mm/cache.c:13:
+    arch/openrisc/mm/cache.c: In function 'cache_loop':
+    ./arch/openrisc/include/asm/spr.h:16:27: warning: 'asm' operand 0 probably does not match constraints
+       16 | #define mtspr(_spr, _val) __asm__ __volatile__ (  \
+	  |                           ^~~~~~~
+    arch/openrisc/mm/cache.c:25:3: note: in expansion of macro 'mtspr'
+       25 |   mtspr(reg, line);
+	  |   ^~~~~
+    ./arch/openrisc/include/asm/spr.h:16:27: error: impossible constraint in 'asm'
+       16 | #define mtspr(_spr, _val) __asm__ __volatile__ (  \
+	  |                           ^~~~~~~
+    arch/openrisc/mm/cache.c:25:3: note: in expansion of macro 'mtspr'
+       25 |   mtspr(reg, line);
+	  |   ^~~~~
+    make[1]: *** [scripts/Makefile.build:283: arch/openrisc/mm/cache.o] Error 1
 
-Fixes: ff6c923dbec3 ("openrisc: Add support for external initrd images")
+The asm constraint "K" requires a immediate constant argument to mtspr,
+however because of no inlining a register argument is passed causing a
+failure.  Fix this by using __always_inline.
+
+Link: https://lore.kernel.org/lkml/202008200453.ohnhqkjQ%25lkp at intel.com/
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/kernel/setup.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/openrisc/mm/cache.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
-index b18e775f8be3..13c87f1f872b 100644
---- a/arch/openrisc/kernel/setup.c
-+++ b/arch/openrisc/kernel/setup.c
-@@ -80,6 +80,16 @@ static void __init setup_memory(void)
- 	 */
- 	memblock_reserve(__pa(_stext), _end - _stext);
+diff --git a/arch/openrisc/mm/cache.c b/arch/openrisc/mm/cache.c
+index 08f56af387ac..534a52ec5e66 100644
+--- a/arch/openrisc/mm/cache.c
++++ b/arch/openrisc/mm/cache.c
+@@ -16,7 +16,7 @@
+ #include <asm/cacheflush.h>
+ #include <asm/tlbflush.h>
  
-+#ifdef CONFIG_BLK_DEV_INITRD
-+	/* Then reserve the initrd, if any */
-+	if (initrd_start && (initrd_end > initrd_start)) {
-+		unsigned long aligned_start = ALIGN_DOWN(initrd_start, PAGE_SIZE);
-+		unsigned long aligned_end = ALIGN(initrd_end, PAGE_SIZE);
-+
-+		memblock_reserve(__pa(aligned_start), aligned_end - aligned_start);
-+	}
-+#endif /* CONFIG_BLK_DEV_INITRD */
-+
- 	early_init_fdt_reserve_self();
- 	early_init_fdt_scan_reserved_mem();
- 
+-static void cache_loop(struct page *page, const unsigned int reg)
++static __always_inline void cache_loop(struct page *page, const unsigned int reg)
+ {
+ 	unsigned long paddr = page_to_pfn(page) << PAGE_SHIFT;
+ 	unsigned long line = paddr & ~(L1_CACHE_BYTES - 1);
 -- 
 2.26.2
 
