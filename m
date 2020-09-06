@@ -1,57 +1,94 @@
-From: Mike Rapoport <rppt@kernel.org>
-Date: Sun, 6 Sep 2020 09:15:38 +0300
-Subject: [OpenRISC] [PATCH v2 1/3] openrisc: Reserve memblock for initrd
-In-Reply-To: <20200905131935.972386-2-shorne@gmail.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Mon, 7 Sep 2020 06:00:41 +0900
+Subject: [OpenRISC] [PATCH v2 3/3] openrisc: Fix issue with get_user for
+ 64-bit values
+In-Reply-To: <20200906002228.mrbs7pdyrf5ooi3c@ltop.local>
 References: <20200905131935.972386-1-shorne@gmail.com>
- <20200905131935.972386-2-shorne@gmail.com>
-Message-ID: <20200906061538.GB1213823@kernel.org>
+ <20200905131935.972386-4-shorne@gmail.com>
+ <20200905135714.74bsr5h423k7guw4@ltop.local>
+ <20200905213408.GI3562056@lianli.shorne-pla.net>
+ <20200906002228.mrbs7pdyrf5ooi3c@ltop.local>
+Message-ID: <20200906210041.GK3562056@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sat, Sep 05, 2020 at 10:19:33PM +0900, Stafford Horne wrote:
-> Recently OpenRISC added support for external initrd images, but I found
-> some instability when using larger buildroot initrd images. It turned
-> out that I forgot to reserve the memblock space for the initrd image.
+On Sun, Sep 06, 2020 at 02:22:28AM +0200, Luc Van Oostenryck wrote:
+> On Sun, Sep 06, 2020 at 06:34:08AM +0900, Stafford Horne wrote:
+> > On Sat, Sep 05, 2020 at 03:57:14PM +0200, Luc Van Oostenryck wrote:
+> > > On Sat, Sep 05, 2020 at 10:19:35PM +0900, Stafford Horne wrote:
+> > > 
+> > > Hi,
+> > > 
+> > > The change for 64-bit get_user() looks good to me.
+> > > But I wonder, given that openrisc is big-endian, what will happen
+> > > you have the opposite situation:
+> > > 	u32 *ptr;
+> > > 	u64 val;
+> > > 	...
+> > > 	get_user(val, ptr);
+> > > 
+> > > Won't you end with the value in the most significant part of
+> > > the register pair?
+> > 
+> > Hi Luc,
+> > 
+> > The get_user function uses the size of the ptr to determine how to do the load ,
+> > so this case would not use the 64-bit pair register logic.  I think it should be
+> > ok, the end result would be the same as c code:
+> > 
+> >   var = *ptr;
 > 
-> This patch fixes the instability issue by reserving memblock space.
+> Hi,
 > 
-> Fixes: ff6c923dbec3 ("openrisc: Add support for external initrd images")
-> Signed-off-by: Stafford Horne <shorne@gmail.com>
+> Sorry to insist but both won't give the same result.
+> The problem comes from the output part of the asm: "=r" (x).
+> 
+> The following code:
+> 	u32 getp(u32 *ptr)
+> 	{
+> 		u64 val;
+> 		val = *ptr;
+> 		return val;
+> 	}
+> will compile to something like:
+> 	getp:
+> 		l.jr	r9
+> 		l.lwz	r11, 0(r3)
+> 
+> The load is written to r11, which is what is returned. OK.
+> 
+> But the get_user() code with a u32 pointer *and* a u64 destination
+> is equivalent to something like:
+> 	u32 getl(u32 *ptr)
+> 	{
+> 		u64 val;
+> 
+> 		asm("l.lwz %0,0(%1)" : "=r"(val) : "r"(ptr));
+> 		return val;
+> 	}
+> and this compiles to:
+> 	getl:
+> 		l.lwz	r17,0(r3)
+> 		l.jr	r9
+> 		l.or	r11, r19, r19
+> 
+> The load is written to r17 but what is returned is the content of r19.
+> Not good.
+> 
+> I think that, in the get_user() code:
+> * if the pointer is a pointer to a 64-bit quantity, then variable
+>   used in as the output in the asm needs to be a 64-bit variable
+> * if the pointer is a pointer to a 32-bit quantity, then variable
+>   used in as the output in the asm needs to be a 64-bit variable
+> At least one way to guarantee this is to use a temporary variable
+> that matches the size of the pointer.
 
-Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
+Hello,
 
-> ---
->  arch/openrisc/kernel/setup.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
-> 
-> diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
-> index b18e775f8be3..13c87f1f872b 100644
-> --- a/arch/openrisc/kernel/setup.c
-> +++ b/arch/openrisc/kernel/setup.c
-> @@ -80,6 +80,16 @@ static void __init setup_memory(void)
->  	 */
->  	memblock_reserve(__pa(_stext), _end - _stext);
->  
-> +#ifdef CONFIG_BLK_DEV_INITRD
-> +	/* Then reserve the initrd, if any */
-> +	if (initrd_start && (initrd_end > initrd_start)) {
-> +		unsigned long aligned_start = ALIGN_DOWN(initrd_start, PAGE_SIZE);
-> +		unsigned long aligned_end = ALIGN(initrd_end, PAGE_SIZE);
-> +
-> +		memblock_reserve(__pa(aligned_start), aligned_end - aligned_start);
-> +	}
-> +#endif /* CONFIG_BLK_DEV_INITRD */
-> +
->  	early_init_fdt_reserve_self();
->  	early_init_fdt_scan_reserved_mem();
->  
-> -- 
-> 2.26.2
-> 
+Thanks for taking the time to explain.  I see your point, it makes sense I will
+fix this up.
 
--- 
-Sincerely yours,
-Mike.
+-Stafford
