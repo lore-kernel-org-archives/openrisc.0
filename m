@@ -1,94 +1,65 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 7 Sep 2020 06:00:41 +0900
-Subject: [OpenRISC] [PATCH v2 3/3] openrisc: Fix issue with get_user for
- 64-bit values
-In-Reply-To: <20200906002228.mrbs7pdyrf5ooi3c@ltop.local>
-References: <20200905131935.972386-1-shorne@gmail.com>
- <20200905131935.972386-4-shorne@gmail.com>
- <20200905135714.74bsr5h423k7guw4@ltop.local>
- <20200905213408.GI3562056@lianli.shorne-pla.net>
- <20200906002228.mrbs7pdyrf5ooi3c@ltop.local>
-Message-ID: <20200906210041.GK3562056@lianli.shorne-pla.net>
+Date: Fri, 11 Sep 2020 08:39:39 +0900
+Subject: [OpenRISC] [PATCH v3 2/3] openrisc: Fix cache API compile issue
+ when not inlining
+In-Reply-To: <20200910233940.2132107-1-shorne@gmail.com>
+References: <20200910233940.2132107-1-shorne@gmail.com>
+Message-ID: <20200910233940.2132107-3-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sun, Sep 06, 2020 at 02:22:28AM +0200, Luc Van Oostenryck wrote:
-> On Sun, Sep 06, 2020 at 06:34:08AM +0900, Stafford Horne wrote:
-> > On Sat, Sep 05, 2020 at 03:57:14PM +0200, Luc Van Oostenryck wrote:
-> > > On Sat, Sep 05, 2020 at 10:19:35PM +0900, Stafford Horne wrote:
-> > > 
-> > > Hi,
-> > > 
-> > > The change for 64-bit get_user() looks good to me.
-> > > But I wonder, given that openrisc is big-endian, what will happen
-> > > you have the opposite situation:
-> > > 	u32 *ptr;
-> > > 	u64 val;
-> > > 	...
-> > > 	get_user(val, ptr);
-> > > 
-> > > Won't you end with the value in the most significant part of
-> > > the register pair?
-> > 
-> > Hi Luc,
-> > 
-> > The get_user function uses the size of the ptr to determine how to do the load ,
-> > so this case would not use the 64-bit pair register logic.  I think it should be
-> > ok, the end result would be the same as c code:
-> > 
-> >   var = *ptr;
-> 
-> Hi,
-> 
-> Sorry to insist but both won't give the same result.
-> The problem comes from the output part of the asm: "=r" (x).
-> 
-> The following code:
-> 	u32 getp(u32 *ptr)
-> 	{
-> 		u64 val;
-> 		val = *ptr;
-> 		return val;
-> 	}
-> will compile to something like:
-> 	getp:
-> 		l.jr	r9
-> 		l.lwz	r11, 0(r3)
-> 
-> The load is written to r11, which is what is returned. OK.
-> 
-> But the get_user() code with a u32 pointer *and* a u64 destination
-> is equivalent to something like:
-> 	u32 getl(u32 *ptr)
-> 	{
-> 		u64 val;
-> 
-> 		asm("l.lwz %0,0(%1)" : "=r"(val) : "r"(ptr));
-> 		return val;
-> 	}
-> and this compiles to:
-> 	getl:
-> 		l.lwz	r17,0(r3)
-> 		l.jr	r9
-> 		l.or	r11, r19, r19
-> 
-> The load is written to r17 but what is returned is the content of r19.
-> Not good.
-> 
-> I think that, in the get_user() code:
-> * if the pointer is a pointer to a 64-bit quantity, then variable
->   used in as the output in the asm needs to be a 64-bit variable
-> * if the pointer is a pointer to a 32-bit quantity, then variable
->   used in as the output in the asm needs to be a 64-bit variable
-> At least one way to guarantee this is to use a temporary variable
-> that matches the size of the pointer.
+I found this when compiling a kbuild random config with GCC 11.  The
+config enables CONFIG_DEBUG_SECTION_MISMATCH, which sets CFLAGS
+-fno-inline-functions-called-once. This causes the call to cache_loop in
+cache.c to not be inlined causing the below compile error.
 
-Hello,
+    In file included from arch/openrisc/mm/cache.c:13:
+    arch/openrisc/mm/cache.c: In function 'cache_loop':
+    ./arch/openrisc/include/asm/spr.h:16:27: warning: 'asm' operand 0 probably does not match constraints
+       16 | #define mtspr(_spr, _val) __asm__ __volatile__ (  \
+	  |                           ^~~~~~~
+    arch/openrisc/mm/cache.c:25:3: note: in expansion of macro 'mtspr'
+       25 |   mtspr(reg, line);
+	  |   ^~~~~
+    ./arch/openrisc/include/asm/spr.h:16:27: error: impossible constraint in 'asm'
+       16 | #define mtspr(_spr, _val) __asm__ __volatile__ (  \
+	  |                           ^~~~~~~
+    arch/openrisc/mm/cache.c:25:3: note: in expansion of macro 'mtspr'
+       25 |   mtspr(reg, line);
+	  |   ^~~~~
+    make[1]: *** [scripts/Makefile.build:283: arch/openrisc/mm/cache.o] Error 1
 
-Thanks for taking the time to explain.  I see your point, it makes sense I will
-fix this up.
+The asm constraint "K" requires a immediate constant argument to mtspr,
+however because of no inlining a register argument is passed causing a
+failure.  Fix this by using __always_inline.
 
--Stafford
+Link: https://lore.kernel.org/lkml/202008200453.ohnhqkjQ%25lkp at intel.com/
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+Changes since v2:
+ - None
+Changes since v1:
+ - New
+
+ arch/openrisc/mm/cache.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/openrisc/mm/cache.c b/arch/openrisc/mm/cache.c
+index 08f56af387ac..534a52ec5e66 100644
+--- a/arch/openrisc/mm/cache.c
++++ b/arch/openrisc/mm/cache.c
+@@ -16,7 +16,7 @@
+ #include <asm/cacheflush.h>
+ #include <asm/tlbflush.h>
+ 
+-static void cache_loop(struct page *page, const unsigned int reg)
++static __always_inline void cache_loop(struct page *page, const unsigned int reg)
+ {
+ 	unsigned long paddr = page_to_pfn(page) << PAGE_SHIFT;
+ 	unsigned long line = paddr & ~(L1_CACHE_BYTES - 1);
+-- 
+2.26.2
+
