@@ -1,133 +1,47 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Fri, 11 Sep 2020 08:39:40 +0900
+From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Date: Fri, 11 Sep 2020 22:55:26 +0200
 Subject: [OpenRISC] [PATCH v3 3/3] openrisc: Fix issue with get_user for
  64-bit values
-In-Reply-To: <20200910233940.2132107-1-shorne@gmail.com>
+In-Reply-To: <20200910233940.2132107-4-shorne@gmail.com>
 References: <20200910233940.2132107-1-shorne@gmail.com>
-Message-ID: <20200910233940.2132107-4-shorne@gmail.com>
+ <20200910233940.2132107-4-shorne@gmail.com>
+Message-ID: <20200911205526.65llro2gnh7zlsu4@ltop.local>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-A build failure was raised by kbuild with the following error.
+On Fri, Sep 11, 2020 at 08:39:40AM +0900, Stafford Horne wrote:
+> A build failure was raised by kbuild with the following error.
+> 
+>     drivers/android/binder.c: Assembler messages:
+>     drivers/android/binder.c:3861: Error: unrecognized keyword/register name `l.lwz ?ap,4(r24)'
+>     drivers/android/binder.c:3866: Error: unrecognized keyword/register name `l.addi ?ap,r0,0'
+> 
+> The issue is with 64-bit get_user() calls on openrisc.  I traced this to
+> a problem where in the internally in the get_user macros there is a cast
+> to long __gu_val this causes GCC to think the get_user call is 32-bit.
+> This binder code is really long and GCC allocates register r30, which
+> triggers the issue. The 64-bit get_user asm tries to get the 64-bit pair
+> register, which for r30 overflows the general register names and returns
+> the dummy register ?ap.
+> 
+> The fix here is to move the temporary variables into the asm macros.  We
+> use a 32-bit __gu_tmp for 32-bit and smaller macro and a 64-bit tmp in
+> the 64-bit macro.  The cast in the 64-bit macro has a trick of casting
+> through __typeof__((x)-(x)) which avoids the below warning.  This was
+> barrowed from riscv.
+> 
+>     arch/openrisc/include/asm/uaccess.h:240:8: warning: cast to pointer from integer of different size
+> 
+> I tested this is a small unit test to check reading between 64-bit and
+> 32-bit pointers to 64-bit and 32-bit values in all combinations.  Also I
+> ran make C=1 to confirm no new sparse warnings came up.  It all looks
+> clean to me.
 
-    drivers/android/binder.c: Assembler messages:
-    drivers/android/binder.c:3861: Error: unrecognized keyword/register name `l.lwz ?ap,4(r24)'
-    drivers/android/binder.c:3866: Error: unrecognized keyword/register name `l.addi ?ap,r0,0'
+It looks correct to me too now at C & assembly level.
+Feel free to add my:
+Reviewed-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
 
-The issue is with 64-bit get_user() calls on openrisc.  I traced this to
-a problem where in the internally in the get_user macros there is a cast
-to long __gu_val this causes GCC to think the get_user call is 32-bit.
-This binder code is really long and GCC allocates register r30, which
-triggers the issue. The 64-bit get_user asm tries to get the 64-bit pair
-register, which for r30 overflows the general register names and returns
-the dummy register ?ap.
-
-The fix here is to move the temporary variables into the asm macros.  We
-use a 32-bit __gu_tmp for 32-bit and smaller macro and a 64-bit tmp in
-the 64-bit macro.  The cast in the 64-bit macro has a trick of casting
-through __typeof__((x)-(x)) which avoids the below warning.  This was
-barrowed from riscv.
-
-    arch/openrisc/include/asm/uaccess.h:240:8: warning: cast to pointer from integer of different size
-
-I tested this is a small unit test to check reading between 64-bit and
-32-bit pointers to 64-bit and 32-bit values in all combinations.  Also I
-ran make C=1 to confirm no new sparse warnings came up.  It all looks
-clean to me.
-
-Link: https://lore.kernel.org/lkml/202008200453.ohnhqkjQ%25lkp at intel.com/
-Signed-off-by: Stafford Horne <shorne@gmail.com>
-Cc: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
----
-Changes since v2:
- - Add back temporary variables but move to a different place, as described in
-   commit message.
-Changes since v1:
- - New
-
- arch/openrisc/include/asm/uaccess.h | 33 ++++++++++++++++++-----------
- 1 file changed, 21 insertions(+), 12 deletions(-)
-
-diff --git a/arch/openrisc/include/asm/uaccess.h b/arch/openrisc/include/asm/uaccess.h
-index f0390211236b..120f5005461b 100644
---- a/arch/openrisc/include/asm/uaccess.h
-+++ b/arch/openrisc/include/asm/uaccess.h
-@@ -165,19 +165,19 @@ struct __large_struct {
- 
- #define __get_user_nocheck(x, ptr, size)			\
- ({								\
--	long __gu_err, __gu_val;				\
--	__get_user_size(__gu_val, (ptr), (size), __gu_err);	\
--	(x) = (__force __typeof__(*(ptr)))__gu_val;		\
-+	long __gu_err;						\
-+	__get_user_size((x), (ptr), (size), __gu_err);		\
- 	__gu_err;						\
- })
- 
- #define __get_user_check(x, ptr, size)					\
- ({									\
--	long __gu_err = -EFAULT, __gu_val = 0;				\
-+	long __gu_err = -EFAULT;					\
- 	const __typeof__(*(ptr)) __user *__gu_addr = (ptr);		\
--	if (access_ok(__gu_addr, size))			\
--		__get_user_size(__gu_val, __gu_addr, (size), __gu_err);	\
--	(x) = (__force __typeof__(*(ptr)))__gu_val;			\
-+	if (access_ok(__gu_addr, size))					\
-+		__get_user_size((x), __gu_addr, (size), __gu_err);	\
-+	else								\
-+		(x) = (__typeof__(*(ptr))) 0;				\
- 	__gu_err;							\
- })
- 
-@@ -191,11 +191,13 @@ do {									\
- 	case 2: __get_user_asm(x, ptr, retval, "l.lhz"); break;		\
- 	case 4: __get_user_asm(x, ptr, retval, "l.lwz"); break;		\
- 	case 8: __get_user_asm2(x, ptr, retval); break;			\
--	default: (x) = __get_user_bad();				\
-+	default: (x) = (__typeof__(*(ptr)))__get_user_bad();		\
- 	}								\
- } while (0)
- 
- #define __get_user_asm(x, addr, err, op)		\
-+{							\
-+	unsigned long __gu_tmp;				\
- 	__asm__ __volatile__(				\
- 		"1:	"op" %1,0(%2)\n"		\
- 		"2:\n"					\
-@@ -209,10 +211,14 @@ do {									\
- 		"	.align 2\n"			\
- 		"	.long 1b,3b\n"			\
- 		".previous"				\
--		: "=r"(err), "=r"(x)			\
--		: "r"(addr), "i"(-EFAULT), "0"(err))
-+		: "=r"(err), "=r"(__gu_tmp)		\
-+		: "r"(addr), "i"(-EFAULT), "0"(err));	\
-+	(x) = (__typeof__(*(addr)))__gu_tmp;		\
-+}
- 
- #define __get_user_asm2(x, addr, err)			\
-+{							\
-+	unsigned long long __gu_tmp;			\
- 	__asm__ __volatile__(				\
- 		"1:	l.lwz %1,0(%2)\n"		\
- 		"2:	l.lwz %H1,4(%2)\n"		\
-@@ -229,8 +235,11 @@ do {									\
- 		"	.long 1b,4b\n"			\
- 		"	.long 2b,4b\n"			\
- 		".previous"				\
--		: "=r"(err), "=&r"(x)			\
--		: "r"(addr), "i"(-EFAULT), "0"(err))
-+		: "=r"(err), "=&r"(__gu_tmp)		\
-+		: "r"(addr), "i"(-EFAULT), "0"(err));	\
-+	(x) = (__typeof__(*(addr)))(			\
-+		(__typeof__((x)-(x)))__gu_tmp);		\
-+}
- 
- /* more complex routines */
- 
--- 
-2.26.2
-
+-- Luc
