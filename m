@@ -1,65 +1,42 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Fri, 11 Sep 2020 08:39:39 +0900
-Subject: [OpenRISC] [PATCH v3 2/3] openrisc: Fix cache API compile issue
- when not inlining
-In-Reply-To: <20200910233940.2132107-1-shorne@gmail.com>
-References: <20200910233940.2132107-1-shorne@gmail.com>
-Message-ID: <20200910233940.2132107-3-shorne@gmail.com>
+Date: Sat, 12 Sep 2020 17:42:55 +0900
+Subject: [OpenRISC] [GIT PULL] OpenRISC fixes for v5.9-rc4
+Message-ID: <20200912084255.GR3562056@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-I found this when compiling a kbuild random config with GCC 11.  The
-config enables CONFIG_DEBUG_SECTION_MISMATCH, which sets CFLAGS
--fno-inline-functions-called-once. This causes the call to cache_loop in
-cache.c to not be inlined causing the below compile error.
+Hi Linus,
 
-    In file included from arch/openrisc/mm/cache.c:13:
-    arch/openrisc/mm/cache.c: In function 'cache_loop':
-    ./arch/openrisc/include/asm/spr.h:16:27: warning: 'asm' operand 0 probably does not match constraints
-       16 | #define mtspr(_spr, _val) __asm__ __volatile__ (  \
-	  |                           ^~~~~~~
-    arch/openrisc/mm/cache.c:25:3: note: in expansion of macro 'mtspr'
-       25 |   mtspr(reg, line);
-	  |   ^~~~~
-    ./arch/openrisc/include/asm/spr.h:16:27: error: impossible constraint in 'asm'
-       16 | #define mtspr(_spr, _val) __asm__ __volatile__ (  \
-	  |                           ^~~~~~~
-    arch/openrisc/mm/cache.c:25:3: note: in expansion of macro 'mtspr'
-       25 |   mtspr(reg, line);
-	  |   ^~~~~
-    make[1]: *** [scripts/Makefile.build:283: arch/openrisc/mm/cache.o] Error 1
+Please consider for pull.
 
-The asm constraint "K" requires a immediate constant argument to mtspr,
-however because of no inlining a register argument is passed causing a
-failure.  Fix this by using __always_inline.
+The following changes since commit d012a7190fc1fd72ed48911e77ca97ba4521bccd:
 
-Link: https://lore.kernel.org/lkml/202008200453.ohnhqkjQ%25lkp at intel.com/
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
-Changes since v2:
- - None
-Changes since v1:
- - New
+  Linux 5.9-rc2 (2020-08-23 14:08:43 -0700)
 
- arch/openrisc/mm/cache.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+are available in the Git repository at:
 
-diff --git a/arch/openrisc/mm/cache.c b/arch/openrisc/mm/cache.c
-index 08f56af387ac..534a52ec5e66 100644
---- a/arch/openrisc/mm/cache.c
-+++ b/arch/openrisc/mm/cache.c
-@@ -16,7 +16,7 @@
- #include <asm/cacheflush.h>
- #include <asm/tlbflush.h>
- 
--static void cache_loop(struct page *page, const unsigned int reg)
-+static __always_inline void cache_loop(struct page *page, const unsigned int reg)
- {
- 	unsigned long paddr = page_to_pfn(page) << PAGE_SHIFT;
- 	unsigned long line = paddr & ~(L1_CACHE_BYTES - 1);
--- 
-2.26.2
+  git://github.com/openrisc/linux.git tags/for-linus
 
+for you to fetch changes up to d877322bc1adcab9850732275670409e8bcca4c4:
+
+  openrisc: Fix issue with get_user for 64-bit values (2020-09-12 17:26:00 +0900)
+
+----------------------------------------------------------------
+OpenRISC fixes for 5.9-rc4
+
+Fixes for compile issues pointed out by kbuild and one bug I found in
+interd with the 5.9 patches.
+
+----------------------------------------------------------------
+Stafford Horne (3):
+      openrisc: Reserve memblock for initrd
+      openrisc: Fix cache API compile issue when not inlining
+      openrisc: Fix issue with get_user for 64-bit values
+
+ arch/openrisc/include/asm/uaccess.h | 33 +++++++++++++++++++++------------
+ arch/openrisc/kernel/setup.c        | 10 ++++++++++
+ arch/openrisc/mm/cache.c            |  2 +-
+ 3 files changed, 32 insertions(+), 13 deletions(-)
