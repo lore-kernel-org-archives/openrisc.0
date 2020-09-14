@@ -1,10 +1,10 @@
 From: Sasha Levin <sashal@kernel.org>
-Date: Mon, 14 Sep 2020 09:03:47 -0400
-Subject: [OpenRISC] [PATCH AUTOSEL 5.8 18/29] openrisc: Fix cache API
+Date: Mon, 14 Sep 2020 09:04:24 -0400
+Subject: [OpenRISC] [PATCH AUTOSEL 5.4 12/22] openrisc: Fix cache API
  compile issue when not inlining
-In-Reply-To: <20200914130358.1804194-1-sashal@kernel.org>
-References: <20200914130358.1804194-1-sashal@kernel.org>
-Message-ID: <20200914130358.1804194-18-sashal@kernel.org>
+In-Reply-To: <20200914130434.1804478-1-sashal@kernel.org>
+References: <20200914130434.1804478-1-sashal@kernel.org>
+Message-ID: <20200914130434.1804478-12-sashal@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
