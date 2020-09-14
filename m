@@ -1,10 +1,10 @@
 From: Sasha Levin <sashal@kernel.org>
-Date: Mon, 14 Sep 2020 09:04:24 -0400
-Subject: [OpenRISC] [PATCH AUTOSEL 5.4 12/22] openrisc: Fix cache API
+Date: Mon, 14 Sep 2020 09:04:54 -0400
+Subject: [OpenRISC] [PATCH AUTOSEL 4.19 11/19] openrisc: Fix cache API
  compile issue when not inlining
-In-Reply-To: <20200914130434.1804478-1-sashal@kernel.org>
-References: <20200914130434.1804478-1-sashal@kernel.org>
-Message-ID: <20200914130434.1804478-12-sashal@kernel.org>
+In-Reply-To: <20200914130502.1804708-1-sashal@kernel.org>
+References: <20200914130502.1804708-1-sashal@kernel.org>
+Message-ID: <20200914130502.1804708-11-sashal@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -48,10 +48,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/openrisc/mm/cache.c b/arch/openrisc/mm/cache.c
-index 08f56af387ac4..534a52ec5e667 100644
+index b747bf1fc1b63..4272d9123f9ed 100644
 --- a/arch/openrisc/mm/cache.c
 +++ b/arch/openrisc/mm/cache.c
-@@ -16,7 +16,7 @@
+@@ -20,7 +20,7 @@
  #include <asm/cacheflush.h>
  #include <asm/tlbflush.h>
  
