@@ -1,65 +1,103 @@
-From: Sasha Levin <sashal@kernel.org>
-Date: Mon, 14 Sep 2020 09:04:54 -0400
-Subject: [OpenRISC] [PATCH AUTOSEL 4.19 11/19] openrisc: Fix cache API
- compile issue when not inlining
-In-Reply-To: <20200914130502.1804708-1-sashal@kernel.org>
-References: <20200914130502.1804708-1-sashal@kernel.org>
-Message-ID: <20200914130502.1804708-11-sashal@kernel.org>
+From: Stafford Horne <shorne@gmail.com>
+Date: Fri, 16 Oct 2020 08:05:17 +0900
+Subject: [OpenRISC] [linux-stable-rc:linux-5.4.y 665/2391]
+ drivers/android/binder.c:3776: Error: unrecognized keyword/register name
+ `l.lwz
+In-Reply-To: <CAG48ez3VixjDrMnz6+7JjGW_ZLZCD4+dTYWUD_tNOcfEfpu1Bg@mail.gmail.com>
+References: <202010160523.r8yMbvrW-lkp@intel.com>
+ <CAG48ez3VixjDrMnz6+7JjGW_ZLZCD4+dTYWUD_tNOcfEfpu1Bg@mail.gmail.com>
+Message-ID: <CAAfxs77_h-DHOMFCJBWMuj1H5Rj8OiqC_U1Trs3A8gNCiPvo7w@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-From: Stafford Horne <shorne@gmail.com>
+On Fri, Oct 16, 2020, 6:46 AM Jann Horn <jannh@google.com> wrote:
 
-[ Upstream commit 3ae90d764093dfcd6ab8ab6875377302892c87d4 ]
+> +openrisc folks
+>
+> On Thu, Oct 15, 2020 at 11:28 PM kernel test robot <lkp@intel.com> wrote:
+> > tree:
+> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+> linux-5.4.y
+> > head:   85b0841aab15c12948af951d477183ab3df7de14
+> > commit: c5665cafbedd2e2a523fe933e452391a02d3adb3 [665/2391] binder:
+> Prevent context manager from incrementing ref 0
+> > config: openrisc-randconfig-r002-20201014 (attached as .config)
+> > compiler: or1k-linux-gcc (GCC) 9.3.0
+> > reproduce (this is a W=1 build):
+> >         wget
+> https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross
+> -O ~/bin/make.cross
+> >         chmod +x ~/bin/make.cross
+> >         #
+> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?id=c5665cafbedd2e2a523fe933e452391a02d3adb3
+> >         git remote add linux-stable-rc
+> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+> >         git fetch --no-tags linux-stable-rc linux-5.4.y
+> >         git checkout c5665cafbedd2e2a523fe933e452391a02d3adb3
+> >         # save the attached .config to linux build tree
+> >         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-9.3.0 make.cross
+> ARCH=openrisc
+> >
+> > If you fix the issue, kindly add following tag as appropriate
+> > Reported-by: kernel test robot <lkp@intel.com>
+> >
+> > All errors (new ones prefixed by >>):
+> >
+> >    drivers/android/binder.c: Assembler messages:
+> > >> drivers/android/binder.c:3776: Error: unrecognized keyword/register
+> name `l.lwz ?ap,4(r25)'
+> >    drivers/android/binder.c:3781: Error: unrecognized keyword/register
+> name `l.addi ?ap,r0,0'
+>
+> binder is basically doing this:
+>
+> u64 data_ptr;
+> if (get_user(data_ptr, (u64 __user *)ptr))
+>   return -EFAULT;
+>
+> and GCC complains that that doesn't turn into valid assembly on
+> openrisc, where get_user() of size 8 expands into this:
+>
+> #define __get_user_asm2(x, addr, err)                   \
+> {                                                       \
+>         unsigned long long __gu_tmp;                    \
+>         __asm__ __volatile__(                           \
+>                 "1:     l.lwz %1,0(%2)\n"               \
+>                 "2:     l.lwz %H1,4(%2)\n"              \
+>                 "3:\n"                                  \
+>                 ".section .fixup,\"ax\"\n"              \
+>                 "4:     l.addi %0,r0,%3\n"              \
+>                 "       l.addi %1,r0,0\n"               \
+>                 "       l.addi %H1,r0,0\n"              \
+>                 "       l.j 3b\n"                       \
+>                 "       l.nop\n"                        \
+>                 ".previous\n"                           \
+>                 ".section __ex_table,\"a\"\n"           \
+>                 "       .align 2\n"                     \
+>                 "       .long 1b,4b\n"                  \
+>                 "       .long 2b,4b\n"                  \
+>                 ".previous"                             \
+>                 : "=r"(err), "=&r"(__gu_tmp)            \
+>                 : "r"(addr), "i"(-EFAULT), "0"(err));   \
+>         (x) = (__typeof__(*(addr)))(                    \
+>                 (__typeof__((x)-(x)))__gu_tmp);         \
+> }
+>
+> and apparently the "l.lwz %H1,4(%2)" and "l.addi %H1,r0,0" don't turn
+> into valid assembly when %H1 expands to "?ap"?
+>
+> I don't know anything about OpenRISC, but this seems like it's
+> probably an issue in the get_user() implementation.
+>
 
-I found this when compiling a kbuild random config with GCC 11.  The
-config enables CONFIG_DEBUG_SECTION_MISMATCH, which sets CFLAGS
--fno-inline-functions-called-once. This causes the call to cache_loop in
-cache.c to not be inlined causing the below compile error.
+This is fixed in 5.9.  I think the patch can be cherry picked by itself.
 
-    In file included from arch/openrisc/mm/cache.c:13:
-    arch/openrisc/mm/cache.c: In function 'cache_loop':
-    ./arch/openrisc/include/asm/spr.h:16:27: warning: 'asm' operand 0 probably does not match constraints
-       16 | #define mtspr(_spr, _val) __asm__ __volatile__ (  \
-	  |                           ^~~~~~~
-    arch/openrisc/mm/cache.c:25:3: note: in expansion of macro 'mtspr'
-       25 |   mtspr(reg, line);
-	  |   ^~~~~
-    ./arch/openrisc/include/asm/spr.h:16:27: error: impossible constraint in 'asm'
-       16 | #define mtspr(_spr, _val) __asm__ __volatile__ (  \
-	  |                           ^~~~~~~
-    arch/openrisc/mm/cache.c:25:3: note: in expansion of macro 'mtspr'
-       25 |   mtspr(reg, line);
-	  |   ^~~~~
-    make[1]: *** [scripts/Makefile.build:283: arch/openrisc/mm/cache.o] Error 1
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/arch/openrisc?h=v5.9&id=d877322bc1adcab9850732275670409e8bcca4c4
 
-The asm constraint "K" requires a immediate constant argument to mtspr,
-however because of no inlining a register argument is passed causing a
-failure.  Fix this by using __always_inline.
-
-Link: https://lore.kernel.org/lkml/202008200453.ohnhqkjQ%25lkp at intel.com/
-Signed-off-by: Stafford Horne <shorne@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/openrisc/mm/cache.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/openrisc/mm/cache.c b/arch/openrisc/mm/cache.c
-index b747bf1fc1b63..4272d9123f9ed 100644
---- a/arch/openrisc/mm/cache.c
-+++ b/arch/openrisc/mm/cache.c
-@@ -20,7 +20,7 @@
- #include <asm/cacheflush.h>
- #include <asm/tlbflush.h>
- 
--static void cache_loop(struct page *page, const unsigned int reg)
-+static __always_inline void cache_loop(struct page *page, const unsigned int reg)
- {
- 	unsigned long paddr = page_to_pfn(page) << PAGE_SHIFT;
- 	unsigned long line = paddr & ~(L1_CACHE_BYTES - 1);
--- 
-2.25.1
-
+>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20201016/37c41a87/attachment.htm>
