@@ -1,136 +1,92 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 19 Oct 2020 05:16:51 +0900
-Subject: [OpenRISC] [PATCH 1/1] openrisc: Fix issue with get_user for 64-bit
- values
-In-Reply-To: <20201018201651.2604140-1-shorne@gmail.com>
-References: <20201018201651.2604140-1-shorne@gmail.com>
-Message-ID: <20201018201651.2604140-2-shorne@gmail.com>
+Date: Fri, 6 Nov 2020 06:38:35 +0900
+Subject: [OpenRISC] [PATCH] openrisc: add support for TIF_NOTIFY_SIGNAL
+In-Reply-To: <874e8313-49bd-3b14-8981-daaa7b0d3992@kernel.dk>
+References: <35f5c4f7-06d9-ea5b-1bc1-f26b16eefca0@kernel.dk>
+ <1c01cbf6-78ff-e33a-ee7c-57249e3bc6d8@kernel.dk>
+ <874e8313-49bd-3b14-8981-daaa7b0d3992@kernel.dk>
+Message-ID: <20201105213835.GD3294551@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-commit d877322bc1adcab9850732275670409e8bcca4c4 upstream
+On Thu, Nov 05, 2020 at 11:15:23AM -0700, Jens Axboe wrote:
+> Adding folks from MAINTAINERS, as the list appears closed.
 
-Backport of v5.9 commit d877322bc1ad for v5.8.y and v5.4.y.
+Thanks, I didn't realize the list was broken, I will ask the admins
+about it.
 
-Change in backport:
- - The original commit depends on a series of sparse warning fix
-   patches.  This patch elliminates that requirement.
+> 
+> On 11/5/20 9:18 AM, Jens Axboe wrote:
+> > Gentle nudge on this one.
+> > 
+> > On 10/29/20 10:18 AM, Jens Axboe wrote:
+> >> Wire up TIF_NOTIFY_SIGNAL handling for openrisc.
+> >>
+> >> Cc: openrisc at lists.librecores.org
+> >> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> >> ---
+> >>
+> >> 5.11 has support queued up for TIF_NOTIFY_SIGNAL, see this posting
+> >> for details:
+> >>
+> >> https://lore.kernel.org/io-uring/20201026203230.386348-1-axboe at kernel.dk/
+> >>
+> >> As part of that work, I'm adding TIF_NOTIFY_SIGNAL support to all archs,
+> >> as that will enable a set of cleanups once all of them support it. I'm
+> >> happy carrying this patch if need be, or it can be funelled through the
+> >> arch tree. Let me know.
 
-A build failure was raised by kbuild with the following error.
+Please carry it, you can maintain the dependencies easier.
 
-    drivers/android/binder.c: Assembler messages:
-    drivers/android/binder.c:3861: Error: unrecognized keyword/register name `l.lwz ?ap,4(r24)'
-    drivers/android/binder.c:3866: Error: unrecognized keyword/register name `l.addi ?ap,r0,0'
+> >>  arch/openrisc/include/asm/thread_info.h | 2 ++
+> >>  arch/openrisc/kernel/signal.c           | 2 +-
+> >>  2 files changed, 3 insertions(+), 1 deletion(-)
+> >>
+> >> diff --git a/arch/openrisc/include/asm/thread_info.h b/arch/openrisc/include/asm/thread_info.h
+> >> index 9afe68bc423b..4f9d2a261455 100644
+> >> --- a/arch/openrisc/include/asm/thread_info.h
+> >> +++ b/arch/openrisc/include/asm/thread_info.h
+> >> @@ -98,6 +98,7 @@ register struct thread_info *current_thread_info_reg asm("r10");
+> >>  #define TIF_SINGLESTEP		4	/* restore singlestep on return to user
+> >>  					 * mode
+> >>  					 */
+> >> +#define TIF_NOTIFY_SIGNAL	5	/* signal notifications exist */
+> >>  #define TIF_SYSCALL_TRACEPOINT  8       /* for ftrace syscall instrumentation */
+> >>  #define TIF_RESTORE_SIGMASK     9
+> >>  #define TIF_POLLING_NRFLAG	16	/* true if poll_idle() is polling						 * TIF_NEED_RESCHED
+> >> @@ -109,6 +110,7 @@ register struct thread_info *current_thread_info_reg asm("r10");
+> >>  #define _TIF_SIGPENDING		(1<<TIF_SIGPENDING)
+> >>  #define _TIF_NEED_RESCHED	(1<<TIF_NEED_RESCHED)
+> >>  #define _TIF_SINGLESTEP		(1<<TIF_SINGLESTEP)
+> >> +#define _TIF_NOTIFY_SIGNAL	(1<<TIF_NOTIFY_SIGNAL)
+> >>  #define _TIF_POLLING_NRFLAG	(1<<TIF_POLLING_NRFLAG)
+> >>  
+> >>  
+> >> diff --git a/arch/openrisc/kernel/signal.c b/arch/openrisc/kernel/signal.c
+> >> index af66f968dd45..1ebcff271096 100644
+> >> --- a/arch/openrisc/kernel/signal.c
+> >> +++ b/arch/openrisc/kernel/signal.c
+> >> @@ -299,7 +299,7 @@ do_work_pending(struct pt_regs *regs, unsigned int thread_flags, int syscall)
+> >>  			if (unlikely(!user_mode(regs)))
+> >>  				return 0;
+> >>  			local_irq_enable();
+> >> -			if (thread_flags & _TIF_SIGPENDING) {
+> >> +			if (thread_flags & (_TIF_SIGPENDING|_TIF_NOTIFY_SIGNAL)) {
+> >>  				int restart = do_signal(regs, syscall);
+> >>  				if (unlikely(restart)) {
+> >>  					/*
+> >>
+> > 
+> > 
+> 
+> 
+> -- 
+> Jens Axboe
 
-The issue is with 64-bit get_user() calls on openrisc.  I traced this to
-a problem where in the internally in the get_user macros there is a cast
-to long __gu_val this causes GCC to think the get_user call is 32-bit.
-This binder code is really long and GCC allocates register r30, which
-triggers the issue. The 64-bit get_user asm tries to get the 64-bit pair
-register, which for r30 overflows the general register names and returns
-the dummy register ?ap.
+This looks fine to me.
 
-The fix here is to move the temporary variables into the asm macros.  We
-use a 32-bit __gu_tmp for 32-bit and smaller macro and a 64-bit tmp in
-the 64-bit macro.  The cast in the 64-bit macro has a trick of casting
-through __typeof__((x)-(x)) which avoids the below warning.  This was
-borrowed from riscv.
-
-    arch/openrisc/include/asm/uaccess.h:240:8: warning: cast to pointer from integer of different size
-
-I tested this in a small unit test to check reading between 64-bit and
-32-bit pointers to 64-bit and 32-bit values in all combinations.  Also I
-ran make C=1 to confirm no new sparse warnings came up.  It all looks
-clean to me.
-
-Link: https://lore.kernel.org/lkml/202008200453.ohnhqkjQ%25lkp at intel.com/
-Signed-off-by: Stafford Horne <shorne@gmail.com>
-Reviewed-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
----
- arch/openrisc/include/asm/uaccess.h | 35 ++++++++++++++++++-----------
- 1 file changed, 22 insertions(+), 13 deletions(-)
-
-diff --git a/arch/openrisc/include/asm/uaccess.h b/arch/openrisc/include/asm/uaccess.h
-index 17c24f14615f..6839f8fcf76b 100644
---- a/arch/openrisc/include/asm/uaccess.h
-+++ b/arch/openrisc/include/asm/uaccess.h
-@@ -164,19 +164,19 @@ struct __large_struct {
- 
- #define __get_user_nocheck(x, ptr, size)			\
- ({								\
--	long __gu_err, __gu_val;				\
--	__get_user_size(__gu_val, (ptr), (size), __gu_err);	\
--	(x) = (__force __typeof__(*(ptr)))__gu_val;		\
-+	long __gu_err;						\
-+	__get_user_size((x), (ptr), (size), __gu_err);		\
- 	__gu_err;						\
- })
- 
- #define __get_user_check(x, ptr, size)					\
- ({									\
--	long __gu_err = -EFAULT, __gu_val = 0;				\
--	const __typeof__(*(ptr)) * __gu_addr = (ptr);			\
--	if (access_ok(__gu_addr, size))			\
--		__get_user_size(__gu_val, __gu_addr, (size), __gu_err);	\
--	(x) = (__force __typeof__(*(ptr)))__gu_val;			\
-+	long __gu_err = -EFAULT;					\
-+	const __typeof__(*(ptr)) *__gu_addr = (ptr);			\
-+	if (access_ok(__gu_addr, size))					\
-+		__get_user_size((x), __gu_addr, (size), __gu_err);	\
-+	else								\
-+		(x) = (__typeof__(*(ptr))) 0;				\
- 	__gu_err;							\
- })
- 
-@@ -190,11 +190,13 @@ do {									\
- 	case 2: __get_user_asm(x, ptr, retval, "l.lhz"); break;		\
- 	case 4: __get_user_asm(x, ptr, retval, "l.lwz"); break;		\
- 	case 8: __get_user_asm2(x, ptr, retval); break;			\
--	default: (x) = __get_user_bad();				\
-+	default: (x) = (__typeof__(*(ptr)))__get_user_bad();		\
- 	}								\
- } while (0)
- 
- #define __get_user_asm(x, addr, err, op)		\
-+{							\
-+	unsigned long __gu_tmp;				\
- 	__asm__ __volatile__(				\
- 		"1:	"op" %1,0(%2)\n"		\
- 		"2:\n"					\
-@@ -208,10 +210,14 @@ do {									\
- 		"	.align 2\n"			\
- 		"	.long 1b,3b\n"			\
- 		".previous"				\
--		: "=r"(err), "=r"(x)			\
--		: "r"(addr), "i"(-EFAULT), "0"(err))
-+		: "=r"(err), "=r"(__gu_tmp)		\
-+		: "r"(addr), "i"(-EFAULT), "0"(err));	\
-+	(x) = (__typeof__(*(addr)))__gu_tmp;		\
-+}
- 
- #define __get_user_asm2(x, addr, err)			\
-+{							\
-+	unsigned long long __gu_tmp;			\
- 	__asm__ __volatile__(				\
- 		"1:	l.lwz %1,0(%2)\n"		\
- 		"2:	l.lwz %H1,4(%2)\n"		\
-@@ -228,8 +234,11 @@ do {									\
- 		"	.long 1b,4b\n"			\
- 		"	.long 2b,4b\n"			\
- 		".previous"				\
--		: "=r"(err), "=&r"(x)			\
--		: "r"(addr), "i"(-EFAULT), "0"(err))
-+		: "=r"(err), "=&r"(__gu_tmp)		\
-+		: "r"(addr), "i"(-EFAULT), "0"(err));	\
-+	(x) = (__typeof__(*(addr)))(			\
-+		(__typeof__((x)-(x)))__gu_tmp);		\
-+}
- 
- /* more complex routines */
- 
--- 
-2.26.2
+Acked-by: Stafford Horne <shorne@gmail.com>
 
