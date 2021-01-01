@@ -1,55 +1,78 @@
-From: Geert Uytterhoeven <geert+renesas@glider.be>
-Date: Mon, 28 Dec 2020 09:33:28 +0100
-Subject: [OpenRISC] [PATCH] openrisc: io: Add missing __iomem annotation to
- iounmap()
-Message-ID: <20201228083328.3823431-1-geert+renesas@glider.be>
+From: Stafford Horne <shorne@gmail.com>
+Date: Fri, 1 Jan 2021 15:11:35 +0900
+Subject: [OpenRISC] [PATCH] openrisc: restart: Call common handlers
+ before hanging
+In-Reply-To: <20201227091446.118437-1-joel@jms.id.au>
+References: <20201227091446.118437-1-joel@jms.id.au>
+Message-ID: <20210101061135.GA3106870@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-With C=1:
+On Sun, Dec 27, 2020 at 07:44:46PM +1030, Joel Stanley wrote:
+> Currently openrisc will print a message and then hang in an infinite
+> loop when rebooting.
+> 
+> This patch adopts some code from ARM, which calls the common restart
+> infrastructure and hangs after a small delay if the restart infra
+> doesn't do anything.
+> 
+> Signed-off-by: Joel Stanley <joel@jms.id.au>
+> ---
+> Geert has a patch[1] for the litex soc code that adds a restart hander.
+> Openrisc doesn't hit that code path, this patch fixes that.
+> 
+> [1] https://github.com/geertu/linux/commit/7d09dc0797a8208a11eb7c0c2156c1a4c120180f
+> 
+>  arch/openrisc/kernel/process.c | 13 ++++++++++---
+>  1 file changed, 10 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
+> index 3c98728cce24..181448f74316 100644
+> --- a/arch/openrisc/kernel/process.c
+> +++ b/arch/openrisc/kernel/process.c
+> @@ -34,6 +34,7 @@
+>  #include <linux/init_task.h>
+>  #include <linux/mqueue.h>
+>  #include <linux/fs.h>
+> +#include <linux/reboot.h>
+>  
+>  #include <linux/uaccess.h>
+>  #include <asm/io.h>
+> @@ -49,10 +50,16 @@
+>   */
+>  struct thread_info *current_thread_info_set[NR_CPUS] = { &init_thread_info, };
+>  
+> -void machine_restart(void)
+> +void machine_restart(char *cmd)
+>  {
+> -	printk(KERN_INFO "*** MACHINE RESTART ***\n");
+> -	__asm__("l.nop 1");
+Just a note, this nop with argument 1, is used by the simulators to shutdown.  I
+am happy to get rid of this though.  The simulator should be simulating how real
+hardware is shut down not doing these tricks.
 
-    drivers/soc/renesas/rmobile-sysc.c:330:33: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected void *addr @@     got void [noderef] __iomem *[assigned] base @@
-    drivers/soc/renesas/rmobile-sysc.c:330:33: sparse:     expected void *addr
-    drivers/soc/renesas/rmobile-sysc.c:330:33: sparse:     got void [noderef] __iomem *[assigned] base
+> +	do_kernel_restart(cmd);
+As you mentioned this depends on Geert's patch.  Does he plan to submit it soon?
 
-Fix this by adding the missing __iomem annotation to iounmap().
+Geert is CCed.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
----
- arch/openrisc/include/asm/io.h | 2 +-
- arch/openrisc/mm/ioremap.c     | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+> +
+> +	/* Give a grace period for failure to restart of 1s */
+> +	mdelay(1000);
+> +
+> +	/* Whoops - the platform was unable to reboot. Tell the user! */
+> +	pr_emerg("Reboot failed -- System halted\n");
+> +	while (1);
+>  }
+>  
+>  /*
+> -- 
+> 2.29.2
 
-diff --git a/arch/openrisc/include/asm/io.h b/arch/openrisc/include/asm/io.h
-index 7d6b4a77b379d8e2..c298061c70a7ee2e 100644
---- a/arch/openrisc/include/asm/io.h
-+++ b/arch/openrisc/include/asm/io.h
-@@ -31,7 +31,7 @@
- void __iomem *ioremap(phys_addr_t offset, unsigned long size);
- 
- #define iounmap iounmap
--extern void iounmap(void *addr);
-+extern void iounmap(void __iomem *addr);
- 
- #include <asm-generic/io.h>
- 
-diff --git a/arch/openrisc/mm/ioremap.c b/arch/openrisc/mm/ioremap.c
-index a978590d802d0c3b..9595be51b100c40e 100644
---- a/arch/openrisc/mm/ioremap.c
-+++ b/arch/openrisc/mm/ioremap.c
-@@ -78,7 +78,7 @@ void __iomem *__ref ioremap(phys_addr_t addr, unsigned long size)
- }
- EXPORT_SYMBOL(ioremap);
- 
--void iounmap(void *addr)
-+void iounmap(void __iomem *addr)
- {
- 	/* If the page is from the fixmap pool then we just clear out
- 	 * the fixmap mapping.
--- 
-2.25.1
+I am queing this for 5.11 anyway is it hurt's nothing without Geert's patch.
+
+-Stafford
 
