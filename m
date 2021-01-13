@@ -1,44 +1,44 @@
-From: Will Deacon <will@kernel.org>
-Date: Tue, 12 Jan 2021 14:05:00 +0000
-Subject: [OpenRISC] [PATCH v2] arch: consolidate pm_power_off callback
-In-Reply-To: <20201227140129.19932-1-info@metux.net>
-References: <20201227140129.19932-1-info@metux.net>
-Message-ID: <20210112140459.GC9277@willie-the-truck>
+From: Stafford Horne <shorne@gmail.com>
+Date: Thu, 14 Jan 2021 08:50:27 +0900
+Subject: [OpenRISC] [RESEND PATCH 0/5] OpenRISC GCC Fixes for Glibc Support
+Message-ID: <20210113235032.2821155-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sun, Dec 27, 2020 at 03:01:28PM +0100, Enrico Weigelt, metux IT consult wrote:
-> Move the pm_power_off callback into one global place and also add an
-> function for conditionally calling it (when not NULL), in order to remove
-> code duplication in all individual archs.
-> 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+Hello,
 
-[...]
+Changes since v1:
+ - Rebase
 
-> diff --git a/kernel/reboot.c b/kernel/reboot.c
-> index eb1b15850761..ec4cd66dd1ae 100644
-> --- a/kernel/reboot.c
-> +++ b/kernel/reboot.c
-> @@ -53,6 +53,16 @@ int reboot_force;
->  void (*pm_power_off_prepare)(void);
->  EXPORT_SYMBOL_GPL(pm_power_off_prepare);
->  
-> +void (*pm_power_off)(void);
-> +EXPORT_SYMBOL_GPL(pm_power_off);
-> +
-> +void do_power_off(void)
-> +{
-> +	if (pm_power_off)
-> +		pm_power_off();
-> +}
-> +EXPORT_SYMBOL_GPL(do_power_off);
+This just a resend of v1 with no changes from when I sent it last year.  I
+hadn't committed it because I had not completed all testing in glibc.  Now that
+I have done that and it all seems to work I will commit it.
 
-Could this just live as a static inline in pm.h to avoid having to export
-the extra symbol?
+I am currently working on the glibc port for OpenRISC.  This is a series of
+patches that fix issues and add features that were missing in GCC causing glibc
+testsuite failures.
 
-Will
+Pretty much all of these changes are just adding macros.
+
+These changes have been tested via the glibc test suite.
+
+-Stafford
+
+Stafford Horne (5):
+  or1k: Implement profile hook calling _mcount
+  or1k: Add builtin define to detect hard float
+  or1k: Support for softfloat to emulate hw exceptions
+  or1k: Add note to indicate execstack
+  or1k: Fixup exception header data encodings
+
+ gcc/config/or1k/linux.h          |  2 ++
+ gcc/config/or1k/or1k.h           | 21 ++++++++++++++--
+ libgcc/config/or1k/sfp-machine.h | 41 +++++++++++++++++++++++++++++++-
+ 3 files changed, 61 insertions(+), 3 deletions(-)
+
+-- 
+2.26.2
+
