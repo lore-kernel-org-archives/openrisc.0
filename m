@@ -1,46 +1,56 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 14 Jan 2021 08:50:32 +0900
-Subject: [OpenRISC] [PATCH v2 5/5] or1k: Fixup exception header data
- encodings
-In-Reply-To: <20210113235032.2821155-1-shorne@gmail.com>
-References: <20210113235032.2821155-1-shorne@gmail.com>
-Message-ID: <20210113235032.2821155-6-shorne@gmail.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
+Date: Sun, 17 Jan 2021 17:03:32 +0900
+Subject: [OpenRISC] [PATCH] openrisc: add arch/openrisc/Kbuild
+Message-ID: <20210117080332.2289077-1-masahiroy@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-While running glibc tests several *-textrel tests failed showing that
-relocations remained against read only sections.  It turned out this was
-related to exception headers data encoding being wrong.
+Describe the subdirectories under arch/openrisc/ in arch/openrisc/Kbuild
+so you can use the standard obj-y syntax.
 
-By default pointer encoding will always use the DW_EH_PE_absptr format.
+I removed the CONFIG_OPENRISC_BUILTIN_DTB conditional because it is
+already controlled by arch/openrisc/boot/dts/Makefile.
 
-This patch uses format DW_EH_PE_pcrel and DW_EH_PE_sdata4.  Optionally
-DW_EH_PE_indirect is included for global symbols.  This eliminates the
-relocations.
-
-gcc/ChangeLog:
-
-	* config/or1k/or1k.h (ASM_PREFERRED_EH_DATA_FORMAT): New macro.
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 ---
- gcc/config/or1k/or1k.h | 4 ++++
- 1 file changed, 4 insertions(+)
 
-diff --git a/gcc/config/or1k/or1k.h b/gcc/config/or1k/or1k.h
-index b686f1bd159..fe01ab81ead 100644
---- a/gcc/config/or1k/or1k.h
-+++ b/gcc/config/or1k/or1k.h
-@@ -408,4 +408,8 @@ do {                                                    \
-     ((N) < 4 ? HW_TO_GCC_REGNO (25) + (N) : INVALID_REGNUM)
- #define EH_RETURN_STACKADJ_RTX gen_rtx_REG (Pmode, EH_RETURN_REGNUM)
+ arch/openrisc/Kbuild   |  3 +++
+ arch/openrisc/Makefile | 11 +----------
+ 2 files changed, 4 insertions(+), 10 deletions(-)
+ create mode 100644 arch/openrisc/Kbuild
+
+diff --git a/arch/openrisc/Kbuild b/arch/openrisc/Kbuild
+new file mode 100644
+index 000000000000..4234b4c03e72
+--- /dev/null
++++ b/arch/openrisc/Kbuild
+@@ -0,0 +1,3 @@
++# SPDX-License-Identifier: GPL-2.0
++obj-y += lib/ kernel/ mm/
++obj-y += boot/dts/
+diff --git a/arch/openrisc/Makefile b/arch/openrisc/Makefile
+index bf10141c7426..44e63fa35e04 100644
+--- a/arch/openrisc/Makefile
++++ b/arch/openrisc/Makefile
+@@ -38,14 +38,5 @@ endif
  
-+/* Select a format to encode pointers in exception handling data.  */
-+#define ASM_PREFERRED_EH_DATA_FORMAT(CODE, GLOBAL) \
-+  (((GLOBAL) ? DW_EH_PE_indirect : 0) | DW_EH_PE_pcrel | DW_EH_PE_sdata4)
-+
- #endif /* GCC_OR1K_H */
+ head-y 		:= arch/openrisc/kernel/head.o
+ 
+-core-y		+= arch/openrisc/lib/ \
+-		   arch/openrisc/kernel/ \
+-		   arch/openrisc/mm/
++core-y		+= arch/openrisc/
+ libs-y		+= $(LIBGCC)
+-
+-ifneq '$(CONFIG_OPENRISC_BUILTIN_DTB)' '""'
+-BUILTIN_DTB := y
+-else
+-BUILTIN_DTB := n
+-endif
+-core-$(BUILTIN_DTB) += arch/openrisc/boot/dts/
 -- 
-2.26.2
+2.27.0
 
