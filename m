@@ -1,153 +1,248 @@
-From: Abhijeet Badurkar <abhijeet.badurkar@duagon.com>
-Date: Mon, 18 Jan 2021 21:09:04 +0100
-Subject: [OpenRISC] Fwd: Re: [PATCH v5] net: can: Introduce MEN 16Z192-00
- CAN controller driver
-In-Reply-To: <81bbd71a-ff79-9f15-753a-d47b36b91756@pengutronix.de>
+From: Stafford Horne <shorne@gmail.com>
+Date: Tue, 19 Jan 2021 06:29:17 +0900
+Subject: [OpenRISC] Fwd: Re: [PATCH v5] net: can: Introduce MEN
+ 16Z192-00 CAN controller driver
+In-Reply-To: <ea134d96-0856-62af-ea19-f6e0c2d80c90@duagon.com>
 References: <81bbd71a-ff79-9f15-753a-d47b36b91756@pengutronix.de>
-Message-ID: <ea134d96-0856-62af-ea19-f6e0c2d80c90@duagon.com>
+ <ea134d96-0856-62af-ea19-f6e0c2d80c90@duagon.com>
+Message-ID: <20210118212917.GI2002709@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8-sig"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-77u/CkhlbGxvLAoKaSBhbSBnZXR0aW5nIHNwYXJzZSB3YXJuaW5nIHJlZ2FyZGluZyBpb3VubWFw
-IGltcGxlbWVudGF0aW9uIG9mIG9wZW5yaXNjIGFyY2hpdGVjdHVyZSBmb3IgbXkgQ0FOIGRyaXZl
-ciBwYXRjaC4gSXMgdGhlcmUgYW55IHNwZWNpZmljIHJlYXNvbiB3aHkgaW91bm1hcCBvZiBvcGVu
-cmlzYyBkb2Vzbid0IGhhdmUgX19pb21lbSBhbm5ub3RhdGlvbj8gQ291bGQgeW91IHBsZWFzZSBz
-dWdnZXN0IGEgZml4IGZvciB0aGlzPwoKVGh4LgoKQWJoaWplZXQKCgoKTS4gU2MuCkFiaGlqZWV0
-IEJhZHVya2FyClNvZnR3YXJlIEVuZ2luZWVyaW5nIApCdXNpbmVzcyBVbml0IENvbXB1dGluZyBT
-eXN0ZW1zLCBkdWFnb24KCmR1YWdvbiBHZXJtYW55IEdtYkgKTmV1d2llZGVyIFN0cmHDn2UgMS03
-CjkwNDExIE7DvHJuYmVyZwpEZXV0c2NobGFuZApQaG9uZQkJKzQ5IDkxMSA5OSAzMyA1IC0gMjE5
-Cnd3dy5kdWFnb24uY29tCgpkdWFnb24gR2VybWFueSBHbWJIIC0gR2VzY2jDpGZ0c2bDvGhyZXI6
-IERyLiBNaWNoYWVsIEdvbGRiYWNoIC0gTWF0aGlhcyBLYW1vbHogLSBLYWxpbmEgU2NvdHQgLSBI
-YW5kZWxzcmVnaXN0ZXIvVHJhZGUgUmVnaXN0ZXIgQUcgTsO8cm5iZXJnIEhSQiA1NTQwCgpUaGlz
-IG1lc3NhZ2UgYW5kL29yIGF0dGFjaG1lbnRzIG1heSBiZSBwcml2aWxlZ2VkIG9yIGNvbmZpZGVu
-dGlhbC4gSWYgeW91IGFyZSBub3QgdGhlIGludGVuZGVkIHJlY2lwaWVudCwgeW91IGFyZSBoZXJl
-Ynkgbm90aWZpZWQgdGhhdCB5b3UgaGF2ZSByZWNlaXZlZCB0aGlzIHRyYW5zbWl0dGFsIGluIGVy
-cm9yOyBhbnkgcmV2aWV3LCBkaXNzZW1pbmF0aW9uLCBvciBjb3B5aW5nIGlzIHN0cmljdGx5IHBy
-b2hpYml0ZWQuIElmIHlvdSByZWNlaXZlZCB0aGlzIHRyYW5zbWl0dGFsIGluIGVycm9yLCBwbGVh
-c2Ugbm90aWZ5IHVzIGltbWVkaWF0ZWx5IGJ5IHJlcGx5IGFuZCBpbW1lZGlhdGVseSBkZWxldGUg
-dGhpcyBtZXNzYWdlIGFuZCBhbGwgaXRzIGF0dGFjaG1lbnRzLiBUaGFuayB5b3UuCi0tLS0tLS0t
-IEZvcndhcmRlZCBNZXNzYWdlIC0tLS0tLS0tClN1YmplY3Q6IFJlOiBbUEFUQ0ggdjVdIG5ldDog
-Y2FuOiBJbnRyb2R1Y2UgTUVOIDE2WjE5Mi0wMCBDQU4gY29udHJvbGxlciBkcml2ZXIKRGF0ZTog
-RnJpLCAxNiBPY3QgMjAyMCAwOTo1NTozNiArMDIwMApGcm9tOiBNYXJjIEtsZWluZS1CdWRkZSA8
-bWtsQHBlbmd1dHJvbml4LmRlPgpUbzoga2VybmVsIHRlc3Qgcm9ib3QgPGxrcEBpbnRlbC5jb20+
-LCBBYmhpamVldCBCYWR1cmthciA8YWJoaWplZXQuYmFkdXJrYXJAZHVhZ29uLmNvbT4sIHdnIGF0
-IGdyYW5kZWdnZXIuY29tCkNDOiBrYnVpbGQtYWxsIGF0IGxpc3RzLjAxLm9yZywgbGludXgta2Vy
-bmVsIGF0IHZnZXIua2VybmVsLm9yZywgbGludXgtY2FuIGF0IHZnZXIua2VybmVsLm9yZywgYW5k
-cmVhcy5nZWlzc2xlciBhdCBkdWFnb24uY29tLCBKb25hcyBCb25uIDxqb25hc0Bzb3V0aHBvbGUu
-c2U+LCBTdGVmYW4gS3Jpc3RpYW5zc29uIDxzdGVmYW4ua3Jpc3RpYW5zc29uQHNhdW5hbGFodGku
-Zmk+LCBTdGFmZm9yZCBIb3JuZSA8c2hvcm5lQGdtYWlsLmNvbT4sIG9wZW5yaXNjIGF0IGxpc3Rz
-LmxpYnJlY29yZXMub3JnCgoqIFBHUCBTaWduZWQgYnkgYW4gdW5rbm93biBrZXkKCk9uIDEwLzE2
-LzIwIDE6NDkgQU0sIGtlcm5lbCB0ZXN0IHJvYm90IHdyb3RlOgo+IEhpIEFiaGlqZWV0LAo+IAo+
-IFRoYW5rIHlvdSBmb3IgdGhlIHBhdGNoISBQZXJoYXBzIHNvbWV0aGluZyB0byBpbXByb3ZlOgo+
-IAo+IFthdXRvIGJ1aWxkIHRlc3QgV0FSTklORyBvbiA1NDk3MzhmMTVkYTBlNWEwMDI3NTk3NzYy
-M2JlMTk5ZmJiZjdkZjUwXQo+IAo+IHVybDogICAgaHR0cHM6Ly9naXRodWIuY29tLzBkYXktY2kv
-bGludXgvY29tbWl0cy9BYmhpamVldC1CYWR1cmthci9uZXQtY2FuLUludHJvZHVjZS1NRU4tMTZa
-MTkyLTAwLUNBTi1jb250cm9sbGVyLWRyaXZlci8yMDIwMTAwNS0xOTIxMzIKPiBiYXNlOiAgICA1
-NDk3MzhmMTVkYTBlNWEwMDI3NTk3NzYyM2JlMTk5ZmJiZjdkZjUwCj4gY29uZmlnOiBvcGVucmlz
-Yy1yYW5kY29uZmlnLXMwMzEtMjAyMDEwMTUgKGF0dGFjaGVkIGFzIC5jb25maWcpCj4gY29tcGls
-ZXI6IG9yMWstbGludXgtZ2NjIChHQ0MpIDkuMy4wCj4gcmVwcm9kdWNlOgo+ICAgICAgICAgd2dl
-dCBodHRwczovL3Jhdy5naXRodWJ1c2VyY29udGVudC5jb20vaW50ZWwvbGtwLXRlc3RzL21hc3Rl
-ci9zYmluL21ha2UuY3Jvc3MgLU8gfi9iaW4vbWFrZS5jcm9zcwo+ICAgICAgICAgY2htb2QgK3gg
-fi9iaW4vbWFrZS5jcm9zcwo+ICAgICAgICAgIyBhcHQtZ2V0IGluc3RhbGwgc3BhcnNlCj4gICAg
-ICAgICAjIHNwYXJzZSB2ZXJzaW9uOiB2MC42LjMtcmMxLWRpcnR5Cj4gICAgICAgICAjIGh0dHBz
-Oi8vZ2l0aHViLmNvbS8wZGF5LWNpL2xpbnV4L2NvbW1pdC8yNjc4NzY3NzFhNDM0YjJiZTMyNzhj
-MmM4N2QzNjE0NmMwZmFjNzdkCj4gICAgICAgICBnaXQgcmVtb3RlIGFkZCBsaW51eC1yZXZpZXcg
-aHR0cHM6Ly9naXRodWIuY29tLzBkYXktY2kvbGludXgKPiAgICAgICAgIGdpdCBmZXRjaCAtLW5v
-LXRhZ3MgbGludXgtcmV2aWV3IEFiaGlqZWV0LUJhZHVya2FyL25ldC1jYW4tSW50cm9kdWNlLU1F
-Ti0xNloxOTItMDAtQ0FOLWNvbnRyb2xsZXItZHJpdmVyLzIwMjAxMDA1LTE5MjEzMgo+ICAgICAg
-ICAgZ2l0IGNoZWNrb3V0IDI2Nzg3Njc3MWE0MzRiMmJlMzI3OGMyYzg3ZDM2MTQ2YzBmYWM3N2QK
-PiAgICAgICAgICMgc2F2ZSB0aGUgYXR0YWNoZWQgLmNvbmZpZyB0byBsaW51eCBidWlsZCB0cmVl
-Cj4gICAgICAgICBDT01QSUxFUl9JTlNUQUxMX1BBVEg9JEhPTUUvMGRheSBDT01QSUxFUj1nY2Mt
-OS4zLjAgbWFrZS5jcm9zcyBDPTEgQ0Y9Jy1mZGlhZ25vc3RpYy1wcmVmaXggLURfX0NIRUNLX0VO
-RElBTl9fJyBBUkNIPW9wZW5yaXNjIAoKSSB0aGluayBpdCdzIHRoZSBvcGVucmlzYyBhcmNoIHRv
-IGJsYW1lXncgYXNrIGhlcmUsIHNpbmNlIHRoZWlyIGlvdW5tYXAgZG9lc24ndApoYXZlIF9faW9t
-ZW0gYW5ub3RhdGlvbi4KCj4gCj4gSWYgeW91IGZpeCB0aGUgaXNzdWUsIGtpbmRseSBhZGQgZm9s
-bG93aW5nIHRhZyBhcyBhcHByb3ByaWF0ZQo+IFJlcG9ydGVkLWJ5OiBrZXJuZWwgdGVzdCByb2Jv
-dCA8bGtwQGludGVsLmNvbT4KPiAKPiAKPiAic3BhcnNlIHdhcm5pbmdzOiAobmV3IG9uZXMgcHJl
-Zml4ZWQgYnkgPj4pIgo+Pj4gZHJpdmVycy9uZXQvY2FuL21lbl96MTkyX2Nhbi5jOjEwNTc6MTc6
-IHNwYXJzZTogc3BhcnNlOiBpbmNvcnJlY3QgdHlwZSBpbiBhcmd1bWVudCAxIChkaWZmZXJlbnQg
-YWRkcmVzcyBzcGFjZXMpIEBAICAgICBleHBlY3RlZCB2b2lkICphZGRyIEBAICAgICBnb3Qgdm9p
-ZCBbbm9kZXJlZl0gX19pb21lbSAqW2Fzc2lnbmVkXSBkZXZfYmFzZSBAQAo+Pj4gZHJpdmVycy9u
-ZXQvY2FuL21lbl96MTkyX2Nhbi5jOjEwNTc6MTc6IHNwYXJzZTogICAgIGV4cGVjdGVkIHZvaWQg
-KmFkZHIKPj4+IGRyaXZlcnMvbmV0L2Nhbi9tZW5fejE5Ml9jYW4uYzoxMDU3OjE3OiBzcGFyc2U6
-ICAgICBnb3Qgdm9pZCBbbm9kZXJlZl0gX19pb21lbSAqW2Fzc2lnbmVkXSBkZXZfYmFzZQo+Pj4g
-ZHJpdmVycy9uZXQvY2FuL21lbl96MTkyX2Nhbi5jOjEwNzE6MjE6IHNwYXJzZTogc3BhcnNlOiBp
-bmNvcnJlY3QgdHlwZSBpbiBhcmd1bWVudCAxIChkaWZmZXJlbnQgYWRkcmVzcyBzcGFjZXMpIEBA
-ICAgICBleHBlY3RlZCB2b2lkICphZGRyIEBAICAgICBnb3Qgdm9pZCBbbm9kZXJlZl0gX19pb21l
-bSAqZGV2X2Jhc2UgQEAKPiAgICBkcml2ZXJzL25ldC9jYW4vbWVuX3oxOTJfY2FuLmM6MTA3MToy
-MTogc3BhcnNlOiAgICAgZXhwZWN0ZWQgdm9pZCAqYWRkcgo+Pj4gZHJpdmVycy9uZXQvY2FuL21l
-bl96MTkyX2Nhbi5jOjEwNzE6MjE6IHNwYXJzZTogICAgIGdvdCB2b2lkIFtub2RlcmVmXSBfX2lv
-bWVtICpkZXZfYmFzZQo+IAo+IHZpbSArMTA1NyBkcml2ZXJzL25ldC9jYW4vbWVuX3oxOTJfY2Fu
-LmMKPiAKPiAgICA5NjIJCj4gICAgOTYzCXN0YXRpYyBpbnQgbWVuX3oxOTJfcHJvYmUoc3RydWN0
-IG1jYl9kZXZpY2UgKm1kZXYsCj4gICAgOTY0CQkJCSAgY29uc3Qgc3RydWN0IG1jYl9kZXZpY2Vf
-aWQgKmlkKQo+ICAgIDk2NQl7Cj4gICAgOTY2CQlzdHJ1Y3QgZGV2aWNlICpkZXYgPSAmbWRldi0+
-ZGV2Owo+ICAgIDk2NwkJc3RydWN0IG1lbl96MTkyICpwcml2Owo+ICAgIDk2OAkJc3RydWN0IG5l
-dF9kZXZpY2UgKm5kZXY7Cj4gICAgOTY5CQl2b2lkIF9faW9tZW0gKmRldl9iYXNlOwo+ICAgIDk3
-MAkJc3RydWN0IHJlc291cmNlICptZW07Cj4gICAgOTcxCQl1MzIgdGltZWJhc2U7Cj4gICAgOTcy
-CQlpbnQgcmV0ID0gMDsKPiAgICA5NzMJCWludCBpcnE7Cj4gICAgOTc0CQo+ICAgIDk3NQkJbWVt
-ID0gbWNiX3JlcXVlc3RfbWVtKG1kZXYsIGRldl9uYW1lKGRldikpOwo+ICAgIDk3NgkJaWYgKElT
-X0VSUihtZW0pKSB7Cj4gICAgOTc3CQkJZGV2X2VycihkZXYsICJmYWlsZWQgdG8gcmVxdWVzdCBk
-ZXZpY2UgbWVtb3J5Iik7Cj4gICAgOTc4CQkJcmV0dXJuIFBUUl9FUlIobWVtKTsKPiAgICA5NzkJ
-CX0KPiAgICA5ODAJCj4gICAgOTgxCQlkZXZfYmFzZSA9IGlvcmVtYXAobWVtLT5zdGFydCwgcmVz
-b3VyY2Vfc2l6ZShtZW0pKTsKPiAgICA5ODIJCWlmICghZGV2X2Jhc2UpIHsKPiAgICA5ODMJCQlk
-ZXZfZXJyKGRldiwgImZhaWxlZCB0byBpb3JlbWFwIGRldmljZSBtZW1vcnkiKTsKPiAgICA5ODQJ
-CQlyZXQgPSAtRU5YSU87Cj4gICAgOTg1CQkJZ290byBvdXRfcmVsZWFzZTsKPiAgICA5ODYJCX0K
-PiAgICA5ODcJCj4gICAgOTg4CQlpcnEgPSBtY2JfZ2V0X2lycShtZGV2KTsKPiAgICA5ODkJCWlm
-IChpcnEgPD0gMCkgewo+ICAgIDk5MAkJCXJldCA9IC1FTk9ERVY7Cj4gICAgOTkxCQkJZ290byBv
-dXRfdW5tYXA7Cj4gICAgOTkyCQl9Cj4gICAgOTkzCQo+ICAgIDk5NAkJbmRldiA9IGFsbG9jX2Nh
-bmRldihzaXplb2Yoc3RydWN0IG1lbl96MTkyKSwgMCk7Cj4gICAgOTk1CQlpZiAoIW5kZXYpIHsK
-PiAgICA5OTYJCQlkZXZfZXJyKGRldiwgImZhaWxlZCB0byBhbGxvY2F0IHRoZSBjYW4gZGV2aWNl
-Iik7Cj4gICAgOTk3CQkJcmV0ID0gLUVOT01FTTsKPiAgICA5OTgJCQlnb3RvIG91dF91bm1hcDsK
-PiAgICA5OTkJCX0KPiAgIDEwMDAJCj4gICAxMDAxCQluZGV2LT5uZXRkZXZfb3BzID0gJm1lbl96
-MTkyX25ldGRldl9vcHM7Cj4gICAxMDAyCQluZGV2LT5pcnEgPSBpcnE7Cj4gICAxMDAzCQluZGV2
-LT5mbGFncyB8PSBJRkZfRUNITzsKPiAgIDEwMDQJCj4gICAxMDA1CQlwcml2ID0gbmV0ZGV2X3By
-aXYobmRldik7Cj4gICAxMDA2CQlwcml2LT5uZGV2ID0gbmRldjsKPiAgIDEwMDcJCXByaXYtPmRl
-diA9IGRldjsKPiAgIDEwMDgJCj4gICAxMDA5CQlwcml2LT5tZW0gPSBtZW07Cj4gICAxMDEwCQlw
-cml2LT5kZXZfYmFzZSA9IGRldl9iYXNlOwo+ICAgMTAxMQkJcHJpdi0+cmVncyA9IHByaXYtPmRl
-dl9iYXNlICsgTUVOX1oxOTJfUkVHU19PRkZTOwo+ICAgMTAxMgkKPiAgIDEwMTMJCXRpbWViYXNl
-ID0gcmVhZGwoJnByaXYtPnJlZ3MtPnRpbWViYXNlKTsKPiAgIDEwMTQJCWlmICghdGltZWJhc2Up
-IHsKPiAgIDEwMTUJCQlkZXZfZXJyKGRldiwgImludmFsaWQgdGltZWJhc2UgY29uZmlndXJlZCAo
-dGltZWJhc2U9JWQpXG4iLAo+ICAgMTAxNgkJCQl0aW1lYmFzZSk7Cj4gICAxMDE3CQkJcmV0ID0g
-LUVJTlZBTDsKPiAgIDEwMTgJCQlnb3RvIG91dF9mcmVlX2NhbmRldjsKPiAgIDEwMTkJCX0KPiAg
-IDEwMjAJCj4gICAxMDIxCQlwcml2LT5jYW4uY2xvY2suZnJlcSA9IHRpbWViYXNlOwo+ICAgMTAy
-MgkJcHJpdi0+Y2FuLmJpdHRpbWluZ19jb25zdCA9ICZtZW5fejE5Ml9iaXR0aW1pbmdfY29uc3Q7
-Cj4gICAxMDIzCQlwcml2LT5jYW4uZG9fc2V0X21vZGUgPSBtZW5fejE5Ml9zZXRfbW9kZTsKPiAg
-IDEwMjQJCXByaXYtPmNhbi5kb19nZXRfYmVycl9jb3VudGVyID0gbWVuX3oxOTJfZ2V0X2JlcnJf
-Y291bnRlcjsKPiAgIDEwMjUJCXByaXYtPmNhbi5jdHJsbW9kZV9zdXBwb3J0ZWQgPSBDQU5fQ1RS
-TE1PREVfTElTVEVOT05MWSB8Cj4gICAxMDI2CQkJCQkgICAgICAgQ0FOX0NUUkxNT0RFXzNfU0FN
-UExFUyB8Cj4gICAxMDI3CQkJCQkgICAgICAgQ0FOX0NUUkxNT0RFX0xPT1BCQUNLOwo+ICAgMTAy
-OAkKPiAgIDEwMjkJCXNwaW5fbG9ja19pbml0KCZwcml2LT5sb2NrKTsKPiAgIDEwMzAJCj4gICAx
-MDMxCQluZXRpZl9uYXBpX2FkZChuZGV2LCAmcHJpdi0+bmFwaSwgbWVuX3oxOTJfcG9sbCwKPiAg
-IDEwMzIJCQkgICAgICAgTkFQSV9QT0xMX1dFSUdIVCk7Cj4gICAxMDMzCQo+ICAgMTAzNAkJc2ti
-X3F1ZXVlX2hlYWRfaW5pdCgmcHJpdi0+ZWNob3EpOwo+ICAgMTAzNQkKPiAgIDEwMzYJCW1jYl9z
-ZXRfZHJ2ZGF0YShtZGV2LCBuZGV2KTsKPiAgIDEwMzcJCVNFVF9ORVRERVZfREVWKG5kZXYsIGRl
-dik7Cj4gICAxMDM4CQo+ICAgMTAzOQkJbmRldi0+ZXRodG9vbF9vcHMgPSAmbWVuX3oxOTJfZXRo
-dG9vbF9vcHM7Cj4gICAxMDQwCQo+ICAgMTA0MQkJcmV0ID0gbWVuX3oxOTJfcmVnaXN0ZXIobmRl
-dik7Cj4gICAxMDQyCQlpZiAocmV0KSB7Cj4gICAxMDQzCQkJZGV2X2VycihkZXYsICJmYWlsZWQg
-dG8gcmVnaXN0ZXIgQ0FOIGRldmljZSIpOwo+ICAgMTA0NAkJCWdvdG8gb3V0X2ZyZWVfY2FuZGV2
-Owo+ICAgMTA0NQkJfQo+ICAgMTA0NgkKPiAgIDEwNDcJCWRldm1fY2FuX2xlZF9pbml0KG5kZXYp
-Owo+ICAgMTA0OAkKPiAgIDEwNDkJCWRldl9pbmZvKGRldiwgIk1FTiAxNnoxOTIgQ0FOIGRyaXZl
-ciBzdWNjZXNzZnVsbHkgcmVnaXN0ZXJlZFxuIik7Cj4gICAxMDUwCQo+ICAgMTA1MQkJcmV0dXJu
-IDA7Cj4gICAxMDUyCQo+ICAgMTA1MwlvdXRfZnJlZV9jYW5kZXY6Cj4gICAxMDU0CQluZXRpZl9u
-YXBpX2RlbCgmcHJpdi0+bmFwaSk7Cj4gICAxMDU1CQlmcmVlX2NhbmRldihuZGV2KTsKPiAgIDEw
-NTYJb3V0X3VubWFwOgo+PiAxMDU3CQlpb3VubWFwKGRldl9iYXNlKTsKPiAgIDEwNTgJb3V0X3Jl
-bGVhc2U6Cj4gICAxMDU5CQltY2JfcmVsZWFzZV9tZW0obWVtKTsKPiAgIDEwNjAJCXJldHVybiBy
-ZXQ7Cj4gICAxMDYxCX0KPiAgIDEwNjIJCj4gICAxMDYzCXN0YXRpYyB2b2lkIG1lbl96MTkyX3Jl
-bW92ZShzdHJ1Y3QgbWNiX2RldmljZSAqbWRldikKPiAgIDEwNjQJewo+ICAgMTA2NQkJc3RydWN0
-IG5ldF9kZXZpY2UgKm5kZXYgPSBtY2JfZ2V0X2RydmRhdGEobWRldik7Cj4gICAxMDY2CQlzdHJ1
-Y3QgbWVuX3oxOTIgKnByaXYgPSBuZXRkZXZfcHJpdihuZGV2KTsKPiAgIDEwNjcJCj4gICAxMDY4
-CQl1bnJlZ2lzdGVyX2NhbmRldihuZGV2KTsKPiAgIDEwNjkJCW5ldGlmX25hcGlfZGVsKCZwcml2
-LT5uYXBpKTsKPiAgIDEwNzAJCj4+IDEwNzEJCWlvdW5tYXAocHJpdi0+ZGV2X2Jhc2UpOwo+ICAg
-MTA3MgkJbWNiX3JlbGVhc2VfbWVtKHByaXYtPm1lbSk7Cj4gICAxMDczCQo+ICAgMTA3NAkJZnJl
-ZV9jYW5kZXYobmRldik7Cj4gICAxMDc1CX0KPiAgIDEwNzYJCj4gCj4gLS0tCj4gMC1EQVkgQ0kg
-S2VybmVsIFRlc3QgU2VydmljZSwgSW50ZWwgQ29ycG9yYXRpb24KPiBodHRwczovL2xpc3RzLjAx
-Lm9yZy9oeXBlcmtpdHR5L2xpc3Qva2J1aWxkLWFsbCBhdCBsaXN0cy4wMS5vcmcKPiAKCk1hcmMK
-Ci0tIApQZW5ndXRyb25peCBlLksuICAgICAgICAgICAgICAgICB8IE1hcmMgS2xlaW5lLUJ1ZGRl
-ICAgICAgICAgICB8CkVtYmVkZGVkIExpbnV4ICAgICAgICAgICAgICAgICAgIHwgaHR0cHM6Ly93
-d3cucGVuZ3V0cm9uaXguZGUgIHwKVmVydHJldHVuZyBXZXN0L0RvcnRtdW5kICAgICAgICAgfCBQ
-aG9uZTogKzQ5LTIzMS0yODI2LTkyNCAgICAgfApBbXRzZ2VyaWNodCBIaWxkZXNoZWltLCBIUkEg
-MjY4NiB8IEZheDogICArNDktNTEyMS0yMDY5MTctNTU1NSB8CgoKKiBVbmtub3duIEtleQoqIDB4
-RkFFREVGQTkKCiAK
+On Mon, Jan 18, 2021 at 09:09:04PM +0100, Abhijeet Badurkar wrote:
+> ﻿
+> Hello,
+> 
+> i am getting sparse warning regarding iounmap implementation of openrisc architecture for my CAN driver patch. Is there any specific reason why iounmap of openrisc doesn't have __iomem annnotation? Could you please suggest a fix for this?
+
+Hello,
+
+Sorry I missed this patch as I didn't recognize the subject.
+
+You could send a patch for iounmap if you like.  Otherwise I can get around to
+it in a few days.
+
+The patch would be something like:
+
+--- a/arch/openrisc/mm/ioremap.c
++++ b/arch/openrisc/mm/ioremap.c
+@@ -77,7 +77,7 @@ void __iomem *__ref ioremap(phys_addr_t addr, unsigned long
+size)
+ }
+ EXPORT_SYMBOL(ioremap);
+ 
+-void iounmap(void *addr)
++void iounmap(void __iomem *addr)
+ {
+        /* If the page is from the fixmap pool then we just clear out
+         * the fixmap mapping.
+
+
+> Thx.
+> 
+> Abhijeet
+> 
+> 
+> 
+> M. Sc.
+> Abhijeet Badurkar
+> Software Engineering 
+> Business Unit Computing Systems, duagon
+> 
+> duagon Germany GmbH
+> Neuwieder Straße 1-7
+> 90411 Nürnberg
+> Deutschland
+> Phone		+49 911 99 33 5 - 219
+> www.duagon.com
+> 
+> duagon Germany GmbH - Geschäftsführer: Dr. Michael Goldbach - Mathias Kamolz - Kalina Scott - Handelsregister/Trade Register AG Nürnberg HRB 5540
+> 
+> This message and/or attachments may be privileged or confidential. If you are not the intended recipient, you are hereby notified that you have received this transmittal in error; any review, dissemination, or copying is strictly prohibited. If you received this transmittal in error, please notify us immediately by reply and immediately delete this message and all its attachments. Thank you.
+> -------- Forwarded Message --------
+> Subject: Re: [PATCH v5] net: can: Introduce MEN 16Z192-00 CAN controller driver
+> Date: Fri, 16 Oct 2020 09:55:36 +0200
+> From: Marc Kleine-Budde <mkl@pengutronix.de>
+> To: kernel test robot <lkp@intel.com>, Abhijeet Badurkar <abhijeet.badurkar@duagon.com>, wg at grandegger.com
+> CC: kbuild-all at lists.01.org, linux-kernel at vger.kernel.org, linux-can at vger.kernel.org, andreas.geissler at duagon.com, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, openrisc at lists.librecores.org
+> 
+> * PGP Signed by an unknown key
+> 
+> On 10/16/20 1:49 AM, kernel test robot wrote:
+> > Hi Abhijeet,
+> > 
+> > Thank you for the patch! Perhaps something to improve:
+> > 
+> > [auto build test WARNING on 549738f15da0e5a00275977623be199fbbf7df50]
+> > 
+> > url:    https://github.com/0day-ci/linux/commits/Abhijeet-Badurkar/net-can-Introduce-MEN-16Z192-00-CAN-controller-driver/20201005-192132
+> > base:    549738f15da0e5a00275977623be199fbbf7df50
+> > config: openrisc-randconfig-s031-20201015 (attached as .config)
+> > compiler: or1k-linux-gcc (GCC) 9.3.0
+> > reproduce:
+> >         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+> >         chmod +x ~/bin/make.cross
+> >         # apt-get install sparse
+> >         # sparse version: v0.6.3-rc1-dirty
+> >         # https://github.com/0day-ci/linux/commit/267876771a434b2be3278c2c87d36146c0fac77d
+> >         git remote add linux-review https://github.com/0day-ci/linux
+> >         git fetch --no-tags linux-review Abhijeet-Badurkar/net-can-Introduce-MEN-16Z192-00-CAN-controller-driver/20201005-192132
+> >         git checkout 267876771a434b2be3278c2c87d36146c0fac77d
+> >         # save the attached .config to linux build tree
+> >         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-9.3.0 make.cross C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__' ARCH=openrisc 
+> 
+> I think it's the openrisc arch to blame^w ask here, since their iounmap doesn't
+> have __iomem annotation.
+> 
+> > 
+> > If you fix the issue, kindly add following tag as appropriate
+> > Reported-by: kernel test robot <lkp@intel.com>
+> > 
+> > 
+> > "sparse warnings: (new ones prefixed by >>)"
+> >>> drivers/net/can/men_z192_can.c:1057:17: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected void *addr @@     got void [noderef] __iomem *[assigned] dev_base @@
+> >>> drivers/net/can/men_z192_can.c:1057:17: sparse:     expected void *addr
+> >>> drivers/net/can/men_z192_can.c:1057:17: sparse:     got void [noderef] __iomem *[assigned] dev_base
+> >>> drivers/net/can/men_z192_can.c:1071:21: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected void *addr @@     got void [noderef] __iomem *dev_base @@
+> >    drivers/net/can/men_z192_can.c:1071:21: sparse:     expected void *addr
+> >>> drivers/net/can/men_z192_can.c:1071:21: sparse:     got void [noderef] __iomem *dev_base
+> > 
+> > vim +1057 drivers/net/can/men_z192_can.c
+> > 
+> >    962	
+> >    963	static int men_z192_probe(struct mcb_device *mdev,
+> >    964				  const struct mcb_device_id *id)
+> >    965	{
+> >    966		struct device *dev = &mdev->dev;
+> >    967		struct men_z192 *priv;
+> >    968		struct net_device *ndev;
+> >    969		void __iomem *dev_base;
+> >    970		struct resource *mem;
+> >    971		u32 timebase;
+> >    972		int ret = 0;
+> >    973		int irq;
+> >    974	
+> >    975		mem = mcb_request_mem(mdev, dev_name(dev));
+> >    976		if (IS_ERR(mem)) {
+> >    977			dev_err(dev, "failed to request device memory");
+> >    978			return PTR_ERR(mem);
+> >    979		}
+> >    980	
+> >    981		dev_base = ioremap(mem->start, resource_size(mem));
+> >    982		if (!dev_base) {
+> >    983			dev_err(dev, "failed to ioremap device memory");
+> >    984			ret = -ENXIO;
+> >    985			goto out_release;
+> >    986		}
+> >    987	
+> >    988		irq = mcb_get_irq(mdev);
+> >    989		if (irq <= 0) {
+> >    990			ret = -ENODEV;
+> >    991			goto out_unmap;
+> >    992		}
+> >    993	
+> >    994		ndev = alloc_candev(sizeof(struct men_z192), 0);
+> >    995		if (!ndev) {
+> >    996			dev_err(dev, "failed to allocat the can device");
+> >    997			ret = -ENOMEM;
+> >    998			goto out_unmap;
+> >    999		}
+> >   1000	
+> >   1001		ndev->netdev_ops = &men_z192_netdev_ops;
+> >   1002		ndev->irq = irq;
+> >   1003		ndev->flags |= IFF_ECHO;
+> >   1004	
+> >   1005		priv = netdev_priv(ndev);
+> >   1006		priv->ndev = ndev;
+> >   1007		priv->dev = dev;
+> >   1008	
+> >   1009		priv->mem = mem;
+> >   1010		priv->dev_base = dev_base;
+> >   1011		priv->regs = priv->dev_base + MEN_Z192_REGS_OFFS;
+> >   1012	
+> >   1013		timebase = readl(&priv->regs->timebase);
+> >   1014		if (!timebase) {
+> >   1015			dev_err(dev, "invalid timebase configured (timebase=%d)\n",
+> >   1016				timebase);
+> >   1017			ret = -EINVAL;
+> >   1018			goto out_free_candev;
+> >   1019		}
+> >   1020	
+> >   1021		priv->can.clock.freq = timebase;
+> >   1022		priv->can.bittiming_const = &men_z192_bittiming_const;
+> >   1023		priv->can.do_set_mode = men_z192_set_mode;
+> >   1024		priv->can.do_get_berr_counter = men_z192_get_berr_counter;
+> >   1025		priv->can.ctrlmode_supported = CAN_CTRLMODE_LISTENONLY |
+> >   1026					       CAN_CTRLMODE_3_SAMPLES |
+> >   1027					       CAN_CTRLMODE_LOOPBACK;
+> >   1028	
+> >   1029		spin_lock_init(&priv->lock);
+> >   1030	
+> >   1031		netif_napi_add(ndev, &priv->napi, men_z192_poll,
+> >   1032			       NAPI_POLL_WEIGHT);
+> >   1033	
+> >   1034		skb_queue_head_init(&priv->echoq);
+> >   1035	
+> >   1036		mcb_set_drvdata(mdev, ndev);
+> >   1037		SET_NETDEV_DEV(ndev, dev);
+> >   1038	
+> >   1039		ndev->ethtool_ops = &men_z192_ethtool_ops;
+> >   1040	
+> >   1041		ret = men_z192_register(ndev);
+> >   1042		if (ret) {
+> >   1043			dev_err(dev, "failed to register CAN device");
+> >   1044			goto out_free_candev;
+> >   1045		}
+> >   1046	
+> >   1047		devm_can_led_init(ndev);
+> >   1048	
+> >   1049		dev_info(dev, "MEN 16z192 CAN driver successfully registered\n");
+> >   1050	
+> >   1051		return 0;
+> >   1052	
+> >   1053	out_free_candev:
+> >   1054		netif_napi_del(&priv->napi);
+> >   1055		free_candev(ndev);
+> >   1056	out_unmap:
+> >> 1057		iounmap(dev_base);
+> >   1058	out_release:
+> >   1059		mcb_release_mem(mem);
+> >   1060		return ret;
+> >   1061	}
+> >   1062	
+> >   1063	static void men_z192_remove(struct mcb_device *mdev)
+> >   1064	{
+> >   1065		struct net_device *ndev = mcb_get_drvdata(mdev);
+> >   1066		struct men_z192 *priv = netdev_priv(ndev);
+> >   1067	
+> >   1068		unregister_candev(ndev);
+> >   1069		netif_napi_del(&priv->napi);
+> >   1070	
+> >> 1071		iounmap(priv->dev_base);
+> >   1072		mcb_release_mem(priv->mem);
+> >   1073	
+> >   1074		free_candev(ndev);
+> >   1075	}
+> >   1076	
+> > 
+> > ---
+> > 0-DAY CI Kernel Test Service, Intel Corporation
+> > https://lists.01.org/hyperkitty/list/kbuild-all at lists.01.org
+> > 
+> 
+> Marc
+> 
+> -- 
+> Pengutronix e.K.                 | Marc Kleine-Budde           |
+> Embedded Linux                   | https://www.pengutronix.de  |
+> Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
+> Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
+> 
+> 
+> * Unknown Key
+> * 0xFAEDEFA9
+> 
+>  
