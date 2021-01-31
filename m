@@ -1,20 +1,24 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 31 Jan 2021 08:11:55 +0900
-Subject: [OpenRISC] [PATCH] openrisc: use device tree to determine
- present cpus
-In-Reply-To: <20210130230310.GC2002709@lianli.shorne-pla.net>
-References: <0b26eda7-229d-3dc9-f2ae-19b9212fb0ea@rwth-aachen.de>
- <20210129221643.GZ2002709@lianli.shorne-pla.net>
- <2a018afc-d797-3a91-ffab-e55ae3b0a795@rwth-aachen.de>
- <20210130230310.GC2002709@lianli.shorne-pla.net>
-Message-ID: <20210130231155.GD2002709@lianli.shorne-pla.net>
+From: pr-tracker-bot@kernel.org <pr-tracker-bot@kernel.org>
+Date: Sun, 31 Jan 2021 02:17:18 +0000
+Subject: [OpenRISC] [GIT PULL] OpenRISC fixes for 5.11-rc6
+In-Reply-To: <20210130224442.GB2002709@lianli.shorne-pla.net>
+References: <20210130224442.GB2002709@lianli.shorne-pla.net>
+Message-ID: <161205943819.4129.13346730597249255168.pr-tracker-bot@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Sorry, Please disrecard the g at lianli.shorne-pla.net address in the mail
-distribution list.  I must have it a incorrect button.
+The pull request you sent on Sun, 31 Jan 2021 07:44:42 +0900:
 
- -Stafford
+> git://github.com/openrisc/linux.git tags/for-linus
+
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/03e319e5465a2da6fb188c77043775f2888df529
+
+Thank you!
+
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
