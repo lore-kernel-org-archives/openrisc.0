@@ -1,7 +1,8 @@
 From: Jan Henrik Weinstock <jan.weinstock@rwth-aachen.de>
-Date: Mon, 8 Feb 2021 15:27:16 +0100
-Subject: [OpenRISC] [PATCH] Use devicetree to determine present cpus
-Message-ID: <84102952-2468-4616-b28c-cb5941de7e12@rwthex-s2-a.rwth-ad.de>
+Date: Mon, 8 Feb 2021 15:28:32 +0100
+Subject: [OpenRISC] [PATCH v2] Use devicetree to determine present cpus
+ (v2)
+Message-ID: <9dc6c716-c5da-4214-96d8-e088db29d403@rwthex-s2-a.rwth-ad.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -10,53 +11,61 @@ To: openrisc@lists.librecores.org
 
 Signed-off-by: Jan Henrik Weinstock <jan.weinstock@rwth-aachen.de>
 ---
-
-Re-send patch with git sendmail
-
- arch/openrisc/kernel/smp.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ arch/openrisc/kernel/smp.c | 31 +++++++++++++++----------------
+ 1 file changed, 15 insertions(+), 16 deletions(-)
 
 diff --git a/arch/openrisc/kernel/smp.c b/arch/openrisc/kernel/smp.c
-index 29c82ef2e..75be7e34f 100644
+index 75be7e34f..83cbf43d4 100644
 --- a/arch/openrisc/kernel/smp.c
 +++ b/arch/openrisc/kernel/smp.c
-@@ -16,6 +16,7 @@
- #include <linux/sched.h>
- #include <linux/sched/mm.h>
- #include <linux/irq.h>
-+#include <linux/of.h>
- #include <asm/cpuinfo.h>
- #include <asm/mmu_context.h>
- #include <asm/tlbflush.h>
-@@ -68,14 +69,25 @@ void __init smp_init_cpus(void)
+@@ -61,32 +61,31 @@ void __init smp_prepare_boot_cpu(void)
  
- void __init smp_prepare_cpus(unsigned int max_cpus)
+ void __init smp_init_cpus(void)
  {
 -	int i;
++	struct device_node* cpu;
 +	u32 cpu_id;
-+	struct device_node *cpu, *cpus;
- 
- 	/*
- 	 * Initialise the present map, which describes the set of CPUs
- 	 * actually populated at the present time.
- 	 */
--	for (i = 0; i < max_cpus; i++)
--		set_cpu_present(i, true);
-+	cpus = of_find_node_by_path("/cpus");
-+	for_each_child_of_node(cpus, cpu) {
++
++	for_each_of_cpu_node(cpu) {
 +		if (of_property_read_u32(cpu, "reg", &cpu_id)) {
 +			pr_warn("%s missing reg property", cpu->full_name);
 +			continue;
 +		}
-+
-+		if (cpu_id >= max_cpus)
-+			continue;
-+
-+		set_cpu_present(cpu_id, true);
+ 
+-	for (i = 0; i < NR_CPUS; i++)
+-		set_cpu_possible(i, true);
++		if (cpu_id < NR_CPUS)
++			set_cpu_possible(cpu_id, true);
 +	}
  }
  
- void __init smp_cpus_done(unsigned int max_cpus)
+ void __init smp_prepare_cpus(unsigned int max_cpus)
+ {
+-	u32 cpu_id;
+-	struct device_node *cpu, *cpus;
++	unsigned int cpu;
+ 
+ 	/*
+ 	 * Initialise the present map, which describes the set of CPUs
+ 	 * actually populated@the present time.
+ 	 */
+-	cpus = of_find_node_by_path("/cpus");
+-	for_each_child_of_node(cpus, cpu) {
+-		if (of_property_read_u32(cpu, "reg", &cpu_id)) {
+-			pr_warn("%s missing reg property", cpu->full_name);
+-			continue;
+-		}
+-
+-		if (cpu_id >= max_cpus)
+-			continue;
+-
+-		set_cpu_present(cpu_id, true);
++	for_each_possible_cpu(cpu) {
++		if (cpu < max_cpus)
++			set_cpu_present(cpu, true);
+ 	}
+ }
+ 
 -- 
 2.17.1
 
