@@ -1,39 +1,73 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 1 Feb 2021 06:27:52 +0900
-Subject: [OpenRISC] [PATCH] openrisc: use device tree to determine
- present cpus
-In-Reply-To: <d9f4aafc-4d65-38b0-dde0-5e155836aee1@rwth-aachen.de>
-References: <0b26eda7-229d-3dc9-f2ae-19b9212fb0ea@rwth-aachen.de>
- <20210129221643.GZ2002709@lianli.shorne-pla.net>
- <2a018afc-d797-3a91-ffab-e55ae3b0a795@rwth-aachen.de>
- <20210130230310.GC2002709@lianli.shorne-pla.net>
- <d9f4aafc-4d65-38b0-dde0-5e155836aee1@rwth-aachen.de>
-Message-ID: <20210131212752.GG2002709@lianli.shorne-pla.net>
+Date: Wed,  3 Mar 2021 22:50:22 +0900
+Subject: [OpenRISC] [PATCH 0/4] OpenRISC fixes and setjmp/longjmp work
+Message-ID: <20210303135026.3450789-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sun, Jan 31, 2021 at 09:22:31AM +0100, Jan Henrik Weinstock wrote:
-> On 31/01/2021 00:03, Stafford Horne wrote:
-> 
-> > This looks good, one small comment below.  Can you send the next patch as a v2?
-> > 
-> > Using 'git format-patch -v2 ...'
-> 
-> Sorry, was not aware of that, will do better next time!
-> 
-> > Should we warn on the else case?
-> 
-> I think it is fine for the kernel to have room for more CPUs than are
-> actually present (i.e. NR_CPUs > present_cpus is OK). Other Archs do not
-> show a warning in this case either, therefore I also omitted it.
+Hello,
 
-Fair enough.
+These are the patches I came up with to get the setjmp/longjmp routines to work
+on OpenRISC.  It seems to be working well.
 
-Reviewed-by: Stafford Horne <shorne@gmail.com>
+The patches are on github here:
+  https://github.com/stffrdhrn/barebox/tree/openrisc-bthread
 
-I can queue this for 5.12 when you send v2.
+I had to revert a commit to remove openrisc to do this work, I hope that can be
+reverted.
 
--Stafford
+Test output:
+
+    barebox at or1ksim:/ bthread -v
+    bthread_printer yield #1
+    bthread_printer yield #2
+    bthread_printer yield #3
+    bthread_printer yield #4
+    36441 bthread yield calls in 1s
+    barebox at or1ksim:/ bthread -v
+    bthread_printer yield #1
+    bthread_printer yield #2
+    bthread_printer yield #3
+    bthread_printer yield #4
+    36504 bthread yield calls in 1s
+    barebox at or1ksim:/ bthread
+
+    bthread - print info about registered bthreads
+
+    print info about registered barebox threads
+
+    Options:
+	    -i      Print information about registered bthreads
+	    -t      measure how many bthreads we currently run in 1s
+	    -c      count maximum context switches in 1s
+	    -v      verify correct bthread operation
+
+    barebox at or1ksim:/ bthread -c
+    bthread -c
+    269536 bthread context switches possible in 1s
+
+Stafford Horne (4):
+  openrisc: Use movhi to zero registers
+  openrisc: Add gitignore for dtb files
+  openrisc: Add linkage.h
+  openrisc: Implement setjmp/longjmp/initjmp
+
+ arch/openrisc/Kconfig               |  1 +
+ arch/openrisc/cpu/start.S           |  6 ++--
+ arch/openrisc/dts/.gitignore        |  1 +
+ arch/openrisc/include/asm/linkage.h |  7 ++++
+ arch/openrisc/include/asm/setjmp.h  | 17 +++++++++
+ arch/openrisc/lib/Makefile          |  1 +
+ arch/openrisc/lib/setjmp.S          | 56 +++++++++++++++++++++++++++++
+ 7 files changed, 86 insertions(+), 3 deletions(-)
+ create mode 100644 arch/openrisc/dts/.gitignore
+ create mode 100644 arch/openrisc/include/asm/linkage.h
+ create mode 100644 arch/openrisc/include/asm/setjmp.h
+ create mode 100644 arch/openrisc/lib/setjmp.S
+
+-- 
+2.26.2
+
