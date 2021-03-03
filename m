@@ -1,41 +1,28 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Wed,  3 Mar 2021 22:50:23 +0900
-Subject: [OpenRISC] [PATCH 1/4] openrisc: Use movhi to zero registers
+Date: Wed,  3 Mar 2021 22:50:24 +0900
+Subject: [OpenRISC] [PATCH 2/4] openrisc: Add gitignore for dtb files
 In-Reply-To: <20210303135026.3450789-1-shorne@gmail.com>
 References: <20210303135026.3450789-1-shorne@gmail.com>
-Message-ID: <20210303135026.3450789-2-shorne@gmail.com>
+Message-ID: <20210303135026.3450789-3-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-This is needed when running on FPGA as registers are not guaranteed
-to be initialized to 0.  Using movhi allows to explicitly set 0.
-
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/cpu/start.S | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/openrisc/dts/.gitignore | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 arch/openrisc/dts/.gitignore
 
-diff --git a/arch/openrisc/cpu/start.S b/arch/openrisc/cpu/start.S
-index 7ac790b05..c448d3775 100644
---- a/arch/openrisc/cpu/start.S
-+++ b/arch/openrisc/cpu/start.S
-@@ -37,10 +37,10 @@
- 	.org	0x100
- __reset:
- 	/* there is no guarantee r0 is hardwired to zero, clear it here */
--	l.andi	r0, r0, 0
-+	l.movhi	r0, 0x0
- 	/* reset stack and frame pointers */
--	l.andi	r1, r0, 0
--	l.andi	r2, r0, 0
-+	l.movhi	r1, 0x0
-+	l.movhi	r2, 0x0
- 
- 	/* set supervisor mode */
- 	l.ori	r3,r0,SPR_SR_SM
+diff --git a/arch/openrisc/dts/.gitignore b/arch/openrisc/dts/.gitignore
+new file mode 100644
+index 000000000..077903c50
+--- /dev/null
++++ b/arch/openrisc/dts/.gitignore
+@@ -0,0 +1 @@
++*dtb*
 -- 
 2.26.2
 
