@@ -1,89 +1,34 @@
-From: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Date: Wed, 3 Mar 2021 15:03:11 +0100
-Subject: [OpenRISC] [PATCH 0/4] OpenRISC fixes and setjmp/longjmp work
-In-Reply-To: <20210303135026.3450789-1-shorne@gmail.com>
-References: <20210303135026.3450789-1-shorne@gmail.com>
-Message-ID: <57222afc-9d92-e52d-34d4-0737eff1ec82@pengutronix.de>
+From: Stafford Horne <shorne@gmail.com>
+Date: Thu,  4 Mar 2021 05:19:04 +0900
+Subject: [OpenRISC] [PATCH] openrisc: Define the elf binary entry point
+Message-ID: <20210303201904.3509658-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hello Stafford,
+Entry is used by qemu to find where to start booting, we define
+this to the 0x100 reset vector as is done by default when the CPU
+resets.  This fixes the qemu boot issue.
 
-On 03.03.21 14:50, Stafford Horne wrote:
-> Hello,
-> 
-> These are the patches I came up with to get the setjmp/longjmp routines to work
-> on OpenRISC.  It seems to be working well.
-> 
-> The patches are on github here:
->   https://github.com/stffrdhrn/barebox/tree/openrisc-bthread
-> 
-> I had to revert a commit to remove openrisc to do this work, I hope that can be
-> reverted.
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+ arch/openrisc/cpu/barebox.lds.S | 1 +
+ 1 file changed, 1 insertion(+)
 
-Great. Thanks for taking the time!
-Could this be tested on qemu-system-or1k? If so, it would be great to have this
-documented in-tree, so future changes could be tested.
-
-Cheers,
-Ahmad
-
-> 
-> Test output:
-> 
->     barebox at or1ksim:/ bthread -v
->     bthread_printer yield #1
->     bthread_printer yield #2
->     bthread_printer yield #3
->     bthread_printer yield #4
->     36441 bthread yield calls in 1s
->     barebox at or1ksim:/ bthread -v
->     bthread_printer yield #1
->     bthread_printer yield #2
->     bthread_printer yield #3
->     bthread_printer yield #4
->     36504 bthread yield calls in 1s
->     barebox at or1ksim:/ bthread
-> 
->     bthread - print info about registered bthreads
-> 
->     print info about registered barebox threads
-> 
->     Options:
-> 	    -i      Print information about registered bthreads
-> 	    -t      measure how many bthreads we currently run in 1s
-> 	    -c      count maximum context switches in 1s
-> 	    -v      verify correct bthread operation
-> 
->     barebox at or1ksim:/ bthread -c
->     bthread -c
->     269536 bthread context switches possible in 1s
-> 
-> Stafford Horne (4):
->   openrisc: Use movhi to zero registers
->   openrisc: Add gitignore for dtb files
->   openrisc: Add linkage.h
->   openrisc: Implement setjmp/longjmp/initjmp
-> 
->  arch/openrisc/Kconfig               |  1 +
->  arch/openrisc/cpu/start.S           |  6 ++--
->  arch/openrisc/dts/.gitignore        |  1 +
->  arch/openrisc/include/asm/linkage.h |  7 ++++
->  arch/openrisc/include/asm/setjmp.h  | 17 +++++++++
->  arch/openrisc/lib/Makefile          |  1 +
->  arch/openrisc/lib/setjmp.S          | 56 +++++++++++++++++++++++++++++
->  7 files changed, 86 insertions(+), 3 deletions(-)
->  create mode 100644 arch/openrisc/dts/.gitignore
->  create mode 100644 arch/openrisc/include/asm/linkage.h
->  create mode 100644 arch/openrisc/include/asm/setjmp.h
->  create mode 100644 arch/openrisc/lib/setjmp.S
-> 
-
+diff --git a/arch/openrisc/cpu/barebox.lds.S b/arch/openrisc/cpu/barebox.lds.S
+index adb0c22f8..45c5f2553 100644
+--- a/arch/openrisc/cpu/barebox.lds.S
++++ b/arch/openrisc/cpu/barebox.lds.S
+@@ -17,6 +17,7 @@
+ #include <asm-generic/barebox.lds.h>
+ 
+ OUTPUT_FORMAT("elf32-or1k", "elf32-or1k", "elf32-or1k")
++ENTRY(__reset)
+ __DYNAMIC  =  0;
+ 
+ MEMORY
 -- 
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+2.26.2
+
