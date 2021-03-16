@@ -1,96 +1,34 @@
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Date: Tue, 16 Mar 2021 16:45:19 +0100
-Subject: [OpenRISC] [PATCH RESEND] mm: Move mem_init_print_info() into
- mm_init()
-In-Reply-To: <20210316152901.70662-1-wangkefeng.wang@huawei.com>
+From: Dave Hansen <dave.hansen@intel.com>
+Date: Tue, 16 Mar 2021 14:16:35 -0700
+Subject: [OpenRISC] [PATCH] mm: Move mem_init_print_info() into mm_init()
+In-Reply-To: <20210316142637.92193-1-wangkefeng.wang@huawei.com>
 References: <20210316142637.92193-1-wangkefeng.wang@huawei.com>
- <20210316152901.70662-1-wangkefeng.wang@huawei.com>
-Message-ID: <4d488195-7281-9238-b30d-9f89a6100fb9@csgroup.eu>
+Message-ID: <009553ee-8d7b-0b60-8457-f8ac66e27fb4@intel.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
+On 3/16/21 7:26 AM, Kefeng Wang wrote:
+> diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
+> index 5430c81eefc9..aa8387aab9c1 100644
+> --- a/arch/x86/mm/init_64.c
+> +++ b/arch/x86/mm/init_64.c
+> @@ -1350,8 +1350,6 @@ void __init mem_init(void)
+>  		kclist_add(&kcore_vsyscall, (void *)VSYSCALL_ADDR, PAGE_SIZE, KCORE_USER);
+>  
+>  	preallocate_vmalloc_pages();
+> -
+> -	mem_init_print_info(NULL);
+>  }
 
+Ignoring any issues with the printk...
 
-Le 16/03/2021 à 16:29, Kefeng Wang a écrit :
-> mem_init_print_info() is called in mem_init() on each architecture,
-> and pass NULL argument, so using void argument and move it into mm_init().
-> 
-> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-> ---
-> 
-> Resend with 'str' line cleanup, and only test on ARM64 qemu.
-> 
->   arch/alpha/mm/init.c             | 1 -
->   arch/arc/mm/init.c               | 1 -
->   arch/arm/mm/init.c               | 2 --
->   arch/arm64/mm/init.c             | 2 --
->   arch/csky/mm/init.c              | 1 -
->   arch/h8300/mm/init.c             | 2 --
->   arch/hexagon/mm/init.c           | 1 -
->   arch/ia64/mm/init.c              | 1 -
->   arch/m68k/mm/init.c              | 1 -
->   arch/microblaze/mm/init.c        | 1 -
->   arch/mips/loongson64/numa.c      | 1 -
->   arch/mips/mm/init.c              | 1 -
->   arch/mips/sgi-ip27/ip27-memory.c | 1 -
->   arch/nds32/mm/init.c             | 1 -
->   arch/nios2/mm/init.c             | 1 -
->   arch/openrisc/mm/init.c          | 2 --
->   arch/parisc/mm/init.c            | 2 --
->   arch/powerpc/mm/mem.c            | 1 -
->   arch/riscv/mm/init.c             | 1 -
->   arch/s390/mm/init.c              | 2 --
->   arch/sh/mm/init.c                | 1 -
->   arch/sparc/mm/init_32.c          | 2 --
->   arch/sparc/mm/init_64.c          | 1 -
->   arch/um/kernel/mem.c             | 1 -
->   arch/x86/mm/init_32.c            | 2 --
->   arch/x86/mm/init_64.c            | 2 --
->   arch/xtensa/mm/init.c            | 1 -
->   include/linux/mm.h               | 2 +-
->   init/main.c                      | 1 +
->   mm/page_alloc.c                  | 6 +++---
->   30 files changed, 5 insertions(+), 40 deletions(-)
-> 
+Looks harmless enough on x86.  The 32-bit code has some cruft in
+mem_init() after mem_init_print_info(), so this patch will change the
+location of the mem_init_print_info(), but I think it's actually for the
+better, since it will be pushed later in boot.  As long as the x86
+pieces stay the same:
 
-> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index 55d938297ce6..cf5a2114c6d4 100644
-> --- a/mm/page_alloc.c
-> +++ b/mm/page_alloc.c
-> @@ -7728,7 +7728,7 @@ unsigned long free_reserved_area(void *start, void *end, int poison, const char
->   	return pages;
->   }
->   
-> -void __init mem_init_print_info(const char *str)
-> +void __init mem_init_print_info(void)
->   {
->   	unsigned long physpages, codesize, datasize, rosize, bss_size;
->   	unsigned long init_code_size, init_data_size;
-> @@ -7767,7 +7767,7 @@ void __init mem_init_print_info(const char *str)
->   #ifdef	CONFIG_HIGHMEM
->   		", %luK highmem"
->   #endif
-> -		"%s%s)\n",
-> +		"%s)\n",
->   		nr_free_pages() << (PAGE_SHIFT - 10),
->   		physpages << (PAGE_SHIFT - 10),
->   		codesize >> 10, datasize >> 10, rosize >> 10,
-> @@ -7777,7 +7777,7 @@ void __init mem_init_print_info(const char *str)
->   #ifdef	CONFIG_HIGHMEM
->   		totalhigh_pages() << (PAGE_SHIFT - 10),
->   #endif
-> -		str ? ", " : "", str ? str : "");
-> +		"");
->   }
->   
->   /**
-> 
-
-What is the benefit of a %s to print a constant "" ?
-
-You should tidy up completely.
-
-Christophe
+Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
