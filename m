@@ -1,9 +1,9 @@
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Date: Fri, 26 Mar 2021 13:44:57 +0000 (UTC)
-Subject: [OpenRISC] [PATCH v3 10/17] openrisc: Convert to GENERIC_CMDLINE
+Date: Fri, 26 Mar 2021 13:44:58 +0000 (UTC)
+Subject: [OpenRISC] [PATCH v3 11/17] riscv: Convert to GENERIC_CMDLINE
 In-Reply-To: <cover.1616765869.git.christophe.leroy@csgroup.eu>
 References: <cover.1616765869.git.christophe.leroy@csgroup.eu>
-Message-ID: <d583d618d93e723165b1145f9d4ec2981b61ca04.1616765870.git.christophe.leroy@csgroup.eu>
+Message-ID: <46745e07b04139a22b5bd01dc37df97e6981e643.1616765870.git.christophe.leroy@csgroup.eu>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -14,37 +14,96 @@ This converts the architecture to GENERIC_CMDLINE.
 
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 ---
- arch/openrisc/Kconfig | 10 +---------
- 1 file changed, 1 insertion(+), 9 deletions(-)
+ arch/riscv/Kconfig        | 44 +--------------------------------------
+ arch/riscv/kernel/setup.c |  5 ++---
+ 2 files changed, 3 insertions(+), 46 deletions(-)
 
-diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index 591acc5990dc..ca1d0f18fe16 100644
---- a/arch/openrisc/Kconfig
-+++ b/arch/openrisc/Kconfig
-@@ -25,6 +25,7 @@ config OPENRISC
- 	select HAVE_UID16
- 	select GENERIC_ATOMIC64
- 	select GENERIC_CLOCKEVENTS_BROADCAST
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 87d7b52f278f..3dbd50bed037 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -39,6 +39,7 @@ config RISCV
+ 	select EDAC_SUPPORT
+ 	select GENERIC_ARCH_TOPOLOGY if SMP
+ 	select GENERIC_ATOMIC64 if !64BIT
 +	select GENERIC_CMDLINE
- 	select GENERIC_STRNCPY_FROM_USER
- 	select GENERIC_STRNLEN_USER
- 	select GENERIC_SMP_IDLE_THREAD
-@@ -162,15 +163,6 @@ config OPENRISC_HAVE_SHADOW_GPRS
- 	  On SMP systems, this feature is mandatory.
- 	  On a unicore system it's safe to say N here if you are unsure.
+ 	select GENERIC_EARLY_IOREMAP
+ 	select GENERIC_GETTIMEOFDAY if HAVE_GENERIC_VDSO
+ 	select GENERIC_IOREMAP
+@@ -390,49 +391,6 @@ endmenu
+ 
+ menu "Boot options"
  
 -config CMDLINE
--	string "Default kernel command string"
--	default ""
+-	string "Built-in kernel command line"
 -	help
--	  On some architectures there is currently no way for the boot loader
--	  to pass arguments to the kernel. For these architectures, you should
--	  supply some command-line options at build time by entering them
--	  here.
+-	  For most platforms, the arguments for the kernel's command line
+-	  are provided at run-time, during boot. However, there are cases
+-	  where either no arguments are being provided or the provided
+-	  arguments are insufficient or even invalid.
 -
- menu "Debugging options"
+-	  When that occurs, it is possible to define a built-in command
+-	  line here and choose how the kernel should use it later on.
+-
+-choice
+-	prompt "Built-in command line usage" if CMDLINE != ""
+-	default CMDLINE_FALLBACK
+-	help
+-	  Choose how the kernel will handle the provided built-in command
+-	  line.
+-
+-config CMDLINE_FALLBACK
+-	bool "Use bootloader kernel arguments if available"
+-	help
+-	  Use the built-in command line as fallback in case we get nothing
+-	  during boot. This is the default behaviour.
+-
+-config CMDLINE_EXTEND
+-	bool "Extend bootloader kernel arguments"
+-	help
+-	  The command-line arguments provided during boot will be
+-	  appended to the built-in command line. This is useful in
+-	  cases where the provided arguments are insufficient and
+-	  you don't want to or cannot modify them.
+-
+-
+-config CMDLINE_FORCE
+-	bool "Always use the default kernel command string"
+-	help
+-	  Always use the built-in command line, even if we get one during
+-	  boot. This is useful in case you need to override the provided
+-	  command line on systems where you don't have or want control
+-	  over it.
+-
+-endchoice
+-
+ config EFI_STUB
+ 	bool
  
- config JUMP_UPON_UNHANDLED_EXCEPTION
+diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
+index f8f15332caa2..e7c91ee478d1 100644
+--- a/arch/riscv/kernel/setup.c
++++ b/arch/riscv/kernel/setup.c
+@@ -20,6 +20,7 @@
+ #include <linux/swiotlb.h>
+ #include <linux/smp.h>
+ #include <linux/efi.h>
++#include <linux/cmdline.h>
+ 
+ #include <asm/cpu_ops.h>
+ #include <asm/early_ioremap.h>
+@@ -228,10 +229,8 @@ static void __init parse_dtb(void)
+ 	}
+ 
+ 	pr_err("No DTB passed to the kernel\n");
+-#ifdef CONFIG_CMDLINE_FORCE
+-	strlcpy(boot_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
++	cmdline_build(boot_command_line, NULL, COMMAND_LINE_SIZE);
+ 	pr_info("Forcing kernel command line to: %s\n", boot_command_line);
+-#endif
+ }
+ 
+ void __init setup_arch(char **cmdline_p)
 -- 
 2.25.0
 
