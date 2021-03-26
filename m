@@ -1,9 +1,9 @@
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Date: Fri, 26 Mar 2021 13:44:58 +0000 (UTC)
-Subject: [OpenRISC] [PATCH v3 11/17] riscv: Convert to GENERIC_CMDLINE
+Date: Fri, 26 Mar 2021 13:45:01 +0000 (UTC)
+Subject: [OpenRISC] [PATCH v3 14/17] xtensa: Convert to GENERIC_CMDLINE
 In-Reply-To: <cover.1616765869.git.christophe.leroy@csgroup.eu>
 References: <cover.1616765869.git.christophe.leroy@csgroup.eu>
-Message-ID: <46745e07b04139a22b5bd01dc37df97e6981e643.1616765870.git.christophe.leroy@csgroup.eu>
+Message-ID: <14bee90f01159aca28390d57be538760980436a4.1616765870.git.christophe.leroy@csgroup.eu>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -14,96 +14,182 @@ This converts the architecture to GENERIC_CMDLINE.
 
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 ---
- arch/riscv/Kconfig        | 44 +--------------------------------------
- arch/riscv/kernel/setup.c |  5 ++---
- 2 files changed, 3 insertions(+), 46 deletions(-)
+ arch/xtensa/Kconfig                         | 15 +--------------
+ arch/xtensa/configs/audio_kc705_defconfig   |  1 -
+ arch/xtensa/configs/common_defconfig        |  1 -
+ arch/xtensa/configs/generic_kc705_defconfig |  1 -
+ arch/xtensa/configs/iss_defconfig           |  1 -
+ arch/xtensa/configs/nommu_kc705_defconfig   |  1 -
+ arch/xtensa/configs/smp_lx200_defconfig     |  1 -
+ arch/xtensa/configs/virt_defconfig          |  1 -
+ arch/xtensa/configs/xip_kc705_defconfig     |  1 -
+ arch/xtensa/kernel/setup.c                  | 10 ++--------
+ 10 files changed, 3 insertions(+), 30 deletions(-)
 
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index 87d7b52f278f..3dbd50bed037 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -39,6 +39,7 @@ config RISCV
- 	select EDAC_SUPPORT
- 	select GENERIC_ARCH_TOPOLOGY if SMP
- 	select GENERIC_ATOMIC64 if !64BIT
+diff --git a/arch/xtensa/Kconfig b/arch/xtensa/Kconfig
+index 9ad6b7b82707..42309f5e9cda 100644
+--- a/arch/xtensa/Kconfig
++++ b/arch/xtensa/Kconfig
+@@ -16,6 +16,7 @@ config XTENSA
+ 	select COMMON_CLK
+ 	select DMA_REMAP if MMU
+ 	select GENERIC_ATOMIC64
 +	select GENERIC_CMDLINE
- 	select GENERIC_EARLY_IOREMAP
- 	select GENERIC_GETTIMEOFDAY if HAVE_GENERIC_VDSO
- 	select GENERIC_IOREMAP
-@@ -390,49 +391,6 @@ endmenu
+ 	select GENERIC_IRQ_SHOW
+ 	select GENERIC_PCI_IOMAP
+ 	select GENERIC_SCHED_CLOCK
+@@ -353,20 +354,6 @@ config GENERIC_CALIBRATE_DELAY
+ 	help
+ 	  The BogoMIPS value can easily be derived from the CPU frequency.
  
- menu "Boot options"
- 
+-config CMDLINE_BOOL
+-	bool "Default bootloader kernel arguments"
+-
 -config CMDLINE
--	string "Built-in kernel command line"
+-	string "Initial kernel command string"
+-	depends on CMDLINE_BOOL
+-	default "console=ttyS0,38400 root=/dev/ram"
 -	help
--	  For most platforms, the arguments for the kernel's command line
--	  are provided at run-time, during boot. However, there are cases
--	  where either no arguments are being provided or the provided
--	  arguments are insufficient or even invalid.
+-	  On some architectures (EBSA110 and CATS), there is currently no way
+-	  for the boot loader to pass arguments to the kernel. For these
+-	  architectures, you should supply some command-line options at build
+-	  time by entering them here. As a minimum, you should specify the
+-	  memory size and the root device (e.g., mem=64M root=/dev/nfs).
 -
--	  When that occurs, it is possible to define a built-in command
--	  line here and choose how the kernel should use it later on.
--
--choice
--	prompt "Built-in command line usage" if CMDLINE != ""
--	default CMDLINE_FALLBACK
--	help
--	  Choose how the kernel will handle the provided built-in command
--	  line.
--
--config CMDLINE_FALLBACK
--	bool "Use bootloader kernel arguments if available"
--	help
--	  Use the built-in command line as fallback in case we get nothing
--	  during boot. This is the default behaviour.
--
--config CMDLINE_EXTEND
--	bool "Extend bootloader kernel arguments"
--	help
--	  The command-line arguments provided during boot will be
--	  appended to the built-in command line. This is useful in
--	  cases where the provided arguments are insufficient and
--	  you don't want to or cannot modify them.
--
--
--config CMDLINE_FORCE
--	bool "Always use the default kernel command string"
--	help
--	  Always use the built-in command line, even if we get one during
--	  boot. This is useful in case you need to override the provided
--	  command line on systems where you don't have or want control
--	  over it.
--
--endchoice
--
- config EFI_STUB
- 	bool
- 
-diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
-index f8f15332caa2..e7c91ee478d1 100644
---- a/arch/riscv/kernel/setup.c
-+++ b/arch/riscv/kernel/setup.c
-@@ -20,6 +20,7 @@
- #include <linux/swiotlb.h>
- #include <linux/smp.h>
- #include <linux/efi.h>
+ config USE_OF
+ 	bool "Flattened Device Tree support"
+ 	select OF
+diff --git a/arch/xtensa/configs/audio_kc705_defconfig b/arch/xtensa/configs/audio_kc705_defconfig
+index 3be62da8089b..5f8661a33ab4 100644
+--- a/arch/xtensa/configs/audio_kc705_defconfig
++++ b/arch/xtensa/configs/audio_kc705_defconfig
+@@ -27,7 +27,6 @@ CONFIG_PREEMPT=y
+ CONFIG_HIGHMEM=y
+ # CONFIG_PCI is not set
+ CONFIG_XTENSA_PLATFORM_XTFPGA=y
+-CONFIG_CMDLINE_BOOL=y
+ CONFIG_CMDLINE="earlycon=uart8250,mmio32native,0xfd050020,115200n8 console=ttyS0,115200n8 ip=dhcp root=/dev/nfs rw debug memmap=0x38000000 at 0"
+ CONFIG_USE_OF=y
+ CONFIG_BUILTIN_DTB_SOURCE="kc705"
+diff --git a/arch/xtensa/configs/common_defconfig b/arch/xtensa/configs/common_defconfig
+index fa9389869154..6467ebcbb080 100644
+--- a/arch/xtensa/configs/common_defconfig
++++ b/arch/xtensa/configs/common_defconfig
+@@ -6,7 +6,6 @@ CONFIG_MODULES=y
+ CONFIG_MODVERSIONS=y
+ CONFIG_XTENSA_PLATFORM_XT2000=y
+ CONFIG_GENERIC_CALIBRATE_DELAY=y
+-CONFIG_CMDLINE_BOOL=y
+ CONFIG_CMDLINE="console=ttyS0,38400 ip=bootp root=nfs nfsroot=/opt/montavista/pro/devkit/xtensa/linux_be/target memmap=128M at 0"
+ CONFIG_BINFMT_MISC=y
+ CONFIG_NET=y
+diff --git a/arch/xtensa/configs/generic_kc705_defconfig b/arch/xtensa/configs/generic_kc705_defconfig
+index e9d6b6f6eca1..8984c4e68a42 100644
+--- a/arch/xtensa/configs/generic_kc705_defconfig
++++ b/arch/xtensa/configs/generic_kc705_defconfig
+@@ -26,7 +26,6 @@ CONFIG_PREEMPT=y
+ CONFIG_HIGHMEM=y
+ # CONFIG_PCI is not set
+ CONFIG_XTENSA_PLATFORM_XTFPGA=y
+-CONFIG_CMDLINE_BOOL=y
+ CONFIG_CMDLINE="earlycon=uart8250,mmio32native,0xfd050020,115200n8 console=ttyS0,115200n8 ip=dhcp root=/dev/nfs rw debug memmap=0x38000000 at 0"
+ CONFIG_USE_OF=y
+ CONFIG_BUILTIN_DTB_SOURCE="kc705"
+diff --git a/arch/xtensa/configs/iss_defconfig b/arch/xtensa/configs/iss_defconfig
+index 32ce8fb068f0..996ad115264d 100644
+--- a/arch/xtensa/configs/iss_defconfig
++++ b/arch/xtensa/configs/iss_defconfig
+@@ -2,7 +2,6 @@ CONFIG_SYSVIPC=y
+ CONFIG_LOG_BUF_SHIFT=14
+ CONFIG_EXPERT=y
+ # CONFIG_PCI is not set
+-CONFIG_CMDLINE_BOOL=y
+ CONFIG_CMDLINE="console=ttyS0,38400 eth0=tuntap,,tap0 ip=192.168.168.5:192.168.168.1 root=nfs nfsroot=192.168.168.1:/opt/montavista/pro/devkit/xtensa/linux_be/target memmap=128M at 0"
+ # CONFIG_CORE_DUMP_DEFAULT_ELF_HEADERS is not set
+ CONFIG_NET=y
+diff --git a/arch/xtensa/configs/nommu_kc705_defconfig b/arch/xtensa/configs/nommu_kc705_defconfig
+index 88b2e222d4bf..54250bc74885 100644
+--- a/arch/xtensa/configs/nommu_kc705_defconfig
++++ b/arch/xtensa/configs/nommu_kc705_defconfig
+@@ -33,7 +33,6 @@ CONFIG_PREEMPT=y
+ CONFIG_MEMMAP_CACHEATTR=0xfff2442f
+ # CONFIG_PCI is not set
+ CONFIG_XTENSA_PLATFORM_XTFPGA=y
+-CONFIG_CMDLINE_BOOL=y
+ CONFIG_CMDLINE="earlycon=uart8250,mmio32native,0x9d050020,115200n8 console=ttyS0,115200n8 ip=dhcp root=/dev/nfs rw debug memmap=256M at 0x60000000"
+ CONFIG_USE_OF=y
+ CONFIG_BUILTIN_DTB_SOURCE="kc705_nommu"
+diff --git a/arch/xtensa/configs/smp_lx200_defconfig b/arch/xtensa/configs/smp_lx200_defconfig
+index a47c85638ec1..58b284fd627f 100644
+--- a/arch/xtensa/configs/smp_lx200_defconfig
++++ b/arch/xtensa/configs/smp_lx200_defconfig
+@@ -30,7 +30,6 @@ CONFIG_HOTPLUG_CPU=y
+ # CONFIG_INITIALIZE_XTENSA_MMU_INSIDE_VMLINUX is not set
+ # CONFIG_PCI is not set
+ CONFIG_XTENSA_PLATFORM_XTFPGA=y
+-CONFIG_CMDLINE_BOOL=y
+ CONFIG_CMDLINE="earlycon=uart8250,mmio32native,0xfd050020,115200n8 console=ttyS0,115200n8 ip=dhcp root=/dev/nfs rw debug memmap=96M at 0"
+ CONFIG_USE_OF=y
+ CONFIG_BUILTIN_DTB_SOURCE="lx200mx"
+diff --git a/arch/xtensa/configs/virt_defconfig b/arch/xtensa/configs/virt_defconfig
+index 6d1387dfa96f..fb4dce2c70a3 100644
+--- a/arch/xtensa/configs/virt_defconfig
++++ b/arch/xtensa/configs/virt_defconfig
+@@ -21,7 +21,6 @@ CONFIG_XTENSA_VARIANT_DC233C=y
+ CONFIG_XTENSA_UNALIGNED_USER=y
+ CONFIG_XTENSA_KSEG_512M=y
+ CONFIG_HIGHMEM=y
+-CONFIG_CMDLINE_BOOL=y
+ CONFIG_CMDLINE="console=ttyS0,115200n8 ip=dhcp root=/dev/nfs rw debug memmap=0x80000000 at 0"
+ CONFIG_USE_OF=y
+ CONFIG_BUILTIN_DTB_SOURCE="virt"
+diff --git a/arch/xtensa/configs/xip_kc705_defconfig b/arch/xtensa/configs/xip_kc705_defconfig
+index 4f1ff9531f6a..ae4427773af2 100644
+--- a/arch/xtensa/configs/xip_kc705_defconfig
++++ b/arch/xtensa/configs/xip_kc705_defconfig
+@@ -26,7 +26,6 @@ CONFIG_KERNEL_LOAD_ADDRESS=0xf6000000
+ CONFIG_XTENSA_KSEG_512M=y
+ CONFIG_HIGHMEM=y
+ CONFIG_XTENSA_PLATFORM_XTFPGA=y
+-CONFIG_CMDLINE_BOOL=y
+ CONFIG_CMDLINE="earlycon=uart8250,mmio32native,0xfd050020,115200n8 console=ttyS0,115200n8 ip=dhcp root=/dev/nfs rw debug memmap=0x38000000 at 0"
+ CONFIG_USE_OF=y
+ CONFIG_BUILTIN_DTB_SOURCE="kc705"
+diff --git a/arch/xtensa/kernel/setup.c b/arch/xtensa/kernel/setup.c
+index ed184106e4cf..9703c23a9c3f 100644
+--- a/arch/xtensa/kernel/setup.c
++++ b/arch/xtensa/kernel/setup.c
+@@ -25,6 +25,7 @@
+ #include <linux/cpu.h>
+ #include <linux/of.h>
+ #include <linux/of_fdt.h>
 +#include <linux/cmdline.h>
  
- #include <asm/cpu_ops.h>
- #include <asm/early_ioremap.h>
-@@ -228,10 +229,8 @@ static void __init parse_dtb(void)
- 	}
+ #if defined(CONFIG_VGA_CONSOLE) || defined(CONFIG_DUMMY_CONSOLE)
+ # include <linux/console.h>
+@@ -73,10 +74,6 @@ extern unsigned long loops_per_jiffy;
  
- 	pr_err("No DTB passed to the kernel\n");
--#ifdef CONFIG_CMDLINE_FORCE
--	strlcpy(boot_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
-+	cmdline_build(boot_command_line, NULL, COMMAND_LINE_SIZE);
- 	pr_info("Forcing kernel command line to: %s\n", boot_command_line);
+ static char __initdata command_line[COMMAND_LINE_SIZE];
+ 
+-#ifdef CONFIG_CMDLINE_BOOL
+-static char default_command_line[COMMAND_LINE_SIZE] __initdata = CONFIG_CMDLINE;
 -#endif
- }
+-
+ #ifdef CONFIG_PARSE_BOOTPARAM
+ /*
+  * Boot parameter parsing.
+@@ -257,10 +254,7 @@ void __init init_arch(bp_tag_t *bp_start)
+ 	early_init_devtree(dtb_start);
+ #endif
  
- void __init setup_arch(char **cmdline_p)
+-#ifdef CONFIG_CMDLINE_BOOL
+-	if (!command_line[0])
+-		strlcpy(command_line, default_command_line, COMMAND_LINE_SIZE);
+-#endif
++	cmdline(command_line, command_line, COMMAND_LINE_SIZE);
+ 
+ 	/* Early hook for platforms */
+ 
 -- 
 2.25.0
 
