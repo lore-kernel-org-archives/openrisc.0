@@ -1,51 +1,53 @@
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Date: Fri, 26 Mar 2021 13:44:51 +0000 (UTC)
-Subject: [OpenRISC] [PATCH v3 04/17] powerpc: Convert to GENERIC_CMDLINE
+Date: Fri, 26 Mar 2021 13:44:52 +0000 (UTC)
+Subject: [OpenRISC] [PATCH v3 05/17] arm: Convert to GENERIC_CMDLINE
 In-Reply-To: <cover.1616765869.git.christophe.leroy@csgroup.eu>
 References: <cover.1616765869.git.christophe.leroy@csgroup.eu>
-Message-ID: <3d5d4281f264ec634f17252b6fef558ca4334243.1616765870.git.christophe.leroy@csgroup.eu>
+Message-ID: <7362e4f6a5f5b79e6ad3fd3cec3183a4a283f7fc.1616765870.git.christophe.leroy@csgroup.eu>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-This updates the powerpc code to use the new cmdline building function.
+This converts the architecture to GENERIC_CMDLINE.
 
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 ---
- arch/powerpc/Kconfig            | 37 +--------------------------------
- arch/powerpc/kernel/prom_init.c | 17 +++++++--------
- 2 files changed, 8 insertions(+), 46 deletions(-)
+ arch/arm/Kconfig              | 38 +----------------------------------
+ arch/arm/kernel/atags_parse.c | 15 +++++---------
+ 2 files changed, 6 insertions(+), 47 deletions(-)
 
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 386ae12d8523..5181efd7757e 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -167,6 +167,7 @@ config PPC
- 	select EDAC_SUPPORT
- 	select GENERIC_ATOMIC64			if PPC32
- 	select GENERIC_CLOCKEVENTS_BROADCAST	if SMP
-+	select GENERIC_CMDLINE
- 	select GENERIC_CMOS_UPDATE
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 5da96f5df48f..67bc75f2da81 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -50,6 +50,7 @@ config ARM
+ 	select GENERIC_ARCH_TOPOLOGY if ARM_CPU_TOPOLOGY
+ 	select GENERIC_ATOMIC64 if CPU_V7M || CPU_V6 || !CPU_32v6K || !AEABI
+ 	select GENERIC_CLOCKEVENTS_BROADCAST if SMP
++	select GENERIC_CMDLINE if ATAGS
+ 	select GENERIC_IRQ_IPI if SMP
  	select GENERIC_CPU_AUTOPROBE
- 	select GENERIC_CPU_VULNERABILITIES	if PPC_BARRIER_NOSPEC
-@@ -886,42 +887,6 @@ config PPC_DENORMALISATION
- 	  Add support for handling denormalisation of single precision
- 	  values.  Useful for bare metal only.  If unsure say Y here.
+ 	select GENERIC_EARLY_IOREMAP
+@@ -1740,43 +1741,6 @@ config ARM_ATAG_DTB_COMPAT_CMDLINE_EXTEND
+ 
+ endchoice
  
 -config CMDLINE
--	string "Initial kernel command string"
+-	string "Default kernel command string"
 -	default ""
 -	help
--	  On some platforms, there is currently no way for the boot loader to
--	  pass arguments to the kernel. For these platforms, you can supply
--	  some command-line options at build time by entering them here.  In
--	  most cases you will need to specify the root device here.
+-	  On some architectures (e.g. CATS), there is currently no way
+-	  for the boot loader to pass arguments to the kernel. For these
+-	  architectures, you should supply some command-line options at build
+-	  time by entering them here. As a minimum, you should specify the
+-	  memory size and the root device (e.g., mem=64M root=/dev/nfs).
 -
 -choice
 -	prompt "Kernel command line type" if CMDLINE != ""
 -	default CMDLINE_FROM_BOOTLOADER
+-	depends on ATAGS
 -
 -config CMDLINE_FROM_BOOTLOADER
 -	bool "Use bootloader kernel arguments if available"
@@ -67,53 +69,43 @@ index 386ae12d8523..5181efd7757e 100644
 -	  loader passes other arguments to the kernel.
 -	  This is useful if you cannot or don't want to change the
 -	  command-line options your boot loader passes to the kernel.
--
 -endchoice
 -
- config EXTRA_TARGETS
- 	string "Additional default image types"
- 	help
-diff --git a/arch/powerpc/kernel/prom_init.c b/arch/powerpc/kernel/prom_init.c
-index ccf77b985c8f..157d508e9fe9 100644
---- a/arch/powerpc/kernel/prom_init.c
-+++ b/arch/powerpc/kernel/prom_init.c
-@@ -152,7 +152,7 @@ static struct prom_t __prombss prom;
- static unsigned long __prombss prom_entry;
- 
- static char __prombss of_stdout_device[256];
--static char __prombss prom_scratch[256];
-+static char __prombss prom_scratch[COMMAND_LINE_SIZE];
- 
- static unsigned long __prombss dt_header_start;
- static unsigned long __prombss dt_struct_start, dt_struct_end;
-@@ -765,22 +765,19 @@ static unsigned long prom_memparse(const char *ptr, const char **retptr)
-  * Early parsing of the command line passed to the kernel, used for
-  * "mem=x" and the options that affect the iommu
+ config XIP_KERNEL
+ 	bool "Kernel Execute-In-Place from ROM"
+ 	depends on !ARM_LPAE && !ARCH_MULTIPLATFORM
+diff --git a/arch/arm/kernel/atags_parse.c b/arch/arm/kernel/atags_parse.c
+index 373b61f9a4f0..3d5bd52ee458 100644
+--- a/arch/arm/kernel/atags_parse.c
++++ b/arch/arm/kernel/atags_parse.c
+@@ -14,6 +14,7 @@
+  * is not parsed in any way).
   */
-+#define cmdline_strlcat prom_strlcat
+ 
 +#include <linux/cmdline.h>
-+
- static void __init early_cmdline_parse(void)
+ #include <linux/init.h>
+ #include <linux/initrd.h>
+ #include <linux/kernel.h>
+@@ -120,16 +121,10 @@ __tagtable(ATAG_REVISION, parse_tag_revision);
+ 
+ static int __init parse_tag_cmdline(const struct tag *tag)
  {
- 	const char *opt;
--
--	char *p;
- 	int l = 0;
- 
--	prom_cmd_line[0] = 0;
--	p = prom_cmd_line;
--
- 	if (!IS_ENABLED(CONFIG_CMDLINE_FORCE) && (long)prom.chosen > 0)
--		l = prom_getprop(prom.chosen, "bootargs", p, COMMAND_LINE_SIZE-1);
-+		l = prom_getprop(prom.chosen, "bootargs", prom_scratch,
-+				 COMMAND_LINE_SIZE - 1);
- 
--	if (IS_ENABLED(CONFIG_CMDLINE_EXTEND) || l <= 0 || p[0] == '\0')
--		prom_strlcat(prom_cmd_line, " " CONFIG_CMDLINE,
--			     sizeof(prom_cmd_line));
-+	__cmdline_build(prom_cmd_line, l > 0 ? prom_scratch : NULL, sizeof(prom_scratch));
- 
- 	prom_printf("command line: %s\n", prom_cmd_line);
+-#if defined(CONFIG_CMDLINE_EXTEND)
+-	strlcat(default_command_line, " ", COMMAND_LINE_SIZE);
+-	strlcat(default_command_line, tag->u.cmdline.cmdline,
+-		COMMAND_LINE_SIZE);
+-#elif defined(CONFIG_CMDLINE_FORCE)
+-	pr_warn("Ignoring tag cmdline (using the default kernel command line)\n");
+-#else
+-	strlcpy(default_command_line, tag->u.cmdline.cmdline,
+-		COMMAND_LINE_SIZE);
+-#endif
++	cmdline_build(default_command_line, tag->u.cmdline.cmdline, COMMAND_LINE_SIZE);
++
++	if IS_ENABLED(CONFIG_CMDLINE_FORCE)
++		pr_warn("Ignoring tag cmdline (using the default kernel command line)\n");
+ 	return 0;
+ }
  
 -- 
 2.25.0
