@@ -1,9 +1,9 @@
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Date: Fri, 26 Mar 2021 13:44:55 +0000 (UTC)
-Subject: [OpenRISC] [PATCH v3 08/17] microblaze: Convert to GENERIC_CMDLINE
+Date: Fri, 26 Mar 2021 13:44:56 +0000 (UTC)
+Subject: [OpenRISC] [PATCH v3 09/17] nios2: Convert to GENERIC_CMDLINE
 In-Reply-To: <cover.1616765869.git.christophe.leroy@csgroup.eu>
 References: <cover.1616765869.git.christophe.leroy@csgroup.eu>
-Message-ID: <0ce1c49ba4db6ffad82561d8b2877bd2ecde854d.1616765870.git.christophe.leroy@csgroup.eu>
+Message-ID: <85b1dc6339351cbc46d179e8fdb9dfc398e58303.1616765870.git.christophe.leroy@csgroup.eu>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -14,88 +14,85 @@ This converts the architecture to GENERIC_CMDLINE.
 
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 ---
- arch/microblaze/Kconfig               | 24 +-----------------------
- arch/microblaze/configs/mmu_defconfig |  2 +-
- arch/microblaze/kernel/head.S         |  4 ++--
- 3 files changed, 4 insertions(+), 26 deletions(-)
+ arch/nios2/Kconfig        | 24 +-----------------------
+ arch/nios2/kernel/setup.c | 13 ++++---------
+ 2 files changed, 5 insertions(+), 32 deletions(-)
 
-diff --git a/arch/microblaze/Kconfig b/arch/microblaze/Kconfig
-index 0660f47012bc..1242f34bc2a2 100644
---- a/arch/microblaze/Kconfig
-+++ b/arch/microblaze/Kconfig
-@@ -15,6 +15,7 @@ config MICROBLAZE
- 	select COMMON_CLK
- 	select DMA_DIRECT_REMAP
- 	select GENERIC_ATOMIC64
-+	select GENERIC_CMDLINE
- 	select GENERIC_CPU_DEVICES
- 	select GENERIC_IDLE_POLL_SETUP
- 	select GENERIC_IRQ_PROBE
-@@ -93,29 +94,6 @@ source "kernel/Kconfig.hz"
- config MMU
- 	def_bool y
+diff --git a/arch/nios2/Kconfig b/arch/nios2/Kconfig
+index c24955c81c92..f66c97b15813 100644
+--- a/arch/nios2/Kconfig
++++ b/arch/nios2/Kconfig
+@@ -90,31 +90,9 @@ config NIOS2_ALIGNMENT_TRAP
  
--comment "Boot options"
--
+ comment "Boot options"
+ 
 -config CMDLINE_BOOL
 -	bool "Default bootloader kernel arguments"
+-	default y
 -
 -config CMDLINE
 -	string "Default kernel command string"
+-	default ""
 -	depends on CMDLINE_BOOL
--	default "console=ttyUL0,115200"
 -	help
--	  On some architectures there is currently no way for the boot loader
--	  to pass arguments to the kernel. For these architectures, you should
--	  supply some command-line options at build time by entering them
--	  here.
+-	  On some platforms, there is currently no way for the boot loader to
+-	  pass arguments to the kernel. For these platforms, you can supply
+-	  some command-line options at build time by entering them here.  In
+-	  other cases you can specify kernel args so that you don't have
+-	  to set them up in board prom initialization routines.
 -
 -config CMDLINE_FORCE
 -	bool "Force default kernel command string"
 -	depends on CMDLINE_BOOL
--	default n
 -	help
 -	  Set this to have arguments from the default kernel command string
 -	  override those passed by the boot loader.
 -
- endmenu
+ config NIOS2_CMDLINE_IGNORE_DTB
+ 	bool "Ignore kernel command string from DTB"
+-	depends on CMDLINE_BOOL
++	depends on CMDLINE != ""
+ 	depends on !CMDLINE_FORCE
+ 	default y
+ 	help
+diff --git a/arch/nios2/kernel/setup.c b/arch/nios2/kernel/setup.c
+index d2f21957e99c..42464f457a6d 100644
+--- a/arch/nios2/kernel/setup.c
++++ b/arch/nios2/kernel/setup.c
+@@ -20,6 +20,7 @@
+ #include <linux/initrd.h>
+ #include <linux/of_fdt.h>
+ #include <linux/screen_info.h>
++#include <linux/cmdline.h>
  
- menu "Kernel features"
-diff --git a/arch/microblaze/configs/mmu_defconfig b/arch/microblaze/configs/mmu_defconfig
-index 51337fffb947..b4d2219d0a8f 100644
---- a/arch/microblaze/configs/mmu_defconfig
-+++ b/arch/microblaze/configs/mmu_defconfig
-@@ -16,7 +16,7 @@ CONFIG_XILINX_MICROBLAZE0_USE_DIV=1
- CONFIG_XILINX_MICROBLAZE0_USE_HW_MUL=2
- CONFIG_XILINX_MICROBLAZE0_USE_FPU=2
- CONFIG_HZ_100=y
--CONFIG_CMDLINE_BOOL=y
-+CONFIG_CMDLINE="console=ttyUL0,115200"
- CONFIG_CMDLINE_FORCE=y
- CONFIG_HIGHMEM=y
- CONFIG_PCI_XILINX=y
-diff --git a/arch/microblaze/kernel/head.S b/arch/microblaze/kernel/head.S
-index ec2fcb545e64..605b18c86ac8 100644
---- a/arch/microblaze/kernel/head.S
-+++ b/arch/microblaze/kernel/head.S
-@@ -105,7 +105,7 @@ _copy_fdt:
- 	addik	r3, r3, -4 /* descrement loop */
- no_fdt_arg:
+ #include <asm/mmu_context.h>
+ #include <asm/sections.h>
+@@ -108,7 +109,7 @@ asmlinkage void __init nios2_boot_init(unsigned r4, unsigned r5, unsigned r6,
+ 				       unsigned r7)
+ {
+ 	unsigned dtb_passed = 0;
+-	char cmdline_passed[COMMAND_LINE_SIZE] __maybe_unused = { 0, };
++	char cmdline_passed[COMMAND_LINE_SIZE] = { 0, };
  
--#ifndef CONFIG_CMDLINE_BOOL
-+#if CONFIG_CMDLINE == ""
- /*
-  * handling command line
-  * copy command line directly to cmd_line placed in data section.
-@@ -126,7 +126,7 @@ _copy_command_line:
- 	addik	r5, r4, 0		/* add new space for command line */
- 	tovirt(r5,r5)
- skip:
--#endif /* CONFIG_CMDLINE_BOOL */
-+#endif /* CONFIG_CMDLINE */
+ #if defined(CONFIG_NIOS2_PASS_CMDLINE)
+ 	if (r4 == 0x534f494e) { /* r4 is magic NIOS */
+@@ -127,14 +128,8 @@ asmlinkage void __init nios2_boot_init(unsigned r4, unsigned r5, unsigned r6,
  
- #ifdef NOT_COMPILE
- /* save bram context */
+ 	early_init_devtree((void *)dtb_passed);
+ 
+-#ifndef CONFIG_CMDLINE_FORCE
+-	if (cmdline_passed[0])
+-		strlcpy(boot_command_line, cmdline_passed, COMMAND_LINE_SIZE);
+-#ifdef CONFIG_NIOS2_CMDLINE_IGNORE_DTB
+-	else
+-		strlcpy(boot_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
+-#endif
+-#endif
++	if (cmdline_passed[0] || IS_ENABLED(CONFIG_NIOS2_CMDLINE_IGNORE_DTB))
++		cmdline_build(boot_command_line, cmdline_passed, COMMAND_LINE_SIZE);
+ 
+ 	parse_early_param();
+ }
 -- 
 2.25.0
 
