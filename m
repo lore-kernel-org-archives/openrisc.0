@@ -1,42 +1,46 @@
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Date: Fri, 26 Mar 2021 13:45:05 +0000 (UTC)
-Subject: [OpenRISC] [PATCH v3 17/17] cmdline: Remove CONFIG_CMDLINE_EXTEND
-In-Reply-To: <cover.1616765869.git.christophe.leroy@csgroup.eu>
+From: Andreas Schwab <schwab@linux-m68k.org>
+Date: Fri, 26 Mar 2021 15:08:22 +0100
+Subject: [OpenRISC] [PATCH v3 11/17] riscv: Convert to GENERIC_CMDLINE
+In-Reply-To: <46745e07b04139a22b5bd01dc37df97e6981e643.1616765870.git.christophe.leroy@csgroup.eu>
+ (Christophe Leroy's message of "Fri, 26 Mar 2021 13:44:58 +0000
+ (UTC)")
 References: <cover.1616765869.git.christophe.leroy@csgroup.eu>
-Message-ID: <63c9c340da826c14ed0c4f0121e723b16f626bc7.1616765870.git.christophe.leroy@csgroup.eu>
+ <46745e07b04139a22b5bd01dc37df97e6981e643.1616765870.git.christophe.leroy@csgroup.eu>
+Message-ID: <87zgyqdn3d.fsf@igel.home>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-All architectures providing CONFIG_CMDLINE_EXTEND
-are now converted to GENERIC_CMDLINE.
+On Mär 26 2021, Christophe Leroy wrote:
 
-This configuration item is not used anymore, drop it.
+> diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
+> index f8f15332caa2..e7c91ee478d1 100644
+> --- a/arch/riscv/kernel/setup.c
+> +++ b/arch/riscv/kernel/setup.c
+> @@ -20,6 +20,7 @@
+>  #include <linux/swiotlb.h>
+>  #include <linux/smp.h>
+>  #include <linux/efi.h>
+> +#include <linux/cmdline.h>
+>  
+>  #include <asm/cpu_ops.h>
+>  #include <asm/early_ioremap.h>
+> @@ -228,10 +229,8 @@ static void __init parse_dtb(void)
+>  	}
+>  
+>  	pr_err("No DTB passed to the kernel\n");
+> -#ifdef CONFIG_CMDLINE_FORCE
+> -	strlcpy(boot_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
+> +	cmdline_build(boot_command_line, NULL, COMMAND_LINE_SIZE);
+>  	pr_info("Forcing kernel command line to: %s\n", boot_command_line);
 
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
----
- init/Kconfig | 6 ------
- 1 file changed, 6 deletions(-)
+Shouldn't that message become conditional in some way?
 
-diff --git a/init/Kconfig b/init/Kconfig
-index af0d84662cc2..fa002e3765ab 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -163,12 +163,6 @@ config CMDLINE_FORCE
- 	  arguments provided by the bootloader.
- endchoice
- 
--config CMDLINE_EXTEND
--	bool
--	default CMDLINE_APPEND
--	help
--	  To be removed once all architectures are converted to generic CMDLINE
--
- config COMPILE_TEST
- 	bool "Compile also drivers which will not load"
- 	depends on HAS_IOMEM
+Andreas.
+
 -- 
-2.25.0
-
+Andreas Schwab, schwab at linux-m68k.org
+GPG Key fingerprint = 7578 EB47 D4E5 4D69 2510  2552 DF73 E780 A9DA AEC1
+"And now for something completely different."
