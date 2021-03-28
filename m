@@ -1,10 +1,10 @@
 From: guoren@kernel.org <guoren@kernel.org>
-Date: Sun, 28 Mar 2021 06:30:27 +0000
-Subject: [OpenRISC] [PATCH v5 6/7] sparc: qspinlock: Add
+Date: Sun, 28 Mar 2021 06:30:28 +0000
+Subject: [OpenRISC] [PATCH v5 7/7] xtensa: qspinlock: Add
  ARCH_USE_QUEUED_SPINLOCKS_XCHG32
 In-Reply-To: <1616913028-83376-1-git-send-email-guoren@kernel.org>
 References: <1616913028-83376-1-git-send-email-guoren@kernel.org>
-Message-ID: <1616913028-83376-7-git-send-email-guoren@kernel.org>
+Message-ID: <1616913028-83376-8-git-send-email-guoren@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,24 +24,24 @@ architecture's xchg16.
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Rob Gardner <rob.gardner@oracle.com>
+Cc: Chris Zankel <chris@zankel.net>
+Cc: Max Filippov <jcmvbkbc@gmail.com>
 ---
- arch/sparc/Kconfig | 1 +
+ arch/xtensa/Kconfig | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-index 164a5254c91c..1079fe3f058c 100644
---- a/arch/sparc/Kconfig
-+++ b/arch/sparc/Kconfig
-@@ -91,6 +91,7 @@ config SPARC64
- 	select HAVE_REGS_AND_STACK_ACCESS_API
+diff --git a/arch/xtensa/Kconfig b/arch/xtensa/Kconfig
+index 9ad6b7b82707..f19d780638f7 100644
+--- a/arch/xtensa/Kconfig
++++ b/arch/xtensa/Kconfig
+@@ -9,6 +9,7 @@ config XTENSA
+ 	select ARCH_HAS_DMA_SET_UNCACHED if MMU
  	select ARCH_USE_QUEUED_RWLOCKS
  	select ARCH_USE_QUEUED_SPINLOCKS
 +	select ARCH_USE_QUEUED_SPINLOCKS_XCHG32
- 	select GENERIC_TIME_VSYSCALL
- 	select ARCH_CLOCKSOURCE_DATA
- 	select ARCH_HAS_PTE_SPECIAL
+ 	select ARCH_WANT_FRAME_POINTERS
+ 	select ARCH_WANT_IPC_PARSE_VERSION
+ 	select BUILDTIME_TABLE_SORT
 -- 
 2.17.1
 
