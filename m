@@ -1,78 +1,78 @@
-From: Rob Herring <robh@kernel.org>
-Date: Fri, 26 Mar 2021 12:22:04 -0600
-Subject: [OpenRISC] [PATCH v3 05/17] arm: Convert to GENERIC_CMDLINE
-In-Reply-To: <c18ef8f7-8e79-a9d3-3853-f8b992a4fc93@csgroup.eu>
-References: <cover.1616765869.git.christophe.leroy@csgroup.eu>
- <7362e4f6a5f5b79e6ad3fd3cec3183a4a283f7fc.1616765870.git.christophe.leroy@csgroup.eu>
- <CAL_Jsq+LF-s5K4Jwd5jCHrU8271L5WCiGb0tR7aTUa8ddHF1YQ@mail.gmail.com>
- <c18ef8f7-8e79-a9d3-3853-f8b992a4fc93@csgroup.eu>
-Message-ID: <CAL_JsqJOFHmfRNAXgm6Gbe3qTUwnUTroxPzPmmLJUN7ciM2z9g@mail.gmail.com>
+From: guoren@kernel.org <guoren@kernel.org>
+Date: Sun, 28 Mar 2021 06:30:21 +0000
+Subject: [OpenRISC] [PATCH v5 0/7] riscv: Add qspinlock/qrwlock
+Message-ID: <1616913028-83376-1-git-send-email-guoren@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-+Nico who added the line in question.
+From: Guo Ren <guoren@linux.alibaba.com>
 
-On Fri, Mar 26, 2021 at 9:50 AM Christophe Leroy
-<christophe.leroy@csgroup.eu> wrote:
->
->
->
-> Le 26/03/2021 à 16:47, Rob Herring a écrit :
-> > On Fri, Mar 26, 2021 at 7:44 AM Christophe Leroy
-> > <christophe.leroy@csgroup.eu> wrote:
-> >>
-> >> This converts the architecture to GENERIC_CMDLINE.
-> >>
-> >> Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-> >> ---
-> >>   arch/arm/Kconfig              | 38 +----------------------------------
-> >>   arch/arm/kernel/atags_parse.c | 15 +++++---------
-> >>   2 files changed, 6 insertions(+), 47 deletions(-)
-> >>
-> >> diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-> >> index 5da96f5df48f..67bc75f2da81 100644
-> >> --- a/arch/arm/Kconfig
-> >> +++ b/arch/arm/Kconfig
-> >> @@ -50,6 +50,7 @@ config ARM
-> >>          select GENERIC_ARCH_TOPOLOGY if ARM_CPU_TOPOLOGY
-> >>          select GENERIC_ATOMIC64 if CPU_V7M || CPU_V6 || !CPU_32v6K || !AEABI
-> >>          select GENERIC_CLOCKEVENTS_BROADCAST if SMP
-> >> +       select GENERIC_CMDLINE if ATAGS
-> >
-> > Don't we need this enabled for !ATAGS (i.e. DT boot)?
-> >
-> > Can we always enable GENERIC_CMDLINE for OF_EARLY_FLATTREE?
-> >
->
-> Don't know.
->
-> Today ARM has:
->
-> choice
->         prompt "Kernel command line type" if CMDLINE != ""
->         default CMDLINE_FROM_BOOTLOADER
->         depends on ATAGS
+Current riscv is still using baby spinlock implementation. It'll cause
+fairness and cache line bouncing problems. Many people are involved
+and pay the efforts to improve it:
 
-I think that's a mistake. In a DT only case (no ATAGS), we'll get
-different behaviour (in fdt.c) depending if CONFIG_ATAGS is enabled or
-not. Note that at the time (2012) the above was added, the DT code
-only supported CONFIG_CMDLINE and CONFIG_CMDLINE_FORCE.
-CONFIG_CMDLINE_EXTEND was only added in 2016. And that has different
-behavior for ATAGS vs. DT. In summary, it's a mess. We should drop the
-depends either before this patch or just as part of this patch IMO.
-I'd go with the latter given CONFIG_ATAGS is default y and enabled for
-common configs. Without that, it looks like CONFIG_CMDLINE disappears
-from menuconfig for at91_dt_defconfig.
+ - The first version of patch was made in 2019.1:
+   https://lore.kernel.org/linux-riscv/20190211043829.30096-1-michaeljclark at mac.com/#r
 
-Also, I think this code should be refactored a bit to eliminate
-default_command_line. Instead, we should just save a pointer to the
-ATAGS command line string, and then call cmdline_build here instead of
-doing the extra copy:
+ - The second version was made in 2020.11:
+   https://lore.kernel.org/linux-riscv/1606225437-22948-2-git-send-email-guoren at kernel.org/
 
-        /* parse_early_param needs a boot_command_line */
-        strlcpy(boot_command_line, from, COMMAND_LINE_SIZE);
+ - A good discussion at Platform HSC.2021-03-08:
+   https://drive.google.com/drive/folders/1ooqdnIsYx7XKor5O1XTtM6D1CHp4hc0p
 
-Rob
+Hope your comments and Tested-by or Co-developed-by or Reviewed-by ...
+
+Let's kick the qspinlock into riscv right now (Also for the
+architecture which hasn't xchg16 atomic instruction.)
+
+Change V5:
+ - Fixup #endif comment typo by Waiman
+ - Remove cmpxchg coding convention patches which will get into a
+   separate patchset later by Arnd's advice
+ - Try to involve more architectures in the discussion
+
+Change V4:
+ - Remove custom sub-word xchg implementation
+ - Add ARCH_USE_QUEUED_SPINLOCKS_XCHG32 in locking/qspinlock
+
+Change V3:
+ - Coding convention by Peter Zijlstra's advices
+
+Change V2:
+ - Coding convention in cmpxchg.h
+ - Re-implement short xchg
+ - Remove char & cmpxchg implementations
+
+Guo Ren (6):
+  locking/qspinlock: Add ARCH_USE_QUEUED_SPINLOCKS_XCHG32
+  csky: Convert custom spinlock/rwlock to generic qspinlock/qrwlock
+  powerpc/qspinlock: Add ARCH_USE_QUEUED_SPINLOCKS_XCHG32
+  openrisc: qspinlock: Add ARCH_USE_QUEUED_SPINLOCKS_XCHG32
+  sparc: qspinlock: Add ARCH_USE_QUEUED_SPINLOCKS_XCHG32
+  xtensa: qspinlock: Add ARCH_USE_QUEUED_SPINLOCKS_XCHG32
+
+Michael Clark (1):
+  riscv: Convert custom spinlock/rwlock to generic qspinlock/qrwlock
+
+ arch/csky/Kconfig                       |   2 +
+ arch/csky/include/asm/Kbuild            |   2 +
+ arch/csky/include/asm/spinlock.h        |  82 +--------------
+ arch/csky/include/asm/spinlock_types.h  |  16 +--
+ arch/openrisc/Kconfig                   |   1 +
+ arch/powerpc/Kconfig                    |   1 +
+ arch/riscv/Kconfig                      |   3 +
+ arch/riscv/include/asm/Kbuild           |   3 +
+ arch/riscv/include/asm/spinlock.h       | 126 +-----------------------
+ arch/riscv/include/asm/spinlock_types.h |  15 +--
+ arch/sparc/Kconfig                      |   1 +
+ arch/xtensa/Kconfig                     |   1 +
+ kernel/Kconfig.locks                    |   3 +
+ kernel/locking/qspinlock.c              |  46 +++++----
+ 14 files changed, 49 insertions(+), 253 deletions(-)
+
+-- 
+2.17.1
+
