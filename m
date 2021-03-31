@@ -1,10 +1,10 @@
 From: guoren@kernel.org <guoren@kernel.org>
-Date: Wed, 31 Mar 2021 14:30:36 +0000
-Subject: [OpenRISC] [PATCH v6 5/9] csky: Convert custom spinlock/rwlock to
- generic qspinlock/qrwlock
+Date: Wed, 31 Mar 2021 14:30:37 +0000
+Subject: [OpenRISC] [PATCH v6 6/9] openrisc: qspinlock: Add
+ ARCH_USE_QUEUED_SPINLOCKS_XCHG32
 In-Reply-To: <1617201040-83905-1-git-send-email-guoren@kernel.org>
 References: <1617201040-83905-1-git-send-email-guoren@kernel.org>
-Message-ID: <1617201040-83905-6-git-send-email-guoren@kernel.org>
+Message-ID: <1617201040-83905-7-git-send-email-guoren@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,109 +13,37 @@ To: openrisc@lists.librecores.org
 
 From: Guo Ren <guoren@linux.alibaba.com>
 
-Update the C-SKY port to use the generic qspinlock and qrwlock.
+We don't have native hw xchg16 instruction, so let qspinlock
+generic code to deal with it.
 
-C-SKY only support ldex.w/stex.w with word(double word) size &
-align access. So it must select XCHG32 to let qspinlock only use
-word atomic xchg_tail.
+Using the full-word atomic xchg instructions implement xchg16 has
+the semantic risk for atomic operations.
 
-Default is still ticket lock.
+This patch cancels the dependency of on qspinlock generic code on
+architecture's xchg16.
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Cc: Waiman Long <longman@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Will Deacon <will@kernel.org>
 Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Cc: Stafford Horne <shorne@gmail.com>
+Cc: openrisc at lists.librecores.org
 ---
- arch/csky/Kconfig                      | 8 ++++++++
- arch/csky/include/asm/Kbuild           | 2 ++
- arch/csky/include/asm/spinlock.h       | 4 ++++
- arch/csky/include/asm/spinlock_types.h | 4 ++++
- 4 files changed, 18 insertions(+)
+ arch/openrisc/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/csky/Kconfig b/arch/csky/Kconfig
-index 34e91224adc3..ae12332edb7b 100644
---- a/arch/csky/Kconfig
-+++ b/arch/csky/Kconfig
-@@ -8,6 +8,8 @@ config CSKY
- 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
- 	select ARCH_USE_BUILTIN_BSWAP
- 	select ARCH_USE_QUEUED_RWLOCKS
-+	select ARCH_USE_QUEUED_SPINLOCKS	if !CSKY_TICKET_LOCK
+diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+index 591acc5990dc..b299e409429f 100644
+--- a/arch/openrisc/Kconfig
++++ b/arch/openrisc/Kconfig
+@@ -33,6 +33,7 @@ config OPENRISC
+ 	select OR1K_PIC
+ 	select CPU_NO_EFFICIENT_FFS if !OPENRISC_HAVE_INST_FF1
+ 	select ARCH_USE_QUEUED_SPINLOCKS
 +	select ARCH_USE_QUEUED_SPINLOCKS_XCHG32
- 	select ARCH_WANT_FRAME_POINTERS if !CPU_CK610
- 	select ARCH_WANT_DEFAULT_TOPDOWN_MMAP_LAYOUT
- 	select COMMON_CLK
-@@ -304,6 +306,12 @@ config NR_CPUS
- 	depends on SMP
- 	default "4"
- 
-+config CSKY_TICKET_LOCK
-+	bool "Ticket-based spin-locking"
-+	default y
-+	help
-+	  Say Y here to use ticket-based spin-locking.
-+
- config HIGHMEM
- 	bool "High Memory Support"
- 	depends on !CPU_CK610
-diff --git a/arch/csky/include/asm/Kbuild b/arch/csky/include/asm/Kbuild
-index cc24bb8e539f..2a2d09963bb9 100644
---- a/arch/csky/include/asm/Kbuild
-+++ b/arch/csky/include/asm/Kbuild
-@@ -2,6 +2,8 @@
- generic-y += asm-offsets.h
- generic-y += gpio.h
- generic-y += kvm_para.h
-+generic-y += mcs_spinlock.h
- generic-y += qrwlock.h
-+generic-y += qspinlock.h
- generic-y += user.h
- generic-y += vmlinux.lds.h
-diff --git a/arch/csky/include/asm/spinlock.h b/arch/csky/include/asm/spinlock.h
-index 69677167977a..fe98ad8ece51 100644
---- a/arch/csky/include/asm/spinlock.h
-+++ b/arch/csky/include/asm/spinlock.h
-@@ -6,6 +6,7 @@
- #include <linux/spinlock_types.h>
- #include <asm/barrier.h>
- 
-+#ifdef CONFIG_CSKY_TICKET_LOCK
- /*
-  * Ticket-based spin-locking.
-  */
-@@ -80,6 +81,9 @@ static inline int arch_spin_is_contended(arch_spinlock_t *lock)
- 	return (tickets.next - tickets.owner) > 1;
- }
- #define arch_spin_is_contended	arch_spin_is_contended
-+#else /* CONFIG_CSKY_TICKET_LOCK */
-+#include <asm/qspinlock.h>
-+#endif /* CONFIG_CSKY_TICKET_LOCK */
- 
- #include <asm/qrwlock.h>
- 
-diff --git a/arch/csky/include/asm/spinlock_types.h b/arch/csky/include/asm/spinlock_types.h
-index 8ff0f6ff3a00..547f035f6dd5 100644
---- a/arch/csky/include/asm/spinlock_types.h
-+++ b/arch/csky/include/asm/spinlock_types.h
-@@ -7,6 +7,7 @@
- # error "please don't include this file directly"
- #endif
- 
-+#ifdef CONFIG_CSKY_TICKET_LOCK
- #define TICKET_NEXT	16
- 
- typedef struct {
-@@ -21,6 +22,9 @@ typedef struct {
- } arch_spinlock_t;
- 
- #define __ARCH_SPIN_LOCK_UNLOCKED	{ { 0 } }
-+#else
-+#include <asm-generic/qspinlock_types.h>
-+#endif
- 
- #include <asm-generic/qrwlock_types.h>
- 
+ 	select ARCH_USE_QUEUED_RWLOCKS
+ 	select OMPIC if SMP
+ 	select ARCH_WANT_FRAME_POINTERS
 -- 
 2.17.1
 
