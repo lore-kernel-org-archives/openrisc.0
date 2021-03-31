@@ -1,10 +1,10 @@
 From: guoren@kernel.org <guoren@kernel.org>
-Date: Wed, 31 Mar 2021 14:30:39 +0000
-Subject: [OpenRISC] [PATCH v6 8/9] xtensa: qspinlock: Add
+Date: Wed, 31 Mar 2021 14:30:40 +0000
+Subject: [OpenRISC] [PATCH v6 9/9] powerpc/qspinlock: Add
  ARCH_USE_QUEUED_SPINLOCKS_XCHG32
 In-Reply-To: <1617201040-83905-1-git-send-email-guoren@kernel.org>
 References: <1617201040-83905-1-git-send-email-guoren@kernel.org>
-Message-ID: <1617201040-83905-9-git-send-email-guoren@kernel.org>
+Message-ID: <1617201040-83905-10-git-send-email-guoren@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,26 +22,30 @@ the semantic risk for atomic operations.
 This patch cancels the dependency of on qspinlock generic code on
 architecture's xchg16.
 
+Also no need when PPC_LBARX_LWARX is enabled, see the link below.
+
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Chris Zankel <chris@zankel.net>
-Cc: Max Filippov <jcmvbkbc@gmail.com>
+Link: https://patchwork.ozlabs.org/project/linuxppc-dev/patch/20201107032328.2454582-1-npiggin at gmail.com/
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
 ---
- arch/xtensa/Kconfig | 1 +
+ arch/powerpc/Kconfig | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/xtensa/Kconfig b/arch/xtensa/Kconfig
-index 9ad6b7b82707..f19d780638f7 100644
---- a/arch/xtensa/Kconfig
-+++ b/arch/xtensa/Kconfig
-@@ -9,6 +9,7 @@ config XTENSA
- 	select ARCH_HAS_DMA_SET_UNCACHED if MMU
- 	select ARCH_USE_QUEUED_RWLOCKS
- 	select ARCH_USE_QUEUED_SPINLOCKS
-+	select ARCH_USE_QUEUED_SPINLOCKS_XCHG32
- 	select ARCH_WANT_FRAME_POINTERS
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 386ae12d8523..6133ad51690e 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -151,6 +151,7 @@ config PPC
+ 	select ARCH_USE_CMPXCHG_LOCKREF		if PPC64
+ 	select ARCH_USE_QUEUED_RWLOCKS		if PPC_QUEUED_SPINLOCKS
+ 	select ARCH_USE_QUEUED_SPINLOCKS	if PPC_QUEUED_SPINLOCKS
++	select ARCH_USE_QUEUED_SPINLOCKS_XCHG32	if PPC_QUEUED_SPINLOCKS && !PPC_LBARX_LWARX
  	select ARCH_WANT_IPC_PARSE_VERSION
- 	select BUILDTIME_TABLE_SORT
+ 	select ARCH_WANT_IRQS_OFF_ACTIVATE_MM
+ 	select ARCH_WANT_LD_ORPHAN_WARN
 -- 
 2.17.1
 
