@@ -1,11 +1,11 @@
-From: Mike Rapoport <rppt@kernel.org>
-Date: Wed, 31 Mar 2021 12:28:57 +0300
+From: Russell King - ARM Linux admin <linux@armlinux.org.uk>
+Date: Wed, 31 Mar 2021 10:34:22 +0100
 Subject: [OpenRISC] [PATCH v2] mm: Move mem_init_print_info() into
  mm_init()
 In-Reply-To: <20210317015210.33641-1-wangkefeng.wang@huawei.com>
 References: <4d488195-7281-9238-b30d-9f89a6100fb9@csgroup.eu>
  <20210317015210.33641-1-wangkefeng.wang@huawei.com>
-Message-ID: <YGRA2SU28yciN9xU@kernel.org>
+Message-ID: <20210331093422.GU1463@shell.armlinux.org.uk>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,9 +19,7 @@ On Wed, Mar 17, 2021 at 09:52:10AM +0800, Kefeng Wang wrote:
 > Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
 > Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 
-Acked-by: Mike Rapoport <rppt@linux.ibm.com>
-
-> ---
-> v2:
-> - Cleanup 'str' line suggested by Christophe and ACK
-> 
+Acked-by: Russell King <rmk+kernel@armlinux.org.uk> # for arm bits
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
