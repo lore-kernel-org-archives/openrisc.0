@@ -1,56 +1,44 @@
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Date: Fri,  2 Apr 2021 15:18:22 +0000 (UTC)
-Subject: [OpenRISC] [PATCH v4 20/20] cmdline: Remove CONFIG_CMDLINE_EXTEND
-In-Reply-To: <cover.1617375802.git.christophe.leroy@csgroup.eu>
-References: <cover.1617375802.git.christophe.leroy@csgroup.eu>
-Message-ID: <349128c2baa37dfcafb61a10d4e6c62f93cfe881.1617375803.git.christophe.leroy@csgroup.eu>
+Date: Fri, 2 Apr 2021 17:19:02 +0200
+Subject: [OpenRISC] [PATCH v3 05/17] arm: Convert to GENERIC_CMDLINE
+In-Reply-To: <CAL_Jsq+LF-s5K4Jwd5jCHrU8271L5WCiGb0tR7aTUa8ddHF1YQ@mail.gmail.com>
+References: <cover.1616765869.git.christophe.leroy@csgroup.eu>
+ <7362e4f6a5f5b79e6ad3fd3cec3183a4a283f7fc.1616765870.git.christophe.leroy@csgroup.eu>
+ <CAL_Jsq+LF-s5K4Jwd5jCHrU8271L5WCiGb0tR7aTUa8ddHF1YQ@mail.gmail.com>
+Message-ID: <f0ef9e09-982a-e44a-1a5f-0dd56a151789@csgroup.eu>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-All architectures providing CONFIG_CMDLINE_EXTEND
-are now converted to GENERIC_CMDLINE.
 
-This configuration item is not used anymore, drop it.
 
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
----
- include/linux/cmdline.h | 2 +-
- init/Kconfig            | 6 ------
- 2 files changed, 1 insertion(+), 7 deletions(-)
+Le 26/03/2021 à 16:47, Rob Herring a écrit :
+> On Fri, Mar 26, 2021 at 7:44 AM Christophe Leroy
+> <christophe.leroy@csgroup.eu> wrote:
+>>
+>> This converts the architecture to GENERIC_CMDLINE.
+>>
+>> Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+>> ---
+>>   arch/arm/Kconfig              | 38 +----------------------------------
+>>   arch/arm/kernel/atags_parse.c | 15 +++++---------
+>>   2 files changed, 6 insertions(+), 47 deletions(-)
+>>
+>> diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+>> index 5da96f5df48f..67bc75f2da81 100644
+>> --- a/arch/arm/Kconfig
+>> +++ b/arch/arm/Kconfig
+>> @@ -50,6 +50,7 @@ config ARM
+>>          select GENERIC_ARCH_TOPOLOGY if ARM_CPU_TOPOLOGY
+>>          select GENERIC_ATOMIC64 if CPU_V7M || CPU_V6 || !CPU_32v6K || !AEABI
+>>          select GENERIC_CLOCKEVENTS_BROADCAST if SMP
+>> +       select GENERIC_CMDLINE if ATAGS
+> 
+> Don't we need this enabled for !ATAGS (i.e. DT boot)?
+> 
+> Can we always enable GENERIC_CMDLINE for OF_EARLY_FLATTREE?
+> 
 
-diff --git a/include/linux/cmdline.h b/include/linux/cmdline.h
-index a0773dc365c7..020028e2bdf0 100644
---- a/include/linux/cmdline.h
-+++ b/include/linux/cmdline.h
-@@ -36,7 +36,7 @@ static __always_inline bool __cmdline_build(char *dst, const char *src)
- 
- 	len = cmdline_strlcat(dst, src, COMMAND_LINE_SIZE);
- 
--	if (IS_ENABLED(CONFIG_CMDLINE_EXTEND))
-+	if (IS_ENABLED(CONFIG_CMDLINE_APPEND))
- 		len = cmdline_strlcat(dst, " " CONFIG_CMDLINE, COMMAND_LINE_SIZE);
- 
- 	if (len < COMMAND_LINE_SIZE - 1)
-diff --git a/init/Kconfig b/init/Kconfig
-index af0d84662cc2..fa002e3765ab 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -163,12 +163,6 @@ config CMDLINE_FORCE
- 	  arguments provided by the bootloader.
- endchoice
- 
--config CMDLINE_EXTEND
--	bool
--	default CMDLINE_APPEND
--	help
--	  To be removed once all architectures are converted to generic CMDLINE
--
- config COMPILE_TEST
- 	bool "Compile also drivers which will not load"
- 	depends on HAS_IOMEM
--- 
-2.25.0
-
+Done in v4
