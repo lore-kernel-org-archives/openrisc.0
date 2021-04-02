@@ -1,12 +1,11 @@
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Date: Fri, 2 Apr 2021 17:23:32 +0200
-Subject: [OpenRISC] [PATCH v3 01/17] cmdline: Add generic function to
- build command line.
-In-Reply-To: <CAL_JsqKr3xekKSo3DtQvOOw_VoGC=FUTagZGY5g=CGGGdUZSMQ@mail.gmail.com>
+Date: Fri, 2 Apr 2021 17:24:05 +0200
+Subject: [OpenRISC] [PATCH v3 05/17] arm: Convert to GENERIC_CMDLINE
+In-Reply-To: <CAL_Jsq+LF-s5K4Jwd5jCHrU8271L5WCiGb0tR7aTUa8ddHF1YQ@mail.gmail.com>
 References: <cover.1616765869.git.christophe.leroy@csgroup.eu>
- <878228ad88df38f8914c7aa25dede3ed05c50f48.1616765869.git.christophe.leroy@csgroup.eu>
- <CAL_JsqKr3xekKSo3DtQvOOw_VoGC=FUTagZGY5g=CGGGdUZSMQ@mail.gmail.com>
-Message-ID: <53aa0b8c-4ee3-a6af-6fb8-2edc5cd79ea5@csgroup.eu>
+ <7362e4f6a5f5b79e6ad3fd3cec3183a4a283f7fc.1616765870.git.christophe.leroy@csgroup.eu>
+ <CAL_Jsq+LF-s5K4Jwd5jCHrU8271L5WCiGb0tR7aTUa8ddHF1YQ@mail.gmail.com>
+Message-ID: <84ca838c-d77b-0142-7f45-b8b95c03d81e@csgroup.eu>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -15,108 +14,31 @@ To: openrisc@lists.librecores.org
 
 
 
-Le 26/03/2021 à 16:42, Rob Herring a écrit :
+Le 26/03/2021 à 16:47, Rob Herring a écrit :
 > On Fri, Mar 26, 2021 at 7:44 AM Christophe Leroy
 > <christophe.leroy@csgroup.eu> wrote:
 >>
->> This code provides architectures with a way to build command line
->> based on what is built in the kernel and what is handed over by the
->> bootloader, based on selected compile-time options.
-> 
-> Note that I have this patch pending:
-> 
-> https://patchwork.ozlabs.org/project/devicetree-bindings/patch/20210316193820.3137-1-alex at ghiti.fr/
-> 
-> It's going to need to be adapted for this. I've held off applying to
-> see if this gets settled.
-
-When reworking EFI, I found out that they are a similar handling, which in addition takes care of 
-space inside quotes.
-
-I added something similar now in cmdline_build() function.
-
-
-> 
+>> This converts the architecture to GENERIC_CMDLINE.
 >>
 >> Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 >> ---
->> v3:
->> - Addressed comments from Will
->> - Added capability to have src == dst
->> ---
->>   include/linux/cmdline.h | 57 +++++++++++++++++++++++++++++++++++++++++
->>   1 file changed, 57 insertions(+)
->>   create mode 100644 include/linux/cmdline.h
+>>   arch/arm/Kconfig              | 38 +----------------------------------
+>>   arch/arm/kernel/atags_parse.c | 15 +++++---------
+>>   2 files changed, 6 insertions(+), 47 deletions(-)
 >>
->> diff --git a/include/linux/cmdline.h b/include/linux/cmdline.h
->> new file mode 100644
->> index 000000000000..dea87edd41be
->> --- /dev/null
->> +++ b/include/linux/cmdline.h
->> @@ -0,0 +1,57 @@
->> +/* SPDX-License-Identifier: GPL-2.0 */
->> +#ifndef _LINUX_CMDLINE_H
->> +#define _LINUX_CMDLINE_H
->> +
->> +#include <linux/string.h>
->> +
->> +/* Allow architectures to override strlcat, powerpc can't use strings so early */
->> +#ifndef cmdline_strlcat
->> +#define cmdline_strlcat strlcat
->> +#endif
->> +
->> +/*
->> + * This function will append or prepend a builtin command line to the command
->> + * line provided by the bootloader. Kconfig options can be used to alter
->> + * the behavior of this builtin command line.
->> + * @dst: The destination of the final appended/prepended string.
->> + * @src: The starting string or NULL if there isn't one.
->> + * @len: the length of dest buffer.
->> + */
->> +static __always_inline void __cmdline_build(char *dst, const char *src, size_t len)
->> +{
->> +       if (!len || src == dst)
->> +               return;
->> +
->> +       if (IS_ENABLED(CONFIG_CMDLINE_FORCE) || !src) {
->> +               dst[0] = 0;
->> +               cmdline_strlcat(dst, CONFIG_CMDLINE, len);
->> +               return;
->> +       }
->> +
->> +       if (dst != src)
->> +               dst[0] = 0;
->> +
->> +       if (IS_ENABLED(CONFIG_CMDLINE_PREPEND))
->> +               cmdline_strlcat(dst, CONFIG_CMDLINE " ", len);
->> +
->> +       cmdline_strlcat(dst, src, len);
->> +
->> +       if (IS_ENABLED(CONFIG_CMDLINE_EXTEND))
+>> diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+>> index 5da96f5df48f..67bc75f2da81 100644
+>> --- a/arch/arm/Kconfig
+>> +++ b/arch/arm/Kconfig
+>> @@ -50,6 +50,7 @@ config ARM
+>>          select GENERIC_ARCH_TOPOLOGY if ARM_CPU_TOPOLOGY
+>>          select GENERIC_ATOMIC64 if CPU_V7M || CPU_V6 || !CPU_32v6K || !AEABI
+>>          select GENERIC_CLOCKEVENTS_BROADCAST if SMP
+>> +       select GENERIC_CMDLINE if ATAGS
 > 
-> Should be APPEND.
+> Don't we need this enabled for !ATAGS (i.e. DT boot)?
 > 
->> +               cmdline_strlcat(dst, " " CONFIG_CMDLINE, len);
->> +}
->> +
->> +#define cmdline_build(dst, src, len) do {                              \
+> Can we always enable GENERIC_CMDLINE for OF_EARLY_FLATTREE?
 > 
-> Perhaps a comment why we need this to be a define.
-> 
->> +       char *__c_dst = (dst);                                          \
->> +       const char *__c_src = (src);                                    \
->> +                                                                       \
->> +       if (__c_src == __c_dst) {                                       \
->> +               static char __c_tmp[COMMAND_LINE_SIZE] __initdata = ""; \
->> +                                                                       \
->> +               cmdline_strlcat(__c_tmp, __c_src, COMMAND_LINE_SIZE);   \
->> +               __cmdline_build(__c_dst, __c_tmp, (len));               \
->> +       } else {                                                        \
->> +               __cmdline_build(__c_dst, __c_src, (len));               \
->> +       }                                                               \
->> +} while (0)
->> +
->> +#endif /* _LINUX_CMDLINE_H */
->> --
->> 2.25.0
->>
+
+Yes missed it in v3 after your comment on v2. Done in v4.
