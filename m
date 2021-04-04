@@ -1,77 +1,49 @@
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Date: Fri, 2 Apr 2021 17:36:12 +0200
-Subject: [OpenRISC] [PATCH v3 12/17] sh: Convert to GENERIC_CMDLINE
-In-Reply-To: <6b76649009943f2893fdfded22becd41db2fe1f7.1616765870.git.christophe.leroy@csgroup.eu>
-References: <cover.1616765869.git.christophe.leroy@csgroup.eu>
- <6b76649009943f2893fdfded22becd41db2fe1f7.1616765870.git.christophe.leroy@csgroup.eu>
-Message-ID: <d672dec1-6fcb-d5dc-a551-2a99e6dd6976@csgroup.eu>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Sun, 4 Apr 2021 20:46:04 +0200
+Subject: [OpenRISC] [PATCH] Documentation: Add qemu instructions for
+ OpenRISC
+In-Reply-To: <20210304210747.3679483-1-shorne@gmail.com>
+References: <20210304210747.3679483-1-shorne@gmail.com>
+Message-ID: <bd106f14-c773-a4a8-2f43-2e269f4f04e4@pengutronix.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
+Hello Sascha,
 
-
-Le 26/03/2021 à 14:44, Christophe Leroy a écrit :
-> This converts the architecture to GENERIC_CMDLINE.
+On 04.03.21 22:07, Stafford Horne wrote:
+> Most developers have qemu and rather not download and install the
+> or1ksim.  Also, this adds details on how to get a openrisc toolchain.
 > 
-> Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+> Signed-off-by: Stafford Horne <shorne@gmail.com>
+
+I don't see this in next.
+
 > ---
+>  Documentation/boards/openrisc.rst | 68 +++++++++++++++++++++++++++++++
+>  1 file changed, 68 insertions(+)
+> 
+> diff --git a/Documentation/boards/openrisc.rst b/Documentation/boards/openrisc.rst
+> index f9d67f965..34586b4a7 100644
+> --- a/Documentation/boards/openrisc.rst
+> +++ b/Documentation/boards/openrisc.rst
+> @@ -1,6 +1,74 @@
+>  OpenRISC
+>  ========
+>  
+> +Optaining an OpenRISC toolchain
 
-> diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
-> index e798e55915c2..fab84f62448c 100644
-> --- a/arch/sh/Kconfig
-> +++ b/arch/sh/Kconfig
-> @@ -16,6 +16,7 @@ config SUPERH
->   	select CPU_NO_EFFICIENT_FFS
->   	select DMA_DECLARE_COHERENT
->   	select GENERIC_ATOMIC64
-> +	select GENERIC_CMDLINE
->   	select GENERIC_CMOS_UPDATE if SH_SH03 || SH_DREAMCAST
->   	select GENERIC_IDLE_POLL_SETUP
->   	select GENERIC_IRQ_SHOW
-> @@ -742,35 +743,6 @@ config ROMIMAGE_MMCIF
->   	  first part of the romImage which in turn loads the rest the kernel
->   	  image to RAM using the MMCIF hardware block.
->   
-> -choice
-> -	prompt "Kernel command line"
-> -	optional
-> -	default CMDLINE_OVERWRITE
-> -	help
-> -	  Setting this option allows the kernel command line arguments
-> -	  to be set.
-> -
-> -config CMDLINE_OVERWRITE
-> -	bool "Overwrite bootloader kernel arguments"
-> -	help
-> -	  Given string will overwrite any arguments passed in by
-> -	  a bootloader.
-> -
-> -config CMDLINE_EXTEND
-> -	bool "Extend bootloader kernel arguments"
-> -	help
-> -	  Given string will be concatenated with arguments passed in
-> -	  by a bootloader.
-> -
-> -endchoice
-> -
-> -config CMDLINE
-> -	string "Kernel command line arguments string"
-> -	depends on CMDLINE_OVERWRITE || CMDLINE_EXTEND
-> -	default "console=ttySC1,115200"
-> -
-> -endmenu
-> -
+Could you fix up s/Optaining/Obtaining/ while at it?
 
-That "endmenu" shall not be removed.
+Cheers,
 
-Fixed in v4,
+Ahmad
 
-Thanks to Rob L. for the report.
-Christophe
 
->   menu "Bus options"
->   
->   config SUPERHYWAY
+-- 
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
