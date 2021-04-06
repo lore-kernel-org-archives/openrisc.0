@@ -1,54 +1,150 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Tue, 6 Apr 2021 17:56:59 +0900
-Subject: [OpenRISC] [PATCH v6 6/9] openrisc: qspinlock: Add
+From: Boqun Feng <boqun.feng@gmail.com>
+Date: Wed, 7 Apr 2021 00:51:56 +0800
+Subject: [OpenRISC] [PATCH v6 1/9] locking/qspinlock: Add
  ARCH_USE_QUEUED_SPINLOCKS_XCHG32
-In-Reply-To: <1617201040-83905-7-git-send-email-guoren@kernel.org>
+In-Reply-To: <1617201040-83905-2-git-send-email-guoren@kernel.org>
 References: <1617201040-83905-1-git-send-email-guoren@kernel.org>
- <1617201040-83905-7-git-send-email-guoren@kernel.org>
-Message-ID: <20210406085659.GF3288043@lianli.shorne-pla.net>
+ <1617201040-83905-2-git-send-email-guoren@kernel.org>
+Message-ID: <YGyRrBjomDCPOBUd@boqun-archlinux>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Mar 31, 2021 at 02:30:37PM +0000, guoren at kernel.org wrote:
+Hi,
+
+On Wed, Mar 31, 2021 at 02:30:32PM +0000, guoren at kernel.org wrote:
 > From: Guo Ren <guoren@linux.alibaba.com>
 > 
-> We don't have native hw xchg16 instruction, so let qspinlock
-> generic code to deal with it.
+> Some architectures don't have sub-word swap atomic instruction,
+> they only have the full word's one.
 > 
-> Using the full-word atomic xchg instructions implement xchg16 has
-> the semantic risk for atomic operations.
+> The sub-word swap only improve the performance when:
+> NR_CPUS < 16K
+>  *  0- 7: locked byte
+>  *     8: pending
+>  *  9-15: not used
+>  * 16-17: tail index
+>  * 18-31: tail cpu (+1)
 > 
-> This patch cancels the dependency of on qspinlock generic code on
-> architecture's xchg16.
+> The 9-15 bits are wasted to use xchg16 in xchg_tail.
 > 
+> Please let architecture select xchg16/xchg32 to implement
+> xchg_tail.
+> 
+
+If the architecture doesn't have sub-word swap atomic, won't it generate
+the same/similar code no matter which version xchg_tail() is used? That
+is even CONFIG_ARCH_USE_QUEUED_SPINLOCKS_XCHG32=y, xchg_tail() acts
+similar to an xchg16() implemented by cmpxchg(), which means we still
+don't have forward progress guarantee. So this configuration doesn't
+solve the problem.
+
+I think it's OK to introduce this config and don't provide xchg16() for
+risc-v. But I don't see the point of converting other architectures to
+use it.
+
+Regards,
+Boqun
+
 > Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: Will Deacon <will@kernel.org>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Waiman Long <longman@redhat.com>
 > Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Jonas Bonn <jonas@southpole.se>
-> Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-> Cc: Stafford Horne <shorne@gmail.com>
-> Cc: openrisc at lists.librecores.org
-
-Acked-by: Stafford Horne <shorne@gmail.com>
-
+> Cc: Anup Patel <anup@brainfault.org>
 > ---
->  arch/openrisc/Kconfig | 1 +
->  1 file changed, 1 insertion(+)
+>  kernel/Kconfig.locks       |  3 +++
+>  kernel/locking/qspinlock.c | 46 +++++++++++++++++++++-----------------
+>  2 files changed, 28 insertions(+), 21 deletions(-)
 > 
-> diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-> index 591acc5990dc..b299e409429f 100644
-> --- a/arch/openrisc/Kconfig
-> +++ b/arch/openrisc/Kconfig
-> @@ -33,6 +33,7 @@ config OPENRISC
->  	select OR1K_PIC
->  	select CPU_NO_EFFICIENT_FFS if !OPENRISC_HAVE_INST_FF1
->  	select ARCH_USE_QUEUED_SPINLOCKS
-> +	select ARCH_USE_QUEUED_SPINLOCKS_XCHG32
->  	select ARCH_USE_QUEUED_RWLOCKS
->  	select OMPIC if SMP
->  	select ARCH_WANT_FRAME_POINTERS
+> diff --git a/kernel/Kconfig.locks b/kernel/Kconfig.locks
+> index 3de8fd11873b..d02f1261f73f 100644
+> --- a/kernel/Kconfig.locks
+> +++ b/kernel/Kconfig.locks
+> @@ -239,6 +239,9 @@ config LOCK_SPIN_ON_OWNER
+>  config ARCH_USE_QUEUED_SPINLOCKS
+>  	bool
+>  
+> +config ARCH_USE_QUEUED_SPINLOCKS_XCHG32
+> +	bool
+> +
+>  config QUEUED_SPINLOCKS
+>  	def_bool y if ARCH_USE_QUEUED_SPINLOCKS
+>  	depends on SMP
+> diff --git a/kernel/locking/qspinlock.c b/kernel/locking/qspinlock.c
+> index cbff6ba53d56..4bfaa969bd15 100644
+> --- a/kernel/locking/qspinlock.c
+> +++ b/kernel/locking/qspinlock.c
+> @@ -163,26 +163,6 @@ static __always_inline void clear_pending_set_locked(struct qspinlock *lock)
+>  	WRITE_ONCE(lock->locked_pending, _Q_LOCKED_VAL);
+>  }
+>  
+> -/*
+> - * xchg_tail - Put in the new queue tail code word & retrieve previous one
+> - * @lock : Pointer to queued spinlock structure
+> - * @tail : The new queue tail code word
+> - * Return: The previous queue tail code word
+> - *
+> - * xchg(lock, tail), which heads an address dependency
+> - *
+> - * p,*,* -> n,*,* ; prev = xchg(lock, node)
+> - */
+> -static __always_inline u32 xchg_tail(struct qspinlock *lock, u32 tail)
+> -{
+> -	/*
+> -	 * We can use relaxed semantics since the caller ensures that the
+> -	 * MCS node is properly initialized before updating the tail.
+> -	 */
+> -	return (u32)xchg_relaxed(&lock->tail,
+> -				 tail >> _Q_TAIL_OFFSET) << _Q_TAIL_OFFSET;
+> -}
+> -
+>  #else /* _Q_PENDING_BITS == 8 */
+>  
+>  /**
+> @@ -206,6 +186,30 @@ static __always_inline void clear_pending_set_locked(struct qspinlock *lock)
+>  {
+>  	atomic_add(-_Q_PENDING_VAL + _Q_LOCKED_VAL, &lock->val);
+>  }
+> +#endif /* _Q_PENDING_BITS == 8 */
+> +
+> +#if _Q_PENDING_BITS == 8 && !defined(CONFIG_ARCH_USE_QUEUED_SPINLOCKS_XCHG32)
+> +/*
+> + * xchg_tail - Put in the new queue tail code word & retrieve previous one
+> + * @lock : Pointer to queued spinlock structure
+> + * @tail : The new queue tail code word
+> + * Return: The previous queue tail code word
+> + *
+> + * xchg(lock, tail), which heads an address dependency
+> + *
+> + * p,*,* -> n,*,* ; prev = xchg(lock, node)
+> + */
+> +static __always_inline u32 xchg_tail(struct qspinlock *lock, u32 tail)
+> +{
+> +	/*
+> +	 * We can use relaxed semantics since the caller ensures that the
+> +	 * MCS node is properly initialized before updating the tail.
+> +	 */
+> +	return (u32)xchg_relaxed(&lock->tail,
+> +				 tail >> _Q_TAIL_OFFSET) << _Q_TAIL_OFFSET;
+> +}
+> +
+> +#else
+>  
+>  /**
+>   * xchg_tail - Put in the new queue tail code word & retrieve previous one
+> @@ -236,7 +240,7 @@ static __always_inline u32 xchg_tail(struct qspinlock *lock, u32 tail)
+>  	}
+>  	return old;
+>  }
+> -#endif /* _Q_PENDING_BITS == 8 */
+> +#endif
+>  
+>  /**
+>   * queued_fetch_set_pending_acquire - fetch the whole lock value and set pending
 > -- 
 > 2.17.1
 > 
