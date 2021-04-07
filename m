@@ -1,40 +1,45 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 8 Apr 2021 05:12:58 +0900
-Subject: [OpenRISC] [PATCH v6 1/9] locking/qspinlock: Add
- ARCH_USE_QUEUED_SPINLOCKS_XCHG32
-In-Reply-To: <YG1/xRgWlLHD4j/8@hirez.programming.kicks-ass.net>
-References: <1617201040-83905-1-git-send-email-guoren@kernel.org>
- <1617201040-83905-2-git-send-email-guoren@kernel.org>
- <YGyRrBjomDCPOBUd@boqun-archlinux>
- <20210406235208.GG3288043@lianli.shorne-pla.net>
- <YG1/xRgWlLHD4j/8@hirez.programming.kicks-ass.net>
-Message-ID: <20210407201258.GH3288043@lianli.shorne-pla.net>
+Date: Thu, 8 Apr 2021 08:19:17 +0900
+Subject: [OpenRISC] [PATCH] Documentation: Add qemu instructions for
+ OpenRISC
+In-Reply-To: <bd106f14-c773-a4a8-2f43-2e269f4f04e4@pengutronix.de>
+References: <20210304210747.3679483-1-shorne@gmail.com>
+ <bd106f14-c773-a4a8-2f43-2e269f4f04e4@pengutronix.de>
+Message-ID: <20210407231917.GI3288043@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Apr 07, 2021 at 11:47:49AM +0200, Peter Zijlstra wrote:
-> On Wed, Apr 07, 2021 at 08:52:08AM +0900, Stafford Horne wrote:
-> > Why doesn't RISC-V add the xchg16 emulation code similar to OpenRISC?  For
-> > OpenRISC we added xchg16 and xchg8 emulation code to enable qspinlocks.  So
-> > one thought is with CONFIG_ARCH_USE_QUEUED_SPINLOCKS_XCHG32=y, can we remove our
-> > xchg16/xchg8 emulation code?
+On Sun, Apr 04, 2021 at 08:46:04PM +0200, Ahmad Fatoum wrote:
+> Hello Sascha,
 > 
-> CONFIG_ARCH_USE_QUEUED_SPINLOCKS_XCHG32 is guaranteed crap.
->
-> All the architectures that have wanted it are RISC style LL/SC archs,
-> and for them a cmpxchg loop is a daft thing to do, since it reduces the
-> chance of it behaving sanely.
+> On 04.03.21 22:07, Stafford Horne wrote:
+> > Most developers have qemu and rather not download and install the
+> > or1ksim.  Also, this adds details on how to get a openrisc toolchain.
+> > 
+> > Signed-off-by: Stafford Horne <shorne@gmail.com>
 > 
-> Why would we provide something that's known to be suboptimal? If an
-> architecture chooses to not care about determinism and or fwd progress,
-> then that's their choice. But not one, I feel, we should encourage.
+> I don't see this in next.
+> 
+> > ---
+> >  Documentation/boards/openrisc.rst | 68 +++++++++++++++++++++++++++++++
+> >  1 file changed, 68 insertions(+)
+> > 
+> > diff --git a/Documentation/boards/openrisc.rst b/Documentation/boards/openrisc.rst
+> > index f9d67f965..34586b4a7 100644
+> > --- a/Documentation/boards/openrisc.rst
+> > +++ b/Documentation/boards/openrisc.rst
+> > @@ -1,6 +1,74 @@
+> >  OpenRISC
+> >  ========
+> >  
+> > +Optaining an OpenRISC toolchain
+> 
+> Could you fix up s/Optaining/Obtaining/ while at it?
 
-Thanks, this is the response I was hoping my comment would provoke.
-
-So not enabling CONFIG_ARCH_USE_QUEUED_SPINLOCKS_XCHG32 for architectures
-unless they really want it should be the way.
+It looks like you guys are handling it, but please let me know if there is
+anything else I can do.
 
 -Stafford
