@@ -1,45 +1,35 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 8 Apr 2021 08:19:17 +0900
-Subject: [OpenRISC] [PATCH] Documentation: Add qemu instructions for
- OpenRISC
-In-Reply-To: <bd106f14-c773-a4a8-2f43-2e269f4f04e4@pengutronix.de>
-References: <20210304210747.3679483-1-shorne@gmail.com>
- <bd106f14-c773-a4a8-2f43-2e269f4f04e4@pengutronix.de>
-Message-ID: <20210407231917.GI3288043@lianli.shorne-pla.net>
+From: Waiman Long <longman@redhat.com>
+Date: Thu, 8 Apr 2021 15:00:59 -0400
+Subject: [OpenRISC] [PATCH v6 1/9] locking/qspinlock: Add
+ ARCH_USE_QUEUED_SPINLOCKS_XCHG32
+In-Reply-To: <20210406235208.GG3288043@lianli.shorne-pla.net>
+References: <1617201040-83905-1-git-send-email-guoren@kernel.org>
+ <1617201040-83905-2-git-send-email-guoren@kernel.org>
+ <YGyRrBjomDCPOBUd@boqun-archlinux>
+ <20210406235208.GG3288043@lianli.shorne-pla.net>
+Message-ID: <1199af5f-275a-5812-fc73-f1d33449036b@redhat.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sun, Apr 04, 2021 at 08:46:04PM +0200, Ahmad Fatoum wrote:
-> Hello Sascha,
-> 
-> On 04.03.21 22:07, Stafford Horne wrote:
-> > Most developers have qemu and rather not download and install the
-> > or1ksim.  Also, this adds details on how to get a openrisc toolchain.
-> > 
-> > Signed-off-by: Stafford Horne <shorne@gmail.com>
-> 
-> I don't see this in next.
-> 
-> > ---
-> >  Documentation/boards/openrisc.rst | 68 +++++++++++++++++++++++++++++++
-> >  1 file changed, 68 insertions(+)
-> > 
-> > diff --git a/Documentation/boards/openrisc.rst b/Documentation/boards/openrisc.rst
-> > index f9d67f965..34586b4a7 100644
-> > --- a/Documentation/boards/openrisc.rst
-> > +++ b/Documentation/boards/openrisc.rst
-> > @@ -1,6 +1,74 @@
-> >  OpenRISC
-> >  ========
-> >  
-> > +Optaining an OpenRISC toolchain
-> 
-> Could you fix up s/Optaining/Obtaining/ while at it?
+On 4/6/21 7:52 PM, Stafford Horne wrote:
+>
+> For OpenRISC I did ack the patch to convert to
+> CONFIG_ARCH_USE_QUEUED_SPINLOCKS_XCHG32=y.  But I think you are right, the
+> generic code in xchg_tail and the xchg16 emulation code in produced by OpenRISC
+> using xchg32 would produce very similar code.  I have not compared instructions,
+> but it does seem like duplicate functionality.
+>
+> Why doesn't RISC-V add the xchg16 emulation code similar to OpenRISC?  For
+> OpenRISC we added xchg16 and xchg8 emulation code to enable qspinlocks.  So
+> one thought is with CONFIG_ARCH_USE_QUEUED_SPINLOCKS_XCHG32=y, can we remove our
+> xchg16/xchg8 emulation code?
 
-It looks like you guys are handling it, but please let me know if there is
-anything else I can do.
+For the record, the latest qspinlock code doesn't use xchg8 anymore. It 
+still need xchg16, though.
 
--Stafford
+Cheers,
+Longman
+
