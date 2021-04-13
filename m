@@ -1,226 +1,116 @@
-From: Guo Ren <guoren@kernel.org>
-Date: Mon, 12 Apr 2021 00:51:03 +0800
-Subject: [OpenRISC] [PATCH v6 3/9] riscv: locks: Introduce ticket-based
- spinlock implementation
-In-Reply-To: <CAJF2gTQRGWetpvvtXOn8_KzH8EQwL6VG02AoKBUWTkE69Xn6Kg@mail.gmail.com>
-References: <1617201040-83905-1-git-send-email-guoren@kernel.org>
- <1617201040-83905-4-git-send-email-guoren@kernel.org>
- <CAJF2gTQRGWetpvvtXOn8_KzH8EQwL6VG02AoKBUWTkE69Xn6Kg@mail.gmail.com>
-Message-ID: <CAJF2gTQpmgzXb+oi3uHuQ5e1awS2AwOtm4XJo8ce6pVkuXst+Q@mail.gmail.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
+Date: Tue, 13 Apr 2021 09:42:16 +0200
+Subject: [OpenRISC] [PATCH] Documentation: Add qemu instructions for
+ OpenRISC
+In-Reply-To: <20210304210747.3679483-1-shorne@gmail.com>
+References: <20210304210747.3679483-1-shorne@gmail.com>
+Message-ID: <20210413074216.GF13990@pengutronix.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Apr 12, 2021 at 12:02 AM Guo Ren <guoren@kernel.org> wrote:
->
-> On Wed, Mar 31, 2021 at 10:32 PM <guoren@kernel.org> wrote:
-> >
-> > From: Guo Ren <guoren@linux.alibaba.com>
-> >
-> > This patch introduces a ticket lock implementation for riscv, along the
-> > same lines as the implementation for arch/arm & arch/csky.
-> >
-> > We still use qspinlock as default.
-> >
-> > Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-> > Cc: Peter Zijlstra <peterz@infradead.org>
-> > Cc: Anup Patel <anup@brainfault.org>
-> > Cc: Arnd Bergmann <arnd@arndb.de>
-> > ---
-> >  arch/riscv/Kconfig                      |  7 ++-
-> >  arch/riscv/include/asm/spinlock.h       | 84 +++++++++++++++++++++++++
-> >  arch/riscv/include/asm/spinlock_types.h | 17 +++++
-> >  3 files changed, 107 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-> > index 67cc65ba1ea1..34d0276f01d5 100644
-> > --- a/arch/riscv/Kconfig
-> > +++ b/arch/riscv/Kconfig
-> > @@ -34,7 +34,7 @@ config RISCV
-> >         select ARCH_WANT_FRAME_POINTERS
-> >         select ARCH_WANT_HUGE_PMD_SHARE if 64BIT
-> >         select ARCH_USE_QUEUED_RWLOCKS
-> > -       select ARCH_USE_QUEUED_SPINLOCKS
-> > +       select ARCH_USE_QUEUED_SPINLOCKS        if !RISCV_TICKET_LOCK
-> >         select ARCH_USE_QUEUED_SPINLOCKS_XCHG32
-> >         select CLONE_BACKWARDS
-> >         select CLINT_TIMER if !MMU
-> > @@ -344,6 +344,11 @@ config NEED_PER_CPU_EMBED_FIRST_CHUNK
-> >         def_bool y
-> >         depends on NUMA
-> >
-> > +config RISCV_TICKET_LOCK
-> > +       bool "Ticket-based spin-locking"
-> > +       help
-> > +         Say Y here to use ticket-based spin-locking.
-> > +
-> >  config RISCV_ISA_C
-> >         bool "Emit compressed instructions when building Linux"
-> >         default y
-> > diff --git a/arch/riscv/include/asm/spinlock.h b/arch/riscv/include/asm/spinlock.h
-> > index a557de67a425..90b7eaa950cf 100644
-> > --- a/arch/riscv/include/asm/spinlock.h
-> > +++ b/arch/riscv/include/asm/spinlock.h
-> > @@ -7,7 +7,91 @@
-> >  #ifndef _ASM_RISCV_SPINLOCK_H
-> >  #define _ASM_RISCV_SPINLOCK_H
-> >
-> > +#ifdef CONFIG_RISCV_TICKET_LOCK
-> > +#ifdef CONFIG_32BIT
-> > +#define __ASM_SLLIW "slli\t"
-> > +#define __ASM_SRLIW "srli\t"
-> > +#else
-> > +#define __ASM_SLLIW "slliw\t"
-> > +#define __ASM_SRLIW "srliw\t"
-> > +#endif
-> > +
-> > +/*
-> > + * Ticket-based spin-locking.
-> > + */
-> > +static inline void arch_spin_lock(arch_spinlock_t *lock)
-> > +{
-> > +       arch_spinlock_t lockval;
-> > +       u32 tmp;
-> > +
-> > +       asm volatile (
-> > +               "1:     lr.w    %0, %2          \n"
-> > +               "       mv      %1, %0          \n"
-> > +               "       addw    %0, %0, %3      \n"
-> > +               "       sc.w    %0, %0, %2      \n"
-> > +               "       bnez    %0, 1b          \n"
-> > +               : "=&r" (tmp), "=&r" (lockval), "+A" (lock->lock)
-> > +               : "r" (1 << TICKET_NEXT)
-> > +               : "memory");
-> > +
-> > +       smp_cond_load_acquire(&lock->tickets.owner,
-> > +                                       VAL == lockval.tickets.next);
-> It's wrong, blew is fixup:
->
-> diff --git a/arch/csky/include/asm/spinlock.h b/arch/csky/include/asm/spinlock.h
-> index fe98ad8ece51..2be627ceb9df 100644
-> --- a/arch/csky/include/asm/spinlock.h
-> +++ b/arch/csky/include/asm/spinlock.h
-> @@ -27,7 +27,8 @@ static inline void arch_spin_lock(arch_spinlock_t *lock)
->                 : "r"(p), "r"(ticket_next)
->                 : "cc");
->
-> -       smp_cond_load_acquire(&lock->tickets.owner,
-> +       if (lockval.owner != lockval.tickets.next)
-> +               smp_cond_load_acquire(&lock->tickets.owner,
->                                         VAL == lockval.tickets.next);
-eh... plus __smp_acquire_fence:
+On Fri, Mar 05, 2021 at 06:07:47AM +0900, Stafford Horne wrote:
+> Most developers have qemu and rather not download and install the
+> or1ksim.  Also, this adds details on how to get a openrisc toolchain.
+> 
+> Signed-off-by: Stafford Horne <shorne@gmail.com>
+> ---
+>  Documentation/boards/openrisc.rst | 68 +++++++++++++++++++++++++++++++
+>  1 file changed, 68 insertions(+)
 
-       if (lockval.owner != lockval.tickets.next)
-               smp_cond_load_acquire(&lock->tickets.owner,
-                                        VAL == lockval.tickets.next);
-       else
-               __smp_acquire_fence();
+Applied, thanks
 
-> > +}
-> > +
-> > +static inline int arch_spin_trylock(arch_spinlock_t *lock)
-> > +{
-> > +       u32 tmp, contended, res;
-> > +
-> > +       do {
-> > +               asm volatile (
-> > +               "       lr.w    %0, %3          \n"
-> > +               __ASM_SRLIW    "%1, %0, %5      \n"
-> > +               __ASM_SLLIW    "%2, %0, %5      \n"
-> > +               "       or      %1, %2, %1      \n"
-> > +               "       li      %2, 0           \n"
-> > +               "       sub     %1, %1, %0      \n"
-> > +               "       bnez    %1, 1f          \n"
-> > +               "       addw    %0, %0, %4      \n"
-> > +               "       sc.w    %2, %0, %3      \n"
-> > +               "1:                             \n"
-> > +               : "=&r" (tmp), "=&r" (contended), "=&r" (res),
-> > +                 "+A" (lock->lock)
-> > +               : "r" (1 << TICKET_NEXT), "I" (TICKET_NEXT)
-> > +               : "memory");
-> > +       } while (res);
-> > +
-> > +       if (!contended)
-> > +               __atomic_acquire_fence();
-> > +
-> > +       return !contended;
-> > +}
-> > +
-> > +static inline void arch_spin_unlock(arch_spinlock_t *lock)
-> > +{
-> > +       smp_store_release(&lock->tickets.owner, lock->tickets.owner + 1);
-> > +}
-> > +
-> > +static inline int arch_spin_value_unlocked(arch_spinlock_t lock)
-> > +{
-> > +       return lock.tickets.owner == lock.tickets.next;
-> > +}
-> > +
-> > +static inline int arch_spin_is_locked(arch_spinlock_t *lock)
-> > +{
-> > +       return !arch_spin_value_unlocked(READ_ONCE(*lock));
-> > +}
-> > +
-> > +static inline int arch_spin_is_contended(arch_spinlock_t *lock)
-> > +{
-> > +       struct __raw_tickets tickets = READ_ONCE(lock->tickets);
-> > +
-> > +       return (tickets.next - tickets.owner) > 1;
-> > +}
-> > +#define arch_spin_is_contended arch_spin_is_contended
-> > +#else /* CONFIG_RISCV_TICKET_LOCK */
-> >  #include <asm/qspinlock.h>
-> > +#endif /* CONFIG_RISCV_TICKET_LOCK */
-> > +
-> >  #include <asm/qrwlock.h>
-> >
-> >  #endif /* _ASM_RISCV_SPINLOCK_H */
-> > diff --git a/arch/riscv/include/asm/spinlock_types.h b/arch/riscv/include/asm/spinlock_types.h
-> > index d033a973f287..afbb19841d0f 100644
-> > --- a/arch/riscv/include/asm/spinlock_types.h
-> > +++ b/arch/riscv/include/asm/spinlock_types.h
-> > @@ -10,7 +10,24 @@
-> >  # error "please don't include this file directly"
-> >  #endif
-> >
-> > +#ifdef CONFIG_RISCV_TICKET_LOCK
-> > +#define TICKET_NEXT    16
-> > +
-> > +typedef struct {
-> > +       union {
-> > +               u32 lock;
-> > +               struct __raw_tickets {
-> > +                       /* little endian */
-> > +                       u16 owner;
-> > +                       u16 next;
-> > +               } tickets;
-> > +       };
-> > +} arch_spinlock_t;
-> > +
-> > +#define __ARCH_SPIN_LOCK_UNLOCKED      { { 0 } }
-> > +#else
-> >  #include <asm-generic/qspinlock_types.h>
-> > +#endif
-> >  #include <asm-generic/qrwlock_types.h>
-> >
-> >  #endif /* _ASM_RISCV_SPINLOCK_TYPES_H */
-> > --
-> > 2.17.1
-> >
->
->
-> --
-> Best Regards
->  Guo Ren
->
-> ML: https://lore.kernel.org/linux-csky/
+Sascha
 
-
+> 
+> diff --git a/Documentation/boards/openrisc.rst b/Documentation/boards/openrisc.rst
+> index f9d67f965..34586b4a7 100644
+> --- a/Documentation/boards/openrisc.rst
+> +++ b/Documentation/boards/openrisc.rst
+> @@ -1,6 +1,74 @@
+>  OpenRISC
+>  ========
+>  
+> +Optaining an OpenRISC toolchain
+> +-------------------------------
+> +
+> +Toolchain binaries can be obtained from openrisc.io or our github releases page.
+> +Instructions for building the different toolchains can be found on openrisc.io
+> +or Stafford's toolchain build and release scripts.
+> +
+> +See:
+> +
+> +  * https://github.com/stffrdhrn/gcc/releases
+> +  * https://github.com/stffrdhrn/or1k-toolchain-build
+> +  * https://openrisc.io/software
+> +
+> +Example of downloading and installing a toolchain::
+> +
+> +  $ curl --remote-name --location \
+> +    https://github.com/stffrdhrn/gcc/releases/download/or1k-10.0.0-20190723/or1k-elf-10.0.0-20190723.tar.xz
+> +  $ tar -xf or1k-elf-10.0.0-20190723.tar.xz
+> +  $ export PATH=$PATH:$PWD/or1k-elf/bin
+> +
+> +Running OpenRISC barebox on qemu
+> +------------------------------
+> +
+> +Running barebox on qemu is similar to running linux on qemu see more details on
+> +the qemu wiki site at https://wiki.qemu.org/Documentation/Platforms/OpenRISC
+> +
+> +Compile the qemu emulator::
+> +
+> +  $ git clone https://gitlab.com/qemu-project/qemu.git
+> +  $ cd qemu
+> +  $ mkdir build ; cd build
+> +  $ ../configure \
+> +    --target-list="or1k-softmmu" \
+> +    --enable-fdt \
+> +    --disable-kvm \
+> +    --disable-xen \
+> +    --disable-xkbcommon \
+> +    --enable-debug \
+> +    --enable-debug-info
+> +  $ make
+> +
+> +Next compile barebox::
+> +
+> +  $ make ARCH=openrisc defconfig
+> +  ...
+> +  $ make ARCH=openrisc CROSS_COMPILE=or1k-elf-
+> +
+> +Run barebox::
+> +
+> +  $ <path to qemu source>/build/or1k-softmmu/qemu-system-or1k \
+> +    -cpu or1200 \
+> +    -M or1k-sim \
+> +    -kernel /home/shorne/work/openrisc/barebox/barebox \
+> +    -net nic -net tap,ifname=tap0,script=no,downscript=no \
+> +    -serial mon:stdio -nographic -gdb tcp::10001 \
+> +    -m 32
+> +
+> +
+> +  barebox 2021.02.0-00120-g763c6fee7-dirty #14 Thu Mar 4 05:13:51 JST 2021
+> +
+> +
+> +  Board: or1ksim
+> +  mdio_bus: miibus0: probed
+> +  malloc space: 0x01b80000 -> 0x01f7ffff (size 4 MiB)
+> +
+> +  Hit any to stop autoboot:    3
+> +  barebox at or1ksim:/
+> +
+>  or1ksim
+>  -------
+>  
+> -- 
+> 2.26.2
+> 
+> 
 
 -- 
-Best Regards
- Guo Ren
-
-ML: https://lore.kernel.org/linux-csky/
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
