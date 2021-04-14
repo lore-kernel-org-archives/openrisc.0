@@ -1,11 +1,9 @@
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Date: Wed, 14 Apr 2021 08:10:49 +0200
-Subject: [OpenRISC] [PATCH] mm: Define ARCH_HAS_FIRST_USER_ADDRESS
-In-Reply-To: <6d24d3cc-b2df-f0d7-f4bf-f505f679c77e@arm.com>
-References: <1618368899-20311-1-git-send-email-anshuman.khandual@arm.com>
- <f29ba8e2-3071-c963-1e9f-e8c88526ed8d@csgroup.eu>
- <6d24d3cc-b2df-f0d7-f4bf-f505f679c77e@arm.com>
-Message-ID: <ec7bbb30-dbbd-197b-4d65-eb3600fe6413@csgroup.eu>
+Date: Wed, 14 Apr 2021 11:10:42 +0200
+Subject: [OpenRISC] [PATCH] init: consolidate trap_init()
+In-Reply-To: <20210414165808.458a3d11@xhacker.debian>
+References: <20210414165808.458a3d11@xhacker.debian>
+Message-ID: <44bdf1f1-117d-0f10-fc59-9edd32d1ad61@csgroup.eu>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -14,110 +12,62 @@ To: openrisc@lists.librecores.org
 
 
 
-Le 14/04/2021 à 07:59, Anshuman Khandual a écrit :
-> 
-> 
-> On 4/14/21 10:52 AM, Christophe Leroy wrote:
->>
->>
->> Le 14/04/2021 à 04:54, Anshuman Khandual a écrit :
->>> Currently most platforms define FIRST_USER_ADDRESS as 0UL duplicating the
->>> same code all over. Instead define a new option ARCH_HAS_FIRST_USER_ADDRESS
->>> for those platforms which would override generic default FIRST_USER_ADDRESS
->>> value 0UL. This makes it much cleaner with reduced code.
->>>
->>> Cc: linux-alpha at vger.kernel.org
->>> Cc: linux-snps-arc at lists.infradead.org
->>> Cc: linux-arm-kernel at lists.infradead.org
->>> Cc: linux-csky at vger.kernel.org
->>> Cc: linux-hexagon at vger.kernel.org
->>> Cc: linux-ia64 at vger.kernel.org
->>> Cc: linux-m68k at lists.linux-m68k.org
->>> Cc: linux-mips at vger.kernel.org
->>> Cc: openrisc at lists.librecores.org
->>> Cc: linux-parisc at vger.kernel.org
->>> Cc: linuxppc-dev at lists.ozlabs.org
->>> Cc: linux-riscv at lists.infradead.org
->>> Cc: linux-s390 at vger.kernel.org
->>> Cc: linux-sh at vger.kernel.org
->>> Cc: sparclinux at vger.kernel.org
->>> Cc: linux-um at lists.infradead.org
->>> Cc: linux-xtensa at linux-xtensa.org
->>> Cc: x86 at kernel.org
->>> Cc: linux-mm at kvack.org
->>> Cc: linux-kernel at vger.kernel.org
->>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
->>> ---
->>>    arch/alpha/include/asm/pgtable.h             | 1 -
->>>    arch/arc/include/asm/pgtable.h               | 6 ------
->>>    arch/arm/Kconfig                             | 1 +
->>>    arch/arm64/include/asm/pgtable.h             | 2 --
->>>    arch/csky/include/asm/pgtable.h              | 1 -
->>>    arch/hexagon/include/asm/pgtable.h           | 3 ---
->>>    arch/ia64/include/asm/pgtable.h              | 1 -
->>>    arch/m68k/include/asm/pgtable_mm.h           | 1 -
->>>    arch/microblaze/include/asm/pgtable.h        | 2 --
->>>    arch/mips/include/asm/pgtable-32.h           | 1 -
->>>    arch/mips/include/asm/pgtable-64.h           | 1 -
->>>    arch/nds32/Kconfig                           | 1 +
->>>    arch/nios2/include/asm/pgtable.h             | 2 --
->>>    arch/openrisc/include/asm/pgtable.h          | 1 -
->>>    arch/parisc/include/asm/pgtable.h            | 2 --
->>>    arch/powerpc/include/asm/book3s/pgtable.h    | 1 -
->>>    arch/powerpc/include/asm/nohash/32/pgtable.h | 1 -
->>>    arch/powerpc/include/asm/nohash/64/pgtable.h | 2 --
->>>    arch/riscv/include/asm/pgtable.h             | 2 --
->>>    arch/s390/include/asm/pgtable.h              | 2 --
->>>    arch/sh/include/asm/pgtable.h                | 2 --
->>>    arch/sparc/include/asm/pgtable_32.h          | 1 -
->>>    arch/sparc/include/asm/pgtable_64.h          | 3 ---
->>>    arch/um/include/asm/pgtable-2level.h         | 1 -
->>>    arch/um/include/asm/pgtable-3level.h         | 1 -
->>>    arch/x86/include/asm/pgtable_types.h         | 2 --
->>>    arch/xtensa/include/asm/pgtable.h            | 1 -
->>>    include/linux/mm.h                           | 4 ++++
->>>    mm/Kconfig                                   | 4 ++++
->>>    29 files changed, 10 insertions(+), 43 deletions(-)
->>>
->>> diff --git a/include/linux/mm.h b/include/linux/mm.h
->>> index 8ba434287387..47098ccd715e 100644
->>> --- a/include/linux/mm.h
->>> +++ b/include/linux/mm.h
->>> @@ -46,6 +46,10 @@ extern int sysctl_page_lock_unfairness;
->>>      void init_mm_internals(void);
->>>    +#ifndef ARCH_HAS_FIRST_USER_ADDRESS
->>
->> I guess you didn't test it ..... :)
-> 
-> In fact I did :) Though just booted it on arm64 and cross compiled on
-> multiple others platforms.
-> 
->>
->> should be #ifndef CONFIG_ARCH_HAS_FIRST_USER_ADDRESS
-> 
-> Right, meant that instead.
-> 
->>
->>> +#define FIRST_USER_ADDRESS    0UL
->>> +#endif
->>
->> But why do we need a config option at all for that ?
->>
->> Why not just:
->>
->> #ifndef FIRST_USER_ADDRESS
->> #define FIRST_USER_ADDRESS    0UL
->> #endif
-> 
-> This sounds simpler. But just wondering, would not there be any possibility
-> of build problems due to compilation sequence between arch and generic code ?
-> 
+Le 14/04/2021 à 10:58, Jisheng Zhang a écrit :
+> Many architectures implement the trap_init() as NOP, since there is
+> no such default for trap_init(), this empty stub is duplicated among
+> these architectures. Provide a generic but weak NOP implementation
+> to drop the empty stubs of trap_init() in these architectures.
 
-For sure it has to be addresses carefully, but there are already a lot of stuff like that around 
-pgtables.h
+You define the weak function in the __init section.
 
-For instance, pte_offset_kernel() has a generic definition in linux/pgtables.h based on whether it 
-is already defined or not.
+Most but not all architectures had it in __init section.
 
-Taking into account that FIRST_USER_ADDRESS is today in the architectures's asm/pgtables.h, I think 
-putting the fallback definition in linux/pgtable.h would do the trick.
+And the remaining ones may not be defined in __init section. For instance look at the one in alpha 
+architecture.
+
+Have you checked that it is not a problem ? It would be good to say something about it in the commit 
+description.
+
+
+> 
+> Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+> ---
+>   arch/arc/kernel/traps.c      |  5 -----
+>   arch/arm/kernel/traps.c      |  5 -----
+>   arch/h8300/kernel/traps.c    | 13 -------------
+>   arch/hexagon/kernel/traps.c  |  4 ----
+>   arch/nds32/kernel/traps.c    |  5 -----
+>   arch/nios2/kernel/traps.c    |  5 -----
+>   arch/openrisc/kernel/traps.c |  5 -----
+>   arch/parisc/kernel/traps.c   |  4 ----
+>   arch/powerpc/kernel/traps.c  |  5 -----
+>   arch/riscv/kernel/traps.c    |  5 -----
+>   arch/um/kernel/trap.c        |  4 ----
+>   init/main.c                  |  2 ++
+>   12 files changed, 2 insertions(+), 60 deletions(-)
+> 
+> diff --git a/init/main.c b/init/main.c
+> index 53b278845b88..4bdbe2928530 100644
+> --- a/init/main.c
+> +++ b/init/main.c
+> @@ -790,6 +790,8 @@ static inline void initcall_debug_enable(void)
+>   }
+>   #endif
+>   
+> +void __init __weak trap_init(void) { }
+> +
+
+I think in a C file we don't try to save space as much as in a header file.
+
+I would prefer something like:
+
+
+void __init __weak trap_init(void)
+{
+}
+
+
+>   /* Report memory auto-initialization states for this boot. */
+>   static void __init report_meminit(void)
+>   {
+> 
