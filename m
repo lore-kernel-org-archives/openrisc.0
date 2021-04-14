@@ -1,116 +1,118 @@
-From: Sascha Hauer <s.hauer@pengutronix.de>
-Date: Tue, 13 Apr 2021 09:42:16 +0200
-Subject: [OpenRISC] [PATCH] Documentation: Add qemu instructions for
- OpenRISC
-In-Reply-To: <20210304210747.3679483-1-shorne@gmail.com>
-References: <20210304210747.3679483-1-shorne@gmail.com>
-Message-ID: <20210413074216.GF13990@pengutronix.de>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Date: Wed, 14 Apr 2021 07:22:06 +0200
+Subject: [OpenRISC] [PATCH] mm: Define ARCH_HAS_FIRST_USER_ADDRESS
+In-Reply-To: <1618368899-20311-1-git-send-email-anshuman.khandual@arm.com>
+References: <1618368899-20311-1-git-send-email-anshuman.khandual@arm.com>
+Message-ID: <f29ba8e2-3071-c963-1e9f-e8c88526ed8d@csgroup.eu>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-On Fri, Mar 05, 2021 at 06:07:47AM +0900, Stafford Horne wrote:
-> Most developers have qemu and rather not download and install the
-> or1ksim.  Also, this adds details on how to get a openrisc toolchain.
+
+
+Le 14/04/2021 à 04:54, Anshuman Khandual a écrit :
+> Currently most platforms define FIRST_USER_ADDRESS as 0UL duplicating the
+> same code all over. Instead define a new option ARCH_HAS_FIRST_USER_ADDRESS
+> for those platforms which would override generic default FIRST_USER_ADDRESS
+> value 0UL. This makes it much cleaner with reduced code.
 > 
-> Signed-off-by: Stafford Horne <shorne@gmail.com>
+> Cc: linux-alpha at vger.kernel.org
+> Cc: linux-snps-arc at lists.infradead.org
+> Cc: linux-arm-kernel at lists.infradead.org
+> Cc: linux-csky at vger.kernel.org
+> Cc: linux-hexagon at vger.kernel.org
+> Cc: linux-ia64 at vger.kernel.org
+> Cc: linux-m68k at lists.linux-m68k.org
+> Cc: linux-mips at vger.kernel.org
+> Cc: openrisc at lists.librecores.org
+> Cc: linux-parisc at vger.kernel.org
+> Cc: linuxppc-dev at lists.ozlabs.org
+> Cc: linux-riscv at lists.infradead.org
+> Cc: linux-s390 at vger.kernel.org
+> Cc: linux-sh at vger.kernel.org
+> Cc: sparclinux at vger.kernel.org
+> Cc: linux-um at lists.infradead.org
+> Cc: linux-xtensa at linux-xtensa.org
+> Cc: x86 at kernel.org
+> Cc: linux-mm at kvack.org
+> Cc: linux-kernel at vger.kernel.org
+> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 > ---
->  Documentation/boards/openrisc.rst | 68 +++++++++++++++++++++++++++++++
->  1 file changed, 68 insertions(+)
-
-Applied, thanks
-
-Sascha
-
+>   arch/alpha/include/asm/pgtable.h             | 1 -
+>   arch/arc/include/asm/pgtable.h               | 6 ------
+>   arch/arm/Kconfig                             | 1 +
+>   arch/arm64/include/asm/pgtable.h             | 2 --
+>   arch/csky/include/asm/pgtable.h              | 1 -
+>   arch/hexagon/include/asm/pgtable.h           | 3 ---
+>   arch/ia64/include/asm/pgtable.h              | 1 -
+>   arch/m68k/include/asm/pgtable_mm.h           | 1 -
+>   arch/microblaze/include/asm/pgtable.h        | 2 --
+>   arch/mips/include/asm/pgtable-32.h           | 1 -
+>   arch/mips/include/asm/pgtable-64.h           | 1 -
+>   arch/nds32/Kconfig                           | 1 +
+>   arch/nios2/include/asm/pgtable.h             | 2 --
+>   arch/openrisc/include/asm/pgtable.h          | 1 -
+>   arch/parisc/include/asm/pgtable.h            | 2 --
+>   arch/powerpc/include/asm/book3s/pgtable.h    | 1 -
+>   arch/powerpc/include/asm/nohash/32/pgtable.h | 1 -
+>   arch/powerpc/include/asm/nohash/64/pgtable.h | 2 --
+>   arch/riscv/include/asm/pgtable.h             | 2 --
+>   arch/s390/include/asm/pgtable.h              | 2 --
+>   arch/sh/include/asm/pgtable.h                | 2 --
+>   arch/sparc/include/asm/pgtable_32.h          | 1 -
+>   arch/sparc/include/asm/pgtable_64.h          | 3 ---
+>   arch/um/include/asm/pgtable-2level.h         | 1 -
+>   arch/um/include/asm/pgtable-3level.h         | 1 -
+>   arch/x86/include/asm/pgtable_types.h         | 2 --
+>   arch/xtensa/include/asm/pgtable.h            | 1 -
+>   include/linux/mm.h                           | 4 ++++
+>   mm/Kconfig                                   | 4 ++++
+>   29 files changed, 10 insertions(+), 43 deletions(-)
 > 
-> diff --git a/Documentation/boards/openrisc.rst b/Documentation/boards/openrisc.rst
-> index f9d67f965..34586b4a7 100644
-> --- a/Documentation/boards/openrisc.rst
-> +++ b/Documentation/boards/openrisc.rst
-> @@ -1,6 +1,74 @@
->  OpenRISC
->  ========
->  
-> +Optaining an OpenRISC toolchain
-> +-------------------------------
-> +
-> +Toolchain binaries can be obtained from openrisc.io or our github releases page.
-> +Instructions for building the different toolchains can be found on openrisc.io
-> +or Stafford's toolchain build and release scripts.
-> +
-> +See:
-> +
-> +  * https://github.com/stffrdhrn/gcc/releases
-> +  * https://github.com/stffrdhrn/or1k-toolchain-build
-> +  * https://openrisc.io/software
-> +
-> +Example of downloading and installing a toolchain::
-> +
-> +  $ curl --remote-name --location \
-> +    https://github.com/stffrdhrn/gcc/releases/download/or1k-10.0.0-20190723/or1k-elf-10.0.0-20190723.tar.xz
-> +  $ tar -xf or1k-elf-10.0.0-20190723.tar.xz
-> +  $ export PATH=$PATH:$PWD/or1k-elf/bin
-> +
-> +Running OpenRISC barebox on qemu
-> +------------------------------
-> +
-> +Running barebox on qemu is similar to running linux on qemu see more details on
-> +the qemu wiki site at https://wiki.qemu.org/Documentation/Platforms/OpenRISC
-> +
-> +Compile the qemu emulator::
-> +
-> +  $ git clone https://gitlab.com/qemu-project/qemu.git
-> +  $ cd qemu
-> +  $ mkdir build ; cd build
-> +  $ ../configure \
-> +    --target-list="or1k-softmmu" \
-> +    --enable-fdt \
-> +    --disable-kvm \
-> +    --disable-xen \
-> +    --disable-xkbcommon \
-> +    --enable-debug \
-> +    --enable-debug-info
-> +  $ make
-> +
-> +Next compile barebox::
-> +
-> +  $ make ARCH=openrisc defconfig
-> +  ...
-> +  $ make ARCH=openrisc CROSS_COMPILE=or1k-elf-
-> +
-> +Run barebox::
-> +
-> +  $ <path to qemu source>/build/or1k-softmmu/qemu-system-or1k \
-> +    -cpu or1200 \
-> +    -M or1k-sim \
-> +    -kernel /home/shorne/work/openrisc/barebox/barebox \
-> +    -net nic -net tap,ifname=tap0,script=no,downscript=no \
-> +    -serial mon:stdio -nographic -gdb tcp::10001 \
-> +    -m 32
-> +
-> +
-> +  barebox 2021.02.0-00120-g763c6fee7-dirty #14 Thu Mar 4 05:13:51 JST 2021
-> +
-> +
-> +  Board: or1ksim
-> +  mdio_bus: miibus0: probed
-> +  malloc space: 0x01b80000 -> 0x01f7ffff (size 4 MiB)
-> +
-> +  Hit any to stop autoboot:    3
-> +  barebox at or1ksim:/
-> +
->  or1ksim
->  -------
->  
-> -- 
-> 2.26.2
-> 
-> 
+> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> index 8ba434287387..47098ccd715e 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -46,6 +46,10 @@ extern int sysctl_page_lock_unfairness;
+>   
+>   void init_mm_internals(void);
+>   
+> +#ifndef ARCH_HAS_FIRST_USER_ADDRESS
 
--- 
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+I guess you didn't test it ..... :)
+
+should be #ifndef CONFIG_ARCH_HAS_FIRST_USER_ADDRESS
+
+> +#define FIRST_USER_ADDRESS	0UL
+> +#endif
+
+But why do we need a config option at all for that ?
+
+Why not just:
+
+#ifndef FIRST_USER_ADDRESS
+#define FIRST_USER_ADDRESS	0UL
+#endif
+
+> +
+>   #ifndef CONFIG_NEED_MULTIPLE_NODES	/* Don't use mapnrs, do it properly */
+>   extern unsigned long max_mapnr;
+>   
+> diff --git a/mm/Kconfig b/mm/Kconfig
+> index 24c045b24b95..373fbe377075 100644
+> --- a/mm/Kconfig
+> +++ b/mm/Kconfig
+> @@ -806,6 +806,10 @@ config VMAP_PFN
+>   
+>   config ARCH_USES_HIGH_VMA_FLAGS
+>   	bool
+> +
+> +config ARCH_HAS_FIRST_USER_ADDRESS
+> +	bool
+> +
+>   config ARCH_HAS_PKEYS
+>   	bool
+>   
+> 
