@@ -1,271 +1,202 @@
-From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Date: Wed, 14 Apr 2021 18:00:45 +0800
-Subject: [OpenRISC] [PATCH v2] init: consolidate trap_init()
-In-Reply-To: <20210414165808.458a3d11@xhacker.debian>
-References: <20210414165808.458a3d11@xhacker.debian>
-Message-ID: <20210414180037.14602dab@xhacker.debian>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Date: Thu, 15 Apr 2021 10:10:38 +0530
+Subject: [OpenRISC] [PATCH] mm: Define ARCH_HAS_FIRST_USER_ADDRESS
+In-Reply-To: <ec7bbb30-dbbd-197b-4d65-eb3600fe6413@csgroup.eu>
+References: <1618368899-20311-1-git-send-email-anshuman.khandual@arm.com>
+ <f29ba8e2-3071-c963-1e9f-e8c88526ed8d@csgroup.eu>
+ <6d24d3cc-b2df-f0d7-f4bf-f505f679c77e@arm.com>
+ <ec7bbb30-dbbd-197b-4d65-eb3600fe6413@csgroup.eu>
+Message-ID: <e9d1a342-b444-efd5-d11f-79aa4d11fabc@arm.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-Many architectures implement the trap_init() as NOP, since there is
-no such default for trap_init(), this empty stub is duplicated among
-these architectures. Provide a generic but weak NOP implementation
-to drop the empty stubs of trap_init() in these architectures.
+On 4/14/21 11:40 AM, Christophe Leroy wrote:
+> 
+> 
+> Le 14/04/2021 à 07:59, Anshuman Khandual a écrit :
+>>
+>>
+>> On 4/14/21 10:52 AM, Christophe Leroy wrote:
+>>>
+>>>
+>>> Le 14/04/2021 à 04:54, Anshuman Khandual a écrit :
+>>>> Currently most platforms define FIRST_USER_ADDRESS as 0UL duplicating the
+>>>> same code all over. Instead define a new option ARCH_HAS_FIRST_USER_ADDRESS
+>>>> for those platforms which would override generic default FIRST_USER_ADDRESS
+>>>> value 0UL. This makes it much cleaner with reduced code.
+>>>>
+>>>> Cc: linux-alpha at vger.kernel.org
+>>>> Cc: linux-snps-arc at lists.infradead.org
+>>>> Cc: linux-arm-kernel at lists.infradead.org
+>>>> Cc: linux-csky at vger.kernel.org
+>>>> Cc: linux-hexagon at vger.kernel.org
+>>>> Cc: linux-ia64 at vger.kernel.org
+>>>> Cc: linux-m68k at lists.linux-m68k.org
+>>>> Cc: linux-mips at vger.kernel.org
+>>>> Cc: openrisc at lists.librecores.org
+>>>> Cc: linux-parisc at vger.kernel.org
+>>>> Cc: linuxppc-dev at lists.ozlabs.org
+>>>> Cc: linux-riscv at lists.infradead.org
+>>>> Cc: linux-s390 at vger.kernel.org
+>>>> Cc: linux-sh at vger.kernel.org
+>>>> Cc: sparclinux at vger.kernel.org
+>>>> Cc: linux-um at lists.infradead.org
+>>>> Cc: linux-xtensa at linux-xtensa.org
+>>>> Cc: x86 at kernel.org
+>>>> Cc: linux-mm at kvack.org
+>>>> Cc: linux-kernel at vger.kernel.org
+>>>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+>>>> ---
+>>>>    arch/alpha/include/asm/pgtable.h             | 1 -
+>>>>    arch/arc/include/asm/pgtable.h               | 6 ------
+>>>>    arch/arm/Kconfig                             | 1 +
+>>>>    arch/arm64/include/asm/pgtable.h             | 2 --
+>>>>    arch/csky/include/asm/pgtable.h              | 1 -
+>>>>    arch/hexagon/include/asm/pgtable.h           | 3 ---
+>>>>    arch/ia64/include/asm/pgtable.h              | 1 -
+>>>>    arch/m68k/include/asm/pgtable_mm.h           | 1 -
+>>>>    arch/microblaze/include/asm/pgtable.h        | 2 --
+>>>>    arch/mips/include/asm/pgtable-32.h           | 1 -
+>>>>    arch/mips/include/asm/pgtable-64.h           | 1 -
+>>>>    arch/nds32/Kconfig                           | 1 +
+>>>>    arch/nios2/include/asm/pgtable.h             | 2 --
+>>>>    arch/openrisc/include/asm/pgtable.h          | 1 -
+>>>>    arch/parisc/include/asm/pgtable.h            | 2 --
+>>>>    arch/powerpc/include/asm/book3s/pgtable.h    | 1 -
+>>>>    arch/powerpc/include/asm/nohash/32/pgtable.h | 1 -
+>>>>    arch/powerpc/include/asm/nohash/64/pgtable.h | 2 --
+>>>>    arch/riscv/include/asm/pgtable.h             | 2 --
+>>>>    arch/s390/include/asm/pgtable.h              | 2 --
+>>>>    arch/sh/include/asm/pgtable.h                | 2 --
+>>>>    arch/sparc/include/asm/pgtable_32.h          | 1 -
+>>>>    arch/sparc/include/asm/pgtable_64.h          | 3 ---
+>>>>    arch/um/include/asm/pgtable-2level.h         | 1 -
+>>>>    arch/um/include/asm/pgtable-3level.h         | 1 -
+>>>>    arch/x86/include/asm/pgtable_types.h         | 2 --
+>>>>    arch/xtensa/include/asm/pgtable.h            | 1 -
+>>>>    include/linux/mm.h                           | 4 ++++
+>>>>    mm/Kconfig                                   | 4 ++++
+>>>>    29 files changed, 10 insertions(+), 43 deletions(-)
+>>>>
+>>>> diff --git a/include/linux/mm.h b/include/linux/mm.h
+>>>> index 8ba434287387..47098ccd715e 100644
+>>>> --- a/include/linux/mm.h
+>>>> +++ b/include/linux/mm.h
+>>>> @@ -46,6 +46,10 @@ extern int sysctl_page_lock_unfairness;
+>>>>      void init_mm_internals(void);
+>>>>    +#ifndef ARCH_HAS_FIRST_USER_ADDRESS
+>>>
+>>> I guess you didn't test it ..... :)
+>>
+>> In fact I did :) Though just booted it on arm64 and cross compiled on
+>> multiple others platforms.
 
-The alpha, microblaze and sparc32 have real trap_init() implementation
-but the __init marker is missing, so add it to these three platforms.
+I guess for all platforms, ARCH_HAS_FIRST_USER_ADDRESS would have just
+evaluated to be false hence falling back on the generic definition. So
+this never complained during build any where or during boot on arm64.
 
-Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
----
-Since v1:
- - add __init marker to trap_init() for alpha, microblaze and sparc32
- - adjust the generic weak NOP trap_init() location to make it sits with
-   other NOP implementations together
+>>
+>>>
+>>> should be #ifndef CONFIG_ARCH_HAS_FIRST_USER_ADDRESS
+>>
+>> Right, meant that instead.
+>>
+>>>
+>>>> +#define FIRST_USER_ADDRESS    0UL
+>>>> +#endif
+>>>
+>>> But why do we need a config option at all for that ?
+>>>
+>>> Why not just:
+>>>
+>>> #ifndef FIRST_USER_ADDRESS
+>>> #define FIRST_USER_ADDRESS    0UL
+>>> #endif
+>>
+>> This sounds simpler. But just wondering, would not there be any possibility
+>> of build problems due to compilation sequence between arch and generic code ?
+>>
+> 
+> For sure it has to be addresses carefully, but there are already a lot of stuff like that around pgtables.h
+> 
+> For instance, pte_offset_kernel() has a generic definition in linux/pgtables.h based on whether it is already defined or not.
+> 
+> Taking into account that FIRST_USER_ADDRESS is today in the architectures's asm/pgtables.h, I think putting the fallback definition in linux/pgtable.h would do the trick.
 
- arch/alpha/kernel/traps.c      |  2 +-
- arch/arc/kernel/traps.c        |  5 -----
- arch/arm/kernel/traps.c        |  5 -----
- arch/h8300/kernel/traps.c      | 13 -------------
- arch/hexagon/kernel/traps.c    |  4 ----
- arch/microblaze/kernel/traps.c |  2 +-
- arch/nds32/kernel/traps.c      |  5 -----
- arch/nios2/kernel/traps.c      |  5 -----
- arch/openrisc/kernel/traps.c   |  5 -----
- arch/parisc/kernel/traps.c     |  4 ----
- arch/powerpc/kernel/traps.c    |  5 -----
- arch/riscv/kernel/traps.c      |  5 -----
- arch/sparc/kernel/traps_32.c   |  2 +-
- arch/um/kernel/trap.c          |  4 ----
- init/main.c                    |  2 ++
- 15 files changed, 5 insertions(+), 63 deletions(-)
+Agreed, <linux/pgtable.h> includes <asm/pgtable.h> at the beginning and
+if the arch defines FIRST_USER_ADDRESS, the generic one afterwards would
+be skipped. The following change builds on multiple platforms.
 
-diff --git a/arch/alpha/kernel/traps.c b/arch/alpha/kernel/traps.c
-index 921d4b6e4d95..96b203199c6c 100644
---- a/arch/alpha/kernel/traps.c
-+++ b/arch/alpha/kernel/traps.c
-@@ -973,7 +973,7 @@ do_entUnaUser(void __user * va, unsigned long opcode,
- 	return;
- }
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index ad086e6d7155..5da96f5df48f 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -7,7 +7,6 @@ config ARM
+ 	select ARCH_HAS_DEBUG_VIRTUAL if MMU
+ 	select ARCH_HAS_DMA_WRITE_COMBINE if !ARM_DMA_MEM_BUFFERABLE
+ 	select ARCH_HAS_ELF_RANDOMIZE
+-	select ARCH_HAS_FIRST_USER_ADDRESS
+ 	select ARCH_HAS_FORTIFY_SOURCE
+ 	select ARCH_HAS_KEEPINITRD
+ 	select ARCH_HAS_KCOV
+diff --git a/arch/nds32/Kconfig b/arch/nds32/Kconfig
+index 23ec4fcc0d0f..62313902d75d 100644
+--- a/arch/nds32/Kconfig
++++ b/arch/nds32/Kconfig
+@@ -8,7 +8,6 @@ config NDS32
+ 	def_bool y
+ 	select ARCH_32BIT_OFF_T
+ 	select ARCH_HAS_DMA_PREP_COHERENT
+-	select ARCH_HAS_FIRST_USER_ADDRESS
+ 	select ARCH_HAS_SYNC_DMA_FOR_CPU
+ 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
+ 	select ARCH_WANT_FRAME_POINTERS if FTRACE
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 47098ccd715e..8ba434287387 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -46,10 +46,6 @@ extern int sysctl_page_lock_unfairness;
  
--void
-+void __init
- trap_init(void)
- {
- 	/* Tell PAL-code what global pointer we want in the kernel.  */
-diff --git a/arch/arc/kernel/traps.c b/arch/arc/kernel/traps.c
-index 57235e5c0cea..6b83e3f2b41c 100644
---- a/arch/arc/kernel/traps.c
-+++ b/arch/arc/kernel/traps.c
-@@ -20,11 +20,6 @@
- #include <asm/unaligned.h>
- #include <asm/kprobes.h>
+ void init_mm_internals(void);
  
--void __init trap_init(void)
--{
--	return;
--}
+-#ifndef ARCH_HAS_FIRST_USER_ADDRESS
+-#define FIRST_USER_ADDRESS	0UL
+-#endif
 -
- void die(const char *str, struct pt_regs *regs, unsigned long address)
- {
- 	show_kernel_fault_diag(str, regs, address);
-diff --git a/arch/arm/kernel/traps.c b/arch/arm/kernel/traps.c
-index 17d5a785df28..9baccef20392 100644
---- a/arch/arm/kernel/traps.c
-+++ b/arch/arm/kernel/traps.c
-@@ -780,11 +780,6 @@ void abort(void)
- 	panic("Oops failed to kill thread");
- }
+ #ifndef CONFIG_NEED_MULTIPLE_NODES	/* Don't use mapnrs, do it properly */
+ extern unsigned long max_mapnr;
  
--void __init trap_init(void)
--{
--	return;
--}
--
- #ifdef CONFIG_KUSER_HELPERS
- static void __init kuser_init(void *vectors)
- {
-diff --git a/arch/h8300/kernel/traps.c b/arch/h8300/kernel/traps.c
-index 5d8b969cd8f3..c3a3ebf77fbb 100644
---- a/arch/h8300/kernel/traps.c
-+++ b/arch/h8300/kernel/traps.c
-@@ -30,19 +30,6 @@
+diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
+index 5e772392a379..f3da6a5cc35a 100644
+--- a/include/linux/pgtable.h
++++ b/include/linux/pgtable.h
+@@ -28,6 +28,10 @@
+ #define USER_PGTABLES_CEILING	0UL
+ #endif
  
- static DEFINE_SPINLOCK(die_lock);
- 
--/*
-- * this must be called very early as the kernel might
-- * use some instruction that are emulated on the 060
-- */
--
--void __init base_trap_init(void)
--{
--}
--
--void __init trap_init(void)
--{
--}
--
- asmlinkage void set_esp0(unsigned long ssp)
- {
- 	current->thread.esp0 = ssp;
-diff --git a/arch/hexagon/kernel/traps.c b/arch/hexagon/kernel/traps.c
-index 904134b37232..edfc35dafeb1 100644
---- a/arch/hexagon/kernel/traps.c
-+++ b/arch/hexagon/kernel/traps.c
-@@ -28,10 +28,6 @@
- #define TRAP_SYSCALL	1
- #define TRAP_DEBUG	0xdb
- 
--void __init trap_init(void)
--{
--}
--
- #ifdef CONFIG_GENERIC_BUG
- /* Maybe should resemble arch/sh/kernel/traps.c ?? */
- int is_valid_bugaddr(unsigned long addr)
-diff --git a/arch/microblaze/kernel/traps.c b/arch/microblaze/kernel/traps.c
-index 94b6fe93147d..7c15704fe56e 100644
---- a/arch/microblaze/kernel/traps.c
-+++ b/arch/microblaze/kernel/traps.c
-@@ -18,7 +18,7 @@
- #include <asm/exceptions.h>
- #include <asm/unwind.h>
- 
--void trap_init(void)
-+void __init trap_init(void)
- {
- 	__enable_hw_exceptions();
- }
-diff --git a/arch/nds32/kernel/traps.c b/arch/nds32/kernel/traps.c
-index ee0d9ae192a5..f06421c645af 100644
---- a/arch/nds32/kernel/traps.c
-+++ b/arch/nds32/kernel/traps.c
-@@ -183,11 +183,6 @@ void __pgd_error(const char *file, int line, unsigned long val)
- }
- 
- extern char *exception_vector, *exception_vector_end;
--void __init trap_init(void)
--{
--	return;
--}
--
- void __init early_trap_init(void)
- {
- 	unsigned long ivb = 0;
-diff --git a/arch/nios2/kernel/traps.c b/arch/nios2/kernel/traps.c
-index b172da4eb1a9..596986a74a26 100644
---- a/arch/nios2/kernel/traps.c
-+++ b/arch/nios2/kernel/traps.c
-@@ -105,11 +105,6 @@ void show_stack(struct task_struct *task, unsigned long *stack,
- 	printk("%s\n", loglvl);
- }
- 
--void __init trap_init(void)
--{
--	/* Nothing to do here */
--}
--
- /* Breakpoint handler */
- asmlinkage void breakpoint_c(struct pt_regs *fp)
- {
-diff --git a/arch/openrisc/kernel/traps.c b/arch/openrisc/kernel/traps.c
-index 4d61333c2623..aa1e709405ac 100644
---- a/arch/openrisc/kernel/traps.c
-+++ b/arch/openrisc/kernel/traps.c
-@@ -231,11 +231,6 @@ void unhandled_exception(struct pt_regs *regs, int ea, int vector)
- 	die("Oops", regs, 9);
- }
- 
--void __init trap_init(void)
--{
--	/* Nothing needs to be done */
--}
--
- asmlinkage void do_trap(struct pt_regs *regs, unsigned long address)
- {
- 	force_sig_fault(SIGTRAP, TRAP_BRKPT, (void __user *)regs->pc);
-diff --git a/arch/parisc/kernel/traps.c b/arch/parisc/kernel/traps.c
-index 8d8441d4562a..747c328fb886 100644
---- a/arch/parisc/kernel/traps.c
-+++ b/arch/parisc/kernel/traps.c
-@@ -859,7 +859,3 @@ void  __init early_trap_init(void)
- 
- 	initialize_ivt(&fault_vector_20);
- }
--
--void __init trap_init(void)
--{
--}
-diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
-index a44a30b0688c..e952bee89684 100644
---- a/arch/powerpc/kernel/traps.c
-+++ b/arch/powerpc/kernel/traps.c
-@@ -2207,11 +2207,6 @@ DEFINE_INTERRUPT_HANDLER(kernel_bad_stack)
- 	die("Bad kernel stack pointer", regs, SIGABRT);
- }
- 
--void __init trap_init(void)
--{
--}
--
--
- #ifdef CONFIG_PPC_EMULATED_STATS
- 
- #define WARN_EMULATED_SETUP(type)	.type = { .name = #type }
-diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
-index 0879b5df11b9..b3f3d84de779 100644
---- a/arch/riscv/kernel/traps.c
-+++ b/arch/riscv/kernel/traps.c
-@@ -194,8 +194,3 @@ int is_valid_bugaddr(unsigned long pc)
- 		return ((insn & __COMPRESSED_INSN_MASK) == __BUG_INSN_16);
- }
- #endif /* CONFIG_GENERIC_BUG */
--
--/* stvec & scratch is already set from head.S */
--void trap_init(void)
--{
--}
-diff --git a/arch/sparc/kernel/traps_32.c b/arch/sparc/kernel/traps_32.c
-index 247a0d9683b2..c4df20ec01e2 100644
---- a/arch/sparc/kernel/traps_32.c
-+++ b/arch/sparc/kernel/traps_32.c
-@@ -365,7 +365,7 @@ EXPORT_SYMBOL(do_BUG);
-  * up here so that timer interrupts work during initialization.
-  */
- 
--void trap_init(void)
-+void __init trap_init(void)
- {
- 	extern void thread_info_offsets_are_bolixed_pete(void);
- 
-diff --git a/arch/um/kernel/trap.c b/arch/um/kernel/trap.c
-index ad12f78bda7e..3198c4767387 100644
---- a/arch/um/kernel/trap.c
-+++ b/arch/um/kernel/trap.c
-@@ -311,7 +311,3 @@ void winch(int sig, struct siginfo *unused_si, struct uml_pt_regs *regs)
- {
- 	do_IRQ(WINCH_IRQ, regs);
- }
--
--void trap_init(void)
--{
--}
-diff --git a/init/main.c b/init/main.c
-index 53b278845b88..8d14674c4e00 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -779,6 +779,8 @@ void __init __weak poking_init(void) { }
- 
- void __init __weak pgtable_cache_init(void) { }
- 
-+void __init __weak trap_init(void) { }
++#ifndef FIRST_USER_ADDRESS
++#define FIRST_USER_ADDRESS	0UL
++#endif
 +
- bool initcall_debug;
- core_param(initcall_debug, initcall_debug, bool, 0644);
+ /*
+  * A page table page can be thought of an array like this: pXd_t[PTRS_PER_PxD]
+  *
+diff --git a/mm/Kconfig b/mm/Kconfig
+index 373fbe377075..4494501aa403 100644
+--- a/mm/Kconfig
++++ b/mm/Kconfig
+@@ -807,9 +807,6 @@ config VMAP_PFN
+ config ARCH_USES_HIGH_VMA_FLAGS
+ 	bool
+ 
+-config ARCH_HAS_FIRST_USER_ADDRESS
+-	bool
+-
+ config ARCH_HAS_PKEYS
+ 	bool
  
 -- 
-2.31.0
-
+2.20.1
