@@ -1,52 +1,66 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 19 Apr 2021 09:05:20 +0900
-Subject: [OpenRISC] [PATCH 0/4] OpenRISC large binary fixes
-Message-ID: <20210419000524.3625897-1-shorne@gmail.com>
+Date: Mon, 19 Apr 2021 09:05:21 +0900
+Subject: [OpenRISC] [PATCH 1/4] or1k: Fix issue with plt link failure for
+ local calls
+In-Reply-To: <20210419000524.3625897-1-shorne@gmail.com>
+References: <20210419000524.3625897-1-shorne@gmail.com>
+Message-ID: <20210419000524.3625897-2-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-These are several fixes to OpenRISC BFD to handle issues mostly related to
-linking large files.
+When building protobuf we were seeing the assert failure:
 
-There will be a GCC patch then depends on this, a new -mcmodel=large argument is
-added to GCC to allow creating GOT relocation values larger than 64k.
+    /home/giuliobenetti/git/upstream/or1k-binutils-2.36.1/host/lib/gcc/or1k-buildroot-linux-uclibc/9.3.0/../../../../or1k-buildroot-linux-uclibc/bin/ld:
+    BFD (GNU Binutils) 2.36.1 assertion fail elf32-or1k.c:2377
+    /home/giuliobenetti/git/upstream/or1k-binutils-2.36.1/host/lib/gcc/or1k-buildroot-linux-uclibc/9.3.0/../../../../or1k-buildroot-linux-uclibc/bin/ld:
+    BFD (GNU Binutils) 2.36.1 assertion fail elf32-or1k.c:2377
+    /home/giuliobenetti/git/upstream/or1k-binutils-2.36.1/host/lib/gcc/or1k-buildroot-linux-uclibc/9.3.0/../../../../or1k-buildroot-linux-uclibc/bin/ld:
+    BFD (GNU Binutils) 2.36.1 assertion fail elf32-or1k.c:2377
+    collect2: error: ld returned 1 exit status
 
-The series fixes 3 issues:
+This failure happens while writing out PLT entries, there is a check
+"BFD_ASSERT (h->dynindx != -1)" to confirm all plt entries have dynamic
+symbol attributes.  This was failing for symbols that were
+"forced_local" in previous linking code.
 
- * PR 27624 - Assertion failure when dynamic symol is localized
- * PR 21464 - GOT relocation truncation.
- * PR 27746 - Issue with silent overlows in PLT code.
+The fix adds logic to or1k_elf_adjust_dynamic_symbol to identify
+"forced_local" symbols and exclude them from the the PLT.
 
-Stafford Horne (4):
-  or1k: Fix issue with plt link failure for local calls
-  or1k: Implement relocation R_OR1K_GOT_AHI16 for gotha()
-  or1k: Support cmodel=large when generating plt code
-  or1k: Fail link if the PLT relocation overflows
+bfd/ChangeLog:
 
- bfd/bfd-in2.h                     |   1 +
- bfd/elf32-or1k.c                  | 182 ++++++++++++++++++++++--------
- bfd/libbfd.h                      |   1 +
- bfd/reloc.c                       |   2 +
- cpu/or1k.opc                      |   7 +-
- gas/testsuite/gas/or1k/reloc-1.d  |   4 +-
- gas/testsuite/gas/or1k/reloc-1.s  |   4 +
- include/elf/or1k.h                |   1 +
- ld/testsuite/ld-or1k/or1k.exp     |   8 ++
- ld/testsuite/ld-or1k/pltlarge1.dd |  38 +++++++
- ld/testsuite/ld-or1k/pltlarge1.s  |  24 ++++
- ld/testsuite/ld-or1k/pltlarge2.dd |  39 +++++++
- ld/testsuite/ld-or1k/pltlarge2.s  |  25 ++++
- ld/testsuite/ld-or1k/pltlib.s     |   1 +
- opcodes/or1k-asm.c                |   7 +-
- 15 files changed, 296 insertions(+), 48 deletions(-)
- create mode 100644 ld/testsuite/ld-or1k/pltlarge1.dd
- create mode 100644 ld/testsuite/ld-or1k/pltlarge1.s
- create mode 100644 ld/testsuite/ld-or1k/pltlarge2.dd
- create mode 100644 ld/testsuite/ld-or1k/pltlarge2.s
+	PR 27624
+	* elf32-or1k.c (or1k_elf_adjust_dynamic_symbol): Change
+	condition used to cleanup plt entries to cleanup forced local
+	entries.
 
+Cc: Giulio Benetti <giulio.benetti@benettiengineering.com>
+---
+ bfd/elf32-or1k.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/bfd/elf32-or1k.c b/bfd/elf32-or1k.c
+index 013deb406f8..cc6c51220e5 100644
+--- a/bfd/elf32-or1k.c
++++ b/bfd/elf32-or1k.c
+@@ -2566,11 +2566,10 @@ or1k_elf_adjust_dynamic_symbol (struct bfd_link_info *info,
+   if (h->type == STT_FUNC
+       || h->needs_plt)
+     {
+-      if (! bfd_link_pic (info)
+-	  && !h->def_dynamic
+-	  && !h->ref_dynamic
+-	  && h->root.type != bfd_link_hash_undefweak
+-	  && h->root.type != bfd_link_hash_undefined)
++      if (h->plt.refcount <= 0
++	  || (SYMBOL_CALLS_LOCAL (info, h)
++	  || (ELF_ST_VISIBILITY (h->other) != STV_DEFAULT
++	      && h->root.type == bfd_link_hash_undefweak)))
+ 	{
+ 	  /* This case can occur if we saw a PLT reloc in an input
+ 	     file, but the symbol was never referred to by a dynamic
 -- 
 2.26.2
 
