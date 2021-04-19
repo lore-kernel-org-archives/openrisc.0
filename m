@@ -1,44 +1,207 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 19 Apr 2021 09:05:24 +0900
-Subject: [OpenRISC] [PATCH 4/4] or1k: Fail link if the PLT relocation
- overflows
-In-Reply-To: <20210419000524.3625897-1-shorne@gmail.com>
-References: <20210419000524.3625897-1-shorne@gmail.com>
-Message-ID: <20210419000524.3625897-5-shorne@gmail.com>
+Date: Mon, 19 Apr 2021 09:10:34 +0900
+Subject: [OpenRISC] [PATCH] or1k: Add mcmodel option to handle large GOTs
+Message-ID: <20210419001034.3626375-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-bfd/ChangeLog:
+When building libgeos we get an error with:
 
-	PR 27746
-	* elf32-or1k.c (or1k_elf_finish_dynamic_symbol): Add condition
-	to check and fail if the PLT relocation overflows.
+    linux-uclibc/9.3.0/crtbeginS.o: in function `__do_global_dtors_aux':
+    crtstuff.c:(.text+0x118): relocation truncated to fit: R_OR1K_GOT16 against symbol `__cxa_finalize' defined in .text section in
+    /home/shorne/work/openrisc/3eb9f9d0f6d8274b2d19753c006bd83f7d536e3c/output/host/or1k-buildroot-linux-uclibc/sysroot/lib/libc.so.
+
+This is caused by GOT code having a limit of 64k.  In OpenRISC this
+looks to be the only relocation code pattern to be limited to 64k.
+
+This patch allows specifying a new option -mcmodel=large which can be
+used to generate 2 more instructions to construct 32-bit addresses for
+up to 4G GOTs.
+
+gcc/ChangeLog:
+
+	PR 99783
+	* config/or1k/or1k-opts.h: New file.
+	* config/or1k/or1k.c (or1k_legitimize_address_1, print_reloc):
+	Support generating gotha relocations if -mcmodel=large is
+	specified.
+	* config/or1k/or1k.h (TARGET_CMODEL_SMALL, TARGET_CMODEL_LARGE):
+	New macros.
+	* config/or1k/or1k.opt (mcmodel=): New option.
+	* doc/invoke.text (OpenRISC Options): Document mcmodel.
 ---
- bfd/elf32-or1k.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
 
-diff --git a/bfd/elf32-or1k.c b/bfd/elf32-or1k.c
-index 1a5b3319646..6afacfa57cf 100644
---- a/bfd/elf32-or1k.c
-+++ b/bfd/elf32-or1k.c
-@@ -2453,6 +2453,14 @@ or1k_elf_finish_dynamic_symbol (bfd *output_bfd,
-       got_offset = (plt_index + 3) * 4;
-       got_addr = got_base_addr + got_offset;
- 
-+      if (!htab->saw_gotha && plt_reloc > 0xffff)
-+	{
-+	  _bfd_error_handler (_("%pB: plt relocation overflow when writing %s"),
-+		              output_bfd, h->root.root.string);
-+	  bfd_set_error (bfd_error_bad_value);
-+	  return false;
-+	}
+This depends on the binutils-gdb patch sent here:
+ - https://sourceware.org/pipermail/binutils/2021-April/116155.html
+
+ gcc/config/or1k/or1k-opts.h | 30 ++++++++++++++++++++++++++++++
+ gcc/config/or1k/or1k.c      | 11 +++++++++--
+ gcc/config/or1k/or1k.h      |  7 +++++++
+ gcc/config/or1k/or1k.opt    | 19 +++++++++++++++++++
+ gcc/doc/invoke.texi         | 12 +++++++++++-
+ 5 files changed, 76 insertions(+), 3 deletions(-)
+ create mode 100644 gcc/config/or1k/or1k-opts.h
+
+diff --git a/gcc/config/or1k/or1k-opts.h b/gcc/config/or1k/or1k-opts.h
+new file mode 100644
+index 00000000000..f791b894fdd
+--- /dev/null
++++ b/gcc/config/or1k/or1k-opts.h
+@@ -0,0 +1,30 @@
++/* Definitions for option handling for OpenRISC.
++   Copyright (C) 2021 Free Software Foundation, Inc.
++   Contributed by Stafford Horne.
 +
-       /* Fill in the entry in the procedure linkage table.  */
-       if (htab->saw_plta)
- 	{
++   This file is part of GCC.
++
++   GCC is free software; you can redistribute it and/or modify it
++   under the terms of the GNU General Public License as published
++   by the Free Software Foundation; either version 3, or (at your
++   option) any later version.
++
++   GCC is distributed in the hope that it will be useful, but WITHOUT
++   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
++   or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
++   License for more details.
++
++   You should have received a copy of the GNU General Public License
++   along with GCC; see the file COPYING3.  If not see
++   <http://www.gnu.org/licenses/>.  */
++
++#ifndef GCC_OR1K_OPTS_H
++#define GCC_OR1K_OPTS_H
++
++/* The OpenRISC code generation models available.  */
++enum or1k_cmodel_type {
++  CMODEL_SMALL,
++  CMODEL_LARGE
++};
++
++#endif /* GCC_OR1K_OPTS_H */
+diff --git a/gcc/config/or1k/or1k.c b/gcc/config/or1k/or1k.c
+index e772a7addea..27d3fa17995 100644
+--- a/gcc/config/or1k/or1k.c
++++ b/gcc/config/or1k/or1k.c
+@@ -750,7 +750,14 @@ or1k_legitimize_address_1 (rtx x, rtx scratch)
+ 	    {
+ 	      base = gen_sym_unspec (base, UNSPEC_GOT);
+ 	      crtl->uses_pic_offset_table = 1;
+-	      t2 = gen_rtx_LO_SUM (Pmode, pic_offset_table_rtx, base);
++	      if (TARGET_CMODEL_LARGE)
++		{
++	          emit_insn (gen_rtx_SET (t1, gen_rtx_HIGH (Pmode, base)));
++	          emit_insn (gen_add3_insn (t1, t1, pic_offset_table_rtx));
++	          t2 = gen_rtx_LO_SUM (Pmode, t1, base);
++		}
++	      else
++	        t2 = gen_rtx_LO_SUM (Pmode, pic_offset_table_rtx, base);
+ 	      t2 = gen_const_mem (Pmode, t2);
+ 	      emit_insn (gen_rtx_SET (t1, t2));
+ 	      base = t1;
+@@ -1089,7 +1096,7 @@ print_reloc (FILE *stream, rtx x, HOST_WIDE_INT add, reloc_kind kind)
+      no special markup.  */
+   static const char * const relocs[RKIND_MAX][RTYPE_MAX] = {
+     { "lo", "got", "gotofflo", "tpofflo", "gottpofflo", "tlsgdlo" },
+-    { "ha", NULL,  "gotoffha", "tpoffha", "gottpoffha", "tlsgdhi" },
++    { "ha", "gotha", "gotoffha", "tpoffha", "gottpoffha", "tlsgdhi" },
+   };
+   reloc_type type = RTYPE_DIRECT;
+ 
+diff --git a/gcc/config/or1k/or1k.h b/gcc/config/or1k/or1k.h
+index fe01ab81ead..669907e7e74 100644
+--- a/gcc/config/or1k/or1k.h
++++ b/gcc/config/or1k/or1k.h
+@@ -21,6 +21,8 @@
+ #ifndef GCC_OR1K_H
+ #define GCC_OR1K_H
+ 
++#include "config/or1k/or1k-opts.h"
++
+ /* Names to predefine in the preprocessor for this target machine.  */
+ #define TARGET_CPU_CPP_BUILTINS()		\
+   do						\
+@@ -37,6 +39,11 @@
+     }						\
+   while (0)
+ 
++#define TARGET_CMODEL_SMALL \
++  (or1k_code_model == CMODEL_SMALL)
++#define TARGET_CMODEL_LARGE \
++  (or1k_code_model == CMODEL_LARGE)
++
+ /* Storage layout.  */
+ 
+ #define DEFAULT_SIGNED_CHAR 1
+diff --git a/gcc/config/or1k/or1k.opt b/gcc/config/or1k/or1k.opt
+index 6bd0f3eee6d..cc23e3b8856 100644
+--- a/gcc/config/or1k/or1k.opt
++++ b/gcc/config/or1k/or1k.opt
+@@ -21,6 +21,9 @@
+ ; See the GCC internals manual (options.texi) for a description of
+ ; this file's format.
+ 
++HeaderInclude
++config/or1k/or1k-opts.h
++
+ mhard-div
+ Target RejectNegative InverseMask(SOFT_DIV)
+ Enable generation of hardware divide (l.div, l.divu) instructions.  This is the
+@@ -63,6 +66,22 @@ When -mhard-float is selected, enables generation of unordered floating point
+ compare and set flag (lf.sfun*) instructions.  By default functions from libgcc
+ are used to perform unordered floating point compare and set flag operations.
+ 
++mcmodel=
++Target RejectNegative Joined Enum(or1k_cmodel_type) Var(or1k_code_model) Init(CMODEL_SMALL)
++Specify the code model used for accessing memory addresses.  Specifying large
++enables generating binaries with large global offset tables.  By default the
++value is small.
++
++Enum
++Name(or1k_cmodel_type) Type(enum or1k_cmodel_type)
++Known code model types (for use with the -mcmodel= option):
++
++EnumValue
++Enum(or1k_cmodel_type) String(small) Value(CMODEL_SMALL)
++
++EnumValue
++Enum(or1k_cmodel_type) String(large) Value(CMODEL_LARGE)
++
+ mcmov
+ Target RejectNegative Mask(CMOV)
+ Enable generation of conditional move (l.cmov) instructions.  By default the
+diff --git a/gcc/doc/invoke.texi b/gcc/doc/invoke.texi
+index 096cebc8562..63cc4ec97db 100644
+--- a/gcc/doc/invoke.texi
++++ b/gcc/doc/invoke.texi
+@@ -1135,7 +1135,8 @@ Objective-C and Objective-C++ Dialects}.
+ @gccoptlist{-mboard=@var{name}  -mnewlib  -mhard-mul  -mhard-div @gol
+ -msoft-mul  -msoft-div @gol
+ -msoft-float  -mhard-float  -mdouble-float -munordered-float @gol
+--mcmov  -mror  -mrori  -msext  -msfimm  -mshftimm}
++-mcmov  -mror  -mrori  -msext  -msfimm  -mshftimm @gol
++-mcmodel=@var{code-model}}
+ 
+ @emph{PDP-11 Options}
+ @gccoptlist{-mfpu  -msoft-float  -mac0  -mno-ac0  -m40  -m45  -m10 @gol
+@@ -26406,6 +26407,15 @@ Enable generation of shift with immediate (@code{l.srai}, @code{l.srli},
+ @code{l.slli}) instructions.  By default extra instructions will be generated
+ to store the immediate to a register first.
+ 
++ at item -mcmodel=small
++ at opindex mcmodel=small
++Generate OpenRISC code for the small model: The GOT is limited to 64k. This is
++the default model.
++
++ at item -mcmodel=large
++ at opindex mcmodel=large
++Generate OpenRISC code for the large model: The GOT may grow up to 4G in size.
++
+ 
+ @end table
+ 
 -- 
 2.26.2
 
