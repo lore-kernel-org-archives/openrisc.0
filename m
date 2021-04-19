@@ -1,207 +1,76 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 19 Apr 2021 09:10:34 +0900
-Subject: [OpenRISC] [PATCH] or1k: Add mcmodel option to handle large GOTs
-Message-ID: <20210419001034.3626375-1-shorne@gmail.com>
+From: Giulio Benetti <giulio.benetti@benettiengineering.com>
+Date: Mon, 19 Apr 2021 11:26:32 +0200
+Subject: [OpenRISC] [PATCH 1/4] or1k: Fix issue with plt link failure
+ for local calls
+In-Reply-To: <20210419000524.3625897-2-shorne@gmail.com>
+References: <20210419000524.3625897-1-shorne@gmail.com>
+ <20210419000524.3625897-2-shorne@gmail.com>
+Message-ID: <901d949c-f056-c680-d011-25b0b6fc23e4@benettiengineering.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-When building libgeos we get an error with:
+Hi Stafford, All,
 
-    linux-uclibc/9.3.0/crtbeginS.o: in function `__do_global_dtors_aux':
-    crtstuff.c:(.text+0x118): relocation truncated to fit: R_OR1K_GOT16 against symbol `__cxa_finalize' defined in .text section in
-    /home/shorne/work/openrisc/3eb9f9d0f6d8274b2d19753c006bd83f7d536e3c/output/host/or1k-buildroot-linux-uclibc/sysroot/lib/libc.so.
+I've tested this patch succesfully rebuilding protobuf with Buildroot.
 
-This is caused by GOT code having a limit of 64k.  In OpenRISC this
-looks to be the only relocation code pattern to be limited to 64k.
-
-This patch allows specifying a new option -mcmodel=large which can be
-used to generate 2 more instructions to construct 32-bit addresses for
-up to 4G GOTs.
-
-gcc/ChangeLog:
-
-	PR 99783
-	* config/or1k/or1k-opts.h: New file.
-	* config/or1k/or1k.c (or1k_legitimize_address_1, print_reloc):
-	Support generating gotha relocations if -mcmodel=large is
-	specified.
-	* config/or1k/or1k.h (TARGET_CMODEL_SMALL, TARGET_CMODEL_LARGE):
-	New macros.
-	* config/or1k/or1k.opt (mcmodel=): New option.
-	* doc/invoke.text (OpenRISC Options): Document mcmodel.
----
-
-This depends on the binutils-gdb patch sent here:
- - https://sourceware.org/pipermail/binutils/2021-April/116155.html
-
- gcc/config/or1k/or1k-opts.h | 30 ++++++++++++++++++++++++++++++
- gcc/config/or1k/or1k.c      | 11 +++++++++--
- gcc/config/or1k/or1k.h      |  7 +++++++
- gcc/config/or1k/or1k.opt    | 19 +++++++++++++++++++
- gcc/doc/invoke.texi         | 12 +++++++++++-
- 5 files changed, 76 insertions(+), 3 deletions(-)
- create mode 100644 gcc/config/or1k/or1k-opts.h
-
-diff --git a/gcc/config/or1k/or1k-opts.h b/gcc/config/or1k/or1k-opts.h
-new file mode 100644
-index 00000000000..f791b894fdd
---- /dev/null
-+++ b/gcc/config/or1k/or1k-opts.h
-@@ -0,0 +1,30 @@
-+/* Definitions for option handling for OpenRISC.
-+   Copyright (C) 2021 Free Software Foundation, Inc.
-+   Contributed by Stafford Horne.
-+
-+   This file is part of GCC.
-+
-+   GCC is free software; you can redistribute it and/or modify it
-+   under the terms of the GNU General Public License as published
-+   by the Free Software Foundation; either version 3, or (at your
-+   option) any later version.
-+
-+   GCC is distributed in the hope that it will be useful, but WITHOUT
-+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-+   or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
-+   License for more details.
-+
-+   You should have received a copy of the GNU General Public License
-+   along with GCC; see the file COPYING3.  If not see
-+   <http://www.gnu.org/licenses/>.  */
-+
-+#ifndef GCC_OR1K_OPTS_H
-+#define GCC_OR1K_OPTS_H
-+
-+/* The OpenRISC code generation models available.  */
-+enum or1k_cmodel_type {
-+  CMODEL_SMALL,
-+  CMODEL_LARGE
-+};
-+
-+#endif /* GCC_OR1K_OPTS_H */
-diff --git a/gcc/config/or1k/or1k.c b/gcc/config/or1k/or1k.c
-index e772a7addea..27d3fa17995 100644
---- a/gcc/config/or1k/or1k.c
-+++ b/gcc/config/or1k/or1k.c
-@@ -750,7 +750,14 @@ or1k_legitimize_address_1 (rtx x, rtx scratch)
- 	    {
- 	      base = gen_sym_unspec (base, UNSPEC_GOT);
- 	      crtl->uses_pic_offset_table = 1;
--	      t2 = gen_rtx_LO_SUM (Pmode, pic_offset_table_rtx, base);
-+	      if (TARGET_CMODEL_LARGE)
-+		{
-+	          emit_insn (gen_rtx_SET (t1, gen_rtx_HIGH (Pmode, base)));
-+	          emit_insn (gen_add3_insn (t1, t1, pic_offset_table_rtx));
-+	          t2 = gen_rtx_LO_SUM (Pmode, t1, base);
-+		}
-+	      else
-+	        t2 = gen_rtx_LO_SUM (Pmode, pic_offset_table_rtx, base);
- 	      t2 = gen_const_mem (Pmode, t2);
- 	      emit_insn (gen_rtx_SET (t1, t2));
- 	      base = t1;
-@@ -1089,7 +1096,7 @@ print_reloc (FILE *stream, rtx x, HOST_WIDE_INT add, reloc_kind kind)
-      no special markup.  */
-   static const char * const relocs[RKIND_MAX][RTYPE_MAX] = {
-     { "lo", "got", "gotofflo", "tpofflo", "gottpofflo", "tlsgdlo" },
--    { "ha", NULL,  "gotoffha", "tpoffha", "gottpoffha", "tlsgdhi" },
-+    { "ha", "gotha", "gotoffha", "tpoffha", "gottpoffha", "tlsgdhi" },
-   };
-   reloc_type type = RTYPE_DIRECT;
- 
-diff --git a/gcc/config/or1k/or1k.h b/gcc/config/or1k/or1k.h
-index fe01ab81ead..669907e7e74 100644
---- a/gcc/config/or1k/or1k.h
-+++ b/gcc/config/or1k/or1k.h
-@@ -21,6 +21,8 @@
- #ifndef GCC_OR1K_H
- #define GCC_OR1K_H
- 
-+#include "config/or1k/or1k-opts.h"
-+
- /* Names to predefine in the preprocessor for this target machine.  */
- #define TARGET_CPU_CPP_BUILTINS()		\
-   do						\
-@@ -37,6 +39,11 @@
-     }						\
-   while (0)
- 
-+#define TARGET_CMODEL_SMALL \
-+  (or1k_code_model == CMODEL_SMALL)
-+#define TARGET_CMODEL_LARGE \
-+  (or1k_code_model == CMODEL_LARGE)
-+
- /* Storage layout.  */
- 
- #define DEFAULT_SIGNED_CHAR 1
-diff --git a/gcc/config/or1k/or1k.opt b/gcc/config/or1k/or1k.opt
-index 6bd0f3eee6d..cc23e3b8856 100644
---- a/gcc/config/or1k/or1k.opt
-+++ b/gcc/config/or1k/or1k.opt
-@@ -21,6 +21,9 @@
- ; See the GCC internals manual (options.texi) for a description of
- ; this file's format.
- 
-+HeaderInclude
-+config/or1k/or1k-opts.h
-+
- mhard-div
- Target RejectNegative InverseMask(SOFT_DIV)
- Enable generation of hardware divide (l.div, l.divu) instructions.  This is the
-@@ -63,6 +66,22 @@ When -mhard-float is selected, enables generation of unordered floating point
- compare and set flag (lf.sfun*) instructions.  By default functions from libgcc
- are used to perform unordered floating point compare and set flag operations.
- 
-+mcmodel=
-+Target RejectNegative Joined Enum(or1k_cmodel_type) Var(or1k_code_model) Init(CMODEL_SMALL)
-+Specify the code model used for accessing memory addresses.  Specifying large
-+enables generating binaries with large global offset tables.  By default the
-+value is small.
-+
-+Enum
-+Name(or1k_cmodel_type) Type(enum or1k_cmodel_type)
-+Known code model types (for use with the -mcmodel= option):
-+
-+EnumValue
-+Enum(or1k_cmodel_type) String(small) Value(CMODEL_SMALL)
-+
-+EnumValue
-+Enum(or1k_cmodel_type) String(large) Value(CMODEL_LARGE)
-+
- mcmov
- Target RejectNegative Mask(CMOV)
- Enable generation of conditional move (l.cmov) instructions.  By default the
-diff --git a/gcc/doc/invoke.texi b/gcc/doc/invoke.texi
-index 096cebc8562..63cc4ec97db 100644
---- a/gcc/doc/invoke.texi
-+++ b/gcc/doc/invoke.texi
-@@ -1135,7 +1135,8 @@ Objective-C and Objective-C++ Dialects}.
- @gccoptlist{-mboard=@var{name}  -mnewlib  -mhard-mul  -mhard-div @gol
- -msoft-mul  -msoft-div @gol
- -msoft-float  -mhard-float  -mdouble-float -munordered-float @gol
---mcmov  -mror  -mrori  -msext  -msfimm  -mshftimm}
-+-mcmov  -mror  -mrori  -msext  -msfimm  -mshftimm @gol
-+-mcmodel=@var{code-model}}
- 
- @emph{PDP-11 Options}
- @gccoptlist{-mfpu  -msoft-float  -mac0  -mno-ac0  -m40  -m45  -m10 @gol
-@@ -26406,6 +26407,15 @@ Enable generation of shift with immediate (@code{l.srai}, @code{l.srli},
- @code{l.slli}) instructions.  By default extra instructions will be generated
- to store the immediate to a register first.
- 
-+ at item -mcmodel=small
-+ at opindex mcmodel=small
-+Generate OpenRISC code for the small model: The GOT is limited to 64k. This is
-+the default model.
-+
-+ at item -mcmodel=large
-+ at opindex mcmodel=large
-+Generate OpenRISC code for the large model: The GOT may grow up to 4G in size.
-+
- 
- @end table
- 
+Best regards
 -- 
-2.26.2
+Giulio Benetti
+Benetti Engineering sas
+
+On 4/19/21 2:05 AM, Stafford Horne wrote:
+> When building protobuf we were seeing the assert failure:
+> 
+>      /home/giuliobenetti/git/upstream/or1k-binutils-2.36.1/host/lib/gcc/or1k-buildroot-linux-uclibc/9.3.0/../../../../or1k-buildroot-linux-uclibc/bin/ld:
+>      BFD (GNU Binutils) 2.36.1 assertion fail elf32-or1k.c:2377
+>      /home/giuliobenetti/git/upstream/or1k-binutils-2.36.1/host/lib/gcc/or1k-buildroot-linux-uclibc/9.3.0/../../../../or1k-buildroot-linux-uclibc/bin/ld:
+>      BFD (GNU Binutils) 2.36.1 assertion fail elf32-or1k.c:2377
+>      /home/giuliobenetti/git/upstream/or1k-binutils-2.36.1/host/lib/gcc/or1k-buildroot-linux-uclibc/9.3.0/../../../../or1k-buildroot-linux-uclibc/bin/ld:
+>      BFD (GNU Binutils) 2.36.1 assertion fail elf32-or1k.c:2377
+>      collect2: error: ld returned 1 exit status
+> 
+> This failure happens while writing out PLT entries, there is a check
+> "BFD_ASSERT (h->dynindx != -1)" to confirm all plt entries have dynamic
+> symbol attributes.  This was failing for symbols that were
+> "forced_local" in previous linking code.
+> 
+> The fix adds logic to or1k_elf_adjust_dynamic_symbol to identify
+> "forced_local" symbols and exclude them from the the PLT.
+> 
+> bfd/ChangeLog:
+> 
+> 	PR 27624
+> 	* elf32-or1k.c (or1k_elf_adjust_dynamic_symbol): Change
+> 	condition used to cleanup plt entries to cleanup forced local
+> 	entries.
+> 
+> Cc: Giulio Benetti <giulio.benetti@benettiengineering.com>
+> ---
+>   bfd/elf32-or1k.c | 9 ++++-----
+>   1 file changed, 4 insertions(+), 5 deletions(-)
+> 
+> diff --git a/bfd/elf32-or1k.c b/bfd/elf32-or1k.c
+> index 013deb406f8..cc6c51220e5 100644
+> --- a/bfd/elf32-or1k.c
+> +++ b/bfd/elf32-or1k.c
+> @@ -2566,11 +2566,10 @@ or1k_elf_adjust_dynamic_symbol (struct bfd_link_info *info,
+>     if (h->type == STT_FUNC
+>         || h->needs_plt)
+>       {
+> -      if (! bfd_link_pic (info)
+> -	  && !h->def_dynamic
+> -	  && !h->ref_dynamic
+> -	  && h->root.type != bfd_link_hash_undefweak
+> -	  && h->root.type != bfd_link_hash_undefined)
+> +      if (h->plt.refcount <= 0
+> +	  || (SYMBOL_CALLS_LOCAL (info, h)
+> +	  || (ELF_ST_VISIBILITY (h->other) != STV_DEFAULT
+> +	      && h->root.type == bfd_link_hash_undefweak)))
+>   	{
+>   	  /* This case can occur if we saw a PLT reloc in an input
+>   	     file, but the symbol was never referred to by a dynamic
+> 
 
