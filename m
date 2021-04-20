@@ -1,76 +1,107 @@
-From: Giulio Benetti <giulio.benetti@benettiengineering.com>
-Date: Mon, 19 Apr 2021 11:26:32 +0200
-Subject: [OpenRISC] [PATCH 1/4] or1k: Fix issue with plt link failure
- for local calls
-In-Reply-To: <20210419000524.3625897-2-shorne@gmail.com>
-References: <20210419000524.3625897-1-shorne@gmail.com>
- <20210419000524.3625897-2-shorne@gmail.com>
-Message-ID: <901d949c-f056-c680-d011-25b0b6fc23e4@benettiengineering.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Date: Tue, 20 Apr 2021 18:05:44 +0200
+Subject: [OpenRISC] [PATCH v4 19/20] mips: Convert to GENERIC_CMDLINE
+In-Reply-To: <20210409012349.GG3981976@zorba>
+References: <cover.1617375802.git.christophe.leroy@csgroup.eu>
+ <a01b6cdbae01fff77e26f7a5c40ee5260e1952b5.1617375802.git.christophe.leroy@csgroup.eu>
+ <20210406173836.GW2469518@zorba>
+ <20210408190408.GA1724284@robh.at.kernel.org>
+ <20210409012349.GG3981976@zorba>
+Message-ID: <d92f99bf-20b7-a4b6-3d86-5b859e42cad8@csgroup.eu>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-Hi Stafford, All,
 
-I've tested this patch succesfully rebuilding protobuf with Buildroot.
 
-Best regards
--- 
-Giulio Benetti
-Benetti Engineering sas
-
-On 4/19/21 2:05 AM, Stafford Horne wrote:
-> When building protobuf we were seeing the assert failure:
+Le 09/04/2021 à 03:23, Daniel Walker a écrit :
+> On Thu, Apr 08, 2021 at 02:04:08PM -0500, Rob Herring wrote:
+>> On Tue, Apr 06, 2021 at 10:38:36AM -0700, Daniel Walker wrote:
+>>> On Fri, Apr 02, 2021 at 03:18:21PM +0000, Christophe Leroy wrote:
+>>>> -config CMDLINE_BOOL
+>>>> -	bool "Built-in kernel command line"
+>>>> -	help
+>>>> -	  For most systems, it is firmware or second stage bootloader that
+>>>> -	  by default specifies the kernel command line options.  However,
+>>>> -	  it might be necessary or advantageous to either override the
+>>>> -	  default kernel command line or add a few extra options to it.
+>>>> -	  For such cases, this option allows you to hardcode your own
+>>>> -	  command line options directly into the kernel.  For that, you
+>>>> -	  should choose 'Y' here, and fill in the extra boot arguments
+>>>> -	  in CONFIG_CMDLINE.
+>>>> -
+>>>> -	  The built-in options will be concatenated to the default command
+>>>> -	  line if CMDLINE_OVERRIDE is set to 'N'. Otherwise, the default
+>>>> -	  command line will be ignored and replaced by the built-in string.
+>>>> -
+>>>> -	  Most MIPS systems will normally expect 'N' here and rely upon
+>>>> -	  the command line from the firmware or the second-stage bootloader.
+>>>> -
+>>>
+>>>
+>>> See how you complained that I have CMDLINE_BOOL in my changed, and you think it
+>>> shouldn't exist.
+>>>
+>>> Yet here mips has it, and you just deleted it with no feature parity in your
+>>> changes for this.
+>>
+>> AFAICT, CMDLINE_BOOL equates to a non-empty or empty CONFIG_CMDLINE. You
+>> seem to need it just because you have CMDLINE_PREPEND and
+>> CMDLINE_APPEND. If that's not it, what feature is missing? CMDLINE_BOOL
+>> is not a feature, but an implementation detail.
 > 
->      /home/giuliobenetti/git/upstream/or1k-binutils-2.36.1/host/lib/gcc/or1k-buildroot-linux-uclibc/9.3.0/../../../../or1k-buildroot-linux-uclibc/bin/ld:
->      BFD (GNU Binutils) 2.36.1 assertion fail elf32-or1k.c:2377
->      /home/giuliobenetti/git/upstream/or1k-binutils-2.36.1/host/lib/gcc/or1k-buildroot-linux-uclibc/9.3.0/../../../../or1k-buildroot-linux-uclibc/bin/ld:
->      BFD (GNU Binutils) 2.36.1 assertion fail elf32-or1k.c:2377
->      /home/giuliobenetti/git/upstream/or1k-binutils-2.36.1/host/lib/gcc/or1k-buildroot-linux-uclibc/9.3.0/../../../../or1k-buildroot-linux-uclibc/bin/ld:
->      BFD (GNU Binutils) 2.36.1 assertion fail elf32-or1k.c:2377
->      collect2: error: ld returned 1 exit status
+> Not true.
 > 
-> This failure happens while writing out PLT entries, there is a check
-> "BFD_ASSERT (h->dynindx != -1)" to confirm all plt entries have dynamic
-> symbol attributes.  This was failing for symbols that were
-> "forced_local" in previous linking code.
-> 
-> The fix adds logic to or1k_elf_adjust_dynamic_symbol to identify
-> "forced_local" symbols and exclude them from the the PLT.
-> 
-> bfd/ChangeLog:
-> 
-> 	PR 27624
-> 	* elf32-or1k.c (or1k_elf_adjust_dynamic_symbol): Change
-> 	condition used to cleanup plt entries to cleanup forced local
-> 	entries.
-> 
-> Cc: Giulio Benetti <giulio.benetti@benettiengineering.com>
-> ---
->   bfd/elf32-or1k.c | 9 ++++-----
->   1 file changed, 4 insertions(+), 5 deletions(-)
-> 
-> diff --git a/bfd/elf32-or1k.c b/bfd/elf32-or1k.c
-> index 013deb406f8..cc6c51220e5 100644
-> --- a/bfd/elf32-or1k.c
-> +++ b/bfd/elf32-or1k.c
-> @@ -2566,11 +2566,10 @@ or1k_elf_adjust_dynamic_symbol (struct bfd_link_info *info,
->     if (h->type == STT_FUNC
->         || h->needs_plt)
->       {
-> -      if (! bfd_link_pic (info)
-> -	  && !h->def_dynamic
-> -	  && !h->ref_dynamic
-> -	  && h->root.type != bfd_link_hash_undefweak
-> -	  && h->root.type != bfd_link_hash_undefined)
-> +      if (h->plt.refcount <= 0
-> +	  || (SYMBOL_CALLS_LOCAL (info, h)
-> +	  || (ELF_ST_VISIBILITY (h->other) != STV_DEFAULT
-> +	      && h->root.type == bfd_link_hash_undefweak)))
->   	{
->   	  /* This case can occur if we saw a PLT reloc in an input
->   	     file, but the symbol was never referred to by a dynamic
+> It makes it easier to turn it all off inside the Kconfig , so it's for usability
+> and multiple architecture have it even with just CMDLINE as I was commenting
+> here.
 > 
 
+Among the 13 architectures having CONFIG_CMDLINE, todayb only 6 have a CONFIG_CMDLINE_BOOL in addition:
+
+arch/arm/Kconfig:config CMDLINE
+arch/arm64/Kconfig:config CMDLINE
+arch/hexagon/Kconfig:config CMDLINE
+arch/microblaze/Kconfig:config CMDLINE
+arch/mips/Kconfig.debug:config CMDLINE
+arch/nios2/Kconfig:config CMDLINE
+arch/openrisc/Kconfig:config CMDLINE
+arch/powerpc/Kconfig:config CMDLINE
+arch/riscv/Kconfig:config CMDLINE
+arch/sh/Kconfig:config CMDLINE
+arch/sparc/Kconfig:config CMDLINE
+arch/x86/Kconfig:config CMDLINE
+arch/xtensa/Kconfig:config CMDLINE
+
+arch/microblaze/Kconfig:config CMDLINE_BOOL
+arch/mips/Kconfig.debug:config CMDLINE_BOOL
+arch/nios2/Kconfig:config CMDLINE_BOOL
+arch/sparc/Kconfig:config CMDLINE_BOOL
+arch/x86/Kconfig:config CMDLINE_BOOL
+arch/xtensa/Kconfig:config CMDLINE_BOOL
+
+
+In the begining I hesitated about the CMDLINE_BOOL, at the end I decided to go the same way as what 
+is done today in the kernel for initramfs with CONFIG_INITRAMFS_SOURCE.
+
+The problem I see within adding CONFIG_CMDLINE_BOOL for every architecture which don't have it today 
+is that when doing a "make oldconfig" on their custom configs, thousands of users will loose their 
+CMDLINE without notice.
+
+When we do the other way round, removing CONFIG_CMDLINE_BOOL on the 6 architectures that have it 
+today will have no impact on existing config.
+
+Also, in order to avoid tons of #ifdefs in the code as mandated by Kernel Codying Style §21, we have 
+to have CONFIG_CMDLINE defined at all time, so at the end CONFIG_CMDLINE_BOOL is really redundant 
+with an empty CONFIG_CMDLINE.
+
+Unlike you, the approach I took for my series is to minimise the impact on existing implementation 
+and existing configurations as much as possible.
+
+I know you have a different approach where you break every existing config anyway.
+
+https://www.kernel.org/doc/html/latest/process/coding-style.html#conditional-compilation
+
+Christophe
