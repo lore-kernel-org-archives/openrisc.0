@@ -1,37 +1,52 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 21 Apr 2021 06:53:34 +0900
-Subject: [OpenRISC] [PATCH 0/4] OpenRISC large binary fixes
-In-Reply-To: <20210419000524.3625897-1-shorne@gmail.com>
-References: <20210419000524.3625897-1-shorne@gmail.com>
-Message-ID: <20210420215334.GN3288043@lianli.shorne-pla.net>
+Date: Wed, 21 Apr 2021 09:12:09 +0900
+Subject: [OpenRISC] [PATCH] or1k: Add mcmodel option to handle large GOTs
+In-Reply-To: <9b45b7ef-fce1-84dc-3a86-76801b26de08@gmail.com>
+References: <20210419001034.3626375-1-shorne@gmail.com>
+ <9b45b7ef-fce1-84dc-3a86-76801b26de08@gmail.com>
+Message-ID: <20210421001209.GO3288043@lianli.shorne-pla.net>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Apr 19, 2021 at 09:05:20AM +0900, Stafford Horne wrote:
-> These are several fixes to OpenRISC BFD to handle issues mostly related to
-> linking large files.
+On Tue, Apr 20, 2021 at 05:20:39PM -0600, Jeff Law wrote:
 > 
-> There will be a GCC patch then depends on this, a new -mcmodel=large argument is
-> added to GCC to allow creating GOT relocation values larger than 64k.
+> On 4/18/2021 6:10 PM, Stafford Horne via Gcc-patches wrote:
+> > When building libgeos we get an error with:
+> > 
+> >      linux-uclibc/9.3.0/crtbeginS.o: in function `__do_global_dtors_aux':
+> >      crtstuff.c:(.text+0x118): relocation truncated to fit: R_OR1K_GOT16 against symbol `__cxa_finalize' defined in .text section in
+> >      /home/shorne/work/openrisc/3eb9f9d0f6d8274b2d19753c006bd83f7d536e3c/output/host/or1k-buildroot-linux-uclibc/sysroot/lib/libc.so.
+> > 
+> > This is caused by GOT code having a limit of 64k.  In OpenRISC this
+> > looks to be the only relocation code pattern to be limited to 64k.
+> > 
+> > This patch allows specifying a new option -mcmodel=large which can be
+> > used to generate 2 more instructions to construct 32-bit addresses for
+> > up to 4G GOTs.
+> > 
+> > gcc/ChangeLog:
+> > 
+> > 	PR 99783
+> > 	* config/or1k/or1k-opts.h: New file.
+> > 	* config/or1k/or1k.c (or1k_legitimize_address_1, print_reloc):
+> > 	Support generating gotha relocations if -mcmodel=large is
+> > 	specified.
+> > 	* config/or1k/or1k.h (TARGET_CMODEL_SMALL, TARGET_CMODEL_LARGE):
+> > 	New macros.
+> > 	* config/or1k/or1k.opt (mcmodel=): New option.
+> > 	* doc/invoke.text (OpenRISC Options): Document mcmodel.
 > 
-> The series fixes 3 issues:
-> 
->  * PR 27624 - Assertion failure when dynamic symol is localized
->  * PR 21464 - GOT relocation truncation.
->  * PR 27746 - Issue with silent overlows in PLT code.
+> Note you're the port maintainer, so you don't need approval to commit this
+> to GCC.
 
-As discussed offline with Giulio, this series does not properly fix the PR 21464
-issue.  I have fixed the issue and will post a v2 after I fix some other things
-uncovered...
+Thanks for confirming, I know that after Segher told me with some previous
+patches. :)
 
-Instead of using large PLTs whenever we see gotha() relocations, I will try to
-detect when the plt_relocation overflows and switch to use the large model then.
-
-This is needed as the gcc crtstuff will now always have gotha() relocations, with
-the current binutils this would cause the large PLT code to always be generated.
-We don't want that.
+For this series Giulio picked it up and tested it.  We found some issues and I
+am going to fix with a V2.  I should commit that version, after the binutils
+changes are in.
 
 -Stafford
