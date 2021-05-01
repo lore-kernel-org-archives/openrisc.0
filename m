@@ -1,262 +1,66 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun,  2 May 2021 06:02:15 +0900
-Subject: [OpenRISC] [PATCH v2 2/4] or1k: Implement relocation
- R_OR1K_GOT_AHI16 for gotha()
+Date: Sun,  2 May 2021 06:02:16 +0900
+Subject: [OpenRISC] [PATCH v2 3/4] or1k: Avoid R_OR1K_GOT16 overflow
+ failures in presence of R_OR1K_GOT_AHI16
 In-Reply-To: <20210501210217.2975268-1-shorne@gmail.com>
 References: <20210501210217.2975268-1-shorne@gmail.com>
-Message-ID: <20210501210217.2975268-3-shorne@gmail.com>
+Message-ID: <20210501210217.2975268-4-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The gotha() relocation mnemonic will be outputted by OpenRISC GCC when
-using the -mcmodel=large option.  This relocation is used along with
-got() to generate 32-bit GOT offsets.  This increases the previous GOT
-offset limit from the previous 16-bit (64K) limit.
+Now that we support R_OR1K_GOT_AHI16 we can relax the R_OR1K_GOT16
+overflow validation check if the section has R_OR1K_GOT_AHI16.
 
-This is needed on large binaries where the GOT grows larger than 64k.
+We cannot simple disable R_OR1K_GOT16 overflow validation as there will
+still be binaries that will have only R_OR1K_GOT16.  The
+R_OR1K_GOT_AHI16 relocation will only be added by GCC when building with
+the option -mcmodel=large.
+
+This assumes that R_OR1K_GOT_AHI16 will come before R_OR1K_GOT16, which
+is the code pattern that will be emitted by GCC.
 
 bfd/ChangeLog:
 
 	PR 21464
-	* bfd-in2.h: Add BFD_RELOC_OR1K_GOT_AHI16 relocation.
-	* elf32-or1k.c (or1k_elf_howto_table, or1k_reloc_map): Likewise.
-	(or1k_final_link_relocate, or1k_elf_relocate_section,
-	or1k_elf_check_relocs): Likewise.
-	* libbfd.h (bfd_reloc_code_real_names): Likewise.
-	* reloc.c: Likewise.
-
-cpu/ChangeLog:
-
-	PR 21464
-	* or1k.opc (or1k_imm16_relocs, parse_reloc): Define parse logic
-	for gotha() relocation.
-
-include/ChangeLog:
-
-	PR 21464
-	* elf/or1k.h (elf_or1k_reloc_type): Define R_OR1K_GOT_AHI16 number.
-
-opcodes/ChangeLog:
-
-	PR 21464
-	* or1k-asm.c: Regenerate.
-
-gas/ChangeLog:
-
-	PR 21464
-	* testsuite/gas/or1k/reloc-1.s: Add test for new relocation.
-	* testsuite/gas/or1k/reloc-1.d: Add test result for new
-	relocation.
-
-Cc: Giulio Benetti <giulio.benetti@benettiengineering.com>
-
-fixup reloc, add tests
+	* elf32-or1k.c (or1k_elf_relocate_section): Relax R_OR1K_GOT16
+	overflow check if we have R_OR1K_GOT_AHI16 followed by
+	R_OR1K_GOT16.
 ---
- bfd/bfd-in2.h                    |  1 +
- bfd/elf32-or1k.c                 | 21 ++++++++++++++++++++-
- bfd/libbfd.h                     |  1 +
- bfd/reloc.c                      |  2 ++
- cpu/or1k.opc                     |  7 ++++++-
- gas/testsuite/gas/or1k/reloc-1.d |  4 +++-
- gas/testsuite/gas/or1k/reloc-1.s |  4 ++++
- include/elf/or1k.h               |  1 +
- opcodes/or1k-asm.c               |  7 ++++++-
- 9 files changed, 44 insertions(+), 4 deletions(-)
+ bfd/elf32-or1k.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/bfd/bfd-in2.h b/bfd/bfd-in2.h
-index cdfb933e30d..ca1b3a537de 100644
---- a/bfd/bfd-in2.h
-+++ b/bfd/bfd-in2.h
-@@ -5031,6 +5031,7 @@ then it may be truncated to 8 bits.  */
-   BFD_RELOC_OR1K_TLS_TPOFF,
-   BFD_RELOC_OR1K_TLS_DTPOFF,
-   BFD_RELOC_OR1K_TLS_DTPMOD,
-+  BFD_RELOC_OR1K_GOT_AHI16,
- 
- /* H8 elf Relocations.  */
-   BFD_RELOC_H8_DIR16A8,
 diff --git a/bfd/elf32-or1k.c b/bfd/elf32-or1k.c
-index cc6c51220e5..1b8938df37f 100644
+index 1b8938df37f..5eca4300c45 100644
 --- a/bfd/elf32-or1k.c
 +++ b/bfd/elf32-or1k.c
-@@ -808,6 +808,20 @@ static reloc_howto_type or1k_elf_howto_table[] =
- 	 0,			/* Source Mask.  */
- 	 0x03ffffff,		/* Dest Mask.  */
- 	 true),			/* PC relative offset?  */
-+
-+  HOWTO (R_OR1K_GOT_AHI16,	/* type */
-+	 16,			/* rightshift */
-+	 2,			/* size (0 = byte, 1 = short, 2 = long) */
-+	 16,			/* bitsize */
-+	 false,			/* pc_relative */
-+	 0,			/* bitpos */
-+	 complain_overflow_signed, /* complain_on_overflow */
-+	 bfd_elf_generic_reloc, /* special_function */
-+	 "R_OR1K_GOT_AHI16",	/* name */
-+	 false,			/* partial_inplace */
-+	 0,			/* src_mask */
-+	 0xffff,		/* dst_mask */
-+	 false),		/* pcrel_offset */
- };
+@@ -1278,6 +1278,7 @@ or1k_elf_relocate_section (bfd *output_bfd,
+   asection *sgot, *splt;
+   bfd_vma plt_base, got_base, got_sym_value;
+   bool ret_val = true;
++  bool saw_gotha = false;
  
- /* Map BFD reloc types to Or1k ELF reloc types.  */
-@@ -871,6 +885,7 @@ static const struct or1k_reloc_map or1k_reloc_map[] =
-   { BFD_RELOC_OR1K_TLS_IE_LO13,	R_OR1K_TLS_IE_LO13 },
-   { BFD_RELOC_OR1K_SLO13,	R_OR1K_SLO13 },
-   { BFD_RELOC_OR1K_PLTA26,	R_OR1K_PLTA26 },
-+  { BFD_RELOC_OR1K_GOT_AHI16,	R_OR1K_GOT_AHI16 },
- };
- 
- /* tls_type is a mask used to track how each symbol is accessed,
-@@ -1111,6 +1126,7 @@ or1k_final_link_relocate (reloc_howto_type *howto, bfd *input_bfd,
-   switch (howto->type)
-     {
-     case R_OR1K_AHI16:
-+    case R_OR1K_GOT_AHI16:
-     case R_OR1K_GOTOFF_AHI16:
-     case R_OR1K_TLS_IE_AHI16:
-     case R_OR1K_TLS_LE_AHI16:
-@@ -1373,6 +1389,7 @@ or1k_elf_relocate_section (bfd *output_bfd,
- 	    }
- 	  break;
- 
-+	case R_OR1K_GOT_AHI16:
- 	case R_OR1K_GOT16:
- 	case R_OR1K_GOT_PG21:
- 	case R_OR1K_GOT_LO13:
-@@ -1464,7 +1481,8 @@ or1k_elf_relocate_section (bfd *output_bfd,
- 	    /* The GOT_PG21 and GOT_LO13 relocs are pc-relative,
- 	       while the GOT16 reloc is GOT relative.  */
- 	    relocation = got_base + off;
--	    if (r_type == R_OR1K_GOT16)
-+	    if (r_type == R_OR1K_GOT16
-+		|| r_type == R_OR1K_GOT_AHI16)
+   if (htab == NULL)
+     return false;
+@@ -1485,6 +1486,16 @@ or1k_elf_relocate_section (bfd *output_bfd,
+ 		|| r_type == R_OR1K_GOT_AHI16)
  	      relocation -= got_sym_value;
  
- 	  /* Addend should be zero.  */
-@@ -1990,6 +2008,7 @@ or1k_elf_check_relocs (bfd *abfd,
- 	    }
- 	  break;
- 
-+	case R_OR1K_GOT_AHI16:
- 	case R_OR1K_GOT16:
- 	case R_OR1K_GOT_PG21:
- 	case R_OR1K_GOT_LO13:
-diff --git a/bfd/libbfd.h b/bfd/libbfd.h
-index f1d25d0ab1f..793437ef260 100644
---- a/bfd/libbfd.h
-+++ b/bfd/libbfd.h
-@@ -2771,6 +2771,7 @@ static const char *const bfd_reloc_code_real_names[] = { "@@uninitialized@@",
-   "BFD_RELOC_OR1K_TLS_TPOFF",
-   "BFD_RELOC_OR1K_TLS_DTPOFF",
-   "BFD_RELOC_OR1K_TLS_DTPMOD",
-+  "BFD_RELOC_OR1K_GOT_AHI16",
-   "BFD_RELOC_H8_DIR16A8",
-   "BFD_RELOC_H8_DIR16R8",
-   "BFD_RELOC_H8_DIR24A8",
-diff --git a/bfd/reloc.c b/bfd/reloc.c
-index 2eb0758a82c..896c1723f8d 100644
---- a/bfd/reloc.c
-+++ b/bfd/reloc.c
-@@ -6204,6 +6204,8 @@ ENUMX
-   BFD_RELOC_OR1K_GOTPC_HI16
- ENUMX
-   BFD_RELOC_OR1K_GOTPC_LO16
-+ENUMX
-+  BFD_RELOC_OR1K_GOT_AHI16
- ENUMX
-   BFD_RELOC_OR1K_GOT16
- ENUMX
-diff --git a/cpu/or1k.opc b/cpu/or1k.opc
-index f0adcbb00a5..5d20a1f33a7 100644
---- a/cpu/or1k.opc
-+++ b/cpu/or1k.opc
-@@ -193,7 +193,7 @@ static const bfd_reloc_code_real_type or1k_imm16_relocs[][6] = {
-     BFD_RELOC_OR1K_GOT_LO13,
-     BFD_RELOC_UNUSED,
-     BFD_RELOC_UNUSED,
--    BFD_RELOC_UNUSED },
-+    BFD_RELOC_OR1K_GOT_AHI16 },
-   { BFD_RELOC_OR1K_GOTPC_LO16,
-     BFD_RELOC_UNUSED,
-     BFD_RELOC_UNUSED,
-@@ -296,6 +296,11 @@ parse_reloc (const char **strp)
- 	str += 5;
- 	cls = RCLASS_TPOFF;
-       }
-+    else if (strncasecmp (str, "got", 3) == 0)
-+      {
-+	str += 3;
-+	cls = RCLASS_GOT;
-+      }
- 
-     if (strncasecmp (str, "hi(", 3) == 0)
-       {
-diff --git a/gas/testsuite/gas/or1k/reloc-1.d b/gas/testsuite/gas/or1k/reloc-1.d
-index d1bcf5608bb..3a001c4ed99 100644
---- a/gas/testsuite/gas/or1k/reloc-1.d
-+++ b/gas/testsuite/gas/or1k/reloc-1.d
-@@ -68,5 +68,7 @@ OFFSET   TYPE              VALUE
- 000000ec R_OR1K_LO13       x
- 000000f0 R_OR1K_GOT_LO13   x
- 000000f4 R_OR1K_SLO13      x
--
-+000000f8 R_OR1K_GOT_AHI16  x
-+000000fc R_OR1K_GOT_AHI16  x
-+00000100 R_OR1K_GOT_AHI16  x
- 
-diff --git a/gas/testsuite/gas/or1k/reloc-1.s b/gas/testsuite/gas/or1k/reloc-1.s
-index e76abef6532..562609aa869 100644
---- a/gas/testsuite/gas/or1k/reloc-1.s
-+++ b/gas/testsuite/gas/or1k/reloc-1.s
-@@ -74,3 +74,7 @@
- 	l.lbz	r5,po(x)(r3)
- 	l.lbz	r5,gotpo(x)(r3)
- 	l.sb	po(x)(r3),r6
++	    if (r_type == R_OR1K_GOT_AHI16)
++	      saw_gotha = true;
 +
-+	l.movhi	r4,gotha(x)
-+	l.ori	r3,r4,gotha(x)
-+	l.addi	r3,r4,gotha(x)
-diff --git a/include/elf/or1k.h b/include/elf/or1k.h
-index 7f281481061..69ab90584a2 100644
---- a/include/elf/or1k.h
-+++ b/include/elf/or1k.h
-@@ -77,6 +77,7 @@ START_RELOC_NUMBERS (elf_or1k_reloc_type)
-   RELOC_NUMBER (R_OR1K_TLS_IE_LO13,   51)
-   RELOC_NUMBER (R_OR1K_SLO13,         52)
-   RELOC_NUMBER (R_OR1K_PLTA26,        53)
-+  RELOC_NUMBER (R_OR1K_GOT_AHI16,     54)
- END_RELOC_NUMBERS (R_OR1K_max)
- 
- #define EF_OR1K_NODELAY (1UL << 0)
-diff --git a/opcodes/or1k-asm.c b/opcodes/or1k-asm.c
-index 045ab6230b6..fdccf67f9e1 100644
---- a/opcodes/or1k-asm.c
-+++ b/opcodes/or1k-asm.c
-@@ -177,7 +177,7 @@ static const bfd_reloc_code_real_type or1k_imm16_relocs[][6] = {
-     BFD_RELOC_OR1K_GOT_LO13,
-     BFD_RELOC_UNUSED,
-     BFD_RELOC_UNUSED,
--    BFD_RELOC_UNUSED },
-+    BFD_RELOC_OR1K_GOT_AHI16 },
-   { BFD_RELOC_OR1K_GOTPC_LO16,
-     BFD_RELOC_UNUSED,
-     BFD_RELOC_UNUSED,
-@@ -280,6 +280,11 @@ parse_reloc (const char **strp)
- 	str += 5;
- 	cls = RCLASS_TPOFF;
-       }
-+    else if (strncasecmp (str, "got", 3) == 0)
-+      {
-+	str += 3;
-+	cls = RCLASS_GOT;
-+      }
- 
-     if (strncasecmp (str, "hi(", 3) == 0)
-       {
++	    /* If we have a R_OR1K_GOT16 followed by a R_OR1K_GOT_AHI16
++	       relocation we assume the code is doing the right thing to avoid
++	       overflows.  Here we mask the lower 16-bit of the relocation to
++	       avoid overflow validation failures.  */
++	    if (r_type == R_OR1K_GOT16 && saw_gotha)
++	      relocation &= 0xffff;
++
+ 	  /* Addend should be zero.  */
+ 	  if (rel->r_addend != 0)
+ 	    {
 -- 
 2.26.2
 
