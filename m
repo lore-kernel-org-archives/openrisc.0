@@ -1,66 +1,82 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sun,  2 May 2021 06:11:45 +0900
-Subject: [OpenRISC] [PATCH v2 2/2] or1k: Use cmodel=large when building
- crtstuff
-In-Reply-To: <20210501211145.2980164-1-shorne@gmail.com>
-References: <20210501211145.2980164-1-shorne@gmail.com>
-Message-ID: <20210501211145.2980164-3-shorne@gmail.com>
+From: Giulio Benetti <giulio.benetti@benettiengineering.com>
+Date: Sun, 2 May 2021 01:39:22 +0200
+Subject: [OpenRISC] [PATCH v2 0/4] OpenRISC large binary fixes
+In-Reply-To: <20210501210217.2975268-1-shorne@gmail.com>
+References: <20210501210217.2975268-1-shorne@gmail.com>
+Message-ID: <a78f03c5-cda7-6d88-1747-2ba4893f0356@benettiengineering.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-When linking gcc runtime objects into large binaries the link may fail
-with the below errors.  This will happen even if we are building with
--mcmodel=large.
+Hi Stafford,
 
-    /home/shorne/work/openrisc/output/host/lib/gcc/or1k-buildroot-linux-uclibc/10.3.0/crtbeginS.o: in function `deregister_tm_clones':
-    crtstuff.c:(.text+0x3c): relocation truncated to fit: R_OR1K_GOT16 against undefined symbol `_ITM_deregisterTMCloneTable'
-    /home/shorne/work/openrisc/output/host/lib/gcc/or1k-buildroot-linux-uclibc/10.3.0/crtbeginS.o: in function `register_tm_clones':
-    crtstuff.c:(.text+0xc0): relocation truncated to fit: R_OR1K_GOT16 against undefined symbol `_ITM_registerTMCloneTable'
+I've just back-ported to binutils 2.36.1 and tested in conjunction with 
+your gcc patches for -mcmodel=large and it works perfectly while 
+building libgeos. I've also checked with and without -mcmodel=large and
+it works correctly since without it it fails and with it it links correctly.
 
-This patch builds the gcc crtstuff binaries always with the
--mcmodel=large option to ensure they can be linked into large binaries.
+I'm going to back port it to:
+2.32
+2.34
+2.35.2
+too.
 
-libgcc/ChangeLog:
-
-	PR 99783
-	* config.host (or1k-*, tmake_file): Add or1k/t-crtstuff.
-	* config/or1k/t-crtstuff: New file.
----
- libgcc/config.host            | 4 ++--
- libgcc/config/or1k/t-crtstuff | 2 ++
- 2 files changed, 4 insertions(+), 2 deletions(-)
- create mode 100644 libgcc/config/or1k/t-crtstuff
-
-diff --git a/libgcc/config.host b/libgcc/config.host
-index f808b61be70..9e40d4560a3 100644
---- a/libgcc/config.host
-+++ b/libgcc/config.host
-@@ -1119,12 +1119,12 @@ nios2-*-*)
- 	extra_parts="$extra_parts crti.o crtn.o"
- 	;;
- or1k-*-linux*)
--	tmake_file="$tmake_file or1k/t-or1k"
-+	tmake_file="$tmake_file or1k/t-or1k or1k/t-crtstuff"
- 	tmake_file="$tmake_file t-softfp-sfdf t-softfp"
- 	md_unwind_header=or1k/linux-unwind.h
- 	;;
- or1k-*-*)
--	tmake_file="$tmake_file or1k/t-or1k"
-+	tmake_file="$tmake_file or1k/t-or1k or1k/t-crtstuff"
- 	tmake_file="$tmake_file t-softfp-sfdf t-softfp"
- 	;;
- pdp11-*-*)
-diff --git a/libgcc/config/or1k/t-crtstuff b/libgcc/config/or1k/t-crtstuff
-new file mode 100644
-index 00000000000..dcae7f3498e
---- /dev/null
-+++ b/libgcc/config/or1k/t-crtstuff
-@@ -0,0 +1,2 @@
-+# Compile crtbeginS.o and crtendS.o with -mcmodel=large
-+CRTSTUFF_T_CFLAGS_S += -mcmodel=large
+Thanks a lot and
+best regards
 -- 
-2.26.2
+Giulio Benetti
+Benetti Engineering sas
+
+On 5/1/21 11:02 PM, Stafford Horne wrote:
+> Changes since v1:
+>   - Replaced patches 3/4 with a different approach.  Instead of relying on seeing
+>     R_OR1K_GOT_AHI16 relocations to enable large plts, I just track the PLT entry
+>     count and switch to large PLT when we detect the overflow will occur.
+>   - Patch "Avoid R_OR1K_GOT16 overflow failures in presence of R_OR1K_GOT_AHI16"
+>     is the actual bug fix for 21464, which was missed in the original series.  We
+>     inhibit truncation detection when the low got() relocation is paired with the
+>     new high gotha() relocation.
+> 
+> These are several fixes to OpenRISC BFD to handle issues mostly related to
+> linking large files.
+> 
+> There will be a GCC patch then depends on this, a new -mcmodel=large argument is
+> added to GCC to allow creating GOT relocation values larger than 64k.
+> 
+> The series fixes 3 issues:
+> 
+>   * PR 27624 - Assertion failure when dynamic symol is localized
+>   * PR 21464 - GOT relocation truncation.
+>   * PR 27746 - Issue with silent overlows in PLT code.
+> 
+> Stafford Horne (4):
+>    or1k: Fix issue with plt link failure for local calls
+>    or1k: Implement relocation R_OR1K_GOT_AHI16 for gotha()
+>    or1k: Avoid R_OR1K_GOT16 overflow failures in presence of
+>      R_OR1K_GOT_AHI16
+>    or1k: Support large plt_relocs when generating plt entries
+> 
+>   bfd/bfd-in2.h                    |   1 +
+>   bfd/elf32-or1k.c                 | 190 +++++++++++++++++++++++--------
+>   bfd/libbfd.h                     |   1 +
+>   bfd/reloc.c                      |   2 +
+>   cpu/or1k.opc                     |   7 +-
+>   gas/testsuite/gas/or1k/reloc-1.d |   4 +-
+>   gas/testsuite/gas/or1k/reloc-1.s |   4 +
+>   include/elf/or1k.h               |   1 +
+>   ld/testsuite/ld-or1k/gotha1.dd   |  34 ++++++
+>   ld/testsuite/ld-or1k/gotha1.s    |  24 ++++
+>   ld/testsuite/ld-or1k/gotha2.dd   |  21 ++++
+>   ld/testsuite/ld-or1k/gotha2.s    |  22 ++++
+>   ld/testsuite/ld-or1k/or1k.exp    |   8 ++
+>   ld/testsuite/ld-or1k/pltlib.s    |   1 +
+>   opcodes/or1k-asm.c               |   7 +-
+>   15 files changed, 279 insertions(+), 48 deletions(-)
+>   create mode 100644 ld/testsuite/ld-or1k/gotha1.dd
+>   create mode 100644 ld/testsuite/ld-or1k/gotha1.s
+>   create mode 100644 ld/testsuite/ld-or1k/gotha2.dd
+>   create mode 100644 ld/testsuite/ld-or1k/gotha2.s
+> 
 
