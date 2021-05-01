@@ -1,62 +1,66 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun,  2 May 2021 06:02:13 +0900
-Subject: [OpenRISC] [PATCH v2 0/4] OpenRISC large binary fixes
-Message-ID: <20210501210217.2975268-1-shorne@gmail.com>
+Date: Sun,  2 May 2021 06:02:14 +0900
+Subject: [OpenRISC] [PATCH v2 1/4] or1k: Fix issue with plt link failure for
+ local calls
+In-Reply-To: <20210501210217.2975268-1-shorne@gmail.com>
+References: <20210501210217.2975268-1-shorne@gmail.com>
+Message-ID: <20210501210217.2975268-2-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Changes since v1:
- - Replaced patches 3/4 with a different approach.  Instead of relying on seeing
-   R_OR1K_GOT_AHI16 relocations to enable large plts, I just track the PLT entry
-   count and switch to large PLT when we detect the overflow will occur.
- - Patch "Avoid R_OR1K_GOT16 overflow failures in presence of R_OR1K_GOT_AHI16"
-   is the actual bug fix for 21464, which was missed in the original series.  We
-   inhibit truncation detection when the low got() relocation is paired with the
-   new high gotha() relocation.
+When building protobuf we were seeing the assert failure:
 
-These are several fixes to OpenRISC BFD to handle issues mostly related to
-linking large files.
+    /home/giuliobenetti/git/upstream/or1k-binutils-2.36.1/host/lib/gcc/or1k-buildroot-linux-uclibc/9.3.0/../../../../or1k-buildroot-linux-uclibc/bin/ld:
+    BFD (GNU Binutils) 2.36.1 assertion fail elf32-or1k.c:2377
+    /home/giuliobenetti/git/upstream/or1k-binutils-2.36.1/host/lib/gcc/or1k-buildroot-linux-uclibc/9.3.0/../../../../or1k-buildroot-linux-uclibc/bin/ld:
+    BFD (GNU Binutils) 2.36.1 assertion fail elf32-or1k.c:2377
+    /home/giuliobenetti/git/upstream/or1k-binutils-2.36.1/host/lib/gcc/or1k-buildroot-linux-uclibc/9.3.0/../../../../or1k-buildroot-linux-uclibc/bin/ld:
+    BFD (GNU Binutils) 2.36.1 assertion fail elf32-or1k.c:2377
+    collect2: error: ld returned 1 exit status
 
-There will be a GCC patch then depends on this, a new -mcmodel=large argument is
-added to GCC to allow creating GOT relocation values larger than 64k.
+This failure happens while writing out PLT entries, there is a check
+"BFD_ASSERT (h->dynindx != -1)" to confirm all plt entries have dynamic
+symbol attributes.  This was failing for symbols that were
+"forced_local" in previous linking code.
 
-The series fixes 3 issues:
+The fix adds logic to or1k_elf_adjust_dynamic_symbol to identify
+"forced_local" symbols and exclude them from the the PLT.
 
- * PR 27624 - Assertion failure when dynamic symol is localized
- * PR 21464 - GOT relocation truncation.
- * PR 27746 - Issue with silent overlows in PLT code.
+bfd/ChangeLog:
 
-Stafford Horne (4):
-  or1k: Fix issue with plt link failure for local calls
-  or1k: Implement relocation R_OR1K_GOT_AHI16 for gotha()
-  or1k: Avoid R_OR1K_GOT16 overflow failures in presence of
-    R_OR1K_GOT_AHI16
-  or1k: Support large plt_relocs when generating plt entries
+	PR 27624
+	* elf32-or1k.c (or1k_elf_adjust_dynamic_symbol): Change
+	condition used to cleanup plt entries to cleanup forced local
+	entries.
 
- bfd/bfd-in2.h                    |   1 +
- bfd/elf32-or1k.c                 | 190 +++++++++++++++++++++++--------
- bfd/libbfd.h                     |   1 +
- bfd/reloc.c                      |   2 +
- cpu/or1k.opc                     |   7 +-
- gas/testsuite/gas/or1k/reloc-1.d |   4 +-
- gas/testsuite/gas/or1k/reloc-1.s |   4 +
- include/elf/or1k.h               |   1 +
- ld/testsuite/ld-or1k/gotha1.dd   |  34 ++++++
- ld/testsuite/ld-or1k/gotha1.s    |  24 ++++
- ld/testsuite/ld-or1k/gotha2.dd   |  21 ++++
- ld/testsuite/ld-or1k/gotha2.s    |  22 ++++
- ld/testsuite/ld-or1k/or1k.exp    |   8 ++
- ld/testsuite/ld-or1k/pltlib.s    |   1 +
- opcodes/or1k-asm.c               |   7 +-
- 15 files changed, 279 insertions(+), 48 deletions(-)
- create mode 100644 ld/testsuite/ld-or1k/gotha1.dd
- create mode 100644 ld/testsuite/ld-or1k/gotha1.s
- create mode 100644 ld/testsuite/ld-or1k/gotha2.dd
- create mode 100644 ld/testsuite/ld-or1k/gotha2.s
+Cc: Giulio Benetti <giulio.benetti@benettiengineering.com>
+---
+ bfd/elf32-or1k.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
+diff --git a/bfd/elf32-or1k.c b/bfd/elf32-or1k.c
+index 013deb406f8..cc6c51220e5 100644
+--- a/bfd/elf32-or1k.c
++++ b/bfd/elf32-or1k.c
+@@ -2566,11 +2566,10 @@ or1k_elf_adjust_dynamic_symbol (struct bfd_link_info *info,
+   if (h->type == STT_FUNC
+       || h->needs_plt)
+     {
+-      if (! bfd_link_pic (info)
+-	  && !h->def_dynamic
+-	  && !h->ref_dynamic
+-	  && h->root.type != bfd_link_hash_undefweak
+-	  && h->root.type != bfd_link_hash_undefined)
++      if (h->plt.refcount <= 0
++	  || (SYMBOL_CALLS_LOCAL (info, h)
++	  || (ELF_ST_VISIBILITY (h->other) != STV_DEFAULT
++	      && h->root.type == bfd_link_hash_undefweak)))
+ 	{
+ 	  /* This case can occur if we saw a PLT reloc in an input
+ 	     file, but the symbol was never referred to by a dynamic
 -- 
 2.26.2
 
