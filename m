@@ -1,30 +1,27 @@
 From: Giulio Benetti <giulio.benetti@benettiengineering.com>
-Date: Sun, 2 May 2021 01:39:22 +0200
+Date: Mon, 3 May 2021 12:33:39 +0200
 Subject: [OpenRISC] [PATCH v2 0/4] OpenRISC large binary fixes
 In-Reply-To: <20210501210217.2975268-1-shorne@gmail.com>
 References: <20210501210217.2975268-1-shorne@gmail.com>
-Message-ID: <a78f03c5-cda7-6d88-1747-2ba4893f0356@benettiengineering.com>
+Message-ID: <76d04212-37f6-b5bd-03d6-c4c253ed1aa3@benettiengineering.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Stafford,
+Hi Stafford, All,
 
-I've just back-ported to binutils 2.36.1 and tested in conjunction with 
-your gcc patches for -mcmodel=large and it works perfectly while 
-building libgeos. I've also checked with and without -mcmodel=large and
-it works correctly since without it it fails and with it it links correctly.
+I've backported this patchset for Buildroot to versions:
+- 2.32
+- 2.34
+- 2.35.2
+- 2.36.1
 
-I'm going to back port it to:
-2.32
-2.34
-2.35.2
-too.
+Does it make sense to send them? I don't know if those version will have 
+minor versions where these backported patches can be applied.
 
-Thanks a lot and
-best regards
+Best regards
 -- 
 Giulio Benetti
 Benetti Engineering sas
