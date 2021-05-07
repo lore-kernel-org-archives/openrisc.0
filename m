@@ -1,148 +1,148 @@
-From: Chen Li <chenli@uniontech.com>
-Date: Fri, 07 May 2021 17:58:02 +0800
-Subject: [OpenRISC] [PATCH] mm: update legacy flush_tlb_* to use vma
-Message-ID: <87k0oaq311.wl-chenli@uniontech.com>
+From: Arnd Bergmann <arnd@kernel.org>
+Date: Sat,  8 May 2021 00:07:45 +0200
+Subject: [OpenRISC] [RFC 0/12] Unify asm/unaligned.h around struct helper
+Message-ID: <20210507220813.365382-1-arnd@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
+From: Arnd Bergmann <arnd@arndb.de>
 
-1. These tlb flush functions  have been using vma instead mm long time ago, but there
-is still some coments use mm as parameter.
+The get_unaligned()/put_unaligned() helpers are traditionally architecture
+specific, with the two main variants being the "access-ok.h" version
+that assumes unaligned pointer accesses always work on a particular
+architecture, and the "le-struct.h" version that casts the data to a
+byte aligned type before dereferencing, for architectures that cannot
+always do unaligned accesses in hardware.
 
-2. the actual struct we use is vm_area_struct instead of vma_struct.
+Based on the discussion linked below, it appears that the access-ok
+version is not realiable on any architecture, but the struct version
+probably has no downsides. This series changes the code to use the
+same implementation on all architectures, addressing the few exceptions
+separately.
 
-3. remove unused flush_kern_tlb_page.
+I've pushed the patches to the asm-generic git tree for testing.
 
-Signed-off-by: Chen Li <chenli@uniontech.com>
----
- arch/arm/include/asm/tlbflush.h      | 13 +++----------
- arch/arm/mm/tlb-v6.S                 |  2 +-
- arch/arm/mm/tlb-v7.S                 |  2 +-
- arch/ia64/kernel/efi_stub.S          |  2 +-
- arch/m68k/include/asm/tlbflush.h     |  2 +-
- arch/openrisc/include/asm/tlbflush.h |  2 +-
- arch/xtensa/include/asm/tlbflush.h   |  4 ++--
- 7 files changed, 10 insertions(+), 17 deletions(-)
+	Arnd
 
-diff --git a/arch/arm/include/asm/tlbflush.h b/arch/arm/include/asm/tlbflush.h
-index 24cbfc112dfa..0ccc985b90af 100644
---- a/arch/arm/include/asm/tlbflush.h
-+++ b/arch/arm/include/asm/tlbflush.h
-@@ -253,7 +253,7 @@ extern struct cpu_tlb_fns cpu_tlb;
-  *		space.
-  *		- mm	- mm_struct describing address space
-  *
-- *	flush_tlb_range(mm,start,end)
-+ *	flush_tlb_range(vma,start,end)
-  *
-  *		Invalidate a range of TLB entries in the specified
-  *		address space.
-@@ -261,18 +261,11 @@ extern struct cpu_tlb_fns cpu_tlb;
-  *		- start - start address (may not be aligned)
-  *		- end	- end address (exclusive, may not be aligned)
-  *
-- *	flush_tlb_page(vaddr,vma)
-+ *	flush_tlb_page(vma, uaddr)
-  *
-  *		Invalidate the specified page in the specified address range.
-+ *		- vma	- vm_area_struct describing address range
-  *		- vaddr - virtual address (may not be aligned)
-- *		- vma	- vma_struct describing address range
-- *
-- *	flush_kern_tlb_page(kaddr)
-- *
-- *		Invalidate the TLB entry for the specified page.  The address
-- *		will be in the kernels virtual memory space.  Current uses
-- *		only require the D-TLB to be invalidated.
-- *		- kaddr - Kernel virtual memory address
-  */
- 
- /*
-diff --git a/arch/arm/mm/tlb-v6.S b/arch/arm/mm/tlb-v6.S
-index 5335b9687297..74f4b383afe3 100644
---- a/arch/arm/mm/tlb-v6.S
-+++ b/arch/arm/mm/tlb-v6.S
-@@ -24,7 +24,7 @@
-  *
-  *	- start - start address (may not be aligned)
-  *	- end   - end address (exclusive, may not be aligned)
-- *	- vma   - vma_struct describing address range
-+ *	- vma   - vm_area_struct describing address range
-  *
-  *	It is assumed that:
-  *	- the "Invalidate single entry" instruction will invalidate
-diff --git a/arch/arm/mm/tlb-v7.S b/arch/arm/mm/tlb-v7.S
-index 1bb28d7db567..87bf4ab17721 100644
---- a/arch/arm/mm/tlb-v7.S
-+++ b/arch/arm/mm/tlb-v7.S
-@@ -23,7 +23,7 @@
-  *
-  *	- start - start address (may not be aligned)
-  *	- end   - end address (exclusive, may not be aligned)
-- *	- vma   - vma_struct describing address range
-+ *	- vma   - vm_area_struct describing address range
-  *
-  *	It is assumed that:
-  *	- the "Invalidate single entry" instruction will invalidate
-diff --git a/arch/ia64/kernel/efi_stub.S b/arch/ia64/kernel/efi_stub.S
-index 58233bb7976d..1fd61b78fb29 100644
---- a/arch/ia64/kernel/efi_stub.S
-+++ b/arch/ia64/kernel/efi_stub.S
-@@ -7,7 +7,7 @@
-  *
-  * This stub allows us to make EFI calls in physical mode with interrupts
-  * turned off.  We need this because we can't call SetVirtualMap() until
-- * the kernel has booted far enough to allow allocation of struct vma_struct
-+ * the kernel has booted far enough to allow allocation of struct vm_area_struct
-  * entries (which we would need to map stuff with memory attributes other
-  * than uncached or writeback...).  Since the GetTime() service gets called
-  * earlier than that, we need to be able to make physical mode EFI calls from
-diff --git a/arch/m68k/include/asm/tlbflush.h b/arch/m68k/include/asm/tlbflush.h
-index 5337bc2c262f..a6318ccd308f 100644
---- a/arch/m68k/include/asm/tlbflush.h
-+++ b/arch/m68k/include/asm/tlbflush.h
-@@ -263,7 +263,7 @@ static inline void flush_tlb_page(struct vm_area_struct *vma, unsigned long addr
- 	BUG();
- }
- 
--static inline void flush_tlb_range(struct mm_struct *mm,
-+static inline void flush_tlb_range(struct vm_area_struct *vma,
- 				   unsigned long start, unsigned long end)
- {
- 	BUG();
-diff --git a/arch/openrisc/include/asm/tlbflush.h b/arch/openrisc/include/asm/tlbflush.h
-index 185dcd3731ed..dbf030365ab4 100644
---- a/arch/openrisc/include/asm/tlbflush.h
-+++ b/arch/openrisc/include/asm/tlbflush.h
-@@ -25,7 +25,7 @@
-  *  - flush_tlb_all() flushes all processes TLBs
-  *  - flush_tlb_mm(mm) flushes the specified mm context TLB's
-  *  - flush_tlb_page(vma, vmaddr) flushes one page
-- *  - flush_tlb_range(mm, start, end) flushes a range of pages
-+ *  - flush_tlb_range(vma, start, end) flushes a range of pages
-  */
- extern void local_flush_tlb_all(void);
- extern void local_flush_tlb_mm(struct mm_struct *mm);
-diff --git a/arch/xtensa/include/asm/tlbflush.h b/arch/xtensa/include/asm/tlbflush.h
-index 856e2da2e397..573df8cea200 100644
---- a/arch/xtensa/include/asm/tlbflush.h
-+++ b/arch/xtensa/include/asm/tlbflush.h
-@@ -26,8 +26,8 @@
-  *
-  *  - flush_tlb_all() flushes all processes TLB entries
-  *  - flush_tlb_mm(mm) flushes the specified mm context TLB entries
-- *  - flush_tlb_page(mm, vmaddr) flushes a single page
-- *  - flush_tlb_range(mm, start, end) flushes a range of pages
-+ *  - flush_tlb_page(vma, page) flushes a single page
-+ *  - flush_tlb_range(vma, vmaddr, end) flushes a range of pages
-  */
- 
- void local_flush_tlb_all(void);
+Link: https://lore.kernel.org/lkml/75d07691-1e4f-741f-9852-38c0b4f520bc at synopsys.com/
+Link: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100363
+Link: git://git.kernel.org/pub/scm/linux/kernel/git/arnd/asm-generic.git unaligned-rework
+
+Arnd Bergmann (12):
+  asm-generic: use asm-generic/unaligned.h for most architectures
+  openrisc: always use unaligned-struct header
+  sh: remove unaligned access for sh4a
+  m68k: select CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+  powerpc: use linux/unaligned/le_struct.h on LE power7
+  asm-generic: unaligned: remove byteshift helpers
+  asm-generic: unaligned always use struct helpers
+  partitions: msdos: fix one-byte get_unaligned()
+  apparmor: use get_unaligned() only for multi-byte words
+  mwifiex: re-fix for unaligned accesses
+  netpoll: avoid put_unaligned() on single character
+  asm-generic: simplify asm/unaligned.h
+
+ arch/alpha/include/asm/unaligned.h          |  12 --
+ arch/arm/include/asm/unaligned.h            |  27 ---
+ arch/ia64/include/asm/unaligned.h           |  12 --
+ arch/m68k/Kconfig                           |   1 +
+ arch/m68k/include/asm/unaligned.h           |  26 ---
+ arch/microblaze/include/asm/unaligned.h     |  27 ---
+ arch/mips/crypto/crc32-mips.c               |   2 +-
+ arch/openrisc/include/asm/unaligned.h       |  47 -----
+ arch/parisc/include/asm/unaligned.h         |   6 +-
+ arch/powerpc/include/asm/unaligned.h        |  22 ---
+ arch/sh/include/asm/unaligned-sh4a.h        | 199 --------------------
+ arch/sh/include/asm/unaligned.h             |  13 --
+ arch/sparc/include/asm/unaligned.h          |  11 --
+ arch/x86/include/asm/unaligned.h            |  15 --
+ arch/xtensa/include/asm/unaligned.h         |  29 ---
+ block/partitions/ldm.h                      |   2 +-
+ block/partitions/msdos.c                    |   2 +-
+ drivers/net/wireless/marvell/mwifiex/pcie.c |  10 +-
+ include/asm-generic/unaligned.h             | 149 ++++++++++++---
+ include/linux/unaligned/access_ok.h         |  68 -------
+ include/linux/unaligned/be_byteshift.h      |  71 -------
+ include/linux/unaligned/be_memmove.h        |  37 ----
+ include/linux/unaligned/be_struct.h         |  37 ----
+ include/linux/unaligned/generic.h           | 115 -----------
+ include/linux/unaligned/le_byteshift.h      |  71 -------
+ include/linux/unaligned/le_memmove.h        |  37 ----
+ include/linux/unaligned/le_struct.h         |  37 ----
+ include/linux/unaligned/memmove.h           |  46 -----
+ net/core/netpoll.c                          |   4 +-
+ security/apparmor/policy_unpack.c           |   2 +-
+ 30 files changed, 137 insertions(+), 1000 deletions(-)
+ delete mode 100644 arch/alpha/include/asm/unaligned.h
+ delete mode 100644 arch/arm/include/asm/unaligned.h
+ delete mode 100644 arch/ia64/include/asm/unaligned.h
+ delete mode 100644 arch/m68k/include/asm/unaligned.h
+ delete mode 100644 arch/microblaze/include/asm/unaligned.h
+ delete mode 100644 arch/openrisc/include/asm/unaligned.h
+ delete mode 100644 arch/powerpc/include/asm/unaligned.h
+ delete mode 100644 arch/sh/include/asm/unaligned-sh4a.h
+ delete mode 100644 arch/sh/include/asm/unaligned.h
+ delete mode 100644 arch/sparc/include/asm/unaligned.h
+ delete mode 100644 arch/x86/include/asm/unaligned.h
+ delete mode 100644 arch/xtensa/include/asm/unaligned.h
+ delete mode 100644 include/linux/unaligned/access_ok.h
+ delete mode 100644 include/linux/unaligned/be_byteshift.h
+ delete mode 100644 include/linux/unaligned/be_memmove.h
+ delete mode 100644 include/linux/unaligned/be_struct.h
+ delete mode 100644 include/linux/unaligned/generic.h
+ delete mode 100644 include/linux/unaligned/le_byteshift.h
+ delete mode 100644 include/linux/unaligned/le_memmove.h
+ delete mode 100644 include/linux/unaligned/le_struct.h
+ delete mode 100644 include/linux/unaligned/memmove.h
+
+Cc: Amitkumar Karwar <amitkarwar@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Ganapathi Bhat <ganapathi017@gmail.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: James Morris <jmorris@namei.org>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: John Johansen <john.johansen@canonical.com>
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Rich Felker <dalias@libc.org>
+Cc: "Richard Russon (FlatCap)" <ldm@flatcap.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: "Serge E. Hallyn" <serge@hallyn.com>
+Cc: Sharvari Harisangam <sharvari.harisangam@nxp.com>
+Cc: Stafford Horne <shorne@gmail.com>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc: Xinming Hu <huxinming820@gmail.com>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: x86 at kernel.org
+Cc: linux-kernel at vger.kernel.org
+Cc: linux-arm-kernel at lists.infradead.org
+Cc: linux-m68k at lists.linux-m68k.org
+Cc: linux-crypto at vger.kernel.org
+Cc: openrisc at lists.librecores.org
+Cc: linuxppc-dev at lists.ozlabs.org
+Cc: linux-sh at vger.kernel.org
+Cc: sparclinux at vger.kernel.org
+Cc: linux-ntfs-dev at lists.sourceforge.net
+Cc: linux-block at vger.kernel.org
+Cc: linux-wireless at vger.kernel.org
+Cc: netdev at vger.kernel.org
+Cc: linux-arch at vger.kernel.org
+Cc: linux-security-module at vger.kernel.org
+
 -- 
-2.31.1
-
-
+2.29.2
 
