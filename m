@@ -1,72 +1,36 @@
-From: Giulio Benetti <giulio.benetti@benettiengineering.com>
-Date: Wed, 5 May 2021 09:51:43 +0200
-Subject: [OpenRISC] [PATCH v2 0/2] OpenRISC support for cmodel=large
-In-Reply-To: <20210505063004.GT3288043@lianli.shorne-pla.net>
-References: <20210505063004.GT3288043@lianli.shorne-pla.net>
-Message-ID: <0E376E20-5570-4914-A816-679D77FB1E24@benettiengineering.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Fri, 7 May 2021 12:05:36 +0200
+Subject: [OpenRISC] [PATCH] mm: update legacy flush_tlb_* to use vma
+In-Reply-To: <87k0oaq311.wl-chenli@uniontech.com>
+References: <87k0oaq311.wl-chenli@uniontech.com>
+Message-ID: <CAMuHMdWapV4ZypzpC0gvS01BKRQvPjsiD2uS7odb78dEeP=63Q@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Stafford, All,
+On Fri, May 7, 2021 at 11:58 AM Chen Li <chenli@uniontech.com> wrote:
+> 1. These tlb flush functions  have been using vma instead mm long time ago, but there
+> is still some coments use mm as parameter.
+>
+> 2. the actual struct we use is vm_area_struct instead of vma_struct.
+>
+> 3. remove unused flush_kern_tlb_page.
+>
+> Signed-off-by: Chen Li <chenli@uniontech.com>
 
-> Il giorno 5 mag 2021, alle ore 08:30, Stafford Horne <shorne@gmail.com> ha scritto:
-> 
-> ﻿On Mon, May 03, 2021 at 12:34:22PM +0200, Giulio Benetti wrote:
->> Hi Stafford, All,
->> 
->> I've backported this patchset for Buildroot to versions:
->> - 9.3.0
->> - 10.3.0
->> 
->> Does it make sense to send them? I don't know if those version will have
->> minor versions where these backported patches can be applied.
-> 
-> Do you mean for me/you to send the backported GCC patches for GCC or buildroot?
-I mean for GCC, I’ve already sent them for buildroot:
-https://patchwork.ozlabs.org/project/buildroot/list/?series=241844
+>  arch/m68k/include/asm/tlbflush.h     |  2 +-
 
-> 
-> I don't need backported versions of the toolchains and usually work off the
-> latest release/master.  If someone wants them let me know.
-I was asking to know if newer minor versions of
-binutils and gcc will be released. If yes I could
-send your back ported patches here in the 2 mailing lists(binutils and gcc ones).
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Giulio Benetti
+Gr{oetje,eeting}s,
 
-> 
-> -Stafford
-> 
->> Best regards
->> -- 
->> Giulio Benetti
->> Benetti Engineering sas
->> 
->>> On 5/1/21 11:11 PM, Stafford Horne wrote:
->>> Changes from v1:
->>>  - Added patch to enabled cmodle=large on crtstuff
->>> 
->>> This series fixes some bugs found when linking large binaries, both in buildroot
->>> and glibc testing.
->>> 
->>> Stafford Horne (2):
->>>   or1k: Add mcmodel option to handle large GOTs
->>>   or1k: Use cmodel=large when building crtstuff
->>> 
->>>  gcc/config/or1k/or1k-opts.h   | 30 ++++++++++++++++++++++++++++++
->>>  gcc/config/or1k/or1k.c        | 11 +++++++++--
->>>  gcc/config/or1k/or1k.h        |  7 +++++++
->>>  gcc/config/or1k/or1k.opt      | 19 +++++++++++++++++++
->>>  gcc/doc/invoke.texi           | 12 +++++++++++-
->>>  libgcc/config.host            |  4 ++--
->>>  libgcc/config/or1k/t-crtstuff |  2 ++
->>>  7 files changed, 80 insertions(+), 5 deletions(-)
->>>  create mode 100644 gcc/config/or1k/or1k-opts.h
->>>  create mode 100644 libgcc/config/or1k/t-crtstuff
->>> 
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20210505/2265ec9c/attachment.htm>
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert at linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
