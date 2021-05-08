@@ -1,57 +1,44 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 10 May 2021 06:18:05 +0900
-Subject: [OpenRISC] [PATCH 2/2] openrisc: mm/init.c: remove unused
- variable 'end' in paging_init()
-In-Reply-To: <20210509091103.7985-3-rppt@kernel.org>
-References: <20210509091103.7985-1-rppt@kernel.org>
- <20210509091103.7985-3-rppt@kernel.org>
-Message-ID: <YJhRjTPdJbjI5iyj@antec>
+From: David Laight <David.Laight@ACULAB.COM>
+Date: Sat, 8 May 2021 11:42:13 +0000
+Subject: [OpenRISC] [RFC 02/12] openrisc: always use unaligned-struct
+ header
+In-Reply-To: <20210507220813.365382-3-arnd@kernel.org>
+References: <20210507220813.365382-1-arnd@kernel.org>
+ <20210507220813.365382-3-arnd@kernel.org>
+Message-ID: <7f2ca7e366a444108932c4c3bb95c2f9@AcuMS.aculab.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sun, May 09, 2021 at 12:11:03PM +0300, Mike Rapoport wrote:
-> From: Mike Rapoport <rppt@linux.ibm.com>
-> 
-> A build with W=1 enabled produces the following warning:
-> 
->   CC      arch/openrisc/mm/init.o
-> arch/openrisc/mm/init.c: In function 'paging_init':
-> arch/openrisc/mm/init.c:131:16: warning: variable 'end' set but not used [-Wunused-but-set-variable]
->   131 |  unsigned long end;
->       |                ^~~
-> 
-> Remove the unused variable 'end'.
-> 
-> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-> ---
->  arch/openrisc/mm/init.c | 3 ---
->  1 file changed, 3 deletions(-)
-> 
-> diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
-> index f3fa02b8838a..6e38ec96cab8 100644
-> --- a/arch/openrisc/mm/init.c
-> +++ b/arch/openrisc/mm/init.c
-> @@ -128,7 +128,6 @@ void __init paging_init(void)
->  {
->  	extern void tlb_init(void);
->  
-> -	unsigned long end;
->  	int i;
->  
->  	printk(KERN_INFO "Setting up paging and PTEs.\n");
-> @@ -144,8 +143,6 @@ void __init paging_init(void)
->  	 */
->  	current_pgd[smp_processor_id()] = init_mm.pgd;
->  
-> -	end = (unsigned long)__va(max_low_pfn * PAGE_SIZE);
-> -
->  	map_ram();
->  
->  	zone_sizes_init();
+From: Arnd Bergmann
+> Sent: 07 May 2021 23:08
+...
+> I don't know how the loads/store perform compared to the shift version
+> on a particular microarchitecture, but my guess is that the shifts
+> are better.
 
-Thanks, I will queue this in the openrisc fixes queue.
+What does the nios use?
+Shifts generate reasonable code for put_unaligned() but
+they get horrid for get_unaligned().
 
--Stafford
+On the nios writing the 4 bytes to memory and reading back
+a 32bit value should generate shorter faster code.
+You do need to generate 4 byte loads, 4 bytes stores, 32bit load.
+(The load will cause a stall if the data is needed for one
+of the next two instructions, and there is a (undocumented)
+stall between a write and read to the same memory area.
+The shift version requires 3 shifts and 3 ors - but I think
+gcc makes a bigger pig's breakfast of it.)
+
+OTOH I'm not sure anyone in their right mind would run Linux on nios.
+It is a soft cpu for the altera (now intel) fpgas.
+We use them with 4k code and sub 64k data for real time processing.
+
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
+
