@@ -1,60 +1,57 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 10 May 2021 06:17:13 +0900
-Subject: [OpenRISC] [PATCH 1/2] openrisc: mm/init.c: remove unused
- memblock_region variable in map_ram()
-In-Reply-To: <20210509091103.7985-2-rppt@kernel.org>
+Date: Mon, 10 May 2021 06:18:05 +0900
+Subject: [OpenRISC] [PATCH 2/2] openrisc: mm/init.c: remove unused
+ variable 'end' in paging_init()
+In-Reply-To: <20210509091103.7985-3-rppt@kernel.org>
 References: <20210509091103.7985-1-rppt@kernel.org>
- <20210509091103.7985-2-rppt@kernel.org>
-Message-ID: <YJhRWQEy2Cpd1sKy@antec>
+ <20210509091103.7985-3-rppt@kernel.org>
+Message-ID: <YJhRjTPdJbjI5iyj@antec>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sun, May 09, 2021 at 12:11:02PM +0300, Mike Rapoport wrote:
+On Sun, May 09, 2021 at 12:11:03PM +0300, Mike Rapoport wrote:
 > From: Mike Rapoport <rppt@linux.ibm.com>
 > 
-> Kernel test robot reports:
+> A build with W=1 enabled produces the following warning:
 > 
-> cppcheck possible warnings: (new ones prefixed by >>, may not real problems)
+>   CC      arch/openrisc/mm/init.o
+> arch/openrisc/mm/init.c: In function 'paging_init':
+> arch/openrisc/mm/init.c:131:16: warning: variable 'end' set but not used [-Wunused-but-set-variable]
+>   131 |  unsigned long end;
+>       |                ^~~
 > 
-> >> arch/openrisc/mm/init.c:125:10: warning: Uninitialized variable: region [uninitvar]
->             region->base, region->base + region->size);
->             ^
+> Remove the unused variable 'end'.
 > 
-> Replace usage of memblock_region fields with 'start' and 'end' variables
-> that are initialized in for_each_mem_range() and remove the declaration of
-> region.
-> 
-> Fixes: b10d6bca8720 ("arch, drivers: replace for_each_membock() with for_each_mem_range()")
-> Reported-by: kernel test robot <lkp@intel.com>
 > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 > ---
->  arch/openrisc/mm/init.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
+>  arch/openrisc/mm/init.c | 3 ---
+>  1 file changed, 3 deletions(-)
 > 
 > diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
-> index bf9b2310fc93..f3fa02b8838a 100644
+> index f3fa02b8838a..6e38ec96cab8 100644
 > --- a/arch/openrisc/mm/init.c
 > +++ b/arch/openrisc/mm/init.c
-> @@ -75,7 +75,6 @@ static void __init map_ram(void)
->  	/* These mark extents of read-only kernel pages...
->  	 * ...from vmlinux.lds.S
+> @@ -128,7 +128,6 @@ void __init paging_init(void)
+>  {
+>  	extern void tlb_init(void);
+>  
+> -	unsigned long end;
+>  	int i;
+>  
+>  	printk(KERN_INFO "Setting up paging and PTEs.\n");
+> @@ -144,8 +143,6 @@ void __init paging_init(void)
 >  	 */
-> -	struct memblock_region *region;
+>  	current_pgd[smp_processor_id()] = init_mm.pgd;
 >  
->  	v = PAGE_OFFSET;
+> -	end = (unsigned long)__va(max_low_pfn * PAGE_SIZE);
+> -
+>  	map_ram();
 >  
-> @@ -121,7 +120,7 @@ static void __init map_ram(void)
->  		}
->  
->  		printk(KERN_INFO "%s: Memory: 0x%x-0x%x\n", __func__,
-> -		       region->base, region->base + region->size);
-> +		       start, end);
->  	}
->  }
+>  	zone_sizes_init();
 
-Thanks I will queue this.
+Thanks, I will queue this in the openrisc fixes queue.
 
 -Stafford
