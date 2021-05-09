@@ -1,7 +1,10 @@
 From: Mike Rapoport <rppt@kernel.org>
-Date: Sun,  9 May 2021 12:11:01 +0300
-Subject: [OpenRISC] [PATCH 0/2] openrisc: mm/init.c: fix compilation warnings
-Message-ID: <20210509091103.7985-1-rppt@kernel.org>
+Date: Sun,  9 May 2021 12:11:02 +0300
+Subject: [OpenRISC] [PATCH 1/2] openrisc: mm/init.c: remove unused
+ memblock_region variable in map_ram()
+In-Reply-To: <20210509091103.7985-1-rppt@kernel.org>
+References: <20210509091103.7985-1-rppt@kernel.org>
+Message-ID: <20210509091103.7985-2-rppt@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -10,23 +13,46 @@ To: openrisc@lists.librecores.org
 
 From: Mike Rapoport <rppt@linux.ibm.com>
 
-Hi,
+Kernel test robot reports:
 
-Kbuld test bot reported an unused in map_ram() and while on it I've found
-another compilation warning about unused variable in paging_init().
+cppcheck possible warnings: (new ones prefixed by >>, may not real problems)
 
-Here are the fixes for both.
-The patches are vs 5.12.
+>> arch/openrisc/mm/init.c:125:10: warning: Uninitialized variable: region [uninitvar]
+            region->base, region->base + region->size);
+            ^
 
-Mike Rapoport (2):
-  openrisc: mm/init.c: remove unused memblock_region variable in map_ram()
-  openrisc: mm/init.c: remove unused variable 'end' in paging_init()
+Replace usage of memblock_region fields with 'start' and 'end' variables
+that are initialized in for_each_mem_range() and remove the declaration of
+region.
 
- arch/openrisc/mm/init.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+Fixes: b10d6bca8720 ("arch, drivers: replace for_each_membock() with for_each_mem_range()")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+---
+ arch/openrisc/mm/init.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-
-base-commit: 9f4ad9e425a1d3b6a34617b8ea226d56a119a717
+diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
+index bf9b2310fc93..f3fa02b8838a 100644
+--- a/arch/openrisc/mm/init.c
++++ b/arch/openrisc/mm/init.c
+@@ -75,7 +75,6 @@ static void __init map_ram(void)
+ 	/* These mark extents of read-only kernel pages...
+ 	 * ...from vmlinux.lds.S
+ 	 */
+-	struct memblock_region *region;
+ 
+ 	v = PAGE_OFFSET;
+ 
+@@ -121,7 +120,7 @@ static void __init map_ram(void)
+ 		}
+ 
+ 		printk(KERN_INFO "%s: Memory: 0x%x-0x%x\n", __func__,
+-		       region->base, region->base + region->size);
++		       start, end);
+ 	}
+ }
+ 
 -- 
 2.28.0
 
