@@ -1,117 +1,32 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 8 May 2021 08:02:17 +0900
-Subject: [OpenRISC] [RFC 02/12] openrisc: always use unaligned-struct
- header
-In-Reply-To: <20210507220813.365382-3-arnd@kernel.org>
-References: <20210507220813.365382-1-arnd@kernel.org>
- <20210507220813.365382-3-arnd@kernel.org>
-Message-ID: <CAAfxs77U4-ojjmsX1uQ9QwhnKa69Aqcs=br+H-Yc7E7RNODqvQ@mail.gmail.com>
+From: Mike Rapoport <rppt@kernel.org>
+Date: Sun,  9 May 2021 12:11:01 +0300
+Subject: [OpenRISC] [PATCH 0/2] openrisc: mm/init.c: fix compilation warnings
+Message-ID: <20210509091103.7985-1-rppt@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sat, May 8, 2021 at 7:10 AM Arnd Bergmann <arnd@kernel.org> wrote:
->
-> From: Arnd Bergmann <arnd@arndb.de>
->
-> openrisc is the only architecture using the linux/unaligned/*memmove
-> infrastructure. There is a comment saying that this version is more
-> efficient, but this was added in 2011 before the openrisc gcc port
-> was merged upstream.
->
-> I checked a couple of files to see what the actual difference is with
-> the mainline gcc (9.4 and 11.1), and found that the generic header
-> seems to produce better code now, regardless of the gcc version.
->
-> Specifically, the be_memmove leads to allocating a stack slot and
-> copying the data one byte at a time, then reading the whole word
-> from the stack:
->
-> 00000000 <test_get_unaligned_memmove>:
->    0:   9c 21 ff f4     l.addi r1,r1,-12
->    4:   d4 01 10 04     l.sw 4(r1),r2
->    8:   8e 63 00 00     l.lbz r19,0(r3)
->    c:   9c 41 00 0c     l.addi r2,r1,12
->   10:   8e 23 00 01     l.lbz r17,1(r3)
->   14:   db e2 9f f4     l.sb -12(r2),r19
->   18:   db e2 8f f5     l.sb -11(r2),r17
->   1c:   8e 63 00 02     l.lbz r19,2(r3)
->   20:   8e 23 00 03     l.lbz r17,3(r3)
->   24:   d4 01 48 08     l.sw 8(r1),r9
->   28:   db e2 9f f6     l.sb -10(r2),r19
->   2c:   db e2 8f f7     l.sb -9(r2),r17
->   30:   85 62 ff f4     l.lwz r11,-12(r2)
->   34:   85 21 00 08     l.lwz r9,8(r1)
->   38:   84 41 00 04     l.lwz r2,4(r1)
->   3c:   44 00 48 00     l.jr r9
->   40:   9c 21 00 0c     l.addi r1,r1,12
->
-> while the be_struct version reads each byte into a register
-> and does a shift to the right position:
->
-> 00000000 <test_get_unaligned_struct>:
->    0:   9c 21 ff f8     l.addi r1,r1,-8
->    4:   8e 63 00 00     l.lbz r19,0(r3)
->    8:   aa 20 00 18     l.ori r17,r0,0x18
->    c:   e2 73 88 08     l.sll r19,r19,r17
->   10:   8d 63 00 01     l.lbz r11,1(r3)
->   14:   aa 20 00 10     l.ori r17,r0,0x10
->   18:   e1 6b 88 08     l.sll r11,r11,r17
->   1c:   e1 6b 98 04     l.or r11,r11,r19
->   20:   8e 23 00 02     l.lbz r17,2(r3)
->   24:   aa 60 00 08     l.ori r19,r0,0x8
->   28:   e2 31 98 08     l.sll r17,r17,r19
->   2c:   d4 01 10 00     l.sw 0(r1),r2
->   30:   d4 01 48 04     l.sw 4(r1),r9
->   34:   9c 41 00 08     l.addi r2,r1,8
->   38:   e2 31 58 04     l.or r17,r17,r11
->   3c:   8d 63 00 03     l.lbz r11,3(r3)
->   40:   e1 6b 88 04     l.or r11,r11,r17
->   44:   84 41 00 00     l.lwz r2,0(r1)
->   48:   85 21 00 04     l.lwz r9,4(r1)
->   4c:   44 00 48 00     l.jr r9
->   50:   9c 21 00 08     l.addi r1,r1,8
->
-> I don't know how the loads/store perform compared to the shift version
-> on a particular microarchitecture, but my guess is that the shifts
-> are better.
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-Thanks for doing the investigation on this as well.
+Hi,
 
-Load stores are slow like on most architectures.  WIth caching it will
-be faster, but
-still not faster than the shifts.  So this looks good to me.
+Kbuld test bot reported an unused in map_ram() and while on it I've found
+another compilation warning about unused variable in paging_init().
 
-> In the trivial example, the struct version is a few instructions longer,
-> but building a whole kernel shows an overall reduction in code size,
-> presumably because it now has to manage fewer stack slots:
->
->    text    data     bss     dec     hex filename
-> 4792010  181480   82324 5055814  4d2546 vmlinux-unaligned-memmove
-> 4790642  181480   82324 5054446  4d1fee vmlinux-unaligned-struct
+Here are the fixes for both.
+The patches are vs 5.12.
 
-That's a plus.
+Mike Rapoport (2):
+  openrisc: mm/init.c: remove unused memblock_region variable in map_ram()
+  openrisc: mm/init.c: remove unused variable 'end' in paging_init()
 
-> Remove the memmove version completely and let openrisc use the same
-> code as everyone else, as a simplification.
->
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+ arch/openrisc/mm/init.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-Acked-by: Stafford Horne <shorne@gmail.com>
 
-> ---
->  arch/openrisc/include/asm/unaligned.h | 47 ---------------------------
->  include/linux/unaligned/be_memmove.h  | 37 ---------------------
->  include/linux/unaligned/le_memmove.h  | 37 ---------------------
->  include/linux/unaligned/memmove.h     | 46 --------------------------
->  4 files changed, 167 deletions(-)
->  delete mode 100644 arch/openrisc/include/asm/unaligned.h
->  delete mode 100644 include/linux/unaligned/be_memmove.h
->  delete mode 100644 include/linux/unaligned/le_memmove.h
->  delete mode 100644 include/linux/unaligned/memmove.h
+base-commit: 9f4ad9e425a1d3b6a34617b8ea226d56a119a717
+-- 
+2.28.0
 
-Thanks again,
-
--Stafford
