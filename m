@@ -1,8 +1,10 @@
 From: Arnd Bergmann <arnd@kernel.org>
-Date: Fri, 14 May 2021 12:00:48 +0200
-Subject: [OpenRISC] [PATCH v2 00/13] Unify asm/unaligned.h around struct
- helper
-Message-ID: <20210514100106.3404011-1-arnd@kernel.org>
+Date: Fri, 14 May 2021 12:00:50 +0200
+Subject: [OpenRISC] [PATCH v2 02/13] openrisc: always use unaligned-struct
+ header
+In-Reply-To: <20210514100106.3404011-1-arnd@kernel.org>
+References: <20210514100106.3404011-1-arnd@kernel.org>
+Message-ID: <20210514100106.3404011-3-arnd@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -11,147 +13,282 @@ To: openrisc@lists.librecores.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-The get_unaligned()/put_unaligned() helpers are traditionally architecture
-specific, with the two main variants being the "access-ok.h" version
-that assumes unaligned pointer accesses always work on a particular
-architecture, and the "le-struct.h" version that casts the data to a
-byte aligned type before dereferencing, for architectures that cannot
-always do unaligned accesses in hardware.
+openrisc is the only architecture using the linux/unaligned/*memmove
+infrastructure. There is a comment saying that this version is more
+efficient, but this was added in 2011 before the openrisc gcc port
+was merged upstream.
 
-Based on the discussion linked below, it appears that the access-ok
-version is not realiable on any architecture, but the struct version
-probably has no downsides. This series changes the code to use the
-same implementation on all architectures, addressing the few exceptions
-separately.
+I checked a couple of files to see what the actual difference is with
+the mainline gcc (9.4 and 11.1), and found that the generic header
+seems to produce better code now, regardless of the gcc version.
 
-I've included this version in the asm-generic tree for 5.14 already,
-addressing the few issues that were pointed out in the RFC. If there
-are any remaining problems, I hope those can be addressed as follow-up
-patches.
+Specifically, the be_memmove leads to allocating a stack slot and
+copying the data one byte at a time, then reading the whole word
+from the stack:
 
-        Arnd
+00000000 <test_get_unaligned_memmove>:
+   0:	9c 21 ff f4 	l.addi r1,r1,-12
+   4:	d4 01 10 04 	l.sw 4(r1),r2
+   8:	8e 63 00 00 	l.lbz r19,0(r3)
+   c:	9c 41 00 0c 	l.addi r2,r1,12
+  10:	8e 23 00 01 	l.lbz r17,1(r3)
+  14:	db e2 9f f4 	l.sb -12(r2),r19
+  18:	db e2 8f f5 	l.sb -11(r2),r17
+  1c:	8e 63 00 02 	l.lbz r19,2(r3)
+  20:	8e 23 00 03 	l.lbz r17,3(r3)
+  24:	d4 01 48 08 	l.sw 8(r1),r9
+  28:	db e2 9f f6 	l.sb -10(r2),r19
+  2c:	db e2 8f f7 	l.sb -9(r2),r17
+  30:	85 62 ff f4 	l.lwz r11,-12(r2)
+  34:	85 21 00 08 	l.lwz r9,8(r1)
+  38:	84 41 00 04 	l.lwz r2,4(r1)
+  3c:	44 00 48 00 	l.jr r9
+  40:	9c 21 00 0c 	l.addi r1,r1,12
 
-Link: https://lore.kernel.org/lkml/75d07691-1e4f-741f-9852-38c0b4f520bc at synopsys.com/
-Link: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100363
-Link: https://lore.kernel.org/lkml/20210507220813.365382-14-arnd at kernel.org/
-Link: git://git.kernel.org/pub/scm/linux/kernel/git/arnd/asm-generic.git unaligned-rework-v2
+while the be_struct version reads each byte into a register
+and does a shift to the right position:
 
+00000000 <test_get_unaligned_struct>:
+   0:	9c 21 ff f8 	l.addi r1,r1,-8
+   4:	8e 63 00 00 	l.lbz r19,0(r3)
+   8:	aa 20 00 18 	l.ori r17,r0,0x18
+   c:	e2 73 88 08 	l.sll r19,r19,r17
+  10:	8d 63 00 01 	l.lbz r11,1(r3)
+  14:	aa 20 00 10 	l.ori r17,r0,0x10
+  18:	e1 6b 88 08 	l.sll r11,r11,r17
+  1c:	e1 6b 98 04 	l.or r11,r11,r19
+  20:	8e 23 00 02 	l.lbz r17,2(r3)
+  24:	aa 60 00 08 	l.ori r19,r0,0x8
+  28:	e2 31 98 08 	l.sll r17,r17,r19
+  2c:	d4 01 10 00 	l.sw 0(r1),r2
+  30:	d4 01 48 04 	l.sw 4(r1),r9
+  34:	9c 41 00 08 	l.addi r2,r1,8
+  38:	e2 31 58 04 	l.or r17,r17,r11
+  3c:	8d 63 00 03 	l.lbz r11,3(r3)
+  40:	e1 6b 88 04 	l.or r11,r11,r17
+  44:	84 41 00 00 	l.lwz r2,0(r1)
+  48:	85 21 00 04 	l.lwz r9,4(r1)
+  4c:	44 00 48 00 	l.jr r9
+  50:	9c 21 00 08 	l.addi r1,r1,8
 
-Arnd Bergmann (13):
-  asm-generic: use asm-generic/unaligned.h for most architectures
-  openrisc: always use unaligned-struct header
-  sh: remove unaligned access for sh4a
-  m68k: select CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
-  powerpc: use linux/unaligned/le_struct.h on LE power7
-  asm-generic: unaligned: remove byteshift helpers
-  asm-generic: unaligned always use struct helpers
-  partitions: msdos: fix one-byte get_unaligned()
-  apparmor: use get_unaligned() only for multi-byte words
-  mwifiex: re-fix for unaligned accesses
-  netpoll: avoid put_unaligned() on single character
-  asm-generic: uaccess: 1-byte access is always aligned
-  asm-generic: simplify asm/unaligned.h
+According to Stafford Horne, the new version should in fact perform
+better.
 
- arch/alpha/include/asm/unaligned.h          |  12 --
- arch/arm/include/asm/unaligned.h            |  27 ---
- arch/ia64/include/asm/unaligned.h           |  12 --
- arch/m68k/Kconfig                           |   1 +
- arch/m68k/include/asm/unaligned.h           |  26 ---
- arch/microblaze/include/asm/unaligned.h     |  27 ---
- arch/mips/crypto/crc32-mips.c               |   2 +-
- arch/openrisc/include/asm/unaligned.h       |  47 -----
- arch/parisc/include/asm/unaligned.h         |   6 +-
- arch/powerpc/include/asm/unaligned.h        |  22 ---
- arch/sh/include/asm/unaligned-sh4a.h        | 199 --------------------
- arch/sh/include/asm/unaligned.h             |  13 --
- arch/sparc/include/asm/unaligned.h          |  11 --
- arch/x86/include/asm/unaligned.h            |  15 --
- arch/xtensa/include/asm/unaligned.h         |  29 ---
- block/partitions/ldm.h                      |   2 +-
- block/partitions/msdos.c                    |   2 +-
- drivers/net/wireless/marvell/mwifiex/pcie.c |  10 +-
- include/asm-generic/uaccess.h               |   4 +-
- include/asm-generic/unaligned.h             | 141 +++++++++++---
- include/linux/unaligned/access_ok.h         |  68 -------
- include/linux/unaligned/be_byteshift.h      |  71 -------
- include/linux/unaligned/be_memmove.h        |  37 ----
- include/linux/unaligned/be_struct.h         |  37 ----
- include/linux/unaligned/generic.h           | 115 -----------
- include/linux/unaligned/le_byteshift.h      |  71 -------
- include/linux/unaligned/le_memmove.h        |  37 ----
- include/linux/unaligned/le_struct.h         |  37 ----
- include/linux/unaligned/memmove.h           |  46 -----
- net/core/netpoll.c                          |   4 +-
- security/apparmor/policy_unpack.c           |   2 +-
- 31 files changed, 131 insertions(+), 1002 deletions(-)
- delete mode 100644 arch/alpha/include/asm/unaligned.h
- delete mode 100644 arch/arm/include/asm/unaligned.h
- delete mode 100644 arch/ia64/include/asm/unaligned.h
- delete mode 100644 arch/m68k/include/asm/unaligned.h
- delete mode 100644 arch/microblaze/include/asm/unaligned.h
+In the trivial example, the struct version is a few instructions longer,
+but building a whole kernel shows an overall reduction in code size,
+presumably because it now has to manage fewer stack slots:
+
+   text	   data	    bss	    dec	    hex	filename
+4792010	 181480	  82324	5055814	 4d2546	vmlinux-unaligned-memmove
+4790642	 181480	  82324	5054446	 4d1fee	vmlinux-unaligned-struct
+
+Remove the memmove version completely and let openrisc use the same
+code as everyone else, as a simplification.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Stafford Horne <shorne@gmail.com>
+---
+ arch/openrisc/include/asm/unaligned.h | 47 ---------------------------
+ include/linux/unaligned/be_memmove.h  | 37 ---------------------
+ include/linux/unaligned/le_memmove.h  | 37 ---------------------
+ include/linux/unaligned/memmove.h     | 46 --------------------------
+ 4 files changed, 167 deletions(-)
  delete mode 100644 arch/openrisc/include/asm/unaligned.h
- delete mode 100644 arch/powerpc/include/asm/unaligned.h
- delete mode 100644 arch/sh/include/asm/unaligned-sh4a.h
- delete mode 100644 arch/sh/include/asm/unaligned.h
- delete mode 100644 arch/sparc/include/asm/unaligned.h
- delete mode 100644 arch/x86/include/asm/unaligned.h
- delete mode 100644 arch/xtensa/include/asm/unaligned.h
- delete mode 100644 include/linux/unaligned/access_ok.h
- delete mode 100644 include/linux/unaligned/be_byteshift.h
  delete mode 100644 include/linux/unaligned/be_memmove.h
- delete mode 100644 include/linux/unaligned/be_struct.h
- delete mode 100644 include/linux/unaligned/generic.h
- delete mode 100644 include/linux/unaligned/le_byteshift.h
  delete mode 100644 include/linux/unaligned/le_memmove.h
- delete mode 100644 include/linux/unaligned/le_struct.h
  delete mode 100644 include/linux/unaligned/memmove.h
 
+diff --git a/arch/openrisc/include/asm/unaligned.h b/arch/openrisc/include/asm/unaligned.h
+deleted file mode 100644
+index 14353f2101f2..000000000000
+--- a/arch/openrisc/include/asm/unaligned.h
++++ /dev/null
+@@ -1,47 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-or-later */
+-/*
+- * OpenRISC Linux
+- *
+- * Linux architectural port borrowing liberally from similar works of
+- * others.  All original copyrights apply as per the original source
+- * declaration.
+- *
+- * OpenRISC implementation:
+- * Copyright (C) 2003 Matjaz Breskvar <phoenix@bsemi.com>
+- * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
+- * et al.
+- */
+-
+-#ifndef __ASM_OPENRISC_UNALIGNED_H
+-#define __ASM_OPENRISC_UNALIGNED_H
+-
+-/*
+- * This is copied from the generic implementation and the C-struct
+- * variant replaced with the memmove variant.  The GCC compiler
+- * for the OR32 arch optimizes too aggressively for the C-struct
+- * variant to work, so use the memmove variant instead.
+- *
+- * It may be worth considering implementing the unaligned access
+- * exception handler and allowing unaligned accesses (access_ok.h)...
+- * not sure if it would be much of a performance win without further
+- * investigation.
+- */
+-#include <asm/byteorder.h>
+-
+-#if defined(__LITTLE_ENDIAN)
+-# include <linux/unaligned/le_memmove.h>
+-# include <linux/unaligned/be_byteshift.h>
+-# include <linux/unaligned/generic.h>
+-# define get_unaligned	__get_unaligned_le
+-# define put_unaligned	__put_unaligned_le
+-#elif defined(__BIG_ENDIAN)
+-# include <linux/unaligned/be_memmove.h>
+-# include <linux/unaligned/le_byteshift.h>
+-# include <linux/unaligned/generic.h>
+-# define get_unaligned	__get_unaligned_be
+-# define put_unaligned	__put_unaligned_be
+-#else
+-# error need to define endianess
+-#endif
+-
+-#endif /* __ASM_OPENRISC_UNALIGNED_H */
+diff --git a/include/linux/unaligned/be_memmove.h b/include/linux/unaligned/be_memmove.h
+deleted file mode 100644
+index 7164214a4ba1..000000000000
+--- a/include/linux/unaligned/be_memmove.h
++++ /dev/null
+@@ -1,37 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef _LINUX_UNALIGNED_BE_MEMMOVE_H
+-#define _LINUX_UNALIGNED_BE_MEMMOVE_H
+-
+-#include <linux/unaligned/memmove.h>
+-
+-static inline u16 get_unaligned_be16(const void *p)
+-{
+-	return __get_unaligned_memmove16((const u8 *)p);
+-}
+-
+-static inline u32 get_unaligned_be32(const void *p)
+-{
+-	return __get_unaligned_memmove32((const u8 *)p);
+-}
+-
+-static inline u64 get_unaligned_be64(const void *p)
+-{
+-	return __get_unaligned_memmove64((const u8 *)p);
+-}
+-
+-static inline void put_unaligned_be16(u16 val, void *p)
+-{
+-	__put_unaligned_memmove16(val, p);
+-}
+-
+-static inline void put_unaligned_be32(u32 val, void *p)
+-{
+-	__put_unaligned_memmove32(val, p);
+-}
+-
+-static inline void put_unaligned_be64(u64 val, void *p)
+-{
+-	__put_unaligned_memmove64(val, p);
+-}
+-
+-#endif /* _LINUX_UNALIGNED_LE_MEMMOVE_H */
+diff --git a/include/linux/unaligned/le_memmove.h b/include/linux/unaligned/le_memmove.h
+deleted file mode 100644
+index 9202e864d026..000000000000
+--- a/include/linux/unaligned/le_memmove.h
++++ /dev/null
+@@ -1,37 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef _LINUX_UNALIGNED_LE_MEMMOVE_H
+-#define _LINUX_UNALIGNED_LE_MEMMOVE_H
+-
+-#include <linux/unaligned/memmove.h>
+-
+-static inline u16 get_unaligned_le16(const void *p)
+-{
+-	return __get_unaligned_memmove16((const u8 *)p);
+-}
+-
+-static inline u32 get_unaligned_le32(const void *p)
+-{
+-	return __get_unaligned_memmove32((const u8 *)p);
+-}
+-
+-static inline u64 get_unaligned_le64(const void *p)
+-{
+-	return __get_unaligned_memmove64((const u8 *)p);
+-}
+-
+-static inline void put_unaligned_le16(u16 val, void *p)
+-{
+-	__put_unaligned_memmove16(val, p);
+-}
+-
+-static inline void put_unaligned_le32(u32 val, void *p)
+-{
+-	__put_unaligned_memmove32(val, p);
+-}
+-
+-static inline void put_unaligned_le64(u64 val, void *p)
+-{
+-	__put_unaligned_memmove64(val, p);
+-}
+-
+-#endif /* _LINUX_UNALIGNED_LE_MEMMOVE_H */
+diff --git a/include/linux/unaligned/memmove.h b/include/linux/unaligned/memmove.h
+deleted file mode 100644
+index ac71b53bc6dc..000000000000
+--- a/include/linux/unaligned/memmove.h
++++ /dev/null
+@@ -1,46 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef _LINUX_UNALIGNED_MEMMOVE_H
+-#define _LINUX_UNALIGNED_MEMMOVE_H
+-
+-#include <linux/kernel.h>
+-#include <linux/string.h>
+-
+-/* Use memmove here, so gcc does not insert a __builtin_memcpy. */
+-
+-static inline u16 __get_unaligned_memmove16(const void *p)
+-{
+-	u16 tmp;
+-	memmove(&tmp, p, 2);
+-	return tmp;
+-}
+-
+-static inline u32 __get_unaligned_memmove32(const void *p)
+-{
+-	u32 tmp;
+-	memmove(&tmp, p, 4);
+-	return tmp;
+-}
+-
+-static inline u64 __get_unaligned_memmove64(const void *p)
+-{
+-	u64 tmp;
+-	memmove(&tmp, p, 8);
+-	return tmp;
+-}
+-
+-static inline void __put_unaligned_memmove16(u16 val, void *p)
+-{
+-	memmove(p, &val, 2);
+-}
+-
+-static inline void __put_unaligned_memmove32(u32 val, void *p)
+-{
+-	memmove(p, &val, 4);
+-}
+-
+-static inline void __put_unaligned_memmove64(u64 val, void *p)
+-{
+-	memmove(p, &val, 8);
+-}
+-
+-#endif /* _LINUX_UNALIGNED_MEMMOVE_H */
 -- 
 2.29.2
-
-Cc: Amitkumar Karwar <amitkarwar@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Ganapathi Bhat <ganapathi017@gmail.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: James Morris <jmorris@namei.org>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: John Johansen <john.johansen@canonical.com>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Rich Felker <dalias@libc.org>
-Cc: "Richard Russon (FlatCap)" <ldm@flatcap.org>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Sharvari Harisangam <sharvari.harisangam@nxp.com>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: Xinming Hu <huxinming820@gmail.com>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: x86 at kernel.org
-Cc: linux-kernel at vger.kernel.org
-Cc: linux-arm-kernel at lists.infradead.org
-Cc: linux-m68k at lists.linux-m68k.org
-Cc: linux-crypto at vger.kernel.org
-Cc: openrisc at lists.librecores.org
-Cc: linuxppc-dev at lists.ozlabs.org
-Cc: linux-sh at vger.kernel.org
-Cc: sparclinux at vger.kernel.org
-Cc: linux-ntfs-dev at lists.sourceforge.net
-Cc: linux-block at vger.kernel.org
-Cc: linux-wireless at vger.kernel.org
-Cc: netdev at vger.kernel.org
-Cc: linux-arch at vger.kernel.org
-Cc: linux-security-module at vger.kernel.org
-
 
