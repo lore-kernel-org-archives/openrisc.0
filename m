@@ -1,33 +1,61 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Fri, 14 May 2021 13:19:53 -0700
-Subject: [OpenRISC] [PATCH v2 00/13] Unify asm/unaligned.h around struct
- helper
-In-Reply-To: <14016937-b9c3-c131-db18-f97081806c7f@synopsys.com>
-References: <20210514100106.3404011-1-arnd@kernel.org>
- <CAHk-=whGObOKruA_bU3aPGZfoDqZM1_9wBkwREp0H0FgR-90uQ@mail.gmail.com>
- <2408c893-4ae7-4f53-f58c-497c91f5b034@synopsys.com>
- <CAHk-=wih8UHDwJ8x6m-p0PQ7o4S4gOBwGNs=w=q10GNY7A-70w@mail.gmail.com>
- <14016937-b9c3-c131-db18-f97081806c7f@synopsys.com>
-Message-ID: <CAHk-=whdR4OLJjwaU_nJhmS4n6ruGK4XFuLxA7zEOoCV7U=QLA@mail.gmail.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Sat, 15 May 2021 16:58:08 +0900
+Subject: [OpenRISC] [PATCH] openrisc: Define memory barrier mb
+Message-ID: <20210515075810.163206-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, May 14, 2021 at 12:45 PM Vineet Gupta
-<Vineet.Gupta1@synopsys.com> wrote:
->
-> Well, not really, the issue manifested in ARC O3 testing, but I showed
-> the problem existed for arm64 gcc too.
+From: Peter Zijlstra <peterz@infradead.org>
 
-.. but not with a supported kernel configuration.
+This came up in the discussion of the requirements of qspinlock on an
+architecture.  OpenRISC uses qspinlock, but it was noticed that the
+memmory barrier was not defined.
 
-> > So in fact it's not even queued up for 5.14 due to this all, I just dropped it.
->
-> But Why.
+Peter defined it in the mail thread writing:
 
-I just didn't have time to deal with it during the merge window. If
-you keep it alive, that's all fine and good.
+    As near as I can tell this should do. The arch spec only lists
+    this one instruction and the text makes it sound like a completion
+    barrier.
 
-                Linus
+This is correct so applying this patch.
+
+Signed-off-by: Peter Zijlstra <peterz@infradead.org>
+[shorne at gmail.com:Turned the mail into a patch]
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+I just applied the patch posted by Peter in the mail as is hence it is labeled
+from peter.  This also required me to set the Signed-off-by to Peter.
+
+If there is any issue with that let me know.  I tested this out on my single
+processor setup and it all works fine, it will take me some time to get my SMP
+setup up and running again to test the other patches, but I figured I would send
+this patch first.
+
+Also, I got delayed because I had to rebuild my main workstation after a
+hardware failure.
+
+ arch/openrisc/include/asm/barrier.h | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+ create mode 100644 arch/openrisc/include/asm/barrier.h
+
+diff --git a/arch/openrisc/include/asm/barrier.h b/arch/openrisc/include/asm/barrier.h
+new file mode 100644
+index 000000000000..7538294721be
+--- /dev/null
++++ b/arch/openrisc/include/asm/barrier.h
+@@ -0,0 +1,9 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __ASM_BARRIER_H
++#define __ASM_BARRIER_H
++
++#define mb() asm volatile ("l.msync" ::: "memory")
++
++#include <asm-generic/barrier.h>
++
++#endif /* __ASM_BARRIER_H */
+-- 
+2.31.1
+
