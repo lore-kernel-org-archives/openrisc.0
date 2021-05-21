@@ -1,45 +1,48 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Date: Sat, 15 May 2021 14:51:36 +0200
-Subject: [OpenRISC] [PATCH] openrisc: Define memory barrier mb
-In-Reply-To: <20210515075810.163206-1-shorne@gmail.com>
-References: <20210515075810.163206-1-shorne@gmail.com>
-Message-ID: <20210515125136.GF5618@worktop.programming.kicks-ass.net>
+From: Stafford Horne <shorne@gmail.com>
+Date: Fri, 21 May 2021 16:16:52 +0900
+Subject: [OpenRISC] [GIT PULL] OpenRISC fixes for 5.13
+Message-ID: <YKdeZFKthTY31705@antec>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sat, May 15, 2021 at 04:58:08PM +0900, Stafford Horne wrote:
-> From: Peter Zijlstra <peterz@infradead.org>
-> 
-> This came up in the discussion of the requirements of qspinlock on an
-> architecture.  OpenRISC uses qspinlock, but it was noticed that the
-> memmory barrier was not defined.
-> 
-> Peter defined it in the mail thread writing:
-> 
->     As near as I can tell this should do. The arch spec only lists
->     this one instruction and the text makes it sound like a completion
->     barrier.
-> 
-> This is correct so applying this patch.
-> 
-> Signed-off-by: Peter Zijlstra <peterz@infradead.org>
-> [shorne at gmail.com:Turned the mail into a patch]
-> Signed-off-by: Stafford Horne <shorne@gmail.com>
-> ---
-> I just applied the patch posted by Peter in the mail as is hence it is labeled
-> from peter.  This also required me to set the Signed-off-by to Peter.
-> 
-> If there is any issue with that let me know.  I tested this out on my single
-> processor setup and it all works fine, it will take me some time to get my SMP
-> setup up and running again to test the other patches, but I figured I would send
-> this patch first.
+Hi Linus,
 
-Works for me; thanks for not loosing it ;-)
+Please consider for pull
 
-> Also, I got delayed because I had to rebuild my main workstation after a
-> hardware failure.
+The following changes since commit 9f4ad9e425a1d3b6a34617b8ea226d56a119a717:
 
-*ouch*, hate it when that happens.
+  Linux 5.12 (2021-04-25 13:49:08 -0700)
+
+are available in the Git repository at:
+
+  git://github.com/openrisc/linux.git tags/for-linus
+
+for you to fetch changes up to 8b549c18ae81dbc36fb11e4aa08b8378c599ca95:
+
+  openrisc: Define memory barrier mb (2021-05-15 16:00:10 +0900)
+
+----------------------------------------------------------------
+OpenRISC fixes for 5.13
+
+A few fixes that came in around the time of the merge
+window.
+
+----------------------------------------------------------------
+Christophe JAILLET (1):
+      openrisc: Fix a memory leak
+
+Mike Rapoport (2):
+      openrisc: mm/init.c: remove unused memblock_region variable in map_ram()
+      openrisc: mm/init.c: remove unused variable 'end' in paging_init()
+
+Peter Zijlstra (1):
+      openrisc: Define memory barrier mb
+
+ arch/openrisc/include/asm/barrier.h | 9 +++++++++
+ arch/openrisc/kernel/setup.c        | 2 ++
+ arch/openrisc/mm/init.c             | 6 +-----
+ 3 files changed, 12 insertions(+), 5 deletions(-)
+ create mode 100644 arch/openrisc/include/asm/barrier.h
