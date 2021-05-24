@@ -1,10 +1,10 @@
 From: Sasha Levin <sashal@kernel.org>
-Date: Mon, 24 May 2021 10:47:28 -0400
-Subject: [OpenRISC] [PATCH AUTOSEL 5.10 47/62] openrisc: Define memory
+Date: Mon, 24 May 2021 10:48:53 -0400
+Subject: [OpenRISC] [PATCH AUTOSEL 5.4 43/52] openrisc: Define memory
  barrier mb
-In-Reply-To: <20210524144744.2497894-1-sashal@kernel.org>
-References: <20210524144744.2497894-1-sashal@kernel.org>
-Message-ID: <20210524144744.2497894-47-sashal@kernel.org>
+In-Reply-To: <20210524144903.2498518-1-sashal@kernel.org>
+References: <20210524144903.2498518-1-sashal@kernel.org>
+Message-ID: <20210524144903.2498518-43-sashal@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
