@@ -1,70 +1,80 @@
-From: Giulio Benetti <giulio.benetti@benettiengineering.com>
-Date: Tue, 25 May 2021 01:03:37 +0200
-Subject: [OpenRISC] Maybe another or1k bug
-In-Reply-To: <CAAfxs77Y1qOzex=Bkn5c_4Zxt6nzZP2cpG6qJ85eXnrAm18FgA@mail.gmail.com>
-References: <dbcce22d-b288-2451-4a8d-681f802c6f49@benettiengineering.com>
- <CAAfxs77Y1qOzex=Bkn5c_4Zxt6nzZP2cpG6qJ85eXnrAm18FgA@mail.gmail.com>
-Message-ID: <6bc67759-18c2-bca5-bdb2-c637e873b8ab@benettiengineering.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Wed, 26 May 2021 21:15:50 +0900
+Subject: [OpenRISC] Error found in mor1kx cache lru
+In-Reply-To: <CADGJwMzHeO13bW0i7JFGGtJRcUpGcPW+WxNzqKXRDWLLPFv-eA@mail.gmail.com>
+References: <CADGJwMzHeO13bW0i7JFGGtJRcUpGcPW+WxNzqKXRDWLLPFv-eA@mail.gmail.com>
+Message-ID: <YK479iP+xMY8Nucx@antec>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 5/25/21 12:34 AM, Stafford Horne wrote:
-> I'm cc'ing the list so there is a record, and other experts could come 
-> in if they like.
++CC list
 
-Ah yes, pardon
+Hi Harshita,
 
-> Ok, I'll take a look.
-> 
-> Thanks,  these are always fun for me.
+Thanks for reporting, could you also open a github issue with the
+same details at:
 
-That's great :-)
+ https://github.com/openrisc/mor1kx/issues
 
-> Also I forgot to respond about nios2 bugs. I could help if the bug 
-> looked the same. But to me it looked different.  So I'll hold off for now.
+-Stafford
 
-Ok, no problem. Thank you for fixing he OpenRisc ones.
+On Wed, May 26, 2021 at 02:52:11PM +0530, Harshitha S wrote:
 
-Best regards
--- 
-Giulio Benetti
-Benetti Engineering sas
+> 
+>      NUMWAYS = 4
+>      current = 6'b110100;
+>      access  = 4'b0010;
+>    
+>     This current history is:
+>    
+>       0<1 0<2 0<3 1<2 1<3 2<3
+>       0   0   1   0   1   1
+>     
+>      History of access => 3>0>1>2
+>      Access request is for 1, then expected order is 1>3>0>2.
+>      Expected values of lru_post = 1 and lru_pre = 2
+>  
+> Initial expand matrix based on current history
+> 
+>         0     1      2      3         0 1 2 3
+>    0    1    (0<1)  (0<2)  (0<3)    0 1 0 0 1
+>    1  (1<0)    1    (1<2)  (1<3) => 1 1 1 0 1
+>    2  (2<0)  (2<1)    1    (2<3)    2 1 1 1 1
+>    3  (3<0)  (3<1)  (3<2)    1      3 0 0 0 1
+> 
+> lru_pre is AND of bits in a row
+> 
+> When request access=4'b0010 then 1st row of expand matrix is 
+> replaced with zeros and 1st column of expand matrix is replaced 
+> with 1.
+> 
+>      
+>      
+> The matrix changes accordingly
+>       
+>          0 1 2 3      0 1 2 3
+>        0 1 0 0 1    0 1 1 0 1
+>        1 1 1 0 1 => 1 0 1 0 0
+>        2 1 1 1 1    2 1 1 1 1
+>        3 0 0 0 1    3 0 1 0 1
+> 
+> lru_post is product of bits in a column
+> 
+> update = 6'b100101
+> 
+> This means updated history is
+> 
+>  0<1 0<2 0<3 1<2 1<3 2<3
+>   1   0   1   0   0   1
+> 
+> This is what we interpret from output 1>3>0>2 and its same as our expectation.
+> 
+>    
 
-> On Tue, May 25, 2021, 7:10 AM Giulio Benetti 
-> <giulio.benetti@benettiengineering.com 
-> <mailto:giulio.benetti@benettiengineering.com>> wrote:
-> 
->     Hi Stafford,
-> 
->     I think I've found another or1k ld bug. Here is the build failure log:
->     http://autobuild.buildroot.net/results/ca3/ca3281294392da1a5ea84dbb9cc4c5bfea0c4ccf/build-end.log
->     <http://autobuild.buildroot.net/results/ca3/ca3281294392da1a5ea84dbb9cc4c5bfea0c4ccf/build-end.log>
-> 
->     It complains about:
->     pc-relative relocation against dynamic symbol
-> 
->     there is an archive of some files(libcommon.a) compiled in the
->     beginning
->     that gets linked with the rest of .o files. Every file is compiled with
->     -fPIC option so this should allow to link a .o with .a but it throws
->     that error.
-> 
->     I only see that error in or1k and alpha. Maybe I'm missing something.
->     When you have time and if you want, can you help me with that?
-> 
->     If you want to reproduce it it's the same procedure of previous bugs
->     but
->     you need to specify ca3281294392da1a5ea84dbb9cc4c5bfea0c4ccf to
->     br-reproduce-build.
-> 
->     Thanks in advance
->     and
->     Best regards
->     -- 
->     Giulio Benetti
->     Benetti Engineering sas
-> 
+
+
+
 
