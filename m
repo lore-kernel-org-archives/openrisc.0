@@ -1,301 +1,46 @@
-From: Masahiro Yamada <masahiroy@kernel.org>
-Date: Wed, 26 May 2021 23:32:22 +0900
-Subject: [OpenRISC] [PATCH 1/5] kbuild: require all architectures to
- have arch/$(SRCARCH)/Kbuild
-In-Reply-To: <20210512075729.60291-1-masahiroy@kernel.org>
-References: <20210512075729.60291-1-masahiroy@kernel.org>
-Message-ID: <CAK7LNAS7cEj9h=Hi0O-AoFjJPg2mxp0zbi8boXj4O9aYt_yg6Q@mail.gmail.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Thu, 27 May 2021 05:58:35 +0900
+Subject: [OpenRISC] Error found in mor1kx cache lru
+In-Reply-To: <CADGJwMzHeO13bW0i7JFGGtJRcUpGcPW+WxNzqKXRDWLLPFv-eA@mail.gmail.com>
+References: <CADGJwMzHeO13bW0i7JFGGtJRcUpGcPW+WxNzqKXRDWLLPFv-eA@mail.gmail.com>
+Message-ID: <CAAfxs75w_+9R_87uz6i0pkahaydzR7+if4JqRRQ5s_feZhVLgQ@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, May 12, 2021 at 5:00 PM Masahiro Yamada <masahiroy@kernel.org> wrote:
->
-> arch/$(SRCARCH)/Kbuild is useful for Makefile cleanups because you can
-> use the obj-y syntax.
->
-> Add an empty file if it is missing in arch/$(SRCARCH)/.
->
-> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-> ---
+Hi All,
 
+The github issue was added here:
 
-Applied to linux-kbuild.
+https://github.com/openrisc/mor1kx/issues/119
+
+Harshita thanks for you investigation and starting early on GSoC you
+are already getting into some interesting parts.
+
+On Wed, May 26, 2021 at 6:21 PM Harshitha S
+<harshithasridhar172000@gmail.com> wrote:
+>
+> Hello Sir,
+>
+> I'm Harshitha, I was looking into the formal verification of mor1kx's cache LRU module and I found a bug there.
+>
+> I was expecting that the variable access request would be the new lru_post value, but it's not the case. lru_post is calculated as AND of rows but I think it has to be considered as AND of columns. I considered the same example as per your description, wrote a test bench to verify it. I got different update variable values that the code functionally executes. I corrected the code by modifying the lru_post computation, then I was able to get the access same as the lru_post.
+
+I think its not correct, the lru_post is the least recently used from
+history.  The access request is the "most recently used", so it will
+not be in lru_post.
 
 >
->  Makefile               | 2 +-
->  arch/alpha/Kbuild      | 1 +
->  arch/arc/Makefile      | 3 ---
->  arch/arm/Makefile      | 1 -
->  arch/arm64/Makefile    | 1 -
->  arch/csky/Kbuild       | 1 +
->  arch/h8300/Kbuild      | 1 +
->  arch/hexagon/Kbuild    | 1 +
->  arch/ia64/Kbuild       | 1 +
->  arch/microblaze/Kbuild | 1 +
->  arch/mips/Makefile     | 3 ---
->  arch/nds32/Kbuild      | 1 +
->  arch/nios2/Kbuild      | 1 +
->  arch/openrisc/Makefile | 1 -
->  arch/parisc/Kbuild     | 1 +
->  arch/powerpc/Makefile  | 3 ---
->  arch/riscv/Makefile    | 1 -
->  arch/s390/Makefile     | 3 ---
->  arch/sh/Kbuild         | 1 +
->  arch/sparc/Makefile    | 3 ---
->  arch/um/Kbuild         | 1 +
->  arch/x86/Makefile      | 3 ---
->  arch/xtensa/Kbuild     | 1 +
->  23 files changed, 13 insertions(+), 23 deletions(-)
->  create mode 100644 arch/alpha/Kbuild
->  create mode 100644 arch/csky/Kbuild
->  create mode 100644 arch/h8300/Kbuild
->  create mode 100644 arch/hexagon/Kbuild
->  create mode 100644 arch/ia64/Kbuild
->  create mode 100644 arch/microblaze/Kbuild
->  create mode 100644 arch/nds32/Kbuild
->  create mode 100644 arch/nios2/Kbuild
->  create mode 100644 arch/parisc/Kbuild
->  create mode 100644 arch/sh/Kbuild
->  create mode 100644 arch/um/Kbuild
->  create mode 100644 arch/xtensa/Kbuild
->
-> diff --git a/Makefile b/Makefile
-> index 15b6476d0f89..7df040b1b023 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -658,7 +658,7 @@ endif
->
->  ifeq ($(KBUILD_EXTMOD),)
->  # Objects we will link into vmlinux / subdirs we need to visit
-> -core-y         := init/ usr/
-> +core-y         := init/ usr/ arch/$(SRCARCH)/
->  drivers-y      := drivers/ sound/
->  drivers-$(CONFIG_SAMPLES) += samples/
->  drivers-$(CONFIG_NET) += net/
-> diff --git a/arch/alpha/Kbuild b/arch/alpha/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/alpha/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/arc/Makefile b/arch/arc/Makefile
-> index 4392c9c189c4..3e6d4b84797f 100644
-> --- a/arch/arc/Makefile
-> +++ b/arch/arc/Makefile
-> @@ -85,9 +85,6 @@ KBUILD_LDFLAGS        += $(ldflags-y)
->
->  head-y         := arch/arc/kernel/head.o
->
-> -# See arch/arc/Kbuild for content of core part of the kernel
-> -core-y         += arch/arc/
-> -
->  # w/o this dtb won't embed into kernel binary
->  core-y         += arch/arc/boot/dts/
->
-> diff --git a/arch/arm/Makefile b/arch/arm/Makefile
-> index 415c3514573a..173da685a52e 100644
-> --- a/arch/arm/Makefile
-> +++ b/arch/arm/Makefile
-> @@ -252,7 +252,6 @@ endif
->
->  export TEXT_OFFSET GZFLAGS MMUEXT
->
-> -core-y                         += arch/arm/
->  # If we have a machine-specific directory, then include it in the build.
->  core-y                         += $(machdirs) $(platdirs)
->
-> diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
-> index 7ef44478560d..b73c151f3a53 100644
-> --- a/arch/arm64/Makefile
-> +++ b/arch/arm64/Makefile
-> @@ -149,7 +149,6 @@ KBUILD_CFLAGS += -DKASAN_SHADOW_SCALE_SHIFT=$(KASAN_SHADOW_SCALE_SHIFT)
->  KBUILD_CPPFLAGS += -DKASAN_SHADOW_SCALE_SHIFT=$(KASAN_SHADOW_SCALE_SHIFT)
->  KBUILD_AFLAGS += -DKASAN_SHADOW_SCALE_SHIFT=$(KASAN_SHADOW_SCALE_SHIFT)
->
-> -core-y         += arch/arm64/
->  libs-y         := arch/arm64/lib/ $(libs-y)
->  libs-$(CONFIG_EFI_STUB) += $(objtree)/drivers/firmware/efi/libstub/lib.a
->
-> diff --git a/arch/csky/Kbuild b/arch/csky/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/csky/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/h8300/Kbuild b/arch/h8300/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/h8300/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/hexagon/Kbuild b/arch/hexagon/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/hexagon/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/ia64/Kbuild b/arch/ia64/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/ia64/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/microblaze/Kbuild b/arch/microblaze/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/microblaze/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/mips/Makefile b/arch/mips/Makefile
-> index 258234c35a09..4e942b7ef022 100644
-> --- a/arch/mips/Makefile
-> +++ b/arch/mips/Makefile
-> @@ -332,9 +332,6 @@ head-y := arch/mips/kernel/head.o
->  libs-y                 += arch/mips/lib/
->  libs-$(CONFIG_MIPS_FP_SUPPORT) += arch/mips/math-emu/
->
-> -# See arch/mips/Kbuild for content of core part of the kernel
-> -core-y += arch/mips/
-> -
->  drivers-y                      += arch/mips/crypto/
->
->  # suspend and hibernation support
-> diff --git a/arch/nds32/Kbuild b/arch/nds32/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/nds32/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/nios2/Kbuild b/arch/nios2/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/nios2/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/openrisc/Makefile b/arch/openrisc/Makefile
-> index 410e7abfac69..c52de526e518 100644
-> --- a/arch/openrisc/Makefile
-> +++ b/arch/openrisc/Makefile
-> @@ -42,7 +42,6 @@ endif
->
->  head-y                 := arch/openrisc/kernel/head.o
->
-> -core-y         += arch/openrisc/
->  libs-y         += $(LIBGCC)
->
->  PHONY += vmlinux.bin
-> diff --git a/arch/parisc/Kbuild b/arch/parisc/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/parisc/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
-> index 3212d076ac6a..af669aa75b73 100644
-> --- a/arch/powerpc/Makefile
-> +++ b/arch/powerpc/Makefile
-> @@ -267,9 +267,6 @@ head-$(CONFIG_PPC_FPU)              += arch/powerpc/kernel/fpu.o
->  head-$(CONFIG_ALTIVEC)         += arch/powerpc/kernel/vector.o
->  head-$(CONFIG_PPC_OF_BOOT_TRAMPOLINE)  += arch/powerpc/kernel/prom_init.o
->
-> -# See arch/powerpc/Kbuild for content of core part of the kernel
-> -core-y += arch/powerpc/
-> -
->  # Default to zImage, override when needed
->  all: zImage
->
-> diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
-> index 3eb9590a0775..c5f359540862 100644
-> --- a/arch/riscv/Makefile
-> +++ b/arch/riscv/Makefile
-> @@ -90,7 +90,6 @@ endif
->
->  head-y := arch/riscv/kernel/head.o
->
-> -core-y += arch/riscv/
->  core-$(CONFIG_RISCV_ERRATA_ALTERNATIVE) += arch/riscv/errata/
->
->  libs-y += arch/riscv/lib/
-> diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-> index e443ed9947bd..37b61645694c 100644
-> --- a/arch/s390/Makefile
-> +++ b/arch/s390/Makefile
-> @@ -128,9 +128,6 @@ OBJCOPYFLAGS        := -O binary
->
->  head-y         := arch/s390/kernel/head64.o
->
-> -# See arch/s390/Kbuild for content of core part of the kernel
-> -core-y         += arch/s390/
-> -
->  libs-y         += arch/s390/lib/
->  drivers-y      += drivers/s390/
->
-> diff --git a/arch/sh/Kbuild b/arch/sh/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/sh/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/sparc/Makefile b/arch/sparc/Makefile
-> index bee99e65fe23..4e65245bc755 100644
-> --- a/arch/sparc/Makefile
-> +++ b/arch/sparc/Makefile
-> @@ -58,9 +58,6 @@ endif
->
->  head-y                 := arch/sparc/kernel/head_$(BITS).o
->
-> -# See arch/sparc/Kbuild for the core part of the kernel
-> -core-y                 += arch/sparc/
-> -
->  libs-y                 += arch/sparc/prom/
->  libs-y                 += arch/sparc/lib/
->
-> diff --git a/arch/um/Kbuild b/arch/um/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/um/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/x86/Makefile b/arch/x86/Makefile
-> index c77c5d8a7b3e..4307bf48ec53 100644
-> --- a/arch/x86/Makefile
-> +++ b/arch/x86/Makefile
-> @@ -239,9 +239,6 @@ head-y += arch/x86/kernel/platform-quirks.o
->
->  libs-y  += arch/x86/lib/
->
-> -# See arch/x86/Kbuild for content of core part of the kernel
-> -core-y += arch/x86/
-> -
->  # drivers-y are linked after core-y
->  drivers-$(CONFIG_MATH_EMULATION) += arch/x86/math-emu/
->  drivers-$(CONFIG_PCI)            += arch/x86/pci/
-> diff --git a/arch/xtensa/Kbuild b/arch/xtensa/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/xtensa/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> --
-> 2.27.0
+> I came across another unusual thing. In the code snippet where the expand matrix is updated, the row number for exchange is not computed before because of which the last row of the expand matrix is considered as one bit less by the formal tool. You can check the expand_error image for this error where the third row of the matrix has only 3 bits instead of 4.  I tried to precompute the row number for exchange then I didn't face this error. You can look into no_expand_error  where this issue was resolved.
 >
 
+That sounds strange, can you post a PR for this change?  or a patch
+using 'git diff` its easier to explain code changes using patches.
 
--- 
-Best Regards
-Masahiro Yamada
+> I request you to look into this error. Let me know what you think.
+>
+> Regards
+> -Harshitha
+>
