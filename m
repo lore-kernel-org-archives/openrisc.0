@@ -1,44 +1,21 @@
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
-Date: Fri, 4 Jun 2021 15:06:28 +0800
-Subject: [OpenRISC] [PATCH v2 10/15] openrisc: convert to
- setup_initial_init_mm()
-In-Reply-To: <20210604070633.32363-1-wangkefeng.wang@huawei.com>
-References: <20210604070633.32363-1-wangkefeng.wang@huawei.com>
-Message-ID: <20210604070633.32363-11-wangkefeng.wang@huawei.com>
+From: Chen Li <chenli@uniontech.com>
+Date: Fri, 04 Jun 2021 15:23:07 +0800
+Subject: [OpenRISC] [PATCH] mm: update legacy flush_tlb_* to use vma
+In-Reply-To: <87k0oaq311.wl-chenli@uniontech.com>
+References: <87k0oaq311.wl-chenli@uniontech.com>
+Message-ID: <87bl8mccv8.wl-chenli@uniontech.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Use setup_initial_init_mm() helper to simplify code.
 
-Acked-by: Stafford Horne <shorne@gmail.com>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: openrisc at lists.librecores.org
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
----
- arch/openrisc/kernel/setup.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
-index c6f9e7b9f7cb..8ae2da6ac097 100644
---- a/arch/openrisc/kernel/setup.c
-+++ b/arch/openrisc/kernel/setup.c
-@@ -293,10 +293,7 @@ void __init setup_arch(char **cmdline_p)
- #endif
- 
- 	/* process 1's initial memory region is the kernel code/data */
--	init_mm.start_code = (unsigned long)_stext;
--	init_mm.end_code = (unsigned long)_etext;
--	init_mm.end_data = (unsigned long)_edata;
--	init_mm.brk = (unsigned long)_end;
-+	setup_initial_init_mm(_stext, _etext, _edata, _end);
- 
- #ifdef CONFIG_BLK_DEV_INITRD
- 	if (initrd_start == initrd_end) {
--- 
-2.26.2
+Gentle ping on this patch: https://www.spinics.net/lists/arm-kernel/msg893017.html, also add Andrew Morton and <linux-mm@kvack.org> to list.
+
+--
+Thanks
+Chen Li
+
 
