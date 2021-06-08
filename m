@@ -1,44 +1,60 @@
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
-Date: Tue, 8 Jun 2021 16:34:13 +0800
-Subject: [OpenRISC] [PATCH v3 resend 10/15] openrisc: convert to
- setup_initial_init_mm()
-In-Reply-To: <20210608083418.137226-1-wangkefeng.wang@huawei.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Date: Tue, 8 Jun 2021 16:57:13 +0200
+Subject: [OpenRISC] [PATCH v3 resend 01/15] mm: add
+ setup_initial_init_mm() helper
+In-Reply-To: <CAFqt6zYmCQ=wxEjnOJ6fgJWYQyFajBuxWD=UT_D-WjWUS_4pcw@mail.gmail.com>
 References: <20210608083418.137226-1-wangkefeng.wang@huawei.com>
-Message-ID: <20210608083418.137226-11-wangkefeng.wang@huawei.com>
+ <20210608083418.137226-2-wangkefeng.wang@huawei.com>
+ <CAFqt6zYmCQ=wxEjnOJ6fgJWYQyFajBuxWD=UT_D-WjWUS_4pcw@mail.gmail.com>
+Message-ID: <34f88fdc-1842-7954-bccc-0142a8d66eea@csgroup.eu>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-Use setup_initial_init_mm() helper to simplify code.
 
-Acked-by: Stafford Horne <shorne@gmail.com>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: openrisc at lists.librecores.org
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
----
- arch/openrisc/kernel/setup.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
-index c6f9e7b9f7cb..8ae2da6ac097 100644
---- a/arch/openrisc/kernel/setup.c
-+++ b/arch/openrisc/kernel/setup.c
-@@ -293,10 +293,7 @@ void __init setup_arch(char **cmdline_p)
- #endif
- 
- 	/* process 1's initial memory region is the kernel code/data */
--	init_mm.start_code = (unsigned long)_stext;
--	init_mm.end_code = (unsigned long)_etext;
--	init_mm.end_data = (unsigned long)_edata;
--	init_mm.brk = (unsigned long)_end;
-+	setup_initial_init_mm(_stext, _etext, _edata, _end);
- 
- #ifdef CONFIG_BLK_DEV_INITRD
- 	if (initrd_start == initrd_end) {
--- 
-2.26.2
+Le 08/06/2021 à 16:53, Souptick Joarder a écrit :
+> On Tue, Jun 8, 2021 at 1:56 PM Kefeng Wang <wangkefeng.wang@huawei.com> wrote:
+>>
+>> Add setup_initial_init_mm() helper to setup kernel text,
+>> data and brk.
+>>
+>> Cc: linux-snps-arc at lists.infradead.org
+>> Cc: linux-arm-kernel at lists.infradead.org
+>> Cc: linux-csky at vger.kernel.org
+>> Cc: uclinux-h8-devel at lists.sourceforge.jp
+>> Cc: linux-m68k at lists.linux-m68k.org
+>> Cc: openrisc at lists.librecores.org
+>> Cc: linuxppc-dev at lists.ozlabs.org
+>> Cc: linux-riscv at lists.infradead.org
+>> Cc: linux-sh at vger.kernel.org
+>> Cc: linux-s390 at vger.kernel.org
+>> Cc: x86 at kernel.org
+>> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+>> ---
+>>   include/linux/mm.h | 3 +++
+>>   mm/init-mm.c       | 9 +++++++++
+>>   2 files changed, 12 insertions(+)
+>>
+>> diff --git a/include/linux/mm.h b/include/linux/mm.h
+>> index c274f75efcf9..02aa057540b7 100644
+>> --- a/include/linux/mm.h
+>> +++ b/include/linux/mm.h
+>> @@ -244,6 +244,9 @@ int __add_to_page_cache_locked(struct page *page, struct address_space *mapping,
+>>
+>>   #define lru_to_page(head) (list_entry((head)->prev, struct page, lru))
+>>
+>> +void setup_initial_init_mm(void *start_code, void *end_code,
+>> +                          void *end_data, void *brk);
+>> +
+> 
+> Gentle query -> is there any limitation to add inline functions in
+> setup_arch() functions ?
+
+Kefeng just followed comment from Mike I guess, see 
+https://patchwork.ozlabs.org/project/linuxppc-dev/patch/20210604070633.32363-2-wangkefeng.wang at huawei.com/#2696253
+
+Christophe
 
