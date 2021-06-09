@@ -1,66 +1,55 @@
-From: Souptick Joarder <jrdr.linux@gmail.com>
-Date: Tue, 8 Jun 2021 20:44:08 +0530
-Subject: [OpenRISC] [PATCH v3 resend 01/15] mm: add
- setup_initial_init_mm() helper
-In-Reply-To: <34f88fdc-1842-7954-bccc-0142a8d66eea@csgroup.eu>
-References: <20210608083418.137226-1-wangkefeng.wang@huawei.com>
- <20210608083418.137226-2-wangkefeng.wang@huawei.com>
- <CAFqt6zYmCQ=wxEjnOJ6fgJWYQyFajBuxWD=UT_D-WjWUS_4pcw@mail.gmail.com>
- <34f88fdc-1842-7954-bccc-0142a8d66eea@csgroup.eu>
-Message-ID: <CAFqt6zbV32+FsEFywqb6vk90tQ442S63CO+bh=2h8OxxutYQEQ@mail.gmail.com>
+From: Giulio Benetti <giulio.benetti@benettiengineering.com>
+Date: Wed,  9 Jun 2021 17:30:59 +0200
+Subject: [OpenRISC] [PATCH] bfd/elf32-or1k: fix building with gcc version < 5
+Message-ID: <20210609153059.191496-1-giulio.benetti@benettiengineering.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Jun 8, 2021 at 8:27 PM Christophe Leroy
-<christophe.leroy@csgroup.eu> wrote:
->
->
->
-> Le 08/06/2021 à 16:53, Souptick Joarder a écrit :
-> > On Tue, Jun 8, 2021 at 1:56 PM Kefeng Wang <wangkefeng.wang@huawei.com> wrote:
-> >>
-> >> Add setup_initial_init_mm() helper to setup kernel text,
-> >> data and brk.
-> >>
-> >> Cc: linux-snps-arc at lists.infradead.org
-> >> Cc: linux-arm-kernel at lists.infradead.org
-> >> Cc: linux-csky at vger.kernel.org
-> >> Cc: uclinux-h8-devel at lists.sourceforge.jp
-> >> Cc: linux-m68k at lists.linux-m68k.org
-> >> Cc: openrisc at lists.librecores.org
-> >> Cc: linuxppc-dev at lists.ozlabs.org
-> >> Cc: linux-riscv at lists.infradead.org
-> >> Cc: linux-sh at vger.kernel.org
-> >> Cc: linux-s390 at vger.kernel.org
-> >> Cc: x86 at kernel.org
-> >> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-> >> ---
-> >>   include/linux/mm.h | 3 +++
-> >>   mm/init-mm.c       | 9 +++++++++
-> >>   2 files changed, 12 insertions(+)
-> >>
-> >> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> >> index c274f75efcf9..02aa057540b7 100644
-> >> --- a/include/linux/mm.h
-> >> +++ b/include/linux/mm.h
-> >> @@ -244,6 +244,9 @@ int __add_to_page_cache_locked(struct page *page, struct address_space *mapping,
-> >>
-> >>   #define lru_to_page(head) (list_entry((head)->prev, struct page, lru))
-> >>
-> >> +void setup_initial_init_mm(void *start_code, void *end_code,
-> >> +                          void *end_data, void *brk);
-> >> +
-> >
-> > Gentle query -> is there any limitation to add inline functions in
-> > setup_arch() functions ?
->
-> Kefeng just followed comment from Mike I guess, see
-> https://patchwork.ozlabs.org/project/linuxppc-dev/patch/20210604070633.32363-2-wangkefeng.wang at huawei.com/#2696253
+Gcc version >= 5 has standard C mode not set to -std=gnu11, so if we use
+an old compiler(i.e. gcc 4.9) build fails on:
+```
+elf32-or1k.c:2251:3: error: 'for' loop initial declarations are only allowed in
+C99 or C11 mode
+    for (size_t i = 0; i < insn_count; i++)
+    ^
+```
 
-Ok.
->
-> Christophe
->
+So let's declare `size_t i` at the top of the function instead of inside
+for loop.
+
+Signed-off-by: Giulio Benetti <giulio.benetti@benettiengineering.com>
+---
+ bfd/elf32-or1k.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/bfd/elf32-or1k.c b/bfd/elf32-or1k.c
+index 4ae7f324d33..32063ab0289 100644
+--- a/bfd/elf32-or1k.c
++++ b/bfd/elf32-or1k.c
+@@ -2244,9 +2244,10 @@ or1k_write_plt_entry (bfd *output_bfd, bfd_byte *contents, unsigned insnj,
+ {
+   unsigned nodelay = elf_elfheader (output_bfd)->e_flags & EF_OR1K_NODELAY;
+   unsigned output_insns[PLT_MAX_INSN_COUNT];
++  size_t i;
+ 
+   /* Copy instructions into the output buffer.  */
+-  for (size_t i = 0; i < insn_count; i++)
++  for (i = 0; i < insn_count; i++)
+     output_insns[i] = insns[i];
+ 
+   /* Honor the no-delay-slot setting.  */
+@@ -2277,7 +2278,7 @@ or1k_write_plt_entry (bfd *output_bfd, bfd_byte *contents, unsigned insnj,
+     }
+ 
+   /* Write out the output buffer.  */
+-  for (size_t i = 0; i < (insn_count+1); i++)
++  for (i = 0; i < (insn_count+1); i++)
+     bfd_put_32 (output_bfd, output_insns[i], contents + (i*4));
+ }
+ 
+-- 
+2.25.1
+
