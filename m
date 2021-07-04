@@ -1,10 +1,10 @@
 From: Sasha Levin <sashal@kernel.org>
-Date: Sun,  4 Jul 2021 19:03:15 -0400
-Subject: [OpenRISC] [PATCH AUTOSEL 5.13 20/85] sched/core: Initialize the
+Date: Sun,  4 Jul 2021 19:05:16 -0400
+Subject: [OpenRISC] [PATCH AUTOSEL 5.12 20/80] sched/core: Initialize the
  idle task with preemption disabled
-In-Reply-To: <20210704230420.1488358-1-sashal@kernel.org>
-References: <20210704230420.1488358-1-sashal@kernel.org>
-Message-ID: <20210704230420.1488358-20-sashal@kernel.org>
+In-Reply-To: <20210704230616.1489200-1-sashal@kernel.org>
+References: <20210704230616.1489200-1-sashal@kernel.org>
+Message-ID: <20210704230616.1489200-20-sashal@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -134,10 +134,10 @@ index 80e946b2abee..e83f0982b99c 100644
  
  static inline void set_preempt_need_resched(void)
 diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
-index dcd7041b2b07..6671000a8b7d 100644
+index 357590beaabb..48fd89256739 100644
 --- a/arch/arm64/kernel/smp.c
 +++ b/arch/arm64/kernel/smp.c
-@@ -224,7 +224,6 @@ asmlinkage notrace void secondary_start_kernel(void)
+@@ -223,7 +223,6 @@ asmlinkage notrace void secondary_start_kernel(void)
  		init_gic_priority_masking();
  
  	rcu_cpu_starting(cpu);
@@ -207,10 +207,10 @@ index 10227f667c8a..1405b603b91b 100644
  	flush_cache_all_local(); /* start with known state */
  	flush_tlb_all_local(NULL);
 diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
-index 2e05c783440a..6c6e4d934d86 100644
+index c2473e20f5f5..1d7daef1c3b6 100644
 --- a/arch/powerpc/kernel/smp.c
 +++ b/arch/powerpc/kernel/smp.c
-@@ -1547,7 +1547,6 @@ void start_secondary(void *unused)
+@@ -1530,7 +1530,6 @@ void start_secondary(void *unused)
  	smp_store_cpu_info(cpu);
  	set_dec(tb_ticks_per_jiffy);
  	rcu_cpu_starting(cpu);
@@ -219,10 +219,10 @@ index 2e05c783440a..6c6e4d934d86 100644
  
  	if (smp_ops->setup_cpu)
 diff --git a/arch/riscv/kernel/smpboot.c b/arch/riscv/kernel/smpboot.c
-index 9a408e2942ac..bd82375db51a 100644
+index 5e276c25646f..1941a6ce86a1 100644
 --- a/arch/riscv/kernel/smpboot.c
 +++ b/arch/riscv/kernel/smpboot.c
-@@ -180,7 +180,6 @@ asmlinkage __visible void smp_callin(void)
+@@ -176,7 +176,6 @@ asmlinkage __visible void smp_callin(void)
  	 * Disable preemption before enabling interrupts, so we don't try to
  	 * schedule a CPU that hasn't actually started yet.
  	 */
@@ -253,10 +253,10 @@ index b49e0492842c..23ff51be7e29 100644
  
  static inline void set_preempt_need_resched(void)
 diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index 2fec2b80d35d..111909aeb8d2 100644
+index 58c8afa3da65..d60c7374d807 100644
 --- a/arch/s390/kernel/smp.c
 +++ b/arch/s390/kernel/smp.c
-@@ -878,7 +878,6 @@ static void smp_init_secondary(void)
+@@ -877,7 +877,6 @@ static void smp_init_secondary(void)
  	restore_access_regs(S390_lowcore.access_regs_save_area);
  	cpu_init();
  	rcu_cpu_starting(cpu);
@@ -317,7 +317,7 @@ index f8cb8af4de5c..fe5efbcba824 100644
  
  /*
 diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-index 7770245cc7fa..ec2d64aa2163 100644
+index 363b36bbd791..ebc4b13b74a4 100644
 --- a/arch/x86/kernel/smpboot.c
 +++ b/arch/x86/kernel/smpboot.c
 @@ -236,7 +236,6 @@ static void notrace start_secondary(void *unused)
@@ -354,10 +354,10 @@ index d683f5e6d791..b4d43a4af5f7 100644
  
  static __always_inline void set_preempt_need_resched(void)
 diff --git a/init/main.c b/init/main.c
-index e9c42a183e33..e6836a9400d5 100644
+index 5bd1a25f1d6f..c97d3c0247a1 100644
 --- a/init/main.c
 +++ b/init/main.c
-@@ -941,11 +941,7 @@ asmlinkage __visible void __init __no_sanitize_address start_kernel(void)
+@@ -918,11 +918,7 @@ asmlinkage __visible void __init __no_sanitize_address start_kernel(void)
  	 * time - but meanwhile we still have a functioning scheduler.
  	 */
  	sched_init();
@@ -371,10 +371,10 @@ index e9c42a183e33..e6836a9400d5 100644
  		 "Interrupts were enabled *very* early, fixing it\n"))
  		local_irq_disable();
 diff --git a/kernel/fork.c b/kernel/fork.c
-index 24a689df61c9..98b4bc7f0d7b 100644
+index 321a5e31d817..2654a5a9e5df 100644
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
-@@ -2407,7 +2407,7 @@ static inline void init_idle_pids(struct task_struct *idle)
+@@ -2405,7 +2405,7 @@ static inline void init_idle_pids(struct task_struct *idle)
  	}
  }
  
@@ -384,10 +384,10 @@ index 24a689df61c9..98b4bc7f0d7b 100644
  	struct task_struct *task;
  	struct kernel_clone_args args = {
 diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 4ca80df205ce..0a90d4d7663b 100644
+index 814200541f8f..e25b2d8ec18d 100644
 --- a/kernel/sched/core.c
 +++ b/kernel/sched/core.c
-@@ -7433,7 +7433,7 @@ void show_state_filter(unsigned long state_filter)
+@@ -7428,7 +7428,7 @@ void show_state_filter(unsigned long state_filter)
   * NOTE: this function does not set the idle thread's NEED_RESCHED
   * flag, to make booting more robust.
   */
