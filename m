@@ -1,85 +1,48 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Tue, 6 Jul 2021 06:21:03 +0900
+From: Jeff Johnston <jjohnstn@redhat.com>
+Date: Mon, 5 Jul 2021 18:03:38 -0400
 Subject: [OpenRISC] [PATCH] libgloss/or1k: Correct the IMMU SXE and UXE
  flags
-In-Reply-To: <CAOox84vC8qfYVufYN+9yCiQtt=hJRfhz=Q_xczF8W5zvGq4Z+A@mail.gmail.com>
+In-Reply-To: <YON3v1bM0J4r9AzE@antec>
 References: <20210701231748.1098623-1-shorne@gmail.com>
  <CAOox84vC8qfYVufYN+9yCiQtt=hJRfhz=Q_xczF8W5zvGq4Z+A@mail.gmail.com>
-Message-ID: <YON3v1bM0J4r9AzE@antec>
+ <YON3v1bM0J4r9AzE@antec>
+Message-ID: <CAOox84vBu1=ZPnq9v-8oN_-K=BDw6v0MTEhGhAwfV+Vt=+q_Pg@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Jul 05, 2021 at 04:59:27PM -0400, Jeff Johnston wrote:
-> Hi Stafford,
-> 
-> Please resend with the patch as an attachment.
-> 
-> Thanks,
+Hi Stafford,
 
-Alright,
+It's not you, it's on my side with gmail..  It often distorts git patches
+unless they are attachments.
 
-I hope it't OK in a reply here.  I usually send patches using git send-email, is
-this something new for newlib?
+Anyway, patch applied and pushed to master.
 
-Please find attached
+Regards,
 
--Stafford
+-- Jeff J.
+
+On Mon, Jul 5, 2021 at 5:21 PM Stafford Horne <shorne@gmail.com> wrote:
+
+> On Mon, Jul 05, 2021 at 04:59:27PM -0400, Jeff Johnston wrote:
+> > Hi Stafford,
+> >
+> > Please resend with the patch as an attachment.
+> >
+> > Thanks,
+>
+> Alright,
+>
+> I hope it't OK in a reply here.  I usually send patches using git
+> send-email, is
+> this something new for newlib?
+>
+> Please find attached
+>
+> -Stafford
+>
 -------------- next part --------------
-From f25c7124bc88627baf532d79c08130f1d2b61efb Mon Sep 17 00:00:00 2001
-From: Stafford Horne <shorne@gmail.com>
-Date: Fri, 2 Jul 2021 06:24:57 +0900
-Subject: [PATCH] libgloss/or1k: Correct the IMMU SXE and UXE flags
-
-These have been defined incorrectly, as per specification and CPU
-implementations SXE is bit 6 and UXE is bit 7.  This was noticed when
-tracking down our test suite mmu test failures.
-
- Test Suite: https://github.com/openrisc/or1k-tests/blob/master/native/or1k/or1k-mmu.c#L68-L72
- Spec: https://raw.githubusercontent.com/openrisc/doc/master/openrisc-arch-1.3-rev1.pdf
-
-See section 8.4.8 Instruction Translation Lookaside Buffer Way y Translate
-Registers where these are defined.
-
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- libgloss/or1k/include/or1k-sprs.h | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
-
-diff --git a/libgloss/or1k/include/or1k-sprs.h b/libgloss/or1k/include/or1k-sprs.h
-index 8d1fe5ed9..d545fb1d3 100644
---- a/libgloss/or1k/include/or1k-sprs.h
-+++ b/libgloss/or1k/include/or1k-sprs.h
-@@ -1797,17 +1797,17 @@
- #define OR1K_SPR_IMMU_ITLBW_TR_D_GET(X) (((X) >> 5) & 0x1)
- #define OR1K_SPR_IMMU_ITLBW_TR_D_SET(X, Y) (((X) & OR1K_UNSIGNED(0xffffffdf)) | ((!!(Y)) << 5))
- 
--/* User Execute Enable */
--#define OR1K_SPR_IMMU_ITLBW_TR_UXE_OFFSET 6
--#define OR1K_SPR_IMMU_ITLBW_TR_UXE_MASK   0x00000040
--#define OR1K_SPR_IMMU_ITLBW_TR_UXE_GET(X) (((X) >> 6) & 0x1)
--#define OR1K_SPR_IMMU_ITLBW_TR_UXE_SET(X, Y) (((X) & OR1K_UNSIGNED(0xffffffbf)) | ((!!(Y)) << 6))
--
- /* Supervisor Execute Enable */
--#define OR1K_SPR_IMMU_ITLBW_TR_SXE_OFFSET 7
--#define OR1K_SPR_IMMU_ITLBW_TR_SXE_MASK   0x00000080
--#define OR1K_SPR_IMMU_ITLBW_TR_SXE_GET(X) (((X) >> 7) & 0x1)
--#define OR1K_SPR_IMMU_ITLBW_TR_SXE_SET(X, Y) (((X) & OR1K_UNSIGNED(0xffffff7f)) | ((!!(Y)) << 7))
-+#define OR1K_SPR_IMMU_ITLBW_TR_SXE_OFFSET 6
-+#define OR1K_SPR_IMMU_ITLBW_TR_SXE_MASK   0x00000040
-+#define OR1K_SPR_IMMU_ITLBW_TR_SXE_GET(X) (((X) >> 6) & 0x1)
-+#define OR1K_SPR_IMMU_ITLBW_TR_SXE_SET(X, Y) (((X) & OR1K_UNSIGNED(0xffffffbf)) | ((!!(Y)) << 6))
-+
-+/* User Execute Enable */
-+#define OR1K_SPR_IMMU_ITLBW_TR_UXE_OFFSET 7
-+#define OR1K_SPR_IMMU_ITLBW_TR_UXE_MASK   0x00000080
-+#define OR1K_SPR_IMMU_ITLBW_TR_UXE_GET(X) (((X) >> 7) & 0x1)
-+#define OR1K_SPR_IMMU_ITLBW_TR_UXE_SET(X, Y) (((X) & OR1K_UNSIGNED(0xffffff7f)) | ((!!(Y)) << 7))
- 
- /* Physical Page Number */
- #define OR1K_SPR_IMMU_ITLBW_TR_PPN_LSB    13
--- 
-2.31.1
-
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20210705/6ea0df62/attachment.htm>
