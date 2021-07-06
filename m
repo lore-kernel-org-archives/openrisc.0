@@ -1,48 +1,42 @@
-From: Jeff Johnston <jjohnstn@redhat.com>
-Date: Mon, 5 Jul 2021 18:03:38 -0400
-Subject: [OpenRISC] [PATCH] libgloss/or1k: Correct the IMMU SXE and UXE
- flags
-In-Reply-To: <YON3v1bM0J4r9AzE@antec>
-References: <20210701231748.1098623-1-shorne@gmail.com>
- <CAOox84vC8qfYVufYN+9yCiQtt=hJRfhz=Q_xczF8W5zvGq4Z+A@mail.gmail.com>
- <YON3v1bM0J4r9AzE@antec>
-Message-ID: <CAOox84vBu1=ZPnq9v-8oN_-K=BDw6v0MTEhGhAwfV+Vt=+q_Pg@mail.gmail.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Tue, 6 Jul 2021 15:40:07 +0900
+Subject: [OpenRISC] [GIT PULL] OpenRISC updates for 5.14
+Message-ID: <YOP6x0Mz8aBv9x18@antec>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Stafford,
+Hi Linus,
 
-It's not you, it's on my side with gmail..  It often distorts git patches
-unless they are attachments.
+Please consider for pull
 
-Anyway, patch applied and pushed to master.
+The following changes since commit 614124bea77e452aa6df7a8714e8bc820b489922:
 
-Regards,
+  Linux 5.13-rc5 (2021-06-06 15:47:27 -0700)
 
--- Jeff J.
+are available in the Git repository at:
 
-On Mon, Jul 5, 2021 at 5:21 PM Stafford Horne <shorne@gmail.com> wrote:
+  git://github.com/openrisc/linux.git tags/for-linus
 
-> On Mon, Jul 05, 2021 at 04:59:27PM -0400, Jeff Johnston wrote:
-> > Hi Stafford,
-> >
-> > Please resend with the patch as an attachment.
-> >
-> > Thanks,
->
-> Alright,
->
-> I hope it't OK in a reply here.  I usually send patches using git
-> send-email, is
-> this something new for newlib?
->
-> Please find attached
->
-> -Stafford
->
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20210705/6ea0df62/attachment.htm>
+for you to fetch changes up to ad4e600cbf897f47525b342cd4b02e88ed300a83:
+
+  drivers/soc/litex: remove 8-bit subregister option (2021-06-11 04:35:40 +0900)
+
+----------------------------------------------------------------
+OpenRISC updates for 5.14
+
+One change to simplify Litex CSR (MMIO register) access by limiting them
+to 32-bit offsets.  Now this is agreed among Litex hardware and kernel
+developers it will allow us to start upstreaming other Litex peripheral
+drivers.
+
+----------------------------------------------------------------
+Gabriel Somlo (1):
+      drivers/soc/litex: remove 8-bit subregister option
+
+ drivers/soc/litex/Kconfig          |  12 -----
+ drivers/soc/litex/litex_soc_ctrl.c |   3 +-
+ include/linux/litex.h              | 103 ++++++-------------------------------
+ 3 files changed, 16 insertions(+), 102 deletions(-)
