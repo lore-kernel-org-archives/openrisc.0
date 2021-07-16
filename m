@@ -1,64 +1,152 @@
-From: Giulio Benetti <giulio.benetti@benettiengineering.com>
-Date: Mon, 12 Jul 2021 12:32:56 +0200
-Subject: [OpenRISC] [PATCH] or1k: fix pc-relative relocation against dynamic
- on PC relative 26 bit relocation
-Message-ID: <20210712103256.2275617-1-giulio.benetti@benettiengineering.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Date: Thu, 15 Jul 2021 19:23:38 -0700
+Subject: [OpenRISC] [PATCH] openrisc: rename or32 code & comments to or1k
+Message-ID: <20210716022338.19342-1-rdunlap@infradead.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-When building openal we were seeing the assert failure:
+From Documentation/openrisc/todo.rst, rename "or32" in the
+source code to "or1k" since this is the name that has been
+settled on.
 
-/home/buildroot/autobuild/run/instance-0/output-1/host/opt/ext-toolchain/bin/../lib/gcc/or1k-buildroot-linux-uclibc/9.3.0/../../../../or1k-buildroot-linux-uclibc/bin/ld: CMakeFiles/OpenAL.dir/al/source.cpp.o:
-pc-relative relocation against dynamic symbol alSourcePausev
-/home/buildroot/autobuild/run/instance-0/output-1/host/opt/ext-toolchain/bin/../lib/gcc/or1k-buildroot-linux-uclibc/9.3.0/../../../../or1k-buildroot-linux-uclibc/bin/ld: CMakeFiles/OpenAL.dir/al/source.cpp.o:
-pc-relative relocation against dynamic symbol alSourceStopv
-/home/buildroot/autobuild/run/instance-0/output-1/host/opt/ext-toolchain/bin/../lib/gcc/or1k-buildroot-linux-uclibc/9.3.0/../../../../or1k-buildroot-linux-uclibc/bin/ld: CMakeFiles/OpenAL.dir/al/source.cpp.o:
-pc-relative relocation against dynamic symbol alSourceRewindv
-/home/buildroot/autobuild/run/instance-0/output-1/host/opt/ext-toolchain/bin/../lib/gcc/or1k-buildroot-linux-uclibc/9.3.0/../../../../or1k-buildroot-linux-uclibc/bin/ld: CMakeFiles/OpenAL.dir/al/source.cpp.o:
-pc-relative relocation against dynamic symbol alSourcePlayv
-collect2: error: ld returned 1 exit status
-
-This happens because in R_OR1K_INSN_REL_26 case we can't reference local
-symbol as previously done but we need to make sure that calls to actual
-symbol always call the version of current object.
-
-bfd/Changelog:
-
-	* elf32-or1k.c (or1k_elf_relocate_section): use a separate entry
-	  in switch case R_OR1K_INSN_REL_26 where we need to check for
-	  !SYMBOL_CALLS_LOCAL() instead of !SYMBOL_REFERENCES_LOCAL().
-
-Signed-off-by: Giulio Benetti <giulio.benetti@benettiengineering.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Cc: Stafford Horne <shorne@gmail.com>
+Cc: openrisc at lists.librecores.org
 ---
- bfd/elf32-or1k.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/openrisc/include/asm/pgtable.h     |    6 +++---
+ arch/openrisc/include/asm/thread_info.h |    2 +-
+ arch/openrisc/kernel/entry.S            |    4 ++--
+ arch/openrisc/kernel/head.S             |    6 +++---
+ arch/openrisc/kernel/setup.c            |    4 ++--
+ arch/openrisc/lib/Makefile              |    2 +-
+ arch/openrisc/mm/fault.c                |    2 +-
+ 7 files changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/bfd/elf32-or1k.c b/bfd/elf32-or1k.c
-index 4ae7f324d33..4f9092539f5 100644
---- a/bfd/elf32-or1k.c
-+++ b/bfd/elf32-or1k.c
-@@ -1543,6 +1543,18 @@ or1k_elf_relocate_section (bfd *output_bfd,
- 	  break;
+--- linux-next-20210715.orig/arch/openrisc/include/asm/pgtable.h
++++ linux-next-20210715/arch/openrisc/include/asm/pgtable.h
+@@ -12,7 +12,7 @@
+  * et al.
+  */
  
- 	case R_OR1K_INSN_REL_26:
-+	  /* For a non-shared link, these will reference plt or call the
-+	     version of actual object.  */
-+	  if (bfd_link_pic (info) && !SYMBOL_CALLS_LOCAL (info, h))
-+	    {
-+	      _bfd_error_handler
-+		(_("%pB: pc-relative relocation against dynamic symbol %s"),
-+		 input_bfd, name);
-+	      ret_val = false;
-+	      bfd_set_error (bfd_error_bad_value);
-+	    }
-+	  break;
-+
- 	case R_OR1K_PCREL_PG21:
- 	case R_OR1K_LO13:
- 	case R_OR1K_SLO13:
--- 
-2.25.1
-
+-/* or32 pgtable.h - macros and functions to manipulate page tables
++/* or1k pgtable.h - macros and functions to manipulate page tables
+  *
+  * Based on:
+  * include/asm-cris/pgtable.h
+@@ -29,14 +29,14 @@
+ 
+ /*
+  * The Linux memory management assumes a three-level page table setup. On
+- * or32, we use that, but "fold" the mid level into the top-level page
++ * or1k, we use that, but "fold" the mid level into the top-level page
+  * table. Since the MMU TLB is software loaded through an interrupt, it
+  * supports any page table structure, so we could have used a three-level
+  * setup, but for the amounts of memory we normally use, a two-level is
+  * probably more efficient.
+  *
+  * This file contains the functions and defines necessary to modify and use
+- * the or32 page table tree.
++ * the or1k page table tree.
+  */
+ 
+ extern void paging_init(void);
+--- linux-next-20210715.orig/arch/openrisc/include/asm/thread_info.h
++++ linux-next-20210715/arch/openrisc/include/asm/thread_info.h
+@@ -25,7 +25,7 @@
+ 
+ /* THREAD_SIZE is the size of the task_struct/kernel_stack combo.
+  * normally, the stack is found by doing something like p + THREAD_SIZE
+- * in or32, a page is 8192 bytes, which seems like a sane size
++ * in or1k, a page is 8192 bytes, which seems like a sane size
+  */
+ 
+ #define THREAD_SIZE_ORDER 0
+--- linux-next-20210715.orig/arch/openrisc/lib/Makefile
++++ linux-next-20210715/arch/openrisc/lib/Makefile
+@@ -1,6 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ #
+-# Makefile for or32 specific library files..
++# Makefile for or1k specific library files..
+ #
+ 
+ obj-y	:= delay.o string.o memset.o memcpy.o
+--- linux-next-20210715.orig/arch/openrisc/mm/fault.c
++++ linux-next-20210715/arch/openrisc/mm/fault.c
+@@ -28,7 +28,7 @@ unsigned long pte_misses;	/* updated by
+ unsigned long pte_errors;	/* updated by do_page_fault() */
+ 
+ /* __PHX__ :: - check the vmalloc_fault in do_page_fault()
+- *            - also look into include/asm-or32/mmu_context.h
++ *            - also look into include/asm/mmu_context.h
+  */
+ volatile pgd_t *current_pgd[NR_CPUS];
+ 
+--- linux-next-20210715.orig/arch/openrisc/kernel/entry.S
++++ linux-next-20210715/arch/openrisc/kernel/entry.S
+@@ -326,7 +326,7 @@ EXCEPTION_ENTRY(_data_page_fault_handler
+ 1:	l.ori   r6,r0,0x0                  // !write access
+ 2:
+ 
+-	/* call fault.c handler in or32/mm/fault.c */
++	/* call fault.c handler in openrisc/mm/fault.c */
+ 	l.jal   do_page_fault
+ 	 l.nop
+ 	l.j     _ret_from_exception
+@@ -348,7 +348,7 @@ EXCEPTION_ENTRY(_insn_page_fault_handler
+ 	/* r4 set be EXCEPTION_HANDLE */   // effective address of fault
+ 	l.ori	r6,r0,0x0		   // !write access
+ 
+-	/* call fault.c handler in or32/mm/fault.c */
++	/* call fault.c handler in openrisc/mm/fault.c */
+ 	l.jal   do_page_fault
+ 	 l.nop
+ 	l.j     _ret_from_exception
+--- linux-next-20210715.orig/arch/openrisc/kernel/head.S
++++ linux-next-20210715/arch/openrisc/kernel/head.S
+@@ -599,7 +599,7 @@ flush_tlb:
+ 	l.jal	_flush_tlb
+ 	 l.nop
+ 
+-/* The MMU needs to be enabled before or32_early_setup is called */
++/* The MMU needs to be enabled before or1k_early_setup is called */
+ 
+ enable_mmu:
+ 	/*
+@@ -641,9 +641,9 @@ enable_mmu:
+ 	/* magic number mismatch, set fdt pointer to null */
+ 	l.or	r25,r0,r0
+ _fdt_found:
+-	/* pass fdt pointer to or32_early_setup in r3 */
++	/* pass fdt pointer to or1k_early_setup in r3 */
+ 	l.or	r3,r0,r25
+-	LOAD_SYMBOL_2_GPR(r24, or32_early_setup)
++	LOAD_SYMBOL_2_GPR(r24, or1k_early_setup)
+ 	l.jalr r24
+ 	 l.nop
+ 
+--- linux-next-20210715.orig/arch/openrisc/kernel/setup.c
++++ linux-next-20210715/arch/openrisc/kernel/setup.c
+@@ -209,7 +209,7 @@ void __init setup_cpuinfo(void)
+ }
+ 
+ /**
+- * or32_early_setup
++ * or1k_early_setup
+  *
+  * Handles the pointer to the device tree that this kernel is to use
+  * for establishing the available platform devices.
+@@ -217,7 +217,7 @@ void __init setup_cpuinfo(void)
+  * Falls back on built-in device tree in case null pointer is passed.
+  */
+ 
+-void __init or32_early_setup(void *fdt)
++void __init or1k_early_setup(void *fdt)
+ {
+ 	if (fdt)
+ 		pr_info("FDT at %p\n", fdt);
