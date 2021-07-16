@@ -1,152 +1,90 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Date: Thu, 15 Jul 2021 19:23:38 -0700
+From: kernel test robot <lkp@intel.com>
+Date: Fri, 16 Jul 2021 14:11:09 +0800
 Subject: [OpenRISC] [PATCH] openrisc: rename or32 code & comments to or1k
-Message-ID: <20210716022338.19342-1-rdunlap@infradead.org>
+In-Reply-To: <20210716022338.19342-1-rdunlap@infradead.org>
+References: <20210716022338.19342-1-rdunlap@infradead.org>
+Message-ID: <202107161428.OyGju807-lkp@intel.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-From Documentation/openrisc/todo.rst, rename "or32" in the
-source code to "or1k" since this is the name that has been
-settled on.
+Hi Randy,
 
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: openrisc at lists.librecores.org
+Thank you for the patch! Perhaps something to improve:
+
+[auto build test WARNING on openrisc/for-next]
+[also build test WARNING on linux/master linus/master v5.14-rc1 next-20210715]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
+
+url:    https://github.com/0day-ci/linux/commits/Randy-Dunlap/openrisc-rename-or32-code-comments-to-or1k/20210716-102427
+base:   https://github.com/openrisc/linux.git for-next
+config: openrisc-buildonly-randconfig-r002-20210716 (attached as .config)
+compiler: or1k-linux-gcc (GCC) 10.3.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/0day-ci/linux/commit/d5551791af9959a80485de163c57a26be971ae5e
+        git remote add linux-review https://github.com/0day-ci/linux
+        git fetch --no-tags linux-review Randy-Dunlap/openrisc-rename-or32-code-comments-to-or1k/20210716-102427
+        git checkout d5551791af9959a80485de163c57a26be971ae5e
+        # save the attached .config to linux build tree
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-10.3.0 make.cross ARCH=openrisc 
+
+If you fix the issue, kindly add following tag as appropriate
+Reported-by: kernel test robot <lkp@intel.com>
+
+All warnings (new ones prefixed by >>):
+
+>> arch/openrisc/kernel/setup.c:220:13: warning: no previous prototype for 'or1k_early_setup' [-Wmissing-prototypes]
+     220 | void __init or1k_early_setup(void *fdt)
+         |             ^~~~~~~~~~~~~~~~
+   arch/openrisc/kernel/setup.c:246:13: warning: no previous prototype for 'detect_unit_config' [-Wmissing-prototypes]
+     246 | void __init detect_unit_config(unsigned long upr, unsigned long mask,
+         |             ^~~~~~~~~~~~~~~~~~
+
+Kconfig warnings: (for reference only)
+   WARNING: unmet direct dependencies detected for LOCKDEP
+   Depends on DEBUG_KERNEL && LOCK_DEBUGGING_SUPPORT && (FRAME_POINTER || MIPS || PPC || S390 || MICROBLAZE || ARM || ARC || X86)
+   Selected by
+   - LOCK_STAT && DEBUG_KERNEL && LOCK_DEBUGGING_SUPPORT
+   - DEBUG_LOCK_ALLOC && DEBUG_KERNEL && LOCK_DEBUGGING_SUPPORT
+
+
+vim +/or1k_early_setup +220 arch/openrisc/kernel/setup.c
+
+   210	
+   211	/**
+   212	 * or1k_early_setup
+   213	 *
+   214	 * Handles the pointer to the device tree that this kernel is to use
+   215	 * for establishing the available platform devices.
+   216	 *
+   217	 * Falls back on built-in device tree in case null pointer is passed.
+   218	 */
+   219	
+ > 220	void __init or1k_early_setup(void *fdt)
+   221	{
+   222		if (fdt)
+   223			pr_info("FDT at %p\n", fdt);
+   224		else {
+   225			fdt = __dtb_start;
+   226			pr_info("Compiled-in FDT at %p\n", fdt);
+   227		}
+   228		early_init_devtree(fdt);
+   229	}
+   230	
+
 ---
- arch/openrisc/include/asm/pgtable.h     |    6 +++---
- arch/openrisc/include/asm/thread_info.h |    2 +-
- arch/openrisc/kernel/entry.S            |    4 ++--
- arch/openrisc/kernel/head.S             |    6 +++---
- arch/openrisc/kernel/setup.c            |    4 ++--
- arch/openrisc/lib/Makefile              |    2 +-
- arch/openrisc/mm/fault.c                |    2 +-
- 7 files changed, 13 insertions(+), 13 deletions(-)
-
---- linux-next-20210715.orig/arch/openrisc/include/asm/pgtable.h
-+++ linux-next-20210715/arch/openrisc/include/asm/pgtable.h
-@@ -12,7 +12,7 @@
-  * et al.
-  */
- 
--/* or32 pgtable.h - macros and functions to manipulate page tables
-+/* or1k pgtable.h - macros and functions to manipulate page tables
-  *
-  * Based on:
-  * include/asm-cris/pgtable.h
-@@ -29,14 +29,14 @@
- 
- /*
-  * The Linux memory management assumes a three-level page table setup. On
-- * or32, we use that, but "fold" the mid level into the top-level page
-+ * or1k, we use that, but "fold" the mid level into the top-level page
-  * table. Since the MMU TLB is software loaded through an interrupt, it
-  * supports any page table structure, so we could have used a three-level
-  * setup, but for the amounts of memory we normally use, a two-level is
-  * probably more efficient.
-  *
-  * This file contains the functions and defines necessary to modify and use
-- * the or32 page table tree.
-+ * the or1k page table tree.
-  */
- 
- extern void paging_init(void);
---- linux-next-20210715.orig/arch/openrisc/include/asm/thread_info.h
-+++ linux-next-20210715/arch/openrisc/include/asm/thread_info.h
-@@ -25,7 +25,7 @@
- 
- /* THREAD_SIZE is the size of the task_struct/kernel_stack combo.
-  * normally, the stack is found by doing something like p + THREAD_SIZE
-- * in or32, a page is 8192 bytes, which seems like a sane size
-+ * in or1k, a page is 8192 bytes, which seems like a sane size
-  */
- 
- #define THREAD_SIZE_ORDER 0
---- linux-next-20210715.orig/arch/openrisc/lib/Makefile
-+++ linux-next-20210715/arch/openrisc/lib/Makefile
-@@ -1,6 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0-only
- #
--# Makefile for or32 specific library files..
-+# Makefile for or1k specific library files..
- #
- 
- obj-y	:= delay.o string.o memset.o memcpy.o
---- linux-next-20210715.orig/arch/openrisc/mm/fault.c
-+++ linux-next-20210715/arch/openrisc/mm/fault.c
-@@ -28,7 +28,7 @@ unsigned long pte_misses;	/* updated by
- unsigned long pte_errors;	/* updated by do_page_fault() */
- 
- /* __PHX__ :: - check the vmalloc_fault in do_page_fault()
-- *            - also look into include/asm-or32/mmu_context.h
-+ *            - also look into include/asm/mmu_context.h
-  */
- volatile pgd_t *current_pgd[NR_CPUS];
- 
---- linux-next-20210715.orig/arch/openrisc/kernel/entry.S
-+++ linux-next-20210715/arch/openrisc/kernel/entry.S
-@@ -326,7 +326,7 @@ EXCEPTION_ENTRY(_data_page_fault_handler
- 1:	l.ori   r6,r0,0x0                  // !write access
- 2:
- 
--	/* call fault.c handler in or32/mm/fault.c */
-+	/* call fault.c handler in openrisc/mm/fault.c */
- 	l.jal   do_page_fault
- 	 l.nop
- 	l.j     _ret_from_exception
-@@ -348,7 +348,7 @@ EXCEPTION_ENTRY(_insn_page_fault_handler
- 	/* r4 set be EXCEPTION_HANDLE */   // effective address of fault
- 	l.ori	r6,r0,0x0		   // !write access
- 
--	/* call fault.c handler in or32/mm/fault.c */
-+	/* call fault.c handler in openrisc/mm/fault.c */
- 	l.jal   do_page_fault
- 	 l.nop
- 	l.j     _ret_from_exception
---- linux-next-20210715.orig/arch/openrisc/kernel/head.S
-+++ linux-next-20210715/arch/openrisc/kernel/head.S
-@@ -599,7 +599,7 @@ flush_tlb:
- 	l.jal	_flush_tlb
- 	 l.nop
- 
--/* The MMU needs to be enabled before or32_early_setup is called */
-+/* The MMU needs to be enabled before or1k_early_setup is called */
- 
- enable_mmu:
- 	/*
-@@ -641,9 +641,9 @@ enable_mmu:
- 	/* magic number mismatch, set fdt pointer to null */
- 	l.or	r25,r0,r0
- _fdt_found:
--	/* pass fdt pointer to or32_early_setup in r3 */
-+	/* pass fdt pointer to or1k_early_setup in r3 */
- 	l.or	r3,r0,r25
--	LOAD_SYMBOL_2_GPR(r24, or32_early_setup)
-+	LOAD_SYMBOL_2_GPR(r24, or1k_early_setup)
- 	l.jalr r24
- 	 l.nop
- 
---- linux-next-20210715.orig/arch/openrisc/kernel/setup.c
-+++ linux-next-20210715/arch/openrisc/kernel/setup.c
-@@ -209,7 +209,7 @@ void __init setup_cpuinfo(void)
- }
- 
- /**
-- * or32_early_setup
-+ * or1k_early_setup
-  *
-  * Handles the pointer to the device tree that this kernel is to use
-  * for establishing the available platform devices.
-@@ -217,7 +217,7 @@ void __init setup_cpuinfo(void)
-  * Falls back on built-in device tree in case null pointer is passed.
-  */
- 
--void __init or32_early_setup(void *fdt)
-+void __init or1k_early_setup(void *fdt)
- {
- 	if (fdt)
- 		pr_info("FDT at %p\n", fdt);
+0-DAY CI Kernel Test Service, Intel Corporation
+https://lists.01.org/hyperkitty/list/kbuild-all at lists.01.org
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: .config.gz
+Type: application/gzip
+Size: 24125 bytes
+Desc: not available
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20210716/a7a8b3bf/attachment-0001.gz>
