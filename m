@@ -1,27 +1,46 @@
-From: Max Filippov <jcmvbkbc@gmail.com>
-Date: Mon, 2 Aug 2021 11:03:57 -0700
-Subject: [OpenRISC] [PATCH 2/3] trace: refactor TRACE_IRQFLAGS_SUPPORT
- in Kconfig
-In-Reply-To: <20210731052233.4703-2-masahiroy@kernel.org>
-References: <20210731052233.4703-1-masahiroy@kernel.org>
- <20210731052233.4703-2-masahiroy@kernel.org>
-Message-ID: <CAMo8BfLDjw71xiCDo8uk4pQFuOzqAoak0k3R4YJDnRsA2hoCtw@mail.gmail.com>
+From: Julius Baxter <juliusbaxter@gmail.com>
+Date: Wed, 4 Aug 2021 13:50:44 +1000
+Subject: [OpenRISC] mor1kx licensing
+Message-ID: <CAF6YiZ5Hsc-mf_s5bBVQ5+gRQ1++rC=HP5XT2mwyygEjs_1gqw@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, Jul 30, 2021 at 10:24 PM Masahiro Yamada <masahiroy@kernel.org> wrote:
->
-> Make architectures select TRACE_IRQFLAGS_SUPPORT instead of
-> having many defines.
->
-> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-> ---
->  arch/xtensa/Kconfig           | 4 +---
+Hello fellow mor1kx developers,
 
-Acked-by: Max Filippov <jcmvbkbc@gmail.com>
--- 
-Thanks.
--- Max
+I've been meaning to do this for a while, but I'd like to propose we switch
+the licence of the mor1kx to the CERN OHL v2, and then I can EOL the OHDL.
+
+There are 3 types of the OHL v2 licence, basically 1) strongly reciprocal,
+2) weakly reciprocal, and 3) permissive.
+
+In the spirit of the OHDL the mor1kx is currently licensed under, I'd
+suggest we go with the weakly-reciprocal licence, the CERN-OHL-W.
+
+The OHWR site has a nice FAQ describing the difference between these v2
+flavours:
+https://ohwr.org/project/cernohl/wikis/faq#q-what-are-all-these-suffixes
+
+The idea behind the OHDL was that it'd be file-level copyleft, just like
+the MPL (or at least as I interpreted it) it was based on (via m-x
+query-replace in Emacs :-P ). I think it'd be good to back the work Javier
+and Andrew and Miriam have done with our own work.
+
+I'm copying the OpenRISC list because I guess I want to make sure any
+contributor from the past gets a heads up, too.
+
+This is the first time I've done something like this, so am not too
+familiar with the process. Should I just do a PR on github and we can
+debate it on there?
+
+Anyway, I'm interested in your thoughts. Feel free to contact me off list
+if you prefer. Unless anyone objects, I'll do a PR relicensing the IP in
+the coming week or so.
+
+Cheers,
+Julius
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20210804/ab42bf77/attachment.htm>
