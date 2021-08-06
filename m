@@ -1,107 +1,82 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Fri,  6 Aug 2021 18:42:17 +0900
-Subject: [OpenRISC] [PATCH v2] time: Fix overflow itimer tests on 32-bit
- systems
-Message-ID: <20210806094217.3227877-1-shorne@gmail.com>
+From: Jeremy Bennett <jeremy.bennett@embecosm.com>
+Date: Fri, 6 Aug 2021 13:22:30 +0100
+Subject: [OpenRISC] mor1kx licensing
+In-Reply-To: <CAF6YiZ5Hsc-mf_s5bBVQ5+gRQ1++rC=HP5XT2mwyygEjs_1gqw@mail.gmail.com>
+References: <CAF6YiZ5Hsc-mf_s5bBVQ5+gRQ1++rC=HP5XT2mwyygEjs_1gqw@mail.gmail.com>
+Message-ID: <3d8e59ca-30f7-d61a-fc33-cf7cb203b113@embecosm.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-On the port of OpenRISC I am working on and it appears the rv32 port
-we have sets __TIMESIZE == 64 && __WORDSIZE == 32.  This causes the
-size of time_t to be 8 bytes, but the tv_sec in the kernel is still 32-bit
-causing truncation.
+On 04/08/2021 04:50, Julius Baxter wrote:
+> Hello fellow mor1kx developers,
+> 
+> I've been meaning to do this for a while, but I'd like to propose we
+> switch the licence of the mor1kx to the CERN OHL v2, and then I can EOL
+> the OHDL.
 
-The truncations are unavoidable on these systems so skip the
-testing/failures by guarding with __KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64.
+Hi Julius,
 
-Also, futher in the tests and in other parts of code checking for time_t
-overflow does not work on 32-bit systems when time_t is 64-bit.  As
-suggested by Adhemerval, update the in_time_t_range function to assume
-32-bits by using int32_t.
+Not sure I ever contributed anything, but I am happy with this change
+and it applying to anything I did.
 
-This also brings in the header for stdint.h so we can update other
-usages of __int32_t to int32_t as suggested by Adhemerval.
----
+Best wishes,
 
-Hello,
 
-Sorry for the delay to get this out I have been busy on the hardware side of
-openrisc the last month so I haven't been able to spend time on getting this
-out.
+Jeremy
 
-The patch ends up doing a test fix and some lib code fixes, I can split it to
-separate small patches.  But since as a whole it's small I feel leaving it
-together is best.
+> 
+> There are 3 types of the OHL v2 licence, basically 1) strongly
+> reciprocal, 2) weakly reciprocal, and 3) permissive.
+> 
+> In the spirit of the OHDL the mor1kx is currently licensed under, I'd
+> suggest we go with the weakly-reciprocal licence, the CERN-OHL-W.
+> 
+> The OHWR site has a nice FAQ describing the difference between these v2
+> flavours:
+> https://ohwr.org/project/cernohl/wikis/faq#q-what-are-all-these-suffixes
+> <https://ohwr.org/project/cernohl/wikis/faq#q-what-are-all-these-suffixes>
+> 
+> The idea behind the OHDL was that it'd be file-level copyleft, just like
+> the MPL (or at least as I interpreted it) it was based on (via m-x
+> query-replace in Emacs :-P ). I think it'd be good to back the work
+> Javier and Andrew and Miriam have done with our own work.
+> 
+> I'm copying the OpenRISC list because I guess I want to make sure any
+> contributor from the past gets a heads up, too.
+> 
+> This is the first time I've done something like this, so am not too
+> familiar with the process. Should I just do a PR on github and we can
+> debate it on there?
+> 
+> Anyway, I'm interested in your thoughts. Feel free to contact me off
+> list if you prefer. Unless anyone objects, I'll do a PR relicensing the
+> IP in the coming week or so.
+> 
+> Cheers,
+> Julius
+> 
+> _______________________________________________
+> OpenRISC mailing list
+> OpenRISC at lists.librecores.org
+> https://lists.librecores.org/listinfo/openrisc
+> 
 
--Stafford
 
- include/time.h    | 10 ++++++----
- time/tst-itimer.c |  4 ++--
- 2 files changed, 8 insertions(+), 6 deletions(-)
-
-diff --git a/include/time.h b/include/time.h
-index 4372bfbd96..ba3c5116cf 100644
---- a/include/time.h
-+++ b/include/time.h
-@@ -11,6 +11,7 @@
- # include <sys/time.h>
- # include <time-clockid.h>
- # include <sys/time.h>
-+# include <stdint.h>
- 
- extern __typeof (strftime_l) __strftime_l;
- libc_hidden_proto (__strftime_l)
-@@ -334,11 +335,12 @@ libc_hidden_proto (__time64)
-    actual clock ID.  */
- #define CLOCK_IDFIELD_SIZE	3
- 
--/* Check whether T fits in time_t.  */
-+/* Check whether T fits in int32_t, assume all usages are for
-+   sizeof(time_t) == 32.  */
- static inline bool
- in_time_t_range (__time64_t t)
- {
--  time_t s = t;
-+  int32_t s = t;
-   return s == t;
- }
- 
-@@ -445,8 +447,8 @@ timespec64_to_timeval64 (const struct __timespec64 ts64)
-    and suseconds_t.  */
- struct __timeval32
- {
--  __int32_t tv_sec;         /* Seconds.  */
--  __int32_t tv_usec;        /* Microseconds.  */
-+  int32_t tv_sec;         /* Seconds.  */
-+  int32_t tv_usec;        /* Microseconds.  */
- };
- 
- /* Conversion functions for converting to/from __timeval32  */
-diff --git a/time/tst-itimer.c b/time/tst-itimer.c
-index 929c2b74c7..bd7d7afe83 100644
---- a/time/tst-itimer.c
-+++ b/time/tst-itimer.c
-@@ -100,7 +100,7 @@ do_test (void)
- 
-       /* Linux does not provide 64 bit time_t support for getitimer and
- 	 setitimer on architectures with 32 bit time_t support.  */
--      if (sizeof (__time_t) == 8)
-+      if (__KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64)
- 	{
- 	  TEST_COMPARE (setitimer (timers[i], &it, NULL), 0);
- 	  TEST_COMPARE (setitimer (timers[i], &(struct itimerval) { 0 },
-@@ -131,7 +131,7 @@ do_test (void)
-       it.it_interval.tv_usec = 20;
-       it.it_value.tv_sec = 30;
-       it.it_value.tv_usec = 40;
--      if (sizeof (__time_t) == 8)
-+      if (__KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64)
- 	{
- 	  TEST_COMPARE (setitimer (timers[i], &it, NULL), 0);
- 
 -- 
-2.31.1
+Cell: +44 (7970) 676050
+SkypeID: jeremybennett
+Twitter: @jeremypbennett
+Email: jeremy.bennett at embecosm.com
+Web: www.embecosm.com
+PGP key: 1024D/BEF58172FB4754E1 2009-03-20
 
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: OpenPGP_signature
+Type: application/pgp-signature
+Size: 203 bytes
+Desc: OpenPGP digital signature
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20210806/5221b228/attachment.sig>
