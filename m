@@ -1,82 +1,78 @@
-From: Jeremy Bennett <jeremy.bennett@embecosm.com>
-Date: Fri, 6 Aug 2021 13:22:30 +0100
-Subject: [OpenRISC] mor1kx licensing
-In-Reply-To: <CAF6YiZ5Hsc-mf_s5bBVQ5+gRQ1++rC=HP5XT2mwyygEjs_1gqw@mail.gmail.com>
-References: <CAF6YiZ5Hsc-mf_s5bBVQ5+gRQ1++rC=HP5XT2mwyygEjs_1gqw@mail.gmail.com>
-Message-ID: <3d8e59ca-30f7-d61a-fc33-cf7cb203b113@embecosm.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Sat, 7 Aug 2021 13:49:25 +0900
+Subject: [OpenRISC] [PATCH] openrisc: Fix compiler warnings in setup
+In-Reply-To: <655ef6e0-defb-7467-25df-f9a13ab96694@infradead.org>
+References: <20210805030035.2994973-1-shorne@gmail.com>
+ <655ef6e0-defb-7467-25df-f9a13ab96694@infradead.org>
+Message-ID: <CAAfxs7653w00yKVuRy4K-H3_Pe=WCutB8Tfja-hdh1rG-K+yxA@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 04/08/2021 04:50, Julius Baxter wrote:
-> Hello fellow mor1kx developers,
-> 
-> I've been meaning to do this for a while, but I'd like to propose we
-> switch the licence of the mor1kx to the CERN OHL v2, and then I can EOL
-> the OHDL.
+On Fri, Aug 6, 2021, 4:32 AM Randy Dunlap <rdunlap@infradead.org> wrote:
 
-Hi Julius,
+> On 8/4/21 8:00 PM, Stafford Horne wrote:
+> > This was pointed out with the recent name change of or32_early_setup to
+> > or1k_early_setup.  Investigating the file I found a few other warnings
+> > so cleaning them up here.
+> >
+> >      arch/openrisc/kernel/setup.c:220:13: warning: no previous prototype
+> for 'or1k_early_setup' [-Wmissing-prototypes]
+> >        220 | void __init or1k_early_setup(void *fdt)
+> >         |             ^~~~~~~~~~~~~~~~
+> >
+> > Fix this the missing or1k_early_setup prototype warning by adding an
+> > asm/setup.h file to define the prototype.
+> >
+> >      arch/openrisc/kernel/setup.c:246:13: warning: no previous prototype
+> for 'detect_unit_config' [-Wmissing-prototypes]
+> >        246 | void __init detect_unit_config(unsigned long upr, unsigned
+> long mask,
+> >         |             ^~~~~~~~~~~~~~~~~~
+> >
+> > The function detect_unit_config is not used, just remove it.
+> >
+> >      arch/openrisc/kernel/setup.c:221: warning: Function parameter or
+> member 'fdt' not described in 'or1k_early_setup'
+> >
+> > Add @fdt docs to the function comment to suppress this warning.
+> >
+> > Reported-by: kernel test robot <lkp@intel.com>
+> > Signed-off-by: Stafford Horne <shorne@gmail.com>
+>
+> Hi Stafford,
+>
+> Does this patch apply to your openrisc tree, but not to
+> linux-next?  I get a patch error when trying to apply it
+> to linux-next-20210805 and this warning is still present:
+>
+> ../arch/openrisc/kernel/setup.c:221:13: warning: no previous prototype for
+> 'or32_early_setup' [-Wmissing-prototypes]
+>    221 | void __init or32_early_setup(void *fdt)
+>        |             ^~~~~~~~~~~~~~~~
+>
+> presumably because some openrisc patches are not yet in linux-next??
+>
+> thanks.
+>
 
-Not sure I ever contributed anything, but I am happy with this change
-and it applying to anything I did.
+Hi Randy,
 
-Best wishes,
+Thats right, this patch is on top of my openrisc/for-next branch.  It
+should show up in linux-next soon.
 
-
-Jeremy
-
-> 
-> There are 3 types of the OHL v2 licence, basically 1) strongly
-> reciprocal, 2) weakly reciprocal, and 3) permissive.
-> 
-> In the spirit of the OHDL the mor1kx is currently licensed under, I'd
-> suggest we go with the weakly-reciprocal licence, the CERN-OHL-W.
-> 
-> The OHWR site has a nice FAQ describing the difference between these v2
-> flavours:
-> https://ohwr.org/project/cernohl/wikis/faq#q-what-are-all-these-suffixes
-> <https://ohwr.org/project/cernohl/wikis/faq#q-what-are-all-these-suffixes>
-> 
-> The idea behind the OHDL was that it'd be file-level copyleft, just like
-> the MPL (or at least as I interpreted it) it was based on (via m-x
-> query-replace in Emacs :-P ). I think it'd be good to back the work
-> Javier and Andrew and Miriam have done with our own work.
-> 
-> I'm copying the OpenRISC list because I guess I want to make sure any
-> contributor from the past gets a heads up, too.
-> 
-> This is the first time I've done something like this, so am not too
-> familiar with the process. Should I just do a PR on github and we can
-> debate it on there?
-> 
-> Anyway, I'm interested in your thoughts. Feel free to contact me off
-> list if you prefer. Unless anyone objects, I'll do a PR relicensing the
-> IP in the coming week or so.
-> 
-> Cheers,
-> Julius
-> 
-> _______________________________________________
-> OpenRISC mailing list
-> OpenRISC at lists.librecores.org
-> https://lists.librecores.org/listinfo/openrisc
-> 
+The branch is here.
 
 
--- 
-Cell: +44 (7970) 676050
-SkypeID: jeremybennett
-Twitter: @jeremypbennett
-Email: jeremy.bennett at embecosm.com
-Web: www.embecosm.com
-PGP key: 1024D/BEF58172FB4754E1 2009-03-20
+https://github.com/openrisc/linux/commit/19e14f3a81d227f1c8b8d5371de28b3ab3deb556
 
+I put this patch on the branch already. I plan to adjust if any feedback.
+
+-stafford
+
+>
 -------------- next part --------------
-A non-text attachment was scrubbed...
-Name: OpenPGP_signature
-Type: application/pgp-signature
-Size: 203 bytes
-Desc: OpenPGP digital signature
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20210806/5221b228/attachment.sig>
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20210807/0f8dbb35/attachment.htm>
