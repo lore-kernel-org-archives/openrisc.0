@@ -1,32 +1,52 @@
-From: Catalin Marinas <catalin.marinas@arm.com>
-Date: Thu, 5 Aug 2021 18:36:25 +0100
-Subject: [OpenRISC] [PATCH 1/3] arch: Export machine_restart() instances
- so they can be called from modules
-In-Reply-To: <20210805075032.723037-2-lee.jones@linaro.org>
-References: <20210805075032.723037-1-lee.jones@linaro.org>
- <20210805075032.723037-2-lee.jones@linaro.org>
-Message-ID: <20210805173625.GH6719@arm.com>
+From: Andrey Bacherov <bandvig@mail.ru>
+Date: Sat, 7 Aug 2021 21:28:06 +0300
+Subject: [OpenRISC] mor1kx licensing
+In-Reply-To: <CAAfxs77xhSeM-QPYsEr7t-gEVO2+w9EchESAE44XMUcJp37=8Q@mail.gmail.com>
+References: <CAF6YiZ5Hsc-mf_s5bBVQ5+gRQ1++rC=HP5XT2mwyygEjs_1gqw@mail.gmail.com>
+ <CADzBsGPE=YaKcR9_37iPHk=hwapDar1tV8mkxudmh1v6H4j+EA@mail.gmail.com>
+ <CAAfxs77xhSeM-QPYsEr7t-gEVO2+w9EchESAE44XMUcJp37=8Q@mail.gmail.com>
+Message-ID: <70f4e169-cc3f-eff8-0252-c34a89d69764@mail.ru>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-On Thu, Aug 05, 2021 at 08:50:30AM +0100, Lee Jones wrote:
-> diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
-> index b4bb67f17a2ca..cf89ce91d7145 100644
-> --- a/arch/arm64/kernel/process.c
-> +++ b/arch/arm64/kernel/process.c
-> @@ -212,6 +212,7 @@ void machine_restart(char *cmd)
->  	printk("Reboot failed -- System halted\n");
->  	while (1);
->  }
-> +EXPORT_SYMBOL(machine_restart);
+I agree for CERN-OHL-W too.
+BR, Andrey
 
-Should we make this EXPORT_SYMBOL_GPL? I suppose it's not for general
-use by out of tree drivers and it matches the other pm_power_off symbol
-we export in this file.
-
-Either way:
-
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+05.08.2021 4:00, Stafford Horne пишет:
+> I agree as well, CERN-OHL-W sounds right.  Also, to do the change a PR
+> updating all the files headers and the license file would be the way
+> to do it.
+> 
+> CCing Andrey as well and he did a lot of work on mor1kx FPU and other parts.
+> 
+> On Wed, Aug 4, 2021 at 1:32 PM Stefan Kristiansson
+> <stefan.kristiansson@saunalahti.fi> wrote:
+>>
+>> I'm in favor, and I agree that CERN-OHL-W sounds like the right flavor.
+>>
+>> On Wed, Aug 4, 2021 at 6:50 AM Julius Baxter <juliusbaxter@gmail.com> wrote:
+>>>
+>>> Hello fellow mor1kx developers,
+>>>
+>>> I've been meaning to do this for a while, but I'd like to propose we switch the licence of the mor1kx to the CERN OHL v2, and then I can EOL the OHDL.
+>>>
+>>> There are 3 types of the OHL v2 licence, basically 1) strongly reciprocal, 2) weakly reciprocal, and 3) permissive.
+>>>
+>>> In the spirit of the OHDL the mor1kx is currently licensed under, I'd suggest we go with the weakly-reciprocal licence, the CERN-OHL-W.
+>>>
+>>> The OHWR site has a nice FAQ describing the difference between these v2 flavours:
+>>> https://ohwr.org/project/cernohl/wikis/faq#q-what-are-all-these-suffixes
+>>>
+>>> The idea behind the OHDL was that it'd be file-level copyleft, just like the MPL (or at least as I interpreted it) it was based on (via m-x query-replace in Emacs :-P ). I think it'd be good to back the work Javier and Andrew and Miriam have done with our own work.
+>>>
+>>> I'm copying the OpenRISC list because I guess I want to make sure any contributor from the past gets a heads up, too.
+>>>
+>>> This is the first time I've done something like this, so am not too familiar with the process. Should I just do a PR on github and we can debate it on there?
+>>>
+>>> Anyway, I'm interested in your thoughts. Feel free to contact me off list if you prefer. Unless anyone objects, I'll do a PR relicensing the IP in the coming week or so.
+>>>
+>>> Cheers,
+>>> Julius
