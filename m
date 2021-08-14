@@ -1,119 +1,56 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 15 Aug 2021 07:24:40 +0900
-Subject: [OpenRISC] [PATCH v2] time: Fix overflow itimer tests on 32-bit
- systems
-In-Reply-To: <0f577bc8-bef8-6c06-aaa9-57bf16d8443b@linaro.org>
-References: <20210806094217.3227877-1-shorne@gmail.com>
- <0f577bc8-bef8-6c06-aaa9-57bf16d8443b@linaro.org>
-Message-ID: <YRhCqNWB1MC++TAO@antec>
+Date: Sun, 15 Aug 2021 07:25:05 +0900
+Subject: [OpenRISC] [PATCH v2 0/2] OpenRISC support for cmodel=large
+In-Reply-To: <9e4b2d98-5ba1-c35f-b419-3df2d84a5dab@benettiengineering.com>
+References: <20210501211145.2980164-1-shorne@gmail.com>
+ <da63081f-fe79-32c2-37f1-f17ce62f967b@benettiengineering.com>
+ <YRg9yfcMeP6X3zhu@antec>
+ <9e4b2d98-5ba1-c35f-b419-3df2d84a5dab@benettiengineering.com>
+Message-ID: <YRhCwQPveo8+lnGH@antec>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Aug 11, 2021 at 05:30:40PM -0300, Adhemerval Zanella wrote:
+On Sun, Aug 15, 2021 at 12:05:37AM +0200, Giulio Benetti wrote:
+> On 8/15/21 12:03 AM, Stafford Horne wrote:
+> > On Sat, Aug 14, 2021 at 11:01:16PM +0200, Giulio Benetti wrote:
+> > > Hi All,
+> > > 
+> > > On 5/1/21 11:11 PM, Stafford Horne wrote:
+> > > > Changes from v1:
+> > > >    - Added patch to enabled cmodle=large on crtstuff
+> > > > 
+> > > > This series fixes some bugs found when linking large binaries, both in buildroot
+> > > > and glibc testing.
+> > > > 
+> > > > Stafford Horne (2):
+> > > >     or1k: Add mcmodel option to handle large GOTs
+> > > >     or1k: Use cmodel=large when building crtstuff
+> > > > 
+> > > >    gcc/config/or1k/or1k-opts.h   | 30 ++++++++++++++++++++++++++++++
+> > > >    gcc/config/or1k/or1k.c        | 11 +++++++++--
+> > > >    gcc/config/or1k/or1k.h        |  7 +++++++
+> > > >    gcc/config/or1k/or1k.opt      | 19 +++++++++++++++++++
+> > > >    gcc/doc/invoke.texi           | 12 +++++++++++-
+> > > >    libgcc/config.host            |  4 ++--
+> > > >    libgcc/config/or1k/t-crtstuff |  2 ++
+> > > >    7 files changed, 80 insertions(+), 5 deletions(-)
+> > > >    create mode 100644 gcc/config/or1k/or1k-opts.h
+> > > >    create mode 100644 libgcc/config/or1k/t-crtstuff
+> > > > 
+> > > 
+> > > I've tested this patchset and works as expected.
+> > > It fixed libgeos build failure in conjunction with:
+> > > https://sourceware.org/git/gitweb.cgi?p=binutils-gdb.git;h=3c3de29b048bca6b4aa4235c647b9328e71801b6
+> > > 
+> > > Hope this helps to commit it upstream since I still don't see it, or am I
+> > > wrong?
+> > 
+> > You are not wrong, I did not push the changed to GCC yet.  I will do soon.
 > 
-> 
-> On 06/08/2021 06:42, Stafford Horne wrote:
-> > On the port of OpenRISC I am working on and it appears the rv32 port
-> > we have sets __TIMESIZE == 64 && __WORDSIZE == 32.  This causes the
-> > size of time_t to be 8 bytes, but the tv_sec in the kernel is still 32-bit
-> > causing truncation.
-> > 
-> > The truncations are unavoidable on these systems so skip the
-> > testing/failures by guarding with __KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64.
-> > 
-> > Also, futher in the tests and in other parts of code checking for time_t
-> > overflow does not work on 32-bit systems when time_t is 64-bit.  As
-> > suggested by Adhemerval, update the in_time_t_range function to assume
-> > 32-bits by using int32_t.
-> > 
-> > This also brings in the header for stdint.h so we can update other
-> > usages of __int32_t to int32_t as suggested by Adhemerval.
-> > ---
-> > 
-> > Hello,
-> > 
-> > Sorry for the delay to get this out I have been busy on the hardware side of
-> > openrisc the last month so I haven't been able to spend time on getting this
-> > out.
-> > 
-> > The patch ends up doing a test fix and some lib code fixes, I can split it to
-> > separate small patches.  But since as a whole it's small I feel leaving it
-> > together is best.
-> 
-> LGTM, thanks.
-> 
-> Reviewed-by: Adhemerval Zanella  <adhemerval.zanella@linaro.org>
+> Ah ok, you're the maintainer :-) I thought there was someone else who needed
+> to push it :-)
 
-Thanks for the review.
-
-> > 
-> > -Stafford
-> > 
-> >  include/time.h    | 10 ++++++----
-> >  time/tst-itimer.c |  4 ++--
-> >  2 files changed, 8 insertions(+), 6 deletions(-)
-> > 
-> > diff --git a/include/time.h b/include/time.h
-> > index 4372bfbd96..ba3c5116cf 100644
-> > --- a/include/time.h
-> > +++ b/include/time.h
-> > @@ -11,6 +11,7 @@
-> >  # include <sys/time.h>
-> >  # include <time-clockid.h>
-> >  # include <sys/time.h>
-> > +# include <stdint.h>
-> >  
-> >  extern __typeof (strftime_l) __strftime_l;
-> >  libc_hidden_proto (__strftime_l)
-> > @@ -334,11 +335,12 @@ libc_hidden_proto (__time64)
-> >     actual clock ID.  */
-> >  #define CLOCK_IDFIELD_SIZE	3
-> >  
-> > -/* Check whether T fits in time_t.  */
-> > +/* Check whether T fits in int32_t, assume all usages are for
-> > +   sizeof(time_t) == 32.  */
-> >  static inline bool
-> >  in_time_t_range (__time64_t t)
-> >  {
-> > -  time_t s = t;
-> > +  int32_t s = t;
-> >    return s == t;
-> >  }
-> >  
-> > @@ -445,8 +447,8 @@ timespec64_to_timeval64 (const struct __timespec64 ts64)
-> >     and suseconds_t.  */
-> >  struct __timeval32
-> >  {
-> > -  __int32_t tv_sec;         /* Seconds.  */
-> > -  __int32_t tv_usec;        /* Microseconds.  */
-> > +  int32_t tv_sec;         /* Seconds.  */
-> > +  int32_t tv_usec;        /* Microseconds.  */
-> >  };
-> >  
-> >  /* Conversion functions for converting to/from __timeval32  */
-> > diff --git a/time/tst-itimer.c b/time/tst-itimer.c
-> > index 929c2b74c7..bd7d7afe83 100644
-> > --- a/time/tst-itimer.c
-> > +++ b/time/tst-itimer.c
-> > @@ -100,7 +100,7 @@ do_test (void)
-> >  
-> >        /* Linux does not provide 64 bit time_t support for getitimer and
-> >  	 setitimer on architectures with 32 bit time_t support.  */
-> > -      if (sizeof (__time_t) == 8)
-> > +      if (__KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64)
-> >  	{
-> >  	  TEST_COMPARE (setitimer (timers[i], &it, NULL), 0);
-> >  	  TEST_COMPARE (setitimer (timers[i], &(struct itimerval) { 0 },
-> > @@ -131,7 +131,7 @@ do_test (void)
-> >        it.it_interval.tv_usec = 20;
-> >        it.it_value.tv_sec = 30;
-> >        it.it_value.tv_usec = 40;
-> > -      if (sizeof (__time_t) == 8)
-> > +      if (__KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64)
-> >  	{
-> >  	  TEST_COMPARE (setitimer (timers[i], &it, NULL), 0);
-> >  
-> > 
+Yeah, I pushed it now.
