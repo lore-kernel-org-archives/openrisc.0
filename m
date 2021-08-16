@@ -1,67 +1,47 @@
-From: Giulio Benetti <giulio.benetti@benettiengineering.com>
-Date: Sun, 15 Aug 2021 00:32:14 +0200
-Subject: [OpenRISC] [PATCH v2 0/2] OpenRISC support for cmodel=large
-In-Reply-To: <YRhCwQPveo8+lnGH@antec>
-References: <20210501211145.2980164-1-shorne@gmail.com>
- <da63081f-fe79-32c2-37f1-f17ce62f967b@benettiengineering.com>
- <YRg9yfcMeP6X3zhu@antec>
- <9e4b2d98-5ba1-c35f-b419-3df2d84a5dab@benettiengineering.com>
- <YRhCwQPveo8+lnGH@antec>
-Message-ID: <91cc29d6-f578-d1c3-9626-28f0b5f47c97@benettiengineering.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Tue, 17 Aug 2021 06:54:37 +0900
+Subject: [OpenRISC] [PATCH v2] time: Fix overflow itimer tests on 32-bit
+ systems
+In-Reply-To: <alpine.DEB.2.22.394.2108161710590.136350@digraph.polyomino.org.uk>
+References: <20210806094217.3227877-1-shorne@gmail.com>
+ <0f577bc8-bef8-6c06-aaa9-57bf16d8443b@linaro.org>
+ <YRhCqNWB1MC++TAO@antec>
+ <alpine.DEB.2.22.394.2108161710590.136350@digraph.polyomino.org.uk>
+Message-ID: <YRrenWZeh103h3zX@antec>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 8/15/21 12:25 AM, Stafford Horne wrote:
-> On Sun, Aug 15, 2021 at 12:05:37AM +0200, Giulio Benetti wrote:
->> On 8/15/21 12:03 AM, Stafford Horne wrote:
->>> On Sat, Aug 14, 2021 at 11:01:16PM +0200, Giulio Benetti wrote:
->>>> Hi All,
->>>>
->>>> On 5/1/21 11:11 PM, Stafford Horne wrote:
->>>>> Changes from v1:
->>>>>     - Added patch to enabled cmodle=large on crtstuff
->>>>>
->>>>> This series fixes some bugs found when linking large binaries, both in buildroot
->>>>> and glibc testing.
->>>>>
->>>>> Stafford Horne (2):
->>>>>      or1k: Add mcmodel option to handle large GOTs
->>>>>      or1k: Use cmodel=large when building crtstuff
->>>>>
->>>>>     gcc/config/or1k/or1k-opts.h   | 30 ++++++++++++++++++++++++++++++
->>>>>     gcc/config/or1k/or1k.c        | 11 +++++++++--
->>>>>     gcc/config/or1k/or1k.h        |  7 +++++++
->>>>>     gcc/config/or1k/or1k.opt      | 19 +++++++++++++++++++
->>>>>     gcc/doc/invoke.texi           | 12 +++++++++++-
->>>>>     libgcc/config.host            |  4 ++--
->>>>>     libgcc/config/or1k/t-crtstuff |  2 ++
->>>>>     7 files changed, 80 insertions(+), 5 deletions(-)
->>>>>     create mode 100644 gcc/config/or1k/or1k-opts.h
->>>>>     create mode 100644 libgcc/config/or1k/t-crtstuff
->>>>>
->>>>
->>>> I've tested this patchset and works as expected.
->>>> It fixed libgeos build failure in conjunction with:
->>>> https://sourceware.org/git/gitweb.cgi?p=binutils-gdb.git;h=3c3de29b048bca6b4aa4235c647b9328e71801b6
->>>>
->>>> Hope this helps to commit it upstream since I still don't see it, or am I
->>>> wrong?
->>>
->>> You are not wrong, I did not push the changed to GCC yet.  I will do soon.
->>
->> Ah ok, you're the maintainer :-) I thought there was someone else who needed
->> to push it :-)
+On Mon, Aug 16, 2021 at 05:12:04PM +0000, Joseph Myers wrote:
+> I'm seeing a build failure in the glibc testsuite for i686-gnu:
 > 
-> Yeah, I pushed it now.
+> tst-itimer.c: In function 'do_test':
+> tst-itimer.c:103:11: error: '__KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64' undeclared (first use in this function)
+>   103 |       if (__KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64)
+>       |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> tst-itimer.c:103:11: note: each undeclared identifier is reported only once for each function it appears in
+> 
+> https://sourceware.org/pipermail/libc-testresults/2021q3/008412.html
 
-Awesome, just seen now. Buildroot is already Openrisc toolchain bug 
-free, only we have to wait for external toolchain to be rebuilt with 
-suck patches. So we've got OpenRisc back to life :-).
+Right sorry about that, so __KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64 only exists in
+linux.
 
-Thank you!
--- 
-Giulio Benetti
-Benetti Engineering sas
+So it looks like for non linux the new timer test changes break.
+
+Should we provide __KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64 for not linux builds,
+or remove __KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64 from the itimer test again?
+The reason for using __KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64 is to pick up the
+timeval size which is different on each architecture.
+
+Maybe the easiest is adding something like:
+
+#ifndef __KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64
+#define __KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64 (sizeof (__time_t) == 8)
+#endif
+
+To the top of tst-itimer.c.  Sorry I don't have time right now to send a patch
+or test this.
+
+-Stafford 
