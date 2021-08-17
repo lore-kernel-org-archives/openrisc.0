@@ -1,32 +1,53 @@
-From: Joseph Myers <joseph@codesourcery.com>
-Date: Mon, 16 Aug 2021 22:32:59 +0000
+From: Stafford Horne <shorne@gmail.com>
+Date: Wed, 18 Aug 2021 08:33:33 +0900
 Subject: [OpenRISC] [PATCH v2] time: Fix overflow itimer tests on 32-bit
  systems
-In-Reply-To: <YRrenWZeh103h3zX@antec>
+In-Reply-To: <alpine.DEB.2.22.394.2108162231010.136350@digraph.polyomino.org.uk>
 References: <20210806094217.3227877-1-shorne@gmail.com>
- <0f577bc8-bef8-6c06-aaa9-57bf16d8443b@linaro.org> <YRhCqNWB1MC++TAO@antec>
+ <0f577bc8-bef8-6c06-aaa9-57bf16d8443b@linaro.org>
+ <YRhCqNWB1MC++TAO@antec>
  <alpine.DEB.2.22.394.2108161710590.136350@digraph.polyomino.org.uk>
  <YRrenWZeh103h3zX@antec>
-Message-ID: <alpine.DEB.2.22.394.2108162231010.136350@digraph.polyomino.org.uk>
+ <alpine.DEB.2.22.394.2108162231010.136350@digraph.polyomino.org.uk>
+Message-ID: <CAAfxs75zCUbA1Y3tMssvErhADNPYLevw1azdK4RBt+BU7gFP7Q@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, 17 Aug 2021, Stafford Horne via Libc-alpha wrote:
+On Tue, Aug 17, 2021, 7:33 AM Joseph Myers <joseph@codesourcery.com> wrote:
 
-> Should we provide __KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64 for not linux builds,
-> or remove __KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64 from the itimer test again?
-> The reason for using __KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64 is to pick up the
-> timeval size which is different on each architecture.
+> On Tue, 17 Aug 2021, Stafford Horne via Libc-alpha wrote:
+>
+> > Should we provide __KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64 for not linux
+> builds,
+> > or remove __KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64 from the itimer test
+> again?
+> > The reason for using __KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64 is to pick
+> up the
+> > timeval size which is different on each architecture.
+>
+> I'd suggest having a macro that doesn't refer to either "kernel" or "old
+> timeval" (and that is defined for both Linux and Hurd).  As far as I
+> understand, the logical concept that's relevant for this test isn't either
+> one of those, it's more like "setitimer supports times that cannot be
+> represented in 32 bits".
+>
 
-I'd suggest having a macro that doesn't refer to either "kernel" or "old 
-timeval" (and that is defined for both Linux and Hurd).  As far as I 
-understand, the logical concept that's relevant for this test isn't either 
-one of those, it's more like "setitimer supports times that cannot be 
-represented in 32 bits".
+Hello,
 
--- 
-Joseph S. Myers
-joseph at codesourcery.com
+That makes sense, currently with the hurd build being broken how urgent is
+this?  I worked on reproducing the build issue with build-many but didn't
+get it working yet, probably about 80% there before I ran out of time.
+
+I'll try to get it fixed in a few days as my top priority, but I only have
+an hour or two a day to look at it. If we need to revert or add a temporary
+patch please feel free.
+
+-stafford
+
+>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20210818/ed52d64b/attachment.htm>
