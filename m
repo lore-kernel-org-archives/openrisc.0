@@ -1,53 +1,281 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 18 Aug 2021 08:33:33 +0900
-Subject: [OpenRISC] [PATCH v2] time: Fix overflow itimer tests on 32-bit
- systems
-In-Reply-To: <alpine.DEB.2.22.394.2108162231010.136350@digraph.polyomino.org.uk>
-References: <20210806094217.3227877-1-shorne@gmail.com>
- <0f577bc8-bef8-6c06-aaa9-57bf16d8443b@linaro.org>
- <YRhCqNWB1MC++TAO@antec>
- <alpine.DEB.2.22.394.2108161710590.136350@digraph.polyomino.org.uk>
- <YRrenWZeh103h3zX@antec>
- <alpine.DEB.2.22.394.2108162231010.136350@digraph.polyomino.org.uk>
-Message-ID: <CAAfxs75zCUbA1Y3tMssvErhADNPYLevw1azdK4RBt+BU7gFP7Q@mail.gmail.com>
+From: Helge Deller <deller@gmx.de>
+Date: Sun, 22 Aug 2021 21:48:36 +0200
+Subject: [OpenRISC] [PATCH v2] init: consolidate trap_init()
+In-Reply-To: <20210414180037.14602dab@xhacker.debian>
+References: <20210414165808.458a3d11@xhacker.debian>
+ <20210414180037.14602dab@xhacker.debian>
+Message-ID: <8638c5bc-71cd-9407-e597-77bf9bec17ee@gmx.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Aug 17, 2021, 7:33 AM Joseph Myers <joseph@codesourcery.com> wrote:
-
-> On Tue, 17 Aug 2021, Stafford Horne via Libc-alpha wrote:
+On 4/14/21 12:00 PM, Jisheng Zhang wrote:
+> Many architectures implement the trap_init() as NOP, since there is
+> no such default for trap_init(), this empty stub is duplicated among
+> these architectures. Provide a generic but weak NOP implementation
+> to drop the empty stubs of trap_init() in these architectures.
 >
-> > Should we provide __KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64 for not linux
-> builds,
-> > or remove __KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64 from the itimer test
-> again?
-> > The reason for using __KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64 is to pick
-> up the
-> > timeval size which is different on each architecture.
+> The alpha, microblaze and sparc32 have real trap_init() implementation
+> but the __init marker is missing, so add it to these three platforms.
 >
-> I'd suggest having a macro that doesn't refer to either "kernel" or "old
-> timeval" (and that is defined for both Linux and Hurd).  As far as I
-> understand, the logical concept that's relevant for this test isn't either
-> one of those, it's more like "setitimer supports times that cannot be
-> represented in 32 bits".
+> Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+> ---
+> Since v1:
+>   - add __init marker to trap_init() for alpha, microblaze and sparc32
+>   - adjust the generic weak NOP trap_init() location to make it sits with
+>     other NOP implementations together
+>
+>   arch/alpha/kernel/traps.c      |  2 +-
+>   arch/arc/kernel/traps.c        |  5 -----
+>   arch/arm/kernel/traps.c        |  5 -----
+>   arch/h8300/kernel/traps.c      | 13 -------------
+>   arch/hexagon/kernel/traps.c    |  4 ----
+>   arch/microblaze/kernel/traps.c |  2 +-
+>   arch/nds32/kernel/traps.c      |  5 -----
+>   arch/nios2/kernel/traps.c      |  5 -----
+>   arch/openrisc/kernel/traps.c   |  5 -----
+>   arch/parisc/kernel/traps.c     |  4 ----
+>   arch/powerpc/kernel/traps.c    |  5 -----
+>   arch/riscv/kernel/traps.c      |  5 -----
+>   arch/sparc/kernel/traps_32.c   |  2 +-
+>   arch/um/kernel/trap.c          |  4 ----
+>   init/main.c                    |  2 ++
+>   15 files changed, 5 insertions(+), 63 deletions(-)
+
+
+For parisc:
+
+Acked-by: Helge Deller <deller@gmx.de> # parisc
+
+Thanks!
+Helge
+
+>
+> diff --git a/arch/alpha/kernel/traps.c b/arch/alpha/kernel/traps.c
+> index 921d4b6e4d95..96b203199c6c 100644
+> --- a/arch/alpha/kernel/traps.c
+> +++ b/arch/alpha/kernel/traps.c
+> @@ -973,7 +973,7 @@ do_entUnaUser(void __user * va, unsigned long opcode,
+>   	return;
+>   }
+>
+> -void
+> +void __init
+>   trap_init(void)
+>   {
+>   	/* Tell PAL-code what global pointer we want in the kernel.  */
+> diff --git a/arch/arc/kernel/traps.c b/arch/arc/kernel/traps.c
+> index 57235e5c0cea..6b83e3f2b41c 100644
+> --- a/arch/arc/kernel/traps.c
+> +++ b/arch/arc/kernel/traps.c
+> @@ -20,11 +20,6 @@
+>   #include <asm/unaligned.h>
+>   #include <asm/kprobes.h>
+>
+> -void __init trap_init(void)
+> -{
+> -	return;
+> -}
+> -
+>   void die(const char *str, struct pt_regs *regs, unsigned long address)
+>   {
+>   	show_kernel_fault_diag(str, regs, address);
+> diff --git a/arch/arm/kernel/traps.c b/arch/arm/kernel/traps.c
+> index 17d5a785df28..9baccef20392 100644
+> --- a/arch/arm/kernel/traps.c
+> +++ b/arch/arm/kernel/traps.c
+> @@ -780,11 +780,6 @@ void abort(void)
+>   	panic("Oops failed to kill thread");
+>   }
+>
+> -void __init trap_init(void)
+> -{
+> -	return;
+> -}
+> -
+>   #ifdef CONFIG_KUSER_HELPERS
+>   static void __init kuser_init(void *vectors)
+>   {
+> diff --git a/arch/h8300/kernel/traps.c b/arch/h8300/kernel/traps.c
+> index 5d8b969cd8f3..c3a3ebf77fbb 100644
+> --- a/arch/h8300/kernel/traps.c
+> +++ b/arch/h8300/kernel/traps.c
+> @@ -30,19 +30,6 @@
+>
+>   static DEFINE_SPINLOCK(die_lock);
+>
+> -/*
+> - * this must be called very early as the kernel might
+> - * use some instruction that are emulated on the 060
+> - */
+> -
+> -void __init base_trap_init(void)
+> -{
+> -}
+> -
+> -void __init trap_init(void)
+> -{
+> -}
+> -
+>   asmlinkage void set_esp0(unsigned long ssp)
+>   {
+>   	current->thread.esp0 = ssp;
+> diff --git a/arch/hexagon/kernel/traps.c b/arch/hexagon/kernel/traps.c
+> index 904134b37232..edfc35dafeb1 100644
+> --- a/arch/hexagon/kernel/traps.c
+> +++ b/arch/hexagon/kernel/traps.c
+> @@ -28,10 +28,6 @@
+>   #define TRAP_SYSCALL	1
+>   #define TRAP_DEBUG	0xdb
+>
+> -void __init trap_init(void)
+> -{
+> -}
+> -
+>   #ifdef CONFIG_GENERIC_BUG
+>   /* Maybe should resemble arch/sh/kernel/traps.c ?? */
+>   int is_valid_bugaddr(unsigned long addr)
+> diff --git a/arch/microblaze/kernel/traps.c b/arch/microblaze/kernel/traps.c
+> index 94b6fe93147d..7c15704fe56e 100644
+> --- a/arch/microblaze/kernel/traps.c
+> +++ b/arch/microblaze/kernel/traps.c
+> @@ -18,7 +18,7 @@
+>   #include <asm/exceptions.h>
+>   #include <asm/unwind.h>
+>
+> -void trap_init(void)
+> +void __init trap_init(void)
+>   {
+>   	__enable_hw_exceptions();
+>   }
+> diff --git a/arch/nds32/kernel/traps.c b/arch/nds32/kernel/traps.c
+> index ee0d9ae192a5..f06421c645af 100644
+> --- a/arch/nds32/kernel/traps.c
+> +++ b/arch/nds32/kernel/traps.c
+> @@ -183,11 +183,6 @@ void __pgd_error(const char *file, int line, unsigned long val)
+>   }
+>
+>   extern char *exception_vector, *exception_vector_end;
+> -void __init trap_init(void)
+> -{
+> -	return;
+> -}
+> -
+>   void __init early_trap_init(void)
+>   {
+>   	unsigned long ivb = 0;
+> diff --git a/arch/nios2/kernel/traps.c b/arch/nios2/kernel/traps.c
+> index b172da4eb1a9..596986a74a26 100644
+> --- a/arch/nios2/kernel/traps.c
+> +++ b/arch/nios2/kernel/traps.c
+> @@ -105,11 +105,6 @@ void show_stack(struct task_struct *task, unsigned long *stack,
+>   	printk("%s\n", loglvl);
+>   }
+>
+> -void __init trap_init(void)
+> -{
+> -	/* Nothing to do here */
+> -}
+> -
+>   /* Breakpoint handler */
+>   asmlinkage void breakpoint_c(struct pt_regs *fp)
+>   {
+> diff --git a/arch/openrisc/kernel/traps.c b/arch/openrisc/kernel/traps.c
+> index 4d61333c2623..aa1e709405ac 100644
+> --- a/arch/openrisc/kernel/traps.c
+> +++ b/arch/openrisc/kernel/traps.c
+> @@ -231,11 +231,6 @@ void unhandled_exception(struct pt_regs *regs, int ea, int vector)
+>   	die("Oops", regs, 9);
+>   }
+>
+> -void __init trap_init(void)
+> -{
+> -	/* Nothing needs to be done */
+> -}
+> -
+>   asmlinkage void do_trap(struct pt_regs *regs, unsigned long address)
+>   {
+>   	force_sig_fault(SIGTRAP, TRAP_BRKPT, (void __user *)regs->pc);
+> diff --git a/arch/parisc/kernel/traps.c b/arch/parisc/kernel/traps.c
+> index 8d8441d4562a..747c328fb886 100644
+> --- a/arch/parisc/kernel/traps.c
+> +++ b/arch/parisc/kernel/traps.c
+> @@ -859,7 +859,3 @@ void  __init early_trap_init(void)
+>
+>   	initialize_ivt(&fault_vector_20);
+>   }
+> -
+> -void __init trap_init(void)
+> -{
+> -}
+> diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
+> index a44a30b0688c..e952bee89684 100644
+> --- a/arch/powerpc/kernel/traps.c
+> +++ b/arch/powerpc/kernel/traps.c
+> @@ -2207,11 +2207,6 @@ DEFINE_INTERRUPT_HANDLER(kernel_bad_stack)
+>   	die("Bad kernel stack pointer", regs, SIGABRT);
+>   }
+>
+> -void __init trap_init(void)
+> -{
+> -}
+> -
+> -
+>   #ifdef CONFIG_PPC_EMULATED_STATS
+>
+>   #define WARN_EMULATED_SETUP(type)	.type = { .name = #type }
+> diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
+> index 0879b5df11b9..b3f3d84de779 100644
+> --- a/arch/riscv/kernel/traps.c
+> +++ b/arch/riscv/kernel/traps.c
+> @@ -194,8 +194,3 @@ int is_valid_bugaddr(unsigned long pc)
+>   		return ((insn & __COMPRESSED_INSN_MASK) == __BUG_INSN_16);
+>   }
+>   #endif /* CONFIG_GENERIC_BUG */
+> -
+> -/* stvec & scratch is already set from head.S */
+> -void trap_init(void)
+> -{
+> -}
+> diff --git a/arch/sparc/kernel/traps_32.c b/arch/sparc/kernel/traps_32.c
+> index 247a0d9683b2..c4df20ec01e2 100644
+> --- a/arch/sparc/kernel/traps_32.c
+> +++ b/arch/sparc/kernel/traps_32.c
+> @@ -365,7 +365,7 @@ EXPORT_SYMBOL(do_BUG);
+>    * up here so that timer interrupts work during initialization.
+>    */
+>
+> -void trap_init(void)
+> +void __init trap_init(void)
+>   {
+>   	extern void thread_info_offsets_are_bolixed_pete(void);
+>
+> diff --git a/arch/um/kernel/trap.c b/arch/um/kernel/trap.c
+> index ad12f78bda7e..3198c4767387 100644
+> --- a/arch/um/kernel/trap.c
+> +++ b/arch/um/kernel/trap.c
+> @@ -311,7 +311,3 @@ void winch(int sig, struct siginfo *unused_si, struct uml_pt_regs *regs)
+>   {
+>   	do_IRQ(WINCH_IRQ, regs);
+>   }
+> -
+> -void trap_init(void)
+> -{
+> -}
+> diff --git a/init/main.c b/init/main.c
+> index 53b278845b88..8d14674c4e00 100644
+> --- a/init/main.c
+> +++ b/init/main.c
+> @@ -779,6 +779,8 @@ void __init __weak poking_init(void) { }
+>
+>   void __init __weak pgtable_cache_init(void) { }
+>
+> +void __init __weak trap_init(void) { }
+> +
+>   bool initcall_debug;
+>   core_param(initcall_debug, initcall_debug, bool, 0644);
+>
 >
 
-Hello,
-
-That makes sense, currently with the hurd build being broken how urgent is
-this?  I worked on reproducing the build issue with build-many but didn't
-get it working yet, probably about 80% there before I ran out of time.
-
-I'll try to get it fixed in a few days as my top priority, but I only have
-an hour or two a day to look at it. If we need to revert or add a temporary
-patch please feel free.
-
--stafford
-
->
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20210818/ed52d64b/attachment.htm>
