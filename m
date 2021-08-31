@@ -1,5 +1,5 @@
 From: Dan <dan.gisselquist@gmail.com>
-Date: Tue, 31 Aug 2021 13:07:35 -0400
+Date: Tue, 31 Aug 2021 13:08:34 -0400
 Subject: [OpenRISC] Continue OpenRISC contibution
 In-Reply-To: <CADGJwMyrBUCb8gLbDZpCgor0BTV5Ouy1N8v=2Dua7cueg=iVfg@mail.gmail.com>
 References: <CADGJwMwapL_eB_ZqKmaDsoFxCY_3qvKu=0BfdSGQZaC5GEjP1Q@mail.gmail.com>
@@ -8,19 +8,17 @@ References: <CADGJwMwapL_eB_ZqKmaDsoFxCY_3qvKu=0BfdSGQZaC5GEjP1Q@mail.gmail.com>
  <CAAfxs769RLG-qTuezZYiv+Pze-sqxRAokw6pT3ecYrpn8Len4g@mail.gmail.com>
  <3353f448aa67d1d6bf61eaa37256c90d1377bb74.camel@ieee.org>
  <CADGJwMyrBUCb8gLbDZpCgor0BTV5Ouy1N8v=2Dua7cueg=iVfg@mail.gmail.com>
-Message-ID: <b67601fec3018b9d2c408b3edb2fc01b8a82c819.camel@ieee.org>
+Message-ID: <7daf0759c553ae00591bfbb9aae8fa88167a3916.camel@ieee.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Harshita,
-To debug this error, look at the sby file found in the mor1kx/
-directory created by sby.  My guess is that it is missing quotation
-marks.
+Looks like I missed a question: Yes, you can use the hierarchy command
+without using Python code.  It's just a Yosys command like everything
+else in the [script] section of the sby configuration file.
 Dan
-
 On Tue, 2021-08-31 at 22:23 +0530, Harshitha S wrote:
 > Hello Dan,
 > I have used chparam everywhere in the SBY files because an error
@@ -91,11 +89,11 @@ On Tue, 2021-08-31 at 22:23 +0530, Harshitha S wrote:
 > > > https://lists.librecores.org/listinfo/openrisc
 -------------- next part --------------
 An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20210831/a55ff607/attachment-0001.htm>
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20210831/32aafbfd/attachment-0001.htm>
 -------------- next part --------------
 A non-text attachment was scrubbed...
 Name: image.png
 Type: image/png
 Size: 111049 bytes
 Desc: not available
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20210831/a55ff607/attachment-0001.png>
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20210831/32aafbfd/attachment-0001.png>
