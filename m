@@ -1,38 +1,63 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Date: Thu, 30 Sep 2021 19:11:01 -0700
-Subject: [OpenRISC] [PATCH] openrisc: time: don't mark comment as kernel-doc
-Message-ID: <20211001021101.18225-1-rdunlap@infradead.org>
+From: Stafford Horne <shorne@gmail.com>
+Date: Wed, 1 Sep 2021 22:26:30 +0900
+Subject: [OpenRISC] Continue OpenRISC contibution
+In-Reply-To: <CADGJwMzBfYmkXPAuTuPtEmMruuTydmW1h--YQJjWTmHyiDOv6Q@mail.gmail.com>
+References: <CADGJwMwapL_eB_ZqKmaDsoFxCY_3qvKu=0BfdSGQZaC5GEjP1Q@mail.gmail.com>
+ <YSgmu/bnzRnI7AGI@antec>
+ <CADGJwMzBfYmkXPAuTuPtEmMruuTydmW1h--YQJjWTmHyiDOv6Q@mail.gmail.com>
+Message-ID: <CAAfxs74_+W_dTa-yjx=+jJ3fm9R1hzS1_QVWJTPvn3fEgXaEng@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Fix a kernel-doc warning by unmarking the comment as being in
-kernel-doc notation.
+In terms of debugging I put this together a while back for how to
+setup and use the OpenOCD / GDB debug environment for openrisc.
+https://github.com/openrisc/tutorials/blob/master/docs/Debugging.md
 
-Fixes this warning:
-arch/openrisc/kernel/time.c:137: warning: expecting prototype for Clocksource(). Prototype was for openrisc_timer_read() instead
+This assumes you have an FPGA board like the de0 nano and are able to
+program one of the fusesoc mor1kx with adv_debug_sys bitstreams onto
+it.  All that can be done via fusesoc which wraps the process.  There
+are documents about doing that on the web, also one here:
+https://github.com/openrisc/tutorials/tree/master/de0_nano
 
-Fixes: b731fbbd246e ("OpenRISC: Timekeeping")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: openrisc at lists.librecores.org
----
- arch/openrisc/kernel/time.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Do you have an FPGA board you can use?
 
---- linux-next-20210930.orig/arch/openrisc/kernel/time.c
-+++ linux-next-20210930/arch/openrisc/kernel/time.c
-@@ -127,7 +127,7 @@ irqreturn_t __irq_entry timer_interrupt(
- 	return IRQ_HANDLED;
- }
- 
--/**
-+/*
-  * Clocksource: Based on OpenRISC timer/counter
-  *
-  * This sets up the OpenRISC Tick Timer as a clock source.  The tick timer
+-Stafford
+
+On Sun, Aug 29, 2021 at 2:16 AM Harshitha S
+<harshithasridhar172000@gmail.com> wrote:
+>
+> Hello Stafford,
+>
+> I want to start with a simple one. I have updated the Mor1kx Formal in the readme.
+> Let me know if anything else to be included.
+> https://github.com/Harshitha172000/mor1kx/commit/e192b83ce01cd4b467ce74fe65b2f3a7ced7a22d
+>
+> I will try fixing the bugs and also work on or1kx-formal. Meanwhile, I'm thinking of exploring OpenOCD/GDB
+> for mor1kx CPU debugging but having no idea where to start. Can you guide me beginning with CPU debugging?
+>
+> -Harshitha
+>
+> On Fri, Aug 27, 2021 at 5:11 AM Stafford Horne <shorne@gmail.com> wrote:
+>>
+>> On Thu, Aug 26, 2021 at 10:17:17PM +0530, Harshitha S wrote:
+>> > Hello,
+>> >
+>> > I'm thinking of continuing my contribution to the OpenRISC project. With my
+>> > GSoC project, I have learned too many new skills and wish to keep this
+>> > learning pace. I would be happy to learn and explore new skills. Please let
+>> > me know what I can work upon.
+>>
+>> Hi Harshita,
+>>
+>> (CCing list)
+>>
+>> Glad to hear you are still interested.  I think there are always plenty of
+>> things, some things on the top of my head:
+>>   - Simple - update the mor1kx/readme.md to explain we support formal
+>>   - Medium - fix the bugs that you raised
+>>   - Bigger - or1k-formal (like riscv-formal, formally verify each instruction)
+>>
+>> -Stafford
