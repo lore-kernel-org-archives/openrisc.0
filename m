@@ -1,58 +1,168 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Fri, 3 Sep 2021 06:12:01 +0900
-Subject: [OpenRISC] [GIT PULL] OpenRISC updates for 5.15
-Message-ID: <YTE+IdUiJ+k+bpDR@antec>
+From: Stefan Wallentowitz <stefan@wallentowitz.de>
+Date: Fri,  3 Sep 2021 07:36:54 +0000
+Subject: [OpenRISC] Reporting the bugs in MOR1KX processor
+In-Reply-To: <CADzBsGPS1McirO2W_HRJxDr94DCh-63bEqCfF1ABjPTYPEH3+A@mail.gmail.com>
+References: <CAPV5DU64Hja40XHgvUz2ph7gcBtNWinUNH633vCfxH7vxEvshA@mail.gmail.com>
+ <CADzBsGPS1McirO2W_HRJxDr94DCh-63bEqCfF1ABjPTYPEH3+A@mail.gmail.com>
+Message-ID: <43b3a519-f334-df97-4545-e2fdf7804dd7@wallentowitz.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-Hi Linus,
+Hi,
 
-Please consider for pull:
+can you please open issues on the bugtracker?
+https://github.com/openrisc/mor1kx/issues
 
-The following changes since commit c500bee1c5b2f1d59b1081ac879d73268ab0ff17:
+Thanks,
+Stefan
 
-  Linux 5.14-rc4 (2021-08-01 17:04:17 -0700)
+On 02.09.21 20:49, Stefan Kristiansson wrote:
+> 
+> 
+> On Thu, Sep 2, 2021 at 8:53 PM Jeyavijayan Rajendran
+> <jeyavijayan at tamu.edu <mailto:jeyavijayan@tamu.edu>> wrote:
+> 
+>     Dear Developers of the MOR1KX processor, 
+> 
+>     We are research teamsfrom Texas A&M University and TU Darmstadt. We
+>     found the following bugs in your MOR1KX processor design
+>     (https://github.com/openrisc/mor1kx
+>     <https://urldefense.com/v3/__https://github.com/openrisc/mor1kx__;!!KwNVnqRv!SNshfFgKzp1a7X2JYV-4kru80LEyB-7pSHRNT2CfnwuMzUMLkGpkd-6OXtBiVlQn4uw$>).
+> 
+>     We intend to get CVE listing numbers for all these bugs to include
+>     in our research paper. Hence, we would like to disclose these bugs
+>     to you before we request CVE IDs.  
+> 
+>     Please respond to us by *_10th Sept 2021, 11:59 PM UTC _*with your
+>     acknowledgment of the bugs.
+> 
+>     In case you are not authorized to comment on the bugs, please
+>     connect us with the right contact person or channel for this matter.  
+> 
+>     Also, let us know if your processor design is one of the CNA-covered
+>     products (https://cve.mitre.org/cve/cna.html
+>     <https://urldefense.com/v3/__https://cve.mitre.org/cve/cna.html__;!!KwNVnqRv!SNshfFgKzp1a7X2JYV-4kru80LEyB-7pSHRNT2CfnwuMzUMLkGpkd-6OXtBi93tT1sQ$>)
+>     so that we can include the same in our CVE listing.
+> 
+> 
+>     Vendor of the product(s): openrisc
+> 
+> 
+>     Bug 1:
+> 
+>     Bug:The carry flag is incorrectly implemented for subtractinstructions.
+> 
+>     Location:  mor1kx_execute_alu.v
+>     (https://github.com/openrisc/mor1kx/blob/master/rtl/verilog/mor1kx_execute_alu.v
+>     <https://urldefense.com/v3/__https://github.com/openrisc/mor1kx/blob/master/rtl/verilog/mor1kx_execute_alu.v__;!!KwNVnqRv!SNshfFgKzp1a7X2JYV-4kru80LEyB-7pSHRNT2CfnwuMzUMLkGpkd-6OXtBi4Qmr_iI$>).
+> 
+>     Triggering input: 
+> 
+>     //set r1=00020000 and r3=00002000
+> 
+>          l.sub    r4,r1,r3 
+> 
+>     Expected output: 
+> 
+>                    Carry flag = 0
+> 
+> 
+>     mor1kx output: 
+> 
+>                   Carry flag = 1
+> 
+> 
+> 
+>     Bug 2:
+> 
+>     Bug:The EPCR register is accessible from user mode.
+> 
+>     Location:  mor1kx_ctrl_cappuccino.v
+>     (https://github.com/openrisc/mor1kx/blob/master/rtl/verilog/mor1kx_ctrl_cappuccino.v
+>     <https://urldefense.com/v3/__https://github.com/openrisc/mor1kx/blob/master/rtl/verilog/mor1kx_ctrl_cappuccino.v__;!!KwNVnqRv!SNshfFgKzp1a7X2JYV-4kru80LEyB-7pSHRNT2CfnwuMzUMLkGpkd-6OXtBi6Jz-sng$>).
+> 
+>     Details: The OpenRISC specification requires that the EPCR register
+>     be accessible only from supervisor mode. 
+> 
+>     Triggering input: 
+> 
+>     #include <stdio.h>
+> 
+>     int main() {
+> 
+>       // enter user mode :
+> 
+>       asm volatile ( "l.ori r17,r0,0x0000  ");
+> 
+>       asm volatile ( "l.mtspr r0,r17,0x3806");
+> 
+> 
+>       asm volatile ( "l.mfspr r17,r0,0x11  ");
+> 
+>       asm volatile ( "l.andi r17,r17,-2    ");
+> 
+>       asm volatile ( "l.mtspr r0,r17,0x11  ");
+> 
+>       // padding the seed code
+> 
+>       asm volatile( "l.nop 0x0 ");
+> 
+>       asm volatile( "l.nop 0x0 ");
+> 
+>       asm volatile( "l.nop 0x0 ");
+> 
+>       asm volatile( "l.nop 0x0 ");
+> 
+>       asm volatile ("l.addi r1,r0,1");
+> 
+>       asm volatile ("l.mfspr r2,r0,32");
+> 
+>       asm volatile ("l.mtspr r0, r1, 32");
+> 
+>       return 0;
+> 
+>     }
+> 
+> 
+>     The or1ksim fails to execute the mfspr while the mor1kx
+>     implementation can successfully write into EPCR using the mtspr
+>     instruction. 
+> 
+> 
+>     Bug 3:
+> 
+>     Bug:Unable to write to the EEAR register from the supervisor mode.
+> 
+>     Location:  mor1kx_ctrl_cappuccino.v
+>     (https://github.com/openrisc/mor1kx/blob/master/rtl/verilog/mor1kx_ctrl_cappuccino.v
+>     <https://urldefense.com/v3/__https://github.com/openrisc/mor1kx/blob/master/rtl/verilog/mor1kx_ctrl_cappuccino.v__;!!KwNVnqRv!SNshfFgKzp1a7X2JYV-4kru80LEyB-7pSHRNT2CfnwuMzUMLkGpkd-6OXtBi6Jz-sng$>),
+>     line 830 to 840.
+> 
+>     Details: The OpenRISC specification requires that the EEAR register
+>     be accessible from the supervisor mode but the mor1kx implementation
+>     does not have the option to write to EEAR with the mtspr instruction
+>     even from the supervisor mode. 
+> 
+> 
+>     Sincerely,
+> 
+>     JV, Ahmad, Aakash, Addison, and Rahul.
+> 
+> 
+>     -- 
+>     JV Rajendran,
+>     Assistant Professor of Electrical and Computer Engineering, 
+>     Texas A&M University.
+>     Web: https://cesg.tamu.edu/faculty/jv/
+>     <https://cesg.tamu.edu/faculty/jv/>
+> 
+> 
+> _______________________________________________
+> OpenRISC mailing list
+> OpenRISC at lists.librecores.org
+> https://lists.librecores.org/listinfo/openrisc
+> 
 
-are available in the Git repository at:
-
-  git://github.com/openrisc/linux.git tags/for-linus
-
-for you to fetch changes up to 1955d843efc3b5cf3ab4878986a87ad4972ff4e1:
-
-  openrisc/litex: Update defconfig (2021-08-31 22:41:46 +0900)
-
-----------------------------------------------------------------
-OpenRISC updates for 5.15
-
-A few cleanups and compiler warning fixes for OpenRISC.  Also, this
-includes dts and defconfig updates to enable Ethernet on OpenRISC/Litex
-FPGA SoC's now that the LiteEth driver has gone upstream.
-
-----------------------------------------------------------------
-Joel Stanley (3):
-      openrisc/litex: Update uart address
-      openrisc/litex: Add ethernet device
-      openrisc/litex: Update defconfig
-
-Randy Dunlap (2):
-      openrisc: don't printk() unconditionally
-      openrisc: rename or32 code & comments to or1k
-
-Stafford Horne (1):
-      openrisc: Fix compiler warnings in setup
-
- arch/openrisc/boot/dts/or1klitex.dts      | 13 +++++++++++--
- arch/openrisc/configs/or1klitex_defconfig | 26 ++++++++++++++++----------
- arch/openrisc/include/asm/pgtable.h       |  6 +++---
- arch/openrisc/include/asm/setup.h         | 15 +++++++++++++++
- arch/openrisc/include/asm/thread_info.h   |  2 +-
- arch/openrisc/kernel/entry.S              |  6 ++++--
- arch/openrisc/kernel/head.S               |  6 +++---
- arch/openrisc/kernel/setup.c              | 20 +++-----------------
- arch/openrisc/lib/Makefile                |  2 +-
- arch/openrisc/mm/fault.c                  |  2 +-
- 10 files changed, 58 insertions(+), 40 deletions(-)
- create mode 100644 arch/openrisc/include/asm/setup.h
