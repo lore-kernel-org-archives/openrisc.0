@@ -1,211 +1,102 @@
-From: Rahul Kande <rahulkande@tamu.edu>
-Date: Tue, 7 Sep 2021 21:48:39 -0500
-Subject: [OpenRISC] Reporting the bugs in MOR1KX processor
-In-Reply-To: <43b3a519-f334-df97-4545-e2fdf7804dd7@wallentowitz.de>
-References: <CAPV5DU64Hja40XHgvUz2ph7gcBtNWinUNH633vCfxH7vxEvshA@mail.gmail.com>
- <CADzBsGPS1McirO2W_HRJxDr94DCh-63bEqCfF1ABjPTYPEH3+A@mail.gmail.com>
- <43b3a519-f334-df97-4545-e2fdf7804dd7@wallentowitz.de>
-Message-ID: <CADLGkjtjTVMSkLuxVqJJS_j_Z+QOP15EsQoHMQ+-_kASG7H_GA@mail.gmail.com>
+From: Lee Jones <lee.jones@linaro.org>
+Date: Thu,  9 Sep 2021 13:04:18 +0100
+Subject: [OpenRISC] [PATCH v2 0/3] power: reset: Convert Power-Off driver to
+ tristate
+Message-ID: <20210909120421.1313908-1-lee.jones@linaro.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hello Mr. Wallentowitz,
+Provide support to compile the Power-Off driver as a module.
 
-We have opened issues for each of the bugs in the mor1kx bug tracker as
-requested.
+v1 => v2:
+ - s/EXPORT_SYMBOL/EXPORT_SYMBOL_GPL/
+ 
+Elliot Berman (2):
+  reboot: Export reboot_mode
+  power: reset: Enable tristate on restart power-off driver
 
-Here are the links for the issues we have opened:
-For bug 1: https://github.com/openrisc/mor1kx/issues/139
-For bug 2: https://github.com/openrisc/mor1kx/issues/140
-For bug 3: https://github.com/openrisc/mor1kx/issues/141
+Lee Jones (1):
+  arch: Export machine_restart() instances so they can be called from
+    modules
 
-Please let us know if the information is sufficient and acknowledge whether
-we can file CVEs for them.
+ arch/arc/kernel/reset.c            | 1 +
+ arch/arm/kernel/reboot.c           | 1 +
+ arch/arm64/kernel/process.c        | 1 +
+ arch/csky/kernel/power.c           | 1 +
+ arch/h8300/kernel/process.c        | 1 +
+ arch/hexagon/kernel/reset.c        | 1 +
+ arch/m68k/kernel/process.c         | 1 +
+ arch/microblaze/kernel/reset.c     | 1 +
+ arch/mips/kernel/reset.c           | 1 +
+ arch/mips/lantiq/falcon/reset.c    | 1 +
+ arch/mips/sgi-ip27/ip27-reset.c    | 1 +
+ arch/nds32/kernel/process.c        | 2 +-
+ arch/nios2/kernel/process.c        | 1 +
+ arch/openrisc/kernel/process.c     | 1 +
+ arch/parisc/kernel/process.c       | 1 +
+ arch/powerpc/kernel/setup-common.c | 1 +
+ arch/riscv/kernel/reset.c          | 1 +
+ arch/s390/kernel/setup.c           | 1 +
+ arch/sh/kernel/reboot.c            | 1 +
+ arch/sparc/kernel/process_32.c     | 1 +
+ arch/sparc/kernel/reboot.c         | 1 +
+ arch/um/kernel/reboot.c            | 1 +
+ arch/x86/kernel/reboot.c           | 1 +
+ arch/xtensa/kernel/setup.c         | 1 +
+ drivers/power/reset/Kconfig        | 2 +-
+ kernel/reboot.c                    | 2 ++
+ 26 files changed, 27 insertions(+), 2 deletions(-)
 
-Sincerely,
-Rahul Kande
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Brian Cain <bcain@codeaurora.org>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Chris Zankel <chris@zankel.net>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Guo Ren <guoren@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: James E.J. Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: Jeff Dike <jdike@addtoit.com>
+Cc: John Crispin <john@phrozen.org>
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Ley Foon Tan <ley.foon.tan@intel.com>
+Cc: linux-arm-kernel at lists.infradead.org
+Cc: linux-csky at vger.kernel.org
+Cc: linux-hexagon at vger.kernel.org
+Cc: linux-kernel at vger.kernel.org
+Cc: linux-m68k at lists.linux-m68k.org
+Cc: linux-mips at vger.kernel.org
+Cc: linux-parisc at vger.kernel.org
+Cc: linuxppc-dev at lists.ozlabs.org
+Cc: linux-riscv at lists.infradead.org
+Cc: linux-s390 at vger.kernel.org
+Cc: linux-sh at vger.kernel.org
+Cc: linux-snps-arc at lists.infradead.org
+Cc: linux-um at lists.infradead.org
+Cc: linux-xtensa at linux-xtensa.org
+Cc: Max Filippov <jcmvbkbc@gmail.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Simek <monstr@monstr.eu>
+Cc: openrisc at lists.librecores.org
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: Rich Felker <dalias@libc.org>
+Cc: sparclinux at vger.kernel.org
+Cc: Stafford Horne <shorne@gmail.com>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: uclinux-h8-devel at lists.sourceforge.jp
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+-- 
+2.33.0.153.gba50c8fa24-goog
 
-On Fri, Sep 3, 2021 at 2:37 AM Stefan Wallentowitz <stefan@wallentowitz.de>
-wrote:
-
-> Hi,
->
-> can you please open issues on the bugtracker?
->
-> https://urldefense.com/v3/__https://github.com/openrisc/mor1kx/issues__;!!KwNVnqRv!XeamcSRFA-6TeQbLLPh3DDsaf189nUEBWI3f3g8OchDHo_r7QIXO8QgYezYoiO8JTg$
->
-> Thanks,
-> Stefan
->
-> On 02.09.21 20:49, Stefan Kristiansson wrote:
-> >
-> >
-> > On Thu, Sep 2, 2021 at 8:53 PM Jeyavijayan Rajendran
-> > <jeyavijayan at tamu.edu <mailto:jeyavijayan@tamu.edu>> wrote:
-> >
-> >     Dear Developers of the MOR1KX processor,
-> >
-> >     We are research teamsfrom Texas A&M University and TU Darmstadt. We
-> >     found the following bugs in your MOR1KX processor design
-> >     (
-> https://urldefense.com/v3/__https://github.com/openrisc/mor1kx__;!!KwNVnqRv!XeamcSRFA-6TeQbLLPh3DDsaf189nUEBWI3f3g8OchDHo_r7QIXO8QgYezYOf67r0Q$
-> >     <
-> https://urldefense.com/v3/__https://github.com/openrisc/mor1kx__;!!KwNVnqRv!SNshfFgKzp1a7X2JYV-4kru80LEyB-7pSHRNT2CfnwuMzUMLkGpkd-6OXtBiVlQn4uw$
-> >).
-> >
-> >     We intend to get CVE listing numbers for all these bugs to include
-> >     in our research paper. Hence, we would like to disclose these bugs
-> >     to you before we request CVE IDs.
-> >
-> >     Please respond to us by *_10th Sept 2021, 11:59 PM UTC _*with your
-> >     acknowledgment of the bugs.
-> >
-> >     In case you are not authorized to comment on the bugs, please
-> >     connect us with the right contact person or channel for this matter.
->
-> >
-> >     Also, let us know if your processor design is one of the CNA-covered
-> >     products (
-> https://urldefense.com/v3/__https://cve.mitre.org/cve/cna.html__;!!KwNVnqRv!XeamcSRFA-6TeQbLLPh3DDsaf189nUEBWI3f3g8OchDHo_r7QIXO8QgYezbJjp-2Xg$
-> >     <
-> https://urldefense.com/v3/__https://cve.mitre.org/cve/cna.html__;!!KwNVnqRv!SNshfFgKzp1a7X2JYV-4kru80LEyB-7pSHRNT2CfnwuMzUMLkGpkd-6OXtBi93tT1sQ$
-> >)
-> >     so that we can include the same in our CVE listing.
-> >
-> >
-> >     Vendor of the product(s): openrisc
-> >
-> >
-> >     Bug 1:
-> >
-> >     Bug:The carry flag is incorrectly implemented for
-> subtractinstructions.
-> >
-> >     Location:  mor1kx_execute_alu.v
-> >     (
-> https://urldefense.com/v3/__https://github.com/openrisc/mor1kx/blob/master/rtl/verilog/mor1kx_execute_alu.v__;!!KwNVnqRv!XeamcSRFA-6TeQbLLPh3DDsaf189nUEBWI3f3g8OchDHo_r7QIXO8QgYezZdNKImyQ$
-> >     <
-> https://urldefense.com/v3/__https://github.com/openrisc/mor1kx/blob/master/rtl/verilog/mor1kx_execute_alu.v__;!!KwNVnqRv!SNshfFgKzp1a7X2JYV-4kru80LEyB-7pSHRNT2CfnwuMzUMLkGpkd-6OXtBi4Qmr_iI$
-> >).
-> >
-> >     Triggering input:
-> >
-> >     //set r1=00020000 and r3=00002000
-> >
-> >          l.sub    r4,r1,r3
-> >
-> >     Expected output:
-> >
-> >                    Carry flag = 0
-> >
-> >
-> >     mor1kx output:
-> >
-> >                   Carry flag = 1
-> >
-> >
-> >
-> >     Bug 2:
-> >
-> >     Bug:The EPCR register is accessible from user mode.
-> >
-> >     Location:  mor1kx_ctrl_cappuccino.v
-> >     (
-> https://urldefense.com/v3/__https://github.com/openrisc/mor1kx/blob/master/rtl/verilog/mor1kx_ctrl_cappuccino.v__;!!KwNVnqRv!XeamcSRFA-6TeQbLLPh3DDsaf189nUEBWI3f3g8OchDHo_r7QIXO8QgYezZmnTocIw$
-> >     <
-> https://urldefense.com/v3/__https://github.com/openrisc/mor1kx/blob/master/rtl/verilog/mor1kx_ctrl_cappuccino.v__;!!KwNVnqRv!SNshfFgKzp1a7X2JYV-4kru80LEyB-7pSHRNT2CfnwuMzUMLkGpkd-6OXtBi6Jz-sng$
-> >).
-> >
-> >     Details: The OpenRISC specification requires that the EPCR register
-> >     be accessible only from supervisor mode.
-> >
-> >     Triggering input:
-> >
-> >     #include <stdio.h>
-> >
-> >     int main() {
-> >
-> >       // enter user mode :
-> >
-> >       asm volatile ( "l.ori r17,r0,0x0000  ");
-> >
-> >       asm volatile ( "l.mtspr r0,r17,0x3806");
-> >
-> >
-> >       asm volatile ( "l.mfspr r17,r0,0x11  ");
-> >
-> >       asm volatile ( "l.andi r17,r17,-2    ");
-> >
-> >       asm volatile ( "l.mtspr r0,r17,0x11  ");
-> >
-> >       // padding the seed code
-> >
-> >       asm volatile( "l.nop 0x0 ");
-> >
-> >       asm volatile( "l.nop 0x0 ");
-> >
-> >       asm volatile( "l.nop 0x0 ");
-> >
-> >       asm volatile( "l.nop 0x0 ");
-> >
-> >       asm volatile ("l.addi r1,r0,1");
-> >
-> >       asm volatile ("l.mfspr r2,r0,32");
-> >
-> >       asm volatile ("l.mtspr r0, r1, 32");
-> >
-> >       return 0;
-> >
-> >     }
-> >
-> >
-> >     The or1ksim fails to execute the mfspr while the mor1kx
-> >     implementation can successfully write into EPCR using the mtspr
-> >     instruction.
-> >
-> >
-> >     Bug 3:
-> >
-> >     Bug:Unable to write to the EEAR register from the supervisor mode.
-> >
-> >     Location:  mor1kx_ctrl_cappuccino.v
-> >     (
-> https://urldefense.com/v3/__https://github.com/openrisc/mor1kx/blob/master/rtl/verilog/mor1kx_ctrl_cappuccino.v__;!!KwNVnqRv!XeamcSRFA-6TeQbLLPh3DDsaf189nUEBWI3f3g8OchDHo_r7QIXO8QgYezZmnTocIw$
-> >     <
-> https://urldefense.com/v3/__https://github.com/openrisc/mor1kx/blob/master/rtl/verilog/mor1kx_ctrl_cappuccino.v__;!!KwNVnqRv!SNshfFgKzp1a7X2JYV-4kru80LEyB-7pSHRNT2CfnwuMzUMLkGpkd-6OXtBi6Jz-sng$
-> >),
-> >     line 830 to 840.
-> >
-> >     Details: The OpenRISC specification requires that the EEAR register
-> >     be accessible from the supervisor mode but the mor1kx implementation
-> >     does not have the option to write to EEAR with the mtspr instruction
-> >     even from the supervisor mode.
-> >
-> >
-> >     Sincerely,
-> >
-> >     JV, Ahmad, Aakash, Addison, and Rahul.
-> >
-> >
-> >     --
-> >     JV Rajendran,
-> >     Assistant Professor of Electrical and Computer Engineering,
-> >     Texas A&M University.
-> >     Web: https://cesg.tamu.edu/faculty/jv/
-> >     <https://cesg.tamu.edu/faculty/jv/>
-> >
-> >
-> > _______________________________________________
-> > OpenRISC mailing list
-> > OpenRISC at lists.librecores.org
-> >
-> https://urldefense.com/v3/__https://lists.librecores.org/listinfo/openrisc__;!!KwNVnqRv!XeamcSRFA-6TeQbLLPh3DDsaf189nUEBWI3f3g8OchDHo_r7QIXO8QgYezYmyWEWww$
-> >
->
->
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20210907/e1653ddf/attachment.htm>
