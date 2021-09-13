@@ -1,39 +1,105 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 13 Sep 2021 21:47:57 +0900
-Subject: [OpenRISC] [PATCH 2/5] gdb: or1k: fixup linux regcache comment
+Date: Mon, 13 Sep 2021 21:47:58 +0900
+Subject: [OpenRISC] [PATCH 3/5] gdb: or1k: add generated linux descriptor
+ file
 In-Reply-To: <20210913124800.471680-1-shorne@gmail.com>
 References: <20210913124800.471680-1-shorne@gmail.com>
-Message-ID: <20210913124800.471680-3-shorne@gmail.com>
+Message-ID: <20210913124800.471680-4-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The old comment was not properly updated from the RISC-V example used.
-Update it to match OpenRISC.
 ---
- gdb/or1k-linux-tdep.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ gdb/features/or1k-linux.c | 78 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 78 insertions(+)
+ create mode 100644 gdb/features/or1k-linux.c
 
-diff --git a/gdb/or1k-linux-tdep.c b/gdb/or1k-linux-tdep.c
-index 2ad55f0d9ec..2efb4d0b0f9 100644
---- a/gdb/or1k-linux-tdep.c
-+++ b/gdb/or1k-linux-tdep.c
-@@ -27,9 +27,10 @@
- #include "trad-frame.h"
- #include "gdbarch.h"
- 
--/* Define the general register mapping.  The kernel puts the PC at offset 0,
--   gdb puts it at offset 32.  Register x0 is always 0 and can be ignored.
--   Registers x1 to x31 are in the same place.  */
-+/* Define the general register mapping.  The kernel and GDB put registers
-+   r1 to r31 in the same place.  The NPC register is stored at index 32 in
-+   linux and 33 in GDB, in GDB 32 is for PPC which is not popupated from linux.
-+   Register r0 is always 0 and can be ignored.  */
- 
- static const struct regcache_map_entry or1k_linux_gregmap[] =
- {
+diff --git a/gdb/features/or1k-linux.c b/gdb/features/or1k-linux.c
+new file mode 100644
+index 00000000000..e718d317990
+--- /dev/null
++++ b/gdb/features/or1k-linux.c
+@@ -0,0 +1,78 @@
++/* THIS FILE IS GENERATED.  -*- buffer-read-only: t -*- vi:set ro:
++  Original: or1k-linux.xml */
++
++#include "defs.h"
++#include "osabi.h"
++#include "target-descriptions.h"
++
++struct target_desc *tdesc_or1k_linux;
++static void
++initialize_tdesc_or1k_linux (void)
++{
++  target_desc_up result = allocate_target_description ();
++  set_tdesc_architecture (result.get (), bfd_scan_arch ("or1k"));
++
++  set_tdesc_osabi (result.get (), osabi_from_tdesc_string ("GNU/Linux"));
++
++  struct tdesc_feature *feature;
++
++  feature = tdesc_create_feature (result.get (), "org.gnu.gdb.or1k.group0");
++  tdesc_type_with_fields *type_with_fields;
++  type_with_fields = tdesc_create_flags (feature, "sr_flags", 4);
++  tdesc_add_flag (type_with_fields, 0, "SM");
++  tdesc_add_flag (type_with_fields, 1, "TEE");
++  tdesc_add_flag (type_with_fields, 2, "IEE");
++  tdesc_add_flag (type_with_fields, 3, "DCE");
++  tdesc_add_flag (type_with_fields, 4, "ICE");
++  tdesc_add_flag (type_with_fields, 5, "DME");
++  tdesc_add_flag (type_with_fields, 6, "IME");
++  tdesc_add_flag (type_with_fields, 7, "LEE");
++  tdesc_add_flag (type_with_fields, 8, "CE");
++  tdesc_add_flag (type_with_fields, 9, "F");
++  tdesc_add_flag (type_with_fields, 10, "CY");
++  tdesc_add_flag (type_with_fields, 11, "OV");
++  tdesc_add_flag (type_with_fields, 12, "OVE");
++  tdesc_add_flag (type_with_fields, 13, "DSX");
++  tdesc_add_flag (type_with_fields, 14, "EPH");
++  tdesc_add_flag (type_with_fields, 15, "FO");
++  tdesc_add_flag (type_with_fields, 16, "SUMRA");
++  tdesc_add_bitfield (type_with_fields, "CID", 28, 31);
++
++  tdesc_create_reg (feature, "r0", 0, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r1", 1, 1, NULL, 32, "data_ptr");
++  tdesc_create_reg (feature, "r2", 2, 1, NULL, 32, "data_ptr");
++  tdesc_create_reg (feature, "r3", 3, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r4", 4, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r5", 5, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r6", 6, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r7", 7, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r8", 8, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r9", 9, 1, NULL, 32, "code_ptr");
++  tdesc_create_reg (feature, "r10", 10, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r11", 11, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r12", 12, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r13", 13, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r14", 14, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r15", 15, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r16", 16, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r17", 17, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r18", 18, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r19", 19, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r20", 20, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r21", 21, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r22", 22, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r23", 23, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r24", 24, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r25", 25, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r26", 26, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r27", 27, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r28", 28, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r29", 29, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r30", 30, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "r31", 31, 1, NULL, 32, "int");
++  tdesc_create_reg (feature, "ppc", 32, 1, NULL, 32, "code_ptr");
++  tdesc_create_reg (feature, "npc", 33, 1, NULL, 32, "code_ptr");
++  tdesc_create_reg (feature, "sr", 34, 1, NULL, 32, "sr_flags");
++
++  tdesc_or1k_linux = result.release ();
++}
 -- 
 2.31.1
 
