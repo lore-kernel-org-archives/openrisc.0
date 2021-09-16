@@ -1,10 +1,10 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Thu, 16 Sep 2021 17:56:58 +0200
-Subject: [OpenRISC] [PATCH 5.10 073/306] openrisc: dont printk()
+Date: Thu, 16 Sep 2021 17:57:28 +0200
+Subject: [OpenRISC] [PATCH 5.13 091/380] openrisc: dont printk()
  unconditionally
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
-Message-ID: <20210916155756.548794542@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
+Message-ID: <20210916155807.135482548@linuxfoundation.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
