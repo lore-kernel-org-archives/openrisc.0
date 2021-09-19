@@ -1,62 +1,91 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Thu, 16 Sep 2021 17:57:30 +0200
-Subject: [OpenRISC] [PATCH 5.14 101/432] openrisc: dont printk()
- unconditionally
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
-Message-ID: <20210916155814.205641252@linuxfoundation.org>
+From: Randy Dunlap <rdunlap@infradead.org>
+Date: Sun, 19 Sep 2021 09:40:44 -0700
+Subject: [OpenRISC] [PATCH v3 1/6] drm/vc4: select PM (openrisc)
+In-Reply-To: <20210819135931.895976-2-maxime@cerno.tech>
+References: <20210819135931.895976-1-maxime@cerno.tech>
+ <20210819135931.895976-2-maxime@cerno.tech>
+Message-ID: <8a5cdcf5-33ed-398f-243a-b8889fd754e3@infradead.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+On 8/19/21 6:59 AM, Maxime Ripard wrote:
+> We already depend on runtime PM to get the power domains and clocks for
+> most of the devices supported by the vc4 driver, so let's just select it
+> to make sure it's there, and remove the ifdef.
+> 
+> Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+> ---
+>   drivers/gpu/drm/vc4/Kconfig    | 1 +
+>   drivers/gpu/drm/vc4/vc4_hdmi.c | 2 --
+>   2 files changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/vc4/Kconfig b/drivers/gpu/drm/vc4/Kconfig
+> index 118e8a426b1a..f774ab340863 100644
+> --- a/drivers/gpu/drm/vc4/Kconfig
+> +++ b/drivers/gpu/drm/vc4/Kconfig
+> @@ -9,6 +9,7 @@ config DRM_VC4
+>   	select DRM_KMS_CMA_HELPER
+>   	select DRM_GEM_CMA_HELPER
+>   	select DRM_PANEL_BRIDGE
+> +	select PM
+>   	select SND_PCM
+>   	select SND_PCM_ELD
+>   	select SND_SOC_GENERIC_DMAENGINE_PCM
+> diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+> index c2876731ee2d..602203b2d8e1 100644
+> --- a/drivers/gpu/drm/vc4/vc4_hdmi.c
+> +++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+> @@ -2107,7 +2107,6 @@ static int vc5_hdmi_init_resources(struct vc4_hdmi *vc4_hdmi)
+>   	return 0;
+>   }
+>   
+> -#ifdef CONFIG_PM
+>   static int vc4_hdmi_runtime_suspend(struct device *dev)
+>   {
+>   	struct vc4_hdmi *vc4_hdmi = dev_get_drvdata(dev);
+> @@ -2128,7 +2127,6 @@ static int vc4_hdmi_runtime_resume(struct device *dev)
+>   
+>   	return 0;
+>   }
+> -#endif
+>   
+>   static int vc4_hdmi_bind(struct device *dev, struct device *master, void *data)
+>   {
+> 
 
-[ Upstream commit 946e1052cdcc7e585ee5d1e72528ca49fb295243 ]
+Hi,
 
-Don't call printk() when CONFIG_PRINTK is not set.
-Fixes the following build errors:
+FYI.
 
-or1k-linux-ld: arch/openrisc/kernel/entry.o: in function `_external_irq_handler':
-(.text+0x804): undefined reference to `printk'
-(.text+0x804): relocation truncated to fit: R_OR1K_INSN_REL_26 against undefined symbol `printk'
+This still causes a build error on arch/openrisc/ since it does not support
+CONFIG_PM (it does not source "kernel/power/Kconfig" like some other arches do):
 
-Fixes: 9d02a4283e9c ("OpenRISC: Boot code")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: openrisc at lists.librecores.org
-Signed-off-by: Stafford Horne <shorne@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/openrisc/kernel/entry.S | 2 ++
- 1 file changed, 2 insertions(+)
+./arch/riscv/Kconfig:source "kernel/power/Kconfig"
+./arch/x86/Kconfig:source "kernel/power/Kconfig"
+./arch/nds32/Kconfig:source "kernel/power/Kconfig"
+./arch/sh/Kconfig:source "kernel/power/Kconfig"
+./arch/arc/Kconfig:source "kernel/power/Kconfig"
+./arch/arm64/Kconfig:source "kernel/power/Kconfig"
+./arch/xtensa/Kconfig:source "kernel/power/Kconfig"
+./arch/sparc/Kconfig:source "kernel/power/Kconfig"
+./arch/arm/Kconfig:source "kernel/power/Kconfig"
+./arch/mips/Kconfig:source "kernel/power/Kconfig"
+./arch/powerpc/Kconfig:source "kernel/power/Kconfig"
+./arch/um/Kconfig:source "kernel/power/Kconfig"
+./arch/ia64/Kconfig:source "kernel/power/Kconfig"
 
-diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
-index bc657e55c15f..98e4f97db515 100644
---- a/arch/openrisc/kernel/entry.S
-+++ b/arch/openrisc/kernel/entry.S
-@@ -547,6 +547,7 @@ EXCEPTION_ENTRY(_external_irq_handler)
- 	l.bnf	1f			// ext irq enabled, all ok.
- 	l.nop
- 
-+#ifdef CONFIG_PRINTK
- 	l.addi  r1,r1,-0x8
- 	l.movhi r3,hi(42f)
- 	l.ori	r3,r3,lo(42f)
-@@ -560,6 +561,7 @@ EXCEPTION_ENTRY(_external_irq_handler)
- 		.string "\n\rESR interrupt bug: in _external_irq_handler (ESR %x)\n\r"
- 		.align 4
- 	.previous
-+#endif
- 
- 	l.ori	r4,r4,SPR_SR_IEE	// fix the bug
- //	l.sw	PT_SR(r1),r4
+so with
+CONFIG_DRM_VC4=y
+# CONFIG_DRM_VC4_HDMI_CEC is not set
+
+I still see
+../drivers/gpu/drm/vc4/vc4_hdmi.c:2139:12: warning: 'vc4_hdmi_runtime_suspend' defined but not used [-Wunused-function]
+  2139 | static int vc4_hdmi_runtime_suspend(struct device *dev)
+       |            ^~~~~~~~~~~~~~~~~~~~~~~~
+
+
 -- 
-2.30.2
-
-
-
+~Randy
