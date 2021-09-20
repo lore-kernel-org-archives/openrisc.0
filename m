@@ -1,10 +1,10 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Mon, 20 Sep 2021 18:42:27 +0200
-Subject: [OpenRISC] [PATCH 4.14 126/217] openrisc: dont printk()
+Date: Mon, 20 Sep 2021 18:42:05 +0200
+Subject: [OpenRISC] [PATCH 4.19 163/293] openrisc: dont printk()
  unconditionally
-In-Reply-To: <20210920163924.591371269@linuxfoundation.org>
-References: <20210920163924.591371269@linuxfoundation.org>
-Message-ID: <20210920163928.927559640@linuxfoundation.org>
+In-Reply-To: <20210920163933.258815435@linuxfoundation.org>
+References: <20210920163933.258815435@linuxfoundation.org>
+Message-ID: <20210920163938.864152614@linuxfoundation.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -36,10 +36,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
-index 0fdfa7142f4b..272eda8d6368 100644
+index 01b59d2ce174..c2c3ce8a0f84 100644
 --- a/arch/openrisc/kernel/entry.S
 +++ b/arch/openrisc/kernel/entry.S
-@@ -495,6 +495,7 @@ EXCEPTION_ENTRY(_external_irq_handler)
+@@ -551,6 +551,7 @@ EXCEPTION_ENTRY(_external_irq_handler)
  	l.bnf	1f			// ext irq enabled, all ok.
  	l.nop
  
@@ -47,7 +47,7 @@ index 0fdfa7142f4b..272eda8d6368 100644
  	l.addi  r1,r1,-0x8
  	l.movhi r3,hi(42f)
  	l.ori	r3,r3,lo(42f)
-@@ -508,6 +509,7 @@ EXCEPTION_ENTRY(_external_irq_handler)
+@@ -564,6 +565,7 @@ EXCEPTION_ENTRY(_external_irq_handler)
  		.string "\n\rESR interrupt bug: in _external_irq_handler (ESR %x)\n\r"
  		.align 4
  	.previous
