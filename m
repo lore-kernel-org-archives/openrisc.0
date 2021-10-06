@@ -1,72 +1,56 @@
-From: Rob Herring <robh@kernel.org>
-Date: Wed,  6 Oct 2021 11:43:32 -0500
-Subject: [OpenRISC] [PATCH 12/12] cacheinfo: Set cache 'id' based on DT data
-In-Reply-To: <20211006164332.1981454-1-robh@kernel.org>
+From: Stafford Horne <shorne@gmail.com>
+Date: Thu, 7 Oct 2021 05:44:00 +0900
+Subject: [OpenRISC] [PATCH 06/12] openrisc: Use of_get_cpu_hwid()
+In-Reply-To: <20211006164332.1981454-7-robh@kernel.org>
 References: <20211006164332.1981454-1-robh@kernel.org>
-Message-ID: <20211006164332.1981454-13-robh@kernel.org>
+ <20211006164332.1981454-7-robh@kernel.org>
+Message-ID: <YV4KkAC2p9D4yCnH@antec>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Use the minimum CPU h/w id of the CPUs associated with the cache for the
-cache 'id'. This will provide a stable id value for a given system. As
-we need to check all possible CPUs, we can't use the shared_cpu_map
-which is just online CPUs. As there's not a cache to CPUs mapping in DT,
-we have to walk all CPU nodes and then walk cache levels.
+On Wed, Oct 06, 2021 at 11:43:26AM -0500, Rob Herring wrote:
+> Replace open coded parsing of CPU nodes' 'reg' property with
+> of_get_cpu_hwid().
+> 
+> Cc: Jonas Bonn <jonas@southpole.se>
+> Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+> Cc: Stafford Horne <shorne@gmail.com>
+> Cc: openrisc at lists.librecores.org
+> Signed-off-by: Rob Herring <robh@kernel.org>
+> ---
+>  arch/openrisc/kernel/smp.c | 6 +-----
+>  1 file changed, 1 insertion(+), 5 deletions(-)
+> 
+> diff --git a/arch/openrisc/kernel/smp.c b/arch/openrisc/kernel/smp.c
+> index 415e209732a3..7d5a4f303a5a 100644
+> --- a/arch/openrisc/kernel/smp.c
+> +++ b/arch/openrisc/kernel/smp.c
+> @@ -65,11 +65,7 @@ void __init smp_init_cpus(void)
+>  	u32 cpu_id;
+>  
+>  	for_each_of_cpu_node(cpu) {
+> -		if (of_property_read_u32(cpu, "reg", &cpu_id)) {
+> -			pr_warn("%s missing reg property", cpu->full_name);
+> -			continue;
+> -		}
+> -
+> +		cpu_id = of_get_cpu_hwid(cpu);
 
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Signed-off-by: Rob Herring <robh@kernel.org>
----
- drivers/base/cacheinfo.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+You have defined of_get_cpu_hwid to return u64, will this create compiler
+warnings when since we are storing a u64 into a u32?
 
-diff --git a/drivers/base/cacheinfo.c b/drivers/base/cacheinfo.c
-index 66d10bdb863b..44547fd96f72 100644
---- a/drivers/base/cacheinfo.c
-+++ b/drivers/base/cacheinfo.c
-@@ -136,6 +136,31 @@ static bool cache_node_is_unified(struct cacheinfo *this_leaf,
- 	return of_property_read_bool(np, "cache-unified");
- }
- 
-+static void cache_of_set_id(struct cacheinfo *this_leaf, struct device_node *np)
-+{
-+	struct device_node *cpu;
-+	unsigned long min_id = ~0UL;
-+
-+	for_each_of_cpu_node(cpu) {
-+		struct device_node *cache_node = cpu;
-+		u64 id = of_get_cpu_hwid(cache_node, 0);
-+
-+		while ((cache_node = of_find_next_cache_node(cache_node))) {
-+			if ((cache_node == np) && (id < min_id)) {
-+				min_id = id;
-+				of_node_put(cache_node);
-+				break;
-+			}
-+			of_node_put(cache_node);
-+		}
-+	}
-+
-+	if (min_id != ~0UL) {
-+		this_leaf->id = min_id;
-+		this_leaf->attributes |= CACHE_ID;
-+	}
-+}
-+
- static void cache_of_set_props(struct cacheinfo *this_leaf,
- 			       struct device_node *np)
- {
-@@ -151,6 +176,7 @@ static void cache_of_set_props(struct cacheinfo *this_leaf,
- 	cache_get_line_size(this_leaf, np);
- 	cache_nr_sets(this_leaf, np);
- 	cache_associativity(this_leaf);
-+	cache_of_set_id(this_leaf, np);
- }
- 
- static int cache_setup_of_node(unsigned int cpu)
--- 
-2.30.2
+It seems only if we make with W=3.
 
+I thought we usually warned on this.  Oh well, for the openrisc bits.
+
+Acked-by: Stafford Horne <shorne@gmail.com>
+
+>  		if (cpu_id < NR_CPUS)
+>  			set_cpu_possible(cpu_id, true);
+>  	}
+> -- 
+> 2.30.2
+> 
