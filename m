@@ -1,75 +1,67 @@
 From: Rob Herring <robh@kernel.org>
-Date: Wed,  6 Oct 2021 11:43:21 -0500
-Subject: [OpenRISC] [PATCH 01/12] of: Add of_get_cpu_hwid() to read hardware
- ID from CPU nodes
+Date: Wed,  6 Oct 2021 11:43:22 -0500
+Subject: [OpenRISC] [PATCH 02/12] ARM: Use of_get_cpu_hwid()
 In-Reply-To: <20211006164332.1981454-1-robh@kernel.org>
 References: <20211006164332.1981454-1-robh@kernel.org>
-Message-ID: <20211006164332.1981454-2-robh@kernel.org>
+Message-ID: <20211006164332.1981454-3-robh@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-There are various open coded implementions parsing the CPU node 'reg'
-property which contains the CPU's hardware ID. Introduce a new function,
-of_get_cpu_hwid(), to read the hardware ID.
+Replace the open coded parsing of CPU nodes' 'reg' property with
+of_get_cpu_hwid().
 
-All the callers should be DT only code, so no need for an empty
-function.
+This change drops an error message for missing 'reg' property, but that
+should not be necessary as the DT tools will ensure 'reg' is present.
 
-Cc: Frank Rowand <frowand.list@gmail.com>
+Cc: Russell King <linux@armlinux.org.uk>
 Signed-off-by: Rob Herring <robh@kernel.org>
 ---
- drivers/of/base.c  | 22 ++++++++++++++++++++++
- include/linux/of.h |  1 +
- 2 files changed, 23 insertions(+)
+ arch/arm/kernel/devtree.c | 22 ++--------------------
+ 1 file changed, 2 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/of/base.c b/drivers/of/base.c
-index f720c0d246f2..e587ab44be22 100644
---- a/drivers/of/base.c
-+++ b/drivers/of/base.c
-@@ -286,6 +286,28 @@ const void *of_get_property(const struct device_node *np, const char *name,
- }
- EXPORT_SYMBOL(of_get_property);
+diff --git a/arch/arm/kernel/devtree.c b/arch/arm/kernel/devtree.c
+index 28311dd0fee6..02839d8b6202 100644
+--- a/arch/arm/kernel/devtree.c
++++ b/arch/arm/kernel/devtree.c
+@@ -84,33 +84,15 @@ void __init arm_dt_init_cpu_maps(void)
+ 		return;
  
-+/**
-+ * of_get_cpu_hwid - Get the hardware ID from a CPU device node
-+ *
-+ * @cpun: CPU number(logical index) for which device node is required
-+ * @thread: The local thread number to get the hardware ID for.
-+ *
-+ * Return: The hardware ID for the CPU node or ~0ULL if not found.
-+ */
-+u64 of_get_cpu_hwid(struct device_node *cpun, unsigned int thread)
-+{
-+	const __be32 *cell;
-+	int ac, len;
-+
-+	ac = of_n_addr_cells(cpun);
-+	cell = of_get_property(cpun, "reg", &len);
-+	if (!cell || !ac || ((sizeof(*cell) * ac * (thread + 1)) > len))
-+		return ~0ULL;
-+
-+	cell += ac * thread;
-+	return of_read_number(cell, ac);
-+}
-+
- /*
-  * arch_match_cpu_phys_id - Match the given logical CPU and physical id
-  *
-diff --git a/include/linux/of.h b/include/linux/of.h
-index 6f1c41f109bb..807f8168dad9 100644
---- a/include/linux/of.h
-+++ b/include/linux/of.h
-@@ -353,6 +353,7 @@ extern struct device_node *of_get_cpu_node(int cpu, unsigned int *thread);
- extern struct device_node *of_get_next_cpu_node(struct device_node *prev);
- extern struct device_node *of_get_cpu_state_node(struct device_node *cpu_node,
- 						 int index);
-+extern u64 of_get_cpu_hwid(struct device_node *cpun, unsigned int thread);
+ 	for_each_of_cpu_node(cpu) {
+-		const __be32 *cell;
+-		int prop_bytes;
+-		u32 hwid;
++		u32 hwid = of_get_cpu_hwid(cpu, 0);
  
- #define for_each_property_of_node(dn, pp) \
- 	for (pp = dn->properties; pp != NULL; pp = pp->next)
+ 		pr_debug(" * %pOF...\n", cpu);
+-		/*
+-		 * A device tree containing CPU nodes with missing "reg"
+-		 * properties is considered invalid to build the
+-		 * cpu_logical_map.
+-		 */
+-		cell = of_get_property(cpu, "reg", &prop_bytes);
+-		if (!cell || prop_bytes < sizeof(*cell)) {
+-			pr_debug(" * %pOF missing reg property\n", cpu);
+-			of_node_put(cpu);
+-			return;
+-		}
+ 
+ 		/*
+ 		 * Bits n:24 must be set to 0 in the DT since the reg property
+ 		 * defines the MPIDR[23:0].
+ 		 */
+-		do {
+-			hwid = be32_to_cpu(*cell++);
+-			prop_bytes -= sizeof(*cell);
+-		} while (!hwid && prop_bytes > 0);
+-
+-		if (prop_bytes || (hwid & ~MPIDR_HWID_BITMASK)) {
++		if (hwid & ~MPIDR_HWID_BITMASK) {
+ 			of_node_put(cpu);
+ 			return;
+ 		}
 -- 
 2.30.2
 
