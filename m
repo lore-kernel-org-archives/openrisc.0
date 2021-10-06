@@ -1,67 +1,46 @@
 From: Rob Herring <robh@kernel.org>
-Date: Wed,  6 Oct 2021 11:43:22 -0500
-Subject: [OpenRISC] [PATCH 02/12] ARM: Use of_get_cpu_hwid()
+Date: Wed,  6 Oct 2021 11:43:23 -0500
+Subject: [OpenRISC] [PATCH 03/12] ARM: broadcom: Use of_get_cpu_hwid()
 In-Reply-To: <20211006164332.1981454-1-robh@kernel.org>
 References: <20211006164332.1981454-1-robh@kernel.org>
-Message-ID: <20211006164332.1981454-3-robh@kernel.org>
+Message-ID: <20211006164332.1981454-4-robh@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Replace the open coded parsing of CPU nodes' 'reg' property with
+Replace open coded parsing of CPU nodes 'reg' property with
 of_get_cpu_hwid().
 
-This change drops an error message for missing 'reg' property, but that
-should not be necessary as the DT tools will ensure 'reg' is present.
-
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Ray Jui <rjui@broadcom.com>
+Cc: Scott Branden <sbranden@broadcom.com>
+Cc: bcm-kernel-feedback-list at broadcom.com
 Cc: Russell King <linux@armlinux.org.uk>
 Signed-off-by: Rob Herring <robh@kernel.org>
 ---
- arch/arm/kernel/devtree.c | 22 ++--------------------
- 1 file changed, 2 insertions(+), 20 deletions(-)
+ arch/arm/mach-bcm/bcm63xx_pmb.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/kernel/devtree.c b/arch/arm/kernel/devtree.c
-index 28311dd0fee6..02839d8b6202 100644
---- a/arch/arm/kernel/devtree.c
-+++ b/arch/arm/kernel/devtree.c
-@@ -84,33 +84,15 @@ void __init arm_dt_init_cpu_maps(void)
- 		return;
+diff --git a/arch/arm/mach-bcm/bcm63xx_pmb.c b/arch/arm/mach-bcm/bcm63xx_pmb.c
+index 0e5a05bac3ea..003f1472ab45 100644
+--- a/arch/arm/mach-bcm/bcm63xx_pmb.c
++++ b/arch/arm/mach-bcm/bcm63xx_pmb.c
+@@ -91,10 +91,10 @@ static int bcm63xx_pmb_get_resources(struct device_node *dn,
+ 	struct of_phandle_args args;
+ 	int ret;
  
- 	for_each_of_cpu_node(cpu) {
--		const __be32 *cell;
--		int prop_bytes;
--		u32 hwid;
-+		u32 hwid = of_get_cpu_hwid(cpu, 0);
+-	ret = of_property_read_u32(dn, "reg", cpu);
+-	if (ret) {
++	*cpu = of_get_cpu_hwid(dn, 0);
++	if (*cpu == ~0U) {
+ 		pr_err("CPU is missing a reg node\n");
+-		return ret;
++		return -ENODEV;
+ 	}
  
- 		pr_debug(" * %pOF...\n", cpu);
--		/*
--		 * A device tree containing CPU nodes with missing "reg"
--		 * properties is considered invalid to build the
--		 * cpu_logical_map.
--		 */
--		cell = of_get_property(cpu, "reg", &prop_bytes);
--		if (!cell || prop_bytes < sizeof(*cell)) {
--			pr_debug(" * %pOF missing reg property\n", cpu);
--			of_node_put(cpu);
--			return;
--		}
- 
- 		/*
- 		 * Bits n:24 must be set to 0 in the DT since the reg property
- 		 * defines the MPIDR[23:0].
- 		 */
--		do {
--			hwid = be32_to_cpu(*cell++);
--			prop_bytes -= sizeof(*cell);
--		} while (!hwid && prop_bytes > 0);
--
--		if (prop_bytes || (hwid & ~MPIDR_HWID_BITMASK)) {
-+		if (hwid & ~MPIDR_HWID_BITMASK) {
- 			of_node_put(cpu);
- 			return;
- 		}
+ 	ret = of_parse_phandle_with_args(dn, "resets", "#reset-cells",
 -- 
 2.30.2
 
