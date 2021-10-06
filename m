@@ -1,65 +1,72 @@
 From: Rob Herring <robh@kernel.org>
-Date: Wed,  6 Oct 2021 11:43:31 -0500
-Subject: [OpenRISC] [PATCH 11/12] cacheinfo: Allow for >32-bit cache 'id'
+Date: Wed,  6 Oct 2021 11:43:32 -0500
+Subject: [OpenRISC] [PATCH 12/12] cacheinfo: Set cache 'id' based on DT data
 In-Reply-To: <20211006164332.1981454-1-robh@kernel.org>
 References: <20211006164332.1981454-1-robh@kernel.org>
-Message-ID: <20211006164332.1981454-12-robh@kernel.org>
+Message-ID: <20211006164332.1981454-13-robh@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-In preparation to set the cache 'id' based on the CPU h/w ids, allow for
-64-bit bit 'id' value. The only case that needs this is arm64, so
-unsigned long is sufficient.
+Use the minimum CPU h/w id of the CPUs associated with the cache for the
+cache 'id'. This will provide a stable id value for a given system. As
+we need to check all possible CPUs, we can't use the shared_cpu_map
+which is just online CPUs. As there's not a cache to CPUs mapping in DT,
+we have to walk all CPU nodes and then walk cache levels.
 
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: "Rafael J. Wysocki" <rafael@kernel.org>
 Signed-off-by: Rob Herring <robh@kernel.org>
 ---
- drivers/base/cacheinfo.c  | 8 +++++++-
- include/linux/cacheinfo.h | 2 +-
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/base/cacheinfo.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
 diff --git a/drivers/base/cacheinfo.c b/drivers/base/cacheinfo.c
-index dad296229161..66d10bdb863b 100644
+index 66d10bdb863b..44547fd96f72 100644
 --- a/drivers/base/cacheinfo.c
 +++ b/drivers/base/cacheinfo.c
-@@ -366,13 +366,19 @@ static ssize_t file_name##_show(struct device *dev,		\
- 	return sysfs_emit(buf, "%u\n", this_leaf->object);	\
+@@ -136,6 +136,31 @@ static bool cache_node_is_unified(struct cacheinfo *this_leaf,
+ 	return of_property_read_bool(np, "cache-unified");
  }
  
--show_one(id, id);
- show_one(level, level);
- show_one(coherency_line_size, coherency_line_size);
- show_one(number_of_sets, number_of_sets);
- show_one(physical_line_partition, physical_line_partition);
- show_one(ways_of_associativity, ways_of_associativity);
- 
-+static ssize_t id_show(struct device *dev, struct device_attribute *attr, char *buf)
++static void cache_of_set_id(struct cacheinfo *this_leaf, struct device_node *np)
 +{
-+	struct cacheinfo *this_leaf = dev_get_drvdata(dev);
++	struct device_node *cpu;
++	unsigned long min_id = ~0UL;
 +
-+	return sysfs_emit(buf, "%lu\n", this_leaf->id);
++	for_each_of_cpu_node(cpu) {
++		struct device_node *cache_node = cpu;
++		u64 id = of_get_cpu_hwid(cache_node, 0);
++
++		while ((cache_node = of_find_next_cache_node(cache_node))) {
++			if ((cache_node == np) && (id < min_id)) {
++				min_id = id;
++				of_node_put(cache_node);
++				break;
++			}
++			of_node_put(cache_node);
++		}
++	}
++
++	if (min_id != ~0UL) {
++		this_leaf->id = min_id;
++		this_leaf->attributes |= CACHE_ID;
++	}
 +}
 +
- static ssize_t size_show(struct device *dev,
- 			 struct device_attribute *attr, char *buf)
+ static void cache_of_set_props(struct cacheinfo *this_leaf,
+ 			       struct device_node *np)
  {
-diff --git a/include/linux/cacheinfo.h b/include/linux/cacheinfo.h
-index 2f909ed084c6..b2e7f3e40204 100644
---- a/include/linux/cacheinfo.h
-+++ b/include/linux/cacheinfo.h
-@@ -48,7 +48,7 @@ extern unsigned int coherency_max_size;
-  * keeping, the remaining members form the core properties of the cache
-  */
- struct cacheinfo {
--	unsigned int id;
-+	unsigned long id;
- 	enum cache_type type;
- 	unsigned int level;
- 	unsigned int coherency_line_size;
+@@ -151,6 +176,7 @@ static void cache_of_set_props(struct cacheinfo *this_leaf,
+ 	cache_get_line_size(this_leaf, np);
+ 	cache_nr_sets(this_leaf, np);
+ 	cache_associativity(this_leaf);
++	cache_of_set_id(this_leaf, np);
+ }
+ 
+ static int cache_setup_of_node(unsigned int cpu)
 -- 
 2.30.2
 
