@@ -1,9 +1,9 @@
 From: Rob Herring <robh@kernel.org>
-Date: Wed,  6 Oct 2021 11:43:28 -0500
-Subject: [OpenRISC] [PATCH 08/12] riscv: Use of_get_cpu_hwid()
+Date: Wed,  6 Oct 2021 11:43:29 -0500
+Subject: [OpenRISC] [PATCH 09/12] sh: Use of_get_cpu_hwid()
 In-Reply-To: <20211006164332.1981454-1-robh@kernel.org>
 References: <20211006164332.1981454-1-robh@kernel.org>
-Message-ID: <20211006164332.1981454-9-robh@kernel.org>
+Message-ID: <20211006164332.1981454-10-robh@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,29 +13,30 @@ To: openrisc@lists.librecores.org
 Replace open coded parsing of CPU nodes' 'reg' property with
 of_get_cpu_hwid().
 
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: Albert Ou <aou@eecs.berkeley.edu>
-Cc: linux-riscv at lists.infradead.org
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Rich Felker <dalias@libc.org>
+Cc: linux-sh at vger.kernel.org
 Signed-off-by: Rob Herring <robh@kernel.org>
 ---
- arch/riscv/kernel/cpu.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/sh/boards/of-generic.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/arch/riscv/kernel/cpu.c b/arch/riscv/kernel/cpu.c
-index 6d59e6906fdd..f13b2c9ea912 100644
---- a/arch/riscv/kernel/cpu.c
-+++ b/arch/riscv/kernel/cpu.c
-@@ -22,7 +22,8 @@ int riscv_of_processor_hartid(struct device_node *node)
- 		return -ENODEV;
- 	}
+diff --git a/arch/sh/boards/of-generic.c b/arch/sh/boards/of-generic.c
+index 921d76fc3358..f7f3e618e85b 100644
+--- a/arch/sh/boards/of-generic.c
++++ b/arch/sh/boards/of-generic.c
+@@ -62,9 +62,8 @@ static void sh_of_smp_probe(void)
+ 	init_cpu_possible(cpumask_of(0));
  
--	if (of_property_read_u32(node, "reg", &hart)) {
-+	hart = of_get_cpu_hwid(node, 0);
-+	if (hart == ~0U) {
- 		pr_warn("Found CPU without hart ID\n");
- 		return -ENODEV;
- 	}
+ 	for_each_of_cpu_node(np) {
+-		const __be32 *cell = of_get_property(np, "reg", NULL);
+-		u64 id = -1;
+-		if (cell) id = of_read_number(cell, of_n_addr_cells(np));
++		u64 id = of_get_cpu_hwid(np, 0);
++
+ 		if (id < NR_CPUS) {
+ 			if (!method)
+ 				of_property_read_string(np, "enable-method", &method);
 -- 
 2.30.2
 
