@@ -1,33 +1,61 @@
-From: Will Deacon <will@kernel.org>
-Date: Thu, 7 Oct 2021 09:07:59 +0100
-Subject: [OpenRISC] [PATCH 04/12] arm64: Use of_get_cpu_hwid()
-In-Reply-To: <20211006164332.1981454-5-robh@kernel.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
+Date: Fri, 08 Oct 2021 22:01:15 +1100
+Subject: [OpenRISC] [PATCH 07/12] powerpc: Use of_get_cpu_hwid()
+In-Reply-To: <20211006164332.1981454-8-robh@kernel.org>
 References: <20211006164332.1981454-1-robh@kernel.org>
- <20211006164332.1981454-5-robh@kernel.org>
-Message-ID: <20211007080758.GA31467@willie-the-truck>
+ <20211006164332.1981454-8-robh@kernel.org>
+Message-ID: <8735pbok5g.fsf@mpe.ellerman.id.au>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Oct 06, 2021 at 11:43:24AM -0500, Rob Herring wrote:
-> Replace the open coded parsing of CPU nodes' 'reg' property with
+Rob Herring <robh@kernel.org> writes:
+> Replace open coded parsing of CPU nodes' 'reg' property with
 > of_get_cpu_hwid().
-> 
-> This change drops an error message for missing 'reg' property, but that
-> should not be necessary as the DT tools will ensure 'reg' is present.
-> 
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Will Deacon <will@kernel.org>
+>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: linuxppc-dev at lists.ozlabs.org
 > Signed-off-by: Rob Herring <robh@kernel.org>
 > ---
->  arch/arm64/kernel/smp.c | 31 ++-----------------------------
->  1 file changed, 2 insertions(+), 29 deletions(-)
+>  arch/powerpc/kernel/smp.c | 7 +------
+>  1 file changed, 1 insertion(+), 6 deletions(-)
+>
+> diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
+> index 9cc7d3dbf439..d96b0e361a73 100644
+> --- a/arch/powerpc/kernel/smp.c
+> +++ b/arch/powerpc/kernel/smp.c
+> @@ -1313,18 +1313,13 @@ int __cpu_up(unsigned int cpu, struct task_struct *tidle)
+>  int cpu_to_core_id(int cpu)
+>  {
+>  	struct device_node *np;
+> -	const __be32 *reg;
+>  	int id = -1;
+>  
+>  	np = of_get_cpu_node(cpu, NULL);
+>  	if (!np)
+>  		goto out;
+>  
+> -	reg = of_get_property(np, "reg", NULL);
+> -	if (!reg)
+> -		goto out;
+> -
+> -	id = be32_to_cpup(reg);
+> +	id = of_get_cpu_hwid(np, 0);
+>  out:
+>  	of_node_put(np);
+>  	return id;
 
-Acked-by: Will Deacon <will@kernel.org>
+This looks OK to me.
 
-It's a shame INVALID_HWID can't be removed too, but looks like it's still
-used in a couple of places.
+All the systems I can find have a /cpus/#address-cells of 1, so the
+change to use of_n_addr_cells() in of_get_cpu_hwid() should be fine.
 
-Will
+I booted it on a bunch of systems with no issues.
+
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+
+cheers
