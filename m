@@ -1,27 +1,38 @@
-From: Tom Tromey <tom@tromey.com>
-Date: Wed, 20 Oct 2021 12:20:34 -0600
-Subject: [OpenRISC] [PATCH 0/5] OpenRISC Linux Native and GDBServer
- Support
-In-Reply-To: <20210913124800.471680-1-shorne@gmail.com> (Stafford Horne via
- Gdb-patches's message of "Mon, 13 Sep 2021 21:47:55 +0900")
-References: <20210913124800.471680-1-shorne@gmail.com>
-Message-ID: <87ee8fv9ql.fsf@tromey.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Thu, 21 Oct 2021 05:38:53 +0900
+Subject: [OpenRISC] [PATCH] openrisc: signal: remove unused DEBUG_SIG
+ macro
+In-Reply-To: <20211020121637.6629-1-kda@linux-powerpc.org>
+References: <20211020121637.6629-1-kda@linux-powerpc.org>
+Message-ID: <YXB+XVb/mBlI5fWo@antec>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
->>>>> ">" == Stafford Horne via Gdb-patches <gdb-patches@sourceware.org> writes:
+On Wed, Oct 20, 2021 at 03:16:37PM +0300, Denis Kirjanov wrote:
+> Signed-off-by: Denis Kirjanov <kda@linux-powerpc.org>
+> ---
+>  arch/openrisc/kernel/signal.c | 2 --
+>  1 file changed, 2 deletions(-)
+> 
+> diff --git a/arch/openrisc/kernel/signal.c b/arch/openrisc/kernel/signal.c
+> index 1ebcff271096..99516c9191c7 100644
+> --- a/arch/openrisc/kernel/signal.c
+> +++ b/arch/openrisc/kernel/signal.c
+> @@ -28,8 +28,6 @@
+>  #include <asm/ucontext.h>
+>  #include <linux/uaccess.h>
+>  
+> -#define DEBUG_SIG 0
+> -
+>  struct rt_sigframe {
+>  	struct siginfo info;
+>  	struct ucontext uc;
 
->> Hello,
->> As I have been working on the OpenRISC glibc port over the last few years now I
->> have had the need to have Linux native debugging.  At first I started with the
->> gdbserver, but quickly grew out of that and just settled on running gdb native
->> on the platform.
+This looks ok to me.  I will queue it.
 
-I read through these and it seemed basically ok to me.  I sent one
-little nit.  I don't think it needs re-review if you want to fix that.
+Thanks.
 
-thanks,
-Tom
+-Stafford
