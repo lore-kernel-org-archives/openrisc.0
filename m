@@ -1,44 +1,43 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 21 Oct 2021 22:18:59 +0900
-Subject: [OpenRISC] [PATCH] or1k: Update FPU to specify detect tininess
- before rounding
-Message-ID: <20211021131859.1065675-1-shorne@gmail.com>
+From: Eric W. Biederman <ebiederm@xmission.com>
+Date: Thu, 21 Oct 2021 08:33:51 -0500
+Subject: [OpenRISC] [PATCH 21/20] signal: Replace force_sigsegv(SIGSEGV)
+ with force_fatal_sig(SIGSEGV)
+In-Reply-To: <CAMuHMdURxrdjsXq7+q-AWTwxVUdmddOj2vvNHv6M=WtsU5nRvg@mail.gmail.com>
+ (Geert Uytterhoeven's message of "Thu, 21 Oct 2021 10:09:46 +0200")
+References: <87y26nmwkb.fsf@disp2133> <877de7jrev.fsf@disp2133>
+ <CAMuHMdURxrdjsXq7+q-AWTwxVUdmddOj2vvNHv6M=WtsU5nRvg@mail.gmail.com>
+Message-ID: <87tuhaijsw.fsf@disp2133>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-This was not defined in the spec and not consistent in the
-implementation causing incosistent behavior.  After review we have
-updated the CPU implementations and proposed the spec be updated to
-specific that FPU tininess checks check for tininess before roudning.
+Geert Uytterhoeven <geert@linux-m68k.org> writes:
 
-Architecture change draft:
+> Hi Eric,
+>
+> Patch 21/20?
 
-	https://openrisc.io/proposals/p18-fpu-tininess
+In reviewing another part of the patchset Linus asked if force_sigsegv
+could go away.  It can't completely but I can get this far.
 
-libgcc/ChangeLog:
+Given that it is just a cleanup it makes most sense to me as an
+additional patch on top of what is already here.
 
-	* config/or1k/sfp-machine.h (_FP_TININESS_AFTER_ROUNDING):
-	Change to 0.
----
- libgcc/config/or1k/sfp-machine.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/libgcc/config/or1k/sfp-machine.h b/libgcc/config/or1k/sfp-machine.h
-index eebe5b0578e..162c6bc5326 100644
---- a/libgcc/config/or1k/sfp-machine.h
-+++ b/libgcc/config/or1k/sfp-machine.h
-@@ -85,7 +85,7 @@ do {								\
- 
- #define __BYTE_ORDER __BIG_ENDIAN
- 
--#define _FP_TININESS_AFTER_ROUNDING 1
-+#define _FP_TININESS_AFTER_ROUNDING 0
- 
- /* Define ALIASNAME as a strong alias for NAME.  */
- # define strong_alias(name, aliasname) _strong_alias(name, aliasname)
--- 
-2.31.1
+> On Wed, Oct 20, 2021 at 11:52 PM Eric W. Biederman
+> <ebiederm@xmission.com> wrote:
+>> Now that force_fatal_sig exists it is unnecessary and a bit confusing
+>> to use force_sigsegv in cases where the simpler force_fatal_sig is
+>> wanted.  So change every instance we can to make the code clearer.
+>>
+>> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+>
+>>  arch/m68k/kernel/traps.c        | 2 +-
+>
+> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
+Thank you.
+
+Eric
