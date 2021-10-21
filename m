@@ -1,43 +1,31 @@
-From: Eric W. Biederman <ebiederm@xmission.com>
-Date: Thu, 21 Oct 2021 08:33:51 -0500
-Subject: [OpenRISC] [PATCH 21/20] signal: Replace force_sigsegv(SIGSEGV)
- with force_fatal_sig(SIGSEGV)
-In-Reply-To: <CAMuHMdURxrdjsXq7+q-AWTwxVUdmddOj2vvNHv6M=WtsU5nRvg@mail.gmail.com>
- (Geert Uytterhoeven's message of "Thu, 21 Oct 2021 10:09:46 +0200")
-References: <87y26nmwkb.fsf@disp2133> <877de7jrev.fsf@disp2133>
- <CAMuHMdURxrdjsXq7+q-AWTwxVUdmddOj2vvNHv6M=WtsU5nRvg@mail.gmail.com>
-Message-ID: <87tuhaijsw.fsf@disp2133>
+From: Kees Cook <keescook@chromium.org>
+Date: Thu, 21 Oct 2021 09:02:04 -0700
+Subject: [OpenRISC] [PATCH 02/20] exit: Remove calls of do_exit after
+ noreturn versions of die
+In-Reply-To: <20211020174406.17889-2-ebiederm@xmission.com>
+References: <87y26nmwkb.fsf@disp2133>
+ <20211020174406.17889-2-ebiederm@xmission.com>
+Message-ID: <202110210858.41719190D2@keescook>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Geert Uytterhoeven <geert@linux-m68k.org> writes:
+On Wed, Oct 20, 2021 at 12:43:48PM -0500, Eric W. Biederman wrote:
+> On nds32, openrisc, s390, sh, and xtensa the function die never
+> returns.  Mark die __noreturn so that no one expects die to return.
+> Remove the do_exit calls after die as they will never be reached.
 
-> Hi Eric,
->
-> Patch 21/20?
+Maybe note that the "bust_spinlocks" calls are also redundant, since
+they're in die(). I note that is a "mismatch" between the do_kill()
+in die() (SIGSEGV) and after die() (SIGKILL). This patch makes no
+behavioral change (the first caller would "win"), but I thought I'd note
+it in case some architecture would prefer a different signal.
 
-In reviewing another part of the patchset Linus asked if force_sigsegv
-could go away.  It can't completely but I can get this far.
+Reviewed-by: Kees Cook <keescook@chromium.org>
 
-Given that it is just a cleanup it makes most sense to me as an
-additional patch on top of what is already here.
+-Kees
 
-
-> On Wed, Oct 20, 2021 at 11:52 PM Eric W. Biederman
-> <ebiederm@xmission.com> wrote:
->> Now that force_fatal_sig exists it is unnecessary and a bit confusing
->> to use force_sigsegv in cases where the simpler force_fatal_sig is
->> wanted.  So change every instance we can to make the code clearer.
->>
->> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
->
->>  arch/m68k/kernel/traps.c        | 2 +-
->
-> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-
-Thank you.
-
-Eric
+-- 
+Kees Cook
