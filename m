@@ -1,38 +1,27 @@
-From: Waiman Long <longman@redhat.com>
-Date: Mon, 25 Oct 2021 14:25:32 -0400
-Subject: [OpenRISC] [PATCH] locking: remove spin_lock_flags() etc
-In-Reply-To: <CAK8P3a3JEBF-dEg0iVThMMRNK3CDxY+mRtTeStMusycnethO_g@mail.gmail.com>
-References: <20211022120058.1031690-1-arnd@kernel.org>
- <cc8e3c58-457d-fdf3-6a62-98bde0cefdea@redhat.com>
- <CAK8P3a0YjaRS+aUCOKGjsfkR3TM49PrG6U4ftG_Fz+OFuyCb0w@mail.gmail.com>
- <YXZ/iLB7BvZtzDMp@hirez.programming.kicks-ass.net>
- <CAK8P3a2Luz7sd5cM1OdZhYCs_UPzo+2qVQYSZPfR2QN+0DkyRg@mail.gmail.com>
- <2413f412-a390-bbc0-e848-e2a77d1f0ab3@redhat.com>
- <CAK8P3a3JEBF-dEg0iVThMMRNK3CDxY+mRtTeStMusycnethO_g@mail.gmail.com>
-Message-ID: <d7af2422-3264-b9bb-b515-da4351743448@redhat.com>
+From: Jan Henrik Weinstock <jan.weinstock@rwth-aachen.de>
+Date: Tue, 26 Oct 2021 22:43:45 +0200
+Subject: [OpenRISC] OpenRISC SMP kernels broken after 5.8?
+Message-ID: <e35018e8-a15b-550d-cc3e-6b6d045f1b52@rwth-aachen.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 10/25/21 11:44 AM, Arnd Bergmann wrote:
-> On Mon, Oct 25, 2021 at 5:28 PM Waiman Long <longman@redhat.com> wrote:
->> On 10/25/21 9:06 AM, Arnd Bergmann wrote:
->>> On s390, we pick between the cmpxchg() based directed-yield when
->>> running on virtualized CPUs, and a normal qspinlock when running on a
->>> dedicated CPU.
->> I am not aware that s390 is using qspinlocks at all as I don't see
->> ARCH_USE_QUEUED_SPINLOCKS being set anywhere under arch/s390. I only see
->> that it uses a cmpxchg based spinlock.
-> Sorry, I should not have said "normal" here. See arch/s390/lib/spinlock.c
-> for their custom queued spinlocks as implemented in arch_spin_lock_queued().
-> I don't know if that code actually does the same thing as the generic qspinlock,
-> but it seems at least similar.
+Hi all,
 
-Yes, you are right. Their queued lock code looks like a custom version 
-of the pvqspinlock code.
+I recently tried to update the kernel my simulator[1] is running to 
+5.10, but I noticed the newer kernels (>5.8) all panic in 
+flush_tlb_page[2], because it is called with vma == NULL from 
+flush_tlb_kernel_range[3]. Looking at the code, I do not see how this 
+could work for any SMP kernel (however, for non-SMP, we call 
+local_tlb_flush_page[4], where we do not use vma, so I guess its fine 
+there). Any ideas?
 
-Cheers,
-Longman
-
+[1] https://github.com/janweinstock/or1kmvp
+[2] 
+https://elixir.bootlin.com/linux/v5.10.75/source/arch/openrisc/kernel/smp.c#L312
+[3] 
+https://elixir.bootlin.com/linux/v5.10.75/source/arch/openrisc/include/asm/tlbflush.h#L59
+[4] 
+https://elixir.bootlin.com/linux/v5.10.75/source/arch/openrisc/mm/tlb.c#L96
