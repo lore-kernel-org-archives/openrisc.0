@@ -1,45 +1,53 @@
-From: Rich Felker <dalias@libc.org>
-Date: Wed, 27 Oct 2021 10:26:54 -0400
-Subject: [OpenRISC] [PATCH 09/12] sh: Use of_get_cpu_hwid()
-In-Reply-To: <20211006164332.1981454-10-robh@kernel.org>
-References: <20211006164332.1981454-1-robh@kernel.org>
- <20211006164332.1981454-10-robh@kernel.org>
-Message-ID: <20211027142651.GW7074@brightrain.aerifal.cx>
+From: Stafford Horne <shorne@gmail.com>
+Date: Thu, 28 Oct 2021 07:07:09 +0900
+Subject: [OpenRISC] [PATCH] or1k: Add return address argument to _mcount call
+Message-ID: <20211027220709.750104-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-On Wed, Oct 06, 2021 at 11:43:29AM -0500, Rob Herring wrote:
-> Replace open coded parsing of CPU nodes' 'reg' property with
-> of_get_cpu_hwid().
-> 
-> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-> Cc: Rich Felker <dalias@libc.org>
-> Cc: linux-sh at vger.kernel.org
-> Signed-off-by: Rob Herring <robh@kernel.org>
-> ---
->  arch/sh/boards/of-generic.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/sh/boards/of-generic.c b/arch/sh/boards/of-generic.c
-> index 921d76fc3358..f7f3e618e85b 100644
-> --- a/arch/sh/boards/of-generic.c
-> +++ b/arch/sh/boards/of-generic.c
-> @@ -62,9 +62,8 @@ static void sh_of_smp_probe(void)
->  	init_cpu_possible(cpumask_of(0));
->  
->  	for_each_of_cpu_node(np) {
-> -		const __be32 *cell = of_get_property(np, "reg", NULL);
-> -		u64 id = -1;
-> -		if (cell) id = of_read_number(cell, of_n_addr_cells(np));
-> +		u64 id = of_get_cpu_hwid(np, 0);
-> +
->  		if (id < NR_CPUS) {
->  			if (!method)
->  				of_property_read_string(np, "enable-method", &method);
-> -- 
-> 2.30.2
+This fixes an issue in the glibc port I am working on where the build
+fails due to the warning:
 
-Acked-by: Rich Felker <dalias@libc.org>
+  error: calling ‘__builtin_return_address’ with a nonzero argument is unsafe [-Werror=frame-address]
+
+This is due to how the current implementation of _mcount in glibc uses
+__builtin_return_address with a count argument of 1.
+
+Fix that by passing the value of LR_REGNUM to the _mcount function,
+effectivtly providing the value _mcount is after.
+
+This is an ABI change, but I think it's OK because the glibc port for
+or1k is not yet upstreamed.  Also, I think just adding an argument
+should not break anything anyway.
+
+gcc/ChangeLog:
+
+	* config/or1k/or1k.h (PROFILE_HOOK): Add return address argument
+	to _mcount.
+---
+ gcc/config/or1k/or1k.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/gcc/config/or1k/or1k.h b/gcc/config/or1k/or1k.h
+index fe01ab81ead..4603cb67160 100644
+--- a/gcc/config/or1k/or1k.h
++++ b/gcc/config/or1k/or1k.h
+@@ -387,9 +387,10 @@ do {                                                    \
+    profiling a function entry.  */
+ #define PROFILE_HOOK(LABEL)						\
+   {									\
+-    rtx fun;								\
++    rtx fun, ra;							\
++    ra = get_hard_reg_initial_val (Pmode, LR_REGNUM);			\
+     fun = gen_rtx_SYMBOL_REF (Pmode, "_mcount");			\
+-    emit_library_call (fun, LCT_NORMAL, VOIDmode);			\
++    emit_library_call (fun, LCT_NORMAL, VOIDmode, ra, Pmode);		\
+   }
+ 
+ /* All the work is done in PROFILE_HOOK, but this is still required.  */
+-- 
+2.31.1
+
