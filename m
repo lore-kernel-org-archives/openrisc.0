@@ -1,82 +1,45 @@
-From: Michael Ellerman <mpe@ellerman.id.au>
-Date: Wed, 27 Oct 2021 23:01:41 +1100
-Subject: [OpenRISC] [PATCH] locking: remove spin_lock_flags() etc
-In-Reply-To: <YXbAPIm47WwpYYup@hirez.programming.kicks-ass.net>
-References: <20211022120058.1031690-1-arnd@kernel.org>
- <cc8e3c58-457d-fdf3-6a62-98bde0cefdea@redhat.com>
- <CAK8P3a0YjaRS+aUCOKGjsfkR3TM49PrG6U4ftG_Fz+OFuyCb0w@mail.gmail.com>
- <YXZ/iLB7BvZtzDMp@hirez.programming.kicks-ass.net>
- <CAK8P3a2Luz7sd5cM1OdZhYCs_UPzo+2qVQYSZPfR2QN+0DkyRg@mail.gmail.com>
- <YXbAPIm47WwpYYup@hirez.programming.kicks-ass.net>
-Message-ID: <87r1c6ad7e.fsf@mpe.ellerman.id.au>
+From: Rich Felker <dalias@libc.org>
+Date: Wed, 27 Oct 2021 10:26:54 -0400
+Subject: [OpenRISC] [PATCH 09/12] sh: Use of_get_cpu_hwid()
+In-Reply-To: <20211006164332.1981454-10-robh@kernel.org>
+References: <20211006164332.1981454-1-robh@kernel.org>
+ <20211006164332.1981454-10-robh@kernel.org>
+Message-ID: <20211027142651.GW7074@brightrain.aerifal.cx>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Peter Zijlstra <peterz@infradead.org> writes:
-> On Mon, Oct 25, 2021 at 03:06:24PM +0200, Arnd Bergmann wrote:
->> On Mon, Oct 25, 2021 at 11:57 AM Peter Zijlstra <peterz@infradead.org> wrote:
->> > On Sat, Oct 23, 2021 at 06:04:57PM +0200, Arnd Bergmann wrote:
->> > > On Sat, Oct 23, 2021 at 3:37 AM Waiman Long <longman@redhat.com> wrote:
->> > > >> On 10/22/21 7:59 AM, Arnd Bergmann wrote:
->> > > > > From: Arnd Bergmann <arnd@arndb.de>
->> > > > >
->> > > > > As this is all dead code, just remove it and the helper functions built
->> > > > > around it. For arch/ia64, the inline asm could be cleaned up, but
->> > > > > it seems safer to leave it untouched.
->> > > > >
->> > > > > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
->> > > >
->> > > > Does that mean we can also remove the GENERIC_LOCKBREAK config option
->> > > > from the Kconfig files as well?
->> > >
->> > >  I couldn't figure this out.
->> > >
->> > > What I see is that the only architectures setting GENERIC_LOCKBREAK are
->> > > nds32, parisc, powerpc, s390, sh and sparc64, while the only architectures
->> > > implementing arch_spin_is_contended() are arm32, csky and ia64.
->> > >
->> > > The part I don't understand is whether the option actually does anything
->> > > useful any more after commit d89c70356acf ("locking/core: Remove break_lock
->> > > field when CONFIG_GENERIC_LOCKBREAK=y").
->> >
->> > Urgh, what a mess.. AFAICT there's still code in
->> > kernel/locking/spinlock.c that relies on it. Specifically when
->> > GENERIC_LOCKBREAK=y we seem to create _lock*() variants that are
->> > basically TaS locks which drop preempt/irq disable while spinning.
->> >
->> > Anybody having this on and not having native TaS locks is in for a rude
->> > surprise I suppose... sparc64 being the obvious candidate there :/
->> 
->> Is this a problem on s390 and powerpc, those two being the ones
->> that matter in practice?
->> 
->> On s390, we pick between the cmpxchg() based directed-yield when
->> running on virtualized CPUs, and a normal qspinlock when running on a
->> dedicated CPU.
->> 
->> On PowerPC, we pick at compile-time between either the qspinlock
->> (default-enabled on Book3S-64, i.e. all server chips) or a ll/sc based
->> spinlock plus vm_yield() (default on embedded and 32-bit mac).
->
-> Urgh, yeah, so this crud undermines the whole point of having a fair
-> lock. I'm thinking s390 and Power want to have this fixed.
+On Wed, Oct 06, 2021 at 11:43:29AM -0500, Rob Herring wrote:
+> Replace open coded parsing of CPU nodes' 'reg' property with
+> of_get_cpu_hwid().
+> 
+> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+> Cc: Rich Felker <dalias@libc.org>
+> Cc: linux-sh at vger.kernel.org
+> Signed-off-by: Rob Herring <robh@kernel.org>
+> ---
+>  arch/sh/boards/of-generic.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/sh/boards/of-generic.c b/arch/sh/boards/of-generic.c
+> index 921d76fc3358..f7f3e618e85b 100644
+> --- a/arch/sh/boards/of-generic.c
+> +++ b/arch/sh/boards/of-generic.c
+> @@ -62,9 +62,8 @@ static void sh_of_smp_probe(void)
+>  	init_cpu_possible(cpumask_of(0));
+>  
+>  	for_each_of_cpu_node(np) {
+> -		const __be32 *cell = of_get_property(np, "reg", NULL);
+> -		u64 id = -1;
+> -		if (cell) id = of_read_number(cell, of_n_addr_cells(np));
+> +		u64 id = of_get_cpu_hwid(np, 0);
+> +
+>  		if (id < NR_CPUS) {
+>  			if (!method)
+>  				of_property_read_string(np, "enable-method", &method);
+> -- 
+> 2.30.2
 
-Our Kconfig has:
-
-  config GENERIC_LOCKBREAK
-  	bool
-  	default y
-  	depends on SMP && PREEMPTION
-
-And we have exactly one defconfig that enables both SMP and PREEMPT,
-arch/powerpc/configs/85xx/ge_imp3a_defconfig, which is some ~10 year old
-PCI card embedded thing I've never heard of. High chance anyone who has
-those is not running upstream kernels on them.
-
-So I think we'd be happy for you rip GENERIC_LOCKBREAK out, it's almost
-entirely unused on powerpc anyway.
-
-cheers
+Acked-by: Rich Felker <dalias@libc.org>
