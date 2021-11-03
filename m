@@ -1,53 +1,97 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 28 Oct 2021 07:07:09 +0900
-Subject: [OpenRISC] [PATCH] or1k: Add return address argument to _mcount call
-Message-ID: <20211027220709.750104-1-shorne@gmail.com>
+From: Jan Henrik Weinstock <jan.weinstock@rwth-aachen.de>
+Date: Wed, 3 Nov 2021 09:02:52 +0100
+Subject: [OpenRISC] OpenRISC SMP kernels broken after 5.8?
+In-Reply-To: <YX8O0ix3MyOGQnqq@antec>
+References: <e35018e8-a15b-550d-cc3e-6b6d045f1b52@rwth-aachen.de>
+ <YX8O0ix3MyOGQnqq@antec>
+Message-ID: <a29b15d7-3e8a-4851-8175-66fa805f4dff@rwth-aachen.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-This fixes an issue in the glibc port I am working on where the build
-fails due to the warning:
+Hi Stafford,
 
-  error: calling ‘__builtin_return_address’ with a nonzero argument is unsafe [-Werror=frame-address]
+your patch has fixed the issue for me. I tested this with a 5.10 kernel 
+on single-, dual- and quad- Openriscs in my simulator and it ran stable.
 
-This is due to how the current implementation of _mcount in glibc uses
-__builtin_return_address with a count argument of 1.
+However, are we sure we caught everything? For example, I see the same 
+issue in flush_tlb_page [1], which can also have vma == NULL in the 
+page_[set|clear]_nocache functions [2]. It does not trigger a panic for 
+me though (probably because I do not have any DMA devices in the 
+simulator at the moment)...
 
-Fix that by passing the value of LR_REGNUM to the _mcount function,
-effectivtly providing the value _mcount is after.
+Jan
 
-This is an ABI change, but I think it's OK because the glibc port for
-or1k is not yet upstreamed.  Also, I think just adding an argument
-should not break anything anyway.
+[1] 
+https://elixir.bootlin.com/linux/v5.10.76/source/arch/openrisc/kernel/smp.c#L304
+[2] 
+https://elixir.bootlin.com/linux/v5.10.76/source/arch/openrisc/kernel/dma.c#L36
 
-gcc/ChangeLog:
-
-	* config/or1k/or1k.h (PROFILE_HOOK): Add return address argument
-	to _mcount.
----
- gcc/config/or1k/or1k.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/gcc/config/or1k/or1k.h b/gcc/config/or1k/or1k.h
-index fe01ab81ead..4603cb67160 100644
---- a/gcc/config/or1k/or1k.h
-+++ b/gcc/config/or1k/or1k.h
-@@ -387,9 +387,10 @@ do {                                                    \
-    profiling a function entry.  */
- #define PROFILE_HOOK(LABEL)						\
-   {									\
--    rtx fun;								\
-+    rtx fun, ra;							\
-+    ra = get_hard_reg_initial_val (Pmode, LR_REGNUM);			\
-     fun = gen_rtx_SYMBOL_REF (Pmode, "_mcount");			\
--    emit_library_call (fun, LCT_NORMAL, VOIDmode);			\
-+    emit_library_call (fun, LCT_NORMAL, VOIDmode, ra, Pmode);		\
-   }
- 
- /* All the work is done in PROFILE_HOOK, but this is still required.  */
--- 
-2.31.1
-
+On 31/10/2021 22:46, Stafford Horne wrote:
+> On Tue, Oct 26, 2021 at 10:43:45PM +0200, Jan Henrik Weinstock wrote:
+>> Hi all,
+>>
+>> I recently tried to update the kernel my simulator[1] is running to 5.10,
+>> but I noticed the newer kernels (>5.8) all panic in flush_tlb_page[2],
+>> because it is called with vma == NULL from flush_tlb_kernel_range[3].
+>> Looking at the code, I do not see how this could work for any SMP kernel
+>> (however, for non-SMP, we call local_tlb_flush_page[4], where we do not use
+>> vma, so I guess its fine there). Any ideas?
+> 
+> Hi Jan,
+> 
+> (sorry for late reply, I need to fix my filters)
+> 
+> Are you running on a SMP machine or are you running SMP kernel on a single CPU
+> with no ompic device?
+> 
+> I haven't had issues when running the SMP kernels on single CPU devices,
+> however, I can't recall how recent that is.
+> 
+> I did make a patch to this around 5.10, so I am pretty user it was working at
+> this point.  The reason added this patch was because I noticed simulators were
+> spending a lot of time, ~90%+, in TLB flushes I figured that reducing the work
+> done for TLB flushes would improve performance, and it did.
+> 
+> The patch:
+> 
+>   - https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=c28b27416da9
+> 
+> But it looks like this is what introduced the issue.  Somehow this slipped
+> through.  I think a patch like the following would help for now, I cannot easily
+> test now due to my environment being occupied by some long running tests.  Any
+> suggestions?
+> 
+> Basically the idea is, we only need the VMA to figure out which CPU's to flush
+> the range on.  When we pass in NULL it means its a kernel flush and we should
+> flush on all CPU's.  There may be something more efficient (maybe using
+> init_mm), but this is all I can think of that is safe.
+> 
+> -Stafford
+> 
+> diff --git a/arch/openrisc/kernel/smp.c b/arch/openrisc/kernel/smp.c
+> index 415e209732a3..cf5079bd8f43 100644
+> --- a/arch/openrisc/kernel/smp.c
+> +++ b/arch/openrisc/kernel/smp.c
+> @@ -320,7 +320,9 @@ void flush_tlb_page(struct vm_area_struct *vma, unsigned
+> long uaddr)
+>   void flush_tlb_range(struct vm_area_struct *vma,
+>                       unsigned long start, unsigned long end)
+>   {
+> -       smp_flush_tlb_range(mm_cpumask(vma->vm_mm), start, end);
+> +       struct cpumask *cmask = (vma == NULL) ? cpu_online_mask
+> +                                             : mm_cpumask(vma->vm_mm);
+> +       smp_flush_tlb_range(cmask, start, end);
+>   }
+>   
+>   /* Instruction cache invalidate - performed on each cpu */
+> 
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: smime.p7s
+Type: application/pkcs7-signature
+Size: 5316 bytes
+Desc: S/MIME Cryptographic Signature
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20211103/012b9122/attachment.bin>
