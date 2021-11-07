@@ -1,81 +1,47 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Wed,  3 Nov 2021 20:50:15 +0900
-Subject: [OpenRISC] [PATCH] openrisc: fix SMP tlb flush NULL pointer
- dereference
-Message-ID: <20211103115016.318043-1-shorne@gmail.com>
+Date: Mon, 8 Nov 2021 06:03:34 +0900
+Subject: [OpenRISC] [GIT PULL] OpenRISC updates for 5.16
+Message-ID: <YYg/JpmfY9/Z8qO1@antec>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Throughout the OpenRISC kernel port VMA is passed as NULL when flushing
-kernel tlb entries.  Somehow this was missed when I was testing
-c28b27416da9 ("openrisc: Implement proper SMP tlb flushing") and now the
-SMP kernel fails to completely boot.
+Hi Linus,
 
-In OpenRISC VMA is used only to determine which cores need to have their
-TLB entries flushed.
+Please consider for pull,
 
-This patch updates the logic to flush tlbs on all cores when the VMA is
-passed as NULL.  Also, we update places VMA is passed as NULL to use
-flush_tlb_kernel_range instead.  Now, the only place VMA is passed as
-NULL is in the implementation of flush_tlb_kernel_range.
+The following changes since commit 5816b3e6577eaa676ceb00a848f0fd65fe2adc29:
 
-Fixes: c28b27416da9 ("openrisc: Implement proper SMP tlb flushing")
-Reported-by: Jan Henrik Weinstock <jan.weinstock@rwth-aachen.de>
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- arch/openrisc/kernel/dma.c | 4 ++--
- arch/openrisc/kernel/smp.c | 6 ++++--
- 2 files changed, 6 insertions(+), 4 deletions(-)
+  Linux 5.15-rc3 (2021-09-26 14:08:19 -0700)
 
-diff --git a/arch/openrisc/kernel/dma.c b/arch/openrisc/kernel/dma.c
-index 1b16d97e7da7..a82b2caaa560 100644
---- a/arch/openrisc/kernel/dma.c
-+++ b/arch/openrisc/kernel/dma.c
-@@ -33,7 +33,7 @@ page_set_nocache(pte_t *pte, unsigned long addr,
- 	 * Flush the page out of the TLB so that the new page flags get
- 	 * picked up next time there's an access
- 	 */
--	flush_tlb_page(NULL, addr);
-+	flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
- 
- 	/* Flush page out of dcache */
- 	for (cl = __pa(addr); cl < __pa(next); cl += cpuinfo->dcache_block_size)
-@@ -56,7 +56,7 @@ page_clear_nocache(pte_t *pte, unsigned long addr,
- 	 * Flush the page out of the TLB so that the new page flags get
- 	 * picked up next time there's an access
- 	 */
--	flush_tlb_page(NULL, addr);
-+	flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
- 
- 	return 0;
- }
-diff --git a/arch/openrisc/kernel/smp.c b/arch/openrisc/kernel/smp.c
-index 415e209732a3..ba78766cf00b 100644
---- a/arch/openrisc/kernel/smp.c
-+++ b/arch/openrisc/kernel/smp.c
-@@ -272,7 +272,7 @@ static inline void ipi_flush_tlb_range(void *info)
- 	local_flush_tlb_range(NULL, fd->addr1, fd->addr2);
- }
- 
--static void smp_flush_tlb_range(struct cpumask *cmask, unsigned long start,
-+static void smp_flush_tlb_range(const struct cpumask *cmask, unsigned long start,
- 				unsigned long end)
- {
- 	unsigned int cpuid;
-@@ -320,7 +320,9 @@ void flush_tlb_page(struct vm_area_struct *vma, unsigned long uaddr)
- void flush_tlb_range(struct vm_area_struct *vma,
- 		     unsigned long start, unsigned long end)
- {
--	smp_flush_tlb_range(mm_cpumask(vma->vm_mm), start, end);
-+	const struct cpumask *cmask = vma ? mm_cpumask(vma->vm_mm)
-+					  : cpu_online_mask;
-+	smp_flush_tlb_range(cmask, start, end);
- }
- 
- /* Instruction cache invalidate - performed on each cpu */
--- 
-2.31.1
+are available in the Git repository at:
 
+  git://github.com/openrisc/linux.git tags/for-linus
+
+for you to fetch changes up to 27dff9a9c247d4e38d82c2e7234914cfe8499294:
+
+  openrisc: fix SMP tlb flush NULL pointer dereference (2021-11-03 20:48:29 +0900)
+
+----------------------------------------------------------------
+OpenRISC updates for 5.16
+
+This includes 2 minor cleanups, plus a bug fix for OpenRISC TLB flush
+code that allows the the SMP kernel to boot again.
+
+----------------------------------------------------------------
+Denis Kirjanov (1):
+      openrisc: signal: remove unused DEBUG_SIG macro
+
+Randy Dunlap (1):
+      openrisc: time: don't mark comment as kernel-doc
+
+Stafford Horne (1):
+      openrisc: fix SMP tlb flush NULL pointer dereference
+
+ arch/openrisc/kernel/dma.c    | 4 ++--
+ arch/openrisc/kernel/signal.c | 2 --
+ arch/openrisc/kernel/smp.c    | 6 ++++--
+ arch/openrisc/kernel/time.c   | 2 +-
+ 4 files changed, 7 insertions(+), 7 deletions(-)
