@@ -1,47 +1,24 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Mon, 8 Nov 2021 06:03:34 +0900
+From: pr-tracker-bot@kernel.org <pr-tracker-bot@kernel.org>
+Date: Mon, 08 Nov 2021 17:39:23 +0000
 Subject: [OpenRISC] [GIT PULL] OpenRISC updates for 5.16
-Message-ID: <YYg/JpmfY9/Z8qO1@antec>
+In-Reply-To: <YYg/JpmfY9/Z8qO1@antec>
+References: <YYg/JpmfY9/Z8qO1@antec>
+Message-ID: <163639316379.31155.7303820771805964253.pr-tracker-bot@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Linus,
+The pull request you sent on Mon, 8 Nov 2021 06:03:34 +0900:
 
-Please consider for pull,
+> git://github.com/openrisc/linux.git tags/for-linus
 
-The following changes since commit 5816b3e6577eaa676ceb00a848f0fd65fe2adc29:
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/a2b03e48e961be442560796105211fc71bed02ae
 
-  Linux 5.15-rc3 (2021-09-26 14:08:19 -0700)
+Thank you!
 
-are available in the Git repository at:
-
-  git://github.com/openrisc/linux.git tags/for-linus
-
-for you to fetch changes up to 27dff9a9c247d4e38d82c2e7234914cfe8499294:
-
-  openrisc: fix SMP tlb flush NULL pointer dereference (2021-11-03 20:48:29 +0900)
-
-----------------------------------------------------------------
-OpenRISC updates for 5.16
-
-This includes 2 minor cleanups, plus a bug fix for OpenRISC TLB flush
-code that allows the the SMP kernel to boot again.
-
-----------------------------------------------------------------
-Denis Kirjanov (1):
-      openrisc: signal: remove unused DEBUG_SIG macro
-
-Randy Dunlap (1):
-      openrisc: time: don't mark comment as kernel-doc
-
-Stafford Horne (1):
-      openrisc: fix SMP tlb flush NULL pointer dereference
-
- arch/openrisc/kernel/dma.c    | 4 ++--
- arch/openrisc/kernel/signal.c | 2 --
- arch/openrisc/kernel/smp.c    | 6 ++++--
- arch/openrisc/kernel/time.c   | 2 +-
- 4 files changed, 7 insertions(+), 7 deletions(-)
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
