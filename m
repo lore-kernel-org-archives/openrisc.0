@@ -1,43 +1,58 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 13 Nov 2021 12:16:38 +0900
-Subject: [OpenRISC] [PATCH v2 12/13] build-many-glibcs.py: add OpenRISC
- support
+Date: Sat, 13 Nov 2021 12:16:39 +0900
+Subject: [OpenRISC] [PATCH v2 13/13] Documentation for OpenRISC port
 In-Reply-To: <20211113031639.2402161-1-shorne@gmail.com>
 References: <20211113031639.2402161-1-shorne@gmail.com>
-Message-ID: <20211113031639.2402161-13-shorne@gmail.com>
+Message-ID: <20211113031639.2402161-14-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
----
- scripts/build-many-glibcs.py | 5 +++++
- 1 file changed, 5 insertions(+)
+OpenRISC architecture specification:
 
-diff --git a/scripts/build-many-glibcs.py b/scripts/build-many-glibcs.py
-index e8b9b213ca..40072883c2 100755
---- a/scripts/build-many-glibcs.py
-+++ b/scripts/build-many-glibcs.py
-@@ -334,6 +334,10 @@ class Context(object):
-                                  'ccopts': '-mabi=64'}])
-         self.add_config(arch='nios2',
-                         os_name='linux-gnu')
-+        self.add_config(arch='or1k',
-+                        os_name='linux-gnu',
-+                        variant='soft',
-+                        gcc_cfg=['--with-multilib-list=mcmov'])
-         self.add_config(arch='powerpc',
-                         os_name='linux-gnu',
-                         gcc_cfg=['--disable-multilib', '--enable-secureplt'],
-@@ -1270,6 +1274,7 @@ def install_linux_headers(policy, cmdlist):
-                 'microblaze': 'microblaze',
-                 'mips': 'mips',
-                 'nios2': 'nios2',
-+                'or1k': 'openrisc',
-                 'powerpc': 'powerpc',
-                 's390': 's390',
-                 'riscv32': 'riscv',
+ https://raw.githubusercontent.com/openrisc/doc/master/openrisc-arch-1.3-rev1.pdf
+
+Currently the port as of the 2021-10-16 rebasing has the following test
+failures:
+
+ FAIL: timezone/tst-tzset     # Not enough space to create 4GiB file
+
+Writing credits for the port are:
+
+ Stafford Horne  <shorne@gmail.com>
+ Christian Svensson  <blue@cmd.nu>
+---
+ NEWS   | 2 ++
+ README | 1 +
+ 2 files changed, 3 insertions(+)
+
+diff --git a/NEWS b/NEWS
+index f10971b180..e8d88a7934 100644
+--- a/NEWS
++++ b/NEWS
+@@ -481,6 +481,8 @@ Major new features:
+   The latest GCC available at this time (10.2) does not support this level of
+   fortification.
+ 
++* Support for OpenRISC on Linux has been added.
++
+ Deprecated and removed features, and other changes affecting compatibility:
+ 
+ * The mallinfo function is marked deprecated.  Callers should call
+diff --git a/README b/README
+index d0f0edb393..3d5a78ccff 100644
+--- a/README
++++ b/README
+@@ -35,6 +35,7 @@ The GNU C Library supports these configurations for using Linux kernels:
+ 	microblaze*-*-linux-gnu
+ 	mips-*-linux-gnu
+ 	mips64-*-linux-gnu
++	or1k-*-linux-gnu
+ 	powerpc-*-linux-gnu	Hardware or software floating point, BE only.
+ 	powerpc64*-*-linux-gnu	Big-endian and little-endian.
+ 	s390-*-linux-gnu
 -- 
 2.31.1
 
