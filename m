@@ -1,253 +1,242 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 13 Nov 2021 07:59:39 +0900
-Subject: [OpenRISC] [RFC PATCH] or1k: Fix clobbering of _mcount argument
- if fPIC is enabled
-In-Reply-To: <20211109121308.583835-1-shorne@gmail.com>
-References: <20211109121308.583835-1-shorne@gmail.com>
-Message-ID: <YY7x2yEgOHAjPsD1@antec>
+Date: Sat, 13 Nov 2021 12:16:26 +0900
+Subject: [OpenRISC] [PATCH v2 00/13] Glibc OpenRISC port
+Message-ID: <20211113031639.2402161-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-I have committed this as is.
+This is the OpenRISC port for glibc that I have been working on.
 
--Stafford
+Changes since v1:
+ - Update api's as suggested by Florian
+ - Remove hard float support
+ - Updates to get all tests passing
+ - Split patch into managable bits similar to recent ARC port
 
-On Tue, Nov 09, 2021 at 09:13:08PM +0900, Stafford Horne wrote:
-> Recently we changed the PROFILE_HOOK _mcount call to pass in the link
-> register as an argument.  This actually does not work when the _mcount
-> call uses a PLT because the GOT register setup code ends up getting
-> inserted before the PROFILE_HOOK and clobbers the link register
-> argument.
-> 
-> These glibc tests are failing:
->   gmon/tst-gmon-pie-gprof
->   gmon/tst-gmon-static-gprof
-> 
-> This patch fixes this by saving the instruction that stores the Link
-> Register to the _mcount argument and then inserts the GOT register setup
-> instructions after that.
-> 
-> For example:
-> 
-> main.c:
-> 
->     extern int e;
-> 
->     int f2(int a) {
->       return a + e;
->     }
-> 
->     int f1(int a) {
->       return f2 (a + a);
->     }
-> 
->     int main(int argc, char ** argv) {
->       return f1 (argc);
->     }
-> 
-> Compiled:
-> 
->     or1k-smh-linux-gnu-gcc -Wall -c -O2 -fPIC -pg -S main.c
-> 
-> Before Fix:
-> 
->     main:
->         l.addi  r1, r1, -16
->         l.sw    8(r1), r2
->         l.sw    0(r1), r16
->         l.addi  r2, r1, 16   # Keeping FP, but not needed
->         l.sw    4(r1), r18
->         l.sw    12(r1), r9
->         l.jal   8            # GOT Setup clobbers r9 (Link Register)
->          l.movhi        r16, gotpchi(_GLOBAL_OFFSET_TABLE_-4)
->         l.ori   r16, r16, gotpclo(_GLOBAL_OFFSET_TABLE_+0)
->         l.add   r16, r16, r9
->         l.or    r18, r3, r3
->         l.or    r3, r9, r9    # This is not the original LR
->         l.jal   plt(_mcount)
->          l.nop
-> 
->         l.jal   plt(f1)
->          l.or    r3, r18, r18
->         l.lwz   r9, 12(r1)
->         l.lwz   r16, 0(r1)
->         l.lwz   r18, 4(r1)
->         l.lwz   r2, 8(r1)
->         l.jr    r9
->          l.addi  r1, r1, 16
-> 
-> After the fix:
-> 
->     main:
->         l.addi  r1, r1, -12
->         l.sw    0(r1), r16
->         l.sw    4(r1), r18
->         l.sw    8(r1), r9
->         l.or    r18, r3, r3
->         l.or    r3, r9, r9    # We now have r9 (LR) set early
->         l.jal   8             # Clobbers r9 (Link Register)
->          l.movhi        r16, gotpchi(_GLOBAL_OFFSET_TABLE_-4)
->         l.ori   r16, r16, gotpclo(_GLOBAL_OFFSET_TABLE_+0)
->         l.add   r16, r16, r9
->         l.jal   plt(_mcount)
->          l.nop
-> 
->         l.jal   plt(f1)
->          l.or    r3, r18, r18
->         l.lwz   r9, 8(r1)
->         l.lwz   r16, 0(r1)
->         l.lwz   r18, 4(r1)
->         l.jr    r9
->          l.addi  r1, r1, 12
-> 
-> Fixes: 308531d148a ("or1k: Add return address argument to _mcount call")
-> 
-> gcc/ChangeLog:
-> 	* config/or1k/or1k-protos.h (or1k_profile_hook): New function.
-> 	* config/or1k/or1k.h (PROFILE_HOOK): Change macro to reference
-> 	new function or1k_profile_hook.
-> 	* config/or1k/or1k.c (struct machine_function): Add new field
-> 	set_mcount_arg_insn.
-> 	(or1k_profile_hook): New function.
-> 	(or1k_init_pic_reg): Update to inject pic rtx after _mcount arg
-> 	when profiling.
-> 	(or1k_frame_pointer_required): Frame pointer no longer needed
-> 	when profiling.
-> ---
-> I am sending this as RFC as I think there should be a better way to handle
-> this but I am not sure how that would be.
-> 
-> An earlier patch I tried was to store the link register to a temporary register
-> then pass the temporary register as an argument to _mcount, however
-> optimizations caused the link register to still get clobbered.
-> 
-> Any thoughts will be helpful.
-> 
-> -Stafford
-> 
->  gcc/config/or1k/or1k-protos.h |  1 +
->  gcc/config/or1k/or1k.c        | 49 ++++++++++++++++++++++++++++-------
->  gcc/config/or1k/or1k.h        |  8 +-----
->  3 files changed, 42 insertions(+), 16 deletions(-)
-> 
-> diff --git a/gcc/config/or1k/or1k-protos.h b/gcc/config/or1k/or1k-protos.h
-> index bbb54c8f790..56554f2937f 100644
-> --- a/gcc/config/or1k/or1k-protos.h
-> +++ b/gcc/config/or1k/or1k-protos.h
-> @@ -20,6 +20,7 @@ along with GCC; see the file COPYING3.  If not see
->  extern HOST_WIDE_INT or1k_initial_elimination_offset (int, int);
->  extern void or1k_expand_prologue (void);
->  extern void or1k_expand_epilogue (void);
-> +extern void or1k_profile_hook (void);
->  extern void or1k_expand_eh_return (rtx);
->  extern rtx  or1k_initial_frame_addr (void);
->  extern rtx  or1k_dynamic_chain_addr (rtx);
-> diff --git a/gcc/config/or1k/or1k.c b/gcc/config/or1k/or1k.c
-> index e772a7addea..335c4c5decf 100644
-> --- a/gcc/config/or1k/or1k.c
-> +++ b/gcc/config/or1k/or1k.c
-> @@ -73,6 +73,10 @@ struct GTY(()) machine_function
->  
->    /* Remember where the set_got_placeholder is located.  */
->    rtx_insn *set_got_insn;
-> +
-> +  /* Remember where mcount args are stored so we can insert set_got_insn
-> +     after.  */
-> +  rtx_insn *set_mcount_arg_insn;
->  };
->  
->  /* Zero initialization is OK for all current fields.  */
-> @@ -415,6 +419,25 @@ or1k_expand_epilogue (void)
->  			   EH_RETURN_STACKADJ_RTX));
->  }
->  
-> +/* Worker for PROFILE_HOOK.
-> +   The OpenRISC profile hook uses the link register which will get clobbered by
-> +   the GOT setup RTX.  This sets up a placeholder to allow injecting of the GOT
-> +   setup RTX to avoid clobbering.  */
-> +
-> +void
-> +or1k_profile_hook (void)
-> +{
-> +  rtx a1 = gen_rtx_REG (Pmode, 3);
-> +  rtx ra = get_hard_reg_initial_val (Pmode, LR_REGNUM);
-> +  rtx fun = gen_rtx_SYMBOL_REF (Pmode, "_mcount");
-> +
-> +  /* Keep track of where we setup the _mcount argument so we can insert the
-> +     GOT setup RTX after it.  */
-> +  cfun->machine->set_mcount_arg_insn = emit_move_insn (a1, ra);
-> +
-> +  emit_library_call (fun, LCT_NORMAL, VOIDmode, a1, Pmode);
-> +}
-> +
->  /* Worker for TARGET_INIT_PIC_REG.
->     Initialize the cfun->machine->set_got_insn rtx and insert it at the entry
->     of the current function.  The rtx is just a temporary placeholder for
-> @@ -423,17 +446,25 @@ or1k_expand_epilogue (void)
->  static void
->  or1k_init_pic_reg (void)
->  {
-> -  start_sequence ();
->  
-> -  cfun->machine->set_got_insn
-> -    = emit_insn (gen_set_got_tmp (pic_offset_table_rtx));
-> +  if (crtl->profile)
-> +    cfun->machine->set_got_insn =
-> +      emit_insn_after (gen_set_got_tmp (pic_offset_table_rtx),
-> +		       cfun->machine->set_mcount_arg_insn);
-> +  else
-> +    {
-> +      start_sequence ();
-> +
-> +      cfun->machine->set_got_insn =
-> +	emit_insn (gen_set_got_tmp (pic_offset_table_rtx));
->  
-> -  rtx_insn *seq = get_insns ();
-> -  end_sequence ();
-> +      rtx_insn *seq = get_insns ();
-> +      end_sequence ();
->  
-> -  edge entry_edge = single_succ_edge (ENTRY_BLOCK_PTR_FOR_FN (cfun));
-> -  insert_insn_on_edge (seq, entry_edge);
-> -  commit_one_edge_insertion (entry_edge);
-> +      edge entry_edge = single_succ_edge (ENTRY_BLOCK_PTR_FOR_FN (cfun));
-> +      insert_insn_on_edge (seq, entry_edge);
-> +      commit_one_edge_insertion (entry_edge);
-> +    }
->  }
->  
->  #undef TARGET_INIT_PIC_REG
-> @@ -480,7 +511,7 @@ or1k_frame_pointer_required ()
->  {
->    /* ??? While IRA checks accesses_prior_frames, reload does not.
->       We do want the frame pointer for this case.  */
-> -  return (crtl->accesses_prior_frames || crtl->profile);
-> +  return (crtl->accesses_prior_frames);
->  }
->  
->  /* Expand the "eh_return" pattern.
-> diff --git a/gcc/config/or1k/or1k.h b/gcc/config/or1k/or1k.h
-> index 4603cb67160..ce0a47dfa66 100644
-> --- a/gcc/config/or1k/or1k.h
-> +++ b/gcc/config/or1k/or1k.h
-> @@ -385,13 +385,7 @@ do {                                                    \
->  
->  /* Emit rtl for profiling.  Output assembler code to call "_mcount" for
->     profiling a function entry.  */
-> -#define PROFILE_HOOK(LABEL)						\
-> -  {									\
-> -    rtx fun, ra;							\
-> -    ra = get_hard_reg_initial_val (Pmode, LR_REGNUM);			\
-> -    fun = gen_rtx_SYMBOL_REF (Pmode, "_mcount");			\
-> -    emit_library_call (fun, LCT_NORMAL, VOIDmode, ra, Pmode);		\
-> -  }
-> +#define PROFILE_HOOK(LABEL)  or1k_profile_hook()
->  
->  /* All the work is done in PROFILE_HOOK, but this is still required.  */
->  #define FUNCTION_PROFILER(STREAM, LABELNO) do { } while (0)
-> -- 
-> 2.31.1
-> 
+Documentation:
+
+  Architecture / ABI docs:
+   https://raw.githubusercontent.com/openrisc/doc/master/openrisc-arch-1.3-rev1.pdf
+
+Test Results:
+
+  build-many-glibcs.py:
+
+   Both with mainline ang gcc-11.
+
+    Summary of test results:
+       1252 PASS
+	 15 XFAIL
+
+  Full test suite:
+
+   The full suite is running using the gcc-11 branch of GCC, mainline shows
+   issues with math soft-fp.
+
+	  1 FAIL
+       4056 PASS
+	 28 UNSUPPORTED
+	 18 XFAIL
+
+    tst-tzset.out: https://gist.github.com/stffrdhrn/5a49696cbf9bda342c52162a4950e4f2
+    tests.sum:     https://gist.github.com/stffrdhrn/9663c91ae65865e5323b946d0f2d1a3e
+
+   Note, I have some extra patches to get this to work:
+    Branch: https://github.com/stffrdhrn/or1k-glibc/commits/or1k-port-2
+    Patches:
+      2021-11-13 a45ab06431 Stafford Horne   support: Workaround gcc float rounding error
+      2021-11-13 1cb553ff2b Stafford Horne   malloc: Fix malloc debug for 2.35 onwards
+      2021-11-13 864ac06370 Stafford Horne   resolv: Fix tests by aligning hand
+
+   I have posted these before to the list, they are not architecture specific
+   issues, but things that need to be resolved in gcc or glibc.
+
+
+Stafford Horne (13):
+  elf: Add reloc for OpenRISC
+  linux/syscalls: Add or1k_atomic syscall for OpenRISC
+  or1k: ABI Implementation
+  or1k: startup and dynamic linking code
+  or1k: Thread Local Storage support
+  or1k: Atomics and Locking primitives
+  or1k: math soft float support
+  or1k: Linux Syscall Interface
+  or1k: Linux ABI
+  or1k: ABI lists
+  or1k: Build Infrastructure
+  build-many-glibcs.py: add OpenRISC support
+  Documentation for OpenRISC port
+
+ NEWS                                          |    2 +
+ README                                        |    1 +
+ elf/elf.h                                     |   37 +
+ scripts/build-many-glibcs.py                  |    5 +
+ sysdeps/or1k/Implies                          |    3 +
+ sysdeps/or1k/Makefile                         |    7 +
+ sysdeps/or1k/__longjmp.S                      |   55 +
+ sysdeps/or1k/atomic-machine.h                 |   79 +
+ sysdeps/or1k/bits/endianness.h                |   11 +
+ sysdeps/or1k/bits/fenv.h                      |   68 +
+ sysdeps/or1k/bits/link.h                      |   50 +
+ sysdeps/or1k/bits/setjmp.h                    |   32 +
+ sysdeps/or1k/bsd-_setjmp.S                    |    1 +
+ sysdeps/or1k/bsd-setjmp.S                     |    1 +
+ sysdeps/or1k/dl-machine.h                     |  323 +++
+ sysdeps/or1k/dl-start.S                       |   98 +
+ sysdeps/or1k/dl-tls.h                         |   26 +
+ sysdeps/or1k/dl-trampoline.S                  |   79 +
+ sysdeps/or1k/jmpbuf-offsets.h                 |   23 +
+ sysdeps/or1k/jmpbuf-unwind.h                  |   35 +
+ sysdeps/or1k/ldsodefs.h                       |   40 +
+ sysdeps/or1k/libc-tls.c                       |   32 +
+ sysdeps/or1k/libm-test-ulps                   | 1112 +++++++++
+ sysdeps/or1k/libm-test-ulps-name              |    1 +
+ sysdeps/or1k/machine-gmon.h                   |   35 +
+ sysdeps/or1k/memusage.h                       |   20 +
+ sysdeps/or1k/nofpu/Implies                    |    1 +
+ sysdeps/or1k/nofpu/math-tests-exceptions.h    |   29 +
+ sysdeps/or1k/nofpu/math-tests-rounding.h      |   28 +
+ sysdeps/or1k/nptl/Makefile                    |   21 +
+ sysdeps/or1k/nptl/bits/pthreadtypes-arch.h    |   48 +
+ sysdeps/or1k/nptl/pthreaddef.h                |   35 +
+ sysdeps/or1k/nptl/tcb-offsets.sym             |    6 +
+ sysdeps/or1k/nptl/tls.h                       |  189 ++
+ sysdeps/or1k/preconfigure                     |   34 +
+ sysdeps/or1k/setjmp.S                         |   56 +
+ sysdeps/or1k/sfp-machine.h                    |   93 +
+ sysdeps/or1k/sotruss-lib.c                    |   51 +
+ sysdeps/or1k/stackinfo.h                      |   33 +
+ sysdeps/or1k/start.S                          |   99 +
+ sysdeps/or1k/sysdep.h                         |   82 +
+ sysdeps/or1k/tininess.h                       |    1 +
+ sysdeps/or1k/tst-audit.h                      |   24 +
+ sysdeps/unix/sysv/linux/or1k/Implies          |    3 +
+ sysdeps/unix/sysv/linux/or1k/Makefile         |   12 +
+ sysdeps/unix/sysv/linux/or1k/arch-syscall.h   |  320 +++
+ sysdeps/unix/sysv/linux/or1k/bits/procfs.h    |   38 +
+ sysdeps/unix/sysv/linux/or1k/bits/timesize.h  |   19 +
+ sysdeps/unix/sysv/linux/or1k/c++-types.data   |   67 +
+ sysdeps/unix/sysv/linux/or1k/clone.c          |   59 +
+ sysdeps/unix/sysv/linux/or1k/configure        |    4 +
+ sysdeps/unix/sysv/linux/or1k/configure.ac     |    4 +
+ sysdeps/unix/sysv/linux/or1k/getcontext.S     |   72 +
+ sysdeps/unix/sysv/linux/or1k/ioctl.c          |   40 +
+ sysdeps/unix/sysv/linux/or1k/jmp_buf-macros.h |   41 +
+ sysdeps/unix/sysv/linux/or1k/kernel_stat.h    |   24 +
+ sysdeps/unix/sysv/linux/or1k/ld.abilist       |    5 +
+ .../sysv/linux/or1k/libBrokenLocale.abilist   |    1 +
+ sysdeps/unix/sysv/linux/or1k/libanl.abilist   |    1 +
+ sysdeps/unix/sysv/linux/or1k/libc.abilist     | 2122 +++++++++++++++++
+ .../sysv/linux/or1k/libc_malloc_debug.abilist |   26 +
+ sysdeps/unix/sysv/linux/or1k/libcrypt.abilist |    2 +
+ sysdeps/unix/sysv/linux/or1k/libdl.abilist    |    0
+ sysdeps/unix/sysv/linux/or1k/libm.abilist     |  759 ++++++
+ sysdeps/unix/sysv/linux/or1k/libnsl.abilist   |  121 +
+ .../unix/sysv/linux/or1k/libpthread.abilist   |    0
+ .../unix/sysv/linux/or1k/libresolv.abilist    |   55 +
+ sysdeps/unix/sysv/linux/or1k/librt.abilist    |    0
+ .../unix/sysv/linux/or1k/libthread_db.abilist |   40 +
+ sysdeps/unix/sysv/linux/or1k/libutil.abilist  |    1 +
+ sysdeps/unix/sysv/linux/or1k/localplt.data    |   14 +
+ sysdeps/unix/sysv/linux/or1k/makecontext.c    |   77 +
+ sysdeps/unix/sysv/linux/or1k/mmap_internal.h  |   30 +
+ sysdeps/unix/sysv/linux/or1k/or1k_clone.S     |   89 +
+ sysdeps/unix/sysv/linux/or1k/setcontext.S     |  108 +
+ sysdeps/unix/sysv/linux/or1k/shlib-versions   |    2 +
+ sysdeps/unix/sysv/linux/or1k/sigcontextinfo.h |   28 +
+ sysdeps/unix/sysv/linux/or1k/swapcontext.S    |  116 +
+ sysdeps/unix/sysv/linux/or1k/sys/ucontext.h   |   53 +
+ sysdeps/unix/sysv/linux/or1k/sys/user.h       |    1 +
+ sysdeps/unix/sysv/linux/or1k/syscall.c        |   45 +
+ sysdeps/unix/sysv/linux/or1k/sysdep.c         |   33 +
+ sysdeps/unix/sysv/linux/or1k/sysdep.h         |  195 ++
+ sysdeps/unix/sysv/linux/or1k/ucontext_i.sym   |   26 +
+ sysdeps/unix/sysv/linux/syscall-names.list    |    1 +
+ 85 files changed, 7660 insertions(+)
+ create mode 100644 sysdeps/or1k/Implies
+ create mode 100644 sysdeps/or1k/Makefile
+ create mode 100644 sysdeps/or1k/__longjmp.S
+ create mode 100644 sysdeps/or1k/atomic-machine.h
+ create mode 100644 sysdeps/or1k/bits/endianness.h
+ create mode 100644 sysdeps/or1k/bits/fenv.h
+ create mode 100644 sysdeps/or1k/bits/link.h
+ create mode 100644 sysdeps/or1k/bits/setjmp.h
+ create mode 100644 sysdeps/or1k/bsd-_setjmp.S
+ create mode 100644 sysdeps/or1k/bsd-setjmp.S
+ create mode 100644 sysdeps/or1k/dl-machine.h
+ create mode 100644 sysdeps/or1k/dl-start.S
+ create mode 100644 sysdeps/or1k/dl-tls.h
+ create mode 100644 sysdeps/or1k/dl-trampoline.S
+ create mode 100644 sysdeps/or1k/jmpbuf-offsets.h
+ create mode 100644 sysdeps/or1k/jmpbuf-unwind.h
+ create mode 100644 sysdeps/or1k/ldsodefs.h
+ create mode 100644 sysdeps/or1k/libc-tls.c
+ create mode 100644 sysdeps/or1k/libm-test-ulps
+ create mode 100644 sysdeps/or1k/libm-test-ulps-name
+ create mode 100644 sysdeps/or1k/machine-gmon.h
+ create mode 100644 sysdeps/or1k/memusage.h
+ create mode 100644 sysdeps/or1k/nofpu/Implies
+ create mode 100644 sysdeps/or1k/nofpu/math-tests-exceptions.h
+ create mode 100644 sysdeps/or1k/nofpu/math-tests-rounding.h
+ create mode 100644 sysdeps/or1k/nptl/Makefile
+ create mode 100644 sysdeps/or1k/nptl/bits/pthreadtypes-arch.h
+ create mode 100644 sysdeps/or1k/nptl/pthreaddef.h
+ create mode 100644 sysdeps/or1k/nptl/tcb-offsets.sym
+ create mode 100644 sysdeps/or1k/nptl/tls.h
+ create mode 100644 sysdeps/or1k/preconfigure
+ create mode 100644 sysdeps/or1k/setjmp.S
+ create mode 100644 sysdeps/or1k/sfp-machine.h
+ create mode 100644 sysdeps/or1k/sotruss-lib.c
+ create mode 100644 sysdeps/or1k/stackinfo.h
+ create mode 100644 sysdeps/or1k/start.S
+ create mode 100644 sysdeps/or1k/sysdep.h
+ create mode 100644 sysdeps/or1k/tininess.h
+ create mode 100644 sysdeps/or1k/tst-audit.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/Implies
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/Makefile
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/arch-syscall.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/bits/procfs.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/bits/timesize.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/c++-types.data
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/clone.c
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/configure
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/configure.ac
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/getcontext.S
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/ioctl.c
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/jmp_buf-macros.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/kernel_stat.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/ld.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/libBrokenLocale.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/libanl.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/libc.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/libc_malloc_debug.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/libcrypt.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/libdl.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/libm.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/libnsl.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/libpthread.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/libresolv.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/librt.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/libthread_db.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/libutil.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/localplt.data
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/makecontext.c
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/mmap_internal.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/or1k_clone.S
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/setcontext.S
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/shlib-versions
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/sigcontextinfo.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/swapcontext.S
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/sys/ucontext.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/sys/user.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/syscall.c
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/sysdep.c
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/sysdep.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/ucontext_i.sym
+
+-- 
+2.31.1
+
