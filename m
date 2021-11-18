@@ -1,10 +1,10 @@
 From: Joseph Myers <joseph@codesourcery.com>
-Date: Thu, 18 Nov 2021 22:13:41 +0000
-Subject: [OpenRISC] [PATCH v2 03/13] or1k: ABI Implementation
-In-Reply-To: <20211113031639.2402161-4-shorne@gmail.com>
+Date: Thu, 18 Nov 2021 22:22:23 +0000
+Subject: [OpenRISC] [PATCH v2 05/13] or1k: Thread Local Storage support
+In-Reply-To: <20211113031639.2402161-6-shorne@gmail.com>
 References: <20211113031639.2402161-1-shorne@gmail.com>
- <20211113031639.2402161-4-shorne@gmail.com>
-Message-ID: <alpine.DEB.2.22.394.2111182213000.1393807@digraph.polyomino.org.uk>
+ <20211113031639.2402161-6-shorne@gmail.com>
+Message-ID: <alpine.DEB.2.22.394.2111182219580.1393807@digraph.polyomino.org.uk>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,11 +13,46 @@ To: openrisc@lists.librecores.org
 
 On Sat, 13 Nov 2021, Stafford Horne via Libc-alpha wrote:
 
-> +/* Helper for generic ____longjmp_chk(). */
+> diff --git a/sysdeps/or1k/dl-tls.h b/sysdeps/or1k/dl-tls.h
+> new file mode 100644
+> index 0000000000..f25645c715
+> --- /dev/null
+> +++ b/sysdeps/or1k/dl-tls.h
+> @@ -0,0 +1,26 @@
+> +/* Copyright (C) 2021 Free Software Foundation, Inc.
 
-Don't use () after a function name just to indicate it's a function, as 
-opposed to a function call with no arguments (see the GNU Coding 
-Standards).
+Each file should have a one-line description on the line before the 
+copyright notice.
+
+> diff --git a/sysdeps/or1k/libc-tls.c b/sysdeps/or1k/libc-tls.c
+> new file mode 100644
+> index 0000000000..43571944dd
+> --- /dev/null
+> +++ b/sysdeps/or1k/libc-tls.c
+> @@ -0,0 +1,32 @@
+> +/* Copyright (C) 2021 Free Software Foundation, Inc.
+
+Likewise.
+
+> diff --git a/sysdeps/or1k/stackinfo.h b/sysdeps/or1k/stackinfo.h
+> new file mode 100644
+> index 0000000000..14e767c5bf
+> --- /dev/null
+> +++ b/sysdeps/or1k/stackinfo.h
+> @@ -0,0 +1,33 @@
+> +/* Copyright (C) 2021 Free Software Foundation, Inc.
+
+Likewise.
+
+> +/* Default to an executable stack.  PF_X can be overridden if PT_GNU_STACK is
+> + * present, but it is presumed absent.  */
+
+We don't use '*' at the start of second and subsequent lines of comments.
+
+(It seems unfortunate for a new port to default to executable stacks, but 
+it looks like this is indeed what the Linux kernel port to OpenRISC does, 
+given the lack of an override of the default VM_DATA_DEFAULT_FLAGS and 
+VM_STACK_DEFAULT_FLAGS.)
 
 -- 
 Joseph S. Myers
