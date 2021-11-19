@@ -1,38 +1,49 @@
-From: Joseph Myers <joseph@codesourcery.com>
-Date: Thu, 18 Nov 2021 22:34:10 +0000
-Subject: [OpenRISC] [PATCH v2 11/13] or1k: Build Infrastructure
-In-Reply-To: <20211113031639.2402161-12-shorne@gmail.com>
-References: <20211113031639.2402161-1-shorne@gmail.com>
- <20211113031639.2402161-12-shorne@gmail.com>
-Message-ID: <alpine.DEB.2.22.394.2111182231450.1393807@digraph.polyomino.org.uk>
+From: Calvin Zhang <calvinzhang.cool@gmail.com>
+Date: Fri, 19 Nov 2021 15:58:17 +0800
+Subject: [OpenRISC] [PATCH 0/2] of: remove reserved regions count restriction
+Message-ID: <20211119075844.2902592-1-calvinzhang.cool@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sat, 13 Nov 2021, Stafford Horne via Libc-alpha wrote:
+The count of reserved regions in /reserved-memory was limited because
+the struct reserved_mem array was defined statically. This series sorts
+out reserved memory code and allocates that array from early allocator.
 
-> diff --git a/sysdeps/unix/sysv/linux/or1k/configure.ac b/sysdeps/unix/sysv/linux/or1k/configure.ac
-> new file mode 100644
-> index 0000000000..d439e7fd53
-> --- /dev/null
-> +++ b/sysdeps/unix/sysv/linux/or1k/configure.ac
-> @@ -0,0 +1,4 @@
-> +GLIBC_PROVIDES dnl See aclocal.m4 in the top level source directory.
-> +# Local configure fragment for sysdeps/unix/sysv/linux/or1k.
-> +
-> +arch_minimum_kernel=5.10.0
+Note: reserved region with fixed location must be reserved before any
+memory allocation. While struct reserved_mem array should be allocated
+after allocator is activated. We make early_init_fdt_scan_reserved_mem()
+do reservation only and add another call to initialize reserved memory.
+So arch code have to change for it.
 
-This seems to be a lot more recent than when OpenRISC support was actually 
-added to the Linux kernel, and also more recent than when 64-bit time 
-support was added for 32-bit architectures (which may be a convenient 
-minimum kernel for some new 32-bit architectures for that reason).  
-Requiring a newer kernel like that is certainly fine if convenient for the 
-port, but I think the choice of minimum kernel version, and the reasons 
-for it, deserve mention at least in the commit message and the NEWS file 
-entry.
+I'm only familiar with arm and arm64 architectures. Approvals from arch
+maintainers are required. Thank you all.
+
+Calvin Zhang (2):
+  of: Sort reserved_mem related code
+  of: reserved_mem: Remove reserved regions count restriction
+
+ arch/arc/mm/init.c                 |   3 +
+ arch/arm/kernel/setup.c            |   2 +
+ arch/arm64/kernel/setup.c          |   3 +
+ arch/csky/kernel/setup.c           |   3 +
+ arch/h8300/kernel/setup.c          |   2 +
+ arch/mips/kernel/setup.c           |   3 +
+ arch/nds32/kernel/setup.c          |   3 +
+ arch/nios2/kernel/setup.c          |   2 +
+ arch/openrisc/kernel/setup.c       |   3 +
+ arch/powerpc/kernel/setup-common.c |   3 +
+ arch/riscv/kernel/setup.c          |   2 +
+ arch/sh/kernel/setup.c             |   3 +
+ arch/xtensa/kernel/setup.c         |   2 +
+ drivers/of/fdt.c                   | 107 +---------------
+ drivers/of/of_private.h            |  12 +-
+ drivers/of/of_reserved_mem.c       | 189 ++++++++++++++++++++++++-----
+ include/linux/of_reserved_mem.h    |   4 +
+ 17 files changed, 207 insertions(+), 139 deletions(-)
 
 -- 
-Joseph S. Myers
-joseph at codesourcery.com
+2.30.2
+
