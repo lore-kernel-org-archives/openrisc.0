@@ -1,454 +1,52 @@
 From: Calvin Zhang <calvinzhang.cool@gmail.com>
-Date: Fri, 19 Nov 2021 15:58:19 +0800
-Subject: [OpenRISC] [PATCH 2/2] of: reserved_mem: Remove reserved regions
- count restriction
-In-Reply-To: <20211119075844.2902592-1-calvinzhang.cool@gmail.com>
+Date: Fri, 19 Nov 2021 18:30:09 +0800
+Subject: [OpenRISC] [PATCH 2/2] of: reserved_mem: Remove reserved
+ regions count restriction
+In-Reply-To: <YZd0uEWNH6Def3+8@smile.fi.intel.com>
 References: <20211119075844.2902592-1-calvinzhang.cool@gmail.com>
-Message-ID: <20211119075844.2902592-3-calvinzhang.cool@gmail.com>
+ <20211119075844.2902592-3-calvinzhang.cool@gmail.com>
+ <YZd0uEWNH6Def3+8@smile.fi.intel.com>
+Message-ID: <YZd8sc6E0bgNA9ag@debian>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Change to allocate reserved_mems dynamically. Static reserved regions
-must be reserved before any memblock allocations. The reserved_mems
-array couldn't be allocated until memblock and linear mapping are ready.
-
-So move the allocation and initialization of records and reserved memory
-from early_init_fdt_scan_reserved_mem() to of_reserved_mem_init().
-
-Signed-off-by: Calvin Zhang <calvinzhang.cool@gmail.com>
----
- arch/arc/mm/init.c                 |  3 ++
- arch/arm/kernel/setup.c            |  2 +
- arch/arm64/kernel/setup.c          |  3 ++
- arch/csky/kernel/setup.c           |  3 ++
- arch/h8300/kernel/setup.c          |  2 +
- arch/mips/kernel/setup.c           |  3 ++
- arch/nds32/kernel/setup.c          |  3 ++
- arch/nios2/kernel/setup.c          |  2 +
- arch/openrisc/kernel/setup.c       |  3 ++
- arch/powerpc/kernel/setup-common.c |  3 ++
- arch/riscv/kernel/setup.c          |  2 +
- arch/sh/kernel/setup.c             |  3 ++
- arch/xtensa/kernel/setup.c         |  2 +
- drivers/of/fdt.c                   |  1 -
- drivers/of/of_reserved_mem.c       | 66 ++++++++++++++++++++----------
- 15 files changed, 79 insertions(+), 22 deletions(-)
-
-diff --git a/arch/arc/mm/init.c b/arch/arc/mm/init.c
-index ce4e939a7f07..a75f0e693f37 100644
---- a/arch/arc/mm/init.c
-+++ b/arch/arc/mm/init.c
-@@ -10,6 +10,7 @@
- #include <linux/initrd.h>
- #endif
- #include <linux/of_fdt.h>
-+#include <linux/of_reserved_mem.h>
- #include <linux/swap.h>
- #include <linux/module.h>
- #include <linux/highmem.h>
-@@ -165,6 +166,8 @@ void __init setup_arch_memory(void)
- 
- #endif /* CONFIG_HIGHMEM */
- 
-+	of_reserved_mem_init();
-+
- 	free_area_init(max_zone_pfn);
- }
- 
-diff --git a/arch/arm/kernel/setup.c b/arch/arm/kernel/setup.c
-index 284a80c0b6e1..e76737effbf4 100644
---- a/arch/arm/kernel/setup.c
-+++ b/arch/arm/kernel/setup.c
-@@ -20,6 +20,7 @@
- #include <linux/kexec.h>
- #include <linux/libfdt.h>
- #include <linux/of_fdt.h>
-+#include <linux/of_reserved_mem.h>
- #include <linux/cpu.h>
- #include <linux/interrupt.h>
- #include <linux/smp.h>
-@@ -1153,6 +1154,7 @@ void __init setup_arch(char **cmdline_p)
- 	early_ioremap_reset();
- 
- 	paging_init(mdesc);
-+	of_reserved_mem_init();
- 	kasan_init();
- 	request_standard_resources(mdesc);
- 
-diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
-index be5f85b0a24d..4624e5193d6e 100644
---- a/arch/arm64/kernel/setup.c
-+++ b/arch/arm64/kernel/setup.c
-@@ -27,6 +27,7 @@
- #include <linux/proc_fs.h>
- #include <linux/memblock.h>
- #include <linux/of_fdt.h>
-+#include <linux/of_reserved_mem.h>
- #include <linux/efi.h>
- #include <linux/psci.h>
- #include <linux/sched/task.h>
-@@ -339,6 +340,8 @@ void __init __no_sanitize_address setup_arch(char **cmdline_p)
- 
- 	paging_init();
- 
-+	of_reserved_mem_init();
-+
- 	acpi_table_upgrade();
- 
- 	/* Parse the ACPI tables for possible boot-time configuration */
-diff --git a/arch/csky/kernel/setup.c b/arch/csky/kernel/setup.c
-index c64e7be2045b..40878906644d 100644
---- a/arch/csky/kernel/setup.c
-+++ b/arch/csky/kernel/setup.c
-@@ -6,6 +6,7 @@
- #include <linux/initrd.h>
- #include <linux/of.h>
- #include <linux/of_fdt.h>
-+#include <linux/of_reserved_mem.h>
- #include <linux/start_kernel.h>
- #include <linux/dma-map-ops.h>
- #include <linux/screen_info.h>
-@@ -64,6 +65,8 @@ static void __init csky_memblock_init(void)
- #endif
- 	memblock_set_current_limit(PFN_PHYS(max_low_pfn));
- 
-+	of_reserved_mem_init();
-+
- 	dma_contiguous_reserve(0);
- 
- 	free_area_init(max_zone_pfn);
-diff --git a/arch/h8300/kernel/setup.c b/arch/h8300/kernel/setup.c
-index 61091a76eb7e..0f0ec72a260e 100644
---- a/arch/h8300/kernel/setup.c
-+++ b/arch/h8300/kernel/setup.c
-@@ -24,6 +24,7 @@
- #include <linux/of.h>
- #include <linux/of_fdt.h>
- #include <linux/of_address.h>
-+#include <linux/of_reserved_mem.h>
- #include <linux/clk-provider.h>
- #include <linux/memblock.h>
- #include <linux/screen_info.h>
-@@ -87,6 +88,7 @@ static void __init bootmem_init(void)
- 
- 	early_init_fdt_reserve_self();
- 	early_init_fdt_scan_reserved_mem();
-+	of_reserved_mem_init();
- 
- 	memblock_dump_all();
- }
-diff --git a/arch/mips/kernel/setup.c b/arch/mips/kernel/setup.c
-index f979adfd4fc2..053a10d80cb9 100644
---- a/arch/mips/kernel/setup.c
-+++ b/arch/mips/kernel/setup.c
-@@ -27,6 +27,7 @@
- #include <linux/dma-map-ops.h>
- #include <linux/decompress/generic.h>
- #include <linux/of_fdt.h>
-+#include <linux/of_reserved_mem.h>
- #include <linux/dmi.h>
- #include <linux/crash_dump.h>
- 
-@@ -776,6 +777,8 @@ void __init setup_arch(char **cmdline_p)
- 	cpu_cache_init();
- 	paging_init();
- 
-+	of_reserved_mem_init();
-+
- 	memblock_dump_all();
- }
- 
-diff --git a/arch/nds32/kernel/setup.c b/arch/nds32/kernel/setup.c
-index b3d34d646652..1054804526c5 100644
---- a/arch/nds32/kernel/setup.c
-+++ b/arch/nds32/kernel/setup.c
-@@ -10,6 +10,7 @@
- #include <linux/dma-mapping.h>
- #include <linux/of_fdt.h>
- #include <linux/of_platform.h>
-+#include <linux/of_reserved_mem.h>
- #include <asm/setup.h>
- #include <asm/sections.h>
- #include <asm/proc-fns.h>
-@@ -301,6 +302,8 @@ void __init setup_arch(char **cmdline_p)
- 	/* paging_init() sets up the MMU and marks all pages as reserved */
- 	paging_init();
- 
-+	of_reserved_mem_init();
-+
- 	/* invalidate all TLB entries because the new mapping is created */
- 	__nds32__tlbop_flua();
- 
-diff --git a/arch/nios2/kernel/setup.c b/arch/nios2/kernel/setup.c
-index 40bc8fb75e0b..7e40e90bc3cd 100644
---- a/arch/nios2/kernel/setup.c
-+++ b/arch/nios2/kernel/setup.c
-@@ -19,6 +19,7 @@
- #include <linux/memblock.h>
- #include <linux/initrd.h>
- #include <linux/of_fdt.h>
-+#include <linux/of_reserved_mem.h>
- #include <linux/screen_info.h>
- 
- #include <asm/mmu_context.h>
-@@ -173,6 +174,7 @@ void __init setup_arch(char **cmdline_p)
- 
- 	early_init_fdt_reserve_self();
- 	early_init_fdt_scan_reserved_mem();
-+	of_reserved_mem_init();
- 
- 	unflatten_and_copy_device_tree();
- 
-diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
-index 0cd04d936a7a..6830bd110ac4 100644
---- a/arch/openrisc/kernel/setup.c
-+++ b/arch/openrisc/kernel/setup.c
-@@ -32,6 +32,7 @@
- #include <linux/initrd.h>
- #include <linux/of_fdt.h>
- #include <linux/of.h>
-+#include <linux/of_reserved_mem.h>
- #include <linux/device.h>
- 
- #include <asm/sections.h>
-@@ -299,6 +300,8 @@ void __init setup_arch(char **cmdline_p)
- 	/* paging_init() sets up the MMU and marks all pages as reserved */
- 	paging_init();
- 
-+	of_reserved_mem_init();
-+
- 	*cmdline_p = boot_command_line;
- 
- 	printk(KERN_INFO "OpenRISC Linux -- http://openrisc.io\n");
-diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
-index 4f1322b65760..1902b4472991 100644
---- a/arch/powerpc/kernel/setup-common.c
-+++ b/arch/powerpc/kernel/setup-common.c
-@@ -31,6 +31,7 @@
- #include <linux/percpu.h>
- #include <linux/memblock.h>
- #include <linux/of_platform.h>
-+#include <linux/of_reserved_mem.h>
- #include <linux/hugetlb.h>
- #include <linux/pgtable.h>
- #include <asm/io.h>
-@@ -840,6 +841,8 @@ void __init setup_arch(char **cmdline_p)
- 	/* Set a half-reasonable default so udelay does something sensible */
- 	loops_per_jiffy = 500000000 / HZ;
- 
-+	of_reserved_mem_init();
-+
- 	/* Unflatten the device-tree passed by prom_init or kexec */
- 	unflatten_device_tree();
- 
-diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
-index b42bfdc67482..e3a211cdf5e1 100644
---- a/arch/riscv/kernel/setup.c
-+++ b/arch/riscv/kernel/setup.c
-@@ -16,6 +16,7 @@
- #include <linux/screen_info.h>
- #include <linux/of_fdt.h>
- #include <linux/of_platform.h>
-+#include <linux/of_reserved_mem.h>
- #include <linux/sched/task.h>
- #include <linux/smp.h>
- #include <linux/efi.h>
-@@ -273,6 +274,7 @@ void __init setup_arch(char **cmdline_p)
- 
- 	efi_init();
- 	paging_init();
-+	of_reserved_mem_init();
- #if IS_ENABLED(CONFIG_BUILTIN_DTB)
- 	unflatten_and_copy_device_tree();
- #else
-diff --git a/arch/sh/kernel/setup.c b/arch/sh/kernel/setup.c
-index 1fcb6659822a..51e85a17c202 100644
---- a/arch/sh/kernel/setup.c
-+++ b/arch/sh/kernel/setup.c
-@@ -31,6 +31,7 @@
- #include <linux/memblock.h>
- #include <linux/of.h>
- #include <linux/of_fdt.h>
-+#include <linux/of_reserved_mem.h>
- #include <linux/uaccess.h>
- #include <uapi/linux/mount.h>
- #include <asm/io.h>
-@@ -326,6 +327,8 @@ void __init setup_arch(char **cmdline_p)
- 	/* Let earlyprintk output early console messages */
- 	sh_early_platform_driver_probe("earlyprintk", 1, 1);
- 
-+	of_reserved_mem_init();
-+
- #ifdef CONFIG_OF_FLATTREE
- #ifdef CONFIG_USE_BUILTIN_DTB
- 	unflatten_and_copy_device_tree();
-diff --git a/arch/xtensa/kernel/setup.c b/arch/xtensa/kernel/setup.c
-index 8db20cfb44ab..527d425490fd 100644
---- a/arch/xtensa/kernel/setup.c
-+++ b/arch/xtensa/kernel/setup.c
-@@ -25,6 +25,7 @@
- #include <linux/cpu.h>
- #include <linux/of.h>
- #include <linux/of_fdt.h>
-+#include <linux/of_reserved_mem.h>
- 
- #if defined(CONFIG_VGA_CONSOLE) || defined(CONFIG_DUMMY_CONSOLE)
- # include <linux/console.h>
-@@ -356,6 +357,7 @@ void __init setup_arch(char **cmdline_p)
- 	parse_early_param();
- 	bootmem_init();
- 	kasan_init();
-+	of_reserved_mem_init();
- 	unflatten_and_copy_device_tree();
- 
- #ifdef CONFIG_SMP
-diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
-index 445af4e69300..715ce8ec6ac6 100644
---- a/drivers/of/fdt.c
-+++ b/drivers/of/fdt.c
-@@ -540,7 +540,6 @@ void __init early_init_fdt_scan_reserved_mem(void)
- 	}
- 
- 	fdt_scan_reserved_mem();
--	of_reserved_mem_init();
- 	fdt_reserve_elfcorehdr();
- }
- 
-diff --git a/drivers/of/of_reserved_mem.c b/drivers/of/of_reserved_mem.c
-index 784cfc5cd251..6dc22a1ad472 100644
---- a/drivers/of/of_reserved_mem.c
-+++ b/drivers/of/of_reserved_mem.c
-@@ -26,9 +26,8 @@
- 
- #include "of_private.h"
- 
--#define MAX_RESERVED_REGIONS	64
--static struct reserved_mem reserved_mems[MAX_RESERVED_REGIONS];
--static int reserved_mem_count;
-+static struct reserved_mem *reserved_mems;
-+static int reserved_mem_count, reserved_mem_max_count;
- 
- static int __init early_init_dt_alloc_reserved_memory_arch(phys_addr_t size,
- 	phys_addr_t align, phys_addr_t start, phys_addr_t end, bool nomap,
-@@ -62,7 +61,7 @@ static void __init fdt_reserved_mem_save_node(unsigned long node, const char *un
- {
- 	struct reserved_mem *rmem = &reserved_mems[reserved_mem_count];
- 
--	if (reserved_mem_count == ARRAY_SIZE(reserved_mems)) {
-+	if (reserved_mem_count == reserved_mem_max_count) {
- 		pr_err("not enough space for all defined regions.\n");
- 		return;
- 	}
-@@ -200,13 +199,12 @@ static int __init __reserved_mem_check_root(unsigned long node)
-  * __reserved_mem_reserve_reg() - reserve all memory described in 'reg' property
-  */
- static int __init __reserved_mem_reserve_reg(unsigned long node,
--					     const char *uname)
-+					     const char *uname, bool reserve_only)
- {
- 	int t_len = (dt_root_addr_cells + dt_root_size_cells) * sizeof(__be32);
- 	phys_addr_t base, size;
- 	int len;
- 	const __be32 *prop;
--	int first = 1;
- 	bool nomap;
- 
- 	prop = of_get_flat_dt_prop(node, "reg", &len);
-@@ -225,30 +223,35 @@ static int __init __reserved_mem_reserve_reg(unsigned long node,
- 		base = dt_mem_next_cell(dt_root_addr_cells, &prop);
- 		size = dt_mem_next_cell(dt_root_size_cells, &prop);
- 
--		if (size &&
--		    early_init_dt_reserve_memory_arch(base, size, nomap) == 0)
--			pr_debug("Reserved memory: reserved region for node '%s': base %pa, size %lu MiB\n",
--				uname, &base, (unsigned long)(size / SZ_1M));
--		else
--			pr_info("Reserved memory: failed to reserve memory for node '%s': base %pa, size %lu MiB\n",
--				uname, &base, (unsigned long)(size / SZ_1M));
--
--		len -= t_len;
--		if (first) {
-+		if (reserve_only) {
-+			if (size &&
-+				early_init_dt_reserve_memory_arch(base, size, nomap) == 0)
-+				pr_debug("Reserved memory: reserved region for node '%s': base %pa, size %lu MiB\n",
-+					uname, &base, (unsigned long)(size / SZ_1M));
-+			else
-+				pr_info("Reserved memory: failed to reserve memory for node '%s': base %pa, size %lu MiB\n",
-+					uname, &base, (unsigned long)(size / SZ_1M));
-+		} else {
- 			fdt_reserved_mem_save_node(node, uname, base, size);
--			first = 0;
-+			break;
- 		}
-+		len -= t_len;
- 	}
- 	return 0;
- }
- 
- /*
-- * fdt_scan_reserved_mem() - scan a single FDT node for reserved memory
-+ * fdt_scan_reserved_mem() - scan /reserved-memory node
-+ *
-+ * Get the max count of regions in the first pass. Early allocator is
-+ * not fully available yet. Store information of reserved region to
-+ * reserved_mems array in the second pass.
-  */
- int __init fdt_scan_reserved_mem(void)
- {
--	int node, child;
-+	int node, child, regions = 0;
- 	const void *fdt = initial_boot_params;
-+	static bool first = true;
- 
- 	node = fdt_path_offset(fdt, "/reserved-memory");
- 	if (node < 0)
-@@ -266,12 +269,19 @@ int __init fdt_scan_reserved_mem(void)
- 		if (!of_fdt_device_is_available(fdt, child))
- 			continue;
- 
-+		regions++;
- 		uname = fdt_get_name(fdt, child, NULL);
- 
--		err = __reserved_mem_reserve_reg(child, uname);
--		if (err == -ENOENT && of_get_flat_dt_prop(child, "size", NULL))
-+		err = __reserved_mem_reserve_reg(child, uname, first);
-+		if (err == -ENOENT && of_get_flat_dt_prop(child, "size", NULL) && !first)
- 			fdt_reserved_mem_save_node(child, uname, 0, 0);
- 	}
-+
-+	if (first) {
-+		reserved_mem_max_count = regions;
-+		first = false;
-+	}
-+
- 	return 0;
- }
- 
-@@ -358,6 +368,20 @@ void __init of_reserved_mem_init(void)
- {
- 	int i;
- 
-+	if (!reserved_mem_max_count)
-+		return;
-+
-+	reserved_mems = memblock_alloc(
-+			sizeof(struct reserved_mem) * reserved_mem_max_count,
-+			SMP_CACHE_BYTES);
-+	if (!reserved_mems) {
-+		reserved_mem_max_count = 0;
-+		pr_err("failed to allocate reserved_mems array.\n");
-+		return;
-+	}
-+
-+	fdt_scan_reserved_mem();
-+
- 	/* check for overlapping reserved regions */
- 	__rmem_check_for_overlap();
- 
--- 
-2.30.2
-
+On Fri, Nov 19, 2021 at 11:56:08AM +0200, Andy Shevchenko wrote:
+>On Fri, Nov 19, 2021 at 03:58:19PM +0800, Calvin Zhang wrote:
+>> Change to allocate reserved_mems dynamically. Static reserved regions
+>> must be reserved before any memblock allocations. The reserved_mems
+>> array couldn't be allocated until memblock and linear mapping are ready.
+>> 
+>> So move the allocation and initialization of records and reserved memory
+>> from early_init_fdt_scan_reserved_mem() to of_reserved_mem_init().
+>
+>>  arch/arc/mm/init.c                 |  3 ++
+>>  arch/arm/kernel/setup.c            |  2 +
+>>  arch/arm64/kernel/setup.c          |  3 ++
+>>  arch/csky/kernel/setup.c           |  3 ++
+>>  arch/h8300/kernel/setup.c          |  2 +
+>>  arch/mips/kernel/setup.c           |  3 ++
+>>  arch/nds32/kernel/setup.c          |  3 ++
+>>  arch/nios2/kernel/setup.c          |  2 +
+>>  arch/openrisc/kernel/setup.c       |  3 ++
+>>  arch/powerpc/kernel/setup-common.c |  3 ++
+>>  arch/riscv/kernel/setup.c          |  2 +
+>>  arch/sh/kernel/setup.c             |  3 ++
+>>  arch/xtensa/kernel/setup.c         |  2 +
+>
+>Isn't x86 missed? Is it on purpose?
+>Would be nice to have this in the commit message or fixed accordingly.
+AFAIK, x86 doesn't reserve memory through "/reserved-memory" node until now.
+Actually, I got the arch list from callers of
+early_init_fdt_scan_reserved_mem().
+>
+>-- 
+>With Best Regards,
+>Andy Shevchenko
+>
+>
+>
+Thanks,
+Calvin
