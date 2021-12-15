@@ -1,101 +1,55 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Wed, 15 Dec 2021 14:37:23 +0900
-Subject: [OpenRISC] [PATCH v3 00/13] Glibc OpenRISC port
-In-Reply-To: <cedcb34e-36e3-3bb8-07b7-8412c052b81d@linaro.org>
+Date: Thu, 16 Dec 2021 08:33:46 +0900
+Subject: [OpenRISC] [PATCH v3 03/13] or1k: ABI Implementation
+In-Reply-To: <86e61afa-ab95-62e1-10a7-3de71db8deb8@linaro.org>
 References: <20211210233456.4146479-1-shorne@gmail.com>
- <cedcb34e-36e3-3bb8-07b7-8412c052b81d@linaro.org>
-Message-ID: <Ybl/E2BWBGRMwF0G@antec>
+ <20211210233456.4146479-4-shorne@gmail.com>
+ <a0644ab7-85a5-e22d-607e-4e6761d87610@linaro.org>
+ <alpine.DEB.2.22.394.2112142242120.1558178@digraph.polyomino.org.uk>
+ <86e61afa-ab95-62e1-10a7-3de71db8deb8@linaro.org>
+Message-ID: <CAAfxs769tWjv-T=vCBpDPn9BB5KCZshzWoCfcejhd47-wZKHcA@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Dec 14, 2021 at 05:25:09PM -0300, Adhemerval Zanella wrote:
-> 
-> 
-> On 10/12/2021 20:34, Stafford Horne via Libc-alpha wrote:
-> > This is the OpenRISC port for glibc that I have been working on.
-> > 
-> > Changes since v2:
-> >  - Fixed suggestions from Joseph Myers:
-> >    - Fix comment style, and description on top of each file
-> >    - Make sure macros have parentheses when needed,
-> >    - Bump required kernel down to 5.4.0 and document
-> >    - Regenerate arch-syscall.h
-> >  - Fixed suggestions from Adhemerval:
-> >    - Remove kernel_stat.h
-> >    - Just set MMAP2_PAGE_UNIT to 8K
-> >    - Remove ioctl.c and syscall.c files
-> >  - Update TCB alignment to 32 bytes
-> > 
-> > Changes since v1:
-> >  - Update api's as suggested by Florian
-> >  - Remove hard float support
-> >  - Updates to get all tests passing
-> >  - Split patch into managable bits similar to recent ARC port
-> > 
-> > Documentation:
-> > 
-> >   Architecture / ABI docs:
-> >    https://raw.githubusercontent.com/openrisc/doc/master/openrisc-arch-1.3-rev1.pdf
-> > 
-> > Test Results:
-> > 
-> >   build-many-glibcs.py:
-> > 
-> >    PASS with mainline ang gcc-11.
-> > 
-> >   Full test suite:
-> > 
-> >    The full suite is running using the gcc-11 branch of GCC, mainline shows
-> >    issues with math soft-fp.
-> > 
-> >    Note, there are a few more failures compared to before, this is due to me
-> >    running with a timeout of 30 vs usual 300.  It allows the tests to complete
-> >    faster, but I get a few more timeouts.  There were 15 timeouts which I
-> >    confirm do work if I increase the timeoutfactor. The 2 real failures marked
-> >    with * below.
-> > 
-> >     # test start:    2021-12-08T19:59:00+09:00
-> > 
-> >     # failures
-> >     FAIL:*elf/tst-bz15311
-> 
-> This seems to be a real issue, the output shows the new sorting algorithm seems 
-> not be enabled (the output shows the destructor order for dynamic_sort=1).  We 
-> need to figure out what is happening here.
+On Wed, Dec 15, 2021, 10:15 AM Adhemerval Zanella <
+adhemerval.zanella@linaro.org> wrote:
+
 >
-> >     FAIL: locale/tst-localedef-path-norm
-> >     FAIL: malloc/tst-dynarray-fail
-> >     FAIL: malloc/tst-dynarray-fail-mem
-> >     FAIL: nptl/tst-mutex10
-> >     FAIL: nss/tst-nss-files-hosts-getent
-> >     FAIL: nss/tst-nss-files-hosts-multi
-> >     FAIL: posix/tst-regcomp-truncated
-> >     FAIL: stdio-common/tst-vfprintf-width-prec
-> >     FAIL: stdio-common/tst-vfprintf-width-prec-alloc
-> >     FAIL: stdio-common/tst-vfprintf-width-prec-mem
-> >     FAIL: string/test-memcpy
-> >     FAIL: string/test-memcpy-large
-> >     FAIL: string/test-mempcpy
-> >     FAIL: string/tst-cmp
-> >     FAIL: support/tst-support_blob_repeat
-> >     FAIL:*timezone/tst-tzset
-> 
-> It seems the testing file system does not support sparse files or at least
-> has some limits of the file size and support_descriptor_supports_holes is
-> no deteting it.
+>
+> On 14/12/2021 19:43, Joseph Myers wrote:
+> > On Tue, 14 Dec 2021, Adhemerval Zanella via Libc-alpha wrote:
+> >
+> >> +if test "x$profile" != xno; then
+> >> +  if test "x$with_profile" == xno; then
+> >> +    AC_MSG_ERROR([ABI does not support profiling])
+> >
+> > Using == in test is a bashism.
+> >
+> > I'd expect such a change to require the build-many-glibcs.py
+> configuration
+> > for OpenRISC to use --disable-profile.
+> >
+>
+> I ended up mixing up things and what or1k does not support is LD_PROFILE
+> instead of --enable-profile.  In this case I am not sure if it would
+> be better to just not enable it (by ignoring the LD_PROFILE handling
+> in rtld.c or dl-support.c) and emitting a warning or by just dumping
+> and error at process initialization.
+>
 
-Let me see if I can figure out the sparse file support.  If that can work
-then it would be good.  The filesystem I am using is:
+I checked, new ports like csky and arc also do not seem to support
+LD_PROFILE.  They choose not to leave a placeholder block in dl-machine.h
+like I did in or1k.
 
- tmpfs on /tmp type tmpfs (rw,relatime)
-
-> I think we should use a large write_offset and block_headroom, maybe
-> something larger than 32-bit offset to actually check it.  Could you
-> check if increasing both values does make the test unsupported.
-
-I will check.
+I could remove the comment, or replace it with an abort, but I prefer to
+keep it as it makes it clear where to add the dynamic linker profile hook.
 
 -Stafford
+
+>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20211216/34746710/attachment.htm>
