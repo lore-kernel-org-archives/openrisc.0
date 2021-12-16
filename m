@@ -1,17 +1,17 @@
 From: Adhemerval Zanella <adhemerval.zanella@linaro.org>
-Date: Thu, 16 Dec 2021 08:35:23 -0300
+Date: Thu, 16 Dec 2021 09:37:26 -0300
 Subject: [OpenRISC] [PATCH v3 05/13] or1k: Thread Local Storage support
 In-Reply-To: <20211210233456.4146479-6-shorne@gmail.com>
 References: <20211210233456.4146479-1-shorne@gmail.com>
  <20211210233456.4146479-6-shorne@gmail.com>
-Message-ID: <5d8b4ef3-5549-8c1a-9704-efc0221f4467@linaro.org>
+Message-ID: <2e024bfa-b5c2-2444-1b64-ca8f63e932b6@linaro.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-
+(resending because I hit send button too soon).
 
 On 10/12/2021 20:34, Stafford Horne via Libc-alpha wrote:
 > OpenRISC includes 3 TLS addressing models.  Local Dynamic optimizations
@@ -116,8 +116,11 @@ On 10/12/2021 20:34, Stafford Horne via Libc-alpha wrote:
 > +TID_OFFSET                      offsetof (struct pthread, tid)
 > +TP_TO_PTHREAD_OFFSET            -(sizeof (struct pthread) + sizeof (tcbhead_t))
 
-There are not used anywhere, so you can use an empty file for now.  And I
-think these definitions are not used in most architectures, if any. 
+There are not used anywhere, so you can remove the file along with
+sysdeps/or1k/nptl/Makefile.
+
+And I think these definitions are not used in most architectures, I will
+remove from the architectures that do not use it.
 
 > diff --git a/sysdeps/or1k/nptl/tls.h b/sysdeps/or1k/nptl/tls.h
 > new file mode 100644
@@ -166,6 +169,9 @@ think these definitions are not used in most architectures, if any.
 > +
 > +#else /* __ASSEMBLER__ */
 > +# include <tcb-offsets.h>
+
+Remove the include, or1k currently does not use it.
+
 > +#endif /* __ASSEMBLER__ */
 > +
 > +#ifndef __ASSEMBLER__
@@ -352,5 +358,9 @@ think these definitions are not used in most architectures, if any.
 > +/* Default to an executable stack.  PF_X can be overridden if PT_GNU_STACK is
 > +   present, but it is presumed absent.  */
 > +#define DEFAULT_STACK_PERMS (PF_R | PF_W | PF_X)
+
+Do you really a default stack executable? It is only done for older ABIs and that's
+why PT_GNU_STACK was created. Newer ports, like arc and csky assumes otherwise.
+
 > +
 > +#endif /* stackinfo.h */
