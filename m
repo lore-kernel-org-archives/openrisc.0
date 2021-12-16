@@ -1,1420 +1,245 @@
-From: Adhemerval Zanella <adhemerval.zanella@linaro.org>
-Date: Thu, 16 Dec 2021 16:48:06 -0300
-Subject: [OpenRISC] [PATCH v3 07/13] or1k: math soft float support
-In-Reply-To: <20211210233456.4146479-8-shorne@gmail.com>
-References: <20211210233456.4146479-1-shorne@gmail.com>
- <20211210233456.4146479-8-shorne@gmail.com>
-Message-ID: <0ec2704d-e916-63cf-f338-a9c70ec4b66f@linaro.org>
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Thu, 16 Dec 2021 18:29:40 +0100
+Subject: [OpenRISC] [PATCH v2 00/13] Unify asm/unaligned.h around struct
+ helper
+In-Reply-To: <20210514100106.3404011-1-arnd@kernel.org>
+References: <20210514100106.3404011-1-arnd@kernel.org>
+Message-ID: <CAMj1kXG0CNomZ0aXxh_4094fT+g4bVWFCkrd7QwgTQgiqoxMWA@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
+Hi Arnd,
+
+(replying to an old thread as this came up in the discussion regarding
+misaligned loads and stored in siphash() when compiled for ARM
+[f7e5b9bfa6c8820407b64eabc1f29c9a87e8993d])
+
+On Fri, 14 May 2021 at 12:02, Arnd Bergmann <arnd@kernel.org> wrote:
+>
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> The get_unaligned()/put_unaligned() helpers are traditionally architecture
+> specific, with the two main variants being the "access-ok.h" version
+> that assumes unaligned pointer accesses always work on a particular
+> architecture, and the "le-struct.h" version that casts the data to a
+> byte aligned type before dereferencing, for architectures that cannot
+> always do unaligned accesses in hardware.
+>
+> Based on the discussion linked below, it appears that the access-ok
+> version is not realiable on any architecture, but the struct version
+> probably has no downsides. This series changes the code to use the
+> same implementation on all architectures, addressing the few exceptions
+> separately.
+>
+> I've included this version in the asm-generic tree for 5.14 already,
+> addressing the few issues that were pointed out in the RFC. If there
+> are any remaining problems, I hope those can be addressed as follow-up
+> patches.
+>
+
+I think this series is a huge improvement, but it does not solve the
+UB problem completely. As we found, there are open issues in the GCC
+bugzilla regarding assumptions in the compiler that aligned quantities
+either overlap entirely or not at all. (e.g.,
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100363)
+
+CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS is used in many places to
+conditionally emit code that violates C alignment rules. E.g., there
+is this example in Documentation/core-api/unaligned-memory-access.rst:
+
+bool ether_addr_equal(const u8 *addr1, const u8 *addr2)
+{
+#ifdef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+  u32 fold = ((*(const u32 *)addr1) ^ (*(const u32 *)addr2)) |
+             ((*(const u16 *)(addr1 + 4)) ^ (*(const u16 *)(addr2 + 4)));
+  return fold == 0;
+#else
+...
+
+(which now deviates from its actual implementation, but the point is
+the same) where CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS is used in the
+wrong way (IMHO).
+
+The pattern seems to be
+
+#ifdef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+  // ignore alignment rules, just cast to a more aligned pointer type
+#else
+  // use unaligned accessors, which could be either cheap or expensive,
+  // depending on the architecture
+#endif
+
+whereas the following pattern makes more sense, I think, and does not
+violate any C rules in the common case:
+
+#ifdef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+  // use unaligned accessors, which are cheap or even entirely free
+#else
+  // avoid unaligned accessors, as they are expensive; instead, reorganize
+  // the data so we don't need them (similar to setting NET_IP_ALIGN to 2)
+#endif
+
+The only remaining problem here is reinterpreting a char* pointer to a
+u32*, e.g., for accessing the IP address in an Ethernet frame when
+NET_IP_ALIGN == 2, which could suffer from the same UB problem again,
+as I understand it.
+
+In the 32-bit ARM case (v6+) [which is admittedly an outlier] this
+makes a substantial difference, as ARMv6 does have efficient unaligned
+accessors (load/store word or halfword may be used on misaligned
+addresses) but requires that load/store double-word and load/store
+multiple are only used on 32-bit aligned addresses. GCC does the right
+thing with the unaligned accessors, but blindly casting away
+misalignment may result in alignment traps if the compiler happened to
+emit load-double or load-multiple instructions for the memory access
+in question.
+
+Jason already verifed that in the siphash() case, the aligned and
+unaligned versions of the code actually compile to the same machine
+code on x86, as the unaligned accessors just disappear. I suspect this
+to be the case for many instances where
+CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS is being used, mostly in the
+networking stack.
+
+So I intend to dig a bit deeper into this, and perhaps propose some
+changes where the interpretation of
+CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS is documented more clearly, and
+tweaked according to my suggestion above (while ensuring that codegen
+does not suffer, of course)
+
+Thoughts, concerns, objections?
 
 
-On 10/12/2021 20:34, Stafford Horne via Libc-alpha wrote:
-> OpenRISC support hard float but I will like to submit that after glibc
-> soft float goes upstream.  The hard float support depends on adding user
-> access to the FPCSR, which is not supported by the kernel yet.
+--
+Ard.
 
-The patch looks ok in general, the fenv bits matches the documentation. 
 
-> ---
->  sysdeps/or1k/bits/fenv.h                   |   69 ++
->  sysdeps/or1k/libm-test-ulps                | 1112 ++++++++++++++++++++
->  sysdeps/or1k/libm-test-ulps-name           |    1 +
->  sysdeps/or1k/nofpu/math-tests-exceptions.h |   29 +
->  sysdeps/or1k/nofpu/math-tests-rounding.h   |   28 +
->  sysdeps/or1k/sfp-machine.h                 |   93 ++
->  sysdeps/or1k/tininess.h                    |    1 +
->  7 files changed, 1333 insertions(+)
->  create mode 100644 sysdeps/or1k/bits/fenv.h
->  create mode 100644 sysdeps/or1k/libm-test-ulps
->  create mode 100644 sysdeps/or1k/libm-test-ulps-name
->  create mode 100644 sysdeps/or1k/nofpu/math-tests-exceptions.h
->  create mode 100644 sysdeps/or1k/nofpu/math-tests-rounding.h
->  create mode 100644 sysdeps/or1k/sfp-machine.h
->  create mode 100644 sysdeps/or1k/tininess.h
-> 
-> diff --git a/sysdeps/or1k/bits/fenv.h b/sysdeps/or1k/bits/fenv.h
-> new file mode 100644
-> index 0000000000..721136a57d
-> --- /dev/null
-> +++ b/sysdeps/or1k/bits/fenv.h
-> @@ -0,0 +1,69 @@
-> +/* Floating point environment, OpenRISC version.
-> +   Copyright (C) 2021 Free Software Foundation, Inc.
-> +
-> +   This file is part of the GNU C Library.
-> +
-> +   The GNU C Library is free software; you can redistribute it and/or
-> +   modify it under the terms of the GNU Lesser General Public License as
-> +   published by the Free Software Foundation; either version 2.1 of the
-> +   License, or (at your option) any later version.
-> +
-> +   The GNU C Library is distributed in the hope that it will be useful,
-> +   but WITHOUT ANY WARRANTY; without even the implied warranty of
-> +   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> +   Lesser General Public License for more details.
-> +
-> +   You should have received a copy of the GNU Lesser General Public
-> +   License along with the GNU C Library; if not, see
-> +   <https://www.gnu.org/licenses/>.  */
-> +
-> +#ifndef _FENV_H
-> +# error "Never use <bits/fenv.h> directly; include <fenv.h> instead."
-> +#endif
-> +
-> +/* Define bits representing exceptions in the FPCSR status word.  */
-> +enum
-> +  {
-> +    FE_OVERFLOW =
-> +#define FE_OVERFLOW	(1 << 3)
-> +      FE_OVERFLOW,
-> +    FE_UNDERFLOW =
-> +#define FE_UNDERFLOW	(1 << 4)
-> +      FE_UNDERFLOW,
-> +    FE_INEXACT =
-> +#define FE_INEXACT	(1 << 8)
-> +      FE_INEXACT,
-> +    FE_INVALID =
-> +#define FE_INVALID	(1 << 9)
-> +      FE_INVALID,
-> +    FE_DIVBYZERO =
-> +#define FE_DIVBYZERO	(1 << 11)
-> +      FE_DIVBYZERO,
-> +  };
-> +
 
-Ok, these match the recv 1.3 documentation.
 
-> +/* All supported exceptions.  */
-> +#define FE_ALL_EXCEPT	\
-> +	(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT)
-> +
-> +/* Define bits representing rounding modes in the FPCSR Rmode field.  */
-> +#define FE_TONEAREST  (0x0 << 1)
-> +#define FE_TOWARDZERO (0x1 << 1)
-> +#define FE_UPWARD     (0x2 << 1)
-> +#define FE_DOWNWARD   (0x3 << 1)
-> +
-
-Same.
-
-> +/* Type representing exception flags.  */
-> +typedef unsigned int fexcept_t;
-> +
-> +/* Type representing floating-point environment.  */
-> +typedef unsigned int fenv_t;
-> +
-> +/* If the default argument is used we use this value.  */
-> +#define FE_DFL_ENV	((const fenv_t *) -1l)
-> +
-> +#if __GLIBC_USE (IEC_60559_BFP_EXT)
-> +/* Type representing floating-point control modes.  */
-> +typedef unsigned int femode_t;
-> +
-> +/* Default floating-point control modes.  */
-> +# define FE_DFL_MODE	((const femode_t *) -1L)
-> +#endif
-> diff --git a/sysdeps/or1k/libm-test-ulps b/sysdeps/or1k/libm-test-ulps
-> new file mode 100644
-> index 0000000000..94b383669d
-> --- /dev/null
-> +++ b/sysdeps/or1k/libm-test-ulps
-> @@ -0,0 +1,1112 @@
-> +# Begin of automatic generation
-> +
-> +# Maximal error of functions:
-> +Function: "acos":
-> +double: 1
-> +float: 1
-> +
-> +Function: "acos_downward":
-> +double: 1
-> +float: 1
-> +
-> +Function: "acos_towardzero":
-> +double: 1
-> +float: 1
-> +
-> +Function: "acos_upward":
-> +double: 1
-> +float: 1
-> +
-> +Function: "acosh":
-> +double: 2
-> +float: 2
-> +
-> +Function: "acosh_downward":
-> +double: 2
-> +float: 2
-> +
-> +Function: "acosh_towardzero":
-> +double: 2
-> +float: 2
-> +
-> +Function: "acosh_upward":
-> +double: 2
-> +float: 2
-> +
-> +Function: "asin":
-> +double: 1
-> +float: 1
-> +
-> +Function: "asin_downward":
-> +double: 1
-> +float: 1
-> +
-> +Function: "asin_towardzero":
-> +double: 1
-> +float: 1
-> +
-> +Function: "asin_upward":
-> +double: 1
-> +float: 1
-> +
-> +Function: "asinh":
-> +double: 2
-> +float: 2
-> +
-> +Function: "asinh_downward":
-> +double: 3
-> +float: 3
-> +
-> +Function: "asinh_towardzero":
-> +double: 2
-> +float: 2
-> +
-> +Function: "asinh_upward":
-> +double: 3
-> +float: 3
-> +
-> +Function: "atan":
-> +double: 1
-> +float: 1
-> +
-> +Function: "atan2":
-> +float: 2
-> +
-> +Function: "atan2_downward":
-> +double: 5
-> +float: 2
-> +
-> +Function: "atan2_towardzero":
-> +double: 5
-> +float: 2
-> +
-> +Function: "atan2_upward":
-> +double: 8
-> +float: 2
-> +
-> +Function: "atan_downward":
-> +double: 1
-> +float: 2
-> +
-> +Function: "atan_towardzero":
-> +double: 1
-> +float: 1
-> +
-> +Function: "atan_upward":
-> +double: 1
-> +float: 2
-> +
-> +Function: "atanh":
-> +double: 2
-> +float: 2
-> +
-> +Function: "atanh_downward":
-> +double: 3
-> +float: 3
-> +
-> +Function: "atanh_towardzero":
-> +double: 2
-> +float: 2
-> +
-> +Function: "atanh_upward":
-> +double: 3
-> +float: 3
-> +
-> +Function: "cabs":
-> +double: 1
-> +
-> +Function: "cabs_downward":
-> +double: 1
-> +
-> +Function: "cabs_towardzero":
-> +double: 1
-> +
-> +Function: "cabs_upward":
-> +double: 1
-> +
-> +Function: Real part of "cacos":
-> +double: 1
-> +float: 2
-> +
-> +Function: Imaginary part of "cacos":
-> +double: 2
-> +float: 2
-> +
-> +Function: Real part of "cacos_downward":
-> +double: 3
-> +float: 2
-> +
-> +Function: Imaginary part of "cacos_downward":
-> +double: 5
-> +float: 3
-> +
-> +Function: Real part of "cacos_towardzero":
-> +double: 3
-> +float: 2
-> +
-> +Function: Imaginary part of "cacos_towardzero":
-> +double: 4
-> +float: 2
-> +
-> +Function: Real part of "cacos_upward":
-> +double: 2
-> +float: 2
-> +
-> +Function: Imaginary part of "cacos_upward":
-> +double: 5
-> +float: 7
-> +
-> +Function: Real part of "cacosh":
-> +double: 2
-> +float: 2
-> +
-> +Function: Imaginary part of "cacosh":
-> +double: 1
-> +float: 2
-> +
-> +Function: Real part of "cacosh_downward":
-> +double: 4
-> +float: 2
-> +
-> +Function: Imaginary part of "cacosh_downward":
-> +double: 3
-> +float: 3
-> +
-> +Function: Real part of "cacosh_towardzero":
-> +double: 4
-> +float: 2
-> +
-> +Function: Imaginary part of "cacosh_towardzero":
-> +double: 3
-> +float: 2
-> +
-> +Function: Real part of "cacosh_upward":
-> +double: 4
-> +float: 3
-> +
-> +Function: Imaginary part of "cacosh_upward":
-> +double: 3
-> +float: 2
-> +
-> +Function: "carg":
-> +float: 1
-> +
-> +Function: "carg_downward":
-> +double: 5
-> +float: 2
-> +
-> +Function: "carg_towardzero":
-> +double: 5
-> +float: 2
-> +
-> +Function: "carg_upward":
-> +double: 8
-> +float: 2
-> +
-> +Function: Real part of "casin":
-> +double: 1
-> +float: 1
-> +
-> +Function: Imaginary part of "casin":
-> +double: 2
-> +float: 2
-> +
-> +Function: Real part of "casin_downward":
-> +double: 3
-> +float: 2
-> +
-> +Function: Imaginary part of "casin_downward":
-> +double: 5
-> +float: 3
-> +
-> +Function: Real part of "casin_towardzero":
-> +double: 3
-> +float: 1
-> +
-> +Function: Imaginary part of "casin_towardzero":
-> +double: 4
-> +float: 2
-> +
-> +Function: Real part of "casin_upward":
-> +double: 3
-> +float: 2
-> +
-> +Function: Imaginary part of "casin_upward":
-> +double: 5
-> +float: 7
-> +
-> +Function: Real part of "casinh":
-> +double: 2
-> +float: 2
-> +
-> +Function: Imaginary part of "casinh":
-> +double: 1
-> +float: 1
-> +
-> +Function: Real part of "casinh_downward":
-> +double: 5
-> +float: 3
-> +
-> +Function: Imaginary part of "casinh_downward":
-> +double: 3
-> +float: 2
-> +
-> +Function: Real part of "casinh_towardzero":
-> +double: 4
-> +float: 2
-> +
-> +Function: Imaginary part of "casinh_towardzero":
-> +double: 3
-> +float: 1
-> +
-> +Function: Real part of "casinh_upward":
-> +double: 5
-> +float: 7
-> +
-> +Function: Imaginary part of "casinh_upward":
-> +double: 3
-> +float: 2
-> +
-> +Function: Real part of "catan":
-> +double: 1
-> +float: 1
-> +
-> +Function: Imaginary part of "catan":
-> +double: 1
-> +float: 1
-> +
-> +Function: Real part of "catan_downward":
-> +double: 1
-> +float: 2
-> +
-> +Function: Imaginary part of "catan_downward":
-> +double: 2
-> +float: 2
-> +
-> +Function: Real part of "catan_towardzero":
-> +double: 1
-> +float: 2
-> +
-> +Function: Imaginary part of "catan_towardzero":
-> +double: 2
-> +float: 2
-> +
-> +Function: Real part of "catan_upward":
-> +double: 2
-> +float: 1
-> +
-> +Function: Imaginary part of "catan_upward":
-> +double: 2
-> +float: 2
-> +
-> +Function: Real part of "catanh":
-> +double: 1
-> +float: 1
-> +
-> +Function: Imaginary part of "catanh":
-> +double: 1
-> +float: 1
-> +
-> +Function: Real part of "catanh_downward":
-> +double: 2
-> +float: 2
-> +
-> +Function: Imaginary part of "catanh_downward":
-> +double: 1
-> +float: 2
-> +
-> +Function: Real part of "catanh_towardzero":
-> +double: 2
-> +float: 2
-> +
-> +Function: Imaginary part of "catanh_towardzero":
-> +double: 1
-> +float: 2
-> +
-> +Function: Real part of "catanh_upward":
-> +double: 4
-> +float: 4
-> +
-> +Function: Imaginary part of "catanh_upward":
-> +double: 2
-> +float: 1
-> +
-> +Function: "cbrt":
-> +double: 4
-> +float: 1
-> +
-> +Function: "cbrt_downward":
-> +double: 4
-> +float: 1
-> +
-> +Function: "cbrt_towardzero":
-> +double: 3
-> +float: 1
-> +
-> +Function: "cbrt_upward":
-> +double: 5
-> +float: 1
-> +
-> +Function: Real part of "ccos":
-> +double: 1
-> +float: 1
-> +
-> +Function: Imaginary part of "ccos":
-> +double: 1
-> +float: 1
-> +
-> +Function: Real part of "ccos_downward":
-> +double: 3
-> +float: 1
-> +
-> +Function: Imaginary part of "ccos_downward":
-> +double: 3
-> +float: 3
-> +
-> +Function: Real part of "ccos_towardzero":
-> +double: 3
-> +float: 2
-> +
-> +Function: Imaginary part of "ccos_towardzero":
-> +double: 3
-> +float: 3
-> +
-> +Function: Real part of "ccos_upward":
-> +double: 1
-> +float: 2
-> +
-> +Function: Imaginary part of "ccos_upward":
-> +double: 2
-> +float: 2
-> +
-> +Function: Real part of "ccosh":
-> +double: 2
-> +float: 1
-> +
-> +Function: Imaginary part of "ccosh":
-> +double: 1
-> +float: 1
-> +
-> +Function: Real part of "ccosh_downward":
-> +double: 3
-> +float: 2
-> +
-> +Function: Imaginary part of "ccosh_downward":
-> +double: 3
-> +float: 3
-> +
-> +Function: Real part of "ccosh_towardzero":
-> +double: 3
-> +float: 3
-> +
-> +Function: Imaginary part of "ccosh_towardzero":
-> +double: 3
-> +float: 3
-> +
-> +Function: Real part of "ccosh_upward":
-> +double: 1
-> +float: 2
-> +
-> +Function: Imaginary part of "ccosh_upward":
-> +double: 2
-> +float: 2
-> +
-> +Function: Real part of "cexp":
-> +double: 2
-> +float: 1
-> +
-> +Function: Imaginary part of "cexp":
-> +double: 1
-> +float: 2
-> +
-> +Function: Real part of "cexp_downward":
-> +double: 4
-> +float: 2
-> +
-> +Function: Imaginary part of "cexp_downward":
-> +double: 3
-> +float: 3
-> +
-> +Function: Real part of "cexp_towardzero":
-> +double: 4
-> +float: 2
-> +
-> +Function: Imaginary part of "cexp_towardzero":
-> +double: 3
-> +float: 3
-> +
-> +Function: Real part of "cexp_upward":
-> +double: 2
-> +float: 2
-> +
-> +Function: Imaginary part of "cexp_upward":
-> +double: 3
-> +float: 2
-> +
-> +Function: Real part of "clog":
-> +double: 3
-> +float: 3
-> +
-> +Function: Imaginary part of "clog":
-> +double: 1
-> +float: 1
-> +
-> +Function: Real part of "clog10":
-> +double: 3
-> +float: 4
-> +
-> +Function: Imaginary part of "clog10":
-> +double: 2
-> +float: 2
-> +
-> +Function: Real part of "clog10_downward":
-> +double: 7
-> +float: 5
-> +
-> +Function: Imaginary part of "clog10_downward":
-> +double: 8
-> +float: 4
-> +
-> +Function: Real part of "clog10_towardzero":
-> +double: 5
-> +float: 5
-> +
-> +Function: Imaginary part of "clog10_towardzero":
-> +double: 8
-> +float: 4
-> +
-> +Function: Real part of "clog10_upward":
-> +double: 6
-> +float: 5
-> +
-> +Function: Imaginary part of "clog10_upward":
-> +double: 5
-> +float: 4
-> +
-> +Function: Real part of "clog_downward":
-> +double: 4
-> +float: 3
-> +
-> +Function: Imaginary part of "clog_downward":
-> +double: 5
-> +float: 2
-> +
-> +Function: Real part of "clog_towardzero":
-> +double: 8
-> +float: 4
-> +
-> +Function: Imaginary part of "clog_towardzero":
-> +double: 5
-> +float: 3
-> +
-> +Function: Real part of "clog_upward":
-> +double: 8
-> +float: 3
-> +
-> +Function: Imaginary part of "clog_upward":
-> +double: 8
-> +float: 2
-> +
-> +Function: "cos":
-> +double: 1
-> +float: 1
-> +
-> +Function: "cos_downward":
-> +double: 1
-> +float: 1
-> +
-> +Function: "cos_towardzero":
-> +double: 4
-> +float: 1
-> +
-> +Function: "cos_upward":
-> +double: 4
-> +float: 1
-> +
-> +Function: "cosh":
-> +double: 2
-> +float: 2
-> +
-> +Function: "cosh_downward":
-> +double: 2
-> +float: 1
-> +
-> +Function: "cosh_towardzero":
-> +double: 2
-> +float: 1
-> +
-> +Function: "cosh_upward":
-> +double: 2
-> +float: 2
-> +
-> +Function: Real part of "cpow":
-> +double: 2
-> +float: 5
-> +
-> +Function: Imaginary part of "cpow":
-> +float: 2
-> +
-> +Function: Real part of "cpow_downward":
-> +double: 5
-> +float: 8
-> +
-> +Function: Imaginary part of "cpow_downward":
-> +double: 2
-> +float: 2
-> +
-> +Function: Real part of "cpow_towardzero":
-> +double: 5
-> +float: 8
-> +
-> +Function: Imaginary part of "cpow_towardzero":
-> +double: 2
-> +float: 2
-> +
-> +Function: Real part of "cpow_upward":
-> +double: 4
-> +float: 1
-> +
-> +Function: Imaginary part of "cpow_upward":
-> +double: 2
-> +float: 2
-> +
-> +Function: Real part of "csin":
-> +double: 1
-> +float: 1
-> +
-> +Function: Real part of "csin_downward":
-> +double: 3
-> +float: 3
-> +
-> +Function: Imaginary part of "csin_downward":
-> +double: 3
-> +float: 1
-> +
-> +Function: Real part of "csin_towardzero":
-> +double: 3
-> +float: 3
-> +
-> +Function: Imaginary part of "csin_towardzero":
-> +double: 3
-> +float: 1
-> +
-> +Function: Real part of "csin_upward":
-> +double: 2
-> +float: 2
-> +
-> +Function: Imaginary part of "csin_upward":
-> +double: 1
-> +float: 2
-> +
-> +Function: Real part of "csinh":
-> +float: 1
-> +
-> +Function: Imaginary part of "csinh":
-> +double: 1
-> +float: 1
-> +
-> +Function: Real part of "csinh_downward":
-> +double: 3
-> +float: 1
-> +
-> +Function: Imaginary part of "csinh_downward":
-> +double: 3
-> +float: 3
-> +
-> +Function: Real part of "csinh_towardzero":
-> +double: 3
-> +float: 2
-> +
-> +Function: Imaginary part of "csinh_towardzero":
-> +double: 3
-> +float: 3
-> +
-> +Function: Real part of "csinh_upward":
-> +double: 1
-> +float: 2
-> +
-> +Function: Imaginary part of "csinh_upward":
-> +double: 2
-> +float: 2
-> +
-> +Function: Real part of "csqrt":
-> +double: 2
-> +float: 2
-> +
-> +Function: Imaginary part of "csqrt":
-> +double: 2
-> +float: 2
-> +
-> +Function: Real part of "csqrt_downward":
-> +double: 5
-> +float: 4
-> +
-> +Function: Imaginary part of "csqrt_downward":
-> +double: 4
-> +float: 3
-> +
-> +Function: Real part of "csqrt_towardzero":
-> +double: 4
-> +float: 3
-> +
-> +Function: Imaginary part of "csqrt_towardzero":
-> +double: 4
-> +float: 3
-> +
-> +Function: Real part of "csqrt_upward":
-> +double: 5
-> +float: 4
-> +
-> +Function: Imaginary part of "csqrt_upward":
-> +double: 3
-> +float: 3
-> +
-> +Function: Real part of "ctan":
-> +double: 1
-> +float: 1
-> +
-> +Function: Imaginary part of "ctan":
-> +double: 2
-> +float: 2
-> +
-> +Function: Real part of "ctan_downward":
-> +double: 6
-> +float: 5
-> +
-> +Function: Imaginary part of "ctan_downward":
-> +double: 3
-> +float: 2
-> +
-> +Function: Real part of "ctan_towardzero":
-> +double: 5
-> +float: 3
-> +
-> +Function: Imaginary part of "ctan_towardzero":
-> +double: 3
-> +float: 2
-> +
-> +Function: Real part of "ctan_upward":
-> +double: 2
-> +float: 4
-> +
-> +Function: Imaginary part of "ctan_upward":
-> +double: 2
-> +float: 1
-> +
-> +Function: Real part of "ctanh":
-> +double: 2
-> +float: 2
-> +
-> +Function: Imaginary part of "ctanh":
-> +double: 2
-> +float: 2
-> +
-> +Function: Real part of "ctanh_downward":
-> +double: 3
-> +float: 2
-> +
-> +Function: Imaginary part of "ctanh_downward":
-> +double: 6
-> +float: 5
-> +
-> +Function: Real part of "ctanh_towardzero":
-> +double: 3
-> +float: 2
-> +
-> +Function: Imaginary part of "ctanh_towardzero":
-> +double: 5
-> +float: 3
-> +
-> +Function: Real part of "ctanh_upward":
-> +double: 2
-> +float: 2
-> +
-> +Function: Imaginary part of "ctanh_upward":
-> +double: 2
-> +float: 3
-> +
-> +Function: "erf":
-> +double: 1
-> +float: 1
-> +
-> +Function: "erf_downward":
-> +double: 1
-> +float: 1
-> +
-> +Function: "erf_towardzero":
-> +double: 1
-> +float: 1
-> +
-> +Function: "erf_upward":
-> +double: 1
-> +float: 1
-> +
-> +Function: "erfc":
-> +double: 5
-> +float: 3
-> +
-> +Function: "erfc_downward":
-> +double: 5
-> +float: 6
-> +
-> +Function: "erfc_towardzero":
-> +double: 3
-> +float: 4
-> +
-> +Function: "erfc_upward":
-> +double: 5
-> +float: 6
-> +
-> +Function: "exp":
-> +double: 1
-> +float: 1
-> +
-> +Function: "exp10":
-> +double: 2
-> +float: 1
-> +
-> +Function: "exp10_downward":
-> +double: 3
-> +
-> +Function: "exp10_towardzero":
-> +double: 3
-> +
-> +Function: "exp10_upward":
-> +double: 2
-> +float: 1
-> +
-> +Function: "exp2":
-> +double: 1
-> +
-> +Function: "exp2_downward":
-> +double: 1
-> +
-> +Function: "exp2_towardzero":
-> +double: 1
-> +
-> +Function: "exp2_upward":
-> +double: 1
-> +float: 1
-> +
-> +Function: "exp_downward":
-> +double: 1
-> +float: 1
-> +
-> +Function: "exp_towardzero":
-> +double: 1
-> +float: 1
-> +
-> +Function: "exp_upward":
-> +double: 1
-> +float: 1
-> +
-> +Function: "expm1":
-> +double: 1
-> +float: 1
-> +
-> +Function: "expm1_downward":
-> +double: 1
-> +float: 1
-> +
-> +Function: "expm1_towardzero":
-> +double: 1
-> +float: 2
-> +
-> +Function: "expm1_upward":
-> +double: 1
-> +float: 1
-> +
-> +Function: "gamma":
-> +double: 4
-> +float: 7
-> +
-> +Function: "gamma_downward":
-> +double: 7
-> +float: 7
-> +
-> +Function: "gamma_towardzero":
-> +double: 7
-> +float: 7
-> +
-> +Function: "gamma_upward":
-> +double: 5
-> +float: 6
-> +
-> +Function: "hypot":
-> +double: 1
-> +
-> +Function: "hypot_downward":
-> +double: 1
-> +
-> +Function: "hypot_towardzero":
-> +double: 1
-> +
-> +Function: "hypot_upward":
-> +double: 1
-> +
-> +Function: "j0":
-> +double: 2
-> +float: 9
-> +
-> +Function: "j0_downward":
-> +double: 2
-> +float: 4
-> +
-> +Function: "j0_towardzero":
-> +double: 4
-> +float: 5
-> +
-> +Function: "j0_upward":
-> +double: 4
-> +float: 5
-> +
-> +Function: "j1":
-> +double: 4
-> +float: 9
-> +
-> +Function: "j1_downward":
-> +double: 4
-> +float: 5
-> +
-> +Function: "j1_towardzero":
-> +double: 4
-> +float: 2
-> +
-> +Function: "j1_upward":
-> +double: 3
-> +float: 5
-> +
-> +Function: "jn":
-> +double: 4
-> +float: 4
-> +
-> +Function: "jn_downward":
-> +double: 7
-> +float: 9
-> +
-> +Function: "jn_towardzero":
-> +double: 7
-> +float: 9
-> +
-> +Function: "jn_upward":
-> +double: 7
-> +float: 9
-> +
-> +Function: "lgamma":
-> +double: 4
-> +float: 7
-> +
-> +Function: "lgamma_downward":
-> +double: 7
-> +float: 7
-> +
-> +Function: "lgamma_towardzero":
-> +double: 7
-> +float: 7
-> +
-> +Function: "lgamma_upward":
-> +double: 5
-> +float: 6
-> +
-> +Function: "log10":
-> +double: 2
-> +float: 2
-> +
-> +Function: "log10_downward":
-> +double: 2
-> +float: 3
-> +
-> +Function: "log10_towardzero":
-> +double: 2
-> +float: 1
-> +
-> +Function: "log10_upward":
-> +double: 2
-> +float: 2
-> +
-> +Function: "log1p":
-> +double: 1
-> +float: 1
-> +
-> +Function: "log1p_downward":
-> +double: 2
-> +float: 2
-> +
-> +Function: "log1p_towardzero":
-> +double: 2
-> +float: 2
-> +
-> +Function: "log1p_upward":
-> +double: 2
-> +float: 2
-> +
-> +Function: "log2":
-> +float: 1
-> +
-> +Function: "log2_downward":
-> +double: 1
-> +
-> +Function: "log2_towardzero":
-> +double: 1
-> +
-> +Function: "log2_upward":
-> +double: 1
-> +
-> +Function: "pow":
-> +double: 1
-> +
-> +Function: "pow_downward":
-> +double: 1
-> +float: 1
-> +
-> +Function: "pow_towardzero":
-> +double: 1
-> +float: 1
-> +
-> +Function: "pow_upward":
-> +double: 1
-> +float: 1
-> +
-> +Function: "sin":
-> +double: 1
-> +float: 1
-> +
-> +Function: "sin_downward":
-> +double: 4
-> +float: 1
-> +
-> +Function: "sin_towardzero":
-> +double: 3
-> +float: 1
-> +
-> +Function: "sin_upward":
-> +double: 7
-> +float: 1
-> +
-> +Function: "sincos":
-> +double: 1
-> +
-> +Function: "sincos_downward":
-> +double: 1
-> +float: 1
-> +
-> +Function: "sincos_towardzero":
-> +double: 4
-> +float: 1
-> +
-> +Function: "sincos_upward":
-> +double: 1
-> +float: 1
-> +
-> +Function: "sinh":
-> +double: 2
-> +float: 2
-> +
-> +Function: "sinh_downward":
-> +double: 3
-> +float: 3
-> +
-> +Function: "sinh_towardzero":
-> +double: 2
-> +float: 2
-> +
-> +Function: "sinh_upward":
-> +double: 3
-> +float: 3
-> +
-> +Function: "tan":
-> +float: 1
-> +
-> +Function: "tan_downward":
-> +double: 1
-> +float: 2
-> +
-> +Function: "tan_towardzero":
-> +double: 1
-> +float: 1
-> +
-> +Function: "tan_upward":
-> +double: 1
-> +float: 1
-> +
-> +Function: "tanh":
-> +double: 2
-> +float: 2
-> +
-> +Function: "tanh_downward":
-> +double: 3
-> +float: 3
-> +
-> +Function: "tanh_towardzero":
-> +double: 2
-> +float: 2
-> +
-> +Function: "tanh_upward":
-> +double: 3
-> +float: 3
-> +
-> +Function: "tgamma":
-> +double: 9
-> +float: 8
-> +
-> +Function: "tgamma_downward":
-> +double: 9
-> +float: 9
-> +
-> +Function: "tgamma_towardzero":
-> +double: 9
-> +float: 8
-> +
-> +Function: "tgamma_upward":
-> +double: 9
-> +float: 8
-> +
-> +Function: "y0":
-> +double: 3
-> +float: 9
-> +
-> +Function: "y0_downward":
-> +double: 3
-> +float: 6
-> +
-> +Function: "y0_towardzero":
-> +double: 3
-> +float: 3
-> +
-> +Function: "y0_upward":
-> +double: 3
-> +float: 6
-> +
-> +Function: "y1":
-> +double: 3
-> +float: 9
-> +
-> +Function: "y1_downward":
-> +double: 6
-> +float: 7
-> +
-> +Function: "y1_towardzero":
-> +double: 3
-> +float: 3
-> +
-> +Function: "y1_upward":
-> +double: 7
-> +float: 5
-> +
-> +Function: "yn":
-> +double: 3
-> +float: 3
-> +
-> +Function: "yn_downward":
-> +double: 6
-> +float: 8
-> +
-> +Function: "yn_towardzero":
-> +double: 8
-> +float: 8
-> +
-> +Function: "yn_upward":
-> +double: 8
-> +float: 8
-> +
-> +# end of automatic generation
-> diff --git a/sysdeps/or1k/libm-test-ulps-name b/sysdeps/or1k/libm-test-ulps-name
-> new file mode 100644
-> index 0000000000..0af6591fd9
-> --- /dev/null
-> +++ b/sysdeps/or1k/libm-test-ulps-name
-> @@ -0,0 +1 @@
-> +OpenRISC
-> diff --git a/sysdeps/or1k/nofpu/math-tests-exceptions.h b/sysdeps/or1k/nofpu/math-tests-exceptions.h
-> new file mode 100644
-> index 0000000000..cf4ed98279
-> --- /dev/null
-> +++ b/sysdeps/or1k/nofpu/math-tests-exceptions.h
-> @@ -0,0 +1,29 @@
-> +/* Configuration for math tests: support for exceptions.  OpenRISC no-FPU
-> +   version.
-> +   Copyright (C) 2021 Free Software Foundation, Inc.
-> +   This file is part of the GNU C Library.
-> +
-> +   The GNU C Library is free software; you can redistribute it and/or
-> +   modify it under the terms of the GNU Lesser General Public
-> +   License as published by the Free Software Foundation; either
-> +   version 2.1 of the License, or (at your option) any later version.
-> +
-> +   The GNU C Library is distributed in the hope that it will be useful,
-> +   but WITHOUT ANY WARRANTY; without even the implied warranty of
-> +   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> +   Lesser General Public License for more details.
-> +
-> +   You should have received a copy of the GNU Lesser General Public
-> +   License along with the GNU C Library; if not, see
-> +   <https://www.gnu.org/licenses/>.  */
-> +
-> +#ifndef OR1K_NOFPU_MATH_TESTS_EXCEPTIONS_H
-> +#define OR1K_NOFPU_MATH_TESTS_EXCEPTIONS_H 1
-> +
-> +/* We support setting floating-point exception flags on hard-float
-> +   targets.  These are not supported on soft-float targets.  */
-> +#define EXCEPTION_TESTS_float 0
-> +#define EXCEPTION_TESTS_double        0
-> +#define EXCEPTION_TESTS_long_double   0
-> +
-> +#endif /* math-tests-exceptions.h.  */
-> diff --git a/sysdeps/or1k/nofpu/math-tests-rounding.h b/sysdeps/or1k/nofpu/math-tests-rounding.h
-> new file mode 100644
-> index 0000000000..2b69a541a3
-> --- /dev/null
-> +++ b/sysdeps/or1k/nofpu/math-tests-rounding.h
-> @@ -0,0 +1,28 @@
-> +/* Configuration for math tests: rounding mode support.  OpenRISC no-FPU
-> +   version.
-> +   Copyright (C) 2021 Free Software Foundation, Inc.
-> +   This file is part of the GNU C Library.
-> +
-> +   The GNU C Library is free software; you can redistribute it and/or
-> +   modify it under the terms of the GNU Lesser General Public
-> +   License as published by the Free Software Foundation; either
-> +   version 2.1 of the License, or (at your option) any later version.
-> +
-> +   The GNU C Library is distributed in the hope that it will be useful,
-> +   but WITHOUT ANY WARRANTY; without even the implied warranty of
-> +   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> +   Lesser General Public License for more details.
-> +
-> +   You should have received a copy of the GNU Lesser General Public
-> +   License along with the GNU C Library; if not, see
-> +   <https://www.gnu.org/licenses/>.  */
-> +
-> +#ifndef OR1K_NOFPU_MATH_TESTS_ROUNDING_H
-> +#define OR1K_NOFPU_MATH_TESTS_ROUNDING_H 1
-> +
-> +/* On soft-float targets we only support the "to nearest" rounding mode.  */
-> +#define ROUNDING_TESTS_float(MODE)		((MODE) == FE_TONEAREST)
-> +#define ROUNDING_TESTS_double(MODE)		((MODE) == FE_TONEAREST)
-> +#define ROUNDING_TESTS_long_double(MODE)	((MODE) == FE_TONEAREST)
-> +
-> +#endif /* math-tests-rounding.h.  */
-> diff --git a/sysdeps/or1k/sfp-machine.h b/sysdeps/or1k/sfp-machine.h
-> new file mode 100644
-> index 0000000000..18f2676510
-> --- /dev/null
-> +++ b/sysdeps/or1k/sfp-machine.h
-> @@ -0,0 +1,93 @@
-> +/* OpenRISC softfloat definitions.
-> +   Copyright (C) 2021 Free Software Foundation, Inc.
-> +
-> +   This file is part of the GNU C Library.
-> +
-> +   The GNU C Library is free software; you can redistribute it and/or
-> +   modify it under the terms of the GNU Lesser General Public
-> +   License as published by the Free Software Foundation; either
-> +   version 2.1 of the License, or (at your option) any later version.
-> +
-> +   The GNU C Library is distributed in the hope that it will be useful,
-> +   but WITHOUT ANY WARRANTY; without even the implied warranty of
-> +   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> +   Lesser General Public License for more details.
-> +
-> +   You should have received a copy of the GNU Lesser General Public
-> +   License along with the GNU C Library.  If not, see
-> +   <https://www.gnu.org/licenses/>.  */
-> +
-> +#define _FP_W_TYPE_SIZE		32
-> +#define _FP_W_TYPE		unsigned long
-> +#define _FP_WS_TYPE		signed long
-> +#define _FP_I_TYPE		long
-> +
-> +#define _FP_MUL_MEAT_S(R,X,Y)				\
-> +  _FP_MUL_MEAT_1_wide(_FP_WFRACBITS_S,R,X,Y,umul_ppmm)
-> +#define _FP_MUL_MEAT_D(R,X,Y)				\
-> +  _FP_MUL_MEAT_2_wide(_FP_WFRACBITS_D,R,X,Y,umul_ppmm)
-> +#define _FP_MUL_MEAT_Q(R,X,Y)				\
-> +  _FP_MUL_MEAT_4_wide(_FP_WFRACBITS_Q,R,X,Y,umul_ppmm)
-> +
-> +#define _FP_MUL_MEAT_DW_S(R,X,Y)				\
-> +  _FP_MUL_MEAT_DW_1_wide(_FP_WFRACBITS_S,R,X,Y,umul_ppmm)
-> +#define _FP_MUL_MEAT_DW_D(R,X,Y)				\
-> +  _FP_MUL_MEAT_DW_2_wide(_FP_WFRACBITS_D,R,X,Y,umul_ppmm)
-> +#define _FP_MUL_MEAT_DW_Q(R,X,Y)				\
-> +  _FP_MUL_MEAT_DW_4_wide(_FP_WFRACBITS_Q,R,X,Y,umul_ppmm)
-> +
-> +
-> +#define _FP_DIV_MEAT_S(R,X,Y)	_FP_DIV_MEAT_1_loop(S,R,X,Y)
-> +#define _FP_DIV_MEAT_D(R,X,Y)	_FP_DIV_MEAT_2_udiv(D,R,X,Y)
-> +#define _FP_DIV_MEAT_Q(R,X,Y)	_FP_DIV_MEAT_4_udiv(Q,R,X,Y)
-> +
-> +#define _FP_NANFRAC_S		((_FP_QNANBIT_S << 1) - 1)
-> +#define _FP_NANFRAC_D		((_FP_QNANBIT_D << 1) - 1), -1
-> +#define _FP_NANFRAC_Q		((_FP_QNANBIT_Q << 1) - 1), -1, -1, -1
-> +#define _FP_NANSIGN_S		0
-> +#define _FP_NANSIGN_D		0
-> +#define _FP_NANSIGN_Q		0
-> +
-> +#define _FP_KEEPNANFRACP 1
-> +#define _FP_QNANNEGATEDP 0
-> +
-> +/* Someone please check this.  */
-> +#define _FP_CHOOSENAN(fs, wc, R, X, Y, OP)			\
-> +  do {								\
-> +    if ((_FP_FRAC_HIGH_RAW_##fs(X) & _FP_QNANBIT_##fs)		\
-> +	&& !(_FP_FRAC_HIGH_RAW_##fs(Y) & _FP_QNANBIT_##fs))	\
-> +      {								\
-> +	R##_s = Y##_s;						\
-> +	_FP_FRAC_COPY_##wc(R,Y);				\
-> +      }								\
-> +    else							\
-> +      {								\
-> +	R##_s = X##_s;						\
-> +	_FP_FRAC_COPY_##wc(R,X);				\
-> +      }								\
-> +    R##_c = FP_CLS_NAN;						\
-> +  } while (0)
-> +
-> +/* Handle getting and setting rounding mode for soft fp operations.  */
-> +
-> +#define FP_RND_NEAREST		(0x0 << 1)
-> +#define FP_RND_ZERO		(0x1 << 1)
-> +#define FP_RND_PINF		(0x2 << 1)
-> +#define FP_RND_MINF		(0x3 << 1)
-> +#define FP_RND_MASK		(0x3 << 1)
-> +
-> +#define FP_EX_OVERFLOW		(1 << 3)
-> +#define FP_EX_UNDERFLOW		(1 << 4)
-> +#define FP_EX_INEXACT		(1 << 8)
-> +#define FP_EX_INVALID		(1 << 9)
-> +#define FP_EX_DIVZERO		(1 << 11)
-> +#define FP_EX_ALL \
-> +	(FP_EX_INVALID | FP_EX_DIVZERO | FP_EX_OVERFLOW | FP_EX_UNDERFLOW \
-> +	 | FP_EX_INEXACT)
-> +
-> +#define _FP_DECL_EX \
-> +  unsigned int _fpcsr __attribute__ ((unused)) = FP_RND_NEAREST
-> +
-> +#define FP_ROUNDMODE (_fpcsr & FP_RND_MASK)
-> +
-> +#define _FP_TININESS_AFTER_ROUNDING 0
-> diff --git a/sysdeps/or1k/tininess.h b/sysdeps/or1k/tininess.h
-> new file mode 100644
-> index 0000000000..dafbc6cad5
-> --- /dev/null
-> +++ b/sysdeps/or1k/tininess.h
-> @@ -0,0 +1 @@
-> +#define TININESS_AFTER_ROUNDING	0
+> Link: https://lore.kernel.org/lkml/75d07691-1e4f-741f-9852-38c0b4f520bc at synopsys.com/
+> Link: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100363
+> Link: https://lore.kernel.org/lkml/20210507220813.365382-14-arnd at kernel.org/
+> Link: git://git.kernel.org/pub/scm/linux/kernel/git/arnd/asm-generic.git unaligned-rework-v2
+>
+>
+> Arnd Bergmann (13):
+>   asm-generic: use asm-generic/unaligned.h for most architectures
+>   openrisc: always use unaligned-struct header
+>   sh: remove unaligned access for sh4a
+>   m68k: select CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+>   powerpc: use linux/unaligned/le_struct.h on LE power7
+>   asm-generic: unaligned: remove byteshift helpers
+>   asm-generic: unaligned always use struct helpers
+>   partitions: msdos: fix one-byte get_unaligned()
+>   apparmor: use get_unaligned() only for multi-byte words
+>   mwifiex: re-fix for unaligned accesses
+>   netpoll: avoid put_unaligned() on single character
+>   asm-generic: uaccess: 1-byte access is always aligned
+>   asm-generic: simplify asm/unaligned.h
+>
+>  arch/alpha/include/asm/unaligned.h          |  12 --
+>  arch/arm/include/asm/unaligned.h            |  27 ---
+>  arch/ia64/include/asm/unaligned.h           |  12 --
+>  arch/m68k/Kconfig                           |   1 +
+>  arch/m68k/include/asm/unaligned.h           |  26 ---
+>  arch/microblaze/include/asm/unaligned.h     |  27 ---
+>  arch/mips/crypto/crc32-mips.c               |   2 +-
+>  arch/openrisc/include/asm/unaligned.h       |  47 -----
+>  arch/parisc/include/asm/unaligned.h         |   6 +-
+>  arch/powerpc/include/asm/unaligned.h        |  22 ---
+>  arch/sh/include/asm/unaligned-sh4a.h        | 199 --------------------
+>  arch/sh/include/asm/unaligned.h             |  13 --
+>  arch/sparc/include/asm/unaligned.h          |  11 --
+>  arch/x86/include/asm/unaligned.h            |  15 --
+>  arch/xtensa/include/asm/unaligned.h         |  29 ---
+>  block/partitions/ldm.h                      |   2 +-
+>  block/partitions/msdos.c                    |   2 +-
+>  drivers/net/wireless/marvell/mwifiex/pcie.c |  10 +-
+>  include/asm-generic/uaccess.h               |   4 +-
+>  include/asm-generic/unaligned.h             | 141 +++++++++++---
+>  include/linux/unaligned/access_ok.h         |  68 -------
+>  include/linux/unaligned/be_byteshift.h      |  71 -------
+>  include/linux/unaligned/be_memmove.h        |  37 ----
+>  include/linux/unaligned/be_struct.h         |  37 ----
+>  include/linux/unaligned/generic.h           | 115 -----------
+>  include/linux/unaligned/le_byteshift.h      |  71 -------
+>  include/linux/unaligned/le_memmove.h        |  37 ----
+>  include/linux/unaligned/le_struct.h         |  37 ----
+>  include/linux/unaligned/memmove.h           |  46 -----
+>  net/core/netpoll.c                          |   4 +-
+>  security/apparmor/policy_unpack.c           |   2 +-
+>  31 files changed, 131 insertions(+), 1002 deletions(-)
+>  delete mode 100644 arch/alpha/include/asm/unaligned.h
+>  delete mode 100644 arch/arm/include/asm/unaligned.h
+>  delete mode 100644 arch/ia64/include/asm/unaligned.h
+>  delete mode 100644 arch/m68k/include/asm/unaligned.h
+>  delete mode 100644 arch/microblaze/include/asm/unaligned.h
+>  delete mode 100644 arch/openrisc/include/asm/unaligned.h
+>  delete mode 100644 arch/powerpc/include/asm/unaligned.h
+>  delete mode 100644 arch/sh/include/asm/unaligned-sh4a.h
+>  delete mode 100644 arch/sh/include/asm/unaligned.h
+>  delete mode 100644 arch/sparc/include/asm/unaligned.h
+>  delete mode 100644 arch/x86/include/asm/unaligned.h
+>  delete mode 100644 arch/xtensa/include/asm/unaligned.h
+>  delete mode 100644 include/linux/unaligned/access_ok.h
+>  delete mode 100644 include/linux/unaligned/be_byteshift.h
+>  delete mode 100644 include/linux/unaligned/be_memmove.h
+>  delete mode 100644 include/linux/unaligned/be_struct.h
+>  delete mode 100644 include/linux/unaligned/generic.h
+>  delete mode 100644 include/linux/unaligned/le_byteshift.h
+>  delete mode 100644 include/linux/unaligned/le_memmove.h
+>  delete mode 100644 include/linux/unaligned/le_struct.h
+>  delete mode 100644 include/linux/unaligned/memmove.h
+>
+> --
+> 2.29.2
+>
+> Cc: Amitkumar Karwar <amitkarwar@gmail.com>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Borislav Petkov <bp@alien8.de>
+> Cc: Eric Dumazet <edumazet@google.com>
+> Cc: Florian Fainelli <f.fainelli@gmail.com>
+> Cc: Ganapathi Bhat <ganapathi017@gmail.com>
+> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+> Cc: "H. Peter Anvin" <hpa@zytor.com>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Jakub Kicinski <kuba@kernel.org>
+> Cc: James Morris <jmorris@namei.org>
+> Cc: Jens Axboe <axboe@kernel.dk>
+> Cc: John Johansen <john.johansen@canonical.com>
+> Cc: Jonas Bonn <jonas@southpole.se>
+> Cc: Kalle Valo <kvalo@codeaurora.org>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: Rich Felker <dalias@libc.org>
+> Cc: "Richard Russon (FlatCap)" <ldm@flatcap.org>
+> Cc: Russell King <linux@armlinux.org.uk>
+> Cc: "Serge E. Hallyn" <serge@hallyn.com>
+> Cc: Sharvari Harisangam <sharvari.harisangam@nxp.com>
+> Cc: Stafford Horne <shorne@gmail.com>
+> Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Vladimir Oltean <vladimir.oltean@nxp.com>
+> Cc: Xinming Hu <huxinming820@gmail.com>
+> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+> Cc: x86 at kernel.org
+> Cc: linux-kernel at vger.kernel.org
+> Cc: linux-arm-kernel at lists.infradead.org
+> Cc: linux-m68k at lists.linux-m68k.org
+> Cc: linux-crypto at vger.kernel.org
+> Cc: openrisc at lists.librecores.org
+> Cc: linuxppc-dev at lists.ozlabs.org
+> Cc: linux-sh at vger.kernel.org
+> Cc: sparclinux at vger.kernel.org
+> Cc: linux-ntfs-dev at lists.sourceforge.net
+> Cc: linux-block at vger.kernel.org
+> Cc: linux-wireless at vger.kernel.org
+> Cc: netdev at vger.kernel.org
+> Cc: linux-arch at vger.kernel.org
+> Cc: linux-security-module at vger.kernel.org
+>
+>
