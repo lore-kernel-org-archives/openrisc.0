@@ -1,12 +1,11 @@
 From: Adhemerval Zanella <adhemerval.zanella@linaro.org>
-Date: Thu, 16 Dec 2021 16:33:37 -0300
-Subject: [OpenRISC] [PATCH v3 05/13] or1k: Thread Local Storage support
-In-Reply-To: <alpine.DEB.2.22.394.2112161921110.1715763@digraph.polyomino.org.uk>
+Date: Thu, 16 Dec 2021 16:43:52 -0300
+Subject: [OpenRISC] [PATCH v3 06/13] or1k: Atomics and Locking primitives
+In-Reply-To: <39803fe3-ab39-524a-c678-1b74d092c436@linaro.org>
 References: <20211210233456.4146479-1-shorne@gmail.com>
- <20211210233456.4146479-6-shorne@gmail.com>
- <2e024bfa-b5c2-2444-1b64-ca8f63e932b6@linaro.org>
- <alpine.DEB.2.22.394.2112161921110.1715763@digraph.polyomino.org.uk>
-Message-ID: <b0cf349f-4ff5-0cd0-58a6-8337961ece1b@linaro.org>
+ <20211210233456.4146479-7-shorne@gmail.com>
+ <39803fe3-ab39-524a-c678-1b74d092c436@linaro.org>
+Message-ID: <3facf07d-85b9-7ccc-eee5-78be8dc69f45@linaro.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -15,21 +14,56 @@ To: openrisc@lists.librecores.org
 
 
 
-On 16/12/2021 16:26, Joseph Myers wrote:
-> On Thu, 16 Dec 2021, Adhemerval Zanella via Libc-alpha wrote:
+On 16/12/2021 09:52, Adhemerval Zanella wrote:
+> LGTM, thanks.
 > 
->>> +/* Default to an executable stack.  PF_X can be overridden if PT_GNU_STACK is
->>> +   present, but it is presumed absent.  */
->>> +#define DEFAULT_STACK_PERMS (PF_R | PF_W | PF_X)
+> On 10/12/2021 20:34, Stafford Horne via Libc-alpha wrote:
+>> ---
+>>  sysdeps/or1k/atomic-machine.h | 79 +++++++++++++++++++++++++++++++++++
+>>  1 file changed, 79 insertions(+)
+>>  create mode 100644 sysdeps/or1k/atomic-machine.h
 >>
->> Do you really a default stack executable? It is only done for older ABIs 
->> and that's why PT_GNU_STACK was created. Newer ports, like arc and csky 
->> assumes otherwise.
+>> diff --git a/sysdeps/or1k/atomic-machine.h b/sysdeps/or1k/atomic-machine.h
+>> new file mode 100644
+>> index 0000000000..1e306ae4ef
+>> --- /dev/null
+>> +++ b/sysdeps/or1k/atomic-machine.h
+>> @@ -0,0 +1,79 @@
+>> +/* Atomic operations.  OpenRISC version.
+>> +   Copyright (C) 2021 Free Software Foundation, Inc.
+>> +   This file is part of the GNU C Library.
+>> +
+>> +   The GNU C Library is free software; you can redistribute it and/or
+>> +   modify it under the terms of the GNU Lesser General Public
+>> +   License as published by the Free Software Foundation; either
+>> +   version 2.1 of the License, or (at your option) any later version.
+>> +
+>> +   The GNU C Library is distributed in the hope that it will be useful,
+>> +   but WITHOUT ANY WARRANTY; without even the implied warranty of
+>> +   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+>> +   Lesser General Public License for more details.
+>> +
+>> +   You should have received a copy of the GNU Lesser General Public
+>> +   License along with the GNU C Library.  If not, see
+>> +   <https://www.gnu.org/licenses/>.  */
+>> +
+>> +#ifndef __OR1K_ATOMIC_H_
+>> +#define __OR1K_ATOMIC_H_
+>> +
+>> +#include <stdint.h>
+>> +
+>> +typedef int32_t atomic32_t;
+>> +typedef uint32_t uatomic32_t;
+>> +
+>> +typedef intptr_t atomicptr_t;
+>> +typedef uintptr_t uatomicptr_t;
+>> +typedef intmax_t atomic_max_t;
+>> +typedef uintmax_t uatomic_max_t;
 > 
-> I think this reflects what the kernel does (the relevant definitions being 
-> elf_read_implies_exec and VM_STACK_DEFAULT_FLAGS / VM_DATA_DEFAULT_FLAGS, 
-> none of which are overridden for openrisc, so the default 
-> VM_DATA_DEFAULT_FLAGS definition of VM_DATA_FLAGS_EXEC applies).
-> 
+> Sigh, these definition are used solely in only file, memusage.c.  Another thing
+> I will cleanup.
 
-Fair enough, this part is correct then.
+I just send a patchset that aims to simplify this boilerplate [1].  It should
+also simplify other parts of OpenRISC submission.
+
+[1] https://sourceware.org/pipermail/libc-alpha/2021-December/134285.html
