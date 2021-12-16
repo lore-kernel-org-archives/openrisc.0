@@ -1,113 +1,74 @@
-From: Adhemerval Zanella <adhemerval.zanella@linaro.org>
-Date: Thu, 16 Dec 2021 09:52:44 -0300
-Subject: [OpenRISC] [PATCH v3 06/13] or1k: Atomics and Locking primitives
-In-Reply-To: <20211210233456.4146479-7-shorne@gmail.com>
-References: <20211210233456.4146479-1-shorne@gmail.com>
- <20211210233456.4146479-7-shorne@gmail.com>
-Message-ID: <39803fe3-ab39-524a-c678-1b74d092c436@linaro.org>
+From: David Laight <David.Laight@ACULAB.COM>
+Date: Thu, 16 Dec 2021 17:49:27 +0000
+Subject: [OpenRISC] [PATCH v2 00/13] Unify asm/unaligned.h around struct
+ helper
+In-Reply-To: <CAMj1kXG0CNomZ0aXxh_4094fT+g4bVWFCkrd7QwgTQgiqoxMWA@mail.gmail.com>
+References: <20210514100106.3404011-1-arnd@kernel.org>
+ <CAMj1kXG0CNomZ0aXxh_4094fT+g4bVWFCkrd7QwgTQgiqoxMWA@mail.gmail.com>
+Message-ID: <5a46959bfe654ae9a8a4e1b1adf0db95@AcuMS.aculab.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-LGTM, thanks.
-
-On 10/12/2021 20:34, Stafford Horne via Libc-alpha wrote:
-> ---
->  sysdeps/or1k/atomic-machine.h | 79 +++++++++++++++++++++++++++++++++++
->  1 file changed, 79 insertions(+)
->  create mode 100644 sysdeps/or1k/atomic-machine.h
+From: Ard Biesheuvel
+> Sent: 16 December 2021 17:30
 > 
-> diff --git a/sysdeps/or1k/atomic-machine.h b/sysdeps/or1k/atomic-machine.h
-> new file mode 100644
-> index 0000000000..1e306ae4ef
-> --- /dev/null
-> +++ b/sysdeps/or1k/atomic-machine.h
-> @@ -0,0 +1,79 @@
-> +/* Atomic operations.  OpenRISC version.
-> +   Copyright (C) 2021 Free Software Foundation, Inc.
-> +   This file is part of the GNU C Library.
-> +
-> +   The GNU C Library is free software; you can redistribute it and/or
-> +   modify it under the terms of the GNU Lesser General Public
-> +   License as published by the Free Software Foundation; either
-> +   version 2.1 of the License, or (at your option) any later version.
-> +
-> +   The GNU C Library is distributed in the hope that it will be useful,
-> +   but WITHOUT ANY WARRANTY; without even the implied warranty of
-> +   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> +   Lesser General Public License for more details.
-> +
-> +   You should have received a copy of the GNU Lesser General Public
-> +   License along with the GNU C Library.  If not, see
-> +   <https://www.gnu.org/licenses/>.  */
-> +
-> +#ifndef __OR1K_ATOMIC_H_
-> +#define __OR1K_ATOMIC_H_
-> +
-> +#include <stdint.h>
-> +
-> +typedef int32_t atomic32_t;
-> +typedef uint32_t uatomic32_t;
-> +
-> +typedef intptr_t atomicptr_t;
-> +typedef uintptr_t uatomicptr_t;
-> +typedef intmax_t atomic_max_t;
-> +typedef uintmax_t uatomic_max_t;
+> Hi Arnd,
+> 
+> (replying to an old thread as this came up in the discussion regarding
+> misaligned loads and stored in siphash() when compiled for ARM
+> [f7e5b9bfa6c8820407b64eabc1f29c9a87e8993d])
+> 
+> On Fri, 14 May 2021 at 12:02, Arnd Bergmann <arnd@kernel.org> wrote:
+> >
+> > From: Arnd Bergmann <arnd@arndb.de>
+> >
+> > The get_unaligned()/put_unaligned() helpers are traditionally architecture
+> > specific, with the two main variants being the "access-ok.h" version
+> > that assumes unaligned pointer accesses always work on a particular
+> > architecture, and the "le-struct.h" version that casts the data to a
+> > byte aligned type before dereferencing, for architectures that cannot
+> > always do unaligned accesses in hardware.
 
-Sigh, these definition are used solely in only file, memusage.c.  Another thing
-I will cleanup.
+I'm pretty sure the compiler is allowed to 'read through' that cast
+and still do an aligned access.
+It has always been hard to get the compiler to 'forget' about known/expected
+alignment - typically trying to stop memcpy() faulting on sparc.
+Real function calls are usually required - but LTO may scupper that.
 
-> +
-> +#define __HAVE_64B_ATOMICS 0
-> +#define USE_ATOMIC_COMPILER_BUILTINS 1
-> +#define ATOMIC_EXCHANGE_USES_CAS 1
-> +
-> +#define __arch_compare_and_exchange_bool_8_int(mem, newval, oldval, model) \
-> +  (abort (), 0)
-> +
-> +#define __arch_compare_and_exchange_bool_16_int(mem, newval, oldval, model) \
-> +  (abort (), 0)
-> +
-> +#define __arch_compare_and_exchange_bool_32_int(mem, newval, oldval, model) \
-> +  ({                                                                    \
-> +    typeof (*mem) __oldval = (oldval);                                  \
-> +    !__atomic_compare_exchange_n (mem, (void *) &__oldval, newval, 0,   \
-> +				  model, __ATOMIC_RELAXED);             \
-> +  })
-> +
-> +#define __arch_compare_and_exchange_bool_64_int(mem, newval, oldval, model) \
-> +  (abort (), 0)
-> +
-> +#define __arch_compare_and_exchange_val_8_int(mem, newval, oldval, model) \
-> +  (abort (), (__typeof (*mem)) 0)
-> +
-> +#define __arch_compare_and_exchange_val_16_int(mem, newval, oldval, model) \
-> +  (abort (), (__typeof (*mem)) 0)
-> +
-> +#define __arch_compare_and_exchange_val_32_int(mem, newval, oldval, model) \
-> +  ({                                                                    \
-> +    typeof (*mem) __oldval = (oldval);                                  \
-> +    __atomic_compare_exchange_n (mem, (void *) &__oldval, newval, 0,    \
-> +				 model, __ATOMIC_RELAXED);              \
-> +    __oldval;                                                           \
-> +  })
-> +
-> +#define __arch_compare_and_exchange_val_64_int(mem, newval, oldval, model) \
-> +  (abort (), (__typeof (*mem)) 0)
-> +
-> +#define atomic_compare_and_exchange_bool_acq(mem, new, old)		\
-> +  __atomic_bool_bysize (__arch_compare_and_exchange_bool, int,		\
-> +			mem, new, old, __ATOMIC_ACQUIRE)
-> +
-> +#define atomic_compare_and_exchange_val_acq(mem, new, old)		\
-> +  __atomic_val_bysize (__arch_compare_and_exchange_val, int,		\
-> +		       mem, new, old, __ATOMIC_ACQUIRE)
-> +
-> +#define atomic_full_barrier() ({ asm volatile ("l.msync" ::: "memory"); })
+> >
+> > Based on the discussion linked below, it appears that the access-ok
+> > version is not realiable on any architecture, but the struct version
+> > probably has no downsides. This series changes the code to use the
+> > same implementation on all architectures, addressing the few exceptions
+> > separately.
+> >
+> > I've included this version in the asm-generic tree for 5.14 already,
+> > addressing the few issues that were pointed out in the RFC. If there
+> > are any remaining problems, I hope those can be addressed as follow-up
+> > patches.
+> >
+> 
+> I think this series is a huge improvement, but it does not solve the
+> UB problem completely. As we found, there are open issues in the GCC
+> bugzilla regarding assumptions in the compiler that aligned quantities
+> either overlap entirely or not at all. (e.g.,
+> https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100363)
 
-And I think we can also clean this up as well.
+I think we can stop the compiler merging unaligned requests by adding a byte-sized
+memory barrier for the base address before and after the access.
+That should still support complex addressing modes (esp on x86).
 
-> +
-> +#endif /* atomic-machine.h */
+Another option is to do the misaligned access from within an asm statement.
+While architecture dependant, it only really depends on the syntax of the ld/st
+instruction.
+The compiler can't merge those because it doesn't know whether the data is
+'frobbed' before/after the memory access.
+
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
