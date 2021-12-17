@@ -1,73 +1,63 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 18 Dec 2021 00:03:09 +0900
-Subject: [OpenRISC] [PATCH v3 06/13] or1k: Atomics and Locking primitives
-In-Reply-To: <3facf07d-85b9-7ccc-eee5-78be8dc69f45@linaro.org>
+From: Adhemerval Zanella <adhemerval.zanella@linaro.org>
+Date: Fri, 17 Dec 2021 14:41:20 -0300
+Subject: [OpenRISC] [PATCH v3 08/13] or1k: Linux Syscall Interface
+In-Reply-To: <YbymWIYUxR/ndzWb@antec>
 References: <20211210233456.4146479-1-shorne@gmail.com>
- <20211210233456.4146479-7-shorne@gmail.com>
- <39803fe3-ab39-524a-c678-1b74d092c436@linaro.org>
- <3facf07d-85b9-7ccc-eee5-78be8dc69f45@linaro.org>
-Message-ID: <YbymrS8yMR6OQ36d@antec>
+ <20211210233456.4146479-9-shorne@gmail.com>
+ <a4105fcc-1844-b022-f378-3d5474ecaf56@linaro.org> <YbymWIYUxR/ndzWb@antec>
+Message-ID: <58c906a6-76b0-e4e1-bc17-5338b10e25f0@linaro.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Thu, Dec 16, 2021 at 04:43:52PM -0300, Adhemerval Zanella wrote:
-> 
-> 
-> On 16/12/2021 09:52, Adhemerval Zanella wrote:
-> > LGTM, thanks.
-> > 
-> > On 10/12/2021 20:34, Stafford Horne via Libc-alpha wrote:
-> >> ---
-> >>  sysdeps/or1k/atomic-machine.h | 79 +++++++++++++++++++++++++++++++++++
-> >>  1 file changed, 79 insertions(+)
-> >>  create mode 100644 sysdeps/or1k/atomic-machine.h
-> >>
-> >> diff --git a/sysdeps/or1k/atomic-machine.h b/sysdeps/or1k/atomic-machine.h
-> >> new file mode 100644
-> >> index 0000000000..1e306ae4ef
-> >> --- /dev/null
-> >> +++ b/sysdeps/or1k/atomic-machine.h
-> >> @@ -0,0 +1,79 @@
-> >> +/* Atomic operations.  OpenRISC version.
-> >> +   Copyright (C) 2021 Free Software Foundation, Inc.
-> >> +   This file is part of the GNU C Library.
-> >> +
-> >> +   The GNU C Library is free software; you can redistribute it and/or
-> >> +   modify it under the terms of the GNU Lesser General Public
-> >> +   License as published by the Free Software Foundation; either
-> >> +   version 2.1 of the License, or (at your option) any later version.
-> >> +
-> >> +   The GNU C Library is distributed in the hope that it will be useful,
-> >> +   but WITHOUT ANY WARRANTY; without even the implied warranty of
-> >> +   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> >> +   Lesser General Public License for more details.
-> >> +
-> >> +   You should have received a copy of the GNU Lesser General Public
-> >> +   License along with the GNU C Library.  If not, see
-> >> +   <https://www.gnu.org/licenses/>.  */
-> >> +
-> >> +#ifndef __OR1K_ATOMIC_H_
-> >> +#define __OR1K_ATOMIC_H_
-> >> +
-> >> +#include <stdint.h>
-> >> +
-> >> +typedef int32_t atomic32_t;
-> >> +typedef uint32_t uatomic32_t;
-> >> +
-> >> +typedef intptr_t atomicptr_t;
-> >> +typedef uintptr_t uatomicptr_t;
-> >> +typedef intmax_t atomic_max_t;
-> >> +typedef uintmax_t uatomic_max_t;
-> > 
-> > Sigh, these definition are used solely in only file, memusage.c.  Another thing
-> > I will cleanup.
-> 
-> I just send a patchset that aims to simplify this boilerplate [1].  It should
-> also simplify other parts of OpenRISC submission.
-> 
-> [1] https://sourceware.org/pipermail/libc-alpha/2021-December/134285.html
 
-Thanks, I have seen it.
+
+On 17/12/2021 12:01, Stafford Horne wrote:
+> On Thu, Dec 16, 2021 at 06:17:45PM -0300, Adhemerval Zanella wrote:
+>>> diff --git a/sysdeps/unix/sysv/linux/or1k/bits/timesize.h b/sysdeps/unix/sysv/linux/or1k/bits/timesize.h
+>>> new file mode 100644
+>>> index 0000000000..3ab388da7f
+>>> --- /dev/null
+>>> +++ b/sysdeps/unix/sysv/linux/or1k/bits/timesize.h
+>>> @@ -0,0 +1,19 @@
+>>> +/* Bit size of the time_t type at glibc build time, OpenRISC version.
+>>> +   Copyright (C) 2021 Free Software Foundation, Inc.
+>>> +   This file is part of the GNU C Library.
+>>> +
+>>> +   The GNU C Library is free software; you can redistribute it and/or
+>>> +   modify it under the terms of the GNU Lesser General Public
+>>> +   License as published by the Free Software Foundation; either
+>>> +   version 2.1 of the License, or (at your option) any later version.
+>>> +
+>>> +   The GNU C Library is distributed in the hope that it will be useful,
+>>> +   but WITHOUT ANY WARRANTY; without even the implied warranty of
+>>> +   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+>>> +   Lesser General Public License for more details.
+>>> +
+>>> +   You should have received a copy of the GNU Lesser General Public
+>>> +   License along with the GNU C Library; if not, see
+>>> +   <https://www.gnu.org/licenses/>.  */
+>>> +
+>>> +#define __TIMESIZE	64
+>>
+>> Ok, although I think we should flip the default to 64 bits make
+>> old ports to override to 32.
+> 
+> It makes sense.  It might be a bit tricky as currently __TIMESIZE default is
+> __WORDSIZE.  I see a few old ports which have __WORDSIZE 32 and 64 like sparc.
+
+I will fix this upstream, it is just a matter to override to 32 for older ports.
+
+>>
+>> Ok, I take that implementing it solely on __or1k_clone is more complex than
+>> using a C wrapper.
+> 
+> I am not to clear what you mean here, I take you are asking why we keep
+> __or1k_clone in assembly rather than implement __or1k_clone in C too.
+> 
+> There are some stack setup bits in __or1k_clone which require assembly.
+> 
+
+I meant otherwise in fact, why not implement clone for or1k purely in assembly.
