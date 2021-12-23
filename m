@@ -1,99 +1,63 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 23 Dec 2021 17:36:49 +0900
-Subject: [OpenRISC] [PATCH v3 10/13] or1k: ABI lists
-In-Reply-To: <1a46b8a6-87dd-b811-fd82-0292ea575935@linaro.org>
+From: Adhemerval Zanella <adhemerval.zanella@linaro.org>
+Date: Thu, 23 Dec 2021 09:57:03 -0300
+Subject: [OpenRISC] [PATCH v3 13/13] Documentation for OpenRISC port
+In-Reply-To: <20211210233456.4146479-14-shorne@gmail.com>
 References: <20211210233456.4146479-1-shorne@gmail.com>
- <20211210233456.4146479-11-shorne@gmail.com>
- <1a46b8a6-87dd-b811-fd82-0292ea575935@linaro.org>
-Message-ID: <YcQ1IXV81T8xuFJd@antec>
+ <20211210233456.4146479-14-shorne@gmail.com>
+Message-ID: <0e5a4399-e850-5f7b-3c55-a7f87f4c38de@linaro.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Dec 22, 2021 at 05:20:10PM -0300, Adhemerval Zanella wrote:
-> 
-> 
-> On 10/12/2021 20:34, Stafford Horne via Libc-alpha wrote:
-> 
-> > diff --git a/sysdeps/unix/sysv/linux/or1k/ld.abilist b/sysdeps/unix/sysv/linux/or1k/ld.abilist
-> > new file mode 100644
-> > index 0000000000..c4b85c8a33
-> > --- /dev/null
-> > +++ b/sysdeps/unix/sysv/linux/or1k/ld.abilist
-> > @@ -0,0 +1,5 @@
-> > +GLIBC_2.35 __libc_stack_end D 0x4
-> > +GLIBC_2.35 __stack_chk_guard D 0x4
-> > +GLIBC_2.35 __tls_get_addr F
-> > +GLIBC_2.35 _dl_mcount F
-> > +GLIBC_2.35 _r_debug D 0x14
-> 
-> You will need to regenerate it to include the rseq symbols:
-> 
-> GLIBC_2.35 __rseq_flags D 0x4
-> GLIBC_2.35 __rseq_offset D 0x4
-> GLIBC_2.35 __rseq_size D 0x4
 
-OK, I will regenerate, this patch series was generated from before
-these symbols were introduced.
 
-> > diff --git a/sysdeps/unix/sysv/linux/or1k/libBrokenLocale.abilist b/sysdeps/unix/sysv/linux/or1k/libBrokenLocale.abilist
-> > new file mode 100644
-> > index 0000000000..366c393274
-> > --- /dev/null
-> > +++ b/sysdeps/unix/sysv/linux/or1k/libBrokenLocale.abilist
-> > @@ -0,0 +1 @@
-> > +GLIBC_2.35 __ctype_get_mb_cur_max F
-> > diff --git a/sysdeps/unix/sysv/linux/or1k/libanl.abilist b/sysdeps/unix/sysv/linux/or1k/libanl.abilist
-> > new file mode 100644
-> > index 0000000000..c6437809db
-> > --- /dev/null
-> > +++ b/sysdeps/unix/sysv/linux/or1k/libanl.abilist
-> > @@ -0,0 +1 @@
-> > +GLIBC_2.35 __libanl_version_placeholder F
+On 10/12/2021 20:34, Stafford Horne via Libc-alpha wrote:
+> OpenRISC architecture specification:
 > 
-> This does seems right, or1k should not require the placeholder.  I think
-> we are missing a SHLIB_COMPAT on resolv/libanl-compat.c:
+>  https://raw.githubusercontent.com/openrisc/doc/master/openrisc-arch-1.3-rev1.pdf
 > 
-> diff --git a/resolv/libanl-compat.c b/resolv/libanl-compat.c
-> index 29df76f278..02c18bde90 100644
-> --- a/resolv/libanl-compat.c
-> +++ b/resolv/libanl-compat.c
-> @@ -30,6 +30,8 @@ __libanl_version_placeholder_1 (void)
->  {
->  }
+> Currently the port as of the 2021-12-07 rebasing has the following test
+> failures:
+> 
+>  FAIL: timezone/tst-tzset     # Not enough space to create 4GiB file
+>  FAIL: elf/tst-bz15311        # dynamic ld sort order diff
+> 
+> Writing credits for the port are:
+> 
+>  Stafford Horne  <shorne@gmail.com>
+>  Christian Svensson  <blue@cmd.nu>> ---
+>  NEWS   | 4 ++++
+>  README | 1 +
+>  2 files changed, 5 insertions(+)
+> 
+> diff --git a/NEWS b/NEWS
+> index 1398cf2e87..f896746574 100644
+> --- a/NEWS
+> +++ b/NEWS
+> @@ -485,6 +485,10 @@ Major new features:
+>    The latest GCC available at this time (10.2) does not support this level of
+>    fortification.
 >  
-> +# if SHLIB_COMPAT (libanl, GLIBC_2_2_3, GLIBC_2_34)
->  compat_symbol (libanl, __libanl_version_placeholder_1,
->                 __libanl_version_placeholder, GLIBC_2_2_3);
-> +# endif
->  #endif
+> +* Support for OpenRISC on Linux has been added.
 
-I confirm this fixes the issue.
+I think it would be useful to add only soft-float is currently supported.
 
-> > diff --git a/sysdeps/unix/sysv/linux/or1k/libutil.abilist b/sysdeps/unix/sysv/linux/or1k/libutil.abilist
-> > new file mode 100644
-> > index 0000000000..f33b84813b
-> > --- /dev/null
-> > +++ b/sysdeps/unix/sysv/linux/or1k/libutil.abilist
-> > @@ -0,0 +1 @@
-> > +GLIBC_2.35 __libutil_version_placeholder F
-> 
-> This also does not seems right, libutil-compat will only built for
-> have-GLIBC_2.33, which is not the case.
-
-I think this file is leftover now that libutil is just an libutil.a
-update-abi generates nothing.
-
-I have just deleted the file.  check-abi seems to work ok.
-
-Note, I aldo delete the other blank abilist files. So:
-
-        deleted:    sysdeps/unix/sysv/linux/or1k/libanl.abilist
-        deleted:    sysdeps/unix/sysv/linux/or1k/libdl.abilist
-        deleted:    sysdeps/unix/sysv/linux/or1k/libpthread.abilist
-        deleted:    sysdeps/unix/sysv/linux/or1k/librt.abilist
-        deleted:    sysdeps/unix/sysv/linux/or1k/libutil.abilist
-
--Stafford
+> +
+> +  The OpenRISC pore requires at least Linux 5.4, GCC 11 and binutils 2.35.
+> +>  Deprecated and removed features, and other changes affecting compatibility:
+>  
+>  * The mallinfo function is marked deprecated.  Callers should call
+> diff --git a/README b/README
+> index d0f0edb393..3d5a78ccff 100644
+> --- a/README
+> +++ b/README
+> @@ -35,6 +35,7 @@ The GNU C Library supports these configurations for using Linux kernels:
+>  	microblaze*-*-linux-gnu
+>  	mips-*-linux-gnu
+>  	mips64-*-linux-gnu
+> +	or1k-*-linux-gnu
+>  	powerpc-*-linux-gnu	Hardware or software floating point, BE only.
+>  	powerpc64*-*-linux-gnu	Big-endian and little-endian.
+>  	s390-*-linux-gnu
