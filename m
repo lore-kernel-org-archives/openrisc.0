@@ -1,40 +1,89 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 2 Jan 2022 09:30:11 +0900
-Subject: [OpenRISC] [PATCH v4 10/13] or1k: ABI lists
-In-Reply-To: <CAAfxs77-NEGg5vCTPxNd7aJmOqvvf1Nf6=Mm8YfrFxJ6GOcDHQ@mail.gmail.com>
-References: <20211229044251.2203653-1-shorne@gmail.com>
- <20211229044251.2203653-11-shorne@gmail.com>
- <alpine.DEB.2.22.394.2112311744180.2293191@digraph.polyomino.org.uk>
- <CAAfxs77-NEGg5vCTPxNd7aJmOqvvf1Nf6=Mm8YfrFxJ6GOcDHQ@mail.gmail.com>
-Message-ID: <YdDyExgBArUaOmOc@antec>
+From: Giulio Benetti <giulio.benetti@benettiengineering.com>
+Date: Sun, 2 Jan 2022 21:21:07 +0100
+Subject: [OpenRISC] [PATCH] or1k: Avoid R_OR1K_GOT16 signed overflow by
+ using special howto
+In-Reply-To: <20220102000328.3982587-1-shorne@gmail.com>
+References: <20220102000328.3982587-1-shorne@gmail.com>
+Message-ID: <4ad28537-cecd-7e6a-b1b5-c76afb263d1c@benettiengineering.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sat, Jan 01, 2022 at 01:54:09PM +0900, Stafford Horne wrote:
-> On Sat, Jan 1, 2022, 2:45 AM Joseph Myers <joseph@codesourcery.com> wrote:
+Hi Stafford, All,
+
+On 02/01/22 01:03, Stafford Horne wrote:
+> Previously when fixing PR 21464 we masked out upper bits of the
+> relocation value in order to avoid overflow complaints when acceptable.
+> It turns out this does not work when the relocation value ends up being
+> signed.
 > 
-> > On Wed, 29 Dec 2021, Stafford Horne via Libc-alpha wrote:
-> >
-> > >  sysdeps/unix/sysv/linux/or1k/libnsl.abilist   |  121 +
-> >
-> > As noted for the LoongArch port submission, I don't think new ports should
-> > have libnsl or an ABI test baseline for it.
-> >
+> To fix this this patch introduces a special howto with
+> complain_on_overflow set to complain_overflow_dont.  This is used in
+> place of the normal R_OR1K_GOT16 howto when we detect R_OR1K_GOT_AHI16
+> relocations.
 > 
-> Ok, I'll have a look. Is this something we have to do in new ports or is
-> this something wrong with the generic parts?
+> bfd/ChangeLog:
+> 
+> 	PR 28735
+> 	* elf32-or1k.c (or1k_elf_got16_no_overflow_howto): Define.
+> 	(or1k_elf_relocate_section): Use new howto instead of trying to
+> 	mask out relocation bits.
+> ---
+>   bfd/elf32-or1k.c | 24 ++++++++++++++++++++----
+>   1 file changed, 20 insertions(+), 4 deletions(-)
+> 
+> diff --git a/bfd/elf32-or1k.c b/bfd/elf32-or1k.c
+> index 4f9092539f5..a2ff47473a7 100644
+> --- a/bfd/elf32-or1k.c
+> +++ b/bfd/elf32-or1k.c
+> @@ -828,6 +828,23 @@ static reloc_howto_type or1k_elf_howto_table[] =
+>   	 false),		/* pcrel_offset */
+>   };
+>   
+> +/* A copy of the R_OR1K_GOT16 used in the presense of R_OR1K_GOT_AHI16
+> +   relocations when we know we can ignore overflows.  */
+> +static reloc_howto_type or1k_elf_got16_no_overflow_howto =
+> +  HOWTO (R_OR1K_GOT16,		/* type */
+> +	 0,			/* rightshift */
+> +	 2,			/* size (0 = byte, 1 = short, 2 = long) */
+> +	 16,			/* bitsize */
+> +	 false,			/* pc_relative */
+> +	 0,			/* bitpos */
+> +	 complain_overflow_dont, /* complain_on_overflow */
+> +	 bfd_elf_generic_reloc, /* special_function */
+> +	 "R_OR1K_GOT16",	/* name */
+> +	 false,			/* partial_inplace */
+> +	 0,			/* src_mask */
+> +	 0xffff,		/* dst_mask */
+> +	 false);		/* pcrel_offset */
+> +
+>   /* Map BFD reloc types to Or1k ELF reloc types.  */
+>   
+>   struct or1k_reloc_map
+> @@ -1506,12 +1523,11 @@ or1k_elf_relocate_section (bfd *output_bfd,
+>   	    if (r_type == R_OR1K_GOT_AHI16)
+>   	      saw_gotha = true;
+>   
+> -	    /* If we have a R_OR1K_GOT16 followed by a R_OR1K_GOT_AHI16
+> +	    /* If we have a R_OR1K_GOT16 following a R_OR1K_GOT_AHI16
+>   	       relocation we assume the code is doing the right thing to avoid
+> -	       overflows.  Here we mask the lower 16-bit of the relocation to
+> -	       avoid overflow validation failures.  */
+> +	       overflows.  */
+>   	    if (r_type == R_OR1K_GOT16 && saw_gotha)
+> -	      relocation &= 0xffff;
+> +	      howto = &or1k_elf_got16_no_overflow_howto;
+>   
+>   	  /* Addend should be zero.  */
+>   	  if (rel->r_addend != 0)
+> 
 
-Hello,
+this patch fixes the problem.
 
-The option to build libnsl was removed with ae7a94e5e3.  However, since there is
-no longer and option it is now build unconditionally for ifdef have-GLIBC_2.28.
-
-Our new architectures will have have-GLIBC_2.35, so libnsl is not built at all.
-
-This libnsl.abilist file must just be leftover.  I removed it and check-abi
-still passes.
-
--Stafford
+Thanks a lot
+Best regards
+-- 
+Giulio Benetti
+Benetti Engineering sas
