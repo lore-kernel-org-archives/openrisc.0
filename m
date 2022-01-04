@@ -1,790 +1,266 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Tue, 4 Jan 2022 12:08:10 +0900
-Subject: [OpenRISC] [PATCH v4 04/13] or1k: startup and dynamic linking
- code
-In-Reply-To: <YdOir8IbYTzs/Opy@antec>
-References: <20211229044251.2203653-1-shorne@gmail.com>
- <20211229044251.2203653-5-shorne@gmail.com>
- <152802e5-0bac-e450-3898-016fc00bdd4f@linaro.org>
- <YdOir8IbYTzs/Opy@antec>
-Message-ID: <YdO6GmOcafGR1t9Z@antec>
+Date: Tue,  4 Jan 2022 12:14:01 +0900
+Subject: [OpenRISC] [PATCH v5 00/13] Glibc OpenRISC port
+Message-ID: <20220104031414.2416928-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Jan 04, 2022 at 10:28:15AM +0900, Stafford Horne wrote:
-> On Mon, Jan 03, 2022 at 03:17:15PM -0300, Adhemerval Zanella wrote:
-> > 
-> > 
-> > On 29/12/2021 01:42, Stafford Horne via Libc-alpha wrote:
-> > > Code for C runtime startup and dynamic loading including PLT layout.
-> > 
-> > Looks good, although I can't really voucher since I don't have direct access
-> > to a or1k system.  Just some comments bellow and a possible fix for the inline
-> > asm.
-> > 
-> > LGTM with the fixed.
-> > 
-> > Reviewed-by: Adhemerval Zanella  <adhemerval.zanella@linaro.org>
-> 
-> Thank you.  See my comments below.
-> 
-> > > ---
-> > >  sysdeps/or1k/bits/link.h   |  54 +++++++
-> > >  sysdeps/or1k/dl-machine.h  | 300 +++++++++++++++++++++++++++++++++++++
-> > >  sysdeps/or1k/dl-start.S    |  98 ++++++++++++
-> > >  sysdeps/or1k/ldsodefs.h    |  40 +++++
-> > >  sysdeps/or1k/sotruss-lib.c |  51 +++++++
-> > >  sysdeps/or1k/start.S       |  99 ++++++++++++
-> > >  sysdeps/or1k/tst-audit.h   |  24 +++
-> > >  7 files changed, 666 insertions(+)
-> > >  create mode 100644 sysdeps/or1k/bits/link.h
-> > >  create mode 100644 sysdeps/or1k/dl-machine.h
-> > >  create mode 100644 sysdeps/or1k/dl-start.S
-> > >  create mode 100644 sysdeps/or1k/ldsodefs.h
-> > >  create mode 100644 sysdeps/or1k/sotruss-lib.c
-> > >  create mode 100644 sysdeps/or1k/start.S
-> > >  create mode 100644 sysdeps/or1k/tst-audit.h
-> > > 
-> > > diff --git a/sysdeps/or1k/bits/link.h b/sysdeps/or1k/bits/link.h
-> > > new file mode 100644
-> > > index 0000000000..f291d66269
-> > > --- /dev/null
-> > > +++ b/sysdeps/or1k/bits/link.h
-> > > @@ -0,0 +1,54 @@
-> > > +/* Declarations for dynamic linker interface. OpenRISC version.
-> > > +   Copyright (C) 2021 Free Software Foundation, Inc.
-> > > +   This file is part of the GNU C Library.
-> > > +
-> > > +   The GNU C Library is free software; you can redistribute it and/or
-> > > +   modify it under the terms of the GNU Lesser General Public
-> > > +   License as published by the Free Software Foundation; either
-> > > +   version 2.1 of the License, or (at your option) any later version.
-> > > +
-> > > +   The GNU C Library is distributed in the hope that it will be useful,
-> > > +   but WITHOUT ANY WARRANTY; without even the implied warranty of
-> > > +   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> > > +   Lesser General Public License for more details.
-> > > +
-> > > +   You should have received a copy of the GNU Lesser General Public
-> > > +   License along with the GNU C Library.  If not, see
-> > > +   <https://www.gnu.org/licenses/>.  */
-> > > +
-> > > +#ifndef _LINK_H
-> > > +# error "Never include <bits/link.h> directly; use <link.h> instead."
-> > > +#endif
-> > > +
-> > > +/* Registers for entry into PLT.  */
-> > > +typedef struct La_or1k_regs
-> > > +{
-> > > +  uint32_t lr_reg[6]; /* Args passed in r3-r8.  */
-> > > +  uint32_t lr_sp;     /* Register r1.  */
-> > > +  uint32_t lr_lr;     /* Register r9.  */
-> > > +} La_or1k_regs;
-> > > +
-> > > +/* Return values for calls from PLT.  */
-> > > +typedef struct La_or1k_retval
-> > > +{
-> > > +  /* Up to two 32-bit registers used for a return value.  */
-> > > +  uint32_t lrv_reg[2];
-> > > +} La_or1k_retval;
-> > > +
-> > > +__BEGIN_DECLS
-> > > +
-> > > +extern ElfW(Addr) la_or1k_gnu_pltenter (ElfW(Sym) *__sym, unsigned int __ndx,
-> > > +					uintptr_t *__refcook,
-> > > +					uintptr_t *__defcook,
-> > > +					La_or1k_regs *__regs,
-> > > +					unsigned int *__flags,
-> > > +					const char *__symname,
-> > > +					long int *__framesizep);
-> > > +extern unsigned int la_or1k_gnu_pltexit (ElfW(Sym) *__sym, unsigned int __ndx,
-> > > +					 uintptr_t *__refcook,
-> > > +					 uintptr_t *__defcook,
-> > > +					 const La_or1k_regs *__inregs,
-> > > +					 La_or1k_retval *__outregs,
-> > > +					 const char *__symname);
-> > > +
-> > > +__END_DECLS
-> > 
-> > I think you can use Elf32_Addr and Elf32_Sym directly here, since or1k 
-> > does not have a 64-bit neither this file will be used along it.
-> 
-> OK.
-> 
-> > > diff --git a/sysdeps/or1k/dl-machine.h b/sysdeps/or1k/dl-machine.h
-> > > new file mode 100644
-> > > index 0000000000..ec4db533d2
-> > > --- /dev/null
-> > > +++ b/sysdeps/or1k/dl-machine.h
-> > > @@ -0,0 +1,300 @@
-> > > +/* Machine-dependent ELF dynamic relocation inline functions.  OpenRISC version.
-> > > +   Copyright (C) 2021 Free Software Foundation, Inc.
-> > > +   This file is part of the GNU C Library.
-> > > +
-> > > +   The GNU C Library is free software; you can redistribute it and/or
-> > > +   modify it under the terms of the GNU Lesser General Public
-> > > +   License as published by the Free Software Foundation; either
-> > > +   version 2.1 of the License, or (at your option) any later version.
-> > > +
-> > > +   The GNU C Library is distributed in the hope that it will be useful,
-> > > +   but WITHOUT ANY WARRANTY; without even the implied warranty of
-> > > +   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> > > +   Lesser General Public License for more details.
-> > > +
-> > > +   You should have received a copy of the GNU Lesser General Public
-> > > +   License along with the GNU C Library; if not, see
-> > > +   <https://www.gnu.org/licenses/>.  */
-> > > +
-> > > +#ifndef dl_machine_h
-> > > +#define dl_machine_h
-> > > +
-> > > +#define ELF_MACHINE_NAME "or1k"
-> > > +
-> > > +#include <sys/cdefs.h>
-> > > +#include <sys/param.h>
-> > > +#include <tls.h>
-> > > +#include <dl-irel.h>
-> > > +#include <dl-static-tls.h>
-> > > +#include <dl-machine-rel.h>
-> > > +
-> > > +/* Return nonzero iff ELF header is compatible with the running host.  */
-> > > +static inline int __attribute__ ((unused))
-> > > +elf_machine_matches_host (const Elf32_Ehdr *ehdr)
-> > > +{
-> > > +  return ehdr->e_machine == EM_OPENRISC;
-> > > +}
-> > > +
-> > > +static inline Elf32_Addr *
-> > > +or1k_get_got (void)
-> > > +{
-> > > +  Elf32_Addr *got;
-> > > +
-> > > +  asm ("l.jal    0x8\n"
-> > > +       " l.movhi %0, gotpchi(_GLOBAL_OFFSET_TABLE_-4)\n"
-> > > +       "l.ori    %0, %0, gotpclo(_GLOBAL_OFFSET_TABLE_+0)\n"
-> > > +       "l.add    %0, %0, r9\n"
-> > > +       : "=r" (got) : : "r9");
-> > 
-> > 
-> > I think this requires a "memory" clobber.
-> 
-> Why would it?  This does not do any memory loads or stores.
-> 
-> Let me test with "memory" clobber and see what the difference is.
+This is the OpenRISC port for glibc that I have been working on.
 
-If seem that with the "memory" clobber the compiler can no longer optimize away
-calling or1k_get_got the second time in elf_machine_load_address.
+Changes since v4:
+ - Fix suggestion from Joseph Myers
+   - Remove libnsl.abilist
+ - Fixed suggestions from Adhemerval:
+   - Use Elf32_Addr and Elf32_Sym on link.h and sotruss-lib.c.
+   - Remove the superflous atomic typedefs on atomic-machine.h.
+   - Add the _dl_find_object on libc.abilist.
+   - Update wording for the NEWS entry.
+ - Other fixes
+   - Update date to 2022
+   - Remove uneeded REGSIZE
+   - Remove trailing newlines in Makefile
+   - Fix space vs tabs indentation in sysdep.h
 
-I will leave it out unless there is a good reason for it.
+Changes since v3:
+ - Fix suggestion from Paul Eggert
+   - Fix typo pore/port
+ - Fixed suggestions from Adhemerval:
+   - Used ENTRY/END asm macros where missing
+   - Remove block in dl-machine.h suggesting LD_PROFILE
+   - Remove jmp_buf-macros.h  macros and use new default.
+   - Remove tcb-offsets.sym file and Makefile reference.
+   - Remove tcb-offsets.h include in tls.h.
+   - Define lib-audit register layout inline with other architectures.
+   - Fix usage of locally defined register in or1k_get_got.  Also, fixup
+     indentation when using or1k_get_got.
+   - Cleanup abilists after rebasing, adding rseq and removing
+     empty files.
+   - Remove prctl and other unused entries in the linux Makefile.
+   - Fix STACK_ALIGN to 4 bytes, from incorrect copy-n-paste 16 bytes.
+   - Use default pthreadtypes-arch.h.
+   - Mention only soft-float supported in NEWS.
+   - Remove sysdeps/unix/sysv/linux/or1k/bits/timesize.h and use new
+     default.
 
--Stafford
+Changes since v2:
+ - Fixed suggestions from Joseph Myers:
+   - Fix comment style, and description on top of each file
+   - Make sure macros have parentheses when needed,
+   - Bump required kernel down to 5.4.0 and document
+   - Regenerate arch-syscall.h
+ - Fixed suggestions from Adhemerval:
+   - Remove kernel_stat.h
+   - Just set MMAP2_PAGE_UNIT to 8K
+   - Remove ioctl.c and syscall.c files
+ - Update TCB alignment to 32 bytes
 
-> > > +
-> > > +  return got;
-> > > +}
-> > > +
-> > > +/* Return the link-time address of _DYNAMIC.  Conveniently, this is the
-> > > +   first element of the GOT.  */
-> > > +static inline Elf32_Addr
-> > > +elf_machine_dynamic (void)
-> > > +{
-> > > +  Elf32_Addr *got = or1k_get_got ();
-> > > +  return *got;
-> > > +}
-> > > +
-> > > +
-> > > +/* Return the run-time load address of the shared object.  */
-> > > +static inline Elf32_Addr
-> > > +elf_machine_load_address (void)
-> > > +{
-> > > +  /* Compute the difference between the runtime address of _DYNAMIC as seen
-> > > +     by a GOTOFF reference, and the link-time address found in the special
-> > > +     unrelocated first GOT entry.  */
-> > > +  Elf32_Addr dyn;
-> > > +  Elf32_Addr *got = or1k_get_got ();
-> > > +
-> > > +  asm ("l.movhi %0, gotoffhi(_DYNAMIC);"
-> > > +       "l.ori   %0, %0, gotofflo(_DYNAMIC);"
-> > > +       "l.add   %0, %0, %1;"
-> > > +       : "=&r"(dyn) : "r"(got));
-> > 
-> > Also here.
-> 
-> Same here, it does not read/write memory.  I will look into it, maybe there is
-> something I don't understand about "memory" clobber.
-> 
-> > > +
-> > > +  return dyn - *got;
-> > > +}
-> > > +
-> > > +/* Initial entry point code for the dynamic linker.  The function _dl_start
-> > > +   is the real entry point; it's return value is the user program's entry
-> > > +   point.
-> > > +
-> > > +   Code is really located in dl-start.S, just tell the linker that it
-> > > +   exists.  */
-> > > +#define RTLD_START asm (".globl _dl_start");
-> > > +
-> > > +/* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry or
-> > > +   TLS variable, so undefined references should not be allowed to
-> > > +   define the value.
-> > > +   ELF_RTYPE_CLASS_NOCOPY iff TYPE should not be allowed to resolve to one
-> > > +   of the main executable's symbols, as for a COPY reloc.  */
-> > > +
-> > > +#define elf_machine_type_class(type) \
-> > > +  (((type) == R_OR1K_JMP_SLOT \
-> > > +   || (type) == R_OR1K_TLS_DTPMOD \
-> > > +   || (type) == R_OR1K_TLS_DTPOFF \
-> > > +   || (type) == R_OR1K_TLS_TPOFF) * ELF_RTYPE_CLASS_PLT \
-> > > +   | ((type) == R_OR1K_COPY) * ELF_RTYPE_CLASS_COPY)
-> > > +
-> > > +/* A reloc type used for ld.so cmdline arg lookups to reject PLT entries.  */
-> > > +#define ELF_MACHINE_JMP_SLOT    R_OR1K_JMP_SLOT
-> > > +
-> > > +#define ARCH_LA_PLTENTER or1k_gnu_pltenter
-> > > +#define ARCH_LA_PLTEXIT or1k_gnu_pltexit
-> > > +
-> > > +/* Set up the loaded object described by L so its unrelocated PLT
-> > > +   entries will jump to the on-demand fixup code in dl-runtime.c.  */
-> > > +static inline int __attribute__ ((unused, always_inline))
-> > > +elf_machine_runtime_setup (struct link_map *l, struct r_scope_elem *scope[],
-> > > +			   int lazy, int profile)
-> > > +{
-> > > +  ElfW(Addr) *pltgot;
-> > > +  extern void _dl_runtime_resolve (ElfW(Word));
-> > > +  extern void _dl_runtime_profile (ElfW(Word));
-> > > +
-> > > +  if (l->l_info[DT_JMPREL] && lazy)
-> > > +    {
-> > > +      pltgot = (ElfW(Addr) *) D_PTR (l, l_info[DT_PLTGOT]);
-> > > +
-> > > +      /* Fill in initial entrys of the plt */
-> > > +
-> > > +      /* Register the link_map address in the plt at pltgot[1].
-> > > +	 This will also be used in the resolver for accessing the
-> > > +	 link_map structure.  */
-> > > +      pltgot[1] = (ElfW(Addr)) l;
-> > > +
-> > > +      /* This function will get called to fix up the GOT entry and
-> > > +	 then jump to the resolved address.  */
-> > > +      pltgot[2] = (ElfW(Addr)) &_dl_runtime_resolve;
-> > > +
-> > > +    }
-> > > +
-> > > +  return lazy;
-> > > +}
-> > > +
-> > > +/* Mask identifying addresses reserved for the user program,
-> > > +   where the dynamic linker should not map anything.  */
-> > > +#define ELF_MACHINE_USER_ADDRESS_MASK   0xf8000000UL
-> > > +
-> > > +/* We define an initialization functions.  This is called very early in
-> > > +   _dl_sysdep_start.  */
-> > > +#define DL_PLATFORM_INIT dl_platform_init ()
-> > > +
-> > > +static inline void __attribute__ ((unused))
-> > > +dl_platform_init (void)
-> > > +{
-> > > +  if (GLRO(dl_platform) != NULL && *GLRO(dl_platform) == '\0')
-> > > +    /* Avoid an empty string which would disturb us.  */
-> > > +    GLRO(dl_platform) = NULL;
-> > > +}
-> > > +
-> > > +static inline ElfW(Addr)
-> > > +elf_machine_fixup_plt (struct link_map *map, lookup_t t,
-> > > +		       const ElfW(Sym) *refsym, const ElfW(Sym) *sym,
-> > > +		       const ElfW(Rela) *reloc,
-> > > +		       ElfW(Addr) *reloc_addr, ElfW(Addr) value)
-> > > +{
-> > > +  return *reloc_addr = value;
-> > > +}
-> > > +
-> > > +/* Return the final value of a plt relocation.  */
-> > > +static inline Elf32_Addr
-> > > +elf_machine_plt_value (struct link_map *map, const Elf32_Rela *reloc,
-> > > +		       Elf32_Addr value)
-> > > +{
-> > > +  return value + reloc->r_addend;
-> > > +}
-> > > +
-> > > +
-> > > +#endif /* !dl_machine_h */
-> > > +
-> > > +#ifdef RESOLVE_MAP
-> > > +
-> > > +/* Perform the relocation specified by RELOC and SYM (which is fully resolved).
-> > > +   MAP is the object containing the reloc.  */
-> > > +
-> > > +static inline void
-> > > +__attribute ((always_inline))
-> > > +elf_machine_rela (struct link_map *map, struct r_scope_elem *scope[],
-> > > +		  const ElfW(Rela) *reloc, const ElfW(Sym) *sym,
-> > > +		  const struct r_found_version *version,
-> > > +		  void *const reloc_addr_arg, int skip_ifunc)
-> > > +{
-> > > +  Elf32_Addr *const reloc_addr = reloc_addr_arg;
-> > > +  const unsigned int r_type = ELF32_R_TYPE (reloc->r_info);
-> > > +
-> > > +  if (__glibc_unlikely (r_type == R_OR1K_NONE))
-> > > +    return;
-> > > +  else
-> > > +    {
-> > > +# ifndef RESOLVE_CONFLICT_FIND_MAP
-> > > +      const Elf32_Sym *const refsym = sym;
-> > > +# endif
-> > > +      struct link_map *sym_map = RESOLVE_MAP (map, scope, &sym, version,
-> > > +					      r_type);
-> > > +      Elf32_Addr value = SYMBOL_ADDRESS (sym_map, sym, true);
-> > > +
-> > > +      if (sym != NULL
-> > > +	  && __glibc_unlikely (ELFW(ST_TYPE) (sym->st_info) == STT_GNU_IFUNC)
-> > > +	  && __glibc_likely (sym->st_shndx != SHN_UNDEF)
-> > > +	  && __glibc_likely (!skip_ifunc))
-> > > +	value = elf_ifunc_invoke (value);
-> > > +
-> > > +      switch (r_type)
-> > > +	{
-> > > +# ifndef RESOLVE_CONFLICT_FIND_MAP
-> > > +	  case R_OR1K_COPY:
-> > > +	    if (sym == NULL)
-> > > +	      /* This can happen in trace mode if an object could not be
-> > > +		 found.  */
-> > > +	      break;
-> > > +	    if (__glibc_unlikely (sym->st_size > refsym->st_size)
-> > > +		|| (__glibc_unlikely (sym->st_size < refsym->st_size)
-> > > +		  && GLRO(dl_verbose)))
-> > > +	    {
-> > > +	      const char *strtab;
-> > > +
-> > > +	      strtab = (const char *) D_PTR (map, l_info[DT_STRTAB]);
-> > > +	      _dl_error_printf ("\
-> > > +%s: Symbol `%s' has different size in shared object, consider re-linking\n",
-> > > +		  rtld_progname ?: "<program name unknown>",
-> > > +		  strtab + refsym->st_name);
-> > > +	    }
-> > > +	    memcpy (reloc_addr_arg, (void *) value,
-> > > +		MIN (sym->st_size, refsym->st_size));
-> > > +	    break;
-> > > +# endif /* !RESOLVE_CONFLICT_FIND_MAP */
-> > > +	  case R_OR1K_32:
-> > > +	    /* Support relocations on mis-aligned offsets.  */
-> > > +	    value += reloc->r_addend;
-> > > +	    memcpy (reloc_addr_arg, &value, 4);
-> > > +	    break;
-> > > +	  case R_OR1K_GLOB_DAT:
-> > > +	  case R_OR1K_JMP_SLOT:
-> > > +	    *reloc_addr = value + reloc->r_addend;
-> > > +	    break;
-> > > +	  case R_OR1K_TLS_DTPMOD:
-> > > +# ifdef RTLD_BOOTSTRAP
-> > > +	    /* During startup the dynamic linker is always the module
-> > > +	       with index 1.  */
-> > > +	    *reloc_addr = 1;
-> > > +# else
-> > > +	    if (sym_map != NULL)
-> > > +	      *reloc_addr = sym_map->l_tls_modid;
-> > > +# endif
-> > > +	    break;
-> > > +	  case R_OR1K_TLS_DTPOFF:
-> > > +# ifndef RTLD_BOOTSTRAP
-> > > +	    *reloc_addr = (sym == NULL ? 0 : sym->st_value) + reloc->r_addend;
-> > > +# endif
-> > > +	    break;
-> > > +
-> > > +	  case R_OR1K_TLS_TPOFF:
-> > > +# ifdef RTLD_BOOTSTRAP
-> > > +	    *reloc_addr = sym->st_value + reloc->r_addend +
-> > > +	      map->l_tls_offset - TLS_TCB_SIZE;
-> > > +# else
-> > > +	    if (sym_map != NULL)
-> > > +	      {
-> > > +		CHECK_STATIC_TLS (map, sym_map);
-> > > +		*reloc_addr = sym->st_value + reloc->r_addend +
-> > > +		  sym_map->l_tls_offset - TLS_TCB_SIZE;
-> > > +	      }
-> > > +# endif
-> > > +	    break;
-> > > +	  default:
-> > > +	    _dl_reloc_bad_type (map, r_type, 0);
-> > > +	    break;
-> > > +	}
-> > > +    }
-> > > +}
-> > > +
-> > > +static inline void
-> > > +__attribute__ ((always_inline))
-> > > +elf_machine_rela_relative (Elf32_Addr l_addr, const Elf32_Rela *reloc,
-> > > +			   void *const reloc_addr_arg)
-> > > +{
-> > > +  Elf32_Addr *const reloc_addr = reloc_addr_arg;
-> > > +  *reloc_addr = l_addr + reloc->r_addend;
-> > > +}
-> > > +
-> > > +static inline void
-> > > +__attribute__ ((always_inline))
-> > > +elf_machine_lazy_rel (struct link_map *map, struct r_scope_elem *scope[],
-> > > +		      ElfW(Addr) l_addr, const ElfW(Rela) *reloc,
-> > > +		      int skip_ifunc)
-> > > +{
-> > > +  Elf32_Addr *const reloc_addr = (void *) (l_addr + reloc->r_offset);
-> > > +  const unsigned int r_type = ELF32_R_TYPE (reloc->r_info);
-> > > +
-> > > +  if (__glibc_likely (r_type == R_OR1K_JMP_SLOT))
-> > > +      *reloc_addr += l_addr;
-> > > +  else if (__glibc_unlikely (r_type == R_OR1K_NONE))
-> > > +    return;
-> > > +  else
-> > > +    _dl_reloc_bad_type (map, r_type, 1);
-> > > +}
-> > > +
-> > > +#endif /* RESOLVE_MAP */
-> > > diff --git a/sysdeps/or1k/dl-start.S b/sysdeps/or1k/dl-start.S
-> > > new file mode 100644
-> > > index 0000000000..ecb1505427
-> > > --- /dev/null
-> > > +++ b/sysdeps/or1k/dl-start.S
-> > > @@ -0,0 +1,98 @@
-> > > +/* Machine-dependent ELF startup code.  OpenRISC version.
-> > > +   Copyright (C) 2021 Free Software Foundation, Inc.
-> > > +   This file is part of the GNU C Library.
-> > > +
-> > > +   The GNU C Library is free software; you can redistribute it and/or
-> > > +   modify it under the terms of the GNU Lesser General Public
-> > > +   License as published by the Free Software Foundation; either
-> > > +   version 2.1 of the License, or (at your option) any later version.
-> > > +
-> > > +   The GNU C Library is distributed in the hope that it will be useful,
-> > > +   but WITHOUT ANY WARRANTY; without even the implied warranty of
-> > > +   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> > > +   Lesser General Public License for more details.
-> > > +
-> > > +   You should have received a copy of the GNU Lesser General Public
-> > > +   License along with the GNU C Library; if not, see
-> > > +   <https://www.gnu.org/licenses/>.  */
-> > > +
-> > > +#include <sysdep.h>
-> > > +
-> > > +/* Initial entry point code for the dynamic linker.
-> > > +   The function _dl_start is the real entry point;
-> > > +   it's return value is the user program's entry point.  */
-> > > +ENTRY (_start)
-> > > +	/* Count arguments in r11 */
-> > > +	l.ori	r3, r1, 0
-> > > +	l.movhi	r11, 0
-> > > +1:
-> > > +	l.addi	r3, r3, 4
-> > > +	l.lwz	r12, 0(r3)
-> > > +	l.sfnei	r12, 0
-> > > +	l.addi	r11, r11, 1
-> > > +	l.bf	1b
-> > > +	 l.nop
-> > > +	l.addi	r11, r11, -1
-> > > +	/* store argument counter to stack.  */
-> > > +	l.sw	0(r1), r11
-> > > +
-> > > +	/* Load the PIC register.  */
-> > > +	l.jal	0x8
-> > > +	 l.movhi r16, gotpchi(_GLOBAL_OFFSET_TABLE_-4)
-> > > +	l.ori	r16, r16, gotpclo(_GLOBAL_OFFSET_TABLE_+0)
-> > > +	l.add	r16, r16, r9
-> > > +
-> > > +	l.ori	r3, r1, 0
-> > > +
-> > > +	l.jal	_dl_start
-> > > +	 l.nop
-> > > +	/* Save user entry in a call saved reg.  */
-> > > +	l.ori	r22, r11, 0
-> > > +	/* Fall through to _dl_start_user.  */
-> > > +
-> > > +_dl_start_user:
-> > > +	/* Set up for _dl_init.  */
-> > > +
-> > > +	/* Load _rtld_local (a.k.a _dl_loaded).  */
-> > > +	l.lwz	r12, got(_rtld_local)(r16)
-> > > +	l.lwz	r3, 0(r12)
-> > > +
-> > > +	/* Load argc */
-> > > +	l.lwz	r18, got(_dl_argc)(r16)
-> > > +	l.lwz	r4, 0(r18)
-> > > +
-> > > +	/* Load argv */
-> > > +	l.lwz	r20, got(_dl_argv)(r16)
-> > > +	l.lwz	r5, 0(r20)
-> > > +
-> > > +	/* Load envp = &argv[argc + 1].  */
-> > > +	l.slli	r6, r4, 2
-> > > +	l.addi	r6, r6, 4
-> > > +	l.add	r6, r6, r5
-> > > +
-> > > +	l.jal	plt(_dl_init)
-> > > +	 l.nop
-> > > +
-> > > +	/* Now set up for user entry.
-> > > +	   The already defined ABI loads argc and argv from the stack.
-> > > +
-> > > +	   argc = 0(r1)
-> > > +	   argv = r1 + 4
-> > > +	*/
-> > > +
-> > > +	/* Load SP as argv - 4.  */
-> > > +	l.lwz	r3, 0(r20)
-> > > +	l.addi	r1, r3, -4
-> > > +
-> > > +	/* Save argc.  */
-> > > +	l.lwz	r3, 0(r18)
-> > > +	l.sw	0(r1), r3
-> > > +
-> > > +	/* Pass _dl_fini function address to _start.
-> > > +	   Next start.S will then pass this as rtld_fini to __libc_start_main.  */
-> > > +	l.lwz	r3, got(_dl_fini)(r16)
-> > > +
-> > > +	l.jr	r22
-> > > +	 l.nop
-> > > +
-> > > +END (_start)
-> > > diff --git a/sysdeps/or1k/ldsodefs.h b/sysdeps/or1k/ldsodefs.h
-> > > new file mode 100644
-> > > index 0000000000..89713fcc70
-> > > --- /dev/null
-> > > +++ b/sysdeps/or1k/ldsodefs.h
-> > > @@ -0,0 +1,40 @@
-> > > +/* Run-time dynamic linker data structures for loaded ELF shared objects.
-> > > +   Copyright (C) 2021 Free Software Foundation, Inc.
-> > > +   This file is part of the GNU C Library.
-> > > +
-> > > +   The GNU C Library is free software; you can redistribute it and/or
-> > > +   modify it under the terms of the GNU Lesser General Public
-> > > +   License as published by the Free Software Foundation; either
-> > > +   version 2.1 of the License, or (at your option) any later version.
-> > > +
-> > > +   The GNU C Library is distributed in the hope that it will be useful,
-> > > +   but WITHOUT ANY WARRANTY; without even the implied warranty of
-> > > +   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> > > +   Lesser General Public License for more details.
-> > > +
-> > > +   You should have received a copy of the GNU Lesser General Public
-> > > +   License along with the GNU C Library; if not, see
-> > > +   <https://www.gnu.org/licenses/>.  */
-> > > +
-> > > +#ifndef	_OR1K_LDSODEFS_H
-> > > +#define	_OR1K_LDSODEFS_H	1
-> > > +
-> > > +#include <elf.h>
-> > > +
-> > > +struct La_or1k_regs;
-> > > +struct La_or1k_retval;
-> > > +
-> > > +#define ARCH_PLTENTER_MEMBERS						\
-> > > +    uintptr_t (*or1k_gnu_pltenter) (Elf32_Sym *, unsigned int, uintptr_t *, \
-> > > +				  uintptr_t *, struct La_or1k_regs *, \
-> > > +				  unsigned int *, const char *name,	\
-> > > +				  long int *framesizep)
-> > > +
-> > > +#define ARCH_PLTEXIT_MEMBERS						\
-> > > +    unsigned int (*or1k_gnu_pltexit) (Elf32_Sym *, unsigned int, uintptr_t *, \
-> > > +				    uintptr_t *, const struct La_or1k_regs *, \
-> > > +				    struct La_or1k_retval *, const char *)
-> > > +
-> > > +#include_next <ldsodefs.h>
-> > > +
-> > > +#endif
-> > > diff --git a/sysdeps/or1k/sotruss-lib.c b/sysdeps/or1k/sotruss-lib.c
-> > > new file mode 100644
-> > > index 0000000000..3755b7afd5
-> > > --- /dev/null
-> > > +++ b/sysdeps/or1k/sotruss-lib.c
-> > > @@ -0,0 +1,51 @@
-> > > +/* Override generic sotruss-lib.c to define actual functions for OpenRISC.
-> > > +   Copyright (C) 2021 Free Software Foundation, Inc.
-> > > +   This file is part of the GNU C Library.
-> > > +
-> > > +   The GNU C Library is free software; you can redistribute it and/or
-> > > +   modify it under the terms of the GNU Lesser General Public
-> > > +   License as published by the Free Software Foundation; either
-> > > +   version 2.1 of the License, or (at your option) any later version.
-> > > +
-> > > +   The GNU C Library is distributed in the hope that it will be useful,
-> > > +   but WITHOUT ANY WARRANTY; without even the implied warranty of
-> > > +   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> > > +   Lesser General Public License for more details.
-> > > +
-> > > +   You should have received a copy of the GNU Lesser General Public
-> > > +   License along with the GNU C Library.  If not, see
-> > > +   <https://www.gnu.org/licenses/>.  */
-> > > +
-> > > +#define HAVE_ARCH_PLTENTER
-> > > +#define HAVE_ARCH_PLTEXIT
-> > > +
-> > > +#include <elf/sotruss-lib.c>
-> > > +
-> > > +ElfW(Addr)
-> > > +la_or1k_gnu_pltenter (ElfW(Sym) *sym __attribute__ ((unused)),
-> > 
-> > As before, I think you can use Elf32_Addr and Elf32_Sym directly.
-> 
-> OK.
-> 
-> > > +		       unsigned int ndx __attribute__ ((unused)),
-> > > +		       uintptr_t *refcook, uintptr_t *defcook,
-> > > +		       La_or1k_regs *regs, unsigned int *flags,
-> > > +		       const char *symname, long int *framesizep)
-> > > +{
-> > > +  print_enter (refcook, defcook, symname,
-> > > +	       regs->lr_reg[0], regs->lr_reg[1], regs->lr_reg[2],
-> > > +	       *flags);
-> > > +
-> > > +  /* No need to copy anything, we will not need the parameters in any case.  */
-> > > +  *framesizep = 0;
-> > > +
-> > > +  return sym->st_value;
-> > > +}
-> > > +
-> > > +unsigned int
-> > > +la_or1k_gnu_pltexit (ElfW(Sym) *sym, unsigned int ndx, uintptr_t *refcook,
-> > > +		      uintptr_t *defcook,
-> > > +		      const struct La_or1k_regs *inregs,
-> > > +		      struct La_or1k_retval *outregs,
-> > > +		      const char *symname)
-> > > +{
-> > > +  print_exit (refcook, defcook, symname, outregs->lrv_reg[0]);
-> > > +
-> > > +  return 0;
-> > > +}
-> > > diff --git a/sysdeps/or1k/start.S b/sysdeps/or1k/start.S
-> > > new file mode 100644
-> > > index 0000000000..0424355f36
-> > > --- /dev/null
-> > > +++ b/sysdeps/or1k/start.S
-> > > @@ -0,0 +1,99 @@
-> > > +/* start, OpenRISC version.
-> > > +   Copyright (C) 2021 Free Software Foundation, Inc.
-> > > +   This file is part of the GNU C Library.
-> > > +
-> > > +   The GNU C Library is free software; you can redistribute it and/or
-> > > +   modify it under the terms of the GNU Lesser General Public
-> > > +   License as published by the Free Software Foundation; either
-> > > +   version 2.1 of the License, or (at your option) any later version.
-> > > +
-> > > +   The GNU C Library is distributed in the hope that it will be useful,
-> > > +   but WITHOUT ANY WARRANTY; without even the implied warranty of
-> > > +   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> > > +   Lesser General Public License for more details.
-> > > +
-> > > +   You should have received a copy of the GNU Lesser General Public
-> > > +   License along with the GNU C Library; if not, write to the Free
-> > > +   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-> > > +   02111-1307 USA.  */
-> > > +
-> > > +/* This is the canonical entry point, usually the first thing in the text
-> > > +   segment.
-> > > +
-> > > +   sp   The stack contains the arguments and environment:
-> > > +    0(sp)     argc
-> > > +    4(sp)     argv[0]
-> > > +    ...
-> > > +    (4*argc)(sp)    NULL
-> > > +    (4*(argc+1))(sp)  envp[0]
-> > > +    ...
-> > > +    NULL
-> > > + */
-> > > +
-> > > +#define __ASSEMBLY__
-> > > +#include <sysdep.h>
-> > > +#include <entry.h>
-> > > +
-> > > +ENTRY (ENTRY_POINT)
-> > > +
-> > > +	/* Setup Arguments to the __libc_start_main function.  */
-> > > +
-> > > +	/* Take values for argc and argv off the stack.
-> > > +	   These will be passed as arguments two and three to main
-> > > +	   and thus go in registers r4 and r5, respectively.  */
-> > > +	l.lwz	r4, 0(r1)
-> > > +	l.addi	r5, r1, 4
-> > > +
-> > > +	/* Pass in rtld_fini from dl-start.S.  */
-> > > +	l.or	r8, r3, r3
-> > > +
-> > > +#ifdef PIC
-> > > +	/* Obtain a pointer to .got in r16 */
-> > > +	l.jal	0x8
-> > > +	 l.movhi r16, gotpchi(_GLOBAL_OFFSET_TABLE_-4)
-> > > +	l.ori	r16, r16, gotpclo(_GLOBAL_OFFSET_TABLE_+0)
-> > > +	l.add	r16, r16, r9
-> > > +
-> > > +	/* Pass in the the main symbol.  */
-> > > +	l.lwz	r3, got(main)(r16)
-> > > +#else
-> > > +	/* Pass in the the main symbol.  */
-> > > +	l.movhi r3, hi(main)
-> > > +	l.ori	r3, r3, lo(main)
-> > > +#endif
-> > > +	/* Used to be init and fini.  */
-> > > +	l.movhi	r6, 0x0
-> > > +	l.movhi	r7, 0x0
-> > > +
-> > > +	/* Push stack limit onto the stack.
-> > > +	   This provides the highest stack address to user code (as stack grows
-> > > +	   downwards.
-> > > +	   This is the seventh argument to __libc_start_main and thus needs to
-> > > +	   be passed on the stack.  */
-> > > +	l.sw	-4(r1), r1
-> > > +
-> > > +	/* Adjust stack to account for a total of 7 args (i.e. the last one is
-> > > +	   on the stack.  */
-> > > +	l.addi	r1, r1, -4
-> > > +
-> > > +	/* Clear the frame pointer and link register since this is the
-> > > +	   outermost frame.  */
-> > > +	l.movhi	r2, 0x0
-> > > +	l.movhi	r9, 0x0
-> > > +
-> > > +	/* Let the libc call main and exit with its return code.  */
-> > > +#ifdef PIC
-> > > +	l.j	plt(__libc_start_main)
-> > > +#else
-> > > +	l.j	__libc_start_main
-> > > +#endif
-> > > +	 l.nop
-> > > +END (ENTRY_POINT)
-> > > +
-> > > +	/* Define a symbol for the first piece of initialized data.  */
-> > > +	.data
-> > > +	.globl __data_start
-> > > +__data_start:
-> > > +	.long 0
-> > > +	.weak data_start
-> > > +	data_start = __data_start
-> > > diff --git a/sysdeps/or1k/tst-audit.h b/sysdeps/or1k/tst-audit.h
-> > > new file mode 100644
-> > > index 0000000000..66cb2ee48c
-> > > --- /dev/null
-> > > +++ b/sysdeps/or1k/tst-audit.h
-> > > @@ -0,0 +1,24 @@
-> > > +/* Definitions for testing PLT entry/exit auditing.  OpenRISC version.
-> > > +   Copyright (C) 2021 Free Software Foundation, Inc.
-> > > +
-> > > +   This file is part of the GNU C Library.
-> > > +
-> > > +   The GNU C Library is free software; you can redistribute it and/or
-> > > +   modify it under the terms of the GNU Lesser General Public
-> > > +   License as published by the Free Software Foundation; either
-> > > +   version 2.1 of the License, or (at your option) any later version.
-> > > +
-> > > +   The GNU C Library is distributed in the hope that it will be useful,
-> > > +   but WITHOUT ANY WARRANTY; without even the implied warranty of
-> > > +   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> > > +   Lesser General Public License for more details.
-> > > +
-> > > +   You should have received a copy of the GNU Lesser General Public
-> > > +   License along with the GNU C Library.  If not, see
-> > > +   <https://www.gnu.org/licenses/>.  */
-> > > +
-> > > +#define pltenter la_or1k_gnu_pltenter
-> > > +#define pltexit la_or1k_gnu_pltexit
-> > > +#define La_regs La_or1k_regs
-> > > +#define La_retval La_or1k_retval
-> > > +#define int_retval lrv_reg[0]
+Changes since v1:
+ - Update api's as suggested by Florian
+ - Remove hard float support
+ - Updates to get all tests passing
+ - Split patch into managable bits similar to recent ARC port
+
+Documentation:
+
+  Architecture / ABI docs:
+   https://raw.githubusercontent.com/openrisc/doc/master/openrisc-arch-1.3-rev1.pdf
+
+Test Results:
+
+  build-many-glibcs.py:
+
+   PASS with mainline ang gcc-11.
+
+  Full test suite:
+
+  This time I ran the test suite with timeout of 300 and with patch for forcing
+  O_LARGEFILE in open64 [0].  The test has one failure but it seems like flaky
+  test as it passed after the second run.
+
+    # results in file: /home/shorne/work/gnu-toolchain/log/test--20211226-162029.log
+    # test start:    2021-12-26T16:20:29+09:00
+
+    # failures
+    FAIL: posix/tst-execveat   /* Running second time passes */
+
+    # test finish:   2021-12-29T12:54:08+09:00
+    # test duration: 2 days 20 hours 33 minutes and 39 seconds
+    # test for file: tests.sum
+    # test wrapper:  /home/shorne/work/gnu-toolchain/glibc/scripts/cross-test-ssh.sh --timeoutfactor 300 10.0.0.5
+
+    # summary
+	  1 FAIL
+       4148 PASS
+	 31 UNSUPPORTED
+	 16 XFAIL
+	  2 XPASS
+
+    posix/tst-execveat.out:
+	Timed out: killed the child process
+	Termination time: 2021-12-29T01:02:42.433964340
+	Last write to standard output: 2021-12-28T23:22:40.266363000
+
+    tests.sum: https://gist.github.com/stffrdhrn/88c1fce0c54350258f1f5869068d015a
+
+ [0] https://sourceware.org/pipermail/libc-alpha/2021-December/134634.html
+
+Stafford Horne (13):
+  elf: Add reloc for OpenRISC
+  linux/syscalls: Add or1k_atomic syscall for OpenRISC
+  or1k: ABI Implementation
+  or1k: startup and dynamic linking code
+  or1k: Thread Local Storage support
+  or1k: Atomics and Locking primitives
+  or1k: math soft float support
+  or1k: Linux Syscall Interface
+  or1k: Linux ABI
+  or1k: ABI lists
+  or1k: Build Infrastructure
+  build-many-glibcs.py: add OpenRISC support
+  Documentation for OpenRISC port
+
+ NEWS                                          |    9 +
+ README                                        |    1 +
+ elf/elf.h                                     |   37 +
+ scripts/build-many-glibcs.py                  |    5 +
+ sysdeps/or1k/Implies                          |    3 +
+ sysdeps/or1k/Makefile                         |    6 +
+ sysdeps/or1k/__longjmp.S                      |   50 +
+ sysdeps/or1k/atomic-machine.h                 |   71 +
+ sysdeps/or1k/bits/endianness.h                |   11 +
+ sysdeps/or1k/bits/fenv.h                      |   69 +
+ sysdeps/or1k/bits/link.h                      |   54 +
+ sysdeps/or1k/bits/setjmp.h                    |   32 +
+ sysdeps/or1k/bsd-_setjmp.S                    |    1 +
+ sysdeps/or1k/bsd-setjmp.S                     |    1 +
+ sysdeps/or1k/dl-machine.h                     |  300 +++
+ sysdeps/or1k/dl-start.S                       |   98 +
+ sysdeps/or1k/dl-tls.h                         |   27 +
+ sysdeps/or1k/dl-trampoline.S                  |   73 +
+ sysdeps/or1k/jmpbuf-offsets.h                 |   23 +
+ sysdeps/or1k/jmpbuf-unwind.h                  |   36 +
+ sysdeps/or1k/ldsodefs.h                       |   40 +
+ sysdeps/or1k/libc-tls.c                       |   34 +
+ sysdeps/or1k/libm-test-ulps                   | 1112 +++++++++
+ sysdeps/or1k/libm-test-ulps-name              |    1 +
+ sysdeps/or1k/machine-gmon.h                   |   35 +
+ sysdeps/or1k/memusage.h                       |   21 +
+ sysdeps/or1k/nofpu/Implies                    |    1 +
+ sysdeps/or1k/nofpu/math-tests-exceptions.h    |   29 +
+ sysdeps/or1k/nofpu/math-tests-rounding.h      |   28 +
+ sysdeps/or1k/nptl/pthreaddef.h                |   36 +
+ sysdeps/or1k/nptl/tls.h                       |  184 ++
+ sysdeps/or1k/preconfigure                     |   33 +
+ sysdeps/or1k/setjmp.S                         |   56 +
+ sysdeps/or1k/sfp-machine.h                    |   93 +
+ sysdeps/or1k/sotruss-lib.c                    |   51 +
+ sysdeps/or1k/stackinfo.h                      |   34 +
+ sysdeps/or1k/start.S                          |   99 +
+ sysdeps/or1k/sysdep.h                         |   80 +
+ sysdeps/or1k/tininess.h                       |    1 +
+ sysdeps/or1k/tst-audit.h                      |   24 +
+ sysdeps/unix/sysv/linux/or1k/Implies          |    3 +
+ sysdeps/unix/sysv/linux/or1k/Makefile         |    7 +
+ sysdeps/unix/sysv/linux/or1k/arch-syscall.h   |  325 +++
+ sysdeps/unix/sysv/linux/or1k/bits/procfs.h    |   38 +
+ sysdeps/unix/sysv/linux/or1k/c++-types.data   |   67 +
+ sysdeps/unix/sysv/linux/or1k/clone.c          |   61 +
+ sysdeps/unix/sysv/linux/or1k/configure        |    4 +
+ sysdeps/unix/sysv/linux/or1k/configure.ac     |    4 +
+ sysdeps/unix/sysv/linux/or1k/getcontext.S     |   72 +
+ sysdeps/unix/sysv/linux/or1k/ld.abilist       |    8 +
+ .../sysv/linux/or1k/libBrokenLocale.abilist   |    1 +
+ sysdeps/unix/sysv/linux/or1k/libc.abilist     | 2123 +++++++++++++++++
+ .../sysv/linux/or1k/libc_malloc_debug.abilist |   26 +
+ sysdeps/unix/sysv/linux/or1k/libcrypt.abilist |    2 +
+ sysdeps/unix/sysv/linux/or1k/libm.abilist     |  759 ++++++
+ .../unix/sysv/linux/or1k/libresolv.abilist    |   55 +
+ .../unix/sysv/linux/or1k/libthread_db.abilist |   40 +
+ sysdeps/unix/sysv/linux/or1k/localplt.data    |   14 +
+ sysdeps/unix/sysv/linux/or1k/makecontext.c    |   77 +
+ sysdeps/unix/sysv/linux/or1k/mmap_internal.h  |   28 +
+ sysdeps/unix/sysv/linux/or1k/or1k_clone.S     |   89 +
+ sysdeps/unix/sysv/linux/or1k/setcontext.S     |  108 +
+ sysdeps/unix/sysv/linux/or1k/shlib-versions   |    2 +
+ sysdeps/unix/sysv/linux/or1k/sigcontextinfo.h |   28 +
+ sysdeps/unix/sysv/linux/or1k/swapcontext.S    |  116 +
+ sysdeps/unix/sysv/linux/or1k/sys/ucontext.h   |   53 +
+ sysdeps/unix/sysv/linux/or1k/sys/user.h       |    1 +
+ sysdeps/unix/sysv/linux/or1k/sysdep.c         |   34 +
+ sysdeps/unix/sysv/linux/or1k/sysdep.h         |  201 ++
+ sysdeps/unix/sysv/linux/or1k/ucontext_i.sym   |   26 +
+ sysdeps/unix/sysv/linux/syscall-names.list    |    1 +
+ 71 files changed, 7272 insertions(+)
+ create mode 100644 sysdeps/or1k/Implies
+ create mode 100644 sysdeps/or1k/Makefile
+ create mode 100644 sysdeps/or1k/__longjmp.S
+ create mode 100644 sysdeps/or1k/atomic-machine.h
+ create mode 100644 sysdeps/or1k/bits/endianness.h
+ create mode 100644 sysdeps/or1k/bits/fenv.h
+ create mode 100644 sysdeps/or1k/bits/link.h
+ create mode 100644 sysdeps/or1k/bits/setjmp.h
+ create mode 100644 sysdeps/or1k/bsd-_setjmp.S
+ create mode 100644 sysdeps/or1k/bsd-setjmp.S
+ create mode 100644 sysdeps/or1k/dl-machine.h
+ create mode 100644 sysdeps/or1k/dl-start.S
+ create mode 100644 sysdeps/or1k/dl-tls.h
+ create mode 100644 sysdeps/or1k/dl-trampoline.S
+ create mode 100644 sysdeps/or1k/jmpbuf-offsets.h
+ create mode 100644 sysdeps/or1k/jmpbuf-unwind.h
+ create mode 100644 sysdeps/or1k/ldsodefs.h
+ create mode 100644 sysdeps/or1k/libc-tls.c
+ create mode 100644 sysdeps/or1k/libm-test-ulps
+ create mode 100644 sysdeps/or1k/libm-test-ulps-name
+ create mode 100644 sysdeps/or1k/machine-gmon.h
+ create mode 100644 sysdeps/or1k/memusage.h
+ create mode 100644 sysdeps/or1k/nofpu/Implies
+ create mode 100644 sysdeps/or1k/nofpu/math-tests-exceptions.h
+ create mode 100644 sysdeps/or1k/nofpu/math-tests-rounding.h
+ create mode 100644 sysdeps/or1k/nptl/pthreaddef.h
+ create mode 100644 sysdeps/or1k/nptl/tls.h
+ create mode 100644 sysdeps/or1k/preconfigure
+ create mode 100644 sysdeps/or1k/setjmp.S
+ create mode 100644 sysdeps/or1k/sfp-machine.h
+ create mode 100644 sysdeps/or1k/sotruss-lib.c
+ create mode 100644 sysdeps/or1k/stackinfo.h
+ create mode 100644 sysdeps/or1k/start.S
+ create mode 100644 sysdeps/or1k/sysdep.h
+ create mode 100644 sysdeps/or1k/tininess.h
+ create mode 100644 sysdeps/or1k/tst-audit.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/Implies
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/Makefile
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/arch-syscall.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/bits/procfs.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/c++-types.data
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/clone.c
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/configure
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/configure.ac
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/getcontext.S
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/ld.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/libBrokenLocale.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/libc.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/libc_malloc_debug.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/libcrypt.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/libm.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/libresolv.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/libthread_db.abilist
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/localplt.data
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/makecontext.c
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/mmap_internal.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/or1k_clone.S
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/setcontext.S
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/shlib-versions
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/sigcontextinfo.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/swapcontext.S
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/sys/ucontext.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/sys/user.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/sysdep.c
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/sysdep.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/ucontext_i.sym
+
+-- 
+2.31.1
+
