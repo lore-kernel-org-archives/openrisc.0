@@ -1,63 +1,56 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Tue,  4 Jan 2022 12:14:14 +0900
-Subject: [OpenRISC] [PATCH v5 13/13] Documentation for OpenRISC port
-In-Reply-To: <20220104031414.2416928-1-shorne@gmail.com>
-References: <20220104031414.2416928-1-shorne@gmail.com>
-Message-ID: <20220104031414.2416928-14-shorne@gmail.com>
+From: Adhemerval Zanella <adhemerval.zanella@linaro.org>
+Date: Tue, 4 Jan 2022 09:05:28 -0300
+Subject: [OpenRISC] [PATCH v4 04/13] or1k: startup and dynamic linking
+ code
+In-Reply-To: <YdO6GmOcafGR1t9Z@antec>
+References: <20211229044251.2203653-1-shorne@gmail.com>
+ <20211229044251.2203653-5-shorne@gmail.com>
+ <152802e5-0bac-e450-3898-016fc00bdd4f@linaro.org> <YdOir8IbYTzs/Opy@antec>
+ <YdO6GmOcafGR1t9Z@antec>
+Message-ID: <d3679ca1-8632-1b15-e54e-4c42fddae5dd@linaro.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-OpenRISC architecture specification:
 
- https://raw.githubusercontent.com/openrisc/doc/master/openrisc-arch-1.3-rev1.pdf
 
-Currently the port as of the 2022-01-03 rebasing there are no known
-architecture specific test failures.
+On 04/01/2022 00:08, Stafford Horne wrote:
+> On Tue, Jan 04, 2022 at 10:28:15AM +0900, Stafford Horne wrote:
+>> On Mon, Jan 03, 2022 at 03:17:15PM -0300, Adhemerval Zanella wrote:
+>>>
+>>>
+>>> On 29/12/2021 01:42, Stafford Horne via Libc-alpha wrote:
+>>>> +/* Return nonzero iff ELF header is compatible with the running host.  */
+>>>> +static inline int __attribute__ ((unused))
+>>>> +elf_machine_matches_host (const Elf32_Ehdr *ehdr)
+>>>> +{
+>>>> +  return ehdr->e_machine == EM_OPENRISC;
+>>>> +}
+>>>> +
+>>>> +static inline Elf32_Addr *
+>>>> +or1k_get_got (void)
+>>>> +{
+>>>> +  Elf32_Addr *got;
+>>>> +
+>>>> +  asm ("l.jal    0x8\n"
+>>>> +       " l.movhi %0, gotpchi(_GLOBAL_OFFSET_TABLE_-4)\n"
+>>>> +       "l.ori    %0, %0, gotpclo(_GLOBAL_OFFSET_TABLE_+0)\n"
+>>>> +       "l.add    %0, %0, r9\n"
+>>>> +       : "=r" (got) : : "r9");
+>>>
+>>>
+>>> I think this requires a "memory" clobber.
+>>
+>> Why would it?  This does not do any memory loads or stores.
+>>
+>> Let me test with "memory" clobber and see what the difference is.
+> 
+> If seem that with the "memory" clobber the compiler can no longer optimize away
+> calling or1k_get_got the second time in elf_machine_load_address.
+> 
+> I will leave it out unless there is a good reason for it.
 
-Writing credits for the port are:
-
- Stafford Horne  <shorne@gmail.com>
- Christian Svensson  <blue@cmd.nu>
----
- NEWS   | 9 +++++++++
- README | 1 +
- 2 files changed, 10 insertions(+)
-
-diff --git a/NEWS b/NEWS
-index 9da2a740ec..1b7a64d654 100644
---- a/NEWS
-+++ b/NEWS
-@@ -106,6 +106,15 @@ Major new features:
-   can use it to efficiently locate unwinding information for a code
-   address.
- 
-+* Support for OpenRISC running on Linux has been added.  This port requires
-+  as least binutils 2.35, GCC 11, and Linux 5.4.  Currently only soft-float
-+  ABI is supported:
-+
-+    - or1k-linux-gnu
-+
-+  The OpenRISC ABI is 32-bit big-endian and uses 64-bit time (y2038 safe) and
-+  64-bit file offsets (LFS default).
-+
- Deprecated and removed features, and other changes affecting compatibility:
- 
- * On x86-64, the LD_PREFER_MAP_32BIT_EXEC environment variable support
-diff --git a/README b/README
-index d0f0edb393..3d5a78ccff 100644
---- a/README
-+++ b/README
-@@ -35,6 +35,7 @@ The GNU C Library supports these configurations for using Linux kernels:
- 	microblaze*-*-linux-gnu
- 	mips-*-linux-gnu
- 	mips64-*-linux-gnu
-+	or1k-*-linux-gnu
- 	powerpc-*-linux-gnu	Hardware or software floating point, BE only.
- 	powerpc64*-*-linux-gnu	Big-endian and little-endian.
- 	s390-*-linux-gnu
--- 
-2.31.1
-
+Fair enough, I had the impression it does access memory but it seems it
+just my lack of or1k assembly knowledge. Sorry for the noise.
