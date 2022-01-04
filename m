@@ -1,160 +1,44 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Tue,  4 Jan 2022 12:14:12 +0900
-Subject: [OpenRISC] [PATCH v5 11/13] or1k: Build Infrastructure
+Date: Tue,  4 Jan 2022 12:14:13 +0900
+Subject: [OpenRISC] [PATCH v5 12/13] build-many-glibcs.py: add OpenRISC
+ support
 In-Reply-To: <20220104031414.2416928-1-shorne@gmail.com>
 References: <20220104031414.2416928-1-shorne@gmail.com>
-Message-ID: <20220104031414.2416928-12-shorne@gmail.com>
+Message-ID: <20220104031414.2416928-13-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Here we define the minumum linux kernel version at 5.4.0, as that is the
-long term support version where 32-bit architectures start to support
-64-bit time API's.  The OpenRISC kernel had some bugs up until version 5.8
-which caused issues with glibc fork/clone, they have been backported to
-5.4 but not previous versions.
-
 Reviewed-by: Adhemerval Zanella  <adhemerval.zanella@linaro.org>
 ---
- sysdeps/or1k/Implies                        |  3 ++
- sysdeps/or1k/Makefile                       |  6 ++++
- sysdeps/or1k/nofpu/Implies                  |  1 +
- sysdeps/or1k/preconfigure                   | 33 +++++++++++++++++++++
- sysdeps/unix/sysv/linux/or1k/Implies        |  3 ++
- sysdeps/unix/sysv/linux/or1k/Makefile       |  7 +++++
- sysdeps/unix/sysv/linux/or1k/configure      |  4 +++
- sysdeps/unix/sysv/linux/or1k/configure.ac   |  4 +++
- sysdeps/unix/sysv/linux/or1k/shlib-versions |  2 ++
- 9 files changed, 63 insertions(+)
- create mode 100644 sysdeps/or1k/Implies
- create mode 100644 sysdeps/or1k/Makefile
- create mode 100644 sysdeps/or1k/nofpu/Implies
- create mode 100644 sysdeps/or1k/preconfigure
- create mode 100644 sysdeps/unix/sysv/linux/or1k/Implies
- create mode 100644 sysdeps/unix/sysv/linux/or1k/Makefile
- create mode 100644 sysdeps/unix/sysv/linux/or1k/configure
- create mode 100644 sysdeps/unix/sysv/linux/or1k/configure.ac
- create mode 100644 sysdeps/unix/sysv/linux/or1k/shlib-versions
+ scripts/build-many-glibcs.py | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sysdeps/or1k/Implies b/sysdeps/or1k/Implies
-new file mode 100644
-index 0000000000..387a0ca052
---- /dev/null
-+++ b/sysdeps/or1k/Implies
-@@ -0,0 +1,3 @@
-+wordsize-32
-+ieee754/dbl-64
-+ieee754/flt-32
-diff --git a/sysdeps/or1k/Makefile b/sysdeps/or1k/Makefile
-new file mode 100644
-index 0000000000..577d8d5234
---- /dev/null
-+++ b/sysdeps/or1k/Makefile
-@@ -0,0 +1,6 @@
-+ASFLAGS-.os += -fPIC
-+
-+ifeq ($(subdir),elf)
-+# Extra shared linker files to link only into dl-allobjs.so.
-+sysdep-rtld-routines += dl-start
-+endif
-diff --git a/sysdeps/or1k/nofpu/Implies b/sysdeps/or1k/nofpu/Implies
-new file mode 100644
-index 0000000000..abcbadb25f
---- /dev/null
-+++ b/sysdeps/or1k/nofpu/Implies
-@@ -0,0 +1 @@
-+ieee754/soft-fp
-diff --git a/sysdeps/or1k/preconfigure b/sysdeps/or1k/preconfigure
-new file mode 100644
-index 0000000000..1cc7ce0399
---- /dev/null
-+++ b/sysdeps/or1k/preconfigure
-@@ -0,0 +1,33 @@
-+#
-+# This is free and unencumbered software released into the public domain.
-+#
-+# Anyone is free to copy, modify, publish, use, compile, sell, or
-+# distribute this software, either in source code form or as a compiled
-+# binary, for any purpose, commercial or non-commercial, and by any
-+# means.
-+#
-+# In jurisdictions that recognize copyright laws, the author or authors
-+# of this software dedicate any and all copyright interest in the
-+# software to the public domain. We make this dedication for the benefit
-+# of the public at large and to the detriment of our heirs and
-+# successors. We intend this dedication to be an overt act of
-+# relinquishment in perpetuity of all present and future rights to this
-+# software under copyright law.
-+#
-+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-+# IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-+# OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-+# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-+# OTHER DEALINGS IN THE SOFTWARE.
-+#
-+
-+case "$machine" in
-+or1k*)
-+  base_machine=or1k
-+  machine=or1k
-+
-+  with_fp_cond="defined __or1k_hard_float__"
-+  ;;
-+esac
-diff --git a/sysdeps/unix/sysv/linux/or1k/Implies b/sysdeps/unix/sysv/linux/or1k/Implies
-new file mode 100644
-index 0000000000..f39f16c04a
---- /dev/null
-+++ b/sysdeps/unix/sysv/linux/or1k/Implies
-@@ -0,0 +1,3 @@
-+or1k/nptl
-+unix/sysv/linux/generic/wordsize-32
-+unix/sysv/linux/generic
-diff --git a/sysdeps/unix/sysv/linux/or1k/Makefile b/sysdeps/unix/sysv/linux/or1k/Makefile
-new file mode 100644
-index 0000000000..7d85fb6eea
---- /dev/null
-+++ b/sysdeps/unix/sysv/linux/or1k/Makefile
-@@ -0,0 +1,7 @@
-+ifeq ($(subdir),misc)
-+sysdep_routines += or1k_clone
-+endif
-+
-+ifeq ($(subdir),stdlib)
-+gen-as-const-headers += ucontext_i.sym
-+endif
-diff --git a/sysdeps/unix/sysv/linux/or1k/configure b/sysdeps/unix/sysv/linux/or1k/configure
-new file mode 100644
-index 0000000000..5225dfea5b
---- /dev/null
-+++ b/sysdeps/unix/sysv/linux/or1k/configure
-@@ -0,0 +1,4 @@
-+# This file is generated from configure.ac by Autoconf.  DO NOT EDIT!
-+ # Local configure fragment for sysdeps/unix/sysv/linux/or1k.
-+
-+arch_minimum_kernel=5.4.0
-diff --git a/sysdeps/unix/sysv/linux/or1k/configure.ac b/sysdeps/unix/sysv/linux/or1k/configure.ac
-new file mode 100644
-index 0000000000..6274c4fb02
---- /dev/null
-+++ b/sysdeps/unix/sysv/linux/or1k/configure.ac
-@@ -0,0 +1,4 @@
-+GLIBC_PROVIDES dnl See aclocal.m4 in the top level source directory.
-+# Local configure fragment for sysdeps/unix/sysv/linux/or1k.
-+
-+arch_minimum_kernel=5.4.0
-diff --git a/sysdeps/unix/sysv/linux/or1k/shlib-versions b/sysdeps/unix/sysv/linux/or1k/shlib-versions
-new file mode 100644
-index 0000000000..159653b5c4
---- /dev/null
-+++ b/sysdeps/unix/sysv/linux/or1k/shlib-versions
-@@ -0,0 +1,2 @@
-+DEFAULT                 GLIBC_2.35
-+ld=ld-linux-or1k.so.1
+diff --git a/scripts/build-many-glibcs.py b/scripts/build-many-glibcs.py
+index 354b870742..07a3705f39 100755
+--- a/scripts/build-many-glibcs.py
++++ b/scripts/build-many-glibcs.py
+@@ -335,6 +335,10 @@ class Context(object):
+                                  'ccopts': '-mabi=64'}])
+         self.add_config(arch='nios2',
+                         os_name='linux-gnu')
++        self.add_config(arch='or1k',
++                        os_name='linux-gnu',
++                        variant='soft',
++                        gcc_cfg=['--with-multilib-list=mcmov'])
+         self.add_config(arch='powerpc',
+                         os_name='linux-gnu',
+                         gcc_cfg=['--disable-multilib', '--enable-secureplt'],
+@@ -1271,6 +1275,7 @@ def install_linux_headers(policy, cmdlist):
+                 'microblaze': 'microblaze',
+                 'mips': 'mips',
+                 'nios2': 'nios2',
++                'or1k': 'openrisc',
+                 'powerpc': 'powerpc',
+                 's390': 's390',
+                 'riscv32': 'riscv',
 -- 
 2.31.1
 
