@@ -1,44 +1,63 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Tue,  4 Jan 2022 12:14:13 +0900
-Subject: [OpenRISC] [PATCH v5 12/13] build-many-glibcs.py: add OpenRISC
- support
+Date: Tue,  4 Jan 2022 12:14:14 +0900
+Subject: [OpenRISC] [PATCH v5 13/13] Documentation for OpenRISC port
 In-Reply-To: <20220104031414.2416928-1-shorne@gmail.com>
 References: <20220104031414.2416928-1-shorne@gmail.com>
-Message-ID: <20220104031414.2416928-13-shorne@gmail.com>
+Message-ID: <20220104031414.2416928-14-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Reviewed-by: Adhemerval Zanella  <adhemerval.zanella@linaro.org>
----
- scripts/build-many-glibcs.py | 5 +++++
- 1 file changed, 5 insertions(+)
+OpenRISC architecture specification:
 
-diff --git a/scripts/build-many-glibcs.py b/scripts/build-many-glibcs.py
-index 354b870742..07a3705f39 100755
---- a/scripts/build-many-glibcs.py
-+++ b/scripts/build-many-glibcs.py
-@@ -335,6 +335,10 @@ class Context(object):
-                                  'ccopts': '-mabi=64'}])
-         self.add_config(arch='nios2',
-                         os_name='linux-gnu')
-+        self.add_config(arch='or1k',
-+                        os_name='linux-gnu',
-+                        variant='soft',
-+                        gcc_cfg=['--with-multilib-list=mcmov'])
-         self.add_config(arch='powerpc',
-                         os_name='linux-gnu',
-                         gcc_cfg=['--disable-multilib', '--enable-secureplt'],
-@@ -1271,6 +1275,7 @@ def install_linux_headers(policy, cmdlist):
-                 'microblaze': 'microblaze',
-                 'mips': 'mips',
-                 'nios2': 'nios2',
-+                'or1k': 'openrisc',
-                 'powerpc': 'powerpc',
-                 's390': 's390',
-                 'riscv32': 'riscv',
+ https://raw.githubusercontent.com/openrisc/doc/master/openrisc-arch-1.3-rev1.pdf
+
+Currently the port as of the 2022-01-03 rebasing there are no known
+architecture specific test failures.
+
+Writing credits for the port are:
+
+ Stafford Horne  <shorne@gmail.com>
+ Christian Svensson  <blue@cmd.nu>
+---
+ NEWS   | 9 +++++++++
+ README | 1 +
+ 2 files changed, 10 insertions(+)
+
+diff --git a/NEWS b/NEWS
+index 9da2a740ec..1b7a64d654 100644
+--- a/NEWS
++++ b/NEWS
+@@ -106,6 +106,15 @@ Major new features:
+   can use it to efficiently locate unwinding information for a code
+   address.
+ 
++* Support for OpenRISC running on Linux has been added.  This port requires
++  as least binutils 2.35, GCC 11, and Linux 5.4.  Currently only soft-float
++  ABI is supported:
++
++    - or1k-linux-gnu
++
++  The OpenRISC ABI is 32-bit big-endian and uses 64-bit time (y2038 safe) and
++  64-bit file offsets (LFS default).
++
+ Deprecated and removed features, and other changes affecting compatibility:
+ 
+ * On x86-64, the LD_PREFER_MAP_32BIT_EXEC environment variable support
+diff --git a/README b/README
+index d0f0edb393..3d5a78ccff 100644
+--- a/README
++++ b/README
+@@ -35,6 +35,7 @@ The GNU C Library supports these configurations for using Linux kernels:
+ 	microblaze*-*-linux-gnu
+ 	mips-*-linux-gnu
+ 	mips64-*-linux-gnu
++	or1k-*-linux-gnu
+ 	powerpc-*-linux-gnu	Hardware or software floating point, BE only.
+ 	powerpc64*-*-linux-gnu	Big-endian and little-endian.
+ 	s390-*-linux-gnu
 -- 
 2.31.1
 
