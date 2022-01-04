@@ -1,1245 +1,369 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Tue,  4 Jan 2022 12:14:08 +0900
-Subject: [OpenRISC] [PATCH v5 07/13] or1k: math soft float support
+Date: Tue,  4 Jan 2022 12:14:09 +0900
+Subject: [OpenRISC] [PATCH v5 08/13] or1k: Linux Syscall Interface
 In-Reply-To: <20220104031414.2416928-1-shorne@gmail.com>
 References: <20220104031414.2416928-1-shorne@gmail.com>
-Message-ID: <20220104031414.2416928-8-shorne@gmail.com>
+Message-ID: <20220104031414.2416928-9-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-OpenRISC support hard float but I will like to submit that after glibc
-soft float goes upstream.  The hard float support depends on adding user
-access to the FPCSR, which is not supported by the kernel yet.
-
 Reviewed-by: Adhemerval Zanella  <adhemerval.zanella@linaro.org>
 ---
- sysdeps/or1k/bits/fenv.h                   |   69 ++
- sysdeps/or1k/libm-test-ulps                | 1112 ++++++++++++++++++++
- sysdeps/or1k/libm-test-ulps-name           |    1 +
- sysdeps/or1k/nofpu/math-tests-exceptions.h |   29 +
- sysdeps/or1k/nofpu/math-tests-rounding.h   |   28 +
- sysdeps/or1k/sfp-machine.h                 |   93 ++
- sysdeps/or1k/tininess.h                    |    1 +
- 7 files changed, 1333 insertions(+)
- create mode 100644 sysdeps/or1k/bits/fenv.h
- create mode 100644 sysdeps/or1k/libm-test-ulps
- create mode 100644 sysdeps/or1k/libm-test-ulps-name
- create mode 100644 sysdeps/or1k/nofpu/math-tests-exceptions.h
- create mode 100644 sysdeps/or1k/nofpu/math-tests-rounding.h
- create mode 100644 sysdeps/or1k/sfp-machine.h
- create mode 100644 sysdeps/or1k/tininess.h
+ sysdeps/unix/sysv/linux/or1k/arch-syscall.h  | 325 +++++++++++++++++++
+ sysdeps/unix/sysv/linux/or1k/clone.c         |  61 ++++
+ sysdeps/unix/sysv/linux/or1k/mmap_internal.h |  28 ++
+ sysdeps/unix/sysv/linux/or1k/or1k_clone.S    |  89 +++++
+ sysdeps/unix/sysv/linux/or1k/sysdep.c        |  34 ++
+ sysdeps/unix/sysv/linux/or1k/sysdep.h        | 201 ++++++++++++
+ 6 files changed, 738 insertions(+)
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/arch-syscall.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/clone.c
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/mmap_internal.h
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/or1k_clone.S
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/sysdep.c
+ create mode 100644 sysdeps/unix/sysv/linux/or1k/sysdep.h
 
-diff --git a/sysdeps/or1k/bits/fenv.h b/sysdeps/or1k/bits/fenv.h
+diff --git a/sysdeps/unix/sysv/linux/or1k/arch-syscall.h b/sysdeps/unix/sysv/linux/or1k/arch-syscall.h
 new file mode 100644
-index 0000000000..156954c024
+index 0000000000..c6c3556137
 --- /dev/null
-+++ b/sysdeps/or1k/bits/fenv.h
-@@ -0,0 +1,69 @@
-+/* Floating point environment, OpenRISC version.
-+   Copyright (C) 2022 Free Software Foundation, Inc.
-+
-+   This file is part of the GNU C Library.
-+
-+   The GNU C Library is free software; you can redistribute it and/or
-+   modify it under the terms of the GNU Lesser General Public License as
-+   published by the Free Software Foundation; either version 2.1 of the
-+   License, or (at your option) any later version.
-+
-+   The GNU C Library is distributed in the hope that it will be useful,
-+   but WITHOUT ANY WARRANTY; without even the implied warranty of
-+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+   Lesser General Public License for more details.
-+
-+   You should have received a copy of the GNU Lesser General Public
-+   License along with the GNU C Library; if not, see
-+   <https://www.gnu.org/licenses/>.  */
-+
-+#ifndef _FENV_H
-+# error "Never use <bits/fenv.h> directly; include <fenv.h> instead."
-+#endif
-+
-+/* Define bits representing exceptions in the FPCSR status word.  */
-+enum
-+  {
-+    FE_OVERFLOW =
-+#define FE_OVERFLOW	(1 << 3)
-+      FE_OVERFLOW,
-+    FE_UNDERFLOW =
-+#define FE_UNDERFLOW	(1 << 4)
-+      FE_UNDERFLOW,
-+    FE_INEXACT =
-+#define FE_INEXACT	(1 << 8)
-+      FE_INEXACT,
-+    FE_INVALID =
-+#define FE_INVALID	(1 << 9)
-+      FE_INVALID,
-+    FE_DIVBYZERO =
-+#define FE_DIVBYZERO	(1 << 11)
-+      FE_DIVBYZERO,
-+  };
-+
-+/* All supported exceptions.  */
-+#define FE_ALL_EXCEPT	\
-+	(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT)
-+
-+/* Define bits representing rounding modes in the FPCSR Rmode field.  */
-+#define FE_TONEAREST  (0x0 << 1)
-+#define FE_TOWARDZERO (0x1 << 1)
-+#define FE_UPWARD     (0x2 << 1)
-+#define FE_DOWNWARD   (0x3 << 1)
-+
-+/* Type representing exception flags.  */
-+typedef unsigned int fexcept_t;
-+
-+/* Type representing floating-point environment.  */
-+typedef unsigned int fenv_t;
-+
-+/* If the default argument is used we use this value.  */
-+#define FE_DFL_ENV	((const fenv_t *) -1l)
-+
-+#if __GLIBC_USE (IEC_60559_BFP_EXT)
-+/* Type representing floating-point control modes.  */
-+typedef unsigned int femode_t;
-+
-+/* Default floating-point control modes.  */
-+# define FE_DFL_MODE	((const femode_t *) -1L)
-+#endif
-diff --git a/sysdeps/or1k/libm-test-ulps b/sysdeps/or1k/libm-test-ulps
++++ b/sysdeps/unix/sysv/linux/or1k/arch-syscall.h
+@@ -0,0 +1,325 @@
++/* AUTOGENERATED by update-syscall-lists.py.  */
++#define __NR_accept 202
++#define __NR_accept4 242
++#define __NR_acct 89
++#define __NR_add_key 217
++#define __NR_adjtimex 171
++#define __NR_bind 200
++#define __NR_bpf 280
++#define __NR_brk 214
++#define __NR_capget 90
++#define __NR_capset 91
++#define __NR_chdir 49
++#define __NR_chroot 51
++#define __NR_clock_adjtime 266
++#define __NR_clock_adjtime64 405
++#define __NR_clock_getres 114
++#define __NR_clock_getres_time64 406
++#define __NR_clock_gettime 113
++#define __NR_clock_gettime64 403
++#define __NR_clock_nanosleep 115
++#define __NR_clock_nanosleep_time64 407
++#define __NR_clock_settime 112
++#define __NR_clock_settime64 404
++#define __NR_clone 220
++#define __NR_clone3 435
++#define __NR_close 57
++#define __NR_close_range 436
++#define __NR_connect 203
++#define __NR_copy_file_range 285
++#define __NR_delete_module 106
++#define __NR_dup 23
++#define __NR_dup3 24
++#define __NR_epoll_create1 20
++#define __NR_epoll_ctl 21
++#define __NR_epoll_pwait 22
++#define __NR_epoll_pwait2 441
++#define __NR_eventfd2 19
++#define __NR_execve 221
++#define __NR_execveat 281
++#define __NR_exit 93
++#define __NR_exit_group 94
++#define __NR_faccessat 48
++#define __NR_faccessat2 439
++#define __NR_fadvise64_64 223
++#define __NR_fallocate 47
++#define __NR_fanotify_init 262
++#define __NR_fanotify_mark 263
++#define __NR_fchdir 50
++#define __NR_fchmod 52
++#define __NR_fchmodat 53
++#define __NR_fchown 55
++#define __NR_fchownat 54
++#define __NR_fcntl64 25
++#define __NR_fdatasync 83
++#define __NR_fgetxattr 10
++#define __NR_finit_module 273
++#define __NR_flistxattr 13
++#define __NR_flock 32
++#define __NR_fremovexattr 16
++#define __NR_fsconfig 431
++#define __NR_fsetxattr 7
++#define __NR_fsmount 432
++#define __NR_fsopen 430
++#define __NR_fspick 433
++#define __NR_fstat64 80
++#define __NR_fstatat64 79
++#define __NR_fstatfs64 44
++#define __NR_fsync 82
++#define __NR_ftruncate64 46
++#define __NR_futex 98
++#define __NR_futex_time64 422
++#define __NR_get_mempolicy 236
++#define __NR_get_robust_list 100
++#define __NR_getcpu 168
++#define __NR_getcwd 17
++#define __NR_getdents64 61
++#define __NR_getegid 177
++#define __NR_geteuid 175
++#define __NR_getgid 176
++#define __NR_getgroups 158
++#define __NR_getitimer 102
++#define __NR_getpeername 205
++#define __NR_getpgid 155
++#define __NR_getpid 172
++#define __NR_getppid 173
++#define __NR_getpriority 141
++#define __NR_getrandom 278
++#define __NR_getresgid 150
++#define __NR_getresuid 148
++#define __NR_getrlimit 163
++#define __NR_getrusage 165
++#define __NR_getsid 156
++#define __NR_getsockname 204
++#define __NR_getsockopt 209
++#define __NR_gettid 178
++#define __NR_gettimeofday 169
++#define __NR_getuid 174
++#define __NR_getxattr 8
++#define __NR_init_module 105
++#define __NR_inotify_add_watch 27
++#define __NR_inotify_init1 26
++#define __NR_inotify_rm_watch 28
++#define __NR_io_cancel 3
++#define __NR_io_destroy 1
++#define __NR_io_getevents 4
++#define __NR_io_pgetevents 292
++#define __NR_io_pgetevents_time64 416
++#define __NR_io_setup 0
++#define __NR_io_submit 2
++#define __NR_io_uring_enter 426
++#define __NR_io_uring_register 427
++#define __NR_io_uring_setup 425
++#define __NR_ioctl 29
++#define __NR_ioprio_get 31
++#define __NR_ioprio_set 30
++#define __NR_kcmp 272
++#define __NR_kexec_file_load 294
++#define __NR_kexec_load 104
++#define __NR_keyctl 219
++#define __NR_kill 129
++#define __NR_landlock_add_rule 445
++#define __NR_landlock_create_ruleset 444
++#define __NR_landlock_restrict_self 446
++#define __NR_lgetxattr 9
++#define __NR_linkat 37
++#define __NR_listen 201
++#define __NR_listxattr 11
++#define __NR_llistxattr 12
++#define __NR_llseek 62
++#define __NR_lookup_dcookie 18
++#define __NR_lremovexattr 15
++#define __NR_lsetxattr 6
++#define __NR_madvise 233
++#define __NR_mbind 235
++#define __NR_membarrier 283
++#define __NR_memfd_create 279
++#define __NR_migrate_pages 238
++#define __NR_mincore 232
++#define __NR_mkdirat 34
++#define __NR_mknodat 33
++#define __NR_mlock 228
++#define __NR_mlock2 284
++#define __NR_mlockall 230
++#define __NR_mmap2 222
++#define __NR_mount 40
++#define __NR_mount_setattr 442
++#define __NR_move_mount 429
++#define __NR_move_pages 239
++#define __NR_mprotect 226
++#define __NR_mq_getsetattr 185
++#define __NR_mq_notify 184
++#define __NR_mq_open 180
++#define __NR_mq_timedreceive 183
++#define __NR_mq_timedreceive_time64 419
++#define __NR_mq_timedsend 182
++#define __NR_mq_timedsend_time64 418
++#define __NR_mq_unlink 181
++#define __NR_mremap 216
++#define __NR_msgctl 187
++#define __NR_msgget 186
++#define __NR_msgrcv 188
++#define __NR_msgsnd 189
++#define __NR_msync 227
++#define __NR_munlock 229
++#define __NR_munlockall 231
++#define __NR_munmap 215
++#define __NR_name_to_handle_at 264
++#define __NR_nanosleep 101
++#define __NR_nfsservctl 42
++#define __NR_open_by_handle_at 265
++#define __NR_open_tree 428
++#define __NR_openat 56
++#define __NR_openat2 437
++#define __NR_or1k_atomic 244
++#define __NR_perf_event_open 241
++#define __NR_personality 92
++#define __NR_pidfd_getfd 438
++#define __NR_pidfd_open 434
++#define __NR_pidfd_send_signal 424
++#define __NR_pipe2 59
++#define __NR_pivot_root 41
++#define __NR_pkey_alloc 289
++#define __NR_pkey_free 290
++#define __NR_pkey_mprotect 288
++#define __NR_ppoll 73
++#define __NR_ppoll_time64 414
++#define __NR_prctl 167
++#define __NR_pread64 67
++#define __NR_preadv 69
++#define __NR_preadv2 286
++#define __NR_prlimit64 261
++#define __NR_process_madvise 440
++#define __NR_process_mrelease 448
++#define __NR_process_vm_readv 270
++#define __NR_process_vm_writev 271
++#define __NR_pselect6 72
++#define __NR_pselect6_time64 413
++#define __NR_ptrace 117
++#define __NR_pwrite64 68
++#define __NR_pwritev 70
++#define __NR_pwritev2 287
++#define __NR_quotactl 60
++#define __NR_quotactl_fd 443
++#define __NR_read 63
++#define __NR_readahead 213
++#define __NR_readlinkat 78
++#define __NR_readv 65
++#define __NR_reboot 142
++#define __NR_recvfrom 207
++#define __NR_recvmmsg 243
++#define __NR_recvmmsg_time64 417
++#define __NR_recvmsg 212
++#define __NR_remap_file_pages 234
++#define __NR_removexattr 14
++#define __NR_renameat 38
++#define __NR_renameat2 276
++#define __NR_request_key 218
++#define __NR_restart_syscall 128
++#define __NR_rseq 293
++#define __NR_rt_sigaction 134
++#define __NR_rt_sigpending 136
++#define __NR_rt_sigprocmask 135
++#define __NR_rt_sigqueueinfo 138
++#define __NR_rt_sigreturn 139
++#define __NR_rt_sigsuspend 133
++#define __NR_rt_sigtimedwait 137
++#define __NR_rt_sigtimedwait_time64 421
++#define __NR_rt_tgsigqueueinfo 240
++#define __NR_sched_get_priority_max 125
++#define __NR_sched_get_priority_min 126
++#define __NR_sched_getaffinity 123
++#define __NR_sched_getattr 275
++#define __NR_sched_getparam 121
++#define __NR_sched_getscheduler 120
++#define __NR_sched_rr_get_interval 127
++#define __NR_sched_rr_get_interval_time64 423
++#define __NR_sched_setaffinity 122
++#define __NR_sched_setattr 274
++#define __NR_sched_setparam 118
++#define __NR_sched_setscheduler 119
++#define __NR_sched_yield 124
++#define __NR_seccomp 277
++#define __NR_semctl 191
++#define __NR_semget 190
++#define __NR_semop 193
++#define __NR_semtimedop 192
++#define __NR_semtimedop_time64 420
++#define __NR_sendfile64 71
++#define __NR_sendmmsg 269
++#define __NR_sendmsg 211
++#define __NR_sendto 206
++#define __NR_set_mempolicy 237
++#define __NR_set_robust_list 99
++#define __NR_set_tid_address 96
++#define __NR_setdomainname 162
++#define __NR_setfsgid 152
++#define __NR_setfsuid 151
++#define __NR_setgid 144
++#define __NR_setgroups 159
++#define __NR_sethostname 161
++#define __NR_setitimer 103
++#define __NR_setns 268
++#define __NR_setpgid 154
++#define __NR_setpriority 140
++#define __NR_setregid 143
++#define __NR_setresgid 149
++#define __NR_setresuid 147
++#define __NR_setreuid 145
++#define __NR_setrlimit 164
++#define __NR_setsid 157
++#define __NR_setsockopt 208
++#define __NR_settimeofday 170
++#define __NR_setuid 146
++#define __NR_setxattr 5
++#define __NR_shmat 196
++#define __NR_shmctl 195
++#define __NR_shmdt 197
++#define __NR_shmget 194
++#define __NR_shutdown 210
++#define __NR_sigaltstack 132
++#define __NR_signalfd4 74
++#define __NR_socket 198
++#define __NR_socketpair 199
++#define __NR_splice 76
++#define __NR_statfs64 43
++#define __NR_statx 291
++#define __NR_swapoff 225
++#define __NR_swapon 224
++#define __NR_symlinkat 36
++#define __NR_sync 81
++#define __NR_sync_file_range 84
++#define __NR_syncfs 267
++#define __NR_sysinfo 179
++#define __NR_syslog 116
++#define __NR_tee 77
++#define __NR_tgkill 131
++#define __NR_timer_create 107
++#define __NR_timer_delete 111
++#define __NR_timer_getoverrun 109
++#define __NR_timer_gettime 108
++#define __NR_timer_gettime64 408
++#define __NR_timer_settime 110
++#define __NR_timer_settime64 409
++#define __NR_timerfd_create 85
++#define __NR_timerfd_gettime 87
++#define __NR_timerfd_gettime64 410
++#define __NR_timerfd_settime 86
++#define __NR_timerfd_settime64 411
++#define __NR_times 153
++#define __NR_tkill 130
++#define __NR_truncate64 45
++#define __NR_umask 166
++#define __NR_umount2 39
++#define __NR_uname 160
++#define __NR_unlinkat 35
++#define __NR_unshare 97
++#define __NR_userfaultfd 282
++#define __NR_utimensat 88
++#define __NR_utimensat_time64 412
++#define __NR_vhangup 58
++#define __NR_vmsplice 75
++#define __NR_wait4 260
++#define __NR_waitid 95
++#define __NR_write 64
++#define __NR_writev 66
+diff --git a/sysdeps/unix/sysv/linux/or1k/clone.c b/sysdeps/unix/sysv/linux/or1k/clone.c
 new file mode 100644
-index 0000000000..94b383669d
+index 0000000000..a63b542979
 --- /dev/null
-+++ b/sysdeps/or1k/libm-test-ulps
-@@ -0,0 +1,1112 @@
-+# Begin of automatic generation
-+
-+# Maximal error of functions:
-+Function: "acos":
-+double: 1
-+float: 1
-+
-+Function: "acos_downward":
-+double: 1
-+float: 1
-+
-+Function: "acos_towardzero":
-+double: 1
-+float: 1
-+
-+Function: "acos_upward":
-+double: 1
-+float: 1
-+
-+Function: "acosh":
-+double: 2
-+float: 2
-+
-+Function: "acosh_downward":
-+double: 2
-+float: 2
-+
-+Function: "acosh_towardzero":
-+double: 2
-+float: 2
-+
-+Function: "acosh_upward":
-+double: 2
-+float: 2
-+
-+Function: "asin":
-+double: 1
-+float: 1
-+
-+Function: "asin_downward":
-+double: 1
-+float: 1
-+
-+Function: "asin_towardzero":
-+double: 1
-+float: 1
-+
-+Function: "asin_upward":
-+double: 1
-+float: 1
-+
-+Function: "asinh":
-+double: 2
-+float: 2
-+
-+Function: "asinh_downward":
-+double: 3
-+float: 3
-+
-+Function: "asinh_towardzero":
-+double: 2
-+float: 2
-+
-+Function: "asinh_upward":
-+double: 3
-+float: 3
-+
-+Function: "atan":
-+double: 1
-+float: 1
-+
-+Function: "atan2":
-+float: 2
-+
-+Function: "atan2_downward":
-+double: 5
-+float: 2
-+
-+Function: "atan2_towardzero":
-+double: 5
-+float: 2
-+
-+Function: "atan2_upward":
-+double: 8
-+float: 2
-+
-+Function: "atan_downward":
-+double: 1
-+float: 2
-+
-+Function: "atan_towardzero":
-+double: 1
-+float: 1
-+
-+Function: "atan_upward":
-+double: 1
-+float: 2
-+
-+Function: "atanh":
-+double: 2
-+float: 2
-+
-+Function: "atanh_downward":
-+double: 3
-+float: 3
-+
-+Function: "atanh_towardzero":
-+double: 2
-+float: 2
-+
-+Function: "atanh_upward":
-+double: 3
-+float: 3
-+
-+Function: "cabs":
-+double: 1
-+
-+Function: "cabs_downward":
-+double: 1
-+
-+Function: "cabs_towardzero":
-+double: 1
-+
-+Function: "cabs_upward":
-+double: 1
-+
-+Function: Real part of "cacos":
-+double: 1
-+float: 2
-+
-+Function: Imaginary part of "cacos":
-+double: 2
-+float: 2
-+
-+Function: Real part of "cacos_downward":
-+double: 3
-+float: 2
-+
-+Function: Imaginary part of "cacos_downward":
-+double: 5
-+float: 3
-+
-+Function: Real part of "cacos_towardzero":
-+double: 3
-+float: 2
-+
-+Function: Imaginary part of "cacos_towardzero":
-+double: 4
-+float: 2
-+
-+Function: Real part of "cacos_upward":
-+double: 2
-+float: 2
-+
-+Function: Imaginary part of "cacos_upward":
-+double: 5
-+float: 7
-+
-+Function: Real part of "cacosh":
-+double: 2
-+float: 2
-+
-+Function: Imaginary part of "cacosh":
-+double: 1
-+float: 2
-+
-+Function: Real part of "cacosh_downward":
-+double: 4
-+float: 2
-+
-+Function: Imaginary part of "cacosh_downward":
-+double: 3
-+float: 3
-+
-+Function: Real part of "cacosh_towardzero":
-+double: 4
-+float: 2
-+
-+Function: Imaginary part of "cacosh_towardzero":
-+double: 3
-+float: 2
-+
-+Function: Real part of "cacosh_upward":
-+double: 4
-+float: 3
-+
-+Function: Imaginary part of "cacosh_upward":
-+double: 3
-+float: 2
-+
-+Function: "carg":
-+float: 1
-+
-+Function: "carg_downward":
-+double: 5
-+float: 2
-+
-+Function: "carg_towardzero":
-+double: 5
-+float: 2
-+
-+Function: "carg_upward":
-+double: 8
-+float: 2
-+
-+Function: Real part of "casin":
-+double: 1
-+float: 1
-+
-+Function: Imaginary part of "casin":
-+double: 2
-+float: 2
-+
-+Function: Real part of "casin_downward":
-+double: 3
-+float: 2
-+
-+Function: Imaginary part of "casin_downward":
-+double: 5
-+float: 3
-+
-+Function: Real part of "casin_towardzero":
-+double: 3
-+float: 1
-+
-+Function: Imaginary part of "casin_towardzero":
-+double: 4
-+float: 2
-+
-+Function: Real part of "casin_upward":
-+double: 3
-+float: 2
-+
-+Function: Imaginary part of "casin_upward":
-+double: 5
-+float: 7
-+
-+Function: Real part of "casinh":
-+double: 2
-+float: 2
-+
-+Function: Imaginary part of "casinh":
-+double: 1
-+float: 1
-+
-+Function: Real part of "casinh_downward":
-+double: 5
-+float: 3
-+
-+Function: Imaginary part of "casinh_downward":
-+double: 3
-+float: 2
-+
-+Function: Real part of "casinh_towardzero":
-+double: 4
-+float: 2
-+
-+Function: Imaginary part of "casinh_towardzero":
-+double: 3
-+float: 1
-+
-+Function: Real part of "casinh_upward":
-+double: 5
-+float: 7
-+
-+Function: Imaginary part of "casinh_upward":
-+double: 3
-+float: 2
-+
-+Function: Real part of "catan":
-+double: 1
-+float: 1
-+
-+Function: Imaginary part of "catan":
-+double: 1
-+float: 1
-+
-+Function: Real part of "catan_downward":
-+double: 1
-+float: 2
-+
-+Function: Imaginary part of "catan_downward":
-+double: 2
-+float: 2
-+
-+Function: Real part of "catan_towardzero":
-+double: 1
-+float: 2
-+
-+Function: Imaginary part of "catan_towardzero":
-+double: 2
-+float: 2
-+
-+Function: Real part of "catan_upward":
-+double: 2
-+float: 1
-+
-+Function: Imaginary part of "catan_upward":
-+double: 2
-+float: 2
-+
-+Function: Real part of "catanh":
-+double: 1
-+float: 1
-+
-+Function: Imaginary part of "catanh":
-+double: 1
-+float: 1
-+
-+Function: Real part of "catanh_downward":
-+double: 2
-+float: 2
-+
-+Function: Imaginary part of "catanh_downward":
-+double: 1
-+float: 2
-+
-+Function: Real part of "catanh_towardzero":
-+double: 2
-+float: 2
-+
-+Function: Imaginary part of "catanh_towardzero":
-+double: 1
-+float: 2
-+
-+Function: Real part of "catanh_upward":
-+double: 4
-+float: 4
-+
-+Function: Imaginary part of "catanh_upward":
-+double: 2
-+float: 1
-+
-+Function: "cbrt":
-+double: 4
-+float: 1
-+
-+Function: "cbrt_downward":
-+double: 4
-+float: 1
-+
-+Function: "cbrt_towardzero":
-+double: 3
-+float: 1
-+
-+Function: "cbrt_upward":
-+double: 5
-+float: 1
-+
-+Function: Real part of "ccos":
-+double: 1
-+float: 1
-+
-+Function: Imaginary part of "ccos":
-+double: 1
-+float: 1
-+
-+Function: Real part of "ccos_downward":
-+double: 3
-+float: 1
-+
-+Function: Imaginary part of "ccos_downward":
-+double: 3
-+float: 3
-+
-+Function: Real part of "ccos_towardzero":
-+double: 3
-+float: 2
-+
-+Function: Imaginary part of "ccos_towardzero":
-+double: 3
-+float: 3
-+
-+Function: Real part of "ccos_upward":
-+double: 1
-+float: 2
-+
-+Function: Imaginary part of "ccos_upward":
-+double: 2
-+float: 2
-+
-+Function: Real part of "ccosh":
-+double: 2
-+float: 1
-+
-+Function: Imaginary part of "ccosh":
-+double: 1
-+float: 1
-+
-+Function: Real part of "ccosh_downward":
-+double: 3
-+float: 2
-+
-+Function: Imaginary part of "ccosh_downward":
-+double: 3
-+float: 3
-+
-+Function: Real part of "ccosh_towardzero":
-+double: 3
-+float: 3
-+
-+Function: Imaginary part of "ccosh_towardzero":
-+double: 3
-+float: 3
-+
-+Function: Real part of "ccosh_upward":
-+double: 1
-+float: 2
-+
-+Function: Imaginary part of "ccosh_upward":
-+double: 2
-+float: 2
-+
-+Function: Real part of "cexp":
-+double: 2
-+float: 1
-+
-+Function: Imaginary part of "cexp":
-+double: 1
-+float: 2
-+
-+Function: Real part of "cexp_downward":
-+double: 4
-+float: 2
-+
-+Function: Imaginary part of "cexp_downward":
-+double: 3
-+float: 3
-+
-+Function: Real part of "cexp_towardzero":
-+double: 4
-+float: 2
-+
-+Function: Imaginary part of "cexp_towardzero":
-+double: 3
-+float: 3
-+
-+Function: Real part of "cexp_upward":
-+double: 2
-+float: 2
-+
-+Function: Imaginary part of "cexp_upward":
-+double: 3
-+float: 2
-+
-+Function: Real part of "clog":
-+double: 3
-+float: 3
-+
-+Function: Imaginary part of "clog":
-+double: 1
-+float: 1
-+
-+Function: Real part of "clog10":
-+double: 3
-+float: 4
-+
-+Function: Imaginary part of "clog10":
-+double: 2
-+float: 2
-+
-+Function: Real part of "clog10_downward":
-+double: 7
-+float: 5
-+
-+Function: Imaginary part of "clog10_downward":
-+double: 8
-+float: 4
-+
-+Function: Real part of "clog10_towardzero":
-+double: 5
-+float: 5
-+
-+Function: Imaginary part of "clog10_towardzero":
-+double: 8
-+float: 4
-+
-+Function: Real part of "clog10_upward":
-+double: 6
-+float: 5
-+
-+Function: Imaginary part of "clog10_upward":
-+double: 5
-+float: 4
-+
-+Function: Real part of "clog_downward":
-+double: 4
-+float: 3
-+
-+Function: Imaginary part of "clog_downward":
-+double: 5
-+float: 2
-+
-+Function: Real part of "clog_towardzero":
-+double: 8
-+float: 4
-+
-+Function: Imaginary part of "clog_towardzero":
-+double: 5
-+float: 3
-+
-+Function: Real part of "clog_upward":
-+double: 8
-+float: 3
-+
-+Function: Imaginary part of "clog_upward":
-+double: 8
-+float: 2
-+
-+Function: "cos":
-+double: 1
-+float: 1
-+
-+Function: "cos_downward":
-+double: 1
-+float: 1
-+
-+Function: "cos_towardzero":
-+double: 4
-+float: 1
-+
-+Function: "cos_upward":
-+double: 4
-+float: 1
-+
-+Function: "cosh":
-+double: 2
-+float: 2
-+
-+Function: "cosh_downward":
-+double: 2
-+float: 1
-+
-+Function: "cosh_towardzero":
-+double: 2
-+float: 1
-+
-+Function: "cosh_upward":
-+double: 2
-+float: 2
-+
-+Function: Real part of "cpow":
-+double: 2
-+float: 5
-+
-+Function: Imaginary part of "cpow":
-+float: 2
-+
-+Function: Real part of "cpow_downward":
-+double: 5
-+float: 8
-+
-+Function: Imaginary part of "cpow_downward":
-+double: 2
-+float: 2
-+
-+Function: Real part of "cpow_towardzero":
-+double: 5
-+float: 8
-+
-+Function: Imaginary part of "cpow_towardzero":
-+double: 2
-+float: 2
-+
-+Function: Real part of "cpow_upward":
-+double: 4
-+float: 1
-+
-+Function: Imaginary part of "cpow_upward":
-+double: 2
-+float: 2
-+
-+Function: Real part of "csin":
-+double: 1
-+float: 1
-+
-+Function: Real part of "csin_downward":
-+double: 3
-+float: 3
-+
-+Function: Imaginary part of "csin_downward":
-+double: 3
-+float: 1
-+
-+Function: Real part of "csin_towardzero":
-+double: 3
-+float: 3
-+
-+Function: Imaginary part of "csin_towardzero":
-+double: 3
-+float: 1
-+
-+Function: Real part of "csin_upward":
-+double: 2
-+float: 2
-+
-+Function: Imaginary part of "csin_upward":
-+double: 1
-+float: 2
-+
-+Function: Real part of "csinh":
-+float: 1
-+
-+Function: Imaginary part of "csinh":
-+double: 1
-+float: 1
-+
-+Function: Real part of "csinh_downward":
-+double: 3
-+float: 1
-+
-+Function: Imaginary part of "csinh_downward":
-+double: 3
-+float: 3
-+
-+Function: Real part of "csinh_towardzero":
-+double: 3
-+float: 2
-+
-+Function: Imaginary part of "csinh_towardzero":
-+double: 3
-+float: 3
-+
-+Function: Real part of "csinh_upward":
-+double: 1
-+float: 2
-+
-+Function: Imaginary part of "csinh_upward":
-+double: 2
-+float: 2
-+
-+Function: Real part of "csqrt":
-+double: 2
-+float: 2
-+
-+Function: Imaginary part of "csqrt":
-+double: 2
-+float: 2
-+
-+Function: Real part of "csqrt_downward":
-+double: 5
-+float: 4
-+
-+Function: Imaginary part of "csqrt_downward":
-+double: 4
-+float: 3
-+
-+Function: Real part of "csqrt_towardzero":
-+double: 4
-+float: 3
-+
-+Function: Imaginary part of "csqrt_towardzero":
-+double: 4
-+float: 3
-+
-+Function: Real part of "csqrt_upward":
-+double: 5
-+float: 4
-+
-+Function: Imaginary part of "csqrt_upward":
-+double: 3
-+float: 3
-+
-+Function: Real part of "ctan":
-+double: 1
-+float: 1
-+
-+Function: Imaginary part of "ctan":
-+double: 2
-+float: 2
-+
-+Function: Real part of "ctan_downward":
-+double: 6
-+float: 5
-+
-+Function: Imaginary part of "ctan_downward":
-+double: 3
-+float: 2
-+
-+Function: Real part of "ctan_towardzero":
-+double: 5
-+float: 3
-+
-+Function: Imaginary part of "ctan_towardzero":
-+double: 3
-+float: 2
-+
-+Function: Real part of "ctan_upward":
-+double: 2
-+float: 4
-+
-+Function: Imaginary part of "ctan_upward":
-+double: 2
-+float: 1
-+
-+Function: Real part of "ctanh":
-+double: 2
-+float: 2
-+
-+Function: Imaginary part of "ctanh":
-+double: 2
-+float: 2
-+
-+Function: Real part of "ctanh_downward":
-+double: 3
-+float: 2
-+
-+Function: Imaginary part of "ctanh_downward":
-+double: 6
-+float: 5
-+
-+Function: Real part of "ctanh_towardzero":
-+double: 3
-+float: 2
-+
-+Function: Imaginary part of "ctanh_towardzero":
-+double: 5
-+float: 3
-+
-+Function: Real part of "ctanh_upward":
-+double: 2
-+float: 2
-+
-+Function: Imaginary part of "ctanh_upward":
-+double: 2
-+float: 3
-+
-+Function: "erf":
-+double: 1
-+float: 1
-+
-+Function: "erf_downward":
-+double: 1
-+float: 1
-+
-+Function: "erf_towardzero":
-+double: 1
-+float: 1
-+
-+Function: "erf_upward":
-+double: 1
-+float: 1
-+
-+Function: "erfc":
-+double: 5
-+float: 3
-+
-+Function: "erfc_downward":
-+double: 5
-+float: 6
-+
-+Function: "erfc_towardzero":
-+double: 3
-+float: 4
-+
-+Function: "erfc_upward":
-+double: 5
-+float: 6
-+
-+Function: "exp":
-+double: 1
-+float: 1
-+
-+Function: "exp10":
-+double: 2
-+float: 1
-+
-+Function: "exp10_downward":
-+double: 3
-+
-+Function: "exp10_towardzero":
-+double: 3
-+
-+Function: "exp10_upward":
-+double: 2
-+float: 1
-+
-+Function: "exp2":
-+double: 1
-+
-+Function: "exp2_downward":
-+double: 1
-+
-+Function: "exp2_towardzero":
-+double: 1
-+
-+Function: "exp2_upward":
-+double: 1
-+float: 1
-+
-+Function: "exp_downward":
-+double: 1
-+float: 1
-+
-+Function: "exp_towardzero":
-+double: 1
-+float: 1
-+
-+Function: "exp_upward":
-+double: 1
-+float: 1
-+
-+Function: "expm1":
-+double: 1
-+float: 1
-+
-+Function: "expm1_downward":
-+double: 1
-+float: 1
-+
-+Function: "expm1_towardzero":
-+double: 1
-+float: 2
-+
-+Function: "expm1_upward":
-+double: 1
-+float: 1
-+
-+Function: "gamma":
-+double: 4
-+float: 7
-+
-+Function: "gamma_downward":
-+double: 7
-+float: 7
-+
-+Function: "gamma_towardzero":
-+double: 7
-+float: 7
-+
-+Function: "gamma_upward":
-+double: 5
-+float: 6
-+
-+Function: "hypot":
-+double: 1
-+
-+Function: "hypot_downward":
-+double: 1
-+
-+Function: "hypot_towardzero":
-+double: 1
-+
-+Function: "hypot_upward":
-+double: 1
-+
-+Function: "j0":
-+double: 2
-+float: 9
-+
-+Function: "j0_downward":
-+double: 2
-+float: 4
-+
-+Function: "j0_towardzero":
-+double: 4
-+float: 5
-+
-+Function: "j0_upward":
-+double: 4
-+float: 5
-+
-+Function: "j1":
-+double: 4
-+float: 9
-+
-+Function: "j1_downward":
-+double: 4
-+float: 5
-+
-+Function: "j1_towardzero":
-+double: 4
-+float: 2
-+
-+Function: "j1_upward":
-+double: 3
-+float: 5
-+
-+Function: "jn":
-+double: 4
-+float: 4
-+
-+Function: "jn_downward":
-+double: 7
-+float: 9
-+
-+Function: "jn_towardzero":
-+double: 7
-+float: 9
-+
-+Function: "jn_upward":
-+double: 7
-+float: 9
-+
-+Function: "lgamma":
-+double: 4
-+float: 7
-+
-+Function: "lgamma_downward":
-+double: 7
-+float: 7
-+
-+Function: "lgamma_towardzero":
-+double: 7
-+float: 7
-+
-+Function: "lgamma_upward":
-+double: 5
-+float: 6
-+
-+Function: "log10":
-+double: 2
-+float: 2
-+
-+Function: "log10_downward":
-+double: 2
-+float: 3
-+
-+Function: "log10_towardzero":
-+double: 2
-+float: 1
-+
-+Function: "log10_upward":
-+double: 2
-+float: 2
-+
-+Function: "log1p":
-+double: 1
-+float: 1
-+
-+Function: "log1p_downward":
-+double: 2
-+float: 2
-+
-+Function: "log1p_towardzero":
-+double: 2
-+float: 2
-+
-+Function: "log1p_upward":
-+double: 2
-+float: 2
-+
-+Function: "log2":
-+float: 1
-+
-+Function: "log2_downward":
-+double: 1
-+
-+Function: "log2_towardzero":
-+double: 1
-+
-+Function: "log2_upward":
-+double: 1
-+
-+Function: "pow":
-+double: 1
-+
-+Function: "pow_downward":
-+double: 1
-+float: 1
-+
-+Function: "pow_towardzero":
-+double: 1
-+float: 1
-+
-+Function: "pow_upward":
-+double: 1
-+float: 1
-+
-+Function: "sin":
-+double: 1
-+float: 1
-+
-+Function: "sin_downward":
-+double: 4
-+float: 1
-+
-+Function: "sin_towardzero":
-+double: 3
-+float: 1
-+
-+Function: "sin_upward":
-+double: 7
-+float: 1
-+
-+Function: "sincos":
-+double: 1
-+
-+Function: "sincos_downward":
-+double: 1
-+float: 1
-+
-+Function: "sincos_towardzero":
-+double: 4
-+float: 1
-+
-+Function: "sincos_upward":
-+double: 1
-+float: 1
-+
-+Function: "sinh":
-+double: 2
-+float: 2
-+
-+Function: "sinh_downward":
-+double: 3
-+float: 3
-+
-+Function: "sinh_towardzero":
-+double: 2
-+float: 2
-+
-+Function: "sinh_upward":
-+double: 3
-+float: 3
-+
-+Function: "tan":
-+float: 1
-+
-+Function: "tan_downward":
-+double: 1
-+float: 2
-+
-+Function: "tan_towardzero":
-+double: 1
-+float: 1
-+
-+Function: "tan_upward":
-+double: 1
-+float: 1
-+
-+Function: "tanh":
-+double: 2
-+float: 2
-+
-+Function: "tanh_downward":
-+double: 3
-+float: 3
-+
-+Function: "tanh_towardzero":
-+double: 2
-+float: 2
-+
-+Function: "tanh_upward":
-+double: 3
-+float: 3
-+
-+Function: "tgamma":
-+double: 9
-+float: 8
-+
-+Function: "tgamma_downward":
-+double: 9
-+float: 9
-+
-+Function: "tgamma_towardzero":
-+double: 9
-+float: 8
-+
-+Function: "tgamma_upward":
-+double: 9
-+float: 8
-+
-+Function: "y0":
-+double: 3
-+float: 9
-+
-+Function: "y0_downward":
-+double: 3
-+float: 6
-+
-+Function: "y0_towardzero":
-+double: 3
-+float: 3
-+
-+Function: "y0_upward":
-+double: 3
-+float: 6
-+
-+Function: "y1":
-+double: 3
-+float: 9
-+
-+Function: "y1_downward":
-+double: 6
-+float: 7
-+
-+Function: "y1_towardzero":
-+double: 3
-+float: 3
-+
-+Function: "y1_upward":
-+double: 7
-+float: 5
-+
-+Function: "yn":
-+double: 3
-+float: 3
-+
-+Function: "yn_downward":
-+double: 6
-+float: 8
-+
-+Function: "yn_towardzero":
-+double: 8
-+float: 8
-+
-+Function: "yn_upward":
-+double: 8
-+float: 8
-+
-+# end of automatic generation
-diff --git a/sysdeps/or1k/libm-test-ulps-name b/sysdeps/or1k/libm-test-ulps-name
-new file mode 100644
-index 0000000000..0af6591fd9
---- /dev/null
-+++ b/sysdeps/or1k/libm-test-ulps-name
-@@ -0,0 +1 @@
-+OpenRISC
-diff --git a/sysdeps/or1k/nofpu/math-tests-exceptions.h b/sysdeps/or1k/nofpu/math-tests-exceptions.h
-new file mode 100644
-index 0000000000..bf2d114692
---- /dev/null
-+++ b/sysdeps/or1k/nofpu/math-tests-exceptions.h
-@@ -0,0 +1,29 @@
-+/* Configuration for math tests: support for exceptions.  OpenRISC no-FPU
-+   version.
++++ b/sysdeps/unix/sysv/linux/or1k/clone.c
+@@ -0,0 +1,61 @@
++/* OpenRISC helper for the clone syscall.
 +   Copyright (C) 2022 Free Software Foundation, Inc.
 +   This file is part of the GNU C Library.
 +
@@ -1257,24 +381,56 @@ index 0000000000..bf2d114692
 +   License along with the GNU C Library; if not, see
 +   <https://www.gnu.org/licenses/>.  */
 +
-+#ifndef OR1K_NOFPU_MATH_TESTS_EXCEPTIONS_H
-+#define OR1K_NOFPU_MATH_TESTS_EXCEPTIONS_H 1
++#include <stdarg.h>
++#include <sysdep.h>
 +
-+/* We support setting floating-point exception flags on hard-float
-+   targets.  These are not supported on soft-float targets.  */
-+#define EXCEPTION_TESTS_float 0
-+#define EXCEPTION_TESTS_double        0
-+#define EXCEPTION_TESTS_long_double   0
++extern int __or1k_clone (int (*fn)(void *), void *child_stack,
++			 int flags, void *arg, pid_t *ptid,
++			 void *tls, pid_t *ctid);
 +
-+#endif /* math-tests-exceptions.h.  */
-diff --git a/sysdeps/or1k/nofpu/math-tests-rounding.h b/sysdeps/or1k/nofpu/math-tests-rounding.h
++
++/* The OpenRISC ABI uses the stack for varargs like those using in clone
++   but the linux syscall ABI uses registers.
++   This function moves from varargs to regs.  */
++int
++__clone (int (*fn)(void *), void *child_stack,
++	 int flags, void *arg, ...
++	 /* pid_t *ptid, struct user_desc *tls, pid_t *ctid */ )
++{
++  void *ptid;
++  void *tls;
++  void *ctid;
++  va_list ap;
++  int err;
++
++  va_start (ap, arg);
++  ptid = va_arg (ap, void *);
++  tls = va_arg (ap, void *);
++  ctid = va_arg (ap, void *);
++  va_end (ap);
++
++  /* Sanity check the arguments */
++  err = -EINVAL;
++  if (!fn)
++    goto syscall_error;
++  if (!child_stack)
++    goto syscall_error;
++
++  return __or1k_clone (fn, child_stack, flags, arg, ptid, tls, ctid);
++
++syscall_error:
++  __set_errno (-err);
++  return -1;
++}
++libc_hidden_def (__clone)
++weak_alias (__clone, clone)
+diff --git a/sysdeps/unix/sysv/linux/or1k/mmap_internal.h b/sysdeps/unix/sysv/linux/or1k/mmap_internal.h
 new file mode 100644
-index 0000000000..604a776747
+index 0000000000..793e27c143
 --- /dev/null
-+++ b/sysdeps/or1k/nofpu/math-tests-rounding.h
++++ b/sysdeps/unix/sysv/linux/or1k/mmap_internal.h
 @@ -0,0 +1,28 @@
-+/* Configuration for math tests: rounding mode support.  OpenRISC no-FPU
-+   version.
++/* Common mmap definition for Linux implementation.  OpenRISC version.
 +   Copyright (C) 2022 Free Software Foundation, Inc.
 +   This file is part of the GNU C Library.
 +
@@ -1292,22 +448,118 @@ index 0000000000..604a776747
 +   License along with the GNU C Library; if not, see
 +   <https://www.gnu.org/licenses/>.  */
 +
-+#ifndef OR1K_NOFPU_MATH_TESTS_ROUNDING_H
-+#define OR1K_NOFPU_MATH_TESTS_ROUNDING_H 1
++#ifndef MMAP_OR1K_INTERNAL_LINUX_H
++#define MMAP_OR1K_INTERNAL_LINUX_H
 +
-+/* On soft-float targets we only support the "to nearest" rounding mode.  */
-+#define ROUNDING_TESTS_float(MODE)		((MODE) == FE_TONEAREST)
-+#define ROUNDING_TESTS_double(MODE)		((MODE) == FE_TONEAREST)
-+#define ROUNDING_TESTS_long_double(MODE)	((MODE) == FE_TONEAREST)
++/* OpenRISC Linux sets the page shift to 13 and mmap2 expects
++   offsets to be provided in 8K pages.  */
++#define MMAP2_PAGE_UNIT 8192ULL
 +
-+#endif /* math-tests-rounding.h.  */
-diff --git a/sysdeps/or1k/sfp-machine.h b/sysdeps/or1k/sfp-machine.h
++#include_next <mmap_internal.h>
++
++#endif
+diff --git a/sysdeps/unix/sysv/linux/or1k/or1k_clone.S b/sysdeps/unix/sysv/linux/or1k/or1k_clone.S
 new file mode 100644
-index 0000000000..37f7bff7c1
+index 0000000000..2669cc918d
 --- /dev/null
-+++ b/sysdeps/or1k/sfp-machine.h
-@@ -0,0 +1,93 @@
-+/* OpenRISC softfloat definitions.
++++ b/sysdeps/unix/sysv/linux/or1k/or1k_clone.S
+@@ -0,0 +1,89 @@
++/* clone helper __or1k_clone for OpenRISC.
++   Copyright (C) 2022 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <sysdep.h>
++#include <tls.h>
++#define __ASSEMBLY__
++#include <linux/sched.h>
++
++	.text
++ENTRY (__or1k_clone)
++
++	/* To handle GCC varargs we need to use our __clone wrapper to pop
++	   everything from the stack for us.
++	   Now everything is placed in the registers which saves us a lot
++	   of trouble.
++
++	   The userland implementation is:
++
++	     int clone (int (*fn)(void *), void *child_stack,
++			int flags, void *arg, pid_t *ptid,
++			struct user_desc *tls, pid_t *ctid);
++	   The kernel entry is:
++
++	     int clone (long flags, void *child_stack, int *parent_tid,
++			int *child_tid, struct void *tls)
++
++	     NB: tls isn't really an argument, it is read from r7 directly.  */
++
++	/* First, align the stack to 4 bytes.  */
++	l.xori	r11, r0, -4
++	l.and	r4, r4, r11
++
++	/* Put 'fn', 'arg' and 'flags' on the child stack.  */
++	l.addi	r4, r4, -12
++	l.sw	8(r4), r3
++	l.sw	4(r4), r6
++	l.sw	0(r4), r5
++
++	l.ori	r3, r5, 0
++	/* The child_stack is already in r4.  */
++	l.ori	r5, r7, 0
++	l.lwz	r6, 0(r1)
++	l.ori	r7, r8, 0
++
++	DO_CALL (clone)
++
++	l.sfgeui r11, 0xf001
++	l.bf	L(error)
++	 l.nop
++
++	/* If we are not the child, return the pid.  */
++	l.sfeqi	r11, 0
++	l.bf	L(thread_start)
++	 l.nop
++
++	l.jr	r9
++	 l.nop
++
++L(thread_start):
++	/* Load function from stack.  */
++	l.lwz	r11, 8(r1)
++	l.jalr	r11
++	 l.lwz	r3, 4(r1)
++
++	/* Exit the child thread.  */
++	l.ori	r3, r11, 0
++	DO_CALL (exit)
++
++L(error):
++	l.j	SYSCALL_ERROR_NAME
++	 l.ori	r3, r11, 0
++
++END (__or1k_clone)
+diff --git a/sysdeps/unix/sysv/linux/or1k/sysdep.c b/sysdeps/unix/sysv/linux/or1k/sysdep.c
+new file mode 100644
+index 0000000000..4e4acaf2ef
+--- /dev/null
++++ b/sysdeps/unix/sysv/linux/or1k/sysdep.c
+@@ -0,0 +1,34 @@
++/* OpenRISC wrapper for setting errno.
 +   Copyright (C) 2022 Free Software Foundation, Inc.
 +
 +   This file is part of the GNU C Library.
@@ -1326,87 +578,228 @@ index 0000000000..37f7bff7c1
 +   License along with the GNU C Library.  If not, see
 +   <https://www.gnu.org/licenses/>.  */
 +
-+#define _FP_W_TYPE_SIZE		32
-+#define _FP_W_TYPE		unsigned long
-+#define _FP_WS_TYPE		signed long
-+#define _FP_I_TYPE		long
++#include <sysdep.h>
++#include <errno.h>
 +
-+#define _FP_MUL_MEAT_S(R,X,Y)				\
-+  _FP_MUL_MEAT_1_wide(_FP_WFRACBITS_S,R,X,Y,umul_ppmm)
-+#define _FP_MUL_MEAT_D(R,X,Y)				\
-+  _FP_MUL_MEAT_2_wide(_FP_WFRACBITS_D,R,X,Y,umul_ppmm)
-+#define _FP_MUL_MEAT_Q(R,X,Y)				\
-+  _FP_MUL_MEAT_4_wide(_FP_WFRACBITS_Q,R,X,Y,umul_ppmm)
++long int __syscall_error (long int err);
++hidden_proto (__syscall_error)
 +
-+#define _FP_MUL_MEAT_DW_S(R,X,Y)				\
-+  _FP_MUL_MEAT_DW_1_wide(_FP_WFRACBITS_S,R,X,Y,umul_ppmm)
-+#define _FP_MUL_MEAT_DW_D(R,X,Y)				\
-+  _FP_MUL_MEAT_DW_2_wide(_FP_WFRACBITS_D,R,X,Y,umul_ppmm)
-+#define _FP_MUL_MEAT_DW_Q(R,X,Y)				\
-+  _FP_MUL_MEAT_DW_4_wide(_FP_WFRACBITS_Q,R,X,Y,umul_ppmm)
-+
-+
-+#define _FP_DIV_MEAT_S(R,X,Y)	_FP_DIV_MEAT_1_loop(S,R,X,Y)
-+#define _FP_DIV_MEAT_D(R,X,Y)	_FP_DIV_MEAT_2_udiv(D,R,X,Y)
-+#define _FP_DIV_MEAT_Q(R,X,Y)	_FP_DIV_MEAT_4_udiv(Q,R,X,Y)
-+
-+#define _FP_NANFRAC_S		((_FP_QNANBIT_S << 1) - 1)
-+#define _FP_NANFRAC_D		((_FP_QNANBIT_D << 1) - 1), -1
-+#define _FP_NANFRAC_Q		((_FP_QNANBIT_Q << 1) - 1), -1, -1, -1
-+#define _FP_NANSIGN_S		0
-+#define _FP_NANSIGN_D		0
-+#define _FP_NANSIGN_Q		0
-+
-+#define _FP_KEEPNANFRACP 1
-+#define _FP_QNANNEGATEDP 0
-+
-+/* Someone please check this.  */
-+#define _FP_CHOOSENAN(fs, wc, R, X, Y, OP)			\
-+  do {								\
-+    if ((_FP_FRAC_HIGH_RAW_##fs(X) & _FP_QNANBIT_##fs)		\
-+	&& !(_FP_FRAC_HIGH_RAW_##fs(Y) & _FP_QNANBIT_##fs))	\
-+      {								\
-+	R##_s = Y##_s;						\
-+	_FP_FRAC_COPY_##wc(R,Y);				\
-+      }								\
-+    else							\
-+      {								\
-+	R##_s = X##_s;						\
-+	_FP_FRAC_COPY_##wc(R,X);				\
-+      }								\
-+    R##_c = FP_CLS_NAN;						\
-+  } while (0)
-+
-+/* Handle getting and setting rounding mode for soft fp operations.  */
-+
-+#define FP_RND_NEAREST		(0x0 << 1)
-+#define FP_RND_ZERO		(0x1 << 1)
-+#define FP_RND_PINF		(0x2 << 1)
-+#define FP_RND_MINF		(0x3 << 1)
-+#define FP_RND_MASK		(0x3 << 1)
-+
-+#define FP_EX_OVERFLOW		(1 << 3)
-+#define FP_EX_UNDERFLOW		(1 << 4)
-+#define FP_EX_INEXACT		(1 << 8)
-+#define FP_EX_INVALID		(1 << 9)
-+#define FP_EX_DIVZERO		(1 << 11)
-+#define FP_EX_ALL \
-+	(FP_EX_INVALID | FP_EX_DIVZERO | FP_EX_OVERFLOW | FP_EX_UNDERFLOW \
-+	 | FP_EX_INEXACT)
-+
-+#define _FP_DECL_EX \
-+  unsigned int _fpcsr __attribute__ ((unused)) = FP_RND_NEAREST
-+
-+#define FP_ROUNDMODE (_fpcsr & FP_RND_MASK)
-+
-+#define _FP_TININESS_AFTER_ROUNDING 0
-diff --git a/sysdeps/or1k/tininess.h b/sysdeps/or1k/tininess.h
++/* This routine is jumped to by all the syscall handlers, to stash
++   an error number into errno.  */
++long int
++__syscall_error (long int err)
++{
++  __set_errno (- err);
++  return -1;
++}
++hidden_def (__syscall_error)
+diff --git a/sysdeps/unix/sysv/linux/or1k/sysdep.h b/sysdeps/unix/sysv/linux/or1k/sysdep.h
 new file mode 100644
-index 0000000000..dafbc6cad5
+index 0000000000..941c934554
 --- /dev/null
-+++ b/sysdeps/or1k/tininess.h
-@@ -0,0 +1 @@
-+#define TININESS_AFTER_ROUNDING	0
++++ b/sysdeps/unix/sysv/linux/or1k/sysdep.h
+@@ -0,0 +1,201 @@
++/* Assembler and syscall macros.  OpenRISC version.
++   Copyright (C) 2022 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library.  If not, see
++   <https://www.gnu.org/licenses/>.  */
++
++#ifndef _LINUX_OR1K_SYSDEP_H
++#define _LINUX_OR1K_SYSDEP_H 1
++
++#include <sysdeps/or1k/sysdep.h>
++#include <sysdeps/unix/sysv/linux/generic/sysdep.h>
++#include <tls.h>
++
++/* "workarounds" for generic code needing to handle 64-bit time_t.  */
++
++#undef __NR_clock_getres
++#undef __NR_futex
++#undef __NR_ppoll
++#undef __NR_pselect6
++#undef __NR_recvmmsg
++#undef __NR_rt_sigtimedwait
++#undef __NR_semtimedop
++#undef __NR_utimensat
++
++/* Fix sysdeps/unix/sysv/linux/clock_getcpuclockid.c.  */
++#define __NR_clock_getres	__NR_clock_getres_time64
++/* Fix sysdeps/nptl/lowlevellock-futex.h.  */
++#define __NR_futex		__NR_futex_time64
++/* Fix sysdeps/unix/sysv/linux/pause.c.  */
++#define __NR_ppoll		__NR_ppoll_time64
++/* Fix sysdeps/unix/sysv/linux/select.c.  */
++#define __NR_pselect6		__NR_pselect6_time64
++/* Fix sysdeps/unix/sysv/linux/recvmmsg.c.  */
++#define __NR_recvmmsg		__NR_recvmmsg_time64
++/* Fix sysdeps/unix/sysv/linux/sigtimedwait.c.  */
++#define __NR_rt_sigtimedwait	__NR_rt_sigtimedwait_time64
++/* Fix sysdeps/unix/sysv/linux/semtimedop.c.  */
++#define __NR_semtimedop		__NR_semtimedop_time64
++/* Hack sysdeps/unix/sysv/linux/generic/utimes.c.  */
++#define __NR_utimensat		__NR_utimensat_time64
++
++#undef SYS_ify
++#define SYS_ify(syscall_name)   (__NR_##syscall_name)
++
++/* Linux uses a negative return value to indicate syscall errors,
++   unlike most Unices, which use the condition codes' carry flag.
++
++   Since version 2.1 the return value of a system call might be
++   negative even if the call succeeded.  E.g., the lseek system call
++   might return a large offset.  Therefore we must not anymore test
++   for < 0, but test for a real error by making sure the value in R0
++   is a real error number.  Linus said he will make sure the no syscall
++   returns a value in -1 .. -4095 as a valid result so we can safely
++   test with -4095.  */
++
++#ifdef __ASSEMBLER__
++
++/* Macros used in syscall-template.S */
++#define ret          l.jr r9; l.nop
++#define ret_NOERRNO  l.jr r9; l.nop
++
++#undef	DO_CALL
++#define DO_CALL(syscall_name) \
++  l.addi r11, r0, SYS_ify (syscall_name); \
++  l.sys 1; \
++   l.nop
++
++#undef	PSEUDO
++#define PSEUDO(name, syscall_name, args) \
++  ENTRY (name); \
++  DO_CALL(syscall_name); \
++  /* if -4096 < ret < 0 holds, it's an error */ \
++  l.sfgeui r11, 0xf001; \
++  l.bf L(pseudo_end); \
++   l.nop
++
++#undef	PSEUDO_NOERRNO
++#define PSEUDO_NOERRNO(name, syscall_name, args)  \
++  ENTRY (name);           \
++  DO_CALL(syscall_name)
++
++#undef	PSEUDO_END
++#define PSEUDO_END(name) \
++L(pseudo_end): \
++  l.j SYSCALL_ERROR_NAME; \
++  l.ori r3,r11,0; \
++  END (name)
++
++#undef	PSEUDO_END_NOERRNO
++#define PSEUDO_END_NOERRNO(name) \
++  END (name)
++
++#ifndef PIC
++/* For static code, on error jump to __syscall_error directly.  */
++# define SYSCALL_ERROR_NAME __syscall_error
++#elif !IS_IN (libc)
++/* Use the internal name for libc shared objects.  */
++# define SYSCALL_ERROR_NAME __GI___syscall_error
++#else
++/* Otherwise, on error do a full PLT jump.  */
++# define SYSCALL_ERROR_NAME plt(__syscall_error)
++#endif
++
++#else /* not __ASSEMBLER__ */
++
++#include <errno.h>
++
++extern long int __syscall_error (long int neg_errno);
++
++/* Pointer mangling is not yet supported for or1k.  */
++#define PTR_MANGLE(var) (void) (var)
++#define PTR_DEMANGLE(var) (void) (var)
++
++#undef INTERNAL_SYSCALL
++#define INTERNAL_SYSCALL(name, nr, args...) \
++	INTERNAL_SYSCALL_NCS (SYS_ify (name), nr, args)
++
++/* The _NCS variant allows non-constant syscall numbers.  */
++#undef INTERNAL_SYSCALL_NCS
++#define INTERNAL_SYSCALL_NCS(number, nr, args...) \
++	({ unsigned long int __sys_result;				\
++	  {								\
++	    long int _sc_ret = (long int) number;			\
++	    LOAD_ARGS_##nr (args)					\
++	    register long int __sc_ret __asm__ ("r11") = _sc_ret;	\
++	    __asm__ __volatile__ ("l.sys 1\n\t"				\
++				  " l.nop\n\t"				\
++				  : "+r" (__sc_ret)			\
++				  : ASM_ARGS_##nr			\
++				  : ASM_CLOBBERS_##nr			\
++				    "r12", "r13", "r15", "r17", "r19",	\
++				    "r21", "r23", "r25", "r27", "r29",	\
++				    "r31", "memory");			\
++	    __sys_result = __sc_ret;					\
++	  }								\
++	  (long int) __sys_result; })
++
++/* From here on we have nested macros that generate code for
++   setting up syscall arguments.  */
++
++#define LOAD_ARGS_0()
++
++#define ASM_ARGS_0
++#define ASM_CLOBBERS_0  "r3", ASM_CLOBBERS_1
++
++#define LOAD_ARGS_1(a) \
++  long int _a = (long int)(a);                             \
++  register long int __a __asm__ ("r3") = _a;
++#define ASM_ARGS_1 "r" (__a)
++#define ASM_CLOBBERS_1  "r4", ASM_CLOBBERS_2
++
++#define LOAD_ARGS_2(a, b) \
++  long int _b = (long int)(b);                             \
++  LOAD_ARGS_1 (a)                                          \
++  register long int __b __asm__ ("r4") = _b;
++#define ASM_ARGS_2 ASM_ARGS_1, "r" (__b)
++#define ASM_CLOBBERS_2  "r5", ASM_CLOBBERS_3
++
++#define LOAD_ARGS_3(a, b, c) \
++  long int _c = (long int)(c);                             \
++  LOAD_ARGS_2 (a, b)                                       \
++  register long int __c __asm__ ("r5") = _c;
++#define ASM_ARGS_3 ASM_ARGS_2, "r" (__c)
++#define ASM_CLOBBERS_3  "r6", ASM_CLOBBERS_4
++
++#define LOAD_ARGS_4(a, b, c, d) \
++    LOAD_ARGS_3 (a, b, c)                                  \
++  long int _d = (long int)(d);                             \
++  register long int __d __asm__ ("r6") = _d;
++#define ASM_ARGS_4 ASM_ARGS_3, "r" (__d)
++#define ASM_CLOBBERS_4  "r7", ASM_CLOBBERS_5
++
++#define LOAD_ARGS_5(a, b, c, d, e) \
++  long int _e = (long int)(e);                             \
++  LOAD_ARGS_4 (a, b, c, d)                                 \
++  register long int __e __asm__ ("r7") = _e;
++#define ASM_ARGS_5 ASM_ARGS_4, "r" (__e)
++#define ASM_CLOBBERS_5  "r8", ASM_CLOBBERS_6
++
++#define LOAD_ARGS_6(a, b, c, d, e, f) \
++  long int _f = (long int)(f);                             \
++  LOAD_ARGS_5 (a, b, c, d, e)                              \
++  register long int __f __asm__ ("r8") = _f;
++#define ASM_ARGS_6 ASM_ARGS_5, "r" (__f)
++#define ASM_CLOBBERS_6
++
++#endif /* not __ASSEMBLER__ */
++
++#endif /* linux/or1k/sysdep.h */
 -- 
 2.31.1
 
