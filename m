@@ -1,46 +1,24 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Fri, 14 Jan 2022 22:07:18 +0900
+From: pr-tracker-bot@kernel.org <pr-tracker-bot@kernel.org>
+Date: Fri, 14 Jan 2022 14:39:19 +0000
 Subject: [OpenRISC] [GIT PULL] OpenRISC updates for 5.17
-Message-ID: <YeF1hpMbYo5PMmkD@antec>
+In-Reply-To: <YeF1hpMbYo5PMmkD@antec>
+References: <YeF1hpMbYo5PMmkD@antec>
+Message-ID: <164217115998.3976.2695828823334798438.pr-tracker-bot@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Linus,
+The pull request you sent on Fri, 14 Jan 2022 22:07:18 +0900:
 
-Please consider for pull
+> git://github.com/openrisc/linux.git tags/for-linus
 
-The following changes since commit d58071a8a76d779eedab38033ae4c821c30295a5:
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/871bfa02d08d9c0ed981c50082b7afd367d3700b
 
-  Linux 5.16-rc3 (2021-11-28 14:09:19 -0800)
+Thank you!
 
-are available in the Git repository at:
-
-  git://github.com/openrisc/linux.git tags/for-linus
-
-for you to fetch changes up to 7f435e42fd6b65fd8759963156e1ef0fb7d213f8:
-
-  openrisc: init: Add support for common clk (2022-01-12 06:13:22 +0900)
-
-----------------------------------------------------------------
-OpenRISC updates for 5.17
-
-A few fixups and enhancements for OpenRISC:
- - Fix to add proper wrapper for clone3 to save callee saved regs
- - Cleanups for clone, fork and switch
- - Add support for common clk so OpenRISC and use more drivers
-
-----------------------------------------------------------------
-Stafford Horne (4):
-      openrisc: Cleanup switch code and comments
-      openrisc: Use delay slot for clone and fork wrappers
-      openrisc: Add clone3 ABI wrapper
-      openrisc: init: Add support for common clk
-
- arch/openrisc/Kconfig                |  1 +
- arch/openrisc/include/asm/syscalls.h |  2 ++
- arch/openrisc/kernel/entry.S         | 27 +++++++++++++--------------
- arch/openrisc/kernel/time.c          |  4 ++++
- 4 files changed, 20 insertions(+), 14 deletions(-)
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
