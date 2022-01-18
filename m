@@ -1,24 +1,31 @@
-From: pr-tracker-bot@kernel.org <pr-tracker-bot@kernel.org>
-Date: Fri, 14 Jan 2022 14:39:19 +0000
-Subject: [OpenRISC] [GIT PULL] OpenRISC updates for 5.17
-In-Reply-To: <YeF1hpMbYo5PMmkD@antec>
-References: <YeF1hpMbYo5PMmkD@antec>
-Message-ID: <164217115998.3976.2695828823334798438.pr-tracker-bot@kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Date: Tue, 18 Jan 2022 08:48:36 +0100
+Subject: [OpenRISC] architectures that still need to remove set_fs()
+Message-ID: <20220118074836.GA20994@lst.de>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The pull request you sent on Fri, 14 Jan 2022 22:07:18 +0900:
+Hi all,
 
-> git://github.com/openrisc/linux.git tags/for-linus
+you are in this list because your architecture still implements and
+uses address space overrides using set_fs(), which are deprecated and
+have been removed from all mainstream architecture ports.  To help
+cleanup the core kernel it would be great to make progress on removing
+set_fs entirely.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/871bfa02d08d9c0ed981c50082b7afd367d3700b
+The following steps are required:
 
-Thank you!
+ (1) implement the __get_kernel_nofault and __put_kernel_nofault
+     helper to access kernel memory without page faults, replacing
+     the get/put_user under set_fs(KERNEL_DS) abuse.  Mips has a good
+     example for a trivial implementation for architectures that use
+     a common address space in commit 04324f44cb69
+ (2) remove any architecture specific use of such constructs.  This
+     only affects ia64 and sh.
+ (3) stop selecting the SET_FS and remove all the set_fs-related
+     infrastructure.  The above mips commit is a good guide once again.
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+Thanks!
