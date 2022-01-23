@@ -1,44 +1,35 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Tue, 18 Jan 2022 20:48:17 +0900
-Subject: [OpenRISC] architectures that still need to remove set_fs()
-In-Reply-To: <20220118074836.GA20994@lst.de>
-References: <20220118074836.GA20994@lst.de>
-Message-ID: <YeapAai1NIuy0zV4@antec>
+From: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+Date: Sun, 23 Jan 2022 11:01:00 +0900
+Subject: [OpenRISC] [PATCH] openrisc/boot: Remove unnecessary initialisation
+ in memcpy().
+Message-ID: <20220123020100.45201-1-kuniyu@amazon.co.jp>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi,
+'d' and 's' are initialised later with 'dest_w' and 'src_w', so we need not
+initialise them before that.
 
-On Tue, Jan 18, 2022 at 08:48:36AM +0100, Christoph Hellwig wrote:
-> Hi all,
-> 
-> you are in this list because your architecture still implements and
-> uses address space overrides using set_fs(), which are deprecated and
-> have been removed from all mainstream architecture ports.  To help
-> cleanup the core kernel it would be great to make progress on removing
-> set_fs entirely.
-> 
-> The following steps are required:
-> 
->  (1) implement the __get_kernel_nofault and __put_kernel_nofault
->      helper to access kernel memory without page faults, replacing
->      the get/put_user under set_fs(KERNEL_DS) abuse.  Mips has a good
->      example for a trivial implementation for architectures that use
->      a common address space in commit 04324f44cb69
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+---
+ arch/openrisc/lib/memcpy.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Also see commit 08ee3a009f49a which is preparation for removing set_fs/get_fs
-this commit implements __get_kernel_nofault/__put_kernel_nofault for mips.
+diff --git a/arch/openrisc/lib/memcpy.c b/arch/openrisc/lib/memcpy.c
+index fe2177628..e2af9b510 100644
+--- a/arch/openrisc/lib/memcpy.c
++++ b/arch/openrisc/lib/memcpy.c
+@@ -101,7 +101,7 @@ void *memcpy(void *dest, __const void *src, __kernel_size_t n)
+  */
+ void *memcpy(void *dest, __const void *src, __kernel_size_t n)
+ {
+-	unsigned char *d = (unsigned char *)dest, *s = (unsigned char *)src;
++	unsigned char *d, *s;
+ 	uint32_t *dest_w = (uint32_t *)dest, *src_w = (uint32_t *)src;
+ 
+ 	/* If both source and dest are word aligned copy words */
+-- 
+2.30.2
 
->  (2) remove any architecture specific use of such constructs.  This
->      only affects ia64 and sh.
->  (3) stop selecting the SET_FS and remove all the set_fs-related
->      infrastructure.  The above mips commit is a good guide once again.
-> 
-> Thanks!
-
-I will look into this for OpenRISC.
-
--Stafford
