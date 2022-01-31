@@ -1,54 +1,45 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 29 Jan 2022 08:28:42 +0900
-Subject: [OpenRISC] [PATCH] or1k: Define PI_STATIC_AND_HIDDEN
-Message-ID: <20220128232842.3329969-1-shorne@gmail.com>
+Date: Mon, 31 Jan 2022 22:38:13 +0900
+Subject: [OpenRISC] [PATCH] gcc: define _REENTRANT for OpenRISC when
+ -pthread is passed
+Message-ID: <20220131133813.1142801-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-PI_STATIC_AND_HIDDEN means that references to static functions, data
-and symbols with hidden visibility do not need any run-time relocations
-after the final link, with the build flags used by glibc.
+From: Bernd Kuhls <bernd.kuhls@t-online.de>
 
-OpenRISC follows this so enabled PI_STATIC_AND_HIDDEN by adding
-configure.ac and generating configure.
+The detection of pthread support fails on OpenRISC unless _REENTRANT
+is defined. Added the CPP_SPEC definition to correct this.
 
-Suggested-by: Florian Weimer <fweimer@redhat.com>
+gcc/ChangeLog:
+
+	PR target/94372
+	* config/or1k/linux.h (CPP_SPEC): Define.
+
+Signed-off-by: Bernd Kuhls <bernd.kuhls@t-online.de>
 ---
-This was discussed on the mailing list:
-  https://sourceware.org/pipermail/libc-alpha/2022-January/135620.html
+This was brought up on the buildroot list and somehow I missed it.  Sending it
+now.  I plan to commit soon.
 
-I thought to get this out as I start to test 2.35 we want this change in.
+ gcc/config/or1k/linux.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
- sysdeps/or1k/configure    | 5 +++++
- sysdeps/or1k/configure.ac | 4 ++++
- 2 files changed, 9 insertions(+)
- create mode 100644 sysdeps/or1k/configure
- create mode 100644 sysdeps/or1k/configure.ac
-
-diff --git a/sysdeps/or1k/configure b/sysdeps/or1k/configure
-new file mode 100644
-index 0000000000..d73db4ddbe
---- /dev/null
-+++ b/sysdeps/or1k/configure
-@@ -0,0 +1,5 @@
-+# This file is generated from configure.ac by Autoconf.  DO NOT EDIT!
-+ # Local configure fragment for sysdeps/or1k/elf.
+diff --git a/gcc/config/or1k/linux.h b/gcc/config/or1k/linux.h
+index 52909af41a6..80f77c72232 100644
+--- a/gcc/config/or1k/linux.h
++++ b/gcc/config/or1k/linux.h
+@@ -32,6 +32,8 @@
+ #undef MUSL_DYNAMIC_LINKER
+ #define MUSL_DYNAMIC_LINKER  "/lib/ld-musl-or1k.so.1"
+ 
++#define CPP_SPEC "%{pthread:-D_REENTRANT}"
 +
-+$as_echo "#define PI_STATIC_AND_HIDDEN 1" >>confdefs.h
-+
-diff --git a/sysdeps/or1k/configure.ac b/sysdeps/or1k/configure.ac
-new file mode 100644
-index 0000000000..db6a6087e1
---- /dev/null
-+++ b/sysdeps/or1k/configure.ac
-@@ -0,0 +1,4 @@
-+GLIBC_PROVIDES dnl See aclocal.m4 in the top level source directory.
-+# Local configure fragment for sysdeps/or1k/elf.
-+
-+AC_DEFINE(PI_STATIC_AND_HIDDEN)
+ #undef LINK_SPEC
+ #define LINK_SPEC "%{h*}			\
+    %{static:-Bstatic}				\
 -- 
 2.31.1
 
