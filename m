@@ -1,118 +1,131 @@
-From: Michael Schmitz <schmitzmic@gmail.com>
-Date: Sat, 1 Jan 2022 10:55:27 +1300
-Subject: [OpenRISC] [RFC 02/32] Kconfig: introduce HAS_IOPORT option and
- select it as necessary
-In-Reply-To: <CAK8P3a2GGGuP0miLRy8w2+8vdSsGRNioBHEZ-ervSBrYbuZ+5w@mail.gmail.com>
-References: <20211227164317.4146918-1-schnelle@linux.ibm.com>
- <20211227164317.4146918-3-schnelle@linux.ibm.com>
- <CAMuHMdXk6VcDryekkMJ3aGFnw4LLWOWMi8M2PwjT81PsOsOBMQ@mail.gmail.com>
- <d406b93a-0f76-d056-3380-65d459d05ea9@gmail.com>
- <CAK8P3a2j-OFUUp+haHoV4PyL-On4EASZ9+59SDqNqmL8Gv_k7Q@mail.gmail.com>
- <1f90f145-219e-1cad-6162-9959d43a27ad@gmail.com>
- <CAK8P3a3NqU-3nUZ9ve=QyPPB5Uep3eK+_hicjjSiP8VuL4FYfA@mail.gmail.com>
- <0211719b-8402-9865-8e5d-5c0a35715816@gmail.com>
- <CAK8P3a2GGGuP0miLRy8w2+8vdSsGRNioBHEZ-ervSBrYbuZ+5w@mail.gmail.com>
-Message-ID: <a635e885-c365-8bdc-bf3c-e74d7d39a786@gmail.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Sat, 5 Feb 2022 15:58:13 +0900
+Subject: [OpenRISC] [RFC V1 22/31] openrisc/mm: Enable
+ ARCH_HAS_VM_GET_PAGE_PROT
+In-Reply-To: <1643029028-12710-23-git-send-email-anshuman.khandual@arm.com>
+References: <1643029028-12710-1-git-send-email-anshuman.khandual@arm.com>
+ <1643029028-12710-23-git-send-email-anshuman.khandual@arm.com>
+Message-ID: <Yf4gBd1nJNeQYSJr@antec>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi Arnd,
+On Mon, Jan 24, 2022 at 06:26:59PM +0530, Anshuman Khandual wrote:
+> This defines and exports a platform specific custom vm_get_page_prot() via
+> subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
+> macros can be dropped which are no longer needed.
+> 
+> Cc: Jonas Bonn <jonas@southpole.se>
+> Cc: openrisc at lists.librecores.org
+> Cc: linux-kernel at vger.kernel.org
+> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 
-Am 01.01.2022 um 05:04 schrieb Arnd Bergmann:
-> On Wed, Dec 29, 2021 at 10:44 PM Michael Schmitz <schmitzmic@gmail.com> wrote:
->> Am 30.12.2021 um 14:48 schrieb Arnd Bergmann:
->>> On Tue, Dec 28, 2021 at 11:15 PM Michael Schmitz <schmitzmic@gmail.com> wrote:
->>> What some other architectures do is to rely on inb()/outb() to have a
->>> zero-based offset, and use an io_offset in PCI buses to ensure that a
->>> low port number on the bus gets translated into a pointer value for the
->>> virtual mapping in the kernel, which is then represented as an unsigned
->>> int.
->>
->> M54xx does just that for Coldfire:
->>
->> arch/m68k/include/asm/io_no.h:
->> #define PCI_IO_PA       0xf8000000              /* Host physical address */
->>
->> (used to set PCI BAR mappings, so matches your definition above).
->
-> I think coldfire gets it right here, using PCI_IOBASE to find the start of
-> the window and a zero io_offset:
->
-> #define PCI_IOBASE ((void __iomem *) PCI_IO_PA)
+For one thing this is easier to read than the __P000 codes.
 
-Good - I bear that in mind if I ever get around to reactivating my 060 
-accelerator and the PCI board for that.
+Acked-by: Stafford Horne <shorne@gmail.com>
 
->> All other (MMU) m68k users of inb()/outb() apply an io_offset in the
->> platform specific address translation:
->>
->> arch/m68k/include/asm/io_mm.h:
->>
->> #define q40_isa_io_base  0xff400000
->> #define enec_isa_read_base  0xfffa0000
->> #define enec_isa_write_base 0xfffb0000
->>
->> arch/m68k/include/asm/amigayle.h:
->>
->> #define GAYLE_IO                (0xa20000+zTwoBase)     /* 16bit and
->> even 8bit registers */
->> #define GAYLE_IO_8BITODD        (0xa30000+zTwoBase)     /* odd 8bit
->> registers */
->>
->> (all constants used in address translation inlines that are used by the
->> m68k inb()/outb() macros - you can call that the poor man's version of
->> PCI BAR mappings ...).
->
-> This still looks like the same thing to me, where you have inb() take a
-> zero-based port number, not a pointer. The effect is the same as the
-> coldfire version, it just uses a custom inline function instead of the
-> version from asm-generic/io.h.
-
-Right.
-
->> So as long as support for any of the m68k PCI or ISA bridges is selected
->> in the kernel config, the appropriate IO space mapping is applied. If no
->> support for PCI or ISA bridges is selected, we already fall back to zero
->> offset mapping (but as far as I can tell, it shouldn't be possible to
->> build a kernel without bridge support but drivers that require it).
->
-> Right.
->
->>> As this is indistinguishable from architectures that just don't have
->>> a base address for I/O ports (we unfortunately picked 0 as the default
->>> PCI_IOBASE value), my suggestion was to start marking architectures
->>> that may have this problem as using HAS_IOPORT in order to keep
->>> the existing behavior unchanged. If m68k does not suffer from this,
->>> making HAS_IOPORT conditional on those config options that actually
->>> need it would of course be best.
->>
->> Following your description, HAS_IOPORT would be required for neither of
->> PCI, ISA or ATARI_ROM_ISA ??
->
-> For these three options, we definitely need HAS_IOPORT, which would
-> imply that some version of inb()/outb() is provided. The difference between
-
-Thanks for clarifying that (and to Niklas as well). Did sound a little 
-counter-intuitive to me...
-
-> using a custom PCI_IOBASE (or an open-coded equivalent) and using
-> a zero PCI_IOBASE in combination with registering PCI using a custom
-> io_offset is whether we can use drivers with hardcoded port numbers.
-> These should depend on a different Kconfig symbol to be introduced
-> (CONFIG_HARDCODED_IOPORT or similar) once we introduce them,
-> and you could decide for m68k whether to allow those or not, I would
-> assume you do want them in order to use certain legacy ISA drivers.
-
-That's exactly the purpose (though we're overmuch pushing the envelope 
-trying to accomodate legacy ISA drivers on too many platforms).
-
-Cheers,
-
-	Michael
-
-
->        Arnd
->
+> ---
+>  arch/openrisc/Kconfig               |  1 +
+>  arch/openrisc/include/asm/pgtable.h | 18 -------------
+>  arch/openrisc/mm/init.c             | 41 +++++++++++++++++++++++++++++
+>  3 files changed, 42 insertions(+), 18 deletions(-)
+> 
+> diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+> index f724b3f1aeed..842a61426816 100644
+> --- a/arch/openrisc/Kconfig
+> +++ b/arch/openrisc/Kconfig
+> @@ -10,6 +10,7 @@ config OPENRISC
+>  	select ARCH_HAS_DMA_SET_UNCACHED
+>  	select ARCH_HAS_DMA_CLEAR_UNCACHED
+>  	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
+> +	select ARCH_HAS_VM_GET_PAGE_PROT
+>  	select COMMON_CLK
+>  	select OF
+>  	select OF_EARLY_FLATTREE
+> diff --git a/arch/openrisc/include/asm/pgtable.h b/arch/openrisc/include/asm/pgtable.h
+> index cdd657f80bfa..fe686c4b7065 100644
+> --- a/arch/openrisc/include/asm/pgtable.h
+> +++ b/arch/openrisc/include/asm/pgtable.h
+> @@ -176,24 +176,6 @@ extern void paging_init(void);
+>  	__pgprot(_PAGE_ALL | _PAGE_SRE | _PAGE_SWE \
+>  		 | _PAGE_SHARED | _PAGE_DIRTY | _PAGE_EXEC | _PAGE_CI)
+>  
+> -#define __P000	PAGE_NONE
+> -#define __P001	PAGE_READONLY_X
+> -#define __P010	PAGE_COPY
+> -#define __P011	PAGE_COPY_X
+> -#define __P100	PAGE_READONLY
+> -#define __P101	PAGE_READONLY_X
+> -#define __P110	PAGE_COPY
+> -#define __P111	PAGE_COPY_X
+> -
+> -#define __S000	PAGE_NONE
+> -#define __S001	PAGE_READONLY_X
+> -#define __S010	PAGE_SHARED
+> -#define __S011	PAGE_SHARED_X
+> -#define __S100	PAGE_READONLY
+> -#define __S101	PAGE_READONLY_X
+> -#define __S110	PAGE_SHARED
+> -#define __S111	PAGE_SHARED_X
+> -
+>  /* zero page used for uninitialized stuff */
+>  extern unsigned long empty_zero_page[2048];
+>  #define ZERO_PAGE(vaddr) (virt_to_page(empty_zero_page))
+> diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
+> index 97305bde1b16..c9f5e7d6bb59 100644
+> --- a/arch/openrisc/mm/init.c
+> +++ b/arch/openrisc/mm/init.c
+> @@ -210,3 +210,44 @@ void __init mem_init(void)
+>  	mem_init_done = 1;
+>  	return;
+>  }
+> +
+> +pgprot_t vm_get_page_prot(unsigned long vm_flags)
+> +{
+> +	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
+> +	case VM_NONE:
+> +		return PAGE_NONE;
+> +	case VM_READ:
+> +		return PAGE_READONLY_X;
+> +	case VM_WRITE:
+> +		return PAGE_COPY;
+> +	case VM_READ | VM_WRITE:
+> +		return PAGE_COPY_X;
+> +	case VM_EXEC:
+> +		return PAGE_READONLY;
+> +	case VM_EXEC | VM_READ:
+> +		return PAGE_READONLY_X;
+> +	case VM_EXEC | VM_WRITE:
+> +		return PAGE_COPY;
+> +	case VM_EXEC | VM_READ | VM_WRITE:
+> +		return PAGE_COPY_X;
+> +	case VM_SHARED:
+> +		return PAGE_NONE;
+> +	case VM_SHARED | VM_READ:
+> +		return PAGE_READONLY_X;
+> +	case VM_SHARED | VM_WRITE:
+> +		return PAGE_SHARED;
+> +	case VM_SHARED | VM_READ | VM_WRITE:
+> +		return PAGE_SHARED_X;
+> +	case VM_SHARED | VM_EXEC:
+> +		return PAGE_READONLY;
+> +	case VM_SHARED | VM_EXEC | VM_READ:
+> +		return PAGE_READONLY_X;
+> +	case VM_SHARED | VM_EXEC | VM_WRITE:
+> +		return PAGE_SHARED;
+> +	case VM_SHARED | VM_EXEC | VM_READ | VM_WRITE:
+> +		return PAGE_SHARED_X;
+> +	default:
+> +		BUILD_BUG();
+> +	}
+> +}
+> +EXPORT_SYMBOL(vm_get_page_prot);
+> -- 
+> 2.25.1
+> 
+> _______________________________________________
+> OpenRISC mailing list
+> OpenRISC at lists.librecores.org
+> https://lists.librecores.org/listinfo/openrisc
