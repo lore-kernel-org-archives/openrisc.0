@@ -1,89 +1,41 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 6 Feb 2022 12:19:43 +0900
-Subject: [OpenRISC] [PATCH] mm: Remove mmu_gathers storage from
- remaining architectures
-In-Reply-To: <Yf6UthQtASGNgW8Q@kernel.org>
-References: <20220205141956.3315419-1-shorne@gmail.com>
- <Yf6UthQtASGNgW8Q@kernel.org>
-Message-ID: <Yf8+T8Ow7n+38w2H@antec>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Sun, 6 Feb 2022 10:42:46 +0100
+Subject: [OpenRISC] [PATCH] openrisc: remove CONFIG_SET_FS
+In-Reply-To: <20220206013648.3491865-1-shorne@gmail.com>
+References: <20220206013648.3491865-1-shorne@gmail.com>
+Message-ID: <CAMuHMdW2bxEtaYaLN28xk2uc=OV0ecUy-N_+Ay193gZq4nH0jw@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sat, Feb 05, 2022 at 05:16:06PM +0200, Mike Rapoport wrote:
-> On Sat, Feb 05, 2022 at 11:19:53PM +0900, Stafford Horne wrote:
-> > Originally the mmu_gathers were removed in commit 1c3951769621 ("mm: now
-> > that all old mmu_gather code is gone, remove the storage").  However,
-> > the openrisc and hexagon architecture were merged around the same time
-> > and mmu_gathers was not removed.
-> > 
-> > This patch removes them from openrisc, hexagon and nds32:
-> > 
-> > Noticed while cleaning this warning:
-> > 
-> >     arch/openrisc/mm/init.c:41:1: warning: symbol 'mmu_gathers' was not declared. Should it be static?
-> > 
-> > Signed-off-by: Stafford Horne <shorne@gmail.com>
-> 
-> Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+Hi Stafford,
 
-Thank you,
+Thanks for your patch!
 
-BTW For now my plan is to queue this on my openrisc branch unless someone else
-wants to pick this up.
+On Sun, Feb 6, 2022 at 2:37 AM Stafford Horne <shorne@gmail.com> wrote:
+> Remove the address space override API set_fs() used for User Mode Linux.
 
--Stafford
+Note: this doesn't have anything to do with UML...
 
-> > ---
-> >  arch/hexagon/mm/init.c  | 2 --
-> >  arch/nds32/mm/init.c    | 1 -
-> >  arch/openrisc/mm/init.c | 2 --
-> >  3 files changed, 5 deletions(-)
-> > 
-> > diff --git a/arch/hexagon/mm/init.c b/arch/hexagon/mm/init.c
-> > index f01e91e10d95..3167a3b5c97b 100644
-> > --- a/arch/hexagon/mm/init.c
-> > +++ b/arch/hexagon/mm/init.c
-> > @@ -29,8 +29,6 @@ int max_kernel_seg = 0x303;
-> >  /*  indicate pfn's of high memory  */
-> >  unsigned long highstart_pfn, highend_pfn;
-> >  
-> > -DEFINE_PER_CPU(struct mmu_gather, mmu_gathers);
-> > -
-> >  /* Default cache attribute for newly created page tables */
-> >  unsigned long _dflt_cache_att = CACHEDEF;
-> >  
-> > diff --git a/arch/nds32/mm/init.c b/arch/nds32/mm/init.c
-> > index f63f839738c4..825c85cab1a1 100644
-> > --- a/arch/nds32/mm/init.c
-> > +++ b/arch/nds32/mm/init.c
-> > @@ -18,7 +18,6 @@
-> >  #include <asm/tlb.h>
-> >  #include <asm/page.h>
-> >  
-> > -DEFINE_PER_CPU(struct mmu_gather, mmu_gathers);
-> >  DEFINE_SPINLOCK(anon_alias_lock);
-> >  extern pgd_t swapper_pg_dir[PTRS_PER_PGD];
-> >  
-> > diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
-> > index 97305bde1b16..3a021ab6f1ae 100644
-> > --- a/arch/openrisc/mm/init.c
-> > +++ b/arch/openrisc/mm/init.c
-> > @@ -38,8 +38,6 @@
-> >  
-> >  int mem_init_done;
-> >  
-> > -DEFINE_PER_CPU(struct mmu_gather, mmu_gathers);
-> > -
-> >  static void __init zone_sizes_init(void)
-> >  {
-> >  	unsigned long max_zone_pfn[MAX_NR_ZONES] = { 0 };
-> > -- 
-> > 2.31.1
-> > 
-> 
-> -- 
-> Sincerely yours,
-> Mike.
+> User address space is now limited to TASK_SIZE.
+>
+> To support this we implement and wire in __get_kernel_nofault and
+> __set_kernel_nofault.
+>
+> The function user_addr_max is removed as there is a default definition
+> provided when CONFIG_SET_FS is not used.
+>
+> Signed-off-by: Stafford Horne <shorne@gmail.com>
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert at linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
