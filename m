@@ -1,80 +1,150 @@
-From: Mike Rapoport <rppt@kernel.org>
-Date: Sat, 5 Feb 2022 17:16:06 +0200
-Subject: [OpenRISC] [PATCH] mm: Remove mmu_gathers storage from
- remaining architectures
-In-Reply-To: <20220205141956.3315419-1-shorne@gmail.com>
-References: <20220205141956.3315419-1-shorne@gmail.com>
-Message-ID: <Yf6UthQtASGNgW8Q@kernel.org>
+From: Stafford Horne <shorne@gmail.com>
+Date: Sun,  6 Feb 2022 10:36:47 +0900
+Subject: [OpenRISC] [PATCH] openrisc: remove CONFIG_SET_FS
+Message-ID: <20220206013648.3491865-1-shorne@gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Sat, Feb 05, 2022 at 11:19:53PM +0900, Stafford Horne wrote:
-> Originally the mmu_gathers were removed in commit 1c3951769621 ("mm: now
-> that all old mmu_gather code is gone, remove the storage").  However,
-> the openrisc and hexagon architecture were merged around the same time
-> and mmu_gathers was not removed.
-> 
-> This patch removes them from openrisc, hexagon and nds32:
-> 
-> Noticed while cleaning this warning:
-> 
->     arch/openrisc/mm/init.c:41:1: warning: symbol 'mmu_gathers' was not declared. Should it be static?
-> 
-> Signed-off-by: Stafford Horne <shorne@gmail.com>
+Remove the address space override API set_fs() used for User Mode Linux.
+User address space is now limited to TASK_SIZE.
 
-Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+To support this we implement and wire in __get_kernel_nofault and
+__set_kernel_nofault.
 
-> ---
->  arch/hexagon/mm/init.c  | 2 --
->  arch/nds32/mm/init.c    | 1 -
->  arch/openrisc/mm/init.c | 2 --
->  3 files changed, 5 deletions(-)
-> 
-> diff --git a/arch/hexagon/mm/init.c b/arch/hexagon/mm/init.c
-> index f01e91e10d95..3167a3b5c97b 100644
-> --- a/arch/hexagon/mm/init.c
-> +++ b/arch/hexagon/mm/init.c
-> @@ -29,8 +29,6 @@ int max_kernel_seg = 0x303;
->  /*  indicate pfn's of high memory  */
->  unsigned long highstart_pfn, highend_pfn;
->  
-> -DEFINE_PER_CPU(struct mmu_gather, mmu_gathers);
-> -
->  /* Default cache attribute for newly created page tables */
->  unsigned long _dflt_cache_att = CACHEDEF;
->  
-> diff --git a/arch/nds32/mm/init.c b/arch/nds32/mm/init.c
-> index f63f839738c4..825c85cab1a1 100644
-> --- a/arch/nds32/mm/init.c
-> +++ b/arch/nds32/mm/init.c
-> @@ -18,7 +18,6 @@
->  #include <asm/tlb.h>
->  #include <asm/page.h>
->  
-> -DEFINE_PER_CPU(struct mmu_gather, mmu_gathers);
->  DEFINE_SPINLOCK(anon_alias_lock);
->  extern pgd_t swapper_pg_dir[PTRS_PER_PGD];
->  
-> diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
-> index 97305bde1b16..3a021ab6f1ae 100644
-> --- a/arch/openrisc/mm/init.c
-> +++ b/arch/openrisc/mm/init.c
-> @@ -38,8 +38,6 @@
->  
->  int mem_init_done;
->  
-> -DEFINE_PER_CPU(struct mmu_gather, mmu_gathers);
-> -
->  static void __init zone_sizes_init(void)
->  {
->  	unsigned long max_zone_pfn[MAX_NR_ZONES] = { 0 };
-> -- 
-> 2.31.1
-> 
+The function user_addr_max is removed as there is a default definition
+provided when CONFIG_SET_FS is not used.
 
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+ arch/openrisc/Kconfig                   |  1 -
+ arch/openrisc/include/asm/thread_info.h |  7 ----
+ arch/openrisc/include/asm/uaccess.h     | 48 +++++++++++--------------
+ 3 files changed, 20 insertions(+), 36 deletions(-)
+
+diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+index bf047dca7ec6..ceda77fb8bc8 100644
+--- a/arch/openrisc/Kconfig
++++ b/arch/openrisc/Kconfig
+@@ -36,7 +36,6 @@ config OPENRISC
+ 	select ARCH_WANT_FRAME_POINTERS
+ 	select GENERIC_IRQ_MULTI_HANDLER
+ 	select MMU_GATHER_NO_RANGE if MMU
+-	select SET_FS
+ 	select TRACE_IRQFLAGS_SUPPORT
+ 
+ config CPU_BIG_ENDIAN
+diff --git a/arch/openrisc/include/asm/thread_info.h b/arch/openrisc/include/asm/thread_info.h
+index 659834ab87fa..4af3049c34c2 100644
+--- a/arch/openrisc/include/asm/thread_info.h
++++ b/arch/openrisc/include/asm/thread_info.h
+@@ -40,18 +40,12 @@
+  */
+ #ifndef __ASSEMBLY__
+ 
+-typedef unsigned long mm_segment_t;
+-
+ struct thread_info {
+ 	struct task_struct	*task;		/* main task structure */
+ 	unsigned long		flags;		/* low level flags */
+ 	__u32			cpu;		/* current CPU */
+ 	__s32			preempt_count; /* 0 => preemptable, <0 => BUG */
+ 
+-	mm_segment_t		addr_limit; /* thread address space:
+-					       0-0x7FFFFFFF for user-thead
+-					       0-0xFFFFFFFF for kernel-thread
+-					     */
+ 	__u8			supervisor_stack[0];
+ 
+ 	/* saved context data */
+@@ -71,7 +65,6 @@ struct thread_info {
+ 	.flags		= 0,				\
+ 	.cpu		= 0,				\
+ 	.preempt_count	= INIT_PREEMPT_COUNT,		\
+-	.addr_limit	= KERNEL_DS,			\
+ 	.ksp            = 0,                            \
+ }
+ 
+diff --git a/arch/openrisc/include/asm/uaccess.h b/arch/openrisc/include/asm/uaccess.h
+index 120f5005461b..cc9c5d8fd183 100644
+--- a/arch/openrisc/include/asm/uaccess.h
++++ b/arch/openrisc/include/asm/uaccess.h
+@@ -23,36 +23,12 @@
+ #include <asm/page.h>
+ #include <asm/extable.h>
+ 
+-/*
+- * The fs value determines whether argument validity checking should be
+- * performed or not.  If get_fs() == USER_DS, checking is performed, with
+- * get_fs() == KERNEL_DS, checking is bypassed.
+- *
+- * For historical reasons, these macros are grossly misnamed.
+- */
+-
+-/* addr_limit is the maximum accessible address for the task. we misuse
+- * the KERNEL_DS and USER_DS values to both assign and compare the
+- * addr_limit values through the equally misnamed get/set_fs macros.
+- * (see above)
+- */
+-
+-#define KERNEL_DS	(~0UL)
+-
+-#define USER_DS		(TASK_SIZE)
+-#define get_fs()	(current_thread_info()->addr_limit)
+-#define set_fs(x)	(current_thread_info()->addr_limit = (x))
+-
+-#define uaccess_kernel()	(get_fs() == KERNEL_DS)
+-
+ /* Ensure that the range from addr to addr+size is all within the process'
+  * address space
+  */
+ static inline int __range_ok(unsigned long addr, unsigned long size)
+ {
+-	const mm_segment_t fs = get_fs();
+-
+-	return size <= fs && addr <= (fs - size);
++	return size <= TASK_SIZE && addr <= (TASK_SIZE - size);
+ }
+ 
+ #define access_ok(addr, size)						\
+@@ -241,6 +217,25 @@ do {									\
+ 		(__typeof__((x)-(x)))__gu_tmp);		\
+ }
+ 
++#define __get_kernel_nofault(dst, src, type, label)	\
++{							\
++	type __user *p = (type __force __user *)(src);	\
++	type data;					\
++	if (__get_user(data, p))			\
++		goto label;				\
++	*(type *)dst = data;				\
++}
++
++#define __put_kernel_nofault(dst, src, type, label)	\
++{							\
++	type __user *p = (type __force __user *)(dst);	\
++	type data = *(type *)src;			\
++	if (__put_user(data, p))			\
++		goto label;				\
++}
++
++#define HAVE_GET_KERNEL_NOFAULT
++
+ /* more complex routines */
+ 
+ extern unsigned long __must_check
+@@ -268,9 +263,6 @@ clear_user(void __user *addr, unsigned long size)
+ 	return size;
+ }
+ 
+-#define user_addr_max() \
+-	(uaccess_kernel() ? ~0UL : TASK_SIZE)
+-
+ extern long strncpy_from_user(char *dest, const char __user *src, long count);
+ 
+ extern __must_check long strnlen_user(const char __user *str, long n);
 -- 
-Sincerely yours,
-Mike.
+2.31.1
+
