@@ -1,49 +1,41 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 6 Feb 2022 19:04:06 +0900
+Date: Mon, 7 Feb 2022 16:23:59 +0900
 Subject: [OpenRISC] [PATCH] openrisc: remove CONFIG_SET_FS
-In-Reply-To: <CAMuHMdW2bxEtaYaLN28xk2uc=OV0ecUy-N_+Ay193gZq4nH0jw@mail.gmail.com>
+In-Reply-To: <YgC/8ng5WX6Nt104@infradead.org>
 References: <20220206013648.3491865-1-shorne@gmail.com>
- <CAMuHMdW2bxEtaYaLN28xk2uc=OV0ecUy-N_+Ay193gZq4nH0jw@mail.gmail.com>
-Message-ID: <Yf+dFv1Fj3LFsaot@antec>
+ <YgC/8ng5WX6Nt104@infradead.org>
+Message-ID: <YgDJD4jEA+f2hsHg@antec>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-H Geert,
-
-Thanks for looking after it.
-
-On Sun, Feb 06, 2022 at 10:42:46AM +0100, Geert Uytterhoeven wrote:
-> Hi Stafford,
-> 
-> Thanks for your patch!
-> 
-> On Sun, Feb 6, 2022 at 2:37 AM Stafford Horne <shorne@gmail.com> wrote:
+On Sun, Feb 06, 2022 at 10:45:06PM -0800, Christoph Hellwig wrote:
+> On Sun, Feb 06, 2022 at 10:36:47AM +0900, Stafford Horne wrote:
 > > Remove the address space override API set_fs() used for User Mode Linux.
 > 
-> Note: this doesn't have anything to do with UML...
+> This ain't UML :)
 
-Yes, I agree for UML, I was actually following the text from Christoph's patch
-here:
+Yes, Geert also brought that up.  As I mentioned there I took the text from your
+commit message in commit 8bb227ac34c0 ("um: remove set_fs").
 
-    https://lore.kernel.org/lkml/20211215165612.554426-1-hch at lst.de/T/#m439e32b3ecc8404424d2d8115d49fbf27c6393e9
+I didn't realize arch/um is for User Model Linux, I always thought um was just
+some other processor!  Next, I thought your comment 'used for User Mode Linux'
+was just referring to userpsace.
 
-The wording 'User Mode Linux' was perculiar. Maybe I should remove the
-misleading text and just say:
+Now I get it!
 
-    Remove the address space override API set_fs().
+I will fix this up in v2.
+
+> > +	return size <= TASK_SIZE && addr <= (TASK_SIZE - size);
+> 
+> No need for the inner braces.
+
+You mean to just write as:
+
+	return size <= TASK_SIZE && addr <= TASK_SIZE - size;
+
+I prefer keeping the braces around (TASK_SIZE - size).
 
 -Stafford
-
-> > User address space is now limited to TASK_SIZE.
-> >
-> > To support this we implement and wire in __get_kernel_nofault and
-> > __set_kernel_nofault.
-> >
-> > The function user_addr_max is removed as there is a default definition
-> > provided when CONFIG_SET_FS is not used.
-> >
-> > Signed-off-by: Stafford Horne <shorne@gmail.com>
-
