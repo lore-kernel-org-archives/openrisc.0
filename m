@@ -1,35 +1,33 @@
 From: Arnd Bergmann <arnd@kernel.org>
-Date: Mon, 14 Feb 2022 20:40:07 +0100
-Subject: [OpenRISC] [PATCH 10/14] uaccess: remove most CONFIG_SET_FS
- users
-In-Reply-To: <YgqL/NJ3YHEAhj4i@infradead.org>
+Date: Mon, 14 Feb 2022 20:45:52 +0100
+Subject: [OpenRISC] [PATCH 04/14] x86: use more conventional access_ok()
+ definition
+In-Reply-To: <YgqLFYqIqkIsNC92@infradead.org>
 References: <20220214163452.1568807-1-arnd@kernel.org>
- <20220214163452.1568807-11-arnd@kernel.org>
- <YgqL/NJ3YHEAhj4i@infradead.org>
-Message-ID: <CAK8P3a3eOw=QpxWFnODE61EFt8oGPJ7dcusfbPSD1vdEsUmekQ@mail.gmail.com>
+ <20220214163452.1568807-5-arnd@kernel.org>
+ <YgqLFYqIqkIsNC92@infradead.org>
+Message-ID: <CAK8P3a1F3JaYaJPy9bSCG1+YV6EN05PE0DbwpD_GT1qRwFSJ-w@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Feb 14, 2022 at 6:06 PM Christoph Hellwig <hch@infradead.org> wrote:
+On Mon, Feb 14, 2022 at 6:02 PM Christoph Hellwig <hch@infradead.org> wrote:
 >
-> On Mon, Feb 14, 2022 at 05:34:48PM +0100, Arnd Bergmann wrote:
-> > From: Arnd Bergmann <arnd@arndb.de>
-> >
-> > On almost all architectures, there are no remaining callers
-> > of set_fs(), so CONFIG_SET_FS can be disabled, along with
-> > removing the thread_info field and any references to it.
-> >
-> > This turns access_ok() into a cheaper check against TASK_SIZE_MAX.
+> On Mon, Feb 14, 2022 at 05:34:42PM +0100, Arnd Bergmann wrote:
+> > +#define __range_not_ok(addr, size, limit)    (!__access_ok(addr, size))
+> > +#define __chk_range_not_ok(addr, size, limit)        (!__access_ok((void __user *)addr, size))
 >
-> Wouldn't it make more sense to just merge this into the last patch?
+> Can we just kill these off insted of letting themm obsfucate the code?
 
-Yes, sounds good. I wasn't sure at first if there is enough buy-in to get
-all architectures cleaned up, and I hadn't done the ia64 patch, so it
-seemed more important to do this part early, but now it seems that it
-will all go in at the same time, so doing this as part of a big removal
-at the end makes sense.
+As Al pointed out, they turned out to be necessary on sparc64, but the only
+definitions are on sparc64 and x86, so it's possible that they serve a similar
+purpose here, in which case changing the limit from TASK_SIZE to
+TASK_SIZE_MAX is probably wrong as well.
 
-        Arnd
+So either I need to revert the original definition as I did on sparc64, or
+they can be removed completely. Hopefully Al or the x86 maintainers
+can clarify.
+
+         Arnd
