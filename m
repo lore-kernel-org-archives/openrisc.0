@@ -1,8 +1,10 @@
 From: Arnd Bergmann <arnd@kernel.org>
-Date: Mon, 14 Feb 2022 17:34:38 +0100
-Subject: [OpenRISC] [PATCH 00/14] clean up asm/uaccess.h,
- kill set_fs for good
-Message-ID: <20220214163452.1568807-1-arnd@kernel.org>
+Date: Mon, 14 Feb 2022 17:34:39 +0100
+Subject: [OpenRISC] [PATCH 01/14] uaccess: fix integer overflow on
+ access_ok()
+In-Reply-To: <20220214163452.1568807-1-arnd@kernel.org>
+References: <20220214163452.1568807-1-arnd@kernel.org>
+Message-ID: <20220214163452.1568807-2-arnd@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -11,209 +13,113 @@ To: openrisc@lists.librecores.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-Christoph Hellwig and a few others spent a huge effort on removing
-set_fs() from most of the important architectures, but about half the
-other architectures were never completed even though most of them don't
-actually use set_fs() at all.
+Three architectures check the end of a user access against the
+address limit without taking a possible overflow into account.
+Passing a negative length or another overflow in here returns
+success when it should not.
 
-I did a patch for microblaze at some point, which turned out to be fairly
-generic, and now ported it to most other architectures, using new generic
-implementations of access_ok() and __{get,put}_kernel_nocheck().
+Use the most common correct implementation here, which optimizes
+for a constant 'size' argument, and turns the common case into a
+single comparison.
 
-Three architectures (sparc64, ia64, and sh) needed some extra work,
-which I also completed.
+Cc: stable at vger.kernel.org
+Fixes: da551281947c ("csky: User access")
+Fixes: f663b60f5215 ("microblaze: Fix uaccess_ok macro")
+Fixes: 7567746e1c0d ("Hexagon: Add user access functions")
+Reported-by: David Laight <David.Laight@aculab.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/csky/include/asm/uaccess.h       |  7 +++----
+ arch/hexagon/include/asm/uaccess.h    | 18 +++++++++---------
+ arch/microblaze/include/asm/uaccess.h | 19 ++++---------------
+ 3 files changed, 16 insertions(+), 28 deletions(-)
 
-The final series contains extra cleanup changes that touch all
-architectures. Please review and test these, so we can merge them
-for v5.18.
-
-The series is available at
-https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git/log/?h=set_fs
-for testing.
-
-       Arnd
-
-Arnd Bergmann (14):
-  uaccess: fix integer overflow on access_ok()
-  sparc64: add __{get,put}_kernel_nocheck()
-  nds32: fix access_ok() checks in get/put_user
-  x86: use more conventional access_ok() definition
-  uaccess: add generic __{get,put}_kernel_nofault
-  mips: use simpler access_ok()
-  uaccess: generalize access_ok()
-  arm64: simplify access_ok()
-  m68k: drop custom __access_ok()
-  uaccess: remove most CONFIG_SET_FS users
-  sparc64: remove CONFIG_SET_FS support
-  sh: remove CONFIG_SET_FS support
-  ia64: remove CONFIG_SET_FS support
-  uaccess: drop set_fs leftovers
-
- arch/Kconfig                              |   3 -
- arch/alpha/Kconfig                        |   1 -
- arch/alpha/include/asm/processor.h        |   4 -
- arch/alpha/include/asm/thread_info.h      |   2 -
- arch/alpha/include/asm/uaccess.h          |  53 +--------
- arch/arc/Kconfig                          |   1 -
- arch/arc/include/asm/segment.h            |  20 ----
- arch/arc/include/asm/thread_info.h        |   3 -
- arch/arc/include/asm/uaccess.h            |  30 -----
- arch/arm/include/asm/uaccess.h            |  22 +---
- arch/arm/kernel/swp_emulate.c             |   2 +-
- arch/arm/kernel/traps.c                   |   2 +-
- arch/arm/lib/uaccess_with_memcpy.c        |  10 --
- arch/arm64/include/asm/uaccess.h          |  29 +----
- arch/csky/Kconfig                         |   1 -
- arch/csky/include/asm/processor.h         |   2 -
- arch/csky/include/asm/segment.h           |  10 --
- arch/csky/include/asm/thread_info.h       |   2 -
- arch/csky/include/asm/uaccess.h           |  12 --
- arch/csky/kernel/asm-offsets.c            |   1 -
- arch/csky/kernel/signal.c                 |   2 +-
- arch/h8300/Kconfig                        |   1 -
- arch/h8300/include/asm/processor.h        |   1 -
- arch/h8300/include/asm/segment.h          |  40 -------
- arch/h8300/include/asm/thread_info.h      |   3 -
- arch/h8300/kernel/entry.S                 |   1 -
- arch/h8300/kernel/head_ram.S              |   1 -
- arch/h8300/mm/init.c                      |   6 -
- arch/h8300/mm/memory.c                    |   1 -
- arch/hexagon/Kconfig                      |   1 -
- arch/hexagon/include/asm/thread_info.h    |   6 -
- arch/hexagon/include/asm/uaccess.h        |  25 ----
- arch/hexagon/kernel/process.c             |   1 -
- arch/ia64/Kconfig                         |   1 -
- arch/ia64/include/asm/processor.h         |   4 -
- arch/ia64/include/asm/thread_info.h       |   2 -
- arch/ia64/include/asm/uaccess.h           |  26 ++---
- arch/ia64/kernel/unaligned.c              |  60 ++++++----
- arch/m68k/include/asm/uaccess.h           |  14 +--
- arch/microblaze/Kconfig                   |   1 -
- arch/microblaze/include/asm/thread_info.h |   6 -
- arch/microblaze/include/asm/uaccess.h     |  43 +------
- arch/microblaze/kernel/asm-offsets.c      |   1 -
- arch/microblaze/kernel/process.c          |   1 -
- arch/mips/include/asm/uaccess.h           |  47 +-------
- arch/nds32/Kconfig                        |   1 -
- arch/nds32/include/asm/thread_info.h      |   4 -
- arch/nds32/include/asm/uaccess.h          |  40 +++----
- arch/nds32/kernel/process.c               |   5 +-
- arch/nds32/mm/alignment.c                 |   3 -
- arch/nios2/Kconfig                        |   1 -
- arch/nios2/include/asm/thread_info.h      |   9 --
- arch/nios2/include/asm/uaccess.h          |  23 +---
- arch/nios2/kernel/signal.c                |  20 ++--
- arch/openrisc/Kconfig                     |   1 -
- arch/openrisc/include/asm/thread_info.h   |   7 --
- arch/openrisc/include/asm/uaccess.h       |  42 +------
- arch/parisc/include/asm/futex.h           |   2 +-
- arch/parisc/include/asm/uaccess.h         |  11 +-
- arch/parisc/lib/memcpy.c                  |   2 +-
- arch/powerpc/include/asm/uaccess.h        |  13 +--
- arch/powerpc/lib/sstep.c                  |   4 +-
- arch/riscv/include/asm/uaccess.h          |  33 +-----
- arch/riscv/kernel/perf_callchain.c        |   2 +-
- arch/s390/include/asm/uaccess.h           |  13 +--
- arch/sh/Kconfig                           |   1 -
- arch/sh/include/asm/processor.h           |   1 -
- arch/sh/include/asm/segment.h             |  33 ------
- arch/sh/include/asm/thread_info.h         |   2 -
- arch/sh/include/asm/uaccess.h             |  24 +---
- arch/sh/kernel/io_trapped.c               |   9 +-
- arch/sh/kernel/process_32.c               |   2 -
- arch/sh/kernel/traps_32.c                 |  30 +++--
- arch/sparc/Kconfig                        |   1 -
- arch/sparc/include/asm/processor_32.h     |   6 -
- arch/sparc/include/asm/processor_64.h     |   4 -
- arch/sparc/include/asm/switch_to_64.h     |   4 +-
- arch/sparc/include/asm/thread_info_64.h   |   4 +-
- arch/sparc/include/asm/uaccess.h          |   3 -
- arch/sparc/include/asm/uaccess_32.h       |  31 +----
- arch/sparc/include/asm/uaccess_64.h       | 135 +++++++++++++---------
- arch/sparc/kernel/process_32.c            |   2 -
- arch/sparc/kernel/process_64.c            |  12 --
- arch/sparc/kernel/signal_32.c             |   2 +-
- arch/sparc/kernel/traps_64.c              |   2 -
- arch/sparc/lib/NGmemcpy.S                 |   3 +-
- arch/sparc/mm/init_64.c                   |   3 -
- arch/um/include/asm/uaccess.h             |   7 +-
- arch/x86/include/asm/uaccess.h            |  44 ++-----
- arch/xtensa/Kconfig                       |   1 -
- arch/xtensa/include/asm/asm-uaccess.h     |  71 ------------
- arch/xtensa/include/asm/processor.h       |   7 --
- arch/xtensa/include/asm/thread_info.h     |   3 -
- arch/xtensa/include/asm/uaccess.h         |  26 +----
- arch/xtensa/kernel/asm-offsets.c          |   3 -
- drivers/hid/uhid.c                        |   2 +-
- drivers/scsi/sg.c                         |   5 -
- fs/exec.c                                 |   6 -
- include/asm-generic/access_ok.h           |  51 ++++++++
- include/asm-generic/uaccess.h             |  46 +-------
- include/linux/syscalls.h                  |   4 -
- include/linux/uaccess.h                   |  59 +++-------
- include/rdma/ib.h                         |   2 +-
- kernel/events/callchain.c                 |   4 -
- kernel/events/core.c                      |   3 -
- kernel/exit.c                             |  14 ---
- kernel/kthread.c                          |   5 -
- kernel/stacktrace.c                       |   3 -
- kernel/trace/bpf_trace.c                  |   4 -
- mm/maccess.c                              | 119 -------------------
- mm/memory.c                               |   8 --
- net/bpfilter/bpfilter_kern.c              |   2 +-
- 112 files changed, 315 insertions(+), 1239 deletions(-)
- delete mode 100644 arch/arc/include/asm/segment.h
- delete mode 100644 arch/csky/include/asm/segment.h
- delete mode 100644 arch/h8300/include/asm/segment.h
- delete mode 100644 arch/sh/include/asm/segment.h
- create mode 100644 include/asm-generic/access_ok.h
-
+diff --git a/arch/csky/include/asm/uaccess.h b/arch/csky/include/asm/uaccess.h
+index c40f06ee8d3e..ac5a54f57d40 100644
+--- a/arch/csky/include/asm/uaccess.h
++++ b/arch/csky/include/asm/uaccess.h
+@@ -3,14 +3,13 @@
+ #ifndef __ASM_CSKY_UACCESS_H
+ #define __ASM_CSKY_UACCESS_H
+ 
+-#define user_addr_max() \
+-	(uaccess_kernel() ? KERNEL_DS.seg : get_fs().seg)
++#define user_addr_max() (current_thread_info()->addr_limit.seg)
+ 
+ static inline int __access_ok(unsigned long addr, unsigned long size)
+ {
+-	unsigned long limit = current_thread_info()->addr_limit.seg;
++	unsigned long limit = user_addr_max();
+ 
+-	return ((addr < limit) && ((addr + size) < limit));
++	return (size <= limit) && (addr <= (limit - size));
+ }
+ #define __access_ok __access_ok
+ 
+diff --git a/arch/hexagon/include/asm/uaccess.h b/arch/hexagon/include/asm/uaccess.h
+index ef5bfef8d490..719ba3f3c45c 100644
+--- a/arch/hexagon/include/asm/uaccess.h
++++ b/arch/hexagon/include/asm/uaccess.h
+@@ -25,17 +25,17 @@
+  * Returns true (nonzero) if the memory block *may* be valid, false (zero)
+  * if it is definitely invalid.
+  *
+- * User address space in Hexagon, like x86, goes to 0xbfffffff, so the
+- * simple MSB-based tests used by MIPS won't work.  Some further
+- * optimization is probably possible here, but for now, keep it
+- * reasonably simple and not *too* slow.  After all, we've got the
+- * MMU for backup.
+  */
++#define uaccess_kernel() (get_fs().seg == KERNEL_DS.seg)
++#define user_addr_max() (uaccess_kernel() ? ~0UL : TASK_SIZE)
+ 
+-#define __access_ok(addr, size) \
+-	((get_fs().seg == KERNEL_DS.seg) || \
+-	(((unsigned long)addr < get_fs().seg) && \
+-	  (unsigned long)size < (get_fs().seg - (unsigned long)addr)))
++static inline int __access_ok(unsigned long addr, unsigned long size)
++{
++	unsigned long limit = TASK_SIZE;
++
++	return (size <= limit) && (addr <= (limit - size));
++}
++#define __access_ok __access_ok
+ 
+ /*
+  * When a kernel-mode page fault is taken, the faulting instruction
+diff --git a/arch/microblaze/include/asm/uaccess.h b/arch/microblaze/include/asm/uaccess.h
+index d2a8ef9f8978..5b6e0e7788f4 100644
+--- a/arch/microblaze/include/asm/uaccess.h
++++ b/arch/microblaze/include/asm/uaccess.h
+@@ -39,24 +39,13 @@
+ 
+ # define uaccess_kernel()	(get_fs().seg == KERNEL_DS.seg)
+ 
+-static inline int access_ok(const void __user *addr, unsigned long size)
++static inline int __access_ok(unsigned long addr, unsigned long size)
+ {
+-	if (!size)
+-		goto ok;
++	unsigned long limit = user_addr_max();
+ 
+-	if ((get_fs().seg < ((unsigned long)addr)) ||
+-			(get_fs().seg < ((unsigned long)addr + size - 1))) {
+-		pr_devel("ACCESS fail at 0x%08x (size 0x%x), seg 0x%08x\n",
+-			(__force u32)addr, (u32)size,
+-			(u32)get_fs().seg);
+-		return 0;
+-	}
+-ok:
+-	pr_devel("ACCESS OK@0x%08x (size 0x%x), seg 0x%08x\n",
+-			(__force u32)addr, (u32)size,
+-			(u32)get_fs().seg);
+-	return 1;
++	return (size <= limit) && (addr <= (limit - size));
+ }
++#define access_ok(addr, size) __access_ok((unsigned long)addr, size)
+ 
+ # define __FIXUP_SECTION	".section .fixup,\"ax\"\n"
+ # define __EX_TABLE_SECTION	".section __ex_table,\"a\"\n"
 -- 
 2.29.2
 
-Cc: linux at armlinux.org.uk
-Cc: will at kernel.org
-Cc: guoren at kernel.org
-Cc: bcain at codeaurora.org
-Cc: geert at linux-m68k.org
-Cc: monstr at monstr.eu
-Cc: tsbogend at alpha.franken.de
-Cc: nickhu at andestech.com
-Cc: green.hu at gmail.com
-Cc: dinguyen at kernel.org
-Cc: shorne at gmail.com
-Cc: deller at gmx.de
-Cc: mpe at ellerman.id.au
-Cc: peterz at infradead.org
-Cc: mingo at redhat.com
-Cc: mark.rutland at arm.com
-Cc: hca at linux.ibm.com
-Cc: dalias at libc.org
-Cc: davem at davemloft.net
-Cc: richard at nod.at
-Cc: x86 at kernel.org
-Cc: jcmvbkbc at gmail.com
-Cc: ebiederm at xmission.com
-Cc: arnd at arndb.de
-Cc: akpm at linux-foundation.org
-Cc: ardb at kernel.org
-Cc: linux-kernel at vger.kernel.org
-Cc: linux-alpha at vger.kernel.org
-Cc: linux-snps-arc at lists.infradead.org
-Cc: linux-arm-kernel at lists.infradead.org
-Cc: linux-csky at vger.kernel.org
-Cc: linux-hexagon at vger.kernel.org
-Cc: linux-ia64 at vger.kernel.org
-Cc: linux-m68k at lists.linux-m68k.org
-Cc: linux-mips at vger.kernel.org
-Cc: openrisc at lists.librecores.org
-Cc: linux-parisc at vger.kernel.org
-Cc: linuxppc-dev at lists.ozlabs.org
-Cc: linux-riscv at lists.infradead.org
-Cc: linux-s390 at vger.kernel.org
-Cc: linux-sh at vger.kernel.org
-Cc: sparclinux at vger.kernel.org
-Cc: linux-um at lists.infradead.org
-Cc: linux-xtensa at linux-xtensa.org
-Cc: linux-arch at vger.kernel.org
-Cc: linux-mm at kvack.org
