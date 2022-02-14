@@ -1,10 +1,10 @@
 From: Arnd Bergmann <arnd@kernel.org>
-Date: Mon, 14 Feb 2022 17:34:41 +0100
-Subject: [OpenRISC] [PATCH 03/14] nds32: fix access_ok() checks in
- get/put_user
+Date: Mon, 14 Feb 2022 17:34:42 +0100
+Subject: [OpenRISC] [PATCH 04/14] x86: use more conventional access_ok()
+ definition
 In-Reply-To: <20220214163452.1568807-1-arnd@kernel.org>
 References: <20220214163452.1568807-1-arnd@kernel.org>
-Message-ID: <20220214163452.1568807-4-arnd@kernel.org>
+Message-ID: <20220214163452.1568807-5-arnd@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,72 +13,86 @@ To: openrisc@lists.librecores.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-The get_user()/put_user() functions are meant to check for
-access_ok(), while the __get_user()/__put_user() functions
-don't.
+The way that access_ok() is defined on x86 is slightly different from
+most other architectures, and a bit more complex.
 
-This broke in 4.19 for nds32, when it gained an extraneous
-check in __get_user(), but lost the check it needs in
-__put_user().
+The generic version tends to result in the best output on all
+architectures, as it results in single comparison against a constant
+limit for calls with a known size.
 
-Fixes: 487913ab18c2 ("nds32: Extract the checking and getting pointer to a macro")
-Cc: stable at vger.kernel.org @ v4.19+
+There are a few callers of __range_not_ok(), all of which use TASK_SIZE
+as the limit rather than TASK_SIZE_MAX, but I could not see any reason
+for picking this. Changing these to call __access_ok() instead uses the
+default limit, but keeps the behavior otherwise.
+
+x86 is the only architecture with a WARN_ON_IN_IRQ() checking
+access_ok(), but it's probably best to leave that in place.
+
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/nds32/include/asm/uaccess.h | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ arch/x86/include/asm/uaccess.h | 38 +++++++++++-----------------------
+ 1 file changed, 12 insertions(+), 26 deletions(-)
 
-diff --git a/arch/nds32/include/asm/uaccess.h b/arch/nds32/include/asm/uaccess.h
-index d4cbf069dc22..37a40981deb3 100644
---- a/arch/nds32/include/asm/uaccess.h
-+++ b/arch/nds32/include/asm/uaccess.h
-@@ -70,9 +70,7 @@ static inline void set_fs(mm_segment_t fs)
-  * versions are void (ie, don't return a value as such).
+diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
+index ac96f9b2d64b..6956a63291b6 100644
+--- a/arch/x86/include/asm/uaccess.h
++++ b/arch/x86/include/asm/uaccess.h
+@@ -16,30 +16,13 @@
+  * Test whether a block of memory is a valid user space address.
+  * Returns 0 if the range is valid, nonzero otherwise.
   */
- 
--#define get_user	__get_user					\
+-static inline bool __chk_range_not_ok(unsigned long addr, unsigned long size, unsigned long limit)
++static inline bool __access_ok(void __user *ptr, unsigned long size)
+ {
+-	/*
+-	 * If we have used "sizeof()" for the size,
+-	 * we know it won't overflow the limit (but
+-	 * it might overflow the 'addr', so it's
+-	 * important to subtract the size from the
+-	 * limit, not add it to the address).
+-	 */
+-	if (__builtin_constant_p(size))
+-		return unlikely(addr > limit - size);
 -
--#define __get_user(x, ptr)						\
-+#define get_user(x, ptr)						\
- ({									\
- 	long __gu_err = 0;						\
- 	__get_user_check((x), (ptr), __gu_err);				\
-@@ -85,6 +83,14 @@ static inline void set_fs(mm_segment_t fs)
- 	(void)0;							\
+-	/* Arbitrary sizes? Be careful about overflow */
+-	addr += size;
+-	if (unlikely(addr < size))
+-		return true;
+-	return unlikely(addr > limit);
+-}
++	unsigned long limit = TASK_SIZE_MAX;
++	unsigned long addr = ptr;
+ 
+-#define __range_not_ok(addr, size, limit)				\
+-({									\
+-	__chk_user_ptr(addr);						\
+-	__chk_range_not_ok((unsigned long __force)(addr), size, limit); \
+-})
++	return (size <= limit) && (addr <= (limit - size));
++}
+ 
+ #ifdef CONFIG_DEBUG_ATOMIC_SLEEP
+ static inline bool pagefault_disabled(void);
+@@ -66,12 +49,15 @@ static inline bool pagefault_disabled(void);
+  * Return: true (nonzero) if the memory block may be valid, false (zero)
+  * if it is definitely invalid.
+  */
+-#define access_ok(addr, size)					\
+-({									\
+-	WARN_ON_IN_IRQ();						\
+-	likely(!__range_not_ok(addr, size, TASK_SIZE_MAX));		\
++#define access_ok(addr, size)		\
++({					\
++	WARN_ON_IN_IRQ();		\
++	likely(__access_ok(addr, size));\
  })
  
-+#define __get_user(x, ptr)						\
-+({									\
-+	long __gu_err = 0;						\
-+	const __typeof__(*(ptr)) __user *__p = (ptr);			\
-+	__get_user_err((x), __p, (__gu_err));				\
-+	__gu_err;							\
-+})
++#define __range_not_ok(addr, size, limit)	(!__access_ok(addr, size))
++#define __chk_range_not_ok(addr, size, limit)	(!__access_ok((void __user *)addr, size))
 +
- #define __get_user_check(x, ptr, err)					\
- ({									\
- 	const __typeof__(*(ptr)) __user *__p = (ptr);			\
-@@ -165,12 +171,18 @@ do {									\
- 		: "r"(addr), "i"(-EFAULT)				\
- 		: "cc")
- 
--#define put_user	__put_user					\
-+#define put_user(x, ptr)						\
-+({									\
-+	long __pu_err = 0;						\
-+	__put_user_check((x), (ptr), __pu_err);				\
-+	__pu_err;							\
-+})
- 
- #define __put_user(x, ptr)						\
- ({									\
- 	long __pu_err = 0;						\
--	__put_user_err((x), (ptr), __pu_err);				\
-+	__typeof__(*(ptr)) __user *__p = (ptr);				\
-+	__put_user_err((x), __p, __pu_err);				\
- 	__pu_err;							\
- })
- 
+ extern int __get_user_1(void);
+ extern int __get_user_2(void);
+ extern int __get_user_4(void);
 -- 
 2.29.2
 
