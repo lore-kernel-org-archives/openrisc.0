@@ -1,39 +1,59 @@
 From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Mon, 14 Feb 2022 12:01:05 -0800
+Date: Mon, 14 Feb 2022 12:24:13 -0800
 Subject: [OpenRISC] [PATCH 04/14] x86: use more conventional access_ok()
  definition
-In-Reply-To: <CAK8P3a1F3JaYaJPy9bSCG1+YV6EN05PE0DbwpD_GT1qRwFSJ-w@mail.gmail.com>
+In-Reply-To: <CAHk-=whq6_Nh3cB3FieP481VcRyCu69X3=wO1yLHGmcZEj69SA@mail.gmail.com>
 References: <20220214163452.1568807-1-arnd@kernel.org>
  <20220214163452.1568807-5-arnd@kernel.org>
  <YgqLFYqIqkIsNC92@infradead.org>
  <CAK8P3a1F3JaYaJPy9bSCG1+YV6EN05PE0DbwpD_GT1qRwFSJ-w@mail.gmail.com>
-Message-ID: <CAHk-=whq6_Nh3cB3FieP481VcRyCu69X3=wO1yLHGmcZEj69SA@mail.gmail.com>
+ <CAHk-=whq6_Nh3cB3FieP481VcRyCu69X3=wO1yLHGmcZEj69SA@mail.gmail.com>
+Message-ID: <CAHk-=wgYu67OwP4LhcrPdDVxv2mOsx-Xsc2DKoVW6GZwKFtOYQ@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Feb 14, 2022 at 11:46 AM Arnd Bergmann <arnd@kernel.org> wrote:
+On Mon, Feb 14, 2022 at 12:01 PM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
 >
-> As Al pointed out, they turned out to be necessary on sparc64, but the only
-> definitions are on sparc64 and x86, so it's possible that they serve a similar
-> purpose here, in which case changing the limit from TASK_SIZE to
-> TASK_SIZE_MAX is probably wrong as well.
+> x86-64 has always(*) used TASK_SIZE_MAX for access_ok(), and the
+> get_user() assembler implementation does the same.
 
-x86-64 has always(*) used TASK_SIZE_MAX for access_ok(), and the
-get_user() assembler implementation does the same.
+Side note: we could just check the sign bit instead, and avoid big
+constants that way.
 
-I think any __range_not_ok() users that use TASK_SIZE are entirely
-historical, and should be just fixed.
+Right now we actually have this complexity in the x86-64 user access code:
 
-                 Linus
+  #ifdef CONFIG_X86_5LEVEL
+  #define LOAD_TASK_SIZE_MINUS_N(n) \
+        ALTERNATIVE __stringify(mov $((1 << 47) - 4096 - (n)),%rdx), \
+                    __stringify(mov $((1 << 56) - 4096 - (n)),%rdx),
+X86_FEATURE_LA57
+  #else
+  #define LOAD_TASK_SIZE_MINUS_N(n) \
+          mov $(TASK_SIZE_MAX - (n)),%_ASM_DX
+  #endif
 
-(*) And by "always" I mean "as far back as I bothered to go". In the
-2.6.12 git import, we had
+just because the code tries to get that TASK_SIZE_MAX boundary just right.
 
-    #define USER_DS          MAKE_MM_SEG(PAGE_OFFSET)
+And getting that boundary just right is important on 32-bit x86, but
+it's *much* less important on x86-64.
 
-so the user access limit was actually not really TASK_SIZE_MAX at all,
-but the beginning of the kernel mapping, which on x86-64 is much much
-higher.
+There's still a (weak) reason to do it even for 64-bit code: page
+faults outside the valid user space range don't actually cause a #PF
+fault - they cause #GP - and then we have the #GP handler warn about
+"this address hasn't been checked".
+
+Which is nice and useful for doing syzbot kind of randomization loads
+(ie user accesses that didn't go through access_ok() will stand out
+nicely), but maybe it's not worth this. syzbot would be fine with only
+the "sign bit set" case warning for the same thing.
+
+So on x86-64, we could just check the sign of the address instead, and
+simplify and shrink those get/put_user() code sequences (but
+array_index_mask_nospec() currently uses the carry flag computation
+too, so we'd have to change that part as well, maybe not worth it).
+
+                  Linus
