@@ -1,162 +1,121 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Fri, 11 Feb 2022 07:28:39 +0900
-Subject: [OpenRISC] [PATCH v4] openrisc: remove CONFIG_SET_FS
-Message-ID: <20220210222841.3187484-1-shorne@gmail.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Date: Mon, 14 Feb 2022 08:00:45 +0530
+Subject: [OpenRISC] [PATCH 22/30] openrisc/mm: Enable
+ ARCH_HAS_VM_GET_PAGE_PROT
+In-Reply-To: <1644805853-21338-1-git-send-email-anshuman.khandual@arm.com>
+References: <1644805853-21338-1-git-send-email-anshuman.khandual@arm.com>
+Message-ID: <1644805853-21338-23-git-send-email-anshuman.khandual@arm.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Remove the address space override API set_fs().  The OpenRISC user
-address space is now limited to TASK_SIZE.
+This defines and exports a platform specific custom vm_get_page_prot() via
+subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
+macros can be dropped which are no longer needed.
 
-To support this we implement and wire in __get_kernel_nofault and
-__set_kernel_nofault.
-
-The function user_addr_max is removed as there is a default definition
-provided when CONFIG_SET_FS is not used.
-
-Signed-off-by: Stafford Horne <shorne@gmail.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: openrisc at lists.librecores.org
+Cc: linux-kernel at vger.kernel.org
+Acked-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
-SInce v3:
- - Change order of __range_ok back and add comment about optimization.
-
-Since v2:
- - Change order of __range_ok condition to be more clear.
-
-Since v1:
- - Fix commit message with misleading comment about User Mode Linux.
-
- arch/openrisc/Kconfig                   |  1 -
- arch/openrisc/include/asm/thread_info.h |  7 ----
- arch/openrisc/include/asm/uaccess.h     | 51 +++++++++++--------------
- 3 files changed, 22 insertions(+), 37 deletions(-)
+ arch/openrisc/Kconfig               |  1 +
+ arch/openrisc/include/asm/pgtable.h | 18 -------------
+ arch/openrisc/mm/init.c             | 41 +++++++++++++++++++++++++++++
+ 3 files changed, 42 insertions(+), 18 deletions(-)
 
 diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index bf047dca7ec6..ceda77fb8bc8 100644
+index f724b3f1aeed..842a61426816 100644
 --- a/arch/openrisc/Kconfig
 +++ b/arch/openrisc/Kconfig
-@@ -36,7 +36,6 @@ config OPENRISC
- 	select ARCH_WANT_FRAME_POINTERS
- 	select GENERIC_IRQ_MULTI_HANDLER
- 	select MMU_GATHER_NO_RANGE if MMU
--	select SET_FS
- 	select TRACE_IRQFLAGS_SUPPORT
+@@ -10,6 +10,7 @@ config OPENRISC
+ 	select ARCH_HAS_DMA_SET_UNCACHED
+ 	select ARCH_HAS_DMA_CLEAR_UNCACHED
+ 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
++	select ARCH_HAS_VM_GET_PAGE_PROT
+ 	select COMMON_CLK
+ 	select OF
+ 	select OF_EARLY_FLATTREE
+diff --git a/arch/openrisc/include/asm/pgtable.h b/arch/openrisc/include/asm/pgtable.h
+index cdd657f80bfa..fe686c4b7065 100644
+--- a/arch/openrisc/include/asm/pgtable.h
++++ b/arch/openrisc/include/asm/pgtable.h
+@@ -176,24 +176,6 @@ extern void paging_init(void);
+ 	__pgprot(_PAGE_ALL | _PAGE_SRE | _PAGE_SWE \
+ 		 | _PAGE_SHARED | _PAGE_DIRTY | _PAGE_EXEC | _PAGE_CI)
  
- config CPU_BIG_ENDIAN
-diff --git a/arch/openrisc/include/asm/thread_info.h b/arch/openrisc/include/asm/thread_info.h
-index 659834ab87fa..4af3049c34c2 100644
---- a/arch/openrisc/include/asm/thread_info.h
-+++ b/arch/openrisc/include/asm/thread_info.h
-@@ -40,18 +40,12 @@
-  */
- #ifndef __ASSEMBLY__
- 
--typedef unsigned long mm_segment_t;
+-#define __P000	PAGE_NONE
+-#define __P001	PAGE_READONLY_X
+-#define __P010	PAGE_COPY
+-#define __P011	PAGE_COPY_X
+-#define __P100	PAGE_READONLY
+-#define __P101	PAGE_READONLY_X
+-#define __P110	PAGE_COPY
+-#define __P111	PAGE_COPY_X
 -
- struct thread_info {
- 	struct task_struct	*task;		/* main task structure */
- 	unsigned long		flags;		/* low level flags */
- 	__u32			cpu;		/* current CPU */
- 	__s32			preempt_count; /* 0 => preemptable, <0 => BUG */
- 
--	mm_segment_t		addr_limit; /* thread address space:
--					       0-0x7FFFFFFF for user-thead
--					       0-0xFFFFFFFF for kernel-thread
--					     */
- 	__u8			supervisor_stack[0];
- 
- 	/* saved context data */
-@@ -71,7 +65,6 @@ struct thread_info {
- 	.flags		= 0,				\
- 	.cpu		= 0,				\
- 	.preempt_count	= INIT_PREEMPT_COUNT,		\
--	.addr_limit	= KERNEL_DS,			\
- 	.ksp            = 0,                            \
+-#define __S000	PAGE_NONE
+-#define __S001	PAGE_READONLY_X
+-#define __S010	PAGE_SHARED
+-#define __S011	PAGE_SHARED_X
+-#define __S100	PAGE_READONLY
+-#define __S101	PAGE_READONLY_X
+-#define __S110	PAGE_SHARED
+-#define __S111	PAGE_SHARED_X
+-
+ /* zero page used for uninitialized stuff */
+ extern unsigned long empty_zero_page[2048];
+ #define ZERO_PAGE(vaddr) (virt_to_page(empty_zero_page))
+diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
+index 97305bde1b16..0d06e3ebef5d 100644
+--- a/arch/openrisc/mm/init.c
++++ b/arch/openrisc/mm/init.c
+@@ -210,3 +210,44 @@ void __init mem_init(void)
+ 	mem_init_done = 1;
+ 	return;
  }
- 
-diff --git a/arch/openrisc/include/asm/uaccess.h b/arch/openrisc/include/asm/uaccess.h
-index 120f5005461b..e6407173e549 100644
---- a/arch/openrisc/include/asm/uaccess.h
-+++ b/arch/openrisc/include/asm/uaccess.h
-@@ -23,36 +23,13 @@
- #include <asm/page.h>
- #include <asm/extable.h>
- 
--/*
-- * The fs value determines whether argument validity checking should be
-- * performed or not.  If get_fs() == USER_DS, checking is performed, with
-- * get_fs() == KERNEL_DS, checking is bypassed.
-- *
-- * For historical reasons, these macros are grossly misnamed.
-- */
--
--/* addr_limit is the maximum accessible address for the task. we misuse
-- * the KERNEL_DS and USER_DS values to both assign and compare the
-- * addr_limit values through the equally misnamed get/set_fs macros.
-- * (see above)
-- */
--
--#define KERNEL_DS	(~0UL)
--
--#define USER_DS		(TASK_SIZE)
--#define get_fs()	(current_thread_info()->addr_limit)
--#define set_fs(x)	(current_thread_info()->addr_limit = (x))
--
--#define uaccess_kernel()	(get_fs() == KERNEL_DS)
--
- /* Ensure that the range from addr to addr+size is all within the process'
-- * address space
-+ * address space.  Note, we compare size vs TASK_SIZE as size is often
-+ * constant and this will be optimized to a single compare.
-  */
- static inline int __range_ok(unsigned long addr, unsigned long size)
- {
--	const mm_segment_t fs = get_fs();
--
--	return size <= fs && addr <= (fs - size);
-+	return size <= TASK_SIZE && addr <= TASK_SIZE - size;
- }
- 
- #define access_ok(addr, size)						\
-@@ -241,6 +218,25 @@ do {									\
- 		(__typeof__((x)-(x)))__gu_tmp);		\
- }
- 
-+#define __get_kernel_nofault(dst, src, type, label)	\
-+{							\
-+	type __user *p = (type __force __user *)(src);	\
-+	type data;					\
-+	if (__get_user(data, p))			\
-+		goto label;				\
-+	*(type *)dst = data;				\
++
++pgprot_t vm_get_page_prot(unsigned long vm_flags)
++{
++	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
++	case VM_NONE:
++		return PAGE_NONE;
++	case VM_READ:
++		return PAGE_READONLY_X;
++	case VM_WRITE:
++		return PAGE_COPY;
++	case VM_WRITE | VM_READ:
++		return PAGE_COPY_X;
++	case VM_EXEC:
++		return PAGE_READONLY;
++	case VM_EXEC | VM_READ:
++		return PAGE_READONLY_X;
++	case VM_EXEC | VM_WRITE:
++		return PAGE_COPY;
++	case VM_EXEC | VM_WRITE | VM_READ:
++		return PAGE_COPY_X;
++	case VM_SHARED:
++		return PAGE_NONE;
++	case VM_SHARED | VM_READ:
++		return PAGE_READONLY_X;
++	case VM_SHARED | VM_WRITE:
++		return PAGE_SHARED;
++	case VM_SHARED | VM_WRITE | VM_READ:
++		return PAGE_SHARED_X;
++	case VM_SHARED | VM_EXEC:
++		return PAGE_READONLY;
++	case VM_SHARED | VM_EXEC | VM_READ:
++		return PAGE_READONLY_X;
++	case VM_SHARED | VM_EXEC | VM_WRITE:
++		return PAGE_SHARED;
++	case VM_SHARED | VM_EXEC | VM_WRITE | VM_READ:
++		return PAGE_SHARED_X;
++	default:
++		BUILD_BUG();
++	}
 +}
-+
-+#define __put_kernel_nofault(dst, src, type, label)	\
-+{							\
-+	type __user *p = (type __force __user *)(dst);	\
-+	type data = *(type *)src;			\
-+	if (__put_user(data, p))			\
-+		goto label;				\
-+}
-+
-+#define HAVE_GET_KERNEL_NOFAULT
-+
- /* more complex routines */
- 
- extern unsigned long __must_check
-@@ -268,9 +264,6 @@ clear_user(void __user *addr, unsigned long size)
- 	return size;
- }
- 
--#define user_addr_max() \
--	(uaccess_kernel() ? ~0UL : TASK_SIZE)
--
- extern long strncpy_from_user(char *dest, const char __user *src, long count);
- 
- extern __must_check long strnlen_user(const char __user *str, long n);
++EXPORT_SYMBOL(vm_get_page_prot);
 -- 
-2.31.1
+2.25.1
 
