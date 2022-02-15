@@ -1,61 +1,23 @@
 From: Al Viro <viro@zeniv.linux.org.uk>
-Date: Tue, 15 Feb 2022 00:37:41 +0000
-Subject: [OpenRISC] [PATCH 09/14] m68k: drop custom __access_ok()
-In-Reply-To: <20220214163452.1568807-10-arnd@kernel.org>
+Date: Tue, 15 Feb 2022 00:48:03 +0000
+Subject: [OpenRISC] [PATCH 11/14] sparc64: remove CONFIG_SET_FS support
+In-Reply-To: <20220214163452.1568807-12-arnd@kernel.org>
 References: <20220214163452.1568807-1-arnd@kernel.org>
- <20220214163452.1568807-10-arnd@kernel.org>
-Message-ID: <Ygr11RGjj3C9uAUg@zeniv-ca.linux.org.uk>
+ <20220214163452.1568807-12-arnd@kernel.org>
+Message-ID: <Ygr4Q2/KxfF86ETa@zeniv-ca.linux.org.uk>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Mon, Feb 14, 2022 at 05:34:47PM +0100, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> While most m68k platforms use separate address spaces for user
-> and kernel space, at least coldfire does not, and the other
-> ones have a TASK_SIZE that is less than the entire 4GB address
-> range.
-> 
-> Using the generic implementation of __access_ok() stops coldfire
-> user space from trivially accessing kernel memory, and is probably
-> the right thing elsewhere for consistency as well.
+On Mon, Feb 14, 2022 at 05:34:49PM +0100, Arnd Bergmann wrote:
 
-Perhaps simply wrap that sucker into #ifdef CONFIG_CPU_HAS_ADDRESS_SPACES
-(and trim the comment down to "coldfire and 68000 will pick generic
-variant")?
+> -/*
+> - * Sparc64 is segmented, though more like the M68K than the I386.
+> - * We use the secondary ASI to address user memory, which references a
+> - * completely different VM map, thus there is zero chance of the user
+> - * doing something queer and tricking us into poking kernel memory.
 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  arch/m68k/include/asm/uaccess.h | 13 -------------
->  1 file changed, 13 deletions(-)
-> 
-> diff --git a/arch/m68k/include/asm/uaccess.h b/arch/m68k/include/asm/uaccess.h
-> index d6bb5720365a..64914872a5c9 100644
-> --- a/arch/m68k/include/asm/uaccess.h
-> +++ b/arch/m68k/include/asm/uaccess.h
-> @@ -10,19 +10,6 @@
->  #include <linux/compiler.h>
->  #include <linux/types.h>
->  #include <asm/extable.h>
-> -
-> -/* We let the MMU do all checking */
-> -static inline int __access_ok(const void __user *addr,
-> -			    unsigned long size)
-> -{
-> -	/*
-> -	 * XXX: for !CONFIG_CPU_HAS_ADDRESS_SPACES this really needs to check
-> -	 * for TASK_SIZE!
-> -	 * Removing this helper is probably sufficient.
-> -	 */
-> -	return 1;
-> -}
-> -#define __access_ok __access_ok
->  #include <asm-generic/access_ok.h>
->  
->  /*
-> -- 
-> 2.29.2
-> 
+Actually, this part of comment probably ought to stay - it is relevant
+for understanding what's going on (e.g. why is access_ok() always true, etc.)
