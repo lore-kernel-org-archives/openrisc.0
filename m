@@ -1,40 +1,32 @@
-From: David Laight <David.Laight@ACULAB.COM>
-Date: Mon, 14 Feb 2022 22:13:34 +0000
-Subject: [OpenRISC] [PATCH 04/14] x86: use more conventional access_ok()
- definition
-In-Reply-To: <CAHk-=wgYu67OwP4LhcrPdDVxv2mOsx-Xsc2DKoVW6GZwKFtOYQ@mail.gmail.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
+Date: Tue, 15 Feb 2022 00:31:52 +0000
+Subject: [OpenRISC] [PATCH 05/14] uaccess: add generic __{get,
+ put}_kernel_nofault
+In-Reply-To: <20220214163452.1568807-6-arnd@kernel.org>
 References: <20220214163452.1568807-1-arnd@kernel.org>
- <20220214163452.1568807-5-arnd@kernel.org> <YgqLFYqIqkIsNC92@infradead.org>
- <CAK8P3a1F3JaYaJPy9bSCG1+YV6EN05PE0DbwpD_GT1qRwFSJ-w@mail.gmail.com>
- <CAHk-=whq6_Nh3cB3FieP481VcRyCu69X3=wO1yLHGmcZEj69SA@mail.gmail.com>
- <CAHk-=wgYu67OwP4LhcrPdDVxv2mOsx-Xsc2DKoVW6GZwKFtOYQ@mail.gmail.com>
-Message-ID: <2dda07f893cb4ef9b5ea2265adccb98f@AcuMS.aculab.com>
+ <20220214163452.1568807-6-arnd@kernel.org>
+Message-ID: <Ygr0eAA+ZR1eX0wb@zeniv-ca.linux.org.uk>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-From: Linus Torvalds
-> Sent: 14 February 2022 20:24
-> >
-> > x86-64 has always(*) used TASK_SIZE_MAX for access_ok(), and the
-> > get_user() assembler implementation does the same.
+On Mon, Feb 14, 2022 at 05:34:43PM +0100, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
 > 
-> Side note: we could just check the sign bit instead, and avoid big
-> constants that way.
+> All architectures that don't provide __{get,put}_kernel_nofault() yet
+> can implement this on top of __{get,put}_user.
+> 
+> Add a generic version that lets everything use the normal
+> copy_{from,to}_kernel_nofault() code based on these, removing the last
+> use of get_fs()/set_fs() from architecture-independent code.
 
-The cheap test for most 64bit is (addr | size) >> 62 != 0.
+I'd put the list of those architectures (AFAICS, that's alpha, ia64,
+microblaze, nds32, nios2, openrisc, sh, sparc32, xtensa) into commit
+message - it's not that hard to find out, but...
 
-I did some tests last week and the compilers correctly optimise
-out constant size.
-
-Doesn't sparc64 still need a wrap test?
-Or is that assumed because there is always an unmapped page
-and transfer are 'adequately' done on increasing addresses?
-
-	David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+And AFAICS, you've missed nios2 - see
+#define __put_user(x, ptr) put_user(x, ptr)
+in there.  nds32 oddities are dealt with earlier in the series, this
+one is not...
