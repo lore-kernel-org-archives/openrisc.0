@@ -1,46 +1,94 @@
-From: Arnd Bergmann <arnd@kernel.org>
-Date: Tue, 15 Feb 2022 14:16:50 +0100
-Subject: [OpenRISC] [PATCH 05/14] uaccess: add generic __{get,
- put}_kernel_nofault
-In-Reply-To: <Ygr0eAA+ZR1eX0wb@zeniv-ca.linux.org.uk>
+From: David Laight <David.Laight@ACULAB.COM>
+Date: Tue, 15 Feb 2022 13:28:59 +0000
+Subject: [OpenRISC] [PATCH 09/14] m68k: drop custom __access_ok()
+In-Reply-To: <CAK8P3a0t-dnJXvXH0Mx5L-AeVQe1mYzRi0sQjYxzMQw-mVPv0Q@mail.gmail.com>
 References: <20220214163452.1568807-1-arnd@kernel.org>
- <20220214163452.1568807-6-arnd@kernel.org>
- <Ygr0eAA+ZR1eX0wb@zeniv-ca.linux.org.uk>
-Message-ID: <CAK8P3a2+qG=Q9Si_2D7wjM7Qao2JCnYqKgU=W-SFwoG+fT-U3A@mail.gmail.com>
+ <20220214163452.1568807-10-arnd@kernel.org>
+ <Ygr11RGjj3C9uAUg@zeniv-ca.linux.org.uk> <20220215062942.GA12551@lst.de>
+ <YgtSpk0boDjsyjFK@zeniv-ca.linux.org.uk>
+ <CAK8P3a0t-dnJXvXH0Mx5L-AeVQe1mYzRi0sQjYxzMQw-mVPv0Q@mail.gmail.com>
+Message-ID: <665a8abfa86f4b5f9a66e294a79bb531@AcuMS.aculab.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Tue, Feb 15, 2022 at 1:31 AM Al Viro <viro@zeniv.linux.org.uk> wrote:
->
-> On Mon, Feb 14, 2022 at 05:34:43PM +0100, Arnd Bergmann wrote:
-> > From: Arnd Bergmann <arnd@arndb.de>
+From: Arnd Bergmann
+> Sent: 15 February 2022 10:02
+> 
+> On Tue, Feb 15, 2022 at 8:13 AM Al Viro <viro@zeniv.linux.org.uk> wrote:
+> > On Tue, Feb 15, 2022 at 07:29:42AM +0100, Christoph Hellwig wrote:
+> > > On Tue, Feb 15, 2022 at 12:37:41AM +0000, Al Viro wrote:
+> > > > Perhaps simply wrap that sucker into #ifdef CONFIG_CPU_HAS_ADDRESS_SPACES
+> > > > (and trim the comment down to "coldfire and 68000 will pick generic
+> > > > variant")?
+> > >
+> > > I wonder if we should invert CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE,
+> > > select the separate address space config for s390, sparc64, non-coldfire
+> > > m68k and mips with EVA and then just have one single access_ok for
+> > > overlapping address space (as added by Arnd) and non-overlapping ones
+> > > (always return true).
 > >
-> > All architectures that don't provide __{get,put}_kernel_nofault() yet
-> > can implement this on top of __{get,put}_user.
+> > parisc is also such...  How about
 > >
-> > Add a generic version that lets everything use the normal
-> > copy_{from,to}_kernel_nofault() code based on these, removing the last
-> > use of get_fs()/set_fs() from architecture-independent code.
->
-> I'd put the list of those architectures (AFAICS, that's alpha, ia64,
-> microblaze, nds32, nios2, openrisc, sh, sparc32, xtensa) into commit
-> message - it's not that hard to find out, but...
+> >         select ALTERNATE_SPACE_USERLAND
+> >
+> > for that bunch?
+> 
+> Either of those works for me. My current version has this keyed off
+> TASK_SIZE_MAX==ULONG_MAX, but a CONFIG_ symbol does
+> look more descriptive.
+> 
+> >  While we are at it, how many unusual access_ok() instances are
+> > left after this series?  arm64, itanic, um, anything else?
+> 
+> x86 adds a WARN_ON_IN_IRQ() check in there.
 
-done.
+If is a noop unless CONFIG_DEBUG_ATOMIC_SLEEP is set.
+I doubt that is often enabled.
 
-> And AFAICS, you've missed nios2 - see
-> #define __put_user(x, ptr) put_user(x, ptr)
-> in there.  nds32 oddities are dealt with earlier in the series, this
-> one is not...
+> This could be
+> made generic, but it's not obvious what exactly the exceptions are
+> that other architectures need. The arm64 tagged pointers could
+> probably also get integrated into the generic version.
+> 
+> > FWIW, sparc32 has a slightly unusual instance (see uaccess_32.h there); it's
+> > obviously cheaper than generic and I wonder if the trick is legitimate (and
+> > applicable elsewhere, perhaps)...
+> 
+> Right, a few others have the same, but I wasn't convinced that this
+> is actually safe for call possible cases: it's trivial to construct a caller
+> that works on other architectures but not this one, if you pass a large
+> enough size value and don't access the contents in sequence.
 
-Ok, fixed my bug in nios2 __put_user() as well now. This one is not nearly
-as bad as nds32, at least without my patches it should work as expected.
+You'd need code that did an access_ok() check and then read from
+a large offset from the address - unlikely.
+It's not like the access_ok() check for read/write is done on syscall
+entry and then everything underneath assumes it is valid.
 
-Unfortunately I also noticed that __get_user() on microblaze and nios2
-is completely broken for 64-bit arguments, where these copy eight bytes
-into a four byte buffer. I'll try to come up with a fix for this as well then.
+Hasn't (almost) everything been checked for function calls between
+user_access_begin() and the actual accesses?
+And access_ok() is done by/at the same time as user_access_begin()?
 
-         Arnd
+You do need an unmapped page above the address that is tested.
+
+> Also, like the ((addr | (addr + size)) & MASK) check on some other
+> architectures, it is less portable because it makes assumptions about
+> the actual layout beyond a fixed address limit.
+
+Isn't that test broken without a separate bound check on size?
+
+I also seem to remember that access_ok(xxx, 0) is always 'ok'
+and some of the 'fast' tests give a false negative if the user
+buffer ends with the last byte of user address space.
+
+So you may need:
+	size < TASK_SIZE && (addr < (TASK_SIZE - size - 1) || !size)
+(sprinkled with [un]likely())
+
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
