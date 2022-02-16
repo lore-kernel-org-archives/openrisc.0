@@ -1,115 +1,56 @@
-From: Sam Ravnborg <sam@ravnborg.org>
-Date: Wed, 16 Feb 2022 19:44:13 +0100
-Subject: [OpenRISC] [PATCH v2 18/18] uaccess: drop maining CONFIG_SET_FS
- users
-In-Reply-To: <20220216131332.1489939-19-arnd@kernel.org>
-References: <20220216131332.1489939-1-arnd@kernel.org>
- <20220216131332.1489939-19-arnd@kernel.org>
-Message-ID: <Yg1F/VT4vRX4aHEt@ravnborg.org>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Date: Wed, 16 Feb 2022 19:43:22 +0000
+Subject: [OpenRISC] [PATCH 08/14] arm64: simplify access_ok()
+In-Reply-To: <CAK8P3a2VfvDkueaJNTA9SiB+PFsi_Q17AX+aL46ueooW2ahmQw@mail.gmail.com>
+References: <20220214163452.1568807-1-arnd@kernel.org>
+ <20220214163452.1568807-9-arnd@kernel.org>
+ <CAMj1kXHixUFjV=4m3tzfGz7AiRWc-VczymbKuZq7dyZZNuLKxQ@mail.gmail.com>
+ <CAK8P3a2VfvDkueaJNTA9SiB+PFsi_Q17AX+aL46ueooW2ahmQw@mail.gmail.com>
+Message-ID: <07050857-c9d2-bab2-2191-8d244d6f7708@csgroup.eu>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 To: openrisc@lists.librecores.org
 
-Hi Arnd,
 
-Fix spelling in $subject...
 
-sparc/Kconfig b/arch/sparc/Kconfig
-> index 9f6f9bce5292..9276f321b3e3 100644
-> --- a/arch/sparc/Kconfig
-> +++ b/arch/sparc/Kconfig
-> @@ -46,7 +46,6 @@ config SPARC
->  	select LOCKDEP_SMALL if LOCKDEP
->  	select NEED_DMA_MAP_STATE
->  	select NEED_SG_DMA_LENGTH
-> -	select SET_FS
->  	select TRACE_IRQFLAGS_SUPPORT
->  
->  config SPARC32
-> @@ -101,6 +100,7 @@ config SPARC64
->  	select HAVE_SETUP_PER_CPU_AREA
->  	select NEED_PER_CPU_EMBED_FIRST_CHUNK
->  	select NEED_PER_CPU_PAGE_FIRST_CHUNK
-> +	select SET_FS
-This looks wrong - looks like some merge went wrong here.
+Le 15/02/2022 à 10:12, Arnd Bergmann a écrit :
+> On Tue, Feb 15, 2022 at 9:17 AM Ard Biesheuvel <ardb@kernel.org> wrote:
+>> On Mon, 14 Feb 2022 at 17:37, Arnd Bergmann <arnd@kernel.org> wrote:
+>>> From: Arnd Bergmann <arnd@arndb.de>
+>>>
+>>
+>> With set_fs() out of the picture, wouldn't it be sufficient to check
+>> that bit #55 is clear? (the bit that selects between TTBR0 and TTBR1)
+>> That would also remove the need to strip the tag from the address.
+>>
+>> Something like
+>>
+>>      asm goto("tbnz  %0, #55, %2     \n"
+>>               "tbnz  %1, #55, %2     \n"
+>>               :: "r"(addr), "r"(addr + size - 1) :: notok);
+>>      return 1;
+>> notok:
+>>      return 0;
+>>
+>> with an additional sanity check on the size which the compiler could
+>> eliminate for compile-time constant values.
+> 
+> That should work, but I don't see it as a clear enough advantage to
+> have a custom implementation. For the constant-size case, it probably
+> isn't better than a compiler-scheduled comparison against a
+> constant limit, but it does hurt maintainability when the next person
+> wants to change the behavior of access_ok() globally.
+> 
+> If we want to get into micro-optimizing uaccess, I think a better target
+> would be a CONFIG_CC_HAS_ASM_GOTO_OUTPUT version
+> of __get_user()/__put_user as we have on x86 and powerpc.
+> 
 
->  
->  config ARCH_PROC_KCORE_TEXT
->  	def_bool y
-> diff --git a/arch/sparc/include/asm/processor_32.h b/arch/sparc/include/asm/processor_32.h
-> index 647bf0ac7beb..b26c35336b51 100644
-> --- a/arch/sparc/include/asm/processor_32.h
-> +++ b/arch/sparc/include/asm/processor_32.h
-> @@ -32,10 +32,6 @@ struct fpq {
->  };
->  #endif
->  
-> -typedef struct {
-> -	int seg;
-> -} mm_segment_t;
-> -
->  /* The Sparc processor specific thread struct. */
->  struct thread_struct {
->  	struct pt_regs *kregs;
-> @@ -50,11 +46,9 @@ struct thread_struct {
->  	unsigned long   fsr;
->  	unsigned long   fpqdepth;
->  	struct fpq	fpqueue[16];
-> -	mm_segment_t current_ds;
->  };
->  
->  #define INIT_THREAD  { \
-> -	.current_ds = KERNEL_DS, \
->  	.kregs = (struct pt_regs *)(init_stack+THREAD_SIZE)-1 \
->  }
->  
-> diff --git a/arch/sparc/include/asm/uaccess_32.h b/arch/sparc/include/asm/uaccess_32.h
-> index 367747116260..9fd6c53644b6 100644
-> --- a/arch/sparc/include/asm/uaccess_32.h
-> +++ b/arch/sparc/include/asm/uaccess_32.h
-> @@ -12,19 +12,6 @@
->  #include <linux/string.h>
->  
->  #include <asm/processor.h>
-> -
-> -/* Sparc is not segmented, however we need to be able to fool access_ok()
-> - * when doing system calls from kernel mode legitimately.
-> - *
-> - * "For historical reasons, these macros are grossly misnamed." -Linus
-> - */
-> -
-> -#define KERNEL_DS   ((mm_segment_t) { 0 })
-> -#define USER_DS     ((mm_segment_t) { -1 })
-> -
-> -#define get_fs()	(current->thread.current_ds)
-> -#define set_fs(val)	((current->thread.current_ds) = (val))
-> -
->  #include <asm-generic/access_ok.h>
->  
->  /* Uh, these should become the main single-value transfer routines..
-> diff --git a/arch/sparc/kernel/process_32.c b/arch/sparc/kernel/process_32.c
-> index 2dc0bf9fe62e..88c0c14aaff0 100644
-> --- a/arch/sparc/kernel/process_32.c
-> +++ b/arch/sparc/kernel/process_32.c
-> @@ -300,7 +300,6 @@ int copy_thread(unsigned long clone_flags, unsigned long sp, unsigned long arg,
->  		extern int nwindows;
->  		unsigned long psr;
->  		memset(new_stack, 0, STACKFRAME_SZ + TRACEREG_SZ);
-> -		p->thread.current_ds = KERNEL_DS;
->  		ti->kpc = (((unsigned long) ret_from_kernel_thread) - 0x8);
->  		childregs->u_regs[UREG_G1] = sp; /* function */
->  		childregs->u_regs[UREG_G2] = arg;
-> @@ -311,7 +310,6 @@ int copy_thread(unsigned long clone_flags, unsigned long sp, unsigned long arg,
->  	}
->  	memcpy(new_stack, (char *)regs - STACKFRAME_SZ, STACKFRAME_SZ + TRACEREG_SZ);
->  	childregs->u_regs[UREG_FP] = sp;
-> -	p->thread.current_ds = USER_DS;
->  	ti->kpc = (((unsigned long) ret_from_fork) - 0x8);
->  	ti->kpsr = current->thread.fork_kpsr | PSR_PIL;
->  	ti->kwim = current->thread.fork_kwim;
+There is also the user block accesses with 
+user_access_begin()/user_access_end() together with unsafe_put_user() 
+and unsafe_get_user() which allowed us to optimise user accesses on 
+powerpc, especially in the signal code.
 
-Other than the above the sparc32 changes looks fine, and with the Kconf
-stuff fixed:
-Acked-by: Sam Ravnborg <sam@ravnborg.org> # for sparc32 changes
+Christophe
