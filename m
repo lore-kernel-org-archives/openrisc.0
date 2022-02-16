@@ -1,10 +1,10 @@
 From: Arnd Bergmann <arnd@kernel.org>
-Date: Wed, 16 Feb 2022 14:13:15 +0100
-Subject: [OpenRISC] [PATCH v2 01/18] uaccess: fix integer overflow on
- access_ok()
+Date: Wed, 16 Feb 2022 14:13:16 +0100
+Subject: [OpenRISC] [PATCH v2 02/18] uaccess: fix nios2 and microblaze
+ get_user_8()
 In-Reply-To: <20220216131332.1489939-1-arnd@kernel.org>
 References: <20220216131332.1489939-1-arnd@kernel.org>
-Message-ID: <20220216131332.1489939-2-arnd@kernel.org>
+Message-ID: <20220216131332.1489939-3-arnd@kernel.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,114 +13,135 @@ To: openrisc@lists.librecores.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-Three architectures check the end of a user access against the
-address limit without taking a possible overflow into account.
-Passing a negative length or another overflow in here returns
-success when it should not.
+These two architectures implement 8-byte get_user() through
+a memcpy() into a four-byte variable, which won't fit.
 
-Use the most common correct implementation here, which optimizes
-for a constant 'size' argument, and turns the common case into a
-single comparison.
+Use a temporary 64-bit variable instead here, and use a double
+cast the way that risc-v and openrisc do to avoid compile-time
+warnings.
 
-Cc: stable at vger.kernel.org
-Fixes: da551281947c ("csky: User access")
-Fixes: f663b60f5215 ("microblaze: Fix uaccess_ok macro")
-Fixes: 7567746e1c0d ("Hexagon: Add user access functions")
-Reported-by: David Laight <David.Laight@aculab.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Fixes: 6a090e97972d ("arch/microblaze: support get_user() of size 8 bytes")
+Fixes: 5ccc6af5e88e ("nios2: Memory management")
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/csky/include/asm/uaccess.h       |  7 +++----
- arch/hexagon/include/asm/uaccess.h    | 18 +++++++++---------
- arch/microblaze/include/asm/uaccess.h | 19 ++++---------------
- 3 files changed, 16 insertions(+), 28 deletions(-)
+ arch/microblaze/include/asm/uaccess.h | 18 +++++++++---------
+ arch/nios2/include/asm/uaccess.h      | 26 ++++++++++++++++----------
+ 2 files changed, 25 insertions(+), 19 deletions(-)
 
-diff --git a/arch/csky/include/asm/uaccess.h b/arch/csky/include/asm/uaccess.h
-index c40f06ee8d3e..ac5a54f57d40 100644
---- a/arch/csky/include/asm/uaccess.h
-+++ b/arch/csky/include/asm/uaccess.h
-@@ -3,14 +3,13 @@
- #ifndef __ASM_CSKY_UACCESS_H
- #define __ASM_CSKY_UACCESS_H
- 
--#define user_addr_max() \
--	(uaccess_kernel() ? KERNEL_DS.seg : get_fs().seg)
-+#define user_addr_max() (current_thread_info()->addr_limit.seg)
- 
- static inline int __access_ok(unsigned long addr, unsigned long size)
- {
--	unsigned long limit = current_thread_info()->addr_limit.seg;
-+	unsigned long limit = user_addr_max();
- 
--	return ((addr < limit) && ((addr + size) < limit));
-+	return (size <= limit) && (addr <= (limit - size));
- }
- #define __access_ok __access_ok
- 
-diff --git a/arch/hexagon/include/asm/uaccess.h b/arch/hexagon/include/asm/uaccess.h
-index ef5bfef8d490..719ba3f3c45c 100644
---- a/arch/hexagon/include/asm/uaccess.h
-+++ b/arch/hexagon/include/asm/uaccess.h
-@@ -25,17 +25,17 @@
-  * Returns true (nonzero) if the memory block *may* be valid, false (zero)
-  * if it is definitely invalid.
-  *
-- * User address space in Hexagon, like x86, goes to 0xbfffffff, so the
-- * simple MSB-based tests used by MIPS won't work.  Some further
-- * optimization is probably possible here, but for now, keep it
-- * reasonably simple and not *too* slow.  After all, we've got the
-- * MMU for backup.
-  */
-+#define uaccess_kernel() (get_fs().seg == KERNEL_DS.seg)
-+#define user_addr_max() (uaccess_kernel() ? ~0UL : TASK_SIZE)
- 
--#define __access_ok(addr, size) \
--	((get_fs().seg == KERNEL_DS.seg) || \
--	(((unsigned long)addr < get_fs().seg) && \
--	  (unsigned long)size < (get_fs().seg - (unsigned long)addr)))
-+static inline int __access_ok(unsigned long addr, unsigned long size)
-+{
-+	unsigned long limit = TASK_SIZE;
-+
-+	return (size <= limit) && (addr <= (limit - size));
-+}
-+#define __access_ok __access_ok
- 
- /*
-  * When a kernel-mode page fault is taken, the faulting instruction
 diff --git a/arch/microblaze/include/asm/uaccess.h b/arch/microblaze/include/asm/uaccess.h
-index d2a8ef9f8978..5b6e0e7788f4 100644
+index 5b6e0e7788f4..3fe96979d2c6 100644
 --- a/arch/microblaze/include/asm/uaccess.h
 +++ b/arch/microblaze/include/asm/uaccess.h
-@@ -39,24 +39,13 @@
+@@ -130,27 +130,27 @@ extern long __user_bad(void);
  
- # define uaccess_kernel()	(get_fs().seg == KERNEL_DS.seg)
+ #define __get_user(x, ptr)						\
+ ({									\
+-	unsigned long __gu_val = 0;					\
+ 	long __gu_err;							\
+ 	switch (sizeof(*(ptr))) {					\
+ 	case 1:								\
+-		__get_user_asm("lbu", (ptr), __gu_val, __gu_err);	\
++		__get_user_asm("lbu", (ptr), x, __gu_err);		\
+ 		break;							\
+ 	case 2:								\
+-		__get_user_asm("lhu", (ptr), __gu_val, __gu_err);	\
++		__get_user_asm("lhu", (ptr), x, __gu_err);		\
+ 		break;							\
+ 	case 4:								\
+-		__get_user_asm("lw", (ptr), __gu_val, __gu_err);	\
++		__get_user_asm("lw", (ptr), x, __gu_err);		\
+ 		break;							\
+-	case 8:								\
+-		__gu_err = __copy_from_user(&__gu_val, ptr, 8);		\
+-		if (__gu_err)						\
+-			__gu_err = -EFAULT;				\
++	case 8: {							\
++		__u64 __x = 0;						\
++		__gu_err = raw_copy_from_user(&__x, ptr, 8) ?		\
++							-EFAULT : 0;	\
++		(x) = (typeof(x))(typeof((x) - (x)))__x;		\
+ 		break;							\
++	}								\
+ 	default:							\
+ 		/* __gu_val = 0; __gu_err = -EINVAL;*/ __gu_err = __user_bad();\
+ 	}								\
+-	x = (__force __typeof__(*(ptr))) __gu_val;			\
+ 	__gu_err;							\
+ })
  
--static inline int access_ok(const void __user *addr, unsigned long size)
-+static inline int __access_ok(unsigned long addr, unsigned long size)
- {
--	if (!size)
--		goto ok;
-+	unsigned long limit = user_addr_max();
- 
--	if ((get_fs().seg < ((unsigned long)addr)) ||
--			(get_fs().seg < ((unsigned long)addr + size - 1))) {
--		pr_devel("ACCESS fail at 0x%08x (size 0x%x), seg 0x%08x\n",
--			(__force u32)addr, (u32)size,
--			(u32)get_fs().seg);
--		return 0;
--	}
--ok:
--	pr_devel("ACCESS OK@0x%08x (size 0x%x), seg 0x%08x\n",
--			(__force u32)addr, (u32)size,
--			(u32)get_fs().seg);
--	return 1;
-+	return (size <= limit) && (addr <= (limit - size));
+diff --git a/arch/nios2/include/asm/uaccess.h b/arch/nios2/include/asm/uaccess.h
+index ba9340e96fd4..ca9285a915ef 100644
+--- a/arch/nios2/include/asm/uaccess.h
++++ b/arch/nios2/include/asm/uaccess.h
+@@ -88,6 +88,7 @@ extern __must_check long strnlen_user(const char __user *s, long n);
+ /* Optimized macros */
+ #define __get_user_asm(val, insn, addr, err)				\
+ {									\
++	unsigned long __gu_val;						\
+ 	__asm__ __volatile__(						\
+ 	"       movi    %0, %3\n"					\
+ 	"1:   " insn " %1, 0(%2)\n"					\
+@@ -96,14 +97,20 @@ extern __must_check long strnlen_user(const char __user *s, long n);
+ 	"       .section __ex_table,\"a\"\n"				\
+ 	"       .word 1b, 2b\n"						\
+ 	"       .previous"						\
+-	: "=&r" (err), "=r" (val)					\
++	: "=&r" (err), "=r" (__gu_val)					\
+ 	: "r" (addr), "i" (-EFAULT));					\
++	val = (__force __typeof__(*(addr)))__gu_val;			\
  }
-+#define access_ok(addr, size) __access_ok((unsigned long)addr, size)
  
- # define __FIXUP_SECTION	".section .fixup,\"ax\"\n"
- # define __EX_TABLE_SECTION	".section __ex_table,\"a\"\n"
+-#define __get_user_unknown(val, size, ptr, err) do {			\
++extern void __get_user_unknown(void);
++
++#define __get_user_8(val, ptr, err) do {				\
++	u64 __val = 0;							\
+ 	err = 0;							\
+-	if (__copy_from_user(&(val), ptr, size)) {			\
++	if (raw_copy_from_user(&(__val), ptr, sizeof(val))) {		\
+ 		err = -EFAULT;						\
++	} else {							\
++		val = (typeof(val))(typeof((val) - (val)))__val;	\
+ 	}								\
+ 	} while (0)
+ 
+@@ -119,8 +126,11 @@ do {									\
+ 	case 4:								\
+ 		__get_user_asm(val, "ldw", ptr, err);			\
+ 		break;							\
++	case 8:								\
++		__get_user_8(val, ptr, err);				\
++		break;							\
+ 	default:							\
+-		__get_user_unknown(val, size, ptr, err);		\
++		__get_user_unknown();					\
+ 		break;							\
+ 	}								\
+ } while (0)
+@@ -129,9 +139,7 @@ do {									\
+ 	({								\
+ 	long __gu_err = -EFAULT;					\
+ 	const __typeof__(*(ptr)) __user *__gu_ptr = (ptr);		\
+-	unsigned long __gu_val = 0;					\
+-	__get_user_common(__gu_val, sizeof(*(ptr)), __gu_ptr, __gu_err);\
+-	(x) = (__force __typeof__(x))__gu_val;				\
++	__get_user_common(x, sizeof(*(ptr)), __gu_ptr, __gu_err);	\
+ 	__gu_err;							\
+ 	})
+ 
+@@ -139,11 +147,9 @@ do {									\
+ ({									\
+ 	long __gu_err = -EFAULT;					\
+ 	const __typeof__(*(ptr)) __user *__gu_ptr = (ptr);		\
+-	unsigned long __gu_val = 0;					\
+ 	if (access_ok( __gu_ptr, sizeof(*__gu_ptr)))	\
+-		__get_user_common(__gu_val, sizeof(*__gu_ptr),		\
++		__get_user_common(x, sizeof(*__gu_ptr),			\
+ 			__gu_ptr, __gu_err);				\
+-	(x) = (__force __typeof__(x))__gu_val;				\
+ 	__gu_err;							\
+ })
+ 
 -- 
 2.29.2
 
