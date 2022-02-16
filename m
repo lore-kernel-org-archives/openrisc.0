@@ -1,12 +1,11 @@
 From: Sam Ravnborg <sam@ravnborg.org>
-Date: Wed, 16 Feb 2022 19:41:09 +0100
-Subject: [OpenRISC] [PATCH v2 15/18] sparc64: remove CONFIG_SET_FS
- support
-In-Reply-To: <Yg1D08+olCSGmnYU@ravnborg.org>
+Date: Wed, 16 Feb 2022 19:44:13 +0100
+Subject: [OpenRISC] [PATCH v2 18/18] uaccess: drop maining CONFIG_SET_FS
+ users
+In-Reply-To: <20220216131332.1489939-19-arnd@kernel.org>
 References: <20220216131332.1489939-1-arnd@kernel.org>
- <20220216131332.1489939-16-arnd@kernel.org>
- <Yg1D08+olCSGmnYU@ravnborg.org>
-Message-ID: <Yg1FRZcrhlh5C//V@ravnborg.org>
+ <20220216131332.1489939-19-arnd@kernel.org>
+Message-ID: <Yg1F/VT4vRX4aHEt@ravnborg.org>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -15,37 +14,102 @@ To: openrisc@lists.librecores.org
 
 Hi Arnd,
 
-On Wed, Feb 16, 2022 at 07:34:59PM +0100, Sam Ravnborg wrote:
-> Hi Arnd.
-> 
-> On Wed, Feb 16, 2022 at 02:13:29PM +0100, Arnd Bergmann wrote:
-> > From: Arnd Bergmann <arnd@arndb.de>
-> > 
-> > sparc64 uses address space identifiers to differentiate between kernel
-> > and user space, using ASI_P for kernel threads but ASI_AIUS for normal
-> > user space, with the option of changing between them.
-> > 
-> > As nothing really changes the ASI any more, just hardcode ASI_AIUS
-> > everywhere. Kernel threads are not allowed to access __user pointers
-> > anyway.
-> > 
-> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> > ---
-> >  arch/sparc/include/asm/processor_64.h   |  4 ----
-> >  arch/sparc/include/asm/switch_to_64.h   |  4 +---
-> >  arch/sparc/include/asm/thread_info_64.h |  4 +---
-> >  arch/sparc/include/asm/uaccess_64.h     | 20 +-------------------
-> >  arch/sparc/kernel/process_64.c          | 12 ------------
-> >  arch/sparc/kernel/traps_64.c            |  2 --
-> >  arch/sparc/lib/NGmemcpy.S               |  3 +--
-> >  arch/sparc/mm/init_64.c                 |  7 ++++---
-> >  8 files changed, 8 insertions(+), 48 deletions(-)
-> 
-> I think you somehow missed the Kconfig change, and also the related
-> sparc32 change which continue to have set_fs() after this patch.
-I now notice the sparc32 bits are in the last patch.
-To avoid breaking bisect-ability on sparc64 I think you need to merge
-the sparc32 changes with this patch, unless the sparc64 changes can
-coexist with CONFIG_SET_FS continue to be set.
+Fix spelling in $subject...
 
-	Sam
+sparc/Kconfig b/arch/sparc/Kconfig
+> index 9f6f9bce5292..9276f321b3e3 100644
+> --- a/arch/sparc/Kconfig
+> +++ b/arch/sparc/Kconfig
+> @@ -46,7 +46,6 @@ config SPARC
+>  	select LOCKDEP_SMALL if LOCKDEP
+>  	select NEED_DMA_MAP_STATE
+>  	select NEED_SG_DMA_LENGTH
+> -	select SET_FS
+>  	select TRACE_IRQFLAGS_SUPPORT
+>  
+>  config SPARC32
+> @@ -101,6 +100,7 @@ config SPARC64
+>  	select HAVE_SETUP_PER_CPU_AREA
+>  	select NEED_PER_CPU_EMBED_FIRST_CHUNK
+>  	select NEED_PER_CPU_PAGE_FIRST_CHUNK
+> +	select SET_FS
+This looks wrong - looks like some merge went wrong here.
+
+>  
+>  config ARCH_PROC_KCORE_TEXT
+>  	def_bool y
+> diff --git a/arch/sparc/include/asm/processor_32.h b/arch/sparc/include/asm/processor_32.h
+> index 647bf0ac7beb..b26c35336b51 100644
+> --- a/arch/sparc/include/asm/processor_32.h
+> +++ b/arch/sparc/include/asm/processor_32.h
+> @@ -32,10 +32,6 @@ struct fpq {
+>  };
+>  #endif
+>  
+> -typedef struct {
+> -	int seg;
+> -} mm_segment_t;
+> -
+>  /* The Sparc processor specific thread struct. */
+>  struct thread_struct {
+>  	struct pt_regs *kregs;
+> @@ -50,11 +46,9 @@ struct thread_struct {
+>  	unsigned long   fsr;
+>  	unsigned long   fpqdepth;
+>  	struct fpq	fpqueue[16];
+> -	mm_segment_t current_ds;
+>  };
+>  
+>  #define INIT_THREAD  { \
+> -	.current_ds = KERNEL_DS, \
+>  	.kregs = (struct pt_regs *)(init_stack+THREAD_SIZE)-1 \
+>  }
+>  
+> diff --git a/arch/sparc/include/asm/uaccess_32.h b/arch/sparc/include/asm/uaccess_32.h
+> index 367747116260..9fd6c53644b6 100644
+> --- a/arch/sparc/include/asm/uaccess_32.h
+> +++ b/arch/sparc/include/asm/uaccess_32.h
+> @@ -12,19 +12,6 @@
+>  #include <linux/string.h>
+>  
+>  #include <asm/processor.h>
+> -
+> -/* Sparc is not segmented, however we need to be able to fool access_ok()
+> - * when doing system calls from kernel mode legitimately.
+> - *
+> - * "For historical reasons, these macros are grossly misnamed." -Linus
+> - */
+> -
+> -#define KERNEL_DS   ((mm_segment_t) { 0 })
+> -#define USER_DS     ((mm_segment_t) { -1 })
+> -
+> -#define get_fs()	(current->thread.current_ds)
+> -#define set_fs(val)	((current->thread.current_ds) = (val))
+> -
+>  #include <asm-generic/access_ok.h>
+>  
+>  /* Uh, these should become the main single-value transfer routines..
+> diff --git a/arch/sparc/kernel/process_32.c b/arch/sparc/kernel/process_32.c
+> index 2dc0bf9fe62e..88c0c14aaff0 100644
+> --- a/arch/sparc/kernel/process_32.c
+> +++ b/arch/sparc/kernel/process_32.c
+> @@ -300,7 +300,6 @@ int copy_thread(unsigned long clone_flags, unsigned long sp, unsigned long arg,
+>  		extern int nwindows;
+>  		unsigned long psr;
+>  		memset(new_stack, 0, STACKFRAME_SZ + TRACEREG_SZ);
+> -		p->thread.current_ds = KERNEL_DS;
+>  		ti->kpc = (((unsigned long) ret_from_kernel_thread) - 0x8);
+>  		childregs->u_regs[UREG_G1] = sp; /* function */
+>  		childregs->u_regs[UREG_G2] = arg;
+> @@ -311,7 +310,6 @@ int copy_thread(unsigned long clone_flags, unsigned long sp, unsigned long arg,
+>  	}
+>  	memcpy(new_stack, (char *)regs - STACKFRAME_SZ, STACKFRAME_SZ + TRACEREG_SZ);
+>  	childregs->u_regs[UREG_FP] = sp;
+> -	p->thread.current_ds = USER_DS;
+>  	ti->kpc = (((unsigned long) ret_from_fork) - 0x8);
+>  	ti->kpsr = current->thread.fork_kpsr | PSR_PIL;
+>  	ti->kwim = current->thread.fork_kwim;
+
+Other than the above the sparc32 changes looks fine, and with the Kconf
+stuff fixed:
+Acked-by: Sam Ravnborg <sam@ravnborg.org> # for sparc32 changes
