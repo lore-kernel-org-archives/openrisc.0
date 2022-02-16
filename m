@@ -1,56 +1,37 @@
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Date: Wed, 16 Feb 2022 19:43:22 +0000
-Subject: [OpenRISC] [PATCH 08/14] arm64: simplify access_ok()
-In-Reply-To: <CAK8P3a2VfvDkueaJNTA9SiB+PFsi_Q17AX+aL46ueooW2ahmQw@mail.gmail.com>
-References: <20220214163452.1568807-1-arnd@kernel.org>
- <20220214163452.1568807-9-arnd@kernel.org>
- <CAMj1kXHixUFjV=4m3tzfGz7AiRWc-VczymbKuZq7dyZZNuLKxQ@mail.gmail.com>
- <CAK8P3a2VfvDkueaJNTA9SiB+PFsi_Q17AX+aL46ueooW2ahmQw@mail.gmail.com>
-Message-ID: <07050857-c9d2-bab2-2191-8d244d6f7708@csgroup.eu>
+From: Arnd Bergmann <arnd@kernel.org>
+Date: Wed, 16 Feb 2022 23:01:16 +0100
+Subject: [OpenRISC] [PATCH v2 15/18] sparc64: remove CONFIG_SET_FS
+ support
+In-Reply-To: <Yg1FRZcrhlh5C//V@ravnborg.org>
+References: <20220216131332.1489939-1-arnd@kernel.org>
+ <20220216131332.1489939-16-arnd@kernel.org>
+ <Yg1D08+olCSGmnYU@ravnborg.org> <Yg1FRZcrhlh5C//V@ravnborg.org>
+Message-ID: <CAK8P3a1kV=0G9WYkdjYCiBu=fuT1fbPGHVD9cgHX3ht6J3MFEw@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
+On Wed, Feb 16, 2022 at 7:41 PM Sam Ravnborg <sam@ravnborg.org> wrote:
+> On Wed, Feb 16, 2022 at 07:34:59PM +0100, Sam Ravnborg wrote:
 
+> >
+> > I think you somehow missed the Kconfig change, and also the related
+> > sparc32 change which continue to have set_fs() after this patch.
 
-Le 15/02/2022 à 10:12, Arnd Bergmann a écrit :
-> On Tue, Feb 15, 2022 at 9:17 AM Ard Biesheuvel <ardb@kernel.org> wrote:
->> On Mon, 14 Feb 2022 at 17:37, Arnd Bergmann <arnd@kernel.org> wrote:
->>> From: Arnd Bergmann <arnd@arndb.de>
->>>
->>
->> With set_fs() out of the picture, wouldn't it be sufficient to check
->> that bit #55 is clear? (the bit that selects between TTBR0 and TTBR1)
->> That would also remove the need to strip the tag from the address.
->>
->> Something like
->>
->>      asm goto("tbnz  %0, #55, %2     \n"
->>               "tbnz  %1, #55, %2     \n"
->>               :: "r"(addr), "r"(addr + size - 1) :: notok);
->>      return 1;
->> notok:
->>      return 0;
->>
->> with an additional sanity check on the size which the compiler could
->> eliminate for compile-time constant values.
-> 
-> That should work, but I don't see it as a clear enough advantage to
-> have a custom implementation. For the constant-size case, it probably
-> isn't better than a compiler-scheduled comparison against a
-> constant limit, but it does hurt maintainability when the next person
-> wants to change the behavior of access_ok() globally.
-> 
-> If we want to get into micro-optimizing uaccess, I think a better target
-> would be a CONFIG_CC_HAS_ASM_GOTO_OUTPUT version
-> of __get_user()/__put_user as we have on x86 and powerpc.
-> 
+Right, thanks for pointing out the issue.
 
-There is also the user block accesses with 
-user_access_begin()/user_access_end() together with unsafe_put_user() 
-and unsafe_get_user() which allowed us to optimise user accesses on 
-powerpc, especially in the signal code.
+> I now notice the sparc32 bits are in the last patch.
+> To avoid breaking bisect-ability on sparc64 I think you need to merge
+> the sparc32 changes with this patch, unless the sparc64 changes can
+> coexist with CONFIG_SET_FS continue to be set.
 
-Christophe
+I originally had them in the reverse order and broke bisectability during my
+rebase. The end result is still fine, but now I need to move the 'select
+SET_FS' from CONFIG_SPARC to CONFIG_SPARC32 in this patch
+and then remove it again from there in the last step.
+
+I've done that in my local copy now.
+
+         Arnd
