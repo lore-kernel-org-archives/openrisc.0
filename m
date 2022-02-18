@@ -1,58 +1,83 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 18 Feb 2022 10:04:48 +0100
-Subject: [OpenRISC] [PATCH v2 13/18] uaccess: generalize access_ok()
-In-Reply-To: <20220216131332.1489939-14-arnd@kernel.org>
+From: Arnd Bergmann <arnd@kernel.org>
+Date: Fri, 18 Feb 2022 10:20:38 +0100
+Subject: [OpenRISC] [PATCH v2 00/18] clean up asm/uaccess.h,
+ kill set_fs for good
+In-Reply-To: <Yg8CjZwjWYIibrsd@zeniv-ca.linux.org.uk>
 References: <20220216131332.1489939-1-arnd@kernel.org>
- <20220216131332.1489939-14-arnd@kernel.org>
-Message-ID: <CAMuHMdVfiuYEMQhtscwt4xCm1Dfw0M_qEmQ4pof59eB4jZFOPg@mail.gmail.com>
+ <00496df2-f9f2-2547-3ca3-7989e4713d6b@csgroup.eu>
+ <CAK8P3a3_dPbjB23QffnYMtw+5ojfwChrVC8LLMQqNctU7Nh+mQ@mail.gmail.com>
+ <Yg8CjZwjWYIibrsd@zeniv-ca.linux.org.uk>
+Message-ID: <CAK8P3a0_uJQXshn5N0o4J_8dVPNCw885xGHqnKj3i5kYB+GtBg@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Wed, Feb 16, 2022 at 2:17 PM Arnd Bergmann <arnd@kernel.org> wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
+n Fri, Feb 18, 2022 at 3:21 AM Al Viro <viro@zeniv.linux.org.uk> wrote:
 >
-> There are many different ways that access_ok() is defined across
-> architectures, but in the end, they all just compare against the
-> user_addr_max() value or they accept anything.
+> On Thu, Feb 17, 2022 at 08:49:59AM +0100, Arnd Bergmann wrote:
 >
-> Provide one definition that works for most architectures, checking
-> against TASK_SIZE_MAX for user processes or skipping the check inside
-> of uaccess_kernel() sections.
+> > Same here: architectures can already provide a __put_user_fn()
+> > and __get_user_fn(), to get the generic versions of the interface,
+> > but few architectures use that. You can actually get all the interfaces
+> > by just providing raw_copy_from_user() and raw_copy_to_user(),
+> > but the get_user/put_user versions you get from that are fairly
+> > inefficient.
 >
-> For architectures without CONFIG_SET_FS(), this should be the fastest
-> check, as it comes down to a single comparison of a pointer against a
-> compile-time constant, while the architecture specific versions tend to
-> do something more complex for historic reasons or get something wrong.
->
-> Type checking for __user annotations is handled inconsistently across
-> architectures, but this is easily simplified as well by using an inline
-> function that takes a 'const void __user *' argument. A handful of
-> callers need an extra __user annotation for this.
->
-> Some architectures had trick to use 33-bit or 65-bit arithmetic on the
-> addresses to calculate the overflow, however this simpler version uses
-> fewer registers, which means it can produce better object code in the
-> end despite needing a second (statically predicted) branch.
->
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> Acked-by: Mark Rutland <mark.rutland@arm.com> [arm64, asm-generic]
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> FWIW, __{get,put}_user_{8,16,32,64} would probably make it easier to
+> unify.  That's where the really variable part tends to be, anyway.
+> IMO __get_user_fn() had been a mistake.
 
->  arch/m68k/Kconfig.cpu                 |  1 +
->  arch/m68k/include/asm/uaccess.h       | 19 +--------
+I've prototyped this now, to see what this might look like, see
+https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git/commit/?h=generic-get_user-prototype
 
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+This adds generic inline version of {__get,get,__put,put}_user()
+and converts x86 to (optionally) use it. This builds with gcc-5
+through gcc-11 on 32-bit and 64-bit x86, using asm-goto with
+outputs where possible, and requiring a minimum set of macro
+definitions from the architecture. Compiling with clang produces
+no warnings but does cause a linker issue at the moment, so
+there is probably at least one bug in it.
 
-Gr{oetje,eeting}s,
+Aside from compile-testing, I have not tried to verify if this
+is correct or efficient, but let me know if you think this is headed
+in the right direction.
 
-                        Geert
+> One thing I somewhat dislike about the series is the boilerplate in
+> asm/uaccess.h instances - #include <asm-generic/access-ok.h> in
+> a lot of them might make sense as a transitory state, but getting
+> stuck with those indefinitely...
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert at linux-m68k.org
+Christoph also complained about it, the problem for now is that
+asm-generic/access_ok.h must first see the macro definitions for
+architectures that override any of the contents, but access_ok()
+itself is used at least in some of the asm/uaccess.h files as well,
+so it must be included in the middle of it, until more of the uaccess.h
+implementation is moved to linux/uaccess.h in an architecture
+independent way.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Would you prefer having an asm/access_ok.h that falls back to
+the asm-generic version but can have an architecture specific
+override when needed (ia64, arm64, x86, um)?
+
+>         BTW, do we need user_addr_max() anymore?  The definition in
+> asm-generic/access-ok.h is the only one, so ifndef around it is pointless.
+
+Right, the v2 changes got rid of the last override, so it could get
+hardcoded to TASK_SIZE_MAX, or we can convert the five
+references to just use that instead and remove it altogether:
+
+arch/arm64/kernel/traps.c:      if (address >= user_addr_max()) {
+                 \
+arch/parisc/kernel/signal.c:    if (start >= user_addr_max() - sigframe_size)
+arch/parisc/kernel/signal.c:            if (A(&usp[0]) >=
+user_addr_max() - 5 * sizeof(int))
+lib/strncpy_from_user.c:        max_addr = user_addr_max();
+lib/strnlen_user.c:     max_addr = user_addr_max();
+
+user_addr_max() first showed up in architecture-independent code in
+c5389831cda3 ("sparc: Fix user_addr_max() definition."), and from that
+I think the original intent is no longer useful.
+
+          Arnd
