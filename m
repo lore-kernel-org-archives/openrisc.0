@@ -1,33 +1,64 @@
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 18 Feb 2022 09:55:45 +0100
-Subject: [OpenRISC] [PATCH v2 08/18] uaccess: add generic __{get,
- put}_kernel_nofault
-In-Reply-To: <20220216131332.1489939-9-arnd@kernel.org>
+Date: Fri, 18 Feb 2022 10:00:39 +0100
+Subject: [OpenRISC] [PATCH v2 10/18] m68k: fix access_ok for coldfire
+In-Reply-To: <20220216131332.1489939-11-arnd@kernel.org>
 References: <20220216131332.1489939-1-arnd@kernel.org>
- <20220216131332.1489939-9-arnd@kernel.org>
-Message-ID: <CAMuHMdVtRh5GHutxGf5dzGHBca7G4td3qqDTHM2KgoDr-kJ91Q@mail.gmail.com>
+ <20220216131332.1489939-11-arnd@kernel.org>
+Message-ID: <CAMuHMdWMhP5WgZ7CvOz53SyfizaAvLkHbeuds8G+_nZkwzhWWw@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
+Hi Arnd,
+
 On Wed, Feb 16, 2022 at 2:17 PM Arnd Bergmann <arnd@kernel.org> wrote:
 > From: Arnd Bergmann <arnd@arndb.de>
 >
-> Nine architectures are still missing __{get,put}_kernel_nofault:
-> alpha, ia64, microblaze, nds32, nios2, openrisc, sh, sparc32, xtensa.
+> While most m68k platforms use separate address spaces for user
+> and kernel space, at least coldfire does not, and the other
+> ones have a TASK_SIZE that is less than the entire 4GB address
+> range.
 >
-> Add a generic version that lets everything use the normal
-> copy_{from,to}_kernel_nofault() code based on these, removing the last
-> use of get_fs()/set_fs() from architecture-independent code.
+> Using the default implementation of __access_ok() stops coldfire
+> user space from trivially accessing kernel memory.
 >
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
 > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
->  arch/m68k/include/asm/uaccess.h     |   2 -
+Thanks for your patch!
 
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> --- a/arch/m68k/include/asm/uaccess.h
+> +++ b/arch/m68k/include/asm/uaccess.h
+> @@ -12,14 +12,21 @@
+>  #include <asm/extable.h>
+>
+>  /* We let the MMU do all checking */
+> -static inline int access_ok(const void __user *addr,
+> +static inline int access_ok(const void __user *ptr,
+>                             unsigned long size)
+>  {
+> +       unsigned long limit = TASK_SIZE;
+> +       unsigned long addr = (unsigned long)ptr;
+> +
+>         /*
+>          * XXX: for !CONFIG_CPU_HAS_ADDRESS_SPACES this really needs to check
+>          * for TASK_SIZE!
+> +        * Removing this helper is probably sufficient.
+>          */
+
+Shouldn't the above comment block be removed completely,
+as this is now implemented below?
+
+> -       return 1;
+> +       if (IS_ENABLED(CONFIG_CPU_HAS_ADDRESS_SPACES))
+> +               return 1;
+> +
+> +       return (size <= limit) && (addr <= (limit - size));
+>  }
+
+Any pesky compilers that warn (or worse with -Werror) about
+"condition always true" for TASK_SIZE = 0xFFFFFFFFUL?
 
 Gr{oetje,eeting}s,
 
