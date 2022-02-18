@@ -1,81 +1,42 @@
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Date: Fri, 18 Feb 2022 10:01:32 +0000
-Subject: [OpenRISC] [PATCH v2 00/18] clean up asm/uaccess.h,
- kill set_fs for good
-In-Reply-To: <Yg77bNZfNhSk0bVQ@zeniv-ca.linux.org.uk>
+From: David Laight <David.Laight@ACULAB.COM>
+Date: Fri, 18 Feb 2022 15:45:56 +0000
+Subject: [OpenRISC] [PATCH v2 05/18] x86: remove __range_not_ok()
+In-Reply-To: <20220218062851.GC22576@lst.de>
 References: <20220216131332.1489939-1-arnd@kernel.org>
- <00496df2-f9f2-2547-3ca3-7989e4713d6b@csgroup.eu>
- <Yg77bNZfNhSk0bVQ@zeniv-ca.linux.org.uk>
-Message-ID: <c5710bc5-0440-b828-d91e-6961081573af@csgroup.eu>
+ <20220216131332.1489939-6-arnd@kernel.org> <20220218062851.GC22576@lst.de>
+Message-ID: <905678e9e05d40b9a4e13e7b1a34cb68@AcuMS.aculab.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-
-
-Le 18/02/2022 à 02:50, Al Viro a écrit :
-> On Thu, Feb 17, 2022 at 07:20:11AM +0000, Christophe Leroy wrote:
+From: Christoph Hellwig
+> Sent: 18 February 2022 06:29
+...
 > 
->> And we have also
->> user_access_begin()/user_read_access_begin()/user_write_access_begin()
->> which call access_ok() then do the real work. Could be made generic with
->> call to some arch specific __user_access_begin() and friends after the
->> access_ok() and eventually the might_fault().
+> > diff --git a/arch/x86/kernel/stacktrace.c b/arch/x86/kernel/stacktrace.c
+> > index 15b058eefc4e..ee117fcf46ed 100644
+> > --- a/arch/x86/kernel/stacktrace.c
+> > +++ b/arch/x86/kernel/stacktrace.c
+> > @@ -90,7 +90,7 @@ copy_stack_frame(const struct stack_frame_user __user *fp,
+> >  {
+> >  	int ret;
+> >
+> > -	if (__range_not_ok(fp, sizeof(*frame), TASK_SIZE))
+> > +	if (!__access_ok(fp, sizeof(*frame)))
+> >  		return 0;
 > 
-> Not a good idea, considering the fact that we do not want to invite
-> uses of "faster" variants...
+> Just switch the __get_user calls below to get_user instead.
 
-I'm not sure I understand your concern.
+Is this worth doing at all?
+How much userspace code is actually compiled with stack frames?
 
-Today in powerpc we have:
+Won't work well for a 32bit process on a 64bit kernel either.
 
-	static __must_check inline bool
-	user_read_access_begin(const void __user *ptr, size_t len)
-	{
-		if (unlikely(!access_ok(ptr, len)))
-			return false;
+	David
 
-		might_fault();
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
-		allow_read_from_user(ptr, len);
-		return true;
-	}
-
-We could instead have a generic
-
-	static __must_check inline bool
-	user_read_access_begin(const void __user *ptr, size_t len)
-	{
-		if (unlikely(!access_ok(ptr, len)))
-			return false;
-
-		might_fault();
-
-		return arch_user_read_access_begin(ptr, len);
-	}
-
-And then a powerpc specific
-
-	static __must_check __always_inline bool
-	arch_user_read_access_begin(const void __user *ptr, size_t len)
-	{
-		allow_read_from_user(ptr, len);
-		return true;
-	}
-	#define arch_user_read_access_begin arch_user_read_access_begin
-
-And a generic fallback for arch_user_read_access_begin() that does 
-nothing at all.
-
-Do you mean that in that case people might be tempted to use 
-arch_user_read_access_begin() instead of using user_read_access_begin() ?
-
-If that's the case isn't it something we could verify via checkpatch.pl ?
-
-Today it seems to be problematic that functions in asm/uaccess.h use 
-access_ok(). Such an approach would allow to get rid of access_ok() use 
-in architecture's uaccess.h
-
-Christophe
