@@ -1,57 +1,51 @@
-From: Arnd Bergmann <arnd@kernel.org>
-Date: Fri, 18 Feb 2022 10:24:50 +0100
-Subject: [OpenRISC] [PATCH v2 10/18] m68k: fix access_ok for coldfire
-In-Reply-To: <CAMuHMdWMhP5WgZ7CvOz53SyfizaAvLkHbeuds8G+_nZkwzhWWw@mail.gmail.com>
+From: David Laight <David.Laight@ACULAB.COM>
+Date: Fri, 18 Feb 2022 09:30:32 +0000
+Subject: [OpenRISC] [PATCH v2 13/18] uaccess: generalize access_ok()
+In-Reply-To: <CALCETrVOvYPN4_6hS8wpm2v9bGZupZ5x4=vZAseG57OUgvLGfw@mail.gmail.com>
 References: <20220216131332.1489939-1-arnd@kernel.org>
- <20220216131332.1489939-11-arnd@kernel.org>
- <CAMuHMdWMhP5WgZ7CvOz53SyfizaAvLkHbeuds8G+_nZkwzhWWw@mail.gmail.com>
-Message-ID: <CAK8P3a2hrjxzzAWk3ut3VTD3h=ZLpDwPdvqs+uKaC4_b6+Vbfg@mail.gmail.com>
+ <20220216131332.1489939-14-arnd@kernel.org>
+ <CALCETrVOvYPN4_6hS8wpm2v9bGZupZ5x4=vZAseG57OUgvLGfw@mail.gmail.com>
+Message-ID: <93a1ee797e9d4f789dff85a3c0f0c232@AcuMS.aculab.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Fri, Feb 18, 2022 at 10:00 AM Geert Uytterhoeven
-<geert@linux-m68k.org> wrote:
-> >  /* We let the MMU do all checking */
-> > -static inline int access_ok(const void __user *addr,
-> > +static inline int access_ok(const void __user *ptr,
-> >                             unsigned long size)
-> >  {
-> > +       unsigned long limit = TASK_SIZE;
-> > +       unsigned long addr = (unsigned long)ptr;
-> > +
-> >         /*
-> >          * XXX: for !CONFIG_CPU_HAS_ADDRESS_SPACES this really needs to check
-> >          * for TASK_SIZE!
-> > +        * Removing this helper is probably sufficient.
-> >          */
->
-> Shouldn't the above comment block be removed completely,
-> as this is now implemented below?
+From: Andy Lutomirski
+> Sent: 17 February 2022 19:15
+...
+> This isn't actually optimal.  On x86, TASK_SIZE_MAX is a bizarre
+> constant that has a very specific value to work around a bug^Wdesign
+> error^Wfeature of Intel CPUs.  TASK_SIZE_MAX is the maximum address at
+> which userspace is permitted to allocate memory, but there is a huge
+> gap between user and kernel addresses, and any value in the gap would
+> be adequate for the comparison.  If we wanted to optimize this, simply
+> checking the high bit (which x86 can do without any immediate
+> constants at all) would be sufficient and, for an access known to fit
+> in 32 bits, one could get even fancier and completely ignore the size
+> of the access.  (For accesses not known to fit in 32 bits, I suspect
+> some creativity could still come up with a construction that's
+> substantially faster than the one in your patch.)
+> 
+> So there's plenty of room for optimization here.
+> 
+> (This is not in any respect a NAK -- it's just an observation that
+> this could be even better.)
 
-Yes, obviously. Fixed now.
+For 64bit arch that use the top bit to separate user/kernel
+you can test '(addr | size) >> 62)'.
+The compiler optimises out constant sizes.
 
-> > -       return 1;
-> > +       if (IS_ENABLED(CONFIG_CPU_HAS_ADDRESS_SPACES))
-> > +               return 1;
+This has all been mentioned a lot of times.
+You do get different fault types.
 
-I just noticed this should have the same change that I made for the
-generic version, changed it now to
+OTOH an explicit check for constant size (less than something big)
+can use the cheaper test of the sign bit.
+Big constant sizes could be compile time errors.
 
-+       if (IS_ENABLED(CONFIG_CPU_HAS_ADDRESS_SPACES) ||
-+           !IS_ENABLED(CONFIG_MMU))
+	David
 
-This is gone again after the cleanup patch, when the generic version
-is used instead.
-
-> > +       return (size <= limit) && (addr <= (limit - size));
-> >  }
->
-> Any pesky compilers that warn (or worse with -Werror) about
-> "condition always true" for TASK_SIZE = 0xFFFFFFFFUL?
-
-No, using a local variable avoids this warning.
-
-        Arnd
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
