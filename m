@@ -1,47 +1,121 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 20 Feb 2022 08:04:55 +0900
-Subject: [OpenRISC] Architecture Revision 1.4 - FPCSR access
-Message-ID: <CAAfxs770Shy8Unwo75aXiT135AvBwyr3oxOQZ5hnTeckKBdVoA@mail.gmail.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Date: Mon, 21 Feb 2022 12:08:31 +0530
+Subject: [OpenRISC] [PATCH V2 22/30] openrisc/mm: Enable
+ ARCH_HAS_VM_GET_PAGE_PROT
+In-Reply-To: <1645425519-9034-1-git-send-email-anshuman.khandual@arm.com>
+References: <1645425519-9034-1-git-send-email-anshuman.khandual@arm.com>
+Message-ID: <1645425519-9034-23-git-send-email-anshuman.khandual@arm.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi All,
+This defines and exports a platform specific custom vm_get_page_prot() via
+subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
+macros can be dropped which are no longer needed.
 
-A next milestone for OpenRISC is to add Linux user-space access for
-the FPU.  One limitation in the OpenRISC architecture is that the
-FPCSR is not User-Space accessible.
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: openrisc at lists.librecores.org
+Cc: linux-kernel at vger.kernel.org
+Acked-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+---
+ arch/openrisc/Kconfig               |  1 +
+ arch/openrisc/include/asm/pgtable.h | 18 -------------
+ arch/openrisc/mm/init.c             | 41 +++++++++++++++++++++++++++++
+ 3 files changed, 42 insertions(+), 18 deletions(-)
 
-This is required to use all of the user-space FPU functionality
-available in C Libraries like glibc (i.e. setting rounding, and
-checking exceptions).  This will help Andrey with Marocchino FPU
-testing as well as help get the hard-float support for glibc
-upstreamed.
+diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+index f724b3f1aeed..842a61426816 100644
+--- a/arch/openrisc/Kconfig
++++ b/arch/openrisc/Kconfig
+@@ -10,6 +10,7 @@ config OPENRISC
+ 	select ARCH_HAS_DMA_SET_UNCACHED
+ 	select ARCH_HAS_DMA_CLEAR_UNCACHED
+ 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
++	select ARCH_HAS_VM_GET_PAGE_PROT
+ 	select COMMON_CLK
+ 	select OF
+ 	select OF_EARLY_FLATTREE
+diff --git a/arch/openrisc/include/asm/pgtable.h b/arch/openrisc/include/asm/pgtable.h
+index cdd657f80bfa..fe686c4b7065 100644
+--- a/arch/openrisc/include/asm/pgtable.h
++++ b/arch/openrisc/include/asm/pgtable.h
+@@ -176,24 +176,6 @@ extern void paging_init(void);
+ 	__pgprot(_PAGE_ALL | _PAGE_SRE | _PAGE_SWE \
+ 		 | _PAGE_SHARED | _PAGE_DIRTY | _PAGE_EXEC | _PAGE_CI)
+ 
+-#define __P000	PAGE_NONE
+-#define __P001	PAGE_READONLY_X
+-#define __P010	PAGE_COPY
+-#define __P011	PAGE_COPY_X
+-#define __P100	PAGE_READONLY
+-#define __P101	PAGE_READONLY_X
+-#define __P110	PAGE_COPY
+-#define __P111	PAGE_COPY_X
+-
+-#define __S000	PAGE_NONE
+-#define __S001	PAGE_READONLY_X
+-#define __S010	PAGE_SHARED
+-#define __S011	PAGE_SHARED_X
+-#define __S100	PAGE_READONLY
+-#define __S101	PAGE_READONLY_X
+-#define __S110	PAGE_SHARED
+-#define __S111	PAGE_SHARED_X
+-
+ /* zero page used for uninitialized stuff */
+ extern unsigned long empty_zero_page[2048];
+ #define ZERO_PAGE(vaddr) (virt_to_page(empty_zero_page))
+diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
+index 97305bde1b16..0d06e3ebef5d 100644
+--- a/arch/openrisc/mm/init.c
++++ b/arch/openrisc/mm/init.c
+@@ -210,3 +210,44 @@ void __init mem_init(void)
+ 	mem_init_done = 1;
+ 	return;
+ }
++
++pgprot_t vm_get_page_prot(unsigned long vm_flags)
++{
++	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
++	case VM_NONE:
++		return PAGE_NONE;
++	case VM_READ:
++		return PAGE_READONLY_X;
++	case VM_WRITE:
++		return PAGE_COPY;
++	case VM_WRITE | VM_READ:
++		return PAGE_COPY_X;
++	case VM_EXEC:
++		return PAGE_READONLY;
++	case VM_EXEC | VM_READ:
++		return PAGE_READONLY_X;
++	case VM_EXEC | VM_WRITE:
++		return PAGE_COPY;
++	case VM_EXEC | VM_WRITE | VM_READ:
++		return PAGE_COPY_X;
++	case VM_SHARED:
++		return PAGE_NONE;
++	case VM_SHARED | VM_READ:
++		return PAGE_READONLY_X;
++	case VM_SHARED | VM_WRITE:
++		return PAGE_SHARED;
++	case VM_SHARED | VM_WRITE | VM_READ:
++		return PAGE_SHARED_X;
++	case VM_SHARED | VM_EXEC:
++		return PAGE_READONLY;
++	case VM_SHARED | VM_EXEC | VM_READ:
++		return PAGE_READONLY_X;
++	case VM_SHARED | VM_EXEC | VM_WRITE:
++		return PAGE_SHARED;
++	case VM_SHARED | VM_EXEC | VM_WRITE | VM_READ:
++		return PAGE_SHARED_X;
++	default:
++		BUILD_BUG();
++	}
++}
++EXPORT_SYMBOL(vm_get_page_prot);
+-- 
+2.25.1
 
-I have created an initial PR for the architecture specification change:
-  https://github.com/openrisc/doc/pull/4
-
-Changes for cores to support FPCSR access have been done by Andrey:
-  mor1kx - https://github.com/openrisc/mor1kx/commits/fpcsr_free_access
-  marocchino - https://github.com/openrisc/or1k_marocchino/tree/fpcsr_free_access
-
-Hard float support for GLIBC is available here:
-  https://github.com/openrisc/or1k-glibc/commits/or1k-hard-float
-
-Concerns
-There may be some concern that this makes a change that means hardware
-expecting access to FPCSR could not run on older CPUs.  I think such
-future software could detect this by attempting a read/write to the
-FPCSR to check if access is available.
-
-At this point we could also look into the proposal to change how SPR
-access is handled as described in P3.  P3 proposes that we could
-change unauthorized SPR access to raise Illegal Instruction Exceptions
-and have access controlled by the OS.   However I think that will have
-more impact than we need at this time.
-
-  P3 https://openrisc.io/proposals/spr-access-updates
-
--Stafford
