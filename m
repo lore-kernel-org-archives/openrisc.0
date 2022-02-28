@@ -1,10 +1,9 @@
 From: Anshuman Khandual <anshuman.khandual@arm.com>
-Date: Mon, 28 Feb 2022 16:17:39 +0530
-Subject: [OpenRISC] [PATCH V3 16/30] alpha/mm: Enable
- ARCH_HAS_VM_GET_PAGE_PROT
+Date: Mon, 28 Feb 2022 16:17:40 +0530
+Subject: [OpenRISC] [PATCH V3 17/30] sh/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
 In-Reply-To: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
 References: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
-Message-ID: <1646045273-9343-17-git-send-email-anshuman.khandual@arm.com>
+Message-ID: <1646045273-9343-18-git-send-email-anshuman.khandual@arm.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -15,101 +14,103 @@ This defines and exports a platform specific custom vm_get_page_prot() via
 subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
 macros can be dropped which are no longer needed.
 
-Cc: Richard Henderson <rth@twiddle.net>
-Cc: linux-alpha at vger.kernel.org
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Rich Felker <dalias@libc.org>
+Cc: linux-sh at vger.kernel.org
 Cc: linux-kernel at vger.kernel.org
 Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- arch/alpha/Kconfig               |  1 +
- arch/alpha/include/asm/pgtable.h | 17 ---------------
- arch/alpha/mm/init.c             | 37 ++++++++++++++++++++++++++++++++
- 3 files changed, 38 insertions(+), 17 deletions(-)
+ arch/sh/Kconfig               |  1 +
+ arch/sh/include/asm/pgtable.h | 17 ----------------
+ arch/sh/mm/mmap.c             | 38 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 39 insertions(+), 17 deletions(-)
 
-diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
-index 4e87783c90ad..73e82fe5c770 100644
---- a/arch/alpha/Kconfig
-+++ b/arch/alpha/Kconfig
-@@ -2,6 +2,7 @@
- config ALPHA
- 	bool
- 	default y
+diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
+index 2474a04ceac4..f3fcd1c5e002 100644
+--- a/arch/sh/Kconfig
++++ b/arch/sh/Kconfig
+@@ -11,6 +11,7 @@ config SUPERH
+ 	select ARCH_HAS_GCOV_PROFILE_ALL
+ 	select ARCH_HAS_PTE_SPECIAL
+ 	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
 +	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_32BIT_USTAT_F_TINODE
+ 	select ARCH_HIBERNATION_POSSIBLE if MMU
  	select ARCH_MIGHT_HAVE_PC_PARPORT
- 	select ARCH_MIGHT_HAVE_PC_SERIO
-diff --git a/arch/alpha/include/asm/pgtable.h b/arch/alpha/include/asm/pgtable.h
-index 02f0429f1068..9fb5e9d10bb6 100644
---- a/arch/alpha/include/asm/pgtable.h
-+++ b/arch/alpha/include/asm/pgtable.h
-@@ -116,23 +116,6 @@ struct vm_area_struct;
-  * arch/alpha/mm/fault.c)
+ 	select ARCH_WANT_IPC_PARSE_VERSION
+diff --git a/arch/sh/include/asm/pgtable.h b/arch/sh/include/asm/pgtable.h
+index d7ddb1ec86a0..6fb9ec54cf9b 100644
+--- a/arch/sh/include/asm/pgtable.h
++++ b/arch/sh/include/asm/pgtable.h
+@@ -89,23 +89,6 @@ static inline unsigned long phys_addr_mask(void)
+  * completely separate permission bits for user and kernel space.
   */
- 	/* xwr */
--#define __P000	_PAGE_P(_PAGE_FOE | _PAGE_FOW | _PAGE_FOR)
--#define __P001	_PAGE_P(_PAGE_FOE | _PAGE_FOW)
--#define __P010	_PAGE_P(_PAGE_FOE)
--#define __P011	_PAGE_P(_PAGE_FOE)
--#define __P100	_PAGE_P(_PAGE_FOW | _PAGE_FOR)
--#define __P101	_PAGE_P(_PAGE_FOW)
--#define __P110	_PAGE_P(0)
--#define __P111	_PAGE_P(0)
+ 	 /*xwr*/
+-#define __P000	PAGE_NONE
+-#define __P001	PAGE_READONLY
+-#define __P010	PAGE_COPY
+-#define __P011	PAGE_COPY
+-#define __P100	PAGE_EXECREAD
+-#define __P101	PAGE_EXECREAD
+-#define __P110	PAGE_COPY
+-#define __P111	PAGE_COPY
 -
--#define __S000	_PAGE_S(_PAGE_FOE | _PAGE_FOW | _PAGE_FOR)
--#define __S001	_PAGE_S(_PAGE_FOE | _PAGE_FOW)
--#define __S010	_PAGE_S(_PAGE_FOE)
--#define __S011	_PAGE_S(_PAGE_FOE)
--#define __S100	_PAGE_S(_PAGE_FOW | _PAGE_FOR)
--#define __S101	_PAGE_S(_PAGE_FOW)
--#define __S110	_PAGE_S(0)
--#define __S111	_PAGE_S(0)
+-#define __S000	PAGE_NONE
+-#define __S001	PAGE_READONLY
+-#define __S010	PAGE_WRITEONLY
+-#define __S011	PAGE_SHARED
+-#define __S100	PAGE_EXECREAD
+-#define __S101	PAGE_EXECREAD
+-#define __S110	PAGE_RWX
+-#define __S111	PAGE_RWX
  
- /*
-  * pgprot_noncached() is only for infiniband pci support, and a real
-diff --git a/arch/alpha/mm/init.c b/arch/alpha/mm/init.c
-index f6114d03357c..2e78008b2553 100644
---- a/arch/alpha/mm/init.c
-+++ b/arch/alpha/mm/init.c
-@@ -280,3 +280,40 @@ mem_init(void)
- 	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
- 	memblock_free_all();
+ typedef pte_t *pte_addr_t;
+ 
+diff --git a/arch/sh/mm/mmap.c b/arch/sh/mm/mmap.c
+index 6a1a1297baae..cad14af6c8e6 100644
+--- a/arch/sh/mm/mmap.c
++++ b/arch/sh/mm/mmap.c
+@@ -162,3 +162,41 @@ int valid_mmap_phys_addr_range(unsigned long pfn, size_t size)
+ {
+ 	return 1;
  }
 +
++#ifdef CONFIG_MMU
 +pgprot_t vm_get_page_prot(unsigned long vm_flags)
 +{
 +	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
 +	case VM_NONE:
-+		return _PAGE_P(_PAGE_FOE | _PAGE_FOW | _PAGE_FOR);
++		return PAGE_NONE;
 +	case VM_READ:
-+		return _PAGE_P(_PAGE_FOE | _PAGE_FOW);
++		return PAGE_READONLY;
 +	case VM_WRITE:
 +	case VM_WRITE | VM_READ:
-+		return _PAGE_P(_PAGE_FOE);
++		return PAGE_COPY;
 +	case VM_EXEC:
-+		return _PAGE_P(_PAGE_FOW | _PAGE_FOR);
 +	case VM_EXEC | VM_READ:
-+		return _PAGE_P(_PAGE_FOW);
++		return PAGE_EXECREAD;
 +	case VM_EXEC | VM_WRITE:
 +	case VM_EXEC | VM_WRITE | VM_READ:
-+		return _PAGE_P(0);
++		return PAGE_COPY;
 +	case VM_SHARED:
-+		return _PAGE_S(_PAGE_FOE | _PAGE_FOW | _PAGE_FOR);
++		return PAGE_NONE;
 +	case VM_SHARED | VM_READ:
-+		return _PAGE_S(_PAGE_FOE | _PAGE_FOW);
++		return PAGE_READONLY;
 +	case VM_SHARED | VM_WRITE:
++		return PAGE_WRITEONLY;
 +	case VM_SHARED | VM_WRITE | VM_READ:
-+		return _PAGE_S(_PAGE_FOE);
++		return PAGE_SHARED;
 +	case VM_SHARED | VM_EXEC:
-+		return _PAGE_S(_PAGE_FOW | _PAGE_FOR);
 +	case VM_SHARED | VM_EXEC | VM_READ:
-+		return _PAGE_S(_PAGE_FOW);
++		return PAGE_EXECREAD;
 +	case VM_SHARED | VM_EXEC | VM_WRITE:
 +	case VM_SHARED | VM_EXEC | VM_WRITE | VM_READ:
-+		return _PAGE_S(0);
++		return PAGE_RWX;
 +	default:
 +		BUILD_BUG();
 +	}
 +}
 +EXPORT_SYMBOL(vm_get_page_prot);
++#endif
 -- 
 2.25.1
 
