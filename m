@@ -1,9 +1,10 @@
 From: Anshuman Khandual <anshuman.khandual@arm.com>
-Date: Mon, 28 Feb 2022 16:17:41 +0530
-Subject: [OpenRISC] [PATCH V3 18/30] arc/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+Date: Mon, 28 Feb 2022 16:17:42 +0530
+Subject: [OpenRISC] [PATCH V3 19/30] csky/mm: Enable
+ ARCH_HAS_VM_GET_PAGE_PROT
 In-Reply-To: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
 References: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
-Message-ID: <1646045273-9343-19-git-send-email-anshuman.khandual@arm.com>
+Message-ID: <1646045273-9343-20-git-send-email-anshuman.khandual@arm.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -14,100 +15,92 @@ This defines and exports a platform specific custom vm_get_page_prot() via
 subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
 macros can be dropped which are no longer needed.
 
-Cc: Vineet Gupta <vgupta@kernel.org>
-Cc: linux-snps-arc at lists.infradead.org
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: linux-csky at vger.kernel.org
 Cc: linux-kernel at vger.kernel.org
 Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- arch/arc/Kconfig                          |  1 +
- arch/arc/include/asm/pgtable-bits-arcv2.h | 17 ----------
- arch/arc/mm/mmap.c                        | 41 +++++++++++++++++++++++
- 3 files changed, 42 insertions(+), 17 deletions(-)
+ arch/csky/Kconfig               |  1 +
+ arch/csky/include/asm/pgtable.h | 18 ------------------
+ arch/csky/mm/init.c             | 32 ++++++++++++++++++++++++++++++++
+ 3 files changed, 33 insertions(+), 18 deletions(-)
 
-diff --git a/arch/arc/Kconfig b/arch/arc/Kconfig
-index 3c2a4753d09b..78ff0644b343 100644
---- a/arch/arc/Kconfig
-+++ b/arch/arc/Kconfig
-@@ -13,6 +13,7 @@ config ARC
- 	select ARCH_HAS_SETUP_DMA_OPS
+diff --git a/arch/csky/Kconfig b/arch/csky/Kconfig
+index 132f43f12dd8..209dac5686dd 100644
+--- a/arch/csky/Kconfig
++++ b/arch/csky/Kconfig
+@@ -6,6 +6,7 @@ config CSKY
+ 	select ARCH_HAS_GCOV_PROFILE_ALL
  	select ARCH_HAS_SYNC_DMA_FOR_CPU
  	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
 +	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_SUPPORTS_ATOMIC_RMW if ARC_HAS_LLSC
- 	select ARCH_32BIT_OFF_T
- 	select BUILDTIME_TABLE_SORT
-diff --git a/arch/arc/include/asm/pgtable-bits-arcv2.h b/arch/arc/include/asm/pgtable-bits-arcv2.h
-index 183d23bc1e00..798308f4dbad 100644
---- a/arch/arc/include/asm/pgtable-bits-arcv2.h
-+++ b/arch/arc/include/asm/pgtable-bits-arcv2.h
-@@ -72,23 +72,6 @@
-  *     This is to enable COW mechanism
-  */
- 	/* xwr */
--#define __P000  PAGE_U_NONE
--#define __P001  PAGE_U_R
--#define __P010  PAGE_U_R	/* Pvt-W => !W */
--#define __P011  PAGE_U_R	/* Pvt-W => !W */
--#define __P100  PAGE_U_X_R	/* X => R */
--#define __P101  PAGE_U_X_R
--#define __P110  PAGE_U_X_R	/* Pvt-W => !W and X => R */
--#define __P111  PAGE_U_X_R	/* Pvt-W => !W */
+ 	select ARCH_USE_BUILTIN_BSWAP
+ 	select ARCH_USE_QUEUED_RWLOCKS
+ 	select ARCH_WANT_FRAME_POINTERS if !CPU_CK610 && $(cc-option,-mbacktrace)
+diff --git a/arch/csky/include/asm/pgtable.h b/arch/csky/include/asm/pgtable.h
+index 151607ed5158..2c6b1cfb1cce 100644
+--- a/arch/csky/include/asm/pgtable.h
++++ b/arch/csky/include/asm/pgtable.h
+@@ -76,24 +76,6 @@
+ #define MAX_SWAPFILES_CHECK() \
+ 		BUILD_BUG_ON(MAX_SWAPFILES_SHIFT != 5)
+ 
+-#define __P000	PAGE_NONE
+-#define __P001	PAGE_READ
+-#define __P010	PAGE_READ
+-#define __P011	PAGE_READ
+-#define __P100	PAGE_READ
+-#define __P101	PAGE_READ
+-#define __P110	PAGE_READ
+-#define __P111	PAGE_READ
 -
--#define __S000  PAGE_U_NONE
--#define __S001  PAGE_U_R
--#define __S010  PAGE_U_W_R	/* W => R */
--#define __S011  PAGE_U_W_R
--#define __S100  PAGE_U_X_R	/* X => R */
--#define __S101  PAGE_U_X_R
--#define __S110  PAGE_U_X_W_R	/* X => R */
--#define __S111  PAGE_U_X_W_R
+-#define __S000	PAGE_NONE
+-#define __S001	PAGE_READ
+-#define __S010	PAGE_WRITE
+-#define __S011	PAGE_WRITE
+-#define __S100	PAGE_READ
+-#define __S101	PAGE_READ
+-#define __S110	PAGE_WRITE
+-#define __S111	PAGE_WRITE
+-
+ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
+ #define ZERO_PAGE(vaddr)	(virt_to_page(empty_zero_page))
  
- #ifndef __ASSEMBLY__
- 
-diff --git a/arch/arc/mm/mmap.c b/arch/arc/mm/mmap.c
-index 722d26b94307..d286894d7359 100644
---- a/arch/arc/mm/mmap.c
-+++ b/arch/arc/mm/mmap.c
-@@ -74,3 +74,44 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
- 	info.align_offset = pgoff << PAGE_SHIFT;
- 	return vm_unmapped_area(&info);
+diff --git a/arch/csky/mm/init.c b/arch/csky/mm/init.c
+index bf2004aa811a..f9babbed17d4 100644
+--- a/arch/csky/mm/init.c
++++ b/arch/csky/mm/init.c
+@@ -197,3 +197,35 @@ void __init fixaddr_init(void)
+ 	vaddr = __fix_to_virt(__end_of_fixed_addresses - 1) & PMD_MASK;
+ 	fixrange_init(vaddr, vaddr + PMD_SIZE, swapper_pg_dir);
  }
 +
 +pgprot_t vm_get_page_prot(unsigned long vm_flags)
 +{
 +	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
 +	case VM_NONE:
-+		return PAGE_U_NONE;
++		return PAGE_NONE;
 +	case VM_READ:
-+	/* Pvt-W => !W */
 +	case VM_WRITE:
-+	/* Pvt-W => !W */
 +	case VM_WRITE | VM_READ:
-+		return PAGE_U_R;
-+	/* X => R */
 +	case VM_EXEC:
 +	case VM_EXEC | VM_READ:
-+	 /* Pvt-W => !W and X => R */
 +	case VM_EXEC | VM_WRITE:
-+	 /* Pvt-W => !W */
 +	case VM_EXEC | VM_WRITE | VM_READ:
-+		return PAGE_U_X_R;
++		return PAGE_READ;
 +	case VM_SHARED:
-+		return PAGE_U_NONE;
++		return PAGE_NONE;
 +	case VM_SHARED | VM_READ:
-+		return PAGE_U_R;
-+	/* W => R */
++		return PAGE_READ;
 +	case VM_SHARED | VM_WRITE:
 +	case VM_SHARED | VM_WRITE | VM_READ:
-+		return PAGE_U_W_R;
-+	 /* X => R */
++		return PAGE_WRITE;
 +	case VM_SHARED | VM_EXEC:
 +	case VM_SHARED | VM_EXEC | VM_READ:
-+		return PAGE_U_X_R;
-+	/* X => R */
++		return PAGE_READ;
 +	case VM_SHARED | VM_EXEC | VM_WRITE:
 +	case VM_SHARED | VM_EXEC | VM_WRITE | VM_READ:
-+		return PAGE_U_X_W_R;
++		return PAGE_WRITE;
 +	default:
 +		BUILD_BUG();
 +	}
