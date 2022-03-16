@@ -1,34 +1,79 @@
 From: Palmer Dabbelt <palmer@rivosinc.com>
-Date: Wed, 16 Mar 2022 16:25:55 -0700
-Subject: [OpenRISC] [PATCH 0/5] Generic Ticket Spinlocks
-Message-ID: <20220316232600.20419-1-palmer@rivosinc.com>
+Date: Wed, 16 Mar 2022 16:25:56 -0700
+Subject: [OpenRISC] [PATCH 1/5] asm-generic: qspinlock: Indicate the use of
+ mixed-size atomics
+In-Reply-To: <20220316232600.20419-1-palmer@rivosinc.com>
+References: <20220316232600.20419-1-palmer@rivosinc.com>
+Message-ID: <20220316232600.20419-2-palmer@rivosinc.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Peter sent an RFC out about a year ago
-<https://lore.kernel.org/lkml/YHbBBuVFNnI4kjj3@hirez.programming.kicks-ass.net/>,
-but after a spirited discussion it looks like we lost track of things.
-IIRC there was broad consensus on this being the way to go, but there
-was a lot of discussion so I wasn't sure.  Given that it's been a year,
-I figured it'd be best to just send this out again formatted a bit more
-explicitly as a patch.
+From: Peter Zijlstra <peterz@infradead.org>
 
-This has had almost no testing (just a build test on RISC-V defconfig),
-but I wanted to send it out largely as-is because I didn't have a SOB
-from Peter on the code.  I had sent around something sort of similar in
-spirit, but this looks completely re-written.  Just to play it safe I
-wanted to send out almost exactly as it was posted.  I'd probably rename
-this tspinlock and tspinlock_types, as the mis-match kind of makes my
-eyes go funny, but I don't really care that much.  I'll also go through
-the other ports and see if there's any more candidates, I seem to
-remember there having been more than just OpenRISC but it's been a
-while.
+The qspinlock implementation depends on having well behaved mixed-size
+atomics.  This is true on the more widely-used platforms, but these
+requirements are somewhat subtle and may not be satisfied by all the
+platforms that qspinlock is used on.
 
-I'm in no big rush for this and given the complex HW dependencies I
-think it's best to target it for 5.19, that'd give us a full merge
-window for folks to test/benchmark it on their systems to make sure it's
-OK.  RISC-V has a forward progress guarantee so we should be safe, but
-these can always trip things up.
+Document these requirements, so ports that use qspinlock can more easily
+determine if they meet these requirements.
+
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+
+---
+
+I have specifically not included Peter's SOB on this, as he sent his
+original patch
+<https://lore.kernel.org/lkml/YHbBBuVFNnI4kjj3@hirez.programming.kicks-ass.net/>
+without one.
+---
+ include/asm-generic/qspinlock.h | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+
+diff --git a/include/asm-generic/qspinlock.h b/include/asm-generic/qspinlock.h
+index d74b13825501..a7a1296b0b4d 100644
+--- a/include/asm-generic/qspinlock.h
++++ b/include/asm-generic/qspinlock.h
+@@ -2,6 +2,36 @@
+ /*
+  * Queued spinlock
+  *
++ * A 'generic' spinlock implementation that is based on MCS locks. An
++ * architecture that's looking for a 'generic' spinlock, please first consider
++ * ticket-lock.h and only come looking here when you've considered all the
++ * constraints below and can show your hardware does actually perform better
++ * with qspinlock.
++ *
++ *
++ * It relies on atomic_*_release()/atomic_*_acquire() to be RCsc (or no weaker
++ * than RCtso if you're power), where regular code only expects atomic_t to be
++ * RCpc.
++ *
++ * It relies on a far greater (compared to ticket-lock.h) set of atomic
++ * operations to behave well together, please audit them carefully to ensure
++ * they all have forward progress. Many atomic operations may default to
++ * cmpxchg() loops which will not have good forward progress properties on
++ * LL/SC architectures.
++ *
++ * One notable example is atomic_fetch_or_acquire(), which x86 cannot (cheaply)
++ * do. Carefully read the patches that introduced queued_fetch_set_pending_acquire().
++ *
++ * It also heavily relies on mixed size atomic operations, in specific it
++ * requires architectures to have xchg16; something which many LL/SC
++ * architectures need to implement as a 32bit and+or in order to satisfy the
++ * forward progress guarantees mentioned above.
++ *
++ * Further reading on mixed size atomics that might be relevant:
++ *
++ *   http://www.cl.cam.ac.uk/~pes20/popl17/mixed-size.pdf
++ *
++ *
+  * (C) Copyright 2013-2015 Hewlett-Packard Development Company, L.P.
+  * (C) Copyright 2015 Hewlett-Packard Enterprise Development LP
+  *
+-- 
+2.34.1
+
