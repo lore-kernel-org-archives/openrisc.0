@@ -1,160 +1,53 @@
-From: Palmer Dabbelt <palmer@rivosinc.com>
-Date: Wed, 16 Mar 2022 16:26:00 -0700
-Subject: [OpenRISC] [PATCH 5/5] RISC-V: Move to queued RW locks
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Thu, 17 Mar 2022 10:16:50 +0100
+Subject: [OpenRISC] [PATCH 0/5] Generic Ticket Spinlocks
 In-Reply-To: <20220316232600.20419-1-palmer@rivosinc.com>
 References: <20220316232600.20419-1-palmer@rivosinc.com>
-Message-ID: <20220316232600.20419-6-palmer@rivosinc.com>
+Message-ID: <CAK8P3a0J3ViDWserQew2wt95Hnu6AHT5gmSxtUz0x5W2fWdxBA@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-From: Palmer Dabbelt <palmer@rivosinc.com>
+On Thu, Mar 17, 2022 at 12:25 AM Palmer Dabbelt <palmer@rivosinc.com> wrote:
+>
+> Peter sent an RFC out about a year ago
+> <https://lore.kernel.org/lkml/YHbBBuVFNnI4kjj3@hirez.programming.kicks-ass.net/>,
+> but after a spirited discussion it looks like we lost track of things.
+> IIRC there was broad consensus on this being the way to go, but there
+> was a lot of discussion so I wasn't sure.  Given that it's been a year,
+> I figured it'd be best to just send this out again formatted a bit more
+> explicitly as a patch.
+>
+> This has had almost no testing (just a build test on RISC-V defconfig),
+> but I wanted to send it out largely as-is because I didn't have a SOB
+> from Peter on the code.  I had sent around something sort of similar in
+> spirit, but this looks completely re-written.  Just to play it safe I
+> wanted to send out almost exactly as it was posted.  I'd probably rename
+> this tspinlock and tspinlock_types, as the mis-match kind of makes my
+> eyes go funny, but I don't really care that much.  I'll also go through
+> the other ports and see if there's any more candidates, I seem to
+> remember there having been more than just OpenRISC but it's been a
+> while.
+>
+> I'm in no big rush for this and given the complex HW dependencies I
+> think it's best to target it for 5.19, that'd give us a full merge
+> window for folks to test/benchmark it on their systems to make sure it's
+> OK.  RISC-V has a forward progress guarantee so we should be safe, but
+> these can always trip things up.
 
-With the move to fair spinlocks, we might as well move to fair rwlocks.
+This all looks good to me, feel free to merge the asm-generic
+bits through the riscv tree.
 
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
----
- arch/riscv/Kconfig                      |  1 +
- arch/riscv/include/asm/Kbuild           |  2 +
- arch/riscv/include/asm/spinlock.h       | 82 +------------------------
- arch/riscv/include/asm/spinlock_types.h |  7 +--
- 4 files changed, 5 insertions(+), 87 deletions(-)
+Regarding the naming, my preference would be to just use
+this version in place of the (currently useless) asm-generic/spinlock.h,
+and just naming it arch_spin_lock() etc.
 
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index 5adcbd9b5e88..feb7030cfb6d 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -38,6 +38,7 @@ config RISCV
- 	select ARCH_SUPPORTS_DEBUG_PAGEALLOC if MMU
- 	select ARCH_SUPPORTS_HUGETLBFS if MMU
- 	select ARCH_USE_MEMTEST
-+	select ARCH_USE_QUEUED_RWLOCKS
- 	select ARCH_WANT_DEFAULT_TOPDOWN_MMAP_LAYOUT if MMU
- 	select ARCH_WANT_FRAME_POINTERS
- 	select ARCH_WANT_HUGE_PMD_SHARE if 64BIT
-diff --git a/arch/riscv/include/asm/Kbuild b/arch/riscv/include/asm/Kbuild
-index 42b1961af1a6..e8714070cbb9 100644
---- a/arch/riscv/include/asm/Kbuild
-+++ b/arch/riscv/include/asm/Kbuild
-@@ -4,5 +4,7 @@ generic-y += flat.h
- generic-y += kvm_para.h
- generic-y += ticket-lock.h
- generic-y += ticket-lock-types.h
-+generic-y += qrwlock.h
-+generic-y += qrwlock_types.h
- generic-y += user.h
- generic-y += vmlinux.lds.h
-diff --git a/arch/riscv/include/asm/spinlock.h b/arch/riscv/include/asm/spinlock.h
-index 38089cbdea92..97dfb150d18c 100644
---- a/arch/riscv/include/asm/spinlock.h
-+++ b/arch/riscv/include/asm/spinlock.h
-@@ -11,86 +11,6 @@
- #include <asm/current.h>
- #include <asm/fence.h>
- #include <asm-generic/ticket-lock.h>
--
--static inline void arch_read_lock(arch_rwlock_t *lock)
--{
--	int tmp;
--
--	__asm__ __volatile__(
--		"1:	lr.w	%1, %0\n"
--		"	bltz	%1, 1b\n"
--		"	addi	%1, %1, 1\n"
--		"	sc.w	%1, %1, %0\n"
--		"	bnez	%1, 1b\n"
--		RISCV_ACQUIRE_BARRIER
--		: "+A" (lock->lock), "=&r" (tmp)
--		:: "memory");
--}
--
--static inline void arch_write_lock(arch_rwlock_t *lock)
--{
--	int tmp;
--
--	__asm__ __volatile__(
--		"1:	lr.w	%1, %0\n"
--		"	bnez	%1, 1b\n"
--		"	li	%1, -1\n"
--		"	sc.w	%1, %1, %0\n"
--		"	bnez	%1, 1b\n"
--		RISCV_ACQUIRE_BARRIER
--		: "+A" (lock->lock), "=&r" (tmp)
--		:: "memory");
--}
--
--static inline int arch_read_trylock(arch_rwlock_t *lock)
--{
--	int busy;
--
--	__asm__ __volatile__(
--		"1:	lr.w	%1, %0\n"
--		"	bltz	%1, 1f\n"
--		"	addi	%1, %1, 1\n"
--		"	sc.w	%1, %1, %0\n"
--		"	bnez	%1, 1b\n"
--		RISCV_ACQUIRE_BARRIER
--		"1:\n"
--		: "+A" (lock->lock), "=&r" (busy)
--		:: "memory");
--
--	return !busy;
--}
--
--static inline int arch_write_trylock(arch_rwlock_t *lock)
--{
--	int busy;
--
--	__asm__ __volatile__(
--		"1:	lr.w	%1, %0\n"
--		"	bnez	%1, 1f\n"
--		"	li	%1, -1\n"
--		"	sc.w	%1, %1, %0\n"
--		"	bnez	%1, 1b\n"
--		RISCV_ACQUIRE_BARRIER
--		"1:\n"
--		: "+A" (lock->lock), "=&r" (busy)
--		:: "memory");
--
--	return !busy;
--}
--
--static inline void arch_read_unlock(arch_rwlock_t *lock)
--{
--	__asm__ __volatile__(
--		RISCV_RELEASE_BARRIER
--		"	amoadd.w x0, %1, %0\n"
--		: "+A" (lock->lock)
--		: "r" (-1)
--		: "memory");
--}
--
--static inline void arch_write_unlock(arch_rwlock_t *lock)
--{
--	smp_store_release(&lock->lock, 0);
--}
-+#include <asm/qrwlock.h>
- 
- #endif /* _ASM_RISCV_SPINLOCK_H */
-diff --git a/arch/riscv/include/asm/spinlock_types.h b/arch/riscv/include/asm/spinlock_types.h
-index 431ee08e26c4..3779f13706fa 100644
---- a/arch/riscv/include/asm/spinlock_types.h
-+++ b/arch/riscv/include/asm/spinlock_types.h
-@@ -11,11 +11,6 @@
- #endif
- 
- #include <asm-generic/ticket-lock-types.h>
--
--typedef struct {
--	volatile unsigned int lock;
--} arch_rwlock_t;
--
--#define __ARCH_RW_LOCK_UNLOCKED		{ 0 }
-+#include <asm/qrwlock_types.h>
- 
- #endif /* _ASM_RISCV_SPINLOCK_TYPES_H */
--- 
-2.34.1
+This way, converting an architecture to the generic ticket lock can
+be done simply by removing its custom asm/spinlock.h. Or it
+could stay with the current name, but then have a new
+asm-generic/spinlock.h that just includes both asm/ticket_lock.h
+and asm/qrwlock.h.
 
+      Arnd
