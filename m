@@ -1,124 +1,110 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Tue, 22 Mar 2022 14:26:36 +0900
-Subject: [OpenRISC] [PATCH V2 5/5] openrisc: Move to ticket-spinlock
-In-Reply-To: <CAJF2gTQXgXJjX6h5d_5tM312Ky_QfCKm-wLZP2SJBuYtHvE9xQ@mail.gmail.com>
-References: <20220319035457.2214979-6-guoren@kernel.org>
- <202203200824.EQJTy8pW-lkp@intel.com>
- <CAJF2gTQXgXJjX6h5d_5tM312Ky_QfCKm-wLZP2SJBuYtHvE9xQ@mail.gmail.com>
-Message-ID: <CAAfxs751zQ=rut1qkNwKZXtMAUmKdcG28YgJ+fqYzT9mXgtDFA@mail.gmail.com>
+From: Guo Ren <guoren@kernel.org>
+Date: Tue, 22 Mar 2022 14:45:58 +0800
+Subject: [OpenRISC] [PATCH 3/5] openrisc: Move to ticket-spinlock
+In-Reply-To: <YjlMIGKgYaLLpp5T@antec>
+References: <20220316232600.20419-1-palmer@rivosinc.com>
+ <20220316232600.20419-4-palmer@rivosinc.com>
+ <YjjuOZMzQlnqfLDJ@antec>
+ <CAJF2gTSFh0NKLys7kr=UdQWHDyYgg3XmgTJtVaL37Re7QdZ8uw@mail.gmail.com>
+ <YjlMIGKgYaLLpp5T@antec>
+Message-ID: <CAJF2gTRGPhhVErmgpvyGuKcwKZERdvmphDTa1n2i5jv--V+tHA@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-Hi
-
-On Sun, Mar 20, 2022 at 12:05 PM Guo Ren <guoren@kernel.org> wrote:
+On Tue, Mar 22, 2022 at 12:10 PM Stafford Horne <shorne@gmail.com> wrote:
 >
-> Hi openrisc guys,
+> On Tue, Mar 22, 2022 at 11:29:13AM +0800, Guo Ren wrote:
+> > On Tue, Mar 22, 2022 at 7:23 AM Stafford Horne <shorne@gmail.com> wrote:
+> > >
+> > > On Wed, Mar 16, 2022 at 04:25:58PM -0700, Palmer Dabbelt wrote:
+> > > > From: Peter Zijlstra <peterz@infradead.org>
+> > > >
+> > > > We have no indications that openrisc meets the qspinlock requirements,
+> > > > so move to ticket-spinlock as that is more likey to be correct.
+> > > >
+> > > > Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+> > > >
+> > > > ---
+> > > >
+> > > > I have specifically not included Peter's SOB on this, as he sent his
+> > > > original patch
+> > > > <https://lore.kernel.org/lkml/YHbBBuVFNnI4kjj3@hirez.programming.kicks-ass.net/>
+> > > > without one.
+> > > > ---
+> > > >  arch/openrisc/Kconfig                      | 1 -
+> > > >  arch/openrisc/include/asm/Kbuild           | 5 ++---
+> > > >  arch/openrisc/include/asm/spinlock.h       | 3 +--
+> > > >  arch/openrisc/include/asm/spinlock_types.h | 2 +-
+> > > >  4 files changed, 4 insertions(+), 7 deletions(-)
+> > >
+> > > Hello,
+> > >
+> > > This series breaks SMP support on OpenRISC.  I haven't traced it down yet, it
+> > > seems trivial but I have a few places to check.
+> > >
+> > > I replied to this on a kbuild warning thread, but also going to reply here with
+> > > more information.
+> > >
+> > >  https://lore.kernel.org/lkml/YjeY7CfaFKjr8IUc at antec/#R
+> > >
+> > > So far this is what I see:
+> > >
+> > >   * ticket_lock is stuck trying to lock console_sem
+> > >   * it is stuck on atomic_cond_read_acquire
+> > >     reading lock value: returns 0    (*lock is 0x10000)
+> > >     ticket value: is 1
+> > >   * possible issues:
+> > >     - OpenRISC is big endian, that seems to impact ticket_unlock, it looks
+> > All csky & riscv are little-endian, it seems the series has a bug with
+> > big-endian. Is that all right for qemu? (If qemu was all right, but
+> > real hardware failed.)
 >
-> >    kernel/signal.c:2625:49: sparse:     expected struct sighand_struct *sighand
-> >    kernel/signal.c:2625:49: sparse:     got struct sighand_struct [noderef] __rcu *sighand
+> Hi Guo Ren,
 >
-> Some warning here, Is that all right? I don't think it is because of
-> changing arch_spinlock_t from struct qspinlock to atomic_t.
+> OpenRISC real hardware and QEMU are both big-endian.  It fails on both.
 >
-> On Sun, Mar 20, 2022 at 8:07 AM kernel test robot <lkp@intel.com> wrote:
-> >
-> > Hi,
-> >
-> > I love your patch! Perhaps something to improve:
-> >
-> > [auto build test WARNING on arnd-asm-generic/master]
-> > [also build test WARNING on tip/locking/core openrisc/for-next linus/master v5.17-rc8 next-20220318]
-> > [If your patch is applied to the wrong git tree, kindly drop us a note.
-> > And when submitting patch, we suggest to use '--base' as documented in
-> > https://git-scm.com/docs/git-format-patch]
-> >
-> > url:    https://github.com/0day-ci/linux/commits/guoren-kernel-org/Generic-Ticket-Spinlocks/20220319-115644
-> > base:   https://git.kernel.org/pub/scm/linux/kernel/git/arnd/asm-generic.git master
-> > config: openrisc-randconfig-s032-20220319 (https://download.01.org/0day-ci/archive/20220320/202203200824.EQJTy8pW-lkp at intel.com/config)
-> > compiler: or1k-linux-gcc (GCC) 11.2.0
-> > reproduce:
-> >         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-> >         chmod +x ~/bin/make.cross
-> >         # apt-get install sparse
-> >         # sparse version: v0.6.4-dirty
-> >         # https://github.com/0day-ci/linux/commit/4e66dc8c71c62011bcb287f66bf5c5363920cd91
-> >         git remote add linux-review https://github.com/0day-ci/linux
-> >         git fetch --no-tags linux-review guoren-kernel-org/Generic-Ticket-Spinlocks/20220319-115644
-> >         git checkout 4e66dc8c71c62011bcb287f66bf5c5363920cd91
-> >         # save the config file to linux build tree
-> >         mkdir build_dir
-> >         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__' O=build_dir ARCH=openrisc SHELL=/bin/bash
-> >
-> > If you fix the issue, kindly add following tag as appropriate
-> > Reported-by: kernel test robot <lkp@intel.com>
-> >
-> >
-> > sparse warnings: (new ones prefixed by >>)
-> >    kernel/signal.c: note: in included file (through include/uapi/asm-generic/signal.h, include/asm-generic/signal.h, arch/openrisc/include/generated/uapi/asm/signal.h, ...):
-> >    include/uapi/asm-generic/signal-defs.h:83:29: sparse: sparse: multiple address spaces given
-> >    kernel/signal.c:195:31: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct spinlock [usertype] *lock @@     got struct spinlock [noderef] __rcu * @@
-> >    kernel/signal.c:195:31: sparse:     expected struct spinlock [usertype] *lock
-> >    kernel/signal.c:195:31: sparse:     got struct spinlock [noderef] __rcu *
-> >    kernel/signal.c:198:33: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct spinlock [usertype] *lock @@     got struct spinlock [noderef] __rcu * @@
-> >    kernel/signal.c:198:33: sparse:     expected struct spinlock [usertype] *lock
-> >    kernel/signal.c:198:33: sparse:     got struct spinlock [noderef] __rcu *
-> >    kernel/signal.c:480:9: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct spinlock [usertype] *lock @@     got struct spinlock [noderef] __rcu * @@
-> >    kernel/signal.c:480:9: sparse:     expected struct spinlock [usertype] *lock
-> >    kernel/signal.c:480:9: sparse:     got struct spinlock [noderef] __rcu *
-> >    kernel/signal.c:484:34: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct spinlock [usertype] *lock @@     got struct spinlock [noderef] __rcu * @@
-> >    kernel/signal.c:484:34: sparse:     expected struct spinlock [usertype] *lock
-> >    kernel/signal.c:484:34: sparse:     got struct spinlock [noderef] __rcu *
-> >    kernel/signal.c:517:9: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct spinlock [usertype] *lock @@     got struct spinlock [noderef] __rcu * @@
-> >    kernel/signal.c:517:9: sparse:     expected struct spinlock [usertype] *lock
-> >    kernel/signal.c:517:9: sparse:     got struct spinlock [noderef] __rcu *
-> >    kernel/signal.c:520:36: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct spinlock [usertype] *lock @@     got struct spinlock [noderef] __rcu * @@
-> >    kernel/signal.c:520:36: sparse:     expected struct spinlock [usertype] *lock
-> >    kernel/signal.c:520:36: sparse:     got struct spinlock [noderef] __rcu *
-> >    kernel/signal.c:542:53: sparse: sparse: incorrect type in initializer (different address spaces) @@     expected struct k_sigaction *ka @@     got struct k_sigaction [noderef] __rcu * @@
-> >    kernel/signal.c:542:53: sparse:     expected struct k_sigaction *ka
-> >    kernel/signal.c:542:53: sparse:     got struct k_sigaction [noderef] __rcu *
-> >    include/uapi/asm-generic/signal-defs.h:83:29: sparse: sparse: multiple address spaces given
-> >    kernel/signal.c:698:33: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct spinlock [usertype] *lock @@     got struct spinlock [noderef] __rcu * @@
-> >    kernel/signal.c:698:33: sparse:     expected struct spinlock [usertype] *lock
-> >    kernel/signal.c:698:33: sparse:     got struct spinlock [noderef] __rcu *
-> >    kernel/signal.c:700:31: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct spinlock [usertype] *lock @@     got struct spinlock [noderef] __rcu * @@
-> >    kernel/signal.c:700:31: sparse:     expected struct spinlock [usertype] *lock
-> >    kernel/signal.c:700:31: sparse:     got struct spinlock [noderef] __rcu *
-> > >> kernel/signal.c:887:9: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct atomic_t [usertype] *lock @@     got struct atomic_t [noderef] __rcu * @@
-> >    kernel/signal.c:887:9: sparse:     expected struct atomic_t [usertype] *lock
-> >    kernel/signal.c:887:9: sparse:     got struct atomic_t [noderef] __rcu *
+> I replied on patch 1/5 with a suggested patch which fixes the issue for me.
+> Please have a look.
+Great, I saw that:
 
-This one is being reported as a new warning. I can see this warning
-even when testing with x86_64 which uses qspinlock:
+static __always_inline void ticket_unlock(arch_spinlock_t *lock)
+{
+     u16 *ptr = (u16 *)lock + __is_defined(__BIG_ENDIAN);
+//__is_defined(__BIG_ENDIAN) would be zero for openrisc.
 
-    kernel/signal.c:542:53:    got struct k_sigaction [noderef] __rcu *
-    ./include/uapi/asm-generic/signal-defs.h:83:29: error: multiple
-address spaces given
-    kernel/signal.c:698:33: warning: incorrect type in argument 1
-(different address spaces)
-    kernel/signal.c:698:33:    expected struct spinlock [usertype] *lock
-    kernel/signal.c:698:33:    got struct spinlock [noderef] __rcu *
-    kernel/signal.c:700:31: warning: incorrect type in argument 1
-(different address spaces)
-    kernel/signal.c:700:31:    expected struct spinlock [usertype] *lock
-    kernel/signal.c:700:31:    got struct spinlock [noderef] __rcu *
-    kernel/signal.c:887:9: warning: incorrect type in argument 1
-(different address spaces)
-    kernel/signal.c:887:9:    expected struct qspinlock *lock
-    kernel/signal.c:887:9:    got struct qspinlock [noderef] __rcu *
-    kernel/signal.c:1082:9: warning: incorrect type in argument 1
-(different address spaces)
-    kernel/signal.c:1082:9:    expected struct qspinlock *lock
+Using CONFIG_CPU_BIG_ENDIAN is correct, Arnd has also asked me using
+CONFIG_CPU_BIG_ENDIAN in compat.h:
 
-It looks like these are treated as *new* by the kbuild robot because
-they changed from qspinlock to atomic_t, which changes the match
-pattern.
+diff --git a/include/asm-generic/compat.h b/include/asm-generic/compat.h
+index 11653d6846cc..d06308a2a7a8 100644
+--- a/include/asm-generic/compat.h
++++ b/include/asm-generic/compat.h
+@@ -14,6 +14,13 @@
+ #define COMPAT_OFF_T_MAX       0x7fffffff
+ #endif
 
-I looked into what it takes to fix it but it seems such a change would
-be very intrusive.  I think we can leave as is for now.
++#if !defined(compat_arg_u64) && !defined(CONFIG_CPU_BIG_ENDIAN)
++#define compat_arg_u64(name)           u32  name##_lo, u32  name##_hi
++#define compat_arg_u64_dual(name)      u32, name##_lo, u32, name##_hi
++#define compat_arg_u64_glue(name)      (((u64)name##_lo & 0xffffffffUL) | \
++                                        ((u64)name##_hi << 32))
++#endif
++
+ /* These types are common across all compat ABIs */
+ typedef u32 compat_size_t;
+ typedef s32 compat_ssize_t;
 
--Stafford
+
+
+> BTW. now I can look into the sparse warnings.
+>
+> -Stafford
+>
+--
+Best Regards
+ Guo Ren
+
+ML: https://lore.kernel.org/linux-csky/
