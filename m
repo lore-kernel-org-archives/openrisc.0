@@ -1,36 +1,47 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 14 Apr 2022 05:48:06 +0900
-Subject: [OpenRISC] Tomasulo's Core
-In-Reply-To: <CAOkYDM+3gwtprv87SzZaiZ+bkhe5Vc3SZ-txTzrxjR_9SHKW9Q@mail.gmail.com>
-References: <CAOkYDM+3gwtprv87SzZaiZ+bkhe5Vc3SZ-txTzrxjR_9SHKW9Q@mail.gmail.com>
-Message-ID: <CAAfxs74vng_-sz8ckT_D1KT7ToqaiKu8iOMgA+yq4epj=qN_VQ@mail.gmail.com>
+From: Palmer Dabbelt <palmer@rivosinc.com>
+Date: Thu, 14 Apr 2022 15:02:07 -0700
+Subject: [OpenRISC] [PATCH v3 0/7] Generic Ticket Spinlocks
+Message-ID: <20220414220214.24556-1-palmer@rivosinc.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="maccentraleurope"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-SGkgUm9iZXJ0LAoKVGhpcyBsb29rcyBsaWtlIGEgbmVhdCBwcm9qZWN0IHlvdSBhcmUgd29ya2lu
-ZyBvbi4KCk9uIFdlZCwgQXByIDEzLCAyMDIyIGF0IDk6MTYgUE0gUm9iZXJ0IEZpbmNoIDxyb2Jm
-aTY4MEBnbWFpbC5jb20+IHdyb3RlOgo+Cj4gSGksIEkgaGF2ZSBiZWVuIHBlcnVzaW5nIHRoZSBP
-cGVuUklTQyBzaXRlIGFuZCBzdHVkeWluZyB0aGUgT3BlblJJU0MgZGVzaWduLiBJIHJlYWQgYSBj
-b21tZW50IGFib3V0IHRoZSBsYWNrIG9mIG91dC1vZi1vcmRlciBjb3JlcyBhbmQgdGhvdWdodCBw
-ZW9wbGUgbWF5IGJlIGludGVyZXN0ZWQgaW4gdGhlIG9uZSBJIGFtIHdvcmtpbmcgb24uIEl0IGlz
-IG5vdCByZWFsbHkgcmVhZHkgZm9yIHByaW1lLXRpbWUgeWV0LiBJdCBpcyBsb2NhdGVkIGluIEdp
-dGh1YiBhdCBodHRwczovL2dpdGh1Yi5jb20vcm9iZmluY2gvVGhvci90cmVlL21haW4vVGhvcjIw
-MjIKPgo+IEl0IGlzIGFub3RoZXIgY29yZSB1c2luZyBhIHZlcnNpb24gb2YgVG9tYXN1bG/igJlz
-IEFsZ29yaXRobS4KClRoZXJlIGlzIGEgIFRvbWFzdWxvJ3MgYWxnb3JpdGhtIGltcGxlbWVudGF0
-aW9uIG9mIG9wZW5yaXNjIGhlcmU6Cmh0dHBzOi8vZ2l0aHViLmNvbS9vcGVucmlzYy9vcjFrX21h
-cm9jY2hpbm8KCkRvZXMgeW91ciBmZXRjaCBzdGFnZSBmZXRjaCBtdWx0aXBsZSBpbnN0cnVjdGlv
-bnMgaW4gcGFyYWxsZWw/ICBUaGUKbWFyb2NjaGlubyBjdXJyZW50bHkgb25seSBmZXRjaGVzIG9u
-ZSBpbnN0cnVjdGlvbiBhdCBhIHRpbWUuICBJdCB0aGVuCmV4ZWN1dGVzIGluIHBhcmFsbGVsLgoK
-V2UgaGF2ZSBmb3VuZCBhIG5lYXQgdG9vbCBmb3IgbWVhc3VyaW5nIHBhcmFsbGVsaXphdGlvbjoK
-ICBodHRwczovL2dpdGh1Yi5jb20vc2hpb3lhZGFuL0tvbmF0YQoKPiBJIHdhcyBnbGFkIHRvIHNl
-ZSB0aGUgT3BlblJJU0MgZGVzaWduIG1ha2UgYnJhbmNoIGRlbGF5IHNsb3RzIG9wdGlvbmFsLiBJ
-cyB0aGVyZSBhIHdheSB0byBzZXQgYSB0cnVlLyBmYWxzZSB2YWx1ZSBpbiBhIHJlZ2lzdGVyIHVz
-aW5nIGEgc2V0IGluc3RydWN0aW9uPyBPcGVuUklTQyBsb29rcyBsaWtlIGFuIGV4Y2VsbGVudCBk
-ZXNpZ24uIEkgYW0gaW50ZXJlc3RlZCBpbiA2NC8xMjggYml0IHRob3VnaC4gMTI4LWJpdCBkZWNp
-bWFsIGZsb2F0aW5nLXBvaW50LgoKSGF2aW5nIGRlbGF5IHNsb3RzIG9uIGFuZCBvZmYgaW4gdGhl
-IENQVSBjb3JlIGlzIGhhcmQgY29kZWQgYW5kIGNhbm5vdApiZSBjaGFuZ2VkIGR1cmluZyBydW50
-aW1lLiAgIFRoZSBPcGVuUklTQyBjb3JlcyBhcmUgYWxsIDMyLWJpdCBub3csCnRoZSBNYXJvY2No
-aW5vIGltcGxlbWVudHMgNjQtYml0IGZsb2F0aW5nIHBvaW50LgoKLVN0YWZmb3JkCg==
+Looks like feedback has been largely positive on this one.  I think I
+got everything from the v1 and v2, but it was a bit mixed up so sorry if
+I missed something.  I'm generally being conservative on the tags here,
+as things have drifted around a bit.  Specifically I dropped the
+Tested-bys, as this is all based on 5.18-rc1 now and there's been a
+touch of diff.
+
+I've put this at palmer/tspinlock-v3, in case that helps anyone.  This
+generally looks good to me, but I'll wait for feedback before putting it
+anywhere else.  I'd default to doing a shared tag for the asm-generic
+stuff and then let other arch folks pull in that (with their arch
+support), but if you want me to take it via my tree then feel free to
+just say so explicitly.  What's on that branch right now definately
+shouldn't be treated as stable, though, as I'll wait for at least an
+official Ack/Review from the asm-generic folks (and of course there may
+be more feedback).
+
+This passes my standard tests, both as the whole thing and as just the
+RISC-V spinlock change.  That's just QEMU, though, so it's not all that
+exciting.
+
+Changes since v2 <20220319035457.2214979-1-guoren@kernel.org>:
+* Picked up Peter's SOBs, which were posted on the v1.
+* Re-ordered the first two patches, as they
+* Re-worded the RISC-V qrwlock patch, as it was a bit mushy.  I also
+  added a blurb in the qrwlock's top comment about this dependency.
+* Picked up Stafford's fix for big-endian systems, which I have not
+  tested as I don't have one (at least easily availiable, I think the BE
+  MIPS systems are still in that pile in my garage).
+* Call the generic version <asm-genenic/spinlock{_types}.h>, as there's
+  really no utility to the version that only errors out.
+
+Changes since v1 <20220316232600.20419-1-palmer@rivosinc.com>:
+* Follow Arnd suggestion to make the patch series more generic.
+* Add csky in the series.
+* Combine RISC-V's two patches into one.
+* Modify openrisc's patch to suit the new generic version.
