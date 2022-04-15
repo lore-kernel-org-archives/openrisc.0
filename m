@@ -1,173 +1,122 @@
-From: Palmer Dabbelt <palmer@rivosinc.com>
-Date: Thu, 14 Apr 2022 15:02:14 -0700
-Subject: [OpenRISC] [PATCH v3 7/7] csky: Move to generic ticket-spinlock
-In-Reply-To: <20220414220214.24556-1-palmer@rivosinc.com>
+From: Boqun Feng <boqun.feng@gmail.com>
+Date: Fri, 15 Apr 2022 09:09:29 +0800
+Subject: [OpenRISC] [PATCH v3 1/7] asm-generic: ticket-lock: New generic
+ ticket-based spinlock
+In-Reply-To: <20220414220214.24556-2-palmer@rivosinc.com>
 References: <20220414220214.24556-1-palmer@rivosinc.com>
-Message-ID: <20220414220214.24556-8-palmer@rivosinc.com>
+ <20220414220214.24556-2-palmer@rivosinc.com>
+Message-ID: <YljFyY7acyRDBmK7@tardis>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+Hi,
 
-There is no benefit from custom implementation for ticket-spinlock,
-so move to generic ticket-spinlock for easy maintenance.
+On Thu, Apr 14, 2022 at 03:02:08PM -0700, Palmer Dabbelt wrote:
+> From: Peter Zijlstra <peterz@infradead.org>
+> 
+> This is a simple, fair spinlock.  Specifically it doesn't have all the
+> subtle memory model dependencies that qspinlock has, which makes it more
+> suitable for simple systems as it is more likely to be correct.  It is
+> implemented entirely in terms of standard atomics and thus works fine
+> without any arch-specific code.
+> 
+> This replaces the existing asm-generic/spinlock.h, which just errored
+> out on SMP systems.
+> 
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+> ---
+>  include/asm-generic/spinlock.h       | 85 +++++++++++++++++++++++++---
+>  include/asm-generic/spinlock_types.h | 17 ++++++
+>  2 files changed, 94 insertions(+), 8 deletions(-)
+>  create mode 100644 include/asm-generic/spinlock_types.h
+> 
+> diff --git a/include/asm-generic/spinlock.h b/include/asm-generic/spinlock.h
+> index adaf6acab172..ca829fcb9672 100644
+> --- a/include/asm-generic/spinlock.h
+> +++ b/include/asm-generic/spinlock.h
+> @@ -1,12 +1,81 @@
+>  /* SPDX-License-Identifier: GPL-2.0 */
+> -#ifndef __ASM_GENERIC_SPINLOCK_H
+> -#define __ASM_GENERIC_SPINLOCK_H
+> +
+>  /*
+> - * You need to implement asm/spinlock.h for SMP support. The generic
+> - * version does not handle SMP.
+> + * 'Generic' ticket-lock implementation.
+> + *
+> + * It relies on atomic_fetch_add() having well defined forward progress
+> + * guarantees under contention. If your architecture cannot provide this, stick
+> + * to a test-and-set lock.
+> + *
+> + * It also relies on atomic_fetch_add() being safe vs smp_store_release() on a
+> + * sub-word of the value. This is generally true for anything LL/SC although
+> + * you'd be hard pressed to find anything useful in architecture specifications
+> + * about this. If your architecture cannot do this you might be better off with
+> + * a test-and-set.
+> + *
+> + * It further assumes atomic_*_release() + atomic_*_acquire() is RCpc and hence
+> + * uses atomic_fetch_add() which is SC to create an RCsc lock.
+> + *
+> + * The implementation uses smp_cond_load_acquire() to spin, so if the
+> + * architecture has WFE like instructions to sleep instead of poll for word
+> + * modifications be sure to implement that (see ARM64 for example).
+> + *
+>   */
+> -#ifdef CONFIG_SMP
+> -#error need an architecture specific asm/spinlock.h
+> -#endif
+>  
+> -#endif /* __ASM_GENERIC_SPINLOCK_H */
+> +#ifndef __ASM_GENERIC_TICKET_LOCK_H
+> +#define __ASM_GENERIC_TICKET_LOCK_H
+> +
+> +#include <linux/atomic.h>
+> +#include <asm-generic/spinlock_types.h>
+> +
+> +static __always_inline void arch_spin_lock(arch_spinlock_t *lock)
+> +{
+> +	u32 val = atomic_fetch_add(1<<16, lock); /* SC, gives us RCsc */
+> +	u16 ticket = val >> 16;
+> +
+> +	if (ticket == (u16)val)
+> +		return;
+> +
+> +	atomic_cond_read_acquire(lock, ticket == (u16)VAL);
 
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
----
- arch/csky/include/asm/Kbuild           |  3 +
- arch/csky/include/asm/spinlock.h       | 89 --------------------------
- arch/csky/include/asm/spinlock_types.h | 27 --------
- 3 files changed, 3 insertions(+), 116 deletions(-)
- delete mode 100644 arch/csky/include/asm/spinlock.h
- delete mode 100644 arch/csky/include/asm/spinlock_types.h
+Looks like my follow comment is missing:
 
-diff --git a/arch/csky/include/asm/Kbuild b/arch/csky/include/asm/Kbuild
-index 888248235c23..103207a58f97 100644
---- a/arch/csky/include/asm/Kbuild
-+++ b/arch/csky/include/asm/Kbuild
-@@ -3,7 +3,10 @@ generic-y += asm-offsets.h
- generic-y += extable.h
- generic-y += gpio.h
- generic-y += kvm_para.h
-+generic-y += spinlock.h
-+generic-y += spinlock_types.h
- generic-y += qrwlock.h
-+generic-y += qrwlock_types.h
- generic-y += parport.h
- generic-y += user.h
- generic-y += vmlinux.lds.h
-diff --git a/arch/csky/include/asm/spinlock.h b/arch/csky/include/asm/spinlock.h
-deleted file mode 100644
-index 69f5aa249c5f..000000000000
---- a/arch/csky/include/asm/spinlock.h
-+++ /dev/null
-@@ -1,89 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--
--#ifndef __ASM_CSKY_SPINLOCK_H
--#define __ASM_CSKY_SPINLOCK_H
--
--#include <linux/spinlock_types.h>
--#include <asm/barrier.h>
--
--/*
-- * Ticket-based spin-locking.
-- */
--static inline void arch_spin_lock(arch_spinlock_t *lock)
--{
--	arch_spinlock_t lockval;
--	u32 ticket_next = 1 << TICKET_NEXT;
--	u32 *p = &lock->lock;
--	u32 tmp;
--
--	asm volatile (
--		"1:	ldex.w		%0, (%2) \n"
--		"	mov		%1, %0	 \n"
--		"	add		%0, %3	 \n"
--		"	stex.w		%0, (%2) \n"
--		"	bez		%0, 1b   \n"
--		: "=&r" (tmp), "=&r" (lockval)
--		: "r"(p), "r"(ticket_next)
--		: "cc");
--
--	while (lockval.tickets.next != lockval.tickets.owner)
--		lockval.tickets.owner = READ_ONCE(lock->tickets.owner);
--
--	smp_mb();
--}
--
--static inline int arch_spin_trylock(arch_spinlock_t *lock)
--{
--	u32 tmp, contended, res;
--	u32 ticket_next = 1 << TICKET_NEXT;
--	u32 *p = &lock->lock;
--
--	do {
--		asm volatile (
--		"	ldex.w		%0, (%3)   \n"
--		"	movi		%2, 1	   \n"
--		"	rotli		%1, %0, 16 \n"
--		"	cmpne		%1, %0     \n"
--		"	bt		1f         \n"
--		"	movi		%2, 0	   \n"
--		"	add		%0, %0, %4 \n"
--		"	stex.w		%0, (%3)   \n"
--		"1:				   \n"
--		: "=&r" (res), "=&r" (tmp), "=&r" (contended)
--		: "r"(p), "r"(ticket_next)
--		: "cc");
--	} while (!res);
--
--	if (!contended)
--		smp_mb();
--
--	return !contended;
--}
--
--static inline void arch_spin_unlock(arch_spinlock_t *lock)
--{
--	smp_mb();
--	WRITE_ONCE(lock->tickets.owner, lock->tickets.owner + 1);
--}
--
--static inline int arch_spin_value_unlocked(arch_spinlock_t lock)
--{
--	return lock.tickets.owner == lock.tickets.next;
--}
--
--static inline int arch_spin_is_locked(arch_spinlock_t *lock)
--{
--	return !arch_spin_value_unlocked(READ_ONCE(*lock));
--}
--
--static inline int arch_spin_is_contended(arch_spinlock_t *lock)
--{
--	struct __raw_tickets tickets = READ_ONCE(lock->tickets);
--
--	return (tickets.next - tickets.owner) > 1;
--}
--#define arch_spin_is_contended	arch_spin_is_contended
--
--#include <asm/qrwlock.h>
--
--#endif /* __ASM_CSKY_SPINLOCK_H */
-diff --git a/arch/csky/include/asm/spinlock_types.h b/arch/csky/include/asm/spinlock_types.h
-deleted file mode 100644
-index db87a12c3827..000000000000
---- a/arch/csky/include/asm/spinlock_types.h
-+++ /dev/null
-@@ -1,27 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--
--#ifndef __ASM_CSKY_SPINLOCK_TYPES_H
--#define __ASM_CSKY_SPINLOCK_TYPES_H
--
--#ifndef __LINUX_SPINLOCK_TYPES_RAW_H
--# error "please don't include this file directly"
--#endif
--
--#define TICKET_NEXT	16
--
--typedef struct {
--	union {
--		u32 lock;
--		struct __raw_tickets {
--			/* little endian */
--			u16 owner;
--			u16 next;
--		} tickets;
--	};
--} arch_spinlock_t;
--
--#define __ARCH_SPIN_LOCK_UNLOCKED	{ { 0 } }
--
--#include <asm-generic/qrwlock_types.h>
--
--#endif /* __ASM_CSKY_SPINLOCK_TYPES_H */
--- 
-2.34.1
+	https://lore.kernel.org/lkml/YjM+P32I4fENIqGV at boqun-archlinux/
 
+Basically, I suggested that 1) instead of "SC", use "fully-ordered" as
+that's a complete definition in our atomic API ("RCsc" is fine), 2)
+introduce a RCsc atomic_cond_read_acquire() or add a full barrier here
+to make arch_spin_lock() RCsc otherwise arch_spin_lock() is RCsc on
+fastpath but RCpc on slowpath.
+
+Regards,
+Boqun
+
+> +}
+> +
+> +static __always_inline bool arch_spin_trylock(arch_spinlock_t *lock)
+> +{
+> +	u32 old = atomic_read(lock);
+> +
+> +	if ((old >> 16) != (old & 0xffff))
+> +		return false;
+> +
+> +	return atomic_try_cmpxchg(lock, &old, old + (1<<16)); /* SC, for RCsc */
+> +}
+> +
+[...]
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 488 bytes
+Desc: not available
+URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20220415/6d8934ca/attachment-0001.sig>
