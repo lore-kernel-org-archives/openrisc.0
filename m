@@ -1,192 +1,29 @@
 From: Jason A. Donenfeld <Jason@zx2c4.com>
-Date: Sat, 23 Apr 2022 23:26:06 +0200
-Subject: [OpenRISC] [PATCH v6 00/17] archs/random: fallback to best raw
- ktime when no cycle counter
-Message-ID: <20220423212623.1957011-1-Jason@zx2c4.com>
+Date: Wed, 27 Apr 2022 19:44:02 +0200
+Subject: [OpenRISC] [Qemu-devel] [PATCH 2/7] target/openrisc: add
+ shutdown logic
+In-Reply-To: <fb69c137317a365dcb549dfef1ecd2fbff48e92c.1492384862.git.shorne@gmail.com>
+References: <cover.1492384862.git.shorne@gmail.com>
+ <fb69c137317a365dcb549dfef1ecd2fbff48e92c.1492384862.git.shorne@gmail.com>
+Message-ID: <YmmA4li384azQ2i9@zx2c4.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-[Preface for v6: if you're an arch maintainer, a simple Acked-by would
- be appreciated if this looks okay.]
+Hey Stafford,
 
-Hi folks,
+On Mon, Apr 17, 2017 at 08:23:51AM +0900, Stafford Horne wrote:
+> In openrisc simulators we use hooks like 'l.nop 1' to cause the
+> simulator to exit.  Implement that for qemu too.
+> 
+> Reported-by: Waldemar Brodkorb <wbx@openadk.org>
+> Signed-off-by: Stafford Horne <shorne@gmail.com>
 
-The RNG uses a function called random_get_entropy() basically anytime
-that it needs to timestamp an event. For example, an interrupt comes in,
-and we mix a random_get_entropy() into the entropy pool somehow.
-Somebody mashes their keyboard or moves their mouse around? We mix a
-random_get_entropy() into the entropy pool. It's one of the main
-varieties of input.
-
-Unfortunately, it's always 0 on a few platforms. The RNG has accumulated
-various hacks to deal with this, but in general it's not great. Surely
-we can do better than 0. In fact, *anything* that's not the same exact
-value all the time would be better than 0. Even a counter that
-increments once per hour would be better than 0! I think you get the
-idea.
-
-On most platforms, random_get_entropy() is aliased to get_cycles(),
-which makes sense for platforms where get_cycles() is defined. RDTSC,
-for example, has all the characteristics we care about for this
-function: it's fast to acquire (i.e. acceptable in an irq handler),
-pretty high precision, available, forms a 2-monotone distribution, etc.
-But for platforms without that, what is the next best thing?
-
-Sometimes the next best thing is architecture-defined. For example,
-really old MIPS has the C0 random register, which isn't quite a cycle
-counter, but is at least something. However, some platforms don't even
-have an architecture-defined fallback.
-
-Fortunately, the timekeeping subsystem has already solved this problem
-of trying to determine what the least bad clock is on constrained
-systems, falling back to jiffies in the worst case. By exporting the raw
-clock, we can get a decent fallback function for when there's no cycle
-counter or architecture-specific function.
-
-This series makes the RNG more useful on: m68k, RISC-V, MIPS, ARM32,
-NIOS II, SPARC32, Xtensa, OpenRISC, and Usermode Linux. Previously these
-platforms would, in certain circumstances, but out of luck with regards to
-having any type of event timestamping source in the RNG.
-
-Finally, note that this series isn't about "jitter entropy" or other
-ways of initializing the RNG. That's a different topic for a different
-thread. Please don't let this discussion veer off into that. Here, I'm
-just trying to find a good fallback counter/timer for platforms without
-get_cycles(), a question with limited scope.
-
-If this (or a future revision) looks good to you all and receives the
-requisite acks, my plan was to take these through the random.git tree
-for 5.19, so that I can then build on top of it.
+I'm curious as to why this never got merged. I noticed I'm entirely able
+to shutdown or to reboot (which is mostly what I care about) Linux from
+OpenRISC. It just hangs.
 
 Thanks,
 Jason
-
-Changes v5->v6:
-- Use cpu_feature_enabled() instead of boot_cpu_has() on x86.
-- OpenRISC support.
-- Define missing `#define get_cycles get_cycles` on various platforms.
-
-Changes v4->v5:
-- Do not prototype symbol with 'extern', according to style guide.
-- On MIPS, combine random_get_entropy_fallback() with the c0 random
-  register in a way that matches the format of the c0 random value, so
-  that we get the best of a high precision cycle counter and of larger
-  period timer, joined together. As a result, Thomas Bogendoerfer's
-  ack on v4 of patch 4 has been dropped, since this is a substantial
-  change.
-
-Changes v3->v4:
-- Use EXPORT_SYMBOL_GPL instead of EXPORT_SYMBOL.
-
-Changes v2->v3:
-- Name the fallback function random_get_entropy_fallback(), so that it
-  can be changed out as needed.
-- Include header with prototype in timekeeping.c to avoid compiler
-  warning.
-- Export fallback function symbol.
-
-Changes v1->v2:
-- Use ktime_read_raw_clock() instead of sched_clock(), per Thomas'
-  suggestion.
-- Drop arm64 change.
-- Cleanup header inclusion ordering problem.
-
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Theodore Ts'o <tytso@mit.edu>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: Albert Ou <aou@eecs.berkeley.edu>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Cc: Johannes Berg <johannes@sipsolutions.net>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Chris Zankel <chris@zankel.net>
-Cc: Max Filippov <jcmvbkbc@gmail.com>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Cc: Dinh Nguyen <dinguyen@kernel.org>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: Helge Deller <deller@gmx.de>
-Cc: Richard Henderson <rth@twiddle.net>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Matt Turner <mattst88@gmail.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: linux-arm-kernel at lists.infradead.org
-Cc: linux-m68k at lists.linux-m68k.org
-Cc: linux-mips at vger.kernel.org
-Cc: linux-riscv at lists.infradead.org
-Cc: sparclinux at vger.kernel.org
-Cc: linux-um at lists.infradead.org
-Cc: x86 at kernel.org
-Cc: linux-xtensa at linux-xtensa.org
-Cc: openrisc at lists.librecores.org
-Cc: linux-ia64 at vger.kernel.org
-Cc: linux-s390 at vger.kernel.org
-Cc: linux-parisc at vger.kernel.org
-Cc: linuxppc-dev at lists.ozlabs.org
-
-Jason A. Donenfeld (17):
-  ia64: define get_cycles macro for arch-override
-  s390: define get_cycles macro for arch-override
-  parisc: define get_cycles macro for arch-override
-  alpha: define get_cycles macro for arch-override
-  powerpc: define get_cycles macro for arch-override
-  timekeeping: add raw clock fallback for random_get_entropy()
-  m68k: use fallback for random_get_entropy() instead of zero
-  riscv: use fallback for random_get_entropy() instead of zero
-  mips: use fallback for random_get_entropy() instead of just c0 random
-  arm: use fallback for random_get_entropy() instead of zero
-  openrisc: use fallback for random_get_entropy() instead of zero
-  nios2: use fallback for random_get_entropy() instead of zero
-  x86: use fallback for random_get_entropy() instead of zero
-  um: use fallback for random_get_entropy() instead of zero
-  sparc: use fallback for random_get_entropy() instead of zero
-  xtensa: use fallback for random_get_entropy() instead of zero
-  random: insist on random_get_entropy() existing in order to simplify
-
- arch/alpha/include/asm/timex.h    |  1 +
- arch/arm/include/asm/timex.h      |  1 +
- arch/ia64/include/asm/timex.h     |  1 +
- arch/m68k/include/asm/timex.h     |  2 +-
- arch/mips/include/asm/timex.h     | 17 +++---
- arch/nios2/include/asm/timex.h    |  3 ++
- arch/openrisc/include/asm/timex.h |  3 ++
- arch/parisc/include/asm/timex.h   |  3 +-
- arch/powerpc/include/asm/timex.h  |  1 +
- arch/riscv/include/asm/timex.h    |  2 +-
- arch/s390/include/asm/timex.h     |  1 +
- arch/sparc/include/asm/timex_32.h |  4 +-
- arch/um/include/asm/timex.h       |  9 +---
- arch/x86/include/asm/timex.h      | 10 ++++
- arch/x86/include/asm/tsc.h        |  4 +-
- arch/xtensa/include/asm/timex.h   |  6 +--
- drivers/char/random.c             | 89 ++++++++++---------------------
- include/linux/timex.h             |  8 +++
- kernel/time/timekeeping.c         | 10 ++++
- 19 files changed, 87 insertions(+), 88 deletions(-)
-
--- 
-2.35.1
-
