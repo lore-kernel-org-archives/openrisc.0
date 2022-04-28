@@ -1,46 +1,70 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Thu, 28 Apr 2022 20:47:58 +0900
-Subject: [OpenRISC] [Qemu-devel] [PATCH 2/7] target/openrisc: add
- shutdown logic
-In-Reply-To: <Ymp3owBiSQIimgSy@zx2c4.com>
-References: <cover.1492384862.git.shorne@gmail.com>
- <fb69c137317a365dcb549dfef1ecd2fbff48e92c.1492384862.git.shorne@gmail.com>
- <YmmA4li384azQ2i9@zx2c4.com>
- <CAFEAcA9FZZzzZJaCHrepni+5oUELxW1TtZ3gZHxSUdfKdx+ghQ@mail.gmail.com>
- <Ymm6K3DjesAZR0OY@antec> <YmnaDUpVI5ihgvg6@zx2c4.com>
- <Ymp3owBiSQIimgSy@zx2c4.com>
-Message-ID: <Ymp+7vYQvA0Wr4sl@antec>
+Date: Thu, 28 Apr 2022 20:55:51 +0900
+Subject: [OpenRISC] [PATCH] openrisc: define nop command for simulator
+ reboot
+In-Reply-To: <20220428111139.1330966-1-Jason@zx2c4.com>
+References: <20220428111139.1330966-1-Jason@zx2c4.com>
+Message-ID: <YmqAx31dtXCaNn7R@antec>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Thu, Apr 28, 2022 at 01:16:51PM +0200, Jason A. Donenfeld wrote:
-> Hey again,
+On Thu, Apr 28, 2022 at 01:11:39PM +0200, Jason A. Donenfeld wrote:
+> The simulator defines `l.nop 1` for shutdown, but doesn't have anything
+> for reboot. Use 13 for this, which is currently unused, dubbed
+> `NOP_REBOOT`.
 > 
-> On Thu, Apr 28, 2022 at 02:04:29AM +0200, Jason A. Donenfeld wrote:
-> > By the way, would this also help the reboot case? That's
-> > `reboot(RB_AUTOBOOT);`, which does:
-> > 
-> > machine_restart() ->
-> >   do_kernel_restart() ->
-> >     atomic_notifier_chain_register(&restart_handler_list, nb) ->
-> >       ???
-> > 
-> > As far as I can tell, nothing is wired into the reboot case for
-> > OpenRISC. Is this something that could be fixed in the kernel without
-> > having to patch QEMU? If so, then I could effectively get shutdown for
-> > my CI with the -no-reboot option, which is what I'm already doing for a
-> > few platforms.
+> Cc: Stafford Horne <shorne@gmail.com>
+> Cc: Peter Maydell <peter.maydell@linaro.org>
+> Link: https://lore.kernel.org/all/YmnaDUpVI5ihgvg6 at zx2c4.com/
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> ---
+>  arch/openrisc/kernel/process.c | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
-> I added 13 for this: https://lists.librecores.org/pipermail/openrisc/2022-April/003884.html
-> 
-> When you go add these nops to the specification, please remember to add
-> one for reboot too. Then, once that kernel code is merged and the
-> specification published, it'll be sensible to add shutdown and reboot
-> support to QEMU, per Peter's description.
+> diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
+> index 3c0c91bcdcba..4cce95fa6eb5 100644
+> --- a/arch/openrisc/kernel/process.c
+> +++ b/arch/openrisc/kernel/process.c
+> @@ -52,6 +52,8 @@ void machine_restart(char *cmd)
+>  {
+>  	do_kernel_restart(cmd);
+>  
+> +	__asm__("l.nop 13");
+> +
+>  	/* Give a grace period for failure to restart of 1s */
+>  	mdelay(1000);
+>  
+> -- 
+> 2.35.1
 
-This sounds fair.
+This seems fair, probably it would be good to have a comment mentioninmg what
+the nop is for, fyi for context these are the nop numbers used to control
+simulations.
 
--Stafford
+    #define NOP_NOP          0x0000      /* Normal nop instruction */
+    #define NOP_EXIT         0x0001      /* End of simulation */
+    #define NOP_REPORT       0x0002      /* Simple report */
+    /*#define NOP_PRINTF       0x0003       Simprintf instruction (obsolete)*/
+    #define NOP_PUTC         0x0004      /* JPB: Simputc instruction */
+    #define NOP_CNT_RESET    0x0005      /* Reset statistics counters */
+    #define NOP_GET_TICKS    0x0006      /* JPB: Get # ticks running */
+    #define NOP_GET_PS       0x0007      /* JPB: Get picosecs/cycle */
+    #define NOP_TRACE_ON     0x0008      /* Turn on tracing */
+    #define NOP_TRACE_OFF    0x0009      /* Turn off tracing */
+    #define NOP_RANDOM       0x000a      /* Return 4 random bytes */
+    #define NOP_OR1KSIM      0x000b      /* Return non-zero if this is Or1ksim */
+    #define NOP_EXIT_SILENT  0x000c      /* End of simulation, quiet version */
+    /* New! */
+    #define NOP_RESET        0x000d      /* Reset the cpu */
+
+I will queue this once we update the spec to define some of these, I am thinking
+if qemu should allow for the shutdown to work in user mode.
+
+BTW, are you working specifically on openrisc? Or just setting up test
+environments for all architectures?
+
+Acked-by: Stafford Horne <shorne@gmail.com>
+
