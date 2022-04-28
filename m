@@ -1,38 +1,38 @@
 From: Jason A. Donenfeld <Jason@zx2c4.com>
-Date: Thu, 28 Apr 2022 12:35:16 +0200
-Subject: [OpenRISC] [PATCH] hw/openrisc: page-align FDT address
-Message-ID: <20220428103516.1149436-1-Jason@zx2c4.com>
+Date: Thu, 28 Apr 2022 13:11:39 +0200
+Subject: [OpenRISC] [PATCH] openrisc: define nop command for simulator reboot
+Message-ID: <20220428111139.1330966-1-Jason@zx2c4.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-The QEMU-provided FDT was only being recognized by the kernel when it
-was used in conjunction with -initrd. Without it, the magic bytes
-wouldn't be there and the kernel couldn't load it. This patch fixes the
-issue by page aligning the provided FDT.
+The simulator defines `l.nop 1` for shutdown, but doesn't have anything
+for reboot. Use 13 for this, which is currently unused, dubbed
+`NOP_REBOOT`.
 
 Cc: Stafford Horne <shorne@gmail.com>
 Cc: Peter Maydell <peter.maydell@linaro.org>
+Link: https://lore.kernel.org/all/YmnaDUpVI5ihgvg6 at zx2c4.com/
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 ---
- hw/openrisc/openrisc_sim.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/openrisc/kernel/process.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/hw/openrisc/openrisc_sim.c b/hw/openrisc/openrisc_sim.c
-index 8184caa60b..99b14940f4 100644
---- a/hw/openrisc/openrisc_sim.c
-+++ b/hw/openrisc/openrisc_sim.c
-@@ -356,7 +356,7 @@ static uint32_t openrisc_load_fdt(Or1ksimState *state, hwaddr load_start,
-     }
+diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
+index 3c0c91bcdcba..4cce95fa6eb5 100644
+--- a/arch/openrisc/kernel/process.c
++++ b/arch/openrisc/kernel/process.c
+@@ -52,6 +52,8 @@ void machine_restart(char *cmd)
+ {
+ 	do_kernel_restart(cmd);
  
-     /* We put fdt right after the kernel and/or initrd. */
--    fdt_addr = ROUND_UP(load_start, 4);
-+    fdt_addr = TARGET_PAGE_ALIGN(load_start);
++	__asm__("l.nop 13");
++
+ 	/* Give a grace period for failure to restart of 1s */
+ 	mdelay(1000);
  
-     ret = fdt_pack(fdt);
-     /* Should only fail if we've built a corrupted tree */
 -- 
 2.35.1
 
