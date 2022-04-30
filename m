@@ -1,50 +1,109 @@
 From: Stafford Horne <shorne@gmail.com>
-Date: Fri, 29 Apr 2022 12:14:40 +0900
-Subject: [OpenRISC] Add openrisc@lists.librecores.org to lore.kernel.org
-In-Reply-To: <20220428201950.6emdw5i2fvyktt2i@nitro.local>
-References: <CAHmME9ooFW5unm1AOWU5738_GHkYqVZ0whEgfKn6RH6k=SCm5g@mail.gmail.com>
- <20220428201950.6emdw5i2fvyktt2i@nitro.local>
-Message-ID: <CAAfxs75mxjefcTi5ficG0YvDr1THkPGG6aOxX0oor6WWTUngxA@mail.gmail.com>
+Date: Sat, 30 Apr 2022 16:52:05 +0900
+Subject: [OpenRISC] [PATCH v3 4/7] openrisc: Move to ticket-spinlock
+In-Reply-To: <20220414220214.24556-5-palmer@rivosinc.com>
+References: <20220414220214.24556-1-palmer@rivosinc.com>
+ <20220414220214.24556-5-palmer@rivosinc.com>
+Message-ID: <YmzqpVCEenOXRTga@antec>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-+cc Stefan and Philpp,
+On Thu, Apr 14, 2022 at 03:02:11PM -0700, Palmer Dabbelt wrote:
+> From: Peter Zijlstra <peterz@infradead.org>
+> 
+> We have no indications that openrisc meets the qspinlock requirements,
+> so move to ticket-spinlock as that is more likey to be correct.
+> 
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+> ---
+>  arch/openrisc/Kconfig                      |  1 -
+>  arch/openrisc/include/asm/Kbuild           |  5 ++--
+>  arch/openrisc/include/asm/spinlock.h       | 27 ----------------------
+>  arch/openrisc/include/asm/spinlock_types.h |  7 ------
+>  4 files changed, 2 insertions(+), 38 deletions(-)
+>  delete mode 100644 arch/openrisc/include/asm/spinlock.h
+>  delete mode 100644 arch/openrisc/include/asm/spinlock_types.h
+> 
+> diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+> index 0d68adf6e02b..99f0e4a4cbbd 100644
+> --- a/arch/openrisc/Kconfig
+> +++ b/arch/openrisc/Kconfig
+> @@ -30,7 +30,6 @@ config OPENRISC
+>  	select HAVE_DEBUG_STACKOVERFLOW
+>  	select OR1K_PIC
+>  	select CPU_NO_EFFICIENT_FFS if !OPENRISC_HAVE_INST_FF1
+> -	select ARCH_USE_QUEUED_SPINLOCKS
+>  	select ARCH_USE_QUEUED_RWLOCKS
+>  	select OMPIC if SMP
+>  	select ARCH_WANT_FRAME_POINTERS
+> diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
+> index ca5987e11053..3386b9c1c073 100644
+> --- a/arch/openrisc/include/asm/Kbuild
+> +++ b/arch/openrisc/include/asm/Kbuild
+> @@ -1,9 +1,8 @@
+>  # SPDX-License-Identifier: GPL-2.0
+>  generic-y += extable.h
+>  generic-y += kvm_para.h
+> -generic-y += mcs_spinlock.h
+> -generic-y += qspinlock_types.h
+> -generic-y += qspinlock.h
+> +generic-y += spinlock_types.h
+> +generic-y += spinlock.h
+>  generic-y += qrwlock_types.h
+>  generic-y += qrwlock.h
+>  generic-y += user.h
+> diff --git a/arch/openrisc/include/asm/spinlock.h b/arch/openrisc/include/asm/spinlock.h
+> deleted file mode 100644
+> index 264944a71535..000000000000
+> --- a/arch/openrisc/include/asm/spinlock.h
+> +++ /dev/null
+> @@ -1,27 +0,0 @@
+> -/* SPDX-License-Identifier: GPL-2.0-or-later */
+> -/*
+> - * OpenRISC Linux
+> - *
+> - * Linux architectural port borrowing liberally from similar works of
+> - * others.  All original copyrights apply as per the original source
+> - * declaration.
+> - *
+> - * OpenRISC implementation:
+> - * Copyright (C) 2003 Matjaz Breskvar <phoenix@bsemi.com>
+> - * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
+> - * et al.
+> - */
+> -
+> -#ifndef __ASM_OPENRISC_SPINLOCK_H
+> -#define __ASM_OPENRISC_SPINLOCK_H
+> -
+> -#include <asm/qspinlock.h>
+> -
+> -#include <asm/qrwlock.h>
+> -
+> -#define arch_spin_relax(lock)	cpu_relax()
+> -#define arch_read_relax(lock)	cpu_relax()
+> -#define arch_write_relax(lock)	cpu_relax()
+> -
+> -
+> -#endif
+> diff --git a/arch/openrisc/include/asm/spinlock_types.h b/arch/openrisc/include/asm/spinlock_types.h
+> deleted file mode 100644
+> index 7c6fb1208c88..000000000000
+> --- a/arch/openrisc/include/asm/spinlock_types.h
+> +++ /dev/null
+> @@ -1,7 +0,0 @@
+> -#ifndef _ASM_OPENRISC_SPINLOCK_TYPES_H
+> -#define _ASM_OPENRISC_SPINLOCK_TYPES_H
+> -
+> -#include <asm/qspinlock_types.h>
+> -#include <asm/qrwlock_types.h>
+> -
+> -#endif /* _ASM_OPENRISC_SPINLOCK_TYPES_H */
 
+Thanks for this, a bit late but.
 
+Acked-by: Stafford Horne <shorne@gmail.com>
 
-
-On Fri, Apr 29, 2022, 5:19 AM Konstantin Ryabitsev <
-konstantin@linuxfoundation.org> wrote:
-
-> On Thu, Apr 28, 2022 at 01:15:09PM +0200, Jason A. Donenfeld wrote:
-> > Hi folks,
-> >
-> > Any interest in getting this mailing list up on lore.kernel.org? This
-> > would make sense since it's the mailing list specified in the Linux
-> > MAINTAINERS file for OpenRISC development. It'd require the list
-> > administrator to send the current list archives to Konstantin and then
-> > add some archiver as a subscriber. Given this is a fairly normal
-> > mailman list, that doesn't seem too hard.
->
-> We can add it, but it would be great if the list can be made DKIM-compliant
-> first:
->
-> 1. turn off subject modification, if possible
-> 2. remove body modification, if present (mailman list footers, etc)
->
-> This way any messages sent to this list and to any other lists are properly
-> deduplicated.
->
-
-I think it's a good idea, I am not an admin at librecores.  Can you guys
-help out?
-
--stafford
-
->
--------------- next part --------------
-An HTML attachment was scrubbed...
-URL: <http://lists.librecores.org/pipermail/openrisc/attachments/20220429/a002d911/attachment.htm>
