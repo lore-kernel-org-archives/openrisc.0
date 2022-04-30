@@ -1,109 +1,71 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sat, 30 Apr 2022 16:52:05 +0900
-Subject: [OpenRISC] [PATCH v3 4/7] openrisc: Move to ticket-spinlock
-In-Reply-To: <20220414220214.24556-5-palmer@rivosinc.com>
-References: <20220414220214.24556-1-palmer@rivosinc.com>
- <20220414220214.24556-5-palmer@rivosinc.com>
-Message-ID: <YmzqpVCEenOXRTga@antec>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
+Date: Sat, 30 Apr 2022 14:24:33 +0200
+Subject: [OpenRISC] [PATCH v8 06/19] openrisc: start CPU timer early in boot
+In-Reply-To: <20220430122355.2718797-1-Jason@zx2c4.com>
+References: <20220430122355.2718797-1-Jason@zx2c4.com>
+Message-ID: <20220430122433.2719029-1-Jason@zx2c4.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Thu, Apr 14, 2022 at 03:02:11PM -0700, Palmer Dabbelt wrote:
-> From: Peter Zijlstra <peterz@infradead.org>
-> 
-> We have no indications that openrisc meets the qspinlock requirements,
-> so move to ticket-spinlock as that is more likey to be correct.
-> 
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-> ---
->  arch/openrisc/Kconfig                      |  1 -
->  arch/openrisc/include/asm/Kbuild           |  5 ++--
->  arch/openrisc/include/asm/spinlock.h       | 27 ----------------------
->  arch/openrisc/include/asm/spinlock_types.h |  7 ------
->  4 files changed, 2 insertions(+), 38 deletions(-)
->  delete mode 100644 arch/openrisc/include/asm/spinlock.h
->  delete mode 100644 arch/openrisc/include/asm/spinlock_types.h
-> 
-> diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-> index 0d68adf6e02b..99f0e4a4cbbd 100644
-> --- a/arch/openrisc/Kconfig
-> +++ b/arch/openrisc/Kconfig
-> @@ -30,7 +30,6 @@ config OPENRISC
->  	select HAVE_DEBUG_STACKOVERFLOW
->  	select OR1K_PIC
->  	select CPU_NO_EFFICIENT_FFS if !OPENRISC_HAVE_INST_FF1
-> -	select ARCH_USE_QUEUED_SPINLOCKS
->  	select ARCH_USE_QUEUED_RWLOCKS
->  	select OMPIC if SMP
->  	select ARCH_WANT_FRAME_POINTERS
-> diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
-> index ca5987e11053..3386b9c1c073 100644
-> --- a/arch/openrisc/include/asm/Kbuild
-> +++ b/arch/openrisc/include/asm/Kbuild
-> @@ -1,9 +1,8 @@
->  # SPDX-License-Identifier: GPL-2.0
->  generic-y += extable.h
->  generic-y += kvm_para.h
-> -generic-y += mcs_spinlock.h
-> -generic-y += qspinlock_types.h
-> -generic-y += qspinlock.h
-> +generic-y += spinlock_types.h
-> +generic-y += spinlock.h
->  generic-y += qrwlock_types.h
->  generic-y += qrwlock.h
->  generic-y += user.h
-> diff --git a/arch/openrisc/include/asm/spinlock.h b/arch/openrisc/include/asm/spinlock.h
-> deleted file mode 100644
-> index 264944a71535..000000000000
-> --- a/arch/openrisc/include/asm/spinlock.h
-> +++ /dev/null
-> @@ -1,27 +0,0 @@
-> -/* SPDX-License-Identifier: GPL-2.0-or-later */
-> -/*
-> - * OpenRISC Linux
-> - *
-> - * Linux architectural port borrowing liberally from similar works of
-> - * others.  All original copyrights apply as per the original source
-> - * declaration.
-> - *
-> - * OpenRISC implementation:
-> - * Copyright (C) 2003 Matjaz Breskvar <phoenix@bsemi.com>
-> - * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
-> - * et al.
-> - */
-> -
-> -#ifndef __ASM_OPENRISC_SPINLOCK_H
-> -#define __ASM_OPENRISC_SPINLOCK_H
-> -
-> -#include <asm/qspinlock.h>
-> -
-> -#include <asm/qrwlock.h>
-> -
-> -#define arch_spin_relax(lock)	cpu_relax()
-> -#define arch_read_relax(lock)	cpu_relax()
-> -#define arch_write_relax(lock)	cpu_relax()
-> -
-> -
-> -#endif
-> diff --git a/arch/openrisc/include/asm/spinlock_types.h b/arch/openrisc/include/asm/spinlock_types.h
-> deleted file mode 100644
-> index 7c6fb1208c88..000000000000
-> --- a/arch/openrisc/include/asm/spinlock_types.h
-> +++ /dev/null
-> @@ -1,7 +0,0 @@
-> -#ifndef _ASM_OPENRISC_SPINLOCK_TYPES_H
-> -#define _ASM_OPENRISC_SPINLOCK_TYPES_H
-> -
-> -#include <asm/qspinlock_types.h>
-> -#include <asm/qrwlock_types.h>
-> -
-> -#endif /* _ASM_OPENRISC_SPINLOCK_TYPES_H */
+In order to measure the boot process, the timer should be switched on as
+early in boot as possible. This is necessary so that by the time the
+setup code reaches random_init(), get_cycles() (by way of
+random_get_entropy()) returns non-zero, indicating that it is actually
+capable of counting. So this commit enables the timer immediately upon
+booting up. As well, the commit define the get_cycles macro, like the
+previous patches in this series, so that generic code is aware that it's
+implemented by the platform, as is done on other archs.
 
-Thanks for this, a bit late but.
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Cc: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+Changes v7->v8:
+- Rather than doing get_cycles()+1 to handle the early boot case,
+  actually start the timer early in boot. This has the huge advantage of
+  properly measuring the boot sequence timing, which could be a valuable
+  source of entropy.
 
-Acked-by: Stafford Horne <shorne@gmail.com>
+ arch/openrisc/include/asm/timex.h | 1 +
+ arch/openrisc/kernel/setup.c      | 7 +++++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/arch/openrisc/include/asm/timex.h b/arch/openrisc/include/asm/timex.h
+index d52b4e536e3f..5487fa93dd9b 100644
+--- a/arch/openrisc/include/asm/timex.h
++++ b/arch/openrisc/include/asm/timex.h
+@@ -23,6 +23,7 @@ static inline cycles_t get_cycles(void)
+ {
+ 	return mfspr(SPR_TTCR);
+ }
++#define get_cycles get_cycles
+ 
+ /* This isn't really used any more */
+ #define CLOCK_TICK_RATE 1000
+diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
+index 0cd04d936a7a..1cb7c1770a17 100644
+--- a/arch/openrisc/kernel/setup.c
++++ b/arch/openrisc/kernel/setup.c
+@@ -220,6 +220,13 @@ void __init setup_cpuinfo(void)
+ 
+ void __init or1k_early_setup(void *fdt)
+ {
++	/* Start the TTCR as early as possible, so that the RNG can make use of
++	 * measurements of boot time from the earliest opportunity. Especially
++	 * important is that the TTCR does not return zero by the time we reach
++	 * rand_initialize().
++	 */
++	mtspr(SPR_TTMR, SPR_TTMR_CR);
++
+ 	if (fdt)
+ 		pr_info("FDT at %p\n", fdt);
+ 	else {
+-- 
+2.35.1
 
