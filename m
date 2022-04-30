@@ -1,73 +1,84 @@
-From: Jason A. Donenfeld <Jason@zx2c4.com>
-Date: Sun,  1 May 2022 00:42:40 +0200
-Subject: [OpenRISC] [PATCH v9 06/21] openrisc: start CPU timer early in boot
-In-Reply-To: <CAHmME9r-=ShRomP=Nrcz-GjP4kv4e9wKHvNdAMiRui7_FSbH-A@mail.gmail.com>
-References: <CAHmME9r-=ShRomP=Nrcz-GjP4kv4e9wKHvNdAMiRui7_FSbH-A@mail.gmail.com>
-Message-ID: <20220430224240.3157636-1-Jason@zx2c4.com>
+From: Stafford Horne <shorne@gmail.com>
+Date: Sun, 1 May 2022 07:45:58 +0900
+Subject: [OpenRISC] [PATCH] openrisc: define nop command for simulator
+ reboot
+In-Reply-To: <YmqLrDfbEGP659EO@zx2c4.com>
+References: <20220428111139.1330966-1-Jason@zx2c4.com> <YmqAx31dtXCaNn7R@antec>
+ <YmqLrDfbEGP659EO@zx2c4.com>
+Message-ID: <Ym28JtltM3xzPA9Y@antec>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-In order to measure the boot process, the timer should be switched on as
-early in boot as possible. This is necessary so that by the time the
-setup code reaches random_init(), get_cycles() (by way of
-random_get_entropy()) returns non-zero, indicating that it is actually
-capable of counting. So this commit enables the timer immediately upon
-booting up. As well, the commit define the get_cycles macro, like the
-previous patches in this series, so that generic code is aware that it's
-implemented by the platform, as is done on other archs.
+On Thu, Apr 28, 2022 at 02:42:20PM +0200, Jason A. Donenfeld wrote:
+> On Thu, Apr 28, 2022 at 08:55:51PM +0900, Stafford Horne wrote:
+> > On Thu, Apr 28, 2022 at 01:11:39PM +0200, Jason A. Donenfeld wrote:
+> > > The simulator defines `l.nop 1` for shutdown, but doesn't have anything
+> > > for reboot. Use 13 for this, which is currently unused, dubbed
+> > > `NOP_REBOOT`.
+> > > 
+> > > Cc: Stafford Horne <shorne@gmail.com>
+> > > Cc: Peter Maydell <peter.maydell@linaro.org>
+> > > Link: https://lore.kernel.org/all/YmnaDUpVI5ihgvg6 at zx2c4.com/
+> > > Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> > > ---
+> > >  arch/openrisc/kernel/process.c | 2 ++
+> > >  1 file changed, 2 insertions(+)
+> > > 
+> > > diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
+> > > index 3c0c91bcdcba..4cce95fa6eb5 100644
+> > > --- a/arch/openrisc/kernel/process.c
+> > > +++ b/arch/openrisc/kernel/process.c
+> > > @@ -52,6 +52,8 @@ void machine_restart(char *cmd)
+> > >  {
+> > >  	do_kernel_restart(cmd);
+> > >  
+> > > +	__asm__("l.nop 13");
+> > > +
+> > >  	/* Give a grace period for failure to restart of 1s */
+> > >  	mdelay(1000);
+> > >  
+> > > -- 
+> > > 2.35.1
+> > 
+> > This seems fair, probably it would be good to have a comment mentioninmg what
+> > the nop is for, fyi for context these are the nop numbers used to control
+> > simulations.
+> > 
+> >     #define NOP_NOP          0x0000      /* Normal nop instruction */
+> >     #define NOP_EXIT         0x0001      /* End of simulation */
+> >     #define NOP_REPORT       0x0002      /* Simple report */
+> >     /*#define NOP_PRINTF       0x0003       Simprintf instruction (obsolete)*/
+> >     #define NOP_PUTC         0x0004      /* JPB: Simputc instruction */
+> >     #define NOP_CNT_RESET    0x0005      /* Reset statistics counters */
+> >     #define NOP_GET_TICKS    0x0006      /* JPB: Get # ticks running */
+> >     #define NOP_GET_PS       0x0007      /* JPB: Get picosecs/cycle */
+> >     #define NOP_TRACE_ON     0x0008      /* Turn on tracing */
+> >     #define NOP_TRACE_OFF    0x0009      /* Turn off tracing */
+> >     #define NOP_RANDOM       0x000a      /* Return 4 random bytes */
+> >     #define NOP_OR1KSIM      0x000b      /* Return non-zero if this is Or1ksim */
+> >     #define NOP_EXIT_SILENT  0x000c      /* End of simulation, quiet version */
+> >     /* New! */
+> >     #define NOP_RESET        0x000d      /* Reset the cpu */
+> 
+> Right, that's where I got 13 from. By the way, the .tex file only
+> mentions ones up to 11, so at first I chose 12, and then saw this file.
 
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Acked-by: Stafford Horne <shorne@gmail.com>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
----
-Changes v8->v9:
-- Use Stafford's suggested assembly in head.S instead of doing this
-  later on in C, so that the cycle counter starts very early and thus
-  "measures" boot.
+BTW, I have queued this for 5.19.
 
- arch/openrisc/include/asm/timex.h | 1 +
- arch/openrisc/kernel/head.S       | 9 +++++++++
- 2 files changed, 10 insertions(+)
+> > 
+> > I will queue this once we update the spec to define some of these, I am thinking
+> > if qemu should allow for the shutdown to work in user mode.
+> > 
+> > BTW, are you working specifically on openrisc? Or just setting up test
+> > environments for all architectures?
+> 
+> Trying to get OpenRISC up on https://build.wireguard.com/ . The other
+> architectures were simple, but OpenRISC is requiring some work...
 
-diff --git a/arch/openrisc/include/asm/timex.h b/arch/openrisc/include/asm/timex.h
-index d52b4e536e3f..5487fa93dd9b 100644
---- a/arch/openrisc/include/asm/timex.h
-+++ b/arch/openrisc/include/asm/timex.h
-@@ -23,6 +23,7 @@ static inline cycles_t get_cycles(void)
- {
- 	return mfspr(SPR_TTCR);
- }
-+#define get_cycles get_cycles
- 
- /* This isn't really used any more */
- #define CLOCK_TICK_RATE 1000
-diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
-index 15f1b38dfe03..871f4c858859 100644
---- a/arch/openrisc/kernel/head.S
-+++ b/arch/openrisc/kernel/head.S
-@@ -521,6 +521,15 @@ _start:
- 	l.ori	r3,r0,0x1
- 	l.mtspr	r0,r3,SPR_SR
- 
-+	/*
-+	 * Start the TTCR as early as possible, so that the RNG can make use of
-+	 * measurements of boot time from the earliest opportunity. Especially
-+	 * important is that the TTCR does not return zero by the time we reach
-+	 * rand_initialize().
-+	 */
-+	l.movhi r3,hi(SPR_TTMR_CR)
-+	l.mtspr r0,r3,SPR_TTMR
-+
- 	CLEAR_GPR(r1)
- 	CLEAR_GPR(r2)
- 	CLEAR_GPR(r3)
--- 
-2.35.1
+Thanks, any work is appreciated.  Now, I am going to go and replace my openVPN
+setup with wireguard.
 
+-Stafford
