@@ -1,84 +1,80 @@
-From: Stafford Horne <shorne@gmail.com>
-Date: Sun, 1 May 2022 07:45:58 +0900
-Subject: [OpenRISC] [PATCH] openrisc: define nop command for simulator
- reboot
-In-Reply-To: <YmqLrDfbEGP659EO@zx2c4.com>
-References: <20220428111139.1330966-1-Jason@zx2c4.com> <YmqAx31dtXCaNn7R@antec>
- <YmqLrDfbEGP659EO@zx2c4.com>
-Message-ID: <Ym28JtltM3xzPA9Y@antec>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
+Date: Tue,  3 May 2022 00:52:30 +0200
+Subject: [OpenRISC] [PATCH] target/openrisc: implement shutdown and reset
+ helpers
+Message-ID: <20220502225230.237369-1-Jason@zx2c4.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On Thu, Apr 28, 2022 at 02:42:20PM +0200, Jason A. Donenfeld wrote:
-> On Thu, Apr 28, 2022 at 08:55:51PM +0900, Stafford Horne wrote:
-> > On Thu, Apr 28, 2022 at 01:11:39PM +0200, Jason A. Donenfeld wrote:
-> > > The simulator defines `l.nop 1` for shutdown, but doesn't have anything
-> > > for reboot. Use 13 for this, which is currently unused, dubbed
-> > > `NOP_REBOOT`.
-> > > 
-> > > Cc: Stafford Horne <shorne@gmail.com>
-> > > Cc: Peter Maydell <peter.maydell@linaro.org>
-> > > Link: https://lore.kernel.org/all/YmnaDUpVI5ihgvg6 at zx2c4.com/
-> > > Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> > > ---
-> > >  arch/openrisc/kernel/process.c | 2 ++
-> > >  1 file changed, 2 insertions(+)
-> > > 
-> > > diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
-> > > index 3c0c91bcdcba..4cce95fa6eb5 100644
-> > > --- a/arch/openrisc/kernel/process.c
-> > > +++ b/arch/openrisc/kernel/process.c
-> > > @@ -52,6 +52,8 @@ void machine_restart(char *cmd)
-> > >  {
-> > >  	do_kernel_restart(cmd);
-> > >  
-> > > +	__asm__("l.nop 13");
-> > > +
-> > >  	/* Give a grace period for failure to restart of 1s */
-> > >  	mdelay(1000);
-> > >  
-> > > -- 
-> > > 2.35.1
-> > 
-> > This seems fair, probably it would be good to have a comment mentioninmg what
-> > the nop is for, fyi for context these are the nop numbers used to control
-> > simulations.
-> > 
-> >     #define NOP_NOP          0x0000      /* Normal nop instruction */
-> >     #define NOP_EXIT         0x0001      /* End of simulation */
-> >     #define NOP_REPORT       0x0002      /* Simple report */
-> >     /*#define NOP_PRINTF       0x0003       Simprintf instruction (obsolete)*/
-> >     #define NOP_PUTC         0x0004      /* JPB: Simputc instruction */
-> >     #define NOP_CNT_RESET    0x0005      /* Reset statistics counters */
-> >     #define NOP_GET_TICKS    0x0006      /* JPB: Get # ticks running */
-> >     #define NOP_GET_PS       0x0007      /* JPB: Get picosecs/cycle */
-> >     #define NOP_TRACE_ON     0x0008      /* Turn on tracing */
-> >     #define NOP_TRACE_OFF    0x0009      /* Turn off tracing */
-> >     #define NOP_RANDOM       0x000a      /* Return 4 random bytes */
-> >     #define NOP_OR1KSIM      0x000b      /* Return non-zero if this is Or1ksim */
-> >     #define NOP_EXIT_SILENT  0x000c      /* End of simulation, quiet version */
-> >     /* New! */
-> >     #define NOP_RESET        0x000d      /* Reset the cpu */
-> 
-> Right, that's where I got 13 from. By the way, the .tex file only
-> mentions ones up to 11, so at first I chose 12, and then saw this file.
+OpenRISC defines various nop instructions in or1k as meaning shutdown or
+reset. Implement these in TCG. This has been tested with Linux and
+confirmed to work.
 
-BTW, I have queued this for 5.19.
+Cc: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+ target/openrisc/helper.h     |  1 +
+ target/openrisc/sys_helper.c | 18 ++++++++++++++++++
+ target/openrisc/translate.c  |  1 +
+ 3 files changed, 20 insertions(+)
 
-> > 
-> > I will queue this once we update the spec to define some of these, I am thinking
-> > if qemu should allow for the shutdown to work in user mode.
-> > 
-> > BTW, are you working specifically on openrisc? Or just setting up test
-> > environments for all architectures?
-> 
-> Trying to get OpenRISC up on https://build.wireguard.com/ . The other
-> architectures were simple, but OpenRISC is requiring some work...
+diff --git a/target/openrisc/helper.h b/target/openrisc/helper.h
+index d847814a28..ea3557b3f9 100644
+--- a/target/openrisc/helper.h
++++ b/target/openrisc/helper.h
+@@ -64,3 +64,4 @@ DEF_HELPER_FLAGS_1(rfe, 0, void, env)
+ /* sys */
+ DEF_HELPER_FLAGS_3(mtspr, 0, void, env, tl, tl)
+ DEF_HELPER_FLAGS_3(mfspr, TCG_CALL_NO_WG, tl, env, tl, tl)
++DEF_HELPER_1(nop, void, i32)
+diff --git a/target/openrisc/sys_helper.c b/target/openrisc/sys_helper.c
+index 48674231e7..f6249896fb 100644
+--- a/target/openrisc/sys_helper.c
++++ b/target/openrisc/sys_helper.c
+@@ -19,6 +19,7 @@
+  */
+ 
+ #include "qemu/osdep.h"
++#include "sysemu/runstate.h"
+ #include "cpu.h"
+ #include "exec/exec-all.h"
+ #include "exec/helper-proto.h"
+@@ -314,3 +315,20 @@ target_ulong HELPER(mfspr)(CPUOpenRISCState *env, target_ulong rd,
+     /* for rd is passed in, if rd unchanged, just keep it back.  */
+     return rd;
+ }
++
++void HELPER(nop)(uint32_t arg)
++{
++#ifndef CONFIG_USER_ONLY
++	switch (arg) {
++	case 0x001: /* NOP_EXIT */
++	case 0x00c: /* NOP_EXIT_SILENT */
++		qemu_system_shutdown_request(SHUTDOWN_CAUSE_GUEST_SHUTDOWN);
++		break;
++	case 0x00d: /* NOP_RESET */
++		qemu_system_reset_request(SHUTDOWN_CAUSE_GUEST_RESET);
++		break;
++	default:
++		break;
++	}
++#endif
++}
+diff --git a/target/openrisc/translate.c b/target/openrisc/translate.c
+index 7b8ad43d5f..2e4f3759d4 100644
+--- a/target/openrisc/translate.c
++++ b/target/openrisc/translate.c
+@@ -780,6 +780,7 @@ static bool trans_l_sh(DisasContext *dc, arg_store *a)
+ 
+ static bool trans_l_nop(DisasContext *dc, arg_l_nop *a)
+ {
++    gen_helper_nop(cpu_R(dc, a->k));
+     return true;
+ }
+ 
+-- 
+2.35.1
 
-Thanks, any work is appreciated.  Now, I am going to go and replace my openVPN
-setup with wireguard.
-
--Stafford
