@@ -1,80 +1,86 @@
 From: Jason A. Donenfeld <Jason@zx2c4.com>
-Date: Tue,  3 May 2022 00:52:30 +0200
-Subject: [OpenRISC] [PATCH] target/openrisc: implement shutdown and reset
- helpers
-Message-ID: <20220502225230.237369-1-Jason@zx2c4.com>
+Date: Tue,  3 May 2022 01:20:56 +0200
+Subject: [OpenRISC] [PATCH] hw/openrisc: support 4 serial ports in or1ksim
+Message-ID: <20220502232056.248292-1-Jason@zx2c4.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-OpenRISC defines various nop instructions in or1k as meaning shutdown or
-reset. Implement these in TCG. This has been tested with Linux and
-confirmed to work.
+The 8250 serial controller supports 4 serial ports, so wire them all up,
+so that we can have more than one basic I/O channel.
 
 Cc: Stafford Horne <shorne@gmail.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 ---
- target/openrisc/helper.h     |  1 +
- target/openrisc/sys_helper.c | 18 ++++++++++++++++++
- target/openrisc/translate.c  |  1 +
- 3 files changed, 20 insertions(+)
+ hw/openrisc/openrisc_sim.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/target/openrisc/helper.h b/target/openrisc/helper.h
-index d847814a28..ea3557b3f9 100644
---- a/target/openrisc/helper.h
-+++ b/target/openrisc/helper.h
-@@ -64,3 +64,4 @@ DEF_HELPER_FLAGS_1(rfe, 0, void, env)
- /* sys */
- DEF_HELPER_FLAGS_3(mtspr, 0, void, env, tl, tl)
- DEF_HELPER_FLAGS_3(mfspr, TCG_CALL_NO_WG, tl, env, tl, tl)
-+DEF_HELPER_1(nop, void, i32)
-diff --git a/target/openrisc/sys_helper.c b/target/openrisc/sys_helper.c
-index 48674231e7..f6249896fb 100644
---- a/target/openrisc/sys_helper.c
-+++ b/target/openrisc/sys_helper.c
-@@ -19,6 +19,7 @@
-  */
+diff --git a/hw/openrisc/openrisc_sim.c b/hw/openrisc/openrisc_sim.c
+index bf434e9737..fe07db1cc5 100644
+--- a/hw/openrisc/openrisc_sim.c
++++ b/hw/openrisc/openrisc_sim.c
+@@ -71,6 +71,10 @@ enum {
+     OR1KSIM_ETHOC_IRQ = 4,
+ };
  
- #include "qemu/osdep.h"
-+#include "sysemu/runstate.h"
- #include "cpu.h"
- #include "exec/exec-all.h"
- #include "exec/helper-proto.h"
-@@ -314,3 +315,20 @@ target_ulong HELPER(mfspr)(CPUOpenRISCState *env, target_ulong rd,
-     /* for rd is passed in, if rd unchanged, just keep it back.  */
-     return rd;
- }
++enum {
++    OR1KSIM_UART_COUNT = 4
++};
 +
-+void HELPER(nop)(uint32_t arg)
-+{
-+#ifndef CONFIG_USER_ONLY
-+	switch (arg) {
-+	case 0x001: /* NOP_EXIT */
-+	case 0x00c: /* NOP_EXIT_SILENT */
-+		qemu_system_shutdown_request(SHUTDOWN_CAUSE_GUEST_SHUTDOWN);
-+		break;
-+	case 0x00d: /* NOP_RESET */
-+		qemu_system_reset_request(SHUTDOWN_CAUSE_GUEST_RESET);
-+		break;
-+	default:
-+		break;
-+	}
-+#endif
-+}
-diff --git a/target/openrisc/translate.c b/target/openrisc/translate.c
-index 7b8ad43d5f..2e4f3759d4 100644
---- a/target/openrisc/translate.c
-+++ b/target/openrisc/translate.c
-@@ -780,6 +780,7 @@ static bool trans_l_sh(DisasContext *dc, arg_store *a)
+ static const struct MemmapEntry {
+     hwaddr base;
+     hwaddr size;
+@@ -239,11 +243,13 @@ static void openrisc_sim_ompic_init(Or1ksimState *state, hwaddr base,
  
- static bool trans_l_nop(DisasContext *dc, arg_l_nop *a)
+ static void openrisc_sim_serial_init(Or1ksimState *state, hwaddr base,
+                                      hwaddr size, int num_cpus,
+-                                     OpenRISCCPU *cpus[], int irq_pin)
++                                     OpenRISCCPU *cpus[], int irq_pin,
++                                     int uart_idx)
  {
-+    gen_helper_nop(cpu_R(dc, a->k));
-     return true;
+     void *fdt = state->fdt;
+     char *nodename;
+     qemu_irq serial_irq;
++    char alias[sizeof("uart0")];
+     int i;
+ 
+     if (num_cpus > 1) {
+@@ -258,7 +264,7 @@ static void openrisc_sim_serial_init(Or1ksimState *state, hwaddr base,
+         serial_irq = get_cpu_irq(cpus, 0, irq_pin);
+     }
+     serial_mm_init(get_system_memory(), base, 0, serial_irq, 115200,
+-                   serial_hd(0), DEVICE_NATIVE_ENDIAN);
++                   serial_hd(OR1KSIM_UART_COUNT - uart_idx - 1), DEVICE_NATIVE_ENDIAN);
+ 
+     /* Add device tree node for serial. */
+     nodename = g_strdup_printf("/serial@%" HWADDR_PRIx, base);
+@@ -271,7 +277,8 @@ static void openrisc_sim_serial_init(Or1ksimState *state, hwaddr base,
+ 
+     /* The /chosen node is created during fdt creation. */
+     qemu_fdt_setprop_string(fdt, "/chosen", "stdout-path", nodename);
+-    qemu_fdt_setprop_string(fdt, "/aliases", "uart0", nodename);
++    snprintf(alias, sizeof(alias), "uart%d", uart_idx);
++    qemu_fdt_setprop_string(fdt, "/aliases", alias, nodename);
+     g_free(nodename);
  }
  
+@@ -414,9 +421,11 @@ static void openrisc_sim_init(MachineState *machine)
+                                 smp_cpus, cpus, OR1KSIM_OMPIC_IRQ);
+     }
+ 
+-    openrisc_sim_serial_init(state, or1ksim_memmap[OR1KSIM_UART].base,
+-                             or1ksim_memmap[OR1KSIM_UART].size, smp_cpus, cpus,
+-                             OR1KSIM_UART_IRQ);
++    for (n = 0; n < OR1KSIM_UART_COUNT; ++n)
++            openrisc_sim_serial_init(state, or1ksim_memmap[OR1KSIM_UART].base +
++                                            or1ksim_memmap[OR1KSIM_UART].size * n,
++                                     or1ksim_memmap[OR1KSIM_UART].size, smp_cpus, cpus,
++                                     OR1KSIM_UART_IRQ, n);
+ 
+     load_addr = openrisc_load_kernel(ram_size, kernel_filename);
+     if (load_addr > 0) {
 -- 
 2.35.1
 
