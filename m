@@ -1,24 +1,34 @@
-From: Richard Henderson <richard.henderson@linaro.org>
-Date: Mon, 2 May 2022 16:59:47 -0700
-Subject: [OpenRISC] [PATCH] hw/openrisc: use right OMPIC size variable
-In-Reply-To: <20220502232800.259036-1-Jason@zx2c4.com>
-References: <20220502232800.259036-1-Jason@zx2c4.com>
-Message-ID: <c6d3a823-b9a4-411a-b4b8-5fb1f1c9c214@linaro.org>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
+Date: Tue, 3 May 2022 10:54:41 +0200
+Subject: [OpenRISC] [PATCH] target/openrisc: implement shutdown and
+ reset helpers
+In-Reply-To: <b1cf3942-115c-bca3-81cf-1f7bfd66dc5a@linaro.org>
+References: <20220502225230.237369-1-Jason@zx2c4.com>
+ <b1cf3942-115c-bca3-81cf-1f7bfd66dc5a@linaro.org>
+Message-ID: <YnDt0YZK3aG3y8Tl@zx2c4.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: openrisc@lists.librecores.org
 
-On 5/2/22 16:28, Jason A. Donenfeld wrote:
-> This appears to be a copy and paste error. The UART size was used
-> instead of the much smaller OMPIC size.
+On Mon, May 02, 2022 at 04:57:43PM -0700, Richard Henderson wrote:
+> On 5/2/22 15:52, Jason A. Donenfeld wrote:
+> > OpenRISC defines various nop instructions in or1k as meaning shutdown or
+> > reset. Implement these in TCG. This has been tested with Linux and
+> > confirmed to work.
 > 
-> Signed-off-by: Jason A. Donenfeld<Jason@zx2c4.com>
-> ---
->   hw/openrisc/openrisc_sim.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
+> No, OpenRISC does not define various nop instructions, etc.
+> 
+> OpenRISC defines a Power Management Register to handle doze and suspend; there is no 
+> specification for shutdown or reset.
+> 
+> See https://openrisc.io/architecture
 
-Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
 
-r~
+Stafford is in the process of documenting/spec'ing the nop stuff.
+
+> 
+> 
+> r~
+> 
