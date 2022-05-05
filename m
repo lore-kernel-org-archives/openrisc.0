@@ -1,29 +1,38 @@
-From: Jason A. Donenfeld <Jason@zx2c4.com>
-Date: Thu, 5 May 2022 01:19:57 +0200
-Subject: [PATCH] openrisc: remove bogus nops and shutdowns
-In-Reply-To: <YnL9MuVLtiGWD2EV@antec>
-References: <20220504110911.283525-1-Jason@zx2c4.com> <YnL9MuVLtiGWD2EV@antec>
-Message-ID: <YnMKHdRy/GkAB+9e@zx2c4.com>
+From: Guo Ren <guoren@kernel.org>
+Date: Thu, 5 May 2022 11:20:44 +0800
+Subject: [PATCH v4 6/7] RISC-V: Move to queued RW locks
+In-Reply-To: <3100713.5fSG56mABF@diego>
+References: <20220430153626.30660-1-palmer@rivosinc.com>
+ <20220430153626.30660-7-palmer@rivosinc.com>
+ <3100713.5fSG56mABF@diego>
+Message-ID: <CAJF2gTRspLiaSExBMOXODTokhBofUXrF7sKAT8wp-XnKf3VJ=g@mail.gmail.com>
 List-Id: <openrisc.lists.librecores.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 To: openrisc@lists.librecores.org
 
-On Thu, May 05, 2022 at 07:24:50AM +0900, Stafford Horne wrote:
-> On Wed, May 04, 2022 at 01:09:11PM +0200, Jason A. Donenfeld wrote:
-> > Nop 42 is some leftover debugging thing by the looks of it. Nop 1 will
-> > shut down the simulator, which isn't what we want, since it makes it
-> > possible to handle errors.
-> 
-> Do you mean impossible to handler errors?
+Reviewed-by: Guo Ren <guoren@kernel.org>
 
-Whoops, yes.
+On Wed, May 4, 2022 at 8:03 PM Heiko St=C3=BCbner <heiko@sntech.de> wrote:
+>
+> Am Samstag, 30. April 2022, 17:36:25 CEST schrieb Palmer Dabbelt:
+> > From: Palmer Dabbelt <palmer@rivosinc.com>
+> >
+> > Now that we have fair spinlocks we can use the generic queued rwlocks,
+> > so we might as well do so.
+> >
+> > Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+>
+> on riscv64+riscv32 qemu, beaglev and d1-nezha
+>
+> Tested-by: Heiko Stuebner <heiko@sntech.de>
+>
+>
 
-> 
-> > Cc: Stafford Horne <shorne@gmail.com>
-> > Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> 
-> This looks good to me, I didn't add these debug's I think we can remove them.
-> 
 
+--=20
+Best Regards
+ Guo Ren
+
+ML: https://lore.kernel.org/linux-csky/
