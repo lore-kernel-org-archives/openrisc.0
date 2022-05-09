@@ -2,53 +2,53 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EBA5C4332F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E7588C433F5
 	for <openrisc@archiver.kernel.org>; Mon,  9 May 2022 22:32:35 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 7C76224913;
+	by mail.librecores.org (Postfix) with ESMTP id D1B5A248FE;
 	Tue, 10 May 2022 00:32:34 +0200 (CEST)
-Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com
- [209.85.210.175])
- by mail.librecores.org (Postfix) with ESMTPS id 156FA24919
- for <openrisc@lists.librecores.org>; Tue, 10 May 2022 00:32:32 +0200 (CEST)
-Received: by mail-pf1-f175.google.com with SMTP id j6so13409744pfe.13
- for <openrisc@lists.librecores.org>; Mon, 09 May 2022 15:32:32 -0700 (PDT)
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com
+ [209.85.214.175])
+ by mail.librecores.org (Postfix) with ESMTPS id 41E5E2490A
+ for <openrisc@lists.librecores.org>; Tue, 10 May 2022 00:32:33 +0200 (CEST)
+Received: by mail-pl1-f175.google.com with SMTP id s14so15189742plk.8
+ for <openrisc@lists.librecores.org>; Mon, 09 May 2022 15:32:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=rivosinc-com.20210112.gappssmtp.com; s=20210112;
  h=subject:date:message-id:in-reply-to:references:mime-version
  :content-transfer-encoding:cc:from:to;
- bh=2MXHg1nHEtz4YJcqPiDeGeD1CCu8R+98LObcjAIALKk=;
- b=SJNyDksBDfIy/xljFU8N94+9xDStduZbfk4JRmLuZrEJTnw4pR6x4tyOHaQX9b58/4
- 9gRdGJsoxHnnj5fhHBGLz4Ue5weaPnH1WfHru2lYGS2C7lkigvlGQvhbc+Im+y9IGfMI
- 9Oi8B2OBK/KLbFctypQdxCNxtMMYcL06SeUAQUgKm6AEblKLByUQd+iI8j8r4hg+7frq
- TZfHEcdlPH2DTYQz04dU+Lj/tt2JOEIwqRE4pt6YLIOZNGwgOb0AZSDv90KM+5WaIvOG
- fdEyTwI74cuLZZaGNxtOe3XJIDxtge7EeO9OyGQrM/YPvrcN3pNdLKenYoxn3lsj5UZk
- uFSg==
+ bh=Z3KkgMzaCsKED3+22qU0jRs/X/gxCeKEBc73aw1loXs=;
+ b=5vPCveToxUi4ttmh8DPCDy3ak9rPZYrBa1vVaCCIrmS6NeHkVk5bHBq8IVjFktNkNG
+ AvYErCFvU0+hXObXVqDU8qyV4bDHC4+o8GCF5qmDERdGC4UhP8jFXa9zTk7wsrCBS3Ur
+ hYBnHEgjZeYUJO6BBpoZJiINRKpgW38BN9zIXLfpOOD6MVlW+Mj9iXUaiyV7h5ASvLqZ
+ hVURqRgWeSjGJCcO3SUgK9XiJKniI+25OVH+/6Lr3S1gUjbadvAJMRYa/PDQ436HjsAT
+ QrveNwpwVx4a+V1WgcLhb2cl1ZogdB/YI2keetilTCYkVwt47kvVoj8unXjX9rKFjbkg
+ CWsA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding:cc:from:to;
- bh=2MXHg1nHEtz4YJcqPiDeGeD1CCu8R+98LObcjAIALKk=;
- b=TgzkOlqxxt/yNltz3tdMMYhHslOjGjBTjOoIxJmxc0r1HXDfPhyfPWugv/gaq24aT0
- Oo5UVToygyP+KAcyz/7BAfIW1G4OXr2rc6aYx0ChVzCVItY6z1Ye/N77jeDZC4V2756t
- opcGuVSiID2oa2FLxcgCG1Ppx7lCdlDFF5IPVZRErQP13y3oHL+Ariq6qC3KgKJdXeow
- +woYtK5ycZcT6cj5OHH61M7lPZXtl7YAqIwZ48l1P7osMFZHCI5SMqjgSu+qrLfDimNT
- 0NwEvpqlLcbQXUZQyFZXcKVyzo2DWLF647B/nGr+VTC0k+JK6rj/1g2PYE1xzweqAe+Q
- Zs5Q==
-X-Gm-Message-State: AOAM531gg5RWVtpz4aFV1pBqBGvg9Y74nWevuKI3bgXHMluP6HS6yd0Q
- euW8KnuulARkBGq8X9moK/Jv4g==
-X-Google-Smtp-Source: ABdhPJyFc9YI7DdX/uV+BDVfSMLOd/pBGy6EZDj4wH/qE+g163tG1PYUrufgfLqUrsRlHs4sY7lu5w==
-X-Received: by 2002:a62:b60f:0:b0:508:2a61:2c8b with SMTP id
- j15-20020a62b60f000000b005082a612c8bmr17904643pff.2.1652135550618; 
- Mon, 09 May 2022 15:32:30 -0700 (PDT)
+ bh=Z3KkgMzaCsKED3+22qU0jRs/X/gxCeKEBc73aw1loXs=;
+ b=obVJhN1nIQBjUIwfyJfnXjIXMk0n9CbVSYkhzwNLDfGiOb0lP0+DXNHSQiZ/pvNjAk
+ 1oTwqFAxzGiwzLpBL9kjJ0iy+MsSMWxcEJJCduK9CVVDvz/Gx9nODfvSAwLCm8sMThDS
+ fJr00yrd7S1omNcBUeUIHAS+EUPSIBDuwk7D0RlEZdyB/ZlJMawl8x5M2On+TJH/bNym
+ Pa0Zd9H/kPKhvOkKcNro6JSCL+fidTNxanqYiNivjDDovaEPk9tyR201jKKKKLlMLrcE
+ nae/nqdJjyG5JQADWftjZosjFZj52GV86vqkmQDIkKI97SDTukG1lfkQcC3j4tMx9vex
+ mWcQ==
+X-Gm-Message-State: AOAM533LttYuvlAQCdEXEYv7ZmiYezP590yaKvw6AoAZV4q357MBWzzq
+ 9sG82mxvbPV6sWoI7EY6gEPxOw==
+X-Google-Smtp-Source: ABdhPJw7JCborLgVxycE/OcVHLhZbdmXu7Ia1T+hDGVVlKqCVv1PQUH1RupjT9FzRxe0AXir7lMqhA==
+X-Received: by 2002:a17:90a:a385:b0:1cb:bfa8:ae01 with SMTP id
+ x5-20020a17090aa38500b001cbbfa8ae01mr19875610pjp.116.1652135551812; 
+ Mon, 09 May 2022 15:32:31 -0700 (PDT)
 Received: from localhost (76-210-143-223.lightspeed.sntcca.sbcglobal.net.
  [76.210.143.223]) by smtp.gmail.com with ESMTPSA id
- d2-20020a170902f14200b0015e8d4eb204sm398533plb.78.2022.05.09.15.32.29
+ r5-20020a170902ea4500b0015eddb8e450sm412122plg.25.2022.05.09.15.32.31
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 09 May 2022 15:32:30 -0700 (PDT)
-Subject: [PATCH v5 6/7] RISC-V: Move to queued RW locks
-Date: Mon,  9 May 2022 15:29:55 -0700
-Message-Id: <20220509222956.2886-7-palmer@rivosinc.com>
+ Mon, 09 May 2022 15:32:31 -0700 (PDT)
+Subject: [PATCH v5 7/7] csky: Move to generic ticket-spinlock
+Date: Mon,  9 May 2022 15:29:56 -0700
+Message-Id: <20220509222956.2886-8-palmer@rivosinc.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220509222956.2886-1-palmer@rivosinc.com>
 References: <20220509222956.2886-1-palmer@rivosinc.com>
@@ -68,11 +68,12 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: peterz@infradead.org, Palmer Dabbelt <palmer@rivosinc.com>,
- guoren@kernel.org, jszhang@kernel.org, linux-riscv@lists.infradead.org,
- Will Deacon <will@kernel.org>, jonas@southpole.se, linux-csky@vger.kernel.org,
- mingo@redhat.com, longman@redhat.com, linux-arch@vger.kernel.org,
- aou@eecs.berkeley.edu, Arnd Bergmann <arnd@arndb.de>, boqun.feng@gmail.com,
+Cc: Guo Ren <guoren@linux.alibaba.com>, peterz@infradead.org,
+ Palmer Dabbelt <palmer@rivosinc.com>, guoren@kernel.org, jszhang@kernel.org,
+ linux-riscv@lists.infradead.org, Will Deacon <will@kernel.org>,
+ jonas@southpole.se, linux-csky@vger.kernel.org, mingo@redhat.com,
+ longman@redhat.com, linux-arch@vger.kernel.org, aou@eecs.berkeley.edu,
+ Arnd Bergmann <arnd@arndb.de>, boqun.feng@gmail.com,
  openrisc@lists.librecores.org, Paul Walmsley <paul.walmsley@sifive.com>,
  Greg KH <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
  Palmer Dabbelt <palmer@dabbelt.com>, sudipm.mukherjee@gmail.com,
@@ -80,182 +81,165 @@ Cc: peterz@infradead.org, Palmer Dabbelt <palmer@rivosinc.com>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-From: Palmer Dabbelt <palmer@rivosinc.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-Now that we have fair spinlocks we can use the generic queued rwlocks,
-so we might as well do so.
+There is no benefit from custom implementation for ticket-spinlock,
+so move to generic ticket-spinlock for easy maintenance.
 
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Reviewed-by: Arnd Bergmann <arnd@arndb.de
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 ---
- arch/riscv/Kconfig                      |  1 +
- arch/riscv/include/asm/Kbuild           |  2 +
- arch/riscv/include/asm/spinlock.h       | 99 -------------------------
- arch/riscv/include/asm/spinlock_types.h | 24 ------
- 4 files changed, 3 insertions(+), 123 deletions(-)
- delete mode 100644 arch/riscv/include/asm/spinlock.h
- delete mode 100644 arch/riscv/include/asm/spinlock_types.h
+ arch/csky/include/asm/Kbuild           |  3 +
+ arch/csky/include/asm/spinlock.h       | 89 --------------------------
+ arch/csky/include/asm/spinlock_types.h | 27 --------
+ 3 files changed, 3 insertions(+), 116 deletions(-)
+ delete mode 100644 arch/csky/include/asm/spinlock.h
+ delete mode 100644 arch/csky/include/asm/spinlock_types.h
 
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index 00fd9c548f26..f8a55d94016d 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -39,6 +39,7 @@ config RISCV
- 	select ARCH_SUPPORTS_DEBUG_PAGEALLOC if MMU
- 	select ARCH_SUPPORTS_HUGETLBFS if MMU
- 	select ARCH_USE_MEMTEST
-+	select ARCH_USE_QUEUED_RWLOCKS
- 	select ARCH_WANT_DEFAULT_TOPDOWN_MMAP_LAYOUT if MMU
- 	select ARCH_WANT_FRAME_POINTERS
- 	select ARCH_WANT_GENERAL_HUGETLB
-diff --git a/arch/riscv/include/asm/Kbuild b/arch/riscv/include/asm/Kbuild
-index c3f229ae8033..504f8b7e72d4 100644
---- a/arch/riscv/include/asm/Kbuild
-+++ b/arch/riscv/include/asm/Kbuild
-@@ -3,6 +3,8 @@ generic-y += early_ioremap.h
- generic-y += flat.h
+diff --git a/arch/csky/include/asm/Kbuild b/arch/csky/include/asm/Kbuild
+index 888248235c23..103207a58f97 100644
+--- a/arch/csky/include/asm/Kbuild
++++ b/arch/csky/include/asm/Kbuild
+@@ -3,7 +3,10 @@ generic-y += asm-offsets.h
+ generic-y += extable.h
+ generic-y += gpio.h
  generic-y += kvm_para.h
- generic-y += parport.h
 +generic-y += spinlock.h
 +generic-y += spinlock_types.h
  generic-y += qrwlock.h
- generic-y += qrwlock_types.h
++generic-y += qrwlock_types.h
+ generic-y += parport.h
  generic-y += user.h
-diff --git a/arch/riscv/include/asm/spinlock.h b/arch/riscv/include/asm/spinlock.h
+ generic-y += vmlinux.lds.h
+diff --git a/arch/csky/include/asm/spinlock.h b/arch/csky/include/asm/spinlock.h
 deleted file mode 100644
-index 88a4d5d0d98a..000000000000
---- a/arch/riscv/include/asm/spinlock.h
+index 69f5aa249c5f..000000000000
+--- a/arch/csky/include/asm/spinlock.h
 +++ /dev/null
-@@ -1,99 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0-only */
+@@ -1,89 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-
+-#ifndef __ASM_CSKY_SPINLOCK_H
+-#define __ASM_CSKY_SPINLOCK_H
+-
+-#include <linux/spinlock_types.h>
+-#include <asm/barrier.h>
+-
 -/*
-- * Copyright (C) 2015 Regents of the University of California
-- * Copyright (C) 2017 SiFive
+- * Ticket-based spin-locking.
 - */
--
--#ifndef _ASM_RISCV_SPINLOCK_H
--#define _ASM_RISCV_SPINLOCK_H
--
--/* This is horible, but the whole file is going away in the next commit. */
--#define __ASM_GENERIC_QRWLOCK_H
--
--#include <linux/kernel.h>
--#include <asm/current.h>
--#include <asm/fence.h>
--#include <asm-generic/spinlock.h>
--
--static inline void arch_read_lock(arch_rwlock_t *lock)
+-static inline void arch_spin_lock(arch_spinlock_t *lock)
 -{
--	int tmp;
+-	arch_spinlock_t lockval;
+-	u32 ticket_next = 1 << TICKET_NEXT;
+-	u32 *p = &lock->lock;
+-	u32 tmp;
 -
--	__asm__ __volatile__(
--		"1:	lr.w	%1, %0\n"
--		"	bltz	%1, 1b\n"
--		"	addi	%1, %1, 1\n"
--		"	sc.w	%1, %1, %0\n"
--		"	bnez	%1, 1b\n"
--		RISCV_ACQUIRE_BARRIER
--		: "+A" (lock->lock), "=&r" (tmp)
--		:: "memory");
+-	asm volatile (
+-		"1:	ldex.w		%0, (%2) \n"
+-		"	mov		%1, %0	 \n"
+-		"	add		%0, %3	 \n"
+-		"	stex.w		%0, (%2) \n"
+-		"	bez		%0, 1b   \n"
+-		: "=&r" (tmp), "=&r" (lockval)
+-		: "r"(p), "r"(ticket_next)
+-		: "cc");
+-
+-	while (lockval.tickets.next != lockval.tickets.owner)
+-		lockval.tickets.owner = READ_ONCE(lock->tickets.owner);
+-
+-	smp_mb();
 -}
 -
--static inline void arch_write_lock(arch_rwlock_t *lock)
+-static inline int arch_spin_trylock(arch_spinlock_t *lock)
 -{
--	int tmp;
+-	u32 tmp, contended, res;
+-	u32 ticket_next = 1 << TICKET_NEXT;
+-	u32 *p = &lock->lock;
 -
--	__asm__ __volatile__(
--		"1:	lr.w	%1, %0\n"
--		"	bnez	%1, 1b\n"
--		"	li	%1, -1\n"
--		"	sc.w	%1, %1, %0\n"
--		"	bnez	%1, 1b\n"
--		RISCV_ACQUIRE_BARRIER
--		: "+A" (lock->lock), "=&r" (tmp)
--		:: "memory");
+-	do {
+-		asm volatile (
+-		"	ldex.w		%0, (%3)   \n"
+-		"	movi		%2, 1	   \n"
+-		"	rotli		%1, %0, 16 \n"
+-		"	cmpne		%1, %0     \n"
+-		"	bt		1f         \n"
+-		"	movi		%2, 0	   \n"
+-		"	add		%0, %0, %4 \n"
+-		"	stex.w		%0, (%3)   \n"
+-		"1:				   \n"
+-		: "=&r" (res), "=&r" (tmp), "=&r" (contended)
+-		: "r"(p), "r"(ticket_next)
+-		: "cc");
+-	} while (!res);
+-
+-	if (!contended)
+-		smp_mb();
+-
+-	return !contended;
 -}
 -
--static inline int arch_read_trylock(arch_rwlock_t *lock)
+-static inline void arch_spin_unlock(arch_spinlock_t *lock)
 -{
--	int busy;
--
--	__asm__ __volatile__(
--		"1:	lr.w	%1, %0\n"
--		"	bltz	%1, 1f\n"
--		"	addi	%1, %1, 1\n"
--		"	sc.w	%1, %1, %0\n"
--		"	bnez	%1, 1b\n"
--		RISCV_ACQUIRE_BARRIER
--		"1:\n"
--		: "+A" (lock->lock), "=&r" (busy)
--		:: "memory");
--
--	return !busy;
+-	smp_mb();
+-	WRITE_ONCE(lock->tickets.owner, lock->tickets.owner + 1);
 -}
 -
--static inline int arch_write_trylock(arch_rwlock_t *lock)
+-static inline int arch_spin_value_unlocked(arch_spinlock_t lock)
 -{
--	int busy;
--
--	__asm__ __volatile__(
--		"1:	lr.w	%1, %0\n"
--		"	bnez	%1, 1f\n"
--		"	li	%1, -1\n"
--		"	sc.w	%1, %1, %0\n"
--		"	bnez	%1, 1b\n"
--		RISCV_ACQUIRE_BARRIER
--		"1:\n"
--		: "+A" (lock->lock), "=&r" (busy)
--		:: "memory");
--
--	return !busy;
+-	return lock.tickets.owner == lock.tickets.next;
 -}
 -
--static inline void arch_read_unlock(arch_rwlock_t *lock)
+-static inline int arch_spin_is_locked(arch_spinlock_t *lock)
 -{
--	__asm__ __volatile__(
--		RISCV_RELEASE_BARRIER
--		"	amoadd.w x0, %1, %0\n"
--		: "+A" (lock->lock)
--		: "r" (-1)
--		: "memory");
+-	return !arch_spin_value_unlocked(READ_ONCE(*lock));
 -}
 -
--static inline void arch_write_unlock(arch_rwlock_t *lock)
+-static inline int arch_spin_is_contended(arch_spinlock_t *lock)
 -{
--	smp_store_release(&lock->lock, 0);
--}
+-	struct __raw_tickets tickets = READ_ONCE(lock->tickets);
 -
--#endif /* _ASM_RISCV_SPINLOCK_H */
-diff --git a/arch/riscv/include/asm/spinlock_types.h b/arch/riscv/include/asm/spinlock_types.h
+-	return (tickets.next - tickets.owner) > 1;
+-}
+-#define arch_spin_is_contended	arch_spin_is_contended
+-
+-#include <asm/qrwlock.h>
+-
+-#endif /* __ASM_CSKY_SPINLOCK_H */
+diff --git a/arch/csky/include/asm/spinlock_types.h b/arch/csky/include/asm/spinlock_types.h
 deleted file mode 100644
-index f2f9b5d7120d..000000000000
---- a/arch/riscv/include/asm/spinlock_types.h
+index db87a12c3827..000000000000
+--- a/arch/csky/include/asm/spinlock_types.h
 +++ /dev/null
-@@ -1,24 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0-only */
--/*
-- * Copyright (C) 2015 Regents of the University of California
-- */
+@@ -1,27 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
 -
--#ifndef _ASM_RISCV_SPINLOCK_TYPES_H
--#define _ASM_RISCV_SPINLOCK_TYPES_H
--
--/* This is horible, but the whole file is going away in the next commit. */
--#define __ASM_GENERIC_QRWLOCK_TYPES_H
+-#ifndef __ASM_CSKY_SPINLOCK_TYPES_H
+-#define __ASM_CSKY_SPINLOCK_TYPES_H
 -
 -#ifndef __LINUX_SPINLOCK_TYPES_RAW_H
 -# error "please don't include this file directly"
 -#endif
 -
--#include <asm-generic/spinlock_types.h>
+-#define TICKET_NEXT	16
 -
 -typedef struct {
--	volatile unsigned int lock;
--} arch_rwlock_t;
+-	union {
+-		u32 lock;
+-		struct __raw_tickets {
+-			/* little endian */
+-			u16 owner;
+-			u16 next;
+-		} tickets;
+-	};
+-} arch_spinlock_t;
 -
--#define __ARCH_RW_LOCK_UNLOCKED		{ 0 }
+-#define __ARCH_SPIN_LOCK_UNLOCKED	{ { 0 } }
 -
--#endif /* _ASM_RISCV_SPINLOCK_TYPES_H */
+-#include <asm-generic/qrwlock_types.h>
+-
+-#endif /* __ASM_CSKY_SPINLOCK_TYPES_H */
 -- 
 2.34.1
 
