@@ -2,54 +2,53 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D851C433EF
-	for <openrisc@archiver.kernel.org>; Mon,  9 May 2022 22:32:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17053C433EF
+	for <openrisc@archiver.kernel.org>; Mon,  9 May 2022 22:32:33 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 68FC82490D;
+	by mail.librecores.org (Postfix) with ESMTP id ECACC24903;
 	Tue, 10 May 2022 00:32:31 +0200 (CEST)
-Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com
- [209.85.210.180])
- by mail.librecores.org (Postfix) with ESMTPS id 5F44F2490C
- for <openrisc@lists.librecores.org>; Tue, 10 May 2022 00:32:28 +0200 (CEST)
-Received: by mail-pf1-f180.google.com with SMTP id y41so8594694pfw.12
- for <openrisc@lists.librecores.org>; Mon, 09 May 2022 15:32:28 -0700 (PDT)
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com
+ [209.85.210.174])
+ by mail.librecores.org (Postfix) with ESMTPS id 839EE2490D
+ for <openrisc@lists.librecores.org>; Tue, 10 May 2022 00:32:29 +0200 (CEST)
+Received: by mail-pf1-f174.google.com with SMTP id bo5so13420396pfb.4
+ for <openrisc@lists.librecores.org>; Mon, 09 May 2022 15:32:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=rivosinc-com.20210112.gappssmtp.com; s=20210112;
  h=subject:date:message-id:in-reply-to:references:mime-version
  :content-transfer-encoding:cc:from:to;
- bh=pWbw2Mwy88SDSkfpA4D7g/Rmsq9eS9lL/9r9k9KvO7g=;
- b=aKb0kPhWVd5eMpmlkl9NknitMxg8gh5oazT3otM1H7wNssSLITeEgVYd3fLrFpqhAN
- 6lW7y7N8edPrk+YAtulN/xaP8NiOVNXKZAi6KA0NNveYzfnxDp9ggPIafs2mYWMuEWpF
- yisEk6Vl9il9YEGMryMzMjf2wBlPJtypJNMiXj/O7kxrK4628fYPSch836eJYFLJD5Wl
- OrKTh30iRJgEMKA4TvqbYiX+DIHWjjGEmbm+VHeiIrDIZkzUjvIVMUmJT2O64m4s1rq4
- s75jC01yaX0ljYX5/96b4XICWLQpDnMGWrtzgp0A1FvhK7kRpUekOBDbUefjzvvkL2IY
- V5Zg==
+ bh=tZRB3zIhTe4/kb2F6h0EyN2enk/ffsUfIt+uwvi71Kg=;
+ b=J+qsV4sWyFVIgrDABezJovYhrW4Jzg11JZEk3WHOu3XuH7ze7t8fja6VuYB/Q9+tvp
+ hEGF1icNSsM/0iiwFW281ATk7W6c7j7aGjBVYF99/u2B+jtb1YPKidpHvOTI9Jz4Lxh0
+ 6ez184UbojY7hhrrt0T6FZE8HWD85dHmAjAnZ8oC2Zoi0XQiqEUxOtwdNZdV12X1XPpb
+ eOYtED253uK5GFiuWQ0wMSV73xWdJ5eHnN6WbBvwyOEpmAXVeAgkp/8WXuJtj+PnD01O
+ qpc9n7G8viwouPMU6f6ZYvZjxFGQ2Vre7sEym/xdvKnlQk1eXINRDKWRRUAa4P4IDS/e
+ ukRQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding:cc:from:to;
- bh=pWbw2Mwy88SDSkfpA4D7g/Rmsq9eS9lL/9r9k9KvO7g=;
- b=VDX0kV2OPw5fRIZSYE0IYFKdXeWKpZb1J5WaqHsBNkWcR48RqqaQFJegpwHVZGpoV6
- 6ecqIKOLXs5LQv0CxThZYyFRlyGCqHk1zLHY6oUWFIsZNcet+QvZpaoCgvxxqI8fLGi2
- 7Q9OckNpgnCub/fkpNmuTPG0D3VOPxWIyoV6D95AGjDkuUqogz0WMfFxLGhGIvY4cMe4
- v6CXFVRakZDuEy2t8qFwIE2s6rvffXFBfuRT9IkFh6Tz1Aqp2UjWj1Li1VIAY9y3VzEG
- 6j6RgRXEyiWhesWCtRm0Y34ryLtmU+07x6Cqt413OD+VuzZ5mfwREbTMZvFro/6Axg0K
- LVKQ==
-X-Gm-Message-State: AOAM533XEfM37XcBSDiGvDr/Jpaff/aZ2eC5SWNR3OnV+yo4Niso/3Ap
- g+Vaf5k1P355xU2u1BE2MOtrrQ==
-X-Google-Smtp-Source: ABdhPJxUc/qGM9x1mbDewFdh0f2iSebcv/MH281VDWnsTPJAYa63hm5brMdaLkqzPiol6IuhZdvYkA==
-X-Received: by 2002:a05:6a02:10d:b0:381:f4c8:ad26 with SMTP id
- bg13-20020a056a02010d00b00381f4c8ad26mr14585787pgb.135.1652135546996; 
- Mon, 09 May 2022 15:32:26 -0700 (PDT)
+ bh=tZRB3zIhTe4/kb2F6h0EyN2enk/ffsUfIt+uwvi71Kg=;
+ b=Ww/UJdck8bNJ0brjoZIEmYwp/C5qkyFyCpNk/Z80BbXf1NV8hR09df2bhU1lp9undm
+ JOZue1VU3SB9NEsSjqRioOA0HWvilQ1hQ+2n0MFnica/Wp7iUIagVp/aqGiRA6hrnJYO
+ Nld8IgYwHXZdiAip9/S8qk9TfWcwFX3vb2dVlzYj0QWp6H6rQ5mDdsOOs3CRVjRyLQHw
+ rATiNc7LTtAVUMSdg+bgLLvIG6Z1LrqmbxNhoojqYH+/LJl5EVLCm2J5zR1GRu1HNhBr
+ s9mRMr42RQ6q09LcPFkCn6RBpbdkN9IN+9BLzHxeTXMSUD8S3e8cX4TVKc/poHxnRPvp
+ 51VA==
+X-Gm-Message-State: AOAM531feDhp4d8nsUftOd8O7oi30OpKgCi5IQ6BMsKKrcinf1pw7LOi
+ vkPuBbXLfGqp6Or8sCKBRx2uKw==
+X-Google-Smtp-Source: ABdhPJwTvHuoY8QbgphQvJH1puYeHk+wgzU1cmj+NdWGbUsi4eAleYRwVAU4/MCzw+CVlQAM7BcJ9A==
+X-Received: by 2002:a63:8749:0:b0:3c6:aa1d:bd3c with SMTP id
+ i70-20020a638749000000b003c6aa1dbd3cmr7379146pge.403.1652135548093; 
+ Mon, 09 May 2022 15:32:28 -0700 (PDT)
 Received: from localhost (76-210-143-223.lightspeed.sntcca.sbcglobal.net.
  [76.210.143.223]) by smtp.gmail.com with ESMTPSA id
- w19-20020a1709029a9300b0015e8d4eb1ddsm407885plp.39.2022.05.09.15.32.26
+ 20-20020a630d54000000b003c14af50627sm9008129pgn.63.2022.05.09.15.32.27
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 09 May 2022 15:32:26 -0700 (PDT)
-Subject: [PATCH v5 3/7] asm-generic: qrwlock: Document the spinlock fairness
- requirements
-Date: Mon,  9 May 2022 15:29:52 -0700
-Message-Id: <20220509222956.2886-4-palmer@rivosinc.com>
+ Mon, 09 May 2022 15:32:27 -0700 (PDT)
+Subject: [PATCH v5 4/7] openrisc: Move to ticket-spinlock
+Date: Mon,  9 May 2022 15:29:53 -0700
+Message-Id: <20220509222956.2886-5-palmer@rivosinc.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220509222956.2886-1-palmer@rivosinc.com>
 References: <20220509222956.2886-1-palmer@rivosinc.com>
@@ -81,32 +80,98 @@ Cc: peterz@infradead.org, Palmer Dabbelt <palmer@rivosinc.com>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-From: Palmer Dabbelt <palmer@rivosinc.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-I could only find the fairness requirements documented as the C code,
-this calls them out in a comment just to be a bit more explicit.
+We have no indications that openrisc meets the qspinlock requirements,
+so move to ticket-spinlock as that is more likey to be correct.
 
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Stafford Horne <shorne@gmail.com>
 Reviewed-by: Arnd Bergmann <arnd@arndb.de
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 ---
- include/asm-generic/qrwlock.h | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/openrisc/Kconfig                      |  1 -
+ arch/openrisc/include/asm/Kbuild           |  5 ++--
+ arch/openrisc/include/asm/spinlock.h       | 27 ----------------------
+ arch/openrisc/include/asm/spinlock_types.h |  7 ------
+ 4 files changed, 2 insertions(+), 38 deletions(-)
+ delete mode 100644 arch/openrisc/include/asm/spinlock.h
+ delete mode 100644 arch/openrisc/include/asm/spinlock_types.h
 
-diff --git a/include/asm-generic/qrwlock.h b/include/asm-generic/qrwlock.h
-index 7ae0ece07b4e..24ae09c1db9f 100644
---- a/include/asm-generic/qrwlock.h
-+++ b/include/asm-generic/qrwlock.h
-@@ -2,6 +2,10 @@
- /*
-  * Queue read/write lock
-  *
-+ * These use generic atomic and locking routines, but depend on a fair spinlock
-+ * implementation in order to be fair themselves.  The implementation in
-+ * asm-generic/spinlock.h meets these requirements.
-+ *
-  * (C) Copyright 2013-2014 Hewlett-Packard Development Company, L.P.
-  *
-  * Authors: Waiman Long <waiman.long@hp.com>
+diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+index 0d68adf6e02b..99f0e4a4cbbd 100644
+--- a/arch/openrisc/Kconfig
++++ b/arch/openrisc/Kconfig
+@@ -30,7 +30,6 @@ config OPENRISC
+ 	select HAVE_DEBUG_STACKOVERFLOW
+ 	select OR1K_PIC
+ 	select CPU_NO_EFFICIENT_FFS if !OPENRISC_HAVE_INST_FF1
+-	select ARCH_USE_QUEUED_SPINLOCKS
+ 	select ARCH_USE_QUEUED_RWLOCKS
+ 	select OMPIC if SMP
+ 	select ARCH_WANT_FRAME_POINTERS
+diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
+index ca5987e11053..3386b9c1c073 100644
+--- a/arch/openrisc/include/asm/Kbuild
++++ b/arch/openrisc/include/asm/Kbuild
+@@ -1,9 +1,8 @@
+ # SPDX-License-Identifier: GPL-2.0
+ generic-y += extable.h
+ generic-y += kvm_para.h
+-generic-y += mcs_spinlock.h
+-generic-y += qspinlock_types.h
+-generic-y += qspinlock.h
++generic-y += spinlock_types.h
++generic-y += spinlock.h
+ generic-y += qrwlock_types.h
+ generic-y += qrwlock.h
+ generic-y += user.h
+diff --git a/arch/openrisc/include/asm/spinlock.h b/arch/openrisc/include/asm/spinlock.h
+deleted file mode 100644
+index 264944a71535..000000000000
+--- a/arch/openrisc/include/asm/spinlock.h
++++ /dev/null
+@@ -1,27 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-or-later */
+-/*
+- * OpenRISC Linux
+- *
+- * Linux architectural port borrowing liberally from similar works of
+- * others.  All original copyrights apply as per the original source
+- * declaration.
+- *
+- * OpenRISC implementation:
+- * Copyright (C) 2003 Matjaz Breskvar <phoenix@bsemi.com>
+- * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
+- * et al.
+- */
+-
+-#ifndef __ASM_OPENRISC_SPINLOCK_H
+-#define __ASM_OPENRISC_SPINLOCK_H
+-
+-#include <asm/qspinlock.h>
+-
+-#include <asm/qrwlock.h>
+-
+-#define arch_spin_relax(lock)	cpu_relax()
+-#define arch_read_relax(lock)	cpu_relax()
+-#define arch_write_relax(lock)	cpu_relax()
+-
+-
+-#endif
+diff --git a/arch/openrisc/include/asm/spinlock_types.h b/arch/openrisc/include/asm/spinlock_types.h
+deleted file mode 100644
+index 7c6fb1208c88..000000000000
+--- a/arch/openrisc/include/asm/spinlock_types.h
++++ /dev/null
+@@ -1,7 +0,0 @@
+-#ifndef _ASM_OPENRISC_SPINLOCK_TYPES_H
+-#define _ASM_OPENRISC_SPINLOCK_TYPES_H
+-
+-#include <asm/qspinlock_types.h>
+-#include <asm/qrwlock_types.h>
+-
+-#endif /* _ASM_OPENRISC_SPINLOCK_TYPES_H */
 -- 
 2.34.1
 
