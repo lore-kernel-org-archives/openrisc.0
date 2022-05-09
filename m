@@ -2,54 +2,54 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89EF5C43219
-	for <openrisc@archiver.kernel.org>; Mon,  9 May 2022 22:32:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D851C433EF
+	for <openrisc@archiver.kernel.org>; Mon,  9 May 2022 22:32:32 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 9943C24911;
-	Tue, 10 May 2022 00:32:30 +0200 (CEST)
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com
- [209.85.214.177])
- by mail.librecores.org (Postfix) with ESMTPS id 613C42490D
- for <openrisc@lists.librecores.org>; Tue, 10 May 2022 00:32:27 +0200 (CEST)
-Received: by mail-pl1-f177.google.com with SMTP id n18so15184549plg.5
- for <openrisc@lists.librecores.org>; Mon, 09 May 2022 15:32:27 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 68FC82490D;
+	Tue, 10 May 2022 00:32:31 +0200 (CEST)
+Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com
+ [209.85.210.180])
+ by mail.librecores.org (Postfix) with ESMTPS id 5F44F2490C
+ for <openrisc@lists.librecores.org>; Tue, 10 May 2022 00:32:28 +0200 (CEST)
+Received: by mail-pf1-f180.google.com with SMTP id y41so8594694pfw.12
+ for <openrisc@lists.librecores.org>; Mon, 09 May 2022 15:32:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=rivosinc-com.20210112.gappssmtp.com; s=20210112;
  h=subject:date:message-id:in-reply-to:references:mime-version
  :content-transfer-encoding:cc:from:to;
- bh=08o9m5Hkc1DwgHXwEhIgYa1O84W5gO7UU5kFrcD0IRY=;
- b=Ivfni2BR3drjv+XoR/hBXUrgG62qyubSK3Ofq7nGB2uI3j7DeKiw7jRrhjYIPRgbiL
- fX9foK05Y7Jog/gVmvwsgPmkiISwecG0vWlaNbZPsib7PJe/U0FrjNlpjZeqJTMnA4Ud
- xD2a5Ri7G1reYFJHWM8J0ABchfZtYYpFEJm7EacP6oMYWcpyn/f0Z1zDck1YxAxeMMcF
- un3MVzMWYPTLkAP7W6QyxETK9WwzzVdbB+7M0G8w56mYUpSu+iAgFJ/e7C0edwi86i0F
- 9CtnFPdWIKaX25L03L6TPjghHJhiIfuQAKj24e211/mTSajbwfjFHu6V4QDWxV3ozgp7
- ADmw==
+ bh=pWbw2Mwy88SDSkfpA4D7g/Rmsq9eS9lL/9r9k9KvO7g=;
+ b=aKb0kPhWVd5eMpmlkl9NknitMxg8gh5oazT3otM1H7wNssSLITeEgVYd3fLrFpqhAN
+ 6lW7y7N8edPrk+YAtulN/xaP8NiOVNXKZAi6KA0NNveYzfnxDp9ggPIafs2mYWMuEWpF
+ yisEk6Vl9il9YEGMryMzMjf2wBlPJtypJNMiXj/O7kxrK4628fYPSch836eJYFLJD5Wl
+ OrKTh30iRJgEMKA4TvqbYiX+DIHWjjGEmbm+VHeiIrDIZkzUjvIVMUmJT2O64m4s1rq4
+ s75jC01yaX0ljYX5/96b4XICWLQpDnMGWrtzgp0A1FvhK7kRpUekOBDbUefjzvvkL2IY
+ V5Zg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding:cc:from:to;
- bh=08o9m5Hkc1DwgHXwEhIgYa1O84W5gO7UU5kFrcD0IRY=;
- b=qMUFw+6UtPV/f292s4SDrsq7sH0N3tyt1S7dyVhZC9+Jah1vgjyOa/n4XpVfwcd4Jc
- BMMxHvVwAxnA59/lgzgfq6cqCerxA/966Um25DSRYuMX7uN/ZositrhaWvJzF6s4W6cO
- GcDmw+MCZMdvmiJvXrM7wME9Gbc4vX61ubN/npzRbOy+766TzVD4WHOs7fbIDaIsLr78
- T7R9KGWBAw6oIk4lbXuypUJFD1SAAmIDh9ZMczaeCwwZ/eRfyje/pM1dYkH0R/Dr1YE4
- DhYr3w3wNpW74qlM11HHEC5RdDKskIpCuqtl791BIl9CpSw7Dc+XUrj1NbRjVTj680nW
- MDwQ==
-X-Gm-Message-State: AOAM530Pf8RYFXPwLWA+p2frtty5/ET5Ohe6m7T56u0QC6aF7GxCjOWB
- URNhm6BCnaHjONlAOkqmNKQ20w==
-X-Google-Smtp-Source: ABdhPJwfKDrkaUHJSNgn6XFJOuCcJbR4otch9RHfl10t4H02hdxl8ivFVYd6BH4xCpPZNyXowDk67w==
-X-Received: by 2002:a17:903:1205:b0:15e:804c:fab4 with SMTP id
- l5-20020a170903120500b0015e804cfab4mr18051563plh.112.1652135545965; 
- Mon, 09 May 2022 15:32:25 -0700 (PDT)
+ bh=pWbw2Mwy88SDSkfpA4D7g/Rmsq9eS9lL/9r9k9KvO7g=;
+ b=VDX0kV2OPw5fRIZSYE0IYFKdXeWKpZb1J5WaqHsBNkWcR48RqqaQFJegpwHVZGpoV6
+ 6ecqIKOLXs5LQv0CxThZYyFRlyGCqHk1zLHY6oUWFIsZNcet+QvZpaoCgvxxqI8fLGi2
+ 7Q9OckNpgnCub/fkpNmuTPG0D3VOPxWIyoV6D95AGjDkuUqogz0WMfFxLGhGIvY4cMe4
+ v6CXFVRakZDuEy2t8qFwIE2s6rvffXFBfuRT9IkFh6Tz1Aqp2UjWj1Li1VIAY9y3VzEG
+ 6j6RgRXEyiWhesWCtRm0Y34ryLtmU+07x6Cqt413OD+VuzZ5mfwREbTMZvFro/6Axg0K
+ LVKQ==
+X-Gm-Message-State: AOAM533XEfM37XcBSDiGvDr/Jpaff/aZ2eC5SWNR3OnV+yo4Niso/3Ap
+ g+Vaf5k1P355xU2u1BE2MOtrrQ==
+X-Google-Smtp-Source: ABdhPJxUc/qGM9x1mbDewFdh0f2iSebcv/MH281VDWnsTPJAYa63hm5brMdaLkqzPiol6IuhZdvYkA==
+X-Received: by 2002:a05:6a02:10d:b0:381:f4c8:ad26 with SMTP id
+ bg13-20020a056a02010d00b00381f4c8ad26mr14585787pgb.135.1652135546996; 
+ Mon, 09 May 2022 15:32:26 -0700 (PDT)
 Received: from localhost (76-210-143-223.lightspeed.sntcca.sbcglobal.net.
  [76.210.143.223]) by smtp.gmail.com with ESMTPSA id
- oa7-20020a17090b1bc700b001dcc0cb262asm224098pjb.17.2022.05.09.15.32.25
+ w19-20020a1709029a9300b0015e8d4eb1ddsm407885plp.39.2022.05.09.15.32.26
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 09 May 2022 15:32:25 -0700 (PDT)
-Subject: [PATCH v5 2/7] asm-generic: qspinlock: Indicate the use of mixed-size
- atomics
-Date: Mon,  9 May 2022 15:29:51 -0700
-Message-Id: <20220509222956.2886-3-palmer@rivosinc.com>
+ Mon, 09 May 2022 15:32:26 -0700 (PDT)
+Subject: [PATCH v5 3/7] asm-generic: qrwlock: Document the spinlock fairness
+ requirements
+Date: Mon,  9 May 2022 15:29:52 -0700
+Message-Id: <20220509222956.2886-4-palmer@rivosinc.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220509222956.2886-1-palmer@rivosinc.com>
 References: <20220509222956.2886-1-palmer@rivosinc.com>
@@ -81,64 +81,32 @@ Cc: peterz@infradead.org, Palmer Dabbelt <palmer@rivosinc.com>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Palmer Dabbelt <palmer@rivosinc.com>
 
-The qspinlock implementation depends on having well behaved mixed-size
-atomics.  This is true on the more widely-used platforms, but these
-requirements are somewhat subtle and may not be satisfied by all the
-platforms that qspinlock is used on.
+I could only find the fairness requirements documented as the C code,
+this calls them out in a comment just to be a bit more explicit.
 
-Document these requirements, so ports that use qspinlock can more easily
-determine if they meet these requirements.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Waiman Long <longman@redhat.com>
 Reviewed-by: Arnd Bergmann <arnd@arndb.de
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 ---
- include/asm-generic/qspinlock.h | 29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+ include/asm-generic/qrwlock.h | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/include/asm-generic/qspinlock.h b/include/asm-generic/qspinlock.h
-index d74b13825501..995513fa2690 100644
---- a/include/asm-generic/qspinlock.h
-+++ b/include/asm-generic/qspinlock.h
-@@ -2,6 +2,35 @@
+diff --git a/include/asm-generic/qrwlock.h b/include/asm-generic/qrwlock.h
+index 7ae0ece07b4e..24ae09c1db9f 100644
+--- a/include/asm-generic/qrwlock.h
++++ b/include/asm-generic/qrwlock.h
+@@ -2,6 +2,10 @@
  /*
-  * Queued spinlock
+  * Queue read/write lock
   *
-+ * A 'generic' spinlock implementation that is based on MCS locks. For an
-+ * architecture that's looking for a 'generic' spinlock, please first consider
-+ * ticket-lock.h and only come looking here when you've considered all the
-+ * constraints below and can show your hardware does actually perform better
-+ * with qspinlock.
++ * These use generic atomic and locking routines, but depend on a fair spinlock
++ * implementation in order to be fair themselves.  The implementation in
++ * asm-generic/spinlock.h meets these requirements.
 + *
-+ * qspinlock relies on atomic_*_release()/atomic_*_acquire() to be RCsc (or no
-+ * weaker than RCtso if you're power), where regular code only expects atomic_t
-+ * to be RCpc.
-+ *
-+ * qspinlock relies on a far greater (compared to asm-generic/spinlock.h) set
-+ * of atomic operations to behave well together, please audit them carefully to
-+ * ensure they all have forward progress. Many atomic operations may default to
-+ * cmpxchg() loops which will not have good forward progress properties on
-+ * LL/SC architectures.
-+ *
-+ * One notable example is atomic_fetch_or_acquire(), which x86 cannot (cheaply)
-+ * do. Carefully read the patches that introduced
-+ * queued_fetch_set_pending_acquire().
-+ *
-+ * qspinlock also heavily relies on mixed size atomic operations, in specific
-+ * it requires architectures to have xchg16; something which many LL/SC
-+ * architectures need to implement as a 32bit and+or in order to satisfy the
-+ * forward progress guarantees mentioned above.
-+ *
-+ * Further reading on mixed size atomics that might be relevant:
-+ *
-+ *   http://www.cl.cam.ac.uk/~pes20/popl17/mixed-size.pdf
-+ *
-  * (C) Copyright 2013-2015 Hewlett-Packard Development Company, L.P.
-  * (C) Copyright 2015 Hewlett-Packard Enterprise Development LP
+  * (C) Copyright 2013-2014 Hewlett-Packard Development Company, L.P.
   *
+  * Authors: Waiman Long <waiman.long@hp.com>
 -- 
 2.34.1
 
