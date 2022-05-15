@@ -2,55 +2,55 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE43BC433EF
-	for <openrisc@archiver.kernel.org>; Sun, 15 May 2022 12:42:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FEF0C433EF
+	for <openrisc@archiver.kernel.org>; Sun, 15 May 2022 12:42:25 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id F1D65248F2;
-	Sun, 15 May 2022 14:42:19 +0200 (CEST)
-Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com
- [209.85.216.50])
- by mail.librecores.org (Postfix) with ESMTPS id D4B2D24808
- for <openrisc@lists.librecores.org>; Sun, 15 May 2022 14:42:18 +0200 (CEST)
-Received: by mail-pj1-f50.google.com with SMTP id
- o13-20020a17090a9f8d00b001df3fc52ea7so919430pjp.3
- for <openrisc@lists.librecores.org>; Sun, 15 May 2022 05:42:18 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 2FEEF248F1;
+	Sun, 15 May 2022 14:42:24 +0200 (CEST)
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com
+ [209.85.214.176])
+ by mail.librecores.org (Postfix) with ESMTPS id 78FCD20CE9
+ for <openrisc@lists.librecores.org>; Sun, 15 May 2022 14:42:22 +0200 (CEST)
+Received: by mail-pl1-f176.google.com with SMTP id d22so12002523plr.9
+ for <openrisc@lists.librecores.org>; Sun, 15 May 2022 05:42:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=LZhkT/STYABSG9JFFXmVnUhiG8e1lb5tF7lB29mjolw=;
- b=HTEYr+6PFZb39JW1W9CGgOnL+UBCeh8qfaIHP9HxIb8+fup5A+23/EYQbRXR9M2ipS
- iV1IFYNfg6D72qQ0Th6GWW8Fn6IpEF6vXgfKSsquVLv7XaPL7pxuL9vGARqCDpOsyhwB
- upIXkH9tPsooCuGm+y0jYJgvjDW7pysBYvaBQ52qzT1ognIvUBd2O572jWgk8FLCSsD9
- H2W9PszQLF3DwERFaUsUm4aosAajMnAI/KzDcENl/6nncvnKkSbqfP+lXlwFV9Ml59g8
- laY4XsgWMaFS+cQ+Skq0b3oHBaavVI42dRTbx9ebIyFUl8cdUdezBXQinFto1hdsNQD4
- fm9g==
+ bh=URPrkUOTksZy0vkIOlXm6I32VTQjSzL208bMcPxmSHk=;
+ b=Qf2SFi15nUqunuSsHbUvOLDs9jx8EfYTjiHnmxRleIxk/xBIm5RBYHeYAfO61uuwQz
+ Nx7D+WbgMss1gQdJ/eOx5k92CPGxwSXFZ+Y4aZ6ubNX1DJpG3P725ZT4/dpxk/d/kwK7
+ woSya6rxwp2rUb7YMhfIcYnLjfERr7ZOzLk8ep6bzDdf5d1WvElKtXVybkityqGG9ROl
+ ZoozNwXhbmjbvJeYgkGSR84jbY4x5A4HDFxx2MCjsgc2BMdcmAg1U06pc1LHe3UT/Xgg
+ i4oETKM3qSNwABkBbRJ+8bO5YDnwY+xpv+NcJUw5rXqNJPs1ReyB7hgPpCmnRhL9c4bz
+ ADPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=LZhkT/STYABSG9JFFXmVnUhiG8e1lb5tF7lB29mjolw=;
- b=ccHrYJDw8l/VRBgDuyzsVbqjSHfxFUXk2POLqoztVNakAiH8ZB3d1yGOWmHKJc4p1Q
- KoIxe9L99PCqJqQB4qEz72R7WkjBvdmt37xr72kCmSygFeUAj4zjb+mGDK+B5jKnCVYj
- c4LxX9dC6lCKQ0JEkHS3jS+do/q97RFtzItuXZ5okjFgcUUGnKBke0ZaYfUfQ0HYQ4af
- BOG/IcesOY9DmKxyBVa2kkePns7CquoYGgJdrfj3QScJ+4/c8FiNN54QOp1euOJhoSMC
- fZl4VElR5FVfXaxaFZXjHXKJEMOkpc39isKdc3+4ZnWmVOCfggFMvaSjm4QQePAc1R0X
- wnyA==
-X-Gm-Message-State: AOAM5334IQKELPZMm3zbCCwCOxq/uqNeJIPE9pJbaWfkgn3QY/DA7hYZ
- 7rhx4Bn2qslEKLmPEUcAvfg=
-X-Google-Smtp-Source: ABdhPJyegSgNu3P86pqOLF041EckwBsKCfaN53VQlGxpKQyqJM4h9bAQ149bfGSkEfyYv+DRpOoQwQ==
-X-Received: by 2002:a17:90b:391:b0:1df:42e2:ae17 with SMTP id
- ga17-20020a17090b039100b001df42e2ae17mr2312009pjb.198.1652618537439; 
- Sun, 15 May 2022 05:42:17 -0700 (PDT)
+ bh=URPrkUOTksZy0vkIOlXm6I32VTQjSzL208bMcPxmSHk=;
+ b=KIgolbVgvk9YSZ9knth7a1FYShdPXMzmycWw37M/Eu3SCewz/xKsBZI+9W+8j7OoL/
+ sx3lv3suE05fgIPO36loAlkSl3BTTQQKzd701KT9qX5q0Nw2i7H36UQUPvss1o8qUnnh
+ FX9F1vKpRSEHl9xDzsQEy2Bft/QP0piEAO0YpscTgNwBIltZ8mpmg3sbEbCrnECo1gJ+
+ BvLV7ZYQst8c6e+JdGvFlrddkSwRdmjirVkeoYQmWlCucxwtElmVQ/vnSyR75Rq9vt0j
+ nNWm93t26+mnGgDDposj5aSGsoqzyCDbASj7b9gTvnkg296z7PGvmTak9z47lfnDVAic
+ bK8A==
+X-Gm-Message-State: AOAM530O6Q3kT4Q0jFRDHItd2Bh3SYlDiW6R4NuLVEH5tjTUL/lbM5fl
+ RUDumNWyCfCEHUM0de66zgc=
+X-Google-Smtp-Source: ABdhPJw6rtgLAlUzww8OqkwRf7uyo9N6Q1iShOza3I7ojiZdLV37sJ8d+/UQ4p0TsSZWLhy2rIHjJw==
+X-Received: by 2002:a17:902:d2c6:b0:161:6e0e:c5e1 with SMTP id
+ n6-20020a170902d2c600b001616e0ec5e1mr2329079plc.139.1652618541066; 
+ Sun, 15 May 2022 05:42:21 -0700 (PDT)
 Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
  by smtp.gmail.com with ESMTPSA id
- p21-20020a1709028a9500b0015e8d4eb24asm5058042plo.148.2022.05.15.05.42.16
+ j15-20020a170903024f00b0015eee3ab203sm5157820plh.49.2022.05.15.05.42.20
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 15 May 2022 05:42:16 -0700 (PDT)
+ Sun, 15 May 2022 05:42:20 -0700 (PDT)
 From: Stafford Horne <shorne@gmail.com>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 03/13] openrisc: Add support for liteuart emergency printing
-Date: Sun, 15 May 2022 21:41:48 +0900
-Message-Id: <20220515124158.3167452-4-shorne@gmail.com>
+Subject: [PATCH 04/13] openrisc: Add syscall details to emergency syscall
+ debugging
+Date: Sun, 15 May 2022 21:41:49 +0900
+Message-Id: <20220515124158.3167452-5-shorne@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20220515124158.3167452-1-shorne@gmail.com>
 References: <20220515124158.3167452-1-shorne@gmail.com>
@@ -68,45 +68,70 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Jonas Bonn <jonas@southpole.se>, Openrisc <openrisc@lists.librecores.org>,
- Randy Dunlap <rdunlap@infradead.org>
+Cc: Jonas Bonn <jonas@southpole.se>, Petr Mladek <pmladek@suse.com>,
+ Chris Down <chris@chrisdown.name>, Marc Zyngier <maz@kernel.org>,
+ Mark Rutland <mark.rutland@arm.com>, Randy Dunlap <rdunlap@infradead.org>,
+ Openrisc <openrisc@lists.librecores.org>, Jessica Yu <jeyu@kernel.org>,
+ Andrey Bacherov <bandvig@mail.ru>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-This patch adds support for sending emergency print output, such as
-unhandled exception details, to a liteuart serial device.  This is the
-default device available on litex platforms.
+When bringing linux on the or1k Marocchino we ran into issues starting
+init.  This patch adds the syscall number and return address to
+assist tracing syscalls even before strace is able to be used.
 
-If a developer want to use this they should update UART_BASE_ADD
-to the address of liteuart.
+By default this is all disabled but a developer could adjust the ifdef
+to enable debugging.
 
+Cc: Andrey Bacherov <bandvig@mail.ru>
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/kernel/head.S | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/openrisc/kernel/entry.S | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
-index b1f3a65c271c..21db50563f97 100644
---- a/arch/openrisc/kernel/head.S
-+++ b/arch/openrisc/kernel/head.S
-@@ -1555,6 +1555,17 @@ ENTRY(_emergency_putc)
- 	l.movhi r4,hi(UART_BASE_ADD)
- 	l.ori	r4,r4,lo(UART_BASE_ADD)
+diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
+index 3ca1b1f490b9..54a87bba35ca 100644
+--- a/arch/openrisc/kernel/entry.S
++++ b/arch/openrisc/kernel/entry.S
+@@ -601,7 +601,7 @@ UNHANDLED_EXCEPTION(_vector_0xb00,0xb00)
+  */
  
-+#if defined(CONFIG_SERIAL_LITEUART)
-+	/* Check OFF_TXFULL status */
-+1:      l.lwz	r5,4(r4)
-+	l.andi	r5,r5,0xff
-+	l.sfnei	r5,0
-+	l.bf	1b
-+	 l.nop
-+
-+	/* Write character */
-+	l.andi	r7,r7,0xff
-+	l.sw	0(r4),r7
- #elif defined(CONFIG_SERIAL_8250)
- 	/* Check UART LSR THRE (hold) bit */
- 	l.addi  r6,r0,0x20
+ _string_syscall_return:
+-	.string "syscall return %ld \n\r\0"
++	.string "syscall r9:0x%08x -> syscall(%ld) return %ld\0"
+ 	.align 4
+ 
+ ENTRY(_sys_call_handler)
+@@ -679,15 +679,25 @@ _syscall_return:
+ _syscall_debug:
+ 	l.movhi r3,hi(_string_syscall_return)
+ 	l.ori   r3,r3,lo(_string_syscall_return)
+-	l.ori   r27,r0,1
++	l.ori   r27,r0,2
+ 	l.sw    -4(r1),r27
+ 	l.sw    -8(r1),r11
+-	l.addi  r1,r1,-8
++	l.lwz	r29,PT_ORIG_GPR11(r1)
++	l.sw    -12(r1),r29
++	l.lwz	r29,PT_GPR9(r1)
++	l.sw    -16(r1),r29
+ 	l.movhi r27,hi(_printk)
+ 	l.ori   r27,r27,lo(_printk)
+ 	l.jalr  r27
+-	 l.nop
+-	l.addi  r1,r1,8
++	 l.addi  r1,r1,-16
++	l.addi  r1,r1,16
++#endif
++#if 0
++_syscall_show_regs:
++	l.movhi r27,hi(show_registers)
++	l.ori   r27,r27,lo(show_registers)
++	l.jalr  r27
++	 l.or	r3,r1,r1
+ #endif
+ 
+ _syscall_check_trace_leave:
 -- 
 2.31.1
 
