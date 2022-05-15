@@ -2,54 +2,55 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BDDD7C433F5
-	for <openrisc@archiver.kernel.org>; Sun, 15 May 2022 12:42:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3F80C433FE
+	for <openrisc@archiver.kernel.org>; Sun, 15 May 2022 12:42:38 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id DEDE820D0C;
-	Sun, 15 May 2022 14:42:34 +0200 (CEST)
-Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com
- [209.85.215.178])
- by mail.librecores.org (Postfix) with ESMTPS id 6145C248F2
- for <openrisc@lists.librecores.org>; Sun, 15 May 2022 14:42:33 +0200 (CEST)
-Received: by mail-pg1-f178.google.com with SMTP id g184so11709726pgc.1
- for <openrisc@lists.librecores.org>; Sun, 15 May 2022 05:42:33 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 1BE1620CE9;
+	Sun, 15 May 2022 14:42:38 +0200 (CEST)
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com
+ [209.85.216.51])
+ by mail.librecores.org (Postfix) with ESMTPS id 6DC5A248F1
+ for <openrisc@lists.librecores.org>; Sun, 15 May 2022 14:42:36 +0200 (CEST)
+Received: by mail-pj1-f51.google.com with SMTP id
+ w17-20020a17090a529100b001db302efed6so11802928pjh.4
+ for <openrisc@lists.librecores.org>; Sun, 15 May 2022 05:42:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=ikZ+PR/EklJmOrxEmrNGimc9Z26aJRLTxGu7euJ5K94=;
- b=ksSpxTNN13tMggvaejsEI+GQ4F41SIaUMtsGc/Fbqvm0NY7LV1vR2jqG1m7GoxPGku
- PhKShLPS2YaFrCkWF6qzNE5E8jWTrJU+moMax9b1xoFBY6SRdkK8bVp2Zc/G/nSySbjW
- liOdoPCmqor7GMxuSCOuApzqyuWuAqnY0sdvxKZMccFR3frD5U5yhzHbEI5vUEAwePLj
- 7NigwZjZe3z2aNqzabMoA3gJKXQB748Hy11fqo1cWv8xhly2r4khbd9fxdgzD7LDLZow
- RisaBQqRaleTGpSUZAdrxcMWrZ4s18sPFISuodoVqegDk4/ERIEhkV9Mf2goI4bvRbnb
- pyFQ==
+ bh=/YxdBnzui3ni5Jh3oFs5foUUYY4daAUO1PEkpPdCqlo=;
+ b=CUCIL+9IqRDN2tJAKVtzSzg97nX5O/JVAGHwOTY5DEpkHUytrXA/oXzlwAwXb2WBb8
+ 8N2nRud02vIqlwXUP4YZnnsD9AxZu8iQtGS0pp5/8XppjqZnmaE07Wz82rf+a+DSfpBt
+ ekv1ybRFgnpr6UTANmIfRECHA1i/xQ91h9vPuP/t/pCZxhtGF74ECwz0v0/Jb4den/pl
+ B2ymDTQk0nfTvlwnAMloyqPyY3m/ADG/xu5L98Zldy5/WwcpmZd6SsdGC2mICJOlk7rc
+ tHvBznNJt1polk4ODdmghCrvTMXZVeA5uN4J9yIr5meyA9JA1Yk88zBWmxmOxcmEmSBH
+ nVoQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=ikZ+PR/EklJmOrxEmrNGimc9Z26aJRLTxGu7euJ5K94=;
- b=yfuz/TkSGnBhiEnRxwDz/lAx8q2lc+5jmteuYNGGJtXquT7dRYlI/tywb+bw4g4+9P
- +hEsMmt2qb/8sFqUMjfCkA6Sc+5r8UpRZnz7DTmfZCSvzpK33t7SspAvt4o/LoxH9Wmx
- G6KCQmVrHEjCckNTF4zpdbmUuXLfkZcdPZoN63C9+RQ5XEKEXreqk0PYa8Gm0sxdDZTW
- 8wR55ivjZOku14QqhO7k8Z2DGqFxSiwVrNt075SG9xlWVWH8h11fIEiDmRCllDci4zDC
- JYJH9O5SdzYfxoGPOCaZqB8B6bQkZAgGifzCZpoq+HTtRIabBwtJIgQv4Gf0D+CrNjJE
- cNNg==
-X-Gm-Message-State: AOAM533WLAkzevUCKib70q11h4TQFHcvdaoDE7OhMsZODcsPAVFBMjNV
- hg9a3DFuhWpuB3ae0On90O0=
-X-Google-Smtp-Source: ABdhPJwTNC03YPfYWQHf0N8lARTn79n+/NuIFfhPaElPQM+ruE5EgRmd23V1wPxuw7p6lSSipEta1Q==
-X-Received: by 2002:a63:d34d:0:b0:3db:a518:1ff8 with SMTP id
- u13-20020a63d34d000000b003dba5181ff8mr9206517pgi.593.1652618552046; 
- Sun, 15 May 2022 05:42:32 -0700 (PDT)
+ bh=/YxdBnzui3ni5Jh3oFs5foUUYY4daAUO1PEkpPdCqlo=;
+ b=cCZ4di6PUYi9v2+PBTzJF3iA53IaPYescOxw/ucb1u1NAWZGmCXCp/6NY6/UfLSqrx
+ w993bnaeFlSBqeIXqsytk7m0A6a87ydZJPzdyoQC3LExGqTUIF34L46E6PZGq0eBzWYn
+ m/4C+F6/pb6EB0VVIG6JHA5yQJxAwYMhSvX7r1W2q/Q31wAguWsssjXc0wL4RL3qKzNI
+ BPJN+WU0YHLCEAb0BiTE/mCR8TZGaeeAmfY+V+aJgTmkhGV0i+Sf4RQV7kmsaom/+CB7
+ 56DQThH+L204pY85x03usfaC6+nUQORGfX8Yb86YoPvlVkIqaJoysIJiASB1ZOCIRm7d
+ i4IA==
+X-Gm-Message-State: AOAM531hliwuse0T+MBDUba8Cr5kliYRdvsDpf1Hv0aqJ9DEd0ZUZdIQ
+ DOpbMbPn/hnE4GcIR6VFZqk=
+X-Google-Smtp-Source: ABdhPJwll4DIMNy2JuWm6ejdna8WNoX3+eiQHDVN4fLW8HnaNS1u+hk/bQv2o6r610cu+5jGCXD9vQ==
+X-Received: by 2002:a17:903:240f:b0:156:8e81:a0a3 with SMTP id
+ e15-20020a170903240f00b001568e81a0a3mr13027370plo.13.1652618555086; 
+ Sun, 15 May 2022 05:42:35 -0700 (PDT)
 Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
  by smtp.gmail.com with ESMTPSA id
- t19-20020a170902b21300b0015ef63f2382sm5054670plr.231.2022.05.15.05.42.31
+ c9-20020aa78e09000000b0050dc76281ebsm4945390pfr.197.2022.05.15.05.42.34
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 15 May 2022 05:42:31 -0700 (PDT)
+ Sun, 15 May 2022 05:42:34 -0700 (PDT)
 From: Stafford Horne <shorne@gmail.com>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 07/13] openrisc/traps: Declare file scope symbols as static
-Date: Sun, 15 May 2022 21:41:52 +0900
-Message-Id: <20220515124158.3167452-8-shorne@gmail.com>
+Subject: [PATCH 08/13] openrisc/traps: Remove die_if_kernel function
+Date: Sun, 15 May 2022 21:41:53 +0900
+Message-Id: <20220515124158.3167452-9-shorne@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20220515124158.3167452-1-shorne@gmail.com>
 References: <20220515124158.3167452-1-shorne@gmail.com>
@@ -68,6 +69,7 @@ List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
 Cc: Jonas Bonn <jonas@southpole.se>, Kefeng Wang <wangkefeng.wang@huawei.com>,
+ Michael Ellerman <mpe@ellerman.id.au>,
  "Russell King \(Oracle\)" <rmk+kernel@armlinux.org.uk>,
  Openrisc <openrisc@lists.librecores.org>,
  "Eric W. Biederman" <ebiederm@xmission.com>,
@@ -75,40 +77,40 @@ Cc: Jonas Bonn <jonas@southpole.se>, Kefeng Wang <wangkefeng.wang@huawei.com>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Sparse was reporting the following warnings:
+This was noticed when I saw this warning:
 
-    arch/openrisc/kernel/traps.c:37:5: warning: symbol 'kstack_depth_to_print' was not declared. Should it be static?
-    arch/openrisc/kernel/traps.c:39:22: warning: symbol 'lwa_addr' was not declared. Should it be static?
-    arch/openrisc/kernel/traps.c:41:6: warning: symbol 'print_trace' was not declared. Should it be static?
+    arch/openrisc/kernel/traps.c:234:6: warning: no previous prototype for 'die_if_kernel' [-Wmissing-prototypes]
+      234 | void die_if_kernel(const char *str, struct pt_regs *regs, long err)
+	  |      ^~~~~~~~~~~~~
 
-The function print_trace and local variables kstack_depth_to_print and
-lwa_addr are not used outside of this file.  This patch marks them as
-static.
+The die_if_kernel function is not used in the OpenRISC port so remove
+it.
 
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/kernel/traps.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/openrisc/kernel/traps.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
 diff --git a/arch/openrisc/kernel/traps.c b/arch/openrisc/kernel/traps.c
-index f2478bba77b9..9e0937eb31ca 100644
+index 9e0937eb31ca..99cd2e6f8873 100644
 --- a/arch/openrisc/kernel/traps.c
 +++ b/arch/openrisc/kernel/traps.c
-@@ -34,11 +34,11 @@
- #include <asm/unwinder.h>
- #include <asm/sections.h>
+@@ -235,15 +235,6 @@ void __noreturn die(const char *str, struct pt_regs *regs, long err)
+ 	make_task_dead(SIGSEGV);
+ }
  
--int kstack_depth_to_print = 0x180;
-+static int kstack_depth_to_print = 0x180;
- int lwa_flag;
--unsigned long __user *lwa_addr;
-+static unsigned long __user *lwa_addr;
- 
--void print_trace(void *data, unsigned long addr, int reliable)
-+static void print_trace(void *data, unsigned long addr, int reliable)
+-/* This is normally the 'Oops' routine */
+-void die_if_kernel(const char *str, struct pt_regs *regs, long err)
+-{
+-	if (user_mode(regs))
+-		return;
+-
+-	die(str, regs, err);
+-}
+-
+ void unhandled_exception(struct pt_regs *regs, int ea, int vector)
  {
- 	const char *loglvl = data;
- 
+ 	printk("Unable to handle exception at EA =0x%x, vector 0x%x",
 -- 
 2.31.1
 
