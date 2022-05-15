@@ -2,58 +2,55 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A974CC433EF
-	for <openrisc@archiver.kernel.org>; Sun, 15 May 2022 01:40:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB54EC433F5
+	for <openrisc@archiver.kernel.org>; Sun, 15 May 2022 12:42:12 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id DC8CE247CB;
-	Sun, 15 May 2022 03:40:21 +0200 (CEST)
-Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com
- [209.85.210.179])
- by mail.librecores.org (Postfix) with ESMTPS id A890D24927
- for <openrisc@lists.librecores.org>; Sun, 15 May 2022 03:40:19 +0200 (CEST)
-Received: by mail-pf1-f179.google.com with SMTP id i24so10992019pfa.7
- for <openrisc@lists.librecores.org>; Sat, 14 May 2022 18:40:19 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 62F7E20CE9;
+	Sun, 15 May 2022 14:42:11 +0200 (CEST)
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com
+ [209.85.214.172])
+ by mail.librecores.org (Postfix) with ESMTPS id A3F2924216
+ for <openrisc@lists.librecores.org>; Sun, 15 May 2022 14:42:09 +0200 (CEST)
+Received: by mail-pl1-f172.google.com with SMTP id c11so11990948plg.13
+ for <openrisc@lists.librecores.org>; Sun, 15 May 2022 05:42:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=lGPG1Q4prfE/rl5qsEZlPOkMPbP4eygWnz8hzswRd/4=;
- b=cR3ws6f1/E0n2n7vF0zR7G67jsroEnEHUNMY6cXoS/GBFsBE970SVqSbPR6kfHuEWE
- bTNkyWdRYyjfFqlmjdo4LOZJ2VzvyjY66taMZiIPiTCfLuNTfr4N5toKGlSSy6sYN7PI
- UdzzSmTPFTtrK/5IL2VSm21b1hItDF505po+mrU3sK4ek8AiAA/zjHzeuVzBlWZrO0hL
- 8gr+e2kSPaZijFZmEkyruzxPZSi+Cr90yYBJ7iRTDfsY33S+/gYdCNMvmrsxCn9bUqZ/
- Xawh3nu/BWcsBzOG+2evs8n1Z1ijhlVeDuvqVI/gXIfito6HVURzMRRBAOaQulpprE13
- 4AlQ==
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=AVFRHlzGX/WRPz6rMiRYI/Ib3vqoWaqc8BQYvZ/LSIw=;
+ b=GdwFTCPfiO7U9zosXxBYcmAhFZEaMxvG4SFgMUw0AhuFegMc2OQ1Xwr5VDAyHE1+J4
+ 4VNF81weFqaGZIrQm8Ee6tApJwzn7N3atSaPeZop5agNoThRnLzfvoz5JXBMPG1SOghp
+ DGEcGxEgnBY8LVTZtiQ8c0Ixix2KZqYdiBQrcoH5stOW+UhNYay8I5QDbcJmfQkQBC8h
+ XYBsRGvVJlLbTAml3ooN9rZsrzGu+EETood1emxQvigTV1O0x/b9Sj6rWqW1MyU7anUU
+ WKZt8+Bcoubs3Jki51/L77N/m10WeSOPZ0MHxzv3u/bk13EMIZEd7QbzBMGOJSXyNlAK
+ sctg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=lGPG1Q4prfE/rl5qsEZlPOkMPbP4eygWnz8hzswRd/4=;
- b=395gCdcpwrrwkERfJ2Fic7d2+l1DsGLXAKJ67MVc366UfGLmvqymfEedEMHP4bYqKg
- EbMzi+Rx2UMgWEENORnFDMD0iBioX/1siOAYdguLrxY646QkulRxtpHQwraHJGQQgbHA
- zg698Ewtrwb3HP0AME6mzPDZEftB2GxyZSvIhw/NY+8+D0w9SVkOTH1+tQ+tY2jdOdxv
- fodzoGyY0rWASR7qnG/mGloGmqxRHXOhRRzLDhuYPelDq2DXveBXawGXxuinTAccMXzw
- x702azJV8U8mMrI/dmyqHL1o0uZt5a0rI5k19J1DxUGlGyIYKCwuoeSPUoGXivoBb2tt
- XWkQ==
-X-Gm-Message-State: AOAM532ica3WztW4wDkjxqZ+Efgozzz6b9JWzyklu0IblWLbgpCCWlAZ
- LOBJWq3hSh0ab0i22kuvMfo=
-X-Google-Smtp-Source: ABdhPJxdD0fE1jz01AKQ4DOi818HJdV0mD+kfRa2p7eYzyLNUMND2BYOBU0loqL9wuXWCmSLNCPKRg==
-X-Received: by 2002:a05:6a00:1307:b0:50d:b02e:11df with SMTP id
- j7-20020a056a00130700b0050db02e11dfmr11435637pfu.4.1652578818293; 
- Sat, 14 May 2022 18:40:18 -0700 (PDT)
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=AVFRHlzGX/WRPz6rMiRYI/Ib3vqoWaqc8BQYvZ/LSIw=;
+ b=XS+4Bv7IZoyFD3KzMh40P2BGdG9LvnTCDHHmOaBBUtIBm4vhr7HfGj2P2m+rlzolBB
+ CIF3Vzsj5jqk8u/FXlx4KjVqL3kSyrBqErIfGb3rMn0J6D2zN0ECFC2VJlhjRr0gGp3z
+ NRIfrqLBuqtBJ+Gj2amXE36tZMBN/HIa064cr2szXkAKVV2wsquJxdGANUdd43yh20pE
+ YULDgqIJIt2gQeZRwLUAdj/eWqjHqdGKP+wRxVP9KsK1RWFHONv+wBv+0vMwTWwsv48f
+ qnLUPrJa5rW4XypiVv7sTpL0c+35TyPUqtYbPVyeQM6x+84VJvKW2W0EPZTCXd+Ufzxr
+ iOQg==
+X-Gm-Message-State: AOAM530oD0eQj86BD/y7cbBMUb24jwshPldxwXE6OU7lmtXZhnW7Wd4g
+ ZBamRdjaMEiy8sHA8KtLw5s=
+X-Google-Smtp-Source: ABdhPJyttjmNeeyG93To3spB1iaqBDuusIqIkyuFaa7RIV56YC49oI0C1AkgwgnzdhnM5CYiJPEOow==
+X-Received: by 2002:a17:90b:1d92:b0:1dc:3f14:f8d0 with SMTP id
+ pf18-20020a17090b1d9200b001dc3f14f8d0mr14391431pjb.7.1652618528030; 
+ Sun, 15 May 2022 05:42:08 -0700 (PDT)
 Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
  by smtp.gmail.com with ESMTPSA id
- 21-20020a630b15000000b003db580384d6sm3963954pgl.60.2022.05.14.18.40.17
+ j11-20020a056a00174b00b0050dc76281bfsm4948797pfc.153.2022.05.15.05.42.07
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sat, 14 May 2022 18:40:17 -0700 (PDT)
+ Sun, 15 May 2022 05:42:07 -0700 (PDT)
 From: Stafford Horne <shorne@gmail.com>
-To: QEMU Development <qemu-devel@nongnu.org>
-Subject: [PULL 4/4] target/openrisc: Do not reset delay slot flag on early tb
- exit
-Date: Sun, 15 May 2022 10:39:48 +0900
-Message-Id: <20220515013948.2993495-5-shorne@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH 00/13] OpenIRSC misc cleanups for 5.19
+Date: Sun, 15 May 2022 21:41:45 +0900
+Message-Id: <20220515124158.3167452-1-shorne@gmail.com>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220515013948.2993495-1-shorne@gmail.com>
-References: <20220515013948.2993495-1-shorne@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: openrisc@lists.librecores.org
@@ -68,71 +65,49 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>,
- Openrisc <openrisc@lists.librecores.org>,
- Richard Henderson <richard.henderson@linaro.org>
+Cc: Openrisc <openrisc@lists.librecores.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-This was found when running linux crypto algorithm selftests used by
-wireguard.  We found that randomly the tests would fail.  We found
-through investigation that a combination of a tick timer interrupt,
-raised when executing a delay slot instruction at a page boundary caused
-the issue.
+This is a collection of misc cleanups I have accumulated when working on some
+recent OpenRISC projects.
 
-This was caused when handling the TB_EXIT_REQUESTED case in cpu_tb_exec.
-On OpenRISC, which doesn't implement synchronize_from_tb, set_pc was
-being used as a fallback.  The OpenRISC set_pc implementation clears
-dflag, which caused the exception handling logic to not account for the
-delay slot.  This was the bug, because it meant when execution resumed
-after the interrupt was handling it resumed in the wrong place.
+The patch themes:
+ - Sparse warning cleanups
+ - Removal of dead code
+ - Emergency debug fixups in head.S
+ - Support for gcc machine instruction flags
+ - defconfig updates for litex
 
-Fix this by implementing synchronize_from_tb which simply updates pc,
-and not clear the delay slot flag.
+I have tested these patches when verifying the glibc port by running the glibc
+test suite.
 
-Reported-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- target/openrisc/cpu.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+Stafford Horne (13):
+  openrisc: Add gcc machine instruction flag configuration
+  openrisc: Cleanup emergency print handling
+  openrisc: Add support for liteuart emergency printing
+  openrisc: Add syscall details to emergency syscall debugging
+  openrisc: Pretty print show_registers memory dumps
+  openrisc: Update litex defconfig to support glibc userland
+  openrisc/traps: Declare file scope symbols as static
+  openrisc/traps: Remove die_if_kernel function
+  openrisc/traps: Declare unhandled_exception for asmlinkage
+  openrisc/time: Fix symbol scope warnings
+  openrisc/delay: Add include to fix symbol not declared warning
+  openrisc/fault: Fix symbol scope warnings
+  openrisc: Remove unused IMMU tlb workardound
 
-diff --git a/target/openrisc/cpu.c b/target/openrisc/cpu.c
-index dfbafc5236..41d1b2a24a 100644
---- a/target/openrisc/cpu.c
-+++ b/target/openrisc/cpu.c
-@@ -21,6 +21,7 @@
- #include "qapi/error.h"
- #include "qemu/qemu-print.h"
- #include "cpu.h"
-+#include "exec/exec-all.h"
- 
- static void openrisc_cpu_set_pc(CPUState *cs, vaddr value)
- {
-@@ -30,6 +31,15 @@ static void openrisc_cpu_set_pc(CPUState *cs, vaddr value)
-     cpu->env.dflag = 0;
- }
- 
-+static void openrisc_cpu_synchronize_from_tb(CPUState *cs,
-+                                             const TranslationBlock *tb)
-+{
-+    OpenRISCCPU *cpu = OPENRISC_CPU(cs);
-+
-+    cpu->env.pc = tb->pc;
-+}
-+
-+
- static bool openrisc_cpu_has_work(CPUState *cs)
- {
-     return cs->interrupt_request & (CPU_INTERRUPT_HARD |
-@@ -186,6 +196,7 @@ static const struct SysemuCPUOps openrisc_sysemu_ops = {
- 
- static const struct TCGCPUOps openrisc_tcg_ops = {
-     .initialize = openrisc_translate_init,
-+    .synchronize_from_tb = openrisc_cpu_synchronize_from_tb,
- 
- #ifndef CONFIG_USER_ONLY
-     .tlb_fill = openrisc_cpu_tlb_fill,
+ arch/openrisc/Kconfig                     |  53 ++++
+ arch/openrisc/Makefile                    |  17 +
+ arch/openrisc/configs/or1klitex_defconfig |  33 ++
+ arch/openrisc/kernel/entry.S              |  20 +-
+ arch/openrisc/kernel/head.S               | 368 ++++++----------------
+ arch/openrisc/kernel/time.c               |   3 +-
+ arch/openrisc/kernel/traps.c              |  63 ++--
+ arch/openrisc/lib/delay.c                 |   1 +
+ arch/openrisc/mm/fault.c                  |   4 +-
+ 9 files changed, 255 insertions(+), 307 deletions(-)
+
 -- 
 2.31.1
 
