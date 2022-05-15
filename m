@@ -2,56 +2,54 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7029CC433F5
-	for <openrisc@archiver.kernel.org>; Sun, 15 May 2022 12:42:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B8B6C433EF
+	for <openrisc@archiver.kernel.org>; Sun, 15 May 2022 12:42:51 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id B6E4720D0C;
-	Sun, 15 May 2022 14:42:47 +0200 (CEST)
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com
- [209.85.216.48])
- by mail.librecores.org (Postfix) with ESMTPS id 70A1E20CE9
- for <openrisc@lists.librecores.org>; Sun, 15 May 2022 14:42:46 +0200 (CEST)
-Received: by mail-pj1-f48.google.com with SMTP id
- nr2-20020a17090b240200b001df2b1bfc40so1798428pjb.5
- for <openrisc@lists.librecores.org>; Sun, 15 May 2022 05:42:46 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id E747020D0C;
+	Sun, 15 May 2022 14:42:50 +0200 (CEST)
+Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com
+ [209.85.210.173])
+ by mail.librecores.org (Postfix) with ESMTPS id 92D0B20D0C
+ for <openrisc@lists.librecores.org>; Sun, 15 May 2022 14:42:49 +0200 (CEST)
+Received: by mail-pf1-f173.google.com with SMTP id i24so11686785pfa.7
+ for <openrisc@lists.librecores.org>; Sun, 15 May 2022 05:42:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=GLuZhVjtGK5TbXwgi8Odrp2p8Tu7QkWjhdCCk7ovaas=;
- b=fHtUivnJoBf3l4Gf5biNPi9eZWy15SghJR1BJwRCBbwC7wMdjWc/qEjslDCqaSNuTu
- h52U9exkwSZj6vYxkXcLULEg4OFBLPXo89w/bT2QGVDandmJsW0Yy2M8qro0mjRC0ia5
- FdwD52GptLNwKXd/ssnRQy5zjgdlOb87+AeGdq04w+DWssKGTs8D/rcPVdY2Ygz/RyfZ
- BiX/N1hvuDm64MZ9kVjwYOWb4gjHA0FK70BOPAkFdW+9WDSNigqjlBowPo6dAHXgiTMj
- TaOYMNDu52zdlH5+DjwOHW1hECQSAhWnxB3Q6WdHXaTr2g/+kOS35KwTvxaZkr8OV924
- /kfg==
+ bh=E6nKYG584PAtoQ8/jvqpBx36KvgGo8qJoQWKQdOpBKU=;
+ b=pS/jHvHWwnFrMXvw/NKO7jVf7rgAWmrSVIhik0j+dafXTZMkW49m+3oCGrFQqDzbos
+ fEEJzmYybyqQFqXj6DKvTAXpZ59cC2trVDVaFT3N2OPV98AUho+qv5H2EI3gdseGYAc9
+ dC/I5NtukRdxetaDlvbcln8bqw9kuGMdgQfjUQ50erk4ehtML9NK0f+DvIKGzaceJh08
+ whIQDqUpRrBI1AoXyeTdk0QEn6KMdAiUODtkefc4xfMwDrHiwgFBrdxFfDK+hACaNZqM
+ z7AC5DtDZr+ue5N5p0LbiL8fEqedqJHRk98LeinCbc0Wsv2OeWheFz/FdlTzn8F6fvrq
+ 9jhw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=GLuZhVjtGK5TbXwgi8Odrp2p8Tu7QkWjhdCCk7ovaas=;
- b=fbWqTyAaXjzSbBvazSc1KJbfIzbN8V+u0I99TVqKo1lwAOdSCkjZTeMAeyXXQ1zF8b
- 9NbyFqDKFJTaolwu40q0ih8vLWD3QcGp2aXejy2thI0N27uAHq9aU9aXq4DgsQuBS8p0
- jJbSCQC/l+ig9fk9nIoJby+shSabQz6JvgD7eAB3COayrmxZOkXvb7mJgFQYymak3v6e
- iA3xvSzzyB3+oqZ721Vzw31GieY8TUmWcXi7KnYsrln5MwWyq7TsozBnYv9b3ostJZsR
- vcqP2W7AWtxjWWwlSaqOw1rX8f5dO3Q25k4tQ5IPAkxRe35NpnuINmNKdzULCy1z+BWr
- ZWvA==
-X-Gm-Message-State: AOAM533CV1u9PCgYy0V+ajWZHIh6iEkgdVy/6MCG5xum73AYhJf0Ptyc
- geXpZniMjR52ivxe4C1Hyjk=
-X-Google-Smtp-Source: ABdhPJyfDRaC1XGZwXsUE0diCH1PbRApttn1a39/4+JR6GneKpJfCrvz3Sa/Jrpxp8+gb+crg+a9jQ==
-X-Received: by 2002:a17:90b:4b4b:b0:1dc:8724:3f75 with SMTP id
- mi11-20020a17090b4b4b00b001dc87243f75mr25340838pjb.178.1652618565106; 
- Sun, 15 May 2022 05:42:45 -0700 (PDT)
+ bh=E6nKYG584PAtoQ8/jvqpBx36KvgGo8qJoQWKQdOpBKU=;
+ b=sAeuUGZtzFcUwqCoSJNkuDQsbnkiJkQ4zrSKxvyK6oEDpy7i4WRa770tfWCernnUsl
+ wIhCWxO0VkRGE6iWF8Lby6ab0fkfO5aWS2Y6M9btq02Oz/cd6LQtLnGcoBXCSgnpar9s
+ y4TSvvV7VR22E12b9Jp5q//NmK1iZ9vOBg5z4ISkA9/nuT523E1pnYqzm7egd1IwaoET
+ Gp+pwe2cAAsaA9izeq5gslmkTvi32rqUNcSAt/W78jc7u74Nv1seke1fCMVM50OOVW2I
+ G2b1QlGc2ZGdrX/8xuXOk6K5s0wviGV7SRdMFm6T6w4pMjRw+1xqcgeK98lHWPtx6L01
+ FeVQ==
+X-Gm-Message-State: AOAM531PyRj52UhufNA9zcHRvfaCdhJiHpKalyHaYM64HwFNafg3u1zP
+ r3+k0274TvlQRxmkW6+A8vk=
+X-Google-Smtp-Source: ABdhPJzK3nMYwucViE+6UcrtAYIhYH8yd+pU+/ungG8bLNSFY/C8q7rakJXXY7nDCSbGIll7b+Lapw==
+X-Received: by 2002:a65:6a16:0:b0:39d:4f3:67e6 with SMTP id
+ m22-20020a656a16000000b0039d04f367e6mr11720141pgu.84.1652618568182; 
+ Sun, 15 May 2022 05:42:48 -0700 (PDT)
 Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
  by smtp.gmail.com with ESMTPSA id
- t12-20020a17090a950c00b001dbe7ccdd4dsm6551557pjo.10.2022.05.15.05.42.44
+ c3-20020a170903234300b0015e8d4eb1f6sm5209876plh.64.2022.05.15.05.42.47
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 15 May 2022 05:42:44 -0700 (PDT)
+ Sun, 15 May 2022 05:42:47 -0700 (PDT)
 From: Stafford Horne <shorne@gmail.com>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 11/13] openrisc/delay: Add include to fix symbol not declared
- warning
-Date: Sun, 15 May 2022 21:41:56 +0900
-Message-Id: <20220515124158.3167452-12-shorne@gmail.com>
+Subject: [PATCH 12/13] openrisc/fault: Fix symbol scope warnings
+Date: Sun, 15 May 2022 21:41:57 +0900
+Message-Id: <20220515124158.3167452-13-shorne@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20220515124158.3167452-1-shorne@gmail.com>
 References: <20220515124158.3167452-1-shorne@gmail.com>
@@ -69,33 +67,51 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Jonas Bonn <jonas@southpole.se>, Openrisc <openrisc@lists.librecores.org>
+Cc: Jonas Bonn <jonas@southpole.se>, Randy Dunlap <rdunlap@infradead.org>,
+ Qi Zheng <zhengqi.arch@bytedance.com>,
+ Openrisc <openrisc@lists.librecores.org>,
+ "Eric W. Biederman" <ebiederm@xmission.com>,
+ Andrew Morton <akpm@linux-foundation.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Add asm/timex.h include for read_current_timer prototype.
+Sparse reported the following warning:
 
-Sparse reporting the following warning:
+    arch/openrisc/mm/fault.c:27:15: warning: symbol 'pte_misses' was not declared. Should it be static?
+    arch/openrisc/mm/fault.c:28:15: warning: symbol 'pte_errors' was not declared. Should it be static?
+    arch/openrisc/mm/fault.c:33:16: warning: symbol 'current_pgd' was not declared. Should it be static?
 
-    arch/openrisc/lib/delay.c:23:5: warning: symbol 'read_current_timer' was not declared. Should it be static?
+This patch fixes these by:
+ - Remove unused pte_misses and pte_errors counters which are no longer
+   used.
+ - Add asm/mmu_context.h include to provide the current_pgd declaration.
 
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/lib/delay.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/openrisc/mm/fault.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/openrisc/lib/delay.c b/arch/openrisc/lib/delay.c
-index 036ae57180ef..5e89e4131304 100644
---- a/arch/openrisc/lib/delay.c
-+++ b/arch/openrisc/lib/delay.c
-@@ -15,6 +15,7 @@
- #include <linux/kernel.h>
- #include <linux/export.h>
- #include <linux/init.h>
-+#include <linux/timex.h>
- #include <asm/param.h>
- #include <asm/delay.h>
- #include <asm/timex.h>
+diff --git a/arch/openrisc/mm/fault.c b/arch/openrisc/mm/fault.c
+index 80bb66ad42f6..516cba14dec9 100644
+--- a/arch/openrisc/mm/fault.c
++++ b/arch/openrisc/mm/fault.c
+@@ -18,15 +18,13 @@
+ #include <linux/perf_event.h>
+ 
+ #include <linux/uaccess.h>
++#include <asm/mmu_context.h>
+ #include <asm/siginfo.h>
+ #include <asm/signal.h>
+ 
+ #define NUM_TLB_ENTRIES 64
+ #define TLB_OFFSET(add) (((add) >> PAGE_SHIFT) & (NUM_TLB_ENTRIES-1))
+ 
+-unsigned long pte_misses;	/* updated by do_page_fault() */
+-unsigned long pte_errors;	/* updated by do_page_fault() */
+-
+ /* __PHX__ :: - check the vmalloc_fault in do_page_fault()
+  *            - also look into include/asm/mmu_context.h
+  */
 -- 
 2.31.1
 
