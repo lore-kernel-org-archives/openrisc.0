@@ -2,59 +2,61 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38FDEC433EF
-	for <openrisc@archiver.kernel.org>; Tue, 17 May 2022 00:56:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12C0FC433EF
+	for <openrisc@archiver.kernel.org>; Tue, 17 May 2022 21:27:14 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 7CED62498A;
-	Tue, 17 May 2022 02:56:12 +0200 (CEST)
-Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com
- [209.85.215.175])
- by mail.librecores.org (Postfix) with ESMTPS id 45D3824990
- for <openrisc@lists.librecores.org>; Tue, 17 May 2022 02:56:10 +0200 (CEST)
-Received: by mail-pg1-f175.google.com with SMTP id 31so15611800pgp.8
- for <openrisc@lists.librecores.org>; Mon, 16 May 2022 17:56:10 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id D8C362491A;
+	Tue, 17 May 2022 23:27:13 +0200 (CEST)
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com
+ [209.85.210.181])
+ by mail.librecores.org (Postfix) with ESMTPS id 5F31C248F2
+ for <openrisc@lists.librecores.org>; Tue, 17 May 2022 23:27:12 +0200 (CEST)
+Received: by mail-pf1-f181.google.com with SMTP id u15so251557pfi.3
+ for <openrisc@lists.librecores.org>; Tue, 17 May 2022 14:27:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=YyxbfrF93QriCFR9e9/Ieq2jTtQBkK6LoG1jr7zyJxk=;
- b=oCAMl1DsQ3OB64WTGBzI6nY/tqFRzPvF50jEnkNYVq85ORdMBGfWYreKS5Th/RLfdF
- OH3OoRASSBEmOtBkGh2q/+xrz7Va/cq9uFCA12vne/Nj4eptouLiTNYPt4dxxiG+eZry
- e+uFALuiN8eQAmSZVy+L22wMIn3vP2quo87T3x3vJ3xZ7uy0RoyXsB51t0mkyGshPmWI
- QMKfF9mWSf7o2kmAtzyB30dJL+dNkOuFg8+QcGubMpCViLxzZrfz05Dxc6UWLsdO4ppK
- TkEtLCBaa6X5EXDFistYnYs2lx4xX/H/PinuowyMWEsSODnzH+DfM+N4jiIQriHI2e+Q
- qMDg==
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=JxkdUUYI6eaVEkqxADYbD3E5MxMMbiXbFP5sUgx29uM=;
+ b=D7oAZFvD6ffX74ylNY03jtKawKLAlfEUFguPNPsfkOpQGmh2D6u8V7Y+AisNwb+yOg
+ UmGozHKAkfUFsTDtN0NLF2bqcwoae/bJA/omfTA6P6HywUcWgDf1IhRGql6nBV8uloDr
+ nhxl/QcgbqLiUdXsj1wFPHt1FkRkr3D8hYoHwZUgNLS4G4jPiojEn70M9KxWVmGvxGKX
+ Zeo8f1PKIRysuEuBytwvjOoe3CWQgFGPJTBfawSIQO/+7enQ/uGph9OtcuMi7OqdualF
+ VU0lwANbj+bsQcREDHFwN+QbVKsEcwM9vOOIFhplRQ5Y8bxPovukbEw3APHbc+y8lp2g
+ oKQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=YyxbfrF93QriCFR9e9/Ieq2jTtQBkK6LoG1jr7zyJxk=;
- b=n8msQBWEhLREEVdH3rhuWhzVB/cmRuGICo5TJ9wOFpVdDjryrpyQSSEsgpesDGSRMD
- kjPNUBS/19cWx6QHs0nmy/Tlg+TOcthHT1fR1dBa/UhmkGi7V0ugg5gBRqz+lDIfRO3z
- XaukcYoBif8Pe7dtaqiqeRuEjR+jlSlxpSGvfX55H09VrNhOKvUz73C9dR+LjFt8iIop
- SzLEHaKU2EC1lWsycd2Fgr8slFuYoUCqvldNgzgy0tFE0BgoMPwwjaonq8JWTmykiTTN
- DzEleQ/y7FuquuzMQHxZmykvP5kV82iJhMq6vvh6QlM+PQG4ZapXbJQ8MaW8z4Mtoe6c
- Uf+g==
-X-Gm-Message-State: AOAM531CcuOY93hzVEos+u8guketHsZ5dJ7JW8FfZXfYeBh0IDpOKYZk
- 0WSc8mMwunAVIZRSsDf9LCo=
-X-Google-Smtp-Source: ABdhPJzWupGGZ1FqSFLiIMHuDJPPH9C1E94cICFIkU9GYZO5qupsuiir0HalN6xqjCJRIW5P713vHw==
-X-Received: by 2002:a05:6a00:ac1:b0:4f1:29e4:b3a1 with SMTP id
- c1-20020a056a000ac100b004f129e4b3a1mr20055546pfl.63.1652748968794; 
- Mon, 16 May 2022 17:56:08 -0700 (PDT)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=JxkdUUYI6eaVEkqxADYbD3E5MxMMbiXbFP5sUgx29uM=;
+ b=3uiKUrFURfLbnZ0XnyKW4CWsl6XbnHJNTBVnMi+WG5AxozYH7xZ9s/b+thNA/OuTI/
+ UUpmJGdErZpSilx68vKAz0YSWodC9ps9krg7lQhiedl/hgk345KOlbcVZuTs/EQS8FhG
+ mcRBInLIYTVBbAd+JN+EOiF4MPSQkfnN1ExFmFm/purELeBZveGocTGauntas5JaI1o/
+ AqLK+1CTGD/9D2BnhcTBIUF0e9QOCPVczxKlan+pBVn19D3jn4lCImOhT2OmxLWeOdjk
+ xhCz+DFTpUg0bS6cK3+yx3SxUm5Ah1bC163RLfd5gsTHSVd39o/d5wWj3fB0me09Jok0
+ dclg==
+X-Gm-Message-State: AOAM532teDKYnonMfJGdq3NEVlsnZseiCN/EXLDBunGfoMix6L60Gmjh
+ DR/bXZa+yCKYR4s334fxMIQ=
+X-Google-Smtp-Source: ABdhPJx+giCjrS4ZdXVLEk4ZwRFXOuQAZ3aZ+4+DewbzRqJRbs2JS+0yXV1YpfvHmYgpHfHLFVONPA==
+X-Received: by 2002:a63:2bc4:0:b0:3ab:1d76:64db with SMTP id
+ r187-20020a632bc4000000b003ab1d7664dbmr20543640pgr.508.1652822830752; 
+ Tue, 17 May 2022 14:27:10 -0700 (PDT)
 Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
  by smtp.gmail.com with ESMTPSA id
- x21-20020a1709027c1500b0015e8d4eb29csm7586085pll.230.2022.05.16.17.56.07
+ a191-20020a621ac8000000b0050dc76281e4sm173853pfa.190.2022.05.17.14.27.08
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 16 May 2022 17:56:08 -0700 (PDT)
+ Tue, 17 May 2022 14:27:09 -0700 (PDT)
+Date: Wed, 18 May 2022 06:27:07 +0900
 From: Stafford Horne <shorne@gmail.com>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH v2 13/13] openrisc: Remove unused IMMU tlb workardound
-Date: Tue, 17 May 2022 09:55:10 +0900
-Message-Id: <20220517005510.3500105-14-shorne@gmail.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220517005510.3500105-1-shorne@gmail.com>
+Subject: Re: [PATCH v2 01/13] openrisc: Add gcc machine instruction flag
+ configuration
+Message-ID: <YoQTK4MiGzZ1DF0v@antec>
 References: <20220517005510.3500105-1-shorne@gmail.com>
+ <20220517005510.3500105-2-shorne@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220517005510.3500105-2-shorne@gmail.com>
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -67,241 +69,131 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Jonas Bonn <jonas@southpole.se>, Openrisc <openrisc@lists.librecores.org>,
- Randy Dunlap <rdunlap@infradead.org>
+Cc: Jonas Bonn <jonas@southpole.se>, Openrisc <openrisc@lists.librecores.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-This looks to be some historical code that was used to convert TLB
-misses on branches from l.bf, l.jal, l.j etc all to a trampoline
-using l.jr (jump register).  I don't see this being used and I don't
-know the history of it so remove it.
+On Tue, May 17, 2022 at 09:54:58AM +0900, Stafford Horne wrote:
+> OpenRISC GCC supports flags to enable the backend to output instructions
+> if they are supported by a target processor.  This patch adds
+> configuration flags to enable configuring these flags to tune the kernel
+> for a particular CPU configuration.
+> 
+> In the future we could also enable all of these flags by default and
+> provide instruction emulation in the kernel to make these choices easier
+> for users but this is what we provide for now.
+> 
+> Signed-off-by: Stafford Horne <shorne@gmail.com>
+> ---
+>  arch/openrisc/Kconfig  | 53 ++++++++++++++++++++++++++++++++++++++++++
+>  arch/openrisc/Makefile | 17 ++++++++++++++
+>  2 files changed, 70 insertions(+)
+> 
+> diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+> index 0d68adf6e02b..ea7eac20911a 100644
+> --- a/arch/openrisc/Kconfig
+> +++ b/arch/openrisc/Kconfig
+> @@ -114,6 +114,59 @@ config OPENRISC_HAVE_INST_DIV
+>  	default y
+>  	help
+>  	  Select this if your implementation has a hardware divide instruction
+> +
+> +config OPENRISC_HAVE_INST_CMOV
+> +	bool "Have instruction l.cmov for conditional move"
+> +	default y
+> +	help
+> +	  This config enables gcc to generate l.cmov instructions when compiling
+> +	  the kernel which in general will improve performance and reduce the
+> +	  binary size.
+> +
+> +	  Select this if your implementation has support for the Class II
+> +	  l.cmov conistional move instruction.
+> +
+> +	  Say N if you are unsure.
+> +
+> +config OPENRISC_HAVE_INST_ROR
+> +	bool "Have instruction l.ror for rotate right"
+> +	default y
+> +	help
+> +	  This config enables gcc to generate l.ror instructions when compiling
+> +	  the kernel which in general will improve performance and reduce the
+> +	  binary size.
+> +
+> +	  Select this if your implementation has support for the Class II
+> +	  l.ror rotate right instruction.
+> +
+> +	  Say N if you are unsure.
+> +
+> +config OPENRISC_HAVE_INST_RORI
+> +	bool "Have instruction l.rori for rotate right with immediate"
+> +	default y
+> +	help
+> +	  This config enables gcc to generate l.rori instructions when compiling
+> +	  the kernel which in general will improve performance and reduce the
+> +	  binary size.
+> +
+> +	  Select this if your implementation has support for the Class II
+> +	  l.rori rotate right with immediate instruction.
+> +
+> +	  Say N if you are unsure.
+> +
+> +config OPENRISC_HAVE_INST_SEXT
+> +	bool "Have instructions l.ext* for sign extension"
+> +	default y
+> +	help
+> +	  This config enables gcc to generate l.ext* instructions when compiling
+> +	  the kernel which in general will improve performance and reduce the
+> +	  binary size.
+> +
+> +	  Select this if your implementation has support for the Class II
+> +	  l.exths, l.extbs, l.exthz and l.extbz size extend instructions.
+> +
+> +	  Say N if you are unsure.
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- arch/openrisc/kernel/head.S | 209 ------------------------------------
- 1 file changed, 209 deletions(-)
+Looking at this again and when generating the defconfig, the default for these
+should be no,
 
-diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
-index 21db50563f97..9b59d0ca665c 100644
---- a/arch/openrisc/kernel/head.S
-+++ b/arch/openrisc/kernel/head.S
-@@ -1325,215 +1325,6 @@ i_pte_not_present:
- 
- /* =================================================[ debugging aids ]=== */
- 
--	.align 64
--_immu_trampoline:
--	.space 64
--_immu_trampoline_top:
--
--#define TRAMP_SLOT_0		(0x0)
--#define TRAMP_SLOT_1		(0x4)
--#define TRAMP_SLOT_2		(0x8)
--#define TRAMP_SLOT_3		(0xc)
--#define TRAMP_SLOT_4		(0x10)
--#define TRAMP_SLOT_5		(0x14)
--#define TRAMP_FRAME_SIZE	(0x18)
--
--ENTRY(_immu_trampoline_workaround)
--	// r2 EEA
--	// r6 is physical EEA
--	tophys(r6,r2)
--
--	LOAD_SYMBOL_2_GPR(r5,_immu_trampoline)
--	tophys	(r3,r5)			// r3 is trampoline (physical)
--
--	LOAD_SYMBOL_2_GPR(r4,0x15000000)
--	l.sw	TRAMP_SLOT_0(r3),r4
--	l.sw	TRAMP_SLOT_1(r3),r4
--	l.sw	TRAMP_SLOT_4(r3),r4
--	l.sw	TRAMP_SLOT_5(r3),r4
--
--					// EPC = EEA - 0x4
--	l.lwz	r4,0x0(r6)		// load op @ EEA + 0x0 (fc address)
--	l.sw	TRAMP_SLOT_3(r3),r4	// store it to _immu_trampoline_data
--	l.lwz	r4,-0x4(r6)		// load op @ EEA - 0x4 (f8 address)
--	l.sw	TRAMP_SLOT_2(r3),r4	// store it to _immu_trampoline_data
--
--	l.srli  r5,r4,26                // check opcode for write access
--	l.sfeqi r5,0                    // l.j
--	l.bf    0f
--	l.sfeqi r5,0x11                 // l.jr
--	l.bf    1f
--	l.sfeqi r5,1                    // l.jal
--	l.bf    2f
--	l.sfeqi r5,0x12                 // l.jalr
--	l.bf    3f
--	l.sfeqi r5,3                    // l.bnf
--	l.bf    4f
--	l.sfeqi r5,4                    // l.bf
--	l.bf    5f
--99:
--	l.nop
--	l.j	99b			// should never happen
--	l.nop	1
--
--	// r2 is EEA
--	// r3 is trampoline address (physical)
--	// r4 is instruction
--	// r6 is physical(EEA)
--	//
--	// r5
--
--2:	// l.jal
--
--	/* 19 20 aa aa	l.movhi r9,0xaaaa
--	 * a9 29 bb bb  l.ori	r9,0xbbbb
--	 *
--	 * where 0xaaaabbbb is EEA + 0x4 shifted right 2
--	 */
--
--	l.addi	r6,r2,0x4		// this is 0xaaaabbbb
--
--					// l.movhi r9,0xaaaa
--	l.ori	r5,r0,0x1920		// 0x1920 == l.movhi r9
--	l.sh	(TRAMP_SLOT_0+0x0)(r3),r5
--	l.srli	r5,r6,16
--	l.sh	(TRAMP_SLOT_0+0x2)(r3),r5
--
--					// l.ori   r9,0xbbbb
--	l.ori	r5,r0,0xa929		// 0xa929 == l.ori r9
--	l.sh	(TRAMP_SLOT_1+0x0)(r3),r5
--	l.andi	r5,r6,0xffff
--	l.sh	(TRAMP_SLOT_1+0x2)(r3),r5
--
--	/* falthrough, need to set up new jump offset */
--
--
--0:	// l.j
--	l.slli	r6,r4,6			// original offset shifted left 6 - 2
--//	l.srli	r6,r6,6			// original offset shifted right 2
--
--	l.slli	r4,r2,4			// old jump position: EEA shifted left 4
--//	l.srli	r4,r4,6			// old jump position: shifted right 2
--
--	l.addi	r5,r3,0xc		// new jump position (physical)
--	l.slli	r5,r5,4			// new jump position: shifted left 4
--
--	// calculate new jump offset
--	// new_off = old_off + (old_jump - new_jump)
--
--	l.sub	r5,r4,r5		// old_jump - new_jump
--	l.add	r5,r6,r5		// orig_off + (old_jump - new_jump)
--	l.srli	r5,r5,6			// new offset shifted right 2
--
--	// r5 is new jump offset
--					// l.j has opcode 0x0...
--	l.sw	TRAMP_SLOT_2(r3),r5	// write it back
--
--	l.j	trampoline_out
--	l.nop
--
--/* ----------------------------- */
--
--3:	// l.jalr
--
--	/* 19 20 aa aa	l.movhi r9,0xaaaa
--	 * a9 29 bb bb  l.ori	r9,0xbbbb
--	 *
--	 * where 0xaaaabbbb is EEA + 0x4 shifted right 2
--	 */
--
--	l.addi	r6,r2,0x4		// this is 0xaaaabbbb
--
--					// l.movhi r9,0xaaaa
--	l.ori	r5,r0,0x1920		// 0x1920 == l.movhi r9
--	l.sh	(TRAMP_SLOT_0+0x0)(r3),r5
--	l.srli	r5,r6,16
--	l.sh	(TRAMP_SLOT_0+0x2)(r3),r5
--
--					// l.ori   r9,0xbbbb
--	l.ori	r5,r0,0xa929		// 0xa929 == l.ori r9
--	l.sh	(TRAMP_SLOT_1+0x0)(r3),r5
--	l.andi	r5,r6,0xffff
--	l.sh	(TRAMP_SLOT_1+0x2)(r3),r5
--
--	l.lhz	r5,(TRAMP_SLOT_2+0x0)(r3)	// load hi part of jump instruction
--	l.andi	r5,r5,0x3ff		// clear out opcode part
--	l.ori	r5,r5,0x4400		// opcode changed from l.jalr -> l.jr
--	l.sh	(TRAMP_SLOT_2+0x0)(r3),r5 // write it back
--
--	/* falthrough */
--
--1:	// l.jr
--	l.j	trampoline_out
--	l.nop
--
--/* ----------------------------- */
--
--4:	// l.bnf
--5:	// l.bf
--	l.slli	r6,r4,6			// original offset shifted left 6 - 2
--//	l.srli	r6,r6,6			// original offset shifted right 2
--
--	l.slli	r4,r2,4			// old jump position: EEA shifted left 4
--//	l.srli	r4,r4,6			// old jump position: shifted right 2
--
--	l.addi	r5,r3,0xc		// new jump position (physical)
--	l.slli	r5,r5,4			// new jump position: shifted left 4
--
--	// calculate new jump offset
--	// new_off = old_off + (old_jump - new_jump)
--
--	l.add	r6,r6,r4		// (orig_off + old_jump)
--	l.sub	r6,r6,r5		// (orig_off + old_jump) - new_jump
--	l.srli	r6,r6,6			// new offset shifted right 2
--
--	// r6 is new jump offset
--	l.lwz	r4,(TRAMP_SLOT_2+0x0)(r3)	// load jump instruction
--	l.srli	r4,r4,16
--	l.andi	r4,r4,0xfc00		// get opcode part
--	l.slli	r4,r4,16
--	l.or	r6,r4,r6		// l.b(n)f new offset
--	l.sw	TRAMP_SLOT_2(r3),r6	// write it back
--
--	/* we need to add l.j to EEA + 0x8 */
--	tophys	(r4,r2)			// may not be needed (due to shifts down_
--	l.addi	r4,r4,(0x8 - 0x8)	// jump target = r2 + 0x8 (compensate for 0x8)
--					// jump position = r5 + 0x8 (0x8 compensated)
--	l.sub	r4,r4,r5		// jump offset = target - new_position + 0x8
--
--	l.slli	r4,r4,4			// the amount of info in imediate of jump
--	l.srli	r4,r4,6			// jump instruction with offset
--	l.sw	TRAMP_SLOT_4(r3),r4	// write it to 4th slot
--
--	/* fallthrough */
--
--trampoline_out:
--	// set up new EPC to point to our trampoline code
--	LOAD_SYMBOL_2_GPR(r5,_immu_trampoline)
--	l.mtspr	r0,r5,SPR_EPCR_BASE
--
--	// immu_trampoline is (4x) CACHE_LINE aligned
--	// and only 6 instructions long,
--	// so we need to invalidate only 2 lines
--
--	/* Establish cache block size
--	   If BS=0, 16;
--	   If BS=1, 32;
--	   r14 contain block size
--	*/
--	l.mfspr r21,r0,SPR_ICCFGR
--	l.andi	r21,r21,SPR_ICCFGR_CBS
--	l.srli	r21,r21,7
--	l.ori	r23,r0,16
--	l.sll	r14,r23,r21
--
--	l.mtspr	r0,r5,SPR_ICBIR
--	l.add	r5,r5,r14
--	l.mtspr	r0,r5,SPR_ICBIR
--
--	l.jr	r9
--	l.nop
--
- /*
-  * DESC: Prints ASCII character stored in r7
-  *
--- 
-2.31.1
+-Stafford
 
+> +
+>  endmenu
+>  
+>  config NR_CPUS
+> diff --git a/arch/openrisc/Makefile b/arch/openrisc/Makefile
+> index 760b734fb822..b446510173cd 100644
+> --- a/arch/openrisc/Makefile
+> +++ b/arch/openrisc/Makefile
+> @@ -21,6 +21,7 @@ OBJCOPYFLAGS    := -O binary -R .note -R .comment -S
+>  LIBGCC 		:= $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
+>  
+>  KBUILD_CFLAGS	+= -pipe -ffixed-r10 -D__linux__
+> +KBUILD_CFLAGS	+= -msfimm -mshftimm
+>  
+>  all: vmlinux.bin
+>  
+> @@ -38,6 +39,22 @@ else
+>  	KBUILD_CFLAGS += $(call cc-option,-msoft-div)
+>  endif
+>  
+> +ifeq ($(CONFIG_OPENRISC_HAVE_INST_CMOV),y)
+> +	KBUILD_CFLAGS += $(call cc-option,-mcmov)
+> +endif
+> +
+> +ifeq ($(CONFIG_OPENRISC_HAVE_INST_ROR),y)
+> +	KBUILD_CFLAGS += $(call cc-option,-mror)
+> +endif
+> +
+> +ifeq ($(CONFIG_OPENRISC_HAVE_INST_RORI),y)
+> +	KBUILD_CFLAGS += $(call cc-option,-mrori)
+> +endif
+> +
+> +ifeq ($(CONFIG_OPENRISC_HAVE_INST_SEXT),y)
+> +	KBUILD_CFLAGS += $(call cc-option,-msext)
+> +endif
+> +
+>  head-y 		:= arch/openrisc/kernel/head.o
+>  
+>  libs-y		+= $(LIBGCC)
+> -- 
+> 2.31.1
+> 
