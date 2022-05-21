@@ -2,55 +2,54 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26E6AC433FE
-	for <openrisc@archiver.kernel.org>; Sat, 21 May 2022 13:13:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95136C433EF
+	for <openrisc@archiver.kernel.org>; Sat, 21 May 2022 13:13:47 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 298D82412D;
-	Sat, 21 May 2022 15:13:42 +0200 (CEST)
-Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com
- [209.85.210.176])
- by mail.librecores.org (Postfix) with ESMTPS id 3FF842412D
- for <openrisc@lists.librecores.org>; Sat, 21 May 2022 15:13:40 +0200 (CEST)
-Received: by mail-pf1-f176.google.com with SMTP id h13so3594022pfq.5
- for <openrisc@lists.librecores.org>; Sat, 21 May 2022 06:13:40 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 575F12412D;
+	Sat, 21 May 2022 15:13:46 +0200 (CEST)
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com
+ [209.85.214.182])
+ by mail.librecores.org (Postfix) with ESMTPS id 41E1E2412D
+ for <openrisc@lists.librecores.org>; Sat, 21 May 2022 15:13:44 +0200 (CEST)
+Received: by mail-pl1-f182.google.com with SMTP id i1so9419029plg.7
+ for <openrisc@lists.librecores.org>; Sat, 21 May 2022 06:13:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=wXO4BheuhYf/qtVPhrmMyquWayElWld6sjdR5X3gNkE=;
- b=l6xk/kluVQpMuwRXPybjDty5NMjYJs9gDfwu/kLMXMr4MTLCUzBVK+UTLB1/DhB6DT
- APVt63p0+SycjvMMyPyDkq4s7oLVc/7A5RqJTqFTJObilxMMKRNgXz3qULPIgfEJXJQH
- EXSKbjzznlfM9znHRhrHuCdh9jAZ+LkGcJ3+kLn+BToHzbqaK6hzlnUrHuNfs6iOY98+
- RdT14U64yKUa/kvIMQEMA62hJ5WAPU0q4aBSGKc2DmCw6Pdf2KLt21U9vkCctwPwBDpR
- E7jGahl1nzOzqnuqgqJCmBrEwhgvVWeZ0Mv9Da87b5eAWyT1KrSo4LZW5cTigR8P6eR2
- 6kEQ==
+ bh=eUjPg/5e1ChZn1rwFI2hAczpBcOEyorc/hxHSfQm0Lg=;
+ b=SS4710Djm9iHegQA+cfPB+xbNAqruJrs33j7ATRahJ1U9eXijmD1rT4DJTo2NuR94x
+ T1zuJtRspNJRaF/L0vKRigl8c/BfMuE4qKDQhbyMVG71P4krpawCgRze/y9tca1M2OFY
+ OyM24SlF0wkbeMIizNftta18emQlpMNg/R7KKrxw8AsZZc3QAU38Dbu/7nD1Po8dOGvH
+ Pim+7QPHdxH2G6ex1K760GvAEmy37SXLA8yjZ75qVt5mG4PfN+4Nl6EqKEt6JolLoac/
+ iJ+kqtUN/cCEVRM9SZiFdLnTFs6aC1K9lYIhabAj/izbx0QIzj3H2DOQh68GA9bKD6fN
+ uFMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=wXO4BheuhYf/qtVPhrmMyquWayElWld6sjdR5X3gNkE=;
- b=HRDPostFeRCa3bTOGD4unT3OuipLMs1fnEWt6+mX0+aL8sgTnMRFnCu9mJIrZi1JYL
- CVfnZyATbuf/Z5PZPiVu6VJ9UBcZMX1kTRZTOOnN7c3GCtOQtzyb/XkZRG7PUdA+YbVw
- 4IfHNh3JvOFYkHc3/CmoQjYwnbK3GtP340rG5BZdDBKkRx9b38PfEK1UOXkwZGEQNWKo
- TPTyeiLBuAbne4BJOnjtuwqzp0MnYxA7h19YrO+x9zzn24F5TE25bXtJem58YXjDJpnm
- 8M46KCU+dqRMsnTytE9x3fKOQHqgGq4yK3GwgSWJPkpe7rrbFZu24xNajxS5VJazZ1x7
- pKsg==
-X-Gm-Message-State: AOAM532j1qvY+dw8tjbEQ8p+j1FGu1RlfnZuMN6FERQ1GTf31MayhI7D
- OVIqgWBjoWZF8dy4OYTpeYA=
-X-Google-Smtp-Source: ABdhPJzbNA9d6fiiiDWRXIgbgBoWlld0RwTG6FoUevm82feThooClQUtFgklc9cPjFrLzTaW83B1Yw==
-X-Received: by 2002:a63:4846:0:b0:3f2:5f88:e7ab with SMTP id
- x6-20020a634846000000b003f25f88e7abmr12944774pgk.2.1653138818691; 
- Sat, 21 May 2022 06:13:38 -0700 (PDT)
+ bh=eUjPg/5e1ChZn1rwFI2hAczpBcOEyorc/hxHSfQm0Lg=;
+ b=Hd4anYPa2wSl3+cuFBPDDPIAmwm2UBQUNSBjsmuHbYEeiR1PNYVTnuwhA9oG9b5HYG
+ HeYu9S+iZNaYkE+NYuYFNmHHZ7s4kMkCgMQftwhmcl97Nlm8OAAdqcNd9NeUCtAUGTNJ
+ ZKBxtqDhm5o7R82VFUAmi/k5LpSXZVlpRKXoRFqD8CUxbjtY0B+SFt4jvKMJICGExYxf
+ T8klg7IhtywRPrh5oZtxUhbAwmq2XOSdZm+e9N8IEqU7HwmJ0joSSfPWB5qj//ng/rSP
+ DMiQKMiIVgM/tJ01Esk2qhB+l1SR6GPBZXJFMIMGDVM6fcnHAjl2Hbo3nfjxIBWz7xvF
+ 74Iw==
+X-Gm-Message-State: AOAM531SChEIWoBGIXXvCCnHdX2/BpCgyfHpj7UJz1BwSN1Lj3UHLwih
+ bzNp37YQAuPXuKkWBHy6Ydo=
+X-Google-Smtp-Source: ABdhPJxMYtezTY+sdkBxMLe3TSGcu0YJtnAkGJd79Tkz+n/+UZhPZvQz85k1873ZBzqQgTW1EZznfg==
+X-Received: by 2002:a17:90b:164a:b0:1dc:981d:f197 with SMTP id
+ il10-20020a17090b164a00b001dc981df197mr17010054pjb.228.1653138822715; 
+ Sat, 21 May 2022 06:13:42 -0700 (PDT)
 Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
  by smtp.gmail.com with ESMTPSA id
- jb15-20020a170903258f00b0015e8d4eb256sm1564170plb.160.2022.05.21.06.13.37
+ k193-20020a633dca000000b003f60a8d7dadsm1497174pga.15.2022.05.21.06.13.41
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sat, 21 May 2022 06:13:38 -0700 (PDT)
+ Sat, 21 May 2022 06:13:42 -0700 (PDT)
 From: Stafford Horne <shorne@gmail.com>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH v3 01/13] openrisc: Add gcc machine instruction flag
- configuration
-Date: Sat, 21 May 2022 22:13:11 +0900
-Message-Id: <20220521131323.631209-2-shorne@gmail.com>
+Subject: [PATCH v3 02/13] openrisc: Cleanup emergency print handling
+Date: Sat, 21 May 2022 22:13:12 +0900
+Message-Id: <20220521131323.631209-3-shorne@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20220521131323.631209-1-shorne@gmail.com>
 References: <20220521131323.631209-1-shorne@gmail.com>
@@ -68,124 +67,297 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Jonas Bonn <jonas@southpole.se>, Openrisc <openrisc@lists.librecores.org>
+Cc: Jonas Bonn <jonas@southpole.se>, Openrisc <openrisc@lists.librecores.org>,
+ Randy Dunlap <rdunlap@infradead.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-OpenRISC GCC supports flags to enable the backend to output instructions
-if they are supported by a target processor.  This patch adds
-configuration flags to enable configuring these flags to tune the kernel
-for a particular CPU configuration.
+The emergency print support only works for 8250 compatible serial ports.
+Now that OpenRISC platforms may be configured with different serial port
+hardware we don't want emergency print to try to print to non-existent
+hardware which will cause lockups.
 
-In the future we could also enable all of these flags by default and
-provide instruction emulation in the kernel to make these choices easier
-for users but this is what we provide for now.
+This patch contains several fixes to get emergency print working again:
+
+ - Update symbol loading to not assume the location of symbols
+ - Split the putc print operation out to its own function to allow
+   for different future implementations.
+ - Update _emergency_print_nr and _emergency_print to use the putc
+   function.
+ - Guard serial 8250 specific sequences by CONFIG_SERIAL_8250
+ - Update string line feed from lf,cr to cr,lf.
 
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/Kconfig  | 53 ++++++++++++++++++++++++++++++++++++++++++
- arch/openrisc/Makefile | 17 ++++++++++++++
- 2 files changed, 70 insertions(+)
+ arch/openrisc/kernel/head.S | 148 +++++++++++++++++++++---------------
+ 1 file changed, 85 insertions(+), 63 deletions(-)
 
-diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index 0d68adf6e02b..37243f023805 100644
---- a/arch/openrisc/Kconfig
-+++ b/arch/openrisc/Kconfig
-@@ -114,6 +114,59 @@ config OPENRISC_HAVE_INST_DIV
- 	default y
- 	help
- 	  Select this if your implementation has a hardware divide instruction
-+
-+config OPENRISC_HAVE_INST_CMOV
-+	bool "Have instruction l.cmov for conditional move"
-+	default n
-+	help
-+	  This config enables gcc to generate l.cmov instructions when compiling
-+	  the kernel which in general will improve performance and reduce the
-+	  binary size.
-+
-+	  Select this if your implementation has support for the Class II
-+	  l.cmov conistional move instruction.
-+
-+	  Say N if you are unsure.
-+
-+config OPENRISC_HAVE_INST_ROR
-+	bool "Have instruction l.ror for rotate right"
-+	default n
-+	help
-+	  This config enables gcc to generate l.ror instructions when compiling
-+	  the kernel which in general will improve performance and reduce the
-+	  binary size.
-+
-+	  Select this if your implementation has support for the Class II
-+	  l.ror rotate right instruction.
-+
-+	  Say N if you are unsure.
-+
-+config OPENRISC_HAVE_INST_RORI
-+	bool "Have instruction l.rori for rotate right with immediate"
-+	default n
-+	help
-+	  This config enables gcc to generate l.rori instructions when compiling
-+	  the kernel which in general will improve performance and reduce the
-+	  binary size.
-+
-+	  Select this if your implementation has support for the Class II
-+	  l.rori rotate right with immediate instruction.
-+
-+	  Say N if you are unsure.
-+
-+config OPENRISC_HAVE_INST_SEXT
-+	bool "Have instructions l.ext* for sign extension"
-+	default n
-+	help
-+	  This config enables gcc to generate l.ext* instructions when compiling
-+	  the kernel which in general will improve performance and reduce the
-+	  binary size.
-+
-+	  Select this if your implementation has support for the Class II
-+	  l.exths, l.extbs, l.exthz and l.extbz size extend instructions.
-+
-+	  Say N if you are unsure.
-+
- endmenu
+diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
+index 15f1b38dfe03..7bfa6e4b60c5 100644
+--- a/arch/openrisc/kernel/head.S
++++ b/arch/openrisc/kernel/head.S
+@@ -297,19 +297,23 @@
+ 	/* temporary store r3, r9 into r1, r10 */		;\
+ 	l.addi	r1,r3,0x0					;\
+ 	l.addi	r10,r9,0x0					;\
+-	/* the string referenced by r3 must be low enough */	;\
++	LOAD_SYMBOL_2_GPR(r9,_string_unhandled_exception)	;\
++	tophys	(r3,r9)						;\
+ 	l.jal	_emergency_print				;\
+-	l.ori	r3,r0,lo(_string_unhandled_exception)		;\
++	 l.nop							;\
+ 	l.mfspr	r3,r0,SPR_NPC					;\
+ 	l.jal	_emergency_print_nr				;\
+-	l.andi	r3,r3,0x1f00					;\
+-	/* the string referenced by r3 must be low enough */	;\
++	 l.andi	r3,r3,0x1f00					;\
++	LOAD_SYMBOL_2_GPR(r9,_string_epc_prefix)		;\
++	tophys	(r3,r9)						;\
+ 	l.jal	_emergency_print				;\
+-	l.ori	r3,r0,lo(_string_epc_prefix)			;\
++	 l.nop							;\
+ 	l.jal	_emergency_print_nr				;\
+-	l.mfspr	r3,r0,SPR_EPCR_BASE				;\
++	 l.mfspr r3,r0,SPR_EPCR_BASE				;\
++	LOAD_SYMBOL_2_GPR(r9,_string_nl)			;\
++	tophys	(r3,r9)						;\
+ 	l.jal	_emergency_print				;\
+-	l.ori	r3,r0,lo(_string_nl)				;\
++	 l.nop							;\
+ 	/* end of printing */					;\
+ 	l.addi	r3,r1,0x0					;\
+ 	l.addi	r9,r10,0x0					;\
+@@ -1530,65 +1534,99 @@ trampoline_out:
+ 	l.jr	r9
+ 	l.nop
  
- config NR_CPUS
-diff --git a/arch/openrisc/Makefile b/arch/openrisc/Makefile
-index 760b734fb822..b446510173cd 100644
---- a/arch/openrisc/Makefile
-+++ b/arch/openrisc/Makefile
-@@ -21,6 +21,7 @@ OBJCOPYFLAGS    := -O binary -R .note -R .comment -S
- LIBGCC 		:= $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
+-
+ /*
+- * DSCR: prints a string referenced by r3.
++ * DESC: Prints ASCII character stored in r7
+  *
+- * PRMS: r3     	- address of the first character of null
+- *			terminated string to be printed
++ * PRMS: r7	- a 32-bit value with an ASCII character in the first byte
++ *		position.
+  *
+- * PREQ: UART at UART_BASE_ADD has to be initialized
++ * PREQ: The UART at UART_BASE_ADD has to be initialized
+  *
+- * POST: caller should be aware that r3, r9 are changed
++ * POST: internally used but restores:
++ * 	 r4	- to store UART_BASE_ADD
++ *	 r5	- for loading OFF_TXFULL / THRE,TEMT
++ *	 r6	- for storing bitmask (SERIAL_8250)
+  */
+-ENTRY(_emergency_print)
++ENTRY(_emergency_putc)
+ 	EMERGENCY_PRINT_STORE_GPR4
+ 	EMERGENCY_PRINT_STORE_GPR5
+ 	EMERGENCY_PRINT_STORE_GPR6
+-	EMERGENCY_PRINT_STORE_GPR7
+-2:
+-	l.lbz	r7,0(r3)
+-	l.sfeq	r7,r0
+-	l.bf	9f
+-	l.nop
  
- KBUILD_CFLAGS	+= -pipe -ffixed-r10 -D__linux__
-+KBUILD_CFLAGS	+= -msfimm -mshftimm
+-// putc:
+ 	l.movhi r4,hi(UART_BASE_ADD)
++	l.ori	r4,r4,lo(UART_BASE_ADD)
  
- all: vmlinux.bin
++#if defined(CONFIG_SERIAL_8250)
++	/* Check UART LSR THRE (hold) bit */
+ 	l.addi  r6,r0,0x20
+ 1:      l.lbz   r5,5(r4)
+ 	l.andi  r5,r5,0x20
+ 	l.sfeq  r5,r6
+ 	l.bnf   1b
+-	l.nop
++	 l.nop
  
-@@ -38,6 +39,22 @@ else
- 	KBUILD_CFLAGS += $(call cc-option,-msoft-div)
- endif
++	/* Write character */
+ 	l.sb    0(r4),r7
  
-+ifeq ($(CONFIG_OPENRISC_HAVE_INST_CMOV),y)
-+	KBUILD_CFLAGS += $(call cc-option,-mcmov)
-+endif
++	/* Check UART LSR THRE|TEMT (hold, empty) bits */
+ 	l.addi  r6,r0,0x60
+ 1:      l.lbz   r5,5(r4)
+ 	l.andi  r5,r5,0x60
+ 	l.sfeq  r5,r6
+ 	l.bnf   1b
+-	l.nop
++	 l.nop
++#endif
++	EMERGENCY_PRINT_LOAD_GPR6
++	EMERGENCY_PRINT_LOAD_GPR5
++	EMERGENCY_PRINT_LOAD_GPR4
++	l.jr	r9
++	 l.nop
 +
-+ifeq ($(CONFIG_OPENRISC_HAVE_INST_ROR),y)
-+	KBUILD_CFLAGS += $(call cc-option,-mror)
-+endif
++/*
++ * DSCR: prints a string referenced by r3.
++ *
++ * PRMS: r3     	- address of the first character of null
++ *			terminated string to be printed
++ *
++ * PREQ: UART at UART_BASE_ADD has to be initialized
++ *
++ * POST: caller should be aware that r3, r9 are changed
++ */
++ENTRY(_emergency_print)
++	EMERGENCY_PRINT_STORE_GPR7
++	EMERGENCY_PRINT_STORE_GPR9
 +
-+ifeq ($(CONFIG_OPENRISC_HAVE_INST_RORI),y)
-+	KBUILD_CFLAGS += $(call cc-option,-mrori)
-+endif
++	/* Load character to r7, check for null terminator */
++2:	l.lbz	r7,0(r3)
++	l.sfeqi	r7,0x0
++	l.bf	9f
++	 l.nop
 +
-+ifeq ($(CONFIG_OPENRISC_HAVE_INST_SEXT),y)
-+	KBUILD_CFLAGS += $(call cc-option,-msext)
-+endif
-+
- head-y 		:= arch/openrisc/kernel/head.o
++	l.jal	_emergency_putc
++	 l.nop
  
- libs-y		+= $(LIBGCC)
+ 	/* next character */
+ 	l.j	2b
+-	l.addi	r3,r3,0x1
++	 l.addi	r3,r3,0x1
+ 
+ 9:
++	EMERGENCY_PRINT_LOAD_GPR9
+ 	EMERGENCY_PRINT_LOAD_GPR7
+-	EMERGENCY_PRINT_LOAD_GPR6
+-	EMERGENCY_PRINT_LOAD_GPR5
+-	EMERGENCY_PRINT_LOAD_GPR4
+ 	l.jr	r9
+-	l.nop
++	 l.nop
+ 
++/*
++ * DSCR: prints a number in r3 in hex.
++ *
++ * PRMS: r3     	- a 32-bit unsigned integer
++ *
++ * PREQ: UART at UART_BASE_ADD has to be initialized
++ *
++ * POST: caller should be aware that r3, r9 are changed
++ */
+ ENTRY(_emergency_print_nr)
+-	EMERGENCY_PRINT_STORE_GPR4
+-	EMERGENCY_PRINT_STORE_GPR5
+-	EMERGENCY_PRINT_STORE_GPR6
+ 	EMERGENCY_PRINT_STORE_GPR7
+ 	EMERGENCY_PRINT_STORE_GPR8
++	EMERGENCY_PRINT_STORE_GPR9
+ 
+ 	l.addi	r8,r0,32		// shift register
+ 
+@@ -1600,58 +1638,39 @@ ENTRY(_emergency_print_nr)
+ 	/* don't skip the last zero if number == 0x0 */
+ 	l.sfeqi	r8,0x4
+ 	l.bf	2f
+-	l.nop
++	 l.nop
+ 
+ 	l.sfeq	r7,r0
+ 	l.bf	1b
+-	l.nop
++	 l.nop
+ 
+ 2:
+ 	l.srl	r7,r3,r8
+ 
+ 	l.andi	r7,r7,0xf
+ 	l.sflts	r8,r0
+-	l.bf	9f
++	 l.bf	9f
+ 
++	/* Numbers greater than 9 translate to a-f */
+ 	l.sfgtui r7,0x9
+ 	l.bnf	8f
+-	l.nop
++	 l.nop
+ 	l.addi	r7,r7,0x27
+ 
+-8:
+-	l.addi	r7,r7,0x30
+-// putc:
+-	l.movhi r4,hi(UART_BASE_ADD)
+-
+-	l.addi  r6,r0,0x20
+-1:      l.lbz   r5,5(r4)
+-	l.andi  r5,r5,0x20
+-	l.sfeq  r5,r6
+-	l.bnf   1b
+-	l.nop
+-
+-	l.sb    0(r4),r7
+-
+-	l.addi  r6,r0,0x60
+-1:      l.lbz   r5,5(r4)
+-	l.andi  r5,r5,0x60
+-	l.sfeq  r5,r6
+-	l.bnf   1b
+-	l.nop
++	/* Convert to ascii and output character */
++8:	l.jal	_emergency_putc
++	 l.addi	r7,r7,0x30
+ 
+ 	/* next character */
+ 	l.j	2b
+ 	l.addi	r8,r8,-0x4
+ 
+ 9:
++	EMERGENCY_PRINT_LOAD_GPR9
+ 	EMERGENCY_PRINT_LOAD_GPR8
+ 	EMERGENCY_PRINT_LOAD_GPR7
+-	EMERGENCY_PRINT_LOAD_GPR6
+-	EMERGENCY_PRINT_LOAD_GPR5
+-	EMERGENCY_PRINT_LOAD_GPR4
+ 	l.jr	r9
+-	l.nop
+-
++	 l.nop
+ 
+ /*
+  * This should be used for debugging only.
+@@ -1676,7 +1695,9 @@ ENTRY(_emergency_print_nr)
+ 
+ ENTRY(_early_uart_init)
+ 	l.movhi	r3,hi(UART_BASE_ADD)
++	l.ori	r3,r3,lo(UART_BASE_ADD)
+ 
++#if defined(CONFIG_SERIAL_8250)
+ 	l.addi	r4,r0,0x7
+ 	l.sb	0x2(r3),r4
+ 
+@@ -1694,9 +1715,10 @@ ENTRY(_early_uart_init)
+ 	l.addi  r4,r0,((UART_DIVISOR) & 0x000000ff)
+ 	l.sb	UART_DLL(r3),r4
+ 	l.sb	0x3(r3),r5
++#endif
+ 
+ 	l.jr	r9
+-	l.nop
++	 l.nop
+ 
+ 	.align	0x1000
+ 	.global _secondary_evbar
+@@ -1711,13 +1733,13 @@ _secondary_evbar:
+ 
+ 	.section .rodata
+ _string_unhandled_exception:
+-	.string "\n\rRunarunaround: Unhandled exception 0x\0"
++	.string "\r\nRunarunaround: Unhandled exception 0x\0"
+ 
+ _string_epc_prefix:
+ 	.string ": EPC=0x\0"
+ 
+ _string_nl:
+-	.string "\n\r\0"
++	.string "\r\n\0"
+ 
+ 
+ /* ========================================[ page aligned structures ]=== */
 -- 
 2.31.1
 
