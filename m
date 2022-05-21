@@ -2,54 +2,54 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65296C433EF
-	for <openrisc@archiver.kernel.org>; Sat, 21 May 2022 13:14:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 744C2C43217
+	for <openrisc@archiver.kernel.org>; Sat, 21 May 2022 13:14:08 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 82AE024758;
-	Sat, 21 May 2022 15:14:03 +0200 (CEST)
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com
- [209.85.210.178])
- by mail.librecores.org (Postfix) with ESMTPS id 2D40924758
- for <openrisc@lists.librecores.org>; Sat, 21 May 2022 15:14:02 +0200 (CEST)
-Received: by mail-pf1-f178.google.com with SMTP id y199so9857649pfb.9
- for <openrisc@lists.librecores.org>; Sat, 21 May 2022 06:14:02 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id B8AE224758;
+	Sat, 21 May 2022 15:14:07 +0200 (CEST)
+Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com
+ [209.85.215.174])
+ by mail.librecores.org (Postfix) with ESMTPS id DACCB24758
+ for <openrisc@lists.librecores.org>; Sat, 21 May 2022 15:14:05 +0200 (CEST)
+Received: by mail-pg1-f174.google.com with SMTP id 137so9919510pgb.5
+ for <openrisc@lists.librecores.org>; Sat, 21 May 2022 06:14:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=ikZ+PR/EklJmOrxEmrNGimc9Z26aJRLTxGu7euJ5K94=;
- b=EhoD7jpbnPzy8VdYE6Da9KaxEBcK5nlsjBo0jRUA7SnJIr9x2+QTmjnPEitkOsnQ82
- FDg2A+qg3UXTXaiArxi5X5eEPUV5aJSNtwPRJeehjHA3VGR1mkM9C5CY4mJPLzuL4F36
- lqOE23I4trR2zVBpBXiZ5DkATI9lNLbE/tpWLwCOkotOq/WoEN9czrR+EXYnsoQuNu2w
- yxdEtbAxWmMD7yCjDPmH3Ww2RpP2+fVInj4SdXpr3CinpsbcVyd28TsoBVrWFzp4PAJp
- piHHvviLyVYDKifOMHwjHo7umj0r/4EWj26lF67JrSC0X5NwZNYtWiE0GvlBsNS72TI1
- KU9w==
+ bh=/YxdBnzui3ni5Jh3oFs5foUUYY4daAUO1PEkpPdCqlo=;
+ b=cK2xhVsGyV8VicAIx7RO1hnU738yQyl0C95qeHyJMhTXaHhYmXRvaUDq7GkJrXHDDU
+ VaD71U3BRjiWyy7w5zQcGOdAVS10yh3fiGzlSCLHdGkGLCdTJjbzcEJKqZ3Jv7eAh1qZ
+ PP6C/YIf5kG4pjSPFWMoCWcD0OwN2/+s1R3DH8DYBuQt5nr44+ElZ80GyCfKmgZ5V6mq
+ /STJXr1jbJcSGOe95mHhXItNuhNKIuNltjLHBv9T/pw90dPdgx5pk/wM3FdEv4C4V0EO
+ in9Q1ZrWW/+JccujTvceUy39LYWT6fb3Tw0l/xcl/q9l7zvWdC84ENEPpcr0kzWfMpPT
+ K+Iw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=ikZ+PR/EklJmOrxEmrNGimc9Z26aJRLTxGu7euJ5K94=;
- b=Xl0ERRXNEHRXZC11wMXFijF5MxRKZQv91Ob5Eoko6Vn6/nnZ0nZgbHMWXGGvBa+6j7
- 1NKwIjBddiuFqmrMwSbQNsRaBEMBcibK6pn6cTW8MOwicphRcD7lwgqTuGSBsaHMQ8rw
- LdOu5oQx2CquC0jIZ2PEFeFcqQl/MVhf0K3tkP5rQY7catibmSpo6TYoFXxij2/GAmlp
- kdGWQ65zeOaPM98rBXRE7mKiDiAF6EnLxX/5kDRqcAIeLv8+6wdatOKz4tnq22LfLwzc
- +Tjwv5dlmYJ++c49/l07y+3dRN2mKYnVioZQMhU/AlgxQbtzklS3t3AoeWnxIwajYMQ5
- 89FA==
-X-Gm-Message-State: AOAM531AqKuvU0aY5xPO27pAuCMkgq4yI9gclhlqakrLuMd93zl7bS8g
- kd7emLttBf2HKv0kez4tXcLEWjM8riU5mg==
-X-Google-Smtp-Source: ABdhPJyKIW3WotfnL1yeSTCYDA2WB1z5y39r22s9dVdmWhEmBH6WpFdAXpzN0ZhCDdIOGpKXR7st3Q==
-X-Received: by 2002:a05:6a00:b94:b0:50f:2255:ae03 with SMTP id
- g20-20020a056a000b9400b0050f2255ae03mr14833395pfj.74.1653138840676; 
- Sat, 21 May 2022 06:14:00 -0700 (PDT)
+ bh=/YxdBnzui3ni5Jh3oFs5foUUYY4daAUO1PEkpPdCqlo=;
+ b=I0AdowKu2qhzCsQP3Gk0vaxkuUkNoeABA0PO5Dw+akxfxeJnpU6XKhMxRdKmo4bJwd
+ 76E9FxVoU369QQEsD4JAq+L0D9XjgrLgghQMMo/O1uK2xotdvbAjw9hcX8hXe92pEcIS
+ unND85um9xXT9xUVkfXTqc/3qohikqt6J+hfGbOmuDHISF9aIBX4MCmwgjHjF9IV38a+
+ fq14CaxcbLH1uxc5+73yX4l2GsfUylSHtJJ7dPdFnKRHWnWadrpvV1PF45uETC7A8zuJ
+ KE8N0/VtHVjgakz1YQNl7m1hj/FBkGhWPfRVooKKSe28I5hiCzD+4buJKr/frr+0foBw
+ x4PA==
+X-Gm-Message-State: AOAM532taLmvuj/cD/WRbpoKf/2a12HErEDCwRkXvhsKLih+XsItxhbD
+ MI9t9WVkRASZmjWQI+8KGmQ=
+X-Google-Smtp-Source: ABdhPJyLWt4gX8XuEVkhq42WgdF3C0m9EL1l6FbEi/bqSXoDHDApDfOlBx9NvZ64lxpBhABsJYf9BQ==
+X-Received: by 2002:a05:6a00:e8e:b0:518:287c:ce82 with SMTP id
+ bo14-20020a056a000e8e00b00518287cce82mr14806077pfb.4.1653138844368; 
+ Sat, 21 May 2022 06:14:04 -0700 (PDT)
 Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
  by smtp.gmail.com with ESMTPSA id
- 190-20020a6204c7000000b0050dc76281basm3740557pfe.148.2022.05.21.06.13.59
+ h3-20020a170902748300b00161929fb1adsm1573706pll.54.2022.05.21.06.14.03
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sat, 21 May 2022 06:14:00 -0700 (PDT)
+ Sat, 21 May 2022 06:14:03 -0700 (PDT)
 From: Stafford Horne <shorne@gmail.com>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH v3 07/13] openrisc/traps: Declare file scope symbols as static
-Date: Sat, 21 May 2022 22:13:17 +0900
-Message-Id: <20220521131323.631209-8-shorne@gmail.com>
+Subject: [PATCH v3 08/13] openrisc/traps: Remove die_if_kernel function
+Date: Sat, 21 May 2022 22:13:18 +0900
+Message-Id: <20220521131323.631209-9-shorne@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20220521131323.631209-1-shorne@gmail.com>
 References: <20220521131323.631209-1-shorne@gmail.com>
@@ -75,40 +75,40 @@ Cc: Jonas Bonn <jonas@southpole.se>, Kefeng Wang <wangkefeng.wang@huawei.com>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Sparse was reporting the following warnings:
+This was noticed when I saw this warning:
 
-    arch/openrisc/kernel/traps.c:37:5: warning: symbol 'kstack_depth_to_print' was not declared. Should it be static?
-    arch/openrisc/kernel/traps.c:39:22: warning: symbol 'lwa_addr' was not declared. Should it be static?
-    arch/openrisc/kernel/traps.c:41:6: warning: symbol 'print_trace' was not declared. Should it be static?
+    arch/openrisc/kernel/traps.c:234:6: warning: no previous prototype for 'die_if_kernel' [-Wmissing-prototypes]
+      234 | void die_if_kernel(const char *str, struct pt_regs *regs, long err)
+	  |      ^~~~~~~~~~~~~
 
-The function print_trace and local variables kstack_depth_to_print and
-lwa_addr are not used outside of this file.  This patch marks them as
-static.
+The die_if_kernel function is not used in the OpenRISC port so remove
+it.
 
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/kernel/traps.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/openrisc/kernel/traps.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
 diff --git a/arch/openrisc/kernel/traps.c b/arch/openrisc/kernel/traps.c
-index f2478bba77b9..9e0937eb31ca 100644
+index 9e0937eb31ca..99cd2e6f8873 100644
 --- a/arch/openrisc/kernel/traps.c
 +++ b/arch/openrisc/kernel/traps.c
-@@ -34,11 +34,11 @@
- #include <asm/unwinder.h>
- #include <asm/sections.h>
+@@ -235,15 +235,6 @@ void __noreturn die(const char *str, struct pt_regs *regs, long err)
+ 	make_task_dead(SIGSEGV);
+ }
  
--int kstack_depth_to_print = 0x180;
-+static int kstack_depth_to_print = 0x180;
- int lwa_flag;
--unsigned long __user *lwa_addr;
-+static unsigned long __user *lwa_addr;
- 
--void print_trace(void *data, unsigned long addr, int reliable)
-+static void print_trace(void *data, unsigned long addr, int reliable)
+-/* This is normally the 'Oops' routine */
+-void die_if_kernel(const char *str, struct pt_regs *regs, long err)
+-{
+-	if (user_mode(regs))
+-		return;
+-
+-	die(str, regs, err);
+-}
+-
+ void unhandled_exception(struct pt_regs *regs, int ea, int vector)
  {
- 	const char *loglvl = data;
- 
+ 	printk("Unable to handle exception at EA =0x%x, vector 0x%x",
 -- 
 2.31.1
 
