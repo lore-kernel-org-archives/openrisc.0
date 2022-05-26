@@ -2,56 +2,47 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CEA6C433EF
-	for <openrisc@archiver.kernel.org>; Thu, 26 May 2022 22:23:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54616C433F5
+	for <openrisc@archiver.kernel.org>; Thu, 26 May 2022 23:27:02 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id EC3C7248C7;
-	Fri, 27 May 2022 00:23:41 +0200 (CEST)
-Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com
- [209.85.215.170])
- by mail.librecores.org (Postfix) with ESMTPS id E4A3624862
- for <openrisc@lists.librecores.org>; Fri, 27 May 2022 00:23:39 +0200 (CEST)
-Received: by mail-pg1-f170.google.com with SMTP id t28so2421120pga.6
- for <openrisc@lists.librecores.org>; Thu, 26 May 2022 15:23:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:mime-version:content-disposition;
- bh=qTkavwHRG1kUc7MxLLp8QNhHsYtlyypXgt7Cjx7vDVs=;
- b=PshBz5VS9QipcURmfBmNiQgFaxxRYldCwPz4iHpsbw2DXAjjVYY1vsfMQRE4cR4xBc
- ESydKV5rkBbalNPk55GbhtDwJN8xJ34M25U8DtFK3qyQSUdqZhSYhLjhDozi16BhQA6U
- /i2RD7b24+7cNBayA7W5Cm6goqg6xW/j+5u9dM26wwKqgF49CX2x6f99EGw8ev3Cbtrg
- 7IVYG9V6UUwx7TbL99gLN+fGS/NwRk9ml+iQGf7a2fa1duxo3GGlQYUo3jazcwHsFdHU
- BCp996pwt872vvF53nA/d2RbQh2sKTImfaIRUrwbaizdTVfSrrJPh6pYsK5bECD+pOsD
- lgHA==
+	by mail.librecores.org (Postfix) with ESMTP id 21CEC248CD;
+	Fri, 27 May 2022 01:27:01 +0200 (CEST)
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com
+ [209.85.128.42])
+ by mail.librecores.org (Postfix) with ESMTPS id DBD5E248CC
+ for <openrisc@lists.librecores.org>; Fri, 27 May 2022 01:26:58 +0200 (CEST)
+Received: by mail-wm1-f42.google.com with SMTP id
+ h126-20020a1c2184000000b003975cedb52bso1475811wmh.1
+ for <openrisc@lists.librecores.org>; Thu, 26 May 2022 16:26:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jms.id.au; s=google;
+ h=mime-version:from:date:message-id:subject:to:cc;
+ bh=DWkaZrRymrDvZ5bP75khxG+fNTQ0lNnbhxpZK0tmMKs=;
+ b=YlVK90oDw/rnYHS/F2ByhDLWm0H/HL+3b9J0RHnNAneIQA6SNMvKbZ2sMjsNkzoNde
+ GtLKDypoT4SoUkvu7uectThfAI6HKdDNCZe1+G9nWXXoes1reUZ0/zeZ5CwEwcvY62iW
+ /buk0JKyeXpWANOsoL/NT2j6moNt+0Jk+fAgc=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
- :content-disposition;
- bh=qTkavwHRG1kUc7MxLLp8QNhHsYtlyypXgt7Cjx7vDVs=;
- b=W0TYngPKDrnmT5ANovd12hZLbCGecmutfeCOVFPpd8R7RoflajYJvfMyirADbQK2gy
- GAYq6pXBYyclk2AZJ/0aZAnZSNJGPxRrtMEQVDyZpYHiQsG0YGPLPOHohwIJndBhLZ5m
- PY0Lh7eybc0MQkWHGRMYrLZnJDK+1M3YDjHRY25VjgcQ7WXl4Fcwjyf32toqhSNgxpjk
- SPEn5nXfB+CM0T7/XHQ7qysgAUep/8PSC97b4c9ze4D3Y5oyksb71N4OH1kApJUD4p7O
- uRd84jLOI1FCu/fFxHBLBmPZTr/epVz5oYjc4zIPvLCO5/uZwgib1G0lgjRGBftkvFBL
- DeaA==
-X-Gm-Message-State: AOAM532X4jE3N0lQVGqt9Fa3TX/Awn3iDOnCAvCJ2/RRjKCchNAOIU/l
- jDkx4y/qODlQiqYvmTiV4XQ=
-X-Google-Smtp-Source: ABdhPJwbfOaJPqis6FimF5jgp55B1scv/z1hwwGkaOmrhZks5bXXO1AAmJiliGEIG583B56XDFGuNA==
-X-Received: by 2002:a05:6a00:7d6:b0:518:9fa0:7dc with SMTP id
- n22-20020a056a0007d600b005189fa007dcmr22226173pfu.36.1653603818173; 
- Thu, 26 May 2022 15:23:38 -0700 (PDT)
-Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
- by smtp.gmail.com with ESMTPSA id
- q4-20020a17090a2e0400b001df2b09ce9dsm165500pjd.4.2022.05.26.15.23.37
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 26 May 2022 15:23:37 -0700 (PDT)
-Date: Fri, 27 May 2022 07:23:35 +0900
-From: Stafford Horne <shorne@gmail.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [GIT PULL] OpenRISC updates for 5.19
-Message-ID: <Yo/955uRNSaSMBqn@antec>
+ h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+ bh=DWkaZrRymrDvZ5bP75khxG+fNTQ0lNnbhxpZK0tmMKs=;
+ b=vsqEhuMEb6+vnCUzXFPkXpBn+vzZ/muIrtirH6h/yPu8u32wC6VNXFYrs6v2Jgseb+
+ W49ljrAsN8sa0eTt3kw1cMC7pChG7fRTOqWIav58bh9ijhRRFAHVlFJjwofqt6eZNMCA
+ Hd0Jn85gDrdE7H91v3zGVu3QwKfHHIwmmEx4TTrkZb5TDhaKLleT+xwQ4tGS6L176ARK
+ ONlw7p9I3aLjW+JdLdL09Aqon50nFOw9hGZIECMbwi7WHj9TVTMYNNniFy1tMLYYvSBM
+ JQqOWM7ZZgVN8Nhb5GGkkXQbAmzWXCqr13JV8YwpFnQ23rNzqb+O6iQAtMfcJplnc8pw
+ gP2Q==
+X-Gm-Message-State: AOAM530nczKHqDfn5TjYJ8wGlAv8WaI4tr1x+RW4YKZn8/59GrTCJ4AC
+ 60OE4qtNER1h1HX1nRXewqOESEO8rPjDxKI9I60=
+X-Google-Smtp-Source: ABdhPJwAg5k8gSlhG+Z7ZKHj+i6kUaFlRveRAMfnbLm4wwhn5u9rF/wxFU/AjnYZ7AJrDU9Bv32+OboFELOOh/xP/J0=
+X-Received: by 2002:a7b:c001:0:b0:394:87bc:ad70 with SMTP id
+ c1-20020a7bc001000000b0039487bcad70mr4419879wmb.147.1653607618313; Thu, 26
+ May 2022 16:26:58 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From: Joel Stanley <joel@jms.id.au>
+Date: Thu, 26 May 2022 23:26:45 +0000
+Message-ID: <CACPK8XcBRtd+RFhXaR-B3wbeM1gsmCW3hgRp_uwS0-g-oCWniw@mail.gmail.com>
+Subject: Link failure with Debian toolchain
+To: Stafford Horne <shorne@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -64,69 +55,61 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>,
- Openrisc <openrisc@lists.librecores.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: openrisc@lists.librecores.org, nicolas@debian.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Hi Linus,
+Hi Stafford,
 
-Please consider for pull
+I'm not sure if you were aware, but Debian now has a or1k cross compile:
 
-The following changes since commit af2d861d4cd2a4da5137f795ee3509e6f944a25b:
+$ apt policy gcc-or1k-elf
+gcc-or1k-elf:
+  Installed: 12.1.0-2+1.0.2
+$ apt policy binutils-or1k-elf
+binutils-or1k-elf:
+  Installed: 2.38-2+1.0.3
 
-  Linux 5.18-rc4 (2022-04-24 14:51:22 -0700)
+I've used it to build a mork1x litex soc so I think it works in some
+situations at least.
 
-are available in the Git repository at:
+I was trying to build your latest Linux kernel changes, applied on top
+of v5.18, however the bug reproduces with plain v5.18.
 
-  git@github.com:openrisc/linux.git tags/for-linus
+$ CROSS_COMPILE=or1k-elf- ARCH=openrisc make O=or1k or1klitex_defconfig
+$ CROSS_COMPILE=or1k-elf- ARCH=openrisc make O=or1k -j8
 
-for you to fetch changes up to 83da38d82b2f7ac207646e55be94e8bd642e2c39:
+This fails at the link step:
 
-  openrisc: Allow power off handler overriding (2022-05-23 17:15:50 +0900)
+  LD      vmlinux.o
++ or1k-elf-ld -r -o vmlinux.o --whole-archive
+arch/openrisc/kernel/head.o init/built-in.a usr/built-in.a
+arch/openrisc/built-in.a kernel/built-in.a certs/built-in.a
+mm/built-in.a fs/built-in.a ipc/built-in.a security/built-in.a
+crypto/built-in.a block/built-in.a lib/built-in.a drivers/built-in.a
+sound/built-in.a net/built-in.a virt/built-in.a --no-whole-archive
+--start-group lib/lib.a /usr/lib/gcc/or1k-elf/12/libgcc.a --end-group
+or1k-elf-ld: /usr/lib/gcc/or1k-elf/12/libgcc.a: error adding symbols:
+archive has no index; run ranlib to add one
 
-----------------------------------------------------------------
-OpenRISC updates for 5.19
+The libgcc.a appears to have the expected files inside it.
 
-Fixups and enhancements for OpenRISC:
- - A few sparse warning fixups and other cleanups I noticed when working
-   on a recent TLB bug found on a new OpenRISC core bring up.
- - A few fixup's from me and Jason A Donenfeld to help shutdown OpenRISC
-   platforms when running CI tests
+I tried running ar -a libgcc.a, and that changed the error to look like this:
 
-----------------------------------------------------------------
-Jason A. Donenfeld (2):
-      openrisc: remove bogus nops and shutdowns
-      openrisc: define nop command for simulator reboot
+or1k-elf-ld: init/main.o: in function `do_one_initcall':
+main.c:(.init.text+0x12ec): undefined reference to `__muldi3'
+main.c:(.init.text+0x12ec): relocation truncated to fit:
+R_OR1K_INSN_REL_26 against undefined symbol `__muldi3'
 
-Julia Lawall (1):
-      openrisc: fix typos in comments
+With a lot more undefined reference errors for __muldi3, __ashldi3,
+and __lshrdi3.
 
-Stafford Horne (14):
-      openrisc: Add gcc machine instruction flag configuration
-      openrisc: Cleanup emergency print handling
-      openrisc: Add support for liteuart emergency printing
-      openrisc: Add syscall details to emergency syscall debugging
-      openrisc: Pretty print show_registers memory dumps
-      openrisc: Update litex defconfig to support glibc userland
-      openrisc/traps: Declare file scope symbols as static
-      openrisc/traps: Remove die_if_kernel function
-      openrisc/traps: Declare unhandled_exception for asmlinkage
-      openrisc/time: Fix symbol scope warnings
-      openrisc/delay: Add include to fix symbol not declared warning
-      openrisc/fault: Fix symbol scope warnings
-      openrisc: Remove unused IMMU tlb workardound
-      openrisc: Allow power off handler overriding
+I'm not sure if this is a toolchain error or a kernel one. The kernel
+appears to be doing the right thing.
 
- arch/openrisc/Kconfig                     |  53 +++++
- arch/openrisc/Makefile                    |  17 ++
- arch/openrisc/configs/or1klitex_defconfig |  32 +++
- arch/openrisc/kernel/entry.S              |  20 +-
- arch/openrisc/kernel/head.S               | 368 ++++++++----------------------
- arch/openrisc/kernel/process.c            |  19 +-
- arch/openrisc/kernel/time.c               |   3 +-
- arch/openrisc/kernel/traps.c              |  63 ++---
- arch/openrisc/lib/delay.c                 |   1 +
- arch/openrisc/mm/fault.c                  |   9 +-
- arch/openrisc/mm/tlb.c                    |   2 +-
- 11 files changed, 272 insertions(+), 315 deletions(-)
+I've cc'd Nicholas who is the Debian maintainer for the package in
+case he has any ideas.
+
+Cheers,
+
+Joel
