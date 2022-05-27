@@ -2,59 +2,73 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3A3EC433F5
-	for <openrisc@archiver.kernel.org>; Fri, 27 May 2022 17:27:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8A3FC433EF
+	for <openrisc@archiver.kernel.org>; Fri, 27 May 2022 19:39:52 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id CAACC247C4;
-	Fri, 27 May 2022 19:27:49 +0200 (CEST)
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com
- [209.85.216.48])
- by mail.librecores.org (Postfix) with ESMTPS id 90501248EE
- for <openrisc@lists.librecores.org>; Fri, 27 May 2022 19:27:48 +0200 (CEST)
-Received: by mail-pj1-f48.google.com with SMTP id
- cs3-20020a17090af50300b001e0808b5838so4929825pjb.1
- for <openrisc@lists.librecores.org>; Fri, 27 May 2022 10:27:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=hr9iiUiTeCACXFBySPfQdUnzrIKXXLExVfrLvDY1roQ=;
- b=TnweG+1zbX6I67W93Hg19A0oy3AkfriBi2EJwz/dlan0x70ZJuOjzwlpjd5Aa2EkQr
- WlBA+HUeTpo2FNFvyWa3+SQpXW0CewTlnU3CUKaquCdNKz/DJs/GxZBOuWCC+FdvZiRr
- S5AruSvIXNx+BfUV5lYFCEePy2A08QS02Mvq+i3v4NkpIO5+upd1s5yCJlGyrCfRkdtG
- t/3Q83Lh4uv8jezxRUI40rP9FCFulkA7ExsCHZb8jvdI1CT9KwB/tSWy14O2rhpqO8PL
- h8orW0M8NdN7nXh9F0l2DDVz+39YcoLUY0FLmeckE1cYE4cgnczUfR+yY3gEjcFlMKVE
- fztA==
+	by mail.librecores.org (Postfix) with ESMTP id A9F11248E4;
+	Fri, 27 May 2022 21:39:51 +0200 (CEST)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by mail.librecores.org (Postfix) with ESMTP id A2111247C2
+ for <openrisc@lists.librecores.org>; Fri, 27 May 2022 21:39:49 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1653680388;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=zdu7Pg4zKxm1uKLLvvDVMRmZFDVUqRIRXozl857+hu4=;
+ b=P+nCP3hGDIQjbSUxetjfsWamQ5hkJV0AFxpgoYCmvzQ7q8pCR076MkQ42jTe5t4jnLMrjZ
+ WOlqBl9E2dk3wMnPZBRcdzV1QIX0Aor8CsdwK8eMRTt0jL72t7s9HzcdxOdBbC2oY9232g
+ HRBDOHYVTbNUY2VTjYlcj1zY1uinMp0=
+Received: from mail-il1-f199.google.com (mail-il1-f199.google.com
+ [209.85.166.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-307-SpD4_0-eOgKZt4S7FBAoLw-1; Fri, 27 May 2022 15:39:47 -0400
+X-MC-Unique: SpD4_0-eOgKZt4S7FBAoLw-1
+Received: by mail-il1-f199.google.com with SMTP id
+ i18-20020a926d12000000b002d1b13b896cso3652984ilc.7
+ for <openrisc@lists.librecores.org>; Fri, 27 May 2022 12:39:44 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=hr9iiUiTeCACXFBySPfQdUnzrIKXXLExVfrLvDY1roQ=;
- b=d/Soy9ZfeaOp8QGpeyZpNRblVzHJvCNHOQrLEfwCS52WEII/jWw+kEJtcaejLIjFmQ
- BdwyKT60iMlRHqvR9x71d7Iu05CLyQ6FEEnQLbLh0gVf6InsVB/WoSaGRjzv46xZD6f9
- kice3zvBsYZTJezVfY/hiQ6H1zgnMsYjm6vr9YpQaUS2FLrJAiY4uvCwVHC0Da2Ax3dN
- Q46pSFXqnS3OOuXRJ+Iw65Z4UpjilcBxw6MS3hmx3GpWS3u3OB70UhcdYAPzyjazqmWI
- gYOdgk7Q2H3uOiq/ImwABf9RhaK4wuXLaGc5lRKqGWMiSDsM/cY33XWfIpBThuNerQ4M
- FWcw==
-X-Gm-Message-State: AOAM531Tc7hktwd6vUHU/qIdaP+pn5XKqXrWuxxQ7+b2f5VDtrIEitFV
- xCi/MmYgG2PN+HS1GJ3BesM=
-X-Google-Smtp-Source: ABdhPJy4EFvALp3j1DaBIRoPjea2X1BIvfmED+oCQMvhYMuvG9w3PRJ+VFf3HgjJC0pZvw8jGXK4sA==
-X-Received: by 2002:a17:903:2305:b0:163:64c7:f9ff with SMTP id
- d5-20020a170903230500b0016364c7f9ffmr12885222plh.46.1653672467010; 
- Fri, 27 May 2022 10:27:47 -0700 (PDT)
-Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=zdu7Pg4zKxm1uKLLvvDVMRmZFDVUqRIRXozl857+hu4=;
+ b=IHRkli6m/7zFUvjVY1MyL9LnGnvjnse4bCil3eSZgN2Wbu9I0UDwdcE8T01/5QqX+6
+ KAQ2WEpS5eOunEI+JwCJe1XRyWX6EbC/ViRrtsbHO/JZaESn7cEswlaA1VHmqG8UVQkg
+ XRjHt71URrO1gL7lZUNt4IAVvTAoxSu2rsIyoh3i0OU1nW8ehhmzOlCQSezlb11yhkpl
+ dt7xvWlsdjB3UHI4ig/nhFRY9eDxKWzij/PiVoE05dwHXrGKP64Oj8CvCKl+csM56kmT
+ wN5yUWe/hoJN3X9FGsOOM+iRq5I7Bji2b8o8xp+k7rVWGPsnNtphoI182QySkih5RNGU
+ Lvyw==
+X-Gm-Message-State: AOAM533AFnZRAe7FWxBzNYtWc+ySGLVnKzM+fQh0aplyOUmH1TVCsBi6
+ u51GFoHwlYtOuG4lsmxJjHrGoQ1+wifdWoDOcRXxITOVQG0EzbQ1ssJ2ITRC86NXHVnaYqdkFrg
+ g3sh4ZSUzlgAWF3fZciuA/dGQ5w==
+X-Received: by 2002:a05:6638:1925:b0:32e:dc08:ced3 with SMTP id
+ p37-20020a056638192500b0032edc08ced3mr11834930jal.212.1653680383783; 
+ Fri, 27 May 2022 12:39:43 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJycszExypDCmz/kq06KoOIqbe7IWTgWCyXrKhxfATY7rwpEo/+Qx+suJB7x0DjnJcxaZa6AhQ==
+X-Received: by 2002:a05:6638:1925:b0:32e:dc08:ced3 with SMTP id
+ p37-20020a056638192500b0032edc08ced3mr11834857jal.212.1653680383300; 
+ Fri, 27 May 2022 12:39:43 -0700 (PDT)
+Received: from localhost.localdomain
+ (cpec09435e3e0ee-cmc09435e3e0ec.cpe.net.cable.rogers.com. [99.241.198.116])
  by smtp.gmail.com with ESMTPSA id
- z12-20020aa785cc000000b0050dc762818bsm3758214pfn.101.2022.05.27.10.27.46
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 27 May 2022 10:27:46 -0700 (PDT)
-From: Stafford Horne <shorne@gmail.com>
-To: QEMU Development <qemu-devel@nongnu.org>
-Subject: [RFC PATCH 3/3] hw/openrisc: Add the OpenRISC virtual machine
-Date: Sat, 28 May 2022 02:27:30 +0900
-Message-Id: <20220527172731.1742837-4-shorne@gmail.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220527172731.1742837-1-shorne@gmail.com>
-References: <20220527172731.1742837-1-shorne@gmail.com>
+ t2-20020a92c902000000b002d10291f973sm1530215ilp.4.2022.05.27.12.39.37
+ (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+ Fri, 27 May 2022 12:39:42 -0700 (PDT)
+From: Peter Xu <peterx@redhat.com>
+To: linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+Subject: [PATCH v4] mm: Avoid unnecessary page fault retires on shared memory
+ types
+Date: Fri, 27 May 2022 15:39:36 -0400
+Message-Id: <20220527193936.30678-1-peterx@redhat.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=peterx@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-type: text/plain
 Content-Transfer-Encoding: 8bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
@@ -68,506 +82,618 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>,
- Openrisc <openrisc@lists.librecores.org>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org,
+ David Hildenbrand <david@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
+ Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, peterx@redhat.com,
+ "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
+ Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>,
+ "H . Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Will Deacon <will@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
+ Paul Mackerras <paulus@samba.org>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org,
+ Janosch Frank <frankja@linux.ibm.com>,
+ Yoshinori Sato <ysato@users.sourceforge.jp>, linux-sh@vger.kernel.org,
+ Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>,
+ Alistair Popple <apopple@nvidia.com>, Hugh Dickins <hughd@google.com>,
+ Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org,
+ Ingo Molnar <mingo@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>,
+ linux-arm-kernel@lists.infradead.org, Vineet Gupta <vgupta@kernel.org>,
+ Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org,
+ Catalin Marinas <catalin.marinas@arm.com>, linux-xtensa@linux-xtensa.org,
+ Albert Ou <aou@eecs.berkeley.edu>, Vasily Gorbik <gor@linux.ibm.com>,
+ Chris Zankel <chris@zankel.net>, Heiko Carstens <hca@linux.ibm.com>,
+ Johannes Weiner <hannes@cmpxchg.org>, linux-um@lists.infradead.org,
+ Nicholas Piggin <npiggin@gmail.com>, Richard Weinberger <richard@nod.at>,
+ linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org,
+ Borislav Petkov <bp@alien8.de>, Al Viro <viro@zeniv.linux.org.uk>,
+ Andy Lutomirski <luto@kernel.org>, Paul Walmsley <paul.walmsley@sifive.com>,
+ Ingo Molnar <mingo@redhat.com>, Vlastimil Babka <vbabka@suse.cz>,
+ Richard Henderson <rth@twiddle.net>, Brian Cain <bcain@quicinc.com>,
+ Michal Simek <monstr@monstr.eu>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, linux-parisc@vger.kernel.org,
+ linux-mips@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>,
+ Dinh Nguyen <dinguyen@kernel.org>, linux-riscv@lists.infradead.org,
+ Palmer Dabbelt <palmer@dabbelt.com>, Sven Schnelle <svens@linux.ibm.com>,
+ linux-alpha@vger.kernel.org, Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+ Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org,
+ "David S . Miller" <davem@davemloft.net>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-This patch add the OpenRISC virtual machine 'virt' for OpenRISC.  This
-platform allows for a convenient CI platform for toolchain, software
-ports and the OpenRISC linux kernel port.
+I observed that for each of the shared file-backed page faults, we're very
+likely to retry one more time for the 1st write fault upon no page.  It's
+because we'll need to release the mmap lock for dirty rate limit purpose
+with balance_dirty_pages_ratelimited() (in fault_dirty_shared_page()).
 
-Much of this has been sourced from the m68k and riscv virt platforms.
+Then after that throttling we return VM_FAULT_RETRY.
 
-The platform provides:
- - OpenRISC SMP with up to 8 cpus
- - A virtio bus with up to 8 devices
- - Standard ns16550a serial
- - Goldfish RTC
- - SiFive TEST device for poweroff and reboot
- - Generated RTC to automatically configure the guest kernel
+We did that probably because VM_FAULT_RETRY is the only way we can return
+to the fault handler at that time telling it we've released the mmap lock.
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
+However that's not ideal because it's very likely the fault does not need
+to be retried at all since the pgtable was well installed before the
+throttling, so the next continuous fault (including taking mmap read lock,
+walk the pgtable, etc.) could be in most cases unnecessary.
+
+It's not only slowing down page faults for shared file-backed, but also add
+more mmap lock contention which is in most cases not needed at all.
+
+To observe this, one could try to write to some shmem page and look at
+"pgfault" value in /proc/vmstat, then we should expect 2 counts for each
+shmem write simply because we retried, and vm event "pgfault" will capture
+that.
+
+To make it more efficient, add a new VM_FAULT_COMPLETED return code just to
+show that we've completed the whole fault and released the lock.  It's also
+a hint that we should very possibly not need another fault immediately on
+this page because we've just completed it.
+
+This patch provides a ~12% perf boost on my aarch64 test VM with a simple
+program sequentially dirtying 400MB shmem file being mmap()ed and these are
+the time it needs:
+
+  Before: 650.980 ms (+-1.94%)
+  After:  569.396 ms (+-1.38%)
+
+I believe it could help more than that.
+
+We need some special care on GUP and the s390 pgfault handler (for gmap
+code before returning from pgfault), the rest changes in the page fault
+handlers should be relatively straightforward.
+
+Another thing to mention is that mm_account_fault() does take this new
+fault as a generic fault to be accounted, unlike VM_FAULT_RETRY.
+
+I explicitly didn't touch hmm_vma_fault() and break_ksm() because they do
+not handle VM_FAULT_RETRY even with existing code, so I'm literally keeping
+them as-is.
+
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Acked-by: Vineet Gupta <vgupta@kernel.org>
+Acked-by: Guo Ren <guoren@kernel.org>
+Acked-by: Max Filippov <jcmvbkbc@gmail.com>
+Reviewed-by: Alistair Popple <apopple@nvidia.com>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Peter Xu <peterx@redhat.com>
 ---
- configs/devices/or1k-softmmu/default.mak |   1 +
- hw/openrisc/Kconfig                      |   9 +
- hw/openrisc/meson.build                  |   1 +
- hw/openrisc/virt.c                       | 429 +++++++++++++++++++++++
- 4 files changed, 440 insertions(+)
- create mode 100644 hw/openrisc/virt.c
+v4:
+- Picked up a-bs and r-bs
+- Fix grammar in the comment of faultin_page() [Ingo]
+- Fix s390 for gmap since gmap needs the mmap lock [Heiko]
+v3:
+- Rebase to akpm/mm-unstable
+- Copy arch maintainers
+---
+ arch/alpha/mm/fault.c         |  4 ++++
+ arch/arc/mm/fault.c           |  4 ++++
+ arch/arm/mm/fault.c           |  4 ++++
+ arch/arm64/mm/fault.c         |  4 ++++
+ arch/csky/mm/fault.c          |  4 ++++
+ arch/hexagon/mm/vm_fault.c    |  4 ++++
+ arch/ia64/mm/fault.c          |  4 ++++
+ arch/m68k/mm/fault.c          |  4 ++++
+ arch/microblaze/mm/fault.c    |  4 ++++
+ arch/mips/mm/fault.c          |  4 ++++
+ arch/nios2/mm/fault.c         |  4 ++++
+ arch/openrisc/mm/fault.c      |  4 ++++
+ arch/parisc/mm/fault.c        |  4 ++++
+ arch/powerpc/mm/copro_fault.c |  5 +++++
+ arch/powerpc/mm/fault.c       |  5 +++++
+ arch/riscv/mm/fault.c         |  4 ++++
+ arch/s390/mm/fault.c          | 12 ++++++++++++
+ arch/sh/mm/fault.c            |  4 ++++
+ arch/sparc/mm/fault_32.c      |  4 ++++
+ arch/sparc/mm/fault_64.c      |  5 +++++
+ arch/um/kernel/trap.c         |  4 ++++
+ arch/x86/mm/fault.c           |  4 ++++
+ arch/xtensa/mm/fault.c        |  4 ++++
+ include/linux/mm_types.h      |  2 ++
+ mm/gup.c                      | 34 +++++++++++++++++++++++++++++++++-
+ mm/memory.c                   |  2 +-
+ 26 files changed, 139 insertions(+), 2 deletions(-)
 
-diff --git a/configs/devices/or1k-softmmu/default.mak b/configs/devices/or1k-softmmu/default.mak
-index 5b3ac89491..f3bf816067 100644
---- a/configs/devices/or1k-softmmu/default.mak
-+++ b/configs/devices/or1k-softmmu/default.mak
-@@ -5,3 +5,4 @@ CONFIG_SEMIHOSTING=y
- # Boards:
- #
- CONFIG_OR1K_SIM=y
-+CONFIG_OR1K_VIRT=y
-diff --git a/hw/openrisc/Kconfig b/hw/openrisc/Kconfig
-index 8f284f3ba0..202134668e 100644
---- a/hw/openrisc/Kconfig
-+++ b/hw/openrisc/Kconfig
-@@ -4,3 +4,12 @@ config OR1K_SIM
-     select OPENCORES_ETH
-     select OMPIC
-     select SPLIT_IRQ
-+
-+config OR1K_VIRT
-+    bool
-+    imply VIRTIO_VGA
-+    imply TEST_DEVICES
-+    select GOLDFISH_RTC
-+    select SERIAL
-+    select SIFIVE_TEST
-+    select VIRTIO_MMIO
-diff --git a/hw/openrisc/meson.build b/hw/openrisc/meson.build
-index ab563820c5..2dbc6365bb 100644
---- a/hw/openrisc/meson.build
-+++ b/hw/openrisc/meson.build
-@@ -2,5 +2,6 @@ openrisc_ss = ss.source_set()
- openrisc_ss.add(files('cputimer.c'))
- openrisc_ss.add(files('boot.c'))
- openrisc_ss.add(when: 'CONFIG_OR1K_SIM', if_true: [files('openrisc_sim.c'), fdt])
-+openrisc_ss.add(when: 'CONFIG_OR1K_VIRT', if_true: [files('virt.c'), fdt])
+diff --git a/arch/alpha/mm/fault.c b/arch/alpha/mm/fault.c
+index ec20c1004abf..ef427a6bdd1a 100644
+--- a/arch/alpha/mm/fault.c
++++ b/arch/alpha/mm/fault.c
+@@ -155,6 +155,10 @@ do_page_fault(unsigned long address, unsigned long mmcsr,
+ 	if (fault_signal_pending(fault, regs))
+ 		return;
  
- hw_arch += {'openrisc': openrisc_ss}
-diff --git a/hw/openrisc/virt.c b/hw/openrisc/virt.c
-new file mode 100644
-index 0000000000..147196fda3
---- /dev/null
-+++ b/hw/openrisc/virt.c
-@@ -0,0 +1,429 @@
-+/*
-+ * OpenRISC QEMU virtual machine.
-+ *
-+ * Copyright (c) 2022 Stafford Horne <shorne@gmail.com>
-+ *
-+ * This library is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU Lesser General Public
-+ * License as published by the Free Software Foundation; either
-+ * version 2.1 of the License, or (at your option) any later version.
-+ *
-+ * This library is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * Lesser General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU Lesser General Public
-+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
-+ */
-+
-+#include "qemu/osdep.h"
-+#include "qemu/error-report.h"
-+#include "qapi/error.h"
-+#include "cpu.h"
-+#include "hw/irq.h"
-+#include "hw/boards.h"
-+#include "hw/char/serial.h"
-+#include "hw/openrisc/boot.h"
-+#include "hw/misc/sifive_test.h"
-+#include "hw/qdev-properties.h"
-+#include "exec/address-spaces.h"
-+#include "sysemu/device_tree.h"
-+#include "sysemu/sysemu.h"
-+#include "hw/sysbus.h"
-+#include "sysemu/qtest.h"
-+#include "sysemu/reset.h"
-+#include "hw/core/split-irq.h"
-+
-+#include <libfdt.h>
-+
-+#define VIRT_CPUS_MAX 4
-+#define VIRT_CLK_MHZ 20000000
-+
-+#define TYPE_VIRT_MACHINE MACHINE_TYPE_NAME("virt")
-+#define VIRT_MACHINE(obj) \
-+    OBJECT_CHECK(OR1KVirtState, (obj), TYPE_VIRT_MACHINE)
-+
-+typedef struct OR1KVirtState {
-+    /*< private >*/
-+    MachineState parent_obj;
-+
-+    /*< public >*/
-+    void *fdt;
-+    int fdt_size;
-+
-+} OR1KVirtState;
-+
-+enum {
-+    VIRT_DRAM,
-+    VIRT_TEST,
-+    VIRT_RTC,
-+    VIRT_VIRTIO,
-+    VIRT_UART,
-+    VIRT_OMPIC,
-+};
-+
-+enum {
-+    VIRT_OMPIC_IRQ = 1,
-+    VIRT_UART_IRQ = 2,
-+    VIRT_RTC_IRQ = 3,
-+    VIRT_VIRTIO_IRQ = 4, /* to 12 */
-+    VIRTIO_COUNT = 8,
-+};
-+
-+static const struct MemmapEntry {
-+    hwaddr base;
-+    hwaddr size;
-+} virt_memmap[] = {
-+    [VIRT_DRAM] =      { 0x00000000,          0 },
-+    [VIRT_UART] =      { 0x90000000,      0x100 },
-+    [VIRT_TEST] =      { 0x96000000,        0x8 },
-+    [VIRT_RTC] =       { 0x96005000,     0x1000 },
-+    [VIRT_VIRTIO] =    { 0x97000000,     0x1000 },
-+    [VIRT_OMPIC] =     { 0x98000000, VIRT_CPUS_MAX * 8 },
-+};
-+
-+static struct openrisc_boot_info {
-+    uint32_t bootstrap_pc;
-+    uint32_t fdt_addr;
-+} boot_info;
-+
-+static void main_cpu_reset(void *opaque)
-+{
-+    OpenRISCCPU *cpu = opaque;
-+    CPUState *cs = CPU(cpu);
-+
-+    cpu_reset(CPU(cpu));
-+
-+    cpu_set_pc(cs, boot_info.bootstrap_pc);
-+    cpu_set_gpr(&cpu->env, 3, boot_info.fdt_addr);
-+}
-+
-+static qemu_irq get_cpu_irq(OpenRISCCPU *cpus[], int cpunum, int irq_pin)
-+{
-+    return qdev_get_gpio_in_named(DEVICE(cpus[cpunum]), "IRQ", irq_pin);
-+}
-+
-+static qemu_irq get_per_cpu_irq(OpenRISCCPU *cpus[], int num_cpus, int irq_pin)
-+{
-+    int i;
-+
-+    if (num_cpus > 1) {
-+        DeviceState *splitter = qdev_new(TYPE_SPLIT_IRQ);
-+        qdev_prop_set_uint32(splitter, "num-lines", num_cpus);
-+        qdev_realize_and_unref(splitter, NULL, &error_fatal);
-+        for (i = 0; i < num_cpus; i++) {
-+            qdev_connect_gpio_out(splitter, i, get_cpu_irq(cpus, i, irq_pin));
-+        }
-+        return qdev_get_gpio_in(splitter, 0);
-+    } else {
-+        return get_cpu_irq(cpus, 0, irq_pin);
-+    }
-+}
-+
-+static void openrisc_create_fdt(OR1KVirtState *state,
-+                                const struct MemmapEntry *memmap,
-+                                int num_cpus, uint64_t mem_size,
-+                                const char *cmdline)
-+{
-+    void *fdt;
-+    int cpu;
-+    char *nodename;
-+    int pic_ph;
-+
-+    fdt = state->fdt = create_device_tree(&state->fdt_size);
-+    if (!fdt) {
-+        error_report("create_device_tree() failed");
-+        exit(1);
-+    }
-+
-+    qemu_fdt_setprop_string(fdt, "/", "compatible", "opencores,or1ksim");
-+    qemu_fdt_setprop_cell(fdt, "/", "#address-cells", 0x1);
-+    qemu_fdt_setprop_cell(fdt, "/", "#size-cells", 0x1);
-+
-+    qemu_fdt_add_subnode(fdt, "/soc");
-+    qemu_fdt_setprop(fdt, "/soc", "ranges", NULL, 0);
-+    qemu_fdt_setprop_string(fdt, "/soc", "compatible", "simple-bus");
-+    qemu_fdt_setprop_cell(fdt, "/soc", "#address-cells", 0x1);
-+    qemu_fdt_setprop_cell(fdt, "/soc", "#size-cells", 0x1);
-+
-+    nodename = g_strdup_printf("/memory@%" HWADDR_PRIx,
-+                               memmap[VIRT_DRAM].base);
-+    qemu_fdt_add_subnode(fdt, nodename);
-+    qemu_fdt_setprop_cells(fdt, nodename, "reg",
-+                           memmap[VIRT_DRAM].base, mem_size);
-+    qemu_fdt_setprop_string(fdt, nodename, "device_type", "memory");
-+    g_free(nodename);
-+
-+    qemu_fdt_add_subnode(fdt, "/cpus");
-+    qemu_fdt_setprop_cell(fdt, "/cpus", "#size-cells", 0x0);
-+    qemu_fdt_setprop_cell(fdt, "/cpus", "#address-cells", 0x1);
-+
-+    for (cpu = 0; cpu < num_cpus; cpu++) {
-+        nodename = g_strdup_printf("/cpus/cpu@%d", cpu);
-+        qemu_fdt_add_subnode(fdt, nodename);
-+        qemu_fdt_setprop_string(fdt, nodename, "compatible",
-+                                "opencores,or1200-rtlsvn481");
-+        qemu_fdt_setprop_cell(fdt, nodename, "reg", cpu);
-+        qemu_fdt_setprop_cell(fdt, nodename, "clock-frequency",
-+                              VIRT_CLK_MHZ);
-+        g_free(nodename);
-+    }
-+
-+    nodename = (char *)"/pic";
-+    qemu_fdt_add_subnode(fdt, nodename);
-+    pic_ph = qemu_fdt_alloc_phandle(fdt);
-+    qemu_fdt_setprop_string(fdt, nodename, "compatible",
-+                            "opencores,or1k-pic-level");
-+    qemu_fdt_setprop_cell(fdt, nodename, "#interrupt-cells", 1);
-+    qemu_fdt_setprop(fdt, nodename, "interrupt-controller", NULL, 0);
-+    qemu_fdt_setprop_cell(fdt, nodename, "phandle", pic_ph);
-+
-+    qemu_fdt_setprop_cell(fdt, "/", "interrupt-parent", pic_ph);
-+
-+    qemu_fdt_add_subnode(fdt, "/chosen");
-+    if (cmdline) {
-+        qemu_fdt_setprop_string(fdt, "/chosen", "bootargs", cmdline);
-+    }
-+
-+    /* Create aliases node for use by devices. */
-+    qemu_fdt_add_subnode(fdt, "/aliases");
-+}
-+
-+static void openrisc_virt_ompic_init(OR1KVirtState *state, hwaddr base,
-+                                    hwaddr size, int num_cpus,
-+                                    OpenRISCCPU *cpus[], int irq_pin)
-+{
-+    void *fdt = state->fdt;
-+    DeviceState *dev;
-+    SysBusDevice *s;
-+    char *nodename;
-+    int i;
-+
-+    dev = qdev_new("or1k-ompic");
-+    qdev_prop_set_uint32(dev, "num-cpus", num_cpus);
-+
-+    s = SYS_BUS_DEVICE(dev);
-+    sysbus_realize_and_unref(s, &error_fatal);
-+    for (i = 0; i < num_cpus; i++) {
-+        sysbus_connect_irq(s, i, get_cpu_irq(cpus, i, irq_pin));
-+    }
-+    sysbus_mmio_map(s, 0, base);
-+
-+    /* Add device tree node for ompic. */
-+    nodename = g_strdup_printf("/ompic@%" HWADDR_PRIx, base);
-+    qemu_fdt_add_subnode(fdt, nodename);
-+    qemu_fdt_setprop_string(fdt, nodename, "compatible", "openrisc,ompic");
-+    qemu_fdt_setprop_cells(fdt, nodename, "reg", base, size);
-+    qemu_fdt_setprop(fdt, nodename, "interrupt-controller", NULL, 0);
-+    qemu_fdt_setprop_cell(fdt, nodename, "#interrupt-cells", 0);
-+    qemu_fdt_setprop_cell(fdt, nodename, "interrupts", irq_pin);
-+    g_free(nodename);
-+}
-+
-+static void openrisc_virt_serial_init(OR1KVirtState *state, hwaddr base,
-+                                     hwaddr size, int num_cpus,
-+                                     OpenRISCCPU *cpus[], int irq_pin)
-+{
-+    void *fdt = state->fdt;
-+    char *nodename;
-+    qemu_irq serial_irq = get_per_cpu_irq(cpus, num_cpus, irq_pin);
-+
-+    serial_mm_init(get_system_memory(), base, 0, serial_irq, 115200,
-+                   serial_hd(0), DEVICE_NATIVE_ENDIAN);
-+
-+    /* Add device tree node for serial. */
-+    nodename = g_strdup_printf("/serial@%" HWADDR_PRIx, base);
-+    qemu_fdt_add_subnode(fdt, nodename);
-+    qemu_fdt_setprop_string(fdt, nodename, "compatible", "ns16550a");
-+    qemu_fdt_setprop_cells(fdt, nodename, "reg", base, size);
-+    qemu_fdt_setprop_cell(fdt, nodename, "interrupts", irq_pin);
-+    qemu_fdt_setprop_cell(fdt, nodename, "clock-frequency", VIRT_CLK_MHZ);
-+    qemu_fdt_setprop(fdt, nodename, "big-endian", NULL, 0);
-+
-+    /* The /chosen node is created during fdt creation. */
-+    qemu_fdt_setprop_string(fdt, "/chosen", "stdout-path", nodename);
-+    qemu_fdt_setprop_string(fdt, "/aliases", "uart0", nodename);
-+    g_free(nodename);
-+}
-+
-+static void openrisc_virt_test_init(OR1KVirtState *state, hwaddr base,
-+                                   hwaddr size)
-+{
-+    void *fdt = state->fdt;
-+    int test_ph;
-+    char *nodename;
-+
-+    /* SiFive Test MMIO device */
-+    sifive_test_create(base);
-+
-+    /* SiFive Test MMIO Reset device FDT */
-+    nodename = g_strdup_printf("/soc/test@%" HWADDR_PRIx, base);
-+    qemu_fdt_add_subnode(fdt, nodename);
-+    qemu_fdt_setprop_string(fdt, nodename, "compatible", "syscon");
-+    test_ph = qemu_fdt_alloc_phandle(fdt);
-+    qemu_fdt_setprop_cells(fdt, nodename, "reg", base, size);
-+    qemu_fdt_setprop_cell(fdt, nodename, "phandle", test_ph);
-+    qemu_fdt_setprop(fdt, nodename, "big-endian", NULL, 0);
-+    g_free(nodename);
-+
-+    nodename = g_strdup_printf("/soc/reboot");
-+    qemu_fdt_add_subnode(fdt, nodename);
-+    qemu_fdt_setprop_string(fdt, nodename, "compatible", "syscon-reboot");
-+    qemu_fdt_setprop_cell(fdt, nodename, "regmap", test_ph);
-+    qemu_fdt_setprop_cell(fdt, nodename, "offset", 0x0);
-+    qemu_fdt_setprop_cell(fdt, nodename, "value", FINISHER_RESET);
-+    g_free(nodename);
-+
-+    nodename = g_strdup_printf("/soc/poweroff");
-+    qemu_fdt_add_subnode(fdt, nodename);
-+    qemu_fdt_setprop_string(fdt, nodename, "compatible", "syscon-poweroff");
-+    qemu_fdt_setprop_cell(fdt, nodename, "regmap", test_ph);
-+    qemu_fdt_setprop_cell(fdt, nodename, "offset", 0x0);
-+    qemu_fdt_setprop_cell(fdt, nodename, "value", FINISHER_PASS);
-+    g_free(nodename);
-+
-+}
-+static void openrisc_virt_rtc_init(OR1KVirtState *state, hwaddr base,
-+                                   hwaddr size, int num_cpus,
-+                                   OpenRISCCPU *cpus[], int irq_pin)
-+{
-+    void *fdt = state->fdt;
-+    char *nodename;
-+    qemu_irq rtc_irq = get_per_cpu_irq(cpus, num_cpus, irq_pin);
-+
-+    /* Goldfish RTC */
-+    sysbus_create_simple("goldfish_rtc", base, rtc_irq);
-+
-+    /* Goldfish RTC FDT */
-+    nodename = g_strdup_printf("/soc/rtc@%" HWADDR_PRIx, base);
-+    qemu_fdt_add_subnode(fdt, nodename);
-+    qemu_fdt_setprop_string(fdt, nodename, "compatible",
-+                            "google,goldfish-rtc");
-+    qemu_fdt_setprop_cells(fdt, nodename, "reg", base, size);
-+    qemu_fdt_setprop_cell(fdt, nodename, "interrupts", irq_pin);
-+    g_free(nodename);
-+
-+}
-+static void openrisc_virt_virtio_init(OR1KVirtState *state, hwaddr base,
-+                                      hwaddr size, int num_cpus,
-+                                      OpenRISCCPU *cpus[], int irq_pin,
-+                                      int virtio_idx)
-+{
-+    void *fdt = state->fdt;
-+    char *nodename;
-+    DeviceState *dev;
-+    SysBusDevice *sysbus;
-+    qemu_irq virtio_irq = get_per_cpu_irq(cpus, num_cpus, irq_pin + virtio_idx);
-+
-+    /* VirtIO MMIO devices */
-+    dev = qdev_new("virtio-mmio");
-+    qdev_prop_set_bit(dev, "force-legacy", false);
-+    sysbus = SYS_BUS_DEVICE(dev);
-+    sysbus_realize_and_unref(sysbus, &error_fatal);
-+    sysbus_connect_irq(sysbus, 0, virtio_irq);
-+    sysbus_mmio_map(sysbus, 0, base + virtio_idx * size);
-+
-+    /* VirtIO MMIO devices FDT */
-+    nodename = g_strdup_printf("/soc/virtio_mmio@%" HWADDR_PRIx,
-+                               base + virtio_idx * size);
-+    qemu_fdt_add_subnode(fdt, nodename);
-+    qemu_fdt_setprop_string(fdt, nodename, "compatible", "virtio,mmio");
-+    qemu_fdt_setprop_cells(fdt, nodename, "reg",
-+                           base + virtio_idx * size,
-+                           size);
-+    qemu_fdt_setprop_cell(fdt, nodename, "interrupts", irq_pin + virtio_idx);
-+    g_free(nodename);
-+}
-+
-+static void openrisc_virt_init(MachineState *machine)
-+{
-+    ram_addr_t ram_size = machine->ram_size;
-+    const char *kernel_filename = machine->kernel_filename;
-+    OpenRISCCPU *cpus[VIRT_CPUS_MAX] = {};
-+    OR1KVirtState *state = VIRT_MACHINE(machine);
-+    MemoryRegion *ram;
-+    hwaddr load_addr;
-+    int n;
-+    unsigned int smp_cpus = machine->smp.cpus;
-+
-+    assert(smp_cpus >= 1 && smp_cpus <= VIRT_CPUS_MAX);
-+    for (n = 0; n < smp_cpus; n++) {
-+        cpus[n] = OPENRISC_CPU(cpu_create(machine->cpu_type));
-+        if (cpus[n] == NULL) {
-+            fprintf(stderr, "Unable to find CPU definition!\n");
-+            exit(1);
-+        }
-+
-+        cpu_openrisc_clock_init(cpus[n]);
-+
-+        qemu_register_reset(main_cpu_reset, cpus[n]);
-+    }
-+
-+    ram = g_malloc(sizeof(*ram));
-+    memory_region_init_ram(ram, NULL, "openrisc.ram", ram_size, &error_fatal);
-+    memory_region_add_subregion(get_system_memory(), 0, ram);
-+
-+    openrisc_create_fdt(state, virt_memmap, smp_cpus, machine->ram_size,
-+                        machine->kernel_cmdline);
-+
-+    if (smp_cpus > 1) {
-+        openrisc_virt_ompic_init(state, virt_memmap[VIRT_OMPIC].base,
-+                                 virt_memmap[VIRT_OMPIC].size,
-+                                 smp_cpus, cpus, VIRT_OMPIC_IRQ);
-+    }
-+
-+    openrisc_virt_serial_init(state, virt_memmap[VIRT_UART].base,
-+                              virt_memmap[VIRT_UART].size,
-+                              smp_cpus, cpus, VIRT_UART_IRQ);
-+
-+    openrisc_virt_test_init(state, virt_memmap[VIRT_TEST].base,
-+                            virt_memmap[VIRT_TEST].size);
-+
-+    openrisc_virt_rtc_init(state, virt_memmap[VIRT_RTC].base,
-+                           virt_memmap[VIRT_RTC].size, smp_cpus, cpus,
-+                           VIRT_RTC_IRQ);
-+
-+    for (n = 0; n < VIRTIO_COUNT; n++) {
-+        openrisc_virt_virtio_init(state, virt_memmap[VIRT_VIRTIO].base,
-+                                  virt_memmap[VIRT_VIRTIO].size,
-+                                  smp_cpus, cpus, VIRT_VIRTIO_IRQ, n);
-+    }
-+
-+    load_addr = openrisc_load_kernel(ram_size, kernel_filename,
-+                                     &boot_info.bootstrap_pc);
-+    if (load_addr > 0) {
-+        if (machine->initrd_filename) {
-+            load_addr = openrisc_load_initrd(state->fdt,
-+                                             machine->initrd_filename,
-+                                             load_addr, machine->ram_size);
-+        }
-+        boot_info.fdt_addr = openrisc_load_fdt(state->fdt, load_addr,
-+                                               machine->ram_size);
-+    }
-+}
-+
-+static void openrisc_virt_machine_init(ObjectClass *oc, void *data)
-+{
-+    MachineClass *mc = MACHINE_CLASS(oc);
-+
-+    mc->desc = "or1k virtual machine";
-+    mc->init = openrisc_virt_init;
-+    mc->max_cpus = VIRT_CPUS_MAX;
-+    mc->is_default = false;
-+    mc->default_cpu_type = OPENRISC_CPU_TYPE_NAME("or1200");
-+}
-+
-+static const TypeInfo or1ksim_machine_typeinfo = {
-+    .name       = TYPE_VIRT_MACHINE,
-+    .parent     = TYPE_MACHINE,
-+    .class_init = openrisc_virt_machine_init,
-+    .instance_size = sizeof(OR1KVirtState),
-+};
-+
-+static void or1ksim_machine_init_register_types(void)
-+{
-+    type_register_static(&or1ksim_machine_typeinfo);
-+}
-+
-+type_init(or1ksim_machine_init_register_types)
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		return;
++
+ 	if (unlikely(fault & VM_FAULT_ERROR)) {
+ 		if (fault & VM_FAULT_OOM)
+ 			goto out_of_memory;
+diff --git a/arch/arc/mm/fault.c b/arch/arc/mm/fault.c
+index dad27e4d69ff..5ca59a482632 100644
+--- a/arch/arc/mm/fault.c
++++ b/arch/arc/mm/fault.c
+@@ -146,6 +146,10 @@ void do_page_fault(unsigned long address, struct pt_regs *regs)
+ 		return;
+ 	}
+ 
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		return;
++
+ 	/*
+ 	 * Fault retry nuances, mmap_lock already relinquished by core mm
+ 	 */
+diff --git a/arch/arm/mm/fault.c b/arch/arm/mm/fault.c
+index a062e07516dd..46cccd6bf705 100644
+--- a/arch/arm/mm/fault.c
++++ b/arch/arm/mm/fault.c
+@@ -322,6 +322,10 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
+ 		return 0;
+ 	}
+ 
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		return 0;
++
+ 	if (!(fault & VM_FAULT_ERROR)) {
+ 		if (fault & VM_FAULT_RETRY) {
+ 			flags |= FAULT_FLAG_TRIED;
+diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
+index 77341b160aca..e401d416bbd6 100644
+--- a/arch/arm64/mm/fault.c
++++ b/arch/arm64/mm/fault.c
+@@ -607,6 +607,10 @@ static int __kprobes do_page_fault(unsigned long far, unsigned int esr,
+ 		return 0;
+ 	}
+ 
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		return 0;
++
+ 	if (fault & VM_FAULT_RETRY) {
+ 		mm_flags |= FAULT_FLAG_TRIED;
+ 		goto retry;
+diff --git a/arch/csky/mm/fault.c b/arch/csky/mm/fault.c
+index 7215a46b6b8e..e15f736cca4b 100644
+--- a/arch/csky/mm/fault.c
++++ b/arch/csky/mm/fault.c
+@@ -285,6 +285,10 @@ asmlinkage void do_page_fault(struct pt_regs *regs)
+ 		return;
+ 	}
+ 
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		return;
++
+ 	if (unlikely((fault & VM_FAULT_RETRY) && (flags & FAULT_FLAG_ALLOW_RETRY))) {
+ 		flags |= FAULT_FLAG_TRIED;
+ 
+diff --git a/arch/hexagon/mm/vm_fault.c b/arch/hexagon/mm/vm_fault.c
+index 4fac4b9eb316..f73c7cbfe326 100644
+--- a/arch/hexagon/mm/vm_fault.c
++++ b/arch/hexagon/mm/vm_fault.c
+@@ -96,6 +96,10 @@ void do_page_fault(unsigned long address, long cause, struct pt_regs *regs)
+ 	if (fault_signal_pending(fault, regs))
+ 		return;
+ 
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		return;
++
+ 	/* The most common case -- we are done. */
+ 	if (likely(!(fault & VM_FAULT_ERROR))) {
+ 		if (fault & VM_FAULT_RETRY) {
+diff --git a/arch/ia64/mm/fault.c b/arch/ia64/mm/fault.c
+index 07379d1a227f..ef78c2d66cdd 100644
+--- a/arch/ia64/mm/fault.c
++++ b/arch/ia64/mm/fault.c
+@@ -139,6 +139,10 @@ ia64_do_page_fault (unsigned long address, unsigned long isr, struct pt_regs *re
+ 	if (fault_signal_pending(fault, regs))
+ 		return;
+ 
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		return;
++
+ 	if (unlikely(fault & VM_FAULT_ERROR)) {
+ 		/*
+ 		 * We ran out of memory, or some other thing happened
+diff --git a/arch/m68k/mm/fault.c b/arch/m68k/mm/fault.c
+index 71aa9f6315dc..4d2837eb3e2a 100644
+--- a/arch/m68k/mm/fault.c
++++ b/arch/m68k/mm/fault.c
+@@ -141,6 +141,10 @@ int do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	if (fault_signal_pending(fault, regs))
+ 		return 0;
+ 
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		return 0;
++
+ 	if (unlikely(fault & VM_FAULT_ERROR)) {
+ 		if (fault & VM_FAULT_OOM)
+ 			goto out_of_memory;
+diff --git a/arch/microblaze/mm/fault.c b/arch/microblaze/mm/fault.c
+index a9626e6a68af..5c40c3ebe52f 100644
+--- a/arch/microblaze/mm/fault.c
++++ b/arch/microblaze/mm/fault.c
+@@ -222,6 +222,10 @@ void do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	if (fault_signal_pending(fault, regs))
+ 		return;
+ 
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		return;
++
+ 	if (unlikely(fault & VM_FAULT_ERROR)) {
+ 		if (fault & VM_FAULT_OOM)
+ 			goto out_of_memory;
+diff --git a/arch/mips/mm/fault.c b/arch/mips/mm/fault.c
+index 44f98100e84e..6f72bac39bf2 100644
+--- a/arch/mips/mm/fault.c
++++ b/arch/mips/mm/fault.c
+@@ -162,6 +162,10 @@ static void __kprobes __do_page_fault(struct pt_regs *regs, unsigned long write,
+ 		return;
+ 	}
+ 
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		return;
++
+ 	if (unlikely(fault & VM_FAULT_ERROR)) {
+ 		if (fault & VM_FAULT_OOM)
+ 			goto out_of_memory;
+diff --git a/arch/nios2/mm/fault.c b/arch/nios2/mm/fault.c
+index a32f14cd72f2..edaca0a6c1c1 100644
+--- a/arch/nios2/mm/fault.c
++++ b/arch/nios2/mm/fault.c
+@@ -139,6 +139,10 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long cause,
+ 	if (fault_signal_pending(fault, regs))
+ 		return;
+ 
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		return;
++
+ 	if (unlikely(fault & VM_FAULT_ERROR)) {
+ 		if (fault & VM_FAULT_OOM)
+ 			goto out_of_memory;
+diff --git a/arch/openrisc/mm/fault.c b/arch/openrisc/mm/fault.c
+index 80bb66ad42f6..c18f7abd64df 100644
+--- a/arch/openrisc/mm/fault.c
++++ b/arch/openrisc/mm/fault.c
+@@ -167,6 +167,10 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	if (fault_signal_pending(fault, regs))
+ 		return;
+ 
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		return;
++
+ 	if (unlikely(fault & VM_FAULT_ERROR)) {
+ 		if (fault & VM_FAULT_OOM)
+ 			goto out_of_memory;
+diff --git a/arch/parisc/mm/fault.c b/arch/parisc/mm/fault.c
+index f114e102aaf2..fe57175a7792 100644
+--- a/arch/parisc/mm/fault.c
++++ b/arch/parisc/mm/fault.c
+@@ -309,6 +309,10 @@ void do_page_fault(struct pt_regs *regs, unsigned long code,
+ 	if (fault_signal_pending(fault, regs))
+ 		return;
+ 
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		return;
++
+ 	if (unlikely(fault & VM_FAULT_ERROR)) {
+ 		/*
+ 		 * We hit a shared mapping outside of the file, or some
+diff --git a/arch/powerpc/mm/copro_fault.c b/arch/powerpc/mm/copro_fault.c
+index c1cb21a00884..7c507fb48182 100644
+--- a/arch/powerpc/mm/copro_fault.c
++++ b/arch/powerpc/mm/copro_fault.c
+@@ -65,6 +65,11 @@ int copro_handle_mm_fault(struct mm_struct *mm, unsigned long ea,
+ 
+ 	ret = 0;
+ 	*flt = handle_mm_fault(vma, ea, is_write ? FAULT_FLAG_WRITE : 0, NULL);
++
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (*flt & VM_FAULT_COMPLETED)
++		return 0;
++
+ 	if (unlikely(*flt & VM_FAULT_ERROR)) {
+ 		if (*flt & VM_FAULT_OOM) {
+ 			ret = -ENOMEM;
+diff --git a/arch/powerpc/mm/fault.c b/arch/powerpc/mm/fault.c
+index d53fed4eccbd..014005428687 100644
+--- a/arch/powerpc/mm/fault.c
++++ b/arch/powerpc/mm/fault.c
+@@ -511,6 +511,10 @@ static int ___do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	if (fault_signal_pending(fault, regs))
+ 		return user_mode(regs) ? 0 : SIGBUS;
+ 
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		goto out;
++
+ 	/*
+ 	 * Handle the retry right now, the mmap_lock has been released in that
+ 	 * case.
+@@ -525,6 +529,7 @@ static int ___do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	if (unlikely(fault & VM_FAULT_ERROR))
+ 		return mm_fault_error(regs, address, fault);
+ 
++out:
+ 	/*
+ 	 * Major/minor page fault accounting.
+ 	 */
+diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
+index 4e9efbe46d5f..d6a87f4137ca 100644
+--- a/arch/riscv/mm/fault.c
++++ b/arch/riscv/mm/fault.c
+@@ -330,6 +330,10 @@ asmlinkage void do_page_fault(struct pt_regs *regs)
+ 	if (fault_signal_pending(fault, regs))
+ 		return;
+ 
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		return;
++
+ 	if (unlikely(fault & VM_FAULT_RETRY)) {
+ 		flags |= FAULT_FLAG_TRIED;
+ 
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index e173b6187ad5..4608cc962ecf 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -433,6 +433,17 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+ 			goto out_up;
+ 		goto out;
+ 	}
++
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED) {
++		/*
++		 * Gmap will need the mmap lock again, so retake it.  TODO:
++		 * only conditionally take the lock when CONFIG_PGSTE set.
++		 */
++		mmap_read_lock(mm);
++		goto out_gmap;
++	}
++
+ 	if (unlikely(fault & VM_FAULT_ERROR))
+ 		goto out_up;
+ 
+@@ -452,6 +463,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+ 		mmap_read_lock(mm);
+ 		goto retry;
+ 	}
++out_gmap:
+ 	if (IS_ENABLED(CONFIG_PGSTE) && gmap) {
+ 		address =  __gmap_link(gmap, current->thread.gmap_addr,
+ 				       address);
+diff --git a/arch/sh/mm/fault.c b/arch/sh/mm/fault.c
+index e175667b1363..acd2f5e50bfc 100644
+--- a/arch/sh/mm/fault.c
++++ b/arch/sh/mm/fault.c
+@@ -485,6 +485,10 @@ asmlinkage void __kprobes do_page_fault(struct pt_regs *regs,
+ 		if (mm_fault_error(regs, error_code, address, fault))
+ 			return;
+ 
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		return;
++
+ 	if (fault & VM_FAULT_RETRY) {
+ 		flags |= FAULT_FLAG_TRIED;
+ 
+diff --git a/arch/sparc/mm/fault_32.c b/arch/sparc/mm/fault_32.c
+index ad569d9bd124..91259f291c54 100644
+--- a/arch/sparc/mm/fault_32.c
++++ b/arch/sparc/mm/fault_32.c
+@@ -190,6 +190,10 @@ asmlinkage void do_sparc_fault(struct pt_regs *regs, int text_fault, int write,
+ 	if (fault_signal_pending(fault, regs))
+ 		return;
+ 
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		return;
++
+ 	if (unlikely(fault & VM_FAULT_ERROR)) {
+ 		if (fault & VM_FAULT_OOM)
+ 			goto out_of_memory;
+diff --git a/arch/sparc/mm/fault_64.c b/arch/sparc/mm/fault_64.c
+index 253e07043298..4acc12eafbf5 100644
+--- a/arch/sparc/mm/fault_64.c
++++ b/arch/sparc/mm/fault_64.c
+@@ -427,6 +427,10 @@ asmlinkage void __kprobes do_sparc64_fault(struct pt_regs *regs)
+ 	if (fault_signal_pending(fault, regs))
+ 		goto exit_exception;
+ 
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		goto lock_released;
++
+ 	if (unlikely(fault & VM_FAULT_ERROR)) {
+ 		if (fault & VM_FAULT_OOM)
+ 			goto out_of_memory;
+@@ -449,6 +453,7 @@ asmlinkage void __kprobes do_sparc64_fault(struct pt_regs *regs)
+ 	}
+ 	mmap_read_unlock(mm);
+ 
++lock_released:
+ 	mm_rss = get_mm_rss(mm);
+ #if defined(CONFIG_TRANSPARENT_HUGEPAGE)
+ 	mm_rss -= (mm->context.thp_pte_count * (HPAGE_SIZE / PAGE_SIZE));
+diff --git a/arch/um/kernel/trap.c b/arch/um/kernel/trap.c
+index d1d5d0be0308..d3ce21c4ca32 100644
+--- a/arch/um/kernel/trap.c
++++ b/arch/um/kernel/trap.c
+@@ -76,6 +76,10 @@ int handle_page_fault(unsigned long address, unsigned long ip,
+ 		if ((fault & VM_FAULT_RETRY) && fatal_signal_pending(current))
+ 			goto out_nosemaphore;
+ 
++		/* The fault is fully completed (including releasing mmap lock) */
++		if (fault & VM_FAULT_COMPLETED)
++			return 0;
++
+ 		if (unlikely(fault & VM_FAULT_ERROR)) {
+ 			if (fault & VM_FAULT_OOM) {
+ 				goto out_of_memory;
+diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
+index d0074c6ed31a..12ed70b432d6 100644
+--- a/arch/x86/mm/fault.c
++++ b/arch/x86/mm/fault.c
+@@ -1408,6 +1408,10 @@ void do_user_addr_fault(struct pt_regs *regs,
+ 		return;
+ 	}
+ 
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		return;
++
+ 	/*
+ 	 * If we need to retry the mmap_lock has already been released,
+ 	 * and if there is a fatal signal pending there is no guarantee
+diff --git a/arch/xtensa/mm/fault.c b/arch/xtensa/mm/fault.c
+index 06d0973a0d74..5f64305ba8d7 100644
+--- a/arch/xtensa/mm/fault.c
++++ b/arch/xtensa/mm/fault.c
+@@ -118,6 +118,10 @@ void do_page_fault(struct pt_regs *regs)
+ 		return;
+ 	}
+ 
++	/* The fault is fully completed (including releasing mmap lock) */
++	if (fault & VM_FAULT_COMPLETED)
++		return;
++
+ 	if (unlikely(fault & VM_FAULT_ERROR)) {
+ 		if (fault & VM_FAULT_OOM)
+ 			goto out_of_memory;
+diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+index c09b7f0555b8..decc275db3c9 100644
+--- a/include/linux/mm_types.h
++++ b/include/linux/mm_types.h
+@@ -729,6 +729,7 @@ typedef __bitwise unsigned int vm_fault_t;
+  * @VM_FAULT_NEEDDSYNC:		->fault did not modify page tables and needs
+  *				fsync() to complete (for synchronous page faults
+  *				in DAX)
++ * @VM_FAULT_COMPLETED:		->fault completed, meanwhile mmap lock released
+  * @VM_FAULT_HINDEX_MASK:	mask HINDEX value
+  *
+  */
+@@ -746,6 +747,7 @@ enum vm_fault_reason {
+ 	VM_FAULT_FALLBACK       = (__force vm_fault_t)0x000800,
+ 	VM_FAULT_DONE_COW       = (__force vm_fault_t)0x001000,
+ 	VM_FAULT_NEEDDSYNC      = (__force vm_fault_t)0x002000,
++	VM_FAULT_COMPLETED      = (__force vm_fault_t)0x004000,
+ 	VM_FAULT_HINDEX_MASK    = (__force vm_fault_t)0x0f0000,
+ };
+ 
+diff --git a/mm/gup.c b/mm/gup.c
+index 2e07cff3b31b..a63d330b9d43 100644
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -951,6 +951,25 @@ static int faultin_page(struct vm_area_struct *vma,
+ 	}
+ 
+ 	ret = handle_mm_fault(vma, address, fault_flags, NULL);
++
++	if (ret & VM_FAULT_COMPLETED) {
++		/*
++		 * With FAULT_FLAG_RETRY_NOWAIT we'll never release the
++		 * mmap lock in the page fault handler. Sanity check this.
++		 */
++		WARN_ON_ONCE(fault_flags & FAULT_FLAG_RETRY_NOWAIT);
++		if (locked)
++			*locked = 0;
++		/*
++		 * We should do the same as VM_FAULT_RETRY, but let's not
++		 * return -EBUSY since that's not reflecting the reality of
++		 * what has happened - we've just fully completed a page
++		 * fault, with the mmap lock released.  Use -EAGAIN to show
++		 * that we want to take the mmap lock _again_.
++		 */
++		return -EAGAIN;
++	}
++
+ 	if (ret & VM_FAULT_ERROR) {
+ 		int err = vm_fault_to_errno(ret, *flags);
+ 
+@@ -1177,6 +1196,7 @@ static long __get_user_pages(struct mm_struct *mm,
+ 			case 0:
+ 				goto retry;
+ 			case -EBUSY:
++			case -EAGAIN:
+ 				ret = 0;
+ 				fallthrough;
+ 			case -EFAULT:
+@@ -1303,6 +1323,18 @@ int fixup_user_fault(struct mm_struct *mm,
+ 		return -EINTR;
+ 
+ 	ret = handle_mm_fault(vma, address, fault_flags, NULL);
++
++	if (ret & VM_FAULT_COMPLETED) {
++		/*
++		 * NOTE: it's a pity that we need to retake the lock here
++		 * to pair with the unlock() in the callers. Ideally we
++		 * could tell the callers so they do not need to unlock.
++		 */
++		mmap_read_lock(mm);
++		*unlocked = true;
++		return 0;
++	}
++
+ 	if (ret & VM_FAULT_ERROR) {
+ 		int err = vm_fault_to_errno(ret, 0);
+ 
+@@ -1368,7 +1400,7 @@ static __always_inline long __get_user_pages_locked(struct mm_struct *mm,
+ 			/* VM_FAULT_RETRY couldn't trigger, bypass */
+ 			return ret;
+ 
+-		/* VM_FAULT_RETRY cannot return errors */
++		/* VM_FAULT_RETRY or VM_FAULT_COMPLETED cannot return errors */
+ 		if (!*locked) {
+ 			BUG_ON(ret < 0);
+ 			BUG_ON(ret >= nr_pages);
+diff --git a/mm/memory.c b/mm/memory.c
+index 54d106e0c999..a8be2d7a8718 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -3020,7 +3020,7 @@ static vm_fault_t fault_dirty_shared_page(struct vm_fault *vmf)
+ 		balance_dirty_pages_ratelimited(mapping);
+ 		if (fpin) {
+ 			fput(fpin);
+-			return VM_FAULT_RETRY;
++			return VM_FAULT_COMPLETED;
+ 		}
+ 	}
+ 
 -- 
-2.31.1
+2.32.0
 
