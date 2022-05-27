@@ -2,54 +2,55 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25757C433F5
-	for <openrisc@archiver.kernel.org>; Fri, 27 May 2022 17:27:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54EBEC433EF
+	for <openrisc@archiver.kernel.org>; Fri, 27 May 2022 17:27:48 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 2F165248CE;
-	Fri, 27 May 2022 19:27:46 +0200 (CEST)
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com
- [209.85.215.182])
- by mail.librecores.org (Postfix) with ESMTPS id B3F70248CE
- for <openrisc@lists.librecores.org>; Fri, 27 May 2022 19:27:43 +0200 (CEST)
-Received: by mail-pg1-f182.google.com with SMTP id f4so4453657pgf.4
- for <openrisc@lists.librecores.org>; Fri, 27 May 2022 10:27:43 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 5FCC0247C2;
+	Fri, 27 May 2022 19:27:47 +0200 (CEST)
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com
+ [209.85.210.182])
+ by mail.librecores.org (Postfix) with ESMTPS id 25FB6247C4
+ for <openrisc@lists.librecores.org>; Fri, 27 May 2022 19:27:46 +0200 (CEST)
+Received: by mail-pf1-f182.google.com with SMTP id j6so4847068pfe.13
+ for <openrisc@lists.librecores.org>; Fri, 27 May 2022 10:27:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=wGyk9o8Y+uwTh9lPK5GKDrj4v4XTzOVoGpkFAdXL5O4=;
- b=P3nSeMrU2vMfTS5BIkUKgwrhwQkHf8gvkOqzh6KZDYIawtJ3Tn0v2gUYVXmwwWrGvq
- 43fmiEsH7LpvuAoUeMInem8yLlbwBkL+QSOqz8pTZmpk1WfqWdbRkFbog4UJDTRzPpYH
- VkhdMrwhXOw22g82ksMizOpPsDlcoMWqx2+oAlXTLpUM61Nzcn48Hbey8bE1wfOtZTFc
- Fb6W/jrN4WFQt/TWrg9PGiX7Tt4IN9khmpOGlFbcvwv3b/XaJWYfdSn0DomSDs44KE5s
- JGbryK8v2Q6BndoBsb9yIkmyNumVjjHL0uEhDUXFdOdUHAmi0/cUPUZiCYuz06V11O4P
- fnjQ==
+ bh=R9fEsxpNe9MAMJ+kwIPy0PaLfUO5waMOnjwlMai4hzo=;
+ b=Asol+bbOuvDoheYbz0xneMquj36d/QZdRJg113NRqDqL2DLHJZpwrcyQgHBLa7Y146
+ 3FYSANnofp5t9vT39/dp0Gk6BvzoxRV4m99mu84JRUwhhtxzfqrtviIQwgW6HF8q2mZB
+ 6q4QVF2lcDnsugVuJuJ1ckWeCU7EqjZkU3ed7eR4/gGgnl6VjJgYASxyiVWs7nGi9PY/
+ tgYDWPPDUjhooySOB3fykuhdKttBWwi+Pf30ZPZAzbV6/sa+AuP+CZ51TSb9pqgLXw2h
+ PgZWAMoEObfWXake+fiDo/7ytVyJcJoIIh7hdZtnzjHs1rTwSFlc3ifwYKNz1FdqVlyZ
+ 595A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=wGyk9o8Y+uwTh9lPK5GKDrj4v4XTzOVoGpkFAdXL5O4=;
- b=XYHcdaB4Mqywg/ZEDxwTg0PR7j0hQ/MuDAjp0LBA5XscpzRBz3VoWXIAdMNoVY6uYg
- p3gWR2coXgVjnOs3v8qK0rUfB/D1WkXWHUWzuB2XMHt6zK06ib9YnNug6h0KNv7GB+U9
- w8MPMFHBKxjXywuyIgMnwaoD6YJEQkSfhdHNz8uqjaEryyFYQctty9ZXTDOcM6AXLJKA
- 6+EoL+30+QBFxfRFIqgb+aZgOKS8f+Guy+2ECgcZhk0DtRIhPDUIOC2X2W8r1La3cWkr
- mSo1DC9SGEIBwteRJ+1ktK9HuqYSl38PzKkIEr0sI00roryj8QHNGbYfhVEIJ2yq69qZ
- O0VQ==
-X-Gm-Message-State: AOAM533APl+76Pf5XqVILGn7c1uyD1pObMYNdj3PCGUk8A0zRpNCnrpc
- ljv/rdMF6X3XVa7kKyzsa9w=
-X-Google-Smtp-Source: ABdhPJxTKtZxTGAhWXwbbTSanXiupMpTAQczRwhGIk3ky6FeUpy0ms5sJMUwtWo3DpzwcYNK//UwUg==
-X-Received: by 2002:a05:6a00:1588:b0:518:8ce2:7753 with SMTP id
- u8-20020a056a00158800b005188ce27753mr30918903pfk.51.1653672462098; 
- Fri, 27 May 2022 10:27:42 -0700 (PDT)
+ bh=R9fEsxpNe9MAMJ+kwIPy0PaLfUO5waMOnjwlMai4hzo=;
+ b=fWog6ORTHK5BBgbCyXWGMt7LJCUOI4DuFK2TWZKNKJ0Ug3lMY8Rzh08No+BK9XN8YJ
+ i4Ff3MtkNGoeSW+niVfmSYXXHS+fEwjxLDL8fplCkPmvS4oK7sHhvH62ymALcEu4dgFg
+ PqYwbTpu07MGDj8uYkoUWCdrxYeFfQHfdS+DMlNhHt/3M7HZ6GOqeMXRnLeO6Su4C4tC
+ MdaGIkm+LdHrsIoSUkOkgkRplURFup3FhChnCbvmeBQ4ifno8Y94DUWuKtP8CpV7rBFz
+ BVRIAIwJv1DzO9HOD0Ch/EyJSpOBM6Lxg+tNRWXFWZj32SmI6gthH0LTywqJO40J7GOl
+ Tozg==
+X-Gm-Message-State: AOAM530skMsuDG/gmLS7bYHOfIglnbnSDnlsaXB1d/Lt8Fup1lez9Gd9
+ pX7hBOwiAMy2PB2RlqcYDWhkaFVPW383dw==
+X-Google-Smtp-Source: ABdhPJw40BWHo7PH3EHHet4KPvoHKCclXDbNMW7tvZzXA3aLqe92/mQzOXVhc8yEsy0TykXVKJJ20Q==
+X-Received: by 2002:a63:3197:0:b0:3fb:c60e:334d with SMTP id
+ x145-20020a633197000000b003fbc60e334dmr1325990pgx.263.1653672464607; 
+ Fri, 27 May 2022 10:27:44 -0700 (PDT)
 Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
  by smtp.gmail.com with ESMTPSA id
- lb14-20020a17090b4a4e00b001d9780b7779sm1903881pjb.15.2022.05.27.10.27.41
+ i6-20020aa787c6000000b0050dc762818asm3774316pfo.100.2022.05.27.10.27.43
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 27 May 2022 10:27:41 -0700 (PDT)
+ Fri, 27 May 2022 10:27:44 -0700 (PDT)
 From: Stafford Horne <shorne@gmail.com>
 To: QEMU Development <qemu-devel@nongnu.org>
-Subject: [RFC PATCH 1/3] target/openrisc: Add basic support for semihosting
-Date: Sat, 28 May 2022 02:27:28 +0900
-Message-Id: <20220527172731.1742837-2-shorne@gmail.com>
+Subject: [RFC PATCH 2/3] hw/openrisc: Split re-usable boot time apis out to
+ boot.c
+Date: Sat, 28 May 2022 02:27:29 +0900
+Message-Id: <20220527172731.1742837-3-shorne@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20220527172731.1742837-1-shorne@gmail.com>
 References: <20220527172731.1742837-1-shorne@gmail.com>
@@ -68,218 +69,343 @@ List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
 Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>,
- Openrisc <openrisc@lists.librecores.org>
+ Openrisc <openrisc@lists.librecores.org>, Jia Liu <proljc@gmail.com>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-For OpenRISC we currently only use semihosting for system exit and
-reset.  This patch implements that.
-
-The implementation uses a helper to delegate to the semihosting
-facility.  The helper is marked as having side effects but currently
-does not have any.  I have defined it like this as our other
-unimplemented semihosting calls will have side effects and return
-results in register r11.
+These will be shared with the virt platform.
 
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- configs/devices/or1k-softmmu/default.mak |  2 +
- qemu-options.hx                          | 16 ++++---
- target/openrisc/cpu.h                    |  2 +
- target/openrisc/helper.h                 |  1 +
- target/openrisc/meson.build              |  1 +
- target/openrisc/openrisc-semi.c          | 54 ++++++++++++++++++++++++
- target/openrisc/sys_helper.c             |  5 +++
- target/openrisc/translate.c              |  6 +++
- 8 files changed, 82 insertions(+), 5 deletions(-)
- create mode 100644 target/openrisc/openrisc-semi.c
+ hw/openrisc/boot.c         | 127 +++++++++++++++++++++++++++++++++++++
+ hw/openrisc/meson.build    |   1 +
+ hw/openrisc/openrisc_sim.c | 106 ++-----------------------------
+ include/hw/openrisc/boot.h |  34 ++++++++++
+ 4 files changed, 168 insertions(+), 100 deletions(-)
+ create mode 100644 hw/openrisc/boot.c
+ create mode 100644 include/hw/openrisc/boot.h
 
-diff --git a/configs/devices/or1k-softmmu/default.mak b/configs/devices/or1k-softmmu/default.mak
-index 168101c39a..5b3ac89491 100644
---- a/configs/devices/or1k-softmmu/default.mak
-+++ b/configs/devices/or1k-softmmu/default.mak
-@@ -1,5 +1,7 @@
- # Default configuration for or1k-softmmu
- 
-+CONFIG_SEMIHOSTING=y
-+
- # Boards:
- #
- CONFIG_OR1K_SIM=y
-diff --git a/qemu-options.hx b/qemu-options.hx
-index b484640067..312c68b065 100644
---- a/qemu-options.hx
-+++ b/qemu-options.hx
-@@ -4566,10 +4566,12 @@ ERST
- DEF("semihosting", 0, QEMU_OPTION_semihosting,
-     "-semihosting    semihosting mode\n",
-     QEMU_ARCH_ARM | QEMU_ARCH_M68K | QEMU_ARCH_XTENSA |
--    QEMU_ARCH_MIPS | QEMU_ARCH_NIOS2 | QEMU_ARCH_RISCV)
-+    QEMU_ARCH_MIPS | QEMU_ARCH_NIOS2 | QEMU_ARCH_RISCV |
-+    QEMU_ARCH_OPENRISC)
- SRST
- ``-semihosting``
--    Enable semihosting mode (ARM, M68K, Xtensa, MIPS, Nios II, RISC-V only).
-+    Enable semihosting mode (ARM, M68K, Xtensa, MIPS, Nios II, RISC-V,
-+    OpenRISC only).
- 
-     Note that this allows guest direct access to the host filesystem, so
-     should only be used with a trusted guest OS.
-@@ -4581,11 +4583,12 @@ DEF("semihosting-config", HAS_ARG, QEMU_OPTION_semihosting_config,
-     "-semihosting-config [enable=on|off][,target=native|gdb|auto][,chardev=id][,arg=str[,...]]\n" \
-     "                semihosting configuration\n",
- QEMU_ARCH_ARM | QEMU_ARCH_M68K | QEMU_ARCH_XTENSA |
--QEMU_ARCH_MIPS | QEMU_ARCH_NIOS2 | QEMU_ARCH_RISCV)
-+QEMU_ARCH_MIPS | QEMU_ARCH_NIOS2 | QEMU_ARCH_RISCV |
-+QEMU_ARCH_OPENRISC)
- SRST
- ``-semihosting-config [enable=on|off][,target=native|gdb|auto][,chardev=id][,arg=str[,...]]``
--    Enable and configure semihosting (ARM, M68K, Xtensa, MIPS, Nios II, RISC-V
--    only).
-+    Enable and configure semihosting (ARM, M68K, Xtensa, MIPS, Nios II, RISC-V,
-+    OpenRISC only).
- 
-     Note that this allows guest direct access to the host filesystem, so
-     should only be used with a trusted guest OS.
-@@ -4601,6 +4604,9 @@ SRST
- 
-     On RISC-V this implements the standard semihosting API, version 0.2.
- 
-+    On OpenRISC this only supports providing simulation exit and reset
-+    facilities.
-+
-     ``target=native|gdb|auto``
-         Defines where the semihosting calls will be addressed, to QEMU
-         (``native``) or to GDB (``gdb``). The default is ``auto``, which
-diff --git a/target/openrisc/cpu.h b/target/openrisc/cpu.h
-index b9584f10d4..4617f1272b 100644
---- a/target/openrisc/cpu.h
-+++ b/target/openrisc/cpu.h
-@@ -407,4 +407,6 @@ void cpu_set_fpcsr(CPUOpenRISCState *env, uint32_t val);
- 
- #define CPU_INTERRUPT_TIMER   CPU_INTERRUPT_TGT_INT_0
- 
-+void do_or1k_semihosting(CPUOpenRISCState *env, uint32_t k);
-+
- #endif /* OPENRISC_CPU_H */
-diff --git a/target/openrisc/helper.h b/target/openrisc/helper.h
-index d847814a28..2fe3e4e4ca 100644
---- a/target/openrisc/helper.h
-+++ b/target/openrisc/helper.h
-@@ -64,3 +64,4 @@ DEF_HELPER_FLAGS_1(rfe, 0, void, env)
- /* sys */
- DEF_HELPER_FLAGS_3(mtspr, 0, void, env, tl, tl)
- DEF_HELPER_FLAGS_3(mfspr, TCG_CALL_NO_WG, tl, env, tl, tl)
-+DEF_HELPER_FLAGS_2(nop, 0, void, env, i32)
-diff --git a/target/openrisc/meson.build b/target/openrisc/meson.build
-index 84322086ec..1c1758b846 100644
---- a/target/openrisc/meson.build
-+++ b/target/openrisc/meson.build
-@@ -10,6 +10,7 @@ openrisc_ss.add(files(
-   'fpu_helper.c',
-   'gdbstub.c',
-   'interrupt_helper.c',
-+  'openrisc-semi.c',
-   'sys_helper.c',
-   'translate.c',
- ))
-diff --git a/target/openrisc/openrisc-semi.c b/target/openrisc/openrisc-semi.c
+diff --git a/hw/openrisc/boot.c b/hw/openrisc/boot.c
 new file mode 100644
-index 0000000000..97d6aaacdb
+index 0000000000..32f0925a8c
 --- /dev/null
-+++ b/target/openrisc/openrisc-semi.c
-@@ -0,0 +1,54 @@
++++ b/hw/openrisc/boot.c
+@@ -0,0 +1,127 @@
 +/*
-+ *  OpenRISC Semihosting syscall interface.
++ * QEMU OpenRISC boot helpers.
 + *
-+ *  Copyright (c) 2022 Stafford Horne
++ * Copyright (c) 2022 Stafford Horne <shorne@gmail.com>
 + *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2 or later, as published by the Free Software Foundation.
 + *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
 + *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, see <http://www.gnu.org/licenses/>.
++ * You should have received a copy of the GNU General Public License along with
++ * this program.  If not, see <http://www.gnu.org/licenses/>.
 + */
 +
 +#include "qemu/osdep.h"
-+
 +#include "cpu.h"
-+#include "exec/gdbstub.h"
-+#include "sysemu/runstate.h"
-+#include "qemu/log.h"
++#include "exec/cpu-defs.h"
++#include "elf.h"
++#include "hw/loader.h"
++#include "hw/openrisc/boot.h"
++#include "sysemu/device_tree.h"
++#include "sysemu/qtest.h"
 +
-+#define HOSTED_EXIT 1
-+#define HOSTED_RESET 13
++#include <libfdt.h>
 +
-+static void or1k_semi_return_u32(CPUOpenRISCState *env, uint32_t ret)
++#define KERNEL_LOAD_ADDR 0x100
++
++hwaddr openrisc_load_kernel(ram_addr_t ram_size,
++                            const char *kernel_filename,
++                            uint32_t *bootstrap_pc)
 +{
-+    cpu_set_gpr(env, 11, ret);
-+}
++    long kernel_size;
++    uint64_t elf_entry;
++    uint64_t high_addr;
++    hwaddr entry;
 +
-+void do_or1k_semihosting(CPUOpenRISCState *env, uint32_t k)
-+{
-+    uint32_t result;
++    if (kernel_filename && !qtest_enabled()) {
++        kernel_size = load_elf(kernel_filename, NULL, NULL, NULL,
++                               &elf_entry, NULL, &high_addr, NULL, 1,
++                               EM_OPENRISC, 1, 0);
++        entry = elf_entry;
++        if (kernel_size < 0) {
++            kernel_size = load_uimage(kernel_filename,
++                                      &entry, NULL, NULL, NULL, NULL);
++            high_addr = entry + kernel_size;
++        }
++        if (kernel_size < 0) {
++            kernel_size = load_image_targphys(kernel_filename,
++                                              KERNEL_LOAD_ADDR,
++                                              ram_size - KERNEL_LOAD_ADDR);
++            high_addr = KERNEL_LOAD_ADDR + kernel_size;
++        }
 +
-+    switch (k) {
-+    case HOSTED_EXIT:
-+        gdb_exit(cpu_get_gpr(env, 3));
-+        exit(cpu_get_gpr(env, 3));
-+    case HOSTED_RESET:
-+#ifndef CONFIG_USER_ONLY
-+        qemu_system_reset_request(SHUTDOWN_CAUSE_GUEST_RESET);
-+        return;
-+#endif
-+    default:
-+        qemu_log_mask(LOG_GUEST_ERROR, "or1k-semihosting: unsupported "
-+                      "semihosting syscall %d\n", k);
-+        result = 0;
++        if (entry <= 0) {
++            entry = KERNEL_LOAD_ADDR;
++        }
++
++        if (kernel_size < 0) {
++            error_report("couldn't load the kernel '%s'", kernel_filename);
++            exit(1);
++        }
++        *bootstrap_pc = entry;
++
++        return high_addr;
 +    }
-+    or1k_semi_return_u32(env, result);
++    return 0;
 +}
-diff --git a/target/openrisc/sys_helper.c b/target/openrisc/sys_helper.c
-index 48674231e7..eb698a527e 100644
---- a/target/openrisc/sys_helper.c
-+++ b/target/openrisc/sys_helper.c
-@@ -314,3 +314,8 @@ target_ulong HELPER(mfspr)(CPUOpenRISCState *env, target_ulong rd,
-     /* for rd is passed in, if rd unchanged, just keep it back.  */
-     return rd;
- }
 +
-+void HELPER(nop)(CPUOpenRISCState *env, target_ulong k)
++hwaddr openrisc_load_initrd(void *fdt, const char *filename,
++                            hwaddr load_start, uint64_t mem_size)
 +{
-+    do_or1k_semihosting(env, k);
++    int size;
++    hwaddr start;
++
++    /* We put the initrd right after the kernel; page aligned. */
++    start = TARGET_PAGE_ALIGN(load_start);
++
++    size = load_ramdisk(filename, start, mem_size - start);
++    if (size < 0) {
++        size = load_image_targphys(filename, start, mem_size - start);
++        if (size < 0) {
++            error_report("could not load ramdisk '%s'", filename);
++            exit(1);
++        }
++    }
++
++    if (fdt) {
++        qemu_fdt_setprop_cell(fdt, "/chosen",
++                              "linux,initrd-start", start);
++        qemu_fdt_setprop_cell(fdt, "/chosen",
++                              "linux,initrd-end", start + size);
++    }
++
++    return start + size;
 +}
-diff --git a/target/openrisc/translate.c b/target/openrisc/translate.c
-index 7b8ad43d5f..ec7b3b46ad 100644
---- a/target/openrisc/translate.c
-+++ b/target/openrisc/translate.c
-@@ -28,6 +28,7 @@
- #include "qemu/qemu-print.h"
- #include "exec/cpu_ldst.h"
- #include "exec/translator.h"
-+#include "semihosting/semihost.h"
++
++uint32_t openrisc_load_fdt(void *fdt, hwaddr load_start,
++                           uint64_t mem_size)
++{
++    uint32_t fdt_addr;
++    int ret;
++    int fdtsize = fdt_totalsize(fdt);
++
++    if (fdtsize <= 0) {
++        error_report("invalid device-tree");
++        exit(1);
++    }
++
++    /* We put fdt right after the kernel and/or initrd. */
++    fdt_addr = TARGET_PAGE_ALIGN(load_start);
++
++    ret = fdt_pack(fdt);
++    /* Should only fail if we've built a corrupted tree */
++    g_assert(ret == 0);
++    /* copy in the device tree */
++    qemu_fdt_dumpdtb(fdt, fdtsize);
++
++    rom_add_blob_fixed_as("fdt", fdt, fdtsize, fdt_addr,
++                          &address_space_memory);
++
++    return fdt_addr;
++}
++
+diff --git a/hw/openrisc/meson.build b/hw/openrisc/meson.build
+index ec48172c9d..ab563820c5 100644
+--- a/hw/openrisc/meson.build
++++ b/hw/openrisc/meson.build
+@@ -1,5 +1,6 @@
+ openrisc_ss = ss.source_set()
+ openrisc_ss.add(files('cputimer.c'))
++openrisc_ss.add(files('boot.c'))
+ openrisc_ss.add(when: 'CONFIG_OR1K_SIM', if_true: [files('openrisc_sim.c'), fdt])
  
- #include "exec/helper-proto.h"
- #include "exec/helper-gen.h"
-@@ -780,6 +781,11 @@ static bool trans_l_sh(DisasContext *dc, arg_store *a)
+ hw_arch += {'openrisc': openrisc_ss}
+diff --git a/hw/openrisc/openrisc_sim.c b/hw/openrisc/openrisc_sim.c
+index 35adce17ac..35da123aef 100644
+--- a/hw/openrisc/openrisc_sim.c
++++ b/hw/openrisc/openrisc_sim.c
+@@ -24,10 +24,9 @@
+ #include "cpu.h"
+ #include "hw/irq.h"
+ #include "hw/boards.h"
+-#include "elf.h"
+ #include "hw/char/serial.h"
+ #include "net/net.h"
+-#include "hw/loader.h"
++#include "hw/openrisc/boot.h"
+ #include "hw/qdev-properties.h"
+ #include "exec/address-spaces.h"
+ #include "sysemu/device_tree.h"
+@@ -283,101 +282,6 @@ static void openrisc_sim_serial_init(Or1ksimState *state, hwaddr base,
+     g_free(nodename);
+ }
  
- static bool trans_l_nop(DisasContext *dc, arg_l_nop *a)
+-static hwaddr openrisc_load_kernel(ram_addr_t ram_size,
+-                                   const char *kernel_filename)
+-{
+-    long kernel_size;
+-    uint64_t elf_entry;
+-    uint64_t high_addr;
+-    hwaddr entry;
+-
+-    if (kernel_filename && !qtest_enabled()) {
+-        kernel_size = load_elf(kernel_filename, NULL, NULL, NULL,
+-                               &elf_entry, NULL, &high_addr, NULL, 1,
+-                               EM_OPENRISC, 1, 0);
+-        entry = elf_entry;
+-        if (kernel_size < 0) {
+-            kernel_size = load_uimage(kernel_filename,
+-                                      &entry, NULL, NULL, NULL, NULL);
+-            high_addr = entry + kernel_size;
+-        }
+-        if (kernel_size < 0) {
+-            kernel_size = load_image_targphys(kernel_filename,
+-                                              KERNEL_LOAD_ADDR,
+-                                              ram_size - KERNEL_LOAD_ADDR);
+-            high_addr = KERNEL_LOAD_ADDR + kernel_size;
+-        }
+-
+-        if (entry <= 0) {
+-            entry = KERNEL_LOAD_ADDR;
+-        }
+-
+-        if (kernel_size < 0) {
+-            error_report("couldn't load the kernel '%s'", kernel_filename);
+-            exit(1);
+-        }
+-        boot_info.bootstrap_pc = entry;
+-
+-        return high_addr;
+-    }
+-    return 0;
+-}
+-
+-static hwaddr openrisc_load_initrd(Or1ksimState *state, const char *filename,
+-                                   hwaddr load_start, uint64_t mem_size)
+-{
+-    void *fdt = state->fdt;
+-    int size;
+-    hwaddr start;
+-
+-    /* We put the initrd right after the kernel; page aligned. */
+-    start = TARGET_PAGE_ALIGN(load_start);
+-
+-    size = load_ramdisk(filename, start, mem_size - start);
+-    if (size < 0) {
+-        size = load_image_targphys(filename, start, mem_size - start);
+-        if (size < 0) {
+-            error_report("could not load ramdisk '%s'", filename);
+-            exit(1);
+-        }
+-    }
+-
+-    qemu_fdt_setprop_cell(fdt, "/chosen",
+-                          "linux,initrd-start", start);
+-    qemu_fdt_setprop_cell(fdt, "/chosen",
+-                          "linux,initrd-end", start + size);
+-
+-    return start + size;
+-}
+-
+-static uint32_t openrisc_load_fdt(Or1ksimState *state, hwaddr load_start,
+-                                  uint64_t mem_size)
+-{
+-    void *fdt = state->fdt;
+-    uint32_t fdt_addr;
+-    int ret;
+-    int fdtsize = fdt_totalsize(fdt);
+-
+-    if (fdtsize <= 0) {
+-        error_report("invalid device-tree");
+-        exit(1);
+-    }
+-
+-    /* We put fdt right after the kernel and/or initrd. */
+-    fdt_addr = TARGET_PAGE_ALIGN(load_start);
+-
+-    ret = fdt_pack(fdt);
+-    /* Should only fail if we've built a corrupted tree */
+-    g_assert(ret == 0);
+-    /* copy in the device tree */
+-    qemu_fdt_dumpdtb(fdt, fdtsize);
+-
+-    rom_add_blob_fixed_as("fdt", fdt, fdtsize, fdt_addr,
+-                          &address_space_memory);
+-
+-    return fdt_addr;
+-}
+-
+ static void openrisc_sim_init(MachineState *machine)
  {
-+    if (semihosting_enabled() &&
-+        a->k != 0) {
-+        gen_helper_nop(cpu_env, tcg_constant_i32(a->k));
-+    }
-+
-     return true;
- }
+     ram_addr_t ram_size = machine->ram_size;
+@@ -428,13 +332,15 @@ static void openrisc_sim_init(MachineState *machine)
+                                  or1ksim_memmap[OR1KSIM_UART].size,
+                                  smp_cpus, cpus, OR1KSIM_UART_IRQ, n);
  
+-    load_addr = openrisc_load_kernel(ram_size, kernel_filename);
++    load_addr = openrisc_load_kernel(ram_size, kernel_filename,
++                                     &boot_info.bootstrap_pc);
+     if (load_addr > 0) {
+         if (machine->initrd_filename) {
+-            load_addr = openrisc_load_initrd(state, machine->initrd_filename,
++            load_addr = openrisc_load_initrd(state->fdt,
++                                             machine->initrd_filename,
+                                              load_addr, machine->ram_size);
+         }
+-        boot_info.fdt_addr = openrisc_load_fdt(state, load_addr,
++        boot_info.fdt_addr = openrisc_load_fdt(state->fdt, load_addr,
+                                                machine->ram_size);
+     }
+ }
+diff --git a/include/hw/openrisc/boot.h b/include/hw/openrisc/boot.h
+new file mode 100644
+index 0000000000..25a313d63a
+--- /dev/null
++++ b/include/hw/openrisc/boot.h
+@@ -0,0 +1,34 @@
++/*
++ * QEMU OpenRISC boot helpers.
++ *
++ * Copyright (c) 2022 Stafford Horne <shorne@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2 or later, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ *
++ * You should have received a copy of the GNU General Public License along with
++ * this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef OPENRISC_BOOT_H
++#define OPENRISC_BOOT_H
++
++#include "exec/cpu-defs.h"
++
++hwaddr openrisc_load_kernel(ram_addr_t ram_size,
++                            const char *kernel_filename,
++                            uint32_t *bootstrap_pc);
++
++hwaddr openrisc_load_initrd(void *fdt, const char *filename,
++                            hwaddr load_start, uint64_t mem_size);
++
++uint32_t openrisc_load_fdt(void *fdt, hwaddr load_start,
++                           uint64_t mem_size);
++
++#endif /* OPENRISC_BOOT_H */
 -- 
 2.31.1
 
