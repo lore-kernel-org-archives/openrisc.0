@@ -2,32 +2,44 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 068BDC433FE
-	for <openrisc@archiver.kernel.org>; Mon, 30 May 2022 13:32:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC77AC38A2B
+	for <openrisc@archiver.kernel.org>; Mon, 30 May 2022 13:36:56 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id DBFA624130;
-	Mon, 30 May 2022 15:32:11 +0200 (CEST)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by mail.librecores.org (Postfix) with ESMTPS id 139992410F
- for <openrisc@lists.librecores.org>; Mon, 30 May 2022 15:32:10 +0200 (CEST)
+	by mail.librecores.org (Postfix) with ESMTP id 849812410F;
+	Mon, 30 May 2022 15:36:55 +0200 (CEST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+ by mail.librecores.org (Postfix) with ESMTPS id E12322410F
+ for <openrisc@lists.librecores.org>; Mon, 30 May 2022 15:36:53 +0200 (CEST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id B4F0960F74;
- Mon, 30 May 2022 13:32:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83CBBC385B8;
- Mon, 30 May 2022 13:31:55 +0000 (UTC)
-Date: Mon, 30 May 2022 14:31:52 +0100
-From: Catalin Marinas <catalin.marinas@arm.com>
-To: Peter Xu <peterx@redhat.com>
-Subject: Re: [PATCH v4] mm: Avoid unnecessary page fault retires on shared
- memory types
-Message-ID: <YpTHSNQxzQxwJ4vQ@arm.com>
-References: <20220527193936.30678-1-peterx@redhat.com>
+ by ams.source.kernel.org (Postfix) with ESMTPS id 673D5B80D84;
+ Mon, 30 May 2022 13:36:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A82EFC385B8;
+ Mon, 30 May 2022 13:36:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1653917812;
+ bh=n+AaXBeWTOxHXF2nYHq4qOyEFHDvsdaw+ZoRXf+hNbc=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=KryPp5jV70oIQyo94ClUlXl/MzGqkYa/I9pMBr4j7LF+/MMOY80EmM+b3OXsUvw51
+ Qk4AvO8G5ERngi2QPQXdM9SHZZXr6q7KDyG2PfjxSIg82pnL4RgzIMrV/tJFW8gxap
+ FHKhPBLEinDH+2Bchhr/2lv3Qnapd9M4r3gLL3WJi+9vP0CYYv+BuFJRBjSEDoqK0p
+ 3BijunGBmI/fuXXr28pb9mgbNxcUYriER6MDBFb87xxldiZpYI0Wt69B37+I1sCXmI
+ VJVD79UcESED8usYKfbnMlJ06jLs0xQ3vWicdVNzvW4A3J2oEr0sPPdwVOPodGI4Lg
+ v5tymBlBpxN0w==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 104/135] openrisc: start CPU timer early in boot
+Date: Mon, 30 May 2022 09:31:02 -0400
+Message-Id: <20220530133133.1931716-104-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
+References: <20220530133133.1931716-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220527193936.30678-1-peterx@redhat.com>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -40,66 +52,68 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
- Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org,
- David Hildenbrand <david@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
- Benjamin Herrenschmidt <benh@kernel.crashing.org>,
- Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
- linux-mips@vger.kernel.org,
- "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
- linux-mm@kvack.org, Guo Ren <guoren@kernel.org>,
- "H . Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org,
- linux-hexagon@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
- Will Deacon <will@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
- Paul Mackerras <paulus@samba.org>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org,
- Janosch Frank <frankja@linux.ibm.com>,
- Yoshinori Sato <ysato@users.sourceforge.jp>, linux-sh@vger.kernel.org,
- Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>,
- Alistair Popple <apopple@nvidia.com>, Hugh Dickins <hughd@google.com>,
- Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org,
- Ingo Molnar <mingo@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>,
- linux-arm-kernel@lists.infradead.org, Vineet Gupta <vgupta@kernel.org>,
- Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org,
- linux-xtensa@linux-xtensa.org, Albert Ou <aou@eecs.berkeley.edu>,
- Vasily Gorbik <gor@linux.ibm.com>, Chris Zankel <chris@zankel.net>,
- Heiko Carstens <hca@linux.ibm.com>, Johannes Weiner <hannes@cmpxchg.org>,
- linux-um@lists.infradead.org, Nicholas Piggin <npiggin@gmail.com>,
- Richard Weinberger <richard@nod.at>, linux-m68k@lists.linux-m68k.org,
- openrisc@lists.librecores.org, Borislav Petkov <bp@alien8.de>,
- Al Viro <viro@zeniv.linux.org.uk>, Andy Lutomirski <luto@kernel.org>,
- Paul Walmsley <paul.walmsley@sifive.com>, Ingo Molnar <mingo@redhat.com>,
- Vlastimil Babka <vbabka@suse.cz>, Richard Henderson <rth@twiddle.net>,
- Brian Cain <bcain@quicinc.com>, Michal Simek <monstr@monstr.eu>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>, linux-parisc@vger.kernel.org,
- Max Filippov <jcmvbkbc@gmail.com>, linux-kernel@vger.kernel.org,
- Johannes Berg <johannes@sipsolutions.net>, Dinh Nguyen <dinguyen@kernel.org>,
- linux-riscv@lists.infradead.org, Palmer Dabbelt <palmer@dabbelt.com>,
- Sven Schnelle <svens@linux.ibm.com>, linux-alpha@vger.kernel.org,
- Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
- Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org,
- "David S . Miller" <davem@davemloft.net>
+Cc: Jonas Bonn <jonas@southpole.se>, Sasha Levin <sashal@kernel.org>,
+ "Jason A. Donenfeld" <Jason@zx2c4.com>, Arnd Bergmann <arnd@arndb.de>,
+ rdunlap@infradead.org, linux@dominikbrodowski.net,
+ openrisc@lists.librecores.org, Thomas Gleixner <tglx@linutronix.de>,
+ Guenter Roeck <linux@roeck-us.net>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Fri, May 27, 2022 at 03:39:36PM -0400, Peter Xu wrote:
-> diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
-> index 77341b160aca..e401d416bbd6 100644
-> --- a/arch/arm64/mm/fault.c
-> +++ b/arch/arm64/mm/fault.c
-> @@ -607,6 +607,10 @@ static int __kprobes do_page_fault(unsigned long far, unsigned int esr,
->  		return 0;
->  	}
->  
-> +	/* The fault is fully completed (including releasing mmap lock) */
-> +	if (fault & VM_FAULT_COMPLETED)
-> +		return 0;
-> +
->  	if (fault & VM_FAULT_RETRY) {
->  		mm_flags |= FAULT_FLAG_TRIED;
->  		goto retry;
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-For arm64:
+[ Upstream commit 516dd4aacd67a0f27da94f3fe63fe0f4dbab6e2b ]
 
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+In order to measure the boot process, the timer should be switched on as
+early in boot as possible. As well, the commit defines the get_cycles
+macro, like the previous patches in this series, so that generic code is
+aware that it's implemented by the platform, as is done on other archs.
+
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Acked-by: Stafford Horne <shorne@gmail.com>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/openrisc/include/asm/timex.h | 1 +
+ arch/openrisc/kernel/head.S       | 9 +++++++++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/arch/openrisc/include/asm/timex.h b/arch/openrisc/include/asm/timex.h
+index d52b4e536e3f..5487fa93dd9b 100644
+--- a/arch/openrisc/include/asm/timex.h
++++ b/arch/openrisc/include/asm/timex.h
+@@ -23,6 +23,7 @@ static inline cycles_t get_cycles(void)
+ {
+ 	return mfspr(SPR_TTCR);
+ }
++#define get_cycles get_cycles
+ 
+ /* This isn't really used any more */
+ #define CLOCK_TICK_RATE 1000
+diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
+index 15f1b38dfe03..871f4c858859 100644
+--- a/arch/openrisc/kernel/head.S
++++ b/arch/openrisc/kernel/head.S
+@@ -521,6 +521,15 @@ _start:
+ 	l.ori	r3,r0,0x1
+ 	l.mtspr	r0,r3,SPR_SR
+ 
++	/*
++	 * Start the TTCR as early as possible, so that the RNG can make use of
++	 * measurements of boot time from the earliest opportunity. Especially
++	 * important is that the TTCR does not return zero by the time we reach
++	 * rand_initialize().
++	 */
++	l.movhi r3,hi(SPR_TTMR_CR)
++	l.mtspr r0,r3,SPR_TTMR
++
+ 	CLEAR_GPR(r1)
+ 	CLEAR_GPR(r2)
+ 	CLEAR_GPR(r3)
+-- 
+2.35.1
+
