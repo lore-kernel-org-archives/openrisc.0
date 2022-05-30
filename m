@@ -2,40 +2,40 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AF62C433FE
-	for <openrisc@archiver.kernel.org>; Mon, 30 May 2022 13:50:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ACE27C433EF
+	for <openrisc@archiver.kernel.org>; Mon, 30 May 2022 13:51:59 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 62F192412D;
-	Mon, 30 May 2022 15:50:41 +0200 (CEST)
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by mail.librecores.org (Postfix) with ESMTPS id C13A52410F
- for <openrisc@lists.librecores.org>; Mon, 30 May 2022 15:50:39 +0200 (CEST)
+	by mail.librecores.org (Postfix) with ESMTP id E7DCA2412D;
+	Mon, 30 May 2022 15:51:58 +0200 (CEST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+ by mail.librecores.org (Postfix) with ESMTPS id 655A02410F
+ for <openrisc@lists.librecores.org>; Mon, 30 May 2022 15:51:57 +0200 (CEST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id 18C5CB80DE2;
- Mon, 30 May 2022 13:50:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8132BC3411C;
- Mon, 30 May 2022 13:50:36 +0000 (UTC)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id 5B45160EC3;
+ Mon, 30 May 2022 13:51:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EB49C3411A;
+ Mon, 30 May 2022 13:51:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1653918637;
- bh=sa8QkmzJKAR+Oh2/QIK2upQbMxD2QyFF0fL8cwkmyF8=;
+ s=k20201202; t=1653918714;
+ bh=CEITeVdnUAOiOrrBMPlDtB3IbeTnyP2R9hTakvFIAbc=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=Pw//pejZcAOQB8AVPMPPRvyZxQP87Qz34gZTEXdFdM8xNDe6TKZ8/JOoYvw802Cjf
- T21nKakqmpefFyR/bhLA2/zB1lODY5apCLmTAhnXf3+DshIowxu4GRX5e/DqeoepmD
- rzfwOFgkHWHnCD8lMCBqb+5x6rJXEomSHHmvgVClmxM8fltg45YuUNPHYR20hFEIcz
- mjBKyXEYzr3YOdvgvP4AQv91kXEEMILQY5anh+0eY7qkhnvDI4yiCHGrGa4OHysnVR
- 1Qk03k7ZRf5VbRM83e6TNOnA5kIxrgHTolC8DQ0uvzqb251dS+8pb5exueZbXwboH8
- N2GPXIXrYhFCw==
+ b=EpZKNlPFEb/ePJEbvI7d3ZcO6u0oBjZ/eTuU/6/WHnBgwNUuuqQVFuSvmrmU/fDnd
+ nZtGJyO5vIe9KqA9pWUzFql/GydOnSeX9o0KSlFAKGq4TYui/3P3C57hwb7uOF02xt
+ w1Smx3sFnuY3xYWjdTHedg8roj2mJTpDxTp5Q5eQSgPZAWBZeBiPNuOPEIc49BYrqu
+ C2bWHkVnXm91Onq9nTrbAdTXsIW1FTTLR9gDAtb76AVglkLgezCVwb0GYeiXykqQqZ
+ c1GY7bHgkSsQVMBsqq/pinkc6C998Qr/jdQmmmG64qxomUljK5dgkZUscudZnBXAop
+ 50iTa6fFgNGSA==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 30/38] openrisc: start CPU timer early in boot
-Date: Mon, 30 May 2022 09:49:16 -0400
-Message-Id: <20220530134924.1936816-30-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 22/29] openrisc: start CPU timer early in boot
+Date: Mon, 30 May 2022 09:50:49 -0400
+Message-Id: <20220530135057.1937286-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220530134924.1936816-1-sashal@kernel.org>
-References: <20220530134924.1936816-1-sashal@kernel.org>
+In-Reply-To: <20220530135057.1937286-1-sashal@kernel.org>
+References: <20220530135057.1937286-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -95,10 +95,10 @@ index 9935cad1b9b9..34d015bf0462 100644
  /* This isn't really used any more */
  #define CLOCK_TICK_RATE 1000
 diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
-index 31ed257ff061..d7e49b947164 100644
+index 4d878d13b860..3f1e9d168710 100644
 --- a/arch/openrisc/kernel/head.S
 +++ b/arch/openrisc/kernel/head.S
-@@ -525,6 +525,15 @@ _start:
+@@ -459,6 +459,15 @@ _start:
  	l.ori	r3,r0,0x1
  	l.mtspr	r0,r3,SPR_SR
  
