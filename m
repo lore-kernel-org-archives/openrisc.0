@@ -2,44 +2,48 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D13B1C433EF
-	for <openrisc@archiver.kernel.org>; Wed,  1 Jun 2022 03:18:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8236C433EF
+	for <openrisc@archiver.kernel.org>; Thu,  2 Jun 2022 04:39:37 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 7F336247D6;
-	Wed,  1 Jun 2022 05:18:36 +0200 (CEST)
-Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com
- [209.85.221.48])
- by mail.librecores.org (Postfix) with ESMTPS id 8461824819
- for <openrisc@lists.librecores.org>; Wed,  1 Jun 2022 05:18:34 +0200 (CEST)
-Received: by mail-wr1-f48.google.com with SMTP id p10so460411wrg.12
- for <openrisc@lists.librecores.org>; Tue, 31 May 2022 20:18:34 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id BEF3724042;
+	Thu,  2 Jun 2022 06:39:36 +0200 (CEST)
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com
+ [209.85.128.46])
+ by mail.librecores.org (Postfix) with ESMTPS id B3E2423FA3
+ for <openrisc@lists.librecores.org>; Thu,  2 Jun 2022 06:39:34 +0200 (CEST)
+Received: by mail-wm1-f46.google.com with SMTP id
+ n124-20020a1c2782000000b003972dfca96cso2132884wmn.4
+ for <openrisc@lists.librecores.org>; Wed, 01 Jun 2022 21:39:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jms.id.au; s=google;
- h=mime-version:from:date:message-id:subject:to;
- bh=8qq9U76KXBleoXKJViGEPxvE4CRwWO7/SSv6TTEuDpE=;
- b=akY6i2GqGy/rPN1B1FDGU9hH9s1AQCOACmhcpCYEXsZGg8iwqjzJttqfrL3WWmnh18
- UUZy6aXt/CiBMe3jo+/0gFCoVhJAnunViCKZi8/rqxmQfTPTFTSestXwwDSEkrQ02J5s
- jMpiU+ywJ1bImzwrjU6b6jiZ56JQYyuQy7yfY=
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+ bh=vUlqOcPZnFCh57G706+g28LBY1zHPo82Z6a+Kxl7ceE=;
+ b=Db2bxQu/VXwUE7sMikyE5KUHTsMdhWBpmk0OK8a/eYdpSYJ2B6P4vX+ftQkZR0lLUV
+ OzQUlK58RZFSPejVkO5xjB0eoOnbQ7RrKj2z3GyFkUMJx+klimjlgNwWpzP6FcoAHOYk
+ ZmIe27z0H3WVRqIKHMqb8+krsGAJZVZI+IRrw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
- bh=8qq9U76KXBleoXKJViGEPxvE4CRwWO7/SSv6TTEuDpE=;
- b=s5Phs0ZtBqQFVRPSbRerKLVt1Pl3ig9qjb3Ct5ruZzm/n6YzATUFvoY2svdX9/L/ue
- ZtOmGGI4rrBYG9fy3qKrxNDNw5I9OJKLL5Yv7lHgF2ZunIXsdpf4Hkg3+4lEwEbEytO7
- ms+NTOC+c85aLPKqhCenBGUtDcPxlsKs/BhyRJqvkgOgbb7Wa4K63xxjPZSH2AifAhep
- G7r8umDrGlljuwmTW//CuCQg0qCvbpuyjxlqw8qpbfZ6NHwncp2t2Ws2kaFlK3s1wmlA
- Fe/8K8ZgYp5zl2BZTSZr6S3/QvwKEEiFBV4TjNk2MQYU8BzuksDbQAhwnNonKN+U+GTp
- yrXA==
-X-Gm-Message-State: AOAM531mLFAzKULB4v2i5YgCBJnho05+mACVnPh9u1/c9XZ05jTRCUm9
- 8IlTTgQ+GbwAcCgxtJTUn9+09Hp+AHJb9SBzklUXWrAyB5Y=
-X-Google-Smtp-Source: ABdhPJz8nc7FlvZ7PiGoEVE1jtNMegYskYl11hb3abimwSYCLqgZuF5x4huapo6gl92q8HnxKCI8qwibXH2rA/wxcpw=
-X-Received: by 2002:adf:e18f:0:b0:20e:6352:211d with SMTP id
- az15-20020adfe18f000000b0020e6352211dmr52450506wrb.606.1654053513504; Tue, 31
- May 2022 20:18:33 -0700 (PDT)
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to;
+ bh=vUlqOcPZnFCh57G706+g28LBY1zHPo82Z6a+Kxl7ceE=;
+ b=s0oEZ3ectrheKH0UY2x3/k6yp8NlT9/8cF1v1FN/UXI07wvZ+vhFYCYWeVqIbTzmUz
+ jWu0KI37pIqmumlQikN5i+QgckPy2XGnZxL1E18LUamGwFje/EZIL6sIpTdk7a39uIjv
+ i00+mm2Vu/uevXWxTByPn3ooEQ/ZHIoRGRfCe0aSpntVAqbp43+ZbCPbcBJbnp/ewn7j
+ vGgItRTfvdQhAlXuGHvbu5L2AZhGQNF96sQ/ehz0qtiCwlEZGktgNMv5z6u4fLSGxoTN
+ xUJJZsYpORy47T1VO6PVTLdppsgIdy5OMGQby+mzMpTflYc+RqlOciZHzIIVvx8ASA7A
+ k93A==
+X-Gm-Message-State: AOAM533zSQGW3/CE/AYLgd3jn4YPnPQsoaxxymyBHZRdxKmbv9TQcfmY
+ OfNRymxEYYXiyTlhCgX/iPPxqFpeYXojVcoPJjGipfxonlU=
+X-Google-Smtp-Source: ABdhPJwb5QFoGqWFBjP/rC+OJpfW6CZ3w9oBfzlKYhSbzd5cwW1S1OH3CzE0mDRqcQzDHB4z4UmsDtmFefUk9VhrFs0=
+X-Received: by 2002:a05:600c:198f:b0:394:952d:9a72 with SMTP id
+ t15-20020a05600c198f00b00394952d9a72mr30627894wmq.72.1654144773804; Wed, 01
+ Jun 2022 21:39:33 -0700 (PDT)
 MIME-Version: 1.0
+References: <CACPK8Xebta2r7cdC7R2e2=+HE2FYOfoNMpZpyjju9z8gb+K=3w@mail.gmail.com>
+In-Reply-To: <CACPK8Xebta2r7cdC7R2e2=+HE2FYOfoNMpZpyjju9z8gb+K=3w@mail.gmail.com>
 From: Joel Stanley <joel@jms.id.au>
-Date: Wed, 1 Jun 2022 03:18:21 +0000
-Message-ID: <CACPK8Xebta2r7cdC7R2e2=+HE2FYOfoNMpZpyjju9z8gb+K=3w@mail.gmail.com>
-Subject: Qemu TCG crash on arm64
+Date: Thu, 2 Jun 2022 04:39:21 +0000
+Message-ID: <CACPK8XdaqBtsyLH9ony0jS4cSXOzJ-3pepo1V3=1fF3u2cUGkA@mail.gmail.com>
+Subject: Re: Qemu TCG crash on arm64
 To: openrisc@lists.librecores.org
 Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: openrisc@lists.librecores.org
@@ -57,18 +61,20 @@ List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-A FYI that I opened this issue in the qemu bug tracker:
+On Wed, 1 Jun 2022 at 03:18, Joel Stanley <joel@jms.id.au> wrote:
+>
+> A FYI that I opened this issue in the qemu bug tracker:
+>
+>  https://gitlab.com/qemu-project/qemu/-/issues/1051
+>
+> When running the openrisc kernel on my Linux arm64 (Apple M1) machine,
+> tcg SIGILLs inside some translated code.
+>
+> I'm not sure if it's related to openrisc specifically. I have been
+> able to run ppc64le kernels using Qemu on the same machine without
+> problems. I've also been able to run the same or1k kernel under Qemu
+> on my amd64 laptop.
 
- https://gitlab.com/qemu-project/qemu/-/issues/1051
+This has been fixed now. It was specific to running on an arm64 machine:
 
-When running the openrisc kernel on my Linux arm64 (Apple M1) machine,
-tcg SIGILLs inside some translated code.
-
-I'm not sure if it's related to openrisc specifically. I have been
-able to run ppc64le kernels using Qemu on the same machine without
-problems. I've also been able to run the same or1k kernel under Qemu
-on my amd64 laptop.
-
-Cheers,
-
-Joel
+ https://lore.kernel.org/qemu-devel/20220602011459.294754-1-richard.henderson@linaro.org/
