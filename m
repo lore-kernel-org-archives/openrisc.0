@@ -2,62 +2,61 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6038C43334
-	for <openrisc@archiver.kernel.org>; Thu,  2 Jun 2022 20:01:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A186C433EF
+	for <openrisc@archiver.kernel.org>; Thu,  2 Jun 2022 20:05:20 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id DEB8824917;
-	Thu,  2 Jun 2022 22:01:15 +0200 (CEST)
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com
- [209.85.210.182])
- by mail.librecores.org (Postfix) with ESMTPS id 17CF7248EA
- for <openrisc@lists.librecores.org>; Thu,  2 Jun 2022 22:01:14 +0200 (CEST)
-Received: by mail-pf1-f182.google.com with SMTP id 187so5600375pfu.9
- for <openrisc@lists.librecores.org>; Thu, 02 Jun 2022 13:01:14 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 627FC24917;
+	Thu,  2 Jun 2022 22:05:19 +0200 (CEST)
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com
+ [209.85.216.54])
+ by mail.librecores.org (Postfix) with ESMTPS id 6B812248EA
+ for <openrisc@lists.librecores.org>; Thu,  2 Jun 2022 22:05:17 +0200 (CEST)
+Received: by mail-pj1-f54.google.com with SMTP id
+ v5-20020a17090a7c0500b001df84fa82f8so5680571pjf.5
+ for <openrisc@lists.librecores.org>; Thu, 02 Jun 2022 13:05:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=date:from:to:cc:subject:message-id:references:mime-version
  :content-disposition:in-reply-to;
- bh=edO1iwQxgPlmgM/1u/oOlUyyoYGNoY3yTPEc3qv+5RY=;
- b=VoPoiaSl60pNBkyvSug6/isO++NiY9lRGzj+h/Uqv5jo+hhndoah1wt4hZhZtN+SC5
- /tL4WLWfmr12jG+G3hJ0j7+9CdBfDfzynTzUXcqoxbMN0wgDM9uqB6XG2fNU+bD94eUe
- Q5KrgOeKM3IPJUV7jRqtJcD9c/zLxmdp8yfRC1gcaz72fwPdXIH0obCPOw5zP0bXqdWd
- 3qVhSFHr8oyByoKgOivTdW+XX2Cmzm3XS3zhbqNKYp70OPi4UJdyBqF9WFGxsF93ifqf
- cX55qRcBe0Dn25717ft3b988jmIXNRq/uomW3tCAh/Ja8VXP+ciGqmVd7A8u4y/JtnDm
- 1FmA==
+ bh=/4F3P04RiqaLnCxu45Y6BfA+mNcWRXPng/jNjafuIFE=;
+ b=SqiBbXYPKjTv6QPf5coEYt+sAi5YcFPcWkSmAKcZDED4xltESQvKq0lFNX3rKlN9+G
+ EHzQW027dOxBjgc+K8AdZaNLz0Qy9RAvPxlr6Rmx/yW/xJAamgKcUr8apnCeqYbpheDe
+ ObLJuYGgMzV9mXglV/BwO7RtoJMx1hiydHw+y1ybGBtQBAa5i/41ArvfkXyXNCn35wn0
+ kXQZmLSgi4jCm2pcL3XKd4EaA/jt7G8i8fo9cp0xCulqi5GbGbxtsQOIKGz6eU+kRZMV
+ bsm7uvSOpxSNzCQwvaTRU7T72Xxd2cVDW+uHsYt6TjlY7jxhdWSz+bKkDeiAMeUqNTgH
+ GYqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=edO1iwQxgPlmgM/1u/oOlUyyoYGNoY3yTPEc3qv+5RY=;
- b=PBnIV5SRlrg5Dxq4OAEz9IbeEru7HWiBx7ta+6okdPrCgM5bV8MZQhO5P6fxg1kOwJ
- NsIlC7CswSQ1vLQPvwV+IKp1zHlsmGn9Ds0FyGgCv1bocXwQMG7M3DasREMpqxf43s/1
- tFxw885SGGfx6+Nflkix6rl1QLBpbc5RPcpFp9N0YMnTnPgEyVZdqliSPYPR2wvhqc1m
- x4v5JpdqfryjgoliCEBXbYTfpWlhrXHew6U/eZZWQAoyHV0mPBLLR9+t0jq6RdRR0rKD
- E+aNhWZYNefp00ZYhr6xuTd2AQJC5++XoNhkhFhRPa/+KL/KaTIsiZGghgrqU1AyRuvO
- SIIQ==
-X-Gm-Message-State: AOAM531qOX7B0HzXL5dk5EsCEaNm+iQxDVt1k/2J7mGfnRVnDqU7vWxV
- ZjvpwD3fURLW9bGxtDMha88=
-X-Google-Smtp-Source: ABdhPJxkJSGlBm6UuqGHHapDYbRHR/MKorBEqg+ZcAcF07KQChrQg4WPi4eZLUjXkcF2v4Lq7fIN9A==
-X-Received: by 2002:a63:8a44:0:b0:3fc:a1f8:806d with SMTP id
- y65-20020a638a44000000b003fca1f8806dmr5716648pgd.363.1654200072563; 
- Thu, 02 Jun 2022 13:01:12 -0700 (PDT)
+ bh=/4F3P04RiqaLnCxu45Y6BfA+mNcWRXPng/jNjafuIFE=;
+ b=IRI4rmOv/4ZYrvMLjPt63BmgEOyb+mufCaCvYiawIqGOWHDiVIZwYE2HmVGGDZeN7J
+ M4+MabhRsI78xtL0sfFa3x/Nq2l+V1GWA9PEob9dSc3V7BsNzDk5lKqwy3lWMSYtOX0u
+ GjrGIoMzePwxdGauSud4i403p2bsOldIOhykyLtz8LMkLHmQhqkfcNcDOxjy3oRWSY/L
+ 0ni6anGLtBBHVrrnxW0SfJ5blajCjWMgoqugFDH3CVdKEF0rmyLosrOkaUixNZ9+V0nR
+ NDk3I9EeGTvb26OfkwEzjg2pqW9226Ho1RVYu9rDk9VK3AbEUyvPSYdotjsX3OfyuBOz
+ pf6g==
+X-Gm-Message-State: AOAM532qRWUEbJohta18wK3t0waDNxFGpTEEjK4r7fuRnHFBQsT2CwBl
+ joDrVYbsw0ZCnviTM46Ebwg=
+X-Google-Smtp-Source: ABdhPJwRmKF7LxBzDNuyOIjo/5kwLg50mZczO/PSha5zlUbxbl95I/ezjOxYmo9WFY5PXc9jCnbCUQ==
+X-Received: by 2002:a17:90b:4ac8:b0:1e3:4f6a:2d04 with SMTP id
+ mh8-20020a17090b4ac800b001e34f6a2d04mr14148982pjb.233.1654200315962; 
+ Thu, 02 Jun 2022 13:05:15 -0700 (PDT)
 Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
  by smtp.gmail.com with ESMTPSA id
- e63-20020a621e42000000b0051bbb661782sm3155784pfe.192.2022.06.02.13.01.11
+ g29-20020aa79ddd000000b0050dc762819esm3858035pfq.120.2022.06.02.13.05.14
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 02 Jun 2022 13:01:11 -0700 (PDT)
-Date: Fri, 3 Jun 2022 05:01:09 +0900
+ Thu, 02 Jun 2022 13:05:15 -0700 (PDT)
+Date: Fri, 3 Jun 2022 05:05:13 +0900
 From: Stafford Horne <shorne@gmail.com>
 To: Joel Stanley <joel@jms.id.au>
-Subject: Re: Link failure with Debian toolchain
-Message-ID: <YpkXBWWyWSG6XwoO@antec>
-References: <CACPK8XcBRtd+RFhXaR-B3wbeM1gsmCW3hgRp_uwS0-g-oCWniw@mail.gmail.com>
- <YpFSzpl5fdq7O3pk@antec> <YpHwhlF0Dhf58da7@pegase>
- <CACPK8Xf5F+LJiYrCX50Muq9Eh2SUQNwMAP-LE6zudSE119Hhgw@mail.gmail.com>
- <CACPK8XcmXLGyn+2BK-nthgVyo5U9SEr+jaw8GJbZTK6Fhy7mfw@mail.gmail.com>
+Subject: Re: Qemu TCG crash on arm64
+Message-ID: <YpkX+eMY9bCa8+PW@antec>
+References: <CACPK8Xebta2r7cdC7R2e2=+HE2FYOfoNMpZpyjju9z8gb+K=3w@mail.gmail.com>
+ <CACPK8XdaqBtsyLH9ony0jS4cSXOzJ-3pepo1V3=1fF3u2cUGkA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CACPK8XcmXLGyn+2BK-nthgVyo5U9SEr+jaw8GJbZTK6Fhy7mfw@mail.gmail.com>
+In-Reply-To: <CACPK8XdaqBtsyLH9ony0jS4cSXOzJ-3pepo1V3=1fF3u2cUGkA@mail.gmail.com>
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -70,34 +69,29 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: openrisc@lists.librecores.org, Nicolas Boulenguez <nicolas@debian.org>
+Cc: openrisc@lists.librecores.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Thu, Jun 02, 2022 at 04:52:01AM +0000, Joel Stanley wrote:
-> On Mon, 30 May 2022 at 08:27, Joel Stanley <joel@jms.id.au> wrote:
-> > Stripping libgcc.a breaks it. I could reproduce by running:
+On Thu, Jun 02, 2022 at 04:39:21AM +0000, Joel Stanley wrote:
+> On Wed, 1 Jun 2022 at 03:18, Joel Stanley <joel@jms.id.au> wrote:
 > >
-> >   or1k-elf-strip lib/gcc/or1k-elf/12/libgcc.a
+> > A FYI that I opened this issue in the qemu bug tracker:
 > >
-> > If I then reinstated the original libgcc.a the build succeeded again.
-> > I suggest we drop that line from the Debian package.
+> >  https://gitlab.com/qemu-project/qemu/-/issues/1051
+> >
+> > When running the openrisc kernel on my Linux arm64 (Apple M1) machine,
+> > tcg SIGILLs inside some translated code.
+> >
+> > I'm not sure if it's related to openrisc specifically. I have been
+> > able to run ppc64le kernels using Qemu on the same machine without
+> > problems. I've also been able to run the same or1k kernel under Qemu
+> > on my amd64 laptop.
 > 
-> Nicolas merged my change to remove the strip from the package. Thanks!
+> This has been fixed now. It was specific to running on an arm64 machine:
 > 
-> I was able to build and boot a kernel with the new version of the
-> package 12.1.0-2+1.0.3.
-> 
-> I've proposed a change that enables the or1k target in the Debian
-> gdb-multiarch package:
-> 
->  https://salsa.debian.org/gdb-team/gdb/-/merge_requests/11
-> 
-> With a local build of that I'm able to connect to qemu's gdb interface
-> and poke at the running machine.
+>  https://lore.kernel.org/qemu-devel/20220602011459.294754-1-richard.henderson@linaro.org/
 
-Thanks for getting this sorted out. I have been on vacation for the last 2 weeks
-and just following these on my phone but not able to get to a computer and do
-any useful investigation.
+Great!  Thanks for helping posting this.
 
 -Stafford
