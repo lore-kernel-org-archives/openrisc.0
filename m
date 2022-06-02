@@ -2,58 +2,62 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A98D6C43334
-	for <openrisc@archiver.kernel.org>; Thu,  2 Jun 2022 19:09:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D0EACCA47B
+	for <openrisc@archiver.kernel.org>; Thu,  2 Jun 2022 19:59:25 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 685C0240E1;
-	Thu,  2 Jun 2022 21:09:08 +0200 (CEST)
-Received: from mail-qv1-f52.google.com (mail-qv1-f52.google.com
- [209.85.219.52])
- by mail.librecores.org (Postfix) with ESMTPS id 61292248EA
- for <openrisc@lists.librecores.org>; Thu,  2 Jun 2022 21:09:06 +0200 (CEST)
-Received: by mail-qv1-f52.google.com with SMTP id b11so4191824qvv.4
- for <openrisc@lists.librecores.org>; Thu, 02 Jun 2022 12:09:06 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 84CC3248EA;
+	Thu,  2 Jun 2022 21:59:24 +0200 (CEST)
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com
+ [209.85.214.176])
+ by mail.librecores.org (Postfix) with ESMTPS id D5F08240E1
+ for <openrisc@lists.librecores.org>; Thu,  2 Jun 2022 21:59:22 +0200 (CEST)
+Received: by mail-pl1-f176.google.com with SMTP id i1so5351713plg.7
+ for <openrisc@lists.librecores.org>; Thu, 02 Jun 2022 12:59:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=7yKMgUuv2zhj5/B8/Lj3TxnmVoVqtuLrhQVs7Z1bwLw=;
+ b=AOoVxojcO1u0si+ygxmly+LdcTM0LMB/1hyJeBsgZXYurH/E1oNQIyfSaVaE2z4Tb8
+ 06HGaYd/qoomeYfNm0/guHsJ0EcORLAUR5qQHBEUjqtc4Fcl1Uf9ziF/hXyKdqv+rGO1
+ XqjBAyv7MqIlH80PMiXnUUEusnEeJmkY4tTcxGlmbWevY5skcHt90LXFQRWAJ2iOdu+o
+ b0qPs9ZnGb2++PQ8WXN6356AKWfqbDcnxua7miONnYmAgd4UXc8+feQmKHs0Xh7asGRr
+ hPhz5hORFqk7a+P/q1D9LeFFeUiI+7V4CVW6uD/yCyqP9k/XNthH0fH2R1npKIEtcEMu
+ rtVQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=5ZmjXLx9Ca/qAgnUddYQ/pRb2D8l9flWG2KTwUVSp3E=;
- b=6zDYEOlpXhXtkHne+XX1DfiDpHPNjnYTH4yjsmOj1iMxwR/WSvoXg2y7eE33qx9XdO
- 73iClUJIGBiz9aAs1REkXnUsuTjR9rRZp33lDVX1E7HxTD3ut43SozgRotVFbhKp6dt6
- aeGb66VFECP4Hg3npnUevXP5AGT6Gp1ggtUzlvYeNSNFdWcTSzEqGX21jjf6T5UhJJIg
- JLFO6Xdmwo3H3EGX2uKSk8kC9ld4NvnOhOjV6DSnhazd0QpdqmYHenaamFusMkr3KGOq
- hZqarPqi35eP3zXlvTEidMU86MlRTGzrt2hcVHpvGwLeNgVB1ke66ukUSEHVYNsY4aFm
- Cw1w==
-X-Gm-Message-State: AOAM532McItGaEBf5zPBvOmYhcGewqLciph5X/sqDg37oiSIPUTiFnoZ
- 2PBaPDD+1VxcYqDQ9HORpRxSl8ejhEmK/A==
-X-Google-Smtp-Source: ABdhPJygRYd06l1TkOsqiSzuSFCEmT7rtxEOBxv65TEwPeTmQmVOCtr5eWnj8J7EmD23S+D0zsilRw==
-X-Received: by 2002:a05:6214:626:b0:462:43b4:8491 with SMTP id
- a6-20020a056214062600b0046243b48491mr45911884qvx.110.1654196944675; 
- Thu, 02 Jun 2022 12:09:04 -0700 (PDT)
-Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com.
- [209.85.128.181]) by smtp.gmail.com with ESMTPSA id
- a28-20020a05620a103c00b006a5d5d68e02sm3808891qkk.5.2022.06.02.12.09.04
- for <openrisc@lists.librecores.org>
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Thu, 02 Jun 2022 12:09:04 -0700 (PDT)
-Received: by mail-yw1-f181.google.com with SMTP id
- 00721157ae682-30c1c9b9b6cso61037267b3.13
- for <openrisc@lists.librecores.org>; Thu, 02 Jun 2022 12:09:04 -0700 (PDT)
-X-Received: by 2002:a81:4811:0:b0:30c:8021:4690 with SMTP id
- v17-20020a814811000000b0030c80214690mr7250879ywa.47.1654196943929; Thu, 02
- Jun 2022 12:09:03 -0700 (PDT)
-MIME-Version: 1.0
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=7yKMgUuv2zhj5/B8/Lj3TxnmVoVqtuLrhQVs7Z1bwLw=;
+ b=d2OeSh43QOhKVJmelCM+EOtzmKEjpmQpU7CdWlwCso6iq7BWHG97A7lxesY2jRCRX2
+ hs8nmEW741XJofQF4Cj+7yN2oL3ocDyWqjlDJMoGqQhoeH76SpGZX8KI7A/Bm5PEiAzj
+ hBMxc5yn0Cz74IbbWwpH/xmsmmPqHu4Udo67HoN7s08m3gPjZ9LijuWV0vU+oSQ0tCkm
+ BMyul2U/eFF42pEWoE6lf1IMUk4BhLHIgKeSH6/gTOBKZg0QvrXA7WFLpBQiqiBXTzFp
+ Cr5IAjbgDr25+4wngxP7IcNYlXSWm4Q+Eto8436iyDGiih/aLrTYnEKwtbsh5+lz6hEE
+ aoXw==
+X-Gm-Message-State: AOAM533y2XnkhIev10DsGS+u4sICSohE9X88NvXKMJewADkCt5kDoefG
+ NYZcDULd0UV1wE8a3RGL+9A=
+X-Google-Smtp-Source: ABdhPJxryUHNx1hDhQijF9zn4kh6BNXKLWLJeX69qD/Er41RpoW3FAfZZrOTE1GHy1qTuJejVvRQaA==
+X-Received: by 2002:a17:90b:1646:b0:1e3:15ef:2871 with SMTP id
+ il6-20020a17090b164600b001e315ef2871mr21755373pjb.105.1654199961346; 
+ Thu, 02 Jun 2022 12:59:21 -0700 (PDT)
+Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
+ by smtp.gmail.com with ESMTPSA id
+ j12-20020a17090a840c00b001dfffd861cbsm6225905pjn.21.2022.06.02.12.59.20
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 02 Jun 2022 12:59:20 -0700 (PDT)
+Date: Fri, 3 Jun 2022 04:59:18 +0900
+From: Stafford Horne <shorne@gmail.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [RFC PATCH 3/3] hw/openrisc: Add the OpenRISC virtual machine
+Message-ID: <YpkWllpTFzb2HHY5@antec>
 References: <20220527172731.1742837-1-shorne@gmail.com>
  <20220527172731.1742837-4-shorne@gmail.com>
  <CACPK8XexaTREY3Y-jp8urTAE+UmQWgygFx1MAss9KcJw5tGMtw@mail.gmail.com>
-In-Reply-To: <CACPK8XexaTREY3Y-jp8urTAE+UmQWgygFx1MAss9KcJw5tGMtw@mail.gmail.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Thu, 2 Jun 2022 21:08:52 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdWF_OwTMZZ=joRsnOAuB5UuKjACt3Ku4-o0--fR6xqQbQ@mail.gmail.com>
-Message-ID: <CAMuHMdWF_OwTMZZ=joRsnOAuB5UuKjACt3Ku4-o0--fR6xqQbQ@mail.gmail.com>
-Subject: Re: [RFC PATCH 3/3] hw/openrisc: Add the OpenRISC virtual machine
-To: Joel Stanley <joel@jms.id.au>
-Content-Type: text/plain; charset="UTF-8"
+ <CAMuHMdWF_OwTMZZ=joRsnOAuB5UuKjACt3Ku4-o0--fR6xqQbQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdWF_OwTMZZ=joRsnOAuB5UuKjACt3Ku4-o0--fR6xqQbQ@mail.gmail.com>
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -66,56 +70,52 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Openrisc <openrisc@lists.librecores.org>,
- "Jason A. Donenfeld" <Jason@zx2c4.com>,
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>,
+ Openrisc <openrisc@lists.librecores.org>,
  QEMU Development <qemu-devel@nongnu.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Hi Joel,
-
-On Thu, Jun 2, 2022 at 1:42 PM Joel Stanley <joel@jms.id.au> wrote:
-> On Fri, 27 May 2022 at 17:27, Stafford Horne <shorne@gmail.com> wrote:
-> > This patch add the OpenRISC virtual machine 'virt' for OpenRISC.  This
-> > platform allows for a convenient CI platform for toolchain, software
-> > ports and the OpenRISC linux kernel port.
+On Thu, Jun 02, 2022 at 09:08:52PM +0200, Geert Uytterhoeven wrote:
+> Hi Joel,
+> 
+> On Thu, Jun 2, 2022 at 1:42 PM Joel Stanley <joel@jms.id.au> wrote:
+> > On Fri, 27 May 2022 at 17:27, Stafford Horne <shorne@gmail.com> wrote:
+> > > This patch add the OpenRISC virtual machine 'virt' for OpenRISC.  This
+> > > platform allows for a convenient CI platform for toolchain, software
+> > > ports and the OpenRISC linux kernel port.
+> > >
+> > > Much of this has been sourced from the m68k and riscv virt platforms.
+> 
+> > I enabled the options:
 > >
-> > Much of this has been sourced from the m68k and riscv virt platforms.
+> > CONFIG_RTC_CLASS=y
+> > # CONFIG_RTC_SYSTOHC is not set
+> > # CONFIG_RTC_NVMEM is not set
+> > CONFIG_RTC_DRV_GOLDFISH=y
+> >
+> > But it didn't work. It seems the goldfish rtc model doesn't handle a
+> > big endian guest running on my little endian host.
+> >
+> > Doing this fixes it:
+> >
+> > -    .endianness = DEVICE_NATIVE_ENDIAN,
+> > +    .endianness = DEVICE_HOST_ENDIAN,
+> >
+> > [    0.190000] goldfish_rtc 96005000.rtc: registered as rtc0
+> > [    0.190000] goldfish_rtc 96005000.rtc: setting system clock to
+> > 2022-06-02T11:16:04 UTC (1654168564)
+> >
+> > But literally no other model in the tree does this, so I suspect it's
+> > not the right fix.
+> 
+> Goldfish devices are supposed to be little endian.
+> Unfortunately m68k got this wrong, cfr.
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2e2ac4a3327479f7e2744cdd88a5c823f2057bad
+> Please don't duplicate this bad behavior for new architectures
 
-> I enabled the options:
->
-> CONFIG_RTC_CLASS=y
-> # CONFIG_RTC_SYSTOHC is not set
-> # CONFIG_RTC_NVMEM is not set
-> CONFIG_RTC_DRV_GOLDFISH=y
->
-> But it didn't work. It seems the goldfish rtc model doesn't handle a
-> big endian guest running on my little endian host.
->
-> Doing this fixes it:
->
-> -    .endianness = DEVICE_NATIVE_ENDIAN,
-> +    .endianness = DEVICE_HOST_ENDIAN,
->
-> [    0.190000] goldfish_rtc 96005000.rtc: registered as rtc0
-> [    0.190000] goldfish_rtc 96005000.rtc: setting system clock to
-> 2022-06-02T11:16:04 UTC (1654168564)
->
-> But literally no other model in the tree does this, so I suspect it's
-> not the right fix.
+Thanks for the pointer, I just wired in the goldfish RTC because I wanted to
+play with it.  I was not attached to it. I can either remove it our find another
+RTC.
 
-Goldfish devices are supposed to be little endian.
-Unfortunately m68k got this wrong, cfr.
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2e2ac4a3327479f7e2744cdd88a5c823f2057bad
-Please don't duplicate this bad behavior for new architectures.
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+-Stafford
