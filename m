@@ -2,65 +2,64 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CCECC433EF
-	for <openrisc@archiver.kernel.org>; Thu,  2 Jun 2022 15:40:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 418AAC43334
+	for <openrisc@archiver.kernel.org>; Thu,  2 Jun 2022 15:49:11 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 47776248DB;
-	Thu,  2 Jun 2022 17:40:27 +0200 (CEST)
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com
- [209.85.216.44])
- by mail.librecores.org (Postfix) with ESMTPS id 7C6D424130
- for <openrisc@lists.librecores.org>; Thu,  2 Jun 2022 17:40:26 +0200 (CEST)
-Received: by mail-pj1-f44.google.com with SMTP id
- nn3-20020a17090b38c300b001e0e091cf03so6121809pjb.1
- for <openrisc@lists.librecores.org>; Thu, 02 Jun 2022 08:40:26 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 334F0248DB;
+	Thu,  2 Jun 2022 17:49:10 +0200 (CEST)
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com
+ [209.85.210.182])
+ by mail.librecores.org (Postfix) with ESMTPS id C5AB624130
+ for <openrisc@lists.librecores.org>; Thu,  2 Jun 2022 17:49:08 +0200 (CEST)
+Received: by mail-pf1-f182.google.com with SMTP id bo5so5085083pfb.4
+ for <openrisc@lists.librecores.org>; Thu, 02 Jun 2022 08:49:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
  h=message-id:date:mime-version:user-agent:subject:content-language:to
  :cc:references:from:in-reply-to:content-transfer-encoding;
- bh=6XNMpTK0letqpMMwzZOBcXwTmtfSv9vjOp5ITB1VrzE=;
- b=R1ii5BvznDHkc4QVzfowORoSybcmN4jYSKRRpBBG/bE56NgECoqTGS1gwunjmnuVxC
- AWlMsKvyBFMTQfYSRTnEuUmx1YV0cVvJWjaPi60rTB92dnzxOYoroxW/IeqpEwXr1Yl5
- CzdvOjzhbNB2sjRn43LxCEFLK6PVbOuGKFtJOd1THLh77dZPk8T+tsRiLHzAUzne4/PO
- TjuHxyLReUmkSFxFyYBS8j9cdIGs7kRrDwZSY3sfi1gBABhjOUY6t/YQbwhsGeq/8pvK
- /W2gkG0SG0yeL2sA+jM9sL49KGMb9gixia8DukRBCO+RuNx4DNZtuk4ijrSLPiWI1bsM
- QnOQ==
+ bh=60jZEeHoJJFarlFwej5Au2+WVBkuqZyZmYxYhvqIQfI=;
+ b=uqqqNBuYb/rsp/1/DM87vTZCiq21UaRLRJ2Ixm4spnDDcWZ+QuVAnmEoZS+Smt0ASb
+ HEupO/V5cbYbb1ula02oblzTC5vV8NjHnYJx0q8iP/QrXrAwr2/vmXx3Qm9eiMy8A6y0
+ e28pI4SBmwxNgtRIJ4rq9g+Yq9OvV2R3pIt1h2BwR8RrgI1PaWPeySfLpu66kTGJ6XxC
+ xix6PASWBFLosZ9Lic4XGyIHBveUeehzFn6ZcSrUPnawGCbqA4MHF/fq0nbvlsx1FOSG
+ /oOA/uc7jdeOF+56XGieDuBomLe1WLZ5GnRtHrmT7uCveCniuGoToxagVjDX5Jt8+G7S
+ uWWw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
  :content-language:to:cc:references:from:in-reply-to
  :content-transfer-encoding;
- bh=6XNMpTK0letqpMMwzZOBcXwTmtfSv9vjOp5ITB1VrzE=;
- b=hB32UxMkkqestXLcBlvLu0UCLGHOzp37Z32TJNl720QBH+5Q/VPz6jz/UGSUgnwKlb
- d4+j0JYxlqUldygjbGKHr6Wz7bsTyauRvepl4ARrmx6ffTjdQEwdM2OjCYv3pYjEYz56
- iNut5bdiCkVJX9DbSvwvr+OqoGIgXCWc2RQqdEeSWXwosGMl6nNZnkPYpnJop4frMmjE
- H5pcHKiFuH+YjxwxVLJaeCzRtyEXA/BqV6rrJu98YshJv38kZ3R1lbWb04C6kTtcjiai
- bXG0wXxPNnT5+hTbO0vpLBGpwGEvGxUYm+PVsU0vjn1gKvtHI6H+kRlWfnQjvLinHYPf
- iNow==
-X-Gm-Message-State: AOAM53345j/61yVOgp1ANU3vcDmjSQHqR25qoY9BSMzClIEuHPqY6d7i
- ipIprmE2ldZZtr4Px1ZJldIW3w==
-X-Google-Smtp-Source: ABdhPJycvZkA9FGD8pHm5/48Iei1mdnUBy+IC70oduE9bIfKpC1qTfQSV5GzlahDF6IylP0twLT3Eg==
-X-Received: by 2002:a17:902:7c0c:b0:161:ef0f:9da8 with SMTP id
- x12-20020a1709027c0c00b00161ef0f9da8mr5438128pll.147.1654184425067; 
- Thu, 02 Jun 2022 08:40:25 -0700 (PDT)
+ bh=60jZEeHoJJFarlFwej5Au2+WVBkuqZyZmYxYhvqIQfI=;
+ b=PiB49SwBtL+yxbsEePW0Bi1TU+UAcxlHFvKGALrAXMS7yPkG2WUPKZXZitbmG2WsZ4
+ rD+6xuFACWZhcmO8E9pHIHRVUJrgVcHMbeiaJ4QCkYqnnXB6uzekEsJMbGHhLuE9i4Os
+ 793DUxSFzHVTL30D8lRlYAHmpG3AlMm42uV8CMvEhUzSo0GWWQH67V0tKjE8LN9jjvTh
+ QwSBSGBfqcwlitY5/5ZnYfYw0DfAF1cEYx79tU+MChCpgZ70Mz9eVURIiaQ8xAivRABp
+ A4pPRoHVEh5V2AAS6C2JTW/6rW4WVhuCm3vkgD4tTw9nKx4J1IIfIEHcAx4okAGHkBiX
+ rcpw==
+X-Gm-Message-State: AOAM530BB5Y+cqk9hd+JnbOVcXf8JQoicW7SDbVKQQdCO6taO5bsjHFA
+ agt0Wnv+qmlwPBX+xEAcCYNzWw==
+X-Google-Smtp-Source: ABdhPJzk4VJfFEhkAdd8Li9ob81nWvjb3l2HRxX2Hem0F1PUio8YpXR7/nEOzYDROwsR4j9YEtgAtA==
+X-Received: by 2002:a63:cc09:0:b0:3fb:aae7:4964 with SMTP id
+ x9-20020a63cc09000000b003fbaae74964mr4752662pgf.118.1654184947210; 
+ Thu, 02 Jun 2022 08:49:07 -0700 (PDT)
 Received: from ?IPV6:2607:fb90:80cd:3d17:bb90:8dda:8cb2:7569?
  ([2607:fb90:80cd:3d17:bb90:8dda:8cb2:7569])
  by smtp.gmail.com with ESMTPSA id
- r4-20020a170902ea4400b001641a68f1c7sm3683453plg.273.2022.06.02.08.40.23
+ bf7-20020a170902b90700b00163c6ac211fsm3692094plb.111.2022.06.02.08.49.05
  (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Thu, 02 Jun 2022 08:40:24 -0700 (PDT)
-Message-ID: <82fdb645-bda1-5335-c6ad-168e23fe8ccf@linaro.org>
-Date: Thu, 2 Jun 2022 08:40:21 -0700
+ Thu, 02 Jun 2022 08:49:06 -0700 (PDT)
+Message-ID: <8c34270f-9fdc-3e94-0984-29d9a5e5542f@linaro.org>
+Date: Thu, 2 Jun 2022 08:49:03 -0700
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.9.1
-Subject: Re: [RFC PATCH 2/3] hw/openrisc: Split re-usable boot time apis out
- to boot.c
+Subject: Re: [RFC PATCH 3/3] hw/openrisc: Add the OpenRISC virtual machine
 Content-Language: en-US
-To: Stafford Horne <shorne@gmail.com>, QEMU Development <qemu-devel@nongnu.org>
+To: Joel Stanley <joel@jms.id.au>, Stafford Horne <shorne@gmail.com>
 References: <20220527172731.1742837-1-shorne@gmail.com>
- <20220527172731.1742837-3-shorne@gmail.com>
+ <20220527172731.1742837-4-shorne@gmail.com>
+ <CACPK8XexaTREY3Y-jp8urTAE+UmQWgygFx1MAss9KcJw5tGMtw@mail.gmail.com>
 From: Richard Henderson <richard.henderson@linaro.org>
-In-Reply-To: <20220527172731.1742837-3-shorne@gmail.com>
+In-Reply-To: <CACPK8XexaTREY3Y-jp8urTAE+UmQWgygFx1MAss9KcJw5tGMtw@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-BeenThere: openrisc@lists.librecores.org
@@ -76,23 +75,83 @@ List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
 Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>,
- Openrisc <openrisc@lists.librecores.org>, Jia Liu <proljc@gmail.com>
+ Openrisc <openrisc@lists.librecores.org>,
+ QEMU Development <qemu-devel@nongnu.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On 5/27/22 10:27, Stafford Horne wrote:
-> These will be shared with the virt platform.
+On 6/2/22 04:42, Joel Stanley wrote:
+> Hi Stafford,
 > 
-> Signed-off-by: Stafford Horne<shorne@gmail.com>
-> ---
->   hw/openrisc/boot.c         | 127 +++++++++++++++++++++++++++++++++++++
->   hw/openrisc/meson.build    |   1 +
->   hw/openrisc/openrisc_sim.c | 106 ++-----------------------------
->   include/hw/openrisc/boot.h |  34 ++++++++++
->   4 files changed, 168 insertions(+), 100 deletions(-)
->   create mode 100644 hw/openrisc/boot.c
->   create mode 100644 include/hw/openrisc/boot.h
+> On Fri, 27 May 2022 at 17:27, Stafford Horne <shorne@gmail.com> wrote:
+>>
+>> This patch add the OpenRISC virtual machine 'virt' for OpenRISC.  This
+>> platform allows for a convenient CI platform for toolchain, software
+>> ports and the OpenRISC linux kernel port.
+>>
+>> Much of this has been sourced from the m68k and riscv virt platforms.
+> 
+> It's a good idea! I did some playing around with your patch today.
+> 
+> I'd suggest adding something to docs/system/target-openrsic.rst,
+> including an example command lines.
+> 
+>>
+>> The platform provides:
+>>   - OpenRISC SMP with up to 8 cpus
+> 
+> You have this:
+> 
+> #define VIRT_CPUS_MAX 4
+> 
+> I tried booting with -smp 4 and it locked up when starting userspace
+> (or I stopped getting serial output?):
+> 
+> [    0.060000] smp: Brought up 1 node, 4 CPUs
+> ...
+> [    0.960000] Run /init as init process
+> 
+> Running with -smp 2 and 3 worked. It does make booting much much slower.
 
-Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+target/openrisc/cpu.h is missing
+
+#define TCG_GUEST_DEFAULT_MO      (0)
+
+
+to tell the JIT about the weakly ordered guest memory model, and to enable MTTCG by default.
+
+> I enabled the options:
+> 
+> CONFIG_RTC_CLASS=y
+> # CONFIG_RTC_SYSTOHC is not set
+> # CONFIG_RTC_NVMEM is not set
+> CONFIG_RTC_DRV_GOLDFISH=y
+> 
+> But it didn't work. It seems the goldfish rtc model doesn't handle a
+> big endian guest running on my little endian host.
+> 
+> Doing this fixes it:
+> 
+> -    .endianness = DEVICE_NATIVE_ENDIAN,
+> +    .endianness = DEVICE_HOST_ENDIAN,
+> 
+> [    0.190000] goldfish_rtc 96005000.rtc: registered as rtc0
+> [    0.190000] goldfish_rtc 96005000.rtc: setting system clock to
+> 2022-06-02T11:16:04 UTC (1654168564)
+> 
+> But literally no other model in the tree does this, so I suspect it's
+> not the right fix.
+
+Correct.  The model might require
+
+     .endianness = DEVICE_LITTLE_ENDIAN,
+
+if that is the actual specification, or it may simply require fixes to handle a big-endian 
+guest.
+
+All that said, if we're going to make up a new virt platform, it should use PCI not 
+virtio.  See the recent discussion about RISC-V virtual machines, where they made exactly 
+this mistake several years ago.
+
 
 r~
