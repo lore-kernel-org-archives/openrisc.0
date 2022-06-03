@@ -2,61 +2,59 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A186C433EF
-	for <openrisc@archiver.kernel.org>; Thu,  2 Jun 2022 20:05:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22657C43334
+	for <openrisc@archiver.kernel.org>; Fri,  3 Jun 2022 07:05:25 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 627FC24917;
-	Thu,  2 Jun 2022 22:05:19 +0200 (CEST)
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com
- [209.85.216.54])
- by mail.librecores.org (Postfix) with ESMTPS id 6B812248EA
- for <openrisc@lists.librecores.org>; Thu,  2 Jun 2022 22:05:17 +0200 (CEST)
-Received: by mail-pj1-f54.google.com with SMTP id
- v5-20020a17090a7c0500b001df84fa82f8so5680571pjf.5
- for <openrisc@lists.librecores.org>; Thu, 02 Jun 2022 13:05:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=/4F3P04RiqaLnCxu45Y6BfA+mNcWRXPng/jNjafuIFE=;
- b=SqiBbXYPKjTv6QPf5coEYt+sAi5YcFPcWkSmAKcZDED4xltESQvKq0lFNX3rKlN9+G
- EHzQW027dOxBjgc+K8AdZaNLz0Qy9RAvPxlr6Rmx/yW/xJAamgKcUr8apnCeqYbpheDe
- ObLJuYGgMzV9mXglV/BwO7RtoJMx1hiydHw+y1ybGBtQBAa5i/41ArvfkXyXNCn35wn0
- kXQZmLSgi4jCm2pcL3XKd4EaA/jt7G8i8fo9cp0xCulqi5GbGbxtsQOIKGz6eU+kRZMV
- bsm7uvSOpxSNzCQwvaTRU7T72Xxd2cVDW+uHsYt6TjlY7jxhdWSz+bKkDeiAMeUqNTgH
- GYqA==
+	by mail.librecores.org (Postfix) with ESMTP id C2A46242FA;
+	Fri,  3 Jun 2022 09:05:24 +0200 (CEST)
+Received: from mail-qv1-f42.google.com (mail-qv1-f42.google.com
+ [209.85.219.42])
+ by mail.librecores.org (Postfix) with ESMTPS id 75D85248C7
+ for <openrisc@lists.librecores.org>; Fri,  3 Jun 2022 09:05:23 +0200 (CEST)
+Received: by mail-qv1-f42.google.com with SMTP id el14so5058489qvb.7
+ for <openrisc@lists.librecores.org>; Fri, 03 Jun 2022 00:05:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=/4F3P04RiqaLnCxu45Y6BfA+mNcWRXPng/jNjafuIFE=;
- b=IRI4rmOv/4ZYrvMLjPt63BmgEOyb+mufCaCvYiawIqGOWHDiVIZwYE2HmVGGDZeN7J
- M4+MabhRsI78xtL0sfFa3x/Nq2l+V1GWA9PEob9dSc3V7BsNzDk5lKqwy3lWMSYtOX0u
- GjrGIoMzePwxdGauSud4i403p2bsOldIOhykyLtz8LMkLHmQhqkfcNcDOxjy3oRWSY/L
- 0ni6anGLtBBHVrrnxW0SfJ5blajCjWMgoqugFDH3CVdKEF0rmyLosrOkaUixNZ9+V0nR
- NDk3I9EeGTvb26OfkwEzjg2pqW9226Ho1RVYu9rDk9VK3AbEUyvPSYdotjsX3OfyuBOz
- pf6g==
-X-Gm-Message-State: AOAM532qRWUEbJohta18wK3t0waDNxFGpTEEjK4r7fuRnHFBQsT2CwBl
- joDrVYbsw0ZCnviTM46Ebwg=
-X-Google-Smtp-Source: ABdhPJwRmKF7LxBzDNuyOIjo/5kwLg50mZczO/PSha5zlUbxbl95I/ezjOxYmo9WFY5PXc9jCnbCUQ==
-X-Received: by 2002:a17:90b:4ac8:b0:1e3:4f6a:2d04 with SMTP id
- mh8-20020a17090b4ac800b001e34f6a2d04mr14148982pjb.233.1654200315962; 
- Thu, 02 Jun 2022 13:05:15 -0700 (PDT)
-Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
- by smtp.gmail.com with ESMTPSA id
- g29-20020aa79ddd000000b0050dc762819esm3858035pfq.120.2022.06.02.13.05.14
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 02 Jun 2022 13:05:15 -0700 (PDT)
-Date: Fri, 3 Jun 2022 05:05:13 +0900
-From: Stafford Horne <shorne@gmail.com>
-To: Joel Stanley <joel@jms.id.au>
-Subject: Re: Qemu TCG crash on arm64
-Message-ID: <YpkX+eMY9bCa8+PW@antec>
-References: <CACPK8Xebta2r7cdC7R2e2=+HE2FYOfoNMpZpyjju9z8gb+K=3w@mail.gmail.com>
- <CACPK8XdaqBtsyLH9ony0jS4cSXOzJ-3pepo1V3=1fF3u2cUGkA@mail.gmail.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=sQNOc3aOgp6Rqa9AhVwP0GaUA1O2AOCXJw4YAMIOsV0=;
+ b=4P4L4Ud40q2jWezBaYsCuEzWXbmbKmlrVl/qDNB5hEHC5vGKjoUCLhowxbJ6/hC1tq
+ 2/fErHU4m3Zd2tnPrRHpcdYF9xM0cd4hW0bVSILBqAiRoLpvgjX4hunJjhgX8K+uns1R
+ 4yDLjNdKyolk5/kPB2eUk44Te1vJCFoyOemwrjtXR2KFLGoYFXi1WoJvgcwr+NnxVPRn
+ bLJzhMHy6cK87hXHcfUyYWwiTaaolQ3h+yRvyVRTpyKUgjrTe8v5hdmTuHp7ngNi8HZK
+ Z5kWLpOUnKMjtpcXn/qCbU6gW5/FRSgwfLVM8e2GjGhfQdCAaWID7TfMWC+Aa2IGmiQo
+ +STA==
+X-Gm-Message-State: AOAM531ltvjuzmMGNcbUjpOSZIjaDbCnuJ8MklbantCWeUc6tiK8RtCL
+ 1lzhcJJ+U52xmtYaCucibHKECbfz7wEsig==
+X-Google-Smtp-Source: ABdhPJzLnKFky4NC37WNnfgEaR9aSOcAEFYj3FCHnSboyHpr+V3ZLtxpjzCU3Z4KoBXtfXxRr8Pv2w==
+X-Received: by 2002:ad4:4ae9:0:b0:467:de78:dfb3 with SMTP id
+ cp9-20020ad44ae9000000b00467de78dfb3mr1078269qvb.77.1654239922226; 
+ Fri, 03 Jun 2022 00:05:22 -0700 (PDT)
+Received: from mail-yb1-f175.google.com (mail-yb1-f175.google.com.
+ [209.85.219.175]) by smtp.gmail.com with ESMTPSA id
+ v7-20020ac873c7000000b002f93be3ccfdsm149934qtp.18.2022.06.03.00.05.21
+ for <openrisc@lists.librecores.org>
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Fri, 03 Jun 2022 00:05:21 -0700 (PDT)
+Received: by mail-yb1-f175.google.com with SMTP id r82so12195578ybc.13
+ for <openrisc@lists.librecores.org>; Fri, 03 Jun 2022 00:05:21 -0700 (PDT)
+X-Received: by 2002:a05:6902:120e:b0:634:6f29:6b84 with SMTP id
+ s14-20020a056902120e00b006346f296b84mr9710397ybu.604.1654239921003; Fri, 03
+ Jun 2022 00:05:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CACPK8XdaqBtsyLH9ony0jS4cSXOzJ-3pepo1V3=1fF3u2cUGkA@mail.gmail.com>
+References: <20220527172731.1742837-1-shorne@gmail.com>
+ <20220527172731.1742837-4-shorne@gmail.com>
+ <CACPK8XexaTREY3Y-jp8urTAE+UmQWgygFx1MAss9KcJw5tGMtw@mail.gmail.com>
+ <CAMuHMdWF_OwTMZZ=joRsnOAuB5UuKjACt3Ku4-o0--fR6xqQbQ@mail.gmail.com>
+ <YpkWllpTFzb2HHY5@antec>
+In-Reply-To: <YpkWllpTFzb2HHY5@antec>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Fri, 3 Jun 2022 09:05:09 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdXBtihLpdOYn7nj_fH2g08nDUiUd-_zCZ_EdEyvw1UxWA@mail.gmail.com>
+Message-ID: <CAMuHMdXBtihLpdOYn7nj_fH2g08nDUiUd-_zCZ_EdEyvw1UxWA@mail.gmail.com>
+Subject: Re: [RFC PATCH 3/3] hw/openrisc: Add the OpenRISC virtual machine
+To: Stafford Horne <shorne@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -69,29 +67,66 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: openrisc@lists.librecores.org
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>,
+ Openrisc <openrisc@lists.librecores.org>,
+ QEMU Development <qemu-devel@nongnu.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Thu, Jun 02, 2022 at 04:39:21AM +0000, Joel Stanley wrote:
-> On Wed, 1 Jun 2022 at 03:18, Joel Stanley <joel@jms.id.au> wrote:
-> >
-> > A FYI that I opened this issue in the qemu bug tracker:
-> >
-> >  https://gitlab.com/qemu-project/qemu/-/issues/1051
-> >
-> > When running the openrisc kernel on my Linux arm64 (Apple M1) machine,
-> > tcg SIGILLs inside some translated code.
-> >
-> > I'm not sure if it's related to openrisc specifically. I have been
-> > able to run ppc64le kernels using Qemu on the same machine without
-> > problems. I've also been able to run the same or1k kernel under Qemu
-> > on my amd64 laptop.
-> 
-> This has been fixed now. It was specific to running on an arm64 machine:
-> 
->  https://lore.kernel.org/qemu-devel/20220602011459.294754-1-richard.henderson@linaro.org/
+Hi Stafford,
 
-Great!  Thanks for helping posting this.
+On Thu, Jun 2, 2022 at 9:59 PM Stafford Horne <shorne@gmail.com> wrote:
+> On Thu, Jun 02, 2022 at 09:08:52PM +0200, Geert Uytterhoeven wrote:
+> > On Thu, Jun 2, 2022 at 1:42 PM Joel Stanley <joel@jms.id.au> wrote:
+> > > On Fri, 27 May 2022 at 17:27, Stafford Horne <shorne@gmail.com> wrote:
+> > > > This patch add the OpenRISC virtual machine 'virt' for OpenRISC.  This
+> > > > platform allows for a convenient CI platform for toolchain, software
+> > > > ports and the OpenRISC linux kernel port.
+> > > >
+> > > > Much of this has been sourced from the m68k and riscv virt platforms.
+> >
+> > > I enabled the options:
+> > >
+> > > CONFIG_RTC_CLASS=y
+> > > # CONFIG_RTC_SYSTOHC is not set
+> > > # CONFIG_RTC_NVMEM is not set
+> > > CONFIG_RTC_DRV_GOLDFISH=y
+> > >
+> > > But it didn't work. It seems the goldfish rtc model doesn't handle a
+> > > big endian guest running on my little endian host.
+> > >
+> > > Doing this fixes it:
+> > >
+> > > -    .endianness = DEVICE_NATIVE_ENDIAN,
+> > > +    .endianness = DEVICE_HOST_ENDIAN,
+> > >
+> > > [    0.190000] goldfish_rtc 96005000.rtc: registered as rtc0
+> > > [    0.190000] goldfish_rtc 96005000.rtc: setting system clock to
+> > > 2022-06-02T11:16:04 UTC (1654168564)
+> > >
+> > > But literally no other model in the tree does this, so I suspect it's
+> > > not the right fix.
+> >
+> > Goldfish devices are supposed to be little endian.
+> > Unfortunately m68k got this wrong, cfr.
+> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2e2ac4a3327479f7e2744cdd88a5c823f2057bad
+> > Please don't duplicate this bad behavior for new architectures
+>
+> Thanks for the pointer, I just wired in the goldfish RTC because I wanted to
+> play with it.  I was not attached to it. I can either remove it our find another
+> RTC.
 
--Stafford
+Sorry for being too unclear: the mistake was not to use the Goldfish
+RTC, but to make its register accesses big-endian.
+Using Goldfish devices as little-endian devices should be fine.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
