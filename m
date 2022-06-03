@@ -2,59 +2,29 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22657C43334
-	for <openrisc@archiver.kernel.org>; Fri,  3 Jun 2022 07:05:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76E17CCA47F
+	for <openrisc@archiver.kernel.org>; Fri,  3 Jun 2022 10:14:31 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id C2A46242FA;
-	Fri,  3 Jun 2022 09:05:24 +0200 (CEST)
-Received: from mail-qv1-f42.google.com (mail-qv1-f42.google.com
- [209.85.219.42])
- by mail.librecores.org (Postfix) with ESMTPS id 75D85248C7
- for <openrisc@lists.librecores.org>; Fri,  3 Jun 2022 09:05:23 +0200 (CEST)
-Received: by mail-qv1-f42.google.com with SMTP id el14so5058489qvb.7
- for <openrisc@lists.librecores.org>; Fri, 03 Jun 2022 00:05:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=sQNOc3aOgp6Rqa9AhVwP0GaUA1O2AOCXJw4YAMIOsV0=;
- b=4P4L4Ud40q2jWezBaYsCuEzWXbmbKmlrVl/qDNB5hEHC5vGKjoUCLhowxbJ6/hC1tq
- 2/fErHU4m3Zd2tnPrRHpcdYF9xM0cd4hW0bVSILBqAiRoLpvgjX4hunJjhgX8K+uns1R
- 4yDLjNdKyolk5/kPB2eUk44Te1vJCFoyOemwrjtXR2KFLGoYFXi1WoJvgcwr+NnxVPRn
- bLJzhMHy6cK87hXHcfUyYWwiTaaolQ3h+yRvyVRTpyKUgjrTe8v5hdmTuHp7ngNi8HZK
- Z5kWLpOUnKMjtpcXn/qCbU6gW5/FRSgwfLVM8e2GjGhfQdCAaWID7TfMWC+Aa2IGmiQo
- +STA==
-X-Gm-Message-State: AOAM531ltvjuzmMGNcbUjpOSZIjaDbCnuJ8MklbantCWeUc6tiK8RtCL
- 1lzhcJJ+U52xmtYaCucibHKECbfz7wEsig==
-X-Google-Smtp-Source: ABdhPJzLnKFky4NC37WNnfgEaR9aSOcAEFYj3FCHnSboyHpr+V3ZLtxpjzCU3Z4KoBXtfXxRr8Pv2w==
-X-Received: by 2002:ad4:4ae9:0:b0:467:de78:dfb3 with SMTP id
- cp9-20020ad44ae9000000b00467de78dfb3mr1078269qvb.77.1654239922226; 
- Fri, 03 Jun 2022 00:05:22 -0700 (PDT)
-Received: from mail-yb1-f175.google.com (mail-yb1-f175.google.com.
- [209.85.219.175]) by smtp.gmail.com with ESMTPSA id
- v7-20020ac873c7000000b002f93be3ccfdsm149934qtp.18.2022.06.03.00.05.21
- for <openrisc@lists.librecores.org>
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Fri, 03 Jun 2022 00:05:21 -0700 (PDT)
-Received: by mail-yb1-f175.google.com with SMTP id r82so12195578ybc.13
- for <openrisc@lists.librecores.org>; Fri, 03 Jun 2022 00:05:21 -0700 (PDT)
-X-Received: by 2002:a05:6902:120e:b0:634:6f29:6b84 with SMTP id
- s14-20020a056902120e00b006346f296b84mr9710397ybu.604.1654239921003; Fri, 03
- Jun 2022 00:05:21 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 1591A247DC;
+	Fri,  3 Jun 2022 12:14:30 +0200 (CEST)
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by mail.librecores.org (Postfix) with ESMTP id B5DD1242D4
+ for <openrisc@lists.librecores.org>; Fri,  3 Jun 2022 12:14:28 +0200 (CEST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CCFAE1063;
+ Fri,  3 Jun 2022 03:14:27 -0700 (PDT)
+Received: from a077893.blr.arm.com (unknown [10.162.42.23])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id CDDE03F766;
+ Fri,  3 Jun 2022 03:14:18 -0700 (PDT)
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+To: linux-mm@kvack.org
+Subject: [PATCH 0/6] mm/mmap: Enable more platforms with
+ ARCH_HAS_VM_GET_PAGE_PROT
+Date: Fri,  3 Jun 2022 15:44:05 +0530
+Message-Id: <20220603101411.488970-1-anshuman.khandual@arm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <20220527172731.1742837-1-shorne@gmail.com>
- <20220527172731.1742837-4-shorne@gmail.com>
- <CACPK8XexaTREY3Y-jp8urTAE+UmQWgygFx1MAss9KcJw5tGMtw@mail.gmail.com>
- <CAMuHMdWF_OwTMZZ=joRsnOAuB5UuKjACt3Ku4-o0--fR6xqQbQ@mail.gmail.com>
- <YpkWllpTFzb2HHY5@antec>
-In-Reply-To: <YpkWllpTFzb2HHY5@antec>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 3 Jun 2022 09:05:09 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdXBtihLpdOYn7nj_fH2g08nDUiUd-_zCZ_EdEyvw1UxWA@mail.gmail.com>
-Message-ID: <CAMuHMdXBtihLpdOYn7nj_fH2g08nDUiUd-_zCZ_EdEyvw1UxWA@mail.gmail.com>
-Subject: Re: [RFC PATCH 3/3] hw/openrisc: Add the OpenRISC virtual machine
-To: Stafford Horne <shorne@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -67,66 +37,98 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>,
- Openrisc <openrisc@lists.librecores.org>,
- QEMU Development <qemu-devel@nongnu.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, linux-kernel@vger.kernel.org,
+ Paul Mackerras <paulus@samba.org>, sparclinux@vger.kernel.org,
+ Will Deacon <will@kernel.org>, Jonas Bonn <jonas@southpole.se>,
+ linux-s390@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+ x86@kernel.org, linux-csky@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+ Vasily Gorbik <gor@linux.ibm.com>,
+ Anshuman Khandual <anshuman.khandual@arm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, openrisc@lists.librecores.org,
+ Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, linux-mips@vger.kernel.org,
+ Dinh Nguyen <dinguyen@kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
+ linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Hi Stafford,
+From the last discussion [1], some more platforms (s390, mips, csky, nios2,
+openrisc) were willing to enable ARCH_HAS_VM_GET_PAGE_PROT and also provide
+custom vm_get_page_prot() via switch case statement implementation without
+any objection. All those platform specific patches have already been acked.
 
-On Thu, Jun 2, 2022 at 9:59 PM Stafford Horne <shorne@gmail.com> wrote:
-> On Thu, Jun 02, 2022 at 09:08:52PM +0200, Geert Uytterhoeven wrote:
-> > On Thu, Jun 2, 2022 at 1:42 PM Joel Stanley <joel@jms.id.au> wrote:
-> > > On Fri, 27 May 2022 at 17:27, Stafford Horne <shorne@gmail.com> wrote:
-> > > > This patch add the OpenRISC virtual machine 'virt' for OpenRISC.  This
-> > > > platform allows for a convenient CI platform for toolchain, software
-> > > > ports and the OpenRISC linux kernel port.
-> > > >
-> > > > Much of this has been sourced from the m68k and riscv virt platforms.
-> >
-> > > I enabled the options:
-> > >
-> > > CONFIG_RTC_CLASS=y
-> > > # CONFIG_RTC_SYSTOHC is not set
-> > > # CONFIG_RTC_NVMEM is not set
-> > > CONFIG_RTC_DRV_GOLDFISH=y
-> > >
-> > > But it didn't work. It seems the goldfish rtc model doesn't handle a
-> > > big endian guest running on my little endian host.
-> > >
-> > > Doing this fixes it:
-> > >
-> > > -    .endianness = DEVICE_NATIVE_ENDIAN,
-> > > +    .endianness = DEVICE_HOST_ENDIAN,
-> > >
-> > > [    0.190000] goldfish_rtc 96005000.rtc: registered as rtc0
-> > > [    0.190000] goldfish_rtc 96005000.rtc: setting system clock to
-> > > 2022-06-02T11:16:04 UTC (1654168564)
-> > >
-> > > But literally no other model in the tree does this, so I suspect it's
-> > > not the right fix.
-> >
-> > Goldfish devices are supposed to be little endian.
-> > Unfortunately m68k got this wrong, cfr.
-> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2e2ac4a3327479f7e2744cdd88a5c823f2057bad
-> > Please don't duplicate this bad behavior for new architectures
->
-> Thanks for the pointer, I just wired in the goldfish RTC because I wanted to
-> play with it.  I was not attached to it. I can either remove it our find another
-> RTC.
+This series makes protection_map[] array private on platforms which define
+their own vm_get_page_prot() via ARCH_HAS_VM_GET_PAGE_PROT, and also drops
+off their __PXXX/__SXXX macros. This also enables new platforms as in this
+series, to drop off their __PXXX/__SXXX macros as generic protection_map[]
+is no longer visible to them.
 
-Sorry for being too unclear: the mistake was not to use the Goldfish
-RTC, but to make its register accesses big-endian.
-Using Goldfish devices as little-endian devices should be fine.
+[1] https://lore.kernel.org/all/1646045273-9343-2-git-send-email-anshuman.khandual@arm.com/
 
-Gr{oetje,eeting}s,
+This series applies on current mainline and also has been build tested on
+multiple platforms.
 
-                        Geert
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Dinh Nguyen <dinguyen@kernel.org>
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: x86@kernel.org
+Cc: openrisc@lists.librecores.org
+Cc: linux-csky@vger.kernel.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: sparclinux@vger.kernel.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Anshuman Khandual (6):
+  mm/mmap: Restrict generic protection_map[] array visibility
+  s390/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  mips/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  csky/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  nios2/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  openrisc/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+ arch/arm64/include/asm/pgtable-prot.h | 18 --------
+ arch/arm64/mm/mmap.c                  | 21 ++++++++++
+ arch/csky/Kconfig                     |  1 +
+ arch/csky/include/asm/pgtable.h       | 18 --------
+ arch/csky/mm/init.c                   | 32 ++++++++++++++
+ arch/mips/Kconfig                     |  1 +
+ arch/mips/include/asm/pgtable.h       | 22 ----------
+ arch/mips/mm/cache.c                  | 60 ++++++++++++++++-----------
+ arch/nios2/Kconfig                    |  1 +
+ arch/nios2/include/asm/pgtable.h      | 24 -----------
+ arch/nios2/mm/init.c                  | 47 +++++++++++++++++++++
+ arch/openrisc/Kconfig                 |  1 +
+ arch/openrisc/include/asm/pgtable.h   | 18 --------
+ arch/openrisc/mm/init.c               | 41 ++++++++++++++++++
+ arch/powerpc/include/asm/pgtable.h    |  2 +
+ arch/powerpc/mm/book3s64/pgtable.c    | 20 +++++++++
+ arch/s390/Kconfig                     |  1 +
+ arch/s390/include/asm/pgtable.h       | 17 --------
+ arch/s390/mm/mmap.c                   | 33 +++++++++++++++
+ arch/sparc/include/asm/pgtable_32.h   |  2 +
+ arch/sparc/include/asm/pgtable_64.h   | 19 ---------
+ arch/sparc/mm/init_64.c               | 20 +++++++++
+ arch/x86/include/asm/pgtable_types.h  | 19 ---------
+ arch/x86/mm/pgprot.c                  | 19 +++++++++
+ include/linux/mm.h                    |  2 +
+ mm/mmap.c                             |  2 +-
+ 26 files changed, 280 insertions(+), 181 deletions(-)
+
+-- 
+2.25.1
+
