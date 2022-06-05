@@ -2,50 +2,61 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F390FC43334
-	for <openrisc@archiver.kernel.org>; Sat,  4 Jun 2022 12:14:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3165EC433EF
+	for <openrisc@archiver.kernel.org>; Sun,  5 Jun 2022 00:57:26 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 88200248C7;
-	Sat,  4 Jun 2022 14:14:05 +0200 (CEST)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by mail.librecores.org (Postfix) with ESMTPS id E891524871
- for <openrisc@lists.librecores.org>; Sat,  4 Jun 2022 14:14:03 +0200 (CEST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id C43F260B79
- for <openrisc@lists.librecores.org>; Sat,  4 Jun 2022 12:14:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E1A8C3411F
- for <openrisc@lists.librecores.org>; Sat,  4 Jun 2022 12:14:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1654344842;
- bh=P9g5evQvLeCWlEOvlwctyGL5SApo79l0tSxaVcIHKPA=;
- h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
- b=GIyFj6BBzBZ4owCCVP5Aw4h3f0cXtR3hEqmrT9g670pZU/aQzIAQ2WfJvI/DknBRp
- 4bYKwydQ0aYuGH1L5fBQCLpyzXIofO9higKucAr9Sy6M/NdNgRTqlWLPjz76TpemCg
- o5/euygaM3XOLTr8By89APAq6jiMVCST2z+Q9PMv3E7nS9Z42DH7R0OrYd6SVheduF
- EZlfIsJBqn4SM90nhHS8OrgxuSA94ZHCoBGkUfXicORrA8v5ly8ntcA/nQuwU0e9It
- FE7DXLjmfzYeTqs7rwtKtwfeJR+KZPybsrMoiF6VsZOU0EImc2irdP0IzRClSsVLBw
- zeZ+URjHsYFVg==
-Received: by mail-vs1-f45.google.com with SMTP id d39so9423926vsv.7
- for <openrisc@lists.librecores.org>; Sat, 04 Jun 2022 05:14:01 -0700 (PDT)
-X-Gm-Message-State: AOAM531ACnzH3HiZL1P+KL4dcKTZNpwkquD311yQRDTDX7jNoLCIRt2m
- LKDXXPetUas+DxDIejrL1k586Q/oXg7ufXq10IA=
-X-Google-Smtp-Source: ABdhPJwwEZX9ryeNihnPAt9cIeqrE+zZlFv6d4BeVpnc8qN7eqFa9hlNwwNfnB2L+k7vfA514WdPGRvZColxx5FoxRk=
-X-Received: by 2002:a05:6102:292b:b0:34b:9fad:2b63 with SMTP id
- cz43-20020a056102292b00b0034b9fad2b63mr2132145vsb.51.1654344840935; Sat, 04
- Jun 2022 05:14:00 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id E109F2491C;
+	Sun,  5 Jun 2022 02:57:25 +0200 (CEST)
+Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com
+ [209.85.215.170])
+ by mail.librecores.org (Postfix) with ESMTPS id 016992491C
+ for <openrisc@lists.librecores.org>; Sun,  5 Jun 2022 02:57:23 +0200 (CEST)
+Received: by mail-pg1-f170.google.com with SMTP id s68so10126638pgs.10
+ for <openrisc@lists.librecores.org>; Sat, 04 Jun 2022 17:57:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=704nB+LTYV6mHO90K6jxpvGVqEdboKazXJjjeT2atxg=;
+ b=cTXUd0yaVk2IGSKrzT/K+q0K4mvfFIx5mPu37hZEVkIRQQDGwCnFinRgYC3AgayHLM
+ sEvAOlMrKjCV+7dizCX5ctL6Nt+Lm4Up5bwoblcC2mrwfDsu4CUATJPP5tKUQgXOsLf4
+ KOa9ED9mJtCfCtG5GhGQPiTZeqIpWjwEGwqTSnk/Zk0qKnXk7x5pPjlPMCt1vAwIC6Ne
+ eb54LVXCm2Zv9JxbNqu/+REW/RvvuMqNEdyKE+x6sfbWCWOtYX7ftQ2SD8KPBcjtYP6x
+ lK7rqnK/MGUm1MYCkbQLmGwZ9XaEbT8ehtW1tb+mdvePL63WWi9UOeIB8jCk4IOcb4hW
+ tEXg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=704nB+LTYV6mHO90K6jxpvGVqEdboKazXJjjeT2atxg=;
+ b=3NFqljJt4V4DhtgfHF6Q+LF17B4p3yxVH6OwaD6O0o+B/sXp3es69CBA4Jse1cll1W
+ xTa6ZgMnNvhNK5PS9JzlEjLZC/4kSOiAqbXhjr/tJIFwHMM/5fSWE8xCyjE/wzYiGHim
+ rapGb9nqTEwD1gCzuVEJxP30rW2SsZ2UPG1y5zta+sYqAbnJIyzD61K/u9gYDYl1TopR
+ iLZiUnuWvob6lsMQXeEfg4DHP9i8FGwWn9iZtjZKRgH31g8t0hgO6vX55+61WP5dGPXS
+ Vb3duf58v+0PQs3szJtyMji1C2ZhjXmV2UsbPK/wUlKBMGmIV373MwGVsLx4To8Z8vnM
+ He+A==
+X-Gm-Message-State: AOAM532wI/LeWas+q7opn8uUpDeruccP/aKYf4effPxznS+NJCSggELG
+ Idx8+fZsPVLwIKRP6crsrko=
+X-Google-Smtp-Source: ABdhPJwbi/Ggmw0TKeZ1YTcpF2V0NncSKz/ipKsbpNX6cmT1YkXlw0NoIwdTDIUrFmdQ57wU7XggTA==
+X-Received: by 2002:a62:1553:0:b0:51b:e0fe:ea34 with SMTP id
+ 80-20020a621553000000b0051be0feea34mr10126216pfv.23.1654390642293; 
+ Sat, 04 Jun 2022 17:57:22 -0700 (PDT)
+Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
+ by smtp.gmail.com with ESMTPSA id
+ w6-20020a1709029a8600b0016760c06b76sm2008234plp.194.2022.06.04.17.57.21
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Sat, 04 Jun 2022 17:57:21 -0700 (PDT)
+Date: Sun, 5 Jun 2022 09:57:20 +0900
+From: Stafford Horne <shorne@gmail.com>
+To: Richard Henderson <richard.henderson@linaro.org>
+Subject: Re: [RFC PATCH 1/3] target/openrisc: Add basic support for semihosting
+Message-ID: <Ypv/cBqa5CUeXoaj@antec>
+References: <20220527172731.1742837-1-shorne@gmail.com>
+ <20220527172731.1742837-2-shorne@gmail.com>
+ <0a1051aa-f2f5-02de-693c-2c8b5e002998@linaro.org>
 MIME-Version: 1.0
-References: <20220603101411.488970-1-anshuman.khandual@arm.com>
- <20220603101411.488970-5-anshuman.khandual@arm.com>
-In-Reply-To: <20220603101411.488970-5-anshuman.khandual@arm.com>
-From: Guo Ren <guoren@kernel.org>
-Date: Sat, 4 Jun 2022 20:13:50 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTQOKUfCyaU7gqkejvoJWeSnqc5QyyzWQCw1RJ8PEB2zKg@mail.gmail.com>
-Message-ID: <CAJF2gTQOKUfCyaU7gqkejvoJWeSnqc5QyyzWQCw1RJ8PEB2zKg@mail.gmail.com>
-Subject: Re: [PATCH 4/6] csky/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-To: Anshuman Khandual <anshuman.khandual@arm.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0a1051aa-f2f5-02de-693c-2c8b5e002998@linaro.org>
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -58,133 +69,122 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Catalin Marinas <catalin.marinas@arm.com>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- Linux-MM <linux-mm@kvack.org>, Paul Mackerras <paulus@samba.org>,
- sparclinux <sparclinux@vger.kernel.org>, Will Deacon <will@kernel.org>,
- Jonas Bonn <jonas@southpole.se>, linux-s390 <linux-s390@vger.kernel.org>,
- Michael Ellerman <mpe@ellerman.id.au>,
- the arch/x86 maintainers <x86@kernel.org>, linux-csky@vger.kernel.org,
- Ingo Molnar <mingo@redhat.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Openrisc <openrisc@lists.librecores.org>,
- Thomas Gleixner <tglx@linutronix.de>,
- Linux ARM <linux-arm-kernel@lists.infradead.org>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
- Dinh Nguyen <dinguyen@kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
- linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
- "David S. Miller" <davem@davemloft.net>
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>,
+ Openrisc <openrisc@lists.librecores.org>,
+ QEMU Development <qemu-devel@nongnu.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Acked-by: Guo Ren <guoren@kernel.org>
+On Thu, Jun 02, 2022 at 08:39:21AM -0700, Richard Henderson wrote:
+> On 5/27/22 10:27, Stafford Horne wrote:
+> > +void do_or1k_semihosting(CPUOpenRISCState *env, uint32_t k);
+> ...
+> > +DEF_HELPER_FLAGS_2(nop, 0, void, env, i32)
+> 
+> Just call the helper "semihosting" and be done with it.
+> And the helper wants an ifdef for system mode.
+> 
+> > @@ -10,6 +10,7 @@ openrisc_ss.add(files(
+> >     'fpu_helper.c',
+> >     'gdbstub.c',
+> >     'interrupt_helper.c',
+> > +  'openrisc-semi.c',
+> >     'sys_helper.c',
+> >     'translate.c',
+> >   ))
+> 
+> You want to add the new file for system mode only.
+> Or, now that I think of it, conditional on CONFIG_SEMIHOSTING itself.
 
-On Fri, Jun 3, 2022 at 6:15 PM Anshuman Khandual
-<anshuman.khandual@arm.com> wrote:
->
-> This defines and exports a platform specific custom vm_get_page_prot() via
-> subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
-> macros can be dropped which are no longer needed.
->
-> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-> Cc: linux-csky@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Acked-by: Guo Ren <guoren@kernel.org>
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-> ---
->  arch/csky/Kconfig               |  1 +
->  arch/csky/include/asm/pgtable.h | 18 ------------------
->  arch/csky/mm/init.c             | 32 ++++++++++++++++++++++++++++++++
->  3 files changed, 33 insertions(+), 18 deletions(-)
->
-> diff --git a/arch/csky/Kconfig b/arch/csky/Kconfig
-> index 21d72b078eef..588b8a9c68ed 100644
-> --- a/arch/csky/Kconfig
-> +++ b/arch/csky/Kconfig
-> @@ -6,6 +6,7 @@ config CSKY
->         select ARCH_HAS_GCOV_PROFILE_ALL
->         select ARCH_HAS_SYNC_DMA_FOR_CPU
->         select ARCH_HAS_SYNC_DMA_FOR_DEVICE
-> +       select ARCH_HAS_VM_GET_PAGE_PROT
->         select ARCH_USE_BUILTIN_BSWAP
->         select ARCH_USE_QUEUED_RWLOCKS
->         select ARCH_WANT_FRAME_POINTERS if !CPU_CK610 && $(cc-option,-mbacktrace)
-> diff --git a/arch/csky/include/asm/pgtable.h b/arch/csky/include/asm/pgtable.h
-> index bbe245117777..229a5f4ad7fc 100644
-> --- a/arch/csky/include/asm/pgtable.h
-> +++ b/arch/csky/include/asm/pgtable.h
-> @@ -77,24 +77,6 @@
->  #define MAX_SWAPFILES_CHECK() \
->                 BUILD_BUG_ON(MAX_SWAPFILES_SHIFT != 5)
->
-> -#define __P000 PAGE_NONE
-> -#define __P001 PAGE_READ
-> -#define __P010 PAGE_READ
-> -#define __P011 PAGE_READ
-> -#define __P100 PAGE_READ
-> -#define __P101 PAGE_READ
-> -#define __P110 PAGE_READ
-> -#define __P111 PAGE_READ
-> -
-> -#define __S000 PAGE_NONE
-> -#define __S001 PAGE_READ
-> -#define __S010 PAGE_WRITE
-> -#define __S011 PAGE_WRITE
-> -#define __S100 PAGE_READ
-> -#define __S101 PAGE_READ
-> -#define __S110 PAGE_WRITE
-> -#define __S111 PAGE_WRITE
-> -
->  extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
->  #define ZERO_PAGE(vaddr)       (virt_to_page(empty_zero_page))
->
-> diff --git a/arch/csky/mm/init.c b/arch/csky/mm/init.c
-> index bf2004aa811a..f9babbed17d4 100644
-> --- a/arch/csky/mm/init.c
-> +++ b/arch/csky/mm/init.c
-> @@ -197,3 +197,35 @@ void __init fixaddr_init(void)
->         vaddr = __fix_to_virt(__end_of_fixed_addresses - 1) & PMD_MASK;
->         fixrange_init(vaddr, vaddr + PMD_SIZE, swapper_pg_dir);
->  }
-> +
-> +pgprot_t vm_get_page_prot(unsigned long vm_flags)
-> +{
-> +       switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
-> +       case VM_NONE:
-> +               return PAGE_NONE;
-> +       case VM_READ:
-> +       case VM_WRITE:
-> +       case VM_WRITE | VM_READ:
-> +       case VM_EXEC:
-> +       case VM_EXEC | VM_READ:
-> +       case VM_EXEC | VM_WRITE:
-> +       case VM_EXEC | VM_WRITE | VM_READ:
-> +               return PAGE_READ;
-> +       case VM_SHARED:
-> +               return PAGE_NONE;
-> +       case VM_SHARED | VM_READ:
-> +               return PAGE_READ;
-> +       case VM_SHARED | VM_WRITE:
-> +       case VM_SHARED | VM_WRITE | VM_READ:
-> +               return PAGE_WRITE;
-> +       case VM_SHARED | VM_EXEC:
-> +       case VM_SHARED | VM_EXEC | VM_READ:
-> +               return PAGE_READ;
-> +       case VM_SHARED | VM_EXEC | VM_WRITE:
-> +       case VM_SHARED | VM_EXEC | VM_WRITE | VM_READ:
-> +               return PAGE_WRITE;
-> +       default:
-> +               BUILD_BUG();
-> +       }
-> +}
-> +EXPORT_SYMBOL(vm_get_page_prot);
-> --
-> 2.25.1
->
+That's right, I'll update it.
 
+> > +static void or1k_semi_return_u32(CPUOpenRISCState *env, uint32_t ret)
+> > +{
+> > +    cpu_set_gpr(env, 11, ret);
+> > +}
+> 
+> Let's drop this until you actually use it.  This appears to be attempting to
+> mirror other, more complete semihosting, but missing the third "error"
+> argument
 
--- 
-Best Regards
- Guo Ren
+Sure, I did mention I kept these here for future (real) semihosting support.
+But I don't think that will happen.  So I can remove.
 
-ML: https://lore.kernel.org/linux-csky/
+> > +void do_or1k_semihosting(CPUOpenRISCState *env, uint32_t k)
+> > +{
+> > +    uint32_t result;
+> > +
+> > +    switch (k) {
+> > +    case HOSTED_EXIT:
+> > +        gdb_exit(cpu_get_gpr(env, 3));
+> > +        exit(cpu_get_gpr(env, 3));
+> > +    case HOSTED_RESET:
+> > +#ifndef CONFIG_USER_ONLY
+> > +        qemu_system_reset_request(SHUTDOWN_CAUSE_GUEST_RESET);
+> > +        return;
+> > +#endif
+> 
+> Do you in fact want to exit to the main loop after asking for reset?
+> That's the only way that "no return value" makes sense to me...
+
+OK. I'll look at this more.
+ 
+> > +    default:
+> > +        qemu_log_mask(LOG_GUEST_ERROR, "or1k-semihosting: unsupported "
+> > +                      "semihosting syscall %d\n", k);
+> 
+> %u.
+
+OK.
+
+> >   static bool trans_l_nop(DisasContext *dc, arg_l_nop *a)
+> >   {
+> > +    if (semihosting_enabled() &&
+> > +        a->k != 0) {
+> > +        gen_helper_nop(cpu_env, tcg_constant_i32(a->k));
+> > +    }
+> 
+> Perhaps cleaner to move the semihosting dispatch switch here, instead of
+> leaving it to the runtime?  The reason we have a runtime switch for other
+> guests is that the semihosting syscall number is in a register.  This would
+> then be
+> 
+>     if (semihosting_enabled()) {
+>         switch (a->k) {
+>         case 0:
+>             break; /* normal nop */
+>         case HOSTED_EXIT:
+>             gen_helper_semihost_exit(cpu_R(dc, 3));
+>             break;
+>         case HOSTED_RESET:
+>             gen_helper_semihost_reset();
+>             tcg_gen_movi_tl(cpu_pc, dc->base.pc_next + 4);
+> 
+>             dc->base.is_jmp = DISAS_EXIT;
+>             break;
+>         ...
+>         }
+>     }
+
+Yeah, that makes sense. I had written it in a way that would allow expanding for
+real semi-hosting.  But I don't think we will do that with OpenRISC, so this is
+good enough.
+
+I am not sure if you saw the cover letter. I sent this RFC series to help
+illustrate two options for providing OpenRISC targets that support poweroff and
+reset.
+
+One option being using these NOP's, the second is to create a virt target with
+reset/poweroff hardware.
+
+I am kind of leaning towards dropping the semi-hosting patches and only moving
+forward with the virt patches.  The reason being that 1. we would not need to
+expand the architecture spec to support the qemu virt platform, and we would
+need to document the NOP's formally, and 2. OpenRISC doesn't really support the
+full "semihosting" facilities for file open/close/write etc.
+
+Any thoughts?  I guess this "semihosting" patch is pretty trivial.  But, maybe
+it causes more confusion compared to just going with the virt route.  Also, if
+we have virt I can't imagine anyone using the semihosting much.
+
+-Stafford
