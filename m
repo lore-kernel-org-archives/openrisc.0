@@ -2,64 +2,62 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FB94C43334
-	for <openrisc@archiver.kernel.org>; Sun,  5 Jun 2022 01:58:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B098C433EF
+	for <openrisc@archiver.kernel.org>; Sun,  5 Jun 2022 02:36:29 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 2CC2E2492F;
-	Sun,  5 Jun 2022 03:58:20 +0200 (CEST)
-Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com
- [209.85.210.174])
- by mail.librecores.org (Postfix) with ESMTPS id 9258B248FD
- for <openrisc@lists.librecores.org>; Sun,  5 Jun 2022 03:58:18 +0200 (CEST)
-Received: by mail-pf1-f174.google.com with SMTP id 187so10058446pfu.9
- for <openrisc@lists.librecores.org>; Sat, 04 Jun 2022 18:58:18 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 67DA824953;
+	Sun,  5 Jun 2022 04:36:28 +0200 (CEST)
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com
+ [209.85.216.51])
+ by mail.librecores.org (Postfix) with ESMTPS id C73D424945
+ for <openrisc@lists.librecores.org>; Sun,  5 Jun 2022 04:36:26 +0200 (CEST)
+Received: by mail-pj1-f51.google.com with SMTP id
+ hv24-20020a17090ae41800b001e33eebdb5dso9569716pjb.0
+ for <openrisc@lists.librecores.org>; Sat, 04 Jun 2022 19:36:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=date:from:to:cc:subject:message-id:references:mime-version
  :content-disposition:in-reply-to;
- bh=FH7hgVFGKN1ueArYEdTBjcnxNno+hsrovt2TJHN6hd0=;
- b=G0lqqX2IsH32MAQCUdcPSDhj1/u/MI2nPmeuN5WOj4X/RhGtIgOr2k4Dcl8vih0475
- yuMyc/gbJUi63zCDHG8j3GgsXUlpiYBRUoJjYuBSVA5CHRAgMdb+wdal6P9/7/yvK3d/
- 6PKGASjgEiIB+8yC9HGYMwZW8ckPFg2zHPHX9rhwP0xwBqZQcFqCdiihP8oP2OGyfqP5
- xg/0LhS9AAPQrQ5ZF746ejsdUJOUNhCqvvjkKlXvUCr88VGOx/v1FYVEfLYr/a9fTJgw
- dlCTYGxyVL/DLkYLH2mvZD6Vk1mWgyGLYEKj3ks2Y1M284LYsQV5lcWa1CSr7JdbCNWW
- 0gTg==
+ bh=uJ1zOTL1wOn/rNpj6eR5rWvOMwV79LKxVRcBqz8TgJQ=;
+ b=O68A06G2OdVYZzKIL1Je/VSiBRIqlMZIS7HC8d4tZpODFiFAw3dZyjCz0uFZXFQTe7
+ cnMJp3cjocFO//rQTIcWq2nY/mFt2sTKcSaDGO1pDcDfS2vm4jRHDWeDH5f8gBY2WNY3
+ xfkd3s0qlnnlHLiyh0YxnFwlP4Jqb5z5LpUo1YZ3pBytrQJyb9yd/ZhYi0fnDfmC3aRt
+ RvAnG+iSf+SG+lQOEU8dHP2yAWtPQOp19xQA6KHSRi2g9bWgHahtcjr9OA0wpM05iZCF
+ sL3KONkVsctlAM6wNfH54Wku7DllrbSRUMUqzZRf77GK6IRCLRyEzaYrSndvYMQtFThO
+ KRAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=FH7hgVFGKN1ueArYEdTBjcnxNno+hsrovt2TJHN6hd0=;
- b=R4vhVYtjB2ewolodHPXMBnkIAgzRV6VO0VZw8GHmFpouFkckmOJVdnnW9PDKPA9rAR
- jPFnyHFY3VsfOfSq5TYb+0+O9V72moBBb6rm+qri2wjiUaUczyW7KQGR81U4L76nJ9Tu
- SSdFBPUDcfKlGR9zqk1XqO6TgF3xgwz0dKbCOD+Ry2yDQ0aU/sC+8c1tfHLrDCXM4L9k
- pYGjwH/Rt62THMecMsexl4JUmLcszHvDTgn6+wbaLJj8drFdNnoqAqn4A0c8c96GlkdK
- ceO9xbFiCG0EgTnAqaOMApC73n7+O4G5pVZhBQTARzTf/7eEaUuh46obS6v5kePMld4u
- uuPg==
-X-Gm-Message-State: AOAM533305DUKs1BDNWBUWeJf3/Dvxyi2yoOe2OEsz8MmxmyUJ3Hbcdh
- SRMbTrerc122N38H+nocfz/nK5LQGQs=
-X-Google-Smtp-Source: ABdhPJwCcdMFlABqCFWWAa53DQNUv52jnefGm+EgZEADisGj8Li1ABFaPnaJbAYLu6TJ66DwazXS0g==
-X-Received: by 2002:a63:e905:0:b0:3fa:ec8c:9013 with SMTP id
- i5-20020a63e905000000b003faec8c9013mr14923577pgh.599.1654394296856; 
- Sat, 04 Jun 2022 18:58:16 -0700 (PDT)
+ bh=uJ1zOTL1wOn/rNpj6eR5rWvOMwV79LKxVRcBqz8TgJQ=;
+ b=mFLsrzKF76wPAHwaAjIGLvX2FqBKRy5MLhNIVvt2l5eDthWSG1vycjfxJkiRnhx9i7
+ C1dKnUwz5ZcdROHf2dY8dgTBvJeb3dqjO/jq+KZstfzAwot/1wnb/FlohuWMl4+pygAT
+ x2shqYesbJLeqkpVGfNbVeu39GKJ9auRoqx4haJRmW/swfiZSDH1yP48LPqhzz3eqGM3
+ MI5V6K9pLgtY7QtDnHTtOxP4GQcOmydmILc/PaS49qi91iRj4iRXARX+G5xEzxnz4fhx
+ tSAUO8zXHfAm7iKQtNryLK4hzg7jASYqxaH/GO21uvpH7KxksHAHdx51APi95BuWWnJd
+ hZVQ==
+X-Gm-Message-State: AOAM531ZFpts9CR5qZZlIoNCHvJ7zhqCqs8xb3s/1Nlfzp7R4tlqcCBO
+ B2AFzwCmv4lJ43U1A7w3gCvGMtAvVzg=
+X-Google-Smtp-Source: ABdhPJzFziDi2AN+BZtCxPXcEjoqKYFNl4nCNtSjKhBP/C2J/YquvfJiGHf0YCQ/fRaqff2n36W2oQ==
+X-Received: by 2002:a17:902:b215:b0:165:7bdd:a9f1 with SMTP id
+ t21-20020a170902b21500b001657bdda9f1mr17686654plr.41.1654396585199; 
+ Sat, 04 Jun 2022 19:36:25 -0700 (PDT)
 Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
  by smtp.gmail.com with ESMTPSA id
- q68-20020a632a47000000b003fcc510d789sm6671095pgq.29.2022.06.04.18.58.15
+ x25-20020aa78f19000000b0051bfd13809fsm1393944pfr.119.2022.06.04.19.36.23
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sat, 04 Jun 2022 18:58:15 -0700 (PDT)
-Date: Sun, 5 Jun 2022 10:58:14 +0900
+ Sat, 04 Jun 2022 19:36:24 -0700 (PDT)
+Date: Sun, 5 Jun 2022 11:36:22 +0900
 From: Stafford Horne <shorne@gmail.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Joel Stanley <joel@jms.id.au>
 Subject: Re: [RFC PATCH 3/3] hw/openrisc: Add the OpenRISC virtual machine
-Message-ID: <YpwNtowUTxRbh2Uq@antec>
+Message-ID: <YpwWpifmE4vvDJjn@antec>
 References: <20220527172731.1742837-1-shorne@gmail.com>
  <20220527172731.1742837-4-shorne@gmail.com>
  <CACPK8XexaTREY3Y-jp8urTAE+UmQWgygFx1MAss9KcJw5tGMtw@mail.gmail.com>
- <CAMuHMdWF_OwTMZZ=joRsnOAuB5UuKjACt3Ku4-o0--fR6xqQbQ@mail.gmail.com>
- <YpkWllpTFzb2HHY5@antec>
- <CAMuHMdXBtihLpdOYn7nj_fH2g08nDUiUd-_zCZ_EdEyvw1UxWA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAMuHMdXBtihLpdOYn7nj_fH2g08nDUiUd-_zCZ_EdEyvw1UxWA@mail.gmail.com>
+In-Reply-To: <CACPK8XexaTREY3Y-jp8urTAE+UmQWgygFx1MAss9KcJw5tGMtw@mail.gmail.com>
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -78,87 +76,170 @@ Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Fri, Jun 03, 2022 at 09:05:09AM +0200, Geert Uytterhoeven wrote:
+On Thu, Jun 02, 2022 at 11:42:30AM +0000, Joel Stanley wrote:
 > Hi Stafford,
 > 
-> On Thu, Jun 2, 2022 at 9:59 PM Stafford Horne <shorne@gmail.com> wrote:
-> > On Thu, Jun 02, 2022 at 09:08:52PM +0200, Geert Uytterhoeven wrote:
-> > > On Thu, Jun 2, 2022 at 1:42 PM Joel Stanley <joel@jms.id.au> wrote:
-> > > > On Fri, 27 May 2022 at 17:27, Stafford Horne <shorne@gmail.com> wrote:
-> > > > > This patch add the OpenRISC virtual machine 'virt' for OpenRISC.  This
-> > > > > platform allows for a convenient CI platform for toolchain, software
-> > > > > ports and the OpenRISC linux kernel port.
-> > > > >
-> > > > > Much of this has been sourced from the m68k and riscv virt platforms.
-> > >
-> > > > I enabled the options:
-> > > >
-> > > > CONFIG_RTC_CLASS=y
-> > > > # CONFIG_RTC_SYSTOHC is not set
-> > > > # CONFIG_RTC_NVMEM is not set
-> > > > CONFIG_RTC_DRV_GOLDFISH=y
-> > > >
-> > > > But it didn't work. It seems the goldfish rtc model doesn't handle a
-> > > > big endian guest running on my little endian host.
-> > > >
-> > > > Doing this fixes it:
-> > > >
-> > > > -    .endianness = DEVICE_NATIVE_ENDIAN,
-> > > > +    .endianness = DEVICE_HOST_ENDIAN,
-> > > >
-> > > > [    0.190000] goldfish_rtc 96005000.rtc: registered as rtc0
-> > > > [    0.190000] goldfish_rtc 96005000.rtc: setting system clock to
-> > > > 2022-06-02T11:16:04 UTC (1654168564)
-> > > >
-> > > > But literally no other model in the tree does this, so I suspect it's
-> > > > not the right fix.
-> > >
-> > > Goldfish devices are supposed to be little endian.
-> > > Unfortunately m68k got this wrong, cfr.
-> > > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2e2ac4a3327479f7e2744cdd88a5c823f2057bad
-> > > Please don't duplicate this bad behavior for new architectures
+> On Fri, 27 May 2022 at 17:27, Stafford Horne <shorne@gmail.com> wrote:
 > >
-> > Thanks for the pointer, I just wired in the goldfish RTC because I wanted to
-> > play with it.  I was not attached to it. I can either remove it our find another
-> > RTC.
+> > This patch add the OpenRISC virtual machine 'virt' for OpenRISC.  This
+> > platform allows for a convenient CI platform for toolchain, software
+> > ports and the OpenRISC linux kernel port.
+> >
+> > Much of this has been sourced from the m68k and riscv virt platforms.
 > 
-> Sorry for being too unclear: the mistake was not to use the Goldfish
-> RTC, but to make its register accesses big-endian.
-> Using Goldfish devices as little-endian devices should be fine.
+> It's a good idea! I did some playing around with your patch today.
+> 
+> I'd suggest adding something to docs/system/target-openrsic.rst,
+> including an example command lines.
 
-OK, then I would think this patch would be needed on Goldfish.  I tested this
-out and it seems to work:
+Yeah, good idea, this is the command I am using:
 
-Patch:
+qemu-system-or1k -cpu or1200 -M virt \
+  -kernel /home/shorne/work/linux/vmlinux \
+  -initrd /home/shorne/work/linux/initramfs.cpio.gz \
+  -device virtio-net-device,netdev=user -netdev user,id=user,net=10.9.0.1/24,host=10.9.0.100 \
+  -serial mon:stdio -nographic \
+  -device virtio-blk-device,drive=d0 -drive file=/home/shorne/work/linux/virt.qcow2,id=d0,if=none,format=qcow2 \
+  -gdb tcp::10001 -smp cpus=2 -m 64
 
-diff --git a/hw/rtc/goldfish_rtc.c b/hw/rtc/goldfish_rtc.c
-index 35e493be31..f1dc5af297 100644
---- a/hw/rtc/goldfish_rtc.c
-+++ b/hw/rtc/goldfish_rtc.c
-@@ -219,7 +219,7 @@ static int goldfish_rtc_post_load(void *opaque, int
-version_id)
- static const MemoryRegionOps goldfish_rtc_ops = {
-     .read = goldfish_rtc_read,
-     .write = goldfish_rtc_write,
--    .endianness = DEVICE_NATIVE_ENDIAN,
-+    .endianness = DEVICE_LITTLE_ENDIAN,
-     .valid = {
-         .min_access_size = 4,
-         .max_access_size = 4
+I should have mentioned it but the config I am using is here:
 
-Boot Log:
+  https://github.com/stffrdhrn/linux/commits/or1k-virt
 
-    io scheduler mq-deadline registered
-    io scheduler kyber registered
-    Serial: 8250/16550 driver, 4 ports, IRQ sharing disabled
-    90000000.serial: ttyS0 at MMIO 0x90000000 (irq = 2, base_baud = 1250000) is a 16550A
-    printk: console [ttyS0] enabled
-    loop: module loaded
-    virtio_blk virtio1: [vda] 32768 512-byte logical blocks (16.8 MB/16.0 MiB)
-    Freeing initrd memory: 1696K
-   *goldfish_rtc 96005000.rtc: registered as rtc0
-   *goldfish_rtc 96005000.rtc: setting system clock to 2022-06-05T01:49:57 UTC (1654393797)
-    NET: Registered PF_PACKET protocol family
-    random: fast init done
+> >
+> > The platform provides:
+> >  - OpenRISC SMP with up to 8 cpus
+> 
+> You have this:
+> 
+> #define VIRT_CPUS_MAX 4
+> i
+> I tried booting with -smp 4 and it locked up when starting userspace
+> (or I stopped getting serial output?):
+> 
+> [    0.060000] smp: Brought up 1 node, 4 CPUs
+> ...
+> [    0.960000] Run /init as init process
+> 
+> Running with -smp 2 and 3 worked. It does make booting much much slower.
+
+Right, it should be 4, I just write 8 from memory.  You are also, right I have
+issues with running 4 CPU's.  I will try richard's suggestion.  I have some old
+patches to configure MTTCG also, but it had some limitations.  I will dig those
+up and get this fixed for this series.
+
+> >  - Generated RTC to automatically configure the guest kernel
+> 
+> Did you mean device tree?
+
+Yeah, thats what I meant.
+
+> >
+> > Signed-off-by: Stafford Horne <shorne@gmail.com>
+> > ---
+> >  configs/devices/or1k-softmmu/default.mak |   1 +
+> >  hw/openrisc/Kconfig                      |   9 +
+> >  hw/openrisc/meson.build                  |   1 +
+> >  hw/openrisc/virt.c                       | 429 +++++++++++++++++++++++
+> >  4 files changed, 440 insertions(+)
+> >  create mode 100644 hw/openrisc/virt.c
+> >
+> > diff --git a/configs/devices/or1k-softmmu/default.mak b/configs/devices/or1k-softmmu/default.mak
+> > index 5b3ac89491..f3bf816067 100644
+> > --- a/configs/devices/or1k-softmmu/default.mak
+> > +++ b/configs/devices/or1k-softmmu/default.mak
+> > @@ -5,3 +5,4 @@ CONFIG_SEMIHOSTING=y
+> >  # Boards:
+> >  #
+> >  CONFIG_OR1K_SIM=y
+> > +CONFIG_OR1K_VIRT=y
+> > diff --git a/hw/openrisc/Kconfig b/hw/openrisc/Kconfig
+> > index 8f284f3ba0..202134668e 100644
+> > --- a/hw/openrisc/Kconfig
+> > +++ b/hw/openrisc/Kconfig
+> > @@ -4,3 +4,12 @@ config OR1K_SIM
+> >      select OPENCORES_ETH
+> >      select OMPIC
+> >      select SPLIT_IRQ
+> > +
+> > +config OR1K_VIRT
+> > +    bool
+> > +    imply VIRTIO_VGA
+> > +    imply TEST_DEVICES
+> > +    select GOLDFISH_RTC
+> > +    select SERIAL
+> > +    select SIFIVE_TEST
+> > +    select VIRTIO_MMIO
+> 
+> You could include the liteeth device too if we merged that.
+
+I think we could add that with a litex machine.  For that we would need at least
+the litex UART and SoC for reset.
+
+> > diff --git a/hw/openrisc/virt.c b/hw/openrisc/virt.c
+> > new file mode 100644
+> > index 0000000000..147196fda3
+> > --- /dev/null
+> > +++ b/hw/openrisc/virt.c
+> > @@ -0,0 +1,429 @@
+> > +/*
+> > + * OpenRISC QEMU virtual machine.
+> > + *
+> > + * Copyright (c) 2022 Stafford Horne <shorne@gmail.com>
+> > + *
+> > + * This library is free software; you can redistribute it and/or
+> > + * modify it under the terms of the GNU Lesser General Public
+> > + * License as published by the Free Software Foundation; either
+> > + * version 2.1 of the License, or (at your option) any later version.
+> > + *
+> > + * This library is distributed in the hope that it will be useful,
+> > + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> > + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+> > + * Lesser General Public License for more details.
+> > + *
+> > + * You should have received a copy of the GNU Lesser General Public
+> > + * License along with this library; if not, see <http://www.gnu.org/licenses/>.
+> 
+> I think you can use the SPDX tag here instead of writing out the text.
+
+Right.
+
+> > +static void openrisc_virt_init(MachineState *machine)
+> > +{
+> > +    ram_addr_t ram_size = machine->ram_size;
+> > +    const char *kernel_filename = machine->kernel_filename;
+> > +    OpenRISCCPU *cpus[VIRT_CPUS_MAX] = {};
+> > +    OR1KVirtState *state = VIRT_MACHINE(machine);
+> > +    MemoryRegion *ram;
+> > +    hwaddr load_addr;
+> > +    int n;
+> > +    unsigned int smp_cpus = machine->smp.cpus;
+> > +
+> 
+> > +    openrisc_virt_rtc_init(state, virt_memmap[VIRT_RTC].base,
+> > +                           virt_memmap[VIRT_RTC].size, smp_cpus, cpus,
+> > +                           VIRT_RTC_IRQ);
+> > +
+> > +    for (n = 0; n < VIRTIO_COUNT; n++) {
+> 
+> This would make more sense to me if you constructed the IRQ and base
+> here, and then passed the actual base and irq number to your
+> _virtio_init:
+> 
+>         size_t size = virt_memmap[VIRT_VIRTIO].size;
+>         openrisc_virt_virtio_init(state, virt_memmap[VIRT_VIRTIO].base
+> + size * n,
+>                                   size, smp_cpus, cpus, VIRT_VIRTIO_IRQ + n);
+> 
+
+OK, yes that is better.
+
+> > +        openrisc_virt_virtio_init(state, virt_memmap[VIRT_VIRTIO].base,
+> > +                                  virt_memmap[VIRT_VIRTIO].size,
+> > +                                  smp_cpus, cpus, VIRT_VIRTIO_IRQ, n);
+> > +    }
+> > +
+
+Thanks a lot for the review.
 
 -Stafford
