@@ -2,45 +2,26 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8670DCCA47C
-	for <openrisc@archiver.kernel.org>; Tue,  7 Jun 2022 09:48:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BE30C43334
+	for <openrisc@archiver.kernel.org>; Tue,  7 Jun 2022 10:04:35 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 627DF24895;
-	Tue,  7 Jun 2022 11:48:22 +0200 (CEST)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by mail.librecores.org (Postfix) with ESMTPS id 23B6524758
- for <openrisc@lists.librecores.org>; Tue,  7 Jun 2022 11:48:21 +0200 (CEST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id EB708611DE
- for <openrisc@lists.librecores.org>; Tue,  7 Jun 2022 09:48:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DCACC3411E
- for <openrisc@lists.librecores.org>; Tue,  7 Jun 2022 09:48:19 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
- dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com
- header.b="YG0W0G2Y"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105; 
- t=1654595297;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=EXnEGOlOoorlOymfhfFprGYEDfkZN+Y3S5++2IMnflg=;
- b=YG0W0G2Ymjm0JWE6Mn9x/+C7adFx/a9GQWwi93cCcN4G3ilbAqwvOqTNOSsqy14PNnbnDs
- s4zbnN+X4HygJ8+RZW0UkObBdT1R9qzAAt4JGZWlfAdhBx4d5hpqXnwMP0sg5NJKv7pXnz
- DPbrWoxZADE8WZEQ/Oxw0VujGPHHGqw=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 4b8f785f
- (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO)
- for <openrisc@lists.librecores.org>;
- Tue, 7 Jun 2022 09:48:17 +0000 (UTC)
-Received: by mail-yb1-f179.google.com with SMTP id g201so2388943ybf.12
- for <openrisc@lists.librecores.org>; Tue, 07 Jun 2022 02:48:16 -0700 (PDT)
-X-Gm-Message-State: AOAM5316sJiKYbZdNqu4uVsCilVkNNgPHcJwnKxpHB8GkGDV3HH6a/K2
- gJRtKSciehMI454v/XrytWxAmDFs3XBhry1TiR0=
-X-Google-Smtp-Source: ABdhPJyDTNxIehXogC1xLFjIVfBlEKeEQ7GDh9XwX2Nm/yBzVZ7RIfuFIMK2CDmTGpPFzqVCmrfz2YvUgpRVDOBqp8M=
-X-Received: by 2002:a25:8d92:0:b0:656:a73e:a7f with SMTP id
- o18-20020a258d92000000b00656a73e0a7fmr28007746ybl.382.1654595295799; Tue, 07
- Jun 2022 02:48:15 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id E9D0224918;
+	Tue,  7 Jun 2022 12:04:33 +0200 (CEST)
+Received: from mout.kundenserver.de (mout.kundenserver.de [217.72.192.74])
+ by mail.librecores.org (Postfix) with ESMTPS id 9C37B24761
+ for <openrisc@lists.librecores.org>; Tue,  7 Jun 2022 12:04:32 +0200 (CEST)
+Received: from mail-yb1-f175.google.com ([209.85.219.175]) by
+ mrelayeu.kundenserver.de (mreue108 [213.165.67.113]) with ESMTPSA (Nemesis)
+ id 1Mq2rM-1nTHmn41Ba-00n5nv for <openrisc@lists.librecores.org>; Tue, 07 Jun
+ 2022 12:04:32 +0200
+Received: by mail-yb1-f175.google.com with SMTP id f34so30289650ybj.6
+ for <openrisc@lists.librecores.org>; Tue, 07 Jun 2022 03:04:31 -0700 (PDT)
+X-Gm-Message-State: AOAM531bCzCoRi67XtiJj8k4VMrRdD2TbN55Ig/mADhrt+8V3Wn7JPzf
+ AjunxT+RpEVBOIydx7+W1Ov+Z5iIFcfRpmsbSLE=
+X-Google-Smtp-Source: ABdhPJzwRpYKwEkLLVAKUKAZ7ioUX6Kw8vDMVEignXpaaC9z+dzb6hkZrFCGT4AEYJViKABnTFhsrvkryOQS+qR8XLM=
+X-Received: by 2002:a25:31c2:0:b0:641:660f:230f with SMTP id
+ x185-20020a2531c2000000b00641660f230fmr28771253ybx.472.1654596270741; Tue, 07
+ Jun 2022 03:04:30 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220527172731.1742837-1-shorne@gmail.com>
  <20220527172731.1742837-4-shorne@gmail.com>
@@ -48,15 +29,37 @@ References: <20220527172731.1742837-1-shorne@gmail.com>
  <CAMuHMdWF_OwTMZZ=joRsnOAuB5UuKjACt3Ku4-o0--fR6xqQbQ@mail.gmail.com>
  <YpkWllpTFzb2HHY5@antec>
  <CAMuHMdXBtihLpdOYn7nj_fH2g08nDUiUd-_zCZ_EdEyvw1UxWA@mail.gmail.com>
- <YpwNtowUTxRbh2Uq@antec> <Ypxb/VDfYLFg3n2s@antec> <YpxnHaaizsNpOjx8@zx2c4.com>
-In-Reply-To: <YpxnHaaizsNpOjx8@zx2c4.com>
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date: Tue, 7 Jun 2022 11:48:04 +0200
-X-Gmail-Original-Message-ID: <CAHmME9r2qGQxh9TXZ+zyytJpqQL3uyV1+=9V32LVNXFaUud3ag@mail.gmail.com>
-Message-ID: <CAHmME9r2qGQxh9TXZ+zyytJpqQL3uyV1+=9V32LVNXFaUud3ag@mail.gmail.com>
+ <YpwNtowUTxRbh2Uq@antec> <Ypxb/VDfYLFg3n2s@antec>
+ <CAMuHMdVwAzbAOBDcv4y1WmYgCaFOMdywxUZvwMtDccOgDMN+mw@mail.gmail.com>
+ <CAK8P3a3Vpn02uDe3rdXSNXANY=u4ZM+wjm-qqszTXzjOKkAeEg@mail.gmail.com>
+ <Yp8epZsizfKMEVZV@antec>
+In-Reply-To: <Yp8epZsizfKMEVZV@antec>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Tue, 7 Jun 2022 12:04:14 +0200
+X-Gmail-Original-Message-ID: <CAK8P3a3MDDE3ko93E0fMmHoXXveTUeYJXdEJbf0DEy3kcBFn0g@mail.gmail.com>
+Message-ID: <CAK8P3a3MDDE3ko93E0fMmHoXXveTUeYJXdEJbf0DEy3kcBFn0g@mail.gmail.com>
 Subject: Re: [RFC PATCH 3/3] hw/openrisc: Add the OpenRISC virtual machine
-To: Arnd Bergmann <arnd@arndb.de>
+To: Stafford Horne <shorne@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:WQxbFUgEwX/XxzE1eUIlJfzO/ZwowAqNrkvUcipsmu4wP3jgM7V
+ xcjRNQzdxlr5qXmctzrYmXy8yAXyg4Y9rlfwZUhoCCDBWZrOdzh0sCI9utZNbsTbWSqkzbF
+ doCq5+Pi4GD04O2HAdc7lOLG+J3ugKmcoL3uoK35KhstoHnxLyZBnIKUEYIcYMdSnqPpJL0
+ 3Uu8MYPy3z/RdqOWkJaXg==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:oKbINkQYvII=:kVBBoyQhf+lu6EhRImQ94I
+ Xkcu0P4sOUmsBu3tr82otEndlxWHVRM49h0LpK5iextk1rCyku718dVkT+1Ua2Qyj8R+Bmy+f
+ TrwIpyNdb9UcriC94XawzRQTZnumjPI96xiYt8XpLnUTQr84p2Ykl6Xk6JfMEMry9FJDTO3VZ
+ 89s57vZi/V2YcpT9SEjxM6X8KUPPPsACXpnZl03tEB2byD/gFW26Kon4VQbjUsx9+B1EKB1mM
+ qyrY8q9vCwB/PZBg+BfZ986A6gW3h5yjKZMojzuhUBImaeGLULw6KtrlG5NLU8ssyr4WGNzCT
+ XzjNbyZM70RKNPMz+CTbRqSNWBekgfBQUSoPMzQsDCNSc/E/zXh/M5g/CpHsU2CDzsqI0dS8v
+ yhkD02xKZXPSvR+8MD1DiO3VhFSiKsTmVGEjyZYLmfYBxT8I06DfGI89cX/y8cesn5bc9kV7X
+ NM1vmTW+xAJBTDLxdy1AOXM53QFn2UE+throVwv+gwNIi8HP4ZAySbITaGfofBhgliiXgNuiR
+ yd4kknhU+7LaKAGdmg6QFr/zSehUugNNwh2sB/uCtWwcT9Gu8LP69lk2cDM/ILmtvVigb+ccQ
+ 9yddq8w1d5zJbCToJfJkuW6rO4FeS4fMlYL/5q+i7OSSWD1peIDn+oA5HemuPVBQ5DChKXWsc
+ sRi8YPuLK9E+UKC9YhS+B7HQymwdiK9T+tRVzKy340nrB5fFxN8YXa2K1p13hEDPGnW+Vf7n0
+ MTc6idJ6XjBNc0J902tNDEZEWFczlY9VTqzv1d7zjOZ2gdFtqdYpv190DtwdOO72bM29syyMr
+ PiQwfqHbLbTPitcTRS9zyxpaq5AfjZvCP6k0bgg+jTobsJv4TH49anabEf2xxYaZwlT2tbYEi
+ +KhLPh48+bFukk7lTvSw==
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -69,30 +72,80 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Openrisc <openrisc@lists.librecores.org>,
- QEMU Development <qemu-devel@nongnu.org>
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>, Arnd Bergmann <arnd@arndb.de>,
+ QEMU Development <qemu-devel@nongnu.org>,
+ Openrisc <openrisc@lists.librecores.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-+ Arnd
+On Tue, Jun 7, 2022 at 11:47 AM Stafford Horne <shorne@gmail.com> wrote:
+> On Tue, Jun 07, 2022 at 10:42:08AM +0200, Arnd Bergmann wrote:
 
-On Sun, Jun 5, 2022 at 10:19 AM Jason A. Donenfeld <Jason@zx2c4.com> wrote:
+> > Goldfish is a very old platform, as far as I know only the kernel port =
+is new.
+> > I don't know when qemu started shipping goldfish, but changing it now w=
+ould
+> > surely break compatibility with whatever OS the port was originally mad=
+e for.
 >
-> Hi folks,
+> Hi Arnd,
 >
-> On Sun, Jun 05, 2022 at 04:32:13PM +0900, Stafford Horne wrote:
-> > Why can't m68k switch to little-endian in qemu and the kernel?  The m68k virt
-> > platform is not that old, 1 year? Are there a lot of users that this would be a big
-> > problem?
+> As far as I can tell goldfish in qemu is not very old. There are 3 device=
+s, 2 were
+> added for the m68k virt machine, and 1 for riscv virt.
 >
-> I also share this perspective. AFAICT, m68k virt platform *just*
-> shipped. Fix this stuff instead of creating more compatibility bloat for
-> a platform with no new silicon. The risks of making life difficult for
-> 15 minutes for all seven and a half users of that code that only now has
-> become operational is vastly dwarfed by the good sense to just fix the
-> mistake. Treat the endian thing as a *bug* rather than a sacred ABI.
-> Bugs only become sacred if you let them sit for years and large numbers
-> of people grow to rely on spacebar heating. Otherwise they're just bugs.
-> This can be fixed.
+>     $ git lo -- hw/char/goldfish_tty.c
+>     2021-11-09 65b4c8c759 Philippe Mathieu-Daud=C3=A9 hw/m68k: Fix typo i=
+n SPDX tag
+>     2021-03-15 8c6df16ff6 Laurent Vivier   hw/char: add goldfish-tty
 >
-> Jason
+>     $  git lo -- hw/intc/goldfish_pic.c
+>     2021-11-09 65b4c8c759 Philippe Mathieu-Daud=C3=A9 hw/m68k: Fix typo i=
+n SPDX tag
+>     2021-03-15 8785559390 Laurent Vivier   hw/intc: add goldfish-pic
+
+That is much younger than Laurent made it appear, from his earlier explanat=
+ions
+I expected this to have shipped a long time ago and been used in other
+OSs to the
+point where it cannot be fixed.
+
+> The mips/loongson3_virt machine now also uses the goldfish_rtc.
+>
+> The problem with the goldfish device models is that they were defined as
+> DEVICE_NATIVE_ENDIAN.
+>
+>     $ grep endianness hw/*/goldfish*
+>     hw/char/goldfish_tty.c:    .endianness =3D DEVICE_NATIVE_ENDIAN,
+>     hw/intc/goldfish_pic.c:    .endianness =3D DEVICE_NATIVE_ENDIAN,
+>     hw/rtc/goldfish_rtc.c:    .endianness =3D DEVICE_NATIVE_ENDIAN,
+>
+> RISC-V is little-endian so when it was added there was no problem with ru=
+nning
+> linux goldfish drivers.
+>
+> MIPS Longson3, added last year, seems to be running as little-endian well=
+, I
+> understand MIPS can support both big and little endian. However according=
+ to
+> this all Loongson cores are little-endian.
+>
+>     https://en.wikipedia.org/wiki/Loongson
+>
+> As I understand when endianness of the devices in qemu are defined as
+> DEVICE_NATIVE_ENDIAN the device endian takes the endian of the target CPU=
+.
+>
+> This means that MIPS Loongson3 and RISC-V are affectively running as
+> little-endian which is what would be expected.
+
+Not really, the definition of DEVICE_NATIVE_ENDIAN in qemu is much less
+well-defined than that as I understand, it is just whatever the person addi=
+ng
+support for that CPU thought would be the right one. A lot of CPUs can
+run either big-endian or little-endian code, and e.g. on ARM, qemu
+DEVICE_NATIVE_ENDIAN is just always little-endian, regardless of
+what the CPU runs, while I think on MIPS it would be whatever the CPU
+is actually executing.
+
+      Arnd
