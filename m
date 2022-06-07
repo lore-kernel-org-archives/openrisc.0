@@ -2,47 +2,55 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EA65C43334
-	for <openrisc@archiver.kernel.org>; Tue,  7 Jun 2022 10:43:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BF11C433EF
+	for <openrisc@archiver.kernel.org>; Tue,  7 Jun 2022 12:12:14 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 4458924917;
-	Tue,  7 Jun 2022 12:43:30 +0200 (CEST)
-Received: from mail-yb1-f172.google.com (mail-yb1-f172.google.com
- [209.85.219.172])
- by mail.librecores.org (Postfix) with ESMTPS id 39CC724953
- for <openrisc@lists.librecores.org>; Tue,  7 Jun 2022 12:43:29 +0200 (CEST)
-Received: by mail-yb1-f172.google.com with SMTP id l204so30419652ybf.10
- for <openrisc@lists.librecores.org>; Tue, 07 Jun 2022 03:43:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=VITNEksPVq7xoKlKRxE6fmTTVanCV3r1QNLeiExqK3k=;
- b=NuH5fbz9EQbS5gMzyD5qFmsslsI8QIDOWOi29XrDy0shGdgCSDsyeosDE2FuAP2EPq
- 7EmLiW1XNlqP14J8RyvpJghh4UoHHIfYv5J2DBulIKpEXXHccZvTIlGvBOhy9hPN8IGP
- nkHceODoYD+Q9T0hr8MaG514vFaBJ3q644oIjp+FJwHmEGRFpmAeIIFMi6FnRa9D1xGY
- o0JL4v9bbw3qoU1m1gydaxE35RRlkGR7N1EsudJ87QcgffTlgt0wkNAIIMnYwjpjf+pQ
- DXPF1DvMhaby6Nnq2A9eegbtnk6QgwYotyY2zAZ0g0HXwHPYBXHG/Htw8BULdZVwfn3/
- noLg==
+	by mail.librecores.org (Postfix) with ESMTP id C2E8724917;
+	Tue,  7 Jun 2022 14:12:13 +0200 (CEST)
+Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com
+ [209.85.215.169])
+ by mail.librecores.org (Postfix) with ESMTPS id 0D72E24917
+ for <openrisc@lists.librecores.org>; Tue,  7 Jun 2022 14:12:12 +0200 (CEST)
+Received: by mail-pg1-f169.google.com with SMTP id q140so621096pgq.6
+ for <openrisc@lists.librecores.org>; Tue, 07 Jun 2022 05:12:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=GijARRYnxL8YO0+sEq7CgmOSfAqFvvakkFBsv6at5Ao=;
+ b=QjzQzhgN46s/kESurvy5S4WXixwl3Jm+2nFPnTlxnjoSrWHmBxRXLsMr3HMecO2Vnr
+ lfVnS8JFp0oF1rJXEjgZEkvnIK3V1pb+p2LJLKQCKwpe1GJTL5x9JAVxRpf5ZZSmyFC8
+ Qh91hc5xUPBJfy0S1PAulnlR8qZAEFmhM6vCI8l+iCJmD8MzC3lj2njzB1l0jgKRoVLj
+ +J6d+GMrx8b4RUDTxxHQNafJTXpvnQGSbkhaqCIebWwJEFADOyWOQumc0WlnZasuDu85
+ uC1xwpDV4Vg2XPBCEjsn4vm412qsUYFOKz9mZyIPWK5l3s30sdhQltu2bDmO8pbGa9PK
+ kiVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=VITNEksPVq7xoKlKRxE6fmTTVanCV3r1QNLeiExqK3k=;
- b=1j6cmw/FBE1MHExJWsu9s/ykqWqui7f8o1XKortLed9FC3XSUri9jNqpWOOiiUOJQD
- gh/cEZuqb7XLqIP70BC8pAeDznCwvotahj53/KA63tc4vlfig2RhRKqbVN3HUEOlKRqX
- QfWduH66bMkfzj8POvR6TfFL1RXN8UBNlPdvu6ILklWyof7KveMPmlxnBEZvQw1URrcB
- 7NQmtxe1DMEyHZ9O53y5sXsGJ0fCggb+1e331RXcj681E4LPJgmdfk0NYlMWkukeXtZv
- mO/VEG5Sh3igI+xwMeKIqoLXJgFrvVLYYH4wCm07d37tQOlZLbeiRSY54tJauhzi0o7m
- ne8g==
-X-Gm-Message-State: AOAM533iG3e3dVZoq/y0uCX0hYgt/A/M77Y9ncWMTqBhRk2c4T8Zau5B
- U/WuGK6RQUQ4Ts13MSY+AySgUXQVcUZIV4/nXNQVmw==
-X-Google-Smtp-Source: ABdhPJxQLOyUqMsOThJ+1SV0/klGHBwVILdyuPskFeBoI1LWERKAGRKbnof/wEYnWGV90IDWsUZihKWDgFLrv5fLbeI=
-X-Received: by 2002:a25:b94:0:b0:663:e6e7:c5 with SMTP id
- 142-20020a250b94000000b00663e6e700c5mr1107735ybl.85.1654598600017; 
- Tue, 07 Jun 2022 03:43:20 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220527172731.1742837-1-shorne@gmail.com>
- <20220527172731.1742837-4-shorne@gmail.com>
- <CACPK8XexaTREY3Y-jp8urTAE+UmQWgygFx1MAss9KcJw5tGMtw@mail.gmail.com>
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=GijARRYnxL8YO0+sEq7CgmOSfAqFvvakkFBsv6at5Ao=;
+ b=dWXnSXW4Nlw9V8f7XFhzkBU50OeFiLpHTCDYDmoHiMfCJmqYZgZioUiDtmHxmJZxNc
+ 7U1gSX51YL4c/uqtF3/u5wzsigRyQppZVXRM2SBMHn8UMMKh2Z0fKqi6pj73qFAp75Oo
+ weJ4yVuovQIZlqGC3+yiUoGoagbGrNbzn2XVYb4w6Qh18I0luXk/6VZR3IuOF07CVgq9
+ Z7tYvkrsjQYbH9yEUVJFCkO07c2hDxbNaD3EgdEV4wOzxhLPwK1uS12h+l8w2h3+Tj3Q
+ qFLUDnWc/FeqF40QwDyq292KPlX5V18+04KnPoRdMacdLTpWc2o2tfI0ZLMQE21VHzFY
+ Y8Zg==
+X-Gm-Message-State: AOAM530D2NLn/6iQVUrdJhGoyReJIQjTve73PnSoG3hKCzyrDJUItgBa
+ VZb0JjJgH3QCSWtFdUSMMg4=
+X-Google-Smtp-Source: ABdhPJwCSCn5Byw+9714s59/vTRyhGwy+WF9gUTl/b+De7VI8bPEHCvQiZzq5tYWiT59Mdr5aE1XgA==
+X-Received: by 2002:a63:f003:0:b0:3db:84d3:743d with SMTP id
+ k3-20020a63f003000000b003db84d3743dmr25232916pgh.97.1654603930382; 
+ Tue, 07 Jun 2022 05:12:10 -0700 (PDT)
+Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
+ by smtp.gmail.com with ESMTPSA id
+ jh13-20020a170903328d00b0015eab1b097dsm12335643plb.22.2022.06.07.05.12.09
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 07 Jun 2022 05:12:09 -0700 (PDT)
+Date: Tue, 7 Jun 2022 21:12:07 +0900
+From: Stafford Horne <shorne@gmail.com>
+To: Peter Maydell <peter.maydell@linaro.org>
+Subject: Re: [RFC PATCH 3/3] hw/openrisc: Add the OpenRISC virtual machine
+Message-ID: <Yp9Al1UfqvIzStI7@antec>
+References: <CACPK8XexaTREY3Y-jp8urTAE+UmQWgygFx1MAss9KcJw5tGMtw@mail.gmail.com>
  <CAMuHMdWF_OwTMZZ=joRsnOAuB5UuKjACt3Ku4-o0--fR6xqQbQ@mail.gmail.com>
  <YpkWllpTFzb2HHY5@antec>
  <CAMuHMdXBtihLpdOYn7nj_fH2g08nDUiUd-_zCZ_EdEyvw1UxWA@mail.gmail.com>
@@ -50,13 +58,11 @@ References: <20220527172731.1742837-1-shorne@gmail.com>
  <CAMuHMdVwAzbAOBDcv4y1WmYgCaFOMdywxUZvwMtDccOgDMN+mw@mail.gmail.com>
  <CAK8P3a3Vpn02uDe3rdXSNXANY=u4ZM+wjm-qqszTXzjOKkAeEg@mail.gmail.com>
  <Yp8epZsizfKMEVZV@antec>
-In-Reply-To: <Yp8epZsizfKMEVZV@antec>
-From: Peter Maydell <peter.maydell@linaro.org>
-Date: Tue, 7 Jun 2022 11:43:08 +0100
-Message-ID: <CAFEAcA97oraa5OSdqmubmJ2-ONTCTF4ZszwfTcZ9VhqKRFhogA@mail.gmail.com>
-Subject: Re: [RFC PATCH 3/3] hw/openrisc: Add the OpenRISC virtual machine
-To: Stafford Horne <shorne@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+ <CAFEAcA97oraa5OSdqmubmJ2-ONTCTF4ZszwfTcZ9VhqKRFhogA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAFEAcA97oraa5OSdqmubmJ2-ONTCTF4ZszwfTcZ9VhqKRFhogA@mail.gmail.com>
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -75,87 +81,46 @@ Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>, Arnd Bergmann <arnd@arndb.de>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Tue, 7 Jun 2022 at 11:12, Stafford Horne <shorne@gmail.com> wrote:
->
-> On Tue, Jun 07, 2022 at 10:42:08AM +0200, Arnd Bergmann wrote:
-> > Goldfish is a very old platform, as far as I know only the kernel port is new.
-> > I don't know when qemu started shipping goldfish, but changing it now would
-> > surely break compatibility with whatever OS the port was originally made for.
->
-> Hi Arnd,
->
-> As far as I can tell goldfish in qemu is not very old. There are 3 devices, 2 were
-> added for the m68k virt machine, and 1 for riscv virt.
+On Tue, Jun 07, 2022 at 11:43:08AM +0100, Peter Maydell wrote:
+> So I don't have a strong view on whether these devices should
+> be DEVICE_NATIVE_ENDIAN or DEVICE_LITTLE_ENDIAN (except that
+> my impression is that a DEVICE_LITTLE_ENDIAN device on a
+> big-endian system is a bit weird, because it means the guest
+> has to byteswap everything. You see that with PCI devices because
+> the PCI spec mandates LE, but not often elsewhere).
+> 
+> If there's an official-ish spec for how goldfish devices are
+> supposed to behave (does anybody have a pointer to one?) and it says
+> "always little-endian" then that would probably suggest that fixing
+> m68k would be nice if we can.
 
-Yep, these are new for (upstream) QEMU, and AIUI the only OS we care
-about for these is Linux, really. My understanding is that these devices
-were added because they were conveniently available in Linux :-)
-Where they do have a much older history is in the Android emulator,
-but upstream QEMU doesn't care about that.
+I think there are some conflicting thoughts on this.
 
-> The problem with the goldfish device models is that they were defined as
-> DEVICE_NATIVE_ENDIAN.
->
->     $ grep endianness hw/*/goldfish*
->     hw/char/goldfish_tty.c:    .endianness = DEVICE_NATIVE_ENDIAN,
->     hw/intc/goldfish_pic.c:    .endianness = DEVICE_NATIVE_ENDIAN,
->     hw/rtc/goldfish_rtc.c:    .endianness = DEVICE_NATIVE_ENDIAN,
->
-> RISC-V is little-endian so when it was added there was no problem with running
-> linux goldfish drivers.
->
-> MIPS Longson3, added last year, seems to be running as little-endian well, I
-> understand MIPS can support both big and little endian. However according to
-> this all Loongson cores are little-endian.
->
->     https://en.wikipedia.org/wiki/Loongson
->
-> As I understand when endianness of the devices in qemu are defined as
-> DEVICE_NATIVE_ENDIAN the device endian takes the endian of the target CPU.
-> This means that MIPS Loongson3 and RISC-V are affectively running as
-> little-endian which is what would be expected.
+In Geert's he mentioned:
 
-DEVICE_NATIVE_ENDIAN means "whatever the 'native' endianness of the target
-CPU architecture is". This is a compile-time thing, and doesn't change
-if the CPU changes its endianness at runtime. So for instance for Arm
-boards DEVICE_NATIVE_ENDIAN and DEVICE_LITTLE_ENDIAN are the same thing,
-even if the guest OS is running with SCTLR_EL1.EE set (and even if a
-particular board in qemu-system-arm sets up the CPU so it leaves reset
-with .EE set to 1) The analogy on real hardware is that the way these
-"switch endianness" CPUs work is that they just flip the bytes in the
-data on their way out of the CPU, so changing the endianness in the CPU
-doesn't cause devices to change the way they behave. QEMU's "target
-endianness" is kind of like a property of the interconnect/system design
-in some ways.
+  Using Goldfish devices as little-endian devices should be fine.
 
-From QEMU's point of view, the thing we really don't want is devices
-that magically change behaviour when the CPU switches endianness
-at runtime, because those are weirdly unlike real hardware. (Virtio
-is the main offender in this regard, but we're stuck with that.)
-Devices that happen to be wired up differently on different target
-architectures are fine for us. I don't have any definite examples
-to hand, but my understanding is that this happens with real hardware
-too, where a device (maybe 8250-compatible UART or Lance ethernet
-are examples?) with 32-bit registers might be typically wired up in
-a system for a big-endian CPU such that the guest code can write
-a 32-bit word to it and get the "obvious" ordering matching the
-device datasheet. This sort of thing is what DEVICE_NATIVE_ENDIAN
-was intended for. (There are also various places where we use it
-where perhaps we should not where a device is exclusively used
-on a CPU of a particular endianness, and so you could equally write
-DEVICE_LITTLE_ENDIAN or whatever without any behaviour change.)
+In Arnd's mail he mentions:
 
-So I don't have a strong view on whether these devices should
-be DEVICE_NATIVE_ENDIAN or DEVICE_LITTLE_ENDIAN (except that
-my impression is that a DEVICE_LITTLE_ENDIAN device on a
-big-endian system is a bit weird, because it means the guest
-has to byteswap everything. You see that with PCI devices because
-the PCI spec mandates LE, but not often elsewhere).
+  https://lore.kernel.org/lkml/CAK8P3a1oN8NrUjkh2X8jHQbyz42Xo6GSa=5n0gD6vQcXRjmq1Q@mail.gmail.com/#t
 
-If there's an official-ish spec for how goldfish devices are
-supposed to behave (does anybody have a pointer to one?) and it says
-"always little-endian" then that would probably suggest that fixing
-m68k would be nice if we can.
+  ... the device was clearly defined as having little-endian
+  registers,
 
-thanks
--- PMM
+Based on that I was thinking that switching to DEVICE_LITTLE_ENDIAN would make
+sense.
+
+However, in a followup mail from Laurent we see:
+
+  https://lore.kernel.org/lkml/cb884368-0226-e913-80d2-62d2b7b2e761@vivier.eu/
+
+  The reference document[1] doesn't define the endianness of goldfish.
+
+  [1] https://android.googlesource.com/platform/external/qemu/+/master/docs/GOLDFISH-VIRTUAL-HARDWARE.TXT
+
+
+The documentation does not clearly specify it.  So maybe maybe or1k should just
+be updated on the linux side and add gf_ioread32/gf_iowrite32 big-endian
+accessors.
+
+-Stafford
