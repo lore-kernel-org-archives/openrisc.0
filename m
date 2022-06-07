@@ -2,54 +2,27 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BF11C433EF
-	for <openrisc@archiver.kernel.org>; Tue,  7 Jun 2022 12:12:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8B4CC43334
+	for <openrisc@archiver.kernel.org>; Tue,  7 Jun 2022 14:09:15 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id C2E8724917;
-	Tue,  7 Jun 2022 14:12:13 +0200 (CEST)
-Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com
- [209.85.215.169])
- by mail.librecores.org (Postfix) with ESMTPS id 0D72E24917
- for <openrisc@lists.librecores.org>; Tue,  7 Jun 2022 14:12:12 +0200 (CEST)
-Received: by mail-pg1-f169.google.com with SMTP id q140so621096pgq.6
- for <openrisc@lists.librecores.org>; Tue, 07 Jun 2022 05:12:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=GijARRYnxL8YO0+sEq7CgmOSfAqFvvakkFBsv6at5Ao=;
- b=QjzQzhgN46s/kESurvy5S4WXixwl3Jm+2nFPnTlxnjoSrWHmBxRXLsMr3HMecO2Vnr
- lfVnS8JFp0oF1rJXEjgZEkvnIK3V1pb+p2LJLKQCKwpe1GJTL5x9JAVxRpf5ZZSmyFC8
- Qh91hc5xUPBJfy0S1PAulnlR8qZAEFmhM6vCI8l+iCJmD8MzC3lj2njzB1l0jgKRoVLj
- +J6d+GMrx8b4RUDTxxHQNafJTXpvnQGSbkhaqCIebWwJEFADOyWOQumc0WlnZasuDu85
- uC1xwpDV4Vg2XPBCEjsn4vm412qsUYFOKz9mZyIPWK5l3s30sdhQltu2bDmO8pbGa9PK
- kiVg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=GijARRYnxL8YO0+sEq7CgmOSfAqFvvakkFBsv6at5Ao=;
- b=dWXnSXW4Nlw9V8f7XFhzkBU50OeFiLpHTCDYDmoHiMfCJmqYZgZioUiDtmHxmJZxNc
- 7U1gSX51YL4c/uqtF3/u5wzsigRyQppZVXRM2SBMHn8UMMKh2Z0fKqi6pj73qFAp75Oo
- weJ4yVuovQIZlqGC3+yiUoGoagbGrNbzn2XVYb4w6Qh18I0luXk/6VZR3IuOF07CVgq9
- Z7tYvkrsjQYbH9yEUVJFCkO07c2hDxbNaD3EgdEV4wOzxhLPwK1uS12h+l8w2h3+Tj3Q
- qFLUDnWc/FeqF40QwDyq292KPlX5V18+04KnPoRdMacdLTpWc2o2tfI0ZLMQE21VHzFY
- Y8Zg==
-X-Gm-Message-State: AOAM530D2NLn/6iQVUrdJhGoyReJIQjTve73PnSoG3hKCzyrDJUItgBa
- VZb0JjJgH3QCSWtFdUSMMg4=
-X-Google-Smtp-Source: ABdhPJwCSCn5Byw+9714s59/vTRyhGwy+WF9gUTl/b+De7VI8bPEHCvQiZzq5tYWiT59Mdr5aE1XgA==
-X-Received: by 2002:a63:f003:0:b0:3db:84d3:743d with SMTP id
- k3-20020a63f003000000b003db84d3743dmr25232916pgh.97.1654603930382; 
- Tue, 07 Jun 2022 05:12:10 -0700 (PDT)
-Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
- by smtp.gmail.com with ESMTPSA id
- jh13-20020a170903328d00b0015eab1b097dsm12335643plb.22.2022.06.07.05.12.09
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 07 Jun 2022 05:12:09 -0700 (PDT)
-Date: Tue, 7 Jun 2022 21:12:07 +0900
-From: Stafford Horne <shorne@gmail.com>
-To: Peter Maydell <peter.maydell@linaro.org>
-Subject: Re: [RFC PATCH 3/3] hw/openrisc: Add the OpenRISC virtual machine
-Message-ID: <Yp9Al1UfqvIzStI7@antec>
+	by mail.librecores.org (Postfix) with ESMTP id BE7FE248F5;
+	Tue,  7 Jun 2022 16:09:14 +0200 (CEST)
+Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.135])
+ by mail.librecores.org (Postfix) with ESMTPS id 1B2F72425A
+ for <openrisc@lists.librecores.org>; Tue,  7 Jun 2022 16:09:13 +0200 (CEST)
+Received: from mail-yb1-f178.google.com ([209.85.219.178]) by
+ mrelayeu.kundenserver.de (mreue010 [213.165.67.97]) with ESMTPSA (Nemesis) id
+ 1N7Qkv-1nhsZB1Xtl-017oHT for <openrisc@lists.librecores.org>; Tue, 07 Jun
+ 2022 16:09:12 +0200
+Received: by mail-yb1-f178.google.com with SMTP id p13so31347706ybm.1
+ for <openrisc@lists.librecores.org>; Tue, 07 Jun 2022 07:09:12 -0700 (PDT)
+X-Gm-Message-State: AOAM530UskvvJBi/j0wLnTr7eACEEwhExX90ZiKqy5VVnoI/OR+UPhKP
+ j/WZ826OhRWcXy/8qNZjuPA5ot4lgCjgBz+/9hY=
+X-Google-Smtp-Source: ABdhPJyrHRdcbFGwgQucIuXA511ekWmgPkpq2r3VzjMQDT7UGkzBdYp57tesIEB5uEfd/qHoqMrZCqWLJTK4O/DiuVI=
+X-Received: by 2002:a25:31c2:0:b0:641:660f:230f with SMTP id
+ x185-20020a2531c2000000b00641660f230fmr29767520ybx.472.1654610951039; Tue, 07
+ Jun 2022 07:09:11 -0700 (PDT)
+MIME-Version: 1.0
 References: <CACPK8XexaTREY3Y-jp8urTAE+UmQWgygFx1MAss9KcJw5tGMtw@mail.gmail.com>
  <CAMuHMdWF_OwTMZZ=joRsnOAuB5UuKjACt3Ku4-o0--fR6xqQbQ@mail.gmail.com>
  <YpkWllpTFzb2HHY5@antec>
@@ -59,10 +32,33 @@ References: <CACPK8XexaTREY3Y-jp8urTAE+UmQWgygFx1MAss9KcJw5tGMtw@mail.gmail.com>
  <CAK8P3a3Vpn02uDe3rdXSNXANY=u4ZM+wjm-qqszTXzjOKkAeEg@mail.gmail.com>
  <Yp8epZsizfKMEVZV@antec>
  <CAFEAcA97oraa5OSdqmubmJ2-ONTCTF4ZszwfTcZ9VhqKRFhogA@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAFEAcA97oraa5OSdqmubmJ2-ONTCTF4ZszwfTcZ9VhqKRFhogA@mail.gmail.com>
+ <Yp9Al1UfqvIzStI7@antec>
+In-Reply-To: <Yp9Al1UfqvIzStI7@antec>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Tue, 7 Jun 2022 16:08:53 +0200
+X-Gmail-Original-Message-ID: <CAK8P3a13PTsMExyXZm5sZM3WBK-8hoNFjYoi19pHmKKCJQmHeA@mail.gmail.com>
+Message-ID: <CAK8P3a13PTsMExyXZm5sZM3WBK-8hoNFjYoi19pHmKKCJQmHeA@mail.gmail.com>
+Subject: Re: [RFC PATCH 3/3] hw/openrisc: Add the OpenRISC virtual machine
+To: Stafford Horne <shorne@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:5ivZ7OVdGsuh2sUNrv1iv65YijLanJLupMyQ1LxJdIUBQOvIp13
+ QMzEMxjLl0jJoY0Xq6qNlQ2OqRYCkgXlSljuRzsVVldiN6bgk9WzBccqkRcGNd/+00ZF9rD
+ iiCaW59YUeGiOigbLpJMa0spYBn1443ZVuqwM2ZJG6FiNsZt1Wh1ZpqSO1hvuAk/TAgv+IS
+ RqHvEwVx4Heb+apWOfd0g==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:quEVUw7sUyQ=:8KCyJAiuIbGvrtiLiIqO1v
+ ZxAUiFPp+ZkkNzCl6ZTy9jhoGjIZzwHeajS8R21j1clKgza8lD1merWvUSrYOZAH+5TX7s2FS
+ jq04C641EkdRNBonuMcDrw2XfyO4sjnooCr2lZE0jhWm+gAtgygDZiexKw9Aw0GN+IwlwbZG4
+ drpSOw5rZtLryx90xsy8w5l7jcAvDl7ZDqolhb57decKjLhkl8Ms7Mmzk/tPKsPZKf+v9HvoW
+ 8I6YPmaxT4dHC3jfrc5VkkvU60l3dvlaiKfMeh8XBq8alqszKoO/gdW3G0xU8hiobqgzNDjZ+
+ VPYvnQF7bebBcy8ZVC0ODGjFvxlAKMMMM/e3+j0C+eQ8jvTGYJRrISemR+9nkvhypTIzetJ9X
+ wbu/rna+NehRaERZcoMOpTtWqRQkRtDgRwFzb7o2iplBwy12aCmsPYgquJ6EqkuyPsj8IJDrd
+ 7oeC6GLYZuYc0EIjWd8KSCw8U+t95LUwNMuUDYRWS9H1PqVeSTxbC9neaSx/KEdn7Z8fBFcil
+ jfT4Lf6qS9FOMYgoj/HH5rateCJxIHgw8p2QLNwJ8FYsFFGfm2ZUjcg+23etHaf4JVW/0Uwj9
+ jMCeztWL8E/V2UzCxG5u+ErnwRLH58/ZanO8k0oE5ZSO9Y5qMoQ0gyOCU4u6rmhlNxlT9htdy
+ ed6OLoV8XbMEA9hJHN9I1tpO7nsUuFo4YR3Dk2B93qXItAsueNNX2ad4u6MP7WSa8Z9CPHQOa
+ 2WW9pZUXrowvgIErvgdlRSSjV/myhg/cqoQ5W+EF6h6cykhsAHJcHN9q2Zqsz01V6jW+y/x01
+ hsTY8FaaYLcUojTE7QRVzYp4qO9p+UlnV46QIpN041o+vlgh37HXQtxml924tgE3+2NkDi2/x
+ i4UIPfvNb3rCnVlzzO2w==
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -75,52 +71,34 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>, Arnd Bergmann <arnd@arndb.de>,
+Cc: Peter Maydell <peter.maydell@linaro.org>,
+ "Jason A. Donenfeld" <Jason@zx2c4.com>, Arnd Bergmann <arnd@arndb.de>,
  QEMU Development <qemu-devel@nongnu.org>,
  Openrisc <openrisc@lists.librecores.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Tue, Jun 07, 2022 at 11:43:08AM +0100, Peter Maydell wrote:
-> So I don't have a strong view on whether these devices should
-> be DEVICE_NATIVE_ENDIAN or DEVICE_LITTLE_ENDIAN (except that
-> my impression is that a DEVICE_LITTLE_ENDIAN device on a
-> big-endian system is a bit weird, because it means the guest
-> has to byteswap everything. You see that with PCI devices because
-> the PCI spec mandates LE, but not often elsewhere).
-> 
-> If there's an official-ish spec for how goldfish devices are
-> supposed to behave (does anybody have a pointer to one?) and it says
-> "always little-endian" then that would probably suggest that fixing
-> m68k would be nice if we can.
+On Tue, Jun 7, 2022 at 2:12 PM Stafford Horne <shorne@gmail.com> wrote:
+> On Tue, Jun 07, 2022 at 11:43:08AM +0100, Peter Maydell wrote:
+>
+> However, in a followup mail from Laurent we see:
+>
+>   https://lore.kernel.org/lkml/cb884368-0226-e913-80d2-62d2b7b2e761@vivier.eu/
+>
+>   The reference document[1] doesn't define the endianness of goldfish.
+>
+>   [1] https://android.googlesource.com/platform/external/qemu/+/master/docs/GOLDFISH-VIRTUAL-HARDWARE.TXT
+>
+>
+> The documentation does not clearly specify it.  So maybe maybe or1k should just
+> be updated on the linux side and add gf_ioread32/gf_iowrite32 big-endian
+> accessors.
 
-I think there are some conflicting thoughts on this.
+I don't think it makes any sense to use big-endian for a new
+architecture, just use
+the default little-endian implementation on the linux side, and change
+the qemu code
+to have the backward-compatibility hack for m68k while using big-endian for
+the rest.
 
-In Geert's he mentioned:
-
-  Using Goldfish devices as little-endian devices should be fine.
-
-In Arnd's mail he mentions:
-
-  https://lore.kernel.org/lkml/CAK8P3a1oN8NrUjkh2X8jHQbyz42Xo6GSa=5n0gD6vQcXRjmq1Q@mail.gmail.com/#t
-
-  ... the device was clearly defined as having little-endian
-  registers,
-
-Based on that I was thinking that switching to DEVICE_LITTLE_ENDIAN would make
-sense.
-
-However, in a followup mail from Laurent we see:
-
-  https://lore.kernel.org/lkml/cb884368-0226-e913-80d2-62d2b7b2e761@vivier.eu/
-
-  The reference document[1] doesn't define the endianness of goldfish.
-
-  [1] https://android.googlesource.com/platform/external/qemu/+/master/docs/GOLDFISH-VIRTUAL-HARDWARE.TXT
-
-
-The documentation does not clearly specify it.  So maybe maybe or1k should just
-be updated on the linux side and add gf_ioread32/gf_iowrite32 big-endian
-accessors.
-
--Stafford
+       Arnd
