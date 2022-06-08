@@ -2,44 +2,49 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8B0EC433EF
-	for <openrisc@archiver.kernel.org>; Wed,  8 Jun 2022 23:00:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43D43CCA47A
+	for <openrisc@archiver.kernel.org>; Wed,  8 Jun 2022 23:00:31 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 66A03249BC;
-	Thu,  9 Jun 2022 01:00:27 +0200 (CEST)
-Received: from mail-yb1-f170.google.com (mail-yb1-f170.google.com
- [209.85.219.170])
- by mail.librecores.org (Postfix) with ESMTPS id D0977249A8
- for <openrisc@lists.librecores.org>; Wed,  8 Jun 2022 17:01:17 +0200 (CEST)
-Received: by mail-yb1-f170.google.com with SMTP id r3so2789909ybr.6
- for <openrisc@lists.librecores.org>; Wed, 08 Jun 2022 08:01:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=hna+hKCo48NcMl7Pqd/5P+UyLOQ1wF88gpvnodTJhxE=;
- b=qkhrgasVLddnHie9G1LTwwiS8LaoO0aS4pGKSsEztJPkE9eVXss4WUI56vH4S5R7XM
- SlIp4rj7EetyoB4DjIPu6ibxKkhZBw8TZAfJQL5nEHNbrWO0INPXspORu02uj+pOXNT+
- g3wADT5eBwt4T2m1OPmUH5UcK2wyoZn/xHnGMpnsLv574w7s/VfOwcqXgsClD1xcZSBc
- wej6rxDLQ7/LHFRyaK5GJ6ffofglo6J7zPMLHRGhyX8U0epdzZbNLP3mgfEXgmVHZNMf
- 3LWtMb1ekw3EXxnmf8hDkL3Bmo/2IX3vAqmXg7lv4EhP3J/kN2pUCOi/oDvab8R7U9XF
- YjdA==
-X-Gm-Message-State: AOAM530I3AbvUZfUlna6TXtRU7y/KFl0x0TWhCgVxrKySwhLqmqlPKTG
- Rt+b3Do3PTSRBMtKmq0lH6+jl8qQwkyFOKy10JA=
-X-Google-Smtp-Source: ABdhPJwqalQMdxMy/pZcDZhBH1xedB7nhZhOlo0yW6lp9BXwx4h5qG3Bba3YMzpLPF7jDA8EKVOjRHlndcGghrEojUg=
-X-Received: by 2002:a5b:4a:0:b0:663:7c5b:a5ba with SMTP id
- e10-20020a5b004a000000b006637c5ba5bamr16536948ybp.81.1654700476488; 
- Wed, 08 Jun 2022 08:01:16 -0700 (PDT)
-MIME-Version: 1.0
+	by mail.librecores.org (Postfix) with ESMTP id 30B08249AD;
+	Thu,  9 Jun 2022 01:00:30 +0200 (CEST)
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+ by mail.librecores.org (Postfix) with ESMTPS id 0BAEA249AB
+ for <openrisc@lists.librecores.org>; Wed,  8 Jun 2022 17:48:52 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=wkrvwwo/ehTnPQ2GyODy/ZpUUMe6HOjJCITHLe45W7c=; b=PhHp+PJmr+2T6rnBijz+YHTCqo
+ Q3sRs0kB+1HF2TzaTXkAa8+nJlCba8qwWkYHuYUvJIz6d+sUwN3QATDRrp6HkFJtxuDUGlK2esQFG
+ B6FqhNDw4mzKWIndiKngqO5+uVumTrnZhLB4eRFSER0mlLEnLKmACyt/N0zRX6B8QnMdEd1jF93Qv
+ +F3wXq8WpQgBGoI9TYubNiobTj3byuz+cOLmJDoCRAcPPkDwjHQiqUYBc/eVlZdt6y9xI16C13ivT
+ 9RycLHrYGa8XbNQes8S9gNmrNcQe8ImgWY0Ct9y735wKSNGr9BXQRTA4U6CQXwwbi/h2tLQ2WHupK
+ g4TPoOhQ==;
+Received: from dhcp-077-249-017-003.chello.nl ([77.249.17.3]
+ helo=noisy.programming.kicks-ass.net)
+ by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1nyxuv-00ClXO-Bt; Wed, 08 Jun 2022 15:48:21 +0000
+Received: from hirez.programming.kicks-ass.net
+ (hirez.programming.kicks-ass.net [192.168.1.225])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (4096 bits))
+ (Client did not present a certificate)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 1781E301093;
+ Wed,  8 Jun 2022 17:48:17 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+ id F027020C0D33A; Wed,  8 Jun 2022 17:48:16 +0200 (CEST)
+Date: Wed, 8 Jun 2022 17:48:16 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [PATCH 04/36] cpuidle,intel_idle: Fix CPUIDLE_FLAG_IRQ_ENABLE
+Message-ID: <YqDEwMDSL1YXdHFH@hirez.programming.kicks-ass.net>
 References: <20220608142723.103523089@infradead.org>
  <20220608144516.172460444@infradead.org>
-In-Reply-To: <20220608144516.172460444@infradead.org>
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Date: Wed, 8 Jun 2022 17:01:05 +0200
-Message-ID: <CAJZ5v0gW-zD8Mgghy70f3rFz0QoozCwZ9idyrqtFgA6SWHK5XQ@mail.gmail.com>
-Subject: Re: [PATCH 04/36] cpuidle,intel_idle: Fix CPUIDLE_FLAG_IRQ_ENABLE
-To: Peter Zijlstra <peterz@infradead.org>
-Content-Type: text/plain; charset="UTF-8"
+ <CAJZ5v0gW-zD8Mgghy70f3rFz0QoozCwZ9idyrqtFgA6SWHK5XQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAJZ5v0gW-zD8Mgghy70f3rFz0QoozCwZ9idyrqtFgA6SWHK5XQ@mail.gmail.com>
 X-Mailman-Approved-At: Thu, 09 Jun 2022 00:59:57 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
@@ -53,7 +58,8 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Juri Lelli <juri.lelli@redhat.com>, "Rafael J. Wysocki" <rafael@kernel.org>,
+Cc: Juri Lelli <juri.lelli@redhat.com>,
+ Linux-sh list <linux-sh@vger.kernel.org>,
  Benjamin Herrenschmidt <benh@kernel.crashing.org>,
  Linus Walleij <linus.walleij@linaro.org>, Benjamin Segall <bsegall@google.com>,
  Guo Ren <guoren@kernel.org>, Pavel Machek <pavel@ucw.cz>,
@@ -65,11 +71,10 @@ Cc: Juri Lelli <juri.lelli@redhat.com>, "Rafael J. Wysocki" <rafael@kernel.org>,
  Andy Gross <agross@kernel.org>, dl-linux-imx <linux-imx@nxp.com>,
  Catalin Marinas <catalin.marinas@arm.com>, xen-devel@lists.xenproject.org,
  mattst88@gmail.com, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Michael Turquette <mturquette@baylibre.com>, sammy@sammy.net,
- Petr Mladek <pmladek@suse.com>, Linux PM <linux-pm@vger.kernel.org>,
- Lai Jiangshan <jiangshanlai@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>,
- linux-um@lists.infradead.org, acme@kernel.org,
- Thomas Gleixner <tglx@linutronix.de>,
+ lpieralisi@kernel.org, sammy@sammy.net, Petr Mladek <pmladek@suse.com>,
+ Linux PM <linux-pm@vger.kernel.org>, Lai Jiangshan <jiangshanlai@gmail.com>,
+ Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org,
+ acme@kernel.org, Thomas Gleixner <tglx@linutronix.de>,
  Linux OMAP Mailing List <linux-omap@vger.kernel.org>,
  Dietmar Eggemann <dietmar.eggemann@arm.com>, rth@twiddle.net,
  Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -84,9 +89,8 @@ Cc: Juri Lelli <juri.lelli@redhat.com>, "Rafael J. Wysocki" <rafael@kernel.org>,
  quic_neeraju@quicinc.com, linux-s390@vger.kernel.org, vschneid@redhat.com,
  John Ogness <john.ogness@linutronix.de>,
  Yoshinori Sato <ysato@users.sourceforge.jp>,
- Linux-sh list <linux-sh@vger.kernel.org>, Fabio Estevam <festevam@gmail.com>,
- Helge Deller <deller@gmx.de>, Daniel Lezcano <daniel.lezcano@linaro.org>,
- Jon Hunter <jonathanh@nvidia.com>,
+ Fabio Estevam <festevam@gmail.com>, Helge Deller <deller@gmx.de>,
+ Daniel Lezcano <daniel.lezcano@linaro.org>, Jon Hunter <jonathanh@nvidia.com>,
  Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
  Frederic Weisbecker <frederic@kernel.org>, Len Brown <lenb@kernel.org>,
  linux-xtensa@linux-xtensa.org, Sascha Hauer <kernel@pengutronix.de>,
@@ -96,7 +100,8 @@ Cc: Juri Lelli <juri.lelli@redhat.com>, "Rafael J. Wysocki" <rafael@kernel.org>,
  Linux ARM <linux-arm-kernel@lists.infradead.org>, chris@zankel.net,
  Stephen Boyd <sboyd@kernel.org>, dinguyen@kernel.org,
  Daniel Bristot de Oliveira <bristot@redhat.com>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>, lpieralisi@kernel.org,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ Michael Turquette <mturquette@baylibre.com>,
  Rasmus Villemoes <linux@rasmusvillemoes.dk>,
  Joel Fernandes <joel@joelfernandes.org>, Will Deacon <will@kernel.org>,
  Boris Ostrovsky <boris.ostrovsky@oracle.com>,
@@ -131,82 +136,26 @@ Cc: Juri Lelli <juri.lelli@redhat.com>, "Rafael J. Wysocki" <rafael@kernel.org>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Wed, Jun 8, 2022 at 4:47 PM Peter Zijlstra <peterz@infradead.org> wrote:
->
-> Commit c227233ad64c ("intel_idle: enable interrupts before C1 on
-> Xeons") wrecked intel_idle in two ways:
->
->  - must not have tracing in idle functions
->  - must return with IRQs disabled
->
-> Additionally, it added a branch for no good reason.
->
-> Fixes: c227233ad64c ("intel_idle: enable interrupts before C1 on Xeons")
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+On Wed, Jun 08, 2022 at 05:01:05PM +0200, Rafael J. Wysocki wrote:
+> On Wed, Jun 8, 2022 at 4:47 PM Peter Zijlstra <peterz@infradead.org> wrote:
+> >
+> > Commit c227233ad64c ("intel_idle: enable interrupts before C1 on
+> > Xeons") wrecked intel_idle in two ways:
+> >
+> >  - must not have tracing in idle functions
+> >  - must return with IRQs disabled
+> >
+> > Additionally, it added a branch for no good reason.
+> >
+> > Fixes: c227233ad64c ("intel_idle: enable interrupts before C1 on Xeons")
+> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> 
+> Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> 
+> And do I think correctly that this can be applied without the rest of
+> the series?
 
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Yeah, I don't think this relies on any of the preceding patches. If you
+want to route this through the pm/fixes tree that's fine.
 
-And do I think correctly that this can be applied without the rest of
-the series?
-
-> ---
->  drivers/idle/intel_idle.c |   48 +++++++++++++++++++++++++++++++++++-----------
->  1 file changed, 37 insertions(+), 11 deletions(-)
->
-> --- a/drivers/idle/intel_idle.c
-> +++ b/drivers/idle/intel_idle.c
-> @@ -129,21 +137,37 @@ static unsigned int mwait_substates __in
->   *
->   * Must be called under local_irq_disable().
->   */
-> +
-> -static __cpuidle int intel_idle(struct cpuidle_device *dev,
-> -                               struct cpuidle_driver *drv, int index)
-> +static __always_inline int __intel_idle(struct cpuidle_device *dev,
-> +                                       struct cpuidle_driver *drv, int index)
->  {
->         struct cpuidle_state *state = &drv->states[index];
->         unsigned long eax = flg2MWAIT(state->flags);
->         unsigned long ecx = 1; /* break on interrupt flag */
->
-> -       if (state->flags & CPUIDLE_FLAG_IRQ_ENABLE)
-> -               local_irq_enable();
-> -
->         mwait_idle_with_hints(eax, ecx);
->
->         return index;
->  }
->
-> +static __cpuidle int intel_idle(struct cpuidle_device *dev,
-> +                               struct cpuidle_driver *drv, int index)
-> +{
-> +       return __intel_idle(dev, drv, index);
-> +}
-> +
-> +static __cpuidle int intel_idle_irq(struct cpuidle_device *dev,
-> +                                   struct cpuidle_driver *drv, int index)
-> +{
-> +       int ret;
-> +
-> +       raw_local_irq_enable();
-> +       ret = __intel_idle(dev, drv, index);
-> +       raw_local_irq_disable();
-> +
-> +       return ret;
-> +}
-> +
->  /**
->   * intel_idle_s2idle - Ask the processor to enter the given idle state.
->   * @dev: cpuidle device of the target CPU.
-> @@ -1801,6 +1824,9 @@ static void __init intel_idle_init_cstat
->                 /* Structure copy. */
->                 drv->states[drv->state_count] = cpuidle_state_table[cstate];
->
-> +               if (cpuidle_state_table[cstate].flags & CPUIDLE_FLAG_IRQ_ENABLE)
-> +                       drv->states[drv->state_count].enter = intel_idle_irq;
-> +
->                 if ((disabled_states_mask & BIT(drv->state_count)) ||
->                     ((icpu->use_acpi || force_use_acpi) &&
->                      intel_idle_off_by_default(mwait_hint) &&
->
->
+Thanks!
