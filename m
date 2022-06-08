@@ -2,43 +2,43 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8475DC433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B46D9CCA480
 	for <openrisc@archiver.kernel.org>; Wed,  8 Jun 2022 23:00:17 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 9DEFF249C0;
-	Thu,  9 Jun 2022 01:00:16 +0200 (CEST)
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
- by mail.librecores.org (Postfix) with ESMTPS id 7BE2D249B2
+	by mail.librecores.org (Postfix) with ESMTP id 368FA249C4;
+	Thu,  9 Jun 2022 01:00:17 +0200 (CEST)
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+ by mail.librecores.org (Postfix) with ESMTPS id B3262249C9
  for <openrisc@lists.librecores.org>; Wed,  8 Jun 2022 16:47:03 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
+ d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=zScd4cADrYcj3rMhEyHUI7u7RAFkUNduwGg8qRRyi/k=; b=lMeZtUCMmLelJdq3AWi7ufvFy9
- zlr0j5q30DieJ7hrCz8do1dwuurdkRTVZkClv5qAsNNY34C5+J1MisafZfl5mqNbyVj29S2tZDxtK
- LEpTKomujvoW1TCLYxlDbZt43UH74WE9L7Lh3HKWRXe6UR3tN8vTT5ffsmmFmxd0VHkpTlLfEISj7
- 1YiC/dMdRcaQcaLa3hWd6i2S9Ph6nB4hTbaK6IoI8FUNQvFYBexxYiq+T8SJikPxMDFN+B/sZWVMO
- b9LXaI8a06LKzZOZDbTdvz+wlt156y7IT5OCrJlji47mznjmSKwwwdv64p++NrqDV4Nf5RRQ6f3GK
- cjl+uyVg==;
+ bh=VIZr4C1ndt5VeFEZaPlCUg+5Hz4QhdyspUVrjQe3s0Q=; b=kqq4L3g1QhZht/evh2l5s39qps
+ jnBmYIZTu4x4BpY6GPBYny1gorePfmz6gw7CvGZUUJ45UgB+3ZNOnUmDTa3XgcsU+AliBRJfiL13t
+ KoZXJ4YmKkyUiI8J1DUyBTQtQ6SVAlRBjd2lYrcQy3VMZs1753vYk1wEdi55HMURyDlMTLnIp2/DG
+ MGr0nky4kAarfcUiOqeOkLaYDyaA2nmZrRDB481pz0z3AmobbTQyJi9vcmXREbRCThBWV4zvIbtlx
+ 7V9kx4NPTBy1ipdrxzrHOS+OsGpY03vNc7rSx1DlzzyZ2hAby7AX1FdAQjZ3DF1PF+uzX0/EndUAP
+ yetT9Drg==;
 Received: from dhcp-077-249-017-003.chello.nl ([77.249.17.3]
  helo=noisy.programming.kicks-ass.net)
- by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1nywwz-00ChWi-PN; Wed, 08 Jun 2022 14:46:25 +0000
+ by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1nywwx-0066BG-Ju; Wed, 08 Jun 2022 14:46:24 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 2A2ED302E59;
- Wed,  8 Jun 2022 16:46:23 +0200 (CEST)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 90828302D84;
+ Wed,  8 Jun 2022 16:46:22 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id 7DA0620C10EC7; Wed,  8 Jun 2022 16:46:18 +0200 (CEST)
-Message-ID: <20220608144516.998681585@infradead.org>
+ id 4854A20C0F9B4; Wed,  8 Jun 2022 16:46:18 +0200 (CEST)
+Message-ID: <20220608144516.235041924@infradead.org>
 User-Agent: quilt/0.66
-Date: Wed, 08 Jun 2022 16:27:40 +0200
+Date: Wed, 08 Jun 2022 16:27:28 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH 17/36] acpi_idle: Remove tracing
+Subject: [PATCH 05/36] cpuidle: Move IRQ state validation
 References: <20220608142723.103523089@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -104,73 +104,41 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-All the idle routines are called with RCU disabled, as such there must
-not be any tracing inside.
+Make cpuidle_enter_state() consistent with the s2idle variant and
+verify ->enter() always returns with interrupts disabled.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- drivers/acpi/processor_idle.c |   24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ drivers/cpuidle/cpuidle.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/acpi/processor_idle.c
-+++ b/drivers/acpi/processor_idle.c
-@@ -108,8 +108,8 @@ static const struct dmi_system_id proces
- static void __cpuidle acpi_safe_halt(void)
- {
- 	if (!tif_need_resched()) {
--		safe_halt();
--		local_irq_disable();
-+		raw_safe_halt();
-+		raw_local_irq_disable();
- 	}
- }
- 
-@@ -524,16 +524,21 @@ static int acpi_idle_bm_check(void)
- 	return bm_status;
- }
- 
--static void wait_for_freeze(void)
-+static __cpuidle void io_idle(unsigned long addr)
- {
-+	/* IO port based C-state */
-+	inb(addr);
+--- a/drivers/cpuidle/cpuidle.c
++++ b/drivers/cpuidle/cpuidle.c
+@@ -234,7 +234,11 @@ int cpuidle_enter_state(struct cpuidle_d
+ 	stop_critical_timings();
+ 	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
+ 		rcu_idle_enter();
 +
- #ifdef	CONFIG_X86
- 	/* No delay is needed if we are in guest */
- 	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
- 		return;
- #endif
--	/* Dummy wait op - must do something useless after P_LVL2 read
--	   because chipsets cannot guarantee that STPCLK# signal
--	   gets asserted in time to freeze execution properly. */
-+	/*
-+	 * Dummy wait op - must do something useless after P_LVL2 read
-+	 * because chipsets cannot guarantee that STPCLK# signal
-+	 * gets asserted in time to freeze execution properly.
-+	 */
- 	inl(acpi_gbl_FADT.xpm_timer_block.address);
- }
+ 	entered_state = target_state->enter(dev, drv, index);
++	if (WARN_ONCE(!irqs_disabled(), "%ps leaked IRQ state", target_state->enter))
++		raw_local_irq_disable();
++
+ 	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
+ 		rcu_idle_exit();
+ 	start_critical_timings();
+@@ -246,12 +250,8 @@ int cpuidle_enter_state(struct cpuidle_d
+ 	/* The cpu is no longer idle or about to enter idle. */
+ 	sched_idle_set_state(NULL);
  
-@@ -553,9 +558,7 @@ static void __cpuidle acpi_idle_do_entry
- 	} else if (cx->entry_method == ACPI_CSTATE_HALT) {
- 		acpi_safe_halt();
- 	} else {
--		/* IO port based C-state */
--		inb(cx->address);
--		wait_for_freeze();
-+		io_idle(cx->address);
- 	}
+-	if (broadcast) {
+-		if (WARN_ON_ONCE(!irqs_disabled()))
+-			local_irq_disable();
+-
++	if (broadcast)
+ 		tick_broadcast_exit();
+-	}
  
- 	perf_lopwr_cb(false);
-@@ -577,8 +580,7 @@ static int acpi_idle_play_dead(struct cp
- 		if (cx->entry_method == ACPI_CSTATE_HALT)
- 			safe_halt();
- 		else if (cx->entry_method == ACPI_CSTATE_SYSTEMIO) {
--			inb(cx->address);
--			wait_for_freeze();
-+			io_idle(cx->address);
- 		} else
- 			return -ENODEV;
- 
+ 	if (!cpuidle_state_is_coupled(drv, index))
+ 		local_irq_enable();
 
 
