@@ -2,43 +2,43 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B46D9CCA480
-	for <openrisc@archiver.kernel.org>; Wed,  8 Jun 2022 23:00:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50235C43334
+	for <openrisc@archiver.kernel.org>; Wed,  8 Jun 2022 23:00:18 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 368FA249C4;
+	by mail.librecores.org (Postfix) with ESMTP id C30DE249C7;
 	Thu,  9 Jun 2022 01:00:17 +0200 (CEST)
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
- by mail.librecores.org (Postfix) with ESMTPS id B3262249C9
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+ by mail.librecores.org (Postfix) with ESMTPS id AEACA249BE
  for <openrisc@lists.librecores.org>; Wed,  8 Jun 2022 16:47:03 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
+ d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=VIZr4C1ndt5VeFEZaPlCUg+5Hz4QhdyspUVrjQe3s0Q=; b=kqq4L3g1QhZht/evh2l5s39qps
- jnBmYIZTu4x4BpY6GPBYny1gorePfmz6gw7CvGZUUJ45UgB+3ZNOnUmDTa3XgcsU+AliBRJfiL13t
- KoZXJ4YmKkyUiI8J1DUyBTQtQ6SVAlRBjd2lYrcQy3VMZs1753vYk1wEdi55HMURyDlMTLnIp2/DG
- MGr0nky4kAarfcUiOqeOkLaYDyaA2nmZrRDB481pz0z3AmobbTQyJi9vcmXREbRCThBWV4zvIbtlx
- 7V9kx4NPTBy1ipdrxzrHOS+OsGpY03vNc7rSx1DlzzyZ2hAby7AX1FdAQjZ3DF1PF+uzX0/EndUAP
- yetT9Drg==;
+ bh=72Sb3LM19KDQn37emviwOKsQWcEROOYn6vEWI6g4O0g=; b=EIStTNEvIWCOhCtVS6i/K7y72k
+ Z2/y8QVivxbrQMzv70rV/xYI1TqoeKXswIk5VnUpw0+4RhgOORQAEqSaWWFcpGN/Ozze52Ug5i0sI
+ TleRT/9YHz6wiGFbGNdRNWgltUsVvJQ/VjZwME/1FoaZpc7a2ndwOU/eD8GtMnigWvtYOtoQbNZbT
+ YAEGoBE1YPDvgKLkfYqGdKYI7530FqsneWIVYclJ5CEXvPE38a9eC2TbKb0SOYjj+vs7v40/yoQE7
+ k4NN68jbT7q4/PIwEPV2vzemhXOOO98Uy9H+Lq6ErhVJIdH1jDJG5a7zOOPhARBO9XvArNFyyMFwC
+ hXw9kkBw==;
 Received: from dhcp-077-249-017-003.chello.nl ([77.249.17.3]
  helo=noisy.programming.kicks-ass.net)
- by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1nywwx-0066BG-Ju; Wed, 08 Jun 2022 14:46:24 +0000
+ by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1nywx6-00ChZS-6w; Wed, 08 Jun 2022 14:46:32 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 90828302D84;
- Wed,  8 Jun 2022 16:46:22 +0200 (CEST)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id E2347302F4B;
+ Wed,  8 Jun 2022 16:46:23 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id 4854A20C0F9B4; Wed,  8 Jun 2022 16:46:18 +0200 (CEST)
-Message-ID: <20220608144516.235041924@infradead.org>
+ id C09F920C119B6; Wed,  8 Jun 2022 16:46:18 +0200 (CEST)
+Message-ID: <20220608144518.010587032@infradead.org>
 User-Agent: quilt/0.66
-Date: Wed, 08 Jun 2022 16:27:28 +0200
+Date: Wed, 08 Jun 2022 16:27:56 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH 05/36] cpuidle: Move IRQ state validation
+Subject: [PATCH 33/36] cpuidle,omap3: Use WFI for omap3_pm_idle()
 References: <20220608142723.103523089@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -104,41 +104,29 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Make cpuidle_enter_state() consistent with the s2idle variant and
-verify ->enter() always returns with interrupts disabled.
+arch_cpu_idle() is a very simple idle interface and exposes only a
+single idle state and is expected to not require RCU and not do any
+tracing/instrumentation.
+
+As such, omap_sram_idle() is not a valid implementation. Replace it
+with the simple (shallow) omap3_do_wfi() call. Leaving the more
+complicated idle states for the cpuidle driver.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- drivers/cpuidle/cpuidle.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/arm/mach-omap2/pm34xx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/cpuidle/cpuidle.c
-+++ b/drivers/cpuidle/cpuidle.c
-@@ -234,7 +234,11 @@ int cpuidle_enter_state(struct cpuidle_d
- 	stop_critical_timings();
- 	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
- 		rcu_idle_enter();
-+
- 	entered_state = target_state->enter(dev, drv, index);
-+	if (WARN_ONCE(!irqs_disabled(), "%ps leaked IRQ state", target_state->enter))
-+		raw_local_irq_disable();
-+
- 	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
- 		rcu_idle_exit();
- 	start_critical_timings();
-@@ -246,12 +250,8 @@ int cpuidle_enter_state(struct cpuidle_d
- 	/* The cpu is no longer idle or about to enter idle. */
- 	sched_idle_set_state(NULL);
+--- a/arch/arm/mach-omap2/pm34xx.c
++++ b/arch/arm/mach-omap2/pm34xx.c
+@@ -294,7 +294,7 @@ static void omap3_pm_idle(void)
+ 	if (omap_irq_pending())
+ 		return;
  
--	if (broadcast) {
--		if (WARN_ON_ONCE(!irqs_disabled()))
--			local_irq_disable();
--
-+	if (broadcast)
- 		tick_broadcast_exit();
--	}
+-	omap_sram_idle();
++	omap3_do_wfi();
+ }
  
- 	if (!cpuidle_state_is_coupled(drv, index))
- 		local_irq_enable();
+ #ifdef CONFIG_SUSPEND
 
 
