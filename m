@@ -2,43 +2,44 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CCBDDC43334
-	for <openrisc@archiver.kernel.org>; Wed,  8 Jun 2022 23:00:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C351C433EF
+	for <openrisc@archiver.kernel.org>; Wed,  8 Jun 2022 23:00:08 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id D2B72249AE;
-	Thu,  9 Jun 2022 01:00:06 +0200 (CEST)
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
- by mail.librecores.org (Postfix) with ESMTPS id A3186249A9
- for <openrisc@lists.librecores.org>; Wed,  8 Jun 2022 16:47:00 +0200 (CEST)
+	by mail.librecores.org (Postfix) with ESMTP id 7027C247D7;
+	Thu,  9 Jun 2022 01:00:07 +0200 (CEST)
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+ by mail.librecores.org (Postfix) with ESMTPS id 996F3249B7
+ for <openrisc@lists.librecores.org>; Wed,  8 Jun 2022 16:47:01 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
+ d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=HzY3jBvKRSGcnvMJEPYny4/0n/oTUbqDiv/WYyIgET0=; b=sA+18VAK88SPXdLOpMza+rOEfP
- LIZ49BFC7l9BHr/9lFK8wXWo46KZqkiByud1HSMZeZ+BUYAV1ia+Yhjd7ltAYMQ5wWfxb2f6aW9XN
- LaYbqONFU5epqLIj3qUQtYBecrUdqqZByYp3TXTApbtEn9PG18xAyF+bW9M0QZ0Hl1P3HfTU4flDJ
- /60dHZ76Xt7rMxgX4MVdhQrPOIHu7jlHBXo6lM/0rE/s1QqIBAAOq4lIO8uNFmK6Mus0AzeHFEaFf
- 95DVCFKqB4yKLaIMK8VXS/RFhvqO+ARWFtTz41dKNkpurhwu+bIx/YcQ0H56dkcHsKj/6fk/1/KoL
- 4ucMtSnA==;
+ bh=o5HILV8lXWZVR34kQkfXu7ELtM3PHvDf12JWqGFz8as=; b=FdF0WwTfqAD0qSj5IztZ4sLhvT
+ k5gLeMLjDAi8AiG+FPGxmqabFeIQHQCNOTIfhG/cpcbGLZPNynYxoEOkV1KR6W1cM26gk09NcMOho
+ OTH5ruv6nF9XsgSF9ERM0tY+ijfUIOhLwICgBWU3v/b6jxNumek114l8uiB/Ho+YCAnkYFEEtHFA1
+ yJwPilsqg79N5SwaSL+a8z3EFTRK0XJDDbWj1Ixr9OQeIT2Fab/9sy2Cr+siozN3wTiG232WtGG/1
+ MiOLZNXIY/fnByd71PGk1LDgy98zbKguCtDMF+RXQCVcyn0bJrc/NWlQckEgt24lFU5RTP60t+1Fw
+ I4HHiDAQ==;
 Received: from dhcp-077-249-017-003.chello.nl ([77.249.17.3]
  helo=noisy.programming.kicks-ass.net)
- by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1nywx6-00ChZr-Mr; Wed, 08 Jun 2022 14:46:32 +0000
+ by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1nywx3-0066CV-M7; Wed, 08 Jun 2022 14:46:30 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 0C581302F55;
- Wed,  8 Jun 2022 16:46:24 +0200 (CEST)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id C2880302F13;
+ Wed,  8 Jun 2022 16:46:23 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id C77CE20C119BA; Wed,  8 Jun 2022 16:46:18 +0200 (CEST)
-Message-ID: <20220608144518.136731332@infradead.org>
+ id A2E5D20C119A0; Wed,  8 Jun 2022 16:46:18 +0200 (CEST)
+Message-ID: <20220608144517.570101266@infradead.org>
 User-Agent: quilt/0.66
-Date: Wed, 08 Jun 2022 16:27:58 +0200
+Date: Wed, 08 Jun 2022 16:27:49 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH 35/36] cpuidle,powerdomain: Remove trace_.*_rcuidle()
+Subject: [PATCH 26/36] cpuidle,
+ sched: Remove annotations from TIF_{POLLING_NRFLAG, NEED_RESCHED}
 References: <20220608142723.103523089@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -104,149 +105,128 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-OMAP was the one and only user.
+vmlinux.o: warning: objtool: mwait_idle+0x5: call to current_set_polling_and_test() leaves .noinstr.text section
+vmlinux.o: warning: objtool: acpi_processor_ffh_cstate_enter+0xc5: call to current_set_polling_and_test() leaves .noinstr.text section
+vmlinux.o: warning: objtool: cpu_idle_poll.isra.0+0x73: call to test_ti_thread_flag() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle+0xbc: call to current_set_polling_and_test() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_irq+0xea: call to current_set_polling_and_test() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_s2idle+0xb4: call to current_set_polling_and_test() leaves .noinstr.text section
+
+vmlinux.o: warning: objtool: intel_idle+0xa6: call to current_clr_polling() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_irq+0xbf: call to current_clr_polling() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_s2idle+0xa1: call to current_clr_polling() leaves .noinstr.text section
+
+vmlinux.o: warning: objtool: mwait_idle+0xe: call to __current_set_polling() leaves .noinstr.text section
+vmlinux.o: warning: objtool: acpi_processor_ffh_cstate_enter+0xc5: call to __current_set_polling() leaves .noinstr.text section
+vmlinux.o: warning: objtool: cpu_idle_poll.isra.0+0x73: call to test_ti_thread_flag() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle+0xbc: call to __current_set_polling() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_irq+0xea: call to __current_set_polling() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_s2idle+0xb4: call to __current_set_polling() leaves .noinstr.text section
+
+vmlinux.o: warning: objtool: cpu_idle_poll.isra.0+0x73: call to test_ti_thread_flag() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_s2idle+0x73: call to test_ti_thread_flag.constprop.0() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_irq+0x91: call to test_ti_thread_flag.constprop.0() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle+0x78: call to test_ti_thread_flag.constprop.0() leaves .noinstr.text section
+vmlinux.o: warning: objtool: acpi_safe_halt+0xf: call to test_ti_thread_flag.constprop.0() leaves .noinstr.text section
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- arch/arm/mach-omap2/powerdomain.c |   10 +++++-----
- drivers/base/power/runtime.c      |   24 ++++++++++++------------
- 2 files changed, 17 insertions(+), 17 deletions(-)
+ include/linux/sched/idle.h  |   40 ++++++++++++++++++++++++++++++----------
+ include/linux/thread_info.h |   18 +++++++++++++++++-
+ 2 files changed, 47 insertions(+), 11 deletions(-)
 
---- a/arch/arm/mach-omap2/powerdomain.c
-+++ b/arch/arm/mach-omap2/powerdomain.c
-@@ -187,9 +187,9 @@ static int _pwrdm_state_switch(struct po
- 			trace_state = (PWRDM_TRACE_STATES_FLAG |
- 				       ((next & OMAP_POWERSTATE_MASK) << 8) |
- 				       ((prev & OMAP_POWERSTATE_MASK) << 0));
--			trace_power_domain_target_rcuidle(pwrdm->name,
--							  trace_state,
--							  raw_smp_processor_id());
-+			trace_power_domain_target(pwrdm->name,
-+						  trace_state,
-+						  raw_smp_processor_id());
- 		}
- 		break;
- 	default:
-@@ -541,8 +541,8 @@ int pwrdm_set_next_pwrst(struct powerdom
+--- a/include/linux/sched/idle.h
++++ b/include/linux/sched/idle.h
+@@ -23,12 +23,37 @@ static inline void wake_up_if_idle(int c
+  */
+ #ifdef TIF_POLLING_NRFLAG
  
- 	if (arch_pwrdm && arch_pwrdm->pwrdm_set_next_pwrst) {
- 		/* Trace the pwrdm desired target state */
--		trace_power_domain_target_rcuidle(pwrdm->name, pwrst,
--						  raw_smp_processor_id());
-+		trace_power_domain_target(pwrdm->name, pwrst,
-+					  raw_smp_processor_id());
- 		/* Program the pwrdm desired target state */
- 		ret = arch_pwrdm->pwrdm_set_next_pwrst(pwrdm, pwrst);
- 	}
---- a/drivers/base/power/runtime.c
-+++ b/drivers/base/power/runtime.c
-@@ -442,7 +442,7 @@ static int rpm_idle(struct device *dev,
- 	int (*callback)(struct device *);
- 	int retval;
- 
--	trace_rpm_idle_rcuidle(dev, rpmflags);
-+	trace_rpm_idle(dev, rpmflags);
- 	retval = rpm_check_suspend_allowed(dev);
- 	if (retval < 0)
- 		;	/* Conditions are wrong. */
-@@ -481,7 +481,7 @@ static int rpm_idle(struct device *dev,
- 			dev->power.request_pending = true;
- 			queue_work(pm_wq, &dev->power.work);
- 		}
--		trace_rpm_return_int_rcuidle(dev, _THIS_IP_, 0);
-+		trace_rpm_return_int(dev, _THIS_IP_, 0);
- 		return 0;
- 	}
- 
-@@ -493,7 +493,7 @@ static int rpm_idle(struct device *dev,
- 	wake_up_all(&dev->power.wait_queue);
- 
-  out:
--	trace_rpm_return_int_rcuidle(dev, _THIS_IP_, retval);
-+	trace_rpm_return_int(dev, _THIS_IP_, retval);
- 	return retval ? retval : rpm_suspend(dev, rpmflags | RPM_AUTO);
+-static inline void __current_set_polling(void)
++#ifdef _ASM_GENERIC_BITOPS_INSTRUMENTED_ATOMIC_H
++
++static __always_inline void __current_set_polling(void)
+ {
+-	set_thread_flag(TIF_POLLING_NRFLAG);
++	arch_set_bit(TIF_POLLING_NRFLAG,
++		     (unsigned long *)(&current_thread_info()->flags));
  }
  
-@@ -557,7 +557,7 @@ static int rpm_suspend(struct device *de
- 	struct device *parent = NULL;
- 	int retval;
+-static inline bool __must_check current_set_polling_and_test(void)
++static __always_inline void __current_clr_polling(void)
++{
++	arch_clear_bit(TIF_POLLING_NRFLAG,
++		       (unsigned long *)(&current_thread_info()->flags));
++}
++
++#else
++
++static __always_inline void __current_set_polling(void)
++{
++	set_bit(TIF_POLLING_NRFLAG,
++		(unsigned long *)(&current_thread_info()->flags));
++}
++
++static __always_inline void __current_clr_polling(void)
++{
++	clear_bit(TIF_POLLING_NRFLAG,
++		  (unsigned long *)(&current_thread_info()->flags));
++}
++
++#endif /* _ASM_GENERIC_BITOPS_INSTRUMENTED_ATOMIC_H */
++
++static __always_inline bool __must_check current_set_polling_and_test(void)
+ {
+ 	__current_set_polling();
  
--	trace_rpm_suspend_rcuidle(dev, rpmflags);
-+	trace_rpm_suspend(dev, rpmflags);
- 
-  repeat:
- 	retval = rpm_check_suspend_allowed(dev);
-@@ -708,7 +708,7 @@ static int rpm_suspend(struct device *de
- 	}
- 
-  out:
--	trace_rpm_return_int_rcuidle(dev, _THIS_IP_, retval);
-+	trace_rpm_return_int(dev, _THIS_IP_, retval);
- 
- 	return retval;
- 
-@@ -760,7 +760,7 @@ static int rpm_resume(struct device *dev
- 	struct device *parent = NULL;
- 	int retval = 0;
- 
--	trace_rpm_resume_rcuidle(dev, rpmflags);
-+	trace_rpm_resume(dev, rpmflags);
- 
-  repeat:
- 	if (dev->power.runtime_error) {
-@@ -925,7 +925,7 @@ static int rpm_resume(struct device *dev
- 		spin_lock_irq(&dev->power.lock);
- 	}
- 
--	trace_rpm_return_int_rcuidle(dev, _THIS_IP_, retval);
-+	trace_rpm_return_int(dev, _THIS_IP_, retval);
- 
- 	return retval;
+@@ -41,12 +66,7 @@ static inline bool __must_check current_
+ 	return unlikely(tif_need_resched());
  }
-@@ -1081,7 +1081,7 @@ int __pm_runtime_idle(struct device *dev
- 		if (retval < 0) {
- 			return retval;
- 		} else if (retval > 0) {
--			trace_rpm_usage_rcuidle(dev, rpmflags);
-+			trace_rpm_usage(dev, rpmflags);
- 			return 0;
- 		}
- 	}
-@@ -1119,7 +1119,7 @@ int __pm_runtime_suspend(struct device *
- 		if (retval < 0) {
- 			return retval;
- 		} else if (retval > 0) {
--			trace_rpm_usage_rcuidle(dev, rpmflags);
-+			trace_rpm_usage(dev, rpmflags);
- 			return 0;
- 		}
- 	}
-@@ -1202,7 +1202,7 @@ int pm_runtime_get_if_active(struct devi
- 	} else {
- 		retval = atomic_inc_not_zero(&dev->power.usage_count);
- 	}
--	trace_rpm_usage_rcuidle(dev, 0);
-+	trace_rpm_usage(dev, 0);
- 	spin_unlock_irqrestore(&dev->power.lock, flags);
  
- 	return retval;
-@@ -1566,7 +1566,7 @@ void pm_runtime_allow(struct device *dev
- 	if (ret == 0)
- 		rpm_idle(dev, RPM_AUTO | RPM_ASYNC);
- 	else if (ret > 0)
--		trace_rpm_usage_rcuidle(dev, RPM_AUTO | RPM_ASYNC);
-+		trace_rpm_usage(dev, RPM_AUTO | RPM_ASYNC);
+-static inline void __current_clr_polling(void)
+-{
+-	clear_thread_flag(TIF_POLLING_NRFLAG);
+-}
+-
+-static inline bool __must_check current_clr_polling_and_test(void)
++static __always_inline bool __must_check current_clr_polling_and_test(void)
+ {
+ 	__current_clr_polling();
  
-  out:
- 	spin_unlock_irq(&dev->power.lock);
-@@ -1635,7 +1635,7 @@ static void update_autosuspend(struct de
- 			atomic_inc(&dev->power.usage_count);
- 			rpm_resume(dev, 0);
- 		} else {
--			trace_rpm_usage_rcuidle(dev, 0);
-+			trace_rpm_usage(dev, 0);
- 		}
- 	}
+@@ -73,7 +93,7 @@ static inline bool __must_check current_
+ }
+ #endif
  
+-static inline void current_clr_polling(void)
++static __always_inline void current_clr_polling(void)
+ {
+ 	__current_clr_polling();
+ 
+--- a/include/linux/thread_info.h
++++ b/include/linux/thread_info.h
+@@ -177,7 +177,23 @@ static __always_inline unsigned long rea
+ 	clear_ti_thread_flag(task_thread_info(t), TIF_##fl)
+ #endif /* !CONFIG_GENERIC_ENTRY */
+ 
+-#define tif_need_resched() test_thread_flag(TIF_NEED_RESCHED)
++#ifdef _ASM_GENERIC_BITOPS_INSTRUMENTED_NON_ATOMIC_H
++
++static __always_inline bool tif_need_resched(void)
++{
++	return arch_test_bit(TIF_NEED_RESCHED,
++			     (unsigned long *)(&current_thread_info()->flags));
++}
++
++#else
++
++static __always_inline bool tif_need_resched(void)
++{
++	return test_bit(TIF_NEED_RESCHED,
++			(unsigned long *)(&current_thread_info()->flags));
++}
++
++#endif /* _ASM_GENERIC_BITOPS_INSTRUMENTED_NON_ATOMIC_H */
+ 
+ #ifndef CONFIG_HAVE_ARCH_WITHIN_STACK_FRAMES
+ static inline int arch_within_stack_frames(const void * const stack,
 
 
