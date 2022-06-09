@@ -2,51 +2,43 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06674C43334
-	for <openrisc@archiver.kernel.org>; Sat, 11 Jun 2022 21:54:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8443BCCA47A
+	for <openrisc@archiver.kernel.org>; Sat, 11 Jun 2022 21:54:09 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 98D8D248F8;
+	by mail.librecores.org (Postfix) with ESMTP id DBE84248BE;
 	Sat, 11 Jun 2022 23:54:07 +0200 (CEST)
-Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com
- [209.85.218.51])
- by mail.librecores.org (Postfix) with ESMTPS id 5C69E20E4E
- for <openrisc@lists.librecores.org>; Thu,  9 Jun 2022 13:31:10 +0200 (CEST)
-Received: by mail-ej1-f51.google.com with SMTP id v1so36168061ejg.13
- for <openrisc@lists.librecores.org>; Thu, 09 Jun 2022 04:31:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=chromium.org; s=google;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=+XewJc/p+7yp1re11t6BfmEtfp27WPbXPnywgusXXTc=;
- b=dD0Bz9eW32MHk+TeRLS+QqFpXQSyJG1PFuM0sFc2oIQiPmRbBKI4wiAjUnrY0TOPB3
- vmLpoVIxPESYT9ISrrirk39KtLhSpCgEKtG3yrDCpv/Gh6ZWSamp4kS8RJg23gIGNIEa
- lDd2yagv7BcuRvFzrWxMhthjwknH7br96szys=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=+XewJc/p+7yp1re11t6BfmEtfp27WPbXPnywgusXXTc=;
- b=vI0kSCGdNneJk2xUN05IjyrrTb+qra+p568vocIpGdm7OcPGGUVzSuQEaJShvFHevK
- B4M+NeT3CvnpnU+AxI2PFdB4jHUNYB4SSSOJhU4fv5g7OQWulVVQszoLFnOa4bduFjVk
- typeFao+Xq8CdcpNxELVmg4mzvZuIvvULDJx4gLycXMlKwdhpArYK1z2xOYJe8xxY0IT
- +NY7x1x8myIUZGCw7bUXehNu4GtHycPOM65x/zvqI1v/curzbNmeBnRW09Hzx/IzECVG
- hixWl/2suxUpQyKGCJBVSbAsDdzSpwLjWtXShfq4b/O3AeCjC32IJqjtnxzoUtTP4xcV
- XdcA==
-X-Gm-Message-State: AOAM531m5izTFhbqEhwY9MurQodnpHpSsxIuPLq4zOkqccE8o6YCTvqN
- vccOUhBgmW0Byhjgx2vaGUbbsj5tlEsSZfM5i1f3Nw==
-X-Google-Smtp-Source: ABdhPJx9nV7wAxP/lyAtNedlGfDPIROj9YXpatcH7EqCac1uVlfTSKszMzYbWUxkatf8WgjTCZNOZTjPAlJBoltWDx4=
-X-Received: by 2002:a17:907:c22:b0:711:dc95:3996 with SMTP id
- ga34-20020a1709070c2200b00711dc953996mr13928684ejc.62.1654774269713; Thu, 09
- Jun 2022 04:31:09 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220608142723.103523089@infradead.org>
- <20220608144517.444659212@infradead.org>
- <YqG6URbihTNCk9YR@alley> <YqHFHB6qqv5wiR8t@worktop.programming.kicks-ass.net>
-In-Reply-To: <YqHFHB6qqv5wiR8t@worktop.programming.kicks-ass.net>
-From: Sergey Senozhatsky <senozhatsky@chromium.org>
-Date: Thu, 9 Jun 2022 20:30:58 +0900
-Message-ID: <CA+_sPaoJGrXhNPCs2dKf2J7u07y1xYrRFZBUtkKwzK9GqcHSuQ@mail.gmail.com>
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+ by mail.librecores.org (Postfix) with ESMTPS id DB6DE24863
+ for <openrisc@lists.librecores.org>; Thu,  9 Jun 2022 15:02:26 +0200 (CEST)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+ by smtp-out1.suse.de (Postfix) with ESMTP id A55BE21F03;
+ Thu,  9 Jun 2022 13:02:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+ t=1654779746; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=WNgY7GyrprNl76LhtyM4yyAr1//LVOR4uCT8xLqGCE8=;
+ b=ojtY10eQLedQ1p8W7bkgtPGLkS2AZjpFLq6Jm7M5r6QmnKTONMm4DEE4c/QdWiGdnShevp
+ eIN6ALkkVVj/WhUF02Ld8MHz00y8tRrFQ0iNR/EUdLO4UR9+Vq8VAuuJcSid16nMNGAGa3
+ XvOmhnJPAVDKUKq8/PtY3J2tLln4dQU=
+Received: from suse.cz (unknown [10.100.208.146])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by relay2.suse.de (Postfix) with ESMTPS id 6EA862C141;
+ Thu,  9 Jun 2022 13:02:21 +0000 (UTC)
+Date: Thu, 9 Jun 2022 15:02:20 +0200
+From: Petr Mladek <pmladek@suse.com>
+To: Sergey Senozhatsky <senozhatsky@chromium.org>
 Subject: Re: [PATCH 24/36] printk: Remove trace_.*_rcuidle() usage
-To: Peter Zijlstra <peterz@infradead.org>
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <YqHvXFdIJfvUDI6e@alley>
+References: <20220608142723.103523089@infradead.org>
+ <20220608144517.444659212@infradead.org> <YqG6URbihTNCk9YR@alley>
+ <YqHFHB6qqv5wiR8t@worktop.programming.kicks-ass.net>
+ <CA+_sPaoJGrXhNPCs2dKf2J7u07y1xYrRFZBUtkKwzK9GqcHSuQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+_sPaoJGrXhNPCs2dKf2J7u07y1xYrRFZBUtkKwzK9GqcHSuQ@mail.gmail.com>
 X-Mailman-Approved-At: Sat, 11 Jun 2022 23:54:06 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
@@ -67,14 +59,14 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
  linux-acpi@vger.kernel.org, agross@kernel.org, linux-imx@nxp.com,
  catalin.marinas@arm.com, xen-devel@lists.xenproject.org, mattst88@gmail.com,
  borntraeger@linux.ibm.com, mturquette@baylibre.com, sammy@sammy.net,
- Petr Mladek <pmladek@suse.com>, linux-pm@vger.kernel.org,
- jiangshanlai@gmail.com, Sascha Hauer <s.hauer@pengutronix.de>,
- linux-um@lists.infradead.org, acme@kernel.org, tglx@linutronix.de,
- linux-omap@vger.kernel.org, dietmar.eggemann@arm.com,
- gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
- linux-perf-users@vger.kernel.org, svens@linux.ibm.com, jolsa@kernel.org,
- paulus@samba.org, mark.rutland@arm.com, linux-ia64@vger.kernel.org,
- dave.hansen@linux.intel.com, virtualization@lists.linux-foundation.org,
+ linux-pm@vger.kernel.org, jiangshanlai@gmail.com,
+ Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org,
+ acme@kernel.org, tglx@linutronix.de, linux-omap@vger.kernel.org,
+ dietmar.eggemann@arm.com, gregkh@linuxfoundation.org,
+ linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ svens@linux.ibm.com, jolsa@kernel.org, paulus@samba.org, mark.rutland@arm.com,
+ linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
+ virtualization@lists.linux-foundation.org,
  James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
  thierry.reding@gmail.com, kernel@xen0n.name, quic_neeraju@quicinc.com,
  linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
@@ -87,34 +79,50 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
  chris@zankel.net, sboyd@kernel.org, dinguyen@kernel.org, bristot@redhat.com,
  alexander.shishkin@linux.intel.com, lpieralisi@kernel.org,
  linux@rasmusvillemoes.dk, joel@joelfernandes.org, will@kernel.org,
- boris.ostrovsky@oracle.com, khilman@kernel.org, linux-csky@vger.kernel.org,
- pv-drivers@vmware.com, linux-snps-arc@lists.infradead.org, mgorman@suse.de,
- jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
- ulli.kroll@googlemail.com, vgupta@kernel.org, linux-clk@vger.kernel.org,
- josh@joshtriplett.org, rostedt@goodmis.org, rcu@vger.kernel.org, bp@alien8.de,
- bcain@quicinc.com, tsbogend@alpha.franken.de, linux-parisc@vger.kernel.org,
- sudeep.holla@arm.com, shawnguo@kernel.org, davem@davemloft.net,
- dalias@libc.org, tony@atomide.com, amakhalov@vmware.com,
+ boris.ostrovsky@oracle.com, josh@joshtriplett.org, khilman@kernel.org,
+ linux-csky@vger.kernel.org, tony@atomide.com,
+ linux-snps-arc@lists.infradead.org, mgorman@suse.de,
+ jacob.jun.pan@linux.intel.com, yury.norov@gmail.com, ulli.kroll@googlemail.com,
+ vgupta@kernel.org, linux-clk@vger.kernel.org, monstr@monstr.eu,
+ rostedt@goodmis.org, rcu@vger.kernel.org, bp@alien8.de, bcain@quicinc.com,
+ tsbogend@alpha.franken.de, linux-parisc@vger.kernel.org, sudeep.holla@arm.com,
+ shawnguo@kernel.org, davem@davemloft.net, dalias@libc.org,
+ Peter Zijlstra <peterz@infradead.org>, amakhalov@vmware.com,
  bjorn.andersson@linaro.org, hpa@zytor.com, sparclinux@vger.kernel.org,
  linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org,
- anton.ivanov@cambridgegreys.com, jonas@southpole.se, yury.norov@gmail.com,
- richard@nod.at, x86@kernel.org, linux@armlinux.org.uk, mingo@redhat.com,
- aou@eecs.berkeley.edu, paulmck@kernel.org, hca@linux.ibm.com,
- openrisc@lists.librecores.org, paul.walmsley@sifive.com,
- linux-tegra@vger.kernel.org, namhyung@kernel.org,
+ anton.ivanov@cambridgegreys.com, jonas@southpole.se,
+ Arnd Bergmann <arnd@arndb.de>, richard@nod.at, x86@kernel.org,
+ linux@armlinux.org.uk, mingo@redhat.com, aou@eecs.berkeley.edu,
+ paulmck@kernel.org, hca@linux.ibm.com, openrisc@lists.librecores.org,
+ paul.walmsley@sifive.com, linux-tegra@vger.kernel.org, namhyung@kernel.org,
  andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, jgross@suse.com,
- monstr@monstr.eu, linux-mips@vger.kernel.org, palmer@dabbelt.com,
+ pv-drivers@vmware.com, linux-mips@vger.kernel.org, palmer@dabbelt.com,
  anup@brainfault.org, ink@jurassic.park.msu.ru, johannes@sipsolutions.net,
  linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-My emails are getting rejected... Let me try web-interface
+On Thu 2022-06-09 20:30:58, Sergey Senozhatsky wrote:
+> My emails are getting rejected... Let me try web-interface
 
-Kudos to Petr for the questions and thanks to PeterZ for the answers.
+Bad day for mail sending. I have problems as well ;-)
 
-On Thu, Jun 9, 2022 at 7:02 PM Peter Zijlstra <peterz@infradead.org> wrote:
-> This is the tracepoint used to spool all of printk into ftrace, I
-> suspect there's users, but I haven't used it myself.
+> Kudos to Petr for the questions and thanks to PeterZ for the answers.
+> 
+> On Thu, Jun 9, 2022 at 7:02 PM Peter Zijlstra <peterz@infradead.org> wrote:
+> > This is the tracepoint used to spool all of printk into ftrace, I
+> > suspect there's users, but I haven't used it myself.
+> 
+> I'm somewhat curious whether we can actually remove that trace event.
 
-I'm somewhat curious whether we can actually remove that trace event.
+Good question.
+
+Well, I think that it might be useful. It allows to see trace and
+printk messages together.
+
+It was ugly when it was in the console code. The new location
+in vprintk_store() allows to have it even "correctly" sorted
+(timestamp) against other tracing messages.
+
+Best Regards,
+Petr
