@@ -2,62 +2,78 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1E55C433EF
-	for <openrisc@archiver.kernel.org>; Fri, 10 Jun 2022 01:00:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD9A0C43334
+	for <openrisc@archiver.kernel.org>; Fri, 10 Jun 2022 01:39:43 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 634FA248F2;
-	Fri, 10 Jun 2022 03:00:10 +0200 (CEST)
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com
- [209.85.214.178])
- by mail.librecores.org (Postfix) with ESMTPS id A8E88248F8
- for <openrisc@lists.librecores.org>; Fri, 10 Jun 2022 03:00:08 +0200 (CEST)
-Received: by mail-pl1-f178.google.com with SMTP id u18so21598988plb.3
- for <openrisc@lists.librecores.org>; Thu, 09 Jun 2022 18:00:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=x15SER3XppMB1mQ1mrnOTHyHUkaSjeKqt6uasf4ICJw=;
- b=OLYYz7lrxQH8sypzkk/YVekwfxOio1IByfW2iocfPh1ss5NS4TfZs2J9A4foVK21ax
- NWxd47lzsZZYjNZ+7/i6BQLhI4YXDkvYcNFh4yD3KNdYd7TMX4qVr9fwG7SCuULNF1F5
- lW+V5mNLqZK1Gqu17FHSrev1Pu6e7u7f63F0L/85Z6gWAsh2fly5nJI090SlXgVry7Bs
- JjZTuX6IM1kvcW/lrJa99vMOi7MVEGwwRWd1ZhxTEC+ypyVs6icluuh8yyOfE5OIACUd
- 9CNtTW8kHV24U6ikLIfKTLlJI4nf4LjVDz4lX9MTffEEKxsq9rAirLlEwCnNqBZcLXAa
- 9wDQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=x15SER3XppMB1mQ1mrnOTHyHUkaSjeKqt6uasf4ICJw=;
- b=1iS7uLeTIDgVe9REvYatJ7/YEzJUFvD3ztOQB9kZdgl80Xv1EYP4e1AYSYDkF+lywl
- 7at8zJh9SvnmyOaqoeea1UPXhOC9COSiuXkvtDOLpkEGVgTnxrB+blbQWFVd70wbURtC
- wwWHb7kzpw33DLYyixRUVMa6MUwI2P8x6NQ/emGDIjXMNBRvr3qnAyDf4azpLEY2mon6
- EUF53Ud2uYAXWTrvry/9nfM+C/LFnV4vP2xhhzjEoGY0HCsiG5/fY077W6y1AkScfPrz
- Wj2FQYKg6J2d+sde98+uXRc232by7qkoOFAbrzvQc6qSmISKjpCG/DEXKfwnlKWmH1Ne
- LZ8w==
-X-Gm-Message-State: AOAM532JTswLFaAMNDSMyDfh0FSxc/44GSa+y6Tj+PnqQwQhAov3jW3p
- nJXDgZOxXqCyUuK4OFXNQU8=
-X-Google-Smtp-Source: ABdhPJxkXONIqvGzBatLm0YbsnaFcxUUc15z7EMu+eRv5IFqmSg6/LS70b9SYtf5Y3+FS9TBVWGpQQ==
-X-Received: by 2002:a17:902:da87:b0:166:423d:f3be with SMTP id
- j7-20020a170902da8700b00166423df3bemr40504719plx.150.1654822807110; 
- Thu, 09 Jun 2022 18:00:07 -0700 (PDT)
-Received: from squeak.grove.modra.org (158.106.96.58.static.exetel.com.au.
- [58.96.106.158]) by smtp.gmail.com with ESMTPSA id
- f3-20020a17090aa78300b001e09cab8893sm309906pjq.42.2022.06.09.18.00.05
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 09 Jun 2022 18:00:06 -0700 (PDT)
-Received: by squeak.grove.modra.org (Postfix, from userid 1000)
- id 7638111403B4; Fri, 10 Jun 2022 10:30:03 +0930 (ACST)
-Date: Fri, 10 Jun 2022 10:30:03 +0930
-From: Alan Modra <amodra@gmail.com>
-To: Stafford Horne <shorne@gmail.com>
+	by mail.librecores.org (Postfix) with ESMTP id CEEA7248F8;
+	Fri, 10 Jun 2022 03:39:42 +0200 (CEST)
+Received: from out4-smtp.messagingengine.com (out4-smtp.messagingengine.com
+ [66.111.4.28])
+ by mail.librecores.org (Postfix) with ESMTPS id 17A21248F8
+ for <openrisc@lists.librecores.org>; Fri, 10 Jun 2022 03:39:41 +0200 (CEST)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+ by mailout.nyi.internal (Postfix) with ESMTP id 2C6C15C0191;
+ Thu,  9 Jun 2022 21:39:39 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+ by compute2.internal (MEProxy); Thu, 09 Jun 2022 21:39:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
+ cc:cc:content-transfer-encoding:content-type:date:date:from:from
+ :in-reply-to:in-reply-to:message-id:mime-version:references
+ :reply-to:sender:subject:subject:to:to; s=fm3; t=1654825179; x=
+ 1654911579; bh=LQFyetndjzCC2dC7UAxlU8A9JcKy7UkaIb86rV1EdS8=; b=t
+ CZ3r/UqOIIP8FRmMe06cT7L1kgqShmOqG9yvgucMUcYiRGaB2L3HlM0Yq2uMd6VJ
+ 5mswBC5LCRyv8Os77GOhGKFE5jbHAA0var1F5MvqmmRffL/zyfGffaV5ISouEsbl
+ EkpJX9fK3cqbB6KlkvPrl097PXrChNc6ShOIDFXVC1yxHm1xGU1Lge4ig1D/03LV
+ FKHpQ5538V2C04j93MxNmZjtma/9gU9qcnfBBmHS1ofECTexc9T8NSE9XQ2QSJlK
+ EmGUaX1IHsO+o4us/AQiifOkX86BGq8S0HOw9N76UqB0Vk/oe1PVGptwR/1STaXq
+ ErJTX6eKqLGc6uCAfvSZQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+ messagingengine.com; h=cc:cc:content-transfer-encoding
+ :content-type:date:date:feedback-id:feedback-id:from:from
+ :in-reply-to:in-reply-to:message-id:mime-version:references
+ :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+ :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1654825179; x=
+ 1654911579; bh=LQFyetndjzCC2dC7UAxlU8A9JcKy7UkaIb86rV1EdS8=; b=l
+ /7R3c90Z7tAgDHv2zyuLALt65ZglgALAnP+66F65x/WmsO0/+8muozioadKSiBvL
+ EwDDDE/hAZqEei4WS1UE9+DBpVXRo480BJK4UTtxSDoBmZSmh9vlF8iVtf7XTr50
+ XDPaZZyDNdvHp1zVIE3AkGgdTBhsc+aLa8H+8hr5nlrUJwngSXt+UF3pCACGTWpr
+ mrfuSGZ0vJhi7X56x9+WdCH6/9xEKKICSpp9TzZaFsx9kvShnssV/MeypApwJZLS
+ KW/LDXBtMMeqBIHVVirc5a+ghe15p0+WDnrtXu/onHXeeIoBBU9LZJjF58lUr/k7
+ TG2PEbaQw28wN2yo/r5lw==
+X-ME-Sender: <xms:2qCiYpr58FJWP4UWvm6dHOFaWq54NvwUUIEO8hIHpwSqsr-86SP8Hg>
+ <xme:2qCiYrq-yL6PAugcRWzxsm4uILMgfDT2n3DUxWjmusQjNYa4V3g5eWNoY6bemw-2c
+ s9ytGO2LkztR4gnXQ>
+X-ME-Received: <xmr:2qCiYmOprK1mW0tQSzzS9Buxc7IccT0y6CeC3xzQmCr88_ZbONiv5EsiQtTbKIccsbbJ2pPLu6FBxHOBu1zJiWkjnOAmnk7r4yuHOscs44r8VzlB3H0otFg8-w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedruddutddggeekucetufdoteggodetrfdotf
+ fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+ uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+ cujfgurhepuffvvehfhffkffgfgggjtgfgsehtjeertddtfeejnecuhfhrohhmpefurghm
+ uhgvlhcujfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenuc
+ ggtffrrghtthgvrhhnpeeffeduhfdthfevkeehgeekveekkedutdeiffetveehteekueev
+ vdfhudffvdettdenucffohhmrghinhepghhithhhuhgsrdgtohhmpdhlihhnuhigqdhsuh
+ hngihirdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhf
+ rhhomhepshgrmhhuvghlsehshhholhhlrghnugdrohhrgh
+X-ME-Proxy: <xmx:26CiYk592lgOihvdtj4SFalZLbwDjWer3hKuoF4oiGSAnIqAuWta9A>
+ <xmx:26CiYo4yx4UH00oBGX7dwmnMAP8NKWq_5M4hH1pIxe2MckEhVLCILg>
+ <xmx:26CiYsi2Ci0p4jPaGE468sBPhauWMGu95wnIsaveZiEF6azSTyZkwA>
+ <xmx:26CiYmSkmtFGjtalAgJ8hiIsfa1PHl13lbxib6s40vOsUdJTP0A_gQ>
+Feedback-ID: i0ad843c9:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 9 Jun 2022 21:39:38 -0400 (EDT)
 Subject: Re: [PATCH] or1k: Add support for a little-endian target variant
-Message-ID: <YqKXk/h25IyLMscp@squeak.grove.modra.org>
+To: Stafford Horne <shorne@gmail.com>
 References: <20220609060133.26409-1-samuel@sholland.org>
  <YqHXrxh5BRTk48o7@antec>
+From: Samuel Holland <samuel@sholland.org>
+Message-ID: <780e40a3-17eb-c1c2-6572-1fd41757e963@sholland.org>
+Date: Thu, 9 Jun 2022 20:39:38 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <YqHXrxh5BRTk48o7@antec>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -74,14 +90,107 @@ Cc: openrisc@lists.librecores.org, binutils@sourceware.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Thu, Jun 09, 2022 at 08:21:19PM +0900, Stafford Horne via Binutils wrote:
+Hi Stafford,
+
+Thanks for the review.
+
+On 6/9/22 6:21 AM, Stafford Horne wrote:
+> On Thu, Jun 09, 2022 at 01:01:33AM -0500, Samuel Holland wrote:
+>> While not officially sanctioned by the architecture spec, little-endian
+>> or1k processors do exist in the wild, for example the Allwinner AR100.
+>> Let's add native support for this, instead of hacks like using objcopy
+>> to byteswap ELF file contents.
+> 
+> Hello,
+> 
 > In general I have no objections to this.  If there are processors that
-> hare little endian it makes sense to support it.  Do you have any details
+> are little endian it makes sense to support it.  Do you have any details
 > of how people built for these before? I am curious.
 
-The patch looks fine to me too, except that I suspect the testsuite
-needs updating for little-endian.
+We post-process the binary with "objcopy --reverse-bytes 4".
 
--- 
-Alan Modra
-Australia Development Lab, IBM
+https://github.com/crust-firmware/crust/blob/master/Makefile#L193
+https://github.com/intelligent-agent/klipper/blob/master/src/ar100/Makefile#L39
+https://github.com/nfeske/genode-allwinner/blob/scp/src/scp/Makefile#L22
+
+The processor has both a word-invariant mode (the default), and a byte-invariant
+mode:
+
+https://linux-sunxi.org/AR100#Byte-invariant_Ranges
+
+With a big-endian toolchain, in the word-invariant mode, all GCC optimizations
+work fine, but sharing data with other software is painful. Sub-32-bit memory
+accesses are reversed within each group of 4 bytes, which affects strings and
+struct layouts.
+
+In the byte-invariant mode, sharing strings and structs causes no problems, but
+some GCC optimizations like -fstore-merging are broken.
+
+>> diff --git a/gas/config/tc-or1k.c b/gas/config/tc-or1k.c
+>> index ae4e3452f48..9dc5a46f2e2 100644
+>> --- a/gas/config/tc-or1k.c
+>> +++ b/gas/config/tc-or1k.c
+>> @@ -58,8 +58,16 @@ const char FLT_CHARS[]            = "dD";
+>>  #define OR1K_SHORTOPTS "m:"
+>>  const char * md_shortopts = OR1K_SHORTOPTS;
+>>  
+>> +enum
+>> +{
+>> +  OPTION_LITTLE_ENDIAN = OPTION_MD_BASE,
+>> +  OPTION_BIG_ENDIAN
+>> +};
+>> +
+>>  struct option md_longopts[] =
+>>  {
+>> +  {"EB", no_argument, NULL, OPTION_BIG_ENDIAN},
+>> +  {"EL", no_argument, NULL, OPTION_LITTLE_ENDIAN},
+>>    {NULL, no_argument, NULL, 0}
+>>  };
+>>  size_t md_longopts_size = sizeof (md_longopts);
+>> @@ -67,14 +75,30 @@ size_t md_longopts_size = sizeof (md_longopts);
+>>  unsigned long or1k_machine = 0; /* default */
+>>  
+>>  int
+>> -md_parse_option (int c ATTRIBUTE_UNUSED, const char * arg ATTRIBUTE_UNUSED)
+>> +md_parse_option (int c, const char * arg ATTRIBUTE_UNUSED)
+>>  {
+>> -  return 0;
+>> +  switch (c)
+>> +    {
+>> +    case OPTION_BIG_ENDIAN:
+>> +      target_big_endian = 1;
+>> +      break;
+>> +    case OPTION_LITTLE_ENDIAN:
+>> +      target_big_endian = 0;
+>> +      break;
+>> +    default:
+>> +      return 0;
+>> +    }
+>> +
+>> +  return 1;
+>>  }
+>>  
+>>  void
+>> -md_show_usage (FILE * stream ATTRIBUTE_UNUSED)
+>> +md_show_usage (FILE * stream)
+>>  {
+>> +  fprintf (stream, _(" OR1K-specific assembler options:\n"));
+>> +  fprintf (stream, _("\
+>> +  --EB			generate code for a big endian machine\n\
+>> +  --EL			generate code for a little endian machine\n"));
+>>  }
+> 
+> Aboce you mention -EB, -EL, here is is --EB, --EL.
+
+They are long options. I will fix the changelog.
+
+> Does this setup big endian as the default?  We should specify that in the
+> options.  i.e. "generate code for a big endian machine, this is the default."
+> 
+> But I am not sure how that defaulting works now.  I will try to build this
+> and understand better.
+
+The default depends on the target. It comes from gas/configure.tgt.
+
+Regards,
+Samuel
