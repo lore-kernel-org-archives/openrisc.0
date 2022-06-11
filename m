@@ -2,42 +2,52 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A7CAC433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 004EACCA47F
 	for <openrisc@archiver.kernel.org>; Sat, 11 Jun 2022 21:54:10 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 254CE247CB;
+	by mail.librecores.org (Postfix) with ESMTP id ACAF5248C7;
 	Sat, 11 Jun 2022 23:54:08 +0200 (CEST)
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
- by mail.librecores.org (Postfix) with ESMTPS id 66DB1242D4
- for <openrisc@lists.librecores.org>; Thu,  9 Jun 2022 15:06:29 +0200 (CEST)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
- by smtp-out1.suse.de (Postfix) with ESMTP id EEA1421F3C;
- Thu,  9 Jun 2022 13:06:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1654779989; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=fQ7/fX+AXX7RSe4KqEkRum0uc4vC19BTUP6nq2wTOec=;
- b=o28ZaXYpRsbDNeH7DdY3dJH3Fnc3dlxZT8L+x/2aFmo5tE4BAEDzQGW4+i3DDhNGrDHekt
- G23+f/oOyTepRO03yIh1gixSASehX2C07pg1fm0i3R3KDgn22PhYw8V9jvCq8nE2YIN+/O
- p3FQSqV1HR0kVCZZzDry3RvUltYRjYI=
-Received: from suse.cz (unknown [10.100.208.146])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by relay2.suse.de (Postfix) with ESMTPS id CEE382C141;
- Thu,  9 Jun 2022 13:06:27 +0000 (UTC)
-Date: Thu, 9 Jun 2022 15:06:00 +0200
-From: Petr Mladek <pmladek@suse.com>
-To: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 24/36] printk: Remove trace_.*_rcuidle() usage
-Message-ID: <YqHwOFg/WlMqe8/Z@alley>
-References: <20220608142723.103523089@infradead.org>
- <20220608144517.444659212@infradead.org> <YqG6URbihTNCk9YR@alley>
- <YqHFHB6qqv5wiR8t@worktop.programming.kicks-ass.net>
+Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com
+ [209.85.208.54])
+ by mail.librecores.org (Postfix) with ESMTPS id 5533424761
+ for <openrisc@lists.librecores.org>; Sat, 11 Jun 2022 04:23:13 +0200 (CEST)
+Received: by mail-ed1-f54.google.com with SMTP id d14so969716eda.12
+ for <openrisc@lists.librecores.org>; Fri, 10 Jun 2022 19:23:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=chromium.org; s=google;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=HvaEucNyttJ72r4dgkt1sbWCJsvBPyIh5zMt0LNXalY=;
+ b=D62jI1p8sOcmW+dGG367yCKI6736qfwlRYdRbtg+pQI3VQ/mZvhMkSh4muEy4yFzXi
+ 1pifN6keFBPADAFAutLs2f+vKDRy3jOy1SmannYfmHY7tjbpoLbP8600CMqIboz22zit
+ FmdCeKC+IDyY3i3YwKCGDz5In1oYgHbIW3q58=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=HvaEucNyttJ72r4dgkt1sbWCJsvBPyIh5zMt0LNXalY=;
+ b=y0sK9joNBLbCt12HtYqKVld2dXQ+Y91Pnaa1xTa/1BJS5R+gkgzHXwOE0AFj+ACP+s
+ PuOA80u7bp6ZWjKLLS5SzhqMAC8UVA6iU6nvQDU+K8IA5iVLvnBqcd0jyPhX7o39WnDt
+ L5MMkPpqC1aM61KCLzwVedyUWULyM/WoFilVvdf9HSoId6IzoJf0OkPsOxheAWKuWl5p
+ 7wPCaWW47IRk6B1o+2T17AKN9GBH7iI0TN9A9G2ZikIZxeILQp4FOVMaXDdHtgQ1Hezx
+ NM7xFxRJNwKwoTLjGC4j+RwoaS7/DxTvCk5FvofvrwrsBiyK71MN9rsga4bDnjI2mDoA
+ kLBA==
+X-Gm-Message-State: AOAM533Rc9wvEZHPhYjIjOVRigy4cynVx8gavkpxo6THDrXWUlCPiWUP
+ sm5vxpssm6VKKGhmzBNt0JM7zT8w9dm0NnAF77JIzQ==
+X-Google-Smtp-Source: ABdhPJz16+9kQdS9QDTB0tjL4FsLbUEsFaIS0ykQfnx5qpyFYyBQCn1i8W4mcCkA/y3viUzYkXAgYYv9JpSOTwgMdpQ=
+X-Received: by 2002:a50:eb91:0:b0:42d:c1d8:616a with SMTP id
+ y17-20020a50eb91000000b0042dc1d8616amr54940771edr.219.1654914192936; Fri, 10
+ Jun 2022 19:23:12 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YqHFHB6qqv5wiR8t@worktop.programming.kicks-ass.net>
+References: <20220608142723.103523089@infradead.org>
+ <20220608144517.444659212@infradead.org>
+ <YqG6URbihTNCk9YR@alley> <YqHFHB6qqv5wiR8t@worktop.programming.kicks-ass.net>
+ <YqHwOFg/WlMqe8/Z@alley>
+In-Reply-To: <YqHwOFg/WlMqe8/Z@alley>
+From: Sergey Senozhatsky <senozhatsky@chromium.org>
+Date: Sat, 11 Jun 2022 11:23:02 +0900
+Message-ID: <CA+_sPaq_47C2PWnGU7WfGXMc03E1Nz+1=F-wZe0B2+ymqdm3Fg@mail.gmail.com>
+Subject: Re: [PATCH 24/36] printk: Remove trace_.*_rcuidle() usage
+To: Petr Mladek <pmladek@suse.com>
+Content-Type: text/plain; charset="UTF-8"
 X-Mailman-Approved-At: Sat, 11 Jun 2022 23:54:06 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
@@ -63,9 +73,9 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
  acme@kernel.org, tglx@linutronix.de, linux-omap@vger.kernel.org,
  dietmar.eggemann@arm.com, gregkh@linuxfoundation.org,
  linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
- senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org,
- paulus@samba.org, mark.rutland@arm.com, linux-ia64@vger.kernel.org,
- dave.hansen@linux.intel.com, virtualization@lists.linux-foundation.org,
+ svens@linux.ibm.com, jolsa@kernel.org, paulus@samba.org, mark.rutland@arm.com,
+ linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
+ virtualization@lists.linux-foundation.org,
  James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
  thierry.reding@gmail.com, kernel@xen0n.name, quic_neeraju@quicinc.com,
  linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
@@ -78,65 +88,33 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
  chris@zankel.net, sboyd@kernel.org, dinguyen@kernel.org, bristot@redhat.com,
  alexander.shishkin@linux.intel.com, lpieralisi@kernel.org,
  linux@rasmusvillemoes.dk, joel@joelfernandes.org, will@kernel.org,
- boris.ostrovsky@oracle.com, khilman@kernel.org, linux-csky@vger.kernel.org,
- pv-drivers@vmware.com, linux-snps-arc@lists.infradead.org, mgorman@suse.de,
- jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
- ulli.kroll@googlemail.com, vgupta@kernel.org, linux-clk@vger.kernel.org,
- josh@joshtriplett.org, rostedt@goodmis.org, rcu@vger.kernel.org, bp@alien8.de,
- bcain@quicinc.com, tsbogend@alpha.franken.de, linux-parisc@vger.kernel.org,
- sudeep.holla@arm.com, shawnguo@kernel.org, davem@davemloft.net,
- dalias@libc.org, tony@atomide.com, amakhalov@vmware.com,
+ boris.ostrovsky@oracle.com, josh@joshtriplett.org, khilman@kernel.org,
+ linux-csky@vger.kernel.org, tony@atomide.com,
+ linux-snps-arc@lists.infradead.org, mgorman@suse.de,
+ jacob.jun.pan@linux.intel.com, yury.norov@gmail.com, ulli.kroll@googlemail.com,
+ vgupta@kernel.org, linux-clk@vger.kernel.org, monstr@monstr.eu,
+ rostedt@goodmis.org, rcu@vger.kernel.org, bp@alien8.de, bcain@quicinc.com,
+ tsbogend@alpha.franken.de, linux-parisc@vger.kernel.org, sudeep.holla@arm.com,
+ shawnguo@kernel.org, davem@davemloft.net, dalias@libc.org,
+ Peter Zijlstra <peterz@infradead.org>, amakhalov@vmware.com,
  bjorn.andersson@linaro.org, hpa@zytor.com, sparclinux@vger.kernel.org,
  linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org,
- anton.ivanov@cambridgegreys.com, jonas@southpole.se, yury.norov@gmail.com,
- richard@nod.at, x86@kernel.org, linux@armlinux.org.uk, mingo@redhat.com,
- aou@eecs.berkeley.edu, paulmck@kernel.org, hca@linux.ibm.com,
- openrisc@lists.librecores.org, paul.walmsley@sifive.com,
- linux-tegra@vger.kernel.org, namhyung@kernel.org,
+ anton.ivanov@cambridgegreys.com, jonas@southpole.se,
+ Arnd Bergmann <arnd@arndb.de>, richard@nod.at, x86@kernel.org,
+ linux@armlinux.org.uk, mingo@redhat.com, aou@eecs.berkeley.edu,
+ paulmck@kernel.org, hca@linux.ibm.com, openrisc@lists.librecores.org,
+ paul.walmsley@sifive.com, linux-tegra@vger.kernel.org, namhyung@kernel.org,
  andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, jgross@suse.com,
- monstr@monstr.eu, linux-mips@vger.kernel.org, palmer@dabbelt.com,
+ pv-drivers@vmware.com, linux-mips@vger.kernel.org, palmer@dabbelt.com,
  anup@brainfault.org, ink@jurassic.park.msu.ru, johannes@sipsolutions.net,
  linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Thu 2022-06-09 12:02:04, Peter Zijlstra wrote:
-> On Thu, Jun 09, 2022 at 11:16:46AM +0200, Petr Mladek wrote:
-> > On Wed 2022-06-08 16:27:47, Peter Zijlstra wrote:
-> > > The problem, per commit fc98c3c8c9dc ("printk: use rcuidle console
-> > > tracepoint"), was printk usage from the cpuidle path where RCU was
-> > > already disabled.
-> > > 
-> > Does this "prevent" calling printk() a safe way in code with
-> > RCU disabled?
-> 
-> On x86_64, yes. Other architectures, less so.
-> 
-> Specifically, the objtool noinstr validation pass will warn at build
-> time (DEBUG_ENTRY=y) if any noinstr/cpuidle code does a call to
-> non-vetted code like printk().
-> 
-> At the same time; there's a few hacks that allow WARN to work, but
-> mostly if you hit WARN in entry/noinstr you get to keep the pieces in
-> any case.
-> 
-> On other architecture we'll need to rely on runtime coverage with
-> PROVE_RCU. That is, if a splat like in the above mentioned commit
-> happens again, we'll need to fix it by adjusting the callchain, not by
-> mucking about with RCU state.
+On Thu, Jun 9, 2022 at 10:06 PM Petr Mladek <pmladek@suse.com> wrote:
+>
+> Makes sense. Feel free to use for this patch:
+>
+> Acked-by: Petr Mladek <pmladek@suse.com>
 
-Makes sense. Feel free to use for this patch:
-
-Acked-by: Petr Mladek <pmladek@suse.com>
-
-> > Therefore if this patch allows to remove some tricky tracing
-> > code then it might be worth it. But if trace_console_rcuidle()
-> > variant is still going to be available then I would keep using it.
-> 
-> My ultimate goal is to delete trace_.*_rcuidle() and RCU_NONIDLE()
-> entirely. We're close, but not quite there yet.
-
-I keep my fingers crossed.
-
-Best Regards,
-Petr
+Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
