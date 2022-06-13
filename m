@@ -2,28 +2,28 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A98AACCA481
-	for <openrisc@archiver.kernel.org>; Tue, 14 Jun 2022 00:48:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0201C433EF
+	for <openrisc@archiver.kernel.org>; Tue, 14 Jun 2022 00:48:17 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 8AB9620E4E;
-	Tue, 14 Jun 2022 02:48:16 +0200 (CEST)
+	by mail.librecores.org (Postfix) with ESMTP id 1A5C5248BE;
+	Tue, 14 Jun 2022 02:48:15 +0200 (CEST)
 Received: from muru.com (muru.com [72.249.23.125])
- by mail.librecores.org (Postfix) with ESMTP id 89D5224999
- for <openrisc@lists.librecores.org>; Mon, 13 Jun 2022 14:36:14 +0200 (CEST)
+ by mail.librecores.org (Postfix) with ESMTP id D9021248F4
+ for <openrisc@lists.librecores.org>; Mon, 13 Jun 2022 14:33:56 +0200 (CEST)
 Received: from localhost (localhost [127.0.0.1])
- by muru.com (Postfix) with ESMTPS id 87B6681D6;
- Mon, 13 Jun 2022 12:31:31 +0000 (UTC)
-Date: Mon, 13 Jun 2022 15:36:11 +0300
+ by muru.com (Postfix) with ESMTPS id 07F638191;
+ Mon, 13 Jun 2022 12:29:14 +0000 (UTC)
+Date: Mon, 13 Jun 2022 15:33:54 +0300
 From: Tony Lindgren <tony@atomide.com>
 To: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 33/36] cpuidle,omap3: Use WFI for omap3_pm_idle()
-Message-ID: <YqcvO0xSmlEVMef3@atomide.com>
+Subject: Re: [PATCH 12/36] cpuidle,omap2: Push RCU-idle into driver
+Message-ID: <YqcusjKzpN/d0qFf@atomide.com>
 References: <20220608142723.103523089@infradead.org>
- <20220608144518.010587032@infradead.org>
+ <20220608144516.677524509@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220608144518.010587032@infradead.org>
+In-Reply-To: <20220608144516.677524509@infradead.org>
 X-Mailman-Approved-At: Tue, 14 Jun 2022 02:48:12 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
@@ -86,13 +86,11 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-* Peter Zijlstra <peterz@infradead.org> [220608 14:52]:
-> arch_cpu_idle() is a very simple idle interface and exposes only a
-> single idle state and is expected to not require RCU and not do any
-> tracing/instrumentation.
-> 
-> As such, omap_sram_idle() is not a valid implementation. Replace it
-> with the simple (shallow) omap3_do_wfi() call. Leaving the more
-> complicated idle states for the cpuidle driver.
+* Peter Zijlstra <peterz@infradead.org> [220608 14:42]:
+> Doing RCU-idle outside the driver, only to then temporarily enable it
+> again, some *four* times, before going idle is daft.
 
-Acked-by: Tony Lindgren <tony@atomide.com>
+Maybe update the subject line with s/omap2/omap4/, other than that:
+
+Reviewed-by: Tony Lindgren <tony@atomide.com>
+Tested-by: Tony Lindgren <tony@atomide.com>
