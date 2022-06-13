@@ -2,57 +2,54 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05285C43334
-	for <openrisc@archiver.kernel.org>; Sun, 12 Jun 2022 13:03:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8305DC433EF
+	for <openrisc@archiver.kernel.org>; Tue, 14 Jun 2022 00:48:15 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id C21A12492F;
-	Sun, 12 Jun 2022 15:03:50 +0200 (CEST)
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com
- [209.85.214.181])
- by mail.librecores.org (Postfix) with ESMTPS id 530DC248F4
- for <openrisc@lists.librecores.org>; Sun, 12 Jun 2022 15:03:48 +0200 (CEST)
-Received: by mail-pl1-f181.google.com with SMTP id d5so344177plo.12
- for <openrisc@lists.librecores.org>; Sun, 12 Jun 2022 06:03:48 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 50E802499B;
+	Tue, 14 Jun 2022 02:48:14 +0200 (CEST)
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com
+ [209.85.128.46])
+ by mail.librecores.org (Postfix) with ESMTPS id 11505248BE
+ for <openrisc@lists.librecores.org>; Mon, 13 Jun 2022 10:26:13 +0200 (CEST)
+Received: by mail-wm1-f46.google.com with SMTP id a10so2498371wmj.5
+ for <openrisc@lists.librecores.org>; Mon, 13 Jun 2022 01:26:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=UrsX08Obu5Jcmo8A7FY6gAY9AY+XftNQGr4c5PBHozc=;
- b=QnEqpLSvCRe4jGHupl5/vy43fJlwkKNN2cvd6GNoCbRwR5VBo0JW3T1FAYN3cut057
- rnzZ85LblUhuEwqGV4AwU9kIWVh89M5j3xsJqX1a8v9xZ5HHCMAJhubWnqdzZX/mhThf
- ahjmS/CRT1XJBbvORuDifX16PaZ9NGEmOEAlJ4QSJlljqTLMC8tuWR4v5HED4jjD38Lr
- 9AfnlwVcyFxxSGt5Z/gPqaEhaldqYxUCmkY2Sxuf3kOydfC7du4vZRl/dVzENY2pRsQf
- OTY1bdV7d/ZKcyvDwQ9uWYz0AcxnS0LD+Bmz8dCQ+TXAu7mLq0DCR7WNXDHzvRsaHHyu
- gAgA==
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=3JSggHLDbkXyuZCKaU+uQ7H5KVpBjE3ZWWl/F0t3JyI=;
+ b=hln/7KIUboOODQa9/Iv7zWAXFI8kFLhiLL+AWnA7ZL0itAJaB93eguKFQupB8Lv94a
+ mnMuLqlfVsMy6aSBFmNweaacWKXWw7aT6TScazfBGhspJqqH/PMOPWdnnnaxNLaf842d
+ D+3NPCattkXMe8VyippSy6AVlz1Q90Igxi/lQII1yr2hkIK0YZRpsj0TKs2Px7tXlVgY
+ 915w6r1r+N9IHNGMPf7O4C6rOlcjLzR4xSEqc3Zfq8tMbY0ayFsU19Cug+0HkT25Saig
+ zkxTdXbzsbpEfsV6HhW0WtRME3JJZVdyKx57BtFZ0WE2gh0TSNH76QSkgUTVIoEuHNxT
+ f/gA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=UrsX08Obu5Jcmo8A7FY6gAY9AY+XftNQGr4c5PBHozc=;
- b=qmU4o/LLhWIOIGoZM3QOeruSqkRsWkqpb2liwO5n69pIFTRVGyKQEzIqE4RZ0nNRCI
- Ew7bedLB4cfEMGeKufu+baldeWLoTyJUj/4kyOzHzSwzI1IINbN6IwPqKiAuJFcygSaA
- EAx77hhCwNykADRGQYhdn2wqaSu/PDYjJ7N61q7Wfn6uhHgDOvRR0ET57yZpXHYjs/AF
- L9LBp2KTArtCnrPRZFCaAy41LsISQHcD7ZP0+UKdl6TeF59je2EifIhfU68ZKGgeqYtn
- 0CjgA3vE15kSqrfTrWRsRWizypBtNmwiuzB8vnlJAc1zKnqtU6pY11MIL+iGFgutJEqh
- KHXg==
-X-Gm-Message-State: AOAM530q2vJxHC3JAhfvPeSGuj909OHUwFMA66+k07vFoSMR8cBCwGNM
- bZ3SKlBORfCk1s8gZs9dcmg=
-X-Google-Smtp-Source: ABdhPJzezk/anYteAtaAXIDf/3Mup8jbG6gw4okzgcrcaOqQCEx8PJS4L/CUG54cqVnKp0oejexFTw==
-X-Received: by 2002:a17:902:bc84:b0:167:80c6:aedd with SMTP id
- bb4-20020a170902bc8400b0016780c6aeddmr34505876plb.97.1655039026696; 
- Sun, 12 Jun 2022 06:03:46 -0700 (PDT)
-Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
- by smtp.gmail.com with ESMTPSA id
- bl2-20020a17090b098200b001e30a16c609sm3118400pjb.21.2022.06.12.06.03.45
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 12 Jun 2022 06:03:45 -0700 (PDT)
-From: Stafford Horne <shorne@gmail.com>
-To: QEMU Development <qemu-devel@nongnu.org>
-Subject: [PATCH] goldfish_rtc: Add endianness property
-Date: Sun, 12 Jun 2022 22:03:33 +0900
-Message-Id: <20220612130333.257213-1-shorne@gmail.com>
-X-Mailer: git-send-email 2.36.1
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=3JSggHLDbkXyuZCKaU+uQ7H5KVpBjE3ZWWl/F0t3JyI=;
+ b=5PPddLGyI74LQrc3Xp6Y8caw3Yhrd2u228Jg4v3FGKjoTlWTBhdaDI+QX4kcL/ucGB
+ LVvYFtSxaCkUkY9Ibr8iAFIuqkO9E7LRsVV/rrKm9eM2sKW2EXNOCi/iYGftq6OsHRAL
+ e8YUqG4CCKjIRqXEDJJ+rUfyX9qH8RV4TPTLAleY/QxR/4o6JlFvu0UyavWyaZ2E4Ttg
+ UD8IfWyV31OBa2R2Vyc7yxEWBhZPOjzw/G9EQuYlrtMPsbY8vO+Q2jSwY/bnQhoLUICR
+ rs4TtCDZZPLkZyNeEkQbTWe8UCS4LXk+IcmThCRZoRkg3LiecOnRiTY9gxLS2rv/T9Yo
+ 0FOw==
+X-Gm-Message-State: AOAM533Gc4mld8uTKEHt1Equ56C6ChSCfP3+8krLnw7QQKv0TnemNqAw
+ iUfJAsd+kpC9VfCvuPcZ9bBrMK1eVielldjzbHo=
+X-Google-Smtp-Source: ABdhPJxgJ3qlsWHXb4q5Q9LeHOXh1hQWbFNdZBk/6atfvyd1YyWRPGtuhT6/ZUDmb0vG1CLuyzfEgHlG2xi/itwptM8=
+X-Received: by 2002:a05:600c:1c9a:b0:39c:7db4:90c3 with SMTP id
+ k26-20020a05600c1c9a00b0039c7db490c3mr13053942wms.161.1655108772491; Mon, 13
+ Jun 2022 01:26:12 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220608142723.103523089@infradead.org>
+ <20220608144517.251109029@infradead.org>
+In-Reply-To: <20220608144517.251109029@infradead.org>
+From: Lai Jiangshan <jiangshanlai@gmail.com>
+Date: Mon, 13 Jun 2022 16:26:01 +0800
+Message-ID: <CAJhGHyCnu_BsKf5STMMJKMWm0NVZ8qXT8Qh=BhhCjSSgwchL3Q@mail.gmail.com>
+Subject: Re: [PATCH 21/36] x86/tdx: Remove TDX_HCALL_ISSUE_STI
+To: Peter Zijlstra <peterz@infradead.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailman-Approved-At: Tue, 14 Jun 2022 02:48:12 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -65,134 +62,90 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Laurent Vivier <lvivier@redhat.com>,
- Openrisc <openrisc@lists.librecores.org>, Arnd Bergmann <arnd@arndb.de>
+Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
+ linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
+ agordeev@linux.ibm.com, srivatsa@csail.mit.edu, linux-arch@vger.kernel.org,
+ vincent.guittot@linaro.org, Michael Ellerman <mpe@ellerman.id.au>,
+ Huacai Chen <chenhuacai@kernel.org>, linux-acpi@vger.kernel.org,
+ agross@kernel.org, linux-imx@nxp.com, catalin.marinas@arm.com,
+ xen-devel@lists.xenproject.org, mattst88@gmail.com, borntraeger@linux.ibm.com,
+ mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com,
+ linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+ linux-um@lists.infradead.org, acme <acme@kernel.org>,
+ Thomas Gleixner <tglx@linutronix.de>, linux-omap@vger.kernel.org,
+ dietmar.eggemann@arm.com, Richard Henderson <rth@twiddle.net>,
+ gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
+ linux-perf-users@vger.kernel.org, senozhatsky@chromium.org,
+ svens@linux.ibm.com, jolsa@kernel.org, paulus@samba.org,
+ Mark Rutland <mark.rutland@arm.com>, linux-ia64@vger.kernel.org,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ virtualization@lists.linux-foundation.org,
+ James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
+ thierry.reding@gmail.com, kernel@xen0n.name, quic_neeraju@quicinc.com,
+ linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
+ ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, festevam@gmail.com,
+ deller@gmx.de, daniel.lezcano@linaro.org, jonathanh@nvidia.com,
+ mathieu.desnoyers@efficios.com, frederic@kernel.org, lenb@kernel.org,
+ linux-xtensa@linux-xtensa.org, kernel@pengutronix.de, gor@linux.ibm.com,
+ linux-arm-msm@vger.kernel.org, linux-alpha@vger.kernel.org,
+ linux-m68k@lists.linux-m68k.org, linux-arm-kernel@lists.infradead.org,
+ chris@zankel.net, sboyd@kernel.org, dinguyen@kernel.org, bristot@redhat.com,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>, lpieralisi@kernel.org,
+ linux@rasmusvillemoes.dk, joel@joelfernandes.org,
+ Will Deacon <will@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ khilman@kernel.org, linux-csky@vger.kernel.org,
+ VMware Inc <pv-drivers@vmware.com>, linux-snps-arc@lists.infradead.org,
+ mgorman@suse.de, jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+ ulli.kroll@googlemail.com, vgupta@kernel.org, linux-clk@vger.kernel.org,
+ josh@joshtriplett.org, rostedt@goodmis.org, rcu@vger.kernel.org,
+ Borislav Petkov <bp@alien8.de>, bcain@quicinc.com, tsbogend@alpha.franken.de,
+ linux-parisc@vger.kernel.org, sudeep.holla@arm.com, shawnguo@kernel.org,
+ davem@davemloft.net, kirill.shutemov@linux.intel.com, dalias@libc.org,
+ tony@atomide.com, amakhalov@vmware.com, bjorn.andersson@linaro.org,
+ "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org,
+ Isaku Yamahata <isaku.yamahata@gmail.com>, anton.ivanov@cambridgegreys.com,
+ jonas@southpole.se, yury.norov@gmail.com, Richard Weinberger <richard@nod.at>,
+ X86 ML <x86@kernel.org>, linux@armlinux.org.uk, Ingo Molnar <mingo@redhat.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, paulmck@kernel.org, hca@linux.ibm.com,
+ openrisc@lists.librecores.org, Paul Walmsley <paul.walmsley@sifive.com>,
+ linux-tegra@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>, jpoimboe@kernel.org,
+ Juergen Gross <jgross@suse.com>, monstr@monstr.eu, linux-mips@vger.kernel.org,
+ Palmer Dabbelt <palmer@dabbelt.com>, Anup Patel <anup@brainfault.org>,
+ ink@jurassic.park.msu.ru, Johannes Berg <johannes@sipsolutions.net>,
+ linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Add an endianness property to allow configuring the RTC as either
-native, little or big endian.
+On Wed, Jun 8, 2022 at 10:48 PM Peter Zijlstra <peterz@infradead.org> wrote:
+>
+> Now that arch_cpu_idle() is expected to return with IRQs disabled,
+> avoid the useless STI/CLI dance.
+>
+> Per the specs this is supposed to work, but nobody has yet relied up
+> this behaviour so broken implementations are possible.
 
-Cc: Laurent Vivier <lvivier@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
-In a recent mail thread[0] it was discussed that future users of goldfish devices
-should use little-endian rather than native endian.  This is to avoid having to
-define special ioread/write routines in the Linux kernel as the default of the
-Linux kernel is to use little-endian.
+I'm totally newbie here.
 
-I have defined a property to allow us to make this change the endianness of the
-device at initialization time.  For OpenRISC we can now set the qemu device
-endianness property to little-endian and the device works.
+The point of safe_halt() is that STI must be used and be used
+directly before HLT to enable IRQ during the halting and stop
+the halting if there is any IRQ.
 
-For now I kept the default as DEVICE_NATIVE_ENDIAN for illustration purposes I
-could also do:
+In TDX case, STI must be used directly before the hypercall.
+Otherwise, no IRQ can come and the vcpu would be stalled forever.
 
- - Add the "endianness" property to all goldfish devices.
- - Switch the default to LITTLE_ENDIAN and just set BIG_ENDIAN for m68k only.
- - Just the bare minimum, using this patch and also set little-endian in
-   OpenRISC.
- - Just drop this patch and use BIG_ENDIAN access for goldfish in the kernel for
-   OpenRISC like m68k does.
+Although the hypercall has an "irq_disabled" argument.
+But the hypervisor doesn't (and can't) touch the IRQ flags no matter
+what the "irq_disabled" argument is.  The IRQ is not enabled during
+the halting if the IRQ is disabled before the hypercall even if
+irq_disabled=false.
 
-I have tested this with the OpenRISC virt platform[1] available here (now with pci
-support).
+The "irq_disabled" argument is used for workaround purposes:
+https://lore.kernel.org/kvm/c020ee0b90c424a7010e979c9b32a28e9c488a51.1651774251.git.isaku.yamahata@intel.com/
 
-[0] https://lore.kernel.org/all/CAK8P3a13PTsMExyXZm5sZM3WBK-8hoNFjYoi19pHmKKCJQmHeA@mail.gmail.com/
-[1] https://github.com/stffrdhrn/qemu/commits/or1k-virt-2
+Hope my immature/incorrect reply elicits a real response from
+others.
 
- hw/rtc/goldfish_rtc.c         | 45 ++++++++++++++++++++++++++++-------
- include/hw/rtc/goldfish_rtc.h |  2 ++
- 2 files changed, 38 insertions(+), 9 deletions(-)
-
-diff --git a/hw/rtc/goldfish_rtc.c b/hw/rtc/goldfish_rtc.c
-index 35e493be31..ab1e15a3e2 100644
---- a/hw/rtc/goldfish_rtc.c
-+++ b/hw/rtc/goldfish_rtc.c
-@@ -216,14 +216,34 @@ static int goldfish_rtc_post_load(void *opaque, int version_id)
-     return 0;
- }
- 
--static const MemoryRegionOps goldfish_rtc_ops = {
--    .read = goldfish_rtc_read,
--    .write = goldfish_rtc_write,
--    .endianness = DEVICE_NATIVE_ENDIAN,
--    .valid = {
--        .min_access_size = 4,
--        .max_access_size = 4
--    }
-+static const MemoryRegionOps goldfish_rtc_ops[3] = {
-+    [DEVICE_NATIVE_ENDIAN] = {
-+        .read = goldfish_rtc_read,
-+        .write = goldfish_rtc_write,
-+        .endianness = DEVICE_NATIVE_ENDIAN,
-+        .valid = {
-+            .min_access_size = 4,
-+            .max_access_size = 4
-+        }
-+    },
-+    [DEVICE_LITTLE_ENDIAN] = {
-+        .read = goldfish_rtc_read,
-+        .write = goldfish_rtc_write,
-+        .endianness = DEVICE_LITTLE_ENDIAN,
-+        .valid = {
-+            .min_access_size = 4,
-+            .max_access_size = 4
-+        }
-+    },
-+    [DEVICE_BIG_ENDIAN] = {
-+        .read = goldfish_rtc_read,
-+        .write = goldfish_rtc_write,
-+        .endianness = DEVICE_BIG_ENDIAN,
-+        .valid = {
-+            .min_access_size = 4,
-+            .max_access_size = 4
-+        }
-+    },
- };
- 
- static const VMStateDescription goldfish_rtc_vmstate = {
-@@ -265,7 +285,8 @@ static void goldfish_rtc_realize(DeviceState *d, Error **errp)
-     SysBusDevice *dev = SYS_BUS_DEVICE(d);
-     GoldfishRTCState *s = GOLDFISH_RTC(d);
- 
--    memory_region_init_io(&s->iomem, OBJECT(s), &goldfish_rtc_ops, s,
-+    memory_region_init_io(&s->iomem, OBJECT(s),
-+                          &goldfish_rtc_ops[s->endianness], s,
-                           "goldfish_rtc", 0x24);
-     sysbus_init_mmio(dev, &s->iomem);
- 
-@@ -274,10 +295,16 @@ static void goldfish_rtc_realize(DeviceState *d, Error **errp)
-     s->timer = timer_new_ns(rtc_clock, goldfish_rtc_interrupt, s);
- }
- 
-+static Property goldfish_rtc_properties[] = {
-+    DEFINE_PROP_UINT8("endianness", GoldfishRTCState, endianness, DEVICE_NATIVE_ENDIAN),
-+    DEFINE_PROP_END_OF_LIST(),
-+};
-+
- static void goldfish_rtc_class_init(ObjectClass *klass, void *data)
- {
-     DeviceClass *dc = DEVICE_CLASS(klass);
- 
-+    device_class_set_props(dc, goldfish_rtc_properties);
-     dc->realize = goldfish_rtc_realize;
-     dc->reset = goldfish_rtc_reset;
-     dc->vmsd = &goldfish_rtc_vmstate;
-diff --git a/include/hw/rtc/goldfish_rtc.h b/include/hw/rtc/goldfish_rtc.h
-index 79ca7daf5d..8e1aeb85e3 100644
---- a/include/hw/rtc/goldfish_rtc.h
-+++ b/include/hw/rtc/goldfish_rtc.h
-@@ -42,6 +42,8 @@ struct GoldfishRTCState {
-     uint32_t irq_pending;
-     uint32_t irq_enabled;
-     uint32_t time_high;
-+
-+    uint8_t endianness;
- };
- 
- #endif
--- 
-2.36.1
-
+Thanks
+Lai
