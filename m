@@ -2,48 +2,33 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC0DDCCA47E
-	for <openrisc@archiver.kernel.org>; Tue, 14 Jun 2022 20:02:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE97FC43334
+	for <openrisc@archiver.kernel.org>; Tue, 14 Jun 2022 20:02:05 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 67CB92492B;
-	Tue, 14 Jun 2022 22:02:04 +0200 (CEST)
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
- by mail.librecores.org (Postfix) with ESMTPS id 8DBE52497A
- for <openrisc@lists.librecores.org>; Tue, 14 Jun 2022 18:59:00 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=sat3Ay5cLjo4d6tU+VjO2Gj4xa+yot4RzgDwqSc2j00=; b=oTTvzdrlzuM1YciKvYSz8vYCZ+
- uwlSmBHlK5sxDBJV0dcMNalrGhrnqgMOKyXUZ+NoLLlhXJyR0fgCg0Vd7w7YR39O4rmwupvVnnt7z
- Pv2IpKHqOd9e1zUBiLabpdWMpnntVJGaogImROtBH0G7ylxF+ZmLkVrbSd96L8Hy9XgyJ+fsvwu03
- MqdSZ0j3kwhR1jLAqEDq0pTMC9nvW7cYm2jiZab7OmZmrpb4+NKhzLJEVNFsIG3fWTmbi5xOWvkSk
- 63UMys0mwfZRWEzmZMP+o/065ihcNnT8/M/jWgxXAG4XceJ1zUAKP/sWTfpGygRyzdDuXmNAR06ut
- 6gQsA8sw==;
-Received: from dhcp-077-249-017-003.chello.nl ([77.249.17.3]
- helo=noisy.programming.kicks-ass.net)
- by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1o19s9-007ufs-GM; Tue, 14 Jun 2022 16:58:34 +0000
-Received: from hirez.programming.kicks-ass.net
- (hirez.programming.kicks-ass.net [192.168.1.225])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (4096 bits))
- (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 033FF300483;
- Tue, 14 Jun 2022 18:58:31 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
- id DD55D28B48D58; Tue, 14 Jun 2022 18:58:30 +0200 (CEST)
-Date: Tue, 14 Jun 2022 18:58:30 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH 00/36] cpuidle,rcu: Cleanup the mess
-Message-ID: <Yqi+Nqz1J8wI5GcX@hirez.programming.kicks-ass.net>
+	by mail.librecores.org (Postfix) with ESMTP id 244BA249B7;
+	Tue, 14 Jun 2022 22:02:05 +0200 (CEST)
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by mail.librecores.org (Postfix) with ESMTP id 8E60524980
+ for <openrisc@lists.librecores.org>; Tue, 14 Jun 2022 19:00:08 +0200 (CEST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 11469175A;
+ Tue, 14 Jun 2022 10:00:08 -0700 (PDT)
+Received: from FVFF77S0Q05N (unknown [10.57.41.154])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4A1F03F66F;
+ Tue, 14 Jun 2022 09:59:50 -0700 (PDT)
+Date: Tue, 14 Jun 2022 17:59:46 +0100
+From: Mark Rutland <mark.rutland@arm.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH 14/36] cpuidle: Fix rcu_idle_*() usage
+Message-ID: <Yqi+gg+p0sv0F7Di@FVFF77S0Q05N>
 References: <20220608142723.103523089@infradead.org>
- <YqhuwQjmZyOVSiLI@FVFF77S0Q05N>
+ <20220608144516.808451191@infradead.org>
+ <YqiB6YpVqq4wuDtO@FVFF77S0Q05N>
+ <Yqi6Fd38ZCsDUnQG@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YqhuwQjmZyOVSiLI@FVFF77S0Q05N>
+In-Reply-To: <Yqi6Fd38ZCsDUnQG@hirez.programming.kicks-ass.net>
 X-Mailman-Approved-At: Tue, 14 Jun 2022 22:01:55 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
@@ -106,90 +91,50 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Tue, Jun 14, 2022 at 12:19:29PM +0100, Mark Rutland wrote:
-> On Wed, Jun 08, 2022 at 04:27:23PM +0200, Peter Zijlstra wrote:
-> > Hi All! (omg so many)
-> 
-> Hi Peter,
-> 
-> Sorry for the delay; my plate has also been rather full recently. I'm beginning
-> to page this in now.
-
-No worries; we all have too much to do ;-)
-
-> > These here few patches mostly clear out the utter mess that is cpuidle vs rcuidle.
+On Tue, Jun 14, 2022 at 06:40:53PM +0200, Peter Zijlstra wrote:
+> On Tue, Jun 14, 2022 at 01:41:13PM +0100, Mark Rutland wrote:
+> > On Wed, Jun 08, 2022 at 04:27:37PM +0200, Peter Zijlstra wrote:
+> > > --- a/kernel/time/tick-broadcast.c
+> > > +++ b/kernel/time/tick-broadcast.c
+> > > @@ -622,9 +622,13 @@ struct cpumask *tick_get_broadcast_onesh
+> > >   * to avoid a deep idle transition as we are about to get the
+> > >   * broadcast IPI right away.
+> > >   */
+> > > -int tick_check_broadcast_expired(void)
+> > > +noinstr int tick_check_broadcast_expired(void)
+> > >  {
+> > > +#ifdef _ASM_GENERIC_BITOPS_INSTRUMENTED_NON_ATOMIC_H
+> > > +	return arch_test_bit(smp_processor_id(), cpumask_bits(tick_broadcast_force_mask));
+> > > +#else
+> > >  	return cpumask_test_cpu(smp_processor_id(), tick_broadcast_force_mask);
+> > > +#endif
+> > >  }
 > > 
-> > At the end of the ride there's only 2 real RCU_NONIDLE() users left
-> > 
-> >   arch/arm64/kernel/suspend.c:            RCU_NONIDLE(__cpu_suspend_exit());
-> >   drivers/perf/arm_pmu.c:                 RCU_NONIDLE(armpmu_start(event, PERF_EF_RELOAD));
+> > This is somewhat not-ideal. :/
 > 
-> The latter of these is necessary because apparently PM notifiers are called
-> with RCU not watching. Is that still the case today (or at the end of this
-> series)? If so, that feels like fertile land for more issues (yaey...). If not,
-> we should be able to drop this.
-
-That should be fixed; fingers crossed :-)
-
-> >   kernel/cfi.c:   RCU_NONIDLE({
-> > 
-> > (the CFI one is likely dead in the kCFI rewrite) and there's only a hand full
-> > of trace_.*_rcuidle() left:
-> > 
-> >   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
-> >   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
-> >   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, caller_addr);
-> >   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, caller_addr);
-> >   kernel/trace/trace_preemptirq.c:                trace_preempt_enable_rcuidle(a0, a1);
-> >   kernel/trace/trace_preemptirq.c:                trace_preempt_disable_rcuidle(a0, a1);
-> > 
-> > All of them are in 'deprecated' code that is unused for GENERIC_ENTRY.
+> I'll say.
 > 
-> I think those are also unused on arm64 too?
+> > Could we unconditionally do the arch_test_bit() variant, with a comment, or
+> > does that not exist in some cases?
 > 
-> If not, I can go attack that.
+> Loads of build errors ensued, which is how I ended up with this mess ...
 
-My grep spots:
+Yaey :(
 
-arch/arm64/kernel/entry-common.c:               trace_hardirqs_on();
-arch/arm64/include/asm/daifflags.h:     trace_hardirqs_off();
-arch/arm64/include/asm/daifflags.h:             trace_hardirqs_off();
+I see the same is true for the thread flag manipulation too.
 
-The _on thing should be replaced with something like:
+I'll take a look and see if we can layer things so that we can use the arch_*()
+helpers and wrap those consistently so that we don't have to check the CPP
+guard.
 
-	trace_hardirqs_on_prepare();
-	lockdep_hardirqs_on_prepare();
-	instrumentation_end();
-	rcu_irq_exit();
-	lockdep_hardirqs_on(CALLER_ADDR0);
+Ideally we'd have a a better language that allows us to make some
+context-senstive decisions, then we could hide all this gunk in the lower
+levels with somethin like:
 
-(as I think you know, since you have some of that already). And
-something similar for the _off thing, but with _off_finish().
+	if (!THIS_IS_A_NOINSTR_FUNCTION()) {
+		explicit_instrumentation(...);
+	}
 
-> > I've touched a _lot_ of code that I can't test and likely broken some of it :/
-> > In particular, the whole ARM cpuidle stuff was quite involved with OMAP being
-> > the absolute 'winner'.
-> > 
-> > I'm hoping Mark can help me sort the remaining ARM64 bits as he moves that to
-> > GENERIC_ENTRY.
-> 
-> Moving to GENERIC_ENTRY as a whole is going to take a tonne of work
-> (refactoring both arm64 and the generic portion to be more amenable to each
-> other), but we can certainly move closer to that for the bits that matter here.
+... ho hum.
 
-I know ... been there etc.. :-)
-
-> Maybe we want a STRICT_ENTRY option to get rid of all the deprecated stuff that
-> we can select regardless of GENERIC_ENTRY to make that easier.
-
-Possible yeah.
-
-> > I've also got a note that says ARM64 can probably do a WFE based
-> > idle state and employ TIF_POLLING_NRFLAG to avoid some IPIs.
-> 
-> Possibly; I'm not sure how much of a win that'll be given that by default we'll
-> have a ~10KHz WFE wakeup from the timer, but we could take a peek.
-
-Ohh.. I didn't know it woke up *that* often. I just know Will made use
-of it in things like smp_cond_load_relaxed() which would be somewhat
-similar to a very shallow idle state that looks at the TIF word.
+Mark.
