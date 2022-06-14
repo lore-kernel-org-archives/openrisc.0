@@ -2,31 +2,32 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EFC6C433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED97DC43334
 	for <openrisc@archiver.kernel.org>; Tue, 14 Jun 2022 20:01:57 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 22362249BB;
+	by mail.librecores.org (Postfix) with ESMTP id 5A66B24995;
 	Tue, 14 Jun 2022 22:01:56 +0200 (CEST)
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by mail.librecores.org (Postfix) with ESMTP id 0A7922489E
- for <openrisc@lists.librecores.org>; Tue, 14 Jun 2022 13:20:01 +0200 (CEST)
+ by mail.librecores.org (Postfix) with ESMTP id 642EE247DA
+ for <openrisc@lists.librecores.org>; Tue, 14 Jun 2022 14:41:36 +0200 (CEST)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 223061516;
- Tue, 14 Jun 2022 04:20:00 -0700 (PDT)
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 78E001650;
+ Tue, 14 Jun 2022 05:41:35 -0700 (PDT)
 Received: from FVFF77S0Q05N (unknown [10.57.41.154])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 47D093F73B;
- Tue, 14 Jun 2022 04:19:42 -0700 (PDT)
-Date: Tue, 14 Jun 2022 12:19:29 +0100
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9CDCF3F73B;
+ Tue, 14 Jun 2022 05:41:17 -0700 (PDT)
+Date: Tue, 14 Jun 2022 13:41:13 +0100
 From: Mark Rutland <mark.rutland@arm.com>
 To: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 00/36] cpuidle,rcu: Cleanup the mess
-Message-ID: <YqhuwQjmZyOVSiLI@FVFF77S0Q05N>
+Subject: Re: [PATCH 14/36] cpuidle: Fix rcu_idle_*() usage
+Message-ID: <YqiB6YpVqq4wuDtO@FVFF77S0Q05N>
 References: <20220608142723.103523089@infradead.org>
+ <20220608144516.808451191@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220608142723.103523089@infradead.org>
-X-Mailman-Approved-At: Tue, 14 Jun 2022 22:01:54 +0200
+In-Reply-To: <20220608144516.808451191@infradead.org>
+X-Mailman-Approved-At: Tue, 14 Jun 2022 22:01:55 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -88,65 +89,27 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Wed, Jun 08, 2022 at 04:27:23PM +0200, Peter Zijlstra wrote:
-> Hi All! (omg so many)
+On Wed, Jun 08, 2022 at 04:27:37PM +0200, Peter Zijlstra wrote:
+> --- a/kernel/time/tick-broadcast.c
+> +++ b/kernel/time/tick-broadcast.c
+> @@ -622,9 +622,13 @@ struct cpumask *tick_get_broadcast_onesh
+>   * to avoid a deep idle transition as we are about to get the
+>   * broadcast IPI right away.
+>   */
+> -int tick_check_broadcast_expired(void)
+> +noinstr int tick_check_broadcast_expired(void)
+>  {
+> +#ifdef _ASM_GENERIC_BITOPS_INSTRUMENTED_NON_ATOMIC_H
+> +	return arch_test_bit(smp_processor_id(), cpumask_bits(tick_broadcast_force_mask));
+> +#else
+>  	return cpumask_test_cpu(smp_processor_id(), tick_broadcast_force_mask);
+> +#endif
+>  }
 
-Hi Peter,
+This is somewhat not-ideal. :/
 
-Sorry for the delay; my plate has also been rather full recently. I'm beginning
-to page this in now.
-
-> These here few patches mostly clear out the utter mess that is cpuidle vs rcuidle.
-> 
-> At the end of the ride there's only 2 real RCU_NONIDLE() users left
-> 
->   arch/arm64/kernel/suspend.c:            RCU_NONIDLE(__cpu_suspend_exit());
->   drivers/perf/arm_pmu.c:                 RCU_NONIDLE(armpmu_start(event, PERF_EF_RELOAD));
-
-The latter of these is necessary because apparently PM notifiers are called
-with RCU not watching. Is that still the case today (or at the end of this
-series)? If so, that feels like fertile land for more issues (yaey...). If not,
-we should be able to drop this.
-
-I can go dig into that some more.
-
->   kernel/cfi.c:   RCU_NONIDLE({
-> 
-> (the CFI one is likely dead in the kCFI rewrite) and there's only a hand full
-> of trace_.*_rcuidle() left:
-> 
->   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
->   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
->   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, caller_addr);
->   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, caller_addr);
->   kernel/trace/trace_preemptirq.c:                trace_preempt_enable_rcuidle(a0, a1);
->   kernel/trace/trace_preemptirq.c:                trace_preempt_disable_rcuidle(a0, a1);
-> 
-> All of them are in 'deprecated' code that is unused for GENERIC_ENTRY.
-
-I think those are also unused on arm64 too?
-
-If not, I can go attack that.
-
-> I've touched a _lot_ of code that I can't test and likely broken some of it :/
-> In particular, the whole ARM cpuidle stuff was quite involved with OMAP being
-> the absolute 'winner'.
-> 
-> I'm hoping Mark can help me sort the remaining ARM64 bits as he moves that to
-> GENERIC_ENTRY.
-
-Moving to GENERIC_ENTRY as a whole is going to take a tonne of work
-(refactoring both arm64 and the generic portion to be more amenable to each
-other), but we can certainly move closer to that for the bits that matter here.
-
-Maybe we want a STRICT_ENTRY option to get rid of all the deprecated stuff that
-we can select regardless of GENERIC_ENTRY to make that easier.
-
-> I've also got a note that says ARM64 can probably do a WFE based
-> idle state and employ TIF_POLLING_NRFLAG to avoid some IPIs.
-
-Possibly; I'm not sure how much of a win that'll be given that by default we'll
-have a ~10KHz WFE wakeup from the timer, but we could take a peek.
+Could we unconditionally do the arch_test_bit() variant, with a comment, or
+does that not exist in some cases?
 
 Thanks,
 Mark.
