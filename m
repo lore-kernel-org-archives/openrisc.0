@@ -2,31 +2,36 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED97DC43334
-	for <openrisc@archiver.kernel.org>; Tue, 14 Jun 2022 20:01:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B132FCCA47B
+	for <openrisc@archiver.kernel.org>; Tue, 14 Jun 2022 20:01:58 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 5A66B24995;
+	by mail.librecores.org (Postfix) with ESMTP id 9816724999;
 	Tue, 14 Jun 2022 22:01:56 +0200 (CEST)
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by mail.librecores.org (Postfix) with ESMTP id 642EE247DA
- for <openrisc@lists.librecores.org>; Tue, 14 Jun 2022 14:41:36 +0200 (CEST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 78E001650;
- Tue, 14 Jun 2022 05:41:35 -0700 (PDT)
-Received: from FVFF77S0Q05N (unknown [10.57.41.154])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9CDCF3F73B;
- Tue, 14 Jun 2022 05:41:17 -0700 (PDT)
-Date: Tue, 14 Jun 2022 13:41:13 +0100
-From: Mark Rutland <mark.rutland@arm.com>
-To: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 14/36] cpuidle: Fix rcu_idle_*() usage
-Message-ID: <YqiB6YpVqq4wuDtO@FVFF77S0Q05N>
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+ by mail.librecores.org (Postfix) with ESMTPS id D0D9724310
+ for <openrisc@lists.librecores.org>; Tue, 14 Jun 2022 16:37:48 +0200 (CEST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by ams.source.kernel.org (Postfix) with ESMTPS id 2E406B81865;
+ Tue, 14 Jun 2022 14:37:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D478C3411C;
+ Tue, 14 Jun 2022 14:37:34 +0000 (UTC)
+Date: Tue, 14 Jun 2022 10:37:32 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Petr Mladek <pmladek@suse.com>
+Subject: Re: [PATCH 24/36] printk: Remove trace_.*_rcuidle() usage
+Message-ID: <20220614103732.489ba62b@gandalf.local.home>
+In-Reply-To: <YqHvXFdIJfvUDI6e@alley>
 References: <20220608142723.103523089@infradead.org>
- <20220608144516.808451191@infradead.org>
+ <20220608144517.444659212@infradead.org> <YqG6URbihTNCk9YR@alley>
+ <YqHFHB6qqv5wiR8t@worktop.programming.kicks-ass.net>
+ <CA+_sPaoJGrXhNPCs2dKf2J7u07y1xYrRFZBUtkKwzK9GqcHSuQ@mail.gmail.com>
+ <YqHvXFdIJfvUDI6e@alley>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220608144516.808451191@infradead.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-Mailman-Approved-At: Tue, 14 Jun 2022 22:01:55 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
@@ -47,15 +52,16 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
  linux-acpi@vger.kernel.org, agross@kernel.org, linux-imx@nxp.com,
  catalin.marinas@arm.com, xen-devel@lists.xenproject.org, mattst88@gmail.com,
  borntraeger@linux.ibm.com, mturquette@baylibre.com, sammy@sammy.net,
- pmladek@suse.com, linux-pm@vger.kernel.org, jiangshanlai@gmail.com,
+ linux-pm@vger.kernel.org, jiangshanlai@gmail.com,
  Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org,
  acme@kernel.org, tglx@linutronix.de, linux-omap@vger.kernel.org,
- dietmar.eggemann@arm.com, rth@twiddle.net, gregkh@linuxfoundation.org,
+ dietmar.eggemann@arm.com, gregkh@linuxfoundation.org,
  linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
- senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org,
- paulus@samba.org, linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
+ Sergey Senozhatsky <senozhatsky@chromium.org>, svens@linux.ibm.com,
+ jolsa@kernel.org, paulus@samba.org, mark.rutland@arm.com,
+ linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
  virtualization@lists.linux-foundation.org,
- James.Bottomley@HansenPartnership.com, jcmvbkbc@gmail.com,
+ James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
  thierry.reding@gmail.com, kernel@xen0n.name, quic_neeraju@quicinc.com,
  linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
  ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, festevam@gmail.com,
@@ -67,49 +73,42 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
  chris@zankel.net, sboyd@kernel.org, dinguyen@kernel.org, bristot@redhat.com,
  alexander.shishkin@linux.intel.com, lpieralisi@kernel.org,
  linux@rasmusvillemoes.dk, joel@joelfernandes.org, will@kernel.org,
- boris.ostrovsky@oracle.com, khilman@kernel.org, linux-csky@vger.kernel.org,
- pv-drivers@vmware.com, linux-snps-arc@lists.infradead.org, mgorman@suse.de,
- jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
- ulli.kroll@googlemail.com, vgupta@kernel.org, linux-clk@vger.kernel.org,
- josh@joshtriplett.org, rostedt@goodmis.org, rcu@vger.kernel.org, bp@alien8.de,
- bcain@quicinc.com, tsbogend@alpha.franken.de, linux-parisc@vger.kernel.org,
- sudeep.holla@arm.com, shawnguo@kernel.org, davem@davemloft.net,
- dalias@libc.org, tony@atomide.com, amakhalov@vmware.com,
+ boris.ostrovsky@oracle.com, josh@joshtriplett.org, khilman@kernel.org,
+ linux-csky@vger.kernel.org, tony@atomide.com,
+ linux-snps-arc@lists.infradead.org, mgorman@suse.de,
+ jacob.jun.pan@linux.intel.com, yury.norov@gmail.com, ulli.kroll@googlemail.com,
+ vgupta@kernel.org, linux-clk@vger.kernel.org, monstr@monstr.eu,
+ rcu@vger.kernel.org, bp@alien8.de, bcain@quicinc.com,
+ tsbogend@alpha.franken.de, linux-parisc@vger.kernel.org, sudeep.holla@arm.com,
+ shawnguo@kernel.org, davem@davemloft.net, dalias@libc.org,
+ Peter Zijlstra <peterz@infradead.org>, amakhalov@vmware.com,
  bjorn.andersson@linaro.org, hpa@zytor.com, sparclinux@vger.kernel.org,
  linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org,
- anton.ivanov@cambridgegreys.com, jonas@southpole.se, yury.norov@gmail.com,
- richard@nod.at, x86@kernel.org, linux@armlinux.org.uk, mingo@redhat.com,
- aou@eecs.berkeley.edu, paulmck@kernel.org, hca@linux.ibm.com,
- openrisc@lists.librecores.org, paul.walmsley@sifive.com,
- linux-tegra@vger.kernel.org, namhyung@kernel.org,
+ anton.ivanov@cambridgegreys.com, jonas@southpole.se,
+ Arnd Bergmann <arnd@arndb.de>, richard@nod.at, x86@kernel.org,
+ linux@armlinux.org.uk, mingo@redhat.com, aou@eecs.berkeley.edu,
+ paulmck@kernel.org, hca@linux.ibm.com, openrisc@lists.librecores.org,
+ paul.walmsley@sifive.com, linux-tegra@vger.kernel.org, namhyung@kernel.org,
  andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, jgross@suse.com,
- monstr@monstr.eu, linux-mips@vger.kernel.org, palmer@dabbelt.com,
+ pv-drivers@vmware.com, linux-mips@vger.kernel.org, palmer@dabbelt.com,
  anup@brainfault.org, ink@jurassic.park.msu.ru, johannes@sipsolutions.net,
  linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Wed, Jun 08, 2022 at 04:27:37PM +0200, Peter Zijlstra wrote:
-> --- a/kernel/time/tick-broadcast.c
-> +++ b/kernel/time/tick-broadcast.c
-> @@ -622,9 +622,13 @@ struct cpumask *tick_get_broadcast_onesh
->   * to avoid a deep idle transition as we are about to get the
->   * broadcast IPI right away.
->   */
-> -int tick_check_broadcast_expired(void)
-> +noinstr int tick_check_broadcast_expired(void)
->  {
-> +#ifdef _ASM_GENERIC_BITOPS_INSTRUMENTED_NON_ATOMIC_H
-> +	return arch_test_bit(smp_processor_id(), cpumask_bits(tick_broadcast_force_mask));
-> +#else
->  	return cpumask_test_cpu(smp_processor_id(), tick_broadcast_force_mask);
-> +#endif
->  }
+On Thu, 9 Jun 2022 15:02:20 +0200
+Petr Mladek <pmladek@suse.com> wrote:
 
-This is somewhat not-ideal. :/
+> > I'm somewhat curious whether we can actually remove that trace event.  
+> 
+> Good question.
+> 
+> Well, I think that it might be useful. It allows to see trace and
+> printk messages together.
 
-Could we unconditionally do the arch_test_bit() variant, with a comment, or
-does that not exist in some cases?
+Yes people still use it. I was just asked about it at Kernel Recipes. That
+is, someone wanted printk mixed in with the tracing, and I told them about
+this event (which they didn't know about but was happy to hear that it
+existed).
 
-Thanks,
-Mark.
+-- Steve
