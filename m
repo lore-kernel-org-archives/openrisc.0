@@ -2,50 +2,44 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F185C43334
-	for <openrisc@archiver.kernel.org>; Mon, 27 Jun 2022 17:15:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DD76C43334
+	for <openrisc@archiver.kernel.org>; Tue, 28 Jun 2022 00:02:42 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 0EFDA2492C;
-	Mon, 27 Jun 2022 19:15:02 +0200 (CEST)
-Received: from mailrelay4-1.pub.mailoutpod1-cph3.one.com
- (mailrelay4-1.pub.mailoutpod1-cph3.one.com [46.30.210.185])
- by mail.librecores.org (Postfix) with ESMTPS id AE6D92492A
- for <openrisc@lists.librecores.org>; Mon, 27 Jun 2022 19:14:59 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ravnborg.org; s=rsa1;
- h=in-reply-to:content-type:mime-version:references:message-id:subject:cc:to:
- from:date:from;
- bh=7lcoTIguoCU25UtATqw0zpenNexDp4klBKBcas47lUI=;
- b=DnMKzuyWChdqVj0eyu9qk+S12hDc5E1lpoUVu+RwnrA66JDBO9VVaJjjgy7iZh0CwjBX0Tb2UW9eA
- IDL3blt0HWe+7nCJ6LBbtgtWCdYTIJf7JxMi5tEKyk04dMJhxQKgJhN19n7gZmip7ExOCH60av6Zc+
- fpOnPKVrkcE6dB7IpmBBA5V/48B5nOCXs0dWxrIHUJoi6B5gDTxnps7C32yW7RQiRmwMZofOskZtJ1
- g5yggk+VyjJho8A1QsSz/r/K9taqv0SWrqNZr//W7DugrtnSjHFKtDOi/ahsacud1GZwml0SRslSij
- +WBGlPijIt3aAxUmrpMXX3P747L7FOQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed;
- d=ravnborg.org; s=ed1;
- h=in-reply-to:content-type:mime-version:references:message-id:subject:cc:to:
- from:date:from;
- bh=7lcoTIguoCU25UtATqw0zpenNexDp4klBKBcas47lUI=;
- b=0c4FfNqt1mwTyFHOd20j3eJXx+yZAcz5xOVj+2VVBhkRNfl+lcYaMnmV/txPP7q97nUwiERp2Rz/D
- LTtF3EvDA==
-X-HalOne-Cookie: be347a0a6f76c63821867329f3b288b192d004df
-X-HalOne-ID: ab689703-f63c-11ec-8236-d0431ea8bb10
-Received: from mailproxy2.cst.dirpod3-cph3.one.com
- (80-162-45-141-cable.dk.customer.tdc.net [80.162.45.141])
- by mailrelay4.pub.mailoutpod1-cph3.one.com (Halon) with ESMTPSA
- id ab689703-f63c-11ec-8236-d0431ea8bb10;
- Mon, 27 Jun 2022 17:14:58 +0000 (UTC)
-Date: Mon, 27 Jun 2022 19:14:56 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: Re: [PATCH V5 04/26] sparc/mm: Move protection_map[] inside the
- platform
-Message-ID: <YrnlkLbyYSbI0EQw@ravnborg.org>
-References: <20220627045833.1590055-1-anshuman.khandual@arm.com>
- <20220627045833.1590055-5-anshuman.khandual@arm.com>
+	by mail.librecores.org (Postfix) with ESMTP id 56F422492D;
+	Tue, 28 Jun 2022 02:02:41 +0200 (CEST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+ by mail.librecores.org (Postfix) with ESMTPS id 21E51213CC
+ for <openrisc@lists.librecores.org>; Tue, 28 Jun 2022 02:02:39 +0200 (CEST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id 902326130F;
+ Tue, 28 Jun 2022 00:02:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E60FC34115;
+ Tue, 28 Jun 2022 00:02:36 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+ dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com
+ header.b="MEBk7vXW"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105; 
+ t=1656374554;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=FQZUKap5XDNkZfcRyXkPVi3bbUHLQHnsSG5bGqyP4Gs=;
+ b=MEBk7vXWX9UxdXzAdEHnClyt7qh/hAjxGeO5aDwQEp+3YPsSYyWcoowjA0G91IZd0yzh2V
+ kADyTqVjLdCONybrElAPkuNf5RSt891Ef9Fy6pFWyKLziDXhZ/oSGKWiVfkyY0co7a0/a1
+ LD7l8b0Kqq9/e/3+qxIuUvIvNLk81CY=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 8c2a650d
+ (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO); 
+ Tue, 28 Jun 2022 00:02:34 +0000 (UTC)
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+To: linux-kernel@vger.kernel.org, openrisc@lists.librecores.org,
+ shorne@gmail.com
+Subject: [PATCH] wireguard: selftests: support OpenRISC
+Date: Tue, 28 Jun 2022 02:02:10 +0200
+Message-Id: <20220628000210.763674-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220627045833.1590055-5-anshuman.khandual@arm.com>
+Content-Transfer-Encoding: 8bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -58,166 +52,77 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-csky@vger.kernel.org,
- sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-hexagon@vger.kernel.org, x86@kernel.org,
- christophe.leroy@csgroup.eu, hch@infradead.org,
- linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org,
- linux-um@lists.infradead.org, linux-m68k@lists.linux-m68k.org,
- openrisc@lists.librecores.org, linux-arm-kernel@lists.infradead.org,
- linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org,
- linux-alpha@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
- linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Hi Anshuman,
+Stafford and I have been using this to shake out OpenRISC bugs, and it's
+been a great help, so it's time OpenRISC support for the WireGuard test
+suite is made into a proper commit. The QEMU changes necessary for this
+to work should also be around the corner now, and they seem some what
+stationary in their interface too.
 
-On Mon, Jun 27, 2022 at 10:28:11AM +0530, Anshuman Khandual wrote:
-> This moves protection_map[] inside the platform and while here, also enable
-> ARCH_HAS_VM_GET_PAGE_PROT on 32 bit platforms via DECLARE_VM_GET_PAGE_PROT.
-> 
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: sparclinux@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-> ---
->  arch/sparc/Kconfig                  |  2 +-
->  arch/sparc/include/asm/pgtable_32.h | 19 -------------------
->  arch/sparc/include/asm/pgtable_64.h | 19 -------------------
->  arch/sparc/mm/init_32.c             | 20 ++++++++++++++++++++
->  arch/sparc/mm/init_64.c             |  3 +++
->  5 files changed, 24 insertions(+), 39 deletions(-)
-> 
-> diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-> index ba449c47effd..09f868613a4d 100644
-> --- a/arch/sparc/Kconfig
-> +++ b/arch/sparc/Kconfig
-> @@ -13,6 +13,7 @@ config 64BIT
->  config SPARC
->  	bool
->  	default y
-> +	select ARCH_HAS_VM_GET_PAGE_PROT
->  	select ARCH_MIGHT_HAVE_PC_PARPORT if SPARC64 && PCI
->  	select ARCH_MIGHT_HAVE_PC_SERIO
->  	select DMA_OPS
-> @@ -84,7 +85,6 @@ config SPARC64
->  	select PERF_USE_VMALLOC
->  	select ARCH_HAVE_NMI_SAFE_CMPXCHG
->  	select HAVE_C_RECORDMCOUNT
-> -	select ARCH_HAS_VM_GET_PAGE_PROT
->  	select HAVE_ARCH_AUDITSYSCALL
->  	select ARCH_SUPPORTS_ATOMIC_RMW
->  	select ARCH_SUPPORTS_DEBUG_PAGEALLOC
-> diff --git a/arch/sparc/include/asm/pgtable_32.h b/arch/sparc/include/asm/pgtable_32.h
-> index 4866625da314..8ff549004fac 100644
-> --- a/arch/sparc/include/asm/pgtable_32.h
-> +++ b/arch/sparc/include/asm/pgtable_32.h
-> @@ -64,25 +64,6 @@ void paging_init(void);
->  
->  extern unsigned long ptr_in_current_pgd;
->  
-> -/*         xwr */
-> -#define __P000  PAGE_NONE
-> -#define __P001  PAGE_READONLY
-> -#define __P010  PAGE_COPY
-> -#define __P011  PAGE_COPY
-> -#define __P100  PAGE_READONLY
-> -#define __P101  PAGE_READONLY
-> -#define __P110  PAGE_COPY
-> -#define __P111  PAGE_COPY
-> -
-> -#define __S000	PAGE_NONE
-> -#define __S001	PAGE_READONLY
-> -#define __S010	PAGE_SHARED
-> -#define __S011	PAGE_SHARED
-> -#define __S100	PAGE_READONLY
-> -#define __S101	PAGE_READONLY
-> -#define __S110	PAGE_SHARED
-> -#define __S111	PAGE_SHARED
-> -
->  /* First physical page can be anywhere, the following is needed so that
->   * va-->pa and vice versa conversions work properly without performance
->   * hit for all __pa()/__va() operations.
-> diff --git a/arch/sparc/include/asm/pgtable_64.h b/arch/sparc/include/asm/pgtable_64.h
-> index 4679e45c8348..a779418ceba9 100644
-> --- a/arch/sparc/include/asm/pgtable_64.h
-> +++ b/arch/sparc/include/asm/pgtable_64.h
-> @@ -187,25 +187,6 @@ bool kern_addr_valid(unsigned long addr);
->  #define _PAGE_SZHUGE_4U	_PAGE_SZ4MB_4U
->  #define _PAGE_SZHUGE_4V	_PAGE_SZ4MB_4V
->  
-> -/* These are actually filled in at boot time by sun4{u,v}_pgprot_init() */
-> -#define __P000	__pgprot(0)
-> -#define __P001	__pgprot(0)
-> -#define __P010	__pgprot(0)
-> -#define __P011	__pgprot(0)
-> -#define __P100	__pgprot(0)
-> -#define __P101	__pgprot(0)
-> -#define __P110	__pgprot(0)
-> -#define __P111	__pgprot(0)
-> -
-> -#define __S000	__pgprot(0)
-> -#define __S001	__pgprot(0)
-> -#define __S010	__pgprot(0)
-> -#define __S011	__pgprot(0)
-> -#define __S100	__pgprot(0)
-> -#define __S101	__pgprot(0)
-> -#define __S110	__pgprot(0)
-> -#define __S111	__pgprot(0)
-> -
->  #ifndef __ASSEMBLY__
->  
->  pte_t mk_pte_io(unsigned long, pgprot_t, int, unsigned long);
-> diff --git a/arch/sparc/mm/init_32.c b/arch/sparc/mm/init_32.c
-> index 1e9f577f084d..8693e4e28b86 100644
-> --- a/arch/sparc/mm/init_32.c
-> +++ b/arch/sparc/mm/init_32.c
-> @@ -302,3 +302,23 @@ void sparc_flush_page_to_ram(struct page *page)
->  		__flush_page_to_ram(vaddr);
->  }
->  EXPORT_SYMBOL(sparc_flush_page_to_ram);
-> +
-> +static pgprot_t protection_map[16] __ro_after_init = {
-This can be const - like done for powerpc and others.
-sparc32 and sparc64 uses each their own - and I do not see sparc32 do
-any modifications to protection_map.
+Cc: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+ .../testing/selftests/wireguard/qemu/Makefile | 13 ++++++++++-
+ .../selftests/wireguard/qemu/arch/or1k.config | 22 +++++++++++++++++++
+ 2 files changed, 34 insertions(+), 1 deletion(-)
+ create mode 100644 tools/testing/selftests/wireguard/qemu/arch/or1k.config
 
-With this change:
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+diff --git a/tools/testing/selftests/wireguard/qemu/Makefile b/tools/testing/selftests/wireguard/qemu/Makefile
+index 7d1b80988d8a..57b00578b86f 100644
+--- a/tools/testing/selftests/wireguard/qemu/Makefile
++++ b/tools/testing/selftests/wireguard/qemu/Makefile
+@@ -247,8 +247,19 @@ QEMU_MACHINE := -cpu host,accel=kvm -machine s390-ccw-virtio -append $(KERNEL_CM
+ else
+ QEMU_MACHINE := -cpu max -machine s390-ccw-virtio -append $(KERNEL_CMDLINE)
+ endif
++else ifeq ($(ARCH),or1k)
++CHOST := or1k-linux-musl
++QEMU_ARCH := or1k
++KERNEL_ARCH := openrisc
++KERNEL_BZIMAGE := $(KERNEL_BUILD_PATH)/vmlinux
++QEMU_VPORT_RESULT := virtio-serial-device
++ifeq ($(HOST_ARCH),$(ARCH))
++QEMU_MACHINE := -cpu host,accel=kvm -machine virt
++else
++QEMU_MACHINE := -cpu or1200 -machine virt
++endif
+ else
+-$(error I only build: x86_64, i686, arm, armeb, aarch64, aarch64_be, mips, mipsel, mips64, mips64el, powerpc64, powerpc64le, powerpc, m68k, riscv64, riscv32, s390x)
++$(error I only build: x86_64, i686, arm, armeb, aarch64, aarch64_be, mips, mipsel, mips64, mips64el, powerpc64, powerpc64le, powerpc, m68k, riscv64, riscv32, s390x, or1k)
+ endif
+ 
+ TOOLCHAIN_FILENAME := $(CHOST)-cross.tgz
+diff --git a/tools/testing/selftests/wireguard/qemu/arch/or1k.config b/tools/testing/selftests/wireguard/qemu/arch/or1k.config
+new file mode 100644
+index 000000000000..164dce530ccb
+--- /dev/null
++++ b/tools/testing/selftests/wireguard/qemu/arch/or1k.config
+@@ -0,0 +1,22 @@
++CONFIG_OPENRISC_HAVE_INST_FF1=y
++CONFIG_OPENRISC_HAVE_INST_FL1=y
++CONFIG_OPENRISC_HAVE_INST_MUL=y
++CONFIG_OPENRISC_HAVE_INST_DIV=y
++CONFIG_OPENRISC_HAVE_INST_CMOV=y
++CONFIG_OPENRISC_HAVE_INST_ROR=y
++CONFIG_OPENRISC_HAVE_INST_RORI=y
++CONFIG_OPENRISC_HAVE_INST_SEXT=y
++CONFIG_OPENRISC_NO_SPR_SR_DSX=y
++CONFIG_JUMP_UPON_UNHANDLED_EXCEPTION=y
++CONFIG_COMPAT_32BIT_TIME=y
++CONFIG_SERIAL_8250=y
++CONFIG_SERIAL_8250_CONSOLE=y
++CONFIG_SERIAL_OF_PLATFORM=y
++CONFIG_VIRTIO_MENU=y
++CONFIG_VIRTIO_MMIO=y
++CONFIG_VIRTIO_CONSOLE=y
++CONFIG_POWER_RESET=y
++CONFIG_POWER_RESET_SYSCON=y
++CONFIG_POWER_RESET_SYSCON_POWEROFF=y
++CONFIG_SYSCON_REBOOT_MODE=y
++CONFIG_CMDLINE="console=ttyS0 wg.success=vport0p1 panic_on_warn=1"
+-- 
+2.35.1
 
-> +	[VM_NONE]					= PAGE_NONE,
-> +	[VM_READ]					= PAGE_READONLY,
-> +	[VM_WRITE]					= PAGE_COPY,
-> +	[VM_WRITE | VM_READ]				= PAGE_COPY,
-> +	[VM_EXEC]					= PAGE_READONLY,
-> +	[VM_EXEC | VM_READ]				= PAGE_READONLY,
-> +	[VM_EXEC | VM_WRITE]				= PAGE_COPY,
-> +	[VM_EXEC | VM_WRITE | VM_READ]			= PAGE_COPY,
-> +	[VM_SHARED]					= PAGE_NONE,
-> +	[VM_SHARED | VM_READ]				= PAGE_READONLY,
-> +	[VM_SHARED | VM_WRITE]				= PAGE_SHARED,
-> +	[VM_SHARED | VM_WRITE | VM_READ]		= PAGE_SHARED,
-> +	[VM_SHARED | VM_EXEC]				= PAGE_READONLY,
-> +	[VM_SHARED | VM_EXEC | VM_READ]			= PAGE_READONLY,
-> +	[VM_SHARED | VM_EXEC | VM_WRITE]		= PAGE_SHARED,
-> +	[VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]	= PAGE_SHARED
-> +};
-> +DECLARE_VM_GET_PAGE_PROT
-> diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
-> index f6174df2d5af..d6faee23c77d 100644
-> --- a/arch/sparc/mm/init_64.c
-> +++ b/arch/sparc/mm/init_64.c
-> @@ -2634,6 +2634,9 @@ void vmemmap_free(unsigned long start, unsigned long end,
->  }
->  #endif /* CONFIG_SPARSEMEM_VMEMMAP */
->  
-> +/* These are actually filled in at boot time by sun4{u,v}_pgprot_init() */
-> +static pgprot_t protection_map[16] __ro_after_init;
-> +
->  static void prot_init_common(unsigned long page_none,
->  			     unsigned long page_shared,
->  			     unsigned long page_copy,
-> -- 
-> 2.25.1
