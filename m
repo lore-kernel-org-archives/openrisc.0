@@ -2,44 +2,59 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DD76C43334
-	for <openrisc@archiver.kernel.org>; Tue, 28 Jun 2022 00:02:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B08F8CCA47F
+	for <openrisc@archiver.kernel.org>; Tue, 28 Jun 2022 00:37:52 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 56F422492D;
-	Tue, 28 Jun 2022 02:02:41 +0200 (CEST)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by mail.librecores.org (Postfix) with ESMTPS id 21E51213CC
- for <openrisc@lists.librecores.org>; Tue, 28 Jun 2022 02:02:39 +0200 (CEST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id 902326130F;
- Tue, 28 Jun 2022 00:02:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E60FC34115;
- Tue, 28 Jun 2022 00:02:36 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
- dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com
- header.b="MEBk7vXW"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105; 
- t=1656374554;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding;
- bh=FQZUKap5XDNkZfcRyXkPVi3bbUHLQHnsSG5bGqyP4Gs=;
- b=MEBk7vXWX9UxdXzAdEHnClyt7qh/hAjxGeO5aDwQEp+3YPsSYyWcoowjA0G91IZd0yzh2V
- kADyTqVjLdCONybrElAPkuNf5RSt891Ef9Fy6pFWyKLziDXhZ/oSGKWiVfkyY0co7a0/a1
- LD7l8b0Kqq9/e/3+qxIuUvIvNLk81CY=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 8c2a650d
- (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO); 
- Tue, 28 Jun 2022 00:02:34 +0000 (UTC)
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-To: linux-kernel@vger.kernel.org, openrisc@lists.librecores.org,
- shorne@gmail.com
-Subject: [PATCH] wireguard: selftests: support OpenRISC
-Date: Tue, 28 Jun 2022 02:02:10 +0200
-Message-Id: <20220628000210.763674-1-Jason@zx2c4.com>
+	by mail.librecores.org (Postfix) with ESMTP id 842902492D;
+	Tue, 28 Jun 2022 02:37:51 +0200 (CEST)
+Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com
+ [209.85.215.170])
+ by mail.librecores.org (Postfix) with ESMTPS id 64C77248B4
+ for <openrisc@lists.librecores.org>; Tue, 28 Jun 2022 02:37:50 +0200 (CEST)
+Received: by mail-pg1-f170.google.com with SMTP id 9so10618885pgd.7
+ for <openrisc@lists.librecores.org>; Mon, 27 Jun 2022 17:37:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=WTNG3z1MrUyxvL7UAQDTN+O62H0agMHqunU14S/ptwM=;
+ b=hhocxqSdC6zt/X72YVNhrC4Izpj6zT6NwuR7oH5SWCdKYj3vDTIaTq/73pUv4nIZCk
+ 1nVvOmCmFxtMMMZWie2lc3OEVmqDBfSFW7ysYt1t8mvElbtw4mIHfHmnyNcoTGkHJiSV
+ YCEyT/tfECs4lK3RXhcIfgZ1hS6cuLCbyVqatszIJe7idcDlEYp5x+Q5XBWyhiNraMku
+ QKtgu5MbvZFC5g3ZcElmT/i1PDlMxe12u85pSuSuUVoJg4KTWTu5JX8jY2wsFadZXYjR
+ r3XVwm0OaoiP4beB3MfX4+h/2K7v/Hsq4fZ/qQaU8lS2I8JNganG3ZAU2CNrIK62CQbx
+ ZHIA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=WTNG3z1MrUyxvL7UAQDTN+O62H0agMHqunU14S/ptwM=;
+ b=EK6TmveP+YokRLqTQiMlmXqVe3+Qzle/Ya+boRBBw0rbrXnp0FN1pSYlv8NEwRbK5S
+ ZaM4pX04EUub3hko3dYsTUANj79xbb1SS6TvpFcExAUAEYyeoW3La7hAJEdh3dMJudlZ
+ T68Av/rH42MEt/GAPvaGEwS+/sQAJwRNdp1627IHc15RYiiBg0zPCcvolkUawsWZTVx/
+ pKeaVkdSd9qYvDYg/RaEFXMcQagDYpLehXaePezUAfYuj/fUMz6j1x/6s1p8cqvaEBgL
+ wdW1FjBf8lroTEJY1Ws6DnaxuUh4ngS337j/N+5Tdfy5yp/LAj5uK32UP0ojZF+UCkEo
+ ky9w==
+X-Gm-Message-State: AJIora+1OVbOLMEnhqTUaRgkkYMdLvIoApjkHDI7pJrByswbPrCuM54O
+ sOM/+gVO5aextW6zhKKlgLQ=
+X-Google-Smtp-Source: AGRyM1tXLWLExWaF3rho6vquGXKFaLiWxx+kW8N1Jw5PU6QD2iuAv2WMGy5jKkMrvusmVrYLCgiIzA==
+X-Received: by 2002:a05:6a00:b43:b0:525:2a02:8bdc with SMTP id
+ p3-20020a056a000b4300b005252a028bdcmr641976pfo.28.1656376668788; 
+ Mon, 27 Jun 2022 17:37:48 -0700 (PDT)
+Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
+ by smtp.gmail.com with ESMTPSA id
+ f10-20020a631f0a000000b003fbb455040dsm7670803pgf.84.2022.06.27.17.37.47
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 27 Jun 2022 17:37:47 -0700 (PDT)
+Date: Tue, 28 Jun 2022 09:37:46 +0900
+From: Stafford Horne <shorne@gmail.com>
+To: Xiang wangx <wangxiang@cdjrlc.com>
+Subject: Re: [PATCH] openrisc: Fix syntax errors in comments
+Message-ID: <YrpNWjLqHZrcrhl6@antec>
+References: <20220602085350.12741-1-wangxiang@cdjrlc.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220602085350.12741-1-wangxiang@cdjrlc.com>
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -52,77 +67,35 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: jonas@southpole.se, openrisc@lists.librecores.org,
+ linux-kernel@vger.kernel.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Stafford and I have been using this to shake out OpenRISC bugs, and it's
-been a great help, so it's time OpenRISC support for the WireGuard test
-suite is made into a proper commit. The QEMU changes necessary for this
-to work should also be around the corner now, and they seem some what
-stationary in their interface too.
+On Thu, Jun 02, 2022 at 04:53:50PM +0800, Xiang wangx wrote:
+> Delete the redundant word 'the'.
+> 
+> Signed-off-by: Xiang wangx <wangxiang@cdjrlc.com>
+> ---
+>  arch/openrisc/kernel/unwinder.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/openrisc/kernel/unwinder.c b/arch/openrisc/kernel/unwinder.c
+> index 8ae15c2c1845..c6ad6f867a6a 100644
+> --- a/arch/openrisc/kernel/unwinder.c
+> +++ b/arch/openrisc/kernel/unwinder.c
+> @@ -25,7 +25,7 @@ struct or1k_frameinfo {
+>  /*
+>   * Verify a frameinfo structure.  The return address should be a valid text
+>   * address.  The frame pointer may be null if its the last frame, otherwise
+> - * the frame pointer should point to a location in the stack after the the
+> + * the frame pointer should point to a location in the stack after the
+>   * top of the next frame up.
+>   */
+>  static inline int or1k_frameinfo_valid(struct or1k_frameinfo *frameinfo)
+> -- 
+> 2.36.1
 
-Cc: Stafford Horne <shorne@gmail.com>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
----
- .../testing/selftests/wireguard/qemu/Makefile | 13 ++++++++++-
- .../selftests/wireguard/qemu/arch/or1k.config | 22 +++++++++++++++++++
- 2 files changed, 34 insertions(+), 1 deletion(-)
- create mode 100644 tools/testing/selftests/wireguard/qemu/arch/or1k.config
+This looks good to me, I will queue with 5.19 fixes.
 
-diff --git a/tools/testing/selftests/wireguard/qemu/Makefile b/tools/testing/selftests/wireguard/qemu/Makefile
-index 7d1b80988d8a..57b00578b86f 100644
---- a/tools/testing/selftests/wireguard/qemu/Makefile
-+++ b/tools/testing/selftests/wireguard/qemu/Makefile
-@@ -247,8 +247,19 @@ QEMU_MACHINE := -cpu host,accel=kvm -machine s390-ccw-virtio -append $(KERNEL_CM
- else
- QEMU_MACHINE := -cpu max -machine s390-ccw-virtio -append $(KERNEL_CMDLINE)
- endif
-+else ifeq ($(ARCH),or1k)
-+CHOST := or1k-linux-musl
-+QEMU_ARCH := or1k
-+KERNEL_ARCH := openrisc
-+KERNEL_BZIMAGE := $(KERNEL_BUILD_PATH)/vmlinux
-+QEMU_VPORT_RESULT := virtio-serial-device
-+ifeq ($(HOST_ARCH),$(ARCH))
-+QEMU_MACHINE := -cpu host,accel=kvm -machine virt
-+else
-+QEMU_MACHINE := -cpu or1200 -machine virt
-+endif
- else
--$(error I only build: x86_64, i686, arm, armeb, aarch64, aarch64_be, mips, mipsel, mips64, mips64el, powerpc64, powerpc64le, powerpc, m68k, riscv64, riscv32, s390x)
-+$(error I only build: x86_64, i686, arm, armeb, aarch64, aarch64_be, mips, mipsel, mips64, mips64el, powerpc64, powerpc64le, powerpc, m68k, riscv64, riscv32, s390x, or1k)
- endif
- 
- TOOLCHAIN_FILENAME := $(CHOST)-cross.tgz
-diff --git a/tools/testing/selftests/wireguard/qemu/arch/or1k.config b/tools/testing/selftests/wireguard/qemu/arch/or1k.config
-new file mode 100644
-index 000000000000..164dce530ccb
---- /dev/null
-+++ b/tools/testing/selftests/wireguard/qemu/arch/or1k.config
-@@ -0,0 +1,22 @@
-+CONFIG_OPENRISC_HAVE_INST_FF1=y
-+CONFIG_OPENRISC_HAVE_INST_FL1=y
-+CONFIG_OPENRISC_HAVE_INST_MUL=y
-+CONFIG_OPENRISC_HAVE_INST_DIV=y
-+CONFIG_OPENRISC_HAVE_INST_CMOV=y
-+CONFIG_OPENRISC_HAVE_INST_ROR=y
-+CONFIG_OPENRISC_HAVE_INST_RORI=y
-+CONFIG_OPENRISC_HAVE_INST_SEXT=y
-+CONFIG_OPENRISC_NO_SPR_SR_DSX=y
-+CONFIG_JUMP_UPON_UNHANDLED_EXCEPTION=y
-+CONFIG_COMPAT_32BIT_TIME=y
-+CONFIG_SERIAL_8250=y
-+CONFIG_SERIAL_8250_CONSOLE=y
-+CONFIG_SERIAL_OF_PLATFORM=y
-+CONFIG_VIRTIO_MENU=y
-+CONFIG_VIRTIO_MMIO=y
-+CONFIG_VIRTIO_CONSOLE=y
-+CONFIG_POWER_RESET=y
-+CONFIG_POWER_RESET_SYSCON=y
-+CONFIG_POWER_RESET_SYSCON_POWEROFF=y
-+CONFIG_SYSCON_REBOOT_MODE=y
-+CONFIG_CMDLINE="console=ttyS0 wg.success=vport0p1 panic_on_warn=1"
--- 
-2.35.1
-
+-Stafford
