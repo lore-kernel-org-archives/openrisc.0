@@ -2,59 +2,58 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B08F8CCA47F
-	for <openrisc@archiver.kernel.org>; Tue, 28 Jun 2022 00:37:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE486C43334
+	for <openrisc@archiver.kernel.org>; Tue, 28 Jun 2022 01:29:06 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 842902492D;
-	Tue, 28 Jun 2022 02:37:51 +0200 (CEST)
-Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com
- [209.85.215.170])
- by mail.librecores.org (Postfix) with ESMTPS id 64C77248B4
- for <openrisc@lists.librecores.org>; Tue, 28 Jun 2022 02:37:50 +0200 (CEST)
-Received: by mail-pg1-f170.google.com with SMTP id 9so10618885pgd.7
- for <openrisc@lists.librecores.org>; Mon, 27 Jun 2022 17:37:50 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 9B7BA2017F;
+	Tue, 28 Jun 2022 03:29:05 +0200 (CEST)
+Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com
+ [209.85.215.172])
+ by mail.librecores.org (Postfix) with ESMTPS id 6127024871
+ for <openrisc@lists.librecores.org>; Tue, 28 Jun 2022 03:29:03 +0200 (CEST)
+Received: by mail-pg1-f172.google.com with SMTP id q140so10713805pgq.6
+ for <openrisc@lists.librecores.org>; Mon, 27 Jun 2022 18:29:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=WTNG3z1MrUyxvL7UAQDTN+O62H0agMHqunU14S/ptwM=;
- b=hhocxqSdC6zt/X72YVNhrC4Izpj6zT6NwuR7oH5SWCdKYj3vDTIaTq/73pUv4nIZCk
- 1nVvOmCmFxtMMMZWie2lc3OEVmqDBfSFW7ysYt1t8mvElbtw4mIHfHmnyNcoTGkHJiSV
- YCEyT/tfECs4lK3RXhcIfgZ1hS6cuLCbyVqatszIJe7idcDlEYp5x+Q5XBWyhiNraMku
- QKtgu5MbvZFC5g3ZcElmT/i1PDlMxe12u85pSuSuUVoJg4KTWTu5JX8jY2wsFadZXYjR
- r3XVwm0OaoiP4beB3MfX4+h/2K7v/Hsq4fZ/qQaU8lS2I8JNganG3ZAU2CNrIK62CQbx
- ZHIA==
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=8E+gxTAN8rG2WVxuHrJcDTa+6kpi17eTJQwDbUSCKcU=;
+ b=R9593Yh/ziRj+PhSTZGNljtUYtRZ7KBVQKtqvdeZLDtVXwQxmJezp36t50uMBy2Fue
+ OAZ8d7yx/Q0WiuCTlblLoLk3ecQIFZRO8frKruDuNlKPHQuYNSWp2xyWEObU8I7+JFgI
+ 9ercAgwDqi2xZKpblouEWR+LMA/5t/2vbM7AUEo8XmAj1FEb62Fa8pjg1mFFwprsqd/r
+ oalvbNOgEQrg92Pyr/he4kQE7xVG6feGS8vqdTagaEmZlFnuDsEiKKjdPk6CFxaLP9aR
+ z3FuUjTiB2GJWQ/oj+QkEXWwP8WxPGVo+6XejS4SWK861G0vwzysi2pIUkw7Hb1z8qB3
+ v3Gg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=WTNG3z1MrUyxvL7UAQDTN+O62H0agMHqunU14S/ptwM=;
- b=EK6TmveP+YokRLqTQiMlmXqVe3+Qzle/Ya+boRBBw0rbrXnp0FN1pSYlv8NEwRbK5S
- ZaM4pX04EUub3hko3dYsTUANj79xbb1SS6TvpFcExAUAEYyeoW3La7hAJEdh3dMJudlZ
- T68Av/rH42MEt/GAPvaGEwS+/sQAJwRNdp1627IHc15RYiiBg0zPCcvolkUawsWZTVx/
- pKeaVkdSd9qYvDYg/RaEFXMcQagDYpLehXaePezUAfYuj/fUMz6j1x/6s1p8cqvaEBgL
- wdW1FjBf8lroTEJY1Ws6DnaxuUh4ngS337j/N+5Tdfy5yp/LAj5uK32UP0ojZF+UCkEo
- ky9w==
-X-Gm-Message-State: AJIora+1OVbOLMEnhqTUaRgkkYMdLvIoApjkHDI7pJrByswbPrCuM54O
- sOM/+gVO5aextW6zhKKlgLQ=
-X-Google-Smtp-Source: AGRyM1tXLWLExWaF3rho6vquGXKFaLiWxx+kW8N1Jw5PU6QD2iuAv2WMGy5jKkMrvusmVrYLCgiIzA==
-X-Received: by 2002:a05:6a00:b43:b0:525:2a02:8bdc with SMTP id
- p3-20020a056a000b4300b005252a028bdcmr641976pfo.28.1656376668788; 
- Mon, 27 Jun 2022 17:37:48 -0700 (PDT)
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=8E+gxTAN8rG2WVxuHrJcDTa+6kpi17eTJQwDbUSCKcU=;
+ b=iXcb2hbuiDDgBVRA+lpzhsCdeUi9EPaZx5nsEBLon9WzQlgdfYsAKI8kyy/LPnC/ZJ
+ 2gPYmICIYAu4QlO1rmRXUqIHAd02A5xPdBg2S8eI8NRB1H5TRi6Emuv4XmqRx91C+ZLj
+ mDDVmNXtieAGaf5VquCHuQP6iFyXKznv3pnwoXojgmSLrW6sUxrv9dGJSMJdkfXHWZuI
+ yIKQdXBKlosl6dCWYo1qrbZ6iCJ5OhaJofcUPeq1GqW9IkjOJpq1ntSSbWVew3BcsHoj
+ LwEDIifEWPk+P4C+cR3z1nQBi8ZgwnWxqg5uY5H9z2wDlIEAet9puzDFON9ctA/BZfrl
+ +O2g==
+X-Gm-Message-State: AJIora9VIfd00BmMUVI9+oQbVKaR29j5X366kj/8OTYr86MkYjdXd9sX
+ /A2I3r2kVGaT+YLIjKfLnJ0=
+X-Google-Smtp-Source: AGRyM1ua6NTQPrcwr20mLPjho7uV/TLlVfmN+1LnA/K+O1jHWhkJ5PMJPqzE6EuzG0El+n8W3Ez4wQ==
+X-Received: by 2002:a65:4501:0:b0:3fc:4895:283b with SMTP id
+ n1-20020a654501000000b003fc4895283bmr15473379pgq.231.1656379741940; 
+ Mon, 27 Jun 2022 18:29:01 -0700 (PDT)
 Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
  by smtp.gmail.com with ESMTPSA id
- f10-20020a631f0a000000b003fbb455040dsm7670803pgf.84.2022.06.27.17.37.47
+ k26-20020aa7821a000000b0052517150777sm7960560pfi.41.2022.06.27.18.29.01
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 27 Jun 2022 17:37:47 -0700 (PDT)
-Date: Tue, 28 Jun 2022 09:37:46 +0900
+ Mon, 27 Jun 2022 18:29:01 -0700 (PDT)
 From: Stafford Horne <shorne@gmail.com>
-To: Xiang wangx <wangxiang@cdjrlc.com>
-Subject: Re: [PATCH] openrisc: Fix syntax errors in comments
-Message-ID: <YrpNWjLqHZrcrhl6@antec>
-References: <20220602085350.12741-1-wangxiang@cdjrlc.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] irqchip: or1k-pic: Undefine mask_ack for level triggered
+ hardware
+Date: Tue, 28 Jun 2022 10:28:54 +0900
+Message-Id: <20220628012854.681220-1-shorne@gmail.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220602085350.12741-1-wangxiang@cdjrlc.com>
+Content-Transfer-Encoding: 8bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -67,35 +66,44 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: jonas@southpole.se, openrisc@lists.librecores.org,
- linux-kernel@vger.kernel.org
+Cc: Jonas Bonn <jonas@southpole.se>, Marc Zyngier <maz@kernel.org>,
+ Openrisc <openrisc@lists.librecores.org>, Thomas Gleixner <tglx@linutronix.de>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Thu, Jun 02, 2022 at 04:53:50PM +0800, Xiang wangx wrote:
-> Delete the redundant word 'the'.
-> 
-> Signed-off-by: Xiang wangx <wangxiang@cdjrlc.com>
-> ---
->  arch/openrisc/kernel/unwinder.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/openrisc/kernel/unwinder.c b/arch/openrisc/kernel/unwinder.c
-> index 8ae15c2c1845..c6ad6f867a6a 100644
-> --- a/arch/openrisc/kernel/unwinder.c
-> +++ b/arch/openrisc/kernel/unwinder.c
-> @@ -25,7 +25,7 @@ struct or1k_frameinfo {
->  /*
->   * Verify a frameinfo structure.  The return address should be a valid text
->   * address.  The frame pointer may be null if its the last frame, otherwise
-> - * the frame pointer should point to a location in the stack after the the
-> + * the frame pointer should point to a location in the stack after the
->   * top of the next frame up.
->   */
->  static inline int or1k_frameinfo_valid(struct or1k_frameinfo *frameinfo)
-> -- 
-> 2.36.1
+The mask_ack operation clears the interrupt by writing to the PICSR
+register.  This we don't want for level triggered interrupt because
+it does not actually clear the interrupt on the source hardware.
 
-This looks good to me, I will queue with 5.19 fixes.
+This was causing issues in qemu with multi core setups where
+interrupts would continue to fire even though they had been cleared in
+PICSR.
 
--Stafford
+Just remove the mask_ack operation.
+
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+Note,
+
+I currently have this queued with openrisc fixes for 5.19-rcX.  If this is ok
+with the IRQ maintainers I would like to have this merged via the OpenRISC
+queue.
+
+ drivers/irqchip/irq-or1k-pic.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/irqchip/irq-or1k-pic.c b/drivers/irqchip/irq-or1k-pic.c
+index 49b47e787644..f289ccd95291 100644
+--- a/drivers/irqchip/irq-or1k-pic.c
++++ b/drivers/irqchip/irq-or1k-pic.c
+@@ -66,7 +66,6 @@ static struct or1k_pic_dev or1k_pic_level = {
+ 		.name = "or1k-PIC-level",
+ 		.irq_unmask = or1k_pic_unmask,
+ 		.irq_mask = or1k_pic_mask,
+-		.irq_mask_ack = or1k_pic_mask_ack,
+ 	},
+ 	.handle = handle_level_irq,
+ 	.flags = IRQ_LEVEL | IRQ_NOPROBE,
+-- 
+2.36.1
+
