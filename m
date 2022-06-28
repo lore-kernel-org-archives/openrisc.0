@@ -2,58 +2,36 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE486C43334
-	for <openrisc@archiver.kernel.org>; Tue, 28 Jun 2022 01:29:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28B3BC43334
+	for <openrisc@archiver.kernel.org>; Tue, 28 Jun 2022 03:12:37 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 9B7BA2017F;
-	Tue, 28 Jun 2022 03:29:05 +0200 (CEST)
-Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com
- [209.85.215.172])
- by mail.librecores.org (Postfix) with ESMTPS id 6127024871
- for <openrisc@lists.librecores.org>; Tue, 28 Jun 2022 03:29:03 +0200 (CEST)
-Received: by mail-pg1-f172.google.com with SMTP id q140so10713805pgq.6
- for <openrisc@lists.librecores.org>; Mon, 27 Jun 2022 18:29:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=8E+gxTAN8rG2WVxuHrJcDTa+6kpi17eTJQwDbUSCKcU=;
- b=R9593Yh/ziRj+PhSTZGNljtUYtRZ7KBVQKtqvdeZLDtVXwQxmJezp36t50uMBy2Fue
- OAZ8d7yx/Q0WiuCTlblLoLk3ecQIFZRO8frKruDuNlKPHQuYNSWp2xyWEObU8I7+JFgI
- 9ercAgwDqi2xZKpblouEWR+LMA/5t/2vbM7AUEo8XmAj1FEb62Fa8pjg1mFFwprsqd/r
- oalvbNOgEQrg92Pyr/he4kQE7xVG6feGS8vqdTagaEmZlFnuDsEiKKjdPk6CFxaLP9aR
- z3FuUjTiB2GJWQ/oj+QkEXWwP8WxPGVo+6XejS4SWK861G0vwzysi2pIUkw7Hb1z8qB3
- v3Gg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=8E+gxTAN8rG2WVxuHrJcDTa+6kpi17eTJQwDbUSCKcU=;
- b=iXcb2hbuiDDgBVRA+lpzhsCdeUi9EPaZx5nsEBLon9WzQlgdfYsAKI8kyy/LPnC/ZJ
- 2gPYmICIYAu4QlO1rmRXUqIHAd02A5xPdBg2S8eI8NRB1H5TRi6Emuv4XmqRx91C+ZLj
- mDDVmNXtieAGaf5VquCHuQP6iFyXKznv3pnwoXojgmSLrW6sUxrv9dGJSMJdkfXHWZuI
- yIKQdXBKlosl6dCWYo1qrbZ6iCJ5OhaJofcUPeq1GqW9IkjOJpq1ntSSbWVew3BcsHoj
- LwEDIifEWPk+P4C+cR3z1nQBi8ZgwnWxqg5uY5H9z2wDlIEAet9puzDFON9ctA/BZfrl
- +O2g==
-X-Gm-Message-State: AJIora9VIfd00BmMUVI9+oQbVKaR29j5X366kj/8OTYr86MkYjdXd9sX
- /A2I3r2kVGaT+YLIjKfLnJ0=
-X-Google-Smtp-Source: AGRyM1ua6NTQPrcwr20mLPjho7uV/TLlVfmN+1LnA/K+O1jHWhkJ5PMJPqzE6EuzG0El+n8W3Ez4wQ==
-X-Received: by 2002:a65:4501:0:b0:3fc:4895:283b with SMTP id
- n1-20020a654501000000b003fc4895283bmr15473379pgq.231.1656379741940; 
- Mon, 27 Jun 2022 18:29:01 -0700 (PDT)
-Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
- by smtp.gmail.com with ESMTPSA id
- k26-20020aa7821a000000b0052517150777sm7960560pfi.41.2022.06.27.18.29.01
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 27 Jun 2022 18:29:01 -0700 (PDT)
-From: Stafford Horne <shorne@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] irqchip: or1k-pic: Undefine mask_ack for level triggered
- hardware
-Date: Tue, 28 Jun 2022 10:28:54 +0900
-Message-Id: <20220628012854.681220-1-shorne@gmail.com>
-X-Mailer: git-send-email 2.36.1
+	by mail.librecores.org (Postfix) with ESMTP id CB1B52485E;
+	Tue, 28 Jun 2022 05:12:36 +0200 (CEST)
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by mail.librecores.org (Postfix) with ESMTP id 09BF22485E
+ for <openrisc@lists.librecores.org>; Tue, 28 Jun 2022 05:12:35 +0200 (CEST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 71983150C;
+ Mon, 27 Jun 2022 20:12:34 -0700 (PDT)
+Received: from [10.162.42.7] (unknown [10.162.42.7])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 0D7AC3F792;
+ Mon, 27 Jun 2022 20:12:26 -0700 (PDT)
+Message-ID: <f26804cf-e342-5826-8f01-4b087a7baa63@arm.com>
+Date: Tue, 28 Jun 2022 08:42:24 +0530
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH V5 04/26] sparc/mm: Move protection_map[] inside the
+ platform
+Content-Language: en-US
+To: Sam Ravnborg <sam@ravnborg.org>
+References: <20220627045833.1590055-1-anshuman.khandual@arm.com>
+ <20220627045833.1590055-5-anshuman.khandual@arm.com>
+ <YrnlkLbyYSbI0EQw@ravnborg.org>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+In-Reply-To: <YrnlkLbyYSbI0EQw@ravnborg.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -66,44 +44,140 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Jonas Bonn <jonas@southpole.se>, Marc Zyngier <maz@kernel.org>,
- Openrisc <openrisc@lists.librecores.org>, Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-csky@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-hexagon@vger.kernel.org, x86@kernel.org,
+ christophe.leroy@csgroup.eu, hch@infradead.org,
+ linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+ linux-um@lists.infradead.org, linux-m68k@lists.linux-m68k.org,
+ openrisc@lists.librecores.org, linux-arm-kernel@lists.infradead.org,
+ linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org,
+ linux-alpha@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+ linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-The mask_ack operation clears the interrupt by writing to the PICSR
-register.  This we don't want for level triggered interrupt because
-it does not actually clear the interrupt on the source hardware.
 
-This was causing issues in qemu with multi core setups where
-interrupts would continue to fire even though they had been cleared in
-PICSR.
 
-Just remove the mask_ack operation.
+On 6/27/22 22:44, Sam Ravnborg wrote:
+> Hi Anshuman,
+> 
+> On Mon, Jun 27, 2022 at 10:28:11AM +0530, Anshuman Khandual wrote:
+>> This moves protection_map[] inside the platform and while here, also enable
+>> ARCH_HAS_VM_GET_PAGE_PROT on 32 bit platforms via DECLARE_VM_GET_PAGE_PROT.
+>>
+>> Cc: "David S. Miller" <davem@davemloft.net>
+>> Cc: sparclinux@vger.kernel.org
+>> Cc: linux-kernel@vger.kernel.org
+>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+>> ---
+>>  arch/sparc/Kconfig                  |  2 +-
+>>  arch/sparc/include/asm/pgtable_32.h | 19 -------------------
+>>  arch/sparc/include/asm/pgtable_64.h | 19 -------------------
+>>  arch/sparc/mm/init_32.c             | 20 ++++++++++++++++++++
+>>  arch/sparc/mm/init_64.c             |  3 +++
+>>  5 files changed, 24 insertions(+), 39 deletions(-)
+>>
+>> diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+>> index ba449c47effd..09f868613a4d 100644
+>> --- a/arch/sparc/Kconfig
+>> +++ b/arch/sparc/Kconfig
+>> @@ -13,6 +13,7 @@ config 64BIT
+>>  config SPARC
+>>  	bool
+>>  	default y
+>> +	select ARCH_HAS_VM_GET_PAGE_PROT
+>>  	select ARCH_MIGHT_HAVE_PC_PARPORT if SPARC64 && PCI
+>>  	select ARCH_MIGHT_HAVE_PC_SERIO
+>>  	select DMA_OPS
+>> @@ -84,7 +85,6 @@ config SPARC64
+>>  	select PERF_USE_VMALLOC
+>>  	select ARCH_HAVE_NMI_SAFE_CMPXCHG
+>>  	select HAVE_C_RECORDMCOUNT
+>> -	select ARCH_HAS_VM_GET_PAGE_PROT
+>>  	select HAVE_ARCH_AUDITSYSCALL
+>>  	select ARCH_SUPPORTS_ATOMIC_RMW
+>>  	select ARCH_SUPPORTS_DEBUG_PAGEALLOC
+>> diff --git a/arch/sparc/include/asm/pgtable_32.h b/arch/sparc/include/asm/pgtable_32.h
+>> index 4866625da314..8ff549004fac 100644
+>> --- a/arch/sparc/include/asm/pgtable_32.h
+>> +++ b/arch/sparc/include/asm/pgtable_32.h
+>> @@ -64,25 +64,6 @@ void paging_init(void);
+>>  
+>>  extern unsigned long ptr_in_current_pgd;
+>>  
+>> -/*         xwr */
+>> -#define __P000  PAGE_NONE
+>> -#define __P001  PAGE_READONLY
+>> -#define __P010  PAGE_COPY
+>> -#define __P011  PAGE_COPY
+>> -#define __P100  PAGE_READONLY
+>> -#define __P101  PAGE_READONLY
+>> -#define __P110  PAGE_COPY
+>> -#define __P111  PAGE_COPY
+>> -
+>> -#define __S000	PAGE_NONE
+>> -#define __S001	PAGE_READONLY
+>> -#define __S010	PAGE_SHARED
+>> -#define __S011	PAGE_SHARED
+>> -#define __S100	PAGE_READONLY
+>> -#define __S101	PAGE_READONLY
+>> -#define __S110	PAGE_SHARED
+>> -#define __S111	PAGE_SHARED
+>> -
+>>  /* First physical page can be anywhere, the following is needed so that
+>>   * va-->pa and vice versa conversions work properly without performance
+>>   * hit for all __pa()/__va() operations.
+>> diff --git a/arch/sparc/include/asm/pgtable_64.h b/arch/sparc/include/asm/pgtable_64.h
+>> index 4679e45c8348..a779418ceba9 100644
+>> --- a/arch/sparc/include/asm/pgtable_64.h
+>> +++ b/arch/sparc/include/asm/pgtable_64.h
+>> @@ -187,25 +187,6 @@ bool kern_addr_valid(unsigned long addr);
+>>  #define _PAGE_SZHUGE_4U	_PAGE_SZ4MB_4U
+>>  #define _PAGE_SZHUGE_4V	_PAGE_SZ4MB_4V
+>>  
+>> -/* These are actually filled in at boot time by sun4{u,v}_pgprot_init() */
+>> -#define __P000	__pgprot(0)
+>> -#define __P001	__pgprot(0)
+>> -#define __P010	__pgprot(0)
+>> -#define __P011	__pgprot(0)
+>> -#define __P100	__pgprot(0)
+>> -#define __P101	__pgprot(0)
+>> -#define __P110	__pgprot(0)
+>> -#define __P111	__pgprot(0)
+>> -
+>> -#define __S000	__pgprot(0)
+>> -#define __S001	__pgprot(0)
+>> -#define __S010	__pgprot(0)
+>> -#define __S011	__pgprot(0)
+>> -#define __S100	__pgprot(0)
+>> -#define __S101	__pgprot(0)
+>> -#define __S110	__pgprot(0)
+>> -#define __S111	__pgprot(0)
+>> -
+>>  #ifndef __ASSEMBLY__
+>>  
+>>  pte_t mk_pte_io(unsigned long, pgprot_t, int, unsigned long);
+>> diff --git a/arch/sparc/mm/init_32.c b/arch/sparc/mm/init_32.c
+>> index 1e9f577f084d..8693e4e28b86 100644
+>> --- a/arch/sparc/mm/init_32.c
+>> +++ b/arch/sparc/mm/init_32.c
+>> @@ -302,3 +302,23 @@ void sparc_flush_page_to_ram(struct page *page)
+>>  		__flush_page_to_ram(vaddr);
+>>  }
+>>  EXPORT_SYMBOL(sparc_flush_page_to_ram);
+>> +
+>> +static pgprot_t protection_map[16] __ro_after_init = {
+> This can be const - like done for powerpc and others.
+> sparc32 and sparc64 uses each their own - and I do not see sparc32 do
+> any modifications to protection_map.
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
-Note,
+Indeed protection_map[] arrays are independent both for sparc32 and spacr64.
+sparc32 platform never changes the protection_map[] array during boot. Sure,
+will make it into a const instead. Thanks for pointing this out.
 
-I currently have this queued with openrisc fixes for 5.19-rcX.  If this is ok
-with the IRQ maintainers I would like to have this merged via the OpenRISC
-queue.
-
- drivers/irqchip/irq-or1k-pic.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/drivers/irqchip/irq-or1k-pic.c b/drivers/irqchip/irq-or1k-pic.c
-index 49b47e787644..f289ccd95291 100644
---- a/drivers/irqchip/irq-or1k-pic.c
-+++ b/drivers/irqchip/irq-or1k-pic.c
-@@ -66,7 +66,6 @@ static struct or1k_pic_dev or1k_pic_level = {
- 		.name = "or1k-PIC-level",
- 		.irq_unmask = or1k_pic_unmask,
- 		.irq_mask = or1k_pic_mask,
--		.irq_mask_ack = or1k_pic_mask_ack,
- 	},
- 	.handle = handle_level_irq,
- 	.flags = IRQ_LEVEL | IRQ_NOPROBE,
--- 
-2.36.1
-
+> 
+> With this change:
+> Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+> 
