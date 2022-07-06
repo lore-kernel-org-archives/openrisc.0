@@ -2,52 +2,34 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EAE1C43334
-	for <openrisc@archiver.kernel.org>; Tue,  5 Jul 2022 00:53:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EC76CCA473
+	for <openrisc@archiver.kernel.org>; Wed,  6 Jul 2022 05:58:13 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 1A802211D5;
-	Tue,  5 Jul 2022 02:53:32 +0200 (CEST)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by mail.librecores.org (Postfix) with ESMTPS id EF3ED21052
- for <openrisc@lists.librecores.org>; Tue,  5 Jul 2022 02:53:29 +0200 (CEST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id 8A118617FF;
- Tue,  5 Jul 2022 00:53:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D5C2C3411E;
- Tue,  5 Jul 2022 00:53:27 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
- dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com
- header.b="eRlWDnT5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105; 
- t=1656982405;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=GBj62MjJ2VIbiGWs/eNHFVJd5tihvIWhRW+pstEVFFg=;
- b=eRlWDnT5ghp5r2IdRoKNpM5LbEBcUFbexszN8zJCvE+EMHHsE242BXPkbfcFc5ahWdALTL
- ATFiSIYIz1oY+DCgny/y37O2EhSFNK3DfbxfITFvJ0OasqqTSXhROz+U87wEs8ZCSmPt2u
- ikAguaBR/YIF0tbqZCnpK7peeDG4Iiw=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 9e151ae2
- (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO); 
- Tue, 5 Jul 2022 00:53:25 +0000 (UTC)
-Date: Tue, 5 Jul 2022 02:53:21 +0200
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-To: Stafford Horne <shorne@gmail.com>
-Subject: Re: [PATCH v2 03/11] goldfish_rtc: Add endianness property
-Message-ID: <YsOLgWl0N8RFvZyc@zx2c4.com>
-References: <20220703212823.10067-1-shorne@gmail.com>
- <20220703212823.10067-4-shorne@gmail.com>
- <272f1e82-ff1b-9a7a-931b-91472dd244bf@linaro.org>
- <b8d2595b-c86a-b1b8-8912-13fc9ba782d3@redhat.com>
- <31017a43-3ebb-0aa3-f6ce-d2df1b5dc177@linaro.org>
- <78ac87ee-e40b-8d18-3775-4417edb74fa3@redhat.com>
- <YsNQP9UJ5faHNguC@antec>
+	by mail.librecores.org (Postfix) with ESMTP id E9CD4248F8;
+	Wed,  6 Jul 2022 07:58:11 +0200 (CEST)
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by mail.librecores.org (Postfix) with ESMTP id 71FC8248C7
+ for <openrisc@lists.librecores.org>; Wed,  6 Jul 2022 07:58:10 +0200 (CEST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id EBF5A1570;
+ Tue,  5 Jul 2022 22:58:09 -0700 (PDT)
+Received: from [10.163.43.16] (unknown [10.163.43.16])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3C01D3F70D;
+ Tue,  5 Jul 2022 22:58:01 -0700 (PDT)
+Message-ID: <8a6ccbae-7d7c-6e08-cc28-eeb649f86112@arm.com>
+Date: Wed, 6 Jul 2022 11:27:59 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <YsNQP9UJ5faHNguC@antec>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH V6 00/26] mm/mmap: Drop __SXXX/__PXXX macros from across
+ platforms
+Content-Language: en-US
+To: linux-mm@kvack.org, akpm@linux-foundation.org
+References: <20220630051630.1718927-1-anshuman.khandual@arm.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+In-Reply-To: <20220630051630.1718927-1-anshuman.khandual@arm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -60,25 +42,65 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Laurent Vivier <lvivier@redhat.com>,
- "open list:Goldfish RTC" <qemu-riscv@nongnu.org>,
- Anup Patel <anup.patel@wdc.com>,
- Richard Henderson <richard.henderson@linaro.org>,
- QEMU Development <qemu-devel@nongnu.org>,
- Openrisc <openrisc@lists.librecores.org>,
- Alistair Francis <Alistair.Francis@wdc.com>
+Cc: linux-xtensa@linux-xtensa.org, linux-ia64@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, x86@kernel.org,
+ linux-um@lists.infradead.org, linux-mips@vger.kernel.org,
+ christophe.leroy@csgroup.eu, linux-kernel@vger.kernel.org, hch@infradead.org,
+ linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org,
+ linux-csky@vger.kernel.org, linux-alpha@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-snps-arc@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+ linux-arm-kernel@lists.infradead.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Tue, Jul 05, 2022 at 05:40:31AM +0900, Stafford Horne wrote:
->   riscv{LE}--------------->goldfish_rtc{LE}
->   mips-longsoon3{LE}------>goldfish_rtc{LE}
->   openrisc{BE}------------>goldfish_rtc{LE} (LE to BE conversion done in driver)
->   m68k{BE}---------------->goldfish_rtc{BE} (only big-endian user)
 
-I wish the powers that be would lighten up a little bit and let us
-change m68k to be LE, and then we could avoid all this...
 
-Just a last grumble, I guess.
+On 6/30/22 10:46, Anshuman Khandual wrote:
+> __SXXX/__PXXX macros is an unnecessary abstraction layer in creating the
+> generic protection_map[] array which is used for vm_get_page_prot(). This
+> abstraction layer can be avoided, if the platforms just define the array
+> protection_map[] for all possible vm_flags access permission combinations
+> and also export vm_get_page_prot() implementation.
+> 
+> This series drops __SXXX/__PXXX macros from across platforms in the tree.
+> First it build protects generic protection_map[] array with '#ifdef __P000'
+> and moves it inside platforms which enable ARCH_HAS_VM_GET_PAGE_PROT. Later
+> this build protects same array with '#ifdef ARCH_HAS_VM_GET_PAGE_PROT' and
+> moves inside remaining platforms while enabling ARCH_HAS_VM_GET_PAGE_PROT.
+> This adds a new macro DECLARE_VM_GET_PAGE_PROT defining the current generic
+> vm_get_page_prot(), in order for it to be reused on platforms that do not
+> require custom implementation. Finally, ARCH_HAS_VM_GET_PAGE_PROT can just
+> be dropped, as all platforms now define and export vm_get_page_prot(), via
+> looking up a private and static protection_map[] array. protection_map[]
+> data type has been changed as 'static const' on all platforms that do not
+> change it during boot.
+> 
+> This series applies on v5.19-rc4 and has been build tested for multiple
+> platforms. While here it has dropped off all previous tags from folks after
+> the current restructuring. Series common CC list has been expanded to cover
+> all impacted platforms for wider reach.
+> 
+> - Anshuman
+> 
+> Changes in V6:
+> 
+> - Converted protection_map[] array as 'static const' on sparc32 platform
+> - Rebased on v5.19-rc4
+> - Collected tags
 
-Jason
+There are two linux-next based build fixes for this series (listed below), when
+vm_get_page_prot() gets redefined with !CONFIG_MMU. Platform vm_get_page_prot()
+is required only with CONFIG_MMU enabled, otherwise there is a generic fallback
+stub in include/linux/mm.h
+
+https://lore.kernel.org/all/20220705221411.3381797-1-jcmvbkbc@gmail.com/	[xtensa]
+https://lore.kernel.org/all/20220706054002.1936820-1-anshuman.khandual@arm.com/ [sh]
+
+It does not seem CONFIG_MMU can be disabled on other platforms thus exposing a build
+failure. But just to be on the safer side, should all vm_get_page_prot() be wrapped
+around with #ifdef CONFIG_MMU ? In that case will resend the series with above build
+fixes folded back in as well. Please do suggest. Thank you.
+
+- Anshuman
