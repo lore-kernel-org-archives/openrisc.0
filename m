@@ -2,54 +2,43 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A0F5C433EF
-	for <openrisc@archiver.kernel.org>; Wed,  6 Jul 2022 21:55:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 902B2C43334
+	for <openrisc@archiver.kernel.org>; Wed,  6 Jul 2022 21:55:30 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 7501F24845;
-	Wed,  6 Jul 2022 23:55:28 +0200 (CEST)
-Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com
- [209.85.222.170])
- by mail.librecores.org (Postfix) with ESMTPS id 165242133D
- for <openrisc@lists.librecores.org>; Wed,  6 Jul 2022 11:46:50 +0200 (CEST)
-Received: by mail-qk1-f170.google.com with SMTP id z16so10616665qkj.7
- for <openrisc@lists.librecores.org>; Wed, 06 Jul 2022 02:46:50 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 0F565205C5;
+	Wed,  6 Jul 2022 23:55:29 +0200 (CEST)
+Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com
+ [209.85.128.174])
+ by mail.librecores.org (Postfix) with ESMTPS id 17F1124844
+ for <openrisc@lists.librecores.org>; Wed,  6 Jul 2022 15:51:22 +0200 (CEST)
+Received: by mail-yw1-f174.google.com with SMTP id
+ 00721157ae682-2ef5380669cso140480577b3.9
+ for <openrisc@lists.librecores.org>; Wed, 06 Jul 2022 06:51:22 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=o8jOPstF035V3JBIGTjyEra8xnCZ4RAIho4NrHeIzoU=;
- b=2u3wRku5vJYRxhS20P6nHNsb6KSMX6b9MN6GltRfjqUB829BOM2qtUHuYO2NJ+u4Hd
- yWbmKatwmRmjVBe/QUFBfon3eZq3WuCoHbSSES/nQo7MLzRSj8od18p2uOETJKHRUfhk
- ODdeUBZx/lF5ZojzuUG8RqYBq9/wv0O/BVvkg61dQTTAaNFmshB2ncGreC7UdxbUy9SK
- vuy0nuSZl1BQmE7zKNj+cwLOd2wfOmHkBLiv95NGDU0TlfdUiyk3gQ2rk2TG6ZUzaUH9
- +bQ5uvvWkMB6JvvfVDb1JP62wuL/ug+j9u7HG5DI1aKJS7P3RUvEv86eryztXdAn9OKM
- HcjA==
-X-Gm-Message-State: AJIora9gqM/SD+aPcEWrIWP/6FBLxDBhaCIHGREwGKfvwgPQ8LipLHFa
- dx4OThgjlABgwaAYD+GsOrWD3oXZBfpaVmxf
-X-Google-Smtp-Source: AGRyM1sS4HzvNTluf4LyB49jy3AvWySgae4dSPYn7/y6nwTH2g6dhxqYZlKjnUQ2TN0wZmgqOpwJ3w==
-X-Received: by 2002:a05:620a:1b8f:b0:6af:337a:5067 with SMTP id
- dv15-20020a05620a1b8f00b006af337a5067mr25960728qkb.343.1657100808842; 
- Wed, 06 Jul 2022 02:46:48 -0700 (PDT)
-Received: from mail-yb1-f176.google.com (mail-yb1-f176.google.com.
- [209.85.219.176]) by smtp.gmail.com with ESMTPSA id
- t19-20020a05622a01d300b00304f3e320f2sm26163875qtw.4.2022.07.06.02.46.47
- for <openrisc@lists.librecores.org>
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 06 Jul 2022 02:46:48 -0700 (PDT)
-Received: by mail-yb1-f176.google.com with SMTP id r3so26416291ybr.6
- for <openrisc@lists.librecores.org>; Wed, 06 Jul 2022 02:46:47 -0700 (PDT)
-X-Received: by 2002:a05:6902:50e:b0:66e:7f55:7a66 with SMTP id
- x14-20020a056902050e00b0066e7f557a66mr6648581ybs.365.1657100796735; Wed, 06
- Jul 2022 02:46:36 -0700 (PDT)
+ bh=5SiPC3jj492VC8TfaG5lxiX62rjLNKysidcQlbSYqow=;
+ b=Y/9zTDq0hDTLJJHW7Ww4rQim+3okLKvE49puVGWNOvHsIbOLbR33TadpKxMKTg6U3e
+ 9wWPmKqYRIVYKE2EpQDvzhwZaJ2vfCaB3NOHfHaqjA1rHh1nWNA6SmA9gXho2c8Ffyjj
+ amf9fw7Amyg4eUmYXYnGQVkSWo3AjrLt9a7Uz3FqvlU8xBrMlI/x/e40/PMEx1xKD/LV
+ luYZ+LRiokVEaNUfrmTlsBZtYzdmYdgy7bEHvIRW/tbD0wyb1z1Jl59Or/DCmhDXqtEt
+ 3IFxnC7ZyI7xhC/ZMltodCGI/lUMLtR4OAM8XYIf+GqQmVsiQ6BMtmPIUufs6PdnZZmJ
+ Aiqg==
+X-Gm-Message-State: AJIora8KRJKXBftOHSdFQ58XgtsbJqzOmb12f1pmnmwTZ6z77xhtFfRy
+ QRX5tadA/+sBrscYUTmtLcG2pLET/qnkPMWbaHI=
+X-Google-Smtp-Source: AGRyM1t2zFLeLAi3TOz/3FKNOaozLIghzMJavy2698E42fvxt6d4SsTob1/anQx1a1kTDZPSEUZEInHEN/JL2sa2rXc=
+X-Received: by 2002:a81:1b97:0:b0:2db:640f:49d8 with SMTP id
+ b145-20020a811b97000000b002db640f49d8mr45075306ywb.326.1657115480888; Wed, 06
+ Jul 2022 06:51:20 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220608142723.103523089@infradead.org>
- <20220608144517.124597382@infradead.org>
-In-Reply-To: <20220608144517.124597382@infradead.org>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 6 Jul 2022 11:46:25 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdW4pT+YQfLzLTegFu1M3v9-9vaFDFAama7mc82=x6R__w@mail.gmail.com>
-Message-ID: <CAMuHMdW4pT+YQfLzLTegFu1M3v9-9vaFDFAama7mc82=x6R__w@mail.gmail.com>
-Subject: Re: [PATCH 19/36] objtool/idle: Validate __cpuidle code as noinstr
+ <20220608144516.109792837@infradead.org>
+In-Reply-To: <20220608144516.109792837@infradead.org>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Date: Wed, 6 Jul 2022 15:51:09 +0200
+Message-ID: <CAJZ5v0jO9+jRSm3d58K15JaO3=kgM2Ueo7W+Smi3WCBPR_VM5Q@mail.gmail.com>
+Subject: Re: [PATCH 03/36] cpuidle/poll: Ensure IRQ state is invariant
 To: Peter Zijlstra <peterz@infradead.org>
 Content-Type: text/plain; charset="UTF-8"
 X-Mailman-Approved-At: Wed, 06 Jul 2022 23:55:27 +0200
@@ -65,78 +54,116 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
- Linus Walleij <linus.walleij@linaro.org>, bsegall@google.com,
- guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com,
- srivatsa@csail.mit.edu, linux-arch@vger.kernel.org, vincent.guittot@linaro.org,
- mpe@ellerman.id.au, chenhuacai@kernel.org, linux-acpi@vger.kernel.org,
- agross@kernel.org, NXP Linux Team <linux-imx@nxp.com>, catalin.marinas@arm.com,
- xen-devel@lists.xenproject.org, Matt Turner <mattst88@gmail.com>,
- borntraeger@linux.ibm.com, mturquette@baylibre.com, sammy@sammy.net,
- pmladek@suse.com, linux-pm@vger.kernel.org, jiangshanlai@gmail.com,
- Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org,
- acme@kernel.org, tglx@linutronix.de, linux-omap@vger.kernel.org,
- dietmar.eggemann@arm.com, Richard Henderson <rth@twiddle.net>,
- gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
+Cc: Juri Lelli <juri.lelli@redhat.com>, "Rafael J. Wysocki" <rafael@kernel.org>,
+ Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+ Linus Walleij <linus.walleij@linaro.org>, Benjamin Segall <bsegall@google.com>,
+ Guo Ren <guoren@kernel.org>, Pavel Machek <pavel@ucw.cz>,
+ Alexander Gordeev <agordeev@linux.ibm.com>, srivatsa@csail.mit.edu,
+ linux-arch <linux-arch@vger.kernel.org>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Michael Ellerman <mpe@ellerman.id.au>, Huacai Chen <chenhuacai@kernel.org>,
+ ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+ Andy Gross <agross@kernel.org>, dl-linux-imx <linux-imx@nxp.com>,
+ Catalin Marinas <catalin.marinas@arm.com>, xen-devel@lists.xenproject.org,
+ mattst88@gmail.com, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Michael Turquette <mturquette@baylibre.com>, sammy@sammy.net,
+ Petr Mladek <pmladek@suse.com>, Linux PM <linux-pm@vger.kernel.org>,
+ Lai Jiangshan <jiangshanlai@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+ linux-um@lists.infradead.org, acme@kernel.org,
+ Thomas Gleixner <tglx@linutronix.de>,
+ Linux OMAP Mailing List <linux-omap@vger.kernel.org>,
+ Dietmar Eggemann <dietmar.eggemann@arm.com>, rth@twiddle.net,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
  linux-perf-users@vger.kernel.org, senozhatsky@chromium.org,
- svens@linux.ibm.com, jolsa@kernel.org, paulus@samba.org, mark.rutland@arm.com,
- linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
+ Sven Schnelle <svens@linux.ibm.com>, jolsa@kernel.org,
+ Paul Mackerras <paulus@samba.org>, Mark Rutland <mark.rutland@arm.com>,
+ linux-ia64@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
  virtualization@lists.linux-foundation.org,
- James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
- thierry.reding@gmail.com, kernel@xen0n.name, quic_neeraju@quicinc.com,
- linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
- ysato@users.sourceforge.jp, linux-sh@vger.kernel.org,
- Fabio Estevam <festevam@gmail.com>, deller@gmx.de, daniel.lezcano@linaro.org,
- jonathanh@nvidia.com, mathieu.desnoyers@efficios.com, frederic@kernel.org,
- lenb@kernel.org, linux-xtensa@linux-xtensa.org,
- Sascha Hauer <kernel@pengutronix.de>, gor@linux.ibm.com,
- linux-arm-msm@vger.kernel.org, linux-alpha@vger.kernel.org,
- linux-m68k@lists.linux-m68k.org, linux-arm-kernel@lists.infradead.org,
- chris@zankel.net, sboyd@kernel.org, dinguyen@kernel.org, bristot@redhat.com,
- alexander.shishkin@linux.intel.com, lpieralisi@kernel.org,
- linux@rasmusvillemoes.dk, joel@joelfernandes.org, will@kernel.org,
- boris.ostrovsky@oracle.com, khilman@kernel.org, linux-csky@vger.kernel.org,
- pv-drivers@vmware.com, linux-snps-arc@lists.infradead.org, mgorman@suse.de,
- jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
- Hans Ulli Kroll <ulli.kroll@googlemail.com>, Vineet Gupta <vgupta@kernel.org>,
- linux-clk@vger.kernel.org, josh@joshtriplett.org, rostedt@goodmis.org,
- rcu@vger.kernel.org, bp@alien8.de, bcain@quicinc.com,
- tsbogend@alpha.franken.de, linux-parisc@vger.kernel.org, sudeep.holla@arm.com,
- Shawn Guo <shawnguo@kernel.org>, davem@davemloft.net, dalias@libc.org,
- tony@atomide.com, amakhalov@vmware.com, bjorn.andersson@linaro.org,
- hpa@zytor.com, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org,
- linux-riscv@lists.infradead.org, anton.ivanov@cambridgegreys.com,
- jonas@southpole.se, yury.norov@gmail.com, richard@nod.at, x86@kernel.org,
- Russell King <linux@armlinux.org.uk>, mingo@redhat.com, aou@eecs.berkeley.edu,
- paulmck@kernel.org, hca@linux.ibm.com, openrisc@lists.librecores.org,
- paul.walmsley@sifive.com, linux-tegra@vger.kernel.org, namhyung@kernel.org,
- andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, jgross@suse.com,
- monstr@monstr.eu, linux-mips@vger.kernel.org, palmer@dabbelt.com,
- anup@brainfault.org, Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
- johannes@sipsolutions.net, linuxppc-dev@lists.ozlabs.org
+ James Bottomley <James.Bottomley@hansenpartnership.com>, jcmvbkbc@gmail.com,
+ Thierry Reding <thierry.reding@gmail.com>, kernel@xen0n.name,
+ quic_neeraju@quicinc.com, linux-s390@vger.kernel.org, vschneid@redhat.com,
+ John Ogness <john.ogness@linutronix.de>,
+ Yoshinori Sato <ysato@users.sourceforge.jp>,
+ Linux-sh list <linux-sh@vger.kernel.org>, Fabio Estevam <festevam@gmail.com>,
+ Helge Deller <deller@gmx.de>, Daniel Lezcano <daniel.lezcano@linaro.org>,
+ Jon Hunter <jonathanh@nvidia.com>,
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+ Frederic Weisbecker <frederic@kernel.org>, Len Brown <lenb@kernel.org>,
+ linux-xtensa@linux-xtensa.org, Sascha Hauer <kernel@pengutronix.de>,
+ Vasily Gorbik <gor@linux.ibm.com>,
+ linux-arm-msm <linux-arm-msm@vger.kernel.org>, linux-alpha@vger.kernel.org,
+ linux-m68k <linux-m68k@lists.linux-m68k.org>,
+ Linux ARM <linux-arm-kernel@lists.infradead.org>,
+ Chris Zankel <chris@zankel.net>, Stephen Boyd <sboyd@kernel.org>,
+ dinguyen@kernel.org, Daniel Bristot de Oliveira <bristot@redhat.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ Lorenzo Pieralisi <lpieralisi@kernel.org>,
+ Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+ Joel Fernandes <joel@joelfernandes.org>, Will Deacon <will@kernel.org>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ Kevin Hilman <khilman@kernel.org>, linux-csky@vger.kernel.org,
+ pv-drivers@vmware.com, linux-snps-arc@lists.infradead.org,
+ Mel Gorman <mgorman@suse.de>, Jacob Pan <jacob.jun.pan@linux.intel.com>,
+ Arnd Bergmann <arnd@arndb.de>, ulli.kroll@googlemail.com, vgupta@kernel.org,
+ linux-clk <linux-clk@vger.kernel.org>, Josh Triplett <josh@joshtriplett.org>,
+ Steven Rostedt <rostedt@goodmis.org>, rcu@vger.kernel.org,
+ Borislav Petkov <bp@alien8.de>, bcain@quicinc.com,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Parisc List <linux-parisc@vger.kernel.org>,
+ Sudeep Holla <sudeep.holla@arm.com>, Shawn Guo <shawnguo@kernel.org>,
+ David Miller <davem@davemloft.net>, Rich Felker <dalias@libc.org>,
+ Tony Lindgren <tony@atomide.com>, amakhalov@vmware.com,
+ Bjorn Andersson <bjorn.andersson@linaro.org>, "H. Peter Anvin" <hpa@zytor.com>,
+ sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ linux-riscv <linux-riscv@lists.infradead.org>, anton.ivanov@cambridgegreys.com,
+ jonas@southpole.se, Yury Norov <yury.norov@gmail.com>,
+ Richard Weinberger <richard@nod.at>, the arch/x86 maintainers <x86@kernel.org>,
+ Russell King - ARM Linux <linux@armlinux.org.uk>,
+ Ingo Molnar <mingo@redhat.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ "Paul E. McKenney" <paulmck@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+ openrisc@lists.librecores.org, Paul Walmsley <paul.walmsley@sifive.com>,
+ linux-tegra <linux-tegra@vger.kernel.org>, namhyung@kernel.org,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>, jpoimboe@kernel.org,
+ Juergen Gross <jgross@suse.com>, Michal Simek <monstr@monstr.eu>,
+ "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Anup Patel <anup@brainfault.org>,
+ ink@jurassic.park.msu.ru, Johannes Berg <johannes@sipsolutions.net>,
+ linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Wed, Jun 8, 2022 at 4:46 PM Peter Zijlstra <peterz@infradead.org> wrote:
-> Idle code is very like entry code in that RCU isn't available. As
-> such, add a little validation.
+On Wed, Jun 8, 2022 at 4:47 PM Peter Zijlstra <peterz@infradead.org> wrote:
+>
+> cpuidle_state::enter() methods should be IRQ invariant
 >
 > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 
->  arch/m68k/kernel/vmlinux-nommu.lds   |    1 -
->  arch/m68k/kernel/vmlinux-std.lds     |    1 -
->  arch/m68k/kernel/vmlinux-sun3.lds    |    1 -
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-FWIW
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+> ---
+>  drivers/cpuidle/poll_state.c |    4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> --- a/drivers/cpuidle/poll_state.c
+> +++ b/drivers/cpuidle/poll_state.c
+> @@ -17,7 +17,7 @@ static int __cpuidle poll_idle(struct cp
+>
+>         dev->poll_time_limit = false;
+>
+> -       local_irq_enable();
+> +       raw_local_irq_enable();
+>         if (!current_set_polling_and_test()) {
+>                 unsigned int loop_count = 0;
+>                 u64 limit;
+> @@ -36,6 +36,8 @@ static int __cpuidle poll_idle(struct cp
+>                         }
+>                 }
+>         }
+> +       raw_local_irq_disable();
+> +
+>         current_clr_polling();
+>
+>         return index;
+>
+>
