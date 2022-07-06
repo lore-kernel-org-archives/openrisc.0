@@ -2,32 +2,57 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C74A9C433EF
-	for <openrisc@archiver.kernel.org>; Wed,  6 Jul 2022 08:59:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81E1DCCA480
+	for <openrisc@archiver.kernel.org>; Wed,  6 Jul 2022 10:03:53 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 077AE2133D;
-	Wed,  6 Jul 2022 10:59:42 +0200 (CEST)
-Received: from out30-131.freemail.mail.aliyun.com
- (out30-131.freemail.mail.aliyun.com [115.124.30.131])
- by mail.librecores.org (Postfix) with ESMTPS id 12D33240F3
- for <openrisc@lists.librecores.org>; Wed,  6 Jul 2022 10:59:39 +0200 (CEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R151e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046059;
- MF=baolin.wang@linux.alibaba.com; NM=1; PH=DS; RN=33; SR=0;
- TI=SMTPD_---0VIXd7l-_1657097967; 
-Received: from localhost(mailfrom:baolin.wang@linux.alibaba.com
- fp:SMTPD_---0VIXd7l-_1657097967) by smtp.aliyun-inc.com;
- Wed, 06 Jul 2022 16:59:29 +0800
-From: Baolin Wang <baolin.wang@linux.alibaba.com>
-To: akpm@linux-foundation.org
-Subject: [PATCH 3/3] mm: Add kernel PTE level pagetable pages account
-Date: Wed,  6 Jul 2022 16:59:17 +0800
-Message-Id: <398ead25695e530f766849be5edafaf62c1c864d.1657096412.git.baolin.wang@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <cover.1657096412.git.baolin.wang@linux.alibaba.com>
-References: <cover.1657096412.git.baolin.wang@linux.alibaba.com>
-In-Reply-To: <cover.1657096412.git.baolin.wang@linux.alibaba.com>
-References: <cover.1657096412.git.baolin.wang@linux.alibaba.com>
+	by mail.librecores.org (Postfix) with ESMTP id 35316247EA;
+	Wed,  6 Jul 2022 12:03:52 +0200 (CEST)
+Received: from mail-qt1-f174.google.com (mail-qt1-f174.google.com
+ [209.85.160.174])
+ by mail.librecores.org (Postfix) with ESMTPS id A894721069
+ for <openrisc@lists.librecores.org>; Wed,  6 Jul 2022 12:03:50 +0200 (CEST)
+Received: by mail-qt1-f174.google.com with SMTP id r2so17467303qta.0
+ for <openrisc@lists.librecores.org>; Wed, 06 Jul 2022 03:03:50 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=moQR5LBdu+yLzctPNV/vOqPzvGKHHurzxQlNOu9l9Us=;
+ b=Z3jIettSGoA+LZQ8NPKjDk8icxSXlQ1tvJ1gPJK91kchLGHKmLqxfxQ5XEfu9bwKX+
+ mSPNP8GO7Pre81JgMSh8dxJebMwAq4VZH9crWFRBNAIeuA7Muw7D5vLBnUWsa4btSco8
+ Z9psm3rAdlRWPp+qKMJcUGP2HUcNgQco+y8O4PuqGPFRg1VjvviWx1yiOK1n6vYaeaqj
+ 1mHP/1euTnz3s6MtvsoYlzWI1uuzocDBJZaENZ3O5RWh+VSMv3gkTUH3r4+BlnGIYJDz
+ 1QKt1zSOYMBX4GX/4YmFNxODBIPIWGzgbIaTsRZMeWGOx5TTTvpZSsnOcoDeawWtVW2c
+ ZlXQ==
+X-Gm-Message-State: AJIora9IAOlTG6KEBtBjdPfiW4ydMnZaCsdfSb40jMasQWTc+6q92izv
+ f/mEzhGDPvQ4DSmUNhepctVFjctggj1wDQ==
+X-Google-Smtp-Source: AGRyM1vZSEbrXFiV63GwVLlyZ+Y4gAoeuHm8mZgaRJNyjWr7JKce8KC2yM+Gsk8AX3UJ4AieECdLwg==
+X-Received: by 2002:ad4:5dcb:0:b0:470:46eb:3a1c with SMTP id
+ m11-20020ad45dcb000000b0047046eb3a1cmr37194613qvh.69.1657101829578; 
+ Wed, 06 Jul 2022 03:03:49 -0700 (PDT)
+Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com.
+ [209.85.128.180]) by smtp.gmail.com with ESMTPSA id
+ u5-20020a37ab05000000b006b4748535a1sm5635506qke.16.2022.07.06.03.03.49
+ for <openrisc@lists.librecores.org>
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Wed, 06 Jul 2022 03:03:49 -0700 (PDT)
+Received: by mail-yw1-f180.google.com with SMTP id
+ 00721157ae682-3137316bb69so134419107b3.10
+ for <openrisc@lists.librecores.org>; Wed, 06 Jul 2022 03:03:49 -0700 (PDT)
+X-Received: by 2002:a0d:c787:0:b0:31b:a963:e1de with SMTP id
+ j129-20020a0dc787000000b0031ba963e1demr44581975ywd.283.1657101828958; Wed, 06
+ Jul 2022 03:03:48 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220630051630.1718927-1-anshuman.khandual@arm.com>
+ <20220630051630.1718927-22-anshuman.khandual@arm.com>
+In-Reply-To: <20220630051630.1718927-22-anshuman.khandual@arm.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 6 Jul 2022 12:03:37 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdX_Ji7dCzzCc3xw5ic6J=0PaPkyzXKpOgUFjjEkR+yJOw@mail.gmail.com>
+Message-ID: <CAMuHMdX_Ji7dCzzCc3xw5ic6J=0PaPkyzXKpOgUFjjEkR+yJOw@mail.gmail.com>
+Subject: Re: [PATCH V6 21/26] m68k/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+To: Anshuman Khandual <anshuman.khandual@arm.com>
+Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -40,125 +65,120 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: x86@kernel.org, baolin.wang@linux.alibaba.com, peterz@infradead.org,
- catalin.marinas@arm.com, dave.hansen@linux.intel.com,
- linux-kernel@vger.kernel.org, linux-mm@kvack.org, guoren@kernel.org,
- linux-csky@vger.kernel.org, hpa@zytor.com, kernel@xen0n.name, will@kernel.org,
- tglx@linutronix.de, jonas@southpole.se, aneesh.kumar@linux.ibm.com,
- chenhuacai@kernel.org, willy@infradead.org, rppt@linux.ibm.com,
- mingo@redhat.com, linux-arch@vger.kernel.org, arnd@arndb.de, npiggin@gmail.com,
- loongarch@lists.linux.dev, openrisc@lists.librecores.org, bp@alien8.de,
- luto@kernel.org, linux-arm-kernel@lists.infradead.org, monstr@monstr.eu,
- tsbogend@alpha.franken.de, linux-mips@vger.kernel.org
+Cc: "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+ Linux-sh list <linux-sh@vger.kernel.org>,
+ "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+ Linux MM <linux-mm@kvack.org>, Christophe Leroy <christophe.leroy@csgroup.eu>,
+ sparclinux <sparclinux@vger.kernel.org>,
+ linux-riscv <linux-riscv@lists.infradead.org>,
+ linux-s390 <linux-s390@vger.kernel.org>,
+ "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
+ the arch/x86 maintainers <x86@kernel.org>, linux-csky@vger.kernel.org,
+ Christoph Hellwig <hch@infradead.org>,
+ arcml <linux-snps-arc@lists.infradead.org>,
+ "open list:TENSILICA XTENSA PORT \(xtensa\)" <linux-xtensa@linux-xtensa.org>,
+ linux-um <linux-um@lists.infradead.org>,
+ linux-m68k <linux-m68k@lists.linux-m68k.org>,
+ Openrisc <openrisc@lists.librecores.org>,
+ Linux ARM <linux-arm-kernel@lists.infradead.org>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Parisc List <linux-parisc@vger.kernel.org>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ alpha <linux-alpha@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
+ linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Now the kernel PTE level ptes are always protected by mm->page_table_lock
-instead of split pagetable lock, so the kernel PTE level pagetable pages
-are not accounted. Especially the vmalloc()/vmap() can consume lots of
-kernel pagetable, so to get an accurate pagetable accounting, calling new
-helpers page_{set,clear}_pgtable() when allocating or freeing a kernel
-PTE level pagetable page.
+Hi Anshuman,
 
-Meanwhile converting architectures to use corresponding generic PTE pagetable
-allocation and freeing functions.
+On Thu, Jun 30, 2022 at 7:19 AM Anshuman Khandual
+<anshuman.khandual@arm.com> wrote:
+> This enables ARCH_HAS_VM_GET_PAGE_PROT on the platform and exports standard
+> vm_get_page_prot() implementation via DECLARE_VM_GET_PAGE_PROT, which looks
+> up a private and static protection_map[] array. Subsequently all __SXXX and
+> __PXXX macros can be dropped which are no longer needed.
+>
+> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> Cc: linux-m68k@lists.linux-m68k.org
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 
-Note this patch only adds accounting to the page tables allocated after boot.
+Thanks for your patch!
 
-Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Reported-by: kernel test robot <oliver.sang@intel.com>
----
- arch/csky/include/asm/pgalloc.h |  2 +-
- arch/microblaze/mm/pgtable.c    |  2 +-
- arch/openrisc/mm/ioremap.c      |  2 +-
- arch/x86/mm/pgtable.c           |  2 +-
- include/asm-generic/pgalloc.h   | 14 ++++++++++++--
- 5 files changed, 16 insertions(+), 6 deletions(-)
+> --- a/arch/m68k/include/asm/mcf_pgtable.h
+> +++ b/arch/m68k/include/asm/mcf_pgtable.h
+> @@ -91,60 +91,6 @@
+>   * for use. In general, the bit positions are xwr, and P-items are
+>   * private, the S-items are shared.
+>   */
 
-diff --git a/arch/csky/include/asm/pgalloc.h b/arch/csky/include/asm/pgalloc.h
-index 7d57e5d..56f8d25 100644
---- a/arch/csky/include/asm/pgalloc.h
-+++ b/arch/csky/include/asm/pgalloc.h
-@@ -29,7 +29,7 @@ static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
- 	pte_t *pte;
- 	unsigned long i;
- 
--	pte = (pte_t *) __get_free_page(GFP_KERNEL);
-+	pte = __pte_alloc_one_kernel(mm);
- 	if (!pte)
- 		return NULL;
- 
-diff --git a/arch/microblaze/mm/pgtable.c b/arch/microblaze/mm/pgtable.c
-index 9f73265..e96dd1b 100644
---- a/arch/microblaze/mm/pgtable.c
-+++ b/arch/microblaze/mm/pgtable.c
-@@ -245,7 +245,7 @@ unsigned long iopa(unsigned long addr)
- __ref pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
- {
- 	if (mem_init_done)
--		return (pte_t *)__get_free_page(GFP_KERNEL | __GFP_ZERO);
-+		return __pte_alloc_one_kernel(mm);
- 	else
- 		return memblock_alloc_try_nid(PAGE_SIZE, PAGE_SIZE,
- 					      MEMBLOCK_LOW_LIMIT,
-diff --git a/arch/openrisc/mm/ioremap.c b/arch/openrisc/mm/ioremap.c
-index daae13a..3453acc 100644
---- a/arch/openrisc/mm/ioremap.c
-+++ b/arch/openrisc/mm/ioremap.c
-@@ -118,7 +118,7 @@ pte_t __ref *pte_alloc_one_kernel(struct mm_struct *mm)
- 	pte_t *pte;
- 
- 	if (likely(mem_init_done)) {
--		pte = (pte_t *)get_zeroed_page(GFP_KERNEL);
-+		pte = __pte_alloc_one_kernel(mm);
- 	} else {
- 		pte = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
- 		if (!pte)
-diff --git a/arch/x86/mm/pgtable.c b/arch/x86/mm/pgtable.c
-index ea39670..20f3076 100644
---- a/arch/x86/mm/pgtable.c
-+++ b/arch/x86/mm/pgtable.c
-@@ -858,7 +858,7 @@ int pmd_free_pte_page(pmd_t *pmd, unsigned long addr)
- 	/* INVLPG to clear all paging-structure caches */
- 	flush_tlb_kernel_range(addr, addr + PAGE_SIZE-1);
- 
--	free_page((unsigned long)pte);
-+	pte_free_kernel(NULL, pte);
- 
- 	return 1;
- }
-diff --git a/include/asm-generic/pgalloc.h b/include/asm-generic/pgalloc.h
-index 8ce8d7c..cd8420f 100644
---- a/include/asm-generic/pgalloc.h
-+++ b/include/asm-generic/pgalloc.h
-@@ -18,7 +18,14 @@
-  */
- static inline pte_t *__pte_alloc_one_kernel(struct mm_struct *mm)
- {
--	return (pte_t *)__get_free_page(GFP_PGTABLE_KERNEL);
-+	struct page *page;
-+	gfp_t gfp = GFP_PGTABLE_KERNEL;
-+
-+	page = alloc_pages(gfp, 0);
-+	if (!page)
-+		return NULL;
-+	page_set_pgtable(page);
-+	return (pte_t *)page_address(page);
- }
- 
- #ifndef __HAVE_ARCH_PTE_ALLOC_ONE_KERNEL
-@@ -41,7 +48,10 @@ static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
-  */
- static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
- {
--	free_page((unsigned long)pte);
-+	struct page *page = virt_to_page(pte);
-+
-+	page_clear_pgtable(page);
-+	__free_page(page);
- }
- 
- /**
--- 
-1.8.3.1
+The comment above should be removed, too.
 
+> -#define __P000         PAGE_NONE
+> -#define __P001         __pgprot(CF_PAGE_VALID \
+> -                                | CF_PAGE_ACCESSED \
+> -                                | CF_PAGE_READABLE)
+
+> --- a/arch/m68k/include/asm/motorola_pgtable.h
+> +++ b/arch/m68k/include/asm/motorola_pgtable.h
+> @@ -83,28 +83,6 @@ extern unsigned long mm_cachebits;
+>  #define PAGE_COPY_C    __pgprot(_PAGE_PRESENT | _PAGE_RONLY | _PAGE_ACCESSED)
+>  #define PAGE_READONLY_C        __pgprot(_PAGE_PRESENT | _PAGE_RONLY | _PAGE_ACCESSED)
+
+You might move the *_C definitions above into arch/m68k/mm/motorola.c
+as well, as they are only used in the latter.
+
+>
+> -/*
+> - * The m68k can't do page protection for execute, and considers that the same are read.
+> - * Also, write permissions imply read permissions. This is the closest we can get..
+> - */
+> -#define __P000 PAGE_NONE_C
+> -#define __P001 PAGE_READONLY_C
+> -#define __P010 PAGE_COPY_C
+> -#define __P011 PAGE_COPY_C
+> -#define __P100 PAGE_READONLY_C
+> -#define __P101 PAGE_READONLY_C
+> -#define __P110 PAGE_COPY_C
+> -#define __P111 PAGE_COPY_C
+> -
+> -#define __S000 PAGE_NONE_C
+> -#define __S001 PAGE_READONLY_C
+> -#define __S010 PAGE_SHARED_C
+> -#define __S011 PAGE_SHARED_C
+> -#define __S100 PAGE_READONLY_C
+> -#define __S101 PAGE_READONLY_C
+> -#define __S110 PAGE_SHARED_C
+> -#define __S111 PAGE_SHARED_C
+> -
+>  #define pmd_pgtable(pmd) ((pgtable_t)pmd_page_vaddr(pmd))
+>
+>  /*
+> diff --git a/arch/m68k/include/asm/sun3_pgtable.h b/arch/m68k/include/asm/sun3_pgtable.h
+> index 5e4e753f0d24..9d919491765b 100644
+> --- a/arch/m68k/include/asm/sun3_pgtable.h
+> +++ b/arch/m68k/include/asm/sun3_pgtable.h
+> @@ -71,23 +71,6 @@
+>   * protection settings, valid (implying read and execute) and writeable. These
+>   * are as close as we can get...
+>   */
+
+The comment above should be removed, too.
+
+> -#define __P000 PAGE_NONE
+> -#define __P001 PAGE_READONLY
+
+With the above fixed:
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
