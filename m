@@ -2,56 +2,35 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71C34C433EF
-	for <openrisc@archiver.kernel.org>; Wed,  6 Jul 2022 10:04:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3C48CCA483
+	for <openrisc@archiver.kernel.org>; Wed,  6 Jul 2022 11:15:43 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 64CA3247EA;
-	Wed,  6 Jul 2022 12:04:38 +0200 (CEST)
-Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com
- [209.85.222.176])
- by mail.librecores.org (Postfix) with ESMTPS id 1E67121052
- for <openrisc@lists.librecores.org>; Wed,  6 Jul 2022 12:04:37 +0200 (CEST)
-Received: by mail-qk1-f176.google.com with SMTP id k20so10664065qkj.1
- for <openrisc@lists.librecores.org>; Wed, 06 Jul 2022 03:04:37 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=Bj57DZQxAwyQ5rJJj/iE7VR9xSo/KE2P6unWd/aXevs=;
- b=hg7YZfNUxxLRl/sx9K/sfhr+5nEOpM7fnLmg+nZzl5Cm6+Zy6sRpWdLHdidP+Py2sr
- /V5DZY9lf/m2eqqpIO8p1xKksNwTnb3ov1yjiLppBCPHUkD6JSJ6njFLhuGf/TfG83/3
- Bfn27PRFqca103OcPVYCwe0lX8BN+9An9NrkbrXCzu+t+7DW65HbRN4QydtpD7aKWICS
- rm7hCxgfEDE+FKwQC6CvSVYlfoeTl8mg+H2THnJ48jySkDNUhOat7RYEuoTGSHm9fK/K
- yK3yVhVnDF6B0uX/bAi7PtNi33dEwzYlCeRnIu6jpEOfRJukija4hurrtaUK7puQEwsN
- AOfQ==
-X-Gm-Message-State: AJIora/RVn3ATqi3DC06phZ1v7pF2V87JaPr0uRGjcaHBM3rbIQbteB8
- Uoy7E2M1RDxEGcmTM0Ud6gSoCnQDAqVjV8cm
-X-Google-Smtp-Source: AGRyM1tMMHTjuw3kMR4yj5e+iHgA09hnQBO8AR9Ffy0l3Ud7c9z4z64eu7RdnHpEoi19wA4dXb0epA==
-X-Received: by 2002:a05:620a:2a15:b0:6af:4404:99ce with SMTP id
- o21-20020a05620a2a1500b006af440499cemr26634941qkp.226.1657101875836; 
- Wed, 06 Jul 2022 03:04:35 -0700 (PDT)
-Received: from mail-yb1-f179.google.com (mail-yb1-f179.google.com.
- [209.85.219.179]) by smtp.gmail.com with ESMTPSA id
- br31-20020a05620a461f00b006af290182c8sm24681220qkb.86.2022.07.06.03.04.35
- for <openrisc@lists.librecores.org>
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 06 Jul 2022 03:04:35 -0700 (PDT)
-Received: by mail-yb1-f179.google.com with SMTP id l144so13983039ybl.5
- for <openrisc@lists.librecores.org>; Wed, 06 Jul 2022 03:04:35 -0700 (PDT)
-X-Received: by 2002:a25:2b48:0:b0:668:3b7d:326c with SMTP id
- r69-20020a252b48000000b006683b7d326cmr41431788ybr.380.1657101874906; Wed, 06
- Jul 2022 03:04:34 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 659D9247EA;
+	Wed,  6 Jul 2022 13:15:42 +0200 (CEST)
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by mail.librecores.org (Postfix) with ESMTP id 395E421160
+ for <openrisc@lists.librecores.org>; Wed,  6 Jul 2022 13:15:40 +0200 (CEST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CFE831042;
+ Wed,  6 Jul 2022 04:15:39 -0700 (PDT)
+Received: from [10.163.43.16] (unknown [10.163.43.16])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 60BFD3F66F;
+ Wed,  6 Jul 2022 04:15:31 -0700 (PDT)
+Message-ID: <ea0f8db8-831b-dcb4-b8c7-ab651f1e1713@arm.com>
+Date: Wed, 6 Jul 2022 16:45:27 +0530
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH V6 21/26] m68k/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+Content-Language: en-US
+To: Geert Uytterhoeven <geert@linux-m68k.org>
 References: <20220630051630.1718927-1-anshuman.khandual@arm.com>
- <20220630051630.1718927-27-anshuman.khandual@arm.com>
-In-Reply-To: <20220630051630.1718927-27-anshuman.khandual@arm.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 6 Jul 2022 12:04:23 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdVJiS6vm2td-PBH3zpsNZJeeoudS4+yu4JG08sOi+XFdA@mail.gmail.com>
-Message-ID: <CAMuHMdVJiS6vm2td-PBH3zpsNZJeeoudS4+yu4JG08sOi+XFdA@mail.gmail.com>
-Subject: Re: [PATCH V6 26/26] mm/mmap: Drop ARCH_HAS_VM_GET_PAGE_PROT
-To: Anshuman Khandual <anshuman.khandual@arm.com>
-Content-Type: text/plain; charset="UTF-8"
+ <20220630051630.1718927-22-anshuman.khandual@arm.com>
+ <CAMuHMdX_Ji7dCzzCc3xw5ic6J=0PaPkyzXKpOgUFjjEkR+yJOw@mail.gmail.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+In-Reply-To: <CAMuHMdX_Ji7dCzzCc3xw5ic6J=0PaPkyzXKpOgUFjjEkR+yJOw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -69,7 +48,7 @@ Cc: "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
  "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
  Linux MM <linux-mm@kvack.org>, Christophe Leroy <christophe.leroy@csgroup.eu>,
  sparclinux <sparclinux@vger.kernel.org>,
- linux-riscv <linux-riscv@lists.infradead.org>, Christoph Hellwig <hch@lst.de>,
+ linux-riscv <linux-riscv@lists.infradead.org>,
  linux-s390 <linux-s390@vger.kernel.org>,
  "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
  the arch/x86 maintainers <x86@kernel.org>, linux-csky@vger.kernel.org,
@@ -80,6 +59,7 @@ Cc: "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
  linux-m68k <linux-m68k@lists.linux-m68k.org>,
  Openrisc <openrisc@lists.librecores.org>,
  Linux ARM <linux-arm-kernel@lists.infradead.org>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
  Parisc List <linux-parisc@vger.kernel.org>,
  Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
  alpha <linux-alpha@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
@@ -87,32 +67,108 @@ Cc: "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Thu, Jun 30, 2022 at 7:20 AM Anshuman Khandual
-<anshuman.khandual@arm.com> wrote:
-> Now all the platforms enable ARCH_HAS_GET_PAGE_PROT. They define and export
-> own vm_get_page_prot() whether custom or standard DECLARE_VM_GET_PAGE_PROT.
-> Hence there is no need for default generic fallback for vm_get_page_prot().
-> Just drop this fallback and also ARCH_HAS_GET_PAGE_PROT mechanism.
->
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: linux-mm@kvack.org
-> Cc: linux-kernel@vger.kernel.org
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 
->  arch/m68k/Kconfig       |  1 -
 
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+On 7/6/22 15:33, Geert Uytterhoeven wrote:
+> Hi Anshuman,
+> 
+> On Thu, Jun 30, 2022 at 7:19 AM Anshuman Khandual
+> <anshuman.khandual@arm.com> wrote:
+>> This enables ARCH_HAS_VM_GET_PAGE_PROT on the platform and exports standard
+>> vm_get_page_prot() implementation via DECLARE_VM_GET_PAGE_PROT, which looks
+>> up a private and static protection_map[] array. Subsequently all __SXXX and
+>> __PXXX macros can be dropped which are no longer needed.
+>>
+>> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+>> Cc: linux-m68k@lists.linux-m68k.org
+>> Cc: linux-kernel@vger.kernel.org
+>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+> 
+> Thanks for your patch!
+> 
+>> --- a/arch/m68k/include/asm/mcf_pgtable.h
+>> +++ b/arch/m68k/include/asm/mcf_pgtable.h
+>> @@ -91,60 +91,6 @@
+>>   * for use. In general, the bit positions are xwr, and P-items are
+>>   * private, the S-items are shared.
+>>   */
+> 
+> The comment above should be removed, too.
 
-Gr{oetje,eeting}s,
+Sure, will do.
 
-                        Geert
+> 
+>> -#define __P000         PAGE_NONE
+>> -#define __P001         __pgprot(CF_PAGE_VALID \
+>> -                                | CF_PAGE_ACCESSED \
+>> -                                | CF_PAGE_READABLE)
+> 
+>> --- a/arch/m68k/include/asm/motorola_pgtable.h
+>> +++ b/arch/m68k/include/asm/motorola_pgtable.h
+>> @@ -83,28 +83,6 @@ extern unsigned long mm_cachebits;
+>>  #define PAGE_COPY_C    __pgprot(_PAGE_PRESENT | _PAGE_RONLY | _PAGE_ACCESSED)
+>>  #define PAGE_READONLY_C        __pgprot(_PAGE_PRESENT | _PAGE_RONLY | _PAGE_ACCESSED)
+> 
+> You might move the *_C definitions above into arch/m68k/mm/motorola.c
+> as well, as they are only used in the latter.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Okay, will do.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+> 
+>>
+>> -/*
+>> - * The m68k can't do page protection for execute, and considers that the same are read.
+>> - * Also, write permissions imply read permissions. This is the closest we can get..
+>> - */
+>> -#define __P000 PAGE_NONE_C
+>> -#define __P001 PAGE_READONLY_C
+>> -#define __P010 PAGE_COPY_C
+>> -#define __P011 PAGE_COPY_C
+>> -#define __P100 PAGE_READONLY_C
+>> -#define __P101 PAGE_READONLY_C
+>> -#define __P110 PAGE_COPY_C
+>> -#define __P111 PAGE_COPY_C
+>> -
+>> -#define __S000 PAGE_NONE_C
+>> -#define __S001 PAGE_READONLY_C
+>> -#define __S010 PAGE_SHARED_C
+>> -#define __S011 PAGE_SHARED_C
+>> -#define __S100 PAGE_READONLY_C
+>> -#define __S101 PAGE_READONLY_C
+>> -#define __S110 PAGE_SHARED_C
+>> -#define __S111 PAGE_SHARED_C
+>> -
+>>  #define pmd_pgtable(pmd) ((pgtable_t)pmd_page_vaddr(pmd))
+>>
+>>  /*
+>> diff --git a/arch/m68k/include/asm/sun3_pgtable.h b/arch/m68k/include/asm/sun3_pgtable.h
+>> index 5e4e753f0d24..9d919491765b 100644
+>> --- a/arch/m68k/include/asm/sun3_pgtable.h
+>> +++ b/arch/m68k/include/asm/sun3_pgtable.h
+>> @@ -71,23 +71,6 @@
+>>   * protection settings, valid (implying read and execute) and writeable. These
+>>   * are as close as we can get...
+>>   */
+> 
+> The comment above should be removed, too.
+
+Sure, will do.
+
+> 
+>> -#define __P000 PAGE_NONE
+>> -#define __P001 PAGE_READONLY
+> 
+> With the above fixed:
+> Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>> 
+> Gr{oetje,eeting}s,
+> 
+>                         Geert
+> 
+> --
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> 
+> In personal conversations with technical people, I call myself a hacker. But
+> when I'm talking to journalists I just say "programmer" or something like that.
+>                                 -- Linus Torvalds
+> 
