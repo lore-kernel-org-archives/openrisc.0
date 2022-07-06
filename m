@@ -2,43 +2,42 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 902B2C43334
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF715CCA47C
 	for <openrisc@archiver.kernel.org>; Wed,  6 Jul 2022 21:55:30 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 0F565205C5;
+	by mail.librecores.org (Postfix) with ESMTP id B917B2133D;
 	Wed,  6 Jul 2022 23:55:29 +0200 (CEST)
-Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com
- [209.85.128.174])
- by mail.librecores.org (Postfix) with ESMTPS id 17F1124844
- for <openrisc@lists.librecores.org>; Wed,  6 Jul 2022 15:51:22 +0200 (CEST)
-Received: by mail-yw1-f174.google.com with SMTP id
- 00721157ae682-2ef5380669cso140480577b3.9
- for <openrisc@lists.librecores.org>; Wed, 06 Jul 2022 06:51:22 -0700 (PDT)
+Received: from mail-yb1-f173.google.com (mail-yb1-f173.google.com
+ [209.85.219.173])
+ by mail.librecores.org (Postfix) with ESMTPS id 18E762422B
+ for <openrisc@lists.librecores.org>; Wed,  6 Jul 2022 15:54:44 +0200 (CEST)
+Received: by mail-yb1-f173.google.com with SMTP id g4so27441552ybg.9
+ for <openrisc@lists.librecores.org>; Wed, 06 Jul 2022 06:54:44 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=5SiPC3jj492VC8TfaG5lxiX62rjLNKysidcQlbSYqow=;
- b=Y/9zTDq0hDTLJJHW7Ww4rQim+3okLKvE49puVGWNOvHsIbOLbR33TadpKxMKTg6U3e
- 9wWPmKqYRIVYKE2EpQDvzhwZaJ2vfCaB3NOHfHaqjA1rHh1nWNA6SmA9gXho2c8Ffyjj
- amf9fw7Amyg4eUmYXYnGQVkSWo3AjrLt9a7Uz3FqvlU8xBrMlI/x/e40/PMEx1xKD/LV
- luYZ+LRiokVEaNUfrmTlsBZtYzdmYdgy7bEHvIRW/tbD0wyb1z1Jl59Or/DCmhDXqtEt
- 3IFxnC7ZyI7xhC/ZMltodCGI/lUMLtR4OAM8XYIf+GqQmVsiQ6BMtmPIUufs6PdnZZmJ
- Aiqg==
-X-Gm-Message-State: AJIora8KRJKXBftOHSdFQ58XgtsbJqzOmb12f1pmnmwTZ6z77xhtFfRy
- QRX5tadA/+sBrscYUTmtLcG2pLET/qnkPMWbaHI=
-X-Google-Smtp-Source: AGRyM1t2zFLeLAi3TOz/3FKNOaozLIghzMJavy2698E42fvxt6d4SsTob1/anQx1a1kTDZPSEUZEInHEN/JL2sa2rXc=
-X-Received: by 2002:a81:1b97:0:b0:2db:640f:49d8 with SMTP id
- b145-20020a811b97000000b002db640f49d8mr45075306ywb.326.1657115480888; Wed, 06
- Jul 2022 06:51:20 -0700 (PDT)
+ bh=nGlq0tAOl9peVDy+2hDU8oij0psSLrDezDLIhvJH3CU=;
+ b=0L65j7CTGpoIdKbQ6U+D3YxGFTt6Tb1kiUCIVpSFB8DzdatQyY3rUuUd8kfT3H3oPD
+ /mNPHSTNvP4Gev6oCNL78pOeeTwcuN7bPOFXnq44OR3WxvWKLHUg8J6oDu3/vZyIdRM5
+ Gd9xQqq8F3yooMGSeQgQv53FWkVu/wTh5zWnWOlbdtQceW9YbBSMXSuvzusVToQOiOMD
+ puQiLZUol484VYxnJRnUAMCpgtA72gD71PLoObO7mEtTbY5gQ8CJ1s9iCaC0So9CT/0T
+ yDFec+F+ztRYIgu2TzA7NPOqUb3MZuUoilefsK89rpYhO58ONV2cp0i5vBQ1LA7gUpUA
+ WtLg==
+X-Gm-Message-State: AJIora8h2R0O1F0op6sR2BP3dO+5RDcSycpgl6ZQCyq0o2YAQAlbUj3T
+ 6NgSyVw2XqS7iDqOGj8YV3itjgDfKJ6sX+sK+C4=
+X-Google-Smtp-Source: AGRyM1tDetZqwrRScub6Y4Pn1s0tSkry0FvKlyTlHU1qOUr14WujFHx6NLxGPd7DkQtOavHEbmevSefDFcyAl6P8ZZY=
+X-Received: by 2002:a25:fb02:0:b0:66e:3db9:5d49 with SMTP id
+ j2-20020a25fb02000000b0066e3db95d49mr20145358ybe.137.1657115683016; Wed, 06
+ Jul 2022 06:54:43 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220608142723.103523089@infradead.org>
- <20220608144516.109792837@infradead.org>
-In-Reply-To: <20220608144516.109792837@infradead.org>
+ <20220608144516.235041924@infradead.org>
+In-Reply-To: <20220608144516.235041924@infradead.org>
 From: "Rafael J. Wysocki" <rafael@kernel.org>
-Date: Wed, 6 Jul 2022 15:51:09 +0200
-Message-ID: <CAJZ5v0jO9+jRSm3d58K15JaO3=kgM2Ueo7W+Smi3WCBPR_VM5Q@mail.gmail.com>
-Subject: Re: [PATCH 03/36] cpuidle/poll: Ensure IRQ state is invariant
+Date: Wed, 6 Jul 2022 15:54:32 +0200
+Message-ID: <CAJZ5v0g0fCNxsc1mg9aL+ieQ1uMVS+RWqesHKoZ_zeL7cx655A@mail.gmail.com>
+Subject: Re: [PATCH 05/36] cpuidle: Move IRQ state validation
 To: Peter Zijlstra <peterz@infradead.org>
 Content-Type: text/plain; charset="UTF-8"
 X-Mailman-Approved-At: Wed, 06 Jul 2022 23:55:27 +0200
@@ -135,35 +134,49 @@ Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
 On Wed, Jun 8, 2022 at 4:47 PM Peter Zijlstra <peterz@infradead.org> wrote:
 >
-> cpuidle_state::enter() methods should be IRQ invariant
+> Make cpuidle_enter_state() consistent with the s2idle variant and
+> verify ->enter() always returns with interrupts disabled.
 >
 > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-
 > ---
->  drivers/cpuidle/poll_state.c |    4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+>  drivers/cpuidle/cpuidle.c |   10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
 >
-> --- a/drivers/cpuidle/poll_state.c
-> +++ b/drivers/cpuidle/poll_state.c
-> @@ -17,7 +17,7 @@ static int __cpuidle poll_idle(struct cp
->
->         dev->poll_time_limit = false;
->
-> -       local_irq_enable();
-> +       raw_local_irq_enable();
->         if (!current_set_polling_and_test()) {
->                 unsigned int loop_count = 0;
->                 u64 limit;
-> @@ -36,6 +36,8 @@ static int __cpuidle poll_idle(struct cp
->                         }
->                 }
->         }
-> +       raw_local_irq_disable();
+> --- a/drivers/cpuidle/cpuidle.c
+> +++ b/drivers/cpuidle/cpuidle.c
+> @@ -234,7 +234,11 @@ int cpuidle_enter_state(struct cpuidle_d
+>         stop_critical_timings();
+>         if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
+>                 rcu_idle_enter();
 > +
->         current_clr_polling();
+>         entered_state = target_state->enter(dev, drv, index);
+> +       if (WARN_ONCE(!irqs_disabled(), "%ps leaked IRQ state", target_state->enter))
+
+I'm not sure if dumping a call trace here is really useful and
+WARN_ON() often gets converted to panic().
+
+I would print an error message with pr_warn_once().
+
+Otherwise LGTM.
+
+> +               raw_local_irq_disable();
+> +
+>         if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
+>                 rcu_idle_exit();
+>         start_critical_timings();
+> @@ -246,12 +250,8 @@ int cpuidle_enter_state(struct cpuidle_d
+>         /* The cpu is no longer idle or about to enter idle. */
+>         sched_idle_set_state(NULL);
 >
->         return index;
+> -       if (broadcast) {
+> -               if (WARN_ON_ONCE(!irqs_disabled()))
+> -                       local_irq_disable();
+> -
+> +       if (broadcast)
+>                 tick_broadcast_exit();
+> -       }
+>
+>         if (!cpuidle_state_is_coupled(drv, index))
+>                 local_irq_enable();
 >
 >
