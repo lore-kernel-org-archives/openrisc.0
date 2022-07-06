@@ -2,32 +2,28 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C53A1CCA473
-	for <openrisc@archiver.kernel.org>; Wed,  6 Jul 2022 08:59:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF06CCCA480
+	for <openrisc@archiver.kernel.org>; Wed,  6 Jul 2022 08:59:37 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id B4A6724929;
-	Wed,  6 Jul 2022 10:59:35 +0200 (CEST)
-Received: from out30-43.freemail.mail.aliyun.com
- (out30-43.freemail.mail.aliyun.com [115.124.30.43])
- by mail.librecores.org (Postfix) with ESMTPS id 46A45248C7
- for <openrisc@lists.librecores.org>; Wed,  6 Jul 2022 10:59:33 +0200 (CEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045168;
+	by mail.librecores.org (Postfix) with ESMTP id DA9A8240F3;
+	Wed,  6 Jul 2022 10:59:36 +0200 (CEST)
+Received: from out30-57.freemail.mail.aliyun.com
+ (out30-57.freemail.mail.aliyun.com [115.124.30.57])
+ by mail.librecores.org (Postfix) with ESMTPS id 7BEED248C7
+ for <openrisc@lists.librecores.org>; Wed,  6 Jul 2022 10:59:34 +0200 (CEST)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R381e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045170;
  MF=baolin.wang@linux.alibaba.com; NM=1; PH=DS; RN=33; SR=0;
- TI=SMTPD_---0VIXgrTG_1657097965; 
+ TI=SMTPD_---0VIXd7j9_1657097961; 
 Received: from localhost(mailfrom:baolin.wang@linux.alibaba.com
- fp:SMTPD_---0VIXgrTG_1657097965) by smtp.aliyun-inc.com;
- Wed, 06 Jul 2022 16:59:26 +0800
+ fp:SMTPD_---0VIXd7j9_1657097961) by smtp.aliyun-inc.com;
+ Wed, 06 Jul 2022 16:59:22 +0800
 From: Baolin Wang <baolin.wang@linux.alibaba.com>
 To: akpm@linux-foundation.org
-Subject: [PATCH 2/3] mm: Add PUD level pagetable account
-Date: Wed,  6 Jul 2022 16:59:16 +0800
-Message-Id: <6c7316e17ccf8d9343c5f703c272df51346b44fa.1657096412.git.baolin.wang@linux.alibaba.com>
+Subject: [PATCH 0/3] Add PUD and kernel PTE level pagetable account
+Date: Wed,  6 Jul 2022 16:59:14 +0800
+Message-Id: <cover.1657096412.git.baolin.wang@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <cover.1657096412.git.baolin.wang@linux.alibaba.com>
-References: <cover.1657096412.git.baolin.wang@linux.alibaba.com>
-In-Reply-To: <cover.1657096412.git.baolin.wang@linux.alibaba.com>
-References: <cover.1657096412.git.baolin.wang@linux.alibaba.com>
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -53,171 +49,54 @@ Cc: x86@kernel.org, baolin.wang@linux.alibaba.com, peterz@infradead.org,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Now the PUD level ptes are always protected by mm->page_table_lock,
-which means no split pagetable lock needed. So the generic PUD level
-pagetable pages allocation will not call pgtable_pte_page_ctor/dtor(),
-that means we will miss to account PUD level pagetable pages.
+Hi,
 
-So introducing pgtable_pud_page_ctor/dtor(), which are just wrappers
-of page_{set,clear}_pgtable() to help to get an accurate PUD pagetable
-accounting, when allocating or freeing PUD level pagetable pages.
+Now we will miss to account the PUD level pagetable and kernel PTE level
+pagetable, as well as missing to set the PG_table flags for these pagetable
+pages, which will get an inaccurate pagetable accounting, and miss
+PageTable() validation in some cases. So this patch set introduces new
+helpers to help to account PUD and kernel PTE pagetable pages.
 
-Moreover this patch will also mark the PUD level pagetable with PG_table
-flag, which will help to do sanity validation in unpoison_memory() and
-get more accurate pagetable accounting by /proc/kpageflags interface.
+Note there are still some architectures specific pagetable allocation
+that need to account the pagetable pages, which need more investigation
+and cleanup in future.
 
-Meanwhile converting the architectures with using generic PUD pagatable
-allocation to add corresponding pgtable_pud_page_ctor() or
-pgtable_pud_page_dtor() to account PUD level pagetable.
+Changes from RFC v3:
+ - Rebased on 20220706 linux-next.
+ - Introduce new pgtable_pud_page_ctor/dtor() and rename the helpers.
+ - Change back to use inc_lruvec_page_state()/dec_lruvec_page_state().
+ - Update some commit message.
+link: https://lore.kernel.org/all/cover.1656586863.git.baolin.wang@linux.alibaba.com/
 
-Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
----
+Changes from RFC v2:
+ - Convert to use mod_lruvec_page_state() for non-order-0 case.
+ - Rename the helpers.
+ - Update some commit messages.
+ - Remove unnecessary __GFP_HIGHMEM clear.
+link: https://lore.kernel.org/all/cover.1655887440.git.baolin.wang@linux.alibaba.com/
+
+Changes from RFC v1:
+ - Update some commit message.
+ - Add missing pgtable_clear_and_dec() on X86 arch.
+ - Use __free_page() to free pagetable which can avoid duplicated virt_to_page().
+link: https://lore.kernel.org/all/cover.1654271618.git.baolin.wang@linux.alibaba.com/
+
+Baolin Wang (3):
+  mm: Factor out the pagetable pages account into new helper function
+  mm: Add PUD level pagetable account
+  mm: Add kernel PTE level pagetable pages account
+
  arch/arm64/include/asm/tlb.h         |  5 ++++-
+ arch/csky/include/asm/pgalloc.h      |  2 +-
  arch/loongarch/include/asm/pgalloc.h | 12 +++++++++---
+ arch/microblaze/mm/pgtable.c         |  2 +-
  arch/mips/include/asm/pgalloc.h      | 12 +++++++++---
- arch/x86/mm/pgtable.c                |  5 ++++-
- include/asm-generic/pgalloc.h        | 12 ++++++++++--
- include/linux/mm.h                   | 10 ++++++++++
- 6 files changed, 46 insertions(+), 10 deletions(-)
+ arch/openrisc/mm/ioremap.c           |  2 +-
+ arch/x86/mm/pgtable.c                |  7 +++++--
+ include/asm-generic/pgalloc.h        | 26 ++++++++++++++++++++++----
+ include/linux/mm.h                   | 34 ++++++++++++++++++++++++++--------
+ 9 files changed, 78 insertions(+), 24 deletions(-)
 
-diff --git a/arch/arm64/include/asm/tlb.h b/arch/arm64/include/asm/tlb.h
-index c995d1f..6665f33 100644
---- a/arch/arm64/include/asm/tlb.h
-+++ b/arch/arm64/include/asm/tlb.h
-@@ -94,7 +94,10 @@ static inline void __pmd_free_tlb(struct mmu_gather *tlb, pmd_t *pmdp,
- static inline void __pud_free_tlb(struct mmu_gather *tlb, pud_t *pudp,
- 				  unsigned long addr)
- {
--	tlb_remove_table(tlb, virt_to_page(pudp));
-+	struct page *page = virt_to_page(pudp);
-+
-+	pgtable_pud_page_dtor(page);
-+	tlb_remove_table(tlb, page);
- }
- #endif
- 
-diff --git a/arch/loongarch/include/asm/pgalloc.h b/arch/loongarch/include/asm/pgalloc.h
-index 4bfeb3c..8138101 100644
---- a/arch/loongarch/include/asm/pgalloc.h
-+++ b/arch/loongarch/include/asm/pgalloc.h
-@@ -89,10 +89,16 @@ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
- static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long address)
- {
- 	pud_t *pud;
-+	struct page *page;
-+
-+	page = alloc_page(GFP_KERNEL);
-+	if (!page)
-+		return NULL;
-+
-+	pgtable_pud_page_ctor(page);
-+	pud = (pud_t *)page_address(page);
-+	pud_init((unsigned long)pud, (unsigned long)invalid_pmd_table);
- 
--	pud = (pud_t *) __get_free_page(GFP_KERNEL);
--	if (pud)
--		pud_init((unsigned long)pud, (unsigned long)invalid_pmd_table);
- 	return pud;
- }
- 
-diff --git a/arch/mips/include/asm/pgalloc.h b/arch/mips/include/asm/pgalloc.h
-index 7960357..5da5880 100644
---- a/arch/mips/include/asm/pgalloc.h
-+++ b/arch/mips/include/asm/pgalloc.h
-@@ -89,11 +89,17 @@ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
- 
- static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long address)
- {
-+	struct page *page;
- 	pud_t *pud;
- 
--	pud = (pud_t *) __get_free_pages(GFP_KERNEL, PUD_TABLE_ORDER);
--	if (pud)
--		pud_init((unsigned long)pud, (unsigned long)invalid_pmd_table);
-+	page = alloc_pages(GFP_KERNEL, PUD_TABLE_ORDER);
-+	if (!page)
-+		return NULL;
-+
-+	pgtable_pud_page_ctor(page);
-+	pud = (pud_t *)page_address(page);
-+	pud_init((unsigned long)pud, (unsigned long)invalid_pmd_table);
-+
- 	return pud;
- }
- 
-diff --git a/arch/x86/mm/pgtable.c b/arch/x86/mm/pgtable.c
-index a932d77..ea39670 100644
---- a/arch/x86/mm/pgtable.c
-+++ b/arch/x86/mm/pgtable.c
-@@ -76,8 +76,11 @@ void ___pmd_free_tlb(struct mmu_gather *tlb, pmd_t *pmd)
- #if CONFIG_PGTABLE_LEVELS > 3
- void ___pud_free_tlb(struct mmu_gather *tlb, pud_t *pud)
- {
-+	struct page *page = virt_to_page(pud);
-+
-+	pgtable_pud_page_dtor(page);
- 	paravirt_release_pud(__pa(pud) >> PAGE_SHIFT);
--	paravirt_tlb_remove_table(tlb, virt_to_page(pud));
-+	paravirt_tlb_remove_table(tlb, page);
- }
- 
- #if CONFIG_PGTABLE_LEVELS > 4
-diff --git a/include/asm-generic/pgalloc.h b/include/asm-generic/pgalloc.h
-index 977bea1..8ce8d7c 100644
---- a/include/asm-generic/pgalloc.h
-+++ b/include/asm-generic/pgalloc.h
-@@ -149,11 +149,16 @@ static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
- 
- static inline pud_t *__pud_alloc_one(struct mm_struct *mm, unsigned long addr)
- {
-+	struct page *page;
- 	gfp_t gfp = GFP_PGTABLE_USER;
- 
- 	if (mm == &init_mm)
- 		gfp = GFP_PGTABLE_KERNEL;
--	return (pud_t *)get_zeroed_page(gfp);
-+	page = alloc_pages(gfp, 0);
-+	if (!page)
-+		return NULL;
-+	pgtable_pud_page_ctor(page);
-+	return (pud_t *)page_address(page);
- }
- 
- #ifndef __HAVE_ARCH_PUD_ALLOC_ONE
-@@ -174,8 +179,11 @@ static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long addr)
- 
- static inline void __pud_free(struct mm_struct *mm, pud_t *pud)
- {
-+	struct page *page = virt_to_page(pud);
-+
- 	BUG_ON((unsigned long)pud & (PAGE_SIZE-1));
--	free_page((unsigned long)pud);
-+	pgtable_pud_page_dtor(page);
-+	__free_page(page);
- }
- 
- #ifndef __HAVE_ARCH_PUD_FREE
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 7894bc5..54ed6f7 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2364,6 +2364,16 @@ static inline void page_clear_pgtable(struct page *page)
- 	dec_lruvec_page_state(page, NR_PAGETABLE);
- }
- 
-+static inline void pgtable_pud_page_ctor(struct page *page)
-+{
-+	page_set_pgtable(page);
-+}
-+
-+static inline void pgtable_pud_page_dtor(struct page *page)
-+{
-+	page_clear_pgtable(page);
-+}
-+
- static inline bool pgtable_pte_page_ctor(struct page *page)
- {
- 	if (!ptlock_init(page))
 -- 
 1.8.3.1
 
