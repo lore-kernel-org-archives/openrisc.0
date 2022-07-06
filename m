@@ -2,42 +2,43 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE430CCA480
-	for <openrisc@archiver.kernel.org>; Wed,  6 Jul 2022 21:55:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DAF1CCA485
+	for <openrisc@archiver.kernel.org>; Wed,  6 Jul 2022 21:55:32 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id BEDFD24945;
-	Wed,  6 Jul 2022 23:55:30 +0200 (CEST)
-Received: from mail-yb1-f174.google.com (mail-yb1-f174.google.com
- [209.85.219.174])
- by mail.librecores.org (Postfix) with ESMTPS id AED7E246C7
- for <openrisc@lists.librecores.org>; Wed,  6 Jul 2022 16:00:40 +0200 (CEST)
-Received: by mail-yb1-f174.google.com with SMTP id j7so21112526ybj.10
- for <openrisc@lists.librecores.org>; Wed, 06 Jul 2022 07:00:40 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 612B724973;
+	Wed,  6 Jul 2022 23:55:31 +0200 (CEST)
+Received: from mail-yw1-f182.google.com (mail-yw1-f182.google.com
+ [209.85.128.182])
+ by mail.librecores.org (Postfix) with ESMTPS id 763492492A
+ for <openrisc@lists.librecores.org>; Wed,  6 Jul 2022 16:04:54 +0200 (CEST)
+Received: by mail-yw1-f182.google.com with SMTP id
+ 00721157ae682-31c89653790so89963287b3.13
+ for <openrisc@lists.librecores.org>; Wed, 06 Jul 2022 07:04:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=Lln/3deL7qOtLziJcXYPqqy6CqnXU6Vj8A13Rxsyfck=;
- b=MvbCcncEMjWfx7Puo39yT+KsZ8uVZx7zl6u0q9+tTcfpuYVUqer3yzNQn26wkAwOUs
- AWqynvUwMZoaBzZQ+1vN46pxWczZLfyU7bDX/+mDTqYbtwKT8fXB/3KlCKxCUoaaub4E
- AyIV2NYMBsRZpWHuACUbhhHmwWTgGL+9xPy24qzTYvkbwGt15L7kL/JR8ajuX9XGJw0C
- DjoZDt3hF1XFys85HW4V0BZ3tbbuzFjX6CAnQwAUFmB2YTq0iBG80toHBPCXLv/OTiMB
- iYhEWtHLYxlQyezUjkux723W9R3E1G3KgwJSMgSP03+28qjI17/DTsGD14eujaxBnRqy
- mqtA==
-X-Gm-Message-State: AJIora/lqkjFNhIxbyFw08VXnMF4hsjgm2H8MAscQ9H0xAu60+7myRIu
- GuknBwA7eb11FgR2WC8JFfQcUBy0PrFllf9U47k=
-X-Google-Smtp-Source: AGRyM1vGBIO6ejUezqbzrzuaUC5etUaxh8lxWDh293Sam2Jc/zFfeBj4g08hdYpvSA8zzuIj5u2PxdHOfRWqZSWT82c=
-X-Received: by 2002:a05:6902:50e:b0:66e:7f55:7a66 with SMTP id
- x14-20020a056902050e00b0066e7f557a66mr7763507ybs.365.1657116039561; Wed, 06
- Jul 2022 07:00:39 -0700 (PDT)
+ bh=UBE539EKjjJ8zkn99yLgr6sf0hQeHTgO/l2k1f9VAKg=;
+ b=KTlM6k3BYyg+qO/ZTlhfEF8bXwEtJyLVCIO5OOKnrwOPacqm17FtlgXPmTUpAIQOmQ
+ HPL96w7lSGwei7KCGlzE/OphHYjJr+RVy6SDWF0SYNdHq8r5rCDhPptqMg6tluNGUdF8
+ tvYSqG7Ll/Z0TwNYS0VXEQGYwd33At4KKrvxdi/0tQ32DOuSE0ucYyvbWsLdUeTvfSUF
+ PEnfTYTcTUWuvJU4GuykdTBK15lF6/PbJRbF3OJhjX4WqxEJ/BFOxw3Bh2mz+jpyWkrd
+ SnmHcEzr5U8HjuUibOyhCmLYjvSWH9fKmb/ciXi2s7r1oeFFPp0GXL4SoI7Nm2ulu+iH
+ rqlQ==
+X-Gm-Message-State: AJIora9rXQozVdeU+CPbVICPRlkU+CrxbG/2rvnMZESgy+PYV2mqcUbu
+ CGjR+0u0WD0l82GGoQjfXdrul1fo3eLGYvLZVJ8=
+X-Google-Smtp-Source: AGRyM1tzweDvK/HpOTrEcMtuYgu75xJlbU4wLmWYqVeEsIhNId5gL4a/NC1jAK4t+CVNf/Oa7/ufr1ZdqBFMCfc4FVA=
+X-Received: by 2002:a81:24c7:0:b0:314:1e60:a885 with SMTP id
+ k190-20020a8124c7000000b003141e60a885mr46512506ywk.301.1657116293184; Wed, 06
+ Jul 2022 07:04:53 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220608142723.103523089@infradead.org>
- <20220608144517.061583457@infradead.org>
-In-Reply-To: <20220608144517.061583457@infradead.org>
+ <20220608144517.885263942@infradead.org>
+In-Reply-To: <20220608144517.885263942@infradead.org>
 From: "Rafael J. Wysocki" <rafael@kernel.org>
-Date: Wed, 6 Jul 2022 16:00:28 +0200
-Message-ID: <CAJZ5v0iBAt7xyBzrFwgVSOk7dLx017X_naLZAjnDuwi=oUmREg@mail.gmail.com>
-Subject: Re: [PATCH 18/36] cpuidle: Annotate poll_idle()
+Date: Wed, 6 Jul 2022 16:04:42 +0200
+Message-ID: <CAJZ5v0j6=x-u3dorwQNd6Sihaa1rx1-uaFXbL1Kc37Hu-fcH3A@mail.gmail.com>
+Subject: Re: [PATCH 31/36] cpuidle,acpi: Make noinstr clean
 To: Peter Zijlstra <peterz@infradead.org>
 Content-Type: text/plain; charset="UTF-8"
 X-Mailman-Approved-At: Wed, 06 Jul 2022 23:55:27 +0200
@@ -132,40 +133,64 @@ Cc: Juri Lelli <juri.lelli@redhat.com>, "Rafael J. Wysocki" <rafael@kernel.org>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Wed, Jun 8, 2022 at 4:46 PM Peter Zijlstra <peterz@infradead.org> wrote:
+On Wed, Jun 8, 2022 at 4:47 PM Peter Zijlstra <peterz@infradead.org> wrote:
 >
-> The __cpuidle functions will become a noinstr class, as such they need
-> explicit annotations.
+> vmlinux.o: warning: objtool: io_idle+0xc: call to __inb.isra.0() leaves .noinstr.text section
+> vmlinux.o: warning: objtool: acpi_idle_enter+0xfe: call to num_online_cpus() leaves .noinstr.text section
+> vmlinux.o: warning: objtool: acpi_idle_enter+0x115: call to acpi_idle_fallback_to_c1.isra.0() leaves .noinstr.text section
 >
 > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
 > ---
->  drivers/cpuidle/poll_state.c |    6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
+>  arch/x86/include/asm/shared/io.h |    4 ++--
+>  drivers/acpi/processor_idle.c    |    2 +-
+>  include/linux/cpumask.h          |    4 ++--
+>  3 files changed, 5 insertions(+), 5 deletions(-)
 >
-> --- a/drivers/cpuidle/poll_state.c
-> +++ b/drivers/cpuidle/poll_state.c
-> @@ -13,7 +13,10 @@
->  static int __cpuidle poll_idle(struct cpuidle_device *dev,
->                                struct cpuidle_driver *drv, int index)
->  {
-> -       u64 time_start = local_clock();
-> +       u64 time_start;
-> +
-> +       instrumentation_begin();
-> +       time_start = local_clock();
+> --- a/arch/x86/include/asm/shared/io.h
+> +++ b/arch/x86/include/asm/shared/io.h
+> @@ -5,13 +5,13 @@
+>  #include <linux/types.h>
 >
->         dev->poll_time_limit = false;
->
-> @@ -39,6 +42,7 @@ static int __cpuidle poll_idle(struct cp
->         raw_local_irq_disable();
->
->         current_clr_polling();
-> +       instrumentation_end();
->
->         return index;
+>  #define BUILDIO(bwl, bw, type)                                         \
+> -static inline void __out##bwl(type value, u16 port)                    \
+> +static __always_inline void __out##bwl(type value, u16 port)           \
+>  {                                                                      \
+>         asm volatile("out" #bwl " %" #bw "0, %w1"                       \
+>                      : : "a"(value), "Nd"(port));                       \
+>  }                                                                      \
+>                                                                         \
+> -static inline type __in##bwl(u16 port)                                 \
+> +static __always_inline type __in##bwl(u16 port)                                \
+>  {                                                                      \
+>         type value;                                                     \
+>         asm volatile("in" #bwl " %w1, %" #bw "0"                        \
+> --- a/drivers/acpi/processor_idle.c
+> +++ b/drivers/acpi/processor_idle.c
+> @@ -593,7 +593,7 @@ static int acpi_idle_play_dead(struct cp
+>         return 0;
 >  }
+>
+> -static bool acpi_idle_fallback_to_c1(struct acpi_processor *pr)
+> +static __always_inline bool acpi_idle_fallback_to_c1(struct acpi_processor *pr)
+>  {
+>         return IS_ENABLED(CONFIG_HOTPLUG_CPU) && !pr->flags.has_cst &&
+>                 !(acpi_gbl_FADT.flags & ACPI_FADT_C2_MP_SUPPORTED);
+> --- a/include/linux/cpumask.h
+> +++ b/include/linux/cpumask.h
+> @@ -908,9 +908,9 @@ static inline const struct cpumask *get_
+>   * concurrent CPU hotplug operations unless invoked from a cpuhp_lock held
+>   * region.
+>   */
+> -static inline unsigned int num_online_cpus(void)
+> +static __always_inline unsigned int num_online_cpus(void)
+>  {
+> -       return atomic_read(&__num_online_cpus);
+> +       return arch_atomic_read(&__num_online_cpus);
+>  }
+>  #define num_possible_cpus()    cpumask_weight(cpu_possible_mask)
+>  #define num_present_cpus()     cpumask_weight(cpu_present_mask)
 >
 >
