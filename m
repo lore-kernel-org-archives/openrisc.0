@@ -2,60 +2,37 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D871C433EF
-	for <openrisc@archiver.kernel.org>; Wed,  6 Jul 2022 13:24:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A56BC43334
+	for <openrisc@archiver.kernel.org>; Wed,  6 Jul 2022 15:46:15 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 182DA24844;
-	Wed,  6 Jul 2022 15:24:14 +0200 (CEST)
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com
- [209.85.216.45])
- by mail.librecores.org (Postfix) with ESMTPS id 70AD12422B
- for <openrisc@lists.librecores.org>; Wed,  6 Jul 2022 15:24:13 +0200 (CEST)
-Received: by mail-pj1-f45.google.com with SMTP id
- i8-20020a17090a4b8800b001ef8a65bfbdso8217143pjh.1
- for <openrisc@lists.librecores.org>; Wed, 06 Jul 2022 06:24:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=V4tYWS6dWP+j40mx+/UNIOoszj7Dg0+fwwT9LMM38/A=;
- b=BymM1sgLJt0ol6c/OkpKcKga1FfwNzmj7SD3OVhwdIzmeiXka3XMDDYBOZz7N/unqb
- Yc1CQm5KJBp+A9+pGPu7amuQkf2evnu3jhzRx95ns4w6rWRASkpj0aPC7hKBc29GZ5wH
- c2NVSBShJgMbjAtfU5DG9aOnT/nBqEHa6lbVajwOcZqWRhZI9BM6zjbzdA3YFdZ2qi4M
- 1E69zM2GkrFzsYjQS7spE6yKbaQgI0zQdjsJwebF8CA35S7tYc0bSruS98u2jqL0sGsV
- ITvfDdOPvZetx38qWdvVpyvqBDg6fYgBqAF0xlYhsdVFYYdafJzdAA/ql23igshpuRNP
- +uvw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=V4tYWS6dWP+j40mx+/UNIOoszj7Dg0+fwwT9LMM38/A=;
- b=h23YFkM/vEcHf1x5MHtA0cajDP9nPushJBqJNX0OqKgwpSovZRp3yWxSVIHVyBD2Ht
- DX3GktrILUZmB5LZbtQeQJgSE5CvVEfEZf08azywbXn39nUZn481YVujX56hwe6Z/UH9
- srjMl7ONxD2rjcPCtr/GTnxIGnDHUUguBvT4ztVFoW6BrSHqtdoT9v1kM6guZ8oW1pKN
- nBRes8kOftG6cfYaNGKGDwHCsifGDUvf6+MPe+oF+RRVQL8xRC2J1GeL9GPdWd2MghnF
- vPEFB7H3raU4dsfEBifCpPieES8/xs3sodSJtWS9ayHN74Dgy49Ly0oDEq+VLU/DuKwx
- Xv6g==
-X-Gm-Message-State: AJIora8YDikCYPeiL+ZWcCd5HlLWvWe+G+obFYWmhm2BE09/MhbKOhoR
- vtraV4Wepe3fXRMly4jYmuA=
-X-Google-Smtp-Source: AGRyM1v1X0JOuWMSFiehFCvxxt1YfSFIT12ay1QZmQPqS97R0CElAt7P40mDOtgXxuBvfH+b3Bg2bA==
-X-Received: by 2002:a17:902:ba8a:b0:16b:988f:9279 with SMTP id
- k10-20020a170902ba8a00b0016b988f9279mr42995621pls.114.1657113852026; 
- Wed, 06 Jul 2022 06:24:12 -0700 (PDT)
-Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
- by smtp.gmail.com with ESMTPSA id
- m184-20020a6258c1000000b005289eafbd08sm2432646pfb.18.2022.07.06.06.24.11
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 06 Jul 2022 06:24:11 -0700 (PDT)
-Date: Wed, 6 Jul 2022 22:24:10 +0900
-From: Stafford Horne <shorne@gmail.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [GIT PULL] OpenRISC fixes for 5.19-rc5
-Message-ID: <YsWM+im7pmU8MdeZ@antec>
-References: <YsWMXAF3ePlWuxyF@antec>
+	by mail.librecores.org (Postfix) with ESMTP id 348CB24986;
+	Wed,  6 Jul 2022 17:46:14 +0200 (CEST)
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+ by mail.librecores.org (Postfix) with ESMTPS id 6B5FD24956
+ for <openrisc@lists.librecores.org>; Wed,  6 Jul 2022 17:46:12 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=ZMPiGOu1gsOrP+OcjmrgLm7lfQsrjdxIxBZ6JkHGY4s=; b=Igpy4Ztjw6EHxP2kGcUQABTJik
+ ouxzd2xaG1VFa/TwwQyX8nCf+NZbuPs26JHzK8ELixfm2UjEcG99xdhcY0ijhI1LtxN1TtWXXB1wL
+ QBSZiM37PnQUgp8ys5M4sk1urMtXH3tFmEn9tXn80WEy5ywwwpHY/B24cPAjwB804VrzcVjUODNMU
+ REYwWnm8SDyYQhQI+K8NRNdHOXn/LjDqfABaVA7ReWa7TfKrCSZdNUB/0bU3yR8JvVOT6qXB4SQlS
+ 6cZwAeAkpFg6LyYLh9cFFeOAo0nQow7O0grI47Vbdv0rczao6tql2aINzX6orwdtuyV46iQV7irPy
+ 1bIWikBQ==;
+Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red
+ Hat Linux)) id 1o97DI-001lBg-0s; Wed, 06 Jul 2022 15:45:16 +0000
+Date: Wed, 6 Jul 2022 16:45:15 +0100
+From: Matthew Wilcox <willy@infradead.org>
+To: Baolin Wang <baolin.wang@linux.alibaba.com>
+Subject: Re: [PATCH 3/3] mm: Add kernel PTE level pagetable pages account
+Message-ID: <YsWuC9+b3JaEAr0Q@casper.infradead.org>
+References: <cover.1657096412.git.baolin.wang@linux.alibaba.com>
+ <398ead25695e530f766849be5edafaf62c1c864d.1657096412.git.baolin.wang@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YsWMXAF3ePlWuxyF@antec>
+In-Reply-To: <398ead25695e530f766849be5edafaf62c1c864d.1657096412.git.baolin.wang@linux.alibaba.com>
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -68,51 +45,38 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Openrisc <openrisc@lists.librecores.org>,
- LKML <linux-kernel@vger.kernel.org>
+Cc: x86@kernel.org, loongarch@lists.linux.dev, peterz@infradead.org,
+ catalin.marinas@arm.com, dave.hansen@linux.intel.com,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org, guoren@kernel.org,
+ hpa@zytor.com, kernel@xen0n.name, will@kernel.org, jonas@southpole.se,
+ aneesh.kumar@linux.ibm.com, chenhuacai@kernel.org, linux-csky@vger.kernel.org,
+ rppt@linux.ibm.com, mingo@redhat.com, linux-arch@vger.kernel.org,
+ arnd@arndb.de, npiggin@gmail.com, openrisc@lists.librecores.org, bp@alien8.de,
+ luto@kernel.org, tglx@linutronix.de, linux-arm-kernel@lists.infradead.org,
+ monstr@monstr.eu, tsbogend@alpha.franken.de, linux-mips@vger.kernel.org,
+ akpm@linux-foundation.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Sorry, again with proper subject.
+On Wed, Jul 06, 2022 at 04:59:17PM +0800, Baolin Wang wrote:
+> Now the kernel PTE level ptes are always protected by mm->page_table_lock
+> instead of split pagetable lock, so the kernel PTE level pagetable pages
+> are not accounted. Especially the vmalloc()/vmap() can consume lots of
+> kernel pagetable, so to get an accurate pagetable accounting, calling new
+> helpers page_{set,clear}_pgtable() when allocating or freeing a kernel
+> PTE level pagetable page.
+> 
+> Meanwhile converting architectures to use corresponding generic PTE pagetable
+> allocation and freeing functions.
+> 
+> Note this patch only adds accounting to the page tables allocated after boot.
+> 
+> Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
+> Reported-by: kernel test robot <oliver.sang@intel.com>
 
-On Wed, Jul 06, 2022 at 10:21:32PM +0900, Stafford Horne wrote:
-> Hi Linus,
-> 
-> Please consider for pull.
-> 
-> The following changes since commit 03c765b0e3b4cb5063276b086c76f7a612856a9a:
-> 
->   Linux 5.19-rc4 (2022-06-26 14:22:10 -0700)
-> 
-> are available in the Git repository at:
-> 
->   git@github.com:openrisc/linux.git tags/for-linus
-> 
-> for you to fetch changes up to 48bddb89d59eec27c3305d179b1832d5292e285d:
-> 
->   openrisc: unwinder: Fix grammar issue in comment (2022-06-28 17:31:24 +0900)
-> 
-> ----------------------------------------------------------------
-> OpenRISC fixes for 5.19-rc5
-> 
-> Fixups for OpenRISC found during recent testing:
->  - An OpenRISC irqchip fix to stop acking level interrupts which was
->    causing issues on SMP platforms.
->  - A comment typo fix in our unwinder code.
-> 
-> ----------------------------------------------------------------
-> 
-> Note, if you do check this against being in linux-next I dropped one patch from
-> the linux next tree before creating this pull request.  The dropped patch was to
-> add wireguard selftest support, but we decided against it as there are still
-> some qemu bugs to workout before turning on wireguard selftests for OpenRISC.
-> 
-> Stafford Horne (1):
->       irqchip: or1k-pic: Undefine mask_ack for level triggered hardware
-> 
-> Xiang wangx (1):
->       openrisc: unwinder: Fix grammar issue in comment
-> 
->  arch/openrisc/kernel/unwinder.c | 2 +-
->  drivers/irqchip/irq-or1k-pic.c  | 1 -
->  2 files changed, 1 insertion(+), 2 deletions(-)
+What does this Reported-by: even mean?  the kernel test robot told you
+that the page tables weren't being accounted?
+
+I don't understand why we want to start accounting kernel page tables.
+an we have a *discussion* about that with a sensible thread name instead
+of just trying to sneak it in as patch 3/3?
