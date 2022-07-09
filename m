@@ -2,54 +2,54 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23908C433EF
-	for <openrisc@archiver.kernel.org>; Sat,  9 Jul 2022 21:16:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44365C43334
+	for <openrisc@archiver.kernel.org>; Sat,  9 Jul 2022 21:16:51 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 2F97722126;
-	Sat,  9 Jul 2022 23:16:40 +0200 (CEST)
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com
- [209.85.214.169])
- by mail.librecores.org (Postfix) with ESMTPS id 1E55F21052
- for <openrisc@lists.librecores.org>; Sat,  9 Jul 2022 23:16:39 +0200 (CEST)
-Received: by mail-pl1-f169.google.com with SMTP id m2so1523305plx.3
- for <openrisc@lists.librecores.org>; Sat, 09 Jul 2022 14:16:39 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 6758621052;
+	Sat,  9 Jul 2022 23:16:50 +0200 (CEST)
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com
+ [209.85.216.48])
+ by mail.librecores.org (Postfix) with ESMTPS id 99F34208C2
+ for <openrisc@lists.librecores.org>; Sat,  9 Jul 2022 23:16:48 +0200 (CEST)
+Received: by mail-pj1-f48.google.com with SMTP id p9so1829621pjd.3
+ for <openrisc@lists.librecores.org>; Sat, 09 Jul 2022 14:16:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=NQshL0ubFsAEbwRRKdyb/1irD0i2pVbsxkak9vbWWbY=;
- b=SnupiACxDcbgC4he6qEmIxmTiXTIyYFXzA2H78F6apwE+otf5xOSO286+uayTPVeK0
- Uw1Gt7z4oygriZ2NRt+ryvI5lG0SfhSYOn0KKQs03n1AW4/345VMVQMRbiHtM+8SHGaq
- W2/oKSlVYOqEutjgIgvFg/V0VePDp7Pejv35si78CYq/6vQt5fn5c/N4rdjEeLzTBp2A
- RwB6Cmxm+E7cKFsusukgN8MZyNX462Dp41J//qJZwoCR5axJqJX4lza4lQp49iZFLoN+
- 9C19p06utAjlW/7EiGmAXXH3WaROPGRiGk3KCeTclm+ULdRj83MFDI7H1nkYSzDQC0/8
- 8Vyw==
+ bh=ZWuX6ov4197gAn7zaYMbI8DUTRJY83Rd6vcUzJETd9g=;
+ b=o6vJUaK5s3FRRIr1orvVL8DhPS6tgH7MkcPUxL62UVIkJj/miqCG73eUkcn/J//J/h
+ BLcv0ikNeOtsh4fq0zRSajFCXzJzwlEmIaEkgHOtaaKSr+luwEsEit3MD591YFAmlKfr
+ FOzGjIgXDeuHsHaTxL8+aR/ZlIu88MtaeE/k+5w2cyU1WRQHJkVy1yZB7AV60BgAysxh
+ JS8t2InMRmP6rvGbrRHcsP7Ib3LUqAyyYdfyZg8QwUR3kX7Ou4i9s+UVfFb4dug9orh7
+ MuQBIo5RCa3A75OxusFOcB5++d8w4OVt+6Etsds6+MmGgKV/OQE2GvmBdrPEy1/+UzaV
+ xvQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=NQshL0ubFsAEbwRRKdyb/1irD0i2pVbsxkak9vbWWbY=;
- b=XgWrFmcm26b5AyJe93Z+Emx9LAhREl6+NCP5Klvhs379iy2XSfPbEO1Qx+VGqMfYzF
- wvyRnilS77KmZa1zUs8ZkeI9htb957F1Yd5unyD3XwD73f7EEijUFMeJ49kAeJZ+5LkE
- FkWJf8vrytzCZ8x1wJnH2xjOJ2MCT0Y5+/675rYJ5olZIwNvVlL0hwByUOJL/ZHr9e1N
- 2hcaHFIwgWw0uUEuHSBrWsUodCYvf7CSwkm0Lpo5BhhOGN7aAtU6+xpFa89ylepvel3i
- oHP76E0Ebt17XytU+E8NuN4HIvWS61/LHuybQNdqpEQI8bHpzDFxxNyK6B2yOcfwYNB5
- NWGQ==
-X-Gm-Message-State: AJIora+87pG8HHtNxOt7rf1KILmENk8U2vVAjxjUCN9J4MmAjJ4UTtpE
- d7jssdva+vkC5TyQ+SSD64w=
-X-Google-Smtp-Source: AGRyM1vutUmBGnmHcsHSxZEBr06j2+o2lupBHft00wHXPbFp+f4V20AekDvnXrpyAVn9+jM3naCdeQ==
-X-Received: by 2002:a17:90b:3e86:b0:1ec:f7e8:e4e4 with SMTP id
- rj6-20020a17090b3e8600b001ecf7e8e4e4mr8159795pjb.218.1657401397764; 
- Sat, 09 Jul 2022 14:16:37 -0700 (PDT)
+ bh=ZWuX6ov4197gAn7zaYMbI8DUTRJY83Rd6vcUzJETd9g=;
+ b=WG4d3nzXmKV+u27V757bC8Jrwb5niLT1KbG56MM882rf27ck5mn3kup1FgVxc9F9Ji
+ 6y/kHCyJ9XywEsxV9MRspA7+bKfj1Jzmd4AWq7gIk1ab+28eEi3bv3gOwl6j4GGX5yid
+ N+7AUl4MJzMDFrM5qTkYrM/RdobYtFGsCwRlPY9SiQVg6MqutDtP6DgrWHBCE8+JvWav
+ X8RzBgHhc9ruAONf2vdy4gmRY8/oJ2y+zD+VvYqDGTb0y/kDFdttT3oy1Xt3ogmO1pRk
+ MLBZCVjnbIiHsOcZ/sA1Go67AA9ozNElh+eSG68nX7S/Ot0gSv7Bb5g62al3zWjWLRhu
+ porw==
+X-Gm-Message-State: AJIora94pboHjLrLxSdjhXMI1nqR2t0/yYuvw9BIkNQWiEbFhvUa98HX
+ OZmRoAx0CH4n+RN03f10zI0=
+X-Google-Smtp-Source: AGRyM1uvjZnIh0oHuLg51QGQVl97sMhJ6t+Q15UlazhWY7up63kdsrc+Or8FTQhBwmQT1qjcWn6smQ==
+X-Received: by 2002:a17:903:22c7:b0:16b:fa15:63d4 with SMTP id
+ y7-20020a17090322c700b0016bfa1563d4mr10623100plg.2.1657401407139; 
+ Sat, 09 Jul 2022 14:16:47 -0700 (PDT)
 Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
  by smtp.gmail.com with ESMTPSA id
- x127-20020a626385000000b0052512fdaa43sm1876822pfb.163.2022.07.09.14.16.37
+ z16-20020aa79490000000b0051c6613b5basm1901097pfk.134.2022.07.09.14.16.46
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sat, 09 Jul 2022 14:16:37 -0700 (PDT)
+ Sat, 09 Jul 2022 14:16:46 -0700 (PDT)
 From: Stafford Horne <shorne@gmail.com>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/2] openrisc: Add pci bus support
-Date: Sun, 10 Jul 2022 06:15:48 +0900
-Message-Id: <20220709211549.1163327-2-shorne@gmail.com>
+Subject: [PATCH 2/2] openrisc: Add virt defconfig
+Date: Sun, 10 Jul 2022 06:15:49 +0900
+Message-Id: <20220709211549.1163327-3-shorne@gmail.com>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220709211549.1163327-1-shorne@gmail.com>
 References: <20220709211549.1163327-1-shorne@gmail.com>
@@ -67,135 +67,138 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Jonas Bonn <jonas@southpole.se>, Arnd Bergmann <arnd@arndb.de>,
- Peter Zijlstra <peterz@infradead.org>, Palmer Dabbelt <palmer@rivosinc.com>,
- Openrisc <openrisc@lists.librecores.org>
+Cc: Jonas Bonn <jonas@southpole.se>, Openrisc <openrisc@lists.librecores.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-This patch adds required definitions to allow for PCI buses on OpenRISC.
-This is being in the QEMU virt platform.
+I have been developing a new qemu virt platform to help with more
+efficient toolchain and kernel testing [1].
 
-OpenRISC does not have IO ports so this defines PCI IO to be allowed in
-any range.  Keeping PIO_RESERVED defined as 0 allows OpenRISC to use
-MMIO for all IO.
+This patch adds the defconfig which is needed to support booting
+linux on the platform.
 
-Also, since commit 66bcd06099bb ("parport_pc: Also enable driver for PCI
-systems") all platforms that support PCI also need to support parallel
-port.  We add a generic header to support parallel port drivers.
+[1] https://lore.kernel.org/qemu-devel/YpwNtowUTxRbh2Uq@antec/T/#m6db180b0d682785fb320e4a05345c12a063e0c47
 
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/Kconfig            |  7 ++++---
- arch/openrisc/include/asm/Kbuild |  1 +
- arch/openrisc/include/asm/io.h   |  4 ++--
- arch/openrisc/include/asm/pci.h  | 36 ++++++++++++++++++++++++++++++++
- 4 files changed, 43 insertions(+), 5 deletions(-)
- create mode 100644 arch/openrisc/include/asm/pci.h
+ arch/openrisc/configs/virt_defconfig | 108 +++++++++++++++++++++++++++
+ 1 file changed, 108 insertions(+)
+ create mode 100644 arch/openrisc/configs/virt_defconfig
 
-diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index e814df4c483c..327241988819 100644
---- a/arch/openrisc/Kconfig
-+++ b/arch/openrisc/Kconfig
-@@ -21,7 +21,9 @@ config OPENRISC
- 	select GENERIC_IRQ_PROBE
- 	select GENERIC_IRQ_SHOW
- 	select GENERIC_IOMAP
-+	select GENERIC_PCI_IOMAP
- 	select GENERIC_CPU_DEVICES
-+	select HAVE_PCI
- 	select HAVE_UID16
- 	select GENERIC_ATOMIC64
- 	select GENERIC_CLOCKEVENTS_BROADCAST
-@@ -32,6 +34,8 @@ config OPENRISC
- 	select CPU_NO_EFFICIENT_FFS if !OPENRISC_HAVE_INST_FF1
- 	select ARCH_USE_QUEUED_RWLOCKS
- 	select OMPIC if SMP
-+	select PCI_DOMAINS_GENERIC if PCI
-+	select PCI_MSI if PCI
- 	select ARCH_WANT_FRAME_POINTERS
- 	select GENERIC_IRQ_MULTI_HANDLER
- 	select MMU_GATHER_NO_RANGE if MMU
-@@ -46,9 +50,6 @@ config MMU
- config GENERIC_HWEIGHT
- 	def_bool y
- 
--config NO_IOPORT_MAP
--	def_bool y
--
- # For now, use generic checksum functions
- #These can be reimplemented in assembly later if so inclined
- config GENERIC_CSUM
-diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
-index 3386b9c1c073..c8c99b554ca4 100644
---- a/arch/openrisc/include/asm/Kbuild
-+++ b/arch/openrisc/include/asm/Kbuild
-@@ -1,6 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- generic-y += extable.h
- generic-y += kvm_para.h
-+generic-y += parport.h
- generic-y += spinlock_types.h
- generic-y += spinlock.h
- generic-y += qrwlock_types.h
-diff --git a/arch/openrisc/include/asm/io.h b/arch/openrisc/include/asm/io.h
-index c298061c70a7..1595aa69d96d 100644
---- a/arch/openrisc/include/asm/io.h
-+++ b/arch/openrisc/include/asm/io.h
-@@ -17,9 +17,9 @@
- #include <linux/types.h>
- 
- /*
-- * PCI: can we really do 0 here if we have no port IO?
-+ * PCI: All address space can be used for IO
-  */
--#define IO_SPACE_LIMIT		0
-+#define IO_SPACE_LIMIT ~(0UL)
- 
- /* OpenRISC has no port IO */
- #define HAVE_ARCH_PIO_SIZE	1
-diff --git a/arch/openrisc/include/asm/pci.h b/arch/openrisc/include/asm/pci.h
+diff --git a/arch/openrisc/configs/virt_defconfig b/arch/openrisc/configs/virt_defconfig
 new file mode 100644
-index 000000000000..e0865d2f3f42
+index 000000000000..c1b69166c500
 --- /dev/null
-+++ b/arch/openrisc/include/asm/pci.h
-@@ -0,0 +1,36 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+
-+#ifndef __ASM_OPENRISC_PCI_H
-+#define __ASM_OPENRISC_PCI_H
-+
-+#include <linux/types.h>
-+#include <linux/slab.h>
-+#include <linux/dma-mapping.h>
-+
-+#include <asm/io.h>
-+
-+#define PCIBIOS_MIN_IO		0
-+#define PCIBIOS_MIN_MEM		0
-+
-+/* OpenRISC bootloaders do not initialize PCI bus */
-+#define pcibios_assign_all_busses() 1
-+
-+#define ARCH_GENERIC_PCI_MMAP_RESOURCE 1
-+
-+extern int isa_dma_bridge_buggy;
-+
-+#ifdef CONFIG_PCI
-+static inline int pci_get_legacy_ide_irq(struct pci_dev *dev, int channel)
-+{
-+	/* no legacy IRQs on or1k */
-+	return -ENODEV;
-+}
-+
-+static inline int pci_proc_domain(struct pci_bus *bus)
-+{
-+	/* always show the domain in /proc */
-+	return 1;
-+}
-+#endif /* CONFIG_PCI */
-+
-+#endif /* __ASM_OPENRISC_PCI_H */
++++ b/arch/openrisc/configs/virt_defconfig
+@@ -0,0 +1,108 @@
++CONFIG_SYSVIPC=y
++CONFIG_POSIX_MQUEUE=y
++CONFIG_NO_HZ_IDLE=y
++CONFIG_LOG_BUF_SHIFT=14
++CONFIG_CGROUPS=y
++CONFIG_BLK_DEV_INITRD=y
++CONFIG_OPENRISC_HAVE_INST_CMOV=y
++CONFIG_OPENRISC_HAVE_INST_ROR=y
++CONFIG_OPENRISC_HAVE_INST_RORI=y
++CONFIG_OPENRISC_HAVE_INST_SEXT=y
++CONFIG_NR_CPUS=8
++CONFIG_SMP=y
++CONFIG_HZ_100=y
++# CONFIG_OPENRISC_NO_SPR_SR_DSX is not set
++# CONFIG_COMPAT_BRK is not set
++CONFIG_NET=y
++CONFIG_PACKET=y
++CONFIG_UNIX=y
++CONFIG_INET=y
++# CONFIG_INET_DIAG is not set
++CONFIG_TCP_CONG_ADVANCED=y
++# CONFIG_TCP_CONG_BIC is not set
++# CONFIG_TCP_CONG_CUBIC is not set
++# CONFIG_TCP_CONG_WESTWOOD is not set
++# CONFIG_TCP_CONG_HTCP is not set
++# CONFIG_IPV6 is not set
++# CONFIG_WIRELESS is not set
++CONFIG_PCI=y
++CONFIG_PCIEPORTBUS=y
++CONFIG_PCI_HOST_GENERIC=y
++CONFIG_DEVTMPFS=y
++CONFIG_DEVTMPFS_MOUNT=y
++# CONFIG_PREVENT_FIRMWARE_BUILD is not set
++CONFIG_BLK_DEV_LOOP=y
++CONFIG_BLK_DEV_NBD=y
++CONFIG_VIRTIO_BLK=y
++CONFIG_NETDEVICES=y
++CONFIG_VIRTIO_NET=y
++CONFIG_ETHOC=y
++CONFIG_MICREL_PHY=y
++# CONFIG_WLAN is not set
++CONFIG_INPUT_MOUSEDEV=y
++# CONFIG_LEGACY_PTYS is not set
++CONFIG_SERIAL_8250=y
++CONFIG_SERIAL_8250_CONSOLE=y
++CONFIG_SERIAL_OF_PLATFORM=y
++CONFIG_VIRTIO_CONSOLE=y
++# CONFIG_HW_RANDOM is not set
++CONFIG_POWER_RESET=y
++CONFIG_POWER_RESET_SYSCON=y
++CONFIG_POWER_RESET_SYSCON_POWEROFF=y
++CONFIG_SYSCON_REBOOT_MODE=y
++# CONFIG_HWMON is not set
++CONFIG_DRM=y
++# CONFIG_DRM_FBDEV_EMULATION is not set
++CONFIG_DRM_VIRTIO_GPU=y
++CONFIG_FB=y
++CONFIG_FIRMWARE_EDID=y
++CONFIG_FRAMEBUFFER_CONSOLE=y
++CONFIG_FRAMEBUFFER_CONSOLE_DETECT_PRIMARY=y
++CONFIG_LOGO=y
++CONFIG_SOUND=y
++CONFIG_SND=y
++CONFIG_SND_INTEL8X0=y
++CONFIG_SND_INTEL8X0M=y
++CONFIG_SND_SOC=y
++CONFIG_SND_VIRTIO=y
++# CONFIG_HID_A4TECH is not set
++# CONFIG_HID_BELKIN is not set
++# CONFIG_HID_CHERRY is not set
++# CONFIG_HID_CHICONY is not set
++# CONFIG_HID_CYPRESS is not set
++# CONFIG_HID_EZKEY is not set
++# CONFIG_HID_ITE is not set
++# CONFIG_HID_KENSINGTON is not set
++# CONFIG_HID_REDRAGON is not set
++# CONFIG_HID_MICROSOFT is not set
++# CONFIG_HID_MONTEREY is not set
++CONFIG_USB=y
++CONFIG_USB_XHCI_HCD=y
++CONFIG_USB_XHCI_PLATFORM=y
++CONFIG_USB_EHCI_HCD=y
++CONFIG_USB_EHCI_HCD_PLATFORM=y
++CONFIG_USB_OHCI_HCD=y
++CONFIG_USB_OHCI_HCD_PLATFORM=y
++CONFIG_USB_SERIAL=y
++CONFIG_USB_GADGET=y
++CONFIG_TYPEC=y
++CONFIG_RTC_CLASS=y
++CONFIG_RTC_DRV_GOLDFISH=y
++CONFIG_VIRT_DRIVERS=y
++CONFIG_VIRTIO_PCI=y
++# CONFIG_VIRTIO_PCI_LEGACY is not set
++CONFIG_VIRTIO_INPUT=y
++CONFIG_VIRTIO_MMIO=y
++CONFIG_VIRTIO_MMIO_CMDLINE_DEVICES=y
++CONFIG_EXT3_FS=y
++CONFIG_EXT3_FS_POSIX_ACL=y
++# CONFIG_DNOTIFY is not set
++CONFIG_MSDOS_FS=y
++CONFIG_VFAT_FS=y
++CONFIG_EXFAT_FS=y
++CONFIG_TMPFS=y
++CONFIG_NFS_FS=y
++CONFIG_UNICODE=y
++CONFIG_PRINTK_TIME=y
++CONFIG_DYNAMIC_DEBUG=y
++CONFIG_FTRACE=y
 -- 
 2.36.1
 
