@@ -2,58 +2,36 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44365C43334
-	for <openrisc@archiver.kernel.org>; Sat,  9 Jul 2022 21:16:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0209AC43334
+	for <openrisc@archiver.kernel.org>; Sun, 10 Jul 2022 11:20:13 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 6758621052;
-	Sat,  9 Jul 2022 23:16:50 +0200 (CEST)
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com
- [209.85.216.48])
- by mail.librecores.org (Postfix) with ESMTPS id 99F34208C2
- for <openrisc@lists.librecores.org>; Sat,  9 Jul 2022 23:16:48 +0200 (CEST)
-Received: by mail-pj1-f48.google.com with SMTP id p9so1829621pjd.3
- for <openrisc@lists.librecores.org>; Sat, 09 Jul 2022 14:16:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=ZWuX6ov4197gAn7zaYMbI8DUTRJY83Rd6vcUzJETd9g=;
- b=o6vJUaK5s3FRRIr1orvVL8DhPS6tgH7MkcPUxL62UVIkJj/miqCG73eUkcn/J//J/h
- BLcv0ikNeOtsh4fq0zRSajFCXzJzwlEmIaEkgHOtaaKSr+luwEsEit3MD591YFAmlKfr
- FOzGjIgXDeuHsHaTxL8+aR/ZlIu88MtaeE/k+5w2cyU1WRQHJkVy1yZB7AV60BgAysxh
- JS8t2InMRmP6rvGbrRHcsP7Ib3LUqAyyYdfyZg8QwUR3kX7Ou4i9s+UVfFb4dug9orh7
- MuQBIo5RCa3A75OxusFOcB5++d8w4OVt+6Etsds6+MmGgKV/OQE2GvmBdrPEy1/+UzaV
- xvQA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=ZWuX6ov4197gAn7zaYMbI8DUTRJY83Rd6vcUzJETd9g=;
- b=WG4d3nzXmKV+u27V757bC8Jrwb5niLT1KbG56MM882rf27ck5mn3kup1FgVxc9F9Ji
- 6y/kHCyJ9XywEsxV9MRspA7+bKfj1Jzmd4AWq7gIk1ab+28eEi3bv3gOwl6j4GGX5yid
- N+7AUl4MJzMDFrM5qTkYrM/RdobYtFGsCwRlPY9SiQVg6MqutDtP6DgrWHBCE8+JvWav
- X8RzBgHhc9ruAONf2vdy4gmRY8/oJ2y+zD+VvYqDGTb0y/kDFdttT3oy1Xt3ogmO1pRk
- MLBZCVjnbIiHsOcZ/sA1Go67AA9ozNElh+eSG68nX7S/Ot0gSv7Bb5g62al3zWjWLRhu
- porw==
-X-Gm-Message-State: AJIora94pboHjLrLxSdjhXMI1nqR2t0/yYuvw9BIkNQWiEbFhvUa98HX
- OZmRoAx0CH4n+RN03f10zI0=
-X-Google-Smtp-Source: AGRyM1uvjZnIh0oHuLg51QGQVl97sMhJ6t+Q15UlazhWY7up63kdsrc+Or8FTQhBwmQT1qjcWn6smQ==
-X-Received: by 2002:a17:903:22c7:b0:16b:fa15:63d4 with SMTP id
- y7-20020a17090322c700b0016bfa1563d4mr10623100plg.2.1657401407139; 
- Sat, 09 Jul 2022 14:16:47 -0700 (PDT)
-Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
- by smtp.gmail.com with ESMTPSA id
- z16-20020aa79490000000b0051c6613b5basm1901097pfk.134.2022.07.09.14.16.46
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sat, 09 Jul 2022 14:16:46 -0700 (PDT)
-From: Stafford Horne <shorne@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2/2] openrisc: Add virt defconfig
-Date: Sun, 10 Jul 2022 06:15:49 +0900
-Message-Id: <20220709211549.1163327-3-shorne@gmail.com>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220709211549.1163327-1-shorne@gmail.com>
-References: <20220709211549.1163327-1-shorne@gmail.com>
+	by mail.librecores.org (Postfix) with ESMTP id BE94824807;
+	Sun, 10 Jul 2022 13:20:12 +0200 (CEST)
+Received: from out30-57.freemail.mail.aliyun.com
+ (out30-57.freemail.mail.aliyun.com [115.124.30.57])
+ by mail.librecores.org (Postfix) with ESMTPS id 983FC213CC
+ for <openrisc@lists.librecores.org>; Sun, 10 Jul 2022 13:20:10 +0200 (CEST)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R401e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046051;
+ MF=baolin.wang@linux.alibaba.com; NM=1; PH=DS; RN=33; SR=0;
+ TI=SMTPD_---0VIrBUyv_1657451992; 
+Received: from 30.39.247.23(mailfrom:baolin.wang@linux.alibaba.com
+ fp:SMTPD_---0VIrBUyv_1657451992) by smtp.aliyun-inc.com;
+ Sun, 10 Jul 2022 19:19:54 +0800
+Message-ID: <7628e9a7-8e2d-dcfb-09e5-27de36da5af7@linux.alibaba.com>
+Date: Sun, 10 Jul 2022 19:19:56 +0800
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH 0/3] Add PUD and kernel PTE level pagetable account
+To: Dave Hansen <dave.hansen@intel.com>, akpm@linux-foundation.org
+References: <cover.1657096412.git.baolin.wang@linux.alibaba.com>
+ <d2d58cc2-7e6d-aa2d-3096-a500ce321494@intel.com>
+ <ef376131-bf5f-7e5b-ea1b-1e8f64a6d060@linux.alibaba.com>
+ <8821beda-4d60-4d01-b5c8-1629a19c7f0d@intel.com>
+From: Baolin Wang <baolin.wang@linux.alibaba.com>
+In-Reply-To: <8821beda-4d60-4d01-b5c8-1629a19c7f0d@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
@@ -67,138 +45,88 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Jonas Bonn <jonas@southpole.se>, Openrisc <openrisc@lists.librecores.org>
+Cc: x86@kernel.org, loongarch@lists.linux.dev, peterz@infradead.org,
+ catalin.marinas@arm.com, dave.hansen@linux.intel.com,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org, guoren@kernel.org,
+ linux-csky@vger.kernel.org, hpa@zytor.com, kernel@xen0n.name, will@kernel.org,
+ tglx@linutronix.de, jonas@southpole.se, aneesh.kumar@linux.ibm.com,
+ chenhuacai@kernel.org, willy@infradead.org, rppt@linux.ibm.com,
+ mingo@redhat.com, linux-arch@vger.kernel.org, arnd@arndb.de, npiggin@gmail.com,
+ openrisc@lists.librecores.org, bp@alien8.de, luto@kernel.org,
+ linux-arm-kernel@lists.infradead.org, monstr@monstr.eu,
+ tsbogend@alpha.franken.de, linux-mips@vger.kernel.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-I have been developing a new qemu virt platform to help with more
-efficient toolchain and kernel testing [1].
 
-This patch adds the defconfig which is needed to support booting
-linux on the platform.
 
-[1] https://lore.kernel.org/qemu-devel/YpwNtowUTxRbh2Uq@antec/T/#m6db180b0d682785fb320e4a05345c12a063e0c47
+On 7/7/2022 10:44 PM, Dave Hansen wrote:
+> On 7/7/22 04:32, Baolin Wang wrote:
+>> On 7/6/2022 11:48 PM, Dave Hansen wrote:
+>>> On 7/6/22 01:59, Baolin Wang wrote:
+>>>> Now we will miss to account the PUD level pagetable and kernel PTE level
+>>>> pagetable, as well as missing to set the PG_table flags for these
+>>>> pagetable
+>>>> pages, which will get an inaccurate pagetable accounting, and miss
+>>>> PageTable() validation in some cases. So this patch set introduces new
+>>>> helpers to help to account PUD and kernel PTE pagetable pages.
+>>>
+>>> Could you explain the motivation for this series a bit more?  Is there a
+>>> real-world problem that this fixes?
+>>
+>> Not fix real problem. The motivation is that making the pagetable
+>> accounting more accurate, which helps us to analyse the consumption of
+>> the pagetable pages in some cases, and maybe help to do some empty
+>> pagetable reclaiming in future.
+> 
+> This accounting isn't free.  It costs storage (and also parts of
+> cachelines) in each mm and CPU time to maintain it, plus maintainer
+> eyeballs to maintain.  PUD pages are also fundamentally (on x86 at
+> least) 0.0004% of the overhead of PTE and 0.2% of the overhead of PMD
+> pages unless someone is using gigantic hugetlbfs mappings.
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- arch/openrisc/configs/virt_defconfig | 108 +++++++++++++++++++++++++++
- 1 file changed, 108 insertions(+)
- create mode 100644 arch/openrisc/configs/virt_defconfig
+Yes, agree. However I think the performence influence of this patch is 
+small from some testing I did (like mysql, no obvious performance 
+influence). Moreover the pagetable accounting gap is about 1% from below 
+testing data.
 
-diff --git a/arch/openrisc/configs/virt_defconfig b/arch/openrisc/configs/virt_defconfig
-new file mode 100644
-index 000000000000..c1b69166c500
---- /dev/null
-+++ b/arch/openrisc/configs/virt_defconfig
-@@ -0,0 +1,108 @@
-+CONFIG_SYSVIPC=y
-+CONFIG_POSIX_MQUEUE=y
-+CONFIG_NO_HZ_IDLE=y
-+CONFIG_LOG_BUF_SHIFT=14
-+CONFIG_CGROUPS=y
-+CONFIG_BLK_DEV_INITRD=y
-+CONFIG_OPENRISC_HAVE_INST_CMOV=y
-+CONFIG_OPENRISC_HAVE_INST_ROR=y
-+CONFIG_OPENRISC_HAVE_INST_RORI=y
-+CONFIG_OPENRISC_HAVE_INST_SEXT=y
-+CONFIG_NR_CPUS=8
-+CONFIG_SMP=y
-+CONFIG_HZ_100=y
-+# CONFIG_OPENRISC_NO_SPR_SR_DSX is not set
-+# CONFIG_COMPAT_BRK is not set
-+CONFIG_NET=y
-+CONFIG_PACKET=y
-+CONFIG_UNIX=y
-+CONFIG_INET=y
-+# CONFIG_INET_DIAG is not set
-+CONFIG_TCP_CONG_ADVANCED=y
-+# CONFIG_TCP_CONG_BIC is not set
-+# CONFIG_TCP_CONG_CUBIC is not set
-+# CONFIG_TCP_CONG_WESTWOOD is not set
-+# CONFIG_TCP_CONG_HTCP is not set
-+# CONFIG_IPV6 is not set
-+# CONFIG_WIRELESS is not set
-+CONFIG_PCI=y
-+CONFIG_PCIEPORTBUS=y
-+CONFIG_PCI_HOST_GENERIC=y
-+CONFIG_DEVTMPFS=y
-+CONFIG_DEVTMPFS_MOUNT=y
-+# CONFIG_PREVENT_FIRMWARE_BUILD is not set
-+CONFIG_BLK_DEV_LOOP=y
-+CONFIG_BLK_DEV_NBD=y
-+CONFIG_VIRTIO_BLK=y
-+CONFIG_NETDEVICES=y
-+CONFIG_VIRTIO_NET=y
-+CONFIG_ETHOC=y
-+CONFIG_MICREL_PHY=y
-+# CONFIG_WLAN is not set
-+CONFIG_INPUT_MOUSEDEV=y
-+# CONFIG_LEGACY_PTYS is not set
-+CONFIG_SERIAL_8250=y
-+CONFIG_SERIAL_8250_CONSOLE=y
-+CONFIG_SERIAL_OF_PLATFORM=y
-+CONFIG_VIRTIO_CONSOLE=y
-+# CONFIG_HW_RANDOM is not set
-+CONFIG_POWER_RESET=y
-+CONFIG_POWER_RESET_SYSCON=y
-+CONFIG_POWER_RESET_SYSCON_POWEROFF=y
-+CONFIG_SYSCON_REBOOT_MODE=y
-+# CONFIG_HWMON is not set
-+CONFIG_DRM=y
-+# CONFIG_DRM_FBDEV_EMULATION is not set
-+CONFIG_DRM_VIRTIO_GPU=y
-+CONFIG_FB=y
-+CONFIG_FIRMWARE_EDID=y
-+CONFIG_FRAMEBUFFER_CONSOLE=y
-+CONFIG_FRAMEBUFFER_CONSOLE_DETECT_PRIMARY=y
-+CONFIG_LOGO=y
-+CONFIG_SOUND=y
-+CONFIG_SND=y
-+CONFIG_SND_INTEL8X0=y
-+CONFIG_SND_INTEL8X0M=y
-+CONFIG_SND_SOC=y
-+CONFIG_SND_VIRTIO=y
-+# CONFIG_HID_A4TECH is not set
-+# CONFIG_HID_BELKIN is not set
-+# CONFIG_HID_CHERRY is not set
-+# CONFIG_HID_CHICONY is not set
-+# CONFIG_HID_CYPRESS is not set
-+# CONFIG_HID_EZKEY is not set
-+# CONFIG_HID_ITE is not set
-+# CONFIG_HID_KENSINGTON is not set
-+# CONFIG_HID_REDRAGON is not set
-+# CONFIG_HID_MICROSOFT is not set
-+# CONFIG_HID_MONTEREY is not set
-+CONFIG_USB=y
-+CONFIG_USB_XHCI_HCD=y
-+CONFIG_USB_XHCI_PLATFORM=y
-+CONFIG_USB_EHCI_HCD=y
-+CONFIG_USB_EHCI_HCD_PLATFORM=y
-+CONFIG_USB_OHCI_HCD=y
-+CONFIG_USB_OHCI_HCD_PLATFORM=y
-+CONFIG_USB_SERIAL=y
-+CONFIG_USB_GADGET=y
-+CONFIG_TYPEC=y
-+CONFIG_RTC_CLASS=y
-+CONFIG_RTC_DRV_GOLDFISH=y
-+CONFIG_VIRT_DRIVERS=y
-+CONFIG_VIRTIO_PCI=y
-+# CONFIG_VIRTIO_PCI_LEGACY is not set
-+CONFIG_VIRTIO_INPUT=y
-+CONFIG_VIRTIO_MMIO=y
-+CONFIG_VIRTIO_MMIO_CMDLINE_DEVICES=y
-+CONFIG_EXT3_FS=y
-+CONFIG_EXT3_FS_POSIX_ACL=y
-+# CONFIG_DNOTIFY is not set
-+CONFIG_MSDOS_FS=y
-+CONFIG_VFAT_FS=y
-+CONFIG_EXFAT_FS=y
-+CONFIG_TMPFS=y
-+CONFIG_NFS_FS=y
-+CONFIG_UNICODE=y
-+CONFIG_PRINTK_TIME=y
-+CONFIG_DYNAMIC_DEBUG=y
-+CONFIG_FTRACE=y
--- 
-2.36.1
+Without this patchset, the pagetable consumption is about 110M with 
+mysql testing.
+              flags      page-count       MB  symbolic-flags 
+          long-symbolic-flags
+0x0000000004000000           28232      110 
+__________________________g__________________      pgtable
 
+With this patchset, and the consumption is about 111M.
+              flags      page-count       MB  symbolic-flags 
+          long-symbolic-flags
+0x0000000004000000           28459      111 
+__________________________g__________________      pgtable
+
+
+> Even with 1G gigantic pages, you would need a quarter of a million
+> (well, 262144 or 512*512) mappings of one 1G page to consume 1G of
+> memory on PUD pages.
+> 
+> That just doesn't seem like something anyone is likely to actually do in
+> practice.  That makes the benefits of the PUD portion of this series
+> rather unclear in the real world.
+> 
+> As for the kernel page tables, I'm not really aware of them causing any
+> problems.  We have a pretty good idea how much space they consume from
+> the DirectMap* entries in meminfo:
+> 
+> 	DirectMap4k:     2262720 kB
+> 	DirectMap2M:    40507392 kB
+> 	DirectMap1G:    24117248 kB
+
+However these statistics are arch-specific information, which only 
+available on x86, s390 and powerpc.
+
+> as well as our page table debugging infrastructure.  I haven't found
+> myself dying for more specific info on them.
+> 
+> So, nothing in this series seems like a *BAD* idea, but I'm not sure in
+> the end it solves more problems than it creates.
+
+Thanks for your input.
