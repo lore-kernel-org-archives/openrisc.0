@@ -2,61 +2,55 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15B93C433EF
-	for <openrisc@archiver.kernel.org>; Sun, 10 Jul 2022 21:22:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09D35C43334
+	for <openrisc@archiver.kernel.org>; Mon, 11 Jul 2022 06:05:22 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id DCF8924807;
-	Sun, 10 Jul 2022 23:22:31 +0200 (CEST)
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com
- [209.85.214.176])
- by mail.librecores.org (Postfix) with ESMTPS id 679F320D93
- for <openrisc@lists.librecores.org>; Sun, 10 Jul 2022 23:22:29 +0200 (CEST)
-Received: by mail-pl1-f176.google.com with SMTP id r6so483854plg.3
- for <openrisc@lists.librecores.org>; Sun, 10 Jul 2022 14:22:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=/3Levsfw6LIMCbRxqktEi2reG0/qjlmvH+w7aAlSmdQ=;
- b=oLoJ9m6gLkrWpmwDhevTP4Lanm9YsSml/B7z3qiRlVE833P2ZZ3Y5SiZ9urJqTJTZX
- ZFS2GcEmPq0bWE1V6Phq1cI0c/qNpYLh3VsR7ANRzlMgH1xQqSL1HWYMZUD1XMF0hLSS
- pmcFDIlxPDMEylv3u38YXFb6psCs7nX/BOpSD0Ovk9Q/A5R+gpcEyV63u+eOtckuQ37a
- cYlV+3HhWz7fq12spQqTzH9337RQ5R77Ojq2R54XMsyiagievBsmu/GHyqPkTdtzvbH3
- x7hZsuyOz422y6/i083SoEjcPGByEmbTQ3IzfWx0TfqKLYYaUUyUt17z55g50n2I+q2N
- vJ1w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=/3Levsfw6LIMCbRxqktEi2reG0/qjlmvH+w7aAlSmdQ=;
- b=0iR18MYVAuyWNaSXrh5eo7vC47TKxQb473vBy2V+Ek3hfMmiptGTWIau6Y28gUAY3q
- 3wyPM7vjXihCVk6p5zLnegE6X59rtqnFJyHuw7s60O5jNfzZWPs4fZHCERAN2OUOI2sx
- Ts1xhuPbUyKZVtX6hMldZLwouKCXw2u38TMbcrvIsGRiyW/mLrJl5Yf0rgfLtlhlkgXS
- wifaNyLdrgW/gEXEcpyY0eGVCiYjGDnh5O/GClP9UPXZmBWBCvAyqoGstMt3UNb7l8iL
- CqMaZ8YR4+zDVk0m38wwOYOMJnIeTgZrPX489Ti8svFcOAAZ+SmvzukYTgixX2fd96Zr
- 55bw==
-X-Gm-Message-State: AJIora8U/IXpy3grdNO5kOl9BnRTgjSY7VO/Hu+tAlPoUMeOhz2Ap3Pt
- Yob8BFL/fmww/B7S+13+6Qg=
-X-Google-Smtp-Source: AGRyM1vMqaM/EJyjGdtD9cIKE8AIgpk7yw38zaY2CA4Y1uh5UF5JsX+gOuF00xlxIRM4O06+hvXr6Q==
-X-Received: by 2002:a17:90a:f48a:b0:1ed:5ec:f890 with SMTP id
- bx10-20020a17090af48a00b001ed05ecf890mr13982041pjb.40.1657488147615; 
- Sun, 10 Jul 2022 14:22:27 -0700 (PDT)
-Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
- by smtp.gmail.com with ESMTPSA id
- t16-20020a170902e85000b001678dcb4c5asm3145580plg.100.2022.07.10.14.22.26
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 10 Jul 2022 14:22:27 -0700 (PDT)
-Date: Mon, 11 Jul 2022 06:22:25 +0900
-From: Stafford Horne <shorne@gmail.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 1/2] openrisc: Add pci bus support
-Message-ID: <YstDEargBYwjN2Yp@antec>
+	by mail.librecores.org (Postfix) with ESMTP id CA8BE20D93;
+	Mon, 11 Jul 2022 08:05:21 +0200 (CEST)
+Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.134])
+ by mail.librecores.org (Postfix) with ESMTPS id CE92F20D93
+ for <openrisc@lists.librecores.org>; Mon, 11 Jul 2022 08:05:19 +0200 (CEST)
+Received: from mail-yb1-f172.google.com ([209.85.219.172]) by
+ mrelayeu.kundenserver.de (mreue012 [213.165.67.97]) with ESMTPSA (Nemesis) id
+ 1Mrwnt-1npPh40zNl-00o0iS for <openrisc@lists.librecores.org>; Mon, 11 Jul
+ 2022 08:05:19 +0200
+Received: by mail-yb1-f172.google.com with SMTP id i14so7146793yba.1
+ for <openrisc@lists.librecores.org>; Sun, 10 Jul 2022 23:05:19 -0700 (PDT)
+X-Gm-Message-State: AJIora/+Jds0F866874wbbNF7ioWGqq+5gkJiUISKMoMcW2VeidpOEYM
+ P9kDOIRm45o+9ZGV/migp81dxy5Kq4KbZfeTy/w=
+X-Google-Smtp-Source: AGRyM1tPfwQLWVGFNJv200YPAwP2Ym4eh/2LMH3iarHxSqOtUeMPoy+HIGyJVB9MVyfKwjsDS+Cz/sBwWQtviAbR0Bw=
+X-Received: by 2002:a25:3b05:0:b0:66e:c216:4da3 with SMTP id
+ i5-20020a253b05000000b0066ec2164da3mr16437619yba.550.1657519518013; Sun, 10
+ Jul 2022 23:05:18 -0700 (PDT)
+MIME-Version: 1.0
 References: <20220709211549.1163327-1-shorne@gmail.com>
  <20220709211549.1163327-2-shorne@gmail.com>
  <CAK8P3a0Mw0Q9_W+xawMe=7UfiQiJT98wybygqg8E8gEuurZCuw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a0Mw0Q9_W+xawMe=7UfiQiJT98wybygqg8E8gEuurZCuw@mail.gmail.com>
+ <YstDEargBYwjN2Yp@antec>
+In-Reply-To: <YstDEargBYwjN2Yp@antec>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Mon, 11 Jul 2022 08:05:01 +0200
+X-Gmail-Original-Message-ID: <CAK8P3a0o1rd4BiYwGq_JnWthBG11rxCevKE3+x3fE-S2EnbTxg@mail.gmail.com>
+Message-ID: <CAK8P3a0o1rd4BiYwGq_JnWthBG11rxCevKE3+x3fE-S2EnbTxg@mail.gmail.com>
+Subject: Re: [PATCH 1/2] openrisc: Add pci bus support
+To: Stafford Horne <shorne@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:QeKiEddPOJrKH3+oBKKZTetNOMhYL4wmsn+DLdephPMdIKq5UlM
+ 75ITtEIDvz988M5tZx5hchZyynoM/j+X2d/wTF7bpmN/XrzD983kDoEyaqE+wmUWDSHK75s
+ FUsWi18JGcu7r7A/UASE2xDrmBI3ICCiIYcV2X8KLPuxe+GmiSHVqNg639yQrlEk+9kmGSz
+ 8qUv5tP31nru3lcgA2yEw==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:0UmNlOE9TDY=:roPX+P4vAF1Uopedv2uNR5
+ y+vXvrBl0bqsEKIoztZiWokD1njt03coaa37IfZS7C/lqVqYLWBTiS2b40b9aHElhomAtDXSj
+ mWnipDQjCduUyOjmy7VtXao0Y2kR65vhvcEbyiS9YWldj+sGGnDwFstZFeyyq9L41xrkonyeN
+ jQQLVqrXan9GQTC++Pp0qXeo3rV8eHUFsbIDiXA4TuDE8kM+EIUcvY4n+syVXQIkFy6g+LURH
+ hsddDK+LyZELWB8JrweLCFwB5i2gryFqAQ5BQ9BZhq3jQ3MNuZpQALNnvao/CW6YSopgbMf4z
+ Ucy5djUivNpzWoV29bK8Juj7ogYRvuMN5Idf2Kn7wXH8/Tn25qmzvsXoegWZAlQ3ESWwCOWms
+ edFtL+O/TItVRHy3/qOd1+5JOUfgt+1ylMIpiYcUK+YfZ8skHCVOgwep0FmKLOixJRGBXvvH/
+ 5o7CoBRaMMKw4aomat1AwpDfDslKqMfzAD43nRnJhz1SM/dwLtyw1Jh5TEXdU0l8nvuzIVKQT
+ 7NZ0h7xq7HkFgskpS8UicLfHsVlGU6yJKpnGp1tVH+2FipOzbI/42p8McI52CCYopz90HOLBh
+ meTGIK6PQ/bmsyGIgYjSXYJbKtp6X5cF0R1KdyyP+ffhQbjJA0YU9NOzWljJyJ/qAwgvAlKAP
+ S66bfkntOiLSyUOKrRh8DQBxd+KFN2Fz9F41oVypN6w0EWe/Gwh6BiN22DfsN1w282kgE4mdt
+ dUYuEy6pO6DquqlIdiqw17LzIJcBmwfLi69pqA==
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -69,50 +63,52 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Jonas Bonn <jonas@southpole.se>, Peter Zijlstra <peterz@infradead.org>,
- LKML <linux-kernel@vger.kernel.org>, Palmer Dabbelt <palmer@rivosinc.com>,
- Openrisc <openrisc@lists.librecores.org>
+Cc: Jonas Bonn <jonas@southpole.se>, Arnd Bergmann <arnd@arndb.de>,
+ Peter Zijlstra <peterz@infradead.org>, LKML <linux-kernel@vger.kernel.org>,
+ Palmer Dabbelt <palmer@rivosinc.com>, Openrisc <openrisc@lists.librecores.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Sun, Jul 10, 2022 at 05:54:22PM +0200, Arnd Bergmann wrote:
-> On Sat, Jul 9, 2022 at 11:15 PM Stafford Horne <shorne@gmail.com> wrote:
-> >
-> > This patch adds required definitions to allow for PCI buses on OpenRISC.
-> > This is being in the QEMU virt platform.
-> >
-> > OpenRISC does not have IO ports so this defines PCI IO to be allowed in
-> > any range.  Keeping PIO_RESERVED defined as 0 allows OpenRISC to use
-> > MMIO for all IO.
-> 
-> >
-> >  /*
-> > - * PCI: can we really do 0 here if we have no port IO?
-> > + * PCI: All address space can be used for IO
-> >   */
-> > -#define IO_SPACE_LIMIT         0
-> > +#define IO_SPACE_LIMIT ~(0UL)
-> 
-> I think '0' is the correct limit here if you don't support PCI controllers
-> that can map their I/O ports into MMIO space. If you don't define
-> PCI_IOBASE to a meaningful value and set IO_SPACE_LIMIT as you
-> do here, every virtual address is treated as an I/O port, so accessing
-> a low port through /dev/ioport or a PCI driver results in an access to
-> a NULL pointer, which is either a userspace address or low kernel
-> memory, both of which are bad.
+On Sun, Jul 10, 2022 at 11:22 PM Stafford Horne <shorne@gmail.com> wrote:
+> On Sun, Jul 10, 2022 at 05:54:22PM +0200, Arnd Bergmann wrote:
+>
+> OK, I see, but I think IO_SPACE_LIMIT needs to be defined as something other
+> than 0.  It is used to define kernel/resource.c's ioport_resource.
 
-OK, I see, but I think IO_SPACE_LIMIT needs to be defined as something other
-than 0.  It is used to define kernel/resource.c's ioport_resource. For example
-on risc-v they set it to 16MB.
+I think the kernel/resource.c one is fine, it just means that any attempt to
+register an I/O port resource below the 0-length root resource will fail, which
+is what you need when inb/outb cannot be used.
 
-I will setup a LIMIT smaller than 4GB and add a PCI_IOBASE.
+> For example on risc-v they set it to 16MB.
+>
+> I will setup a LIMIT smaller than 4GB and add a PCI_IOBASE.
 
-> Most PCI controller are however able to map I/O ports into the
-> physical address space of the CPU, and in that case you can just
-> define an otherwise unused address as PCI_IOBASE and map the
-> ports there from the PCI host bridge driver.
+Do you support multiple PCI domains? Usually you want at most 64KB
+per domain, as that is the traditional limit and what the normal
+pci_remap_iospace() will assign to a domain. The 16MB limit for riscv
+is way more than what one may need on a 32-bit machine, since that
+is enough for 4096 domains even with the largest possible I/O space,
+and each domain has up to 65536 PCI functions attached to it.
 
-OK, understood, do you think this needs to be documented in a architecture
-manual?  Maybe it's fine for it to be linux specific.
+> > Most PCI controller are however able to map I/O ports into the
+> > physical address space of the CPU, and in that case you can just
+> > define an otherwise unused address as PCI_IOBASE and map the
+> > ports there from the PCI host bridge driver.
+>
+> OK, understood, do you think this needs to be documented in a architecture
+> manual?  Maybe it's fine for it to be linux specific.
 
--Stafford
+Of course it's Linux specific, but it's also architecture specific since
+there are different ways of making I/O space available: Generally you
+can leave it out completely, unless you have to support devices from
+two decades ago, some architectures that existed back then have custom
+instructions, some hardcode part of the virtual address space to access
+MMIO registers at a fixed location, some rely on an indirect method
+going through a particular MMIO register to access all I/O space, and
+some use a per hostbridge window that gets mapped using
+pci_remap_iospace().
+
+Do you have a driver for your host bridge available somewhere?
+It should be clear from that driver which method you need.
+
+       Arnd
