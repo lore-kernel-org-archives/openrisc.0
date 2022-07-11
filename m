@@ -2,47 +2,40 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52194C43334
-	for <openrisc@archiver.kernel.org>; Mon, 11 Jul 2022 13:35:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B54BC433EF
+	for <openrisc@archiver.kernel.org>; Mon, 11 Jul 2022 20:14:24 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 18A9A246C7;
-	Mon, 11 Jul 2022 15:35:12 +0200 (CEST)
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
- by mail.librecores.org (Postfix) with ESMTPS id 8D1B120E30
- for <openrisc@lists.librecores.org>; Mon, 11 Jul 2022 15:35:10 +0200 (CEST)
-Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.53])
- by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4LhPvr4LMyzkWtj;
- Mon, 11 Jul 2022 21:32:56 +0800 (CST)
-Received: from dggpemm500001.china.huawei.com (7.185.36.107) by
- dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Mon, 11 Jul 2022 21:35:05 +0800
-Received: from [10.174.177.243] (10.174.177.243) by
- dggpemm500001.china.huawei.com (7.185.36.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Mon, 11 Jul 2022 21:35:04 +0800
-Message-ID: <13b283fe-10f7-376f-9b8e-856e4d1e0ede@huawei.com>
-Date: Mon, 11 Jul 2022 21:35:04 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH v2 2/4] mm: rmap: Allow platforms without mm_cpumask to
- defer TLB flush
-Content-Language: en-US
-To: Barry Song <21cnbao@gmail.com>, <akpm@linux-foundation.org>,
- <linux-mm@kvack.org>, <linux-arm-kernel@lists.infradead.org>,
- <x86@kernel.org>, <catalin.marinas@arm.com>, <will@kernel.org>,
- <linux-doc@vger.kernel.org>
-References: <20220711034615.482895-1-21cnbao@gmail.com>
- <20220711034615.482895-3-21cnbao@gmail.com>
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
-In-Reply-To: <20220711034615.482895-3-21cnbao@gmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.174.177.243]
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- dggpemm500001.china.huawei.com (7.185.36.107)
-X-CFilter-Loop: Reflected
+	by mail.librecores.org (Postfix) with ESMTP id 21C9820DEE;
+	Mon, 11 Jul 2022 22:14:23 +0200 (CEST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+ by mail.librecores.org (Postfix) with ESMTPS id A279D24830
+ for <openrisc@lists.librecores.org>; Mon, 11 Jul 2022 22:14:21 +0200 (CEST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id 3F26D615E8;
+ Mon, 11 Jul 2022 20:14:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77FB8C34115;
+ Mon, 11 Jul 2022 20:14:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+ s=korg; t=1657570459;
+ bh=Qi9KHdTBSLuKZsaLawDZPDz9HT/wF+gH2hGfQ1b/XB4=;
+ h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+ b=j6XVvkVOWxDOzNjGjTDcj6e6ZY1u9GuvGONiK6EGJe21US8g66C0v4Tv4wCu+5Z3u
+ T5lr1fQ/vFxEaXWAl9b5zH6sU86TD4i30OcWtJ4fjtKbOuqrDS6Ez0AqW6I2zqbQ9j
+ 6Q9WeeDMfajEfQXiH+eWEM5JFOXvwrthQ0YF7SB8=
+Date: Mon, 11 Jul 2022 13:14:17 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: Re: [PATCH V7 00/26] mm/mmap: Drop __SXXX/__PXXX macros from across
+ platforms
+Message-Id: <20220711131417.9cac57d9b88eea8bbd7d8616@linux-foundation.org>
+In-Reply-To: <20220711070600.2378316-1-anshuman.khandual@arm.com>
+References: <20220711070600.2378316-1-anshuman.khandual@arm.com>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -55,61 +48,26 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: linux-s390@vger.kernel.org, zhangshiming@oppo.com, lipeifeng@oppo.com,
- arnd@arndb.de, corbet@lwn.net, realmz6@gmail.com, linux-kernel@vger.kernel.org,
- yangyicong@hisilicon.com, Barry Song <v-songbaohua@oppo.com>,
- openrisc@lists.librecores.org, darren@os.amperecomputing.com,
- huzhanyuan@oppo.com, guojian@oppo.com, linux-riscv@lists.infradead.org,
- linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Cc: linux-m68k@vger.kernel.org, linux-ia64@vger.kernel.org,
+ linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-csky@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, x86@kernel.org, christophe.leroy@csgroup.eu,
+ hch@infradead.org, linux-snps-arc@lists.infradead.org,
+ linux-xtensa@linux-xtensa.org, linux-um@lists.infradead.org,
+ openrisc@lists.librecores.org, linux-arm-kernel@lists.infradead.org,
+ linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org,
+ linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Hi Barry，
+On Mon, 11 Jul 2022 12:35:34 +0530 Anshuman Khandual <anshuman.khandual@arm.com> wrote:
 
-On 2022/7/11 11:46, Barry Song wrote:
-> From: Barry Song <v-songbaohua@oppo.com>
->
-> Platforms like ARM64 have hareware TLB shootdown broadcast. They
-> don't maintain mm_cpumask but just send tlbi and related sync
-> instructions for TLB flush. task's mm_cpumask is normally empty
-> in this case. We also allow deferred TLB flush on this kind of
-> platforms.
->
-> Signed-off-by: Barry Song <v-songbaohua@oppo.com>>
-> ---
-...
-> diff --git a/mm/Kconfig b/mm/Kconfig
-> index 169e64192e48..7bf54f57ca01 100644
-> --- a/mm/Kconfig
-> +++ b/mm/Kconfig
-> @@ -951,6 +951,9 @@ config ARCH_HAS_CURRENT_STACK_POINTER
->   	  register alias named "current_stack_pointer", this config can be
->   	  selected.
->   
-> +config ARCH_HAS_MM_CPUMASK
-> +	bool
-> +
->   config ARCH_HAS_VM_GET_PAGE_PROT
->   	bool
->   
-> diff --git a/mm/rmap.c b/mm/rmap.c
-> index 5bcb334cd6f2..13d4f9a1d4f1 100644
-> --- a/mm/rmap.c
-> +++ b/mm/rmap.c
-> @@ -692,6 +692,10 @@ static bool should_defer_flush(struct mm_struct *mm, enum ttu_flags flags)
->   	if (!(flags & TTU_BATCH_FLUSH))
->   		return false;
->   
-> +#ifndef CONFIG_ARCH_HAS_MM_CPUMASK
-> +	return true;
-> +#endif
-> +
+> This series drops __SXXX/__PXXX macros from across platforms in the tree.
 
-Here is another option to enable arch's tlbbatch defer
+I've updated mm-unstable to this version, thanks.  I skipped the added-to-mm
+emails to avoid wearing out people's inboxes.
 
-[1] 
-https://patchwork.ozlabs.org/project/linuxppc-dev/patch/20171101101735.2318-2-khandual@linux.vnet.ibm.com/
-
->   	/* If remote CPUs need to be flushed then defer batch the flush */
->   	if (cpumask_any_but(mm_cpumask(mm), get_cpu()) < nr_cpu_ids)
->   		should_defer = true;
+Reissuing a 26-patch series N times is rather noisy.  Please prefer to send incremental
+fixes when changes are minor.  It makes it so much easier for reviewers to see what
+happened.
