@@ -2,57 +2,61 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68C0EC43334
-	for <openrisc@archiver.kernel.org>; Thu, 14 Jul 2022 04:51:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CB5ACCA47B
+	for <openrisc@archiver.kernel.org>; Thu, 14 Jul 2022 04:51:23 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 675A320D55;
+	by mail.librecores.org (Postfix) with ESMTP id 87B8720EEF;
 	Thu, 14 Jul 2022 06:51:21 +0200 (CEST)
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com
- [209.85.214.179])
- by mail.librecores.org (Postfix) with ESMTPS id D960624993
- for <openrisc@lists.librecores.org>; Mon, 11 Jul 2022 05:46:39 +0200 (CEST)
-Received: by mail-pl1-f179.google.com with SMTP id r1so3389937plo.10
- for <openrisc@lists.librecores.org>; Sun, 10 Jul 2022 20:46:39 -0700 (PDT)
+Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com
+ [209.85.216.41])
+ by mail.librecores.org (Postfix) with ESMTPS id C14EB24915
+ for <openrisc@lists.librecores.org>; Mon, 11 Jul 2022 05:46:47 +0200 (CEST)
+Received: by mail-pj1-f41.google.com with SMTP id
+ q5-20020a17090a304500b001efcc885cc4so3773938pjl.4
+ for <openrisc@lists.librecores.org>; Sun, 10 Jul 2022 20:46:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=qmBhjPhdel7Ory0h+LtHmaoT8CpQHwHtjRSzAczsGS8=;
- b=UY5oZcsZHFdGH9KcetDN8dqr2Mf0qiwqMqlLdkQ+0PNZPPWK8nytWfBrVg68lCyEAN
- jrVXhCD+p/9vhueaNcEswnstaaqhbi96KvKB1URC0IEAGTbb7bQ3L2sJKv8fP4/q3fdz
- qnhDuiRe5eJunmVyfmUC7y6G6huMy6rKKY2vpo7MUN+GN+8Yg69bDGSpiExtmJG6nmwc
- HGrj6W5Zy4EILKOUdTTBtFEUayRpo9P6vRZIShjByCsnQmdWy7cHknQIBwTn6y+6JaHt
- 7Jslc7TiuDWWVL3D1WVwoeXWF4xp0s+zIBfTFhbW89tgNx9jEYuB6VyOj7QkOyyjH+tF
- MEOg==
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=zH1rOKwt+eppc4uRJ3wzEb3jlVxvSJQcRh3p/hoLlMo=;
+ b=ePx9tw2qDorWxYzPWcGRLOvGkwfDV4WFpjno1bzwsIkpBxrJHAnbnXDd+9TSQPIZWc
+ rB8vctJmdtvbZmL7h6HXuBkhUVLcRj4hr5D8Xao8ADv5y3VOodNZydMQYF/4GMGusm5B
+ AITvvCsvM4Fymc4mIY+V5NWWdLdN5dTrkn7xmybz4zKiKBZrzDwmWdMdWUAOQVASHsYU
+ cWoYrJVQQwEh8W4X1CL7RJ+zQhdG9+qfpNmkK52I5z3wiRZLGNEEimJp5XIALeYrky8b
+ md0dtPDDjYyabBKb/WuxSnQ+6lF4nSZ8gZYRptwvwsM03yDen/D8SIE11lqmoUisCWjs
+ XneA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=qmBhjPhdel7Ory0h+LtHmaoT8CpQHwHtjRSzAczsGS8=;
- b=w3lKC1kqFuItOAx4AV0wekN4D1v+RcuW848OizTCqIQdvGNN3v+45syqrPt+a9ornB
- LF7wi8eWufEhtuA9/yxxF3QeKPhMe4da9OFXsysQrbBlqQr9t9JX5kEwtLuk/8v8q/i5
- TJW2Jm0cKmvERNyj9k9Mlc7vTZbxUL+PMJRZABVC3mA8zd6vOC/EmxXDkLZJzk3y8OVs
- Bzbml9ly1UFDcCYnHfazI9iRfH5V694xwFA77M3ECyc9S4Ee9Ern1k+pnL0uoslyE0I3
- +FDWnXmXlYANGg0tXtSm8NYAsHiy6fqt7hmGzk92BE9x9q32g3VZkVgy50dYZh+xK8oz
- UKZg==
-X-Gm-Message-State: AJIora8etZV1HXQoLygxGS6be8YxLytgBwrtqfURsgdU1h1Qs6TmkyZw
- eJXjcNe4bNQr1lasl/qMU9s=
-X-Google-Smtp-Source: AGRyM1uXqBxzEnWgTK+S6bqpqoqltGNYamS7CTaFawotYp6lLuQkplQPx4DboSyk03U1rFf9/7Vqqw==
-X-Received: by 2002:a17:90b:1b48:b0:1ef:a90d:eae1 with SMTP id
- nv8-20020a17090b1b4800b001efa90deae1mr15050227pjb.68.1657511198328; 
- Sun, 10 Jul 2022 20:46:38 -0700 (PDT)
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+ :references:mime-version:content-transfer-encoding;
+ bh=zH1rOKwt+eppc4uRJ3wzEb3jlVxvSJQcRh3p/hoLlMo=;
+ b=V9cU0v6YzTa6AMh5+6lPYQvvznTdn/lLxw77eaDnINlKMdcEbBrH/yhCQHE11QBBjE
+ p62Qdhq95yYYNheI+R8yxC+TWhP+8HkOrwL2F5VKwndiNdGEZWo/SZfZXAYlurVxjchg
+ nzuiHreNTSoGprq482A5AqnUhpJPs9BAgmppCN4shERpJ5tYdTHJlvFuiHH5jAD1l/Sn
+ GmcGexXcAcOzHkzQpVtG/aSrKbt8i/u5fsNat2PLtlsT6/N5X9nDni1FnDybS3SuGs9e
+ szywmVg9wD/nyNSXIYZmvH1y9e/SyFkFKqPrThRwn0rxjYqFxxBBpGn6sEJNAbhPusGh
+ qK0Q==
+X-Gm-Message-State: AJIora+atxqOnmlE2q+uqK01x4zm83y//a3Qe04ycOaTYQk2Xxr7cOXq
+ 3ZEeCoCO6Z5Hc7G+UR4PN9k=
+X-Google-Smtp-Source: AGRyM1t+IjLE84wZXwipeZB/XUo7NKGO7BarDvcoewmact2teddnhHzQthXl8IiBONeN1GAjHbnetA==
+X-Received: by 2002:a17:90b:4b4a:b0:1ef:fc95:3c4f with SMTP id
+ mi10-20020a17090b4b4a00b001effc953c4fmr15058701pjb.138.1657511206386; 
+ Sun, 10 Jul 2022 20:46:46 -0700 (PDT)
 Received: from localhost.localdomain (47-72-206-164.dsl.dyn.ihug.co.nz.
  [47.72.206.164]) by smtp.gmail.com with ESMTPSA id
- a13-20020a170902eccd00b001664d88aab3sm3447949plh.240.2022.07.10.20.46.30
+ a13-20020a170902eccd00b001664d88aab3sm3447949plh.240.2022.07.10.20.46.38
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 10 Jul 2022 20:46:37 -0700 (PDT)
+ Sun, 10 Jul 2022 20:46:45 -0700 (PDT)
 From: Barry Song <21cnbao@gmail.com>
 To: akpm@linux-foundation.org, linux-mm@kvack.org,
  linux-arm-kernel@lists.infradead.org, x86@kernel.org,
  catalin.marinas@arm.com, will@kernel.org, linux-doc@vger.kernel.org
-Subject: [PATCH v2 0/4] mm: arm64: bring up BATCHED_UNMAP_TLB_FLUSH
-Date: Mon, 11 Jul 2022 15:46:11 +1200
-Message-Id: <20220711034615.482895-1-21cnbao@gmail.com>
+Subject: [PATCH v2 1/4] Revert "Documentation/features: mark
+ BATCHED_UNMAP_TLB_FLUSH doesn't apply to ARM64"
+Date: Mon, 11 Jul 2022 15:46:12 +1200
+Message-Id: <20220711034615.482895-2-21cnbao@gmail.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220711034615.482895-1-21cnbao@gmail.com>
+References: <20220711034615.482895-1-21cnbao@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Mailman-Approved-At: Thu, 14 Jul 2022 06:51:20 +0200
@@ -69,80 +73,55 @@ List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
 Cc: linux-s390@vger.kernel.org, zhangshiming@oppo.com, lipeifeng@oppo.com,
- arnd@arndb.de, corbet@lwn.net, realmz6@gmail.com,
- Barry Song <21cnbao@gmail.com>, linux-kernel@vger.kernel.org,
- yangyicong@hisilicon.com, openrisc@lists.librecores.org,
- darren@os.amperecomputing.com, huzhanyuan@oppo.com, guojian@oppo.com,
- linux-riscv@lists.infradead.org, linux-mips@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org
+ arnd@arndb.de, corbet@lwn.net, realmz6@gmail.com, linux-kernel@vger.kernel.org,
+ yangyicong@hisilicon.com, Barry Song <v-songbaohua@oppo.com>,
+ openrisc@lists.librecores.org, darren@os.amperecomputing.com,
+ huzhanyuan@oppo.com, guojian@oppo.com, linux-riscv@lists.infradead.org,
+ linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Though ARM64 has the hardware to do tlb shootdown, the hardware
-broadcasting is not free.
-A simplest micro benchmark shows even on snapdragon 888 with only
-8 cores, the overhead for ptep_clear_flush is huge even for paging
-out one page mapped by only one process:
-5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
+From: Barry Song <v-songbaohua@oppo.com>
 
-While pages are mapped by multiple processes or HW has more CPUs,
-the cost should become even higher due to the bad scalability of
-tlb shootdown.
+This reverts commit 6bfef171d0d74cb050112e0e49feb20bfddf7f42.
 
-The same benchmark can result in 16.99% CPU consumption on ARM64
-server with around 100 cores according to Yicong's test on patch
-4/4.
+I was wrong. Though ARM64 has hardware TLB flush, but it is not free
+and it is still expensive.
+We still have a good chance to enable batched and deferred TLB flush
+on ARM64 for memory reclamation. A possible way is that we only queue
+tlbi instructions in hardware's queue. When we have to broadcast TLB,
+we broadcast it by dsb. We just need to get adapted the existing
+BATCHED_UNMAP_TLB_FLUSH.
 
-This patchset leverages the existing BATCHED_UNMAP_TLB_FLUSH by
-1. only send tlbi instructions in the first stage -
-	arch_tlbbatch_add_mm()
-2. wait for the completion of tlbi by dsb while doing tlbbatch
-	sync in arch_tlbbatch_flush()
-My testing on snapdragon shows the overhead of ptep_clear_flush
-is removed by the patchset. The micro benchmark becomes 5% faster
-even for one page mapped by single process on snapdragon 888.
+Signed-off-by: Barry Song <v-songbaohua@oppo.com>
+---
+ Documentation/features/arch-support.txt        | 1 -
+ Documentation/features/vm/TLB/arch-support.txt | 2 +-
+ 2 files changed, 1 insertion(+), 2 deletions(-)
 
-
--v2:
-1. Collected Yicong's test result on kunpeng920 ARM64 server;
-2. Removed the redundant vma parameter in arch_tlbbatch_add_mm()
-   according to the comments of Peter Zijlstra and Dave Hansen
-3. Added ARCH_HAS_MM_CPUMASK rather than checking if mm_cpumask
-   is empty according to the comments of Nadav Amit
-
-Thanks, Yicong, Peter, Dave and Nadav for your testing or reviewing
-, and comments.
-
--v1:
-https://lore.kernel.org/lkml/20220707125242.425242-1-21cnbao@gmail.com/
-
-Barry Song (4):
-  Revert "Documentation/features: mark BATCHED_UNMAP_TLB_FLUSH doesn't
-    apply to ARM64"
-  mm: rmap: Allow platforms without mm_cpumask to defer TLB flush
-  mm: rmap: Extend tlbbatch APIs to fit new platforms
-  arm64: support batched/deferred tlb shootdown during page reclamation
-
- Documentation/features/arch-support.txt       |  1 -
- .../features/vm/TLB/arch-support.txt          |  2 +-
- arch/arm/Kconfig                              |  1 +
- arch/arm64/Kconfig                            |  1 +
- arch/arm64/include/asm/tlbbatch.h             | 12 ++++++++++
- arch/arm64/include/asm/tlbflush.h             | 23 +++++++++++++++++--
- arch/loongarch/Kconfig                        |  1 +
- arch/mips/Kconfig                             |  1 +
- arch/openrisc/Kconfig                         |  1 +
- arch/powerpc/Kconfig                          |  1 +
- arch/riscv/Kconfig                            |  1 +
- arch/s390/Kconfig                             |  1 +
- arch/um/Kconfig                               |  1 +
- arch/x86/Kconfig                              |  1 +
- arch/x86/include/asm/tlbflush.h               |  3 ++-
- mm/Kconfig                                    |  3 +++
- mm/rmap.c                                     | 14 +++++++----
- 17 files changed, 59 insertions(+), 9 deletions(-)
- create mode 100644 arch/arm64/include/asm/tlbbatch.h
-
+diff --git a/Documentation/features/arch-support.txt b/Documentation/features/arch-support.txt
+index 118ae031840b..d22a1095e661 100644
+--- a/Documentation/features/arch-support.txt
++++ b/Documentation/features/arch-support.txt
+@@ -8,5 +8,4 @@ The meaning of entries in the tables is:
+     | ok |  # feature supported by the architecture
+     |TODO|  # feature not yet supported by the architecture
+     | .. |  # feature cannot be supported by the hardware
+-    | N/A|  # feature doesn't apply to the architecture
+ 
+diff --git a/Documentation/features/vm/TLB/arch-support.txt b/Documentation/features/vm/TLB/arch-support.txt
+index 039e4e91ada3..1c009312b9c1 100644
+--- a/Documentation/features/vm/TLB/arch-support.txt
++++ b/Documentation/features/vm/TLB/arch-support.txt
+@@ -9,7 +9,7 @@
+     |       alpha: | TODO |
+     |         arc: | TODO |
+     |         arm: | TODO |
+-    |       arm64: | N/A  |
++    |       arm64: | TODO |
+     |        csky: | TODO |
+     |     hexagon: | TODO |
+     |        ia64: | TODO |
 -- 
 2.25.1
 
