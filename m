@@ -2,56 +2,58 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44C8ECCA486
-	for <openrisc@archiver.kernel.org>; Thu, 14 Jul 2022 04:27:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FF38C43334
+	for <openrisc@archiver.kernel.org>; Thu, 14 Jul 2022 04:27:53 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 5519724916;
-	Thu, 14 Jul 2022 06:27:45 +0200 (CEST)
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com
- [209.85.216.51])
- by mail.librecores.org (Postfix) with ESMTPS id 9A2F7248B4
- for <openrisc@lists.librecores.org>; Thu, 14 Jul 2022 06:27:44 +0200 (CEST)
-Received: by mail-pj1-f51.google.com with SMTP id
- x18-20020a17090a8a9200b001ef83b332f5so7176338pjn.0
- for <openrisc@lists.librecores.org>; Wed, 13 Jul 2022 21:27:44 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 773D424914;
+	Thu, 14 Jul 2022 06:27:52 +0200 (CEST)
+Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com
+ [209.85.216.46])
+ by mail.librecores.org (Postfix) with ESMTPS id 42131248B4
+ for <openrisc@lists.librecores.org>; Thu, 14 Jul 2022 06:27:51 +0200 (CEST)
+Received: by mail-pj1-f46.google.com with SMTP id
+ z12-20020a17090a7b8c00b001ef84000b8bso7109515pjc.1
+ for <openrisc@lists.librecores.org>; Wed, 13 Jul 2022 21:27:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=1zxZAoy64GdtsJQOfRGCbNc3VQnUKxrndVlWjexAZME=;
- b=i9qANYhdJ1TDqpr/gQ/fVixRIYA9nY9RltKyOvwVt1eIqD1isphbX/CIUFZkepe7tq
- uvYGafyIEefyU/FNiJkE1cCTNzcjJB8ZfyhKwgCpRsxd8R+kF9/fgd1j3A9DbI6FNq7t
- QWY6olDoQnYpCMY1cdHbhEpZluSWMLZLcQUGFiLit+NFxE0L3Fkx/E1mmMxOCc3jtyxR
- kUe1E01oD2cdHPtbaJhkkAdICDWlev2XRTc1DOSMM5LVKZzZJQMHCOFeqfYtk9lNAhp8
- /vlX5YWS5vR7B+Ted7ceDxS/JgDHbPsL9xnkShSWWutLp+csYXnaixd4DaO8RWh+1vb7
- KdiQ==
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=1ANa/UfBZBIYOUOOK5aYse1VM4y5RCfZnupJabCiODk=;
+ b=XyXet3y8zlu/z59ZUtVcN/LAQQMb4P3DKAdKdThaPQeHyy5vulQIu2gfwRzAn7RkEu
+ 2lZ8kRNJ+ZpPwkUmYL8qYzJum+5/VYHRnXL8FHQoSEi5zI3v3H7sUn/pcX6mk25sHmaf
+ C9kletF+w3P5LhJmWiJrfc4/HYoetV91307ferO9mbnOmbgMUdDnfZQA5F/QxJlqduKJ
+ ieEgyKCNexFqoQQ3Zbl6qWDJZq1wHxAme79mdKyNA8LycVz9E4LckfmDB05lnFgHwTYs
+ pfpNj3Y7BTkqJy2wkceCOL9HOXr7ICJRQvhaBNrIzaS1E+5dauDwo290aefyausoMcno
+ 79xw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=1zxZAoy64GdtsJQOfRGCbNc3VQnUKxrndVlWjexAZME=;
- b=eNduLf6/caYa9xyWy7fkbWLqJgxtDM8MQ27naVEXjX0Y8djPxgLjAsTn7vLloesxGB
- rEBEltifzmtj+SoIqKIzcarfDzYgOr9Cg/wsXlV0MEqmqnBpAZF8vMybl79dkeh8BmkK
- VRpYn1VwL6t2n7JA/MQDKo8t7HiAGydLp/SrnS96ceLzuzegwFosrLYrB2wsJNqKog77
- HqyvpNECvPUQRV6kiIVyNa+O86k1atBeiQM5GVBFe0pTLEUo3jdjCgmx2spa7wfNQX9Z
- CJBL3MljUwTNZ9NQbDADxOqQ1fZKrAo5mCgDoNUXpLDd6Hoh2KUKugMtmV8lHtHkha19
- zrgg==
-X-Gm-Message-State: AJIora8o1CxgsHbXgQBv+aEEBGdr34zWi0Gp/Q65/MEx6RTZp9hpc6FW
- Ut1YcAnaqETAskmqg1GFfpY=
-X-Google-Smtp-Source: AGRyM1vf5Tts11shJZnxVMR8ji9kdGEwP6T7fHyzDKH5EteBhIdecA66VKgsMU6CVeYNJ13Te0y9CA==
-X-Received: by 2002:a17:90b:4d85:b0:1ef:9fd2:b789 with SMTP id
- oj5-20020a17090b4d8500b001ef9fd2b789mr14006208pjb.196.1657772863079; 
- Wed, 13 Jul 2022 21:27:43 -0700 (PDT)
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+ :references:mime-version:content-transfer-encoding;
+ bh=1ANa/UfBZBIYOUOOK5aYse1VM4y5RCfZnupJabCiODk=;
+ b=NQd1C2xjL+L/2jLZEfgSynC64ygtsbyy89AdC9xa3fl0712f1M5esszyPlzqAERRqR
+ SF/qWMn/gUOidvykU1CLOdnC8vqVPvCk1RuKyEl8kDq9NAB+NBKcv1wCShKG4mENimhu
+ A79UAhcecQ/gH6d3pwrgAj95bZWS73MlgiER2IyuYhN9uGA58ZBwd5SCuF/y6iGHSCCU
+ wCXDL9iMrUh36O6tzMxhm7/ziENETFteV4yPpkLmePcWuB4K4W7G7SomEZquubiIRKoH
+ azUb8gg0dkJAU3fHrjY6GneY+1+TOx4zbYiF3elSRIU5OpRStYUAeYMsGsHVNeiGPadA
+ VVHg==
+X-Gm-Message-State: AJIora8chbQ3wovPOVnRePWF/WV7hRF3rj1Z6jqgVCAk39uWpsztX+9P
+ q1xFsfeBbahY2/EYNglK1Dg=
+X-Google-Smtp-Source: AGRyM1u0MtU6yGx0/BvbIR9/NQQXwtZOS3pQyNLQZrmd5yAt3jnVf7rEUQEGRqrBlIN8HJOwU/KqVA==
+X-Received: by 2002:a17:90b:30c4:b0:1ef:8d1b:f9bf with SMTP id
+ hi4-20020a17090b30c400b001ef8d1bf9bfmr7637317pjb.158.1657772869879; 
+ Wed, 13 Jul 2022 21:27:49 -0700 (PDT)
 Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
  by smtp.gmail.com with ESMTPSA id
- z26-20020aa7959a000000b00528bd940390sm396538pfj.153.2022.07.13.21.27.42
+ x7-20020a1709027c0700b0016cae5f04e6sm284395pll.135.2022.07.13.21.27.48
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 13 Jul 2022 21:27:42 -0700 (PDT)
+ Wed, 13 Jul 2022 21:27:49 -0700 (PDT)
 From: Stafford Horne <shorne@gmail.com>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH v2 0/2] OpenRISC support for virt platform with PCI
-Date: Thu, 14 Jul 2022 13:27:33 +0900
-Message-Id: <20220714042736.2133067-1-shorne@gmail.com>
+Subject: [PATCH v2 1/2] openrisc: Add pci bus support
+Date: Thu, 14 Jul 2022 13:27:34 +0900
+Message-Id: <20220714042736.2133067-2-shorne@gmail.com>
 X-Mailer: git-send-email 2.36.1
+In-Reply-To: <20220714042736.2133067-1-shorne@gmail.com>
+References: <20220714042736.2133067-1-shorne@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: openrisc@lists.librecores.org
@@ -66,38 +68,135 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Openrisc <openrisc@lists.librecores.org>
+Cc: Jonas Bonn <jonas@southpole.se>, Arnd Bergmann <arnd@arndb.de>,
+ Peter Zijlstra <peterz@infradead.org>, Palmer Dabbelt <palmer@rivosinc.com>,
+ Openrisc <openrisc@lists.librecores.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Hello,
+This patch adds required definitions to allow for PCI buses on OpenRISC.
+This is being in the QEMU virt platform.
 
-This is a set of kernel patches which I have been using to support the new QEMU
-virt platform [1].  The virt platform supports PCI hence I have a patch here to
-add PCI support to OpenRISC.
+OpenRISC does not have IO ports so this defines PCI IO to be allowed in
+any range.  Keeping PIO_RESERVED defined as 0 allows OpenRISC to use
+MMIO for all IO.
 
-A defconfig is also included which turns on drivers supported devices include
-virt network cards and the goldfish RTC.
+Also, since commit 66bcd06099bb ("parport_pc: Also enable driver for PCI
+systems") all platforms that support PCI also need to support parallel
+port.  We add a generic header to support parallel port drivers.
 
-[1] https://github.com/stffrdhrn/qemu/tree/or1k-virt-3
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+Since v1:
+ - Revert definition of IO_SPACE_LIMIT
 
-Changes since v1:
-
- - Remove PIO support as suggest by Arnd
-
-Stafford Horne (2):
-  openrisc: Add pci bus support
-  openrisc: Add virt defconfig
-
- arch/openrisc/Kconfig                |   7 +-
- arch/openrisc/configs/virt_defconfig | 108 +++++++++++++++++++++++++++
- arch/openrisc/include/asm/Kbuild     |   1 +
- arch/openrisc/include/asm/io.h       |   2 +-
- arch/openrisc/include/asm/pci.h      |  36 +++++++++
- 5 files changed, 150 insertions(+), 4 deletions(-)
- create mode 100644 arch/openrisc/configs/virt_defconfig
+ arch/openrisc/Kconfig            |  7 ++++---
+ arch/openrisc/include/asm/Kbuild |  1 +
+ arch/openrisc/include/asm/io.h   |  2 +-
+ arch/openrisc/include/asm/pci.h  | 36 ++++++++++++++++++++++++++++++++
+ 4 files changed, 42 insertions(+), 4 deletions(-)
  create mode 100644 arch/openrisc/include/asm/pci.h
 
+diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+index e814df4c483c..327241988819 100644
+--- a/arch/openrisc/Kconfig
++++ b/arch/openrisc/Kconfig
+@@ -21,7 +21,9 @@ config OPENRISC
+ 	select GENERIC_IRQ_PROBE
+ 	select GENERIC_IRQ_SHOW
+ 	select GENERIC_IOMAP
++	select GENERIC_PCI_IOMAP
+ 	select GENERIC_CPU_DEVICES
++	select HAVE_PCI
+ 	select HAVE_UID16
+ 	select GENERIC_ATOMIC64
+ 	select GENERIC_CLOCKEVENTS_BROADCAST
+@@ -32,6 +34,8 @@ config OPENRISC
+ 	select CPU_NO_EFFICIENT_FFS if !OPENRISC_HAVE_INST_FF1
+ 	select ARCH_USE_QUEUED_RWLOCKS
+ 	select OMPIC if SMP
++	select PCI_DOMAINS_GENERIC if PCI
++	select PCI_MSI if PCI
+ 	select ARCH_WANT_FRAME_POINTERS
+ 	select GENERIC_IRQ_MULTI_HANDLER
+ 	select MMU_GATHER_NO_RANGE if MMU
+@@ -46,9 +50,6 @@ config MMU
+ config GENERIC_HWEIGHT
+ 	def_bool y
+ 
+-config NO_IOPORT_MAP
+-	def_bool y
+-
+ # For now, use generic checksum functions
+ #These can be reimplemented in assembly later if so inclined
+ config GENERIC_CSUM
+diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
+index 3386b9c1c073..c8c99b554ca4 100644
+--- a/arch/openrisc/include/asm/Kbuild
++++ b/arch/openrisc/include/asm/Kbuild
+@@ -1,6 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ generic-y += extable.h
+ generic-y += kvm_para.h
++generic-y += parport.h
+ generic-y += spinlock_types.h
+ generic-y += spinlock.h
+ generic-y += qrwlock_types.h
+diff --git a/arch/openrisc/include/asm/io.h b/arch/openrisc/include/asm/io.h
+index c298061c70a7..625ac6ad1205 100644
+--- a/arch/openrisc/include/asm/io.h
++++ b/arch/openrisc/include/asm/io.h
+@@ -17,7 +17,7 @@
+ #include <linux/types.h>
+ 
+ /*
+- * PCI: can we really do 0 here if we have no port IO?
++ * PCI: We do not use IO ports in OpenRISC
+  */
+ #define IO_SPACE_LIMIT		0
+ 
+diff --git a/arch/openrisc/include/asm/pci.h b/arch/openrisc/include/asm/pci.h
+new file mode 100644
+index 000000000000..e0865d2f3f42
+--- /dev/null
++++ b/arch/openrisc/include/asm/pci.h
+@@ -0,0 +1,36 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++
++#ifndef __ASM_OPENRISC_PCI_H
++#define __ASM_OPENRISC_PCI_H
++
++#include <linux/types.h>
++#include <linux/slab.h>
++#include <linux/dma-mapping.h>
++
++#include <asm/io.h>
++
++#define PCIBIOS_MIN_IO		0
++#define PCIBIOS_MIN_MEM		0
++
++/* OpenRISC bootloaders do not initialize PCI bus */
++#define pcibios_assign_all_busses() 1
++
++#define ARCH_GENERIC_PCI_MMAP_RESOURCE 1
++
++extern int isa_dma_bridge_buggy;
++
++#ifdef CONFIG_PCI
++static inline int pci_get_legacy_ide_irq(struct pci_dev *dev, int channel)
++{
++	/* no legacy IRQs on or1k */
++	return -ENODEV;
++}
++
++static inline int pci_proc_domain(struct pci_bus *bus)
++{
++	/* always show the domain in /proc */
++	return 1;
++}
++#endif /* CONFIG_PCI */
++
++#endif /* __ASM_OPENRISC_PCI_H */
 -- 
 2.36.1
 
