@@ -2,53 +2,56 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B04AC433EF
-	for <openrisc@archiver.kernel.org>; Thu, 14 Jul 2022 04:51:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DFC3C433EF
+	for <openrisc@archiver.kernel.org>; Thu, 14 Jul 2022 07:57:05 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id C7AD020D93;
-	Thu, 14 Jul 2022 06:51:58 +0200 (CEST)
-Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com
- [209.85.208.44])
- by mail.librecores.org (Postfix) with ESMTPS id 6AEAE20D55
- for <openrisc@lists.librecores.org>; Thu, 14 Jul 2022 06:51:57 +0200 (CEST)
-Received: by mail-ed1-f44.google.com with SMTP id eq6so918628edb.6
- for <openrisc@lists.librecores.org>; Wed, 13 Jul 2022 21:51:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=hW7IbWPmYdn2d1NNnyMMYZo7sUWhfXMc3EeZopJnd9s=;
- b=ixpskF3es1ZmyzgNugOOlVGXEXU01wH8x+O+9c0Hn53VnayTkfg7B02WDNC5tIrO7l
- iEwg3ca5x42mE2uIM8nqQUrXVwXLpT6ULvvEDEhDoQovcbWbHLnoAwOv78ubyxnHhjrc
- b+F58wCwdRfZkdz4PEAGwhDlQaXN17a/dAqjH7lRr9IZR6Oxl15yDJPqx5DZqhd1LDca
- m3K9L9Ce8HJHQ3yTYC00bD8m8HCeZVO9kN8Rn4LXDKPCB1TSqsZxNf0zJQAMyjXyiJ7g
- cpQu1lJzObpQ/9Off5+y4JJmm1YPuTUAuigqbDyhvyv4ipfIih1IQ2OiwKFqjfHfMEIL
- 9Opw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=hW7IbWPmYdn2d1NNnyMMYZo7sUWhfXMc3EeZopJnd9s=;
- b=2kmq0upCpTZipgOKBSHZ08xTWhXNPpKRiYpTd2gOK6Kup34IgNVWlhJpeL6NmNAuwp
- StDzenoExEywZD/JCryS4VZGRvNLl1oOTMKEQvt3BaX/25H7wYbSxeINMJ0rH8+Y12AP
- tZ55t9DklJsAlMftnuvTg034O/6hIYqWhgqfnUsDERyDpxfMgllplsXGiZaOKsXmMSpZ
- 4FH/04W7mgxsCY/QKTRCTpk7KwagsqRiIYUwtF0HJD6aztEpgIYVmzVMlp6LedvgfE/6
- d7mqoXyEm6hkQ+2ud6QIc3hunQUkfKgd51goeaDJF2KwaH/KHX5gMacLQ8QlkVlh+XjN
- 4HQg==
-X-Gm-Message-State: AJIora9s4lQ+pyqxlJwguqPytROHNAgg0AtXjS87lNWGbfLLhxLmT8XO
- 8SDgBVxst+zW+r5SjfzU7PKbdErI14LwsKkuoaA=
-X-Google-Smtp-Source: AGRyM1sCekI8nbaSkEz0wXp62jC4NmfsPr1d7cEeKiuuhPUbnQAKxU8DeX6rgQmQqaqEEOVW9HUjdoQGawmviSj4Nuo=
-X-Received: by 2002:aa7:db9a:0:b0:43a:76bf:5401 with SMTP id
- u26-20020aa7db9a000000b0043a76bf5401mr9638511edt.244.1657774317014; Wed, 13
- Jul 2022 21:51:57 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id C98F120C94;
+	Thu, 14 Jul 2022 09:57:04 +0200 (CEST)
+Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.133])
+ by mail.librecores.org (Postfix) with ESMTPS id AAA88242D4
+ for <openrisc@lists.librecores.org>; Thu, 14 Jul 2022 09:57:03 +0200 (CEST)
+Received: from mail-yw1-f172.google.com ([209.85.128.172]) by
+ mrelayeu.kundenserver.de (mreue009 [213.165.67.97]) with ESMTPSA (Nemesis) id
+ 1MhDEo-1ngQqy4AAU-00eNfe for <openrisc@lists.librecores.org>; Thu, 14 Jul
+ 2022 09:57:03 +0200
+Received: by mail-yw1-f172.google.com with SMTP id
+ 00721157ae682-31c89653790so8802427b3.13
+ for <openrisc@lists.librecores.org>; Thu, 14 Jul 2022 00:57:02 -0700 (PDT)
+X-Gm-Message-State: AJIora8UtBaFFY7WRDW2Q5dpyG/OslfyUGaBeR9tH6RFMGbvdZ5nRtl8
+ p6NgFIB41pK8ogMj/5Cg3OUWVlSG3Is43pBJeb8=
+X-Google-Smtp-Source: AGRyM1s6hq6erZ1yK1nIUP2svi0ANxmBF0XKQOXZ/sRFvr5z9HEm2aKaLzHV16xP3Q8+fv2MN1haOC3UBR+vKS0ayV0=
+X-Received: by 2002:a81:9b02:0:b0:31c:9ae4:99ec with SMTP id
+ s2-20020a819b02000000b0031c9ae499ecmr8278547ywg.495.1657785421695; Thu, 14
+ Jul 2022 00:57:01 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220711034615.482895-1-21cnbao@gmail.com>
- <24f5e25b-3946-b92a-975b-c34688005398@linux.alibaba.com>
-In-Reply-To: <24f5e25b-3946-b92a-975b-c34688005398@linux.alibaba.com>
-From: Barry Song <21cnbao@gmail.com>
-Date: Thu, 14 Jul 2022 16:51:45 +1200
-Message-ID: <CAGsJ_4zjnmQV6LT3yo--K-qD-92=hBmgfK121=n-Y0oEFX8RnQ@mail.gmail.com>
-Subject: Re: [PATCH v2 0/4] mm: arm64: bring up BATCHED_UNMAP_TLB_FLUSH
-To: xhao@linux.alibaba.com
+References: <20220714042736.2133067-1-shorne@gmail.com>
+ <20220714042736.2133067-2-shorne@gmail.com>
+In-Reply-To: <20220714042736.2133067-2-shorne@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Thu, 14 Jul 2022 09:56:44 +0200
+X-Gmail-Original-Message-ID: <CAK8P3a0JmPeczfmMBE__vn=Jbvf=nkbpVaZCycyv40pZNCJJXQ@mail.gmail.com>
+Message-ID: <CAK8P3a0JmPeczfmMBE__vn=Jbvf=nkbpVaZCycyv40pZNCJJXQ@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] openrisc: Add pci bus support
+To: Stafford Horne <shorne@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:cIfxOiLhn8lNIG/VJJfexKQ1dpbGyA2YN/FG5Eduy8CIo+RC27S
+ trUvKsT0Eo7XEg+XwvsmrG3+tq0T1PclYgtXKFIr9ie5FGHYlfEPUF4roQ1NDsDiwjhkySb
+ i+cbwpILDYFblFl/k6VBD/aWyVGjqrN3Tkr9ER8EWu/Vsz/07BQAXSA+WNOV5hq57oA72VI
+ M4tNDKU7NsCVi2deXVriA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:6NLHlPMyd0E=:HVRAHtWJeARkINDJF44Mqj
+ lDoR0MyyjP8dwlsLrvabx77PdWfWA+zOdw8ieVn2FHa9opH3XXsQLYpEvHQGcvhJAZPd8ksXU
+ /LWc5a8KAhK4j76fK3tSY5Z5sOxXQ05GQLv4noVErFeLj7ZEPrsY3x/kWzkjyXByIO4aZrLdB
+ FIl2XrjDGLrAtT93QGyBdkJ4M3oZXxm88AM4zXJa07RvkXU/24OHbr0JGUKgfS0LFIiJr64JO
+ AzsbagsxE4SObOKiFw24T4ha3JfufWBldoweNWHhR57kslaXcBTRpbKgBpQrD6tQiPbrRmtDm
+ d1TpiUAnmddMzNXt4+PuEVsZQZJ3fYzet9V7xSFrbUKo0jxR/M9ylVKfg5lVBVqRD8IaPjt9H
+ GVKVufOg20mOv0A1XswU8LnmZI6ZCYSJ+K92WeRk4U6NVohhaQCS1rzS7yAOM6lcosrU1C7c1
+ b3KjFeJC2jGH1SiYq6/A6uL2KahLUppI/8cnZUZt0rlF2nZRgF6IxzixQezwKM7yV0XXnox1b
+ zYdFnocyCd0Kp5UaOlwRZoWXtzHvG4VPEt36TY1GwyIyktsMIj7TQJs/Vp4SQcWDa22GwL9C0
+ F0qzcXrIBi4sz7l1aX43VRzRQgxVut7bTk3jhIGmc/PcKUT17Eaax6h1ylGrYlEmoofuWVv2f
+ HOlUc5c6yx7D/hsdXPg73e49rqUk2draaORlbuYxJnK25Owz1ZX+0r7xVnvNPC9OZ8UcYKsHQ
+ yOTF8hjFOGDV135IwUl2xZNTaHtN5amI+Z6dX9jSdZttUFI5q1dhwrELk+Ihtp5iDDlCuYenJ
+ mxqXFAYH9doMTIF5B/xNq/1IpTT8jSD0fLyeUD9qfZTRAP1QnEcET5KAGNzDd+RW7bFuqoTRs
+ K3oCfdTHDTkkNHeE2D10X7QFO9aLIHxoXgtn50kDA=
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -61,202 +64,87 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Yicong Yang <yangyicong@hisilicon.com>, Linux-MM <linux-mm@kvack.org>,
- =?UTF-8?B?6YOt5YGl?= <guojian@oppo.com>, linux-riscv@lists.infradead.org,
- Will Deacon <will@kernel.org>, linux-s390@vger.kernel.org,
- =?UTF-8?B?5byg6K+X5piOKFNpbW9uIFpoYW5nKQ==?= <zhangshiming@oppo.com>,
- =?UTF-8?B?5p2O5Z+56ZSLKHdpbmsp?= <lipeifeng@oppo.com>,
- Jonathan Corbet <corbet@lwn.net>, x86 <x86@kernel.org>,
- linux-mips@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
- real mz <realmz6@gmail.com>, openrisc@lists.librecores.org,
- Darren Hart <darren@os.amperecomputing.com>,
- LAK <linux-arm-kernel@lists.infradead.org>,
- LKML <linux-kernel@vger.kernel.org>, huzhanyuan@oppo.com,
- Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org
+Cc: Jonas Bonn <jonas@southpole.se>, Arnd Bergmann <arnd@arndb.de>,
+ Peter Zijlstra <peterz@infradead.org>, LKML <linux-kernel@vger.kernel.org>,
+ Palmer Dabbelt <palmer@rivosinc.com>, Openrisc <openrisc@lists.librecores.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Thu, Jul 14, 2022 at 3:29 PM Xin Hao <xhao@linux.alibaba.com> wrote:
+On Thu, Jul 14, 2022 at 6:27 AM Stafford Horne <shorne@gmail.com> wrote:
 >
-> Hi barry.
+> This patch adds required definitions to allow for PCI buses on OpenRISC.
+> This is being in the QEMU virt platform.
 >
-> I do some test on Kunpeng arm64 machine use Unixbench.
->
-> The test  result as below.
->
-> One core, we can see the performance improvement above +30%.
+> OpenRISC does not have IO ports so this defines PCI IO to be allowed in
+> any range.  Keeping PIO_RESERVED defined as 0 allows OpenRISC to use
+> MMIO for all IO.
 
-I am really pleased to see the 30%+ improvement on unixbench on single core.
+Ok, this looks better.
 
-> ./Run -c 1 -i 1 shell1
-> w/o
-> System Benchmarks Partial Index              BASELINE RESULT INDEX
-> Shell Scripts (1 concurrent)                     42.4 5481.0 1292.7
-> ========
-> System Benchmarks Index Score (Partial Only)                         1292.7
->
-> w/
-> System Benchmarks Partial Index              BASELINE RESULT INDEX
-> Shell Scripts (1 concurrent)                     42.4 6974.6 1645.0
-> ========
-> System Benchmarks Index Score (Partial Only)                         1645.0
->
->
-> But with whole cores, there have little performance degradation above -5%
+> Also, since commit 66bcd06099bb ("parport_pc: Also enable driver for PCI
+> systems") all platforms that support PCI also need to support parallel
+> port.  We add a generic header to support parallel port drivers.
 
-That is sad as we might get more concurrency between mprotect(), madvise(),
-mremap(), zap_pte_range() and the deferred tlbi.
+The parport_pc driver is actually one of the things that doesn't work without
+I/O ports, so at least the description here is misleading. We should really
+have Kconfig logic to enforce this, but that is a separate topic.
 
->
-> ./Run -c 96 -i 1 shell1
-> w/o
-> Shell Scripts (1 concurrent)                  80765.5 lpm   (60.0 s, 1
-> samples)
-> System Benchmarks Partial Index              BASELINE RESULT INDEX
-> Shell Scripts (1 concurrent)                     42.4 80765.5 19048.5
-> ========
-> System Benchmarks Index Score (Partial Only)                        19048.5
->
-> w
-> Shell Scripts (1 concurrent)                  76333.6 lpm   (60.0 s, 1
-> samples)
-> System Benchmarks Partial Index              BASELINE RESULT INDEX
-> Shell Scripts (1 concurrent)                     42.4 76333.6 18003.2
-> ========
-> System Benchmarks Index Score (Partial Only)                        18003.2
->
-> ----------------------------------------------------------------------------------------------
->
->
-> After discuss with you, and do some changes in the patch.
->
-> ndex a52381a680db..1ecba81f1277 100644
-> --- a/mm/rmap.c
-> +++ b/mm/rmap.c
-> @@ -727,7 +727,11 @@ void flush_tlb_batched_pending(struct mm_struct *mm)
->          int flushed = batch >> TLB_FLUSH_BATCH_FLUSHED_SHIFT;
->
->          if (pending != flushed) {
-> +#ifdef CONFIG_ARCH_HAS_MM_CPUMASK
->                  flush_tlb_mm(mm);
-> +#else
-> +               dsb(ish);
-> +#endif
->
+> diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+> index e814df4c483c..327241988819 100644
+> --- a/arch/openrisc/Kconfig
+> +++ b/arch/openrisc/Kconfig
+> @@ -21,7 +21,9 @@ config OPENRISC
+>         select GENERIC_IRQ_PROBE
+>         select GENERIC_IRQ_SHOW
+>         select GENERIC_IOMAP
+> +       select GENERIC_PCI_IOMAP
+>         select GENERIC_CPU_DEVICES
 
-i was guessing the problem might be flush_tlb_batched_pending()
-so i asked you to change this to verify my guess.
-
-     /*
->                   * If the new TLB flushing is pending during flushing, leave
->                   * mm->tlb_flush_batched as is, to avoid losing flushing.
+> @@ -46,9 +50,6 @@ config MMU
+>  config GENERIC_HWEIGHT
+>         def_bool y
 >
-> there have a performance improvement with whole cores, above +30%
+> -config NO_IOPORT_MAP
+> -       def_bool y
+> -
 
-But I don't think it is a proper patch. There is no guarantee the cpu calling
-flush_tlb_batched_pending is exactly the cpu sending the deferred
-tlbi. so the solution is unsafe. But since this temporary code can bring the
-30%+ performance improvement back for high concurrency, we have huge
-potential to finally make it.
+GENERIC_IOMAP makes no sense without PIO, and I think you also
+need to keep the NO_IOPORT_MAP. I think you still want
+GENERIC_PCI_IOMAP, which in the absence of the other two
+should turn just return an __iomem pointer for memory resource
+and NULL for i/o resources.
 
-Unfortunately I don't have an arm64 server to debug on this. I only have
-8 cores which are unlikely to reproduce regression which happens in
-high concurrency with 96 parallel tasks.
+> +static inline int pci_get_legacy_ide_irq(struct pci_dev *dev, int channel)
+> +{
+> +       /* no legacy IRQs on or1k */
+> +       return -ENODEV;
+> +}
 
-So I'd ask if @yicong or someone else working on kunpeng or other
-arm64 servers  is able to actually debug and figure out a proper
-patch for this, then add the patch as 5/5 into this series?
+The comment seems misleading, as "legacy IRQs" normally refers to
+non-MSI interrupts, which you do support. It's only the legacy IDE
+interrupts that are not supported.
 
->
-> ./Run -c 96 -i 1 shell1
-> 96 CPUs in system; running 96 parallel copies of tests
->
-> Shell Scripts (1 concurrent)                 109229.0 lpm   (60.0 s, 1 samples)
-> System Benchmarks Partial Index              BASELINE       RESULT    INDEX
-> Shell Scripts (1 concurrent)                     42.4     109229.0  25761.6
->                                                                     ========
-> System Benchmarks Index Score (Partial Only)                        25761.6
->
->
-> Tested-by: Xin Hao<xhao@linux.alibaba.com>
+I see that the asm-generic/pci.h file is now completely useless,
+as it only has a single function left in it, and this one is wrong
+on most architectures -- it only works when you have PC-style
+interrupt numbers. Out of the five architectures that include
+asm-generic/pci.h  (m68k, s390, sparc, x86, xtensa), I would
+expect only x86 to use this version, and maybe a few sparc
+machines.
 
-Thanks for your testing!
+Can I ask you to move out the existing asm-generic/pci.h
+code into those architectures, and add a new file in its place
+that you can use as-is on openrisc? Ideally we should
+be able to also remove most of the contents of asm/pci.h
+on arm64 and riscv. If you have conflicting settings, the normal
+way to handle them in asm-generic headers is like
 
->
-> Looking forward to your next version patch.
->
-> On 7/11/22 11:46 AM, Barry Song wrote:
-> > Though ARM64 has the hardware to do tlb shootdown, the hardware
-> > broadcasting is not free.
-> > A simplest micro benchmark shows even on snapdragon 888 with only
-> > 8 cores, the overhead for ptep_clear_flush is huge even for paging
-> > out one page mapped by only one process:
-> > 5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
-> >
-> > While pages are mapped by multiple processes or HW has more CPUs,
-> > the cost should become even higher due to the bad scalability of
-> > tlb shootdown.
-> >
-> > The same benchmark can result in 16.99% CPU consumption on ARM64
-> > server with around 100 cores according to Yicong's test on patch
-> > 4/4.
-> >
-> > This patchset leverages the existing BATCHED_UNMAP_TLB_FLUSH by
-> > 1. only send tlbi instructions in the first stage -
-> >       arch_tlbbatch_add_mm()
-> > 2. wait for the completion of tlbi by dsb while doing tlbbatch
-> >       sync in arch_tlbbatch_flush()
-> > My testing on snapdragon shows the overhead of ptep_clear_flush
-> > is removed by the patchset. The micro benchmark becomes 5% faster
-> > even for one page mapped by single process on snapdragon 888.
-> >
-> >
-> > -v2:
-> > 1. Collected Yicong's test result on kunpeng920 ARM64 server;
-> > 2. Removed the redundant vma parameter in arch_tlbbatch_add_mm()
-> >     according to the comments of Peter Zijlstra and Dave Hansen
-> > 3. Added ARCH_HAS_MM_CPUMASK rather than checking if mm_cpumask
-> >     is empty according to the comments of Nadav Amit
-> >
-> > Thanks, Yicong, Peter, Dave and Nadav for your testing or reviewing
-> > , and comments.
-> >
-> > -v1:
-> > https://lore.kernel.org/lkml/20220707125242.425242-1-21cnbao@gmail.com/
-> >
-> > Barry Song (4):
-> >    Revert "Documentation/features: mark BATCHED_UNMAP_TLB_FLUSH doesn't
-> >      apply to ARM64"
-> >    mm: rmap: Allow platforms without mm_cpumask to defer TLB flush
-> >    mm: rmap: Extend tlbbatch APIs to fit new platforms
-> >    arm64: support batched/deferred tlb shootdown during page reclamation
-> >
-> >   Documentation/features/arch-support.txt       |  1 -
-> >   .../features/vm/TLB/arch-support.txt          |  2 +-
-> >   arch/arm/Kconfig                              |  1 +
-> >   arch/arm64/Kconfig                            |  1 +
-> >   arch/arm64/include/asm/tlbbatch.h             | 12 ++++++++++
-> >   arch/arm64/include/asm/tlbflush.h             | 23 +++++++++++++++++--
-> >   arch/loongarch/Kconfig                        |  1 +
-> >   arch/mips/Kconfig                             |  1 +
-> >   arch/openrisc/Kconfig                         |  1 +
-> >   arch/powerpc/Kconfig                          |  1 +
-> >   arch/riscv/Kconfig                            |  1 +
-> >   arch/s390/Kconfig                             |  1 +
-> >   arch/um/Kconfig                               |  1 +
-> >   arch/x86/Kconfig                              |  1 +
-> >   arch/x86/include/asm/tlbflush.h               |  3 ++-
-> >   mm/Kconfig                                    |  3 +++
-> >   mm/rmap.c                                     | 14 +++++++----
-> >   17 files changed, 59 insertions(+), 9 deletions(-)
-> >   create mode 100644 arch/arm64/include/asm/tlbbatch.h
-> >
-> --
-> Best Regards!
-> Xin Hao
->
+#ifndef PCIBIOS_MIN_IO
+#define PCIBIOS_MIN_IO 0
+#endif
 
-Thanks
-Barry
+#ifndef pcibios_assign_all_busses
+#define pcibios_assign_all_busses() 1
+#endif
+
+       Arnd
