@@ -2,34 +2,45 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09888C43334
-	for <openrisc@archiver.kernel.org>; Wed, 13 Jul 2022 09:17:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B3DCC43334
+	for <openrisc@archiver.kernel.org>; Thu, 14 Jul 2022 04:23:29 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id C3326249AC;
-	Wed, 13 Jul 2022 11:17:52 +0200 (CEST)
-Received: from out199-18.us.a.mail.aliyun.com (out199-18.us.a.mail.aliyun.com
- [47.90.199.18])
- by mail.librecores.org (Postfix) with ESMTPS id 60BE020E97
- for <openrisc@lists.librecores.org>; Wed, 13 Jul 2022 11:17:50 +0200 (CEST)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R111e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046060;
- MF=baolin.wang@linux.alibaba.com; NM=1; PH=DS; RN=11; SR=0;
- TI=SMTPD_---0VJDOi.B_1657703862; 
-Received: from 30.97.48.50(mailfrom:baolin.wang@linux.alibaba.com
- fp:SMTPD_---0VJDOi.B_1657703862) by smtp.aliyun-inc.com;
- Wed, 13 Jul 2022 17:17:43 +0800
-Message-ID: <1badee01-b872-8de8-4fe1-83d6dc6b756c@linux.alibaba.com>
-Date: Wed, 13 Jul 2022 17:17:44 +0800
+	by mail.librecores.org (Postfix) with ESMTP id 356C4249F4;
+	Thu, 14 Jul 2022 06:23:28 +0200 (CEST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+ by mail.librecores.org (Postfix) with ESMTPS id A7FFE249D9
+ for <openrisc@lists.librecores.org>; Thu, 14 Jul 2022 06:23:26 +0200 (CEST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id 849CC61E96;
+ Thu, 14 Jul 2022 04:23:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 766F0C34114;
+ Thu, 14 Jul 2022 04:23:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1657772605;
+ bh=TqZD68mi36gm9aiOSQeCq3F2D3ZSF1PXzG4Ef1OaD6k=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=ZGxykcsNy3p1QIUnS4/EZEoVBLncppL1tsl9PadOT1hhnhZZL88P7z4zlg6beQy3d
+ GPoMU7oxHPvX7MyhNVHFdlCI3lzL2zDP754TeoJ1m/jvUa/sxQzmStljMMk0+OL9fH
+ gtWWUZZ9U2RY2xCRlpX+DTzMjkfjZIIdjgLH2bXsRm8PqyfTeIQq1/U0b6GbiZEyAC
+ rDvkglNaN+0d5XKT8Q6HiCB4BTzFa550sSirzDHTUzyfySK/VZikwRTMoMsGpYxAtr
+ YDKhu+nHUNDm3T1TTt0AzrkHXRISFuQ7PATF8qrQHlvFGQ7OcJSuXMDBWAu0Oj676e
+ DTQY7uhGupTVQ==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 26/41] irqchip: or1k-pic: Undefine mask_ack for
+ level triggered hardware
+Date: Thu, 14 Jul 2022 00:22:06 -0400
+Message-Id: <20220714042221.281187-26-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220714042221.281187-1-sashal@kernel.org>
+References: <20220714042221.281187-1-sashal@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [mm] 0bf5cdf08f: BUG:Bad_page_state_in_process
-To: kernel test robot <oliver.sang@intel.com>
-References: <Ys0P+ssAhAyfdA56@xsang-OptiPlex-9020>
-From: Baolin Wang <baolin.wang@linux.alibaba.com>
-In-Reply-To: <Ys0P+ssAhAyfdA56@xsang-OptiPlex-9020>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -42,102 +53,45 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: linux-arch@vger.kernel.org, 0day robot <lkp@intel.com>, linux-mm@kvack.org,
- LKML <linux-kernel@vger.kernel.org>, linux-csky@vger.kernel.org,
- rppt@linux.ibm.com, lkp@lists.01.org, openrisc@lists.librecores.org,
- willy@infradead.org, akpm@linux-foundation.org
+Cc: Sasha Levin <sashal@kernel.org>, jonas@southpole.se,
+ Marc Zyngier <maz@kernel.org>, openrisc@lists.librecores.org,
+ tglx@linutronix.de
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
+From: Stafford Horne <shorne@gmail.com>
 
+[ Upstream commit 8520501346ed8d1c4a6dfa751cb57328a9c843f1 ]
 
-On 7/12/2022 2:08 PM, kernel test robot wrote:
-> 
-> 
-> Greeting,
-> 
-> FYI, we noticed the following commit (built with gcc-11):
-> 
-> commit: 0bf5cdf08f32bbb2d5dbc794fe609e1d97ca5257 ("[RFC PATCH v2 3/3] mm: Add kernel PTE level pagetable pages account")
-> url: https://github.com/intel-lab-lkp/linux/commits/Baolin-Wang/Add-PUD-and-kernel-PTE-level-pagetable-account/20220622-170051
-> base: https://git.kernel.org/cgit/linux/kernel/git/arnd/asm-generic.git master
-> patch link: https://lore.kernel.org/linux-mm/7882bbf467440f9a3ebe41d96ba5b6f384081bb7.1655887440.git.baolin.wang@linux.alibaba.com
-> 
-> in testcase: stress-ng
-> version: stress-ng-x86_64-0.11-06_20220709
-> with following parameters:
-> 
-> 	nr_threads: 10%
-> 	disk: 1HDD
-> 	testtime: 60s
-> 	fs: xfs
-> 	class: filesystem
-> 	test: dnotify
-> 	cpufreq_governor: performance
-> 	ucode: 0xb000280
-> 
-> 
-> 
-> on test machine: 96 threads 2 sockets Ice Lake with 256G memory
-> 
-> caused below changes (please refer to attached dmesg/kmsg for entire log/backtrace):
-> 
-> 
-> 
-> If you fix the issue, kindly add following tag
-> Reported-by: kernel test robot <oliver.sang@intel.com>
+The mask_ack operation clears the interrupt by writing to the PICSR
+register.  This we don't want for level triggered interrupt because
+it does not actually clear the interrupt on the source hardware.
 
-Thanks for reporting. I think I missed the changes in 
-pud_free_pmd_page(), which also can free a kernel pte page table.
+This was causing issues in qemu with multi core setups where
+interrupts would continue to fire even though they had been cleared in
+PICSR.
 
-And I will use pte_free_kernel() instead in new version patch set.
+Just remove the mask_ack operation.
 
-diff --git a/arch/x86/mm/pgtable.c b/arch/x86/mm/pgtable.c
-index 20f30762d618..f961578e2a54 100644
---- a/arch/x86/mm/pgtable.c
-+++ b/arch/x86/mm/pgtable.c
-@@ -828,6 +828,7 @@ int pud_free_pmd_page(pud_t *pud, unsigned long addr)
-         for (i = 0; i < PTRS_PER_PMD; i++) {
-                 if (!pmd_none(pmd_sv[i])) {
-                         pte = (pte_t *)pmd_page_vaddr(pmd_sv[i]);
-+                       pgtable_clear_and_dec(virt_to_page(pte));
-                         free_page((unsigned long)pte);
-                 }
-         }
+Acked-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/irqchip/irq-or1k-pic.c | 1 -
+ 1 file changed, 1 deletion(-)
 
+diff --git a/drivers/irqchip/irq-or1k-pic.c b/drivers/irqchip/irq-or1k-pic.c
+index 49b47e787644..f289ccd95291 100644
+--- a/drivers/irqchip/irq-or1k-pic.c
++++ b/drivers/irqchip/irq-or1k-pic.c
+@@ -66,7 +66,6 @@ static struct or1k_pic_dev or1k_pic_level = {
+ 		.name = "or1k-PIC-level",
+ 		.irq_unmask = or1k_pic_unmask,
+ 		.irq_mask = or1k_pic_mask,
+-		.irq_mask_ack = or1k_pic_mask_ack,
+ 	},
+ 	.handle = handle_level_irq,
+ 	.flags = IRQ_LEVEL | IRQ_NOPROBE,
+-- 
+2.35.1
 
-> 
-> 
-> [   36.465236][ T1887] BUG: Bad page state in process ucfr  pfn:1ed9a9
-> [   36.465238][ T1887] page:00000000c52990fe refcount:0 mapcount:-512 mapping:0000000000000000 index:0x0 pfn:0x1ed9a9
-> [   36.465244][ T1887] flags: 0x17ffffc0000000(node=0|zone=2|lastcpupid=0x1fffff)
-> [   36.465248][ T1887] raw: 0017ffffc0000000 dead000000000100 dead000000000122 0000000000000000
-> [   36.465249][ T1887] raw: 0000000000000000 0000000000000000 00000000fffffdff 0000000000000000
-> [   36.465249][ T1887] page dumped because: nonzero mapcount
-> [   36.465250][ T1887] Modules linked in: acpi_cpufreq(-) device_dax(+) nd_pmem nd_btt dax_pmem intel_rapl_msr intel_rapl_common btrfs ipmi_ssif x86_pkg_temp_thermal blake2b_generic intel_powerclamp xor raid6_pq coretemp zstd_compress libcrc32c nvme sd_mod ast drm_vram_helper sg drm_ttm_helper nvme_core kvm_intel kvm irqbypass crct10dif_pclmul crc32_pclmul crc32c_intel t10_pi ghash_clmulni_intel ttm rapl drm_kms_helper crc64_rocksoft_generic ahci intel_cstate syscopyarea crc64_rocksoft libahci intel_uncore crc64 sysfillrect ioatdma sysimgblt joydev fb_sys_fops libata dca wmi acpi_ipmi ipmi_si ipmi_devintf ipmi_msghandler nfit libnvdimm acpi_pad acpi_power_meter drm fuse ip_tables
-> [   36.465278][ T1887] CPU: 8 PID: 1887 Comm: ucfr Tainted: G S                5.19.0-rc2-00013-g0bf5cdf08f32 #1
-> [   36.465280][ T1887] Call Trace:
-> [   36.465283][ T1887]  <TASK>
-> [ 36.465285][ T1887] dump_stack_lvl (lib/dump_stack.c:107 (discriminator 1))
-> [ 36.465292][ T1887] bad_page.cold (mm/page_alloc.c:642)
-> [ 36.465296][ T1887] free_pcppages_bulk (mm/page_alloc.c:1526)
-> [ 36.465302][ T1887] free_unref_page (arch/x86/include/asm/irqflags.h:137 mm/page_alloc.c:3459)
-> [ 36.465304][ T1887] __mmdrop (arch/x86/include/asm/mmu_context.h:125 (discriminator 3) kernel/fork.c:789 (discriminator 3))
-> [ 36.465307][ T1887] finish_task_switch+0x200/0x2c0
-> [ 36.465312][ T1887] schedule_tail (arch/x86/include/asm/preempt.h:85 kernel/sched/core.c:5053)
-> [ 36.465315][ T1887] ret_from_fork (arch/x86/entry/entry_64.S:289)
-> [   36.465320][ T1887]  </TASK>
-> [   36.465320][ T1887] Disabling lock debugging due to kernel taint
-> [   37.204107][  T656] BUG: Bad page state in process kworker/7:1  pfn:4067654
-> [   37.204114][  T656] page:0000000017c1d009 refcount:0 mapcount:-512 mapping:0000000000000000 index:0x0 pfn:0x4067654
-> [   37.204120][  T656] flags: 0x57ffffc0000000(node=1|zone=2|lastcpupid=0x1fffff)
-> [   37.204126][  T656] raw: 0057ffffc0000000 dead000000000100 dead000000000122 0000000000000000
-> [   37.204128][  T656] raw: 0000000000000000 0000000000000000 00000000fffffdff 0000000000000000
-> [   37.204128][  T656] page dumped because: nonzero mapcount
-> [   37.204129][  T656] Modules linked in: acpi_cpufreq(-) device_dax(+) nd_pmem nd_btt dax_pmem intel_rapl_msr intel_rapl_common btrfs ipmi_ssif x86_pkg_temp_thermal blake2b_generic intel_powerclamp xor raid6_pq coretemp zstd_compress libcrc32c nvme sd_mod ast drm_vram_helper sg drm_ttm_helper nvme_core kvm_intel kvm irqbypass crct10dif_pclmul crc32_pclmul crc32c_intel t10_pi ghash_clmulni_intel ttm rapl drm_kms_helper crc64_rocksoft_generic ahci intel_cstate syscopyarea crc64_rocksoft libahci intel_uncore crc64 sysfillrect ioatdma sysimgblt joydev fb_sys_fops libata dca wmi acpi_ipmi ipmi_si ipmi_devintf ipmi_msghandler nfit libnvdimm acpi_pad acpi_power_meter drm fuse ip_tables
-> [   37.204165][  T656] CPU: 7 PID: 656 Comm: kworker/7:1 Tainted: G S  B             5.19.0-rc2-00013-g0bf5cdf08f32 #1
-> [   37.204168][  T656] Workqueue: mm_percpu_wq vmstat_update
-> [   37.204181][  T656] Call Trace:
-> [   37.204184][  T656]  <TASK>
-
-snip.
