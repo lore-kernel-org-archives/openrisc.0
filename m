@@ -2,55 +2,40 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09F29C433EF
-	for <openrisc@archiver.kernel.org>; Wed, 20 Jul 2022 11:18:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E952C43334
+	for <openrisc@archiver.kernel.org>; Wed, 20 Jul 2022 23:36:54 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id D72FB248FA;
-	Wed, 20 Jul 2022 13:18:41 +0200 (CEST)
-Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com
- [209.85.208.49])
- by mail.librecores.org (Postfix) with ESMTPS id 588B32414D
- for <openrisc@lists.librecores.org>; Wed, 20 Jul 2022 13:18:41 +0200 (CEST)
-Received: by mail-ed1-f49.google.com with SMTP id e15so23342646edj.2
- for <openrisc@lists.librecores.org>; Wed, 20 Jul 2022 04:18:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=SCL8okDV1rxEb5OCfF/iJQrOA6O3ijjSdt2qrtLkaoY=;
- b=HN0PHqtDTEFErT55MLznU/7DJVnNowu7VaLykhAMfAnLWk/VT8gi4qzgtp9RJcbF/o
- xOfjgYsWFeyQ24aNVQEst955WXhe8zBFER8rT59BUViD3iVFwkhtDVrovfrWMl32Ty7G
- IfhTsvQqiZxJpeCFF3n7PV77bWy6eo/eBTWQ8uhCaQE0Li7hApTkwmqB+0welO+95tS2
- i7FBYJuKNtB+pIaYfppPtkOXE3ASK9lYlO6FrRrvflKOTDVaChFa3IpawV0QNs4c7EKZ
- otHf7eboGEVPuIYN7dagTcCnNVB2Zp2oJoMN+Tla5kEs2Lyrow5l0oXsFex3oKiLQhNm
- +7Pw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=SCL8okDV1rxEb5OCfF/iJQrOA6O3ijjSdt2qrtLkaoY=;
- b=BQEbP+Mu8IxWLVYyUR2E8HxgplYdb5jy935nolCTuqhcjbow5qnPoSKnNDfRY2SlMZ
- iBqRlPSOYpV/AjY5JNlJoVwCjV742kFnyqJ0wWKg90BKIdph8ssb3+3I0/lRl2os+5Vv
- znyrnAKzUTjeUvFI89yRIdedcfH6ArIH73FcBSImmAOCCHPHVpj1qPZIW9x35cSLw7Sb
- vpU6FyATKKIiDvq3yjJVIvzQVQ4xiDuWSqfzOVSdhPUe0fH0Rdvv5GrLBXdisJAuquo5
- gFOq4hP1kA/iy3XLGMhxRXhtfvb1ucPohSN+YcTYRxJqrlcz6DA6WUsiPmmkzeW7GOG/
- 9cLQ==
-X-Gm-Message-State: AJIora+P+YeDCom66/tTmKAIH4IITBcI1qqQ8QR7sd/+KUB1fdPevzXj
- vXAWYHYPKru3bhvUwx9SVsCM+lr9gKkjRfBkB34=
-X-Google-Smtp-Source: AGRyM1ss32678rw5+Nj7lJWknUm7P5YwIjqTzH08oVGiKCY3rvlOfMOyXALe2jVxcbqf5uWwnqbhiqF3URmzQ/t+nDw=
-X-Received: by 2002:a05:6402:d53:b0:43b:a0cf:d970 with SMTP id
- ec19-20020a0564020d5300b0043ba0cfd970mr8335292edb.277.1658315920799; Wed, 20
- Jul 2022 04:18:40 -0700 (PDT)
-MIME-Version: 1.0
+	by mail.librecores.org (Postfix) with ESMTP id 0A98C20C94;
+	Thu, 21 Jul 2022 01:36:53 +0200 (CEST)
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+ by mail.librecores.org (Postfix) with ESMTPS id 6C8DF22126
+ for <openrisc@lists.librecores.org>; Fri, 15 Jul 2022 04:47:27 +0200 (CEST)
+Received: from canpemm500009.china.huawei.com (unknown [172.30.72.55])
+ by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4LkbN218m3zFpxV;
+ Fri, 15 Jul 2022 10:46:26 +0800 (CST)
+Received: from [10.67.102.169] (10.67.102.169) by
+ canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Fri, 15 Jul 2022 10:47:23 +0800
+Subject: Re: [PATCH v2 0/4] mm: arm64: bring up BATCHED_UNMAP_TLB_FLUSH
+To: Barry Song <21cnbao@gmail.com>, <xhao@linux.alibaba.com>
 References: <20220711034615.482895-1-21cnbao@gmail.com>
  <24f5e25b-3946-b92a-975b-c34688005398@linux.alibaba.com>
  <CAGsJ_4zjnmQV6LT3yo--K-qD-92=hBmgfK121=n-Y0oEFX8RnQ@mail.gmail.com>
- <8e603deb-7023-5de5-c958-8911971aec24@huawei.com>
-In-Reply-To: <8e603deb-7023-5de5-c958-8911971aec24@huawei.com>
-From: Barry Song <21cnbao@gmail.com>
-Date: Wed, 20 Jul 2022 23:18:29 +1200
-Message-ID: <CAGsJ_4x9hLbXGMU737SShZGS89_4zywyhvkcRfz3W5s_p7O1PA@mail.gmail.com>
-Subject: Re: [PATCH v2 0/4] mm: arm64: bring up BATCHED_UNMAP_TLB_FLUSH
-To: Yicong Yang <yangyicong@huawei.com>, xhao@linux.alibaba.com
-Content-Type: text/plain; charset="UTF-8"
+From: Yicong Yang <yangyicong@huawei.com>
+Message-ID: <77e245a3-56b8-d624-187d-d8dacaf8d043@huawei.com>
+Date: Fri, 15 Jul 2022 10:47:22 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.1
+MIME-Version: 1.0
+In-Reply-To: <CAGsJ_4zjnmQV6LT3yo--K-qD-92=hBmgfK121=n-Y0oEFX8RnQ@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.102.169]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ canpemm500009.china.huawei.com (7.192.105.203)
+X-CFilter-Loop: Reflected
+X-Mailman-Approved-At: Thu, 21 Jul 2022 01:36:49 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -64,10 +49,10 @@ List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
 Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Yicong Yang <yangyicong@hisilicon.com>, Linux-MM <linux-mm@kvack.org>,
- =?UTF-8?B?6YOt5YGl?= <guojian@oppo.com>, linux-riscv@lists.infradead.org,
- Will Deacon <will@kernel.org>, linux-s390@vger.kernel.org,
+ Catalin Marinas <catalin.marinas@arm.com>, yangyicong@hisilicon.com,
+ Linux-MM <linux-mm@kvack.org>, =?UTF-8?B?6YOt5YGl?= <guojian@oppo.com>,
+ linux-riscv@lists.infradead.org, Will Deacon <will@kernel.org>,
+ linux-s390@vger.kernel.org,
  =?UTF-8?B?5byg6K+X5piOKFNpbW9uIFpoYW5nKQ==?= <zhangshiming@oppo.com>,
  =?UTF-8?B?5p2O5Z+56ZSLKHdpbmsp?= <lipeifeng@oppo.com>,
  Jonathan Corbet <corbet@lwn.net>, x86 <x86@kernel.org>,
@@ -81,119 +66,191 @@ Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Tue, Jul 19, 2022 at 1:28 AM Yicong Yang <yangyicong@huawei.com> wrote:
->
-> On 2022/7/14 12:51, Barry Song wrote:
-> > On Thu, Jul 14, 2022 at 3:29 PM Xin Hao <xhao@linux.alibaba.com> wrote:
-> >>
-> >> Hi barry.
-> >>
-> >> I do some test on Kunpeng arm64 machine use Unixbench.
-> >>
-> >> The test  result as below.
-> >>
-> >> One core, we can see the performance improvement above +30%.
-> >
-> > I am really pleased to see the 30%+ improvement on unixbench on single core.
-> >
-> >> ./Run -c 1 -i 1 shell1
-> >> w/o
-> >> System Benchmarks Partial Index              BASELINE RESULT INDEX
-> >> Shell Scripts (1 concurrent)                     42.4 5481.0 1292.7
-> >> ========
-> >> System Benchmarks Index Score (Partial Only)                         1292.7
-> >>
-> >> w/
-> >> System Benchmarks Partial Index              BASELINE RESULT INDEX
-> >> Shell Scripts (1 concurrent)                     42.4 6974.6 1645.0
-> >> ========
-> >> System Benchmarks Index Score (Partial Only)                         1645.0
-> >>
-> >>
-> >> But with whole cores, there have little performance degradation above -5%
-> >
-> > That is sad as we might get more concurrency between mprotect(), madvise(),
-> > mremap(), zap_pte_range() and the deferred tlbi.
-> >
-> >>
-> >> ./Run -c 96 -i 1 shell1
-> >> w/o
-> >> Shell Scripts (1 concurrent)                  80765.5 lpm   (60.0 s, 1
-> >> samples)
-> >> System Benchmarks Partial Index              BASELINE RESULT INDEX
-> >> Shell Scripts (1 concurrent)                     42.4 80765.5 19048.5
-> >> ========
-> >> System Benchmarks Index Score (Partial Only)                        19048.5
-> >>
-> >> w
-> >> Shell Scripts (1 concurrent)                  76333.6 lpm   (60.0 s, 1
-> >> samples)
-> >> System Benchmarks Partial Index              BASELINE RESULT INDEX
-> >> Shell Scripts (1 concurrent)                     42.4 76333.6 18003.2
-> >> ========
-> >> System Benchmarks Index Score (Partial Only)                        18003.2
-> >>
-> >> ----------------------------------------------------------------------------------------------
-> >>
-> >>
-> >> After discuss with you, and do some changes in the patch.
-> >>
-> >> ndex a52381a680db..1ecba81f1277 100644
-> >> --- a/mm/rmap.c
-> >> +++ b/mm/rmap.c
-> >> @@ -727,7 +727,11 @@ void flush_tlb_batched_pending(struct mm_struct *mm)
-> >>          int flushed = batch >> TLB_FLUSH_BATCH_FLUSHED_SHIFT;
-> >>
-> >>          if (pending != flushed) {
-> >> +#ifdef CONFIG_ARCH_HAS_MM_CPUMASK
-> >>                  flush_tlb_mm(mm);
-> >> +#else
-> >> +               dsb(ish);
-> >> +#endif
-> >>
-> >
-> > i was guessing the problem might be flush_tlb_batched_pending()
-> > so i asked you to change this to verify my guess.
-> >
->
-> flush_tlb_batched_pending() looks like the critical path for this issue then the code
-> above can mitigate this.
->
-> I cannot reproduce this on a 2P 128C Kunpeng920 server. The kernel is based on the
-> v5.19-rc6 and unixbench of version 5.1.3. The result of `./Run -c 128 -i 1 shell1` is:
->       iter-1      iter-2     iter-3
-> w/o  17708.1     17637.1    17630.1
-> w    17766.0     17752.3    17861.7
->
-> And flush_tlb_batched_pending()isn't the hot spot with the patch:
->    7.00%  sh        [kernel.kallsyms]      [k] ptep_clear_flush
->    4.17%  sh        [kernel.kallsyms]      [k] ptep_set_access_flags
->    2.43%  multi.sh  [kernel.kallsyms]      [k] ptep_clear_flush
->    1.98%  sh        [kernel.kallsyms]      [k] _raw_spin_unlock_irqrestore
->    1.69%  sh        [kernel.kallsyms]      [k] next_uptodate_page
->    1.66%  sort      [kernel.kallsyms]      [k] ptep_clear_flush
->    1.56%  multi.sh  [kernel.kallsyms]      [k] ptep_set_access_flags
->    1.27%  sh        [kernel.kallsyms]      [k] page_counter_cancel
->    1.11%  sh        [kernel.kallsyms]      [k] page_remove_rmap
->    1.06%  sh        [kernel.kallsyms]      [k] perf_event_alloc
->
-> Hi Xin Hao,
->
-> I'm not sure the test setup as well as the config is same with yours. (96C vs 128C
-> should not be the reason I think). Did you check that the 5% is a fluctuation or
-> not? It'll be helpful if more information provided for reproducing this issue.
->
-> Thanks.
+On 2022/7/14 12:51, Barry Song wrote:
+> On Thu, Jul 14, 2022 at 3:29 PM Xin Hao <xhao@linux.alibaba.com> wrote:
+>>
+>> Hi barry.
+>>
+>> I do some test on Kunpeng arm64 machine use Unixbench.
+>>
+>> The test  result as below.
+>>
+>> One core, we can see the performance improvement above +30%.
+> 
+> I am really pleased to see the 30%+ improvement on unixbench on single core.
+> 
+>> ./Run -c 1 -i 1 shell1
+>> w/o
+>> System Benchmarks Partial Index              BASELINE RESULT INDEX
+>> Shell Scripts (1 concurrent)                     42.4 5481.0 1292.7
+>> ========
+>> System Benchmarks Index Score (Partial Only)                         1292.7
+>>
+>> w/
+>> System Benchmarks Partial Index              BASELINE RESULT INDEX
+>> Shell Scripts (1 concurrent)                     42.4 6974.6 1645.0
+>> ========
+>> System Benchmarks Index Score (Partial Only)                         1645.0
+>>
+>>
+>> But with whole cores, there have little performance degradation above -5%
+> 
+> That is sad as we might get more concurrency between mprotect(), madvise(),
+> mremap(), zap_pte_range() and the deferred tlbi.
+> 
+>>
+>> ./Run -c 96 -i 1 shell1
+>> w/o
+>> Shell Scripts (1 concurrent)                  80765.5 lpm   (60.0 s, 1
+>> samples)
+>> System Benchmarks Partial Index              BASELINE RESULT INDEX
+>> Shell Scripts (1 concurrent)                     42.4 80765.5 19048.5
+>> ========
+>> System Benchmarks Index Score (Partial Only)                        19048.5
+>>
+>> w
+>> Shell Scripts (1 concurrent)                  76333.6 lpm   (60.0 s, 1
+>> samples)
+>> System Benchmarks Partial Index              BASELINE RESULT INDEX
+>> Shell Scripts (1 concurrent)                     42.4 76333.6 18003.2
+>> ========
+>> System Benchmarks Index Score (Partial Only)                        18003.2
+>>
+>> ----------------------------------------------------------------------------------------------
+>>
+>>
+>> After discuss with you, and do some changes in the patch.
+>>
+>> ndex a52381a680db..1ecba81f1277 100644
+>> --- a/mm/rmap.c
+>> +++ b/mm/rmap.c
+>> @@ -727,7 +727,11 @@ void flush_tlb_batched_pending(struct mm_struct *mm)
+>>          int flushed = batch >> TLB_FLUSH_BATCH_FLUSHED_SHIFT;
+>>
+>>          if (pending != flushed) {
+>> +#ifdef CONFIG_ARCH_HAS_MM_CPUMASK
+>>                  flush_tlb_mm(mm);
+>> +#else
+>> +               dsb(ish);
+>> +#endif
+>>
+> 
+> i was guessing the problem might be flush_tlb_batched_pending()
+> so i asked you to change this to verify my guess.
+> 
+>      /*
+>>                   * If the new TLB flushing is pending during flushing, leave
+>>                   * mm->tlb_flush_batched as is, to avoid losing flushing.
+>>
+>> there have a performance improvement with whole cores, above +30%
+> 
+> But I don't think it is a proper patch. There is no guarantee the cpu calling
+> flush_tlb_batched_pending is exactly the cpu sending the deferred
+> tlbi. so the solution is unsafe. But since this temporary code can bring the
+> 30%+ performance improvement back for high concurrency, we have huge
+> potential to finally make it.
+> 
+> Unfortunately I don't have an arm64 server to debug on this. I only have
+> 8 cores which are unlikely to reproduce regression which happens in
+> high concurrency with 96 parallel tasks.
+> 
+> So I'd ask if @yicong or someone else working on kunpeng or other
+> arm64 servers  is able to actually debug and figure out a proper
+> patch for this, then add the patch as 5/5 into this series?
+> 
 
-I guess that is because  "./Run -c 1 -i 1 shell1" isn't an application
-stressed on
-memory. Hi Xin, in what kinds of configurations can we reproduce your test
-result?
+sure, Tiantao and I will look into this on Kunpeng 920.
 
-As I suppose tlbbatch will mainly affect the performance of user scenarios
-which require memory page-out/page-in like reclaiming file/anon pages.
-"./Run -c 1 -i 1 shell1" on a system with sufficient free memory won't be
-affected by tlbbatch at all, I believe.
-
-Thanks
-Barry
+>>
+>> ./Run -c 96 -i 1 shell1
+>> 96 CPUs in system; running 96 parallel copies of tests
+>>
+>> Shell Scripts (1 concurrent)                 109229.0 lpm   (60.0 s, 1 samples)
+>> System Benchmarks Partial Index              BASELINE       RESULT    INDEX
+>> Shell Scripts (1 concurrent)                     42.4     109229.0  25761.6
+>>                                                                     ========
+>> System Benchmarks Index Score (Partial Only)                        25761.6
+>>
+>>
+>> Tested-by: Xin Hao<xhao@linux.alibaba.com>
+> 
+> Thanks for your testing!
+> 
+>>
+>> Looking forward to your next version patch.
+>>
+>> On 7/11/22 11:46 AM, Barry Song wrote:
+>>> Though ARM64 has the hardware to do tlb shootdown, the hardware
+>>> broadcasting is not free.
+>>> A simplest micro benchmark shows even on snapdragon 888 with only
+>>> 8 cores, the overhead for ptep_clear_flush is huge even for paging
+>>> out one page mapped by only one process:
+>>> 5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
+>>>
+>>> While pages are mapped by multiple processes or HW has more CPUs,
+>>> the cost should become even higher due to the bad scalability of
+>>> tlb shootdown.
+>>>
+>>> The same benchmark can result in 16.99% CPU consumption on ARM64
+>>> server with around 100 cores according to Yicong's test on patch
+>>> 4/4.
+>>>
+>>> This patchset leverages the existing BATCHED_UNMAP_TLB_FLUSH by
+>>> 1. only send tlbi instructions in the first stage -
+>>>       arch_tlbbatch_add_mm()
+>>> 2. wait for the completion of tlbi by dsb while doing tlbbatch
+>>>       sync in arch_tlbbatch_flush()
+>>> My testing on snapdragon shows the overhead of ptep_clear_flush
+>>> is removed by the patchset. The micro benchmark becomes 5% faster
+>>> even for one page mapped by single process on snapdragon 888.
+>>>
+>>>
+>>> -v2:
+>>> 1. Collected Yicong's test result on kunpeng920 ARM64 server;
+>>> 2. Removed the redundant vma parameter in arch_tlbbatch_add_mm()
+>>>     according to the comments of Peter Zijlstra and Dave Hansen
+>>> 3. Added ARCH_HAS_MM_CPUMASK rather than checking if mm_cpumask
+>>>     is empty according to the comments of Nadav Amit
+>>>
+>>> Thanks, Yicong, Peter, Dave and Nadav for your testing or reviewing
+>>> , and comments.
+>>>
+>>> -v1:
+>>> https://lore.kernel.org/lkml/20220707125242.425242-1-21cnbao@gmail.com/
+>>>
+>>> Barry Song (4):
+>>>    Revert "Documentation/features: mark BATCHED_UNMAP_TLB_FLUSH doesn't
+>>>      apply to ARM64"
+>>>    mm: rmap: Allow platforms without mm_cpumask to defer TLB flush
+>>>    mm: rmap: Extend tlbbatch APIs to fit new platforms
+>>>    arm64: support batched/deferred tlb shootdown during page reclamation
+>>>
+>>>   Documentation/features/arch-support.txt       |  1 -
+>>>   .../features/vm/TLB/arch-support.txt          |  2 +-
+>>>   arch/arm/Kconfig                              |  1 +
+>>>   arch/arm64/Kconfig                            |  1 +
+>>>   arch/arm64/include/asm/tlbbatch.h             | 12 ++++++++++
+>>>   arch/arm64/include/asm/tlbflush.h             | 23 +++++++++++++++++--
+>>>   arch/loongarch/Kconfig                        |  1 +
+>>>   arch/mips/Kconfig                             |  1 +
+>>>   arch/openrisc/Kconfig                         |  1 +
+>>>   arch/powerpc/Kconfig                          |  1 +
+>>>   arch/riscv/Kconfig                            |  1 +
+>>>   arch/s390/Kconfig                             |  1 +
+>>>   arch/um/Kconfig                               |  1 +
+>>>   arch/x86/Kconfig                              |  1 +
+>>>   arch/x86/include/asm/tlbflush.h               |  3 ++-
+>>>   mm/Kconfig                                    |  3 +++
+>>>   mm/rmap.c                                     | 14 +++++++----
+>>>   17 files changed, 59 insertions(+), 9 deletions(-)
+>>>   create mode 100644 arch/arm64/include/asm/tlbbatch.h
+>>>
+>> --
+>> Best Regards!
+>> Xin Hao
+>>
+> 
+> Thanks
+> Barry
+> .
+> 
