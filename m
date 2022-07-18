@@ -2,29 +2,29 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E952C43334
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED664C433EF
 	for <openrisc@archiver.kernel.org>; Wed, 20 Jul 2022 23:36:54 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 0A98C20C94;
+	by mail.librecores.org (Postfix) with ESMTP id 7802820E49;
 	Thu, 21 Jul 2022 01:36:53 +0200 (CEST)
 Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
- by mail.librecores.org (Postfix) with ESMTPS id 6C8DF22126
- for <openrisc@lists.librecores.org>; Fri, 15 Jul 2022 04:47:27 +0200 (CEST)
-Received: from canpemm500009.china.huawei.com (unknown [172.30.72.55])
- by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4LkbN218m3zFpxV;
- Fri, 15 Jul 2022 10:46:26 +0800 (CST)
+ by mail.librecores.org (Postfix) with ESMTPS id 86919240A1
+ for <openrisc@lists.librecores.org>; Mon, 18 Jul 2022 15:28:36 +0200 (CEST)
+Received: from canpemm500009.china.huawei.com (unknown [172.30.72.56])
+ by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4LmjSL1J1JzFq9F;
+ Mon, 18 Jul 2022 21:27:30 +0800 (CST)
 Received: from [10.67.102.169] (10.67.102.169) by
  canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Fri, 15 Jul 2022 10:47:23 +0800
+ 15.1.2375.24; Mon, 18 Jul 2022 21:28:30 +0800
 Subject: Re: [PATCH v2 0/4] mm: arm64: bring up BATCHED_UNMAP_TLB_FLUSH
 To: Barry Song <21cnbao@gmail.com>, <xhao@linux.alibaba.com>
 References: <20220711034615.482895-1-21cnbao@gmail.com>
  <24f5e25b-3946-b92a-975b-c34688005398@linux.alibaba.com>
  <CAGsJ_4zjnmQV6LT3yo--K-qD-92=hBmgfK121=n-Y0oEFX8RnQ@mail.gmail.com>
 From: Yicong Yang <yangyicong@huawei.com>
-Message-ID: <77e245a3-56b8-d624-187d-d8dacaf8d043@huawei.com>
-Date: Fri, 15 Jul 2022 10:47:22 +0800
+Message-ID: <8e603deb-7023-5de5-c958-8911971aec24@huawei.com>
+Date: Mon, 18 Jul 2022 21:28:30 +0800
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
  Thunderbird/78.5.1
 MIME-Version: 1.0
@@ -138,6 +138,36 @@ On 2022/7/14 12:51, Barry Song wrote:
 > i was guessing the problem might be flush_tlb_batched_pending()
 > so i asked you to change this to verify my guess.
 > 
+
+flush_tlb_batched_pending() looks like the critical path for this issue then the code
+above can mitigate this.
+
+I cannot reproduce this on a 2P 128C Kunpeng920 server. The kernel is based on the
+v5.19-rc6 and unixbench of version 5.1.3. The result of `./Run -c 128 -i 1 shell1` is:
+      iter-1      iter-2     iter-3
+w/o  17708.1     17637.1    17630.1
+w    17766.0     17752.3    17861.7
+
+And flush_tlb_batched_pending()isn't the hot spot with the patch:
+   7.00%  sh        [kernel.kallsyms]      [k] ptep_clear_flush
+   4.17%  sh        [kernel.kallsyms]      [k] ptep_set_access_flags
+   2.43%  multi.sh  [kernel.kallsyms]      [k] ptep_clear_flush
+   1.98%  sh        [kernel.kallsyms]      [k] _raw_spin_unlock_irqrestore
+   1.69%  sh        [kernel.kallsyms]      [k] next_uptodate_page
+   1.66%  sort      [kernel.kallsyms]      [k] ptep_clear_flush
+   1.56%  multi.sh  [kernel.kallsyms]      [k] ptep_set_access_flags
+   1.27%  sh        [kernel.kallsyms]      [k] page_counter_cancel
+   1.11%  sh        [kernel.kallsyms]      [k] page_remove_rmap
+   1.06%  sh        [kernel.kallsyms]      [k] perf_event_alloc
+
+Hi Xin Hao,
+
+I'm not sure the test setup as well as the config is same with yours. (96C vs 128C
+should not be the reason I think). Did you check that the 5% is a fluctuation or
+not? It'll be helpful if more information provided for reproducing this issue.
+
+Thanks.
+
 >      /*
 >>                   * If the new TLB flushing is pending during flushing, leave
 >>                   * mm->tlb_flush_batched as is, to avoid losing flushing.
@@ -158,9 +188,6 @@ On 2022/7/14 12:51, Barry Song wrote:
 > arm64 servers  is able to actually debug and figure out a proper
 > patch for this, then add the patch as 5/5 into this series?
 > 
-
-sure, Tiantao and I will look into this on Kunpeng 920.
-
 >>
 >> ./Run -c 96 -i 1 shell1
 >> 96 CPUs in system; running 96 parallel copies of tests
