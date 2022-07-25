@@ -2,27 +2,59 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 338E6C43334
-	for <openrisc@archiver.kernel.org>; Sun, 24 Jul 2022 23:01:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6FD9C433EF
+	for <openrisc@archiver.kernel.org>; Mon, 25 Jul 2022 02:08:17 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id BA229209D9;
-	Mon, 25 Jul 2022 01:01:10 +0200 (CEST)
-Received: from luna (cpc152649-stkp13-2-0-cust121.10-2.cable.virginm.net
- [86.15.83.122])
- by mail.librecores.org (Postfix) with ESMTPS id 5541324042
- for <openrisc@lists.librecores.org>; Thu, 21 Jul 2022 21:55:16 +0200 (CEST)
-Received: from ben by luna with local (Exim 4.96)
- (envelope-from <ben@luna.fluff.org>) id 1oEcGM-001knS-0y;
- Thu, 21 Jul 2022 20:55:10 +0100
-From: Ben Dooks <ben-linux@fluff.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] profile: setup_profiling_timer() is moslty not implemented
-Date: Thu, 21 Jul 2022 20:55:09 +0100
-Message-Id: <20220721195509.418205-1-ben-linux@fluff.org>
-X-Mailer: git-send-email 2.35.1
+	by mail.librecores.org (Postfix) with ESMTP id 73E4320C6A;
+	Mon, 25 Jul 2022 04:08:16 +0200 (CEST)
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com
+ [209.85.214.169])
+ by mail.librecores.org (Postfix) with ESMTPS id E005520E49
+ for <openrisc@lists.librecores.org>; Mon, 25 Jul 2022 04:08:14 +0200 (CEST)
+Received: by mail-pl1-f169.google.com with SMTP id d7so9117537plr.9
+ for <openrisc@lists.librecores.org>; Sun, 24 Jul 2022 19:08:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=2bb8XU1Bnk4jusD63lmk3Ol2o00AOfRxKRkmAkiDP4o=;
+ b=fZIYHmc8N+T0x4kQRJbfoR40FVeWXHFoj1Ez9pMFcXxzgRhu2PqfTJX13WZ/W+RErc
+ OPcB5PlL1q7UBLiBsWYp3lmlcvt9LTpbaSGcKj1OlF3D9EJ2VUaL0wG5GK4fm3QG6s3F
+ CqsJ4rBlixoSyIwWe1Al7OeyD+ZwvQEXYZw1+eILqV8AEuRLuJ+TYwAvQon6qTm4+0Wu
+ gWL3JwtDy4xRDqckeXp1Os7f93urL1kvSDpHRRwv7nzF1i1sITAxOcmqV6odWEh4z8OZ
+ XhuLNTpmXovVM+mTrmFrG3WgCoM+U4Llhuo/N2j7RE1xvfb7kkfWmTc0wYInGzP5GKZs
+ AqBA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+ :references:mime-version:content-transfer-encoding;
+ bh=2bb8XU1Bnk4jusD63lmk3Ol2o00AOfRxKRkmAkiDP4o=;
+ b=dX1pgFBZeonmdFS+p7j2pOwagKHCQ9LAOTFizFTd2hgj4Hr1qdVFpWhwXBJaesIvqn
+ 2kG5e109xcCddf0F1/snxy4Jnvk69Z/39yZz83xnyWYPTFUtxpkdahZKp1iatXFJP+U5
+ ZRWLXrulc0tH5vGJo7BsdDgM7v9sTikIL/8kUjCMMaljhIqrZA4XaFSna8q+w71PCXhB
+ TWCJsxKEt+ZWqkwjP+gKExEnH6dLzp0Y1FCbUa5/COM54SChyxLeyT9+81mpaNdt/+AG
+ YxaKZ0LWey/oH09OugppasDYydg3lTLTwFkt71q7s2eoMm4shMG0dLUf7nmIEiC0gs3r
+ HNLg==
+X-Gm-Message-State: AJIora8dBGJDBuWKYD+BbLZhX95pe8TJwqWCiDpfKyzxQ5dBMY421ZzP
+ fEOOdGdrlHTNgXSbGzR0CyQ=
+X-Google-Smtp-Source: AGRyM1vZnZRBfbk7P18DqP3O8ruzD393p79BGSWNpGSjB7sr0RoO7KDfhkFVa9m61iUpftGqgqdWYg==
+X-Received: by 2002:a17:902:8a86:b0:16c:4292:9f56 with SMTP id
+ p6-20020a1709028a8600b0016c42929f56mr10268982plo.36.1658714893200; 
+ Sun, 24 Jul 2022 19:08:13 -0700 (PDT)
+Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
+ by smtp.gmail.com with ESMTPSA id
+ b17-20020a170902d51100b0016c50179b1esm1691376plg.152.2022.07.24.19.08.12
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Sun, 24 Jul 2022 19:08:12 -0700 (PDT)
+From: Stafford Horne <shorne@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH v3 2/3] openrisc: Add pci bus support
+Date: Mon, 25 Jul 2022 11:07:36 +0900
+Message-Id: <20220725020737.1221739-3-shorne@gmail.com>
+X-Mailer: git-send-email 2.36.1
+In-Reply-To: <20220725020737.1221739-1-shorne@gmail.com>
+References: <20220725020737.1221739-1-shorne@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Mailman-Approved-At: Mon, 25 Jul 2022 01:01:09 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -35,325 +67,80 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: linux-ia64@vger.kernel.org, linux-parisc@vger.kernel.org,
- linux-hexagon@vger.kernel.org, linux-csky@vger.kernel.org,
- openrisc@lists.librecores.org, Ben Dooks <ben-linux@fluff.org>,
- linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-riscv@lists.infradead.org, linux-snps-arc@lists.infradead.org,
- linuxppc-dev@lists.ozlabs.org, akpm@linux-foundation.org,
- linux-arm-kernel@lists.infradead.org
+Cc: Jonas Bonn <jonas@southpole.se>, Arnd Bergmann <arnd@arndb.de>,
+ Peter Zijlstra <peterz@infradead.org>, Palmer Dabbelt <palmer@rivosinc.com>,
+ openrisc@lists.librecores.org, Bjorn Helgaas <helgaas@kernel.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-The setup_profiling_timer() is mostly un-implemented by many
-architectures. In many places it isn't guarded by CONFIG_PROFILE
-which is needed for it to be used. Make it a weak symbol in
-kernel/profile.c and remove the 'return -EINVAL' implementations
-from the kenrel.
+This patch adds required definitions to allow for PCI buses on OpenRISC.
+This is being tested on the OpenRISC QEMU virt platform which is in
+development.
 
-There are a couple of architectures which do return 0 from
-the setup_profiling_timer() function but they don't seem to
-do anything else with it. To keep the /proc compatibility for
-now, leave these for a future update or removal.
+OpenRISC does not have IO ports so we keep the definition of
+IO_SPACE_LIMIT and PIO_RESERVED to be 0.
 
-On ARM, this fixes the following sparse warning:
-arch/arm/kernel/smp.c:793:5: warning: symbol 'setup_profiling_timer' was not declared. Should it be static?
+Note, since commit 66bcd06099bb ("parport_pc: Also enable driver for PCI
+systems") all platforms that support PCI also need to support parallel
+port.  We add a generic header to support compiling parallel port
+drivers, though they generally will not work as they require IO ports.
 
-Signed-off-by: Ben Dooks <ben-linux@fluff.org>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/alpha/kernel/smp.c     | 6 ------
- arch/arc/kernel/smp.c       | 8 --------
- arch/arm/kernel/smp.c       | 8 --------
- arch/arm64/kernel/smp.c     | 8 --------
- arch/csky/kernel/smp.c      | 5 -----
- arch/hexagon/kernel/smp.c   | 5 -----
- arch/ia64/kernel/smp.c      | 6 ------
- arch/openrisc/kernel/smp.c  | 6 ------
- arch/parisc/kernel/smp.c    | 7 -------
- arch/powerpc/kernel/smp.c   | 7 -------
- arch/riscv/kernel/smp.c     | 6 ------
- arch/sparc/kernel/smp_32.c  | 5 -----
- arch/sparc/kernel/smp_64.c  | 6 ------
- arch/x86/include/asm/apic.h | 2 --
- arch/x86/kernel/apic/apic.c | 5 -----
- kernel/profile.c            | 8 ++++++--
- 16 files changed, 6 insertions(+), 92 deletions(-)
+ arch/openrisc/Kconfig            | 5 ++++-
+ arch/openrisc/include/asm/Kbuild | 1 +
+ arch/openrisc/include/asm/io.h   | 2 +-
+ 3 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/alpha/kernel/smp.c b/arch/alpha/kernel/smp.c
-index cb64e4797d2a..f4e20f75438f 100644
---- a/arch/alpha/kernel/smp.c
-+++ b/arch/alpha/kernel/smp.c
-@@ -497,12 +497,6 @@ smp_cpus_done(unsigned int max_cpus)
- 	       ((bogosum + 2500) / (5000/HZ)) % 100);
- }
+diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+index e814df4c483c..c7f282f60f64 100644
+--- a/arch/openrisc/Kconfig
++++ b/arch/openrisc/Kconfig
+@@ -20,8 +20,9 @@ config OPENRISC
+ 	select GENERIC_IRQ_CHIP
+ 	select GENERIC_IRQ_PROBE
+ 	select GENERIC_IRQ_SHOW
+-	select GENERIC_IOMAP
++	select GENERIC_PCI_IOMAP
+ 	select GENERIC_CPU_DEVICES
++	select HAVE_PCI
+ 	select HAVE_UID16
+ 	select GENERIC_ATOMIC64
+ 	select GENERIC_CLOCKEVENTS_BROADCAST
+@@ -32,6 +33,8 @@ config OPENRISC
+ 	select CPU_NO_EFFICIENT_FFS if !OPENRISC_HAVE_INST_FF1
+ 	select ARCH_USE_QUEUED_RWLOCKS
+ 	select OMPIC if SMP
++	select PCI_DOMAINS_GENERIC if PCI
++	select PCI_MSI if PCI
+ 	select ARCH_WANT_FRAME_POINTERS
+ 	select GENERIC_IRQ_MULTI_HANDLER
+ 	select MMU_GATHER_NO_RANGE if MMU
+diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
+index 3386b9c1c073..c8c99b554ca4 100644
+--- a/arch/openrisc/include/asm/Kbuild
++++ b/arch/openrisc/include/asm/Kbuild
+@@ -1,6 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ generic-y += extable.h
+ generic-y += kvm_para.h
++generic-y += parport.h
+ generic-y += spinlock_types.h
+ generic-y += spinlock.h
+ generic-y += qrwlock_types.h
+diff --git a/arch/openrisc/include/asm/io.h b/arch/openrisc/include/asm/io.h
+index c298061c70a7..625ac6ad1205 100644
+--- a/arch/openrisc/include/asm/io.h
++++ b/arch/openrisc/include/asm/io.h
+@@ -17,7 +17,7 @@
+ #include <linux/types.h>
  
--int
--setup_profiling_timer(unsigned int multiplier)
--{
--	return -EINVAL;
--}
--
- static void
- send_ipi_message(const struct cpumask *to_whom, enum ipi_message_type operation)
- {
-diff --git a/arch/arc/kernel/smp.c b/arch/arc/kernel/smp.c
-index d947473f1e6d..ab9e75e90f72 100644
---- a/arch/arc/kernel/smp.c
-+++ b/arch/arc/kernel/smp.c
-@@ -232,14 +232,6 @@ int __cpu_up(unsigned int cpu, struct task_struct *idle)
- 	return 0;
- }
- 
--/*
-- * not supported here
-- */
--int setup_profiling_timer(unsigned int multiplier)
--{
--	return -EINVAL;
--}
--
- /*****************************************************************************/
- /*              Inter Processor Interrupt Handling                           */
- /*****************************************************************************/
-diff --git a/arch/arm/kernel/smp.c b/arch/arm/kernel/smp.c
-index 73fc645fc4c7..978db2d96b44 100644
---- a/arch/arm/kernel/smp.c
-+++ b/arch/arm/kernel/smp.c
-@@ -787,14 +787,6 @@ void panic_smp_self_stop(void)
- 		cpu_relax();
- }
- 
--/*
-- * not supported here
-- */
--int setup_profiling_timer(unsigned int multiplier)
--{
--	return -EINVAL;
--}
--
- #ifdef CONFIG_CPU_FREQ
- 
- static DEFINE_PER_CPU(unsigned long, l_p_j_ref);
-diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
-index 62ed361a4376..ffc5d76cf695 100644
---- a/arch/arm64/kernel/smp.c
-+++ b/arch/arm64/kernel/smp.c
-@@ -1078,14 +1078,6 @@ bool smp_crash_stop_failed(void)
- }
- #endif
- 
--/*
-- * not supported here
-- */
--int setup_profiling_timer(unsigned int multiplier)
--{
--	return -EINVAL;
--}
--
- static bool have_cpu_die(void)
- {
- #ifdef CONFIG_HOTPLUG_CPU
-diff --git a/arch/csky/kernel/smp.c b/arch/csky/kernel/smp.c
-index 6bb38bc2f39b..4b605aa2e1d6 100644
---- a/arch/csky/kernel/smp.c
-+++ b/arch/csky/kernel/smp.c
-@@ -243,11 +243,6 @@ void __init smp_cpus_done(unsigned int max_cpus)
- {
- }
- 
--int setup_profiling_timer(unsigned int multiplier)
--{
--	return -EINVAL;
--}
--
- void csky_start_secondary(void)
- {
- 	struct mm_struct *mm = &init_mm;
-diff --git a/arch/hexagon/kernel/smp.c b/arch/hexagon/kernel/smp.c
-index 619c56420aa0..4ba93e59370c 100644
---- a/arch/hexagon/kernel/smp.c
-+++ b/arch/hexagon/kernel/smp.c
-@@ -240,11 +240,6 @@ void arch_send_call_function_ipi_mask(const struct cpumask *mask)
- 	send_ipi(mask, IPI_CALL_FUNC);
- }
- 
--int setup_profiling_timer(unsigned int multiplier)
--{
--	return -EINVAL;
--}
--
- void smp_start_cpus(void)
- {
- 	int i;
-diff --git a/arch/ia64/kernel/smp.c b/arch/ia64/kernel/smp.c
-index 7b7b64eb3129..e2cc59db86bc 100644
---- a/arch/ia64/kernel/smp.c
-+++ b/arch/ia64/kernel/smp.c
-@@ -333,9 +333,3 @@ smp_send_stop (void)
- {
- 	send_IPI_allbutself(IPI_CPU_STOP);
- }
--
--int
--setup_profiling_timer (unsigned int multiplier)
--{
--	return -EINVAL;
--}
-diff --git a/arch/openrisc/kernel/smp.c b/arch/openrisc/kernel/smp.c
-index 27041db2c8b0..e1419095a6f0 100644
---- a/arch/openrisc/kernel/smp.c
-+++ b/arch/openrisc/kernel/smp.c
-@@ -197,12 +197,6 @@ void smp_send_stop(void)
- 	smp_call_function(stop_this_cpu, NULL, 0);
- }
- 
--/* not supported, yet */
--int setup_profiling_timer(unsigned int multiplier)
--{
--	return -EINVAL;
--}
--
- void __init set_smp_cross_call(void (*fn)(const struct cpumask *, unsigned int))
- {
- 	smp_cross_call = fn;
-diff --git a/arch/parisc/kernel/smp.c b/arch/parisc/kernel/smp.c
-index 24d0744c3b3a..7dbd92cafae3 100644
---- a/arch/parisc/kernel/smp.c
-+++ b/arch/parisc/kernel/smp.c
-@@ -513,10 +513,3 @@ void __cpu_die(unsigned int cpu)
- 
- 	pdc_cpu_rendezvous_unlock();
- }
--
--#ifdef CONFIG_PROC_FS
--int setup_profiling_timer(unsigned int multiplier)
--{
--	return -EINVAL;
--}
--#endif
-diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
-index bcefab484ea6..c037c26540dd 100644
---- a/arch/powerpc/kernel/smp.c
-+++ b/arch/powerpc/kernel/smp.c
-@@ -1674,13 +1674,6 @@ void start_secondary(void *unused)
- 	BUG();
- }
- 
--#ifdef CONFIG_PROFILING
--int setup_profiling_timer(unsigned int multiplier)
--{
--	return 0;
--}
--#endif
--
- static void __init fixup_topology(void)
- {
- 	int i;
-diff --git a/arch/riscv/kernel/smp.c b/arch/riscv/kernel/smp.c
-index b5d30ea92292..441d0ceb80ad 100644
---- a/arch/riscv/kernel/smp.c
-+++ b/arch/riscv/kernel/smp.c
-@@ -64,12 +64,6 @@ bool arch_match_cpu_phys_id(int cpu, u64 phys_id)
- 	return phys_id == cpuid_to_hartid_map(cpu);
- }
- 
--/* Unsupported */
--int setup_profiling_timer(unsigned int multiplier)
--{
--	return -EINVAL;
--}
--
- static void ipi_stop(void)
- {
- 	set_cpu_online(smp_processor_id(), false);
-diff --git a/arch/sparc/kernel/smp_32.c b/arch/sparc/kernel/smp_32.c
-index 22b148e5a5f8..ad8094d955eb 100644
---- a/arch/sparc/kernel/smp_32.c
-+++ b/arch/sparc/kernel/smp_32.c
-@@ -174,11 +174,6 @@ void smp_call_function_interrupt(void)
- 	irq_exit();
- }
- 
--int setup_profiling_timer(unsigned int multiplier)
--{
--	return -EINVAL;
--}
--
- void __init smp_prepare_cpus(unsigned int max_cpus)
- {
- 	int i, cpuid, extra;
-diff --git a/arch/sparc/kernel/smp_64.c b/arch/sparc/kernel/smp_64.c
-index a1f78e9ddaf3..a55295d1b924 100644
---- a/arch/sparc/kernel/smp_64.c
-+++ b/arch/sparc/kernel/smp_64.c
-@@ -1186,12 +1186,6 @@ void __irq_entry smp_penguin_jailcell(int irq, struct pt_regs *regs)
- 	preempt_enable();
- }
- 
--/* /proc/profile writes can call this, don't __init it please. */
--int setup_profiling_timer(unsigned int multiplier)
--{
--	return -EINVAL;
--}
--
- void __init smp_prepare_cpus(unsigned int max_cpus)
- {
- }
-diff --git a/arch/x86/include/asm/apic.h b/arch/x86/include/asm/apic.h
-index bd8ae0a7010a..3415321c8240 100644
---- a/arch/x86/include/asm/apic.h
-+++ b/arch/x86/include/asm/apic.h
-@@ -98,8 +98,6 @@ static inline bool apic_from_smp_config(void)
- #include <asm/paravirt.h>
- #endif
- 
--extern int setup_profiling_timer(unsigned int);
--
- static inline void native_apic_mem_write(u32 reg, u32 v)
- {
- 	volatile u32 *addr = (volatile u32 *)(APIC_BASE + reg);
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index 189d3a5e471a..df764ceac2c8 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -1115,11 +1115,6 @@ DEFINE_IDTENTRY_SYSVEC(sysvec_apic_timer_interrupt)
- 	set_irq_regs(old_regs);
- }
- 
--int setup_profiling_timer(unsigned int multiplier)
--{
--	return -EINVAL;
--}
--
  /*
-  * Local APIC start and shutdown
+- * PCI: can we really do 0 here if we have no port IO?
++ * PCI: We do not use IO ports in OpenRISC
   */
-diff --git a/kernel/profile.c b/kernel/profile.c
-index 37640a0bd8a3..244aa255c488 100644
---- a/kernel/profile.c
-+++ b/kernel/profile.c
-@@ -418,6 +418,12 @@ read_profile(struct file *file, char __user *buf, size_t count, loff_t *ppos)
- 	return read;
- }
- 
-+/* default is to not implement this call */
-+int __weak setup_profiling_timer(unsigned mult)
-+{
-+	return -EINVAL;
-+}
-+
- /*
-  * Writing to /proc/profile resets the counters
-  *
-@@ -428,8 +434,6 @@ static ssize_t write_profile(struct file *file, const char __user *buf,
- 			     size_t count, loff_t *ppos)
- {
- #ifdef CONFIG_SMP
--	extern int setup_profiling_timer(unsigned int multiplier);
--
- 	if (count == sizeof(int)) {
- 		unsigned int multiplier;
+ #define IO_SPACE_LIMIT		0
  
 -- 
-2.35.1
+2.36.1
 
