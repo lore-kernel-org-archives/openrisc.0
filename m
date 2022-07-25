@@ -2,66 +2,35 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 816A9C00144
-	for <openrisc@archiver.kernel.org>; Fri, 29 Jul 2022 23:43:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03E88C19F2C
+	for <openrisc@archiver.kernel.org>; Sun, 31 Jul 2022 22:07:39 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 90D3024A78;
-	Sat, 30 Jul 2022 01:42:59 +0200 (CEST)
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com
- [209.85.216.43])
- by mail.librecores.org (Postfix) with ESMTPS id E69A324A8C
- for <openrisc@lists.librecores.org>; Sat, 30 Jul 2022 01:42:57 +0200 (CEST)
-Received: by mail-pj1-f43.google.com with SMTP id
- w63-20020a17090a6bc500b001f3160a6011so7857632pjj.5
- for <openrisc@lists.librecores.org>; Fri, 29 Jul 2022 16:42:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=message-id:date:mime-version:user-agent:subject:content-language:to
- :cc:references:from:in-reply-to:content-transfer-encoding;
- bh=5+JLebkxU3Nt5iFzyBnCsM4hlMEJKB5pGJPQnLyqRg4=;
- b=ff6JQ1jemBmJgIWkDUnBgIiwqyY1/kn2uPgsv+NECG6y65II/7NWPMtvQbr3QvkMA+
- b0jYR28KRCVpZaaSYn3F4g6iSAwr7MM/WJDENpthUak+T+OZBF6GMYAqP1/Wi6DLd+lN
- fz04SF+xH9dlKNBSNVDtJog4kreWduOfaEQ246+jTrFGHYCeDHvCb7x0EGXaptCVeGIj
- SrfoBw4DqNqBCiYNui98GqgghiYyItMlTqEMa36TKUcr6AfhGkF4WpYPTnPZDmyiDska
- JdxiwM7Ya7pfzdGGyEDqa2++D6Wb+6aSjuBd9Kh35Ijw0g0Fk4KjYmF9p3gqFxIWAvId
- TIfQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
- :content-language:to:cc:references:from:in-reply-to
- :content-transfer-encoding;
- bh=5+JLebkxU3Nt5iFzyBnCsM4hlMEJKB5pGJPQnLyqRg4=;
- b=Zasqtpcyh+wdsbeItNQQwQdjlBI7D4MdJya30Hj4a8sn4uDOT8Cv5WkKxb2bMfnDKZ
- A8YWn8tB1AMm04gBYWjF1tXEPZ1gD4eOUWgIQB83LkdswgwNBOhz+j3IC4ExOb6jtP7d
- gRuoArV79GlH9pnxKAhkLBzBZdSIBWzM+IZa6NdQvPpHOb/Ci1YcnRdtYGqBPh1IO4DA
- DBRKSj/7eNW8FO8OcSg1/11EE6LxCTWorrBRNSKFL26095GWZcgsLXuq3EkpovpBq1E8
- Dh7ylNHmEXbpaaEM3QTFdEQG8VtE98TpozeVATbHgOuwi4g6lySNEfYH+fIQKG7b1AKS
- szgA==
-X-Gm-Message-State: ACgBeo0O8KmuvtAuNM5JujntlNVUPkeCZquiQrfk/R/vUqScPBP3q8vc
- 70+Ykz1TuGgtDcAvj5lLgcAaNQ==
-X-Google-Smtp-Source: AA6agR7AnE85m8BfD83SsuBxva1NjH+tm6xRaRJNywf1hS7fbx+qZJtHcfpGcEP2bpWd4dpgbp/GyA==
-X-Received: by 2002:a17:902:d501:b0:16d:8fc5:36dc with SMTP id
- b1-20020a170902d50100b0016d8fc536dcmr6201193plg.160.1659138176523; 
- Fri, 29 Jul 2022 16:42:56 -0700 (PDT)
-Received: from ?IPV6:2602:ae:1549:801:a427:660:88d4:8559?
- ([2602:ae:1549:801:a427:660:88d4:8559])
- by smtp.gmail.com with ESMTPSA id
- q13-20020a17090311cd00b0016892555955sm4268707plh.179.2022.07.29.16.42.55
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Fri, 29 Jul 2022 16:42:55 -0700 (PDT)
-Message-ID: <a12ba704-b29c-a521-c664-7838c058ebf5@linaro.org>
-Date: Fri, 29 Jul 2022 16:42:54 -0700
+	by mail.librecores.org (Postfix) with ESMTP id 685BF211B0;
+	Mon,  1 Aug 2022 00:07:38 +0200 (CEST)
+Received: from imap5.colo.codethink.co.uk (imap5.colo.codethink.co.uk
+ [78.40.148.171])
+ by mail.librecores.org (Postfix) with ESMTPS id 54EAE248F8
+ for <openrisc@lists.librecores.org>; Mon, 25 Jul 2022 22:48:50 +0200 (CEST)
+Received: from cpc152649-stkp13-2-0-cust121.10-2.cable.virginm.net
+ ([86.15.83.122] helo=[192.168.0.17])
+ by imap5.colo.codethink.co.uk with esmtpsa  (Exim 4.94.2 #2 (Debian))
+ id 1oG508-006V3d-JH; Mon, 25 Jul 2022 21:48:29 +0100
+Message-ID: <a5b079bb-64ab-092d-27d4-d32d0d35afcb@codethink.co.uk>
+Date: Mon, 25 Jul 2022 21:48:28 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v3 08/11] target/openrisc: Enable MTTCG
-Content-Language: en-US
-To: Stafford Horne <shorne@gmail.com>, QEMU Development <qemu-devel@nongnu.org>
-References: <20220729230117.3768312-1-shorne@gmail.com>
- <20220729230117.3768312-9-shorne@gmail.com>
-From: Richard Henderson <richard.henderson@linaro.org>
-In-Reply-To: <20220729230117.3768312-9-shorne@gmail.com>
+ Thunderbird/91.10.0
+Subject: Re: [PATCH] profile: setup_profiling_timer() is moslty not implemented
+Content-Language: en-GB
+To: Andrew Morton <akpm@linux-foundation.org>, Ben Dooks <ben-linux@fluff.org>
+References: <20220721195509.418205-1-ben-linux@fluff.org>
+ <20220725123948.f16674b10022404814161d4a@linux-foundation.org>
+From: Ben Dooks <ben.dooks@codethink.co.uk>
+Organization: Codethink Limited.
+In-Reply-To: <20220725123948.f16674b10022404814161d4a@linux-foundation.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Mailman-Approved-At: Mon, 01 Aug 2022 00:07:35 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -74,26 +43,44 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Openrisc <openrisc@lists.librecores.org>
+Cc: linux-ia64@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-csky@vger.kernel.org, openrisc@lists.librecores.org,
+ linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-snps-arc@lists.infradead.org,
+ linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On 7/29/22 16:01, Stafford Horne wrote:
-> This patch enables multithread TCG for OpenRISC.  Since the or1k shared
-> syncrhonized timer can be updated from each vCPU via helpers we use a
-> mutex to synchronize updates.
+On 25/07/2022 20:39, Andrew Morton wrote:
+> On Thu, 21 Jul 2022 20:55:09 +0100 Ben Dooks <ben-linux@fluff.org> wrote:
 > 
-> Signed-off-by: Stafford Horne<shorne@gmail.com>
-> ---
-> Since v2:
->   - Removed cpu_openrisc_timer_has_advanced lock optimization, measuring revealed
->     it did not help much.
+>> The setup_profiling_timer() is mostly un-implemented by many
+>> architectures. In many places it isn't guarded by CONFIG_PROFILE
+>> which is needed for it to be used. Make it a weak symbol in
+>> kernel/profile.c and remove the 'return -EINVAL' implementations
+>> from the kenrel.
+>>
+>> There are a couple of architectures which do return 0 from
+>> the setup_profiling_timer() function but they don't seem to
+>> do anything else with it. To keep the /proc compatibility for
+>> now, leave these for a future update or removal.
+>>
+>> On ARM, this fixes the following sparse warning:
+>> arch/arm/kernel/smp.c:793:5: warning: symbol 'setup_profiling_timer' was not declared. Should it be static?
 > 
->   configs/targets/or1k-softmmu.mak | 1 +
->   target/openrisc/cpu.h            | 2 ++
->   target/openrisc/sys_helper.c     | 7 ++++++-
->   3 files changed, 9 insertions(+), 1 deletion(-)
+> I'll grab this.
+> 
+> We have had some problems with weak functions lately.  See
+> 
+> https://lore.kernel.org/all/87ee0q7b92.fsf@email.froward.int.ebiederm.org/T/#u
+> 
+> Hopefully that was a rare corner case.
 
-Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+Great, thanks.
 
-r~
+-- 
+Ben Dooks				http://www.codethink.co.uk/
+Senior Engineer				Codethink - Providing Genius
+
+https://www.codethink.co.uk/privacy.html
