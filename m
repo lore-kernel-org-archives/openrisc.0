@@ -2,54 +2,55 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DBD7C19F2B
-	for <openrisc@archiver.kernel.org>; Fri, 29 Jul 2022 23:06:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AF44C00144
+	for <openrisc@archiver.kernel.org>; Fri, 29 Jul 2022 23:06:34 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 7AD7E24A79;
-	Sat, 30 Jul 2022 01:06:30 +0200 (CEST)
-Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com
- [209.85.215.176])
- by mail.librecores.org (Postfix) with ESMTPS id 3CDC024A7B
- for <openrisc@lists.librecores.org>; Sat, 30 Jul 2022 01:06:29 +0200 (CEST)
-Received: by mail-pg1-f176.google.com with SMTP id l193so4662660pge.9
- for <openrisc@lists.librecores.org>; Fri, 29 Jul 2022 16:06:29 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 9F81024A7A;
+	Sat, 30 Jul 2022 01:06:33 +0200 (CEST)
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com
+ [209.85.216.54])
+ by mail.librecores.org (Postfix) with ESMTPS id E49EE24A5A
+ for <openrisc@lists.librecores.org>; Sat, 30 Jul 2022 01:06:31 +0200 (CEST)
+Received: by mail-pj1-f54.google.com with SMTP id
+ a7-20020a17090a008700b001f325db8b90so5146276pja.0
+ for <openrisc@lists.librecores.org>; Fri, 29 Jul 2022 16:06:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=HXCBntOjGzm8ardshRhxv5iuyqDFWrlT1RdhJEN5akM=;
- b=jm9G1DAeu9TMKmi1nO9GRbQxTheemcGp0UMNI66bL8gsTudxEtALCru01SBxule4qT
- 6LGA8aehx4PAnoH95P0lT0gKya7WMyUjAw58x1zFlEg2OTxl1u0Xf587dpwN2kEPvv8A
- f1F8xtBCKWfzRKx0TYbb1ZuDdVg1ZvQH2dVDaRLG4Ub8I9++XJiEEwJgjG8y8JZtG/Cm
- CDF4rPhKNDg9WuJCaZyXn+BoLrCrG7jCSf1X2yYig1ev4t+GKy0X39XsXf8pXSap59mu
- 1pjD9Ijoa+OCe2zIn1H+wYNpq7Oys6olp+SgazhUBn5QLrIQrrRG1XWeF4naDyH1k6YH
- HGIA==
+ bh=675f6o+9+HX/m5+vXfpzLjKZNc+MOKTIadu1Dz7TZmg=;
+ b=TyLtWTaJ9zqkX1/mIZPoCZsQMfs696KhW4LJNYCHPJ09q8XfQdjpM7Ld/pTlFT2x+G
+ LrTqSkLDVp1nVgLAFxns2DiTmm6NdJjaYC94J7TnkE4pSfmy/QZILuKwX4R63qm5JBMp
+ IjVT0pGfYTzvoyQy7sZBHH6KYC1qQeCJI3VR8DpKv/YJpwCdd+CwuNDbWFAdG3tcbHyl
+ 8J2bibrbv78EDDOlpQwPoOAYDnRShCtcESVAOIeq41oh/0gC32sVtX4tkFjUhLdvRr9+
+ pVyrcZgdOJWhGWmIFz3TGds08w9zmF9HNEfJcedeOKqFwJaG9OjIF7t/eNLc29Sq/lPw
+ Yq/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=HXCBntOjGzm8ardshRhxv5iuyqDFWrlT1RdhJEN5akM=;
- b=35vA6hNnW6/e+6cfr5sSTw2NqInaiZlUH6MT02aUA6XMIIueNwFY3fO0lqcSLOTjUb
- EJpTCICe7dLSRNSnArm2Qpb2ZQL8NgHFSBxDCTuwmFsic86wCcE10MObIBJbX+HGcP+Y
- 0d/WnSSRZQhme33sfFJ3WqTcEZSaLGAFSoGtcaP9+OZ0KmjZIrfoTpUn6TWxn6Ggk3Y/
- AZ+/QT1oir5POtP2RZkoWINwFYCzkiGlx3N/eWH2WjLzGMWk+JMPHOkNQheK15KhSVcF
- wQtzNSy4GKrT6yX12iiYhPVUF3FZ/70BojpDEBGCRtsysDHTiwpGc0v77KHXAJwANmW6
- vXjg==
-X-Gm-Message-State: AJIora/RwqaP9hT0ZZnpG62NYXsN5k/XlYi0O+4OnwfLzj+M2wX3JGIr
- H3nu63qoTV8iLSXldn18G0A=
-X-Google-Smtp-Source: AGRyM1tPsZ8OBNfYftntOYscYnHcsScjRT0EW2bPuqVRfjYJMfSsCj8B1rRfoch4bfwWWKQkBFkTQQ==
-X-Received: by 2002:a05:6a00:10ca:b0:4f7:5af4:47b6 with SMTP id
- d10-20020a056a0010ca00b004f75af447b6mr5677145pfu.6.1659135987758; 
- Fri, 29 Jul 2022 16:06:27 -0700 (PDT)
+ bh=675f6o+9+HX/m5+vXfpzLjKZNc+MOKTIadu1Dz7TZmg=;
+ b=OQQf5zju0KZTa8WRKoFKYoYMwQ1C0ibTy0tAXMaykDAiau5h9GNcz75ZrV7cQ8nbSV
+ HUw0KOc71Z+tUUarZfRUEDjvN12UkkAQRJv26xNuolGsABQkov5nPZMBI6bYRtUv2XZp
+ V1iq2uzrB7Cg6YqD2krNMQit50x26ugKvm+nf2KobaUXFjAWtm9rIJChDQqyXKZKosKM
+ Qr1bPbiBD/mCo2rNj/nmCOCvXSI0Am5ZXzHv3PM5QpL433D5mKvemVZ2Nxge2ozdG+zJ
+ mQqrETuYAk7ZxUrI3lqVEOAEkRAZAJKZnCBPlW+TnONfxRz45yRh5VyCj9wFKpbNZ075
+ qJ5w==
+X-Gm-Message-State: ACgBeo0fwUl5xNnYTLjlX6N+83awp6argPghNmjHMGkVjdmkoM1GzhDj
+ oyDlAPNycBQ9SnIgJ1Di/JA=
+X-Google-Smtp-Source: AA6agR7Sf7jMkQWJC8pRFddCK1n3AQAfX33tUM7mEG1UwFLydd9mx9OM0xpxFKGRfnSN3Z7zQJEDzQ==
+X-Received: by 2002:a17:902:c713:b0:16e:cbe3:29da with SMTP id
+ p19-20020a170902c71300b0016ecbe329damr843978plp.61.1659135990367; 
+ Fri, 29 Jul 2022 16:06:30 -0700 (PDT)
 Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
  by smtp.gmail.com with ESMTPSA id
- 18-20020a621812000000b005251fff13dfsm3410715pfy.155.2022.07.29.16.06.26
+ nl8-20020a17090b384800b001f3e643ebbfsm960410pjb.0.2022.07.29.16.06.29
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 29 Jul 2022 16:06:27 -0700 (PDT)
+ Fri, 29 Jul 2022 16:06:30 -0700 (PDT)
 From: Stafford Horne <shorne@gmail.com>
 To: QEMU Development <qemu-devel@nongnu.org>
-Subject: [PATCH v3 06/11] hw/openrisc: Initialize timer time at startup
-Date: Sat, 30 Jul 2022 08:01:12 +0900
-Message-Id: <20220729230117.3768312-7-shorne@gmail.com>
+Subject: [PATCH v3 07/11] target/openrisc: Add interrupted CPU to log
+Date: Sat, 30 Jul 2022 08:01:13 +0900
+Message-Id: <20220729230117.3768312-8-shorne@gmail.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220729230117.3768312-1-shorne@gmail.com>
 References: <20220729230117.3768312-1-shorne@gmail.com>
@@ -72,75 +73,33 @@ Cc: Openrisc <openrisc@lists.librecores.org>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-The last_clk time was initialized at zero, this means when we calculate
-the first delta we will calculate 0 vs current time which could cause
-unnecessary hops.
+When we are tracing it's helpful to know which CPU's are getting
+interrupted, add that detail to the log line.
 
-This patch moves timer initialization to the cpu reset.  There are two
-resets registered here:
-
- 1. Per cpu timer mask (ttmr) reset.
- 2. Global cpu timer (last_clk and ttcr) reset, attached to the first
-    cpu only.
-
+Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
 Since v2:
- - Moved timer init from init to reset suggested by Richard
+ - Added Reviewed-by
 
- hw/openrisc/cputimer.c | 22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ target/openrisc/interrupt.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/hw/openrisc/cputimer.c b/hw/openrisc/cputimer.c
-index 93268815d8..10163b391b 100644
---- a/hw/openrisc/cputimer.c
-+++ b/hw/openrisc/cputimer.c
-@@ -22,6 +22,7 @@
- #include "cpu.h"
- #include "migration/vmstate.h"
- #include "qemu/timer.h"
-+#include "sysemu/reset.h"
+diff --git a/target/openrisc/interrupt.c b/target/openrisc/interrupt.c
+index e5724f5371..c31c6f12c4 100644
+--- a/target/openrisc/interrupt.c
++++ b/target/openrisc/interrupt.c
+@@ -83,7 +83,9 @@ void openrisc_cpu_do_interrupt(CPUState *cs)
+             [EXCP_TRAP]     = "TRAP",
+         };
  
- #define TIMER_PERIOD 50 /* 50 ns period for 20 MHz timer */
+-        qemu_log_mask(CPU_LOG_INT, "INT: %s\n", int_name[exception]);
++        qemu_log_mask(CPU_LOG_INT, "CPU: %d INT: %s\n",
++                      cs->cpu_index,
++                      int_name[exception]);
  
-@@ -122,6 +123,24 @@ static void openrisc_timer_cb(void *opaque)
-     qemu_cpu_kick(CPU(cpu));
- }
- 
-+/* Reset the per CPU counter state. */
-+static void openrisc_count_reset(void *opaque)
-+{
-+    OpenRISCCPU *cpu = opaque;
-+
-+    if (cpu->env.is_counting) {
-+        cpu_openrisc_count_stop(cpu);
-+    }
-+    cpu->env.ttmr = 0x00000000;
-+}
-+
-+/* Reset the global timer state. */
-+static void openrisc_timer_reset(void *opaque)
-+{
-+    or1k_timer->ttcr = 0x00000000;
-+    or1k_timer->last_clk = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
-+}
-+
- static const VMStateDescription vmstate_or1k_timer = {
-     .name = "or1k_timer",
-     .version_id = 1,
-@@ -136,10 +155,11 @@ static const VMStateDescription vmstate_or1k_timer = {
- void cpu_openrisc_clock_init(OpenRISCCPU *cpu)
- {
-     cpu->env.timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, &openrisc_timer_cb, cpu);
--    cpu->env.ttmr = 0x00000000;
- 
-+    qemu_register_reset(openrisc_count_reset, cpu);
-     if (or1k_timer == NULL) {
-         or1k_timer = g_new0(OR1KTimerState, 1);
-+        qemu_register_reset(openrisc_timer_reset, cpu);
-         vmstate_register(NULL, 0, &vmstate_or1k_timer, or1k_timer);
-     }
- }
+         hwaddr vect_pc = exception << 8;
+         if (env->cpucfgr & CPUCFGR_EVBARP) {
 -- 
 2.37.1
 
