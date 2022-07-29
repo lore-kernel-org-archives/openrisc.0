@@ -2,62 +2,58 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3F52C00144
-	for <openrisc@archiver.kernel.org>; Fri, 29 Jul 2022 07:54:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 701A8C00144
+	for <openrisc@archiver.kernel.org>; Fri, 29 Jul 2022 11:07:55 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 8BB8E248C9;
-	Fri, 29 Jul 2022 09:54:57 +0200 (CEST)
-Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com
- [209.85.215.178])
- by mail.librecores.org (Postfix) with ESMTPS id A197324243
- for <openrisc@lists.librecores.org>; Fri, 29 Jul 2022 09:54:56 +0200 (CEST)
-Received: by mail-pg1-f178.google.com with SMTP id d7so390221pgc.13
- for <openrisc@lists.librecores.org>; Fri, 29 Jul 2022 00:54:56 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 3C8FD24A1A;
+	Fri, 29 Jul 2022 13:07:54 +0200 (CEST)
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com
+ [209.85.216.45])
+ by mail.librecores.org (Postfix) with ESMTPS id 4F6B8242D7
+ for <openrisc@lists.librecores.org>; Fri, 29 Jul 2022 13:07:53 +0200 (CEST)
+Received: by mail-pj1-f45.google.com with SMTP id
+ o5-20020a17090a3d4500b001ef76490983so4943365pjf.2
+ for <openrisc@lists.librecores.org>; Fri, 29 Jul 2022 04:07:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=EpbrqnKtk3kFON9/3PAbidIFZ967vmGDGx5zkRsOP3s=;
- b=I1HX+JufsaIJKogL6+pxskC89VSj9U8lAOwSP4OPH6ZBKqXgpxMKVb/7HkFSfhzUqT
- bKoCqFkLvsq+dXwbKTtZXHlYEzfPuEWsJUzP5sS0S+CiNpWrD9G0AtzoSs/4VZjVrYIr
- UQaWNEZ4GVva9fMzdTMqnEA6b4SciwrCYgt5FMWakgpB3AxM63CtYjtWAcjmdvnM8OTY
- 6ocBXBaljQ1mFM4RrsETvpDgMj2z0s/PyBnI+5BI8j+dPW+RKd/OoYXYgMCQAA0lrXB5
- 1Raerz6bba5mhyRx4lnaiL5jgpJZiDNAhgLhjgM3x1qGwLlaiN/hVOdJJSyzdTNKgpd2
- QGng==
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=Dg0qE236j75IPYm3gyWWoQDxRHaWsFT0nXvPkft/ED8=;
+ b=ilJK0XZe2/X1mmOKGXUe7ww8k5aJC6BxG3gXRHNND8F9mB8+Kjx0cnfWcbP8b4RiAT
+ FkwHtfg+0/u3L2aUSr9sjPsbwa04Ub7LAT02BB151HyxlDC2bL+z68H4SwxIl6U4S17G
+ 1x2LjCsYwmFl56sS3FCrBsK4e7K6iLoWClhOWazEUfls0CnI00erWFu8a9/mFfdU8mG7
+ gPKlckyLVb3daPgBDIJsAM4JCkdPNwbkgaCCW1RhS8AUpXEb69wwnUec+JURsmQrW7ja
+ fNyDQuOGSOezjnw4fkqvgQPnVXxk5mB0+KibcEdJ9pnSMzGsDMHg0ka+hZ1eLo3tSLPH
+ c/KQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=EpbrqnKtk3kFON9/3PAbidIFZ967vmGDGx5zkRsOP3s=;
- b=UeCnt+PmYtTU3NjsmM4IdIRXcae9wD1g7Up85Hy6UVARiDBsKZkWcDUxXLZSnmXCu5
- Bq0fpVY6l5heQ9Bp5mJt3T9LlEmsDX58ufzrjOvNeUZGO7brJM609PhNY/ATvGCGjCIu
- 3ANoT0feN7Clf+Oo/9TW4C0Jol02m7rLwAfZHaeIMRnVMVuAX8LiZu0SV1WB3Z/o1Xnq
- WZ22Tl9R6yrDzRFwZDVLI9mWcNP0nxJBy/DVl4c96O9EVcXKkP9BWT/jq/cZyGBEQwK2
- Qz+Dp/+c2J2FzdKMrlty3cyjmQhpiHpqK6AQ5TvCzhJ97hQYePo/qxHt+iiAwnICPxbS
- tDjQ==
-X-Gm-Message-State: AJIora8LVTMRA0tVqDRdV3421PP+zrwJl3221BU5sj2Wwq8Aet9IAbKk
- vvcSO/PNMhM0PfFAreYpgZs=
-X-Google-Smtp-Source: AGRyM1sWjyhz6qAc2teSfLZClNCOrL9fLPKhtaaMwWEQ+Mrxkqs6+b3EQhDIck94K9ehm7RsmRuFnA==
-X-Received: by 2002:a05:6a00:27a6:b0:52a:e089:e777 with SMTP id
- bd38-20020a056a0027a600b0052ae089e777mr2295265pfb.53.1659081294923; 
- Fri, 29 Jul 2022 00:54:54 -0700 (PDT)
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=Dg0qE236j75IPYm3gyWWoQDxRHaWsFT0nXvPkft/ED8=;
+ b=TUUv0hsPIbvQV9//hz0QbTQn4Mh0gID6AxAg1SlcYEK7Ag6EZm+zUzoW5CX2k1ghpT
+ B2EEHABQRVg7UBhwcHrXw16SEbKHnesNwVkEsaXw6U9iAj545lxrJpawHqzUyQIbEKuP
+ Feyl5ngM/sH/FF1/oLhTozviNyhnSMBmoa85CrTKBBKvRTCq4P3v44X4AbTaXwJicimt
+ aFMaW3676BXG644c5fzEYMs5hzt0mP65w6ljALYGcNrzVs9w1MMNmBsXs5BpVSRtB8eb
+ k6WvoZLKTeai2JcxJURNvAj9mskVC1B2/VuTsXsKkQH2cIw0+0X4N/NE/xDHPGTnsK2I
+ tAuw==
+X-Gm-Message-State: ACgBeo0Y9HrOPfWgytoZ1DY+kpRRLw4hAFlH0Pqpn7xNZDzERKy9kZHG
+ iV7ZiynJJ0rgH1WLUJl0D1Y=
+X-Google-Smtp-Source: AA6agR7K0DVPsqc7kshSFFkVsCLalRuyPMUBZgOkbFEOCB/w9q23UDpCLSXXq6fl+CpHWKhDOs+3nA==
+X-Received: by 2002:a17:903:40c4:b0:16d:d2a9:43ae with SMTP id
+ t4-20020a17090340c400b0016dd2a943aemr2322406pld.57.1659092871617; 
+ Fri, 29 Jul 2022 04:07:51 -0700 (PDT)
 Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
  by smtp.gmail.com with ESMTPSA id
- x26-20020aa79a5a000000b00525521a288dsm2181583pfj.28.2022.07.29.00.54.53
+ d11-20020a17090abf8b00b001efa332d365sm2719340pjs.33.2022.07.29.04.07.50
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 29 Jul 2022 00:54:54 -0700 (PDT)
-Date: Fri, 29 Jul 2022 16:54:52 +0900
+ Fri, 29 Jul 2022 04:07:51 -0700 (PDT)
 From: Stafford Horne <shorne@gmail.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH v3 2/3] openrisc: Add pci bus support
-Message-ID: <YuOSTOAVw6zekvL+@antec>
-References: <20220725020737.1221739-1-shorne@gmail.com>
- <20220725020737.1221739-3-shorne@gmail.com>
- <20220729033728.GA2195022@roeck-us.net> <YuN1PWcDukEPdtQy@antec>
- <ceb732ee-0ea1-b471-0b57-3cc3bcb80a2d@roeck-us.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] openrisc: io: Define iounmap argument as volatile
+Date: Fri, 29 Jul 2022 20:07:25 +0900
+Message-Id: <20220729110726.3635262-1-shorne@gmail.com>
+X-Mailer: git-send-email 2.37.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ceb732ee-0ea1-b471-0b57-3cc3bcb80a2d@roeck-us.net>
+Content-Transfer-Encoding: 8bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -70,96 +66,37 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Jonas Bonn <jonas@southpole.se>, Arnd Bergmann <arnd@arndb.de>,
- Peter Zijlstra <peterz@infradead.org>, LKML <linux-kernel@vger.kernel.org>,
- Palmer Dabbelt <palmer@rivosinc.com>, openrisc@lists.librecores.org,
- Bjorn Helgaas <helgaas@kernel.org>
+Cc: Jonas Bonn <jonas@southpole.se>, openrisc@lists.librecores.org,
+ Guenter Roeck <linux@roeck-us.net>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Thu, Jul 28, 2022 at 11:10:37PM -0700, Guenter Roeck wrote:
-> On 7/28/22 22:50, Stafford Horne wrote:
-> > On Thu, Jul 28, 2022 at 08:37:28PM -0700, Guenter Roeck wrote:
-> > > On Mon, Jul 25, 2022 at 11:07:36AM +0900, Stafford Horne wrote:
-> > > > This patch adds required definitions to allow for PCI buses on OpenRISC.
-> > > > This is being tested on the OpenRISC QEMU virt platform which is in
-> > > > development.
-> > > > 
-> > > > OpenRISC does not have IO ports so we keep the definition of
-> > > > IO_SPACE_LIMIT and PIO_RESERVED to be 0.
-> > > > 
-> > > > Note, since commit 66bcd06099bb ("parport_pc: Also enable driver for PCI
-> > > > systems") all platforms that support PCI also need to support parallel
-> > > > port.  We add a generic header to support compiling parallel port
-> > > > drivers, though they generally will not work as they require IO ports.
-> > > > 
-> > > > Signed-off-by: Stafford Horne <shorne@gmail.com>
-> > > 
-> > > This patch results in
-> > > 
-> > > Building openrisc:allmodconfig ... failed
-> > > --------------
-> > > Error log:
-> > > drivers/video/fbdev/riva/fbdev.c: In function 'rivafb_probe':
-> > > drivers/video/fbdev/riva/fbdev.c:2062:42: error:
-> > > 	passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
-> > > 
-> > > drivers/video/fbdev/nvidia/nvidia.c: In function 'nvidiafb_probe':
-> > > drivers/video/fbdev/nvidia/nvidia.c:1414:20: error:
-> > > 	passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
-> > > 
-> > > drivers/scsi/aic7xxx/aic7xxx_osm.c: In function 'ahc_platform_free':
-> > > drivers/scsi/aic7xxx/aic7xxx_osm.c:1231:41: error:
-> > > 	passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
-> > > 
-> > > ... and so on.
-> > > 
-> > > Prior to this patch, the code was not enabled because it depends on PCI.
-> > 
-> > Hi Guenter,
-> > 
-> > Thanks for reporting this.
-> > 
-> > It's interesting, I don't get this on the openrisc/for-next branch.
-> > 
-> 
-> Hmm, weird. I see it all over the place. Complete log is at
-> https://kerneltests.org/builders/next-openrisc-next/builds/1880/steps/buildcommand/logs/stdio
-> if you are interested.
-> 
-> > BTW, do you turn off WERROR on the allmodconfig config?  I get many warnings
-> > such as the below, but I haven't looked into it much yet:
-> > 
-> 
-> No, I don't. Disabling it would defeat its purpose.
-> 
-> >      fs/exec.c: In function 'shift_arg_pages':
-> >      fs/exec.c:687:27: error: 'tlb' is used uninitialized [-Werror=uninitialized]
-> >        687 |         struct mmu_gather tlb;
-> > 	  |                           ^~~
-> > 
-> 
-> I don't see that in next-20220728. I tried with gcc-11.2 and 11.3.
-> Which compiler do you use ?
+When OpenRISC enables PCI it allows for more drivers to be compiled
+resulting in exposing the following with -Werror.
 
-I am using gcc 12.0.1 with next-20220728.  That might exaplain it, I am doing
-compiler development at the same time so I always end up with the latest and
-greatest warnings.
+    drivers/video/fbdev/riva/fbdev.c: In function 'rivafb_probe':
+    drivers/video/fbdev/riva/fbdev.c:2062:42: error:
+	    passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
 
-$ or1k-linux-gcc -v
-  ..
-  gcc version 12.0.1 20220210 (experimental) (GCC)
+    drivers/video/fbdev/nvidia/nvidia.c: In function 'nvidiafb_probe':
+    drivers/video/fbdev/nvidia/nvidia.c:1414:20: error:
+	    passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
 
-I can see the issue now:
+    drivers/scsi/aic7xxx/aic7xxx_osm.c: In function 'ahc_platform_free':
+    drivers/scsi/aic7xxx/aic7xxx_osm.c:1231:41: error:
+	    passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
 
-    drivers/video/fbdev/riva/fbdev.c:2062:42: warning: passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type [-Wdiscarded-qualifiers]
-     2062 |                 iounmap(default_par->riva.PRAMIN);
-	  |                         ~~~~~~~~~~~~~~~~~^~~~~~~
+Most architectures define the iounmap argument to be volatile.  To fix this
+issue we do the same for OpenRISC.  This patch must go before PCI is enabled on
+OpenRISC to avoid any compile failures.
 
-Just adding volatile does seem to fix this, I will do some more testing and
-create a formal patch.
-
---
+Link: https://lore.kernel.org/lkml/20220729033728.GA2195022@roeck-us.net/
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+ arch/openrisc/include/asm/io.h | 2 +-
+ arch/openrisc/mm/ioremap.c     | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/arch/openrisc/include/asm/io.h b/arch/openrisc/include/asm/io.h
 index 625ac6ad1205..ee6043a03173 100644
@@ -185,6 +122,8 @@ index daae13a76743..8ec0dafecf25 100644
 -void iounmap(void __iomem *addr)
 +void iounmap(volatile void __iomem *addr)
  {
-        /* If the page is from the fixmap pool then we just clear out
-         * the fixmap mapping.
+ 	/* If the page is from the fixmap pool then we just clear out
+ 	 * the fixmap mapping.
+-- 
+2.37.1
 
