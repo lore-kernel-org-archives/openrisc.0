@@ -2,60 +2,62 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6684CC00140
-	for <openrisc@archiver.kernel.org>; Fri, 29 Jul 2022 03:37:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0602BC19F2B
+	for <openrisc@archiver.kernel.org>; Fri, 29 Jul 2022 05:51:00 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 1D2D8211B0;
-	Fri, 29 Jul 2022 05:37:34 +0200 (CEST)
-Received: from mail-oi1-f179.google.com (mail-oi1-f179.google.com
- [209.85.167.179])
- by mail.librecores.org (Postfix) with ESMTPS id EECA124928
- for <openrisc@lists.librecores.org>; Fri, 29 Jul 2022 05:37:32 +0200 (CEST)
-Received: by mail-oi1-f179.google.com with SMTP id s204so4589082oif.5
- for <openrisc@lists.librecores.org>; Thu, 28 Jul 2022 20:37:32 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id B73C120FF5;
+	Fri, 29 Jul 2022 07:50:59 +0200 (CEST)
+Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com
+ [209.85.216.46])
+ by mail.librecores.org (Postfix) with ESMTPS id 634C8242D7
+ for <openrisc@lists.librecores.org>; Fri, 29 Jul 2022 07:50:57 +0200 (CEST)
+Received: by mail-pj1-f46.google.com with SMTP id
+ w63-20020a17090a6bc500b001f3160a6011so5498467pjj.5
+ for <openrisc@lists.librecores.org>; Thu, 28 Jul 2022 22:50:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=sender:date:from:to:cc:subject:message-id:references:mime-version
+ h=date:from:to:cc:subject:message-id:references:mime-version
  :content-disposition:in-reply-to;
- bh=jVbZ9bmsOHazMdxh0GDBgdwGjsfWr7pMUJNONrNaL9s=;
- b=Aj0rVguqvsuZZ0t8pNqTKyCYkhPLraEXCjqKSqKsCd33Sp63cwyRHrEgurLEQru+A/
- KR2SQWOaz2u/oDoYdltfXGP3Z8KCcFUvI5euVUjBENEVPg8YDEf0116AW1R/VwvzZ8JA
- OyD/KkHdT4re5j9I3JO69aubXGTsC8uKnotHnI6M52pbMAvgzMXILDiLK1jisFXNMEN4
- Vr5zzrWuLbvIVqhh0sxxeGij/zA3zGpYjDMsTFWwuza/iVNQ5G46JBSCUMmanxVL5hX1
- 4qLFiTKWeduwuHZz7BuYcIkZ5JvjbJStA07Z2zbnxnAIKBpml/GPl5ljPD8reotV8Hme
- wlrQ==
+ bh=hooXzavq61OdyVwoEg3NJ7Ka9aB9gcxnUcMNvrkkRcI=;
+ b=iMgD4NGv+2uIl/fjBfL2BN4KrO0PvbxewwctglR5ywpPU1nqsajLaHJpNmCJ1EMPqw
+ iINEDLWgJJAX9HhGMOyRQZLHpLMCZk8p0MUgRS/QVVWyykG9ubjZI5LICP1B17yp0ie8
+ HB9XPkOySDkJ+tFA6qqGaMvC2PS2SS2TUm5npGVO7PpQXD8NLyTcqyi1N9YxsjE9Q/6y
+ Na84lACy3H1pQJj9yqcsVYuIR9OEHo7/mERPRdOQ56Bp6xSijnPqo9DxQ4NcWstvup16
+ c0aBlTa3NGg6her7sVQI+m7j4uBcp6IPMndixEUrPda5OMr0dbRjXpD5fsFSwg9BFzuh
+ Wv8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
- :references:mime-version:content-disposition:in-reply-to;
- bh=jVbZ9bmsOHazMdxh0GDBgdwGjsfWr7pMUJNONrNaL9s=;
- b=0IWu+9cBfksJRxwpSh2fCgwsxQoSMih+7c5vGL6/53cf/2cqcCGNkiAGGWG52972ae
- AiEuHIZBPG/ysPqEpEcjFixx+uSUE4urZapxIhBm5bBbjp62INUA3KJ/enc5VO5JaEA9
- ebP8wwlmrEdy5EJHxS7sdoANBjM03g8ZLj6r+7h74l/l8hFYYB9H0dn2NdmXZtSfXR+E
- yMhEE+U0IIWeEqb5EnEmTwaPCaU4GoemGSSJN/py7OIf5E7aoieXyQdYaGAR4bV1FZ6H
- ZDPgP56GyrM6XSbSg0ZJRadrd6KBLuh5ndxIK1WbBg/ZRY0KdCa88PxKLTgNhQn6kk1T
- n7+A==
-X-Gm-Message-State: AJIora/aO8vHcEHlbmcC+KwIwmhfXU6aHrS+zPQmdk2wbTW+UG46P7MY
- vjd1cSjw7P3aJ9B41/EYdSw=
-X-Google-Smtp-Source: AGRyM1stmIDzT8euWFlVJw0SMcjwdX8Fvl215sWpa689RARkkMlG+uqN0oPR18jPdyDGOk0RgnyNrQ==
-X-Received: by 2002:a54:4086:0:b0:33a:6fc9:1f8c with SMTP id
- i6-20020a544086000000b0033a6fc91f8cmr789379oii.71.1659065851695; 
- Thu, 28 Jul 2022 20:37:31 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=hooXzavq61OdyVwoEg3NJ7Ka9aB9gcxnUcMNvrkkRcI=;
+ b=Er34aULGhnpI6LN5zyhPsc5B8yO6MDEK2dxN725LE8kVMy3qnGDzuN6zIaQggAFTrj
+ 8O6orNNxunf+ApSRa4RTEUCn5/l3VOjTJR1drXj/xUugJbQdvzD2SrVAJg4UD4OJzmBM
+ YBwLyi2xh42ThEmUYgNAsVShqSYg4L3YvRBPFl1hsuHPbebWVfpCGU0BzVEcp4ocr5xO
+ rkw0vPyY3kVI7vil61I5U/KWygSLmASJ7MaBBz/IsY6dx3BwGFd1O4xQh+GmWMXsyCq6
+ P1kcn9Hujd9PIHEn1DBN2l7pkzuFcOOQdC7ZeKnupYcBF/GPTTx7MWcqkh7VkwE1JrJQ
+ S0lQ==
+X-Gm-Message-State: ACgBeo1HKD1F7z54IoOrKdGdU1DGv9OWNTbMZU52rhgpJJwBgelThlV4
+ WjazSMycli8BTAVwJ4GTkb0=
+X-Google-Smtp-Source: AA6agR7GcbuMOAjWweWH8vNuHQGGnZ6wC0D9a0qyNyE89WFYthYxlpKly4dFc2cbaFH5+NglJmAr+w==
+X-Received: by 2002:a17:902:eac2:b0:16d:cce2:e5c6 with SMTP id
+ p2-20020a170902eac200b0016dcce2e5c6mr2230262pld.149.1659073855479; 
+ Thu, 28 Jul 2022 22:50:55 -0700 (PDT)
+Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
  by smtp.gmail.com with ESMTPSA id
- a40-20020a056870d62800b0010e00d6a1c0sm1196320oaq.51.2022.07.28.20.37.30
+ o6-20020a625a06000000b005259578e8fcsm1800443pfb.181.2022.07.28.22.50.54
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 28 Jul 2022 20:37:30 -0700 (PDT)
-Date: Thu, 28 Jul 2022 20:37:28 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Stafford Horne <shorne@gmail.com>
+ Thu, 28 Jul 2022 22:50:55 -0700 (PDT)
+Date: Fri, 29 Jul 2022 14:50:53 +0900
+From: Stafford Horne <shorne@gmail.com>
+To: Guenter Roeck <linux@roeck-us.net>
 Subject: Re: [PATCH v3 2/3] openrisc: Add pci bus support
-Message-ID: <20220729033728.GA2195022@roeck-us.net>
+Message-ID: <YuN1PWcDukEPdtQy@antec>
 References: <20220725020737.1221739-1-shorne@gmail.com>
  <20220725020737.1221739-3-shorne@gmail.com>
+ <20220729033728.GA2195022@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220725020737.1221739-3-shorne@gmail.com>
+In-Reply-To: <20220729033728.GA2195022@roeck-us.net>
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -75,76 +77,58 @@ Cc: Jonas Bonn <jonas@southpole.se>, Arnd Bergmann <arnd@arndb.de>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Mon, Jul 25, 2022 at 11:07:36AM +0900, Stafford Horne wrote:
-> This patch adds required definitions to allow for PCI buses on OpenRISC.
-> This is being tested on the OpenRISC QEMU virt platform which is in
-> development.
+On Thu, Jul 28, 2022 at 08:37:28PM -0700, Guenter Roeck wrote:
+> On Mon, Jul 25, 2022 at 11:07:36AM +0900, Stafford Horne wrote:
+> > This patch adds required definitions to allow for PCI buses on OpenRISC.
+> > This is being tested on the OpenRISC QEMU virt platform which is in
+> > development.
+> > 
+> > OpenRISC does not have IO ports so we keep the definition of
+> > IO_SPACE_LIMIT and PIO_RESERVED to be 0.
+> > 
+> > Note, since commit 66bcd06099bb ("parport_pc: Also enable driver for PCI
+> > systems") all platforms that support PCI also need to support parallel
+> > port.  We add a generic header to support compiling parallel port
+> > drivers, though they generally will not work as they require IO ports.
+> > 
+> > Signed-off-by: Stafford Horne <shorne@gmail.com>
 > 
-> OpenRISC does not have IO ports so we keep the definition of
-> IO_SPACE_LIMIT and PIO_RESERVED to be 0.
+> This patch results in
 > 
-> Note, since commit 66bcd06099bb ("parport_pc: Also enable driver for PCI
-> systems") all platforms that support PCI also need to support parallel
-> port.  We add a generic header to support compiling parallel port
-> drivers, though they generally will not work as they require IO ports.
+> Building openrisc:allmodconfig ... failed
+> --------------
+> Error log:
+> drivers/video/fbdev/riva/fbdev.c: In function 'rivafb_probe':
+> drivers/video/fbdev/riva/fbdev.c:2062:42: error:
+> 	passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
 > 
-> Signed-off-by: Stafford Horne <shorne@gmail.com>
+> drivers/video/fbdev/nvidia/nvidia.c: In function 'nvidiafb_probe':
+> drivers/video/fbdev/nvidia/nvidia.c:1414:20: error:
+> 	passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
+> 
+> drivers/scsi/aic7xxx/aic7xxx_osm.c: In function 'ahc_platform_free':
+> drivers/scsi/aic7xxx/aic7xxx_osm.c:1231:41: error:
+> 	passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
+> 
+> ... and so on.
+> 
+> Prior to this patch, the code was not enabled because it depends on PCI.
 
-This patch results in
+Hi Guenter,
 
-Building openrisc:allmodconfig ... failed
---------------
-Error log:
-drivers/video/fbdev/riva/fbdev.c: In function 'rivafb_probe':
-drivers/video/fbdev/riva/fbdev.c:2062:42: error:
-	passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
+Thanks for reporting this.
 
-drivers/video/fbdev/nvidia/nvidia.c: In function 'nvidiafb_probe':
-drivers/video/fbdev/nvidia/nvidia.c:1414:20: error:
-	passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
+It's interesting, I don't get this on the openrisc/for-next branch.
 
-drivers/scsi/aic7xxx/aic7xxx_osm.c: In function 'ahc_platform_free':
-drivers/scsi/aic7xxx/aic7xxx_osm.c:1231:41: error:
-	passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
+BTW, do you turn off WERROR on the allmodconfig config?  I get many warnings
+such as the below, but I haven't looked into it much yet:
 
-... and so on.
+    fs/exec.c: In function 'shift_arg_pages':
+    fs/exec.c:687:27: error: 'tlb' is used uninitialized [-Werror=uninitialized]
+      687 |         struct mmu_gather tlb;
+	  |                           ^~~
 
-Prior to this patch, the code was not enabled because it depends on PCI.
+I will try to see what is going on in linux-next.
 
-Bisect log attached.
+-Stafford
 
-Guenter
-
----
-# bad: [7c5e07b73ff3011c9b82d4a3286a3362b951ad2b] Add linux-next specific files for 20220728
-# good: [e0dccc3b76fb35bb257b4118367a883073d7390e] Linux 5.19-rc8
-git bisect start 'HEAD' 'v5.19-rc8'
-# bad: [96bce6a87ad9690eaa9b1ca9ace7c98444d7869f] Revert "Revert "drm/amdgpu: add drm buddy support to amdgpu""
-git bisect bad 96bce6a87ad9690eaa9b1ca9ace7c98444d7869f
-# bad: [08765bd733f4662c2ad80e813c933758b3c1dddc] Merge branch 'next' of git://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci.git
-git bisect bad 08765bd733f4662c2ad80e813c933758b3c1dddc
-# good: [d40269b953fd9abba9aadaa57c6486990ab806d1] Merge branch 'for-next' of git://git.kernel.org/pub/scm/linux/kernel/git/soc/soc.git
-git bisect good d40269b953fd9abba9aadaa57c6486990ab806d1
-# bad: [3d810ed5c60843645c6a40cc5ebd66e399c94165] Merge branch 'for-next' of git://git.kernel.org/pub/scm/linux/kernel/git/brauner/linux.git
-git bisect bad 3d810ed5c60843645c6a40cc5ebd66e399c94165
-# good: [046537a939b089589a1a6e70df16b10a8f0c8ca8] Merge branch 'clk-next' of git://git.kernel.org/pub/scm/linux/kernel/git/clk/linux.git
-git bisect good 046537a939b089589a1a6e70df16b10a8f0c8ca8
-# good: [d6b551b8f90cc92c7d3c09cf38c748efe305ecb4] powerpc/64e: Fix build failure with GCC 12 (unrecognized opcode: `wrteei')
-git bisect good d6b551b8f90cc92c7d3c09cf38c748efe305ecb4
-# bad: [e30727fee2a25176c4558f49a102524eba973d49] Merge branch 'for-next' of git://git.kernel.org/pub/scm/linux/kernel/git/riscv/linux.git
-git bisect bad e30727fee2a25176c4558f49a102524eba973d49
-# bad: [36c4dbb3e78602ee750e12c85fadb3da4392eeac] Merge branch 'for-next' of git://github.com/openrisc/linux.git
-git bisect bad 36c4dbb3e78602ee750e12c85fadb3da4392eeac
-# good: [9db5e69af1f4de043ae962a908fc7ef1a40f7f51] Merge branch 'for-next' of git://git.kernel.org/pub/scm/linux/kernel/git/gerg/m68knommu.git
-git bisect good 9db5e69af1f4de043ae962a908fc7ef1a40f7f51
-# good: [62fb295ce7dd9df3e04b48a943f8cafaf1f32980] MIPS: dts: align gpio-key node names with dtschema
-git bisect good 62fb295ce7dd9df3e04b48a943f8cafaf1f32980
-# bad: [2479c96f5d3db2610a6d463077dd3dad087529fb] openrisc: Add virt defconfig
-git bisect bad 2479c96f5d3db2610a6d463077dd3dad087529fb
-# good: [a2912b45b0826c6fc0ca9b264d03a2dacb7a72e8] asm-generic: Add new pci.h and use it
-git bisect good a2912b45b0826c6fc0ca9b264d03a2dacb7a72e8
-# good: [3e2a6fbbbf34d230b9063f1ca885d5d625a0404c] asm-generic: Support NO_IOPORT_MAP in pci_iomap.h
-git bisect good 3e2a6fbbbf34d230b9063f1ca885d5d625a0404c
-# bad: [48ef4b584af7ba4ecdf2dd58b641fb8d0a9d0c63] openrisc: Add pci bus support
-git bisect bad 48ef4b584af7ba4ecdf2dd58b641fb8d0a9d0c63
-# first bad commit: [48ef4b584af7ba4ecdf2dd58b641fb8d0a9d0c63] openrisc: Add pci bus support
