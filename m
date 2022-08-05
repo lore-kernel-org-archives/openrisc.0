@@ -2,62 +2,56 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94246C00144
-	for <openrisc@archiver.kernel.org>; Tue,  2 Aug 2022 02:03:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B807C00140
+	for <openrisc@archiver.kernel.org>; Fri,  5 Aug 2022 20:30:11 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 609E7242D7;
-	Tue,  2 Aug 2022 04:03:32 +0200 (CEST)
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com
- [209.85.216.46])
- by mail.librecores.org (Postfix) with ESMTPS id 9E51B2017F
- for <openrisc@lists.librecores.org>; Tue,  2 Aug 2022 04:03:31 +0200 (CEST)
-Received: by mail-pj1-f46.google.com with SMTP id
- 15-20020a17090a098f00b001f305b453feso17062162pjo.1
- for <openrisc@lists.librecores.org>; Mon, 01 Aug 2022 19:03:31 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 38B8B24A1B;
+	Fri,  5 Aug 2022 22:30:10 +0200 (CEST)
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com
+ [209.85.216.53])
+ by mail.librecores.org (Postfix) with ESMTPS id A34A4249BB
+ for <openrisc@lists.librecores.org>; Fri,  5 Aug 2022 22:30:08 +0200 (CEST)
+Received: by mail-pj1-f53.google.com with SMTP id
+ o5-20020a17090a3d4500b001ef76490983so3923783pjf.2
+ for <openrisc@lists.librecores.org>; Fri, 05 Aug 2022 13:30:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=S6QeTRZehyEeuAg/fZYmmGDgW/s70yIYqa35AH9HThM=;
- b=LZ/GPEiAxTFF3lZ4yiMhFNn3dWOaAQVRpHLwi8H+4mBoTm0Fq9phnVdfPxw9hdatH8
- 0QHrhXusc9QBV7XfuQOtLwxQsh1AlMAE9JB592MU/sFih2GMKBiQKgyc4TNerCkR293u
- HN7wpkkYNBQMNLSQylWy4GcH5134Rlyc5ZPF6fSUImUFZ+ATJI2psN8UVDSKbNWAtdn/
- fk22EOmUYID11oi6YzG8XkZ8bMSykkLY0BmJKo0q1xixLo1SXnJ7koOSkfCA8UQHhkqR
- x9zkwSlO4RRCnEwsVeqHZbcCBTuXmHfr2CUnlXZL2yAu/0MrkiqJzHWbcO2ufDyFTEBs
- 6TgQ==
+ h=date:from:to:cc:subject:message-id:mime-version:content-disposition;
+ bh=8shiq3ExegNMJKwy0qXw4HrKImMBLrJX5WjP8qCxZoQ=;
+ b=A+AjsT5HxnNkB8Q7xyJ2l9prw3L3QSOYq+ERHA46rfe63EW6v6Nyw6FjLX0fj/pHzm
+ rGWQ/SuyFLdO6vFeIEFOGgkJxp4vEG1qzy8oWWSQ8wTl4UFoVhaQc+84Ns3tv2oc8bTD
+ ijU67z6Xy5UFIGcQiobSngm1F3820DIERB3f9Pgsd5f35+Mljilm8Og5svMNQtR8Wcgq
+ 5WFgq8j0OPrZXEqjpSERhM1bsCbtjv11vCLgFc/6DrhfPOtfghZAtCL180gqaR/hsCE3
+ 8It+1ZG2TCZRalYvf94QH0a14Cru95peGmACUIqAY3srIyyjzoRyWOOovs2h6C+xeoTY
+ WEJw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=S6QeTRZehyEeuAg/fZYmmGDgW/s70yIYqa35AH9HThM=;
- b=3jkTB/9Inoi4vLKeaBXlgudxyOsd3T0Dv5Wk1xK51ioh70I6r/niyXnOfy3KYEE+I1
- nnqQEvWCHkOl2n6a77MSFAl30MO1Imv7lidGICns3KxCVDwTUIIIYA9kD0SddnLEZKT/
- UfQ/H2X1FwXFJlaZl3bOlgNdMEd/6ttg201w2G81n3ccZch8mdPEAiu3XuqiyJ9VMPqD
- oyZkzF5xyhxhnl3lPpaBypU8Ll0/2D7ZCS0JPFLav2cNj70SP5e22o6d0Ujy4TXvzYGn
- J30yslcbsgrjZSQVStMa5HwI0/r52Wbdnv610mKUHrbJYZsKtPko0pDnaqGwdlbgzUyB
- aUrQ==
-X-Gm-Message-State: ACgBeo3/e/hM9mbW5LoZ5CyQagnafnQZbHb66QK5P9YK74vnWob8GKJG
- CCSrB2/Wjub/1HqgumluCsA=
-X-Google-Smtp-Source: AA6agR4hKXmC9zPng5blHURtDKm6nbt8DtLJgHqx23XODiB/Bcou5E7jPaXn99X48HMQ+5623oiEMg==
-X-Received: by 2002:a17:90a:8a8d:b0:1f3:155:3324 with SMTP id
- x13-20020a17090a8a8d00b001f301553324mr21376254pjn.89.1659405809883; 
- Mon, 01 Aug 2022 19:03:29 -0700 (PDT)
-Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
- by smtp.gmail.com with ESMTPSA id
- u2-20020a170902e5c200b0016dbb5bbeebsm1931089plf.228.2022.08.01.19.03.28
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+ :content-disposition;
+ bh=8shiq3ExegNMJKwy0qXw4HrKImMBLrJX5WjP8qCxZoQ=;
+ b=tCD4k8o4kX1Fzluxb8x7jKnZG3y2us/wxraI/JmSWh5Vy8lyBkH/oXULkCAfWyfSch
+ MdStZYjPRuWGRvkdx5oUELb+yhlJAh5E6v7DpZzLrKQFb+1tMMZpWZthwk08HY023Vvr
+ PULeoOXHh9voMZWwu+M69jl1lak66uudm7bDWAtwkiyXaKC9zpgaWnaYffrc7TUJrJcg
+ IjUpKRXsG6fgDEZLc8WGV5If8g6WOOkD6JjupFei4N6udcJIfhQT724TyycWlCylQqDs
+ 8j6WWyV3zh+MZ2dvxStXFOGtdu4hXbEXbrAgeiaenwDFUE/K3sGqE8UePxIHbkeuEYN7
+ rM3A==
+X-Gm-Message-State: ACgBeo3lqdjQqNSniTZ9JCxDSzqHMgJb1pw8ohvb+lGSyNOk0lB+vhYs
+ zJeQDOmfeKaboxRP8Lguh1g=
+X-Google-Smtp-Source: AA6agR7fLbI82TXjaKf5dCIm3W3ikIcL9njw1IikMRoYURZ5NitU7R45eTsoXDwOtcVDAc45LtAUrg==
+X-Received: by 2002:a17:902:f54b:b0:16e:f07b:46d0 with SMTP id
+ h11-20020a170902f54b00b0016ef07b46d0mr8426975plf.77.1659731406810; 
+ Fri, 05 Aug 2022 13:30:06 -0700 (PDT)
+Received: from localhost ([182.171.77.115]) by smtp.gmail.com with ESMTPSA id
+ x10-20020aa79aca000000b0052e6d5ee183sm3380241pfp.129.2022.08.05.13.30.05
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 01 Aug 2022 19:03:29 -0700 (PDT)
-Date: Tue, 2 Aug 2022 11:03:27 +0900
+ Fri, 05 Aug 2022 13:30:06 -0700 (PDT)
+Date: Sat, 6 Aug 2022 05:30:04 +0900
 From: Stafford Horne <shorne@gmail.com>
-To: Richard Henderson <richard.henderson@linaro.org>
-Subject: Re: [PATCH v3 08/11] target/openrisc: Enable MTTCG
-Message-ID: <YuiF7wkIB+pREEy7@antec>
-References: <20220729230117.3768312-1-shorne@gmail.com>
- <20220729230117.3768312-9-shorne@gmail.com>
- <a12ba704-b29c-a521-c664-7838c058ebf5@linaro.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [GIT PULL] OpenRISC fixes/updates for v6.0-rc1
+Message-ID: <Yu19zEVnjSkH8nO2@antec>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <a12ba704-b29c-a521-c664-7838c058ebf5@linaro.org>
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -71,33 +65,55 @@ List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
 Cc: Openrisc <openrisc@lists.librecores.org>,
- QEMU Development <qemu-devel@nongnu.org>
+ LKML <linux-kernel@vger.kernel.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Fri, Jul 29, 2022 at 04:42:54PM -0700, Richard Henderson wrote:
-> On 7/29/22 16:01, Stafford Horne wrote:
-> > This patch enables multithread TCG for OpenRISC.  Since the or1k shared
-> > syncrhonized timer can be updated from each vCPU via helpers we use a
-> > mutex to synchronize updates.
-> > 
-> > Signed-off-by: Stafford Horne<shorne@gmail.com>
-> > ---
-> > Since v2:
-> >   - Removed cpu_openrisc_timer_has_advanced lock optimization, measuring revealed
-> >     it did not help much.
-> > 
-> >   configs/targets/or1k-softmmu.mak | 1 +
-> >   target/openrisc/cpu.h            | 2 ++
-> >   target/openrisc/sys_helper.c     | 7 ++++++-
-> >   3 files changed, 9 insertions(+), 1 deletion(-)
-> 
-> Reviewed-by: Richard Henderson <richard.henderson@linaro.org>
+Hello Linus,
 
-Thank you,
+Please consider for pull,
 
-I guess this whole series is a bit late for 7.1.0 now.
+The following changes since commit 0757060a438835df82bd8aec40d4abc7dc4c9584:
 
-I will post the PR after 7.1.0 is released and target it for 7.2.0.
+  Merge branch 'pci/header-cleanup-immutable' of git://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci.git (2022-07-30 05:47:13 +0900)
 
--Stafford
+are available in the Git repository at:
+
+  git@github.com:openrisc/linux.git tags/for-linus
+
+for you to fetch changes up to 52e0ea900202d23843daee8f7089817e81dd3dd7:
+
+  openrisc: io: Define iounmap argument as volatile (2022-07-30 05:50:15 +0900)
+
+----------------------------------------------------------------
+OpenRISC fixes for 5.20-rc1/6.0
+
+In this cycle we add PCI support to OpenRISC used in our new QEMU virt
+platform.  The base of this series is a merge of Bjorn's PCI headers
+cleanup branch and 5.16-rc6.  The patches from the PCI branch are needed
+for the series to work.
+
+The main updates from me include:
+ - Kconfig updates to support OpenRISC PCI (just config now after the
+   PCI cleanups I did on Bjorn's branch)
+ - A new defconfig for the qemu virt platform.
+ - Also there is one MAINTAINERS update.  As I was working on the PCI
+   series we kept getting bounces from Richard's old email address. I
+   added this here; I am not sure how these are usually handled when
+   the maintainer doesn't queue it themselves.
+
+----------------------------------------------------------------
+Stafford Horne (4):
+      openrisc: Add pci bus support
+      openrisc: Add virt defconfig
+      MAINTAINERS: Update Richard Henderson's address
+      openrisc: io: Define iounmap argument as volatile
+
+ MAINTAINERS                          |   2 +-
+ arch/openrisc/Kconfig                |   5 +-
+ arch/openrisc/configs/virt_defconfig | 108 +++++++++++++++++++++++++++++++++++
+ arch/openrisc/include/asm/Kbuild     |   1 +
+ arch/openrisc/include/asm/io.h       |   4 +-
+ arch/openrisc/mm/ioremap.c           |   2 +-
+ 6 files changed, 117 insertions(+), 5 deletions(-)
+ create mode 100644 arch/openrisc/configs/virt_defconfig
