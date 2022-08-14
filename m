@@ -2,49 +2,45 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83FFFC00140
-	for <openrisc@archiver.kernel.org>; Fri,  5 Aug 2022 21:25:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B044EC25B06
+	for <openrisc@archiver.kernel.org>; Sun, 14 Aug 2022 15:30:16 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 502EA249B9;
-	Fri,  5 Aug 2022 23:25:35 +0200 (CEST)
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by mail.librecores.org (Postfix) with ESMTPS id 7676B249B9
- for <openrisc@lists.librecores.org>; Fri,  5 Aug 2022 23:25:33 +0200 (CEST)
+	by mail.librecores.org (Postfix) with ESMTP id 6F56520AC2;
+	Sun, 14 Aug 2022 17:30:15 +0200 (CEST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+ by mail.librecores.org (Postfix) with ESMTPS id 4159B24A94
+ for <openrisc@lists.librecores.org>; Sun, 14 Aug 2022 17:30:13 +0200 (CEST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id 895BFB80D83;
- Fri,  5 Aug 2022 21:25:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 39FE0C433D6;
- Fri,  5 Aug 2022 21:25:31 +0000 (UTC)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id D36FD60C0B;
+ Sun, 14 Aug 2022 15:30:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D422AC433D7;
+ Sun, 14 Aug 2022 15:30:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1659734731;
- bh=7GfYWcT6+l89XVda1+TcRuG0YqV1wtvlmyc1VeLGRmw=;
- h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
- b=fYX4wpaSjGV8hXlnrjzjU4SJSHdmJa3OEbHVXkQ5S6RvsNFyU5VRCLZdwgG73HYrh
- VXosQi0TmgWUGHIcv8lzUNubPMX4Zff6rkQReNtNrTylWOCpj3X3KgL1kkUy+ejBNK
- yxr7eDfM7f1c7itMzw7Eu1xAL0aZ9ERgXU9IM2I1r+P+Ggb/kyy/LYfjKhuxRoCWb5
- BNiG4XOc4XSO2x1zHFxbQrn8m/NyhBdkoGnruStqZvtz8FU7mkVFtH++wGQKg7JQnJ
- Mu1zpQ9rYqcpJlkbQfLU2OvY/TKk4j+WiBK96QjqeakUpQJE2H7s/Ti6/T4c0M6hWw
- vIJfrcMtAEZkA==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org
- (localhost.localdomain [127.0.0.1])
- by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id
- 29FC0C43142; Fri,  5 Aug 2022 21:25:31 +0000 (UTC)
-Subject: Re: [GIT PULL] OpenRISC fixes/updates for v6.0-rc1
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <Yu19zEVnjSkH8nO2@antec>
-References: <Yu19zEVnjSkH8nO2@antec>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <Yu19zEVnjSkH8nO2@antec>
-X-PR-Tracked-Remote: git@github.com:openrisc/linux.git tags/for-linus
-X-PR-Tracked-Commit-Id: 52e0ea900202d23843daee8f7089817e81dd3dd7
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 4d5398a3ec060c1e3094097e52a19a4d0013c0e0
-Message-Id: <165973473116.8747.13652673284909489427.pr-tracker-bot@kernel.org>
-Date: Fri, 05 Aug 2022 21:25:31 +0000
-To: Stafford Horne <shorne@gmail.com>
+ s=k20201202; t=1660491011;
+ bh=TmwB1yyIO7hlQxEEZ3YP1Hse/khGDr1TusJ9UJG8jgQ=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=AClHnpxETW7doCkoaOlshndODXSaqAYcC+SEfS04/CNg2VebkbcVYTmEpB6bQtJFR
+ RpCxs/2iZ6WuUU/pk2lZXda+35I/JyEbixMKNT9Adt6OnT0XffNC0pldXzeg1q0wgm
+ BDkRQAIwa8pphD5aCFcizf4UeFwnyq3Yhhc2b0aoA75H9Oj8lbtivx2y3KHScavWZr
+ N8d8FF6oNZ8Yw/WApEoJC5jJQsKUSL6OdN3r7OmuRBKaG0fA7BgubSSn1YAdel3XUN
+ L712S0tJE0y8pRchU35NX+797xnaeeNtBC6fpzXyk4NzTf6hCDzTxA1C/Jyc0KoiOG
+ sLHBcO53/LrLQ==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 56/64] openrisc: io: Define iounmap argument as
+ volatile
+Date: Sun, 14 Aug 2022 11:24:29 -0400
+Message-Id: <20220814152437.2374207-56-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220814152437.2374207-1-sashal@kernel.org>
+References: <20220814152437.2374207-1-sashal@kernel.org>
+MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -57,21 +53,70 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Openrisc <openrisc@lists.librecores.org>,
- Linus Torvalds <torvalds@linux-foundation.org>,
- LKML <linux-kernel@vger.kernel.org>
+Cc: Sasha Levin <sashal@kernel.org>, jonas@southpole.se,
+ openrisc@lists.librecores.org, Guenter Roeck <linux@roeck-us.net>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-The pull request you sent on Sat, 6 Aug 2022 05:30:04 +0900:
+From: Stafford Horne <shorne@gmail.com>
 
-> git@github.com:openrisc/linux.git tags/for-linus
+[ Upstream commit 52e0ea900202d23843daee8f7089817e81dd3dd7 ]
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/4d5398a3ec060c1e3094097e52a19a4d0013c0e0
+When OpenRISC enables PCI it allows for more drivers to be compiled
+resulting in exposing the following with -Werror.
 
-Thank you!
+    drivers/video/fbdev/riva/fbdev.c: In function 'rivafb_probe':
+    drivers/video/fbdev/riva/fbdev.c:2062:42: error:
+	    passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
 
+    drivers/video/fbdev/nvidia/nvidia.c: In function 'nvidiafb_probe':
+    drivers/video/fbdev/nvidia/nvidia.c:1414:20: error:
+	    passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
+
+    drivers/scsi/aic7xxx/aic7xxx_osm.c: In function 'ahc_platform_free':
+    drivers/scsi/aic7xxx/aic7xxx_osm.c:1231:41: error:
+	    passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
+
+Most architectures define the iounmap argument to be volatile.  To fix this
+issue we do the same for OpenRISC.  This patch must go before PCI is enabled on
+OpenRISC to avoid any compile failures.
+
+Link: https://lore.kernel.org/lkml/20220729033728.GA2195022@roeck-us.net/
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/openrisc/include/asm/io.h | 2 +-
+ arch/openrisc/mm/ioremap.c     | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/openrisc/include/asm/io.h b/arch/openrisc/include/asm/io.h
+index c298061c70a7..8aa3e78181e9 100644
+--- a/arch/openrisc/include/asm/io.h
++++ b/arch/openrisc/include/asm/io.h
+@@ -31,7 +31,7 @@
+ void __iomem *ioremap(phys_addr_t offset, unsigned long size);
+ 
+ #define iounmap iounmap
+-extern void iounmap(void __iomem *addr);
++extern void iounmap(volatile void __iomem *addr);
+ 
+ #include <asm-generic/io.h>
+ 
+diff --git a/arch/openrisc/mm/ioremap.c b/arch/openrisc/mm/ioremap.c
+index daae13a76743..8ec0dafecf25 100644
+--- a/arch/openrisc/mm/ioremap.c
++++ b/arch/openrisc/mm/ioremap.c
+@@ -77,7 +77,7 @@ void __iomem *__ref ioremap(phys_addr_t addr, unsigned long size)
+ }
+ EXPORT_SYMBOL(ioremap);
+ 
+-void iounmap(void __iomem *addr)
++void iounmap(volatile void __iomem *addr)
+ {
+ 	/* If the page is from the fixmap pool then we just clear out
+ 	 * the fixmap mapping.
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.35.1
+
