@@ -2,51 +2,176 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D244C32789
-	for <openrisc@archiver.kernel.org>; Sat, 20 Aug 2022 00:32:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BCD3C00140
+	for <openrisc@archiver.kernel.org>; Sun, 21 Aug 2022 04:27:54 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id F0E0F24A8A;
-	Sat, 20 Aug 2022 02:32:17 +0200 (CEST)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by mail.librecores.org (Postfix) with ESMTP id CB53D24A57
- for <openrisc@lists.librecores.org>; Sat, 20 Aug 2022 02:32:15 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1660955534;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=GbVQC9n5EHI3Q19oreTxvS1jwCRKlt1Xm2HiNn8Pbvw=;
- b=gRdIjJk3HfsYgTm6HbPim+ZM0hvHn7l77xQdorZgcQKTMaY4Hj61wxYsL6toJBIBH+Vzs1
- m5+OeIjg29XE2lsVr8854tFfTfZpABiEYB1Ik/GKvZ4KP5oV6N9oUAtinMb6JqLKTjBqqi
- HZ7wCxSRpp+Zpjhr5BGUONkvD+VWSCM=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-79-JXbmH_XLOMqZeo5PESKY-Q-1; Fri, 19 Aug 2022 20:32:10 -0400
-X-MC-Unique: JXbmH_XLOMqZeo5PESKY-Q-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com
- [10.11.54.2])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 848C980231E;
- Sat, 20 Aug 2022 00:32:09 +0000 (UTC)
-Received: from MiWiFi-R3L-srv.redhat.com (ovpn-12-17.pek2.redhat.com
- [10.72.12.17])
- by smtp.corp.redhat.com (Postfix) with ESMTP id A5A324010D2A;
- Sat, 20 Aug 2022 00:32:03 +0000 (UTC)
-From: Baoquan He <bhe@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH v2 07/11] openrisc: mm: Convert to GENERIC_IOREMAP
-Date: Sat, 20 Aug 2022 08:31:21 +0800
-Message-Id: <20220820003125.353570-8-bhe@redhat.com>
-In-Reply-To: <20220820003125.353570-1-bhe@redhat.com>
-References: <20220820003125.353570-1-bhe@redhat.com>
+	by mail.librecores.org (Postfix) with ESMTP id B95D92062E;
+	Sun, 21 Aug 2022 06:27:53 +0200 (CEST)
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com
+ [205.220.180.131])
+ by mail.librecores.org (Postfix) with ESMTPS id A190724AAB
+ for <openrisc@lists.librecores.org>; Sat, 20 Aug 2022 19:45:29 +0200 (CEST)
+Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
+ by mx0a-0031df01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27KHc0rs031246;
+ Sat, 20 Aug 2022 17:42:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com;
+ h=from : to : subject
+ : date : message-id : references : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=qcppdkim1;
+ bh=l8KECb0a5P+N6A2RzAwTF9GB+WOdmqpC3DwXKrkL2YA=;
+ b=O7CoJ0VNu1C3eXtWEuNvCh52VBzIBrHipn8sB/NADs4pG4PAirxtCPj3oefR0me6hck6
+ 7H64WxYsRSBNxwomecxwtYiVnC9YWJnAJ5sZf1RR/taYOpqwgQmYKY0QmOID2HcZI1+P
+ 0iSvRgpz6BhIE4khWfhdLJ3lajA4o9lLgKdsQ4fjDAxQAb5oQUJ28kPB/l+uvgcDC49H
+ LFI+lx6yw5jfs6yyOmFzJZ6bvtYaMIvwF1LuHkS8hCQ1J9HbGNAAQMfXr+B3G/g8qETv
+ fKz7oW0XyCGR27zHlFTpcybXaZAzSOp0J1VmnYTXoEgpK0O6cZCE7tBjYIo4H0+BdNns 7w== 
+Received: from nam04-mw2-obe.outbound.protection.outlook.com
+ (mail-mw2nam04lp2170.outbound.protection.outlook.com [104.47.73.170])
+ by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3j2vwsgh6s-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Sat, 20 Aug 2022 17:42:22 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=nDNIVqnEzBes02dldfgJZJbikZJ05/hZ87OhECQWj/jQSrNq6Bg1fzwqMcZBSkIeeM1QSt51D0Kfyonq92SkcnJnSDBMk0Gseg92hkLIEbnDzQXr/S3NPdwqPVT4ywLhDE98D8RyJ/Bp8bFFegd5l4NIt4yAIZVlz+5pvs+/wBoZcYjMPNdlPngJJWE/7jqbfGkazSoHmXfLq0jBNtNAQWZQXuyQcUIuLzolrh371PaglPTeVMEbaaBsJgC/y/402zX2267Quu4ZSfUni2+LEqb9JfV/7bNkTOXpRhWHvVfx187B6J3+JaY9mpxjgbn666qRmBrLa334mFNNuTCJwQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=l8KECb0a5P+N6A2RzAwTF9GB+WOdmqpC3DwXKrkL2YA=;
+ b=muDZ4Sv9XqZFWs9lt0LDAoGrVcXMYTqV6fN6raxId9EplHoKbvJN94tAjURVOWO337YiKE7HCMR1zFcjFpmSpr0r2AgF+IVQSPIZKQab74gE7W/q2aAsQbgZFXHk2DybSALFUtxrwicl5MwwHpf/hhdgJi2sjbqkpI4vLWUkyQxvH4JO4dAkOs2Q4IqbDY6kT1oBvZ0lKujRdZ1lt9ZJbwHVf+6q9NRovh/m4vZjDFndFzCPXVYTUrrocfdhmqhevyQeT0kKUSQwG/2/5+t+kEf4aNkl6zSSKABad3gLcb6hUMxB5AAwHYoLStnDTtWPuxeFbdHvIlsvXCt6Lx7Eaw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=quicinc.com; dmarc=pass action=none header.from=quicinc.com;
+ dkim=pass header.d=quicinc.com; arc=none
+Received: from BN7PR02MB4194.namprd02.prod.outlook.com (2603:10b6:406:f8::18)
+ by BL3PR02MB8148.namprd02.prod.outlook.com (2603:10b6:208:35f::18)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5525.19; Sat, 20 Aug
+ 2022 17:42:15 +0000
+Received: from BN7PR02MB4194.namprd02.prod.outlook.com
+ ([fe80::2940:82a9:edbf:233d]) by BN7PR02MB4194.namprd02.prod.outlook.com
+ ([fe80::2940:82a9:edbf:233d%7]) with mapi id 15.20.5546.019; Sat, 20 Aug 2022
+ 17:42:15 +0000
+From: Brian Cain <bcain@quicinc.com>
+To: Kefeng Wang <wangkefeng.wang@huawei.com>, Richard Henderson
+ <richard.henderson@linaro.org>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+ Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>, Russell
+ King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>,
+ Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, Huacai Chen
+ <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
+ Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
+ Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+ Stafford Horne <shorne@gmail.com>,
+ "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>, Helge
+ Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas
+ Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt
+ <palmer@dabbelt.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
+ <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, Christian
+ Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>,
+ "David S . Miller" <davem@davemloft.net>, Richard Weinberger
+ <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes
+ Berg <johannes@sipsolutions.net>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "x86@kernel.org" <x86@kernel.org>, Chris Zankel <chris@zankel.net>,
+ Max Filippov <jcmvbkbc@gmail.com>,
+ "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "linux-snps-arc@lists.infradead.org" <linux-snps-arc@lists.infradead.org>,
+ "linux-arm-kernel@lists.infradead.org"
+ <linux-arm-kernel@lists.infradead.org>, "linux-csky@vger.kernel.org"
+ <linux-csky@vger.kernel.org>, "linux-hexagon@vger.kernel.org"
+ <linux-hexagon@vger.kernel.org>, "linux-ia64@vger.kernel.org"
+ <linux-ia64@vger.kernel.org>, "loongarch@lists.linux.dev"
+ <loongarch@lists.linux.dev>, "linux-m68k@lists.linux-m68k.org"
+ <linux-m68k@lists.linux-m68k.org>, "linux-mips@vger.kernel.org"
+ <linux-mips@vger.kernel.org>, "openrisc@lists.librecores.org"
+ <openrisc@lists.librecores.org>, "linux-parisc@vger.kernel.org"
+ <linux-parisc@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org"
+ <linuxppc-dev@lists.ozlabs.org>, "linux-riscv@lists.infradead.org"
+ <linux-riscv@lists.infradead.org>, "linux-s390@vger.kernel.org"
+ <linux-s390@vger.kernel.org>, "linux-sh@vger.kernel.org"
+ <linux-sh@vger.kernel.org>, "sparclinux@vger.kernel.org"
+ <sparclinux@vger.kernel.org>, "linux-um@lists.infradead.org"
+ <linux-um@lists.infradead.org>, "linux-xtensa@linux-xtensa.org"
+ <linux-xtensa@linux-xtensa.org>, "akpm@linux-foundation.org"
+ <akpm@linux-foundation.org>
+Subject: RE: [PATCH] kernel: exit: cleanup release_thread()
+Thread-Topic: [PATCH] kernel: exit: cleanup release_thread()
+Thread-Index: AQHYs2yILqAnWShL9EWzOAU1IN8ne624EWIQ
+Date: Sat, 20 Aug 2022 17:42:15 +0000
+Message-ID: <BN7PR02MB4194B2148C8F9183AD6504B3B86F9@BN7PR02MB4194.namprd02.prod.outlook.com>
+References: <20220819014406.32266-1-wangkefeng.wang@huawei.com>
+In-Reply-To: <20220819014406.32266-1-wangkefeng.wang@huawei.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: bed88a74-80a3-4dc7-cab6-08da82d351f9
+x-ms-traffictypediagnostic: BL3PR02MB8148:EE_
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: AV5EpvqBt2N2cXDr9uiewpurSUtlKfTxImlHstq/Aokz6os5kyjrwF+AbNqotkCqy/Re5l+MIrvjNbhbPMdmw3PtqSYC+6TtX/sK0JDTQJP6IbwEF7MAoHLO1XU1EcCCGGYneSVu7WsefeXd1ydxzEZEIx9fueFXHCEwHjihzEYn+BwO0MoeshN+WfIXxdg6RxtKw84I4j8kJdNCtmNhS9MOwXVPJBPPyl1NyVgRkQoUDey4G3eXuJZzXLzTTcr9SqbWvHxZ6bZ59k1Y6hmYiuHklEfJSyAYcjK4Bk4ov+xPRdtT6TS9VLqWKvDOH2AXHBDbcwzcO+libHJq/ljUfTbqE92P1R3vuoeIOMSllgrfk+XtJfWe2fAWg69Cp26bd/goLFrrMZdeeE/L0mZihtkN0Le+H6hzfWWai2erb5ET6JtEcjO2rOejmrYf7r9wNYC4LdVxS0mg7J0p9l5k08D51iv658YMepE7KVeZ3FHoCuViuyHVYTNwpEvvU8fNY0AIABrnkQwrHP104ho3Qw9aPIj2ecMNEJSE7CF06XENQqlVEvxZKRlWAtZoO81/1bCrOVfGYYGwYGEEzU9BZqXYDsh9wDMBbp14zGI6YhZM4Z6pIIpPtszH4iX/of4RkLvXAL3JcQCKApEIfxifItmK1Cx0sskJK+9kBaQHZLbwE+0Fl+Hw/JZFezZPu0eiIktohpqhEWmNJN02X4PvSFrIsgEJe+pb3LPDl9p7CC8HFcApMlM0f08yMGTyh3swYedqDchXY6Xpyt5oQsAlY/FzqEzfyvHZ74jH4HNcIXk=
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BN7PR02MB4194.namprd02.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230016)(4636009)(376002)(366004)(396003)(346002)(39860400002)(136003)(41300700001)(7366002)(66946007)(558084003)(921005)(71200400001)(7406005)(76116006)(110136005)(316002)(478600001)(64756008)(66476007)(52536014)(55016003)(1191002)(2906002)(8936002)(8676002)(66446008)(66556008)(26005)(9686003)(38070700005)(7416002)(86362001)(186003)(33656002)(6506007)(7696005)(5660300002)(122000001)(83380400001)(38100700002);
+ DIR:OUT; SFP:1102; 
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?akyGtmscOlZZT3WBv5SUQIeSEesAeC+pYGYMwuAVcNW7JrL8YYZ3vOTK37uR?=
+ =?us-ascii?Q?b4H5o/SsQkIAMMytEbRn+Exm89f3cOoGULISlKRhFfVXxTFkW2lT6fQ1aP1x?=
+ =?us-ascii?Q?/UtR1q83wjC10yKpiXWOFFgMylVLnbVbA6aMiZoLLjajlb07wPPluQCEU8UF?=
+ =?us-ascii?Q?9FuCGOKGWO1czdYy6dSmevIRVjl3T2U+kOpjcSZt7CfGIK0afIhrUx82MNwe?=
+ =?us-ascii?Q?bYKKjVcwDeo4qDkDSwTLAkunYX0CBxOQc/p0yrFoDM3y0cYcZNg2g7jUkZY+?=
+ =?us-ascii?Q?pHALKntnyVxunguoqqSHBujUyv/hECsjHXXKb/aDiaC1G93jtKps7zOHm4uQ?=
+ =?us-ascii?Q?0ACwc3xq4WSVy0L9G/HBScIA22XUSlmJ+hegRYY5OBZydlHMvXH4Er/3inIL?=
+ =?us-ascii?Q?c3iCh6Q4Qgwk2mr09s9wu9JuSOr9WWcwyQPkeT51UY4jccBIV/oERRkA2qcG?=
+ =?us-ascii?Q?KfASbp3VnRjIYJk2z81FiRoHhbCPBTsr2ySjgX/WrrYg/AVH/DrRvixyB6l3?=
+ =?us-ascii?Q?lyvjlN+C+vm9bAnLa5BdsfTPTMlLNrmv43U6pfHQNKWdf8eO/vohTd9FddXc?=
+ =?us-ascii?Q?ybbCOaT4p75dkV7bNskCL1A39Vk+aXV7iGkX2yOx5sI2C3EEpSIGVBylzkZb?=
+ =?us-ascii?Q?CMsUO6LWuinPwJIfRklA7Q/DKDvBsry4drMw+2cUzvH94uaKpKij7rVQNgwo?=
+ =?us-ascii?Q?h2qjIqW4UZZ242kg20y27rTMFX3eqvdLbfUJp3bx6EM/sI/98vKHmMdVRNv8?=
+ =?us-ascii?Q?3QR3QovJRZzIAKI8AnhNIeltm0iXaOAhouIzDiNRmbvsbVqp1YiGBB5bFSbW?=
+ =?us-ascii?Q?2CbHmxg2aHDiO9ODQHk2vpI+6hHMZ/jluYNZIWoHF+EbXfgYQB28/zqdVGbs?=
+ =?us-ascii?Q?zVeA4+um+0yLHpzK3Ae9S6nKMsYLs1bYkFhhNypDa9DizE6iyX0qbRifviCU?=
+ =?us-ascii?Q?B5OMUFwu78t06xK2N7Hsb1DbFIGSvLBIyyHb+EVBIkwtTEAqQIAlO7Qacjmg?=
+ =?us-ascii?Q?wDNuk6HC7oMYtnrWUwoGXxWg2FhI7pMRKglU6UHXbicl52kVYywIHZFo+nXQ?=
+ =?us-ascii?Q?Jo5B0uNrvx09NCQjDJUP1LRzmN9kSRMQAYK8argb9EcWwq2/hgMxah3LNhGL?=
+ =?us-ascii?Q?bmVSURUCr1yMRG46+xclnT4+pBik/qoqkA14M6jbrXKRXzb6AGmjw7rFRpq3?=
+ =?us-ascii?Q?XmIa8GS7mTujyK19Pa6kIXDFolQezi9gUJwKQxkTKIRmWsJggRT7OPVZMG0L?=
+ =?us-ascii?Q?drN1db+Bxfh73zcCTj2zZnpXALtjuhmOAoEO8SupllELOWeDKKsfL2PkcazU?=
+ =?us-ascii?Q?Rhy6yv9srgqU6OpIGo8Abj37VlkIAcJgcta5vyG9t5hZeE10TIS68wt7zteX?=
+ =?us-ascii?Q?eyQoq0QL7HrkipChU0QwTqw2F7T5bYXBjRhEQhJF27ImAfpCmY1ffCfC5b3+?=
+ =?us-ascii?Q?z9JGRgsyzPVnk80e5EQWUrjWyevkriHVlKFxsVgPHHm2DdPvKvJgwxoRVqqn?=
+ =?us-ascii?Q?7DraPzYAK4l/jcIgrK/XJvUXEEYTI2op5rh8Zb0zHcIg/NR1s7sOI67i2yMn?=
+ =?us-ascii?Q?mPlAa9fPXmSg05r6XQfh365ddNBIDKH9VYqQarmu?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
+X-OriginatorOrg: quicinc.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN7PR02MB4194.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: bed88a74-80a3-4dc7-cab6-08da82d351f9
+X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Aug 2022 17:42:15.1225 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 98e9ba89-e1a1-4e38-9007-8bdabc25de1d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 0oaknIDsXyHkElNkKnjLQANfm7YCArQcQUNHG2vXfTJqb3ZROPDTlQUfRFXq/qljjkpjiiy20HF2ff2l6Haa8Q==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR02MB8148
+X-Proofpoint-GUID: 7q-D4RhPhNoM_ZXhkD9rMMr5rfMoWiJM
+X-Proofpoint-ORIG-GUID: 7q-D4RhPhNoM_ZXhkD9rMMr5rfMoWiJM
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-20_08,2022-08-18_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 bulkscore=0
+ priorityscore=1501 spamscore=0 mlxlogscore=792 malwarescore=0 phishscore=0
+ impostorscore=0 mlxscore=0 adultscore=0 clxscore=1011 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
+ definitions=main-2208200075
+X-Mailman-Approved-At: Sun, 21 Aug 2022 06:27:52 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -59,168 +184,19 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Jonas Bonn <jonas@southpole.se>, wangkefeng.wang@huawei.com,
- Baoquan He <bhe@redhat.com>, hch@infradead.org, linux-mm@kvack.org,
- openrisc@lists.librecores.org, akpm@linux-foundation.org,
- agordeev@linux.ibm.com, linux-arm-kernel@lists.infradead.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Add hooks arch_ioremap() and arch_iounmap() for operisc's special
-operation when ioremap() and iounmap.
 
-Signed-off-by: Baoquan He <bhe@redhat.com>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: openrisc@lists.librecores.org
----
- arch/openrisc/Kconfig          |  1 +
- arch/openrisc/include/asm/io.h | 16 ++++++++---
- arch/openrisc/mm/ioremap.c     | 51 +++++++++++-----------------------
- 3 files changed, 29 insertions(+), 39 deletions(-)
 
-diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index c7f282f60f64..fd9bb76a610b 100644
---- a/arch/openrisc/Kconfig
-+++ b/arch/openrisc/Kconfig
-@@ -21,6 +21,7 @@ config OPENRISC
- 	select GENERIC_IRQ_PROBE
- 	select GENERIC_IRQ_SHOW
- 	select GENERIC_PCI_IOMAP
-+	select GENERIC_IOREMAP
- 	select GENERIC_CPU_DEVICES
- 	select HAVE_PCI
- 	select HAVE_UID16
-diff --git a/arch/openrisc/include/asm/io.h b/arch/openrisc/include/asm/io.h
-index ee6043a03173..9db67938bfc4 100644
---- a/arch/openrisc/include/asm/io.h
-+++ b/arch/openrisc/include/asm/io.h
-@@ -15,6 +15,8 @@
- #define __ASM_OPENRISC_IO_H
- 
- #include <linux/types.h>
-+#include <asm/pgtable.h>
-+#include <asm/pgalloc.h>
- 
- /*
-  * PCI: We do not use IO ports in OpenRISC
-@@ -27,11 +29,17 @@
- #define PIO_OFFSET		0
- #define PIO_MASK		0
- 
--#define ioremap ioremap
--void __iomem *ioremap(phys_addr_t offset, unsigned long size);
-+/*
-+ * I/O memory mapping functions.
-+ */
-+void __iomem *
-+arch_ioremap(phys_addr_t *paddr, size_t size, unsigned long *prot_val);
-+#define arch_ioremap arch_ioremap
-+
-+int arch_iounmap(void __iomem *addr);
-+#define arch_iounmap arch_iounmap
- 
--#define iounmap iounmap
--extern void iounmap(volatile void __iomem *addr);
-+#define _PAGE_IOREMAP (pgprot_val(PAGE_KERNEL) | _PAGE_CI)
- 
- #include <asm-generic/io.h>
- 
-diff --git a/arch/openrisc/mm/ioremap.c b/arch/openrisc/mm/ioremap.c
-index 8ec0dafecf25..bc41660e1fb0 100644
---- a/arch/openrisc/mm/ioremap.c
-+++ b/arch/openrisc/mm/ioremap.c
-@@ -24,26 +24,18 @@ extern int mem_init_done;
- 
- static unsigned int fixmaps_used __initdata;
- 
--/*
-- * Remap an arbitrary physical address space into the kernel virtual
-- * address space. Needed when the kernel wants to access high addresses
-- * directly.
-- *
-- * NOTE! We need to allow non-page-aligned mappings too: we will obviously
-- * have to convert them into an offset in a page-aligned mapping, but the
-- * caller shouldn't need to know that small detail.
-- */
--void __iomem *__ref ioremap(phys_addr_t addr, unsigned long size)
-+void __iomem *
-+arch_ioremap(phys_addr_t *paddr, size_t size, unsigned long *prot_val)
- {
- 	phys_addr_t p;
- 	unsigned long v;
--	unsigned long offset, last_addr;
--	struct vm_struct *area = NULL;
-+	unsigned long offset, last_addr, addr = *paddr;
-+	int ret = -EINVAL;
- 
- 	/* Don't allow wraparound or zero size */
- 	last_addr = addr + size - 1;
- 	if (!size || last_addr < addr)
--		return NULL;
-+		return IOMEM_ERR_PTR(ret);
- 
- 	/*
- 	 * Mappings have to be page-aligned
-@@ -52,32 +44,24 @@ void __iomem *__ref ioremap(phys_addr_t addr, unsigned long size)
- 	p = addr & PAGE_MASK;
- 	size = PAGE_ALIGN(last_addr + 1) - p;
- 
--	if (likely(mem_init_done)) {
--		area = get_vm_area(size, VM_IOREMAP);
--		if (!area)
--			return NULL;
--		v = (unsigned long)area->addr;
--	} else {
-+	if (unlikely(!mem_init_done)) {
- 		if ((fixmaps_used + (size >> PAGE_SHIFT)) > FIX_N_IOREMAPS)
--			return NULL;
-+			return IOMEM_ERR_PTR(ret);
- 		v = fix_to_virt(FIX_IOREMAP_BEGIN + fixmaps_used);
- 		fixmaps_used += (size >> PAGE_SHIFT);
--	}
- 
--	if (ioremap_page_range(v, v + size, p,
--			__pgprot(pgprot_val(PAGE_KERNEL) | _PAGE_CI))) {
--		if (likely(mem_init_done))
--			vfree(area->addr);
--		else
-+		if (ioremap_page_range(v, v + size, p, __pgprot(*prot_val))) {
- 			fixmaps_used -= (size >> PAGE_SHIFT);
--		return NULL;
-+			return IOMEM_ERR_PTR(ret);
-+		}
-+
-+		return (void __iomem *)(offset + (char *)v);
- 	}
- 
--	return (void __iomem *)(offset + (char *)v);
-+	return NULL;
- }
--EXPORT_SYMBOL(ioremap);
- 
--void iounmap(volatile void __iomem *addr)
-+int arch_iounmap(void __iomem *addr)
- {
- 	/* If the page is from the fixmap pool then we just clear out
- 	 * the fixmap mapping.
-@@ -97,13 +81,10 @@ void iounmap(volatile void __iomem *addr)
- 		 *   ii) invalid accesses to the freed areas aren't made
- 		 */
- 		flush_tlb_all();
--		return;
-+		return -EINVAL;
- 	}
--
--	return vfree((void *)(PAGE_MASK & (unsigned long)addr));
-+	return 0;
- }
--EXPORT_SYMBOL(iounmap);
--
- /**
-  * OK, this one's a bit tricky... ioremap can get called before memory is
-  * initialized (early serial console does this) and will want to alloc a page
--- 
-2.34.1
+> -----Original Message-----
+> From: Kefeng Wang <wangkefeng.wang@huawei.com>
+...
+> Only x86 has own release_thread(), introduce a new weak
+> release_thread() function to clean empty definitions in
+> other ARCHs.
+>=20
+> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+> ---
 
+Acked-by: Brian Cain <bcain@quicinc.com>
