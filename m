@@ -2,29 +2,31 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 441C3C32793
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9F32C48BE4
 	for <openrisc@archiver.kernel.org>; Mon, 22 Aug 2022 08:23:37 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id D9FC124911;
-	Mon, 22 Aug 2022 10:23:35 +0200 (CEST)
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
- by mail.librecores.org (Postfix) with ESMTPS id 38F872485E
+	by mail.librecores.org (Postfix) with ESMTP id 4C3252490E;
+	Mon, 22 Aug 2022 10:23:36 +0200 (CEST)
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+ by mail.librecores.org (Postfix) with ESMTPS id AA4A1248F6
  for <openrisc@lists.librecores.org>; Mon, 22 Aug 2022 10:23:33 +0200 (CEST)
-Received: from canpemm500009.china.huawei.com (unknown [172.30.72.56])
- by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4MB50n281BznTgN;
- Mon, 22 Aug 2022 16:21:13 +0800 (CST)
+Received: from canpemm500009.china.huawei.com (unknown [172.30.72.55])
+ by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4MB4yW0hwhzXdwW;
+ Mon, 22 Aug 2022 16:19:15 +0800 (CST)
 Received: from localhost.localdomain (10.67.164.66) by
  canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Mon, 22 Aug 2022 16:23:29 +0800
+ 15.1.2375.24; Mon, 22 Aug 2022 16:23:30 +0800
 From: Yicong Yang <yangyicong@huawei.com>
 To: <akpm@linux-foundation.org>, <linux-mm@kvack.org>,
  <linux-arm-kernel@lists.infradead.org>, <x86@kernel.org>,
  <catalin.marinas@arm.com>, <will@kernel.org>, <linux-doc@vger.kernel.org>
-Subject: [PATCH v3 0/4] mm: arm64: bring up BATCHED_UNMAP_TLB_FLUSH
-Date: Mon, 22 Aug 2022 16:21:16 +0800
-Message-ID: <20220822082120.8347-1-yangyicong@huawei.com>
+Subject: [PATCH v3 3/4] mm: rmap: Extend tlbbatch APIs to fit new platforms
+Date: Mon, 22 Aug 2022 16:21:19 +0800
+Message-ID: <20220822082120.8347-4-yangyicong@huawei.com>
 X-Mailer: git-send-email 2.31.0
+In-Reply-To: <20220822082120.8347-1-yangyicong@huawei.com>
+References: <20220822082120.8347-1-yangyicong@huawei.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
@@ -44,81 +46,98 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: linux-s390@vger.kernel.org, wangkefeng.wang@huawei.com,
- zhangshiming@oppo.com, lipeifeng@oppo.com, prime.zeng@hisilicon.com,
- arnd@arndb.de, corbet@lwn.net, peterz@infradead.org, realmz6@gmail.com,
- Barry Song <21cnbao@gmail.com>, linux-kernel@vger.kernel.org,
- yangyicong@hisilicon.com, openrisc@lists.librecores.org,
- xhao@linux.alibaba.com, darren@os.amperecomputing.com, huzhanyuan@oppo.com,
- guojian@oppo.com, linux-riscv@lists.infradead.org, linux-mips@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, anshuman.khandual@arm.com
+Cc: wangkefeng.wang@huawei.com, darren@os.amperecomputing.com,
+ peterz@infradead.org, Dave Hansen <dave.hansen@linux.intel.com>,
+ yangyicong@hisilicon.com, Nadav Amit <namit@vmware.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, guojian@oppo.com,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ zhangshiming@oppo.com, lipeifeng@oppo.com, corbet@lwn.net,
+ anshuman.khandual@arm.com, Barry Song <21cnbao@gmail.com>,
+ Ingo Molnar <mingo@redhat.com>, Mel Gorman <mgorman@suse.de>,
+ linux-mips@vger.kernel.org, arnd@arndb.de, realmz6@gmail.com,
+ Barry Song <v-songbaohua@oppo.com>, openrisc@lists.librecores.org,
+ Borislav Petkov <bp@alien8.de>, prime.zeng@hisilicon.com,
+ Thomas Gleixner <tglx@linutronix.de>, xhao@linux.alibaba.com,
+ linux-kernel@vger.kernel.org, huzhanyuan@oppo.com,
+ linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-From: Yicong Yang <yangyicong@hisilicon.com>
+From: Barry Song <v-songbaohua@oppo.com>
 
-Though ARM64 has the hardware to do tlb shootdown, the hardware
-broadcasting is not free.
-A simplest micro benchmark shows even on snapdragon 888 with only
-8 cores, the overhead for ptep_clear_flush is huge even for paging
-out one page mapped by only one process:
-5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
+Add uaddr to tlbbatch APIs so that platforms like ARM64 are
+able to apply this on their specific hardware features. For
+ARM64, this could be sending tlbi into hardware queues for
+the page with this particular uaddr.
 
-While pages are mapped by multiple processes or HW has more CPUs,
-the cost should become even higher due to the bad scalability of
-tlb shootdown.
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Nadav Amit <namit@vmware.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Tested-by: Xin Hao <xhao@linux.alibaba.com>
+Signed-off-by: Barry Song <v-songbaohua@oppo.com>
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+---
+ arch/x86/include/asm/tlbflush.h |  3 ++-
+ mm/rmap.c                       | 10 ++++++----
+ 2 files changed, 8 insertions(+), 5 deletions(-)
 
-The same benchmark can result in 16.99% CPU consumption on ARM64
-server with around 100 cores according to Yicong's test on patch
-4/4.
-
-This patchset leverages the existing BATCHED_UNMAP_TLB_FLUSH by
-1. only send tlbi instructions in the first stage -
-	arch_tlbbatch_add_mm()
-2. wait for the completion of tlbi by dsb while doing tlbbatch
-	sync in arch_tlbbatch_flush()
-My testing on snapdragon shows the overhead of ptep_clear_flush
-is removed by the patchset. The micro benchmark becomes 5% faster
-even for one page mapped by single process on snapdragon 888.
-
--v3:
-1. Declare arch's tlbbatch defer support by arch_tlbbatch_should_defer() instead
-   of ARCH_HAS_MM_CPUMASK, per Barry and Kefeng
-2. Add Tested-by from Xin Hao
-Link: https://lore.kernel.org/linux-mm/20220711034615.482895-1-21cnbao@gmail.com/
-
--v2:
-1. Collected Yicong's test result on kunpeng920 ARM64 server;
-2. Removed the redundant vma parameter in arch_tlbbatch_add_mm()
-   according to the comments of Peter Zijlstra and Dave Hansen
-3. Added ARCH_HAS_MM_CPUMASK rather than checking if mm_cpumask
-   is empty according to the comments of Nadav Amit
-
-Thanks, Peter, Dave and Nadav for your testing or reviewing
-, and comments.
-
--v1:
-https://lore.kernel.org/lkml/20220707125242.425242-1-21cnbao@gmail.com/
-
-Anshuman Khandual (1):
-  mm/tlbbatch: Introduce arch_tlbbatch_should_defer()
-
-Barry Song (3):
-  Revert "Documentation/features: mark BATCHED_UNMAP_TLB_FLUSH doesn't
-    apply to ARM64"
-  mm: rmap: Extend tlbbatch APIs to fit new platforms
-  arm64: support batched/deferred tlb shootdown during page reclamation
-
- Documentation/features/arch-support.txt       |  1 -
- .../features/vm/TLB/arch-support.txt          |  2 +-
- arch/arm64/Kconfig                            |  1 +
- arch/arm64/include/asm/tlbbatch.h             | 12 ++++++++
- arch/arm64/include/asm/tlbflush.h             | 28 +++++++++++++++++--
- arch/x86/include/asm/tlbflush.h               | 15 +++++++++-
- mm/rmap.c                                     | 19 +++++--------
- 7 files changed, 61 insertions(+), 17 deletions(-)
- create mode 100644 arch/arm64/include/asm/tlbbatch.h
-
+diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
+index 8a497d902c16..5bd78ae55cd4 100644
+--- a/arch/x86/include/asm/tlbflush.h
++++ b/arch/x86/include/asm/tlbflush.h
+@@ -264,7 +264,8 @@ static inline u64 inc_mm_tlb_gen(struct mm_struct *mm)
+ }
+ 
+ static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
+-					struct mm_struct *mm)
++					struct mm_struct *mm,
++					unsigned long uaddr)
+ {
+ 	inc_mm_tlb_gen(mm);
+ 	cpumask_or(&batch->cpumask, &batch->cpumask, mm_cpumask(mm));
+diff --git a/mm/rmap.c b/mm/rmap.c
+index a17a004550c6..7187a72b63b1 100644
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -642,12 +642,13 @@ void try_to_unmap_flush_dirty(void)
+ #define TLB_FLUSH_BATCH_PENDING_LARGE			\
+ 	(TLB_FLUSH_BATCH_PENDING_MASK / 2)
+ 
+-static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
++static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable,
++				      unsigned long uaddr)
+ {
+ 	struct tlbflush_unmap_batch *tlb_ubc = &current->tlb_ubc;
+ 	int batch, nbatch;
+ 
+-	arch_tlbbatch_add_mm(&tlb_ubc->arch, mm);
++	arch_tlbbatch_add_mm(&tlb_ubc->arch, mm, uaddr);
+ 	tlb_ubc->flush_required = true;
+ 
+ 	/*
+@@ -725,7 +726,8 @@ void flush_tlb_batched_pending(struct mm_struct *mm)
+ 	}
+ }
+ #else
+-static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
++static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable,
++				      unsigned long uaddr)
+ {
+ }
+ 
+@@ -1587,7 +1589,7 @@ static bool try_to_unmap_one(struct folio *folio, struct vm_area_struct *vma,
+ 				 */
+ 				pteval = ptep_get_and_clear(mm, address, pvmw.pte);
+ 
+-				set_tlb_ubc_flush_pending(mm, pte_dirty(pteval));
++				set_tlb_ubc_flush_pending(mm, pte_dirty(pteval), address);
+ 			} else {
+ 				pteval = ptep_clear_flush(vma, address, pvmw.pte);
+ 			}
 -- 
 2.24.0
 
