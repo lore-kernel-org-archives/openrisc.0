@@ -2,44 +2,44 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DBD6C00140
-	for <openrisc@archiver.kernel.org>; Wed, 24 Aug 2022 09:40:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BECBC32793
+	for <openrisc@archiver.kernel.org>; Wed, 24 Aug 2022 09:43:08 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id CEA59240E1;
-	Wed, 24 Aug 2022 11:40:23 +0200 (CEST)
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
- by mail.librecores.org (Postfix) with ESMTPS id 2878C248F5
- for <openrisc@lists.librecores.org>; Wed, 24 Aug 2022 11:40:22 +0200 (CEST)
-Received: from dggpemm500021.china.huawei.com (unknown [172.30.72.54])
- by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4MCLcR2060znTkv;
- Wed, 24 Aug 2022 17:37:59 +0800 (CST)
+	by mail.librecores.org (Postfix) with ESMTP id 56D68240E1;
+	Wed, 24 Aug 2022 11:43:07 +0200 (CEST)
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+ by mail.librecores.org (Postfix) with ESMTPS id 2EEB8211B0
+ for <openrisc@lists.librecores.org>; Wed, 24 Aug 2022 11:43:06 +0200 (CEST)
+Received: from dggpemm500023.china.huawei.com (unknown [172.30.72.53])
+ by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4MCLhM2jttzGpnB;
+ Wed, 24 Aug 2022 17:41:23 +0800 (CST)
 Received: from dggpemm500001.china.huawei.com (7.185.36.107) by
- dggpemm500021.china.huawei.com (7.185.36.109) with Microsoft SMTP Server
+ dggpemm500023.china.huawei.com (7.185.36.83) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Wed, 24 Aug 2022 17:40:08 +0800
+ 15.1.2375.24; Wed, 24 Aug 2022 17:43:03 +0800
 Received: from [10.174.177.243] (10.174.177.243) by
  dggpemm500001.china.huawei.com (7.185.36.107) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Wed, 24 Aug 2022 17:40:06 +0800
-Message-ID: <0dc19773-81f7-84c2-2bc7-7d8d987b24b7@huawei.com>
-Date: Wed, 24 Aug 2022 17:40:06 +0800
+ 15.1.2375.24; Wed, 24 Aug 2022 17:43:01 +0800
+Message-ID: <ec787d70-8d8a-c601-3282-a34329b078c4@huawei.com>
+Date: Wed, 24 Aug 2022 17:43:01 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
  Thunderbird/91.9.1
-Subject: Re: [PATCH v3 2/4] mm/tlbbatch: Introduce arch_tlbbatch_should_defer()
+Subject: Re: [PATCH v3 3/4] mm: rmap: Extend tlbbatch APIs to fit new platforms
 Content-Language: en-US
 To: Yicong Yang <yangyicong@huawei.com>, <akpm@linux-foundation.org>,
  <linux-mm@kvack.org>, <linux-arm-kernel@lists.infradead.org>,
  <x86@kernel.org>, <catalin.marinas@arm.com>, <will@kernel.org>,
  <linux-doc@vger.kernel.org>
 References: <20220822082120.8347-1-yangyicong@huawei.com>
- <20220822082120.8347-3-yangyicong@huawei.com>
+ <20220822082120.8347-4-yangyicong@huawei.com>
 From: Kefeng Wang <wangkefeng.wang@huawei.com>
-In-Reply-To: <20220822082120.8347-3-yangyicong@huawei.com>
+In-Reply-To: <20220822082120.8347-4-yangyicong@huawei.com>
 Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Originating-IP: [10.174.177.243]
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
  dggpemm500001.china.huawei.com (7.185.36.107)
 X-CFilter-Loop: Reflected
 X-BeenThere: openrisc@lists.librecores.org
@@ -54,83 +54,97 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: linux-s390@vger.kernel.org, zhangshiming@oppo.com, lipeifeng@oppo.com,
- prime.zeng@hisilicon.com, arnd@arndb.de, corbet@lwn.net, peterz@infradead.org,
- Anshuman Khandual <khandual@linux.vnet.ibm.com>, realmz6@gmail.com,
- Barry Song <21cnbao@gmail.com>, linux-kernel@vger.kernel.org,
- yangyicong@hisilicon.com, openrisc@lists.librecores.org,
- xhao@linux.alibaba.com, darren@os.amperecomputing.com, huzhanyuan@oppo.com,
- guojian@oppo.com, linux-riscv@lists.infradead.org, linux-mips@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, anshuman.khandual@arm.com
+Cc: darren@os.amperecomputing.com, peterz@infradead.org,
+ Dave Hansen <dave.hansen@linux.intel.com>, yangyicong@hisilicon.com,
+ Nadav Amit <namit@vmware.com>, "H. Peter
+ Anvin" <hpa@zytor.com>, guojian@oppo.com, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, zhangshiming@oppo.com, lipeifeng@oppo.com,
+ corbet@lwn.net, anshuman.khandual@arm.com, Barry Song <21cnbao@gmail.com>,
+ Ingo Molnar <mingo@redhat.com>, Mel Gorman <mgorman@suse.de>,
+ linux-mips@vger.kernel.org, arnd@arndb.de, realmz6@gmail.com,
+ Barry Song <v-songbaohua@oppo.com>, openrisc@lists.librecores.org, Borislav
+ Petkov <bp@alien8.de>, prime.zeng@hisilicon.com, Thomas
+ Gleixner <tglx@linutronix.de>, xhao@linux.alibaba.com,
+ linux-kernel@vger.kernel.org, huzhanyuan@oppo.com,
+ linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
 
 On 2022/8/22 16:21, Yicong Yang wrote:
-> From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+> From: Barry Song <v-songbaohua@oppo.com>
 >
-> The entire scheme of deferred TLB flush in reclaim path rests on the
-> fact that the cost to refill TLB entries is less than flushing out
-> individual entries by sending IPI to remote CPUs. But architecture
-> can have different ways to evaluate that. Hence apart from checking
-> TTU_BATCH_FLUSH in the TTU flags, rest of the decision should be
-> architecture specific.
+> Add uaddr to tlbbatch APIs so that platforms like ARM64 are
+> able to apply this on their specific hardware features. For
+> ARM64, this could be sending tlbi into hardware queues for
+> the page with this particular uaddr.
 >
-> Signed-off-by: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-> [https://lore.kernel.org/linuxppc-dev/20171101101735.2318-2-khandual@linux.vnet.ibm.com/]
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Borislav Petkov <bp@alien8.de>
+> Cc: Dave Hansen <dave.hansen@linux.intel.com>
+> Cc: "H. Peter Anvin" <hpa@zytor.com>
+> Cc: Nadav Amit <namit@vmware.com>
+> Cc: Mel Gorman <mgorman@suse.de>
+> Tested-by: Xin Hao <xhao@linux.alibaba.com>
+> Signed-off-by: Barry Song <v-songbaohua@oppo.com>
 > Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
-> [Rebase and fix incorrect return value type]
-
 Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-
 > ---
->   arch/x86/include/asm/tlbflush.h | 12 ++++++++++++
->   mm/rmap.c                       |  9 +--------
->   2 files changed, 13 insertions(+), 8 deletions(-)
+>   arch/x86/include/asm/tlbflush.h |  3 ++-
+>   mm/rmap.c                       | 10 ++++++----
+>   2 files changed, 8 insertions(+), 5 deletions(-)
 >
 > diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
-> index cda3118f3b27..8a497d902c16 100644
+> index 8a497d902c16..5bd78ae55cd4 100644
 > --- a/arch/x86/include/asm/tlbflush.h
 > +++ b/arch/x86/include/asm/tlbflush.h
-> @@ -240,6 +240,18 @@ static inline void flush_tlb_page(struct vm_area_struct *vma, unsigned long a)
->   	flush_tlb_mm_range(vma->vm_mm, a, a + PAGE_SIZE, PAGE_SHIFT, false);
+> @@ -264,7 +264,8 @@ static inline u64 inc_mm_tlb_gen(struct mm_struct *mm)
 >   }
 >   
-> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
-> +{
-> +	bool should_defer = false;
-> +
-> +	/* If remote CPUs need to be flushed then defer batch the flush */
-> +	if (cpumask_any_but(mm_cpumask(mm), get_cpu()) < nr_cpu_ids)
-> +		should_defer = true;
-> +	put_cpu();
-> +
-> +	return should_defer;
-> +}
-> +
->   static inline u64 inc_mm_tlb_gen(struct mm_struct *mm)
+>   static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
+> -					struct mm_struct *mm)
+> +					struct mm_struct *mm,
+> +					unsigned long uaddr)
 >   {
->   	/*
+>   	inc_mm_tlb_gen(mm);
+>   	cpumask_or(&batch->cpumask, &batch->cpumask, mm_cpumask(mm));
 > diff --git a/mm/rmap.c b/mm/rmap.c
-> index edc06c52bc82..a17a004550c6 100644
+> index a17a004550c6..7187a72b63b1 100644
 > --- a/mm/rmap.c
 > +++ b/mm/rmap.c
-> @@ -687,17 +687,10 @@ static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
->    */
->   static bool should_defer_flush(struct mm_struct *mm, enum ttu_flags flags)
->   {
-> -	bool should_defer = false;
-> -
->   	if (!(flags & TTU_BATCH_FLUSH))
->   		return false;
+> @@ -642,12 +642,13 @@ void try_to_unmap_flush_dirty(void)
+>   #define TLB_FLUSH_BATCH_PENDING_LARGE			\
+>   	(TLB_FLUSH_BATCH_PENDING_MASK / 2)
 >   
-> -	/* If remote CPUs need to be flushed then defer batch the flush */
-> -	if (cpumask_any_but(mm_cpumask(mm), get_cpu()) < nr_cpu_ids)
-> -		should_defer = true;
-> -	put_cpu();
-> -
-> -	return should_defer;
-> +	return arch_tlbbatch_should_defer(mm);
+> -static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
+> +static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable,
+> +				      unsigned long uaddr)
+>   {
+>   	struct tlbflush_unmap_batch *tlb_ubc = &current->tlb_ubc;
+>   	int batch, nbatch;
+>   
+> -	arch_tlbbatch_add_mm(&tlb_ubc->arch, mm);
+> +	arch_tlbbatch_add_mm(&tlb_ubc->arch, mm, uaddr);
+>   	tlb_ubc->flush_required = true;
+>   
+>   	/*
+> @@ -725,7 +726,8 @@ void flush_tlb_batched_pending(struct mm_struct *mm)
+>   	}
+>   }
+>   #else
+> -static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
+> +static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable,
+> +				      unsigned long uaddr)
+>   {
 >   }
 >   
->   /*
+> @@ -1587,7 +1589,7 @@ static bool try_to_unmap_one(struct folio *folio, struct vm_area_struct *vma,
+>   				 */
+>   				pteval = ptep_get_and_clear(mm, address, pvmw.pte);
+>   
+> -				set_tlb_ubc_flush_pending(mm, pte_dirty(pteval));
+> +				set_tlb_ubc_flush_pending(mm, pte_dirty(pteval), address);
+>   			} else {
+>   				pteval = ptep_clear_flush(vma, address, pvmw.pte);
+>   			}
