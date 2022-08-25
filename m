@@ -2,47 +2,57 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA166C32793
-	for <openrisc@archiver.kernel.org>; Wed, 24 Aug 2022 09:47:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B69BECAAA1
+	for <openrisc@archiver.kernel.org>; Thu, 25 Aug 2022 21:01:28 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id D9FE5240E1;
-	Wed, 24 Aug 2022 11:47:01 +0200 (CEST)
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
- by mail.librecores.org (Postfix) with ESMTPS id 3255B211B0
- for <openrisc@lists.librecores.org>; Wed, 24 Aug 2022 11:47:00 +0200 (CEST)
-Received: from dggpemm500020.china.huawei.com (unknown [172.30.72.54])
- by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4MCLjq0nyqzXdyW;
- Wed, 24 Aug 2022 17:42:39 +0800 (CST)
-Received: from dggpemm500001.china.huawei.com (7.185.36.107) by
- dggpemm500020.china.huawei.com (7.185.36.49) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Wed, 24 Aug 2022 17:46:56 +0800
-Received: from [10.174.177.243] (10.174.177.243) by
- dggpemm500001.china.huawei.com (7.185.36.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Wed, 24 Aug 2022 17:46:54 +0800
-Message-ID: <d2506f8d-eb18-400e-f3d8-cbf3066ffc79@huawei.com>
-Date: Wed, 24 Aug 2022 17:46:54 +0800
+	by mail.librecores.org (Postfix) with ESMTP id 5AD0D24A83;
+	Thu, 25 Aug 2022 23:01:27 +0200 (CEST)
+Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com
+ [209.85.221.51])
+ by mail.librecores.org (Postfix) with ESMTPS id 2047C248F6
+ for <openrisc@lists.librecores.org>; Thu, 25 Aug 2022 23:01:26 +0200 (CEST)
+Received: by mail-wr1-f51.google.com with SMTP id k9so26094472wri.0
+ for <openrisc@lists.librecores.org>; Thu, 25 Aug 2022 14:01:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=conchuod.ie; s=google;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:from:to:cc;
+ bh=Z63zwi7cGAuKiNoBIs10Ekj9CC9KQ4p8G+KukTWva3I=;
+ b=SJaPKdEKD3cZ4U2ILmGJ7YYl8jrjkW+umstaVhULXfth/8eB87EBEKn/1mLbA1W76X
+ PzwduEhBRnRX4YqA+aiPXjDTcwdjcfx/3gAU9DBS4WBTJpRmqny0NPSmw9G9ochTOInu
+ 2WeWfYenhoC74R53yv/Z0OwTJEtmrKUx6FM/amJ0sZsda7+BI8NV+YKEpXHvhWWUIQjL
+ jIvX/rug3aVUgMdrWNpc6nGPjyF4/U1BUWb17IFkiyO/CnXUmbpjEQXfrqIv9bH9Ityb
+ Jo9HX3MLhnjEaryWcsPgu/zFHTD87Za/Foj2KTeWLFsfxj4oLiPHVvekJWAPqw55D4IJ
+ wP5A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:x-gm-message-state:from:to:cc;
+ bh=Z63zwi7cGAuKiNoBIs10Ekj9CC9KQ4p8G+KukTWva3I=;
+ b=shVeSt9CKXl6yyPzdaiY5aqb5vZxKB2kIc25MH+p4aXPQW7Ov9CEDnKxEeKGqmwI1i
+ /C5CXPSB7Oe3wBER+arAtQ2EFooBHev2t/etB1nmCg7JMdVAS+M/256Z2vi0k01fwTqH
+ 6BNGCUsM12FZlC+3zpJWYYJGMmjFkfLW+YPgmaX7eC93i0gqlgOpeQL1Ki/MyvX5pfJM
+ fetjEUZgpAG031rZz3u1kaRA1DuKqxuB0TyshTSNxqPGuGF/MB1tP87ol77e8PFBdvWz
+ NasbUZ98OIDPSzWI/Be27jHr1l1SgGTZvijDdlzjtqGBlYx6N87K0inCTSWSto1vUFTC
+ oNkw==
+X-Gm-Message-State: ACgBeo134LT1nPSbbrKFkZvd8z4405uLS7z3Yg0jUTFexzUQUOmm437W
+ ldTPRqt4s3EJVUSIYn1aE4bNZA==
+X-Google-Smtp-Source: AA6agR6CHzaozIjR/7Q20mq4qiXqh3OzKi41CUQLkIeloF4Lpy2xCkUYlbFCvfPNRwRzxYHUk2X5VA==
+X-Received: by 2002:a5d:5b19:0:b0:225:3ed4:ff64 with SMTP id
+ bx25-20020a5d5b19000000b002253ed4ff64mr3336331wrb.537.1661461285500; 
+ Thu, 25 Aug 2022 14:01:25 -0700 (PDT)
+Received: from henark71.. ([51.37.149.245]) by smtp.gmail.com with ESMTPSA id
+ i14-20020adffdce000000b00225213fd4a9sm220877wrs.33.2022.08.25.14.01.23
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 25 Aug 2022 14:01:24 -0700 (PDT)
+From: Conor Dooley <mail@conchuod.ie>
+To: arnd@arndb.de,
+	linux-arch@vger.kernel.org
+Subject: [PATCH v2] include/linux: declare cpuinfo_op in processor.h
+Date: Thu, 25 Aug 2022 21:59:43 +0100
+Message-Id: <20220825205942.1713914-1-mail@conchuod.ie>
+X-Mailer: git-send-email 2.37.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH v3 4/4] arm64: support batched/deferred tlb shootdown
- during page reclamation
-Content-Language: en-US
-To: Yicong Yang <yangyicong@huawei.com>, <akpm@linux-foundation.org>,
- <linux-mm@kvack.org>, <linux-arm-kernel@lists.infradead.org>,
- <x86@kernel.org>, <catalin.marinas@arm.com>, <will@kernel.org>,
- <linux-doc@vger.kernel.org>
-References: <20220822082120.8347-1-yangyicong@huawei.com>
- <20220822082120.8347-5-yangyicong@huawei.com>
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
-In-Reply-To: <20220822082120.8347-5-yangyicong@huawei.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.177.243]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggpemm500001.china.huawei.com (7.185.36.107)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -55,244 +65,456 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: darren@os.amperecomputing.com, peterz@infradead.org,
- yangyicong@hisilicon.com, Nadav Amit <namit@vmware.com>, guojian@oppo.com,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- zhangshiming@oppo.com, lipeifeng@oppo.com, corbet@lwn.net,
- anshuman.khandual@arm.com, Barry Song <21cnbao@gmail.com>,
- Mel Gorman <mgorman@suse.de>, linux-mips@vger.kernel.org, arnd@arndb.de,
- realmz6@gmail.com, Barry Song <v-songbaohua@oppo.com>,
- openrisc@lists.librecores.org, prime.zeng@hisilicon.com,
- xhao@linux.alibaba.com, linux-kernel@vger.kernel.org, huzhanyuan@oppo.com,
- linuxppc-dev@lists.ozlabs.org
+Cc: dalias@libc.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
+ catalin.marinas@arm.com, x86@kernel.org, linux-mips@vger.kernel.org,
+ jcmvbkbc@gmail.com, Conor Dooley <conor.dooley@microchip.com>,
+ guoren@kernel.org, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ linux-riscv@lists.infradead.org, will@kernel.org, gerg@linux-m68k.org,
+ linux-s390@vger.kernel.org, ysato@users.sourceforge.jp, mpe@ellerman.id.au,
+ deller@gmx.de, chenhuacai@kernel.org, linux@armlinux.org.uk,
+ linux-csky@vger.kernel.org, vgupta@kernel.org, mattst88@gmail.com,
+ linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+ linux-um@lists.infradead.org, hca@linux.ibm.com, linux-alpha@vger.kernel.org,
+ richard.henderson@linaro.org, linux-m68k@lists.linux-m68k.org,
+ openrisc@lists.librecores.org, loongarch@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, bcain@quicinc.com, monstr@monstr.eu,
+ tsbogend@alpha.franken.de, linux-parisc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, dinguyen@kernel.org, palmer@dabbelt.com,
+ richard@nod.at, linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ davem@davemloft.net
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
+From: Conor Dooley <conor.dooley@microchip.com>
 
-On 2022/8/22 16:21, Yicong Yang wrote:
-> From: Barry Song <v-songbaohua@oppo.com>
->
-> on x86, batched and deferred tlb shootdown has lead to 90%
-> performance increase on tlb shootdown. on arm64, HW can do
-> tlb shootdown without software IPI. But sync tlbi is still
-> quite expensive.
->
-> Even running a simplest program which requires swapout can
-> prove this is true,
->   #include <sys/types.h>
->   #include <unistd.h>
->   #include <sys/mman.h>
->   #include <string.h>
->
->   int main()
->   {
->   #define SIZE (1 * 1024 * 1024)
->           volatile unsigned char *p = mmap(NULL, SIZE, PROT_READ | PROT_WRITE,
->                                            MAP_SHARED | MAP_ANONYMOUS, -1, 0);
->
->           memset(p, 0x88, SIZE);
->
->           for (int k = 0; k < 10000; k++) {
->                   /* swap in */
->                   for (int i = 0; i < SIZE; i += 4096) {
->                           (void)p[i];
->                   }
->
->                   /* swap out */
->                   madvise(p, SIZE, MADV_PAGEOUT);
->           }
->   }
->
-> Perf result on snapdragon 888 with 8 cores by using zRAM
-> as the swap block device.
->
->   ~ # perf record taskset -c 4 ./a.out
->   [ perf record: Woken up 10 times to write data ]
->   [ perf record: Captured and wrote 2.297 MB perf.data (60084 samples) ]
->   ~ # perf report
->   # To display the perf.data header info, please use --header/--header-only options.
->   # To display the perf.data header info, please use --header/--header-only options.
->   #
->   #
->   # Total Lost Samples: 0
->   #
->   # Samples: 60K of event 'cycles'
->   # Event count (approx.): 35706225414
->   #
->   # Overhead  Command  Shared Object      Symbol
->   # ........  .......  .................  .............................................................................
->   #
->      21.07%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irq
->       8.23%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irqrestore
->       6.67%  a.out    [kernel.kallsyms]  [k] filemap_map_pages
->       6.16%  a.out    [kernel.kallsyms]  [k] __zram_bvec_write
->       5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
->       3.71%  a.out    [kernel.kallsyms]  [k] _raw_spin_lock
->       3.49%  a.out    [kernel.kallsyms]  [k] memset64
->       1.63%  a.out    [kernel.kallsyms]  [k] clear_page
->       1.42%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock
->       1.26%  a.out    [kernel.kallsyms]  [k] mod_zone_state.llvm.8525150236079521930
->       1.23%  a.out    [kernel.kallsyms]  [k] xas_load
->       1.15%  a.out    [kernel.kallsyms]  [k] zram_slot_lock
->
-> ptep_clear_flush() takes 5.36% CPU in the micro-benchmark
-> swapping in/out a page mapped by only one process. If the
-> page is mapped by multiple processes, typically, like more
-> than 100 on a phone, the overhead would be much higher as
-> we have to run tlb flush 100 times for one single page.
-> Plus, tlb flush overhead will increase with the number
-> of CPU cores due to the bad scalability of tlb shootdown
-> in HW, so those ARM64 servers should expect much higher
-> overhead.
->
-> Further perf annonate shows 95% cpu time of ptep_clear_flush
-> is actually used by the final dsb() to wait for the completion
-> of tlb flush. This provides us a very good chance to leverage
-> the existing batched tlb in kernel. The minimum modification
-> is that we only send async tlbi in the first stage and we send
-> dsb while we have to sync in the second stage.
->
-> With the above simplest micro benchmark, collapsed time to
-> finish the program decreases around 5%.
->
-> Typical collapsed time w/o patch:
->   ~ # time taskset -c 4 ./a.out
->   0.21user 14.34system 0:14.69elapsed
-> w/ patch:
->   ~ # time taskset -c 4 ./a.out
->   0.22user 13.45system 0:13.80elapsed
->
-> Also, Yicong Yang added the following observation.
-> 	Tested with benchmark in the commit on Kunpeng920 arm64 server,
-> 	observed an improvement around 12.5% with command
-> 	`time ./swap_bench`.
-> 		w/o		w/
-> 	real	0m13.460s	0m11.771s
-> 	user	0m0.248s	0m0.279s
-> 	sys	0m12.039s	0m11.458s
->
-> 	Originally it's noticed a 16.99% overhead of ptep_clear_flush()
-> 	which has been eliminated by this patch:
->
-> 	[root@localhost yang]# perf record -- ./swap_bench && perf report
-> 	[...]
-> 	16.99%  swap_bench  [kernel.kallsyms]  [k] ptep_clear_flush
->
-> Cc: Jonathan Corbet <corbet@lwn.net>
-> Cc: Nadav Amit <namit@vmware.com>
-> Cc: Mel Gorman <mgorman@suse.de>
-> Tested-by: Yicong Yang <yangyicong@hisilicon.com>
-> Tested-by: Xin Hao <xhao@linux.alibaba.com>
-> Signed-off-by: Barry Song <v-songbaohua@oppo.com>
-> Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+RISC-V is missing a prototype for cpuinfo_op, triggering complaints
+from sparse. Rather than adding yet another `extern const struct
+seq_operations cpuinfo_op;` to an arch specific header file, create a
+generic variant and include it across the board.
 
-I tested on my kunpeng board too, looks good for now.
+Several archs already have a declaration in asm/processor.h - migrate
+these to include linux/processor.h instead. Most archs do not declare
+cpuinfo_op so one sparse complaint off their books.
 
-Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+---
+Changes since v1:
+- Per Geert, use linux/processor.h & include it on all archs &
+- Squash to a single patch
 
-> ---
->   .../features/vm/TLB/arch-support.txt          |  2 +-
->   arch/arm64/Kconfig                            |  1 +
->   arch/arm64/include/asm/tlbbatch.h             | 12 ++++++++
->   arch/arm64/include/asm/tlbflush.h             | 28 +++++++++++++++++--
->   4 files changed, 40 insertions(+), 3 deletions(-)
->   create mode 100644 arch/arm64/include/asm/tlbbatch.h
->
-> diff --git a/Documentation/features/vm/TLB/arch-support.txt b/Documentation/features/vm/TLB/arch-support.txt
-> index 1c009312b9c1..2caf815d7c6c 100644
-> --- a/Documentation/features/vm/TLB/arch-support.txt
-> +++ b/Documentation/features/vm/TLB/arch-support.txt
-> @@ -9,7 +9,7 @@
->       |       alpha: | TODO |
->       |         arc: | TODO |
->       |         arm: | TODO |
-> -    |       arm64: | TODO |
-> +    |       arm64: |  ok  |
->       |        csky: | TODO |
->       |     hexagon: | TODO |
->       |        ia64: | TODO |
-> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-> index 571cc234d0b3..09d45cd6d665 100644
-> --- a/arch/arm64/Kconfig
-> +++ b/arch/arm64/Kconfig
-> @@ -93,6 +93,7 @@ config ARM64
->   	select ARCH_SUPPORTS_INT128 if CC_HAS_INT128
->   	select ARCH_SUPPORTS_NUMA_BALANCING
->   	select ARCH_SUPPORTS_PAGE_TABLE_CHECK
-> +	select ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
->   	select ARCH_WANT_COMPAT_IPC_PARSE_VERSION if COMPAT
->   	select ARCH_WANT_DEFAULT_BPF_JIT
->   	select ARCH_WANT_DEFAULT_TOPDOWN_MMAP_LAYOUT
-> diff --git a/arch/arm64/include/asm/tlbbatch.h b/arch/arm64/include/asm/tlbbatch.h
-> new file mode 100644
-> index 000000000000..fedb0b87b8db
-> --- /dev/null
-> +++ b/arch/arm64/include/asm/tlbbatch.h
-> @@ -0,0 +1,12 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +#ifndef _ARCH_ARM64_TLBBATCH_H
-> +#define _ARCH_ARM64_TLBBATCH_H
-> +
-> +struct arch_tlbflush_unmap_batch {
-> +	/*
-> +	 * For arm64, HW can do tlb shootdown, so we don't
-> +	 * need to record cpumask for sending IPI
-> +	 */
-> +};
-> +
-> +#endif /* _ARCH_ARM64_TLBBATCH_H */
-> diff --git a/arch/arm64/include/asm/tlbflush.h b/arch/arm64/include/asm/tlbflush.h
-> index 412a3b9a3c25..23cbc987321a 100644
-> --- a/arch/arm64/include/asm/tlbflush.h
-> +++ b/arch/arm64/include/asm/tlbflush.h
-> @@ -254,17 +254,24 @@ static inline void flush_tlb_mm(struct mm_struct *mm)
->   	dsb(ish);
->   }
->   
-> -static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
-> +
-> +static inline void __flush_tlb_page_nosync(struct mm_struct *mm,
->   					 unsigned long uaddr)
->   {
->   	unsigned long addr;
->   
->   	dsb(ishst);
-> -	addr = __TLBI_VADDR(uaddr, ASID(vma->vm_mm));
-> +	addr = __TLBI_VADDR(uaddr, ASID(mm));
->   	__tlbi(vale1is, addr);
->   	__tlbi_user(vale1is, addr);
->   }
->   
-> +static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
-> +					 unsigned long uaddr)
-> +{
-> +	return __flush_tlb_page_nosync(vma->vm_mm, uaddr);
-> +}
-> +
->   static inline void flush_tlb_page(struct vm_area_struct *vma,
->   				  unsigned long uaddr)
->   {
-> @@ -272,6 +279,23 @@ static inline void flush_tlb_page(struct vm_area_struct *vma,
->   	dsb(ish);
->   }
->   
-> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
-> +{
-> +	return true;
-> +}
-> +
-> +static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
-> +					struct mm_struct *mm,
-> +					unsigned long uaddr)
-> +{
-> +	__flush_tlb_page_nosync(mm, uaddr);
-> +}
-> +
-> +static inline void arch_tlbbatch_flush(struct arch_tlbflush_unmap_batch *batch)
-> +{
-> +	dsb(ish);
-> +}
-> +
->   /*
->    * This is meant to avoid soft lock-ups on large TLB flushing ranges and not
->    * necessarily a performance improvement.
+I pushed it out for LKP to take a look at, and was all good there.
+Only added one person per arch & the mailing lists to stay within a
+1024 character CC list. Please scream if I picked the wrong person.
+---
+ arch/alpha/kernel/setup.c               | 1 +
+ arch/arc/kernel/setup.c                 | 1 +
+ arch/arm/kernel/setup.c                 | 1 +
+ arch/arm64/kernel/cpuinfo.c             | 1 +
+ arch/csky/kernel/cpu-probe.c            | 1 +
+ arch/hexagon/kernel/setup.c             | 1 +
+ arch/ia64/kernel/setup.c                | 1 +
+ arch/loongarch/kernel/proc.c            | 1 +
+ arch/m68k/kernel/setup_mm.c             | 1 +
+ arch/m68k/kernel/setup_no.c             | 1 +
+ arch/microblaze/include/asm/processor.h | 2 --
+ arch/microblaze/kernel/cpu/mb.c         | 1 +
+ arch/mips/kernel/proc.c                 | 1 +
+ arch/nios2/kernel/cpuinfo.c             | 1 +
+ arch/openrisc/kernel/setup.c            | 1 +
+ arch/parisc/kernel/setup.c              | 1 +
+ arch/powerpc/kernel/setup-common.c      | 1 +
+ arch/riscv/kernel/cpu.c                 | 3 ++-
+ arch/s390/include/asm/processor.h       | 2 +-
+ arch/s390/kernel/processor.c            | 1 +
+ arch/sh/include/asm/processor.h         | 1 -
+ arch/sh/kernel/cpu/proc.c               | 1 +
+ arch/sparc/include/asm/cpudata.h        | 2 --
+ arch/sparc/kernel/cpu.c                 | 1 +
+ arch/um/kernel/um_arch.c                | 1 +
+ arch/x86/include/asm/processor.h        | 2 --
+ arch/x86/kernel/cpu/proc.c              | 1 +
+ arch/xtensa/kernel/setup.c              | 1 +
+ fs/proc/cpuinfo.c                       | 3 +--
+ include/linux/processor.h               | 2 ++
+ 30 files changed, 28 insertions(+), 11 deletions(-)
+
+diff --git a/arch/alpha/kernel/setup.c b/arch/alpha/kernel/setup.c
+index b4fbbba30aa2..d2c2546e9b1a 100644
+--- a/arch/alpha/kernel/setup.c
++++ b/arch/alpha/kernel/setup.c
+@@ -46,6 +46,7 @@
+ #include <asm/io.h>
+ #include <linux/log2.h>
+ #include <linux/export.h>
++#include <linux/processor.h>
+ 
+ static int alpha_panic_event(struct notifier_block *, unsigned long, void *);
+ static struct notifier_block alpha_panic_block = {
+diff --git a/arch/arc/kernel/setup.c b/arch/arc/kernel/setup.c
+index 41f07b3e594e..b681bdd21a0c 100644
+--- a/arch/arc/kernel/setup.c
++++ b/arch/arc/kernel/setup.c
+@@ -17,6 +17,7 @@
+ #include <linux/of_fdt.h>
+ #include <linux/of.h>
+ #include <linux/cache.h>
++#include <linux/processor.h>
+ #include <uapi/linux/mount.h>
+ #include <asm/sections.h>
+ #include <asm/arcregs.h>
+diff --git a/arch/arm/kernel/setup.c b/arch/arm/kernel/setup.c
+index 1e8a50a97edf..83240c3c0463 100644
+--- a/arch/arm/kernel/setup.c
++++ b/arch/arm/kernel/setup.c
+@@ -29,6 +29,7 @@
+ #include <linux/compiler.h>
+ #include <linux/sort.h>
+ #include <linux/psci.h>
++#include <linux/processor.h>
+ 
+ #include <asm/unified.h>
+ #include <asm/cp15.h>
+diff --git a/arch/arm64/kernel/cpuinfo.c b/arch/arm64/kernel/cpuinfo.c
+index d7702f39b4d3..4c1b12918aed 100644
+--- a/arch/arm64/kernel/cpuinfo.c
++++ b/arch/arm64/kernel/cpuinfo.c
+@@ -20,6 +20,7 @@
+ #include <linux/personality.h>
+ #include <linux/preempt.h>
+ #include <linux/printk.h>
++#include <linux/processor.h>
+ #include <linux/seq_file.h>
+ #include <linux/sched.h>
+ #include <linux/smp.h>
+diff --git a/arch/csky/kernel/cpu-probe.c b/arch/csky/kernel/cpu-probe.c
+index 5f15ca31d3e8..62580f5d0d74 100644
+--- a/arch/csky/kernel/cpu-probe.c
++++ b/arch/csky/kernel/cpu-probe.c
+@@ -5,6 +5,7 @@
+ #include <linux/init.h>
+ #include <linux/seq_file.h>
+ #include <linux/memblock.h>
++#include <linux/processor.h>
+ 
+ #include <abi/reg_ops.h>
+ 
+diff --git a/arch/hexagon/kernel/setup.c b/arch/hexagon/kernel/setup.c
+index 1880d9beaf2b..395d2930dbd1 100644
+--- a/arch/hexagon/kernel/setup.c
++++ b/arch/hexagon/kernel/setup.c
+@@ -13,6 +13,7 @@
+ #include <linux/seq_file.h>
+ #include <linux/console.h>
+ #include <linux/of_fdt.h>
++#include <linux/processor.h>
+ #include <asm/io.h>
+ #include <asm/sections.h>
+ #include <asm/setup.h>
+diff --git a/arch/ia64/kernel/setup.c b/arch/ia64/kernel/setup.c
+index fd6301eafa9d..973725c4ce1e 100644
+--- a/arch/ia64/kernel/setup.c
++++ b/arch/ia64/kernel/setup.c
+@@ -52,6 +52,7 @@
+ #include <linux/cpufreq.h>
+ #include <linux/kexec.h>
+ #include <linux/crash_dump.h>
++#include <linux/processor.h>
+ 
+ #include <asm/mca.h>
+ #include <asm/meminit.h>
+diff --git a/arch/loongarch/kernel/proc.c b/arch/loongarch/kernel/proc.c
+index 5c67cc4fd56d..a8cbebe839e2 100644
+--- a/arch/loongarch/kernel/proc.c
++++ b/arch/loongarch/kernel/proc.c
+@@ -6,6 +6,7 @@
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+ #include <linux/seq_file.h>
++#include <linux/processor.h>
+ #include <asm/bootinfo.h>
+ #include <asm/cpu.h>
+ #include <asm/cpu-features.h>
+diff --git a/arch/m68k/kernel/setup_mm.c b/arch/m68k/kernel/setup_mm.c
+index e62fa8f2149b..45d82a4839fc 100644
+--- a/arch/m68k/kernel/setup_mm.c
++++ b/arch/m68k/kernel/setup_mm.c
+@@ -25,6 +25,7 @@
+ #include <linux/module.h>
+ #include <linux/nvram.h>
+ #include <linux/initrd.h>
++#include <linux/processor.h>
+ 
+ #include <asm/bootinfo.h>
+ #include <asm/byteorder.h>
+diff --git a/arch/m68k/kernel/setup_no.c b/arch/m68k/kernel/setup_no.c
+index cb6def585851..86dd4b47ff43 100644
+--- a/arch/m68k/kernel/setup_no.c
++++ b/arch/m68k/kernel/setup_no.c
+@@ -33,6 +33,7 @@
+ #include <linux/initrd.h>
+ #include <linux/root_dev.h>
+ #include <linux/rtc.h>
++#include <linux/processor.h>
+ 
+ #include <asm/setup.h>
+ #include <asm/bootinfo.h>
+diff --git a/arch/microblaze/include/asm/processor.h b/arch/microblaze/include/asm/processor.h
+index 7e9e92670df3..c5877c91116a 100644
+--- a/arch/microblaze/include/asm/processor.h
++++ b/arch/microblaze/include/asm/processor.h
+@@ -15,8 +15,6 @@
+ #include <asm/current.h>
+ 
+ # ifndef __ASSEMBLY__
+-/* from kernel/cpu/mb.c */
+-extern const struct seq_operations cpuinfo_op;
+ 
+ # define cpu_relax()		barrier()
+ 
+diff --git a/arch/microblaze/kernel/cpu/mb.c b/arch/microblaze/kernel/cpu/mb.c
+index 9581d194d9e4..33f5be916121 100644
+--- a/arch/microblaze/kernel/cpu/mb.c
++++ b/arch/microblaze/kernel/cpu/mb.c
+@@ -14,6 +14,7 @@
+ #include <linux/seq_file.h>
+ #include <linux/cpu.h>
+ #include <linux/initrd.h>
++#include <linux/processor.h>
+ 
+ #include <linux/bug.h>
+ #include <asm/cpuinfo.h>
+diff --git a/arch/mips/kernel/proc.c b/arch/mips/kernel/proc.c
+index 8eba5a1ed664..54a4226cff84 100644
+--- a/arch/mips/kernel/proc.c
++++ b/arch/mips/kernel/proc.c
+@@ -8,6 +8,7 @@
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+ #include <linux/seq_file.h>
++#include <linux/processor.h>
+ #include <asm/bootinfo.h>
+ #include <asm/cpu.h>
+ #include <asm/cpu-features.h>
+diff --git a/arch/nios2/kernel/cpuinfo.c b/arch/nios2/kernel/cpuinfo.c
+index 203870c4b86d..9641ca55377e 100644
+--- a/arch/nios2/kernel/cpuinfo.c
++++ b/arch/nios2/kernel/cpuinfo.c
+@@ -12,6 +12,7 @@
+ #include <linux/seq_file.h>
+ #include <linux/string.h>
+ #include <linux/of.h>
++#include <linux/processor.h>
+ #include <asm/cpuinfo.h>
+ 
+ struct cpuinfo cpuinfo;
+diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
+index 0cd04d936a7a..a628c928941b 100644
+--- a/arch/openrisc/kernel/setup.c
++++ b/arch/openrisc/kernel/setup.c
+@@ -33,6 +33,7 @@
+ #include <linux/of_fdt.h>
+ #include <linux/of.h>
+ #include <linux/device.h>
++#include <linux/processor.h>
+ 
+ #include <asm/sections.h>
+ #include <asm/types.h>
+diff --git a/arch/parisc/kernel/setup.c b/arch/parisc/kernel/setup.c
+index f005ddedb50e..d00488507f49 100644
+--- a/arch/parisc/kernel/setup.c
++++ b/arch/parisc/kernel/setup.c
+@@ -25,6 +25,7 @@
+ #include <linux/sched.h>
+ #include <linux/sched/clock.h>
+ #include <linux/start_kernel.h>
++#include <linux/processor.h>
+ 
+ #include <asm/cacheflush.h>
+ #include <asm/processor.h>
+diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
+index dd98f43bd685..12ddcb1401be 100644
+--- a/arch/powerpc/kernel/setup-common.c
++++ b/arch/powerpc/kernel/setup-common.c
+@@ -34,6 +34,7 @@
+ #include <linux/of_platform.h>
+ #include <linux/hugetlb.h>
+ #include <linux/pgtable.h>
++#include <linux/processor.h>
+ #include <asm/io.h>
+ #include <asm/paca.h>
+ #include <asm/processor.h>
+diff --git a/arch/riscv/kernel/cpu.c b/arch/riscv/kernel/cpu.c
+index 0be8a2403212..f28ec528d54a 100644
+--- a/arch/riscv/kernel/cpu.c
++++ b/arch/riscv/kernel/cpu.c
+@@ -4,8 +4,9 @@
+  */
+ 
+ #include <linux/init.h>
+-#include <linux/seq_file.h>
+ #include <linux/of.h>
++#include <linux/processor.h>
++#include <linux/seq_file.h>
+ #include <asm/hwcap.h>
+ #include <asm/smp.h>
+ #include <asm/pgtable.h>
+diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
+index bd66f8e34949..55fbb4f7f7f6 100644
+--- a/arch/s390/include/asm/processor.h
++++ b/arch/s390/include/asm/processor.h
+@@ -33,6 +33,7 @@
+ #include <linux/cpumask.h>
+ #include <linux/linkage.h>
+ #include <linux/irqflags.h>
++#include <linux/processor.h>
+ #include <asm/cpu.h>
+ #include <asm/page.h>
+ #include <asm/ptrace.h>
+@@ -80,7 +81,6 @@ void s390_adjust_jiffies(void);
+ void s390_update_cpu_mhz(void);
+ void cpu_detect_mhz_feature(void);
+ 
+-extern const struct seq_operations cpuinfo_op;
+ extern void execve_tail(void);
+ extern void __bpon(void);
+ unsigned long vdso_size(void);
+diff --git a/arch/s390/kernel/processor.c b/arch/s390/kernel/processor.c
+index a194611ba88c..267886605902 100644
+--- a/arch/s390/kernel/processor.c
++++ b/arch/s390/kernel/processor.c
+@@ -17,6 +17,7 @@
+ #include <linux/mm_types.h>
+ #include <linux/delay.h>
+ #include <linux/cpu.h>
++#include <linux/processor.h>
+ 
+ #include <asm/diag.h>
+ #include <asm/facility.h>
+diff --git a/arch/sh/include/asm/processor.h b/arch/sh/include/asm/processor.h
+index 85a6c1c3c16e..10c4b4b9af46 100644
+--- a/arch/sh/include/asm/processor.h
++++ b/arch/sh/include/asm/processor.h
+@@ -123,7 +123,6 @@ extern unsigned int mem_init_done;
+ 
+ /* arch/sh/kernel/setup.c */
+ const char *get_cpu_subtype(struct sh_cpuinfo *c);
+-extern const struct seq_operations cpuinfo_op;
+ 
+ /* thread_struct flags */
+ #define SH_THREAD_UAC_NOPRINT	(1 << 0)
+diff --git a/arch/sh/kernel/cpu/proc.c b/arch/sh/kernel/cpu/proc.c
+index a306bcd6b341..f373a21c6705 100644
+--- a/arch/sh/kernel/cpu/proc.c
++++ b/arch/sh/kernel/cpu/proc.c
+@@ -2,6 +2,7 @@
+ #include <linux/seq_file.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/processor.h>
+ #include <asm/machvec.h>
+ #include <asm/processor.h>
+ 
+diff --git a/arch/sparc/include/asm/cpudata.h b/arch/sparc/include/asm/cpudata.h
+index d213165ee713..f7e690a7860b 100644
+--- a/arch/sparc/include/asm/cpudata.h
++++ b/arch/sparc/include/asm/cpudata.h
+@@ -7,8 +7,6 @@
+ #include <linux/threads.h>
+ #include <linux/percpu.h>
+ 
+-extern const struct seq_operations cpuinfo_op;
+-
+ #endif /* !(__ASSEMBLY__) */
+ 
+ #if defined(__sparc__) && defined(__arch64__)
+diff --git a/arch/sparc/kernel/cpu.c b/arch/sparc/kernel/cpu.c
+index 79cd6ccfeac0..ffdc7a825b80 100644
+--- a/arch/sparc/kernel/cpu.c
++++ b/arch/sparc/kernel/cpu.c
+@@ -12,6 +12,7 @@
+ #include <linux/smp.h>
+ #include <linux/threads.h>
+ #include <linux/pgtable.h>
++#include <linux/processor.h>
+ 
+ #include <asm/spitfire.h>
+ #include <asm/oplib.h>
+diff --git a/arch/um/kernel/um_arch.c b/arch/um/kernel/um_arch.c
+index e0de60e503b9..4034f5b959f7 100644
+--- a/arch/um/kernel/um_arch.c
++++ b/arch/um/kernel/um_arch.c
+@@ -9,6 +9,7 @@
+ #include <linux/ctype.h>
+ #include <linux/module.h>
+ #include <linux/panic_notifier.h>
++#include <linux/processor.h>
+ #include <linux/seq_file.h>
+ #include <linux/string.h>
+ #include <linux/utsname.h>
+diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processor.h
+index 356308c73951..08ccd453ec4f 100644
+--- a/arch/x86/include/asm/processor.h
++++ b/arch/x86/include/asm/processor.h
+@@ -188,8 +188,6 @@ DECLARE_PER_CPU_READ_MOSTLY(struct cpuinfo_x86, cpu_info);
+ #define cpu_data(cpu)		boot_cpu_data
+ #endif
+ 
+-extern const struct seq_operations cpuinfo_op;
+-
+ #define cache_line_size()	(boot_cpu_data.x86_cache_alignment)
+ 
+ extern void cpu_detect(struct cpuinfo_x86 *c);
+diff --git a/arch/x86/kernel/cpu/proc.c b/arch/x86/kernel/cpu/proc.c
+index 099b6f0d96bd..5a0699d9ff7d 100644
+--- a/arch/x86/kernel/cpu/proc.c
++++ b/arch/x86/kernel/cpu/proc.c
+@@ -4,6 +4,7 @@
+ #include <linux/string.h>
+ #include <linux/seq_file.h>
+ #include <linux/cpufreq.h>
++#include <linux/processor.h>
+ 
+ #include "cpu.h"
+ 
+diff --git a/arch/xtensa/kernel/setup.c b/arch/xtensa/kernel/setup.c
+index 9191738f9941..d4417a174887 100644
+--- a/arch/xtensa/kernel/setup.c
++++ b/arch/xtensa/kernel/setup.c
+@@ -25,6 +25,7 @@
+ #include <linux/cpu.h>
+ #include <linux/of.h>
+ #include <linux/of_fdt.h>
++#include <linux/processor.h>
+ 
+ #if defined(CONFIG_VGA_CONSOLE) || defined(CONFIG_DUMMY_CONSOLE)
+ # include <linux/console.h>
+diff --git a/fs/proc/cpuinfo.c b/fs/proc/cpuinfo.c
+index f38bda5b83ec..ca3065dfecd9 100644
+--- a/fs/proc/cpuinfo.c
++++ b/fs/proc/cpuinfo.c
+@@ -3,10 +3,9 @@
+ #include <linux/fs.h>
+ #include <linux/init.h>
+ #include <linux/proc_fs.h>
++#include <linux/processor.h>
+ #include <linux/seq_file.h>
+ 
+-extern const struct seq_operations cpuinfo_op;
+-
+ static int cpuinfo_open(struct inode *inode, struct file *file)
+ {
+ 	return seq_open(file, &cpuinfo_op);
+diff --git a/include/linux/processor.h b/include/linux/processor.h
+index dc78bdc7079a..71bdf8626874 100644
+--- a/include/linux/processor.h
++++ b/include/linux/processor.h
+@@ -59,4 +59,6 @@ do {								\
+ 
+ #endif
+ 
++extern const struct seq_operations cpuinfo_op;
++
+ #endif /* _LINUX_PROCESSOR_H */
+-- 
+2.37.1
+
