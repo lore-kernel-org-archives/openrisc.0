@@ -2,57 +2,51 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B69BECAAA1
-	for <openrisc@archiver.kernel.org>; Thu, 25 Aug 2022 21:01:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC251ECAAA2
+	for <openrisc@archiver.kernel.org>; Mon, 29 Aug 2022 01:40:39 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 5AD0D24A83;
-	Thu, 25 Aug 2022 23:01:27 +0200 (CEST)
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com
- [209.85.221.51])
- by mail.librecores.org (Postfix) with ESMTPS id 2047C248F6
- for <openrisc@lists.librecores.org>; Thu, 25 Aug 2022 23:01:26 +0200 (CEST)
-Received: by mail-wr1-f51.google.com with SMTP id k9so26094472wri.0
- for <openrisc@lists.librecores.org>; Thu, 25 Aug 2022 14:01:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=conchuod.ie; s=google;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:from:to:cc;
- bh=Z63zwi7cGAuKiNoBIs10Ekj9CC9KQ4p8G+KukTWva3I=;
- b=SJaPKdEKD3cZ4U2ILmGJ7YYl8jrjkW+umstaVhULXfth/8eB87EBEKn/1mLbA1W76X
- PzwduEhBRnRX4YqA+aiPXjDTcwdjcfx/3gAU9DBS4WBTJpRmqny0NPSmw9G9ochTOInu
- 2WeWfYenhoC74R53yv/Z0OwTJEtmrKUx6FM/amJ0sZsda7+BI8NV+YKEpXHvhWWUIQjL
- jIvX/rug3aVUgMdrWNpc6nGPjyF4/U1BUWb17IFkiyO/CnXUmbpjEQXfrqIv9bH9Ityb
- Jo9HX3MLhnjEaryWcsPgu/zFHTD87Za/Foj2KTeWLFsfxj4oLiPHVvekJWAPqw55D4IJ
- wP5A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:x-gm-message-state:from:to:cc;
- bh=Z63zwi7cGAuKiNoBIs10Ekj9CC9KQ4p8G+KukTWva3I=;
- b=shVeSt9CKXl6yyPzdaiY5aqb5vZxKB2kIc25MH+p4aXPQW7Ov9CEDnKxEeKGqmwI1i
- /C5CXPSB7Oe3wBER+arAtQ2EFooBHev2t/etB1nmCg7JMdVAS+M/256Z2vi0k01fwTqH
- 6BNGCUsM12FZlC+3zpJWYYJGMmjFkfLW+YPgmaX7eC93i0gqlgOpeQL1Ki/MyvX5pfJM
- fetjEUZgpAG031rZz3u1kaRA1DuKqxuB0TyshTSNxqPGuGF/MB1tP87ol77e8PFBdvWz
- NasbUZ98OIDPSzWI/Be27jHr1l1SgGTZvijDdlzjtqGBlYx6N87K0inCTSWSto1vUFTC
- oNkw==
-X-Gm-Message-State: ACgBeo134LT1nPSbbrKFkZvd8z4405uLS7z3Yg0jUTFexzUQUOmm437W
- ldTPRqt4s3EJVUSIYn1aE4bNZA==
-X-Google-Smtp-Source: AA6agR6CHzaozIjR/7Q20mq4qiXqh3OzKi41CUQLkIeloF4Lpy2xCkUYlbFCvfPNRwRzxYHUk2X5VA==
-X-Received: by 2002:a5d:5b19:0:b0:225:3ed4:ff64 with SMTP id
- bx25-20020a5d5b19000000b002253ed4ff64mr3336331wrb.537.1661461285500; 
- Thu, 25 Aug 2022 14:01:25 -0700 (PDT)
-Received: from henark71.. ([51.37.149.245]) by smtp.gmail.com with ESMTPSA id
- i14-20020adffdce000000b00225213fd4a9sm220877wrs.33.2022.08.25.14.01.23
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 25 Aug 2022 14:01:24 -0700 (PDT)
-From: Conor Dooley <mail@conchuod.ie>
-To: arnd@arndb.de,
-	linux-arch@vger.kernel.org
-Subject: [PATCH v2] include/linux: declare cpuinfo_op in processor.h
-Date: Thu, 25 Aug 2022 21:59:43 +0100
-Message-Id: <20220825205942.1713914-1-mail@conchuod.ie>
-X-Mailer: git-send-email 2.37.1
+	by mail.librecores.org (Postfix) with ESMTP id 7B6FA20AC2;
+	Mon, 29 Aug 2022 03:40:38 +0200 (CEST)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by mail.librecores.org (Postfix) with ESMTP id 0247724AAE
+ for <openrisc@lists.librecores.org>; Mon, 29 Aug 2022 03:40:36 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1661737235;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=0vCF2MFLwabeNCUHxCLBI4UWY8z6BpyfJcEettVVvuc=;
+ b=P2XEGmabert+YPn3a5ifG6+53a3hHSU5HhuRX34ECRUYhST1VjiA9k3g94y8XiaxvdPAJg
+ UvKHLcOTt4xaKRGMNMW9XECyXHEHu65ejr7z5GSsj53jWYt0aDOX4tip/zS8yVI3CoMsT2
+ AXR7R2sjTIRNKTNdofj57URPoJDrUK4=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-329-LevrZ2iyNZi2Fkpakragqg-1; Sun, 28 Aug 2022 21:40:29 -0400
+X-MC-Unique: LevrZ2iyNZi2Fkpakragqg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.1])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 092B3101A54E;
+ Mon, 29 Aug 2022 01:40:29 +0000 (UTC)
+Received: from localhost (ovpn-12-153.pek2.redhat.com [10.72.12.153])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 0EDB34010FCC;
+ Mon, 29 Aug 2022 01:40:27 +0000 (UTC)
+Date: Mon, 29 Aug 2022 09:40:24 +0800
+From: Baoquan He <bhe@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH v2 07/11] openrisc: mm: Convert to GENERIC_IOREMAP
+Message-ID: <YwwZCO279Vh/cXGW@MiWiFi-R3L-srv>
+References: <20220820003125.353570-1-bhe@redhat.com>
+ <20220820003125.353570-8-bhe@redhat.com>
+ <YwHYx0eXouIWnN8Z@infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YwHYx0eXouIWnN8Z@infradead.org>
+X-Scanned-By: MIMEDefang 2.84 on 10.11.54.1
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -65,456 +59,34 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: dalias@libc.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
- catalin.marinas@arm.com, x86@kernel.org, linux-mips@vger.kernel.org,
- jcmvbkbc@gmail.com, Conor Dooley <conor.dooley@microchip.com>,
- guoren@kernel.org, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org,
- linux-riscv@lists.infradead.org, will@kernel.org, gerg@linux-m68k.org,
- linux-s390@vger.kernel.org, ysato@users.sourceforge.jp, mpe@ellerman.id.au,
- deller@gmx.de, chenhuacai@kernel.org, linux@armlinux.org.uk,
- linux-csky@vger.kernel.org, vgupta@kernel.org, mattst88@gmail.com,
- linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org,
- linux-um@lists.infradead.org, hca@linux.ibm.com, linux-alpha@vger.kernel.org,
- richard.henderson@linaro.org, linux-m68k@lists.linux-m68k.org,
- openrisc@lists.librecores.org, loongarch@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, bcain@quicinc.com, monstr@monstr.eu,
- tsbogend@alpha.franken.de, linux-parisc@vger.kernel.org,
- linux-kernel@vger.kernel.org, dinguyen@kernel.org, palmer@dabbelt.com,
- richard@nod.at, linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- davem@davemloft.net
+Cc: Jonas Bonn <jonas@southpole.se>, wangkefeng.wang@huawei.com,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ openrisc@lists.librecores.org, akpm@linux-foundation.org,
+ agordeev@linux.ibm.com, linux-arm-kernel@lists.infradead.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-From: Conor Dooley <conor.dooley@microchip.com>
+On 08/21/22 at 12:03am, Christoph Hellwig wrote:
+> > +	if (unlikely(!mem_init_done)) {
+> >  		if ((fixmaps_used + (size >> PAGE_SHIFT)) > FIX_N_IOREMAPS)
+> > +			return IOMEM_ERR_PTR(ret);
+> >  		v = fix_to_virt(FIX_IOREMAP_BEGIN + fixmaps_used);
+> >  		fixmaps_used += (size >> PAGE_SHIFT);
+> >  
+> > +		if (ioremap_page_range(v, v + size, p, __pgprot(*prot_val))) {
+> >  			fixmaps_used -= (size >> PAGE_SHIFT);
+> > +			return IOMEM_ERR_PTR(ret);
+> > +		}
+> > +
+> > +		return (void __iomem *)(offset + (char *)v);
+> >  	}
+> 
+> This code needs to go away, and all very early boot uses of ioremap
+> need to switch to use early_ioremap insted.
 
-RISC-V is missing a prototype for cpuinfo_op, triggering complaints
-from sparse. Rather than adding yet another `extern const struct
-seq_operations cpuinfo_op;` to an arch specific header file, create a
-generic variant and include it across the board.
-
-Several archs already have a declaration in asm/processor.h - migrate
-these to include linux/processor.h instead. Most archs do not declare
-cpuinfo_op so one sparse complaint off their books.
-
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
----
-Changes since v1:
-- Per Geert, use linux/processor.h & include it on all archs &
-- Squash to a single patch
-
-I pushed it out for LKP to take a look at, and was all good there.
-Only added one person per arch & the mailing lists to stay within a
-1024 character CC list. Please scream if I picked the wrong person.
----
- arch/alpha/kernel/setup.c               | 1 +
- arch/arc/kernel/setup.c                 | 1 +
- arch/arm/kernel/setup.c                 | 1 +
- arch/arm64/kernel/cpuinfo.c             | 1 +
- arch/csky/kernel/cpu-probe.c            | 1 +
- arch/hexagon/kernel/setup.c             | 1 +
- arch/ia64/kernel/setup.c                | 1 +
- arch/loongarch/kernel/proc.c            | 1 +
- arch/m68k/kernel/setup_mm.c             | 1 +
- arch/m68k/kernel/setup_no.c             | 1 +
- arch/microblaze/include/asm/processor.h | 2 --
- arch/microblaze/kernel/cpu/mb.c         | 1 +
- arch/mips/kernel/proc.c                 | 1 +
- arch/nios2/kernel/cpuinfo.c             | 1 +
- arch/openrisc/kernel/setup.c            | 1 +
- arch/parisc/kernel/setup.c              | 1 +
- arch/powerpc/kernel/setup-common.c      | 1 +
- arch/riscv/kernel/cpu.c                 | 3 ++-
- arch/s390/include/asm/processor.h       | 2 +-
- arch/s390/kernel/processor.c            | 1 +
- arch/sh/include/asm/processor.h         | 1 -
- arch/sh/kernel/cpu/proc.c               | 1 +
- arch/sparc/include/asm/cpudata.h        | 2 --
- arch/sparc/kernel/cpu.c                 | 1 +
- arch/um/kernel/um_arch.c                | 1 +
- arch/x86/include/asm/processor.h        | 2 --
- arch/x86/kernel/cpu/proc.c              | 1 +
- arch/xtensa/kernel/setup.c              | 1 +
- fs/proc/cpuinfo.c                       | 3 +--
- include/linux/processor.h               | 2 ++
- 30 files changed, 28 insertions(+), 11 deletions(-)
-
-diff --git a/arch/alpha/kernel/setup.c b/arch/alpha/kernel/setup.c
-index b4fbbba30aa2..d2c2546e9b1a 100644
---- a/arch/alpha/kernel/setup.c
-+++ b/arch/alpha/kernel/setup.c
-@@ -46,6 +46,7 @@
- #include <asm/io.h>
- #include <linux/log2.h>
- #include <linux/export.h>
-+#include <linux/processor.h>
- 
- static int alpha_panic_event(struct notifier_block *, unsigned long, void *);
- static struct notifier_block alpha_panic_block = {
-diff --git a/arch/arc/kernel/setup.c b/arch/arc/kernel/setup.c
-index 41f07b3e594e..b681bdd21a0c 100644
---- a/arch/arc/kernel/setup.c
-+++ b/arch/arc/kernel/setup.c
-@@ -17,6 +17,7 @@
- #include <linux/of_fdt.h>
- #include <linux/of.h>
- #include <linux/cache.h>
-+#include <linux/processor.h>
- #include <uapi/linux/mount.h>
- #include <asm/sections.h>
- #include <asm/arcregs.h>
-diff --git a/arch/arm/kernel/setup.c b/arch/arm/kernel/setup.c
-index 1e8a50a97edf..83240c3c0463 100644
---- a/arch/arm/kernel/setup.c
-+++ b/arch/arm/kernel/setup.c
-@@ -29,6 +29,7 @@
- #include <linux/compiler.h>
- #include <linux/sort.h>
- #include <linux/psci.h>
-+#include <linux/processor.h>
- 
- #include <asm/unified.h>
- #include <asm/cp15.h>
-diff --git a/arch/arm64/kernel/cpuinfo.c b/arch/arm64/kernel/cpuinfo.c
-index d7702f39b4d3..4c1b12918aed 100644
---- a/arch/arm64/kernel/cpuinfo.c
-+++ b/arch/arm64/kernel/cpuinfo.c
-@@ -20,6 +20,7 @@
- #include <linux/personality.h>
- #include <linux/preempt.h>
- #include <linux/printk.h>
-+#include <linux/processor.h>
- #include <linux/seq_file.h>
- #include <linux/sched.h>
- #include <linux/smp.h>
-diff --git a/arch/csky/kernel/cpu-probe.c b/arch/csky/kernel/cpu-probe.c
-index 5f15ca31d3e8..62580f5d0d74 100644
---- a/arch/csky/kernel/cpu-probe.c
-+++ b/arch/csky/kernel/cpu-probe.c
-@@ -5,6 +5,7 @@
- #include <linux/init.h>
- #include <linux/seq_file.h>
- #include <linux/memblock.h>
-+#include <linux/processor.h>
- 
- #include <abi/reg_ops.h>
- 
-diff --git a/arch/hexagon/kernel/setup.c b/arch/hexagon/kernel/setup.c
-index 1880d9beaf2b..395d2930dbd1 100644
---- a/arch/hexagon/kernel/setup.c
-+++ b/arch/hexagon/kernel/setup.c
-@@ -13,6 +13,7 @@
- #include <linux/seq_file.h>
- #include <linux/console.h>
- #include <linux/of_fdt.h>
-+#include <linux/processor.h>
- #include <asm/io.h>
- #include <asm/sections.h>
- #include <asm/setup.h>
-diff --git a/arch/ia64/kernel/setup.c b/arch/ia64/kernel/setup.c
-index fd6301eafa9d..973725c4ce1e 100644
---- a/arch/ia64/kernel/setup.c
-+++ b/arch/ia64/kernel/setup.c
-@@ -52,6 +52,7 @@
- #include <linux/cpufreq.h>
- #include <linux/kexec.h>
- #include <linux/crash_dump.h>
-+#include <linux/processor.h>
- 
- #include <asm/mca.h>
- #include <asm/meminit.h>
-diff --git a/arch/loongarch/kernel/proc.c b/arch/loongarch/kernel/proc.c
-index 5c67cc4fd56d..a8cbebe839e2 100644
---- a/arch/loongarch/kernel/proc.c
-+++ b/arch/loongarch/kernel/proc.c
-@@ -6,6 +6,7 @@
- #include <linux/kernel.h>
- #include <linux/sched.h>
- #include <linux/seq_file.h>
-+#include <linux/processor.h>
- #include <asm/bootinfo.h>
- #include <asm/cpu.h>
- #include <asm/cpu-features.h>
-diff --git a/arch/m68k/kernel/setup_mm.c b/arch/m68k/kernel/setup_mm.c
-index e62fa8f2149b..45d82a4839fc 100644
---- a/arch/m68k/kernel/setup_mm.c
-+++ b/arch/m68k/kernel/setup_mm.c
-@@ -25,6 +25,7 @@
- #include <linux/module.h>
- #include <linux/nvram.h>
- #include <linux/initrd.h>
-+#include <linux/processor.h>
- 
- #include <asm/bootinfo.h>
- #include <asm/byteorder.h>
-diff --git a/arch/m68k/kernel/setup_no.c b/arch/m68k/kernel/setup_no.c
-index cb6def585851..86dd4b47ff43 100644
---- a/arch/m68k/kernel/setup_no.c
-+++ b/arch/m68k/kernel/setup_no.c
-@@ -33,6 +33,7 @@
- #include <linux/initrd.h>
- #include <linux/root_dev.h>
- #include <linux/rtc.h>
-+#include <linux/processor.h>
- 
- #include <asm/setup.h>
- #include <asm/bootinfo.h>
-diff --git a/arch/microblaze/include/asm/processor.h b/arch/microblaze/include/asm/processor.h
-index 7e9e92670df3..c5877c91116a 100644
---- a/arch/microblaze/include/asm/processor.h
-+++ b/arch/microblaze/include/asm/processor.h
-@@ -15,8 +15,6 @@
- #include <asm/current.h>
- 
- # ifndef __ASSEMBLY__
--/* from kernel/cpu/mb.c */
--extern const struct seq_operations cpuinfo_op;
- 
- # define cpu_relax()		barrier()
- 
-diff --git a/arch/microblaze/kernel/cpu/mb.c b/arch/microblaze/kernel/cpu/mb.c
-index 9581d194d9e4..33f5be916121 100644
---- a/arch/microblaze/kernel/cpu/mb.c
-+++ b/arch/microblaze/kernel/cpu/mb.c
-@@ -14,6 +14,7 @@
- #include <linux/seq_file.h>
- #include <linux/cpu.h>
- #include <linux/initrd.h>
-+#include <linux/processor.h>
- 
- #include <linux/bug.h>
- #include <asm/cpuinfo.h>
-diff --git a/arch/mips/kernel/proc.c b/arch/mips/kernel/proc.c
-index 8eba5a1ed664..54a4226cff84 100644
---- a/arch/mips/kernel/proc.c
-+++ b/arch/mips/kernel/proc.c
-@@ -8,6 +8,7 @@
- #include <linux/kernel.h>
- #include <linux/sched.h>
- #include <linux/seq_file.h>
-+#include <linux/processor.h>
- #include <asm/bootinfo.h>
- #include <asm/cpu.h>
- #include <asm/cpu-features.h>
-diff --git a/arch/nios2/kernel/cpuinfo.c b/arch/nios2/kernel/cpuinfo.c
-index 203870c4b86d..9641ca55377e 100644
---- a/arch/nios2/kernel/cpuinfo.c
-+++ b/arch/nios2/kernel/cpuinfo.c
-@@ -12,6 +12,7 @@
- #include <linux/seq_file.h>
- #include <linux/string.h>
- #include <linux/of.h>
-+#include <linux/processor.h>
- #include <asm/cpuinfo.h>
- 
- struct cpuinfo cpuinfo;
-diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
-index 0cd04d936a7a..a628c928941b 100644
---- a/arch/openrisc/kernel/setup.c
-+++ b/arch/openrisc/kernel/setup.c
-@@ -33,6 +33,7 @@
- #include <linux/of_fdt.h>
- #include <linux/of.h>
- #include <linux/device.h>
-+#include <linux/processor.h>
- 
- #include <asm/sections.h>
- #include <asm/types.h>
-diff --git a/arch/parisc/kernel/setup.c b/arch/parisc/kernel/setup.c
-index f005ddedb50e..d00488507f49 100644
---- a/arch/parisc/kernel/setup.c
-+++ b/arch/parisc/kernel/setup.c
-@@ -25,6 +25,7 @@
- #include <linux/sched.h>
- #include <linux/sched/clock.h>
- #include <linux/start_kernel.h>
-+#include <linux/processor.h>
- 
- #include <asm/cacheflush.h>
- #include <asm/processor.h>
-diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
-index dd98f43bd685..12ddcb1401be 100644
---- a/arch/powerpc/kernel/setup-common.c
-+++ b/arch/powerpc/kernel/setup-common.c
-@@ -34,6 +34,7 @@
- #include <linux/of_platform.h>
- #include <linux/hugetlb.h>
- #include <linux/pgtable.h>
-+#include <linux/processor.h>
- #include <asm/io.h>
- #include <asm/paca.h>
- #include <asm/processor.h>
-diff --git a/arch/riscv/kernel/cpu.c b/arch/riscv/kernel/cpu.c
-index 0be8a2403212..f28ec528d54a 100644
---- a/arch/riscv/kernel/cpu.c
-+++ b/arch/riscv/kernel/cpu.c
-@@ -4,8 +4,9 @@
-  */
- 
- #include <linux/init.h>
--#include <linux/seq_file.h>
- #include <linux/of.h>
-+#include <linux/processor.h>
-+#include <linux/seq_file.h>
- #include <asm/hwcap.h>
- #include <asm/smp.h>
- #include <asm/pgtable.h>
-diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
-index bd66f8e34949..55fbb4f7f7f6 100644
---- a/arch/s390/include/asm/processor.h
-+++ b/arch/s390/include/asm/processor.h
-@@ -33,6 +33,7 @@
- #include <linux/cpumask.h>
- #include <linux/linkage.h>
- #include <linux/irqflags.h>
-+#include <linux/processor.h>
- #include <asm/cpu.h>
- #include <asm/page.h>
- #include <asm/ptrace.h>
-@@ -80,7 +81,6 @@ void s390_adjust_jiffies(void);
- void s390_update_cpu_mhz(void);
- void cpu_detect_mhz_feature(void);
- 
--extern const struct seq_operations cpuinfo_op;
- extern void execve_tail(void);
- extern void __bpon(void);
- unsigned long vdso_size(void);
-diff --git a/arch/s390/kernel/processor.c b/arch/s390/kernel/processor.c
-index a194611ba88c..267886605902 100644
---- a/arch/s390/kernel/processor.c
-+++ b/arch/s390/kernel/processor.c
-@@ -17,6 +17,7 @@
- #include <linux/mm_types.h>
- #include <linux/delay.h>
- #include <linux/cpu.h>
-+#include <linux/processor.h>
- 
- #include <asm/diag.h>
- #include <asm/facility.h>
-diff --git a/arch/sh/include/asm/processor.h b/arch/sh/include/asm/processor.h
-index 85a6c1c3c16e..10c4b4b9af46 100644
---- a/arch/sh/include/asm/processor.h
-+++ b/arch/sh/include/asm/processor.h
-@@ -123,7 +123,6 @@ extern unsigned int mem_init_done;
- 
- /* arch/sh/kernel/setup.c */
- const char *get_cpu_subtype(struct sh_cpuinfo *c);
--extern const struct seq_operations cpuinfo_op;
- 
- /* thread_struct flags */
- #define SH_THREAD_UAC_NOPRINT	(1 << 0)
-diff --git a/arch/sh/kernel/cpu/proc.c b/arch/sh/kernel/cpu/proc.c
-index a306bcd6b341..f373a21c6705 100644
---- a/arch/sh/kernel/cpu/proc.c
-+++ b/arch/sh/kernel/cpu/proc.c
-@@ -2,6 +2,7 @@
- #include <linux/seq_file.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/processor.h>
- #include <asm/machvec.h>
- #include <asm/processor.h>
- 
-diff --git a/arch/sparc/include/asm/cpudata.h b/arch/sparc/include/asm/cpudata.h
-index d213165ee713..f7e690a7860b 100644
---- a/arch/sparc/include/asm/cpudata.h
-+++ b/arch/sparc/include/asm/cpudata.h
-@@ -7,8 +7,6 @@
- #include <linux/threads.h>
- #include <linux/percpu.h>
- 
--extern const struct seq_operations cpuinfo_op;
--
- #endif /* !(__ASSEMBLY__) */
- 
- #if defined(__sparc__) && defined(__arch64__)
-diff --git a/arch/sparc/kernel/cpu.c b/arch/sparc/kernel/cpu.c
-index 79cd6ccfeac0..ffdc7a825b80 100644
---- a/arch/sparc/kernel/cpu.c
-+++ b/arch/sparc/kernel/cpu.c
-@@ -12,6 +12,7 @@
- #include <linux/smp.h>
- #include <linux/threads.h>
- #include <linux/pgtable.h>
-+#include <linux/processor.h>
- 
- #include <asm/spitfire.h>
- #include <asm/oplib.h>
-diff --git a/arch/um/kernel/um_arch.c b/arch/um/kernel/um_arch.c
-index e0de60e503b9..4034f5b959f7 100644
---- a/arch/um/kernel/um_arch.c
-+++ b/arch/um/kernel/um_arch.c
-@@ -9,6 +9,7 @@
- #include <linux/ctype.h>
- #include <linux/module.h>
- #include <linux/panic_notifier.h>
-+#include <linux/processor.h>
- #include <linux/seq_file.h>
- #include <linux/string.h>
- #include <linux/utsname.h>
-diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processor.h
-index 356308c73951..08ccd453ec4f 100644
---- a/arch/x86/include/asm/processor.h
-+++ b/arch/x86/include/asm/processor.h
-@@ -188,8 +188,6 @@ DECLARE_PER_CPU_READ_MOSTLY(struct cpuinfo_x86, cpu_info);
- #define cpu_data(cpu)		boot_cpu_data
- #endif
- 
--extern const struct seq_operations cpuinfo_op;
--
- #define cache_line_size()	(boot_cpu_data.x86_cache_alignment)
- 
- extern void cpu_detect(struct cpuinfo_x86 *c);
-diff --git a/arch/x86/kernel/cpu/proc.c b/arch/x86/kernel/cpu/proc.c
-index 099b6f0d96bd..5a0699d9ff7d 100644
---- a/arch/x86/kernel/cpu/proc.c
-+++ b/arch/x86/kernel/cpu/proc.c
-@@ -4,6 +4,7 @@
- #include <linux/string.h>
- #include <linux/seq_file.h>
- #include <linux/cpufreq.h>
-+#include <linux/processor.h>
- 
- #include "cpu.h"
- 
-diff --git a/arch/xtensa/kernel/setup.c b/arch/xtensa/kernel/setup.c
-index 9191738f9941..d4417a174887 100644
---- a/arch/xtensa/kernel/setup.c
-+++ b/arch/xtensa/kernel/setup.c
-@@ -25,6 +25,7 @@
- #include <linux/cpu.h>
- #include <linux/of.h>
- #include <linux/of_fdt.h>
-+#include <linux/processor.h>
- 
- #if defined(CONFIG_VGA_CONSOLE) || defined(CONFIG_DUMMY_CONSOLE)
- # include <linux/console.h>
-diff --git a/fs/proc/cpuinfo.c b/fs/proc/cpuinfo.c
-index f38bda5b83ec..ca3065dfecd9 100644
---- a/fs/proc/cpuinfo.c
-+++ b/fs/proc/cpuinfo.c
-@@ -3,10 +3,9 @@
- #include <linux/fs.h>
- #include <linux/init.h>
- #include <linux/proc_fs.h>
-+#include <linux/processor.h>
- #include <linux/seq_file.h>
- 
--extern const struct seq_operations cpuinfo_op;
--
- static int cpuinfo_open(struct inode *inode, struct file *file)
- {
- 	return seq_open(file, &cpuinfo_op);
-diff --git a/include/linux/processor.h b/include/linux/processor.h
-index dc78bdc7079a..71bdf8626874 100644
---- a/include/linux/processor.h
-+++ b/include/linux/processor.h
-@@ -59,4 +59,6 @@ do {								\
- 
- #endif
- 
-+extern const struct seq_operations cpuinfo_op;
-+
- #endif /* _LINUX_PROCESSOR_H */
--- 
-2.37.1
+Makes sense. On openrisc, the thing is I didn't find one place where
+ioremap() is called in arch code. I can cut the early ioremap out and
+wrap into a separate early_ioremap() function, however I don't know
+where to put it. Not sure if I miss anything or openrisc doesn't really
+need early ioremap.
 
