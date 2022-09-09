@@ -2,55 +2,36 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24938C54EE9
-	for <openrisc@archiver.kernel.org>; Wed,  7 Sep 2022 14:44:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C93EDECAAD3
+	for <openrisc@archiver.kernel.org>; Fri,  9 Sep 2022 04:16:19 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id B45C1247FD;
-	Wed,  7 Sep 2022 16:44:32 +0200 (CEST)
-Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com
- [209.85.128.180])
- by mail.librecores.org (Postfix) with ESMTPS id 2CACB248F9
- for <openrisc@lists.librecores.org>; Wed,  7 Sep 2022 16:19:50 +0200 (CEST)
-Received: by mail-yw1-f180.google.com with SMTP id
- 00721157ae682-344fc86d87cso114585447b3.3
- for <openrisc@lists.librecores.org>; Wed, 07 Sep 2022 07:19:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:from:to:cc:subject:date;
- bh=xzQQge1p9sGh6RMu1G1JOY9ItCc6O0H120k6pKHMmEk=;
- b=Bih6yKcvqhH4zWrwdr6CGGO42qojshsT47RQnhXv7ybu5CD6vL27DQnoZCdIiZcqnD
- 0MNFx49OnNcHRuNt0yer8KsEpHqlebpbukHR8/U0Knhm5IkCoZC+cpXtWgtCriZjynid
- t5Bruq5/CLUqLGLQKdHNGqoXOR5/u+8UPkJ82rmSO8YnBjZPRRwCZiKEUE1IWXZHpGhw
- 3GuaMXYCxJXztaV0qrqOzBvSR3aM+i2HSRfZe2zbCTl0yZUnpl7Hk5ecvH5V+LsTxI6l
- HjAU7bKenJs8zPJhJgMQUWxJQCh6oc6moTNqrwTOfD2LY0IITD2J+XO/28stoTLZrTY6
- X8EQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date;
- bh=xzQQge1p9sGh6RMu1G1JOY9ItCc6O0H120k6pKHMmEk=;
- b=4h9rswwZx1Tiw3zCuoUwA67BrFavUNlibXb6U3olv1nlPwDw8axukGfdN/5mtcbndP
- /EhuhJIQF6SvaL1kE9HAn8n1sNwhQ/RncUCwg5/PhvBzb2oI9Ydzgg6a2KmiSlrMbdYt
- C7iN8FyT5ar9GaRy+vt4U6qef5seOGwOlqspk+bp5ShHYVSvvgccpWonzTFfJgvCyAZq
- DDZfolrouPtrpVMnRiMChUBfvWpBpnyQAJLvL6dTX/cXf8Uu82IQv41z2As/ilsOOE/N
- ZRp6jtSvx4uppi+4/C9AMOxqt090H96FbaDSIdaEbkAVpKJMNFLUKNNI3oJoe6CS2dTK
- f4Gg==
-X-Gm-Message-State: ACgBeo18Z+nEJ79YHw4/RZ/dYM8ndwcnSjnBIaGQgObupmVxHEXYxZ93
- ga7Igk2iStVaI9SBoydqCrFgjHqtbcmdQtsh3co=
-X-Google-Smtp-Source: AA6agR6es1m2QTKoQhG3HmhDk7/mGxawhEgjnpT++W2R7RDp8RxAnyCjkeWxHPwQeUEm0Uw6m26keN7xYXBr3V6AeCc=
-X-Received: by 2002:a0d:cc83:0:b0:345:14a5:a2b0 with SMTP id
- o125-20020a0dcc83000000b0034514a5a2b0mr3532402ywd.206.1662560388878; Wed, 07
- Sep 2022 07:19:48 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 9370C24B10;
+	Fri,  9 Sep 2022 06:16:18 +0200 (CEST)
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by mail.librecores.org (Postfix) with ESMTP id 9BF4724A1E
+ for <openrisc@lists.librecores.org>; Fri,  9 Sep 2022 06:16:17 +0200 (CEST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 09453153B;
+ Thu,  8 Sep 2022 21:16:23 -0700 (PDT)
+Received: from [10.162.41.8] (unknown [10.162.41.8])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id F33023F71A;
+ Thu,  8 Sep 2022 21:16:07 -0700 (PDT)
+Message-ID: <46b8a713-64bf-9c00-9001-3196238d1482@arm.com>
+Date: Fri, 9 Sep 2022 09:46:04 +0530
 MIME-Version: 1.0
-References: <20220904072607.44275-1-shorne@gmail.com>
-In-Reply-To: <20220904072607.44275-1-shorne@gmail.com>
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Date: Wed, 7 Sep 2022 10:19:37 -0400
-Message-ID: <CAJSP0QVnMFjodM26-ehXi0Yd9eiBHJXJwBudJqyQg8a3j6rJCA@mail.gmail.com>
-Subject: Re: [PULL 00/11] OpenRISC updates for 7.2.0
-To: Stafford Horne <shorne@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailman-Approved-At: Wed, 07 Sep 2022 16:44:31 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: Re: [PATCH v3 2/4] mm/tlbbatch: Introduce arch_tlbbatch_should_defer()
+To: Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
+ linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, x86@kernel.org,
+ catalin.marinas@arm.com, will@kernel.org, linux-doc@vger.kernel.org
+References: <20220822082120.8347-1-yangyicong@huawei.com>
+ <20220822082120.8347-3-yangyicong@huawei.com>
+Content-Language: en-US
+In-Reply-To: <20220822082120.8347-3-yangyicong@huawei.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -63,28 +44,84 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: openrisc@lists.librecores.org, qemu-devel@nongnu.org
+Cc: linux-s390@vger.kernel.org, wangkefeng.wang@huawei.com,
+ zhangshiming@oppo.com, lipeifeng@oppo.com, prime.zeng@hisilicon.com,
+ arnd@arndb.de, corbet@lwn.net, peterz@infradead.org, realmz6@gmail.com,
+ Barry Song <21cnbao@gmail.com>, linux-kernel@vger.kernel.org,
+ yangyicong@hisilicon.com, openrisc@lists.librecores.org,
+ xhao@linux.alibaba.com, darren@os.amperecomputing.com, huzhanyuan@oppo.com,
+ guojian@oppo.com, linux-riscv@lists.infradead.org, linux-mips@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Sun, 4 Sept 2022 at 03:27, Stafford Horne <shorne@gmail.com> wrote:
->
-> The following changes since commit 61fd710b8da8aedcea9b4f197283dc38638e4b60:
->
->   Merge tag 'for-upstream' of https://gitlab.com/bonzini/qemu into staging (2022-09-02 13:24:28 -0400)
->
-> are available in the Git repository at:
->
->   git@github.com:stffrdhrn/qemu.git tags/pull-or1k-20220904
+On 8/22/22 13:51, Yicong Yang wrote:
+> From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+> 
+> The entire scheme of deferred TLB flush in reclaim path rests on the
+> fact that the cost to refill TLB entries is less than flushing out
+> individual entries by sending IPI to remote CPUs. But architecture
+> can have different ways to evaluate that. Hence apart from checking
+> TTU_BATCH_FLUSH in the TTU flags, rest of the decision should be
+> architecture specific.
+> 
+> Signed-off-by: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+> [https://lore.kernel.org/linuxppc-dev/20171101101735.2318-2-khandual@linux.vnet.ibm.com/]
+> Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+> [Rebase and fix incorrect return value type]
 
-Hi Stafford,
-Please update .git/config to separate the push URL from the fetch URL:
+From semantics perspective, this patch still makes sense, even on its own.
 
-[remote "github"]
-        url = https://github.com/stffrdhrn/qemu.git
-        pushUrl = git@gitlab.com:stffrdhrn/qemu.git
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
 
-That way future pull requests will include an https URL that allows
-fetches without ssh or a GitHub account. Thanks!
-
-Stefan
+> ---
+>  arch/x86/include/asm/tlbflush.h | 12 ++++++++++++
+>  mm/rmap.c                       |  9 +--------
+>  2 files changed, 13 insertions(+), 8 deletions(-)
+> 
+> diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
+> index cda3118f3b27..8a497d902c16 100644
+> --- a/arch/x86/include/asm/tlbflush.h
+> +++ b/arch/x86/include/asm/tlbflush.h
+> @@ -240,6 +240,18 @@ static inline void flush_tlb_page(struct vm_area_struct *vma, unsigned long a)
+>  	flush_tlb_mm_range(vma->vm_mm, a, a + PAGE_SIZE, PAGE_SHIFT, false);
+>  }
+>  
+> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
+> +{
+> +	bool should_defer = false;
+> +
+> +	/* If remote CPUs need to be flushed then defer batch the flush */
+> +	if (cpumask_any_but(mm_cpumask(mm), get_cpu()) < nr_cpu_ids)
+> +		should_defer = true;
+> +	put_cpu();
+> +
+> +	return should_defer;
+> +}
+> +
+>  static inline u64 inc_mm_tlb_gen(struct mm_struct *mm)
+>  {
+>  	/*
+> diff --git a/mm/rmap.c b/mm/rmap.c
+> index edc06c52bc82..a17a004550c6 100644
+> --- a/mm/rmap.c
+> +++ b/mm/rmap.c
+> @@ -687,17 +687,10 @@ static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
+>   */
+>  static bool should_defer_flush(struct mm_struct *mm, enum ttu_flags flags)
+>  {
+> -	bool should_defer = false;
+> -
+>  	if (!(flags & TTU_BATCH_FLUSH))
+>  		return false;
+>  
+> -	/* If remote CPUs need to be flushed then defer batch the flush */
+> -	if (cpumask_any_but(mm_cpumask(mm), get_cpu()) < nr_cpu_ids)
+> -		should_defer = true;
+> -	put_cpu();
+> -
+> -	return should_defer;
+> +	return arch_tlbbatch_should_defer(mm);
+>  }
+>  
+>  /*
