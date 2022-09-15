@@ -2,42 +2,37 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC815ECAAA1
-	for <openrisc@archiver.kernel.org>; Fri,  9 Sep 2022 06:32:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F2BFC6FA8A
+	for <openrisc@archiver.kernel.org>; Thu, 15 Sep 2022 06:08:01 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id A14CD240FC;
-	Fri,  9 Sep 2022 08:32:17 +0200 (CEST)
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
- by mail.librecores.org (Postfix) with ESMTPS id 06DA1240F3
- for <openrisc@lists.librecores.org>; Fri,  9 Sep 2022 08:32:16 +0200 (CEST)
-Received: from canpemm500009.china.huawei.com (unknown [172.30.72.53])
- by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4MP5gh37h4znVFj;
- Fri,  9 Sep 2022 14:29:36 +0800 (CST)
-Received: from [10.67.102.169] (10.67.102.169) by
- canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Fri, 9 Sep 2022 14:32:11 +0800
+	by mail.librecores.org (Postfix) with ESMTP id 2FB7824AD7;
+	Thu, 15 Sep 2022 08:08:00 +0200 (CEST)
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by mail.librecores.org (Postfix) with ESMTP id B482B24AB1
+ for <openrisc@lists.librecores.org>; Thu, 15 Sep 2022 08:07:58 +0200 (CEST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 315E31682;
+ Wed, 14 Sep 2022 23:08:04 -0700 (PDT)
+Received: from [10.162.43.6] (unknown [10.162.43.6])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 94AAA3F73B;
+ Wed, 14 Sep 2022 23:08:16 -0700 (PDT)
+Message-ID: <1125554b-c183-23c4-5516-95b918a761cc@arm.com>
+Date: Thu, 15 Sep 2022 11:37:44 +0530
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+From: Anshuman Khandual <anshuman.khandual@arm.com>
 Subject: Re: [PATCH v3 4/4] arm64: support batched/deferred tlb shootdown
  during page reclamation
-To: Barry Song <21cnbao@gmail.com>, Anshuman Khandual
- <anshuman.khandual@arm.com>
+To: Barry Song <21cnbao@gmail.com>
 References: <20220822082120.8347-1-yangyicong@huawei.com>
  <20220822082120.8347-5-yangyicong@huawei.com>
  <1e8642d5-0e2d-5747-d0d2-5aa0817ea4af@arm.com>
  <CAGsJ_4xD4m-szM1Cm4N5ZRCODGC0fbW+BLBhy8g6+eK=aHPQNw@mail.gmail.com>
-From: Yicong Yang <yangyicong@huawei.com>
-Message-ID: <8d393624-c8b8-a288-061d-a8590cb8a85e@huawei.com>
-Date: Fri, 9 Sep 2022 14:32:11 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.1
-MIME-Version: 1.0
+Content-Language: en-US
 In-Reply-To: <CAGsJ_4xD4m-szM1Cm4N5ZRCODGC0fbW+BLBhy8g6+eK=aHPQNw@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.102.169]
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- canpemm500009.china.huawei.com (7.192.105.203)
-X-CFilter-Loop: Reflected
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -60,11 +55,14 @@ Cc: wangkefeng.wang@huawei.com, prime.zeng@hisilicon.com,
  Barry Song <v-songbaohua@oppo.com>, openrisc@lists.librecores.org,
  darren@os.amperecomputing.com, linux-arm-kernel@lists.infradead.org,
  xhao@linux.alibaba.com, linux-kernel@vger.kernel.org, huzhanyuan@oppo.com,
- akpm@linux-foundation.org, linuxppc-dev@lists.ozlabs.org
+ Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
+ linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On 2022/9/9 13:35, Barry Song wrote:
+
+
+On 9/9/22 11:05, Barry Song wrote:
 > On Fri, Sep 9, 2022 at 5:24 PM Anshuman Khandual
 > <anshuman.khandual@arm.com> wrote:
 >>
@@ -284,45 +282,13 @@ On 2022/9/9 13:35, Barry Song wrote:
 > cortex-a55 cores, i didn't see obvious cost. it was less than 1%.
 > when we have 8 cores, we see the obvious cost of tlb flush. for a server with
 > 100 crores, the cost is incredibly huge.
-> 
-> But, we can hardly write source code to differentiate machines according to
-> how many cores a machine has, especially when cores can be hot-plugged.
-> 
 
-Another thing is that we're not recording mm_cpumask() on arm64 so for now we cannot do
-the check like x86 and others.
+Although dsb(ish) is deferred via arch_tlbbatch_flush(), there is still
+one dsb(isht) instruction left in __flush_tlb_page_nosync(). Is not that
+expensive as well, while queuing up individual TLB flushes ?
 
->>
->>> +
->>> +static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
->>> +                                     struct mm_struct *mm,
->>> +                                     unsigned long uaddr)
->>> +{
->>> +     __flush_tlb_page_nosync(mm, uaddr);
->>> +}
->>> +
->>> +static inline void arch_tlbbatch_flush(struct arch_tlbflush_unmap_batch *batch)
->>> +{
->>> +     dsb(ish);
->>> +}
->>
->> Adding up __flush_tlb_page_nosync() without a corresponding dsb(ish) and
->> then doing once via arch_tlbbatch_flush() will have the same effect from
->> an architecture perspective ?
-> 
-> The difference is we drop the cost of lots of single tlb flush. we
-> only need to sync
-> when we have to sync. dsb(ish) guarantees the completion of previous
-> multiple tlb
-> flush instructions.
-> 
->>
->>> +
->>>  /*
->>>   * This is meant to avoid soft lock-ups on large TLB flushing ranges and not
->>>   * necessarily a performance improvement.
-> 
-> Thanks
-> Barry
-> .
-> 
+The very idea behind TLB deferral is the opportunity it (might) provide
+to accumulate address ranges and cpu masks so that individual TLB flush
+can be replaced with a more cost effective range based TLB flush. Hence
+I guess unless address range or cpumask based cost effective TLB flush
+is available, deferral does not improve the unmap performance as much.
