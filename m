@@ -2,42 +2,42 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE6A0C6FA90
-	for <openrisc@archiver.kernel.org>; Mon, 19 Sep 2022 14:52:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A39CDC6FA92
+	for <openrisc@archiver.kernel.org>; Mon, 19 Sep 2022 14:52:38 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 2505124B23;
+	by mail.librecores.org (Postfix) with ESMTP id 7D06224B0B;
 	Mon, 19 Sep 2022 16:52:36 +0200 (CEST)
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by mail.librecores.org (Postfix) with ESMTPS id 6C52624B08
- for <openrisc@lists.librecores.org>; Mon, 19 Sep 2022 16:39:12 +0200 (CEST)
+ by mail.librecores.org (Postfix) with ESMTPS id 7744C24B0B
+ for <openrisc@lists.librecores.org>; Mon, 19 Sep 2022 16:49:47 +0200 (CEST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id BF856B81C95;
- Mon, 19 Sep 2022 14:39:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64C85C433D6;
- Mon, 19 Sep 2022 14:39:09 +0000 (UTC)
+ by ams.source.kernel.org (Postfix) with ESMTPS id 9F46DB81B9E;
+ Mon, 19 Sep 2022 14:49:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F2B3C433C1;
+ Mon, 19 Sep 2022 14:49:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1663598350;
- bh=EYlJ8II0nMQUwIjH0JUADdeT52M2bVXh8wZ8I7YWDZQ=;
+ s=k20201202; t=1663598985;
+ bh=L+UDv5mvX4qY9Lj3t+UbJ+Tw18xN3dy1wuBzIzgEsiI=;
  h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=s3+f9C0KTVjmYUPiubcRMi8XIY5SJMP0244Vb1fXbwXdFHK2Bm2BwTTQiaCHZh9e8
- gk+RkXTCbQvo+kjvjvWXHkL/k/NseZ0cbkyw2yDh2rZtKAxwlQOJfRciHvpbPx0lTm
- fDHS2etEOvPkeXqxMZO/oK5HOJhYIwkHmqYibhK+OB+2c+J+ST7lgkwPFAFcYkZbFW
- MXfD5dFjyN8rnPvB9qABtdA2rx/c5tMG/PNclmQth0MoJSBvpOxArLP6yCDHF7fpUw
- gdJXH8PHYrPCe2KnzR/yv4vNUQpksjg/NG4m1Xvw5PY6ek342QURnNGyGExrAr8OtZ
- QX22S+N/3elJw==
-Date: Mon, 19 Sep 2022 16:39:07 +0200
+ b=gguXnCN7R4mesgt80Rz1q6+nMltiCh9YFLbLacD9XX8i9153zAMu/C9J6wrlypmHV
+ C4O9/qad5/YnQHvxjMyAN1Xipx5RZeehydBte2IQ7IAgdOnvuph5RzwpWx9gT397CC
+ 3XfNp+JBSCdgKQhvk4OORlssabEFBx1hzL8bQQnUxL7VKxJlF+BxEn4pc6GlZy8Ifh
+ 1FPiwurZd8pb6cerOXJc5zrW3lkNSSADMghj6TUHyvQmunBRfq7eu+Okq1vapEVrsS
+ fiALbj72WkMAGlX2gGJsjQ17QfFOCStzMhTFJhfkANMdrWO19f7Yl0T7ppwQ8kBeZH
+ yiSmIlHS8YsmA==
+Date: Mon, 19 Sep 2022 16:49:41 +0200
 From: Frederic Weisbecker <frederic@kernel.org>
 To: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v2 10/44] cpuidle,armada: Push RCU-idle into driver
-Message-ID: <20220919143907.GB61009@lothringen>
+Subject: Re: [PATCH v2 08/44] cpuidle,imx6: Push RCU-idle into driver
+Message-ID: <20220919144941.GA62211@lothringen>
 References: <20220919095939.761690562@infradead.org>
- <20220919101521.004425686@infradead.org>
+ <20220919101520.869531945@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220919101521.004425686@infradead.org>
+In-Reply-To: <20220919101520.869531945@infradead.org>
 X-Mailman-Approved-At: Mon, 19 Sep 2022 16:52:35 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
@@ -101,29 +101,41 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Mon, Sep 19, 2022 at 11:59:49AM +0200, Peter Zijlstra wrote:
+On Mon, Sep 19, 2022 at 11:59:47AM +0200, Peter Zijlstra wrote:
 > Doing RCU-idle outside the driver, only to then temporarily enable it
-> again before going idle is daft.
-
-Ah wait, now I see, that's cpu_pm_enter()/cpu_pm_exit() -> cpu_pm_notify*() the culprits.
-Might be worth adding a short note about that on your changelogs.
-
+> again, at least twice, before going idle is daft.
 > 
 > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 > ---
->  drivers/cpuidle/cpuidle-mvebu-v7.c |    7 +++++++
->  1 file changed, 7 insertions(+)
+>  arch/arm/mach-imx/cpuidle-imx6sx.c |    5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
 > 
-> --- a/drivers/cpuidle/cpuidle-mvebu-v7.c
-> +++ b/drivers/cpuidle/cpuidle-mvebu-v7.c
-> @@ -36,7 +36,10 @@ static int mvebu_v7_enter_idle(struct cp
->  	if (drv->states[index].flags & MVEBU_V7_FLAG_DEEP_IDLE)
->  		deepidle = true;
+> --- a/arch/arm/mach-imx/cpuidle-imx6sx.c
+> +++ b/arch/arm/mach-imx/cpuidle-imx6sx.c
+> @@ -47,7 +47,9 @@ static int imx6sx_enter_wait(struct cpui
+>  		cpu_pm_enter();
+>  		cpu_cluster_pm_enter();
 >  
-> +	ct_idle_enter();
->  	ret = mvebu_v7_cpu_suspend(deepidle);
-> +	ct_idle_exit();
+> +		ct_idle_enter();
+>  		cpu_suspend(0, imx6sx_idle_finish);
+> +		ct_idle_exit();
+>  
+>  		cpu_cluster_pm_exit();
+>  		cpu_pm_exit();
+> @@ -87,7 +89,8 @@ static struct cpuidle_driver imx6sx_cpui
+>  			 */
+>  			.exit_latency = 300,
+>  			.target_residency = 500,
+> -			.flags = CPUIDLE_FLAG_TIMER_STOP,
+> +			.flags = CPUIDLE_FLAG_TIMER_STOP |
+> +				 CPUIDLE_FLAG_RCU_IDLE,
+>  			.enter = imx6sx_enter_wait,
 
-And then yes of course:
+There is a second one below that also uses imx6sx_enter_wait.
 
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+Thanks.
+
+>  			.name = "LOW-POWER-IDLE",
+>  			.desc = "ARM power off",
+> 
+> 
