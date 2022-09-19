@@ -2,43 +2,43 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3962C6FA8B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4AB6AC6FA90
 	for <openrisc@archiver.kernel.org>; Mon, 19 Sep 2022 14:24:48 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 52DEB249AD;
-	Mon, 19 Sep 2022 16:24:48 +0200 (CEST)
+	by mail.librecores.org (Postfix) with ESMTP id CC0E524A61;
+	Mon, 19 Sep 2022 16:24:47 +0200 (CEST)
 Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
- by mail.librecores.org (Postfix) with ESMTPS id 9E5D525B9F
+ by mail.librecores.org (Postfix) with ESMTPS id 99AEC25B96
  for <openrisc@lists.librecores.org>; Mon, 19 Sep 2022 12:17:58 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=tHnqBkdMyvYunYXYVYlgcgUQQIKSwssAZ5pz8qcqKQY=; b=oSOjRfybQB1HzLh07ntiJBNX3L
- HCd3QPPtrX2QpGBXGbkBp9vQo4MERxRRPotEASyVSOGtrGzi6xNMUR5QE40aFO9aXcbWMyZPKxKCg
- +wyqR4j1pBZ1KAvHJsgrFZu24J0uZlXnXRxeKgNwBtvP97hLTlu8ONkMdU3VomQscJ5JQqiVpIqsL
- grmaQTNcBE6IJLkquRyNCK+Zc0Q86XeOhzRwwOuL/HDx9X/1zR0fJ1VVlfk8rtpuQwRSn3fPewrIh
- C8QpN4vcgz2I2hZicsgDEBP0cZ3VeYHsqdJVL6mjIk/rtYeyIqWpmxknZKAbxK/xrZC6RRcbWzEpf
- TCmLdkUw==;
+ bh=pxqjaMyXYMAIciLaWxKe0qnmRXZim+cyW3iOuZrk594=; b=pJappe5zW7K5a0uM2up4iM5Wnb
+ /MjE8rbu9WAnugdJ3vNctbRmg6M6msdadl7GrRu8gtVBhdKcEL1q01gUbAuGRo0F0P7TCfvPJh4j2
+ OEm2Vu3lZCTKtlIjZJSadch35O1K0Zbwq+z8RJTY6sDBfrl7cZthsF+xPgMYt5cDvWZZf4P4AlFVc
+ zdM/BHKKGCIjNj47BoFPAVho93RY3tnAP/cuTaLSHb+Kf058fSlXO4SLAuEKfsIyz0WEgg5U4frRu
+ X+6ypv7mNDlcFlPVnLutEGlC5ervzvG7OJqcv/JCTvTdx7I88hj7iNzDWL0LLFMDZwMu/BFg/DVkL
+ /eEjmWnw==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
  by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1oaDpE-00E28v-2E; Mon, 19 Sep 2022 10:17:18 +0000
+ id 1oaDq5-00E2B6-Tl; Mon, 19 Sep 2022 10:17:23 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id C4397302DF5;
- Mon, 19 Sep 2022 12:16:24 +0200 (CEST)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 4659D302F3C;
+ Mon, 19 Sep 2022 12:16:25 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id E6E592BA4903D; Mon, 19 Sep 2022 12:16:21 +0200 (CEST)
-Message-ID: <20220919101520.869531945@infradead.org>
+ id 6042A2BA49034; Mon, 19 Sep 2022 12:16:22 +0200 (CEST)
+Message-ID: <20220919101522.224759912@infradead.org>
 User-Agent: quilt/0.66
-Date: Mon, 19 Sep 2022 11:59:47 +0200
+Date: Mon, 19 Sep 2022 12:00:07 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH v2 08/44] cpuidle,imx6: Push RCU-idle into driver
+Subject: [PATCH v2 28/44] cpuidle,mwait: Make noinstr clean
 References: <20220919095939.761690562@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -105,35 +105,77 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Doing RCU-idle outside the driver, only to then temporarily enable it
-again, at least twice, before going idle is daft.
+vmlinux.o: warning: objtool: intel_idle_s2idle+0x6e: call to __monitor.constprop.0() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_irq+0x8c: call to __monitor.constprop.0() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle+0x73: call to __monitor.constprop.0() leaves .noinstr.text section
+
+vmlinux.o: warning: objtool: mwait_idle+0x88: call to clflush() leaves .noinstr.text section
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- arch/arm/mach-imx/cpuidle-imx6sx.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/mwait.h         |   12 ++++++------
+ arch/x86/include/asm/special_insns.h |    2 +-
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
---- a/arch/arm/mach-imx/cpuidle-imx6sx.c
-+++ b/arch/arm/mach-imx/cpuidle-imx6sx.c
-@@ -47,7 +47,9 @@ static int imx6sx_enter_wait(struct cpui
- 		cpu_pm_enter();
- 		cpu_cluster_pm_enter();
+--- a/arch/x86/include/asm/mwait.h
++++ b/arch/x86/include/asm/mwait.h
+@@ -25,7 +25,7 @@
+ #define TPAUSE_C01_STATE		1
+ #define TPAUSE_C02_STATE		0
  
-+		ct_idle_enter();
- 		cpu_suspend(0, imx6sx_idle_finish);
-+		ct_idle_exit();
+-static inline void __monitor(const void *eax, unsigned long ecx,
++static __always_inline void __monitor(const void *eax, unsigned long ecx,
+ 			     unsigned long edx)
+ {
+ 	/* "monitor %eax, %ecx, %edx;" */
+@@ -33,7 +33,7 @@ static inline void __monitor(const void
+ 		     :: "a" (eax), "c" (ecx), "d"(edx));
+ }
  
- 		cpu_cluster_pm_exit();
- 		cpu_pm_exit();
-@@ -87,7 +89,8 @@ static struct cpuidle_driver imx6sx_cpui
- 			 */
- 			.exit_latency = 300,
- 			.target_residency = 500,
--			.flags = CPUIDLE_FLAG_TIMER_STOP,
-+			.flags = CPUIDLE_FLAG_TIMER_STOP |
-+				 CPUIDLE_FLAG_RCU_IDLE,
- 			.enter = imx6sx_enter_wait,
- 			.name = "LOW-POWER-IDLE",
- 			.desc = "ARM power off",
+-static inline void __monitorx(const void *eax, unsigned long ecx,
++static __always_inline void __monitorx(const void *eax, unsigned long ecx,
+ 			      unsigned long edx)
+ {
+ 	/* "monitorx %eax, %ecx, %edx;" */
+@@ -41,7 +41,7 @@ static inline void __monitorx(const void
+ 		     :: "a" (eax), "c" (ecx), "d"(edx));
+ }
+ 
+-static inline void __mwait(unsigned long eax, unsigned long ecx)
++static __always_inline void __mwait(unsigned long eax, unsigned long ecx)
+ {
+ 	mds_idle_clear_cpu_buffers();
+ 
+@@ -76,8 +76,8 @@ static inline void __mwait(unsigned long
+  * EAX                     (logical) address to monitor
+  * ECX                     #GP if not zero
+  */
+-static inline void __mwaitx(unsigned long eax, unsigned long ebx,
+-			    unsigned long ecx)
++static __always_inline void __mwaitx(unsigned long eax, unsigned long ebx,
++				     unsigned long ecx)
+ {
+ 	/* No MDS buffer clear as this is AMD/HYGON only */
+ 
+@@ -86,7 +86,7 @@ static inline void __mwaitx(unsigned lon
+ 		     :: "a" (eax), "b" (ebx), "c" (ecx));
+ }
+ 
+-static inline void __sti_mwait(unsigned long eax, unsigned long ecx)
++static __always_inline void __sti_mwait(unsigned long eax, unsigned long ecx)
+ {
+ 	mds_idle_clear_cpu_buffers();
+ 	/* "mwait %eax, %ecx;" */
+--- a/arch/x86/include/asm/special_insns.h
++++ b/arch/x86/include/asm/special_insns.h
+@@ -196,7 +196,7 @@ static inline void load_gs_index(unsigne
+ 
+ #endif /* CONFIG_PARAVIRT_XXL */
+ 
+-static inline void clflush(volatile void *__p)
++static __always_inline void clflush(volatile void *__p)
+ {
+ 	asm volatile("clflush %0" : "+m" (*(volatile char __force *)__p));
+ }
 
 
