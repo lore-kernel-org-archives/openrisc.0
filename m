@@ -2,43 +2,43 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C4ECECAAD3
-	for <openrisc@archiver.kernel.org>; Mon, 19 Sep 2022 14:24:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AFC6C54EE9
+	for <openrisc@archiver.kernel.org>; Mon, 19 Sep 2022 14:24:53 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 1577B24AA0;
+	by mail.librecores.org (Postfix) with ESMTP id 8B1BB24B6B;
 	Mon, 19 Sep 2022 16:24:52 +0200 (CEST)
 Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
- by mail.librecores.org (Postfix) with ESMTPS id 7D66025C3F
- for <openrisc@lists.librecores.org>; Mon, 19 Sep 2022 12:18:01 +0200 (CEST)
+ by mail.librecores.org (Postfix) with ESMTPS id C023925B8C
+ for <openrisc@lists.librecores.org>; Mon, 19 Sep 2022 12:18:08 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=RR6lW9yNo9DZO38N/e4p2MZQ6Q7RTpDFv4YAvZRPRqw=; b=dhBNASMjq9JKam0WFAPScBiUEC
- 31XDK+h8qwhTq5EYT0SjwEcio54RYo3YXNJzL9qp8vVRkHyfJsQdQcJ5Pti5d6ymG6v5YR3rrgpSe
- 4XQcuWxDsJ1q6ovVgaQ+SzZulVoRGlSkSN5mw4EvYN4P6fE8HKs2maYkCA13mRDRuD64OLEBGUXNF
- /Qgic1QrUIq2i79qFoP0kCFY/irIFSIMyGshswJWaLZxBi5W3PBUL9nwY5VACRXQbvXsyeiTIa0ch
- J7yjXG2VyjwvJ2v3SrZKjK45QEL7p9TWkv0I41FozhTFdQrt5gfJGZDLrunBCNqm7Jycvz/5X9SYw
- ljUFiqLQ==;
+ bh=G+s8KeYPo3DKU8KAsFzI9EuTHpElgTPxlXfQAuxRCYE=; b=EFx7B8LZTc83Pl4WaazbOvooxh
+ m5ZH43lt/bUlEN9jEiueLap+B4d87w5iLtoW12OfYwc57bGORzfANspx7UladbBmGSWc1xIqbuqIn
+ FOYYsmRFy+hGwvwvJke8Fb32oGMOnwwKJRBjXTd62rAreByaRoia5cby7KftFCJ5X/Ml7ELcrwj5J
+ eiKKDdHS7VBR9PkXXj1rPKGhThK0lQvF5JDGcSZD67Indcxu2z2DcH6Nt3bnOKQDsnf0QQZKS0PCq
+ ltrSo2MfjxxanO8+19FzwsNyRAZqAIM7DEPtfJ6dxj7PDwKMiZ9L9kurxNJZpN7RIUHFgemSiXBCp
+ JnN7XVag==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
  by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1oaDq8-00E2Bs-F5; Mon, 19 Sep 2022 10:17:25 +0000
+ id 1oaDq7-00E2Bp-Tq; Mon, 19 Sep 2022 10:17:24 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 9592E302F78;
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 8401E302F6E;
  Mon, 19 Sep 2022 12:16:25 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id A2A092BAC75A3; Mon, 19 Sep 2022 12:16:22 +0200 (CEST)
-Message-ID: <20220919101523.110221113@infradead.org>
+ id 9D3F72BA49047; Mon, 19 Sep 2022 12:16:22 +0200 (CEST)
+Message-ID: <20220919101523.043382530@infradead.org>
 User-Agent: quilt/0.66
-Date: Mon, 19 Sep 2022 12:00:20 +0200
+Date: Mon, 19 Sep 2022 12:00:19 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH v2 41/44] intel_idle: Add force_irq_on module param
+Subject: [PATCH v2 40/44] ubsan: Fix objtool UACCESS warns
 References: <20220919095939.761690562@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -105,36 +105,53 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-For testing purposes.
+clang-14 allyesconfig gives:
+
+vmlinux.o: warning: objtool: emulator_cmpxchg_emulated+0x705: call to __ubsan_handle_load_invalid_value() with UACCESS enabled
+vmlinux.o: warning: objtool: paging64_update_accessed_dirty_bits+0x39e: call to __ubsan_handle_load_invalid_value() with UACCESS enabled
+vmlinux.o: warning: objtool: paging32_update_accessed_dirty_bits+0x390: call to __ubsan_handle_load_invalid_value() with UACCESS enabled
+vmlinux.o: warning: objtool: ept_update_accessed_dirty_bits+0x43f: call to __ubsan_handle_load_invalid_value() with UACCESS enabled
+
+Add the required eflags save/restore and whitelist the thing.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- drivers/idle/intel_idle.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ lib/ubsan.c           |    5 ++++-
+ tools/objtool/check.c |    1 +
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/idle/intel_idle.c
-+++ b/drivers/idle/intel_idle.c
-@@ -1787,6 +1787,9 @@ static bool __init intel_idle_verify_cst
- 	return true;
- }
- 
-+static bool force_irq_on __read_mostly;
-+module_param(force_irq_on, bool, 0444);
-+
- static void __init intel_idle_init_cstates_icpu(struct cpuidle_driver *drv)
+--- a/lib/ubsan.c
++++ b/lib/ubsan.c
+@@ -340,9 +340,10 @@ void __ubsan_handle_load_invalid_value(v
  {
- 	int cstate;
-@@ -1838,8 +1841,10 @@ static void __init intel_idle_init_cstat
- 		/* Structure copy. */
- 		drv->states[drv->state_count] = cpuidle_state_table[cstate];
+ 	struct invalid_value_data *data = _data;
+ 	char val_str[VALUE_LENGTH];
++	unsigned long ua_flags = user_access_save();
  
--		if (cpuidle_state_table[cstate].flags & CPUIDLE_FLAG_IRQ_ENABLE)
-+		if ((cpuidle_state_table[cstate].flags & CPUIDLE_FLAG_IRQ_ENABLE) || force_irq_on) {
-+			printk("intel_idle: forced intel_idle_irq for state %d\n", cstate);
- 			drv->states[drv->state_count].enter = intel_idle_irq;
-+		}
+ 	if (suppress_report(&data->location))
+-		return;
++		goto out;
  
- 		if (cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS) &&
- 		    cpuidle_state_table[cstate].flags & CPUIDLE_FLAG_IBRS) {
+ 	ubsan_prologue(&data->location, "invalid-load");
+ 
+@@ -352,6 +353,8 @@ void __ubsan_handle_load_invalid_value(v
+ 		val_str, data->type->type_name);
+ 
+ 	ubsan_epilogue();
++out:
++	user_access_restore(ua_flags);
+ }
+ EXPORT_SYMBOL(__ubsan_handle_load_invalid_value);
+ 
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -1068,6 +1068,7 @@ static const char *uaccess_safe_builtin[
+ 	"__ubsan_handle_type_mismatch",
+ 	"__ubsan_handle_type_mismatch_v1",
+ 	"__ubsan_handle_shift_out_of_bounds",
++	"__ubsan_handle_load_invalid_value",
+ 	/* misc */
+ 	"csum_partial_copy_generic",
+ 	"copy_mc_fragile",
 
 
