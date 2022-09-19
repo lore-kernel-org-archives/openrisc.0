@@ -2,43 +2,43 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3724C6FA92
-	for <openrisc@archiver.kernel.org>; Mon, 19 Sep 2022 14:24:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8759C6FA8B
+	for <openrisc@archiver.kernel.org>; Mon, 19 Sep 2022 14:24:45 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 7626A24871;
-	Mon, 19 Sep 2022 16:24:44 +0200 (CEST)
+	by mail.librecores.org (Postfix) with ESMTP id 6D3CD24B0A;
+	Mon, 19 Sep 2022 16:24:45 +0200 (CEST)
 Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
- by mail.librecores.org (Postfix) with ESMTPS id B6E9324C8C
- for <openrisc@lists.librecores.org>; Mon, 19 Sep 2022 12:17:53 +0200 (CEST)
+ by mail.librecores.org (Postfix) with ESMTPS id 4EC8925B30
+ for <openrisc@lists.librecores.org>; Mon, 19 Sep 2022 12:17:55 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=6o9qTJ/QjCltP+zmu0PkeSqB0nVcTaPJ8iw1lVGI/YI=; b=fh6jTDX0iTAQBch3m1E8OK/teW
- GEjpiaTGkYRg8vW/aNBRkADkEkRImQUbzpta6LI3AmhS4mLdaW44WlTemKQQHS4Rib2Jfagk+JvNt
- 68yaJmGcdY82ZdDz3uA87H5wQgt/XUMfWTG9ArE4FLvW/Q1KIsjvg4XIJz1Peh9lF2VNg15j8v85Y
- 4WT3iEDs4Y+JCcmg6XLoixnFygR6J3BhKqIRZKs+QG8Lg6WzUGeQtqQJvH/MYkNqMTCc25mz62Mdv
- 1r8UW5CvdoSFJxq4HftoO38anvP9uEWdLAZrJvn5BWoV7b0HiT7bN+lsCpQ1+FWS29ScGWW8uBlG+
- r0yDTsUA==;
+ bh=Jv9RVwj6ep0TNO3s8uQfW2HtHTmBFm30lOC4tMkhMhE=; b=I0EhwdPmpjSZk5ja964YpGAeCk
+ C45fO8EM2mFiC3DqJ/DLybVkyafkKHKl3HVER9ZEbihKzLYNqVeFyddpeJHRtyR3Hqt6oLKSGVGjW
+ vqS2M9zIsxV8gsOfD7+XCbU9PTw5axIq4H/pb8qDwFBvMyaPepi+uWsHsWNlsWS7xrTM/BPK4YgD3
+ Dc5KuCRzAzK3XGO0qZfcsXuFfFJ9wq6bMfse+Cfxnca5S5lUCl4E/cwiPRmLCQSUW7X2HmRLeBpql
+ t7ZytyFf5zRqKJC9wJ/YYZXZRdxRenNHmV2zQCP0YUncXkY5SvjZeThv7pYpsP5HwzDFYicMtgcd9
+ GoTez4OA==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
  by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1oaDpF-00E293-Ay; Mon, 19 Sep 2022 10:17:17 +0000
+ id 1oaDq6-00E2Bh-MF; Mon, 19 Sep 2022 10:17:23 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id E0605302EB1;
- Mon, 19 Sep 2022 12:16:24 +0200 (CEST)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 6F16B302F58;
+ Mon, 19 Sep 2022 12:16:25 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id 052C92BA49043; Mon, 19 Sep 2022 12:16:21 +0200 (CEST)
-Message-ID: <20220919101521.139727471@infradead.org>
+ id 7C6A32BAC75B2; Mon, 19 Sep 2022 12:16:22 +0200 (CEST)
+Message-ID: <20220919101522.640861846@infradead.org>
 User-Agent: quilt/0.66
-Date: Mon, 19 Sep 2022 11:59:51 +0200
+Date: Mon, 19 Sep 2022 12:00:13 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH v2 12/44] cpuidle,dt: Push RCU-idle into driver
+Subject: [PATCH v2 34/44] cpuidle,omap3: Use WFI for omap3_pm_idle()
 References: <20220919095939.761690562@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -105,143 +105,30 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Doing RCU-idle outside the driver, only to then temporarily enable it
-again before going idle is daft.
+arch_cpu_idle() is a very simple idle interface and exposes only a
+single idle state and is expected to not require RCU and not do any
+tracing/instrumentation.
 
-Notably: this converts all dt_init_idle_driver() and
-__CPU_PM_CPU_IDLE_ENTER() users for they are inextrably intertwined.
+As such, omap_sram_idle() is not a valid implementation. Replace it
+with the simple (shallow) omap3_do_wfi() call. Leaving the more
+complicated idle states for the cpuidle driver.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Tony Lindgren <tony@atomide.com>
 ---
- arch/arm/mach-omap2/cpuidle34xx.c    |    4 ++--
- drivers/acpi/processor_idle.c        |    2 ++
- drivers/cpuidle/cpuidle-arm.c        |    1 +
- drivers/cpuidle/cpuidle-big_little.c |    8 ++++++--
- drivers/cpuidle/cpuidle-psci.c       |    1 +
- drivers/cpuidle/cpuidle-qcom-spm.c   |    1 +
- drivers/cpuidle/cpuidle-riscv-sbi.c  |    1 +
- drivers/cpuidle/dt_idle_states.c     |    2 +-
- include/linux/cpuidle.h              |    4 ++++
- 9 files changed, 19 insertions(+), 5 deletions(-)
+ arch/arm/mach-omap2/pm34xx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/acpi/processor_idle.c
-+++ b/drivers/acpi/processor_idle.c
-@@ -1200,6 +1200,8 @@ static int acpi_processor_setup_lpi_stat
- 		state->target_residency = lpi->min_residency;
- 		if (lpi->arch_flags)
- 			state->flags |= CPUIDLE_FLAG_TIMER_STOP;
-+		if (lpi->entry_method == ACPI_CSTATE_FFH)
-+			state->flags |= CPUIDLE_FLAG_RCU_IDLE;
- 		state->enter = acpi_idle_lpi_enter;
- 		drv->safe_state_index = i;
- 	}
---- a/drivers/cpuidle/cpuidle-arm.c
-+++ b/drivers/cpuidle/cpuidle-arm.c
-@@ -53,6 +53,7 @@ static struct cpuidle_driver arm_idle_dr
- 	 * handler for idle state index 0.
- 	 */
- 	.states[0] = {
-+		.flags			= CPUIDLE_FLAG_RCU_IDLE,
- 		.enter                  = arm_enter_idle_state,
- 		.exit_latency           = 1,
- 		.target_residency       = 1,
---- a/drivers/cpuidle/cpuidle-big_little.c
-+++ b/drivers/cpuidle/cpuidle-big_little.c
-@@ -64,7 +64,8 @@ static struct cpuidle_driver bl_idle_lit
- 		.enter			= bl_enter_powerdown,
- 		.exit_latency		= 700,
- 		.target_residency	= 2500,
--		.flags			= CPUIDLE_FLAG_TIMER_STOP,
-+		.flags			= CPUIDLE_FLAG_TIMER_STOP |
-+					  CPUIDLE_FLAG_RCU_IDLE,
- 		.name			= "C1",
- 		.desc			= "ARM little-cluster power down",
- 	},
-@@ -85,7 +86,8 @@ static struct cpuidle_driver bl_idle_big
- 		.enter			= bl_enter_powerdown,
- 		.exit_latency		= 500,
- 		.target_residency	= 2000,
--		.flags			= CPUIDLE_FLAG_TIMER_STOP,
-+		.flags			= CPUIDLE_FLAG_TIMER_STOP |
-+					  CPUIDLE_FLAG_RCU_IDLE,
- 		.name			= "C1",
- 		.desc			= "ARM big-cluster power down",
- 	},
-@@ -124,11 +126,13 @@ static int bl_enter_powerdown(struct cpu
- 				struct cpuidle_driver *drv, int idx)
- {
- 	cpu_pm_enter();
-+	ct_idle_enter();
+--- a/arch/arm/mach-omap2/pm34xx.c
++++ b/arch/arm/mach-omap2/pm34xx.c
+@@ -294,7 +294,7 @@ static void omap3_pm_idle(void)
+ 	if (omap_irq_pending())
+ 		return;
  
- 	cpu_suspend(0, bl_powerdown_finisher);
+-	omap_sram_idle();
++	omap3_do_wfi();
+ }
  
- 	/* signals the MCPM core that CPU is out of low power state */
- 	mcpm_cpu_powered_up();
-+	ct_idle_exit();
- 
- 	cpu_pm_exit();
- 
---- a/drivers/cpuidle/cpuidle-psci.c
-+++ b/drivers/cpuidle/cpuidle-psci.c
-@@ -357,6 +357,7 @@ static int psci_idle_init_cpu(struct dev
- 	 * PSCI idle states relies on architectural WFI to be represented as
- 	 * state index 0.
- 	 */
-+	drv->states[0].flags = CPUIDLE_FLAG_RCU_IDLE;
- 	drv->states[0].enter = psci_enter_idle_state;
- 	drv->states[0].exit_latency = 1;
- 	drv->states[0].target_residency = 1;
---- a/drivers/cpuidle/cpuidle-qcom-spm.c
-+++ b/drivers/cpuidle/cpuidle-qcom-spm.c
-@@ -72,6 +72,7 @@ static struct cpuidle_driver qcom_spm_id
- 	.owner = THIS_MODULE,
- 	.states[0] = {
- 		.enter			= spm_enter_idle_state,
-+		.flags			= CPUIDLE_FLAG_RCU_IDLE,
- 		.exit_latency		= 1,
- 		.target_residency	= 1,
- 		.power_usage		= UINT_MAX,
---- a/drivers/cpuidle/cpuidle-riscv-sbi.c
-+++ b/drivers/cpuidle/cpuidle-riscv-sbi.c
-@@ -332,6 +332,7 @@ static int sbi_cpuidle_init_cpu(struct d
- 	drv->cpumask = (struct cpumask *)cpumask_of(cpu);
- 
- 	/* RISC-V architectural WFI to be represented as state index 0. */
-+	drv->states[0].flags = CPUIDLE_FLAG_RCU_IDLE;
- 	drv->states[0].enter = sbi_cpuidle_enter_state;
- 	drv->states[0].exit_latency = 1;
- 	drv->states[0].target_residency = 1;
---- a/drivers/cpuidle/dt_idle_states.c
-+++ b/drivers/cpuidle/dt_idle_states.c
-@@ -77,7 +77,7 @@ static int init_state_node(struct cpuidl
- 	if (err)
- 		desc = state_node->name;
- 
--	idle_state->flags = 0;
-+	idle_state->flags = CPUIDLE_FLAG_RCU_IDLE;
- 	if (of_property_read_bool(state_node, "local-timer-stop"))
- 		idle_state->flags |= CPUIDLE_FLAG_TIMER_STOP;
- 	/*
---- a/include/linux/cpuidle.h
-+++ b/include/linux/cpuidle.h
-@@ -282,14 +282,18 @@ extern s64 cpuidle_governor_latency_req(
- 	int __ret = 0;							\
- 									\
- 	if (!idx) {							\
-+		ct_idle_enter();					\
- 		cpu_do_idle();						\
-+		ct_idle_exit();						\
- 		return idx;						\
- 	}								\
- 									\
- 	if (!is_retention)						\
- 		__ret =  cpu_pm_enter();				\
- 	if (!__ret) {							\
-+		ct_idle_enter();					\
- 		__ret = low_level_idle_enter(state);			\
-+		ct_idle_exit();						\
- 		if (!is_retention)					\
- 			cpu_pm_exit();					\
- 	}								\
+ #ifdef CONFIG_SUSPEND
 
 
