@@ -2,36 +2,36 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1A3CC54EE9
-	for <openrisc@archiver.kernel.org>; Mon, 19 Sep 2022 14:52:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38EE0ECAAD3
+	for <openrisc@archiver.kernel.org>; Mon, 19 Sep 2022 14:52:38 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id ED3B524B0D;
-	Mon, 19 Sep 2022 16:52:35 +0200 (CEST)
+	by mail.librecores.org (Postfix) with ESMTP id 4B14724B1E;
+	Mon, 19 Sep 2022 16:52:36 +0200 (CEST)
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by mail.librecores.org (Postfix) with ESMTPS id 0E0CE24B07
- for <openrisc@lists.librecores.org>; Mon, 19 Sep 2022 16:31:48 +0200 (CEST)
+ by mail.librecores.org (Postfix) with ESMTPS id BBF8A24B0D
+ for <openrisc@lists.librecores.org>; Mon, 19 Sep 2022 16:43:29 +0200 (CEST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id E92CBB81C48;
- Mon, 19 Sep 2022 14:31:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 884E0C433D6;
- Mon, 19 Sep 2022 14:31:44 +0000 (UTC)
+ by ams.source.kernel.org (Postfix) with ESMTPS id 58AD5B81C98;
+ Mon, 19 Sep 2022 14:43:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05DF7C433C1;
+ Mon, 19 Sep 2022 14:43:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1663597905;
- bh=NkXCfQm/FLpDP/QLaoePbhdmGTT1By087FmiZ+g8tK4=;
+ s=k20201202; t=1663598608;
+ bh=D+NoVno96UrWEE2gn7tpItGkEKOt+jvRjziVTjece0Q=;
  h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=cPr6ORIkZS1hi0mTfC3IAGOVxe5Xf0YIpXn1FG72c3gSFnG+XbcMopHgOCdZrpVuQ
- LHqUCo/2hUmO1H6LNW9r9rHA5mXGvztHGS2F3OtBjHAXIwt5oCzU5wdBmMInXf415s
- ibv233mBU12TSNxEClWBTVHK1fzjS7w3j4hbCapvOVbDE6aKKPaOgVe+365dcYYrsH
- IXd+ByoZVYWQ1bXlckcr80Mp0FHSvK1giDc4yzOoai/YCnXbUK9IDecCd6Dzc6zaZI
- kDA/PRtGSO5qjzxSvX9Ec26StLbOH1EWQlWCIdAgthIaznmMEXMje+f6NIOt73HqRu
- 77PbrmkIj/BkA==
-Date: Mon, 19 Sep 2022 16:31:42 +0200
+ b=f2RIwdWtaC1gU/c1iv3f/GeLucEzNWn7ccmc4GkJFGI8QfQfyUHofdECc2rWD4nFT
+ 0GaftLgfVcd1PQZdiEvRWN1bWq4LSfCyq8T7EO2jtq161kguk1vIObBbG692peFow3
+ xVyXo7iCyJmHMqd+S086gL1tfeYNp+V+xCIDAmfixXqTqubgg5nU77xLOKigezj3PM
+ DaLeuiIZfTliZOGY4J1mUhwhazJJvjrhlr1eHMdV/EpxzQpUfj4SYRIitJ/3QvhoFT
+ kXsev9FMLepyLeGkyRUFuM4yf7vwnZr8XA/FTgCZNB/ut+W0bJKqkVzf3mVq0/5WFi
+ 97mYIEcc35h6A==
+Date: Mon, 19 Sep 2022 16:43:24 +0200
 From: Frederic Weisbecker <frederic@kernel.org>
 To: Peter Zijlstra <peterz@infradead.org>
 Subject: Re: [PATCH v2 09/44] cpuidle,omap3: Push RCU-idle into driver
-Message-ID: <20220919143142.GA61009@lothringen>
+Message-ID: <20220919144324.GA62117@lothringen>
 References: <20220919095939.761690562@infradead.org>
  <20220919101520.936337959@infradead.org>
 MIME-Version: 1.0
@@ -104,7 +104,11 @@ Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 On Mon, Sep 19, 2022 at 11:59:48AM +0200, Peter Zijlstra wrote:
 > Doing RCU-idle outside the driver, only to then teporarily enable it
 > again before going idle is daft.
+> 
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Reviewed-by: Tony Lindgren <tony@atomide.com>
+> Tested-by: Tony Lindgren <tony@atomide.com>
 
-That doesn't tell where those calls are.
+Ok now with the cpu_pm_*() informations that makes sense:
 
-Thanks.
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
