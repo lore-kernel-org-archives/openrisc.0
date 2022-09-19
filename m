@@ -2,44 +2,43 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27AFBECAAD3
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99A03C6FA92
 	for <openrisc@archiver.kernel.org>; Mon, 19 Sep 2022 14:24:50 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id A4F9724B48;
-	Mon, 19 Sep 2022 16:24:49 +0200 (CEST)
+	by mail.librecores.org (Postfix) with ESMTP id 2C48724B56;
+	Mon, 19 Sep 2022 16:24:50 +0200 (CEST)
 Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
- by mail.librecores.org (Postfix) with ESMTPS id 42BC325B9D
+ by mail.librecores.org (Postfix) with ESMTPS id 5F6E725BFE
  for <openrisc@lists.librecores.org>; Mon, 19 Sep 2022 12:17:59 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=vB057xACRVSJThllhGE8f2SmJ9TT+oL90mm46lxduII=; b=F4ZzpLALXfbim8FxxubZix5X2h
- 3KJW81bNu4fAmFQz5N6iiN8XV9iBsQVmq+zW/vq0j9wYSl3oL7umDHxpWnoMDwppDESo2JZ8NCbQA
- irdGigfvR8GH+IK7hApnc2qLNExIApmE0303EnldaeMEhxVZbumu11U43rY29R4YShO/M3jWXAd6j
- jubF/wefGhchIgU0lQVeMDr3kkvVXyRoxm0N2QA55HnPVwrzSxoFF1Yey3N6wPtIzHGegzV52VI7x
- GVQUTbmoVrmRukCA4hYXINMsKHoAqMzzJuJ/b/IivxGLKcG8nmHCHVHSmMQvsiBLqJW+nopA16KMG
- 3bbaI6Tw==;
+ bh=mpoCVwwSlcWMSbFc2ASY4TLxAbRobKK8wUXUoaGZ7qA=; b=gtfdf8L6gVyevRGMR3eZu3f8N0
+ zWufH7vcSU1x26RRVr7ayAtV4E5cQIJoYbE4C6CeSVWNQ7hNoKjtXt3R8UGfMv5WAYlHaeINfopoY
+ ZULORscKoNxVfR08GoydnWuXdwmVP9E68XJLQNl22iBoLakcwMXbbeH/izd6JAhsn/t9bscwlA9Bk
+ XAVLYGKcAcZkf5rVwfioZhxprY0N3Z02WDZJG0OMDKTp90Ttdh/A8/En/Ti9AGYVqIdDRQVhWGxmM
+ Ua7N8r2k1nrFncinnNqzxA5aKzla6Ri5rgGBp647+u7hslBhRpO/0hIxfbFx+qJnhtuG/vLoNGoEa
+ D8BAw/jQ==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
  by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1oaDpF-00E294-E0; Mon, 19 Sep 2022 10:17:17 +0000
+ id 1oaDq4-00E2Az-8U; Mon, 19 Sep 2022 10:17:21 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id E2D20302ECF;
- Mon, 19 Sep 2022 12:16:24 +0200 (CEST)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 3D5A8302F2C;
+ Mon, 19 Sep 2022 12:16:25 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id 0FB662BA49045; Mon, 19 Sep 2022 12:16:22 +0200 (CEST)
-Message-ID: <20220919101521.274051658@infradead.org>
+ id 55BCB2BAC75A1; Mon, 19 Sep 2022 12:16:22 +0200 (CEST)
+Message-ID: <20220919101522.089180678@infradead.org>
 User-Agent: quilt/0.66
-Date: Mon, 19 Sep 2022 11:59:53 +0200
+Date: Mon, 19 Sep 2022 12:00:05 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH v2 14/44] cpuidle,
- cpu_pm: Remove RCU fiddling from cpu_pm_{enter, exit}()
+Subject: [PATCH v2 26/44] time/tick-broadcast: Remove RCU_NONIDLE usage
 References: <20220919095939.761690562@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -106,44 +105,53 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-All callers should still have RCU enabled.
+No callers left that have already disabled RCU.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Acked-by: Mark Rutland <mark.rutland@arm.com>
 ---
- kernel/cpu_pm.c |    9 ---------
- 1 file changed, 9 deletions(-)
+ kernel/time/tick-broadcast-hrtimer.c |   29 ++++++++++++-----------------
+ 1 file changed, 12 insertions(+), 17 deletions(-)
 
---- a/kernel/cpu_pm.c
-+++ b/kernel/cpu_pm.c
-@@ -30,16 +30,9 @@ static int cpu_pm_notify(enum cpu_pm_eve
- {
- 	int ret;
- 
--	/*
--	 * This introduces a RCU read critical section, which could be
--	 * disfunctional in cpu idle. Copy RCU_NONIDLE code to let RCU know
--	 * this.
--	 */
--	ct_irq_enter_irqson();
- 	rcu_read_lock();
- 	ret = raw_notifier_call_chain(&cpu_pm_notifier.chain, event, NULL);
- 	rcu_read_unlock();
--	ct_irq_exit_irqson();
- 
- 	return notifier_to_errno(ret);
+--- a/kernel/time/tick-broadcast-hrtimer.c
++++ b/kernel/time/tick-broadcast-hrtimer.c
+@@ -56,25 +56,20 @@ static int bc_set_next(ktime_t expires,
+ 	 * hrtimer callback function is currently running, then
+ 	 * hrtimer_start() cannot move it and the timer stays on the CPU on
+ 	 * which it is assigned at the moment.
++	 */
++	hrtimer_start(&bctimer, expires, HRTIMER_MODE_ABS_PINNED_HARD);
++	/*
++	 * The core tick broadcast mode expects bc->bound_on to be set
++	 * correctly to prevent a CPU which has the broadcast hrtimer
++	 * armed from going deep idle.
+ 	 *
+-	 * As this can be called from idle code, the hrtimer_start()
+-	 * invocation has to be wrapped with RCU_NONIDLE() as
+-	 * hrtimer_start() can call into tracing.
++	 * As tick_broadcast_lock is held, nothing can change the cpu
++	 * base which was just established in hrtimer_start() above. So
++	 * the below access is safe even without holding the hrtimer
++	 * base lock.
+ 	 */
+-	RCU_NONIDLE( {
+-		hrtimer_start(&bctimer, expires, HRTIMER_MODE_ABS_PINNED_HARD);
+-		/*
+-		 * The core tick broadcast mode expects bc->bound_on to be set
+-		 * correctly to prevent a CPU which has the broadcast hrtimer
+-		 * armed from going deep idle.
+-		 *
+-		 * As tick_broadcast_lock is held, nothing can change the cpu
+-		 * base which was just established in hrtimer_start() above. So
+-		 * the below access is safe even without holding the hrtimer
+-		 * base lock.
+-		 */
+-		bc->bound_on = bctimer.base->cpu_base->cpu;
+-	} );
++	bc->bound_on = bctimer.base->cpu_base->cpu;
++
+ 	return 0;
  }
-@@ -49,11 +42,9 @@ static int cpu_pm_notify_robust(enum cpu
- 	unsigned long flags;
- 	int ret;
  
--	ct_irq_enter_irqson();
- 	raw_spin_lock_irqsave(&cpu_pm_notifier.lock, flags);
- 	ret = raw_notifier_call_chain_robust(&cpu_pm_notifier.chain, event_up, event_down, NULL);
- 	raw_spin_unlock_irqrestore(&cpu_pm_notifier.lock, flags);
--	ct_irq_exit_irqson();
- 
- 	return notifier_to_errno(ret);
- }
 
 
