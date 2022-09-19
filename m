@@ -2,44 +2,49 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7CACC6FA90
-	for <openrisc@archiver.kernel.org>; Tue, 20 Sep 2022 06:26:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DF5EC6FA91
+	for <openrisc@archiver.kernel.org>; Tue, 20 Sep 2022 06:26:34 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 1475624814;
+	by mail.librecores.org (Postfix) with ESMTP id CB14D24953;
 	Tue, 20 Sep 2022 08:26:32 +0200 (CEST)
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by mail.librecores.org (Postfix) with ESMTPS id A426B24B40
- for <openrisc@lists.librecores.org>; Mon, 19 Sep 2022 17:17:39 +0200 (CEST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id 2B61BB81622;
- Mon, 19 Sep 2022 15:17:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D47AEC433D6;
- Mon, 19 Sep 2022 15:17:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1663600657;
- bh=SGRWSsWxhYnFNcVdXVanCp7r8VhObbFain7vrJ2pf9o=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=fxVxz+v2ZKRYGR2RcB+jwqcdhOAyWFuA63mrtcEpyRTpMkbyS6WHs4N4WpL6wD55y
- MEw4vseCOHKlzHluXBoBp/tNbhBozucjByJQwggqB8cSL766iSR/fB5p7HP2XX3V5a
- W432aviHiF1CtVbY9+02lVZyqI6r7f0Y+oEmkgLbQeCLJ6mZ8QHUtL9Cb1Rt7pnsGN
- oU9BgJeognmYR5a7tpyKmtArG/qTrOVW6g6oNhiIq3bF6GOaiMj1jdkgNeNp7u/R+2
- PWnZiOvApDwvdE77MAQCyvfpVSOU+ZSH1CmsYL840fIy4Yva2osOuqdAr10RKbdLw3
- uLMmSqj+LM5sA==
-Date: Mon, 19 Sep 2022 17:17:34 +0200
-From: Frederic Weisbecker <frederic@kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v2 08/44] cpuidle,imx6: Push RCU-idle into driver
-Message-ID: <20220919151734.GB62211@lothringen>
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+ by mail.librecores.org (Postfix) with ESMTPS id F26C3249B2
+ for <openrisc@lists.librecores.org>; Mon, 19 Sep 2022 17:19:23 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=jX68leu2S48Jr9/Ow8JXapSFFP60f/i61NXz6aPsf+I=; b=XPfGWCYBJlDbJ5lJcPaNDE6xyf
+ Oko/uZ8RNini73nyposkKJ862RPOu3iJTh8zG5Pep4a2VS0ERxBpWJvvYT8T14rg88H9wegspg5bu
+ 9yb2vdL1erAt0tTaRycHKMCoHV1yhzX6AKI/cj+ny97aRfzpr5jWq/LiOBfEwvZYLisXl+Yo5byp9
+ Uk9NM6k+rmDmbbvvXH1mJtohRq1/Mc/o3s0t/ScSKJIDftdo6lQTij50ttW7F88bRo1TeESDSO6Qa
+ lgAptah2KzLlw6pLcJo2JiZ0q/deK2kHiqFB9rLjmKuXizDSL1Hi2Yh+pFPur3R2mMtDZOGx295rw
+ A79DBNeg==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84]
+ helo=noisy.programming.kicks-ass.net)
+ by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1oaIY7-00E6tS-2Q; Mon, 19 Sep 2022 15:19:07 +0000
+Received: from hirez.programming.kicks-ass.net
+ (hirez.programming.kicks-ass.net [192.168.1.225])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (4096 bits))
+ (Client did not present a certificate)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 0906D30035F;
+ Mon, 19 Sep 2022 17:19:06 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+ id DAFB72BAC7759; Mon, 19 Sep 2022 17:19:05 +0200 (CEST)
+Date: Mon, 19 Sep 2022 17:19:05 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Frederic Weisbecker <frederic@kernel.org>
+Subject: Re: [PATCH v2 09/44] cpuidle,omap3: Push RCU-idle into driver
+Message-ID: <YyiIaeQY8STLK0d0@hirez.programming.kicks-ass.net>
 References: <20220919095939.761690562@infradead.org>
- <20220919101520.869531945@infradead.org>
- <20220919144941.GA62211@lothringen>
- <YyiEqDSJVOZrQYg8@hirez.programming.kicks-ass.net>
+ <20220919101520.936337959@infradead.org>
+ <20220919143142.GA61009@lothringen>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YyiEqDSJVOZrQYg8@hirez.programming.kicks-ass.net>
+In-Reply-To: <20220919143142.GA61009@lothringen>
 X-Mailman-Approved-At: Tue, 20 Sep 2022 08:26:29 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
@@ -103,46 +108,15 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Mon, Sep 19, 2022 at 05:03:04PM +0200, Peter Zijlstra wrote:
-> On Mon, Sep 19, 2022 at 04:49:41PM +0200, Frederic Weisbecker wrote:
-> > On Mon, Sep 19, 2022 at 11:59:47AM +0200, Peter Zijlstra wrote:
-> > > Doing RCU-idle outside the driver, only to then temporarily enable it
-> > > again, at least twice, before going idle is daft.
-> > > 
-> > > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> > > ---
-> > >  arch/arm/mach-imx/cpuidle-imx6sx.c |    5 ++++-
-> > >  1 file changed, 4 insertions(+), 1 deletion(-)
-> > > 
-> > > --- a/arch/arm/mach-imx/cpuidle-imx6sx.c
-> > > +++ b/arch/arm/mach-imx/cpuidle-imx6sx.c
-> > > @@ -47,7 +47,9 @@ static int imx6sx_enter_wait(struct cpui
-> > >  		cpu_pm_enter();
-> > >  		cpu_cluster_pm_enter();
-> > >  
-> > > +		ct_idle_enter();
-> > >  		cpu_suspend(0, imx6sx_idle_finish);
-> > > +		ct_idle_exit();
-> > >  
-> > >  		cpu_cluster_pm_exit();
-> > >  		cpu_pm_exit();
-> > > @@ -87,7 +89,8 @@ static struct cpuidle_driver imx6sx_cpui
-> > >  			 */
-> > >  			.exit_latency = 300,
-> > >  			.target_residency = 500,
-> > > -			.flags = CPUIDLE_FLAG_TIMER_STOP,
-> > > +			.flags = CPUIDLE_FLAG_TIMER_STOP |
-> > > +				 CPUIDLE_FLAG_RCU_IDLE,
-> > >  			.enter = imx6sx_enter_wait,
-> > 
-> > There is a second one below that also uses imx6sx_enter_wait.
+On Mon, Sep 19, 2022 at 04:31:42PM +0200, Frederic Weisbecker wrote:
+> On Mon, Sep 19, 2022 at 11:59:48AM +0200, Peter Zijlstra wrote:
+> > Doing RCU-idle outside the driver, only to then teporarily enable it
+> > again before going idle is daft.
 > 
-> Oh, above you mean; but only @index==2 gets us into the whole PM crud.
-> @index==1 is fine afaict.
+> That doesn't tell where those calls are.
 
-Ah ok, got it, hence why you didn't touch cpu_do_idle()...
-May need to comment that somewhere...
+cpu_pm_enter/exit and the power domain stuff, possibly also the clock
+domain stuff. It's all over :/
 
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
-
-Thanks!
+I suppose I can add a blub and copy/paste it around the various patches
+if you want.
