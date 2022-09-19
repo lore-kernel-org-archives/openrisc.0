@@ -2,43 +2,43 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58BB3ECAAD3
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA14AC6FA8B
 	for <openrisc@archiver.kernel.org>; Mon, 19 Sep 2022 14:24:33 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id D9B12248D5;
-	Mon, 19 Sep 2022 16:24:31 +0200 (CEST)
+	by mail.librecores.org (Postfix) with ESMTP id 55E1A24B28;
+	Mon, 19 Sep 2022 16:24:32 +0200 (CEST)
 Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
- by mail.librecores.org (Postfix) with ESMTPS id B19F324BA8
+ by mail.librecores.org (Postfix) with ESMTPS id CBA7224C2C
  for <openrisc@lists.librecores.org>; Mon, 19 Sep 2022 12:17:09 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=t0hoKUhhRPcpNA2sMhDiSnk+WMkt/R0zO6loPF3PH9w=; b=Pu2ax4C+q2gikvdKh53kb5LQaq
- 1icXVAPPb5rTxmDMICtYx2G9B9yrHKvYB27SoYQJT/Juj9Z0e/ciHJ7RnfVuY0UEjWNyVpkpns/fy
- /NILdltY1jI6makeZnfd6Ue64JSOcginNFswX+VLat0o+YrsIuhjqYP8sxzm+/aHtz2+5+wAVzwMQ
- Z6tx/N/mzW2m5hIYqNNQHq8hVqXusyw1qoanShE7Uh/Lm8p05qkgyTLMAP6KM2PwHkRt1IYSrnHns
- bdeqefliBxf1GDAvIiKTpMroNoGSw6cOFgqeoY/+lppO/2cDzth/JGUAVVk19kUUcCVXxh2cgXBOx
- JuF2Xc/w==;
+ bh=nefRY1zld6SB6gly/BgzrvcXEKwr/pOkUZl11QGpgL8=; b=A9Y5adyud1/mM3xreS5eUrJvnd
+ FvUqFIv3nlupLbTdeI33lEpY/zFLIe19vxpCf8VQNlb07A5YwXLCUo0YY6Nuqzs/xjWg+Sj2Wqxqx
+ RAKsZxGa5p4Dkxg5ntJ8XtfvkMD+8w17RzWJpVa5IW9NqPm9m4txBnQGDoVesEU79pfxKNmKTjAHM
+ QmPWfVUPI0jr1ypsV5iZbItClD0P2Di/q7Z5RllXZy5ZJH2hOmD80dPHf6vt8aFDpFVRstMV7z9qd
+ FPTHr06kvgBzpugI2hUMZPsElk/ZqCI0u/yXhF3TnRjADu3s+L6sywGDm998dkamTun6T/pertQtI
+ 8lYuUinw==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1oaDpE-004ahX-Bw; Mon, 19 Sep 2022 10:16:28 +0000
+ id 1oaDpG-004ahu-0p; Mon, 19 Sep 2022 10:16:30 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 71529300BBA;
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id BC39D302DDD;
  Mon, 19 Sep 2022 12:16:24 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id C99462BA49037; Mon, 19 Sep 2022 12:16:21 +0200 (CEST)
-Message-ID: <20220919101520.466971769@infradead.org>
+ id E23492BA4903C; Mon, 19 Sep 2022 12:16:21 +0200 (CEST)
+Message-ID: <20220919101520.802976773@infradead.org>
 User-Agent: quilt/0.66
-Date: Mon, 19 Sep 2022 11:59:41 +0200
+Date: Mon, 19 Sep 2022 11:59:46 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH v2 02/44] x86/idle: Replace x86_idle with a static_call
+Subject: [PATCH v2 07/44] cpuidle,psci: Push RCU-idle into driver
 References: <20220919095939.761690562@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,20 +55,19 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: juri.lelli@redhat.com, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
- rafael@kernel.org, catalin.marinas@arm.com, linus.walleij@linaro.org,
- bsegall@google.com, guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com,
- srivatsa@csail.mit.edu, linux-arch@vger.kernel.org, vincent.guittot@linaro.org,
- mpe@ellerman.id.au, chenhuacai@kernel.org, christophe.leroy@csgroup.eu,
- linux-acpi@vger.kernel.org, agross@kernel.org, linux-imx@nxp.com,
- vgupta@kernel.org, mattst88@gmail.com, borntraeger@linux.ibm.com,
- mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com,
- linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
- linux-um@lists.infradead.org, npiggin@gmail.com, tglx@linutronix.de,
- linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, andreyknvl@gmail.com,
- gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
- linux-perf-users@vger.kernel.org, senozhatsky@chromium.org,
- svens@linux.ibm.com, jolsa@kernel.org, tj@kernel.org,
+Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
+ linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
+ agordeev@linux.ibm.com, srivatsa@csail.mit.edu, linux-arch@vger.kernel.org,
+ vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org,
+ christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org, agross@kernel.org,
+ linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
+ borntraeger@linux.ibm.com, mturquette@baylibre.com, sammy@sammy.net,
+ pmladek@suse.com, linux-pm@vger.kernel.org,
+ Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org,
+ npiggin@gmail.com, tglx@linutronix.de, linux-omap@vger.kernel.org,
+ dietmar.eggemann@arm.com, andreyknvl@gmail.com, gregkh@linuxfoundation.org,
+ linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org, tj@kernel.org,
  Andrew Morton <akpm@linux-foundation.org>, mark.rutland@arm.com,
  linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
  virtualization@lists.linux-foundation.org,
@@ -77,16 +76,15 @@ Cc: juri.lelli@redhat.com, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
  linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
  ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, festevam@gmail.com,
  deller@gmx.de, daniel.lezcano@linaro.org, jonathanh@nvidia.com,
- dennis@kernel.org, Frederic Weisbecker <frederic@kernel.org>, lenb@kernel.org,
- linux-xtensa@linux-xtensa.org, kernel@pengutronix.de, gor@linux.ibm.com,
- linux-arm-msm@vger.kernel.org, linux-alpha@vger.kernel.org,
- linux-m68k@lists.linux-m68k.org, loongarch@lists.linux.dev, chris@zankel.net,
- sboyd@kernel.org, dinguyen@kernel.org, bristot@redhat.com,
- alexander.shishkin@linux.intel.com, fweisbec@gmail.com, lpieralisi@kernel.org,
- atishp@atishpatra.org, linux@rasmusvillemoes.dk, kasan-dev@googlegroups.com,
- will@kernel.org, boris.ostrovsky@oracle.com, khilman@kernel.org,
- linux-csky@vger.kernel.org, pv-drivers@vmware.com,
- linux-snps-arc@lists.infradead.org, mgorman@suse.de,
+ dennis@kernel.org, lenb@kernel.org, linux-xtensa@linux-xtensa.org,
+ kernel@pengutronix.de, gor@linux.ibm.com, linux-arm-msm@vger.kernel.org,
+ linux-alpha@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ loongarch@lists.linux.dev, chris@zankel.net, sboyd@kernel.org,
+ dinguyen@kernel.org, bristot@redhat.com, alexander.shishkin@linux.intel.com,
+ fweisbec@gmail.com, lpieralisi@kernel.org, atishp@atishpatra.org,
+ linux@rasmusvillemoes.dk, kasan-dev@googlegroups.com, will@kernel.org,
+ boris.ostrovsky@oracle.com, khilman@kernel.org, linux-csky@vger.kernel.org,
+ pv-drivers@vmware.com, linux-snps-arc@lists.infradead.org, mgorman@suse.de,
  jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
  ulli.kroll@googlemail.com, linux-clk@vger.kernel.org, rostedt@goodmis.org,
  ink@jurassic.park.msu.ru, bcain@quicinc.com, tsbogend@alpha.franken.de,
@@ -107,117 +105,53 @@ Cc: juri.lelli@redhat.com, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Typical boot time setup; no need to suffer an indirect call for that.
+Doing RCU-idle outside the driver, only to then temporarily enable it
+again, at least twice, before going idle is daft.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 ---
- arch/x86/kernel/process.c |   50 +++++++++++++++++++++++++---------------------
- 1 file changed, 28 insertions(+), 22 deletions(-)
+ drivers/cpuidle/cpuidle-psci.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -24,6 +24,7 @@
- #include <linux/cpuidle.h>
- #include <linux/acpi.h>
- #include <linux/elf-randomize.h>
-+#include <linux/static_call.h>
- #include <trace/events/power.h>
- #include <linux/hw_breakpoint.h>
- #include <asm/cpu.h>
-@@ -692,7 +693,23 @@ void __switch_to_xtra(struct task_struct
- unsigned long boot_option_idle_override = IDLE_NO_OVERRIDE;
- EXPORT_SYMBOL(boot_option_idle_override);
+--- a/drivers/cpuidle/cpuidle-psci.c
++++ b/drivers/cpuidle/cpuidle-psci.c
+@@ -69,12 +69,12 @@ static int __psci_enter_domain_idle_stat
+ 		return -1;
  
--static void (*x86_idle)(void);
-+/*
-+ * We use this if we don't have any better idle routine..
-+ */
-+void __cpuidle default_idle(void)
-+{
-+	raw_safe_halt();
-+}
-+#if defined(CONFIG_APM_MODULE) || defined(CONFIG_HALTPOLL_CPUIDLE_MODULE)
-+EXPORT_SYMBOL(default_idle);
-+#endif
+ 	/* Do runtime PM to manage a hierarchical CPU toplogy. */
+-	ct_irq_enter_irqson();
+ 	if (s2idle)
+ 		dev_pm_genpd_suspend(pd_dev);
+ 	else
+ 		pm_runtime_put_sync_suspend(pd_dev);
+-	ct_irq_exit_irqson();
 +
-+DEFINE_STATIC_CALL_NULL(x86_idle, default_idle);
++	ct_idle_enter();
+ 
+ 	state = psci_get_domain_state();
+ 	if (!state)
+@@ -82,12 +82,12 @@ static int __psci_enter_domain_idle_stat
+ 
+ 	ret = psci_cpu_suspend_enter(state) ? -1 : idx;
+ 
+-	ct_irq_enter_irqson();
++	ct_idle_exit();
 +
-+static bool x86_idle_set(void)
-+{
-+	return !!static_call_query(x86_idle);
-+}
+ 	if (s2idle)
+ 		dev_pm_genpd_resume(pd_dev);
+ 	else
+ 		pm_runtime_get_sync(pd_dev);
+-	ct_irq_exit_irqson();
  
- #ifndef CONFIG_SMP
- static inline void play_dead(void)
-@@ -715,28 +732,17 @@ void arch_cpu_idle_dead(void)
- /*
-  * Called from the generic idle code.
-  */
--void arch_cpu_idle(void)
--{
--	x86_idle();
--}
--
--/*
-- * We use this if we don't have any better idle routine..
-- */
--void __cpuidle default_idle(void)
-+void __cpuidle arch_cpu_idle(void)
- {
--	raw_safe_halt();
-+	static_call(x86_idle)();
- }
--#if defined(CONFIG_APM_MODULE) || defined(CONFIG_HALTPOLL_CPUIDLE_MODULE)
--EXPORT_SYMBOL(default_idle);
--#endif
+ 	cpu_pm_exit();
  
- #ifdef CONFIG_XEN
- bool xen_set_default_idle(void)
- {
--	bool ret = !!x86_idle;
-+	bool ret = x86_idle_set();
- 
--	x86_idle = default_idle;
-+	static_call_update(x86_idle, default_idle);
- 
- 	return ret;
- }
-@@ -859,20 +865,20 @@ void select_idle_routine(const struct cp
- 	if (boot_option_idle_override == IDLE_POLL && smp_num_siblings > 1)
- 		pr_warn_once("WARNING: polling idle and HT enabled, performance may degrade\n");
- #endif
--	if (x86_idle || boot_option_idle_override == IDLE_POLL)
-+	if (x86_idle_set() || boot_option_idle_override == IDLE_POLL)
- 		return;
- 
- 	if (boot_cpu_has_bug(X86_BUG_AMD_E400)) {
- 		pr_info("using AMD E400 aware idle routine\n");
--		x86_idle = amd_e400_idle;
-+		static_call_update(x86_idle, amd_e400_idle);
- 	} else if (prefer_mwait_c1_over_halt(c)) {
- 		pr_info("using mwait in idle threads\n");
--		x86_idle = mwait_idle;
-+		static_call_update(x86_idle, mwait_idle);
- 	} else if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST)) {
- 		pr_info("using TDX aware idle routine\n");
--		x86_idle = tdx_safe_halt;
-+		static_call_update(x86_idle, tdx_safe_halt);
- 	} else
--		x86_idle = default_idle;
-+		static_call_update(x86_idle, default_idle);
- }
- 
- void amd_e400_c1e_apic_setup(void)
-@@ -925,7 +931,7 @@ static int __init idle_setup(char *str)
- 		 * To continue to load the CPU idle driver, don't touch
- 		 * the boot_option_idle_override.
- 		 */
--		x86_idle = default_idle;
-+		static_call_update(x86_idle, default_idle);
- 		boot_option_idle_override = IDLE_HALT;
- 	} else if (!strcmp(str, "nomwait")) {
- 		/*
+@@ -240,6 +240,7 @@ static int psci_dt_cpu_init_topology(str
+ 	 * of a shared state for the domain, assumes the domain states are all
+ 	 * deeper states.
+ 	 */
++	drv->states[state_count - 1].flags |= CPUIDLE_FLAG_RCU_IDLE;
+ 	drv->states[state_count - 1].enter = psci_enter_domain_idle_state;
+ 	drv->states[state_count - 1].enter_s2idle = psci_enter_s2idle_domain_idle_state;
+ 	psci_cpuidle_use_cpuhp = true;
 
 
