@@ -2,37 +2,45 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AD74C54EE9
-	for <openrisc@archiver.kernel.org>; Tue, 20 Sep 2022 08:45:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2CEBC6FA82
+	for <openrisc@archiver.kernel.org>; Tue, 20 Sep 2022 17:19:20 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 6B218248C4;
-	Tue, 20 Sep 2022 10:45:49 +0200 (CEST)
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by mail.librecores.org (Postfix) with ESMTP id ED0192486D
- for <openrisc@lists.librecores.org>; Tue, 20 Sep 2022 10:45:48 +0200 (CEST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6ED20106F;
- Tue, 20 Sep 2022 01:45:54 -0700 (PDT)
-Received: from [10.163.57.146] (unknown [10.163.57.146])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id EE8EE3F73B;
- Tue, 20 Sep 2022 01:45:37 -0700 (PDT)
-Message-ID: <8c4f103b-8f04-d0ad-b30a-2db7e52b36a3@arm.com>
-Date: Tue, 20 Sep 2022 14:15:34 +0530
+	by mail.librecores.org (Postfix) with ESMTP id 91165248FB;
+	Tue, 20 Sep 2022 19:19:19 +0200 (CEST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+ by mail.librecores.org (Postfix) with ESMTPS id 3FE7024A21
+ for <openrisc@lists.librecores.org>; Tue, 20 Sep 2022 10:39:51 +0200 (CEST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by ams.source.kernel.org (Postfix) with ESMTPS id 7E3F9B825AE;
+ Tue, 20 Sep 2022 08:39:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BF8AC433D6;
+ Tue, 20 Sep 2022 08:39:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1663663189;
+ bh=QLZ/gLimlgPenm2mvkYzFXUkUzl2sWERNFTd7Lrn/1M=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=AfHPkPepFM7eYC1abChd5HUgbgK6NK5Ayauo2eAkkQ+CyceHVol/FwKHrD0RdQLfO
+ zvLwJIz5hFTcfKysjcDoPWgnwe9DDEKNj2dGeGEO2/kIpq57wb6SpC09LCGTp41BhC
+ qxQ5vAd4G1aZwL9mb4aPm0WIseAcnDPeseRWtIJM6uCN6SGJfOOrvPOzsT+VAJwBNz
+ wiUajd+Ahq99S7H8TFLbbtoaLHF3PS+Az8pt1+z7xkCsVe2mpsMmqYqlwHg5cIBClI
+ ExOjOWmHHdRNPqJTL8pOkUMYH9TCMDUfjtUV19S9P9aYLdb8Rxs1AEAhPOImHVP1XR
+ BbrIzh74M2mzQ==
+Date: Tue, 20 Sep 2022 10:39:45 +0200
+From: Frederic Weisbecker <frederic@kernel.org>
+To: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v2 09/44] cpuidle,omap3: Push RCU-idle into driver
+Message-ID: <20220920083945.GA69891@lothringen>
+References: <20220919095939.761690562@infradead.org>
+ <20220919101520.936337959@infradead.org>
+ <20220919143142.GA61009@lothringen>
+ <YyiIaeQY8STLK0d0@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v3 4/4] arm64: support batched/deferred tlb shootdown
- during page reclamation
-Content-Language: en-US
-To: Barry Song <21cnbao@gmail.com>
-References: <20220822082120.8347-1-yangyicong@huawei.com>
- <20220822082120.8347-5-yangyicong@huawei.com>
- <302febae-508c-d73e-8676-d51752946645@arm.com>
- <CAGsJ_4ywwFJFi+q3Ra5UE3twzS9eExtvuXgoGK-8u4c1ZdXCBw@mail.gmail.com>
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-In-Reply-To: <CAGsJ_4ywwFJFi+q3Ra5UE3twzS9eExtvuXgoGK-8u4c1ZdXCBw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YyiIaeQY8STLK0d0@hirez.programming.kicks-ass.net>
+X-Mailman-Approved-At: Tue, 20 Sep 2022 19:19:18 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -45,56 +53,71 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: wangkefeng.wang@huawei.com, prime.zeng@hisilicon.com,
- linux-doc@vger.kernel.org, peterz@infradead.org, catalin.marinas@arm.com,
- yangyicong@hisilicon.com, linux-mm@kvack.org, Nadav Amit <namit@vmware.com>,
- guojian@oppo.com, linux-riscv@lists.infradead.org, will@kernel.org,
- linux-s390@vger.kernel.org, zhangshiming@oppo.com, lipeifeng@oppo.com,
- corbet@lwn.net, x86@kernel.org, Mel Gorman <mgorman@suse.de>,
- linux-mips@vger.kernel.org, arnd@arndb.de, realmz6@gmail.com,
- Barry Song <v-songbaohua@oppo.com>, openrisc@lists.librecores.org,
- darren@os.amperecomputing.com, linux-arm-kernel@lists.infradead.org,
- xhao@linux.alibaba.com, linux-kernel@vger.kernel.org, huzhanyuan@oppo.com,
- Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
- linuxppc-dev@lists.ozlabs.org
+Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
+ linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
+ agordeev@linux.ibm.com, srivatsa@csail.mit.edu, linux-arch@vger.kernel.org,
+ vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org,
+ christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org, agross@kernel.org,
+ linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
+ borntraeger@linux.ibm.com, mturquette@baylibre.com, sammy@sammy.net,
+ pmladek@suse.com, linux-pm@vger.kernel.org,
+ Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org,
+ npiggin@gmail.com, tglx@linutronix.de, linux-omap@vger.kernel.org,
+ dietmar.eggemann@arm.com, andreyknvl@gmail.com, gregkh@linuxfoundation.org,
+ linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org, tj@kernel.org,
+ Andrew Morton <akpm@linux-foundation.org>, mark.rutland@arm.com,
+ linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
+ virtualization@lists.linux-foundation.org,
+ James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
+ thierry.reding@gmail.com, kernel@xen0n.name, cl@linux.com,
+ linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
+ ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, festevam@gmail.com,
+ deller@gmx.de, daniel.lezcano@linaro.org, jonathanh@nvidia.com,
+ dennis@kernel.org, lenb@kernel.org, linux-xtensa@linux-xtensa.org,
+ kernel@pengutronix.de, gor@linux.ibm.com, linux-arm-msm@vger.kernel.org,
+ linux-alpha@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ loongarch@lists.linux.dev, chris@zankel.net, sboyd@kernel.org,
+ dinguyen@kernel.org, bristot@redhat.com, alexander.shishkin@linux.intel.com,
+ fweisbec@gmail.com, lpieralisi@kernel.org, atishp@atishpatra.org,
+ linux@rasmusvillemoes.dk, kasan-dev@googlegroups.com, will@kernel.org,
+ boris.ostrovsky@oracle.com, khilman@kernel.org, linux-csky@vger.kernel.org,
+ pv-drivers@vmware.com, linux-snps-arc@lists.infradead.org, mgorman@suse.de,
+ jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+ ulli.kroll@googlemail.com, linux-clk@vger.kernel.org, rostedt@goodmis.org,
+ ink@jurassic.park.msu.ru, bcain@quicinc.com, tsbogend@alpha.franken.de,
+ linux-parisc@vger.kernel.org, ryabinin.a.a@gmail.com, sudeep.holla@arm.com,
+ shawnguo@kernel.org, davem@davemloft.net, dalias@libc.org, tony@atomide.com,
+ amakhalov@vmware.com, konrad.dybcio@somainline.org, bjorn.andersson@linaro.org,
+ glider@google.com, hpa@zytor.com, sparclinux@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org,
+ vincenzo.frascino@arm.com, anton.ivanov@cambridgegreys.com, jonas@southpole.se,
+ yury.norov@gmail.com, richard@nod.at, x86@kernel.org, linux@armlinux.org.uk,
+ mingo@redhat.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
+ richard.henderson@linaro.org, openrisc@lists.librecores.org, acme@kernel.org,
+ paul.walmsley@sifive.com, linux-tegra@vger.kernel.org, namhyung@kernel.org,
+ andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, dvyukov@google.com,
+ jgross@suse.com, monstr@monstr.eu, linux-mips@vger.kernel.org,
+ palmer@dabbelt.com, anup@brainfault.org, bp@alien8.de,
+ johannes@sipsolutions.net, linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-
-
-On 9/20/22 09:09, Barry Song wrote:
-> On Tue, Sep 20, 2022 at 3:00 PM Anshuman Khandual
-> <anshuman.khandual@arm.com> wrote:
->>
->>
->> On 8/22/22 13:51, Yicong Yang wrote:
->>> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
->>> +{
->>> +     return true;
->>> +}
->>
->> This needs to be conditional on systems, where there will be performance
->> improvements, and should not just be enabled all the time on all systems.
->> num_online_cpus() > X, which does not hold any cpu hotplug lock would be
->> a good metric ?
+On Mon, Sep 19, 2022 at 05:19:05PM +0200, Peter Zijlstra wrote:
+> On Mon, Sep 19, 2022 at 04:31:42PM +0200, Frederic Weisbecker wrote:
+> > On Mon, Sep 19, 2022 at 11:59:48AM +0200, Peter Zijlstra wrote:
+> > > Doing RCU-idle outside the driver, only to then teporarily enable it
+> > > again before going idle is daft.
+> > 
+> > That doesn't tell where those calls are.
 > 
-> for a small system, i don't see how this patch will help, e.g. cpus <= 4;
-> so we can actually disable tlb-batch on small systems.
+> cpu_pm_enter/exit and the power domain stuff, possibly also the clock
+> domain stuff. It's all over :/
+> 
+> I suppose I can add a blub and copy/paste it around the various patches
+> if you want.
 
-Do not subscribe ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH based on NR_CPUS ?
-That might not help much as the default value is 256 for NR_CPUS.
+Yes please, sorry I don't want to bother but, just for the sake of
+git blame to report something useful in 5 years.
 
-OR
-
-arch_tlbbatch_should_defer() checks on
-
-1. online cpus			(dont enable batched TLB if <= X)
-2. ARM64_WORKAROUND_REPEAT_TLBI (dont enable batched TLB)
-
-> just need to check if we will have any race condition since hotplug will
-> make the condition true and false dynamically.
-
-If should_defer_flush() evaluate to be false, then ptep_clear_flush()
-clears and flushes the entry right away. This should not race with other
-queued up TLBI requests, which will be flushed separately. Wondering how
-there can be a race here !
+Thanks.
