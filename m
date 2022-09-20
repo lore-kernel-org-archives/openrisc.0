@@ -2,41 +2,44 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 125DCC6FA93
-	for <openrisc@archiver.kernel.org>; Tue, 20 Sep 2022 17:19:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9552EC6FA94
+	for <openrisc@archiver.kernel.org>; Tue, 20 Sep 2022 17:19:23 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 7E7DB24AB1;
-	Tue, 20 Sep 2022 19:19:23 +0200 (CEST)
+	by mail.librecores.org (Postfix) with ESMTP id 55FA3249BB;
+	Tue, 20 Sep 2022 19:19:22 +0200 (CEST)
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by mail.librecores.org (Postfix) with ESMTPS id 44126248D5
- for <openrisc@lists.librecores.org>; Tue, 20 Sep 2022 14:31:50 +0200 (CEST)
+ by mail.librecores.org (Postfix) with ESMTPS id 489C024814
+ for <openrisc@lists.librecores.org>; Tue, 20 Sep 2022 12:43:30 +0200 (CEST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id 22B15620CB;
- Tue, 20 Sep 2022 12:31:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74CCCC433D6;
- Tue, 20 Sep 2022 12:31:47 +0000 (UTC)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id 0BBD662224;
+ Tue, 20 Sep 2022 10:43:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A744C433C1;
+ Tue, 20 Sep 2022 10:43:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1663677108;
- bh=i2971qM7wlevODiVHlQWVkeQKCoULSDtCivyYa6BY3w=;
+ s=k20201202; t=1663670608;
+ bh=6GsQ3yhKLr/MxdSlXebBHOnZZwkqV+Km5n+FdtLELFs=;
  h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=Q359WuuE7X8iHPUglRgZ6umBriKE4r+Hq60s0D7bZenVvQZ4nI53Q/0IHEDWUvL08
- uO1lUj+/+gsUuHABZ0IUgFE9VpucvwIQJdQ0+o+qLceGFQWOjTx274Wv0QgoQwQqDB
- Bq6B/yj6zX6+ne9r87JfQG1DqPPHAUwk/5wBhBEUUm5zmwQcKDqLTClYTCw1gL+EWj
- y+co7RjqxrjwqgzVQOyvkrVOgNfaKYqf/Dnk/7RydhOFfw29XBhF+VqBugULRYy6nW
- kGdHmx4EM6/oydyvS6EAGcuvFJCcs2df/Ji6kGzIJMqPXxrjzmWTkMGZJXBpD98pEC
- ZvljhnwREUPvw==
-Date: Tue, 20 Sep 2022 14:31:45 +0200
+ b=B5dAVjAuYVAf/ldcpMwVOIccr93eh+i/PPqe86bcTTpe9rquyYiwNXWsEYN6MEgtC
+ 4dkSGP8Y6MjqZepb+9gQ6s3zfFi8AQZlWHaT9YE94OBgT652ETiHQ4+oyg1H9cMKe0
+ W4ejHxERjCdEHRyFhCMtozUTXVDZIa2H0g10CJTUgcjhZqBq48hlTCa71o1rmNMJUn
+ UuRNJ769Ea2tTmdOKpPB1SWcTi7Afm+dzY4ofsUzOPWyR3eaWqkGsJ5+yZC/8xtTFB
+ fdtVAvZE4UfiE+hEXckkBlXeuH+b1N2KqaqSOzsoRx2yLdTrKi9779585hh4U8ohjY
+ b1TN7NMPsPyxQ==
+Date: Tue, 20 Sep 2022 12:43:25 +0200
 From: Frederic Weisbecker <frederic@kernel.org>
 To: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v2 00/44] cpuidle,rcu: Clean up the mess
-Message-ID: <20220920123145.GC72346@lothringen>
+Subject: Re: [PATCH v2 03/44] cpuidle/poll: Ensure IRQ state is invariant
+Message-ID: <20220920104325.GA72346@lothringen>
 References: <20220919095939.761690562@infradead.org>
+ <20220919101520.534233547@infradead.org>
+ <20220919131927.GA58444@lothringen>
+ <YymAXPkZkyFIEjXM@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220919095939.761690562@infradead.org>
+In-Reply-To: <YymAXPkZkyFIEjXM@hirez.programming.kicks-ass.net>
 X-Mailman-Approved-At: Tue, 20 Sep 2022 19:19:18 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
@@ -50,23 +53,24 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
- linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
- agordeev@linux.ibm.com, srivatsa@csail.mit.edu, linux-arch@vger.kernel.org,
- vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org,
- christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org, agross@kernel.org,
- linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
- borntraeger@linux.ibm.com, mturquette@baylibre.com, sammy@sammy.net,
- pmladek@suse.com, linux-pm@vger.kernel.org,
- Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org,
- npiggin@gmail.com, tglx@linutronix.de, linux-omap@vger.kernel.org,
- dietmar.eggemann@arm.com, andreyknvl@gmail.com, gregkh@linuxfoundation.org,
- linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
- senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org, tj@kernel.org,
+Cc: juri.lelli@redhat.com, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+ rafael@kernel.org, catalin.marinas@arm.com, linus.walleij@linaro.org,
+ bsegall@google.com, guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com,
+ srivatsa@csail.mit.edu, linux-arch@vger.kernel.org, vincent.guittot@linaro.org,
+ mpe@ellerman.id.au, chenhuacai@kernel.org, christophe.leroy@csgroup.eu,
+ linux-acpi@vger.kernel.org, agross@kernel.org, linux-imx@nxp.com,
+ vgupta@kernel.org, mattst88@gmail.com, borntraeger@linux.ibm.com,
+ mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com,
+ linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+ linux-um@lists.infradead.org, npiggin@gmail.com, tglx@linutronix.de,
+ linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, andreyknvl@gmail.com,
+ gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
+ linux-perf-users@vger.kernel.org, senozhatsky@chromium.org,
+ svens@linux.ibm.com, jolsa@kernel.org, tj@kernel.org,
  Andrew Morton <akpm@linux-foundation.org>, mark.rutland@arm.com,
  linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
  virtualization@lists.linux-foundation.org,
- James.Bottomley@HansenPartnership.com, jcmvbkbc@gmail.com,
+ James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
  thierry.reding@gmail.com, kernel@xen0n.name, cl@linux.com,
  linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
  ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, festevam@gmail.com,
@@ -100,47 +104,32 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Mon, Sep 19, 2022 at 11:59:39AM +0200, Peter Zijlstra wrote:
-> Hi All!
+On Tue, Sep 20, 2022 at 10:57:00AM +0200, Peter Zijlstra wrote:
+> On Mon, Sep 19, 2022 at 03:19:27PM +0200, Frederic Weisbecker wrote:
+> > On Mon, Sep 19, 2022 at 11:59:42AM +0200, Peter Zijlstra wrote:
+> > > cpuidle_state::enter() methods should be IRQ invariant
+> > 
+> > Got a bit confused with the invariant thing since the first chunck I
+> > see in this patch is a conversion to an non-traceable local_irq_enable().
+> > 
+> > Maybe just add a short mention about that and why?
 > 
-> At long last, a respin of the cpuidle vs rcu cleanup patches.
+> Changelog now reads:
 > 
-> v1: https://lkml.kernel.org/r/20220608142723.103523089@infradead.org
+> ---
+> Subject: cpuidle/poll: Ensure IRQ state is invariant
+> From: Peter Zijlstra <peterz@infradead.org>
+> Date: Tue May 31 15:43:32 CEST 2022
 > 
-> These here patches clean up the mess that is cpuidle vs rcuidle.
+> cpuidle_state::enter() methods should be IRQ invariant.
 > 
-> At the end of the ride there's only on RCU_NONIDLE user left:
+> Additionally make sure to use raw_local_irq_*() methods since this
+> cpuidle callback will be called with RCU already disabled.
 > 
->   arch/arm64/kernel/suspend.c:            RCU_NONIDLE(__cpu_suspend_exit());
-> 
-> and 'one' trace_*_rcuidle() user:
-> 
->   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
->   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
->   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, caller_addr);
->   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, caller_addr);
->   kernel/trace/trace_preemptirq.c:                trace_preempt_enable_rcuidle(a0, a1);
->   kernel/trace/trace_preemptirq.c:                trace_preempt_disable_rcuidle(a0, a1);
-> 
-> However this last is all in deprecated code that should be unused for GENERIC_ENTRY.
-> 
-> I've touched a lot of code that I can't test and I might've broken something by
-> accident. In particular the whole ARM cpuidle stuff was quite involved.
-> 
-> Please all; have a look where you haven't already.
-> 
-> 
-> New since v1:
-> 
->  - rebase on top of Frederic's rcu-context-tracking rename fest
->  - more omap goodness as per the last discusion (thanks Tony!)
->  - removed one more RCU_NONIDLE() from arm64/risc-v perf code
->  - ubsan/kasan fixes
->  - intel_idle module-param for testing
->  - a bunch of extra __always_inline, because compilers are silly.
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-Except for those I have already tagged as Reviewed:
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
 
-Acked-by: Frederic Weisbecker <frederic@kernel.org>
+Thanks!
 
-Thanks for the hard work!
