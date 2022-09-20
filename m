@@ -2,58 +2,37 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A347C54EE9
-	for <openrisc@archiver.kernel.org>; Tue, 20 Sep 2022 02:49:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 491DBC54EE9
+	for <openrisc@archiver.kernel.org>; Tue, 20 Sep 2022 03:00:24 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id C9918249BB;
-	Tue, 20 Sep 2022 04:49:29 +0200 (CEST)
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com
- [209.85.216.51])
- by mail.librecores.org (Postfix) with ESMTPS id E019A2496F
- for <openrisc@lists.librecores.org>; Tue, 20 Sep 2022 04:49:27 +0200 (CEST)
-Received: by mail-pj1-f51.google.com with SMTP id
- d64-20020a17090a6f4600b00202ce056566so9346468pjk.4
- for <openrisc@lists.librecores.org>; Mon, 19 Sep 2022 19:49:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=chromium.org; s=google;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date;
- bh=rI0IpfDVb05suW6mssP/QFC86Iigix9NLenW3JQ6Phs=;
- b=lnIljFKp1ED3j5wPYTN7mdVUfk7FiKkjAkcUsYSYUMCZpdQ5U8vkDdIo4K0hiw1RH3
- +GFslTzjK43l0+rnV0YItKzr73eqf7dBzWl3BzQNkwS39xy9TTbRZE0df01R7//5oEJr
- gCiIxE6Vh5vvSGpkucOrRiDvI3G32scMCweV8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
- bh=rI0IpfDVb05suW6mssP/QFC86Iigix9NLenW3JQ6Phs=;
- b=2/Ix06k7gdyuTGqX585HuSZxE0N1EEf449AwUBWfWU59flG3SmPnUQ+XZp+rU78Xw3
- sHlftQxE/R8q2S/i7MRflCfuqcIFvDQUx+LtF251bV0ljv/K8CtC2Woi6RKEKLOMPcFu
- HQK11zKOro64WCP0agQqJBYgXA2ukI7denlvSxRBgQBcdrkeVtCP5K/VSXW+uGly59Yp
- i0qr3DoxKP1lELxIt/8r/y2Ap747M2r92j3yJfn5rDMZT4I2sUuNmyZbRrYWj0t/zg9g
- /iZPu92/eIAUJJ/dqjkUsdRnSsWad/8mOBONIifg0NLugQbersE9eCIgF+Zz6E4BqPnn
- IISQ==
-X-Gm-Message-State: ACrzQf1i73/MDoOy6bg1GUnLi6qdSc+3OCIMXRohl6hGN+tw/PFspk9r
- RWaJHEdtoFNv3p7PuE//ebQN3w==
-X-Google-Smtp-Source: AMsMyM7S+Aze7xjQjfeMxV1IycjxiN9uStAZCOz26LYAWGHUeF519ICUTt9w2zkpb7un7hJ/v+di5Q==
-X-Received: by 2002:a17:902:8e84:b0:178:57e4:805b with SMTP id
- bg4-20020a1709028e8400b0017857e4805bmr2741327plb.144.1663642166279; 
- Mon, 19 Sep 2022 19:49:26 -0700 (PDT)
-Received: from google.com ([240f:75:7537:3187:5744:3726:1f8b:92ad])
- by smtp.gmail.com with ESMTPSA id
- j6-20020a170903024600b00178a9b193cfsm119779plh.140.2022.09.19.19.49.17
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 19 Sep 2022 19:49:25 -0700 (PDT)
-Date: Tue, 20 Sep 2022 11:49:14 +0900
-From: Sergey Senozhatsky <senozhatsky@chromium.org>
-To: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v2 25/44] printk: Remove trace_.*_rcuidle() usage
-Message-ID: <YykqKm5j5q9DEKk7@google.com>
-References: <20220919095939.761690562@infradead.org>
- <20220919101522.021681292@infradead.org>
+	by mail.librecores.org (Postfix) with ESMTP id E1FAE24A1E;
+	Tue, 20 Sep 2022 05:00:22 +0200 (CEST)
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by mail.librecores.org (Postfix) with ESMTP id 26324249CB
+ for <openrisc@lists.librecores.org>; Tue, 20 Sep 2022 05:00:22 +0200 (CEST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E83EB169C;
+ Mon, 19 Sep 2022 20:00:27 -0700 (PDT)
+Received: from [192.168.0.110] (unknown [172.31.20.19])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1020A3F5A1;
+ Mon, 19 Sep 2022 20:00:11 -0700 (PDT)
+Message-ID: <302febae-508c-d73e-8676-d51752946645@arm.com>
+Date: Tue, 20 Sep 2022 08:30:01 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220919101522.021681292@infradead.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v3 4/4] arm64: support batched/deferred tlb shootdown
+ during page reclamation
+Content-Language: en-US
+To: Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
+ linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, x86@kernel.org,
+ catalin.marinas@arm.com, will@kernel.org, linux-doc@vger.kernel.org
+References: <20220822082120.8347-1-yangyicong@huawei.com>
+ <20220822082120.8347-5-yangyicong@huawei.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+In-Reply-To: <20220822082120.8347-5-yangyicong@huawei.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -66,35 +45,26 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-mips@vger.kernel.org, kasan-dev@googlegroups.com,
- sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-clk@vger.kernel.org, linux-arch@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-hexagon@vger.kernel.org, x86@kernel.org,
- linux@armlinux.org.uk, linux-csky@vger.kernel.org, linux-acpi@vger.kernel.org,
- mingo@redhat.com, linux-imx@nxp.com, linux-snps-arc@lists.infradead.org,
- virtualization@lists.linux-foundation.org, pmladek@suse.com,
- john.ogness@linutronix.de, linux-pm@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, linux-xtensa@linux-xtensa.org,
- linux-um@lists.infradead.org, rostedt@goodmis.org,
- linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org,
- loongarch@lists.linux.dev, linux-tegra@vger.kernel.org, tglx@linutronix.de,
- linux-omap@vger.kernel.org, linux-parisc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
- senozhatsky@chromium.org, linux-alpha@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org
+Cc: wangkefeng.wang@huawei.com, darren@os.amperecomputing.com,
+ peterz@infradead.org, yangyicong@hisilicon.com, Nadav Amit <namit@vmware.com>,
+ guojian@oppo.com, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ zhangshiming@oppo.com, lipeifeng@oppo.com, corbet@lwn.net,
+ Barry Song <21cnbao@gmail.com>, Mel Gorman <mgorman@suse.de>,
+ linux-mips@vger.kernel.org, arnd@arndb.de, realmz6@gmail.com,
+ Barry Song <v-songbaohua@oppo.com>, openrisc@lists.librecores.org,
+ prime.zeng@hisilicon.com, xhao@linux.alibaba.com, linux-kernel@vger.kernel.org,
+ huzhanyuan@oppo.com, linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On (22/09/19 12:00), Peter Zijlstra wrote:
-> The problem, per commit fc98c3c8c9dc ("printk: use rcuidle console
-> tracepoint"), was printk usage from the cpuidle path where RCU was
-> already disabled.
-> 
-> Per the patches earlier in this series, this is no longer the case.
-> 
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-> Acked-by: Petr Mladek <pmladek@suse.com>
 
-Acked-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+On 8/22/22 13:51, Yicong Yang wrote:
+> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
+> +{
+> +	return true;
+> +}
+
+This needs to be conditional on systems, where there will be performance
+improvements, and should not just be enabled all the time on all systems.
+num_online_cpus() > X, which does not hold any cpu hotplug lock would be
+a good metric ?
