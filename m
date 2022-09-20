@@ -2,49 +2,42 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D4F5C6FA91
-	for <openrisc@archiver.kernel.org>; Tue, 20 Sep 2022 17:19:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C43DC54EE9
+	for <openrisc@archiver.kernel.org>; Tue, 20 Sep 2022 17:19:23 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id DDD9824830;
-	Tue, 20 Sep 2022 19:19:20 +0200 (CEST)
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
- by mail.librecores.org (Postfix) with ESMTPS id 3EA2024AAF
- for <openrisc@lists.librecores.org>; Tue, 20 Sep 2022 10:59:36 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=W0WuIu+jUoS9XLKKaCH8kQp1fmQssrlCtEm/el88ozE=; b=KwYybgaPfWAQv2wEUBjSgSdTCJ
- 6PyEY99Ugw0TkObX3qDFuI/a0oDFUBfuiBUUHuHbFHFFq6guNqyC3PqWX+KIO/0s8f+cGv+2FQRWg
- rgNBTAgb2XO+egqcRpLHq0uyc6WBOs2BvEht5yDHiFo/J55LY8FWyPdZbShL8Sv2ePJAHnUzVHR4N
- guUt+XkClSTg/oiZERNLhRFjqVw0BFgXrhvLNPplEB/wiXVSXAinmvl5+QTp97eKVQQaYngNgW0RG
- 1aMkT/vqgV5rJHRcOsSXww2gbooTZWuewD0FdvxfziqLglppT5CF9GR/zmwpQd6FP4ipquHnML6P4
- smt/leYw==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84]
- helo=noisy.programming.kicks-ass.net)
- by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1oaZ5r-005Ovx-97; Tue, 20 Sep 2022 08:59:03 +0000
-Received: from hirez.programming.kicks-ass.net
- (hirez.programming.kicks-ass.net [192.168.1.225])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (4096 bits))
- (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 4D2E4300202;
- Tue, 20 Sep 2022 10:58:59 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
- id 211C72BAC7A93; Tue, 20 Sep 2022 10:58:59 +0200 (CEST)
-Date: Tue, 20 Sep 2022 10:58:59 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: Frederic Weisbecker <frederic@kernel.org>
-Subject: Re: [PATCH v2 08/44] cpuidle,imx6: Push RCU-idle into driver
-Message-ID: <YymA0yJybIWLco/v@hirez.programming.kicks-ass.net>
+	by mail.librecores.org (Postfix) with ESMTP id 00E1D24AAF;
+	Tue, 20 Sep 2022 19:19:22 +0200 (CEST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+ by mail.librecores.org (Postfix) with ESMTPS id 7228324841
+ for <openrisc@lists.librecores.org>; Tue, 20 Sep 2022 12:53:46 +0200 (CEST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by ams.source.kernel.org (Postfix) with ESMTPS id D9876B81C6D;
+ Tue, 20 Sep 2022 10:53:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AB41C433D6;
+ Tue, 20 Sep 2022 10:53:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1663671224;
+ bh=1uzaYeWYbymD/f+i/QytZhu6oKO9BM7m7uKIAm7/1aY=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=kwUuVl6qzzyQ8/M60E4GBJaDSvCCIGZsWXd6EWoe6ETg4UPGRSPJSpODGC89bVoml
+ D8yMcp2L8SqglVlcwPjBx0kwWsmuhxSt4A6MHMYEdl8sw5Zt0+i8CPGg6TTK40x4my
+ mHRIDutJuMJ3kECm4eorV/KO7XWDkJoFt5Xcko5DBOFQuad34F85DOuPGJQOkcR3nN
+ x3i3rl+wBIvgbXn74nt/EudGishy0lWfyQwIhjZzzOrS/gzl1GIHezRYRweYZnMwZB
+ mX8bZPz/2M6J4eYsqVrIj88f6cgWd9NcoOu5bfu6upfEe+DnQeaKeleng7SJXqBrye
+ EQG2xv/JeiBzw==
+Date: Tue, 20 Sep 2022 12:53:41 +0200
+From: Frederic Weisbecker <frederic@kernel.org>
+To: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v2 11/44] cpuidle,omap4: Push RCU-idle into driver
+Message-ID: <20220920105341.GB72346@lothringen>
 References: <20220919095939.761690562@infradead.org>
- <20220919101520.869531945@infradead.org>
- <20220919142123.GE58444@lothringen>
+ <20220919101521.072508494@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220919142123.GE58444@lothringen>
+In-Reply-To: <20220919101521.072508494@infradead.org>
 X-Mailman-Approved-At: Tue, 20 Sep 2022 19:19:18 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
@@ -74,7 +67,7 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
  Andrew Morton <akpm@linux-foundation.org>, mark.rutland@arm.com,
  linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
  virtualization@lists.linux-foundation.org,
- James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
+ James.Bottomley@HansenPartnership.com, jcmvbkbc@gmail.com,
  thierry.reding@gmail.com, kernel@xen0n.name, cl@linux.com,
  linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
  ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, festevam@gmail.com,
@@ -108,17 +101,12 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Mon, Sep 19, 2022 at 04:21:23PM +0200, Frederic Weisbecker wrote:
-> On Mon, Sep 19, 2022 at 11:59:47AM +0200, Peter Zijlstra wrote:
-> > Doing RCU-idle outside the driver, only to then temporarily enable it
-> > again, at least twice, before going idle is daft.
+On Mon, Sep 19, 2022 at 11:59:50AM +0200, Peter Zijlstra wrote:
+> Doing RCU-idle outside the driver, only to then temporarily enable it
+> again, some *four* times, before going idle is daft.
 > 
-> Hmm, what ends up calling RCU_IDLE() here? Also what about
-> cpu_do_idle()?
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Reviewed-by: Tony Lindgren <tony@atomide.com>
+> Tested-by: Tony Lindgren <tony@atomide.com>
 
-I've ammended patches 5-12 with a comment like:
-
-Notably both cpu_pm_enter() and cpu_cluster_pm_enter() implicity
-re-enable RCU.
-
-(each noting the specific sites for the relevant patch).
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
