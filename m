@@ -2,43 +2,58 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A39CDC6FA92
-	for <openrisc@archiver.kernel.org>; Mon, 19 Sep 2022 14:52:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A347C54EE9
+	for <openrisc@archiver.kernel.org>; Tue, 20 Sep 2022 02:49:30 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 7D06224B0B;
-	Mon, 19 Sep 2022 16:52:36 +0200 (CEST)
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by mail.librecores.org (Postfix) with ESMTPS id 7744C24B0B
- for <openrisc@lists.librecores.org>; Mon, 19 Sep 2022 16:49:47 +0200 (CEST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id 9F46DB81B9E;
- Mon, 19 Sep 2022 14:49:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F2B3C433C1;
- Mon, 19 Sep 2022 14:49:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1663598985;
- bh=L+UDv5mvX4qY9Lj3t+UbJ+Tw18xN3dy1wuBzIzgEsiI=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=gguXnCN7R4mesgt80Rz1q6+nMltiCh9YFLbLacD9XX8i9153zAMu/C9J6wrlypmHV
- C4O9/qad5/YnQHvxjMyAN1Xipx5RZeehydBte2IQ7IAgdOnvuph5RzwpWx9gT397CC
- 3XfNp+JBSCdgKQhvk4OORlssabEFBx1hzL8bQQnUxL7VKxJlF+BxEn4pc6GlZy8Ifh
- 1FPiwurZd8pb6cerOXJc5zrW3lkNSSADMghj6TUHyvQmunBRfq7eu+Okq1vapEVrsS
- fiALbj72WkMAGlX2gGJsjQ17QfFOCStzMhTFJhfkANMdrWO19f7Yl0T7ppwQ8kBeZH
- yiSmIlHS8YsmA==
-Date: Mon, 19 Sep 2022 16:49:41 +0200
-From: Frederic Weisbecker <frederic@kernel.org>
+	by mail.librecores.org (Postfix) with ESMTP id C9918249BB;
+	Tue, 20 Sep 2022 04:49:29 +0200 (CEST)
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com
+ [209.85.216.51])
+ by mail.librecores.org (Postfix) with ESMTPS id E019A2496F
+ for <openrisc@lists.librecores.org>; Tue, 20 Sep 2022 04:49:27 +0200 (CEST)
+Received: by mail-pj1-f51.google.com with SMTP id
+ d64-20020a17090a6f4600b00202ce056566so9346468pjk.4
+ for <openrisc@lists.librecores.org>; Mon, 19 Sep 2022 19:49:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=chromium.org; s=google;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date;
+ bh=rI0IpfDVb05suW6mssP/QFC86Iigix9NLenW3JQ6Phs=;
+ b=lnIljFKp1ED3j5wPYTN7mdVUfk7FiKkjAkcUsYSYUMCZpdQ5U8vkDdIo4K0hiw1RH3
+ +GFslTzjK43l0+rnV0YItKzr73eqf7dBzWl3BzQNkwS39xy9TTbRZE0df01R7//5oEJr
+ gCiIxE6Vh5vvSGpkucOrRiDvI3G32scMCweV8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
+ bh=rI0IpfDVb05suW6mssP/QFC86Iigix9NLenW3JQ6Phs=;
+ b=2/Ix06k7gdyuTGqX585HuSZxE0N1EEf449AwUBWfWU59flG3SmPnUQ+XZp+rU78Xw3
+ sHlftQxE/R8q2S/i7MRflCfuqcIFvDQUx+LtF251bV0ljv/K8CtC2Woi6RKEKLOMPcFu
+ HQK11zKOro64WCP0agQqJBYgXA2ukI7denlvSxRBgQBcdrkeVtCP5K/VSXW+uGly59Yp
+ i0qr3DoxKP1lELxIt/8r/y2Ap747M2r92j3yJfn5rDMZT4I2sUuNmyZbRrYWj0t/zg9g
+ /iZPu92/eIAUJJ/dqjkUsdRnSsWad/8mOBONIifg0NLugQbersE9eCIgF+Zz6E4BqPnn
+ IISQ==
+X-Gm-Message-State: ACrzQf1i73/MDoOy6bg1GUnLi6qdSc+3OCIMXRohl6hGN+tw/PFspk9r
+ RWaJHEdtoFNv3p7PuE//ebQN3w==
+X-Google-Smtp-Source: AMsMyM7S+Aze7xjQjfeMxV1IycjxiN9uStAZCOz26LYAWGHUeF519ICUTt9w2zkpb7un7hJ/v+di5Q==
+X-Received: by 2002:a17:902:8e84:b0:178:57e4:805b with SMTP id
+ bg4-20020a1709028e8400b0017857e4805bmr2741327plb.144.1663642166279; 
+ Mon, 19 Sep 2022 19:49:26 -0700 (PDT)
+Received: from google.com ([240f:75:7537:3187:5744:3726:1f8b:92ad])
+ by smtp.gmail.com with ESMTPSA id
+ j6-20020a170903024600b00178a9b193cfsm119779plh.140.2022.09.19.19.49.17
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 19 Sep 2022 19:49:25 -0700 (PDT)
+Date: Tue, 20 Sep 2022 11:49:14 +0900
+From: Sergey Senozhatsky <senozhatsky@chromium.org>
 To: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v2 08/44] cpuidle,imx6: Push RCU-idle into driver
-Message-ID: <20220919144941.GA62211@lothringen>
+Subject: Re: [PATCH v2 25/44] printk: Remove trace_.*_rcuidle() usage
+Message-ID: <YykqKm5j5q9DEKk7@google.com>
 References: <20220919095939.761690562@infradead.org>
- <20220919101520.869531945@infradead.org>
+ <20220919101522.021681292@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220919101520.869531945@infradead.org>
-X-Mailman-Approved-At: Mon, 19 Sep 2022 16:52:35 +0200
+In-Reply-To: <20220919101522.021681292@infradead.org>
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -51,91 +66,35 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
- linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
- agordeev@linux.ibm.com, srivatsa@csail.mit.edu, linux-arch@vger.kernel.org,
- vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org,
- christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org, agross@kernel.org,
- linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
- borntraeger@linux.ibm.com, mturquette@baylibre.com, sammy@sammy.net,
- pmladek@suse.com, linux-pm@vger.kernel.org,
- Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org,
- npiggin@gmail.com, tglx@linutronix.de, linux-omap@vger.kernel.org,
- dietmar.eggemann@arm.com, andreyknvl@gmail.com, gregkh@linuxfoundation.org,
+Cc: linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-mips@vger.kernel.org, kasan-dev@googlegroups.com,
+ sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-clk@vger.kernel.org, linux-arch@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-hexagon@vger.kernel.org, x86@kernel.org,
+ linux@armlinux.org.uk, linux-csky@vger.kernel.org, linux-acpi@vger.kernel.org,
+ mingo@redhat.com, linux-imx@nxp.com, linux-snps-arc@lists.infradead.org,
+ virtualization@lists.linux-foundation.org, pmladek@suse.com,
+ john.ogness@linutronix.de, linux-pm@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+ linux-um@lists.infradead.org, rostedt@goodmis.org,
+ linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org,
+ loongarch@lists.linux.dev, linux-tegra@vger.kernel.org, tglx@linutronix.de,
+ linux-omap@vger.kernel.org, linux-parisc@vger.kernel.org,
  linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
- senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org, tj@kernel.org,
- Andrew Morton <akpm@linux-foundation.org>, mark.rutland@arm.com,
- linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
- virtualization@lists.linux-foundation.org,
- James.Bottomley@HansenPartnership.com, jcmvbkbc@gmail.com,
- thierry.reding@gmail.com, kernel@xen0n.name, cl@linux.com,
- linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
- ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, festevam@gmail.com,
- deller@gmx.de, daniel.lezcano@linaro.org, jonathanh@nvidia.com,
- dennis@kernel.org, lenb@kernel.org, linux-xtensa@linux-xtensa.org,
- kernel@pengutronix.de, gor@linux.ibm.com, linux-arm-msm@vger.kernel.org,
- linux-alpha@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
- loongarch@lists.linux.dev, chris@zankel.net, sboyd@kernel.org,
- dinguyen@kernel.org, bristot@redhat.com, alexander.shishkin@linux.intel.com,
- fweisbec@gmail.com, lpieralisi@kernel.org, atishp@atishpatra.org,
- linux@rasmusvillemoes.dk, kasan-dev@googlegroups.com, will@kernel.org,
- boris.ostrovsky@oracle.com, khilman@kernel.org, linux-csky@vger.kernel.org,
- pv-drivers@vmware.com, linux-snps-arc@lists.infradead.org, mgorman@suse.de,
- jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
- ulli.kroll@googlemail.com, linux-clk@vger.kernel.org, rostedt@goodmis.org,
- ink@jurassic.park.msu.ru, bcain@quicinc.com, tsbogend@alpha.franken.de,
- linux-parisc@vger.kernel.org, ryabinin.a.a@gmail.com, sudeep.holla@arm.com,
- shawnguo@kernel.org, davem@davemloft.net, dalias@libc.org, tony@atomide.com,
- amakhalov@vmware.com, konrad.dybcio@somainline.org, bjorn.andersson@linaro.org,
- glider@google.com, hpa@zytor.com, sparclinux@vger.kernel.org,
- linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org,
- vincenzo.frascino@arm.com, anton.ivanov@cambridgegreys.com, jonas@southpole.se,
- yury.norov@gmail.com, richard@nod.at, x86@kernel.org, linux@armlinux.org.uk,
- mingo@redhat.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
- richard.henderson@linaro.org, openrisc@lists.librecores.org, acme@kernel.org,
- paul.walmsley@sifive.com, linux-tegra@vger.kernel.org, namhyung@kernel.org,
- andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, dvyukov@google.com,
- jgross@suse.com, monstr@monstr.eu, linux-mips@vger.kernel.org,
- palmer@dabbelt.com, anup@brainfault.org, bp@alien8.de,
- johannes@sipsolutions.net, linuxppc-dev@lists.ozlabs.org
+ senozhatsky@chromium.org, linux-alpha@vger.kernel.org,
+ Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Mon, Sep 19, 2022 at 11:59:47AM +0200, Peter Zijlstra wrote:
-> Doing RCU-idle outside the driver, only to then temporarily enable it
-> again, at least twice, before going idle is daft.
+On (22/09/19 12:00), Peter Zijlstra wrote:
+> The problem, per commit fc98c3c8c9dc ("printk: use rcuidle console
+> tracepoint"), was printk usage from the cpuidle path where RCU was
+> already disabled.
+> 
+> Per the patches earlier in this series, this is no longer the case.
 > 
 > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> ---
->  arch/arm/mach-imx/cpuidle-imx6sx.c |    5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> --- a/arch/arm/mach-imx/cpuidle-imx6sx.c
-> +++ b/arch/arm/mach-imx/cpuidle-imx6sx.c
-> @@ -47,7 +47,9 @@ static int imx6sx_enter_wait(struct cpui
->  		cpu_pm_enter();
->  		cpu_cluster_pm_enter();
->  
-> +		ct_idle_enter();
->  		cpu_suspend(0, imx6sx_idle_finish);
-> +		ct_idle_exit();
->  
->  		cpu_cluster_pm_exit();
->  		cpu_pm_exit();
-> @@ -87,7 +89,8 @@ static struct cpuidle_driver imx6sx_cpui
->  			 */
->  			.exit_latency = 300,
->  			.target_residency = 500,
-> -			.flags = CPUIDLE_FLAG_TIMER_STOP,
-> +			.flags = CPUIDLE_FLAG_TIMER_STOP |
-> +				 CPUIDLE_FLAG_RCU_IDLE,
->  			.enter = imx6sx_enter_wait,
+> Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+> Acked-by: Petr Mladek <pmladek@suse.com>
 
-There is a second one below that also uses imx6sx_enter_wait.
-
-Thanks.
-
->  			.name = "LOW-POWER-IDLE",
->  			.desc = "ARM power off",
-> 
-> 
+Acked-by: Sergey Senozhatsky <senozhatsky@chromium.org>
