@@ -2,51 +2,31 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4B1CC6FA8B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71D55ECAAD8
 	for <openrisc@archiver.kernel.org>; Thu, 22 Sep 2022 05:17:14 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 61C4C248EF;
+	by mail.librecores.org (Postfix) with ESMTP id 35CD32490E;
 	Thu, 22 Sep 2022 07:17:13 +0200 (CEST)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by mail.librecores.org (Postfix) with ESMTPS id 78ABD24B6A
- for <openrisc@lists.librecores.org>; Thu, 22 Sep 2022 02:46:05 +0200 (CEST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id 5F1C363347
- for <openrisc@lists.librecores.org>; Thu, 22 Sep 2022 00:46:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4DDBC43162
- for <openrisc@lists.librecores.org>; Thu, 22 Sep 2022 00:46:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1663807562;
- bh=2bH5aOcexI7rmLPjoykcAnkew/OWwytHkYzPwWB/jQU=;
- h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
- b=qaUYBCa8ZYQI7GFr3vNdl7b4/PNzeOP9Pl2wTB/4OC6mUC/FIDhddHDVnhJyCLZDw
- YQge6B5Td0P7VO9PjXCnxo31fcUlfOUeOzuNgueaOnxtVyoeE+Kw885ZbDXxjh+Kxz
- nG8xhYs4MfH8znO0LxccUTvFyIcklL8qxJgHgHzEwD28BpML95SM926I5BVMpBRfGy
- EClfn8JhrAFiO2xWjdeYnkuQSHDKC+N7GbQ87Gnwaucrl4yjzE6eDQWXlwcBRoA5Iv
- jLegSRu7TSsZLQytF1F6DuVm9kAdHW2MlxTQNgWpbKQ1zMRvmGVdyaWmNwNcIB2j62
- KBXRDapx3EsAg==
-Received: by mail-oa1-f47.google.com with SMTP id
- 586e51a60fabf-1278624b7c4so11645837fac.5
- for <openrisc@lists.librecores.org>; Wed, 21 Sep 2022 17:46:02 -0700 (PDT)
-X-Gm-Message-State: ACrzQf01AjbV4L2LVbs0GjrzAtdpRE5O+WnbOHarED2CItA70qT9YJ3v
- +vjs8KUujjNsrZjlNQwEyCjF7S8P7Bka+C6MaPw=
-X-Google-Smtp-Source: AMsMyM5wVf/J3OOqRLb4f8q+r+SKS9nQRSK3lKOefa1IGuaM19Jt2C1f8Xzw1tF39UCQAq/htt5QaEfcl4EevNt8Lqo=
-X-Received: by 2002:a05:6870:a78e:b0:12b:542b:e5b2 with SMTP id
- x14-20020a056870a78e00b0012b542be5b2mr6779719oao.112.1663807550798; Wed, 21
- Sep 2022 17:45:50 -0700 (PDT)
-MIME-Version: 1.0
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by mail.librecores.org (Postfix) with ESMTP id 47DF924B54
+ for <openrisc@lists.librecores.org>; Wed, 21 Sep 2022 23:51:48 +0200 (CEST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id DD65715DB;
+ Wed, 21 Sep 2022 14:51:53 -0700 (PDT)
+Received: from e126311.manchester.arm.com (unknown [10.57.76.246])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6F35F3F73B;
+ Wed, 21 Sep 2022 14:51:19 -0700 (PDT)
+Date: Wed, 21 Sep 2022 22:51:10 +0100
+From: Kajetan Puchalski <kajetan.puchalski@arm.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v2 07/44] cpuidle,psci: Push RCU-idle into driver
+Message-ID: <YyuHTgRh7t6vYjHw@e126311.manchester.arm.com>
 References: <20220919095939.761690562@infradead.org>
  <20220919101520.802976773@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20220919101520.802976773@infradead.org>
-From: Guo Ren <guoren@kernel.org>
-Date: Thu, 22 Sep 2022 08:45:37 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTQxxRQZLV+uJThCZSByUQ0oSoASgwsUggbsR3wHTqrqzg@mail.gmail.com>
-Message-ID: <CAJF2gTQxxRQZLV+uJThCZSByUQ0oSoASgwsUggbsR3wHTqrqzg@mail.gmail.com>
-Subject: Re: [PATCH v2 07/44] cpuidle,psci: Push RCU-idle into driver
-To: Peter Zijlstra <peterz@infradead.org>
-Content-Type: text/plain; charset="UTF-8"
 X-Mailman-Approved-At: Thu, 22 Sep 2022 07:17:12 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
@@ -61,7 +41,7 @@ List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
 Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
- linus.walleij@linaro.org, bsegall@google.com, pavel@ucw.cz,
+ linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
  agordeev@linux.ibm.com, srivatsa@csail.mit.edu, linux-arch@vger.kernel.org,
  vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org,
  christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org, agross@kernel.org,
@@ -76,7 +56,7 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
  Andrew Morton <akpm@linux-foundation.org>, mark.rutland@arm.com,
  linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
  virtualization@lists.linux-foundation.org,
- James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
+ James.Bottomley@HansenPartnership.com, jcmvbkbc@gmail.com,
  thierry.reding@gmail.com, kernel@xen0n.name, cl@linux.com,
  linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
  ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, festevam@gmail.com,
@@ -110,62 +90,12 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Reviewed-by: Guo Ren <guoren@kernel.org>
-
-On Mon, Sep 19, 2022 at 6:17 PM Peter Zijlstra <peterz@infradead.org> wrote:
->
+On Mon, Sep 19, 2022 at 11:59:46AM +0200, Peter Zijlstra wrote:
 > Doing RCU-idle outside the driver, only to then temporarily enable it
 > again, at least twice, before going idle is daft.
->
+> 
 > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> ---
->  drivers/cpuidle/cpuidle-psci.c |    9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
->
-> --- a/drivers/cpuidle/cpuidle-psci.c
-> +++ b/drivers/cpuidle/cpuidle-psci.c
-> @@ -69,12 +69,12 @@ static int __psci_enter_domain_idle_stat
->                 return -1;
->
->         /* Do runtime PM to manage a hierarchical CPU toplogy. */
-> -       ct_irq_enter_irqson();
->         if (s2idle)
->                 dev_pm_genpd_suspend(pd_dev);
->         else
->                 pm_runtime_put_sync_suspend(pd_dev);
-> -       ct_irq_exit_irqson();
-> +
-> +       ct_idle_enter();
->
->         state = psci_get_domain_state();
->         if (!state)
-> @@ -82,12 +82,12 @@ static int __psci_enter_domain_idle_stat
->
->         ret = psci_cpu_suspend_enter(state) ? -1 : idx;
->
-> -       ct_irq_enter_irqson();
-> +       ct_idle_exit();
-> +
->         if (s2idle)
->                 dev_pm_genpd_resume(pd_dev);
->         else
->                 pm_runtime_get_sync(pd_dev);
-> -       ct_irq_exit_irqson();
->
->         cpu_pm_exit();
->
-> @@ -240,6 +240,7 @@ static int psci_dt_cpu_init_topology(str
->          * of a shared state for the domain, assumes the domain states are all
->          * deeper states.
->          */
-> +       drv->states[state_count - 1].flags |= CPUIDLE_FLAG_RCU_IDLE;
->         drv->states[state_count - 1].enter = psci_enter_domain_idle_state;
->         drv->states[state_count - 1].enter_s2idle = psci_enter_s2idle_domain_idle_state;
->         psci_cpuidle_use_cpuhp = true;
->
->
 
+Tried it on Pixel 6 running psci_idle, looks good with no apparent issues.
 
--- 
-Best Regards
- Guo Ren
+Tested-by: Kajetan Puchalski <kajetan.puchalski@arm.com>
