@@ -2,37 +2,52 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6A9EC6FA8E
-	for <openrisc@archiver.kernel.org>; Thu, 22 Sep 2022 03:15:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4B1CC6FA8B
+	for <openrisc@archiver.kernel.org>; Thu, 22 Sep 2022 05:17:14 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 4929C24B75;
-	Thu, 22 Sep 2022 05:15:37 +0200 (CEST)
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by mail.librecores.org (Postfix) with ESMTP id 35A7624B71
- for <openrisc@lists.librecores.org>; Thu, 22 Sep 2022 05:15:35 +0200 (CEST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CAACE143D;
- Wed, 21 Sep 2022 20:15:40 -0700 (PDT)
-Received: from [10.162.43.8] (unknown [10.162.43.8])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 8EAB43F5A1;
- Wed, 21 Sep 2022 20:15:24 -0700 (PDT)
-Message-ID: <0236922f-841e-c6d8-c9ee-599d72c458d3@arm.com>
-Date: Thu, 22 Sep 2022 08:45:22 +0530
+	by mail.librecores.org (Postfix) with ESMTP id 61C4C248EF;
+	Thu, 22 Sep 2022 07:17:13 +0200 (CEST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+ by mail.librecores.org (Postfix) with ESMTPS id 78ABD24B6A
+ for <openrisc@lists.librecores.org>; Thu, 22 Sep 2022 02:46:05 +0200 (CEST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id 5F1C363347
+ for <openrisc@lists.librecores.org>; Thu, 22 Sep 2022 00:46:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4DDBC43162
+ for <openrisc@lists.librecores.org>; Thu, 22 Sep 2022 00:46:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1663807562;
+ bh=2bH5aOcexI7rmLPjoykcAnkew/OWwytHkYzPwWB/jQU=;
+ h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+ b=qaUYBCa8ZYQI7GFr3vNdl7b4/PNzeOP9Pl2wTB/4OC6mUC/FIDhddHDVnhJyCLZDw
+ YQge6B5Td0P7VO9PjXCnxo31fcUlfOUeOzuNgueaOnxtVyoeE+Kw885ZbDXxjh+Kxz
+ nG8xhYs4MfH8znO0LxccUTvFyIcklL8qxJgHgHzEwD28BpML95SM926I5BVMpBRfGy
+ EClfn8JhrAFiO2xWjdeYnkuQSHDKC+N7GbQ87Gnwaucrl4yjzE6eDQWXlwcBRoA5Iv
+ jLegSRu7TSsZLQytF1F6DuVm9kAdHW2MlxTQNgWpbKQ1zMRvmGVdyaWmNwNcIB2j62
+ KBXRDapx3EsAg==
+Received: by mail-oa1-f47.google.com with SMTP id
+ 586e51a60fabf-1278624b7c4so11645837fac.5
+ for <openrisc@lists.librecores.org>; Wed, 21 Sep 2022 17:46:02 -0700 (PDT)
+X-Gm-Message-State: ACrzQf01AjbV4L2LVbs0GjrzAtdpRE5O+WnbOHarED2CItA70qT9YJ3v
+ +vjs8KUujjNsrZjlNQwEyCjF7S8P7Bka+C6MaPw=
+X-Google-Smtp-Source: AMsMyM5wVf/J3OOqRLb4f8q+r+SKS9nQRSK3lKOefa1IGuaM19Jt2C1f8Xzw1tF39UCQAq/htt5QaEfcl4EevNt8Lqo=
+X-Received: by 2002:a05:6870:a78e:b0:12b:542b:e5b2 with SMTP id
+ x14-20020a056870a78e00b0012b542be5b2mr6779719oao.112.1663807550798; Wed, 21
+ Sep 2022 17:45:50 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v3 4/4] arm64: support batched/deferred tlb shootdown
- during page reclamation
-Content-Language: en-US
-To: Nadav Amit <namit@vmware.com>
-References: <20220822082120.8347-1-yangyicong@huawei.com>
- <20220822082120.8347-5-yangyicong@huawei.com>
- <888da5f3-104c-3929-c21e-c710922d6f1e@arm.com>
- <36B9DE22-E3BC-4CB2-8E3F-B21B61434CD3@vmware.com>
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-In-Reply-To: <36B9DE22-E3BC-4CB2-8E3F-B21B61434CD3@vmware.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20220919095939.761690562@infradead.org>
+ <20220919101520.802976773@infradead.org>
+In-Reply-To: <20220919101520.802976773@infradead.org>
+From: Guo Ren <guoren@kernel.org>
+Date: Thu, 22 Sep 2022 08:45:37 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTQxxRQZLV+uJThCZSByUQ0oSoASgwsUggbsR3wHTqrqzg@mail.gmail.com>
+Message-ID: <CAJF2gTQxxRQZLV+uJThCZSByUQ0oSoASgwsUggbsR3wHTqrqzg@mail.gmail.com>
+Subject: Re: [PATCH v2 07/44] cpuidle,psci: Push RCU-idle into driver
+To: Peter Zijlstra <peterz@infradead.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailman-Approved-At: Thu, 22 Sep 2022 07:17:12 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -45,109 +60,112 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: "wangkefeng.wang@huawei.com" <wangkefeng.wang@huawei.com>,
- "prime.zeng@hisilicon.com" <prime.zeng@hisilicon.com>,
- "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
- "peterz@infradead.org" <peterz@infradead.org>,
- "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
- "yangyicong@hisilicon.com" <yangyicong@hisilicon.com>,
- Linux MM <linux-mm@kvack.org>, "guojian@oppo.com" <guojian@oppo.com>,
- "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
- Will Deacon <will@kernel.org>,
- "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
- "zhangshiming@oppo.com" <zhangshiming@oppo.com>,
- "lipeifeng@oppo.com" <lipeifeng@oppo.com>, "corbet@lwn.net" <corbet@lwn.net>,
- "x86@kernel.org" <x86@kernel.org>, Barry Song <21cnbao@gmail.com>,
- Mel Gorman <mgorman@suse.de>,
- "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
- "arnd@arndb.de" <arnd@arndb.de>, "realmz6@gmail.com" <realmz6@gmail.com>,
- Barry Song <v-songbaohua@oppo.com>,
- "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>,
- "darren@os.amperecomputing.com" <darren@os.amperecomputing.com>,
- "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
- "xhao@linux.alibaba.com" <xhao@linux.alibaba.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "huzhanyuan@oppo.com" <huzhanyuan@oppo.com>,
- Yicong Yang <yangyicong@huawei.com>, Andrew Morton <akpm@linux-foundation.org>,
- "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
+Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
+ linus.walleij@linaro.org, bsegall@google.com, pavel@ucw.cz,
+ agordeev@linux.ibm.com, srivatsa@csail.mit.edu, linux-arch@vger.kernel.org,
+ vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org,
+ christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org, agross@kernel.org,
+ linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
+ borntraeger@linux.ibm.com, mturquette@baylibre.com, sammy@sammy.net,
+ pmladek@suse.com, linux-pm@vger.kernel.org,
+ Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org,
+ npiggin@gmail.com, tglx@linutronix.de, linux-omap@vger.kernel.org,
+ dietmar.eggemann@arm.com, andreyknvl@gmail.com, gregkh@linuxfoundation.org,
+ linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org, tj@kernel.org,
+ Andrew Morton <akpm@linux-foundation.org>, mark.rutland@arm.com,
+ linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
+ virtualization@lists.linux-foundation.org,
+ James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
+ thierry.reding@gmail.com, kernel@xen0n.name, cl@linux.com,
+ linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
+ ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, festevam@gmail.com,
+ deller@gmx.de, daniel.lezcano@linaro.org, jonathanh@nvidia.com,
+ dennis@kernel.org, lenb@kernel.org, linux-xtensa@linux-xtensa.org,
+ kernel@pengutronix.de, gor@linux.ibm.com, linux-arm-msm@vger.kernel.org,
+ linux-alpha@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ loongarch@lists.linux.dev, chris@zankel.net, sboyd@kernel.org,
+ dinguyen@kernel.org, bristot@redhat.com, alexander.shishkin@linux.intel.com,
+ fweisbec@gmail.com, lpieralisi@kernel.org, atishp@atishpatra.org,
+ linux@rasmusvillemoes.dk, kasan-dev@googlegroups.com, will@kernel.org,
+ boris.ostrovsky@oracle.com, khilman@kernel.org, linux-csky@vger.kernel.org,
+ pv-drivers@vmware.com, linux-snps-arc@lists.infradead.org, mgorman@suse.de,
+ jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+ ulli.kroll@googlemail.com, linux-clk@vger.kernel.org, rostedt@goodmis.org,
+ ink@jurassic.park.msu.ru, bcain@quicinc.com, tsbogend@alpha.franken.de,
+ linux-parisc@vger.kernel.org, ryabinin.a.a@gmail.com, sudeep.holla@arm.com,
+ shawnguo@kernel.org, davem@davemloft.net, dalias@libc.org, tony@atomide.com,
+ amakhalov@vmware.com, konrad.dybcio@somainline.org, bjorn.andersson@linaro.org,
+ glider@google.com, hpa@zytor.com, sparclinux@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org,
+ vincenzo.frascino@arm.com, anton.ivanov@cambridgegreys.com, jonas@southpole.se,
+ yury.norov@gmail.com, richard@nod.at, x86@kernel.org, linux@armlinux.org.uk,
+ mingo@redhat.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
+ richard.henderson@linaro.org, openrisc@lists.librecores.org, acme@kernel.org,
+ paul.walmsley@sifive.com, linux-tegra@vger.kernel.org, namhyung@kernel.org,
+ andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, dvyukov@google.com,
+ jgross@suse.com, monstr@monstr.eu, linux-mips@vger.kernel.org,
+ palmer@dabbelt.com, anup@brainfault.org, bp@alien8.de,
+ johannes@sipsolutions.net, linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
+Reviewed-by: Guo Ren <guoren@kernel.org>
+
+On Mon, Sep 19, 2022 at 6:17 PM Peter Zijlstra <peterz@infradead.org> wrote:
+>
+> Doing RCU-idle outside the driver, only to then temporarily enable it
+> again, at least twice, before going idle is daft.
+>
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> ---
+>  drivers/cpuidle/cpuidle-psci.c |    9 +++++----
+>  1 file changed, 5 insertions(+), 4 deletions(-)
+>
+> --- a/drivers/cpuidle/cpuidle-psci.c
+> +++ b/drivers/cpuidle/cpuidle-psci.c
+> @@ -69,12 +69,12 @@ static int __psci_enter_domain_idle_stat
+>                 return -1;
+>
+>         /* Do runtime PM to manage a hierarchical CPU toplogy. */
+> -       ct_irq_enter_irqson();
+>         if (s2idle)
+>                 dev_pm_genpd_suspend(pd_dev);
+>         else
+>                 pm_runtime_put_sync_suspend(pd_dev);
+> -       ct_irq_exit_irqson();
+> +
+> +       ct_idle_enter();
+>
+>         state = psci_get_domain_state();
+>         if (!state)
+> @@ -82,12 +82,12 @@ static int __psci_enter_domain_idle_stat
+>
+>         ret = psci_cpu_suspend_enter(state) ? -1 : idx;
+>
+> -       ct_irq_enter_irqson();
+> +       ct_idle_exit();
+> +
+>         if (s2idle)
+>                 dev_pm_genpd_resume(pd_dev);
+>         else
+>                 pm_runtime_get_sync(pd_dev);
+> -       ct_irq_exit_irqson();
+>
+>         cpu_pm_exit();
+>
+> @@ -240,6 +240,7 @@ static int psci_dt_cpu_init_topology(str
+>          * of a shared state for the domain, assumes the domain states are all
+>          * deeper states.
+>          */
+> +       drv->states[state_count - 1].flags |= CPUIDLE_FLAG_RCU_IDLE;
+>         drv->states[state_count - 1].enter = psci_enter_domain_idle_state;
+>         drv->states[state_count - 1].enter_s2idle = psci_enter_s2idle_domain_idle_state;
+>         psci_cpuidle_use_cpuhp = true;
+>
+>
 
 
-On 9/21/22 12:47, Nadav Amit wrote:
-> On Sep 20, 2022, at 11:53 PM, Anshuman Khandual <anshuman.khandual@arm.com> wrote:
-> 
->> ⚠ External Email
->>
->> On 8/22/22 13:51, Yicong Yang wrote:
->>> +static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
->>> +                                     struct mm_struct *mm,
->>> +                                     unsigned long uaddr)
->>> +{
->>> +     __flush_tlb_page_nosync(mm, uaddr);
->>> +}
->>> +
->>> +static inline void arch_tlbbatch_flush(struct arch_tlbflush_unmap_batch *batch)
->>> +{
->>> +     dsb(ish);
->>> +}
->>
->> Just wondering if arch_tlbbatch_add_mm() could also detect continuous mapping
->> TLB invalidation requests on a given mm and try to generate a range based TLB
->> invalidation such as flush_tlb_range().
->>
->> struct arch_tlbflush_unmap_batch via task->tlb_ubc->arch can track continuous
->> ranges while being queued up via arch_tlbbatch_add_mm(), any range formed can
->> later be flushed in subsequent arch_tlbbatch_flush() ?
->>
->> OR
->>
->> It might not be worth the effort and complexity, in comparison to performance
->> improvement, TLB range flush brings in ?
-> 
-> So here are my 2 cents, based on my experience with Intel-x86. It is likely
-> different on arm64, but perhaps it can provide you some insight into what
-> parameters you should measure and consider.
-> 
-> In general there is a tradeoff between full TLB flushes and entry-specific
-> ones. Flushing specific entries takes more time than flushing the entire
-> TLB, but sade TLB refills.
-
-Right.
-
-> 
-> Dave Hansen made some calculations in the past and came up with 33 as a
-> magic cutoff number, i.e., if you need to flush more than 33 entries, just
-> flush the entire TLB. I am not sure that this exact number is very
-> meaningful, since one might argue that it should’ve taken PTI into account
-> (which might require twice as many TLB invalidations).
-
-Okay.
-
-> 
-> Anyhow, back to arch_tlbbatch_add_mm(). It may be possible to track ranges,
-> but the question is whether you would actually succeed in forming continuous
-> ranges that are eventually (on x86) smaller than the full TLB flush cutoff
-> (=33). Questionable (perhaps better with MGLRU?).
-
-This proposal here for arm64 does not cause a full TLB flush ever. It creates
-individual TLB flushes all the time. Hence the choice here is not between full
-TLB flush and possible range flushes. Choice is actually between individual
-TLB flushes and range/full TLB flushes.
-
-> 
-> Then, you should remember that tracking should be very efficient, since even
-> few cache misses might have greater cost than what you save by
-> selective-flushing. Finally, on x86 you would need to invoke the smp/IPI
-> layer multiple times to send different cores the relevant range they need to
-> flush.
-
-Agreed, these reasons make it much difficult to gain any more performance.
-
-> 
-> IOW: It is somewhat complicated to implement efficeintly. On x86, and
-> probably other IPI-based TLB shootdown systems, does not have clear
-> performance benefit (IMHO).
-
-Agreed, thanks for such a detailed explanation, appreciate it.
+-- 
+Best Regards
+ Guo Ren
