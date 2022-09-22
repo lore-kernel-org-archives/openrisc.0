@@ -2,54 +2,37 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79712C6FA8B
-	for <openrisc@archiver.kernel.org>; Wed, 21 Sep 2022 08:54:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6A9EC6FA8E
+	for <openrisc@archiver.kernel.org>; Thu, 22 Sep 2022 03:15:38 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 8427924B16;
-	Wed, 21 Sep 2022 10:54:47 +0200 (CEST)
-Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com
- [209.85.218.50])
- by mail.librecores.org (Postfix) with ESMTPS id E59EA24A84
- for <openrisc@lists.librecores.org>; Wed, 21 Sep 2022 10:54:46 +0200 (CEST)
-Received: by mail-ej1-f50.google.com with SMTP id a26so12062565ejc.4
- for <openrisc@lists.librecores.org>; Wed, 21 Sep 2022 01:54:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:from:to:cc:subject:date;
- bh=sc4HrH+dawwbyFY4jxaPYFax97q7PbwtRdCVIa2eWag=;
- b=nvXLTwTum0Zu+Nzwkb/Va5KR7MpZoNKJUWh0AvWe8HdVcr1Grhklhdo1BZW8sba5fw
- BGnTPKQw9TWdIn1AwbWmhqYPWj/FVYt+uu55rzvSXj7gyQEl6nisi0K/8PiKq+G1vate
- OwUz5f2/PwR248iBS39pCnt+cZvqAUi3xnXwI/CPS+xFuJqBAs2z3QcTEXopA/PS8206
- LsKWiJynHncuR2MFh2DVSwmUKzCR6RXBe0hFSksOj2krERKhpYbj6OOLJgFNJt7NSBQ6
- hVqA13u7w8pzq63oY/Yhzl8fszOLZBKNoD8poD5JuUBZFek7tviVQ4tIq4kb5M10FNKT
- s1WA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date;
- bh=sc4HrH+dawwbyFY4jxaPYFax97q7PbwtRdCVIa2eWag=;
- b=H/ZVxnfdMNPsKI7d7DFZqaBODmJNF243qnBuRu5caod5MBPgNdxILGXtp1h6msgf0Y
- cPo9j0wyi7B2Gp7D33rSCpDz/wF/YAx1VpMr208DyTIO81yiF10t3mHCNq1Dov4ALqrR
- KIjh10oOm6fqLMny6Zv7Und42JXCv5zTTqt9wSPaFC3SNnbFlP66DrwfB0K30osc+ZrD
- LqMGH+HQQ5Asix7M82e+zHPuDJAOlLD0JNHNKkJAiFSSowe++tVguAcgQlFfG3cou6Wx
- 5DeOxBHO2vbvDz20SAPYfH0WQZTBZxvOgGarSNcqoWGv+7vfkUnmcYgxNliP9B4XavYV
- bfvQ==
-X-Gm-Message-State: ACrzQf2/mtJlwGLZ2H3TRwkW2siELuId9NAmB31m5PxCPtRa3U1szFrk
- 4yM+JflIkyUF5s2ePAuso1wFZ1diprbsqqF5y38=
-X-Google-Smtp-Source: AMsMyM5mpmqn+gfhEkasy6u301zqGqQeURhHcxEGpcBIv8VPgxV44BVkZMurDLR6PBxFMgmK/214xxyLA2GRvdonQRQ=
-X-Received: by 2002:a17:907:c13:b0:781:d3c2:5015 with SMTP id
- ga19-20020a1709070c1300b00781d3c25015mr4799862ejc.457.1663750486484; Wed, 21
- Sep 2022 01:54:46 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 4929C24B75;
+	Thu, 22 Sep 2022 05:15:37 +0200 (CEST)
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by mail.librecores.org (Postfix) with ESMTP id 35A7624B71
+ for <openrisc@lists.librecores.org>; Thu, 22 Sep 2022 05:15:35 +0200 (CEST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CAACE143D;
+ Wed, 21 Sep 2022 20:15:40 -0700 (PDT)
+Received: from [10.162.43.8] (unknown [10.162.43.8])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 8EAB43F5A1;
+ Wed, 21 Sep 2022 20:15:24 -0700 (PDT)
+Message-ID: <0236922f-841e-c6d8-c9ee-599d72c458d3@arm.com>
+Date: Thu, 22 Sep 2022 08:45:22 +0530
 MIME-Version: 1.0
-References: <20220921084302.43631-1-yangyicong@huawei.com>
- <20220921084302.43631-2-yangyicong@huawei.com>
-In-Reply-To: <20220921084302.43631-2-yangyicong@huawei.com>
-From: Barry Song <21cnbao@gmail.com>
-Date: Wed, 21 Sep 2022 20:54:35 +1200
-Message-ID: <CAGsJ_4ydO=CegfrAF=jYmhOffXd7zKaFp_YxhdMgnoNGA8mBQQ@mail.gmail.com>
-Subject: Re: [PATCH v4 1/2] mm/tlbbatch: Introduce arch_tlbbatch_should_defer()
-To: Yicong Yang <yangyicong@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v3 4/4] arm64: support batched/deferred tlb shootdown
+ during page reclamation
+Content-Language: en-US
+To: Nadav Amit <namit@vmware.com>
+References: <20220822082120.8347-1-yangyicong@huawei.com>
+ <20220822082120.8347-5-yangyicong@huawei.com>
+ <888da5f3-104c-3929-c21e-c710922d6f1e@arm.com>
+ <36B9DE22-E3BC-4CB2-8E3F-B21B61434CD3@vmware.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+In-Reply-To: <36B9DE22-E3BC-4CB2-8E3F-B21B61434CD3@vmware.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -62,91 +45,109 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: wangkefeng.wang@huawei.com, prime.zeng@hisilicon.com,
- anshuman.khandual@arm.com, linux-doc@vger.kernel.org, peterz@infradead.org,
- catalin.marinas@arm.com, yangyicong@hisilicon.com, linux-mm@kvack.org,
- guojian@oppo.com, linux-riscv@lists.infradead.org, will@kernel.org,
- Anshuman Khandual <khandual@linux.vnet.ibm.com>, linux-s390@vger.kernel.org,
- zhangshiming@oppo.com, lipeifeng@oppo.com, corbet@lwn.net, x86@kernel.org,
- linux-mips@vger.kernel.org, arnd@arndb.de, realmz6@gmail.com,
- openrisc@lists.librecores.org, darren@os.amperecomputing.com,
- linux-arm-kernel@lists.infradead.org, xhao@linux.alibaba.com,
- linux-kernel@vger.kernel.org, huzhanyuan@oppo.com, akpm@linux-foundation.org,
- linuxppc-dev@lists.ozlabs.org
+Cc: "wangkefeng.wang@huawei.com" <wangkefeng.wang@huawei.com>,
+ "prime.zeng@hisilicon.com" <prime.zeng@hisilicon.com>,
+ "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+ "peterz@infradead.org" <peterz@infradead.org>,
+ "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+ "yangyicong@hisilicon.com" <yangyicong@hisilicon.com>,
+ Linux MM <linux-mm@kvack.org>, "guojian@oppo.com" <guojian@oppo.com>,
+ "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+ Will Deacon <will@kernel.org>,
+ "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+ "zhangshiming@oppo.com" <zhangshiming@oppo.com>,
+ "lipeifeng@oppo.com" <lipeifeng@oppo.com>, "corbet@lwn.net" <corbet@lwn.net>,
+ "x86@kernel.org" <x86@kernel.org>, Barry Song <21cnbao@gmail.com>,
+ Mel Gorman <mgorman@suse.de>,
+ "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+ "arnd@arndb.de" <arnd@arndb.de>, "realmz6@gmail.com" <realmz6@gmail.com>,
+ Barry Song <v-songbaohua@oppo.com>,
+ "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>,
+ "darren@os.amperecomputing.com" <darren@os.amperecomputing.com>,
+ "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+ "xhao@linux.alibaba.com" <xhao@linux.alibaba.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "huzhanyuan@oppo.com" <huzhanyuan@oppo.com>,
+ Yicong Yang <yangyicong@huawei.com>, Andrew Morton <akpm@linux-foundation.org>,
+ "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Wed, Sep 21, 2022 at 8:45 PM Yicong Yang <yangyicong@huawei.com> wrote:
->
-> From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
->
-> The entire scheme of deferred TLB flush in reclaim path rests on the
-> fact that the cost to refill TLB entries is less than flushing out
-> individual entries by sending IPI to remote CPUs. But architecture
-> can have different ways to evaluate that. Hence apart from checking
-> TTU_BATCH_FLUSH in the TTU flags, rest of the decision should be
-> architecture specific.
->
-> Signed-off-by: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-> [https://lore.kernel.org/linuxppc-dev/20171101101735.2318-2-khandual@linux.vnet.ibm.com/]
-> Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
-> [Rebase and fix incorrect return value type]
-> Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-> Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-> ---
 
-Reviewed-by: Barry Song <baohua@kernel.org>
 
->  arch/x86/include/asm/tlbflush.h | 12 ++++++++++++
->  mm/rmap.c                       |  9 +--------
->  2 files changed, 13 insertions(+), 8 deletions(-)
->
-> diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
-> index cda3118f3b27..8a497d902c16 100644
-> --- a/arch/x86/include/asm/tlbflush.h
-> +++ b/arch/x86/include/asm/tlbflush.h
-> @@ -240,6 +240,18 @@ static inline void flush_tlb_page(struct vm_area_struct *vma, unsigned long a)
->         flush_tlb_mm_range(vma->vm_mm, a, a + PAGE_SIZE, PAGE_SHIFT, false);
->  }
->
-> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
-> +{
-> +       bool should_defer = false;
-> +
-> +       /* If remote CPUs need to be flushed then defer batch the flush */
-> +       if (cpumask_any_but(mm_cpumask(mm), get_cpu()) < nr_cpu_ids)
-> +               should_defer = true;
-> +       put_cpu();
-> +
-> +       return should_defer;
-> +}
-> +
->  static inline u64 inc_mm_tlb_gen(struct mm_struct *mm)
->  {
->         /*
-> diff --git a/mm/rmap.c b/mm/rmap.c
-> index 93d5a6f793d2..cd8cf5cb0b01 100644
-> --- a/mm/rmap.c
-> +++ b/mm/rmap.c
-> @@ -690,17 +690,10 @@ static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
->   */
->  static bool should_defer_flush(struct mm_struct *mm, enum ttu_flags flags)
->  {
-> -       bool should_defer = false;
-> -
->         if (!(flags & TTU_BATCH_FLUSH))
->                 return false;
->
-> -       /* If remote CPUs need to be flushed then defer batch the flush */
-> -       if (cpumask_any_but(mm_cpumask(mm), get_cpu()) < nr_cpu_ids)
-> -               should_defer = true;
-> -       put_cpu();
-> -
-> -       return should_defer;
-> +       return arch_tlbbatch_should_defer(mm);
->  }
->
->  /*
-> --
-> 2.24.0
->
+On 9/21/22 12:47, Nadav Amit wrote:
+> On Sep 20, 2022, at 11:53 PM, Anshuman Khandual <anshuman.khandual@arm.com> wrote:
+> 
+>> ⚠ External Email
+>>
+>> On 8/22/22 13:51, Yicong Yang wrote:
+>>> +static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
+>>> +                                     struct mm_struct *mm,
+>>> +                                     unsigned long uaddr)
+>>> +{
+>>> +     __flush_tlb_page_nosync(mm, uaddr);
+>>> +}
+>>> +
+>>> +static inline void arch_tlbbatch_flush(struct arch_tlbflush_unmap_batch *batch)
+>>> +{
+>>> +     dsb(ish);
+>>> +}
+>>
+>> Just wondering if arch_tlbbatch_add_mm() could also detect continuous mapping
+>> TLB invalidation requests on a given mm and try to generate a range based TLB
+>> invalidation such as flush_tlb_range().
+>>
+>> struct arch_tlbflush_unmap_batch via task->tlb_ubc->arch can track continuous
+>> ranges while being queued up via arch_tlbbatch_add_mm(), any range formed can
+>> later be flushed in subsequent arch_tlbbatch_flush() ?
+>>
+>> OR
+>>
+>> It might not be worth the effort and complexity, in comparison to performance
+>> improvement, TLB range flush brings in ?
+> 
+> So here are my 2 cents, based on my experience with Intel-x86. It is likely
+> different on arm64, but perhaps it can provide you some insight into what
+> parameters you should measure and consider.
+> 
+> In general there is a tradeoff between full TLB flushes and entry-specific
+> ones. Flushing specific entries takes more time than flushing the entire
+> TLB, but sade TLB refills.
+
+Right.
+
+> 
+> Dave Hansen made some calculations in the past and came up with 33 as a
+> magic cutoff number, i.e., if you need to flush more than 33 entries, just
+> flush the entire TLB. I am not sure that this exact number is very
+> meaningful, since one might argue that it should’ve taken PTI into account
+> (which might require twice as many TLB invalidations).
+
+Okay.
+
+> 
+> Anyhow, back to arch_tlbbatch_add_mm(). It may be possible to track ranges,
+> but the question is whether you would actually succeed in forming continuous
+> ranges that are eventually (on x86) smaller than the full TLB flush cutoff
+> (=33). Questionable (perhaps better with MGLRU?).
+
+This proposal here for arm64 does not cause a full TLB flush ever. It creates
+individual TLB flushes all the time. Hence the choice here is not between full
+TLB flush and possible range flushes. Choice is actually between individual
+TLB flushes and range/full TLB flushes.
+
+> 
+> Then, you should remember that tracking should be very efficient, since even
+> few cache misses might have greater cost than what you save by
+> selective-flushing. Finally, on x86 you would need to invoke the smp/IPI
+> layer multiple times to send different cores the relevant range they need to
+> flush.
+
+Agreed, these reasons make it much difficult to gain any more performance.
+
+> 
+> IOW: It is somewhat complicated to implement efficeintly. On x86, and
+> probably other IPI-based TLB shootdown systems, does not have clear
+> performance benefit (IMHO).
+
+Agreed, thanks for such a detailed explanation, appreciate it.
