@@ -2,57 +2,34 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27828C6FA83
-	for <openrisc@archiver.kernel.org>; Wed, 28 Sep 2022 00:24:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61D32C433FE
+	for <openrisc@archiver.kernel.org>; Thu, 29 Sep 2022 14:20:28 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id A5A7C24A61;
-	Wed, 28 Sep 2022 02:24:03 +0200 (CEST)
-Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com
- [209.85.218.48])
- by mail.librecores.org (Postfix) with ESMTPS id 8E5EA249CA
- for <openrisc@lists.librecores.org>; Wed, 28 Sep 2022 02:24:02 +0200 (CEST)
-Received: by mail-ej1-f48.google.com with SMTP id lh5so23915810ejb.10
- for <openrisc@lists.librecores.org>; Tue, 27 Sep 2022 17:24:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:from:to:cc:subject:date;
- bh=yrRvoMA2qzsQLaNGkBWV3qKU0u6GXYvGhupTkuY6VEY=;
- b=N4SqAspV6MMkhBYCFIyWw1zoLE0Rd7s2OcFI1DceVn/pHLgQQpIGuPVe/Y5xz2rq7u
- 4AwEph2NeuV3pICsTTUzwRekddH0yOeND7JGqULNGiEUieyWRG6v6tDzpLe64Ks46WYl
- +E7aPSySmJM5rrRbU/QTtIuWWnrypBa5Nee0vTcASR26Pbtt3a1rnWEXJiAhZ0LuaF3z
- G0Kpy5TJl/IDsRofANqT6QeQSyO+rxKfvYX1lEVX/uIl1opJ/g6T4wX2v3xFu9sWUBhf
- nxjbUpm/gkJf8RF8BM1xVL9NUSyaLL/yweBBM9Jtss7d1JdDL1D0xSUAW2CB9lb+daDC
- gCuA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date;
- bh=yrRvoMA2qzsQLaNGkBWV3qKU0u6GXYvGhupTkuY6VEY=;
- b=IaiMv4tJg7HEtNIn9Djy0j/L80vV5Ei0B7dLQt1xKICetBVWtIq1PSuQo4grONDbN5
- x9O1cHou5IopG5qa5eHftC21LB5xOcDxanJStFwXwMuhdLP9ICgGz+KogAMMAJISEPiU
- QPE/WCQAXa9GDIVsjhB3AWxX59fshD7b53CYq8bJ4JtPwmZLyQiEKjzadJYS4pfaaMtW
- rEGMlVys10X5/oQE1SGQd+Cf5rv3FhU/oy8wruQkRAVBD2ytSW+6dKakdlRP/VOcvimF
- 60/tF91u07A32aPVvcqgAYoXn3oPsQVYTmgE4OALJjOfHnLgeaNFVMgJa0FR7Z+tDmkK
- 18LA==
-X-Gm-Message-State: ACrzQf3Pt/r51qtG7l+Vf8eofWC5Cwk/+aQ4zBd3/S+uT3Gcwr0oJLO2
- +cgcKoY2bkzKkGeA9ILT7oPaSUkbevEwjpEV6A0=
-X-Google-Smtp-Source: AMsMyM7eMgPelqF9CjnEbxsTqqXy6pmBZpLW9pueVjK2kG6gmJQBXY3G4jO1eBrNDVmQMCspWLB2ar5LjeuRSz4OCpA=
-X-Received: by 2002:a17:907:7eaa:b0:782:3d2b:20b0 with SMTP id
- qb42-20020a1709077eaa00b007823d2b20b0mr25078507ejc.746.1664324641882; Tue, 27
- Sep 2022 17:24:01 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id DB97624830;
+	Thu, 29 Sep 2022 16:20:26 +0200 (CEST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+ by mail.librecores.org (Postfix) with ESMTPS id 984D124BD2
+ for <openrisc@lists.librecores.org>; Mon, 26 Sep 2022 20:41:05 +0200 (CEST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by ams.source.kernel.org (Postfix) with ESMTPS id 70D3BB80D67;
+ Mon, 26 Sep 2022 18:41:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8346C433D7;
+ Mon, 26 Sep 2022 18:40:49 +0000 (UTC)
+Date: Mon, 26 Sep 2022 14:41:57 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v2 33/44] ftrace: WARN on rcuidle
+Message-ID: <20220926144157.0406dfbb@gandalf.local.home>
+In-Reply-To: <20220919101522.573936213@infradead.org>
+References: <20220919095939.761690562@infradead.org>
+ <20220919101522.573936213@infradead.org>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-References: <20220921084302.43631-1-yangyicong@huawei.com>
- <20220921084302.43631-3-yangyicong@huawei.com>
- <168eac93-a6ee-0b2e-12bb-4222eff24561@arm.com>
- <8e391962-4e3a-5a56-64b4-78e8637e3b8c@huawei.com>
-In-Reply-To: <8e391962-4e3a-5a56-64b4-78e8637e3b8c@huawei.com>
-From: Barry Song <21cnbao@gmail.com>
-Date: Wed, 28 Sep 2022 13:23:50 +1300
-Message-ID: <CAGsJ_4z=dZbrAUD9jczT08S3qi_ep-h+EK35UfayVk1S+Cnp2A@mail.gmail.com>
-Subject: Re: [PATCH v4 2/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-To: Yicong Yang <yangyicong@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Mailman-Approved-At: Thu, 29 Sep 2022 16:20:25 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -65,82 +42,127 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: wangkefeng.wang@huawei.com, prime.zeng@hisilicon.com, realmz6@gmail.com,
- linux-doc@vger.kernel.org, peterz@infradead.org, catalin.marinas@arm.com,
- yangyicong@hisilicon.com, linux-mm@kvack.org, Nadav Amit <namit@vmware.com>,
- guojian@oppo.com, linux-riscv@lists.infradead.org, will@kernel.org,
- linux-s390@vger.kernel.org, zhangshiming@oppo.com, lipeifeng@oppo.com,
- corbet@lwn.net, x86@kernel.org, Mel Gorman <mgorman@suse.de>,
- linux-mips@vger.kernel.org, arnd@arndb.de,
- Anshuman Khandual <anshuman.khandual@arm.com>,
- Barry Song <v-songbaohua@oppo.com>, openrisc@lists.librecores.org,
- darren@os.amperecomputing.com, linux-arm-kernel@lists.infradead.org,
- xhao@linux.alibaba.com, linux-kernel@vger.kernel.org, huzhanyuan@oppo.com,
- akpm@linux-foundation.org, linuxppc-dev@lists.ozlabs.org
+Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
+ linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
+ agordeev@linux.ibm.com, srivatsa@csail.mit.edu, linux-arch@vger.kernel.org,
+ vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org,
+ christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org, agross@kernel.org,
+ linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
+ borntraeger@linux.ibm.com, mturquette@baylibre.com, sammy@sammy.net,
+ pmladek@suse.com, linux-pm@vger.kernel.org,
+ Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org,
+ npiggin@gmail.com, tglx@linutronix.de, linux-omap@vger.kernel.org,
+ dietmar.eggemann@arm.com, andreyknvl@gmail.com, gregkh@linuxfoundation.org,
+ linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org, tj@kernel.org,
+ Andrew Morton <akpm@linux-foundation.org>, mark.rutland@arm.com,
+ linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
+ virtualization@lists.linux-foundation.org,
+ James.Bottomley@HansenPartnership.com, jcmvbkbc@gmail.com,
+ thierry.reding@gmail.com, kernel@xen0n.name, cl@linux.com,
+ linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
+ ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, festevam@gmail.com,
+ deller@gmx.de, daniel.lezcano@linaro.org, jonathanh@nvidia.com,
+ dennis@kernel.org, lenb@kernel.org, linux-xtensa@linux-xtensa.org,
+ kernel@pengutronix.de, gor@linux.ibm.com, linux-arm-msm@vger.kernel.org,
+ linux-alpha@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ loongarch@lists.linux.dev, chris@zankel.net, sboyd@kernel.org,
+ dinguyen@kernel.org, bristot@redhat.com, alexander.shishkin@linux.intel.com,
+ fweisbec@gmail.com, lpieralisi@kernel.org, atishp@atishpatra.org,
+ linux@rasmusvillemoes.dk, kasan-dev@googlegroups.com, will@kernel.org,
+ boris.ostrovsky@oracle.com, khilman@kernel.org, linux-csky@vger.kernel.org,
+ pv-drivers@vmware.com, linux-snps-arc@lists.infradead.org, mgorman@suse.de,
+ jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+ ulli.kroll@googlemail.com, linux-clk@vger.kernel.org, ink@jurassic.park.msu.ru,
+ bcain@quicinc.com, tsbogend@alpha.franken.de, linux-parisc@vger.kernel.org,
+ ryabinin.a.a@gmail.com, sudeep.holla@arm.com, shawnguo@kernel.org,
+ davem@davemloft.net, dalias@libc.org, tony@atomide.com, amakhalov@vmware.com,
+ konrad.dybcio@somainline.org, bjorn.andersson@linaro.org, glider@google.com,
+ hpa@zytor.com, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ linux-riscv@lists.infradead.org, vincenzo.frascino@arm.com,
+ anton.ivanov@cambridgegreys.com, jonas@southpole.se, yury.norov@gmail.com,
+ richard@nod.at, x86@kernel.org, linux@armlinux.org.uk, mingo@redhat.com,
+ aou@eecs.berkeley.edu, hca@linux.ibm.com, richard.henderson@linaro.org,
+ openrisc@lists.librecores.org, acme@kernel.org, paul.walmsley@sifive.com,
+ linux-tegra@vger.kernel.org, namhyung@kernel.org,
+ andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, dvyukov@google.com,
+ jgross@suse.com, monstr@monstr.eu, linux-mips@vger.kernel.org,
+ palmer@dabbelt.com, anup@brainfault.org, bp@alien8.de,
+ johannes@sipsolutions.net, linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Tue, Sep 27, 2022 at 10:15 PM Yicong Yang <yangyicong@huawei.com> wrote:
->
-> On 2022/9/27 14:16, Anshuman Khandual wrote:
-> > [...]
-> >
-> > On 9/21/22 14:13, Yicong Yang wrote:
-> >> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
-> >> +{
-> >> +    /* for small systems with small number of CPUs, TLB shootdown is cheap */
-> >> +    if (num_online_cpus() <= 4)
-> >
-> > It would be great to have some more inputs from others, whether 4 (which should
-> > to be codified into a macro e.g ARM64_NR_CPU_DEFERRED_TLB, or something similar)
-> > is optimal for an wide range of arm64 platforms.
-> >
 
-I have tested it on a 4-cpus and 8-cpus machine. but i have no machine
-with 5,6,7
-cores.
-I saw improvement on 8-cpus machines and I found 4-cpus machines don't need
-this patch.
+Nit, the subject should have "tracing:" an not "ftrace:" as the former
+encompasses the tracing infrastructure and the latter is for the function
+hook part of that.
 
-so it seems safe to have
-if (num_online_cpus()  < 8)
+On Mon, 19 Sep 2022 12:00:12 +0200
+Peter Zijlstra <peterz@infradead.org> wrote:
 
->
-> Do you prefer this macro to be static or make it configurable through kconfig then
-> different platforms can make choice based on their own situations? It maybe hard to
-> test on all the arm64 platforms.
+> CONFIG_GENERIC_ENTRY disallows any and all tracing when RCU isn't
+> enabled.
+> 
+> XXX if s390 (the only other GENERIC_ENTRY user as of this writing)
+> isn't comfortable with this, we could switch to
+> HAVE_NOINSTR_VALIDATION which is x86_64 only atm.
+> 
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> ---
+>  include/linux/tracepoint.h |   13 ++++++++++++-
+>  kernel/trace/trace.c       |    3 +++
+>  2 files changed, 15 insertions(+), 1 deletion(-)
+> 
+> --- a/include/linux/tracepoint.h
+> +++ b/include/linux/tracepoint.h
+> @@ -178,6 +178,16 @@ static inline struct tracepoint *tracepo
+>  #endif /* CONFIG_HAVE_STATIC_CALL */
+>  
+>  /*
+> + * CONFIG_GENERIC_ENTRY archs are expected to have sanitized entry and idle
+> + * code that disallow any/all tracing/instrumentation when RCU isn't watching.
+> + */
+> +#ifdef CONFIG_GENERIC_ENTRY
+> +#define RCUIDLE_COND(rcuidle)	(rcuidle)
+> +#else
 
-Maybe we can have this default enabled on machines with 8 and more cpus and
-provide a tlbflush_batched = on or off to allow users enable or
-disable it according
-to their hardware and products. Similar example: rodata=on or off.
+Should probably move the below comment to here:
 
-Hi Anshuman, Will,  Catalin, Andrew,
-what do you think about this approach?
+ /* srcu can't be used from NMI */
 
-BTW, haoxin mentioned another important user scenarios for tlb bach on arm64:
-https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
+> +#define RCUIDLE_COND(rcuidle)	(rcuidle && in_nmi())
+> +#endif
+> +
+> +/*
+>   * it_func[0] is never NULL because there is at least one element in the array
+>   * when the array itself is non NULL.
+>   */
+> @@ -189,7 +199,8 @@ static inline struct tracepoint *tracepo
+>  			return;						\
+>  									\
+>  		/* srcu can't be used from NMI */			\
 
-I do believe we need it based on the expensive cost of tlb shootdown in arm64
-even by hardware broadcast.
+And remove the above.
 
->
-> Thanks.
->
-> >> +            return false;> +
-> >> +#ifdef CONFIG_ARM64_WORKAROUND_REPEAT_TLBI
-> >> +    if (unlikely(this_cpu_has_cap(ARM64_WORKAROUND_REPEAT_TLBI)))
-> >> +            return false;
-> >> +#endif
-> >> +
-> >> +    return true;
-> >> +}
-> >> +
-> >
-> > [...]
-> >
-> > .
-> >
+-- Steve
 
-Thanks
-Barry
+> -		WARN_ON_ONCE(rcuidle && in_nmi());			\
+> +		if (WARN_ON_ONCE(RCUIDLE_COND(rcuidle)))		\
+> +			return;						\
+>  									\
+>  		/* keep srcu and sched-rcu usage consistent */		\
+>  		preempt_disable_notrace();				\
+> --- a/kernel/trace/trace.c
+> +++ b/kernel/trace/trace.c
+> @@ -3104,6 +3104,9 @@ void __trace_stack(struct trace_array *t
+>  		return;
+>  	}
+>  
+> +	if (WARN_ON_ONCE(IS_ENABLED(CONFIG_GENERIC_ENTRY)))
+> +		return;
+> +
+>  	/*
+>  	 * When an NMI triggers, RCU is enabled via ct_nmi_enter(),
+>  	 * but if the above rcu_is_watching() failed, then the NMI
+> 
+
