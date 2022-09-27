@@ -2,32 +2,37 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71D55ECAAD8
-	for <openrisc@archiver.kernel.org>; Thu, 22 Sep 2022 05:17:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2115C6FA83
+	for <openrisc@archiver.kernel.org>; Tue, 27 Sep 2022 06:16:54 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 35CD32490E;
-	Thu, 22 Sep 2022 07:17:13 +0200 (CEST)
+	by mail.librecores.org (Postfix) with ESMTP id 3001A24B17;
+	Tue, 27 Sep 2022 08:16:53 +0200 (CEST)
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by mail.librecores.org (Postfix) with ESMTP id 47DF924B54
- for <openrisc@lists.librecores.org>; Wed, 21 Sep 2022 23:51:48 +0200 (CEST)
+ by mail.librecores.org (Postfix) with ESMTP id BACD224AD7
+ for <openrisc@lists.librecores.org>; Tue, 27 Sep 2022 08:16:51 +0200 (CEST)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id DD65715DB;
- Wed, 21 Sep 2022 14:51:53 -0700 (PDT)
-Received: from e126311.manchester.arm.com (unknown [10.57.76.246])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6F35F3F73B;
- Wed, 21 Sep 2022 14:51:19 -0700 (PDT)
-Date: Wed, 21 Sep 2022 22:51:10 +0100
-From: Kajetan Puchalski <kajetan.puchalski@arm.com>
-To: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v2 07/44] cpuidle,psci: Push RCU-idle into driver
-Message-ID: <YyuHTgRh7t6vYjHw@e126311.manchester.arm.com>
-References: <20220919095939.761690562@infradead.org>
- <20220919101520.802976773@infradead.org>
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4E1121042;
+ Mon, 26 Sep 2022 23:16:57 -0700 (PDT)
+Received: from [10.162.41.7] (unknown [10.162.41.7])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9FBDD3F73B;
+ Mon, 26 Sep 2022 23:16:41 -0700 (PDT)
+Message-ID: <168eac93-a6ee-0b2e-12bb-4222eff24561@arm.com>
+Date: Tue, 27 Sep 2022 11:46:38 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220919101520.802976773@infradead.org>
-X-Mailman-Approved-At: Thu, 22 Sep 2022 07:17:12 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v4 2/2] arm64: support batched/deferred tlb shootdown
+ during page reclamation
+Content-Language: en-US
+To: Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
+ linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, x86@kernel.org,
+ catalin.marinas@arm.com, will@kernel.org, linux-doc@vger.kernel.org
+References: <20220921084302.43631-1-yangyicong@huawei.com>
+ <20220921084302.43631-3-yangyicong@huawei.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+In-Reply-To: <20220921084302.43631-3-yangyicong@huawei.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -40,62 +45,38 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
- linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
- agordeev@linux.ibm.com, srivatsa@csail.mit.edu, linux-arch@vger.kernel.org,
- vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org,
- christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org, agross@kernel.org,
- linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
- borntraeger@linux.ibm.com, mturquette@baylibre.com, sammy@sammy.net,
- pmladek@suse.com, linux-pm@vger.kernel.org,
- Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org,
- npiggin@gmail.com, tglx@linutronix.de, linux-omap@vger.kernel.org,
- dietmar.eggemann@arm.com, andreyknvl@gmail.com, gregkh@linuxfoundation.org,
- linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
- senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org, tj@kernel.org,
- Andrew Morton <akpm@linux-foundation.org>, mark.rutland@arm.com,
- linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
- virtualization@lists.linux-foundation.org,
- James.Bottomley@HansenPartnership.com, jcmvbkbc@gmail.com,
- thierry.reding@gmail.com, kernel@xen0n.name, cl@linux.com,
- linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
- ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, festevam@gmail.com,
- deller@gmx.de, daniel.lezcano@linaro.org, jonathanh@nvidia.com,
- dennis@kernel.org, lenb@kernel.org, linux-xtensa@linux-xtensa.org,
- kernel@pengutronix.de, gor@linux.ibm.com, linux-arm-msm@vger.kernel.org,
- linux-alpha@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
- loongarch@lists.linux.dev, chris@zankel.net, sboyd@kernel.org,
- dinguyen@kernel.org, bristot@redhat.com, alexander.shishkin@linux.intel.com,
- fweisbec@gmail.com, lpieralisi@kernel.org, atishp@atishpatra.org,
- linux@rasmusvillemoes.dk, kasan-dev@googlegroups.com, will@kernel.org,
- boris.ostrovsky@oracle.com, khilman@kernel.org, linux-csky@vger.kernel.org,
- pv-drivers@vmware.com, linux-snps-arc@lists.infradead.org, mgorman@suse.de,
- jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
- ulli.kroll@googlemail.com, linux-clk@vger.kernel.org, rostedt@goodmis.org,
- ink@jurassic.park.msu.ru, bcain@quicinc.com, tsbogend@alpha.franken.de,
- linux-parisc@vger.kernel.org, ryabinin.a.a@gmail.com, sudeep.holla@arm.com,
- shawnguo@kernel.org, davem@davemloft.net, dalias@libc.org, tony@atomide.com,
- amakhalov@vmware.com, konrad.dybcio@somainline.org, bjorn.andersson@linaro.org,
- glider@google.com, hpa@zytor.com, sparclinux@vger.kernel.org,
- linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org,
- vincenzo.frascino@arm.com, anton.ivanov@cambridgegreys.com, jonas@southpole.se,
- yury.norov@gmail.com, richard@nod.at, x86@kernel.org, linux@armlinux.org.uk,
- mingo@redhat.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
- richard.henderson@linaro.org, openrisc@lists.librecores.org, acme@kernel.org,
- paul.walmsley@sifive.com, linux-tegra@vger.kernel.org, namhyung@kernel.org,
- andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, dvyukov@google.com,
- jgross@suse.com, monstr@monstr.eu, linux-mips@vger.kernel.org,
- palmer@dabbelt.com, anup@brainfault.org, bp@alien8.de,
- johannes@sipsolutions.net, linuxppc-dev@lists.ozlabs.org
+Cc: wangkefeng.wang@huawei.com, darren@os.amperecomputing.com,
+ peterz@infradead.org, yangyicong@hisilicon.com, Nadav Amit <namit@vmware.com>,
+ guojian@oppo.com, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ zhangshiming@oppo.com, lipeifeng@oppo.com, corbet@lwn.net,
+ Barry Song <21cnbao@gmail.com>, Mel Gorman <mgorman@suse.de>,
+ linux-mips@vger.kernel.org, arnd@arndb.de, realmz6@gmail.com,
+ Barry Song <v-songbaohua@oppo.com>, openrisc@lists.librecores.org,
+ prime.zeng@hisilicon.com, xhao@linux.alibaba.com, linux-kernel@vger.kernel.org,
+ huzhanyuan@oppo.com, linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Mon, Sep 19, 2022 at 11:59:46AM +0200, Peter Zijlstra wrote:
-> Doing RCU-idle outside the driver, only to then temporarily enable it
-> again, at least twice, before going idle is daft.
-> 
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+[...]
 
-Tried it on Pixel 6 running psci_idle, looks good with no apparent issues.
+On 9/21/22 14:13, Yicong Yang wrote:
+> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
+> +{
+> +	/* for small systems with small number of CPUs, TLB shootdown is cheap */
+> +	if (num_online_cpus() <= 4)
 
-Tested-by: Kajetan Puchalski <kajetan.puchalski@arm.com>
+It would be great to have some more inputs from others, whether 4 (which should
+to be codified into a macro e.g ARM64_NR_CPU_DEFERRED_TLB, or something similar)
+is optimal for an wide range of arm64 platforms.
+
+> +		return false;> +
+> +#ifdef CONFIG_ARM64_WORKAROUND_REPEAT_TLBI
+> +	if (unlikely(this_cpu_has_cap(ARM64_WORKAROUND_REPEAT_TLBI)))
+> +		return false;
+> +#endif
+> +
+> +	return true;
+> +}
+> +
+
+[...]
