@@ -2,60 +2,56 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D0EBC433FE
-	for <openrisc@archiver.kernel.org>; Thu, 29 Sep 2022 14:30:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EBDEC433F5
+	for <openrisc@archiver.kernel.org>; Thu, 29 Sep 2022 14:57:52 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 6577E24851;
-	Thu, 29 Sep 2022 16:30:21 +0200 (CEST)
-Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com
- [209.85.221.47])
- by mail.librecores.org (Postfix) with ESMTPS id 443FA24785
- for <openrisc@lists.librecores.org>; Thu, 29 Sep 2022 16:30:20 +0200 (CEST)
-Received: by mail-wr1-f47.google.com with SMTP id bq9so2495607wrb.4
- for <openrisc@lists.librecores.org>; Thu, 29 Sep 2022 07:30:20 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 40CBE248F9;
+	Thu, 29 Sep 2022 16:57:52 +0200 (CEST)
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com
+ [209.85.128.49])
+ by mail.librecores.org (Postfix) with ESMTPS id 78D692491F
+ for <openrisc@lists.librecores.org>; Thu, 29 Sep 2022 16:57:50 +0200 (CEST)
+Received: by mail-wm1-f49.google.com with SMTP id l8so1151689wmi.2
+ for <openrisc@lists.librecores.org>; Thu, 29 Sep 2022 07:57:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date;
- bh=D2lkRQCuHF3ThWvs1mxiesV0wdVCquhCSxFRRCWyCv0=;
- b=iMALSbyky95yHXp5C/DMlsV0O/oQPXNZBMo/IcK0/Hu+vb1V0jE0irnly5s9LEo9ZC
- lYLkIWwy2IlSL27z8W/8QsUtcaRDmnuXiOWgChnGkeY5GZe5yvPsyKMxyDWaJqhpiTH/
- QBN5B4lbCkfddf2xAtX5T2LnzAHp31Z35TU6vV0ALXQek3/xf/FdScfzVkdA1GQd5SkQ
- ifYYRcaIZsR6F8KG0MW1wWNIdyX/ik9HGMA7t9zSNofmZWM8ZvHM65FgBAsj8YCbkCkc
- uYozeYwDg9Kef2PpcUxOS0UxNOsQmFB81/8x5llU2k1TIW6PF+fCZTtEKu+eGecCGvpQ
- PSlA==
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:from:to:cc:subject:date;
+ bh=CxwRaQHOB8ZooIZRNzRIOeM6ParMlsGJlleuDAO0MnM=;
+ b=OiF65MQuGtTT+cKtl8Gqt1lInM5OP8LryHOEKODGHl2aYzq5FjG50LcANmPGGaFzTU
+ HcyuUlkL8Cs0uMyrX8zlA8kghgbanK+qebXUWHQoazCElRnSQDWHWDeZwtYW2CG+Pnl6
+ JTuZ8TyRR+M0bOtnsfibloUb7vVvSXIPzTezNTh4tCPdZ1Im58uImVvlNxYMS2O/DarW
+ HzWTTA2/x1IoQm/hKJ9TEi3Dzluf8LHpPBY1ceg2jO6ETx70I+hA0zRLYoKWpk6/tIrt
+ wzPGNF90kJRzsxJVm6plVIn794ncjjAO8+NmKnczgodrmhpFp+roKFUAaUh81L7M0Mdl
+ FHDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
- bh=D2lkRQCuHF3ThWvs1mxiesV0wdVCquhCSxFRRCWyCv0=;
- b=Zc3gORkuDvcUvbj7PlzKQU5yGsinmlMqjsvOZveW9aevGDyaoDJ4RBEA4okpKddh6U
- vyv4RzVxlkltKRzYUBAM0Tg5m9mHIksw2hR0XuCZYnoiuDbUTmJ/M4/GUyTkiZ/bK6Bc
- guYBkq/z/X1WCSNPoVzKxDNmMxWL1ZGOS4zvb4Uok1J+AQckkyjqX8Vzzh+Hvci1ijXR
- Tcb39CNZPqUonEtfQxOJ2J/SHpxALFpq16teAKkRMoTRI5K2MKv3CtvEMjP/87qCThmu
- lrJ68WOwtj9U/KncbNkxxss/lrscPvEBqtBLL4IuMIGyVRJoeYvgai6usIw3OoWTP0yb
- s2tw==
-X-Gm-Message-State: ACrzQf28BX2wNA+HWWU6Mv/OHxT17TiDhq11c5z0/Kar+EJFzgHCyl5M
- sHRcXfinjP3DOtF8WQ8ogB4=
-X-Google-Smtp-Source: AMsMyM6xPtQOGyS1GcMriCqoY1+CKok3+WbriymFW3pwIEfpIfR3XLIuCYZ3t85p9ZgVut5Wa/Bfyw==
-X-Received: by 2002:a5d:4bc3:0:b0:22a:4b7a:6f60 with SMTP id
- l3-20020a5d4bc3000000b0022a4b7a6f60mr2572401wrt.549.1664461819743; 
- Thu, 29 Sep 2022 07:30:19 -0700 (PDT)
-Received: from localhost ([2a03:b0c0:1:d0::dee:c001])
- by smtp.gmail.com with ESMTPSA id
- hg6-20020a05600c538600b003b4e009deb2sm5127754wmb.41.2022.09.29.07.30.19
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:x-gm-message-state:from:to:cc:subject:date;
+ bh=CxwRaQHOB8ZooIZRNzRIOeM6ParMlsGJlleuDAO0MnM=;
+ b=cHYPEXxn/GfGtcTm8v7JuxKx7nkrniUAlzhhn3VnVLat1okGOeeBG/Dmyl/S7GgtN1
+ t4zxBTBx+4mXM7O+D2Q6T3AXdYaRs3N0cSRgOR6wpuoKgPREKtqJTxtMRzJatduu5xzJ
+ D20umTTcCnPTYu+2ZzI81cZQgAp4QiOMQtQZVvj1DOKhAgjegUT0S6EJjk9u/Y8h2Vo9
+ KBA5SSA2QNLXKoB3ILNcwOmxbfli+8hnvFxKDlbifK81ypRuI/3+bEGguxMOahACg+2t
+ RKvvwQfThdxyedrQvqZPk/nonFR4RS678U0CYH+DEBfN9qshpBEBPR0f3MavEzP6X4xa
+ wDKA==
+X-Gm-Message-State: ACrzQf3y2F+vjbL6JoJlr2GNawveQlknYYvr7Qra6wEAnNcc7maZJd7u
+ //zaGuYWiDA8WpHIhkzMa5w=
+X-Google-Smtp-Source: AMsMyM7UjRlZ00+1jIFU9SksyA/aJAw4TRuyjvpKlgMQiaCfuf3TlFE+PQHjR3HWeS9VCWWMSyZFgw==
+X-Received: by 2002:a7b:cb91:0:b0:3b4:75b9:5a4b with SMTP id
+ m17-20020a7bcb91000000b003b475b95a4bmr2640642wmi.33.1664463470043; 
+ Thu, 29 Sep 2022 07:57:50 -0700 (PDT)
+Received: from localhost ([88.83.123.243]) by smtp.gmail.com with ESMTPSA id
+ l2-20020a1c7902000000b003b33943ce5esm5151496wme.32.2022.09.29.07.57.48
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 29 Sep 2022 07:30:19 -0700 (PDT)
-Date: Thu, 29 Sep 2022 14:30:18 +0000
+ Thu, 29 Sep 2022 07:57:48 -0700 (PDT)
 From: Stafford Horne <shorne@gmail.com>
-To: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Subject: Re: [PATCH] openrisc: update config files
-Message-ID: <YzWr+mmtLy2DRYEA@oscomms1>
-References: <20220929101458.32434-1-lukas.bulwahn@gmail.com>
- <YzWp+p+1V1UmCAb3@oscomms1>
+To: gcc-patches@gcc.gnu.org
+Subject: [PATCH] or1k: Only define TARGET_HAVE_TLS when HAVE_AS_TLS
+Date: Thu, 29 Sep 2022 15:57:40 +0100
+Message-Id: <20220929145740.4846-1-shorne@gmail.com>
+X-Mailer: git-send-email 2.37.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YzWp+p+1V1UmCAb3@oscomms1>
+Content-Transfer-Encoding: 8bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -68,102 +64,46 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Jonas Bonn <jonas@southpole.se>, openrisc@lists.librecores.org,
- kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: openrisc@lists.librecores.org, Yann Morin <yann.morin@orange.com>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Hello,
+This was found when testing buildroot with linuxthreads enabled.  In
+this case, the build passes --disable-tls to the toolchain during
+configuration.  After building the OpenRISC toolchain it was still
+generating TLS code sequences and causing linker failures such as:
 
+ ..../or1k-buildroot-linux-uclibc-gcc -o gpsd-3.24/gpsctl .... -lusb-1.0 -lm -lrt -lnsl
+ ..../ld: ..../sysroot/usr/lib/libusb-1.0.so: undefined reference to `__tls_get_addr'
 
-On Thu, Sep 29, 2022 at 02:21:46PM +0000, Stafford Horne wrote:
-> On Thu, Sep 29, 2022 at 12:14:58PM +0200, Lukas Bulwahn wrote:
-> > Clean up config files by:
-> >   - removing configs that were deleted in the past
-> >   - removing configs not in tree and without recently pending patches
-> >   - adding new configs that are replacements for old configs in the file
+This patch fixes this by disabling tls for the OpenRISC target when requested
+via --disable-tls.
 
-Not all of these apply to this patch.  Can you on mention what you changes you
-are doing here?
+Tested-by: Yann E. MORIN <yann.morin@orange.com>
 
-> > For some detailed information, see Link.
-> > 
-> > Link: https://lore.kernel.org/kernel-janitors/20220929090645.1389-1-lukas.bulwahn@gmail.com/
-> > 
+gcc/ChangeLog:
 
-This extra newline is not need.
+	* config/or1k/or1k.cc (TARGET_HAVE_TLS): Only define if
+	HAVE_AS_TLS is defined.
+---
+ gcc/config/or1k/or1k.cc | 2 ++
+ 1 file changed, 2 insertions(+)
 
-> > Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-> 
-> Hello,
-> 
-> Thanks for the patch this looks fine to me.  Usually I just generate this
-> defcnfigs using make savedefconfig.  If there is some better way which
-> doesn't generate the file with the # comment's I haven't found it.
-> 
-> I will queue this.
+diff --git a/gcc/config/or1k/or1k.cc b/gcc/config/or1k/or1k.cc
+index da2f59062ba..0ce7b234417 100644
+--- a/gcc/config/or1k/or1k.cc
++++ b/gcc/config/or1k/or1k.cc
+@@ -2206,8 +2206,10 @@ or1k_output_mi_thunk (FILE *file, tree thunk_fndecl,
+ #undef  TARGET_LEGITIMATE_ADDRESS_P
+ #define TARGET_LEGITIMATE_ADDRESS_P or1k_legitimate_address_p
+ 
++#ifdef HAVE_AS_TLS
+ #undef  TARGET_HAVE_TLS
+ #define TARGET_HAVE_TLS true
++#endif
+ 
+ #undef  TARGET_HAVE_SPECULATION_SAFE_VALUE
+ #define TARGET_HAVE_SPECULATION_SAFE_VALUE speculation_safe_value_not_needed
+-- 
+2.37.2
 
-Actually..
-
-About the subject 'openrisc: update config files' and description.  Can you be
-more specific about what updates you are making for this patch?
-
-For example: remove comments from config files.
-
--Stafford
-
-> > ---
-> >  arch/openrisc/configs/or1ksim_defconfig    | 5 -----
-> >  arch/openrisc/configs/simple_smp_defconfig | 4 ----
-> >  2 files changed, 9 deletions(-)
-> > 
-> > diff --git a/arch/openrisc/configs/or1ksim_defconfig b/arch/openrisc/configs/or1ksim_defconfig
-> > index 6e1e004047c7..af1164807206 100644
-> > --- a/arch/openrisc/configs/or1ksim_defconfig
-> > +++ b/arch/openrisc/configs/or1ksim_defconfig
-> > @@ -19,9 +19,6 @@ CONFIG_NET=y
-> >  CONFIG_PACKET=y
-> >  CONFIG_UNIX=y
-> >  CONFIG_INET=y
-> > -# CONFIG_INET_XFRM_MODE_TRANSPORT is not set
-> > -# CONFIG_INET_XFRM_MODE_TUNNEL is not set
-> > -# CONFIG_INET_XFRM_MODE_BEET is not set
-> >  # CONFIG_INET_DIAG is not set
-> >  CONFIG_TCP_CONG_ADVANCED=y
-> >  # CONFIG_TCP_CONG_BIC is not set
-> > @@ -34,7 +31,6 @@ CONFIG_DEVTMPFS=y
-> >  CONFIG_DEVTMPFS_MOUNT=y
-> >  # CONFIG_PREVENT_FIRMWARE_BUILD is not set
-> >  # CONFIG_FW_LOADER is not set
-> > -CONFIG_PROC_DEVICETREE=y
-> >  CONFIG_NETDEVICES=y
-> >  CONFIG_ETHOC=y
-> >  CONFIG_MICREL_PHY=y
-> > @@ -52,4 +48,3 @@ CONFIG_SERIAL_OF_PLATFORM=y
-> >  # CONFIG_DNOTIFY is not set
-> >  CONFIG_TMPFS=y
-> >  CONFIG_NFS_FS=y
-> > -# CONFIG_ENABLE_MUST_CHECK is not set
-> > diff --git a/arch/openrisc/configs/simple_smp_defconfig b/arch/openrisc/configs/simple_smp_defconfig
-> > index ff49d868e040..84ca3203af9c 100644
-> > --- a/arch/openrisc/configs/simple_smp_defconfig
-> > +++ b/arch/openrisc/configs/simple_smp_defconfig
-> > @@ -27,9 +27,6 @@ CONFIG_NET=y
-> >  CONFIG_PACKET=y
-> >  CONFIG_UNIX=y
-> >  CONFIG_INET=y
-> > -# CONFIG_INET_XFRM_MODE_TRANSPORT is not set
-> > -# CONFIG_INET_XFRM_MODE_TUNNEL is not set
-> > -# CONFIG_INET_XFRM_MODE_BEET is not set
-> >  # CONFIG_INET_DIAG is not set
-> >  CONFIG_TCP_CONG_ADVANCED=y
-> >  # CONFIG_TCP_CONG_BIC is not set
-> > @@ -60,5 +57,4 @@ CONFIG_SERIAL_OF_PLATFORM=y
-> >  CONFIG_TMPFS=y
-> >  CONFIG_NFS_FS=y
-> >  CONFIG_XZ_DEC=y
-> > -# CONFIG_ENABLE_MUST_CHECK is not set
-> >  # CONFIG_RCU_TRACE is not set
-> > -- 
-> > 2.17.1
-> > 
