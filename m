@@ -2,27 +2,59 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD79DC43219
-	for <openrisc@archiver.kernel.org>; Thu, 29 Sep 2022 14:20:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D343CC4321E
+	for <openrisc@archiver.kernel.org>; Thu, 29 Sep 2022 14:20:30 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 202D0247E0;
-	Thu, 29 Sep 2022 16:20:28 +0200 (CEST)
-Received: from muru.com (muru.com [72.249.23.125])
- by mail.librecores.org (Postfix) with ESMTP id 6501424B6F
- for <openrisc@lists.librecores.org>; Tue, 27 Sep 2022 08:31:14 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
- by muru.com (Postfix) with ESMTPS id 5E7B081BD;
- Tue, 27 Sep 2022 06:22:54 +0000 (UTC)
-Date: Tue, 27 Sep 2022 09:31:11 +0300
-From: Tony Lindgren <tony@atomide.com>
-To: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v2 00/44] cpuidle,rcu: Clean up the mess
-Message-ID: <YzKYrx8Kd9SBYcUg@atomide.com>
-References: <20220919095939.761690562@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220919095939.761690562@infradead.org>
+	by mail.librecores.org (Postfix) with ESMTP id 68078248C9;
+	Thu, 29 Sep 2022 16:20:29 +0200 (CEST)
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com
+ [209.85.128.50])
+ by mail.librecores.org (Postfix) with ESMTPS id EAF5A24B4C
+ for <openrisc@lists.librecores.org>; Thu, 29 Sep 2022 12:15:02 +0200 (CEST)
+Received: by mail-wm1-f50.google.com with SMTP id o5so627532wms.1
+ for <openrisc@lists.librecores.org>; Thu, 29 Sep 2022 03:15:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=message-id:date:subject:cc:to:from:from:to:cc:subject:date;
+ bh=Lc6s8nTaNgkoD4GXAuKRr/e01vV82I0xCYG4ndZR8mE=;
+ b=VdBznro6tQvY7Ra91sjpFkGp+23+ltMc0M1+HxUAvmurxDmHkN7xXAyapDHCQp2bYo
+ IcOHjVcB8XjCdHPEr0405NHKsQYIhAy6v715IoylVtkLVAibALifEmoyafDO2Q3t6xFw
+ Kwxpfc32BXs8sFIvB9JYqONOMyQKwWJ4SwQD98zGWDLyuLSi3zYSu4h2LIa0fLGBWfHN
+ rq2n46ZMetA5bVrlMAIJvCqpESIEO4qs0rqf3HqAzJvg6o1HvfKu3CN4wm5o0R8soN5e
+ 1PMLSss+sDDLwNDP34n8rROTB0FJFJhXW2Cm5917WHeJnQ9AvzgKH+v+TpaIzvlYW2rp
+ YOzA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+ :subject:date;
+ bh=Lc6s8nTaNgkoD4GXAuKRr/e01vV82I0xCYG4ndZR8mE=;
+ b=LBuDbzg26T6PItTcNlOuLWGzInMlZ1ywuF568yu6HrzBZ0sxRlPKPQNTKsQlypZ6z/
+ WsuqkW12+LaAB7dqEM2jBwIgsI4LXxGK6KMEHDAjIs5Z9v8j6EogPcdySs89kd0h8sIF
+ 0JOEVwvB0aPxFYWuw4hx9rKsPQeQhO/4yEDWMFjkjv1z7hZxtP9itle2ReEBkDgS5kv4
+ MTjJ/gDpc1JYAtweaOokyw8HLF7iCt6znKRRpEP0Je9pkIhS3g42gFHTTEPBZQHNs1MV
+ pS+XijDPZtUKjeIC/uafZ9V3P3v47ZWWRjJp1owBp4bh2pH14uLGElUcnFipvg75sVlD
+ /P8Q==
+X-Gm-Message-State: ACrzQf1DwQC8GJ0NyvlIWpvOJoxRDOqwHRKsvceZR3YmNolwbXVLC83U
+ pg4ReKjJc765dTLMxEqwnWY=
+X-Google-Smtp-Source: AMsMyM7FpPxLU4VpzfSVtrPr1gZyMHNeT29IKj9PKpbnj4eER3yeCC1DHIVY0fz/w9FO3cQ4tORCvA==
+X-Received: by 2002:a05:600c:3205:b0:3b3:3813:ae3f with SMTP id
+ r5-20020a05600c320500b003b33813ae3fmr1777401wmp.158.1664446502451; 
+ Thu, 29 Sep 2022 03:15:02 -0700 (PDT)
+Received: from felia.fritz.box
+ (200116b826e11200b190ebfd45660ea6.dip.versatel-1u1.de.
+ [2001:16b8:26e1:1200:b190:ebfd:4566:ea6])
+ by smtp.gmail.com with ESMTPSA id
+ m6-20020adfe946000000b0022af63bb6f2sm4163241wrn.113.2022.09.29.03.15.01
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 29 Sep 2022 03:15:02 -0700 (PDT)
+From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+To: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Jonas Bonn <jonas@southpole.se>,
+ Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+ Stafford Horne <shorne@gmail.com>, openrisc@lists.librecores.org
+Subject: [PATCH] openrisc: update config files
+Date: Thu, 29 Sep 2022 12:14:58 +0200
+Message-Id: <20220929101458.32434-1-lukas.bulwahn@gmail.com>
+X-Mailer: git-send-email 2.17.1
 X-Mailman-Approved-At: Thu, 29 Sep 2022 16:20:25 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
@@ -36,72 +68,72 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
- linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
- agordeev@linux.ibm.com, srivatsa@csail.mit.edu, linux-arch@vger.kernel.org,
- vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org,
- christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org, agross@kernel.org,
- linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
- borntraeger@linux.ibm.com, mturquette@baylibre.com, sammy@sammy.net,
- pmladek@suse.com, linux-pm@vger.kernel.org,
- Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org,
- npiggin@gmail.com, tglx@linutronix.de, linux-omap@vger.kernel.org,
- dietmar.eggemann@arm.com, andreyknvl@gmail.com, gregkh@linuxfoundation.org,
- linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
- senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org, tj@kernel.org,
- Andrew Morton <akpm@linux-foundation.org>, mark.rutland@arm.com,
- linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
- virtualization@lists.linux-foundation.org,
- James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
- thierry.reding@gmail.com, kernel@xen0n.name, cl@linux.com,
- linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
- ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, festevam@gmail.com,
- deller@gmx.de, daniel.lezcano@linaro.org, jonathanh@nvidia.com,
- dennis@kernel.org, lenb@kernel.org, linux-xtensa@linux-xtensa.org,
- kernel@pengutronix.de, gor@linux.ibm.com, linux-arm-msm@vger.kernel.org,
- linux-alpha@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
- loongarch@lists.linux.dev, chris@zankel.net, sboyd@kernel.org,
- dinguyen@kernel.org, bristot@redhat.com, alexander.shishkin@linux.intel.com,
- fweisbec@gmail.com, lpieralisi@kernel.org, atishp@atishpatra.org,
- linux@rasmusvillemoes.dk, kasan-dev@googlegroups.com, will@kernel.org,
- boris.ostrovsky@oracle.com, khilman@kernel.org, linux-csky@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, mgorman@suse.de,
- jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
- ulli.kroll@googlemail.com, linux-clk@vger.kernel.org, rostedt@goodmis.org,
- ink@jurassic.park.msu.ru, bcain@quicinc.com, tsbogend@alpha.franken.de,
- linux-parisc@vger.kernel.org, ryabinin.a.a@gmail.com, sudeep.holla@arm.com,
- shawnguo@kernel.org, davem@davemloft.net, dalias@libc.org,
- pv-drivers@vmware.com, amakhalov@vmware.com, konrad.dybcio@somainline.org,
- bjorn.andersson@linaro.org, glider@google.com, hpa@zytor.com,
- sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org,
- linux-riscv@lists.infradead.org, vincenzo.frascino@arm.com,
- anton.ivanov@cambridgegreys.com, jonas@southpole.se, yury.norov@gmail.com,
- richard@nod.at, x86@kernel.org, linux@armlinux.org.uk, mingo@redhat.com,
- aou@eecs.berkeley.edu, hca@linux.ibm.com, richard.henderson@linaro.org,
- openrisc@lists.librecores.org, acme@kernel.org, paul.walmsley@sifive.com,
- linux-tegra@vger.kernel.org, namhyung@kernel.org,
- andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, dvyukov@google.com,
- jgross@suse.com, monstr@monstr.eu, linux-mips@vger.kernel.org,
- palmer@dabbelt.com, anup@brainfault.org, bp@alien8.de,
- johannes@sipsolutions.net, linuxppc-dev@lists.ozlabs.org
+Cc: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Hi,
+Clean up config files by:
+  - removing configs that were deleted in the past
+  - removing configs not in tree and without recently pending patches
+  - adding new configs that are replacements for old configs in the file
 
-* Peter Zijlstra <peterz@infradead.org> [220919 10:08]:
-> Hi All!
-> 
-> At long last, a respin of the cpuidle vs rcu cleanup patches.
-> 
-> v1: https://lkml.kernel.org/r/20220608142723.103523089@infradead.org
-> 
-> These here patches clean up the mess that is cpuidle vs rcuidle.
+For some detailed information, see Link.
 
-I just gave these a quick test and things still work for me. The old
-omap3 off mode during idle still works. No more need to play the
-whack the mole game with RCU-idle :) I did not test on x86, or on other
-ARMs, but considering the test pretty much covered the all the
-affected RCU-idle related paths, where suitable, feel free to add:
+Link: https://lore.kernel.org/kernel-janitors/20220929090645.1389-1-lukas.bulwahn@gmail.com/
 
-Tested-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+---
+ arch/openrisc/configs/or1ksim_defconfig    | 5 -----
+ arch/openrisc/configs/simple_smp_defconfig | 4 ----
+ 2 files changed, 9 deletions(-)
+
+diff --git a/arch/openrisc/configs/or1ksim_defconfig b/arch/openrisc/configs/or1ksim_defconfig
+index 6e1e004047c7..af1164807206 100644
+--- a/arch/openrisc/configs/or1ksim_defconfig
++++ b/arch/openrisc/configs/or1ksim_defconfig
+@@ -19,9 +19,6 @@ CONFIG_NET=y
+ CONFIG_PACKET=y
+ CONFIG_UNIX=y
+ CONFIG_INET=y
+-# CONFIG_INET_XFRM_MODE_TRANSPORT is not set
+-# CONFIG_INET_XFRM_MODE_TUNNEL is not set
+-# CONFIG_INET_XFRM_MODE_BEET is not set
+ # CONFIG_INET_DIAG is not set
+ CONFIG_TCP_CONG_ADVANCED=y
+ # CONFIG_TCP_CONG_BIC is not set
+@@ -34,7 +31,6 @@ CONFIG_DEVTMPFS=y
+ CONFIG_DEVTMPFS_MOUNT=y
+ # CONFIG_PREVENT_FIRMWARE_BUILD is not set
+ # CONFIG_FW_LOADER is not set
+-CONFIG_PROC_DEVICETREE=y
+ CONFIG_NETDEVICES=y
+ CONFIG_ETHOC=y
+ CONFIG_MICREL_PHY=y
+@@ -52,4 +48,3 @@ CONFIG_SERIAL_OF_PLATFORM=y
+ # CONFIG_DNOTIFY is not set
+ CONFIG_TMPFS=y
+ CONFIG_NFS_FS=y
+-# CONFIG_ENABLE_MUST_CHECK is not set
+diff --git a/arch/openrisc/configs/simple_smp_defconfig b/arch/openrisc/configs/simple_smp_defconfig
+index ff49d868e040..84ca3203af9c 100644
+--- a/arch/openrisc/configs/simple_smp_defconfig
++++ b/arch/openrisc/configs/simple_smp_defconfig
+@@ -27,9 +27,6 @@ CONFIG_NET=y
+ CONFIG_PACKET=y
+ CONFIG_UNIX=y
+ CONFIG_INET=y
+-# CONFIG_INET_XFRM_MODE_TRANSPORT is not set
+-# CONFIG_INET_XFRM_MODE_TUNNEL is not set
+-# CONFIG_INET_XFRM_MODE_BEET is not set
+ # CONFIG_INET_DIAG is not set
+ CONFIG_TCP_CONG_ADVANCED=y
+ # CONFIG_TCP_CONG_BIC is not set
+@@ -60,5 +57,4 @@ CONFIG_SERIAL_OF_PLATFORM=y
+ CONFIG_TMPFS=y
+ CONFIG_NFS_FS=y
+ CONFIG_XZ_DEC=y
+-# CONFIG_ENABLE_MUST_CHECK is not set
+ # CONFIG_RCU_TRACE is not set
+-- 
+2.17.1
+
