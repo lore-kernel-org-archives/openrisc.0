@@ -2,59 +2,45 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E502AC433F5
-	for <openrisc@archiver.kernel.org>; Sat,  1 Oct 2022 11:36:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61841C433F5
+	for <openrisc@archiver.kernel.org>; Thu,  6 Oct 2022 16:18:58 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 16B6524B18;
-	Sat,  1 Oct 2022 13:35:59 +0200 (CEST)
-Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com
- [209.85.221.48])
- by mail.librecores.org (Postfix) with ESMTPS id F383424B16
- for <openrisc@lists.librecores.org>; Sat,  1 Oct 2022 13:35:57 +0200 (CEST)
-Received: by mail-wr1-f48.google.com with SMTP id j7so5092076wrr.3
- for <openrisc@lists.librecores.org>; Sat, 01 Oct 2022 04:35:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date;
- bh=Wz4RRJY0pM1puy7PZmICr4TLt1AVOsJhnHvwVxqEGlE=;
- b=ZphsxuD8lHIQHZ/fKsTPvEWxQnO3Qrkv8GkN0g5jk+nULFzLG9mKHZN2BXZHTKukVr
- MXUZ2+c3XwFoJPWfXCm3iRsOIz0mJeVnPm4eOpkzeeMPU0ByBYQxtXsy3XtFIiZ97MkK
- TAac6gEW2xBGZtx5CNvd1zvHHgU1ameGIaGf4eg/PO6FjpE7CQAlehV60vElgM4W8J8i
- huL6wP/yunllXQE42rA6pQTvlvAdpm3ZyZkc9adSSHp/HtjbMo+CdBVY8k7lLM8SZYIZ
- LVfsaOy2gWVgL7PX8Yfp8Pclw8NBMy6Bcv3koa2gePsb9045rOLsL6VY8ZuIxYTdpGNB
- 4pSA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
- bh=Wz4RRJY0pM1puy7PZmICr4TLt1AVOsJhnHvwVxqEGlE=;
- b=mDMoIs5wfCJyDPgJSd8/SMfjsUJWAsGknCu/2vTWDJ4Uodg7RNa1xySfLykso2FPX+
- XGiLfOkA/B5FE/7wDrGdIxFM0yw6w7MSLthm4iMJabPmhGcfstl3EdVp/6sTg+1mK3qi
- GJEWpwNHibKagCEvzCg0sxXn9ve3IAERkCDizYTq0lngG0T9hKz7xwCFlsD34OkYqwuC
- Qi/AleICQyc/KaEGS0LHGjC4EDPodYpziFZ7bMZd7RkxHOxdv8hbtkIr2Nzi2La3tCVX
- 2+kI5+9JhiGGYrnbSpLNqr4zW8JGESSBN1fQdZpu+LqtfSu0Nq79O29jGS1i6dPUHX4E
- VJJQ==
-X-Gm-Message-State: ACrzQf1H4A/BqEH+8mdIRD/zSlZg9ldxzR+IhMvIO955b8ZVfm7/GGwL
- VTmqRfUuK/TsXS/nSYLUw/Y=
-X-Google-Smtp-Source: AMsMyM64ctalizvFuDs0j3MfeBVVnHO15wJ2mtaQ322AH2hi2ofx1qwPGU/2g5WATQNwR2fqsGHjrw==
-X-Received: by 2002:a5d:47a1:0:b0:22a:2979:4899 with SMTP id
- 1-20020a5d47a1000000b0022a29794899mr7961356wrb.349.1664624157165; 
- Sat, 01 Oct 2022 04:35:57 -0700 (PDT)
-Received: from localhost ([2a03:b0c0:1:d0::dee:c001])
- by smtp.gmail.com with ESMTPSA id
- w7-20020adfde87000000b0022afedf3c87sm4780898wrl.105.2022.10.01.04.35.56
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sat, 01 Oct 2022 04:35:56 -0700 (PDT)
-Date: Sat, 1 Oct 2022 11:35:55 +0000
-From: Stafford Horne <shorne@gmail.com>
-To: gcc-patches@gcc.gnu.org
-Subject: Re: [PATCH] or1k: Only define TARGET_HAVE_TLS when HAVE_AS_TLS
-Message-ID: <YzgmG9Ihqt6xC7CA@oscomms1>
+	by mail.librecores.org (Postfix) with ESMTP id E4B1324929;
+	Thu,  6 Oct 2022 18:18:56 +0200 (CEST)
+Received: from smtp6-g21.free.fr (smtp6-g21.free.fr [212.27.42.6])
+ by mail.librecores.org (Postfix) with ESMTPS id 629D624BB6
+ for <openrisc@lists.librecores.org>; Sat,  1 Oct 2022 19:53:38 +0200 (CEST)
+Received: from ymorin.is-a-geek.org (unknown
+ [IPv6:2a01:cb19:8b51:cb00:9961:1217:61e8:73cc])
+ (Authenticated sender: yann.morin.1998@free.fr)
+ by smtp6-g21.free.fr (Postfix) with ESMTPSA id 8EE51780313;
+ Sat,  1 Oct 2022 19:53:32 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=free.fr;
+ s=smtp-20201208; t=1664646818;
+ bh=XVqQEszfsaqpORn/XyfgPty0a3ejN+XQ6ormQgbYw08=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=XZwpmaYwSmsEUKI+YcW22Sg7KolY8rdVHBaxwjQE73/MNi3/zkVqGM17GVlnZmyeY
+ TCsIo9iNgkdaxdO2lgUXeZybtpPMVvDcah/y5Gqc4+3jHZz3jADw/SMqc5j9++2TVF
+ e/SZCPrO00hQ9gp1jgw1QPgceh0XcZWgs0URJKtSwiX0pdTaq//qiMqVdIaVsmdV4o
+ dO5TTi8QO2VqA736potj6JNiPjlda+rud5OEtOOVkjtFe04AhCU2FbL63anCfxb4j2
+ RiHdQMqBv4HjNpn9BuQ+TfhXkjN8+ltuCR7nnClq+/YIHkmSQ4EU8TNkTEgmkbtT5B
+ 5MOJg3Xcnhjnw==
+Received: by ymorin.is-a-geek.org (sSMTP sendmail emulation);
+ Sat, 01 Oct 2022 19:53:32 +0200
+Date: Sat, 1 Oct 2022 19:53:32 +0200
+From: "Yann E. MORIN" <yann.morin.1998@free.fr>
+To: Stafford Horne <shorne@gmail.com>
+Subject: Re: [Buildroot] [PATCH] or1k: Only define TARGET_HAVE_TLS when
+ HAVE_AS_TLS
+Message-ID: <20221001175332.GN30794@scaer>
 References: <20220929145740.4846-1-shorne@gmail.com>
+ <YzgmG9Ihqt6xC7CA@oscomms1>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20220929145740.4846-1-shorne@gmail.com>
+In-Reply-To: <YzgmG9Ihqt6xC7CA@oscomms1>
+User-Agent: Mutt/1.5.22 (2013-10-16)
+X-Mailman-Approved-At: Thu, 06 Oct 2022 18:18:55 +0200
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -67,31 +53,48 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: openrisc@lists.librecores.org, Yann Morin <yann.morin@orange.com>,
- buildroot@buildroot.org
+Cc: openrisc@lists.librecores.org, gcc-patches@gcc.gnu.org,
+ Yann Morin <yann.morin@orange.com>, buildroot@buildroot.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Thu, Sep 29, 2022 at 03:57:40PM +0100, Stafford Horne wrote:
-> This was found when testing buildroot with linuxthreads enabled.  In
-> this case, the build passes --disable-tls to the toolchain during
-> configuration.  After building the OpenRISC toolchain it was still
-> generating TLS code sequences and causing linker failures such as:
-> 
->  ..../or1k-buildroot-linux-uclibc-gcc -o gpsd-3.24/gpsctl .... -lusb-1.0 -lm -lrt -lnsl
->  ..../ld: ..../sysroot/usr/lib/libusb-1.0.so: undefined reference to `__tls_get_addr'
-> 
-> This patch fixes this by disabling tls for the OpenRISC target when requested
-> via --disable-tls.
-> 
-> Tested-by: Yann E. MORIN <yann.morin@orange.com>
-> 
-> gcc/ChangeLog:
-> 
-> 	* config/or1k/or1k.cc (TARGET_HAVE_TLS): Only define if
-> 	HAVE_AS_TLS is defined.
+Stafford, All,
 
-I have pushed this upstream now.  Adding buildroot patches should be easy to do
-now.
+On 2022-10-01 11:35 +0000, Stafford Horne spake thusly:
+> On Thu, Sep 29, 2022 at 03:57:40PM +0100, Stafford Horne wrote:
+> > This was found when testing buildroot with linuxthreads enabled.  In
+> > this case, the build passes --disable-tls to the toolchain during
+> > configuration.  After building the OpenRISC toolchain it was still
+> > generating TLS code sequences and causing linker failures such as:
+> > 
+> >  ..../or1k-buildroot-linux-uclibc-gcc -o gpsd-3.24/gpsctl .... -lusb-1.0 -lm -lrt -lnsl
+> >  ..../ld: ..../sysroot/usr/lib/libusb-1.0.so: undefined reference to `__tls_get_addr'
+> > 
+> > This patch fixes this by disabling tls for the OpenRISC target when requested
+> > via --disable-tls.
+> > 
+> > Tested-by: Yann E. MORIN <yann.morin@orange.com>
+> > 
+> > gcc/ChangeLog:
+> > 
+> > 	* config/or1k/or1k.cc (TARGET_HAVE_TLS): Only define if
+> > 	HAVE_AS_TLS is defined.
+> 
+> I have pushed this upstream now.  Adding buildroot patches should be easy to do
+> now.
 
--Stafford
+That's great, thanks for fixing this! :-)
+
+I'll poke my work alter-ego on Monday to look at providing the backports
+for Buildroot.
+
+Regards,
+Yann E. MORIN.
+
+-- 
+.-----------------.--------------------.------------------.--------------------.
+|  Yann E. MORIN  | Real-Time Embedded | /"\ ASCII RIBBON | Erics' conspiracy: |
+| +33 662 376 056 | Software  Designer | \ / CAMPAIGN     |  ___               |
+| +33 561 099 427 `------------.-------:  X  AGAINST      |  \e/  There is no  |
+| http://ymorin.is-a-geek.org/ | _/*\_ | / \ HTML MAIL    |   v   conspiracy.  |
+'------------------------------^-------^------------------^--------------------'
