@@ -2,60 +2,60 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87171C4332F
-	for <openrisc@archiver.kernel.org>; Sat,  8 Oct 2022 05:01:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E9EEC43219
+	for <openrisc@archiver.kernel.org>; Sat,  8 Oct 2022 05:01:10 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 754E8248EF;
-	Sat,  8 Oct 2022 07:01:07 +0200 (CEST)
+	by mail.librecores.org (Postfix) with ESMTP id A096B248E6;
+	Sat,  8 Oct 2022 07:01:08 +0200 (CEST)
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by mail.librecores.org (Postfix) with ESMTP id 5DA6C24B27
- for <openrisc@lists.librecores.org>; Fri,  7 Oct 2022 17:45:57 +0200 (CEST)
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by mail.librecores.org (Postfix) with ESMTP id 8D80824B2C
+ for <openrisc@lists.librecores.org>; Fri,  7 Oct 2022 17:46:13 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1665157556;
+ s=mimecast20190719; t=1665157572;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=LMgaXogbXPhOabUcxt7UADYdICMU0udr545Ze04p+j4=;
- b=JLKCLgP01KrpZnpdQTyLB+vQBvObhVF+1bTIkpjtJsHK4AbD3/AJ25iW93ClmJ0iBWwN1O
- KycWJyaYmtoStwJY/dqAmPEHxb5G+M31gaUfcMzyTYM3nDc4AHl5yt6uUH+C7LslcXHg5Q
- Q3izfD3tb4+8q5tULBFCDtKV5aU9tAE=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=V8NlfJJNnBH1Hg+bNlEeNOaLSp643edXbrFkYOuHdj0=;
+ b=Q5Wuzts8P2zjR2zDG3CTNYsVoV45LIFhIftsET9WVpF+odRSBxlkZzVBp8eykyFYQ4k8Hf
+ EBK/2eRV83JPvjDrT/5N8NkRdD6LlyLC4qUERl70IrdfhfYIResenak4NQseXtLegOiWmQ
+ vQkrWBFPbru4NVYua3bFreAC0BLhAL4=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-184-2ctj2GMKP7-q0SE9ILUxmw-1; Fri, 07 Oct 2022 11:45:53 -0400
-X-MC-Unique: 2ctj2GMKP7-q0SE9ILUxmw-1
-Received: by mail-wm1-f69.google.com with SMTP id
- o18-20020a05600c339200b003bf24961658so2845485wmp.6
- for <openrisc@lists.librecores.org>; Fri, 07 Oct 2022 08:45:53 -0700 (PDT)
+ us-mta-593-tA9oYxNhOiWoF1rnbtSggQ-1; Fri, 07 Oct 2022 11:46:09 -0400
+X-MC-Unique: tA9oYxNhOiWoF1rnbtSggQ-1
+Received: by mail-wr1-f70.google.com with SMTP id
+ h17-20020adfaa91000000b0022e9f2245c8so686467wrc.19
+ for <openrisc@lists.librecores.org>; Fri, 07 Oct 2022 08:46:08 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=content-transfer-encoding:mime-version:references:in-reply-to
  :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
  :subject:date:message-id:reply-to;
- bh=LMgaXogbXPhOabUcxt7UADYdICMU0udr545Ze04p+j4=;
- b=oDsc5tDVsCGgQusG7UAGiOln35TMvqwtXRwzPiX45qwCakuJL735l0H/8VgI3bVEMw
- dMWtcMnHWqZy7A6OV6bhz+PCGlXckTQdsFh6Yar9oJ5RDnVJ1g6NYAUbenbzms8SNYkd
- Aja9mDqHH35PfK+a1dggN415jOU4Zy0JaHbBc3CLyXjAqlnZIAYETOCKa2yuTNqdFrW7
- SAhowVmwddnHhEYg21yAOJ/2U9O6lMPcXBHFao+Y8uWw5Pyf64ejIq7PBpTAuo1ZdWct
- ZuVEKEpIFbPqGAFRXwTpyEilYy32L91wyGUMYMEBry+cO4LNSKC8Vfpc0nhA7ti0ujtS
- z0Tg==
-X-Gm-Message-State: ACrzQf1OoMJFtta6aRy9Xp9XP0rBh7pHBNYncwUDD+Wb5sPlCAqQ/6R/
- U7G2ah5fdWK3UfroKYoYuX7iF/tf1BxmpwaZizxXuNFiB5VRQJjbKDKyx+rWACwWSsO+wXfp9MA
- SMQKyDVcuzJKS+7zIPbpKP742RQ==
-X-Received: by 2002:a05:600c:458d:b0:3c3:bf4e:5c60 with SMTP id
- r13-20020a05600c458d00b003c3bf4e5c60mr1331376wmo.189.1665157552449; 
- Fri, 07 Oct 2022 08:45:52 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM53pm8pDMF8tAvcpsQYCd9DEpAeQROExvsQCCHMjVMrngwHmXq+ii3h5Ne2OaugbAyINh7v6Q==
-X-Received: by 2002:a05:600c:458d:b0:3c3:bf4e:5c60 with SMTP id
- r13-20020a05600c458d00b003c3bf4e5c60mr1331352wmo.189.1665157552172; 
- Fri, 07 Oct 2022 08:45:52 -0700 (PDT)
+ bh=V8NlfJJNnBH1Hg+bNlEeNOaLSp643edXbrFkYOuHdj0=;
+ b=4WXvdamCPme5PMJjeOtHx6gnFEiUT25WsLMeUNi/gWuyqnUMJQ54rvUmrsG+xi7ce8
+ bRu5Rz0XEg4tf3QPtoYy9aKQOAih7S6pKKMwZNPAbaVuGSwWicWb4/YWI1sCj3pspFf4
+ li0VsHvaI9GlkSeQE0l7VyPT/Dk2o/oXn8W/UyT0OPnP1uBr+jlxGWKbSbqdCTxu6hzT
+ 5+bNzgMeUIwpzEV5n9zrQtUzUNpt+LYql+dVNxDj56PgM6KqX9lgSa3SivFkY/epCK2l
+ JTgXM3rVJgJu/atIRWiQmlEXr3S5W/5NWoJdJRYJewSwIPa2LZa2ksbTnEOlCBotfgjA
+ gHSw==
+X-Gm-Message-State: ACrzQf36r8YDmHYI+WPaFebKLArgYQSqcOAY42pZmq8OOeqFje5wsZ8Z
+ W3u0uh4jeJ2/LanAUJIDp2uTciaDdS3EqCsehj62hsBT3nlygG8GpygrIYOWykZPssM5sDP3A7k
+ tXUPKvg7PcRoKDkYzY+qa8iNQTg==
+X-Received: by 2002:a5d:64cd:0:b0:22e:2fc1:9511 with SMTP id
+ f13-20020a5d64cd000000b0022e2fc19511mr3566252wri.415.1665157568142; 
+ Fri, 07 Oct 2022 08:46:08 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM4t9ram8oou3fr6TpdC1R8We+758fvnnqCUt2NCTCIakvPHOGi5POwCK/ARZj0LE9PFnGcXMg==
+X-Received: by 2002:a5d:64cd:0:b0:22e:2fc1:9511 with SMTP id
+ f13-20020a5d64cd000000b0022e2fc19511mr3566217wri.415.1665157567961; 
+ Fri, 07 Oct 2022 08:46:07 -0700 (PDT)
 Received: from vschneid.remote.csb ([149.71.65.94])
  by smtp.gmail.com with ESMTPSA id
- i18-20020adfb652000000b0022e38c93195sm2339428wre.34.2022.10.07.08.45.50
+ i18-20020adfb652000000b0022e38c93195sm2339428wre.34.2022.10.07.08.46.04
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 07 Oct 2022 08:45:51 -0700 (PDT)
+ Fri, 07 Oct 2022 08:46:06 -0700 (PDT)
 From: Valentin Schneider <vschneid@redhat.com>
 To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
@@ -66,9 +66,9 @@ To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
  linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
  linux-xtensa@linux-xtensa.org, x86@kernel.org
-Subject: [RFC PATCH 1/5] trace: Add trace_ipi_send_{cpu, cpumask}
-Date: Fri,  7 Oct 2022 16:45:29 +0100
-Message-Id: <20221007154533.1878285-1-vschneid@redhat.com>
+Subject: [RFC PATCH 4/5] irq_work: Trace calls to arch_irq_work_raise()
+Date: Fri,  7 Oct 2022 16:45:32 +0100
+Message-Id: <20221007154533.1878285-4-vschneid@redhat.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20221007154145.1877054-1-vschneid@redhat.com>
 References: <20221007154145.1877054-1-vschneid@redhat.com>
@@ -105,53 +105,52 @@ Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-trace_ipi_raise is unsuitable for generically tracing IPI sources; add a
-variant of it that takes a callsite and a CPU. Define a macro helper for
-handling IPIs sent to multiple CPUs.
+Adding a tracepoint to send_call_function_single_ipi() covers
+irq_work_queue_on() when the CPU isn't the local one - add a tracepoint to
+irq_work_raise() to cover the other cases.
 
 Signed-off-by: Valentin Schneider <vschneid@redhat.com>
 ---
- include/trace/events/ipi.h | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ kernel/irq_work.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/include/trace/events/ipi.h b/include/trace/events/ipi.h
-index 0be71dad6ec0..fd2f2aeb36fe 100644
---- a/include/trace/events/ipi.h
-+++ b/include/trace/events/ipi.h
-@@ -35,6 +35,33 @@ TRACE_EVENT(ipi_raise,
- 	TP_printk("target_mask=%s (%s)", __get_bitmask(target_cpus), __entry->reason)
- );
+diff --git a/kernel/irq_work.c b/kernel/irq_work.c
+index 7afa40fe5cc4..5a550b681878 100644
+--- a/kernel/irq_work.c
++++ b/kernel/irq_work.c
+@@ -22,6 +22,8 @@
+ #include <asm/processor.h>
+ #include <linux/kasan.h>
  
-+TRACE_EVENT(ipi_send_cpu,
++#include <trace/events/ipi.h>
 +
-+	TP_PROTO(unsigned long callsite, unsigned int cpu),
-+
-+	TP_ARGS(callsite, cpu),
-+
-+	TP_STRUCT__entry(
-+		__field(unsigned long, callsite)
-+		__field(unsigned int, cpu)
-+	),
-+
-+	TP_fast_assign(
-+		__entry->callsite = callsite;
-+		__entry->cpu      = cpu;
-+	),
-+
-+	TP_printk("callsite=%pS target_cpu=%d", (void *)__entry->callsite, __entry->cpu)
-+);
-+
-+#define trace_ipi_send_cpumask(callsite, mask) do {		\
-+	if (static_key_false(&__tracepoint_ipi_send_cpu.key)) { \
-+		int cpu;					\
-+		for_each_cpu(cpu, mask)				\
-+			trace_ipi_send_cpu(callsite, cpu);	\
-+	}							\
-+} while (0)
-+
- DECLARE_EVENT_CLASS(ipi_handler,
+ static DEFINE_PER_CPU(struct llist_head, raised_list);
+ static DEFINE_PER_CPU(struct llist_head, lazy_list);
+ static DEFINE_PER_CPU(struct task_struct *, irq_workd);
+@@ -74,6 +76,14 @@ void __weak arch_irq_work_raise(void)
+ 	 */
+ }
  
- 	TP_PROTO(const char *reason),
++static inline void irq_work_raise(void)
++{
++	if (arch_irq_work_has_interrupt())
++		trace_ipi_send_cpu(_RET_IP_, smp_processor_id());
++
++	arch_irq_work_raise();
++}
++
+ /* Enqueue on current CPU, work must already be claimed and preempt disabled */
+ static void __irq_work_queue_local(struct irq_work *work)
+ {
+@@ -99,7 +109,7 @@ static void __irq_work_queue_local(struct irq_work *work)
+ 
+ 	/* If the work is "lazy", handle it from next tick if any */
+ 	if (!lazy_work || tick_nohz_tick_stopped())
+-		arch_irq_work_raise();
++		irq_work_raise();
+ }
+ 
+ /* Enqueue the irq work @work on the current CPU */
 -- 
 2.31.1
 
