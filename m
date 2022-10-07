@@ -2,59 +2,60 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D6FFC433FE
-	for <openrisc@archiver.kernel.org>; Sat,  8 Oct 2022 05:01:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9621C43217
+	for <openrisc@archiver.kernel.org>; Sat,  8 Oct 2022 05:01:09 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id E863F248C9;
-	Sat,  8 Oct 2022 07:01:06 +0200 (CEST)
+	by mail.librecores.org (Postfix) with ESMTP id 173D02486D;
+	Sat,  8 Oct 2022 07:01:08 +0200 (CEST)
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by mail.librecores.org (Postfix) with ESMTP id A4ECA24B13
- for <openrisc@lists.librecores.org>; Fri,  7 Oct 2022 17:42:45 +0200 (CEST)
+ by mail.librecores.org (Postfix) with ESMTP id B3AEB24ADE
+ for <openrisc@lists.librecores.org>; Fri,  7 Oct 2022 17:46:08 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1665157364;
+ s=mimecast20190719; t=1665157567;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=1lKCnBjxRPjgpNNPlEylbLIMLTQ3r/0aTk3SgXwAPQE=;
- b=G9uVV+M9nmwbieujqMQ/re9tPdiKc0GQ0BobPhskxwWGXuJOsYomvNUgO2ePwYeUjXUYjh
- KucliLTNw42OpCfYYEDFgNcK0fmHkAHvRsLxI6geAvL0hxns6grraNkBkOUdQyCH3pfhHf
- i7SZ+Sz+gaEqp8mIzBW2qyAUfFMzxlY=
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=O4Pqcbma7I8CmezCzayfM2Dc1cTkJUS9uBKY5V7UMK0=;
+ b=RL2Pcpvp8Jbj4A3E6xi3otXpv47pIDqKG7YHs7kpniz2qhwUOw5d/bXpoNiG8gM7x8fZ4y
+ WIHQ1qvsDDYr0/5ZEDysVG85w+98zkmHvGrhph8Si9DBKAA0kiyqcEYo6qqpyn4Jy0NYC/
+ pNIydvy0/DjLQWS8f1XnCVSPMp4DUHY=
 Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
  [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-575-FNaNvuCdMFey117BUR3Nkw-1; Fri, 07 Oct 2022 11:42:43 -0400
-X-MC-Unique: FNaNvuCdMFey117BUR3Nkw-1
+ us-mta-509-nTAMJiq8MwiLflqih0WP9Q-1; Fri, 07 Oct 2022 11:46:04 -0400
+X-MC-Unique: nTAMJiq8MwiLflqih0WP9Q-1
 Received: by mail-wm1-f70.google.com with SMTP id
- fc12-20020a05600c524c00b003b5054c70d3so2845598wmb.5
- for <openrisc@lists.librecores.org>; Fri, 07 Oct 2022 08:42:43 -0700 (PDT)
+ v125-20020a1cac83000000b003bd44dc5242so4526278wme.7
+ for <openrisc@lists.librecores.org>; Fri, 07 Oct 2022 08:46:04 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=1lKCnBjxRPjgpNNPlEylbLIMLTQ3r/0aTk3SgXwAPQE=;
- b=jh4WQcLbOl8Ou65C/8TlMNIipqylHwOp/XqUGFFISFJdlWaIQb6fzxFK1iuvp1eI3H
- CQTc4kkORoZMHU0wIxDPsOZmLoL0t8Wc7XClASzc0L8FQbNFn+3ecH0ACGuYAZdZltsO
- zysGZPEu12vermYH/D2wOiD8ayvng3YiN/in/TIn9ugbFYc8m5Qo28aPd0V5r9ri8q6f
- J88AYMwTaEAS5aBlLT6yuYpe+rKJt7NKyrJfeqYI9yrkktIjUleWlRLuRGvdNffYGONR
- Dxv2JnlIvN6A4mt2Z23zR9qJLTbNa//kicdxXwC0OVKaRf6DmMS+WT88szjfUG7s/fxA
- U3+A==
-X-Gm-Message-State: ACrzQf2lnHVbuwoyCieMaIaabR/2QpEtIRyx6RXGLss7vHlSwBkolRiJ
- axndySjasyh4LPgDg1v2BoEjoWYGqnE4AAsKKtOuC/VoP3ImbqwqJnUaUe4VJNbSjyWa+OMbXHJ
- PTxILE33hAVm1yAYc1Pf7bb8/Qw==
-X-Received: by 2002:a5d:5010:0:b0:22a:cb71:9493 with SMTP id
- e16-20020a5d5010000000b0022acb719493mr3770651wrt.514.1665157361753; 
- Fri, 07 Oct 2022 08:42:41 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM7Tr05uM1rtU5aj/QWiT6cTirx56otcH3SojWjYuAUChmPHRHcJ6HatWEhyYipO7y3unWYaxQ==
-X-Received: by 2002:a5d:5010:0:b0:22a:cb71:9493 with SMTP id
- e16-20020a5d5010000000b0022acb719493mr3770632wrt.514.1665157361532; 
- Fri, 07 Oct 2022 08:42:41 -0700 (PDT)
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=O4Pqcbma7I8CmezCzayfM2Dc1cTkJUS9uBKY5V7UMK0=;
+ b=QsExMtj6O4ayusBxz1GDVAENf34x/oMKWto4EhOUVXwrBd8AN/NDXaO3FHWspzebKj
+ FOiounUOx+YQblnYFTZWD+NFv+B0N+adg5alPPRW7ZNY95SxwcTdhUouUcn76LaRzXG7
+ e0qYjZfD1ifvX5/P8KlxKH0KJs0LUVHyyhqGRhdZCKLtQuH/1jBirwLImBzU/cIfPLX9
+ hQai5sNGfo+X2BZC7g6ftfcswEjBzGo2eY/WG+Bg30+i0iYZs0JSs5SrmwTRLnCmVqXY
+ aJc/6zcEcJArHo7C5qVbtg3UffbFRG5Ihp8n6XLdiE2bmPfYhZbPPKKn9QOj8dTYwtXT
+ /n7w==
+X-Gm-Message-State: ACrzQf3VvQdx+oE7reC56GD9zlOZLYg8vyX0vy2+f+VRhhI/IOOXPDcN
+ 8Vrfi46+xxo1TaaznUE4NMig71iuKAiVahWKTlT7PNzRUqfAUUHn2SPVKAQ3EV4FEKNCJuAImCL
+ PbMyI6MatRHUjajZ4S3wQ6Oc9tw==
+X-Received: by 2002:a05:600c:474c:b0:3b4:cbca:5677 with SMTP id
+ w12-20020a05600c474c00b003b4cbca5677mr3615504wmo.76.1665157563635; 
+ Fri, 07 Oct 2022 08:46:03 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM5BU2FP8ts0HH9McA8hGqt4EcEkhUio8tUw5hjcE8rRRaWGVB+HCzlKu55T50nu8VVd2MVS1w==
+X-Received: by 2002:a05:600c:474c:b0:3b4:cbca:5677 with SMTP id
+ w12-20020a05600c474c00b003b4cbca5677mr3615475wmo.76.1665157563388; 
+ Fri, 07 Oct 2022 08:46:03 -0700 (PDT)
 Received: from vschneid.remote.csb ([149.71.65.94])
  by smtp.gmail.com with ESMTPSA id
- e1-20020a5d5941000000b0022af865810esm2307021wri.75.2022.10.07.08.42.39
+ i18-20020adfb652000000b0022e38c93195sm2339428wre.34.2022.10.07.08.45.57
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 07 Oct 2022 08:42:40 -0700 (PDT)
+ Fri, 07 Oct 2022 08:46:01 -0700 (PDT)
 From: Valentin Schneider <vschneid@redhat.com>
 To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
@@ -65,10 +66,13 @@ To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
  linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
  linux-xtensa@linux-xtensa.org, x86@kernel.org
-Subject: [RFC PATCH 0/5] Generic IPI sending tracepoint
-Date: Fri,  7 Oct 2022 16:41:40 +0100
-Message-Id: <20221007154145.1877054-1-vschneid@redhat.com>
+Subject: [RFC PATCH 3/5] smp: Add a multi-CPU variant to
+ send_call_function_single_ipi()
+Date: Fri,  7 Oct 2022 16:45:31 +0100
+Message-Id: <20221007154533.1878285-3-vschneid@redhat.com>
 X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20221007154145.1877054-1-vschneid@redhat.com>
+References: <20221007154145.1877054-1-vschneid@redhat.com>
 MIME-Version: 1.0
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
@@ -102,118 +106,40 @@ Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Background
-==========
+This simply wraps around the arch function and prepends it with a
+tracepoint, bringing parity with send_call_function_single_ipi().
 
-Detecting IPI *reception* is relatively easy, e.g. using
-trace_irq_handler_{entry,exit} or even just function-trace
-flush_smp_call_function_queue() for SMP calls.  
+Signed-off-by: Valentin Schneider <vschneid@redhat.com>
+---
+ kernel/smp.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-Figuring out their *origin*, is trickier as there is no generic tracepoint tied
-to e.g. smp_call_function():
-
-o AFAIA x86 has no tracepoint tied to sending IPIs, only receiving them
-  (cf. trace_call_function{_single}_entry()).
-o arm/arm64 do have trace_ipi_raise(), which gives us the target cpus but also a
-  mostly useless string (smp_calls will all be "Function call interrupts").
-o Other architectures don't seem to have any IPI-sending related tracepoint.  
-
-I believe one reason those tracepoints used by arm/arm64 ended up as they were
-is because these archs used to handle IPIs differently from regular interrupts
-(the IRQ driver would directly invoke an IPI-handling routine), which meant they 
-never showed up in trace_irq_handler_{entry, exit}. The trace_ipi_{entry,exit}
-tracepoints gave a way to trace IPI reception but those have become redundant as
-of: 
-
-      56afcd3dbd19 ("ARM: Allow IPIs to be handled as normal interrupts")
-      d3afc7f12987 ("arm64: Allow IPIs to be handled as normal interrupts")
-
-which gave IPIs a "proper" handler function used through
-generic_handle_domain_irq(), which makes them show up via
-trace_irq_handler_{entry, exit}.
-
-Changing stuff up
-=================
-
-Per the above, it would make sense to reshuffle trace_ipi_raise() and move it
-into generic code. This also came up during Daniel's talk on Osnoise at the CPU
-isolation MC of LPC 2022 [1]. 
-
-Now, to be useful, such a tracepoint needs to export:
-o targeted CPU(s)
-o calling context
-
-The only way to get the calling context with trace_ipi_raise() is to trigger a
-stack dump, e.g. $(trace-cmd -e ipi* -T echo 42).
-
-As for the targeted CPUs, the existing tracepoint does export them, albeit in
-cpumask form, which is quite inconvenient from a tooling perspective. For
-instance, as far as I'm aware, it's not possible to do event filtering on a
-cpumask via trace-cmd.
-
-Because of the above points, this is introducing a new tracepoint.
-
-Patches
-=======
-
-This results in having trace events for:
-
-o smp_call_function*()
-o smp_send_reschedule()
-o irq_work_queue*()
-
-This is incomplete, just looking at arm64 there's more IPI types that aren't covered:
-
-  IPI_CPU_STOP,
-  IPI_CPU_CRASH_STOP,
-  IPI_TIMER,
-  IPI_WAKEUP,
-
-... But it feels like a good starting point.
-
-Another thing worth mentioning is that depending on the callsite, the _RET_IP_
-fed to the tracepoint is not always useful - generic_exec_single() doesn't tell
-you much about the actual callback being sent via IPI, so there might be value
-in exploding the single tracepoint into at least one variant for smp_calls.
-
-Links
-=====
-
-[1]: https://youtu.be/5gT57y4OzBM?t=14234
-
-Valentin Schneider (5):
-  trace: Add trace_ipi_send_{cpu, cpumask}
-  sched, smp: Trace send_call_function_single_ipi()
-  smp: Add a multi-CPU variant to send_call_function_single_ipi()
-  irq_work: Trace calls to arch_irq_work_raise()
-  treewide: Rename and trace arch-definitions of smp_send_reschedule()
-
- arch/alpha/kernel/smp.c          |  2 +-
- arch/arc/kernel/smp.c            |  2 +-
- arch/arm/kernel/smp.c            |  5 +----
- arch/arm64/kernel/smp.c          |  3 +--
- arch/csky/kernel/smp.c           |  2 +-
- arch/hexagon/kernel/smp.c        |  2 +-
- arch/ia64/kernel/smp.c           |  4 ++--
- arch/loongarch/include/asm/smp.h |  2 +-
- arch/mips/include/asm/smp.h      |  2 +-
- arch/openrisc/kernel/smp.c       |  2 +-
- arch/parisc/kernel/smp.c         |  4 ++--
- arch/powerpc/kernel/smp.c        |  4 ++--
- arch/riscv/kernel/smp.c          |  4 ++--
- arch/s390/kernel/smp.c           |  2 +-
- arch/sh/kernel/smp.c             |  2 +-
- arch/sparc/kernel/smp_32.c       |  2 +-
- arch/sparc/kernel/smp_64.c       |  2 +-
- arch/x86/include/asm/smp.h       |  2 +-
- arch/xtensa/kernel/smp.c         |  2 +-
- include/linux/smp.h              |  1 +
- include/trace/events/ipi.h       | 27 +++++++++++++++++++++++++++
- kernel/irq_work.c                | 12 +++++++++++-
- kernel/sched/core.c              |  7 +++++--
- kernel/smp.c                     | 18 +++++++++++++++++-
- 24 files changed, 84 insertions(+), 31 deletions(-)
-
---
+diff --git a/kernel/smp.c b/kernel/smp.c
+index 7a7a22d69972..387735180aed 100644
+--- a/kernel/smp.c
++++ b/kernel/smp.c
+@@ -160,6 +160,12 @@ void __init call_function_init(void)
+ 	smpcfd_prepare_cpu(smp_processor_id());
+ }
+ 
++static inline void send_call_function_ipi_mask(const struct cpumask *mask)
++{
++	trace_ipi_send_cpumask(_RET_IP_, mask);
++	arch_send_call_function_ipi_mask(mask);
++}
++
+ #ifdef CONFIG_CSD_LOCK_WAIT_DEBUG
+ 
+ static DEFINE_STATIC_KEY_FALSE(csdlock_debug_enabled);
+@@ -970,7 +976,7 @@ static void smp_call_function_many_cond(const struct cpumask *mask,
+ 		if (nr_cpus == 1)
+ 			send_call_function_single_ipi(last_cpu);
+ 		else if (likely(nr_cpus > 1))
+-			arch_send_call_function_ipi_mask(cfd->cpumask_ipi);
++			send_call_function_ipi_mask(cfd->cpumask_ipi);
+ 
+ 		cfd_seq_store(this_cpu_ptr(&cfd_seq_local)->pinged, this_cpu, CFD_SEQ_NOCPU, CFD_SEQ_PINGED);
+ 	}
+-- 
 2.31.1
 
