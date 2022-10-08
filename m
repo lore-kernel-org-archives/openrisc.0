@@ -2,52 +2,61 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC6C0C4167B
-	for <openrisc@archiver.kernel.org>; Sat,  8 Oct 2022 05:01:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE7A8C433FE
+	for <openrisc@archiver.kernel.org>; Sat,  8 Oct 2022 05:07:39 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 41A0B2499B;
-	Sat,  8 Oct 2022 07:01:09 +0200 (CEST)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by mail.librecores.org (Postfix) with ESMTP id 6051B24827
- for <openrisc@lists.librecores.org>; Fri,  7 Oct 2022 22:03:40 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1665173019;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=jaDcObpjcx0whPL96jk38beBrOuRKo+eqX0wqNpM3Cc=;
- b=P+lIyk+e0CPKAEcXbbQsDGytM3pSE2HiXWeW7NP38w5yUSHLYGCuSuucP33CsCkagHA0Xl
- 151o2pP9yjDQ1PeDz0xhPVbLkmo8lCO3ZH7OMrITtTWxWfWY5mkXbEVSe9xPFuqCCFlhIl
- 3Pk9fHEL2zLDpOzOjIrrd39Z4gNTtAk=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-264-kStNREYhN0OL2iSIbHz80Q-1; Fri, 07 Oct 2022 16:03:36 -0400
-X-MC-Unique: kStNREYhN0OL2iSIbHz80Q-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com
- [10.11.54.6])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 67B08882826;
- Fri,  7 Oct 2022 20:03:34 +0000 (UTC)
-Received: from fuller.cnet (ovpn-112-2.gru2.redhat.com [10.97.112.2])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 29A1A2166B4D;
- Fri,  7 Oct 2022 20:03:32 +0000 (UTC)
-Received: by fuller.cnet (Postfix, from userid 1000)
- id 258DA416CE48; Fri,  7 Oct 2022 17:01:33 -0300 (-03)
-Date: Fri, 7 Oct 2022 17:01:33 -0300
-From: Marcelo Tosatti <mtosatti@redhat.com>
-To: Valentin Schneider <vschneid@redhat.com>
-Subject: Re: [RFC PATCH 0/5] Generic IPI sending tracepoint
-Message-ID: <Y0CFnWDpMNGajIRD@fuller.cnet>
-References: <20221007154145.1877054-1-vschneid@redhat.com>
+	by mail.librecores.org (Postfix) with ESMTP id 0D5B12488F;
+	Sat,  8 Oct 2022 07:07:39 +0200 (CEST)
+Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com
+ [209.85.221.41])
+ by mail.librecores.org (Postfix) with ESMTPS id DB8512490E
+ for <openrisc@lists.librecores.org>; Sat,  8 Oct 2022 07:07:36 +0200 (CEST)
+Received: by mail-wr1-f41.google.com with SMTP id r13so9839979wrj.11
+ for <openrisc@lists.librecores.org>; Fri, 07 Oct 2022 22:07:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+ bh=3W0V9Lvp6JyEFIeTyCKRLPg4UP1sFJYY2e9mMECgn9s=;
+ b=XYDOTqXcDFFXJVm439mYCJdcu020rpE2/ke8xpn9Bf1ClCYomiUcQlBjCC4HiRh7lN
+ dugGVT2gF7TrgGIdyYZnG/HbCcB522ACPKkTSCO8QlZwXwqduVYharJAQ7d+h7b2oprK
+ qLysk9lvXaoDZJOF86ad41A3X2QXyRGrvQ+TA7IojsORI88cquj4OEC1J5NYbH0kWal2
+ b6LBbgy2RI2XdYepKrVP/qP7vP+U83MlW3iHmONQuRj7ALILGG/2nGVWkxxEkUF2I5LJ
+ 15kLGcaumnv656scTtf68q1oOXiOeQxsMr87ZCdPskcyj7nePVZnCkh8oxzG040u9Ovc
+ CBeg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=3W0V9Lvp6JyEFIeTyCKRLPg4UP1sFJYY2e9mMECgn9s=;
+ b=PHhYFajxC6DYfo5RsVIEFnwtiS2JBf7dwsBoK6KarGf4Mvma5EKXZtQhoYtc23zTPl
+ PVOG17YyXnJiJBRFgAIG7mUXnVZfIHQFQVEpvOnZqcyMrdrGEKpqhEuGGWvVCKDW8gvd
+ StHjm1v25bS+CakEdfipq/Q5UrlZ32hu3bVDqKwjWKBENS2L9RN7QUoeujAqD7Ma8gzt
+ lkBfym2gm1A8ylB4MtDEfYu5p60FEPqKJlZ2qYPR4fyfJTm8QP1LApewFJojCejsCzkC
+ mylR+t6UIe/8bI79FNDJYWYmweL1+uYzw91Z/fxtSsgAwR7IuBUB9BZHx7C9uw1/SXJH
+ xMUw==
+X-Gm-Message-State: ACrzQf3C38t6ZsLxHJDMuOFLtglOoFFaVtK0sAr/5rbfm/QQtBAjYXgr
+ rtdETTpnFSO2/9uS9z7BNew=
+X-Google-Smtp-Source: AMsMyM5myXp2PJMzpKZCUQqGwF3Wq98VZGDgJjiyPUnI3j9hi+SK6RmAGzsSYfcL5i1XoQH+JXMx/w==
+X-Received: by 2002:adf:edd1:0:b0:22e:5257:a19e with SMTP id
+ v17-20020adfedd1000000b0022e5257a19emr4905173wro.180.1665205656287; 
+ Fri, 07 Oct 2022 22:07:36 -0700 (PDT)
+Received: from localhost ([2a03:b0c0:1:d0::dee:c001])
+ by smtp.gmail.com with ESMTPSA id
+ h3-20020a5d4303000000b0022e0580b7a9sm3604624wrq.17.2022.10.07.22.07.34
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 07 Oct 2022 22:07:34 -0700 (PDT)
+Date: Sat, 8 Oct 2022 05:07:34 +0000
+From: Stafford Horne <shorne@gmail.com>
+To: Jann Horn <jannh@google.com>
+Subject: Re: [PATCH] openrisc: Fix pagewalk usage in
+ arch_dma_{clear,set}_uncached
+Message-ID: <Y0EFllJ8uisQOWfv@oscomms1>
+References: <20221006183301.1891131-1-jannh@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221007154145.1877054-1-vschneid@redhat.com>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
-X-Mailman-Approved-At: Sat, 08 Oct 2022 07:01:05 +0200
+In-Reply-To: <20221006183301.1891131-1-jannh@google.com>
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -60,187 +69,73 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>,
- linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
- Peter Zijlstra <peterz@infradead.org>,
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, linux-mips@vger.kernel.org,
- Guo Ren <guoren@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
- sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
- linux-hexagon@vger.kernel.org, x86@kernel.org,
- Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org,
- Ingo Molnar <mingo@redhat.com>, linux-snps-arc@lists.infradead.org,
- linux-xtensa@linux-xtensa.org, "Paul E. McKenney" <paulmck@kernel.org>,
- Frederic Weisbecker <frederic@kernel.org>,
- Steven Rostedt <rostedt@goodmis.org>, openrisc@lists.librecores.org,
- Borislav Petkov <bp@alien8.de>, Nicholas Piggin <npiggin@gmail.com>,
- loongarch@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
- linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
- Daniel Bristot de Oliveira <bristot@redhat.com>, linux-kernel@vger.kernel.org,
- linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- "David S. Miller" <davem@davemloft.net>
+Cc: Jonas Bonn <jonas@southpole.se>, openrisc@lists.librecores.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Hi Valentin,
+On Thu, Oct 06, 2022 at 08:33:01PM +0200, Jann Horn wrote:
+> Since commit 8782fb61cc848 ("mm: pagewalk: Fix race between unmap and page
+> walker"), walk_page_range() on kernel ranges won't work anymore,
+> walk_page_range_novma() must be used instead.
+> 
+> Note: I don't have an openrisc development setup, so this is completely
+> untested.
+> 
+> Fixes: 8782fb61cc848 ("mm: pagewalk: Fix race between unmap and page walker")
+> Signed-off-by: Jann Horn <jannh@google.com>
 
-On Fri, Oct 07, 2022 at 04:41:40PM +0100, Valentin Schneider wrote:
-> Background
-> ==========
-> 
-> Detecting IPI *reception* is relatively easy, e.g. using
-> trace_irq_handler_{entry,exit} or even just function-trace
-> flush_smp_call_function_queue() for SMP calls.  
-> 
-> Figuring out their *origin*, is trickier as there is no generic tracepoint tied
-> to e.g. smp_call_function():
-> 
-> o AFAIA x86 has no tracepoint tied to sending IPIs, only receiving them
->   (cf. trace_call_function{_single}_entry()).
-> o arm/arm64 do have trace_ipi_raise(), which gives us the target cpus but also a
->   mostly useless string (smp_calls will all be "Function call interrupts").
-> o Other architectures don't seem to have any IPI-sending related tracepoint.  
-> 
-> I believe one reason those tracepoints used by arm/arm64 ended up as they were
-> is because these archs used to handle IPIs differently from regular interrupts
-> (the IRQ driver would directly invoke an IPI-handling routine), which meant they 
-> never showed up in trace_irq_handler_{entry, exit}. The trace_ipi_{entry,exit}
-> tracepoints gave a way to trace IPI reception but those have become redundant as
-> of: 
-> 
->       56afcd3dbd19 ("ARM: Allow IPIs to be handled as normal interrupts")
->       d3afc7f12987 ("arm64: Allow IPIs to be handled as normal interrupts")
-> 
-> which gave IPIs a "proper" handler function used through
-> generic_handle_domain_irq(), which makes them show up via
-> trace_irq_handler_{entry, exit}.
-> 
-> Changing stuff up
-> =================
-> 
-> Per the above, it would make sense to reshuffle trace_ipi_raise() and move it
-> into generic code. This also came up during Daniel's talk on Osnoise at the CPU
-> isolation MC of LPC 2022 [1]. 
-> 
-> Now, to be useful, such a tracepoint needs to export:
-> o targeted CPU(s)
-> o calling context
-> 
-> The only way to get the calling context with trace_ipi_raise() is to trigger a
-> stack dump, e.g. $(trace-cmd -e ipi* -T echo 42).
-> 
-> As for the targeted CPUs, the existing tracepoint does export them, albeit in
-> cpumask form, which is quite inconvenient from a tooling perspective. For
-> instance, as far as I'm aware, it's not possible to do event filtering on a
-> cpumask via trace-cmd.
+This looks good to me, I will queue it for 6.1 fixes.
 
-https://man7.org/linux/man-pages/man1/trace-cmd-set.1.html
+> ---
+> Normally I would CC stable on a patch like this, but openrisc is mostly an
+> in-development thing, so fixing stable kernels doesn't matter much, I assume?
 
-       -f filter
-           Specify a filter for the previous event. This must come after
-           a -e. This will filter what events get recorded based on the
-           content of the event. Filtering is passed to the kernel
-           directly so what filtering is allowed may depend on what
-           version of the kernel you have. Basically, it will let you
-           use C notation to check if an event should be processed or
-           not.
+In general we try to keep stable releases stable buy backporting OpenRISC patches
+as well.  Just having the 'Fixes' tag should trigger to get this patched
+backported to stable.  We should at least cc the LKML though.
 
-               ==, >=, <=, >, <, &, |, && and ||
+-Stafford
 
-           The above are usually safe to use to compare fields.
-
-This looks overkill to me (consider large number of bits set in mask).
-
-+#define trace_ipi_send_cpumask(callsite, mask) do {            \
-+	if (static_key_false(&__tracepoint_ipi_send_cpu.key)) { \
-+               int cpu;                                        \
-+               for_each_cpu(cpu, mask)                         \
-+                       trace_ipi_send_cpu(callsite, cpu);	\
-+	}                                                       \
-+} while (0)
-
-
+>  arch/openrisc/kernel/dma.c | 16 ++++++++--------
+>  1 file changed, 8 insertions(+), 8 deletions(-)
 > 
-> Because of the above points, this is introducing a new tracepoint.
+> diff --git a/arch/openrisc/kernel/dma.c b/arch/openrisc/kernel/dma.c
+> index a82b2caaa560d..b3edbb33b621d 100644
+> --- a/arch/openrisc/kernel/dma.c
+> +++ b/arch/openrisc/kernel/dma.c
+> @@ -74,10 +74,10 @@ void *arch_dma_set_uncached(void *cpu_addr, size_t size)
+>  	 * We need to iterate through the pages, clearing the dcache for
+>  	 * them and setting the cache-inhibit bit.
+>  	 */
+> -	mmap_read_lock(&init_mm);
+> -	error = walk_page_range(&init_mm, va, va + size, &set_nocache_walk_ops,
+> -			NULL);
+> -	mmap_read_unlock(&init_mm);
+> +	mmap_write_lock(&init_mm);
+> +	error = walk_page_range_novma(&init_mm, va, va + size,
+> +			&set_nocache_walk_ops, NULL, NULL);
+> +	mmap_write_unlock(&init_mm);
+>  
+>  	if (error)
+>  		return ERR_PTR(error);
+> @@ -88,11 +88,11 @@ void arch_dma_clear_uncached(void *cpu_addr, size_t size)
+>  {
+>  	unsigned long va = (unsigned long)cpu_addr;
+>  
+> -	mmap_read_lock(&init_mm);
+> +	mmap_write_lock(&init_mm);
+>  	/* walk_page_range shouldn't be able to fail here */
+> -	WARN_ON(walk_page_range(&init_mm, va, va + size,
+> -			&clear_nocache_walk_ops, NULL));
+> -	mmap_read_unlock(&init_mm);
+> +	WARN_ON(walk_page_range_novma(&init_mm, va, va + size,
+> +			&clear_nocache_walk_ops, NULL, NULL));
+> +	mmap_write_unlock(&init_mm);
+>  }
+>  
+>  void arch_sync_dma_for_device(phys_addr_t addr, size_t size,
 > 
-> Patches
-> =======
+> base-commit: 7e6739b9336e61fe23ca4e2c8d1fda8f19f979bf
+> -- 
+> 2.38.0.rc1.362.ged0d419d3c-goog
 > 
-> This results in having trace events for:
-> 
-> o smp_call_function*()
-> o smp_send_reschedule()
-> o irq_work_queue*()
-> 
-> This is incomplete, just looking at arm64 there's more IPI types that aren't covered:
-> 
->   IPI_CPU_STOP,
->   IPI_CPU_CRASH_STOP,
->   IPI_TIMER,
->   IPI_WAKEUP,
-> 
-> ... But it feels like a good starting point.
-
-Can't you have a single tracepoint (or variant with cpumask) that would
-cover such cases as well?
-
-Maybe (as parameters for tracepoint):
-
-	* type (reschedule, smp_call_function, timer, wakeup, ...).
-
-	* function address: valid for smp_call_function, irq_work_queue
-	  types.
-
-> Another thing worth mentioning is that depending on the callsite, the _RET_IP_
-> fed to the tracepoint is not always useful - generic_exec_single() doesn't tell
-> you much about the actual callback being sent via IPI, so there might be value
-> in exploding the single tracepoint into at least one variant for smp_calls.
-
-Not sure i grasp what you mean by "exploding the single tracepoint...",
-but yes knowing the function or irq work function is very useful.
-
-> 
-> Links
-> =====
-> 
-> [1]: https://youtu.be/5gT57y4OzBM?t=14234
-> 
-> Valentin Schneider (5):
->   trace: Add trace_ipi_send_{cpu, cpumask}
->   sched, smp: Trace send_call_function_single_ipi()
->   smp: Add a multi-CPU variant to send_call_function_single_ipi()
->   irq_work: Trace calls to arch_irq_work_raise()
->   treewide: Rename and trace arch-definitions of smp_send_reschedule()
-> 
->  arch/alpha/kernel/smp.c          |  2 +-
->  arch/arc/kernel/smp.c            |  2 +-
->  arch/arm/kernel/smp.c            |  5 +----
->  arch/arm64/kernel/smp.c          |  3 +--
->  arch/csky/kernel/smp.c           |  2 +-
->  arch/hexagon/kernel/smp.c        |  2 +-
->  arch/ia64/kernel/smp.c           |  4 ++--
->  arch/loongarch/include/asm/smp.h |  2 +-
->  arch/mips/include/asm/smp.h      |  2 +-
->  arch/openrisc/kernel/smp.c       |  2 +-
->  arch/parisc/kernel/smp.c         |  4 ++--
->  arch/powerpc/kernel/smp.c        |  4 ++--
->  arch/riscv/kernel/smp.c          |  4 ++--
->  arch/s390/kernel/smp.c           |  2 +-
->  arch/sh/kernel/smp.c             |  2 +-
->  arch/sparc/kernel/smp_32.c       |  2 +-
->  arch/sparc/kernel/smp_64.c       |  2 +-
->  arch/x86/include/asm/smp.h       |  2 +-
->  arch/xtensa/kernel/smp.c         |  2 +-
->  include/linux/smp.h              |  1 +
->  include/trace/events/ipi.h       | 27 +++++++++++++++++++++++++++
->  kernel/irq_work.c                | 12 +++++++++++-
->  kernel/sched/core.c              |  7 +++++--
->  kernel/smp.c                     | 18 +++++++++++++++++-
->  24 files changed, 84 insertions(+), 31 deletions(-)
-> 
-> --
-> 2.31.1
-> 
-> 
-
