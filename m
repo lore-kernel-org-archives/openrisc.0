@@ -2,32 +2,51 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 460A0C433FE
-	for <openrisc@archiver.kernel.org>; Fri,  7 Oct 2022 11:30:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0168C43217
+	for <openrisc@archiver.kernel.org>; Sat,  8 Oct 2022 00:01:00 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 0804024B13;
-	Fri,  7 Oct 2022 13:30:07 +0200 (CEST)
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by mail.librecores.org (Postfix) with ESMTP id 36AAF24AAE
- for <openrisc@lists.librecores.org>; Fri,  7 Oct 2022 13:30:05 +0200 (CEST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 746711063;
- Fri,  7 Oct 2022 04:30:10 -0700 (PDT)
-Received: from FVFF77S0Q05N (unknown [172.31.20.19])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 695033F792;
- Fri,  7 Oct 2022 04:30:00 -0700 (PDT)
-Date: Fri, 7 Oct 2022 12:29:49 +0100
-From: Mark Rutland <mark.rutland@arm.com>
-To: Palmer Dabbelt <palmer@dabbelt.com>
-Subject: Re: [PATCH] RISC-V: Add STACKLEAK erasing the kernel stack at the
- end of syscalls
-Message-ID: <Y0ANrYa2IQCg8UTd@FVFF77S0Q05N>
+	by mail.librecores.org (Postfix) with ESMTP id EE35E24871;
+	Sat,  8 Oct 2022 02:00:58 +0200 (CEST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+ by mail.librecores.org (Postfix) with ESMTPS id CB8A824816
+ for <openrisc@lists.librecores.org>; Sat,  8 Oct 2022 02:00:57 +0200 (CEST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by ams.source.kernel.org (Postfix) with ESMTPS id F2FF2B82476
+ for <openrisc@lists.librecores.org>; Sat,  8 Oct 2022 00:00:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1EE2C433B5
+ for <openrisc@lists.librecores.org>; Sat,  8 Oct 2022 00:00:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1665187255;
+ bh=1QNTKASnThQzK9t9YJPKB3S5uW+rMCtzlHpZ4T+ejK4=;
+ h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+ b=nbaf5kXNGDwWzlsoB1UwvScZICJk41H+byHZ/oFGC1HHj6G6NNdgI/bP/IrRKpO6m
+ 94rwv4rTVMhQbV96xn0vJCT7fMbX7mt3hQFDHQJ6ftHeEGWMgFakkmSVai9FPVvD6M
+ WiD3Hpl3Limwpe7zf5w8xMdKL7Ga+2GnaSLAUSMoSLPyFJGSmV8rrC/fEk1YX8oHkA
+ Gdrs5F9PQiOa3vFSPO3gCYuHspD58Jh6CFy5OkpsvZEI8cIwKKxK2BF/Tt1i4oanwS
+ PvI1HRni+yI/MxkLpx4IdX6IdMaZ0/PTOYJaBbUXT4DpXMXPzcwwsZnKBXgncd1f1B
+ KRwVsi4nDwydA==
+Received: by mail-oi1-f179.google.com with SMTP id j188so266492oih.4
+ for <openrisc@lists.librecores.org>; Fri, 07 Oct 2022 17:00:55 -0700 (PDT)
+X-Gm-Message-State: ACrzQf1vJ24XlZ/7IstLrrOrO6brUWYw07w+I6iGpW/oWXIWFVLkwEMr
+ pToyw6AiNYVyuopjr/QPN305+3uCGTqX/Jqd5YU=
+X-Google-Smtp-Source: AMsMyM43x1xUF8/u4qEx0O4CLZy7PM9HGCWHCoBGuVZwK3v1D/JkfKAVQrBSId34wQKf2vHacT5ZjsmS+8zaB+iFHDo=
+X-Received: by 2002:aca:6155:0:b0:353:e740:ce01 with SMTP id
+ v82-20020aca6155000000b00353e740ce01mr8672777oib.19.1665187254786; Fri, 07
+ Oct 2022 17:00:54 -0700 (PDT)
+MIME-Version: 1.0
 References: <6c48657c-04df-132d-6167-49ed293dea44@microchip.com>
  <mhng-8c3bb2e7-e84e-4aaa-bce8-3e8054255a2c@palmer-ri-x1c9>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <mhng-8c3bb2e7-e84e-4aaa-bce8-3e8054255a2c@palmer-ri-x1c9>
+From: Guo Ren <guoren@kernel.org>
+Date: Sat, 8 Oct 2022 08:00:42 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTRER75PyqniiTZgeeHjiy5UKVtrr89iPrdx_EzYPUC9Lg@mail.gmail.com>
+Message-ID: <CAJF2gTRER75PyqniiTZgeeHjiy5UKVtrr89iPrdx_EzYPUC9Lg@mail.gmail.com>
+Subject: Re: [PATCH] RISC-V: Add STACKLEAK erasing the kernel stack at the end
+ of syscalls
+To: Palmer Dabbelt <palmer@dabbelt.com>
+Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -41,7 +60,7 @@ List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
 Cc: linux-efi@vger.kernel.org, heiko@sntech.de, oleg@redhat.com,
- Conor.Dooley@microchip.com, guoren@kernel.org, sparclinux@vger.kernel.org,
+ Conor.Dooley@microchip.com, sparclinux@vger.kernel.org,
  linux-riscv@lists.infradead.org, ardb@kernel.org, linux-arch@vger.kernel.org,
  xianting.tian@linux.alibaba.com, linux@armlinux.org.uk, vgupta@kernel.org,
  linux-snps-arc@lists.infradead.org, aou@eecs.berkeley.edu,
@@ -52,92 +71,91 @@ Cc: linux-efi@vger.kernel.org, heiko@sntech.de, oleg@redhat.com,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Thu, Oct 06, 2022 at 07:31:01PM -0700, Palmer Dabbelt wrote:
+On Fri, Oct 7, 2022 at 10:31 AM Palmer Dabbelt <palmer@dabbelt.com> wrote:
+>
 > On Tue, 06 Sep 2022 10:35:10 PDT (-0700), Conor.Dooley@microchip.com wrote:
 > > On 03/09/2022 17:23, guoren@kernel.org wrote:
-> > > EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
-> > > 
-> > > From: Xianting Tian <xianting.tian@linux.alibaba.com>
-> > > 
-> > > This adds support for the STACKLEAK gcc plugin to RISC-V and disables
-> > > the plugin in EFI stub code, which is out of scope for the protection.
-> > > 
-> > > For the benefits of STACKLEAK feature, please check the commit
-> > > afaef01c0015 ("x86/entry: Add STACKLEAK erasing the kernel stack at the end of syscalls")
-> > > 
-> > > Performance impact (tested on qemu env with 1 riscv64 hart, 1GB mem)
-> > >     hackbench -s 512 -l 200 -g 15 -f 25 -P
-> > >     2.0% slowdown
-> > > 
-> > > Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
-> > 
+> >> EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
+> >>
+> >> From: Xianting Tian <xianting.tian@linux.alibaba.com>
+> >>
+> >> This adds support for the STACKLEAK gcc plugin to RISC-V and disables
+> >> the plugin in EFI stub code, which is out of scope for the protection.
+> >>
+> >> For the benefits of STACKLEAK feature, please check the commit
+> >> afaef01c0015 ("x86/entry: Add STACKLEAK erasing the kernel stack at the end of syscalls")
+> >>
+> >> Performance impact (tested on qemu env with 1 riscv64 hart, 1GB mem)
+> >>     hackbench -s 512 -l 200 -g 15 -f 25 -P
+> >>     2.0% slowdown
+> >>
+> >> Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
+> >
 > > What changed since Xianting posted it himself a week ago:
 > > https://lore.kernel.org/linux-riscv/20220828135407.3897717-1-xianting.tian@linux.alibaba.com/
-> > 
+> >
 > > There's an older patch from Du Lao adding STACKLEAK too:
 > > https://lore.kernel.org/linux-riscv/20220615213834.3116135-1-daolu@rivosinc.com/
-> > 
+> >
 > > But since there's been no activity there since June...
-> 
+>
 > Looks like the only issues were some commit log wording stuff, and that
-> there's a test suite that should be run.  It's not clear from the commits
-> that anyone has done that, I'm fine with the patch if it passes the tests
-> but don't really know how to run them.
+> there's a test suite that should be run.  It's not clear from the
+> commits that anyone has done that, I'm fine with the patch if it passes
+> the tests but don't really know how to run them.
+>
+> Has anyone run the tests?
+I'm trying to do that with genric_entry.
+https://lore.kernel.org/linux-riscv/20220615213834.3116135-1-daolu@rivosinc.com/
 
-Enable CONFIG_LKDTM, and do:
+Mark Rutland has found an issue, and I'm solving it.
 
-  echo STACKLEAK_ERASING > /sys/kernel/debug/provoke-crash/DIRECT
+>
+> >
+> >> ---
+> >>  arch/riscv/Kconfig                    | 1 +
+> >>  arch/riscv/include/asm/processor.h    | 4 ++++
+> >>  arch/riscv/kernel/entry.S             | 3 +++
+> >>  drivers/firmware/efi/libstub/Makefile | 2 +-
+> >>  4 files changed, 9 insertions(+), 1 deletion(-)
+> >>
+> >> diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+> >> index ed66c31e4655..61fd0dad4463 100644
+> >> --- a/arch/riscv/Kconfig
+> >> +++ b/arch/riscv/Kconfig
+> >> @@ -85,6 +85,7 @@ config RISCV
+> >>         select ARCH_ENABLE_THP_MIGRATION if TRANSPARENT_HUGEPAGE
+> >>         select HAVE_ARCH_THREAD_STRUCT_WHITELIST
+> >>         select HAVE_ARCH_VMAP_STACK if MMU && 64BIT
+> >> +       select HAVE_ARCH_STACKLEAK
+> >>         select HAVE_ASM_MODVERSIONS
+> >>         select HAVE_CONTEXT_TRACKING_USER
+> >>         select HAVE_DEBUG_KMEMLEAK
+> >> diff --git a/drivers/firmware/efi/libstub/Makefile b/drivers/firmware/efi/libstub/Makefile
+> >> index d0537573501e..5e1fc4f82883 100644
+> >> --- a/drivers/firmware/efi/libstub/Makefile
+> >> +++ b/drivers/firmware/efi/libstub/Makefile
+> >> @@ -25,7 +25,7 @@ cflags-$(CONFIG_ARM)          := $(subst $(CC_FLAGS_FTRACE),,$(KBUILD_CFLAGS)) \
+> >>                                    -fno-builtin -fpic \
+> >>                                    $(call cc-option,-mno-single-pic-base)
+> >>  cflags-$(CONFIG_RISCV)         := $(subst $(CC_FLAGS_FTRACE),,$(KBUILD_CFLAGS)) \
+> >> -                                  -fpic
+> >> +                                  -fpic $(DISABLE_STACKLEAK_PLUGIN)
+> >>
+> >>  cflags-$(CONFIG_EFI_GENERIC_STUB) += -I$(srctree)/scripts/dtc/libfdt
+> >>
+> >> --
+> >> 2.17.1
+> >>
+> >>
+> >> _______________________________________________
+> >> linux-riscv mailing list
+> >> linux-riscv@lists.infradead.org
+> >> http://lists.infradead.org/mailman/listinfo/linux-riscv
+> >
 
-Example GOOD/BAD output below, taken from:
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/drivers/misc/lkdtm/stackleak.c?id=72b61896f2b47fa4b98e86184bc0e6ddbd1a8db1
 
-GOOD result on x86_64:
-
-| # echo STACKLEAK_ERASING > /sys/kernel/debug/provoke-crash/DIRECT
-| lkdtm: Performing direct entry STACKLEAK_ERASING
-| lkdtm: stackleak stack usage:
-|   high offset: 168 bytes
-|   current:     336 bytes
-|   lowest:      656 bytes
-|   tracked:     656 bytes
-|   untracked:   400 bytes
-|   poisoned:    15152 bytes
-|   low offset:  8 bytes
-| lkdtm: OK: the rest of the thread stack is properly erased
-
-GOOD result on arm64:
-
-| # echo STACKLEAK_ERASING > /sys/kernel/debug/provoke-crash/DIRECT
-| lkdtm: Performing direct entry STACKLEAK_ERASING
-| lkdtm: stackleak stack usage:
-|   high offset: 336 bytes
-|   current:     656 bytes
-|   lowest:      1232 bytes
-|   tracked:     1232 bytes
-|   untracked:   672 bytes
-|   poisoned:    14136 bytes
-|   low offset:  8 bytes
-| lkdtm: OK: the rest of the thread stack is properly erased
-
-BAD result on arm64:
-
-| # echo STACKLEAK_ERASING > /sys/kernel/debug/provoke-crash/DIRECT
-| lkdtm: Performing direct entry STACKLEAK_ERASING
-| lkdtm: FAIL: non-poison value 24 bytes below poison boundary: 0x0
-| lkdtm: FAIL: non-poison value 32 bytes below poison boundary: 0xffff8000083dbc00
-...
-| lkdtm: FAIL: non-poison value 1912 bytes below poison boundary: 0x78b4b9999e8cb15
-| lkdtm: FAIL: non-poison value 1920 bytes below poison boundary: 0xffff8000083db400
-| lkdtm: stackleak stack usage:
-|   high offset: 336 bytes
-|   current:     688 bytes
-|   lowest:      1232 bytes
-|   tracked:     576 bytes
-|   untracked:   288 bytes
-|   poisoned:    15176 bytes
-|   low offset:  8 bytes
-| lkdtm: FAIL: the thread stack is NOT properly erased!
-| lkdtm: Unexpected! This kernel (5.18.0-rc1-00013-g1f7b1f1e29e0-dirty aarch64) was built with CONFIG_GCC_PLUGIN_STACKLEAK=y
-
-Mark.
+-- 
+Best Regards
+ Guo Ren
