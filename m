@@ -2,30 +2,32 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 079DFC433F5
-	for <openrisc@archiver.kernel.org>; Tue, 11 Oct 2022 20:35:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D1B9C4332F
+	for <openrisc@archiver.kernel.org>; Tue, 11 Oct 2022 20:41:55 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 8BC2F24BE9;
-	Tue, 11 Oct 2022 22:35:10 +0200 (CEST)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by mail.librecores.org (Postfix) with ESMTPS id 99D0A24BE7
- for <openrisc@lists.librecores.org>; Tue, 11 Oct 2022 22:35:08 +0200 (CEST)
+	by mail.librecores.org (Postfix) with ESMTP id 1E5AC24BC3;
+	Tue, 11 Oct 2022 22:41:55 +0200 (CEST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+ by mail.librecores.org (Postfix) with ESMTPS id D22B024BE3
+ for <openrisc@lists.librecores.org>; Tue, 11 Oct 2022 22:41:53 +0200 (CEST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id 7DCF9612CD;
- Tue, 11 Oct 2022 20:35:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0CA5C433C1;
- Tue, 11 Oct 2022 20:34:59 +0000 (UTC)
-Date: Tue, 11 Oct 2022 16:34:53 -0400
+ by ams.source.kernel.org (Postfix) with ESMTPS id 36325B80F9B;
+ Tue, 11 Oct 2022 20:41:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8570C433C1;
+ Tue, 11 Oct 2022 20:41:44 +0000 (UTC)
+Date: Tue, 11 Oct 2022 16:41:43 -0400
 From: Steven Rostedt <rostedt@goodmis.org>
 To: Valentin Schneider <vschneid@redhat.com>
 Subject: Re: [RFC PATCH 0/5] Generic IPI sending tracepoint
-Message-ID: <20221011163453.2133ab4a@rorschach.local.home>
-In-Reply-To: <xhsmhilkqfi7z.mognet@vschneid.remote.csb>
+Message-ID: <20221011164143.52c84421@rorschach.local.home>
+In-Reply-To: <xhsmhfsfufh51.mognet@vschneid.remote.csb>
 References: <20221007154145.1877054-1-vschneid@redhat.com>
  <Y0CFnWDpMNGajIRD@fuller.cnet>
  <xhsmhilkqfi7z.mognet@vschneid.remote.csb>
+ <3e680bb9-9896-3665-dd59-4f2e6f8205bb@redhat.com>
+ <xhsmhfsfufh51.mognet@vschneid.remote.csb>
 X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -47,10 +49,10 @@ Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>,
  Peter Zijlstra <peterz@infradead.org>,
  Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
  Dave Hansen <dave.hansen@linux.intel.com>, linux-mips@vger.kernel.org,
- Guo Ren <guoren@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
- sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
- linux-hexagon@vger.kernel.org, x86@kernel.org,
+ Guo Ren <guoren@kernel.org>, "H. Peter
+ Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ Marc Zyngier <maz@kernel.org>, linux-hexagon@vger.kernel.org, x86@kernel.org,
  Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org,
  Ingo Molnar <mingo@redhat.com>, linux-snps-arc@lists.infradead.org,
  linux-xtensa@linux-xtensa.org, "Paul E. McKenney" <paulmck@kernel.org>,
@@ -65,31 +67,20 @@ Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Tue, 11 Oct 2022 17:17:04 +0100
+On Tue, 11 Oct 2022 17:40:26 +0100
 Valentin Schneider <vschneid@redhat.com> wrote:
 
-> tep_get_field_val() just yields an unsigned long long of value 0x200018,
-> which AFAICT is just the [length, offset] thing associated with dynamic
-> arrays. Not really usable, and I don't see anything exported in the lib to
-> extract and use those values.
-
-Correct.
-
+> > You could keep the tracepoint as a mask, and then make it pretty, like cpus=3-5,8
+> > in user-space. For example with a trace-cmd/perf loadable plugin, libtracefs helper.
+> >  
 > 
-> tep_get_field_raw() is better, it handles the dynamic array for us and
-> yields a pointer to the cpumask array at the tail of the record. With that
-> it's easy to get an output such as: cpumask[size=32]=[4,0,0,0,]. Still,
-> this isn't a native type for many programming languages.
+> That's a nice idea, the one downside I see is that means registering an
+> event handler for all events with cpumasks rather than directly targeting
+> cpumask fields, but that doesn't look too horrible. I'll dig a bit in that
+> direction.
 
-Yeah, this is the interface that I would have used. And it would likely
-require some kind of wrapper to make it into what you prefer.
-
-Note, I've been complaining for some time now how much I hate the
-libtraceevent interface, and want to rewrite it. (I just spoke to
-someone that wants to implement it in Rust). But the question comes
-down to how to make it backward compatible. Perhaps we don't and just
-up the major version number (libtraceevent 2.0).
-
-What would you recommend as an API to process cpumasks better?
+We could just make all all dynamic array's of unsigned long use that
+format? I don't know of any other event that has dynamic arrays of
+unsigned longs. And doing a search doesn't come up with any.
 
 -- Steve
