@@ -2,51 +2,71 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 75742C4332F
-	for <openrisc@archiver.kernel.org>; Sun,  9 Oct 2022 10:32:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 33675C433FE
+	for <openrisc@archiver.kernel.org>; Tue, 11 Oct 2022 15:02:18 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 9B08324B69;
-	Sun,  9 Oct 2022 12:32:37 +0200 (CEST)
+	by mail.librecores.org (Postfix) with ESMTP id 1F35E24BC7;
+	Tue, 11 Oct 2022 17:02:17 +0200 (CEST)
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by mail.librecores.org (Postfix) with ESMTP id 7901D24B61
- for <openrisc@lists.librecores.org>; Sun,  9 Oct 2022 12:32:36 +0200 (CEST)
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by mail.librecores.org (Postfix) with ESMTP id B388A24BC3
+ for <openrisc@lists.librecores.org>; Tue, 11 Oct 2022 17:02:15 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1665311555;
+ s=mimecast20190719; t=1665500534;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=KxegBGCY4AqOzRwM7tNubdONObE84AmZTumb3T1RzAM=;
- b=bzUZ1rNXD/c+aBQk1tIuoC1kqf8+WMFQpB09eIDFFrzlsCo1C064GSSA9Zd4PI9SibvlUC
- WV9W2F5sJQDzY0Yr55KVlp/UjuiG27HsCJJ3ojiSHPB+uAXiBafzV71QggZEW9kYfnQcyJ
- Z4cQcO2pe0Gt+Xlx33gtW5HO/3s11q4=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-102-HH8FxDx4OlGuEkOaYzjZFw-1; Sun, 09 Oct 2022 06:32:32 -0400
-X-MC-Unique: HH8FxDx4OlGuEkOaYzjZFw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com
- [10.11.54.2])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 9CD85800186;
- Sun,  9 Oct 2022 10:32:31 +0000 (UTC)
-Received: from MiWiFi-R3L-srv.redhat.com (ovpn-12-36.pek2.redhat.com
- [10.72.12.36])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 113DB40D298B;
- Sun,  9 Oct 2022 10:32:24 +0000 (UTC)
-From: Baoquan He <bhe@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH v3 07/11] openrisc: mm: Convert to GENERIC_IOREMAP
-Date: Sun,  9 Oct 2022 18:31:10 +0800
-Message-Id: <20221009103114.149036-8-bhe@redhat.com>
-In-Reply-To: <20221009103114.149036-1-bhe@redhat.com>
-References: <20221009103114.149036-1-bhe@redhat.com>
+ bh=ti1NCFCTzr5YPwBHvg45c+mfaiUwrR60uA7ep6lLZuA=;
+ b=TsYm3Ph69Jr/NmDimociaBcOqfOM1grsQTpxe1UcYgSt0Dju6b88Fz26Kx69GfK63k5ysO
+ q8TLdD2opC77+AxNoa5X6ZjWCSBwmeYsKSqY+wXDSjpEmGfYbeti6O5l+opsD6c0percCV
+ EOWEGR+M2au+O+MQayV/8dT3QwONAEU=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-483-gsU23RdqOy2go7P-Iy1DDg-1; Tue, 11 Oct 2022 11:02:10 -0400
+X-MC-Unique: gsU23RdqOy2go7P-Iy1DDg-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ f26-20020a7bcc1a000000b003c03db14864so3824239wmh.6
+ for <openrisc@lists.librecores.org>; Tue, 11 Oct 2022 08:02:09 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
+ :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=ti1NCFCTzr5YPwBHvg45c+mfaiUwrR60uA7ep6lLZuA=;
+ b=nE2PVVJwf/lIscF6HeTmPs9UnGFjNep0HKkOvH/rwGc2ZMQHO7LRpmIEQeOxgVKQjp
+ ikWfkUQtRDea4mEBH7iBirQIhKC78rfHcRHXCiMFzNN/TBFdSMdIZu6ZWArUecl8WfFr
+ b25PI/IRByCcT51RN9mxdwPu7yh+Fc9jp5OfIK0ZGW2w7rMC/rE+AFs/5Hu/OYClG8nQ
+ czlOpRv+F7HIKODIBYg194DdTt+Sjm6x2+ZIRzVHe4C+e8lEV9xdzNHygfQBjJpS/FyI
+ w8U8JAdZqMYUoCMq8PVPcveeVRUsMqVXiYWKeaGXSpNjrxE8Bd+giuDHPtK6I7MARAdk
+ 3xCg==
+X-Gm-Message-State: ACrzQf2Tz+cV6UFU3kgyYG0P3DHwmRHBjrNZIlmYW+6CzEC1DQTtTqZU
+ cgYOCgxZRnz6OOtLxEFJ7iwmUOm3vg3rj1koGuijDgG4cyZEfX69RFO2mNGkZh3TuH/MWS2eBxY
+ 4xGGi5zr1vw76WtQWE89PD3rQBA==
+X-Received: by 2002:a5d:59a3:0:b0:22e:4b62:7ceb with SMTP id
+ p3-20020a5d59a3000000b0022e4b627cebmr15699189wrr.90.1665500528708; 
+ Tue, 11 Oct 2022 08:02:08 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM7srUgXRaEVg4Pb59BUs0ShAt8e40s56KQw2lU0G4VdN3sOMR/0VHio2//G+OqnLs1Wx3l7Vw==
+X-Received: by 2002:a5d:59a3:0:b0:22e:4b62:7ceb with SMTP id
+ p3-20020a5d59a3000000b0022e4b627cebmr15699160wrr.90.1665500528495; 
+ Tue, 11 Oct 2022 08:02:08 -0700 (PDT)
+Received: from vschneid.remote.csb ([104.132.153.106])
+ by smtp.gmail.com with ESMTPSA id
+ bh11-20020a05600c3d0b00b003b49ab8ff53sm13552403wmb.8.2022.10.11.08.02.06
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 11 Oct 2022 08:02:07 -0700 (PDT)
+From: Valentin Schneider <vschneid@redhat.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [RFC PATCH 4/5] irq_work: Trace calls to arch_irq_work_raise()
+In-Reply-To: <20221008153442.159b2f2d@rorschach.local.home>
+References: <20221007154145.1877054-1-vschneid@redhat.com>
+ <20221007154533.1878285-4-vschneid@redhat.com>
+ <20221008153442.159b2f2d@rorschach.local.home>
+Date: Tue, 11 Oct 2022 16:02:06 +0100
+Message-ID: <xhsmhlepmflox.mognet@vschneid.remote.csb>
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -59,158 +79,55 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Jonas Bonn <jonas@southpole.se>, wangkefeng.wang@huawei.com, bhe@redhat.com,
- schnelle@linux.ibm.com, christophe.leroy@csgroup.eu, hch@infradead.org,
- linux-mm@kvack.org, David.Laight@ACULAB.COM, akpm@linux-foundation.org,
- agordeev@linux.ibm.com, openrisc@lists.librecores.org
+Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>,
+ linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
+ Peter Zijlstra <peterz@infradead.org>,
+ Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, linux-mips@vger.kernel.org,
+ Guo Ren <guoren@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
+ sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+ linux-hexagon@vger.kernel.org, x86@kernel.org,
+ Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org,
+ Ingo Molnar <mingo@redhat.com>, linux-snps-arc@lists.infradead.org,
+ linux-xtensa@linux-xtensa.org, "Paul E. McKenney" <paulmck@kernel.org>,
+ Frederic Weisbecker <frederic@kernel.org>, Nicholas Piggin <npiggin@gmail.com>,
+ openrisc@lists.librecores.org, Borislav Petkov <bp@alien8.de>,
+ loongarch@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
+ linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
+ Daniel Bristot de Oliveira <bristot@redhat.com>,
+ Marcelo Tosatti <mtosatti@redhat.com>, linux-kernel@vger.kernel.org,
+ linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ "David S. Miller" <davem@davemloft.net>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-By taking GENERIC_IOREMAP method, the generic ioremap_prot() and
-iounmap() are visible and available to arch. Arch only needs to
-provide implementation of arch_ioremap() or arch_iounmap() if there's
-arch specific handling needed in its ioremap() or iounmap(). This
-change will simplify implementation by removing duplicated codes with
-generic ioremap() and iounmap(), and has the equivalent functioality
-as before.
+On 08/10/22 15:34, Steven Rostedt wrote:
+> On Fri,  7 Oct 2022 16:45:32 +0100
+> Valentin Schneider <vschneid@redhat.com> wrote:
+>>  }
+>>  
+>> +static inline void irq_work_raise(void)
+>> +{
+>> +	if (arch_irq_work_has_interrupt())
+>> +		trace_ipi_send_cpu(_RET_IP_, smp_processor_id());
+>
+> To save on the branch, let's make the above:
+>
+> 	if (trace_ipi_send_cpu_enabled() && arch_irq_work_has_interrupt())
+>
+> As the "trace_*_enabled()" is a static branch that will make it a nop
+> when the tracepoint is not enabled.
+>
 
-For openrisc, the duplicated ioremap() can be perfectly removed, and no
-arch_ioremap() is needed. Add arch_iounmap() to openrisc's special
-operation when iounmap().
+Makes sense, thanks for the suggestion.
 
-Signed-off-by: Baoquan He <bhe@redhat.com>
-Cc: Stafford Horne <shorne@gmail.com> 
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: openrisc@lists.librecores.org
----
-v2->v3:
-- Remove the early ioremap handling code in previous patch as Christoph
-  and Stafford suggested. With this, arch_ioremap() is not needed in v3
-  post.
-- adjust the order of including  <asm/pgtable.h> and <asm/pgalloc.h>
-  in <asm/io.h>, this fix an compiling error of virt_defconig building,
-  Stafford suggested this.
-
- arch/openrisc/Kconfig          |  1 +
- arch/openrisc/include/asm/io.h | 12 +++++---
- arch/openrisc/mm/ioremap.c     | 50 ++--------------------------------
- 3 files changed, 12 insertions(+), 51 deletions(-)
-
-diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index c7f282f60f64..fd9bb76a610b 100644
---- a/arch/openrisc/Kconfig
-+++ b/arch/openrisc/Kconfig
-@@ -21,6 +21,7 @@ config OPENRISC
- 	select GENERIC_IRQ_PROBE
- 	select GENERIC_IRQ_SHOW
- 	select GENERIC_PCI_IOMAP
-+	select GENERIC_IOREMAP
- 	select GENERIC_CPU_DEVICES
- 	select HAVE_PCI
- 	select HAVE_UID16
-diff --git a/arch/openrisc/include/asm/io.h b/arch/openrisc/include/asm/io.h
-index ee6043a03173..c2df089a10c4 100644
---- a/arch/openrisc/include/asm/io.h
-+++ b/arch/openrisc/include/asm/io.h
-@@ -15,6 +15,8 @@
- #define __ASM_OPENRISC_IO_H
- 
- #include <linux/types.h>
-+#include <asm/pgalloc.h>
-+#include <asm/pgtable.h>
- 
- /*
-  * PCI: We do not use IO ports in OpenRISC
-@@ -27,11 +29,13 @@
- #define PIO_OFFSET		0
- #define PIO_MASK		0
- 
--#define ioremap ioremap
--void __iomem *ioremap(phys_addr_t offset, unsigned long size);
-+/*
-+ * I/O memory mapping functions.
-+ */
-+bool arch_iounmap(void __iomem *addr);
-+#define arch_iounmap arch_iounmap
- 
--#define iounmap iounmap
--extern void iounmap(volatile void __iomem *addr);
-+#define _PAGE_IOREMAP (pgprot_val(PAGE_KERNEL) | _PAGE_CI)
- 
- #include <asm-generic/io.h>
- 
-diff --git a/arch/openrisc/mm/ioremap.c b/arch/openrisc/mm/ioremap.c
-index 90b59bc53c8c..bac2348b1737 100644
---- a/arch/openrisc/mm/ioremap.c
-+++ b/arch/openrisc/mm/ioremap.c
-@@ -22,50 +22,7 @@
- 
- extern int mem_init_done;
- 
--/*
-- * Remap an arbitrary physical address space into the kernel virtual
-- * address space. Needed when the kernel wants to access high addresses
-- * directly.
-- *
-- * NOTE! We need to allow non-page-aligned mappings too: we will obviously
-- * have to convert them into an offset in a page-aligned mapping, but the
-- * caller shouldn't need to know that small detail.
-- */
--void __iomem *__ref ioremap(phys_addr_t addr, unsigned long size)
--{
--	phys_addr_t p;
--	unsigned long v;
--	unsigned long offset, last_addr;
--	struct vm_struct *area = NULL;
--
--	/* Don't allow wraparound or zero size */
--	last_addr = addr + size - 1;
--	if (!size || last_addr < addr)
--		return NULL;
--
--	/*
--	 * Mappings have to be page-aligned
--	 */
--	offset = addr & ~PAGE_MASK;
--	p = addr & PAGE_MASK;
--	size = PAGE_ALIGN(last_addr + 1) - p;
--
--	area = get_vm_area(size, VM_IOREMAP);
--	if (!area)
--		return NULL;
--	v = (unsigned long)area->addr;
--
--	if (ioremap_page_range(v, v + size, p,
--			__pgprot(pgprot_val(PAGE_KERNEL) | _PAGE_CI))) {
--		vfree(area->addr);
--		return NULL;
--	}
--
--	return (void __iomem *)(offset + (char *)v);
--}
--EXPORT_SYMBOL(ioremap);
--
--void iounmap(volatile void __iomem *addr)
-+bool arch_iounmap(void __iomem *addr)
- {
- 	/* If the page is from the fixmap pool then we just clear out
- 	 * the fixmap mapping.
-@@ -85,12 +42,11 @@ void iounmap(volatile void __iomem *addr)
- 		 *   ii) invalid accesses to the freed areas aren't made
- 		 */
- 		flush_tlb_all();
--		return;
-+		return false;
- 	}
- 
--	return vfree((void *)(PAGE_MASK & (unsigned long)addr));
-+	return true;
- }
--EXPORT_SYMBOL(iounmap);
- 
- /**
-  * OK, this one's a bit tricky... ioremap can get called before memory is
--- 
-2.34.1
+> -- Steve
+>
+>
+>> +
+>> +	arch_irq_work_raise();
+>> +}
+>> +
+>>  /* Enqueue on current CPU, work must already be claimed and preempt disabled */
 
