@@ -2,67 +2,66 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33675C433FE
-	for <openrisc@archiver.kernel.org>; Tue, 11 Oct 2022 15:02:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13714C433F5
+	for <openrisc@archiver.kernel.org>; Tue, 11 Oct 2022 16:17:14 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 1F35E24BC7;
-	Tue, 11 Oct 2022 17:02:17 +0200 (CEST)
+	by mail.librecores.org (Postfix) with ESMTP id BDF1024BC8;
+	Tue, 11 Oct 2022 18:17:13 +0200 (CEST)
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by mail.librecores.org (Postfix) with ESMTP id B388A24BC3
- for <openrisc@lists.librecores.org>; Tue, 11 Oct 2022 17:02:15 +0200 (CEST)
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by mail.librecores.org (Postfix) with ESMTP id B112E24BC8
+ for <openrisc@lists.librecores.org>; Tue, 11 Oct 2022 18:17:11 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1665500534;
+ s=mimecast20190719; t=1665505030;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=ti1NCFCTzr5YPwBHvg45c+mfaiUwrR60uA7ep6lLZuA=;
- b=TsYm3Ph69Jr/NmDimociaBcOqfOM1grsQTpxe1UcYgSt0Dju6b88Fz26Kx69GfK63k5ysO
- q8TLdD2opC77+AxNoa5X6ZjWCSBwmeYsKSqY+wXDSjpEmGfYbeti6O5l+opsD6c0percCV
- EOWEGR+M2au+O+MQayV/8dT3QwONAEU=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=pm4VeB8ssmcYRaiZFIcIhGhr8ty4z8Z6FbdtNOJecy0=;
+ b=JGxXlUjqwf4SSRcK3A5Rg/5toenBcv9t6uXkSHuxOIJc6G4p/0aFTdB5uGG2mHmzDWjxsI
+ InhweNmddwGaw/0g7RoWCvkpF9aRAzCIAco+AuzA21Dq1m6M/0SBneIaD3UIB5iRWUCrNT
+ AW8TWlEbmbb6tQ+xQA6/aWEuSS51B1g=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-483-gsU23RdqOy2go7P-Iy1DDg-1; Tue, 11 Oct 2022 11:02:10 -0400
-X-MC-Unique: gsU23RdqOy2go7P-Iy1DDg-1
-Received: by mail-wm1-f72.google.com with SMTP id
- f26-20020a7bcc1a000000b003c03db14864so3824239wmh.6
- for <openrisc@lists.librecores.org>; Tue, 11 Oct 2022 08:02:09 -0700 (PDT)
+ us-mta-392-YqQguXdoM8i4iNblgaAr1w-1; Tue, 11 Oct 2022 12:17:09 -0400
+X-MC-Unique: YqQguXdoM8i4iNblgaAr1w-1
+Received: by mail-wr1-f71.google.com with SMTP id
+ k30-20020adfb35e000000b0022e04708c18so4067058wrd.22
+ for <openrisc@lists.librecores.org>; Tue, 11 Oct 2022 09:17:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
  :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=ti1NCFCTzr5YPwBHvg45c+mfaiUwrR60uA7ep6lLZuA=;
- b=nE2PVVJwf/lIscF6HeTmPs9UnGFjNep0HKkOvH/rwGc2ZMQHO7LRpmIEQeOxgVKQjp
- ikWfkUQtRDea4mEBH7iBirQIhKC78rfHcRHXCiMFzNN/TBFdSMdIZu6ZWArUecl8WfFr
- b25PI/IRByCcT51RN9mxdwPu7yh+Fc9jp5OfIK0ZGW2w7rMC/rE+AFs/5Hu/OYClG8nQ
- czlOpRv+F7HIKODIBYg194DdTt+Sjm6x2+ZIRzVHe4C+e8lEV9xdzNHygfQBjJpS/FyI
- w8U8JAdZqMYUoCMq8PVPcveeVRUsMqVXiYWKeaGXSpNjrxE8Bd+giuDHPtK6I7MARAdk
- 3xCg==
-X-Gm-Message-State: ACrzQf2Tz+cV6UFU3kgyYG0P3DHwmRHBjrNZIlmYW+6CzEC1DQTtTqZU
- cgYOCgxZRnz6OOtLxEFJ7iwmUOm3vg3rj1koGuijDgG4cyZEfX69RFO2mNGkZh3TuH/MWS2eBxY
- 4xGGi5zr1vw76WtQWE89PD3rQBA==
-X-Received: by 2002:a5d:59a3:0:b0:22e:4b62:7ceb with SMTP id
- p3-20020a5d59a3000000b0022e4b627cebmr15699189wrr.90.1665500528708; 
- Tue, 11 Oct 2022 08:02:08 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM7srUgXRaEVg4Pb59BUs0ShAt8e40s56KQw2lU0G4VdN3sOMR/0VHio2//G+OqnLs1Wx3l7Vw==
-X-Received: by 2002:a5d:59a3:0:b0:22e:4b62:7ceb with SMTP id
- p3-20020a5d59a3000000b0022e4b627cebmr15699160wrr.90.1665500528495; 
- Tue, 11 Oct 2022 08:02:08 -0700 (PDT)
+ bh=pm4VeB8ssmcYRaiZFIcIhGhr8ty4z8Z6FbdtNOJecy0=;
+ b=aysTpH7u+AcvEHH7A3APK6OBkb+IvioQ2SGqc6En//QR2HHwqL057iB7kCVsPnOIP6
+ bkWc6/P0zcTpPKxlXMqcOjrlOWKZTE2yWf3rm3s23aa8FGn4PxxAH/5O2eKohBPxmEqw
+ lsL+XFTwq83IlcQeTF4Lemf8EcfiQDw5W6bikMIJeLwg84h59Xia3QKvR3JON71HbUXi
+ FXagBBRgvmNRrCj9rX0DNbjHyGfaj/uhMWuPsuR6xhvQWQuuJrQCfDoV5DOxwENcOAeo
+ QqolKuWeuNfrQTJS9SX1113fKK0rjjt6gEGzhzMhoDKIHKhWMViT/3oCdi9zfOnQFiw6
+ cnnA==
+X-Gm-Message-State: ACrzQf20G/COB1XmI9vtY37ZDpaSAtTKg8LPMpgxnYKnWDto2ZC5jcwb
+ YJGYsfl7sV7JTvr791WWE95ohCPbY0BO7cSK2k/2lVINHokX4MFjl+qTRtCr+IuhdevfHurjeDg
+ i9yl7Wm4WkBzM/0bZj0K9NMSacA==
+X-Received: by 2002:a7b:cd96:0:b0:3b4:856a:28f7 with SMTP id
+ y22-20020a7bcd96000000b003b4856a28f7mr17405265wmj.117.1665505027282; 
+ Tue, 11 Oct 2022 09:17:07 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM6+yXZheRjtpI2Mraq3mO0aiY2aGzgLzN/bP6F6DHEepFtgXyphrd7vxKSt0bqtKCZRjEunTA==
+X-Received: by 2002:a7b:cd96:0:b0:3b4:856a:28f7 with SMTP id
+ y22-20020a7bcd96000000b003b4856a28f7mr17405207wmj.117.1665505026699; 
+ Tue, 11 Oct 2022 09:17:06 -0700 (PDT)
 Received: from vschneid.remote.csb ([104.132.153.106])
  by smtp.gmail.com with ESMTPSA id
- bh11-20020a05600c3d0b00b003b49ab8ff53sm13552403wmb.8.2022.10.11.08.02.06
+ b21-20020a05600c151500b003c6b9749505sm4667967wmg.30.2022.10.11.09.17.05
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 11 Oct 2022 08:02:07 -0700 (PDT)
+ Tue, 11 Oct 2022 09:17:05 -0700 (PDT)
 From: Valentin Schneider <vschneid@redhat.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [RFC PATCH 4/5] irq_work: Trace calls to arch_irq_work_raise()
-In-Reply-To: <20221008153442.159b2f2d@rorschach.local.home>
+To: Marcelo Tosatti <mtosatti@redhat.com>
+Subject: Re: [RFC PATCH 0/5] Generic IPI sending tracepoint
+In-Reply-To: <Y0CFnWDpMNGajIRD@fuller.cnet>
 References: <20221007154145.1877054-1-vschneid@redhat.com>
- <20221007154533.1878285-4-vschneid@redhat.com>
- <20221008153442.159b2f2d@rorschach.local.home>
-Date: Tue, 11 Oct 2022 16:02:06 +0100
-Message-ID: <xhsmhlepmflox.mognet@vschneid.remote.csb>
+ <Y0CFnWDpMNGajIRD@fuller.cnet>
+Date: Tue, 11 Oct 2022 17:17:04 +0100
+Message-ID: <xhsmhilkqfi7z.mognet@vschneid.remote.csb>
 MIME-Version: 1.0
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
@@ -91,43 +90,143 @@ Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>,
  Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org,
  Ingo Molnar <mingo@redhat.com>, linux-snps-arc@lists.infradead.org,
  linux-xtensa@linux-xtensa.org, "Paul E. McKenney" <paulmck@kernel.org>,
- Frederic Weisbecker <frederic@kernel.org>, Nicholas Piggin <npiggin@gmail.com>,
- openrisc@lists.librecores.org, Borislav Petkov <bp@alien8.de>,
+ Frederic Weisbecker <frederic@kernel.org>,
+ Steven Rostedt <rostedt@goodmis.org>, openrisc@lists.librecores.org,
+ Borislav Petkov <bp@alien8.de>, Nicholas Piggin <npiggin@gmail.com>,
  loongarch@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
  linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
- Daniel Bristot de Oliveira <bristot@redhat.com>,
- Marcelo Tosatti <mtosatti@redhat.com>, linux-kernel@vger.kernel.org,
- linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- "David S. Miller" <davem@davemloft.net>
+ Daniel Bristot de Oliveira <bristot@redhat.com>, linux-kernel@vger.kernel.org,
+ Douglas RAILLARD <douglas.raillard@arm.com>, linux-alpha@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On 08/10/22 15:34, Steven Rostedt wrote:
-> On Fri,  7 Oct 2022 16:45:32 +0100
-> Valentin Schneider <vschneid@redhat.com> wrote:
->>  }
->>  
->> +static inline void irq_work_raise(void)
->> +{
->> +	if (arch_irq_work_has_interrupt())
->> +		trace_ipi_send_cpu(_RET_IP_, smp_processor_id());
++Cc Douglas
+
+On 07/10/22 17:01, Marcelo Tosatti wrote:
+> Hi Valentin,
 >
-> To save on the branch, let's make the above:
+> On Fri, Oct 07, 2022 at 04:41:40PM +0100, Valentin Schneider wrote:
+>> Background
+>> ==========
+>> 
+>> As for the targeted CPUs, the existing tracepoint does export them, albeit in
+>> cpumask form, which is quite inconvenient from a tooling perspective. For
+>> instance, as far as I'm aware, it's not possible to do event filtering on a
+>> cpumask via trace-cmd.
 >
-> 	if (trace_ipi_send_cpu_enabled() && arch_irq_work_has_interrupt())
+> https://man7.org/linux/man-pages/man1/trace-cmd-set.1.html
 >
-> As the "trace_*_enabled()" is a static branch that will make it a nop
-> when the tracepoint is not enabled.
+>        -f filter
+>            Specify a filter for the previous event. This must come after
+>            a -e. This will filter what events get recorded based on the
+>            content of the event. Filtering is passed to the kernel
+>            directly so what filtering is allowed may depend on what
+>            version of the kernel you have. Basically, it will let you
+>            use C notation to check if an event should be processed or
+>            not.
+>
+>                ==, >=, <=, >, <, &, |, && and ||
+>
+>            The above are usually safe to use to compare fields.
+>
+> This looks overkill to me (consider large number of bits set in mask).
+>
+> +#define trace_ipi_send_cpumask(callsite, mask) do {            \
+> +	if (static_key_false(&__tracepoint_ipi_send_cpu.key)) { \
+> +               int cpu;                                        \
+> +               for_each_cpu(cpu, mask)                         \
+> +                       trace_ipi_send_cpu(callsite, cpu);	\
+> +	}                                                       \
+> +} while (0)
 >
 
-Makes sense, thanks for the suggestion.
+Indeed, I expected pushback on this :-)
 
-> -- Steve
+I went for this due to how much simpler an int is to process/use compared
+to a cpumask. There is the trigger example I listed above, but the
+consumption of the trace event itself as well.
+
+Consider this event collected on an arm64 QEMU instance (output from trace-cmd)
+
+    <...>-234   [001]    37.251567: ipi_raise:            target_mask=00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000004 (Function call interrupts)
+
+That sort of formatting has been an issue downstream for things like LISA
+[1] where events are aggregated into Pandas tables, and we need to play
+silly games for performance reason because bitmasks aren't a native Python
+type.
+
+I had a look at libtraceevent to see how this data is exposed and if the
+answer would be better tooling:
+
+tep_get_field_val() just yields an unsigned long long of value 0x200018,
+which AFAICT is just the [length, offset] thing associated with dynamic
+arrays. Not really usable, and I don't see anything exported in the lib to
+extract and use those values.
+
+tep_get_field_raw() is better, it handles the dynamic array for us and
+yields a pointer to the cpumask array at the tail of the record. With that
+it's easy to get an output such as: cpumask[size=32]=[4,0,0,0,]. Still,
+this isn't a native type for many programming languages.
+
+In contrast, this is immediately readable and consumable by userspace tools
+
+<...>-234   [001]    37.250882: ipi_send_cpu:         callsite=__smp_call_single_queue+0x5c target_cpu=2
+
+Thinking out loud, it makes way more sense to record a cpumask in the
+tracepoint, but perhaps we could have a postprocessing step to transform
+those into N events each targeting a single CPU?
+
+[1]: https://github.com/ARM-software/lisa/blob/37b51243a94b27ea031ff62bb4ce818a59a7f6ef/lisa/trace.py#L4756
+
 >
+>> 
+>> Because of the above points, this is introducing a new tracepoint.
+>> 
+>> Patches
+>> =======
+>> 
+>> This results in having trace events for:
+>> 
+>> o smp_call_function*()
+>> o smp_send_reschedule()
+>> o irq_work_queue*()
+>> 
+>> This is incomplete, just looking at arm64 there's more IPI types that aren't covered:
+>> 
+>>   IPI_CPU_STOP,
+>>   IPI_CPU_CRASH_STOP,
+>>   IPI_TIMER,
+>>   IPI_WAKEUP,
+>> 
+>> ... But it feels like a good starting point.
 >
->> +
->> +	arch_irq_work_raise();
->> +}
->> +
->>  /* Enqueue on current CPU, work must already be claimed and preempt disabled */
+> Can't you have a single tracepoint (or variant with cpumask) that would
+> cover such cases as well?
+>
+> Maybe (as parameters for tracepoint):
+>
+> 	* type (reschedule, smp_call_function, timer, wakeup, ...).
+>
+> 	* function address: valid for smp_call_function, irq_work_queue
+> 	  types.
+>
+
+That's a good point, I wasn't sure about having a parameter serving as
+discriminant for another, but the function address would be either valid or
+NULL which is fine. So perhaps:
+o callsite (i.e. _RET_IP_), serves as type
+o address of callback tied to IPI, if any
+o target CPUs
+
+>> Another thing worth mentioning is that depending on the callsite, the _RET_IP_
+>> fed to the tracepoint is not always useful - generic_exec_single() doesn't tell
+>> you much about the actual callback being sent via IPI, so there might be value
+>> in exploding the single tracepoint into at least one variant for smp_calls.
+>
+> Not sure i grasp what you mean by "exploding the single tracepoint...",
+> but yes knowing the function or irq work function is very useful.
+>
+
+Sorry; I meant having several "specialized" tracepoints instead of a single one.
 
