@@ -2,58 +2,61 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08043C4332F
-	for <openrisc@archiver.kernel.org>; Fri, 14 Oct 2022 15:58:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EDC2FC43217
+	for <openrisc@archiver.kernel.org>; Fri, 14 Oct 2022 15:58:51 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 9DDBA24B92;
-	Fri, 14 Oct 2022 17:58:48 +0200 (CEST)
-Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com
- [209.85.218.54])
- by mail.librecores.org (Postfix) with ESMTPS id 9555724B6F
- for <openrisc@lists.librecores.org>; Fri, 14 Oct 2022 17:58:47 +0200 (CEST)
-Received: by mail-ej1-f54.google.com with SMTP id w18so11423149ejq.11
- for <openrisc@lists.librecores.org>; Fri, 14 Oct 2022 08:58:47 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 03E1A24B98;
+	Fri, 14 Oct 2022 17:58:51 +0200 (CEST)
+Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com
+ [209.85.208.45])
+ by mail.librecores.org (Postfix) with ESMTPS id 1A02F24B9B
+ for <openrisc@lists.librecores.org>; Fri, 14 Oct 2022 17:58:50 +0200 (CEST)
+Received: by mail-ed1-f45.google.com with SMTP id u21so7437016edi.9
+ for <openrisc@lists.librecores.org>; Fri, 14 Oct 2022 08:58:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=ventanamicro.com; s=google;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:from:to:cc:subject:date:message-id:reply-to;
- bh=W5eO6i8yGqM/Qk/helghde+sK2B6uuy7iGWdi59LQv0=;
- b=m5i1o0Ap34XB2wlP21XgYIqsVDRRQOqNgXMX5tJzWsaI6hGrAZN9MXRzGc93zF2XPA
- 8L/SLRgslFncCk0nXLKfro+LvVAuBiIJEkGi+kku5MAuwTr4Av+VkPDyus9j5yCxKY0e
- YOtAgl4m9DWHQK3UYRyVu1beWyQGVeOVcZD55vwQwp4fSb0QhgMCnZzRu0uhrRUo1Tvq
- XZgdlHZK3gCz7g4TIGW4i3ZvbPG7Gm3XysvcL00yJwc2GO4L3l9DhN608jkbddOb/W9j
- f6nCuDr1Hx3UpL7i6FB65/PdJkLsqhTn6pdhYB+vtA5dMZT/TwoMfVhWXkBkx0/mc7XG
- dKSg==
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=XBIOqGjmdzThiZsnnbTdUiYSPQXS/qp/QRUJHndogxY=;
+ b=de2qcklml8jKYdhJlyXqmJXoz8FYGzMVRLfN9JcOUqf4UOLuKCrWZr59qwP/CI15i8
+ 9ZEYt9iqHJUORqeLDasCpf2TvKXJ2eNiOMML8Fk+bz7YKFJbV57Ez3yS2OMYxbifi8aU
+ 80V2z5mOPzJ5j+SPiaK/ExtA7pvzSXkVFgQy9BgPDzmgfE18Klp1ebv/IKnNb6TVl3x7
+ K0gO3P8T9E6LTR2oS1WZnI3pbS2vkD6iCSFlqd/rinFyB9u6Ftb/GsYDL097UX4vn1na
+ X5w9kGup7pabQp9pwZ84Krxhofd+fyywuWkx0d61FPGLmHqmWuc2PbVNpdjodZPMfLJV
+ 6NYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=W5eO6i8yGqM/Qk/helghde+sK2B6uuy7iGWdi59LQv0=;
- b=j6OyULt8MY50lz0LjlIhGe3rDzeSwub2JaskdLXisoOrwD9zGsILxpAGsaXYgMmFH6
- vIBscY/3w5tLAdj4fMvCfFf2kREGJrcrG21ZQE96CSgTrYjWjcTx6xTB+LqULdKvkyB+
- x8F5ScX5mQSWDwfuXqbbAMccSG/9CXz2VNXHLYvAI8g6ie+nvGXOHbH46GLZxlvi0AWT
- W6cipnn8EGf2ZrUdLn2DIQxY49TC0Fpz1k+bkPv29m9PxH+/2h97/I3jKyzXVDCnruM1
- Y6SV5+KuJwN5rBxCH3BYYY9DdvRYyjq3b7LBcq20CdKAKkXDvvY2pj9I30mLklo3aHVf
- PPSg==
-X-Gm-Message-State: ACrzQf3xX7hjLN9bl6fteQWtrcGD/vfyp+KYFHsCPRfylBoFA4JFKAud
- 9AJ6jUKrk3I10pGHbBUIfNYYqA==
-X-Google-Smtp-Source: AMsMyM7W6+fPu+mWcsl2mA5mLUmVxJY6ZAokGeJNv3DvlB68CliPDKXds+EoUBatPkHWx2Y7U7pt8g==
-X-Received: by 2002:a17:907:94c9:b0:78d:3544:ff0a with SMTP id
- dn9-20020a17090794c900b0078d3544ff0amr3984138ejc.386.1665763126950; 
- Fri, 14 Oct 2022 08:58:46 -0700 (PDT)
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=XBIOqGjmdzThiZsnnbTdUiYSPQXS/qp/QRUJHndogxY=;
+ b=PkGT2re4sJt1QFrQT7v0o2j50Cv1QnjgIENop0yXwGPhPWxrYIrDPlLUxdZwyRIGp1
+ /gIDdbMLVdQ03696CF06nD1X0KKkQQxIZ5LujoIH/E14DFujSAmmjAyxg+EyTCgQe2+P
+ MHKKeITO8LTK7UABd0VEoc/l+Cu5xwxFcqfh533wtTnz1G9X1DgJAwA13+b+2BHFj9Me
+ ZbNxXlbsOrxP2XcycVqKfUpH/VAoL2GFz3qwQdgJgL/Xl9Ouh8405H8tmGCpMjAb6Zox
+ wYSF/PmmBJL6S2PqsCnCEwMxXLOfkefgLNfTbKRtfmTe/S1HnbtHnglpbpjfYhGGXbgH
+ hI/Q==
+X-Gm-Message-State: ACrzQf1WUJ0BfVT/RgYY1o4KLS0mQGPp6EEiDabNBHxR1Jc1P4gL+Ss1
+ 5Xh0k7K3XKC3bGZyWlTL3IwdPg==
+X-Google-Smtp-Source: AMsMyM7AeOygOXkM1z/GTKaGU+3a1Uh1fQyGWBmDx0oj1luEK/7mcX83iQG4d2XLgbn9xXhJP10WDg==
+X-Received: by 2002:a05:6402:3485:b0:45c:d688:6848 with SMTP id
+ v5-20020a056402348500b0045cd6886848mr4672473edc.279.1665763129826; 
+ Fri, 14 Oct 2022 08:58:49 -0700 (PDT)
 Received: from localhost (cst2-173-61.cust.vodafone.cz. [31.30.173.61])
  by smtp.gmail.com with ESMTPSA id
- z5-20020a170906944500b007262a5e2204sm1693950ejx.153.2022.10.14.08.58.46
+ 12-20020a170906300c00b0077a1dd3e7b7sm1746796ejz.102.2022.10.14.08.58.49
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 14 Oct 2022 08:58:46 -0700 (PDT)
+ Fri, 14 Oct 2022 08:58:49 -0700 (PDT)
 From: Andrew Jones <ajones@ventanamicro.com>
 To: x86@kernel.org, linux-riscv@lists.infradead.org,
  linux-kernel@vger.kernel.org
-Subject: [PATCH v3 0/2] Fix /proc/cpuinfo cpumask warning
-Date: Fri, 14 Oct 2022 17:58:43 +0200
-Message-Id: <20221014155845.1986223-1-ajones@ventanamicro.com>
+Subject: [PATCH v3 2/2] x86: Fix /proc/cpuinfo cpumask warning
+Date: Fri, 14 Oct 2022 17:58:45 +0200
+Message-Id: <20221014155845.1986223-3-ajones@ventanamicro.com>
 X-Mailer: git-send-email 2.37.3
+In-Reply-To: <20221014155845.1986223-1-ajones@ventanamicro.com>
+References: <20221014155845.1986223-1-ajones@ventanamicro.com>
 MIME-Version: 1.0
 Content-type: text/plain
 Content-Transfer-Encoding: 8bit
@@ -94,41 +97,33 @@ start and next seq operations implement a pattern like
           break;
       show(n);
   }
-    
-which will issue the warning when reading /proc/cpuinfo.
+
+which will issue the warning when reading /proc/cpuinfo. Ensure no
+warning is generated by validating the cpu index before calling
+cpumask_next().
 
 [*] Warnings will only appear with DEBUG_PER_CPU_MAPS enabled.
 
-This series address the issue for x86 and riscv, but from a quick
-grep of cpuinfo seq operations, I think at least openrisc, powerpc,
-and s390 also need an equivalent patch. While the test is simple (see
-next paragraph) I'm not equipped to test on each architecture.
-
-To test, just build a kernel with DEBUG_PER_CPU_MAPS enabled, boot to
-a shell, do 'cat /proc/cpuinfo', and look for a kernel warning.
-
-While the patches are being posted together in a series since they're
-for two different architectures they don't necessarily need to go
-through the same tree.
-
-v3:
-  - Change condition from >= to == in order to still get a warning
-    for > as that's unexpected. [Yury]
-  - Picked up tags on the riscv patch
-
-v2:
-  - Added all the information I should have in the first place
-    to the commit message [Boris]
-  - Changed style of fix [Boris]
-
-Andrew Jones (2):
-  RISC-V: Fix /proc/cpuinfo cpumask warning
-  x86: Fix /proc/cpuinfo cpumask warning
-
- arch/riscv/kernel/cpu.c    | 3 +++
+Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
+Cc: Yury Norov <yury.norov@gmail.com>
+---
  arch/x86/kernel/cpu/proc.c | 3 +++
- 2 files changed, 6 insertions(+)
+ 1 file changed, 3 insertions(+)
 
+diff --git a/arch/x86/kernel/cpu/proc.c b/arch/x86/kernel/cpu/proc.c
+index 099b6f0d96bd..de3f93ac6e49 100644
+--- a/arch/x86/kernel/cpu/proc.c
++++ b/arch/x86/kernel/cpu/proc.c
+@@ -153,6 +153,9 @@ static int show_cpuinfo(struct seq_file *m, void *v)
+ 
+ static void *c_start(struct seq_file *m, loff_t *pos)
+ {
++	if (*pos == nr_cpu_ids)
++		return NULL;
++
+ 	*pos = cpumask_next(*pos - 1, cpu_online_mask);
+ 	if ((*pos) < nr_cpu_ids)
+ 		return &cpu_data(*pos);
 -- 
 2.37.3
 
