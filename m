@@ -2,71 +2,77 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01CBDC43217
-	for <openrisc@archiver.kernel.org>; Sun,  6 Nov 2022 21:15:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E2F9C4332F
+	for <openrisc@archiver.kernel.org>; Sun,  6 Nov 2022 21:17:30 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 36CF321156;
-	Sun,  6 Nov 2022 22:15:24 +0100 (CET)
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com
- [209.85.221.50])
- by mail.librecores.org (Postfix) with ESMTPS id 960AB24A5D
- for <openrisc@lists.librecores.org>; Fri, 28 Oct 2022 15:12:51 +0200 (CEST)
-Received: by mail-wr1-f50.google.com with SMTP id j15so6564541wrq.3
- for <openrisc@lists.librecores.org>; Fri, 28 Oct 2022 06:12:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=bytedance-com.20210112.gappssmtp.com; s=20210112;
- h=mime-version:user-agent:message-id:in-reply-to:date:references
- :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to;
- bh=o3XkdRF1alR2hBxhKv7+KC2xEVL/mNE1pCUslh91CNk=;
- b=czSDanOWkaznNFvfzkhI+RldJ79y0lOKTXLazE2INVObzdIpuA02fnxmTp4HXTRQTi
- IvuTylcXIq/Sg1jCgh9FzcPYK6wCnCgisN2SPpD2hY2iM3U6UJQJMLePIaRYzRfU+2Wh
- y9qb6oEWb7kSxsaXWIlY4Dkr2UM2TLk7qXYPH5mBMLvwd3vtyLYpmiqZDG3Zxj0+CARd
- L8/aJqqA6LprQ5Pk4/015K7SAUBuZTJBf3EKbWQG93N7hmK53CJDPw0U9whLdkPu5vWz
- 3ELADVGMWSrtaYcGW48cTX8dbadiAO+awqSfgOoWpeoUTHQ8/pHHrLwFT/4AdLUkI1S8
- O7bw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=mime-version:user-agent:message-id:in-reply-to:date:references
- :subject:cc:to:from:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=o3XkdRF1alR2hBxhKv7+KC2xEVL/mNE1pCUslh91CNk=;
- b=vaQKDw3duEugd7/eYlMAnzcHWSOBbuCMdSJchmAm8tbzsFoOwo4gnW1ENIIxXbk7bj
- DnJpTXh6ay7r/RaRgvmnVKbWLQt7mEnmvBNm7TDc1keJ3Q4WjVo0f+puohZTUJZn5zFq
- yq/4C/JOqv4QKL/XIovA1pRdt81plkN7lNKX0AwmdOlgwQI8XU7J5qlXDAqnd9GFbmle
- Beu0DZYPrX6dlDSKtQqyJ0yaoX9yZ23VhUtKO2J2OGZlScuy7fFj7OGOvGQNZGV0h8XU
- mXkyZjsKgD9u1FRCj+ZmUFqKSH+nODPzXDwqsE56+ueQyStbLte5EUQXVT3d8sfgBmb2
- d6XQ==
-X-Gm-Message-State: ACrzQf3IC7qGmuCeiDkrit8jeR0JZH6ZV1zROvAmSE7UkFU203UoxDUa
- HQtwF9TTiHD5m2sZ9cmGFQfM9w==
-X-Google-Smtp-Source: AMsMyM6F7+GscrQBfN0kqw1I2NMyhLF2BzgPRHQOCPO+qKjjp7P6MaY7wew3G5OT+7MX9xpYkZlRUQ==
-X-Received: by 2002:a05:6000:18c7:b0:22e:5503:9c46 with SMTP id
- w7-20020a05600018c700b0022e55039c46mr33561930wrq.668.1666962771104; 
- Fri, 28 Oct 2022 06:12:51 -0700 (PDT)
-Received: from localhost ([95.148.15.66]) by smtp.gmail.com with ESMTPSA id
- n17-20020a05600c501100b003b4fdbb6319sm5926108wmr.21.2022.10.28.06.12.50
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 28 Oct 2022 06:12:50 -0700 (PDT)
-From: Punit Agrawal <punit.agrawal@bytedance.com>
-To: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: Re: [PATCH v4 2/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-References: <20220921084302.43631-1-yangyicong@huawei.com>
- <20220921084302.43631-3-yangyicong@huawei.com>
- <168eac93-a6ee-0b2e-12bb-4222eff24561@arm.com>
- <8e391962-4e3a-5a56-64b4-78e8637e3b8c@huawei.com>
- <CAGsJ_4z=dZbrAUD9jczT08S3qi_ep-h+EK35UfayVk1S+Cnp2A@mail.gmail.com>
- <ecd161db-b290-7997-a81e-a0a00bd1c599@arm.com>
- <87o7tx5oyx.fsf@stealth>
- <CAGsJ_4zrGfPYAXGW0g3Z-GF4vT7GD0xDjZn1dv-qruztEQTghg@mail.gmail.com>
- <8a3ade4c-1714-5ffd-ed57-02ab0509725b@arm.com>
-Date: Fri, 28 Oct 2022 14:12:49 +0100
-In-Reply-To: <8a3ade4c-1714-5ffd-ed57-02ab0509725b@arm.com> (Anshuman
- Khandual's message of "Fri, 28 Oct 2022 07:44:29 +0530")
-Message-ID: <877d0k5bxq.fsf@stealth>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+	by mail.librecores.org (Postfix) with ESMTP id 6AE4D20AC2;
+	Sun,  6 Nov 2022 22:17:29 +0100 (CET)
+Received: from mx01.omp.ru (mx01.omp.ru [90.154.21.10])
+ by mail.librecores.org (Postfix) with ESMTPS id A0AC924840
+ for <openrisc@lists.librecores.org>; Fri, 14 Oct 2022 23:22:49 +0200 (CEST)
+Received: from localhost.localdomain (178.176.75.138) by msexch01.omp.ru
+ (10.188.4.12) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.986.14; Sat, 15 Oct
+ 2022 00:22:41 +0300
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
+To: Oleg Nesterov <oleg@redhat.com>, Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Brian Cain <bcain@quicinc.com>, Thomas Bogendoerfer
+ <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn
+ <jonas@southpole.se>, Stefan Kristiansson
+ <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller
+ <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin
+ <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>,
+ "David S. Miller" <davem@davemloft.net>,
+ <linux-arm-kernel@lists.infradead.org>, <linux-hexagon@vger.kernel.org>,
+ <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+ <linux-mips@vger.kernel.org>, <linux-parisc@vger.kernel.org>,
+ <linux-sh@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
+ <openrisc@lists.librecores.org>, <sparclinux@vger.kernel.org>
+Subject: [PATCH 00/13] Make user_regset_copyin_ignore() *void*
+Date: Sat, 15 Oct 2022 00:22:22 +0300
+Message-ID: <20221014212235.10770-1-s.shtylyov@omp.ru>
+X-Mailer: git-send-email 2.26.3
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-Mailman-Approved-At: Sun, 06 Nov 2022 22:15:22 +0100
+X-Originating-IP: [178.176.75.138]
+X-ClientProxiedBy: msexch01.omp.ru (10.188.4.12) To msexch01.omp.ru
+ (10.188.4.12)
+X-KSE-ServerInfo: msexch01.omp.ru, 9
+X-KSE-AntiSpam-Interceptor-Info: scan successful
+X-KSE-AntiSpam-Version: 5.9.20, Database issued on: 10/14/2022 21:00:39
+X-KSE-AntiSpam-Status: KAS_STATUS_NOT_DETECTED
+X-KSE-AntiSpam-Method: none
+X-KSE-AntiSpam-Rate: 59
+X-KSE-AntiSpam-Info: Lua profiles 173137 [Oct 14 2022]
+X-KSE-AntiSpam-Info: Version: 5.9.20.0
+X-KSE-AntiSpam-Info: Envelope from: s.shtylyov@omp.ru
+X-KSE-AntiSpam-Info: LuaCore: 500 500 6cc86d8f5638d79810308830d98d6b6279998c49
+X-KSE-AntiSpam-Info: {rep_avail}
+X-KSE-AntiSpam-Info: {Tracking_from_domain_doesnt_match_to}
+X-KSE-AntiSpam-Info: {relay has no DNS name}
+X-KSE-AntiSpam-Info: {SMTP from is not routable}
+X-KSE-AntiSpam-Info: omp.ru:7.1.1; 127.0.0.199:7.1.2;
+ d41d8cd98f00b204e9800998ecf8427e.com:7.1.1
+X-KSE-AntiSpam-Info: ApMailHostAddress: 178.176.75.138
+X-KSE-AntiSpam-Info: {DNS response errors}
+X-KSE-AntiSpam-Info: Rate: 59
+X-KSE-AntiSpam-Info: Status: not_detected
+X-KSE-AntiSpam-Info: Method: none
+X-KSE-AntiSpam-Info: Auth:dmarc=temperror header.from=omp.ru;spf=temperror
+ smtp.mailfrom=omp.ru;dkim=none
+X-KSE-Antiphishing-Info: Clean
+X-KSE-Antiphishing-ScanningType: Heuristic
+X-KSE-Antiphishing-Method: None
+X-KSE-Antiphishing-Bases: 10/14/2022 21:03:00
+X-KSE-AttachmentFiltering-Interceptor-Info: protection disabled
+X-KSE-Antivirus-Interceptor-Info: scan successful
+X-KSE-Antivirus-Info: Clean, bases: 10/14/2022 3:23:00 PM
+X-KSE-BulkMessagesFiltering-Scan-Result: InTheLimit
+X-Mailman-Approved-At: Sun, 06 Nov 2022 22:17:28 +0100
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -79,94 +85,52 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: wangkefeng.wang@huawei.com, prime.zeng@hisilicon.com,
- linux-doc@vger.kernel.org, peterz@infradead.org, catalin.marinas@arm.com,
- yangyicong@hisilicon.com, linux-mm@kvack.org, Nadav Amit <namit@vmware.com>,
- guojian@oppo.com, linux-riscv@lists.infradead.org, will@kernel.org,
- linux-s390@vger.kernel.org, zhangshiming@oppo.com, lipeifeng@oppo.com,
- corbet@lwn.net, x86@kernel.org, Barry Song <21cnbao@gmail.com>,
- Mel Gorman <mgorman@suse.de>, linux-mips@vger.kernel.org, arnd@arndb.de,
- realmz6@gmail.com, Barry Song <v-songbaohua@oppo.com>,
- openrisc@lists.librecores.org, darren@os.amperecomputing.com,
- Punit Agrawal <punit.agrawal@bytedance.com>,
- linux-arm-kernel@lists.infradead.org, xhao@linux.alibaba.com,
- linux-kernel@vger.kernel.org, huzhanyuan@oppo.com,
- Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
- linuxppc-dev@lists.ozlabs.org
+Cc: Andrew Morton <akpm@linux-foundation.org>, lvc-patches@linuxtesting.org,
+ lvc-project@linuxtesting.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Anshuman Khandual <anshuman.khandual@arm.com> writes:
+Here are 13 patches against the 'next-20221014' tag of the 'linux-next.git'
+repo.  I'm not sure how this cross-arch series should be merged -- perhaps
+thru Andrew Morton's tree?
 
-> On 10/28/22 03:25, Barry Song wrote:
->> On Fri, Oct 28, 2022 at 3:19 AM Punit Agrawal
->> <punit.agrawal@bytedance.com> wrote:
->>>
->>> [ Apologies for chiming in late in the conversation ]
->>>
->>> Anshuman Khandual <anshuman.khandual@arm.com> writes:
->>>
->>>> On 9/28/22 05:53, Barry Song wrote:
->>>>> On Tue, Sep 27, 2022 at 10:15 PM Yicong Yang <yangyicong@huawei.com> wrote:
->>>>>> On 2022/9/27 14:16, Anshuman Khandual wrote:
->>>>>>> [...]
->>>>>>>
->>>>>>> On 9/21/22 14:13, Yicong Yang wrote:
->>>>>>>> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
->>>>>>>> +{
->>>>>>>> +    /* for small systems with small number of CPUs, TLB shootdown is cheap */
->>>>>>>> +    if (num_online_cpus() <= 4)
->>>>>>> It would be great to have some more inputs from others, whether 4 (which should
->>>>>>> to be codified into a macro e.g ARM64_NR_CPU_DEFERRED_TLB, or something similar)
->>>>>>> is optimal for an wide range of arm64 platforms.
->>>>>>>
->>>>> I have tested it on a 4-cpus and 8-cpus machine. but i have no machine
->>>>> with 5,6,7
->>>>> cores.
->>>>> I saw improvement on 8-cpus machines and I found 4-cpus machines don't need
->>>>> this patch.
->>>>>
->>>>> so it seems safe to have
->>>>> if (num_online_cpus()  < 8)
->>>>>
->>>>>> Do you prefer this macro to be static or make it configurable through kconfig then
->>>>>> different platforms can make choice based on their own situations? It maybe hard to
->>>>>> test on all the arm64 platforms.
->>>>> Maybe we can have this default enabled on machines with 8 and more cpus and
->>>>> provide a tlbflush_batched = on or off to allow users enable or
->>>>> disable it according
->>>>> to their hardware and products. Similar example: rodata=on or off.
->>>> No, sounds bit excessive. Kernel command line options should not be added
->>>> for every possible run time switch options.
->>>>
->>>>> Hi Anshuman, Will,  Catalin, Andrew,
->>>>> what do you think about this approach?
->>>>>
->>>>> BTW, haoxin mentioned another important user scenarios for tlb bach on arm64:
->>>>> https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
->>>>>
->>>>> I do believe we need it based on the expensive cost of tlb shootdown in arm64
->>>>> even by hardware broadcast.
->>>> Alright, for now could we enable ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH selectively
->>>> with CONFIG_EXPERT and for num_online_cpus()  > 8 ?
->>> When running the test program in the commit in a VM, I saw benefits from
->>> the patches at all sizes from 2, 4, 8, 32 vcpus. On the test machine,
->>> ptep_clear_flush() went from ~1% in the unpatched version to not showing
->>> up.
->>>
->>> Yicong mentioned that he didn't see any benefit for <= 4 CPUs but is
->>> there any overhead? I am wondering what are the downsides of enabling
->>> the config by default.
->> As we are deferring tlb flush, but sometimes while we are modifying the vma
->> which are deferred, we need to do a sync by flush_tlb_batched_pending() in
->> mprotect() , madvise() to make sure they can see the flushed result. if nobody
->> is doing mprotect(), madvise() etc in the deferred period, the overhead is zero.
->
-> Right, it is difficult to justify this overhead for smaller systems,
-> which for sure would not benefit from this batched TLB framework.
+user_regset_copyin_ignore() apparently cannot fail and so always returns 0.
+Let's first remove the result checks in several architectures that call this
+function and then make user_regset_copyin_ignore() return *void* instead of
+*int*...
 
-Thank you for the pointers to the overhead.
+Sergey Shtylyov (13):
+  arc: ptrace: user_regset_copyin_ignore() always returns 0
+  arm: ptrace: user_regset_copyin_ignore() always returns 0
+  arm64: ptrace: user_regset_copyin_ignore() always returns 0
+  hexagon: ptrace: user_regset_copyin_ignore() always returns 0
+  ia64: ptrace: user_regset_copyin_ignore() always returns 0
+  mips: ptrace: user_regset_copyin_ignore() always returns 0
+  nios2: ptrace: user_regset_copyin_ignore() always returns 0
+  openrisc: ptrace: user_regset_copyin_ignore() always returns 0
+  parisc: ptrace: user_regset_copyin_ignore() always returns 0
+  powerpc: ptrace: user_regset_copyin_ignore() always returns 0
+  sh: ptrace: user_regset_copyin_ignore() always returns 0
+  sparc: ptrace: user_regset_copyin_ignore() always returns 0
+  regset: make user_regset_copyin_ignore() *void*
 
-Having looked at this more closely, I also see that
-flush_tlb_batched_pending() discards the entire mm vs just flushing the
-page being unmapped (as is done with ptep_clear_flush()).
+ arch/arc/kernel/ptrace.c                 |  2 +-
+ arch/arm/kernel/ptrace.c                 |  8 +++-----
+ arch/arm64/kernel/ptrace.c               | 16 ++++------------
+ arch/hexagon/kernel/ptrace.c             |  7 +++----
+ arch/ia64/kernel/ptrace.c                | 20 +++++++++-----------
+ arch/mips/kernel/ptrace.c                |  9 +++++----
+ arch/nios2/kernel/ptrace.c               |  6 +++---
+ arch/openrisc/kernel/ptrace.c            |  8 +++-----
+ arch/parisc/kernel/ptrace.c              | 15 +++++++++------
+ arch/powerpc/kernel/ptrace/ptrace-tm.c   | 10 +++++-----
+ arch/powerpc/kernel/ptrace/ptrace-view.c | 10 +++++-----
+ arch/sh/kernel/ptrace_32.c               |  8 ++++----
+ arch/sparc/kernel/ptrace_32.c            |  9 +++++----
+ arch/sparc/kernel/ptrace_64.c            | 23 +++++++++++------------
+ include/linux/regset.h                   | 15 +++++++--------
+ 15 files changed, 77 insertions(+), 89 deletions(-)
+
+-- 
+2.26.3
+
