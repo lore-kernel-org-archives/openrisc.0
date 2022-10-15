@@ -2,61 +2,56 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59D5FC4332F
-	for <openrisc@archiver.kernel.org>; Sat, 15 Oct 2022 16:26:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98910C4332F
+	for <openrisc@archiver.kernel.org>; Sat, 15 Oct 2022 16:48:55 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 03F5324B79;
-	Sat, 15 Oct 2022 18:26:00 +0200 (CEST)
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com
- [209.85.221.52])
- by mail.librecores.org (Postfix) with ESMTPS id 9C97D24BAC
- for <openrisc@lists.librecores.org>; Sat, 15 Oct 2022 18:25:59 +0200 (CEST)
-Received: by mail-wr1-f52.google.com with SMTP id a10so11924966wrm.12
- for <openrisc@lists.librecores.org>; Sat, 15 Oct 2022 09:25:59 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 794EA24BD5;
+	Sat, 15 Oct 2022 18:48:54 +0200 (CEST)
+Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com
+ [209.85.221.46])
+ by mail.librecores.org (Postfix) with ESMTPS id 7094024B77
+ for <openrisc@lists.librecores.org>; Sat, 15 Oct 2022 18:48:53 +0200 (CEST)
+Received: by mail-wr1-f46.google.com with SMTP id bk15so12002146wrb.13
+ for <openrisc@lists.librecores.org>; Sat, 15 Oct 2022 09:48:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=dNKwwUuvrgZ46xwoGGuVcYvN6TXI2tCIVd9WU2CVGOQ=;
- b=JluM3QD05PT6gVppLGJyJaOsBmS9w+f9HdZ/rv1gXA30MjMECsYItnh96r7BPeN6Vc
- Q/lON8XcAThALGZmSrjIRUYbDxj6YSCnMpXCR5IBuLFyEMxRmfOHoFmo/eK7zCthY0Pe
- 71lrRasStpjrlwiWcvqsw8OV8TzK2XyRGGOBoUQxTBWRP0lkT8hBKaYhK3jDcYxUEdJF
- UTGvq4ubkjR0/6jQ0QfhhtRk3uM0gkSS7vk/NnC+ZsYmHNb/VQsY29DfOX9Tm9pr0oSf
- 2tIPpp0UhZn8Hrsy9n3Ejt5mrOZcI+xD/d9EAuOKBSYdzn6tkqkl+q3WuBE9WQ+J9TYs
- XZfQ==
+ h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=loly9KUFB8PbWChec+LUQaUzF19XotFqi6Pac7eROaY=;
+ b=cSTN13HhqgcpUCpxdosHHpbI6WH5HDFkdZs46rV+CMeOu7ARjBH9VX1oBoJmfhnpux
+ E4hno/c15Al6ICFYko16J9EGNb4VOsbtsnr5f6BWF5FCQsol5y4M4K/dtX8PePAWSaWb
+ tGiY9em9PuvhDgdrrYeVg7Vv3eQU9fqFZhXfB4MWiJEo51Uvt6eUYUdIbccf7S3iziV6
+ 5gLou6h1ZRBASy/L540SW/htQJlX8XqlHa7ZbGyxO5iIw+cDqf+11eB12G4q+8hyNkNe
+ CROGPXNG9Os9PdVeNyfuwrhpDlNwizbqF6kswhoJ2DiNojsgNjlXGYERQAjRJWsGm4+r
+ J7lQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=dNKwwUuvrgZ46xwoGGuVcYvN6TXI2tCIVd9WU2CVGOQ=;
- b=dpkVfEYiQwaAMV9HVFiAhG0JaUDiiQcLbd1i1tRphLFgRCu9deu/XkE7flE/bhcloz
- 41kTXVEc9kT3E3sFjjnFlnzAD65ocS4gu0k2ywzWhw8AYZ5pIP+BTbXOpldQua29n+7h
- bPRXNK3Yx2UjvLn0aueLRLa2UU3oFNdHKdXMATVpay/u7hrxD/ODs5cXqESTfzWanEHV
- LTL6f0Y/ePvkkQcJeIeKN6uD3EVTK4l7p3vmMY2tY2qIr8q/3tIgG/lB0d6PhQvN5/7Z
- BRR+fMIKn5hDMedzIr+kCrC+bunqZC8BMrZAxac70Ve31DlaZItEmA5SNMOqsY/Vtp06
- +LUA==
-X-Gm-Message-State: ACrzQf0vDmZIlp0DvpoDR6qhFY7VUdQUckUAKoMzt5qCLXgpbkbv9Z3H
- IeXFPWlbXuMH2efPzd1NqPU=
-X-Google-Smtp-Source: AMsMyM71VpkOhoy31kwvj7hvjMDnCb6bByCRJVgIqksFM6+DvDOk642WbK3ppITSUWEeZzLHarGR3g==
-X-Received: by 2002:a05:6000:178e:b0:22e:6d9f:1592 with SMTP id
- e14-20020a056000178e00b0022e6d9f1592mr1917812wrg.6.1665851158988; 
- Sat, 15 Oct 2022 09:25:58 -0700 (PDT)
-Received: from localhost ([2a03:b0c0:1:d0::dee:c001])
- by smtp.gmail.com with ESMTPSA id
- 123-20020a1c1981000000b003c6c4639ac6sm5204196wmz.34.2022.10.15.09.25.52
+ h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+ :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=loly9KUFB8PbWChec+LUQaUzF19XotFqi6Pac7eROaY=;
+ b=f61H8dPsmGiWYuD7g6+t7KFKHih1pugUqMR01TbwiWWTGsG0sbuVOe63P8TTi9I9k6
+ Sp8zdd3sgcWkaUIqlt0FNWt7BjGuOAetKF9vJUdk0aY9BoxjdGFlOxccEU3YPjE78Y7y
+ RtDY40mqCPWSa0RbMg4Qt5rSnoHaffwi66dfdjRAyK1kDtS9BXuJGtlZRl9eLEc3hs1m
+ dgPdSGvAmPn79wsVrODWYekMNhvpKx6Zu6rl0yqTCQfZ7vkrxIvaJqzrqoXA3TNXnJIT
+ EbPhA2poalbDSI6InopYykqRE5fMRa7DnEo1hOlCMkXyC6R9lXuq0giEwJB2bcH7dZSk
+ NvlQ==
+X-Gm-Message-State: ACrzQf1IdSHr6h+ShY+KYO+S7DtDZ8Lx66qH8AJHQcumlgk9KXOljoEA
+ ksgBZtQ7Ba+Ksigo8fQixj8=
+X-Google-Smtp-Source: AMsMyM7rGH7ib6DeJF8OPZaegYPVhejKtD203z3/7LfRYBYoSymh37dlFVeLh2o5IlPMiVxTk2EyFQ==
+X-Received: by 2002:a05:6000:1688:b0:22e:58cd:5a2b with SMTP id
+ y8-20020a056000168800b0022e58cd5a2bmr1872892wrd.365.1665852532647; 
+ Sat, 15 Oct 2022 09:48:52 -0700 (PDT)
+Received: from localhost ([88.83.123.243]) by smtp.gmail.com with ESMTPSA id
+ bz13-20020a056000090d00b00228cd9f6349sm4541568wrb.106.2022.10.15.09.48.50
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sat, 15 Oct 2022 09:25:52 -0700 (PDT)
-Date: Sat, 15 Oct 2022 16:25:51 +0000
+ Sat, 15 Oct 2022 09:48:50 -0700 (PDT)
+Date: Sat, 15 Oct 2022 17:48:50 +0100
 From: Stafford Horne <shorne@gmail.com>
-To: Palmer Dabbelt <palmer@rivosinc.com>
-Subject: Re: [PATCH] MAINTAINERS: git://github -> https://github.com for
- openrisc
-Message-ID: <Y0rfD8y9m54Zrc4C@oscomms1>
-References: <20221013214637.30893-1-palmer@rivosinc.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [GIT PULL] OpenRISC updates for v6.1-rc1
+Message-ID: <Y0rkcqBr6Wan4ueU@stafford-asahi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221013214637.30893-1-palmer@rivosinc.com>
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -69,51 +64,43 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: jonas@southpole.se, Conor Dooley <conor.dooley@microchip.com>,
- openrisc@lists.librecores.org, linux-kernel@vger.kernel.org
+Cc: Openrisc <openrisc@lists.librecores.org>,
+ LKML <linux-kernel@vger.kernel.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Hi Palmer,
+Hello Linus,
 
-On Thu, Oct 13, 2022 at 02:46:37PM -0700, Palmer Dabbelt wrote:
-> Github deprecated the git:// links about a year ago, so let's move to
-> the https:// URLs instead.
+Please consider for pull,
 
-Thanks, I will queue this for 6.1 right away.  I saw you originally had this as
-a mega patch now split it up.  Either way is good with me, ghouth taking this
-on.
+The following changes since commit f76349cf41451c5c42a99f18a9163377e4b364ff:
 
-> Reported-by: Conor Dooley <conor.dooley@microchip.com>
-> Link: https://github.blog/2021-09-01-improving-git-protocol-security-github/
-> Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-> ---
-> I've split these up by github username so folks can take them
-> independently, as some of these repos have been renamed at github and
-> thus need more than just a sed to fix them.
-> ---
->  MAINTAINERS | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 796ba37dd4ff..9a9ca93b63fd 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -15234,7 +15234,7 @@ M:	Stafford Horne <shorne@gmail.com>
->  L:	openrisc@lists.librecores.org
->  S:	Maintained
->  W:	http://openrisc.io
+  Linux 6.0-rc7 (2022-09-25 14:01:02 -0700)
 
-FWIW: Our website should be https:// too.  I will sumbit a patch for that as
-well.
+are available in the Git repository at:
 
-Stafford
+  https://github.com/openrisc/linux.git tags/for-linus
 
-> -T:	git git://github.com/openrisc/linux.git
-> +T:	git https://github.com/openrisc/linux.git
->  F:	Documentation/devicetree/bindings/openrisc/
->  F:	Documentation/openrisc/
->  F:	arch/openrisc/
-> -- 
-> 2.38.0
-> 
+for you to fetch changes up to 34a0bac084e49324c29e6d0984d24096e02c6314:
+
+  MAINTAINERS: git://github -> https://github.com for openrisc (2022-10-15 17:26:51 +0100)
+
+----------------------------------------------------------------
+OpenRISC 6.1 Updates
+
+I have relocated to London so not much work from me while I get settled.
+
+Still, OpenRISC picked up two patches in this window:
+ - Fix for kernel page table walking from Jann Horn
+ - MAINTAINER entry cleanup from Palmer Dabbelt
+
+----------------------------------------------------------------
+Jann Horn (1):
+      openrisc: Fix pagewalk usage in arch_dma_{clear, set}_uncached
+
+Palmer Dabbelt (1):
+      MAINTAINERS: git://github -> https://github.com for openrisc
+
+ MAINTAINERS                |  2 +-
+ arch/openrisc/kernel/dma.c | 16 ++++++++--------
+ 2 files changed, 9 insertions(+), 9 deletions(-)
