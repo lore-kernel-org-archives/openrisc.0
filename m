@@ -2,57 +2,84 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D30CAC4332F
-	for <openrisc@archiver.kernel.org>; Tue, 18 Oct 2022 07:36:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01876C433FE
+	for <openrisc@archiver.kernel.org>; Tue, 18 Oct 2022 08:04:52 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id CEE5D24C2F;
-	Tue, 18 Oct 2022 09:36:32 +0200 (CEST)
-Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com
- [209.85.160.178])
- by mail.librecores.org (Postfix) with ESMTPS id D1E0C24B37
- for <openrisc@lists.librecores.org>; Tue, 18 Oct 2022 09:36:31 +0200 (CEST)
-Received: by mail-qt1-f178.google.com with SMTP id f22so9176413qto.3
- for <openrisc@lists.librecores.org>; Tue, 18 Oct 2022 00:36:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=Mwq8mRE5qiqVJEFTV8PMaTxlxiFl0HRvXCI1ESDIAgA=;
- b=0tYsrYZPvPuggXxZjkgYkvKB1nyxhHADNxxwWySB5V+23tuXgcg5zsgxy+vbdF9joh
- vfnjE9JwvnvkPVcLxOnTZnKH8uUE+jjQVOVoa0USIkHbpPvHmhBJ4qF8zCpAm2dvTIyA
- ZihP/+wY8P7xmGUo3qNgDhy/C7gTYzbMPViM8EL6ZklJi9hjwYhk3dOJGC1rdP3gOptV
- bIApLbFXt90zoOm6thWIKGJz42gp1xA2ujhNGzshD69KZEtKwBAJMNOtmUc/kVS9iQp0
- 8z27t6FeXMvxgfpNyibEXCyKt8HiKcxm9u7CBAMz+NKhXmd//C/9jUlF7VA5lU8TamCg
- NTIw==
-X-Gm-Message-State: ACrzQf1BdHxtYuZQnHsYPx84Ok9hmoflBFgTnH8KhGVZenp/rMbiUDiN
- 5MtxCrrYnHTnkeiwk9ssElCA7DcVNfGhQHBj
-X-Google-Smtp-Source: AMsMyM6jx+DW+CbMV0t2gdN+4v/pkC2yYb9pzJVB/QzqwZBBC6lHc1U+2jnIOWkeGA0jH5C/1h4JTg==
-X-Received: by 2002:ac8:5d49:0:b0:39c:c082:1417 with SMTP id
- g9-20020ac85d49000000b0039cc0821417mr1042547qtx.687.1666078590661; 
- Tue, 18 Oct 2022 00:36:30 -0700 (PDT)
-Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com.
- [209.85.128.178]) by smtp.gmail.com with ESMTPSA id
- fa12-20020a05622a4ccc00b0039cb8cdaa6bsm1402902qtb.63.2022.10.18.00.36.30
- for <openrisc@lists.librecores.org>
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Tue, 18 Oct 2022 00:36:30 -0700 (PDT)
-Received: by mail-yw1-f178.google.com with SMTP id
- 00721157ae682-358bf076f1fso129246137b3.9
- for <openrisc@lists.librecores.org>; Tue, 18 Oct 2022 00:36:30 -0700 (PDT)
-X-Received: by 2002:a81:848c:0:b0:356:e173:2c7a with SMTP id
- u134-20020a81848c000000b00356e1732c7amr1276352ywf.502.1666078253767; Tue, 18
- Oct 2022 00:30:53 -0700 (PDT)
-MIME-Version: 1.0
-References: <20221018074014.185687-1-wangkefeng.wang@huawei.com>
-In-Reply-To: <20221018074014.185687-1-wangkefeng.wang@huawei.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Tue, 18 Oct 2022 09:30:42 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdWwAgPkifAkah7MoBKBoyB4tb+HM5cgvenwNFaAfbg+UQ@mail.gmail.com>
-Message-ID: <CAMuHMdWwAgPkifAkah7MoBKBoyB4tb+HM5cgvenwNFaAfbg+UQ@mail.gmail.com>
-Subject: Re: [PATCH] mm: remove kern_addr_valid() completely
+	by mail.librecores.org (Postfix) with ESMTP id C244324C2F;
+	Tue, 18 Oct 2022 10:04:51 +0200 (CEST)
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com
+ [148.163.158.5])
+ by mail.librecores.org (Postfix) with ESMTPS id C38D724BD9
+ for <openrisc@lists.librecores.org>; Tue, 18 Oct 2022 10:04:50 +0200 (CEST)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29I7HvI4001484;
+ Tue, 18 Oct 2022 08:04:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
+ h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=ikDs1J0DF5pj2v5VnRsw8nC5xHt147jm8avpuSN/808=;
+ b=PeBEWzINopbxSIEX8dTTnvGpTwR0bkiq7qfZm5a4PzcW2VN0u9ULY5aMLykSYvFwlReB
+ qJtql6j6aLL4LBAfr3YSyzl8QrtnYeI7Ik9zjj2V8hTrlMScPSFYh7hOQmgPWcKq6ceQ
+ g4MWTwRzACL/TfAfBkjQk5cRLy2tpRSpmVPAanLXnX6DirufMl/B8xqOlMr5OsTI/EOT
+ dZJRZUgOC4HYAAomAbu3IJSdS83dtKxgqAYRSGTV0i9apZxEpS1kJoN5OTNreOKC9xL+
+ ctAQA8a5HUzTQ7cQOxVQopHO95f5LAUAu5P8WQSJEpUHWh9/E1RjiGdgfsVUppbxZnx5 /Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k9qmrscv5-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Tue, 18 Oct 2022 08:04:00 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+ by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29I82x8a003447;
+ Tue, 18 Oct 2022 08:03:59 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com
+ [149.81.74.108])
+ by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k9qmrsctn-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Tue, 18 Oct 2022 08:03:59 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+ by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29I7pQS0031741;
+ Tue, 18 Oct 2022 08:03:56 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com
+ (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+ by ppma05fra.de.ibm.com with ESMTP id 3k7mg8ukwq-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Tue, 18 Oct 2022 08:03:56 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com
+ [9.149.105.60])
+ by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
+ 29I83rUG66519352
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 18 Oct 2022 08:03:53 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id 2AFD44203F;
+ Tue, 18 Oct 2022 08:03:53 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id 722D442042;
+ Tue, 18 Oct 2022 08:03:51 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.239])
+ by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+ Tue, 18 Oct 2022 08:03:51 +0000 (GMT)
+Date: Tue, 18 Oct 2022 10:03:50 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
 To: Kefeng Wang <wangkefeng.wang@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] mm: remove kern_addr_valid() completely
+Message-ID: <Y05d5ii/2OqYLqa0@osiris>
+References: <20221018074014.185687-1-wangkefeng.wang@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221018074014.185687-1-wangkefeng.wang@huawei.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 3DqUa3ziEZjw8-MntDOZ-RiynYYIojwD
+X-Proofpoint-ORIG-GUID: bUEZUCXPCfex028D9haUfwRNUTiIJ5wD
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-10-18_01,2022-10-17_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 clxscore=1011
+ mlxscore=0 phishscore=0 mlxlogscore=539 impostorscore=0 spamscore=0
+ priorityscore=1501 bulkscore=0 lowpriorityscore=0 adultscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2210180046
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -87,8 +114,7 @@ Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org,
  Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org,
  linux-xtensa@linux-xtensa.org, Albert Ou <aou@eecs.berkeley.edu>,
  Vasily Gorbik <gor@linux.ibm.com>, Chris Zankel <chris@zankel.net>,
- Richard Henderson <richard.henderson@linaro.org>,
- Heiko Carstens <hca@linux.ibm.com>, linux-um@lists.infradead.org,
+ Richard Henderson <richard.henderson@linaro.org>, linux-um@lists.infradead.org,
  Nicholas Piggin <npiggin@gmail.com>, Richard Weinberger <richard@nod.at>,
  linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org,
  Ivan Kokshaysky <ink@jurassic.park.msu.ru>, loongarch@lists.linux.dev,
@@ -106,27 +132,17 @@ Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Tue, Oct 18, 2022 at 9:25 AM Kefeng Wang <wangkefeng.wang@huawei.com> wrote:
+On Tue, Oct 18, 2022 at 03:40:14PM +0800, Kefeng Wang wrote:
 > Most architectures(except arm64/x86/sparc) simply return 1 for
 > kern_addr_valid(), which is only used in read_kcore(), and it
 > calls copy_from_kernel_nofault() which could check whether the
 > address is a valid kernel address, so no need kern_addr_valid(),
 > let's remove unneeded kern_addr_valid() completely.
->
+> 
 > Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+> ---
+...
+>  arch/s390/include/asm/pgtable.h           |  2 -
 
->  arch/m68k/include/asm/pgtable_mm.h        |  2 -
->  arch/m68k/include/asm/pgtable_no.h        |  1 -
-
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> [m68k]
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+For s390:
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
