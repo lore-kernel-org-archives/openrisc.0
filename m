@@ -2,45 +2,51 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF620C4321E
-	for <openrisc@archiver.kernel.org>; Sun,  6 Nov 2022 21:06:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D957C4332F
+	for <openrisc@archiver.kernel.org>; Sun,  6 Nov 2022 21:13:37 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 909B324A55;
-	Sun,  6 Nov 2022 22:05:58 +0100 (CET)
-Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
- by mail.librecores.org (Postfix) with ESMTPS id 7DF302593C
- for <openrisc@lists.librecores.org>; Thu,  3 Nov 2022 17:49:10 +0100 (CET)
-Received: from zn.tnic (p200300ea9733e7e7329c23fffea6a903.dip0.t-ipconnect.de
- [IPv6:2003:ea:9733:e7e7:329c:23ff:fea6:a903])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	by mail.librecores.org (Postfix) with ESMTP id 2CC5C20C94;
+	Sun,  6 Nov 2022 22:13:36 +0100 (CET)
+Received: from mailbox.box.xen0n.name (mail.xen0n.name [115.28.160.31])
+ by mail.librecores.org (Postfix) with ESMTPS id 95E4C24BD9
+ for <openrisc@lists.librecores.org>; Tue, 18 Oct 2022 11:20:28 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=xen0n.name; s=mail;
+ t=1666084821; bh=N48MFgDUmr1tfKHznoAthvRtR1Wpy0hSpJqTj7oKYC4=;
+ h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+ b=cHV6qrCjD47k3jGPjUQF3lwihop1RDaw3yjdG73m7BjSD1b/7jyWqLqeN+Uyk642T
+ VvEcixZUqLhrENpMZkopSZmIH+3rzqlov7m3aEUZuBieiNorHcibY7orD6PjU5mrAB
+ wuldpVWm+HQ77bl4gfDeA0Z+scSMeI8G3x4eFq+M=
+Received: from [100.100.57.122] (unknown [220.248.53.61])
+ (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
  (No client certificate requested)
- by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id E3F291EC04F0;
- Thu,  3 Nov 2022 17:49:09 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
- t=1667494150;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
- bh=2ASRoXT4dNz3rsz3g7wk4DQzgAno9/V5MAy7ltfZSS0=;
- b=GEBGVYysxzMU6LGJTmZd7M+/R/6mbCD6zp4ZSzgggbaUSAV0SVqDm2Gc6AAhFjue3w91tt
- IAhvE9D7fZ+NRgIf5TsYL8evNAQClXdM104Vgktn6WclPvN36r3al1OF9AVLqkFvz+Oj+i
- 92QAmiYx47vWftNfKrMeen4/XGStEic=
-Date: Thu, 3 Nov 2022 17:49:06 +0100
-From: Borislav Petkov <bp@alien8.de>
-To: yury.norov@gmail.com
-Subject: Re: [PATCH v3 2/2] x86: Fix /proc/cpuinfo cpumask warning
-Message-ID: <Y2PxAiJ1yNzcUSgs@zn.tnic>
-References: <CAAH8bW_DkvPCH0-q2Bfe0OJ72r63mRM3GP7NKOFrhe3zMO2gbQ@mail.gmail.com>
- <Y1v+Ed6mRN9gisJS@zn.tnic> <20221031080604.6xei6c4e3ckhsvmy@kamzik>
- <Y1+OUawGJDjh4DOJ@zn.tnic> <20221031100327.r7tswmpszvs5ot5n@kamzik>
- <Y2K6clNJBn0SbWU+@zn.tnic> <20221103125945.lrr5oxxmylwpam53@kamzik>
- <Y2PX9GfxWYh6+XGT@zn.tnic> <20221103153404.uh77nrdkowrxj6cr@kamzik>
- <Y2PsvvOWVs9ZLBsp@yury-laptop>
+ by mailbox.box.xen0n.name (Postfix) with ESMTPSA id 69A5760087;
+ Tue, 18 Oct 2022 17:20:20 +0800 (CST)
+Message-ID: <27ffa400-b947-7c83-0e79-c8eb9f96e12e@xen0n.name>
+Date: Tue, 18 Oct 2022 17:20:19 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <Y2PsvvOWVs9ZLBsp@yury-laptop>
-X-Mailman-Approved-At: Sun, 06 Nov 2022 22:05:56 +0100
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:107.0)
+ Gecko/20100101 Thunderbird/107.0a1
+Subject: Re: [PATCH] mm: remove kern_addr_valid() completely
+Content-Language: en-US
+To: Kefeng Wang <wangkefeng.wang@huawei.com>,
+ Andrew Morton <akpm@linux-foundation.org>, linux-alpha@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+ linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+ linux-fsdevel@vger.kernel.org
+References: <20221018074014.185687-1-wangkefeng.wang@huawei.com>
+From: WANG Xuerui <kernel@xen0n.name>
+In-Reply-To: <20221018074014.185687-1-wangkefeng.wang@huawei.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Mailman-Approved-At: Sun, 06 Nov 2022 22:13:35 +0100
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -53,62 +59,107 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org,
- Alexander Gordeev <agordeev@linux.ibm.com>, x86@kernel.org,
- Vasily Gorbik <gor@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
- Heiko Carstens <hca@linux.ibm.com>, Dave Hansen <dave.hansen@linux.intel.com>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- openrisc@lists.librecores.org, Ingo Molnar <mingo@redhat.com>,
- Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley <paul.walmsley@sifive.com>,
- linux-riscv <linux-riscv@lists.infradead.org>,
- "open list:LINUX FOR POWERPC PA SEMI PWRFICIENT"
- <linuxppc-dev@lists.ozlabs.org>, Thomas Gleixner <tglx@linutronix.de>,
- Albert Ou <aou@eecs.berkeley.edu>
+Cc: Rich Felker <dalias@libc.org>, Thomas Gleixner <tglx@linutronix.de>,
+ Peter Zijlstra <peterz@infradead.org>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
+ Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>,
+ "H . Peter Anvin" <hpa@zytor.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Will Deacon <will@kernel.org>, Greg Ungerer <gerg@linux-m68k.org>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Jonas Bonn <jonas@southpole.se>, Yoshinori Sato <ysato@users.sourceforge.jp>,
+ Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>,
+ Huacai Chen <chenhuacai@kernel.org>, Russell King <linux@armlinux.org.uk>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>, Ingo Molnar <mingo@redhat.com>,
+ Vineet Gupta <vgupta@kernel.org>, Matt Turner <mattst88@gmail.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Vasily Gorbik <gor@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Richard Henderson <richard.henderson@linaro.org>,
+ Nicholas Piggin <npiggin@gmail.com>,
+ Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Andy Lutomirski <luto@kernel.org>,
+ Paul Walmsley <paul.walmsley@sifive.com>, Chris Zankel <chris@zankel.net>,
+ Michal Simek <monstr@monstr.eu>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Dinh Nguyen <dinguyen@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Richard Weinberger <richard@nod.at>,
+ Borislav Petkov <bp@alien8.de>, Johannes Berg <johannes@sipsolutions.net>,
+ "David S . Miller" <davem@davemloft.net>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Thu, Nov 03, 2022 at 09:30:54AM -0700, yury.norov@gmail.com wrote:a
-> Callers should pass sane arguments into internal functions if they
-> expect sane output.
+On 2022/10/18 15:40, Kefeng Wang wrote:
+> Most architectures(except arm64/x86/sparc) simply return 1 for
 
-What internal function? It's in a global header.
+one space before the opening parens
 
-> The API not exported to userspace shouldn't sanity-check all inputs
-> arguments.
+> kern_addr_valid(), which is only used in read_kcore(), and it
+> calls copy_from_kernel_nofault() which could check whether the
+> address is a valid kernel address, so no need kern_addr_valid(),
 
-That doesn't have anything to do with userspace at all.
+minor grammatical nit:
 
-APIs exported to the rest of the kernel should very well check their
-inputs. Otherwise they're not APIs - just some random functions which
-are visible to the compiler.
+"... which already checks whether the address is a valid kernel address. 
+So kern_addr_valid is unnecessary, let's remove it."
 
-> So, the portable code shouldn't expect from cpumasks more than
-> documentation said: for a _valid_ offset cpumask_next() returns next
-> set bit or >= nr_cpu_ids.
+> let's remove unneeded kern_addr_valid() completely.
+> 
+> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+> ---
+>   arch/alpha/include/asm/pgtable.h          |  2 -
+>   arch/arc/include/asm/pgtable-bits-arcv2.h |  2 -
+>   arch/arm/include/asm/pgtable-nommu.h      |  2 -
+>   arch/arm/include/asm/pgtable.h            |  4 --
+>   arch/arm64/include/asm/pgtable.h          |  2 -
+>   arch/arm64/mm/mmu.c                       | 47 -----------------------
+>   arch/arm64/mm/pageattr.c                  |  3 +-
+>   arch/csky/include/asm/pgtable.h           |  3 --
+>   arch/hexagon/include/asm/page.h           |  7 ----
+>   arch/ia64/include/asm/pgtable.h           | 16 --------
+>   arch/loongarch/include/asm/pgtable.h      |  2 -
+>   arch/m68k/include/asm/pgtable_mm.h        |  2 -
+>   arch/m68k/include/asm/pgtable_no.h        |  1 -
+>   arch/microblaze/include/asm/pgtable.h     |  3 --
+>   arch/mips/include/asm/pgtable.h           |  2 -
+>   arch/nios2/include/asm/pgtable.h          |  2 -
+>   arch/openrisc/include/asm/pgtable.h       |  2 -
+>   arch/parisc/include/asm/pgtable.h         | 15 --------
+>   arch/powerpc/include/asm/pgtable.h        |  7 ----
+>   arch/riscv/include/asm/pgtable.h          |  2 -
+>   arch/s390/include/asm/pgtable.h           |  2 -
+>   arch/sh/include/asm/pgtable.h             |  2 -
+>   arch/sparc/include/asm/pgtable_32.h       |  6 ---
+>   arch/sparc/mm/init_32.c                   |  3 +-
+>   arch/sparc/mm/init_64.c                   |  1 -
+>   arch/um/include/asm/pgtable.h             |  2 -
+>   arch/x86/include/asm/pgtable_32.h         |  9 -----
+>   arch/x86/include/asm/pgtable_64.h         |  1 -
+>   arch/x86/mm/init_64.c                     | 41 --------------------
+>   arch/xtensa/include/asm/pgtable.h         |  2 -
+>   fs/proc/kcore.c                           | 26 +++++--------
+>   31 files changed, 11 insertions(+), 210 deletions(-)
+> 
+> diff --git a/arch/loongarch/include/asm/pgtable.h b/arch/loongarch/include/asm/pgtable.h
+> index 946704bee599..fc70b7041b76 100644
+> --- a/arch/loongarch/include/asm/pgtable.h
+> +++ b/arch/loongarch/include/asm/pgtable.h
+> @@ -421,8 +421,6 @@ static inline void update_mmu_cache_pmd(struct vm_area_struct *vma,
+>   	__update_tlb(vma, address, (pte_t *)pmdp);
+>   }
+>   
+> -#define kern_addr_valid(addr)	(1)
+> -
+>   static inline unsigned long pmd_pfn(pmd_t pmd)
+>   {
+>   	return (pmd_val(pmd) & _PFN_MASK) >> _PFN_SHIFT;
 
-Lemme quote from my previous mail:
+Acked-by: WANG Xuerui <git@xen0n.name> # loongarch
 
-"First make sure cpumask_next()'s valid accepted range has been settled
-upon, has been explicitly documented"
-
-So where is that valid range documented?
-
-> cpumask_check() has been broken for years. Attempting to fix it faced
-> so much resistance, that I had to revert the patch.
-
-The suggestion on that thread made sense: you first fix the callers and
-then the interface. Just like any other "broken" kernel API.
-
-Nothing's stopping you from fixing it properly - it'll just take a while
-and if it is such a widely used interface, you probably should come up
-with a strategy first how to fix it without impacting current use.
-
-Interfaces and their in-kernel users get refactored constantly.
-
-Thx.
+Thanks!
 
 -- 
-Regards/Gruss,
-    Boris.
+WANG "xen0n" Xuerui
 
-https://people.kernel.org/tglx/notes-about-netiquette
+Linux/LoongArch mailing list: https://lore.kernel.org/loongarch/
+
