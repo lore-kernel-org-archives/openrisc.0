@@ -2,40 +2,61 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87EC0C38A02
-	for <openrisc@archiver.kernel.org>; Fri, 28 Oct 2022 08:14:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E26A2C38A02
+	for <openrisc@archiver.kernel.org>; Fri, 28 Oct 2022 21:40:26 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 874A824C40;
-	Fri, 28 Oct 2022 10:14:05 +0200 (CEST)
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
- by mail.librecores.org (Postfix) with ESMTPS id 7641324C47
- for <openrisc@lists.librecores.org>; Fri, 28 Oct 2022 10:14:03 +0200 (CEST)
-Received: from canpemm500009.china.huawei.com (unknown [172.30.72.56])
- by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4MzFYy41BzzVjMm;
- Fri, 28 Oct 2022 16:09:10 +0800 (CST)
-Received: from localhost.localdomain (10.67.164.66) by
- canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Fri, 28 Oct 2022 16:14:00 +0800
-From: Yicong Yang <yangyicong@huawei.com>
-To: <akpm@linux-foundation.org>, <linux-mm@kvack.org>,
- <linux-arm-kernel@lists.infradead.org>, <x86@kernel.org>,
- <catalin.marinas@arm.com>, <will@kernel.org>, <anshuman.khandual@arm.com>,
- <linux-doc@vger.kernel.org>
-Subject: [PATCH v5 2/2] arm64: support batched/deferred tlb shootdown during
- page reclamation
-Date: Fri, 28 Oct 2022 16:12:55 +0800
-Message-ID: <20221028081255.19157-3-yangyicong@huawei.com>
-X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20221028081255.19157-1-yangyicong@huawei.com>
-References: <20221028081255.19157-1-yangyicong@huawei.com>
+	by mail.librecores.org (Postfix) with ESMTP id C73D624C40;
+	Fri, 28 Oct 2022 23:40:25 +0200 (CEST)
+Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com
+ [209.85.208.50])
+ by mail.librecores.org (Postfix) with ESMTPS id 707AF24BFF
+ for <openrisc@lists.librecores.org>; Fri, 28 Oct 2022 23:40:24 +0200 (CEST)
+Received: by mail-ed1-f50.google.com with SMTP id x2so9724283edd.2
+ for <openrisc@lists.librecores.org>; Fri, 28 Oct 2022 14:40:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:from:to:cc:subject:date:message-id:reply-to;
+ bh=F9RrxUZJauba3tX3ZE6+TwL/IhjYDGu0yvNBASjmvvg=;
+ b=DDqlitA/aZVBQxso46/Iv2q/qaCkZ5lo3I8GWq1a8re4mIEroveoDgzrRxpMlppt9u
+ 0KVqnFkXh59kEX6GswJHjBKN6I/iBoKjQUt8v2cQc22yymdzv7rCq4PYKUk0rkmHvySs
+ VB0dqoVUFiWfCZpbLiSIySOUfp7O4BPAXS42ILfvdsUEMDFViM+qOE08A7vEhIPdZGGS
+ fEyj4speB2Yk69V2CD2MN9IE5/dU7lHv7Z7Gvh3tzYP21dZke6ipgNWt7ndcMxeZIsER
+ FcDNzWfC8ydsRNLz0i/dUDDu+ZNKpy+cZuN88qNTy2T0wRzqeDY9F0bCcgcENkhZ7389
+ PyjQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=F9RrxUZJauba3tX3ZE6+TwL/IhjYDGu0yvNBASjmvvg=;
+ b=dtJ3s3zjCdIC+iKOm3EfkCckpG5+RqivIQ7cvp2cWRqmcbNElPHwEWEiZ+eT48lQlG
+ cTdA1oSom/Fk0igJWppwwGPEeAU/zjvUttNY7v4XAHiPE+bzmkeSxX+rhsD/eJNq3iJk
+ zyyB1mGWW4rt6ihFw5ivw+BkKYT7uAaZbrkgP9Dm3nPaVBi5AaITzAiTl9vvvb4jcolj
+ pK7+hZZfNoS26F5ukjVoRHEqWXAXEUog0iyc4JRRwkGMl8pzyg7gmk1k+LMnW+34yT02
+ 6BcvPpOEESG0RIptnHZ/P9npI6TjxyfRjuQecZe/Awb33+3CHMkkyQAL8Tx66pjWo2X7
+ WIKw==
+X-Gm-Message-State: ACrzQf2DFmzj78734DJQ8/FsJK35uNjwmUAHPpdBgB3Rr8oSo8+dpJ0d
+ K/YnhTdzQqupIE4BV8wXGELk+bCG7pHG6JjnHoE=
+X-Google-Smtp-Source: AMsMyM6UDRzIvlNjYKY0c4hyt+nkhmalBHjieXw4tVuo5TgPqmtCi4sFsVHsHu+LH6Z1/MXVj9DUPehnJMCJxo9Pco4=
+X-Received: by 2002:aa7:d744:0:b0:45c:e353:e891 with SMTP id
+ a4-20020aa7d744000000b0045ce353e891mr1485536eds.36.1666993223904; Fri, 28 Oct
+ 2022 14:40:23 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.67.164.66]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- canpemm500009.china.huawei.com (7.192.105.203)
-X-CFilter-Loop: Reflected
+References: <20220921084302.43631-1-yangyicong@huawei.com>
+ <20220921084302.43631-3-yangyicong@huawei.com>
+ <168eac93-a6ee-0b2e-12bb-4222eff24561@arm.com>
+ <8e391962-4e3a-5a56-64b4-78e8637e3b8c@huawei.com>
+ <CAGsJ_4z=dZbrAUD9jczT08S3qi_ep-h+EK35UfayVk1S+Cnp2A@mail.gmail.com>
+ <ecd161db-b290-7997-a81e-a0a00bd1c599@arm.com> <87o7tx5oyx.fsf@stealth>
+ <bc44cf85-aee9-03ca-9911-dbd904a43cc8@huawei.com> <87bkpw5bzm.fsf@stealth>
+In-Reply-To: <87bkpw5bzm.fsf@stealth>
+From: Barry Song <21cnbao@gmail.com>
+Date: Sat, 29 Oct 2022 10:40:11 +1300
+Message-ID: <CAGsJ_4xj2fKLOEHYC46P8ZhUPX8rw=yTNv3Zs=CPxLON6Xxvqw@mail.gmail.com>
+Subject: Re: [PATCH v4 2/2] arm64: support batched/deferred tlb shootdown
+ during page reclamation
+To: Punit Agrawal <punit.agrawal@bytedance.com>
+Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -48,334 +69,111 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: wangkefeng.wang@huawei.com, darren@os.amperecomputing.com,
- peterz@infradead.org, yangyicong@hisilicon.com, punit.agrawal@bytedance.com,
- Nadav Amit <namit@vmware.com>, guojian@oppo.com,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- zhangshiming@oppo.com, lipeifeng@oppo.com, corbet@lwn.net,
- Barry Song <21cnbao@gmail.com>, Mel Gorman <mgorman@suse.de>,
- linux-mips@vger.kernel.org, arnd@arndb.de, realmz6@gmail.com,
- Barry Song <v-songbaohua@oppo.com>, openrisc@lists.librecores.org,
- prime.zeng@hisilicon.com, xhao@linux.alibaba.com, linux-kernel@vger.kernel.org,
- huzhanyuan@oppo.com, linuxppc-dev@lists.ozlabs.org
+Cc: wangkefeng.wang@huawei.com, prime.zeng@hisilicon.com,
+ Anshuman Khandual <anshuman.khandual@arm.com>, linux-doc@vger.kernel.org,
+ peterz@infradead.org, catalin.marinas@arm.com, yangyicong@hisilicon.com,
+ linux-mm@kvack.org, Nadav Amit <namit@vmware.com>, guojian@oppo.com,
+ linux-riscv@lists.infradead.org, will@kernel.org, linux-s390@vger.kernel.org,
+ zhangshiming@oppo.com, lipeifeng@oppo.com, corbet@lwn.net, x86@kernel.org,
+ Mel Gorman <mgorman@suse.de>, linux-mips@vger.kernel.org, arnd@arndb.de,
+ realmz6@gmail.com, Barry Song <v-songbaohua@oppo.com>,
+ openrisc@lists.librecores.org, darren@os.amperecomputing.com,
+ linux-arm-kernel@lists.infradead.org, xhao@linux.alibaba.com,
+ linux-kernel@vger.kernel.org, huzhanyuan@oppo.com,
+ Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
+ linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-From: Barry Song <v-songbaohua@oppo.com>
+On Sat, Oct 29, 2022 at 2:11 AM Punit Agrawal
+<punit.agrawal@bytedance.com> wrote:
+>
+> Yicong Yang <yangyicong@huawei.com> writes:
+>
+> > On 2022/10/27 22:19, Punit Agrawal wrote:
+> >>
+> >> [ Apologies for chiming in late in the conversation ]
+> >>
+> >> Anshuman Khandual <anshuman.khandual@arm.com> writes:
+> >>
+> >>> On 9/28/22 05:53, Barry Song wrote:
+> >>>> On Tue, Sep 27, 2022 at 10:15 PM Yicong Yang <yangyicong@huawei.com> wrote:
+> >>>>>
+> >>>>> On 2022/9/27 14:16, Anshuman Khandual wrote:
+> >>>>>> [...]
+> >>>>>>
+> >>>>>> On 9/21/22 14:13, Yicong Yang wrote:
+> >>>>>>> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
+> >>>>>>> +{
+> >>>>>>> +    /* for small systems with small number of CPUs, TLB shootdown is cheap */
+> >>>>>>> +    if (num_online_cpus() <= 4)
+> >>>>>>
+> >>>>>> It would be great to have some more inputs from others, whether 4 (which should
+> >>>>>> to be codified into a macro e.g ARM64_NR_CPU_DEFERRED_TLB, or something similar)
+> >>>>>> is optimal for an wide range of arm64 platforms.
+> >>>>>>
+> >>>>
+> >>>> I have tested it on a 4-cpus and 8-cpus machine. but i have no machine
+> >>>> with 5,6,7
+> >>>> cores.
+> >>>> I saw improvement on 8-cpus machines and I found 4-cpus machines don't need
+> >>>> this patch.
+> >>>>
+> >>>> so it seems safe to have
+> >>>> if (num_online_cpus()  < 8)
+> >>>>
+> >>>>>
+> >>>>> Do you prefer this macro to be static or make it configurable through kconfig then
+> >>>>> different platforms can make choice based on their own situations? It maybe hard to
+> >>>>> test on all the arm64 platforms.
+> >>>>
+> >>>> Maybe we can have this default enabled on machines with 8 and more cpus and
+> >>>> provide a tlbflush_batched = on or off to allow users enable or
+> >>>> disable it according
+> >>>> to their hardware and products. Similar example: rodata=on or off.
+> >>>
+> >>> No, sounds bit excessive. Kernel command line options should not be added
+> >>> for every possible run time switch options.
+> >>>
+> >>>>
+> >>>> Hi Anshuman, Will,  Catalin, Andrew,
+> >>>> what do you think about this approach?
+> >>>>
+> >>>> BTW, haoxin mentioned another important user scenarios for tlb bach on arm64:
+> >>>> https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
+> >>>>
+> >>>> I do believe we need it based on the expensive cost of tlb shootdown in arm64
+> >>>> even by hardware broadcast.
+> >>>
+> >>> Alright, for now could we enable ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH selectively
+> >>> with CONFIG_EXPERT and for num_online_cpus()  > 8 ?
+> >>
+> >> When running the test program in the commit in a VM, I saw benefits from
+> >> the patches at all sizes from 2, 4, 8, 32 vcpus. On the test machine,
+> >> ptep_clear_flush() went from ~1% in the unpatched version to not showing
+> >> up.
+> >>
+> >
+> > Maybe you're booting VM on a server with more than 32 cores and Barry tested
+> > on his 4 CPUs embedded platform. I guess a 4 CPU VM is not fully equivalent to
+> > a 4 CPU real machine as the tbli and dsb in the VM may influence the host
+> > as well.
+>
+> Yeah, I also wondered about this.
+>
+> I was able to test on a 6-core RK3399 based system - there the
+> ptep_clear_flush() was only 0.10% of the overall execution time. The
+> hardware seems to do a pretty good job of keeping the TLB flushing
+> overhead low.
 
-on x86, batched and deferred tlb shootdown has lead to 90%
-performance increase on tlb shootdown. on arm64, HW can do
-tlb shootdown without software IPI. But sync tlbi is still
-quite expensive.
+RK3399 has Dual-core ARM Cortex-A72 MPCore processor and
+Quad-core ARM Cortex-A53 MPCore processor. you are probably
+going to see different overhead of ptep_clear_flush() when you
+bind the micro-benchmark on different cores.
 
-Even running a simplest program which requires swapout can
-prove this is true,
- #include <sys/types.h>
- #include <unistd.h>
- #include <sys/mman.h>
- #include <string.h>
+>
+> [...]
+>
 
- int main()
- {
- #define SIZE (1 * 1024 * 1024)
-         volatile unsigned char *p = mmap(NULL, SIZE, PROT_READ | PROT_WRITE,
-                                          MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-
-         memset(p, 0x88, SIZE);
-
-         for (int k = 0; k < 10000; k++) {
-                 /* swap in */
-                 for (int i = 0; i < SIZE; i += 4096) {
-                         (void)p[i];
-                 }
-
-                 /* swap out */
-                 madvise(p, SIZE, MADV_PAGEOUT);
-         }
- }
-
-Perf result on snapdragon 888 with 8 cores by using zRAM
-as the swap block device.
-
- ~ # perf record taskset -c 4 ./a.out
- [ perf record: Woken up 10 times to write data ]
- [ perf record: Captured and wrote 2.297 MB perf.data (60084 samples) ]
- ~ # perf report
- # To display the perf.data header info, please use --header/--header-only options.
- # To display the perf.data header info, please use --header/--header-only options.
- #
- #
- # Total Lost Samples: 0
- #
- # Samples: 60K of event 'cycles'
- # Event count (approx.): 35706225414
- #
- # Overhead  Command  Shared Object      Symbol
- # ........  .......  .................  .............................................................................
- #
-    21.07%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irq
-     8.23%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irqrestore
-     6.67%  a.out    [kernel.kallsyms]  [k] filemap_map_pages
-     6.16%  a.out    [kernel.kallsyms]  [k] __zram_bvec_write
-     5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
-     3.71%  a.out    [kernel.kallsyms]  [k] _raw_spin_lock
-     3.49%  a.out    [kernel.kallsyms]  [k] memset64
-     1.63%  a.out    [kernel.kallsyms]  [k] clear_page
-     1.42%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock
-     1.26%  a.out    [kernel.kallsyms]  [k] mod_zone_state.llvm.8525150236079521930
-     1.23%  a.out    [kernel.kallsyms]  [k] xas_load
-     1.15%  a.out    [kernel.kallsyms]  [k] zram_slot_lock
-
-ptep_clear_flush() takes 5.36% CPU in the micro-benchmark
-swapping in/out a page mapped by only one process. If the
-page is mapped by multiple processes, typically, like more
-than 100 on a phone, the overhead would be much higher as
-we have to run tlb flush 100 times for one single page.
-Plus, tlb flush overhead will increase with the number
-of CPU cores due to the bad scalability of tlb shootdown
-in HW, so those ARM64 servers should expect much higher
-overhead.
-
-Further perf annonate shows 95% cpu time of ptep_clear_flush
-is actually used by the final dsb() to wait for the completion
-of tlb flush. This provides us a very good chance to leverage
-the existing batched tlb in kernel. The minimum modification
-is that we only send async tlbi in the first stage and we send
-dsb while we have to sync in the second stage.
-
-With the above simplest micro benchmark, collapsed time to
-finish the program decreases around 5%.
-
-Typical collapsed time w/o patch:
- ~ # time taskset -c 4 ./a.out
- 0.21user 14.34system 0:14.69elapsed
-w/ patch:
- ~ # time taskset -c 4 ./a.out
- 0.22user 13.45system 0:13.80elapsed
-
-Also, Yicong Yang added the following observation.
-	Tested with benchmark in the commit on Kunpeng920 arm64 server,
-	observed an improvement around 12.5% with command
-	`time ./swap_bench`.
-		w/o		w/
-	real	0m13.460s	0m11.771s
-	user	0m0.248s	0m0.279s
-	sys	0m12.039s	0m11.458s
-
-	Originally it's noticed a 16.99% overhead of ptep_clear_flush()
-	which has been eliminated by this patch:
-
-	[root@localhost yang]# perf record -- ./swap_bench && perf report
-	[...]
-	16.99%  swap_bench  [kernel.kallsyms]  [k] ptep_clear_flush
-
-It is tested on 4,8,128 CPU platforms and shows to be beneficial on
-large systems but may not have improvement on small systems like on
-a 4 CPU platform. So make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends
-on CONFIG_EXPERT for this stage and only make this enabled on systems
-with more than 8 CPUs. User can modify this threshold according to
-their own platforms by CONFIG_NR_CPUS_FOR_BATCHED_TLB.
-
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Nadav Amit <namit@vmware.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Tested-by: Yicong Yang <yangyicong@hisilicon.com>
-Tested-by: Xin Hao <xhao@linux.alibaba.com>
-Signed-off-by: Barry Song <v-songbaohua@oppo.com>
-Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
-Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
----
- .../features/vm/TLB/arch-support.txt          |  2 +-
- arch/arm64/Kconfig                            |  6 +++
- arch/arm64/include/asm/tlbbatch.h             | 12 +++++
- arch/arm64/include/asm/tlbflush.h             | 46 ++++++++++++++++++-
- arch/x86/include/asm/tlbflush.h               |  3 +-
- mm/rmap.c                                     | 10 ++--
- 6 files changed, 71 insertions(+), 8 deletions(-)
- create mode 100644 arch/arm64/include/asm/tlbbatch.h
-
-diff --git a/Documentation/features/vm/TLB/arch-support.txt b/Documentation/features/vm/TLB/arch-support.txt
-index 039e4e91ada3..2caf815d7c6c 100644
---- a/Documentation/features/vm/TLB/arch-support.txt
-+++ b/Documentation/features/vm/TLB/arch-support.txt
-@@ -9,7 +9,7 @@
-     |       alpha: | TODO |
-     |         arc: | TODO |
-     |         arm: | TODO |
--    |       arm64: | N/A  |
-+    |       arm64: |  ok  |
-     |        csky: | TODO |
-     |     hexagon: | TODO |
-     |        ia64: | TODO |
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 505c8a1ccbe0..72975e82c7d7 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -93,6 +93,7 @@ config ARM64
- 	select ARCH_SUPPORTS_INT128 if CC_HAS_INT128
- 	select ARCH_SUPPORTS_NUMA_BALANCING
- 	select ARCH_SUPPORTS_PAGE_TABLE_CHECK
-+	select ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH if EXPERT
- 	select ARCH_WANT_COMPAT_IPC_PARSE_VERSION if COMPAT
- 	select ARCH_WANT_DEFAULT_BPF_JIT
- 	select ARCH_WANT_DEFAULT_TOPDOWN_MMAP_LAYOUT
-@@ -268,6 +269,11 @@ config ARM64_CONT_PMD_SHIFT
- 	default 5 if ARM64_16K_PAGES
- 	default 4
- 
-+config ARM64_NR_CPUS_FOR_BATCHED_TLB
-+	int "Threshold to enable batched TLB flush"
-+	default 8
-+	depends on ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
-+
- config ARCH_MMAP_RND_BITS_MIN
- 	default 14 if ARM64_64K_PAGES
- 	default 16 if ARM64_16K_PAGES
-diff --git a/arch/arm64/include/asm/tlbbatch.h b/arch/arm64/include/asm/tlbbatch.h
-new file mode 100644
-index 000000000000..fedb0b87b8db
---- /dev/null
-+++ b/arch/arm64/include/asm/tlbbatch.h
-@@ -0,0 +1,12 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ARCH_ARM64_TLBBATCH_H
-+#define _ARCH_ARM64_TLBBATCH_H
-+
-+struct arch_tlbflush_unmap_batch {
-+	/*
-+	 * For arm64, HW can do tlb shootdown, so we don't
-+	 * need to record cpumask for sending IPI
-+	 */
-+};
-+
-+#endif /* _ARCH_ARM64_TLBBATCH_H */
-diff --git a/arch/arm64/include/asm/tlbflush.h b/arch/arm64/include/asm/tlbflush.h
-index 412a3b9a3c25..b21cdeb57a18 100644
---- a/arch/arm64/include/asm/tlbflush.h
-+++ b/arch/arm64/include/asm/tlbflush.h
-@@ -254,17 +254,23 @@ static inline void flush_tlb_mm(struct mm_struct *mm)
- 	dsb(ish);
- }
- 
--static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
-+static inline void __flush_tlb_page_nosync(struct mm_struct *mm,
- 					 unsigned long uaddr)
- {
- 	unsigned long addr;
- 
- 	dsb(ishst);
--	addr = __TLBI_VADDR(uaddr, ASID(vma->vm_mm));
-+	addr = __TLBI_VADDR(uaddr, ASID(mm));
- 	__tlbi(vale1is, addr);
- 	__tlbi_user(vale1is, addr);
- }
- 
-+static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
-+					 unsigned long uaddr)
-+{
-+	return __flush_tlb_page_nosync(vma->vm_mm, uaddr);
-+}
-+
- static inline void flush_tlb_page(struct vm_area_struct *vma,
- 				  unsigned long uaddr)
- {
-@@ -272,6 +278,42 @@ static inline void flush_tlb_page(struct vm_area_struct *vma,
- 	dsb(ish);
- }
- 
-+#ifdef CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
-+
-+static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
-+{
-+	/*
-+	 * TLB batched flush is proved to be beneficial for systems with large
-+	 * number of CPUs, especially system with more than 8 CPUs. TLB shutdown
-+	 * is cheap on small systems which may not need this feature. So use
-+	 * a threshold for enabling this to avoid potential side effects on
-+	 * these platforms.
-+	 */
-+	if (num_online_cpus() <= CONFIG_ARM64_NR_CPUS_FOR_BATCHED_TLB)
-+		return false;
-+
-+#ifdef CONFIG_ARM64_WORKAROUND_REPEAT_TLBI
-+	if (unlikely(this_cpu_has_cap(ARM64_WORKAROUND_REPEAT_TLBI)))
-+		return false;
-+#endif
-+
-+	return true;
-+}
-+
-+static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
-+					struct mm_struct *mm,
-+					unsigned long uaddr)
-+{
-+	__flush_tlb_page_nosync(mm, uaddr);
-+}
-+
-+static inline void arch_tlbbatch_flush(struct arch_tlbflush_unmap_batch *batch)
-+{
-+	dsb(ish);
-+}
-+
-+#endif /* CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH */
-+
- /*
-  * This is meant to avoid soft lock-ups on large TLB flushing ranges and not
-  * necessarily a performance improvement.
-diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
-index 8a497d902c16..5bd78ae55cd4 100644
---- a/arch/x86/include/asm/tlbflush.h
-+++ b/arch/x86/include/asm/tlbflush.h
-@@ -264,7 +264,8 @@ static inline u64 inc_mm_tlb_gen(struct mm_struct *mm)
- }
- 
- static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
--					struct mm_struct *mm)
-+					struct mm_struct *mm,
-+					unsigned long uaddr)
- {
- 	inc_mm_tlb_gen(mm);
- 	cpumask_or(&batch->cpumask, &batch->cpumask, mm_cpumask(mm));
-diff --git a/mm/rmap.c b/mm/rmap.c
-index a9ab10bc0144..a1b408ff44e5 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -640,12 +640,13 @@ void try_to_unmap_flush_dirty(void)
- #define TLB_FLUSH_BATCH_PENDING_LARGE			\
- 	(TLB_FLUSH_BATCH_PENDING_MASK / 2)
- 
--static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
-+static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable,
-+				      unsigned long uaddr)
- {
- 	struct tlbflush_unmap_batch *tlb_ubc = &current->tlb_ubc;
- 	int batch, nbatch;
- 
--	arch_tlbbatch_add_mm(&tlb_ubc->arch, mm);
-+	arch_tlbbatch_add_mm(&tlb_ubc->arch, mm, uaddr);
- 	tlb_ubc->flush_required = true;
- 
- 	/*
-@@ -723,7 +724,8 @@ void flush_tlb_batched_pending(struct mm_struct *mm)
- 	}
- }
- #else
--static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
-+static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable,
-+				      unsigned long uaddr)
- {
- }
- 
-@@ -1596,7 +1598,7 @@ static bool try_to_unmap_one(struct folio *folio, struct vm_area_struct *vma,
- 				 */
- 				pteval = ptep_get_and_clear(mm, address, pvmw.pte);
- 
--				set_tlb_ubc_flush_pending(mm, pte_dirty(pteval));
-+				set_tlb_ubc_flush_pending(mm, pte_dirty(pteval), address);
- 			} else {
- 				pteval = ptep_clear_flush(vma, address, pvmw.pte);
- 			}
--- 
-2.24.0
-
+Thanks
+Barry
