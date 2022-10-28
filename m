@@ -2,40 +2,63 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC9EDECAAA1
-	for <openrisc@archiver.kernel.org>; Fri, 28 Oct 2022 02:14:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2FA1FA3743
+	for <openrisc@archiver.kernel.org>; Fri, 28 Oct 2022 07:40:42 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id A1BE624C42;
-	Fri, 28 Oct 2022 04:14:46 +0200 (CEST)
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by mail.librecores.org (Postfix) with ESMTP id 3F8E724C40
- for <openrisc@lists.librecores.org>; Fri, 28 Oct 2022 04:14:45 +0200 (CEST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2BAF523A;
- Thu, 27 Oct 2022 19:14:48 -0700 (PDT)
-Received: from [192.168.0.146] (unknown [172.31.20.19])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id AD67A3F445;
- Thu, 27 Oct 2022 19:14:32 -0700 (PDT)
-Message-ID: <8a3ade4c-1714-5ffd-ed57-02ab0509725b@arm.com>
-Date: Fri, 28 Oct 2022 07:44:29 +0530
+	by mail.librecores.org (Postfix) with ESMTP id 1D3E624B8C;
+	Fri, 28 Oct 2022 09:40:41 +0200 (CEST)
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com
+ [209.85.128.50])
+ by mail.librecores.org (Postfix) with ESMTPS id C394F24B58
+ for <openrisc@lists.librecores.org>; Fri, 28 Oct 2022 09:40:39 +0200 (CEST)
+Received: by mail-wm1-f50.google.com with SMTP id
+ bh7-20020a05600c3d0700b003c6fb3b2052so2932424wmb.2
+ for <openrisc@lists.librecores.org>; Fri, 28 Oct 2022 00:40:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=ventanamicro.com; s=google;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+ bh=i2N6u0rpi5MSxrtESZE6Q60hmeXl2yrT4Q/yzn9seGQ=;
+ b=AoCvpD2g8hOJXZ2R+h0TvZDHfaokVkjBrIgJhsnS+RetduEnMeG2bCCW5x/1wmwm7y
+ tpBT95DdI7WubCuwdur/JGKGBJMJTmP2C+cDmuRV2EIc6vAsZ3DUgxOdepf3Ri0V5o/g
+ s61UXLKKrJMPwJgSYbyvTnZ2kLiEieceMzgGWlWdWLree/oXrw+5/Cgog666CiUnyi5H
+ iiuCQyE6pPGPEBhy4h9c2slAcvDIj2QVcAFikE7NBHa9TvAFyRkoKz9Xmr0z/0PG8Ue7
+ mIV0FWee9ddQzPpFwF4bakArR7lyrUpkkh9KC8i6sE/VKS8eJ/p/NH5MjHPo/bG55EaI
+ zcvA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=i2N6u0rpi5MSxrtESZE6Q60hmeXl2yrT4Q/yzn9seGQ=;
+ b=55VnOlvGcIw6yx+uUW3gf8aPeMHX+g8uo+UBOzHOfgjPmkLrBISR7TrssSvjJlFf5p
+ SbRwvRwjXttb9hSEP7BJWvWie1KClJllNTEzcTAtk3eGc6aZWdEmkaJvKW6bOoGjMKL+
+ 4tIeA7+Ih5mh69wKapoE2n7b5Ae+D9yg+8eNtO13wf/PtVqUayKBxLDPw9ErrtPTrq6u
+ IFZM/fhLkLn1SXwEyPhOA6ccmUUFVPmFsMWzgO/Cr6J4fEIRVkIHQQ3nv4Tf4p2nFNBM
+ b3eywlSxx6OUhVbR9Q+ICKkla/C3GFQ+EsvLTu35P8YzGKGxRrQ7iXFGIVnFZYBqhr/m
+ JMSQ==
+X-Gm-Message-State: ACrzQf0d9tiMkz0b/o9zywf5n2qKJ6T2jwR1cOCbbObSUyjUHTP7vbRJ
+ Re2KU6no/5K3Sjw587AXm6mLtg==
+X-Google-Smtp-Source: AMsMyM6b9ooO2YT2Bk853NHb7QqLyKbP8a68ufEkfEtecmJkMMeYnDPuL+24oxMQM0KqoQzia6z3ug==
+X-Received: by 2002:a05:600c:3b88:b0:3c6:cef8:8465 with SMTP id
+ n8-20020a05600c3b8800b003c6cef88465mr8354486wms.64.1666942839337; 
+ Fri, 28 Oct 2022 00:40:39 -0700 (PDT)
+Received: from localhost (cst2-173-61.cust.vodafone.cz. [31.30.173.61])
+ by smtp.gmail.com with ESMTPSA id
+ j3-20020a05600c1c0300b003b4ff30e566sm12687932wms.3.2022.10.28.00.40.38
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 28 Oct 2022 00:40:38 -0700 (PDT)
+Date: Fri, 28 Oct 2022 09:40:37 +0200
+From: Andrew Jones <ajones@ventanamicro.com>
+To: Palmer Dabbelt <palmer@dabbelt.com>
+Subject: Re: [PATCH v3 0/2] Fix /proc/cpuinfo cpumask warning
+Message-ID: <20221028074037.ksvtvzajyulm3oy2@kamzik>
+References: <20221014155845.1986223-1-ajones@ventanamicro.com>
+ <mhng-b3bcbdea-1572-44ba-9d9a-e35e55b8880f@palmer-ri-x1c9a>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.2
-Subject: Re: [PATCH v4 2/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-Content-Language: en-US
-To: Barry Song <21cnbao@gmail.com>, Punit Agrawal <punit.agrawal@bytedance.com>
-References: <20220921084302.43631-1-yangyicong@huawei.com>
- <20220921084302.43631-3-yangyicong@huawei.com>
- <168eac93-a6ee-0b2e-12bb-4222eff24561@arm.com>
- <8e391962-4e3a-5a56-64b4-78e8637e3b8c@huawei.com>
- <CAGsJ_4z=dZbrAUD9jczT08S3qi_ep-h+EK35UfayVk1S+Cnp2A@mail.gmail.com>
- <ecd161db-b290-7997-a81e-a0a00bd1c599@arm.com> <87o7tx5oyx.fsf@stealth>
- <CAGsJ_4zrGfPYAXGW0g3Z-GF4vT7GD0xDjZn1dv-qruztEQTghg@mail.gmail.com>
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-In-Reply-To: <CAGsJ_4zrGfPYAXGW0g3Z-GF4vT7GD0xDjZn1dv-qruztEQTghg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <mhng-b3bcbdea-1572-44ba-9d9a-e35e55b8880f@palmer-ri-x1c9a>
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -48,86 +71,71 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: wangkefeng.wang@huawei.com, prime.zeng@hisilicon.com,
- linux-doc@vger.kernel.org, peterz@infradead.org, catalin.marinas@arm.com,
- yangyicong@hisilicon.com, linux-mm@kvack.org, Nadav Amit <namit@vmware.com>,
- guojian@oppo.com, linux-riscv@lists.infradead.org, will@kernel.org,
- linux-s390@vger.kernel.org, zhangshiming@oppo.com, lipeifeng@oppo.com,
- corbet@lwn.net, x86@kernel.org, Mel Gorman <mgorman@suse.de>,
- linux-mips@vger.kernel.org, arnd@arndb.de, realmz6@gmail.com,
- Barry Song <v-songbaohua@oppo.com>, openrisc@lists.librecores.org,
- darren@os.amperecomputing.com, linux-arm-kernel@lists.infradead.org,
- xhao@linux.alibaba.com, linux-kernel@vger.kernel.org, huzhanyuan@oppo.com,
- Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
- linuxppc-dev@lists.ozlabs.org
+Cc: jonas@southpole.se, linux-s390@vger.kernel.org, agordeev@linux.ibm.com,
+ dave.hansen@linux.intel.com, gor@linux.ibm.com, yury.norov@gmail.com,
+ mpe@ellerman.id.au, hca@linux.ibm.com, x86@kernel.org,
+ linux-kernel@vger.kernel.org, openrisc@lists.librecores.org, mingo@redhat.com,
+ bp@alien8.de, Paul Walmsley <paul.walmsley@sifive.com>,
+ linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+ tglx@linutronix.de, aou@eecs.berkeley.edu
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
+On Thu, Oct 27, 2022 at 04:07:18PM -0700, Palmer Dabbelt wrote:
+> On Fri, 14 Oct 2022 08:58:43 PDT (-0700), ajones@ventanamicro.com wrote:
+> > Commit 78e5a3399421 ("cpumask: fix checking valid cpu range") has
+> > started issuing warnings[*] when cpu indices equal to nr_cpu_ids - 1
+> > are passed to cpumask_next* functions. seq_read_iter() and cpuinfo's
+> > start and next seq operations implement a pattern like
+> > 
+> >   n = cpumask_next(n - 1, mask);
+> >   show(n);
+> >   while (1) {
+> >       ++n;
+> >       n = cpumask_next(n - 1, mask);
+> >       if (n >= nr_cpu_ids)
+> >           break;
+> >       show(n);
+> >   }
+> > 
+> > which will issue the warning when reading /proc/cpuinfo.
+> > 
+> > [*] Warnings will only appear with DEBUG_PER_CPU_MAPS enabled.
+> > 
+> > This series address the issue for x86 and riscv, but from a quick
+> > grep of cpuinfo seq operations, I think at least openrisc, powerpc,
+> > and s390 also need an equivalent patch. While the test is simple (see
+> > next paragraph) I'm not equipped to test on each architecture.
+> > 
+> > To test, just build a kernel with DEBUG_PER_CPU_MAPS enabled, boot to
+> > a shell, do 'cat /proc/cpuinfo', and look for a kernel warning.
+> > 
+> > While the patches are being posted together in a series since they're
+> > for two different architectures they don't necessarily need to go
+> > through the same tree.
+> > 
+> > v3:
+> >   - Change condition from >= to == in order to still get a warning
+> >     for > as that's unexpected. [Yury]
+> >   - Picked up tags on the riscv patch
+> > 
+> > v2:
+> >   - Added all the information I should have in the first place
+> >     to the commit message [Boris]
+> >   - Changed style of fix [Boris]
+> > 
+> > Andrew Jones (2):
+> >   RISC-V: Fix /proc/cpuinfo cpumask warning
+> 
+> I just took the RISC-V fix, might be worth re-sending the x86 one alone as
+> nobody's replied over there so it may be lost.
 
+Thanks Palmer. I still believe this fix is a good idea, or at least
+not wrong, but as the cpumask change which started the warnings was
+reverted (commit 80493877d7d0 ("Revert "cpumask: fix checking valid
+cpu range".")) it seems the urgency for fixes like this one was
+reduced. I'll ping the x86 patch to see if it's still of interest
+or not.
 
-On 10/28/22 03:25, Barry Song wrote:
-> On Fri, Oct 28, 2022 at 3:19 AM Punit Agrawal
-> <punit.agrawal@bytedance.com> wrote:
->>
->> [ Apologies for chiming in late in the conversation ]
->>
->> Anshuman Khandual <anshuman.khandual@arm.com> writes:
->>
->>> On 9/28/22 05:53, Barry Song wrote:
->>>> On Tue, Sep 27, 2022 at 10:15 PM Yicong Yang <yangyicong@huawei.com> wrote:
->>>>> On 2022/9/27 14:16, Anshuman Khandual wrote:
->>>>>> [...]
->>>>>>
->>>>>> On 9/21/22 14:13, Yicong Yang wrote:
->>>>>>> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
->>>>>>> +{
->>>>>>> +    /* for small systems with small number of CPUs, TLB shootdown is cheap */
->>>>>>> +    if (num_online_cpus() <= 4)
->>>>>> It would be great to have some more inputs from others, whether 4 (which should
->>>>>> to be codified into a macro e.g ARM64_NR_CPU_DEFERRED_TLB, or something similar)
->>>>>> is optimal for an wide range of arm64 platforms.
->>>>>>
->>>> I have tested it on a 4-cpus and 8-cpus machine. but i have no machine
->>>> with 5,6,7
->>>> cores.
->>>> I saw improvement on 8-cpus machines and I found 4-cpus machines don't need
->>>> this patch.
->>>>
->>>> so it seems safe to have
->>>> if (num_online_cpus()  < 8)
->>>>
->>>>> Do you prefer this macro to be static or make it configurable through kconfig then
->>>>> different platforms can make choice based on their own situations? It maybe hard to
->>>>> test on all the arm64 platforms.
->>>> Maybe we can have this default enabled on machines with 8 and more cpus and
->>>> provide a tlbflush_batched = on or off to allow users enable or
->>>> disable it according
->>>> to their hardware and products. Similar example: rodata=on or off.
->>> No, sounds bit excessive. Kernel command line options should not be added
->>> for every possible run time switch options.
->>>
->>>> Hi Anshuman, Will,  Catalin, Andrew,
->>>> what do you think about this approach?
->>>>
->>>> BTW, haoxin mentioned another important user scenarios for tlb bach on arm64:
->>>> https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
->>>>
->>>> I do believe we need it based on the expensive cost of tlb shootdown in arm64
->>>> even by hardware broadcast.
->>> Alright, for now could we enable ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH selectively
->>> with CONFIG_EXPERT and for num_online_cpus()  > 8 ?
->> When running the test program in the commit in a VM, I saw benefits from
->> the patches at all sizes from 2, 4, 8, 32 vcpus. On the test machine,
->> ptep_clear_flush() went from ~1% in the unpatched version to not showing
->> up.
->>
->> Yicong mentioned that he didn't see any benefit for <= 4 CPUs but is
->> there any overhead? I am wondering what are the downsides of enabling
->> the config by default.
-> As we are deferring tlb flush, but sometimes while we are modifying the vma
-> which are deferred, we need to do a sync by flush_tlb_batched_pending() in
-> mprotect() , madvise() to make sure they can see the flushed result. if nobody
-> is doing mprotect(), madvise() etc in the deferred period, the overhead is zero.
-
-Right, it is difficult to justify this overhead for smaller systems,
-which for sure would not benefit from this batched TLB framework.
+Thanks,
+drew
