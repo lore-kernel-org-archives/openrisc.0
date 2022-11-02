@@ -2,60 +2,60 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1318C433FE
-	for <openrisc@archiver.kernel.org>; Wed,  2 Nov 2022 18:34:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA2DEC433FE
+	for <openrisc@archiver.kernel.org>; Wed,  2 Nov 2022 18:34:35 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id A8E2E24C68;
-	Wed,  2 Nov 2022 19:34:28 +0100 (CET)
+	by mail.librecores.org (Postfix) with ESMTP id CBDCA24C7D;
+	Wed,  2 Nov 2022 19:34:34 +0100 (CET)
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by mail.librecores.org (Postfix) with ESMTP id 6F60124C42
- for <openrisc@lists.librecores.org>; Wed,  2 Nov 2022 19:34:27 +0100 (CET)
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by mail.librecores.org (Postfix) with ESMTP id 4224E24C42
+ for <openrisc@lists.librecores.org>; Wed,  2 Nov 2022 19:34:33 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1667414066;
+ s=mimecast20190719; t=1667414072;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=vPxNJZ59dAj9Aw/rnn/vqSwo8b8sDM1O6Xi76OwhNZs=;
- b=Fe71/qi6ynieum+6CED0InQm406/v4yXSAzYo77+vPxSWtmHhgXkkS1zsoSVjZmE5xMuLQ
- jDaQRqrZq+bu9wzNN13KxiPVqc/DdQP6o+aNltlP+srcOMw12wtmHGJmB/lXu3GE0D6/Wv
- PaK3mSES+/gU9o2HPY4J6haSkcMA1Lc=
-Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
- [209.85.219.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=D+DUkFwzVDWBAoIlFP88fJ/ZyZos6qnRzZwRuH+/Nwc=;
+ b=UM0kYzN5hu4gJrz1EO27DPydtkvsgjcYA1IAUn9TMKgRTffxVj3nGXvIydJX0XqRlPd/j6
+ QYJ1mlAbiLNdT3thmlgrV7CH9l2UALuD+TxCV4gt4Mcnt0THuSCeSDcb7IYrlnp8nvBi4S
+ BITY9KUQIVJ5dtucduzNUXXGWqNBQIE=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-282-wq1lTWstPR-nZKjNmCq5AA-1; Wed, 02 Nov 2022 14:34:25 -0400
-X-MC-Unique: wq1lTWstPR-nZKjNmCq5AA-1
-Received: by mail-qv1-f72.google.com with SMTP id
- ln3-20020a0562145a8300b004b8c29a7d50so10462494qvb.15
- for <openrisc@lists.librecores.org>; Wed, 02 Nov 2022 11:34:25 -0700 (PDT)
+ us-mta-403-tgtVl0jgOZOOIzpCvBvlFA-1; Wed, 02 Nov 2022 14:34:31 -0400
+X-MC-Unique: tgtVl0jgOZOOIzpCvBvlFA-1
+Received: by mail-qt1-f197.google.com with SMTP id
+ ay12-20020a05622a228c00b003a52bd33749so5832009qtb.8
+ for <openrisc@lists.librecores.org>; Wed, 02 Nov 2022 11:34:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=content-transfer-encoding:mime-version:references:in-reply-to
  :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
  :subject:date:message-id:reply-to;
- bh=vPxNJZ59dAj9Aw/rnn/vqSwo8b8sDM1O6Xi76OwhNZs=;
- b=WNwbkZwMhFLPhncEAZdAnV/kgdDqQlwbmgmd0M7PV8CwgzG50VatBCV931n4mtZykM
- 3M3xZJjv40iY3V6QBAFrAEzT4BGgjSzuLMsopb26aF3gYBatOWaukF68pIUw2FgXikRx
- 3wugQnBvfB5Nfqjr7SEHYUCvtNILqAPss1ln/CDAJyzIvoBxPVwG1IE5e4/fhi5RsWEU
- gwctQbxxz5ns8ftDcDfJ64gk5B8g8tquAdLuCfhDO1GiUvuVs3PaZOHuLfj5BF50RZ9t
- K5s2kJ9Y3u0Y+qzJkHK3A2pm2tGFXCVLcyn1VI5RYH/rI4/D2Uoi9uf99hcn8/aqeWeM
- 7/7w==
-X-Gm-Message-State: ACrzQf2kRop3FiRoEYbZyREMCF+UAxE7A1or0KeYVDXknrOYHK28NcSC
- sxQVA+66OPgafldU39VZMNocAM8QZEbeoNfUeOItzB9YXkDKLGq92A22srqPc0iL1WxA0lwspQL
- NCnT8ayKQL1XA1rFE8f8f43x7OQ==
-X-Received: by 2002:a37:92c6:0:b0:6fa:28b2:1e2a with SMTP id
- u189-20020a3792c6000000b006fa28b21e2amr13574175qkd.9.1667414064976; 
- Wed, 02 Nov 2022 11:34:24 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM4EXOUjNlIxUYR8PDvF9w7H8/QWuUsvimzUEYEqnOFqRnuqhuZtDCzI4Vu/740apEttSzlakQ==
-X-Received: by 2002:a37:92c6:0:b0:6fa:28b2:1e2a with SMTP id
- u189-20020a3792c6000000b006fa28b21e2amr13574163qkd.9.1667414064758; 
- Wed, 02 Nov 2022 11:34:24 -0700 (PDT)
+ bh=D+DUkFwzVDWBAoIlFP88fJ/ZyZos6qnRzZwRuH+/Nwc=;
+ b=WqspO8IZ5wTJsEqaiX8IBk+NahKizdNEGufzqpIIzAnAWxFUCJDs/cMqzUFpFOT7oH
+ 8WkK3hszLKzEtnqYg5V6kgrxsTT9ZZPZYR/c9PSbVkGg0Gt/djnYtwmSf1ABAXtA7ply
+ O/f4OBavlV+02skGBFA7fyMnkPduVq0743CkBrQYPzwWXeDqKsgkRbf7T9b1Yo1pC07X
+ mKiSFmESyJ0WGnyEizLxZspBaUiv9/DysqxkaIcOzAS6gKz2VKulq3vH1kCLsJ/M5JZk
+ aEmJpuJhLvfMbhB/YpEn99HuYHeTiQGTFyUiCdNMFgKb9YJqv/vEwpz9ri917AOd1ziC
+ YkEg==
+X-Gm-Message-State: ACrzQf0a/0cLBwQ4bNclpquOj5N5MeBkOSg5NQ4I90DJlYj/HNQR7PFx
+ 6Kg8DqCuhbY95PidSZTVkGGd+HUe5W00HgKDowZ7cn2pO5uLzpRDFwDhhJdQjfOhUQNdrHvEYxw
+ BRpZ8CHX+bMAU1MhyzPfbl+uMYw==
+X-Received: by 2002:a37:2e84:0:b0:6cf:8dd4:7adc with SMTP id
+ u126-20020a372e84000000b006cf8dd47adcmr18698505qkh.723.1667414070504; 
+ Wed, 02 Nov 2022 11:34:30 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM5JVN0uUv5xcXV3NWn4R+zPAe32FfY9CU6reQSjaMcymj00Sb8uKMdjN8WczbxFLj+CwWikmw==
+X-Received: by 2002:a37:2e84:0:b0:6cf:8dd4:7adc with SMTP id
+ u126-20020a372e84000000b006cf8dd47adcmr18698439qkh.723.1667414070130; 
+ Wed, 02 Nov 2022 11:34:30 -0700 (PDT)
 Received: from vschneid.remote.csb ([149.71.65.94])
  by smtp.gmail.com with ESMTPSA id
- w187-20020a3794c4000000b006eed47a1a1esm8757820qkd.134.2022.11.02.11.34.19
+ w187-20020a3794c4000000b006eed47a1a1esm8757820qkd.134.2022.11.02.11.34.24
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 02 Nov 2022 11:34:23 -0700 (PDT)
+ Wed, 02 Nov 2022 11:34:29 -0700 (PDT)
 From: Valentin Schneider <vschneid@redhat.com>
 To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
@@ -66,10 +66,9 @@ To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
  linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
  linux-xtensa@linux-xtensa.org, x86@kernel.org
-Subject: [RFC PATCH v2 5/8] irq_work: Trace self-IPIs sent via
- arch_irq_work_raise()
-Date: Wed,  2 Nov 2022 18:33:33 +0000
-Message-Id: <20221102183336.3120536-4-vschneid@redhat.com>
+Subject: [RFC PATCH v2 6/8] treewide: Trace IPIs sent via smp_send_reschedule()
+Date: Wed,  2 Nov 2022 18:33:34 +0000
+Message-Id: <20221102183336.3120536-5-vschneid@redhat.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20221102182949.3119584-1-vschneid@redhat.com>
 References: <20221102182949.3119584-1-vschneid@redhat.com>
@@ -97,62 +96,380 @@ Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>,
  Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
  Marcelo Tosatti <mtosatti@redhat.com>, Russell King <linux@armlinux.org.uk>,
  Steven Rostedt <rostedt@goodmis.org>, "David S. Miller" <davem@davemloft.net>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Ingo Molnar <mingo@redhat.com>, Guo Ren <guoren@kernel.org>,
  Nicholas Piggin <npiggin@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>,
- Guo Ren <guoren@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
+ Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>,
  Daniel Bristot de Oliveira <bristot@redhat.com>,
  Frederic Weisbecker <frederic@kernel.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-IPIs sent to remove CPUs via irq_work_queue_on() are now covered by
-trace_ipi_send_cpumask(), add another instance of the tracepoint to cover
-self-IPIs.
+To be able to trace invocations of smp_send_reschedule(), rename the
+arch-specific definitions of it to arch_smp_send_reschedule() and wrap it
+into an smp_send_reschedule() that contains a tracepoint.
 
 Signed-off-by: Valentin Schneider <vschneid@redhat.com>
+[csky bits]
+Acked-by: Guo Ren <guoren@kernel.org>
 ---
- kernel/irq_work.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ arch/alpha/kernel/smp.c          | 2 +-
+ arch/arc/kernel/smp.c            | 2 +-
+ arch/arm/kernel/smp.c            | 2 +-
+ arch/arm64/kernel/smp.c          | 2 +-
+ arch/csky/kernel/smp.c           | 2 +-
+ arch/hexagon/kernel/smp.c        | 2 +-
+ arch/ia64/kernel/smp.c           | 4 ++--
+ arch/loongarch/include/asm/smp.h | 2 +-
+ arch/mips/include/asm/smp.h      | 2 +-
+ arch/openrisc/kernel/smp.c       | 2 +-
+ arch/parisc/kernel/smp.c         | 4 ++--
+ arch/powerpc/kernel/smp.c        | 4 ++--
+ arch/powerpc/kvm/book3s_hv.c     | 1 +
+ arch/riscv/kernel/smp.c          | 4 ++--
+ arch/s390/kernel/smp.c           | 2 +-
+ arch/sh/kernel/smp.c             | 2 +-
+ arch/sparc/kernel/smp_32.c       | 2 +-
+ arch/sparc/kernel/smp_64.c       | 2 +-
+ arch/x86/include/asm/smp.h       | 2 +-
+ arch/x86/kvm/svm/svm.c           | 1 +
+ arch/x86/kvm/x86.c               | 1 +
+ arch/xtensa/kernel/smp.c         | 2 +-
+ include/linux/smp.h              | 2 +-
+ kernel/smp.c                     | 8 ++++++++
+ 24 files changed, 35 insertions(+), 24 deletions(-)
 
-diff --git a/kernel/irq_work.c b/kernel/irq_work.c
-index 7afa40fe5cc43..aec38c294ce68 100644
---- a/kernel/irq_work.c
-+++ b/kernel/irq_work.c
-@@ -22,6 +22,8 @@
- #include <asm/processor.h>
- #include <linux/kasan.h>
- 
-+#include <trace/events/ipi.h>
-+
- static DEFINE_PER_CPU(struct llist_head, raised_list);
- static DEFINE_PER_CPU(struct llist_head, lazy_list);
- static DEFINE_PER_CPU(struct task_struct *, irq_workd);
-@@ -74,6 +76,16 @@ void __weak arch_irq_work_raise(void)
- 	 */
+diff --git a/arch/alpha/kernel/smp.c b/arch/alpha/kernel/smp.c
+index f4e20f75438f8..38637eb9eebd5 100644
+--- a/arch/alpha/kernel/smp.c
++++ b/arch/alpha/kernel/smp.c
+@@ -562,7 +562,7 @@ handle_ipi(struct pt_regs *regs)
  }
  
-+static inline void irq_work_raise(struct irq_work *work)
-+{
-+	if (trace_ipi_send_cpumask_enabled() && arch_irq_work_has_interrupt())
-+		trace_ipi_send_cpumask(cpumask_of(smp_processor_id()),
-+				       _RET_IP_,
-+				       work->func);
-+
-+	arch_irq_work_raise();
-+}
-+
- /* Enqueue on current CPU, work must already be claimed and preempt disabled */
- static void __irq_work_queue_local(struct irq_work *work)
+ void
+-smp_send_reschedule(int cpu)
++arch_smp_send_reschedule(int cpu)
  {
-@@ -99,7 +111,7 @@ static void __irq_work_queue_local(struct irq_work *work)
- 
- 	/* If the work is "lazy", handle it from next tick if any */
- 	if (!lazy_work || tick_nohz_tick_stopped())
--		arch_irq_work_raise();
-+		irq_work_raise(work);
+ #ifdef DEBUG_IPI_MSG
+ 	if (cpu == hard_smp_processor_id())
+diff --git a/arch/arc/kernel/smp.c b/arch/arc/kernel/smp.c
+index ad93fe6e4b77d..409cfa4675b40 100644
+--- a/arch/arc/kernel/smp.c
++++ b/arch/arc/kernel/smp.c
+@@ -292,7 +292,7 @@ static void ipi_send_msg(const struct cpumask *callmap, enum ipi_msg_type msg)
+ 		ipi_send_msg_one(cpu, msg);
  }
  
- /* Enqueue the irq work @work on the current CPU */
+-void smp_send_reschedule(int cpu)
++void arch_smp_send_reschedule(int cpu)
+ {
+ 	ipi_send_msg_one(cpu, IPI_RESCHEDULE);
+ }
+diff --git a/arch/arm/kernel/smp.c b/arch/arm/kernel/smp.c
+index 3b280d55c1c40..f216ac890b6f9 100644
+--- a/arch/arm/kernel/smp.c
++++ b/arch/arm/kernel/smp.c
+@@ -745,7 +745,7 @@ void __init set_smp_ipi_range(int ipi_base, int n)
+ 	ipi_setup(smp_processor_id());
+ }
+ 
+-void smp_send_reschedule(int cpu)
++void arch_smp_send_reschedule(int cpu)
+ {
+ 	smp_cross_call(cpumask_of(cpu), IPI_RESCHEDULE);
+ }
+diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
+index 937d2623e06ba..8d108edc4a89f 100644
+--- a/arch/arm64/kernel/smp.c
++++ b/arch/arm64/kernel/smp.c
+@@ -976,7 +976,7 @@ void __init set_smp_ipi_range(int ipi_base, int n)
+ 	ipi_setup(smp_processor_id());
+ }
+ 
+-void smp_send_reschedule(int cpu)
++void arch_smp_send_reschedule(int cpu)
+ {
+ 	smp_cross_call(cpumask_of(cpu), IPI_RESCHEDULE);
+ }
+diff --git a/arch/csky/kernel/smp.c b/arch/csky/kernel/smp.c
+index 4b605aa2e1d65..fd7f81be16dd6 100644
+--- a/arch/csky/kernel/smp.c
++++ b/arch/csky/kernel/smp.c
+@@ -140,7 +140,7 @@ void smp_send_stop(void)
+ 	on_each_cpu(ipi_stop, NULL, 1);
+ }
+ 
+-void smp_send_reschedule(int cpu)
++void arch_smp_send_reschedule(int cpu)
+ {
+ 	send_ipi_message(cpumask_of(cpu), IPI_RESCHEDULE);
+ }
+diff --git a/arch/hexagon/kernel/smp.c b/arch/hexagon/kernel/smp.c
+index 4ba93e59370c4..4e8bee25b8c68 100644
+--- a/arch/hexagon/kernel/smp.c
++++ b/arch/hexagon/kernel/smp.c
+@@ -217,7 +217,7 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
+ 	}
+ }
+ 
+-void smp_send_reschedule(int cpu)
++void arch_smp_send_reschedule(int cpu)
+ {
+ 	send_ipi(cpumask_of(cpu), IPI_RESCHEDULE);
+ }
+diff --git a/arch/ia64/kernel/smp.c b/arch/ia64/kernel/smp.c
+index e2cc59db86bc2..ea4f009a232b4 100644
+--- a/arch/ia64/kernel/smp.c
++++ b/arch/ia64/kernel/smp.c
+@@ -220,11 +220,11 @@ kdump_smp_send_init(void)
+  * Called with preemption disabled.
+  */
+ void
+-smp_send_reschedule (int cpu)
++arch_smp_send_reschedule (int cpu)
+ {
+ 	ia64_send_ipi(cpu, IA64_IPI_RESCHEDULE, IA64_IPI_DM_INT, 0);
+ }
+-EXPORT_SYMBOL_GPL(smp_send_reschedule);
++EXPORT_SYMBOL_GPL(arch_smp_send_reschedule);
+ 
+ /*
+  * Called with preemption disabled.
+diff --git a/arch/loongarch/include/asm/smp.h b/arch/loongarch/include/asm/smp.h
+index 71189b28bfb27..3fcca134dfb1b 100644
+--- a/arch/loongarch/include/asm/smp.h
++++ b/arch/loongarch/include/asm/smp.h
+@@ -83,7 +83,7 @@ extern void show_ipi_list(struct seq_file *p, int prec);
+  * it goes straight through and wastes no time serializing
+  * anything. Worst case is that we lose a reschedule ...
+  */
+-static inline void smp_send_reschedule(int cpu)
++static inline void arch_smp_send_reschedule(int cpu)
+ {
+ 	loongson3_send_ipi_single(cpu, SMP_RESCHEDULE);
+ }
+diff --git a/arch/mips/include/asm/smp.h b/arch/mips/include/asm/smp.h
+index 5d9ff61004ca7..9806e79895d99 100644
+--- a/arch/mips/include/asm/smp.h
++++ b/arch/mips/include/asm/smp.h
+@@ -66,7 +66,7 @@ extern void calculate_cpu_foreign_map(void);
+  * it goes straight through and wastes no time serializing
+  * anything. Worst case is that we lose a reschedule ...
+  */
+-static inline void smp_send_reschedule(int cpu)
++static inline void arch_smp_send_reschedule(int cpu)
+ {
+ 	extern const struct plat_smp_ops *mp_ops;	/* private */
+ 
+diff --git a/arch/openrisc/kernel/smp.c b/arch/openrisc/kernel/smp.c
+index e1419095a6f0a..0a7a059e2dff4 100644
+--- a/arch/openrisc/kernel/smp.c
++++ b/arch/openrisc/kernel/smp.c
+@@ -173,7 +173,7 @@ void handle_IPI(unsigned int ipi_msg)
+ 	}
+ }
+ 
+-void smp_send_reschedule(int cpu)
++void arch_smp_send_reschedule(int cpu)
+ {
+ 	smp_cross_call(cpumask_of(cpu), IPI_RESCHEDULE);
+ }
+diff --git a/arch/parisc/kernel/smp.c b/arch/parisc/kernel/smp.c
+index 7dbd92cafae38..b7fc859fa87db 100644
+--- a/arch/parisc/kernel/smp.c
++++ b/arch/parisc/kernel/smp.c
+@@ -246,8 +246,8 @@ void kgdb_roundup_cpus(void)
+ inline void 
+ smp_send_stop(void)	{ send_IPI_allbutself(IPI_CPU_STOP); }
+ 
+-void 
+-smp_send_reschedule(int cpu) { send_IPI_single(cpu, IPI_RESCHEDULE); }
++void
++arch_smp_send_reschedule(int cpu) { send_IPI_single(cpu, IPI_RESCHEDULE); }
+ 
+ void
+ smp_send_all_nop(void)
+diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
+index 0da6e59161cd4..2f85a757ee792 100644
+--- a/arch/powerpc/kernel/smp.c
++++ b/arch/powerpc/kernel/smp.c
+@@ -364,12 +364,12 @@ static inline void do_message_pass(int cpu, int msg)
+ #endif
+ }
+ 
+-void smp_send_reschedule(int cpu)
++void arch_smp_send_reschedule(int cpu)
+ {
+ 	if (likely(smp_ops))
+ 		do_message_pass(cpu, PPC_MSG_RESCHEDULE);
+ }
+-EXPORT_SYMBOL_GPL(smp_send_reschedule);
++EXPORT_SYMBOL_GPL(arch_smp_send_reschedule);
+ 
+ void arch_send_call_function_single_ipi(int cpu)
+ {
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index 6ba68dd6190bd..686c80b17627e 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -43,6 +43,7 @@
+ #include <linux/compiler.h>
+ #include <linux/of.h>
+ #include <linux/irqdomain.h>
++#include <linux/smp.h>
+ 
+ #include <asm/ftrace.h>
+ #include <asm/reg.h>
+diff --git a/arch/riscv/kernel/smp.c b/arch/riscv/kernel/smp.c
+index 760a64518c585..213602e89a8b2 100644
+--- a/arch/riscv/kernel/smp.c
++++ b/arch/riscv/kernel/smp.c
+@@ -235,8 +235,8 @@ void smp_send_stop(void)
+ 			   cpumask_pr_args(cpu_online_mask));
+ }
+ 
+-void smp_send_reschedule(int cpu)
++void arch_smp_send_reschedule(int cpu)
+ {
+ 	send_ipi_single(cpu, IPI_RESCHEDULE);
+ }
+-EXPORT_SYMBOL_GPL(smp_send_reschedule);
++EXPORT_SYMBOL_GPL(arch_smp_send_reschedule);
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index 0031325ce4bc9..6c4da1e26e568 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -553,7 +553,7 @@ void arch_send_call_function_single_ipi(int cpu)
+  * it goes straight through and wastes no time serializing
+  * anything. Worst case is that we lose a reschedule ...
+  */
+-void smp_send_reschedule(int cpu)
++void arch_smp_send_reschedule(int cpu)
+ {
+ 	pcpu_ec_call(pcpu_devices + cpu, ec_schedule);
+ }
+diff --git a/arch/sh/kernel/smp.c b/arch/sh/kernel/smp.c
+index 65924d9ec2459..5cf35a774dc70 100644
+--- a/arch/sh/kernel/smp.c
++++ b/arch/sh/kernel/smp.c
+@@ -256,7 +256,7 @@ void __init smp_cpus_done(unsigned int max_cpus)
+ 	       (bogosum / (5000/HZ)) % 100);
+ }
+ 
+-void smp_send_reschedule(int cpu)
++void arch_smp_send_reschedule(int cpu)
+ {
+ 	mp_ops->send_ipi(cpu, SMP_MSG_RESCHEDULE);
+ }
+diff --git a/arch/sparc/kernel/smp_32.c b/arch/sparc/kernel/smp_32.c
+index ad8094d955eba..87eaa7719fa27 100644
+--- a/arch/sparc/kernel/smp_32.c
++++ b/arch/sparc/kernel/smp_32.c
+@@ -120,7 +120,7 @@ void cpu_panic(void)
+ 
+ struct linux_prom_registers smp_penguin_ctable = { 0 };
+ 
+-void smp_send_reschedule(int cpu)
++void arch_smp_send_reschedule(int cpu)
+ {
+ 	/*
+ 	 * CPU model dependent way of implementing IPI generation targeting
+diff --git a/arch/sparc/kernel/smp_64.c b/arch/sparc/kernel/smp_64.c
+index a55295d1b9244..e5964d1d8b37d 100644
+--- a/arch/sparc/kernel/smp_64.c
++++ b/arch/sparc/kernel/smp_64.c
+@@ -1430,7 +1430,7 @@ static unsigned long send_cpu_poke(int cpu)
+ 	return hv_err;
+ }
+ 
+-void smp_send_reschedule(int cpu)
++void arch_smp_send_reschedule(int cpu)
+ {
+ 	if (cpu == smp_processor_id()) {
+ 		WARN_ON_ONCE(preemptible());
+diff --git a/arch/x86/include/asm/smp.h b/arch/x86/include/asm/smp.h
+index a73bced40e241..5ff5815149bd3 100644
+--- a/arch/x86/include/asm/smp.h
++++ b/arch/x86/include/asm/smp.h
+@@ -99,7 +99,7 @@ static inline void play_dead(void)
+ 	smp_ops.play_dead();
+ }
+ 
+-static inline void smp_send_reschedule(int cpu)
++static inline void arch_smp_send_reschedule(int cpu)
+ {
+ 	smp_ops.smp_send_reschedule(cpu);
+ }
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index 58f0077d93579..b972c6f8c1791 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -26,6 +26,7 @@
+ #include <linux/swap.h>
+ #include <linux/rwsem.h>
+ #include <linux/cc_platform.h>
++#include <linux/smp.h>
+ 
+ #include <asm/apic.h>
+ #include <asm/perf_event.h>
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 521b433f978c7..3fbc3fea3e754 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -58,6 +58,7 @@
+ #include <linux/mem_encrypt.h>
+ #include <linux/entry-kvm.h>
+ #include <linux/suspend.h>
++#include <linux/smp.h>
+ 
+ #include <trace/events/kvm.h>
+ 
+diff --git a/arch/xtensa/kernel/smp.c b/arch/xtensa/kernel/smp.c
+index 4dc109dd6214e..d95907b8e4d38 100644
+--- a/arch/xtensa/kernel/smp.c
++++ b/arch/xtensa/kernel/smp.c
+@@ -389,7 +389,7 @@ void arch_send_call_function_single_ipi(int cpu)
+ 	send_ipi_message(cpumask_of(cpu), IPI_CALL_FUNC);
+ }
+ 
+-void smp_send_reschedule(int cpu)
++void arch_smp_send_reschedule(int cpu)
+ {
+ 	send_ipi_message(cpumask_of(cpu), IPI_RESCHEDULE);
+ }
+diff --git a/include/linux/smp.h b/include/linux/smp.h
+index a80ab58ae3f1d..2f9dc1b7a7fb6 100644
+--- a/include/linux/smp.h
++++ b/include/linux/smp.h
+@@ -125,9 +125,9 @@ extern void smp_send_stop(void);
+ /*
+  * sends a 'reschedule' event to another CPU:
+  */
++extern void arch_smp_send_reschedule(int cpu);
+ extern void smp_send_reschedule(int cpu);
+ 
+-
+ /*
+  * Prepare machine for booting other CPUs.
+  */
+diff --git a/kernel/smp.c b/kernel/smp.c
+index c4d561cf50d45..44fa4b9b1f46b 100644
+--- a/kernel/smp.c
++++ b/kernel/smp.c
+@@ -167,6 +167,14 @@ send_call_function_ipi_mask(const struct cpumask *mask)
+ 	arch_send_call_function_ipi_mask(mask);
+ }
+ 
++void smp_send_reschedule(int cpu)
++{
++	/* XXX scheduler_ipi is inline :/ */
++	trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, NULL);
++	arch_smp_send_reschedule(cpu);
++}
++EXPORT_SYMBOL_GPL(smp_send_reschedule);
++
+ #ifdef CONFIG_CSD_LOCK_WAIT_DEBUG
+ 
+ static DEFINE_STATIC_KEY_FALSE(csdlock_debug_enabled);
 -- 
 2.31.1
 
