@@ -2,59 +2,62 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B94BC4332F
-	for <openrisc@archiver.kernel.org>; Thu,  3 Nov 2022 14:25:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39797C433FE
+	for <openrisc@archiver.kernel.org>; Thu,  3 Nov 2022 14:25:09 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id AB35D24C8B;
-	Thu,  3 Nov 2022 15:25:07 +0100 (CET)
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com
- [209.85.221.41])
- by mail.librecores.org (Postfix) with ESMTPS id 5242224C05
- for <openrisc@lists.librecores.org>; Thu,  3 Nov 2022 15:25:06 +0100 (CET)
-Received: by mail-wr1-f41.google.com with SMTP id cl5so3003955wrb.9
- for <openrisc@lists.librecores.org>; Thu, 03 Nov 2022 07:25:06 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 03D16258ED;
+	Thu,  3 Nov 2022 15:25:09 +0100 (CET)
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com
+ [209.85.221.52])
+ by mail.librecores.org (Postfix) with ESMTPS id 7A51924C66
+ for <openrisc@lists.librecores.org>; Thu,  3 Nov 2022 15:25:07 +0100 (CET)
+Received: by mail-wr1-f52.google.com with SMTP id y16so2991623wrt.12
+ for <openrisc@lists.librecores.org>; Thu, 03 Nov 2022 07:25:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=ventanamicro.com; s=google;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:from:to:cc:subject:date:message-id:reply-to;
- bh=yyXCEm+SN4JTuAX2T0R90Ie6jT6YR0PIuexybyKvkXE=;
- b=WTZ/fhxMJ71jLlitDHXKYaXGnn95ODQizEyx4pjZLu/FU2YdbKeNAo0B/NktNH9Hif
- 0ihHLDxTp8U29NT+XMIjwbpXih+rDpGbzPso+IRrM4OQEis6MRNHdhg2+L+2iQ5ZiErf
- H2C2UNKqEdpYeg1ou6yBgu5uGp5t6In0MkSQENq2IWAYTPdvvddzhf9M2SUHCjdkNqlP
- pTfB+d1W2bpoY+NqsMD0CmY3+w2XyTZf6ZrvG8psupb3sY6BjQWTaeaT9RFdOarIdWjn
- Jj663Dqz2gYFZNCYKSrBaU2MDDJrY91RmxP0f4HXzCqrYeVlqsItUMv2dSlq4XkDrWmi
- x2Hw==
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=fj/ZFbn3Zm8rxzcKsJGd6yFucy8YocyT0mV+oXpe7Do=;
+ b=jMtJfzvsVyM2XNkO7dOnrzsj5bFsNMWPr9qRIuRvfNs1tOIvR8I1IP8JVx8tLG7Dep
+ v7Un2NZW58xBtWmwuCjYH772AaiwgcpVC21xqkhn0o/tmaNi7buIljvNSAt6F+cUJUMm
+ ty0TFwUWGldw91R8cET10BSTY/z5J4prX7tkwNyHo6zddMYQimrfEvNM/sLXJ4IbkhDZ
+ m9cFvv72Li0sU8oIZulB0WLbKf4nulNrh7pWjefMCTf4HMlXuiYiEY3FH49w0tZgWXlu
+ BN1Vbu6K5RGrqIIVUiu2VYCjwuaaGz/52VTavOGbRx053ikoFEVXHhj2bCgUlI2OBbQL
+ U+mg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=yyXCEm+SN4JTuAX2T0R90Ie6jT6YR0PIuexybyKvkXE=;
- b=gMz/LpSWVoSlFbIVf4tvbi+osL2QrnBFGlFEMjSPT7p0GTUGmty5FehWpsJ+ackU1l
- XPfVtYOBZ16arHGFaXqA00sSyPChrU0cKRpsYZJbih4HcEgU4ep20a3vDQ368bFu1Ycd
- sfLP8fn6k5IBDPn7CnIkNR2g1Ue+gush4nfKDPcpiQr5mSDYecjv8IS6Turndnboy/bY
- CVi6hxuMtm6MjEF+oJBN2euy5BQLNjNOD5rZGkZZf3s3jzgDFc9VUNYLqKMl4OxvHRRp
- CP/KmMhf+bztmMM9ByKHYWGVG9WawNGF2MEAoKYtu1v5LKTl8L4J9I4eSZA/htHCbFsB
- KSCg==
-X-Gm-Message-State: ACrzQf2Js+/7RjE1ka6j/XJOWOEsA/QqEc8bBuH62LxO1+SxindiK/73
- s4HUoXDM3sbFeAzmYTjpfciL+Q==
-X-Google-Smtp-Source: AMsMyM5hdXBUu8yo8VO7zyELnZCeDW54TPy5bvl1rmzeZB7u0GPP01rGpP4zIsPcikd5aOtl3C5pdw==
-X-Received: by 2002:a5d:654d:0:b0:235:197d:72d1 with SMTP id
- z13-20020a5d654d000000b00235197d72d1mr18800468wrv.680.1667485505908; 
- Thu, 03 Nov 2022 07:25:05 -0700 (PDT)
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=fj/ZFbn3Zm8rxzcKsJGd6yFucy8YocyT0mV+oXpe7Do=;
+ b=NSDR87s+Yv4TFSEnu5XL6I15zc4f71GIuO5AHBo4i7xhoaYfig71bMRxRzeMiy8RWq
+ fq+dkejRRumBdUY9XGHcv0aPm9EvTiDJdYqmmuw2zQkjVEYtQbInUsUEpZBbN8yAyDv+
+ r6sTs/cfBjhwWZkZtXp2MfM6Th4NjAiV/q9uKqhnuj1YhBR7ZIVccKZ77DWGdLDBUZNX
+ vmwlpW5oIlYNGIiSBCkgPLry7K0ixYHWylVE/KQXA2Qsw881v6WhI/mnZbEuPA/3j4Oj
+ SWC5FAbhbqTEynjndvkL8DOeOnogsPoSapRoY6CeyOhxXZVQq4iwffiOSgj10Zpepbaq
+ tEig==
+X-Gm-Message-State: ACrzQf3Gq56qFxBX/F4zlzgqUozy+5bUe/9sX0sFv+UrDo8O0iU4UOe7
+ 2C28zFEBGsDm3sJqVCkKN7sFmg==
+X-Google-Smtp-Source: AMsMyM7Fd10uROzTNx7lsAW66oPjI1uph9DNvAe559a3qkiRN8acm3Iyt5ChbLPnm5wfe14jlQcTjQ==
+X-Received: by 2002:a05:6000:170d:b0:236:6aa1:8a56 with SMTP id
+ n13-20020a056000170d00b002366aa18a56mr18858226wrc.302.1667485507181; 
+ Thu, 03 Nov 2022 07:25:07 -0700 (PDT)
 Received: from localhost (2001-1ae9-1c2-4c00-748-2a9a-a2a6-1362.ip6.tmcz.cz.
  [2001:1ae9:1c2:4c00:748:2a9a:a2a6:1362])
  by smtp.gmail.com with ESMTPSA id
- z7-20020a5d6547000000b0023662245d3csm992994wrv.95.2022.11.03.07.25.05
+ c19-20020a05600c0a5300b003c21ba7d7d6sm1348138wmq.44.2022.11.03.07.25.06
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 03 Nov 2022 07:25:05 -0700 (PDT)
+ Thu, 03 Nov 2022 07:25:06 -0700 (PDT)
 From: Andrew Jones <ajones@ventanamicro.com>
 To: x86@kernel.org, linux-riscv@lists.infradead.org,
  linux-kernel@vger.kernel.org
-Subject: [PATCH v4 0/1] Fix /proc/cpuinfo cpumask warning
-Date: Thu,  3 Nov 2022 15:25:03 +0100
-Message-Id: <20221103142504.278543-1-ajones@ventanamicro.com>
+Subject: [PATCH v4 1/1] x86: cpuinfo: Ensure inputs to cpumask_next are valid
+Date: Thu,  3 Nov 2022 15:25:04 +0100
+Message-Id: <20221103142504.278543-2-ajones@ventanamicro.com>
 X-Mailer: git-send-email 2.37.3
+In-Reply-To: <20221103142504.278543-1-ajones@ventanamicro.com>
+References: <20221103142504.278543-1-ajones@ventanamicro.com>
 MIME-Version: 1.0
 Content-type: text/plain
 Content-Transfer-Encoding: 8bit
@@ -81,53 +84,50 @@ Cc: Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Commit 78e5a3399421 ("cpumask: fix checking valid cpu range") started
-issuing warnings[1] when cpu indices equal to nr_cpu_ids - 1 were passed
-to cpumask_next* functions. The commit has since been reverted with
-commit 80493877d7d0 ("Revert "cpumask: fix checking valid cpu range"."),
-which raises the question as to how much this proposed patch is needed.
-Additionally, there's some discussion as to whether or not cpumask_next()
-should even be validating its inputs[2]. So, with that in mind, I'm fine
-with the patch being dropped. However, it may still be reasonable to add
-the checking to /proc/cpuinfo until cpumask_next has made changes and
-better documented its API.
+The valid cpumask range is [0, nr_cpu_ids) and cpumask_next()
+currently calls find_next_bit() with its input CPU ID number plus one
+for the bit number, giving cpumask_next() the range [-1, nr_cpu_ids - 1).
+seq_read_iter() and cpuinfo's start and next seq operations implement a
+pattern like
 
-[1] Warnings will only appear with DEBUG_PER_CPU_MAPS enabled.
-[2] https://lore.kernel.org/all/CAHk-=wihz-GXx66MmEyaADgS1fQE_LDcB9wrHAmkvXkd8nx9tA@mail.gmail.com/
+  n = cpumask_next(n - 1, mask);
+  show(n);
+  while (1) {
+      ++n;
+      n = cpumask_next(n - 1, mask);
+      if (n >= nr_cpu_ids)
+          break;
+      show(n);
+  }
 
-This series addresses the issue for x86. riscv has already merged an
-equivalent patch (v3 of this series). Also, from a quick grep of cpuinfo
-seq operations, I think at least openrisc, powerpc, and s390 could get an
-equivalent patch. While the test is simple (see next paragraph) I'm not
-equipped to test on each architecture.
+which will eventually result in cpumask_next() being called with
+nr_cpu_ids - 1. A kernel compiled with commit 78e5a3399421 ("cpumask:
+fix checking valid cpu range"), but not its revert, commit
+80493877d7d0 ("Revert "cpumask: fix checking valid cpu range"."),
+will generate a warning when DEBUG_PER_CPU_MAPS is enabled each time
+/proc/cpuinfo is read. Future-proof cpuinfo by checking its input to
+cpumask_next() is valid.
 
-To test, just build a kernel with DEBUG_PER_CPU_MAPS enabled, boot to
-a shell, do 'cat /proc/cpuinfo', and look for a kernel warning.
-
-v4:
-  - The riscv patch has already been merged.
-  - Mostly rewrote the cover letter as the situation has changed since
-    78e5a3399421 was reverted.
-  - Rewrote the commit message in order to try an better clarify things
-    and also to add the reference to the revert commit, which results in
-    the commit no longer claiming its a 'fix' in its summary. [Boris]
-
-v3:
-  - Change condition from >= to == in order to still get a warning
-    for > as that's unexpected. [Yury]
-  - Picked up tags on the riscv patch
-
-v2:
-  - Added all the information I should have in the first place
-    to the commit message [Boris]
-  - Changed style of fix [Boris]
-
-Andrew Jones (1):
-  x86: cpuinfo: Ensure inputs to cpumask_next are valid
-
+Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
+Cc: Yury Norov <yury.norov@gmail.com>
+---
  arch/x86/kernel/cpu/proc.c | 3 +++
  1 file changed, 3 insertions(+)
 
+diff --git a/arch/x86/kernel/cpu/proc.c b/arch/x86/kernel/cpu/proc.c
+index 099b6f0d96bd..de3f93ac6e49 100644
+--- a/arch/x86/kernel/cpu/proc.c
++++ b/arch/x86/kernel/cpu/proc.c
+@@ -153,6 +153,9 @@ static int show_cpuinfo(struct seq_file *m, void *v)
+ 
+ static void *c_start(struct seq_file *m, loff_t *pos)
+ {
++	if (*pos == nr_cpu_ids)
++		return NULL;
++
+ 	*pos = cpumask_next(*pos - 1, cpu_online_mask);
+ 	if ((*pos) < nr_cpu_ids)
+ 		return &cpu_data(*pos);
 -- 
 2.37.3
 
