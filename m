@@ -2,81 +2,69 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3C34C433FE
-	for <openrisc@archiver.kernel.org>; Wed,  2 Nov 2022 18:34:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8751C4332F
+	for <openrisc@archiver.kernel.org>; Thu,  3 Nov 2022 12:59:50 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 3F71224C7D;
-	Wed,  2 Nov 2022 19:34:45 +0100 (CET)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by mail.librecores.org (Postfix) with ESMTP id 8777224C68
- for <openrisc@lists.librecores.org>; Wed,  2 Nov 2022 19:34:44 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1667414083;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=7XyLq04ta6QuCycJK0DkWOlQEFxqI5/2Oi7Ln2qoW2w=;
- b=M1u2hpyHG9kt11YC8dDpm3HW2Hyvk8g2FQRJn80KVMP0tE4E/PLLaCvi44hIVLOkAxaLSX
- 9v3IZmnwixPDv53lCDwP17kv2ijO4nIWpMJ+OG5yUxnJL5by3lmTUFdBjZojW8yFT94YNq
- lMnM7vBmQt005kZroNCCyY5IMJS1EPM=
-Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
- [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-54-UA84C2QuMLqbVdBZp9JC4Q-1; Wed, 02 Nov 2022 14:34:42 -0400
-X-MC-Unique: UA84C2QuMLqbVdBZp9JC4Q-1
-Received: by mail-qt1-f198.google.com with SMTP id
- ay12-20020a05622a228c00b003a52bd33749so5832496qtb.8
- for <openrisc@lists.librecores.org>; Wed, 02 Nov 2022 11:34:42 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id 6831124BF2;
+	Thu,  3 Nov 2022 13:59:49 +0100 (CET)
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com
+ [209.85.128.48])
+ by mail.librecores.org (Postfix) with ESMTPS id 6E45F24841
+ for <openrisc@lists.librecores.org>; Thu,  3 Nov 2022 13:59:47 +0100 (CET)
+Received: by mail-wm1-f48.google.com with SMTP id
+ i5-20020a1c3b05000000b003cf47dcd316so3292433wma.4
+ for <openrisc@lists.librecores.org>; Thu, 03 Nov 2022 05:59:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=ventanamicro.com; s=google;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+ bh=IxRwrgpGcbayuw2J5RAtTHB/3ysPD12k+PHRaeFxlKQ=;
+ b=GwwrRjkkygx3kA4xo0QuwS+Ne2RINsFO3eCQp6cQ9Ourq60bUc4Bt5AgAPDbQAon6l
+ gYwG/q+U+4m65imNxHxEtv/wguv7zVx1FdM6bBSupRiKHQqcJvzgQCj/pXBAzObzeey2
+ eIWJHLQuwXCd9OYAJulehF09iAhGGabS+GZ77jdsbOlVSgmaGBS8wMdeEM0HU+61DYEc
+ XSM998DKTGw19ogYfqk8LePf/GDY1Q9OaYCfMoPhWyy6X91NirqfboJUiqUVN8Bntsr0
+ J4JjRNE0fAbRqdAi3Z8tdryQsJpUsCFo5O3S6BnzL7FXthHoIBTqW543UoTxkVoKFyC9
+ j5SA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:references:in-reply-to
- :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=7XyLq04ta6QuCycJK0DkWOlQEFxqI5/2Oi7Ln2qoW2w=;
- b=l9JOBqNXDWCgbNs85x65ePgIYK8X7EitgxFfXlWAu7ORQOP0QzhYLO0LK4NJ9m15Uv
- QgC823EaZhOhNBtojf/ZKM1CpuGtjUDhKWR9jMa208HFscQr7yl29MmFo1nxkMc6Wxfc
- HiH6tOtC1FXd04vIm8rO9lPjqXqNWsiCujLwlJ+ePJgLfuGnzopZ1e0j/LpvM1eZw2/B
- 2m+LgmvuOJ92GxXtgS+pmmFzSiDx2QxJw2TFE1RArorFLzDf+EcuszAwW1QHh7lIkwt/
- rGl4ct53AOYH8D7AkMi7e7oRKwBqG2Sz32m3p2iq3AILaRnzVTmJqmwrDiF2D2psuwVz
- w7BA==
-X-Gm-Message-State: ACrzQf29BG1ryi92WXW8yLZFTF3jDGN8x5H27UE50kdaBkgz8lXdkIi5
- 5tsSYSbwUfEc86AUvSQAx78c+KEm73Xv9SOIsi6Rp19hZHf/ufIJGQK4NYfWavIbbusKawQqneF
- y1WG283b6aHXPVZmWrZRm50mYkQ==
-X-Received: by 2002:a05:622a:110:b0:39d:33f:7502 with SMTP id
- u16-20020a05622a011000b0039d033f7502mr21405691qtw.233.1667414081834; 
- Wed, 02 Nov 2022 11:34:41 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM55Ji1MqyBOQLGXo2l/bSvuQt49ZAkCzlyyMp5CHGsdCK97M9vqAD8ECZ5Nyub/9y/Uvf6gSw==
-X-Received: by 2002:a05:622a:110:b0:39d:33f:7502 with SMTP id
- u16-20020a05622a011000b0039d033f7502mr21405647qtw.233.1667414081547; 
- Wed, 02 Nov 2022 11:34:41 -0700 (PDT)
-Received: from vschneid.remote.csb ([149.71.65.94])
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=IxRwrgpGcbayuw2J5RAtTHB/3ysPD12k+PHRaeFxlKQ=;
+ b=FFFjgvH6ufvdPCDxOYduwffKj0ISag3k1/TU+hgWjhRUP6tbP+u3nSexhjlQd03ROu
+ WPPv0mKQc2lUNMFSbHmCk07jOAp4lPJghPuFtQNrAnMCBM4uE6G0j5qX0SEFm+mMJbPJ
+ kf/jfBi+p2jJPNBAB7kHou7Hs6pVdN7VILUifh3UMlz1sP7TsPVJb7DqxP4tUSVi0nwk
+ q4jVTJ7NFMExsJ1gWI6SrKt8c6KVe2w37kJ6dkV6o+D0YHB++7p9Vf7XAGapZ5a+hd07
+ bQmsIFhcEGMA7Go88xJihHbPTHzEIQInyH6nGMZ0X6jHqCR7feVptp5+o6Uma2XlnTBf
+ k+OQ==
+X-Gm-Message-State: ACrzQf1Xj8yqEGVTcDkW1P0ggP2ZckrzyMOqxwLYrS0y/yefKXpERqs3
+ B1FQOMmbFZ7XD3pB0jWbffxt/g==
+X-Google-Smtp-Source: AMsMyM4gXpjfMh9GUNM/WaSq7jLD61jpWhHWyPIsDO5O97VJQvdfk1Gffqv1EV4246udjYvGZYs8Pg==
+X-Received: by 2002:a05:600c:3b1d:b0:3c6:ff0d:6a60 with SMTP id
+ m29-20020a05600c3b1d00b003c6ff0d6a60mr19364166wms.183.1667480386818; 
+ Thu, 03 Nov 2022 05:59:46 -0700 (PDT)
+Received: from localhost (2001-1ae9-1c2-4c00-748-2a9a-a2a6-1362.ip6.tmcz.cz.
+ [2001:1ae9:1c2:4c00:748:2a9a:a2a6:1362])
  by smtp.gmail.com with ESMTPSA id
- w187-20020a3794c4000000b006eed47a1a1esm8757820qkd.134.2022.11.02.11.34.35
+ bg36-20020a05600c3ca400b003cf774c31a0sm5977531wmb.16.2022.11.03.05.59.45
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 02 Nov 2022 11:34:40 -0700 (PDT)
-From: Valentin Schneider <vschneid@redhat.com>
-To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
- linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
- linux-ia64@vger.kernel.org, loongarch@lists.linux.dev,
- linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-xtensa@linux-xtensa.org, x86@kernel.org
-Subject: [RFC PATCH v2 8/8] sched, smp: Trace smp callback causing an IPI
-Date: Wed,  2 Nov 2022 18:33:36 +0000
-Message-Id: <20221102183336.3120536-7-vschneid@redhat.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20221102182949.3119584-1-vschneid@redhat.com>
-References: <20221102182949.3119584-1-vschneid@redhat.com>
+ Thu, 03 Nov 2022 05:59:46 -0700 (PDT)
+Date: Thu, 3 Nov 2022 13:59:45 +0100
+From: Andrew Jones <ajones@ventanamicro.com>
+To: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH v3 2/2] x86: Fix /proc/cpuinfo cpumask warning
+Message-ID: <20221103125945.lrr5oxxmylwpam53@kamzik>
+References: <20221014155845.1986223-3-ajones@ventanamicro.com>
+ <20221028074828.b66uuqqfbrnjdtab@kamzik>
+ <Y1vrMMtRwb0Lekl0@yury-laptop> <Y1vvMlwf/4EA/8WW@zn.tnic>
+ <CAAH8bW_DkvPCH0-q2Bfe0OJ72r63mRM3GP7NKOFrhe3zMO2gbQ@mail.gmail.com>
+ <Y1v+Ed6mRN9gisJS@zn.tnic> <20221031080604.6xei6c4e3ckhsvmy@kamzik>
+ <Y1+OUawGJDjh4DOJ@zn.tnic> <20221031100327.r7tswmpszvs5ot5n@kamzik>
+ <Y2K6clNJBn0SbWU+@zn.tnic>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset="US-ASCII"; x-default=true
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y2K6clNJBn0SbWU+@zn.tnic>
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -89,220 +77,83 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- "Paul E. McKenney" <paulmck@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
- Marc Zyngier <maz@kernel.org>,
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
- Marcelo Tosatti <mtosatti@redhat.com>, Russell King <linux@armlinux.org.uk>,
- Steven Rostedt <rostedt@goodmis.org>, "David S. Miller" <davem@davemloft.net>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Nicholas Piggin <npiggin@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>,
- Guo Ren <guoren@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
- Daniel Bristot de Oliveira <bristot@redhat.com>,
- Frederic Weisbecker <frederic@kernel.org>
+Cc: Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Yury Norov <yury.norov@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>,
+ Heiko Carstens <hca@linux.ibm.com>, x86@kernel.org,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ openrisc@lists.librecores.org, Ingo Molnar <mingo@redhat.com>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley <paul.walmsley@sifive.com>,
+ linux-riscv <linux-riscv@lists.infradead.org>,
+ "open list:LINUX FOR POWERPC PA SEMI PWRFICIENT"
+ <linuxppc-dev@lists.ozlabs.org>, Thomas Gleixner <tglx@linutronix.de>,
+ Albert Ou <aou@eecs.berkeley.edu>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-The newly-introduced ipi_send_cpumask tracepoint has a "callback" parameter
-which so far has only been fed with NULL.
+On Wed, Nov 02, 2022 at 07:44:02PM +0100, Borislav Petkov wrote:
+> On Mon, Oct 31, 2022 at 11:03:27AM +0100, Andrew Jones wrote:
+> > Currently (after the revert of 78e5a3399421)
+> 
+> After the revert?
+> 
+> That commit is still in the latest Linus tree.
 
-While CSD_TYPE_SYNC/ASYNC and CSD_TYPE_IRQ_WORK share a similar backing
-struct layout (meaning their callback func can be accessed without caring
-about the actual CSD type), CSD_TYPE_TTWU doesn't even have a function
-attached to its struct. This means we need to check the type of a CSD
-before eventually dereferencing its associated callback.
+The revert commit is 80493877d7d0 ("Revert "cpumask: fix checking valid
+cpu range".")
 
-This isn't as trivial as it sounds: the CSD type is stored in
-__call_single_node.u_flags, which get cleared right before the callback is
-executed via csd_unlock(). This implies checking the CSD type before it is
-enqueued on the call_single_queue, as the target CPU's queue can be flushed
-before we get to sending an IPI.
+> 
+> > with DEBUG_PER_CPU_MAPS we'll get a warning splat when the cpu is
+> > outside the range [-1, nr_cpu_ids)
+> 
+> Yah, that range makes sense.
+> 
+> > and cpumask_next() will call find_next_bit() with the input plus one anyway.
+> > find_next_bit() doesn't explicity document what happens when an input is
+> > outside the range, but it currently returns the bitmap size without any
+> > side effects, which means cpumask_next() will return nr_cpu_ids.
+> 
+> That is good to have in the commit message.
+> 
+> > show_cpuinfo() doesn't try to show anything in that case and stops its
+> > loop, or, IOW, things work fine now with an input of nr_cpu_ids - 1. But,
+> > show_cpuinfo() is just getting away with a violated cpumask_next()
+> > contract, which 78e5a3399421 exposed. How about a new commit message like
+> > this
+> 
+> You're making it sound more complex than it is. All you wanna say is:
+> 
+> "Filter out invalid cpumask_next() inputs by checking its first argument
+> against nr_cpu_ids because cpumask_next() will call find_next_bit() with
+> the input plus one but the valid range for n is [-1, nr_cpu_ids)."
 
-Furthermore, send_call_function_single_ipi() only has a CPU parameter, and
-would need to have an additional argument to trickle down the invoked
-function. This is somewhat silly, as the extra argument will always be
-pushed down to the function even when nothing is being traced, which is
-unnecessary overhead.
+The patch I'm proposing ensures cpumask_next()'s range, which is actually
+[-1, nr_cpus_ids - 1), isn't violated. Violating that range will generate
+the warning for kernels which have commit 78e5a3399421 ("cpumask: fix
+checking valid cpu range"), but not its revert.
 
-Two options present themselves:
-a) Create copies of send_call_function_{single_ipi, ipi_mask}() that take
-   an extra argument used for tracing, so that codepaths remain unchanged
-   when tracing isn't in effect (a sort of manual -fipa-sra).
+Since 78e5a3399421 has been reverted, the value of this proposed fix is
+less, and indeed the warning may even go away completely for these types
+of cpumask calls[1]. However, it seems reasonable for callers to implement
+their own checks until the cpumask API has documented what they should
+expect.
 
-b) Stash the CSD func in somewhere as a side effect that
-   the portion of send_call_function_{single_ipi, ipi_mask}() under the
-   tracepoint's static key can fetch.
+[1] https://lore.kernel.org/all/CAHk-=wihz-GXx66MmEyaADgS1fQE_LDcB9wrHAmkvXkd8nx9tA@mail.gmail.com/
 
-a) creates redundant code, and b) is quite fragile due to requiring extra
-care for "reentrant" functions (async SMP calls).
+> 
+> But that thing with the revert above needs to be clarified first.
 
-This implements a).
+I'll send a v4 with another stab at the commit message.
 
-Signed-off-by: Valentin Schneider <vschneid@redhat.com>
----
- kernel/irq_work.c   |  2 ++
- kernel/sched/core.c | 35 ++++++++++++++++++++++++-----------
- kernel/sched/smp.h  |  1 +
- kernel/smp.c        | 42 ++++++++++++++++++++++++++++++++++++++----
- 4 files changed, 65 insertions(+), 15 deletions(-)
+Thanks,
+drew
 
-diff --git a/kernel/irq_work.c b/kernel/irq_work.c
-index aec38c294ce68..fcfa75c4a5daf 100644
---- a/kernel/irq_work.c
-+++ b/kernel/irq_work.c
-@@ -24,6 +24,8 @@
- 
- #include <trace/events/ipi.h>
- 
-+#include "sched/smp.h"
-+
- static DEFINE_PER_CPU(struct llist_head, raised_list);
- static DEFINE_PER_CPU(struct llist_head, lazy_list);
- static DEFINE_PER_CPU(struct task_struct *, irq_workd);
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 02181f8072b5f..41196ca67e913 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -3743,17 +3743,30 @@ void sched_ttwu_pending(void *arg)
- 	rq_unlock_irqrestore(rq, &rf);
- }
- 
--void send_call_function_single_ipi(int cpu)
--{
--	struct rq *rq = cpu_rq(cpu);
--
--	if (!set_nr_if_polling(rq->idle)) {
--		trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, NULL);
--		arch_send_call_function_single_ipi(cpu);
--	} else {
--		trace_sched_wake_idle_without_ipi(cpu);
--	}
--}
-+/*
-+ * We want a variant that traces the function causing the IPI to be sent, but
-+ * we don't want the extra argument to cause unnecessary overhead when tracing
-+ * isn't happening.
-+ */
-+#define GEN_CFSI(suffix, IPI_EXP, ...)						\
-+void send_call_function_single_ipi##suffix(__VA_ARGS__)				\
-+{										\
-+	struct rq *rq = cpu_rq(cpu);						\
-+										\
-+	if (!set_nr_if_polling(rq->idle)) {					\
-+		IPI_EXP;							\
-+		arch_send_call_function_single_ipi(cpu);			\
-+	} else {								\
-+		trace_sched_wake_idle_without_ipi(cpu);				\
-+	}									\
-+}
-+
-+GEN_CFSI(/* nop */,
-+	 /* nop */,
-+	 int cpu)
-+GEN_CFSI(_trace,
-+	 trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, func),
-+	 int cpu, smp_call_func_t func)
- 
- /*
-  * Queue a task on the target CPUs wake_list and wake the CPU via IPI if
-diff --git a/kernel/sched/smp.h b/kernel/sched/smp.h
-index 2eb23dd0f2856..8075ad5e84181 100644
---- a/kernel/sched/smp.h
-+++ b/kernel/sched/smp.h
-@@ -7,6 +7,7 @@
- extern void sched_ttwu_pending(void *arg);
- 
- extern void send_call_function_single_ipi(int cpu);
-+extern void send_call_function_single_ipi_trace(int cpu, smp_call_func_t func);
- 
- #ifdef CONFIG_SMP
- extern void flush_smp_call_function_queue(void);
-diff --git a/kernel/smp.c b/kernel/smp.c
-index b96579fe08f09..3b8e6456ac7e7 100644
---- a/kernel/smp.c
-+++ b/kernel/smp.c
-@@ -161,12 +161,18 @@ void __init call_function_init(void)
- }
- 
- static inline void
--send_call_function_ipi_mask(const struct cpumask *mask)
-+send_call_function_ipi_mask_trace(const struct cpumask *mask, smp_call_func_t func)
- {
- 	trace_ipi_send_cpumask(mask, _RET_IP_, func);
- 	arch_send_call_function_ipi_mask(mask);
- }
- 
-+static inline void
-+send_call_function_ipi_mask(const struct cpumask *mask)
-+{
-+	arch_send_call_function_ipi_mask(mask);
-+}
-+
- void smp_send_reschedule(int cpu)
- {
- 	/* XXX scheduler_ipi is inline :/ */
-@@ -438,12 +444,16 @@ static void __smp_call_single_queue_debug(int cpu, struct llist_node *node)
- 	struct cfd_seq_local *seq = this_cpu_ptr(&cfd_seq_local);
- 	struct call_function_data *cfd = this_cpu_ptr(&cfd_data);
- 	struct cfd_percpu *pcpu = per_cpu_ptr(cfd->pcpu, cpu);
-+	struct __call_single_data *csd;
-+
-+	csd = container_of(node, call_single_data_t, node.llist);
-+	WARN_ON_ONCE(!(CSD_TYPE(csd) & (CSD_TYPE_SYNC | CSD_TYPE_ASYNC)));
- 
- 	cfd_seq_store(pcpu->seq_queue, this_cpu, cpu, CFD_SEQ_QUEUE);
- 	if (llist_add(node, &per_cpu(call_single_queue, cpu))) {
- 		cfd_seq_store(pcpu->seq_ipi, this_cpu, cpu, CFD_SEQ_IPI);
- 		cfd_seq_store(seq->ping, this_cpu, cpu, CFD_SEQ_PING);
--		send_call_function_single_ipi(cpu);
-+		send_call_function_single_ipi_trace(cpu, csd->func);
- 		cfd_seq_store(seq->pinged, this_cpu, cpu, CFD_SEQ_PINGED);
- 	} else {
- 		cfd_seq_store(pcpu->seq_noipi, this_cpu, cpu, CFD_SEQ_NOIPI);
-@@ -501,6 +511,26 @@ void __smp_call_single_queue(int cpu, struct llist_node *node)
- 		}
- 	}
- #endif
-+	/*
-+	 * We have to check the type of the CSD before queueing it, because
-+	 * once queued it can have its flags cleared by
-+	 *   flush_smp_call_function_queue()
-+	 * even if we haven't sent the smp_call IPI yet (e.g. the stopper
-+	 * executes migration_cpu_stop() on the remote CPU).
-+	 */
-+	if (trace_ipi_send_cpumask_enabled()) {
-+		call_single_data_t *csd;
-+		smp_call_func_t func;
-+
-+		csd = container_of(node, call_single_data_t, node.llist);
-+		func = CSD_TYPE(csd) == CSD_TYPE_TTWU ?
-+			sched_ttwu_pending : csd->func;
-+
-+		/* See below comment on ordering requirements */
-+		if (llist_add(node, &per_cpu(call_single_queue, cpu)))
-+			send_call_function_single_ipi_trace(cpu, func);
-+		return;
-+	}
- 
- 	/*
- 	 * The list addition should be visible to the target CPU when it pops
-@@ -984,9 +1014,13 @@ static void smp_call_function_many_cond(const struct cpumask *mask,
- 		 * provided mask.
- 		 */
- 		if (nr_cpus == 1)
--			send_call_function_single_ipi(last_cpu);
-+			trace_ipi_send_cpumask_enabled() ?
-+				send_call_function_single_ipi_trace(last_cpu, func) :
-+				send_call_function_single_ipi(last_cpu);
- 		else if (likely(nr_cpus > 1))
--			send_call_function_ipi_mask(cfd->cpumask_ipi);
-+			trace_ipi_send_cpumask_enabled() ?
-+				send_call_function_ipi_mask_trace(mask, func) :
-+				send_call_function_ipi_mask(mask);
- 
- 		cfd_seq_store(this_cpu_ptr(&cfd_seq_local)->pinged, this_cpu, CFD_SEQ_NOCPU, CFD_SEQ_PINGED);
- 	}
--- 
-2.31.1
-
+> 
+> Thx.
+> 
+> -- 
+> Regards/Gruss,
+>     Boris.
+> 
+> https://people.kernel.org/tglx/notes-about-netiquette
