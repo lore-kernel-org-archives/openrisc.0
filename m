@@ -2,44 +2,44 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8119C4167E
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF620C4321E
 	for <openrisc@archiver.kernel.org>; Sun,  6 Nov 2022 21:06:01 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 147E821292;
-	Sun,  6 Nov 2022 22:05:59 +0100 (CET)
+	by mail.librecores.org (Postfix) with ESMTP id 909B324A55;
+	Sun,  6 Nov 2022 22:05:58 +0100 (CET)
 Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
- by mail.librecores.org (Postfix) with ESMTPS id C7AB8259AD
- for <openrisc@lists.librecores.org>; Fri,  4 Nov 2022 00:22:43 +0100 (CET)
-Received: from zn.tnic (p200300ea9733e72b329c23fffea6a903.dip0.t-ipconnect.de
- [IPv6:2003:ea:9733:e72b:329c:23ff:fea6:a903])
+ by mail.librecores.org (Postfix) with ESMTPS id 7DF302593C
+ for <openrisc@lists.librecores.org>; Thu,  3 Nov 2022 17:49:10 +0100 (CET)
+Received: from zn.tnic (p200300ea9733e7e7329c23fffea6a903.dip0.t-ipconnect.de
+ [IPv6:2003:ea:9733:e7e7:329c:23ff:fea6:a903])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 2C7531EC04E2;
- Fri,  4 Nov 2022 00:22:43 +0100 (CET)
+ by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id E3F291EC04F0;
+ Thu,  3 Nov 2022 17:49:09 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
- t=1667517763;
+ t=1667494150;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
- bh=vFXHtgwdW+sR6NHK/2Q+5sMTWyhXvQL1n6tMJLF2xxY=;
- b=BSXGpnI0im++wmsWNxkeuxKjQQej60wIR/Sk0cX2RZ7YrtQNhQA0/JrxGI20wDUweZrCEb
- k+o4bwMt5u5otuBKP/2kTjRja1l1PH+j5LW/iISR7O4Sn/JezDmf47qxabojUHY5r8I2aI
- FToXcyX9TTPeCYGemSLF53/TOlVnQ5I=
-Date: Fri, 4 Nov 2022 00:22:39 +0100
+ bh=2ASRoXT4dNz3rsz3g7wk4DQzgAno9/V5MAy7ltfZSS0=;
+ b=GEBGVYysxzMU6LGJTmZd7M+/R/6mbCD6zp4ZSzgggbaUSAV0SVqDm2Gc6AAhFjue3w91tt
+ IAhvE9D7fZ+NRgIf5TsYL8evNAQClXdM104Vgktn6WclPvN36r3al1OF9AVLqkFvz+Oj+i
+ 92QAmiYx47vWftNfKrMeen4/XGStEic=
+Date: Thu, 3 Nov 2022 17:49:06 +0100
 From: Borislav Petkov <bp@alien8.de>
-To: Yury Norov <yury.norov@gmail.com>
+To: yury.norov@gmail.com
 Subject: Re: [PATCH v3 2/2] x86: Fix /proc/cpuinfo cpumask warning
-Message-ID: <Y2RNP/5Xfs0qS/3X@zn.tnic>
-References: <20221031080604.6xei6c4e3ckhsvmy@kamzik> <Y1+OUawGJDjh4DOJ@zn.tnic>
- <20221031100327.r7tswmpszvs5ot5n@kamzik> <Y2K6clNJBn0SbWU+@zn.tnic>
- <20221103125945.lrr5oxxmylwpam53@kamzik> <Y2PX9GfxWYh6+XGT@zn.tnic>
- <20221103153404.uh77nrdkowrxj6cr@kamzik>
- <Y2PsvvOWVs9ZLBsp@yury-laptop> <Y2PxAiJ1yNzcUSgs@zn.tnic>
- <Y2P68sfCJMvhKmhj@yury-laptop>
+Message-ID: <Y2PxAiJ1yNzcUSgs@zn.tnic>
+References: <CAAH8bW_DkvPCH0-q2Bfe0OJ72r63mRM3GP7NKOFrhe3zMO2gbQ@mail.gmail.com>
+ <Y1v+Ed6mRN9gisJS@zn.tnic> <20221031080604.6xei6c4e3ckhsvmy@kamzik>
+ <Y1+OUawGJDjh4DOJ@zn.tnic> <20221031100327.r7tswmpszvs5ot5n@kamzik>
+ <Y2K6clNJBn0SbWU+@zn.tnic> <20221103125945.lrr5oxxmylwpam53@kamzik>
+ <Y2PX9GfxWYh6+XGT@zn.tnic> <20221103153404.uh77nrdkowrxj6cr@kamzik>
+ <Y2PsvvOWVs9ZLBsp@yury-laptop>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <Y2P68sfCJMvhKmhj@yury-laptop>
+In-Reply-To: <Y2PsvvOWVs9ZLBsp@yury-laptop>
 X-Mailman-Approved-At: Sun, 06 Nov 2022 22:05:56 +0100
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
@@ -67,29 +67,45 @@ Cc: Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Thu, Nov 03, 2022 at 10:31:30AM -0700, Yury Norov wrote:
-> Let's take for example cpu_llc_shared_mask() added by you in
-> arch/x86/include/asm/smp.h recently:
-> 
->   static inline struct cpumask *cpu_llc_shared_mask(int cpu)
->   {
->          return per_cpu(cpu_llc_shared_map, cpu);
->   }
-> 
-> It's in a global header and available to the rest of the kernel, just as
-> well.
+On Thu, Nov 03, 2022 at 09:30:54AM -0700, yury.norov@gmail.com wrote:a
+> Callers should pass sane arguments into internal functions if they
+> expect sane output.
 
-Just like 
+What internal function? It's in a global header.
 
-static inline struct cpumask *cpu_l2c_shared_mask(int cpu)
-{
-        return per_cpu(cpu_l2c_shared_map, cpu);
-}
+> The API not exported to userspace shouldn't sanity-check all inputs
+> arguments.
 
-should check != must check. 
+That doesn't have anything to do with userspace at all.
 
-But it's perfectly fine if you're going to attempt to prove some bogus
-argument of yours - I can safely ignore you.
+APIs exported to the rest of the kernel should very well check their
+inputs. Otherwise they're not APIs - just some random functions which
+are visible to the compiler.
+
+> So, the portable code shouldn't expect from cpumasks more than
+> documentation said: for a _valid_ offset cpumask_next() returns next
+> set bit or >= nr_cpu_ids.
+
+Lemme quote from my previous mail:
+
+"First make sure cpumask_next()'s valid accepted range has been settled
+upon, has been explicitly documented"
+
+So where is that valid range documented?
+
+> cpumask_check() has been broken for years. Attempting to fix it faced
+> so much resistance, that I had to revert the patch.
+
+The suggestion on that thread made sense: you first fix the callers and
+then the interface. Just like any other "broken" kernel API.
+
+Nothing's stopping you from fixing it properly - it'll just take a while
+and if it is such a widely used interface, you probably should come up
+with a strategy first how to fix it without impacting current use.
+
+Interfaces and their in-kernel users get refactored constantly.
+
+Thx.
 
 -- 
 Regards/Gruss,
