@@ -2,69 +2,62 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8751C4332F
-	for <openrisc@archiver.kernel.org>; Thu,  3 Nov 2022 12:59:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B94BC4332F
+	for <openrisc@archiver.kernel.org>; Thu,  3 Nov 2022 14:25:08 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 6831124BF2;
-	Thu,  3 Nov 2022 13:59:49 +0100 (CET)
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com
- [209.85.128.48])
- by mail.librecores.org (Postfix) with ESMTPS id 6E45F24841
- for <openrisc@lists.librecores.org>; Thu,  3 Nov 2022 13:59:47 +0100 (CET)
-Received: by mail-wm1-f48.google.com with SMTP id
- i5-20020a1c3b05000000b003cf47dcd316so3292433wma.4
- for <openrisc@lists.librecores.org>; Thu, 03 Nov 2022 05:59:47 -0700 (PDT)
+	by mail.librecores.org (Postfix) with ESMTP id AB35D24C8B;
+	Thu,  3 Nov 2022 15:25:07 +0100 (CET)
+Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com
+ [209.85.221.41])
+ by mail.librecores.org (Postfix) with ESMTPS id 5242224C05
+ for <openrisc@lists.librecores.org>; Thu,  3 Nov 2022 15:25:06 +0100 (CET)
+Received: by mail-wr1-f41.google.com with SMTP id cl5so3003955wrb.9
+ for <openrisc@lists.librecores.org>; Thu, 03 Nov 2022 07:25:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=ventanamicro.com; s=google;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=IxRwrgpGcbayuw2J5RAtTHB/3ysPD12k+PHRaeFxlKQ=;
- b=GwwrRjkkygx3kA4xo0QuwS+Ne2RINsFO3eCQp6cQ9Ourq60bUc4Bt5AgAPDbQAon6l
- gYwG/q+U+4m65imNxHxEtv/wguv7zVx1FdM6bBSupRiKHQqcJvzgQCj/pXBAzObzeey2
- eIWJHLQuwXCd9OYAJulehF09iAhGGabS+GZ77jdsbOlVSgmaGBS8wMdeEM0HU+61DYEc
- XSM998DKTGw19ogYfqk8LePf/GDY1Q9OaYCfMoPhWyy6X91NirqfboJUiqUVN8Bntsr0
- J4JjRNE0fAbRqdAi3Z8tdryQsJpUsCFo5O3S6BnzL7FXthHoIBTqW543UoTxkVoKFyC9
- j5SA==
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:from:to:cc:subject:date:message-id:reply-to;
+ bh=yyXCEm+SN4JTuAX2T0R90Ie6jT6YR0PIuexybyKvkXE=;
+ b=WTZ/fhxMJ71jLlitDHXKYaXGnn95ODQizEyx4pjZLu/FU2YdbKeNAo0B/NktNH9Hif
+ 0ihHLDxTp8U29NT+XMIjwbpXih+rDpGbzPso+IRrM4OQEis6MRNHdhg2+L+2iQ5ZiErf
+ H2C2UNKqEdpYeg1ou6yBgu5uGp5t6In0MkSQENq2IWAYTPdvvddzhf9M2SUHCjdkNqlP
+ pTfB+d1W2bpoY+NqsMD0CmY3+w2XyTZf6ZrvG8psupb3sY6BjQWTaeaT9RFdOarIdWjn
+ Jj663Dqz2gYFZNCYKSrBaU2MDDJrY91RmxP0f4HXzCqrYeVlqsItUMv2dSlq4XkDrWmi
+ x2Hw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=IxRwrgpGcbayuw2J5RAtTHB/3ysPD12k+PHRaeFxlKQ=;
- b=FFFjgvH6ufvdPCDxOYduwffKj0ISag3k1/TU+hgWjhRUP6tbP+u3nSexhjlQd03ROu
- WPPv0mKQc2lUNMFSbHmCk07jOAp4lPJghPuFtQNrAnMCBM4uE6G0j5qX0SEFm+mMJbPJ
- kf/jfBi+p2jJPNBAB7kHou7Hs6pVdN7VILUifh3UMlz1sP7TsPVJb7DqxP4tUSVi0nwk
- q4jVTJ7NFMExsJ1gWI6SrKt8c6KVe2w37kJ6dkV6o+D0YHB++7p9Vf7XAGapZ5a+hd07
- bQmsIFhcEGMA7Go88xJihHbPTHzEIQInyH6nGMZ0X6jHqCR7feVptp5+o6Uma2XlnTBf
- k+OQ==
-X-Gm-Message-State: ACrzQf1Xj8yqEGVTcDkW1P0ggP2ZckrzyMOqxwLYrS0y/yefKXpERqs3
- B1FQOMmbFZ7XD3pB0jWbffxt/g==
-X-Google-Smtp-Source: AMsMyM4gXpjfMh9GUNM/WaSq7jLD61jpWhHWyPIsDO5O97VJQvdfk1Gffqv1EV4246udjYvGZYs8Pg==
-X-Received: by 2002:a05:600c:3b1d:b0:3c6:ff0d:6a60 with SMTP id
- m29-20020a05600c3b1d00b003c6ff0d6a60mr19364166wms.183.1667480386818; 
- Thu, 03 Nov 2022 05:59:46 -0700 (PDT)
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=yyXCEm+SN4JTuAX2T0R90Ie6jT6YR0PIuexybyKvkXE=;
+ b=gMz/LpSWVoSlFbIVf4tvbi+osL2QrnBFGlFEMjSPT7p0GTUGmty5FehWpsJ+ackU1l
+ XPfVtYOBZ16arHGFaXqA00sSyPChrU0cKRpsYZJbih4HcEgU4ep20a3vDQ368bFu1Ycd
+ sfLP8fn6k5IBDPn7CnIkNR2g1Ue+gush4nfKDPcpiQr5mSDYecjv8IS6Turndnboy/bY
+ CVi6hxuMtm6MjEF+oJBN2euy5BQLNjNOD5rZGkZZf3s3jzgDFc9VUNYLqKMl4OxvHRRp
+ CP/KmMhf+bztmMM9ByKHYWGVG9WawNGF2MEAoKYtu1v5LKTl8L4J9I4eSZA/htHCbFsB
+ KSCg==
+X-Gm-Message-State: ACrzQf2Js+/7RjE1ka6j/XJOWOEsA/QqEc8bBuH62LxO1+SxindiK/73
+ s4HUoXDM3sbFeAzmYTjpfciL+Q==
+X-Google-Smtp-Source: AMsMyM5hdXBUu8yo8VO7zyELnZCeDW54TPy5bvl1rmzeZB7u0GPP01rGpP4zIsPcikd5aOtl3C5pdw==
+X-Received: by 2002:a5d:654d:0:b0:235:197d:72d1 with SMTP id
+ z13-20020a5d654d000000b00235197d72d1mr18800468wrv.680.1667485505908; 
+ Thu, 03 Nov 2022 07:25:05 -0700 (PDT)
 Received: from localhost (2001-1ae9-1c2-4c00-748-2a9a-a2a6-1362.ip6.tmcz.cz.
  [2001:1ae9:1c2:4c00:748:2a9a:a2a6:1362])
  by smtp.gmail.com with ESMTPSA id
- bg36-20020a05600c3ca400b003cf774c31a0sm5977531wmb.16.2022.11.03.05.59.45
+ z7-20020a5d6547000000b0023662245d3csm992994wrv.95.2022.11.03.07.25.05
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 03 Nov 2022 05:59:46 -0700 (PDT)
-Date: Thu, 3 Nov 2022 13:59:45 +0100
+ Thu, 03 Nov 2022 07:25:05 -0700 (PDT)
 From: Andrew Jones <ajones@ventanamicro.com>
-To: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v3 2/2] x86: Fix /proc/cpuinfo cpumask warning
-Message-ID: <20221103125945.lrr5oxxmylwpam53@kamzik>
-References: <20221014155845.1986223-3-ajones@ventanamicro.com>
- <20221028074828.b66uuqqfbrnjdtab@kamzik>
- <Y1vrMMtRwb0Lekl0@yury-laptop> <Y1vvMlwf/4EA/8WW@zn.tnic>
- <CAAH8bW_DkvPCH0-q2Bfe0OJ72r63mRM3GP7NKOFrhe3zMO2gbQ@mail.gmail.com>
- <Y1v+Ed6mRN9gisJS@zn.tnic> <20221031080604.6xei6c4e3ckhsvmy@kamzik>
- <Y1+OUawGJDjh4DOJ@zn.tnic> <20221031100327.r7tswmpszvs5ot5n@kamzik>
- <Y2K6clNJBn0SbWU+@zn.tnic>
+To: x86@kernel.org, linux-riscv@lists.infradead.org,
+ linux-kernel@vger.kernel.org
+Subject: [PATCH v4 0/1] Fix /proc/cpuinfo cpumask warning
+Date: Thu,  3 Nov 2022 15:25:03 +0100
+Message-Id: <20221103142504.278543-1-ajones@ventanamicro.com>
+X-Mailer: git-send-email 2.37.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y2K6clNJBn0SbWU+@zn.tnic>
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -78,82 +71,63 @@ List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
 Cc: Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Yury Norov <yury.norov@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>,
- Heiko Carstens <hca@linux.ibm.com>, x86@kernel.org,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- openrisc@lists.librecores.org, Ingo Molnar <mingo@redhat.com>,
- Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley <paul.walmsley@sifive.com>,
- linux-riscv <linux-riscv@lists.infradead.org>,
- "open list:LINUX FOR POWERPC PA SEMI PWRFICIENT"
- <linuxppc-dev@lists.ozlabs.org>, Thomas Gleixner <tglx@linutronix.de>,
- Albert Ou <aou@eecs.berkeley.edu>
+ Alexander Gordeev <agordeev@linux.ibm.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ Vasily Gorbik <gor@linux.ibm.com>, Yury Norov <yury.norov@gmail.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <hca@linux.ibm.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Paul Walmsley <paul.walmsley@sifive.com>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Thomas Gleixner <tglx@linutronix.de>,
+ linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Wed, Nov 02, 2022 at 07:44:02PM +0100, Borislav Petkov wrote:
-> On Mon, Oct 31, 2022 at 11:03:27AM +0100, Andrew Jones wrote:
-> > Currently (after the revert of 78e5a3399421)
-> 
-> After the revert?
-> 
-> That commit is still in the latest Linus tree.
+Commit 78e5a3399421 ("cpumask: fix checking valid cpu range") started
+issuing warnings[1] when cpu indices equal to nr_cpu_ids - 1 were passed
+to cpumask_next* functions. The commit has since been reverted with
+commit 80493877d7d0 ("Revert "cpumask: fix checking valid cpu range"."),
+which raises the question as to how much this proposed patch is needed.
+Additionally, there's some discussion as to whether or not cpumask_next()
+should even be validating its inputs[2]. So, with that in mind, I'm fine
+with the patch being dropped. However, it may still be reasonable to add
+the checking to /proc/cpuinfo until cpumask_next has made changes and
+better documented its API.
 
-The revert commit is 80493877d7d0 ("Revert "cpumask: fix checking valid
-cpu range".")
+[1] Warnings will only appear with DEBUG_PER_CPU_MAPS enabled.
+[2] https://lore.kernel.org/all/CAHk-=wihz-GXx66MmEyaADgS1fQE_LDcB9wrHAmkvXkd8nx9tA@mail.gmail.com/
 
-> 
-> > with DEBUG_PER_CPU_MAPS we'll get a warning splat when the cpu is
-> > outside the range [-1, nr_cpu_ids)
-> 
-> Yah, that range makes sense.
-> 
-> > and cpumask_next() will call find_next_bit() with the input plus one anyway.
-> > find_next_bit() doesn't explicity document what happens when an input is
-> > outside the range, but it currently returns the bitmap size without any
-> > side effects, which means cpumask_next() will return nr_cpu_ids.
-> 
-> That is good to have in the commit message.
-> 
-> > show_cpuinfo() doesn't try to show anything in that case and stops its
-> > loop, or, IOW, things work fine now with an input of nr_cpu_ids - 1. But,
-> > show_cpuinfo() is just getting away with a violated cpumask_next()
-> > contract, which 78e5a3399421 exposed. How about a new commit message like
-> > this
-> 
-> You're making it sound more complex than it is. All you wanna say is:
-> 
-> "Filter out invalid cpumask_next() inputs by checking its first argument
-> against nr_cpu_ids because cpumask_next() will call find_next_bit() with
-> the input plus one but the valid range for n is [-1, nr_cpu_ids)."
+This series addresses the issue for x86. riscv has already merged an
+equivalent patch (v3 of this series). Also, from a quick grep of cpuinfo
+seq operations, I think at least openrisc, powerpc, and s390 could get an
+equivalent patch. While the test is simple (see next paragraph) I'm not
+equipped to test on each architecture.
 
-The patch I'm proposing ensures cpumask_next()'s range, which is actually
-[-1, nr_cpus_ids - 1), isn't violated. Violating that range will generate
-the warning for kernels which have commit 78e5a3399421 ("cpumask: fix
-checking valid cpu range"), but not its revert.
+To test, just build a kernel with DEBUG_PER_CPU_MAPS enabled, boot to
+a shell, do 'cat /proc/cpuinfo', and look for a kernel warning.
 
-Since 78e5a3399421 has been reverted, the value of this proposed fix is
-less, and indeed the warning may even go away completely for these types
-of cpumask calls[1]. However, it seems reasonable for callers to implement
-their own checks until the cpumask API has documented what they should
-expect.
+v4:
+  - The riscv patch has already been merged.
+  - Mostly rewrote the cover letter as the situation has changed since
+    78e5a3399421 was reverted.
+  - Rewrote the commit message in order to try an better clarify things
+    and also to add the reference to the revert commit, which results in
+    the commit no longer claiming its a 'fix' in its summary. [Boris]
 
-[1] https://lore.kernel.org/all/CAHk-=wihz-GXx66MmEyaADgS1fQE_LDcB9wrHAmkvXkd8nx9tA@mail.gmail.com/
+v3:
+  - Change condition from >= to == in order to still get a warning
+    for > as that's unexpected. [Yury]
+  - Picked up tags on the riscv patch
 
-> 
-> But that thing with the revert above needs to be clarified first.
+v2:
+  - Added all the information I should have in the first place
+    to the commit message [Boris]
+  - Changed style of fix [Boris]
 
-I'll send a v4 with another stab at the commit message.
+Andrew Jones (1):
+  x86: cpuinfo: Ensure inputs to cpumask_next are valid
 
-Thanks,
-drew
+ arch/x86/kernel/cpu/proc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-> 
-> Thx.
-> 
-> -- 
-> Regards/Gruss,
->     Boris.
-> 
-> https://people.kernel.org/tglx/notes-about-netiquette
+-- 
+2.37.3
+
