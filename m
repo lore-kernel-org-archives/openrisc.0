@@ -2,60 +2,44 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D93DBC4332F
-	for <openrisc@archiver.kernel.org>; Wed,  9 Nov 2022 16:45:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D288C433FE
+	for <openrisc@archiver.kernel.org>; Wed,  9 Nov 2022 17:45:43 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 6E67424A4E;
-	Wed,  9 Nov 2022 17:45:57 +0100 (CET)
-Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com
- [209.85.219.46])
- by mail.librecores.org (Postfix) with ESMTPS id 1696D24A21
- for <openrisc@lists.librecores.org>; Wed,  9 Nov 2022 17:45:56 +0100 (CET)
-Received: by mail-qv1-f46.google.com with SMTP id h10so12650956qvq.7
- for <openrisc@lists.librecores.org>; Wed, 09 Nov 2022 08:45:56 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=Ews1zWN1f/PR7HGzfMn+lenNKSw7QezbzurfTC9dGEg=;
- b=LI53FxeTZMZPqjYtakHcjl9SX2h0oaZuH0iBec/Q4tqgOGfVZfOmQs6MzGyjSv/7rK
- 1X/mlM52y9uzaJ660SDWAplM1h0bIP0wNh7sixVH3Sl6frBDC/cVANhRZ3muPNGjEYjF
- m/vDjFmDQQeFT06VN9JISqP33MA+5/6iWn7sFM/C06dAB3khAb2eL4Kvu2L2NOK6mMxS
- iz3IdXH46pweEbEXHJPHbzVImpFOnx829KTQcU4V9ak2yDiB2+cfnaQnVxTvbeOPo0ky
- QbNa3y/nJtAYrXDZ0uazJT8XA7if/t/Z3GVWLDH34t5sfGgUgkxK7d8QZeurAwcI6+2B
- ahwg==
-X-Gm-Message-State: ACrzQf3yTwKcVsFhuHRMnCYRaxIHDO55qvmETrBZ3dLhTJrt9ttHeLat
- 6OOv+gpN0DaYv3f3QhUbSXD9FFHxCrCdUQ==
-X-Google-Smtp-Source: AMsMyM6w9rPziZ8naKSdA2Q95koYkdgRljHh3gTR7n1mbBhaCU76rBYyB9RNF6ZfAS60AnRylkJ3TA==
-X-Received: by 2002:ad4:5f4c:0:b0:4b8:ec94:68e with SMTP id
- p12-20020ad45f4c000000b004b8ec94068emr54709562qvg.38.1668012354709; 
- Wed, 09 Nov 2022 08:45:54 -0800 (PST)
-Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com.
- [209.85.128.174]) by smtp.gmail.com with ESMTPSA id
- bm7-20020a05620a198700b006ce1bfbd603sm11298831qkb.124.2022.11.09.08.45.54
- for <openrisc@lists.librecores.org>
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 09 Nov 2022 08:45:54 -0800 (PST)
-Received: by mail-yw1-f174.google.com with SMTP id
- 00721157ae682-3691e040abaso167261437b3.9
- for <openrisc@lists.librecores.org>; Wed, 09 Nov 2022 08:45:54 -0800 (PST)
-X-Received: by 2002:a05:6902:503:b0:6cf:c510:6a23 with SMTP id
- x3-20020a056902050300b006cfc5106a23mr40745720ybs.380.1668012343710; Wed, 09
- Nov 2022 08:45:43 -0800 (PST)
-MIME-Version: 1.0
+	by mail.librecores.org (Postfix) with ESMTP id 5018524A55;
+	Wed,  9 Nov 2022 18:45:42 +0100 (CET)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+ by mail.librecores.org (Postfix) with ESMTPS id 0B0AD24A52
+ for <openrisc@lists.librecores.org>; Wed,  9 Nov 2022 18:45:41 +0100 (CET)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by ams.source.kernel.org (Postfix) with ESMTPS id 16072B81F4B;
+ Wed,  9 Nov 2022 17:45:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B079DC433C1;
+ Wed,  9 Nov 2022 17:45:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1668015938;
+ bh=i7sn7z8xD6SHJEq5dmKr3bGFRNb5IIYU4SUzL9diu3w=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=ARGpruzLN9OuV1JYvbeHm52w2t6ttIgcwOERaZqjZsnd7VJWeUE/iSfoj625HTPs9
+ LjIQy4r4/9BKNBA6nWXBmpYOA6SsvVWKXtma/QrTzMUEYdJHxRYVSM9ZzUmQDzL5gE
+ yDkr6hT/XY5diiSADUVNUIFYs+FYy1RrzAoBCPu9+EF7pWX009Q1jSYcQpTH5/jXIz
+ UvI5GVfMJsao2fdud1mdLsEBszy13PadoZxvIu7tt2f03u7RvYE5qrnsmDSaX9P9Yh
+ hM2ic17YHSLgzomL7XWQE7iOvMfjj1ER/bTY5pZSY9MusLUUoQPuUHwDBgI3X4tiuz
+ SLCO2K4jannvg==
+Date: Wed, 9 Nov 2022 19:45:19 +0200
+From: Mike Rapoport <rppt@kernel.org>
+To: Aaro Koskinen <aaro.koskinen@iki.fi>
+Subject: Re: Deprecating and removing SLOB
+Message-ID: <Y2vnLyprF79EQHNz@kernel.org>
 References: <b35c3f82-f67b-2103-7d82-7a7ba7521439@suse.cz>
  <CA+CK2bD-uVGJ0=9uc7Lt5zwY+2PM2RTcfOhxEd65S7TvTrJULA@mail.gmail.com>
  <87187c52-ae48-130b-6479-ae1023915bc1@suse.cz>
  <20221109155008.GC307514@darkstar.musicnaut.iki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20221109155008.GC307514@darkstar.musicnaut.iki.fi>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 9 Nov 2022 17:45:32 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdXY7z+BXjM1KNVF9AKw0n28Fe-8TDbRC=WKXZf09h6G+w@mail.gmail.com>
-Message-ID: <CAMuHMdXY7z+BXjM1KNVF9AKw0n28Fe-8TDbRC=WKXZf09h6G+w@mail.gmail.com>
-Subject: Re: Deprecating and removing SLOB
-To: Aaro Koskinen <aaro.koskinen@iki.fi>
-Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -89,7 +73,9 @@ Cc: Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Wed, Nov 9, 2022 at 4:53 PM Aaro Koskinen <aaro.koskinen@iki.fi> wrote:
+On Wed, Nov 09, 2022 at 05:50:08PM +0200, Aaro Koskinen wrote:
+> Hi,
+> 
 > On Wed, Nov 09, 2022 at 10:00:25AM +0100, Vlastimil Babka wrote:
 > > > On Tue, Nov 8, 2022 at 10:55 AM Vlastimil Babka <vbabka@suse.cz> wrote:
 > > >> I believe SLOB can be removed because:
@@ -102,39 +88,31 @@ On Wed, Nov 9, 2022 at 4:53 PM Aaro Koskinen <aaro.koskinen@iki.fi> wrote:
 > > >> RAM, not up to 16 MB anymore. I've heard anecdotes that the performance
 > > >> SLOB impact is too much for those who tried. Googling for
 > > >> "CONFIG_SLOB=y" yielded nothing useful.
-> > >
+> > > 
 > > > I am all for removing SLOB.
-> > >
+> > > 
 > > > There are some devices with configs where SLOB is enabled by default.
 > > > Perhaps, the owners/maintainers of those devices/configs should be
 > > > included into this thread:
->
+> 
 > [...]
->
+> 
 > > > arch/arm/configs/omap1_defconfig:CONFIG_SLOB=y
->
+> 
 > I have been using SLUB on my OMAP1 boards with 32 MB RAM, because of
 > better debugging features and the memory footprint difference doesn't
 > really matter for my use cases. Looking at history why SLOB was added
 > there, it seems it came from 6cfce27c14aa ("omap1: Add omap1_defconfig")
 > when separate boards configs were merged, and SX1 board happened to have
 > SLOB in there. This board is nowadays only used in QEMU anyway.
->
-> There are OMAP1 boards with only 16 MB, but support for those boards
-> will be removed. So from OMAP1 side, I don't think there is any real
-> need for SLOB anymore.
 
-Interestingly, the m68k defconfigs use either SLAB, or the default (SLUB).
-So the poor old m68k machines (many of which have less than 32 MiB)
-seem to do fine without SLOB...
+Looks like the same happened with arch/arm/configs/pxa_defconfig. XCEP
+board had SLOB in its defconfig and when common pxa_defconfig was created
+it apparently used it.
+Looks like the board has 64M of RAM, so dropping CONFIG_SLOB=y from
+arch/arm/configs/pxa_defconfig and arch/arm/configs/xcep_defconfig seems
+very reasonable.
 
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+-- 
+Sincerely yours,
+Mike.
