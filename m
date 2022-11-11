@@ -2,61 +2,62 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57961C433FE
-	for <openrisc@archiver.kernel.org>; Fri, 11 Nov 2022 04:15:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96522C3A5A3
+	for <openrisc@archiver.kernel.org>; Fri, 11 Nov 2022 10:17:13 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id F223824A9D;
-	Fri, 11 Nov 2022 05:14:59 +0100 (CET)
-Received: from mail-oi1-f177.google.com (mail-oi1-f177.google.com
- [209.85.167.177])
- by mail.librecores.org (Postfix) with ESMTPS id D480B24A9B
- for <openrisc@lists.librecores.org>; Fri, 11 Nov 2022 05:14:58 +0100 (CET)
-Received: by mail-oi1-f177.google.com with SMTP id q83so3907053oib.10
- for <openrisc@lists.librecores.org>; Thu, 10 Nov 2022 20:14:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=p63dJQ8Zm1StkFJbBaYMAZgNwK/eOyFjpsy+2OYCi50=;
- b=h/qWkjLSgEyAJah89p+vgT6NQynzFunXIArGdkU0XeiYzi1H7rata405JYf6ClTI+B
- nmghiawtYZByjpqJy3mM7BNM5xVCvDvD5aX1mxU+IWUlbo6ovG939oMH3O/RCnrgOzYq
- 2QGCfjxFTIkAlEppGbWQT936ooO6lf40KQHJMYPtn8VDLjFE7CKiXIFtP5ZrWi9mk4EY
- KA8kXg2gft8P/4vOssapiwPL32B4PF4uMXNw1CynoglzQ5aWS/o0ktEjr8oaGjh68qhq
- rstLTea6xPTAvAc8MODPL87vCtskFz/lJ3xavFe4O5bh/34Ujm4155uJhRhYk67NwVNS
- 8mYQ==
+	by mail.librecores.org (Postfix) with ESMTP id 1E15D24A91;
+	Fri, 11 Nov 2022 11:17:12 +0100 (CET)
+Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com
+ [209.85.221.54])
+ by mail.librecores.org (Postfix) with ESMTPS id 8245824130
+ for <openrisc@lists.librecores.org>; Fri, 11 Nov 2022 11:17:11 +0100 (CET)
+Received: by mail-wr1-f54.google.com with SMTP id v1so5820832wrt.11
+ for <openrisc@lists.librecores.org>; Fri, 11 Nov 2022 02:17:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+ h=mime-version:user-agent:message-id:in-reply-to:date:references
+ :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to;
+ bh=BH/APi1a0PoKAJZknP8AkAonpu9TnXBBnNUq+HUkcwM=;
+ b=4oOscMH7jU6ury8coe6FqLy7zK1XZNinWBvFR7izLUhT8UO+Uf7A34vnnALOX+0uZw
+ 6u0BzpFG7Xf65rlpJuAvjMgTNhVx/gSKcxgRlSDN2zH7W+6LI6BnNcuT8FnlleBan74e
+ U+nnWKJgynFDrs5h1v4LHjxM1v+N8pvPWTcuhFJiAYBmZcFqEaaRiyqBxAjt+VLKVj27
+ ymKqo1xHrZ7qEJ3SsTyk8ixNapD9K4j74hbbeGy2nwxMGfxLNJInz1YB3DFYiKEqav4a
+ oeGBzhxJPbF4jd3XpyzDJKvMeI1dC4S63nsd7WzmmwS7/SrtVuS1+i59tvEjxRd8GW0+
+ CSgg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ h=mime-version:user-agent:message-id:in-reply-to:date:references
+ :subject:cc:to:from:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=p63dJQ8Zm1StkFJbBaYMAZgNwK/eOyFjpsy+2OYCi50=;
- b=bL5ZThc5BDSlpXbajP2TJvYBgEDaqiHIQG+7q+WC9Yj2sc4/EkZtrsjyo/vQP3oh+g
- TWPlHknpDhNd7tFozwToeK+ktjZgUm5YRKe5wYOCSdWNznN3s1LMg1ZQF+l/9KX+NjcZ
- Df58N69ec5QPMBFDl8CCuRam2WSrIjx4mynEUPJxJWRpkUXMgibe9536CdI08J1vOi8T
- /pCJ8AOiuWCZc5SJlN5xTTX2XErQ+igNAQNTibPdxPZq2/B7Nx/s5h+8JTsVvHbsKmQO
- FkVtn8hWFvgOiFR4UT1U+SX4RQfDp1372s2YIE3/CnBlw0eBiPCbnZvIL9M0wMpAJnbv
- 1HYA==
-X-Gm-Message-State: ACrzQf0sz7lIGKkmYehjd+KV/AmnAzo2JsciUK6A1l06Mtn+voETOXMa
- 4/hUSJ3OMrsVpFGN6xsDTUw=
-X-Google-Smtp-Source: AMsMyM7b8tbRaQRGbmuhAG9mhyQNZp61zj9zEvl1eF7QlhtBjlOwONQncQLSFtFBszzuP5wzulbUHw==
-X-Received: by 2002:a05:6808:151e:b0:35a:7300:7208 with SMTP id
- u30-20020a056808151e00b0035a73007208mr2438895oiw.75.1668140097551; 
- Thu, 10 Nov 2022 20:14:57 -0800 (PST)
-Received: from localhost ([12.97.180.36]) by smtp.gmail.com with ESMTPSA id
- v4-20020a9d6044000000b00661a05691fasm562487otj.79.2022.11.10.20.14.57
+ bh=BH/APi1a0PoKAJZknP8AkAonpu9TnXBBnNUq+HUkcwM=;
+ b=Jfs/QZvI2iSs319Z5yA6wY2fia3v1oUbBIAW4hTfi4ReXz1JeBMlwnqorrPIofKoQ/
+ 0o2Xz0znxiL9Txfej9jCLT9PMlRi5I+5KNSjIGucOWXGMmdVCCwomTZrPO6a3NaOPM+6
+ 6VWKPvARKoksyhrTtxq05z0pOjUzB5aPHptd4nGAtH4xHsM36NMZyrdVa+icAJeHt8dX
+ QON9+tlfLXJL6iVNpAGgxW7C3aH+GpgOzw31t0kJKJVsOOcjcOLzca2PoSaQGRQ/On6I
+ kC9kqjte6U6CEiyl6d8X9M2him+081rkKbtnnU9XjWAiebaFh7dBUNoUe5xi7kn4HiCr
+ 1tgg==
+X-Gm-Message-State: ANoB5plI5hc2JSwygVnavSmnK+0luxo/muGbg43Z4+ksEbtYLi+tbF/i
+ V44sTwbg5CVj9AvvpiSm81NObg==
+X-Google-Smtp-Source: AA0mqf4pSdxpuNsvbAiQ/VPT4Uicb2yIOEyOj0DptBJEnqY46AvxjvE1jv4RoOcak7HL0HGEg3fM1Q==
+X-Received: by 2002:a05:6000:18cc:b0:236:6d79:b312 with SMTP id
+ w12-20020a05600018cc00b002366d79b312mr805921wrq.699.1668161831083; 
+ Fri, 11 Nov 2022 02:17:11 -0800 (PST)
+Received: from localhost ([95.148.15.66]) by smtp.gmail.com with ESMTPSA id
+ h8-20020a05600c2ca800b003b4a699ce8esm8500043wmc.6.2022.11.11.02.17.10
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 10 Nov 2022 20:14:57 -0800 (PST)
-Date: Thu, 10 Nov 2022 20:14:56 -0800
-From: Yury Norov <yury.norov@gmail.com>
-To: Andrew Jones <ajones@ventanamicro.com>
-Subject: Re: [PATCH v4 1/1] x86: cpuinfo: Ensure inputs to cpumask_next are
- valid
-Message-ID: <Y23MQA8ZaQ135aJV@yury-laptop>
-References: <20221103142504.278543-1-ajones@ventanamicro.com>
- <20221103142504.278543-2-ajones@ventanamicro.com>
+ Fri, 11 Nov 2022 02:17:10 -0800 (PST)
+From: Punit Agrawal <punit.agrawal@bytedance.com>
+To: Yicong Yang <yangyicong@huawei.com>
+Subject: Re: [External] [PATCH v5 0/2] arm64: support batched/deferred tlb
+ shootdown during page reclamation
+References: <20221028081255.19157-1-yangyicong@huawei.com>
+Date: Fri, 11 Nov 2022 10:17:09 +0000
+In-Reply-To: <20221028081255.19157-1-yangyicong@huawei.com> (Yicong Yang's
+ message of "Fri, 28 Oct 2022 16:12:53 +0800")
+Message-ID: <87pmdtztga.fsf@stealth>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221103142504.278543-2-ajones@ventanamicro.com>
+Content-Type: text/plain
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -69,65 +70,61 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <hca@linux.ibm.com>,
- x86@kernel.org, linux-kernel@vger.kernel.org, openrisc@lists.librecores.org,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>,
- linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
- Thomas Gleixner <tglx@linutronix.de>, Albert Ou <aou@eecs.berkeley.edu>
+Cc: wangkefeng.wang@huawei.com, prime.zeng@hisilicon.com, realmz6@gmail.com,
+ linux-doc@vger.kernel.org, peterz@infradead.org, catalin.marinas@arm.com,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org, punit.agrawal@bytedance.com,
+ linux-riscv@lists.infradead.org, will@kernel.org, linux-s390@vger.kernel.org,
+ zhangshiming@oppo.com, lipeifeng@oppo.com, corbet@lwn.net, x86@kernel.org,
+ Barry Song <21cnbao@gmail.com>, arnd@arndb.de, anshuman.khandual@arm.com,
+ openrisc@lists.librecores.org, darren@os.amperecomputing.com,
+ yangyicong@hisilicon.com, linux-arm-kernel@lists.infradead.org,
+ guojian@oppo.com, xhao@linux.alibaba.com, linux-mips@vger.kernel.org,
+ huzhanyuan@oppo.com, akpm@linux-foundation.org, linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Thu, Nov 03, 2022 at 03:25:04PM +0100, Andrew Jones wrote:
-> The valid cpumask range is [0, nr_cpu_ids) and cpumask_next()
-> currently calls find_next_bit() with its input CPU ID number plus one
-> for the bit number, giving cpumask_next() the range [-1, nr_cpu_ids - 1).
-> seq_read_iter() and cpuinfo's start and next seq operations implement a
-> pattern like
-> 
->   n = cpumask_next(n - 1, mask);
->   show(n);
->   while (1) {
->       ++n;
->       n = cpumask_next(n - 1, mask);
->       if (n >= nr_cpu_ids)
->           break;
->       show(n);
->   }
-> 
-> which will eventually result in cpumask_next() being called with
-> nr_cpu_ids - 1. A kernel compiled with commit 78e5a3399421 ("cpumask:
-> fix checking valid cpu range"), but not its revert, commit
-> 80493877d7d0 ("Revert "cpumask: fix checking valid cpu range"."),
-> will generate a warning when DEBUG_PER_CPU_MAPS is enabled each time
-> /proc/cpuinfo is read. Future-proof cpuinfo by checking its input to
-> cpumask_next() is valid.
-> 
-> Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
-> Cc: Yury Norov <yury.norov@gmail.com>
+Yicong Yang <yangyicong@huawei.com> writes:
 
-Reviewed-by: Yury Norov <yury.norov@gmail.com>
+> From: Yicong Yang <yangyicong@hisilicon.com>
+>
+> Though ARM64 has the hardware to do tlb shootdown, the hardware
+> broadcasting is not free.
+> A simplest micro benchmark shows even on snapdragon 888 with only
+> 8 cores, the overhead for ptep_clear_flush is huge even for paging
+> out one page mapped by only one process:
+> 5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
+>
+> While pages are mapped by multiple processes or HW has more CPUs,
+> the cost should become even higher due to the bad scalability of
+> tlb shootdown.
+>
+> The same benchmark can result in 16.99% CPU consumption on ARM64
+> server with around 100 cores according to Yicong's test on patch
+> 4/4.
+>
+> This patchset leverages the existing BATCHED_UNMAP_TLB_FLUSH by
+> 1. only send tlbi instructions in the first stage -
+> 	arch_tlbbatch_add_mm()
+> 2. wait for the completion of tlbi by dsb while doing tlbbatch
+> 	sync in arch_tlbbatch_flush()
+> Testing on snapdragon shows the overhead of ptep_clear_flush
+> is removed by the patchset. The micro benchmark becomes 5% faster
+> even for one page mapped by single process on snapdragon 888.
+>
+> With this support we're possible to do more optimization for memory
+> reclamation and migration[*].
 
-> ---
->  arch/x86/kernel/cpu/proc.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/arch/x86/kernel/cpu/proc.c b/arch/x86/kernel/cpu/proc.c
-> index 099b6f0d96bd..de3f93ac6e49 100644
-> --- a/arch/x86/kernel/cpu/proc.c
-> +++ b/arch/x86/kernel/cpu/proc.c
-> @@ -153,6 +153,9 @@ static int show_cpuinfo(struct seq_file *m, void *v)
->  
->  static void *c_start(struct seq_file *m, loff_t *pos)
->  {
-> +	if (*pos == nr_cpu_ids)
-> +		return NULL;
-> +
->  	*pos = cpumask_next(*pos - 1, cpu_online_mask);
->  	if ((*pos) < nr_cpu_ids)
->  		return &cpu_data(*pos);
-> -- 
-> 2.37.3
+I applied the patches on v6.1-rc4 and was able to see the drop in
+ptep_clear_flush() in the perf report when running the test program from
+Patch 2. The tests were done on a rk3399 based system with benefits
+visible when running the tests on either of the clusters. 
+
+So, for the series,
+
+Tested-by: Punit Agrawal <punit.agrawal@bytedance.com>
+
+Thanks,
+Punit
+
+[...]
+
