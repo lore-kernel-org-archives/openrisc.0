@@ -2,57 +2,61 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7476C43219
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02DFDC43217
 	for <openrisc@archiver.kernel.org>; Sun, 13 Nov 2022 06:49:24 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 1883E23CCB;
+	by mail.librecores.org (Postfix) with ESMTP id 2E63B20919;
 	Sun, 13 Nov 2022 07:49:22 +0100 (CET)
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com
- [209.85.214.174])
- by mail.librecores.org (Postfix) with ESMTPS id 9FFF324A54
- for <openrisc@lists.librecores.org>; Wed,  9 Nov 2022 22:17:06 +0100 (CET)
-Received: by mail-pl1-f174.google.com with SMTP id c2so18255169plz.11
- for <openrisc@lists.librecores.org>; Wed, 09 Nov 2022 13:17:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:from:to:cc:subject:date:message-id:reply-to;
- bh=6o0JaodUdCinHCuijBKMPPDh4qNhM3W4CwZTMs5pShU=;
- b=b7JdsqL98tFczElrzx45zPQRQqT+FLWQdW7GQ21VMf1VWbVkWvdPT7fPQVW9/YYGhj
- fsJmZVTrJHZqpF5nrGm5JKasB3diwCu2Hs5yNW2C9n/rEZiCH7R7PnAEwZ/MGa/qzyIG
- zfiOnumXidobU0/zuy474imLQWsj+TNcT1BwOR4wCZrc7nj9wEle1ahDUDnwTkt6UQJ1
- bZGNJ9fqbFCNFUTDQDZYUF5tjtiVt+POwV9J5xnlurRxP4GFYN8l+xbrN6OKbV0N8j6j
- kPz632gUkLxrLhg+OI3WB7b7hny2T7RaIKSOWnHn8CvNieatf9SjrSo7u+FU7dyzH4Jo
- RWzQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=6o0JaodUdCinHCuijBKMPPDh4qNhM3W4CwZTMs5pShU=;
- b=E3aJ4NrgGjc++luU9a94PipWr9HxoQW+xIYPaeO8OTdfcypAQtL3vSA0WyM5djc1Eq
- hy7II8kAOcaCrr0LlYuHOBcVrRVdN8ih9Qbr0IERvE7WfXGQWXikRqBeYeVZCohYv/jY
- /NJhu4ef0InwaxZLk55gJCeOqUkCIccwnOMKSgVzEnR93/pUGNvYL2E4PMYX4ADWzSim
- TbDYaY2KXp+SYl9OjY30wJNY4aXAmnQp0mYF6oVl4BMgJHDwJjSig/tHgbfdvGMyZSGF
- mQCbyqWNqW1rEhYQLOQewXOgLKpBuZZ1FhUh6KoZ0ofaTaJfq2CC1Edf9JT/u0dijH8R
- NA7Q==
-X-Gm-Message-State: ACrzQf2ZmOOliEcyJcutM8uJZhBeUW4cWxeXAprFlBZ3H4MGTJxw8oAD
- mI1X72GdhZ26cfXdzhrQS8G944JUOGBdtF34Cbg=
-X-Google-Smtp-Source: AMsMyM5vTjPHFhQ2vYKc1ap+Gnz9Xnoi5f6pFtOuhyEULsih6osIQH75MdocdJksgvBY7Bht8TwzxWn0ElldlUKBtUU=
-X-Received: by 2002:a17:902:da82:b0:186:ee5a:47c7 with SMTP id
- j2-20020a170902da8200b00186ee5a47c7mr63072929plx.82.1668028625070; Wed, 09
- Nov 2022 13:17:05 -0800 (PST)
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+ by mail.librecores.org (Postfix) with ESMTPS id 54D1824A99
+ for <openrisc@lists.librecores.org>; Fri, 11 Nov 2022 11:33:32 +0100 (CET)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id B412921DDE;
+ Fri, 11 Nov 2022 10:33:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+ t=1668162811; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=WSCJ2N1URwFcAUpc+EAtARpTG8kNt7RKSmUBsp1NCYw=;
+ b=bLdNsCXNtfB4em+NWVRu94pn8V+2hW+GlWFIPC1e+mqpdLUX4+NZw2boA7dIcj+KXFMijo
+ ElQHOh5b+oI62C+Gf04Ic/NPkPB6It+64tfv7GEbyRZXj1xv2j4709mHQWQimmeUPP6QGT
+ S5Uru2jktIkaLhHPT/QowuxxROJ2LKA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+ s=susede2_ed25519; t=1668162811;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=WSCJ2N1URwFcAUpc+EAtARpTG8kNt7RKSmUBsp1NCYw=;
+ b=hDmNucyL+4Ou2xJNHSD+4YDZvmSpjLuW53GKwCYSZ9xGY1HAiRLmLYySmhext86MIfwxoe
+ OSLB14XKM31ZRdBw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 377B913357;
+ Fri, 11 Nov 2022 10:33:31 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id GTvODPskbmNOBwAAMHmgww
+ (envelope-from <vbabka@suse.cz>); Fri, 11 Nov 2022 10:33:31 +0000
+Message-ID: <c1caa5ce-eeaf-8038-2dea-051c98aade45@suse.cz>
+Date: Fri, 11 Nov 2022 11:33:30 +0100
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.1
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: Deprecating and removing SLOB
+To: Pasha Tatashin <pasha.tatashin@soleen.com>
 References: <b35c3f82-f67b-2103-7d82-7a7ba7521439@suse.cz>
  <CA+CK2bD-uVGJ0=9uc7Lt5zwY+2PM2RTcfOhxEd65S7TvTrJULA@mail.gmail.com>
- <87187c52-ae48-130b-6479-ae1023915bc1@suse.cz>
- <20221109155008.GC307514@darkstar.musicnaut.iki.fi>
-In-Reply-To: <20221109155008.GC307514@darkstar.musicnaut.iki.fi>
-From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Date: Wed, 9 Nov 2022 22:16:53 +0100
-Message-ID: <CAGfqbt50b9rFEjbFPCZoQnNyBN+CAgBf6bxwpbr4z=tL_A97MQ@mail.gmail.com>
-Subject: Re: Deprecating and removing SLOB
-To: Vlastimil Babka <vbabka@suse.cz>, Aaro Koskinen <aaro.koskinen@iki.fi>
-Content-Type: text/plain; charset="UTF-8"
+Content-Language: en-US
+In-Reply-To: <CA+CK2bD-uVGJ0=9uc7Lt5zwY+2PM2RTcfOhxEd65S7TvTrJULA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-Mailman-Approved-At: Sun, 13 Nov 2022 07:49:20 +0100
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
@@ -69,63 +73,169 @@ List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
 Cc: Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
  Tony Lindgren <tony@atomide.com>, Catalin Marinas <catalin.marinas@arm.com>,
  Roman Gushchin <roman.gushchin@linux.dev>,
- "linux-mm@kvack.org" <linux-mm@kvack.org>, Hyeonggon Yoo <42.hyeyoo@gmail.com>,
- Christoph Lameter <cl@linux.com>, linux-riscv@lists.infradead.org,
+ Paul Cercueil <paul@crapouillou.net>,
+ "linux-mm@kvack.org" <linux-mm@kvack.org>, Conor.Dooley@microchip.com,
+ Hyeonggon Yoo <42.hyeyoo@gmail.com>, Christoph Lameter <cl@linux.com>,
+ "linux-olinux-omap@vger.kernel.orgmap"@vger.kernel.org,
  Jonas Bonn <jonas@southpole.se>, Yoshinori Sato <ysato@users.sourceforge.jp>,
- Russell King <linux@armlinux.org.uk>, Matthew Wilcox <willy@infradead.org>,
- David Rientjes <rientjes@google.com>,
- Pasha Tatashin <pasha.tatashin@soleen.com>, Arnd Bergmann <arnd@arndb.de>,
- Josh Triplett <josh@joshtriplett.org>, openrisc@lists.librecores.org,
- Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+ Aaro Koskinen <aaro.koskinen@iki.fi>,
+ Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+ Janusz Krzysztofik <jmkrzyszt@gmail.com>, Russell King <linux@armlinux.org.uk>,
+ Matthew Wilcox <willy@infradead.org>, David Rientjes <rientjes@google.com>,
+ Arnd Bergmann <arnd@arndb.de>, Josh Triplett <josh@joshtriplett.org>,
+ openrisc@lists.librecores.org, Joonsoo Kim <iamjoonsoo.kim@lge.com>,
  "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
  Alexander Shiyan <shc_work@mail.ru>,
  "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
  Rustam Kovhaev <rkovhaev@gmail.com>, Pekka Enberg <penberg@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>,
+ linux-riscv@lists.infradead.org, Andrew Morton <akpm@linux-foundation.org>,
  Linus Torvalds <torvalds@linux-foundation.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Wednesday, 9 November 2022 16:50:08 CET Aaro Koskinen wrote:
-> Hi,
->
-> On Wed, Nov 09, 2022 at 10:00:25AM +0100, Vlastimil Babka wrote:
-> > > On Tue, Nov 8, 2022 at 10:55 AM Vlastimil Babka <vbabka@suse.cz> wrote:
-> > >> I believe SLOB can be removed because:
-> > >>
-> > >> - AFAIK nobody really uses it? It strives for minimal memory footprint
-> > >> by putting all objects together, which has its CPU performance costs
-> > >> (locking, lack of percpu caching, searching for free space...). I'm not
-> > >> aware of any "tiny linux" deployment that opts for this. For example,
-> > >> OpenWRT seems to use SLUB and the devices these days have e.g. 128MB
-> > >> RAM, not up to 16 MB anymore. I've heard anecdotes that the performance
-> > >> SLOB impact is too much for those who tried. Googling for
-> > >> "CONFIG_SLOB=y" yielded nothing useful.
-> > >
-> > > I am all for removing SLOB.
-> > >
-> > > There are some devices with configs where SLOB is enabled by default.
-> > > Perhaps, the owners/maintainers of those devices/configs should be
-> > > included into this thread:
->
-> [...]
->
-> > > arch/arm/configs/omap1_defconfig:CONFIG_SLOB=y
->
-> I have been using SLUB on my OMAP1 boards with 32 MB RAM, because of
-> better debugging features and the memory footprint difference doesn't
-> really matter for my use cases. Looking at history why SLOB was added
-> there, it seems it came from 6cfce27c14aa ("omap1: Add omap1_defconfig")
-> when separate boards configs were merged, and SX1 board happened to have
-> SLOB in there. This board is nowadays only used in QEMU anyway.
->
-> There are OMAP1 boards with only 16 MB, but support for those boards
-> will be removed. So from OMAP1 side, I don't think there is any real
-> need for SLOB anymore.
+On 11/8/22 22:44, Pasha Tatashin wrote:
+> On Tue, Nov 8, 2022 at 10:55 AM Vlastimil Babka <vbabka@suse.cz> wrote:
+>>
+>> Hi,
+>>
+>> as we all know, we currently have three slab allocators. As we discussed
+>> at LPC [1], it is my hope that one of these allocators has a future, and
+>> two of them do not.
+>>
+>> The unsurprising reasons include code maintenance burden, other features
+>> compatible with only a subset of allocators (or more effort spent on the
+>> features), blocking API improvements (more on that below), and my
+>> inability to pronounce SLAB and SLUB in a properly distinguishable way,
+>> without resorting to spelling out the letters.
+>>
+>> I think (but may be proven wrong) that SLOB is the easier target of the
+>> two to be removed, so I'd like to focus on it first.
+>>
+>> I believe SLOB can be removed because:
+>>
+>> - AFAIK nobody really uses it? It strives for minimal memory footprint
+>> by putting all objects together, which has its CPU performance costs
+>> (locking, lack of percpu caching, searching for free space...). I'm not
+>> aware of any "tiny linux" deployment that opts for this. For example,
+>> OpenWRT seems to use SLUB and the devices these days have e.g. 128MB
+>> RAM, not up to 16 MB anymore. I've heard anecdotes that the performance
+>> SLOB impact is too much for those who tried. Googling for
+>> "CONFIG_SLOB=y" yielded nothing useful.
+> 
+> I am all for removing SLOB.
+> 
+> There are some devices with configs where SLOB is enabled by default.
+> Perhaps, the owners/maintainers of those devices/configs should be
+> included into this thread:
+> 
+> tatashin@soleen:~/x/linux$ git grep SLOB=y
+> arch/arm/configs/clps711x_defconfig:CONFIG_SLOB=y
+> arch/arm/configs/collie_defconfig:CONFIG_SLOB=y
+> arch/arm/configs/multi_v4t_defconfig:CONFIG_SLOB=y
+> arch/arm/configs/omap1_defconfig:CONFIG_SLOB=y
+> arch/arm/configs/pxa_defconfig:CONFIG_SLOB=y
+> arch/arm/configs/tct_hammer_defconfig:CONFIG_SLOB=y
+> arch/arm/configs/xcep_defconfig:CONFIG_SLOB=y
+> arch/openrisc/configs/or1ksim_defconfig:CONFIG_SLOB=y
+> arch/openrisc/configs/simple_smp_defconfig:CONFIG_SLOB=y
+> arch/riscv/configs/nommu_k210_defconfig:CONFIG_SLOB=y
+> arch/riscv/configs/nommu_k210_sdcard_defconfig:CONFIG_SLOB=y
+> arch/riscv/configs/nommu_virt_defconfig:CONFIG_SLOB=y
+> arch/sh/configs/rsk7201_defconfig:CONFIG_SLOB=y
+> arch/sh/configs/rsk7203_defconfig:CONFIG_SLOB=y
+> arch/sh/configs/se7206_defconfig:CONFIG_SLOB=y
+> arch/sh/configs/shmin_defconfig:CONFIG_SLOB=y
+> arch/sh/configs/shx3_defconfig:CONFIG_SLOB=y
+> kernel/configs/tiny.config:CONFIG_SLOB=y
 
-Moreover, I always had issues with availability of socket buffers during USB
-device setup when trying to use SLOB on Amstrad Delta based on OMAP1510,
-the least powerful OMAP1.  Then, +1 for SLOB removal.
+Turns out that since SLOB depends on EXPERT, many of those lack it so
+running make defconfig ends up with SLUB anyway, unless I miss something.
+Only a subset has both SLOB and EXPERT:
 
-Thanks,
-Janusz
+> git grep CONFIG_EXPERT `git grep -l "CONFIG_SLOB=y"`
+arch/arm/configs/collie_defconfig:CONFIG_EXPERT=y
+arch/arm/configs/omap1_defconfig:CONFIG_EXPERT=y
+arch/arm/configs/tct_hammer_defconfig:CONFIG_EXPERT=y
+arch/arm/configs/xcep_defconfig:CONFIG_EXPERT=y
+arch/openrisc/configs/or1ksim_defconfig:CONFIG_EXPERT=y
+arch/openrisc/configs/simple_smp_defconfig:CONFIG_EXPERT=y
+arch/riscv/configs/nommu_virt_defconfig:CONFIG_EXPERT=y
+arch/x86/configs/x86_64_defconfig:CONFIG_EXPERT=y
+
+So how about the following for -next and 6.2? I did try depending on BROKEN
+as suggested, but didn't find a way to override it by enabling CONFIG_BROKEN=y
+without modifying a Kconfig file, so this seems more graceful to me?
+
+----8<----
+From 58028e06eee8a7fb8a11908b6941fae000660e4d Mon Sep 17 00:00:00 2001
+From: Vlastimil Babka <vbabka@suse.cz>
+Date: Fri, 11 Nov 2022 11:04:55 +0100
+Subject: [PATCH] mm, slob: rename CONFIG_SLOB to CONFIG_SLOB_DEPRECATED
+
+As explained in [1], we would like to remove SLOB if possible.
+
+- There are no known users that need its somewhat lower memory footprint
+  so much that they cannot handle SLUB instead.
+
+- It is an extra maintenance burden, and a number of features are
+  incompatible with it.
+
+- It blocks the API improvement of allowing kfree() on objects allocated
+  via kmem_cache_alloc().
+
+As the first step, rename the CONFIG_SLOB option in the slab allocator
+configuration choice to CONFIG_SLOB_DEPRECATED. Add CONFIG_SLOB
+depending on CONFIG_SLOB_DEPRECATED as an internal option to avoid code
+churn. This will cause existing .config files and defconfigs with
+CONFIG_SLOB=y to silently switch to the default (and recommended
+replacement) SLUB, while still allowing SLOB to be configured by anyone
+that notices and needs it. But those should contact the slab maintainers
+and linux-mm@kvack.org as explained in the updated help. With no valid
+objections, the plan is to update the existing defconfigs to SLUB and
+remove SLOB in a few cycles.
+
+[1] https://lore.kernel.org/all/b35c3f82-f67b-2103-7d82-7a7ba7521439@suse.cz/
+
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+---
+ mm/Kconfig | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/mm/Kconfig b/mm/Kconfig
+index 57e1d8c5b505..27c0d13314be 100644
+--- a/mm/Kconfig
++++ b/mm/Kconfig
+@@ -219,17 +219,28 @@ config SLUB
+ 	   and has enhanced diagnostics. SLUB is the default choice for
+ 	   a slab allocator.
+ 
+-config SLOB
++config SLOB_DEPRECATED
+ 	depends on EXPERT
+-	bool "SLOB (Simple Allocator)"
++	bool "SLOB (Simple Allocator - DEPRECATED)"
+ 	depends on !PREEMPT_RT
+ 	help
++	   Deprecated and scheduled for removal in a few cycles. SLUB
++	   recommended as replacement. If you need SLOB to stay, please
++	   contact linux-mm@kvack.org and people listed in the SLAB
++	   ALLOCATOR section of MAINTAINERS file, and state your use
++	   case.
++
+ 	   SLOB replaces the stock allocator with a drastically simpler
+ 	   allocator. SLOB is generally more space efficient but
+ 	   does not perform as well on large systems.
+ 
+ endchoice
+ 
++config SLOB
++	bool
++	default y
++	depends on SLOB_DEPRECATED
++
+ config SLAB_MERGE_DEFAULT
+ 	bool "Allow slab caches to be merged"
+ 	default y
+-- 
+2.38.0
+
