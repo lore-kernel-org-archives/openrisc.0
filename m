@@ -2,39 +2,68 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EB55C433FE
-	for <openrisc@archiver.kernel.org>; Mon, 14 Nov 2022 14:19:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE282C4332F
+	for <openrisc@archiver.kernel.org>; Mon, 14 Nov 2022 16:40:05 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 2DAAC24A90;
-	Mon, 14 Nov 2022 15:19:33 +0100 (CET)
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by mail.librecores.org (Postfix) with ESMTP id 8353724A8B
- for <openrisc@lists.librecores.org>; Mon, 14 Nov 2022 15:19:32 +0100 (CET)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 71CAB23A;
- Mon, 14 Nov 2022 06:19:37 -0800 (PST)
-Received: from [192.168.0.110] (unknown [172.31.20.19])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 61C753F73D;
- Mon, 14 Nov 2022 06:19:21 -0800 (PST)
-Message-ID: <40f1b5ad-2165-bb81-1ff5-89786373fa14@arm.com>
-Date: Mon, 14 Nov 2022 19:49:13 +0530
+	by mail.librecores.org (Postfix) with ESMTP id 476F124A8B;
+	Mon, 14 Nov 2022 17:40:04 +0100 (CET)
+Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com
+ [209.85.216.49])
+ by mail.librecores.org (Postfix) with ESMTPS id C886024A91
+ for <openrisc@lists.librecores.org>; Mon, 14 Nov 2022 15:47:14 +0100 (CET)
+Received: by mail-pj1-f49.google.com with SMTP id
+ d13-20020a17090a3b0d00b00213519dfe4aso10852672pjc.2
+ for <openrisc@lists.librecores.org>; Mon, 14 Nov 2022 06:47:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+ bh=RAVDiAC6zB9a2VA9cAkzTKrj8UeLfO95holBArk2auY=;
+ b=Ka6kGiT2ih/iWtCkXiSIg98dy3rf/kc4NpdyyEEbP8ONVZ/lg3ijoLiNp7Khx/vcbW
+ 3hTRDokhrwSFGY98NXKEpI1pRZhEa1Wr5Vj9wgrbwkkdRrTSJ6Hx8jr744wyWU2oUovU
+ YVEkJh4B90VxOfeLyFQXZ+7obOJYv/sLhf6Z51AWlrj8npnPcszoVuAlf1Avc/hII4Pj
+ J7tXzxCzt8d8R8Tx9KKZ4Jpl6hRMaaHM7u/T2jNPFeuZ1ofeOUSziW2WczK8mU8/CWQt
+ A+eS3flkkjjUSDwxNkFJHI1WYlVWRU/8YumfqkP6qkOLSJ81yjJjxCc8/zYXvvebVbm2
+ Ngdw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=RAVDiAC6zB9a2VA9cAkzTKrj8UeLfO95holBArk2auY=;
+ b=7BktwEfwlIwn/0epvMYYMjKOzQDNYjfNmlSszd0w/22Td/ByzYK8RtksNcsK1HgkSu
+ gQx4VOEnrIPeOxAznfxZPJm4y2ftPwyyYZzVJQogxHkf3NJCg8KogQOIvUDom8pwbvO+
+ qQPAHrdChoiKGtv96xpy6CjaY3StnoH0p9b0tw6Y9LnAZA/+7OZwwsYlWndT8uuXsuNQ
+ pnZ4rhqpyAwf5YqeonzYm3dxwrp0NjnKi5/O7JgfDJsfd/ZNiLjBhW6m0GpeYQZR9+t1
+ Kjkou26/0fjjJFvjErMP5q/TpBSvi9mTF7XImBQ4KKJz1A+8G/vDWZklEdGdOa3enPGq
+ ApoQ==
+X-Gm-Message-State: ANoB5pl4K1hIcfn4v3kD0c8APhQFzTg/K6SjGWlbrwWqLJKjtKs8IHV3
+ Q7KUP+68Ho4blfJeMtAfCPs=
+X-Google-Smtp-Source: AA0mqf7ZApoBFRJRPpdJdq81DvnXbtoMGmsjoAxn3Xthb1AblAdoyrTq9IJxqXo/qMAtFQ41XL/7Kw==
+X-Received: by 2002:a17:90a:4f4e:b0:212:ffd2:440a with SMTP id
+ w14-20020a17090a4f4e00b00212ffd2440amr14297465pjl.7.1668437233159; 
+ Mon, 14 Nov 2022 06:47:13 -0800 (PST)
+Received: from hyeyoo ([114.29.91.56]) by smtp.gmail.com with ESMTPSA id
+ c14-20020a62f84e000000b0052d4cb47339sm6750816pfm.151.2022.11.14.06.47.04
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 14 Nov 2022 06:47:12 -0800 (PST)
+Date: Mon, 14 Nov 2022 23:47:01 +0900
+From: Hyeonggon Yoo <42.hyeyoo@gmail.com>
+To: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Subject: Re: Deprecating and removing SLOB
+Message-ID: <Y3JU5cfyid1rBoOy@hyeyoo>
+References: <b35c3f82-f67b-2103-7d82-7a7ba7521439@suse.cz>
+ <CA+CK2bD-uVGJ0=9uc7Lt5zwY+2PM2RTcfOhxEd65S7TvTrJULA@mail.gmail.com>
+ <c1caa5ce-eeaf-8038-2dea-051c98aade45@suse.cz>
+ <Y260tkNHc2vFITJ3@spud>
+ <a5bba3ca-da19-293c-c01b-a28291533466@opensource.wdc.com>
+ <93079aba-362e-5d1e-e9b4-dfe3a84da750@opensource.wdc.com>
+ <44da078c-b630-a249-bf50-67df83cd8347@suse.cz>
+ <35650fd4-3152-56db-7c27-b9997e31cfc7@opensource.wdc.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.2
-Subject: Re: [PATCH v5 2/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-Content-Language: en-US
-To: Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
- linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, x86@kernel.org,
- catalin.marinas@arm.com, will@kernel.org, linux-doc@vger.kernel.org
-References: <20221028081255.19157-1-yangyicong@huawei.com>
- <20221028081255.19157-3-yangyicong@huawei.com>
- <86fbdc8c-0dcb-9b8f-d843-63460d8b1d6a@arm.com>
- <9982dac0-9f2e-112a-d440-467c8e8f8aa4@huawei.com>
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-In-Reply-To: <9982dac0-9f2e-112a-d440-467c8e8f8aa4@huawei.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <35650fd4-3152-56db-7c27-b9997e31cfc7@opensource.wdc.com>
+X-Mailman-Approved-At: Mon, 14 Nov 2022 17:40:03 +0100
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -47,69 +76,184 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: wangkefeng.wang@huawei.com, darren@os.amperecomputing.com,
- peterz@infradead.org, yangyicong@hisilicon.com, punit.agrawal@bytedance.com,
- Nadav Amit <namit@vmware.com>, guojian@oppo.com,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- zhangshiming@oppo.com, lipeifeng@oppo.com, corbet@lwn.net,
- Barry Song <21cnbao@gmail.com>, Mel Gorman <mgorman@suse.de>,
- linux-mips@vger.kernel.org, arnd@arndb.de, realmz6@gmail.com,
- Barry Song <v-songbaohua@oppo.com>, openrisc@lists.librecores.org,
- prime.zeng@hisilicon.com, xhao@linux.alibaba.com, linux-kernel@vger.kernel.org,
- huzhanyuan@oppo.com, linuxppc-dev@lists.ozlabs.org
+Cc: Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
+ Tony Lindgren <tony@atomide.com>, Catalin Marinas <catalin.marinas@arm.com>,
+ Roman Gushchin <roman.gushchin@linux.dev>,
+ Paul Cercueil <paul@crapouillou.net>,
+ "linux-mm@kvack.org" <linux-mm@kvack.org>, Conor.Dooley@microchip.com,
+ Christoph Lameter <cl@linux.com>, linux-riscv@lists.infradead.org,
+ Jonas Bonn <jonas@southpole.se>, Alexander Shiyan <shc_work@mail.ru>,
+ Aaro Koskinen <aaro.koskinen@iki.fi>, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+ Russell King <linux@armlinux.org.uk>, Matthew Wilcox <willy@infradead.org>,
+ "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+ David Rientjes <rientjes@google.com>,
+ Pasha Tatashin <pasha.tatashin@soleen.com>, Arnd Bergmann <arnd@arndb.de>,
+ Josh Triplett <josh@joshtriplett.org>, openrisc@lists.librecores.org,
+ Joonsoo Kim <iamjoonsoo.kim@lge.com>, Vlastimil Babka <vbabka@suse.cz>,
+ Yoshinori Sato <ysato@users.sourceforge.jp>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ Conor Dooley <conor@kernel.org>, Rustam Kovhaev <rkovhaev@gmail.com>,
+ Pekka Enberg <penberg@kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
+ Linus Torvalds <torvalds@linux-foundation.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-
-
-On 11/14/22 14:16, Yicong Yang wrote:
-> On 2022/11/14 11:29, Anshuman Khandual wrote:
->>
->> On 10/28/22 13:42, Yicong Yang wrote:
->>> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
->>> +{
->>> +	/*
->>> +	 * TLB batched flush is proved to be beneficial for systems with large
->>> +	 * number of CPUs, especially system with more than 8 CPUs. TLB shutdown
->>> +	 * is cheap on small systems which may not need this feature. So use
->>> +	 * a threshold for enabling this to avoid potential side effects on
->>> +	 * these platforms.
->>> +	 */
->>> +	if (num_online_cpus() <= CONFIG_ARM64_NR_CPUS_FOR_BATCHED_TLB)
->>> +		return false;
->>> +
->>> +#ifdef CONFIG_ARM64_WORKAROUND_REPEAT_TLBI
->>> +	if (unlikely(this_cpu_has_cap(ARM64_WORKAROUND_REPEAT_TLBI)))
->>> +		return false;
->>> +#endif
->> should_defer_flush() is immediately followed by set_tlb_ubc_flush_pending() which calls
->> arch_tlbbatch_add_mm(), triggering the actual TLBI flush via __flush_tlb_page_nosync().
->> It should be okay to check capability with this_cpu_has_cap() as the entire call chain
->> here is executed on the same cpu. But just wondering if cpus_have_const_cap() would be
->> simpler, consistent, and also cost effective ?
->>
-> ok. Checked cpus_have_const_cap() I think it matches your words.
+On Mon, Nov 14, 2022 at 08:35:31PM +0900, Damien Le Moal wrote:
+> On 11/14/22 18:36, Vlastimil Babka wrote:
+> > On 11/14/22 06:48, Damien Le Moal wrote:
+> >> On 11/14/22 10:55, Damien Le Moal wrote:
+> >>> On 11/12/22 05:46, Conor Dooley wrote:
+> >>>> On Fri, Nov 11, 2022 at 11:33:30AM +0100, Vlastimil Babka wrote:
+> >>>>> On 11/8/22 22:44, Pasha Tatashin wrote:
+> >>>>>> On Tue, Nov 8, 2022 at 10:55 AM Vlastimil Babka <vbabka@suse.cz> wrote:
+> >>>>>>>
+> >>>>>>> Hi,
+> >>>>>>>
+> >>>>>>> as we all know, we currently have three slab allocators. As we discussed
+> >>>>>>> at LPC [1], it is my hope that one of these allocators has a future, and
+> >>>>>>> two of them do not.
+> >>>>>>>
+> >>>>>>> The unsurprising reasons include code maintenance burden, other features
+> >>>>>>> compatible with only a subset of allocators (or more effort spent on the
+> >>>>>>> features), blocking API improvements (more on that below), and my
+> >>>>>>> inability to pronounce SLAB and SLUB in a properly distinguishable way,
+> >>>>>>> without resorting to spelling out the letters.
+> >>>>>>>
+> >>>>>>> I think (but may be proven wrong) that SLOB is the easier target of the
+> >>>>>>> two to be removed, so I'd like to focus on it first.
+> >>>>>>>
+> >>>>>>> I believe SLOB can be removed because:
+> >>>>>>>
+> >>>>>>> - AFAIK nobody really uses it? It strives for minimal memory footprint
+> >>>>>>> by putting all objects together, which has its CPU performance costs
+> >>>>>>> (locking, lack of percpu caching, searching for free space...). I'm not
+> >>>>>>> aware of any "tiny linux" deployment that opts for this. For example,
+> >>>>>>> OpenWRT seems to use SLUB and the devices these days have e.g. 128MB
+> >>>>>>> RAM, not up to 16 MB anymore. I've heard anecdotes that the performance
+> >>>>>>> SLOB impact is too much for those who tried. Googling for
+> >>>>>>> "CONFIG_SLOB=y" yielded nothing useful.
+> >>>>>>
+> >>>>>> I am all for removing SLOB.
+> >>>>>>
+> >>>>>> There are some devices with configs where SLOB is enabled by default.
+> >>>>>> Perhaps, the owners/maintainers of those devices/configs should be
+> >>>>>> included into this thread:
+> >>>>>>
+> >>>>>> tatashin@soleen:~/x/linux$ git grep SLOB=y
+> >>>>
+> >>>>>> arch/riscv/configs/nommu_k210_defconfig:CONFIG_SLOB=y
+> >>>>>> arch/riscv/configs/nommu_k210_sdcard_defconfig:CONFIG_SLOB=y
+> >>>>>> arch/riscv/configs/nommu_virt_defconfig:CONFIG_SLOB=y
+> >>>>
+> >>>>>
+> >>>>> Turns out that since SLOB depends on EXPERT, many of those lack it so
+> >>>>> running make defconfig ends up with SLUB anyway, unless I miss something.
+> >>>>> Only a subset has both SLOB and EXPERT:
+> >>>>>
+> >>>>>> git grep CONFIG_EXPERT `git grep -l "CONFIG_SLOB=y"`
+> >>>>
+> >>>>> arch/riscv/configs/nommu_virt_defconfig:CONFIG_EXPERT=y
+> >>>>
+> >>>> I suppose there's not really a concern with the virt defconfig, but I
+> >>>> did check the output of `make nommu_k210_defconfig" and despite not
+> >>>> having expert it seems to end up CONFIG_SLOB=y in the generated .config.
+> >>>>
+> >>>> I do have a board with a k210 so I checked with s/SLOB/SLUB and it still
+> >>>> boots etc, but I have no workloads or w/e to run on it.
+> >>>
+> >>> I sent a patch to change the k210 defconfig to using SLUB. However...
+> > 
+> > Thanks!
+> > 
+> >>> The current default config using SLOB gives about 630 free memory pages
+> >>> after boot (cat /proc/vmstat). Switching to SLUB, this is down to about
+> >>> 400 free memory pages (CONFIG_SLUB_CPU_PARTIAL is off).
+> > 
+> > Thanks for the testing! How much RAM does the system have btw? I found 8MB
+> > somewhere, is that correct?
 > 
->> Regardless, a comment is needed before the #ifdef block explaining why it does not make
->> sense to defer/batch when __tlbi()/__tlbi_user() implementation will execute 'dsb(ish)'
->> between two TLBI instructions to workaround the errata.
->>
-> The workaround for the errata mentioned the affected platforms need the tlbi+dsb to be done
-> twice, so I'm not sure if we defer the final dsb will cause any problem so I think the judgement
-> here is used for safety. I have no such platform to test if it's ok to defer the last dsb.
+> Yep, 8MB, that's it.
+> 
+> > So 230 pages that's a ~920 kB difference. Last time we saw less  dramatic
+> > difference [1]. But that was looking at Slab pages, not free pages. The
+> > extra overhead could be also in percpu allocations, code etc.
+> > 
+> >>> This is with a buildroot kernel 5.19 build including a shell and sd-card
+> >>> boot. With SLUB, I get clean boots and a shell prompt as expected. But I
+> >>> definitely see more errors with shell commands failing due to allocation
+> >>> failures for the shell process fork. So as far as the K210 is concerned,
+> >>> switching to SLUB is not ideal.
+> >>>
+> >>> I would not want to hold on kernel mm improvements because of this toy
+> >>> k210 though, so I am not going to prevent SLOB deprecation. I just wish
+> >>> SLUB itself used less memory :)
+> >>
+> >> Did further tests with kernel 6.0.1:
+> >> * SLOB: 630 free pages after boot, shell working (occasional shell fork
+> >> failure happen though)
+> >> * SLAB: getting memory allocation for order 7 failures on boot already
+> >> (init process). Shell barely working (high frequency of shell command fork
+> >> failures)
+> 
+> I forgot to add here that the system was down to about 500 free pages
+> after boot (again from the shell with "cat /proc/vmstat").
+> 
+> >> * SLUB: getting memory allocation for order 7 failures on boot. I do get a
+> >> shell prompt but cannot run any shell command that involves forking a new
+> >> process.
+> 
+> For both slab and slub, I had cpu partial off, debug off and slab merge
+> on, as I suspected that would lead to less memory overhead.
+> I suspected memory fragmentation may be an issue but doing
+> 
+> echo 3 > /proc/sys/vm/drop_caches
+> 
+> before trying a shell command did not help much at all (it usually does on
+> that board with SLOB). Note that this is all with buildroot, so this echo
+> & redirect always works as it does not cause a shell fork.
+> 
+> >>
+> >> So if we want to keep the k210 support functional with a shell, we need
+> >> slob. If we reduce that board support to only one application started as
+> >> the init process, then I guess anything is OK.
+> > 
+> > In [1] it was possible to save some more memory with more tuning. Some of
+> > that required boot parameters and other code changes. In another reply [2] I
+> > considered adding something like SLUB_TINY to take care of all that, so
+> > looks like it would make sense to proceed with that.
+> 
+> If you want me to test something, let me know.
 
-We should not defer TLB flush on such systems, as ensured by the above test and 'false'
-return afterwards. The only question is whether this decision should be taken at a CPU
-level (which is affected by the errata) or the whole system level.
+Would you try this please?
 
-What is required now
+diff --git a/mm/slub.c b/mm/slub.c
+index a24b71041b26..1c36c4b9aaa0 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -4367,9 +4367,7 @@ static int kmem_cache_open(struct kmem_cache *s, slab_flags_t flags)
+ 	 * The larger the object size is, the more slabs we want on the partial
+ 	 * list to avoid pounding the page allocator excessively.
+ 	 */
+-	s->min_partial = min_t(unsigned long, MAX_PARTIAL, ilog2(s->size) / 2);
+-	s->min_partial = max_t(unsigned long, MIN_PARTIAL, s->min_partial);
+-
++	s->min_partial = 0;
+ 	set_cpu_partial(s);
+ 
+ #ifdef CONFIG_NUMA
 
-- Replace this_cpu_has_cap() with cpus_have_const_cap ?
-- Add the following comment before the #ifdef check
 
-/*
- * TLB flush deferral is not required on systems, which are affected with
- * ARM64_WORKAROUND_REPEAT_TLBI, as __tlbi()/__tlbi_user() implementation
- * will have two consecutive TLBI instructions with a dsb(ish) in between
- * defeating the purpose (i.e save overall 'dsb ish' cost).
- */
+and booting with and without boot parameter slub_max_order=0?
+
+Thanks,
+Hyeonggon
+
+> 
+> > 
+> > [1]
+> > https://lore.kernel.org/all/Yg9xSWEaTZLA+hYt@ip-172-31-19-208.ap-northeast-1.compute.internal/
+> > [2] https://lore.kernel.org/all/eebc9dc8-6a45-c099-61da-230d06cb3157@suse.cz/
+> 
+> -- 
+> Damien Le Moal
+> Western Digital Research
