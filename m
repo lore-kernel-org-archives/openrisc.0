@@ -2,90 +2,39 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 682DDC433FE
-	for <openrisc@archiver.kernel.org>; Mon, 14 Nov 2022 05:48:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18A18C43217
+	for <openrisc@archiver.kernel.org>; Mon, 14 Nov 2022 08:00:30 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 5762F2133D;
-	Mon, 14 Nov 2022 06:48:48 +0100 (CET)
-Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
- by mail.librecores.org (Postfix) with ESMTPS id 0B6FC2132A
- for <openrisc@lists.librecores.org>; Mon, 14 Nov 2022 06:48:45 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
- d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
- t=1668404926; x=1699940926;
- h=message-id:date:mime-version:subject:from:to:cc:
- references:in-reply-to:content-transfer-encoding;
- bh=v1sR2mwFH9dmYdHzu0koJ50qxkQ0XF8GxeWMZxBQMlk=;
- b=jMkEt+pDZuBlUCxqTNc5T6qoTx19y4mjUX7BKPSUxHR9UyKyBWG6Apph
- QzL27V//Y7u8iGSesUnLJs036NGkdL31FFuE8lD4Er59WbejSieSMp58r
- oRq47uTE8eMr3IVj8gBMkV2Rr6/hl4ReArlBZoy2PWFUYXGSkr3w67DoX
- OyEmzt9UT7aT7tCaLFVK48JkguBIxyqlvk+YHdrRHiGFIi4s3WA33X8ya
- Q+G/uTjeMIoyfCFSP/f8q0mxm3ZFKxUzc6u19AfveCYP6DaMJ6paVxvxL
- t+Dy3DPA84Ni8Cd6/sHXiiqcTO/cPvmMZ7EYQc9NhcyRIji/1IA9OJJVY Q==;
-X-IronPort-AV: E=Sophos;i="5.96,161,1665417600"; d="scan'208";a="328292707"
-Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com)
- ([199.255.45.14])
- by ob1.hgst.iphmx.com with ESMTP; 14 Nov 2022 13:48:39 +0800
-IronPort-SDR: 0IMAAoOuptqKuCY1KoRCH4HRE9sXsyXIYKbiltTVtMG4R1VYVzemaP9vz5JRjSYgZKeV4scauN
- Bt8DTVt0x9OCwWVvTteZp8J4hoidhxUYdu+XafcQ7PWDs4KqLYnLyRlOX5P2Yq/eY4T3ymMNDK
- 936EgyefsperOsDX1eL1EibWvxc9bPqz5HHBtF5cVA/zRb9hFvhhQdkOYwrLFryjj0l6PHhZhD
- ndnZQzomHkNlaOYWhVvEPkKPctI4ODQO/XdzZukLg352Wz/r+vpI2e2fA0O1wstT8cKZfdFtTR
- /ak=
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
- by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256;
- 13 Nov 2022 21:07:38 -0800
-IronPort-SDR: VnzT/+Qg4hWZ78nOs8nbwEBwJ9a5bt2Rd1yjFED8LIY3I6UwDUbTMqCcW/y5jHSRi82tJxEcms
- VIYa9+mXirTVag++FHU2AVl+wgqXfhwgFOLsNA11FuXPkxltAc0MWQZuYWJwP4DKyAXVTIQDpq
- ZTx051zeu70Y4MBm2Nws2iGwlJLoa8So2NMD8ZoB5rG659TQ9C36IwIhoEy2PJHNvi0IdhCfX3
- STNa2M5ck6kBY8N0iMjtQ2QWhHgVi45Q91wpwmcQ96ja9gmHUCTk9b9sBrh5264X16wH5keJXW
- WWQ=
-WDCIronportException: Internal
-Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
- by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256;
- 13 Nov 2022 21:48:40 -0800
-Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
- by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4N9ddz2XhTz1RvTr
- for <openrisc@lists.librecores.org>; Sun, 13 Nov 2022 21:48:39 -0800 (PST)
-Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
- reason="pass (just generated, assumed good)"
- header.d=opensource.wdc.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
- opensource.wdc.com; h=content-transfer-encoding:content-type
- :in-reply-to:organization:references:to:from:content-language
- :subject:user-agent:mime-version:date:message-id; s=dkim; t=
- 1668404917; x=1670996918; bh=v1sR2mwFH9dmYdHzu0koJ50qxkQ0XF8GxeW
- MZxBQMlk=; b=Jj+OgXCgQLjiUSHdOF9I6MrgaqryVIX7t3nKyq6ZmaxCJrCDf+D
- tGBRwgMUBBGTq4WU22kKDQ58BiVzcFr1xRFoFfI1n8Bxo5+TB1XvlNxdODgFNzfR
- jI637Q7j4BNG1aLfH2JTTKH2lh843Eo9/6TImWIKH46gMtBWsZjKCoxGm9Oozafp
- gcs1atYVDBJpU4XwoYUztHkasGYGgZWrc/JjNE7l3NWvxCnS7nVLlm25abnZU+4P
- jNICFUVM5vo+y+8k+C+JC5BZmVgZ8TARD4EmnhnyFopFQzr/VUu1urRgOa3vVo3h
- xfnBECv6draKEFEd/vChz733S2WF8QS+58w==
-X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
-Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
- by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new,
- port 10026)
- with ESMTP id etKHmY3ZlURi for <openrisc@lists.librecores.org>;
- Sun, 13 Nov 2022 21:48:37 -0800 (PST)
-Received: from [10.225.163.46] (unknown [10.225.163.46])
- by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4N9ddp5cqHz1RvLy;
- Sun, 13 Nov 2022 21:48:30 -0800 (PST)
-Message-ID: <93079aba-362e-5d1e-e9b4-dfe3a84da750@opensource.wdc.com>
-Date: Mon, 14 Nov 2022 14:48:29 +0900
+	by mail.librecores.org (Postfix) with ESMTP id D1E18248F9;
+	Mon, 14 Nov 2022 09:00:29 +0100 (CET)
+Received: from out30-44.freemail.mail.aliyun.com
+ (out30-44.freemail.mail.aliyun.com [115.124.30.44])
+ by mail.librecores.org (Postfix) with ESMTPS id 76B5A248BE
+ for <openrisc@lists.librecores.org>; Mon, 14 Nov 2022 09:00:28 +0100 (CET)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R171e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046059;
+ MF=xhao@linux.alibaba.com; NM=1; PH=DS; RN=32; SR=0;
+ TI=SMTPD_---0VUjZSxU_1668412818; 
+Received: from 30.240.96.240(mailfrom:xhao@linux.alibaba.com
+ fp:SMTPD_---0VUjZSxU_1668412818) by smtp.aliyun-inc.com;
+ Mon, 14 Nov 2022 16:00:20 +0800
+Message-ID: <9b6e1098-3d0a-d01c-ede2-344730a9450e@linux.alibaba.com>
+Date: Mon, 14 Nov 2022 16:00:17 +0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.1
-Subject: Re: Deprecating and removing SLOB
-Content-Language: en-US
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-To: Conor Dooley <conor@kernel.org>, Vlastimil Babka <vbabka@suse.cz>
-References: <b35c3f82-f67b-2103-7d82-7a7ba7521439@suse.cz>
- <CA+CK2bD-uVGJ0=9uc7Lt5zwY+2PM2RTcfOhxEd65S7TvTrJULA@mail.gmail.com>
- <c1caa5ce-eeaf-8038-2dea-051c98aade45@suse.cz> <Y260tkNHc2vFITJ3@spud>
- <a5bba3ca-da19-293c-c01b-a28291533466@opensource.wdc.com>
-Organization: Western Digital Research
-In-Reply-To: <a5bba3ca-da19-293c-c01b-a28291533466@opensource.wdc.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.4.1
+Subject: Re: [PATCH v5 2/2] arm64: support batched/deferred tlb shootdown
+ during page reclamation
+To: Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
+ linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, x86@kernel.org,
+ catalin.marinas@arm.com, will@kernel.org, anshuman.khandual@arm.com,
+ linux-doc@vger.kernel.org
+References: <20221028081255.19157-1-yangyicong@huawei.com>
+ <20221028081255.19157-3-yangyicong@huawei.com>
+From: haoxin <xhao@linux.alibaba.com>
+In-Reply-To: <20221028081255.19157-3-yangyicong@huawei.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -98,120 +47,335 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
- Tony Lindgren <tony@atomide.com>, Catalin Marinas <catalin.marinas@arm.com>,
- Roman Gushchin <roman.gushchin@linux.dev>,
- Paul Cercueil <paul@crapouillou.net>,
- "linux-mm@kvack.org" <linux-mm@kvack.org>, Conor.Dooley@microchip.com,
- Hyeonggon Yoo <42.hyeyoo@gmail.com>, Christoph Lameter <cl@linux.com>,
- linux-riscv@lists.infradead.org, Jonas Bonn <jonas@southpole.se>,
- Yoshinori Sato <ysato@users.sourceforge.jp>,
- Aaro Koskinen <aaro.koskinen@iki.fi>, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
- Russell King <linux@armlinux.org.uk>, Matthew Wilcox <willy@infradead.org>,
- David Rientjes <rientjes@google.com>,
- Pasha Tatashin <pasha.tatashin@soleen.com>, Arnd Bergmann <arnd@arndb.de>,
- Josh Triplett <josh@joshtriplett.org>, openrisc@lists.librecores.org,
- Joonsoo Kim <iamjoonsoo.kim@lge.com>,
- "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
- Alexander Shiyan <shc_work@mail.ru>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- Rustam Kovhaev <rkovhaev@gmail.com>, Pekka Enberg <penberg@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- Linus Torvalds <torvalds@linux-foundation.org>
+Cc: wangkefeng.wang@huawei.com, darren@os.amperecomputing.com,
+ peterz@infradead.org, yangyicong@hisilicon.com, punit.agrawal@bytedance.com,
+ Nadav Amit <namit@vmware.com>, guojian@oppo.com,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ zhangshiming@oppo.com, lipeifeng@oppo.com, corbet@lwn.net,
+ Barry Song <21cnbao@gmail.com>, Mel Gorman <mgorman@suse.de>,
+ linux-mips@vger.kernel.org, arnd@arndb.de, realmz6@gmail.com,
+ Barry Song <v-songbaohua@oppo.com>, openrisc@lists.librecores.org,
+ prime.zeng@hisilicon.com, linux-kernel@vger.kernel.org, huzhanyuan@oppo.com,
+ linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On 11/14/22 10:55, Damien Le Moal wrote:
-> On 11/12/22 05:46, Conor Dooley wrote:
->> On Fri, Nov 11, 2022 at 11:33:30AM +0100, Vlastimil Babka wrote:
->>> On 11/8/22 22:44, Pasha Tatashin wrote:
->>>> On Tue, Nov 8, 2022 at 10:55 AM Vlastimil Babka <vbabka@suse.cz> wrote:
->>>>>
->>>>> Hi,
->>>>>
->>>>> as we all know, we currently have three slab allocators. As we discussed
->>>>> at LPC [1], it is my hope that one of these allocators has a future, and
->>>>> two of them do not.
->>>>>
->>>>> The unsurprising reasons include code maintenance burden, other features
->>>>> compatible with only a subset of allocators (or more effort spent on the
->>>>> features), blocking API improvements (more on that below), and my
->>>>> inability to pronounce SLAB and SLUB in a properly distinguishable way,
->>>>> without resorting to spelling out the letters.
->>>>>
->>>>> I think (but may be proven wrong) that SLOB is the easier target of the
->>>>> two to be removed, so I'd like to focus on it first.
->>>>>
->>>>> I believe SLOB can be removed because:
->>>>>
->>>>> - AFAIK nobody really uses it? It strives for minimal memory footprint
->>>>> by putting all objects together, which has its CPU performance costs
->>>>> (locking, lack of percpu caching, searching for free space...). I'm not
->>>>> aware of any "tiny linux" deployment that opts for this. For example,
->>>>> OpenWRT seems to use SLUB and the devices these days have e.g. 128MB
->>>>> RAM, not up to 16 MB anymore. I've heard anecdotes that the performance
->>>>> SLOB impact is too much for those who tried. Googling for
->>>>> "CONFIG_SLOB=y" yielded nothing useful.
->>>>
->>>> I am all for removing SLOB.
->>>>
->>>> There are some devices with configs where SLOB is enabled by default.
->>>> Perhaps, the owners/maintainers of those devices/configs should be
->>>> included into this thread:
->>>>
->>>> tatashin@soleen:~/x/linux$ git grep SLOB=y
->>
->>>> arch/riscv/configs/nommu_k210_defconfig:CONFIG_SLOB=y
->>>> arch/riscv/configs/nommu_k210_sdcard_defconfig:CONFIG_SLOB=y
->>>> arch/riscv/configs/nommu_virt_defconfig:CONFIG_SLOB=y
->>
->>>
->>> Turns out that since SLOB depends on EXPERT, many of those lack it so
->>> running make defconfig ends up with SLUB anyway, unless I miss something.
->>> Only a subset has both SLOB and EXPERT:
->>>
->>>> git grep CONFIG_EXPERT `git grep -l "CONFIG_SLOB=y"`
->>
->>> arch/riscv/configs/nommu_virt_defconfig:CONFIG_EXPERT=y
->>
->> I suppose there's not really a concern with the virt defconfig, but I
->> did check the output of `make nommu_k210_defconfig" and despite not
->> having expert it seems to end up CONFIG_SLOB=y in the generated .config.
->>
->> I do have a board with a k210 so I checked with s/SLOB/SLUB and it still
->> boots etc, but I have no workloads or w/e to run on it.
-> 
-> I sent a patch to change the k210 defconfig to using SLUB. However...
-> 
-> The current default config using SLOB gives about 630 free memory pages
-> after boot (cat /proc/vmstat). Switching to SLUB, this is down to about
-> 400 free memory pages (CONFIG_SLUB_CPU_PARTIAL is off).
-> 
-> This is with a buildroot kernel 5.19 build including a shell and sd-card
-> boot. With SLUB, I get clean boots and a shell prompt as expected. But I
-> definitely see more errors with shell commands failing due to allocation
-> failures for the shell process fork. So as far as the K210 is concerned,
-> switching to SLUB is not ideal.
-> 
-> I would not want to hold on kernel mm improvements because of this toy
-> k210 though, so I am not going to prevent SLOB deprecation. I just wish
-> SLUB itself used less memory :)
 
-Did further tests with kernel 6.0.1:
-* SLOB: 630 free pages after boot, shell working (occasional shell fork
-failure happen though)
-* SLAB: getting memory allocation for order 7 failures on boot already
-(init process). Shell barely working (high frequency of shell command fork
-failures)
-* SLUB: getting memory allocation for order 7 failures on boot. I do get a
-shell prompt but cannot run any shell command that involves forking a new
-process.
-
-So if we want to keep the k210 support functional with a shell, we need
-slob. If we reduce that board support to only one application started as
-the init process, then I guess anything is OK.
-
--- 
-Damien Le Moal
-Western Digital Research
-
+在 2022/10/28 下午4:12, Yicong Yang 写道:
+> From: Barry Song <v-songbaohua@oppo.com>
+>
+> on x86, batched and deferred tlb shootdown has lead to 90%
+> performance increase on tlb shootdown. on arm64, HW can do
+> tlb shootdown without software IPI. But sync tlbi is still
+> quite expensive.
+>
+> Even running a simplest program which requires swapout can
+> prove this is true,
+>   #include <sys/types.h>
+>   #include <unistd.h>
+>   #include <sys/mman.h>
+>   #include <string.h>
+>
+>   int main()
+>   {
+>   #define SIZE (1 * 1024 * 1024)
+>           volatile unsigned char *p = mmap(NULL, SIZE, PROT_READ | PROT_WRITE,
+>                                            MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+>
+>           memset(p, 0x88, SIZE);
+>
+>           for (int k = 0; k < 10000; k++) {
+>                   /* swap in */
+>                   for (int i = 0; i < SIZE; i += 4096) {
+>                           (void)p[i];
+>                   }
+>
+>                   /* swap out */
+>                   madvise(p, SIZE, MADV_PAGEOUT);
+>           }
+>   }
+>
+> Perf result on snapdragon 888 with 8 cores by using zRAM
+> as the swap block device.
+>
+>   ~ # perf record taskset -c 4 ./a.out
+>   [ perf record: Woken up 10 times to write data ]
+>   [ perf record: Captured and wrote 2.297 MB perf.data (60084 samples) ]
+>   ~ # perf report
+>   # To display the perf.data header info, please use --header/--header-only options.
+>   # To display the perf.data header info, please use --header/--header-only options.
+>   #
+>   #
+>   # Total Lost Samples: 0
+>   #
+>   # Samples: 60K of event 'cycles'
+>   # Event count (approx.): 35706225414
+>   #
+>   # Overhead  Command  Shared Object      Symbol
+>   # ........  .......  .................  .............................................................................
+>   #
+>      21.07%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irq
+>       8.23%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irqrestore
+>       6.67%  a.out    [kernel.kallsyms]  [k] filemap_map_pages
+>       6.16%  a.out    [kernel.kallsyms]  [k] __zram_bvec_write
+>       5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
+>       3.71%  a.out    [kernel.kallsyms]  [k] _raw_spin_lock
+>       3.49%  a.out    [kernel.kallsyms]  [k] memset64
+>       1.63%  a.out    [kernel.kallsyms]  [k] clear_page
+>       1.42%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock
+>       1.26%  a.out    [kernel.kallsyms]  [k] mod_zone_state.llvm.8525150236079521930
+>       1.23%  a.out    [kernel.kallsyms]  [k] xas_load
+>       1.15%  a.out    [kernel.kallsyms]  [k] zram_slot_lock
+>
+> ptep_clear_flush() takes 5.36% CPU in the micro-benchmark
+> swapping in/out a page mapped by only one process. If the
+> page is mapped by multiple processes, typically, like more
+> than 100 on a phone, the overhead would be much higher as
+> we have to run tlb flush 100 times for one single page.
+> Plus, tlb flush overhead will increase with the number
+> of CPU cores due to the bad scalability of tlb shootdown
+> in HW, so those ARM64 servers should expect much higher
+> overhead.
+>
+> Further perf annonate shows 95% cpu time of ptep_clear_flush
+> is actually used by the final dsb() to wait for the completion
+> of tlb flush. This provides us a very good chance to leverage
+> the existing batched tlb in kernel. The minimum modification
+> is that we only send async tlbi in the first stage and we send
+> dsb while we have to sync in the second stage.
+>
+> With the above simplest micro benchmark, collapsed time to
+> finish the program decreases around 5%.
+>
+> Typical collapsed time w/o patch:
+>   ~ # time taskset -c 4 ./a.out
+>   0.21user 14.34system 0:14.69elapsed
+> w/ patch:
+>   ~ # time taskset -c 4 ./a.out
+>   0.22user 13.45system 0:13.80elapsed
+>
+> Also, Yicong Yang added the following observation.
+> 	Tested with benchmark in the commit on Kunpeng920 arm64 server,
+> 	observed an improvement around 12.5% with command
+> 	`time ./swap_bench`.
+> 		w/o		w/
+> 	real	0m13.460s	0m11.771s
+> 	user	0m0.248s	0m0.279s
+> 	sys	0m12.039s	0m11.458s
+>
+> 	Originally it's noticed a 16.99% overhead of ptep_clear_flush()
+> 	which has been eliminated by this patch:
+>
+> 	[root@localhost yang]# perf record -- ./swap_bench && perf report
+> 	[...]
+> 	16.99%  swap_bench  [kernel.kallsyms]  [k] ptep_clear_flush
+>
+> It is tested on 4,8,128 CPU platforms and shows to be beneficial on
+> large systems but may not have improvement on small systems like on
+> a 4 CPU platform. So make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends
+> on CONFIG_EXPERT for this stage and only make this enabled on systems
+> with more than 8 CPUs. User can modify this threshold according to
+> their own platforms by CONFIG_NR_CPUS_FOR_BATCHED_TLB.
+>
+> Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+> Cc: Jonathan Corbet <corbet@lwn.net>
+> Cc: Nadav Amit <namit@vmware.com>
+> Cc: Mel Gorman <mgorman@suse.de>
+> Tested-by: Yicong Yang <yangyicong@hisilicon.com>
+> Tested-by: Xin Hao <xhao@linux.alibaba.com>
+> Signed-off-by: Barry Song <v-songbaohua@oppo.com>
+> Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+> Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+> ---
+>   .../features/vm/TLB/arch-support.txt          |  2 +-
+>   arch/arm64/Kconfig                            |  6 +++
+>   arch/arm64/include/asm/tlbbatch.h             | 12 +++++
+>   arch/arm64/include/asm/tlbflush.h             | 46 ++++++++++++++++++-
+>   arch/x86/include/asm/tlbflush.h               |  3 +-
+>   mm/rmap.c                                     | 10 ++--
+>   6 files changed, 71 insertions(+), 8 deletions(-)
+>   create mode 100644 arch/arm64/include/asm/tlbbatch.h
+>
+> diff --git a/Documentation/features/vm/TLB/arch-support.txt b/Documentation/features/vm/TLB/arch-support.txt
+> index 039e4e91ada3..2caf815d7c6c 100644
+> --- a/Documentation/features/vm/TLB/arch-support.txt
+> +++ b/Documentation/features/vm/TLB/arch-support.txt
+> @@ -9,7 +9,7 @@
+>       |       alpha: | TODO |
+>       |         arc: | TODO |
+>       |         arm: | TODO |
+> -    |       arm64: | N/A  |
+> +    |       arm64: |  ok  |
+>       |        csky: | TODO |
+>       |     hexagon: | TODO |
+>       |        ia64: | TODO |
+> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+> index 505c8a1ccbe0..72975e82c7d7 100644
+> --- a/arch/arm64/Kconfig
+> +++ b/arch/arm64/Kconfig
+> @@ -93,6 +93,7 @@ config ARM64
+>   	select ARCH_SUPPORTS_INT128 if CC_HAS_INT128
+>   	select ARCH_SUPPORTS_NUMA_BALANCING
+>   	select ARCH_SUPPORTS_PAGE_TABLE_CHECK
+> +	select ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH if EXPERT
+>   	select ARCH_WANT_COMPAT_IPC_PARSE_VERSION if COMPAT
+>   	select ARCH_WANT_DEFAULT_BPF_JIT
+>   	select ARCH_WANT_DEFAULT_TOPDOWN_MMAP_LAYOUT
+> @@ -268,6 +269,11 @@ config ARM64_CONT_PMD_SHIFT
+>   	default 5 if ARM64_16K_PAGES
+>   	default 4
+>   
+> +config ARM64_NR_CPUS_FOR_BATCHED_TLB
+> +	int "Threshold to enable batched TLB flush"
+> +	default 8
+> +	depends on ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
+> +
+>   config ARCH_MMAP_RND_BITS_MIN
+>   	default 14 if ARM64_64K_PAGES
+>   	default 16 if ARM64_16K_PAGES
+> diff --git a/arch/arm64/include/asm/tlbbatch.h b/arch/arm64/include/asm/tlbbatch.h
+> new file mode 100644
+> index 000000000000..fedb0b87b8db
+> --- /dev/null
+> +++ b/arch/arm64/include/asm/tlbbatch.h
+> @@ -0,0 +1,12 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef _ARCH_ARM64_TLBBATCH_H
+> +#define _ARCH_ARM64_TLBBATCH_H
+> +
+> +struct arch_tlbflush_unmap_batch {
+> +	/*
+> +	 * For arm64, HW can do tlb shootdown, so we don't
+> +	 * need to record cpumask for sending IPI
+> +	 */
+> +};
+> +
+> +#endif /* _ARCH_ARM64_TLBBATCH_H */
+> diff --git a/arch/arm64/include/asm/tlbflush.h b/arch/arm64/include/asm/tlbflush.h
+> index 412a3b9a3c25..b21cdeb57a18 100644
+> --- a/arch/arm64/include/asm/tlbflush.h
+> +++ b/arch/arm64/include/asm/tlbflush.h
+> @@ -254,17 +254,23 @@ static inline void flush_tlb_mm(struct mm_struct *mm)
+>   	dsb(ish);
+>   }
+>   
+> -static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
+> +static inline void __flush_tlb_page_nosync(struct mm_struct *mm,
+>   					 unsigned long uaddr)
+>   {
+>   	unsigned long addr;
+>   
+>   	dsb(ishst);
+> -	addr = __TLBI_VADDR(uaddr, ASID(vma->vm_mm));
+> +	addr = __TLBI_VADDR(uaddr, ASID(mm));
+>   	__tlbi(vale1is, addr);
+>   	__tlbi_user(vale1is, addr);
+>   }
+>   
+> +static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
+> +					 unsigned long uaddr)
+> +{
+> +	return __flush_tlb_page_nosync(vma->vm_mm, uaddr);
+> +}
+> +
+>   static inline void flush_tlb_page(struct vm_area_struct *vma,
+>   				  unsigned long uaddr)
+>   {
+> @@ -272,6 +278,42 @@ static inline void flush_tlb_page(struct vm_area_struct *vma,
+>   	dsb(ish);
+>   }
+>   
+> +#ifdef CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
+> +
+> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
+> +{
+> +	/*
+> +	 * TLB batched flush is proved to be beneficial for systems with large
+> +	 * number of CPUs, especially system with more than 8 CPUs. TLB shutdown
+> +	 * is cheap on small systems which may not need this feature. So use
+> +	 * a threshold for enabling this to avoid potential side effects on
+> +	 * these platforms.
+> +	 */
+> +	if (num_online_cpus() <= CONFIG_ARM64_NR_CPUS_FOR_BATCHED_TLB)
+> +		return false;
+> +
+> +#ifdef CONFIG_ARM64_WORKAROUND_REPEAT_TLBI
+> +	if (unlikely(this_cpu_has_cap(ARM64_WORKAROUND_REPEAT_TLBI)))
+Maybe there need a comment  why set  ARM64_WORKAROUND_REPEAT_TLBI it 
+should return false?
+> +		return false;
+> +#endif
+> +
+> +	return true;
+> +}
+> +
+> +static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
+> +					struct mm_struct *mm,
+> +					unsigned long uaddr)
+> +{
+> +	__flush_tlb_page_nosync(mm, uaddr);
+> +}
+> +
+> +static inline void arch_tlbbatch_flush(struct arch_tlbflush_unmap_batch *batch)
+> +{
+> +	dsb(ish);
+> +}
+> +
+> +#endif /* CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH */
+> +
+>   /*
+>    * This is meant to avoid soft lock-ups on large TLB flushing ranges and not
+>    * necessarily a performance improvement.
+> diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
+> index 8a497d902c16..5bd78ae55cd4 100644
+> --- a/arch/x86/include/asm/tlbflush.h
+> +++ b/arch/x86/include/asm/tlbflush.h
+> @@ -264,7 +264,8 @@ static inline u64 inc_mm_tlb_gen(struct mm_struct *mm)
+>   }
+>   
+>   static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
+> -					struct mm_struct *mm)
+> +					struct mm_struct *mm,
+> +					unsigned long uaddr)
+>   {
+>   	inc_mm_tlb_gen(mm);
+>   	cpumask_or(&batch->cpumask, &batch->cpumask, mm_cpumask(mm));
+> diff --git a/mm/rmap.c b/mm/rmap.c
+> index a9ab10bc0144..a1b408ff44e5 100644
+> --- a/mm/rmap.c
+> +++ b/mm/rmap.c
+> @@ -640,12 +640,13 @@ void try_to_unmap_flush_dirty(void)
+>   #define TLB_FLUSH_BATCH_PENDING_LARGE			\
+>   	(TLB_FLUSH_BATCH_PENDING_MASK / 2)
+>   
+> -static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
+> +static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable,
+> +				      unsigned long uaddr)
+>   {
+>   	struct tlbflush_unmap_batch *tlb_ubc = &current->tlb_ubc;
+>   	int batch, nbatch;
+>   
+> -	arch_tlbbatch_add_mm(&tlb_ubc->arch, mm);
+> +	arch_tlbbatch_add_mm(&tlb_ubc->arch, mm, uaddr);
+>   	tlb_ubc->flush_required = true;
+>   
+>   	/*
+> @@ -723,7 +724,8 @@ void flush_tlb_batched_pending(struct mm_struct *mm)
+>   	}
+>   }
+>   #else
+> -static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
+> +static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable,
+> +				      unsigned long uaddr)
+>   {
+>   }
+>   
+> @@ -1596,7 +1598,7 @@ static bool try_to_unmap_one(struct folio *folio, struct vm_area_struct *vma,
+>   				 */
+>   				pteval = ptep_get_and_clear(mm, address, pvmw.pte);
+>   
+> -				set_tlb_ubc_flush_pending(mm, pte_dirty(pteval));
+> +				set_tlb_ubc_flush_pending(mm, pte_dirty(pteval), address);
+>   			} else {
+>   				pteval = ptep_clear_flush(vma, address, pvmw.pte);
+>   			}
