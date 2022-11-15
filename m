@@ -2,32 +2,38 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CCD8C433FE
-	for <openrisc@archiver.kernel.org>; Mon, 14 Nov 2022 17:27:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 196B5C4332F
+	for <openrisc@archiver.kernel.org>; Tue, 15 Nov 2022 03:15:38 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 0406024A82;
-	Mon, 14 Nov 2022 18:27:11 +0100 (CET)
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by mail.librecores.org (Postfix) with ESMTPS id EE05924A7F
- for <openrisc@lists.librecores.org>; Mon, 14 Nov 2022 18:27:09 +0100 (CET)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id 422F0B81098;
- Mon, 14 Nov 2022 17:27:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33120C433D6;
- Mon, 14 Nov 2022 17:27:04 +0000 (UTC)
-Date: Mon, 14 Nov 2022 12:27:45 -0500
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Valentin Schneider <vschneid@redhat.com>
-Subject: Re: [RFC PATCH v2 0/8] Generic IPI sending tracepoint
-Message-ID: <20221114122745.189af864@gandalf.local.home>
-In-Reply-To: <20221102182949.3119584-1-vschneid@redhat.com>
-References: <20221102182949.3119584-1-vschneid@redhat.com>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	by mail.librecores.org (Postfix) with ESMTP id E117F20A70;
+	Tue, 15 Nov 2022 04:15:37 +0100 (CET)
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+ by mail.librecores.org (Postfix) with ESMTPS id E6CD220919
+ for <openrisc@lists.librecores.org>; Tue, 15 Nov 2022 04:15:36 +0100 (CET)
+Received: from canpemm500009.china.huawei.com (unknown [172.30.72.54])
+ by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4NBBBT51qWzmVb2;
+ Tue, 15 Nov 2022 11:15:13 +0800 (CST)
+Received: from localhost.localdomain (10.67.164.66) by
+ canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Tue, 15 Nov 2022 11:15:34 +0800
+From: Yicong Yang <yangyicong@huawei.com>
+To: <akpm@linux-foundation.org>, <linux-mm@kvack.org>,
+ <linux-arm-kernel@lists.infradead.org>, <x86@kernel.org>,
+ <catalin.marinas@arm.com>, <will@kernel.org>, <anshuman.khandual@arm.com>,
+ <linux-doc@vger.kernel.org>
+Subject: [PATCH v6 0/2] arm64: support batched/deferred tlb shootdown during
+ page reclamation
+Date: Tue, 15 Nov 2022 11:14:23 +0800
+Message-ID: <20221115031425.44640-1-yangyicong@huawei.com>
+X-Mailer: git-send-email 2.31.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.67.164.66]
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ canpemm500009.china.huawei.com (7.192.105.203)
+X-CFilter-Loop: Reflected
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -40,44 +46,101 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>,
- linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
- Peter Zijlstra <peterz@infradead.org>,
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, linux-mips@vger.kernel.org,
- Guo Ren <guoren@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
- sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
- linux-hexagon@vger.kernel.org, x86@kernel.org,
- Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org,
- Ingo Molnar <mingo@redhat.com>, linux-snps-arc@lists.infradead.org,
- linux-xtensa@linux-xtensa.org, "Paul E. McKenney" <paulmck@kernel.org>,
- Frederic Weisbecker <frederic@kernel.org>, Nicholas Piggin <npiggin@gmail.com>,
- openrisc@lists.librecores.org, Borislav Petkov <bp@alien8.de>,
- loongarch@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
- linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
- Daniel Bristot de Oliveira <bristot@redhat.com>,
- Marcelo Tosatti <mtosatti@redhat.com>, linux-kernel@vger.kernel.org,
- linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, "David S.
- Miller" <davem@davemloft.net>
+Cc: linux-s390@vger.kernel.org, wangkefeng.wang@huawei.com,
+ zhangshiming@oppo.com, lipeifeng@oppo.com, prime.zeng@hisilicon.com,
+ arnd@arndb.de, corbet@lwn.net, peterz@infradead.org, realmz6@gmail.com,
+ Barry Song <21cnbao@gmail.com>, linux-kernel@vger.kernel.org,
+ yangyicong@hisilicon.com, guojian@oppo.com, openrisc@lists.librecores.org,
+ xhao@linux.alibaba.com, darren@os.amperecomputing.com, huzhanyuan@oppo.com,
+ punit.agrawal@bytedance.com, linux-riscv@lists.infradead.org,
+ linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Wed,  2 Nov 2022 18:29:41 +0000
-Valentin Schneider <vschneid@redhat.com> wrote:
+From: Yicong Yang <yangyicong@hisilicon.com>
 
-> This is incomplete, just looking at arm64 there's more IPI types that aren't
-> covered: 
-> 
->   IPI_CPU_STOP,
->   IPI_CPU_CRASH_STOP,
->   IPI_TIMER,
->   IPI_WAKEUP,
-> 
-> ... But it feels like a good starting point.
+Though ARM64 has the hardware to do tlb shootdown, the hardware
+broadcasting is not free.
+A simplest micro benchmark shows even on snapdragon 888 with only
+8 cores, the overhead for ptep_clear_flush is huge even for paging
+out one page mapped by only one process:
+5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
 
-For the tracing portions:
+While pages are mapped by multiple processes or HW has more CPUs,
+the cost should become even higher due to the bad scalability of
+tlb shootdown.
 
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+The same benchmark can result in 16.99% CPU consumption on ARM64
+server with around 100 cores according to Yicong's test on patch
+4/4.
 
--- Steve
+This patchset leverages the existing BATCHED_UNMAP_TLB_FLUSH by
+1. only send tlbi instructions in the first stage -
+	arch_tlbbatch_add_mm()
+2. wait for the completion of tlbi by dsb while doing tlbbatch
+	sync in arch_tlbbatch_flush()
+Testing on snapdragon shows the overhead of ptep_clear_flush
+is removed by the patchset. The micro benchmark becomes 5% faster
+even for one page mapped by single process on snapdragon 888.
+
+With this support we're possible to do more optimization for memory
+reclamation and migration[*].
+
+[*] https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
+
+-v6:
+1. comment we don't defer TLB flush on platforms affected by ARM64_WORKAROUND_REPEAT_TLBI
+2. use cpus_have_const_cap() instead of this_cpu_has_cap()
+3. add tags from Punit, Thanks.
+4. default enable the feature when cpus >= 8 rather than > 8, since the original
+   improvement is observed on snapdragon 888 with 8 cores.
+Link: https://lore.kernel.org/lkml/20221028081255.19157-1-yangyicong@huawei.com/
+
+-v5:
+1. Make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends on EXPERT for this stage on arm64.
+2. Make a threshold of CPU numbers for enabling batched TLP flush on arm64
+Link: https://lore.kernel.org/linux-arm-kernel/20220921084302.43631-1-yangyicong@huawei.com/T/
+
+-v4:
+1. Add tags from Kefeng and Anshuman, Thanks.
+2. Limit the TLB batch/defer on systems with >4 CPUs, per Anshuman
+3. Merge previous Patch 1,2-3 into one, per Anshuman
+Link: https://lore.kernel.org/linux-mm/20220822082120.8347-1-yangyicong@huawei.com/
+
+-v3:
+1. Declare arch's tlbbatch defer support by arch_tlbbatch_should_defer() instead
+   of ARCH_HAS_MM_CPUMASK, per Barry and Kefeng
+2. Add Tested-by from Xin Hao
+Link: https://lore.kernel.org/linux-mm/20220711034615.482895-1-21cnbao@gmail.com/
+
+-v2:
+1. Collected Yicong's test result on kunpeng920 ARM64 server;
+2. Removed the redundant vma parameter in arch_tlbbatch_add_mm()
+   according to the comments of Peter Zijlstra and Dave Hansen
+3. Added ARCH_HAS_MM_CPUMASK rather than checking if mm_cpumask
+   is empty according to the comments of Nadav Amit
+
+Thanks, Peter, Dave and Nadav for your testing or reviewing
+, and comments.
+
+-v1:
+https://lore.kernel.org/lkml/20220707125242.425242-1-21cnbao@gmail.com/
+
+Anshuman Khandual (1):
+  mm/tlbbatch: Introduce arch_tlbbatch_should_defer()
+
+Barry Song (1):
+  arm64: support batched/deferred tlb shootdown during page reclamation
+
+ .../features/vm/TLB/arch-support.txt          |  2 +-
+ arch/arm64/Kconfig                            |  6 +++
+ arch/arm64/include/asm/tlbbatch.h             | 12 +++++
+ arch/arm64/include/asm/tlbflush.h             | 52 ++++++++++++++++++-
+ arch/x86/include/asm/tlbflush.h               | 15 +++++-
+ mm/rmap.c                                     | 19 +++----
+ 6 files changed, 90 insertions(+), 16 deletions(-)
+ create mode 100644 arch/arm64/include/asm/tlbbatch.h
+
+-- 
+2.24.0
+
