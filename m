@@ -2,78 +2,94 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CAA3C433FE
-	for <openrisc@archiver.kernel.org>; Fri, 18 Nov 2022 16:42:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2F0FC433FE
+	for <openrisc@archiver.kernel.org>; Mon, 21 Nov 2022 04:31:00 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 589F324A1B;
-	Fri, 18 Nov 2022 17:42:43 +0100 (CET)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by mail.librecores.org (Postfix) with ESMTP id 83AEF249AD
- for <openrisc@lists.librecores.org>; Fri, 18 Nov 2022 17:42:41 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1668789760;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=iCeupirs0oRwfAYdrtKDNR33oxtw0kRHF9WhmcxURbs=;
- b=is4sSZobXPguOsrAJb7JAyhMO5SpS8UcYWAE+R5d34fjCAKvqtZg6QBIcFoLw5h6mr3RCt
- 5EPAB+vTGhKztvDccZH+7yoUS2r4oeOVsIgMWRoR4f+xF1kMvXGjusdUOr+rokCcXgyAxz
- YUK1G/bzc2+QiGQxJI9KYRjL7cpX4AI=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-594-bpKIG6fzNhWG8vl1VJ_Mrg-1; Fri, 18 Nov 2022 11:42:38 -0500
-X-MC-Unique: bpKIG6fzNhWG8vl1VJ_Mrg-1
-Received: by mail-ed1-f69.google.com with SMTP id
- y18-20020a056402359200b004635f8b1bfbso3295460edc.17
- for <openrisc@lists.librecores.org>; Fri, 18 Nov 2022 08:42:38 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=content-transfer-encoding:in-reply-to:from:content-language
- :references:cc:to:subject:user-agent:mime-version:date:message-id
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=iCeupirs0oRwfAYdrtKDNR33oxtw0kRHF9WhmcxURbs=;
- b=TC6TB5Ulvl7MevxsicSt3AMZWECMBrN3ljHsjLLeiHY5Ds6RUQ+A3Bcwr2rDgyNw7F
- 7FVnYinMLTJ/7hOrnRofmeOCI80LUt136txHc4nqV185NYpOudg1EEf3ApaydSpcUKKq
- 8hWDa5EsSeG21g3A1xVz5G1idYauzOOp1MrVQqD0LX+Ur00uEqw3dbypqnQgyKLhM03/
- PauiLr4XxmAc8KBTA4YGv+Jxx5DOstepmXl+Zq3PJZvRqfBlr+D93SvmoswiDVs7WcMG
- v/PUkVOr04g5kVpA+E/BBHvMTQwmpEUQMhssjVsoJIZHgQHfOH3JZzoLV1dgAzdAi+eq
- CzZg==
-X-Gm-Message-State: ANoB5pnHDVUwDXEHtsYmC9MkLpgNYYZ0uD9Hx8DwBpQ6vVJeVjhMfAB/
- KyJvG2JqL+rp488SkLuny+7WD/npwpBLoyFLvWRY0qWDWof//vVFz2paJkwwOKsViJ38PPrmES9
- nZ7nwRZI7TaisRCEaMeNAPNEuAA==
-X-Received: by 2002:aa7:d4cf:0:b0:461:a9ce:5408 with SMTP id
- t15-20020aa7d4cf000000b00461a9ce5408mr6997409edr.201.1668789757505; 
- Fri, 18 Nov 2022 08:42:37 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf5TaV9WywAgyEkJUjIKk83rbFXBQR8khfDHnlKNNSiUU8k8aohx0CjQn5lly7hEq5+W3BWrVw==
-X-Received: by 2002:aa7:d4cf:0:b0:461:a9ce:5408 with SMTP id
- t15-20020aa7d4cf000000b00461a9ce5408mr6997376edr.201.1668789757207; 
- Fri, 18 Nov 2022 08:42:37 -0800 (PST)
-Received: from [192.168.0.46] (host-95-248-159-81.retail.telecomitalia.it.
- [95.248.159.81]) by smtp.gmail.com with ESMTPSA id
- b10-20020a1709063caa00b0073d83f80b05sm1912134ejh.94.2022.11.18.08.42.35
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Fri, 18 Nov 2022 08:42:36 -0800 (PST)
-Message-ID: <1ab5082c-bec5-53f2-501b-f15f7e8edbd9@redhat.com>
-Date: Fri, 18 Nov 2022 17:42:34 +0100
+	by mail.librecores.org (Postfix) with ESMTP id CA636214F6;
+	Mon, 21 Nov 2022 05:30:59 +0100 (CET)
+Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
+ by mail.librecores.org (Postfix) with ESMTPS id EBA2E2126D
+ for <openrisc@lists.librecores.org>; Mon, 21 Nov 2022 05:30:57 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+ d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+ t=1669005058; x=1700541058;
+ h=message-id:date:mime-version:subject:to:cc:references:
+ from:in-reply-to:content-transfer-encoding;
+ bh=4beOSLpbYZX+oR0kMpyCYOPvXowctFP1xAU6PZQst0A=;
+ b=XcJrLbB9Ss/HOvSRIYAnc/QwBmOW2IfOY3L9CMHjTQK0WlaoGm7av0E2
+ 8cURtHU/QiGwD3V4dgJKw6zoeVG5W4785IC5iEnMRlSFz920iBbQMzxlQ
+ DuAvlgnGOawql16KtJclh+Q4iPw2QyWQCtbe121ap+QaEh/BBDdvRkaJJ
+ lVmS6/bkVIoGvpL+C4IelNcS3DQtBTejVfyLr9wBAV2wRWEKPKwe17h8y
+ oxyUjt8SkdO2hDwTcv8HU20DwHAvgPuDOo9V5FH5/bibpCNSTL6aVkGsK
+ TwEghL80Tr0rGWv1Z1ECE7DAirX0CAFKMc+LdHilDfuo3QEiLzaHCkmh+ w==;
+X-IronPort-AV: E=Sophos;i="5.96,180,1665417600"; d="scan'208";a="328857199"
+Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com)
+ ([199.255.45.14])
+ by ob1.hgst.iphmx.com with ESMTP; 21 Nov 2022 12:30:56 +0800
+IronPort-SDR: iAcGK7323iOLe3HRwReP9zz54nphR9tT6WqY6tSg9iC5hWBdGZwmSPZf/cgkp31Pz1K7KW437h
+ 9s0WIhaYtnYFpSxdY8Lrw2gEfIUlLNo8/ij5qRGGCoab1NYwQMWuB5wLG38ia+kJULticjM9TW
+ e9dA7O++vGHNNo5g5scDsvB4kYJ+SGVS7c+yNxf1ZiElfmX+o+ug8GArV0CLxZiWF4kjDCk7pc
+ Jh2ODyFEdtkOxXe1OHH7mp/THlOHUrgTqRZzRGv6ETXuhcPs1l5rSqRK4pfSFtPC3DkHVuh6VP
+ PUQ=
+Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
+ by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256;
+ 20 Nov 2022 19:49:46 -0800
+IronPort-SDR: ZxhAsAweV5yw1MC1MTak/686juezR0B/YQO3UrQWomxKEoLHlI7qkeynVhEbDAg8n24gJ8LGRe
+ bCJ73ntl55aXvK4zrUtBdv6vhPtHx62g99u3IFzOksto6+F9X5GGgtxyTH7W9BQvb2epe8RKK0
+ J/hZdv9Rh6NXOKMc2iQvFccSOwdDoJ5y4dUAbWLXewKEyuee8039j7qByQMfTUJLrGdMT2HgoC
+ AVcRHvH6EG1PklmzeKTFEBr+LbXQdg5sRiz/aiQPFcNQKP/l/EAqWU0N3xvoc7VqVyL6xZvWOV
+ o1A=
+WDCIronportException: Internal
+Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
+ by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256;
+ 20 Nov 2022 20:30:56 -0800
+Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
+ by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4NFvb32CG7z1RvTp
+ for <openrisc@lists.librecores.org>; Sun, 20 Nov 2022 20:30:55 -0800 (PST)
+Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
+ reason="pass (just generated, assumed good)"
+ header.d=opensource.wdc.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
+ opensource.wdc.com; h=content-transfer-encoding:content-type
+ :in-reply-to:organization:from:references:to:content-language
+ :subject:user-agent:mime-version:date:message-id; s=dkim; t=
+ 1669005051; x=1671597052; bh=4beOSLpbYZX+oR0kMpyCYOPvXowctFP1xAU
+ 6PZQst0A=; b=DX8VtzDJtDLp+nbV8JfB/atCqssiGHbs8sw4ticxcnx+rKmYogt
+ 0+a7OpzuOgyHZUSErlzM/rTCGZ3mN1MZLlMv2uUAXusBUgMSofwrQT8q5MXTRS6l
+ nqNBwSmYYe4nL0e75b+Lun20ZS1Fe68DMsIeGk3IagPkYQULNAzYkHjFxP8fo6UK
+ BJOvdq7cIsD+vw2NZDuBOnzqNfgN6CEjAMWQ3QQ3KSMjIJ++uAoeYyrcU7OwGGL6
+ EOsGI8rKz0M+n4XiUpRSbSfkLP/lcTcD3S97BjYAWXg+WowiCL8jgN9TldU7V/6K
+ s+FUUMdcDPKR4xbXjz2r9OSdIWb4oPX4dug==
+X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
+Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
+ by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new,
+ port 10026)
+ with ESMTP id noPHCcafBmsJ for <openrisc@lists.librecores.org>;
+ Sun, 20 Nov 2022 20:30:51 -0800 (PST)
+Received: from [10.225.163.53] (unknown [10.225.163.53])
+ by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4NFvZq1TDDz1RvLy;
+ Sun, 20 Nov 2022 20:30:42 -0800 (PST)
+Message-ID: <6a1883c4-4c3f-545a-90e8-2cd805bcf4ae@opensource.wdc.com>
+Date: Mon, 21 Nov 2022 13:30:41 +0900
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.1
-Subject: Re: [RFC PATCH v2 8/8] sched, smp: Trace smp callback causing an IPI
-To: Peter Zijlstra <peterz@infradead.org>,
- Valentin Schneider <vschneid@redhat.com>
-References: <20221102182949.3119584-1-vschneid@redhat.com>
- <20221102183336.3120536-7-vschneid@redhat.com>
- <Y3ZBUMteJysc1/lA@hirez.programming.kicks-ass.net>
- <xhsmhfsehy706.mognet@vschneid.remote.csb>
- <Y3dMiyFn6TG1s5g3@hirez.programming.kicks-ass.net>
-From: Daniel Bristot de Oliveira <bristot@redhat.com>
-In-Reply-To: <Y3dMiyFn6TG1s5g3@hirez.programming.kicks-ass.net>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
+ Thunderbird/102.5.0
+Subject: Re: Deprecating and removing SLOB
 Content-Language: en-US
+To: Vlastimil Babka <vbabka@suse.cz>, Hyeonggon Yoo <42.hyeyoo@gmail.com>
+References: <b35c3f82-f67b-2103-7d82-7a7ba7521439@suse.cz>
+ <CA+CK2bD-uVGJ0=9uc7Lt5zwY+2PM2RTcfOhxEd65S7TvTrJULA@mail.gmail.com>
+ <c1caa5ce-eeaf-8038-2dea-051c98aade45@suse.cz> <Y260tkNHc2vFITJ3@spud>
+ <a5bba3ca-da19-293c-c01b-a28291533466@opensource.wdc.com>
+ <93079aba-362e-5d1e-e9b4-dfe3a84da750@opensource.wdc.com>
+ <44da078c-b630-a249-bf50-67df83cd8347@suse.cz>
+ <35650fd4-3152-56db-7c27-b9997e31cfc7@opensource.wdc.com>
+ <Y3JU5cfyid1rBoOy@hyeyoo>
+ <97c0735c-3127-83d5-30ff-8e57c6634f6e@opensource.wdc.com>
+ <452c3833-9275-37c7-3d48-5c996c0e2557@suse.cz>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Organization: Western Digital Research
+In-Reply-To: <452c3833-9275-37c7-3d48-5c996c0e2557@suse.cz>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-BeenThere: openrisc@lists.librecores.org
@@ -88,54 +104,281 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>,
- linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, linux-mips@vger.kernel.org,
- Guo Ren <guoren@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
- sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
- linux-hexagon@vger.kernel.org, x86@kernel.org,
- Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org,
- Ingo Molnar <mingo@redhat.com>, linux-snps-arc@lists.infradead.org,
- linux-xtensa@linux-xtensa.org, "Paul E. McKenney" <paulmck@kernel.org>,
- Frederic Weisbecker <frederic@kernel.org>,
- Steven Rostedt <rostedt@goodmis.org>, openrisc@lists.librecores.org,
- Borislav Petkov <bp@alien8.de>, Nicholas Piggin <npiggin@gmail.com>,
- loongarch@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
- linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
- Marcelo Tosatti <mtosatti@redhat.com>, linux-kernel@vger.kernel.org,
- linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- "David S. Miller" <davem@davemloft.net>
+Cc: Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
+ Tony Lindgren <tony@atomide.com>, Catalin Marinas <catalin.marinas@arm.com>,
+ Roman Gushchin <roman.gushchin@linux.dev>,
+ Paul Cercueil <paul@crapouillou.net>,
+ "linux-mm@kvack.org" <linux-mm@kvack.org>, Conor.Dooley@microchip.com,
+ Christoph Lameter <cl@linux.com>, linux-riscv@lists.infradead.org,
+ Jonas Bonn <jonas@southpole.se>, Yoshinori Sato <ysato@users.sourceforge.jp>,
+ Aaro Koskinen <aaro.koskinen@iki.fi>, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+ Russell King <linux@armlinux.org.uk>, Matthew Wilcox <willy@infradead.org>,
+ David Rientjes <rientjes@google.com>,
+ Pasha Tatashin <pasha.tatashin@soleen.com>, Arnd Bergmann <arnd@arndb.de>,
+ Josh Triplett <josh@joshtriplett.org>, openrisc@lists.librecores.org,
+ Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+ "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+ Alexander Shiyan <shc_work@mail.ru>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ Conor Dooley <conor@kernel.org>, Rustam Kovhaev <rkovhaev@gmail.com>,
+ Pekka Enberg <penberg@kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
+ Linus Torvalds <torvalds@linux-foundation.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On 11/18/22 10:12, Peter Zijlstra wrote:
-> On Thu, Nov 17, 2022 at 02:45:29PM +0000, Valentin Schneider wrote:
-> 
->>> +	if (trace_ipi_send_cpumask_enabled()) {
->>> +		call_single_data_t *csd;
->>> +		smp_call_func_t func;
->>> +
->>> +		csd = container_of(node, call_single_data_t, node.llist);
->>> +
->>> +		func = sched_ttwu_pending;
->>> +		if (CSD_TYPE(csd) != CSD_TYPE_TTWU)
->>> +			func = csd->func;
->>> +
->>> +		if (raw_smp_call_single_queue(cpu, node))
->>> +			trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, func);
->> So I went with the tracepoint being placed *before* the actual IPI gets
->> sent to have a somewhat sane ordering between trace_ipi_send_cpumask() and
->> e.g. trace_call_function_single_entry().
+On 11/17/22 02:51, Vlastimil Babka wrote:
+> On 11/15/22 05:24, Damien Le Moal wrote:
+>> On 11/14/22 23:47, Hyeonggon Yoo wrote:
+>>> On Mon, Nov 14, 2022 at 08:35:31PM +0900, Damien Le Moal wrote:
+>>>> On 11/14/22 18:36, Vlastimil Babka wrote:
+>>>>> On 11/14/22 06:48, Damien Le Moal wrote:
+>>>>>> On 11/14/22 10:55, Damien Le Moal wrote:
+>>>>>>> On 11/12/22 05:46, Conor Dooley wrote:
+>>>>>>>> On Fri, Nov 11, 2022 at 11:33:30AM +0100, Vlastimil Babka wrote:
+>>>>>>>>> On 11/8/22 22:44, Pasha Tatashin wrote:
+>>>>>>>>>> On Tue, Nov 8, 2022 at 10:55 AM Vlastimil Babka <vbabka@suse.cz> wrote:
+>>>>>>>>>>>
+>>>>>>>>>>> Hi,
+>>>>>>>>>>>
+>>>>>>>>>>> as we all know, we currently have three slab allocators. As we discussed
+>>>>>>>>>>> at LPC [1], it is my hope that one of these allocators has a future, and
+>>>>>>>>>>> two of them do not.
+>>>>>>>>>>>
+>>>>>>>>>>> The unsurprising reasons include code maintenance burden, other features
+>>>>>>>>>>> compatible with only a subset of allocators (or more effort spent on the
+>>>>>>>>>>> features), blocking API improvements (more on that below), and my
+>>>>>>>>>>> inability to pronounce SLAB and SLUB in a properly distinguishable way,
+>>>>>>>>>>> without resorting to spelling out the letters.
+>>>>>>>>>>>
+>>>>>>>>>>> I think (but may be proven wrong) that SLOB is the easier target of the
+>>>>>>>>>>> two to be removed, so I'd like to focus on it first.
+>>>>>>>>>>>
+>>>>>>>>>>> I believe SLOB can be removed because:
+>>>>>>>>>>>
+>>>>>>>>>>> - AFAIK nobody really uses it? It strives for minimal memory footprint
+>>>>>>>>>>> by putting all objects together, which has its CPU performance costs
+>>>>>>>>>>> (locking, lack of percpu caching, searching for free space...). I'm not
+>>>>>>>>>>> aware of any "tiny linux" deployment that opts for this. For example,
+>>>>>>>>>>> OpenWRT seems to use SLUB and the devices these days have e.g. 128MB
+>>>>>>>>>>> RAM, not up to 16 MB anymore. I've heard anecdotes that the performance
+>>>>>>>>>>> SLOB impact is too much for those who tried. Googling for
+>>>>>>>>>>> "CONFIG_SLOB=y" yielded nothing useful.
+>>>>>>>>>>
+>>>>>>>>>> I am all for removing SLOB.
+>>>>>>>>>>
+>>>>>>>>>> There are some devices with configs where SLOB is enabled by default.
+>>>>>>>>>> Perhaps, the owners/maintainers of those devices/configs should be
+>>>>>>>>>> included into this thread:
+>>>>>>>>>>
+>>>>>>>>>> tatashin@soleen:~/x/linux$ git grep SLOB=y
+>>>>>>>>
+>>>>>>>>>> arch/riscv/configs/nommu_k210_defconfig:CONFIG_SLOB=y
+>>>>>>>>>> arch/riscv/configs/nommu_k210_sdcard_defconfig:CONFIG_SLOB=y
+>>>>>>>>>> arch/riscv/configs/nommu_virt_defconfig:CONFIG_SLOB=y
+>>>>>>>>
+>>>>>>>>>
+>>>>>>>>> Turns out that since SLOB depends on EXPERT, many of those lack it so
+>>>>>>>>> running make defconfig ends up with SLUB anyway, unless I miss something.
+>>>>>>>>> Only a subset has both SLOB and EXPERT:
+>>>>>>>>>
+>>>>>>>>>> git grep CONFIG_EXPERT `git grep -l "CONFIG_SLOB=y"`
+>>>>>>>>
+>>>>>>>>> arch/riscv/configs/nommu_virt_defconfig:CONFIG_EXPERT=y
+>>>>>>>>
+>>>>>>>> I suppose there's not really a concern with the virt defconfig, but I
+>>>>>>>> did check the output of `make nommu_k210_defconfig" and despite not
+>>>>>>>> having expert it seems to end up CONFIG_SLOB=y in the generated .config.
+>>>>>>>>
+>>>>>>>> I do have a board with a k210 so I checked with s/SLOB/SLUB and it still
+>>>>>>>> boots etc, but I have no workloads or w/e to run on it.
+>>>>>>>
+>>>>>>> I sent a patch to change the k210 defconfig to using SLUB. However...
+>>>>>
+>>>>> Thanks!
+>>>>>
+>>>>>>> The current default config using SLOB gives about 630 free memory pages
+>>>>>>> after boot (cat /proc/vmstat). Switching to SLUB, this is down to about
+>>>>>>> 400 free memory pages (CONFIG_SLUB_CPU_PARTIAL is off).
+>>>>>
+>>>>> Thanks for the testing! How much RAM does the system have btw? I found 8MB
+>>>>> somewhere, is that correct?
+>>>>
+>>>> Yep, 8MB, that's it.
+>>>>
+>>>>> So 230 pages that's a ~920 kB difference. Last time we saw less  dramatic
+>>>>> difference [1]. But that was looking at Slab pages, not free pages. The
+>>>>> extra overhead could be also in percpu allocations, code etc.
+>>>>>
+>>>>>>> This is with a buildroot kernel 5.19 build including a shell and sd-card
+>>>>>>> boot. With SLUB, I get clean boots and a shell prompt as expected. But I
+>>>>>>> definitely see more errors with shell commands failing due to allocation
+>>>>>>> failures for the shell process fork. So as far as the K210 is concerned,
+>>>>>>> switching to SLUB is not ideal.
+>>>>>>>
+>>>>>>> I would not want to hold on kernel mm improvements because of this toy
+>>>>>>> k210 though, so I am not going to prevent SLOB deprecation. I just wish
+>>>>>>> SLUB itself used less memory :)
+>>>>>>
+>>>>>> Did further tests with kernel 6.0.1:
+>>>>>> * SLOB: 630 free pages after boot, shell working (occasional shell fork
+>>>>>> failure happen though)
+>>>>>> * SLAB: getting memory allocation for order 7 failures on boot already
+>>>>>> (init process). Shell barely working (high frequency of shell command fork
+>>>>>> failures)
+>>>>
+>>>> I forgot to add here that the system was down to about 500 free pages
+>>>> after boot (again from the shell with "cat /proc/vmstat").
+>>>>
+>>>>>> * SLUB: getting memory allocation for order 7 failures on boot. I do get a
+>>>>>> shell prompt but cannot run any shell command that involves forking a new
+>>>>>> process.
+>>>>
+>>>> For both slab and slub, I had cpu partial off, debug off and slab merge
+>>>> on, as I suspected that would lead to less memory overhead.
+>>>> I suspected memory fragmentation may be an issue but doing
+>>>>
+>>>> echo 3 > /proc/sys/vm/drop_caches
+>>>>
+>>>> before trying a shell command did not help much at all (it usually does on
+>>>> that board with SLOB). Note that this is all with buildroot, so this echo
+>>>> & redirect always works as it does not cause a shell fork.
+>>>>
+>>>>>>
+>>>>>> So if we want to keep the k210 support functional with a shell, we need
+>>>>>> slob. If we reduce that board support to only one application started as
+>>>>>> the init process, then I guess anything is OK.
+>>>>>
+>>>>> In [1] it was possible to save some more memory with more tuning. Some of
+>>>>> that required boot parameters and other code changes. In another reply [2] I
+>>>>> considered adding something like SLUB_TINY to take care of all that, so
+>>>>> looks like it would make sense to proceed with that.
+>>>>
+>>>> If you want me to test something, let me know.
+>>>
+>>> Would you try this please?
+>>>
+>>> diff --git a/mm/slub.c b/mm/slub.c
+>>> index a24b71041b26..1c36c4b9aaa0 100644
+>>> --- a/mm/slub.c
+>>> +++ b/mm/slub.c
+>>> @@ -4367,9 +4367,7 @@ static int kmem_cache_open(struct kmem_cache *s, slab_flags_t flags)
+>>>  	 * The larger the object size is, the more slabs we want on the partial
+>>>  	 * list to avoid pounding the page allocator excessively.
+>>>  	 */
+>>> -	s->min_partial = min_t(unsigned long, MAX_PARTIAL, ilog2(s->size) / 2);
+>>> -	s->min_partial = max_t(unsigned long, MIN_PARTIAL, s->min_partial);
+>>> -
+>>> +	s->min_partial = 0;
+>>>  	set_cpu_partial(s);
+>>>  
+>>>  #ifdef CONFIG_NUMA
+>>>
+>>>
+>>> and booting with and without boot parameter slub_max_order=0?
 >>
->> Packaging the call_single_queue logic makes the code less horrible, but it
->> does mix up the event ordering...
-> Keeps em sharp ;-)
+>> Test notes: I used Linus 6.1-rc5 as the base. That is the only thing I
+>> changed in buildroot default config for the sipeed maix bit card, booting
+>> with SD card. The test is: booting and run "cat /proc/vmstat" and register
+>> the nr_free_pages value. I repeated the boot + cat 3 to 4 times for each case.
+>>
+>> Here are the results:
+>>
+>> 6.1-rc5, SLOB:
+>>     - 623 free pages
+>>     - 629 free pages
+>>     - 629 free pages
+>> 6.1-rc5, SLUB:
+>>     - 448 free pages
+>>     - 448 free pages
+>>     - 429 free pages
+>> 6.1-rc5, SLUB + slub_max_order=0:
+>>     - Init error, shell prompt but no shell command working
+>>     - Init error, no shell prompt
+>>     - 508 free pages
+>>     - Init error, shell prompt but no shell command working
+>> 6.1-rc5, SLUB + patch:
+>>     - Init error, shell prompt but no shell command working
+>>     - 433 free pages
+>>     - 448 free pages
+>>     - 423 free pages
+>> 6.1-rc5, SLUB + slub_max_order=0 + patch:
+>>     - Init error, no shell prompt
+>>     - Init error, shell prompt, 499 free pages
+>>     - Init error, shell prompt but no shell command working
+>>     - Init error, no shell prompt
+>>
+>> No changes for SLOB results, expected.
+>>
+>> For default SLUB, I did get all clean boots this time and could run the
+>> cat command. But I do see shell fork failures if I keep running commands.
+>>
+>> For SLUB + slub_max_order=0, I only got one clean boot with 508 free
+>> pages. Remaining runs failed to give a shell prompt or allow running cat
+>> command. For the clean boot, I do see higher number of free pages.
+>>
+>> SLUB with the patch was nearly identical to SLUB without the patch.
+>>
+>> And SLUB+patch+slub_max_order=0 gave again a lot of errors/bad boot. I
+>> could run the cat command only once, giving 499 free pages, so better than
+>> regular SLUB. But it seems that the memory is more fragmented as
+>> allocations fail more often.
+>>
+>> Hope this helps. Let me know if you want to test something else.
+> 
+> Could you please try this branch with CONFIG_SLUB_TINY=y?
+> https://git.kernel.org/pub/scm/linux/kernel/git/vbabka/linux.git/log/?h=slub-tiny-v1r0
+> 
+> Seeing your results I didn't modify default slub_max_order by this new
+> CONFIG (yet?) so maybe after trying the default, trying then also with
+> manual slub_max_order=0 and slub_max_order=1 would be useful too. Otherwise
+> it should be all changes to lower SLUB memory footprint. Hopefully it will
+> be visible in the number of free pages. But if fragmentation is an issue, it
+> might not be enough. BTW, during boot there should be a line "Built X
+> zonelists, mobility grouping ..." can you grep for it and provide please, I
+> wonder if mobility grouping ends up being off or on on that system.
+
+I ran your branch with CONFIG_SLUB_TINY=y. Here are the results with 3-4
+runs per config:
+
+* tiny slub with default slub_max_order:
+	- Clean boot, 579 free pages
+	- Clean boot, 575 free pages
+	- Clean boot, 579 free pages
+
+* tiny slub with slub_max_order=0 as boot argument:
+        - Init error, shell prompt but no shell command working
+	- Init error, shell prompt, 592 free pages
+	- Init error, shell prompt, 591 free pages
+	- Init error, shell prompt, 591 free pages
+
+* tiny slub with slub_max_order=1 as boot argument:
+	- Clean boot, 601 free pages
+	- Clean boot, 601 free pages
+	- Clean boot, 591 free pages
+	- Clean boot, 601 free pages
+
+For all cases, mobility grouping was reported as off:
+
+[    0.000000] Built 1 zonelists, mobility grouping off.  Total pages: 2020
+
+So it looks like your tiny slub branch with slub_max_order=1 puts us
+almost on par with slob and that slub_max_order=0 seems to be generating
+more fragmentation leading to unreliable boot. I also tried
+slub_max_order=2, which gives clean boot and around 582 free pages, almost
+the same as the default.
+
+With this branch applied, I have no issues with having slob deprecated :)
+Thanks !
+
+
+> 
+> Thanks!
+> 
+>> Cheers.
+>>
 > 
 
-Having the trace before the IPI avoids the (non ideal) case where the trace stops because of
-an IPI execution before we have trace about who sent it... :-(.
-
--- Daniel
+-- 
+Damien Le Moal
+Western Digital Research
 
