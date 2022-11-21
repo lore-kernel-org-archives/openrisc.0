@@ -2,81 +2,56 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2F0FC433FE
-	for <openrisc@archiver.kernel.org>; Mon, 21 Nov 2022 04:31:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FF63C43217
+	for <openrisc@archiver.kernel.org>; Mon, 21 Nov 2022 17:02:43 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id CA636214F6;
-	Mon, 21 Nov 2022 05:30:59 +0100 (CET)
-Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
- by mail.librecores.org (Postfix) with ESMTPS id EBA2E2126D
- for <openrisc@lists.librecores.org>; Mon, 21 Nov 2022 05:30:57 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
- d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
- t=1669005058; x=1700541058;
- h=message-id:date:mime-version:subject:to:cc:references:
- from:in-reply-to:content-transfer-encoding;
- bh=4beOSLpbYZX+oR0kMpyCYOPvXowctFP1xAU6PZQst0A=;
- b=XcJrLbB9Ss/HOvSRIYAnc/QwBmOW2IfOY3L9CMHjTQK0WlaoGm7av0E2
- 8cURtHU/QiGwD3V4dgJKw6zoeVG5W4785IC5iEnMRlSFz920iBbQMzxlQ
- DuAvlgnGOawql16KtJclh+Q4iPw2QyWQCtbe121ap+QaEh/BBDdvRkaJJ
- lVmS6/bkVIoGvpL+C4IelNcS3DQtBTejVfyLr9wBAV2wRWEKPKwe17h8y
- oxyUjt8SkdO2hDwTcv8HU20DwHAvgPuDOo9V5FH5/bibpCNSTL6aVkGsK
- TwEghL80Tr0rGWv1Z1ECE7DAirX0CAFKMc+LdHilDfuo3QEiLzaHCkmh+ w==;
-X-IronPort-AV: E=Sophos;i="5.96,180,1665417600"; d="scan'208";a="328857199"
-Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com)
- ([199.255.45.14])
- by ob1.hgst.iphmx.com with ESMTP; 21 Nov 2022 12:30:56 +0800
-IronPort-SDR: iAcGK7323iOLe3HRwReP9zz54nphR9tT6WqY6tSg9iC5hWBdGZwmSPZf/cgkp31Pz1K7KW437h
- 9s0WIhaYtnYFpSxdY8Lrw2gEfIUlLNo8/ij5qRGGCoab1NYwQMWuB5wLG38ia+kJULticjM9TW
- e9dA7O++vGHNNo5g5scDsvB4kYJ+SGVS7c+yNxf1ZiElfmX+o+ug8GArV0CLxZiWF4kjDCk7pc
- Jh2ODyFEdtkOxXe1OHH7mp/THlOHUrgTqRZzRGv6ETXuhcPs1l5rSqRK4pfSFtPC3DkHVuh6VP
- PUQ=
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
- by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256;
- 20 Nov 2022 19:49:46 -0800
-IronPort-SDR: ZxhAsAweV5yw1MC1MTak/686juezR0B/YQO3UrQWomxKEoLHlI7qkeynVhEbDAg8n24gJ8LGRe
- bCJ73ntl55aXvK4zrUtBdv6vhPtHx62g99u3IFzOksto6+F9X5GGgtxyTH7W9BQvb2epe8RKK0
- J/hZdv9Rh6NXOKMc2iQvFccSOwdDoJ5y4dUAbWLXewKEyuee8039j7qByQMfTUJLrGdMT2HgoC
- AVcRHvH6EG1PklmzeKTFEBr+LbXQdg5sRiz/aiQPFcNQKP/l/EAqWU0N3xvoc7VqVyL6xZvWOV
- o1A=
-WDCIronportException: Internal
-Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
- by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256;
- 20 Nov 2022 20:30:56 -0800
-Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
- by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4NFvb32CG7z1RvTp
- for <openrisc@lists.librecores.org>; Sun, 20 Nov 2022 20:30:55 -0800 (PST)
-Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
- reason="pass (just generated, assumed good)"
- header.d=opensource.wdc.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
- opensource.wdc.com; h=content-transfer-encoding:content-type
- :in-reply-to:organization:from:references:to:content-language
- :subject:user-agent:mime-version:date:message-id; s=dkim; t=
- 1669005051; x=1671597052; bh=4beOSLpbYZX+oR0kMpyCYOPvXowctFP1xAU
- 6PZQst0A=; b=DX8VtzDJtDLp+nbV8JfB/atCqssiGHbs8sw4ticxcnx+rKmYogt
- 0+a7OpzuOgyHZUSErlzM/rTCGZ3mN1MZLlMv2uUAXusBUgMSofwrQT8q5MXTRS6l
- nqNBwSmYYe4nL0e75b+Lun20ZS1Fe68DMsIeGk3IagPkYQULNAzYkHjFxP8fo6UK
- BJOvdq7cIsD+vw2NZDuBOnzqNfgN6CEjAMWQ3QQ3KSMjIJ++uAoeYyrcU7OwGGL6
- EOsGI8rKz0M+n4XiUpRSbSfkLP/lcTcD3S97BjYAWXg+WowiCL8jgN9TldU7V/6K
- s+FUUMdcDPKR4xbXjz2r9OSdIWb4oPX4dug==
-X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
-Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
- by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new,
- port 10026)
- with ESMTP id noPHCcafBmsJ for <openrisc@lists.librecores.org>;
- Sun, 20 Nov 2022 20:30:51 -0800 (PST)
-Received: from [10.225.163.53] (unknown [10.225.163.53])
- by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4NFvZq1TDDz1RvLy;
- Sun, 20 Nov 2022 20:30:42 -0800 (PST)
-Message-ID: <6a1883c4-4c3f-545a-90e8-2cd805bcf4ae@opensource.wdc.com>
-Date: Mon, 21 Nov 2022 13:30:41 +0900
+	by mail.librecores.org (Postfix) with ESMTP id DC00C24A54;
+	Mon, 21 Nov 2022 18:02:42 +0100 (CET)
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+ by mail.librecores.org (Postfix) with ESMTPS id 0F6682495D
+ for <openrisc@lists.librecores.org>; Mon, 21 Nov 2022 18:02:41 +0100 (CET)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id 74C2B220D3;
+ Mon, 21 Nov 2022 17:02:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+ t=1669050160; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=waH8qi7rSOq7I4vWunq+Hx7MA0/6o23u8Uhy7medoKs=;
+ b=M3t81rO8cMELjgUY3Pdvd3u12xeF18kly28iM45Jh2xBoA0q2rqwb0X1LTQJ7XKitDOpmg
+ C7kIz1ftFw/3KzsErpk7pinZ8z5Ecv924W6QC4bxFzdhwCNayzo79WGuPIOHQ5GuHtijlT
+ cZfAnna+18wBK9/wokB1Iwkp2Ft+kzg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+ s=susede2_ed25519; t=1669050160;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=waH8qi7rSOq7I4vWunq+Hx7MA0/6o23u8Uhy7medoKs=;
+ b=tyZD79BhpWMMOi79km59eEyhlhrTkn1DIB8dMHZeEyXRwr6a+tN9XlBAvcIgXaWLoiX7dC
+ n3OtrqDkpmh6CiAg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id E13501377F;
+ Mon, 21 Nov 2022 17:02:39 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id Slg/Ni+ve2OJdAAAMHmgww
+ (envelope-from <vbabka@suse.cz>); Mon, 21 Nov 2022 17:02:39 +0000
+Message-ID: <e7861283-4280-7019-126c-cf56b89c37e7@suse.cz>
+Date: Mon, 21 Nov 2022 18:02:39 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
+ Thunderbird/102.4.2
 Subject: Re: Deprecating and removing SLOB
 Content-Language: en-US
-To: Vlastimil Babka <vbabka@suse.cz>, Hyeonggon Yoo <42.hyeyoo@gmail.com>
+To: Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+ Hyeonggon Yoo <42.hyeyoo@gmail.com>
 References: <b35c3f82-f67b-2103-7d82-7a7ba7521439@suse.cz>
  <CA+CK2bD-uVGJ0=9uc7Lt5zwY+2PM2RTcfOhxEd65S7TvTrJULA@mail.gmail.com>
  <c1caa5ce-eeaf-8038-2dea-051c98aade45@suse.cz> <Y260tkNHc2vFITJ3@spud>
@@ -87,9 +62,9 @@ References: <b35c3f82-f67b-2103-7d82-7a7ba7521439@suse.cz>
  <Y3JU5cfyid1rBoOy@hyeyoo>
  <97c0735c-3127-83d5-30ff-8e57c6634f6e@opensource.wdc.com>
  <452c3833-9275-37c7-3d48-5c996c0e2557@suse.cz>
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Organization: Western Digital Research
-In-Reply-To: <452c3833-9275-37c7-3d48-5c996c0e2557@suse.cz>
+ <6a1883c4-4c3f-545a-90e8-2cd805bcf4ae@opensource.wdc.com>
+From: Vlastimil Babka <vbabka@suse.cz>
+In-Reply-To: <6a1883c4-4c3f-545a-90e8-2cd805bcf4ae@opensource.wdc.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-BeenThere: openrisc@lists.librecores.org
@@ -126,259 +101,118 @@ Cc: Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On 11/17/22 02:51, Vlastimil Babka wrote:
-> On 11/15/22 05:24, Damien Le Moal wrote:
->> On 11/14/22 23:47, Hyeonggon Yoo wrote:
->>> On Mon, Nov 14, 2022 at 08:35:31PM +0900, Damien Le Moal wrote:
->>>> On 11/14/22 18:36, Vlastimil Babka wrote:
->>>>> On 11/14/22 06:48, Damien Le Moal wrote:
->>>>>> On 11/14/22 10:55, Damien Le Moal wrote:
->>>>>>> On 11/12/22 05:46, Conor Dooley wrote:
->>>>>>>> On Fri, Nov 11, 2022 at 11:33:30AM +0100, Vlastimil Babka wrote:
->>>>>>>>> On 11/8/22 22:44, Pasha Tatashin wrote:
->>>>>>>>>> On Tue, Nov 8, 2022 at 10:55 AM Vlastimil Babka <vbabka@suse.cz> wrote:
->>>>>>>>>>>
->>>>>>>>>>> Hi,
->>>>>>>>>>>
->>>>>>>>>>> as we all know, we currently have three slab allocators. As we discussed
->>>>>>>>>>> at LPC [1], it is my hope that one of these allocators has a future, and
->>>>>>>>>>> two of them do not.
->>>>>>>>>>>
->>>>>>>>>>> The unsurprising reasons include code maintenance burden, other features
->>>>>>>>>>> compatible with only a subset of allocators (or more effort spent on the
->>>>>>>>>>> features), blocking API improvements (more on that below), and my
->>>>>>>>>>> inability to pronounce SLAB and SLUB in a properly distinguishable way,
->>>>>>>>>>> without resorting to spelling out the letters.
->>>>>>>>>>>
->>>>>>>>>>> I think (but may be proven wrong) that SLOB is the easier target of the
->>>>>>>>>>> two to be removed, so I'd like to focus on it first.
->>>>>>>>>>>
->>>>>>>>>>> I believe SLOB can be removed because:
->>>>>>>>>>>
->>>>>>>>>>> - AFAIK nobody really uses it? It strives for minimal memory footprint
->>>>>>>>>>> by putting all objects together, which has its CPU performance costs
->>>>>>>>>>> (locking, lack of percpu caching, searching for free space...). I'm not
->>>>>>>>>>> aware of any "tiny linux" deployment that opts for this. For example,
->>>>>>>>>>> OpenWRT seems to use SLUB and the devices these days have e.g. 128MB
->>>>>>>>>>> RAM, not up to 16 MB anymore. I've heard anecdotes that the performance
->>>>>>>>>>> SLOB impact is too much for those who tried. Googling for
->>>>>>>>>>> "CONFIG_SLOB=y" yielded nothing useful.
->>>>>>>>>>
->>>>>>>>>> I am all for removing SLOB.
->>>>>>>>>>
->>>>>>>>>> There are some devices with configs where SLOB is enabled by default.
->>>>>>>>>> Perhaps, the owners/maintainers of those devices/configs should be
->>>>>>>>>> included into this thread:
->>>>>>>>>>
->>>>>>>>>> tatashin@soleen:~/x/linux$ git grep SLOB=y
->>>>>>>>
->>>>>>>>>> arch/riscv/configs/nommu_k210_defconfig:CONFIG_SLOB=y
->>>>>>>>>> arch/riscv/configs/nommu_k210_sdcard_defconfig:CONFIG_SLOB=y
->>>>>>>>>> arch/riscv/configs/nommu_virt_defconfig:CONFIG_SLOB=y
->>>>>>>>
->>>>>>>>>
->>>>>>>>> Turns out that since SLOB depends on EXPERT, many of those lack it so
->>>>>>>>> running make defconfig ends up with SLUB anyway, unless I miss something.
->>>>>>>>> Only a subset has both SLOB and EXPERT:
->>>>>>>>>
->>>>>>>>>> git grep CONFIG_EXPERT `git grep -l "CONFIG_SLOB=y"`
->>>>>>>>
->>>>>>>>> arch/riscv/configs/nommu_virt_defconfig:CONFIG_EXPERT=y
->>>>>>>>
->>>>>>>> I suppose there's not really a concern with the virt defconfig, but I
->>>>>>>> did check the output of `make nommu_k210_defconfig" and despite not
->>>>>>>> having expert it seems to end up CONFIG_SLOB=y in the generated .config.
->>>>>>>>
->>>>>>>> I do have a board with a k210 so I checked with s/SLOB/SLUB and it still
->>>>>>>> boots etc, but I have no workloads or w/e to run on it.
->>>>>>>
->>>>>>> I sent a patch to change the k210 defconfig to using SLUB. However...
->>>>>
->>>>> Thanks!
->>>>>
->>>>>>> The current default config using SLOB gives about 630 free memory pages
->>>>>>> after boot (cat /proc/vmstat). Switching to SLUB, this is down to about
->>>>>>> 400 free memory pages (CONFIG_SLUB_CPU_PARTIAL is off).
->>>>>
->>>>> Thanks for the testing! How much RAM does the system have btw? I found 8MB
->>>>> somewhere, is that correct?
->>>>
->>>> Yep, 8MB, that's it.
->>>>
->>>>> So 230 pages that's a ~920 kB difference. Last time we saw less  dramatic
->>>>> difference [1]. But that was looking at Slab pages, not free pages. The
->>>>> extra overhead could be also in percpu allocations, code etc.
->>>>>
->>>>>>> This is with a buildroot kernel 5.19 build including a shell and sd-card
->>>>>>> boot. With SLUB, I get clean boots and a shell prompt as expected. But I
->>>>>>> definitely see more errors with shell commands failing due to allocation
->>>>>>> failures for the shell process fork. So as far as the K210 is concerned,
->>>>>>> switching to SLUB is not ideal.
->>>>>>>
->>>>>>> I would not want to hold on kernel mm improvements because of this toy
->>>>>>> k210 though, so I am not going to prevent SLOB deprecation. I just wish
->>>>>>> SLUB itself used less memory :)
->>>>>>
->>>>>> Did further tests with kernel 6.0.1:
->>>>>> * SLOB: 630 free pages after boot, shell working (occasional shell fork
->>>>>> failure happen though)
->>>>>> * SLAB: getting memory allocation for order 7 failures on boot already
->>>>>> (init process). Shell barely working (high frequency of shell command fork
->>>>>> failures)
->>>>
->>>> I forgot to add here that the system was down to about 500 free pages
->>>> after boot (again from the shell with "cat /proc/vmstat").
->>>>
->>>>>> * SLUB: getting memory allocation for order 7 failures on boot. I do get a
->>>>>> shell prompt but cannot run any shell command that involves forking a new
->>>>>> process.
->>>>
->>>> For both slab and slub, I had cpu partial off, debug off and slab merge
->>>> on, as I suspected that would lead to less memory overhead.
->>>> I suspected memory fragmentation may be an issue but doing
->>>>
->>>> echo 3 > /proc/sys/vm/drop_caches
->>>>
->>>> before trying a shell command did not help much at all (it usually does on
->>>> that board with SLOB). Note that this is all with buildroot, so this echo
->>>> & redirect always works as it does not cause a shell fork.
->>>>
->>>>>>
->>>>>> So if we want to keep the k210 support functional with a shell, we need
->>>>>> slob. If we reduce that board support to only one application started as
->>>>>> the init process, then I guess anything is OK.
->>>>>
->>>>> In [1] it was possible to save some more memory with more tuning. Some of
->>>>> that required boot parameters and other code changes. In another reply [2] I
->>>>> considered adding something like SLUB_TINY to take care of all that, so
->>>>> looks like it would make sense to proceed with that.
->>>>
->>>> If you want me to test something, let me know.
+On 11/21/22 05:30, Damien Le Moal wrote:
+> On 11/17/22 02:51, Vlastimil Babka wrote:
+>> On 11/15/22 05:24, Damien Le Moal wrote:
+>>> On 11/14/22 23:47, Hyeonggon Yoo wrote:
+>>>> On Mon, Nov 14, 2022 at 08:35:31PM +0900, Damien Le Moal wrote:
 >>>
->>> Would you try this please?
+>>> Test notes: I used Linus 6.1-rc5 as the base. That is the only thing I
+>>> changed in buildroot default config for the sipeed maix bit card, booting
+>>> with SD card. The test is: booting and run "cat /proc/vmstat" and register
+>>> the nr_free_pages value. I repeated the boot + cat 3 to 4 times for each case.
 >>>
->>> diff --git a/mm/slub.c b/mm/slub.c
->>> index a24b71041b26..1c36c4b9aaa0 100644
->>> --- a/mm/slub.c
->>> +++ b/mm/slub.c
->>> @@ -4367,9 +4367,7 @@ static int kmem_cache_open(struct kmem_cache *s, slab_flags_t flags)
->>>  	 * The larger the object size is, the more slabs we want on the partial
->>>  	 * list to avoid pounding the page allocator excessively.
->>>  	 */
->>> -	s->min_partial = min_t(unsigned long, MAX_PARTIAL, ilog2(s->size) / 2);
->>> -	s->min_partial = max_t(unsigned long, MIN_PARTIAL, s->min_partial);
->>> -
->>> +	s->min_partial = 0;
->>>  	set_cpu_partial(s);
->>>  
->>>  #ifdef CONFIG_NUMA
+>>> Here are the results:
 >>>
+>>> 6.1-rc5, SLOB:
+>>>     - 623 free pages
+>>>     - 629 free pages
+>>>     - 629 free pages
+>>> 6.1-rc5, SLUB:
+>>>     - 448 free pages
+>>>     - 448 free pages
+>>>     - 429 free pages
+>>> 6.1-rc5, SLUB + slub_max_order=0:
+>>>     - Init error, shell prompt but no shell command working
+>>>     - Init error, no shell prompt
+>>>     - 508 free pages
+>>>     - Init error, shell prompt but no shell command working
+>>> 6.1-rc5, SLUB + patch:
+>>>     - Init error, shell prompt but no shell command working
+>>>     - 433 free pages
+>>>     - 448 free pages
+>>>     - 423 free pages
+>>> 6.1-rc5, SLUB + slub_max_order=0 + patch:
+>>>     - Init error, no shell prompt
+>>>     - Init error, shell prompt, 499 free pages
+>>>     - Init error, shell prompt but no shell command working
+>>>     - Init error, no shell prompt
 >>>
->>> and booting with and without boot parameter slub_max_order=0?
->>
->> Test notes: I used Linus 6.1-rc5 as the base. That is the only thing I
->> changed in buildroot default config for the sipeed maix bit card, booting
->> with SD card. The test is: booting and run "cat /proc/vmstat" and register
->> the nr_free_pages value. I repeated the boot + cat 3 to 4 times for each case.
->>
->> Here are the results:
->>
->> 6.1-rc5, SLOB:
->>     - 623 free pages
->>     - 629 free pages
->>     - 629 free pages
->> 6.1-rc5, SLUB:
->>     - 448 free pages
->>     - 448 free pages
->>     - 429 free pages
->> 6.1-rc5, SLUB + slub_max_order=0:
->>     - Init error, shell prompt but no shell command working
->>     - Init error, no shell prompt
->>     - 508 free pages
->>     - Init error, shell prompt but no shell command working
->> 6.1-rc5, SLUB + patch:
->>     - Init error, shell prompt but no shell command working
->>     - 433 free pages
->>     - 448 free pages
->>     - 423 free pages
->> 6.1-rc5, SLUB + slub_max_order=0 + patch:
->>     - Init error, no shell prompt
->>     - Init error, shell prompt, 499 free pages
->>     - Init error, shell prompt but no shell command working
->>     - Init error, no shell prompt
->>
->> No changes for SLOB results, expected.
->>
->> For default SLUB, I did get all clean boots this time and could run the
->> cat command. But I do see shell fork failures if I keep running commands.
->>
->> For SLUB + slub_max_order=0, I only got one clean boot with 508 free
->> pages. Remaining runs failed to give a shell prompt or allow running cat
->> command. For the clean boot, I do see higher number of free pages.
->>
->> SLUB with the patch was nearly identical to SLUB without the patch.
->>
->> And SLUB+patch+slub_max_order=0 gave again a lot of errors/bad boot. I
->> could run the cat command only once, giving 499 free pages, so better than
->> regular SLUB. But it seems that the memory is more fragmented as
->> allocations fail more often.
->>
->> Hope this helps. Let me know if you want to test something else.
+>>> No changes for SLOB results, expected.
+>>>
+>>> For default SLUB, I did get all clean boots this time and could run the
+>>> cat command. But I do see shell fork failures if I keep running commands.
+>>>
+>>> For SLUB + slub_max_order=0, I only got one clean boot with 508 free
+>>> pages. Remaining runs failed to give a shell prompt or allow running cat
+>>> command. For the clean boot, I do see higher number of free pages.
+>>>
+>>> SLUB with the patch was nearly identical to SLUB without the patch.
+>>>
+>>> And SLUB+patch+slub_max_order=0 gave again a lot of errors/bad boot. I
+>>> could run the cat command only once, giving 499 free pages, so better than
+>>> regular SLUB. But it seems that the memory is more fragmented as
+>>> allocations fail more often.
+>>>
+>>> Hope this helps. Let me know if you want to test something else.
+>> 
+>> Could you please try this branch with CONFIG_SLUB_TINY=y?
+>> https://git.kernel.org/pub/scm/linux/kernel/git/vbabka/linux.git/log/?h=slub-tiny-v1r0
+>> 
+>> Seeing your results I didn't modify default slub_max_order by this new
+>> CONFIG (yet?) so maybe after trying the default, trying then also with
+>> manual slub_max_order=0 and slub_max_order=1 would be useful too. Otherwise
+>> it should be all changes to lower SLUB memory footprint. Hopefully it will
+>> be visible in the number of free pages. But if fragmentation is an issue, it
+>> might not be enough. BTW, during boot there should be a line "Built X
+>> zonelists, mobility grouping ..." can you grep for it and provide please, I
+>> wonder if mobility grouping ends up being off or on on that system.
 > 
-> Could you please try this branch with CONFIG_SLUB_TINY=y?
-> https://git.kernel.org/pub/scm/linux/kernel/git/vbabka/linux.git/log/?h=slub-tiny-v1r0
+> I ran your branch with CONFIG_SLUB_TINY=y. Here are the results with 3-4
+> runs per config:
 > 
-> Seeing your results I didn't modify default slub_max_order by this new
-> CONFIG (yet?) so maybe after trying the default, trying then also with
-> manual slub_max_order=0 and slub_max_order=1 would be useful too. Otherwise
-> it should be all changes to lower SLUB memory footprint. Hopefully it will
-> be visible in the number of free pages. But if fragmentation is an issue, it
-> might not be enough. BTW, during boot there should be a line "Built X
-> zonelists, mobility grouping ..." can you grep for it and provide please, I
-> wonder if mobility grouping ends up being off or on on that system.
-
-I ran your branch with CONFIG_SLUB_TINY=y. Here are the results with 3-4
-runs per config:
-
-* tiny slub with default slub_max_order:
-	- Clean boot, 579 free pages
-	- Clean boot, 575 free pages
-	- Clean boot, 579 free pages
-
-* tiny slub with slub_max_order=0 as boot argument:
-        - Init error, shell prompt but no shell command working
-	- Init error, shell prompt, 592 free pages
-	- Init error, shell prompt, 591 free pages
-	- Init error, shell prompt, 591 free pages
-
-* tiny slub with slub_max_order=1 as boot argument:
-	- Clean boot, 601 free pages
-	- Clean boot, 601 free pages
-	- Clean boot, 591 free pages
-	- Clean boot, 601 free pages
-
-For all cases, mobility grouping was reported as off:
-
-[    0.000000] Built 1 zonelists, mobility grouping off.  Total pages: 2020
-
-So it looks like your tiny slub branch with slub_max_order=1 puts us
-almost on par with slob and that slub_max_order=0 seems to be generating
-more fragmentation leading to unreliable boot. I also tried
-slub_max_order=2, which gives clean boot and around 582 free pages, almost
-the same as the default.
-
-With this branch applied, I have no issues with having slob deprecated :)
-Thanks !
-
-
+> * tiny slub with default slub_max_order:
+> 	- Clean boot, 579 free pages
+> 	- Clean boot, 575 free pages
+> 	- Clean boot, 579 free pages
 > 
-> Thanks!
+> * tiny slub with slub_max_order=0 as boot argument:
+>         - Init error, shell prompt but no shell command working
+> 	- Init error, shell prompt, 592 free pages
+> 	- Init error, shell prompt, 591 free pages
+> 	- Init error, shell prompt, 591 free pages
 > 
->> Cheers.
->>
-> 
+> * tiny slub with slub_max_order=1 as boot argument:
+> 	- Clean boot, 601 free pages
+> 	- Clean boot, 601 free pages
+> 	- Clean boot, 591 free pages
+> 	- Clean boot, 601 free pages
 
--- 
-Damien Le Moal
-Western Digital Research
+Oh that's great result, better than I'd hope!
+I'll change the default slub_max_order=1 with CONFIG_SLUB_TINY then.
+
+> For all cases, mobility grouping was reported as off:
+> 
+> [    0.000000] Built 1 zonelists, mobility grouping off.  Total pages: 2020
+
+Yeah, expected that would be the case, thanks for confirming.
+
+> So it looks like your tiny slub branch with slub_max_order=1 puts us
+> almost on par with slob and that slub_max_order=0 seems to be generating
+> more fragmentation leading to unreliable boot. I also tried
+> slub_max_order=2, which gives clean boot and around 582 free pages, almost
+> the same as the default.
+> 
+> With this branch applied, I have no issues with having slob deprecated :)
+> Thanks !
+
+Great, thanks for the testing!
+
+>> 
+>> Thanks!
+>> 
+>>> Cheers.
+>>>
+>> 
+> 
 
