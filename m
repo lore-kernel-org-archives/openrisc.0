@@ -2,71 +2,52 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FF63C43217
-	for <openrisc@archiver.kernel.org>; Mon, 21 Nov 2022 17:02:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C089AC4332F
+	for <openrisc@archiver.kernel.org>; Mon, 21 Nov 2022 17:12:13 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id DC00C24A54;
-	Mon, 21 Nov 2022 18:02:42 +0100 (CET)
+	by mail.librecores.org (Postfix) with ESMTP id C4DD72491E;
+	Mon, 21 Nov 2022 18:12:12 +0100 (CET)
 Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
- by mail.librecores.org (Postfix) with ESMTPS id 0F6682495D
- for <openrisc@lists.librecores.org>; Mon, 21 Nov 2022 18:02:41 +0100 (CET)
+ by mail.librecores.org (Postfix) with ESMTPS id DCB162491E
+ for <openrisc@lists.librecores.org>; Mon, 21 Nov 2022 18:12:10 +0100 (CET)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id 74C2B220D3;
- Mon, 21 Nov 2022 17:02:40 +0000 (UTC)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id 7BA8521ED7;
+ Mon, 21 Nov 2022 17:12:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
- t=1669050160; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=waH8qi7rSOq7I4vWunq+Hx7MA0/6o23u8Uhy7medoKs=;
- b=M3t81rO8cMELjgUY3Pdvd3u12xeF18kly28iM45Jh2xBoA0q2rqwb0X1LTQJ7XKitDOpmg
- C7kIz1ftFw/3KzsErpk7pinZ8z5Ecv924W6QC4bxFzdhwCNayzo79WGuPIOHQ5GuHtijlT
- cZfAnna+18wBK9/wokB1Iwkp2Ft+kzg=
+ t=1669050730; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version: content-transfer-encoding:content-transfer-encoding;
+ bh=DZnidYhlob4wYa4haMFdTT34ayZpbbmwklQkgFc8Awk=;
+ b=igSelbSqFd3w5BzmX0A298SdSKeA17HOh2pkXAxBvORbNrOVcERZdte79/CIP7kyZ9OEQc
+ qGTUwmDBZupXek/Pmhfp3udI5D94Oj0RJVsjFfgjZC+pWWslxUZg2BB5qo/PzH90NPa33a
+ kz5FoQyCzMhgnlT8dzZH2qs2wVTkhV8=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
- s=susede2_ed25519; t=1669050160;
+ s=susede2_ed25519; t=1669050730;
  h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=waH8qi7rSOq7I4vWunq+Hx7MA0/6o23u8Uhy7medoKs=;
- b=tyZD79BhpWMMOi79km59eEyhlhrTkn1DIB8dMHZeEyXRwr6a+tN9XlBAvcIgXaWLoiX7dC
- n3OtrqDkpmh6CiAg==
+ mime-version:mime-version: content-transfer-encoding:content-transfer-encoding;
+ bh=DZnidYhlob4wYa4haMFdTT34ayZpbbmwklQkgFc8Awk=;
+ b=9DPAJO6vdbpnXuxOCWq1ear04Z0+sgJIIyVq6GX4W7oxMG//ydLJqKKD/AnzraAic+kNFl
+ ixgzkrl3OEeOHpBw==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id E13501377F;
- Mon, 21 Nov 2022 17:02:39 +0000 (UTC)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 12F081377F;
+ Mon, 21 Nov 2022 17:12:10 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id Slg/Ni+ve2OJdAAAMHmgww
- (envelope-from <vbabka@suse.cz>); Mon, 21 Nov 2022 17:02:39 +0000
-Message-ID: <e7861283-4280-7019-126c-cf56b89c37e7@suse.cz>
-Date: Mon, 21 Nov 2022 18:02:39 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: Deprecating and removing SLOB
-Content-Language: en-US
-To: Damien Le Moal <damien.lemoal@opensource.wdc.com>,
- Hyeonggon Yoo <42.hyeyoo@gmail.com>
-References: <b35c3f82-f67b-2103-7d82-7a7ba7521439@suse.cz>
- <CA+CK2bD-uVGJ0=9uc7Lt5zwY+2PM2RTcfOhxEd65S7TvTrJULA@mail.gmail.com>
- <c1caa5ce-eeaf-8038-2dea-051c98aade45@suse.cz> <Y260tkNHc2vFITJ3@spud>
- <a5bba3ca-da19-293c-c01b-a28291533466@opensource.wdc.com>
- <93079aba-362e-5d1e-e9b4-dfe3a84da750@opensource.wdc.com>
- <44da078c-b630-a249-bf50-67df83cd8347@suse.cz>
- <35650fd4-3152-56db-7c27-b9997e31cfc7@opensource.wdc.com>
- <Y3JU5cfyid1rBoOy@hyeyoo>
- <97c0735c-3127-83d5-30ff-8e57c6634f6e@opensource.wdc.com>
- <452c3833-9275-37c7-3d48-5c996c0e2557@suse.cz>
- <6a1883c4-4c3f-545a-90e8-2cd805bcf4ae@opensource.wdc.com>
+ by imap2.suse-dmz.suse.de with ESMTPSA id uQP0A2qxe2MQeQAAMHmgww
+ (envelope-from <vbabka@suse.cz>); Mon, 21 Nov 2022 17:12:10 +0000
 From: Vlastimil Babka <vbabka@suse.cz>
-In-Reply-To: <6a1883c4-4c3f-545a-90e8-2cd805bcf4ae@opensource.wdc.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+To: Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>,
+ Joonsoo Kim <iamjoonsoo.kim@lge.com>, Pekka Enberg <penberg@kernel.org>
+Subject: [PATCH 00/12] Introduce CONFIG_SLUB_TINY and deprecate SLOB
+Date: Mon, 21 Nov 2022 18:11:50 +0100
+Message-Id: <20221121171202.22080-1-vbabka@suse.cz>
+X-Mailer: git-send-email 2.38.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -80,139 +61,86 @@ List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
 Cc: Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
- Tony Lindgren <tony@atomide.com>, Catalin Marinas <catalin.marinas@arm.com>,
- Roman Gushchin <roman.gushchin@linux.dev>,
- Paul Cercueil <paul@crapouillou.net>,
- "linux-mm@kvack.org" <linux-mm@kvack.org>, Conor.Dooley@microchip.com,
- Christoph Lameter <cl@linux.com>, linux-riscv@lists.infradead.org,
+ Tony Lindgren <tony@atomide.com>, Roman Gushchin <roman.gushchin@linux.dev>,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Hyeonggon Yoo <42.hyeyoo@gmail.com>, linux-riscv@lists.infradead.org,
  Jonas Bonn <jonas@southpole.se>, Yoshinori Sato <ysato@users.sourceforge.jp>,
- Aaro Koskinen <aaro.koskinen@iki.fi>, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
- Russell King <linux@armlinux.org.uk>, Matthew Wilcox <willy@infradead.org>,
- David Rientjes <rientjes@google.com>,
- Pasha Tatashin <pasha.tatashin@soleen.com>, Arnd Bergmann <arnd@arndb.de>,
+ Aaro Koskinen <aaro.koskinen@iki.fi>,
+ Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+ Janusz Krzysztofik <jmkrzyszt@gmail.com>, Russell King <linux@armlinux.org.uk>,
+ Matthew Wilcox <willy@infradead.org>, Vlastimil Babka <vbabka@suse.cz>,
+ Kees Cook <keescook@chromium.org>, Arnd Bergmann <arnd@arndb.de>,
  Josh Triplett <josh@joshtriplett.org>, openrisc@lists.librecores.org,
- Joonsoo Kim <iamjoonsoo.kim@lge.com>,
- "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
- Alexander Shiyan <shc_work@mail.ru>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- Conor Dooley <conor@kernel.org>, Rustam Kovhaev <rkovhaev@gmail.com>,
- Pekka Enberg <penberg@kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
+ linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ patches@lists.linux.dev, Conor Dooley <conor@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>,
  Linus Torvalds <torvalds@linux-foundation.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On 11/21/22 05:30, Damien Le Moal wrote:
-> On 11/17/22 02:51, Vlastimil Babka wrote:
->> On 11/15/22 05:24, Damien Le Moal wrote:
->>> On 11/14/22 23:47, Hyeonggon Yoo wrote:
->>>> On Mon, Nov 14, 2022 at 08:35:31PM +0900, Damien Le Moal wrote:
->>>
->>> Test notes: I used Linus 6.1-rc5 as the base. That is the only thing I
->>> changed in buildroot default config for the sipeed maix bit card, booting
->>> with SD card. The test is: booting and run "cat /proc/vmstat" and register
->>> the nr_free_pages value. I repeated the boot + cat 3 to 4 times for each case.
->>>
->>> Here are the results:
->>>
->>> 6.1-rc5, SLOB:
->>>     - 623 free pages
->>>     - 629 free pages
->>>     - 629 free pages
->>> 6.1-rc5, SLUB:
->>>     - 448 free pages
->>>     - 448 free pages
->>>     - 429 free pages
->>> 6.1-rc5, SLUB + slub_max_order=0:
->>>     - Init error, shell prompt but no shell command working
->>>     - Init error, no shell prompt
->>>     - 508 free pages
->>>     - Init error, shell prompt but no shell command working
->>> 6.1-rc5, SLUB + patch:
->>>     - Init error, shell prompt but no shell command working
->>>     - 433 free pages
->>>     - 448 free pages
->>>     - 423 free pages
->>> 6.1-rc5, SLUB + slub_max_order=0 + patch:
->>>     - Init error, no shell prompt
->>>     - Init error, shell prompt, 499 free pages
->>>     - Init error, shell prompt but no shell command working
->>>     - Init error, no shell prompt
->>>
->>> No changes for SLOB results, expected.
->>>
->>> For default SLUB, I did get all clean boots this time and could run the
->>> cat command. But I do see shell fork failures if I keep running commands.
->>>
->>> For SLUB + slub_max_order=0, I only got one clean boot with 508 free
->>> pages. Remaining runs failed to give a shell prompt or allow running cat
->>> command. For the clean boot, I do see higher number of free pages.
->>>
->>> SLUB with the patch was nearly identical to SLUB without the patch.
->>>
->>> And SLUB+patch+slub_max_order=0 gave again a lot of errors/bad boot. I
->>> could run the cat command only once, giving 499 free pages, so better than
->>> regular SLUB. But it seems that the memory is more fragmented as
->>> allocations fail more often.
->>>
->>> Hope this helps. Let me know if you want to test something else.
->> 
->> Could you please try this branch with CONFIG_SLUB_TINY=y?
->> https://git.kernel.org/pub/scm/linux/kernel/git/vbabka/linux.git/log/?h=slub-tiny-v1r0
->> 
->> Seeing your results I didn't modify default slub_max_order by this new
->> CONFIG (yet?) so maybe after trying the default, trying then also with
->> manual slub_max_order=0 and slub_max_order=1 would be useful too. Otherwise
->> it should be all changes to lower SLUB memory footprint. Hopefully it will
->> be visible in the number of free pages. But if fragmentation is an issue, it
->> might not be enough. BTW, during boot there should be a line "Built X
->> zonelists, mobility grouping ..." can you grep for it and provide please, I
->> wonder if mobility grouping ends up being off or on on that system.
-> 
-> I ran your branch with CONFIG_SLUB_TINY=y. Here are the results with 3-4
-> runs per config:
-> 
-> * tiny slub with default slub_max_order:
-> 	- Clean boot, 579 free pages
-> 	- Clean boot, 575 free pages
-> 	- Clean boot, 579 free pages
-> 
-> * tiny slub with slub_max_order=0 as boot argument:
->         - Init error, shell prompt but no shell command working
-> 	- Init error, shell prompt, 592 free pages
-> 	- Init error, shell prompt, 591 free pages
-> 	- Init error, shell prompt, 591 free pages
-> 
-> * tiny slub with slub_max_order=1 as boot argument:
-> 	- Clean boot, 601 free pages
-> 	- Clean boot, 601 free pages
-> 	- Clean boot, 591 free pages
-> 	- Clean boot, 601 free pages
+Hi,
 
-Oh that's great result, better than I'd hope!
-I'll change the default slub_max_order=1 with CONFIG_SLUB_TINY then.
+this continues the discussion from [1]. Reasons to remove SLOB are
+outlined there and no-one has objected so far. The last patch of this
+series therefore deprecates CONFIG_SLOB and updates all the defconfigs
+using CONFIG_SLOB=y in the tree.
 
-> For all cases, mobility grouping was reported as off:
-> 
-> [    0.000000] Built 1 zonelists, mobility grouping off.  Total pages: 2020
+There is a k210 board with 8MB RAM where switching to SLUB caused issues
+[2] and the lkp bot wasn't also happy about code bloat [3]. To address
+both, this series introduces CONFIG_SLUB_TINY to perform some rather
+low-hanging fruit modifications to SLUB to reduce its memory overhead.
+This seems to have been successful at least in the k210 case [4]. I
+consider this as an acceptable tradeoff for getting rid of SLOB.
 
-Yeah, expected that would be the case, thanks for confirming.
+The series is also available in git:
+https://git.kernel.org/pub/scm/linux/kernel/git/vbabka/linux.git/log/?h=slub-tiny-v1r2
 
-> So it looks like your tiny slub branch with slub_max_order=1 puts us
-> almost on par with slob and that slub_max_order=0 seems to be generating
-> more fragmentation leading to unreliable boot. I also tried
-> slub_max_order=2, which gives clean boot and around 582 free pages, almost
-> the same as the default.
-> 
-> With this branch applied, I have no issues with having slob deprecated :)
-> Thanks !
+[1] https://lore.kernel.org/all/b35c3f82-f67b-2103-7d82-7a7ba7521439@suse.cz/
+[2] https://lore.kernel.org/all/a5bba3ca-da19-293c-c01b-a28291533466@opensource.wdc.com/
+[3] https://lore.kernel.org/all/Y25E9cJbhDAKi1vd@99bb1221be19/
+[4] https://lore.kernel.org/all/6a1883c4-4c3f-545a-90e8-2cd805bcf4ae@opensource.wdc.com/
 
-Great, thanks for the testing!
+Vlastimil Babka (12):
+  mm, slab: ignore hardened usercopy parameters when disabled
+  mm, slub: add CONFIG_SLUB_TINY
+  mm, slub: disable SYSFS support with CONFIG_SLUB_TINY
+  mm, slub: retain no free slabs on partial list with CONFIG_SLUB_TINY
+  mm, slub: lower the default slub_max_order with CONFIG_SLUB_TINY
+  mm, slub: don't create kmalloc-rcl caches with CONFIG_SLUB_TINY
+  mm, slab: ignore SLAB_RECLAIM_ACCOUNT with CONFIG_SLUB_TINY
+  mm, slub: refactor free debug processing
+  mm, slub: split out allocations from pre/post hooks
+  mm, slub: remove percpu slabs with CONFIG_SLUB_TINY
+  mm, slub: don't aggressively inline with CONFIG_SLUB_TINY
+  mm, slob: rename CONFIG_SLOB to CONFIG_SLOB_DEPRECATED
 
->> 
->> Thanks!
->> 
->>> Cheers.
->>>
->> 
-> 
+ arch/arm/configs/clps711x_defconfig           |   3 +-
+ arch/arm/configs/collie_defconfig             |   3 +-
+ arch/arm/configs/multi_v4t_defconfig          |   3 +-
+ arch/arm/configs/omap1_defconfig              |   3 +-
+ arch/arm/configs/pxa_defconfig                |   3 +-
+ arch/arm/configs/tct_hammer_defconfig         |   3 +-
+ arch/arm/configs/xcep_defconfig               |   3 +-
+ arch/openrisc/configs/or1ksim_defconfig       |   3 +-
+ arch/openrisc/configs/simple_smp_defconfig    |   3 +-
+ arch/riscv/configs/nommu_k210_defconfig       |   3 +-
+ .../riscv/configs/nommu_k210_sdcard_defconfig |   3 +-
+ arch/riscv/configs/nommu_virt_defconfig       |   3 +-
+ arch/sh/configs/rsk7201_defconfig             |   3 +-
+ arch/sh/configs/rsk7203_defconfig             |   3 +-
+ arch/sh/configs/se7206_defconfig              |   3 +-
+ arch/sh/configs/shmin_defconfig               |   3 +-
+ arch/sh/configs/shx3_defconfig                |   3 +-
+ include/linux/slab.h                          |   8 +
+ include/linux/slub_def.h                      |   6 +-
+ kernel/configs/tiny.config                    |   5 +-
+ mm/Kconfig                                    |  38 +-
+ mm/Kconfig.debug                              |   2 +-
+ mm/slab_common.c                              |  16 +-
+ mm/slub.c                                     | 415 ++++++++++++------
+ 24 files changed, 377 insertions(+), 164 deletions(-)
+
+-- 
+2.38.1
 
