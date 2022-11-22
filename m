@@ -2,49 +2,57 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09A53C4332F
-	for <openrisc@archiver.kernel.org>; Fri, 23 Dec 2022 07:17:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09FEFC3DA6E
+	for <openrisc@archiver.kernel.org>; Fri, 23 Dec 2022 07:17:32 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 92CC02496D;
+	by mail.librecores.org (Postfix) with ESMTP id C74112126D;
 	Fri, 23 Dec 2022 08:17:30 +0100 (CET)
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
- by mail.librecores.org (Postfix) with ESMTPS id D01D720AC2
- for <openrisc@lists.librecores.org>; Wed, 16 Nov 2022 16:29:42 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=4XDB6ZbR3Awa7mOslon9xFqMWj0psrdiARhozQeRyJA=; b=ojmz8ZQZRjWLwoZ+ZS6FE8f3wJ
- CK/Bfmqct5VYOUjRLjwRUWfkj35XZefJ6rca1+nPPtygcRUJXw3oJxKETAjWhIaiftafRsk0CMEh/
- J5wMjH2Yp5CEFUqc/1mDEFzmv3Mdc0yTnj+SwdQ0sRpQuWbK4I02ssc+mSnaitRZ9Z5Pb/uIPVtsU
- st8GbHUXc6nOUdEUbfkWcYSrzPEq8tBNp8Q5TCrMo7R2Ryh6BF7TlrqxiIkBjw+Pw8cZuNB/6D6gn
- mTk80fyh/EA5plmymKut6SRYIZtv3PlZQv81WS10aMHXoX+xNjxLwlZaIoKttXuf1J3/ppa8RmuTu
- XBGgqr+w==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84]
- helo=noisy.programming.kicks-ass.net)
- by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1ovKLd-001NF8-IY; Wed, 16 Nov 2022 15:29:09 +0000
-Received: from hirez.programming.kicks-ass.net
- (hirez.programming.kicks-ass.net [192.168.1.225])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
- (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id CE5513006A4;
- Wed, 16 Nov 2022 16:29:05 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
- id A500120832696; Wed, 16 Nov 2022 16:29:05 +0100 (CET)
-Date: Wed, 16 Nov 2022 16:29:05 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-To: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH v2 12/44] cpuidle,dt: Push RCU-idle into driver
-Message-ID: <Y3UBwYNY15ETUKy9@hirez.programming.kicks-ass.net>
+Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com
+ [209.85.210.176])
+ by mail.librecores.org (Postfix) with ESMTPS id BEE69247B6
+ for <openrisc@lists.librecores.org>; Tue, 22 Nov 2022 17:05:11 +0100 (CET)
+Received: by mail-pf1-f176.google.com with SMTP id b185so14770001pfb.9
+ for <openrisc@lists.librecores.org>; Tue, 22 Nov 2022 08:05:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:from:to:cc:subject:date:message-id:reply-to;
+ bh=mKqixJN/8zapPMiYOY0ZA2E36N6vIQg16uLiOxlikFI=;
+ b=Sxgb7NdwQ/FjyYXzMQLr2Ufh8inWhewppyg2kEhKfSMa5+4xLhcDZFgBkLe+YVojYR
+ b1j/8R8eepdhz2QNEoN59UWxI0C8HtPNMN2hfsnJ2VXdsyzTbL+tlNksQKPnsWg/NtBp
+ chCgU4N95aPK2lbuS5RzKtW5ffOhO3rTLhquzizFSUU3p/ux1MbE2BMO0btBQyCrWeJK
+ WXzMJ1H0fbnItfONfrC7qjjeZVQUnHu7QZDLXM8ZsS1OkeorqU4Yt3+bnHeBb63EIVUM
+ ARM0B0wTMD/PlD/5zjrBQjmOnBQvgdxEwxF1FwYHEN8lHlbB5RkK/8WK1b4hFP6jFplD
+ FuDA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=mKqixJN/8zapPMiYOY0ZA2E36N6vIQg16uLiOxlikFI=;
+ b=lS5v7FWIlVmbEgQl/gX8AAiQtwRR1M//U+yqvDy5SBL5dCuyMBi3TCizl2nOjzDFse
+ 5Ud6S3YwVu9PlLga9KOcYYEDJRA3pY8ncGI87Z7yBaX/GBc6K11lKhRYWPYtOZZFd8et
+ zLd8yq5pgzklX8kLH3eSqRM1Es5ud9HT0962WsBlpmuAZk9X+8PQFfENOJj2H71ZCpap
+ rxppbbrcKyWavtybU24RryIV9VBd+lruvewb8h7BPAeoMRv9nyMk1ypGkbfiU32z9cMJ
+ N67HKpEEwZESfMBPMUlP/N8xfKcjeWy3X9Qw/u7BrTQC7QKIO47Wn4QxtanjOcAajo7e
+ TF8w==
+X-Gm-Message-State: ANoB5pmpcocATuy04q94oQFqWG37C/NsNIzWAwQOfJ97v4/PIAIYCt43
+ 0SOv/VerlgpOUEn5T7UQDdTLSGHOSMmlCqruwfN4ug==
+X-Google-Smtp-Source: AA0mqf6JSvaqlcRgOCqphXQ3MBWuxLvJ9cnb0DNFGeizoGOcIFvJAwjnOuz3SuqXXwFDZ3Z3O+rn4vXVPvsxTfgKOLE=
+X-Received: by 2002:a63:501c:0:b0:477:650a:c29a with SMTP id
+ e28-20020a63501c000000b00477650ac29amr3900068pgb.541.1669133109958; Tue, 22
+ Nov 2022 08:05:09 -0800 (PST)
+MIME-Version: 1.0
 References: <20220919095939.761690562@infradead.org>
  <20220919101521.139727471@infradead.org>
  <CAPDyKFqTWd4W5Ofk76CtC4X43dxBTNHtmY9YzN355-vpviLsPw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAPDyKFqTWd4W5Ofk76CtC4X43dxBTNHtmY9YzN355-vpviLsPw@mail.gmail.com>
+ <Y3UBwYNY15ETUKy9@hirez.programming.kicks-ass.net>
+In-Reply-To: <Y3UBwYNY15ETUKy9@hirez.programming.kicks-ass.net>
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Date: Tue, 22 Nov 2022 17:04:33 +0100
+Message-ID: <CAPDyKFqzmJdVVrcuJ6Hmr5nNgtpd9Oke_exmUKuTGZEb=PjvjQ@mail.gmail.com>
+Subject: Re: [PATCH v2 12/44] cpuidle,dt: Push RCU-idle into driver
+To: Peter Zijlstra <peterz@infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 X-Mailman-Approved-At: Fri, 23 Dec 2022 08:17:29 +0100
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
@@ -108,170 +116,196 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-
-Sorry; things keep getting in the way of finishing this :/
-
-As such, I need a bit of time to get on-track again..
-
-On Tue, Oct 04, 2022 at 01:03:57PM +0200, Ulf Hansson wrote:
-
-> > --- a/drivers/acpi/processor_idle.c
-> > +++ b/drivers/acpi/processor_idle.c
-> > @@ -1200,6 +1200,8 @@ static int acpi_processor_setup_lpi_stat
-> >                 state->target_residency = lpi->min_residency;
-> >                 if (lpi->arch_flags)
-> >                         state->flags |= CPUIDLE_FLAG_TIMER_STOP;
-> > +               if (lpi->entry_method == ACPI_CSTATE_FFH)
-> > +                       state->flags |= CPUIDLE_FLAG_RCU_IDLE;
-> 
-> I assume the state index here will never be 0?
-> 
-> If not, it may lead to that acpi_processor_ffh_lpi_enter() may trigger
-> CPU_PM_CPU_IDLE_ENTER_PARAM() to call ct_cpuidle_enter|exit() for an
-> idle-state that doesn't have the CPUIDLE_FLAG_RCU_IDLE bit set.
-
-I'm not quite sure I see how. AFAICT this condition above implies
-acpi_processor_ffh_lpi_enter() gets called, no?
-
-Which in turn is an unconditional __CPU_PM_CPU_IDLE_ENTER() user, so
-even if idx==0, it ends up in ct_idle_{enter,exit}().
-
-> 
-> >                 state->enter = acpi_idle_lpi_enter;
-> >                 drv->safe_state_index = i;
-> >         }
-> > --- a/drivers/cpuidle/cpuidle-arm.c
-> > +++ b/drivers/cpuidle/cpuidle-arm.c
-> > @@ -53,6 +53,7 @@ static struct cpuidle_driver arm_idle_dr
-> >          * handler for idle state index 0.
-> >          */
-> >         .states[0] = {
-> > +               .flags                  = CPUIDLE_FLAG_RCU_IDLE,
-> 
-> Comparing arm64 and arm32 idle-states/idle-drivers, the $subject
-> series ends up setting the CPUIDLE_FLAG_RCU_IDLE for the ARM WFI idle
-> state (state zero), but only for the arm64 and psci cases (mostly
-> arm64). For arm32 we would need to update the ARM_CPUIDLE_WFI_STATE
-> too, as that is what most arm32 idle-drivers are using. My point is,
-> the code becomes a bit inconsistent.
-
-True.
-
-> Perhaps it's easier to avoid setting the CPUIDLE_FLAG_RCU_IDLE bit for
-> all of the ARM WFI idle states, for both arm64 and arm32?
-
-As per the below?
-
-> 
-> >                 .enter                  = arm_enter_idle_state,
-> >                 .exit_latency           = 1,
-> >                 .target_residency       = 1,
-
-> > --- a/include/linux/cpuidle.h
-> > +++ b/include/linux/cpuidle.h
-> > @@ -282,14 +282,18 @@ extern s64 cpuidle_governor_latency_req(
-> >         int __ret = 0;                                                  \
-> >                                                                         \
-> >         if (!idx) {                                                     \
-> > +               ct_idle_enter();                                        \
-> 
-> According to my comment above, we should then drop these calls to
-> ct_idle_enter and ct_idle_exit() here. Right?
-
-Yes, if we ensure idx==0 never has RCU_IDLE set then these must be
-removed.
-
-> >                 cpu_do_idle();                                          \
-> > +               ct_idle_exit();                                         \
-> >                 return idx;                                             \
-> >         }                                                               \
-> >                                                                         \
-> >         if (!is_retention)                                              \
-> >                 __ret =  cpu_pm_enter();                                \
-> >         if (!__ret) {                                                   \
-> > +               ct_idle_enter();                                        \
-> >                 __ret = low_level_idle_enter(state);                    \
-> > +               ct_idle_exit();                                         \
-> >                 if (!is_retention)                                      \
-> >                         cpu_pm_exit();                                  \
-> >         }                                                               \
+On Wed, 16 Nov 2022 at 16:29, Peter Zijlstra <peterz@infradead.org> wrote:
+>
+>
+> Sorry; things keep getting in the way of finishing this :/
+>
+> As such, I need a bit of time to get on-track again..
+>
+> On Tue, Oct 04, 2022 at 01:03:57PM +0200, Ulf Hansson wrote:
+>
+> > > --- a/drivers/acpi/processor_idle.c
+> > > +++ b/drivers/acpi/processor_idle.c
+> > > @@ -1200,6 +1200,8 @@ static int acpi_processor_setup_lpi_stat
+> > >                 state->target_residency = lpi->min_residency;
+> > >                 if (lpi->arch_flags)
+> > >                         state->flags |= CPUIDLE_FLAG_TIMER_STOP;
+> > > +               if (lpi->entry_method == ACPI_CSTATE_FFH)
+> > > +                       state->flags |= CPUIDLE_FLAG_RCU_IDLE;
 > >
+> > I assume the state index here will never be 0?
+> >
+> > If not, it may lead to that acpi_processor_ffh_lpi_enter() may trigger
+> > CPU_PM_CPU_IDLE_ENTER_PARAM() to call ct_cpuidle_enter|exit() for an
+> > idle-state that doesn't have the CPUIDLE_FLAG_RCU_IDLE bit set.
+>
+> I'm not quite sure I see how. AFAICT this condition above implies
+> acpi_processor_ffh_lpi_enter() gets called, no?
+>
+> Which in turn is an unconditional __CPU_PM_CPU_IDLE_ENTER() user, so
+> even if idx==0, it ends up in ct_idle_{enter,exit}().
 
-So the basic premise is that everything that needs RCU inside the idle
-callback must set CPUIDLE_FLAG_RCU_IDLE and by doing that promise to
-call ct_idle_{enter,exit}() themselves.
+Seems like I was overlooking something here, you are right, this
+shouldn't really be a problem.
 
-Setting RCU_IDLE is required when there is RCU usage, however even if
-there is no RCU usage, setting RCU_IDLE is fine, as long as
-ct_idle_{enter,exit}() then get called.
+>
+> >
+> > >                 state->enter = acpi_idle_lpi_enter;
+> > >                 drv->safe_state_index = i;
+> > >         }
+> > > --- a/drivers/cpuidle/cpuidle-arm.c
+> > > +++ b/drivers/cpuidle/cpuidle-arm.c
+> > > @@ -53,6 +53,7 @@ static struct cpuidle_driver arm_idle_dr
+> > >          * handler for idle state index 0.
+> > >          */
+> > >         .states[0] = {
+> > > +               .flags                  = CPUIDLE_FLAG_RCU_IDLE,
+> >
+> > Comparing arm64 and arm32 idle-states/idle-drivers, the $subject
+> > series ends up setting the CPUIDLE_FLAG_RCU_IDLE for the ARM WFI idle
+> > state (state zero), but only for the arm64 and psci cases (mostly
+> > arm64). For arm32 we would need to update the ARM_CPUIDLE_WFI_STATE
+> > too, as that is what most arm32 idle-drivers are using. My point is,
+> > the code becomes a bit inconsistent.
+>
+> True.
+>
+> > Perhaps it's easier to avoid setting the CPUIDLE_FLAG_RCU_IDLE bit for
+> > all of the ARM WFI idle states, for both arm64 and arm32?
+>
+> As per the below?
+>
+> >
+> > >                 .enter                  = arm_enter_idle_state,
+> > >                 .exit_latency           = 1,
+> > >                 .target_residency       = 1,
+>
+> > > --- a/include/linux/cpuidle.h
+> > > +++ b/include/linux/cpuidle.h
+> > > @@ -282,14 +282,18 @@ extern s64 cpuidle_governor_latency_req(
+> > >         int __ret = 0;                                                  \
+> > >                                                                         \
+> > >         if (!idx) {                                                     \
+> > > +               ct_idle_enter();                                        \
+> >
+> > According to my comment above, we should then drop these calls to
+> > ct_idle_enter and ct_idle_exit() here. Right?
+>
+> Yes, if we ensure idx==0 never has RCU_IDLE set then these must be
+> removed.
+>
+> > >                 cpu_do_idle();                                          \
+> > > +               ct_idle_exit();                                         \
+> > >                 return idx;                                             \
+> > >         }                                                               \
+> > >                                                                         \
+> > >         if (!is_retention)                                              \
+> > >                 __ret =  cpu_pm_enter();                                \
+> > >         if (!__ret) {                                                   \
+> > > +               ct_idle_enter();                                        \
+> > >                 __ret = low_level_idle_enter(state);                    \
+> > > +               ct_idle_exit();                                         \
+> > >                 if (!is_retention)                                      \
+> > >                         cpu_pm_exit();                                  \
+> > >         }                                                               \
+> > >
+>
+> So the basic premise is that everything that needs RCU inside the idle
+> callback must set CPUIDLE_FLAG_RCU_IDLE and by doing that promise to
+> call ct_idle_{enter,exit}() themselves.
+>
+> Setting RCU_IDLE is required when there is RCU usage, however even if
+> there is no RCU usage, setting RCU_IDLE is fine, as long as
+> ct_idle_{enter,exit}() then get called.
 
+Right, I was thinking that it could make sense to shrink the window
+for users getting this wrong. In other words, we shouldn't set the
+CPUIDLE_FLAG_RCU_IDLE unless we really need to.
 
-So does the below (delta) look better to you?
+And as I said, consistent behaviour is also nice to have.
 
---- a/drivers/acpi/processor_idle.c
-+++ b/drivers/acpi/processor_idle.c
-@@ -1218,7 +1218,7 @@ static int acpi_processor_setup_lpi_stat
- 		state->target_residency = lpi->min_residency;
- 		if (lpi->arch_flags)
- 			state->flags |= CPUIDLE_FLAG_TIMER_STOP;
--		if (lpi->entry_method == ACPI_CSTATE_FFH)
-+		if (i != 0 && lpi->entry_method == ACPI_CSTATE_FFH)
- 			state->flags |= CPUIDLE_FLAG_RCU_IDLE;
- 		state->enter = acpi_idle_lpi_enter;
- 		drv->safe_state_index = i;
---- a/drivers/cpuidle/cpuidle-arm.c
-+++ b/drivers/cpuidle/cpuidle-arm.c
-@@ -53,7 +53,7 @@ static struct cpuidle_driver arm_idle_dr
- 	 * handler for idle state index 0.
- 	 */
- 	.states[0] = {
--		.flags			= CPUIDLE_FLAG_RCU_IDLE,
-+		.flags			= 0,
- 		.enter                  = arm_enter_idle_state,
- 		.exit_latency           = 1,
- 		.target_residency       = 1,
---- a/drivers/cpuidle/cpuidle-psci.c
-+++ b/drivers/cpuidle/cpuidle-psci.c
-@@ -357,7 +357,7 @@ static int psci_idle_init_cpu(struct dev
- 	 * PSCI idle states relies on architectural WFI to be represented as
- 	 * state index 0.
- 	 */
--	drv->states[0].flags = CPUIDLE_FLAG_RCU_IDLE;
-+	drv->states[0].flags = 0;
- 	drv->states[0].enter = psci_enter_idle_state;
- 	drv->states[0].exit_latency = 1;
- 	drv->states[0].target_residency = 1;
---- a/drivers/cpuidle/cpuidle-qcom-spm.c
-+++ b/drivers/cpuidle/cpuidle-qcom-spm.c
-@@ -72,7 +72,7 @@ static struct cpuidle_driver qcom_spm_id
- 	.owner = THIS_MODULE,
- 	.states[0] = {
- 		.enter			= spm_enter_idle_state,
--		.flags			= CPUIDLE_FLAG_RCU_IDLE,
-+		.flags			= 0,
- 		.exit_latency		= 1,
- 		.target_residency	= 1,
- 		.power_usage		= UINT_MAX,
---- a/drivers/cpuidle/cpuidle-riscv-sbi.c
-+++ b/drivers/cpuidle/cpuidle-riscv-sbi.c
-@@ -337,7 +337,7 @@ static int sbi_cpuidle_init_cpu(struct d
- 	drv->cpumask = (struct cpumask *)cpumask_of(cpu);
- 
- 	/* RISC-V architectural WFI to be represented as state index 0. */
--	drv->states[0].flags = CPUIDLE_FLAG_RCU_IDLE;
-+	drv->states[0].flags = 0;
- 	drv->states[0].enter = sbi_cpuidle_enter_state;
- 	drv->states[0].exit_latency = 1;
- 	drv->states[0].target_residency = 1;
---- a/include/linux/cpuidle.h
-+++ b/include/linux/cpuidle.h
-@@ -282,9 +282,7 @@ extern s64 cpuidle_governor_latency_req(
- 	int __ret = 0;							\
- 									\
- 	if (!idx) {							\
--		ct_idle_enter();					\
- 		cpu_do_idle();						\
--		ct_idle_exit();						\
- 		return idx;						\
- 	}								\
- 									\
+>
+>
+> So does the below (delta) look better to you?
+
+Yes, it does!
+
+Although, one minor comment below.
+
+>
+> --- a/drivers/acpi/processor_idle.c
+> +++ b/drivers/acpi/processor_idle.c
+> @@ -1218,7 +1218,7 @@ static int acpi_processor_setup_lpi_stat
+>                 state->target_residency = lpi->min_residency;
+>                 if (lpi->arch_flags)
+>                         state->flags |= CPUIDLE_FLAG_TIMER_STOP;
+> -               if (lpi->entry_method == ACPI_CSTATE_FFH)
+> +               if (i != 0 && lpi->entry_method == ACPI_CSTATE_FFH)
+>                         state->flags |= CPUIDLE_FLAG_RCU_IDLE;
+>                 state->enter = acpi_idle_lpi_enter;
+>                 drv->safe_state_index = i;
+> --- a/drivers/cpuidle/cpuidle-arm.c
+> +++ b/drivers/cpuidle/cpuidle-arm.c
+> @@ -53,7 +53,7 @@ static struct cpuidle_driver arm_idle_dr
+>          * handler for idle state index 0.
+>          */
+>         .states[0] = {
+> -               .flags                  = CPUIDLE_FLAG_RCU_IDLE,
+> +               .flags                  = 0,
+
+Nitpick: I don't think we need to explicitly clear the flag, as it
+should already be zeroed by the compiler from its static declaration.
+Right?
+
+>                 .enter                  = arm_enter_idle_state,
+>                 .exit_latency           = 1,
+>                 .target_residency       = 1,
+> --- a/drivers/cpuidle/cpuidle-psci.c
+> +++ b/drivers/cpuidle/cpuidle-psci.c
+> @@ -357,7 +357,7 @@ static int psci_idle_init_cpu(struct dev
+>          * PSCI idle states relies on architectural WFI to be represented as
+>          * state index 0.
+>          */
+> -       drv->states[0].flags = CPUIDLE_FLAG_RCU_IDLE;
+> +       drv->states[0].flags = 0;
+>         drv->states[0].enter = psci_enter_idle_state;
+>         drv->states[0].exit_latency = 1;
+>         drv->states[0].target_residency = 1;
+> --- a/drivers/cpuidle/cpuidle-qcom-spm.c
+> +++ b/drivers/cpuidle/cpuidle-qcom-spm.c
+> @@ -72,7 +72,7 @@ static struct cpuidle_driver qcom_spm_id
+>         .owner = THIS_MODULE,
+>         .states[0] = {
+>                 .enter                  = spm_enter_idle_state,
+> -               .flags                  = CPUIDLE_FLAG_RCU_IDLE,
+> +               .flags                  = 0,
+>                 .exit_latency           = 1,
+>                 .target_residency       = 1,
+>                 .power_usage            = UINT_MAX,
+> --- a/drivers/cpuidle/cpuidle-riscv-sbi.c
+> +++ b/drivers/cpuidle/cpuidle-riscv-sbi.c
+> @@ -337,7 +337,7 @@ static int sbi_cpuidle_init_cpu(struct d
+>         drv->cpumask = (struct cpumask *)cpumask_of(cpu);
+>
+>         /* RISC-V architectural WFI to be represented as state index 0. */
+> -       drv->states[0].flags = CPUIDLE_FLAG_RCU_IDLE;
+> +       drv->states[0].flags = 0;
+>         drv->states[0].enter = sbi_cpuidle_enter_state;
+>         drv->states[0].exit_latency = 1;
+>         drv->states[0].target_residency = 1;
+> --- a/include/linux/cpuidle.h
+> +++ b/include/linux/cpuidle.h
+> @@ -282,9 +282,7 @@ extern s64 cpuidle_governor_latency_req(
+>         int __ret = 0;                                                  \
+>                                                                         \
+>         if (!idx) {                                                     \
+> -               ct_idle_enter();                                        \
+>                 cpu_do_idle();                                          \
+> -               ct_idle_exit();                                         \
+>                 return idx;                                             \
+>         }                                                               \
+>                                                                         \
+
+Kind regards
+Uffe
