@@ -2,38 +2,40 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DBEDC46467
-	for <openrisc@archiver.kernel.org>; Tue, 29 Nov 2022 11:09:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A51BBC46467
+	for <openrisc@archiver.kernel.org>; Tue, 29 Nov 2022 23:23:13 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 95FDB249F4;
-	Tue, 29 Nov 2022 12:09:32 +0100 (CET)
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
- by mail.librecores.org (Postfix) with ESMTPS id 0490C24A1C
- for <openrisc@lists.librecores.org>; Tue, 29 Nov 2022 12:09:31 +0100 (CET)
-Received: from canpemm500009.china.huawei.com (unknown [172.30.72.53])
- by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4NM02T6VXhzRpc6;
- Tue, 29 Nov 2022 19:08:49 +0800 (CST)
-Received: from [10.67.102.169] (10.67.102.169) by
- canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Tue, 29 Nov 2022 19:09:28 +0800
-Subject: Re: [PATCH v7 0/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-From: Yicong Yang <yangyicong@huawei.com>
-To: <akpm@linux-foundation.org>, <catalin.marinas@arm.com>, <will@kernel.org>
+	by mail.librecores.org (Postfix) with ESMTP id 51A8A2491F;
+	Wed, 30 Nov 2022 00:23:12 +0100 (CET)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+ by mail.librecores.org (Postfix) with ESMTPS id 63FD424B1F
+ for <openrisc@lists.librecores.org>; Wed, 30 Nov 2022 00:23:10 +0100 (CET)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id 17AB86193C;
+ Tue, 29 Nov 2022 23:23:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A426C433C1;
+ Tue, 29 Nov 2022 23:23:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+ s=korg; t=1669764188;
+ bh=0fdNX9QhucmvGYsJWGOg9jQeFn+znvsZsA3GeeD73CM=;
+ h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+ b=oBPkt6FJJWfvsgtGvs6SjxHs/2kYEDb40oxeDjWBuNGLbmZH0jVfpuraJ/TrV9+F4
+ hqoAFA2+L/RlQ1wICENr1s9GsmPkIDc9zBUGenqCJRgb4PHm3qYEnMhYXx+xLEakLb
+ I+GNCiUTX4XFglOckyjmCJUxKp2DIu33twwtFObY=
+Date: Tue, 29 Nov 2022 15:23:06 -0800
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Yicong Yang <yangyicong@huawei.com>
+Subject: Re: [PATCH v7 1/2] mm/tlbbatch: Introduce arch_tlbbatch_should_defer()
+Message-Id: <20221129152306.54b6d439e2a0ca7ece1d1afa@linux-foundation.org>
+In-Reply-To: <20221117082648.47526-2-yangyicong@huawei.com>
 References: <20221117082648.47526-1-yangyicong@huawei.com>
-Message-ID: <938c4c00-8cf9-b37a-d70e-04262d86f01c@huawei.com>
-Date: Tue, 29 Nov 2022 19:09:28 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.1
-MIME-Version: 1.0
-In-Reply-To: <20221117082648.47526-1-yangyicong@huawei.com>
-Content-Type: text/plain; charset="utf-8"
+ <20221117082648.47526-2-yangyicong@huawei.com>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.102.169]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- canpemm500009.china.huawei.com (7.192.105.203)
-X-CFilter-Loop: Reflected
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -46,116 +48,88 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: wangkefeng.wang@huawei.com, x86@kernel.org, darren@os.amperecomputing.com,
- linux-doc@vger.kernel.org, peterz@infradead.org, yangyicong@hisilicon.com,
- punit.agrawal@bytedance.com, guojian@oppo.com, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, zhangshiming@oppo.com, lipeifeng@oppo.com,
- corbet@lwn.net, realmz6@gmail.com, Barry Song <21cnbao@gmail.com>,
- linux-mips@vger.kernel.org, arnd@arndb.de, anshuman.khandual@arm.com,
- openrisc@lists.librecores.org, prime.zeng@hisilicon.com,
- linux-arm-kernel@lists.infradead.org, linux-mm@kvack.org,
- xhao@linux.alibaba.com, linux-kernel@vger.kernel.org, huzhanyuan@oppo.com,
- linuxppc-dev@lists.ozlabs.org
+Cc: wangkefeng.wang@huawei.com, prime.zeng@hisilicon.com, realmz6@gmail.com,
+ linux-doc@vger.kernel.org, peterz@infradead.org, catalin.marinas@arm.com,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org, punit.agrawal@bytedance.com,
+ linux-riscv@lists.infradead.org, will@kernel.org,
+ Anshuman Khandual <khandual@linux.vnet.ibm.com>, linux-s390@vger.kernel.org,
+ zhangshiming@oppo.com, lipeifeng@oppo.com, corbet@lwn.net, x86@kernel.org,
+ Barry Song <21cnbao@gmail.com>, arnd@arndb.de, anshuman.khandual@arm.com,
+ openrisc@lists.librecores.org, darren@os.amperecomputing.com,
+ yangyicong@hisilicon.com, linux-arm-kernel@lists.infradead.org,
+ Barry Song <baohua@kernel.org>, guojian@oppo.com, xhao@linux.alibaba.com,
+ linux-mips@vger.kernel.org, huzhanyuan@oppo.com, linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-a gentle ping...
+On Thu, 17 Nov 2022 16:26:47 +0800 Yicong Yang <yangyicong@huawei.com> wrote:
 
-Hi Andrew, Will and Catalin,
+> From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+> 
+> The entire scheme of deferred TLB flush in reclaim path rests on the
+> fact that the cost to refill TLB entries is less than flushing out
+> individual entries by sending IPI to remote CPUs. But architecture
+> can have different ways to evaluate that. Hence apart from checking
+> TTU_BATCH_FLUSH in the TTU flags, rest of the decision should be
+> architecture specific.
+> 
+> ...
+>
+> --- a/arch/x86/include/asm/tlbflush.h
+> +++ b/arch/x86/include/asm/tlbflush.h
+> @@ -240,6 +240,18 @@ static inline void flush_tlb_page(struct vm_area_struct *vma, unsigned long a)
+>  	flush_tlb_mm_range(vma->vm_mm, a, a + PAGE_SIZE, PAGE_SHIFT, false);
+>  }
+>  
+> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
+> +{
+> +	bool should_defer = false;
+> +
+> +	/* If remote CPUs need to be flushed then defer batch the flush */
+> +	if (cpumask_any_but(mm_cpumask(mm), get_cpu()) < nr_cpu_ids)
+> +		should_defer = true;
+> +	put_cpu();
+> +
+> +	return should_defer;
+> +}
+> +
+>  static inline u64 inc_mm_tlb_gen(struct mm_struct *mm)
+>  {
+>  	/*
+> diff --git a/mm/rmap.c b/mm/rmap.c
+> index 2ec925e5fa6a..a9ab10bc0144 100644
+> --- a/mm/rmap.c
+> +++ b/mm/rmap.c
+> @@ -685,17 +685,10 @@ static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
+>   */
+>  static bool should_defer_flush(struct mm_struct *mm, enum ttu_flags flags)
+>  {
+> -	bool should_defer = false;
+> -
+>  	if (!(flags & TTU_BATCH_FLUSH))
+>  		return false;
+>  
+> -	/* If remote CPUs need to be flushed then defer batch the flush */
+> -	if (cpumask_any_but(mm_cpumask(mm), get_cpu()) < nr_cpu_ids)
+> -		should_defer = true;
+> -	put_cpu();
+> -
+> -	return should_defer;
+> +	return arch_tlbbatch_should_defer(mm);
+>  }
 
-is it ok to pick this series?
+I think this conversion could have been done better.
 
-Thanks.
+should_defer_flush() is compiled if
+CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH.  So the patch implicitly
+assumes that only x86 implements
+CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH.  Presently true, but what
+happens if sparc (for example) wants to set
+CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH?  Now sparc needs its private
+version of arch_tlbbatch_should_defer(), even if that is identical to
+x86's.
 
-On 2022/11/17 16:26, Yicong Yang wrote:
-> From: Yicong Yang <yangyicong@hisilicon.com>
-> 
-> Though ARM64 has the hardware to do tlb shootdown, the hardware
-> broadcasting is not free.
-> A simplest micro benchmark shows even on snapdragon 888 with only
-> 8 cores, the overhead for ptep_clear_flush is huge even for paging
-> out one page mapped by only one process:
-> 5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
-> 
-> While pages are mapped by multiple processes or HW has more CPUs,
-> the cost should become even higher due to the bad scalability of
-> tlb shootdown.
-> 
-> The same benchmark can result in 16.99% CPU consumption on ARM64
-> server with around 100 cores according to Yicong's test on patch
-> 4/4.
-> 
-> This patchset leverages the existing BATCHED_UNMAP_TLB_FLUSH by
-> 1. only send tlbi instructions in the first stage -
-> 	arch_tlbbatch_add_mm()
-> 2. wait for the completion of tlbi by dsb while doing tlbbatch
-> 	sync in arch_tlbbatch_flush()
-> Testing on snapdragon shows the overhead of ptep_clear_flush
-> is removed by the patchset. The micro benchmark becomes 5% faster
-> even for one page mapped by single process on snapdragon 888.
-> 
-> With this support we're possible to do more optimization for memory
-> reclamation and migration[*].
-> 
-> [*] https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
-> 
-> -v7:
-> 1. rename arch_tlbbatch_add_mm() to arch_tlbbatch_add_pending() as suggested, since it
->    takes an extra address for arm64, per Nadav and Anshuman. Also mentioned in the commit.
-> 2. add tags from Xin Hao, thanks.
-> Link: https://lore.kernel.org/lkml/20221115031425.44640-1-yangyicong@huawei.com/
-> 
-> -v6:
-> 1. comment we don't defer TLB flush on platforms affected by ARM64_WORKAROUND_REPEAT_TLBI
-> 2. use cpus_have_const_cap() instead of this_cpu_has_cap()
-> 3. add tags from Punit, Thanks.
-> 4. default enable the feature when cpus >= 8 rather than > 8, since the original
->    improvement is observed on snapdragon 888 with 8 cores.
-> Link: https://lore.kernel.org/lkml/20221028081255.19157-1-yangyicong@huawei.com/
-> 
-> -v5:
-> 1. Make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends on EXPERT for this stage on arm64.
-> 2. Make a threshold of CPU numbers for enabling batched TLP flush on arm64
-> Link: https://lore.kernel.org/linux-arm-kernel/20220921084302.43631-1-yangyicong@huawei.com/T/
-> 
-> -v4:
-> 1. Add tags from Kefeng and Anshuman, Thanks.
-> 2. Limit the TLB batch/defer on systems with >4 CPUs, per Anshuman
-> 3. Merge previous Patch 1,2-3 into one, per Anshuman
-> Link: https://lore.kernel.org/linux-mm/20220822082120.8347-1-yangyicong@huawei.com/
-> 
-> -v3:
-> 1. Declare arch's tlbbatch defer support by arch_tlbbatch_should_defer() instead
->    of ARCH_HAS_MM_CPUMASK, per Barry and Kefeng
-> 2. Add Tested-by from Xin Hao
-> Link: https://lore.kernel.org/linux-mm/20220711034615.482895-1-21cnbao@gmail.com/
-> 
-> -v2:
-> 1. Collected Yicong's test result on kunpeng920 ARM64 server;
-> 2. Removed the redundant vma parameter in arch_tlbbatch_add_mm()
->    according to the comments of Peter Zijlstra and Dave Hansen
-> 3. Added ARCH_HAS_MM_CPUMASK rather than checking if mm_cpumask
->    is empty according to the comments of Nadav Amit
-> 
-> Thanks, Peter, Dave and Nadav for your testing or reviewing
-> , and comments.
-> 
-> -v1:
-> https://lore.kernel.org/lkml/20220707125242.425242-1-21cnbao@gmail.com/
-> 
-> Anshuman Khandual (1):
->   mm/tlbbatch: Introduce arch_tlbbatch_should_defer()
-> 
-> Barry Song (1):
->   arm64: support batched/deferred tlb shootdown during page reclamation
-> 
->  .../features/vm/TLB/arch-support.txt          |  2 +-
->  arch/arm64/Kconfig                            |  6 +++
->  arch/arm64/include/asm/tlbbatch.h             | 12 +++++
->  arch/arm64/include/asm/tlbflush.h             | 52 ++++++++++++++++++-
->  arch/x86/include/asm/tlbflush.h               | 17 +++++-
->  include/linux/mm_types_task.h                 |  4 +-
->  mm/rmap.c                                     | 19 +++----
->  7 files changed, 93 insertions(+), 19 deletions(-)
->  create mode 100644 arch/arm64/include/asm/tlbbatch.h
-> 
+Wouldn't it be better to make arch_tlbbatch_should_defer() a __weak
+function in rmap.c, or a static inline inside #ifndef
+ARCH_HAS_ARCH_TLBBATCH_SHOULD_DEFER, or whatever technique best fits?
+
