@@ -2,41 +2,38 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98F7DC433FE
-	for <openrisc@archiver.kernel.org>; Thu, 24 Nov 2022 20:31:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DBEDC46467
+	for <openrisc@archiver.kernel.org>; Tue, 29 Nov 2022 11:09:33 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 4077424A9C;
-	Thu, 24 Nov 2022 21:31:06 +0100 (CET)
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by mail.librecores.org (Postfix) with ESMTPS id 1C4FD24A91
- for <openrisc@lists.librecores.org>; Thu, 24 Nov 2022 21:31:04 +0100 (CET)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id 40E4DB828DB;
- Thu, 24 Nov 2022 20:31:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BB9BC433D6;
- Thu, 24 Nov 2022 20:30:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1669321862;
- bh=VYogHO/QzC0Ie7JtQNRyLU+4odaED0lO+ZqrQ2anQ4g=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=B4JIUPPb4GNyqmaugd+1VesUVg/rY2YBuh9jPZSEa9LfSEQzH3zDygt0HPqdzet2M
- Dp4c/55O2yCFMpzlwelwJsAnq/cWVHvGVHOAbVO908xeu84LN7567KgsRaE4IVVlI4
- irQCMsnXsSJ21jNJaw6RWjzOUpRxJ6RKhWjRfpd9wRYv71gwQVQAvT0UvpbAXv+eDr
- jBzcX+3BhUu0qt/DvQCSNER8QfDrEQGt+TJ9slcZjWNwkaVshc7is4iQ3Zq0vSzdZc
- hcrepLOFcnDEx3g9ybGBdkV9QmYuTZxJxy7F+stexs8bO96+DDGYQXJXkj+qDrkXGn
- djLsL9V97W7iw==
-Date: Thu, 24 Nov 2022 22:30:41 +0200
-From: Mike Rapoport <rppt@kernel.org>
-To: Vlastimil Babka <vbabka@suse.cz>
-Subject: Re: [PATCH 00/12] Introduce CONFIG_SLUB_TINY and deprecate SLOB
-Message-ID: <Y3/UccT+hJ/6/v4c@kernel.org>
-References: <20221121171202.22080-1-vbabka@suse.cz>
+	by mail.librecores.org (Postfix) with ESMTP id 95FDB249F4;
+	Tue, 29 Nov 2022 12:09:32 +0100 (CET)
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+ by mail.librecores.org (Postfix) with ESMTPS id 0490C24A1C
+ for <openrisc@lists.librecores.org>; Tue, 29 Nov 2022 12:09:31 +0100 (CET)
+Received: from canpemm500009.china.huawei.com (unknown [172.30.72.53])
+ by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4NM02T6VXhzRpc6;
+ Tue, 29 Nov 2022 19:08:49 +0800 (CST)
+Received: from [10.67.102.169] (10.67.102.169) by
+ canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Tue, 29 Nov 2022 19:09:28 +0800
+Subject: Re: [PATCH v7 0/2] arm64: support batched/deferred tlb shootdown
+ during page reclamation
+From: Yicong Yang <yangyicong@huawei.com>
+To: <akpm@linux-foundation.org>, <catalin.marinas@arm.com>, <will@kernel.org>
+References: <20221117082648.47526-1-yangyicong@huawei.com>
+Message-ID: <938c4c00-8cf9-b37a-d70e-04262d86f01c@huawei.com>
+Date: Tue, 29 Nov 2022 19:09:28 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221121171202.22080-1-vbabka@suse.cz>
+In-Reply-To: <20221117082648.47526-1-yangyicong@huawei.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.102.169]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ canpemm500009.china.huawei.com (7.192.105.203)
+X-CFilter-Loop: Reflected
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -49,94 +46,116 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
- Tony Lindgren <tony@atomide.com>, Roman Gushchin <roman.gushchin@linux.dev>,
- linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- Hyeonggon Yoo <42.hyeyoo@gmail.com>, Christoph Lameter <cl@linux.com>,
- linux-riscv@lists.infradead.org, Jonas Bonn <jonas@southpole.se>,
- Yoshinori Sato <ysato@users.sourceforge.jp>,
- Aaro Koskinen <aaro.koskinen@iki.fi>,
- Damien Le Moal <damien.lemoal@opensource.wdc.com>,
- Janusz Krzysztofik <jmkrzyszt@gmail.com>, Russell King <linux@armlinux.org.uk>,
- Matthew Wilcox <willy@infradead.org>, David Rientjes <rientjes@google.com>,
- Kees Cook <keescook@chromium.org>, Arnd Bergmann <arnd@arndb.de>,
- Josh Triplett <josh@joshtriplett.org>, openrisc@lists.librecores.org,
- linux-omap@vger.kernel.org, Joonsoo Kim <iamjoonsoo.kim@lge.com>,
- linux-arm-kernel@lists.infradead.org, patches@lists.linux.dev,
- Conor Dooley <conor@kernel.org>, Pekka Enberg <penberg@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- Linus Torvalds <torvalds@linux-foundation.org>
+Cc: wangkefeng.wang@huawei.com, x86@kernel.org, darren@os.amperecomputing.com,
+ linux-doc@vger.kernel.org, peterz@infradead.org, yangyicong@hisilicon.com,
+ punit.agrawal@bytedance.com, guojian@oppo.com, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, zhangshiming@oppo.com, lipeifeng@oppo.com,
+ corbet@lwn.net, realmz6@gmail.com, Barry Song <21cnbao@gmail.com>,
+ linux-mips@vger.kernel.org, arnd@arndb.de, anshuman.khandual@arm.com,
+ openrisc@lists.librecores.org, prime.zeng@hisilicon.com,
+ linux-arm-kernel@lists.infradead.org, linux-mm@kvack.org,
+ xhao@linux.alibaba.com, linux-kernel@vger.kernel.org, huzhanyuan@oppo.com,
+ linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Mon, Nov 21, 2022 at 06:11:50PM +0100, Vlastimil Babka wrote:
-> Hi,
-> 
-> this continues the discussion from [1]. Reasons to remove SLOB are
-> outlined there and no-one has objected so far. The last patch of this
-> series therefore deprecates CONFIG_SLOB and updates all the defconfigs
-> using CONFIG_SLOB=y in the tree.
-> 
-> There is a k210 board with 8MB RAM where switching to SLUB caused issues
-> [2] and the lkp bot wasn't also happy about code bloat [3]. To address
-> both, this series introduces CONFIG_SLUB_TINY to perform some rather
-> low-hanging fruit modifications to SLUB to reduce its memory overhead.
-> This seems to have been successful at least in the k210 case [4]. I
-> consider this as an acceptable tradeoff for getting rid of SLOB.
-> 
-> The series is also available in git:
-> https://git.kernel.org/pub/scm/linux/kernel/git/vbabka/linux.git/log/?h=slub-tiny-v1r2
-> 
-> [1] https://lore.kernel.org/all/b35c3f82-f67b-2103-7d82-7a7ba7521439@suse.cz/
-> [2] https://lore.kernel.org/all/a5bba3ca-da19-293c-c01b-a28291533466@opensource.wdc.com/
-> [3] https://lore.kernel.org/all/Y25E9cJbhDAKi1vd@99bb1221be19/
-> [4] https://lore.kernel.org/all/6a1883c4-4c3f-545a-90e8-2cd805bcf4ae@opensource.wdc.com/
-> 
-> Vlastimil Babka (12):
->   mm, slab: ignore hardened usercopy parameters when disabled
->   mm, slub: add CONFIG_SLUB_TINY
->   mm, slub: disable SYSFS support with CONFIG_SLUB_TINY
->   mm, slub: retain no free slabs on partial list with CONFIG_SLUB_TINY
->   mm, slub: lower the default slub_max_order with CONFIG_SLUB_TINY
->   mm, slub: don't create kmalloc-rcl caches with CONFIG_SLUB_TINY
->   mm, slab: ignore SLAB_RECLAIM_ACCOUNT with CONFIG_SLUB_TINY
->   mm, slub: refactor free debug processing
->   mm, slub: split out allocations from pre/post hooks
->   mm, slub: remove percpu slabs with CONFIG_SLUB_TINY
->   mm, slub: don't aggressively inline with CONFIG_SLUB_TINY
->   mm, slob: rename CONFIG_SLOB to CONFIG_SLOB_DEPRECATED
-> 
->  arch/arm/configs/clps711x_defconfig           |   3 +-
->  arch/arm/configs/collie_defconfig             |   3 +-
->  arch/arm/configs/multi_v4t_defconfig          |   3 +-
->  arch/arm/configs/omap1_defconfig              |   3 +-
->  arch/arm/configs/pxa_defconfig                |   3 +-
->  arch/arm/configs/tct_hammer_defconfig         |   3 +-
->  arch/arm/configs/xcep_defconfig               |   3 +-
->  arch/openrisc/configs/or1ksim_defconfig       |   3 +-
->  arch/openrisc/configs/simple_smp_defconfig    |   3 +-
->  arch/riscv/configs/nommu_k210_defconfig       |   3 +-
->  .../riscv/configs/nommu_k210_sdcard_defconfig |   3 +-
->  arch/riscv/configs/nommu_virt_defconfig       |   3 +-
->  arch/sh/configs/rsk7201_defconfig             |   3 +-
->  arch/sh/configs/rsk7203_defconfig             |   3 +-
->  arch/sh/configs/se7206_defconfig              |   3 +-
->  arch/sh/configs/shmin_defconfig               |   3 +-
->  arch/sh/configs/shx3_defconfig                |   3 +-
->  include/linux/slab.h                          |   8 +
->  include/linux/slub_def.h                      |   6 +-
->  kernel/configs/tiny.config                    |   5 +-
->  mm/Kconfig                                    |  38 +-
->  mm/Kconfig.debug                              |   2 +-
->  mm/slab_common.c                              |  16 +-
->  mm/slub.c                                     | 415 ++++++++++++------
->  24 files changed, 377 insertions(+), 164 deletions(-)
+a gentle ping...
 
-For the series
+Hi Andrew, Will and Catalin,
 
-Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+is it ok to pick this series?
 
--- 
-Sincerely yours,
-Mike.
+Thanks.
+
+On 2022/11/17 16:26, Yicong Yang wrote:
+> From: Yicong Yang <yangyicong@hisilicon.com>
+> 
+> Though ARM64 has the hardware to do tlb shootdown, the hardware
+> broadcasting is not free.
+> A simplest micro benchmark shows even on snapdragon 888 with only
+> 8 cores, the overhead for ptep_clear_flush is huge even for paging
+> out one page mapped by only one process:
+> 5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
+> 
+> While pages are mapped by multiple processes or HW has more CPUs,
+> the cost should become even higher due to the bad scalability of
+> tlb shootdown.
+> 
+> The same benchmark can result in 16.99% CPU consumption on ARM64
+> server with around 100 cores according to Yicong's test on patch
+> 4/4.
+> 
+> This patchset leverages the existing BATCHED_UNMAP_TLB_FLUSH by
+> 1. only send tlbi instructions in the first stage -
+> 	arch_tlbbatch_add_mm()
+> 2. wait for the completion of tlbi by dsb while doing tlbbatch
+> 	sync in arch_tlbbatch_flush()
+> Testing on snapdragon shows the overhead of ptep_clear_flush
+> is removed by the patchset. The micro benchmark becomes 5% faster
+> even for one page mapped by single process on snapdragon 888.
+> 
+> With this support we're possible to do more optimization for memory
+> reclamation and migration[*].
+> 
+> [*] https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
+> 
+> -v7:
+> 1. rename arch_tlbbatch_add_mm() to arch_tlbbatch_add_pending() as suggested, since it
+>    takes an extra address for arm64, per Nadav and Anshuman. Also mentioned in the commit.
+> 2. add tags from Xin Hao, thanks.
+> Link: https://lore.kernel.org/lkml/20221115031425.44640-1-yangyicong@huawei.com/
+> 
+> -v6:
+> 1. comment we don't defer TLB flush on platforms affected by ARM64_WORKAROUND_REPEAT_TLBI
+> 2. use cpus_have_const_cap() instead of this_cpu_has_cap()
+> 3. add tags from Punit, Thanks.
+> 4. default enable the feature when cpus >= 8 rather than > 8, since the original
+>    improvement is observed on snapdragon 888 with 8 cores.
+> Link: https://lore.kernel.org/lkml/20221028081255.19157-1-yangyicong@huawei.com/
+> 
+> -v5:
+> 1. Make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends on EXPERT for this stage on arm64.
+> 2. Make a threshold of CPU numbers for enabling batched TLP flush on arm64
+> Link: https://lore.kernel.org/linux-arm-kernel/20220921084302.43631-1-yangyicong@huawei.com/T/
+> 
+> -v4:
+> 1. Add tags from Kefeng and Anshuman, Thanks.
+> 2. Limit the TLB batch/defer on systems with >4 CPUs, per Anshuman
+> 3. Merge previous Patch 1,2-3 into one, per Anshuman
+> Link: https://lore.kernel.org/linux-mm/20220822082120.8347-1-yangyicong@huawei.com/
+> 
+> -v3:
+> 1. Declare arch's tlbbatch defer support by arch_tlbbatch_should_defer() instead
+>    of ARCH_HAS_MM_CPUMASK, per Barry and Kefeng
+> 2. Add Tested-by from Xin Hao
+> Link: https://lore.kernel.org/linux-mm/20220711034615.482895-1-21cnbao@gmail.com/
+> 
+> -v2:
+> 1. Collected Yicong's test result on kunpeng920 ARM64 server;
+> 2. Removed the redundant vma parameter in arch_tlbbatch_add_mm()
+>    according to the comments of Peter Zijlstra and Dave Hansen
+> 3. Added ARCH_HAS_MM_CPUMASK rather than checking if mm_cpumask
+>    is empty according to the comments of Nadav Amit
+> 
+> Thanks, Peter, Dave and Nadav for your testing or reviewing
+> , and comments.
+> 
+> -v1:
+> https://lore.kernel.org/lkml/20220707125242.425242-1-21cnbao@gmail.com/
+> 
+> Anshuman Khandual (1):
+>   mm/tlbbatch: Introduce arch_tlbbatch_should_defer()
+> 
+> Barry Song (1):
+>   arm64: support batched/deferred tlb shootdown during page reclamation
+> 
+>  .../features/vm/TLB/arch-support.txt          |  2 +-
+>  arch/arm64/Kconfig                            |  6 +++
+>  arch/arm64/include/asm/tlbbatch.h             | 12 +++++
+>  arch/arm64/include/asm/tlbflush.h             | 52 ++++++++++++++++++-
+>  arch/x86/include/asm/tlbflush.h               | 17 +++++-
+>  include/linux/mm_types_task.h                 |  4 +-
+>  mm/rmap.c                                     | 19 +++----
+>  7 files changed, 93 insertions(+), 19 deletions(-)
+>  create mode 100644 arch/arm64/include/asm/tlbbatch.h
+> 
