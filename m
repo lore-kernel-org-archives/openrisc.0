@@ -2,37 +2,54 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C29CC4167B
-	for <openrisc@archiver.kernel.org>; Wed, 30 Nov 2022 02:57:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6FDDC4321E
+	for <openrisc@archiver.kernel.org>; Fri,  2 Dec 2022 15:58:56 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 229E324B44;
-	Wed, 30 Nov 2022 03:57:54 +0100 (CET)
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by mail.librecores.org (Postfix) with ESMTP id 556EF24B55
- for <openrisc@lists.librecores.org>; Wed, 30 Nov 2022 03:57:53 +0100 (CET)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 04F80D6E;
- Tue, 29 Nov 2022 18:57:59 -0800 (PST)
-Received: from [10.162.43.8] (unknown [10.162.43.8])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4F4943F67D;
- Tue, 29 Nov 2022 18:57:43 -0800 (PST)
-Message-ID: <dd01a9d2-4b9b-8edc-1195-40a3624f9a8a@arm.com>
-Date: Wed, 30 Nov 2022 08:27:40 +0530
+	by mail.librecores.org (Postfix) with ESMTP id 55131248E6;
+	Fri,  2 Dec 2022 16:58:55 +0100 (CET)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by mail.librecores.org (Postfix) with ESMTP id AC86124A91
+ for <openrisc@lists.librecores.org>; Fri,  2 Dec 2022 16:58:54 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1669996733;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=B+hXh5P61A2DdBxK6OLw+4jPvT0r9cthvTrIhcW2QOA=;
+ b=V5EvK5la88P0Vw5L9npruJd3zjFlCQYiESb38SrZ/Fl4Eq+ORERbxxQ0Z7JFFZapejU49M
+ Wtbr2THtrH8iXGA9BmLddTIDGM0M3Ak28xYAY2t+3SV8X85Mudy9hxt8H9XB0wOb96TkBm
+ sDO61h1w2euzOQV70lpGLMyL11mfDmU=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-411-aad4T597M-uqDalSOOGakQ-1; Fri, 02 Dec 2022 10:58:50 -0500
+X-MC-Unique: aad4T597M-uqDalSOOGakQ-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.4])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 471C8800B23;
+ Fri,  2 Dec 2022 15:58:48 +0000 (UTC)
+Received: from vschneid.remote.csb (unknown [10.33.36.77])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 437932028CE4;
+ Fri,  2 Dec 2022 15:58:42 +0000 (UTC)
+From: Valentin Schneider <vschneid@redhat.com>
+To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
+ linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ linux-ia64@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+ linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-xtensa@linux-xtensa.org, x86@kernel.org
+Subject: [PATCH v3 0/8] Generic IPI sending tracepoint
+Date: Fri,  2 Dec 2022 15:58:09 +0000
+Message-Id: <20221202155817.2102944-1-vschneid@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.2
-Subject: Re: [PATCH v7 1/2] mm/tlbbatch: Introduce arch_tlbbatch_should_defer()
-Content-Language: en-US
-To: Yicong Yang <yangyicong@huawei.com>,
- Andrew Morton <akpm@linux-foundation.org>
-References: <20221117082648.47526-1-yangyicong@huawei.com>
- <20221117082648.47526-2-yangyicong@huawei.com>
- <20221129152306.54b6d439e2a0ca7ece1d1afa@linux-foundation.org>
- <9999b87d-5f7e-275b-d99f-b51ef19361eb@huawei.com>
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-In-Reply-To: <9999b87d-5f7e-275b-d99f-b51ef19361eb@huawei.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -45,111 +62,192 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: wangkefeng.wang@huawei.com, prime.zeng@hisilicon.com, guojian@oppo.com,
- linux-doc@vger.kernel.org, peterz@infradead.org, catalin.marinas@arm.com,
- linux-kernel@vger.kernel.org, linux-mm@kvack.org, punit.agrawal@bytedance.com,
- linux-riscv@lists.infradead.org, will@kernel.org,
- Anshuman Khandual <khandual@linux.vnet.ibm.com>, linux-s390@vger.kernel.org,
- zhangshiming@oppo.com, lipeifeng@oppo.com, corbet@lwn.net, x86@kernel.org,
- Barry Song <21cnbao@gmail.com>, arnd@arndb.de, realmz6@gmail.com,
- openrisc@lists.librecores.org, darren@os.amperecomputing.com,
- yangyicong@hisilicon.com, linux-arm-kernel@lists.infradead.org,
- Barry Song <baohua@kernel.org>, xhao@linux.alibaba.com,
- linux-mips@vger.kernel.org, huzhanyuan@oppo.com, linuxppc-dev@lists.ozlabs.org
+Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ "Paul E. McKenney" <paulmck@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Marc Zyngier <maz@kernel.org>,
+ Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+ Marcelo Tosatti <mtosatti@redhat.com>, Russell King <linux@armlinux.org.uk>,
+ Steven Rostedt <rostedt@goodmis.org>, "David S. Miller" <davem@davemloft.net>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Nicholas Piggin <npiggin@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ Guo Ren <guoren@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
+ Daniel Bristot de Oliveira <bristot@redhat.com>,
+ Frederic Weisbecker <frederic@kernel.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
+Background
+==========
 
+Detecting IPI *reception* is relatively easy, e.g. using
+trace_irq_handler_{entry,exit} or even just function-trace
+flush_smp_call_function_queue() for SMP calls.  
 
-On 11/30/22 07:53, Yicong Yang wrote:
-> On 2022/11/30 7:23, Andrew Morton wrote:
->> On Thu, 17 Nov 2022 16:26:47 +0800 Yicong Yang <yangyicong@huawei.com> wrote:
->>
->>> From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
->>>
->>> The entire scheme of deferred TLB flush in reclaim path rests on the
->>> fact that the cost to refill TLB entries is less than flushing out
->>> individual entries by sending IPI to remote CPUs. But architecture
->>> can have different ways to evaluate that. Hence apart from checking
->>> TTU_BATCH_FLUSH in the TTU flags, rest of the decision should be
->>> architecture specific.
->>>
->>> ...
->>>
->>> --- a/arch/x86/include/asm/tlbflush.h
->>> +++ b/arch/x86/include/asm/tlbflush.h
->>> @@ -240,6 +240,18 @@ static inline void flush_tlb_page(struct vm_area_struct *vma, unsigned long a)
->>>  	flush_tlb_mm_range(vma->vm_mm, a, a + PAGE_SIZE, PAGE_SHIFT, false);
->>>  }
->>>  
->>> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
->>> +{
->>> +	bool should_defer = false;
->>> +
->>> +	/* If remote CPUs need to be flushed then defer batch the flush */
->>> +	if (cpumask_any_but(mm_cpumask(mm), get_cpu()) < nr_cpu_ids)
->>> +		should_defer = true;
->>> +	put_cpu();
->>> +
->>> +	return should_defer;
->>> +}
->>> +
->>>  static inline u64 inc_mm_tlb_gen(struct mm_struct *mm)
->>>  {
->>>  	/*
->>> diff --git a/mm/rmap.c b/mm/rmap.c
->>> index 2ec925e5fa6a..a9ab10bc0144 100644
->>> --- a/mm/rmap.c
->>> +++ b/mm/rmap.c
->>> @@ -685,17 +685,10 @@ static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
->>>   */
->>>  static bool should_defer_flush(struct mm_struct *mm, enum ttu_flags flags)
->>>  {
->>> -	bool should_defer = false;
->>> -
->>>  	if (!(flags & TTU_BATCH_FLUSH))
->>>  		return false;
->>>  
->>> -	/* If remote CPUs need to be flushed then defer batch the flush */
->>> -	if (cpumask_any_but(mm_cpumask(mm), get_cpu()) < nr_cpu_ids)
->>> -		should_defer = true;
->>> -	put_cpu();
->>> -
->>> -	return should_defer;
->>> +	return arch_tlbbatch_should_defer(mm);
->>>  }
->>
->> I think this conversion could have been done better.
->>
->> should_defer_flush() is compiled if
->> CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH.  So the patch implicitly
->> assumes that only x86 implements
->> CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH.  Presently true, but what
->> happens if sparc (for example) wants to set
->> CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH?  Now sparc needs its private
->> version of arch_tlbbatch_should_defer(), even if that is identical to
->> x86's.
->>
-> 
-> The current logic is if architecture want to enable batched TLB flush, they
-> need to implement their own version of arch_tlbbatch_should_defer() (for the
-> hint to defer the TLB flush) and arch_tlbbatch_add_mm() (for pending TLB flush)
-> and select ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH. That's what we do in Patch 2/2 for
-> enabling this on arm64.
-> 
-> Since it is architecture specific, we must rely on the architecture to implement
-> these two functions. Only select the ARCH_HAS_ARCH_TLBBATCH_SHOULD_DEFER is not
-> enough.
-> 
->> Wouldn't it be better to make should_defer_flush() a __weak
->> function in rmap.c, or a static inline inside #ifndef
->> ARCH_HAS_ARCH_TLBBATCH_SHOULD_DEFER, or whatever technique best fits?
->>
-> 
-> When ARCH_HAS_ARCH_TLBBATCH_SHOULD_DEFER is not selected, should_defer_flush()
-> is implemented to only return false. I think this match what you want already.
+Figuring out their *origin*, is trickier as there is no generic tracepoint tied
+to e.g. smp_call_function():
 
-Right, platform needs to provide both the helpers arch_tlbbatch_should_defer() and
-arch_tlbbatch_add_mm() before ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH can be selected.
-Otherwise there is a fallback should_defer_flush() definition which always return
-negative when ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH is not selected.
+o AFAIA x86 has no tracepoint tied to sending IPIs, only receiving them
+  (cf. trace_call_function{_single}_entry()).
+o arm/arm64 do have trace_ipi_raise(), which gives us the target cpus but also a
+  mostly useless string (smp_calls will all be "Function call interrupts").
+o Other architectures don't seem to have any IPI-sending related tracepoint.  
+
+I believe one reason those tracepoints used by arm/arm64 ended up as they were
+is because these archs used to handle IPIs differently from regular interrupts
+(the IRQ driver would directly invoke an IPI-handling routine), which meant they 
+never showed up in trace_irq_handler_{entry, exit}. The trace_ipi_{entry,exit}
+tracepoints gave a way to trace IPI reception but those have become redundant as
+of: 
+
+      56afcd3dbd19 ("ARM: Allow IPIs to be handled as normal interrupts")
+      d3afc7f12987 ("arm64: Allow IPIs to be handled as normal interrupts")
+
+which gave IPIs a "proper" handler function used through
+generic_handle_domain_irq(), which makes them show up via
+trace_irq_handler_{entry, exit}.
+
+Changing stuff up
+=================
+
+Per the above, it would make sense to reshuffle trace_ipi_raise() and move it
+into generic code. This also came up during Daniel's talk on Osnoise at the CPU
+isolation MC of LPC 2022 [1]. 
+
+Now, to be useful, such a tracepoint needs to export:
+o targeted CPU(s)
+o calling context
+
+The only way to get the calling context with trace_ipi_raise() is to trigger a
+stack dump, e.g. $(trace-cmd -e ipi* -T echo 42).
+
+This is instead introducing a new tracepoint which exports the relevant context
+(callsite, and requested callback for when the callsite isn't helpful), and is
+usable by all architectures as it sits in generic code. 
+
+Another thing worth mentioning is that depending on the callsite, the _RET_IP_
+fed to the tracepoint is not always useful - generic_exec_single() doesn't tell
+you much about the actual callback being sent via IPI, which is why the new
+tracepoint also has a @callback argument.
+
+Patches
+=======
+
+o Patch 1 is included for convenience and will be merged independently. FYI I
+  have libtraceevent patches [2] to improve the 
+  pretty-printing of cpumasks using the new type, which look like:
+  <...>-3322  [021]   560.402583: ipi_send_cpumask:     cpumask=14,17,21 callsite=on_each_cpu_cond_mask+0x40 callback=flush_tlb_func+0x0
+  <...>-187   [010]   562.590584: ipi_send_cpumask:     cpumask=0-23 callsite=on_each_cpu_cond_mask+0x40 callback=do_sync_core+0x0
+
+o Patches 2-6 spread out the tracepoint across relevant sites.
+  Patch 6 ends up sprinkling lots of #include <trace/events/ipi.h> which I'm not
+  the biggest fan of, but is the least horrible solution I've been able to come
+  up with so far.
+  
+o Patch 8 is trying to be smart about tracing the callback associated with the
+  IPI.
+
+This results in having IPI trace events for:
+
+o smp_call_function*()
+o smp_send_reschedule()
+o irq_work_queue*()
+o standalone uses of __smp_call_single_queue()
+
+This is incomplete, just looking at arm64 there's more IPI types that aren't
+covered: 
+
+  IPI_CPU_STOP,
+  IPI_CPU_CRASH_STOP,
+  IPI_TIMER,
+  IPI_WAKEUP,
+
+... But it feels like a good starting point.
+
+Links
+=====
+
+[1]: https://youtu.be/5gT57y4OzBM?t=14234
+[2]: https://lore.kernel.org/all/20221116144154.3662923-1-vschneid@redhat.com/
+
+Revisions
+=========
+
+v2 -> v3
+++++++++
+
+o Dropped the generic export of smp_send_reschedule(), turned it into a macro
+  and a bunch of imports
+o Dropped the send_call_function_single_ipi() macro madness, split it into sched
+  and smp bits using some of Peter's suggestions
+
+v1 -> v2
+++++++++
+
+o Ditched single-CPU tracepoint
+o Changed tracepoint signature to include callback
+o Changed tracepoint callsite field to void *; the parameter is still UL to save
+  up on casts due to using _RET_IP_.
+o Fixed linking failures due to not exporting smp_send_reschedule()
+
+Steven Rostedt (Google) (1):
+  tracing: Add __cpumask to denote a trace event field that is a
+    cpumask_t
+
+Valentin Schneider (7):
+  trace: Add trace_ipi_send_cpumask()
+  sched, smp: Trace IPIs sent via send_call_function_single_ipi()
+  smp: Trace IPIs sent via arch_send_call_function_ipi_mask()
+  irq_work: Trace self-IPIs sent via arch_irq_work_raise()
+  treewide: Trace IPIs sent via smp_send_reschedule()
+  smp: reword smp call IPI comment
+  sched, smp: Trace smp callback causing an IPI
+
+ arch/alpha/kernel/smp.c                      |  2 +-
+ arch/arc/kernel/smp.c                        |  2 +-
+ arch/arm/kernel/smp.c                        |  5 +-
+ arch/arm/mach-actions/platsmp.c              |  2 +
+ arch/arm64/kernel/smp.c                      |  3 +-
+ arch/csky/kernel/smp.c                       |  2 +-
+ arch/hexagon/kernel/smp.c                    |  2 +-
+ arch/ia64/kernel/smp.c                       |  4 +-
+ arch/loongarch/include/asm/smp.h             |  2 +-
+ arch/mips/include/asm/smp.h                  |  2 +-
+ arch/mips/kernel/rtlx-cmp.c                  |  2 +
+ arch/openrisc/kernel/smp.c                   |  2 +-
+ arch/parisc/kernel/smp.c                     |  4 +-
+ arch/powerpc/kernel/smp.c                    |  6 +-
+ arch/powerpc/kvm/book3s_hv.c                 |  3 +
+ arch/powerpc/platforms/powernv/subcore.c     |  2 +
+ arch/riscv/kernel/smp.c                      |  4 +-
+ arch/s390/kernel/smp.c                       |  2 +-
+ arch/sh/kernel/smp.c                         |  2 +-
+ arch/sparc/kernel/smp_32.c                   |  2 +-
+ arch/sparc/kernel/smp_64.c                   |  2 +-
+ arch/x86/include/asm/smp.h                   |  2 +-
+ arch/x86/kvm/svm/svm.c                       |  4 +
+ arch/x86/kvm/x86.c                           |  2 +
+ arch/xtensa/kernel/smp.c                     |  2 +-
+ include/linux/smp.h                          |  8 +-
+ include/trace/bpf_probe.h                    |  6 ++
+ include/trace/events/ipi.h                   | 22 ++++++
+ include/trace/perf.h                         |  6 ++
+ include/trace/stages/stage1_struct_define.h  |  6 ++
+ include/trace/stages/stage2_data_offsets.h   |  6 ++
+ include/trace/stages/stage3_trace_output.h   |  6 ++
+ include/trace/stages/stage4_event_fields.h   |  6 ++
+ include/trace/stages/stage5_get_offsets.h    |  6 ++
+ include/trace/stages/stage6_event_callback.h | 20 +++++
+ include/trace/stages/stage7_class_define.h   |  2 +
+ kernel/irq_work.c                            | 14 +++-
+ kernel/sched/core.c                          | 19 +++--
+ kernel/sched/smp.h                           |  2 +-
+ kernel/smp.c                                 | 78 ++++++++++++++++----
+ samples/trace_events/trace-events-sample.c   |  2 +-
+ samples/trace_events/trace-events-sample.h   | 34 +++++++--
+ virt/kvm/kvm_main.c                          |  1 +
+ 43 files changed, 250 insertions(+), 61 deletions(-)
+
+--
+2.31.1
+
