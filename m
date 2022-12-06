@@ -2,45 +2,45 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C017CC352A1
-	for <openrisc@archiver.kernel.org>; Tue,  6 Dec 2022 14:48:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 053F2C352A1
+	for <openrisc@archiver.kernel.org>; Tue,  6 Dec 2022 14:48:34 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id D189724B8C;
-	Tue,  6 Dec 2022 15:48:15 +0100 (CET)
+	by mail.librecores.org (Postfix) with ESMTP id 10688248FB;
+	Tue,  6 Dec 2022 15:48:34 +0100 (CET)
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by mail.librecores.org (Postfix) with ESMTP id DD20324B86
- for <openrisc@lists.librecores.org>; Tue,  6 Dec 2022 15:48:14 +0100 (CET)
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by mail.librecores.org (Postfix) with ESMTP id 7224C24B85
+ for <openrisc@lists.librecores.org>; Tue,  6 Dec 2022 15:48:32 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1670338093;
+ s=mimecast20190719; t=1670338111;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=JBNIGuT912oU9TwfpgZYupWQSbPpBbUlZPF7ZwOTGnM=;
- b=GwLGQPymjNqCUI5XANjQhmtypjwUXihuf7EB/tTDamFQSHmqSqGjK05H0RKIhvrhSU3q1N
- 0/aAxUD+N0TyohOHwV/kcnf5bCgfa0VvbiHgv35tZyH+3oE4xoeEym1l8A+bLXjgXN8cSo
- tggPqQwiuwbhG2covs0KJNoNxTWVmcQ=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=zuOxPbGlhif4GnxsJcPIMTzkLFnTwbdex8tx3HF/6jU=;
+ b=H6lJdV04qmuztBzqqaT8oDWjxdx9QaTGpMNaA/zP7KIdCTz6HOnitlzgei5DyQK3pD8UpJ
+ idqpmkDBOMkFvfs8RsHyce3LRmX71o4ubes2JLO3Di6aUusA+wCaYq6RgNcyEdGWrzWBwX
+ uhnDsAqGyNH51gaeXZNMfgrQU8eqYso=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-583-gIoZIcZUN1WLrQ1bmp6zdQ-1; Tue, 06 Dec 2022 09:48:08 -0500
-X-MC-Unique: gIoZIcZUN1WLrQ1bmp6zdQ-1
+ us-mta-392-YqB8KViVOL-1fgDjirYUAw-1; Tue, 06 Dec 2022 09:48:25 -0500
+X-MC-Unique: YqB8KViVOL-1fgDjirYUAw-1
 Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com
  [10.11.54.10])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 940CC38164DA;
- Tue,  6 Dec 2022 14:48:06 +0000 (UTC)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id CCB918582B9;
+ Tue,  6 Dec 2022 14:48:23 +0000 (UTC)
 Received: from t480s.redhat.com (unknown [10.39.193.173])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 7633B492B04;
- Tue,  6 Dec 2022 14:48:00 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id F0310492B04;
+ Tue,  6 Dec 2022 14:48:06 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH mm-unstable RFC 02/26] alpha/mm: support
+Subject: [PATCH mm-unstable RFC 03/26] arc/mm: support
  __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-Date: Tue,  6 Dec 2022 15:47:06 +0100
-Message-Id: <20221206144730.163732-3-david@redhat.com>
+Date: Tue,  6 Dec 2022 15:47:07 +0100
+Message-Id: <20221206144730.163732-4-david@redhat.com>
 In-Reply-To: <20221206144730.163732-1-david@redhat.com>
 References: <20221206144730.163732-1-david@redhat.com>
 MIME-Version: 1.0
@@ -66,81 +66,66 @@ Cc: linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
  linux-s390@vger.kernel.org, linux-hexagon@vger.kernel.org, x86@kernel.org,
  Hugh Dickins <hughd@google.com>, linux-csky@vger.kernel.org,
  Mike Rapoport <rppt@linux.ibm.com>, Vlastimil Babka <vbabka@suse.cz>,
- Jason Gunthorpe <jgg@nvidia.com>, Matt Turner <mattst88@gmail.com>,
+ Jason Gunthorpe <jgg@nvidia.com>, Vineet Gupta <vgupta@kernel.org>,
  linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org,
  John Hubbard <jhubbard@nvidia.com>, linux-um@lists.infradead.org,
  linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org,
- Ivan Kokshaysky <ink@jurassic.park.msu.ru>, loongarch@lists.linux.dev,
- Richard Henderson <richard.henderson@linaro.org>,
- linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-alpha@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org
+ loongarch@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org,
+ linux-alpha@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+ linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE by stealing one bit
-from the type. Generic MM currently only uses 5 bits for the type
-(MAX_SWAPFILES_SHIFT), so the stolen bit is effectively unused.
+Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE by using bit 5, which is yet
+unused. The only important parts seems to be to not use _PAGE_PRESENT
+(bit 9).
 
-While at it, mask the type in mk_swap_pte() as well.
-
-Note that 32bit alpha has 64bit PTEs but only 32bit swap entries. So the
-lower 32bit are zero in a swap PTE and we could have taken a bit in
-there as well.
-
-Cc: Richard Henderson <richard.henderson@linaro.org>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Matt Turner <mattst88@gmail.com>
+Cc: Vineet Gupta <vgupta@kernel.org>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/alpha/include/asm/pgtable.h | 41 ++++++++++++++++++++++++++++----
- 1 file changed, 37 insertions(+), 4 deletions(-)
+ arch/arc/include/asm/pgtable-bits-arcv2.h | 27 ++++++++++++++++++++---
+ 1 file changed, 24 insertions(+), 3 deletions(-)
 
-diff --git a/arch/alpha/include/asm/pgtable.h b/arch/alpha/include/asm/pgtable.h
-index 9e45f6735d5d..970abf511b13 100644
---- a/arch/alpha/include/asm/pgtable.h
-+++ b/arch/alpha/include/asm/pgtable.h
-@@ -74,6 +74,9 @@ struct vm_area_struct;
- #define _PAGE_DIRTY	0x20000
- #define _PAGE_ACCESSED	0x40000
+diff --git a/arch/arc/include/asm/pgtable-bits-arcv2.h b/arch/arc/include/asm/pgtable-bits-arcv2.h
+index 515e82db519f..611f412713b9 100644
+--- a/arch/arc/include/asm/pgtable-bits-arcv2.h
++++ b/arch/arc/include/asm/pgtable-bits-arcv2.h
+@@ -26,6 +26,9 @@
+ #define _PAGE_GLOBAL		(1 << 8)  /* ASID agnostic (H) */
+ #define _PAGE_PRESENT		(1 << 9)  /* PTE/TLB Valid (H) */
  
-+/* We borrow bit 39 to store the exclusive marker in swap PTEs. */
-+#define _PAGE_SWP_EXCLUSIVE	0x8000000000UL
++/* We borrow bit 5 to store the exclusive marker in swap PTEs. */
++#define _PAGE_SWP_EXCLUSIVE	_PAGE_DIRTY
 +
- /*
-  * NOTE! The "accessed" bit isn't necessarily exact:  it can be kept exactly
-  * by software (use the KRE/URE/KWE/UWE bits appropriately), but I'll fake it.
-@@ -301,18 +304,48 @@ extern inline void update_mmu_cache(struct vm_area_struct * vma,
- }
+ #ifdef CONFIG_ARC_MMU_V4
+ #define _PAGE_HW_SZ		(1 << 10)  /* Normal/super (H) */
+ #else
+@@ -106,9 +109,18 @@ static inline void set_pte_at(struct mm_struct *mm, unsigned long addr,
+ void update_mmu_cache(struct vm_area_struct *vma, unsigned long address,
+ 		      pte_t *ptep);
  
- /*
-- * Non-present pages:  high 24 bits are offset, next 8 bits type,
-- * low 32 bits zero.
+-/* Encode swap {type,off} tuple into PTE
+- * We reserve 13 bits for 5-bit @type, keeping bits 12-5 zero, ensuring that
+- * PAGE_PRESENT is zero in a PTE holding swap "identifier"
++/*
 + * Encode/decode swap entries and swap PTEs. Swap PTEs are all PTEs that
 + * are !pte_none() && !pte_present().
 + *
 + * Format of swap PTEs:
 + *
-+ *   6 6 6 6 5 5 5 5 5 5 5 5 5 5 4 4 4 4 4 4 4 4 4 4 3 3 3 3 3 3 3 3
-+ *   3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2
-+ *   <------------------- offset ------------------> E <--- type -->
-+ *
 + *   3 3 2 2 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 1 1
 + *   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
-+ *   <--------------------------- zeroes -------------------------->
++ *   <-------------- offset -------------> <--- zero --> E < type ->
 + *
 + *   E is the exclusive marker that is not stored in swap entries.
++ *   The zero'ed bits include _PAGE_PRESENT.
   */
- extern inline pte_t mk_swap_pte(unsigned long type, unsigned long offset)
--{ pte_t pte; pte_val(pte) = (type << 32) | (offset << 40); return pte; }
-+{ pte_t pte; pte_val(pte) = ((type & 0x7f) << 32) | (offset << 40); return pte; }
- 
--#define __swp_type(x)		(((x).val >> 32) & 0xff)
-+#define __swp_type(x)		(((x).val >> 32) & 0x7f)
- #define __swp_offset(x)		((x).val >> 40)
- #define __swp_entry(type, off)	((swp_entry_t) { pte_val(mk_swap_pte((type), (off))) })
- #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) })
- #define __swp_entry_to_pte(x)	((pte_t) { (x).val })
+ #define __swp_entry(type, off)		((swp_entry_t) \
+ 					{ ((type) & 0x1f) | ((off) << 13) })
+@@ -120,6 +132,15 @@ void update_mmu_cache(struct vm_area_struct *vma, unsigned long address,
+ #define __pte_to_swp_entry(pte)		((swp_entry_t) { pte_val(pte) })
+ #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
  
 +#define __HAVE_ARCH_PTE_SWP_EXCLUSIVE
 +static inline int pte_swp_exclusive(pte_t pte)
@@ -148,21 +133,12 @@ index 9e45f6735d5d..970abf511b13 100644
 +	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
 +}
 +
-+static inline pte_t pte_swp_mkexclusive(pte_t pte)
-+{
-+	pte_val(pte) |= _PAGE_SWP_EXCLUSIVE;
-+	return pte;
-+}
++PTE_BIT_FUNC(swp_mkexclusive, |= (_PAGE_SWP_EXCLUSIVE));
++PTE_BIT_FUNC(swp_clear_exclusive, &= ~(_PAGE_SWP_EXCLUSIVE));
 +
-+static inline pte_t pte_swp_clear_exclusive(pte_t pte)
-+{
-+	pte_val(pte) &= ~_PAGE_SWP_EXCLUSIVE;
-+	return pte;
-+}
-+
- #define pte_ERROR(e) \
- 	printk("%s:%d: bad pte %016lx.\n", __FILE__, __LINE__, pte_val(e))
- #define pmd_ERROR(e) \
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+ #include <asm/hugepage.h>
+ #endif
 -- 
 2.38.1
 
