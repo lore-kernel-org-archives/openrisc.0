@@ -2,83 +2,61 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9C62C3A5A7
-	for <openrisc@archiver.kernel.org>; Thu,  8 Dec 2022 08:55:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DD2CC4167B
+	for <openrisc@archiver.kernel.org>; Tue, 13 Dec 2022 13:41:19 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 9833A24B86;
-	Thu,  8 Dec 2022 09:55:57 +0100 (CET)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by mail.librecores.org (Postfix) with ESMTP id 5F4792491C
- for <openrisc@lists.librecores.org>; Thu,  8 Dec 2022 09:55:56 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1670489755;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=qZzQND0XXn/ac1VVVRiwKzVF2wPIGejtH8QPoB1hHfA=;
- b=QPFkG++A/8JL5La+pALQpMxgOwAt4ktwVCkc0B7GKmSOmsQdJwO6bUe02qtZHfivaxVdc3
- G9Wjgdcy6CTAaGzTr8Cckc2sdx+1EbdNMrC++y5ZAPBbYS5RMOrBZy9yOPYliW8bDkf1S/
- 1Ay3qqX5PGov4onlFtRbv5LxaYRg05Q=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-524-YS_Fq9MkMBqfgBEJQwZoKg-1; Thu, 08 Dec 2022 03:55:54 -0500
-X-MC-Unique: YS_Fq9MkMBqfgBEJQwZoKg-1
-Received: by mail-wm1-f70.google.com with SMTP id
- bg25-20020a05600c3c9900b003cf3ed7e27bso509473wmb.4
- for <openrisc@lists.librecores.org>; Thu, 08 Dec 2022 00:55:54 -0800 (PST)
+	by mail.librecores.org (Postfix) with ESMTP id D161624B22;
+	Tue, 13 Dec 2022 14:41:18 +0100 (CET)
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com
+ [209.85.214.173])
+ by mail.librecores.org (Postfix) with ESMTPS id 1162824C3A
+ for <openrisc@lists.librecores.org>; Tue, 13 Dec 2022 14:41:17 +0100 (CET)
+Received: by mail-pl1-f173.google.com with SMTP id 17so8204528pll.0
+ for <openrisc@lists.librecores.org>; Tue, 13 Dec 2022 05:41:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+ bh=8bKi55q2x/j7htNUB1ASa122I9SyPa/BbXRS0RRZVE8=;
+ b=lO4ziCN/NWAT6Qy/Rk9/fRa2Y6PYUK12H1JDfhFjdW7rE9S+ReVEIxsrkViJYmGAW0
+ LUOrqm4/NQU0UIPP/0UjMQ9MycnxlPeM4JPJp8f5lNTJE1fKXfaJfPNtwSgSn6u7HFuk
+ dBIN58ZAlrdrw+rGWXO1F/y1k3D/vZBi2jEmB23D4ic3SUWHTy750VXcq2zc8dw5duj8
+ fcidOAQqBd5n3YS6Yy/Kl3R7+8O3xi76gQpcRBUOiwwUXFF/brNSoNExJa4ZbLyPNR9K
+ k5HxTRjJJfoKycAs7vswTGir0oKZQ/m5TSWgMU959wN9wGBiMO9GeFJwFKIH7jXlCgz6
+ mlsQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:in-reply-to:organization:references:cc:to
- :from:content-language:subject:user-agent:mime-version:date
- :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=qZzQND0XXn/ac1VVVRiwKzVF2wPIGejtH8QPoB1hHfA=;
- b=VdBrSB5gMqyy9SY/jKkvUHHxNPo6oYmnVScjsv1z/2D5qgQpl7bvy79rthusnyFhtE
- jrmE3oFZj3QX56XdP61z3G683stYkaYkqxZyBVtBaRzACuANwqXmHZn2rH9S/BrAPiVM
- hYFOKNb6YXuzuRceJyMQwvXBjLgYefC4vY0HU3YPduinZY7cK0tOp2ZClR5o7ljXNb6S
- EZBk0h3Bblg0RHII4zAHAI0M45AheinFj/ShLhlBb139ZTD6n/w1XGlHZaF3J8H99R7Q
- M+nHOypHhl6f8DV0yg+vtsndwOFamCgNGxgWKfl3cxq0hhuA50i0GOli+ZRs9VjRuMg2
- rmyQ==
-X-Gm-Message-State: ANoB5plzLcuV0J0pj1gBfZG7j/FOMOLqccPCyJuzI8Wk/WJU18A1zrvk
- nFB6GJ8EfDZAnjOTXSYiaNjVUjizG0uVKbiI8g5AniJdtAW3huf/AG+3Qed/oJWY0yge5XOIAvf
- F7DL4jxQJPHVTlM2aflqbl0mmJw==
-X-Received: by 2002:a5d:504d:0:b0:242:246c:2f89 with SMTP id
- h13-20020a5d504d000000b00242246c2f89mr22919592wrt.108.1670489752974; 
- Thu, 08 Dec 2022 00:55:52 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf668NfxbMXQWSDBD6iCzqqUG4mJSCJROvTfbJs0ERpg3lPeZTVH/8wev7o0MHbpIs1xArxqSg==
-X-Received: by 2002:a5d:504d:0:b0:242:246c:2f89 with SMTP id
- h13-20020a5d504d000000b00242246c2f89mr22919565wrt.108.1670489752626; 
- Thu, 08 Dec 2022 00:55:52 -0800 (PST)
-Received: from ?IPV6:2a09:80c0:192:0:5dac:bf3d:c41:c3e7?
- ([2a09:80c0:192:0:5dac:bf3d:c41:c3e7])
- by smtp.gmail.com with ESMTPSA id
- o29-20020adfa11d000000b0024278304ef6sm6288982wro.13.2022.12.08.00.55.50
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Thu, 08 Dec 2022 00:55:52 -0800 (PST)
-Message-ID: <c904aa67-1add-119c-162f-e35d8243a11a@redhat.com>
-Date: Thu, 8 Dec 2022 09:55:49 +0100
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=8bKi55q2x/j7htNUB1ASa122I9SyPa/BbXRS0RRZVE8=;
+ b=iu4MF6QKohDEWfTSNhEriF60fv/6WIL8lzF35cPeaRd7YntPRFnLD4DefV+CK+sVm+
+ icB+kNOle0lqjug6ZWKkSsz9HIfbSu11+2d4nWIU/RhaQn9JL4d8Hm5T7gTG9bbgrPc2
+ DOtgsyYVh7HWJuDkPN9jQ2c8f2ZWWDqc/8gRFaX1dACkV31U0eQ0rTBCf8dCSsw+h26m
+ vCb87EcSL+ZiWKcpN+NCglfTKrYjcsbzPrkz30Ebm6nMovLF96eDlzTFjSnHPyvSxztu
+ TlM+4vx0Y9/q/iFgXFVuRT7JeGFLbVl7oYQQdGHza91AWOq0qzGLDV7OfAblYix8LJ2v
+ xv9Q==
+X-Gm-Message-State: ANoB5pk+tNuf87en8erGka5KLVLzh7LbEIa0wwbHH+NrdFMDt9bLSsOl
+ y3v/GKRxH5dclzTgfHtNNso=
+X-Google-Smtp-Source: AA0mqf6UvlwCYGCXXNd0n1wQNiwymfyWKN28bzxheLVr+lSKAwJxZjLof93GpSIaklOjbOsZufqitw==
+X-Received: by 2002:a17:902:e94c:b0:188:bd82:2b7c with SMTP id
+ b12-20020a170902e94c00b00188bd822b7cmr22251688pll.5.1670938875341; 
+ Tue, 13 Dec 2022 05:41:15 -0800 (PST)
+Received: from hyeyoo ([114.29.91.56]) by smtp.gmail.com with ESMTPSA id
+ ik28-20020a170902ab1c00b0017d97d13b18sm8479096plb.65.2022.12.13.05.41.07
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 13 Dec 2022 05:41:14 -0800 (PST)
+Date: Tue, 13 Dec 2022 22:41:05 +0900
+From: Hyeonggon Yoo <42.hyeyoo@gmail.com>
+To: Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: [PATCH 12/12] mm, slob: rename CONFIG_SLOB to
+ CONFIG_SLOB_DEPRECATED
+Message-ID: <Y5iA8RzXs8MacQqi@hyeyoo>
+References: <20221121171202.22080-1-vbabka@suse.cz>
+ <20221121171202.22080-13-vbabka@suse.cz>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-Subject: Re: [PATCH mm-unstable RFC 17/26] powerpc/mm: support
- __HAVE_ARCH_PTE_SWP_EXCLUSIVE on 32bit book3s
-From: David Hildenbrand <david@redhat.com>
-To: Christophe Leroy <christophe.leroy@csgroup.eu>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <20221206144730.163732-1-david@redhat.com>
- <20221206144730.163732-18-david@redhat.com>
- <8be167b6-3836-25c3-9f69-b8b3916ee5b4@csgroup.eu>
- <0b5b1303-8bcb-c19d-5f63-0e4a3517fea5@redhat.com>
-Organization: Red Hat
-In-Reply-To: <0b5b1303-8bcb-c19d-5f63-0e4a3517fea5@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221121171202.22080-13-vbabka@suse.cz>
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -91,117 +69,394 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
- "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
- Yang Shi <shy828301@gmail.com>, Peter Xu <peterx@redhat.com>,
- "linux-mm@kvack.org" <linux-mm@kvack.org>, Nadav Amit <namit@vmware.com>,
- Michael Ellerman <mpe@ellerman.id.au>,
- "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
- "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
- Andrea Arcangeli <aarcange@redhat.com>,
- "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
- "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>,
- "x86@kernel.org" <x86@kernel.org>, Hugh Dickins <hughd@google.com>,
- "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
- Mike Rapoport <rppt@linux.ibm.com>, Vlastimil Babka <vbabka@suse.cz>,
- Jason Gunthorpe <jgg@nvidia.com>,
- "linux-snps-arc@lists.infradead.org" <linux-snps-arc@lists.infradead.org>,
- "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>,
- John Hubbard <jhubbard@nvidia.com>,
- "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
- Nicholas Piggin <npiggin@gmail.com>,
- "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>,
- "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>,
- "loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
- "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
- "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
- "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
- "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
+Cc: Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
+ Tony Lindgren <tony@atomide.com>, Roman Gushchin <roman.gushchin@linux.dev>,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Christoph Lameter <cl@linux.com>, linux-riscv@lists.infradead.org,
+ Jonas Bonn <jonas@southpole.se>, Yoshinori Sato <ysato@users.sourceforge.jp>,
+ Aaro Koskinen <aaro.koskinen@iki.fi>,
+ Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+ Janusz Krzysztofik <jmkrzyszt@gmail.com>, Russell King <linux@armlinux.org.uk>,
+ Matthew Wilcox <willy@infradead.org>, David Rientjes <rientjes@google.com>,
+ Arnd Bergmann <arnd@arndb.de>, Josh Triplett <josh@joshtriplett.org>,
+ openrisc@lists.librecores.org, linux-omap@vger.kernel.org,
+ Joonsoo Kim <iamjoonsoo.kim@lge.com>, linux-arm-kernel@lists.infradead.org,
+ patches@lists.linux.dev, Conor Dooley <conor@kernel.org>,
+ Pekka Enberg <penberg@kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
+ Linus Torvalds <torvalds@linux-foundation.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On 08.12.22 09:52, David Hildenbrand wrote:
-> On 07.12.22 14:55, Christophe Leroy wrote:
->>
->>
->> Le 06/12/2022 à 15:47, David Hildenbrand a écrit :
->>> We already implemented support for 64bit book3s in commit bff9beaa2e80
->>> ("powerpc/pgtable: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE for book3s")
->>>
->>> Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE also in 32bit by reusing yet
->>> unused LSB 2 / MSB 29. There seems to be no real reason why that bit cannot
->>> be used, and reusing it avoids having to steal one bit from the swap
->>> offset.
->>>
->>> While at it, mask the type in __swp_entry().
->>>
->>> Cc: Michael Ellerman <mpe@ellerman.id.au>
->>> Cc: Nicholas Piggin <npiggin@gmail.com>
->>> Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
->>> Signed-off-by: David Hildenbrand <david@redhat.com>
->>> ---
->>>     arch/powerpc/include/asm/book3s/32/pgtable.h | 38 +++++++++++++++++---
->>>     1 file changed, 33 insertions(+), 5 deletions(-)
->>>
->>> diff --git a/arch/powerpc/include/asm/book3s/32/pgtable.h b/arch/powerpc/include/asm/book3s/32/pgtable.h
->>> index 75823f39e042..8107835b38c1 100644
->>> --- a/arch/powerpc/include/asm/book3s/32/pgtable.h
->>> +++ b/arch/powerpc/include/asm/book3s/32/pgtable.h
->>> @@ -42,6 +42,9 @@
->>>     #define _PMD_PRESENT_MASK (PAGE_MASK)
->>>     #define _PMD_BAD	(~PAGE_MASK)
->>>     
->>> +/* We borrow the _PAGE_USER bit to store the exclusive marker in swap PTEs. */
->>> +#define _PAGE_SWP_EXCLUSIVE	_PAGE_USER
->>> +
->>>     /* And here we include common definitions */
->>>     
->>>     #define _PAGE_KERNEL_RO		0
->>> @@ -363,17 +366,42 @@ static inline void __ptep_set_access_flags(struct vm_area_struct *vma,
->>>     #define pmd_page(pmd)		pfn_to_page(pmd_pfn(pmd))
->>>     
->>>     /*
->>> - * Encode and decode a swap entry.
->>> - * Note that the bits we use in a PTE for representing a swap entry
->>> - * must not include the _PAGE_PRESENT bit or the _PAGE_HASHPTE bit (if used).
->>> - *   -- paulus
->>> + * Encode/decode swap entries and swap PTEs. Swap PTEs are all PTEs that
->>> + * are !pte_none() && !pte_present().
->>> + *
->>> + * Format of swap PTEs (32bit PTEs):
->>> + *
->>> + *                         1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 3 3
->>> + *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
->>> + *   E H P <- type --> <----------------- offset ------------------>
->>
->> That's in reversed order. _PAGE_HASHPTE is bit 30 and should be on the
->> right hand side. Etc ...
+On Mon, Nov 21, 2022 at 06:12:02PM +0100, Vlastimil Babka wrote:
+> As explained in [1], we would like to remove SLOB if possible.
 > 
-> Ugh, messed it up while converting back and forth between LSB 0 and MSB 0.
+> - There are no known users that need its somewhat lower memory footprint
+>   so much that they cannot handle SLUB (after some modifications by the
+>   previous patches) instead.
 > 
-> /*
->    * Format of swap PTEs (32bit PTEs):
->    *
->    *                         1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 3 3
->    *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
->    *   <----------------- offset ------------------> <- type --> E H P
+> - It is an extra maintenance burden, and a number of features are
+>   incompatible with it.
 > 
+> - It blocks the API improvement of allowing kfree() on objects allocated
+>   via kmem_cache_alloc().
 > 
+> As the first step, rename the CONFIG_SLOB option in the slab allocator
+> configuration choice to CONFIG_SLOB_DEPRECATED. Add CONFIG_SLOB
+> depending on CONFIG_SLOB_DEPRECATED as an internal option to avoid code
+> churn. This will cause existing .config files and defconfigs with
+> CONFIG_SLOB=y to silently switch to the default (and recommended
+> replacement) SLUB, while still allowing SLOB to be configured by anyone
+> that notices and needs it. But those should contact the slab maintainers
+> and linux-mm@kvack.org as explained in the updated help. With no valid
+> objections, the plan is to update the existing defconfigs to SLUB and
+> remove SLOB in a few cycles.
+> 
+> To make SLUB more suitable replacement for SLOB, a CONFIG_SLUB_TINY
+> option was introduced to limit SLUB's memory overhead.
+> There is a number of defconfigs specifying CONFIG_SLOB=y. As part of
+> this patch, update them to select CONFIG_SLUB and CONFIG_SLUB_TINY.
+> 
+> [1] https://lore.kernel.org/all/b35c3f82-f67b-2103-7d82-7a7ba7521439@suse.cz/
+> 
+> Cc: Russell King <linux@armlinux.org.uk>
+> Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
+> Cc: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+> Cc: Tony Lindgren <tony@atomide.com>
+> Cc: Jonas Bonn <jonas@southpole.se>
+> Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+> Cc: Stafford Horne <shorne@gmail.com>
+> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+> Cc: Rich Felker <dalias@libc.org>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Josh Triplett <josh@joshtriplett.org>
+> Cc: Conor Dooley <conor@kernel.org>
+> Cc: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+> Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+> Cc: <linux-arm-kernel@lists.infradead.org>
+> Cc: <linux-omap@vger.kernel.org>
+> Cc: <openrisc@lists.librecores.org>
+> Cc: <linux-riscv@lists.infradead.org>
+> Cc: <linux-sh@vger.kernel.org>
+> Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+> ---
+>  arch/arm/configs/clps711x_defconfig            |  3 ++-
+>  arch/arm/configs/collie_defconfig              |  3 ++-
+>  arch/arm/configs/multi_v4t_defconfig           |  3 ++-
+>  arch/arm/configs/omap1_defconfig               |  3 ++-
+>  arch/arm/configs/pxa_defconfig                 |  3 ++-
+>  arch/arm/configs/tct_hammer_defconfig          |  3 ++-
+>  arch/arm/configs/xcep_defconfig                |  3 ++-
+>  arch/openrisc/configs/or1ksim_defconfig        |  3 ++-
+>  arch/openrisc/configs/simple_smp_defconfig     |  3 ++-
+>  arch/riscv/configs/nommu_k210_defconfig        |  3 ++-
+>  arch/riscv/configs/nommu_k210_sdcard_defconfig |  3 ++-
+>  arch/riscv/configs/nommu_virt_defconfig        |  3 ++-
+>  arch/sh/configs/rsk7201_defconfig              |  3 ++-
+>  arch/sh/configs/rsk7203_defconfig              |  3 ++-
+>  arch/sh/configs/se7206_defconfig               |  3 ++-
+>  arch/sh/configs/shmin_defconfig                |  3 ++-
+>  arch/sh/configs/shx3_defconfig                 |  3 ++-
+>  kernel/configs/tiny.config                     |  5 +++--
+>  mm/Kconfig                                     | 17 +++++++++++++++--
+>  19 files changed, 52 insertions(+), 21 deletions(-)
+> 
+> diff --git a/arch/arm/configs/clps711x_defconfig b/arch/arm/configs/clps711x_defconfig
+> index 92481b2a88fa..adcee238822a 100644
+> --- a/arch/arm/configs/clps711x_defconfig
+> +++ b/arch/arm/configs/clps711x_defconfig
+> @@ -14,7 +14,8 @@ CONFIG_ARCH_EDB7211=y
+>  CONFIG_ARCH_P720T=y
+>  CONFIG_AEABI=y
+>  # CONFIG_COREDUMP is not set
+> -CONFIG_SLOB=y
+> +CONFIG_SLUB=y
+> +CONFIG_SLUB_TINY=y
+>  CONFIG_NET=y
+>  CONFIG_PACKET=y
+>  CONFIG_UNIX=y
+> diff --git a/arch/arm/configs/collie_defconfig b/arch/arm/configs/collie_defconfig
+> index 2a2d2cb3ce2e..69341c33e0cc 100644
+> --- a/arch/arm/configs/collie_defconfig
+> +++ b/arch/arm/configs/collie_defconfig
+> @@ -13,7 +13,8 @@ CONFIG_CMDLINE="noinitrd root=/dev/mtdblock2 rootfstype=jffs2 fbcon=rotate:1"
+>  CONFIG_FPE_NWFPE=y
+>  CONFIG_PM=y
+>  # CONFIG_SWAP is not set
+> -CONFIG_SLOB=y
+> +CONFIG_SLUB=y
+> +CONFIG_SLUB_TINY=y
+>  CONFIG_NET=y
+>  CONFIG_PACKET=y
+>  CONFIG_UNIX=y
+> diff --git a/arch/arm/configs/multi_v4t_defconfig b/arch/arm/configs/multi_v4t_defconfig
+> index e2fd822f741a..b60000a89aff 100644
+> --- a/arch/arm/configs/multi_v4t_defconfig
+> +++ b/arch/arm/configs/multi_v4t_defconfig
+> @@ -25,7 +25,8 @@ CONFIG_ARM_CLPS711X_CPUIDLE=y
+>  CONFIG_JUMP_LABEL=y
+>  CONFIG_PARTITION_ADVANCED=y
+>  # CONFIG_COREDUMP is not set
+> -CONFIG_SLOB=y
+> +CONFIG_SLUB=y
+> +CONFIG_SLUB_TINY=y
+>  CONFIG_MTD=y
+>  CONFIG_MTD_CMDLINE_PARTS=y
+>  CONFIG_MTD_BLOCK=y
+> diff --git a/arch/arm/configs/omap1_defconfig b/arch/arm/configs/omap1_defconfig
+> index 70511fe4b3ec..246f1bba7df5 100644
+> --- a/arch/arm/configs/omap1_defconfig
+> +++ b/arch/arm/configs/omap1_defconfig
+> @@ -42,7 +42,8 @@ CONFIG_MODULE_FORCE_UNLOAD=y
+>  CONFIG_PARTITION_ADVANCED=y
+>  CONFIG_BINFMT_MISC=y
+>  # CONFIG_SWAP is not set
+> -CONFIG_SLOB=y
+> +CONFIG_SLUB=y
+> +CONFIG_SLUB_TINY=y
+>  # CONFIG_VM_EVENT_COUNTERS is not set
+>  CONFIG_NET=y
+>  CONFIG_PACKET=y
+> diff --git a/arch/arm/configs/pxa_defconfig b/arch/arm/configs/pxa_defconfig
+> index d60cc9cc4c21..0a0f12df40b5 100644
+> --- a/arch/arm/configs/pxa_defconfig
+> +++ b/arch/arm/configs/pxa_defconfig
+> @@ -49,7 +49,8 @@ CONFIG_PARTITION_ADVANCED=y
+>  CONFIG_LDM_PARTITION=y
+>  CONFIG_CMDLINE_PARTITION=y
+>  CONFIG_BINFMT_MISC=y
+> -CONFIG_SLOB=y
+> +CONFIG_SLUB=y
+> +CONFIG_SLUB_TINY=y
+>  # CONFIG_COMPACTION is not set
+>  CONFIG_NET=y
+>  CONFIG_PACKET=y
+> diff --git a/arch/arm/configs/tct_hammer_defconfig b/arch/arm/configs/tct_hammer_defconfig
+> index 3b29ae1fb750..6bd38b6f22c4 100644
+> --- a/arch/arm/configs/tct_hammer_defconfig
+> +++ b/arch/arm/configs/tct_hammer_defconfig
+> @@ -19,7 +19,8 @@ CONFIG_FPE_NWFPE=y
+>  CONFIG_MODULES=y
+>  CONFIG_MODULE_UNLOAD=y
+>  # CONFIG_SWAP is not set
+> -CONFIG_SLOB=y
+> +CONFIG_SLUB=y
+> +CONFIG_SLUB_TINY=y
+>  CONFIG_NET=y
+>  CONFIG_PACKET=y
+>  CONFIG_UNIX=y
+> diff --git a/arch/arm/configs/xcep_defconfig b/arch/arm/configs/xcep_defconfig
+> index ea59e4b6bfc5..6bd9f71b71fc 100644
+> --- a/arch/arm/configs/xcep_defconfig
+> +++ b/arch/arm/configs/xcep_defconfig
+> @@ -26,7 +26,8 @@ CONFIG_MODULE_UNLOAD=y
+>  CONFIG_MODVERSIONS=y
+>  CONFIG_MODULE_SRCVERSION_ALL=y
+>  # CONFIG_BLOCK is not set
+> -CONFIG_SLOB=y
+> +CONFIG_SLUB=y
+> +CONFIG_SLUB_TINY=y
+>  # CONFIG_COMPAT_BRK is not set
+>  # CONFIG_VM_EVENT_COUNTERS is not set
+>  CONFIG_NET=y
+> diff --git a/arch/openrisc/configs/or1ksim_defconfig b/arch/openrisc/configs/or1ksim_defconfig
+> index 6e1e004047c7..0116e465238f 100644
+> --- a/arch/openrisc/configs/or1ksim_defconfig
+> +++ b/arch/openrisc/configs/or1ksim_defconfig
+> @@ -10,7 +10,8 @@ CONFIG_EXPERT=y
+>  # CONFIG_AIO is not set
+>  # CONFIG_VM_EVENT_COUNTERS is not set
+>  # CONFIG_COMPAT_BRK is not set
+> -CONFIG_SLOB=y
+> +CONFIG_SLUB=y
+> +CONFIG_SLUB_TINY=y
+>  CONFIG_MODULES=y
+>  # CONFIG_BLOCK is not set
+>  CONFIG_OPENRISC_BUILTIN_DTB="or1ksim"
+> diff --git a/arch/openrisc/configs/simple_smp_defconfig b/arch/openrisc/configs/simple_smp_defconfig
+> index ff49d868e040..b990cb6c9309 100644
+> --- a/arch/openrisc/configs/simple_smp_defconfig
+> +++ b/arch/openrisc/configs/simple_smp_defconfig
+> @@ -16,7 +16,8 @@ CONFIG_EXPERT=y
+>  # CONFIG_AIO is not set
+>  # CONFIG_VM_EVENT_COUNTERS is not set
+>  # CONFIG_COMPAT_BRK is not set
+> -CONFIG_SLOB=y
+> +CONFIG_SLUB=y
+> +CONFIG_SLUB_TINY=y
+>  CONFIG_MODULES=y
+>  # CONFIG_BLOCK is not set
+>  CONFIG_OPENRISC_BUILTIN_DTB="simple_smp"
+> diff --git a/arch/riscv/configs/nommu_k210_defconfig b/arch/riscv/configs/nommu_k210_defconfig
+> index 96fe8def644c..79b3ccd58ff0 100644
+> --- a/arch/riscv/configs/nommu_k210_defconfig
+> +++ b/arch/riscv/configs/nommu_k210_defconfig
+> @@ -25,7 +25,8 @@ CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+>  CONFIG_EMBEDDED=y
+>  # CONFIG_VM_EVENT_COUNTERS is not set
+>  # CONFIG_COMPAT_BRK is not set
+> -CONFIG_SLOB=y
+> +CONFIG_SLUB=y
+> +CONFIG_SLUB_TINY=y
+>  # CONFIG_MMU is not set
+>  CONFIG_SOC_CANAAN=y
+>  CONFIG_NONPORTABLE=y
+> diff --git a/arch/riscv/configs/nommu_k210_sdcard_defconfig b/arch/riscv/configs/nommu_k210_sdcard_defconfig
+> index 379740654373..6b80bb13b8ed 100644
+> --- a/arch/riscv/configs/nommu_k210_sdcard_defconfig
+> +++ b/arch/riscv/configs/nommu_k210_sdcard_defconfig
+> @@ -17,7 +17,8 @@ CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+>  CONFIG_EMBEDDED=y
+>  # CONFIG_VM_EVENT_COUNTERS is not set
+>  # CONFIG_COMPAT_BRK is not set
+> -CONFIG_SLOB=y
+> +CONFIG_SLUB=y
+> +CONFIG_SLUB_TINY=y
+>  # CONFIG_MMU is not set
+>  CONFIG_SOC_CANAAN=y
+>  CONFIG_NONPORTABLE=y
+> diff --git a/arch/riscv/configs/nommu_virt_defconfig b/arch/riscv/configs/nommu_virt_defconfig
+> index 1a56eda5ce46..4cf0f297091e 100644
+> --- a/arch/riscv/configs/nommu_virt_defconfig
+> +++ b/arch/riscv/configs/nommu_virt_defconfig
+> @@ -22,7 +22,8 @@ CONFIG_EXPERT=y
+>  # CONFIG_KALLSYMS is not set
+>  # CONFIG_VM_EVENT_COUNTERS is not set
+>  # CONFIG_COMPAT_BRK is not set
+> -CONFIG_SLOB=y
+> +CONFIG_SLUB=y
+> +CONFIG_SLUB_TINY=y
+>  # CONFIG_MMU is not set
+>  CONFIG_SOC_VIRT=y
+>  CONFIG_NONPORTABLE=y
+> diff --git a/arch/sh/configs/rsk7201_defconfig b/arch/sh/configs/rsk7201_defconfig
+> index 619c18699459..376e95fa77bc 100644
+> --- a/arch/sh/configs/rsk7201_defconfig
+> +++ b/arch/sh/configs/rsk7201_defconfig
+> @@ -10,7 +10,8 @@ CONFIG_USER_NS=y
+>  CONFIG_PID_NS=y
+>  CONFIG_BLK_DEV_INITRD=y
+>  # CONFIG_AIO is not set
+> -CONFIG_SLOB=y
+> +CONFIG_SLUB=y
+> +CONFIG_SLUB_TINY=y
+>  CONFIG_PROFILING=y
+>  CONFIG_MODULES=y
+>  # CONFIG_BLK_DEV_BSG is not set
+> diff --git a/arch/sh/configs/rsk7203_defconfig b/arch/sh/configs/rsk7203_defconfig
+> index d00fafc021e1..1d5fd67a3949 100644
+> --- a/arch/sh/configs/rsk7203_defconfig
+> +++ b/arch/sh/configs/rsk7203_defconfig
+> @@ -11,7 +11,8 @@ CONFIG_USER_NS=y
+>  CONFIG_PID_NS=y
+>  CONFIG_BLK_DEV_INITRD=y
+>  CONFIG_KALLSYMS_ALL=y
+> -CONFIG_SLOB=y
+> +CONFIG_SLUB=y
+> +CONFIG_SLUB_TINY=y
+>  CONFIG_PROFILING=y
+>  CONFIG_MODULES=y
+>  # CONFIG_BLK_DEV_BSG is not set
+> diff --git a/arch/sh/configs/se7206_defconfig b/arch/sh/configs/se7206_defconfig
+> index 122216123e63..78e0e7be57ee 100644
+> --- a/arch/sh/configs/se7206_defconfig
+> +++ b/arch/sh/configs/se7206_defconfig
+> @@ -21,7 +21,8 @@ CONFIG_BLK_DEV_INITRD=y
+>  CONFIG_KALLSYMS_ALL=y
+>  # CONFIG_ELF_CORE is not set
+>  # CONFIG_COMPAT_BRK is not set
+> -CONFIG_SLOB=y
+> +CONFIG_SLUB=y
+> +CONFIG_SLUB_TINY=y
+>  CONFIG_PROFILING=y
+>  CONFIG_MODULES=y
+>  CONFIG_MODULE_UNLOAD=y
+> diff --git a/arch/sh/configs/shmin_defconfig b/arch/sh/configs/shmin_defconfig
+> index c0b6f40d01cc..e078b193a78a 100644
+> --- a/arch/sh/configs/shmin_defconfig
+> +++ b/arch/sh/configs/shmin_defconfig
+> @@ -9,7 +9,8 @@ CONFIG_LOG_BUF_SHIFT=14
+>  # CONFIG_FUTEX is not set
+>  # CONFIG_EPOLL is not set
+>  # CONFIG_SHMEM is not set
+> -CONFIG_SLOB=y
+> +CONFIG_SLUB=y
+> +CONFIG_SLUB_TINY=y
+>  # CONFIG_BLK_DEV_BSG is not set
+>  CONFIG_CPU_SUBTYPE_SH7706=y
+>  CONFIG_MEMORY_START=0x0c000000
+> diff --git a/arch/sh/configs/shx3_defconfig b/arch/sh/configs/shx3_defconfig
+> index 32ec6eb1eabc..aa353dff7f19 100644
+> --- a/arch/sh/configs/shx3_defconfig
+> +++ b/arch/sh/configs/shx3_defconfig
+> @@ -20,7 +20,8 @@ CONFIG_USER_NS=y
+>  CONFIG_PID_NS=y
+>  # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+>  CONFIG_KALLSYMS_ALL=y
+> -CONFIG_SLOB=y
+> +CONFIG_SLUB=y
+> +CONFIG_SLUB_TINY=y
+>  CONFIG_PROFILING=y
+>  CONFIG_KPROBES=y
+>  CONFIG_MODULES=y
+> diff --git a/kernel/configs/tiny.config b/kernel/configs/tiny.config
+> index 8a44b93da0f3..c2f9c912df1c 100644
+> --- a/kernel/configs/tiny.config
+> +++ b/kernel/configs/tiny.config
+> @@ -7,5 +7,6 @@ CONFIG_KERNEL_XZ=y
+>  # CONFIG_KERNEL_LZO is not set
+>  # CONFIG_KERNEL_LZ4 is not set
+>  # CONFIG_SLAB is not set
+> -# CONFIG_SLUB is not set
+> -CONFIG_SLOB=y
+> +# CONFIG_SLOB_DEPRECATED is not set
+> +CONFIG_SLUB=y
+> +CONFIG_SLUB_TINY=y
+> diff --git a/mm/Kconfig b/mm/Kconfig
+> index 5941cb34e30d..dcc49c69552f 100644
+> --- a/mm/Kconfig
+> +++ b/mm/Kconfig
+> @@ -219,17 +219,30 @@ config SLUB
+>  	   and has enhanced diagnostics. SLUB is the default choice for
+>  	   a slab allocator.
+>  
+> -config SLOB
+> +config SLOB_DEPRECATED
+>  	depends on EXPERT
+> -	bool "SLOB (Simple Allocator)"
+> +	bool "SLOB (Simple Allocator - DEPRECATED)"
+>  	depends on !PREEMPT_RT
+>  	help
+> +	   Deprecated and scheduled for removal in a few cycles. SLUB
+> +	   recommended as replacement. CONFIG_SLUB_TINY can be considered
+> +	   on systems with 16MB or less RAM.
+> +
+> +	   If you need SLOB to stay, please contact linux-mm@kvack.org and
+> +	   people listed in the SLAB ALLOCATOR section of MAINTAINERS file,
+> +	   with your use case.
+> +
+>  	   SLOB replaces the stock allocator with a drastically simpler
+>  	   allocator. SLOB is generally more space efficient but
+>  	   does not perform as well on large systems.
+>  
+>  endchoice
+>  
+> +config SLOB
+> +	bool
+> +	default y
+> +	depends on SLOB_DEPRECATED
+> +
+>  config SLUB_TINY
+>  	bool "Configure SLUB for minimal memory footprint"
+>  	depends on SLUB && EXPERT
+> -- 
+> 2.38.1
 
-Still wrong, the type is only 5 bits:
+FTR,
 
-+ * Format of swap PTEs (32bit PTEs):
-+ *
-+ *                         1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 3 3
-+ *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+ *   <----------------- offset --------------------> < type -> E H P
-+ *
-
+Acked-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
 
 -- 
 Thanks,
-
-David / dhildenb
-
+Hyeonggon
