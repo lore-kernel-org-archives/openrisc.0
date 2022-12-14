@@ -2,60 +2,80 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 520C0C4167B
-	for <openrisc@archiver.kernel.org>; Tue, 13 Dec 2022 16:18:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08C6CC4332F
+	for <openrisc@archiver.kernel.org>; Wed, 14 Dec 2022 11:22:59 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 02EA524C4A;
-	Tue, 13 Dec 2022 17:18:18 +0100 (CET)
-Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com
- [209.85.216.42])
- by mail.librecores.org (Postfix) with ESMTPS id A771924C43
- for <openrisc@lists.librecores.org>; Tue, 13 Dec 2022 17:18:16 +0100 (CET)
-Received: by mail-pj1-f42.google.com with SMTP id t17so3903768pjo.3
- for <openrisc@lists.librecores.org>; Tue, 13 Dec 2022 08:18:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=dabbelt-com.20210112.gappssmtp.com; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:to:from:cc
- :in-reply-to:subject:date:from:to:cc:subject:date:message-id
- :reply-to; bh=wj/NGKhLAYwhK6Lvw/Db918GBFSie4zjOTu3uFrT1gA=;
- b=NkSnMp/V8AsX4vC30wzvTBDvSWE+M7qqraskr+aX6eDcBuYgYQHiZpd5PHFEtwmlex
- b9sLXADwP2UKefS8URj7BbPzAGmqFf6Sql8Lry6ArNmBxIQqSRNMuMWf8z5+Hg1gJY0V
- G/j7FdqVWjtps7jKHZujuEhFxXfcZ0TNsoRlDztocQW2ESX1R86PBEikNrfuO5gPc7mJ
- 6/Qoufhc+OUK8D5gU0LfvQQ/f14L5j2fbz4FLayl4GcS/rdSdchyCT6nat7Pvthexifo
- 5a34Jkw09BPh2fSzhpIrcgjFsOBxfZOpzDvRra+RnQyxHfSXNAOYkh3mU13qpd7fHBn3
- z4dA==
+	by mail.librecores.org (Postfix) with ESMTP id C9BCB24A9B;
+	Wed, 14 Dec 2022 12:22:58 +0100 (CET)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by mail.librecores.org (Postfix) with ESMTP id 322E024A55
+ for <openrisc@lists.librecores.org>; Wed, 14 Dec 2022 12:22:57 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1671016976;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=yxc01zNwMiugjthmgVOlTrtXQnLfLvXjRGMFtbZZLpc=;
+ b=GJcAeE/PtFpn1/vFz2lK7BDUass2fCIFAvVi8EBj6OqZTconYOfb+By/rmk+gq1GAKOa8b
+ 734+aQmBnwNi/m9nC2CtNfqjt7F+Omlx24wbZ5cxu51n+kH6d1Im1NR/kYsVan5x35GoQO
+ +Zsm1ClMCEBcuT2XMJ7yTnKLj1rUEHA=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-52-Q-U7rTOiO5uE3X8ZtCY62g-1; Wed, 14 Dec 2022 06:22:54 -0500
+X-MC-Unique: Q-U7rTOiO5uE3X8ZtCY62g-1
+Received: by mail-wr1-f72.google.com with SMTP id
+ a7-20020adfbc47000000b002421f817287so3462298wrh.4
+ for <openrisc@lists.librecores.org>; Wed, 14 Dec 2022 03:22:54 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:to:from:cc
- :in-reply-to:subject:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=wj/NGKhLAYwhK6Lvw/Db918GBFSie4zjOTu3uFrT1gA=;
- b=Nq5HIrDmcROoZ8F5BjrdFuDfs1O9hURVB5mYhbbfpQIlzi7nnz5mj1xUH5sGjOgc7h
- 6D7eZhh+YWtSuFzhZTeCNz26Y0j+ER5oKWg8RfeRtq0OhYifmMhrDsa9z0kEgKmjq5Mz
- Krt5T37sxYQPmZpWAd3zRGhkmIr5HAeqhiWiQYH2qUBDwkIZoqr8U440P++dxXGyaH+s
- g59/0JXdJQCAt0Qvk425uAgden1J7/k9gPC3h2UQShNRhGX/bdGTMMJ+1vjJeeSSIMts
- ojMICKCCy2vKHuSEjpjFGKLj8rKivvjaUeiWwd84EGjMW4F0sUtwLAH9N/YkoZWShaDJ
- j8Og==
-X-Gm-Message-State: ANoB5pm4NV+ioxt80FSkv8nvapotu5d8XlZl2/qfj8xUIhJ4IfvP2TRs
- XKn8HQz6+b1eBfqD79mMz+QGjg==
-X-Google-Smtp-Source: AA0mqf6JTPFlbgzI8iGusijASEg0Bt+tpHInO5Z4ANoXa2VKfVyLMA6BDQNt3aTd/y7ttlWwr47bgg==
-X-Received: by 2002:a17:902:ccc8:b0:188:640f:f41e with SMTP id
- z8-20020a170902ccc800b00188640ff41emr24115756ple.4.1670948294373; 
- Tue, 13 Dec 2022 08:18:14 -0800 (PST)
-Received: from localhost ([135.180.226.51]) by smtp.gmail.com with ESMTPSA id
- 13-20020a170902c24d00b001898ca438fcsm39047plg.282.2022.12.13.08.18.13
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 13 Dec 2022 08:18:13 -0800 (PST)
-Date: Tue, 13 Dec 2022 08:18:13 -0800 (PST)
-X-Google-Original-Date: Tue, 13 Dec 2022 08:18:09 PST (-0800)
-Subject: Re: [PATCH v3 0/8] Generic IPI sending tracepoint
-In-Reply-To: <20221202155817.2102944-1-vschneid@redhat.com>
-From: Palmer Dabbelt <palmer@dabbelt.com>
-To: vschneid@redhat.com
-Message-ID: <mhng-ed30efdc-5b5b-40fa-8661-f99d4e2991ed@palmer-ri-x1c9>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+ h=content-transfer-encoding:in-reply-to:organization:from:references
+ :cc:to:content-language:subject:user-agent:mime-version:date
+ :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=yxc01zNwMiugjthmgVOlTrtXQnLfLvXjRGMFtbZZLpc=;
+ b=P26Q2StB2AApHPlrtqxX1nJP4ggXzp47tAbB/ykn15hegAIAJcNosNJp3gIyHcD60E
+ Vi1UbKmKM4YD9w3rQG6xDqSoXU1MzZKVYyvdB5kH0J0CexC8zkafrW7DxynodMVkVWAA
+ c4Q4+SH+/TAwdVkjN+1+VFap5lwxdHAVVncST5uTO3mzTblAJ/kRu11J/UD1GIgRFC+Y
+ OKUHl3RUos4RxZoADMptIxLNefs3QtdKHF6IQmPEyJH8aS844WMsV6jc6L+PUYH9Fy0u
+ Ly0gpR1h3/c9CiOJlXWac5h1+zIseS+VqgV2SQNJaJPFCM+Dh/aVfzuV9TfB7EAnBmtD
+ vBFQ==
+X-Gm-Message-State: ANoB5pnAKzj5Tq0fmIJjhVd9GcMiIbSiwSH5lDBLUNu5L/eCkeHjxJAK
+ MxKQUxy+0JSPnpKBc5m06GdEgELVjAQ1FV3Sg4z6O9Gro0HBgg5fA8SL2uRaUjCeieJtG1CP12s
+ 3z0+J3oGO9jep0XZYGta0Z5TsLg==
+X-Received: by 2002:a05:600c:1da2:b0:3cf:5fd2:87a0 with SMTP id
+ p34-20020a05600c1da200b003cf5fd287a0mr17488496wms.40.1671016973461; 
+ Wed, 14 Dec 2022 03:22:53 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf4UNUk6/OXN07sN3FMRll3MrS2ehO8GnTfEO+JQv3BigUvXvNgLJLKqkas5vWijxjr/1KiucA==
+X-Received: by 2002:a05:600c:1da2:b0:3cf:5fd2:87a0 with SMTP id
+ p34-20020a05600c1da200b003cf5fd287a0mr17488468wms.40.1671016973157; 
+ Wed, 14 Dec 2022 03:22:53 -0800 (PST)
+Received: from ?IPV6:2003:cb:c703:7700:dd7c:92f8:481f:b96b?
+ (p200300cbc7037700dd7c92f8481fb96b.dip0.t-ipconnect.de.
+ [2003:cb:c703:7700:dd7c:92f8:481f:b96b])
+ by smtp.gmail.com with ESMTPSA id
+ o3-20020a05600c510300b003cfa3a12660sm8504320wms.1.2022.12.14.03.22.49
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Wed, 14 Dec 2022 03:22:52 -0800 (PST)
+Message-ID: <10bd4fc0-4fc0-bd98-6926-7d721a3bb12e@redhat.com>
+Date: Wed, 14 Dec 2022 12:22:49 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.1
+Subject: Re: [PATCH mm-unstable RFC 00/26] mm: support
+ __HAVE_ARCH_PTE_SWP_EXCLUSIVE on all architectures with swap PTEs
+To: linux-kernel@vger.kernel.org
+References: <20221206144730.163732-1-david@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <20221206144730.163732-1-david@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -68,194 +88,100 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: juri.lelli@redhat.com, mark.rutland@arm.com, linux-ia64@vger.kernel.org,
- linux-sh@vger.kernel.org, peterz@infradead.org, bigeasy@linutronix.de,
- dave.hansen@linux.intel.com, linux-mips@vger.kernel.org, guoren@kernel.org,
- hpa@zytor.com, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
- linux-hexagon@vger.kernel.org, x86@kernel.org, linux@armlinux.org.uk,
- linux-csky@vger.kernel.org, mingo@redhat.com,
+Cc: Huacai Chen <chenhuacai@kernel.org>, linux-ia64@vger.kernel.org,
+ linux-sh@vger.kernel.org, Yang Shi <shy828301@gmail.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Peter Xu <peterx@redhat.com>,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+ linux-mm@kvack.org, Rich Felker <dalias@libc.org>,
+ Nadav Amit <namit@vmware.com>, Christophe Leroy <christophe.leroy@csgroup.eu>,
+ "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org,
+ linux-riscv@lists.infradead.org, Greg Ungerer <gerg@linux-m68k.org>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Andrea Arcangeli <aarcange@redhat.com>, linux-s390@vger.kernel.org,
+ Yoshinori Sato <ysato@users.sourceforge.jp>,
+ Michael Ellerman <mpe@ellerman.id.au>, linux-hexagon@vger.kernel.org,
+ Helge Deller <deller@gmx.de>, x86@kernel.org, Hugh Dickins <hughd@google.com>,
+ Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org,
+ Mike Rapoport <rppt@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
+ Vlastimil Babka <vbabka@suse.cz>, Jason Gunthorpe <jgg@nvidia.com>,
+ Vineet Gupta <vgupta@kernel.org>, Matt Turner <mattst88@gmail.com>,
  linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org,
- paulmck@kernel.org, frederic@kernel.org, rostedt@goodmis.org,
- openrisc@lists.librecores.org, bp@alien8.de, npiggin@gmail.com,
- loongarch@lists.linux.dev, tglx@linutronix.de,
- linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
- bristot@redhat.com, mtosatti@redhat.com, linux-kernel@vger.kernel.org,
- linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- davem@davemloft.net
+ Albert Ou <aou@eecs.berkeley.edu>, Chris Zankel <chris@zankel.net>,
+ Ivan Kokshaysky <ink@jurassic.park.msu.ru>, John Hubbard <jhubbard@nvidia.com>,
+ linux-um@lists.infradead.org, Nicholas Piggin <npiggin@gmail.com>,
+ Richard Weinberger <richard@nod.at>, linux-m68k@lists.linux-m68k.org,
+ openrisc@lists.librecores.org, Borislav Petkov <bp@alien8.de>,
+ loongarch@lists.linux.dev, Paul Walmsley <paul.walmsley@sifive.com>,
+ Richard Henderson <richard.henderson@linaro.org>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ linux-arm-kernel@lists.infradead.org, WANG Xuerui <kernel@xen0n.name>,
+ Brian Cain <bcain@quicinc.com>, Michal Simek <monstr@monstr.eu>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, linux-parisc@vger.kernel.org,
+ Max Filippov <jcmvbkbc@gmail.com>, linux-mips@vger.kernel.org,
+ Dinh Nguyen <dinguyen@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ linux-alpha@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+ Guo Ren <guoren@kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
+ linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Fri, 02 Dec 2022 07:58:09 PST (-0800), vschneid@redhat.com wrote:
-> Background
-> ==========
->
-> Detecting IPI *reception* is relatively easy, e.g. using
-> trace_irq_handler_{entry,exit} or even just function-trace
-> flush_smp_call_function_queue() for SMP calls.
->
-> Figuring out their *origin*, is trickier as there is no generic tracepoint tied
-> to e.g. smp_call_function():
->
-> o AFAIA x86 has no tracepoint tied to sending IPIs, only receiving them
->   (cf. trace_call_function{_single}_entry()).
-> o arm/arm64 do have trace_ipi_raise(), which gives us the target cpus but also a
->   mostly useless string (smp_calls will all be "Function call interrupts").
-> o Other architectures don't seem to have any IPI-sending related tracepoint.
->
-> I believe one reason those tracepoints used by arm/arm64 ended up as they were
-> is because these archs used to handle IPIs differently from regular interrupts
-> (the IRQ driver would directly invoke an IPI-handling routine), which meant they
-> never showed up in trace_irq_handler_{entry, exit}. The trace_ipi_{entry,exit}
-> tracepoints gave a way to trace IPI reception but those have become redundant as
-> of:
->
->       56afcd3dbd19 ("ARM: Allow IPIs to be handled as normal interrupts")
->       d3afc7f12987 ("arm64: Allow IPIs to be handled as normal interrupts")
->
-> which gave IPIs a "proper" handler function used through
-> generic_handle_domain_irq(), which makes them show up via
-> trace_irq_handler_{entry, exit}.
->
-> Changing stuff up
-> =================
->
-> Per the above, it would make sense to reshuffle trace_ipi_raise() and move it
-> into generic code. This also came up during Daniel's talk on Osnoise at the CPU
-> isolation MC of LPC 2022 [1].
->
-> Now, to be useful, such a tracepoint needs to export:
-> o targeted CPU(s)
-> o calling context
->
-> The only way to get the calling context with trace_ipi_raise() is to trigger a
-> stack dump, e.g. $(trace-cmd -e ipi* -T echo 42).
->
-> This is instead introducing a new tracepoint which exports the relevant context
-> (callsite, and requested callback for when the callsite isn't helpful), and is
-> usable by all architectures as it sits in generic code.
->
-> Another thing worth mentioning is that depending on the callsite, the _RET_IP_
-> fed to the tracepoint is not always useful - generic_exec_single() doesn't tell
-> you much about the actual callback being sent via IPI, which is why the new
-> tracepoint also has a @callback argument.
->
-> Patches
-> =======
->
-> o Patch 1 is included for convenience and will be merged independently. FYI I
->   have libtraceevent patches [2] to improve the
->   pretty-printing of cpumasks using the new type, which look like:
->   <...>-3322  [021]   560.402583: ipi_send_cpumask:     cpumask=14,17,21 callsite=on_each_cpu_cond_mask+0x40 callback=flush_tlb_func+0x0
->   <...>-187   [010]   562.590584: ipi_send_cpumask:     cpumask=0-23 callsite=on_each_cpu_cond_mask+0x40 callback=do_sync_core+0x0
->
-> o Patches 2-6 spread out the tracepoint across relevant sites.
->   Patch 6 ends up sprinkling lots of #include <trace/events/ipi.h> which I'm not
->   the biggest fan of, but is the least horrible solution I've been able to come
->   up with so far.
->
-> o Patch 8 is trying to be smart about tracing the callback associated with the
->   IPI.
->
-> This results in having IPI trace events for:
->
-> o smp_call_function*()
-> o smp_send_reschedule()
-> o irq_work_queue*()
-> o standalone uses of __smp_call_single_queue()
->
-> This is incomplete, just looking at arm64 there's more IPI types that aren't
-> covered:
->
->   IPI_CPU_STOP,
->   IPI_CPU_CRASH_STOP,
->   IPI_TIMER,
->   IPI_WAKEUP,
->
-> ... But it feels like a good starting point.
->
-> Links
-> =====
->
-> [1]: https://youtu.be/5gT57y4OzBM?t=14234
-> [2]: https://lore.kernel.org/all/20221116144154.3662923-1-vschneid@redhat.com/
->
-> Revisions
-> =========
->
-> v2 -> v3
-> ++++++++
->
-> o Dropped the generic export of smp_send_reschedule(), turned it into a macro
->   and a bunch of imports
-> o Dropped the send_call_function_single_ipi() macro madness, split it into sched
->   and smp bits using some of Peter's suggestions
->
-> v1 -> v2
-> ++++++++
->
-> o Ditched single-CPU tracepoint
-> o Changed tracepoint signature to include callback
-> o Changed tracepoint callsite field to void *; the parameter is still UL to save
->   up on casts due to using _RET_IP_.
-> o Fixed linking failures due to not exporting smp_send_reschedule()
->
-> Steven Rostedt (Google) (1):
->   tracing: Add __cpumask to denote a trace event field that is a
->     cpumask_t
->
-> Valentin Schneider (7):
->   trace: Add trace_ipi_send_cpumask()
->   sched, smp: Trace IPIs sent via send_call_function_single_ipi()
->   smp: Trace IPIs sent via arch_send_call_function_ipi_mask()
->   irq_work: Trace self-IPIs sent via arch_irq_work_raise()
->   treewide: Trace IPIs sent via smp_send_reschedule()
->   smp: reword smp call IPI comment
->   sched, smp: Trace smp callback causing an IPI
->
->  arch/alpha/kernel/smp.c                      |  2 +-
->  arch/arc/kernel/smp.c                        |  2 +-
->  arch/arm/kernel/smp.c                        |  5 +-
->  arch/arm/mach-actions/platsmp.c              |  2 +
->  arch/arm64/kernel/smp.c                      |  3 +-
->  arch/csky/kernel/smp.c                       |  2 +-
->  arch/hexagon/kernel/smp.c                    |  2 +-
->  arch/ia64/kernel/smp.c                       |  4 +-
->  arch/loongarch/include/asm/smp.h             |  2 +-
->  arch/mips/include/asm/smp.h                  |  2 +-
->  arch/mips/kernel/rtlx-cmp.c                  |  2 +
->  arch/openrisc/kernel/smp.c                   |  2 +-
->  arch/parisc/kernel/smp.c                     |  4 +-
->  arch/powerpc/kernel/smp.c                    |  6 +-
->  arch/powerpc/kvm/book3s_hv.c                 |  3 +
->  arch/powerpc/platforms/powernv/subcore.c     |  2 +
->  arch/riscv/kernel/smp.c                      |  4 +-
->  arch/s390/kernel/smp.c                       |  2 +-
->  arch/sh/kernel/smp.c                         |  2 +-
->  arch/sparc/kernel/smp_32.c                   |  2 +-
->  arch/sparc/kernel/smp_64.c                   |  2 +-
->  arch/x86/include/asm/smp.h                   |  2 +-
->  arch/x86/kvm/svm/svm.c                       |  4 +
->  arch/x86/kvm/x86.c                           |  2 +
->  arch/xtensa/kernel/smp.c                     |  2 +-
->  include/linux/smp.h                          |  8 +-
->  include/trace/bpf_probe.h                    |  6 ++
->  include/trace/events/ipi.h                   | 22 ++++++
->  include/trace/perf.h                         |  6 ++
->  include/trace/stages/stage1_struct_define.h  |  6 ++
->  include/trace/stages/stage2_data_offsets.h   |  6 ++
->  include/trace/stages/stage3_trace_output.h   |  6 ++
->  include/trace/stages/stage4_event_fields.h   |  6 ++
->  include/trace/stages/stage5_get_offsets.h    |  6 ++
->  include/trace/stages/stage6_event_callback.h | 20 +++++
->  include/trace/stages/stage7_class_define.h   |  2 +
->  kernel/irq_work.c                            | 14 +++-
->  kernel/sched/core.c                          | 19 +++--
->  kernel/sched/smp.h                           |  2 +-
->  kernel/smp.c                                 | 78 ++++++++++++++++----
->  samples/trace_events/trace-events-sample.c   |  2 +-
->  samples/trace_events/trace-events-sample.h   | 34 +++++++--
->  virt/kvm/kvm_main.c                          |  1 +
->  43 files changed, 250 insertions(+), 61 deletions(-)
+On 06.12.22 15:47, David Hildenbrand wrote:
+> This is the follow-up on [1]:
+> 	[PATCH v2 0/8] mm: COW fixes part 3: reliable GUP R/W FOLL_GET of
+> 	anonymous pages
+> 
+> After we implemented __HAVE_ARCH_PTE_SWP_EXCLUSIVE on most prominent
+> enterprise architectures, implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE on all
+> remaining architectures that support swap PTEs.
+> 
+> This makes sure that exclusive anonymous pages will stay exclusive, even
+> after they were swapped out -- for example, making GUP R/W FOLL_GET of
+> anonymous pages reliable. Details can be found in [1].
+> 
+> This primarily fixes remaining known O_DIRECT memory corruptions that can
+> happen on concurrent swapout, whereby we can lose DMA reads to a page
+> (modifying the user page by writing to it).
+> 
+> To verify, there are two test cases (requiring swap space, obviously):
+> (1) The O_DIRECT+swapout test case [2] from Andrea. This test case tries
+>      triggering a race condition.
+> (2) My vmsplice() test case [3] that tries to detect if the exclusive
+>      marker was lost during swapout, not relying on a race condition.
+> 
+> 
+> For example, on 32bit x86 (with and without PAE), my test case fails
+> without these patches:
+> 	$ ./test_swp_exclusive
+> 	FAIL: page was replaced during COW
+> But succeeds with these patches:
+> 	$ ./test_swp_exclusive
+> 	PASS: page was not replaced during COW
+> 
+> 
+> Why implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE for all architectures, even
+> the ones where swap support might be in a questionable state? This is the
+> first step towards removing "readable_exclusive" migration entries, and
+> instead using pte_swp_exclusive() also with (readable) migration entries
+> instead (as suggested by Peter). The only missing piece for that is
+> supporting pmd_swp_exclusive() on relevant architectures with THP
+> migration support.
+> 
+> As all relevant architectures now implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE,,
+> we can drop __HAVE_ARCH_PTE_SWP_EXCLUSIVE in the last patch.
+> 
+> 
+> RFC because some of the swap PTE layouts are really tricky and I really
+> need some feedback related to deciphering these layouts and "using yet
+> unused PTE bits in swap PTEs". I tried cross-compiling all relevant setups
+> (phew, I might only miss some power/nohash variants), but only tested on
+> x86 so far.
 
-Acked-by: Palmer Dabbelt <palmer@rivosinc.com> # riscv
+As I was messing with sparc64 either way and got debian to boot under 
+QEMU, I verified that the sparc64 change also seems to work as expected 
+(under sun4u).
+
+-- 
+Thanks,
+
+David / dhildenb
+
