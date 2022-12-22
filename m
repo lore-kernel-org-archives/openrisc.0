@@ -2,36 +2,36 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5C36C3DA7C
-	for <openrisc@archiver.kernel.org>; Fri, 23 Dec 2022 07:17:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70C99C3DA6E
+	for <openrisc@archiver.kernel.org>; Fri, 23 Dec 2022 07:17:45 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 5DC69247C8;
+	by mail.librecores.org (Postfix) with ESMTP id F24A6247E0;
 	Fri, 23 Dec 2022 08:17:44 +0100 (CET)
 Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
- by mail.librecores.org (Postfix) with ESMTPS id 2B94B25BA5
- for <openrisc@lists.librecores.org>; Thu, 22 Dec 2022 12:49:08 +0100 (CET)
+ by mail.librecores.org (Postfix) with ESMTPS id 1EA1025BCD
+ for <openrisc@lists.librecores.org>; Thu, 22 Dec 2022 12:49:12 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1671709748; x=1703245748;
+ t=1671709753; x=1703245753;
  h=from:to:cc:subject:date:message-id:in-reply-to:
  references:mime-version:content-transfer-encoding;
- bh=xrva1eFk6Np1Bm1YmRwegqhZeY1WwhPNk9Drl9WzrJI=;
- b=LjiV1XjWu0ori7uc3kaPBKwUNwyjfI1u7JxaJ6wFDGO73LlM9NOlwXZx
- oZyjhViWGPlfKm2fZaP9PyulwdVw5zTVMqv0aes62Do4lfJdydM2FWGB0
- TwNe/ETXXgOJWNJAiTF9lOkMXpWTXcwwgYxHw3SciUJgjAZoOKYgOM05g
- BRV6aU2nH2M83MRWudU2WenFuk2OTvyIvpPbRnQq88HixDEIlPA3XxhtU
- QxvaDdae+1fzpjmAgfJPyZLe4h0Ep9LezweQkBD6+CJ7jWUORtJYXaX7A
- mgzxlpS3v6TX6Kz+JOO59MAhR1BnlAx5j7egI1IkN4THl5flJkDW0CvS+ A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="318804901"
-X-IronPort-AV: E=Sophos;i="5.96,265,1665471600"; d="scan'208";a="318804901"
+ bh=tIRocWwFeyLnkMyWNI6V183GDJq3vxxO+e0RyrK1iBA=;
+ b=dnRQbvgKFGhPswUk8vFkjePyZPKIVjSmtsVioD7FCUk26tE9tj0FC2al
+ YC28XUfKFU64LaQThPC0EoGptZwVdCbTVxTTZgoaCMHRrBVaFJq9W26kP
+ 3xti6CpH2FSPNfSB3y/b5WMqCYCU07p7ZkqXraHIxZg7czoKodKVbFmPS
+ zscAJVF+3fjgH51fnPwTnDgkW9J5WM7vadm+7f8x6ZuZ867zJN84jO2px
+ +XFWiTNJowo1YqrDYfvS6A6M7zZjlOyIlKTkcvmzDCSjH6D/XqAMll3Bg
+ jk/8p95GEznm0fyG1iy5+knk4J0rP+hFQDYc50iq24hUegZBGnsaOS7mV A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="318804944"
+X-IronPort-AV: E=Sophos;i="5.96,265,1665471600"; d="scan'208";a="318804944"
 Received: from orsmga006.jf.intel.com ([10.7.209.51])
  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 22 Dec 2022 03:49:06 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="629504931"
-X-IronPort-AV: E=Sophos;i="5.96,265,1665471600"; d="scan'208";a="629504931"
+ 22 Dec 2022 03:49:12 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="629504949"
+X-IronPort-AV: E=Sophos;i="5.96,265,1665471600"; d="scan'208";a="629504949"
 Received: from lab-ah.igk.intel.com ([10.91.215.196])
  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 22 Dec 2022 03:49:00 -0800
+ 22 Dec 2022 03:49:06 -0800
 From: Andrzej Hajda <andrzej.hajda@intel.com>
 To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
@@ -43,9 +43,9 @@ To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
  linux-xtensa@linux-xtensa.org, intel-gfx@lists.freedesktop.org,
  dri-devel@lists.freedesktop.org
-Subject: [PATCH 17/19] arch/xtensa: rename internal name __xchg to __arch_xchg
-Date: Thu, 22 Dec 2022 12:46:33 +0100
-Message-Id: <20221222114635.1251934-18-andrzej.hajda@intel.com>
+Subject: [PATCH 18/19] linux/include: add non-atomic version of xchg
+Date: Thu, 22 Dec 2022 12:46:34 +0100
+Message-Id: <20221222114635.1251934-19-andrzej.hajda@intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20221222114635.1251934-1-andrzej.hajda@intel.com>
 References: <20221222114635.1251934-1-andrzej.hajda@intel.com>
@@ -74,35 +74,42 @@ Cc: Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-__xchg will be used for non-atomic xchg macro.
+The pattern of setting variable with new value and returning old
+one is very common in kernel. Usually atomicity of the operation
+is not required, so xchg seems to be suboptimal and confusing in
+such cases.
 
 Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
 ---
- arch/xtensa/include/asm/cmpxchg.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/non-atomic/xchg.h | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+ create mode 100644 include/linux/non-atomic/xchg.h
 
-diff --git a/arch/xtensa/include/asm/cmpxchg.h b/arch/xtensa/include/asm/cmpxchg.h
-index eb87810357ad88..675a11ea8de76b 100644
---- a/arch/xtensa/include/asm/cmpxchg.h
-+++ b/arch/xtensa/include/asm/cmpxchg.h
-@@ -170,7 +170,7 @@ static inline unsigned long xchg_u32(volatile int * m, unsigned long val)
- }
- 
- #define arch_xchg(ptr,x) \
--	((__typeof__(*(ptr)))__xchg((unsigned long)(x),(ptr),sizeof(*(ptr))))
-+	((__typeof__(*(ptr)))__arch_xchg((unsigned long)(x),(ptr),sizeof(*(ptr))))
- 
- static inline u32 xchg_small(volatile void *ptr, u32 x, int size)
- {
-@@ -203,7 +203,7 @@ static inline u32 xchg_small(volatile void *ptr, u32 x, int size)
- extern void __xchg_called_with_bad_pointer(void);
- 
- static __inline__ unsigned long
--__xchg(unsigned long x, volatile void * ptr, int size)
-+__arch_xchg(unsigned long x, volatile void * ptr, int size)
- {
- 	switch (size) {
- 	case 1:
+diff --git a/include/linux/non-atomic/xchg.h b/include/linux/non-atomic/xchg.h
+new file mode 100644
+index 00000000000000..f7fa5dd746f37d
+--- /dev/null
++++ b/include/linux/non-atomic/xchg.h
+@@ -0,0 +1,19 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_NON_ATOMIC_XCHG_H
++#define _LINUX_NON_ATOMIC_XCHG_H
++
++/**
++ * __xchg - set variable pointed by @ptr to @val, return old value
++ * @ptr: pointer to affected variable
++ * @val: value to be written
++ *
++ * This is non-atomic variant of xchg.
++ */
++#define __xchg(ptr, val) ({		\
++	__auto_type __ptr = ptr;	\
++	__auto_type __t = *__ptr;	\
++	*__ptr = (val);			\
++	__t;				\
++})
++
++#endif
 -- 
 2.34.1
 
