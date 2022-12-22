@@ -2,52 +2,51 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67726C4167B
-	for <openrisc@archiver.kernel.org>; Mon, 19 Dec 2022 01:40:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB705C10F1D
+	for <openrisc@archiver.kernel.org>; Thu, 22 Dec 2022 12:47:56 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id E89E1259AC;
-	Mon, 19 Dec 2022 02:40:44 +0100 (CET)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by mail.librecores.org (Postfix) with ESMTPS id A8603259AA
- for <openrisc@lists.librecores.org>; Mon, 19 Dec 2022 02:40:43 +0100 (CET)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id 6036960E15
- for <openrisc@lists.librecores.org>; Mon, 19 Dec 2022 01:40:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A277C433AA
- for <openrisc@lists.librecores.org>; Mon, 19 Dec 2022 01:40:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1671414041;
- bh=9nyV2VLryTNQ2RWGz3ZIj4+lGtx6hnYLztBjAV0zvPk=;
- h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
- b=PATNVhgdHjYWGiZiASI0bBaWPGO5qTJR2J725H79e6EhmAT4XY1N6hsV0m/tQJEp7
- a/2WvulFJ6gOCpeo5QTXLzunPUQjlh2it+91pkfEEgDCo6RRGWx0krLoQTsVX7gm9R
- EVdLgzQN6omHyhybQOq0Ih61Cy92rrRlJTIMKPPQ05AzuTaeoo0eXxzs5b9a/1j2Pe
- cbjteZLbAKsUC5nPsrAsxmzdAcCBOcZpfEX5kvBGMV5m1XRhGlo26443cbMEi9DMsc
- DM2vxo07g5jBYvi3+mwzcTrBmo8h2hYFNguAYLVO1Y7c/iAYn7ysl1MKA9AbHfYbS/
- rYDwQhhKDNexw==
-Received: by mail-ej1-f53.google.com with SMTP id n20so18332932ejh.0
- for <openrisc@lists.librecores.org>; Sun, 18 Dec 2022 17:40:40 -0800 (PST)
-X-Gm-Message-State: ANoB5pmtQ6x0/tdnafc5rSdIaIYrFO/38tKWyeTACu74wLh5F4gi3FkG
- 3NE93rWkXV1o4CI1ZgrlpzXaih+2Rz8QB9muRQU=
-X-Google-Smtp-Source: AA0mqf7fa22WDTII8PuIoosVINgEu5ldbNcdzS6oKOztHUJ2Qlsma3hMLsf/nMU+opz2u3k/iVMluUrTunlVexMitRk=
-X-Received: by 2002:a17:906:f116:b0:7c1:764:5e08 with SMTP id
- gv22-20020a170906f11600b007c107645e08mr12961272ejb.72.1671414039185; Sun, 18
- Dec 2022 17:40:39 -0800 (PST)
+	by mail.librecores.org (Postfix) with ESMTP id 8CEBD25C15;
+	Thu, 22 Dec 2022 13:47:55 +0100 (CET)
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+ by mail.librecores.org (Postfix) with ESMTPS id 3827825BFE
+ for <openrisc@lists.librecores.org>; Thu, 22 Dec 2022 13:47:54 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1671713274; x=1703249274;
+ h=date:from:to:cc:subject:message-id:references:
+ mime-version:in-reply-to;
+ bh=UPM8RDFaM30ZmFrIb8CKMZ1JANhWUp662jbH45qLr6M=;
+ b=CJrefC1nTVyLiuNEMgvtGEqSN8He8lV9VA4K3Kdn203KZgelY5TNuqGC
+ hT3wYxKrAKujkwhYOM0vJjVp7Xt7Yt9n76UgjKigc7d5miwMi3l6GxaWZ
+ SiVDTo1gLTvJ0XqWDwWJMvtvitpWV2+ICeb3DBt9Dy0vMCs9Alhsn1u9W
+ UaIzomewW6wNpF8+y/L70tHmPb8ilQ85CUyOxXxv7rUMyR12Nod0EH2x5
+ lF5ilD9umE+/wYzfraZaG/w8IFdAPU83WD7qqVKmxaz7sqUHzsGpnIqCz
+ P5czRJHZMIks6kH/am+CWOxak5hTch2NAaF1MgZvUH3fTvvZbAPczE+ae g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="322031556"
+X-IronPort-AV: E=Sophos;i="5.96,265,1665471600"; d="scan'208";a="322031556"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+ by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 22 Dec 2022 04:47:51 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="897213732"
+X-IronPort-AV: E=Sophos;i="5.96,265,1665471600"; d="scan'208";a="897213732"
+Received: from smile.fi.intel.com ([10.237.72.54])
+ by fmsmga006.fm.intel.com with ESMTP; 22 Dec 2022 04:47:45 -0800
+Received: from andy by smile.fi.intel.com with local (Exim 4.96)
+ (envelope-from <andriy.shevchenko@linux.intel.com>)
+ id 1p8Kz8-00Duf4-1e; Thu, 22 Dec 2022 14:47:42 +0200
+Date: Thu, 22 Dec 2022 14:47:42 +0200
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Andrzej Hajda <andrzej.hajda@intel.com>
+Subject: Re: [PATCH 18/19] linux/include: add non-atomic version of xchg
+Message-ID: <Y6RR7hPZUN22ytap@smile.fi.intel.com>
+References: <20221222114635.1251934-1-andrzej.hajda@intel.com>
+ <20221222114635.1251934-19-andrzej.hajda@intel.com>
 MIME-Version: 1.0
-References: <20221206144730.163732-1-david@redhat.com>
- <CAAhV-H4bU7JnAPyf9Mv1m+WGR5NWmHJLva3d9_CsRd4Q_OHVpg@mail.gmail.com>
- <b3b90a8e-16e9-a314-8531-e225f8a52817@redhat.com>
-In-Reply-To: <b3b90a8e-16e9-a314-8531-e225f8a52817@redhat.com>
-From: Huacai Chen <chenhuacai@kernel.org>
-Date: Mon, 19 Dec 2022 09:40:31 +0800
-X-Gmail-Original-Message-ID: <CAAhV-H74np_5BZ0s=z-bV1OLhRf4cEOAOp4d3kNfBLWNkY33_A@mail.gmail.com>
-Message-ID: <CAAhV-H74np_5BZ0s=z-bV1OLhRf4cEOAOp4d3kNfBLWNkY33_A@mail.gmail.com>
-Subject: Re: [PATCH mm-unstable RFC 00/26] mm: support
- __HAVE_ARCH_PTE_SWP_EXCLUSIVE on all architectures with swap PTEs
-To: David Hildenbrand <david@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221222114635.1251934-19-andrzej.hajda@intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
 Precedence: list
@@ -60,241 +59,68 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org,
- linux-sh@vger.kernel.org, Yang Shi <shy828301@gmail.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, Peter Xu <peterx@redhat.com>,
- linux-mips@vger.kernel.org,
- "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
- linux-mm@kvack.org, Nadav Amit <namit@vmware.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org,
- linux-riscv@lists.infradead.org, Greg Ungerer <gerg@linux-m68k.org>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Andrea Arcangeli <aarcange@redhat.com>, linux-s390@vger.kernel.org,
- Yoshinori Sato <ysato@users.sourceforge.jp>,
- Michael Ellerman <mpe@ellerman.id.au>, linux-hexagon@vger.kernel.org,
- Helge Deller <deller@gmx.de>, x86@kernel.org, Hugh Dickins <hughd@google.com>,
- Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org,
- Mike Rapoport <rppt@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
- Vlastimil Babka <vbabka@suse.cz>, Jason Gunthorpe <jgg@nvidia.com>,
- Vineet Gupta <vgupta@kernel.org>, Matt Turner <mattst88@gmail.com>,
- linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org,
- Albert Ou <aou@eecs.berkeley.edu>, Chris Zankel <chris@zankel.net>,
- Ivan Kokshaysky <ink@jurassic.park.msu.ru>, John Hubbard <jhubbard@nvidia.com>,
- linux-um@lists.infradead.org, Nicholas Piggin <npiggin@gmail.com>,
- Richard Weinberger <richard@nod.at>, linux-m68k@lists.linux-m68k.org,
- openrisc@lists.librecores.org, Borislav Petkov <bp@alien8.de>,
- loongarch@lists.linux.dev, Paul Walmsley <paul.walmsley@sifive.com>,
- Richard Henderson <richard.henderson@linaro.org>,
- Johannes Berg <johannes@sipsolutions.net>,
- linux-arm-kernel@lists.infradead.org, WANG Xuerui <kernel@xen0n.name>,
- Brian Cain <bcain@quicinc.com>, Michal Simek <monstr@monstr.eu>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>, linux-parisc@vger.kernel.org,
- Max Filippov <jcmvbkbc@gmail.com>, linux-kernel@vger.kernel.org,
- Dinh Nguyen <dinguyen@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- linux-alpha@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
- Guo Ren <guoren@kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
- linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
+Cc: Mark Rutland <mark.rutland@arm.com>, linux-ia64@vger.kernel.org,
+ linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+ dri-devel@lists.freedesktop.org, linux-mips@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org, Boqun Feng <boqun.feng@gmail.com>,
+ linux-xtensa@linux-xtensa.org, Arnd Bergmann <arnd@arndb.de>,
+ intel-gfx@lists.freedesktop.org, linux-m68k@lists.linux-m68k.org,
+ openrisc@lists.librecores.org, loongarch@lists.linux.dev,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, linux-arm-kernel@lists.infradead.org,
+ linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-alpha@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+ linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Sun, Dec 18, 2022 at 5:59 PM David Hildenbrand <david@redhat.com> wrote:
->
-> On 18.12.22 04:32, Huacai Chen wrote:
-> > Hi, David,
-> >
-> > What is the opposite of exclusive here? Shared or inclusive? I prefer
-> > pte_swp_mkshared() or pte_swp_mkinclusive() rather than
-> > pte_swp_clear_exclusive(). Existing examples: dirty/clean, young/old
-> > ...
->
-> Hi Huacai,
->
-> thanks for having a look!
->
-> Please note that this series doesn't add these primitives but merely
-> implements them on all remaining architectures.
->
-> Having that said, the semantics are "exclusive" vs. "maybe shared", not
-> "exclusive" vs. "shared" or sth. else. It would have to be
-> pte_swp_mkmaybe_shared().
->
->
-> Note that this naming matches just the way we handle it for the other
-> pte_swp_ flags we have, namely:
->
-> pte_swp_mksoft_dirty()
-> pte_swp_soft_dirty()
-> pte_swp_clear_soft_dirty()
->
-> and
->
-> pte_swp_mkuffd_wp()
-> pte_swp_uffd_wp()
-> pte_swp_clear_uffd_wp()
->
->
-> For example, we also (thankfully) didn't call it pte_mksoft_clean().
-> Grepping for "pte_swp.*soft_dirty" gives you the full picture.
->
-> Thanks!
-OK, got it.
+On Thu, Dec 22, 2022 at 12:46:34PM +0100, Andrzej Hajda wrote:
+> The pattern of setting variable with new value and returning old
+> one is very common in kernel. Usually atomicity of the operation
+> is not required, so xchg seems to be suboptimal and confusing in
+> such cases.
 
-Huacai
->
-> David
->
-> >
-> > Huacai
-> >
-> > On Tue, Dec 6, 2022 at 10:48 PM David Hildenbrand <david@redhat.com> wrote:
-> >>
-> >> This is the follow-up on [1]:
-> >>          [PATCH v2 0/8] mm: COW fixes part 3: reliable GUP R/W FOLL_GET of
-> >>          anonymous pages
-> >>
-> >> After we implemented __HAVE_ARCH_PTE_SWP_EXCLUSIVE on most prominent
-> >> enterprise architectures, implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE on all
-> >> remaining architectures that support swap PTEs.
-> >>
-> >> This makes sure that exclusive anonymous pages will stay exclusive, even
-> >> after they were swapped out -- for example, making GUP R/W FOLL_GET of
-> >> anonymous pages reliable. Details can be found in [1].
-> >>
-> >> This primarily fixes remaining known O_DIRECT memory corruptions that can
-> >> happen on concurrent swapout, whereby we can lose DMA reads to a page
-> >> (modifying the user page by writing to it).
-> >>
-> >> To verify, there are two test cases (requiring swap space, obviously):
-> >> (1) The O_DIRECT+swapout test case [2] from Andrea. This test case tries
-> >>      triggering a race condition.
-> >> (2) My vmsplice() test case [3] that tries to detect if the exclusive
-> >>      marker was lost during swapout, not relying on a race condition.
-> >>
-> >>
-> >> For example, on 32bit x86 (with and without PAE), my test case fails
-> >> without these patches:
-> >>          $ ./test_swp_exclusive
-> >>          FAIL: page was replaced during COW
-> >> But succeeds with these patches:
-> >>          $ ./test_swp_exclusive
-> >>          PASS: page was not replaced during COW
-> >>
-> >>
-> >> Why implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE for all architectures, even
-> >> the ones where swap support might be in a questionable state? This is the
-> >> first step towards removing "readable_exclusive" migration entries, and
-> >> instead using pte_swp_exclusive() also with (readable) migration entries
-> >> instead (as suggested by Peter). The only missing piece for that is
-> >> supporting pmd_swp_exclusive() on relevant architectures with THP
-> >> migration support.
-> >>
-> >> As all relevant architectures now implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE,,
-> >> we can drop __HAVE_ARCH_PTE_SWP_EXCLUSIVE in the last patch.
-> >>
-> >>
-> >> RFC because some of the swap PTE layouts are really tricky and I really
-> >> need some feedback related to deciphering these layouts and "using yet
-> >> unused PTE bits in swap PTEs". I tried cross-compiling all relevant setups
-> >> (phew, I might only miss some power/nohash variants), but only tested on
-> >> x86 so far.
-> >>
-> >> CCing arch maintainers only on this cover letter and on the respective
-> >> patch(es).
-> >>
-> >>
-> >> [1] https://lkml.kernel.org/r/20220329164329.208407-1-david@redhat.com
-> >> [2] https://gitlab.com/aarcange/kernel-testcases-for-v5.11/-/blob/main/page_count_do_wp_page-swap.c
-> >> [3] https://gitlab.com/davidhildenbrand/scratchspace/-/blob/main/test_swp_exclusive.c
-> >>
-> >> David Hildenbrand (26):
-> >>    mm/debug_vm_pgtable: more pte_swp_exclusive() sanity checks
-> >>    alpha/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    arc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    arm/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    csky/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    hexagon/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    ia64/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    loongarch/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    m68k/mm: remove dummy __swp definitions for nommu
-> >>    m68k/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    microblaze/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    mips/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    nios2/mm: refactor swap PTE layout
-> >>    nios2/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    openrisc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    parisc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    powerpc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE on 32bit book3s
-> >>    powerpc/nohash/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    riscv/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    sh/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    sparc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE on 32bit
-> >>    sparc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE on 64bit
-> >>    um/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    x86/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE also on 32bit
-> >>    xtensa/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>    mm: remove __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> >>
-> >>   arch/alpha/include/asm/pgtable.h              | 40 ++++++++-
-> >>   arch/arc/include/asm/pgtable-bits-arcv2.h     | 26 +++++-
-> >>   arch/arm/include/asm/pgtable-2level.h         |  3 +
-> >>   arch/arm/include/asm/pgtable-3level.h         |  3 +
-> >>   arch/arm/include/asm/pgtable.h                | 34 ++++++--
-> >>   arch/arm64/include/asm/pgtable.h              |  1 -
-> >>   arch/csky/abiv1/inc/abi/pgtable-bits.h        | 13 ++-
-> >>   arch/csky/abiv2/inc/abi/pgtable-bits.h        | 19 ++--
-> >>   arch/csky/include/asm/pgtable.h               | 17 ++++
-> >>   arch/hexagon/include/asm/pgtable.h            | 36 ++++++--
-> >>   arch/ia64/include/asm/pgtable.h               | 31 ++++++-
-> >>   arch/loongarch/include/asm/pgtable-bits.h     |  4 +
-> >>   arch/loongarch/include/asm/pgtable.h          | 38 +++++++-
-> >>   arch/m68k/include/asm/mcf_pgtable.h           | 35 +++++++-
-> >>   arch/m68k/include/asm/motorola_pgtable.h      | 37 +++++++-
-> >>   arch/m68k/include/asm/pgtable_no.h            |  6 --
-> >>   arch/m68k/include/asm/sun3_pgtable.h          | 38 +++++++-
-> >>   arch/microblaze/include/asm/pgtable.h         | 44 +++++++---
-> >>   arch/mips/include/asm/pgtable-32.h            | 86 ++++++++++++++++---
-> >>   arch/mips/include/asm/pgtable-64.h            | 23 ++++-
-> >>   arch/mips/include/asm/pgtable.h               | 35 ++++++++
-> >>   arch/nios2/include/asm/pgtable-bits.h         |  3 +
-> >>   arch/nios2/include/asm/pgtable.h              | 37 ++++++--
-> >>   arch/openrisc/include/asm/pgtable.h           | 40 +++++++--
-> >>   arch/parisc/include/asm/pgtable.h             | 40 ++++++++-
-> >>   arch/powerpc/include/asm/book3s/32/pgtable.h  | 37 ++++++--
-> >>   arch/powerpc/include/asm/book3s/64/pgtable.h  |  1 -
-> >>   arch/powerpc/include/asm/nohash/32/pgtable.h  | 22 +++--
-> >>   arch/powerpc/include/asm/nohash/32/pte-40x.h  |  6 +-
-> >>   arch/powerpc/include/asm/nohash/32/pte-44x.h  | 18 +---
-> >>   arch/powerpc/include/asm/nohash/32/pte-85xx.h |  4 +-
-> >>   arch/powerpc/include/asm/nohash/64/pgtable.h  | 24 +++++-
-> >>   arch/powerpc/include/asm/nohash/pgtable.h     | 15 ++++
-> >>   arch/powerpc/include/asm/nohash/pte-e500.h    |  1 -
-> >>   arch/riscv/include/asm/pgtable-bits.h         |  3 +
-> >>   arch/riscv/include/asm/pgtable.h              | 28 ++++--
-> >>   arch/s390/include/asm/pgtable.h               |  1 -
-> >>   arch/sh/include/asm/pgtable_32.h              | 53 +++++++++---
-> >>   arch/sparc/include/asm/pgtable_32.h           | 26 +++++-
-> >>   arch/sparc/include/asm/pgtable_64.h           | 37 +++++++-
-> >>   arch/sparc/include/asm/pgtsrmmu.h             | 14 +--
-> >>   arch/um/include/asm/pgtable.h                 | 36 +++++++-
-> >>   arch/x86/include/asm/pgtable-2level.h         | 26 ++++--
-> >>   arch/x86/include/asm/pgtable-3level.h         | 26 +++++-
-> >>   arch/x86/include/asm/pgtable.h                |  3 -
-> >>   arch/xtensa/include/asm/pgtable.h             | 31 +++++--
-> >>   include/linux/pgtable.h                       | 29 -------
-> >>   mm/debug_vm_pgtable.c                         | 25 +++++-
-> >>   mm/memory.c                                   |  4 -
-> >>   mm/rmap.c                                     | 11 ---
-> >>   50 files changed, 943 insertions(+), 227 deletions(-)
-> >>
-> >> --
-> >> 2.38.1
-> >>
-> >>
-> >
->
-> --
-> Thanks,
->
-> David / dhildenb
->
+FWIW,
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
+> Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
+> ---
+>  include/linux/non-atomic/xchg.h | 19 +++++++++++++++++++
+>  1 file changed, 19 insertions(+)
+>  create mode 100644 include/linux/non-atomic/xchg.h
+> 
+> diff --git a/include/linux/non-atomic/xchg.h b/include/linux/non-atomic/xchg.h
+> new file mode 100644
+> index 00000000000000..f7fa5dd746f37d
+> --- /dev/null
+> +++ b/include/linux/non-atomic/xchg.h
+> @@ -0,0 +1,19 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef _LINUX_NON_ATOMIC_XCHG_H
+> +#define _LINUX_NON_ATOMIC_XCHG_H
+> +
+> +/**
+> + * __xchg - set variable pointed by @ptr to @val, return old value
+> + * @ptr: pointer to affected variable
+> + * @val: value to be written
+> + *
+> + * This is non-atomic variant of xchg.
+> + */
+> +#define __xchg(ptr, val) ({		\
+> +	__auto_type __ptr = ptr;	\
+> +	__auto_type __t = *__ptr;	\
+> +	*__ptr = (val);			\
+> +	__t;				\
+> +})
+> +
+> +#endif
+> -- 
+> 2.34.1
+> 
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+
