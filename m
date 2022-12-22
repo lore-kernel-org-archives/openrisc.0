@@ -2,57 +2,55 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09FEFC3DA6E
-	for <openrisc@archiver.kernel.org>; Fri, 23 Dec 2022 07:17:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4493C3DA7C
+	for <openrisc@archiver.kernel.org>; Fri, 23 Dec 2022 07:17:34 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id C74112126D;
-	Fri, 23 Dec 2022 08:17:30 +0100 (CET)
-Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com
- [209.85.210.176])
- by mail.librecores.org (Postfix) with ESMTPS id BEE69247B6
- for <openrisc@lists.librecores.org>; Tue, 22 Nov 2022 17:05:11 +0100 (CET)
-Received: by mail-pf1-f176.google.com with SMTP id b185so14770001pfb.9
- for <openrisc@lists.librecores.org>; Tue, 22 Nov 2022 08:05:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:from:to:cc:subject:date:message-id:reply-to;
- bh=mKqixJN/8zapPMiYOY0ZA2E36N6vIQg16uLiOxlikFI=;
- b=Sxgb7NdwQ/FjyYXzMQLr2Ufh8inWhewppyg2kEhKfSMa5+4xLhcDZFgBkLe+YVojYR
- b1j/8R8eepdhz2QNEoN59UWxI0C8HtPNMN2hfsnJ2VXdsyzTbL+tlNksQKPnsWg/NtBp
- chCgU4N95aPK2lbuS5RzKtW5ffOhO3rTLhquzizFSUU3p/ux1MbE2BMO0btBQyCrWeJK
- WXzMJ1H0fbnItfONfrC7qjjeZVQUnHu7QZDLXM8ZsS1OkeorqU4Yt3+bnHeBb63EIVUM
- ARM0B0wTMD/PlD/5zjrBQjmOnBQvgdxEwxF1FwYHEN8lHlbB5RkK/8WK1b4hFP6jFplD
- FuDA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=mKqixJN/8zapPMiYOY0ZA2E36N6vIQg16uLiOxlikFI=;
- b=lS5v7FWIlVmbEgQl/gX8AAiQtwRR1M//U+yqvDy5SBL5dCuyMBi3TCizl2nOjzDFse
- 5Ud6S3YwVu9PlLga9KOcYYEDJRA3pY8ncGI87Z7yBaX/GBc6K11lKhRYWPYtOZZFd8et
- zLd8yq5pgzklX8kLH3eSqRM1Es5ud9HT0962WsBlpmuAZk9X+8PQFfENOJj2H71ZCpap
- rxppbbrcKyWavtybU24RryIV9VBd+lruvewb8h7BPAeoMRv9nyMk1ypGkbfiU32z9cMJ
- N67HKpEEwZESfMBPMUlP/N8xfKcjeWy3X9Qw/u7BrTQC7QKIO47Wn4QxtanjOcAajo7e
- TF8w==
-X-Gm-Message-State: ANoB5pmpcocATuy04q94oQFqWG37C/NsNIzWAwQOfJ97v4/PIAIYCt43
- 0SOv/VerlgpOUEn5T7UQDdTLSGHOSMmlCqruwfN4ug==
-X-Google-Smtp-Source: AA0mqf6JSvaqlcRgOCqphXQ3MBWuxLvJ9cnb0DNFGeizoGOcIFvJAwjnOuz3SuqXXwFDZ3Z3O+rn4vXVPvsxTfgKOLE=
-X-Received: by 2002:a63:501c:0:b0:477:650a:c29a with SMTP id
- e28-20020a63501c000000b00477650ac29amr3900068pgb.541.1669133109958; Tue, 22
- Nov 2022 08:05:09 -0800 (PST)
+	by mail.librecores.org (Postfix) with ESMTP id 415B0247E1;
+	Fri, 23 Dec 2022 08:17:31 +0100 (CET)
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+ by mail.librecores.org (Postfix) with ESMTPS id 269C524C83
+ for <openrisc@lists.librecores.org>; Thu, 22 Dec 2022 12:47:26 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1671709647; x=1703245647;
+ h=from:to:cc:subject:date:message-id:mime-version:
+ content-transfer-encoding;
+ bh=jJG0WtbR+rCKPAOFXgAECJpdIQA2qxIhAt/9hS9GHCs=;
+ b=ZYmZaP31X5iIuhhipgpiH9tINsfqHhqBAAk91x0C1gok0NHN9og/bQqO
+ ARvBPojlejPY85IWxfMlm1M+61HMWSnT0yL1/HYoG5JSpibHlZ611x+a9
+ PDTzB8w7/q0FL3VnM9AicPDsgAUx/lJfrtBdZ26vRWr3cPIQDQd+es5or
+ YnopdsGVRW1LUHXftlNm1XvmPI+AfCQhY8MYGqHXYN0tu+07482/Q+roQ
+ kYsb0n6NKtiA2sm/T4naHbrOprIQedVUVe4B82ECF524UORC5NyIhSbB+
+ iw5w5DB7V4aUnyMGRTLU1LeNnv/wyfMbMiSbQnsGU/+oBZOalb1Bq5yVS Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="318804419"
+X-IronPort-AV: E=Sophos;i="5.96,265,1665471600"; d="scan'208";a="318804419"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+ by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 22 Dec 2022 03:47:24 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="629504298"
+X-IronPort-AV: E=Sophos;i="5.96,265,1665471600"; d="scan'208";a="629504298"
+Received: from lab-ah.igk.intel.com ([10.91.215.196])
+ by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 22 Dec 2022 03:47:18 -0800
+From: Andrzej Hajda <andrzej.hajda@intel.com>
+To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
+ linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+ linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-xtensa@linux-xtensa.org, intel-gfx@lists.freedesktop.org,
+ dri-devel@lists.freedesktop.org
+Subject: [PATCH 00/19] Introduce __xchg, non-atomic xchg
+Date: Thu, 22 Dec 2022 12:46:16 +0100
+Message-Id: <20221222114635.1251934-1-andrzej.hajda@intel.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-References: <20220919095939.761690562@infradead.org>
- <20220919101521.139727471@infradead.org>
- <CAPDyKFqTWd4W5Ofk76CtC4X43dxBTNHtmY9YzN355-vpviLsPw@mail.gmail.com>
- <Y3UBwYNY15ETUKy9@hirez.programming.kicks-ass.net>
-In-Reply-To: <Y3UBwYNY15ETUKy9@hirez.programming.kicks-ass.net>
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Date: Tue, 22 Nov 2022 17:04:33 +0100
-Message-ID: <CAPDyKFqzmJdVVrcuJ6Hmr5nNgtpd9Oke_exmUKuTGZEb=PjvjQ@mail.gmail.com>
-Subject: Re: [PATCH v2 12/44] cpuidle,dt: Push RCU-idle into driver
-To: Peter Zijlstra <peterz@infradead.org>
-Content-Type: text/plain; charset="UTF-8"
+Organization: Intel Technology Poland sp. z o.o. - ul. Slowackiego 173,
+ 80-298 Gdansk - KRS 101882 - NIP 957-07-52-316
+Content-Transfer-Encoding: 8bit
 X-Mailman-Approved-At: Fri, 23 Dec 2022 08:17:29 +0100
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
@@ -66,246 +64,131 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
- linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
- agordeev@linux.ibm.com, linux-clk@vger.kernel.org, linux-arch@vger.kernel.org,
- vincent.guittot@linaro.org, mpe@ellerman.id.au, linux-sh@vger.kernel.org,
- kasan-dev@googlegroups.com, linux-acpi@vger.kernel.org, mingo@redhat.com,
- linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
- lpieralisi@kernel.org, sammy@sammy.net, pmladek@suse.com,
- linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
- linux-um@lists.infradead.org, npiggin@gmail.com, tglx@linutronix.de,
- linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, andreyknvl@gmail.com,
- gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
- linux-perf-users@vger.kernel.org, senozhatsky@chromium.org,
- svens@linux.ibm.com, kernel@pengutronix.de, tj@kernel.org,
- Andrew Morton <akpm@linux-foundation.org>, mark.rutland@arm.com,
- linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
- virtualization@lists.linux-foundation.org,
- James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
- thierry.reding@gmail.com, kernel@xen0n.name, cl@linux.com,
- linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
- ysato@users.sourceforge.jp, festevam@gmail.com, deller@gmx.de,
- daniel.lezcano@linaro.org, jonathanh@nvidia.com, dennis@kernel.org,
- lenb@kernel.org, linux-xtensa@linux-xtensa.org, jolsa@kernel.org,
- gor@linux.ibm.com, linux-arm-msm@vger.kernel.org, sudeep.holla@arm.com,
- linux-m68k@lists.linux-m68k.org, loongarch@lists.linux.dev, chris@zankel.net,
- sboyd@kernel.org, dinguyen@kernel.org, bristot@redhat.com,
- chenhuacai@kernel.org, alexander.shishkin@linux.intel.com, fweisbec@gmail.com,
- mturquette@baylibre.com, paul.walmsley@sifive.com, linux@rasmusvillemoes.dk,
- christophe.leroy@csgroup.eu, will@kernel.org, boris.ostrovsky@oracle.com,
- khilman@kernel.org, linux-csky@vger.kernel.org, tony@atomide.com,
- linux-snps-arc@lists.infradead.org, mgorman@suse.de,
- jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
- ulli.kroll@googlemail.com, rostedt@goodmis.org, ink@jurassic.park.msu.ru,
- bcain@quicinc.com, tsbogend@alpha.franken.de, linux-parisc@vger.kernel.org,
- anup@brainfault.org, ryabinin.a.a@gmail.com, linux-alpha@vger.kernel.org,
- shawnguo@kernel.org, davem@davemloft.net, dalias@libc.org,
- pv-drivers@vmware.com, hpa@zytor.com, konrad.dybcio@somainline.org,
- bjorn.andersson@linaro.org, glider@google.com, amakhalov@vmware.com,
- sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
- vincenzo.frascino@arm.com, anton.ivanov@cambridgegreys.com, jonas@southpole.se,
- yury.norov@gmail.com, richard@nod.at, x86@kernel.org, linux@armlinux.org.uk,
- agross@kernel.org, aou@eecs.berkeley.edu, hca@linux.ibm.com,
- richard.henderson@linaro.org, openrisc@lists.librecores.org, acme@kernel.org,
- atishp@atishpatra.org, linux-tegra@vger.kernel.org, namhyung@kernel.org,
- andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, dvyukov@google.com,
- jgross@suse.com, monstr@monstr.eu, linux-mips@vger.kernel.org,
- palmer@dabbelt.com, linux-hexagon@vger.kernel.org, bp@alien8.de,
- johannes@sipsolutions.net, linuxppc-dev@lists.ozlabs.org
+Cc: Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>,
+ Peter Zijlstra <peterz@infradead.org>, Boqun Feng <boqun.feng@gmail.com>,
+ Andrzej Hajda <andrzej.hajda@intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Wed, 16 Nov 2022 at 16:29, Peter Zijlstra <peterz@infradead.org> wrote:
->
->
-> Sorry; things keep getting in the way of finishing this :/
->
-> As such, I need a bit of time to get on-track again..
->
-> On Tue, Oct 04, 2022 at 01:03:57PM +0200, Ulf Hansson wrote:
->
-> > > --- a/drivers/acpi/processor_idle.c
-> > > +++ b/drivers/acpi/processor_idle.c
-> > > @@ -1200,6 +1200,8 @@ static int acpi_processor_setup_lpi_stat
-> > >                 state->target_residency = lpi->min_residency;
-> > >                 if (lpi->arch_flags)
-> > >                         state->flags |= CPUIDLE_FLAG_TIMER_STOP;
-> > > +               if (lpi->entry_method == ACPI_CSTATE_FFH)
-> > > +                       state->flags |= CPUIDLE_FLAG_RCU_IDLE;
-> >
-> > I assume the state index here will never be 0?
-> >
-> > If not, it may lead to that acpi_processor_ffh_lpi_enter() may trigger
-> > CPU_PM_CPU_IDLE_ENTER_PARAM() to call ct_cpuidle_enter|exit() for an
-> > idle-state that doesn't have the CPUIDLE_FLAG_RCU_IDLE bit set.
->
-> I'm not quite sure I see how. AFAICT this condition above implies
-> acpi_processor_ffh_lpi_enter() gets called, no?
->
-> Which in turn is an unconditional __CPU_PM_CPU_IDLE_ENTER() user, so
-> even if idx==0, it ends up in ct_idle_{enter,exit}().
+Hi all,
 
-Seems like I was overlooking something here, you are right, this
-shouldn't really be a problem.
+I hope there will be place for such tiny helper in kernel.
+Quick cocci analyze shows there is probably few thousands places
+where it could be useful.
+I am not sure who is good person to review/ack such patches,
+so I've used my intuition to construct to/cc lists, sorry for mistakes.
+This is the 2nd approach of the same idea, with comments addressed[0].
 
->
-> >
-> > >                 state->enter = acpi_idle_lpi_enter;
-> > >                 drv->safe_state_index = i;
-> > >         }
-> > > --- a/drivers/cpuidle/cpuidle-arm.c
-> > > +++ b/drivers/cpuidle/cpuidle-arm.c
-> > > @@ -53,6 +53,7 @@ static struct cpuidle_driver arm_idle_dr
-> > >          * handler for idle state index 0.
-> > >          */
-> > >         .states[0] = {
-> > > +               .flags                  = CPUIDLE_FLAG_RCU_IDLE,
-> >
-> > Comparing arm64 and arm32 idle-states/idle-drivers, the $subject
-> > series ends up setting the CPUIDLE_FLAG_RCU_IDLE for the ARM WFI idle
-> > state (state zero), but only for the arm64 and psci cases (mostly
-> > arm64). For arm32 we would need to update the ARM_CPUIDLE_WFI_STATE
-> > too, as that is what most arm32 idle-drivers are using. My point is,
-> > the code becomes a bit inconsistent.
->
-> True.
->
-> > Perhaps it's easier to avoid setting the CPUIDLE_FLAG_RCU_IDLE bit for
-> > all of the ARM WFI idle states, for both arm64 and arm32?
->
-> As per the below?
->
-> >
-> > >                 .enter                  = arm_enter_idle_state,
-> > >                 .exit_latency           = 1,
-> > >                 .target_residency       = 1,
->
-> > > --- a/include/linux/cpuidle.h
-> > > +++ b/include/linux/cpuidle.h
-> > > @@ -282,14 +282,18 @@ extern s64 cpuidle_governor_latency_req(
-> > >         int __ret = 0;                                                  \
-> > >                                                                         \
-> > >         if (!idx) {                                                     \
-> > > +               ct_idle_enter();                                        \
-> >
-> > According to my comment above, we should then drop these calls to
-> > ct_idle_enter and ct_idle_exit() here. Right?
->
-> Yes, if we ensure idx==0 never has RCU_IDLE set then these must be
-> removed.
->
-> > >                 cpu_do_idle();                                          \
-> > > +               ct_idle_exit();                                         \
-> > >                 return idx;                                             \
-> > >         }                                                               \
-> > >                                                                         \
-> > >         if (!is_retention)                                              \
-> > >                 __ret =  cpu_pm_enter();                                \
-> > >         if (!__ret) {                                                   \
-> > > +               ct_idle_enter();                                        \
-> > >                 __ret = low_level_idle_enter(state);                    \
-> > > +               ct_idle_exit();                                         \
-> > >                 if (!is_retention)                                      \
-> > >                         cpu_pm_exit();                                  \
-> > >         }                                                               \
-> > >
->
-> So the basic premise is that everything that needs RCU inside the idle
-> callback must set CPUIDLE_FLAG_RCU_IDLE and by doing that promise to
-> call ct_idle_{enter,exit}() themselves.
->
-> Setting RCU_IDLE is required when there is RCU usage, however even if
-> there is no RCU usage, setting RCU_IDLE is fine, as long as
-> ct_idle_{enter,exit}() then get called.
+The helper is tiny and there are advices we can leave without it, so
+I want to present few arguments why it would be good to have it:
 
-Right, I was thinking that it could make sense to shrink the window
-for users getting this wrong. In other words, we shouldn't set the
-CPUIDLE_FLAG_RCU_IDLE unless we really need to.
+1. Code readability/simplification/number of lines:
 
-And as I said, consistent behaviour is also nice to have.
+Real example from drivers/net/ethernet/mellanox/mlx5/core/esw/qos.c:
+-       previous_min_rate = evport->qos.min_rate;
+-       evport->qos.min_rate = min_rate;
++       previous_min_rate = __xchg(evport->qos.min_rate, min_rate);
 
->
->
-> So does the below (delta) look better to you?
+For sure the code is more compact, and IMHO more readable.
 
-Yes, it does!
+2. Presence of similar helpers in other somehow related languages/libs:
 
-Although, one minor comment below.
+a) Rust[1]: 'replace' from std::mem module, there is also 'take'
+    helper (__xchg(&x, 0)), which is the same as private helper in
+    i915 - fetch_and_zero, see latest patch.
+b) C++ [2]: 'exchange' from utility header.
 
->
-> --- a/drivers/acpi/processor_idle.c
-> +++ b/drivers/acpi/processor_idle.c
-> @@ -1218,7 +1218,7 @@ static int acpi_processor_setup_lpi_stat
->                 state->target_residency = lpi->min_residency;
->                 if (lpi->arch_flags)
->                         state->flags |= CPUIDLE_FLAG_TIMER_STOP;
-> -               if (lpi->entry_method == ACPI_CSTATE_FFH)
-> +               if (i != 0 && lpi->entry_method == ACPI_CSTATE_FFH)
->                         state->flags |= CPUIDLE_FLAG_RCU_IDLE;
->                 state->enter = acpi_idle_lpi_enter;
->                 drv->safe_state_index = i;
-> --- a/drivers/cpuidle/cpuidle-arm.c
-> +++ b/drivers/cpuidle/cpuidle-arm.c
-> @@ -53,7 +53,7 @@ static struct cpuidle_driver arm_idle_dr
->          * handler for idle state index 0.
->          */
->         .states[0] = {
-> -               .flags                  = CPUIDLE_FLAG_RCU_IDLE,
-> +               .flags                  = 0,
+If the idea is OK there are still 2 qestions to answer:
 
-Nitpick: I don't think we need to explicitly clear the flag, as it
-should already be zeroed by the compiler from its static declaration.
-Right?
+1. Name of the helper, __xchg follows kernel conventions,
+    but for me Rust names are also OK.
+2. Where to put the helper:
+a) as in this patchset include/linux/non-atomic/xchg.h,
+    proposed by Andy Shevchenko,
+b) include/linux/utils.h ? any better name? Some kind
+    of container for simple helpers.
 
->                 .enter                  = arm_enter_idle_state,
->                 .exit_latency           = 1,
->                 .target_residency       = 1,
-> --- a/drivers/cpuidle/cpuidle-psci.c
-> +++ b/drivers/cpuidle/cpuidle-psci.c
-> @@ -357,7 +357,7 @@ static int psci_idle_init_cpu(struct dev
->          * PSCI idle states relies on architectural WFI to be represented as
->          * state index 0.
->          */
-> -       drv->states[0].flags = CPUIDLE_FLAG_RCU_IDLE;
-> +       drv->states[0].flags = 0;
->         drv->states[0].enter = psci_enter_idle_state;
->         drv->states[0].exit_latency = 1;
->         drv->states[0].target_residency = 1;
-> --- a/drivers/cpuidle/cpuidle-qcom-spm.c
-> +++ b/drivers/cpuidle/cpuidle-qcom-spm.c
-> @@ -72,7 +72,7 @@ static struct cpuidle_driver qcom_spm_id
->         .owner = THIS_MODULE,
->         .states[0] = {
->                 .enter                  = spm_enter_idle_state,
-> -               .flags                  = CPUIDLE_FLAG_RCU_IDLE,
-> +               .flags                  = 0,
->                 .exit_latency           = 1,
->                 .target_residency       = 1,
->                 .power_usage            = UINT_MAX,
-> --- a/drivers/cpuidle/cpuidle-riscv-sbi.c
-> +++ b/drivers/cpuidle/cpuidle-riscv-sbi.c
-> @@ -337,7 +337,7 @@ static int sbi_cpuidle_init_cpu(struct d
->         drv->cpumask = (struct cpumask *)cpumask_of(cpu);
->
->         /* RISC-V architectural WFI to be represented as state index 0. */
-> -       drv->states[0].flags = CPUIDLE_FLAG_RCU_IDLE;
-> +       drv->states[0].flags = 0;
->         drv->states[0].enter = sbi_cpuidle_enter_state;
->         drv->states[0].exit_latency = 1;
->         drv->states[0].target_residency = 1;
-> --- a/include/linux/cpuidle.h
-> +++ b/include/linux/cpuidle.h
-> @@ -282,9 +282,7 @@ extern s64 cpuidle_governor_latency_req(
->         int __ret = 0;                                                  \
->                                                                         \
->         if (!idx) {                                                     \
-> -               ct_idle_enter();                                        \
->                 cpu_do_idle();                                          \
-> -               ct_idle_exit();                                         \
->                 return idx;                                             \
->         }                                                               \
->                                                                         \
+Structure of the patchset:
+17 patches releasing __xchg name from arch files
+1 patch adding __xchg
+1 patch adding users of __xchg
 
-Kind regards
-Uffe
+Arnd thanks for convienient set of cross compilers, it was very helpful.
+
+So many words for so small helper :)
+
+[0]: https://lore.kernel.org/lkml/Y5OFSvaYbv4XCxhE@smile.fi.intel.com/T/
+[1]: https://doc.rust-lang.org/std/mem/index.html
+[2]: https://en.cppreference.com/w/cpp/header/utility
+
+Regards
+Andrzej
+
+Andrzej Hajda (19):
+  arch/alpha: rename internal name __xchg to __arch_xchg
+  arch/arc: rename internal name __xchg to __arch_xchg
+  arch/arm: rename internal name __xchg to __arch_xchg
+  arch/arm64: rename internal name __xchg to __arch_xchg
+  arch/hexagon: rename internal name __xchg to __arch_xchg
+  arch/ia64: rename internal name __xchg to __arch_xchg
+  arch/loongarch: rename internal name __xchg to __arch_xchg
+  arch/m68k: rename internal name __xchg to __arch_xchg
+  arch/mips: rename internal name __xchg to __arch_xchg
+  arch/openrisc: rename internal name __xchg to __arch_xchg
+  arch/parisc: rename internal name __xchg to __arch_xchg
+  arch/powerpc: correct logged function names in xchg helpers
+  arch/riscv: rename internal name __xchg to __arch_xchg
+  arch/s390: rename internal name __xchg to __arch_xchg
+  arch/sh: rename internal name __xchg to __arch_xchg
+  arch/sparc: rename internal name __xchg to __arch_xchg
+  arch/xtensa: rename internal name __xchg to __arch_xchg
+  linux/include: add non-atomic version of xchg
+  drm/i915/gt: use __xchg instead of internal helper
+
+ arch/alpha/include/asm/cmpxchg.h              |  6 +++---
+ arch/arc/include/asm/cmpxchg.h                |  4 ++--
+ arch/arm/include/asm/cmpxchg.h                |  4 ++--
+ arch/arm64/include/asm/cmpxchg.h              |  4 ++--
+ arch/hexagon/include/asm/cmpxchg.h            |  6 +++---
+ arch/ia64/include/asm/cmpxchg.h               |  2 +-
+ arch/ia64/include/uapi/asm/cmpxchg.h          |  4 ++--
+ arch/loongarch/include/asm/cmpxchg.h          |  4 ++--
+ arch/m68k/include/asm/cmpxchg.h               |  6 +++---
+ arch/mips/include/asm/cmpxchg.h               |  4 ++--
+ arch/openrisc/include/asm/cmpxchg.h           |  4 ++--
+ arch/parisc/include/asm/cmpxchg.h             |  4 ++--
+ arch/powerpc/include/asm/cmpxchg.h            |  4 ++--
+ arch/riscv/include/asm/atomic.h               |  2 +-
+ arch/riscv/include/asm/cmpxchg.h              |  4 ++--
+ arch/s390/include/asm/cmpxchg.h               |  4 ++--
+ arch/sh/include/asm/cmpxchg.h                 |  4 ++--
+ arch/sparc/include/asm/cmpxchg_32.h           |  4 ++--
+ arch/sparc/include/asm/cmpxchg_64.h           |  4 ++--
+ arch/xtensa/include/asm/cmpxchg.h             |  4 ++--
+ drivers/gpu/drm/i915/gt/intel_engine_cs.c     |  2 +-
+ .../gpu/drm/i915/gt/intel_engine_heartbeat.c  |  4 ++--
+ .../drm/i915/gt/intel_execlists_submission.c  |  4 ++--
+ drivers/gpu/drm/i915/gt/intel_ggtt.c          |  4 ++--
+ drivers/gpu/drm/i915/gt/intel_gsc.c           |  2 +-
+ drivers/gpu/drm/i915/gt/intel_gt.c            |  4 ++--
+ drivers/gpu/drm/i915/gt/intel_gt_pm.c         |  2 +-
+ drivers/gpu/drm/i915/gt/intel_lrc.c           |  6 +++---
+ drivers/gpu/drm/i915/gt/intel_migrate.c       |  2 +-
+ drivers/gpu/drm/i915/gt/intel_rc6.c           |  2 +-
+ drivers/gpu/drm/i915/gt/intel_rps.c           |  2 +-
+ drivers/gpu/drm/i915/gt/selftest_context.c    |  2 +-
+ .../drm/i915/gt/selftest_ring_submission.c    |  2 +-
+ drivers/gpu/drm/i915/gt/selftest_timeline.c   |  2 +-
+ drivers/gpu/drm/i915/gt/uc/intel_gsc_uc.c     |  2 +-
+ drivers/gpu/drm/i915/gt/uc/intel_uc.c         |  2 +-
+ drivers/gpu/drm/i915/gt/uc/intel_uc_fw.c      |  2 +-
+ drivers/gpu/drm/i915/i915_utils.h             |  1 +
+ include/linux/non-atomic/xchg.h               | 19 +++++++++++++++++++
+ 39 files changed, 84 insertions(+), 64 deletions(-)
+ create mode 100644 include/linux/non-atomic/xchg.h
+
+-- 
+2.34.1
+
