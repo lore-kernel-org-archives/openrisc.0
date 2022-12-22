@@ -2,38 +2,57 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46A2CC4167B
-	for <openrisc@archiver.kernel.org>; Fri, 23 Dec 2022 07:17:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A851C3DA7D
+	for <openrisc@archiver.kernel.org>; Fri, 23 Dec 2022 07:17:35 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id EC77224256;
-	Fri, 23 Dec 2022 08:17:30 +0100 (CET)
-Received: from out0.migadu.com (out0.migadu.com [94.23.1.103])
- by mail.librecores.org (Postfix) with ESMTPS id 25CDD214F6
- for <openrisc@lists.librecores.org>; Thu, 24 Nov 2022 02:21:58 +0100 (CET)
-Date: Wed, 23 Nov 2022 17:21:42 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
- t=1669252917;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=LCCb6cJQpNNyYRBbz4kRdgD2tyLQ9Ns2A7s10hH5kx0=;
- b=WLIGoxoQm3+/ru5YF2x6H+6yl4N5sAGKnAhwTr5uRYPr8dQqa/R3ysskmGjANDh6CBkZQy
- KJ0MBuI2R1IiCx1P42YUay6SolBrMpWVMI6fGEzq+7bsLesglGpb2m5siLqtS2z++OWNnR
- eN3d8mpNwNHZTr5snKaaNTKSv/nsBqw=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and
- include these headers.
-From: Roman Gushchin <roman.gushchin@linux.dev>
-To: Vlastimil Babka <vbabka@suse.cz>
-Subject: Re: [PATCH 12/12] mm, slob: rename CONFIG_SLOB to
- CONFIG_SLOB_DEPRECATED
-Message-ID: <Y37HJr+lBv7wGZcs@P9FQF9L96D.corp.robot.car>
-References: <20221121171202.22080-1-vbabka@suse.cz>
- <20221121171202.22080-13-vbabka@suse.cz>
+	by mail.librecores.org (Postfix) with ESMTP id B6D8821156;
+	Fri, 23 Dec 2022 08:17:31 +0100 (CET)
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+ by mail.librecores.org (Postfix) with ESMTPS id 3CD7024B77
+ for <openrisc@lists.librecores.org>; Thu, 22 Dec 2022 12:47:50 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1671709670; x=1703245670;
+ h=from:to:cc:subject:date:message-id:in-reply-to:
+ references:mime-version:content-transfer-encoding;
+ bh=GvFMbOE0GzaAFA+/NgInY0v5QkDpeB2uXRoAiJmqw7k=;
+ b=ejD2n4ylcxDtdGSsJ47KslTrEPGw/1VfRk9Xkoai8FFWmZGj+tMdlCH9
+ /rho3Z2t9197aARBvERdF/jn/obhJYXhZDv2rY553gFamei3aWleN941Y
+ SrodWb1BnEkhbu/l+zxS14R0YeJV5kxckSSefFWQcEmT2bVEvwsHg3x2t
+ Ux14JejEPy4NxAlHZoJthGLrG6ihsCTzjTgMUhudJ+VQe3n2NBMfDd3re
+ wPvOOo6rIXDu2ug9Qw4iunHrt+QNYDyjBN9UwwzSEiaE14rVEWIpKtm90
+ zX+/Yq83j5NIMSjLlZTRTL/H3hvLet2KH9nxYCOxp6Zct8JeLDpSBMKCy A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="318804454"
+X-IronPort-AV: E=Sophos;i="5.96,265,1665471600"; d="scan'208";a="318804454"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+ by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 22 Dec 2022 03:47:30 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10568"; a="629504326"
+X-IronPort-AV: E=Sophos;i="5.96,265,1665471600"; d="scan'208";a="629504326"
+Received: from lab-ah.igk.intel.com ([10.91.215.196])
+ by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 22 Dec 2022 03:47:24 -0800
+From: Andrzej Hajda <andrzej.hajda@intel.com>
+To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
+ linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+ linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-xtensa@linux-xtensa.org, intel-gfx@lists.freedesktop.org,
+ dri-devel@lists.freedesktop.org
+Subject: [PATCH 01/19] arch/alpha: rename internal name __xchg to __arch_xchg
+Date: Thu, 22 Dec 2022 12:46:17 +0100
+Message-Id: <20221222114635.1251934-2-andrzej.hajda@intel.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20221222114635.1251934-1-andrzej.hajda@intel.com>
+References: <20221222114635.1251934-1-andrzej.hajda@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221121171202.22080-13-vbabka@suse.cz>
-X-Migadu-Flow: FLOW_OUT
+Organization: Intel Technology Poland sp. z o.o. - ul. Slowackiego 173,
+ 80-298 Gdansk - KRS 101882 - NIP 957-07-52-316
+Content-Transfer-Encoding: 8bit
 X-Mailman-Approved-At: Fri, 23 Dec 2022 08:17:29 +0100
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.26
@@ -47,78 +66,52 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
- Tony Lindgren <tony@atomide.com>, linux-kernel@vger.kernel.org,
- linux-mm@kvack.org, Christophe Leroy <christophe.leroy@csgroup.eu>,
- Hyeonggon Yoo <42.hyeyoo@gmail.com>, Christoph Lameter <cl@linux.com>,
- linux-riscv@lists.infradead.org, Jonas Bonn <jonas@southpole.se>,
- Yoshinori Sato <ysato@users.sourceforge.jp>,
- Aaro Koskinen <aaro.koskinen@iki.fi>,
- Damien Le Moal <damien.lemoal@opensource.wdc.com>,
- Janusz Krzysztofik <jmkrzyszt@gmail.com>, Russell King <linux@armlinux.org.uk>,
- Matthew Wilcox <willy@infradead.org>, David Rientjes <rientjes@google.com>,
- Arnd Bergmann <arnd@arndb.de>, Josh Triplett <josh@joshtriplett.org>,
- openrisc@lists.librecores.org, linux-omap@vger.kernel.org,
- Joonsoo Kim <iamjoonsoo.kim@lge.com>, linux-arm-kernel@lists.infradead.org,
- patches@lists.linux.dev, Conor Dooley <conor@kernel.org>,
- Pekka Enberg <penberg@kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
- Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>,
+ Peter Zijlstra <peterz@infradead.org>, Boqun Feng <boqun.feng@gmail.com>,
+ Andrzej Hajda <andrzej.hajda@intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Mon, Nov 21, 2022 at 06:12:02PM +0100, Vlastimil Babka wrote:
-> As explained in [1], we would like to remove SLOB if possible.
-> 
-> - There are no known users that need its somewhat lower memory footprint
->   so much that they cannot handle SLUB (after some modifications by the
->   previous patches) instead.
-> 
-> - It is an extra maintenance burden, and a number of features are
->   incompatible with it.
-> 
-> - It blocks the API improvement of allowing kfree() on objects allocated
->   via kmem_cache_alloc().
-> 
-> As the first step, rename the CONFIG_SLOB option in the slab allocator
-> configuration choice to CONFIG_SLOB_DEPRECATED. Add CONFIG_SLOB
-> depending on CONFIG_SLOB_DEPRECATED as an internal option to avoid code
-> churn. This will cause existing .config files and defconfigs with
-> CONFIG_SLOB=y to silently switch to the default (and recommended
-> replacement) SLUB, while still allowing SLOB to be configured by anyone
-> that notices and needs it. But those should contact the slab maintainers
-> and linux-mm@kvack.org as explained in the updated help. With no valid
-> objections, the plan is to update the existing defconfigs to SLUB and
-> remove SLOB in a few cycles.
-> 
-> To make SLUB more suitable replacement for SLOB, a CONFIG_SLUB_TINY
-> option was introduced to limit SLUB's memory overhead.
-> There is a number of defconfigs specifying CONFIG_SLOB=y. As part of
-> this patch, update them to select CONFIG_SLUB and CONFIG_SLUB_TINY.
-> 
-> [1] https://lore.kernel.org/all/b35c3f82-f67b-2103-7d82-7a7ba7521439@suse.cz/
-> 
-> Cc: Russell King <linux@armlinux.org.uk>
-> Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
-> Cc: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-> Cc: Tony Lindgren <tony@atomide.com>
-> Cc: Jonas Bonn <jonas@southpole.se>
-> Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-> Cc: Stafford Horne <shorne@gmail.com>
-> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-> Cc: Rich Felker <dalias@libc.org>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Josh Triplett <josh@joshtriplett.org>
-> Cc: Conor Dooley <conor@kernel.org>
-> Cc: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-> Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-> Cc: <linux-arm-kernel@lists.infradead.org>
-> Cc: <linux-omap@vger.kernel.org>
-> Cc: <openrisc@lists.librecores.org>
-> Cc: <linux-riscv@lists.infradead.org>
-> Cc: <linux-sh@vger.kernel.org>
-> Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+__xchg will be used for non-atomic xchg macro.
 
-Acked-by: Roman Gushchin <roman.gushchin@linux.dev>
+Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
+---
+ arch/alpha/include/asm/cmpxchg.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Thanks!
+diff --git a/arch/alpha/include/asm/cmpxchg.h b/arch/alpha/include/asm/cmpxchg.h
+index 6e0a850aa9d38c..40e8159ef6e794 100644
+--- a/arch/alpha/include/asm/cmpxchg.h
++++ b/arch/alpha/include/asm/cmpxchg.h
+@@ -6,7 +6,7 @@
+  * Atomic exchange routines.
+  */
+ 
+-#define ____xchg(type, args...)		__xchg ## type ## _local(args)
++#define ____xchg(type, args...)		__arch_xchg ## type ## _local(args)
+ #define ____cmpxchg(type, args...)	__cmpxchg ## type ## _local(args)
+ #include <asm/xchg.h>
+ 
+@@ -34,7 +34,7 @@
+ 
+ #undef ____xchg
+ #undef ____cmpxchg
+-#define ____xchg(type, args...)		__xchg ##type(args)
++#define ____xchg(type, args...)		__arch_xchg ##type(args)
+ #define ____cmpxchg(type, args...)	__cmpxchg ##type(args)
+ #include <asm/xchg.h>
+ 
+@@ -48,7 +48,7 @@
+ 	__typeof__(*(ptr)) _x_ = (x);					\
+ 	smp_mb();							\
+ 	__ret = (__typeof__(*(ptr)))					\
+-		__xchg((ptr), (unsigned long)_x_, sizeof(*(ptr)));	\
++		__arch_xchg((ptr), (unsigned long)_x_, sizeof(*(ptr)));	\
+ 	smp_mb();							\
+ 	__ret;								\
+ })
+-- 
+2.34.1
+
