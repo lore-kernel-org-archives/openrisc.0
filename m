@@ -2,35 +2,64 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 102A1C54EBD
-	for <openrisc@archiver.kernel.org>; Thu,  5 Jan 2023 18:15:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4ECDFC46467
+	for <openrisc@archiver.kernel.org>; Sat,  7 Jan 2023 11:04:57 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 886CE24C4B;
-	Thu,  5 Jan 2023 19:15:10 +0100 (CET)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by mail.librecores.org (Postfix) with ESMTPS id 61D3224C5C
- for <openrisc@lists.librecores.org>; Thu,  5 Jan 2023 19:15:08 +0100 (CET)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id 292AE61BD1;
- Thu,  5 Jan 2023 18:15:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52EDBC433D2;
- Thu,  5 Jan 2023 18:15:01 +0000 (UTC)
-Date: Thu, 5 Jan 2023 18:14:58 +0000
-From: Catalin Marinas <catalin.marinas@arm.com>
-To: Yicong Yang <yangyicong@huawei.com>
-Subject: Re: [PATCH v7 2/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-Message-ID: <Y7cToj5mWd1ZbMyQ@arm.com>
-References: <20221117082648.47526-1-yangyicong@huawei.com>
- <20221117082648.47526-3-yangyicong@huawei.com>
+	by mail.librecores.org (Postfix) with ESMTP id 042C9200CB;
+	Sat,  7 Jan 2023 12:04:56 +0100 (CET)
+Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com
+ [209.85.128.47])
+ by mail.librecores.org (Postfix) with ESMTPS id B9447215C6
+ for <openrisc@lists.librecores.org>; Sat,  7 Jan 2023 12:04:53 +0100 (CET)
+Received: by mail-wm1-f47.google.com with SMTP id g10so2702566wmo.1
+ for <openrisc@lists.librecores.org>; Sat, 07 Jan 2023 03:04:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+ :reply-to; bh=jV2yBF+mbkDE0BvyOwe05ARE6EO7XhtOfB/KJLMsfFA=;
+ b=BzPTx+ODS2RwGu5d9Av3CGI6XJ0NbmKP1pStUzg0M0m6+VF6wu2vf0tqTwK0k6q0qV
+ Fbx7Y4Wluy9p+k8PZjL3FOoLufHJHxtq2K/BaarEwd/dPtd/DgO4uDiDqLUXCcfzSy4g
+ Wd0wz4xfpZYGbxR/O6enZWRjIhs25ZrrKgwvTGouDcupcbkSfLeRveiApotbcr4XMgph
+ w/4+08uhP/RwKAozhcyw6lYPvScMk8zL6fmWwbkyxQOkT9WdSUz8lze9ta3Mlh7zLg9k
+ cM2v76pe7iQT/2ZR+EkGweLVXlhhfTIoWJwjo2u32vXfi3qjeDrWte72tROnSs3wxhtS
+ 1Wwg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=jV2yBF+mbkDE0BvyOwe05ARE6EO7XhtOfB/KJLMsfFA=;
+ b=pcTFRAjc4EjsMoiC+5XgNF7Xx1gUmEtXMqGa+3KcmmIo0Leqo+pbtmg4e1Kski7GOr
+ mk3RlkwOZ+mbqHO/rB37BYOYzG9+bzDLnZ6TKA66OeT0+9cTCy3haHOWbiVh6UuaT3mt
+ cCGAbKl3p7BkdHDWrP9lkY4JV8Gg3D3puX9Qy8AecGKAFCbqWsPKJyxtP954uo5orSLp
+ 7K2EPuX1otvIzTnWuFPYSLzADtEwLqRxpEoQlPJVuv9jKXtAvm2ARhtJHBGy0ln3LiY4
+ NgewVorcpxBtL862HdlzQjNrZ9sy2E9iGBEBG4sEFZ6Hb8l/RhDbFGB1BpjxpSb4gtAI
+ jW5Q==
+X-Gm-Message-State: AFqh2koM1uoQRazUEHNSvm7L3aEe7sDt9chtcFzJJLVvW/M8+vQJMBC5
+ XPsB9e8amJvcuFcWERsPLPY=
+X-Google-Smtp-Source: AMrXdXuUafS1AFxogNrZXZJj6k6oC1QjVGeJmfZCRFdf2sgwNHMbrVBUD4+y7GGme2gWJhcqxBhA0A==
+X-Received: by 2002:a05:600c:601e:b0:3c6:e61e:ae71 with SMTP id
+ az30-20020a05600c601e00b003c6e61eae71mr50341357wmb.1.1673089493118; 
+ Sat, 07 Jan 2023 03:04:53 -0800 (PST)
+Received: from gmail.com (1F2EF507.nat.pool.telekom.hu. [31.46.245.7])
+ by smtp.gmail.com with ESMTPSA id
+ o9-20020a05600c510900b003c6f8d30e40sm10657278wms.31.2023.01.07.03.04.49
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Sat, 07 Jan 2023 03:04:50 -0800 (PST)
+Date: Sat, 7 Jan 2023 12:04:47 +0100
+From: Ingo Molnar <mingo@kernel.org>
+To: Valentin Schneider <vschneid@redhat.com>
+Subject: Re: [PATCH v3 3/8] sched, smp: Trace IPIs sent via
+ send_call_function_single_ipi()
+Message-ID: <Y7lRz7oCaAmAhoqS@gmail.com>
+References: <20221202155817.2102944-1-vschneid@redhat.com>
+ <20221202155817.2102944-4-vschneid@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221117082648.47526-3-yangyicong@huawei.com>
+In-Reply-To: <20221202155817.2102944-4-vschneid@redhat.com>
 X-BeenThere: openrisc@lists.librecores.org
-X-Mailman-Version: 2.1.26
+X-Mailman-Version: 2.1.29
 Precedence: list
 List-Id: Discussion around the OpenRISC processor
  <openrisc.lists.librecores.org>
@@ -41,71 +70,57 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: wangkefeng.wang@huawei.com, prime.zeng@hisilicon.com, realmz6@gmail.com,
- linux-doc@vger.kernel.org, peterz@infradead.org, linux-kernel@vger.kernel.org,
- linux-mm@kvack.org, Nadav Amit <namit@vmware.com>, punit.agrawal@bytedance.com,
- linux-riscv@lists.infradead.org, will@kernel.org, linux-s390@vger.kernel.org,
- zhangshiming@oppo.com, lipeifeng@oppo.com, corbet@lwn.net, x86@kernel.org,
- Barry Song <21cnbao@gmail.com>, Mel Gorman <mgorman@suse.de>, arnd@arndb.de,
- anshuman.khandual@arm.com, Barry Song <v-songbaohua@oppo.com>,
- openrisc@lists.librecores.org, darren@os.amperecomputing.com,
- yangyicong@hisilicon.com, linux-arm-kernel@lists.infradead.org,
- guojian@oppo.com, xhao@linux.alibaba.com, linux-mips@vger.kernel.org,
- huzhanyuan@oppo.com, akpm@linux-foundation.org, linuxppc-dev@lists.ozlabs.org
+Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>,
+ linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
+ Peter Zijlstra <peterz@infradead.org>,
+ Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, linux-mips@vger.kernel.org,
+ Guo Ren <guoren@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
+ sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+ linux-hexagon@vger.kernel.org, x86@kernel.org,
+ Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org,
+ Ingo Molnar <mingo@redhat.com>, linux-snps-arc@lists.infradead.org,
+ linux-xtensa@linux-xtensa.org, "Paul E. McKenney" <paulmck@kernel.org>,
+ Frederic Weisbecker <frederic@kernel.org>,
+ Steven Rostedt <rostedt@goodmis.org>, openrisc@lists.librecores.org,
+ Borislav Petkov <bp@alien8.de>, Nicholas Piggin <npiggin@gmail.com>,
+ loongarch@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
+ linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
+ Daniel Bristot de Oliveira <bristot@redhat.com>,
+ Marcelo Tosatti <mtosatti@redhat.com>, linux-kernel@vger.kernel.org,
+ linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ "David S. Miller" <davem@davemloft.net>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Thu, Nov 17, 2022 at 04:26:48PM +0800, Yicong Yang wrote:
-> It is tested on 4,8,128 CPU platforms and shows to be beneficial on
-> large systems but may not have improvement on small systems like on
-> a 4 CPU platform. So make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends
-> on CONFIG_EXPERT for this stage and make this disabled on systems
-> with less than 8 CPUs. User can modify this threshold according to
-> their own platforms by CONFIG_NR_CPUS_FOR_BATCHED_TLB.
 
-What's the overhead of such batching on systems with 4 or fewer CPUs? If
-it isn't noticeable, I'd rather have it always on than some number
-chosen on whichever SoC you tested.
+* Valentin Schneider <vschneid@redhat.com> wrote:
 
-Another option would be to make this a sysctl tunable.
+> send_call_function_single_ipi() is the thing that sends IPIs at the bottom
+> of smp_call_function*() via either generic_exec_single() or
+> smp_call_function_many_cond(). Give it an IPI-related tracepoint.
+> 
+> Note that this ends up tracing any IPI sent via __smp_call_single_queue(),
+> which covers __ttwu_queue_wakelist() and irq_work_queue_on() "for free".
+> 
+> Signed-off-by: Valentin Schneider <vschneid@redhat.com>
+> Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 
->  .../features/vm/TLB/arch-support.txt          |  2 +-
->  arch/arm64/Kconfig                            |  6 +++
->  arch/arm64/include/asm/tlbbatch.h             | 12 +++++
->  arch/arm64/include/asm/tlbflush.h             | 52 ++++++++++++++++++-
->  arch/x86/include/asm/tlbflush.h               |  5 +-
->  include/linux/mm_types_task.h                 |  4 +-
->  mm/rmap.c                                     | 10 ++--
+Acked-by: Ingo Molnar <mingo@kernel.org>
 
-Please keep any function prototype changes in a preparatory patch so
-that the arm64 one only introduces the arch specific changes. Easier to
-review.
+Patch series logistics:
 
-> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
-> +{
-> +	/*
-> +	 * TLB batched flush is proved to be beneficial for systems with large
-> +	 * number of CPUs, especially system with more than 8 CPUs. TLB shutdown
-> +	 * is cheap on small systems which may not need this feature. So use
-> +	 * a threshold for enabling this to avoid potential side effects on
-> +	 * these platforms.
-> +	 */
-> +	if (num_online_cpus() < CONFIG_ARM64_NR_CPUS_FOR_BATCHED_TLB)
-> +		return false;
+ - No objections from the scheduler side, this feature looks pretty useful.
 
-The x86 implementation tracks the cpumask of where a task has run. We
-don't have such tracking on arm64 and I don't think it matters. As
-noticed/described in this series, the bottleneck is the actual DSB
-synchronisation (which sends a DVM Sync message to all the other CPUs
-and waits for a DVM Complete response). So I think it makes sense not to
-bother with an mm_cpumask(). What this patch aims to optimise is
-actually the number of DSBs issued on an SMP system by
-ptep_clear_flush().
+ - Certain patches are incomplete, others are noted as being merged 
+   separately, so I presume you'll send an updated/completed series 
+   eventually?
 
-The DVM is not an architected concept (well, it's part of AMBA AXI). I'd
-be curious to know how such patch behaves on Apple's M1/M2 hardware. My
-preference would be to have this always on for num_online_cpus() > 1 if
-there's no overhead.
+ - We can merge this via the scheduler tree I suspect, as most callbacks 
+   affected relate to tip:sched/core and tmp:smp/core - but if you have 
+   some other preferred tree that's fine too.
 
--- 
-Catalin
+Thanks,
+
+	Ingo
