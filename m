@@ -2,62 +2,57 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4ECDFC46467
-	for <openrisc@archiver.kernel.org>; Sat,  7 Jan 2023 11:04:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CF1FC54EBE
+	for <openrisc@archiver.kernel.org>; Sun,  8 Jan 2023 10:48:57 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 042C9200CB;
-	Sat,  7 Jan 2023 12:04:56 +0100 (CET)
-Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com
- [209.85.128.47])
- by mail.librecores.org (Postfix) with ESMTPS id B9447215C6
- for <openrisc@lists.librecores.org>; Sat,  7 Jan 2023 12:04:53 +0100 (CET)
-Received: by mail-wm1-f47.google.com with SMTP id g10so2702566wmo.1
- for <openrisc@lists.librecores.org>; Sat, 07 Jan 2023 03:04:53 -0800 (PST)
+	by mail.librecores.org (Postfix) with ESMTP id 66DFC215A3;
+	Sun,  8 Jan 2023 11:48:56 +0100 (CET)
+Received: from mail-vk1-f176.google.com (mail-vk1-f176.google.com
+ [209.85.221.176])
+ by mail.librecores.org (Postfix) with ESMTPS id CC85D21572
+ for <openrisc@lists.librecores.org>; Sun,  8 Jan 2023 11:48:54 +0100 (CET)
+Received: by mail-vk1-f176.google.com with SMTP id v81so2647524vkv.5
+ for <openrisc@lists.librecores.org>; Sun, 08 Jan 2023 02:48:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
- :reply-to; bh=jV2yBF+mbkDE0BvyOwe05ARE6EO7XhtOfB/KJLMsfFA=;
- b=BzPTx+ODS2RwGu5d9Av3CGI6XJ0NbmKP1pStUzg0M0m6+VF6wu2vf0tqTwK0k6q0qV
- Fbx7Y4Wluy9p+k8PZjL3FOoLufHJHxtq2K/BaarEwd/dPtd/DgO4uDiDqLUXCcfzSy4g
- Wd0wz4xfpZYGbxR/O6enZWRjIhs25ZrrKgwvTGouDcupcbkSfLeRveiApotbcr4XMgph
- w/4+08uhP/RwKAozhcyw6lYPvScMk8zL6fmWwbkyxQOkT9WdSUz8lze9ta3Mlh7zLg9k
- cM2v76pe7iQT/2ZR+EkGweLVXlhhfTIoWJwjo2u32vXfi3qjeDrWte72tROnSs3wxhtS
- 1Wwg==
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:from:to:cc:subject:date:message-id:reply-to;
+ bh=o+ulyHY5t1vIQHRPkJRkZkMsVhYDzl0Wi1NRRdUXX9E=;
+ b=khZsRl3/h6xFPtV+trGF8SoZlhUH7CXOkbNSVy0ph0vcxdY2POtEBg03zxNX8NOjKd
+ tk0nBaNgQ7Qkcbndq/9sUu9/ASJ7jbK4uYDbK/bTz5OlmFXDU8glJgzuEEv6Z/s6NMfA
+ mp4rpznbR52Td9JIJd+jemR2waWnWqaR5O+5xO3DbdqK/ncWuaOvXDjz4YwzrATW6+AT
+ M8+n4X/t1ZgquFU/5c+wBFLYST09b1qKcf+ZPYUk9m3W2UOYcUJY3wtRak73CebxOF2s
+ Srav0OegoVZNvk1eaPYqXHoJyRanQU2FIyrTJWyfZ4nP8ieu3yAmmAtAsqqtCCVbv2RA
+ wVmw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=jV2yBF+mbkDE0BvyOwe05ARE6EO7XhtOfB/KJLMsfFA=;
- b=pcTFRAjc4EjsMoiC+5XgNF7Xx1gUmEtXMqGa+3KcmmIo0Leqo+pbtmg4e1Kski7GOr
- mk3RlkwOZ+mbqHO/rB37BYOYzG9+bzDLnZ6TKA66OeT0+9cTCy3haHOWbiVh6UuaT3mt
- cCGAbKl3p7BkdHDWrP9lkY4JV8Gg3D3puX9Qy8AecGKAFCbqWsPKJyxtP954uo5orSLp
- 7K2EPuX1otvIzTnWuFPYSLzADtEwLqRxpEoQlPJVuv9jKXtAvm2ARhtJHBGy0ln3LiY4
- NgewVorcpxBtL862HdlzQjNrZ9sy2E9iGBEBG4sEFZ6Hb8l/RhDbFGB1BpjxpSb4gtAI
- jW5Q==
-X-Gm-Message-State: AFqh2koM1uoQRazUEHNSvm7L3aEe7sDt9chtcFzJJLVvW/M8+vQJMBC5
- XPsB9e8amJvcuFcWERsPLPY=
-X-Google-Smtp-Source: AMrXdXuUafS1AFxogNrZXZJj6k6oC1QjVGeJmfZCRFdf2sgwNHMbrVBUD4+y7GGme2gWJhcqxBhA0A==
-X-Received: by 2002:a05:600c:601e:b0:3c6:e61e:ae71 with SMTP id
- az30-20020a05600c601e00b003c6e61eae71mr50341357wmb.1.1673089493118; 
- Sat, 07 Jan 2023 03:04:53 -0800 (PST)
-Received: from gmail.com (1F2EF507.nat.pool.telekom.hu. [31.46.245.7])
- by smtp.gmail.com with ESMTPSA id
- o9-20020a05600c510900b003c6f8d30e40sm10657278wms.31.2023.01.07.03.04.49
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sat, 07 Jan 2023 03:04:50 -0800 (PST)
-Date: Sat, 7 Jan 2023 12:04:47 +0100
-From: Ingo Molnar <mingo@kernel.org>
-To: Valentin Schneider <vschneid@redhat.com>
-Subject: Re: [PATCH v3 3/8] sched, smp: Trace IPIs sent via
- send_call_function_single_ipi()
-Message-ID: <Y7lRz7oCaAmAhoqS@gmail.com>
-References: <20221202155817.2102944-1-vschneid@redhat.com>
- <20221202155817.2102944-4-vschneid@redhat.com>
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=o+ulyHY5t1vIQHRPkJRkZkMsVhYDzl0Wi1NRRdUXX9E=;
+ b=r0hIOx1aI+Sx0sAwObBCiq9iXBmYXHWQMSHxOJXsRO9CMyz+n5dqWzja5YcbEYnGbr
+ JmNcDEmDrhcOmWTvIn01Xi2pdW3aQtGmC8AdTiUMdxYuTZ4BDkeHhEArAK4hofrXC7Jq
+ q/aYaGXQZPUJzugP59sowra/N6S1IbA9wf/qP2cGzFi9mRfBJi/j+ebW/wH/PBsy3Gyy
+ 2TV4zd4qnXT4B5N3EBqvAuCfbqzgZ2CkzfCrQFYsFaocQNY1g+1mqqmN9yyrfPV06fzu
+ g3zno2tBdokems/V66PcAXHxEsl78dIUg/jGEkqPhj+ctPWci8wRzgTZ+0H+XX2kI5A7
+ jIRQ==
+X-Gm-Message-State: AFqh2kpQVa4n+yUFaFTG3+S882TlauViX8iRDmCaBxOdQMhEpMOvnXpr
+ OPxLIXpdakE0NAv/zGZf1bvlxWpdg9DNNxFTq7E=
+X-Google-Smtp-Source: AMrXdXsC9zjoSX3JUJXUNKpbqfCGbJ5sLgu3n0p9Rc2JNm9GFnGoyDe1ACeN5YOtUEET51RrQuI/o6A4avtvFhehWBM=
+X-Received: by 2002:a1f:2e4e:0:b0:3d5:5ea6:ccb9 with SMTP id
+ u75-20020a1f2e4e000000b003d55ea6ccb9mr6218898vku.7.1673174933379; Sun, 08 Jan
+ 2023 02:48:53 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221202155817.2102944-4-vschneid@redhat.com>
+References: <20221117082648.47526-1-yangyicong@huawei.com>
+ <20221117082648.47526-3-yangyicong@huawei.com>
+ <Y7cToj5mWd1ZbMyQ@arm.com>
+In-Reply-To: <Y7cToj5mWd1ZbMyQ@arm.com>
+From: Barry Song <21cnbao@gmail.com>
+Date: Sun, 8 Jan 2023 18:48:41 +0800
+Message-ID: <CAGsJ_4yC0i6MYwvosRSrdQ1iT7n88ypmK3aOQJkuusqNKtddtg@mail.gmail.com>
+Subject: Re: [PATCH v7 2/2] arm64: support batched/deferred tlb shootdown
+ during page reclamation
+To: Catalin Marinas <catalin.marinas@arm.com>
+Content-Type: text/plain; charset="UTF-8"
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -70,57 +65,94 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>,
- linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
- Peter Zijlstra <peterz@infradead.org>,
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, linux-mips@vger.kernel.org,
- Guo Ren <guoren@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
- sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
- linux-hexagon@vger.kernel.org, x86@kernel.org,
- Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org,
- Ingo Molnar <mingo@redhat.com>, linux-snps-arc@lists.infradead.org,
- linux-xtensa@linux-xtensa.org, "Paul E. McKenney" <paulmck@kernel.org>,
- Frederic Weisbecker <frederic@kernel.org>,
- Steven Rostedt <rostedt@goodmis.org>, openrisc@lists.librecores.org,
- Borislav Petkov <bp@alien8.de>, Nicholas Piggin <npiggin@gmail.com>,
- loongarch@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
- linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
- Daniel Bristot de Oliveira <bristot@redhat.com>,
- Marcelo Tosatti <mtosatti@redhat.com>, linux-kernel@vger.kernel.org,
- linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- "David S. Miller" <davem@davemloft.net>
+Cc: wangkefeng.wang@huawei.com, prime.zeng@hisilicon.com, realmz6@gmail.com,
+ linux-doc@vger.kernel.org, peterz@infradead.org, linux-kernel@vger.kernel.org,
+ linux-mm@kvack.org, Nadav Amit <namit@vmware.com>, punit.agrawal@bytedance.com,
+ linux-riscv@lists.infradead.org, will@kernel.org, linux-s390@vger.kernel.org,
+ zhangshiming@oppo.com, lipeifeng@oppo.com, corbet@lwn.net, x86@kernel.org,
+ Mel Gorman <mgorman@suse.de>, arnd@arndb.de, anshuman.khandual@arm.com,
+ Barry Song <v-songbaohua@oppo.com>, openrisc@lists.librecores.org,
+ darren@os.amperecomputing.com, yangyicong@hisilicon.com,
+ linux-arm-kernel@lists.infradead.org, guojian@oppo.com, xhao@linux.alibaba.com,
+ linux-mips@vger.kernel.org, huzhanyuan@oppo.com,
+ Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
+ linuxppc-dev@lists.ozlabs.org
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
+On Fri, Jan 6, 2023 at 2:15 AM Catalin Marinas <catalin.marinas@arm.com> wrote:
+>
+> On Thu, Nov 17, 2022 at 04:26:48PM +0800, Yicong Yang wrote:
+> > It is tested on 4,8,128 CPU platforms and shows to be beneficial on
+> > large systems but may not have improvement on small systems like on
+> > a 4 CPU platform. So make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends
+> > on CONFIG_EXPERT for this stage and make this disabled on systems
+> > with less than 8 CPUs. User can modify this threshold according to
+> > their own platforms by CONFIG_NR_CPUS_FOR_BATCHED_TLB.
+>
+> What's the overhead of such batching on systems with 4 or fewer CPUs? If
+> it isn't noticeable, I'd rather have it always on than some number
+> chosen on whichever SoC you tested.
 
-* Valentin Schneider <vschneid@redhat.com> wrote:
+On the one hand, tlb flush is cheap on a small system. so batching tlb flush
+helps very minorly.
 
-> send_call_function_single_ipi() is the thing that sends IPIs at the bottom
-> of smp_call_function*() via either generic_exec_single() or
-> smp_call_function_many_cond(). Give it an IPI-related tracepoint.
-> 
-> Note that this ends up tracing any IPI sent via __smp_call_single_queue(),
-> which covers __ttwu_queue_wakelist() and irq_work_queue_on() "for free".
-> 
-> Signed-off-by: Valentin Schneider <vschneid@redhat.com>
-> Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+On the other hand, since we have batched the tlb flush, new PTEs might be
+invisible to others before the final broadcast is done and Ack-ed. thus, there
+is a risk someone else might do mprotect or similar things  on those deferred
+pages which will ask for read-modify-write on those deferred PTEs. in this
+case, mm will do an explicit flush by flush_tlb_batched_pending which is
+not required if tlb flush is not deferred. the code is in:
 
-Acked-by: Ingo Molnar <mingo@kernel.org>
+static unsigned long change_pte_range(struct mmu_gather *tlb,
+struct vm_area_struct *vma, pmd_t *pmd, unsigned long addr,
+unsigned long end, pgprot_t newprot, unsigned long cp_flags)
+{
+        ...
 
-Patch series logistics:
+      pte = pte_offset_map_lock(vma->vm_mm, pmd, addr, &ptl);
 
- - No objections from the scheduler side, this feature looks pretty useful.
+      flush_tlb_batched_pending(vma->vm_mm);
+      arch_enter_lazy_mmu_mode();
+      do {
+                oldpte = *pte;
+                if (pte_present(oldpte)) {
+                           pte_t ptent;
+                ...
+}
 
- - Certain patches are incomplete, others are noted as being merged 
-   separately, so I presume you'll send an updated/completed series 
-   eventually?
+since we don't have the mechanism to record which pages should be
+flushed in flush_tlb_batched_pending(), flush_tlb_batched_pending()
+is flushing the whole process,
 
- - We can merge this via the scheduler tree I suspect, as most callbacks 
-   affected relate to tip:sched/core and tmp:smp/core - but if you have 
-   some other preferred tree that's fine too.
+void flush_tlb_batched_pending(struct mm_struct *mm)
+{
+       int batch = atomic_read(&mm->tlb_flush_batched);
+       int pending = batch & TLB_FLUSH_BATCH_PENDING_MASK;
+       int flushed = batch >> TLB_FLUSH_BATCH_FLUSHED_SHIFT;
 
-Thanks,
+       if (pending != flushed) {
+               flush_tlb_mm(mm);
+        /*
+         * If the new TLB flushing is pending during flushing, leave
+         * mm->tlb_flush_batched as is, to avoid losing flushing.
+        */
+      atomic_cmpxchg(&mm->tlb_flush_batched, batch,
+           pending | (pending << TLB_FLUSH_BATCH_FLUSHED_SHIFT));
+     }
+}
 
-	Ingo
+I guess mprotect things won't be that often for a running process especially
+when the system has begun to reclaim its memory. it might be more often
+only during the initialization of a process. And x86 has enabled this feature
+for a long time, probably this concurrency doesn't matter too much.
+
+but it is still case by case. That is why we have decided to be more
+conservative
+on globally enabling this feature and why it also depends on CONFIG_EXPERT.
+
+I believe Anshuman has contributed many points on this in those previous
+discussions.
+
+Thanks
+Barry
