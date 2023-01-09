@@ -2,35 +2,71 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D0B7C5479D
-	for <openrisc@archiver.kernel.org>; Mon,  9 Jan 2023 18:35:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E4D6C5479D
+	for <openrisc@archiver.kernel.org>; Mon,  9 Jan 2023 19:01:32 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id C68EF215A4;
-	Mon,  9 Jan 2023 19:35:32 +0100 (CET)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by mail.librecores.org (Postfix) with ESMTPS id 4360620E5D
- for <openrisc@lists.librecores.org>; Mon,  9 Jan 2023 19:35:31 +0100 (CET)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id DD342611CA;
- Mon,  9 Jan 2023 17:19:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 167BBC433F0;
- Mon,  9 Jan 2023 17:19:02 +0000 (UTC)
-Date: Mon, 9 Jan 2023 17:19:00 +0000
-From: Catalin Marinas <catalin.marinas@arm.com>
-To: Barry Song <21cnbao@gmail.com>
-Subject: Re: [PATCH v7 2/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-Message-ID: <Y7xMhPTAwcUT4O6b@arm.com>
-References: <20221117082648.47526-1-yangyicong@huawei.com>
- <20221117082648.47526-3-yangyicong@huawei.com>
- <Y7cToj5mWd1ZbMyQ@arm.com>
- <CAGsJ_4yC0i6MYwvosRSrdQ1iT7n88ypmK3aOQJkuusqNKtddtg@mail.gmail.com>
+	by mail.librecores.org (Postfix) with ESMTP id DED5B215C3;
+	Mon,  9 Jan 2023 20:01:31 +0100 (CET)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by mail.librecores.org (Postfix) with ESMTP id EDDDE229F3
+ for <openrisc@lists.librecores.org>; Mon,  9 Jan 2023 20:01:30 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1673290889;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=bU+svoPcyEEDaWYmIcNec69dTXz5hTgyu3b7xJNjXUQ=;
+ b=iflefN2DlMtAjzC/hgBZNZ/9Mxmuy6Mv2BQNZTP7HxFc9zBhjzmItsXKEXpOlFV6NJHpD+
+ GPPIhzd6Ymwu5k1HOoNQYWJGVNx2+ka3tUCJlQno7GpZz1LDeT97uZvS3+lF22t4BeS+Bb
+ 6qMQQSPRl/T0/PxBUFv+HxfP3xpKYI4=
+Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
+ [209.85.160.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-654-umn73bQROEWvV-HAvXb7Hw-1; Mon, 09 Jan 2023 14:01:28 -0500
+X-MC-Unique: umn73bQROEWvV-HAvXb7Hw-1
+Received: by mail-qt1-f200.google.com with SMTP id
+ k7-20020ac84747000000b003a87ca26200so4260138qtp.6
+ for <openrisc@lists.librecores.org>; Mon, 09 Jan 2023 11:01:28 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
+ :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=bU+svoPcyEEDaWYmIcNec69dTXz5hTgyu3b7xJNjXUQ=;
+ b=A6amKE7RtAGzk/g7RH3GMRXVsE5N7nMRuzULiEjfdBKoGXdz9QrP+bAdh7yWn8zOnP
+ tUjMORbKAgWfU++TCx/nmrUZmc6KtHEksMiko16B8fIMbdajWDWoeMLQhrgsb0HCSutV
+ 7yHrD6WUV6DAcrB32q1gLq5NCh9Nd9aB/Tclo3NHeCfQqmr54kxZpiiHnXqLZpD6yCSY
+ JROT/0AmTvMcf93hAHHPvHzyKC5MBf6XIciy0PxiggdmzBEfYOefMC5ahHNMehtsNvRo
+ EQakffLja1pF6LHpDl0KfhuRHAeFx6vlMie6AV7IqHY4Mqyj+w2RVZor5IpDOtubS7T+
+ Nilw==
+X-Gm-Message-State: AFqh2krQBp32R6jYghuVc6F2OG1rVJee++g2mNYxZdX+bLSArOLAEiby
+ xAKQ7k9811lzvN30DNRQ3lJ+00sArsXRKCG1t5DlEJJpaSzENuDYqU3HHMvmiTZ22we8sTvJeUD
+ b2KxX2yHkphwfFFTWIP0JoHbDuw==
+X-Received: by 2002:ac8:7395:0:b0:3a7:ed31:a618 with SMTP id
+ t21-20020ac87395000000b003a7ed31a618mr91336668qtp.7.1673290887984; 
+ Mon, 09 Jan 2023 11:01:27 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXseRLv5+JCaBFPqzT7E7Yv2YOrloRSyhYUUSWRG6zA8srvH9gyrV5oV35teC9nwwkDxbanAYA==
+X-Received: by 2002:ac8:7395:0:b0:3a7:ed31:a618 with SMTP id
+ t21-20020ac87395000000b003a7ed31a618mr91336646qtp.7.1673290887764; 
+ Mon, 09 Jan 2023 11:01:27 -0800 (PST)
+Received: from vschneid.remote.csb ([154.57.232.159])
+ by smtp.gmail.com with ESMTPSA id
+ cj12-20020a05622a258c00b0039cc0fbdb61sm4985479qtb.53.2023.01.09.11.01.23
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 09 Jan 2023 11:01:27 -0800 (PST)
+From: Valentin Schneider <vschneid@redhat.com>
+To: Huacai Chen <chenhuacai@kernel.org>
+Subject: Re: [PATCH v3 6/8] treewide: Trace IPIs sent via smp_send_reschedule()
+In-Reply-To: <CAAhV-H6Oii6t-4aHFjgPkCgFAd+LcVVg+7jMu_w4mEa0Ecuwaw@mail.gmail.com>
+References: <20221202155817.2102944-1-vschneid@redhat.com>
+ <20221202155817.2102944-7-vschneid@redhat.com>
+ <CAAhV-H6Oii6t-4aHFjgPkCgFAd+LcVVg+7jMu_w4mEa0Ecuwaw@mail.gmail.com>
+Date: Mon, 09 Jan 2023 19:01:22 +0000
+Message-ID: <xhsmh5ydfedml.mognet@vschneid.remote.csb>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAGsJ_4yC0i6MYwvosRSrdQ1iT7n88ypmK3aOQJkuusqNKtddtg@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -43,93 +79,45 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: wangkefeng.wang@huawei.com, prime.zeng@hisilicon.com, realmz6@gmail.com,
- linux-doc@vger.kernel.org, peterz@infradead.org, linux-kernel@vger.kernel.org,
- linux-mm@kvack.org, Nadav Amit <namit@vmware.com>, punit.agrawal@bytedance.com,
- linux-riscv@lists.infradead.org, will@kernel.org, linux-s390@vger.kernel.org,
- zhangshiming@oppo.com, lipeifeng@oppo.com, corbet@lwn.net, x86@kernel.org,
- Mel Gorman <mgorman@suse.de>, arnd@arndb.de, anshuman.khandual@arm.com,
- Barry Song <v-songbaohua@oppo.com>, openrisc@lists.librecores.org,
- darren@os.amperecomputing.com, yangyicong@hisilicon.com,
- linux-arm-kernel@lists.infradead.org, guojian@oppo.com, xhao@linux.alibaba.com,
- linux-mips@vger.kernel.org, huzhanyuan@oppo.com,
- Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
- linuxppc-dev@lists.ozlabs.org
+Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>,
+ linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
+ Peter Zijlstra <peterz@infradead.org>,
+ Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, linux-mips@vger.kernel.org,
+ Guo Ren <guoren@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
+ sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+ linux-hexagon@vger.kernel.org, x86@kernel.org,
+ Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org,
+ Ingo Molnar <mingo@redhat.com>, linux-snps-arc@lists.infradead.org,
+ linux-xtensa@linux-xtensa.org, "Paul E. McKenney" <paulmck@kernel.org>,
+ Frederic Weisbecker <frederic@kernel.org>,
+ Steven Rostedt <rostedt@goodmis.org>, openrisc@lists.librecores.org,
+ Borislav Petkov <bp@alien8.de>, Nicholas Piggin <npiggin@gmail.com>,
+ loongarch@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
+ linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
+ Daniel Bristot de Oliveira <bristot@redhat.com>,
+ Marcelo Tosatti <mtosatti@redhat.com>, linux-kernel@vger.kernel.org,
+ linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, "David
+ S. Miller" <davem@davemloft.net>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-On Sun, Jan 08, 2023 at 06:48:41PM +0800, Barry Song wrote:
-> On Fri, Jan 6, 2023 at 2:15 AM Catalin Marinas <catalin.marinas@arm.com> wrote:
-> > On Thu, Nov 17, 2022 at 04:26:48PM +0800, Yicong Yang wrote:
-> > > It is tested on 4,8,128 CPU platforms and shows to be beneficial on
-> > > large systems but may not have improvement on small systems like on
-> > > a 4 CPU platform. So make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends
-> > > on CONFIG_EXPERT for this stage and make this disabled on systems
-> > > with less than 8 CPUs. User can modify this threshold according to
-> > > their own platforms by CONFIG_NR_CPUS_FOR_BATCHED_TLB.
-> >
-> > What's the overhead of such batching on systems with 4 or fewer CPUs? If
-> > it isn't noticeable, I'd rather have it always on than some number
-> > chosen on whichever SoC you tested.
-> 
-> On the one hand, tlb flush is cheap on a small system. so batching tlb flush
-> helps very minorly.
+On 08/01/23 20:17, Huacai Chen wrote:
+> Hi, Valentin,
+>
+> On Fri, Dec 2, 2022 at 11:59 PM Valentin Schneider <vschneid@redhat.com> wrote:
+>> @@ -83,7 +83,7 @@ extern void show_ipi_list(struct seq_file *p, int prec);
+>>   * it goes straight through and wastes no time serializing
+>>   * anything. Worst case is that we lose a reschedule ...
+>>   */
+>> -static inline void smp_send_reschedule(int cpu)
+>> +static inline void arch_smp_send_reschedule(int cpu)
+>>  {
+>>         loongson_send_ipi_single(cpu, SMP_RESCHEDULE);
+>>  }
+> This function has been moved to arch/loongarch/kernel/smp.c since 6.2.
+>
 
-Yes, it probably won't help on small systems but I don't like config
-options choosing the threshold, which may be different from system to
-system even if they have the same number of CPUs. A run-time tunable
-would be a better option.
+Thanks! I'll make sure to rerun the coccinelle script for the next version.
 
-> On the other hand, since we have batched the tlb flush, new PTEs might be
-> invisible to others before the final broadcast is done and Ack-ed.
-
-The new PTEs could indeed be invisible at the TLB level but not at the
-memory (page table) level since this is done under the PTL IIUC.
-
-> thus, there
-> is a risk someone else might do mprotect or similar things  on those deferred
-> pages which will ask for read-modify-write on those deferred PTEs.
-
-And this should be fine, we have things like the PTL in place for the
-actual memory access to the page table.
-
-> in this
-> case, mm will do an explicit flush by flush_tlb_batched_pending which is
-> not required if tlb flush is not deferred.
-
-I don't fully understand why it's needed, or at least why it would be
-needed on arm64. At the end of an mprotect(), we have the final PTEs in
-place and we just need to issue a TLBI for that range.
-change_pte_range() for example has a tlb_flush_pte_range() if the PTE
-was present and that won't be done lazily. If there are other TLBIs
-pending for the same range, they'll be done later though likely
-unnecessarily but still cheaper than issuing a flush_tlb_mm().
-
-> void flush_tlb_batched_pending(struct mm_struct *mm)
-> {
->        int batch = atomic_read(&mm->tlb_flush_batched);
->        int pending = batch & TLB_FLUSH_BATCH_PENDING_MASK;
->        int flushed = batch >> TLB_FLUSH_BATCH_FLUSHED_SHIFT;
-> 
->        if (pending != flushed) {
->                flush_tlb_mm(mm);
->         /*
->          * If the new TLB flushing is pending during flushing, leave
->          * mm->tlb_flush_batched as is, to avoid losing flushing.
->         */
->       atomic_cmpxchg(&mm->tlb_flush_batched, batch,
->            pending | (pending << TLB_FLUSH_BATCH_FLUSHED_SHIFT));
->      }
-> }
-
-I guess this works on x86 better as it avoids the IPIs if this flush
-already happened. But on arm64 we already issued the TLBI, we just
-didn't wait for it to complete via a DSB.
-
-> I believe Anshuman has contributed many points on this in those previous
-> discussions.
-
-Yeah, I should re-read the old threads.
-
--- 
-Catalin
