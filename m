@@ -2,39 +2,39 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D918BC25B4E
-	for <openrisc@archiver.kernel.org>; Sun, 22 Jan 2023 18:43:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5FF3C25B4E
+	for <openrisc@archiver.kernel.org>; Sun, 22 Jan 2023 18:44:04 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id C192D200C3;
-	Sun, 22 Jan 2023 19:43:12 +0100 (CET)
+	by mail.librecores.org (Postfix) with ESMTP id EA426213AE;
+	Sun, 22 Jan 2023 19:44:03 +0100 (CET)
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by mail.librecores.org (Postfix) with ESMTP id F0242200C3
- for <openrisc@lists.librecores.org>; Sun, 22 Jan 2023 19:43:10 +0100 (CET)
+ by mail.librecores.org (Postfix) with ESMTP id 6D3EE200C3
+ for <openrisc@lists.librecores.org>; Sun, 22 Jan 2023 19:44:02 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1674412989;
+ s=mimecast20190719; t=1674413041;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=QbSxuBYwyBhZhp7hgOeOy88U7e5YyI7vjVO9jj/5+zE=;
- b=SeZz5ZiaAqWgLCxYtRCmFhW/of8eq7n5WV6ht/xFojvUuelPiF3Ne/yTD0dJhzQ8qw7GIP
- qE/6J71b+BQNHWzWeOasnsJRWPuSuX6VpqU4Rjc0ARBW7nGb2jWZ247mXoPGpQIt9omcZl
- 0whN8PKQhVP0F92HZRsxLdyFnlooWSE=
+ bh=6o4aDoMnOyw6oIKqxXD/63VXzreRgu7lohjEhFx0NNg=;
+ b=inx2495l3daYmVj1MZtk9cegvtphv8HOLVTcUZtggD8id8QWUVW4acYwxhvSsxxnF8777s
+ rU74SB6H6rKOH5dXuwg/q/wmlpbzbqJxotxkwZPwS6ki8H5P39Z4kVRwyIKt50tHM3CGZ6
+ o3Hm4Yjh4DB0y8P4vdEHi01xkYemfTI=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-567-l4TS9XtFOxaf2EwwHWgw-g-1; Thu, 19 Jan 2023 09:37:29 -0500
-X-MC-Unique: l4TS9XtFOxaf2EwwHWgw-g-1
+ us-mta-116-G32uewm1PsutaaFx4gNlJA-1; Thu, 19 Jan 2023 09:37:18 -0500
+X-MC-Unique: G32uewm1PsutaaFx4gNlJA-1
 Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com
  [10.11.54.4])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 07306857A88;
- Thu, 19 Jan 2023 14:37:27 +0000 (UTC)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 93863101A521;
+ Thu, 19 Jan 2023 14:37:16 +0000 (UTC)
 Received: from vschneid.remote.csb (unknown [10.33.36.13])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 9C6872026D68;
- Thu, 19 Jan 2023 14:37:22 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id E80B32026D68;
+ Thu, 19 Jan 2023 14:37:10 +0000 (UTC)
 From: Valentin Schneider <vschneid@redhat.com>
 To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
@@ -45,9 +45,10 @@ To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
  linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
  linux-xtensa@linux-xtensa.org, x86@kernel.org
-Subject: [PATCH v4 6/7] smp: reword smp call IPI comment
-Date: Thu, 19 Jan 2023 14:36:18 +0000
-Message-Id: <20230119143619.2733236-7-vschneid@redhat.com>
+Subject: [PATCH v4 4/7] irq_work: Trace self-IPIs sent via
+ arch_irq_work_raise()
+Date: Thu, 19 Jan 2023 14:36:16 +0000
+Message-Id: <20230119143619.2733236-5-vschneid@redhat.com>
 In-Reply-To: <20230119143619.2733236-1-vschneid@redhat.com>
 References: <20230119143619.2733236-1-vschneid@redhat.com>
 MIME-Version: 1.0
@@ -80,36 +81,55 @@ Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>,
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Accessing the call_single_queue hasn't involved a spinlock since 2014:
-
-  6897fc22ea01 ("kernel: use lockless list for smp_call_function_single")
-
-The llist operations (namely cmpxchg() and xchg()) provide similar ordering
-guarantees, update the comment to lessen confusion.
+IPIs sent to remote CPUs via irq_work_queue_on() are now covered by
+trace_ipi_send_cpumask(), add another instance of the tracepoint to cover
+self-IPIs.
 
 Signed-off-by: Valentin Schneider <vschneid@redhat.com>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 ---
- kernel/smp.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ kernel/irq_work.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/smp.c b/kernel/smp.c
-index 93b4386cd3096..821b5986721ac 100644
---- a/kernel/smp.c
-+++ b/kernel/smp.c
-@@ -495,9 +495,10 @@ void __smp_call_single_queue(int cpu, struct llist_node *node)
- #endif
+diff --git a/kernel/irq_work.c b/kernel/irq_work.c
+index 7afa40fe5cc43..c33e88e32a67a 100644
+--- a/kernel/irq_work.c
++++ b/kernel/irq_work.c
+@@ -22,6 +22,8 @@
+ #include <asm/processor.h>
+ #include <linux/kasan.h>
  
- 	/*
--	 * The list addition should be visible before sending the IPI
--	 * handler locks the list to pull the entry off it because of
--	 * normal cache coherency rules implied by spinlocks.
-+	 * The list addition should be visible to the target CPU when it pops
-+	 * the head of the list to pull the entry off it in the IPI handler
-+	 * because of normal cache coherency rules implied by the underlying
-+	 * llist ops.
- 	 *
- 	 * If IPIs can go out of order to the cache coherency protocol
- 	 * in an architecture, sufficient synchronisation should be added
++#include <trace/events/ipi.h>
++
+ static DEFINE_PER_CPU(struct llist_head, raised_list);
+ static DEFINE_PER_CPU(struct llist_head, lazy_list);
+ static DEFINE_PER_CPU(struct task_struct *, irq_workd);
+@@ -74,6 +76,16 @@ void __weak arch_irq_work_raise(void)
+ 	 */
+ }
+ 
++static __always_inline void irq_work_raise(struct irq_work *work)
++{
++	if (trace_ipi_send_cpumask_enabled() && arch_irq_work_has_interrupt())
++		trace_ipi_send_cpumask(cpumask_of(smp_processor_id()),
++				       _RET_IP_,
++				       work->func);
++
++	arch_irq_work_raise();
++}
++
+ /* Enqueue on current CPU, work must already be claimed and preempt disabled */
+ static void __irq_work_queue_local(struct irq_work *work)
+ {
+@@ -99,7 +111,7 @@ static void __irq_work_queue_local(struct irq_work *work)
+ 
+ 	/* If the work is "lazy", handle it from next tick if any */
+ 	if (!lazy_work || tick_nohz_tick_stopped())
+-		arch_irq_work_raise();
++		irq_work_raise(work);
+ }
+ 
+ /* Enqueue the irq work @work on the current CPU */
 -- 
 2.31.1
 
