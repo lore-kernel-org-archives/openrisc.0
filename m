@@ -2,39 +2,39 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2246C38142
-	for <openrisc@archiver.kernel.org>; Sun, 22 Jan 2023 18:43:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D918BC25B4E
+	for <openrisc@archiver.kernel.org>; Sun, 22 Jan 2023 18:43:13 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id A56B220019;
-	Sun, 22 Jan 2023 19:43:09 +0100 (CET)
+	by mail.librecores.org (Postfix) with ESMTP id C192D200C3;
+	Sun, 22 Jan 2023 19:43:12 +0100 (CET)
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by mail.librecores.org (Postfix) with ESMTP id B2A8D20027
- for <openrisc@lists.librecores.org>; Sun, 22 Jan 2023 19:43:07 +0100 (CET)
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by mail.librecores.org (Postfix) with ESMTP id F0242200C3
+ for <openrisc@lists.librecores.org>; Sun, 22 Jan 2023 19:43:10 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1674412986;
+ s=mimecast20190719; t=1674412989;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=oCuy74aeG96dFLNHaRy6nwMZ69wGMBkic+YQ3uKUql4=;
- b=GUpqcDOw0LX8kxm/Qemk4z0EdVTac38ayre70oJJmVY36J+3W+Y3U2x9FuV082tXLjNI2j
- 9htSwvGeoRkXNZs4fMYi/6MNgSYMTzaaFTXaHKn2lp/I8snXzydngaqbUbDucbWf9WdgiH
- XdUDoljH+UTs5NOrDmJRKhHyBrXWGLc=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=QbSxuBYwyBhZhp7hgOeOy88U7e5YyI7vjVO9jj/5+zE=;
+ b=SeZz5ZiaAqWgLCxYtRCmFhW/of8eq7n5WV6ht/xFojvUuelPiF3Ne/yTD0dJhzQ8qw7GIP
+ qE/6J71b+BQNHWzWeOasnsJRWPuSuX6VpqU4Rjc0ARBW7nGb2jWZ247mXoPGpQIt9omcZl
+ 0whN8PKQhVP0F92HZRsxLdyFnlooWSE=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-580-kIncDfkdPyCPUZHWbJ4FXw-1; Thu, 19 Jan 2023 09:37:07 -0500
-X-MC-Unique: kIncDfkdPyCPUZHWbJ4FXw-1
+ us-mta-567-l4TS9XtFOxaf2EwwHWgw-g-1; Thu, 19 Jan 2023 09:37:29 -0500
+X-MC-Unique: l4TS9XtFOxaf2EwwHWgw-g-1
 Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com
  [10.11.54.4])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D14801C0A597;
- Thu, 19 Jan 2023 14:37:05 +0000 (UTC)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 07306857A88;
+ Thu, 19 Jan 2023 14:37:27 +0000 (UTC)
 Received: from vschneid.remote.csb (unknown [10.33.36.13])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 7418B2026D76;
- Thu, 19 Jan 2023 14:37:00 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 9C6872026D68;
+ Thu, 19 Jan 2023 14:37:22 +0000 (UTC)
 From: Valentin Schneider <vschneid@redhat.com>
 To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
@@ -45,10 +45,9 @@ To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
  linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
  linux-xtensa@linux-xtensa.org, x86@kernel.org
-Subject: [PATCH v4 2/7] sched,
- smp: Trace IPIs sent via send_call_function_single_ipi()
-Date: Thu, 19 Jan 2023 14:36:14 +0000
-Message-Id: <20230119143619.2733236-3-vschneid@redhat.com>
+Subject: [PATCH v4 6/7] smp: reword smp call IPI comment
+Date: Thu, 19 Jan 2023 14:36:18 +0000
+Message-Id: <20230119143619.2733236-7-vschneid@redhat.com>
 In-Reply-To: <20230119143619.2733236-1-vschneid@redhat.com>
 References: <20230119143619.2733236-1-vschneid@redhat.com>
 MIME-Version: 1.0
@@ -73,100 +72,44 @@ Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>,
  Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
  Marcelo Tosatti <mtosatti@redhat.com>, Russell King <linux@armlinux.org.uk>,
  Steven Rostedt <rostedt@goodmis.org>, "David S. Miller" <davem@davemloft.net>,
- Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Nicholas Piggin <npiggin@gmail.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Guo Ren <guoren@kernel.org>,
- Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Nicholas Piggin <npiggin@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ Guo Ren <guoren@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
  Daniel Bristot de Oliveira <bristot@redhat.com>,
- Ingo Molnar <mingo@kernel.org>
+ Frederic Weisbecker <frederic@kernel.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-send_call_function_single_ipi() is the thing that sends IPIs at the bottom
-of smp_call_function*() via either generic_exec_single() or
-smp_call_function_many_cond(). Give it an IPI-related tracepoint.
+Accessing the call_single_queue hasn't involved a spinlock since 2014:
 
-Note that this ends up tracing any IPI sent via __smp_call_single_queue(),
-which covers __ttwu_queue_wakelist() and irq_work_queue_on() "for free".
+  6897fc22ea01 ("kernel: use lockless list for smp_call_function_single")
+
+The llist operations (namely cmpxchg() and xchg()) provide similar ordering
+guarantees, update the comment to lessen confusion.
 
 Signed-off-by: Valentin Schneider <vschneid@redhat.com>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Acked-by: Ingo Molnar <mingo@kernel.org>
 ---
- arch/arm/kernel/smp.c   | 3 ---
- arch/arm64/kernel/smp.c | 1 -
- kernel/sched/core.c     | 7 +++++--
- kernel/smp.c            | 4 ++++
- 4 files changed, 9 insertions(+), 6 deletions(-)
+ kernel/smp.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/kernel/smp.c b/arch/arm/kernel/smp.c
-index 36e6efad89f30..45b8ca2ce521f 100644
---- a/arch/arm/kernel/smp.c
-+++ b/arch/arm/kernel/smp.c
-@@ -48,9 +48,6 @@
- #include <asm/mach/arch.h>
- #include <asm/mpu.h>
- 
--#define CREATE_TRACE_POINTS
--#include <trace/events/ipi.h>
--
- /*
-  * as from 2.5, kernels no longer have an init_tasks structure
-  * so we need some other way of telling a new secondary core
-diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
-index ffc5d76cf6955..937d2623e06ba 100644
---- a/arch/arm64/kernel/smp.c
-+++ b/arch/arm64/kernel/smp.c
-@@ -51,7 +51,6 @@
- #include <asm/ptrace.h>
- #include <asm/virt.h>
- 
--#define CREATE_TRACE_POINTS
- #include <trace/events/ipi.h>
- 
- DEFINE_PER_CPU_READ_MOSTLY(int, cpu_number);
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index bb1ee6d7bddea..c0d09eb249603 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -81,6 +81,7 @@
- #include <linux/sched/rseq_api.h>
- #include <trace/events/sched.h>
- #undef CREATE_TRACE_POINTS
-+#include <trace/events/ipi.h>
- 
- #include "sched.h"
- #include "stats.h"
-@@ -3819,10 +3820,12 @@ void send_call_function_single_ipi(int cpu)
- {
- 	struct rq *rq = cpu_rq(cpu);
- 
--	if (!set_nr_if_polling(rq->idle))
-+	if (!set_nr_if_polling(rq->idle)) {
-+		trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, NULL);
- 		arch_send_call_function_single_ipi(cpu);
--	else
-+	} else {
- 		trace_sched_wake_idle_without_ipi(cpu);
-+	}
- }
- 
- /*
 diff --git a/kernel/smp.c b/kernel/smp.c
-index 06a413987a14a..e2ca1e2f31274 100644
+index 93b4386cd3096..821b5986721ac 100644
 --- a/kernel/smp.c
 +++ b/kernel/smp.c
-@@ -26,6 +26,10 @@
- #include <linux/sched/debug.h>
- #include <linux/jump_label.h>
+@@ -495,9 +495,10 @@ void __smp_call_single_queue(int cpu, struct llist_node *node)
+ #endif
  
-+#define CREATE_TRACE_POINTS
-+#include <trace/events/ipi.h>
-+#undef CREATE_TRACE_POINTS
-+
- #include "smpboot.h"
- #include "sched/smp.h"
- 
+ 	/*
+-	 * The list addition should be visible before sending the IPI
+-	 * handler locks the list to pull the entry off it because of
+-	 * normal cache coherency rules implied by spinlocks.
++	 * The list addition should be visible to the target CPU when it pops
++	 * the head of the list to pull the entry off it in the IPI handler
++	 * because of normal cache coherency rules implied by the underlying
++	 * llist ops.
+ 	 *
+ 	 * If IPIs can go out of order to the cache coherency protocol
+ 	 * in an architecture, sufficient synchronisation should be added
 -- 
 2.31.1
 
