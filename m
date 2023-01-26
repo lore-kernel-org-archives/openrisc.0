@@ -2,40 +2,41 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D312BC38142
-	for <openrisc@archiver.kernel.org>; Sat, 28 Jan 2023 19:03:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DB00C61DA4
+	for <openrisc@archiver.kernel.org>; Sat, 28 Jan 2023 19:13:40 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id DED00229DC;
-	Sat, 28 Jan 2023 20:03:37 +0100 (CET)
+	by mail.librecores.org (Postfix) with ESMTP id 2DEC3226B8;
+	Sat, 28 Jan 2023 20:13:39 +0100 (CET)
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by mail.librecores.org (Postfix) with ESMTPS id 37CD4215A8
- for <openrisc@lists.librecores.org>; Sat, 28 Jan 2023 20:03:37 +0100 (CET)
+ by mail.librecores.org (Postfix) with ESMTPS id 97527200CB
+ for <openrisc@lists.librecores.org>; Sat, 28 Jan 2023 20:13:37 +0100 (CET)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id B1CEAB81B8C;
- Wed, 25 Jan 2023 19:08:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A964C433D2;
- Wed, 25 Jan 2023 19:08:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1674673699;
- bh=qBn35DQSqUXJuSRxeDRwfpJWNfuE/0crpJYRHd83v4o=;
- h=From:To:Cc:Subject:Date:From;
- b=YEcaLAiW8LOEsQEOizhwah/DgYdk0Sj0EasElxRkmwC22UeVxExd/uj6NUQmANgP4
- jAVzwBza/ip8qzByaan6itTOheGqmGzh/hD5E5BgZdD+9/3Ftzb0GYHM6hdAJnWG8c
- +0dGrFu7IRI1vv+/xNF7SyJwcJ060FgtAE8tFhY0qs9BSVQGxK9kiiDi+9Al/inQ5y
- QgjBkIDWnjNcjAsez+fQtgv2zY2/zSGOHn2szZ/WwbSgKX3evSa6IUTI2vOHlKyjnc
- FhqKk/BuoBaxEuVWyr0QicxLbVmc8narKWe5G38G00CIXLChnK8wks51ggl7FZlFcj
- PHJVAXzE1TuvQ==
-From: Mike Rapoport <rppt@kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 0/3] mm,
- arch: add generic implementation of pfn_valid() for FLATMEM
-Date: Wed, 25 Jan 2023 21:07:54 +0200
-Message-Id: <20230125190757.22555-1-rppt@kernel.org>
-X-Mailer: git-send-email 2.35.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+ by ams.source.kernel.org (Postfix) with ESMTPS id CC90AB819AD;
+ Thu, 26 Jan 2023 01:45:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32671C433D2;
+ Thu, 26 Jan 2023 01:45:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+ s=korg; t=1674697514;
+ bh=7RpoJrPZS6SJcilZwJlgfOcy8VI5bDbkm1rwJIiWgGs=;
+ h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+ b=QrUq5ATjY2oqR+jEAeForg1RvYMYo+bDZxJkpPvGEAQMtF9Wex3AsF6pj45qmjarD
+ FkXgKw35BmzCytgE7GIRGvCG25LoCH1q8w/sqjuafA+hP0s/EWoOXsqZwbktTsZyRq
+ n3OCsv9RwqATlbboWAh4Ya/cfUooerJ2jtkrgbTo=
+Date: Wed, 25 Jan 2023 17:45:12 -0800
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Mike Rapoport <rppt@kernel.org>
+Subject: Re: [PATCH 3/3] mm, arch: add generic implementation of pfn_valid()
+ for FLATMEM
+Message-Id: <20230125174512.ce5aed444cc8b8870825d8c2@linux-foundation.org>
+In-Reply-To: <20230125190757.22555-4-rppt@kernel.org>
+References: <20230125190757.22555-1-rppt@kernel.org>
+ <20230125190757.22555-4-rppt@kernel.org>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-BeenThere: openrisc@lists.librecores.org
 X-Mailman-Version: 2.1.29
 Precedence: list
@@ -66,54 +67,46 @@ Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org,
  Thomas Bogendoerfer <tsbogend@alpha.franken.de>, linux-parisc@vger.kernel.org,
  linux-kernel@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
  Palmer Dabbelt <palmer@dabbelt.com>, linux-alpha@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>,
- "Mike Rapoport \(IBM\)" <rppt@kernel.org>
+ linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-From: "Mike Rapoport (IBM)" <rppt@kernel.org>
+On Wed, 25 Jan 2023 21:07:57 +0200 Mike Rapoport <rppt@kernel.org> wrote:
 
-Hi,
+> Every architecture that supports FLATMEM memory model defines its own
+> version of pfn_valid() that essentially compares a pfn to max_mapnr.
+> 
+> Use mips/powerpc version implemented as static inline as a generic
+> implementation of pfn_valid() and drop its per-architecture definitions
 
-Every architecture that supports FLATMEM memory model defines its own
-version of pfn_valid() that essentially compares a pfn to max_mapnr.
+arm allnoconfig:
 
-Use mips/powerpc version implemented as static inline as a generic
-implementation of pfn_valid() and drop its per-architecture definitions
-
-Mike Rapoport (IBM) (3):
-  m68k: use asm-generic/memory_model.h for both MMU and !MMU
-  mips: drop definition of pfn_valid() for DISCONTIGMEM
-  mm, arch: add generic implementation of pfn_valid() for FLATMEM
-
- arch/alpha/include/asm/page.h      |  4 ----
- arch/arc/include/asm/page.h        |  1 -
- arch/csky/include/asm/page.h       |  1 -
- arch/hexagon/include/asm/page.h    |  1 -
- arch/ia64/include/asm/page.h       |  4 ----
- arch/loongarch/include/asm/page.h  | 13 -------------
- arch/m68k/include/asm/page.h       |  6 +-----
- arch/m68k/include/asm/page_mm.h    |  1 -
- arch/m68k/include/asm/page_no.h    |  4 ----
- arch/microblaze/include/asm/page.h |  1 -
- arch/mips/include/asm/page.h       | 28 ----------------------------
- arch/nios2/include/asm/page.h      |  9 ---------
- arch/openrisc/include/asm/page.h   |  2 --
- arch/parisc/include/asm/page.h     |  4 ----
- arch/powerpc/include/asm/page.h    |  9 ---------
- arch/riscv/include/asm/page.h      |  5 -----
- arch/sh/include/asm/page.h         |  3 ---
- arch/sparc/include/asm/page_32.h   |  1 -
- arch/um/include/asm/page.h         |  1 -
- arch/x86/include/asm/page_32.h     |  4 ----
- arch/x86/include/asm/page_64.h     |  4 ----
- arch/xtensa/include/asm/page.h     |  2 --
- include/asm-generic/memory_model.h | 12 ++++++++++++
- include/asm-generic/page.h         |  2 --
- 24 files changed, 13 insertions(+), 109 deletions(-)
+./include/asm-generic/memory_model.h:23:19: error: static declaration of 'pfn_valid' follows non-static declaration
+   23 | static inline int pfn_valid(unsigned long pfn)
+      |                   ^~~~~~~~~
+./arch/arm/include/asm/page.h:160:12: note: previous declaration of 'pfn_valid' with type 'int(long unsigned int)'
+  160 | extern int pfn_valid(unsigned long);
+      |            ^~~~~~~~~
 
 
-base-commit: 2241ab53cbb5cdb08a6b2d4688feb13971058f65
--- 
-2.35.1
+I thought of doing
 
+--- a/arch/arm/include/asm/page.h~mm-arch-add-generic-implementation-of-pfn_valid-for-flatmem-fix
++++ a/arch/arm/include/asm/page.h
+@@ -156,10 +156,6 @@ extern void copy_page(void *to, const vo
+ 
+ typedef struct page *pgtable_t;
+ 
+-#ifdef CONFIG_HAVE_ARCH_PFN_VALID
+-extern int pfn_valid(unsigned long);
+-#endif
+-
+ #include <asm/memory.h>
+ 
+ #endif /* !__ASSEMBLY__ */
+_
+
+but I'm seeing a pfn_valid declaration in arch/arc/include/asm/page.h
+which might be a problem.
+
+v2, please ;)
