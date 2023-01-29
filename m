@@ -2,36 +2,38 @@ Return-Path: <openrisc-bounces@lists.librecores.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC855C38142
-	for <openrisc@archiver.kernel.org>; Sun, 29 Jan 2023 02:03:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05558C636CD
+	for <openrisc@archiver.kernel.org>; Sun, 29 Jan 2023 12:43:00 +0000 (UTC)
 Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 907C421730;
-	Sun, 29 Jan 2023 03:03:48 +0100 (CET)
-Received: from bombadil.infradead.org (bombadil.infradead.org
- [198.137.202.133])
- by mail.librecores.org (Postfix) with ESMTPS id 7C80121730
- for <openrisc@lists.librecores.org>; Sun, 29 Jan 2023 03:03:47 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
- MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
- :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=6J6Vi0RCPyxDfoC5MKQ9vw5ZM3fRcONntqTYKAAIxtY=; b=lpKOPLkD7r+0WJeIfwAu6uYgaf
- glKSGhhtDkjjDnoz8W1d8hpTwG6ul+6ExLxYfPP4dBciTCgAFsK4GHjo+HEeCf0w5Afw6HEKu0aMS
- 6pTubItwg7yslvYxQErJqnWr0Eau7TBYZKtkOktkh2HkUEl40tuP2EJEw3YMPZ1fI5V1Ok2NjKXth
- i/BMADkxf/DpFt/Yn1OdZFQslssDMx708qn+pQeJoYrgadFENLqQiZWTGT8SBnb/2NBJ1un4MPaMq
- vI14843/aGp4g6vXFqXf7EN5KjdmOsE9OmTHun134uz+Rs9vj+o++j4B7Jj/gFBGg4L5PpslvRLeH
- Vf8KYwQQ==;
-Received: from [2601:1c2:d80:3110::9307] (helo=bombadil.infradead.org)
- by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1pLIPL-00DM0u-2s; Fri, 27 Jan 2023 06:40:19 +0000
-From: Randy Dunlap <rdunlap@infradead.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 19/35] Documentation: openrisc: correct spelling
-Date: Thu, 26 Jan 2023 22:39:49 -0800
-Message-Id: <20230127064005.1558-20-rdunlap@infradead.org>
-X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230127064005.1558-1-rdunlap@infradead.org>
-References: <20230127064005.1558-1-rdunlap@infradead.org>
+	by mail.librecores.org (Postfix) with ESMTP id C18F622A72;
+	Sun, 29 Jan 2023 13:42:59 +0100 (CET)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+ by mail.librecores.org (Postfix) with ESMTPS id 8A20A229EB
+ for <openrisc@lists.librecores.org>; Sun, 29 Jan 2023 13:42:58 +0100 (CET)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id 5C2F760D30;
+ Sun, 29 Jan 2023 12:42:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E716EC433D2;
+ Sun, 29 Jan 2023 12:42:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1674996176;
+ bh=8RQZps3hA/u1mdRRQGYSzSx3iKFm4iTs/37kan3EXRs=;
+ h=From:To:Cc:Subject:Date:From;
+ b=nZUZmSKw7/syf9RrBIFurd/O3AkMNzmfegfK+1AS6FvCaH0OhJOzBAu3UXC6av8P5
+ uY9AOa46F/d5yj77Ho8Ndgvw8xxJHw4nNHTmwjtslAXWyegt5vS1IKaYW+Stnwyuiy
+ 2a+kHtcUtcTQ5Rqh9d7F2WecpHec0CXwi5TSyt1qClHpJLOA2sydJTb6OF8VZPCNps
+ 3fd8EBQ67Wgcl+xTfrf7oQnKtinBQv8tebZZGSc5tamZZbBvwb6yYhdPyn1uALV1nu
+ d2H6gUYCo1lWTN9F7fs+AKTM2279BJ7XhGhJhYj0+jZo3axy2AgunU1xbS8ZdbQ6oz
+ oCSDE8gtPikyw==
+From: Mike Rapoport <rppt@kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH v2 0/4] mm,
+ arch: add generic implementation of pfn_valid() for FLATMEM
+Date: Sun, 29 Jan 2023 14:42:31 +0200
+Message-Id: <20230129124235.209895-1-rppt@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-BeenThere: openrisc@lists.librecores.org
@@ -46,44 +48,84 @@ List-Post: <mailto:openrisc@lists.librecores.org>
 List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
 List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
  <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Jonas Bonn <jonas@southpole.se>, Jonathan Corbet <corbet@lwn.net>,
- Randy Dunlap <rdunlap@infradead.org>, linux-doc@vger.kernel.org,
- openrisc@lists.librecores.org, Stafford Horne <shorne@gmail.com>
+Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org,
+ linux-sh@vger.kernel.org, x86@kernel.org, linux-mips@vger.kernel.org,
+ Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>,
+ sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ WANG Xuerui <kernel@xen0n.name>, Greg Ungerer <gerg@linux-m68k.org>,
+ linux-arch@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>,
+ Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>,
+ Huacai Chen <chenhuacai@kernel.org>, Russell King <linux@armlinux.org.uk>,
+ linux-csky@vger.kernel.org, Vineet Gupta <vgupta@kernel.org>,
+ Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org,
+ linux-xtensa@linux-xtensa.org, Arnd Bergmann <arnd@arndb.de>,
+ linux-alpha@vger.kernel.org, linux-um@lists.infradead.org,
+ linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org,
+ loongarch@lists.linux.dev, Stafford Horne <shorne@gmail.com>,
+ linux-arm-kernel@lists.infradead.org, Brian Cain <bcain@quicinc.com>,
+ Michal Simek <monstr@monstr.eu>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, linux-parisc@vger.kernel.org,
+ linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ Dinh Nguyen <dinguyen@kernel.org>, linux-riscv@lists.infradead.org,
+ Palmer Dabbelt <palmer@dabbelt.com>, Richard Weinberger <richard@nod.at>,
+ linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>,
+ "Mike Rapoport \(IBM\)" <rppt@kernel.org>
 Errors-To: openrisc-bounces@lists.librecores.org
 Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
 
-Correct spelling problems for Documentation/openrisc/ as reported
-by codespell.
+From: "Mike Rapoport (IBM)" <rppt@kernel.org>
 
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: openrisc@lists.librecores.org
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: linux-doc@vger.kernel.org
----
- Documentation/openrisc/openrisc_port.rst |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Hi,
 
-diff -- a/Documentation/openrisc/openrisc_port.rst b/Documentation/openrisc/openrisc_port.rst
---- a/Documentation/openrisc/openrisc_port.rst
-+++ b/Documentation/openrisc/openrisc_port.rst
-@@ -106,7 +106,7 @@ History
- 	a much improved version with changes all around.
- 
- 10-04-2004	Matjaz Breskvar (phoenix@bsemi.com)
--	alot of bugfixes all over.
-+	a lot of bugfixes all over.
- 	ethernet support, functional http and telnet servers.
- 	running many standard linux apps.
- 
-@@ -114,7 +114,7 @@ History
- 	port to 2.6.x
- 
- 30-11-2004	Matjaz Breskvar (phoenix@bsemi.com)
--	lots of bugfixes and enhancments.
-+	lots of bugfixes and enhancements.
- 	added opencores framebuffer driver.
- 
- 09-10-2010    Jonas Bonn (jonas@southpole.se)
+Every architecture that supports FLATMEM memory model defines its own
+version of pfn_valid() that essentially compares a pfn to max_mapnr.
+
+Use mips/powerpc version implemented as static inline as a generic
+implementation of pfn_valid() and drop its per-architecture definitions
+
+v2:
+* fix build on ARM and xtensa
+* add Acked- and Reviewed-by, thanks everybody
+
+v1: https://lore.kernel.org/all/20230125190757.22555-1-rppt@kernel.org
+
+Mike Rapoport (IBM) (4):
+  arm: include asm-generic/memory_model.h from page.h rather than
+    memory.h
+  m68k: use asm-generic/memory_model.h for both MMU and !MMU
+  mips: drop definition of pfn_valid() for DISCONTIGMEM
+  mm, arch: add generic implementation of pfn_valid() for FLATMEM
+
+ arch/alpha/include/asm/page.h      |  4 ----
+ arch/arc/include/asm/page.h        |  1 -
+ arch/arm/include/asm/memory.h      |  2 --
+ arch/arm/include/asm/page.h        |  2 ++
+ arch/csky/include/asm/page.h       |  1 -
+ arch/hexagon/include/asm/page.h    |  1 -
+ arch/ia64/include/asm/page.h       |  4 ----
+ arch/loongarch/include/asm/page.h  | 13 -------------
+ arch/m68k/include/asm/page.h       |  6 +-----
+ arch/m68k/include/asm/page_mm.h    |  1 -
+ arch/m68k/include/asm/page_no.h    |  4 ----
+ arch/microblaze/include/asm/page.h |  1 -
+ arch/mips/include/asm/page.h       | 28 ----------------------------
+ arch/nios2/include/asm/page.h      |  9 ---------
+ arch/openrisc/include/asm/page.h   |  2 --
+ arch/parisc/include/asm/page.h     |  4 ----
+ arch/powerpc/include/asm/page.h    |  9 ---------
+ arch/riscv/include/asm/page.h      |  5 -----
+ arch/sh/include/asm/page.h         |  3 ---
+ arch/sparc/include/asm/page_32.h   |  1 -
+ arch/um/include/asm/page.h         |  1 -
+ arch/x86/include/asm/page_32.h     |  4 ----
+ arch/x86/include/asm/page_64.h     |  4 ----
+ arch/xtensa/include/asm/page.h     |  4 ++--
+ include/asm-generic/memory_model.h | 12 ++++++++++++
+ include/asm-generic/page.h         |  2 --
+ 26 files changed, 17 insertions(+), 111 deletions(-)
+
+
+base-commit: 2241ab53cbb5cdb08a6b2d4688feb13971058f65
+-- 
+2.35.1
+
