@@ -2,89 +2,50 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CDA00C38142
-	for <openrisc@archiver.kernel.org>; Tue, 31 Jan 2023 15:55:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DA00C38142
+	for <openrisc@archiver.kernel.org>; Tue, 31 Jan 2023 16:04:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229816AbjAaPzp (ORCPT <rfc822;openrisc@archiver.kernel.org>);
-        Tue, 31 Jan 2023 10:55:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33772 "EHLO
+        id S230221AbjAaQEO (ORCPT <rfc822;openrisc@archiver.kernel.org>);
+        Tue, 31 Jan 2023 11:04:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230137AbjAaPzo (ORCPT
+        with ESMTP id S232365AbjAaQEH (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Tue, 31 Jan 2023 10:55:44 -0500
-Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1BAD3402B;
-        Tue, 31 Jan 2023 07:55:42 -0800 (PST)
-Received: by mail-wr1-x42b.google.com with SMTP id q5so14690695wrv.0;
-        Tue, 31 Jan 2023 07:55:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=cZO3OXoklLdjvq1ElI0EhzGrI2GyGBeJ7SHRlnQtpNk=;
-        b=DN2ilcPcEGj1u9H9FXqp6nulPpgvCZxOHQnTbrDwur8O5FM9ON/+7CizpyATxu5BRz
-         D4H7cpf0mbE6+DL/2V+ubMcbq+ByztUUWF42aswATqm4HQ2rMwGes79HzqTkwe2ApvFE
-         NEdc4aE6HqHFtoxvtQMcwQDqWJ4PzjPbM18kz6KFltSmhhorDEe7FBvRRSCrGyh2xOeA
-         VBkitRRbxh/RzNGvalSJL01BaYEykQyIc+sA23zZ0XSBQg2VC+tf3Bsp+uHrnAmlsQhm
-         LHVTqX95/l6sMRWiNjB96NTyAUp4YEqeHqJ0SfDv9Ov21WL760YdjzIrUaYqySXnk1h1
-         wPJA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=cZO3OXoklLdjvq1ElI0EhzGrI2GyGBeJ7SHRlnQtpNk=;
-        b=yjOC34y/8MCkyf2jbWo1/Pl6VLe0ZOcJvk8IVUEWUiml7zOfwFB8JFpS7tGcKuLnf9
-         cK425gEEURkbh5MmAEAaV433TlVKk5vc1yTTmFfp7rIc6LRQ8hQ+4xblLkpQ0KqeytJO
-         Xawb89HFioWelCj9yknyDddsJ11rt383qRqacFuvNcFDXCzbvhhY8xRNmWwGoB6qBwf9
-         1yVRHFNY0OuMnxpyoDtivMa8H0OjUAZypCUbdQtuYgBeHgIBmd2ySV+Gqotut01484Me
-         m5qntFcD1Jaw+EWtut8YBleJ2+sMv+hnNtPn5EorQ2Dslhf+c0T5fVMZLvmcX6qA23qG
-         lsyQ==
-X-Gm-Message-State: AO0yUKWtKRNME7glD4+Kw+8mY0ROxWaNm1S4yfrJquulP3sKdPayJYQx
-        Flgp9I8dLAi322qa1vkVagEf52auVxw=
-X-Google-Smtp-Source: AK7set/u3WxPaikwkA8y3DKENc0uI1hUprGHYaSwKCccfUZwSJv65dyMoqkB0I3I/MeM/y0DniS+kg==
-X-Received: by 2002:adf:ef12:0:b0:2bf:c364:47b3 with SMTP id e18-20020adfef12000000b002bfc36447b3mr18137390wro.26.1675180540252;
-        Tue, 31 Jan 2023 07:55:40 -0800 (PST)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id w10-20020adfcd0a000000b002bff7caa1c2sm4106908wrm.0.2023.01.31.07.55.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 31 Jan 2023 07:55:31 -0800 (PST)
-From:   Stafford Horne <shorne@gmail.com>
-To:     LKML <linux-kernel@vger.kernel.org>
-Cc:     Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-        Stafford Horne <shorne@gmail.com>
-Subject: [PATCH] MAINTAINERS: Update OpenRISC mailing list
-Date:   Wed,  1 Feb 2023 00:55:24 +0900
-Message-Id: <20230131155524.2700453-1-shorne@gmail.com>
-X-Mailer: git-send-email 2.37.1
+        Tue, 31 Jan 2023 11:04:07 -0500
+X-Greylist: delayed 175 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 31 Jan 2023 08:04:02 PST
+Received: from openrisc.vrnet (unknown [178.70.224.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAB675355F
+        for <linux-openrisc@vger.kernel.org>; Tue, 31 Jan 2023 08:04:02 -0800 (PST)
+Received: from vr31.vrnet (vr31.vrnet [10.0.0.18])
+        by openrisc.vrnet (8.15.2/8.14.4) with ESMTP id 30VG1153387950;
+        Tue, 31 Jan 2023 19:01:01 +0300
+To:     Stafford Horne <shorne@gmail.com>,
+        Linux OpenRISC <linux-openrisc@vger.kernel.org>
+References: <Y9kyjEaTtPQ5sKeH@antec>
+From:   Vad Rulezz <ml@vr5.epicgamer.org>
+Subject: Re: OpenRISC mailing list moves from librecores.org to
+ vger.kernel.org
+Message-ID: <22935b55-6f16-3378-b775-129e2cb0e7e2@vr5.epicgamer.org>
+Date:   Tue, 31 Jan 2023 19:01:01 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
+In-Reply-To: <Y9kyjEaTtPQ5sKeH@antec>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-riscv@vger.kernel.org
 
-The mailing list at librecores.org is being shut down due to
-infrastructure issues.  Update the the newly created list on
-vger.kernel.org.
+Hello Stafford,
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- MAINTAINERS | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 1/31/23 6:23 PM, Stafford Horne wrote:
+> This is good news as it should provide a very solid mailing list for our future
+> OpenRISC discussions.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 7f86d02cb427..6037a1131ccd 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -15658,7 +15658,7 @@ OPENRISC ARCHITECTURE
- M:	Jonas Bonn <jonas@southpole.se>
- M:	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
- M:	Stafford Horne <shorne@gmail.com>
--L:	openrisc@lists.librecores.org
-+L:	linux-openrisc@vger.kernel.org
- S:	Maintained
- W:	http://openrisc.io
- T:	git https://github.com/openrisc/linux.git
--- 
-2.37.1
+Thanks for saving the mailing list. This is very important for the 
+OpenRISC ecosystem.
 
+
+Vad Rulezz
