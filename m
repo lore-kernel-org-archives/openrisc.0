@@ -2,70 +2,91 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D937C636CC;
-	Sat,  4 Feb 2023 19:55:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 683BBC38142
+	for <openrisc@archiver.kernel.org>; Tue, 31 Jan 2023 15:25:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233126AbjBDTzN (ORCPT
-        <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Sat, 4 Feb 2023 14:55:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45738 "EHLO
+        id S233182AbjAaPZd (ORCPT <rfc822;openrisc@archiver.kernel.org>);
+        Tue, 31 Jan 2023 10:25:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233106AbjBDTzM (ORCPT
+        with ESMTP id S233260AbjAaPZG (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Sat, 4 Feb 2023 14:55:12 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E5C926CC0;
-        Sat,  4 Feb 2023 11:55:11 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CE037CE0926;
-        Sat,  4 Feb 2023 19:55:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 254F3C433EF;
-        Sat,  4 Feb 2023 19:55:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675540508;
-        bh=mk01LrOBdvVxz0ygSIjri69OEBZUVCfcpw0aouOdqNY=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=oWoeitgGgsLicAqsJtvcw02MX3KrSM4V0KHWuh4WYvQvdzEwC0ZLfY6FfJvL1lOlI
-         twMkXtGkcpz3uhsSlfTG6z8zM4RzKzdlnND5nMjf2V/BzxbxXz4ntTBIPSVK+XzHUV
-         hDIPJBSPsqRj7LnIROov5qUwNgDIkvd1YYLgrra1KoSqPFQ4Awa8mHXiVUpkk7BIpu
-         MqgKZ1NqTkX6+/hTdCtUX+6fcyVuJVz/6vJsv+Fv1Oc7O9lVVcSr56TGhBc4JKVSQ4
-         RNI9g8qyv3c8A9xY1rrJ1lDphqCpmK64fjA3KzbQTq8oTFwfE38TAvyiX7zF0VHpQf
-         yUpahlh/JGHXA==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 15461E270C5;
-        Sat,  4 Feb 2023 19:55:08 +0000 (UTC)
-Subject: Re: [GIT PULL] OpenRISC update for v6.2-rc7
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <Y943GbieOKnXz1aE@antec>
-References: <Y943GbieOKnXz1aE@antec>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <Y943GbieOKnXz1aE@antec>
-X-PR-Tracked-Remote: https://github.com/openrisc/linux.git tags/for-linus
-X-PR-Tracked-Commit-Id: 0a2742bf5899bf3bc46d16e4cc7dd7352ce771fd
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 583472ef2d176883596637a690602e6d76c5fee5
-Message-Id: <167554050807.7014.9291043137027079914.pr-tracker-bot@kernel.org>
-Date:   Sat, 04 Feb 2023 19:55:08 +0000
-To:     Stafford Horne <shorne@gmail.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
+        Tue, 31 Jan 2023 10:25:06 -0500
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B1944B771
+        for <linux-openrisc@vger.kernel.org>; Tue, 31 Jan 2023 07:24:02 -0800 (PST)
+Received: by mail-wr1-x430.google.com with SMTP id m7so14550953wru.8
+        for <linux-openrisc@vger.kernel.org>; Tue, 31 Jan 2023 07:24:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-disposition:mime-version:message-id:subject:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Tv8nZDkSKPegxMMxlkdN3bH3dixOsj4ChgLPbrH3vgI=;
+        b=MBNMEuTWrEimsrkM5aFo7GtYLhSiWK4y8FukcgHl9B9xpu1f1tChlmVPhh0r+IVHRI
+         +ZuAD4kncT2HQMTkwH+bG/2toFZldyqHsooeJiPK3h8KwXlOn3uzXStGh0CEkUjZsRhN
+         akzgie2r9FCNYiwNEaVPQHJQSZEWc74Db/pGECsv4M2ZkhiowLSp+nF4tx9JQOHKqsrh
+         erm/f54s+dC5Xd2otNdmAD6oIIO766F+zrM8zCELv47UQ5a3ewCbA9utY9EGZwSIoQrC
+         AochdZGTX1SPvV+QouJJ+q2mGGosDJ+p1SKLwiLkiWmqlG9IocQ7jwfq2NbcvuVqeIY+
+         8prA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-disposition:mime-version:message-id:subject:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Tv8nZDkSKPegxMMxlkdN3bH3dixOsj4ChgLPbrH3vgI=;
+        b=N1i8x5jeSnMhlQykuY2TQEsA3+3DUFj+Tw7Ijp5giJEm1cZfn8vUZaQ24ocMkZxZuc
+         PiBCZQYoW5dmlWSLsgR1Hj4nviqbVICdVJv+KH1B9qgnQjjo7TWIIVfVFWbgEEkksq7O
+         j33MoRlesdjFPOondPC4Vr9yZMDsnrsr1vGP60PeWLbXJBYlO/kjzAD/HH5Y3nev7sOb
+         R7g1vUIEcJTnxdtO+LYyvt+QNbKgwSyKN2sXgN7y6GXayGaxjxkgPHhXGq3wwKUWuHRD
+         jmcorJlvq5jOIkr0w5KIbBlnvddi3yq7f0FDhpXc+CJWobYN0t+WDSNMI9DcWZVfTuEW
+         JUbQ==
+X-Gm-Message-State: AFqh2koJf2aj5yv6XnIIwWIaJH2eJ0KimA8tjhjfolyMYgXTHh92GGgw
+        wykDi2NTIt/j1ljCSHLMSiwZ7vuUwqM=
+X-Google-Smtp-Source: AMrXdXvkwBbp+EbM4jNm32U+eIoo9M9DZBc2my+4cpsBGArrleO97urpU+GzknpNVJj92bSX/n7u9Q==
+X-Received: by 2002:a5d:6e82:0:b0:242:5563:c3b with SMTP id k2-20020a5d6e82000000b0024255630c3bmr47370660wrz.59.1675178639271;
+        Tue, 31 Jan 2023 07:23:59 -0800 (PST)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id a4-20020adffb84000000b002bc7f64efa3sm14761785wrr.29.2023.01.31.07.23.57
+        for <linux-openrisc@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 31 Jan 2023 07:23:57 -0800 (PST)
+Date:   Wed, 1 Feb 2023 00:23:56 +0900
+From:   Stafford Horne <shorne@gmail.com>
+To:     Linux OpenRISC <linux-openrisc@vger.kernel.org>
+Subject: OpenRISC mailing list moves from librecores.org to vger.kernel.org
+Message-ID: <Y9kyjEaTtPQ5sKeH@antec>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-riscv@vger.kernel.org
 
-The pull request you sent on Sat, 4 Feb 2023 19:44:41 +0900:
+Hi All,
 
-> https://github.com/openrisc/linux.git tags/for-linus
+After some recent issues in infrastructure the mailing lists at librecores.org
+have been shut down.  This was brought to my attention earlier this week and we
+have migrated all users over to to a new mailing list hosted on the
+vger.kernel.org infrastructure.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/583472ef2d176883596637a690602e6d76c5fee5
+This is good news as it should provide a very solid mailing list for our future
+OpenRISC discussions.
 
-Thank you!
+Sorry, I don't have too much more information on whyy the librecores.org
+infrastructure went down.  But it does seem to follow the announced shutdown of
+librecores[1].
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+If you want to manage your subscription please do that via vger.kernel.org[2].
+
+Next steps:
+ - I have requested to get archiving setup on lore.kernel.org
+ - I will be sending out a kernel patch to move the OpenRISC risk development
+   patches over to this new list.
+ - Need to update the OpenRISC website.
+ - Update any other projects linking to the old list.
+
+Thank You,
+
+-Stafford
+
+[1] https://www.fossi-foundation.org/2022/10/19/librecores
+[2] http://vger.kernel.org/vger-lists.html#linux-openrisc
