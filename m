@@ -1,120 +1,67 @@
-Return-Path: <openrisc-bounces@lists.librecores.org>
+Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from mail.librecores.org (lists.librecores.org [88.198.125.70])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB50BC61D97
-	for <openrisc@archiver.kernel.org>; Sun, 29 Jan 2023 17:12:43 +0000 (UTC)
-Received: from [172.31.1.100] (localhost.localdomain [127.0.0.1])
-	by mail.librecores.org (Postfix) with ESMTP id 41F6423048;
-	Sun, 29 Jan 2023 18:12:42 +0100 (CET)
-Received: from wout1-smtp.messagingengine.com (wout1-smtp.messagingengine.com
- [64.147.123.24])
- by mail.librecores.org (Postfix) with ESMTPS id 22F2B2304B
- for <openrisc@lists.librecores.org>; Sun, 29 Jan 2023 18:12:40 +0100 (CET)
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
- by mailout.west.internal (Postfix) with ESMTP id 1939A32000F9;
- Sun, 29 Jan 2023 12:12:37 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
- by compute5.internal (MEProxy); Sun, 29 Jan 2023 12:12:37 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
- philipp-wagner.com; h=cc:cc:content-transfer-encoding
- :content-type:date:date:from:from:in-reply-to:in-reply-to
- :message-id:mime-version:references:reply-to:sender:subject
- :subject:to:to; s=fm3; t=1675012356; x=1675098756; bh=zMHI21EGrF
- nJpP0126Od07mUjrlm2kXW6GY+NdjJtoM=; b=Euguc9khSEQpbq+MGoIr1gJ3H3
- 8AraDgonEW8DM7xJQj5gn6up87FVua3BSv/9pRrqdeeIAriJO2QbtxWgurxl7PHD
- 3MN3tnE4Hho08f2Lk2lgR+6u3LLob3K9Trv6MtZH6x9biGVofUqVf5Hqp9eZlybg
- 2JBtmjy32daohczvHVqC3js4gViIELQEyKHJrRS0RMQ7nJaubwSftCyiPv9RV/l8
- ssiFv3ufCEdvBn5iuJ4MHyQByZ0ghJ9xGGadbGJQKq2ep2esKwXvTtCUcz9gF10c
- NeRZNOYEVCqkgb9uxSt4buBBVi039RC6PruNxcfMnHnaunyw/xud9cC1gkLg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
- messagingengine.com; h=cc:cc:content-transfer-encoding
- :content-type:date:date:feedback-id:feedback-id:from:from
- :in-reply-to:in-reply-to:message-id:mime-version:references
- :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
- :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1675012356; x=
- 1675098756; bh=zMHI21EGrFnJpP0126Od07mUjrlm2kXW6GY+NdjJtoM=; b=j
- A4q9LLazwFH1W4VAnTDuqHOmK7aouLCcZxeeq5ebl/u6Q4kvNCrNdujN2ZAXNV5O
- g9zm/ggdJ0eKq7bmJ0G+3BmM1Bo27TAL5z5dLlC+1EknuC9PBnugQ4GIQgyQyXE5
- oiEsfClq9giSnAoeGVFyf0rzZJ7zgxijWxS9oqbsJydrO6L3cmalkc0fbTV265I/
- PwOc2kYeetFCx1ZVie0eQ5Atm11prts69epsExvy5EfXw37MrA5CYTQtu1CsjWcp
- XHWZ7hQdo59QeUEDwtnqJSP27I9rpe5d8QZBTRmZA1l818/i2zt4FZgWE2ZSFLt8
- Lpl5IU+qMUeakM3SxJHRQ==
-X-ME-Sender: <xms:A6nWY2Vvtq3Jzttm9BEdjRaQ5jOBZRHvq0LDc409hwjK3wp4eR-mLw>
- <xme:A6nWYylI1G3aan9N6iycIJrsc1-t1bvTX6P6T8Kpm19hlA9TAooZWb__Xl2K9-yql
- KvX0r2SzDN-FAlPC94>
-X-ME-Received: <xmr:A6nWY6bnY4eDGJ5z8LPn3yr68GWsETmOEW7JA0Fs4_p7Ye6XMkOgB7_WhxeI24Jv64pkxVqHv4PjaA8gKgk-d_e-Tpd4yUZcscEo2GTh2Z_bZS88bgQX>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrudeftddguddttdcutefuodetggdotefrod
- ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
- necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
- enucfjughrpefkffggfgfuvfevfhfhjggtgfesthejredttdefjeenucfhrhhomheprfhh
- ihhlihhpphcuhggrghhnvghruceomhgrihhlsehphhhilhhiphhpqdifrghgnhgvrhdrtg
- homheqnecuggftrfgrthhtvghrnhepheeihfelgeegudeutdejgfdtgeevgefhvddvheei
- jeduveffveetkeegveektdfgnecuffhomhgrihhnpehlihgsrhgvtghorhgvshdrohhrgh
- enucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehmrghi
- lhesphhhihhlihhpphdqfigrghhnvghrrdgtohhm
-X-ME-Proxy: <xmx:A6nWY9UxlC2GmhAOGeTpBhKzZjkDp_ZNOhCcsJrnf2UBbOLJT8pwrw>
- <xmx:A6nWYwlafm9BbFOQwt1LRGvPw2hgEmBn4D0MWGdrv3KKX4svAiSmLg>
- <xmx:A6nWYycI40wjhn5B1oO6pnhSPloP3NlXmduy5dZCD4emGwPMxElwDA>
- <xmx:BKnWY6UudJCP85HUEI92iQ_WqpHFzNwiE_kC4eSAAIOgoFcQpNR8ug>
-Feedback-ID: ie9a94437:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 29 Jan 2023 12:12:34 -0500 (EST)
-Message-ID: <24bcadb2-d8fa-1f3f-9fcf-66fe885c4844@philipp-wagner.com>
-Date: Sun, 29 Jan 2023 18:12:33 +0100
+Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5643FC636D4;
+	Wed,  1 Feb 2023 19:49:38 +0000 (UTC)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S231614AbjBATth (ORCPT
+        <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
+        Wed, 1 Feb 2023 14:49:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33026 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231726AbjBATtg (ORCPT
+        <rfc822;linux-openrisc@vger.kernel.org>);
+        Wed, 1 Feb 2023 14:49:36 -0500
+Received: from mail-qt1-x833.google.com (mail-qt1-x833.google.com [IPv6:2607:f8b0:4864:20::833])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25FD95CFFF
+        for <linux-openrisc@vger.kernel.org>; Wed,  1 Feb 2023 11:49:28 -0800 (PST)
+Received: by mail-qt1-x833.google.com with SMTP id c2so4955402qtw.5
+        for <linux-openrisc@vger.kernel.org>; Wed, 01 Feb 2023 11:49:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=content-disposition:mime-version:message-id:subject:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=/De/5Abb06qSy8ya/WMDYMfRib3OqkWWHvsU7pm17ck=;
+        b=aWtSCMhO/dGGyo9lveTYvdAySFgAVF5K2AVBvO7LOBWNMYTtCYoKJi+7ucCjbZLsI/
+         /YwGIVi8kwUEaJx95qYp7aTDxid5jUFNjdawrGdZ4CdxhmhlCtnYuEFYiv4HVXoJeLRq
+         /2O17kC4llvbnlmYX0tbuAnEknm1T52upl7J0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-disposition:mime-version:message-id:subject:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=/De/5Abb06qSy8ya/WMDYMfRib3OqkWWHvsU7pm17ck=;
+        b=x+dtQSL9DJrtEiB6MKXk/prZo6tQaeHUBEM4mfLnAZD+7stxQLh/ABL3CsHvVGcyLq
+         QlJ+Ab2nshG7rKkiR7ygkzd8iHoHi2F6qD4u49jfNit3Rx+1Se5jDNAeTv4P+7N0MAk8
+         QxRcMU8G91r0aP9E9rPjiHdGgoAtNGu7wVzGsHl/IY8oiPK9vnlxxK6WvOlee9AVOhJI
+         JCzcBl2cPBq6slOGjg2Ez9YS29lZWt58uxh+qNisDDxTllyjpDzVSX+Ls1vLnza0s9BB
+         F33/rZkqbpASLcxlcXQKJEdC3gcNQSiWQtk4KjL0SsAyOam1q1SOig+OubyvQuiPY5gf
+         uB0Q==
+X-Gm-Message-State: AO0yUKWWR94wvClsrZwR8jpQQPqFAOC/5cqMvCH0B6N80m7XpYiY2WL2
+        LbRGwvwr388HcH53y7+v/oYkYWEhYJmuenN9
+X-Google-Smtp-Source: AK7set/N/kNeoPGy/GkgsQw5mEl/BDR+Refaa8KoFHKcBz7zuL66vEqUvLyvnd8ptnjDKeRwVzBfJA==
+X-Received: by 2002:a05:622a:1ba2:b0:3ae:2272:e43c with SMTP id bp34-20020a05622a1ba200b003ae2272e43cmr5544016qtb.29.1675280967140;
+        Wed, 01 Feb 2023 11:49:27 -0800 (PST)
+Received: from meerkat.local (bras-base-mtrlpq5031w-grc-30-209-226-106-7.dsl.bell.ca. [209.226.106.7])
+        by smtp.gmail.com with ESMTPSA id z16-20020ae9c110000000b0070617deb4b7sm12392826qki.134.2023.02.01.11.49.26
+        for <linux-openrisc@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Feb 2023 11:49:26 -0800 (PST)
+Date:   Wed, 1 Feb 2023 14:49:25 -0500
+From:   Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+To:     linux-openrisc@vger.kernel.org
+Subject: Test archiving with new list
+Message-ID: <20230201194925.cbmld7fpvm2pfgsu@meerkat.local>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.1
-Subject: Re: OpenRISC mailing list on lists.librecores.org status?
-Content-Language: en-US
-To: Stafford Horne <shorne@gmail.com>,
- John 'Warthog9' Hawley <warthog9@eaglescrag.net>
-References: <Y9QwJIwmRF3wmbGR@antec>
- <22EED3FC-CB23-4245-B490-02D095CD7ABB@hm.edu>
- <72309fb9-f747-4e6a-a8a0-0843a95c9793@app.fastmail.com>
- <1a601f5d-1a3c-59eb-02f4-fa10b5664f09@eaglescrag.net>
- <520C5853-52C8-4305-A866-FEE73695AE67@hm.edu>
- <bf4efc4f-ab46-6379-805f-923051832b11@eaglescrag.net>
- <3e61dac5-15b1-462e-9302-525f7c67eb35@app.fastmail.com>
- <ea758038-6f2b-3931-8fde-c973e20943b6@eaglescrag.net>
- <Y9TV8DRbVmivrTWi@antec>
- <55ad7182-5128-68e4-b685-e4dd743e6d71@eaglescrag.net>
- <Y9W3Bit1LR/KQMsG@antec>
-From: Philipp Wagner <mail@philipp-wagner.com>
-In-Reply-To: <Y9W3Bit1LR/KQMsG@antec>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-BeenThere: openrisc@lists.librecores.org
-X-Mailman-Version: 2.1.29
-Precedence: list
-List-Id: Discussion around the OpenRISC processor
- <openrisc.lists.librecores.org>
-List-Unsubscribe: <https://lists.librecores.org/options/openrisc>,
- <mailto:openrisc-request@lists.librecores.org?subject=unsubscribe>
-List-Archive: <http://lists.librecores.org/pipermail/openrisc/>
-List-Post: <mailto:openrisc@lists.librecores.org>
-List-Help: <mailto:openrisc-request@lists.librecores.org?subject=help>
-List-Subscribe: <https://lists.librecores.org/listinfo/openrisc>,
- <mailto:openrisc-request@lists.librecores.org?subject=subscribe>
-Cc: Jonas Bonn <jonas@southpole.se>, Arnd Bergmann <arnd@arndb.de>,
- "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>,
- "postmaster@vger.kernel.org" <postmaster@vger.kernel.org>, "Wallentowitz,
- Stefan" <stefan.wallentowitz@hm.edu>,
- "info@fossi-foundation.org" <info@fossi-foundation.org>
-Errors-To: openrisc-bounces@lists.librecores.org
-Sender: "OpenRISC" <openrisc-bounces@lists.librecores.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Precedence: bulk
+List-ID: <linux-openrisc.vger.kernel.org>
+X-Mailing-List: linux-riscv@vger.kernel.org
 
-On 29.01.23 01:00, Stafford Horne wrote:
->> If you want to get me a list of e-mail addresses I can insert them in the
->> backend if you want to fully forklift the list over and not have everyone
->> jump through the hoops of subscribing.
->>
-> 
-> That would be helpful, I don't have the list of addresses though.  Stefan or
-> Philipp might be able to provide it.
+Hello:
 
-Stafford and John, I sent you a list of current subscribers off-list.
+This is a test to make sure that the new list is properly archived on
+lore.kernel.org/openrisc, continuing old list archives.
 
-Thanks!
-
-Philipp
+-K
