@@ -2,82 +2,45 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EA60C7EE23;
-	Wed,  1 Mar 2023 08:17:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EED9C7EE37;
+	Thu,  2 Mar 2023 12:20:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229848AbjCAIRD (ORCPT
+        id S229835AbjCBMUC (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Wed, 1 Mar 2023 03:17:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47158 "EHLO
+        Thu, 2 Mar 2023 07:20:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229516AbjCAIRB (ORCPT
+        with ESMTP id S229449AbjCBMUB (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Wed, 1 Mar 2023 03:17:01 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60F7337546
-        for <linux-openrisc@vger.kernel.org>; Wed,  1 Mar 2023 00:16:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1677658571;
+        Thu, 2 Mar 2023 07:20:01 -0500
+Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9D9835256;
+        Thu,  2 Mar 2023 04:19:59 -0800 (PST)
+Received: from zn.tnic (p5de8e9fe.dip0.t-ipconnect.de [93.232.233.254])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id E292B1EC04F0;
+        Thu,  2 Mar 2023 13:19:57 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1677759598;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=qQIo0hNE1IdmdTJeAfVSWSJHdp/A2L81MbqwgQGi7/s=;
-        b=Lgx4494Ki92A8P7KBec9GZ+oniD/so9S6s376pXCBfwIZbpFryYzm7VuUbDCudOmPpuazJ
-        BZlYjiR+awKb7+/obJJdaVaNJPlnbEr8EXFHhRoDxhAjgvdnre76/wb2aZFcUicW5ld7qE
-        AjRVQKfqtaApCJ9VvbYhapBkNy2Iiis=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-42-XObsEBhGOr2jfMQQJg-sMA-1; Wed, 01 Mar 2023 03:16:10 -0500
-X-MC-Unique: XObsEBhGOr2jfMQQJg-sMA-1
-Received: by mail-wm1-f71.google.com with SMTP id az39-20020a05600c602700b003e97eb80524so8000867wmb.4
-        for <linux-openrisc@vger.kernel.org>; Wed, 01 Mar 2023 00:16:10 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:subject:organization:from
-         :content-language:references:cc:to:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=qQIo0hNE1IdmdTJeAfVSWSJHdp/A2L81MbqwgQGi7/s=;
-        b=OhOqL6Ps0FaycMhEcM/900mVKieUqlIPjaVcwWRDAa1h5sNEeHOfbEt7Fwo6QxuMbk
-         k3dV4E0Iodl8gvnb4LvWFHID3KJ/D6EJUg2LedPdIybn5L2V1c+8QPbtlp6Ke2HBBnpZ
-         PkNIhZ9rApnqQOybUnNFi1Xnp+v9O/1EHBqcVdmQu5GZYGPo7XAKzINVrcqj6LtXWaqp
-         0yZfGXwdu3MhS67NPy4lzW0urRLbTXpyQ4r4I8sGc9DKKTNd1ZS6hhKyULQdIdlp8CBI
-         Uh01ttZ+wUoiW/k/AG1a93ODPvmnuG9Vcg3Osabr8TRxVs+YXfNX7aX7T7TQ4zaYzxGF
-         uNdQ==
-X-Gm-Message-State: AO0yUKWZlzDZgdEiBoBXaiUvdP2josdwU1p8jjyTgllZsU9yOqD0IV4F
-        n8A6nurwQWPgGouO5efsEkVleu6+TLNjiP4GdETYAhtUJTZHQilO/Nze8PKBj5e7mmqQjqjmoLC
-        EVcNv9OwG9l7JaXh6BT3WL5L2wBc=
-X-Received: by 2002:adf:fa42:0:b0:2c8:9cfe:9e29 with SMTP id y2-20020adffa42000000b002c89cfe9e29mr3673954wrr.38.1677658569302;
-        Wed, 01 Mar 2023 00:16:09 -0800 (PST)
-X-Google-Smtp-Source: AK7set/Zcp0KDYd3P+ttMa1nxfZFskB2aS7FMY5A6AFDn91vWMJGTRwO0n5U4FI/yi5+QKrlOm4zVQ==
-X-Received: by 2002:adf:fa42:0:b0:2c8:9cfe:9e29 with SMTP id y2-20020adffa42000000b002c89cfe9e29mr3673883wrr.38.1677658568881;
-        Wed, 01 Mar 2023 00:16:08 -0800 (PST)
-Received: from ?IPV6:2a09:80c0:192:0:5dac:bf3d:c41:c3e7? ([2a09:80c0:192:0:5dac:bf3d:c41:c3e7])
-        by smtp.gmail.com with ESMTPSA id m15-20020a5d6a0f000000b002c707785da4sm11739026wru.107.2023.03.01.00.16.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 01 Mar 2023 00:16:08 -0800 (PST)
-Message-ID: <550c6035-6dd0-d215-226b-1a82dafa05d6@redhat.com>
-Date:   Wed, 1 Mar 2023 09:16:06 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Rick Edgecombe <rick.p.edgecombe@intel.com>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "H . Peter Anvin" <hpa@zytor.com>,
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=EXqRPO+1UJ/Jugo4uZb8s1y5eA/PT9L+UzCFhY6JB88=;
+        b=BDkuvwlB34QQjIUo59EDVmj7oKCVncxfi5b5gZ5JgkhU3aIBDgDeTmJNn7jbJHW3znTvCf
+        YFoHuKLNQrQyliq8pTOmjR9MRkIeF/W/wjuynsx9rHark059JR7Yp19Rw8Aocd30uUMCn6
+        EDHphDviZmnnExDRi0VvwD18ImB95dQ=
+Date:   Thu, 2 Mar 2023 13:19:52 +0100
+From:   Borislav Petkov <bp@alien8.de>
+To:     Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc:     x86@kernel.org, "H . Peter Anvin" <hpa@zytor.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, linux-api@vger.kernel.org,
         Arnd Bergmann <arnd@arndb.de>,
         Andy Lutomirski <luto@kernel.org>,
         Balbir Singh <bsingharora@gmail.com>,
-        Borislav Petkov <bp@alien8.de>,
         Cyrill Gorcunov <gorcunov@gmail.com>,
         Dave Hansen <dave.hansen@linux.intel.com>,
         Eugene Syromiatnikov <esyr@redhat.com>,
@@ -92,99 +55,45 @@ To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
         Randy Dunlap <rdunlap@infradead.org>,
         Weijiang Yang <weijiang.yang@intel.com>,
         "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        John Allen <john.allen@amd.com>,
-        "kcc@google.com" <kcc@google.com>,
-        "eranian@google.com" <eranian@google.com>,
-        "rppt@kernel.org" <rppt@kernel.org>,
-        "jamorris@linux.microsoft.com" <jamorris@linux.microsoft.com>,
-        "dethoma@microsoft.com" <dethoma@microsoft.com>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "Andrew.Cooper3@citrix.com" <Andrew.Cooper3@citrix.com>,
-        "christina.schimpe@intel.com" <christina.schimpe@intel.com>,
-        "debug@rivosinc.com" <debug@rivosinc.com>
-Cc:     "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
-        "linux-snps-arc@lists.infradead.org" 
-        <linux-snps-arc@lists.infradead.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
-        "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>,
-        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-        "loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
-        "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>,
+        John Allen <john.allen@amd.com>, kcc@google.com,
+        eranian@google.com, rppt@kernel.org, jamorris@linux.microsoft.com,
+        dethoma@microsoft.com, akpm@linux-foundation.org,
+        Andrew.Cooper3@citrix.com, christina.schimpe@intel.com,
+        david@redhat.com, debug@rivosinc.com, linux-alpha@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
         Michal Simek <monstr@monstr.eu>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
-        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
+        Dinh Nguyen <dinguyen@kernel.org>, linux-mips@vger.kernel.org,
+        linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        xen-devel@lists.xenproject.org
+Subject: Re: [PATCH v7 13/41] mm: Make pte_mkwrite() take a VMA
+Message-ID: <ZACUaN0NRNXMwkT2@zn.tnic>
 References: <20230227222957.24501-1-rick.p.edgecombe@intel.com>
  <20230227222957.24501-14-rick.p.edgecombe@intel.com>
- <1f8b78b6-9f34-b646-68f2-eac62136b9f4@csgroup.eu>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Subject: Re: [PATCH v7 13/41] mm: Make pte_mkwrite() take a VMA
-In-Reply-To: <1f8b78b6-9f34-b646-68f2-eac62136b9f4@csgroup.eu>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20230227222957.24501-14-rick.p.edgecombe@intel.com>
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On 01.03.23 08:03, Christophe Leroy wrote:
-> 
-> 
-> Le 27/02/2023 à 23:29, Rick Edgecombe a écrit :
->> The x86 Control-flow Enforcement Technology (CET) feature includes a new
->> type of memory called shadow stack. This shadow stack memory has some
->> unusual properties, which requires some core mm changes to function
->> properly.
->>
->> One of these unusual properties is that shadow stack memory is writable,
->> but only in limited ways. These limits are applied via a specific PTE
->> bit combination. Nevertheless, the memory is writable, and core mm code
->> will need to apply the writable permissions in the typical paths that
->> call pte_mkwrite().
->>
->> In addition to VM_WRITE, the shadow stack VMA's will have a flag denoting
->> that they are special shadow stack flavor of writable memory. So make
->> pte_mkwrite() take a VMA, so that the x86 implementation of it can know to
->> create regular writable memory or shadow stack memory.
->>
->> Apply the same changes for pmd_mkwrite() and huge_pte_mkwrite().
-> 
-> I'm not sure it is a good idea to add a second argument to
-> pte_mkwrite(). All pte_mkxxxx() only take a pte and nothing else.
+On Mon, Feb 27, 2023 at 02:29:29PM -0800, Rick Edgecombe wrote:
+> [0] https://lore.kernel.org/lkml/0e29a2d0-08d8-bcd6-ff26-4bea0e4037b0@redhat.com/#t
 
-We touched on this in previous revisions and so far there was no strong 
-push back. This turned out to be cleaner and easier than the 
-alternatives we evaluated.
+I guess that sub-thread about how you arrived at this "pass a VMA"
+decision should be in the Link tag. But that's for the committer, I'd
+say.
 
-pte_modify(), for example, takes another argument. Sure, we could try 
-thinking about passing something else than a VMA to identify the 
-writability type, but I am not convinced that will look particularly better.
-
-> 
-> I think you should do the same as commit d9ed9faac283 ("mm: add new
-> arch_make_huge_pte() method for tile support")
-> 
-
-We already have 3 architectures intending to support shadow stacks in 
-one way or the other. Replacing all pte_mkwrite() with 
-arch_pte_mkwrite() doesn't sound particularly appealing to me.
-
+Thx.
 
 -- 
-Thanks,
+Regards/Gruss,
+    Boris.
 
-David / dhildenb
-
+https://people.kernel.org/tglx/notes-about-netiquette
