@@ -2,24 +2,39 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5202BC77B6E;
-	Mon, 27 Mar 2023 22:25:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD109C74A5B;
+	Wed, 29 Mar 2023 20:16:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230156AbjC0WZh (ORCPT
+        id S229635AbjC2UQX (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Mon, 27 Mar 2023 18:25:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60684 "EHLO
+        Wed, 29 Mar 2023 16:16:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231977AbjC0WZe (ORCPT
+        with ESMTP id S229560AbjC2UQW (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Mon, 27 Mar 2023 18:25:34 -0400
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8912C40CF;
-        Mon, 27 Mar 2023 15:25:21 -0700 (PDT)
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id 31BF267373; Tue, 28 Mar 2023 00:25:15 +0200 (CEST)
-Date:   Tue, 28 Mar 2023 00:25:15 +0200
-From:   Christoph Hellwig <hch@lst.de>
+        Wed, 29 Mar 2023 16:16:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8027830C7;
+        Wed, 29 Mar 2023 13:16:21 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1ADD261E26;
+        Wed, 29 Mar 2023 20:16:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAEB3C433D2;
+        Wed, 29 Mar 2023 20:16:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1680120980;
+        bh=GQ/BnFe9Q8YTrp9m/Oja+3F+vgOfqDylgmr9jLCscRs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=P5U564E993rrDoh13ZYMd/KR6rZkNdIdAbkwy4AMMyuaZ2UnsINcIgdKLJGQbZT1R
+         zUAUZnpQCzF0TlpEQXZmdxZiDMl23kcqvk8c8s2jxRsSMekf7FDxCi9gR1oX2Da8hi
+         aag+2sE6WG2TyEHXWa4HzYKbVaDqQKSeZs+SUyrFuRdRhxxhHTm9szdrtMzu032YBF
+         pnLWBxLnUyF1yY234OeM4zx5JvWcQ8+nbW2h2BxGSx1xSG/83/MuR/yVSH7mdi1xg2
+         0jWbdD9E6OkE4eGUQzkyJv6rP5bdfMAHDI8/GyVgtoddbv/rL55kO33CXzMD08MgAw
+         CkixnBQ6Xb9Yw==
+Date:   Wed, 29 Mar 2023 21:16:10 +0100
+From:   Conor Dooley <conor@kernel.org>
 To:     Arnd Bergmann <arnd@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         Vineet Gupta <vgupta@kernel.org>,
@@ -55,63 +70,50 @@ Cc:     linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
         linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
         linux-xtensa@linux-xtensa.org
-Subject: Re: [PATCH 21/21] dma-mapping: replace custom code with generic
- implementation
-Message-ID: <20230327222514.GA17904@lst.de>
-References: <20230327121317.4081816-1-arnd@kernel.org> <20230327121317.4081816-22-arnd@kernel.org>
+Subject: Re: [PATCH 09/21] riscv: dma-mapping: skip invalidation before
+ bidirectional DMA
+Message-ID: <764e8d2f-ed98-49dc-8fdb-112d59359148@spud>
+References: <20230327121317.4081816-1-arnd@kernel.org>
+ <20230327121317.4081816-10-arnd@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="2LJh6dsRB07q9YeN"
 Content-Disposition: inline
-In-Reply-To: <20230327121317.4081816-22-arnd@kernel.org>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+In-Reply-To: <20230327121317.4081816-10-arnd@kernel.org>
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-> +static inline void arch_dma_cache_wback(phys_addr_t paddr, size_t size)
->  {
-> +	dma_cache_wback(paddr, size);
-> +}
->  
-> +static inline void arch_dma_cache_inv(phys_addr_t paddr, size_t size)
-> +{
-> +	dma_cache_inv(paddr, size);
->  }
 
-> +static inline void arch_dma_cache_wback_inv(phys_addr_t paddr, size_t size)
->  {
-> +	dma_cache_wback_inv(paddr, size);
-> +}
+--2LJh6dsRB07q9YeN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-There are the only calls for the three functions for each of the
-involved functions.  So I'd rather rename the low-level symbols
-(and drop the pointless exports for two of them) rather than adding
-these wrapppers.
+On Mon, Mar 27, 2023 at 02:13:05PM +0200, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+>=20
+> For a DMA_BIDIRECTIONAL transfer, the caches have to be cleaned
+> first to let the device see data written by the CPU, and invalidated
+> after the transfer to let the CPU see data written by the device.
+>=20
+> riscv also invalidates the caches before the transfer, which does
+> not appear to serve any purpose.
 
-The same is probably true for many other architectures.
+Rationale makes sense to me..
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
 
-> +static inline bool arch_sync_dma_clean_before_fromdevice(void)
-> +{
-> +	return false;
-> +}
->  
-> +static inline bool arch_sync_dma_cpu_needs_post_dma_flush(void)
-> +{
-> +	return true;
->  }
+Thanks for working on all of this Arnd!
 
-Is there a way to cut down on this boilerplate code by just having
-sane default, and Kconfig options to override them if they are not
-runtime decisions?
+--2LJh6dsRB07q9YeN
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> +#include <linux/dma-sync.h>
+-----BEGIN PGP SIGNATURE-----
 
-I can't really say I like the #include version here despite your
-rationale in the commit log.  I can probably live with it if you
-think it is absolutely worth it, but I'm really not in favor of it.
+iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZCScigAKCRB4tDGHoIJi
+0jHpAP47kMhf2uxHoGKhD+jHsEYnFgTHptLnAfIJV6N+QeFoOAD/YxG6hd8qhesW
+6Tw9EqBEW/4auX2CLsbK7xE8fP5A9wg=
+=os1C
+-----END PGP SIGNATURE-----
 
-> +config ARCH_DMA_MARK_DCACHE_CLEAN
-> +	def_bool y
-
-What do we need this symbol for?  Unless I'm missing something it is
-always enable for arm32, and only used in arm32 code.
+--2LJh6dsRB07q9YeN--
