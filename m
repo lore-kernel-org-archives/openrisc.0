@@ -2,41 +2,65 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20985C6FD18;
-	Wed, 29 Mar 2023 20:48:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30608C77B62;
+	Wed, 29 Mar 2023 21:52:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229913AbjC2UsV (ORCPT
+        id S229999AbjC2VwK (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Wed, 29 Mar 2023 16:48:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53692 "EHLO
+        Wed, 29 Mar 2023 17:52:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229479AbjC2UsU (ORCPT
+        with ESMTP id S229884AbjC2VwI (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Wed, 29 Mar 2023 16:48:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD3661990;
-        Wed, 29 Mar 2023 13:48:19 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58B9E61E4C;
-        Wed, 29 Mar 2023 20:48:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0B6DC433D2;
-        Wed, 29 Mar 2023 20:48:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680122898;
-        bh=1FYJm+9Wk+njTFrcUWRvLdevGIDr+W6Tthp7LWzQkuU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=boCWhpdBtoliUn63FbbfND/v9Mp/RWyo9JXf+EnIrqGcts24RG6WSsaX8OyyMGpmR
-         OMhsdzI6wjHZ9L9dRgyM81y9GcdEGjJbQ79P89OVt+ES0GP7Dab665WOCD3VG6YGrA
-         QdNC7Z/6qjDNQcC72DoCALVe17ZlH3sMsJ8P/IOLvgrMuYTNGz+ml1q07Ok7jWvsWU
-         B3at/aLp5IMLfrV1PTn7Moz0cGHMllPHtGc4hbYxsce+5WQaL0vhZbd/zaOLetW4Wx
-         Xp1CXJmoO48d6OQNzqYx6AfUxQeMqIO245DQTnKIpDIYzxX7MyaWN5fbqCYcz99XKE
-         SxWP3/q/5qgvQ==
-Date:   Wed, 29 Mar 2023 21:48:08 +0100
-From:   Conor Dooley <conor@kernel.org>
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Wed, 29 Mar 2023 17:52:08 -0400
+Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 316045BBD
+        for <linux-openrisc@vger.kernel.org>; Wed, 29 Mar 2023 14:51:58 -0700 (PDT)
+Received: by mail-wm1-x336.google.com with SMTP id bg13-20020a05600c3c8d00b003ef90adc168so2819328wmb.5
+        for <linux-openrisc@vger.kernel.org>; Wed, 29 Mar 2023 14:51:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=jrtc27.com; s=gmail.jrtc27.user; t=1680126716;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=mR/Zj1PB00aaXey9QznQEyL9cgsnbEviFfaDBojU/PA=;
+        b=X0RSiXgHE7YkzJiBvPfuECvjvZh/j9OCTlp5vS9G1kUZuHyE1mJThY46uxE8TkBE8F
+         26YKvU03kRSEEbihp0nG/r6HBhciobPuGf3L9XG5lP7LIGmFx1xuZOCywjcKmPOmTu8N
+         GYJA3eb2b0Q6VlUVpDCKV/9pvTj9LkixTX22pUdw50wCneJbfivXkkSI84dON9P5F9zR
+         aPsg4Jeh3iGHabX4d9hb5dRKHYvbcqGCgHjWCSflhUWkYsO9R2cu9K7Yx5HZpgAK9C+P
+         FR/T+Ct46EkosCoWvECTXbDfM4FfGO3jzQMNS58kzGepVwnhUrHOmPZqrc1qrzv6vlJT
+         efvQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680126716;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=mR/Zj1PB00aaXey9QznQEyL9cgsnbEviFfaDBojU/PA=;
+        b=ND/QUCLSidiwk75dGoJvg+rQ8q5TaDSEf9T7/0Qkb60OlgwbxBPnm3vOvuRd6H5IhH
+         GjPDIB2I/s5UBgWywSGm6nobm2XEDqLMwJ2CfELrytSzvmSRIJgI9XYIeRQPGtzoulx3
+         IuXf0ulT8+daax0EF0YeZ7WIUMXUFvAhBLvbJLIul68Zu31phbAODtvjdthJGFh+gID8
+         vQNEE/KM8cor2qmXrqoOnVh+4d++6pDArenC4HcL7HwXsPsOhfmNBBEpjn7oAXYicyhC
+         2ZdqBA4htPIh8SsFAAndehQsfIVXuabGAwxsmJJNxrnW3/SDMhVz1nc2jLqgQhmGMC+i
+         fqmg==
+X-Gm-Message-State: AO0yUKUPr4c+eiiJ9fS92sPFqdVzO1feCNUesKL65ShATYVe/zhdxgFg
+        WksXUeGepDN6nRgerwG9Ut9Pwg==
+X-Google-Smtp-Source: AK7set8QoMq1gGRgzzGqEiUi0STo43D8VYRH41LQHDT7NbD/gZR3RJOV/DBadJ5PrJGjWGmEaVtwcg==
+X-Received: by 2002:a7b:c413:0:b0:3ee:4531:8448 with SMTP id k19-20020a7bc413000000b003ee45318448mr17263952wmi.39.1680126716518;
+        Wed, 29 Mar 2023 14:51:56 -0700 (PDT)
+Received: from smtpclient.apple (global-5-144.n-2.net.cam.ac.uk. [131.111.5.144])
+        by smtp.gmail.com with ESMTPSA id a18-20020a1cf012000000b003ed4f6c6234sm3437896wmb.23.2023.03.29.14.51.55
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 29 Mar 2023 14:51:55 -0700 (PDT)
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3696.120.41.1.1\))
+Subject: Re: [PATCH 08/21] riscv: dma-mapping: only invalidate after DMA, not
+ flush
+From:   Jessica Clarke <jrtc27@jrtc27.com>
+In-Reply-To: <20230327121317.4081816-9-arnd@kernel.org>
+Date:   Wed, 29 Mar 2023 22:51:54 +0100
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
         Vineet Gupta <vgupta@kernel.org>,
         Russell King <linux@armlinux.org.uk>,
         Neil Armstrong <neil.armstrong@linaro.org>,
@@ -63,96 +87,68 @@ Cc:     linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
         Conor Dooley <conor.dooley@microchip.com>,
         linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-oxnas@groups.io,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-xtensa@linux-xtensa.org, samuel@sholland.org
-Subject: Re: [PATCH 08/21] riscv: dma-mapping: only invalidate after DMA, not
- flush
-Message-ID: <2668e232-ae83-4576-beaa-08e420236996@spud>
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-oxnas@groups.io, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <837F1B2F-7090-4F9F-A894-594ACF6A8DB2@jrtc27.com>
 References: <20230327121317.4081816-1-arnd@kernel.org>
  <20230327121317.4081816-9-arnd@kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="kOOpdYQXwAfFVnAo"
-Content-Disposition: inline
-In-Reply-To: <20230327121317.4081816-9-arnd@kernel.org>
+To:     Arnd Bergmann <arnd@kernel.org>
+X-Mailer: Apple Mail (2.3696.120.41.1.1)
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-
---kOOpdYQXwAfFVnAo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Mar 27, 2023 at 02:13:04PM +0200, Arnd Bergmann wrote:
+On 27 Mar 2023, at 13:13, Arnd Bergmann <arnd@kernel.org> wrote:
+>=20
 > From: Arnd Bergmann <arnd@arndb.de>
 >=20
 > No other architecture intentionally writes back dirty cache lines into
 > a buffer that a device has just finished writing into. If the cache is
-> clean, this has no effect at all, but
-
-> if a cacheline in the buffer has
+> clean, this has no effect at all, but if a cacheline in the buffer has
 > actually been written by the CPU,  there is a drive bug that is likely
 > made worse by overwriting that buffer.
 
-So does this need a
-Fixes: 1631ba1259d6 ("riscv: Add support for non-coherent devices using zic=
-bom extension")
-then, even if the cacheline really should not have been touched by the
-CPU?
-Also, minor typo, s/drive/driver/.
+FYI [1] proposed this same change a while ago but its justification was
+flawed (which was my objection at the time, not the diff itself).
 
-In the thread we had that sparked this, I went digging for the source of
-the flushes, and it came from a review comment:
-https://lore.kernel.org/linux-riscv/342e3c12-ebb0-badf-7d4c-c444a2b842b2@sh=
-olland.org/
-But *surely* if no other arch needs to do that, then we are safe to also
-not do it... Your logic seems right by me at least, especially given the
-lack of flushes elsewhere.
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+Jess
 
-Cheers,
-Conor.
+[1] =
+https://lore.kernel.org/all/20220818165105.99746-1-s.miroshnichenko@yadro.=
+com
 
 > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 > ---
->  arch/riscv/mm/dma-noncoherent.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> arch/riscv/mm/dma-noncoherent.c | 2 +-
+> 1 file changed, 1 insertion(+), 1 deletion(-)
 >=20
-> diff --git a/arch/riscv/mm/dma-noncoherent.c b/arch/riscv/mm/dma-noncoher=
-ent.c
+> diff --git a/arch/riscv/mm/dma-noncoherent.c =
+b/arch/riscv/mm/dma-noncoherent.c
 > index d919efab6eba..640f4c496d26 100644
 > --- a/arch/riscv/mm/dma-noncoherent.c
 > +++ b/arch/riscv/mm/dma-noncoherent.c
-> @@ -42,7 +42,7 @@ void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t si=
-ze,
->  		break;
->  	case DMA_FROM_DEVICE:
->  	case DMA_BIDIRECTIONAL:
+> @@ -42,7 +42,7 @@ void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t =
+size,
+> 		break;
+> 	case DMA_FROM_DEVICE:
+> 	case DMA_BIDIRECTIONAL:
 > -		ALT_CMO_OP(flush, vaddr, size, riscv_cbom_block_size);
 > +		ALT_CMO_OP(inval, vaddr, size, riscv_cbom_block_size);
->  		break;
->  	default:
->  		break;
+> 		break;
+> 	default:
+> 		break;
 > --=20
 > 2.39.2
 >=20
+>=20
+> _______________________________________________
+> linux-riscv mailing list
+> linux-riscv@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-riscv
 
---kOOpdYQXwAfFVnAo
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZCSkCAAKCRB4tDGHoIJi
-0pCKAQCFyZKqUabYSSJXqqHCLgZcuhg7cae4P41SpPSV+c3z5gEA/c0XOLzsLOMI
-IgRP+ghvnIZnEAVO3yHmHKYu0MBqmQM=
-=36EO
------END PGP SIGNATURE-----
-
---kOOpdYQXwAfFVnAo--
