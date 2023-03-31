@@ -2,65 +2,47 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B11FCC76196;
-	Fri, 31 Mar 2023 09:03:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 241FAC77B60;
+	Fri, 31 Mar 2023 09:08:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231921AbjCaJDJ (ORCPT
+        id S231975AbjCaJIc (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Fri, 31 Mar 2023 05:03:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44390 "EHLO
+        Fri, 31 Mar 2023 05:08:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231652AbjCaJCt (ORCPT
+        with ESMTP id S232007AbjCaJIS (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Fri, 31 Mar 2023 05:02:49 -0400
-Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD3114C13
-        for <linux-openrisc@vger.kernel.org>; Fri, 31 Mar 2023 02:02:17 -0700 (PDT)
-Received: by mail-yb1-xb36.google.com with SMTP id e65so26582523ybh.10
-        for <linux-openrisc@vger.kernel.org>; Fri, 31 Mar 2023 02:02:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1680253322;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BWm2jI2yHpPi79Yy1CI28Qxt6CEyohh41n1LA0fGLDM=;
-        b=ma9CGEidowfFcQ/RWwH9jcS3JpkuGTgIsGbkrjxNbpyIzTV0VWElAtIXD1pJ7GvLWW
-         o7VY5XN4Af8jnZZ9O6VFKig0/95cqzaeDCJiUPwYZQl8VR+1dmIghX/+s6g86bp9ODnN
-         MAzwUVCiMu/TmuzqPKTEsI7qk7BcH62AgPt5/bQM0gksa4J2iBNXg4d+1aT8ueqsMtsu
-         j/o9cEOqf4x14P3d54vkcr4sulvwLKD3DWlzGUaFgwLRmbPD3v1X3PVwEGdEFSAXSvdX
-         cX0K9wRov1LZHYLnnywTrm7QrejvefZ111ofD9/89zCLVipeznKpthRrdFZIrBFoD4rz
-         Cj1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680253322;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=BWm2jI2yHpPi79Yy1CI28Qxt6CEyohh41n1LA0fGLDM=;
-        b=YFm6UUlyxMo6mEP/HcvWpl0zF2dD4/uPalWQrXkhh3tw9ZLrm8VAz6eOSktcmPjdDy
-         yfG3o3WJ8pdROxjN5tHjXzweroJFcnPwqO8WQXhnyPWhLiaMMtsfsk+AnHzfyuJWSqc5
-         OkYUeenoc0fXRQd5/DkM3vDRxtf70HYM2U6KuVWsZ7Zvg5mh4ySmjhmf4G0bKdPO/TFh
-         CYCjh6RhBe9WR82B1flFcrkW/i008AzY17d/0vRcmd06FmfLMClv7O48i0RT05SrpnyG
-         kIlHi1JIHZ9ZeVchZhakhA17QN8sNvSdE+NlATTu0hVUNXN/43hI7hblk108dlGylY4U
-         v9XA==
-X-Gm-Message-State: AAQBX9dtJC+zbe+Q/EwXioqp7f9kNqP74T2au7R3zugqz/6l/xdfbaD3
-        4ysVOrqt9BP932xN3sIEjYAn5pMUPSDNaMRYfXNdWA==
-X-Google-Smtp-Source: AKy350YI8e95DFYP40XLqEj+u/39+STuziGTnuEb3AUKVWMQr59PuRxxs6tiZPNOPKYnKLtLdYTZJpdc8TKai7hc3Ak=
-X-Received: by 2002:a05:6902:1006:b0:b78:4b00:775f with SMTP id
- w6-20020a056902100600b00b784b00775fmr12714571ybt.4.1680253322494; Fri, 31 Mar
- 2023 02:02:02 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230327121317.4081816-1-arnd@kernel.org> <20230327121317.4081816-16-arnd@kernel.org>
-In-Reply-To: <20230327121317.4081816-16-arnd@kernel.org>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Fri, 31 Mar 2023 11:01:51 +0200
-Message-ID: <CACRpkdbMry_UUYN1MuXTUpRXV+Tj9RSDvN-iBdvR8hDfkTaX4w@mail.gmail.com>
-Subject: Re: [PATCH 15/21] ARM: dma-mapping: always invalidate WT caches
- before DMA
+        Fri, 31 Mar 2023 05:08:18 -0400
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2535410F6;
+        Fri, 31 Mar 2023 02:07:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=BFqC7haDTybAEGUq1e2Uhe+LahY2lMZuCKo7e1OI8xQ=; b=ln4+Y+gWAHQSIKd2IosmEm1kwL
+        9rQrpQ4E43SCxGnY7oCiHOfu1wEhrtmLCIph2RoTF0Zr9Jl+lwXk0EloYYwZp1vP4G9309e+oavO1
+        W4gscCHtGYQQ/lE4PaexTfIzVhVn8ZkbG/CF1gjy/6j2N0CDUb+u8PLNi0SvNP4j7UurXdo8YXnzj
+        FgTE97HTmPYCpw04O/SaUQ6wP2EslXB8dKZxMKdUsN6rI1OT+fm2ale4gtGaRCzwcx2OlTpIpkN9b
+        CgHQYxdDR/G/k11QZy1D2M1/SQxlzh6J/tvaEB5xTC8HOr4tRJNRZhsIJXbX/XtjKGw1Lgk2JQN4g
+        bD8q98ew==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:48688)
+        by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <linux@armlinux.org.uk>)
+        id 1piAjS-0004Sf-1D; Fri, 31 Mar 2023 10:07:38 +0100
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
+        (envelope-from <linux@shell.armlinux.org.uk>)
+        id 1piAjI-000119-8l; Fri, 31 Mar 2023 10:07:28 +0100
+Date:   Fri, 31 Mar 2023 10:07:28 +0100
+From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
 To:     Arnd Bergmann <arnd@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         Vineet Gupta <vgupta@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
         Neil Armstrong <neil.armstrong@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
         Brian Cain <bcain@quicinc.com>,
@@ -90,34 +72,46 @@ Cc:     linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
         linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
         linux-xtensa@linux-xtensa.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH 15/21] ARM: dma-mapping: always invalidate WT caches
+ before DMA
+Message-ID: <ZCai0FmZiOqsMkzc@shell.armlinux.org.uk>
+References: <20230327121317.4081816-1-arnd@kernel.org>
+ <20230327121317.4081816-16-arnd@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230327121317.4081816-16-arnd@kernel.org>
+Sender: Russell King (Oracle) <linux@armlinux.org.uk>
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Mon, Mar 27, 2023 at 2:16=E2=80=AFPM Arnd Bergmann <arnd@kernel.org> wro=
-te:
-
+On Mon, Mar 27, 2023 at 02:13:11PM +0200, Arnd Bergmann wrote:
 > From: Arnd Bergmann <arnd@arndb.de>
->
+> 
 > Most ARM CPUs can have write-back caches and that require
 > cache management to be done in the dma_sync_*_for_device()
 > operation. This is typically done in both writeback and
 > writethrough mode.
->
+> 
 > The cache-v4.S (arm720/740/7tdmi/9tdmi) and cache-v4wt.S
 > (arm920t, arm940t) implementations are the exception here,
 > and only do the cache management after the DMA is complete,
 > in the dma_sync_*_for_cpu() operation.
->
+> 
 > Change this for consistency with the other platforms. This
 > should have no user visible effect.
->
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Looks good to me.
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+NAK...
 
-Yours,
-Linus Walleij
+The reason we do cache management _after_ is to ensure that there
+is no stale data. The kernel _has_ (at the very least in the past)
+performed DMA to data structures that are embedded within other
+data structures, resulting in cache lines being shared. If one of
+those cache lines is touched while DMA is progressing, then we
+must to cache management _after_ the DMA operation has completed.
+Doing it before is no good.
+
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
