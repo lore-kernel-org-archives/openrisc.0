@@ -2,94 +2,48 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02916C77B6E;
-	Thu,  6 Apr 2023 09:11:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2857BC77B6E;
+	Thu, 13 Apr 2023 12:14:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236237AbjDFJLu (ORCPT
+        id S229902AbjDMMOT (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Thu, 6 Apr 2023 05:11:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51522 "EHLO
+        Thu, 13 Apr 2023 08:14:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235162AbjDFJLs (ORCPT
+        with ESMTP id S229870AbjDMMOR (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Thu, 6 Apr 2023 05:11:48 -0400
-Received: from mx0a-00230701.pphosted.com (mx0a-00230701.pphosted.com [148.163.156.19])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5406F1A4;
-        Thu,  6 Apr 2023 02:11:47 -0700 (PDT)
-Received: from pps.filterd (m0098571.ppops.net [127.0.0.1])
-        by mx0a-00230701.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3368p3YE011109;
-        Thu, 6 Apr 2023 02:08:33 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=synopsys.com; h=from : to : cc :
- subject : date : message-id : references : in-reply-to : content-type :
- content-id : content-transfer-encoding : mime-version; s=pfptdkimsnps;
- bh=Gd2cDNip62Ji14ds4OdoQBlo1z5VlqewCRbyiVCpDNg=;
- b=eB2MReypWcK1+ctba7WH3lOxUPpqvfrfHamccSASd4XErbB5iGRd+mCZeIW7eqYUwTXv
- 4gkbHSZk1JwKaHXtKdrxAXuF1o3jtUX63zTMtLC/mf2G3OrVZUREqw1UWpb8RxeixvFt
- rlg6BTSn2NrDE86yDl9Bx2d1gY8wcbQ2uTe4oOKSstatNtE/3WJLS2MdCibENX4XjZhA
- xzWcq1a/3NOR1EN9KH4SYydh4Ljo2d1QsyhR0yaznuHLbqd580lb32GcZ7xEx0J2Qm2e
- vMCNX1Ow/wczPRhT4Ha7v4E151adLpU5Hig4VltsHRzwqzOdak3bl97vzOqiG2aq62BN Vg== 
-Received: from smtprelay-out1.synopsys.com (smtprelay-out1.synopsys.com [149.117.87.133])
-        by mx0a-00230701.pphosted.com (PPS) with ESMTPS id 3ppkmrs22g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 06 Apr 2023 02:08:33 -0700
-Received: from mailhost.synopsys.com (sv1-mailhost2.synopsys.com [10.205.2.132])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (Client CN "mailhost.synopsys.com", Issuer "SNPSica2" (verified OK))
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 17B01C05B1;
-        Thu,  6 Apr 2023 09:08:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1680772112; bh=Gd2cDNip62Ji14ds4OdoQBlo1z5VlqewCRbyiVCpDNg=;
-        h=From:To:CC:Subject:Date:References:In-Reply-To:From;
-        b=hHCQe9EE5vPCy+QfIbZeNMC0iUCPD50BX3tmngIRaZ2h6EZgOSjVHBNYMs8eLDwrP
-         vzfCRrn8noIOky8f1NOykeh1pnqe1iwE9kDJUBeDjopvTh+uvS4EgIcy/Ui/3LTUWl
-         gZOxWs/ZlTGq6hR3WjjzLemSA9QiicFaAexf7qirZ5EcpVgLFaiNsotrx0dDwoXvGJ
-         q7Prxa9NJ6sZqayHMY68QypkTIBFC1bK8Y3b0yHEcErVqhBzNKwJxDSOIdKioRhjsH
-         YltW5v5RzR5esMFJFTFR4psSsoAPxZUtlJ5PdfB3pvMMNxSO01hg983Vikbni6ehyR
-         LCSdp0USajVzg==
-Received: from o365relay-in.synopsys.com (us03-o365relay7.synopsys.com [10.4.161.143])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (Client CN "o365relay-in.synopsys.com", Issuer "Entrust Certification Authority - L1K" (verified OK))
-        by mailhost.synopsys.com (Postfix) with ESMTPS id 94EDDA0073;
-        Thu,  6 Apr 2023 09:07:27 +0000 (UTC)
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12lp2176.outbound.protection.outlook.com [104.47.55.176])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client CN "mail.protection.outlook.com", Issuer "DigiCert Cloud Services CA-1" (verified OK))
-        by o365relay-in.synopsys.com (Postfix) with ESMTPS id 76E58A10A5;
-        Thu,  6 Apr 2023 09:01:19 +0000 (UTC)
-Authentication-Results: o365relay-in.synopsys.com; dmarc=pass (p=reject dis=none) header.from=synopsys.com
-Authentication-Results: o365relay-in.synopsys.com; spf=pass smtp.mailfrom=shahab@synopsys.com
-Authentication-Results: o365relay-in.synopsys.com;
-        dkim=pass (1024-bit key; unprotected) header.d=synopsys.com header.i=@synopsys.com header.b="ldIZkLcx";
-        dkim-atps=neutral
+        Thu, 13 Apr 2023 08:14:17 -0400
+Received: from JPN01-OS0-obe.outbound.protection.outlook.com (mail-os0jpn01on2106.outbound.protection.outlook.com [40.107.113.106])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C1BEA249;
+        Thu, 13 Apr 2023 05:14:05 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ZJ1eFJHMY/DH4aKXA/08jlkSGg780mSUuRCUjwRkNBzQLysC6+9Yvpf8PhxJl0JhGwXLfBo1Pd2bwk7DdGuaD4Gjrwho7xk3o31N1ZO0vstO3EeMiwzM2c8GPMQayv0/GN0RzCCZCkRlo26kRbfEJTWMnCdzLBADcyBE6F5K3/UJ/OB/zzq/pZhc2YrLWJW0Vvfe3Ytvg0QqbdgQntSRRsNJoZ7OWcgJXCk7V0KyAWBq35dTiYSQs4R0xytF9Ks1Rt0WHfwOei+bpUWnVaf4Wo2e4t63sQa6nsV2oP+AgmcelYDSReSiJs1qNC+P9qFTq7yDfbydhh06LYkspZ87MQ==
+ b=Pvxxk7CiqWmd4PqPi9SDqKBNIT69CPB+1g1mDRr4QDyCKlq7OWqhRWC3ulvGYGZLPHOAB7k2vl4QRKxLZDNx4wEYTx8B4SFxGRWibF9vCSi0qBM3xd33yc7J7tzney/W3yKfEQse0rqXme07joMlJ9H3779r5jBlemJkhQsrtryGUAeVitxIbHPZFL7h3qlBdHAjC0GswRKiaevPJ3tgBWerKV1yfA2MO/xAm+BSVnm+WqNW3UxEZ8D5PsewA25mu41pyR0HsZ8feY3F5qytvWFdTN0fcHH4fkDkWye+yMVYylf6qhifk0D6vCD9CCQZM0CfH171vSdRhFmBDZ/MlQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Gd2cDNip62Ji14ds4OdoQBlo1z5VlqewCRbyiVCpDNg=;
- b=k+Va1emzHPh4RvJhUHpbBVvOeWw+Bn56luo8qOhg9FxzFPdmtIVuISBIOlaGWsV8HVogV9TWEwQt0WjXU9bZaaVBq84WajXzIVD8LZ7L28xdjzVq0rkOXs15BDRIJdxDafVKM96V8jHn+Q4m7+RK72bzYELaq6ERjXAbxgTY4fhvyp/nFlOfkk22aZS1UGjs7xFPlD356QtimL0rI7E5ekykmbxWP8V+wXIJ1DDRQjdUN/FmS81EAytoemILEl0EMOGbyHdXG4Um166q1ly3BuTpFNJdLuKro2zau/hHqm+Y5wHU+dmPshsfyRDj/HulaXNXw5X0mWUtFi7QyhEOtQ==
+ bh=6ip5s/IgwZmsVWOTUTqLzT0Zyilev+U+cK2QX6cUwfg=;
+ b=HVzUv3rT9kR2mQLJGLT46ir1wkgCqcHSjEp/2UaASLi4oeVe8DasVQpF2CYfnwzmGjo4nS7a5JMPc9/fFUo9rO+Wi0CbLkkJtIajtQa3KhR2iYqvxJOYO7/C00kEvmpmrpAfrt5yjvdfLXhIasdj5Tg+ar9fgLN9JYg6NaExlOYLu7q9ICPwGqnolXlXDD2wDLTMPjTEbzYpW18sgyyCaucjd6gnae7ibkJ6msZ49q2k3xZIBeEDrELWbeRA4Sh+fpuhc9fEcL8U1uh9frLRS0lbrzlfwJXVqlhQYVu7uEHyxv8hqhevwe7wQCgU0seouNJuXgJmypEp3cOY/wl8tA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=synopsys.com; dmarc=pass action=none header.from=synopsys.com;
- dkim=pass header.d=synopsys.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=synopsys.com;
+ smtp.mailfrom=bp.renesas.com; dmarc=pass action=none
+ header.from=bp.renesas.com; dkim=pass header.d=bp.renesas.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bp.renesas.com;
  s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Gd2cDNip62Ji14ds4OdoQBlo1z5VlqewCRbyiVCpDNg=;
- b=ldIZkLcxPRkjGLN/+/2pAhw1+InAMKNlkCA8Y6E5BfxxY2WBYXLjS8860mR5z4I8cJHX//SVIMLPc7zEnamTHxUZyNvwyiXhEvqUGBpk/N+pBWMPJmedl98rnrfol2tHqTK9ELN+mMDdUeNcfK9asfKwEM2OYkxrnYBkeUh9fI8=
-Received: from SN6PR12MB2782.namprd12.prod.outlook.com (2603:10b6:805:73::19)
- by IA0PR12MB7578.namprd12.prod.outlook.com (2603:10b6:208:43d::16) with
+ bh=6ip5s/IgwZmsVWOTUTqLzT0Zyilev+U+cK2QX6cUwfg=;
+ b=wf4MrfejHIlwPpeKvFa1R+XO7wp4gAKStuaKOlRB2bokTcsDw++GA5mrEthpOHt+T3jcrKOW6EJAjdONtnHyhCQEp6o3sMw5ewyLeH7H+NhlI30ka8gqgsIxjxY9hOK8KZkTNhdD4LEwkAIljZSi2/RU9m9ACshB1wSufW6sExA=
+Received: from OS0PR01MB5922.jpnprd01.prod.outlook.com (2603:1096:604:bb::5)
+ by OSZPR01MB8291.jpnprd01.prod.outlook.com (2603:1096:604:18f::14) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6254.35; Thu, 6 Apr
- 2023 09:01:16 +0000
-Received: from SN6PR12MB2782.namprd12.prod.outlook.com
- ([fe80::16ef:a4:a1eb:6c6]) by SN6PR12MB2782.namprd12.prod.outlook.com
- ([fe80::16ef:a4:a1eb:6c6%4]) with mapi id 15.20.6254.035; Thu, 6 Apr 2023
- 09:01:16 +0000
-X-SNPS-Relay: synopsys.com
-From:   Shahab Vahedi <Shahab.Vahedi@synopsys.com>
-To:     Vineet Gupta <vgupta@kernel.org>, Arnd Bergmann <arnd@kernel.org>,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6298.28; Thu, 13 Apr
+ 2023 12:14:00 +0000
+Received: from OS0PR01MB5922.jpnprd01.prod.outlook.com
+ ([fe80::bd0a:a38d:b4d2:5d2]) by OS0PR01MB5922.jpnprd01.prod.outlook.com
+ ([fe80::bd0a:a38d:b4d2:5d2%5]) with mapi id 15.20.6298.030; Thu, 13 Apr 2023
+ 12:14:00 +0000
+From:   Biju Das <biju.das.jz@bp.renesas.com>
+To:     Arnd Bergmann <arnd@kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     Arnd Bergmann <arnd@arndb.de>,
+CC:     Arnd Bergmann <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>,
         Russell King <linux@armlinux.org.uk>,
         Neil Armstrong <neil.armstrong@linaro.org>,
         Linus Walleij <linus.walleij@linaro.org>,
@@ -112,7 +66,7 @@ CC:     Arnd Bergmann <arnd@arndb.de>,
         Max Filippov <jcmvbkbc@gmail.com>,
         Christoph Hellwig <hch@lst.de>,
         Robin Murphy <robin.murphy@arm.com>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
         Conor Dooley <conor.dooley@microchip.com>,
         "linux-snps-arc@lists.infradead.org" 
         <linux-snps-arc@lists.infradead.org>,
@@ -129,162 +83,1524 @@ CC:     Arnd Bergmann <arnd@arndb.de>,
         "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
         "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
         "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>,
-        Shahab Vahedi <Shahab.Vahedi@synopsys.com>
-Subject: Re: [PATCH 13/21] arc: dma-mapping: skip invalidating before
- bidirectional DMA
-Thread-Topic: [PATCH 13/21] arc: dma-mapping: skip invalidating before
- bidirectional DMA
-Thread-Index: AQHZZS+qm3aBT5RvZkOaPbJNwNvoFq8eAmCA
-Date:   Thu, 6 Apr 2023 09:01:15 +0000
-Message-ID: <ba0c6b04-cb7d-87ba-a435-919a910282dd@synopsys.com>
+        "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>
+Subject: RE: [PATCH 21/21] dma-mapping: replace custom code with generic
+ implementation
+Thread-Topic: [PATCH 21/21] dma-mapping: replace custom code with generic
+ implementation
+Thread-Index: AQHZYKb5U8i/u0u1SEW/mclXwEZl+q8pQR+Q
+Date:   Thu, 13 Apr 2023 12:13:59 +0000
+Message-ID: <OS0PR01MB5922EDAFCD6DA0313DB99C5E86989@OS0PR01MB5922.jpnprd01.prod.outlook.com>
 References: <20230327121317.4081816-1-arnd@kernel.org>
- <20230327121317.4081816-14-arnd@kernel.org>
- <2b298e8c-e6fc-a973-9f42-b6a88e92838a@kernel.org>
-In-Reply-To: <2b298e8c-e6fc-a973-9f42-b6a88e92838a@kernel.org>
-Accept-Language: en-US
+ <20230327121317.4081816-22-arnd@kernel.org>
+In-Reply-To: <20230327121317.4081816-22-arnd@kernel.org>
+Accept-Language: en-GB, en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=bp.renesas.com;
 x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: SN6PR12MB2782:EE_|IA0PR12MB7578:EE_
-x-ms-office365-filtering-correlation-id: 22efacb0-170a-4f0f-093c-08db367d7a70
+x-ms-traffictypediagnostic: OS0PR01MB5922:EE_|OSZPR01MB8291:EE_
+x-ms-office365-filtering-correlation-id: 37646254-6d13-4160-8b14-08db3c18902b
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: NnmimPU9GZ6EYXyazcy8nOgwG+Vt2m+dhgjF0hK6aCH3uNjqXMu/ReiRzsweamhLzfUWH9VPlDsFdp45Y9w48YXJzM05XWRdPz+PS1qARAIuVP1qymKSvvjGX8y8l1xE9jWVr+0By4ym804SNpPv8+QyDUSNkRrs+TgtpwdN9sNXFALWpF3NBdF5HT6SUEAGqanoywKUiHcec/13nLjpZyDzNot4niWW5UxaANoPJS6XeX8CFuYZqYAlHS8co/JM1KjteBxFlbBBiE59arZb94dM+NESal+WihK1DCcxNW2DR5qFabboSSVG7EOY6aIRDvrT8TaC+SvcURLWrPd9Jq4Qo+Nt/y2bhQgdGc7ZQoVGqJR9jHkd9z3ANS9doutBUC9mnEIY5RTh8LxSRux/h+s3FlRrz54d/Vkpjc4oqqbLv5ua3xVk69cIJvAX787zX7ArPoLgh9wzZELYPoQ2id9OaBSjoYlagZoyi/BbpwgzSGvV+KHzu9Z11vLZAVKj5SUb+WY1Fu9J4wAqHNYidciinHRk9PoMGQ65RGNSRxrlsON8ULy6k8h3XOsuVIGHIF/sq4eozfe9Lz5TF9eNmIvYy0MA7PRlRT/04/KSdzylqgqtPYaZmhhcwyClfhCdCXeRSdYbIlB0IucJDW4KuA==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN6PR12MB2782.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(376002)(396003)(136003)(39860400002)(346002)(366004)(451199021)(55236004)(66446008)(53546011)(6512007)(26005)(6486002)(966005)(31686004)(6506007)(122000001)(38100700002)(66556008)(91956017)(41300700001)(2616005)(83380400001)(186003)(107886003)(64756008)(66476007)(71200400001)(54906003)(478600001)(110136005)(316002)(86362001)(7406005)(7416002)(31696002)(2906002)(76116006)(66946007)(8676002)(4326008)(8936002)(38070700005)(36756003)(5660300002)(45980500001);DIR:OUT;SFP:1102;
+x-microsoft-antispam-message-info: MJSt48yxqD1R9rIQkfFNzI5mG4yjY712K8Sb17m5lJ0+oObiU7cOM6TB9L9rn0uWiAM1Af2BxXVRll2oOtJduEMicjhaswgrW6r8+YOOC+8SqsZu/sJcjX8hgTeLpXYR8W6Bq+lB+Uv2852bkc/dB3vSBIjE4kbeKKrQD8hGv7Y5uVm9rRoxhOmVbqSfvUPG3CmTvflIIixqoERAlKgansSrnNnZ+zzc8alczlGuvm9XDm9yuJi5WwbKA09CUlqaOJJDIm1ufHAcuup0Kg1UXGadNCtACtZELA/FuF0WBkqSWq2U/DuxfK5PickHqQc3trnQUTzJavWlCtSed0xbH/9Pnspflwtq1P3Zma7FvQYkdeXmeOhO64O7WQh2nuXZSkqEClHExMODmHJnz5/iKeytowU+XqXwMs1DWgBPryIfwHjO7bvtrgTBuC52lFfsNGO7b+bQhG8PbWU9LYmeQiOXGig+OMPQMrgQX3Bji7Xv76jhmOqgbs1wb7IVdXUt3USycoKKHZkIAAGjLXcEKf/jD1Xrf/LtCa3CjLsmdMjPNOw60lQCgNvhWxYb/hhrgSOYa4a8r99y7kGpYV6e3AsiB0CISaTi03JRVezWc0Sphc3sqi6BxaYzCkMmpKKt
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:OS0PR01MB5922.jpnprd01.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(376002)(396003)(136003)(346002)(39860400002)(366004)(451199021)(54906003)(110136005)(83380400001)(45080400002)(71200400001)(9686003)(7696005)(55016003)(478600001)(26005)(6506007)(966005)(66446008)(64756008)(4326008)(316002)(66556008)(76116006)(66476007)(66946007)(53546011)(186003)(52536014)(5660300002)(7406005)(7416002)(8676002)(8936002)(41300700001)(30864003)(38070700005)(2906002)(38100700002)(122000001)(33656002)(86362001)(41533002)(579004)(559001);DIR:OUT;SFP:1102;
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?RUFJRUxRMlE3NkcraFZVbXRvdjd2MWs1U2orZlg2Z1o0dFlrZmtrNlh2aW9L?=
- =?utf-8?B?dW1TWlZyV3hSNDlIekFlUnRGRDZzK092NmlySUphM2VsTVNhZDZHWjd3OXho?=
- =?utf-8?B?ZDRsZ2JHV0lQdUVOYW14THpGZnoyYy9adTRyYkZ4cWVoNzZaMmZaVk9Xc3BI?=
- =?utf-8?B?YjAxRnRrcW5jWjk4NEhBS0M5RmJac3dUT3E0TFczaHRpSFlzM1l5cHpyU2xp?=
- =?utf-8?B?Y09seEk0VHNOb3pMbkxEbFRTczd6aU40ZWpXWVJmeEN0ZS9FY1I3RkgxLzJr?=
- =?utf-8?B?UWZNOEpRN0FyNWRBVUc1eTVYa1ptd3VKNTNMS3VtajVXbXpncGgwUXRWN0hu?=
- =?utf-8?B?S2k5MlNLZGpnTThLUUY4dDZZdHJrelRsOU1TbUN0V2NUMVlpU1VINUhKY1VR?=
- =?utf-8?B?RFcyVlpYdVBnbUJ5Y1g5YTNYbk1YQThWeTVLem5QUUxmWEIya2c2RmdnK0Rj?=
- =?utf-8?B?T1ZqQSsvaGwyMmlkYVVTQ2FFbXZFbTRESEszSDB3QS9mY1BjMmpnMkpsTVla?=
- =?utf-8?B?STd3MzhWbkNJc3V5Y3ZjbU1KeldrZmRIRzRtUnVNdTJEREVHb1Z4NCtQVEs0?=
- =?utf-8?B?dUdOcDBrM1VOd2dSb0VDWE1pS1pRUmgvSlowSEhycFJZMW5HRml5Y2pJNVNU?=
- =?utf-8?B?bVJTY1kraFl6Mm9SeGhEaWErYWVidTFLbjJ3L2htbEtUZlJFWkdlQVZNRTRH?=
- =?utf-8?B?UlR3Qlc0R0paNnYxamNPMWJweFBoWTVKYk9HNDk2VVJUK1FzMzN0Mkpra0lP?=
- =?utf-8?B?b1RvdzdXUDQrQkxYKzlKcTdrOW13SWFlMXZhSjg2eGt3VjUzUXU4N3czZlBz?=
- =?utf-8?B?YlZ4Zk9WYTIyZ0JES2Y1K0hzR0tVVTQ2TnMxWmIvakZEbHpoTGpVL2FHYkd5?=
- =?utf-8?B?N1ovdDZYTklwOTJUeU9Bck81MDJWSUVKdS8xL1pWTnV5aHNMcWQ1dXFja0Zm?=
- =?utf-8?B?eDE3S085M2RYbEZsSkVuRS9ZMlFMWjA4N3FEeUEvWHhhSzZTd1hqWGt4TWU0?=
- =?utf-8?B?cXRDOUk5MkRwYkUzU2tjL1dVenR6Z0k4MGpYSDJHMUNsOExEamdGZEZMUklB?=
- =?utf-8?B?TmRFMEdWNG1CLzczdkd5aUxQaTcza2VodTBlUmFNMnlhWWhBRysvemR4MTJX?=
- =?utf-8?B?am1Pc2VpMEh1ajE0ei9mYUpubDd4a1k4ZW5sOG9kNlA3KzM4Y25KKzZmTktZ?=
- =?utf-8?B?RlBsK2JVc2VUNWhSekYyclNzYTVlYzVlV0lSSVR0WU8wcHlsVUd3ZW91ZnpM?=
- =?utf-8?B?UFVINHNJTFVWMG12YmRjTDdBRTZmM3pEZmlMWnZsTlJaTFhJUFdXZHYrZXpv?=
- =?utf-8?B?T3hUR0o2R09vNkRDTGUyeDJKSGhReUl5WlhKdHJCOU1ka3p4Z05rVVFxeGZY?=
- =?utf-8?B?VHhHdEtiQTVCRFR5Z21jQXNDRlh2T1ZRWjcxdXlUK21GbHplTnhUME5DRE53?=
- =?utf-8?B?ZjExekY5a1BvdU1mTHpzSWhpbitzQk9vSm1Lc1dOdGZlUEpqczB0YTFzQWhx?=
- =?utf-8?B?c05Dck4wQS9RM0pHRUNNejJvUndhWkt5NnhoeFVOUmFzK3lOK3dQdHB0VnM5?=
- =?utf-8?B?am9jcWxJSDFUY2ZVMWpSSEJyZ0xGV01jK3o1cXV6UjZNNFAwckdGamhwTG5E?=
- =?utf-8?B?YndET0svVFgxRnZ2UWJkait0cjQ1dkZNcHdoWmM4NzBDOWlmRVovcTB0Vy9K?=
- =?utf-8?B?aE0wUFNWOVdYWUFWc01TWE50VmxsRTFWRThnVWM2T0lDcWdPSXBTTEVxbjhP?=
- =?utf-8?B?Y1JhMkxTRE1rZ1hiM3U1M3hKeG5PYktmTWFURzM4Y3VvUXkrQjZKQTF4U3BI?=
- =?utf-8?B?MXZtaExFUUJwWTdlYW5OeUxsNXRrVFdaby9Lb290U1VaZ2IvaE03YkJCSXk5?=
- =?utf-8?B?bHREZFYxRlNpMlU0OTN0Y1VqR08rM3dNaDRSbXZvY0M1Y1Z0cFRKNURmOWZo?=
- =?utf-8?B?V29YbjJaYUVxaGlFL2FxTDhPVS9SMVc4aFp0RHFrbFZodmJCd2NIM1poNEpZ?=
- =?utf-8?B?VHhhUUdQQ2VPbEgzZWttaFVObjc5cGtrU2ZvWGhoTkdkREY4eDBvdlAveVVP?=
- =?utf-8?B?WHRvZDN5SFVMUk9BK0kxMUxOYXRQQ0hwUndEOWhkMG52OWxSV1JScVBoTEk1?=
- =?utf-8?Q?fWBk=3D?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <449DE09BAE01DB419F0D7A0AFD51E943@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?ooFbk/TzX+ytqL3WdoX08khwmQY+iKgSddpsAAKThO1yE5rvL6CMXx8lQsuD?=
+ =?us-ascii?Q?zL3F0tfLfX2Kjf7MW/JR45S8Py6xmZkvMJJN7jbSvVYkIkYKy1DaT7sflvtA?=
+ =?us-ascii?Q?lTi8nSKW4iTuDQauDKoDnn2CQwpZutxI4vZdqSAVhQnSbRE1dwL6dGA8afed?=
+ =?us-ascii?Q?2gOB68uOGT7lWKse5t2PNqPUGR8iFpJG+ZHqQeZhUULYcgjHmXu73rybrj5g?=
+ =?us-ascii?Q?wyV9JvsiGeMhKhyt1L6vjNEAUpKN3tAq5oagnnp5lcV355svzHTsfBsL9ECe?=
+ =?us-ascii?Q?oOUhMiGblW6C8rnv9CMIwJD9YH9qVE1gFNStXUFq0kogT3POS1APPyVluFZR?=
+ =?us-ascii?Q?U/dHz6eQ20cOdVD/a1idKIh8GxnnzxUi1RBxLHFudMWSDK0GKOa6O0nspNfY?=
+ =?us-ascii?Q?foY4RyLgZVCQW9uIpKFIO8O/SC3Ux/KKU1Gw6v/oPK5CQnGZpQsSVBKYRGzk?=
+ =?us-ascii?Q?Gn11iw/4IKI0XFKKRZ04T7uQ8IyiGb3wrIbPDsa+XoKDcr2a2yneg/IZs6BS?=
+ =?us-ascii?Q?e0ugCtBdaqkt9tkQkjoq9sz9z7Y3egCQRx5G4EiDtrE0LvCGx3FXlCPyrvYt?=
+ =?us-ascii?Q?Sly6gYYPR7hzDspbs2AmyWeTXGpzY0Cd+b7fPQeYyxTQ5ORzxSW0MylvxhkB?=
+ =?us-ascii?Q?rdnvS/oHC0hi/NMBQIPONKBiygUr+jfpTavx4nVGsyg5vIc7qOxcMIFkE8w5?=
+ =?us-ascii?Q?Ng+RqjauSbuRST4VMccPQzhsXyHNWadou3q88Vlnun7RcVd5frRkKYZHOsEA?=
+ =?us-ascii?Q?PiZ3+KoQgKUqudyZLnBnyUxP8BS2B5psOVUYAhFw1z8G+NS5NpchozI6YwBG?=
+ =?us-ascii?Q?tpvkfhUVL0+Bsm3PMODjlSnpPDgb6OJyrVEemCo0GN6gaQPrtThTdul74lrm?=
+ =?us-ascii?Q?p5Hk+xYnSwvSL26xE2pMA3i4NHkkDDLraitiY9acKZwXFvvOae9m30tcs41O?=
+ =?us-ascii?Q?CwFlDLGf0W269mOHtL+HE7LQcymh4kq6PQPf6yG+dOfH9ksFhmOalzJdwGS8?=
+ =?us-ascii?Q?xbHWj5BVbRAtlU5lPxnA4qig4aGT6ZVtcazCnevgF0RPhLHF/ztze/FRevlT?=
+ =?us-ascii?Q?AazPs8JQSACLgCC+66/Sc5w7mwU4sotiHWPtpvWmaqBB1rG6OZC3yZWggDJi?=
+ =?us-ascii?Q?JKIQebZ70QgZZvqxZ0j4g+QuAxWMEUBdgi6VlyFlaM7CLrrUbbaOlEmYE4O7?=
+ =?us-ascii?Q?+nvDGoOoCEhXp7UWr/yFHodb0tJiRVBHU4n7aewzzS50J4e13PL1+5UphTS4?=
+ =?us-ascii?Q?+OEumT2uZEvovcrHjdPG3Ci2MOnhaFHgXnZ/EaQNtWIc0KDtsxApqMvewXYV?=
+ =?us-ascii?Q?x5dlo7toqY/OgtQmUjdV6s+eW35DtyNIRf0T08W7M3bipvpuqojn1BoKfq+U?=
+ =?us-ascii?Q?coVMoQRNpaqGzPN06j3tYQPw1FHvlXuuIYB3qmrh72PDKm3Di1PfSX1+5KGR?=
+ =?us-ascii?Q?rPvr6BU4hK1ZL1OGR95VZAi/xXH5LOdoJBc2xqrHiXDM7Na4ckPisEB2ZYbe?=
+ =?us-ascii?Q?rpbvJqnHnfAkiXoaTa4w7fuWsd5qWSNR9VZ0VywH3qotWcyH0KmXDuCpo6J/?=
+ =?us-ascii?Q?2r0n9jHu6b2DzHrbn2+JbYrDXs31t1cHjQBDZCZA?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: =?utf-8?B?NWJEbmpDR3pwQTRTb3RQYWM1S2Z2YnJ1L3pLeFUzVzRJQmFBUHRyd0JZMmhX?=
- =?utf-8?B?d1ZlaTkyaGpIMytxVXAxK090N1VVU2dBQ0VOTVlkbUtlb0dYQ3lGUlVZdVFx?=
- =?utf-8?B?NFdMWDZnazJNcHk0TENIL0dGYk90eWRucU1Yem9wdldlWHZ2L1ZxMW5XNUow?=
- =?utf-8?B?TUlxNlNHaXJKdnJVMUgwaEpaRlVSV3YwYnRlejJjVVova2RCejNJQXZxNTBo?=
- =?utf-8?B?aU84VldxRWZaYSsvYUNLL3IxQ2gydHV1QzdWYno5UExQRWY3UUdTcmt4YVlL?=
- =?utf-8?B?MTV3MW43cWpTVHIxbllRdXFRRTluODBwMEhCUzIvLzdaMzR1cDYvd29icU5w?=
- =?utf-8?B?RitvOWMrR2FHZGFya2xCanMweEVTdFU4WElpT1hzZVkwVjNBakk0dnN4SnVW?=
- =?utf-8?B?WU9JTU5FSHhMZ0FTUlZreDZPbUJhNno1VTZBNmtiYmZRWUx6eXcyQ2c5Zy9I?=
- =?utf-8?B?T0tMSHFjVUZpcU41Q0RyUUtIK1JaYzg0NTJMMHdYUkxpV21VQmxzUklmdUVp?=
- =?utf-8?B?MndRT2pIaTY2bEkxT0RsYTZiQTRaOVVjZkdhcnk3Q2c0SGRFeG9FeVJ1TUJZ?=
- =?utf-8?B?Q3FwUUNFM1BWTkdjSWoxaTducEhaNGw1NTdEOHc2NWFGZVVTcms3YU5xVks4?=
- =?utf-8?B?RGdRZlNUK1ZleEhlWnUwU2tZdFZjNVFic2pPK09wYTRxRGVOWjdZd1VsQ0tk?=
- =?utf-8?B?KzBrNTAreTlRVUVUWTl5dHhMTGxtQkxTOEdPenowelN0YUxmWkxWRFJDaTRT?=
- =?utf-8?B?dWpkbW9tTE45ZjM3WStQSDhjQ1FGMzJaYzNKQ2s5d3BDaHhUbi9FTCtNUXBx?=
- =?utf-8?B?alB6K1lSNGN1eVM3NU9VSUhjYkcrc1lmV2pIWnpUU1VoaVN0M3RHdkJSbjdG?=
- =?utf-8?B?bzZPbjJxQ3ZZc25WMFFmUjA3WVRQV1k4RjlOUEZDcDBIRGVVYXZsOGxiY3dz?=
- =?utf-8?B?YmNobXhhRzF6VG90cEZLSmZ4YitMNUtaMkwwaTFKbkdvTEVFK1gvY1FqRCt6?=
- =?utf-8?B?NVVDMlYrTkFHVFB4T0w2UmdhUHJqZU11OXhEWW9zT3M1K0J0Mi9BMTB3ZTR4?=
- =?utf-8?B?dWtCYy9FcUtkcDloQkRMR0FmT0VvZG1HYnhFdTZRenl4M1RiZlJvbXFFZ0ZX?=
- =?utf-8?B?WHJrYnlSaHZsVGYyQ2x5WmYyWU01b1RuVHNKUkdJSndGcVlVNjkwQUdsQTNM?=
- =?utf-8?B?ZTR2MDdITm5TSGs4MkpmdDVodWFPZmVsdmJZQzdmWGxvYStjM1dtdThTNTE5?=
- =?utf-8?B?b3BGK3k4Wjk2M1F1M1RvS0ppS2k5bm4vZC9XVTJIU0lyZlJVZjZ2VE03eHlE?=
- =?utf-8?B?bEd5cGFPUG9reEZKN3F6UVdaeWQvSmxUQzd1NkxtSHdJNXJxaVFMM3Bzelhp?=
- =?utf-8?B?Sk1IaEM1LytkczRhK0lNUktNblFvUXF4TjJaOW5qb2VMZndFdTFVN2FodGxy?=
- =?utf-8?B?M002L01YcGFBc3FDVTA1ZFI0WENZNHdNL1RxaFFGaUc0cVczT0hzRVFMbmJK?=
- =?utf-8?B?UmRqb2xHWmdYUnFBMzdqYW5JbmttNEFTUmZDWjN6QVJnTVU1OVBwd3pqdUla?=
- =?utf-8?B?dHBKNGVFUnBLUnFHazBPZU5ObEd0ZFpLS3F2N0EvTE91QUdzRXlwaXpybFJZ?=
- =?utf-8?B?SlQxUk9qK0RacUZqQXpVSkZwMCt0TVEvK1lMdGNSbWZZRTJ6blJkMDZtUVlE?=
- =?utf-8?B?THBDZXRIR0RKWWVSdFRLMG5aMHZwMnFESXk0d2RiSHdMZFROclFCT1dEcjd4?=
- =?utf-8?B?eFBjeERNdVEwVG1rVk1TazRPdjlBbEJyK1V5NEVRQnlQZUJ2MUN1cUFLbUNC?=
- =?utf-8?B?NExzT1pkYnhNei8vYzl2dDhPRHlJQituY2E5NUhPMEhScVJUUXE2enhkMjdV?=
- =?utf-8?B?eWZHZlluS2FCRnVvd2M2MU5xT25KeEZnbldKZXROK3c1dHVzUVcxK202VVNL?=
- =?utf-8?B?cFBFK0J0cHhCSDU0WjVGSjd1T2J2dmk4aUIvMW0zaDdVYm9XaGRJTGdPd3Ew?=
- =?utf-8?B?ZWR6eVc5MHNsMzVwTkg5dVMwM1dVWDdPV3VzSHVocDNOSDkydFY1V0UxWWlk?=
- =?utf-8?B?ZXJyYTRQZElSSm9Kd3NoMUp4djZkVUl5dmo3Q29MaCtVUk1JekFLUkEzby9m?=
- =?utf-8?B?Z05wRGtUMGpXYTB5U2tHZkpXaUdEeFFvLzNueXBiNUdLTFZkdU81Y0hudDlu?=
- =?utf-8?B?RE9zR0xNMzlkT2dqME1mTENWcm5DYk82Z1lRTmlUYWYrUkFNY2FGc1JiUkI4?=
- =?utf-8?B?NGxUOGFhQmd5QU0yV0Q5SUkvSWk5anAzNWtQYU5pSS9Ud0VQV3A1NWZmYVps?=
- =?utf-8?Q?eiAcpfecQDkpH8VFwz?=
-X-OriginatorOrg: synopsys.com
+X-OriginatorOrg: bp.renesas.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SN6PR12MB2782.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 22efacb0-170a-4f0f-093c-08db367d7a70
-X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Apr 2023 09:01:15.5598
+X-MS-Exchange-CrossTenant-AuthSource: OS0PR01MB5922.jpnprd01.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 37646254-6d13-4160-8b14-08db3c18902b
+X-MS-Exchange-CrossTenant-originalarrivaltime: 13 Apr 2023 12:13:59.8400
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: c33c9f88-1eb7-4099-9700-16013fd9e8aa
+X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: qHTvlNEEQL68pnEq0PaEV19eWv1GbacwWhZLqWw6OJiotK+v/9rDYy7w+gfmgaDZwx2+YikJH1KY4EVsExIU5w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR12MB7578
-X-Proofpoint-ORIG-GUID: 2W3pxX1hc2aTZnk8HHvUlrZnKw0I8D-N
-X-Proofpoint-GUID: 2W3pxX1hc2aTZnk8HHvUlrZnKw0I8D-N
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-06_04,2023-04-05_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_active_cloned_notspam policy=outbound_active_cloned score=0
- malwarescore=0 clxscore=1015 bulkscore=0 priorityscore=1501 adultscore=0
- spamscore=0 lowpriorityscore=0 mlxlogscore=890 impostorscore=0
- phishscore=0 suspectscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2303200000 definitions=main-2304060079
+X-MS-Exchange-CrossTenant-userprincipalname: 02JfLQ7nLwBB87+4u5N2yeEwClK7VWdV0eIVUg2hBbOBDSXLDEUkVF/qXUO8OoDgGuIaeAzctqOfwFF9DsnX3DH+WR7mGGdZsiO3i0ADSQ0=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: OSZPR01MB8291
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-T24gNC8yLzIzIDA4OjUyLCBWaW5lZXQgR3VwdGEgd3JvdGU6DQo+IENDIFNoYWhhYg0KPiANCj4g
-T24gMy8yNy8yMyAxNzo0MywgQXJuZCBCZXJnbWFubiB3cm90ZToNCj4+IEZyb206IEFybmQgQmVy
-Z21hbm48YXJuZEBhcm5kYi5kZT4NCj4+DQo+PiBTb21lIGFyY2hpdGVjdHVyZXMgdGhhdCBuZWVk
-IHRvIGludmFsaWRhdGUgYnVmZmVycyBhZnRlciBiaWRpcmVjdGlvbmFsDQo+PiBETUEgYmVjYXVz
-ZSBvZiBzcGVjdWxhdGl2ZSBwcmVmZXRjaGluZyBvbmx5IGRvIGEgc2ltcGxlciB3cml0ZWJhY2sN
-Cj4+IGJlZm9yZSB0aGF0IERNQSwgd2hpbGUgYXJjaGl0ZWN0dXJlcyB0aGF0IGRvbid0IG5lZWQg
-dG8gZG8gdGhlIHNlY29uZA0KPj4gaW52YWxpZGF0ZSB0ZW5kIHRvIGhhdmUgYSBjb21iaW5lZCB3
-cml0ZWJhY2sraW52YWxpZGF0ZSBiZWZvcmUgdGhlDQo+PiBETUEuDQo+Pg0KPj4gYXJjIGlzIG9u
-ZSBvZiB0aGUgYXJjaGl0ZWN0dXJlcyB0aGF0IGRvZXMgYm90aCwgd2hpY2ggc2VlbXMgdW5uZWNl
-c3NhcnkuDQo+Pg0KPj4gQ2hhbmdlIGl0IHRvIGJlaGF2ZSBsaWtlIGFybS9hcm02NC94dGVuc2Eg
-aW5zdGVhZCwgYW5kIHVzZSBqdXN0IGENCj4+IHdyaXRlYmFjayBiZWZvcmUgdGhlIERNQSB3aGVu
-IHdlIGRvIHRoZSBpbnZhbGlkYXRlIGFmdGVyd2FyZHMuDQo+Pg0KPj4gU2lnbmVkLW9mZi1ieTog
-QXJuZCBCZXJnbWFubjxhcm5kQGFybmRiLmRlPg0KPiANCj4gUmV2aWV3ZWQtYnk6IFZpbmVldCBH
-dXB0YSA8dmd1cHRhQGtlcm5lbC5vcmc+DQo+IA0KPiBTaGFoYWIgY2FuIHlvdSBnaXZlIHRoaXMg
-YSBzcGluIG9uIGhzZGsgLSBydW4gZ2xpYmMgdGVzdHN1aXRlIG92ZXIgc3NoDQo+IGFuZCBtYWtl
-IHN1cmUgbm90aGluZyBzdHJhbmdlIGhhcHBlbnMuDQo+IA0KPiBUaHgsDQo+IC1WaW5lZXQNCg0K
-VGVzdGVkLWJ5OiBTaGFoYWIgVmFoZWRpIDxzaGFoYWJAc3lub3BzeXMuY29tPg0KDQpObyByZWdy
-ZXNzaW9uIHdhcyBvYnNlcnZlZCBmb3IgdGhlIEFSQyB0YXJnZXQgYmVmb3JlIGFuZCBhZnRlciBh
-cHBseWluZw0KdGhlc2UgMjEgcGF0Y2hlcy4gVGhlIHRlc3QgZW52aXJvbm1lbnQgYW5kIGl0cyBz
-dW1tYXJ5IGZvbGxvdy4NCg0KYm9hcmQ6ICBBUkMgSFNESw0KYmFzZTogICByZXBvOiAgIGxpbnV4
-LW5leHQNCiAgICAgICAgdGFnOiAgICBuZXh0LTIwMjMwNDAzDQogICAgICAgIGNvbW1pdDogMzFi
-ZDM1YjY2MjQ5IEFkZCBsaW51eC1uZXh0IHNwZWNpZmljIGZpbGVzIGZvciAyMDIzMDQwMw0KaG90
-Zml4OiBuZXQ6IHN0bW1hYzogY2hlY2sgZndub2RlIGZvciBwaHkgZGV2aWNlIGJlZm9yZSBzY2Fu
-bmluZyBmb3IgcGh5IFsxXQ0KZ2xpYmM6ICAyLjM3DQoNClN1bW1hcnkgb2YgdGVzdCByZXN1bHRz
-Og0KICAgICAyMCBGQUlMDQogICA0MjI3IFBBU1MNCiAgICAgMzggVU5TVVBQT1JURUQNCiAgICAg
-MTYgWEZBSUwNCiAgICAgIDIgWFBBU1MNCg0KWzFdDQpodHRwczovL2xvcmUua2VybmVsLm9yZy9s
-a21sLzIwMjMwNDA1MDkzOTQ1LjM1NDk0OTEtMS1taWNoYWVsLndlaS5ob25nLnNpdEBpbnRlbC5j
-b20vI3INCg0KLS0gDQpTaGFoYWINCg0K
+Hi all,
+
+FYI, this patch breaks on RZ/G2L SMARC EVK board and Arnd will send V2 for =
+fixing this issue.
+
+[10:53] <biju> [    3.384408] Unable to handle kernel paging request at vir=
+tual address 000000004afb0080
+[10:53] <biju> [    3.392755] Mem abort info:
+[10:53] <biju> [    3.395883]   ESR =3D 0x0000000096000144
+[10:53] <biju> [    3.399957]   EC =3D 0x25: DABT (current EL), IL =3D 32 b=
+its
+[10:53] <biju> [    3.405674]   SET =3D 0, FnV =3D 0
+[10:53] <biju> [    3.408978]   EA =3D 0, S1PTW =3D 0
+[10:53] <biju> [    3.412442]   FSC =3D 0x04: level 0 translation fault
+[10:53] <biju> [    3.417825] Data abort info:
+[10:53] <biju> [    3.420959]   ISV =3D 0, ISS =3D 0x00000144
+[10:53] <biju> [    3.425115]   CM =3D 1, WnR =3D 1
+[10:53] <biju> [    3.428521] [000000004afb0080] user address but active_mm=
+ is swapper
+[10:53] <biju> [    3.435135] Internal error: Oops: 0000000096000144 [#1] P=
+REEMPT SMP
+[10:53] <biju> [    3.441501] Modules linked in:
+[10:53] <biju> [    3.444644] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 6.3=
+.0-rc6-next-20230412-g2936e9299572 #712
+[10:53] <biju> [    3.453537] Hardware name: Renesas SMARC EVK based on r9a=
+07g054l2 (DT)
+[10:53] <biju> [    3.460130] pstate: 60400005 (nZCv daif +PAN -UAO -TCO -D=
+IT -SSBS BTYPE=3D--)
+[10:53] <biju> [    3.467184] pc : dcache_clean_poc+0x20/0x38
+[10:53] <biju> [    3.471488] lr : arch_sync_dma_for_device+0x1c/0x2c
+[10:53] <biju> [    3.476463] sp : ffff80000a70b970
+[10:53] <biju> [    3.479834] x29: ffff80000a70b970 x28: 0000000000000000 x=
+27: ffff00000aef7c10
+[10:53] <biju> [    3.487118] x26: ffff00000afb0080 x25: ffff00000b710000 x=
+24: ffff00000b710a40
+[10:53] <biju> [    3.494397] x23: 0000000000002000 x22: 0000000000000000 x=
+21: 0000000000000002
+[10:53] <biju> [    3.501670] x20: ffff00000aef7c10 x19: 000000004afb0080 x=
+18: 0000000000000000
+[10:53] <biju> [    3.508943] x17: 0000000000000100 x16: fffffc0001efc008 x=
+15: 0000000000000000
+[10:53] <biju> [    3.516216] x14: 0000000000000100 x13: 0000000000000068 x=
+12: ffff00007fc0aa50
+[10:54] <biju> [    3.523488] x11: ffff00007fc0a9c0 x10: 0000000000000000 x=
+9 : ffff00000aef7f08
+[10:54] <biju> [    3.530761] x8 : 0000000000000000 x7 : fffffc00002bec00 x=
+6 : 0000000000000000
+[10:54] <biju> [    3.538028] x5 : 0000000000000000 x4 : 0000000000000002 x=
+3 : 000000000000003f
+[10:54] <biju> [    3.545297] x2 : 0000000000000040 x1 : 000000004afb2080 x=
+0 : 000000004afb0080
+[10:54] <biju> [    3.552569] Call trace:
+[10:54] <biju> [    3.555074]  dcache_clean_poc+0x20/0x38
+[10:54] <biju> [    3.559014]  dma_map_page_attrs+0x1b4/0x248
+[10:54] <biju> [    3.563289]  ravb_rx_ring_format_gbeth+0xd8/0x198
+[10:54] <biju> [    3.568095]  ravb_ring_format+0x5c/0x108
+[10:54] <biju> [    3.572108]  ravb_dmac_init_gbeth+0x30/0xe4
+[10:54] <biju> [    3.576382]  ravb_dmac_init+0x80/0x104
+[10:54] <biju> [    3.580222]  ravb_open+0x84/0x78c
+[10:54] <biju> [    3.583626]  __dev_open+0xec/0x1d8
+[10:54] <biju> [    3.587138]  __dev_change_flags+0x190/0x208
+[10:54] <biju> [    3.591406]  dev_change_flags+0x24/0x6c
+[10:54] <biju> [    3.595324]  ip_auto_config+0x248/0x10ac
+[10:54] <biju> [    3.599345]  do_one_initcall+0x6c/0x1b0
+[10:54] <biju> [    3.603268]  kernel_init_freeable+0x1c0/0x294
+
+
+Cheers,
+Biju
+
+> -----Original Message-----
+> From: linux-arm-kernel <linux-arm-kernel-bounces@lists.infradead.org> On
+> Behalf Of Arnd Bergmann
+> Sent: Monday, March 27, 2023 1:13 PM
+> To: linux-kernel@vger.kernel.org
+> Cc: Arnd Bergmann <arnd@arndb.de>; Vineet Gupta <vgupta@kernel.org>; Russ=
+ell
+> King <linux@armlinux.org.uk>; Neil Armstrong <neil.armstrong@linaro.org>;
+> Linus Walleij <linus.walleij@linaro.org>; Catalin Marinas
+> <catalin.marinas@arm.com>; Will Deacon <will@kernel.org>; Guo Ren
+> <guoren@kernel.org>; Brian Cain <bcain@quicinc.com>; Geert Uytterhoeven
+> <geert@linux-m68k.org>; Michal Simek <monstr@monstr.eu>; Thomas Bogendoer=
+fer
+> <tsbogend@alpha.franken.de>; Dinh Nguyen <dinguyen@kernel.org>; Stafford
+> Horne <shorne@gmail.com>; Helge Deller <deller@gmx.de>; Michael Ellerman
+> <mpe@ellerman.id.au>; Christophe Leroy <christophe.leroy@csgroup.eu>; Pau=
+l
+> Walmsley <paul.walmsley@sifive.com>; Palmer Dabbelt <palmer@dabbelt.com>;
+> Rich Felker <dalias@libc.org>; John Paul Adrian Glaubitz
+> <glaubitz@physik.fu-berlin.de>; David S. Miller <davem@davemloft.net>; Ma=
+x
+> Filippov <jcmvbkbc@gmail.com>; Christoph Hellwig <hch@lst.de>; Robin Murp=
+hy
+> <robin.murphy@arm.com>; Prabhakar Mahadev Lad <prabhakar.mahadev-
+> lad.rj@bp.renesas.com>; Conor Dooley <conor.dooley@microchip.com>; linux-
+> snps-arc@lists.infradead.org; linux-arm-kernel@lists.infradead.org; linux=
+-
+> oxnas@groups.io; linux-csky@vger.kernel.org; linux-hexagon@vger.kernel.or=
+g;
+> linux-m68k@lists.linux-m68k.org; linux-mips@vger.kernel.org; linux-
+> openrisc@vger.kernel.org; linux-parisc@vger.kernel.org; linuxppc-
+> dev@lists.ozlabs.org; linux-riscv@lists.infradead.org; linux-
+> sh@vger.kernel.org; sparclinux@vger.kernel.org; linux-xtensa@linux-
+> xtensa.org
+> Subject: [PATCH 21/21] dma-mapping: replace custom code with generic
+> implementation
+>
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> Now that all of these have consistent behavior, replace them with a singl=
+e
+> shared implementation of arch_sync_dma_for_device() and
+> arch_sync_dma_for_cpu() and three parameters to pick how they should
+> operate:
+>
+>  - If the CPU has speculative prefetching, then the cache
+>    has to be invalidated after a transfer from the device.
+>    On the rarer CPUs without prefetching, this can be skipped,
+>    with all cache management happening before the transfer.
+>    This flag can be runtime detected, but is usually fixed
+>    per architecture.
+>
+>  - Some architectures currently clean the caches before DMA
+>    from a device, while others invalidate it. There has not
+>    been a conclusion regarding whether we should change all
+>    architectures to use clean instead, so this adds an
+>    architecture specific flag that we can change later on.
+>
+>  - On 32-bit Arm, the arch_sync_dma_for_cpu() function keeps
+>    track pages that are marked clean in the page cache, to
+>    avoid flushing them again. The implementation for this is
+>    generic enough to work on all architectures that use the
+>    PG_dcache_clean page flag, but a Kconfig symbol is used
+>    to only enable it on Arm to preserve the existing behavior.
+>
+> For the function naming, I picked 'wback' over 'clean', and 'wback_inv'
+> over 'flush', to avoid any ambiguity of what the helper functions are
+> supposed to do.
+>
+> Moving the global functions into a header file is usually a bad idea as i=
+t
+> prevents the header from being included more than once, but it helps keep
+> the behavior as close as possible to the previous state, including the
+> possibility of inlining most of it into these functions where that was do=
+ne
+> before. This also helps keep the global namespace clean, by hiding the ne=
+w
+> arch_dma_cache{_wback,_inv,_wback_inv} from device drivers that might use
+> them incorrectly.
+>
+> It would be possible to do this one architecture at a time, but as the
+> change is the same everywhere, the combined patch helps explain it better
+> once.
+>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  arch/arc/mm/dma.c                 |  66 +++++-------------
+>  arch/arm/Kconfig                  |   3 +
+>  arch/arm/mm/dma-mapping-nommu.c   |  39 ++++++-----
+>  arch/arm/mm/dma-mapping.c         |  64 +++++++-----------
+>  arch/arm64/mm/dma-mapping.c       |  28 +++++---
+>  arch/csky/mm/dma-mapping.c        |  44 ++++++------
+>  arch/hexagon/kernel/dma.c         |  44 ++++++------
+>  arch/m68k/kernel/dma.c            |  43 +++++++-----
+>  arch/microblaze/kernel/dma.c      |  48 +++++++-------
+>  arch/mips/mm/dma-noncoherent.c    |  60 +++++++----------
+>  arch/nios2/mm/dma-mapping.c       |  57 +++++++---------
+>  arch/openrisc/kernel/dma.c        |  63 +++++++++++-------
+>  arch/parisc/kernel/pci-dma.c      |  46 ++++++-------
+>  arch/powerpc/mm/dma-noncoherent.c |  34 ++++++----
+>  arch/riscv/mm/dma-noncoherent.c   |  51 +++++++-------
+>  arch/sh/kernel/dma-coherent.c     |  43 +++++++-----
+>  arch/sparc/kernel/ioport.c        |  38 ++++++++---
+>  arch/xtensa/kernel/pci-dma.c      |  40 ++++++-----
+>  include/linux/dma-sync.h          | 107 ++++++++++++++++++++++++++++++
+>  19 files changed, 527 insertions(+), 391 deletions(-)  create mode 10064=
+4
+> include/linux/dma-sync.h
+>
+> diff --git a/arch/arc/mm/dma.c b/arch/arc/mm/dma.c index
+> ddb96786f765..61cd01646222 100644
+> --- a/arch/arc/mm/dma.c
+> +++ b/arch/arc/mm/dma.c
+> @@ -30,63 +30,33 @@ void arch_dma_prep_coherent(struct page *page, size_t
+> size)
+>       dma_cache_wback_inv(page_to_phys(page), size);  }
+>
+> -/*
+> - * Cache operations depending on function and direction argument, inspir=
+ed
+> by
+> - *
+> https://lore.kerne/
+> l.org%2Flkml%2F20180518175004.GF17671%40n2100.armlinux.org.uk&data=3D05%7=
+C01%7
+> Cbiju.das.jz%40bp.renesas.com%7C3db9a66f29fa416d938108db2ebe1b0c%7C53d825=
+71d
+> a1947e49cb4625a166a4a2a%7C0%7C0%7C638155166250292766%7CUnknown%7CTWFpbGZs=
+b3d
+> 8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C300=
+0%7
+> C%7C%7C&sdata=3DvVMW38elUoLyGW9%2BPQhsBDW8N61ubjgJBsbL6ct6uOU%3D&reserved=
+=3D0
+> - * "dma_sync_*_for_cpu and direction=3DTO_DEVICE (was Re: [PATCH 02/20]
+> - * dma-mapping: provide a generic dma-noncoherent implementation)"
+> - *
+> - *          |   map          =3D=3D  for_device     |   unmap     =3D=3D=
+  for_cpu
+> - *          |-----------------------------------------------------------=
+---
+> --
+> - * TO_DEV   |   writeback        writeback      |   none          none
+> - * FROM_DEV |   invalidate       invalidate     |   invalidate*
+> invalidate*
+> - * BIDIR    |   writeback        writeback      |   invalidate
+> invalidate
+> - *
+> - *     [*] needed for CPU speculative prefetches
+> - *
+> - * NOTE: we don't check the validity of direction argument as it is done=
+ in
+> - * upper layer functions (in include/linux/dma-mapping.h)
+> - */
+> -
+> -void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_wback(phys_addr_t paddr, size_t size)
+>  {
+> -     switch (dir) {
+> -     case DMA_TO_DEVICE:
+> -             dma_cache_wback(paddr, size);
+> -             break;
+> -
+> -     case DMA_FROM_DEVICE:
+> -             dma_cache_inv(paddr, size);
+> -             break;
+> -
+> -     case DMA_BIDIRECTIONAL:
+> -             dma_cache_wback(paddr, size);
+> -             break;
+> +     dma_cache_wback(paddr, size);
+> +}
+>
+> -     default:
+> -             break;
+> -     }
+> +static inline void arch_dma_cache_inv(phys_addr_t paddr, size_t size) {
+> +     dma_cache_inv(paddr, size);
+>  }
+>
+> -void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_wback_inv(phys_addr_t paddr, size_t
+> +size)
+>  {
+> -     switch (dir) {
+> -     case DMA_TO_DEVICE:
+> -             break;
+> +     dma_cache_wback_inv(paddr, size);
+> +}
+>
+> -     /* FROM_DEVICE invalidate needed if speculative CPU prefetch only *=
+/
+> -     case DMA_FROM_DEVICE:
+> -     case DMA_BIDIRECTIONAL:
+> -             dma_cache_inv(paddr, size);
+> -             break;
+> +static inline bool arch_sync_dma_clean_before_fromdevice(void)
+> +{
+> +     return false;
+> +}
+>
+> -     default:
+> -             break;
+> -     }
+> +static inline bool arch_sync_dma_cpu_needs_post_dma_flush(void)
+> +{
+> +     return true;
+>  }
+>
+> +#include <linux/dma-sync.h>
+> +
+>  /*
+>   * Plug in direct dma map ops.
+>   */
+> diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig index
+> 125d58c54ab1..0de84e861027 100644
+> --- a/arch/arm/Kconfig
+> +++ b/arch/arm/Kconfig
+> @@ -212,6 +212,9 @@ config LOCKDEP_SUPPORT
+>       bool
+>       default y
+>
+> +config ARCH_DMA_MARK_DCACHE_CLEAN
+> +     def_bool y
+> +
+>  config ARCH_HAS_ILOG2_U32
+>       bool
+>
+> diff --git a/arch/arm/mm/dma-mapping-nommu.c b/arch/arm/mm/dma-mapping-
+> nommu.c index 12b5c6ae93fc..0817274aed15 100644
+> --- a/arch/arm/mm/dma-mapping-nommu.c
+> +++ b/arch/arm/mm/dma-mapping-nommu.c
+> @@ -13,27 +13,36 @@
+>
+>  #include "dma.h"
+>
+> -void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_wback(phys_addr_t paddr, size_t size)
+>  {
+> -     if (dir =3D=3D DMA_FROM_DEVICE) {
+> -             dmac_inv_range(__va(paddr), __va(paddr + size));
+> -             outer_inv_range(paddr, paddr + size);
+> -     } else {
+> -             dmac_clean_range(__va(paddr), __va(paddr + size));
+> -             outer_clean_range(paddr, paddr + size);
+> -     }
+> +     dmac_clean_range(__va(paddr), __va(paddr + size));
+> +     outer_clean_range(paddr, paddr + size);
+>  }
+>
+> -void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_inv(phys_addr_t paddr, size_t size)
+>  {
+> -     if (dir !=3D DMA_TO_DEVICE) {
+> -             outer_inv_range(paddr, paddr + size);
+> -             dmac_inv_range(__va(paddr), __va(paddr));
+> -     }
+> +     dmac_inv_range(__va(paddr), __va(paddr + size));
+> +     outer_inv_range(paddr, paddr + size);
+>  }
+>
+> +static inline void arch_dma_cache_wback_inv(phys_addr_t paddr, size_t
+> +size) {
+> +     dmac_flush_range(__va(paddr), __va(paddr + size));
+> +     outer_flush_range(paddr, paddr + size); }
+> +
+> +static inline bool arch_sync_dma_clean_before_fromdevice(void)
+> +{
+> +     return false;
+> +}
+> +
+> +static inline bool arch_sync_dma_cpu_needs_post_dma_flush(void)
+> +{
+> +     return true;
+> +}
+> +
+> +#include <linux/dma-sync.h>
+> +
+>  void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
+>                       const struct iommu_ops *iommu, bool coherent)  { di=
+ff --
+> git a/arch/arm/mm/dma-mapping.c b/arch/arm/mm/dma-mapping.c index
+> b703cb83d27e..aa6ee820a0ab 100644
+> --- a/arch/arm/mm/dma-mapping.c
+> +++ b/arch/arm/mm/dma-mapping.c
+> @@ -687,6 +687,30 @@ void arch_dma_mark_clean(phys_addr_t paddr, size_t
+> size)
+>       }
+>  }
+>
+> +static inline void arch_dma_cache_wback(phys_addr_t paddr, size_t size)
+> +{
+> +     dma_cache_maint(paddr, size, dmac_clean_range);
+> +     outer_clean_range(paddr, paddr + size); }
+> +
+> +
+> +static inline void arch_dma_cache_inv(phys_addr_t paddr, size_t size) {
+> +     dma_cache_maint(paddr, size, dmac_inv_range);
+> +     outer_inv_range(paddr, paddr + size);
+> +}
+> +
+> +static inline void arch_dma_cache_wback_inv(phys_addr_t paddr, size_t
+> +size) {
+> +     dma_cache_maint(paddr, size, dmac_flush_range);
+> +     outer_flush_range(paddr, paddr + size); }
+> +
+> +static inline bool arch_sync_dma_clean_before_fromdevice(void)
+> +{
+> +     return false;
+> +}
+> +
+>  static bool arch_sync_dma_cpu_needs_post_dma_flush(void)
+>  {
+>       if (IS_ENABLED(CONFIG_CPU_V6) ||
+> @@ -699,45 +723,7 @@ static bool
+> arch_sync_dma_cpu_needs_post_dma_flush(void)
+>       return false;
+>  }
+>
+> -/*
+> - * Make an area consistent for devices.
+> - * Note: Drivers should NOT use this function directly.
+> - * Use the driver DMA support - see dma-mapping.h (dma_sync_*)
+> - */
+> -void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> -{
+> -     switch (dir) {
+> -     case DMA_TO_DEVICE:
+> -             dma_cache_maint(paddr, size, dmac_clean_range);
+> -             outer_clean_range(paddr, paddr + size);
+> -             break;
+> -     case DMA_FROM_DEVICE:
+> -             dma_cache_maint(paddr, size, dmac_inv_range);
+> -             outer_inv_range(paddr, paddr + size);
+> -             break;
+> -     case DMA_BIDIRECTIONAL:
+> -             if (arch_sync_dma_cpu_needs_post_dma_flush()) {
+> -                     dma_cache_maint(paddr, size, dmac_clean_range);
+> -                     outer_clean_range(paddr, paddr + size);
+> -             } else {
+> -                     dma_cache_maint(paddr, size, dmac_flush_range);
+> -                     outer_flush_range(paddr, paddr + size);
+> -             }
+> -             break;
+> -     default:
+> -             break;
+> -     }
+> -}
+> -
+> -void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> -{
+> -     if (dir !=3D DMA_TO_DEVICE && arch_sync_dma_cpu_needs_post_dma_flus=
+h())
+> {
+> -             outer_inv_range(paddr, paddr + size);
+> -             dma_cache_maint(paddr, size, dmac_inv_range);
+> -     }
+> -}
+> +#include <linux/dma-sync.h>
+>
+>  #ifdef CONFIG_ARM_DMA_USE_IOMMU
+>
+> diff --git a/arch/arm64/mm/dma-mapping.c b/arch/arm64/mm/dma-mapping.c in=
+dex
+> 5240f6acad64..bae741aa65e9 100644
+> --- a/arch/arm64/mm/dma-mapping.c
+> +++ b/arch/arm64/mm/dma-mapping.c
+> @@ -13,25 +13,33 @@
+>  #include <asm/cacheflush.h>
+>  #include <asm/xen/xen-ops.h>
+>
+> -void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+> -                           enum dma_data_direction dir)
+> +static inline void arch_dma_cache_wback(phys_addr_t paddr, size_t size)
+>  {
+> -     unsigned long start =3D (unsigned long)phys_to_virt(paddr);
+> +     dcache_clean_poc(paddr, paddr + size); }
+>
+> -     dcache_clean_poc(start, start + size);
+> +static inline void arch_dma_cache_inv(phys_addr_t paddr, size_t size) {
+> +     dcache_inval_poc(paddr, paddr + size);
+>  }
+>
+> -void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+> -                        enum dma_data_direction dir)
+> +static inline void arch_dma_cache_wback_inv(phys_addr_t paddr, size_t
+> +size)
+>  {
+> -     unsigned long start =3D (unsigned long)phys_to_virt(paddr);
+> +     dcache_clean_inval_poc(paddr, paddr + size); }
+>
+> -     if (dir =3D=3D DMA_TO_DEVICE)
+> -             return;
+> +static inline bool arch_sync_dma_clean_before_fromdevice(void)
+> +{
+> +     return true;
+> +}
+>
+> -     dcache_inval_poc(start, start + size);
+> +static inline bool arch_sync_dma_cpu_needs_post_dma_flush(void)
+> +{
+> +     return true;
+>  }
+>
+> +#include <linux/dma-sync.h>
+> +
+>  void arch_dma_prep_coherent(struct page *page, size_t size)  {
+>       unsigned long start =3D (unsigned long)page_address(page); diff --g=
+it
+> a/arch/csky/mm/dma-mapping.c b/arch/csky/mm/dma-mapping.c index
+> c90f912e2822..9402e101b363 100644
+> --- a/arch/csky/mm/dma-mapping.c
+> +++ b/arch/csky/mm/dma-mapping.c
+> @@ -55,31 +55,29 @@ void arch_dma_prep_coherent(struct page *page, size_t
+> size)
+>       cache_op(page_to_phys(page), size, dma_wbinv_set_zero_range);  }
+>
+> -void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_wback(phys_addr_t paddr, size_t size)
+>  {
+> -     switch (dir) {
+> -     case DMA_TO_DEVICE:
+> -     case DMA_FROM_DEVICE:
+> -     case DMA_BIDIRECTIONAL:
+> -             cache_op(paddr, size, dma_wb_range);
+> -             break;
+> -     default:
+> -             BUG();
+> -     }
+> +     cache_op(paddr, size, dma_wb_range);
+>  }
+>
+> -void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_inv(phys_addr_t paddr, size_t size)
+>  {
+> -     switch (dir) {
+> -     case DMA_TO_DEVICE:
+> -             return;
+> -     case DMA_FROM_DEVICE:
+> -     case DMA_BIDIRECTIONAL:
+> -             cache_op(paddr, size, dma_inv_range);
+> -             break;
+> -     default:
+> -             BUG();
+> -     }
+> +     cache_op(paddr, size, dma_inv_range);
+>  }
+> +
+> +static inline void arch_dma_cache_wback_inv(phys_addr_t paddr, size_t
+> +size) {
+> +     cache_op(paddr, size, dma_wbinv_range); }
+> +
+> +static inline bool arch_sync_dma_clean_before_fromdevice(void)
+> +{
+> +     return true;
+> +}
+> +
+> +static inline bool arch_sync_dma_cpu_needs_post_dma_flush(void)
+> +{
+> +     return true;
+> +}
+> +
+> +#include <linux/dma-sync.h>
+> diff --git a/arch/hexagon/kernel/dma.c b/arch/hexagon/kernel/dma.c index
+> 882680e81a30..e6538128a75b 100644
+> --- a/arch/hexagon/kernel/dma.c
+> +++ b/arch/hexagon/kernel/dma.c
+> @@ -9,29 +9,33 @@
+>  #include <linux/memblock.h>
+>  #include <asm/page.h>
+>
+> -void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_wback(phys_addr_t paddr, size_t size)
+>  {
+> -     void *addr =3D phys_to_virt(paddr);
+> -
+> -     switch (dir) {
+> -     case DMA_TO_DEVICE:
+> -             hexagon_clean_dcache_range((unsigned long) addr,
+> -             (unsigned long) addr + size);
+> -             break;
+> -     case DMA_FROM_DEVICE:
+> -             hexagon_inv_dcache_range((unsigned long) addr,
+> -             (unsigned long) addr + size);
+> -             break;
+> -     case DMA_BIDIRECTIONAL:
+> -             flush_dcache_range((unsigned long) addr,
+> -             (unsigned long) addr + size);
+> -             break;
+> -     default:
+> -             BUG();
+> -     }
+> +     hexagon_clean_dcache_range(paddr, paddr + size);
+>  }
+>
+> +static inline void arch_dma_cache_inv(phys_addr_t start, size_t size) {
+> +     hexagon_inv_dcache_range(paddr, paddr + size); }
+> +
+> +static inline void arch_dma_cache_wback_inv(phys_addr_t start, size_t
+> +size) {
+> +     hexagon_flush_dcache_range(paddr, paddr + size); }
+> +
+> +static inline bool arch_sync_dma_clean_before_fromdevice(void)
+> +{
+> +     return false;
+> +}
+> +
+> +static inline bool arch_sync_dma_cpu_needs_post_dma_flush(void)
+> +{
+> +     return false;
+> +}
+> +
+> +#include <linux/dma-sync.h>
+> +
+>  /*
+>   * Our max_low_pfn should have been backed off by 16MB in mm/init.c to
+> create
+>   * DMA coherent space.  Use that for the pool.
+> diff --git a/arch/m68k/kernel/dma.c b/arch/m68k/kernel/dma.c index
+> 2e192a5df949..aa9b434e6df8 100644
+> --- a/arch/m68k/kernel/dma.c
+> +++ b/arch/m68k/kernel/dma.c
+> @@ -58,20 +58,33 @@ void arch_dma_free(struct device *dev, size_t size, v=
+oid
+> *vaddr,
+>
+>  #endif /* CONFIG_MMU && !CONFIG_COLDFIRE */
+>
+> -void arch_sync_dma_for_device(phys_addr_t handle, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_wback(phys_addr_t paddr, size_t size)
+>  {
+> -     switch (dir) {
+> -     case DMA_BIDIRECTIONAL:
+> -     case DMA_TO_DEVICE:
+> -             cache_push(handle, size);
+> -             break;
+> -     case DMA_FROM_DEVICE:
+> -             cache_clear(handle, size);
+> -             break;
+> -     default:
+> -             pr_err_ratelimited("dma_sync_single_for_device: unsupported=
+ dir
+> %u\n",
+> -                                dir);
+> -             break;
+> -     }
+> +     /*
+> +      * cache_push() always invalidates in addition to cleaning
+> +      * write-back caches.
+> +      */
+> +     cache_push(paddr, size);
+> +}
+> +
+> +static inline void arch_dma_cache_inv(phys_addr_t paddr, size_t size) {
+> +     cache_clear(paddr, size);
+> +}
+> +
+> +static inline void arch_dma_cache_wback_inv(phys_addr_t paddr, size_t
+> +size) {
+> +     cache_push(paddr, size);
+>  }
+> +
+> +static inline bool arch_sync_dma_clean_before_fromdevice(void)
+> +{
+> +     return false;
+> +}
+> +
+> +static inline bool arch_sync_dma_cpu_needs_post_dma_flush(void)
+> +{
+> +     return false;
+> +}
+> +
+> +#include <linux/dma-sync.h>
+> diff --git a/arch/microblaze/kernel/dma.c b/arch/microblaze/kernel/dma.c
+> index b4c4e45fd45e..01110d4aa5b0 100644
+> --- a/arch/microblaze/kernel/dma.c
+> +++ b/arch/microblaze/kernel/dma.c
+> @@ -14,32 +14,30 @@
+>  #include <linux/bug.h>
+>  #include <asm/cacheflush.h>
+>
+> -void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_wback(phys_addr_t paddr, size_t size)
+>  {
+> -     switch (direction) {
+> -     case DMA_TO_DEVICE:
+> -     case DMA_BIDIRECTIONAL:
+> -             flush_dcache_range(paddr, paddr + size);
+> -             break;
+> -     case DMA_FROM_DEVICE:
+> -             invalidate_dcache_range(paddr, paddr + size);
+> -             break;
+> -     default:
+> -             BUG();
+> -     }
+> +     /* writeback plus invalidate, could be a nop on WT caches */
+> +     flush_dcache_range(paddr, paddr + size);
+>  }
+>
+> -void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_inv(phys_addr_t paddr, size_t size)
+>  {
+> -     switch (direction) {
+> -     case DMA_TO_DEVICE:
+> -             break;
+> -     case DMA_BIDIRECTIONAL:
+> -     case DMA_FROM_DEVICE:
+> -             invalidate_dcache_range(paddr, paddr + size);
+> -             break;
+> -     default:
+> -             BUG();
+> -     }}
+> +     invalidate_dcache_range(paddr, paddr + size); }
+> +
+> +static inline void arch_dma_cache_wback_inv(phys_addr_t paddr, size_t
+> +size) {
+> +     flush_dcache_range(paddr, paddr + size); }
+> +
+> +static inline bool arch_sync_dma_clean_before_fromdevice(void)
+> +{
+> +     return false;
+> +}
+> +
+> +static inline bool arch_sync_dma_cpu_needs_post_dma_flush(void)
+> +{
+> +     return true;
+> +}
+> +
+> +#include <linux/dma-sync.h>
+> diff --git a/arch/mips/mm/dma-noncoherent.c b/arch/mips/mm/dma-noncoheren=
+t.c
+> index b9d68bcc5d53..902d4b7c1f85 100644
+> --- a/arch/mips/mm/dma-noncoherent.c
+> +++ b/arch/mips/mm/dma-noncoherent.c
+> @@ -85,50 +85,38 @@ static inline void dma_sync_phys(phys_addr_t paddr,
+> size_t size,
+>       } while (left);
+>  }
+>
+> -void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_wback(phys_addr_t paddr, size_t size)
+>  {
+> -     switch (dir) {
+> -     case DMA_TO_DEVICE:
+> -             dma_sync_phys(paddr, size, _dma_cache_wback);
+> -             break;
+> -     case DMA_FROM_DEVICE:
+> -             dma_sync_phys(paddr, size, _dma_cache_inv);
+> -             break;
+> -     case DMA_BIDIRECTIONAL:
+> -             if (IS_ENABLED(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU) &&
+> -                 cpu_needs_post_dma_flush())
+> -                     dma_sync_phys(paddr, size, _dma_cache_wback);
+> -             else
+> -                     dma_sync_phys(paddr, size, _dma_cache_wback_inv);
+> -             break;
+> -     default:
+> -             break;
+> -     }
+> +     dma_sync_phys(paddr, size, _dma_cache_wback);
+>  }
+>
+> -#ifdef CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU -void
+> arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_inv(phys_addr_t paddr, size_t size)
+>  {
+> -     switch (dir) {
+> -     case DMA_TO_DEVICE:
+> -             break;
+> -     case DMA_FROM_DEVICE:
+> -     case DMA_BIDIRECTIONAL:
+> -             if (cpu_needs_post_dma_flush())
+> -                     dma_sync_phys(paddr, size, _dma_cache_inv);
+> -             break;
+> -     default:
+> -             break;
+> -     }
+> +     dma_sync_phys(paddr, size, _dma_cache_inv);
+>  }
+> -#endif
+> +
+> +static inline void arch_dma_cache_wback_inv(phys_addr_t paddr, size_t
+> +size) {
+> +     dma_sync_phys(paddr, size, _dma_cache_wback_inv); }
+> +
+> +static inline bool arch_sync_dma_clean_before_fromdevice(void)
+> +{
+> +     return false;
+> +}
+> +
+> +static inline bool arch_sync_dma_cpu_needs_post_dma_flush(void)
+> +{
+> +     return IS_ENABLED(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU) &&
+> +                    cpu_needs_post_dma_flush(); }
+> +
+> +#include <linux/dma-sync.h>
+>
+>  #ifdef CONFIG_ARCH_HAS_SETUP_DMA_OPS
+>  void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
+> -             const struct iommu_ops *iommu, bool coherent)
+> +               const struct iommu_ops *iommu, bool coherent)
+>  {
+> -     dev->dma_coherent =3D coherent;
+> +       dev->dma_coherent =3D coherent;
+>  }
+>  #endif
+> diff --git a/arch/nios2/mm/dma-mapping.c b/arch/nios2/mm/dma-mapping.c in=
+dex
+> fd887d5f3f9a..29978970955e 100644
+> --- a/arch/nios2/mm/dma-mapping.c
+> +++ b/arch/nios2/mm/dma-mapping.c
+> @@ -13,53 +13,46 @@
+>  #include <linux/types.h>
+>  #include <linux/mm.h>
+>  #include <linux/string.h>
+> +#include <linux/dma-map-ops.h>
+>  #include <linux/dma-mapping.h>
+>  #include <linux/io.h>
+>  #include <linux/cache.h>
+>  #include <asm/cacheflush.h>
+>
+> -void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_wback(phys_addr_t paddr, size_t size)
+>  {
+> +     /*
+> +      * We just need to write back the caches here, but Nios2 flush
+> +      * instruction will do both writeback and invalidate.
+> +      */
+>       void *vaddr =3D phys_to_virt(paddr);
+> +     flush_dcache_range((unsigned long)vaddr, (unsigned long)(vaddr +
+> +size)); }
+>
+> -     switch (dir) {
+> -     case DMA_FROM_DEVICE:
+> -             invalidate_dcache_range((unsigned long)vaddr,
+> -                     (unsigned long)(vaddr + size));
+> -             break;
+> -     case DMA_TO_DEVICE:
+> -             /*
+> -              * We just need to flush the caches here , but Nios2 flush
+> -              * instruction will do both writeback and invalidate.
+> -              */
+> -     case DMA_BIDIRECTIONAL: /* flush and invalidate */
+> -             flush_dcache_range((unsigned long)vaddr,
+> -                     (unsigned long)(vaddr + size));
+> -             break;
+> -     default:
+> -             BUG();
+> -     }
+> +static inline void arch_dma_cache_inv(phys_addr_t paddr, size_t size) {
+> +     unsigned long vaddr =3D (unsigned long)phys_to_virt(paddr);
+> +     invalidate_dcache_range(vaddr, (unsigned long)(vaddr + size));
+>  }
+>
+> -void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_wback_inv(phys_addr_t paddr, size_t
+> +size)
+>  {
+>       void *vaddr =3D phys_to_virt(paddr);
+> +     flush_dcache_range((unsigned long)vaddr, (unsigned long)(vaddr +
+> +size)); }
+> +
+> +static inline bool arch_sync_dma_clean_before_fromdevice(void)
+> +{
+> +     return false;
+> +}
+>
+> -     switch (dir) {
+> -     case DMA_BIDIRECTIONAL:
+> -     case DMA_FROM_DEVICE:
+> -             invalidate_dcache_range((unsigned long)vaddr,
+> -                     (unsigned long)(vaddr + size));
+> -             break;
+> -     case DMA_TO_DEVICE:
+> -             break;
+> -     default:
+> -             BUG();
+> -     }
+> +static inline bool arch_sync_dma_cpu_needs_post_dma_flush(void)
+> +{
+> +     return true;
+>  }
+>
+> +#include <linux/dma-sync.h>
+> +
+>  void arch_dma_prep_coherent(struct page *page, size_t size)  {
+>       unsigned long start =3D (unsigned long)page_address(page); diff --g=
+it
+> a/arch/openrisc/kernel/dma.c b/arch/openrisc/kernel/dma.c index
+> 91a00d09ffad..aba2258e62eb 100644
+> --- a/arch/openrisc/kernel/dma.c
+> +++ b/arch/openrisc/kernel/dma.c
+> @@ -95,32 +95,47 @@ void arch_dma_clear_uncached(void *cpu_addr, size_t
+> size)
+>       mmap_write_unlock(&init_mm);
+>  }
+>
+> -void arch_sync_dma_for_device(phys_addr_t addr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_wback(phys_addr_t paddr, size_t size)
+>  {
+>       unsigned long cl;
+>       struct cpuinfo_or1k *cpuinfo =3D &cpuinfo_or1k[smp_processor_id()];
+>
+> -     switch (dir) {
+> -     case DMA_TO_DEVICE:
+> -             /* Write back the dcache for the requested range */
+> -             for (cl =3D addr; cl < addr + size;
+> -                  cl +=3D cpuinfo->dcache_block_size)
+> -                     mtspr(SPR_DCBWR, cl);
+> -             break;
+> -     case DMA_FROM_DEVICE:
+> -             /* Invalidate the dcache for the requested range */
+> -             for (cl =3D addr; cl < addr + size;
+> -                  cl +=3D cpuinfo->dcache_block_size)
+> -                     mtspr(SPR_DCBIR, cl);
+> -             break;
+> -     case DMA_BIDIRECTIONAL:
+> -             /* Flush the dcache for the requested range */
+> -             for (cl =3D addr; cl < addr + size;
+> -                  cl +=3D cpuinfo->dcache_block_size)
+> -                     mtspr(SPR_DCBFR, cl);
+> -             break;
+> -     default:
+> -             break;
+> -     }
+> +     /* Write back the dcache for the requested range */
+> +     for (cl =3D paddr; cl < paddr + size;
+> +          cl +=3D cpuinfo->dcache_block_size)
+> +             mtspr(SPR_DCBWR, cl);
+>  }
+> +
+> +static inline void arch_dma_cache_inv(phys_addr_t paddr, size_t size) {
+> +     unsigned long cl;
+> +     struct cpuinfo_or1k *cpuinfo =3D &cpuinfo_or1k[smp_processor_id()];
+> +
+> +     /* Invalidate the dcache for the requested range */
+> +     for (cl =3D paddr; cl < paddr + size;
+> +          cl +=3D cpuinfo->dcache_block_size)
+> +             mtspr(SPR_DCBIR, cl);
+> +}
+> +
+> +static inline void arch_dma_cache_wback_inv(phys_addr_t paddr, size_t
+> +size) {
+> +     unsigned long cl;
+> +     struct cpuinfo_or1k *cpuinfo =3D &cpuinfo_or1k[smp_processor_id()];
+> +
+> +     /* Flush the dcache for the requested range */
+> +     for (cl =3D paddr; cl < paddr + size;
+> +          cl +=3D cpuinfo->dcache_block_size)
+> +             mtspr(SPR_DCBFR, cl);
+> +}
+> +
+> +static inline bool arch_sync_dma_clean_before_fromdevice(void)
+> +{
+> +     return false;
+> +}
+> +
+> +static inline bool arch_sync_dma_cpu_needs_post_dma_flush(void)
+> +{
+> +     return false;
+> +}
+> +
+> +#include <linux/dma-sync.h>
+> diff --git a/arch/parisc/kernel/pci-dma.c b/arch/parisc/kernel/pci-dma.c
+> index 6d3d3cffb316..a7955aab8ce2 100644
+> --- a/arch/parisc/kernel/pci-dma.c
+> +++ b/arch/parisc/kernel/pci-dma.c
+> @@ -443,35 +443,35 @@ void arch_dma_free(struct device *dev, size_t size,
+> void *vaddr,
+>       free_pages((unsigned long)__va(dma_handle), order);  }
+>
+> -void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_wback(phys_addr_t paddr, size_t size)
+>  {
+>       unsigned long virt =3D (unsigned long)phys_to_virt(paddr);
+>
+> -     switch (dir) {
+> -     case DMA_TO_DEVICE:
+> -             clean_kernel_dcache_range(virt, size);
+> -             break;
+> -     case DMA_FROM_DEVICE:
+> -             clean_kernel_dcache_range(virt, size);
+> -             break;
+> -     case DMA_BIDIRECTIONAL:
+> -             flush_kernel_dcache_range(virt, size);
+> -             break;
+> -     }
+> +     clean_kernel_dcache_range(virt, size);
+>  }
+>
+> -void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_inv(phys_addr_t paddr, size_t size)
+>  {
+>       unsigned long virt =3D (unsigned long)phys_to_virt(paddr);
+>
+> -     switch (dir) {
+> -     case DMA_TO_DEVICE:
+> -             break;
+> -     case DMA_FROM_DEVICE:
+> -     case DMA_BIDIRECTIONAL:
+> -             purge_kernel_dcache_range(virt, size);
+> -             break;
+> -     }
+> +     purge_kernel_dcache_range(virt, size); }
+> +
+> +static inline void arch_dma_cache_wback_inv(phys_addr_t paddr, size_t
+> +size) {
+> +     unsigned long virt =3D (unsigned long)phys_to_virt(paddr);
+> +
+> +     flush_kernel_dcache_range(virt, size);
+>  }
+> +
+> +static inline bool arch_sync_dma_clean_before_fromdevice(void)
+> +{
+> +     return true;
+> +}
+> +
+> +static inline bool arch_sync_dma_cpu_needs_post_dma_flush(void)
+> +{
+> +     return true;
+> +}
+> +
+> +#include <linux/dma-sync.h>
+> diff --git a/arch/powerpc/mm/dma-noncoherent.c b/arch/powerpc/mm/dma-
+> noncoherent.c
+> index 00e59a4faa2b..268510c71156 100644
+> --- a/arch/powerpc/mm/dma-noncoherent.c
+> +++ b/arch/powerpc/mm/dma-noncoherent.c
+> @@ -101,27 +101,33 @@ static void __dma_phys_op(phys_addr_t paddr, size_t
+> size, enum dma_cache_op op)  #endif  }
+>
+> -void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_wback(phys_addr_t paddr, size_t size)
+>  {
+>       __dma_phys_op(start, end, DMA_CACHE_CLEAN);  }
+>
+> -void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_inv(phys_addr_t paddr, size_t size)
+>  {
+> -     switch (direction) {
+> -     case DMA_NONE:
+> -             BUG();
+> -     case DMA_TO_DEVICE:
+> -             break;
+> -     case DMA_FROM_DEVICE:
+> -     case DMA_BIDIRECTIONAL:
+> -             __dma_phys_op(start, end, DMA_CACHE_INVAL);
+> -             break;
+> -     }
+> +     __dma_phys_op(start, end, DMA_CACHE_INVAL);
+>  }
+>
+> +static inline void arch_dma_cache_wback_inv(phys_addr_t paddr, size_t
+> +size) {
+> +     __dma_phys_op(start, end, DMA_CACHE_FLUSH); }
+> +
+> +static inline bool arch_sync_dma_clean_before_fromdevice(void)
+> +{
+> +     return true;
+> +}
+> +
+> +static inline bool arch_sync_dma_cpu_needs_post_dma_flush(void)
+> +{
+> +     return true;
+> +}
+> +
+> +#include <linux/dma-sync.h>
+> +
+>  void arch_dma_prep_coherent(struct page *page, size_t size)  {
+>       unsigned long kaddr =3D (unsigned long)page_address(page); diff --g=
+it
+> a/arch/riscv/mm/dma-noncoherent.c b/arch/riscv/mm/dma-noncoherent.c index
+> 69c80b2155a1..b9a9f57e02be 100644
+> --- a/arch/riscv/mm/dma-noncoherent.c
+> +++ b/arch/riscv/mm/dma-noncoherent.c
+> @@ -12,43 +12,40 @@
+>
+>  static bool noncoherent_supported;
+>
+> -void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+> -                           enum dma_data_direction dir)
+> +static inline void arch_dma_cache_wback(phys_addr_t paddr, size_t size)
+>  {
+>       void *vaddr =3D phys_to_virt(paddr);
+>
+> -     switch (dir) {
+> -     case DMA_TO_DEVICE:
+> -             ALT_CMO_OP(clean, vaddr, size, riscv_cbom_block_size);
+> -             break;
+> -     case DMA_FROM_DEVICE:
+> -             ALT_CMO_OP(clean, vaddr, size, riscv_cbom_block_size);
+> -             break;
+> -     case DMA_BIDIRECTIONAL:
+> -             ALT_CMO_OP(clean, vaddr, size, riscv_cbom_block_size);
+> -             break;
+> -     default:
+> -             break;
+> -     }
+> +     ALT_CMO_OP(clean, vaddr, size, riscv_cbom_block_size);
+>  }
+>
+> -void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+> -                        enum dma_data_direction dir)
+> +static inline void arch_dma_cache_inv(phys_addr_t paddr, size_t size)
+>  {
+>       void *vaddr =3D phys_to_virt(paddr);
+>
+> -     switch (dir) {
+> -     case DMA_TO_DEVICE:
+> -             break;
+> -     case DMA_FROM_DEVICE:
+> -     case DMA_BIDIRECTIONAL:
+> -             ALT_CMO_OP(inval, vaddr, size, riscv_cbom_block_size);
+> -             break;
+> -     default:
+> -             break;
+> -     }
+> +     ALT_CMO_OP(inval, vaddr, size, riscv_cbom_block_size);
+>  }
+>
+> +static inline void arch_dma_cache_wback_inv(phys_addr_t paddr, size_t
+> +size) {
+> +     void *vaddr =3D phys_to_virt(paddr);
+> +
+> +     ALT_CMO_OP(flush, vaddr, size, riscv_cbom_block_size); }
+> +
+> +static inline bool arch_sync_dma_clean_before_fromdevice(void)
+> +{
+> +     return true;
+> +}
+> +
+> +static inline bool arch_sync_dma_cpu_needs_post_dma_flush(void)
+> +{
+> +     return true;
+> +}
+> +
+> +#include <linux/dma-sync.h>
+> +
+> +
+>  void arch_dma_prep_coherent(struct page *page, size_t size)  {
+>       void *flush_addr =3D page_address(page); diff --git
+> a/arch/sh/kernel/dma-coherent.c b/arch/sh/kernel/dma-coherent.c index
+> 6a44c0e7ba40..41f031ae7609 100644
+> --- a/arch/sh/kernel/dma-coherent.c
+> +++ b/arch/sh/kernel/dma-coherent.c
+> @@ -12,22 +12,35 @@ void arch_dma_prep_coherent(struct page *page, size_t
+> size)
+>       __flush_purge_region(page_address(page), size);  }
+>
+> -void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_wback(phys_addr_t paddr, size_t size)
+>  {
+>       void *addr =3D sh_cacheop_vaddr(phys_to_virt(paddr));
+>
+> -     switch (dir) {
+> -     case DMA_FROM_DEVICE:           /* invalidate only */
+> -             __flush_invalidate_region(addr, size);
+> -             break;
+> -     case DMA_TO_DEVICE:             /* writeback only */
+> -             __flush_wback_region(addr, size);
+> -             break;
+> -     case DMA_BIDIRECTIONAL:         /* writeback and invalidate */
+> -             __flush_purge_region(addr, size);
+> -             break;
+> -     default:
+> -             BUG();
+> -     }
+> +     __flush_wback_region(addr, size);
+>  }
+> +
+> +static inline void arch_dma_cache_inv(phys_addr_t paddr, size_t size) {
+> +     void *addr =3D sh_cacheop_vaddr(phys_to_virt(paddr));
+> +
+> +     __flush_invalidate_region(addr, size); }
+> +
+> +static inline void arch_dma_cache_wback_inv(phys_addr_t paddr, size_t
+> +size) {
+> +     void *addr =3D sh_cacheop_vaddr(phys_to_virt(paddr));
+> +
+> +     __flush_purge_region(addr, size);
+> +}
+> +
+> +static inline bool arch_sync_dma_clean_before_fromdevice(void)
+> +{
+> +     return false;
+> +}
+> +
+> +static inline bool arch_sync_dma_cpu_needs_post_dma_flush(void)
+> +{
+> +     return false;
+> +}
+> +
+> +#include <linux/dma-sync.h>
+> diff --git a/arch/sparc/kernel/ioport.c b/arch/sparc/kernel/ioport.c inde=
+x
+> 4f3d26066ec2..6926ead2f208 100644
+> --- a/arch/sparc/kernel/ioport.c
+> +++ b/arch/sparc/kernel/ioport.c
+> @@ -300,21 +300,39 @@ arch_initcall(sparc_register_ioport);
+>
+>  #endif /* CONFIG_SBUS */
+>
+> -/*
+> - * IIep is write-through, not flushing on cpu to device transfer.
+> - *
+> - * On LEON systems without cache snooping, the entire D-CACHE must be
+> flushed to
+> - * make DMA to cacheable memory coherent.
+> - */
+> -void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_wback(phys_addr_t paddr, size_t size)
+>  {
+> -     if (dir !=3D DMA_TO_DEVICE &&
+> -         sparc_cpu_model =3D=3D sparc_leon &&
+> +     /* IIep is write-through, not flushing on cpu to device transfer. *=
+/ }
+> +
+> +static inline void arch_dma_cache_inv(phys_addr_t paddr, size_t size) {
+> +     /*
+> +      * On LEON systems without cache snooping, the entire D-CACHE must =
+be
+> +      * flushed to make DMA to cacheable memory coherent.
+> +      */
+> +     if (sparc_cpu_model =3D=3D sparc_leon &&
+>           !sparc_leon3_snooping_enabled())
+>               leon_flush_dcache_all();
+>  }
+>
+> +static inline void arch_dma_cache_wback_inv(phys_addr_t paddr, size_t
+> +size) {
+> +     arch_dma_cache_inv(paddr, size);
+> +}
+> +
+> +static inline bool arch_sync_dma_clean_before_fromdevice(void)
+> +{
+> +     return true;
+> +}
+> +
+> +static inline bool arch_sync_dma_cpu_needs_post_dma_flush(void)
+> +{
+> +     return false;
+> +}
+> +
+> +#include <linux/dma-sync.h>
+> +
+>  #ifdef CONFIG_PROC_FS
+>
+>  static int sparc_io_proc_show(struct seq_file *m, void *v) diff --git
+> a/arch/xtensa/kernel/pci-dma.c b/arch/xtensa/kernel/pci-dma.c index
+> ff3bf015eca4..d4ff96585545 100644
+> --- a/arch/xtensa/kernel/pci-dma.c
+> +++ b/arch/xtensa/kernel/pci-dma.c
+> @@ -43,24 +43,34 @@ static void do_cache_op(phys_addr_t paddr, size_t siz=
+e,
+>               }
+>  }
+>
+> -void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+> -             enum dma_data_direction dir)
+> +static inline void arch_dma_cache_wback(phys_addr_t paddr, size_t size)
+>  {
+> -     switch (dir) {
+> -     case DMA_TO_DEVICE:
+> -             do_cache_op(paddr, size, __flush_dcache_range);
+> -             break;
+> -     case DMA_FROM_DEVICE:
+> -             do_cache_op(paddr, size, __invalidate_dcache_range);
+> -             break;
+> -     case DMA_BIDIRECTIONAL:
+> -             do_cache_op(paddr, size, __flush_invalidate_dcache_range);
+> -             break;
+> -     default:
+> -             break;
+> -     }
+> +     do_cache_op(paddr, size, __flush_dcache_range);
+>  }
+>
+> +static inline void arch_dma_cache_inv(phys_addr_t paddr, size_t size) {
+> +     do_cache_op(paddr, size, __invalidate_dcache_range); }
+> +
+> +static inline void arch_dma_cache_wback_inv(phys_addr_t paddr, size_t
+> +size) {
+> +     do_cache_op(paddr, size, __flush_invalidate_dcache_range); }
+> +
+> +static inline bool arch_sync_dma_clean_before_fromdevice(void)
+> +{
+> +     return false;
+> +}
+> +
+> +static inline bool arch_sync_dma_cpu_needs_post_dma_flush(void)
+> +{
+> +     return false;
+> +}
+> +
+> +#include <linux/dma-sync.h>
+> +
+> +
+>  void arch_dma_prep_coherent(struct page *page, size_t size)  {
+>       __invalidate_dcache_range((unsigned long)page_address(page), size);
+> diff --git a/include/linux/dma-sync.h b/include/linux/dma-sync.h new file
+> mode 100644 index 000000000000..18e33d5e8eaf
+> --- /dev/null
+> +++ b/include/linux/dma-sync.h
+> @@ -0,0 +1,107 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Cache operations depending on function and direction argument,
+> +inspired by
+> + *
+> +https://lore/.
+> +kernel.org%2Flkml%2F20180518175004.GF17671%40n2100.armlinux.org.uk&data
+> +=3D05%7C01%7Cbiju.das.jz%40bp.renesas.com%7C3db9a66f29fa416d938108db2ebe=
+1
+> +b0c%7C53d82571da1947e49cb4625a166a4a2a%7C0%7C0%7C638155166250449286%7CU
+> +nknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haW
+> +wiLCJXVCI6Mn0%3D%7C3000%7C%7C%7C&sdata=3D04qDpyhP%2FT1wdPjg%2Bi0EzLz815r=
+k
+> +8AJmZFv8tq7tolM%3D&reserved=3D0
+> + * "dma_sync_*_for_cpu and direction=3DTO_DEVICE (was Re: [PATCH 02/20]
+> + * dma-mapping: provide a generic dma-noncoherent implementation)"
+> + *
+> + *          |   map          =3D=3D  for_device     |   unmap     =3D=3D=
+  for_cpu
+> + *          |-----------------------------------------------------------=
+---
+> --
+> + * TO_DEV   |   writeback        writeback      |   none          none
+> + * FROM_DEV |   invalidate       invalidate     |   invalidate*
+> invalidate*
+> + * BIDIR    |   writeback        writeback      |   invalidate
+> invalidate
+> + *
+> + *     [*] needed for CPU speculative prefetches
+> + *
+> + * NOTE: we don't check the validity of direction argument as it is
+> +done in
+> + * upper layer functions (in include/linux/dma-mapping.h)
+> + *
+> + * This file can be included by arch/.../kernel/dma-noncoherent.c to
+> +provide
+> + * the respective high-level operations without having to expose the
+> + * cache management ops to drivers.
+> + */
+> +
+> +void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+> +             enum dma_data_direction dir)
+> +{
+> +     switch (dir) {
+> +     case DMA_TO_DEVICE:
+> +             /*
+> +              * This may be an empty function on write-through caches,
+> +              * and it might invalidate the cache if an architecture has
+> +              * a write-back cache but no way to write it back without
+> +              * invalidating
+> +              */
+> +             arch_dma_cache_wback(paddr, size);
+> +             break;
+> +
+> +     case DMA_FROM_DEVICE:
+> +             /*
+> +              * FIXME: this should be handled the same across all
+> +              * architectures, see
+> +              *
+> https://lore.kerne/
+> l.org%2Fall%2F20220606152150.GA31568%40willie-the-
+> truck%2F&data=3D05%7C01%7Cbiju.das.jz%40bp.renesas.com%7C3db9a66f29fa416d=
+93810
+> 8db2ebe1b0c%7C53d82571da1947e49cb4625a166a4a2a%7C0%7C0%7C6381551662504492=
+86%
+> 7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1ha=
+Wwi
+> LCJXVCI6Mn0%3D%7C3000%7C%7C%7C&sdata=3DrMRR1qB7VTNcvosS73f04WZ5BI46kEoZXj=
+4sTXl
+> Sbf8%3D&reserved=3D0
+> +              */
+> +             if (!arch_sync_dma_clean_before_fromdevice()) {
+> +                     arch_dma_cache_inv(paddr, size);
+> +                     break;
+> +             }
+> +             fallthrough;
+> +
+> +     case DMA_BIDIRECTIONAL:
+> +             /* Skip the invalidate here if it's done later */
+> +             if (IS_ENABLED(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU) &&
+> +                 arch_sync_dma_cpu_needs_post_dma_flush())
+> +                     arch_dma_cache_wback(paddr, size);
+> +             else
+> +                     arch_dma_cache_wback_inv(paddr, size);
+> +             break;
+> +
+> +     default:
+> +             break;
+> +     }
+> +}
+> +
+> +#ifdef CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU
+> +/*
+> + * Mark the D-cache clean for these pages to avoid extra flushing.
+> + */
+> +static void arch_dma_mark_dcache_clean(phys_addr_t paddr, size_t size)
+> +{ #ifdef CONFIG_ARCH_DMA_MARK_DCACHE_CLEAN
+> +     unsigned long pfn =3D PFN_UP(paddr);
+> +     unsigned long off =3D paddr & (PAGE_SIZE - 1);
+> +     size_t left =3D size;
+> +
+> +     if (off)
+> +             left -=3D PAGE_SIZE - off;
+> +
+> +     while (left >=3D PAGE_SIZE) {
+> +             struct page *page =3D pfn_to_page(pfn++);
+> +             set_bit(PG_dcache_clean, &page->flags);
+> +             left -=3D PAGE_SIZE;
+> +     }
+> +#endif
+> +}
+> +
+> +void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+> +             enum dma_data_direction dir)
+> +{
+> +     switch (dir) {
+> +     case DMA_TO_DEVICE:
+> +             break;
+> +
+> +     case DMA_FROM_DEVICE:
+> +     case DMA_BIDIRECTIONAL:
+> +             /* FROM_DEVICE invalidate needed if speculative CPU prefetc=
+h
+> only */
+> +             if (arch_sync_dma_cpu_needs_post_dma_flush())
+> +                     arch_dma_cache_inv(paddr, size);
+> +
+> +             if (size > PAGE_SIZE)
+> +                     arch_dma_mark_dcache_clean(paddr, size);
+> +             break;
+> +
+> +     default:
+> +             break;
+> +     }
+> +}
+> +#endif
+> --
+> 2.39.2
+>
+>
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infra/
+> dead.org%2Fmailman%2Flistinfo%2Flinux-arm-
+> kernel&data=3D05%7C01%7Cbiju.das.jz%40bp.renesas.com%7C3db9a66f29fa416d93=
+8108d
+> b2ebe1b0c%7C53d82571da1947e49cb4625a166a4a2a%7C0%7C0%7C638155166250449286=
+%7C
+> Unknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWw=
+iLC
+> JXVCI6Mn0%3D%7C3000%7C%7C%7C&sdata=3DjVWHs4FyF3gf99YGax4jl1vHNQ7JFMbsX3No=
+IAHdw
+> Zw%3D&reserved=3D0
