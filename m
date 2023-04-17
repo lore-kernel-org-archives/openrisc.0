@@ -2,55 +2,55 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1260CC7EE29;
-	Mon, 17 Apr 2023 20:53:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D62BC7EE21;
+	Mon, 17 Apr 2023 20:53:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230385AbjDQUxC (ORCPT
+        id S231189AbjDQUx2 (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Mon, 17 Apr 2023 16:53:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39336 "EHLO
+        Mon, 17 Apr 2023 16:53:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230298AbjDQUwz (ORCPT
+        with ESMTP id S230298AbjDQUxO (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Mon, 17 Apr 2023 16:52:55 -0400
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E53B240FD;
-        Mon, 17 Apr 2023 13:52:49 -0700 (PDT)
-Received: by mail-pl1-x62b.google.com with SMTP id i8so18357489plt.10;
-        Mon, 17 Apr 2023 13:52:49 -0700 (PDT)
+        Mon, 17 Apr 2023 16:53:14 -0400
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA2304C2B;
+        Mon, 17 Apr 2023 13:52:52 -0700 (PDT)
+Received: by mail-pl1-x62e.google.com with SMTP id w11so27335099plp.13;
+        Mon, 17 Apr 2023 13:52:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681764769; x=1684356769;
+        d=gmail.com; s=20221208; t=1681764772; x=1684356772;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ds3IS9TWlY4iXOF1Vygr3Q/N2fJxO0/Dzlxnv3cq6/0=;
-        b=hr7pEt7A7XcPfK4WHrNDJyXTyW/f522/QxHB9K2NM6BmG8KnIlcSk7Prak06XFsubX
-         Sjsu1MPagS5Ajy0wM6nwYZFly4hHrr9DYIrVTEdELHRdfsGo64oEk7qD+41S/NMObi8y
-         l8A2tz8IWZ1X+Du4Mg5V1agW+uGCUPtQdgx1HioQtiEf01hZXw902OFYpkixEmc4936W
-         rbvY3hq0N/ZSHnXC+KGydT6+ZrTUjCaNrxKIoD5OlWamJ5QPi1l2Tt7uz8xTA1Fp0QB2
-         97/hz5zZCcVfwzgfNZP+zBkRfPzWu3gB3ojY6/LKA9XIpl4tn1OEejbLEhRl9E9QH4p3
-         YC/g==
+        bh=BPCTGsUKFtNZ0E2E3gxAeEJL+3qovRd//xVc9xUETqc=;
+        b=IRDdSAScs3TBGztRzu6QZgH4fMR7/UKueaVS3DDhFsZMLZlJQUDaWkKiPXvov39z8Z
+         bssT73UYUy1LP7uOeEalBEo3irDXhaxWlDKHCjJjWa82XbzBt1YrruOwks0GGaa/KE2/
+         kcH9ajFlIINgfw2e+eWdEuaQpWFwhb8tF79JjCU2EAC5A/73X/TUfQV/8mop72+F/v41
+         nZHSSM2ss9/OewEDYIYb1Iz4F1hF7m8KXVNPHD0iWKxsJnaQ4CmjrVdNW0xNgbwEICJR
+         VACO7VFEKZxOIvTtIDcu6wtwdqmMEpSRB4owcroJF6TbGx9VSAN4uiN81drhHklILqhb
+         p9aA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681764769; x=1684356769;
+        d=1e100.net; s=20221208; t=1681764772; x=1684356772;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ds3IS9TWlY4iXOF1Vygr3Q/N2fJxO0/Dzlxnv3cq6/0=;
-        b=OvT9RvbMatd/Ae5qHVGDY4wBl7382xF3pHhTuzaS0Qaz2HOwwtQNOlckj0wR44yXoB
-         tUVE/eU4lpYGTDuYWWeKBP5CpSWaNQq/mL+uUnqtW9DmDvZrmF3afFAMSZ1uat8K67SC
-         vIZ55BvV5lAzgODMydclQoQguUYEZ/kQNEUCMKE6k1R/2m+y183Hb+Rz+hZXARLU7DyF
-         ne2ZErEsyEIfNPQt0Q53+DAmkOfmNMCUwMOvhL4MvJAZc0mkn/otBD03A+l5Y9cQRI+Q
-         RIm1Y8/gCVFCNIHSbt/8x4CuQ3f0OAkIShFDjmYZK4Y1s4DPzQOCzQvUWZwbe5KILg4G
-         RppQ==
-X-Gm-Message-State: AAQBX9fMz3SM6mN2dGXkrRfRhaIHaxywReXGG+9hCdIJa0ZukOSI3mm2
-        w8+67rkP7qx3skHdJIFpUBk=
-X-Google-Smtp-Source: AKy350bKOtS2RU5+UPauyBEeUGcMLqfRctd5dndnPm3bZbQM5N2yHnkL/dVsnC5V83h9pYCSEFQOHw==
-X-Received: by 2002:a05:6a20:6595:b0:eb:ad6a:ccf4 with SMTP id p21-20020a056a20659500b000ebad6accf4mr15296929pzh.18.1681764769281;
-        Mon, 17 Apr 2023 13:52:49 -0700 (PDT)
+        bh=BPCTGsUKFtNZ0E2E3gxAeEJL+3qovRd//xVc9xUETqc=;
+        b=Qm+LLh7Wpf0F6qqGYZodIj4Tat/qwDk63MKc+Q9F//6qitUnUgBteUCFLFataBJdjq
+         aSIh0ItKlOfAnGZQLmoHIorZUl/gqkKA+tyT+XoTFaLaClHp/xPDE5zk5clbKRX6oIcq
+         U9/m1ArDk/AQmMHGE6GW5Q8Y4Er8Hts8Z9LD4gRe3ApbKPLeQOxBdttHnjGTcazgIU7G
+         rrt/w65xMkVmT7zv8txUW7P1moq5hmD3ypJmwur9VfFYgEEevNqE+Uk7Dqhel7/vvmV5
+         w9D5fK+g/zVNGxEciHv6+CpaSeD/5t0y3t+l1hoMYKKX5JeGTWLC8ri6+SjlhMBiDblm
+         zrtQ==
+X-Gm-Message-State: AAQBX9e8HbCT0gBcrqEgYpKo2g3gfrfZCRZ24sF4H9XFXx5GhHbHyZo4
+        je7Bo0kaX6jdB+HLZ6MfOVY=
+X-Google-Smtp-Source: AKy350bms9aSjWgOwaAnzsnpGuFvcEqsOo1myEWAVSaCBXxzFAqV0lCr0DmPVe9wT5EHiIOY8l5jIQ==
+X-Received: by 2002:a17:90b:f84:b0:246:fc58:d77b with SMTP id ft4-20020a17090b0f8400b00246fc58d77bmr15834371pjb.44.1681764772342;
+        Mon, 17 Apr 2023 13:52:52 -0700 (PDT)
 Received: from fedora.hsd1.ca.comcast.net ([2601:644:937f:7f20::c139])
-        by smtp.googlemail.com with ESMTPSA id h7-20020a17090ac38700b0022335f1dae2sm7609707pjt.22.2023.04.17.13.52.48
+        by smtp.googlemail.com with ESMTPSA id h7-20020a17090ac38700b0022335f1dae2sm7609707pjt.22.2023.04.17.13.52.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Apr 2023 13:52:49 -0700 (PDT)
+        Mon, 17 Apr 2023 13:52:51 -0700 (PDT)
 From:   "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
 To:     Andrew Morton <akpm@linux-foundation.org>,
         Matthew Wilcox <willy@infradead.org>
@@ -64,9 +64,9 @@ Cc:     linux-mm@kvack.org, linux-arch@vger.kernel.org,
         linux-um@lists.infradead.org, xen-devel@lists.xenproject.org,
         kvm@vger.kernel.org,
         "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-Subject: [PATCH 03/33] pgtable: Create struct ptdesc
-Date:   Mon, 17 Apr 2023 13:50:18 -0700
-Message-Id: <20230417205048.15870-4-vishal.moola@gmail.com>
+Subject: [PATCH 05/33] mm: Convert pmd_pgtable_page() to pmd_ptdesc()
+Date:   Mon, 17 Apr 2023 13:50:20 -0700
+Message-Id: <20230417205048.15870-6-vishal.moola@gmail.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230417205048.15870-1-vishal.moola@gmail.com>
 References: <20230417205048.15870-1-vishal.moola@gmail.com>
@@ -76,76 +76,47 @@ Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-Currently, page table information is stored within struct page. As part
-of simplifying struct page, create struct ptdesc for page table
-information.
+Converts pmd_pgtable_page() to pmd_ptdesc() and all its callers. This
+removes some direct accesses to struct page, working towards splitting
+out struct ptdesc from struct page.
 
 Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
 ---
- include/linux/pgtable.h | 50 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 50 insertions(+)
+ include/linux/mm.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-index 023918666dd4..7cc6ea057ee9 100644
---- a/include/linux/pgtable.h
-+++ b/include/linux/pgtable.h
-@@ -47,6 +47,56 @@
- #define pmd_pgtable(pmd) pmd_page(pmd)
- #endif
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index ec3cbe2fa665..069187e84e35 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2892,15 +2892,15 @@ static inline void pgtable_pte_page_dtor(struct page *page)
  
-+/**
-+ * struct ptdesc - Memory descriptor for page tables.
-+ * @__page_flags: Same as page flags. Unused for page tables.
-+ * @pt_list: List of used page tables. Used for s390 and x86.
-+ * @_pt_pad_1: Padding that aliases with page's compound head.
-+ * @pmd_huge_pte: Protected by ptdesc->ptl, used for THPs.
-+ * @_pt_s390_gaddr: Aliases with page's mapping. Used for s390 gmap only.
-+ * @pt_mm: Used for x86 pgds.
-+ * @pt_frag_refcount: For fragmented page table tracking. Powerpc and s390 only.
-+ * @ptl: Lock for the page table.
-+ *
-+ * This struct overlays struct page for now. Do not modify without a good
-+ * understanding of the issues.
-+ */
-+struct ptdesc {
-+	unsigned long __page_flags;
-+
-+	union {
-+		struct list_head pt_list;
-+		struct {
-+			unsigned long _pt_pad_1;
-+			pgtable_t pmd_huge_pte;
-+		};
-+	};
-+	unsigned long _pt_s390_gaddr;
-+
-+	union {
-+		struct mm_struct *pt_mm;
-+		atomic_t pt_frag_refcount;
-+	};
-+
-+#if ALLOC_SPLIT_PTLOCKS
-+	spinlock_t *ptl;
-+#else
-+	spinlock_t ptl;
-+#endif
-+};
-+
-+#define TABLE_MATCH(pg, pt)						\
-+	static_assert(offsetof(struct page, pg) == offsetof(struct ptdesc, pt))
-+TABLE_MATCH(flags, __page_flags);
-+TABLE_MATCH(compound_head, pt_list);
-+TABLE_MATCH(compound_head, _pt_pad_1);
-+TABLE_MATCH(mapping, _pt_s390_gaddr);
-+TABLE_MATCH(pmd_huge_pte, pmd_huge_pte);
-+TABLE_MATCH(pt_mm, pt_mm);
-+TABLE_MATCH(ptl, ptl);
-+#undef TABLE_MATCH
-+static_assert(sizeof(struct ptdesc) <= sizeof(struct page));
-+
- /*
-  * A page table page can be thought of an array like this: pXd_t[PTRS_PER_PxD]
-  *
+ #if USE_SPLIT_PMD_PTLOCKS
+ 
+-static inline struct page *pmd_pgtable_page(pmd_t *pmd)
++static inline struct ptdesc *pmd_ptdesc(pmd_t *pmd)
+ {
+ 	unsigned long mask = ~(PTRS_PER_PMD * sizeof(pmd_t) - 1);
+-	return virt_to_page((void *)((unsigned long) pmd & mask));
++	return virt_to_ptdesc((void *)((unsigned long) pmd & mask));
+ }
+ 
+ static inline spinlock_t *pmd_lockptr(struct mm_struct *mm, pmd_t *pmd)
+ {
+-	return ptlock_ptr(pmd_pgtable_page(pmd));
++	return ptlock_ptr(ptdesc_page(pmd_ptdesc(pmd)));
+ }
+ 
+ static inline bool pmd_ptlock_init(struct page *page)
+@@ -2919,7 +2919,7 @@ static inline void pmd_ptlock_free(struct page *page)
+ 	ptlock_free(page);
+ }
+ 
+-#define pmd_huge_pte(mm, pmd) (pmd_pgtable_page(pmd)->pmd_huge_pte)
++#define pmd_huge_pte(mm, pmd) (pmd_ptdesc(pmd)->pmd_huge_pte)
+ 
+ #else
+ 
 -- 
 2.39.2
 
