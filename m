@@ -2,61 +2,62 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4473DC77B7F;
-	Wed, 19 Apr 2023 20:30:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93C78C7EE21;
+	Thu, 20 Apr 2023 23:33:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230473AbjDSUaK (ORCPT
+        id S230200AbjDTXdp (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Wed, 19 Apr 2023 16:30:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46710 "EHLO
+        Thu, 20 Apr 2023 19:33:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229602AbjDSUaJ (ORCPT
+        with ESMTP id S230463AbjDTXdm (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Wed, 19 Apr 2023 16:30:09 -0400
-Received: from mail-yw1-x1129.google.com (mail-yw1-x1129.google.com [IPv6:2607:f8b0:4864:20::1129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A9BA8A45;
-        Wed, 19 Apr 2023 13:29:29 -0700 (PDT)
-Received: by mail-yw1-x1129.google.com with SMTP id 00721157ae682-54fb615ac3dso17398657b3.2;
-        Wed, 19 Apr 2023 13:29:29 -0700 (PDT)
+        Thu, 20 Apr 2023 19:33:42 -0400
+Received: from mail-yw1-x1135.google.com (mail-yw1-x1135.google.com [IPv6:2607:f8b0:4864:20::1135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40F0E7D92;
+        Thu, 20 Apr 2023 16:33:05 -0700 (PDT)
+Received: by mail-yw1-x1135.google.com with SMTP id 00721157ae682-54fb9b1a421so2190767b3.1;
+        Thu, 20 Apr 2023 16:33:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681936166; x=1684528166;
+        d=gmail.com; s=20221208; t=1682033582; x=1684625582;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ri4M7wwnqfUyWg7ITQYtSCFlkjwgDD80RYs577YrqxA=;
-        b=WIB0Mw6mTuaRsirvoZFjheEp9yY5Y/q9onOHwXnfWFMdFmYyli6xaVNh9nuRkFM8Bu
-         OnXLT3OfefylOw1YM4VwkunQfq+Wm/ji1lKG5q5iuDSnqXz+pveEOmagYUHY70pV+qoa
-         KvVDM5rfvXh7k0t2ztxy0CpMZU4jrTcGpdw3ugWQ7PYvTc5DIMuci51oMb3/89hTRu18
-         ASTMyUIpSKSpdVyzVJqnIsAfKfcTX+AN3kdlEImle/BVRj8WezpdfvQGOxxtdhWDpR5M
-         v2CCX9NS0Q1nwilMdzeBzucKwgU44O+OvH3u0Wiv6qbWAvaUduq3fyhR1v2QD/zzuIcP
-         d4gg==
+        bh=PN2ixoAK9D3BuA0Ys9lwnMZMdyz2nW/UTyxM+6NXzqI=;
+        b=AX4YGgPJjZWyR0kqu580/PVasSF+uNRiA7gr7gHqMdE/2vLkFpdjQpKmKbwxnvzy1W
+         4jX/DWRv14Hh6L+AuqxNt9TrfsVNFOA+DMslH6msB9ssOPuKNdU5LH4UlZNRkrQgi/yF
+         2C7UqT75y8+OehNqUJfsf2nClBSiv3rZRBTIf/8qXrl8xEYNdOg0mllWNN17Cw7o+BHc
+         Dv7TVavT6/AGmzCH4d7Tksroa3F14WaPTNTcwjLqhrbimQGYJu8Di4n0FcYkgCSZZuxf
+         BRI5CuXSQtBQDqv2Sdnh5lzey/n44xr+tGNe/P6HPq7sE+h81UtCj457v+cM+mPjpeEU
+         pLaA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681936166; x=1684528166;
+        d=1e100.net; s=20221208; t=1682033582; x=1684625582;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ri4M7wwnqfUyWg7ITQYtSCFlkjwgDD80RYs577YrqxA=;
-        b=fA7oFQsGvJQ3i43IS74zb1MqMjTV0S1kZdt1hO4vfzpeVjFxxpX451Zvqx5htZ+wIN
-         s+E+2j4fL31lgSXUvDx8uX2rZ27EtOFe8/uJf2wbKzs6xeFpiHxcjOz3ENgPeQ9mvYwc
-         T+nn5liT0JubB3kNFfRVJqjn98Dk10oIdA46WWdihsonPquEYmQd6QRjwdN5xA5+v4N1
-         pupMN5BtfCAARSzzvRoeN5gAk9rF4yQJ8iPB65SQD0dOoKde99sdq0QXGWsROtxUKlRg
-         Zjg3mmViA4bdX1lcZ2IYjhBGLTQASbjCjFbz4oVgm1d6Dzfozk7dvJ1QwYe9LZxDY/aw
-         KmRg==
-X-Gm-Message-State: AAQBX9dkC3nKzMHk0XftNaIR8EqYFRKlJV/K8dzqTa2ojj33aE8GqedT
-        tql5UMZPs0+4p32GbnyNMtI0gMm/UKizSpJSqzcoV7zJYb/jtw==
-X-Google-Smtp-Source: AKy350aNDMALBM0VAdPN5cwgCAJgGmI7MyMPzfpEMhO/TACZWqeGBJUZoGoWlGr6ZHAaYh0Tzxhzwi/dxg7Fov1Ofog=
-X-Received: by 2002:a81:53c2:0:b0:54e:84f6:6669 with SMTP id
- h185-20020a8153c2000000b0054e84f66669mr4502802ywb.49.1681936166163; Wed, 19
- Apr 2023 13:29:26 -0700 (PDT)
+        bh=PN2ixoAK9D3BuA0Ys9lwnMZMdyz2nW/UTyxM+6NXzqI=;
+        b=OvvACIkTQL3V3IPNMoqSXIQtkpzPGin0L4TdxQ1N89DE8wHsDv3e/jzR8LV374nvgq
+         Ocue5UN96GnODo/CIUEpxt+jDvaa3R56s5zFYPCM+IBRujtqlPpAbc2QBi+bCsIaO8ak
+         ijMgNe40xtU2k9buOhnikzwfyCNHTJZMBzWes477KKpPUhAwIcfwwFk92c8V3nikTl9H
+         VmHmWOmU73TZsOIpDUljeKs9NusprE4MTqDxpag2b7pXhNROn8nrfdV6WB+ZApx2pqHM
+         6nU3jqMKduqEN7nf4Rzz0mb8Ja9XUkHofEfn6K7fQyTad7vLi73oKFnNX5601xvfueju
+         ndcw==
+X-Gm-Message-State: AAQBX9e7R6f7vX/vm/XdSkTHkbFM2C7+V4UXWhHf+70NGPt36DbKuYqD
+        ugpJ9tduOWTU2wVmTlczoZhyTnRkEobtVvpPr7ILlrMTK1E=
+X-Google-Smtp-Source: AKy350bopqnJQtT+418DUBi5UUf4Yx/MaaBIpccKeoXBRimnuUzPebu61FMjyfXCRvipIUnUp3uBwA4Azmrc32p/hx0=
+X-Received: by 2002:a0d:f205:0:b0:541:8810:8d7b with SMTP id
+ b5-20020a0df205000000b0054188108d7bmr466003ywf.15.1682033581993; Thu, 20 Apr
+ 2023 16:33:01 -0700 (PDT)
 MIME-Version: 1.0
 References: <20230417205048.15870-1-vishal.moola@gmail.com>
- <20230417205048.15870-5-vishal.moola@gmail.com> <ZD/syK8RYO9FZ6ks@vernon-pc>
-In-Reply-To: <ZD/syK8RYO9FZ6ks@vernon-pc>
+ <20230417205048.15870-2-vishal.moola@gmail.com> <da600570-51c7-8088-b46b-7524c9e66e5d@redhat.com>
+ <CAOzc2pwpRhNoFbdzdzuvrqbZdf2OsrTvBGs40QCZJjA5fS_q1A@mail.gmail.com> <e0c0ad67-f23f-ff35-80bf-841dcfd43d99@redhat.com>
+In-Reply-To: <e0c0ad67-f23f-ff35-80bf-841dcfd43d99@redhat.com>
 From:   Vishal Moola <vishal.moola@gmail.com>
-Date:   Wed, 19 Apr 2023 13:29:14 -0700
-Message-ID: <CAOzc2pyt8MBv7N0qizdxr0__RKXK7hMLX-Jqvsd6RPh3nyTFVw@mail.gmail.com>
-Subject: Re: [PATCH 4/33] mm: add utility functions for ptdesc
-To:     Vernon Yang <vernon2gm@gmail.com>
+Date:   Thu, 20 Apr 2023 16:32:50 -0700
+Message-ID: <CAOzc2pwDtn836Tf0Egh+Z258hxSTVtvwuyU2qiJa1iLa6vZFjQ@mail.gmail.com>
+Subject: Re: [PATCH 01/33] s390: Use _pt_s390_gaddr for gmap address tracking
+To:     David Hildenbrand <david@redhat.com>
 Cc:     Andrew Morton <akpm@linux-foundation.org>,
         Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
         linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
@@ -73,147 +74,105 @@ Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Wed, Apr 19, 2023 at 6:34=E2=80=AFAM Vernon Yang <vernon2gm@gmail.com> w=
-rote:
+On Wed, Apr 19, 2023 at 12:54=E2=80=AFAM David Hildenbrand <david@redhat.co=
+m> wrote:
 >
-> On Mon, Apr 17, 2023 at 01:50:19PM -0700, Vishal Moola wrote:
-> > Introduce utility functions setting the foundation for ptdescs. These
-> > will also assist in the splitting out of ptdesc from struct page.
+> On 18.04.23 23:33, Vishal Moola wrote:
+> > On Tue, Apr 18, 2023 at 8:45=E2=80=AFAM David Hildenbrand <david@redhat=
+.com> wrote:
+> >>
+> >> On 17.04.23 22:50, Vishal Moola (Oracle) wrote:
+> >>> s390 uses page->index to keep track of page tables for the guest addr=
+ess
+> >>> space. In an attempt to consolidate the usage of page fields in s390,
+> >>> replace _pt_pad_2 with _pt_s390_gaddr to replace page->index in gmap.
+> >>>
+> >>> This will help with the splitting of struct ptdesc from struct page, =
+as
+> >>> well as allow s390 to use _pt_frag_refcount for fragmented page table
+> >>> tracking.
+> >>>
+> >>> Since page->_pt_s390_gaddr aliases with mapping, ensure its set to NU=
+LL
+> >>> before freeing the pages as well.
+> >>>
+> >>> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+> >>> ---
+> >>
+> >> [...]
+> >>
+> >>> diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+> >>> index 3fc9e680f174..2616d64c0e8c 100644
+> >>> --- a/include/linux/mm_types.h
+> >>> +++ b/include/linux/mm_types.h
+> >>> @@ -144,7 +144,7 @@ struct page {
+> >>>                struct {        /* Page table pages */
+> >>>                        unsigned long _pt_pad_1;        /* compound_he=
+ad */
+> >>>                        pgtable_t pmd_huge_pte; /* protected by page->=
+ptl */
+> >>> -                     unsigned long _pt_pad_2;        /* mapping */
+> >>> +                     unsigned long _pt_s390_gaddr;   /* mapping */
+> >>>                        union {
+> >>>                                struct mm_struct *pt_mm; /* x86 pgds o=
+nly */
+> >>>                                atomic_t pt_frag_refcount; /* powerpc =
+*/
+> >>
+> >> The confusing part is, that these gmap page tables are not ordinary
+> >> process page tables that we would ordinarily place into this section
+> >> here. That's why they are also not allocated/freed using the typical
+> >> page table constructor/destructor ...
 > >
-> > ptdesc_alloc() is defined to allocate new ptdesc pages as compound
-> > pages. This is to standardize ptdescs by allowing for one allocation
-> > and one free function, in contrast to 2 allocation and 2 free functions=
-.
+> > I initially thought the same, so I was quite confused when I saw
+> > __gmap_segment_gaddr was using pmd_pgtable_page().
 > >
-> > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-> > ---
-> >  include/asm-generic/tlb.h | 11 ++++++++++
-> >  include/linux/mm.h        | 44 +++++++++++++++++++++++++++++++++++++++
-> >  include/linux/pgtable.h   | 13 ++++++++++++
-> >  3 files changed, 68 insertions(+)
-> >
-> > diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
-> > index b46617207c93..6bade9e0e799 100644
-> > --- a/include/asm-generic/tlb.h
-> > +++ b/include/asm-generic/tlb.h
-> > @@ -481,6 +481,17 @@ static inline void tlb_remove_page(struct mmu_gath=
-er *tlb, struct page *page)
-> >       return tlb_remove_page_size(tlb, page, PAGE_SIZE);
-> >  }
-> >
-> > +static inline void tlb_remove_ptdesc(struct mmu_gather *tlb, void *pt)
-> > +{
-> > +     tlb_remove_table(tlb, pt);
-> > +}
-> > +
-> > +/* Like tlb_remove_ptdesc, but for page-like page directories. */
-> > +static inline void tlb_remove_page_ptdesc(struct mmu_gather *tlb, stru=
-ct ptdesc *pt)
-> > +{
-> > +     tlb_remove_page(tlb, ptdesc_page(pt));
-> > +}
-> > +
-> >  static inline void tlb_change_page_size(struct mmu_gather *tlb,
-> >                                                    unsigned int page_si=
-ze)
-> >  {
-> > diff --git a/include/linux/mm.h b/include/linux/mm.h
-> > index b18848ae7e22..ec3cbe2fa665 100644
-> > --- a/include/linux/mm.h
-> > +++ b/include/linux/mm.h
-> > @@ -2744,6 +2744,45 @@ static inline pmd_t *pmd_alloc(struct mm_struct =
-*mm, pud_t *pud, unsigned long a
-> >  }
-> >  #endif /* CONFIG_MMU */
-> >
-> > +static inline struct ptdesc *virt_to_ptdesc(const void *x)
-> > +{
-> > +     return page_ptdesc(virt_to_head_page(x));
-> > +}
-> > +
-> > +static inline void *ptdesc_to_virt(struct ptdesc *pt)
-> > +{
-> > +     return page_to_virt(ptdesc_page(pt));
-> > +}
-> > +
-> > +static inline void *ptdesc_address(struct ptdesc *pt)
-> > +{
-> > +     return folio_address(ptdesc_folio(pt));
-> > +}
-> > +
-> > +static inline bool ptdesc_is_reserved(struct ptdesc *pt)
-> > +{
-> > +     return folio_test_reserved(ptdesc_folio(pt));
-> > +}
-> > +
-> > +static inline struct ptdesc *ptdesc_alloc(gfp_t gfp, unsigned int orde=
-r)
-> > +{
-> > +     struct page *page =3D alloc_pages(gfp | __GFP_COMP, order);
-> > +
-> > +     return page_ptdesc(page);
-> > +}
-> > +
-> > +static inline void ptdesc_free(struct ptdesc *pt)
-> > +{
-> > +     struct page *page =3D ptdesc_page(pt);
-> > +
-> > +     __free_pages(page, compound_order(page));
-> > +}
-> > +
-> > +static inline void ptdesc_clear(void *x)
-> > +{
-> > +     clear_page(x);
-> > +}
-> > +
-> >  #if USE_SPLIT_PTE_PTLOCKS
-> >  #if ALLOC_SPLIT_PTLOCKS
-> >  void __init ptlock_cache_init(void);
-> > @@ -2970,6 +3009,11 @@ static inline void mark_page_reserved(struct pag=
-e *page)
-> >       adjust_managed_page_count(page, -1);
-> >  }
-> >
-> > +static inline void free_reserved_ptdesc(struct ptdesc *pt)
-> > +{
-> > +     free_reserved_page(ptdesc_page(pt));
-> > +}
-> > +
-> >  /*
-> >   * Default method to free all the __init memory into the buddy system.
-> >   * The freed pages will be poisoned with pattern "poison" if it's with=
-in
-> > diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-> > index 7cc6ea057ee9..7cd803aa38eb 100644
-> > --- a/include/linux/pgtable.h
-> > +++ b/include/linux/pgtable.h
-> > @@ -97,6 +97,19 @@ TABLE_MATCH(ptl, ptl);
-> >  #undef TABLE_MATCH
-> >  static_assert(sizeof(struct ptdesc) <=3D sizeof(struct page));
-> >
-> > +#define ptdesc_page(pt)                      (_Generic((pt),          =
-       \
-> > +     const struct ptdesc *:          (const struct page *)(pt),      \
-> > +     struct ptdesc *:                (struct page *)(pt)))
-> > +
-> > +#define ptdesc_folio(pt)             (_Generic((pt),                 \
-> > +     const struct ptdesc *:          (const struct folio *)(pt),     \
-> > +     struct ptdesc *:                (struct folio *)(pt)))
-> > +
-> > +static inline struct ptdesc *page_ptdesc(struct page *page)
-> > +{
-> > +     return (struct ptdesc *)page;
-> > +}
+> > Although they are not ordinary process page tables, since we
+> > eventually want to move them out of struct page, I think shifting them
+> > to be in ptdescs, being a memory descriptor for page tables, makes
+> > the most sense.
 >
-> Hi Vishal,
+> Seeing utilities like tlb_remove_page_ptdesc() that don't really apply
+> to such page tables, I wonder if we should much rather treat such
+> shadow/auxiliary/... page tables (just like other architectures like
+> x86, arm, ... employ as well) as a distinct type.
 >
-> I'm a little curious, why is the page_ptdesc() using inline functions ins=
-tead of macro?
-> If this is any magic, please tell me, thank you very much.
+> And have ptdesc be the common type for all process page tables.
 
-No magic here, I was mainly basing it off Matthew's netmem
-series. I'm not too clear on when to use macros vs inlines
-myself :/.
+Although I do like the idea of having a distinct type for them, I'm not sur=
+e
+I see the merits of having another type specifically for those types of
+page tables.
 
-If there's a benefit to having it be a macro let me
-know and I can make that change in v2.
+As it currently is, tlb_remove_table() is only distinct from tlb_remove_pag=
+e()
+when an architecture defines its own removal function. I'm not too familiar
+with most of their differences, but we can probably continue to let them do
+that. As of now, I'm not too sure what a distinct type would look like that
+could meet all their needs holistically.
+
+> >
+> > Another option is to leave pmd_pgtable_page() as is just for this case.
+> > Or we can revert commit 7e25de77bc5ea which uses the function here
+> > then figure out where these gmap pages table pages will go later.
+>
+> I'm always confused when reading gmap code, so let me have another look :=
+)
+>
+> The confusing part is that s390x shares the lowest level page tables
+> (PTE tables) between the process and gmap ("guest mapping", similar to
+> EPT on x86-64). It maps these process PTE tables (covering 1 MiB) into
+> gmap-specific PMD tables.
+
+Especially in cases like this. If the architecture wants to share page tabl=
+es
+then everything being in form ptdesc would make that easiest, and
+continue to let them define their own niche functions for their needs.
+
+> pmd_pgtable_page() should indeed always give us a gmap-specific
+> PMD-table. In fact, something allocated via gmap_alloc_table().
+>
+> Decoupling both concepts sounds like a good idea.
+
+Yeah, I'm not a fan of how this gmap caller is the only external caller
+using this to get a page for their own purposes. I'll update that in v2.
