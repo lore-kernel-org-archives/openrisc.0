@@ -2,177 +2,110 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E781C77B7F;
-	Sat, 29 Apr 2023 20:14:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A582C77B60;
+	Sun, 30 Apr 2023 19:36:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230226AbjD2UO2 (ORCPT
+        id S229519AbjD3TgH (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Sat, 29 Apr 2023 16:14:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43754 "EHLO
+        Sun, 30 Apr 2023 15:36:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230005AbjD2UO1 (ORCPT
+        with ESMTP id S229481AbjD3TgG (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Sat, 29 Apr 2023 16:14:27 -0400
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5291019D
-        for <linux-openrisc@vger.kernel.org>; Sat, 29 Apr 2023 13:14:25 -0700 (PDT)
-Received: by mail-pl1-x62b.google.com with SMTP id d9443c01a7336-1a50cb65c92so9008205ad.0
-        for <linux-openrisc@vger.kernel.org>; Sat, 29 Apr 2023 13:14:25 -0700 (PDT)
+        Sun, 30 Apr 2023 15:36:06 -0400
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DD081727;
+        Sun, 30 Apr 2023 12:36:04 -0700 (PDT)
+Received: by mail-wm1-x32c.google.com with SMTP id 5b1f17b1804b1-3f19323259dso17446825e9.3;
+        Sun, 30 Apr 2023 12:36:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=dabbelt-com.20221208.gappssmtp.com; s=20221208; t=1682799264; x=1685391264;
-        h=content-transfer-encoding:mime-version:message-id:to:from:cc
-         :in-reply-to:subject:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=EvNXrGU7f9AyBgQxPAxIH8w5LQ2sGDY5VhYCeQmIsvg=;
-        b=ztXNyujPGJ3TImj9rkWYO2n2FifWKitTQShNykqcCXMnlMDmDVUdGDZxkkAjoc2LxT
-         wjlkNuWu5MpGZ0hx2IY/BfGicm00cVl+x8sMPYhvJYOTMhGVFNRcq+t2+IhK1Zbg1HBm
-         TwPyb5IfXHXgdYm4kQQJO8mCutMWnoA0MAQG1HObQV2DkWdvKA82EPwFFy15NEoVvzDJ
-         YaFLlQv2/hnRBo+Kg2l+LFcBMREq5GVfs5levwZlW+i9w9qFVpvKUrXtIKJRJqUd1KUC
-         DRDHp5Z7Fs9kgbXLfeVSACxaLJ8vDKqbLXNf+pwsIg4BCZFLNo8FmqNy+hScbEds+O2l
-         SL9w==
+        d=gmail.com; s=20221208; t=1682883362; x=1685475362;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=1J2jQ9+lq4TOl9tphTK7qKIAnf9XqLDi4AFAEJnPurs=;
+        b=qTaidfkl+CmBsir26oIfY+GlOoCIDMDqQULWWGVusqk75BMsrL9zlsEoZzkHnbTg5v
+         dqd9f0qNrDHSESo3qrJUJFt5mrCtqw7WydqK2mMT16m93S0RjRg6G0xL7nCgdwyFN5VL
+         2BhETey5WMwlkI3JgiWQhYoPa/3xdVYSBnG7UbZbQfkQu1WKt0K9fk4Wn3fkTMR8x21m
+         5VeC6vxPzCcs7jKXAK88ieqaO9oPCCafy8c7POTTvIfTtlS3ZCnEjJIx1nHj6Ncc/Hsh
+         aJdVr97shzqsKNiKM01Fxs4rn0D91nxUq+jd0EquLWNQXA8wDPpta13jq14g3iQDKi5P
+         lMLA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682799264; x=1685391264;
-        h=content-transfer-encoding:mime-version:message-id:to:from:cc
-         :in-reply-to:subject:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=EvNXrGU7f9AyBgQxPAxIH8w5LQ2sGDY5VhYCeQmIsvg=;
-        b=jE1OL9kPq5ixuzGHa1M1zdLxTx4mn1vitEaBpsfFwIsBkWS7CYIm9FvkdICgF7bvlN
-         pANK2x1K+d+0v599e7tToe9x+VMe2vdKrEkoN/hIBk2VpQgWyMRXR2yCJbNDxs9SSzZ/
-         wnE54QgqCl9e0npqQcePtRVk9dBVZVeA9a+cY8nmw2X4xwz8RkY5LEh7ZmoY5sjotb+a
-         mCG9CIt9YEdHykCSVKDTQihSgSd5pnUCipEAXBIoHL1XdJfYI4ftdu/CGIYuZv6b1m/T
-         9SOoOtLeEv05UkBngwqyifUpls/RK0vtZ93UoQoDtZb3COtxkq4lAWBmUXnv19a+3SjZ
-         xMwA==
-X-Gm-Message-State: AC+VfDznhzcY9sOAI6z7YrtJJac0v+d32G/PtmaGb52IAohGiZtA702h
-        Np8FdrRLmJGDne1T5hXeKtVOAA==
-X-Google-Smtp-Source: ACHHUZ7pgoIToYashe1bFzQ1hUq7/0xuSIbhdV55MwhX+AUZI7FSn+oK96sUBgsJukxkcTmiriVdYg==
-X-Received: by 2002:a17:902:ef45:b0:1a6:dd9a:62c5 with SMTP id e5-20020a170902ef4500b001a6dd9a62c5mr8875345plx.10.1682799264493;
-        Sat, 29 Apr 2023 13:14:24 -0700 (PDT)
-Received: from localhost ([50.221.140.188])
-        by smtp.gmail.com with ESMTPSA id g2-20020a170902740200b001a4f7325466sm15179442pll.276.2023.04.29.13.14.23
+        d=1e100.net; s=20221208; t=1682883362; x=1685475362;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=1J2jQ9+lq4TOl9tphTK7qKIAnf9XqLDi4AFAEJnPurs=;
+        b=WvWbdbu24tzLYdPjwdwXEPiJcj+EQAr++yX6zhIdRHXdHBb086uJuxcHKzPxXkwZbT
+         y3LEfu8dvaZffKusjzOAGRdZYxIDmgV6PgYlOQKhJGaDrDiKfJx3pUIbizQDX1x+JTWy
+         5seYzrcx7q0Mn+SFrGZFLmGgxYOIFmymoMm1JBfc4v01CFfj5V65HrvJm1hjfVgm8Mr7
+         ediVK6t1ZZOmhANdZaeXI7tt0RpbBWq0ZVjccM/fPjH1eCZoZ4iMdQ1sZr4aKDNUq2+3
+         Kiz7J8SqPZxOiHtnE157UfYVJoKv2XBse2/6FGUaMZdKY2TixHLO1flObkJyvNMvDV0g
+         Cj0g==
+X-Gm-Message-State: AC+VfDyGVWFP6OoHwVn3DVpSCv2zUTnCpa2jCoY8JfQyYzHb9KBKPt06
+        PxKtyg+I18xBN3MBoABRKc2nu+u3Cdw=
+X-Google-Smtp-Source: ACHHUZ6dcjpPSfPA/otb0NVB0t+NBDEXY7lStYzHJ6K/QBKvm4/wTRZdTw6wWtY+k3w8IEweUtlJAw==
+X-Received: by 2002:a05:600c:2242:b0:3eb:39e0:3530 with SMTP id a2-20020a05600c224200b003eb39e03530mr8302296wmm.41.1682883362221;
+        Sun, 30 Apr 2023 12:36:02 -0700 (PDT)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id 13-20020a05600c230d00b003f31da39b62sm9578361wmo.18.2023.04.30.12.36.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 29 Apr 2023 13:14:23 -0700 (PDT)
-Date:   Sat, 29 Apr 2023 13:14:23 -0700 (PDT)
-X-Google-Original-Date: Sat, 29 Apr 2023 13:14:07 PDT (-0700)
-Subject:     Re: [PATCH] Remove HAVE_VIRT_CPU_ACCOUNTING_GEN option
-In-Reply-To: <20230429063348.125544-1-npiggin@gmail.com>
-CC:     Arnd Bergmann <arnd@arndb.de>, npiggin@gmail.com,
-        linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-        vgupta@kernel.org, linux-snps-arc@lists.infradead.org,
-        bcain@quicinc.com, linux-hexagon@vger.kernel.org,
-        chenhuacai@kernel.org, loongarch@lists.linux.dev,
-        geert@linux-m68k.org, linux-m68k@lists.linux-m68k.org,
-        monstr@monstr.eu, tsbogend@alpha.franken.de,
-        linux-mips@vger.kernel.org, dinguyen@kernel.org,
-        jonas@southpole.se, stefan.kristiansson@saunalahti.fi,
-        shorne@gmail.com, linux-openrisc@vger.kernel.org,
-        James.Bottomley@HansenPartnership.com, deller@gmx.de,
-        linux-parisc@vger.kernel.org,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        aou@eecs.berkeley.edu, linux-riscv@lists.infradead.org,
-        ysato@users.sourceforge.jp, dalias@libc.org,
-        glaubitz@physik.fu-berlin.de, linux-sh@vger.kernel.org,
-        davem@davemloft.net, sparclinux@vger.kernel.org, richard@nod.at,
-        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
-        linux-um@lists.infradead.org, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, khilman@baylibre.com, frederic@kernel.org
-From:   Palmer Dabbelt <palmer@dabbelt.com>
-To:     npiggin@gmail.com
-Message-ID: <mhng-7ec0443b-2201-41b7-996c-78c3a61f0230@palmer-ri-x1c9a>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        Sun, 30 Apr 2023 12:36:01 -0700 (PDT)
+Date:   Sun, 30 Apr 2023 20:36:00 +0100
+From:   Stafford Horne <shorne@gmail.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: [GIT PULL] OpenRISC update for 6.4
+Message-ID: <ZE7DIL5TkeLZrOB+@antec>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Fri, 28 Apr 2023 23:33:48 PDT (-0700), npiggin@gmail.com wrote:
-> This option was created in commit 554b0004d0ec4 ("vtime: Add
-> HAVE_VIRT_CPU_ACCOUNTING_GEN Kconfig") for architectures to indicate
-> they support the 64-bit cputime_t required for VIRT_CPU_ACCOUNTING_GEN.
->
-> The cputime_t type has since been removed, so this doesn't have any
-> meaning. Remove it.
->
-> Cc: linux-arch@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: Vineet Gupta <vgupta@kernel.org>
-> Cc: linux-snps-arc@lists.infradead.org
-> Cc: Brian Cain <bcain@quicinc.com>
-> Cc: linux-hexagon@vger.kernel.org
-> Cc: Huacai Chen <chenhuacai@kernel.org>
-> Cc: loongarch@lists.linux.dev
-> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-> Cc: linux-m68k@lists.linux-m68k.org
-> Cc: Michal Simek <monstr@monstr.eu>
-> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-> Cc: linux-mips@vger.kernel.org
-> Cc: Dinh Nguyen <dinguyen@kernel.org>
-> Cc: Jonas Bonn <jonas@southpole.se>
-> Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-> Cc: Stafford Horne <shorne@gmail.com>
-> Cc: linux-openrisc@vger.kernel.org
-> Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-> Cc: Helge Deller <deller@gmx.de>
-> Cc: linux-parisc@vger.kernel.org
-> Cc: Paul Walmsley <paul.walmsley@sifive.com>
-> Cc: Palmer Dabbelt <palmer@dabbelt.com>
-> Cc: Albert Ou <aou@eecs.berkeley.edu>
-> Cc: linux-riscv@lists.infradead.org
-> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-> Cc: Rich Felker <dalias@libc.org>
-> Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-> Cc: linux-sh@vger.kernel.org
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: sparclinux@vger.kernel.org
-> Cc: Richard Weinberger <richard@nod.at>
-> Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-> Cc: Johannes Berg <johannes@sipsolutions.net>
-> Cc: linux-um@lists.infradead.org
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Borislav Petkov <bp@alien8.de>
-> Cc: Dave Hansen <dave.hansen@linux.intel.com>
-> Cc: x86@kernel.org
-> Cc: "H. Peter Anvin" <hpa@zytor.com>
-> Cc: Kevin Hilman <khilman@baylibre.com>
-> Cc: Frederic Weisbecker <frederic@kernel.org>
-> Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-> ---
-> Hi,
->
-> Could we tidy this? I don't know what tree it can go in, timers,
-> sched, asm-generic, probably doesn't matter.
->
-> The only thing this actually does is gate VIRT_CPU_ACCOUNTING_GEN and
-> NO_HZ_FULL so if your arch has some other issue that requires this
-> then the documentation needs to change. Any concerns from the archs?
-> I.e., 32-bit that does *not* define HAVE_VIRT_CPU_ACCOUNTING_GEN
-> which looks to be:
->
-> arc
-> hexagon
-> loongarch 32-bit with SMP
-> m68k
-> microblaze
-> mips 32-bit with SMP
-> nios2
-> openrisc
-> parisc 32-bit
-> riscv 32-bit
+Hello Linus,
 
-Nothing's jumping out, though I haven't tested this yet so I'm not 100%.  
-I assume this isn't aimed for this merge window, given the timing?  
-Probably best to give this sort of thing time to bake in linux-next, but 
-I doubt anyone is even paying attention to rv32/NO_HZ_FULL so no big 
-deal either way on my end.
+Please consider for pull,
 
-Acked-by: Palmer Dabbelt <palmer@rivosinc.com> # RISC-V
+The following changes since commit 197b6b60ae7bc51dd0814953c562833143b292aa:
 
-> sh
-> sparc 32-bit
-> um 32-bit
-> x86 32-bit
->
-> Thanks,
-> Nick
+  Linux 6.3-rc4 (2023-03-26 14:40:20 -0700)
+
+are available in the Git repository at:
+
+  https://github.com/openrisc/linux.git tags/for-linus
+
+for you to fetch changes up to c91b4a07655d5ba67962a08dfac8bd7f45ad049c:
+
+  openrisc: Add floating point regset (2023-04-26 15:08:06 +0100)
+
+----------------------------------------------------------------
+OpenRISC update for 6.4
+
+Two things for OpenRISC this cycle.
+
+ - Small cleanup for device tree cpu iteration from Rob Herring
+ - Add support for storing, restoring and accessing user space FPU state, to
+   allow for libc to support the FPU on OpenRISC.
+
+----------------------------------------------------------------
+Rob Herring (1):
+      openrisc: Use common of_get_cpu_node() instead of open-coding
+
+Stafford Horne (4):
+      openrisc: Properly store r31 to pt_regs on unhandled exceptions
+      openrisc: Support storing and restoring fpu state
+      openrisc: Support floating point user api
+      openrisc: Add floating point regset
+
+ arch/openrisc/include/asm/ptrace.h          |  4 ++--
+ arch/openrisc/include/uapi/asm/elf.h        |  3 +--
+ arch/openrisc/include/uapi/asm/ptrace.h     |  4 ++++
+ arch/openrisc/include/uapi/asm/sigcontext.h |  1 +
+ arch/openrisc/kernel/entry.S                | 31 +++++++++++++++++++-----
+ arch/openrisc/kernel/head.S                 |  4 ++--
+ arch/openrisc/kernel/ptrace.c               | 37 +++++++++++++++++++++++++++++
+ arch/openrisc/kernel/setup.c                | 19 ++-------------
+ arch/openrisc/kernel/signal.c               |  2 ++
+ arch/openrisc/kernel/traps.c                | 27 +++++++++++++++++++--
+ 10 files changed, 101 insertions(+), 31 deletions(-)
