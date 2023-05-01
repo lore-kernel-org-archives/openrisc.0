@@ -2,55 +2,55 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2247C7EE2A;
-	Mon,  1 May 2023 19:29:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE4F9C7EE21;
+	Mon,  1 May 2023 19:29:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233320AbjEAT3W (ORCPT
+        id S233435AbjEAT32 (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Mon, 1 May 2023 15:29:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56316 "EHLO
+        Mon, 1 May 2023 15:29:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233175AbjEAT3N (ORCPT
+        with ESMTP id S233213AbjEAT3U (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Mon, 1 May 2023 15:29:13 -0400
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 520752D47;
-        Mon,  1 May 2023 12:28:40 -0700 (PDT)
-Received: by mail-pf1-x42e.google.com with SMTP id d2e1a72fcca58-63b4bf2d74aso1995185b3a.2;
-        Mon, 01 May 2023 12:28:40 -0700 (PDT)
+        Mon, 1 May 2023 15:29:20 -0400
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E76A30DC;
+        Mon,  1 May 2023 12:28:48 -0700 (PDT)
+Received: by mail-pg1-x52f.google.com with SMTP id 41be03b00d2f7-52863157da6so1840003a12.0;
+        Mon, 01 May 2023 12:28:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1682969316; x=1685561316;
+        d=gmail.com; s=20221208; t=1682969319; x=1685561319;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=9i6mX6BOTgb2TGO86QCloW3rCrq78sBOKu0dxXwRHVs=;
-        b=pYnEspIgQ/94L4B7QgE7HxUaLyMe6HQnu5gVv7XKe7wrHmtTwaLadWDte57s2SBwdQ
-         8bePLJ5Ai3/AmYhH4RiAfK8IjGb+8BxlohLn4+W6ycJ9Pg3WMvHLkkZOviW7YYTD/mmK
-         GtZnk734H4mZvUq9Iut38ZejJnfrw2oYgWeCZ6PRbVlgoGyBpRA67FKhICj+7yH7j8HF
-         a3LIP2IDGGOTftrbrsZRq8EQiQ5R1WymqweCw9yu0t92fclq88jf6kqwtf3FextynpJY
-         IncHO/7Qw6ErlKR7f7HeTzuXXgCmLczBJBgXHLIbesev1rm2mkGmxXqiRqgTqpx3oce1
-         ZBnQ==
+        bh=bmbsS8DkaHNij/v9bdafzBlktB7f+f7NAeK2Q02GvbI=;
+        b=B4azYqsU+PZdNT5sPYRuRynEP/yG+nnQZzCwWNiJuBYZMp7zK7WPiFNkyYATyiWLs9
+         KXu3O4UXjROzHmg5BH+SgHHBIK4HaE73RnqEPc9ZoVRSl4Uh4CCXlTE9MpnCo1Ir9cR5
+         1tT0IRumxWPV12suNOkG+VwHWOIH3Na7v0j8RESqGnAScgYPrOMUDDIHfUYdpmcQFIY7
+         vF1i0igsbLRBnZPi2HEPlzfFt+R0Rd+c2dVX9RoHx/GLiWbMDfrtbVlk0iN4TeEGJT4d
+         1bO8trvKRg+pq0Q4NgCg3JPagFS7MkJj/4qfBc8P2r4TUch12xgUcUg4F69rFfadNKuw
+         8vIA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682969316; x=1685561316;
+        d=1e100.net; s=20221208; t=1682969319; x=1685561319;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=9i6mX6BOTgb2TGO86QCloW3rCrq78sBOKu0dxXwRHVs=;
-        b=et7CgAmJf9iYlnCgL1EQQupBdYCfB2jF95hm586dSvs5bOF1zMtELeP/4r2VkRylI7
-         0gWN1deTdLHbdL4kTQURpPvHtL/Dsz8tFnKv35PhhYPVP6GVz4M8WJdSwTd5iYigD6+V
-         8X3lmbnOLcG9EtMhQmHWrkkVicqp5Nf6dprUTpH0uSN3djUqcGYR6f/35cg4crzv4SsG
-         ubzLaJzekRD0Aw8Ysq7AYvRAqSHeXpeLTzCmr4vTYTPxz2AZRLTQk9P31WCHrbvK022K
-         ojqP/tNXP0XPFntaYfP6+pFOx2Tw3O+vmAj+92VQmXmB5cTnDtlXqIqXCS1u3OkJN9oh
-         QEtw==
-X-Gm-Message-State: AC+VfDxE+zGj+seA3Hjs45dHa034Pl5MK6v/rvMcgNoV6Q0cZe+fHuFA
-        xPB66/RhO+0R8fAJ8EyTsvg=
-X-Google-Smtp-Source: ACHHUZ4H6i4St7ld1wD0WuHlGapRQhff/8tSAzzBd7XutE+/MiRiNA1zmkp/wHjGquMcgELZnMsxdQ==
-X-Received: by 2002:a17:903:1c3:b0:1a9:80a0:47dc with SMTP id e3-20020a17090301c300b001a980a047dcmr15039374plh.3.1682969315645;
-        Mon, 01 May 2023 12:28:35 -0700 (PDT)
+        bh=bmbsS8DkaHNij/v9bdafzBlktB7f+f7NAeK2Q02GvbI=;
+        b=N/HbOqNEWThNs+g3NXgtcblOtNaGFmHIVcJ3xRixc7db3IS7ul3XgvpCkmINDxI+sT
+         U+FvEAX7iGTUMBA9D+sUK6C5A1ENwxuoDcwc3RKXJL2YWDTFPqdziHDKy/izTcxBciLd
+         Tf6ZLGwYkpiTXPe85fEKHxqo3booLIPPjB+zGAJ44iVd6u3B9W45GB+l9/uGhjv0/DB1
+         WgiwYzNZIg8E/uhsnakM0+A1bTWOuBFamlhnL3Z1+hWxRfw/aUg8IxwqhshUr9uc+u+u
+         qc0+DmdGtLLFVeRlkTlmFWdY/SzQR0fjhZ2OrgefjAFmbgO+dnY+bv308B7WaIrU73Uu
+         xv4g==
+X-Gm-Message-State: AC+VfDx58Jtm1f824Yh3SpPR4HNKFtXGWPUXL+tkx6uq8p3WNC2O6gor
+        B0nW20yCx7eUvXFiaUqhzhE=
+X-Google-Smtp-Source: ACHHUZ4E/JVh2DFvUW/bEZgIHPiMJ+Zfpw7pvXWZYNeWA42FHZxnOhQrWiIO3kxV0xxzCmUatMgqYw==
+X-Received: by 2002:a17:902:8c91:b0:1a9:2b7f:a594 with SMTP id t17-20020a1709028c9100b001a92b7fa594mr13894676plo.29.1682969318714;
+        Mon, 01 May 2023 12:28:38 -0700 (PDT)
 Received: from fedora.hsd1.ca.comcast.net ([2601:644:937f:7f20::9a2c])
-        by smtp.googlemail.com with ESMTPSA id u8-20020a170902bf4800b0019c13d032d8sm18175622pls.253.2023.05.01.12.28.34
+        by smtp.googlemail.com with ESMTPSA id u8-20020a170902bf4800b0019c13d032d8sm18175622pls.253.2023.05.01.12.28.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 May 2023 12:28:35 -0700 (PDT)
+        Mon, 01 May 2023 12:28:38 -0700 (PDT)
 From:   "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
 To:     Andrew Morton <akpm@linux-foundation.org>,
         Matthew Wilcox <willy@infradead.org>
@@ -63,10 +63,12 @@ Cc:     linux-mm@kvack.org, linux-arch@vger.kernel.org,
         linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
         linux-um@lists.infradead.org, xen-devel@lists.xenproject.org,
         kvm@vger.kernel.org,
-        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-Subject: [PATCH v2 01/34] mm: Add PAGE_TYPE_OP folio functions
-Date:   Mon,  1 May 2023 12:27:56 -0700
-Message-Id: <20230501192829.17086-2-vishal.moola@gmail.com>
+        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: [PATCH v2 03/34] s390: Use pt_frag_refcount for pagetables
+Date:   Mon,  1 May 2023 12:27:58 -0700
+Message-Id: <20230501192829.17086-4-vishal.moola@gmail.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230501192829.17086-1-vishal.moola@gmail.com>
 References: <20230501192829.17086-1-vishal.moola@gmail.com>
@@ -76,67 +78,140 @@ Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-No folio equivalents for page type operations have been defined, so
-define them for later folio conversions.
+s390 currently uses _refcount to identify fragmented page tables.
+The page table struct already has a member pt_frag_refcount used by
+powerpc, so have s390 use that instead of the _refcount field as well.
+This improves the safety for _refcount and the page table tracking.
 
-Also changes the Page##uname macros to take in const struct page* since
-we only read the memory here.
+This also allows us to simplify the tracking since we can once again use
+the lower byte of pt_frag_refcount instead of the upper byte of _refcount.
 
 Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
 ---
- include/linux/page-flags.h | 20 ++++++++++++++++++--
- 1 file changed, 18 insertions(+), 2 deletions(-)
+ arch/s390/mm/pgalloc.c | 38 +++++++++++++++-----------------------
+ 1 file changed, 15 insertions(+), 23 deletions(-)
 
-diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-index 1c68d67b832f..607b495d1b57 100644
---- a/include/linux/page-flags.h
-+++ b/include/linux/page-flags.h
-@@ -902,6 +902,8 @@ static inline bool is_page_hwpoison(struct page *page)
+diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
+index 66ab68db9842..6b99932abc66 100644
+--- a/arch/s390/mm/pgalloc.c
++++ b/arch/s390/mm/pgalloc.c
+@@ -182,20 +182,17 @@ void page_table_free_pgste(struct page *page)
+  * As follows from the above, no unallocated or fully allocated parent
+  * pages are contained in mm_context_t::pgtable_list.
+  *
+- * The upper byte (bits 24-31) of the parent page _refcount is used
++ * The lower byte (bits 0-7) of the parent page pt_frag_refcount is used
+  * for tracking contained 2KB-pgtables and has the following format:
+  *
+  *   PP  AA
+- * 01234567    upper byte (bits 24-31) of struct page::_refcount
++ * 01234567    upper byte (bits 0-7) of struct page::pt_frag_refcount
+  *   ||  ||
+  *   ||  |+--- upper 2KB-pgtable is allocated
+  *   ||  +---- lower 2KB-pgtable is allocated
+  *   |+------- upper 2KB-pgtable is pending for removal
+  *   +-------- lower 2KB-pgtable is pending for removal
+  *
+- * (See commit 620b4e903179 ("s390: use _refcount for pgtables") on why
+- * using _refcount is possible).
+- *
+  * When 2KB-pgtable is allocated the corresponding AA bit is set to 1.
+  * The parent page is either:
+  *   - added to mm_context_t::pgtable_list in case the second half of the
+@@ -243,11 +240,12 @@ unsigned long *page_table_alloc(struct mm_struct *mm)
+ 		if (!list_empty(&mm->context.pgtable_list)) {
+ 			page = list_first_entry(&mm->context.pgtable_list,
+ 						struct page, lru);
+-			mask = atomic_read(&page->_refcount) >> 24;
++			mask = atomic_read(&page->pt_frag_refcount);
+ 			/*
+ 			 * The pending removal bits must also be checked.
+ 			 * Failure to do so might lead to an impossible
+-			 * value of (i.e 0x13 or 0x23) written to _refcount.
++			 * value of (i.e 0x13 or 0x23) written to
++			 * pt_frag_refcount.
+ 			 * Such values violate the assumption that pending and
+ 			 * allocation bits are mutually exclusive, and the rest
+ 			 * of the code unrails as result. That could lead to
+@@ -259,8 +257,8 @@ unsigned long *page_table_alloc(struct mm_struct *mm)
+ 				bit = mask & 1;		/* =1 -> second 2K */
+ 				if (bit)
+ 					table += PTRS_PER_PTE;
+-				atomic_xor_bits(&page->_refcount,
+-							0x01U << (bit + 24));
++				atomic_xor_bits(&page->pt_frag_refcount,
++							0x01U << bit);
+ 				list_del(&page->lru);
+ 			}
+ 		}
+@@ -281,12 +279,12 @@ unsigned long *page_table_alloc(struct mm_struct *mm)
+ 	table = (unsigned long *) page_to_virt(page);
+ 	if (mm_alloc_pgste(mm)) {
+ 		/* Return 4K page table with PGSTEs */
+-		atomic_xor_bits(&page->_refcount, 0x03U << 24);
++		atomic_xor_bits(&page->pt_frag_refcount, 0x03U);
+ 		memset64((u64 *)table, _PAGE_INVALID, PTRS_PER_PTE);
+ 		memset64((u64 *)table + PTRS_PER_PTE, 0, PTRS_PER_PTE);
+ 	} else {
+ 		/* Return the first 2K fragment of the page */
+-		atomic_xor_bits(&page->_refcount, 0x01U << 24);
++		atomic_xor_bits(&page->pt_frag_refcount, 0x01U);
+ 		memset64((u64 *)table, _PAGE_INVALID, 2 * PTRS_PER_PTE);
+ 		spin_lock_bh(&mm->context.lock);
+ 		list_add(&page->lru, &mm->context.pgtable_list);
+@@ -323,22 +321,19 @@ void page_table_free(struct mm_struct *mm, unsigned long *table)
+ 		 * will happen outside of the critical section from this
+ 		 * function or from __tlb_remove_table()
+ 		 */
+-		mask = atomic_xor_bits(&page->_refcount, 0x11U << (bit + 24));
+-		mask >>= 24;
++		mask = atomic_xor_bits(&page->pt_frag_refcount, 0x11U << bit);
+ 		if (mask & 0x03U)
+ 			list_add(&page->lru, &mm->context.pgtable_list);
+ 		else
+ 			list_del(&page->lru);
+ 		spin_unlock_bh(&mm->context.lock);
+-		mask = atomic_xor_bits(&page->_refcount, 0x10U << (bit + 24));
+-		mask >>= 24;
++		mask = atomic_xor_bits(&page->pt_frag_refcount, 0x10U << bit);
+ 		if (mask != 0x00U)
+ 			return;
+ 		half = 0x01U << bit;
+ 	} else {
+ 		half = 0x03U;
+-		mask = atomic_xor_bits(&page->_refcount, 0x03U << 24);
+-		mask >>= 24;
++		mask = atomic_xor_bits(&page->pt_frag_refcount, 0x03U);
+ 	}
  
- #define PageType(page, flag)						\
- 	((page->page_type & (PAGE_TYPE_BASE | flag)) == PAGE_TYPE_BASE)
-+#define folio_test_type(folio, flag)					\
-+	((folio->page.page_type & (PAGE_TYPE_BASE | flag)) == PAGE_TYPE_BASE)
+ 	page_table_release_check(page, table, half, mask);
+@@ -368,8 +363,7 @@ void page_table_free_rcu(struct mmu_gather *tlb, unsigned long *table,
+ 	 * outside of the critical section from __tlb_remove_table() or from
+ 	 * page_table_free()
+ 	 */
+-	mask = atomic_xor_bits(&page->_refcount, 0x11U << (bit + 24));
+-	mask >>= 24;
++	mask = atomic_xor_bits(&page->pt_frag_refcount, 0x11U << bit);
+ 	if (mask & 0x03U)
+ 		list_add_tail(&page->lru, &mm->context.pgtable_list);
+ 	else
+@@ -391,14 +385,12 @@ void __tlb_remove_table(void *_table)
+ 		return;
+ 	case 0x01U:	/* lower 2K of a 4K page table */
+ 	case 0x02U:	/* higher 2K of a 4K page table */
+-		mask = atomic_xor_bits(&page->_refcount, mask << (4 + 24));
+-		mask >>= 24;
++		mask = atomic_xor_bits(&page->pt_frag_refcount, mask << 4);
+ 		if (mask != 0x00U)
+ 			return;
+ 		break;
+ 	case 0x03U:	/* 4K page table with pgstes */
+-		mask = atomic_xor_bits(&page->_refcount, 0x03U << 24);
+-		mask >>= 24;
++		mask = atomic_xor_bits(&page->pt_frag_refcount, 0x03U);
+ 		break;
+ 	}
  
- static inline int page_type_has_type(unsigned int page_type)
- {
-@@ -914,20 +916,34 @@ static inline int page_has_type(struct page *page)
- }
- 
- #define PAGE_TYPE_OPS(uname, lname)					\
--static __always_inline int Page##uname(struct page *page)		\
-+static __always_inline int Page##uname(const struct page *page)		\
- {									\
- 	return PageType(page, PG_##lname);				\
- }									\
-+static __always_inline int folio_test_##lname(const struct folio *folio)\
-+{									\
-+	return folio_test_type(folio, PG_##lname);			\
-+}									\
- static __always_inline void __SetPage##uname(struct page *page)		\
- {									\
- 	VM_BUG_ON_PAGE(!PageType(page, 0), page);			\
- 	page->page_type &= ~PG_##lname;					\
- }									\
-+static __always_inline void __folio_set_##lname(struct folio *folio)	\
-+{									\
-+	VM_BUG_ON_FOLIO(!folio_test_type(folio, 0), folio);		\
-+	folio->page.page_type &= ~PG_##lname;				\
-+}									\
- static __always_inline void __ClearPage##uname(struct page *page)	\
- {									\
- 	VM_BUG_ON_PAGE(!Page##uname(page), page);			\
- 	page->page_type |= PG_##lname;					\
--}
-+}									\
-+static __always_inline void __folio_clear_##lname(struct folio *folio)	\
-+{									\
-+	VM_BUG_ON_FOLIO(!folio_test_##lname(folio), folio);		\
-+	folio->page.page_type |= PG_##lname;				\
-+}									\
- 
- /*
-  * PageBuddy() indicates that the page is free and in the buddy system
 -- 
 2.39.2
 
