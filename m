@@ -2,101 +2,319 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 556ACC77B7F;
-	Wed,  3 May 2023 16:31:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 248B5C77B7C;
+	Thu,  4 May 2023 18:03:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229653AbjECQbs (ORCPT
+        id S229607AbjEDSC7 (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Wed, 3 May 2023 12:31:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57154 "EHLO
+        Thu, 4 May 2023 14:02:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229506AbjECQbj (ORCPT
+        with ESMTP id S229449AbjEDSC6 (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Wed, 3 May 2023 12:31:39 -0400
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1A9C76BB
-        for <linux-openrisc@vger.kernel.org>; Wed,  3 May 2023 09:31:10 -0700 (PDT)
-Received: by mail-wm1-x334.google.com with SMTP id 5b1f17b1804b1-3f19afc4fd8so33731375e9.2
-        for <linux-openrisc@vger.kernel.org>; Wed, 03 May 2023 09:31:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1683131467; x=1685723467;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=UuGHsehsGI6Es291zJSGyeFgIQ370eU/4ENt0MxEVT0=;
-        b=kk8FPAsm422dYeCg85xPvdQEKho092eu/UH780JUE6+PC14rw4RdyDBmS7miVU8zkB
-         dYaQAyJfGyvgp+SQ+VttdMlMVw1oqQ1tDAW4q7+1ogIYoVqyRL4FrB+bLMYPQ4E3seVg
-         48H0xVUr4RUHniWtazbgPn8ofx/zXxMTr7Q5ELlZc9xQHhcN2KIjAVLbK1pXDQVz6yym
-         FnMKgZvenSM6gf34udJzeAf8x+ctjLSyQOeSXK6F5NQ+IIX2e/+VaBGl27sM3HT6ew3y
-         kxpHu3U2ZTk1X6BPznkjrB30DwQKdqVBBhRoyib7BiBO8MgcLJovmwRgv/E/nJ8M4bnT
-         bpsQ==
+        Thu, 4 May 2023 14:02:58 -0400
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD3681BCC;
+        Thu,  4 May 2023 11:02:56 -0700 (PDT)
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-3f182d745deso8688755e9.0;
+        Thu, 04 May 2023 11:02:56 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683131467; x=1685723467;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=UuGHsehsGI6Es291zJSGyeFgIQ370eU/4ENt0MxEVT0=;
-        b=ZUz8q4JFvVRVZTB2wd2Vdp0PAGlYKsHjpgKuVCNqWfeP6lCtCzuAUa5ANS5mHjeRSH
-         YWq/gdC8pWamfXltuM4dF1Fq3+YGX1kNTFZI/h7pdXaRl67/vJBqAO6+7gN+MFCCtAyK
-         1/gFElx6JCXs2hOoYy0H/ddAC4+NaArqvHAnn7cCd3DorZMXkF6n60sdlMgpDG8eF/UM
-         iuKXqKuCsd/9rYEyUQse/Rwjz46Oi18SuCwKOlav047a3NvPmIKbSqJFrzWkrlgE+sZL
-         mj0rMYxmALvH7uDNM9Xdjct6GaZDRNnZ5LwOfqHQ5HcYnyyLaEUdz/j9fCvARYd3Ebu0
-         kVFg==
-X-Gm-Message-State: AC+VfDyBah5IJ0VdQpGWWb1xuRyWc8FI6F0v400qsoN5DWAafKeuGRCg
-        SORmDoP7GJTmyGkjLXNFOoA=
-X-Google-Smtp-Source: ACHHUZ6ympucnTIeT+ZkU2dmSV9drzo6+N75j2PiCzL3hL2ZTWfWu08zisQsbzDhim55zjKjoy3BwA==
-X-Received: by 2002:a7b:c398:0:b0:3f1:738f:d3d1 with SMTP id s24-20020a7bc398000000b003f1738fd3d1mr14838656wmj.4.1683131466661;
-        Wed, 03 May 2023 09:31:06 -0700 (PDT)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id b5-20020a056000054500b002e5ff05765esm34673327wrf.73.2023.05.03.09.31.06
+        d=1e100.net; s=20221208; t=1683223375; x=1685815375;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=AZDZ8YxdhDn5mPRZaBC8fY/+Z68in9GRyIAk1Dnoetc=;
+        b=Kl79NMdhU4m3mUbihXEUL8U6/uIEw0kekZUvEQ4VVd/whqOl3+kOn7yzi8w47q1F1e
+         7/nlT2XrZduHKJHJIsZvkAZFjdyRoB8ehWCcQ/lngm+PjcvVccCDUzVajmjU+sZlF2fG
+         3tSe2DcYsV3wxDY0YE1PI/F7iSHBEumgPadM7lx0Vbhc/c+tM7ZftQAakgft2fen7RAA
+         CKECkkiZLNnCfoP4Ho3vf8eUsDY14sop6i+SvdIdIsrFHKnfaLqMw4IkAmcj6C+Pies0
+         HmQau+tm0hzMlRYjD7aUWovGGFv/ZpHI6jWCKG7+JgPDsdwS+iWZi3B6nfQHiVSjC1lx
+         AgHw==
+X-Gm-Message-State: AC+VfDxxRFr+ZV4NJ8ZYIKTNmnLgzMWP7HC0+sSU5A5SOxmbNEvKl0VN
+        H7BBxs4VmZQVnKH/5Wp5sqtwiEd3W9HlUVYi
+X-Google-Smtp-Source: ACHHUZ7DBR9JLJxcGYEzgKy6RZn8Pk58Li37tq9w2jOkGLDCeZjMsgu0U1JZXU2UqbD7d8dCxpFZQw==
+X-Received: by 2002:a1c:6a0d:0:b0:3f1:72ee:97b7 with SMTP id f13-20020a1c6a0d000000b003f172ee97b7mr393450wmc.15.1683223374722;
+        Thu, 04 May 2023 11:02:54 -0700 (PDT)
+Received: from costa-tp.bos2.lab ([2a00:a040:1a3:c11b:3ae6:1732:e587:a81f])
+        by smtp.gmail.com with ESMTPSA id p8-20020a7bcc88000000b003f03d483966sm5560826wma.44.2023.05.04.11.02.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 May 2023 09:31:06 -0700 (PDT)
-Date:   Wed, 3 May 2023 17:31:05 +0100
-From:   Stafford Horne <shorne@gmail.com>
-To:     Richard Henderson <richard.henderson@linaro.org>
-Cc:     QEMU Development <qemu-devel@nongnu.org>,
-        Linux OpenRISC <linux-openrisc@vger.kernel.org>
-Subject: Re: [PATCH 3/3] target/openrisc: Setup FPU for detecting tininess
- before rounding
-Message-ID: <ZFKMSfkJupFHXtrl@antec>
-References: <20230502185731.3543420-1-shorne@gmail.com>
- <20230502185731.3543420-4-shorne@gmail.com>
- <933ff5d8-3875-34ac-9bc4-ed06f74efad7@linaro.org>
- <ZFIl6db3isktCOk8@antec>
- <e3fabb1d-7bf6-f251-9649-5a813b409200@linaro.org>
+        Thu, 04 May 2023 11:02:54 -0700 (PDT)
+From:   Costa Shulyupin <costa.shul@redhat.com>
+To:     Jonathan Corbet <corbet@lwn.net>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        linux-doc@vger.kernel.org
+Cc:     Costa Shulyupin <costa.shul@redhat.com>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Stafford Horne <shorne@gmail.com>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        x86@kernel.org (maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)),
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Yanteng Si <siyanteng@loongson.cn>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        linux-snps-arc@lists.infradead.org (open list:SYNOPSYS ARC ARCHITECTURE),
+        linux-kernel@vger.kernel.org (open list),
+        linux-ia64@vger.kernel.org (open list:IA64 (Itanium) PLATFORM),
+        linux-openrisc@vger.kernel.org (open list:OPENRISC ARCHITECTURE),
+        linux-parisc@vger.kernel.org (open list:PARISC ARCHITECTURE),
+        linux-sh@vger.kernel.org (open list:SUPERH)
+Subject: [PATCH v3] docs: directive `alias` for redirects
+Date:   Thu,  4 May 2023 21:01:52 +0300
+Message-Id: <20230504180210.727364-1-costa.shul@redhat.com>
+X-Mailer: git-send-email 2.40.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e3fabb1d-7bf6-f251-9649-5a813b409200@linaro.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Wed, May 03, 2023 at 10:41:42AM +0100, Richard Henderson wrote:
-> On 5/3/23 10:14, Stafford Horne wrote:
-> > > > +    set_default_nan_mode(1, &cpu->env.fp_status);
-> > > > +    set_float_detect_tininess(float_tininess_before_rounding,
-> > > > +                              &cpu->env.fp_status);
-> > > 
-> > > You don't mention the nan change in the commit message.
-> > 
-> > Right, and I am not sure I need it.  Let me remove it and run tests again.  I
-> > was just adding it as a few other architectures did who set
-> > float_tininess_before_rounding.
-> 
-> What that does is *not* propagate NaN payloads from (some) input to the
-> output.  This is certainly true of RISC-V, which specifies this in their
-> architecture manual.  OpenRISC does not specify any NaN behaviour at all.
+and several redirects for moved main arch pages
 
-Thanks, that is what I also gathered from reading up on it.
+Problems:
+- The documentation lacks hierarchy
+- Relocating pages disrupts external links to
+  the documentation and causes confusion for users
 
-> It's not a bad choice, really, and it almost certainly simplifies the design
-> of the FPU, as you can do NaN propagation and silencing in one step.
+Benefits:
+- Users can easily access relocated pages from external resources
+- Using redirects frees up options for reorganizing the documentation
 
-Right, it makes sense to optimize.  It doesn't look like any of our FPU
-implementation do that at the moment.
+The solution:
+- Introduced directive `alias` which declares previous path of
+  a moved document as the argument.
+- Redirects are implemented with Sphinx extension rediraffe_redirects.
 
-I will check with bandvig who implemented the FPU to understand his thought on
-this.  It at least deserves to be discussed how nan payload is to be handled in
-the architecture spec.
+Signed-off-by: Costa Shulyupin <costa.shul@redhat.com>
 
--Stafford
+---
+
+Changes:
+- complete new implementation
+---
+ Documentation/arch/arc/index.rst        |  2 ++
+ Documentation/arch/ia64/index.rst       |  2 ++
+ Documentation/arch/index.rst            |  2 ++
+ Documentation/arch/m68k/index.rst       |  2 ++
+ Documentation/arch/nios2/index.rst      |  2 ++
+ Documentation/arch/openrisc/index.rst   |  2 ++
+ Documentation/arch/parisc/index.rst     |  2 ++
+ Documentation/arch/sh/index.rst         |  2 ++
+ Documentation/arch/sparc/index.rst      |  2 ++
+ Documentation/arch/x86/index.rst        |  2 ++
+ Documentation/arch/x86/x86_64/index.rst |  2 ++
+ Documentation/arch/xtensa/index.rst     |  2 ++
+ Documentation/conf.py                   |  9 +++++++
+ Documentation/sphinx/alias.py           | 35 +++++++++++++++++++++++++
+ Documentation/sphinx/requirements.txt   |  1 +
+ 15 files changed, 69 insertions(+)
+ create mode 100644 Documentation/sphinx/alias.py
+
+diff --git a/Documentation/arch/arc/index.rst b/Documentation/arch/arc/index.rst
+index 7b098d4a5e3e..c2be040f04c3 100644
+--- a/Documentation/arch/arc/index.rst
++++ b/Documentation/arch/arc/index.rst
+@@ -15,3 +15,5 @@ ARC architecture
+    =======
+ 
+    * :ref:`genindex`
++
++.. alias:: arc/index
+diff --git a/Documentation/arch/ia64/index.rst b/Documentation/arch/ia64/index.rst
+index 761f2154dfa2..c4f973f17af2 100644
+--- a/Documentation/arch/ia64/index.rst
++++ b/Documentation/arch/ia64/index.rst
+@@ -17,3 +17,5 @@ IA-64 Architecture
+    serial
+ 
+    features
++
++.. alias:: ia64/index
+diff --git a/Documentation/arch/index.rst b/Documentation/arch/index.rst
+index 80ee31016584..11be66e23de4 100644
+--- a/Documentation/arch/index.rst
++++ b/Documentation/arch/index.rst
+@@ -26,3 +26,5 @@ implementation.
+    sparc/index
+    x86/index
+    xtensa/index
++
++.. alias:: arch
+diff --git a/Documentation/arch/m68k/index.rst b/Documentation/arch/m68k/index.rst
+index 0f890dbb5fe2..9b5c34510fb7 100644
+--- a/Documentation/arch/m68k/index.rst
++++ b/Documentation/arch/m68k/index.rst
+@@ -18,3 +18,5 @@ m68k Architecture
+    =======
+ 
+    * :ref:`genindex`
++
++.. alias:: m68k/index
+diff --git a/Documentation/arch/nios2/index.rst b/Documentation/arch/nios2/index.rst
+index 4468fe1a1037..bfaf0e963db3 100644
+--- a/Documentation/arch/nios2/index.rst
++++ b/Documentation/arch/nios2/index.rst
+@@ -10,3 +10,5 @@ Nios II Specific Documentation
+ 
+    nios2
+    features
++
++.. alias:: nios2/index
+diff --git a/Documentation/arch/openrisc/index.rst b/Documentation/arch/openrisc/index.rst
+index 6879f998b87a..b59d97d6f8b7 100644
+--- a/Documentation/arch/openrisc/index.rst
++++ b/Documentation/arch/openrisc/index.rst
+@@ -18,3 +18,5 @@ OpenRISC Architecture
+    =======
+ 
+    * :ref:`genindex`
++
++.. alias:: openrisc/index
+diff --git a/Documentation/arch/parisc/index.rst b/Documentation/arch/parisc/index.rst
+index 240685751825..aaa708c7f98d 100644
+--- a/Documentation/arch/parisc/index.rst
++++ b/Documentation/arch/parisc/index.rst
+@@ -18,3 +18,5 @@ PA-RISC Architecture
+    =======
+ 
+    * :ref:`genindex`
++
++.. alias:: parisc/index
+diff --git a/Documentation/arch/sh/index.rst b/Documentation/arch/sh/index.rst
+index c64776738cf6..5a12d76abec4 100644
+--- a/Documentation/arch/sh/index.rst
++++ b/Documentation/arch/sh/index.rst
+@@ -54,3 +54,5 @@ Maple
+ 
+ .. kernel-doc:: drivers/sh/maple/maple.c
+    :export:
++
++.. alias:: sh/index
+diff --git a/Documentation/arch/sparc/index.rst b/Documentation/arch/sparc/index.rst
+index ae884224eec2..f2731a4925c3 100644
+--- a/Documentation/arch/sparc/index.rst
++++ b/Documentation/arch/sparc/index.rst
+@@ -11,3 +11,5 @@ Sparc Architecture
+    oradax/oracle-dax
+ 
+    features
++
++.. alias:: sparc/index
+diff --git a/Documentation/arch/x86/index.rst b/Documentation/arch/x86/index.rst
+index c73d133fd37c..2154bfe2b6ca 100644
+--- a/Documentation/arch/x86/index.rst
++++ b/Documentation/arch/x86/index.rst
+@@ -42,3 +42,5 @@ x86-specific Documentation
+    features
+    elf_auxvec
+    xstate
++
++.. alias:: x86/index
+diff --git a/Documentation/arch/x86/x86_64/index.rst b/Documentation/arch/x86/x86_64/index.rst
+index a56070fc8e77..d4eb610b0080 100644
+--- a/Documentation/arch/x86/x86_64/index.rst
++++ b/Documentation/arch/x86/x86_64/index.rst
+@@ -15,3 +15,5 @@ x86_64 Support
+    cpu-hotplug-spec
+    machinecheck
+    fsgs
++
++.. alias:: x86/x86_64/index
+diff --git a/Documentation/arch/xtensa/index.rst b/Documentation/arch/xtensa/index.rst
+index 69952446a9be..a794bddddad4 100644
+--- a/Documentation/arch/xtensa/index.rst
++++ b/Documentation/arch/xtensa/index.rst
+@@ -12,3 +12,5 @@ Xtensa Architecture
+    mmu
+ 
+    features
++
++.. alias:: xtensa/index
+diff --git a/Documentation/conf.py b/Documentation/conf.py
+index 37314afd1ac8..068f85e5dd1f 100644
+--- a/Documentation/conf.py
++++ b/Documentation/conf.py
+@@ -16,6 +16,7 @@ import sys
+ import os
+ import sphinx
+ import shutil
++from importlib.util import find_spec
+ 
+ # helper
+ # ------
+@@ -57,6 +58,14 @@ extensions = ['kerneldoc', 'rstFlatTable', 'kernel_include',
+               'maintainers_include', 'sphinx.ext.autosectionlabel',
+               'kernel_abi', 'kernel_feat']
+ 
++extensions += ['alias'] # uses rediraffe
++
++if find_spec('sphinxext.rediraffe'):
++    extensions += ['sphinxext.rediraffe']
++    rediraffe_redirects = { }
++else:
++    print("Skipping redirects because sphinxext.rediraffe is not installed")
++
+ if major >= 3:
+     if (major > 3) or (minor > 0 or patch >= 2):
+         # Sphinx c function parser is more pedantic with regards to type
+diff --git a/Documentation/sphinx/alias.py b/Documentation/sphinx/alias.py
+new file mode 100644
+index 000000000000..e00605d07dbd
+--- /dev/null
++++ b/Documentation/sphinx/alias.py
+@@ -0,0 +1,35 @@
++# SPDX-License-Identifier: GPL-2.0
++
++u"""
++    Directive `alias`
++    ~~~~~~~~~~~~~~~
++    Provides browser redirects for moved pages.
++
++    The directive declares previous path of a moved document as the argument.
++    Redirects are implemented with Sphinx extension rediraffe_redirects.
++
++    :copyright: Copyright 2023 Costa Shulyupin <costa.shul@redhat.com>
++    :license:   GPL Version 2, June 1991 see linux/COPYING for details.
++
++"""
++
++from docutils.parsers.rst import Directive
++import os
++
++
++class AliasDirective(Directive):
++    required_arguments = 1
++
++    def run(self):
++        env = self.state.document.settings.env
++        if 'rediraffe_redirects' not in env.config:
++            return []
++        env.config.rediraffe_redirects[self.arguments[0]] \
++            = os.path.relpath(self.state.document.current_source,
++                              env.srcdir)
++        return []
++
++
++def setup(app):
++    app.add_directive('alias', AliasDirective)
++    return { 'parallel_read_safe': False, 'parallel_write_safe': False }
+diff --git a/Documentation/sphinx/requirements.txt b/Documentation/sphinx/requirements.txt
+index 335b53df35e2..9ff99beb5ed3 100644
+--- a/Documentation/sphinx/requirements.txt
++++ b/Documentation/sphinx/requirements.txt
+@@ -1,3 +1,4 @@
+ # jinja2>=3.1 is not compatible with Sphinx<4.0
+ jinja2<3.1
+ Sphinx==2.4.4
++rediraffe_redirects
+-- 
+2.40.0
+
