@@ -2,115 +2,102 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A270DC7EE22;
-	Sat,  6 May 2023 11:35:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A1F6C7EE22;
+	Wed, 10 May 2023 15:32:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232296AbjEFLf6 convert rfc822-to-8bit (ORCPT
+        id S237555AbjEJPcg (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Sat, 6 May 2023 07:35:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56012 "EHLO
+        Wed, 10 May 2023 11:32:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231855AbjEFLf4 (ORCPT
+        with ESMTP id S236995AbjEJPcf (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Sat, 6 May 2023 07:35:56 -0400
-Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F3837681;
-        Sat,  6 May 2023 04:35:55 -0700 (PDT)
-Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
-          by outpost.zedat.fu-berlin.de (Exim 4.95)
-          with esmtps (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@zedat.fu-berlin.de>)
-          id 1pvGCa-002hVY-AY; Sat, 06 May 2023 13:35:48 +0200
-Received: from p57bd9cee.dip0.t-ipconnect.de ([87.189.156.238] helo=suse-laptop.fritz.box)
-          by inpost2.zedat.fu-berlin.de (Exim 4.95)
-          with esmtpsa (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@physik.fu-berlin.de>)
-          id 1pvGCZ-000Sf9-Vs; Sat, 06 May 2023 13:35:48 +0200
-Message-ID: <c0677d21a4b6caa2e5018af000294a974121d9e8.camel@physik.fu-berlin.de>
-Subject: Re: [PATCH v2 30/34] sh: Convert pte_free_tlb() to use ptdescs
-From:   John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-To:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>
-Cc:     linux-mm@kvack.org, linux-arch@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, xen-devel@lists.xenproject.org,
-        kvm@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>
-Date:   Sat, 06 May 2023 13:35:46 +0200
-In-Reply-To: <20230501192829.17086-31-vishal.moola@gmail.com>
-References: <20230501192829.17086-1-vishal.moola@gmail.com>
-         <20230501192829.17086-31-vishal.moola@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-User-Agent: Evolution 3.48.1 
+        Wed, 10 May 2023 11:32:35 -0400
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB2BB30DA
+        for <linux-openrisc@vger.kernel.org>; Wed, 10 May 2023 08:32:33 -0700 (PDT)
+Received: by mail-wm1-x32e.google.com with SMTP id 5b1f17b1804b1-3f420618d5bso30744935e9.1
+        for <linux-openrisc@vger.kernel.org>; Wed, 10 May 2023 08:32:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1683732752; x=1686324752;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=mT8b3wI1jOAZ42ahPsG1g/N0fgPfBNbODwJvXFdJVsI=;
+        b=sadZ0WKFIdP5qPernAUs+u4AbU37o7RUhZDRQ7lazCBzLAj+nFzJW/ecpslhDzAzIp
+         efukamcHGAb8C2oEQXkYsUqk3tTL7suGho6TEi4yJlxoqtZcWs018iel0+0/xpgBQ+eQ
+         rNPOs6rNt/08NaHLETViQckonwx2FgXsHqdzKt3K/kU/+5cPCVe/8BnGcTUlTVXQr3A7
+         h/M1ridl00skD7o3DekdT8zipvjwcp1l7hDFs7TBEM2r2PgX3N9C7hWBVYEOVNOU6sTb
+         d+2gWtjQvrBgDDzMyVBz9RGTNc3ARZd3UKtIGEkJfL96fnh0wzoX48w/LCjbYlhWltIM
+         NLRg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1683732752; x=1686324752;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=mT8b3wI1jOAZ42ahPsG1g/N0fgPfBNbODwJvXFdJVsI=;
+        b=Wk5VhkcJpOJix6rM7EIeOyCzHHM8Dz/r2VwRhPDdrA3GQo/7WSOf6mrR01/ASq9uSr
+         HvjDVUodth4Q63U2cRTRu+2n21IBDSzx98MDRt3cb7t6lsRBS+jnC4ZD30X+q3Tp/mgP
+         cfsQsYICmFyXHBWfhO3vOUf5xpJoZybPQBo/svzxBxZM3WyR/g1UG2RyWMUpKTGuHKol
+         pNzXXOD/1vRhOE0U9n8T+8tZzFAIDvVfZz9SsYuBHsYam2xfjzVTTwo/bwyHqLFafSL2
+         GfxW+4Nd8r5d5aqblAaNHQ0c8VQtUpdjwTEEdqSQNh8b7LIgxeiXI7x4VA23YfMG2zVe
+         Vr3A==
+X-Gm-Message-State: AC+VfDyHCDUZqMlkeDXfMsPBH++z01awnFKpTuQV4+oCY+3tKDOMdWiV
+        C4x2f+4Ty+HP7qDc1ZyG0kg=
+X-Google-Smtp-Source: ACHHUZ4gEex/3qjAqFij+6fraDFKcmCxIv/usHWf97ewgWqsqfPIkJyjDgfv04rDB9tNCNcllzni4g==
+X-Received: by 2002:a7b:c419:0:b0:3f4:a09f:1877 with SMTP id k25-20020a7bc419000000b003f4a09f1877mr1716451wmi.23.1683732752052;
+        Wed, 10 May 2023 08:32:32 -0700 (PDT)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id j18-20020adfff92000000b00307bc4e39e5sm1621411wrr.117.2023.05.10.08.32.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 May 2023 08:32:31 -0700 (PDT)
+From:   Stafford Horne <shorne@gmail.com>
+To:     QEMU Development <qemu-devel@nongnu.org>
+Cc:     Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+        Stafford Horne <shorne@gmail.com>
+Subject: [PATCH v2 0/3] OpenRISC updates for user space FPU
+Date:   Wed, 10 May 2023 16:32:25 +0100
+Message-Id: <20230510153228.264954-1-shorne@gmail.com>
+X-Mailer: git-send-email 2.39.1
 MIME-Version: 1.0
-X-Original-Sender: glaubitz@physik.fu-berlin.de
-X-Originating-IP: 87.189.156.238
-X-ZEDAT-Hint: PO
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-Hi Vishal!
+Since v1:
+ - Fixups suggested by Richard Henderson
 
-On Mon, 2023-05-01 at 12:28 -0700, Vishal Moola (Oracle) wrote:
-> Part of the conversions to replace pgtable constructor/destructors with
-> ptdesc equivalents. Also cleans up some spacing issues.
-> 
-> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-> ---
->  arch/sh/include/asm/pgalloc.h | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/sh/include/asm/pgalloc.h b/arch/sh/include/asm/pgalloc.h
-> index a9e98233c4d4..ce2ba99dbd84 100644
-> --- a/arch/sh/include/asm/pgalloc.h
-> +++ b/arch/sh/include/asm/pgalloc.h
-> @@ -2,6 +2,7 @@
->  #ifndef __ASM_SH_PGALLOC_H
->  #define __ASM_SH_PGALLOC_H
->  
-> +#include <linux/mm.h>
->  #include <asm/page.h>
->  
->  #define __HAVE_ARCH_PMD_ALLOC_ONE
-> @@ -31,10 +32,10 @@ static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
->  	set_pmd(pmd, __pmd((unsigned long)page_address(pte)));
->  }
->  
-> -#define __pte_free_tlb(tlb,pte,addr)			\
-> -do {							\
-> -	pgtable_pte_page_dtor(pte);			\
-> -	tlb_remove_page((tlb), (pte));			\
-> +#define __pte_free_tlb(tlb, pte, addr)				\
-> +do {								\
-> +	ptdesc_pte_dtor(page_ptdesc(pte));			\
-> +	tlb_remove_page_ptdesc((tlb), (page_ptdesc(pte)));	\
->  } while (0)
->  
->  #endif /* __ASM_SH_PGALLOC_H */
+This series adds support for the FPU related architecture changes defined in
+architecture spec revision v1.4.
 
-Looking at the patch which introduces tlb_remove_page_ptdesc() [1], it seems that
-tlb_remove_page_ptdesc() already calls tlb_remove_page() with ptdesc_page(pt), so
-I'm not sure whether the above tlb_remove_page_ptdesc((tlb), (page_ptdesc(pte)))
-is correct.
+ - https://openrisc.io/revisions/r1.4
 
-Shouldn't it just be tlb_remove_page_ptdesc((tlb), (pte))?
+In summary the architecture changes are:
 
-Thanks,
-Adrian
+ - Change FPCSR SPR permissions to allow for reading and writing from user
+   space.
+ - Clarify that FPU underflow detection is done by detecting tininess before
+   rounding.
 
-> [1] https://lore.kernel.org/linux-mm/20230417205048.15870-5-vishal.moola@gmail.com/
+Previous to this series FPCSR reads and writes from user-mode in QEMU would
+throw an illegal argument exception.  The proper behavior should have been to
+treat these operations as no-ops as the cpu implementations do.  As mentioned
+series changes FPCSR read/write to follow the spec.
+
+The series has been tested with the FPU support added in glibc test suite and
+all math tests are passing.
+
+Stafford Horne (3):
+  target/openrisc: Allow fpcsr access in user mode
+  target/openrisc: Set PC to cpu state on FPU exception
+  target/openrisc: Setup FPU for detecting tininess before rounding
+
+ target/openrisc/cpu.c        |  4 ++
+ target/openrisc/fpu_helper.c | 13 ++++++-
+ target/openrisc/sys_helper.c | 45 +++++++++++++++++-----
+ target/openrisc/translate.c  | 72 ++++++++++++++++--------------------
+ 4 files changed, 82 insertions(+), 52 deletions(-)
 
 -- 
- .''`.  John Paul Adrian Glaubitz
-: :' :  Debian Developer
-`. `'   Physicist
-  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
+2.39.1
+
