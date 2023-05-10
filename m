@@ -2,62 +2,62 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 392A5C7EE26;
-	Wed, 10 May 2023 15:32:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DC46C77B7C;
+	Wed, 10 May 2023 15:32:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236995AbjEJPci (ORCPT
+        id S237569AbjEJPco (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Wed, 10 May 2023 11:32:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51880 "EHLO
+        Wed, 10 May 2023 11:32:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237569AbjEJPch (ORCPT
+        with ESMTP id S237581AbjEJPcl (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Wed, 10 May 2023 11:32:37 -0400
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7879630D4
-        for <linux-openrisc@vger.kernel.org>; Wed, 10 May 2023 08:32:36 -0700 (PDT)
-Received: by mail-wm1-x329.google.com with SMTP id 5b1f17b1804b1-3f42c865535so20609625e9.1
-        for <linux-openrisc@vger.kernel.org>; Wed, 10 May 2023 08:32:36 -0700 (PDT)
+        Wed, 10 May 2023 11:32:41 -0400
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E83ED30D4
+        for <linux-openrisc@vger.kernel.org>; Wed, 10 May 2023 08:32:37 -0700 (PDT)
+Received: by mail-wr1-x42a.google.com with SMTP id ffacd0b85a97d-30644c18072so4941342f8f.2
+        for <linux-openrisc@vger.kernel.org>; Wed, 10 May 2023 08:32:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1683732755; x=1686324755;
+        d=gmail.com; s=20221208; t=1683732756; x=1686324756;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=csrTYP46uv8wz6vyHOZQLXOhfuaiNnRYRLiW7uRVmzE=;
-        b=azReCyQo9AgaGA3ibfYJryDdwquXFqJwPZwK0X3Dm7urN26R+XZbpLATyGxBarPO+i
-         k7ftL5jcOPnE7EKvuFlaLv2TD9/5/IvTkpkhFHkWLAB+8ukQkPkuaPRVC9rXpC3f6KrO
-         Fs1NSosBcw3/1CEtTRe1+NDu2yBY4Q07/EDs7VQTvFGBCsnFmZWenqSSfIVxmgnlvpe8
-         ihlMC3tonynFOnUaDURRitZcA5QkJlhKX5jRlFaj5bPqXiPU1t06cTBaAP/HHlSvmKMa
-         ybA1xkRQPPjGPmS8KoOAvx96aiiEL33i+KsqOGr3BN3PUckYiorJFkOPs48TVNeVDmV8
-         xMNw==
+        bh=QuCoDiAObR/Z2Z2rP0Xwqovsoce8UpTQfGK7ANVfuJg=;
+        b=KIsq5p2U2yMptwyjPYSaCRAThtTaWZ7xLaVsAKqsv53q6EYaNAbeyZGRkhGOBSiGpV
+         /FtDPMApZ6haqXtdRbhT2zHiiedDuDqOALgALSaxZSPUb5e9mNhff1ZqkydMMiKKCwdg
+         ktmlaBEb3jeacH+9jMCubIOiFjUW7aqgeTf0rxKmScofNOnsl5cBRYmFLD2jVwbIH02p
+         BGSZqLXJiiRW8zPQ776azOljZnWCXq5VjcnTEMoGCsKmPZPVkpDE/jCb0RMDXwsolvMz
+         2UQurxQ+k66wlwfx/W+AlfV9i+9L+hRHdFaVkvclfegtlBbPCBsCXyKupZ5aDLBIt48o
+         e3uw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683732755; x=1686324755;
+        d=1e100.net; s=20221208; t=1683732756; x=1686324756;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=csrTYP46uv8wz6vyHOZQLXOhfuaiNnRYRLiW7uRVmzE=;
-        b=S4sdtoGeMh9ARBwcyjPYpYFQJXtuw1ePVJHwzvstrV2lFJbF6lPCpnqV4QCYxQEKyg
-         EMO0LabhZyzZoyvjvL5E2SNmAxhU5HGunZ1RcG1WyAdvXCRC+/4AcSJ+5T2H2oPHpE+w
-         g2rWpK6MmP1yM+hEnAYKbKekHpGIAKZVumMaBw17+PeGV2AQCvIJn8jkWmoeEwBkaxfu
-         Lihrk138wfcSXRmLbzK/k8s+fpmhXZFdyNkQD59VgfzfRZVVQ9cET38MBVXShIF4iaZm
-         JYm1vledj6fOLybmLJOnYwJuE56Sc7kCJoj+ZzWtz7JY1Wuv6nP1cNuDvj6LxHpQ9AeH
-         PVGA==
-X-Gm-Message-State: AC+VfDwxAlBdOSCOs/s91tZ1xHXPWJDoJZwBFOZ4oLtXdMybD3YpG7cH
-        yugexhk9tOrKPxKM5KPXGCE=
-X-Google-Smtp-Source: ACHHUZ4d8w3jwX0NwLaCbLZ+ubxAXF2N260dZROoXaUG1NICx/cqcEC0cnoWdEno8KdyavlNhKXpzQ==
-X-Received: by 2002:a7b:c5d2:0:b0:3f3:2b37:dd34 with SMTP id n18-20020a7bc5d2000000b003f32b37dd34mr11817929wmk.9.1683732754947;
-        Wed, 10 May 2023 08:32:34 -0700 (PDT)
+        bh=QuCoDiAObR/Z2Z2rP0Xwqovsoce8UpTQfGK7ANVfuJg=;
+        b=iXijOD1GLVn7PcwxHSsPzAeFgo8fi8rcoOl4IgbabBdxIQdzu3dnQyTHA369n4n37H
+         hRjeYm0zWbsJKzS9mNDLcLy1qeahIJF+rU381szGY6oBpZifc7eM1zY6zAQ9/joPG83d
+         XERFy+cP7qhhUybaUYpekvjG1xckpFtBYNpwIUBO31wVORkjlG+Ld/BxcB0jKzF3qlVX
+         wqxL1LDO6siadtTDtq0fhf8jgWekrdscL0JEQXB17DPbEnHMrFaR6To5njoefH3+45MM
+         JeL6pAvljPPlBAoE6PPoBMXuh0okwCpVBvl+lECm8r73akf5wMuVhtQv5o5+UyovuhUu
+         wu5w==
+X-Gm-Message-State: AC+VfDwxLoQtugwGFj6bC2a7bxFDuqr2Cm1Rpv+q1A0YTz6+brTTfnnx
+        5RTAjQfSXsOReQDzD7NYIa4=
+X-Google-Smtp-Source: ACHHUZ6vtCmnt4hzcunQjfDLkcgztJ61GW3/hX6XhjJkp2R2GdOU49jEXRlVGXgXiaDAqsXiqhB+9w==
+X-Received: by 2002:a5d:510a:0:b0:304:8149:239b with SMTP id s10-20020a5d510a000000b003048149239bmr11917447wrt.50.1683732756332;
+        Wed, 10 May 2023 08:32:36 -0700 (PDT)
 Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id z17-20020a1c4c11000000b003ee20b4b2dasm22951062wmf.46.2023.05.10.08.32.33
+        by smtp.gmail.com with ESMTPSA id r10-20020a056000014a00b00307972e46fasm9394157wrx.107.2023.05.10.08.32.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 May 2023 08:32:34 -0700 (PDT)
+        Wed, 10 May 2023 08:32:35 -0700 (PDT)
 From:   Stafford Horne <shorne@gmail.com>
 To:     QEMU Development <qemu-devel@nongnu.org>
 Cc:     Linux OpenRISC <linux-openrisc@vger.kernel.org>,
         Stafford Horne <shorne@gmail.com>
-Subject: [PATCH v2 2/3] target/openrisc: Set PC to cpu state on FPU exception
-Date:   Wed, 10 May 2023 16:32:27 +0100
-Message-Id: <20230510153228.264954-3-shorne@gmail.com>
+Subject: [PATCH v2 3/3] target/openrisc: Setup FPU for detecting tininess before rounding
+Date:   Wed, 10 May 2023 16:32:28 +0100
+Message-Id: <20230510153228.264954-4-shorne@gmail.com>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230510153228.264954-1-shorne@gmail.com>
 References: <20230510153228.264954-1-shorne@gmail.com>
@@ -67,56 +67,41 @@ Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-Store the PC to ensure the correct value can be read in the exception
-handler.
+OpenRISC defines tininess to be detected before rounding.  Setup qemu to
+obey this.
 
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
 Since v1:
- - Use function do_fpe (similar to do_range) to raise exception.
+ - Remove setting default NaN behavior.  I discussed with the FPU developers and
+   they mentioned the OpenRISC hardware should be IEEE compliant when handling
+   and forwarding NaN payloads, and they don't want try change this.
 
- target/openrisc/fpu_helper.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ target/openrisc/cpu.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/target/openrisc/fpu_helper.c b/target/openrisc/fpu_helper.c
-index f9e34fa2cc..8b81d2f62f 100644
---- a/target/openrisc/fpu_helper.c
-+++ b/target/openrisc/fpu_helper.c
-@@ -20,8 +20,8 @@
- 
- #include "qemu/osdep.h"
+diff --git a/target/openrisc/cpu.c b/target/openrisc/cpu.c
+index 0ce4f796fa..61d748cfdc 100644
+--- a/target/openrisc/cpu.c
++++ b/target/openrisc/cpu.c
+@@ -22,6 +22,7 @@
+ #include "qemu/qemu-print.h"
  #include "cpu.h"
-+#include "exec/exec-all.h"
- #include "exec/helper-proto.h"
--#include "exception.h"
- #include "fpu/softfloat.h"
+ #include "exec/exec-all.h"
++#include "fpu/softfloat-helpers.h"
+ #include "tcg/tcg.h"
  
- static int ieee_ex_to_openrisc(int fexcp)
-@@ -45,6 +45,15 @@ static int ieee_ex_to_openrisc(int fexcp)
-     return ret;
- }
+ static void openrisc_cpu_set_pc(CPUState *cs, vaddr value)
+@@ -90,6 +91,9 @@ static void openrisc_cpu_reset_hold(Object *obj)
+     s->exception_index = -1;
+     cpu_set_fpcsr(&cpu->env, 0);
  
-+static G_NORETURN
-+void do_fpe(CPUOpenRISCState *env, uintptr_t pc)
-+{
-+    CPUState *cs = env_cpu(env);
++    set_float_detect_tininess(float_tininess_before_rounding,
++                              &cpu->env.fp_status);
 +
-+    cs->exception_index = EXCP_FPE;
-+    cpu_loop_exit_restore(cs, pc);
-+}
-+
- void HELPER(update_fpcsr)(CPUOpenRISCState *env)
- {
-     int tmp = get_float_exception_flags(&env->fp_status);
-@@ -55,7 +64,7 @@ void HELPER(update_fpcsr)(CPUOpenRISCState *env)
-         if (tmp) {
-             env->fpcsr |= tmp;
-             if (env->fpcsr & FPCSR_FPEE) {
--                helper_exception(env, EXCP_FPE);
-+                do_fpe(env, GETPC());
-             }
-         }
-     }
+ #ifndef CONFIG_USER_ONLY
+     cpu->env.picmr = 0x00000000;
+     cpu->env.picsr = 0x00000000;
 -- 
 2.39.1
 
