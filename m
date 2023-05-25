@@ -2,106 +2,303 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 167D8C7EE23;
-	Thu, 18 May 2023 12:12:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4298CC77B7A;
+	Thu, 25 May 2023 07:48:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230395AbjERMMb (ORCPT
+        id S236207AbjEYHrh (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Thu, 18 May 2023 08:12:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53434 "EHLO
+        Thu, 25 May 2023 03:47:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231527AbjERMMJ (ORCPT
+        with ESMTP id S237991AbjEYHrP (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Thu, 18 May 2023 08:12:09 -0400
-Received: from mail-qk1-x733.google.com (mail-qk1-x733.google.com [IPv6:2607:f8b0:4864:20::733])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E314B19A
-        for <linux-openrisc@vger.kernel.org>; Thu, 18 May 2023 05:12:06 -0700 (PDT)
-Received: by mail-qk1-x733.google.com with SMTP id af79cd13be357-75771dd7242so107265785a.1
-        for <linux-openrisc@vger.kernel.org>; Thu, 18 May 2023 05:12:06 -0700 (PDT)
+        Thu, 25 May 2023 03:47:15 -0400
+Received: from mail-io1-xd2e.google.com (mail-io1-xd2e.google.com [IPv6:2607:f8b0:4864:20::d2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C25910C6;
+        Thu, 25 May 2023 00:47:10 -0700 (PDT)
+Received: by mail-io1-xd2e.google.com with SMTP id ca18e2360f4ac-77483a5a350so48249839f.0;
+        Thu, 25 May 2023 00:47:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1684411926; x=1687003926;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=b1LVde9eD9hiDa72aXFp01UeitZcx1XKK5VRIQwwJ4w=;
-        b=f1WIjix4LVO2qoUadyymiNEwWX8LVYnKjiZJmHZsA00vpgp8OzN7fLeOXwmxyAsNjQ
-         sHOCKYtaHjUeBnmA70xUS7m11Y8GXRs0HF7i7PVSFcwvUzQVx0yAXlGLYQrw7yq7y3KH
-         MBoMqwZGJTzwuItitFkcFv88cqBCrBWri+DUGp8Fc0eAqXpc1sD7lY1vf9Zu0c1UnHTi
-         g1NSzolGSvoeoheQrwHIwMvc3Rso4DvQpoRRtvFDk7J6iY3SLf6NCCF8S9IRrkOXhhUV
-         HRuCy/CUe+KQ4Lk9dlGX7GSjHNglFJk4MTFkm4joUr1QsJe7so9IrOlgfq/tmei89LyY
-         B2xw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684411926; x=1687003926;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20221208; t=1685000829; x=1687592829;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=b1LVde9eD9hiDa72aXFp01UeitZcx1XKK5VRIQwwJ4w=;
-        b=gQZMxtOxzctTxLNQfmRN9XDe5HSNW+h8v4kHPr5bR5Lom8/NV0kPpHj2CGfFhT5hfI
-         FiGfzI/hQ/CquDMSVjEzqrRMN/elRuRqJwSBOppSf1midY/3MLfemLLd9iNQAv2U/TfN
-         AxVDTf2KNzOO7CiiHleYYMw4bfSqkbjNaq4Xlz/e4QZLPypROIA7TFR378hpgrNRYWQ7
-         5zvuZkZQMNcb4n+ujTdl6ZzzKONuhgOYHMoat9pDrO3kVXNLUUf4CqVzvKHPkiraE2x2
-         bokW4X/bUk6rKNqCzoWJLQXqlLt4iDY2GQ3YooFfuoNE22vi2w/ASnXVwkv1fM4bNKQK
-         aSlg==
-X-Gm-Message-State: AC+VfDyZFFXR2AIhgb4+X1xs1YOJ4N3B+JytWDVu9PxXvjnxBgYiYbJX
-        ng/1xCpkFb7+9/qIF6OFuV1W9g==
-X-Google-Smtp-Source: ACHHUZ7wZ7lgCFFjWmWBQuc0tx+WGJVC/VREvoop6Vbqh2gPTjnAeer0zQN00cudqqAWi4mVPLtPKg==
-X-Received: by 2002:a05:6214:2486:b0:5fd:7701:88c5 with SMTP id gi6-20020a056214248600b005fd770188c5mr5974330qvb.6.1684411925806;
-        Thu, 18 May 2023 05:12:05 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-68-25-194.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.25.194])
-        by smtp.gmail.com with ESMTPSA id w8-20020a0562140b2800b006215c5bb2e9sm476635qvj.70.2023.05.18.05.12.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 May 2023 05:12:05 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1pzcUG-0055VE-PF;
-        Thu, 18 May 2023 09:12:04 -0300
-Date:   Thu, 18 May 2023 09:12:04 -0300
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
-        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
+        bh=PnS3KUBRyjQPPwobBxG2JUIPPiM6c8WlbyFpnNuaGkw=;
+        b=cztDxKeNSz3B9j9Ph8v/g/b7C1l6YDh3xkeiMpqx9kiaNBOPaDuUisI9iQl/BRQ8Bd
+         HWWu0O6PnCMHpm5TaGICNVO8Hu3qE6LuWPNtr9f5pjPi/GWfx9TPCSCwBRq2Ajd8lP8d
+         gCLL/Lxyc9D9hg3EI8O8BiTpc04eTYTaT14X0Nvg/9D+Okc3D2hNVnyWwP8InjFmvDFy
+         u0vHFdiaHj1VW6mnP4hHlKbtmiLAlmmAv8e9i8KOVCD5yJxctRqLQmDgCw8o1qebnQlJ
+         JQMcoIvM7UsfNLGazC2El6ZTSTqdfeh+0HPbKzGdxkRX6akagLCKXlCjWzCKZsROJt4U
+         xidQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1685000829; x=1687592829;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=PnS3KUBRyjQPPwobBxG2JUIPPiM6c8WlbyFpnNuaGkw=;
+        b=hXr4X4G7t86K9nwpNzZbwVsBQVfhpgB6eFlA1llqHBSGs3d1WzoY3QROmd4zxAWAE9
+         GUTh5ZmLoXCoaSp4QTEIPQMe4vKCMobyE5IwhoH5MFX4Bwl5YhxxS/iYTvDwJMaJhHau
+         U3ztCk7MR+v9+UGTZXsykVQW+/gcVpO7sTQ0wIIosUcWGJoQaZ1a1Uzl7cMomj1UOmEK
+         /oV69QZUQgXdCGyztbuI+yWWL7GzeURZt2N9vhhL8zlPtY4UK4QqzAzYHbDBJKIiED7K
+         BmfQ58T+Az7k7GNiDk7J6UX7hoDy+CGimAs/HxFB6AcBRXUNZOStyVO+hMbGJNtzlXDc
+         WcKw==
+X-Gm-Message-State: AC+VfDyIQWW/2CKHBfZKFR7aQQyhaTlU/8ybci7VkiGp4pDD5GDBqBFf
+        KOqsHcvRO8FLUYEatvVg5UwvfBgy819olJ4WPguaWAqyOVNTtQ==
+X-Google-Smtp-Source: ACHHUZ4oIlEiVAMypWmcT1VzaZ77w0VSE82EWwJ9rvCS5CllEFhR776msnXsd3wVl5j+HJ9KuoDxd0sjRuGsDwnOI1c=
+X-Received: by 2002:a5d:818d:0:b0:776:f672:8961 with SMTP id
+ u13-20020a5d818d000000b00776f6728961mr86710ion.20.1685000829291; Thu, 25 May
+ 2023 00:47:09 -0700 (PDT)
+MIME-Version: 1.0
+References: <20230327121317.4081816-1-arnd@kernel.org>
+In-Reply-To: <20230327121317.4081816-1-arnd@kernel.org>
+From:   "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
+Date:   Thu, 25 May 2023 08:46:43 +0100
+Message-ID: <CA+V-a8sTjDWwmH5HYk6zK8oaPGGM4Qhf-ftGrQzeKmbRFj4g-w@mail.gmail.com>
+Subject: Re: [PATCH 00/21] dma-mapping: unify support for cache flushes
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Catalin Marinas <catalin.marinas@arm.com>,
-        Huacai Chen <chenhuacai@kernel.org>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Brian Cain <bcain@quicinc.com>,
         Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Dinh Nguyen <dinguyen@kernel.org>,
-        Jonas Bonn <jonas@southpole.se>,
-        David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Stafford Horne <shorne@gmail.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
         Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Rich Felker <dalias@libc.org>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
         "David S. Miller" <davem@davemloft.net>,
-        Richard Weinberger <richard@nod.at>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v2 00/34] Split ptdesc from struct page
-Message-ID: <ZGYWFIfyDtdpeWg1@ziepe.ca>
-References: <20230501192829.17086-1-vishal.moola@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230501192829.17086-1-vishal.moola@gmail.com>
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-oxnas@groups.io,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-xtensa@linux-xtensa.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Mon, May 01, 2023 at 12:27:55PM -0700, Vishal Moola (Oracle) wrote:
-> The MM subsystem is trying to shrink struct page. This patchset
-> introduces a memory descriptor for page table tracking - struct ptdesc.
-> 
-> This patchset introduces ptdesc, splits ptdesc from struct page, and
-> converts many callers of page table constructor/destructors to use ptdescs.
+Hi Arnd,
 
-Lightly related food for future thought - based on some discussions at
-LSF/MM it would be really nice if an end result of this was that a
-rcu_head was always available in the ptdesc so we don't need to
-allocate memory to free a page table.
+On Mon, Mar 27, 2023 at 1:14=E2=80=AFPM Arnd Bergmann <arnd@kernel.org> wro=
+te:
+>
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> After a long discussion about adding SoC specific semantics for when
+> to flush caches in drivers/soc/ drivers that we determined to be
+> fundamentally flawed[1], I volunteered to try to move that logic into
+> architecture-independent code and make all existing architectures do
+> the same thing.
+>
+> As we had determined earlier, the behavior is wildly different across
+> architectures, but most of the differences come down to either bugs
+> (when required flushes are missing) or extra flushes that are harmless
+> but might hurt performance.
+>
+> I finally found the time to come up with an implementation of this, which
+> starts by replacing every outlier with one of the three common options:
+>
+>  1. architectures without speculative prefetching (hegagon, m68k,
+>     openrisc, sh, sparc, and certain armv4 and xtensa implementations)
+>     only flush their caches before a DMA, by cleaning write-back caches
+>     (if any) before a DMA to the device, and by invalidating the caches
+>     before a DMA from a device
+>
+>  2. arc, microblaze, mips, nios2, sh and later xtensa now follow the
+>     normal 32-bit arm model and invalidate their writeback caches
+>     again after a DMA from the device, to remove stale cache lines
+>     that got prefetched during the DMA. arc, csky and mips used to
+>     invalidate buffers also before the bidirectional DMA, but this
+>     is now skipped whenever we know it gets invalidated again
+>     after the DMA.
+>
+>  3. parisc, powerpc and riscv already flushed buffers before
+>     a DMA_FROM_DEVICE, and these get moved to the arm64 behavior
+>     that does the writeback before and invalidate after both
+>     DMA_FROM_DEVICE and DMA_BIDIRECTIONAL in order to avoid the
+>     problem of accidentally leaking stale data if the DMA does
+>     not actually happen[2].
+>
+> The last patch in the series replaces the architecture specific code
+> with a shared version that implements all three based on architecture
+> specific parameters that are almost always determined at compile time.
+>
+> The difference between cases 1. and 2. is hardware specific, while betwee=
+n
+> 2. and 3. we need to decide which semantics we want, but I explicitly
+> avoid this question in my series and leave it to be decided later.
+>
+> Another difference that I do not address here is what cache invalidation
+> does for partical cache lines. On arm32, arm64 and powerpc, a partial
+> cache line always gets written back before invalidation in order to
+> ensure that data before or after the buffer is not discarded. On all
+> other architectures, the assumption is cache lines are never shared
+> between DMA buffer and data that is accessed by the CPU. If we end up
+> always writing back dirty cache lines before a DMA (option 3 above),
+> then this point becomes moot, otherwise we should probably address this
+> in a follow-up series to document one behavior or the other and implement
+> it consistently.
+>
+> Please review!
+>
+>       Arnd
+>
+> [1] https://lore.kernel.org/all/20221212115505.36770-1-prabhakar.mahadev-=
+lad.rj@bp.renesas.com/
+> [2] https://lore.kernel.org/all/20220606152150.GA31568@willie-the-truck/
+>
+> Arnd Bergmann (21):
+>   openrisc: dma-mapping: flush bidirectional mappings
+>   xtensa: dma-mapping: use normal cache invalidation rules
+>   sparc32: flush caches in dma_sync_*for_device
+>   microblaze: dma-mapping: skip extra DMA flushes
+>   powerpc: dma-mapping: split out cache operation logic
+>   powerpc: dma-mapping: minimize for_cpu flushing
+>   powerpc: dma-mapping: always clean cache in _for_device() op
+>   riscv: dma-mapping: only invalidate after DMA, not flush
+>   riscv: dma-mapping: skip invalidation before bidirectional DMA
+>   csky: dma-mapping: skip invalidating before DMA from device
+>   mips: dma-mapping: skip invalidating before bidirectional DMA
+>   mips: dma-mapping: split out cache operation logic
+>   arc: dma-mapping: skip invalidating before bidirectional DMA
+>   parisc: dma-mapping: use regular flush/invalidate ops
+>   ARM: dma-mapping: always invalidate WT caches before DMA
+>   ARM: dma-mapping: bring back dmac_{clean,inv}_range
+>   ARM: dma-mapping: use arch_sync_dma_for_{device,cpu}() internally
+>   ARM: drop SMP support for ARM11MPCore
+>   ARM: dma-mapping: use generic form of arch_sync_dma_* helpers
+>   ARM: dma-mapping: split out arch_dma_mark_clean() helper
+>   dma-mapping: replace custom code with generic implementation
+>
+Do you plan to send v2 for this series?
 
-Jason
+Cheers,
+Prabhakar
+
+>  arch/arc/mm/dma.c                          |  66 ++------
+>  arch/arm/Kconfig                           |   4 +
+>  arch/arm/include/asm/cacheflush.h          |  21 +++
+>  arch/arm/include/asm/glue-cache.h          |   4 +
+>  arch/arm/mach-oxnas/Kconfig                |   4 -
+>  arch/arm/mach-oxnas/Makefile               |   1 -
+>  arch/arm/mach-oxnas/headsmp.S              |  23 ---
+>  arch/arm/mach-oxnas/platsmp.c              |  96 -----------
+>  arch/arm/mach-versatile/platsmp-realview.c |   4 -
+>  arch/arm/mm/Kconfig                        |  19 ---
+>  arch/arm/mm/cache-fa.S                     |   4 +-
+>  arch/arm/mm/cache-nop.S                    |   6 +
+>  arch/arm/mm/cache-v4.S                     |  13 +-
+>  arch/arm/mm/cache-v4wb.S                   |   4 +-
+>  arch/arm/mm/cache-v4wt.S                   |  22 ++-
+>  arch/arm/mm/cache-v6.S                     |  35 +---
+>  arch/arm/mm/cache-v7.S                     |   6 +-
+>  arch/arm/mm/cache-v7m.S                    |   4 +-
+>  arch/arm/mm/dma-mapping-nommu.c            |  36 ++--
+>  arch/arm/mm/dma-mapping.c                  | 181 ++++++++++-----------
+>  arch/arm/mm/proc-arm1020.S                 |   4 +-
+>  arch/arm/mm/proc-arm1020e.S                |   4 +-
+>  arch/arm/mm/proc-arm1022.S                 |   4 +-
+>  arch/arm/mm/proc-arm1026.S                 |   4 +-
+>  arch/arm/mm/proc-arm920.S                  |   4 +-
+>  arch/arm/mm/proc-arm922.S                  |   4 +-
+>  arch/arm/mm/proc-arm925.S                  |   4 +-
+>  arch/arm/mm/proc-arm926.S                  |   4 +-
+>  arch/arm/mm/proc-arm940.S                  |   4 +-
+>  arch/arm/mm/proc-arm946.S                  |   4 +-
+>  arch/arm/mm/proc-feroceon.S                |   8 +-
+>  arch/arm/mm/proc-macros.S                  |   2 +
+>  arch/arm/mm/proc-mohawk.S                  |   4 +-
+>  arch/arm/mm/proc-xsc3.S                    |   4 +-
+>  arch/arm/mm/proc-xscale.S                  |   6 +-
+>  arch/arm64/mm/dma-mapping.c                |  28 ++--
+>  arch/csky/mm/dma-mapping.c                 |  46 +++---
+>  arch/hexagon/kernel/dma.c                  |  44 ++---
+>  arch/m68k/kernel/dma.c                     |  43 +++--
+>  arch/microblaze/kernel/dma.c               |  38 ++---
+>  arch/mips/mm/dma-noncoherent.c             |  75 +++------
+>  arch/nios2/mm/dma-mapping.c                |  57 +++----
+>  arch/openrisc/kernel/dma.c                 |  62 ++++---
+>  arch/parisc/include/asm/cacheflush.h       |   6 +-
+>  arch/parisc/kernel/pci-dma.c               |  33 +++-
+>  arch/powerpc/mm/dma-noncoherent.c          |  76 +++++----
+>  arch/riscv/mm/dma-noncoherent.c            |  51 +++---
+>  arch/sh/kernel/dma-coherent.c              |  43 +++--
+>  arch/sparc/Kconfig                         |   2 +-
+>  arch/sparc/kernel/ioport.c                 |  38 +++--
+>  arch/xtensa/Kconfig                        |   1 -
+>  arch/xtensa/include/asm/cacheflush.h       |   6 +-
+>  arch/xtensa/kernel/pci-dma.c               |  47 +++---
+>  include/linux/dma-sync.h                   | 107 ++++++++++++
+>  54 files changed, 721 insertions(+), 699 deletions(-)
+>  delete mode 100644 arch/arm/mach-oxnas/headsmp.S
+>  delete mode 100644 arch/arm/mach-oxnas/platsmp.c
+>  create mode 100644 include/linux/dma-sync.h
+>
+> --
+> 2.39.2
+>
+> Cc: Vineet Gupta <vgupta@kernel.org>
+> Cc: Russell King <linux@armlinux.org.uk>
+> Cc: Neil Armstrong <neil.armstrong@linaro.org>
+> Cc: Linus Walleij <linus.walleij@linaro.org>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Will Deacon <will@kernel.org>
+> Cc: Guo Ren <guoren@kernel.org>
+> Cc: Brian Cain <bcain@quicinc.com>
+> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+> Cc: Michal Simek <monstr@monstr.eu>
+> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> Cc: Dinh Nguyen <dinguyen@kernel.org>
+> Cc: Stafford Horne <shorne@gmail.com>
+> Cc: Helge Deller <deller@gmx.de>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+> Cc: Paul Walmsley <paul.walmsley@sifive.com>
+> Cc: Palmer Dabbelt <palmer@dabbelt.com>
+> Cc: Rich Felker <dalias@libc.org>
+> Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: Max Filippov <jcmvbkbc@gmail.com>
+> Cc: Christoph Hellwig <hch@lst.de>
+> Cc: Robin Murphy <robin.murphy@arm.com>
+> Cc: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> Cc: Conor Dooley <conor.dooley@microchip.com>
+> Cc: linux-snps-arc@lists.infradead.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-oxnas@groups.io
+> Cc: linux-csky@vger.kernel.org
+> Cc: linux-hexagon@vger.kernel.org
+> Cc: linux-m68k@lists.linux-m68k.org
+> Cc: linux-mips@vger.kernel.org
+> Cc: linux-openrisc@vger.kernel.org
+> Cc: linux-parisc@vger.kernel.org
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Cc: linux-riscv@lists.infradead.org
+> Cc: linux-sh@vger.kernel.org
+> Cc: sparclinux@vger.kernel.org
+> Cc: linux-xtensa@linux-xtensa.org
+>
+> _______________________________________________
+> linux-riscv mailing list
+> linux-riscv@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-riscv
