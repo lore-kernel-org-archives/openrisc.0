@@ -2,40 +2,61 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14D37C7EE33;
-	Thu, 25 May 2023 09:19:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79518C77B7A;
+	Thu, 25 May 2023 17:00:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229687AbjEYJTa (ORCPT
+        id S240486AbjEYRAi (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Thu, 25 May 2023 05:19:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53718 "EHLO
+        Thu, 25 May 2023 13:00:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229663AbjEYJT2 (ORCPT
+        with ESMTP id S229832AbjEYRAg (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Thu, 25 May 2023 05:19:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B3D9191;
-        Thu, 25 May 2023 02:19:27 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 190476442C;
-        Thu, 25 May 2023 09:19:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3CF9C433EF;
-        Thu, 25 May 2023 09:19:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1685006366;
-        bh=wqsrR+VLdLpuPAmDdXqCVY2XwnsXyfpXvlaNwL8b95Y=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=foE41UqPH1HgRiXHDcvmNVSgga8+6+movhrIvHcP0lKkim5d2C0CveXiAkrsugwUY
-         mTMqHgjGefxYEA1DbMZBeEKmAQcDqRXgChs6yPJ6RFCubSjjaqUfXH5DibAVcYpUBA
-         aCcKgzmG5mhVSa4fQNmh2lbUtoTD+weF0ODUHN0azy9cnLxTNG6czawfKdDGiZ3h9+
-         eQhVfl9VDk2zYUu2V/zd6ljbuCqaKQw9PEhJG6TAu5DceAsH/0TRlb4M7Mib7O0vr6
-         Y2yg35as+E26Oh74LjFv8mXxr+pdJYlNpysggvOKmpyB8i+xjdzE7MqNjdH/FF5KDP
-         bMNE7SNyaBLAA==
-Date:   Thu, 25 May 2023 12:19:00 +0300
-From:   Mike Rapoport <rppt@kernel.org>
-To:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+        Thu, 25 May 2023 13:00:36 -0400
+Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BE4A194;
+        Thu, 25 May 2023 10:00:35 -0700 (PDT)
+Received: by mail-yb1-xb2e.google.com with SMTP id 3f1490d57ef6-ba86ec8047bso1164565276.3;
+        Thu, 25 May 2023 10:00:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1685034035; x=1687626035;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=JHrTsqL0nqeqxBvVw7n3mE3d9UFJpL2j8If6jZFByTc=;
+        b=VEXX4D+/ehgygAWm5BmRxKMQVayX+huiD86BmHpUJbQZIavyZk8MqgFgBVJCgltW8G
+         DGf1XLm8HhYD7C5Ltu5hncRV4xkFiRLvjnKAKUZAVqhHyZU7uDae6IK3C5qSD3GFgpGy
+         OqLSmV63QlFHc9BLqOH+z3/46t/qsNvryv2gOmzRQJTarAzeFF3wkmaawd/u1vYzudf+
+         2OoFyE7ArYkSpPwfiPG4wUCBT5egkmxxlXwXAVhzZYomT8xAIzGjfTrChNVAlbK2FaKO
+         3t03QrSsNM3MzVGbAgb9jEqdKkZ/GGbY36ZIzPCKupNWpFQuCEQc+t41/FAd5d9jW5uu
+         ry0A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1685034035; x=1687626035;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=JHrTsqL0nqeqxBvVw7n3mE3d9UFJpL2j8If6jZFByTc=;
+        b=RMzZUDsJuZLFwgNW98WpKtE0ELbyAiHu1ZKZKNTR0WmqNKZKoXvuKYpCk0sAd8GvrV
+         tEVjLZNihwtsJ+7ELcn5/Wu7Z/OolSONBQfoJ7u7LFEU/MAHrbWrGxnpSWKDzwGwaHZF
+         xZVQp0L1WW/rhxbN8mihO+t9VO4Sdd5gPaYY3iiy0jsbJc3ODwR1p4qL1+r9DfYE0vDg
+         8JfEqi8GOlgYwmhHlIsEdsi6xnStaVP0X1QLzWNoxTKDiLFav7iIT382D0GIvKY7RwWN
+         JKybNMvOdXyF5xgzbl7nuMqVlgFEe8LZUoz/cgYMYonpSrmYxzynYgCn0ui0ItvfGR05
+         5/IQ==
+X-Gm-Message-State: AC+VfDx8+JIBFKYl9eFzTAc5/+skqsZNO5jo7VisB7gsMRGosQzcvIvb
+        9mgWXarQKat5ShyFN5Qo9hPWbhNEhfOoTFMT05y4MRzA
+X-Google-Smtp-Source: ACHHUZ47ymCJWriUjad8DQ05hIMcCKin/PTMMU7nNv3HHwEyV9e0xB3DhHdcf1Fkkg8cgW7lAUtL7p6ayG4dp+Ur5MI=
+X-Received: by 2002:a25:2487:0:b0:ba8:5ded:13f3 with SMTP id
+ k129-20020a252487000000b00ba85ded13f3mr4152229ybk.17.1685034034679; Thu, 25
+ May 2023 10:00:34 -0700 (PDT)
+MIME-Version: 1.0
+References: <20230501192829.17086-1-vishal.moola@gmail.com>
+ <20230501192829.17086-2-vishal.moola@gmail.com> <20230525085555.GV4967@kernel.org>
+In-Reply-To: <20230525085555.GV4967@kernel.org>
+From:   Vishal Moola <vishal.moola@gmail.com>
+Date:   Thu, 25 May 2023 10:00:23 -0700
+Message-ID: <CAOzc2pxx489C26NnS9NHkUQY9PYiagzt-nYK6LnkJ1N3NYQWzg@mail.gmail.com>
+Subject: Re: [PATCH v2 01/34] mm: Add PAGE_TYPE_OP folio functions
+To:     Mike Rapoport <rppt@kernel.org>
 Cc:     Andrew Morton <akpm@linux-foundation.org>,
         Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
         linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
@@ -46,124 +67,27 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
         sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
         xen-devel@lists.xenproject.org, kvm@vger.kernel.org
-Subject: Re: [PATCH v2 13/34] mm: Create ptdesc equivalents for
- pgtable_{pte,pmd}_page_{ctor,dtor}
-Message-ID: <20230525091900.GY4967@kernel.org>
-References: <20230501192829.17086-1-vishal.moola@gmail.com>
- <20230501192829.17086-14-vishal.moola@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230501192829.17086-14-vishal.moola@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Mon, May 01, 2023 at 12:28:08PM -0700, Vishal Moola (Oracle) wrote:
-> Creates ptdesc_pte_ctor(), ptdesc_pmd_ctor(), ptdesc_pte_dtor(), and
-> ptdesc_pmd_dtor() and make the original pgtable constructor/destructors
-> wrappers.
+On Thu, May 25, 2023 at 1:56=E2=80=AFAM Mike Rapoport <rppt@kernel.org> wro=
+te:
+>
+> Hi,
+>
+> On Mon, May 01, 2023 at 12:27:56PM -0700, Vishal Moola (Oracle) wrote:
+> > No folio equivalents for page type operations have been defined, so
+> > define them for later folio conversions.
+>
+> Can you please elaborate why would we need folios for page table descript=
+ors?
 
-I think pgtable_pXY_ctor/dtor names would be better.
- 
-> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-> ---
->  include/linux/mm.h | 56 ++++++++++++++++++++++++++++++++++------------
->  1 file changed, 42 insertions(+), 14 deletions(-)
-> 
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index 58c911341a33..dc61aeca9077 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -2847,20 +2847,34 @@ static inline bool ptlock_init(struct ptdesc *ptdesc) { return true; }
->  static inline void ptlock_free(struct ptdesc *ptdesc) {}
->  #endif /* USE_SPLIT_PTE_PTLOCKS */
->  
-> -static inline bool pgtable_pte_page_ctor(struct page *page)
-> +static inline bool ptdesc_pte_ctor(struct ptdesc *ptdesc)
->  {
-> -	if (!ptlock_init(page_ptdesc(page)))
-> +	struct folio *folio = ptdesc_folio(ptdesc);
-> +
-> +	if (!ptlock_init(ptdesc))
->  		return false;
-> -	__SetPageTable(page);
-> -	inc_lruvec_page_state(page, NR_PAGETABLE);
-> +	__folio_set_table(folio);
-> +	lruvec_stat_add_folio(folio, NR_PAGETABLE);
->  	return true;
->  }
->  
-> +static inline bool pgtable_pte_page_ctor(struct page *page)
-> +{
-> +	return ptdesc_pte_ctor(page_ptdesc(page));
-> +}
-> +
-> +static inline void ptdesc_pte_dtor(struct ptdesc *ptdesc)
-> +{
-> +	struct folio *folio = ptdesc_folio(ptdesc);
-> +
-> +	ptlock_free(ptdesc);
-> +	__folio_clear_table(folio);
-> +	lruvec_stat_sub_folio(folio, NR_PAGETABLE);
-> +}
-> +
->  static inline void pgtable_pte_page_dtor(struct page *page)
->  {
-> -	ptlock_free(page_ptdesc(page));
-> -	__ClearPageTable(page);
-> -	dec_lruvec_page_state(page, NR_PAGETABLE);
-> +	ptdesc_pte_dtor(page_ptdesc(page));
->  }
->  
->  #define pte_offset_map_lock(mm, pmd, address, ptlp)	\
-> @@ -2942,20 +2956,34 @@ static inline spinlock_t *pmd_lock(struct mm_struct *mm, pmd_t *pmd)
->  	return ptl;
->  }
->  
-> -static inline bool pgtable_pmd_page_ctor(struct page *page)
-> +static inline bool ptdesc_pmd_ctor(struct ptdesc *ptdesc)
->  {
-> -	if (!pmd_ptlock_init(page_ptdesc(page)))
-> +	struct folio *folio = ptdesc_folio(ptdesc);
-> +
-> +	if (!pmd_ptlock_init(ptdesc))
->  		return false;
-> -	__SetPageTable(page);
-> -	inc_lruvec_page_state(page, NR_PAGETABLE);
-> +	__folio_set_table(folio);
-> +	lruvec_stat_add_folio(folio, NR_PAGETABLE);
->  	return true;
->  }
->  
-> +static inline bool pgtable_pmd_page_ctor(struct page *page)
-> +{
-> +	return ptdesc_pmd_ctor(page_ptdesc(page));
-> +}
-> +
-> +static inline void ptdesc_pmd_dtor(struct ptdesc *ptdesc)
-> +{
-> +	struct folio *folio = ptdesc_folio(ptdesc);
-> +
-> +	pmd_ptlock_free(ptdesc);
-> +	__folio_clear_table(folio);
-> +	lruvec_stat_sub_folio(folio, NR_PAGETABLE);
-> +}
-> +
->  static inline void pgtable_pmd_page_dtor(struct page *page)
->  {
-> -	pmd_ptlock_free(page_ptdesc(page));
-> -	__ClearPageTable(page);
-> -	dec_lruvec_page_state(page, NR_PAGETABLE);
-> +	ptdesc_pmd_dtor(page_ptdesc(page));
->  }
->  
->  /*
-> -- 
-> 2.39.2
-> 
-> 
+Thanks for the review!
 
--- 
-Sincerely yours,
-Mike.
+These macros are for callers that care about the page type, i.e. Table and
+Buddy. Aside from accounting for those cases, the page tables don't use fol=
+ios.
+These are more for the cleanliness of those callers.
