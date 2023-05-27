@@ -2,37 +2,42 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D8D7C7EE33;
-	Thu, 25 May 2023 20:57:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DE13C7EE2F;
+	Sat, 27 May 2023 10:42:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240778AbjEYU5M (ORCPT
+        id S232206AbjE0KmM (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Thu, 25 May 2023 16:57:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52282 "EHLO
+        Sat, 27 May 2023 06:42:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229672AbjEYU5L (ORCPT
+        with ESMTP id S229717AbjE0KmL (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Thu, 25 May 2023 16:57:11 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C513194;
-        Thu, 25 May 2023 13:57:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Transfer-Encoding:
-        Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
-        Sender:Reply-To:Content-ID:Content-Description;
-        bh=w/nv11jmZL//tzZgnsZQ422wtTnnU+GBTr8mcjZt+5o=; b=jz222m+qmkx46CtsL2SK6imku3
-        qq2pJIrpZYwwtoNlBcZF7Fk0xlPqceK3lGx9yfcEP5je3dxHl9hetkE+18QuDijP55CEPQoODBYNI
-        uvYKUPiKzBlONmhR187tH+srkvPeqkL343XpLTCXJPsX8gyRZRXys5FShMS4Kw48PvGIyNIrdiJob
-        qzWNUEmQ7TjGXaPWTNoBqzaR0fCIqDhz5vX5aceLEg5RLyYCA0NTJNp94Q35H+/kQzQkdBPbuLfU0
-        BUQp3kv2YpGE9fMQX8b3xVpJANGw8phzZpM8mq6dy60BHa+pYvxVMkKbTWE80Y8Sdq1m5IiayRsFG
-        t/mQy7HA==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1q2I19-00DAXr-9n; Thu, 25 May 2023 20:57:03 +0000
-Date:   Thu, 25 May 2023 21:57:03 +0100
-From:   Matthew Wilcox <willy@infradead.org>
+        Sat, 27 May 2023 06:42:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EBF110A;
+        Sat, 27 May 2023 03:42:10 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EF3F60B67;
+        Sat, 27 May 2023 10:42:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE11AC433EF;
+        Sat, 27 May 2023 10:42:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1685184129;
+        bh=Z4TeIapFpeS1e5WxOMUpOrDg87Rxe8ydQavxJsO0vug=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=qtjpACU3i7FVjLT023Ddg5iX1Sm9mYGyR9BAcAldcZGtkGi1IgPSjR20Gkom5YVFi
+         9GqwWTqSe6aCGE+Jk6r1lk9ASI1BqwfpG0h2HSrQ1BaMlG84/DZwyIoKGVbNuFJs46
+         KM/CX4KgN01bs8ctMAmNzdH3P/7vJMOVtl/spQpp1NeNWLVBfmoG8tubTTHEz78nbM
+         Mi5TzSK4O/LtfJpDtvhI5QLWzSn68VROvh7bVsKVmfCA0L8DXw2EUj7uC78b19+5Rx
+         6iPjAV5tMRrgS7SBBOhhGo75UiSObo7waKqxJ5uuMYjPYcI7MRtTbdg+ba8TB9jNgs
+         b+IpYHQpsYW9A==
+Date:   Sat, 27 May 2023 13:41:44 +0300
+From:   Mike Rapoport <rppt@kernel.org>
 To:     Vishal Moola <vishal.moola@gmail.com>
-Cc:     Mike Rapoport <rppt@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
         linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
         loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
@@ -41,62 +46,70 @@ Cc:     Mike Rapoport <rppt@kernel.org>,
         linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
         sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
         xen-devel@lists.xenproject.org, kvm@vger.kernel.org
-Subject: Re: [PATCH v2 01/34] mm: Add PAGE_TYPE_OP folio functions
-Message-ID: <ZG/Ln0Nf/Zx//EQk@casper.infradead.org>
+Subject: Re: [PATCH v2 05/34] mm: add utility functions for ptdesc
+Message-ID: <20230527104144.GH4967@kernel.org>
 References: <20230501192829.17086-1-vishal.moola@gmail.com>
- <20230501192829.17086-2-vishal.moola@gmail.com>
- <20230525085555.GV4967@kernel.org>
- <CAOzc2pxx489C26NnS9NHkUQY9PYiagzt-nYK6LnkJ1N3NYQWzg@mail.gmail.com>
- <20230525202011.GZ4967@kernel.org>
- <CAOzc2pzGPBYL3S=noc1AAEtep04GexRmn2f_T3BPgVFZKaqXTg@mail.gmail.com>
+ <20230501192829.17086-6-vishal.moola@gmail.com>
+ <20230525090956.GX4967@kernel.org>
+ <CAOzc2pxSH6GhBnAoSOjvYJk2VdMDFZi3H_1qGC5Cdyp3j4AzPQ@mail.gmail.com>
+ <20230525202537.GA4967@kernel.org>
+ <CAOzc2pxD21mxisy-M5b_SDUv0MYwNHqaVDJnJpARuDG_HjCbOg@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAOzc2pzGPBYL3S=noc1AAEtep04GexRmn2f_T3BPgVFZKaqXTg@mail.gmail.com>
+In-Reply-To: <CAOzc2pxD21mxisy-M5b_SDUv0MYwNHqaVDJnJpARuDG_HjCbOg@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Thu, May 25, 2023 at 01:38:54PM -0700, Vishal Moola wrote:
-> On Thu, May 25, 2023 at 1:20 PM Mike Rapoport <rppt@kernel.org> wrote:
+On Thu, May 25, 2023 at 01:53:24PM -0700, Vishal Moola wrote:
+> On Thu, May 25, 2023 at 1:26 PM Mike Rapoport <rppt@kernel.org> wrote:
 > >
-> > On Thu, May 25, 2023 at 10:00:23AM -0700, Vishal Moola wrote:
-> > > On Thu, May 25, 2023 at 1:56 AM Mike Rapoport <rppt@kernel.org> wrote:
+> > On Thu, May 25, 2023 at 11:04:28AM -0700, Vishal Moola wrote:
+> > > On Thu, May 25, 2023 at 2:10 AM Mike Rapoport <rppt@kernel.org> wrote:
+> > > > > +
+> > > > > +static inline struct ptdesc *ptdesc_alloc(gfp_t gfp, unsigned int order)
+> > > > > +{
+> > > > > +     struct page *page = alloc_pages(gfp | __GFP_COMP, order);
+> > > > > +
+> > > > > +     return page_ptdesc(page);
+> > > > > +}
+> > > > > +
+> > > > > +static inline void ptdesc_free(struct ptdesc *pt)
+> > > > > +{
+> > > > > +     struct page *page = ptdesc_page(pt);
+> > > > > +
+> > > > > +     __free_pages(page, compound_order(page));
+> > > > > +}
 > > > >
-> > > > Hi,
-> > > >
-> > > > On Mon, May 01, 2023 at 12:27:56PM -0700, Vishal Moola (Oracle) wrote:
-> > > > > No folio equivalents for page type operations have been defined, so
-> > > > > define them for later folio conversions.
-> > > >
-> > > > Can you please elaborate why would we need folios for page table descriptors?
+> > > > The ptdesc_{alloc,free} API does not sound right to me. The name
+> > > > ptdesc_alloc() implies the allocation of the ptdesc itself, rather than
+> > > > allocation of page table page. The same goes for free.
 > > >
-> > > Thanks for the review!
-> > >
-> > > These macros are for callers that care about the page type, i.e. Table and
-> > > Buddy. Aside from accounting for those cases, the page tables don't use folios.
-> > > These are more for the cleanliness of those callers.
+> > > I'm not sure I see the difference. Could you elaborate?
 > >
-> > But why using folio APIs for PageType will be cleaner than using page APIs?
-> > Do you have an example?
+> > I read ptdesc_alloc() as "allocate a ptdesc" rather than as "allocate a
+> > page for page table and return ptdesc pointing to that page". Seems very
+> > confusing to me already and it will be even more confusion when we'll start
+> > allocating actual ptdescs.
 > 
-> Ah, for example in mm/memory-failure.c there are a couple uses of PageTable.
-> Like the line :
-> if (folio_test_slab(folio) || PageTable(&folio->page) ||
-> folio_test_reserved(folio))
-> where that PageTable(&folio->page) can now be written as folio_test_table(folio)
-> instead.
-> 
-> Also there are numerous uses of PageBuddy in mm/compaction.c that will
-> likely need to be converted to folios as well.
+> Hmm, I see what you're saying. I'm envisioning this function evolving into
+> one that allocates a ptdesc later. I don't see why we would need to have both a
+> page table page AND ptdesc at any point, but that may be a lack of knowledge
+> from my part.
 
-... and you can currently call PageTable() on the second/third/... page
-of an allocation and it will return false, regardless of what the
-first page is typed as.  For most architectures, this doesn't matter,
-but /proc/kpageflags will underreport the amount of memory allocated
-as page tables on architectures which use multi-page allocations for
-their page tables as there's currently absolutely nothing to indicate
-the size of the allocation.
+Sorry if I wasn't clear, by "page table page" I meant the page (or memory
+for that matter) for actual page table rather than struct page describing
+that memory.
 
-To fix this, we need to use __GFP_COMP.
+So what we allocate here is the actual memory for the page tables and not
+the memory for the metadata. That's why I think the name ptdesc_alloc is
+confusing.
+ 
+> I was thinking later, if necessary, we could make another function
+> (only to be used internally) to allocate page table pages.
+
+-- 
+Sincerely yours,
+Mike.
