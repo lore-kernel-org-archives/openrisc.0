@@ -2,55 +2,55 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0344CC87FF1;
-	Wed, 31 May 2023 21:34:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9602C7EE3A;
+	Wed, 31 May 2023 21:35:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231297AbjEaVer (ORCPT
+        id S231127AbjEaVfL (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Wed, 31 May 2023 17:34:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40106 "EHLO
+        Wed, 31 May 2023 17:35:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230521AbjEaVeS (ORCPT
+        with ESMTP id S230427AbjEaVc3 (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Wed, 31 May 2023 17:34:18 -0400
-Received: from mail-yw1-x1132.google.com (mail-yw1-x1132.google.com [IPv6:2607:f8b0:4864:20::1132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 250E2E5E;
-        Wed, 31 May 2023 14:32:53 -0700 (PDT)
-Received: by mail-yw1-x1132.google.com with SMTP id 00721157ae682-568ba7abc11so714497b3.3;
-        Wed, 31 May 2023 14:32:53 -0700 (PDT)
+        Wed, 31 May 2023 17:32:29 -0400
+Received: from mail-yw1-x112c.google.com (mail-yw1-x112c.google.com [IPv6:2607:f8b0:4864:20::112c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFAEF199;
+        Wed, 31 May 2023 14:31:37 -0700 (PDT)
+Received: by mail-yw1-x112c.google.com with SMTP id 00721157ae682-565a63087e9so746537b3.2;
+        Wed, 31 May 2023 14:31:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1685568732; x=1688160732;
+        d=gmail.com; s=20221208; t=1685568697; x=1688160697;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=jxwTfn+1WulDyktO0TSvPUm3DeZmyyKIR9rdY3Tk+MA=;
-        b=L4jsN9kH5t72hj91BgcxrEjxGpFvV+qs5I3bkyZBlk1og0Opgec9qEsIK7FrraEHx2
-         1n1HXytspMZRcqAu6IErIg00HRKEQlSU5ge+vaCFc1Gqlt4Qy7JKfOaB6sQJmWGwoAk1
-         ee2W8IRVTtbl/idUF0z1LRlcPjUT7a6tY+VOsk0Iu1C+hZh22D5V07hzjpJteBVx3v1W
-         ZI/MBAiirrh/1wAfUDPooe/ZARW8FaFD8bCYxc4nZtEdbMeu9sESBKz6utwpFa1EL+di
-         5AtPWE2kRx/FV4woLekgALaQYhp02WG5GHPy9VCjhu9orzHIF3v5vTBp+/fCu2h+nW96
-         ROmg==
+        bh=+FIbG7hZZYadBjxNE3W8iUcLLESpTErkJHs37ORZhp8=;
+        b=QQW4eJbw08fzp5u0C3EApsqhSDScPxqfpSujd2Fftsdk0NV+UqjO1XJqJdVLi66zFu
+         cinpPfeEqgmR/O1Ran8+YgWTwfmK//QUf637v77XMU/TckkC/xhkbCW+xajO3Dbn3frP
+         kO/L8KSj4HsUJRKxWikCzzefHwxQle3fdbiwKYTLnSneYpsNE6F2bSphOyyvkSKnD24S
+         ROPR0bP/wgQqTMXtaw/FJstwqXMiiPsr72NT7QRMUoF9N1ccw4pckpdGN9TFHK/dLUHW
+         re4TxQzZRWiv1DfYJnXE2tUZsXuB7byvBA7x2TcImuqAH62S99tmu9Nc/6bmZRLPJwEN
+         bi+g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685568732; x=1688160732;
+        d=1e100.net; s=20221208; t=1685568697; x=1688160697;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=jxwTfn+1WulDyktO0TSvPUm3DeZmyyKIR9rdY3Tk+MA=;
-        b=iTFz/R58iZ9KdHxDDfUqMkfGVxEY78ttQyeDX8XqViJsD/e/5d/fzMWXHf9Cp1wLPO
-         Qok6zdmQLeHT6Zlzbvo0kV5uMSAgLQOXuOvBTHKgDbU9Rg6TNecwyQyYHNfE8iAkOsPw
-         JNzAcurJIsTrAY/Sam++8EN9oZGDcMmGhpNF2ZO200jb7GAR8FUiifsB3s7RLensc1DB
-         j8teRUrrLSzlsNi52dCe/DpJQCN+W06zkptp246FqXLaIy52aA+YHCN8XB7+OveYtCvb
-         KpcCi6IwMpyKzFb2MEBom9qrTwrr3Ze67RkFYlia+j4xQTujV3nRRWdimCDjrK9Dgi8b
-         ESBg==
-X-Gm-Message-State: AC+VfDyOX97En4zn9ksCk4rCFMx6jkIfYgWphiVVZr/TUiEezIVu3Urx
-        IvGH/fpk7ZTiicDYM5wn/G4=
-X-Google-Smtp-Source: ACHHUZ7+/nVY5dy5ww7MvRpp2ZVq2XpqSkLFoFJGuLgsQ62NeKnra3AVED33Ph7R+tcYIq7VRl7QLw==
-X-Received: by 2002:a0d:eb83:0:b0:561:3fb7:1333 with SMTP id u125-20020a0deb83000000b005613fb71333mr7209246ywe.43.1685568732564;
-        Wed, 31 May 2023 14:32:12 -0700 (PDT)
+        bh=+FIbG7hZZYadBjxNE3W8iUcLLESpTErkJHs37ORZhp8=;
+        b=HcHuDiB6p1uMGgB1/IVlx3iTtJ0Xr8GEu89/vBvwHJ+gcT25tcHT5OA75O0PzmJcX9
+         tEmIqzTp+0CYcNbT7VbeYSm5/k5WljYpiBqmES1OpHN9vvG6fCHGkIN9AZiYS6YVQXZd
+         P5UqJMS13DLEtvSzI12cZVqs6MYcmFIEz5hq1mHNozKSirGPfJ23Ll4gVUaTMkbL5g8k
+         O48pl/PQ7jyzjV64krypzgU7oDxnjXLEYwJhxqQ6qOe/lUjEtdzzmjRP87eHSrDu2UL4
+         MhkqrVv47elaATkcrDXLpafcw2G5WVmTYDYmBoGNKhaJYioi6BaNT+lygCjWOgl/e0AD
+         rfYg==
+X-Gm-Message-State: AC+VfDwun76d0cCXi4at7ghDNQCd0VASL2Elw7U4OTymgaQnj1sZ5zTj
+        W48hMiMXND+UwJrj36pMsIvO3Nk/RtqcyA==
+X-Google-Smtp-Source: ACHHUZ6MqVeBd30TPNz1jGF+qHEusksPOw1TO03qOyBH3mOgAXGsgyOhQYPLdxwJyABP8iCNsexq+Q==
+X-Received: by 2002:a81:66d6:0:b0:559:eae4:9671 with SMTP id a205-20020a8166d6000000b00559eae49671mr7863818ywc.14.1685568696959;
+        Wed, 31 May 2023 14:31:36 -0700 (PDT)
 Received: from unknowna0e70b2ca394.attlocal.net ([2600:1700:2f7d:1800::46])
-        by smtp.googlemail.com with ESMTPSA id t63-20020a0dd142000000b0055aafcef659sm658905ywd.5.2023.05.31.14.32.10
+        by smtp.googlemail.com with ESMTPSA id t63-20020a0dd142000000b0055aafcef659sm658905ywd.5.2023.05.31.14.31.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 31 May 2023 14:32:12 -0700 (PDT)
+        Wed, 31 May 2023 14:31:36 -0700 (PDT)
 From:   "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
 To:     Andrew Morton <akpm@linux-foundation.org>,
         Matthew Wilcox <willy@infradead.org>
@@ -63,11 +63,10 @@ Cc:     linux-mm@kvack.org, linux-arch@vger.kernel.org,
         linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
         linux-um@lists.infradead.org, xen-devel@lists.xenproject.org,
         kvm@vger.kernel.org,
-        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH v3 32/34] sparc: Convert pgtable_pte_page_{ctor, dtor}() to ptdesc equivalents
-Date:   Wed, 31 May 2023 14:30:30 -0700
-Message-Id: <20230531213032.25338-33-vishal.moola@gmail.com>
+        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+Subject: [PATCH v3 14/34] powerpc: Convert various functions to use ptdescs
+Date:   Wed, 31 May 2023 14:30:12 -0700
+Message-Id: <20230531213032.25338-15-vishal.moola@gmail.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230531213032.25338-1-vishal.moola@gmail.com>
 References: <20230531213032.25338-1-vishal.moola@gmail.com>
@@ -77,37 +76,211 @@ Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-Part of the conversions to replace pgtable pte constructor/destructors with
-ptdesc equivalents.
+In order to split struct ptdesc from struct page, convert various
+functions to use ptdescs.
 
 Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
 ---
- arch/sparc/mm/srmmu.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/powerpc/mm/book3s64/mmu_context.c | 10 +++---
+ arch/powerpc/mm/book3s64/pgtable.c     | 32 +++++++++---------
+ arch/powerpc/mm/pgtable-frag.c         | 46 +++++++++++++-------------
+ 3 files changed, 44 insertions(+), 44 deletions(-)
 
-diff --git a/arch/sparc/mm/srmmu.c b/arch/sparc/mm/srmmu.c
-index 13f027afc875..8393faa3e596 100644
---- a/arch/sparc/mm/srmmu.c
-+++ b/arch/sparc/mm/srmmu.c
-@@ -355,7 +355,8 @@ pgtable_t pte_alloc_one(struct mm_struct *mm)
- 		return NULL;
- 	page = pfn_to_page(__nocache_pa((unsigned long)ptep) >> PAGE_SHIFT);
- 	spin_lock(&mm->page_table_lock);
--	if (page_ref_inc_return(page) == 2 && !pgtable_pte_page_ctor(page)) {
-+	if (page_ref_inc_return(page) == 2 &&
-+			!pagetable_pte_ctor(page_ptdesc(page))) {
- 		page_ref_dec(page);
- 		ptep = NULL;
- 	}
-@@ -371,7 +372,7 @@ void pte_free(struct mm_struct *mm, pgtable_t ptep)
- 	page = pfn_to_page(__nocache_pa((unsigned long)ptep) >> PAGE_SHIFT);
- 	spin_lock(&mm->page_table_lock);
- 	if (page_ref_dec_return(page) == 1)
--		pgtable_pte_page_dtor(page);
-+		pagetable_pte_dtor(page_ptdesc(page));
- 	spin_unlock(&mm->page_table_lock);
+diff --git a/arch/powerpc/mm/book3s64/mmu_context.c b/arch/powerpc/mm/book3s64/mmu_context.c
+index c766e4c26e42..1715b07c630c 100644
+--- a/arch/powerpc/mm/book3s64/mmu_context.c
++++ b/arch/powerpc/mm/book3s64/mmu_context.c
+@@ -246,15 +246,15 @@ static void destroy_contexts(mm_context_t *ctx)
+ static void pmd_frag_destroy(void *pmd_frag)
+ {
+ 	int count;
+-	struct page *page;
++	struct ptdesc *ptdesc;
  
- 	srmmu_free_nocache(ptep, SRMMU_PTE_TABLE_SIZE);
+-	page = virt_to_page(pmd_frag);
++	ptdesc = virt_to_ptdesc(pmd_frag);
+ 	/* drop all the pending references */
+ 	count = ((unsigned long)pmd_frag & ~PAGE_MASK) >> PMD_FRAG_SIZE_SHIFT;
+ 	/* We allow PTE_FRAG_NR fragments from a PTE page */
+-	if (atomic_sub_and_test(PMD_FRAG_NR - count, &page->pt_frag_refcount)) {
+-		pgtable_pmd_page_dtor(page);
+-		__free_page(page);
++	if (atomic_sub_and_test(PMD_FRAG_NR - count, &ptdesc->pt_frag_refcount)) {
++		pagetable_pmd_dtor(ptdesc);
++		pagetable_free(ptdesc);
+ 	}
+ }
+ 
+diff --git a/arch/powerpc/mm/book3s64/pgtable.c b/arch/powerpc/mm/book3s64/pgtable.c
+index 85c84e89e3ea..1212deeabe15 100644
+--- a/arch/powerpc/mm/book3s64/pgtable.c
++++ b/arch/powerpc/mm/book3s64/pgtable.c
+@@ -306,22 +306,22 @@ static pmd_t *get_pmd_from_cache(struct mm_struct *mm)
+ static pmd_t *__alloc_for_pmdcache(struct mm_struct *mm)
+ {
+ 	void *ret = NULL;
+-	struct page *page;
++	struct ptdesc *ptdesc;
+ 	gfp_t gfp = GFP_KERNEL_ACCOUNT | __GFP_ZERO;
+ 
+ 	if (mm == &init_mm)
+ 		gfp &= ~__GFP_ACCOUNT;
+-	page = alloc_page(gfp);
+-	if (!page)
++	ptdesc = pagetable_alloc(gfp, 0);
++	if (!ptdesc)
+ 		return NULL;
+-	if (!pgtable_pmd_page_ctor(page)) {
+-		__free_pages(page, 0);
++	if (!pagetable_pmd_ctor(ptdesc)) {
++		pagetable_free(ptdesc);
+ 		return NULL;
+ 	}
+ 
+-	atomic_set(&page->pt_frag_refcount, 1);
++	atomic_set(&ptdesc->pt_frag_refcount, 1);
+ 
+-	ret = page_address(page);
++	ret = ptdesc_address(ptdesc);
+ 	/*
+ 	 * if we support only one fragment just return the
+ 	 * allocated page.
+@@ -331,12 +331,12 @@ static pmd_t *__alloc_for_pmdcache(struct mm_struct *mm)
+ 
+ 	spin_lock(&mm->page_table_lock);
+ 	/*
+-	 * If we find pgtable_page set, we return
++	 * If we find ptdesc_page set, we return
+ 	 * the allocated page with single fragment
+ 	 * count.
+ 	 */
+ 	if (likely(!mm->context.pmd_frag)) {
+-		atomic_set(&page->pt_frag_refcount, PMD_FRAG_NR);
++		atomic_set(&ptdesc->pt_frag_refcount, PMD_FRAG_NR);
+ 		mm->context.pmd_frag = ret + PMD_FRAG_SIZE;
+ 	}
+ 	spin_unlock(&mm->page_table_lock);
+@@ -357,15 +357,15 @@ pmd_t *pmd_fragment_alloc(struct mm_struct *mm, unsigned long vmaddr)
+ 
+ void pmd_fragment_free(unsigned long *pmd)
+ {
+-	struct page *page = virt_to_page(pmd);
++	struct ptdesc *ptdesc = virt_to_ptdesc(pmd);
+ 
+-	if (PageReserved(page))
+-		return free_reserved_page(page);
++	if (pagetable_is_reserved(ptdesc))
++		return free_reserved_ptdesc(ptdesc);
+ 
+-	BUG_ON(atomic_read(&page->pt_frag_refcount) <= 0);
+-	if (atomic_dec_and_test(&page->pt_frag_refcount)) {
+-		pgtable_pmd_page_dtor(page);
+-		__free_page(page);
++	BUG_ON(atomic_read(&ptdesc->pt_frag_refcount) <= 0);
++	if (atomic_dec_and_test(&ptdesc->pt_frag_refcount)) {
++		pagetable_pmd_dtor(ptdesc);
++		pagetable_free(ptdesc);
+ 	}
+ }
+ 
+diff --git a/arch/powerpc/mm/pgtable-frag.c b/arch/powerpc/mm/pgtable-frag.c
+index 20652daa1d7e..8961f1540209 100644
+--- a/arch/powerpc/mm/pgtable-frag.c
++++ b/arch/powerpc/mm/pgtable-frag.c
+@@ -18,15 +18,15 @@
+ void pte_frag_destroy(void *pte_frag)
+ {
+ 	int count;
+-	struct page *page;
++	struct ptdesc *ptdesc;
+ 
+-	page = virt_to_page(pte_frag);
++	ptdesc = virt_to_ptdesc(pte_frag);
+ 	/* drop all the pending references */
+ 	count = ((unsigned long)pte_frag & ~PAGE_MASK) >> PTE_FRAG_SIZE_SHIFT;
+ 	/* We allow PTE_FRAG_NR fragments from a PTE page */
+-	if (atomic_sub_and_test(PTE_FRAG_NR - count, &page->pt_frag_refcount)) {
+-		pgtable_pte_page_dtor(page);
+-		__free_page(page);
++	if (atomic_sub_and_test(PTE_FRAG_NR - count, &ptdesc->pt_frag_refcount)) {
++		pagetable_pte_dtor(ptdesc);
++		pagetable_free(ptdesc);
+ 	}
+ }
+ 
+@@ -55,25 +55,25 @@ static pte_t *get_pte_from_cache(struct mm_struct *mm)
+ static pte_t *__alloc_for_ptecache(struct mm_struct *mm, int kernel)
+ {
+ 	void *ret = NULL;
+-	struct page *page;
++	struct ptdesc *ptdesc;
+ 
+ 	if (!kernel) {
+-		page = alloc_page(PGALLOC_GFP | __GFP_ACCOUNT);
+-		if (!page)
++		ptdesc = pagetable_alloc(PGALLOC_GFP | __GFP_ACCOUNT, 0);
++		if (!ptdesc)
+ 			return NULL;
+-		if (!pgtable_pte_page_ctor(page)) {
+-			__free_page(page);
++		if (!pagetable_pte_ctor(ptdesc)) {
++			pagetable_free(ptdesc);
+ 			return NULL;
+ 		}
+ 	} else {
+-		page = alloc_page(PGALLOC_GFP);
+-		if (!page)
++		ptdesc = pagetable_alloc(PGALLOC_GFP, 0);
++		if (!ptdesc)
+ 			return NULL;
+ 	}
+ 
+-	atomic_set(&page->pt_frag_refcount, 1);
++	atomic_set(&ptdesc->pt_frag_refcount, 1);
+ 
+-	ret = page_address(page);
++	ret = ptdesc_address(ptdesc);
+ 	/*
+ 	 * if we support only one fragment just return the
+ 	 * allocated page.
+@@ -82,12 +82,12 @@ static pte_t *__alloc_for_ptecache(struct mm_struct *mm, int kernel)
+ 		return ret;
+ 	spin_lock(&mm->page_table_lock);
+ 	/*
+-	 * If we find pgtable_page set, we return
++	 * If we find ptdesc_page set, we return
+ 	 * the allocated page with single fragment
+ 	 * count.
+ 	 */
+ 	if (likely(!pte_frag_get(&mm->context))) {
+-		atomic_set(&page->pt_frag_refcount, PTE_FRAG_NR);
++		atomic_set(&ptdesc->pt_frag_refcount, PTE_FRAG_NR);
+ 		pte_frag_set(&mm->context, ret + PTE_FRAG_SIZE);
+ 	}
+ 	spin_unlock(&mm->page_table_lock);
+@@ -108,15 +108,15 @@ pte_t *pte_fragment_alloc(struct mm_struct *mm, int kernel)
+ 
+ void pte_fragment_free(unsigned long *table, int kernel)
+ {
+-	struct page *page = virt_to_page(table);
++	struct ptdesc *ptdesc = virt_to_ptdesc(table);
+ 
+-	if (PageReserved(page))
+-		return free_reserved_page(page);
++	if (pagetable_is_reserved(ptdesc))
++		return free_reserved_ptdesc(ptdesc);
+ 
+-	BUG_ON(atomic_read(&page->pt_frag_refcount) <= 0);
+-	if (atomic_dec_and_test(&page->pt_frag_refcount)) {
++	BUG_ON(atomic_read(&ptdesc->pt_frag_refcount) <= 0);
++	if (atomic_dec_and_test(&ptdesc->pt_frag_refcount)) {
+ 		if (!kernel)
+-			pgtable_pte_page_dtor(page);
+-		__free_page(page);
++			pagetable_pte_dtor(ptdesc);
++		pagetable_free(ptdesc);
+ 	}
+ }
 -- 
 2.40.1
 
