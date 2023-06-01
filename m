@@ -2,69 +2,132 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DBD4C77B7A;
-	Thu,  1 Jun 2023 15:19:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23AE8C7EE33;
+	Thu,  1 Jun 2023 20:43:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233640AbjFAPTU (ORCPT
+        id S232625AbjFAUng (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Thu, 1 Jun 2023 11:19:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56394 "EHLO
+        Thu, 1 Jun 2023 16:43:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235086AbjFAPSo (ORCPT
+        with ESMTP id S232572AbjFAUne (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Thu, 1 Jun 2023 11:18:44 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A66D1A4;
-        Thu,  1 Jun 2023 08:18:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
-        Content-ID:Content-Description:In-Reply-To:References;
-        bh=iPCuykgRySpw/ZXs6gCV41uTQU5aoInumgmYwwUYVaE=; b=Kt8PlBTkoFn5Hk4+RfJ/RZtJFg
-        8hm0fAxzQ4lVW0dncyeHsIT2mZyPgRwjZQXdTuklUoGZNFmVmII3joLq0Y+GiOnzWeWmvQWxErxyZ
-        8dpiZYBqVybeB2jfPeUHhvj+IBFPNSu362OvId3BNgbmZ2A8DOTReKojkgAmu4iqZrscidc2frTXK
-        ugLjqcF5IGBTKJnIoEWDXpe6/MKgVQ3JWMteQyI9eRT+ZXKaT+QotJunBDuSIBkU5VLdx+/rPFb2O
-        UUSGmtRbMITf6Yo8OZNwAiAaa6RMZQEVNR8dpM2qL3UXlHHglPYisJFafToVo1yMLpJTjp73mJaF6
-        1VQGo2Ug==;
-Received: from [2001:4bb8:182:6d06:eacb:c751:971:73eb] (helo=localhost)
-        by bombadil.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1q4k3s-003zx0-19;
-        Thu, 01 Jun 2023 15:18:00 +0000
-From:   Christoph Hellwig <hch@lst.de>
-To:     jonas@southpole.se, stefan.kristiansson@saunalahti.fi,
-        shorne@gmail.com
-Cc:     linux-openrisc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] openrisc: stop defining __KERNEL_SYSCALLS__
-Date:   Thu,  1 Jun 2023 17:17:58 +0200
-Message-Id: <20230601151758.1387016-1-hch@lst.de>
-X-Mailer: git-send-email 2.39.2
+        Thu, 1 Jun 2023 16:43:34 -0400
+Received: from mail-yw1-x112e.google.com (mail-yw1-x112e.google.com [IPv6:2607:f8b0:4864:20::112e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 617FF189;
+        Thu,  1 Jun 2023 13:43:32 -0700 (PDT)
+Received: by mail-yw1-x112e.google.com with SMTP id 00721157ae682-565a63087e9so13253237b3.2;
+        Thu, 01 Jun 2023 13:43:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1685652211; x=1688244211;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=F1D8lVOaAVBWbT9t2RmOD+26281abLHxtrNSt32Ap24=;
+        b=qLgbJbj5g8WGk9vr+h5GU3VAGYoZuUQfYy+Jk03a6BWdaBQStekzq99EEhSRb/apVE
+         r1wG5klq4xTuvlp4fzfvGwGvXsPOH5Z+EGzZ3xDm5VuokYBfnX2Z7EeXpvrNqoMOmFfA
+         JBLO6CGLz8pEI44d71tWawLxUIyiVrcZLnzOInnX4NDx0adjPFt4WqdjoFpvwTeJeP42
+         YdR8VtfFc5+TjUwWFHzsShyWmg/NGqDFZTc1nDT9EKaeGOrhYp9pTMhkn6c++xEXcw0Z
+         7/JenW6z+3FLVb69Ur5a6g5NHDXYEBFsl6KltuWvHl5pgiI7Ar5zj9KICtB4zwOfTiPP
+         PMcg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1685652211; x=1688244211;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=F1D8lVOaAVBWbT9t2RmOD+26281abLHxtrNSt32Ap24=;
+        b=GOowg9yn12Q6SQlCdXA40g08sLFst1a8mGzJYQc/D+ZC9Cv2U4KHw5O8JXgIdyIf6t
+         CkDgwYmWXjjIQLVN66g8S46iRGAxfgeuACOMOXb1rjo+Nk38gC9zvNnX8Mu6Mtn7rOCK
+         60f9rGemU06TnD/1OlFLxVftsIaKncCha4VSdmCCYFyn7Cr0LAXaFscluQveBYHF8+Qw
+         jV8yv5Gjekgy4HnL13fOiqaUFg4vhGAs4al+h7471Q1JJ+74hIQyZo4ofSMyl3D+Zkdz
+         8JvBwdKQbUVTivEbq50q6u9owP0DcP1eS0gnbqbQ2fVxAvU2zI50G7f+mhB6C5Lr/RAS
+         axEg==
+X-Gm-Message-State: AC+VfDxPOzX26sLB2wS6GTh3JDg9tVa9nUNjVyyIL/vXD17t+m+HgPcY
+        of+dXb9FtqMQ8lyQ6dtTMD1JbR2mgvDN2u0MMj8olTx8p5Y=
+X-Google-Smtp-Source: ACHHUZ5DfuhGus+PqmBDfDw3I8CUwiopOPmtEZnOXp6mFa4otjE0OnORW5aklQp2qVjtyKAx2ImFFxSDC1ok71Q6xew=
+X-Received: by 2002:a0d:e84b:0:b0:565:f045:18c3 with SMTP id
+ r72-20020a0de84b000000b00565f04518c3mr10614817ywe.20.1685652211220; Thu, 01
+ Jun 2023 13:43:31 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+References: <20230531213032.25338-1-vishal.moola@gmail.com>
+ <20230531213032.25338-4-vishal.moola@gmail.com> <20230601151900.6f184e8c@thinkpad-T15>
+In-Reply-To: <20230601151900.6f184e8c@thinkpad-T15>
+From:   Vishal Moola <vishal.moola@gmail.com>
+Date:   Thu, 1 Jun 2023 13:43:20 -0700
+Message-ID: <CAOzc2pyjLh_GV1PL7CPkkPGcASHULhir_rJgB+UhwzPgQZD8Bw@mail.gmail.com>
+Subject: Re: [PATCH v3 03/34] s390: Use pt_frag_refcount for pagetables
+To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
+        David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Hugh Dickins <hughd@google.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-__KERNEL_SYSCALLS__ hasn't been needed since Linux 2.6.19 so stop
-defining it.
+On Thu, Jun 1, 2023 at 6:19=E2=80=AFAM Gerald Schaefer
+<gerald.schaefer@linux.ibm.com> wrote:
+>
+>  On Wed, 31 May 2023 14:30:01 -0700
+> "Vishal Moola (Oracle)" <vishal.moola@gmail.com> wrote:
+>
+> > s390 currently uses _refcount to identify fragmented page tables.
+> > The page table struct already has a member pt_frag_refcount used by
+> > powerpc, so have s390 use that instead of the _refcount field as well.
+> > This improves the safety for _refcount and the page table tracking.
+> >
+> > This also allows us to simplify the tracking since we can once again us=
+e
+> > the lower byte of pt_frag_refcount instead of the upper byte of _refcou=
+nt.
+>
+> This would conflict with s390 impact of pte_free_defer() work from Hugh D=
+ickins
+> https://lore.kernel.org/lkml/35e983f5-7ed3-b310-d949-9ae8b130cdab@google.=
+com/
+> https://lore.kernel.org/lkml/6dd63b39-e71f-2e8b-7e0-83e02f3bcb39@google.c=
+om/
+>
+> There he uses pt_frag_refcount, or rather pt_mm in the same union, to sav=
+e
+> the mm_struct for deferred pte_free().
+>
+> I still need to look closer into both of your patch series, but so far it
+> seems that you have no hard functional requirement to switch from _refcou=
+nt
+> to pt_frag_refcount here, for s390.
+>
+> If this is correct, and you do not e.g. need this to make some other use
+> of _refcount, I would suggest to drop this patch.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- arch/openrisc/kernel/process.c | 1 -
- 1 file changed, 1 deletion(-)
+The goal of this preparation patch is to consolidate s390's usage of
+struct page fields so that struct ptdesc can be smaller. Its not particular=
+ly
+mandatory; leaving _refcount in ptdesc only increases the struct by
+8 bytes and can always be changed later.
 
-diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
-index dfa558f98ed8c0..1e908ab10ada20 100644
---- a/arch/openrisc/kernel/process.c
-+++ b/arch/openrisc/kernel/process.c
-@@ -13,7 +13,6 @@
-  * This file handles the architecture-dependent parts of process handling...
-  */
- 
--#define __KERNEL_SYSCALLS__
- #include <linux/errno.h>
- #include <linux/sched.h>
- #include <linux/sched/debug.h>
--- 
-2.39.2
+However it is a little annoying since s390 is the only architecture
+that egregiously uses space throughout struct page for their page
+tables, rather than just the page table struct. For example, s390
+gmap uses page->index which also aliases with pt_mm and
+pt_frag_refcount. I'm not sure if/how gmap page tables interact
+with s390 process page tables at all, but if it does that could
+potentially cause problems with Hugh's patch as well :(
 
+I can add _refcount to ptdesc if we would like, but I still
+prefer if s390 could be simplified instead.
