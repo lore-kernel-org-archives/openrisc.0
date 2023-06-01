@@ -2,64 +2,67 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C4286C7EE29;
-	Thu,  1 Jun 2023 08:22:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA387C77B7E;
+	Thu,  1 Jun 2023 13:19:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232083AbjFAIWR (ORCPT
+        id S233506AbjFANTp (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Thu, 1 Jun 2023 04:22:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37874 "EHLO
+        Thu, 1 Jun 2023 09:19:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231622AbjFAIWQ (ORCPT
+        with ESMTP id S233324AbjFANTn (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Thu, 1 Jun 2023 04:22:16 -0400
-Received: from mail-yb1-xb2a.google.com (mail-yb1-xb2a.google.com [IPv6:2607:f8b0:4864:20::b2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9DC59F;
-        Thu,  1 Jun 2023 01:22:14 -0700 (PDT)
-Received: by mail-yb1-xb2a.google.com with SMTP id 3f1490d57ef6-bacfcc7d1b2so555015276.2;
-        Thu, 01 Jun 2023 01:22:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1685607734; x=1688199734;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=F3q8fSv1CYQ8OeBSkoHHq8yQzPVMEdcVj1sJJBohCe0=;
-        b=scnpKoycafdSA6Zmoxe64NtU1IPtpP1XoN7u6BxbHgaNpHHpBaRgfB2X/NbVQI3XUI
-         S43vtnrb0VpUQFKtCtNAL2Z4eQGxKB9jkDmQzBef6OSmzPFkANcNw2nEHbBaxtIGRJFx
-         F2gdbWX0/JO50BjGXzMMRjG/dVaN6/37Aaxe3j2XyiD9NBGl22snChdmfv7CpIBT4YsT
-         wzEsBAOaAGJLasaxdabRza57BmBoAT7cVmGOq5aUEFhtYj/c1WejBdPyTkL2OU+y9vxz
-         zNiBma0es8vOX0CahjWds9KH8J6DH6xHzp6sGGczNoDJQcyp7Q2snP8wt+QQc7Qs4GOa
-         fyBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685607734; x=1688199734;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=F3q8fSv1CYQ8OeBSkoHHq8yQzPVMEdcVj1sJJBohCe0=;
-        b=PNfLrFx1d8QyiKkZnnmgvsKJ3pmH81y78IwvI4EM5RfWc9Fl9ZXuleVqCbbF311n3I
-         v80muihQL9NceIMTJjFK32DgxoiJ/Jd8dHPFTVzZeLpw6455zF+/c3YxeFv/lor6ilFi
-         9y48LUHuV+jcu4esfAWr2t99zyTwkj0ctqgRZRl3aLYcQEPiicgUs3xE5VF3QoJ1lnd8
-         sW1oY4pqnFe46aP2FeOg5UpagFZwxFR7jYD8awlCUv5mKXPc9UTl+j9McZhPMjlB/rST
-         l5e68Tp5iVTsz//qXEceVHYfHUbgjXwmh8XZdIx18CnxHREQKdVV9I/qbAIVCe5kGz6M
-         cGTw==
-X-Gm-Message-State: AC+VfDxAnQ1Hwhiea5G9woCGF5ERAyKLLFeB77R1vcI27ZMEdU61SKEH
-        omelXN46uRdwICwAfkEokLsWn62eoIIWdZewkEY=
-X-Google-Smtp-Source: ACHHUZ4BVGpqKx729yAA7sIpRRuJCk9B2q39qd4V84f+TNhLT6e1WTgI1mcqI+pCtHVuJpHfepvjflFti312UIm7bGk=
-X-Received: by 2002:a0d:f5c2:0:b0:568:d63e:dd2c with SMTP id
- e185-20020a0df5c2000000b00568d63edd2cmr6202683ywf.11.1685607733835; Thu, 01
- Jun 2023 01:22:13 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230531213032.25338-1-vishal.moola@gmail.com>
- <20230531213032.25338-31-vishal.moola@gmail.com> <CAMuHMdU4t4ac_eCH0UaX9F+GQ5-9kYjB_=e+pSfTkxG=3b8DsA@mail.gmail.com>
- <025fc34a24e1a1c26b187f15dba86d382d9617eb.camel@physik.fu-berlin.de>
-In-Reply-To: <025fc34a24e1a1c26b187f15dba86d382d9617eb.camel@physik.fu-berlin.de>
-From:   Vishal Moola <vishal.moola@gmail.com>
-Date:   Thu, 1 Jun 2023 01:22:03 -0700
-Message-ID: <CAOzc2pxnb6WXoVK5JXX42R0Q6FK59Q1uebQskK2fxLn6DuicqA@mail.gmail.com>
-Subject: Re: [PATCH v3 30/34] sh: Convert pte_free_tlb() to use ptdescs
-To:     John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        Thu, 1 Jun 2023 09:19:43 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F002B97;
+        Thu,  1 Jun 2023 06:19:41 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 351DDSRk018568;
+        Thu, 1 Jun 2023 13:19:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=tTBWxMHAGeJlpPAzqjw4yCDaupaYk6+WOuZ0r7RHXlQ=;
+ b=S/K5bR2wzWD8jF0s2LtK3vF/J1ec5Pw9lqbPdCL6ZXZARzxk77m6XthOAVrzcENBYS/e
+ ov9SEtmnnKsZTXa99Jk5hlMimhCPtmwo+YCJttdvMRkZI8Kj3tec3MJCAkANML7vJgEN
+ mm82HHoVVpteTT1109f2h3OEi5Dtya1+qWK/izBLKcrhp4adRtqmgRrMH7o6BtITpGsV
+ XQajjlwcskrHiNYJ0m2IzKlfajqLyEOsVlAvnpMojNTW61NI6Y/l6FXM9CcrwKrRoiRU
+ 5yYyiViugHG/GJk6Dj84G7GFPGbzxZudOaESQkF8/B03VEx03rqx3lIPkJn/GXcV7VmA dQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxv1b0a39-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 13:19:09 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 351DFUru001084;
+        Thu, 1 Jun 2023 13:19:09 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qxv1b0a25-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 13:19:08 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 351Ac6ca009714;
+        Thu, 1 Jun 2023 13:19:07 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3qu9g5a49c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jun 2023 13:19:06 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 351DJ3fS23134818
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 1 Jun 2023 13:19:03 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 330772004F;
+        Thu,  1 Jun 2023 13:19:03 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7D8E420040;
+        Thu,  1 Jun 2023 13:19:02 +0000 (GMT)
+Received: from thinkpad-T15 (unknown [9.152.212.238])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu,  1 Jun 2023 13:19:02 +0000 (GMT)
+Date:   Thu, 1 Jun 2023 15:19:00 +0200
+From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
         Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
         linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
@@ -69,32 +72,59 @@ Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
         linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
         sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
         xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
-        Yoshinori Sato <ysato@users.sourceforge.jp>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Hugh Dickins <hughd@google.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Subject: Re: [PATCH v3 03/34] s390: Use pt_frag_refcount for pagetables
+Message-ID: <20230601151900.6f184e8c@thinkpad-T15>
+In-Reply-To: <20230531213032.25338-4-vishal.moola@gmail.com>
+References: <20230531213032.25338-1-vishal.moola@gmail.com>
+        <20230531213032.25338-4-vishal.moola@gmail.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.37; x86_64-redhat-linux-gnu)
+Content-Type: text/plain; charset=US-ASCII
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: NZnx_8FojkhNAEEWitWpik8jaNZSNqYi
+X-Proofpoint-GUID: URInLnYnsG8BZV2VGVY1OnfgESTv3EvD
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-06-01_08,2023-05-31_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 spamscore=0
+ adultscore=0 priorityscore=1501 lowpriorityscore=0 suspectscore=0
+ impostorscore=0 bulkscore=0 mlxscore=0 phishscore=0 mlxlogscore=692
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2306010115
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Thu, Jun 1, 2023 at 12:28=E2=80=AFAM John Paul Adrian Glaubitz
-<glaubitz@physik.fu-berlin.de> wrote:
->
-> Hi Geert!
->
-> On Thu, 2023-06-01 at 09:20 +0200, Geert Uytterhoeven wrote:
-> > On Wed, May 31, 2023 at 11:33=E2=80=AFPM Vishal Moola (Oracle)
-> > <vishal.moola@gmail.com> wrote:
-> > > Part of the conversions to replace pgtable constructor/destructors wi=
-th
-> > > ptdesc equivalents. Also cleans up some spacing issues.
-> > >
-> > > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-> >
-> > LGTM, so
-> > Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
->
-> I assume this series is supposed to go through some mm tree?
+ On Wed, 31 May 2023 14:30:01 -0700
+"Vishal Moola (Oracle)" <vishal.moola@gmail.com> wrote:
 
-Hi Adrian,
-I was going to have Andrew take this through mm-unstable
-once it gets enough review.
+> s390 currently uses _refcount to identify fragmented page tables.
+> The page table struct already has a member pt_frag_refcount used by
+> powerpc, so have s390 use that instead of the _refcount field as well.
+> This improves the safety for _refcount and the page table tracking.
+> 
+> This also allows us to simplify the tracking since we can once again use
+> the lower byte of pt_frag_refcount instead of the upper byte of _refcount.
+
+This would conflict with s390 impact of pte_free_defer() work from Hugh Dickins
+https://lore.kernel.org/lkml/35e983f5-7ed3-b310-d949-9ae8b130cdab@google.com/
+https://lore.kernel.org/lkml/6dd63b39-e71f-2e8b-7e0-83e02f3bcb39@google.com/
+
+There he uses pt_frag_refcount, or rather pt_mm in the same union, to save
+the mm_struct for deferred pte_free().
+
+I still need to look closer into both of your patch series, but so far it
+seems that you have no hard functional requirement to switch from _refcount
+to pt_frag_refcount here, for s390.
+
+If this is correct, and you do not e.g. need this to make some other use
+of _refcount, I would suggest to drop this patch.
