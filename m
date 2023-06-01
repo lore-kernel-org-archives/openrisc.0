@@ -2,122 +2,104 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3C77C87FDD;
-	Wed, 31 May 2023 21:35:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D655C7EE2F;
+	Thu,  1 Jun 2023 04:36:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230418AbjEaVfO (ORCPT
+        id S231219AbjFAEgk (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Wed, 31 May 2023 17:35:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40108 "EHLO
+        Thu, 1 Jun 2023 00:36:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230479AbjEaVeS (ORCPT
+        with ESMTP id S229527AbjFAEgj (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Wed, 31 May 2023 17:34:18 -0400
-Received: from mail-yw1-x112f.google.com (mail-yw1-x112f.google.com [IPv6:2607:f8b0:4864:20::112f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E3CAE5F;
-        Wed, 31 May 2023 14:32:53 -0700 (PDT)
-Received: by mail-yw1-x112f.google.com with SMTP id 00721157ae682-561c1436c75so810617b3.1;
-        Wed, 31 May 2023 14:32:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1685568734; x=1688160734;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=cQ/uV998f7GBK3U8fEwXlOSI96PW+5wzkUNMHiphdSU=;
-        b=Gco7uaZ8T0f7tmyth6uZeLtIanv6GpulpDiuQwIsnzqnPkjzJkIu0h1PZGQ4iQfI5A
-         Wsvmi3eI4+D34lVcMDUsWRCETH5qcZJ6o4mHbMVq/3LTC/HNm7eQ6q2KfFVCA86f3d3I
-         LxBFjI2qJ2MPH41lEvrCJnwlKDxe1mBh52b4jr4phbiXUV/rBKhdQfCzS+0QvKIx+CwJ
-         I9nD3g0MgWbwsz1cldEhhb6oFNl81Iu/IWeIlG3kHhqR9NOaQpioUXIEm19YojgZVH7b
-         YKNDEnmfXzRXtSrjS8AB8ePFyFPpDGIfkcu+Z1fbAVxcvdW9nHAWNVZ44Hj2Se7PAnUx
-         U49A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685568734; x=1688160734;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=cQ/uV998f7GBK3U8fEwXlOSI96PW+5wzkUNMHiphdSU=;
-        b=E2F7wJAdwB95LBL1oRag1pc1kIKUw5WAjZCuSrWF/4vN3P6OyebBUK+irp7DvohZ3e
-         G5Ma+F9lYkZ1C9eFU1QpYVS2lwx8PCHuubreU1kM5h9GLBHDfkgRBOCIk5V8POoeSICt
-         t1C4ZcGXLlhb7csATSv7Ttx+YKkczt8SFdJk/9A4YQVaWiS7+0APksvyOEwY8x0ja+mG
-         3hOr1OImwEmBjCTDTH2nR98N9ZwwltV1Ijj25O7DM8OJDtFHL/2R0PyGL6wtwbfFwNru
-         u2AZjpqQZIRZHoJK2taXLdeOm6x7a0dgfMnP1f1i2OSWHp2MTwfuv28spBYLdz/fP0Sa
-         Tf1g==
-X-Gm-Message-State: AC+VfDwW1R3T8mTkbm53gfScko+450K2wD5m/9DZndxfzrY+RsY2fXEM
-        HeA1yrG+e7GmcnMcjmVuJ7Y=
-X-Google-Smtp-Source: ACHHUZ5gIOI1fuO3+omWI3ZFi04M+ls0ECM5yJW/hGOTfIhuUEs0QHIWlyyE93+ta0AMRd/Bn9r+fw==
-X-Received: by 2002:a0d:db15:0:b0:562:6c0:c4d3 with SMTP id d21-20020a0ddb15000000b0056206c0c4d3mr7636270ywe.13.1685568734582;
-        Wed, 31 May 2023 14:32:14 -0700 (PDT)
-Received: from unknowna0e70b2ca394.attlocal.net ([2600:1700:2f7d:1800::46])
-        by smtp.googlemail.com with ESMTPSA id t63-20020a0dd142000000b0055aafcef659sm658905ywd.5.2023.05.31.14.32.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 31 May 2023 14:32:14 -0700 (PDT)
-From:   "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-To:     Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>
-Cc:     linux-mm@kvack.org, linux-arch@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, xen-devel@lists.xenproject.org,
-        kvm@vger.kernel.org,
-        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH v3 33/34] um: Convert {pmd, pte}_free_tlb() to use ptdescs
-Date:   Wed, 31 May 2023 14:30:31 -0700
-Message-Id: <20230531213032.25338-34-vishal.moola@gmail.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230531213032.25338-1-vishal.moola@gmail.com>
-References: <20230531213032.25338-1-vishal.moola@gmail.com>
+        Thu, 1 Jun 2023 00:36:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7520D101;
+        Wed, 31 May 2023 21:36:38 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0737C63B94;
+        Thu,  1 Jun 2023 04:36:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6183CC433A4;
+        Thu,  1 Jun 2023 04:36:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1685594197;
+        bh=QZIVYOfQMQfDIruN7rSg689YIbiJbkkfE8AKRfy2n5U=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=XjX+qO5TgZej3fh2HJQIqiOR5PxyL4koYuTQx2qeUwz0mw2WS7S8765bRMbrDCQVG
+         whIGCjOlXBTjeWiN2+LrCx+Or8mSlhjQdHY5MFaYnqKspwUjKhBsJekNkwwwC3A2tK
+         RRJ+PYWLTNVwk2Tc4E1sjjLY66LER3hFT6QIRdlz0YEtfE5QnejkEMpgjlFtCb1L5b
+         jav2+jHQW0E6lB/EBDYRssonNB4dhirDM2pvI3kpcWJ0B9czAKVTkvmbZ2ylsgGsMq
+         x3kGCiBqFY0IqxyFq7Pvs4DJbAWcMeNsAFCqYa1UhLYAOwr6LlCcKM6JbTbj+s1hsP
+         DnX5huppMSCjQ==
+Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-5148f299105so1031967a12.1;
+        Wed, 31 May 2023 21:36:37 -0700 (PDT)
+X-Gm-Message-State: AC+VfDxwiT7C10j1GdEwYy4iVWtMNLpYz6Ki4JVdi3NqywTR8N1qLSdF
+        XgM4fxnK/8iEBfCLojzr5Ls7Jc1O2gyhWIXSzuc=
+X-Google-Smtp-Source: ACHHUZ7XdaYihX3P0occ4fimfrY7vXLE/b8sATTjW74eXROnZDFW1BQ/va3F8G7kmqLig8peXPPgGCGmqMpiLEgKGXM=
+X-Received: by 2002:a05:6402:3511:b0:4fc:97d9:18ec with SMTP id
+ b17-20020a056402351100b004fc97d918ecmr437472edd.21.1685594195535; Wed, 31 May
+ 2023 21:36:35 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20230531213032.25338-1-vishal.moola@gmail.com> <20230531213032.25338-23-vishal.moola@gmail.com>
+In-Reply-To: <20230531213032.25338-23-vishal.moola@gmail.com>
+From:   Guo Ren <guoren@kernel.org>
+Date:   Thu, 1 Jun 2023 12:36:23 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTSEguewbRMD8w3u3tfSPt-Opy+i=jm_8W2+NtAP1OYSsA@mail.gmail.com>
+Message-ID: <CAJF2gTSEguewbRMD8w3u3tfSPt-Opy+i=jm_8W2+NtAP1OYSsA@mail.gmail.com>
+Subject: Re: [PATCH v3 22/34] csky: Convert __pte_free_tlb() to use ptdescs
+To:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        xen-devel@lists.xenproject.org, kvm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-Part of the conversions to replace pgtable constructor/destructors with
-ptdesc equivalents. Also cleans up some spacing issues.
+Acked-by: Guo Ren <guoren@kernel.org>
 
-Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
----
- arch/um/include/asm/pgalloc.h | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+On Thu, Jun 1, 2023 at 5:34=E2=80=AFAM Vishal Moola (Oracle)
+<vishal.moola@gmail.com> wrote:
+>
+> Part of the conversions to replace pgtable constructor/destructors with
+> ptdesc equivalents.
+>
+> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+> ---
+>  arch/csky/include/asm/pgalloc.h | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/arch/csky/include/asm/pgalloc.h b/arch/csky/include/asm/pgal=
+loc.h
+> index 7d57e5da0914..9c84c9012e53 100644
+> --- a/arch/csky/include/asm/pgalloc.h
+> +++ b/arch/csky/include/asm/pgalloc.h
+> @@ -63,8 +63,8 @@ static inline pgd_t *pgd_alloc(struct mm_struct *mm)
+>
+>  #define __pte_free_tlb(tlb, pte, address)              \
+>  do {                                                   \
+> -       pgtable_pte_page_dtor(pte);                     \
+> -       tlb_remove_page(tlb, pte);                      \
+> +       pagetable_pte_dtor(page_ptdesc(pte));           \
+> +       tlb_remove_page_ptdesc(tlb, page_ptdesc(pte));  \
+>  } while (0)
+>
+>  extern void pagetable_init(void);
+> --
+> 2.40.1
+>
 
-diff --git a/arch/um/include/asm/pgalloc.h b/arch/um/include/asm/pgalloc.h
-index 8ec7cd46dd96..de5e31c64793 100644
---- a/arch/um/include/asm/pgalloc.h
-+++ b/arch/um/include/asm/pgalloc.h
-@@ -25,19 +25,19 @@
-  */
- extern pgd_t *pgd_alloc(struct mm_struct *);
- 
--#define __pte_free_tlb(tlb,pte, address)		\
--do {							\
--	pgtable_pte_page_dtor(pte);			\
--	tlb_remove_page((tlb),(pte));			\
-+#define __pte_free_tlb(tlb, pte, address)			\
-+do {								\
-+	pagetable_pte_dtor(page_ptdesc(pte));			\
-+	tlb_remove_page_ptdesc((tlb), (page_ptdesc(pte)));	\
- } while (0)
- 
- #ifdef CONFIG_3_LEVEL_PGTABLES
- 
--#define __pmd_free_tlb(tlb, pmd, address)		\
--do {							\
--	pgtable_pmd_page_dtor(virt_to_page(pmd));	\
--	tlb_remove_page((tlb),virt_to_page(pmd));	\
--} while (0)						\
-+#define __pmd_free_tlb(tlb, pmd, address)			\
-+do {								\
-+	pagetable_pmd_dtor(virt_to_ptdesc(pmd));			\
-+	tlb_remove_page_ptdesc((tlb), virt_to_ptdesc(pmd));	\
-+} while (0)
- 
- #endif
- 
--- 
-2.40.1
 
+--=20
+Best Regards
+ Guo Ren
