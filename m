@@ -2,132 +2,103 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23AE8C7EE33;
-	Thu,  1 Jun 2023 20:43:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01103C87FDE;
+	Thu,  8 Jun 2023 10:12:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232625AbjFAUng (ORCPT
+        id S235932AbjFHKMa convert rfc822-to-8bit (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Thu, 1 Jun 2023 16:43:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32962 "EHLO
+        Thu, 8 Jun 2023 06:12:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232572AbjFAUne (ORCPT
+        with ESMTP id S235782AbjFHKMW (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Thu, 1 Jun 2023 16:43:34 -0400
-Received: from mail-yw1-x112e.google.com (mail-yw1-x112e.google.com [IPv6:2607:f8b0:4864:20::112e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 617FF189;
-        Thu,  1 Jun 2023 13:43:32 -0700 (PDT)
-Received: by mail-yw1-x112e.google.com with SMTP id 00721157ae682-565a63087e9so13253237b3.2;
-        Thu, 01 Jun 2023 13:43:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1685652211; x=1688244211;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=F1D8lVOaAVBWbT9t2RmOD+26281abLHxtrNSt32Ap24=;
-        b=qLgbJbj5g8WGk9vr+h5GU3VAGYoZuUQfYy+Jk03a6BWdaBQStekzq99EEhSRb/apVE
-         r1wG5klq4xTuvlp4fzfvGwGvXsPOH5Z+EGzZ3xDm5VuokYBfnX2Z7EeXpvrNqoMOmFfA
-         JBLO6CGLz8pEI44d71tWawLxUIyiVrcZLnzOInnX4NDx0adjPFt4WqdjoFpvwTeJeP42
-         YdR8VtfFc5+TjUwWFHzsShyWmg/NGqDFZTc1nDT9EKaeGOrhYp9pTMhkn6c++xEXcw0Z
-         7/JenW6z+3FLVb69Ur5a6g5NHDXYEBFsl6KltuWvHl5pgiI7Ar5zj9KICtB4zwOfTiPP
-         PMcg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685652211; x=1688244211;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=F1D8lVOaAVBWbT9t2RmOD+26281abLHxtrNSt32Ap24=;
-        b=GOowg9yn12Q6SQlCdXA40g08sLFst1a8mGzJYQc/D+ZC9Cv2U4KHw5O8JXgIdyIf6t
-         CkDgwYmWXjjIQLVN66g8S46iRGAxfgeuACOMOXb1rjo+Nk38gC9zvNnX8Mu6Mtn7rOCK
-         60f9rGemU06TnD/1OlFLxVftsIaKncCha4VSdmCCYFyn7Cr0LAXaFscluQveBYHF8+Qw
-         jV8yv5Gjekgy4HnL13fOiqaUFg4vhGAs4al+h7471Q1JJ+74hIQyZo4ofSMyl3D+Zkdz
-         8JvBwdKQbUVTivEbq50q6u9owP0DcP1eS0gnbqbQ2fVxAvU2zI50G7f+mhB6C5Lr/RAS
-         axEg==
-X-Gm-Message-State: AC+VfDxPOzX26sLB2wS6GTh3JDg9tVa9nUNjVyyIL/vXD17t+m+HgPcY
-        of+dXb9FtqMQ8lyQ6dtTMD1JbR2mgvDN2u0MMj8olTx8p5Y=
-X-Google-Smtp-Source: ACHHUZ5DfuhGus+PqmBDfDw3I8CUwiopOPmtEZnOXp6mFa4otjE0OnORW5aklQp2qVjtyKAx2ImFFxSDC1ok71Q6xew=
-X-Received: by 2002:a0d:e84b:0:b0:565:f045:18c3 with SMTP id
- r72-20020a0de84b000000b00565f04518c3mr10614817ywe.20.1685652211220; Thu, 01
- Jun 2023 13:43:31 -0700 (PDT)
-MIME-Version: 1.0
+        Thu, 8 Jun 2023 06:12:22 -0400
+Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B05A01FE9;
+        Thu,  8 Jun 2023 03:12:19 -0700 (PDT)
+Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
+          by outpost.zedat.fu-berlin.de (Exim 4.95)
+          with esmtps (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@zedat.fu-berlin.de>)
+          id 1q7Cck-000hkd-IA; Thu, 08 Jun 2023 12:12:10 +0200
+Received: from p57bd96d9.dip0.t-ipconnect.de ([87.189.150.217] helo=[192.168.178.81])
+          by inpost2.zedat.fu-berlin.de (Exim 4.95)
+          with esmtpsa (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@physik.fu-berlin.de>)
+          id 1q7Cck-0049Nn-9l; Thu, 08 Jun 2023 12:12:10 +0200
+Message-ID: <0e74974450a15870f13ff36ab5dd60924368c0d9.camel@physik.fu-berlin.de>
+Subject: Re: [PATCH v3 30/34] sh: Convert pte_free_tlb() to use ptdescs
+From:   John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+To:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>
+Cc:     linux-mm@kvack.org, linux-arch@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, xen-devel@lists.xenproject.org,
+        kvm@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>
+Date:   Thu, 08 Jun 2023 12:12:09 +0200
+In-Reply-To: <20230531213032.25338-31-vishal.moola@gmail.com>
 References: <20230531213032.25338-1-vishal.moola@gmail.com>
- <20230531213032.25338-4-vishal.moola@gmail.com> <20230601151900.6f184e8c@thinkpad-T15>
-In-Reply-To: <20230601151900.6f184e8c@thinkpad-T15>
-From:   Vishal Moola <vishal.moola@gmail.com>
-Date:   Thu, 1 Jun 2023 13:43:20 -0700
-Message-ID: <CAOzc2pyjLh_GV1PL7CPkkPGcASHULhir_rJgB+UhwzPgQZD8Bw@mail.gmail.com>
-Subject: Re: [PATCH v3 03/34] s390: Use pt_frag_refcount for pagetables
-To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
-        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
-        David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Hugh Dickins <hughd@google.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
+         <20230531213032.25338-31-vishal.moola@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.48.2 
+MIME-Version: 1.0
+X-Original-Sender: glaubitz@physik.fu-berlin.de
+X-Originating-IP: 87.189.150.217
+X-ZEDAT-Hint: PO
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Thu, Jun 1, 2023 at 6:19=E2=80=AFAM Gerald Schaefer
-<gerald.schaefer@linux.ibm.com> wrote:
->
->  On Wed, 31 May 2023 14:30:01 -0700
-> "Vishal Moola (Oracle)" <vishal.moola@gmail.com> wrote:
->
-> > s390 currently uses _refcount to identify fragmented page tables.
-> > The page table struct already has a member pt_frag_refcount used by
-> > powerpc, so have s390 use that instead of the _refcount field as well.
-> > This improves the safety for _refcount and the page table tracking.
-> >
-> > This also allows us to simplify the tracking since we can once again us=
-e
-> > the lower byte of pt_frag_refcount instead of the upper byte of _refcou=
-nt.
->
-> This would conflict with s390 impact of pte_free_defer() work from Hugh D=
-ickins
-> https://lore.kernel.org/lkml/35e983f5-7ed3-b310-d949-9ae8b130cdab@google.=
-com/
-> https://lore.kernel.org/lkml/6dd63b39-e71f-2e8b-7e0-83e02f3bcb39@google.c=
-om/
->
-> There he uses pt_frag_refcount, or rather pt_mm in the same union, to sav=
-e
-> the mm_struct for deferred pte_free().
->
-> I still need to look closer into both of your patch series, but so far it
-> seems that you have no hard functional requirement to switch from _refcou=
-nt
-> to pt_frag_refcount here, for s390.
->
-> If this is correct, and you do not e.g. need this to make some other use
-> of _refcount, I would suggest to drop this patch.
+On Wed, 2023-05-31 at 14:30 -0700, Vishal Moola (Oracle) wrote:
+> Part of the conversions to replace pgtable constructor/destructors with
+> ptdesc equivalents. Also cleans up some spacing issues.
+> 
+> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+> ---
+>  arch/sh/include/asm/pgalloc.h | 9 +++++----
+>  1 file changed, 5 insertions(+), 4 deletions(-)
+> 
+> diff --git a/arch/sh/include/asm/pgalloc.h b/arch/sh/include/asm/pgalloc.h
+> index a9e98233c4d4..5d8577ab1591 100644
+> --- a/arch/sh/include/asm/pgalloc.h
+> +++ b/arch/sh/include/asm/pgalloc.h
+> @@ -2,6 +2,7 @@
+>  #ifndef __ASM_SH_PGALLOC_H
+>  #define __ASM_SH_PGALLOC_H
+>  
+> +#include <linux/mm.h>
+>  #include <asm/page.h>
+>  
+>  #define __HAVE_ARCH_PMD_ALLOC_ONE
+> @@ -31,10 +32,10 @@ static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
+>  	set_pmd(pmd, __pmd((unsigned long)page_address(pte)));
+>  }
+>  
+> -#define __pte_free_tlb(tlb,pte,addr)			\
+> -do {							\
+> -	pgtable_pte_page_dtor(pte);			\
+> -	tlb_remove_page((tlb), (pte));			\
+> +#define __pte_free_tlb(tlb, pte, addr)				\
+> +do {								\
+> +	pagetable_pte_dtor(page_ptdesc(pte));			\
+> +	tlb_remove_page_ptdesc((tlb), (page_ptdesc(pte)));	\
+>  } while (0)
+>  
+>  #endif /* __ASM_SH_PGALLOC_H */
 
-The goal of this preparation patch is to consolidate s390's usage of
-struct page fields so that struct ptdesc can be smaller. Its not particular=
-ly
-mandatory; leaving _refcount in ptdesc only increases the struct by
-8 bytes and can always be changed later.
+Acked-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 
-However it is a little annoying since s390 is the only architecture
-that egregiously uses space throughout struct page for their page
-tables, rather than just the page table struct. For example, s390
-gmap uses page->index which also aliases with pt_mm and
-pt_frag_refcount. I'm not sure if/how gmap page tables interact
-with s390 process page tables at all, but if it does that could
-potentially cause problems with Hugh's patch as well :(
-
-I can add _refcount to ptdesc if we would like, but I still
-prefer if s390 could be simplified instead.
+-- 
+ .''`.  John Paul Adrian Glaubitz
+: :' :  Debian Developer
+`. `'   Physicist
+  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
