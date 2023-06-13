@@ -2,105 +2,94 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2469CA9EC7;
-	Mon, 12 Jun 2023 21:11:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5EC8C88CB6;
+	Tue, 13 Jun 2023 07:29:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233103AbjFLVLN (ORCPT
+        id S238893AbjFMH3N convert rfc822-to-8bit (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Mon, 12 Jun 2023 17:11:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57246 "EHLO
+        Tue, 13 Jun 2023 03:29:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239172AbjFLVIO (ORCPT
+        with ESMTP id S234256AbjFMH3L (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Mon, 12 Jun 2023 17:08:14 -0400
-Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51E0B4EC5;
-        Mon, 12 Jun 2023 14:05:32 -0700 (PDT)
-Received: by mail-oi1-x22c.google.com with SMTP id 5614622812f47-39c7f5706f0so2833786b6e.3;
-        Mon, 12 Jun 2023 14:05:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1686603931; x=1689195931;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SFY2ToTc/KdsqBsJRwbv8KRLKHn/LK4ImlbTce4a9J0=;
-        b=Hs3OvBwxjNbzyixj7aSD+NgtYC45wE004i2+DhLM32gwxSgyME8uf0ehUc+DFmEBWc
-         xTMw6H3P+HY7Tq7UuCfgFLKB1x+LkNTK02YDaXYWD1PeR9EEokleZ/wyxNBXTFWH/El9
-         c1bXL1i+QVcFD32llcBXIuwFJs/8j8fBCHPhcoBGFcfEu/JCwezOfmF0Yorw8OxgwAQW
-         Ostw6KM5t1cwURmpaD0hTGMu4TC4wHA6I1gDTQyjBc+K/xsxhtlIAUhVsIG12sG34SnA
-         HCLguPK5bJjFlDAoWGoj4Zr1Q8mKdxu4vSYAJa+HTJDnQnTisEOZH/pEJVvGvXlWVYbR
-         pDDA==
+        Tue, 13 Jun 2023 03:29:11 -0400
+Received: from mail-yb1-f172.google.com (mail-yb1-f172.google.com [209.85.219.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4D13AA;
+        Tue, 13 Jun 2023 00:29:10 -0700 (PDT)
+Received: by mail-yb1-f172.google.com with SMTP id 3f1490d57ef6-bb2ffa1e235so5348185276.0;
+        Tue, 13 Jun 2023 00:29:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686603931; x=1689195931;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20221208; t=1686641350; x=1689233350;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=SFY2ToTc/KdsqBsJRwbv8KRLKHn/LK4ImlbTce4a9J0=;
-        b=Pgn7IVIuwjCkd0iN//elxNK2meXj6z/s1lg4Nx7KW8K+HywLQR1PlrmyQD2jOPC5Ej
-         OYPhPNkddXFHm4eAG0frypBOMS98jD0TmU4hEN4KmbPAqpNfkTdmGFTMRVCYRXgpQyY9
-         J+J2KvxgYhUS5kJ6y4UwzD1LfopbIWiNEgXJ4q3euHyZDfSAagNRPuyexwH7c5HddMhG
-         QC9TcL7jX3wYpBcOWFMISAVFw+K6JugDdC7WGOjEOh30jpOjchPSGrobgXMwHPsx+QcX
-         rAjLPZdV7Tm1/qiMkVSU1vGH0KSKUElUm08oRdNjV8xcviIY9j2b5NJn0ExMq5EwJkDU
-         TEvw==
-X-Gm-Message-State: AC+VfDwszCoC5VAeMMvoAS7fmJaqeoZFL3dPpMSp/Jl0lrswwFqUXrKe
-        vP9aS+kNi73bsgKkddgkfJk=
-X-Google-Smtp-Source: ACHHUZ6j3CfgAuZNFN9JISmvDm/MlbHYE4sRUTkol2XKHwfWtbEYLS5pSkDxzuxqJ+njTa+59MBJKg==
-X-Received: by 2002:a05:6358:1a8a:b0:129:bddf:7960 with SMTP id gm10-20020a0563581a8a00b00129bddf7960mr4783450rwb.16.1686603930823;
-        Mon, 12 Jun 2023 14:05:30 -0700 (PDT)
-Received: from unknowna0e70b2ca394.attlocal.net ([2600:1700:2f7d:1800::16])
-        by smtp.googlemail.com with ESMTPSA id s125-20020a817783000000b00569eb609458sm2757115ywc.81.2023.06.12.14.05.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Jun 2023 14:05:30 -0700 (PDT)
-From:   "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-To:     Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>
-Cc:     linux-mm@kvack.org, linux-arch@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, xen-devel@lists.xenproject.org,
-        kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>,
-        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
-        Guo Ren <guoren@kernel.org>
-Subject: [PATCH v4 22/34] csky: Convert __pte_free_tlb() to use ptdescs
-Date:   Mon, 12 Jun 2023 14:04:11 -0700
-Message-Id: <20230612210423.18611-23-vishal.moola@gmail.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230612210423.18611-1-vishal.moola@gmail.com>
-References: <20230612210423.18611-1-vishal.moola@gmail.com>
+        bh=gKEzJjzBKla4S0x8jxwIAxVSx314J/aF9PC4BBXNBUc=;
+        b=O/Qgik+keNnu5W/ripF9MuXw5uie4lrFN7GFG0ipslGi3ZQee/TgWENlvdMee5Gpqo
+         0+o31MhB6jqzNKVbgTiickkV71vfZbCYnr7kfGcuyUkfP9ZPGGZXxVKkKl6g4FR7GjN9
+         lkfoKHdeLiVE976H1HTNyVI+jLeAsREXo678dQWLSFslceozZqf8rcXbzQQQgkz/fBYz
+         yPojg2j9jHpPE8vkoTswAsvl9kQEpWMX6Z9R7Su60NwfLoJSuWIVCHGiNmYDCpDlOv/b
+         iLZj1ATjunJm8lGaGq2Qi3npr4/R/Zmau1WE+dUPJ44FHMMtZPpF1cysRy25xngbMtGn
+         RdGQ==
+X-Gm-Message-State: AC+VfDxdvE1X10rWnv8Uu+OqfpsF0hWuZuuThD1NcrzycNc/SbxN562x
+        iOUDikmDRR6YWpgq/pFjH9xd9KPAiDIt1Q==
+X-Google-Smtp-Source: ACHHUZ4yyzfk2dKTO7/ChlMLJuq/byIx5/VbZj9Su9mWsasd4QMjz/UO+qc8km3I9JTUtbNCjoFjyA==
+X-Received: by 2002:a25:420f:0:b0:bcd:7017:5893 with SMTP id p15-20020a25420f000000b00bcd70175893mr926167yba.24.1686641349766;
+        Tue, 13 Jun 2023 00:29:09 -0700 (PDT)
+Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com. [209.85.128.175])
+        by smtp.gmail.com with ESMTPSA id r123-20020a25c181000000b00babd2eef59dsm2983215ybf.27.2023.06.13.00.29.08
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 13 Jun 2023 00:29:08 -0700 (PDT)
+Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-56d378b75f0so17179997b3.1;
+        Tue, 13 Jun 2023 00:29:08 -0700 (PDT)
+X-Received: by 2002:a0d:d611:0:b0:56d:ddc:cdbb with SMTP id
+ y17-20020a0dd611000000b0056d0ddccdbbmr1077781ywd.25.1686641348561; Tue, 13
+ Jun 2023 00:29:08 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20230612210423.18611-1-vishal.moola@gmail.com> <20230612210423.18611-26-vishal.moola@gmail.com>
+In-Reply-To: <20230612210423.18611-26-vishal.moola@gmail.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Tue, 13 Jun 2023 09:28:56 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdUk2OM+j_j8XSkMxRnNqmKy3qwUA8Mq-RA+p+ByfY-+4g@mail.gmail.com>
+Message-ID: <CAMuHMdUk2OM+j_j8XSkMxRnNqmKy3qwUA8Mq-RA+p+ByfY-+4g@mail.gmail.com>
+Subject: Re: [PATCH v4 25/34] m68k: Convert various functions to use ptdescs
+To:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
+        Hugh Dickins <hughd@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-Part of the conversions to replace pgtable constructor/destructors with
-ptdesc equivalents.
+On Mon, Jun 12, 2023 at 11:05 PM Vishal Moola (Oracle)
+<vishal.moola@gmail.com> wrote:
+> As part of the conversions to replace pgtable constructor/destructors with
+> ptdesc equivalents, convert various page table functions to use ptdescs.
+>
+> Some of the functions use the *get*page*() helper functions. Convert
+> these to use pagetable_alloc() and ptdesc_address() instead to help
+> standardize page tables further.
+>
+> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
 
-Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-Acked-by: Guo Ren <guoren@kernel.org>
----
- arch/csky/include/asm/pgalloc.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-diff --git a/arch/csky/include/asm/pgalloc.h b/arch/csky/include/asm/pgalloc.h
-index 7d57e5da0914..9c84c9012e53 100644
---- a/arch/csky/include/asm/pgalloc.h
-+++ b/arch/csky/include/asm/pgalloc.h
-@@ -63,8 +63,8 @@ static inline pgd_t *pgd_alloc(struct mm_struct *mm)
- 
- #define __pte_free_tlb(tlb, pte, address)		\
- do {							\
--	pgtable_pte_page_dtor(pte);			\
--	tlb_remove_page(tlb, pte);			\
-+	pagetable_pte_dtor(page_ptdesc(pte));		\
-+	tlb_remove_page_ptdesc(tlb, page_ptdesc(pte));	\
- } while (0)
- 
- extern void pagetable_init(void);
+Gr{oetje,eeting}s,
+
+                        Geert
+
 -- 
-2.40.1
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
