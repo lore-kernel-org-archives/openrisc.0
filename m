@@ -2,60 +2,42 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58A2CEB64DB;
-	Wed, 14 Jun 2023 09:30:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6331FEB64DB;
+	Wed, 14 Jun 2023 13:02:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244111AbjFNJat convert rfc822-to-8bit (ORCPT
+        id S244802AbjFNNCr (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Wed, 14 Jun 2023 05:30:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35302 "EHLO
+        Wed, 14 Jun 2023 09:02:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240486AbjFNJaU (ORCPT
+        with ESMTP id S244078AbjFNNCq (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Wed, 14 Jun 2023 05:30:20 -0400
-Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 219711FF0;
-        Wed, 14 Jun 2023 02:30:19 -0700 (PDT)
-Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-57001c0baddso5177207b3.2;
-        Wed, 14 Jun 2023 02:30:19 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686735018; x=1689327018;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=sUg4qrNPX3u1L7teHyX+L+B+2nv6pGpY1jj7jQmio6E=;
-        b=HLaZwbSHm2RAUuRjN/mLmJpriec5nmc+q8fBgtHGJ40vcMlDF8+MTWfoIhQhqjnHMO
-         Ckm91+jl1x7OHreSE7ETBeAqZagNZDTg1b3Zgch2N3y2FJcoyKkv0MvJAb+yFsaXw/hB
-         2Fu0w7Vd3uH68ichY92zSNgoi6iS3FHrQOBy6qpDOEtmjvm2DWy2lyAcgS+JPlBcHgvO
-         HUXi8XRtvUfIMDqOYW4gEppz5mrakbAFk6DSk+DDHZbceCO3+hc2gXVwa+SwuS/0AS8z
-         SgfHEIZ6qQOIe4OmKsY5GYMW9YUI59Nwpod/hqOA2JDX0rvWkWqekueBYcLkkKOaNlRl
-         iyww==
-X-Gm-Message-State: AC+VfDwK0yjybGgEgvktGtZXCQlnhPB1kaBKPT9Sx30og7gV/63Lf1jo
-        WmgxqFUZEHBbtVhHpbCpzeelL6Qwv1k42w==
-X-Google-Smtp-Source: ACHHUZ5BS+Ccv/S1DfqmwwsAY9Irz8IspsCd9IYZqxmz3HQslBY2kdJscpPFhVoRxVIQmCSGDkWvCA==
-X-Received: by 2002:a25:9248:0:b0:bb1:5628:59ee with SMTP id e8-20020a259248000000b00bb1562859eemr1357582ybo.28.1686735018147;
-        Wed, 14 Jun 2023 02:30:18 -0700 (PDT)
-Received: from mail-yb1-f179.google.com (mail-yb1-f179.google.com. [209.85.219.179])
-        by smtp.gmail.com with ESMTPSA id u18-20020a5b04d2000000b00bab9a67a4cesm3405967ybp.29.2023.06.14.02.30.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 14 Jun 2023 02:30:17 -0700 (PDT)
-Received: by mail-yb1-f179.google.com with SMTP id 3f1490d57ef6-bc4ed01b5d4so407378276.1;
-        Wed, 14 Jun 2023 02:30:17 -0700 (PDT)
-X-Received: by 2002:a25:6b47:0:b0:ba8:2009:ccbb with SMTP id
- o7-20020a256b47000000b00ba82009ccbbmr1338474ybm.46.1686735017346; Wed, 14 Jun
- 2023 02:30:17 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230612210423.18611-1-vishal.moola@gmail.com>
- <20230612210423.18611-28-vishal.moola@gmail.com> <e52c7a74-da68-08d2-54e2-f95a8c5b52e7@kernel.org>
-In-Reply-To: <e52c7a74-da68-08d2-54e2-f95a8c5b52e7@kernel.org>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Wed, 14 Jun 2023 11:30:05 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdXPASfLM8St_JZOW3Wke+ickJoo1oDr+orRbTERy=Zgwg@mail.gmail.com>
-Message-ID: <CAMuHMdXPASfLM8St_JZOW3Wke+ickJoo1oDr+orRbTERy=Zgwg@mail.gmail.com>
-Subject: Re: [PATCH v4 27/34] nios2: Convert __pte_free_tlb() to use ptdescs
-To:     Dinh Nguyen <dinguyen@kernel.org>
-Cc:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        Wed, 14 Jun 2023 09:02:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C21F0199C;
+        Wed, 14 Jun 2023 06:02:45 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5675564215;
+        Wed, 14 Jun 2023 13:02:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8321C433CB;
+        Wed, 14 Jun 2023 13:02:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1686747764;
+        bh=Z0S2d/Eru6a8jIIub+wJj2QGnnAEIe7xODp5r4XEjY4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Ij1kaX2f2DmI7HK85FkEb/euMvHbhk1Yl6Bfkym5Y/V3n55SCcwdtHPiMl/Uaznfq
+         /JPBcReV4N5cCfLGrjl0lmP3t1/xIRQ0sNu8SuNRKfJvFTG3ehEI7XrnyZzzj/mq5Z
+         LIzsfSZJkFEA+VFk5od8SUJmz7a2MZahKi7y83tUViVFyHKqtoU7QmKJKuQUMruG+3
+         ZBcXEtH/BdXI8p8nle54zxP2rJXEAQvrH6UElVJeso6ar3qrgbKRU7tK7ulw5ExB7M
+         3MJes9iMWx7TD3tX2qF3/3jOSJV75iRXzB8fjYUsip9RPr0GERlktBmW7yBKguUpKQ
+         +EDy1u2Ox8vrA==
+Date:   Wed, 14 Jun 2023 16:02:07 +0300
+From:   Mike Rapoport <rppt@kernel.org>
+To:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
         Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
         linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
@@ -66,56 +48,88 @@ Cc:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
         sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
         xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
         Hugh Dickins <hughd@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Subject: Re: [PATCH v4 01/34] mm: Add PAGE_TYPE_OP folio functions
+Message-ID: <20230614130207.GZ52412@kernel.org>
+References: <20230612210423.18611-1-vishal.moola@gmail.com>
+ <20230612210423.18611-2-vishal.moola@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230612210423.18611-2-vishal.moola@gmail.com>
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-Hi Dinh,
+On Mon, Jun 12, 2023 at 02:03:50PM -0700, Vishal Moola (Oracle) wrote:
+> No folio equivalents for page type operations have been defined, so
+> define them for later folio conversions.
+> 
+> Also changes the Page##uname macros to take in const struct page* since
+> we only read the memory here.
+> 
+> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
 
-On Wed, Jun 14, 2023 at 12:17 AM Dinh Nguyen <dinguyen@kernel.org> wrote:
-> On 6/12/23 16:04, Vishal Moola (Oracle) wrote:
-> > Part of the conversions to replace pgtable constructor/destructors with
-> > ptdesc equivalents.
-> >
-> > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-> > ---
-> >   arch/nios2/include/asm/pgalloc.h | 8 ++++----
-> >   1 file changed, 4 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/arch/nios2/include/asm/pgalloc.h b/arch/nios2/include/asm/pgalloc.h
-> > index ecd1657bb2ce..ce6bb8e74271 100644
-> > --- a/arch/nios2/include/asm/pgalloc.h
-> > +++ b/arch/nios2/include/asm/pgalloc.h
-> > @@ -28,10 +28,10 @@ static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
-> >
-> >   extern pgd_t *pgd_alloc(struct mm_struct *mm);
-> >
-> > -#define __pte_free_tlb(tlb, pte, addr)                               \
-> > -     do {                                                    \
-> > -             pgtable_pte_page_dtor(pte);                     \
-> > -             tlb_remove_page((tlb), (pte));                  \
-> > +#define __pte_free_tlb(tlb, pte, addr)                                       \
-> > +     do {                                                            \
-> > +             pagetable_pte_dtor(page_ptdesc(pte));                   \
-> > +             tlb_remove_page_ptdesc((tlb), (page_ptdesc(pte)));      \
-> >       } while (0)
-> >
-> >   #endif /* _ASM_NIOS2_PGALLOC_H */
->
-> Applied!
+Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
 
-I don't think you can just apply this patch, as the new functions
-were only introduced in [PATCH v4 05/34] of this series.
-
-Gr{oetje,eeting}s,
-
-                        Geert
+> ---
+>  include/linux/page-flags.h | 20 ++++++++++++++++++--
+>  1 file changed, 18 insertions(+), 2 deletions(-)
+> 
+> diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
+> index 92a2063a0a23..e99a616b9bcd 100644
+> --- a/include/linux/page-flags.h
+> +++ b/include/linux/page-flags.h
+> @@ -908,6 +908,8 @@ static inline bool is_page_hwpoison(struct page *page)
+>  
+>  #define PageType(page, flag)						\
+>  	((page->page_type & (PAGE_TYPE_BASE | flag)) == PAGE_TYPE_BASE)
+> +#define folio_test_type(folio, flag)					\
+> +	((folio->page.page_type & (PAGE_TYPE_BASE | flag)) == PAGE_TYPE_BASE)
+>  
+>  static inline int page_type_has_type(unsigned int page_type)
+>  {
+> @@ -920,20 +922,34 @@ static inline int page_has_type(struct page *page)
+>  }
+>  
+>  #define PAGE_TYPE_OPS(uname, lname)					\
+> -static __always_inline int Page##uname(struct page *page)		\
+> +static __always_inline int Page##uname(const struct page *page)		\
+>  {									\
+>  	return PageType(page, PG_##lname);				\
+>  }									\
+> +static __always_inline int folio_test_##lname(const struct folio *folio)\
+> +{									\
+> +	return folio_test_type(folio, PG_##lname);			\
+> +}									\
+>  static __always_inline void __SetPage##uname(struct page *page)		\
+>  {									\
+>  	VM_BUG_ON_PAGE(!PageType(page, 0), page);			\
+>  	page->page_type &= ~PG_##lname;					\
+>  }									\
+> +static __always_inline void __folio_set_##lname(struct folio *folio)	\
+> +{									\
+> +	VM_BUG_ON_FOLIO(!folio_test_type(folio, 0), folio);		\
+> +	folio->page.page_type &= ~PG_##lname;				\
+> +}									\
+>  static __always_inline void __ClearPage##uname(struct page *page)	\
+>  {									\
+>  	VM_BUG_ON_PAGE(!Page##uname(page), page);			\
+>  	page->page_type |= PG_##lname;					\
+> -}
+> +}									\
+> +static __always_inline void __folio_clear_##lname(struct folio *folio)	\
+> +{									\
+> +	VM_BUG_ON_FOLIO(!folio_test_##lname(folio), folio);		\
+> +	folio->page.page_type |= PG_##lname;				\
+> +}									\
+>  
+>  /*
+>   * PageBuddy() indicates that the page is free and in the buddy system
+> -- 
+> 2.40.1
+> 
+> 
 
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Sincerely yours,
+Mike.
