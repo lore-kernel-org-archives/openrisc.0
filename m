@@ -2,66 +2,51 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C2BEEB64DD;
-	Thu, 15 Jun 2023 07:57:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36206EB64D8;
+	Fri, 16 Jun 2023 12:38:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236728AbjFOH5d (ORCPT
+        id S1345113AbjFPMif (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Thu, 15 Jun 2023 03:57:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39930 "EHLO
+        Fri, 16 Jun 2023 08:38:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238540AbjFOH5c (ORCPT
+        with ESMTP id S232355AbjFPMic (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Thu, 15 Jun 2023 03:57:32 -0400
-Received: from mail-yw1-x1130.google.com (mail-yw1-x1130.google.com [IPv6:2607:f8b0:4864:20::1130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3273FE69
-        for <linux-openrisc@vger.kernel.org>; Thu, 15 Jun 2023 00:57:30 -0700 (PDT)
-Received: by mail-yw1-x1130.google.com with SMTP id 00721157ae682-57015b368c3so12921027b3.3
-        for <linux-openrisc@vger.kernel.org>; Thu, 15 Jun 2023 00:57:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1686815849; x=1689407849;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=xLt61v9ssqW8THTFBubZKFO6yUx9jJyRuoagCfuj5p4=;
-        b=sqOjHZl7egAhowGBIl8syIGU5uGIW1wSh5YqCADkB0Zmhbwaikuj12BL/Atk+qYS71
-         8dY5tiV1rX4DjXNhrE2xJeIEdceT4TUB4AfmV60Sg7nUR26TxpBkZUfQbEPDRpELwXiM
-         3HDz0uXJ5pPS05kzKVjfB3TERQuwjHm7feUY48emv6g2FTDXB9kM0valHSq3MAkeYNdE
-         mA/iBYPYSlEE3tWbGq5EWumSWyWn91B8nqrAaue3xEBOGl9H7R/5SfVVFZg7lrOxN+sl
-         dQY9293XfHEDMeAx5R4qX4oCaN7KwBo3Iv/M+KCSiSSfPpdtHzovKysKwSYDtQgZOCuN
-         1f9Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686815849; x=1689407849;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=xLt61v9ssqW8THTFBubZKFO6yUx9jJyRuoagCfuj5p4=;
-        b=CbgKD9SnV7akuXZUbmtQaaCIHM0h7ysK5Hf3RLgWQQfN0TFalo9k6JzjwW+CuRyc44
-         3DGLNB3PZxfqhjY1CpL2m9c2CE4wr5/AYCWwpjA2f9UVpq4HAuO6WhPnBaoIGvtN2PWk
-         eTpfo9rrt0cmfcPW/nZpwp0RV+Hx9K1EKCX5u1Nfk0VAmssPnNK15fpYUv+iiBlF0q5h
-         jkgv8BWkraseBZJ0aQvyDmuc1oF1nE0un/UL1YDTzw4rraSsISPtkaDdcSaJIt2EvMuN
-         shuGzYRLsf/70xfXfc5js6nHgLA5IwjyfJFnfjdKDmh2YtEiQnJF3eYhl5UPhRkPgMBO
-         tQeQ==
-X-Gm-Message-State: AC+VfDydr5XQGwN2wxzdGBPjUZzeOlVCQjK/CkHGxWOupM+/B4gNcbJr
-        rlweZlxi+XyCkKbCcUaYP5/x3g==
-X-Google-Smtp-Source: ACHHUZ7WkxW4gg02vDJcQOsCLmdXn2XBXedO6GCP0YsU33dh0gQYY291P8lwRaex9WlgnYowIiPsYQ==
-X-Received: by 2002:a0d:d9c9:0:b0:56d:244:ab13 with SMTP id b192-20020a0dd9c9000000b0056d0244ab13mr4185666ywe.28.1686815849226;
-        Thu, 15 Jun 2023 00:57:29 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id w10-20020a0dd40a000000b00568a207aaedsm4237877ywd.68.2023.06.15.00.57.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Jun 2023 00:57:28 -0700 (PDT)
-Date:   Thu, 15 Jun 2023 00:57:19 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
+        Fri, 16 Jun 2023 08:38:32 -0400
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2044.outbound.protection.outlook.com [40.107.223.44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB2ECAC;
+        Fri, 16 Jun 2023 05:38:31 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=PbEipcviY9zGC0ab2wKX0TynH5hnPwh7Zzgp297OD8mpBKjqEAQevQ7v7R7ySMPRWJ2YkEGs+oWogWO8kjser9lsyVrFbIO5/xB9VFw4Vmr3rT36GwHAQgbmmg8P0I03kL4xjA9/5/dw3ikiHi0rB2ZORSfZRWdDFyyQDvXce/5SDxmRN82ApjEw61jvy41ZkP5KAONThUOI6udozUn6pMgjIOz5f78j1ya+R7H8EPQPQYol2ICFESylNYVtun7I7794EMoqUvyrVZhWkGf2af1IdYM4EsgeDVQMiJ55WNO71a+lp8J5WjdxZsA9Js3XN959l14Tr9Hz/aZTp/nKnA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=RBR3YGss3cI0UzYEflUIczDUB09k7UkNH7V/zqmf6Yg=;
+ b=cjWEL+XYktzuLL44i0EyitI6dfUhZOf77T+tZ860X+6amPwhF2u7r08Mo/2teW589MdkU57ssBm+N5YoGr61g/+90C0HkPylyOOSIUsmOcc2iPBOoMOO1ep4sEs5opNKm/HGP39vu92XeeGe5s8+KvTUiNJzLxAfspku9QsUdoLlb3WnWIbHsWtDBQgIOx4kKuTawJKdUpeXHCX+BbUGeVAiBszmxBB6MYtTWP/scuxElJMqjW8Wrx5p7gzQsyvzPS7Uc+f8eXr6wbIHlNgLdq/s8wxpTO/Jpw0erqhRMIJ4izGwlAlG/rYtV+kUuE6A82mNNKLAjJyQdllzrl9rqw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=RBR3YGss3cI0UzYEflUIczDUB09k7UkNH7V/zqmf6Yg=;
+ b=ceBbog0E+AeI1CoNtHw0AldT8zR8BRFnDlIuDqAN3xf70U9Ys3W2Pf7Ii+9xhaSlCUzUhSXokfRZ249xX1bc5OBWaxYpt+SNkl3jc3an6d38Pw7TN/5uiPPaRQ+WI7lVWNfQQqf9KRjxEuNkihTjnCiNLiGb4ulyCx1pJZv3GmH9k8lYnl6StluaDiE6CFuc4ZAyBf8D5JmssK5lwdOp7mN8UpD/WycIYjYV/p0PsdU3dypOkVqdFSPqcj+ijiM3g7diavbnhQA+JsJMWgeO1RHO84tNvZx1+0N4IrZYygDLIPCEdX+yE5yJIjowQDIuGP7GTae86vPGu3IBW+Dluw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by IA0PR12MB7577.namprd12.prod.outlook.com (2603:10b6:208:43e::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6500.25; Fri, 16 Jun
+ 2023 12:38:28 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f7a7:a561:87e9:5fab]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f7a7:a561:87e9:5fab%7]) with mapi id 15.20.6477.037; Fri, 16 Jun 2023
+ 12:38:28 +0000
+Date:   Fri, 16 Jun 2023 09:38:27 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
 To:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>, linux-mm@kvack.org,
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
         linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
         loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
@@ -72,48 +57,73 @@ cc:     Andrew Morton <akpm@linux-foundation.org>,
         xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
         Hugh Dickins <hughd@google.com>
 Subject: Re: [PATCH v4 04/34] pgtable: Create struct ptdesc
+Message-ID: <ZIxXw9ERkYv+ipdd@nvidia.com>
+References: <20230612210423.18611-1-vishal.moola@gmail.com>
+ <20230612210423.18611-5-vishal.moola@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20230612210423.18611-5-vishal.moola@gmail.com>
-Message-ID: <fd63179-6ad6-fd86-79d6-2833c91111f8@google.com>
-References: <20230612210423.18611-1-vishal.moola@gmail.com> <20230612210423.18611-5-vishal.moola@gmail.com>
+X-ClientProxiedBy: BL0PR0102CA0025.prod.exchangelabs.com
+ (2603:10b6:207:18::38) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|IA0PR12MB7577:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8506705d-9a30-4258-c03b-08db6e6695d5
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: A1HBD5wD+23hljrt/BZDQ+Nq0kQdQCxvg+5QYwtqH0PvCuU0t+WZTcNeWVcPSeddfw7FwpKwPSrzyhfwIFb4hbe3Dduz5Td9kFUULTputVDH5dop9R47s7pwKtPLRnpWid3osDc+RoVSBxi84loqCiol4HKOOCUThtivw5p+7V305zg163JS80jbz6Nbq33o3bjiVsMdxEeAapbh4c4h3rPAzTJikGnn3Wrm/TEz6VRCcF3jf+jXw7+/vok0zU4ANfZeCsKt01GrQj2ezq8NXwRdrdT55uUbXCy+jb6ciQj1ACmXOz+HWEnpi10Hl431bujZ1n/wtxXeujt1xHRxMNCZYEg7cH4WHt0EcO6iSdWRE7I4KpFSC7sb/Egaf0o+sloQMWQ+cWXh/eDpR7gTC7SdCAGWsDSa6eNBjXFOT1GkV5M9Li8KLsT99nJhh2gBXNIjDoYLUG+B2bEw0S6dZSNuVgytIQDnSS0sALAJwdZQkUcoU0XJYlraVVs1V3XsZmbJXu67VfObirhEb2VdePBKCG0xTu/hVG5KZ3pK88IYnu342H9g+3Tw41/InV9v8wYuAqUSipnmQL/CDErDlnXvLwsGeSujy5kXXpRKMihuCi/JvMsMVHcgkoDKieULI/y91b+0usAD19Wh6QpfmA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(376002)(136003)(346002)(366004)(396003)(39860400002)(451199021)(5660300002)(38100700002)(186003)(2616005)(83380400001)(2906002)(6506007)(6512007)(7416002)(478600001)(26005)(6916009)(66946007)(316002)(66476007)(6486002)(66556008)(8936002)(8676002)(41300700001)(86362001)(4326008)(36756003)(54906003)(67856001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?/Irqnl8o7kuP7oMmsP7PZvxKq7x2MmLRtDR+Vgt5CkkvQCJm2lPuWCVSvzo6?=
+ =?us-ascii?Q?EbSIh+gkp9UQMFnOC7TLMnZfJ9XORFM9u3h+C9G9T174M+Cr6B7Q1q8D0YQ6?=
+ =?us-ascii?Q?ucDM/oEkFCVR7DZVQxsSWRtKh0Pys7OtL9Rexlr+CSROsJqX4p2u/c19b1kH?=
+ =?us-ascii?Q?7VERJjIDRwtpfgFovjP95eL1HQMOHpJjcVt5I0hFmKBR6vC4chQRWwSgtDe0?=
+ =?us-ascii?Q?GAhbRzQTgrncE/F2yKzxlod6TFgXF4+6kg8XzzQgHbpaHSWU1p+Fu9cdbcO/?=
+ =?us-ascii?Q?ppcDma4W0nRi5KmTeClGmwb9gYdpdpaALHBS86rfBHHUjfLkon+4CaVr7L63?=
+ =?us-ascii?Q?T+xiQqf58weB/ZJ7hC5aY/Rj3rn58pbOzXMFWjxRKBBhQKAQlIWUOz4q8aQ5?=
+ =?us-ascii?Q?uMf+69CwroesnC4uK4bdIJKkwYB5KYLnxUmH5lceQTyX9US/wb04E9C8WmO8?=
+ =?us-ascii?Q?d2Igorxe7kyhchQ3YoAifJowzDausi3w9XkgwCygcId7CuV+D0NG3krnXG7+?=
+ =?us-ascii?Q?8OWJr0TlKxY8HY3CWB5cjoZprye1VkM6yKqK9TBC5O9nPQxAlfzlXA42zTy7?=
+ =?us-ascii?Q?cib2mo2WMjA8Cn0XJU+92IsShh0d3LxuZNaC+H0Caosp9AcATityFkNmEVNF?=
+ =?us-ascii?Q?IdqnRm5asjVXFUZ4MDlimjrs4X0NLD9ZB4R9EHQi3cpCJBq708reJGCRorjW?=
+ =?us-ascii?Q?+g3+p3Cg2ZyoKdOCndqVgQ7WtZr+5t0AoCpWQ0xi8LbjevjEhI9Py3rbAVvj?=
+ =?us-ascii?Q?6lWh9Fp7szpCvF8T0/3HPd2+wkCpQaGj+/yDF1dvHHrLdmgCSYo4wckaQxhR?=
+ =?us-ascii?Q?2lsRQwZEMRbD44vineIy9pxCbfESFWeG5A6bSf3slk57ghdXAbu9CEoZ6jcl?=
+ =?us-ascii?Q?OpDI7lobgYTPDBZFjM0h7oZS4CuSfpuR++xNUeCAgOsu8T7Ds8Dpluq8uX4n?=
+ =?us-ascii?Q?9Jm8cg8Jt0WoIRtPGEW5i9Isit3cyifJ7dZyKhGLLfgm+M/UKz6XVfhQjsOV?=
+ =?us-ascii?Q?8bpZrzwmFG9rscMg9MSDwoy1bxx5Pc/yufiRFf5kAEtL1caZM8GTILicpeHK?=
+ =?us-ascii?Q?hrE/7mGA8DpvM+qLBSjUIhEleXhmYzoVneHhJGXUncswjykpaBi+xGVkmHit?=
+ =?us-ascii?Q?7K1tbHXYmlELlYTqdOdrlfy5CchSvODQE3VEx7/8JKKEi6k9uC6hiN35VKMR?=
+ =?us-ascii?Q?k1Ca8xzyUotdpcK4BfCwnuujpOE+bhKZah11psUhKDLIJ1DDQoBxsei6C7az?=
+ =?us-ascii?Q?jl86JF6Os4p3oTZRz0Cfi2jfp1uFhCbJa7YVzR3xLNzT6odu8kpKHZcMbrnG?=
+ =?us-ascii?Q?rJ0kVqPp/XW1F8JHCv4NKt446tO6B8lxGlfEi5hT4t0LWRMb8iWRvhR1QZLX?=
+ =?us-ascii?Q?IjClfLE/su4iY/Uas0HpwhAycdwOaATK2/OlucyTwlJs+75NV4LmT4VuMAsY?=
+ =?us-ascii?Q?E9DcShxP5bbFHq9wZ3maqkQMutw0YJhOZzXZqWTlQWq82e9gin9apVec6eCa?=
+ =?us-ascii?Q?fUBpj9ANJGOGl3b8d06YR9CjL8EX8qzHHJLwYrwngykFvIeJwVnKPJWnrq2x?=
+ =?us-ascii?Q?d1/tocPhkWuPEB6GZDs=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8506705d-9a30-4258-c03b-08db6e6695d5
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Jun 2023 12:38:28.6370
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: F8WtUVEqEUr+4a6ARSihpj6oeN2X6Diaq/r9BANH+D4NwEndUZStIxp4szriDpA4
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR12MB7577
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Mon, 12 Jun 2023, Vishal Moola (Oracle) wrote:
-
+On Mon, Jun 12, 2023 at 02:03:53PM -0700, Vishal Moola (Oracle) wrote:
 > Currently, page table information is stored within struct page. As part
 > of simplifying struct page, create struct ptdesc for page table
 > information.
 > 
 > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-
-Vishal, as I think you have already guessed, your ptdesc series and
-my pte_free_defer() "mm: free retracted page table by RCU" series are
-on a collision course.
-
-Probably just trivial collisions in most architectures, which either
-of us can easily adjust to the other; powerpc likely to be more awkward,
-but fairly easily resolved; s390 quite a problem.
-
-I've so far been unable to post a v2 of my series (and powerpc and s390
-were stupidly wrong in the v1), because a good s390 patch is not yet
-decided - Gerald Schaefer and I are currently working on that, on the
-s390 list (I took off most Ccs until we are settled and I can post v2).
-
-As you have no doubt found yourself, s390 has sophisticated handling of
-free half-pages already, and I need to add rcu_head usage in there too:
-it's tricky to squeeze it all in, and ptdesc does not appear to help us
-in any way (though mostly it's just changing some field names, okay).
-
-If ptdesc were actually allowing a flexible structure which architectures
-could add into, that would (in some future) be nice; but of course at
-present it's still fitting it all into one struct page, and mandating
-new restrictions which just make an architecture's job harder.
-
-Some notes on problematic fields below FYI.
-
 > ---
 >  include/linux/pgtable.h | 51 +++++++++++++++++++++++++++++++++++++++++
 >  1 file changed, 51 insertions(+)
@@ -146,13 +156,6 @@ Some notes on problematic fields below FYI.
 > +
 > +	union {
 > +		struct list_head pt_list;
-
-I shall be needing struct rcu_head rcu_head (or pt_rcu_head or whatever,
-if you prefer) in this union too.  Sharing the lru or pt_list with rcu_head
-is what's difficult to get right and efficient on s390 - and if ptdesc gave
-us an independent rcu_head for each page table, that would be a blessing!
-but sadly not, it still has to squeeze into a struct page.
-
 > +		struct {
 > +			unsigned long _pt_pad_1;
 > +			pgtable_t pmd_huge_pte;
@@ -163,26 +166,6 @@ but sadly not, it still has to squeeze into a struct page.
 > +	union {
 > +		struct mm_struct *pt_mm;
 > +		atomic_t pt_frag_refcount;
-
-Whether s390 will want pt_mm is not yet decided: I want to use it,
-Gerald prefers to go without it; but if we do end up using it,
-then pt_frag_refcount is a luxury we would have to give up.
-
-s390 does very well already with its _refcount tricks, and I'd expect
-powerpc's simpler but more wasteful implementation to work as well
-with _refcount too - I know that a few years back, powerpc did misuse
-_refcount (it did not allow for speculative accesses, thought it had
-sole ownership of that field); but s390 copes well with that, and I
-expect powerpc can do so too, without the luxury of pt_frag_refcount.
-
-But I've no desire to undo powerpc's use of pt_frag_refcount:
-just warning that we may want to undo any use of it in s390.
-
-I thought I had more issues to mention, probably Gerald will
-remind me of a whole new unexplored dimension! gmap perhaps.
-
-Hugh
-
 > +	};
 > +
 > +#if ALLOC_SPLIT_PTLOCKS
@@ -191,21 +174,12 @@ Hugh
 > +	spinlock_t ptl;
 > +#endif
 > +};
-> +
-> +#define TABLE_MATCH(pg, pt)						\
-> +	static_assert(offsetof(struct page, pg) == offsetof(struct ptdesc, pt))
-> +TABLE_MATCH(flags, __page_flags);
-> +TABLE_MATCH(compound_head, pt_list);
-> +TABLE_MATCH(compound_head, _pt_pad_1);
-> +TABLE_MATCH(pmd_huge_pte, pmd_huge_pte);
-> +TABLE_MATCH(mapping, _pt_s390_gaddr);
-> +TABLE_MATCH(pt_mm, pt_mm);
-> +TABLE_MATCH(ptl, ptl);
-> +#undef TABLE_MATCH
-> +static_assert(sizeof(struct ptdesc) <= sizeof(struct page));
-> +
->  /*
->   * No-op macros that just return the current protection value. Defined here
->   * because these macros can be used even if CONFIG_MMU is not defined.
-> -- 
-> 2.40.1
+
+I think you should include the memcg here too? It needs to be valid
+for a ptdesc, even if we don't currently deref it through the ptdesc
+type.
+
+Also, do you see a way to someday put a 'struct rcu_head' into here?
+
+Thanks,
+Jason
