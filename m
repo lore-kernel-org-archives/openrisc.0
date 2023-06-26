@@ -2,121 +2,73 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FE51EB64DD;
-	Sun, 25 Jun 2023 08:51:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F4EFEB64D7;
+	Mon, 26 Jun 2023 21:47:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231937AbjFYIvf convert rfc822-to-8bit (ORCPT
+        id S229965AbjFZVrY (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Sun, 25 Jun 2023 04:51:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36294 "EHLO
+        Mon, 26 Jun 2023 17:47:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231389AbjFYIve (ORCPT
+        with ESMTP id S230362AbjFZVrW (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Sun, 25 Jun 2023 04:51:34 -0400
-Received: from mail-yw1-f173.google.com (mail-yw1-f173.google.com [209.85.128.173])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3C691A1;
-        Sun, 25 Jun 2023 01:51:32 -0700 (PDT)
-Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-56fff21c2ebso23288107b3.3;
-        Sun, 25 Jun 2023 01:51:32 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687683092; x=1690275092;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=e/Aydrd9oAz9wF8VtbGA6a+XUUai3n6kkWsRZbAgo9o=;
-        b=EToGb3kw23gL6uvmfczy9Pb030gjqgDY3WM/320p+VDjjw6fjvV7psyFaHZZTNqrlD
-         CE+KU+vw+7B6pMrX/K6HQv3sHffmg486Gq/ClfbP09wvlP/nKTdvVuv7QwsMaUoz6OZX
-         kewK35SWStj52QKRzq1KFZsrzyx6iaXoI2uNVdsS2wQfjZ3nbYTlm9w52Wqo8d1WoyHa
-         MNPa4heDCNE0nCHNItwNmb4y1hV6KQkSKdgpeIRILUe/TI7lM2CTKFMlQg28j4vJLVK7
-         KX4N4hQKNQ4OsCj9LGja6r0vmyx/4MgnTBEX6QhOHwSDdhyVEBaA/N2ZaQuFBWJR/mkX
-         1hLw==
-X-Gm-Message-State: AC+VfDxts1GSIRtpyXYjzoqXlFQhTAZ7RP5sYwbON/fuN6N2FnWnSpBa
-        VM/itUwTOZ1L4uVRMOWMvm9imvQ1SCw/tg==
-X-Google-Smtp-Source: ACHHUZ7z1PhP7sGNjjYSngHvzCnTNMSJ9xFk2xpE+56ixmWKFrYFRjyioXpkMledeFyaGAG1LXdJfQ==
-X-Received: by 2002:a0d:d98d:0:b0:56f:e7b0:1753 with SMTP id b135-20020a0dd98d000000b0056fe7b01753mr24877426ywe.17.1687683091890;
-        Sun, 25 Jun 2023 01:51:31 -0700 (PDT)
-Received: from mail-yb1-f179.google.com (mail-yb1-f179.google.com. [209.85.219.179])
-        by smtp.gmail.com with ESMTPSA id p5-20020a817405000000b005739aebb692sm725874ywc.61.2023.06.25.01.51.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 25 Jun 2023 01:51:31 -0700 (PDT)
-Received: by mail-yb1-f179.google.com with SMTP id 3f1490d57ef6-bd6d9d7da35so2325348276.0;
-        Sun, 25 Jun 2023 01:51:30 -0700 (PDT)
-X-Received: by 2002:a25:cc02:0:b0:c13:f86d:3324 with SMTP id
- l2-20020a25cc02000000b00c13f86d3324mr3724376ybf.14.1687683090555; Sun, 25 Jun
- 2023 01:51:30 -0700 (PDT)
+        Mon, 26 Jun 2023 17:47:22 -0400
+X-Greylist: delayed 517 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 26 Jun 2023 14:47:19 PDT
+Received: from port70.net (port70.net [81.7.13.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CC8351701;
+        Mon, 26 Jun 2023 14:47:19 -0700 (PDT)
+Received: by port70.net (Postfix, from userid 1002)
+        id A4A2AABEC0C7; Mon, 26 Jun 2023 23:38:40 +0200 (CEST)
+Date:   Mon, 26 Jun 2023 23:38:40 +0200
+From:   Szabolcs Nagy <nsz@port70.net>
+To:     Stafford Horne <shorne@gmail.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+        Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        linux-mm@kvack.org
+Subject: Re: [PATCH 3/4] openrisc: Support floating point user api
+Message-ID: <20230626213840.GA1236108@port70.net>
+References: <20230418165813.1900991-1-shorne@gmail.com>
+ <20230418165813.1900991-4-shorne@gmail.com>
 MIME-Version: 1.0
-References: <20230622205745.79707-1-vishal.moola@gmail.com> <20230622205745.79707-25-vishal.moola@gmail.com>
-In-Reply-To: <20230622205745.79707-25-vishal.moola@gmail.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Sun, 25 Jun 2023 10:51:19 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdU2ZM1oJ7=Br6nezLpxjDQo_07N3T-adOupDm0Jntp=Qg@mail.gmail.com>
-Message-ID: <CAMuHMdU2ZM1oJ7=Br6nezLpxjDQo_07N3T-adOupDm0Jntp=Qg@mail.gmail.com>
-Subject: Re: [PATCH v5 24/33] m68k: Convert various functions to use ptdescs
-To:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
-        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
-        Hugh Dickins <hughd@google.com>,
-        Mike Rapoport <rppt@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230418165813.1900991-4-shorne@gmail.com>
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-Hi Vishal,
+* Stafford Horne <shorne@gmail.com> [2023-04-18 17:58:12 +0100]:
+> Add support for handling floating point exceptions and forwarding the
+> SIGFPE signal to processes.  Also, add fpu state to sigcontext.
+> 
+> Signed-off-by: Stafford Horne <shorne@gmail.com>
+> ---
+...
+> --- a/arch/openrisc/include/uapi/asm/sigcontext.h
+> +++ b/arch/openrisc/include/uapi/asm/sigcontext.h
+> @@ -28,6 +28,7 @@
+>  
+>  struct sigcontext {
+>  	struct user_regs_struct regs;  /* needs to be first */
+> +	struct __or1k_fpu_state fpu;
+>  	unsigned long oldmask;
+>  };
 
-On Thu, Jun 22, 2023 at 10:58 PM Vishal Moola (Oracle)
-<vishal.moola@gmail.com> wrote:
-> As part of the conversions to replace pgtable constructor/destructors with
-> ptdesc equivalents, convert various page table functions to use ptdescs.
->
-> Some of the functions use the *get*page*() helper functions. Convert
-> these to use pagetable_alloc() and ptdesc_address() instead to help
-> standardize page tables further.
->
-> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+this seems to break userspace abi.
+glibc and musl have or1k abi without this field.
 
-Thanks for your patch!
+either this is a new abi where binaries opt-in with some marking
+and then the base sigcontext should be unmodified,
 
-> --- a/arch/m68k/include/asm/mcf_pgalloc.h
-> +++ b/arch/m68k/include/asm/mcf_pgalloc.h
+or the fp state needs to be added to the signal frame in a way that
+does not break existing abi (e.g. end of the struct ?) and also
+advertise the new thing via a hwcap, otherwise userspace cannot
+make use of it.
 
->  static inline pgd_t *pgd_alloc(struct mm_struct *mm)
->  {
->         pgd_t *new_pgd;
-> +       struct ptdesc *ptdesc = pagetable_alloc((GFP_DMA | GFP_NOWARN) &
-
-0-day already told you for v3 that GFP_NOWARN does not exist.
-Please try cross-compiling your changes:
-https://mirrors.edge.kernel.org/pub/tools/crosstool/
-
-> +                       ~__GFP_HIGHMEM, 0);
->
-> -       new_pgd = (pgd_t *)__get_free_page(GFP_DMA | __GFP_NOWARN);
-> -       if (!new_pgd)
-> +       if (!ptdesc)
->                 return NULL;
-> +       new_pgd = ptdesc_address(ptdesc);
-> +
->         memcpy(new_pgd, swapper_pg_dir, PTRS_PER_PGD * sizeof(pgd_t));
->         memset(new_pgd, 0, PAGE_OFFSET >> PGDIR_SHIFT);
->         return new_pgd;
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+unless i'm missing something.
