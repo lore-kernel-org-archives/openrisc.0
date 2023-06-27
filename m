@@ -2,116 +2,168 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF6F8EB64DD;
-	Tue, 27 Jun 2023 16:41:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 503D8EB64D9;
+	Tue, 27 Jun 2023 16:52:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230450AbjF0QlV (ORCPT
+        id S231374AbjF0Qwl convert rfc822-to-8bit (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Tue, 27 Jun 2023 12:41:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58832 "EHLO
+        Tue, 27 Jun 2023 12:52:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231317AbjF0QlU (ORCPT
+        with ESMTP id S231345AbjF0Qwj (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Tue, 27 Jun 2023 12:41:20 -0400
-Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49F812700;
-        Tue, 27 Jun 2023 09:41:06 -0700 (PDT)
-Received: by mail-wr1-x432.google.com with SMTP id ffacd0b85a97d-313e68e99c7so4403257f8f.1;
-        Tue, 27 Jun 2023 09:41:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1687884065; x=1690476065;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=tPqwuMIYF4VZddyTRxVW9wCbFz3nD1brpxZ4QBpbzrc=;
-        b=inHfmnWw4N5iMaE9pnKNs1SF/HQUZ4fMgt1Q0BJ4t2tE5ZNuRArKjepLCFgCDY0msK
-         sUE5w/K5mwMRxDZimmJfnAg4gu5Uiv5ao5xkbgiT+ZOE2p+sn6KqvU7oWm/PfYExTRZA
-         Kx5LPGjb5OorMDQE3n41+aRrVUbflFRdBjNvAkmTSIgOyosN5j3kU815skkp/4AQYjDA
-         yHJrpLkEVTPmFxeYZsSmNKXDmSac8dShO/zmhT/iyHiVG5U1ssIWxoAXhReYJAZe32wb
-         IJnupcTmGVo86npaNAlgfdOuhW5pyVlBgPb38MS1YETO34Pr+Nk6aBh1Rw8PFzmhutj5
-         h4Mg==
+        Tue, 27 Jun 2023 12:52:39 -0400
+Received: from mail-oi1-f182.google.com (mail-oi1-f182.google.com [209.85.167.182])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 094AF10F;
+        Tue, 27 Jun 2023 09:52:36 -0700 (PDT)
+Received: by mail-oi1-f182.google.com with SMTP id 5614622812f47-3a04cb10465so3423329b6e.3;
+        Tue, 27 Jun 2023 09:52:36 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687884065; x=1690476065;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=tPqwuMIYF4VZddyTRxVW9wCbFz3nD1brpxZ4QBpbzrc=;
-        b=dxaYUqTOo55ttfqWIuhIu8P7yYh9A0ATxqivCVEQ18UjxpD0mBT5xUWtOjFo5oEHVj
-         kqbZpSsF5psNen5cP49OWR9iyDE+zf2JstfzjhsO5D4auu7Vo9leY9bBPvQ3qYYMuUWV
-         an2il6owp3q0Jus8sI7ecERML8tOX6QTP8fOEzPXmj70wvyEKdXsjRQWzcQScSITPvMD
-         O5MEuEWkHj0Z7wVNnlnRfl2YQnSBeCbP7cpwSbTPxB8SXhvLCq56kISZRz5jkKpAjjsf
-         4CKIDuqvd9JYUL6iOYmmxF+xGhh2OF8cTAvGO/v6wOPDp+8e5WE1CSEU2/whVWWaP1+g
-         DeSA==
-X-Gm-Message-State: AC+VfDyaF91jaDUlO/SCEbgv2jvIo82vH85AsQikymNZRTI6GKTwTqDY
-        +Y4xj+gS1E0fVcIJXyXNBX0=
-X-Google-Smtp-Source: ACHHUZ6TUmmGbdfad1tP5CR0ZLqVj9ctsqGWz0wY0SC29ZsDHa930uyPrMN7LDJw0IVHNzz8FmHKvg==
-X-Received: by 2002:adf:fe09:0:b0:313:e6f3:d05a with SMTP id n9-20020adffe09000000b00313e6f3d05amr7993378wrr.16.1687884064353;
-        Tue, 27 Jun 2023 09:41:04 -0700 (PDT)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id f18-20020adff452000000b003113b3bc9d7sm10876009wrp.32.2023.06.27.09.41.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Jun 2023 09:41:03 -0700 (PDT)
-Date:   Tue, 27 Jun 2023 17:41:03 +0100
-From:   Stafford Horne <shorne@gmail.com>
-To:     Szabolcs Nagy <nsz@port70.net>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        linux-mm@kvack.org
-Subject: Re: [PATCH 3/4] openrisc: Support floating point user api
-Message-ID: <ZJsRHzDbuTlXKNCG@antec>
-References: <20230418165813.1900991-1-shorne@gmail.com>
- <20230418165813.1900991-4-shorne@gmail.com>
- <20230626213840.GA1236108@port70.net>
+        d=1e100.net; s=20221208; t=1687884755; x=1690476755;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=3lIZI96K9vdLoSwUwpQZZH+ZWrx3VsFWqYpi3+69yqU=;
+        b=j8UVkCGUTQm4cypu9sZY06fFuoeRVjQB3Tcp1KkWVs8FGlEHu5iHdNIL4L9wAZSM3g
+         o4IxO8Yjz1rxMpjtE0FC2o+TnQVwgEALAAeErTkDjqwi9Txf4BFzLkDPhmxurP8dOGvv
+         6sBmGi48HC+3bWDJAN9+L8+tOUyW0OQshYw3hG3ayOYi9hCVkkay00SSMPSnOOeg/8oT
+         /RfaJjmecA8jEludnHWb5IJaeqiO3yIiPyuqsHeZWrUYYc0lBFfJEZfvTj+MKg8fqRs5
+         buW6R+8RofQtFLa49bmBVE2sw9UTywsX2woGDUBwI0GcPVUY2mavaXttbB14mwpFnMXH
+         MYsw==
+X-Gm-Message-State: AC+VfDyA0/0QXiyqbweQsnfFKdaey+PECZBQGXRxM4Hd3MUGu+nNAybG
+        uJRNp8H4MIRqzCRL9XaME3Ew094+gDnpUecO
+X-Google-Smtp-Source: ACHHUZ7sEtTDbMtXMYZM4wQdcH42Gj87XiCWCRSbYSHNx3mT9t9vREEcit/ZxlmEgYFy4cLekney/A==
+X-Received: by 2002:a05:6808:3098:b0:3a3:3a0b:aab8 with SMTP id bl24-20020a056808309800b003a33a0baab8mr1642135oib.48.1687884755254;
+        Tue, 27 Jun 2023 09:52:35 -0700 (PDT)
+Received: from mail-ot1-f47.google.com (mail-ot1-f47.google.com. [209.85.210.47])
+        by smtp.gmail.com with ESMTPSA id l1-20020a544501000000b003a3600182f8sm337192oil.57.2023.06.27.09.52.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 27 Jun 2023 09:52:34 -0700 (PDT)
+Received: by mail-ot1-f47.google.com with SMTP id 46e09a7af769-6b44b5adfd3so3927087a34.3;
+        Tue, 27 Jun 2023 09:52:34 -0700 (PDT)
+X-Received: by 2002:a05:6358:f55:b0:132:d3b1:c34a with SMTP id
+ c21-20020a0563580f5500b00132d3b1c34amr12105551rwj.7.1687884753801; Tue, 27
+ Jun 2023 09:52:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230626213840.GA1236108@port70.net>
+References: <20230327121317.4081816-1-arnd@kernel.org> <20230327121317.4081816-22-arnd@kernel.org>
+ <OS0PR01MB5922EDAFCD6DA0313DB99C5E86989@OS0PR01MB5922.jpnprd01.prod.outlook.com>
+ <66899d69-1339-4a61-8612-6f8e452b0b26@app.fastmail.com>
+In-Reply-To: <66899d69-1339-4a61-8612-6f8e452b0b26@app.fastmail.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Tue, 27 Jun 2023 18:52:22 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdV5gT1GDLODsUe0XibPRsRHazF4K-UhxTOQCjtC9Ba4mQ@mail.gmail.com>
+Message-ID: <CAMuHMdV5gT1GDLODsUe0XibPRsRHazF4K-UhxTOQCjtC9Ba4mQ@mail.gmail.com>
+Subject: Re: [PATCH 21/21] dma-mapping: replace custom code with generic implementation
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
+        Arnd Bergmann <arnd@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, guoren <guoren@kernel.org>,
+        Brian Cain <bcain@quicinc.com>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Stafford Horne <shorne@gmail.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Rich Felker <dalias@libc.org>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Robin Murphy <robin.murphy@arm.com>,
+        "Lad, Prabhakar" <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        "Conor.Dooley" <conor.dooley@microchip.com>,
+        "linux-snps-arc@lists.infradead.org" 
+        <linux-snps-arc@lists.infradead.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-oxnas@groups.io" <linux-oxnas@groups.io>,
+        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+        "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>,
+        "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+        "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
+        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
+        "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>,
+        Emil Renner Berthing <emil.renner.berthing@canonical.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Mon, Jun 26, 2023 at 11:38:40PM +0200, Szabolcs Nagy wrote:
-> * Stafford Horne <shorne@gmail.com> [2023-04-18 17:58:12 +0100]:
-> > Add support for handling floating point exceptions and forwarding the
-> > SIGFPE signal to processes.  Also, add fpu state to sigcontext.
-> > 
-> > Signed-off-by: Stafford Horne <shorne@gmail.com>
-> > ---
-> ...
-> > --- a/arch/openrisc/include/uapi/asm/sigcontext.h
-> > +++ b/arch/openrisc/include/uapi/asm/sigcontext.h
-> > @@ -28,6 +28,7 @@
-> >  
-> >  struct sigcontext {
-> >  	struct user_regs_struct regs;  /* needs to be first */
-> > +	struct __or1k_fpu_state fpu;
-> >  	unsigned long oldmask;
-> >  };
-> 
-> this seems to break userspace abi.
-> glibc and musl have or1k abi without this field.
-> 
-> either this is a new abi where binaries opt-in with some marking
-> and then the base sigcontext should be unmodified,
-> 
-> or the fp state needs to be added to the signal frame in a way that
-> does not break existing abi (e.g. end of the struct ?) and also
-> advertise the new thing via a hwcap, otherwise userspace cannot
-> make use of it.
-> 
-> unless i'm missing something.
+On Thu, Apr 13, 2023 at 2:52 PM Arnd Bergmann <arnd@arndb.de> wrote:
+> On Thu, Apr 13, 2023, at 14:13, Biju Das wrote:
+> > FYI, this patch breaks on RZ/G2L SMARC EVK board and Arnd will send V2
+> > for fixing this issue.
+> >
+> > [10:53] <biju> [    3.384408] Unable to handle kernel paging request at
+> > virtual address 000000004afb0080
+>
+> Right, sorry about this, I accidentally removed the 'phys_to_virt()'
+> conversion on arm64.
 
-I think you are right, I meant to look into this but it must have slipped
-though.  Is this something causing you issues or did you just notice it?
+Meh, I missed that, so I ended up bisecting this same failure...
 
-I didn't run into issues when running the glibc test suite, but I may have
-missed it.
+This patch is now commit 801f1883c4bb70cc ("dma-mapping: replace
+custom code with generic implementation") in esmil/jh7100-dmapool,
+and broke booting on R-Car Gen3.
 
-Just moving this to the end of the sigcontext may be all that is needed.
+The following gmail-whitespace-damaged patch fixes that:
 
--Stafford
+diff --git a/arch/arm64/mm/dma-mapping.c b/arch/arm64/mm/dma-mapping.c
+index 97b7cea5eb23aedd..77e0b68b43e5849a 100644
+--- a/arch/arm64/mm/dma-mapping.c
++++ b/arch/arm64/mm/dma-mapping.c
+@@ -15,17 +15,23 @@
+
+ static inline void arch_dma_cache_wback(phys_addr_t paddr, size_t size)
+ {
+-       dcache_clean_poc(paddr, paddr + size);
++       unsigned long start = (unsigned long)phys_to_virt(paddr);
++
++       dcache_clean_poc(start, start + size);
+ }
+
+ static inline void arch_dma_cache_inv(phys_addr_t paddr, size_t size)
+ {
+-       dcache_inval_poc(paddr, paddr + size);
++       unsigned long start = (unsigned long)phys_to_virt(paddr);
++
++       dcache_inval_poc(start, start + size);
+ }
+
+ static inline void arch_dma_cache_wback_inv(phys_addr_t paddr, size_t size)
+ {
+-       dcache_clean_inval_poc(paddr, paddr + size);
++       unsigned long start = (unsigned long)phys_to_virt(paddr);
++
++       dcache_clean_inval_poc(start, start + size);
+ }
+
+ static inline bool arch_sync_dma_clean_before_fromdevice(void)
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
