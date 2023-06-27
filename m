@@ -2,116 +2,122 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA0A7C001B3;
-	Tue, 27 Jun 2023 17:52:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 270F8C001DD;
+	Tue, 27 Jun 2023 17:56:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231828AbjF0RwR (ORCPT
+        id S230422AbjF0R4r (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Tue, 27 Jun 2023 13:52:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35400 "EHLO
+        Tue, 27 Jun 2023 13:56:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230019AbjF0RwM (ORCPT
+        with ESMTP id S229748AbjF0R4p (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Tue, 27 Jun 2023 13:52:12 -0400
-Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1ECA116;
-        Tue, 27 Jun 2023 10:52:11 -0700 (PDT)
-Received: by mail-ot1-x336.google.com with SMTP id 46e09a7af769-6b73b839025so2711579a34.1;
-        Tue, 27 Jun 2023 10:52:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1687888331; x=1690480331;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ya0gjT04wvrkPEwxsIo0SrjOZFrw43ACMJ5aI2sBKGs=;
-        b=jU0XSQm/UgQNqhqQcjqaxOHJKL3Tu8GM/GwEobHZGDkP+x8DVdgSjRkU85h/Lj/+te
-         oZwK4Q1yO37Pzbn1i7oZRsd+yfivOXZX9DLv/iX+OOzSZ/17s4ytR4cUrCKbaq8ScVjb
-         y4NBy98BQyt8WGI73+o5s1aq7cUaSdPW95ULfQ6FlPkdUprfA5PQkMvKjJsZAGVBcKqi
-         qlieckJVpQyRqbWlQMoi71Q4k95ldkAZz69rpAi1h8kLQ3wxt3idqYMSWF1Mqn3mJooy
-         Rs2GGbK0m2G7LUgnIAcus/1X+0dgeX1Usy3dZ/2MF2ihQvsHs5fE8nG3/WrSESAbmo+3
-         LPFw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687888331; x=1690480331;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ya0gjT04wvrkPEwxsIo0SrjOZFrw43ACMJ5aI2sBKGs=;
-        b=BClq6JrQuM47FlWCzs6sAdrEGWCtgUm+VlHM9T3OnEKRPjE2kmh2hE5KnJcZHweXXr
-         tq4H2UYY2HVKco3Vqop+fYFwxJ86/yuvr6Q54JZnXogQl2DnWkrTWwBvDxhUcJyReYR2
-         pehqYrbFeNBtO7ucehjplZomGvmgBzD3lUmvTgn8Yx3wZ9pXHhJw/AKsncT/RX/oK+Yi
-         VY+2IeZJDh6KupaVgt8GRZsOrndYipxMOMI8J0dFCQ+CZzn7RRNoh0wB3SDezlfvWjOL
-         MDUn+IPWHN/jTvQ3jmSxQkQelP4aEf4RM9ev9BdmTLpfyw0YrHmkEcNOkv5v4eiPNnGN
-         4sOg==
-X-Gm-Message-State: AC+VfDwXerydJMSOvU1bRnm6IqTO1JFH1qEalun7GQmUpBnV4BnOacDH
-        GRMGhxs9+UgL0ev+ucmr8TetFg3Qm940wtZbXyk=
-X-Google-Smtp-Source: ACHHUZ60PXVLGXFjCZbPL4+H89P+QaultgII2fPTXJpRhifF/y6voZRlslPkfFetToA56imkT1WhjHNqMU1RYiBUm6M=
-X-Received: by 2002:a05:6359:d23:b0:133:a55:7e26 with SMTP id
- gp35-20020a0563590d2300b001330a557e26mr5444430rwb.7.1687888330839; Tue, 27
- Jun 2023 10:52:10 -0700 (PDT)
+        Tue, 27 Jun 2023 13:56:45 -0400
+Received: from port70.net (port70.net [81.7.13.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 82124296B;
+        Tue, 27 Jun 2023 10:56:41 -0700 (PDT)
+Received: by port70.net (Postfix, from userid 1002)
+        id D1130ABEC0C7; Tue, 27 Jun 2023 19:56:38 +0200 (CEST)
+Date:   Tue, 27 Jun 2023 19:56:38 +0200
+From:   Szabolcs Nagy <nsz@port70.net>
+To:     Stafford Horne <shorne@gmail.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+        Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        linux-mm@kvack.org, Rich Felker <dalias@libc.org>
+Subject: Re: [PATCH 3/4] openrisc: Support floating point user api
+Message-ID: <20230627175638.GD3630668@port70.net>
+References: <20230418165813.1900991-1-shorne@gmail.com>
+ <20230418165813.1900991-4-shorne@gmail.com>
+ <20230626213840.GA1236108@port70.net>
+ <ZJsRHzDbuTlXKNCG@antec>
 MIME-Version: 1.0
-References: <20230627031431.29653-1-vishal.moola@gmail.com>
- <20230627031431.29653-4-vishal.moola@gmail.com> <ZJsJT9dLtxaKlxVb@x1n>
-In-Reply-To: <ZJsJT9dLtxaKlxVb@x1n>
-From:   Vishal Moola <vishal.moola@gmail.com>
-Date:   Tue, 27 Jun 2023 10:51:59 -0700
-Message-ID: <CAOzc2pw2U2XvMcaEdy18UYe=5=PeCBn_qLR_3ns8_nWvgSSDQw@mail.gmail.com>
-Subject: Re: [PATCH v6 03/33] pgtable: Create struct ptdesc
-To:     Peter Xu <peterx@redhat.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
-        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
-        Hugh Dickins <hughd@google.com>,
-        Mike Rapoport <rppt@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZJsRHzDbuTlXKNCG@antec>
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Tue, Jun 27, 2023 at 9:07=E2=80=AFAM Peter Xu <peterx@redhat.com> wrote:
->
-> On Mon, Jun 26, 2023 at 08:14:01PM -0700, Vishal Moola (Oracle) wrote:
-> > Currently, page table information is stored within struct page. As part
-> > of simplifying struct page, create struct ptdesc for page table
-> > information.
-> >
-> > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-> > Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
-> > ---
-> >  include/linux/pgtable.h | 68 +++++++++++++++++++++++++++++++++++++++++
-> >  1 file changed, 68 insertions(+)
-> >
-> > diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-> > index 5063b482e34f..d46cb709ce08 100644
-> > --- a/include/linux/pgtable.h
-> > +++ b/include/linux/pgtable.h
-> > @@ -987,6 +987,74 @@ static inline void ptep_modify_prot_commit(struct =
-vm_area_struct *vma,
-> >  #endif /* __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION */
-> >  #endif /* CONFIG_MMU */
-> >
-> > +
-> > +/**
-> > + * struct ptdesc -    Memory descriptor for page tables.
-> > + * @__page_flags:     Same as page flags. Unused for page tables.
-> > + * @pt_rcu_head:      For freeing page table pages.
-> > + * @pt_list:          List of used page tables. Used for s390 and x86.
-> > + * @_pt_pad_1:        Padding that aliases with page's compound head.
-> > + * @pmd_huge_pte:     Protected by ptdesc->ptl, used for THPs.
-> > + * @_pt_s390_gaddr:   Aliases with page's mapping. Used for s390 gmap =
-only.
->
-> Should some arch-specific bits (and a few others) always under some
-> #ifdefs, so it shouldn't appear on other archs?
+* Stafford Horne <shorne@gmail.com> [2023-06-27 17:41:03 +0100]:
+> On Mon, Jun 26, 2023 at 11:38:40PM +0200, Szabolcs Nagy wrote:
+> > * Stafford Horne <shorne@gmail.com> [2023-04-18 17:58:12 +0100]:
+> > > Add support for handling floating point exceptions and forwarding the
+> > > SIGFPE signal to processes.  Also, add fpu state to sigcontext.
+> > > 
+> > > Signed-off-by: Stafford Horne <shorne@gmail.com>
+> > > ---
+> > ...
+> > > --- a/arch/openrisc/include/uapi/asm/sigcontext.h
+> > > +++ b/arch/openrisc/include/uapi/asm/sigcontext.h
+> > > @@ -28,6 +28,7 @@
+> > >  
+> > >  struct sigcontext {
+> > >  	struct user_regs_struct regs;  /* needs to be first */
+> > > +	struct __or1k_fpu_state fpu;
+> > >  	unsigned long oldmask;
+> > >  };
+> > 
+> > this seems to break userspace abi.
+> > glibc and musl have or1k abi without this field.
+> > 
+> > either this is a new abi where binaries opt-in with some marking
+> > and then the base sigcontext should be unmodified,
+> > 
+> > or the fp state needs to be added to the signal frame in a way that
+> > does not break existing abi (e.g. end of the struct ?) and also
+> > advertise the new thing via a hwcap, otherwise userspace cannot
+> > make use of it.
+> > 
+> > unless i'm missing something.
+> 
+> I think you are right, I meant to look into this but it must have slipped
+> though.  Is this something causing you issues or did you just notice it?
 
-Right now this struct completely overlays struct page, so the padding as
-well as any arch-specific fields have to stay. Whenever we get ptdescs
-independent of struct page we can cleanup any unnecessary fields, as
-well as omit unnecessary fields from unrelated architectures.
+i noticed it while trying to update musl headers to linux 6.4 uapi.
+
+> I didn't run into issues when running the glibc test suite, but I may have
+> missed it.
+
+i would only expect issues when accessing ucontext entries
+after uc_mcontext.regs in a signal handler registered with
+SA_SIGINFO.
+
+in particular uc_sigmask is after uc_mcontext on or1k and e.g.
+musl thread cancellation uses this entry to affect the mask on
+signal return which will not work on a 6.4 kernel (not tested).
+
+i don't think glibc has tests for the ucontext signal abi.
+
+> Just moving this to the end of the sigcontext may be all that is needed.
+
+that won't help since uc_sigmask comes after sigcontext in ucontext.
+it has to go to the end of ucontext or outside of ucontext then.
+
+one way to have fpu in sigcontext is
+
+struct sigcontext {
+	struct user_regs_struct regs;
+	unsigned long oldmask;
+	char padding[sizeof(__userspace_sigset_t)];
+	struct __or1k_fpu_state fpu;
+};
+
+but the kernel still has to interpret the padding in a bwcompat
+way. (and if libc wants to expose fpu in its ucontext then it
+needs a flag day abi break as the ucontext size is abi.)
+
+(part of the userspace uc_sigmask is unused because sigset_t is
+larger than necessary so may be that can be reused but this is
+a hack as that's libc owned.)
+
+not sure how important this fpu field is, arm does not seem to
+have fpu state in ucontext and armhf works.
+
+there may be other ways, i'm adding Rich (musl maintainer) on cc
+in case he has an opinion.
