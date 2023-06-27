@@ -2,164 +2,116 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69E2FC0015E;
-	Tue, 27 Jun 2023 16:08:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF6F8EB64DD;
+	Tue, 27 Jun 2023 16:41:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232248AbjF0QIh (ORCPT
+        id S230450AbjF0QlV (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Tue, 27 Jun 2023 12:08:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36410 "EHLO
+        Tue, 27 Jun 2023 12:41:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230401AbjF0QIg (ORCPT
+        with ESMTP id S231317AbjF0QlU (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Tue, 27 Jun 2023 12:08:36 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD92E2D69
-        for <linux-openrisc@vger.kernel.org>; Tue, 27 Jun 2023 09:07:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1687882067;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=hJDOCrbidQ6SQFQe4MgEFJjZ7UTNPrXFah4ZUMjVF/Y=;
-        b=cHLQzf/baVLa3PFs+uOt0nvslid1TI9PIM04ed6bePP+ILxYbUc9cVcA8dIkE9LXhwjzN+
-        96zsrYb9XYoix3wmlIuds3wzBcfHwgvMCLpH0+t+LRj1OYDPYNSC/AhtvBGt8bEvvKNi+s
-        c9g5mnGYrrWVwJOwKKHh16e5N4D4cgs=
-Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
- [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-392-PyxeOjZSN_aYSm0Bt8vbIA-1; Tue, 27 Jun 2023 12:07:46 -0400
-X-MC-Unique: PyxeOjZSN_aYSm0Bt8vbIA-1
-Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-765ad67e690so36465185a.1
-        for <linux-openrisc@vger.kernel.org>; Tue, 27 Jun 2023 09:07:46 -0700 (PDT)
+        Tue, 27 Jun 2023 12:41:20 -0400
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49F812700;
+        Tue, 27 Jun 2023 09:41:06 -0700 (PDT)
+Received: by mail-wr1-x432.google.com with SMTP id ffacd0b85a97d-313e68e99c7so4403257f8f.1;
+        Tue, 27 Jun 2023 09:41:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1687884065; x=1690476065;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=tPqwuMIYF4VZddyTRxVW9wCbFz3nD1brpxZ4QBpbzrc=;
+        b=inHfmnWw4N5iMaE9pnKNs1SF/HQUZ4fMgt1Q0BJ4t2tE5ZNuRArKjepLCFgCDY0msK
+         sUE5w/K5mwMRxDZimmJfnAg4gu5Uiv5ao5xkbgiT+ZOE2p+sn6KqvU7oWm/PfYExTRZA
+         Kx5LPGjb5OorMDQE3n41+aRrVUbflFRdBjNvAkmTSIgOyosN5j3kU815skkp/4AQYjDA
+         yHJrpLkEVTPmFxeYZsSmNKXDmSac8dShO/zmhT/iyHiVG5U1ssIWxoAXhReYJAZe32wb
+         IJnupcTmGVo86npaNAlgfdOuhW5pyVlBgPb38MS1YETO34Pr+Nk6aBh1Rw8PFzmhutj5
+         h4Mg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687882066; x=1690474066;
+        d=1e100.net; s=20221208; t=1687884065; x=1690476065;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=hJDOCrbidQ6SQFQe4MgEFJjZ7UTNPrXFah4ZUMjVF/Y=;
-        b=KU5ME6lgHwDUIkLCGq6cBruIPBN0glKlQsy8y4IHHYYWO3cBDULfysrL5/e5dIhAf9
-         HoblgN9Ab2LuZs2RuffcnRTWNnb9aaaOOr2KyX33ND2f5mR1hMvEbFq/07qX6fwPd8n2
-         hpW/1zxHZ3gzmMGGBh1lPf0c/WKyuJuOo5XC/YW2whGgm9UzXRtB0EJhx0lcwu7Jnjb8
-         wNbs0hti8HYBrvONYo9ppKw6XKFyDFNRKNXoL5hwl6NY/1fIt7/EsabJp1OrMKfXz+Bs
-         cMvGHg9fN6t4oyCvyfcoiEuNUIwGtGnqaBNT+ZlEYu7SiTRFRNN1ycH77h4N/4KICKJh
-         qbAg==
-X-Gm-Message-State: AC+VfDxO8qkK3wUeXL6jjKpRON41TSX7CieHB+2jl84xyD7XL7VTaBS7
-        /F3aMw4lZGM7EoTlzRuyaWUjeYI/6ft8b8wwVqW8piJRhDobsktT9o+NloKpNtnAaO0qe69gM2H
-        RrIWGSZAzqJzuw1UgDD6prO0QkqQ=
-X-Received: by 2002:a05:620a:4007:b0:765:7b61:46fc with SMTP id h7-20020a05620a400700b007657b6146fcmr12614183qko.7.1687882066189;
-        Tue, 27 Jun 2023 09:07:46 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ7UY1eApNq4tXkhQSQVDzyCNrRRXMA0KLJ6oWun1WyljocOJD3jbWnq1iikbRngPAZ/IFjT9Q==
-X-Received: by 2002:a05:620a:4007:b0:765:7b61:46fc with SMTP id h7-20020a05620a400700b007657b6146fcmr12614153qko.7.1687882065917;
-        Tue, 27 Jun 2023 09:07:45 -0700 (PDT)
-Received: from x1n (cpe5c7695f3aee0-cm5c7695f3aede.cpe.net.cable.rogers.com. [99.254.144.39])
-        by smtp.gmail.com with ESMTPSA id m21-20020a05620a13b500b0075ecdc937ffsm1342302qki.41.2023.06.27.09.07.44
+        bh=tPqwuMIYF4VZddyTRxVW9wCbFz3nD1brpxZ4QBpbzrc=;
+        b=dxaYUqTOo55ttfqWIuhIu8P7yYh9A0ATxqivCVEQ18UjxpD0mBT5xUWtOjFo5oEHVj
+         kqbZpSsF5psNen5cP49OWR9iyDE+zf2JstfzjhsO5D4auu7Vo9leY9bBPvQ3qYYMuUWV
+         an2il6owp3q0Jus8sI7ecERML8tOX6QTP8fOEzPXmj70wvyEKdXsjRQWzcQScSITPvMD
+         O5MEuEWkHj0Z7wVNnlnRfl2YQnSBeCbP7cpwSbTPxB8SXhvLCq56kISZRz5jkKpAjjsf
+         4CKIDuqvd9JYUL6iOYmmxF+xGhh2OF8cTAvGO/v6wOPDp+8e5WE1CSEU2/whVWWaP1+g
+         DeSA==
+X-Gm-Message-State: AC+VfDyaF91jaDUlO/SCEbgv2jvIo82vH85AsQikymNZRTI6GKTwTqDY
+        +Y4xj+gS1E0fVcIJXyXNBX0=
+X-Google-Smtp-Source: ACHHUZ6TUmmGbdfad1tP5CR0ZLqVj9ctsqGWz0wY0SC29ZsDHa930uyPrMN7LDJw0IVHNzz8FmHKvg==
+X-Received: by 2002:adf:fe09:0:b0:313:e6f3:d05a with SMTP id n9-20020adffe09000000b00313e6f3d05amr7993378wrr.16.1687884064353;
+        Tue, 27 Jun 2023 09:41:04 -0700 (PDT)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id f18-20020adff452000000b003113b3bc9d7sm10876009wrp.32.2023.06.27.09.41.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Jun 2023 09:07:45 -0700 (PDT)
-Date:   Tue, 27 Jun 2023 12:07:43 -0400
-From:   Peter Xu <peterx@redhat.com>
-To:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
-        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
-        Hugh Dickins <hughd@google.com>,
-        Mike Rapoport <rppt@kernel.org>
-Subject: Re: [PATCH v6 03/33] pgtable: Create struct ptdesc
-Message-ID: <ZJsJT9dLtxaKlxVb@x1n>
-References: <20230627031431.29653-1-vishal.moola@gmail.com>
- <20230627031431.29653-4-vishal.moola@gmail.com>
+        Tue, 27 Jun 2023 09:41:03 -0700 (PDT)
+Date:   Tue, 27 Jun 2023 17:41:03 +0100
+From:   Stafford Horne <shorne@gmail.com>
+To:     Szabolcs Nagy <nsz@port70.net>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+        Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        linux-mm@kvack.org
+Subject: Re: [PATCH 3/4] openrisc: Support floating point user api
+Message-ID: <ZJsRHzDbuTlXKNCG@antec>
+References: <20230418165813.1900991-1-shorne@gmail.com>
+ <20230418165813.1900991-4-shorne@gmail.com>
+ <20230626213840.GA1236108@port70.net>
 MIME-Version: 1.0
-In-Reply-To: <20230627031431.29653-4-vishal.moola@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20230626213840.GA1236108@port70.net>
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Mon, Jun 26, 2023 at 08:14:01PM -0700, Vishal Moola (Oracle) wrote:
-> Currently, page table information is stored within struct page. As part
-> of simplifying struct page, create struct ptdesc for page table
-> information.
+On Mon, Jun 26, 2023 at 11:38:40PM +0200, Szabolcs Nagy wrote:
+> * Stafford Horne <shorne@gmail.com> [2023-04-18 17:58:12 +0100]:
+> > Add support for handling floating point exceptions and forwarding the
+> > SIGFPE signal to processes.  Also, add fpu state to sigcontext.
+> > 
+> > Signed-off-by: Stafford Horne <shorne@gmail.com>
+> > ---
+> ...
+> > --- a/arch/openrisc/include/uapi/asm/sigcontext.h
+> > +++ b/arch/openrisc/include/uapi/asm/sigcontext.h
+> > @@ -28,6 +28,7 @@
+> >  
+> >  struct sigcontext {
+> >  	struct user_regs_struct regs;  /* needs to be first */
+> > +	struct __or1k_fpu_state fpu;
+> >  	unsigned long oldmask;
+> >  };
 > 
-> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-> Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
-> ---
->  include/linux/pgtable.h | 68 +++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 68 insertions(+)
+> this seems to break userspace abi.
+> glibc and musl have or1k abi without this field.
 > 
-> diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-> index 5063b482e34f..d46cb709ce08 100644
-> --- a/include/linux/pgtable.h
-> +++ b/include/linux/pgtable.h
-> @@ -987,6 +987,74 @@ static inline void ptep_modify_prot_commit(struct vm_area_struct *vma,
->  #endif /* __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION */
->  #endif /* CONFIG_MMU */
->  
-> +
-> +/**
-> + * struct ptdesc -    Memory descriptor for page tables.
-> + * @__page_flags:     Same as page flags. Unused for page tables.
-> + * @pt_rcu_head:      For freeing page table pages.
-> + * @pt_list:          List of used page tables. Used for s390 and x86.
-> + * @_pt_pad_1:        Padding that aliases with page's compound head.
-> + * @pmd_huge_pte:     Protected by ptdesc->ptl, used for THPs.
-> + * @_pt_s390_gaddr:   Aliases with page's mapping. Used for s390 gmap only.
+> either this is a new abi where binaries opt-in with some marking
+> and then the base sigcontext should be unmodified,
+> 
+> or the fp state needs to be added to the signal frame in a way that
+> does not break existing abi (e.g. end of the struct ?) and also
+> advertise the new thing via a hwcap, otherwise userspace cannot
+> make use of it.
+> 
+> unless i'm missing something.
 
-Should some arch-specific bits (and a few others) always under some
-#ifdefs, so it shouldn't appear on other archs?
+I think you are right, I meant to look into this but it must have slipped
+though.  Is this something causing you issues or did you just notice it?
 
-> + * @pt_mm:            Used for x86 pgds.
-> + * @pt_frag_refcount: For fragmented page table tracking. Powerpc and s390 only.
-> + * @ptl:              Lock for the page table.
-> + * @__page_type:      Same as page->page_type. Unused for page tables.
-> + * @_refcount:        Same as page refcount. Used for s390 page tables.
-> + * @pt_memcg_data:    Memcg data. Tracked for page tables here.
-> + *
-> + * This struct overlays struct page for now. Do not modify without a good
-> + * understanding of the issues.
-> + */
-> +struct ptdesc {
-> +	unsigned long __page_flags;
-> +
-> +	union {
-> +		struct rcu_head pt_rcu_head;
-> +		struct list_head pt_list;
-> +		struct {
-> +			unsigned long _pt_pad_1;
-> +			pgtable_t pmd_huge_pte;
-> +		};
-> +	};
-> +	unsigned long _pt_s390_gaddr;
-> +
-> +	union {
-> +		struct mm_struct *pt_mm;
-> +		atomic_t pt_frag_refcount;
-> +	};
-> +
-> +	union {
-> +		unsigned long _pt_pad_2;
-> +#if ALLOC_SPLIT_PTLOCKS
-> +		spinlock_t *ptl;
-> +#else
-> +		spinlock_t ptl;
-> +#endif
-> +	};
-> +	unsigned int __page_type;
-> +	atomic_t _refcount;
-> +#ifdef CONFIG_MEMCG
-> +	unsigned long pt_memcg_data;
-> +#endif
-> +};
+I didn't run into issues when running the glibc test suite, but I may have
+missed it.
 
--- 
-Peter Xu
+Just moving this to the end of the sigcontext may be all that is needed.
 
+-Stafford
