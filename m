@@ -2,130 +2,194 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73158C001DE;
-	Tue, 27 Jun 2023 20:14:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 67947EB64D9;
+	Tue, 27 Jun 2023 20:20:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230357AbjF0UOE (ORCPT
+        id S230487AbjF0UUy (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Tue, 27 Jun 2023 16:14:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35318 "EHLO
+        Tue, 27 Jun 2023 16:20:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230422AbjF0UOD (ORCPT
+        with ESMTP id S230164AbjF0UUv (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Tue, 27 Jun 2023 16:14:03 -0400
-Received: from mail-oi1-x22b.google.com (mail-oi1-x22b.google.com [IPv6:2607:f8b0:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7B3A1FEA
-        for <linux-openrisc@vger.kernel.org>; Tue, 27 Jun 2023 13:14:00 -0700 (PDT)
-Received: by mail-oi1-x22b.google.com with SMTP id 5614622812f47-3a1a47b33d8so4401376b6e.2
-        for <linux-openrisc@vger.kernel.org>; Tue, 27 Jun 2023 13:14:00 -0700 (PDT)
+        Tue, 27 Jun 2023 16:20:51 -0400
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C562296E;
+        Tue, 27 Jun 2023 13:20:36 -0700 (PDT)
+Received: by mail-wr1-x42c.google.com with SMTP id ffacd0b85a97d-312826ffedbso5487985f8f.0;
+        Tue, 27 Jun 2023 13:20:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1687896840; x=1690488840;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Omz0x3K5VJ2j7KfDH2649X9QbCItdU3t+DCvtH+dE30=;
-        b=qLT/FXnF9fYy8bz41ZGqzPs/xLiMCCfewgfWuzZzcLVjcItB7JcMRZfi6IZL1dCSx3
-         OsWOmERj0hyOKFLw3jnnNfW5CTsqZqse181Md9/KF69O7aJpxHwXe5KyY7KekYXV4G1r
-         zVWUAFUddyly86sbQfglXGlLJ+Dw6fbYNcanLL/4qX6MAv9NG432kDe3kyebDDkyTfob
-         goI5J8lS8Nlzpf0h6eGjsC3OSSCP5RIprmv8BuvIbtDrufzgn/Q2le4t+ExH2qGopi70
-         i11eeGh9ltkwfbMdr3qGqDnVah9352dUuKEVj6Z46bgWdO+OozUTmUPxCUjV8K1vxlvi
-         swng==
+        d=gmail.com; s=20221208; t=1687897235; x=1690489235;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=+F+0Zbk3efX4mLn8Qobc5lNIjXu3jsPFwNKngSk7DrU=;
+        b=ZodJlmnuDlfsPE6ZRGdn/jwnBd8a8Sv6S9nFI5LaSmWXkRCOoM0C/YG9EtNqjlJ6VA
+         RV/LNPMEId8ppmVuMGm43TUo3bSoxVToJdrHVR4QljduBlKmbcfOOCvt+5rGWFQEyJMF
+         6bJsiTp8ztIQcF0BEfRJ9jCia9nu7Q/Lhm3ZdIp8PhjuDkrjRTFae1cshOrRv4oen2zS
+         Qn/W7uCRXVJrCscABbuBLGgerdssSk3I4MAeaIguIaa7tZJfKevOAbtyRE/5I5tXfcsl
+         sXIhzq43o2vLCeNpP+9/p9aIPzECX/Rx7crUytb6yE871BcaGdPHXC5AbJ7D4H2YCAgE
+         0neg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687896840; x=1690488840;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Omz0x3K5VJ2j7KfDH2649X9QbCItdU3t+DCvtH+dE30=;
-        b=RDOD8bkMcPwTYuFh926Yx7NdtP8Zxy/DIWVGj+lHM9qSKK0zstUl4xgLxtLNPZopXn
-         lqql9eZjFTGLrVEfH1HNxKsT82M5SflB36Ey2yXi/juff+0j+NQASenwF4wy6vNmaHNF
-         pBzR+TUGu8Idj/LbX2peVB6cDIe/sqyEAC7/IPVtCWYAQKGPaQak50vEMNOxjz1fppH7
-         TMQiQkpgIckw0edSy/5UOwQq+See07u9BYEBE67skDC4qHv42bRjN7V0G40QWp9Fgcqt
-         64IRdndAadkI63rS76DxDoI98gBSs8W/r8eHYgRzBhXQzLktkevwg7UGO0U0KlE9dvAg
-         gx1g==
-X-Gm-Message-State: AC+VfDzp3vHU+Xip+3Q3UPojuhDcOzg+px92StlaCh7YG41tEORpLD96
-        d4LuRquljyb5p3kZfaF0OIralw==
-X-Google-Smtp-Source: ACHHUZ7e3joAt7KSpSbDLhKkkEe6hRd92o1ATH/0oO6vi+mlTpkmMRcA4IUypqa5SFzU0uL+mRFuMQ==
-X-Received: by 2002:a05:6359:2af:b0:133:9da:8d9f with SMTP id ek47-20020a05635902af00b0013309da8d9fmr5361549rwb.14.1687896839740;
-        Tue, 27 Jun 2023 13:13:59 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id q131-20020a817589000000b00565eb8af1fesm1991442ywc.132.2023.06.27.13.13.56
+        d=1e100.net; s=20221208; t=1687897235; x=1690489235;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+F+0Zbk3efX4mLn8Qobc5lNIjXu3jsPFwNKngSk7DrU=;
+        b=T4ykMzucrF1x0EmDjfmiE+ZyA/belQBD/LOh/Fz5fXpXHkKFZ8rvQAfCGZ72b+WZG3
+         I2ytuZ5HndpGqBBiOAgj5W2RIgiMvxnicaOPzfBHvPsSFr5pwT2t0OtkvDVck4UL/osN
+         9mILhFWayJApQX/+ctMgRDFntMgOAArk/5SDW0DI3CARmPbYwoO+fTLh9RIAZKEkhzrs
+         FFchTmAMrDH+OcuclOIgbK+rqJQVcA2pHDHN7yIgc2i9sexGcnMaVQP+wDUjslkfgb62
+         yLyIo+CdeX3FMGiuI9mJGY9vB1/M3oNGsjTkPJvHmFLAGrx2ucODb9GV8M4e4CkV2e4O
+         0Btg==
+X-Gm-Message-State: AC+VfDwi8zNhaJIs+p4krUXLLOcVdcjekv528WY9+/Os1fTgefOUI/mr
+        ou8ExLfhNDvW9PoAfAkJ69w=
+X-Google-Smtp-Source: ACHHUZ6F7WJzRmHL9mdLvQRGMe1DgzoJOPiuuU5ZXKNgvDHEjkRd7iUd+k9rc4UojLUrQzYRzTpC7w==
+X-Received: by 2002:a05:6000:11cd:b0:313:eaac:f337 with SMTP id i13-20020a05600011cd00b00313eaacf337mr6965044wrx.53.1687897234376;
+        Tue, 27 Jun 2023 13:20:34 -0700 (PDT)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id b3-20020a05600010c300b00313f9367844sm3938220wrx.88.2023.06.27.13.20.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Jun 2023 13:13:59 -0700 (PDT)
-Date:   Tue, 27 Jun 2023 13:13:49 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     David Hildenbrand <david@redhat.com>
-cc:     Hugh Dickins <hughd@google.com>,
-        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
-        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
+        Tue, 27 Jun 2023 13:20:33 -0700 (PDT)
+Date:   Tue, 27 Jun 2023 21:20:33 +0100
+From:   Stafford Horne <shorne@gmail.com>
+To:     Rich Felker <dalias@libc.org>
+Cc:     Szabolcs Nagy <nsz@port70.net>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux OpenRISC <linux-openrisc@vger.kernel.org>,
         Jonas Bonn <jonas@southpole.se>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Richard Weinberger <richard@nod.at>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: Re: [PATCH v6 00/33] Split ptdesc from struct page
-In-Reply-To: <ac1c162c-07d8-6084-44ca-a2c1a4183df2@redhat.com>
-Message-ID: <90e643ca-de72-2f4c-f4fe-35e06e1a9277@google.com>
-References: <20230627031431.29653-1-vishal.moola@gmail.com> <e8992eee-4140-427e-bacb-9449f346318@google.com> <ac1c162c-07d8-6084-44ca-a2c1a4183df2@redhat.com>
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        linux-mm@kvack.org
+Subject: Re: [PATCH 3/4] openrisc: Support floating point user api
+Message-ID: <ZJtEkdiWVYJ4Nvo3@antec>
+References: <20230418165813.1900991-1-shorne@gmail.com>
+ <20230418165813.1900991-4-shorne@gmail.com>
+ <20230626213840.GA1236108@port70.net>
+ <ZJsRHzDbuTlXKNCG@antec>
+ <20230627175638.GD3630668@port70.net>
+ <20230627192719.GR20050@brightrain.aerifal.cx>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230627192719.GR20050@brightrain.aerifal.cx>
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Tue, 27 Jun 2023, David Hildenbrand wrote:
-> On 27.06.23 06:44, Hugh Dickins wrote:
-> > On Mon, 26 Jun 2023, Vishal Moola (Oracle) wrote:
+On Tue, Jun 27, 2023 at 03:27:19PM -0400, Rich Felker wrote:
+> On Tue, Jun 27, 2023 at 07:56:38PM +0200, Szabolcs Nagy wrote:
+> > * Stafford Horne <shorne@gmail.com> [2023-06-27 17:41:03 +0100]:
+> > > On Mon, Jun 26, 2023 at 11:38:40PM +0200, Szabolcs Nagy wrote:
+> > > > * Stafford Horne <shorne@gmail.com> [2023-04-18 17:58:12 +0100]:
+> > > > > Add support for handling floating point exceptions and forwarding the
+> > > > > SIGFPE signal to processes.  Also, add fpu state to sigcontext.
+> > > > > 
+> > > > > Signed-off-by: Stafford Horne <shorne@gmail.com>
+> > > > > ---
+> > > > ...
+> > > > > --- a/arch/openrisc/include/uapi/asm/sigcontext.h
+> > > > > +++ b/arch/openrisc/include/uapi/asm/sigcontext.h
+> > > > > @@ -28,6 +28,7 @@
+> > > > >  
+> > > > >  struct sigcontext {
+> > > > >  	struct user_regs_struct regs;  /* needs to be first */
+> > > > > +	struct __or1k_fpu_state fpu;
+> > > > >  	unsigned long oldmask;
+> > > > >  };
+> > > > 
+> > > > this seems to break userspace abi.
+> > > > glibc and musl have or1k abi without this field.
+> > > > 
+> > > > either this is a new abi where binaries opt-in with some marking
+> > > > and then the base sigcontext should be unmodified,
+> > > > 
+> > > > or the fp state needs to be added to the signal frame in a way that
+> > > > does not break existing abi (e.g. end of the struct ?) and also
+> > > > advertise the new thing via a hwcap, otherwise userspace cannot
+> > > > make use of it.
+> > > > 
+> > > > unless i'm missing something.
+> > > 
+> > > I think you are right, I meant to look into this but it must have slipped
+> > > though.  Is this something causing you issues or did you just notice it?
 > > 
-> >> The MM subsystem is trying to shrink struct page. This patchset
-> >> introduces a memory descriptor for page table tracking - struct ptdesc.
-> > ...
-> >>   39 files changed, 686 insertions(+), 455 deletions(-)
+> > i noticed it while trying to update musl headers to linux 6.4 uapi.
 > > 
-> > I don't see the point of this patchset: to me it is just obfuscation of
-> > the present-day tight relationship between page table and struct page.
+> > > I didn't run into issues when running the glibc test suite, but I may have
+> > > missed it.
 > > 
-> > Matthew already explained:
+> > i would only expect issues when accessing ucontext entries
+> > after uc_mcontext.regs in a signal handler registered with
+> > SA_SIGINFO.
 > > 
-> >> The intent is to get ptdescs to be dynamically allocated at some point
-> >> in the ~2-3 years out future when we have finished the folio project ...
+> > in particular uc_sigmask is after uc_mcontext on or1k and e.g.
+> > musl thread cancellation uses this entry to affect the mask on
+> > signal return which will not work on a 6.4 kernel (not tested).
 > > 
-> > So in a kindly mood, I'd say that this patchset is ahead of its time.
-> > But I can certainly adapt to it, if everyone else sees some point to it.
+> > i don't think glibc has tests for the ucontext signal abi.
+> > 
+> > > Just moving this to the end of the sigcontext may be all that is needed.
+> > 
+> > that won't help since uc_sigmask comes after sigcontext in ucontext.
+> > it has to go to the end of ucontext or outside of ucontext then.
+> > 
+> > one way to have fpu in sigcontext is
+> > 
+> > struct sigcontext {
+> > 	struct user_regs_struct regs;
+> > 	unsigned long oldmask;
+> > 	char padding[sizeof(__userspace_sigset_t)];
+> > 	struct __or1k_fpu_state fpu;
+> > };
+> > 
+> > but the kernel still has to interpret the padding in a bwcompat
+> > way. (and if libc wants to expose fpu in its ucontext then it
+> > needs a flag day abi break as the ucontext size is abi.)
+> > 
+> > (part of the userspace uc_sigmask is unused because sigset_t is
+> > larger than necessary so may be that can be reused but this is
+> > a hack as that's libc owned.)
+> > 
+> > not sure how important this fpu field is, arm does not seem to
+> > have fpu state in ucontext and armhf works.
+> > 
+> > there may be other ways, i'm adding Rich (musl maintainer) on cc
+> > in case he has an opinion.
 > 
-> I share your thoughts, that code churn which will help eventually in the far,
-> far future (not wanting to sound too pessimistic, but it's not going to be
-> there tomorrow ;) ).
+> Indeed, mcontext_t cannot be modified because uc_sigmask follows it in
+> ucontext_t. The only clean solution here is probably to store the
+> additional data at offsets past
 > 
-> However, if it's just the same as the other conversions we already did (e.g.,
-> struct slab), then I guess there is no reason to stop now -- the obfuscation
-> already happened.
+> 	sizeof(struct sigcontext) + sizeof(sigset_t)
 > 
-> ... or is there a difference regarding this conversion and the previous ones?
+> and not expose this at all in the uapi types. Some hwcap flag can
+> inform userspace that this additional space is present and accessible
+> if that's needed.
+> 
+> Optionally you could consider exposing this in the uapi headers'
+> ucontext_t structure; whether it's an API breakage depends on whether
+> userspace is relying on being able to allocate its own ucontext_t etc.
+> This would leave the actual userspace headers (provided by libc) free
+> to decide whether to modify their type or not according to an
+> assessment of whether it's a breaking change to application linkage.
+> 
+> What's not workable though is the ABI break that shipped in 6.4. It's
+> a serious violation of "don't break userspace" and makes existing
+> application binaries just *not work* (cancellation breaks and possibly
+> corrupts program state). This needs to be reverted.
 
-I was aware of the struct slab thing, didn't see much point there myself
-either; but it was welcomed by Vlastimil, and barely affected outside of
-slab allocators, so I had no reason to object.
+Hi Szabolcs, Rich,
 
-You think that if a little unnecessary churn (a *lot* of churn if you
-include folios, which did save some repeated calls to compound_head())
-has already occurred, that's a good precedent for allowing more and more?
-My opinion happens to differ on that.
+Let me work on reverting the bits that try to expose fpcsr in sigcontext.  I am
+very aware of rules about not breaking userspace, but for some reason this was
+completely missed.
 
-Hugh
+I don't think we do have any need to expose this to userspace at the moment so I
+prefer to just leave the fpu state out of sigcontext if that is usable.
+
+The fix will take me about a day or two to get tested and sent.
+
+-Stafford
