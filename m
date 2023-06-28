@@ -2,121 +2,103 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E44EEB64DA;
-	Wed, 28 Jun 2023 17:13:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26567C001B3;
+	Wed, 28 Jun 2023 18:51:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231641AbjF1RNY (ORCPT
+        id S232641AbjF1Svq (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Wed, 28 Jun 2023 13:13:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43056 "EHLO
+        Wed, 28 Jun 2023 14:51:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231264AbjF1RNX (ORCPT
+        with ESMTP id S231588AbjF1SvZ (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Wed, 28 Jun 2023 13:13:23 -0400
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1834D1BF2;
-        Wed, 28 Jun 2023 10:13:22 -0700 (PDT)
-Received: by mail-wm1-x32d.google.com with SMTP id 5b1f17b1804b1-3fba64e4fbcso1795085e9.3;
-        Wed, 28 Jun 2023 10:13:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1687972400; x=1690564400;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=yVNlrr/14l8NEMMiJ6PCzhb8xYGWCKsqMfnP53EwrxI=;
-        b=PTWv1QJKU2HRW4HCoHyv6rd4D4hXN598rahNdQPquM5ji6Bkm9Z/ypvIgMvS8KsXjE
-         MtrtV+FzG244FE6BuydJ+L9jR6HLhH91KH0yJYCrThPJZrKS9q7lvxhE5NoaodotKIyF
-         /l8otIrOCsVZM60J8SavRQ+CH6MmiihHcjEyF7u/LOef9Ihf6dviGD+KtYhYPkCgxCND
-         nuacdgjPYq8yn1Bi56wPbeh+1ODJM/xLoFUBFkHCA67ayM22+3qV29cBx0nIfuXczqEu
-         xSqxxo6KoGpOGlCK7XYC2mRzR5mm7gvRkB9vIt1sJbEzdzw26+Pk48qX9kXKqMMgiRd4
-         MViQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687972400; x=1690564400;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=yVNlrr/14l8NEMMiJ6PCzhb8xYGWCKsqMfnP53EwrxI=;
-        b=Q1FERfxpgsPxPMd2AgVDgBkStmAg7PxgI9P4UxjeayfdFAhQ5ZSf3uvjbHlgZ3XtYq
-         INqxkJlYJq2L/XTnvIuOYi8d2LAC+t/75vN5UXQHNQgiNAQUCaxG5pn7XulS6bgqzCK8
-         Vus6ckJhX0hjLgnQQJIpJbOvKG1iCDYCH2fuFFv1N9xePI22esv/15cJZ7nLD/umyfEI
-         P+vR3Lakzi5JmFlIiHa1Tyo/vH8AQrREBshs+wIyKo76wLgmXHY7LFi+ClO/Jo94GbKi
-         aaI5ty4hiDZoKZRSYqYMJvRuiwNAfbYnQWep8VUjqyrMQuY5YXt2oI6K1gtTlbX1TGhU
-         lcIw==
-X-Gm-Message-State: AC+VfDywYerXFCn3711oNPJ89Q7w8U+hqiq0DVRWPyvPJpSck1zf8u9h
-        Qozek8wc4g5QT4wO/f7wpjKYhWxV0ow=
-X-Google-Smtp-Source: ACHHUZ7dVigy2lf91RsYZ+bLiC1c/DqqIASkzZJj/XuAJFyHaJEmS6DUAxcrijGjBVAOS4RqpOy5Kg==
-X-Received: by 2002:a7b:c451:0:b0:3fa:9850:8b1d with SMTP id l17-20020a7bc451000000b003fa98508b1dmr6727023wmi.30.1687972399849;
-        Wed, 28 Jun 2023 10:13:19 -0700 (PDT)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id z24-20020a05600c221800b003fa96fe2bd9sm9379883wml.22.2023.06.28.10.13.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Jun 2023 10:13:19 -0700 (PDT)
-From:   Stafford Horne <shorne@gmail.com>
-To:     LKML <linux-kernel@vger.kernel.org>
-Cc:     Rich Felker <dalias@libc.org>, Stafford Horne <shorne@gmail.com>,
-        Szabolcs Nagy <nsz@port70.net>,
+        Wed, 28 Jun 2023 14:51:25 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F6161FF7;
+        Wed, 28 Jun 2023 11:51:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=gzBVL7uWfH/0QncUeiWSVvNT7tu19KKFpZm/SdtHfy0=; b=F0geF1mDFUhFwejscu79P5AerF
+        ChPxlz8AungTNw2nYlH8TmeT0FdBYZ403uLo6dwYbFZivePasVeM2QOKhl+SGZUnj3aelPYXtEfM9
+        SrOHM/3oUTni3eU+S6cGIy3fXu368hUaiU/EA6YN2NOx+dDC0fkki3YX0I7X5QXDEfuDII33co6YT
+        AgpMwEBC4ya/EPvRDl80CtdVgP3e2XagbMLqDsAoh6VP3gh2KZpEwz3m1/E0HTdSv3vSxKIUbldmu
+        z9Fsmk0Dd2L6fefBSyj6JHJ0VqW7vTaNglMS0xkY6KNSksqhU+OkIfDiDfBXKznANmEoK/ikyWU4U
+        7raG+AtA==;
+Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1qEaFx-0047Cx-Rw; Wed, 28 Jun 2023 18:51:09 +0000
+Date:   Wed, 28 Jun 2023 19:51:09 +0100
+From:   Matthew Wilcox <willy@infradead.org>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Hugh Dickins <hughd@google.com>,
+        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Dinh Nguyen <dinguyen@kernel.org>,
         Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        linux-openrisc@vger.kernel.org
-Subject: [PATCH] openrisc: Revert adding fpcsr to sigcontext to unbreak userspace ABI
-Date:   Wed, 28 Jun 2023 18:13:04 +0100
-Message-Id: <20230628171306.2608480-1-shorne@gmail.com>
-X-Mailer: git-send-email 2.39.1
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Richard Weinberger <richard@nod.at>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>
+Subject: Re: [PATCH v6 00/33] Split ptdesc from struct page
+Message-ID: <ZJyBHdcjuaykIRG9@casper.infradead.org>
+References: <20230627031431.29653-1-vishal.moola@gmail.com>
+ <e8992eee-4140-427e-bacb-9449f346318@google.com>
+ <ac1c162c-07d8-6084-44ca-a2c1a4183df2@redhat.com>
+ <90e643ca-de72-2f4c-f4fe-35e06e1a9277@google.com>
+ <26282cb8-b6b0-f3a0-e82d-b4fec45c5f72@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <26282cb8-b6b0-f3a0-e82d-b4fec45c5f72@redhat.com>
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-With commit 27267655c531 ("openrisc: Support floating point user api") I
-inproperly added an entry to the struct sigcontext which caused an
-unwanted to chagne to the userspace ABI.
+On Wed, Jun 28, 2023 at 09:41:18AM +0200, David Hildenbrand wrote:
+> I'm not a friend of these "overlays"; it all only really makes sense to me
+> once we actually allocate the descriptors dynamically. Maybe some of the
+> existing/ongoing conversions were different (that's why I was asking for the
+> difference, as you said the "struct slab" thing was well received).
+> 
+> If they are primarily only unnecessary churn for now (and unclear when/how
+> it will become useful), I share your opinion.
 
-Revert this change to restore the ABI back to the pre kernel v6.4 ABI.
+One of the reasons for doing these conversions "early" is that it helps
+people who work on this code know what fields they can actually use in
+their memory descriptor.  We have a _lot_ of historical baggage with
+people just using random bits in struct page for their own purposes
+without necessarily considering the effects on the rest of the system.
 
-This means that fpcsr will not be accessible in signal handlers, but
-that should be fine.
+By creating specific types for each user of struct page, we can see
+what's actually going on.  Before the ptdesc conversion started, I could
+not have told you which bits in struct page were used by the s390 code.
+I knew they were playing some fun games with the refcount (it's even
+documented in the s390 code!) but I didn't know they were using ...
+whetever it is; page->private to point to the kvm private data?
 
-Fixes: 27267655c531 ("openrisc: Support floating point user api")
-Reported-by: Szabolcs Nagy <nsz@port70.net>
-Closes: https://lore.kernel.org/openrisc/20230626213840.GA1236108@port70.net/
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- arch/openrisc/include/uapi/asm/sigcontext.h | 1 -
- arch/openrisc/kernel/signal.c               | 2 --
- 2 files changed, 3 deletions(-)
+So maybe it is harder for MM developers right now to see what fields in
+memdesc A overlap with which fields in memdesc B.  That _ought_ not to
+be a concern!  We document which fields are available in each memdesc,
+and have various assertions to trip when people make things not line up
+any more.  There can still be problems, of course; we haven't set the
+assertions quite tightly enough in some cases.
 
-diff --git a/arch/openrisc/include/uapi/asm/sigcontext.h b/arch/openrisc/include/uapi/asm/sigcontext.h
-index ca585e4af6b8..8ab775fc3450 100644
---- a/arch/openrisc/include/uapi/asm/sigcontext.h
-+++ b/arch/openrisc/include/uapi/asm/sigcontext.h
-@@ -28,7 +28,6 @@
- 
- struct sigcontext {
- 	struct user_regs_struct regs;  /* needs to be first */
--	struct __or1k_fpu_state fpu;
- 	unsigned long oldmask;
- };
- 
-diff --git a/arch/openrisc/kernel/signal.c b/arch/openrisc/kernel/signal.c
-index 4664a18f0787..80f69740c731 100644
---- a/arch/openrisc/kernel/signal.c
-+++ b/arch/openrisc/kernel/signal.c
-@@ -50,7 +50,6 @@ static int restore_sigcontext(struct pt_regs *regs,
- 	err |= __copy_from_user(regs, sc->regs.gpr, 32 * sizeof(unsigned long));
- 	err |= __copy_from_user(&regs->pc, &sc->regs.pc, sizeof(unsigned long));
- 	err |= __copy_from_user(&regs->sr, &sc->regs.sr, sizeof(unsigned long));
--	err |= __copy_from_user(&regs->fpcsr, &sc->fpu.fpcsr, sizeof(unsigned long));
- 
- 	/* make sure the SM-bit is cleared so user-mode cannot fool us */
- 	regs->sr &= ~SPR_SR_SM;
-@@ -113,7 +112,6 @@ static int setup_sigcontext(struct pt_regs *regs, struct sigcontext __user *sc)
- 	err |= __copy_to_user(sc->regs.gpr, regs, 32 * sizeof(unsigned long));
- 	err |= __copy_to_user(&sc->regs.pc, &regs->pc, sizeof(unsigned long));
- 	err |= __copy_to_user(&sc->regs.sr, &regs->sr, sizeof(unsigned long));
--	err |= __copy_to_user(&sc->fpu.fpcsr, &regs->fpcsr, sizeof(unsigned long));
- 
- 	return err;
- }
--- 
-2.39.1
-
+People are going to keep adding crap to struct page, and they're going
+to keep misusing the crap that's in struct page.  That has to stop.
