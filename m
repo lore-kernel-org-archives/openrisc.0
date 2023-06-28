@@ -2,67 +2,67 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04FE6C04A6A;
-	Tue, 27 Jun 2023 21:58:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BC50EB64DC;
+	Wed, 28 Jun 2023 08:00:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229838AbjF0V6L (ORCPT
+        id S229886AbjF1IAo (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Tue, 27 Jun 2023 17:58:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48722 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229804AbjF0V55 (ORCPT
+        Wed, 28 Jun 2023 04:00:44 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:55103 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232214AbjF1H55 (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Tue, 27 Jun 2023 17:57:57 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5717AAB;
-        Tue, 27 Jun 2023 14:57:56 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id d9443c01a7336-1b8054180acso23109865ad.1;
-        Tue, 27 Jun 2023 14:57:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1687903076; x=1690495076;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=t1QqN2jdF+WL3G2Fn2F+gnSyyU4sNUKe3JWXuNtILlE=;
-        b=g+t5RbdhRiaLoYyDKYrUABIe+H7AyRcVTK6Ps8KX11dLH3rVyHHxTIp4jo1F1MLfJ/
-         7iNHUg8lMtHSGaBwqfjHucjm6wwc/jl78+I2QtBt+NVF52zFOTO8iGbXC2EXZcfaizxp
-         syPg/dBUX2hToZvcUTpD+czYfrRw5crN2vey7CoePIDlxvhbRn4jKEtVasFgYbYadRKT
-         uIII/cayZYqptv+yRMmyM+Wfpd5/UPoabOL1LFJ6elItbp/e6VHQDna35ucIS9DgJdAS
-         QwUA3GiJRf5dQk/OTJ3hXfUBDFz7VSwh76MedBtdvOPKN3bvoe9PwVVR6Es4OllczpXD
-         WRDQ==
+        Wed, 28 Jun 2023 03:57:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1687939026;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=SH32jNlN6Jqg7DPKFWcTzn8QudVshhtxY6DizRJx1h4=;
+        b=bghMily1ZUr18Du8X6lc/12R62hBJFLVlvFqOtalzA6DhArtCs1ZmJdodpIvfSUyT6MDIE
+        YglButbvEZ8O182fXbTCqOB+dCJOizeNd2KnDn9kGAUprMwjlUNQ+swzLDtdaqH4fZIFZX
+        qYhiVHbp/5H7dTEnoDo2y739QW8b7YI=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-15-bl5QZLWxNdKbwB3kHij_fA-1; Wed, 28 Jun 2023 03:41:22 -0400
+X-MC-Unique: bl5QZLWxNdKbwB3kHij_fA-1
+Received: by mail-lf1-f71.google.com with SMTP id 2adb3069b0e04-4fb76659d44so3295864e87.3
+        for <linux-openrisc@vger.kernel.org>; Wed, 28 Jun 2023 00:41:22 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687903076; x=1690495076;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=1e100.net; s=20221208; t=1687938081; x=1690530081;
+        h=content-transfer-encoding:in-reply-to:subject:organization:from
+         :content-language:references:cc:to:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=t1QqN2jdF+WL3G2Fn2F+gnSyyU4sNUKe3JWXuNtILlE=;
-        b=HOMRy0rO6u48WO1DhY3SUcNg7f9+47bEt02w+tAxIYZp+2TOYplQqnzBE5MKg1K6nU
-         f1i49+8bBSfBuY7IHDWYw+tkp9hfTSaDCV6H2YGTUfx6kSbFJsladXnpBcofcqcttapw
-         xfO+GPZKWVfj7fzOuK+GLSI6GHyFMZUrn+Jrs+s2GsoXRSEyH3i+Yj4pLlkIMS+MkWb2
-         s7Aupv13mba8x9OnsXhSJYSV7BFXSvLcNNQC2U2ZoZ/BSTqaprUtHD4GlZDwPRSyCgh0
-         lvqYJhIU86NVVCIqQFQyYCweiaLRDMcgZdor+BgIujc+kBqaXXCB3RZ9yCTbQgcrbb5B
-         ZdyA==
-X-Gm-Message-State: AC+VfDzWBQRxlD9ASry8udxyl88vaee4+gEWXw2VcEgNcpPF4IXeCd/1
-        rhWihR+BC8/WynrSINAC6Mc=
-X-Google-Smtp-Source: ACHHUZ6lN48OedTSkLTDBhYcXWegZDranrwbL7k9xhFTjM3m37Ei4jw/mCpSF8qmoSte/cwaCNHhUw==
-X-Received: by 2002:a17:902:c407:b0:1ac:8717:d436 with SMTP id k7-20020a170902c40700b001ac8717d436mr14008978plk.60.1687903075769;
-        Tue, 27 Jun 2023 14:57:55 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id e16-20020a17090301d000b001b69303db65sm6438851plh.26.2023.06.27.14.57.53
+        bh=SH32jNlN6Jqg7DPKFWcTzn8QudVshhtxY6DizRJx1h4=;
+        b=Wy/zypguPyboelY2gmAmepacSQMn+h/3sw2aWG/V9VfRNijXqlKclqQ8reEUgo6/yS
+         pejIvIjNXEaPSzwk8L1sn1v90OcOoFprUgg1J08b351l8aYkunVxHT2TO1IuNlq0NhEo
+         VCeBngV1v80TPrpb8u8PZg1tYzCXe7fB4pawJYd/nHHBu+BLExMhLsSo/Y9XnE7bJ/oB
+         yvINyhPa4UkbZbfk1IkqdHAnv23F/16AlGYYpF8RDfDbd8crdfxb9k8ApuYAbD4p/hz7
+         vAp95ksUaqYw+l0o2sY3cl6vwIbyPLJwEDtosQfnxyS4M3HI6F4rBicJbghZgAlroeRV
+         RLIA==
+X-Gm-Message-State: AC+VfDy2Z9rgz29+dEWHxLpL6M2BcQJeMmkZMZBmz67XXUCEGDjoCAjt
+        l5j5oeQMhBqt6kJQkk2fBm2joW9s4MrAxIbuTM6qghDsuqvcW9p9T4QL24mC89pPUA8lk0Leou+
+        gnY5Ac8/Q5wzn4V9y6N8FemHH/NDO7qpa2lA=
+X-Received: by 2002:a05:6512:10cb:b0:4fb:9341:9921 with SMTP id k11-20020a05651210cb00b004fb93419921mr540037lfg.52.1687938081184;
+        Wed, 28 Jun 2023 00:41:21 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ4/LL8Q6ptsPVewMKWY4urM5AzIoWSMnfr2lL0PypvevicnXRpVgfkYzOOBDpLnug9qgwbQPw==
+X-Received: by 2002:a05:6512:10cb:b0:4fb:9341:9921 with SMTP id k11-20020a05651210cb00b004fb93419921mr540021lfg.52.1687938080672;
+        Wed, 28 Jun 2023 00:41:20 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c715:ef00:fa40:f6df:a68d:a0e4? (p200300cbc715ef00fa40f6dfa68da0e4.dip0.t-ipconnect.de. [2003:cb:c715:ef00:fa40:f6df:a68d:a0e4])
+        by smtp.gmail.com with ESMTPSA id hn10-20020a05600ca38a00b003fba586100fsm3970092wmb.6.2023.06.28.00.41.18
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 27 Jun 2023 14:57:55 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <a7e61e75-cc94-9771-4b56-d1a7c35c13f2@roeck-us.net>
-Date:   Tue, 27 Jun 2023 14:57:52 -0700
+        Wed, 28 Jun 2023 00:41:20 -0700 (PDT)
+Message-ID: <26282cb8-b6b0-f3a0-e82d-b4fec45c5f72@redhat.com>
+Date:   Wed, 28 Jun 2023 09:41:18 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.0
-Subject: Re: [PATCH v5 26/33] nios2: Convert __pte_free_tlb() to use ptdescs
-Content-Language: en-US
-To:     Dinh Nguyen <dinguyen@kernel.org>,
-        Vishal Moola <vishal.moola@gmail.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
+ Thunderbird/102.12.0
+To:     Hugh Dickins <hughd@google.com>
+Cc:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
         linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
@@ -72,83 +72,90 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
         sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
         xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
-        Hugh Dickins <hughd@google.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>
-References: <20230622205745.79707-1-vishal.moola@gmail.com>
- <20230622205745.79707-27-vishal.moola@gmail.com>
- <13bab37c-0f0a-431a-8b67-4379bf4dc541@roeck-us.net>
- <CAOzc2px6VutRkMUTn+M5LFLf1YbRVZFgJ=q7StaApwYRxUWqQA@mail.gmail.com>
- <cc954b15-63ab-9d9f-2d37-1aea78b7f65f@roeck-us.net>
- <b6a5753b-8874-6465-f690-094ee753e038@roeck-us.net>
- <CAOzc2pxdqeaRjYLfOqvMW-AEobTzD9xOP+MyP9nxgEbi1T2r7Q@mail.gmail.com>
- <c3751051-7fc7-7129-b9a7-ead71c576ace@kernel.org>
- <2b7e8b1d-1697-6a25-434d-352f95e6fff2@roeck-us.net>
- <70776142-a778-9c20-5594-835ed6f7e7a2@kernel.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-In-Reply-To: <70776142-a778-9c20-5594-835ed6f7e7a2@kernel.org>
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Jonas Bonn <jonas@southpole.se>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Richard Weinberger <richard@nod.at>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>
+References: <20230627031431.29653-1-vishal.moola@gmail.com>
+ <e8992eee-4140-427e-bacb-9449f346318@google.com>
+ <ac1c162c-07d8-6084-44ca-a2c1a4183df2@redhat.com>
+ <90e643ca-de72-2f4c-f4fe-35e06e1a9277@google.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH v6 00/33] Split ptdesc from struct page
+In-Reply-To: <90e643ca-de72-2f4c-f4fe-35e06e1a9277@google.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On 6/27/23 14:46, Dinh Nguyen wrote:
-> 
-> 
-> On 6/27/23 16:01, Guenter Roeck wrote:
->> On 6/27/23 13:05, Dinh Nguyen wrote:
+On 27.06.23 22:13, Hugh Dickins wrote:
+> On Tue, 27 Jun 2023, David Hildenbrand wrote:
+>> On 27.06.23 06:44, Hugh Dickins wrote:
+>>> On Mon, 26 Jun 2023, Vishal Moola (Oracle) wrote:
 >>>
+>>>> The MM subsystem is trying to shrink struct page. This patchset
+>>>> introduces a memory descriptor for page table tracking - struct ptdesc.
+>>> ...
+>>>>    39 files changed, 686 insertions(+), 455 deletions(-)
 >>>
->>> On 6/27/23 14:56, Vishal Moola wrote:
->>>> On Tue, Jun 27, 2023 at 12:14 PM Guenter Roeck <linux@roeck-us.net> wrote:
->>>>>
->>>>> On 6/27/23 12:10, Guenter Roeck wrote:
->>>>>> On 6/27/23 10:42, Vishal Moola wrote:
->>>>>>> On Mon, Jun 26, 2023 at 10:47 PM Guenter Roeck <linux@roeck-us.net> wrote:
->>>>>>>>
->>>>>>>> On Thu, Jun 22, 2023 at 01:57:38PM -0700, Vishal Moola (Oracle) wrote:
->>>>>>>>> Part of the conversions to replace pgtable constructor/destructors with
->>>>>>>>> ptdesc equivalents.
->>>>>>>>>
->>>>>>>>> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
->>>>>>>>> Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
->>>>>>>>
->>>>>>>> This patch causes all nios2 builds to fail.
->>>>>>>
->>>>>>> It looks like you tried to apply this patch on its own. This patch depends
->>>>>>> on patches 01-12 of this patchset to compile properly. I've cross-compiled
->>>>>>> this architecture and it worked, but let me know if something fails
->>>>>>> when its applied on top of those patches (or the rest of the patchset).
->>>>>>
->>>>>>
->>>>>> No, I did not try to apply this patch on its own. I tried to build yesterday's
->>>>>> pending-fixes branch of linux-next.
->>>>>>
->>>>>
->>>>> A quick check shows that the build fails with next-20230627. See log below.
->>>>
->>>> Ah it looks like this one slipped into -next on its own somehow? Stephen, please
->>>> drop this patch from -next; it shouldn't be in without the rest of the
->>>> patchset which
->>>> I intend to have Andrew take through the mm tree.
->>>>
+>>> I don't see the point of this patchset: to me it is just obfuscation of
+>>> the present-day tight relationship between page table and struct page.
 >>>
->>> I apologize, but I queue this patch up for Linus and it's been pulled for this merge window. I didn't realize you were going to take this patchset through another tree.
+>>> Matthew already explained:
 >>>
->>> Sorry about that.
+>>>> The intent is to get ptdescs to be dynamically allocated at some point
+>>>> in the ~2-3 years out future when we have finished the folio project ...
 >>>
+>>> So in a kindly mood, I'd say that this patchset is ahead of its time.
+>>> But I can certainly adapt to it, if everyone else sees some point to it.
 >>
->> Yes, indeed, I just confirmed that all nios2 builds in the mainline kernel
->> are now broken.
+>> I share your thoughts, that code churn which will help eventually in the far,
+>> far future (not wanting to sound too pessimistic, but it's not going to be
+>> there tomorrow ;) ).
 >>
+>> However, if it's just the same as the other conversions we already did (e.g.,
+>> struct slab), then I guess there is no reason to stop now -- the obfuscation
+>> already happened.
+>>
+>> ... or is there a difference regarding this conversion and the previous ones?
 > 
-> Please let me know if you need to do anything. I'm going to out for a week starting tomorrow.
+> I was aware of the struct slab thing, didn't see much point there myself
+> either; but it was welcomed by Vlastimil, and barely affected outside of
+> slab allocators, so I had no reason to object.
 > 
+> You think that if a little unnecessary churn (a *lot* of churn if you
+> include folios, which did save some repeated calls to compound_head())
+> has already occurred, that's a good precedent for allowing more and more?
 
-Not sure I understand. It seems to me that it would have to be you to do something.
-After all, you are the nios2 maintainer, and nios2 builds in mainline are now
-broken. Maybe send a revert ? Am I missing something ?
+Well, if you phrase it like that ... no, I'm not in favor of unnecessary 
+churn at all. Yes, folios were/are a lot of churn (IMHO not unnecessary, 
+though).
 
-Guenter
+I'm not a friend of these "overlays"; it all only really makes sense to 
+me once we actually allocate the descriptors dynamically. Maybe some of 
+the existing/ongoing conversions were different (that's why I was asking 
+for the difference, as you said the "struct slab" thing was well received).
+
+If they are primarily only unnecessary churn for now (and unclear 
+when/how it will become useful), I share your opinion.
+
+-- 
+Cheers,
+
+David / dhildenb
 
