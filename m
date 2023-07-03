@@ -2,103 +2,189 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26567C001B3;
-	Wed, 28 Jun 2023 18:51:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7541C0015E;
+	Mon,  3 Jul 2023 07:55:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232641AbjF1Svq (ORCPT
+        id S230253AbjGCHzE convert rfc822-to-8bit (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Wed, 28 Jun 2023 14:51:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52930 "EHLO
+        Mon, 3 Jul 2023 03:55:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231588AbjF1SvZ (ORCPT
+        with ESMTP id S230205AbjGCHzB (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Wed, 28 Jun 2023 14:51:25 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F6161FF7;
-        Wed, 28 Jun 2023 11:51:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=gzBVL7uWfH/0QncUeiWSVvNT7tu19KKFpZm/SdtHfy0=; b=F0geF1mDFUhFwejscu79P5AerF
-        ChPxlz8AungTNw2nYlH8TmeT0FdBYZ403uLo6dwYbFZivePasVeM2QOKhl+SGZUnj3aelPYXtEfM9
-        SrOHM/3oUTni3eU+S6cGIy3fXu368hUaiU/EA6YN2NOx+dDC0fkki3YX0I7X5QXDEfuDII33co6YT
-        AgpMwEBC4ya/EPvRDl80CtdVgP3e2XagbMLqDsAoh6VP3gh2KZpEwz3m1/E0HTdSv3vSxKIUbldmu
-        z9Fsmk0Dd2L6fefBSyj6JHJ0VqW7vTaNglMS0xkY6KNSksqhU+OkIfDiDfBXKznANmEoK/ikyWU4U
-        7raG+AtA==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1qEaFx-0047Cx-Rw; Wed, 28 Jun 2023 18:51:09 +0000
-Date:   Wed, 28 Jun 2023 19:51:09 +0100
-From:   Matthew Wilcox <willy@infradead.org>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     Hugh Dickins <hughd@google.com>,
-        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
+        Mon, 3 Jul 2023 03:55:01 -0400
+Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com [209.85.128.180])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5269BA;
+        Mon,  3 Jul 2023 00:54:59 -0700 (PDT)
+Received: by mail-yw1-f180.google.com with SMTP id 00721157ae682-579dfae6855so22582167b3.1;
+        Mon, 03 Jul 2023 00:54:59 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1688370899; x=1690962899;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ap+98X7lUU4Mb/R2w4KrLGdPkASGfI2gOWe+xareG/w=;
+        b=gV20QlEGzskXm07NAqjW665ZOYqxSGlkKqWzqoJMbhnIEuBkLxl4oSnIw+4dMp/6Qu
+         rTBskUaVp+NpWb1A2bQDMcw75It6Eze/JvCCstzZHZja06hmfb50w1hES/NOjA7v7dan
+         j7Duf2YvIsW6Pk8YvaKXdM2KKPxORSPfJuOEeQOagyL0bAenCS2mejFCokjJP/pzSc7c
+         Zq+1+yvVojwqbfa83kSVQXXZDAQpRnjQivEcltHnSlHuuWE/kWFqTdswimQT//evGouf
+         OvnNrUQYo//zINW7PYrkA1/fRkmHGfnYqN6PqtMmTIRP0DHWMxMC6lcI9iM1F5rOVIo8
+         yGZw==
+X-Gm-Message-State: ABy/qLZ8JxjsjLPy8UYTLdPS/PjqNX0RSExMIU5yyOlrz4WgP70p8TFd
+        LM2iWpojrFiGfOw7jAWMPsQ8GBURmdfLDg==
+X-Google-Smtp-Source: APBJJlHb87eLaE470shsNSC1acSVhnfK0tWhT1v3ISD1tEI3oo1td+vo0uIBY60+HpW5q2cS4a+/aQ==
+X-Received: by 2002:a0d:f005:0:b0:573:4d8b:471f with SMTP id z5-20020a0df005000000b005734d8b471fmr8421371ywe.26.1688370898728;
+        Mon, 03 Jul 2023 00:54:58 -0700 (PDT)
+Received: from mail-yb1-f177.google.com (mail-yb1-f177.google.com. [209.85.219.177])
+        by smtp.gmail.com with ESMTPSA id l189-20020a0dfbc6000000b0055a931afe48sm4942907ywf.8.2023.07.03.00.54.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 03 Jul 2023 00:54:58 -0700 (PDT)
+Received: by mail-yb1-f177.google.com with SMTP id 3f1490d57ef6-c4d1b491095so1850181276.0;
+        Mon, 03 Jul 2023 00:54:58 -0700 (PDT)
+X-Received: by 2002:a25:a287:0:b0:c1a:2928:74ab with SMTP id
+ c7-20020a25a287000000b00c1a292874abmr8554017ybi.31.1688370898299; Mon, 03 Jul
+ 2023 00:54:58 -0700 (PDT)
+MIME-Version: 1.0
+References: <20230327121317.4081816-1-arnd@kernel.org> <20230327121317.4081816-21-arnd@kernel.org>
+In-Reply-To: <20230327121317.4081816-21-arnd@kernel.org>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Mon, 3 Jul 2023 09:54:46 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdW5bXeE=nr7+hHxL+xhm2q05udkJpMBM-BG7g9S7Nt7Zg@mail.gmail.com>
+Message-ID: <CAMuHMdW5bXeE=nr7+hHxL+xhm2q05udkJpMBM-BG7g9S7Nt7Zg@mail.gmail.com>
+Subject: Re: [PATCH 20/21] ARM: dma-mapping: split out arch_dma_mark_clean() helper
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Catalin Marinas <catalin.marinas@arm.com>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Brian Cain <bcain@quicinc.com>,
+        Michal Simek <monstr@monstr.eu>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Dinh Nguyen <dinguyen@kernel.org>,
-        Jonas Bonn <jonas@southpole.se>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Stafford Horne <shorne@gmail.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
         Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Rich Felker <dalias@libc.org>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
         "David S. Miller" <davem@davemloft.net>,
-        Richard Weinberger <richard@nod.at>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: Re: [PATCH v6 00/33] Split ptdesc from struct page
-Message-ID: <ZJyBHdcjuaykIRG9@casper.infradead.org>
-References: <20230627031431.29653-1-vishal.moola@gmail.com>
- <e8992eee-4140-427e-bacb-9449f346318@google.com>
- <ac1c162c-07d8-6084-44ca-a2c1a4183df2@redhat.com>
- <90e643ca-de72-2f4c-f4fe-35e06e1a9277@google.com>
- <26282cb8-b6b0-f3a0-e82d-b4fec45c5f72@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <26282cb8-b6b0-f3a0-e82d-b4fec45c5f72@redhat.com>
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-oxnas@groups.io,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-xtensa@linux-xtensa.org,
+        Emil Renner Berthing <emil.renner.berthing@canonical.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Wed, Jun 28, 2023 at 09:41:18AM +0200, David Hildenbrand wrote:
-> I'm not a friend of these "overlays"; it all only really makes sense to me
-> once we actually allocate the descriptors dynamically. Maybe some of the
-> existing/ongoing conversions were different (that's why I was asking for the
-> difference, as you said the "struct slab" thing was well received).
-> 
-> If they are primarily only unnecessary churn for now (and unclear when/how
-> it will become useful), I share your opinion.
+Hi Arnd,
 
-One of the reasons for doing these conversions "early" is that it helps
-people who work on this code know what fields they can actually use in
-their memory descriptor.  We have a _lot_ of historical baggage with
-people just using random bits in struct page for their own purposes
-without necessarily considering the effects on the rest of the system.
+On Mon, Mar 27, 2023 at 2:16 PM Arnd Bergmann <arnd@kernel.org> wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> The arm version of the arch_sync_dma_for_cpu() function annotates pages as
+> PG_dcache_clean after a DMA, but no other architecture does this here. On
+> ia64, the same thing is done in arch_sync_dma_for_cpu(), so it makes sense
+> to use the same hook in order to have identical arch_sync_dma_for_cpu()
+> semantics as all other architectures.
+>
+> Splitting this out has multiple effects:
+>
+>  - for dma-direct, this now gets called after arch_sync_dma_for_cpu()
+>    for DMA_FROM_DEVICE mappings, but not for DMA_BIDIRECTIONAL. While
+>    it would not be harmful to keep doing it for bidirectional mappings,
+>    those are apparently not used in any callers that care about the flag.
+>
+>  - Since arm has its own dma-iommu abstraction, this now also needs to
+>    call the same function, so the calls are added there to mirror the
+>    dma-direct version.
+>
+>  - Like dma-direct, the dma-iommu version now marks the dcache clean
+>    for both coherent and noncoherent devices after a DMA, but it only
+>    does this for DMA_FROM_DEVICE, not DMA_BIDIRECTIONAL.
+>
+> [ HELP NEEDED: can anyone confirm that it is a correct assumption
+>   on arm that a cache-coherent device writing to a page always results
+>   in it being in a PG_dcache_clean state like on ia64, or can a device
+>   write directly into the dcache?]
+>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-By creating specific types for each user of struct page, we can see
-what's actually going on.  Before the ptdesc conversion started, I could
-not have told you which bits in struct page were used by the s390 code.
-I knew they were playing some fun games with the refcount (it's even
-documented in the s390 code!) but I didn't know they were using ...
-whetever it is; page->private to point to the kvm private data?
+Thanks for your patch, which is now commit 322dbe898f82fd8a
+("ARM: dma-mapping: split out arch_dma_mark_clean() helper") in
+esmil/jh7100-dmapool.
 
-So maybe it is harder for MM developers right now to see what fields in
-memdesc A overlap with which fields in memdesc B.  That _ought_ not to
-be a concern!  We document which fields are available in each memdesc,
-and have various assertions to trip when people make things not line up
-any more.  There can still be problems, of course; we haven't set the
-assertions quite tightly enough in some cases.
+If CONFIG_ARM_DMA_USE_IOMMU=y, the build fails.
 
-People are going to keep adding crap to struct page, and they're going
-to keep misusing the crap that's in struct page.  That has to stop.
+> --- a/arch/arm/mm/dma-mapping.c
+> +++ b/arch/arm/mm/dma-mapping.c
+
+> @@ -1294,6 +1298,17 @@ static int arm_iommu_map_sg(struct device *dev, struct scatterlist *sg,
+>         return -EINVAL;
+>  }
+>
+> +static void arm_iommu_sync_dma_for_cpu(phys_addr_t phys, size_t len,
+> +                                      enum dma_data_direction dir,
+> +                                      bool dma_coherent)
+> +{
+> +       if (!dma_coherent)
+> +               arch_sync_dma_for_cpu(phys, s->length, dir);
+
+s/s->length/len/
+
+> +
+> +       if (dir == DMA_FROM_DEVICE)
+> +               arch_dma_mark_clean(phys, s->length);
+
+Likewise.
+
+> +}
+> +
+>  /**
+>   * arm_iommu_unmap_sg - unmap a set of SG buffers mapped by dma_map_sg
+>   * @dev: valid struct device pointer
+
+> @@ -1425,9 +1438,9 @@ static void arm_iommu_unmap_page(struct device *dev, dma_addr_t handle,
+>         if (!iova)
+>                 return;
+>
+> -       if (!dev->dma_coherent && !(attrs & DMA_ATTR_SKIP_CPU_SYNC)) {
+> +       if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
+
+Missing opening curly brace.
+
+>                 phys = iommu_iova_to_phys(mapping->domain, handle);
+> -               arch_sync_dma_for_cpu(phys, size, dir);
+> +               arm_iommu_sync_dma_for_cpu(phys, size, dir, dev->dma_coherent);
+>         }
+>
+>         iommu_unmap(mapping->domain, iova, len);
+
+With the above fixed, it builds and boots fine (on R-Car M2-W).
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
