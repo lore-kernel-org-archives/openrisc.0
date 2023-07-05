@@ -2,189 +2,112 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7541C0015E;
-	Mon,  3 Jul 2023 07:55:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 306EDEB64DA;
+	Wed,  5 Jul 2023 21:27:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230253AbjGCHzE convert rfc822-to-8bit (ORCPT
+        id S231137AbjGEV1D (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Mon, 3 Jul 2023 03:55:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43980 "EHLO
+        Wed, 5 Jul 2023 17:27:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230205AbjGCHzB (ORCPT
+        with ESMTP id S230094AbjGEV1D (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Mon, 3 Jul 2023 03:55:01 -0400
-Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com [209.85.128.180])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5269BA;
-        Mon,  3 Jul 2023 00:54:59 -0700 (PDT)
-Received: by mail-yw1-f180.google.com with SMTP id 00721157ae682-579dfae6855so22582167b3.1;
-        Mon, 03 Jul 2023 00:54:59 -0700 (PDT)
+        Wed, 5 Jul 2023 17:27:03 -0400
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17F401980;
+        Wed,  5 Jul 2023 14:27:02 -0700 (PDT)
+Received: by mail-wr1-x436.google.com with SMTP id ffacd0b85a97d-31441dfbf97so2343463f8f.1;
+        Wed, 05 Jul 2023 14:27:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1688592420; x=1691184420;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=olSkp5XULjlmnBa7SpZh0QplgA0djzdnRtnuuGpp6wA=;
+        b=NLuSX2FTIADLN7+dkb8Vwwe818Bz20GOXnq59XetMyVZXyKUQ1919z6O9OljWS9vdG
+         Yt7B5XZm6omB3smJfUsVWU0V8ijmH4Lx8aRPG4XOZqsoYeQK5mhHsQr2iSAcD6uQRtHD
+         VjuNnwMqJdr4sLoiA2pJqbVfgIuAUZ6zTcbffJUKEdiJQwt8iCfowCDasxzjsX1gDykI
+         bAt/PovcxTrvz+DeDRTOeAu3CLaI0P6JjDcJ8JP+z0DsdjrqLQluAKh5dpL4ijFuy1F+
+         4buCXBQfV9RLI1tFuLSbgkh5HLw2OhBcHo2TySaaC9S9129O6tCIfFnbFoIZFwgMIK5q
+         G55w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1688370899; x=1690962899;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ap+98X7lUU4Mb/R2w4KrLGdPkASGfI2gOWe+xareG/w=;
-        b=gV20QlEGzskXm07NAqjW665ZOYqxSGlkKqWzqoJMbhnIEuBkLxl4oSnIw+4dMp/6Qu
-         rTBskUaVp+NpWb1A2bQDMcw75It6Eze/JvCCstzZHZja06hmfb50w1hES/NOjA7v7dan
-         j7Duf2YvIsW6Pk8YvaKXdM2KKPxORSPfJuOEeQOagyL0bAenCS2mejFCokjJP/pzSc7c
-         Zq+1+yvVojwqbfa83kSVQXXZDAQpRnjQivEcltHnSlHuuWE/kWFqTdswimQT//evGouf
-         OvnNrUQYo//zINW7PYrkA1/fRkmHGfnYqN6PqtMmTIRP0DHWMxMC6lcI9iM1F5rOVIo8
-         yGZw==
-X-Gm-Message-State: ABy/qLZ8JxjsjLPy8UYTLdPS/PjqNX0RSExMIU5yyOlrz4WgP70p8TFd
-        LM2iWpojrFiGfOw7jAWMPsQ8GBURmdfLDg==
-X-Google-Smtp-Source: APBJJlHb87eLaE470shsNSC1acSVhnfK0tWhT1v3ISD1tEI3oo1td+vo0uIBY60+HpW5q2cS4a+/aQ==
-X-Received: by 2002:a0d:f005:0:b0:573:4d8b:471f with SMTP id z5-20020a0df005000000b005734d8b471fmr8421371ywe.26.1688370898728;
-        Mon, 03 Jul 2023 00:54:58 -0700 (PDT)
-Received: from mail-yb1-f177.google.com (mail-yb1-f177.google.com. [209.85.219.177])
-        by smtp.gmail.com with ESMTPSA id l189-20020a0dfbc6000000b0055a931afe48sm4942907ywf.8.2023.07.03.00.54.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 03 Jul 2023 00:54:58 -0700 (PDT)
-Received: by mail-yb1-f177.google.com with SMTP id 3f1490d57ef6-c4d1b491095so1850181276.0;
-        Mon, 03 Jul 2023 00:54:58 -0700 (PDT)
-X-Received: by 2002:a25:a287:0:b0:c1a:2928:74ab with SMTP id
- c7-20020a25a287000000b00c1a292874abmr8554017ybi.31.1688370898299; Mon, 03 Jul
- 2023 00:54:58 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1688592420; x=1691184420;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=olSkp5XULjlmnBa7SpZh0QplgA0djzdnRtnuuGpp6wA=;
+        b=k/28I+sgrq2/asB8kdibxtrMZ4zMH/wamcHDt2r2aK8Ffs+68o8c75706igWtRVfd2
+         7JGxX3XNRTP1WxkIdpbl2I+TUkE5+VpjhzU0jjSPPGA+80159pxO7Diega0q1bDBNjlj
+         ILUpLEUj8+8xSfVg+fFBSUz4d0eDaIrv4DLzdJ3Doe7QUv0sdOxrwXD0mHunMoDQZoZ7
+         EpefxQYWLYaSJIwjlasKLy8ey/2z2x1nGTmPbtPy4e3qd+evrqpwi/sNVfbcHIZac0GJ
+         qbl1YMJizPfKZN2k9F7ZHQjPud7jLFbUnd+KZ7ScdobVdZ5Tj6FxVmI/xtdvTY0X/YNk
+         8iOQ==
+X-Gm-Message-State: ABy/qLYNK2r4eEWP9O4zkUcbf4zOzFkTYxleNKKvqYpogAlqCiG731+y
+        P32cB4V1rYjA3KeomZ6G9yowAlztOR/HIw==
+X-Google-Smtp-Source: APBJJlEwLu2fe4dShbzcVXct7CtYsMSsas/ZNPT/Iwdpv9DftIxt5uJNXnPq0hL//0ugTHy+7B5J2Q==
+X-Received: by 2002:a5d:6190:0:b0:314:c2a:31c5 with SMTP id j16-20020a5d6190000000b003140c2a31c5mr15708678wru.19.1688592419760;
+        Wed, 05 Jul 2023 14:26:59 -0700 (PDT)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id j16-20020a5d6190000000b003143867d2ebsm30325wru.63.2023.07.05.14.26.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Jul 2023 14:26:59 -0700 (PDT)
+From:   Stafford Horne <shorne@gmail.com>
+To:     LKML <linux-kernel@vger.kernel.org>
+Cc:     Rich Felker <dalias@libc.org>, Stafford Horne <shorne@gmail.com>,
+        Szabolcs Nagy <nsz@port70.net>,
+        Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        linux-openrisc@vger.kernel.org
+Subject: [RFC PATCH v2] openrisc: Union fpcsr and oldmask in sigcontext to unbreak userspace ABI
+Date:   Wed,  5 Jul 2023 22:26:45 +0100
+Message-Id: <20230705212646.3618706-1-shorne@gmail.com>
+X-Mailer: git-send-email 2.39.1
 MIME-Version: 1.0
-References: <20230327121317.4081816-1-arnd@kernel.org> <20230327121317.4081816-21-arnd@kernel.org>
-In-Reply-To: <20230327121317.4081816-21-arnd@kernel.org>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Mon, 3 Jul 2023 09:54:46 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdW5bXeE=nr7+hHxL+xhm2q05udkJpMBM-BG7g9S7Nt7Zg@mail.gmail.com>
-Message-ID: <CAMuHMdW5bXeE=nr7+hHxL+xhm2q05udkJpMBM-BG7g9S7Nt7Zg@mail.gmail.com>
-Subject: Re: [PATCH 20/21] ARM: dma-mapping: split out arch_dma_mark_clean() helper
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Brian Cain <bcain@quicinc.com>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Stafford Horne <shorne@gmail.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Rich Felker <dalias@libc.org>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-oxnas@groups.io,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-xtensa@linux-xtensa.org,
-        Emil Renner Berthing <emil.renner.berthing@canonical.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-Hi Arnd,
+With commit 27267655c531 ("openrisc: Support floating point user api") I
+inproperly added an entry to the struct sigcontext which caused an
+unwanted to chagne to the userspace ABI.
 
-On Mon, Mar 27, 2023 at 2:16 PM Arnd Bergmann <arnd@kernel.org> wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
->
-> The arm version of the arch_sync_dma_for_cpu() function annotates pages as
-> PG_dcache_clean after a DMA, but no other architecture does this here. On
-> ia64, the same thing is done in arch_sync_dma_for_cpu(), so it makes sense
-> to use the same hook in order to have identical arch_sync_dma_for_cpu()
-> semantics as all other architectures.
->
-> Splitting this out has multiple effects:
->
->  - for dma-direct, this now gets called after arch_sync_dma_for_cpu()
->    for DMA_FROM_DEVICE mappings, but not for DMA_BIDIRECTIONAL. While
->    it would not be harmful to keep doing it for bidirectional mappings,
->    those are apparently not used in any callers that care about the flag.
->
->  - Since arm has its own dma-iommu abstraction, this now also needs to
->    call the same function, so the calls are added there to mirror the
->    dma-direct version.
->
->  - Like dma-direct, the dma-iommu version now marks the dcache clean
->    for both coherent and noncoherent devices after a DMA, but it only
->    does this for DMA_FROM_DEVICE, not DMA_BIDIRECTIONAL.
->
-> [ HELP NEEDED: can anyone confirm that it is a correct assumption
->   on arm that a cache-coherent device writing to a page always results
->   in it being in a PG_dcache_clean state like on ia64, or can a device
->   write directly into the dcache?]
->
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Since oldmask was never used in OpenRISC we now use it's space for the
+floating point fpcsr state.  We do this with a union to restore the ABI
+back to the pre kernel v6.4 ABI and keep API compatibility.
 
-Thanks for your patch, which is now commit 322dbe898f82fd8a
-("ARM: dma-mapping: split out arch_dma_mark_clean() helper") in
-esmil/jh7100-dmapool.
+This does mean if there is some code somewhere that is setting oldmask
+in a userspace sighandler it would end up setting the floating point
+register status, but I think it's unlikely as oldmask was never used
+before.
 
-If CONFIG_ARM_DMA_USE_IOMMU=y, the build fails.
+Fixes: 27267655c531 ("openrisc: Support floating point user api")
+Reported-by: Szabolcs Nagy <nsz@port70.net>
+Closes: https://lore.kernel.org/openrisc/20230626213840.GA1236108@port70.net/
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+Changes since v1:
+ - Rather than revert the change, just use the oldmask slot for fpu state.
 
-> --- a/arch/arm/mm/dma-mapping.c
-> +++ b/arch/arm/mm/dma-mapping.c
+ arch/openrisc/include/uapi/asm/sigcontext.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-> @@ -1294,6 +1298,17 @@ static int arm_iommu_map_sg(struct device *dev, struct scatterlist *sg,
->         return -EINVAL;
->  }
->
-> +static void arm_iommu_sync_dma_for_cpu(phys_addr_t phys, size_t len,
-> +                                      enum dma_data_direction dir,
-> +                                      bool dma_coherent)
-> +{
-> +       if (!dma_coherent)
-> +               arch_sync_dma_for_cpu(phys, s->length, dir);
-
-s/s->length/len/
-
-> +
-> +       if (dir == DMA_FROM_DEVICE)
-> +               arch_dma_mark_clean(phys, s->length);
-
-Likewise.
-
-> +}
-> +
->  /**
->   * arm_iommu_unmap_sg - unmap a set of SG buffers mapped by dma_map_sg
->   * @dev: valid struct device pointer
-
-> @@ -1425,9 +1438,9 @@ static void arm_iommu_unmap_page(struct device *dev, dma_addr_t handle,
->         if (!iova)
->                 return;
->
-> -       if (!dev->dma_coherent && !(attrs & DMA_ATTR_SKIP_CPU_SYNC)) {
-> +       if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
-
-Missing opening curly brace.
-
->                 phys = iommu_iova_to_phys(mapping->domain, handle);
-> -               arch_sync_dma_for_cpu(phys, size, dir);
-> +               arm_iommu_sync_dma_for_cpu(phys, size, dir, dev->dma_coherent);
->         }
->
->         iommu_unmap(mapping->domain, iova, len);
-
-With the above fixed, it builds and boots fine (on R-Car M2-W).
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
+diff --git a/arch/openrisc/include/uapi/asm/sigcontext.h b/arch/openrisc/include/uapi/asm/sigcontext.h
+index ca585e4af6b8..93817d7051aa 100644
+--- a/arch/openrisc/include/uapi/asm/sigcontext.h
++++ b/arch/openrisc/include/uapi/asm/sigcontext.h
+@@ -28,8 +28,10 @@
+ 
+ struct sigcontext {
+ 	struct user_regs_struct regs;  /* needs to be first */
+-	struct __or1k_fpu_state fpu;
+-	unsigned long oldmask;
++	union {
++		struct __or1k_fpu_state fpu;
++		unsigned long oldmask;	/* unused */
++	};
+ };
+ 
+ #endif /* __ASM_OPENRISC_SIGCONTEXT_H */
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+2.39.1
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
