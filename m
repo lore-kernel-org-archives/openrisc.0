@@ -2,77 +2,92 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D145C001DD;
-	Thu,  6 Jul 2023 14:11:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F447EB64D9;
+	Fri,  7 Jul 2023 21:17:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233000AbjGFOLX (ORCPT
+        id S232628AbjGGVRP (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Thu, 6 Jul 2023 10:11:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45806 "EHLO
+        Fri, 7 Jul 2023 17:17:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231623AbjGFOLW (ORCPT
+        with ESMTP id S229552AbjGGVRP (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Thu, 6 Jul 2023 10:11:22 -0400
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7A6910EC;
-        Thu,  6 Jul 2023 07:11:21 -0700 (PDT)
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id C70C168AFE; Thu,  6 Jul 2023 16:11:14 +0200 (CEST)
-Date:   Thu, 6 Jul 2023 16:11:14 +0200
-From:   Christoph Hellwig <hch@lst.de>
-To:     Geert Uytterhoeven <geert@linux-m68k.org>
-Cc:     Arnd Bergmann <arnd@kernel.org>, linux-kernel@vger.kernel.org,
-        Arnd Bergmann <arnd@arndb.de>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Brian Cain <bcain@quicinc.com>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Stafford Horne <shorne@gmail.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Rich Felker <dalias@libc.org>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-oxnas@groups.io,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-xtensa@linux-xtensa.org,
-        Emil Renner Berthing <emil.renner.berthing@canonical.com>
-Subject: Re: [PATCH 20/21] ARM: dma-mapping: split out
- arch_dma_mark_clean() helper
-Message-ID: <20230706141114.GA14485@lst.de>
-References: <20230327121317.4081816-1-arnd@kernel.org> <20230327121317.4081816-21-arnd@kernel.org> <CAMuHMdW5bXeE=nr7+hHxL+xhm2q05udkJpMBM-BG7g9S7Nt7Zg@mail.gmail.com>
+        Fri, 7 Jul 2023 17:17:15 -0400
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79178BC
+        for <linux-openrisc@vger.kernel.org>; Fri,  7 Jul 2023 14:17:13 -0700 (PDT)
+Received: by mail-wr1-x42e.google.com with SMTP id ffacd0b85a97d-31454996e06so2159777f8f.2
+        for <linux-openrisc@vger.kernel.org>; Fri, 07 Jul 2023 14:17:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1688764632; x=1691356632;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Xu7YxKJmYph9QJyiKNUwRCUSNvsHYU4XYxivp2t68rs=;
+        b=JuuRXBrbmQf0FhR8YlU5ZtQPea7hki4kvkDFuJvXNhhZqjVzpBUhdTypK4tuHLFaQx
+         sbvpxhKh1N3K5e+kZXgD/GJ3daimCXWjyih/1XlbJEHkQqGvez8/JMOiVf/ee2M1Oj9l
+         tIQeljtVOYSsC1itUjsMFneyrAomsXg1mghtOTGaw3n/qiPJpH0FtXTECbkLqWtaNw4+
+         H9Hv88cn0d6JDNAFFSD3QVUCBjJTPCc8xuM+9d+jqaHjPew1CcVYQsqoRwGfmMv0eSEv
+         h5oHA3Dug4bre7PDA/RMzNaPg10qZmz3ph+kJZQCYneozXSKYRIkVxS0iee4GEa0CvEz
+         X2DA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1688764632; x=1691356632;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Xu7YxKJmYph9QJyiKNUwRCUSNvsHYU4XYxivp2t68rs=;
+        b=Co2rJXO6Pu6opQna7RMb+533JXr5Y2mwBRqbBAVFItaY86Z6pSn4yT5SWAVzeU7n8y
+         ih0DxYelQvf6qX9GEKuprXY9KUKIAOIfisuG02RapUDnWdyxITxdMZKeG6G32j0C18x+
+         J2WVIoentm/LEPfVgc4Gxz7eHWTp5lmaToL9cUsXGVpq0MQifoE5hoAxR0PQ6JjHrVPe
+         gMGKUF34YM6rAhphCbf8LbQwtPxGsCrn0Yl5JDgZ3nsFq9AA5wXJKezFDhMwqdbRoKTl
+         gwrWkiCYumXjca7X1DRcuejkbXkAOIhjZ6sllTQODObwzxhcwtRpPge+HgxwXTpIdSZi
+         5CFw==
+X-Gm-Message-State: ABy/qLZ/byL6gfMbFFCLdj/XUx/z4pUSMtHVtU42hOcQZ9UueVCwf/oY
+        hn3jde8frJYJNODPuZTX4WXmS3GgAEXMZg==
+X-Google-Smtp-Source: APBJJlEapiD0Dkp/J6P5PYH62h2RnKxuZ5Ah5VEa8FCkLN6eXCXp55h7thPb3s7TvqWd744C9Ioj3g==
+X-Received: by 2002:adf:f20e:0:b0:313:eadf:b827 with SMTP id p14-20020adff20e000000b00313eadfb827mr4746659wro.56.1688764631585;
+        Fri, 07 Jul 2023 14:17:11 -0700 (PDT)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id j16-20020a5d6190000000b003143867d2ebsm5329370wru.63.2023.07.07.14.17.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 Jul 2023 14:17:10 -0700 (PDT)
+Date:   Fri, 7 Jul 2023 22:17:10 +0100
+From:   Stafford Horne <shorne@gmail.com>
+To:     helpdesk@kernel.org
+Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        Linux OpenRISC <linux-openrisc@vger.kernel.org>
+Subject: Mailing list archives for openrisc.lists.librecores.org
+Message-ID: <ZKiA1mwNXnKl3Swt@antec>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAMuHMdW5bXeE=nr7+hHxL+xhm2q05udkJpMBM-BG7g9S7Nt7Zg@mail.gmail.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-> Thanks for your patch, which is now commit 322dbe898f82fd8a
-> ("ARM: dma-mapping: split out arch_dma_mark_clean() helper") in
-> esmil/jh7100-dmapool.
+Hello vger/lore admins,
 
-Well, something is wrong with that branch then, and this series still
-needs more work, and should eventually be merged through the dma-mapping
-tree.
+Previously Geert sent this mail, but it was at the end of a longer thread[1] so it
+may have been missed.
+
+Is it possible to:
+
+ 1. Add the openrisc archive[2] link on majordomo vger-lists page[3]?
+ 2. Add old list archives to the openrisc archive[2] from Geert?
+
+There is an openrisc-combined.tar.xz archive on Geert's google drive here:
+
+  https://drive.google.com/file/d/1by9h5WbyWEaTtTcwxwBUmbQX6uX6xaGK/view?usp=sharing
+
+It contains multiple List-Ids:
+
+Description                               dates     List-Id
+
+Official OpenRISC processor discussion.   2014-2016 <openrisc.lists.opencores.org>
+OpenRISC Linux                            2011-2018 <linux.lists.openrisc.net>
+OpenRISC architecture discussion.         2013-2015 <openrisc.lists.openrisc.net>
+Discussion around the OpenRISC processor. 2016-2023 <openrisc.lists.librecores.org>
+
+-Stafford
+
+[1] Message-ID: <CAMuHMdVK_CQXWUuvxZOavNfDTbik1rETj+2aJ9-5Yi7-ttop8A@mail.gmail.com>
+[2] https://lore.kernel.org/openrisc/
+[3] http://vger.kernel.org/vger-lists.html#linux-openrisc
