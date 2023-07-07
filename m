@@ -2,92 +2,132 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F447EB64D9;
-	Fri,  7 Jul 2023 21:17:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71B75EB64D9;
+	Fri,  7 Jul 2023 21:23:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232628AbjGGVRP (ORCPT
+        id S232409AbjGGVXF (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Fri, 7 Jul 2023 17:17:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36142 "EHLO
+        Fri, 7 Jul 2023 17:23:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229552AbjGGVRP (ORCPT
+        with ESMTP id S229963AbjGGVXF (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Fri, 7 Jul 2023 17:17:15 -0400
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79178BC
-        for <linux-openrisc@vger.kernel.org>; Fri,  7 Jul 2023 14:17:13 -0700 (PDT)
-Received: by mail-wr1-x42e.google.com with SMTP id ffacd0b85a97d-31454996e06so2159777f8f.2
-        for <linux-openrisc@vger.kernel.org>; Fri, 07 Jul 2023 14:17:13 -0700 (PDT)
+        Fri, 7 Jul 2023 17:23:05 -0400
+Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAE1F1FD9;
+        Fri,  7 Jul 2023 14:23:02 -0700 (PDT)
+Received: by mail-wm1-x330.google.com with SMTP id 5b1f17b1804b1-3fbc12181b6so26074335e9.2;
+        Fri, 07 Jul 2023 14:23:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1688764632; x=1691356632;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Xu7YxKJmYph9QJyiKNUwRCUSNvsHYU4XYxivp2t68rs=;
-        b=JuuRXBrbmQf0FhR8YlU5ZtQPea7hki4kvkDFuJvXNhhZqjVzpBUhdTypK4tuHLFaQx
-         sbvpxhKh1N3K5e+kZXgD/GJ3daimCXWjyih/1XlbJEHkQqGvez8/JMOiVf/ee2M1Oj9l
-         tIQeljtVOYSsC1itUjsMFneyrAomsXg1mghtOTGaw3n/qiPJpH0FtXTECbkLqWtaNw4+
-         H9Hv88cn0d6JDNAFFSD3QVUCBjJTPCc8xuM+9d+jqaHjPew1CcVYQsqoRwGfmMv0eSEv
-         h5oHA3Dug4bre7PDA/RMzNaPg10qZmz3ph+kJZQCYneozXSKYRIkVxS0iee4GEa0CvEz
-         X2DA==
+        d=gmail.com; s=20221208; t=1688764981; x=1691356981;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=jpRfv0tpTRGbIbIqr1xIENMhATsCOnSuVBh9rAn5bZc=;
+        b=axzxEZcw2zNOny2sJyy26SKtO5JrSbx/+rijTVpE05o6yXzznFK90jjrz4cbWUBKgJ
+         OOu/dkH6tJiMfdRQf8EhhP4DCWOMVj2TIxcesnF0p0svQfxKMoZWK0PUiIQuHKwJ6xOo
+         NPLzt001Au678jD5uu8ywVdTTYBdYRCh7jpkqgmgTmAfX+eB4jFgIcwFp9bVqkLjDgKI
+         fz4g7TKtDZYZWq/5LWPbfmW0805CHg2zoJgY6+oHAqls/j63cNUjtWBRcLEbm88l40lV
+         /xGQycAIvOzmlBch3WzMNL8BUDabUkJ2KWb1sv4HabB8lr30sMcOLpyFYVg6BEx1oRGY
+         ANwA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1688764632; x=1691356632;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Xu7YxKJmYph9QJyiKNUwRCUSNvsHYU4XYxivp2t68rs=;
-        b=Co2rJXO6Pu6opQna7RMb+533JXr5Y2mwBRqbBAVFItaY86Z6pSn4yT5SWAVzeU7n8y
-         ih0DxYelQvf6qX9GEKuprXY9KUKIAOIfisuG02RapUDnWdyxITxdMZKeG6G32j0C18x+
-         J2WVIoentm/LEPfVgc4Gxz7eHWTp5lmaToL9cUsXGVpq0MQifoE5hoAxR0PQ6JjHrVPe
-         gMGKUF34YM6rAhphCbf8LbQwtPxGsCrn0Yl5JDgZ3nsFq9AA5wXJKezFDhMwqdbRoKTl
-         gwrWkiCYumXjca7X1DRcuejkbXkAOIhjZ6sllTQODObwzxhcwtRpPge+HgxwXTpIdSZi
-         5CFw==
-X-Gm-Message-State: ABy/qLZ/byL6gfMbFFCLdj/XUx/z4pUSMtHVtU42hOcQZ9UueVCwf/oY
-        hn3jde8frJYJNODPuZTX4WXmS3GgAEXMZg==
-X-Google-Smtp-Source: APBJJlEapiD0Dkp/J6P5PYH62h2RnKxuZ5Ah5VEa8FCkLN6eXCXp55h7thPb3s7TvqWd744C9Ioj3g==
-X-Received: by 2002:adf:f20e:0:b0:313:eadf:b827 with SMTP id p14-20020adff20e000000b00313eadfb827mr4746659wro.56.1688764631585;
-        Fri, 07 Jul 2023 14:17:11 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1688764981; x=1691356981;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=jpRfv0tpTRGbIbIqr1xIENMhATsCOnSuVBh9rAn5bZc=;
+        b=dYW+BttHGOPZe8BPMbXUjwk90icQPufDBY1iUIkeJzrniGFPTuF9E8sCpp/kQ8AHwK
+         t9lEfaNJNIQhl24uxN6btZsQ3dS7H8q1krrqhK2rNhInXfOUj9BwYvTJdhZqQfYBKwP7
+         LHdVnPzq+ycGh5RKO2LsF4jex242XXA5tQ95rEewv33oV1pxx1AlvMj09FN8ALUS8kFY
+         LEMu3VNXoEBbPElRRruV55r93Ji271Xbm0FvTjx84XNYDGISqVxmjou1YSBgTXIvA5BI
+         ODfDnYsS1aWATcT8zyfEFK87pZSTbUw8EdbIvRD50qUduQWtQPdnTJn5cdublgmbz8VG
+         ZpaQ==
+X-Gm-Message-State: ABy/qLYKf/nnmtq5/dXLa4OwyFX2s9DgAxEIZ0GAYP+QI76WXwe1UDuF
+        FeCR8+CqafYTFXFlEH+56OOCSTk46uBY9g==
+X-Google-Smtp-Source: APBJJlFilQqKe0tgUtdNgxbwpDDWCEY9+HZ6b4q+j04Nd9A4l69EReQo/F6tdvSZ3h/krgSvsHDfhA==
+X-Received: by 2002:a7b:ce87:0:b0:3fc:2d2:caa8 with SMTP id q7-20020a7bce87000000b003fc02d2caa8mr947641wmj.29.1688764980599;
+        Fri, 07 Jul 2023 14:23:00 -0700 (PDT)
 Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id j16-20020a5d6190000000b003143867d2ebsm5329370wru.63.2023.07.07.14.17.10
+        by smtp.gmail.com with ESMTPSA id n21-20020a1c7215000000b003f91e32b1ebsm3440529wmc.17.2023.07.07.14.23.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 Jul 2023 14:17:10 -0700 (PDT)
-Date:   Fri, 7 Jul 2023 22:17:10 +0100
+        Fri, 07 Jul 2023 14:23:00 -0700 (PDT)
 From:   Stafford Horne <shorne@gmail.com>
-To:     helpdesk@kernel.org
-Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux OpenRISC <linux-openrisc@vger.kernel.org>
-Subject: Mailing list archives for openrisc.lists.librecores.org
-Message-ID: <ZKiA1mwNXnKl3Swt@antec>
+To:     LKML <linux-kernel@vger.kernel.org>
+Cc:     Rich Felker <dalias@libc.org>, Stafford Horne <shorne@gmail.com>,
+        Szabolcs Nagy <nsz@port70.net>,
+        Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        linux-openrisc@vger.kernel.org
+Subject: [PATCH v3] openrisc: Union fpcsr and oldmask in sigcontext to unbreak userspace ABI
+Date:   Fri,  7 Jul 2023 22:22:51 +0100
+Message-Id: <20230707212252.3898950-1-shorne@gmail.com>
+X-Mailer: git-send-email 2.39.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-Hello vger/lore admins,
+With commit 27267655c531 ("openrisc: Support floating point user api") I
+added an entry to the struct sigcontext which caused an unwanted to
+change to the userspace ABI.
 
-Previously Geert sent this mail, but it was at the end of a longer thread[1] so it
-may have been missed.
+To fix this we use the previously unused oldmask field space for the
+floating point fpcsr state.  We do this with a union to restore the ABI
+back to the pre kernel v6.4 ABI and keep API compatibility.
 
-Is it possible to:
+This does mean if there is some code somewhere that is setting oldmask
+in an OpenRISC specific userspace sighandler it would end up setting the
+floating point register status, but I think it's unlikely as oldmask was
+never functional before.
 
- 1. Add the openrisc archive[2] link on majordomo vger-lists page[3]?
- 2. Add old list archives to the openrisc archive[2] from Geert?
+Fixes: 27267655c531 ("openrisc: Support floating point user api")
+Reported-by: Szabolcs Nagy <nsz@port70.net>
+Closes: https://lore.kernel.org/openrisc/20230626213840.GA1236108@port70.net/
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+ arch/openrisc/include/uapi/asm/sigcontext.h | 6 ++++--
+ arch/openrisc/kernel/signal.c               | 4 ++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
-There is an openrisc-combined.tar.xz archive on Geert's google drive here:
+diff --git a/arch/openrisc/include/uapi/asm/sigcontext.h b/arch/openrisc/include/uapi/asm/sigcontext.h
+index ca585e4af6b8..e7ffb58ff58f 100644
+--- a/arch/openrisc/include/uapi/asm/sigcontext.h
++++ b/arch/openrisc/include/uapi/asm/sigcontext.h
+@@ -28,8 +28,10 @@
+ 
+ struct sigcontext {
+ 	struct user_regs_struct regs;  /* needs to be first */
+-	struct __or1k_fpu_state fpu;
+-	unsigned long oldmask;
++	union {
++		unsigned long fpcsr;
++		unsigned long oldmask;	/* unused */
++	};
+ };
+ 
+ #endif /* __ASM_OPENRISC_SIGCONTEXT_H */
+diff --git a/arch/openrisc/kernel/signal.c b/arch/openrisc/kernel/signal.c
+index 4664a18f0787..2e7257a433ff 100644
+--- a/arch/openrisc/kernel/signal.c
++++ b/arch/openrisc/kernel/signal.c
+@@ -50,7 +50,7 @@ static int restore_sigcontext(struct pt_regs *regs,
+ 	err |= __copy_from_user(regs, sc->regs.gpr, 32 * sizeof(unsigned long));
+ 	err |= __copy_from_user(&regs->pc, &sc->regs.pc, sizeof(unsigned long));
+ 	err |= __copy_from_user(&regs->sr, &sc->regs.sr, sizeof(unsigned long));
+-	err |= __copy_from_user(&regs->fpcsr, &sc->fpu.fpcsr, sizeof(unsigned long));
++	err |= __copy_from_user(&regs->fpcsr, &sc->fpcsr, sizeof(unsigned long));
+ 
+ 	/* make sure the SM-bit is cleared so user-mode cannot fool us */
+ 	regs->sr &= ~SPR_SR_SM;
+@@ -113,7 +113,7 @@ static int setup_sigcontext(struct pt_regs *regs, struct sigcontext __user *sc)
+ 	err |= __copy_to_user(sc->regs.gpr, regs, 32 * sizeof(unsigned long));
+ 	err |= __copy_to_user(&sc->regs.pc, &regs->pc, sizeof(unsigned long));
+ 	err |= __copy_to_user(&sc->regs.sr, &regs->sr, sizeof(unsigned long));
+-	err |= __copy_to_user(&sc->fpu.fpcsr, &regs->fpcsr, sizeof(unsigned long));
++	err |= __copy_to_user(&sc->fpcsr, &regs->fpcsr, sizeof(unsigned long));
+ 
+ 	return err;
+ }
+-- 
+2.39.1
 
-  https://drive.google.com/file/d/1by9h5WbyWEaTtTcwxwBUmbQX6uX6xaGK/view?usp=sharing
-
-It contains multiple List-Ids:
-
-Description                               dates     List-Id
-
-Official OpenRISC processor discussion.   2014-2016 <openrisc.lists.opencores.org>
-OpenRISC Linux                            2011-2018 <linux.lists.openrisc.net>
-OpenRISC architecture discussion.         2013-2015 <openrisc.lists.openrisc.net>
-Discussion around the OpenRISC processor. 2016-2023 <openrisc.lists.librecores.org>
-
--Stafford
-
-[1] Message-ID: <CAMuHMdVK_CQXWUuvxZOavNfDTbik1rETj+2aJ9-5Yi7-ttop8A@mail.gmail.com>
-[2] https://lore.kernel.org/openrisc/
-[3] http://vger.kernel.org/vger-lists.html#linux-openrisc
