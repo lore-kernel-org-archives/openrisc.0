@@ -2,162 +2,140 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 799BEC001E0;
-	Mon, 10 Jul 2023 20:45:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85BCEEB64D9;
+	Mon, 10 Jul 2023 21:08:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232835AbjGJUpF (ORCPT
+        id S230047AbjGJVIT (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Mon, 10 Jul 2023 16:45:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50490 "EHLO
+        Mon, 10 Jul 2023 17:08:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229920AbjGJUo5 (ORCPT
+        with ESMTP id S229742AbjGJVIO (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Mon, 10 Jul 2023 16:44:57 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CD6E19C;
-        Mon, 10 Jul 2023 13:43:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
-        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
-        Content-Type:Content-ID:Content-Description;
-        bh=LkNLbBSWedZKYyPfN1pGuZQo5tC7Q714M9YkIGeohI8=; b=LstrdFs9UlKVnGLIEf/uAPHDQu
-        pOcMiPmZPEJbQXp8d+wByOWnPshMUaJOCjYNfNldJhUqffupXq2qr8ZW2cIEmvQSvBMZBk4WZTWwx
-        D+h9KKwgOJoSQv5oq9816YjDOxDh8LKWQTqQLYLMInOiJTbUxKGZjexoGn7JzrNc1CLeVnITSE7n7
-        jz4V7oRq0/Gll+bVW0g0QVkL+PoDSNhsfLO9kWfztiTTfuVf7WndNMFG5cpOgSme0XkSl0Xiox2R5
-        bU0RGm7kycVY3av7mjwaL0GDR6eAER8KIgTNLG4IrpJTHfaEWOCIWBqgqOZHA39mj7MRaicZpYCdR
-        TEEB/kQQ==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1qIxjT-00Eupe-BF; Mon, 10 Jul 2023 20:43:43 +0000
-From:   "Matthew Wilcox (Oracle)" <willy@infradead.org>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        linux-arch@vger.kernel.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, Mike Rapoport <rppt@kernel.org>,
+        Mon, 10 Jul 2023 17:08:14 -0400
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEA2ABF;
+        Mon, 10 Jul 2023 14:08:12 -0700 (PDT)
+Received: by mail-wr1-x432.google.com with SMTP id ffacd0b85a97d-307d58b3efbso4901456f8f.0;
+        Mon, 10 Jul 2023 14:08:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1689023291; x=1691615291;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=wREkc9/s2frBQXho8+/CmRUkUf/FKLAaYC6JcuNeuKw=;
+        b=AOa/4+nDWhX8zfxWmovYsSScEa4jmw+KEHo/LrsK1V7QSZ0S/i8tBBN8oW0o4Cmkw5
+         BUVboHgy9+V0i2v912vrXnZLoh9g2PIIIDCQDMaptj23UBAsOLGiJgZTuDfP76nwsuR7
+         DkQJbjyxIMMu/JV8x6yjPnl5u4B1KISE7UeIxLU/fAXSCx4nD0cNx+sNKor8Hl9ADzoE
+         5MCtaaMRf+FW9k0avTPTyRBY8HeBsGDe55mof7iodo3DzK9zgw5GiQrjlWbIWtlPBMkm
+         zPpjtTI0Nh5jXIkF+BX4W9peDNuRTr+QUmdCQGv+ScNTXkmpdQUKXiA5OmraFaej2H9M
+         UfcQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1689023291; x=1691615291;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=wREkc9/s2frBQXho8+/CmRUkUf/FKLAaYC6JcuNeuKw=;
+        b=deE/bKX6I4fDT2FShZkUd1zcVsMLRJTKfe8aTRW/ABl5+ovG4Rf4ZqbCrS8oXJ/PNp
+         wdZRyOrb7BFYMGlb4l1VdGsAJLhrkuhXwyn89maYDzzRyo1Yz7OSpifRe4oi+eQBwdBt
+         5cJM3PgxS3EBJT6VnTk3SrEmkbFA7LlrSMJGzQ+tYIk3vm4S13/wzhgP7z1ZsSyatiJZ
+         1RtaM5hXfdVEmtlhoHnErr6U39fkgKPjBzuPJcnpSNszqGbQNOEh5wnE4MiqqZoF8plh
+         gC6efNjaPg5YPsXza3Td50riz4gcvFDyvIjXr+VI81giSKyt85lYw6q3A7+7WkM4kzBE
+         72uQ==
+X-Gm-Message-State: ABy/qLb3UKM9miJpV/D8gUZVb7SD9rWqwI7SuuNncD++fBLumXLkRDTQ
+        kx//DI2QS8a6Wd7y0bQ2cexazyaE5sgLgA==
+X-Google-Smtp-Source: APBJJlHYBAcwrGSqDfxFbssGAqXTqJroNEjE/qAl+zAEuxHi7EuOR7UuLqv3UPiQ6thnN1dT7+FuxQ==
+X-Received: by 2002:a5d:6b47:0:b0:314:152d:f8db with SMTP id x7-20020a5d6b47000000b00314152df8dbmr10481002wrw.58.1689023290492;
+        Mon, 10 Jul 2023 14:08:10 -0700 (PDT)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id p5-20020a5d4e05000000b003143d80d11dsm364606wrt.112.2023.07.10.14.08.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Jul 2023 14:08:09 -0700 (PDT)
+From:   Stafford Horne <shorne@gmail.com>
+To:     LKML <linux-kernel@vger.kernel.org>
+Cc:     Rich Felker <dalias@libc.org>, Stafford Horne <shorne@gmail.com>,
+        Szabolcs Nagy <nsz@port70.net>,
         Jonas Bonn <jonas@southpole.se>,
         Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
         linux-openrisc@vger.kernel.org
-Subject: [PATCH v5 19/38] openrisc: Implement the new page table range API
-Date:   Mon, 10 Jul 2023 21:43:20 +0100
-Message-Id: <20230710204339.3554919-20-willy@infradead.org>
-X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20230710204339.3554919-1-willy@infradead.org>
-References: <20230710204339.3554919-1-willy@infradead.org>
+Subject: [PATCH v4] openrisc: Union fpcsr and oldmask in sigcontext to unbreak userspace ABI
+Date:   Mon, 10 Jul 2023 22:08:03 +0100
+Message-Id: <20230710210805.131666-1-shorne@gmail.com>
+X-Mailer: git-send-email 2.39.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-Add PFN_PTE_SHIFT, update_mmu_cache_range() and flush_dcache_folio().
-Change the PG_arch_1 (aka PG_dcache_dirty) flag from being per-page
-to per-folio.
+With commit 27267655c531 ("openrisc: Support floating point user api") I
+added an entry to the struct sigcontext which caused an unwanted change
+to the userspace ABI.
 
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: linux-openrisc@vger.kernel.org
+To fix this we use the previously unused oldmask field space for the
+floating point fpcsr state.  We do this with a union to restore the ABI
+back to the pre kernel v6.4 ABI and keep API compatibility.
+
+This does mean if there is some code somewhere that is setting oldmask
+in an OpenRISC specific userspace sighandler it would end up setting the
+floating point register status, but I think it's unlikely as oldmask was
+never functional before.
+
+Fixes: 27267655c531 ("openrisc: Support floating point user api")
+Reported-by: Szabolcs Nagy <nsz@port70.net>
+Closes: https://lore.kernel.org/openrisc/20230626213840.GA1236108@port70.net/
+Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/include/asm/cacheflush.h |  8 +++++++-
- arch/openrisc/include/asm/pgtable.h    | 15 ++++++++++-----
- arch/openrisc/mm/cache.c               | 12 ++++++++----
- 3 files changed, 25 insertions(+), 10 deletions(-)
+Changes since v3:
+ - Fix typos in commit message
+ - Add back change log
+Changes since v2:
+ - Don't use a struct in sigcontext as hinted by Rich Felker
+Changes since v1:
+ - Rather than revert the change, just use the oldmask slot for fpu state.
 
-diff --git a/arch/openrisc/include/asm/cacheflush.h b/arch/openrisc/include/asm/cacheflush.h
-index eeac40d4a854..984c331ff5f4 100644
---- a/arch/openrisc/include/asm/cacheflush.h
-+++ b/arch/openrisc/include/asm/cacheflush.h
-@@ -56,10 +56,16 @@ static inline void sync_icache_dcache(struct page *page)
-  */
- #define PG_dc_clean                  PG_arch_1
+ arch/openrisc/include/uapi/asm/sigcontext.h | 6 ++++--
+ arch/openrisc/kernel/signal.c               | 4 ++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/arch/openrisc/include/uapi/asm/sigcontext.h b/arch/openrisc/include/uapi/asm/sigcontext.h
+index ca585e4af6b8..e7ffb58ff58f 100644
+--- a/arch/openrisc/include/uapi/asm/sigcontext.h
++++ b/arch/openrisc/include/uapi/asm/sigcontext.h
+@@ -28,8 +28,10 @@
  
-+static inline void flush_dcache_folio(struct folio *folio)
-+{
-+	clear_bit(PG_dc_clean, &folio->flags);
-+}
-+#define flush_dcache_folio flush_dcache_folio
-+
- #define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 1
- static inline void flush_dcache_page(struct page *page)
- {
--	clear_bit(PG_dc_clean, &page->flags);
-+	flush_dcache_folio(page_folio(page));
+ struct sigcontext {
+ 	struct user_regs_struct regs;  /* needs to be first */
+-	struct __or1k_fpu_state fpu;
+-	unsigned long oldmask;
++	union {
++		unsigned long fpcsr;
++		unsigned long oldmask;	/* unused */
++	};
+ };
+ 
+ #endif /* __ASM_OPENRISC_SIGCONTEXT_H */
+diff --git a/arch/openrisc/kernel/signal.c b/arch/openrisc/kernel/signal.c
+index 4664a18f0787..2e7257a433ff 100644
+--- a/arch/openrisc/kernel/signal.c
++++ b/arch/openrisc/kernel/signal.c
+@@ -50,7 +50,7 @@ static int restore_sigcontext(struct pt_regs *regs,
+ 	err |= __copy_from_user(regs, sc->regs.gpr, 32 * sizeof(unsigned long));
+ 	err |= __copy_from_user(&regs->pc, &sc->regs.pc, sizeof(unsigned long));
+ 	err |= __copy_from_user(&regs->sr, &sc->regs.sr, sizeof(unsigned long));
+-	err |= __copy_from_user(&regs->fpcsr, &sc->fpu.fpcsr, sizeof(unsigned long));
++	err |= __copy_from_user(&regs->fpcsr, &sc->fpcsr, sizeof(unsigned long));
+ 
+ 	/* make sure the SM-bit is cleared so user-mode cannot fool us */
+ 	regs->sr &= ~SPR_SR_SM;
+@@ -113,7 +113,7 @@ static int setup_sigcontext(struct pt_regs *regs, struct sigcontext __user *sc)
+ 	err |= __copy_to_user(sc->regs.gpr, regs, 32 * sizeof(unsigned long));
+ 	err |= __copy_to_user(&sc->regs.pc, &regs->pc, sizeof(unsigned long));
+ 	err |= __copy_to_user(&sc->regs.sr, &regs->sr, sizeof(unsigned long));
+-	err |= __copy_to_user(&sc->fpu.fpcsr, &regs->fpcsr, sizeof(unsigned long));
++	err |= __copy_to_user(&sc->fpcsr, &regs->fpcsr, sizeof(unsigned long));
+ 
+ 	return err;
  }
- 
- #define flush_icache_user_page(vma, page, addr, len)	\
-diff --git a/arch/openrisc/include/asm/pgtable.h b/arch/openrisc/include/asm/pgtable.h
-index 3eb9b9555d0d..7bdf1bb0d177 100644
---- a/arch/openrisc/include/asm/pgtable.h
-+++ b/arch/openrisc/include/asm/pgtable.h
-@@ -46,7 +46,7 @@ extern void paging_init(void);
-  * hook is made available.
-  */
- #define set_pte(pteptr, pteval) ((*(pteptr)) = (pteval))
--#define set_pte_at(mm, addr, ptep, pteval) set_pte(ptep, pteval)
-+
- /*
-  * (pmds are folded into pgds so this doesn't get actually called,
-  * but the define is needed for a generic inline function.)
-@@ -357,6 +357,7 @@ static inline unsigned long pmd_page_vaddr(pmd_t pmd)
- #define __pmd_offset(address) \
- 	(((address) >> PMD_SHIFT) & (PTRS_PER_PMD-1))
- 
-+#define PFN_PTE_SHIFT		PAGE_SHIFT
- #define pte_pfn(x)		((unsigned long)(((x).pte)) >> PAGE_SHIFT)
- #define pfn_pte(pfn, prot)  __pte((((pfn) << PAGE_SHIFT)) | pgprot_val(prot))
- 
-@@ -379,13 +380,17 @@ static inline void update_tlb(struct vm_area_struct *vma,
- extern void update_cache(struct vm_area_struct *vma,
- 	unsigned long address, pte_t *pte);
- 
--static inline void update_mmu_cache(struct vm_area_struct *vma,
--	unsigned long address, pte_t *pte)
-+static inline void update_mmu_cache_range(struct vm_fault *vmf,
-+		struct vm_area_struct *vma, unsigned long address,
-+		pte_t *ptep, unsigned int nr)
- {
--	update_tlb(vma, address, pte);
--	update_cache(vma, address, pte);
-+	update_tlb(vma, address, ptep);
-+	update_cache(vma, address, ptep);
- }
- 
-+#define update_mmu_cache(vma, addr, ptep) \
-+	update_mmu_cache_range(NULL, vma, addr, ptep, 1)
-+
- /* __PHX__ FIXME, SWAP, this probably doesn't work */
- 
- /*
-diff --git a/arch/openrisc/mm/cache.c b/arch/openrisc/mm/cache.c
-index 534a52ec5e66..eb43b73f3855 100644
---- a/arch/openrisc/mm/cache.c
-+++ b/arch/openrisc/mm/cache.c
-@@ -43,15 +43,19 @@ void update_cache(struct vm_area_struct *vma, unsigned long address,
- 	pte_t *pte)
- {
- 	unsigned long pfn = pte_val(*pte) >> PAGE_SHIFT;
--	struct page *page = pfn_to_page(pfn);
--	int dirty = !test_and_set_bit(PG_dc_clean, &page->flags);
-+	struct folio *folio = page_folio(pfn_to_page(pfn));
-+	int dirty = !test_and_set_bit(PG_dc_clean, &folio->flags);
- 
- 	/*
- 	 * Since icaches do not snoop for updated data on OpenRISC, we
- 	 * must write back and invalidate any dirty pages manually. We
- 	 * can skip data pages, since they will not end up in icaches.
- 	 */
--	if ((vma->vm_flags & VM_EXEC) && dirty)
--		sync_icache_dcache(page);
-+	if ((vma->vm_flags & VM_EXEC) && dirty) {
-+		unsigned int nr = folio_nr_pages(folio);
-+
-+		while (nr--)
-+			sync_icache_dcache(folio_page(folio, nr));
-+	}
- }
- 
 -- 
-2.39.2
+2.39.1
 
