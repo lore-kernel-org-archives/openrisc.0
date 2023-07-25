@@ -2,190 +2,185 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA056C001DC;
-	Sun, 23 Jul 2023 21:04:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 582F3C04FE1;
+	Tue, 25 Jul 2023 04:21:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229608AbjGWVEx (ORCPT
+        id S231622AbjGYEVO (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Sun, 23 Jul 2023 17:04:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41560 "EHLO
+        Tue, 25 Jul 2023 00:21:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229477AbjGWVEw (ORCPT
+        with ESMTP id S229577AbjGYEVM (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Sun, 23 Jul 2023 17:04:52 -0400
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFA3C122;
-        Sun, 23 Jul 2023 14:04:50 -0700 (PDT)
-Received: by mail-wr1-x430.google.com with SMTP id ffacd0b85a97d-314313f127fso2682591f8f.1;
-        Sun, 23 Jul 2023 14:04:50 -0700 (PDT)
+        Tue, 25 Jul 2023 00:21:12 -0400
+Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C0B7E71;
+        Mon, 24 Jul 2023 21:21:07 -0700 (PDT)
+Received: by mail-yb1-xb2f.google.com with SMTP id 3f1490d57ef6-ca3cc52ee62so5588835276.0;
+        Mon, 24 Jul 2023 21:21:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1690146289; x=1690751089;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=JJ7/4DXG7QClXNpcfbVGF9Xk1htkcz3DMZ3n7khqPCM=;
-        b=Rpu8vTC5wyZqz8eFNzFy5r2Fj/z33FaVXv8YIftoq1Zf1eJzBvIBgl0xmvbPjrG9zQ
-         nmE99EJK/pLxdRiVfWXM3husN6I/FPkB1ZlKEcHvmJ8C6UVeQHXCQs2Hz/LBTKML5wAd
-         HGMVRKUYwxxDJuqc0c5y1ggD7Lr5TBKl0f4DWs+dCJzzrpY4LzQB6K85AvcSuYC82oJT
-         Y3U/5cMsMrdPKJVZuArFgrOneSFRBp2uMz/0VwdYofOWYFOXFAVS3OjP2gYPG9aB0X5M
-         0hiwQPCMRs2wy2wAHtHbA/38bY9O2Ocf8FQ3uqK5jAqoXLL2QYrOd//4NroXFSDQM742
-         zY+Q==
+        d=gmail.com; s=20221208; t=1690258866; x=1690863666;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=TyJK1FcnJgXFfZtNrnEiwbnRrWFFZ4hxtDemQIw/+70=;
+        b=IWbM/8TKnsrsFnwfAtrtbT7DO2Dq3vbt1JDGjncQR1/QHrfo4QUSkIiEQN1x/WCeen
+         Wq+1xfZOSXiXa3ftlSpFueFEFpvRBK3/RSrU5gjulTAyP6CHn+1+IFvHFglXW6v8keEi
+         8OQyuFtLfuzytADBe5cFOUdQJ/Hdq1bfJlON7Nb+Mx5/ezSX5vpuq992erh0MteP8eY0
+         ca2RegvmV6aTmEkiWQSzVkeiWkjDFWU6BxECXoDX15tgD4oeetn4XjwJQHkKr/UZi4jn
+         M2rzWVhqQ0uUKv1+kbt9dezvn9EL8NwkaBEBxeHbR53ElScFeaGw8CT+ZDStPX5ya8Y8
+         SH2Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690146289; x=1690751089;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JJ7/4DXG7QClXNpcfbVGF9Xk1htkcz3DMZ3n7khqPCM=;
-        b=UiRxN/18Ycb1JardUTHcaTzWj5lLkSAvPxtR5t5VZc+H/xou4O/ejXSJfdGfqPnWnq
-         Q38krrlhWO/gCzTjJ8zfFxnjCDcOHh7pY69vLuaxfJ0kzpYeixpzt1/rVns3tirR9teq
-         4r2UGVPoQmzZlx5NyhBFLmqjPHAkMzu/Nzc89ST87dm1rUvA72WP+FIWXvrx5zxXrmur
-         29TO7Yv1/vL0pFTWj3OW6Tmz14kLb9T6nBejqYEenR3OTKhCTnsw8S4vJ4nPDO6yUksN
-         U1cih7fmmsT47ybWa5+8NdeUw1G7ySX7UK8rZHzFDcaPDCXE0JfGS76I+kb/+C75pl7+
-         kF7w==
-X-Gm-Message-State: ABy/qLbJ3p2g2S2I4rQcrtahNkk4nUgovZcjRK3wdVmSFhbg6EkMX3Jb
-        X+PymDLOERx0yhr7MK/j/mX5IoWcphSKLQ==
-X-Google-Smtp-Source: APBJJlEMh5zqNvgl5FMCHp6O5xJGXJCMhbW6fHdy/aTOSH8HhF9kax7W7lNYIgSrigW6BJVTCnKfsg==
-X-Received: by 2002:a7b:cd91:0:b0:3f7:f584:579b with SMTP id y17-20020a7bcd91000000b003f7f584579bmr5246805wmj.9.1690146288972;
-        Sun, 23 Jul 2023 14:04:48 -0700 (PDT)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id n11-20020a7bcbcb000000b003fba92fad35sm11120257wmi.26.2023.07.23.14.04.48
+        d=1e100.net; s=20221208; t=1690258866; x=1690863666;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=TyJK1FcnJgXFfZtNrnEiwbnRrWFFZ4hxtDemQIw/+70=;
+        b=JxXHwisl9uOYCmE7iHDoGgy86XeBdrMU/xZ5xC1ih7+UXLHztjzzWMjYUQIiDU9F1p
+         N6dNMMiG1k7F9FajnXyoHqvqa7AsTvHRLrgeT9lH7Fn4STyvUR8UDjRCRnIOnp4E5xyL
+         G9867Fi4229ExI8S0lyS1jctX3/azHiTvelzdXJsTr5NfosKM1HIEdK8F2HbeQM7KQSm
+         JJBcSeU/UyflVOl+2bpu/eMFMjWt3UQKWLOoOb799mKajIRwkCPDBupOTctRB0qISKvw
+         A9+kYbVDDf1xT6k3ussrW1KSgXxvl5p/V2BWK1y8OgiZSSfq1Ss5C1AG03nrS/8lplB+
+         pDBA==
+X-Gm-Message-State: ABy/qLaOxOQzF210Yvb8HOBALa2cKmvCsWQN7AgLQiV3VlxKh3rJAQmi
+        ssHMEn3d3VrapCc3WVY38pQ=
+X-Google-Smtp-Source: APBJJlGpggWKl9mhx1f6cNzYJrVg2oqym/Xg0n0t+vhY+yg/UIrQUebANCL8UUu/vWaCrzFFriLNMw==
+X-Received: by 2002:a25:844f:0:b0:cf0:b977:2794 with SMTP id r15-20020a25844f000000b00cf0b9772794mr10487441ybm.30.1690258866444;
+        Mon, 24 Jul 2023 21:21:06 -0700 (PDT)
+Received: from unknowna0e70b2ca394.attlocal.net ([2600:1700:2f7d:1800::16])
+        by smtp.googlemail.com with ESMTPSA id h9-20020a25b189000000b00d0db687ef48sm1175540ybj.61.2023.07.24.21.21.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 23 Jul 2023 14:04:48 -0700 (PDT)
-Date:   Sun, 23 Jul 2023 22:04:47 +0100
-From:   Stafford Horne <shorne@gmail.com>
-To:     Rich Felker <dalias@libc.org>
-Cc:     Szabolcs Nagy <nsz@port70.net>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+        Mon, 24 Jul 2023 21:21:05 -0700 (PDT)
+From:   "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+To:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>
+Cc:     linux-mm@kvack.org, linux-arch@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, xen-devel@lists.xenproject.org,
+        kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>,
+        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Dinh Nguyen <dinguyen@kernel.org>,
         Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        linux-mm@kvack.org
-Subject: Re: [PATCH 3/4] openrisc: Support floating point user api
-Message-ID: <ZL2V77V8xCWTKVR+@antec>
-References: <20230418165813.1900991-1-shorne@gmail.com>
- <20230418165813.1900991-4-shorne@gmail.com>
- <20230626213840.GA1236108@port70.net>
- <ZJsRHzDbuTlXKNCG@antec>
- <20230627175638.GD3630668@port70.net>
- <20230627192719.GR20050@brightrain.aerifal.cx>
+        David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Richard Weinberger <richard@nod.at>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>
+Subject: [PATCH mm-unstable v7 00/31] Split ptdesc from struct page
+Date:   Mon, 24 Jul 2023 21:20:20 -0700
+Message-Id: <20230725042051.36691-1-vishal.moola@gmail.com>
+X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230627192719.GR20050@brightrain.aerifal.cx>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Tue, Jun 27, 2023 at 03:27:19PM -0400, Rich Felker wrote:
-> On Tue, Jun 27, 2023 at 07:56:38PM +0200, Szabolcs Nagy wrote:
-> > * Stafford Horne <shorne@gmail.com> [2023-06-27 17:41:03 +0100]:
-> > > On Mon, Jun 26, 2023 at 11:38:40PM +0200, Szabolcs Nagy wrote:
-> > > > * Stafford Horne <shorne@gmail.com> [2023-04-18 17:58:12 +0100]:
-> > > > > Add support for handling floating point exceptions and forwarding the
-> > > > > SIGFPE signal to processes.  Also, add fpu state to sigcontext.
-> > > > > 
-> > > > > Signed-off-by: Stafford Horne <shorne@gmail.com>
-> > > > > ---
-> > > > ...
-> > > > > --- a/arch/openrisc/include/uapi/asm/sigcontext.h
-> > > > > +++ b/arch/openrisc/include/uapi/asm/sigcontext.h
-> > > > > @@ -28,6 +28,7 @@
-> > > > >  
-> > > > >  struct sigcontext {
-> > > > >  	struct user_regs_struct regs;  /* needs to be first */
-> > > > > +	struct __or1k_fpu_state fpu;
-> > > > >  	unsigned long oldmask;
-> > > > >  };
-> > > > 
-> > > > this seems to break userspace abi.
-> > > > glibc and musl have or1k abi without this field.
-> > > > 
-> > > > either this is a new abi where binaries opt-in with some marking
-> > > > and then the base sigcontext should be unmodified,
-> > > > 
-> > > > or the fp state needs to be added to the signal frame in a way that
-> > > > does not break existing abi (e.g. end of the struct ?) and also
-> > > > advertise the new thing via a hwcap, otherwise userspace cannot
-> > > > make use of it.
-> > > > 
-> > > > unless i'm missing something.
-> > > 
-> > > I think you are right, I meant to look into this but it must have slipped
-> > > though.  Is this something causing you issues or did you just notice it?
-> > 
-> > i noticed it while trying to update musl headers to linux 6.4 uapi.
-> > 
-> > > I didn't run into issues when running the glibc test suite, but I may have
-> > > missed it.
-> > 
-> > i would only expect issues when accessing ucontext entries
-> > after uc_mcontext.regs in a signal handler registered with
-> > SA_SIGINFO.
-> > 
-> > in particular uc_sigmask is after uc_mcontext on or1k and e.g.
-> > musl thread cancellation uses this entry to affect the mask on
-> > signal return which will not work on a 6.4 kernel (not tested).
-> > 
-> > i don't think glibc has tests for the ucontext signal abi.
-> > 
-> > > Just moving this to the end of the sigcontext may be all that is needed.
-> > 
-> > that won't help since uc_sigmask comes after sigcontext in ucontext.
-> > it has to go to the end of ucontext or outside of ucontext then.
-> > 
-> > one way to have fpu in sigcontext is
-> > 
-> > struct sigcontext {
-> > 	struct user_regs_struct regs;
-> > 	unsigned long oldmask;
-> > 	char padding[sizeof(__userspace_sigset_t)];
-> > 	struct __or1k_fpu_state fpu;
-> > };
-> > 
-> > but the kernel still has to interpret the padding in a bwcompat
-> > way. (and if libc wants to expose fpu in its ucontext then it
-> > needs a flag day abi break as the ucontext size is abi.)
-> > 
-> > (part of the userspace uc_sigmask is unused because sigset_t is
-> > larger than necessary so may be that can be reused but this is
-> > a hack as that's libc owned.)
-> > 
-> > not sure how important this fpu field is, arm does not seem to
-> > have fpu state in ucontext and armhf works.
-> > 
-> > there may be other ways, i'm adding Rich (musl maintainer) on cc
-> > in case he has an opinion.
-> 
-> Indeed, mcontext_t cannot be modified because uc_sigmask follows it in
-> ucontext_t. The only clean solution here is probably to store the
-> additional data at offsets past
-> 
-> 	sizeof(struct sigcontext) + sizeof(sigset_t)
-> 
-> and not expose this at all in the uapi types. Some hwcap flag can
-> inform userspace that this additional space is present and accessible
-> if that's needed.
-> 
-> Optionally you could consider exposing this in the uapi headers'
-> ucontext_t structure; whether it's an API breakage depends on whether
-> userspace is relying on being able to allocate its own ucontext_t etc.
-> This would leave the actual userspace headers (provided by libc) free
-> to decide whether to modify their type or not according to an
-> assessment of whether it's a breaking change to application linkage.
-> 
-> What's not workable though is the ABI break that shipped in 6.4. It's
-> a serious violation of "don't break userspace" and makes existing
-> application binaries just *not work* (cancellation breaks and possibly
-> corrupts program state). This needs to be reverted.
+The MM subsystem is trying to shrink struct page. This patchset
+introduces a memory descriptor for page table tracking - struct ptdesc.
 
-Hi Szabolcs, Rich,
+This patchset introduces ptdesc, splits ptdesc from struct page, and
+converts many callers of page table constructor/destructors to use ptdescs.
 
-My fix for this has now made it into 6.4.5 stable release.  You should be able
-to use this release to update musl.
+Ptdesc is a foundation to further standardize page tables, and eventually
+allow for dynamic allocation of page tables independent of struct page.
+However, the use of pages for page table tracking is quite deeply
+ingrained and varied across archictectures, so there is still a lot of
+work to be done before that can happen.
 
-The fix was to use some unused space in sigcontext, for the fpu state.
+This is rebased on mm-unstable.
 
--Stafford
+v7:
+  Drop s390 gmap ptdesc conversions - gmap is unecessary complication
+    that can be dealt with later
+  Be more thorough with ptdesc struct sanity checks and comments
+  Rebase onto mm-unstable
+
+Vishal Moola (Oracle) (31):
+  mm: Add PAGE_TYPE_OP folio functions
+  pgtable: Create struct ptdesc
+  mm: add utility functions for ptdesc
+  mm: Convert pmd_pgtable_page() callers to use pmd_ptdesc()
+  mm: Convert ptlock_alloc() to use ptdescs
+  mm: Convert ptlock_ptr() to use ptdescs
+  mm: Convert pmd_ptlock_init() to use ptdescs
+  mm: Convert ptlock_init() to use ptdescs
+  mm: Convert pmd_ptlock_free() to use ptdescs
+  mm: Convert ptlock_free() to use ptdescs
+  mm: Create ptdesc equivalents for pgtable_{pte,pmd}_page_{ctor,dtor}
+  powerpc: Convert various functions to use ptdescs
+  x86: Convert various functions to use ptdescs
+  s390: Convert various pgalloc functions to use ptdescs
+  mm: Remove page table members from struct page
+  pgalloc: Convert various functions to use ptdescs
+  arm: Convert various functions to use ptdescs
+  arm64: Convert various functions to use ptdescs
+  csky: Convert __pte_free_tlb() to use ptdescs
+  hexagon: Convert __pte_free_tlb() to use ptdescs
+  loongarch: Convert various functions to use ptdescs
+  m68k: Convert various functions to use ptdescs
+  mips: Convert various functions to use ptdescs
+  nios2: Convert __pte_free_tlb() to use ptdescs
+  openrisc: Convert __pte_free_tlb() to use ptdescs
+  riscv: Convert alloc_{pmd, pte}_late() to use ptdescs
+  sh: Convert pte_free_tlb() to use ptdescs
+  sparc64: Convert various functions to use ptdescs
+  sparc: Convert pgtable_pte_page_{ctor, dtor}() to ptdesc equivalents
+  um: Convert {pmd, pte}_free_tlb() to use ptdescs
+  mm: Remove pgtable_{pmd, pte}_page_{ctor, dtor}() wrappers
+
+ Documentation/mm/split_page_table_lock.rst    |  12 +-
+ .../zh_CN/mm/split_page_table_lock.rst        |  14 +-
+ arch/arm/include/asm/tlb.h                    |  12 +-
+ arch/arm/mm/mmu.c                             |   7 +-
+ arch/arm64/include/asm/tlb.h                  |  14 +-
+ arch/arm64/mm/mmu.c                           |   7 +-
+ arch/csky/include/asm/pgalloc.h               |   4 +-
+ arch/hexagon/include/asm/pgalloc.h            |   8 +-
+ arch/loongarch/include/asm/pgalloc.h          |  27 ++--
+ arch/loongarch/mm/pgtable.c                   |   7 +-
+ arch/m68k/include/asm/mcf_pgalloc.h           |  47 +++---
+ arch/m68k/include/asm/sun3_pgalloc.h          |   8 +-
+ arch/m68k/mm/motorola.c                       |   4 +-
+ arch/mips/include/asm/pgalloc.h               |  32 ++--
+ arch/mips/mm/pgtable.c                        |   8 +-
+ arch/nios2/include/asm/pgalloc.h              |   8 +-
+ arch/openrisc/include/asm/pgalloc.h           |   8 +-
+ arch/powerpc/mm/book3s64/mmu_context.c        |  10 +-
+ arch/powerpc/mm/book3s64/pgtable.c            |  32 ++--
+ arch/powerpc/mm/pgtable-frag.c                |  56 +++----
+ arch/riscv/include/asm/pgalloc.h              |   8 +-
+ arch/riscv/mm/init.c                          |  16 +-
+ arch/s390/include/asm/pgalloc.h               |   4 +-
+ arch/s390/include/asm/tlb.h                   |   4 +-
+ arch/s390/mm/pgalloc.c                        | 128 +++++++--------
+ arch/sh/include/asm/pgalloc.h                 |   9 +-
+ arch/sparc/mm/init_64.c                       |  17 +-
+ arch/sparc/mm/srmmu.c                         |   5 +-
+ arch/um/include/asm/pgalloc.h                 |  18 +--
+ arch/x86/mm/pgtable.c                         |  47 +++---
+ arch/x86/xen/mmu_pv.c                         |   2 +-
+ include/asm-generic/pgalloc.h                 |  88 +++++-----
+ include/asm-generic/tlb.h                     |  11 ++
+ include/linux/mm.h                            | 151 +++++++++++++-----
+ include/linux/mm_types.h                      |  18 ---
+ include/linux/page-flags.h                    |  30 +++-
+ include/linux/pgtable.h                       |  80 ++++++++++
+ mm/memory.c                                   |   8 +-
+ 38 files changed, 585 insertions(+), 384 deletions(-)
+
+-- 
+2.40.1
+
