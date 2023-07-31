@@ -2,45 +2,67 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39C86C04E69;
-	Wed, 26 Jul 2023 14:34:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B207BC41513;
+	Mon, 31 Jul 2023 17:04:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234587AbjGZOeh (ORCPT
+        id S233873AbjGaREG (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Wed, 26 Jul 2023 10:34:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56734 "EHLO
+        Mon, 31 Jul 2023 13:04:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233925AbjGZOef (ORCPT
+        with ESMTP id S233750AbjGaRDr (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Wed, 26 Jul 2023 10:34:35 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CB9819A1;
-        Wed, 26 Jul 2023 07:34:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=LsxQl+7lQmIvtLS3uUz+2Tc5wtoeEEVBoFirY9Yb6fg=; b=NgbwQpzKHdyAWsUCxnsImKimDt
-        jHF2WmVqPjDVwWh4+qnqFx9EB6EzhJPFMjClBGjD6Hvhy3cDKu8QpNdQ/vu4YdRehqVe79OoriWgn
-        rYVzFWxwc/SS+7+suUkf1PvWW2cp4TLFdh0VHNZVCP6elPEQsoL4zq+DlNr+Vsyy6zVTCVD4+BPLu
-        7MT7tbbN4QAXyKU4tauvNJ5ES+/Xow+YcL4kRLee8APN/cRVWSBVwKBSDtrmdoa20ei7j/6b/nKQ6
-        9EjL4wZbYuEHOXjGbdk1LQrEamw4aC90nEjbS99sxd1PPE9PWCMbzElXWmFd7Um+DcVnLHPQet+QT
-        TJw896fg==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1qOfaj-006ZNN-Ab; Wed, 26 Jul 2023 14:34:17 +0000
-Date:   Wed, 26 Jul 2023 15:34:17 +0100
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Hugh Dickins <hughd@google.com>
-Cc:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
+        Mon, 31 Jul 2023 13:03:47 -0400
+Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8F5219B2;
+        Mon, 31 Jul 2023 10:03:38 -0700 (PDT)
+Received: by mail-yb1-xb31.google.com with SMTP id 3f1490d57ef6-d299ed34bacso3970037276.1;
+        Mon, 31 Jul 2023 10:03:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1690823018; x=1691427818;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ryTLkHDnIGhrwoqJrwF4w+CKAk7Or3iQY3ycYEnzI1s=;
+        b=FItEz4g6fK8MUe9in0y5zvq54vvv6vRus4MvaXB5z0kFF5Wd4GxyLG45TIMFtswPBZ
+         o5hWJRASIfXbLHcyuajDu2shNzEC3fqz1lq+2UGzWjNRBxNrOGPJc7+FeZHb270T76uP
+         DVP8E3UCWoa73Cj1cemt4q3bHNezkBDrcXpoGHgWYyrjCA03wHK6cuEEIp3IlP9F3vH7
+         B0WVEfhX/KMZdz2qP55P02W/l5cO6EeJ2/dVRRpuTUrHoGO/LbskVtPeDS55S32mzgKs
+         4t8PJ/VzqvancbDUNXdKozgYa+ZBjOr6Csg18HLyiAYJhBTxnGsnAH6C4GyD3p+69e1s
+         v6hw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1690823018; x=1691427818;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ryTLkHDnIGhrwoqJrwF4w+CKAk7Or3iQY3ycYEnzI1s=;
+        b=gzhVoyvYDJs9gKmo5xuqZJNf1xG3zrd6wIMa985SDjbJiiTBODFNJsfGhqt41Qlhmv
+         q+xcOntZlYdapLx7Bniw1u6Km0cLB9W1wXWOCu/NqlfIZaC2V9AhFXhfhSyjj+BpdKF3
+         +zO7lBn7U3diDytMHOMygX7e+3ODBeNC0G1Fr8PAJqTR2Kj6cUGFlXTWVeEGJ4QdECes
+         VoPxgcc+0R2d8HgQBFyT1nlLsb1/3+69mKrS71kT/WKA4MFQv2p0Qy/btC5MvCRJP4I/
+         8BikIrVNr3wy+ASlevkZ4qjDrt6hFtY5+Rs8IBwN/hOiJCw3j3PFi70S6mPzjDUSKWI/
+         UN4g==
+X-Gm-Message-State: ABy/qLbeR2hEQZ8OEzY9oaVv54CV5ydNtMnJ3vCzwokplZGYbZFL8vfb
+        6mXw5GLuEhJBDCUlEdDBMeY=
+X-Google-Smtp-Source: APBJJlF+dh42RzdYn0EXh+W1YGBDbhVTCkZUXnYcADIxILBW8gkVGvh5Vx2rhlYPGGopBifzCd0Ntg==
+X-Received: by 2002:a25:d1d0:0:b0:d1c:5a9a:48d2 with SMTP id i199-20020a25d1d0000000b00d1c5a9a48d2mr11161535ybg.19.1690823017725;
+        Mon, 31 Jul 2023 10:03:37 -0700 (PDT)
+Received: from unknowna0e70b2ca394.attlocal.net ([2600:1700:2f7d:1800::16])
+        by smtp.googlemail.com with ESMTPSA id x31-20020a25ac9f000000b00c832ad2e2eesm2511833ybi.60.2023.07.31.10.03.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 31 Jul 2023 10:03:37 -0700 (PDT)
+From:   "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+To:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>
+Cc:     linux-mm@kvack.org, linux-arch@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, xen-devel@lists.xenproject.org,
+        kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>,
+        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Huacai Chen <chenhuacai@kernel.org>,
         Geert Uytterhoeven <geert@linux-m68k.org>,
@@ -56,81 +78,112 @@ Cc:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
         Dave Hansen <dave.hansen@linux.intel.com>,
         Arnd Bergmann <arnd@arndb.de>,
         Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: Re: [PATCH mm-unstable v7 00/31] Split ptdesc from struct page
-Message-ID: <ZMEu6VcTqPj69bQ7@casper.infradead.org>
-References: <20230725042051.36691-1-vishal.moola@gmail.com>
- <5296514f-cdd1-9526-2e83-a21e76e86e5@google.com>
+Subject: [PATCH mm-unstable v8 00/31] Split ptdesc from struct page
+Date:   Mon, 31 Jul 2023 10:03:01 -0700
+Message-Id: <20230731170332.69404-1-vishal.moola@gmail.com>
+X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5296514f-cdd1-9526-2e83-a21e76e86e5@google.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Mon, Jul 24, 2023 at 09:41:36PM -0700, Hugh Dickins wrote:
-> On Mon, 24 Jul 2023, Vishal Moola (Oracle) wrote:
-> 
-> > The MM subsystem is trying to shrink struct page. This patchset
-> > introduces a memory descriptor for page table tracking - struct ptdesc.
-> > 
-> > This patchset introduces ptdesc, splits ptdesc from struct page, and
-> > converts many callers of page table constructor/destructors to use ptdescs.
-> > 
-> > Ptdesc is a foundation to further standardize page tables, and eventually
-> > allow for dynamic allocation of page tables independent of struct page.
-> > However, the use of pages for page table tracking is quite deeply
-> > ingrained and varied across archictectures, so there is still a lot of
-> > work to be done before that can happen.
-> 
-> Others may differ, but it remains the case that I see no point to this
-> patchset, until the minimal descriptor that replaces struct page is
-> working, and struct page then becomes just overhead.  Until that time,
-> let architectures continue to use struct page as they do - whyever not?
+The MM subsystem is trying to shrink struct page. This patchset
+introduces a memory descriptor for page table tracking - struct ptdesc.
 
-Because it's easier for architecture maintainers to understand what they
-should and shouldn't be using.  Look at the definition:
+This patchset introduces ptdesc, splits ptdesc from struct page, and
+converts many callers of page table constructor/destructors to use ptdescs.
 
-+struct ptdesc {
-+	unsigned long __page_flags;
-+
-+	union {
-+		struct rcu_head pt_rcu_head;
-+		struct list_head pt_list;
-+		struct {
-+			unsigned long _pt_pad_1;
-+			pgtable_t pmd_huge_pte;
-+		};
-+	};
-+	unsigned long __page_mapping;
-+
-+	union {
-+		struct mm_struct *pt_mm;
-+		atomic_t pt_frag_refcount;
-+	};
-+
-+	union {
-+		unsigned long _pt_pad_2;
-+#if ALLOC_SPLIT_PTLOCKS
-+		spinlock_t *ptl;
-+#else
-+		spinlock_t ptl;
-+#endif
-+	};
-+	unsigned int __page_type;
-+	atomic_t _refcount;
-+#ifdef CONFIG_MEMCG
-+	unsigned long pt_memcg_data;
-+#endif
-+};
+Ptdesc is a foundation to further standardize page tables, and eventually
+allow for dynamic allocation of page tables independent of struct page.
+However, the use of pages for page table tracking is quite deeply
+ingrained and varied across archictectures, so there is still a lot of
+work to be done before that can happen.
 
-It's still a 31-line struct definition, I'll grant you.  But it's far
-easier to comprehend than the definition of struct page (~140 lines).
-An architecture maintainer can look at it and see what might be available,
-and what is already used.  And hopefully we'll have less "Oh, I'll just
-use page->private".  It's really not fair to expect arch maintainers to
-learn so much about the mm.
+This is rebased on mm-unstable.
 
-It's still messier than I would like, but I don't think we can do better
-for now.  I don't understand why you're so interested in delaying doing
-this work.
+v8:
+  Fix some compiler issues
+
+v7:
+  Drop s390 gmap ptdesc conversions - gmap is unecessary complication
+    that can be dealt with later
+  Be more thorough with ptdesc struct sanity checks and comments
+  Rebase onto mm-unstable
+
+Vishal Moola (Oracle) (31):
+  mm: Add PAGE_TYPE_OP folio functions
+  pgtable: Create struct ptdesc
+  mm: add utility functions for ptdesc
+  mm: Convert pmd_pgtable_page() callers to use pmd_ptdesc()
+  mm: Convert ptlock_alloc() to use ptdescs
+  mm: Convert ptlock_ptr() to use ptdescs
+  mm: Convert pmd_ptlock_init() to use ptdescs
+  mm: Convert ptlock_init() to use ptdescs
+  mm: Convert pmd_ptlock_free() to use ptdescs
+  mm: Convert ptlock_free() to use ptdescs
+  mm: Create ptdesc equivalents for pgtable_{pte,pmd}_page_{ctor,dtor}
+  powerpc: Convert various functions to use ptdescs
+  x86: Convert various functions to use ptdescs
+  s390: Convert various pgalloc functions to use ptdescs
+  mm: Remove page table members from struct page
+  pgalloc: Convert various functions to use ptdescs
+  arm: Convert various functions to use ptdescs
+  arm64: Convert various functions to use ptdescs
+  csky: Convert __pte_free_tlb() to use ptdescs
+  hexagon: Convert __pte_free_tlb() to use ptdescs
+  loongarch: Convert various functions to use ptdescs
+  m68k: Convert various functions to use ptdescs
+  mips: Convert various functions to use ptdescs
+  nios2: Convert __pte_free_tlb() to use ptdescs
+  openrisc: Convert __pte_free_tlb() to use ptdescs
+  riscv: Convert alloc_{pmd, pte}_late() to use ptdescs
+  sh: Convert pte_free_tlb() to use ptdescs
+  sparc64: Convert various functions to use ptdescs
+  sparc: Convert pgtable_pte_page_{ctor, dtor}() to ptdesc equivalents
+  um: Convert {pmd, pte}_free_tlb() to use ptdescs
+  mm: Remove pgtable_{pmd, pte}_page_{ctor, dtor}() wrappers
+
+ Documentation/mm/split_page_table_lock.rst    |  12 +-
+ .../zh_CN/mm/split_page_table_lock.rst        |  14 +-
+ arch/arm/include/asm/tlb.h                    |  12 +-
+ arch/arm/mm/mmu.c                             |   7 +-
+ arch/arm64/include/asm/tlb.h                  |  14 +-
+ arch/arm64/mm/mmu.c                           |   7 +-
+ arch/csky/include/asm/pgalloc.h               |   4 +-
+ arch/hexagon/include/asm/pgalloc.h            |   8 +-
+ arch/loongarch/include/asm/pgalloc.h          |  27 ++--
+ arch/loongarch/mm/pgtable.c                   |   7 +-
+ arch/m68k/include/asm/mcf_pgalloc.h           |  47 +++---
+ arch/m68k/include/asm/sun3_pgalloc.h          |   8 +-
+ arch/m68k/mm/motorola.c                       |   4 +-
+ arch/mips/include/asm/pgalloc.h               |  32 ++--
+ arch/mips/mm/pgtable.c                        |   8 +-
+ arch/nios2/include/asm/pgalloc.h              |   8 +-
+ arch/openrisc/include/asm/pgalloc.h           |   8 +-
+ arch/powerpc/mm/book3s64/mmu_context.c        |  10 +-
+ arch/powerpc/mm/book3s64/pgtable.c            |  32 ++--
+ arch/powerpc/mm/pgtable-frag.c                |  58 +++----
+ arch/riscv/include/asm/pgalloc.h              |   8 +-
+ arch/riscv/mm/init.c                          |  16 +-
+ arch/s390/include/asm/pgalloc.h               |   4 +-
+ arch/s390/include/asm/tlb.h                   |   4 +-
+ arch/s390/mm/pgalloc.c                        | 128 +++++++--------
+ arch/sh/include/asm/pgalloc.h                 |   9 +-
+ arch/sparc/mm/init_64.c                       |  17 +-
+ arch/sparc/mm/srmmu.c                         |   5 +-
+ arch/um/include/asm/pgalloc.h                 |  18 +--
+ arch/x86/mm/pgtable.c                         |  47 +++---
+ arch/x86/xen/mmu_pv.c                         |   2 +-
+ include/asm-generic/pgalloc.h                 |  88 +++++-----
+ include/asm-generic/tlb.h                     |  11 ++
+ include/linux/mm.h                            | 151 +++++++++++++-----
+ include/linux/mm_types.h                      |  18 ---
+ include/linux/page-flags.h                    |  30 +++-
+ include/linux/pgtable.h                       |  80 ++++++++++
+ mm/memory.c                                   |   8 +-
+ 38 files changed, 586 insertions(+), 385 deletions(-)
+
+-- 
+2.40.1
+
