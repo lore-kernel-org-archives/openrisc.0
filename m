@@ -2,111 +2,116 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CAB08C2FC12;
-	Mon,  7 Aug 2023 23:09:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63D65C001DB;
+	Tue,  8 Aug 2023 18:39:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231701AbjHGXJA (ORCPT
+        id S233085AbjHHSjg (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Mon, 7 Aug 2023 19:09:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46236 "EHLO
+        Tue, 8 Aug 2023 14:39:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231321AbjHGXHM (ORCPT
+        with ESMTP id S233196AbjHHSjL (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Mon, 7 Aug 2023 19:07:12 -0400
-Received: from mail-yw1-x1134.google.com (mail-yw1-x1134.google.com [IPv6:2607:f8b0:4864:20::1134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 203C62105;
-        Mon,  7 Aug 2023 16:06:20 -0700 (PDT)
-Received: by mail-yw1-x1134.google.com with SMTP id 00721157ae682-583c48a9aa1so52642377b3.1;
-        Mon, 07 Aug 2023 16:06:20 -0700 (PDT)
+        Tue, 8 Aug 2023 14:39:11 -0400
+Received: from mail-lj1-x22e.google.com (mail-lj1-x22e.google.com [IPv6:2a00:1450:4864:20::22e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E014B1E5A2
+        for <linux-openrisc@vger.kernel.org>; Tue,  8 Aug 2023 10:23:42 -0700 (PDT)
+Received: by mail-lj1-x22e.google.com with SMTP id 38308e7fff4ca-2b9a828c920so91273841fa.1
+        for <linux-openrisc@vger.kernel.org>; Tue, 08 Aug 2023 10:23:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1691449567; x=1692054367;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Ke0Z6VjA86Q0iJYCAtHmQzMGt2iXqJZdkl8QiQF9dCo=;
-        b=W+7e7ZXA6pq6bkOdiU4kqXMdaRoaFiJYq1YjNheTen2BEAKrJsHyDCwylC8TwIaELf
-         OoOeKnKEm2Bup1E3lQkfzBFhNx4UEQeZdbP6gFS8EtHNx1s6wSSR8pJNy131BEuCYsID
-         5yHclRtlDqB0YUpxc8mp/j3duvqB/kcSwVKs7titgSAxTd3bahGpDvqB1s5BR/l1Q8b5
-         JJTz17F1sukT0v2fD4c6TeVfoKxL+4R8ZKOAgjggAvDHXskwAwGz/9+hK5mkw3BMis+2
-         8wcIPPvCrUvFi8Oxcy9SzYIpq7haNxXeYlICDRNRlufgVcr5TYo9K2btnO8SAcdlpPvp
-         77sA==
+        d=linaro.org; s=google; t=1691515421; x=1692120221;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=4uTsNkzMlGNumI6E4N2sbj8WhFeiKobXXpi0Tum0hp4=;
+        b=N/PE9aHoDr5vc0/3dCrEi9eYqYH7zF1ewu1IutWqKJQKWvxNCYBHnmyhgWjdSw9+q7
+         cmxZP5hOoDLn7eIv86pBKXyiBC3aux7kCudyB51lkixFV4KdWaj7oupXUIWAhjrb7wOo
+         2fTQ3MoKmxctn4AZ90RzFcTwQT19zlh72J0bIz6PloHpM2HCo/E95HjyeEymIwdnuj3v
+         i4BfwWJerVKigHDKYp4RSZhMungW03JDKh/IFC7Cj20tye06jHijMShEAo/tEiVc3wMF
+         db+yKLoKGRVQXyq1aI7/Gly6NbSippxojCptCnu/Z6zw/XrR6s9uf6QypjgcDdFArd1U
+         i4+w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691449567; x=1692054367;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Ke0Z6VjA86Q0iJYCAtHmQzMGt2iXqJZdkl8QiQF9dCo=;
-        b=YUVBBKK5ML5byR6piki+xLkWIUOY9etUJlf+E8t+SCgZEWIuOWpflVlhx0I4L9f2gO
-         GIT8fMi++rZEV9R6U844m+gPpYn4dK9Xvodq+Zp+8oR/MhVjek5veMjePWWkXHW/bYkk
-         +EfI6mOPyBxOkzlPxW6g6oCgonhKznWMbDSGi5cOo36B3kyGdWwW/2dOFekawwRxLddk
-         pclc8yoFhOnghvOW/hO+xDZ9eXaSQOwTQQhwm2GkK6MXes2apDLaDccMbwB3MNCwFnaB
-         WUy1cXcTyBrhwmGX1wJ8uPsTU9mx3x0oESZPMPO1qr1nlWIjyuzk0XWTrRxfuBnKdH0l
-         8BzQ==
-X-Gm-Message-State: AOJu0YzIETyZz650mIVfHzEM+DyNapu2JSOmPyJX2B+87424pxRBFvxj
-        Vqw3C70GhO46ghIvlEJ3Tcg=
-X-Google-Smtp-Source: AGHT+IEFwZzf7hWzCaDcJ0rf5o011LKpXcZZ+QgyAwbXtivToV2K1Z3qkIAZZunAX4r/XJQivv3Vpw==
-X-Received: by 2002:a25:29c2:0:b0:d4c:f456:d562 with SMTP id p185-20020a2529c2000000b00d4cf456d562mr4842541ybp.1.1691449567341;
-        Mon, 07 Aug 2023 16:06:07 -0700 (PDT)
-Received: from unknowna0e70b2ca394.attlocal.net ([2600:1700:2f7d:1800::16])
-        by smtp.googlemail.com with ESMTPSA id d190-20020a25cdc7000000b00d3596aca5bcsm2545203ybf.34.2023.08.07.16.06.05
+        d=1e100.net; s=20221208; t=1691515421; x=1692120221;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=4uTsNkzMlGNumI6E4N2sbj8WhFeiKobXXpi0Tum0hp4=;
+        b=l41VNpP76aMya3xt7xmQvU1LfQ7Vhzhc1JisEAwRIcDGnCRvnEpe2bkFulrxUC0AG0
+         /AYMuDa7XAzlwTkMBPr2TTChel9EjlFJp/etilYDx+AgDcy+3LIYA9qFfo6LsZjjpnXW
+         j41Uwu2jj13rbyH8Snvm+qKmdhCtwtzmE/TXn9Va1UNmyG8CtqXLTdSqueTc4Vt39Rar
+         X3Ar//lAdY34lOvPGWJ/iZgd35XPGBhdIwa3c+gtnZdq6zy4RAgmaxSqXWvGvcE/qokT
+         Im86i7wTdgkqXQTwEXxwmWqGa10ukB//s2sBsvuGz3x1NkEYuaTxAMKThTuDdbGEes3V
+         Jeig==
+X-Gm-Message-State: AOJu0YygC4Xf/pDrMVchGYSsSY7x3y/59XDLkf4T8ulJ70EUHZnF2Baq
+        /m6KKBLeL6JVNhyj86ku+xlX75F1RG1LWd8JCZE=
+X-Google-Smtp-Source: AGHT+IES5amA4SDlpCkbvTEDM6S0+rLZht3qutP1HCZ45dXQD1IYG/yvCBi5SrhtOxK+41I3d98chg==
+X-Received: by 2002:a2e:805a:0:b0:2b9:ee3e:240b with SMTP id p26-20020a2e805a000000b002b9ee3e240bmr9312875ljg.41.1691487151244;
+        Tue, 08 Aug 2023 02:32:31 -0700 (PDT)
+Received: from [127.0.1.1] ([85.235.12.238])
+        by smtp.gmail.com with ESMTPSA id b22-20020a2e9896000000b002b9f0b25ff6sm2196530ljj.4.2023.08.08.02.32.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Aug 2023 16:06:07 -0700 (PDT)
-From:   "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-To:     Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>
-Cc:     linux-mm@kvack.org, linux-arch@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, xen-devel@lists.xenproject.org,
-        kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>,
-        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        Dinh Nguyen <dinguyen@kernel.org>
-Subject: [PATCH mm-unstable v9 24/31] nios2: Convert __pte_free_tlb() to use ptdescs
-Date:   Mon,  7 Aug 2023 16:05:06 -0700
-Message-Id: <20230807230513.102486-25-vishal.moola@gmail.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230807230513.102486-1-vishal.moola@gmail.com>
-References: <20230807230513.102486-1-vishal.moola@gmail.com>
+        Tue, 08 Aug 2023 02:32:30 -0700 (PDT)
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Tue, 08 Aug 2023 11:32:30 +0200
+Subject: [PATCH] openrisc: Make pfn accessors statics inlines
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20230808-virt-to-phys-openrisc-v1-1-b2c16cf000a8@linaro.org>
+X-B4-Tracking: v=1; b=H4sIAK0L0mQC/x3MMQqAMAxA0atIZgO1RSheRRykppqlLYmIIr27x
+ fEN/7+gJEwKU/eC0MXKOTUMfQfhWNNOyFszWGOd8cbjxXLimbEcj2IulIQ1oI/RjME6t1KE1ha
+ hyPf/nZdaPyHMl5RnAAAA
+To:     Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Stafford Horne <shorne@gmail.com>
+Cc:     linux-openrisc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>
+X-Mailer: b4 0.12.3
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-Part of the conversions to replace pgtable constructor/destructors with
-ptdesc equivalents.
+Making virt_to_pfn() a static inline taking a strongly typed
+(const void *) makes the contract of a passing a pointer of that
+type to the function explicit and exposes any misuse of the
+macro virt_to_pfn() acting polymorphic and accepting many types
+such as (void *), (unitptr_t) or (unsigned long) as arguments
+without warnings.
 
-Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
-Acked-by: Dinh Nguyen <dinguyen@kernel.org>
-Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+For symmetry, do the same with pfn_to_virt().
+
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
- arch/nios2/include/asm/pgalloc.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/openrisc/include/asm/page.h | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/arch/nios2/include/asm/pgalloc.h b/arch/nios2/include/asm/pgalloc.h
-index ecd1657bb2ce..ce6bb8e74271 100644
---- a/arch/nios2/include/asm/pgalloc.h
-+++ b/arch/nios2/include/asm/pgalloc.h
-@@ -28,10 +28,10 @@ static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
+diff --git a/arch/openrisc/include/asm/page.h b/arch/openrisc/include/asm/page.h
+index 52b0d7e76446..bb044c4aa93b 100644
+--- a/arch/openrisc/include/asm/page.h
++++ b/arch/openrisc/include/asm/page.h
+@@ -72,8 +72,15 @@ typedef struct page *pgtable_t;
+ #define __va(x) ((void *)((unsigned long)(x) + PAGE_OFFSET))
+ #define __pa(x) ((unsigned long) (x) - PAGE_OFFSET)
  
- extern pgd_t *pgd_alloc(struct mm_struct *mm);
+-#define virt_to_pfn(kaddr)      (__pa(kaddr) >> PAGE_SHIFT)
+-#define pfn_to_virt(pfn)        __va((pfn) << PAGE_SHIFT)
++static inline unsigned long virt_to_pfn(const void *kaddr)
++{
++	return __pa(kaddr) >> PAGE_SHIFT;
++}
++
++static inline void * pfn_to_virt(unsigned long pfn)
++{
++	return __va(pfn) << PAGE_SHIFT;
++}
  
--#define __pte_free_tlb(tlb, pte, addr)				\
--	do {							\
--		pgtable_pte_page_dtor(pte);			\
--		tlb_remove_page((tlb), (pte));			\
-+#define __pte_free_tlb(tlb, pte, addr)					\
-+	do {								\
-+		pagetable_pte_dtor(page_ptdesc(pte));			\
-+		tlb_remove_page_ptdesc((tlb), (page_ptdesc(pte)));	\
- 	} while (0)
- 
- #endif /* _ASM_NIOS2_PGALLOC_H */
+ #define virt_to_page(addr) \
+ 	(mem_map + (((unsigned long)(addr)-PAGE_OFFSET) >> PAGE_SHIFT))
+
+---
+base-commit: 06c2afb862f9da8dc5efa4b6076a0e48c3fbaaa5
+change-id: 20230808-virt-to-phys-openrisc-8ff05c233aef
+
+Best regards,
 -- 
-2.40.1
+Linus Walleij <linus.walleij@linaro.org>
 
