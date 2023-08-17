@@ -2,67 +2,48 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8732AC27C53;
-	Wed, 16 Aug 2023 23:02:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44BB4C2FC0F;
+	Thu, 17 Aug 2023 03:16:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347070AbjHPXBx (ORCPT
+        id S1347677AbjHQDPj (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Wed, 16 Aug 2023 19:01:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39720 "EHLO
+        Wed, 16 Aug 2023 23:15:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244027AbjHPXBW (ORCPT
+        with ESMTP id S1347825AbjHQDPc (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Wed, 16 Aug 2023 19:01:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0250413E;
-        Wed, 16 Aug 2023 16:01:21 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8983B65891;
-        Wed, 16 Aug 2023 23:01:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F34DC433CC;
-        Wed, 16 Aug 2023 23:01:18 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="jXokpT8H"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1692226871;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=fJ+exFyMwxf+Sp/aWFmN/k274aR2STKWbu8odcAPWm8=;
-        b=jXokpT8HHm9bHv6hIJ3T3CMHWSwvmBYeqbPj7fjD4Ezxvigmdm/fXPxtKXDXtXiveMyEy2
-        K2zo2MO6Jx19/zc76sU6x7FN12g49ex3CRn9eKlZgLZMkYTlRh8PLwi9EYMp443CajZ7FT
-        H+k/S7W81nftL8bDVz+/B0+KLWJPGLw=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 598949e3 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-        Wed, 16 Aug 2023 23:01:10 +0000 (UTC)
-Received: by mail-ua1-f46.google.com with SMTP id a1e0cc1a2514c-79414715edeso1459494241.0;
-        Wed, 16 Aug 2023 16:01:09 -0700 (PDT)
-X-Gm-Message-State: AOJu0Yxcwh35R/0Ner5l4oPPLmekSzhwnYWcQU82HFTrav4OM8vLDKZT
-        2JSmLNPtBDrGKjIokzc8ouVW9HG/85iwCCht4Jg=
-X-Google-Smtp-Source: AGHT+IFdKTop/dTzxxplY5bDLsdLZZ0m1tGPXQJd6rkmBy2Wm4exC645Mb9rMUW6TK7Pnh6+pZhH7oflLvX5KYDSdqc=
-X-Received: by 2002:a67:e211:0:b0:443:c87f:ebb1 with SMTP id
- g17-20020a67e211000000b00443c87febb1mr2517297vsa.29.1692226866965; Wed, 16
- Aug 2023 16:01:06 -0700 (PDT)
+        Wed, 16 Aug 2023 23:15:32 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20BBB1724;
+        Wed, 16 Aug 2023 20:15:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:Content-Type:
+        In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
+        :Reply-To:Content-ID:Content-Description;
+        bh=P/kFyzCr/eSDaJkbY0OlCILEe1j9xWTLXn/yJLAYIu4=; b=A9+ZOyBLxgvkefgcCG3G+GbFOc
+        t3Q4LPTtkkpyh0LBpbAFdc+3lhG3pcvB3Tuy2cTe9/M//iW+Sx1QS7+tpwHS9HCucIDpD/RDGCGIr
+        FphyIapebkE7eEjeEnFtOi+9dwumQAvsQRYGjE0GEiZ5WBo53AxtXkFjlluHJQQSFYe1ZQ0mwCfpK
+        6X/okD9sKE4Z8iWegd56l1SCJXl6wUSJ5Uk04klLzVcTy3SNTh8mgr2aL00kPfkoj1Td2N2/Azxck
+        21ORjXTS2+GmCUfbeyQtLCC4mizooGziW6L1eBdD4Ta+hfKURTJGkPtTMCT5Ht16ny8Gi1C8JbRXm
+        mdreectQ==;
+Received: from [2601:1c2:980:9ec0::1a0b]
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1qWTTi-000tOI-Mm; Thu, 17 Aug 2023 03:15:18 +0000
+Message-ID: <86e329b1-c8d7-47bf-8be8-3326daf74eb5@infradead.org>
+Date:   Wed, 16 Aug 2023 20:15:09 -0700
 MIME-Version: 1.0
-References: <20230816055010.31534-1-rdunlap@infradead.org>
-In-Reply-To: <20230816055010.31534-1-rdunlap@infradead.org>
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date:   Thu, 17 Aug 2023 00:58:18 +0200
-X-Gmail-Original-Message-ID: <CAHmME9pxC_e6Ftj1MJ4H2skhhKfNubd=7OwcH9xepCxjkDxpkg@mail.gmail.com>
-Message-ID: <CAHmME9pxC_e6Ftj1MJ4H2skhhKfNubd=7OwcH9xepCxjkDxpkg@mail.gmail.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.14.0
 Subject: Re: [PATCH] treewide: drop CONFIG_EMBEDDED
-To:     Randy Dunlap <rdunlap@infradead.org>
+To:     20230816055010.31534-1-rdunlap@infradead.org
 Cc:     linux-kernel@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
         linux-arm-kernel@lists.infradead.org,
-        Arnd Bergmann <arnd@arndb.de>, wireguard@lists.zx2c4.com,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Jason A . Donenfeld" <Jason@zx2c4.com>, wireguard@lists.zx2c4.com,
         linux-arch@vger.kernel.org, linux-snps-arc@lists.infradead.org,
         Vineet Gupta <vgupta@kernel.org>,
         Brian Cain <bcain@quicinc.com>, linux-hexagon@vger.kernel.org,
         Greg Ungerer <gerg@linux-m68k.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
         linux-m68k@lists.linux-m68k.org, Michal Simek <monstr@monstr.eu>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Dinh Nguyen <dinguyen@kernel.org>,
@@ -85,69 +66,63 @@ Cc:     linux-kernel@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
         Masahiro Yamada <masahiroy@kernel.org>,
         linux-kbuild@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+References: <38e1a01b-1e8b-7c66-bafc-fc5861f08da9@gmail.com>
+Content-Language: en-US
+From:   Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <38e1a01b-1e8b-7c66-bafc-fc5861f08da9@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Wed, Aug 16, 2023 at 7:50=E2=80=AFAM Randy Dunlap <rdunlap@infradead.org=
-> wrote:
->
-> There is only one Kconfig user of CONFIG_EMBEDDED and it can be
-> switched to EXPERT or "if !ARCH_MULTIPLATFORM" (suggested by Arnd).
->
-> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-> Cc: Russell King <linux@armlinux.org.uk>
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-> Cc: wireguard@lists.zx2c4.com
-> Cc: linux-arch@vger.kernel.org
-> Cc: linux-snps-arc@lists.infradead.org
-> Cc: Vineet Gupta <vgupta@kernel.org>
-> Cc: Brian Cain <bcain@quicinc.com>
-> Cc: linux-hexagon@vger.kernel.org
-> Cc: Greg Ungerer <gerg@linux-m68k.org>
-> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-> Cc: linux-m68k@lists.linux-m68k.org
-> Cc: Michal Simek <monstr@monstr.eu>
-> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-> Cc: Dinh Nguyen <dinguyen@kernel.org>
-> Cc: Jonas Bonn <jonas@southpole.se>
-> Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-> Cc: Stafford Horne <shorne@gmail.com>
-> Cc: linux-openrisc@vger.kernel.org
-> Cc: linux-mips@vger.kernel.org
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Nicholas Piggin <npiggin@gmail.com>
-> Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-> Cc: linuxppc-dev@lists.ozlabs.org
-> Cc: linux-riscv@lists.infradead.org
-> Cc: Paul Walmsley <paul.walmsley@sifive.com>
-> Cc: Palmer Dabbelt <palmer@dabbelt.com>
-> Cc: Albert Ou <aou@eecs.berkeley.edu>
-> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-> Cc: Rich Felker <dalias@libc.org>
-> Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-> Cc: linux-sh@vger.kernel.org
-> Cc: Max Filippov <jcmvbkbc@gmail.com>
-> Cc: Josh Triplett <josh@joshtriplett.org>
-> Cc: Masahiro Yamada <masahiroy@kernel.org>
-> Cc: linux-kbuild@vger.kernel.org
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> ---
-> diff -- a/tools/testing/selftests/wireguard/qemu/kernel.config b/tools/te=
-sting/selftests/wireguard/qemu/kernel.config
-> --- a/tools/testing/selftests/wireguard/qemu/kernel.config
-> +++ b/tools/testing/selftests/wireguard/qemu/kernel.config
-> @@ -41,7 +41,6 @@ CONFIG_KALLSYMS=3Dy
->  CONFIG_BUG=3Dy
->  CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=3Dy
->  CONFIG_JUMP_LABEL=3Dy
-> -CONFIG_EMBEDDED=3Dn
->  CONFIG_BASE_FULL=3Dy
->  CONFIG_FUTEX=3Dy
->  CONFIG_SHMEM=3Dy
+Hi Jesse,
 
-Acked-by: Jason A. Donenfeld <Jason@zx2c4.com>
+On 8/16/23 15:45, Jesse Taube wrote:
+> Hi, Randy
+> 
+>> diff -- a/init/Kconfig b/init/Kconfig
+>> --- a/init/Kconfig
+>> +++ b/init/Kconfig
+>> @@ -1790,14 +1790,6 @@ config DEBUG_RSEQ
+>>
+>>        If unsure, say N.
+>>
+>> -config EMBEDDED
+>> -    bool "Embedded system"
+>> -    select EXPERT
+>> -    help
+>> -      This option should be enabled if compiling the kernel for
+>> -      an embedded system so certain expert options are available
+>> -      for configuration.
+> 
+> Wouldn't removing this break many out of tree configs?
+
+I'm not familiar with out-of-tree configs.
+Do you have some examples of some that use CONFIG_EMBEDDED?
+(not distros)
+
+> Should there be a warning here to update change it instead of removal?
+
+kconfig doesn't have a warning mechanism AFAIK.
+Do you have an idea of how this would work?
+
+We could make a smaller change to init/Kconfig, like so:
+
+ config EMBEDDED
+-	bool "Embedded system"
++	bool "Embedded system (DEPRECATED)"
+ 	select EXPERT
+ 	help
+-	  This option should be enabled if compiling the kernel for
+-	  an embedded system so certain expert options are available
+-	  for configuration.
++	  This option is being removed after Linux 6.6.
++	  Use EXPERT instead of EMBEDDED.
+
+but there is no way to produce a warning message. I.e., even with this
+change, the message will probably be overlooked.
+
+---
+~Randy
+
