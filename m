@@ -2,181 +2,182 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE66CEE49AD;
-	Sat, 19 Aug 2023 03:38:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A507FEE49A8;
+	Sat, 19 Aug 2023 07:46:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230142AbjHSDef (ORCPT
+        id S1344401AbjHSHqL (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Fri, 18 Aug 2023 23:34:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33666 "EHLO
+        Sat, 19 Aug 2023 03:46:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229597AbjHSDe1 (ORCPT
+        with ESMTP id S1344397AbjHSHpz (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Fri, 18 Aug 2023 23:34:27 -0400
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECBAF2D69;
-        Fri, 18 Aug 2023 20:34:25 -0700 (PDT)
-Received: by mail-pj1-x1030.google.com with SMTP id 98e67ed59e1d1-268bc714ce0so1905692a91.0;
-        Fri, 18 Aug 2023 20:34:25 -0700 (PDT)
+        Sat, 19 Aug 2023 03:45:55 -0400
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 126F210D7
+        for <linux-openrisc@vger.kernel.org>; Sat, 19 Aug 2023 00:45:53 -0700 (PDT)
+Received: by mail-wr1-x42f.google.com with SMTP id ffacd0b85a97d-31ae6bf91a9so904267f8f.2
+        for <linux-openrisc@vger.kernel.org>; Sat, 19 Aug 2023 00:45:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1692416065; x=1693020865;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=vOjVxX/Eg0iGmCqhVv5cIZBql9TtO2CXYAj6O50hbSE=;
-        b=IqtJwsF0pUQX7izyHeTreyTJTJhKy5hiG0L5LG7pklRm5ruz2z314lR30cJBIft8IF
-         lHOgWqUBHxsrHRZ/n+H1wKK9DAmo6l6M6vOqnptgdlcjmAJVnPdA6vRI0gXUbNjLjw2O
-         HaCa2GQWI2H3P/PJF/kO6bmYeR/Nyn9f2ZprmcA/D0k+kc6aE9gt4/58CgSA7F801jjd
-         XX+T7G5Lv1/7anA6wENrFajkkBfdYnNLgzsdEjOaJ3u6npvNqyydM0GqNQ4HtJ58/8Bk
-         W4eV1DvzXq38mo16H9W9Oyvm8s/Iciep4KukBQTEpuiauG6fJdSHO4J2dBeLWJsNSNRu
-         GvHA==
+        d=gmail.com; s=20221208; t=1692431151; x=1693035951;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=nqwRpuN9OjtoW+N1a/du/STnGvvajKaIuwHbsoDvEOk=;
+        b=eMyilGfReK88AMx1hKk+CW+k0cRXcGpr7tx2UoPsn/RXtFWFldJvKiE7ttIxW2gAHN
+         dpPBpTgD3n4L6GErBWgDvgGXlrHjpjZO39mueVjv+WZmCiI7PCF/0yMz+uMbqjTAkSN4
+         yCqjZSR8G03pgIA6T62NZJ3sX6QACzsGC7nHimfX1/C+YQORzUTAk80ZNnoSlEnU0GCi
+         9wJlm2K3fS0nZkvbNoXnl51rmRN9zF29Ozeo8uVucpHkm9v9LJ9Ub6fAVY7Xg+ZBt8M5
+         A2qYDF481uSUo84B49sGrCisRkYxADEUhbXOuUMHb+fj0FL51zb3ztAqh8cU4xZEnnv+
+         FMDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692416065; x=1693020865;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=vOjVxX/Eg0iGmCqhVv5cIZBql9TtO2CXYAj6O50hbSE=;
-        b=g1KtxvE6k2ycR/PXbMvrAE4SsFGN9yqylUPD6nf64K+NRp8T4HYEvaD2twXGbYGj8O
-         BUllvDA3DBVugaxikS+mUlYfnUmo5NtGGtrHqkL5j57c3A39hFDuP/+Am5k5Dco71VRx
-         K6laEUsdpU3LQzdzeVmU3hvTjHyuo58+15y31GjAo2dqddUKEqoN8y1B+wbjStUj6lJ3
-         BAdwTYtspfvAZsn8hbmcL6mnGSBqRyqtK3cTuhVOyP1jTXpPa4X1gylTNZ0qz14SMv4n
-         5d+3tnurMLTa0aPxa7IH7ueXAcIuREscGNe3sdE35deIA3Gv9wRW4dX2P40p9aFZ/atW
-         TL+A==
-X-Gm-Message-State: AOJu0YxclvNdQYlOy2KjW11+TXPsAeiQok/KBoWR8PxoGaIfUvknmWUP
-        k23RYh3dHraJBipmUHAPOc5K1qei/PluQekxJ5M=
-X-Google-Smtp-Source: AGHT+IFpp0VHvCZv9YQH2C6BH14eA1+BcCpaZ1w5QpKfP5/3cQ/4jDAUwPVhdHrKttxLAuvWHcInuMfoJccdrJLxiGs=
-X-Received: by 2002:a17:90a:64ca:b0:25d:d224:9fb9 with SMTP id
- i10-20020a17090a64ca00b0025dd2249fb9mr1389535pjm.24.1692416065235; Fri, 18
- Aug 2023 20:34:25 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1692431151; x=1693035951;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=nqwRpuN9OjtoW+N1a/du/STnGvvajKaIuwHbsoDvEOk=;
+        b=Cc1atTBc8hgiTsMpGYwngw0qyxMatDxuiVcmiiZd6I9kJ7YMKMrKMLEx1VkZwXp0fV
+         xXT0u/bmgM+FscdFgrtyaYppuPpAyploYypiRDrTDC0oyQk7KgueMCNzEI+37Yz/PZNW
+         V5NgZlWeZp3M1BofRrFXpcQ8aPX8gu1NqgMatLh53tLQsENJ9FKPzMLQLZprTj8rhlKQ
+         cE9wAfrrHAqP3Xh2nprbaKWyYGVLnKRsWl+rXzojjosrKcUWoWTBem7awenteYS7UKy5
+         VSZChG3zsELcPT9knM6Ggbidm3eaLozRdPOIV3yjr/iTwl32eM5dGHyvQBKRNjSpvKmw
+         m2rA==
+X-Gm-Message-State: AOJu0YxuDAXsHeUDvjEZYX1WNAf+JZIjSlrrBbepFx5YaDDrJ/BrnO/L
+        NCH22C8PKH/UrUQ/5VedSKZrekGS8PxKIQ==
+X-Google-Smtp-Source: AGHT+IGaUyF05wbDySY8Z7WTUZoff2+XjuMdQbzsq2fttAyxmZ58HnEiSu2n7gfXuUcS24wPaZvTRA==
+X-Received: by 2002:a5d:6103:0:b0:317:53e7:d7c2 with SMTP id v3-20020a5d6103000000b0031753e7d7c2mr985226wrt.11.1692431151248;
+        Sat, 19 Aug 2023 00:45:51 -0700 (PDT)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id y15-20020adff6cf000000b0031759e6b43fsm5267536wrp.39.2023.08.19.00.45.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 19 Aug 2023 00:45:50 -0700 (PDT)
+From:   Stafford Horne <shorne@gmail.com>
+To:     GNU Binutils <binutils@sourceware.org>
+Cc:     Mike Frysinger <vapier@gentoo.org>,
+        Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+        Stafford Horne <shorne@gmail.com>
+Subject: [PATCH] sim: or1k: Eliminate dangerous RWX load segments
+Date:   Sat, 19 Aug 2023 08:45:18 +0100
+Message-Id: <20230819074518.2253226-1-shorne@gmail.com>
+X-Mailer: git-send-email 2.39.1
 MIME-Version: 1.0
-References: <38e1a01b-1e8b-7c66-bafc-fc5861f08da9@gmail.com>
- <86e329b1-c8d7-47bf-8be8-3326daf74eb5@infradead.org> <78a802c5-3f0d-e199-d974-e586c00180eb@infradead.org>
-In-Reply-To: <78a802c5-3f0d-e199-d974-e586c00180eb@infradead.org>
-From:   Jesse T <mr.bossman075@gmail.com>
-Date:   Fri, 18 Aug 2023 23:33:49 -0400
-Message-ID: <CAJFTR8T-Fdu_aKapP+Lb6pLYo_ykXwXw6rFZNGR5=WKU1QwUPQ@mail.gmail.com>
-Subject: Re: [PATCH] treewide: drop CONFIG_EMBEDDED
-To:     Randy Dunlap <rdunlap@infradead.org>
-Cc:     linux-kernel@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        linux-arm-kernel@lists.infradead.org,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Jason A . Donenfeld" <Jason@zx2c4.com>, wireguard@lists.zx2c4.com,
-        linux-arch@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-        Vineet Gupta <vgupta@kernel.org>,
-        Brian Cain <bcain@quicinc.com>, linux-hexagon@vger.kernel.org,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        linux-m68k@lists.linux-m68k.org, Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        linux-openrisc@vger.kernel.org, linux-mips@vger.kernel.org,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        linux-sh@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        linux-kbuild@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Fri, Aug 18, 2023 at 7:44=E2=80=AFPM Randy Dunlap <rdunlap@infradead.org=
-> wrote:
->
-> Hi Jesse,
->
-> I replied to your comment a few days ago, but for some reason
-> your email to me contains:
-> Reply-To: 20230816055010.31534-1-rdunlap@infradead.org
-> so it wasn't sent directly to you.
+This fixes test failures caused by the new linker warning which report:
 
-Sorry about that I messed up the email headers...
->
-> My former reply is below.
->
-> On 8/16/23 20:15, Randy Dunlap wrote:
-> > Hi Jesse,
-> >
-> > On 8/16/23 15:45, Jesse Taube wrote:
-> >> Hi, Randy
-> >>
-> >>> diff -- a/init/Kconfig b/init/Kconfig
-> >>> --- a/init/Kconfig
-> >>> +++ b/init/Kconfig
-> >>> @@ -1790,14 +1790,6 @@ config DEBUG_RSEQ
-> >>>
-> >>>         If unsure, say N.
-> >>>
-> >>> -config EMBEDDED
-> >>> -    bool "Embedded system"
-> >>> -    select EXPERT
-> >>> -    help
-> >>> -      This option should be enabled if compiling the kernel for
-> >>> -      an embedded system so certain expert options are available
-> >>> -      for configuration.
-> >>
-> >> Wouldn't removing this break many out of tree configs?
-> >
-> > I'm not familiar with out-of-tree configs.
-> > Do you have some examples of some that use CONFIG_EMBEDDED?
-> > (not distros)
+  ./ld/ld-new: warning: load.S.x has a LOAD segment with RWX permissions
 
-Buildroot has a few.
-It won't immediately break Buildroot and Yocto as they have a set version,
-but it could be confusing for anyone updating the kernel.
+Fix this by splitting the linker MEMORY into ram and rom to avoid
+generating RWX sections.  This required tests to be adjusted to fix
+issues with the move.  Namely:
 
-> >
-> >> Should there be a warning here to update change it instead of removal?
-> >
-> > kconfig doesn't have a warning mechanism AFAIK.
-> > Do you have an idea of how this would work?
+  - fpu tests: were incorrectly using l.ori with ha(anchor) which now
+    that we pushed the anchor up in memory it exposes the bug.  Update
+    to used the correct l.movhi instruction instead.
+  - adrp test: the test reports ram offset addresses, now that we have
+    moved memory layout around a bit I adjusted the test output.  Some
+    padding is added before pi to show that the actual address of pi and
+    the adrp page offset are not the same.
 
-No, unfortunately. As you said without a warning it would be overlooked so
-a change would not be necessary.
+Bug: https://sourceware.org/PR29957
+---
+ sim/testsuite/or1k/adrp.S               | 5 +++--
+ sim/testsuite/or1k/fpu-unordered.S      | 2 +-
+ sim/testsuite/or1k/fpu64a32-unordered.S | 2 +-
+ sim/testsuite/or1k/fpu64a32.S           | 2 +-
+ sim/testsuite/or1k/or1k-test.ld         | 7 ++++---
+ 5 files changed, 10 insertions(+), 8 deletions(-)
 
-A possible solution is to check in a header file with:
+diff --git a/sim/testsuite/or1k/adrp.S b/sim/testsuite/or1k/adrp.S
+index eaddcb03885..192324c698e 100644
+--- a/sim/testsuite/or1k/adrp.S
++++ b/sim/testsuite/or1k/adrp.S
+@@ -17,9 +17,9 @@
+ 
+ # mach: or1k
+ # output: report(0x00002064);\n
+-# output: report(0x00012138);\n
++# output: report(0x0001a008);\n
+ # output: report(0x00002000);\n
+-# output: report(0x00012000);\n
++# output: report(0x0001a000);\n
+ # output: report(0x00002000);\n
+ # output: report(0x00014000);\n
+ # output: report(0x00000000);\n
+@@ -32,6 +32,7 @@
+ 	.section .data
+ 	.org 0x10000
+ 	.align 4
++pad:	.quad 	0
+ 	.type   pi, @object
+ 	.size   pi, 4
+ pi:
+diff --git a/sim/testsuite/or1k/fpu-unordered.S b/sim/testsuite/or1k/fpu-unordered.S
+index 624aa0fe05d..a89172e37af 100644
+--- a/sim/testsuite/or1k/fpu-unordered.S
++++ b/sim/testsuite/or1k/fpu-unordered.S
+@@ -57,7 +57,7 @@ start_tests:
+ 	 *  r13  e   as float
+ 	 *  r16  nan as float
+ 	 */
+-	l.ori	r11, r0, ha(anchor)
++	l.movhi	r11, ha(anchor)
+ 	l.addi	r11, r11, lo(anchor)
+ 	l.lwz	r12, 0(r11)
+ 
+diff --git a/sim/testsuite/or1k/fpu64a32-unordered.S b/sim/testsuite/or1k/fpu64a32-unordered.S
+index e0ae6e770d1..51d915e4e75 100644
+--- a/sim/testsuite/or1k/fpu64a32-unordered.S
++++ b/sim/testsuite/or1k/fpu64a32-unordered.S
+@@ -58,7 +58,7 @@ start_tests:
+ 	 *  r14,r15  e   as double
+ 	 *  r16,r17  nan as double
+ 	 */
+-	l.ori	r11, r0, ha(anchor)
++	l.movhi	r11, ha(anchor)
+ 	l.addi	r11, r11, lo(anchor)
+ 	l.lwz	r12, 0(r11)
+ 	l.lwz	r13, 4(r11)
+diff --git a/sim/testsuite/or1k/fpu64a32.S b/sim/testsuite/or1k/fpu64a32.S
+index 71b72b7761c..6ea60b28cf2 100644
+--- a/sim/testsuite/or1k/fpu64a32.S
++++ b/sim/testsuite/or1k/fpu64a32.S
+@@ -98,7 +98,7 @@ start_tests:
+ 	 *  r14,r15  e  as double
+ 	 *  r16,r17  a long long
+ 	 */
+-	l.ori	r11, r0, ha(anchor)
++	l.movhi	r11, ha(anchor)
+ 	l.addi	r11, r11, lo(anchor)
+ 	l.lwz	r12, 0(r11)
+ 	l.lwz	r13, 4(r11)
+diff --git a/sim/testsuite/or1k/or1k-test.ld b/sim/testsuite/or1k/or1k-test.ld
+index f1535daeabd..c26ecaf3f23 100644
+--- a/sim/testsuite/or1k/or1k-test.ld
++++ b/sim/testsuite/or1k/or1k-test.ld
+@@ -20,8 +20,9 @@ MEMORY
+     /* The exception vectors actually start at 0x100, but if you specify
+        that address here, the "--output-target binary" step will start from
+        address 0 with the contents meant for address 0x100.  */
+-    exception_vectors : ORIGIN =  0 , LENGTH = 8K
+-    ram               : ORIGIN =  8K, LENGTH = 2M - 8K
++    exception_vectors : ORIGIN =  0 , LENGTH =  8K
++    rom               : ORIGIN =  8K, LENGTH = 40K
++    ram               : ORIGIN = 40K, LENGTH =  2M - 40K
+ }
+ 
+ SECTIONS
+@@ -37,7 +38,7 @@ SECTIONS
+ 	*(.text.*)
+ 	*(.rodata)
+ 	*(.rodata.*)
+-    } > ram
++    } > rom
+ 
+     .data :
+     {
+-- 
+2.39.1
 
-#ifdef CONFIG_EMBEDDED
-#warning "CONFIG_EMBEDDED has changed to CONFIG_EXPERT"
-#endif
-
-Does anyone else have an opinion on this?
-Since kconfig doesn't have a warning mechanism the patch seems fine as is.
-
-Thanks,
-Jesse Taube
-> >
-> > We could make a smaller change to init/Kconfig, like so:
-> >
-> >  config EMBEDDED
-> > -     bool "Embedded system"
-> > +     bool "Embedded system (DEPRECATED)"
-> >       select EXPERT
-> >       help
-> > -       This option should be enabled if compiling the kernel for
-> > -       an embedded system so certain expert options are available
-> > -       for configuration.
-> > +       This option is being removed after Linux 6.6.
-> > +       Use EXPERT instead of EMBEDDED.
-> >
-> > but there is no way to produce a warning message. I.e., even with this
-> > change, the message will probably be overlooked.
-> >
-> > ---
-> > ~Randy
->
-> --
-> ~Randy
