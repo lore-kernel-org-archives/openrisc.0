@@ -2,95 +2,203 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 817D1EE49A8;
-	Mon, 21 Aug 2023 07:21:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14788EE4993;
+	Mon, 21 Aug 2023 15:14:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233675AbjHUHVl (ORCPT
+        id S236224AbjHUPON (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Mon, 21 Aug 2023 03:21:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59022 "EHLO
+        Mon, 21 Aug 2023 11:14:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232856AbjHUHVj (ORCPT
+        with ESMTP id S236222AbjHUPOM (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Mon, 21 Aug 2023 03:21:39 -0400
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF360A9;
-        Mon, 21 Aug 2023 00:21:13 -0700 (PDT)
-Received: by mail-wm1-x333.google.com with SMTP id 5b1f17b1804b1-3fbd33a57b6so28459195e9.2;
-        Mon, 21 Aug 2023 00:21:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1692602457; x=1693207257;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QC1pRvrNyLiVD1h/D+teZ8aHEzmdmZeRSHjacOPpsZw=;
-        b=fmNwq+0FqFp0bR8U9XknpCheXzMgN8PgS44eXJJGvUyrfLMwFEJS8usQCoyfFtWlJs
-         xutrUM+6oszrKdJmSXF9YxyKt3Yv83+NoQWIcZNsLA4Y2XePfQ6j+wS4occ+s2nRklZF
-         uiwDxzIXbi4g+J7K8WKEdbrpfF/CYqHO3Kp3hK5IV38j/TlwWZqytsWCKjfD9+zUewUi
-         RmluAP/m+8wHfjVfhR1hR3ns7NElB2FHK1/9lrMSppVZ6dbiFCJSf+0FD+1Yqx8fl/je
-         3c4tou46nfwjDMYNta87SZtPdZziq6zZ36D+BW/GcAFv+L+vfscidraZn40ylVItkguB
-         ODsw==
+        Mon, 21 Aug 2023 11:14:12 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4831E2
+        for <linux-openrisc@vger.kernel.org>; Mon, 21 Aug 2023 08:13:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1692630800;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=kFQlCCBNCoXKcesi1ukMU3Md79GFl2aJD/2jvPafjYk=;
+        b=FW8KwG4sD2DoAvybdOzbQPD6tATeFhnP6M85TXaHN4eMxjgmkG8QEuLlWr9Lw2Gr0AAMO3
+        HCWUkwMT6u4t2qIJjNObe8WgUvt+pyG0n5OnASDuFing0+ZPbuZ8+7Omy5Wgpzb7sm0cWc
+        cxJZDMIgu1600Gq+DJMTh4jbBWIimLo=
+Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
+ [209.85.160.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-567-DfLSlZ50PgGDVdt34Z74xA-1; Mon, 21 Aug 2023 11:13:20 -0400
+X-MC-Unique: DfLSlZ50PgGDVdt34Z74xA-1
+Received: by mail-qt1-f200.google.com with SMTP id d75a77b69052e-40ea01f3e3bso45748191cf.1
+        for <linux-openrisc@vger.kernel.org>; Mon, 21 Aug 2023 08:13:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692602457; x=1693207257;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=QC1pRvrNyLiVD1h/D+teZ8aHEzmdmZeRSHjacOPpsZw=;
-        b=SFGo4TIRuEIZUXtYrUPOFhHvjNZj+2Ix5K9SljBvlqQXyuyEKGMazh3Z4m+8CAc/B3
-         xvVOfCl4Y79pKKlQu0E7rtTbm/Dm2yT8fkJEURvnalpISrv5K5gpcMU4Ez8EmKHaBCbb
-         LCftQldQJfkig7/8vnehJ2yBARbpXxuFZlNULSp7ybL65XKEUcexyTbUN2pnYcVjDCwu
-         AfqPly6T17o/k/rt/JXbjE7fygNnSRplb8nKmJ1TZPFWjUtp8ycaaL3/BlbH9CKdt0Y0
-         jaf98oTW9HbgOha6Tb4V8DhENudmbTeY/nTPKdyBiE/WhOwskcHrEAh0CK/Gh+bTq5ZZ
-         1t6g==
-X-Gm-Message-State: AOJu0Yy49bxT81l7UGhbWyi+kreGJcOrcqedZm0le65xvPjYjD/3s8+k
-        ZltiuzsqE1N+LlmkQcsKKQ/YnqYQwj0=
-X-Google-Smtp-Source: AGHT+IFW1+UpsEH8D3c6eUX7uDf76KpVXePxuZiPPzZaNyfB2F2z7xVYUzY3rsO7j0GfeFF1IDD7Ng==
-X-Received: by 2002:a05:600c:364a:b0:3fe:d70f:b0a2 with SMTP id y10-20020a05600c364a00b003fed70fb0a2mr4863614wmq.6.1692602457408;
-        Mon, 21 Aug 2023 00:20:57 -0700 (PDT)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id l3-20020a1ced03000000b003fe1a96845bsm15153571wmh.2.2023.08.21.00.20.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Aug 2023 00:20:57 -0700 (PDT)
-From:   Stafford Horne <shorne@gmail.com>
-To:     LKML <linux-kernel@vger.kernel.org>
-Cc:     Stafford Horne <shorne@gmail.com>, Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        linux-openrisc@vger.kernel.org
-Subject: [PATCH 8/8] openrisc: Remove kernel-doc marker from ioremap comment
-Date:   Mon, 21 Aug 2023 08:20:07 +0100
-Message-Id: <20230821072007.2698186-9-shorne@gmail.com>
-X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230821072007.2698186-1-shorne@gmail.com>
-References: <20230821072007.2698186-1-shorne@gmail.com>
+        d=1e100.net; s=20221208; t=1692630799; x=1693235599;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=kFQlCCBNCoXKcesi1ukMU3Md79GFl2aJD/2jvPafjYk=;
+        b=C6lrlzNUJmywz87MkNzhKbtSH0vXQmpNAGW321MB2rOz2TuDNWuX2hf+6FuxuadkqD
+         BAG2/ZM6TxHS7LwiiABjNBLCtJ+htErZWM+T8XMPC/Itp5HN/GG8u2nPvXYaThOc3JYX
+         mpYB7Xd3uuhcMfIY9nHV4Xbgc/7/Kh/ssh3IltQykVtXKdysqpBYBLQPQyv2xGFZwNYd
+         ktXGyBbuswEqWfhYl7fsbykRHS6rIupt4XCXwahGZJRm5XfeuN3B1HGD+Op61znL03uz
+         BfWD1rmnWxWbF2JDHbTdV5HcO9/V3qxvBa0WlAFFJm+2hT/y5tof0sbNlosXziq3vFPW
+         xUJQ==
+X-Gm-Message-State: AOJu0YwhwlHl4Nxbu6PgnFPM9kMaklz7jTI9rZZwxf+jN9AaXea6nEpA
+        L4oJBfork72deUN0pIhxTj10zzxYO9hLbe8rGTTQMG6hqO5LoHDnTfIpn6PvVY0qg8/4gj/b/Aw
+        4oF2fjlWQmjA9bgkFVvvsoHWSKZ41RDv68gg=
+X-Received: by 2002:ac8:5bd5:0:b0:40f:f07f:1c01 with SMTP id b21-20020ac85bd5000000b0040ff07f1c01mr11879287qtb.40.1692630799141;
+        Mon, 21 Aug 2023 08:13:19 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF8vRmC5awX3PhUUofEzfojNIFNQomV9AdNl2JRtAc2NUAi4xsvzz39EghzAbswpSuSz8sRJQ==
+X-Received: by 2002:ac8:5bd5:0:b0:40f:f07f:1c01 with SMTP id b21-20020ac85bd5000000b0040ff07f1c01mr11879261qtb.40.1692630798829;
+        Mon, 21 Aug 2023 08:13:18 -0700 (PDT)
+Received: from [192.168.1.11] ([79.123.74.8])
+        by smtp.gmail.com with ESMTPSA id 3-20020ac85743000000b004107fc9113bsm2163410qtx.22.2023.08.21.08.13.17
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 21 Aug 2023 08:13:18 -0700 (PDT)
+Message-ID: <f9ee2f12-2ea5-625b-1485-ce9d05167ac3@redhat.com>
+Date:   Mon, 21 Aug 2023 16:13:15 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: [PATCH] sim: or1k: Eliminate dangerous RWX load segments
+To:     Stafford Horne <shorne@gmail.com>,
+        GNU Binutils <binutils@sourceware.org>,
+        Nick Clifton via Gdb-patches <gdb-patches@sourceware.org>
+Cc:     Mike Frysinger <vapier@gentoo.org>,
+        Linux OpenRISC <linux-openrisc@vger.kernel.org>
+References: <20230819074518.2253226-1-shorne@gmail.com>
+From:   Nick Clifton <nickc@redhat.com>
+In-Reply-To: <20230819074518.2253226-1-shorne@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-GB
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-Replace the kernel-doc marker (/**) with a regular comment to fix the
-warning:
+Hi Stafford Horne,
 
-  arch/openrisc/mm/ioremap.c:108: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
+   The simulator code is actually maintained by the GNU GDB project
+   rather than the GNU Binutils project, so I am redirecting this
+   email to the gdb-patches list.
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- arch/openrisc/mm/ioremap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> This fixes test failures caused by the new linker warning which report:
+> 
+>    ./ld/ld-new: warning: load.S.x has a LOAD segment with RWX permissions
+> 
+> Fix this by splitting the linker MEMORY into ram and rom to avoid
+> generating RWX sections.  This required tests to be adjusted to fix
+> issues with the move.  Namely:
+> 
+>    - fpu tests: were incorrectly using l.ori with ha(anchor) which now
+>      that we pushed the anchor up in memory it exposes the bug.  Update
+>      to used the correct l.movhi instruction instead.
+>    - adrp test: the test reports ram offset addresses, now that we have
+>      moved memory layout around a bit I adjusted the test output.  Some
+>      padding is added before pi to show that the actual address of pi and
+>      the adrp page offset are not the same.
 
-diff --git a/arch/openrisc/mm/ioremap.c b/arch/openrisc/mm/ioremap.c
-index 8ec0dafecf25..c6717f876c1c 100644
---- a/arch/openrisc/mm/ioremap.c
-+++ b/arch/openrisc/mm/ioremap.c
-@@ -104,7 +104,7 @@ void iounmap(volatile void __iomem *addr)
- }
- EXPORT_SYMBOL(iounmap);
- 
--/**
-+/*
-  * OK, this one's a bit tricky... ioremap can get called before memory is
-  * initialized (early serial console does this) and will want to alloc a page
-  * for its mapping.  No userspace pages will ever get allocated before memory
--- 
-2.39.1
+(It is nice to see that this new linker feature helped to detect these problems. :-)
+
+> Bug: https://sourceware.org/PR29957
+> ---
+>   sim/testsuite/or1k/adrp.S               | 5 +++--
+>   sim/testsuite/or1k/fpu-unordered.S      | 2 +-
+>   sim/testsuite/or1k/fpu64a32-unordered.S | 2 +-
+>   sim/testsuite/or1k/fpu64a32.S           | 2 +-
+>   sim/testsuite/or1k/or1k-test.ld         | 7 ++++---
+>   5 files changed, 10 insertions(+), 8 deletions(-)
+> 
+> diff --git a/sim/testsuite/or1k/adrp.S b/sim/testsuite/or1k/adrp.S
+> index eaddcb03885..192324c698e 100644
+> --- a/sim/testsuite/or1k/adrp.S
+> +++ b/sim/testsuite/or1k/adrp.S
+> @@ -17,9 +17,9 @@
+>   
+>   # mach: or1k
+>   # output: report(0x00002064);\n
+> -# output: report(0x00012138);\n
+> +# output: report(0x0001a008);\n
+>   # output: report(0x00002000);\n
+> -# output: report(0x00012000);\n
+> +# output: report(0x0001a000);\n
+>   # output: report(0x00002000);\n
+>   # output: report(0x00014000);\n
+>   # output: report(0x00000000);\n
+> @@ -32,6 +32,7 @@
+>   	.section .data
+>   	.org 0x10000
+>   	.align 4
+> +pad:	.quad 	0
+>   	.type   pi, @object
+>   	.size   pi, 4
+>   pi:
+> diff --git a/sim/testsuite/or1k/fpu-unordered.S b/sim/testsuite/or1k/fpu-unordered.S
+> index 624aa0fe05d..a89172e37af 100644
+> --- a/sim/testsuite/or1k/fpu-unordered.S
+> +++ b/sim/testsuite/or1k/fpu-unordered.S
+> @@ -57,7 +57,7 @@ start_tests:
+>   	 *  r13  e   as float
+>   	 *  r16  nan as float
+>   	 */
+> -	l.ori	r11, r0, ha(anchor)
+> +	l.movhi	r11, ha(anchor)
+>   	l.addi	r11, r11, lo(anchor)
+>   	l.lwz	r12, 0(r11)
+>   
+> diff --git a/sim/testsuite/or1k/fpu64a32-unordered.S b/sim/testsuite/or1k/fpu64a32-unordered.S
+> index e0ae6e770d1..51d915e4e75 100644
+> --- a/sim/testsuite/or1k/fpu64a32-unordered.S
+> +++ b/sim/testsuite/or1k/fpu64a32-unordered.S
+> @@ -58,7 +58,7 @@ start_tests:
+>   	 *  r14,r15  e   as double
+>   	 *  r16,r17  nan as double
+>   	 */
+> -	l.ori	r11, r0, ha(anchor)
+> +	l.movhi	r11, ha(anchor)
+>   	l.addi	r11, r11, lo(anchor)
+>   	l.lwz	r12, 0(r11)
+>   	l.lwz	r13, 4(r11)
+> diff --git a/sim/testsuite/or1k/fpu64a32.S b/sim/testsuite/or1k/fpu64a32.S
+> index 71b72b7761c..6ea60b28cf2 100644
+> --- a/sim/testsuite/or1k/fpu64a32.S
+> +++ b/sim/testsuite/or1k/fpu64a32.S
+> @@ -98,7 +98,7 @@ start_tests:
+>   	 *  r14,r15  e  as double
+>   	 *  r16,r17  a long long
+>   	 */
+> -	l.ori	r11, r0, ha(anchor)
+> +	l.movhi	r11, ha(anchor)
+>   	l.addi	r11, r11, lo(anchor)
+>   	l.lwz	r12, 0(r11)
+>   	l.lwz	r13, 4(r11)
+> diff --git a/sim/testsuite/or1k/or1k-test.ld b/sim/testsuite/or1k/or1k-test.ld
+> index f1535daeabd..c26ecaf3f23 100644
+> --- a/sim/testsuite/or1k/or1k-test.ld
+> +++ b/sim/testsuite/or1k/or1k-test.ld
+> @@ -20,8 +20,9 @@ MEMORY
+>       /* The exception vectors actually start at 0x100, but if you specify
+>          that address here, the "--output-target binary" step will start from
+>          address 0 with the contents meant for address 0x100.  */
+> -    exception_vectors : ORIGIN =  0 , LENGTH = 8K
+> -    ram               : ORIGIN =  8K, LENGTH = 2M - 8K
+> +    exception_vectors : ORIGIN =  0 , LENGTH =  8K
+> +    rom               : ORIGIN =  8K, LENGTH = 40K
+> +    ram               : ORIGIN = 40K, LENGTH =  2M - 40K
+>   }
+>   
+>   SECTIONS
+> @@ -37,7 +38,7 @@ SECTIONS
+>   	*(.text.*)
+>   	*(.rodata)
+>   	*(.rodata.*)
+> -    } > ram
+> +    } > rom
+>   
+>       .data :
+>       {
 
