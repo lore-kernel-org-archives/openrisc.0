@@ -2,146 +2,123 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FCAAC83F22;
-	Mon, 28 Aug 2023 08:09:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 674D7C71153;
+	Mon,  4 Sep 2023 19:21:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230001AbjH1IJJ (ORCPT
+        id S236167AbjIDTVF (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Mon, 28 Aug 2023 04:09:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55294 "EHLO
+        Mon, 4 Sep 2023 15:21:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229937AbjH1IIj (ORCPT
+        with ESMTP id S229616AbjIDTVF (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Mon, 28 Aug 2023 04:08:39 -0400
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 391921BB;
-        Mon, 28 Aug 2023 01:08:02 -0700 (PDT)
-Received: by mail-pl1-x629.google.com with SMTP id d9443c01a7336-1bf1935f6c2so19085105ad.1;
-        Mon, 28 Aug 2023 01:08:02 -0700 (PDT)
+        Mon, 4 Sep 2023 15:21:05 -0400
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6AFD18C;
+        Mon,  4 Sep 2023 12:21:01 -0700 (PDT)
+Received: by mail-wm1-x32c.google.com with SMTP id 5b1f17b1804b1-40037db2fe7so18113465e9.0;
+        Mon, 04 Sep 2023 12:21:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1693210077; x=1693814877;
-        h=content-transfer-encoding:in-reply-to:mime-version:user-agent:date
-         :message-id:from:cc:references:to:subject:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=pnrE6dyfVAprK/xFUC60jFewyVljQRt3NNtTMulp0V0=;
-        b=LVg55P2ejT0BJXH9H1+hgJHcBL2A+IF5g+KpwZsnJ2WoqXmcrL9ZfEfa3T6fNEdxE+
-         ga2nqaZ+gZjmffBcNuVnaXDtmvodkJeUEflTba5i6j/rIlhBduWdBgZRPVnHwy+erFMo
-         Q2sF5ZgAuDt+03EKZEd8qEogPdBU5cTg8EccDlTx6cSnC2QLYfomUfDCZyZGJl19L0Ry
-         zfDO9BgqWN0KlkikpK3fWA7KZvQWChySAj+L6JXiUhVTo7xH2gRnW3f4Al2lAGJTZzAW
-         5ZruNkogVGDYB3ptB7Tk7PeewBGyh+fZdTDyBJ7/jPzoGq3RnYeGV17VCUydj0j+5OXO
-         MJDA==
+        d=gmail.com; s=20221208; t=1693855260; x=1694460060; darn=vger.kernel.org;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=owg0Qtie51BTtnNroNiyG6kzJsRANYmLXp0WowAkZOw=;
+        b=SoQJSr7hcCV7IH9AF/BQNhl6AdXwI3bFCIHxGBkrz6BcZY8V6dxFcWMccS+KOzMK0p
+         9rrOncxsMXzj7Vw819kjv7WIBrrcL2ElfBt4Ye7/cGTkicx41+5m4Js1M3K6FTst5bul
+         Jg6jxCbs2m06cyCSsp/OOuHd0/M1mYRh4R7htACttxVOuarrcPQTeFxwohPPs6V9gnCn
+         +SLbKGCn5BEmf6Y64/JhJSpy/HI3s6jqlVFbAeK8HRpCraBbR+2dwlEenv20tOfk1cCg
+         FBJBQN4pEuPWd37IAtNYOJf8kD/3V90GNHWB1lLj1YErLIYZAIaOqyasupdou0efLL8W
+         9L4A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693210077; x=1693814877;
-        h=content-transfer-encoding:in-reply-to:mime-version:user-agent:date
-         :message-id:from:cc:references:to:subject:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=pnrE6dyfVAprK/xFUC60jFewyVljQRt3NNtTMulp0V0=;
-        b=kx2AbQTuZzgjqeFlKchv8jO7AJiM7c3VlC8NfaV+q52q9T+J75VLbGGUz5p1FsAl6M
-         /1UmeHL7uXBzA4bhtcaDeQ5M2p/QC2/RjV8f3Ggekio2VHKQrQ/fMVVdVob1tp/nPETL
-         aaV3cMvyHQ9X3cxTrAvdEUIi2Mwh4dHPjNQdAWloEG87p0SAw9gwcJhOE9t8TbSEHqAQ
-         /MjskPjAjLoKi64Vc2l/+8ISC0SUk5acxV0xnIXImrtLWQYon8khxhuWz3lx0t1GoaDM
-         1gKRsR04XkdyvcqBlD3sIQSj8s3DReR/TCbdQLODL4RCOKBX61FDo4x0nMIu3/ij/ynI
-         KPVQ==
-X-Gm-Message-State: AOJu0YxXEuACwavoq7XtdyCkfFO+zXU8Ht0PMWp6kK2NrFqIyFDMqx0o
-        80v+MhYvCUFcG6ybUpGrgxBDzLvYkMTO1A==
-X-Google-Smtp-Source: AGHT+IHEN6rjlzubXIy3DuU1iYHuYGfJmUDj7MCrRMJIjxExjNAtfO/xrf/2cugqJ3sCcKtAmuhffg==
-X-Received: by 2002:a17:903:41d1:b0:1bf:193a:70b6 with SMTP id u17-20020a17090341d100b001bf193a70b6mr38374653ple.5.1693210077452;
-        Mon, 28 Aug 2023 01:07:57 -0700 (PDT)
-Received: from [10.1.1.24] (125-236-136-221-fibre.sparkbb.co.nz. [125.236.136.221])
-        by smtp.gmail.com with ESMTPSA id x19-20020a170902ea9300b001bc445e2497sm6610519plb.79.2023.08.28.01.07.30
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 28 Aug 2023 01:07:57 -0700 (PDT)
-Subject: Re: (subset) [PATCH 00/17] -Wmissing-prototype warning fixes
-To:     Geert Uytterhoeven <geert@linux-m68k.org>
-References: <20230810141947.1236730-1-arnd@kernel.org>
- <169292577153.789945.11297239773543112051.b4-ty@oracle.com>
- <3956e2a4-c545-1212-e95f-3cf61a60d6a4@gmail.com>
- <CAMuHMdWC2S330_Vb_NTHTDC=BakBsw4ouP-eFJv0erV1-jmvTQ@mail.gmail.com>
- <130b3b57-edb0-184d-5b5f-69b013715773@gmail.com>
- <CAMuHMdUkZmkBSksvaGcDCKz2tsgkwyWgDa+WwCJm2UxFMCj1jw@mail.gmail.com>
-Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Matt Turner <mattst88@gmail.com>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Brian Cain <bcain@quicinc.com>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        WANG Xuerui <kernel@xen0n.name>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        x86@kernel.org, Borislav Petkov <bp@alien8.de>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Richard Weinberger <richard@nod.at>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        linux-next@vger.kernel.org, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-block@vger.kernel.org, linux-scsi@vger.kernel.org,
-        linux-mtd@lists.infradead.org, linux-trace-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-kbuild@vger.kernel.org
-From:   Michael Schmitz <schmitzmic@gmail.com>
-Message-ID: <dbed3311-6b8e-a396-7e9e-2747902c5d6a@gmail.com>
-Date:   Mon, 28 Aug 2023 20:07:27 +1200
-User-Agent: Mozilla/5.0 (X11; Linux ppc; rv:45.0) Gecko/20100101
- Icedove/45.4.0
+        d=1e100.net; s=20221208; t=1693855260; x=1694460060;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=owg0Qtie51BTtnNroNiyG6kzJsRANYmLXp0WowAkZOw=;
+        b=k75ow0Pz9SL8eF/k40CXEo45G6V8R9mHKgOrYWyCF6tW6qVwdWNMV7Ywjbo/ftW/7q
+         bIX2io4xx63abW9K30MsqVnts1qcqv0X/44kWb4q6g+qnXHQD4oHpM9k6eblkDNPJ0RR
+         tSujz7Jt1G2Q3SDP1U3JZBxhstayo4j9j68kUFYReWhtAoGcZPDGqs49RrDpyoNp4H3f
+         8A4fWTqqYV4o0aKb5bi4drrDOwU5dwrZ3WFu97faMofwA3l7+VBQOTnn4ubMuZmcsiOg
+         M7tYTZ1l79f2+QhcD2RpK5DBxxVQifFH4rlVNwiUclPvp/iyjunQ+SMi62VGxw8Bhvh2
+         EG+Q==
+X-Gm-Message-State: AOJu0YwGpCjS0EXDT2Ipt5TLp4oiLFE+EE7JVTIaih8KcomvPOLsN4c6
+        Q8ps2bfgI3WuZHN6KbKzDwzWcfsNwHM=
+X-Google-Smtp-Source: AGHT+IEpAscyt5f5Hwwk69GbscOVVXW5Z03fLqqUyHqa6upqoF7Zg/V3e/4M/FiDm/F73DT8VFw5bA==
+X-Received: by 2002:adf:f288:0:b0:314:ca7:f30b with SMTP id k8-20020adff288000000b003140ca7f30bmr6825696wro.54.1693855260029;
+        Mon, 04 Sep 2023 12:21:00 -0700 (PDT)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id x9-20020adfdd89000000b003196b1bb528sm15376825wrl.64.2023.09.04.12.20.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 Sep 2023 12:20:59 -0700 (PDT)
+Date:   Mon, 4 Sep 2023 20:20:58 +0100
+From:   Stafford Horne <shorne@gmail.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: [GIT PULL] OpenRISC updates for 6.6
+Message-ID: <ZPYuGlUw9K2PcShj@antec>
 MIME-Version: 1.0
-In-Reply-To: <CAMuHMdUkZmkBSksvaGcDCKz2tsgkwyWgDa+WwCJm2UxFMCj1jw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-Hi Geert,
+Hello Linus,
 
-Am 28.08.2023 um 18:42 schrieb Geert Uytterhoeven:
-> On Sat, Aug 26, 2023 at 12:44 AM Michael Schmitz <schmitzmic@gmail.com> wrote:
->> (Incidentally - did you ever publish the m68k full history tree anywhere
->> in git?)
->
-> You mean the gitified version of the Linux/m68k CVS tree Ralf created
-> for me because my machine wasn't powerful enough?
+Please consider for pull,
 
-The very same ...
+The following changes since commit 52a93d39b17dc7eb98b6aa3edb93943248e03b2f:
 
-> No, and I should look into doing that...
+  Linux 6.5-rc5 (2023-08-06 15:07:51 -0700)
 
-No pressure!
+are available in the Git repository at:
 
-Cheers,
+  https://github.com/openrisc/linux.git tags/for-linus
 
-	Michael
+for you to fetch changes up to c289330331eb93bc6a3c68b9119ccd7d4285a4a2:
 
->
-> Gr{oetje,eeting}s,
->
->                         Geert
->
+  openrisc: Remove kernel-doc marker from ioremap comment (2023-08-21 08:15:25 +0100)
+
+----------------------------------------------------------------
+OpenRISC updates for 6.6
+
+Updates:
+
+ - Fixes from me to cleanup all compiler warnings reported under
+   arch/openrisc.
+ - One cleanup from Linus Walleij to convert pfn macros to static
+   inlines.
+
+----------------------------------------------------------------
+
+Note, there is one trivial conflict with the mm tree and my patch fixing up the
+ioremap comment.
+
+Linus Walleij (1):
+      openrisc: Make pfn accessors statics inlines
+
+Stafford Horne (8):
+      openrisc: Add missing prototypes for assembly called fnctions
+      openrisc: Declare do_signal function as static
+      openrisc: Add prototype for show_registers to processor.h
+      openrisc: Add prototype for die to bug.h
+      openrisc: Include cpu.h and switch_to.h for prototypes
+      openriac: Remove unused nommu_dump_state function
+      openrisc: Remove unused tlb_init function
+      openrisc: Remove kernel-doc marker from ioremap comment
+
+ arch/openrisc/include/asm/bug.h       | 11 +++++
+ arch/openrisc/include/asm/page.h      | 11 ++++-
+ arch/openrisc/include/asm/processor.h |  1 +
+ arch/openrisc/kernel/process.c        |  4 +-
+ arch/openrisc/kernel/ptrace.c         |  4 ++
+ arch/openrisc/kernel/signal.c         |  7 ++-
+ arch/openrisc/kernel/smp.c            |  2 +
+ arch/openrisc/kernel/time.c           |  2 +
+ arch/openrisc/kernel/traps.c          | 85 +++++------------------------------
+ arch/openrisc/mm/fault.c              |  4 +-
+ arch/openrisc/mm/init.c               |  2 -
+ arch/openrisc/mm/ioremap.c            |  2 +-
+ arch/openrisc/mm/tlb.c                |  9 ----
+ 13 files changed, 51 insertions(+), 93 deletions(-)
+ create mode 100644 arch/openrisc/include/asm/bug.h
