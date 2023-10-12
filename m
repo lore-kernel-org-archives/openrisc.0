@@ -2,107 +2,135 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12F37E81DF5;
-	Fri,  6 Oct 2023 13:02:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34B32CDB486;
+	Thu, 12 Oct 2023 07:25:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232302AbjJFNCa convert rfc822-to-8bit (ORCPT
+        id S1377720AbjJLHZx (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Fri, 6 Oct 2023 09:02:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37390 "EHLO
+        Thu, 12 Oct 2023 03:25:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232327AbjJFNCR (ORCPT
+        with ESMTP id S1347114AbjJLHZv (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Fri, 6 Oct 2023 09:02:17 -0400
-Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com [209.85.128.180])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DA70192;
-        Fri,  6 Oct 2023 06:01:56 -0700 (PDT)
-Received: by mail-yw1-f180.google.com with SMTP id 00721157ae682-59f7cc71e2eso25983057b3.0;
-        Fri, 06 Oct 2023 06:01:56 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1696597315; x=1697202115;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=H0zfspsBQgNn0ppgGjBprJwMwlx+wA4oWVeHq3pcB3I=;
-        b=c+dguzeouJCj2OUZ1ebYrMaMSOD3VevN4at7yhBPGI/6upsp68zBuS2KkXGIh4CrdO
-         jvsUwWR3BN2sSVxPXyjocg+P049OsuvnZsEmB92FHZrkL9g+ZWkEhubVjcJK5Ei3+hOM
-         mTKdt+Aw4dQpRPzBJ3mvzdMXrVz3DEhzaaHLnwbkT0iw1K/QZq4iKTP+D5o7Zw+sD3nG
-         +ovJDcQwH7bkSnCwisQYJplIpjgcK3BFd6ePC+qxDL6s5naKIlJ9pZpfOl/yx7/Lnlbr
-         6i3DjyAu60f5Mv8iyOjpY2+tIX4T8GOIqLLpEDlf9NC5i/gHCRY4BqrnA005h8S/Sl07
-         J7YA==
-X-Gm-Message-State: AOJu0YzNz8E+rMzF+sYadpXsT6SyXhPm+P2m587zWtHEM9vr9KGsZlMK
-        nLP3DHR9nRxzoEpLqjmVCryuY901cd3w3Q==
-X-Google-Smtp-Source: AGHT+IGhL5z43Lx7vqvAl0+pQm3IhKwd1W9WDPj2vDj4Zbfvn3GN3MAFJSiX91l+xTaFehvhmfFMAw==
-X-Received: by 2002:a0d:d690:0:b0:59b:eb64:bcc5 with SMTP id y138-20020a0dd690000000b0059beb64bcc5mr8707950ywd.8.1696597314836;
-        Fri, 06 Oct 2023 06:01:54 -0700 (PDT)
-Received: from mail-yb1-f179.google.com (mail-yb1-f179.google.com. [209.85.219.179])
-        by smtp.gmail.com with ESMTPSA id f64-20020a0ddc43000000b0059b20231f1dsm1265692ywe.121.2023.10.06.06.01.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 06 Oct 2023 06:01:54 -0700 (PDT)
-Received: by mail-yb1-f179.google.com with SMTP id 3f1490d57ef6-d865854ef96so2221055276.2;
-        Fri, 06 Oct 2023 06:01:52 -0700 (PDT)
-X-Received: by 2002:a25:f309:0:b0:d81:5240:679f with SMTP id
- c9-20020a25f309000000b00d815240679fmr6690046ybs.16.1696597309661; Fri, 06 Oct
- 2023 06:01:49 -0700 (PDT)
+        Thu, 12 Oct 2023 03:25:51 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 203B990;
+        Thu, 12 Oct 2023 00:25:50 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39C7JN7v017051;
+        Thu, 12 Oct 2023 07:25:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=5MqhUHWaw+1K2HvrJPqGawKne8YN3vxBSsQbSVm1zg8=;
+ b=p50xijw8s91A2Q9ug3Gd49JWz4ZvgqA6Hy+zMLFDqVv4bzeNaYOveL4uET4RJOp3gesp
+ DAwgrwHJ03HgF9eeEvp+eOO7qwrmg+XNvm8OUqoLNt7lJlDAVEqtjN8CiKqDMXhlLcky
+ eKGNUZ1kMUtv/z8/kUcfCyEga3J/tdfvDxnt6ZfgS26CGMmztvCMkSoI1bmaVHklgkOD
+ 4j0SuHSA9ruFRWECactW6nhgOGtTYpcc3OzdI19+LWOAFipwZEMmcg23yiLFkz2UiyBh
+ lGMGaxZYCj+Q2PbNgyXx8ufLOeAMZwfSd+coiMBtiELvWv8yrxN+BKmJ1I/kFUJhuVnc VA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tpca988bj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 Oct 2023 07:25:11 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39C7JNSY017085;
+        Thu, 12 Oct 2023 07:25:10 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tpca988ax-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 Oct 2023 07:25:10 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39C4sB2E001239;
+        Thu, 12 Oct 2023 07:25:09 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tkkvk5hry-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 Oct 2023 07:25:09 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39C7P7Zc27001390
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 12 Oct 2023 07:25:08 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DA71020065;
+        Thu, 12 Oct 2023 07:25:07 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8AAA920063;
+        Thu, 12 Oct 2023 07:25:07 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.60])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Thu, 12 Oct 2023 07:25:07 +0000 (GMT)
+Date:   Thu, 12 Oct 2023 09:25:05 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
+        Hugh Dickins <hughd@google.com>,
+        David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Mike Rapoport <rppt@kernel.org>
+Subject: Re: [PATCH mm-unstable v9 14/31] s390: Convert various pgalloc
+ functions to use ptdescs
+Message-ID: <20231012072505.6160-A-hca@linux.ibm.com>
+References: <20230807230513.102486-1-vishal.moola@gmail.com>
+ <20230807230513.102486-15-vishal.moola@gmail.com>
 MIME-Version: 1.0
-References: <20230830184958.2333078-8-ankur.a.arora@oracle.com>
- <20230908070258.GA19320@noisy.programming.kicks-ass.net> <87zg1v3xxh.fsf@oracle.com>
- <CAHk-=whagwHrDxhjUVrRPhq78YC195KrSGzuC722-4MvAz40pw@mail.gmail.com>
- <87edj64rj1.fsf@oracle.com> <CAHk-=wi0bXpgULVVLc2AdJcta-fvQP7yyFQ_JtaoHUiPrqf--A@mail.gmail.com>
- <87zg1u1h5t.fsf@oracle.com> <CAHk-=whMkp68vNxVn1H3qe_P7n=X2sWPL9kvW22dsvMFH8FcQQ@mail.gmail.com>
- <20230911150410.GC9098@noisy.programming.kicks-ass.net> <87h6o01w1a.fsf@oracle.com>
- <20230912082606.GB35261@noisy.programming.kicks-ass.net> <87cyyfxd4k.ffs@tglx>
- <CAHk-=whnwC01m_1f-gaM1xbvvwzwTiKitrWniA-ChZv+bM03dg@mail.gmail.com> <87led2wdj0.ffs@tglx>
-In-Reply-To: <87led2wdj0.ffs@tglx>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Fri, 6 Oct 2023 15:01:37 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdXRsYNhui=Xh6Hmw5OZpG57uLf4y66L9r_wfAHOqn7prw@mail.gmail.com>
-Message-ID: <CAMuHMdXRsYNhui=Xh6Hmw5OZpG57uLf4y66L9r_wfAHOqn7prw@mail.gmail.com>
-Subject: Re: [PATCH v2 7/9] sched: define TIF_ALLOW_RESCHED
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ankur Arora <ankur.a.arora@oracle.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org, x86@kernel.org,
-        akpm@linux-foundation.org, luto@kernel.org, bp@alien8.de,
-        dave.hansen@linux.intel.com, hpa@zytor.com, mingo@redhat.com,
-        juri.lelli@redhat.com, vincent.guittot@linaro.org,
-        willy@infradead.org, mgorman@suse.de, rostedt@goodmis.org,
-        jon.grimm@amd.com, bharata@amd.com, raghavendra.kt@amd.com,
-        boris.ostrovsky@oracle.com, konrad.wilk@oracle.com,
-        jgross@suse.com, andrew.cooper3@citrix.com,
-        Linux OpenRISC <linux-openrisc@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230807230513.102486-15-vishal.moola@gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: R9BBv1jP5we_uE3OHfXIw10GtOr53ihr
+X-Proofpoint-GUID: -0DchMoDG4gnKEi3H7t5YnEcLMTMxRGv
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-12_02,2023-10-11_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
+ mlxscore=0 priorityscore=1501 suspectscore=0 adultscore=0 mlxlogscore=661
+ impostorscore=0 clxscore=1011 lowpriorityscore=0 malwarescore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2309180000 definitions=main-2310120061
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-Hi Thomas,
+On Mon, Aug 07, 2023 at 04:04:56PM -0700, Vishal Moola (Oracle) wrote:
+> As part of the conversions to replace pgtable constructor/destructors with
+> ptdesc equivalents, convert various page table functions to use ptdescs.
+> 
+> Some of the functions use the *get*page*() helper functions. Convert
+> these to use pagetable_alloc() and ptdesc_address() instead to help
+> standardize page tables further.
+> 
+> Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
+> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+> ---
+>  arch/s390/include/asm/pgalloc.h |   4 +-
+>  arch/s390/include/asm/tlb.h     |   4 +-
+>  arch/s390/mm/pgalloc.c          | 128 ++++++++++++++++----------------
+>  3 files changed, 69 insertions(+), 67 deletions(-)
+...
+> diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
+> index d7374add7820..07fc660a24aa 100644
+> --- a/arch/s390/mm/pgalloc.c
+> +++ b/arch/s390/mm/pgalloc.c
+...
+> @@ -488,16 +486,20 @@ static void base_pgt_free(unsigned long *table)
+>  static unsigned long *base_crst_alloc(unsigned long val)
+>  {
+>  	unsigned long *table;
+> +	struct ptdesc *ptdesc;
+>  
+> -	table =	(unsigned long *)__get_free_pages(GFP_KERNEL, CRST_ALLOC_ORDER);
+> -	if (table)
+> -		crst_table_init(table, val);
+> +	ptdesc = pagetable_alloc(GFP_KERNEL & ~__GFP_HIGHMEM, CRST_ALLOC_ORDER);
 
-On Tue, Sep 19, 2023 at 9:57 PM Thomas Gleixner <tglx@linutronix.de> wrote:
-> Though it just occured to me that there are dragons lurking:
->
-> arch/alpha/Kconfig:     select ARCH_NO_PREEMPT
-> arch/hexagon/Kconfig:   select ARCH_NO_PREEMPT
-> arch/m68k/Kconfig:      select ARCH_NO_PREEMPT if !COLDFIRE
-> arch/um/Kconfig:        select ARCH_NO_PREEMPT
->
-> So we have four architectures which refuse to enable preemption points,
-> i.e. the only model they allow is NONE and they rely on cond_resched()
-> for breaking large computations.
-
-Looks like there is a fifth one hidden: although openrisc does not
-select ARCH_NO_PREEMPT, it does not call preempt_schedule_irq() or
-select GENERIC_ENTRY?
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+I guess I must miss something, but what is the reason to mask out
+__GFP_HIGHMEM here? It is not part of GFP_KERNEL, nor does s390 support
+HIGHMEM.
