@@ -2,85 +2,130 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 454F8CDB47E;
-	Fri, 13 Oct 2023 11:36:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3AD8CDB489;
+	Fri, 13 Oct 2023 21:03:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230501AbjJMLf7 (ORCPT
+        id S232091AbjJMVD1 (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Fri, 13 Oct 2023 07:35:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43862 "EHLO
+        Fri, 13 Oct 2023 17:03:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230175AbjJMLf7 (ORCPT
+        with ESMTP id S229679AbjJMVDZ (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Fri, 13 Oct 2023 07:35:59 -0400
-Received: from smtp.gentoo.org (woodpecker.gentoo.org [140.211.166.183])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64361BD
-        for <linux-openrisc@vger.kernel.org>; Fri, 13 Oct 2023 04:35:57 -0700 (PDT)
-Received: by smtp.gentoo.org (Postfix, from userid 559)
-        id D1B11335C34; Fri, 13 Oct 2023 11:35:56 +0000 (UTC)
-Date:   Fri, 13 Oct 2023 17:20:55 +0545
-From:   Mike Frysinger <vapier@gentoo.org>
-To:     Stafford Horne <shorne@gmail.com>
-Cc:     GNU Binutils <binutils@sourceware.org>,
-        Linux OpenRISC <linux-openrisc@vger.kernel.org>
-Subject: Re: [PATCH] sim: or1k: Eliminate dangerous RWX load segments
-Message-ID: <ZSkrm9jO8ljxhpal@vapier>
-References: <20230819074518.2253226-1-shorne@gmail.com>
+        Fri, 13 Oct 2023 17:03:25 -0400
+Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15B3AB7;
+        Fri, 13 Oct 2023 14:03:21 -0700 (PDT)
+Received: by mail-yb1-xb31.google.com with SMTP id 3f1490d57ef6-d9ac43d3b71so2385538276.0;
+        Fri, 13 Oct 2023 14:03:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1697231000; x=1697835800; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=JtiOVCn2uSsz0FoSYRDQt6Ad/oEEDkzUyvmWznVzlSA=;
+        b=azcdS5mk3fTak+nb/eug5AYpCwxC5kpdPWDxsTbKwRaTZsnLV+Lx6RGqcJnIyUdE7E
+         i8mcurTG2K1UAzdKUEP1S6mdqR+ibq2oLmQ3X9nYbM0kG2dZD3+5jy7tWcqTlQuPlXEn
+         YxekVNV3znDqK079lRSP9QXygD9u0NmyD1tg7EsKIgxZZ9rwNdXqbYT+ovXnVO/ci831
+         mgB/pG84f12ARASoT4IyPoOJNm6RHJASuCu6rXvY9sR+TJqwnt77yCRbkYhGzdUBrhXd
+         8X5ZM+bDS4cgt/tdAP3JdjHz4hcbnQ2wJko+oS911py/MlPJdtAAXbYPgvNL5+6cI/+s
+         ivbA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1697231000; x=1697835800;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=JtiOVCn2uSsz0FoSYRDQt6Ad/oEEDkzUyvmWznVzlSA=;
+        b=EoOdS6t9q5onboOSajiihDPwrOvD9jjmmZ0TIdOI+n9UUe11Qay6YbTt3flkCOKUJQ
+         ARCPDnwSv6Bs3VDI5IxdZzbQJCIQeqxrf3xuzq1iuv5bwBBeLK+nEebUyPBjCUySqrIR
+         0J68695SPTegha0BBJICgKu6KzXmAdwngFFH/rOG0W2o+RGqynfvOSZaggW1LjGxFCjS
+         3yslMQT6PQGUZSF7jsbLXGalqj48rkF+6H8UV7eBkF7tvXblE7/vRwBvtycqMznRcLJh
+         3l7WnU9pim0Tk9jgbHQv0qJQYzmiG5GIStf3RfL1H0Tt/MyisN30fssYiGCIRgg/Takh
+         049g==
+X-Gm-Message-State: AOJu0YwuMAUa/Yms10yiEquu3Ujskw3v3j1JidWpHUt+4pt3l+aT8B3W
+        QwBTXNyvRLeShvHZLvHa5uEIsTYwQeSGzw8QLec=
+X-Google-Smtp-Source: AGHT+IHWHj9ILTPWExZ8ekeA0/ryyRW0ZV6k5VhEVnOo+k5EpZsvEbKt/nom23K7vTTS2zHZvjjk2tEmm58T8MLLm1U=
+X-Received: by 2002:a5b:64d:0:b0:d9b:3b3e:5a07 with SMTP id
+ o13-20020a5b064d000000b00d9b3b3e5a07mr2004058ybq.5.1697230999223; Fri, 13 Oct
+ 2023 14:03:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="f7ZpQ4lFWPmQGquu"
-Content-Disposition: inline
-In-Reply-To: <20230819074518.2253226-1-shorne@gmail.com>
+References: <20230807230513.102486-1-vishal.moola@gmail.com>
+ <20230807230513.102486-15-vishal.moola@gmail.com> <20231012072505.6160-A-hca@linux.ibm.com>
+In-Reply-To: <20231012072505.6160-A-hca@linux.ibm.com>
+From:   Vishal Moola <vishal.moola@gmail.com>
+Date:   Fri, 13 Oct 2023 14:03:08 -0700
+Message-ID: <CAOzc2px-SFSnmjcPriiB3cm1fNj3+YC8S0VSp4t1QvDR0f4E2A@mail.gmail.com>
+Subject: Re: [PATCH mm-unstable v9 14/31] s390: Convert various pgalloc
+ functions to use ptdescs
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
+        Hugh Dickins <hughd@google.com>,
+        David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Mike Rapoport <rppt@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
+On Thu, Oct 12, 2023 at 12:25=E2=80=AFAM Heiko Carstens <hca@linux.ibm.com>=
+ wrote:
+>
+> On Mon, Aug 07, 2023 at 04:04:56PM -0700, Vishal Moola (Oracle) wrote:
+> > As part of the conversions to replace pgtable constructor/destructors w=
+ith
+> > ptdesc equivalents, convert various page table functions to use ptdescs=
+.
+> >
+> > Some of the functions use the *get*page*() helper functions. Convert
+> > these to use pagetable_alloc() and ptdesc_address() instead to help
+> > standardize page tables further.
+> >
+> > Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
+> > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+> > ---
+> >  arch/s390/include/asm/pgalloc.h |   4 +-
+> >  arch/s390/include/asm/tlb.h     |   4 +-
+> >  arch/s390/mm/pgalloc.c          | 128 ++++++++++++++++----------------
+> >  3 files changed, 69 insertions(+), 67 deletions(-)
+> ...
+> > diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
+> > index d7374add7820..07fc660a24aa 100644
+> > --- a/arch/s390/mm/pgalloc.c
+> > +++ b/arch/s390/mm/pgalloc.c
+> ...
+> > @@ -488,16 +486,20 @@ static void base_pgt_free(unsigned long *table)
+> >  static unsigned long *base_crst_alloc(unsigned long val)
+> >  {
+> >       unsigned long *table;
+> > +     struct ptdesc *ptdesc;
+> >
+> > -     table =3D (unsigned long *)__get_free_pages(GFP_KERNEL, CRST_ALLO=
+C_ORDER);
+> > -     if (table)
+> > -             crst_table_init(table, val);
+> > +     ptdesc =3D pagetable_alloc(GFP_KERNEL & ~__GFP_HIGHMEM, CRST_ALLO=
+C_ORDER);
+>
+> I guess I must miss something, but what is the reason to mask out
+> __GFP_HIGHMEM here? It is not part of GFP_KERNEL, nor does s390 support
+> HIGHMEM.
 
---f7ZpQ4lFWPmQGquu
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You're not missing anything.
 
-On 19 Aug 2023 08:45, Stafford Horne wrote:
-> This fixes test failures caused by the new linker warning which report:
->=20
->   ./ld/ld-new: warning: load.S.x has a LOAD segment with RWX permissions
->=20
-> Fix this by splitting the linker MEMORY into ram and rom to avoid
-> generating RWX sections.  This required tests to be adjusted to fix
-> issues with the move.  Namely:
->=20
->   - fpu tests: were incorrectly using l.ori with ha(anchor) which now
->     that we pushed the anchor up in memory it exposes the bug.  Update
->     to used the correct l.movhi instruction instead.
->   - adrp test: the test reports ram offset addresses, now that we have
->     moved memory layout around a bit I adjusted the test output.  Some
->     padding is added before pi to show that the actual address of pi and
->     the adrp page offset are not the same.
->=20
-> Bug: https://sourceware.org/PR29957
-
-nit: put [PR sim/29957] at the end of the git commit summary (first line)
-
-otherwise, lgtm, thanks
--mike
-
---f7ZpQ4lFWPmQGquu
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAABCAAdFiEEfjLn+uywF2RXRpXdyTaAqES06MkFAmUpK5UACgkQyTaAqES0
-6MlNqQv+M23ATXBj28DBw85ITUTTIFNQm6/NnqmwkC5o4j6AqZ2hON68hl3kLbXk
-QdepcN4Cqgmavz+VBl5sumzORxJgd8PCsXfKVQEMTNitkmZFtTROSyjbgfauVfPo
-FhM2l17GSOoQQwRP20v+3LY1sBMozPvNBQ++1SndsVVsjZ26XYL92VU46Ud1n5SL
-KXrAPZaTe9ziDGtWk7YmCSQz+rEmKEjlHbznuA+4PO3LLAhx2NXtip0flVti+dej
-dplWfiSx1X/omkH8OxqkxKGMKID1paWbfzCvJWpS+OIqeUJoxNhI7Wdo/PpxJFEI
-NXTP3OfaFmcBxa1rVhU/MCVMoKo0VnYWAuOnhXQAC4wo8ke8Dk3/3DELNYbzQIzr
-rrcLpkNvDVxKBrGO9Q3FxslODA/x3/IVjQ7VSvYdGu/ia6vw/b7IsOZZ6sO6KcwQ
-NgzN/L9S1ou9woh0vyXfHvx/07WTXTEd3HVqqFpAy8S2C3L7eRL2Il4Te6qBLl1E
-aw8dfDoM
-=tM6b
------END PGP SIGNATURE-----
-
---f7ZpQ4lFWPmQGquu--
+This was replacing __get_free_pages() which also doesn't support HIGHMEM,
+so I had that in to ensure a non-HIGHMEM allocation in case a
+passed-in gfp_flags
+had it set. In hindsight since we're just passing in the GFP flags
+directly here, we don't
+actually need to mask out GFP_HIGHMEM.
