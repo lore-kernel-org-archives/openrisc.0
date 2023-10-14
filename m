@@ -2,130 +2,102 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3AD8CDB489;
-	Fri, 13 Oct 2023 21:03:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82105CDB465;
+	Sat, 14 Oct 2023 06:30:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232091AbjJMVD1 (ORCPT
+        id S229830AbjJNGal (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Fri, 13 Oct 2023 17:03:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54378 "EHLO
+        Sat, 14 Oct 2023 02:30:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229679AbjJMVDZ (ORCPT
+        with ESMTP id S229518AbjJNGaj (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Fri, 13 Oct 2023 17:03:25 -0400
-Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15B3AB7;
-        Fri, 13 Oct 2023 14:03:21 -0700 (PDT)
-Received: by mail-yb1-xb31.google.com with SMTP id 3f1490d57ef6-d9ac43d3b71so2385538276.0;
-        Fri, 13 Oct 2023 14:03:21 -0700 (PDT)
+        Sat, 14 Oct 2023 02:30:39 -0400
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46DFCCA
+        for <linux-openrisc@vger.kernel.org>; Fri, 13 Oct 2023 23:30:38 -0700 (PDT)
+Received: by mail-wm1-x334.google.com with SMTP id 5b1f17b1804b1-405524e6769so17506745e9.1
+        for <linux-openrisc@vger.kernel.org>; Fri, 13 Oct 2023 23:30:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1697231000; x=1697835800; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JtiOVCn2uSsz0FoSYRDQt6Ad/oEEDkzUyvmWznVzlSA=;
-        b=azcdS5mk3fTak+nb/eug5AYpCwxC5kpdPWDxsTbKwRaTZsnLV+Lx6RGqcJnIyUdE7E
-         i8mcurTG2K1UAzdKUEP1S6mdqR+ibq2oLmQ3X9nYbM0kG2dZD3+5jy7tWcqTlQuPlXEn
-         YxekVNV3znDqK079lRSP9QXygD9u0NmyD1tg7EsKIgxZZ9rwNdXqbYT+ovXnVO/ci831
-         mgB/pG84f12ARASoT4IyPoOJNm6RHJASuCu6rXvY9sR+TJqwnt77yCRbkYhGzdUBrhXd
-         8X5ZM+bDS4cgt/tdAP3JdjHz4hcbnQ2wJko+oS911py/MlPJdtAAXbYPgvNL5+6cI/+s
-         ivbA==
+        d=gmail.com; s=20230601; t=1697265037; x=1697869837; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=GZhS6EfNjAu2Xk6+DSF0lcgeLcv7BCYYmC9iVjAo5xw=;
+        b=JVHHR5GFfyc+UyDovVn5BTq5qZrbukwRCoimxpmdjT5AibimqdczseDjhxaZvenAiW
+         ve98DOo3pNKyR2Nkmx89szXCGoERf7pdW5qTvSZBNWMTyYZk8HgdMM24ohimppGVH1OB
+         y6LOAPobWhXwZl7XZ+rtY6M7xSe/1UT9oQpFAtvrnsA1Bgenuh8oDI25uLVDg9ZcYS0y
+         Z3Y1z0Acf4/JCH46DT7QM8V+xEWow2GrgQJ/TxKjrHQ8n1y5e5IpshCZA+dLHqImN02c
+         KrLip5z471N0KFx6w26egL6RZapLVrDY9sV3uUaNWQpZbC0AQtNkRjXi21D8qpV93UOn
+         HmLw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1697231000; x=1697835800;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JtiOVCn2uSsz0FoSYRDQt6Ad/oEEDkzUyvmWznVzlSA=;
-        b=EoOdS6t9q5onboOSajiihDPwrOvD9jjmmZ0TIdOI+n9UUe11Qay6YbTt3flkCOKUJQ
-         ARCPDnwSv6Bs3VDI5IxdZzbQJCIQeqxrf3xuzq1iuv5bwBBeLK+nEebUyPBjCUySqrIR
-         0J68695SPTegha0BBJICgKu6KzXmAdwngFFH/rOG0W2o+RGqynfvOSZaggW1LjGxFCjS
-         3yslMQT6PQGUZSF7jsbLXGalqj48rkF+6H8UV7eBkF7tvXblE7/vRwBvtycqMznRcLJh
-         3l7WnU9pim0Tk9jgbHQv0qJQYzmiG5GIStf3RfL1H0Tt/MyisN30fssYiGCIRgg/Takh
-         049g==
-X-Gm-Message-State: AOJu0YwuMAUa/Yms10yiEquu3Ujskw3v3j1JidWpHUt+4pt3l+aT8B3W
-        QwBTXNyvRLeShvHZLvHa5uEIsTYwQeSGzw8QLec=
-X-Google-Smtp-Source: AGHT+IHWHj9ILTPWExZ8ekeA0/ryyRW0ZV6k5VhEVnOo+k5EpZsvEbKt/nom23K7vTTS2zHZvjjk2tEmm58T8MLLm1U=
-X-Received: by 2002:a5b:64d:0:b0:d9b:3b3e:5a07 with SMTP id
- o13-20020a5b064d000000b00d9b3b3e5a07mr2004058ybq.5.1697230999223; Fri, 13 Oct
- 2023 14:03:19 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1697265037; x=1697869837;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=GZhS6EfNjAu2Xk6+DSF0lcgeLcv7BCYYmC9iVjAo5xw=;
+        b=Am+WLG1QdV/dENXVMilmONXRpVKbNr3aYwfDWlfxb0BVca/q2LD8DtktP9x8fGzI3C
+         vjg0OfmV3zHUDoTNShExxVlAnZHYnEYxaSDR4SDi505TvMY92iVyflc/WU2Jnkob8PXt
+         tvkiANL6PlzB5xnqr8eamdC0X19bBk4m+stvlLzXNJmSKytK3BOMAq2b0Bd9wBCOVtxY
+         R0AcXHfYOCRQMFxxljLl/jbN028ZYwP+BSCtXRqJip5XHdYhaWaPSFkxcFhU2X2RhpQG
+         1dY5IAyYvXlo1O2Tzi8as6OjlMaWWnvTCKeV51sOQIjR0FtpISmoyARhRF2nYNJa/HPn
+         EUiA==
+X-Gm-Message-State: AOJu0YwnMdpUUjqe0+rNSxW2bYinDb531hHFQc9uzj5qvs9vj9iuxWPa
+        a3rAGgAsHrcIxjgNslS5hKY=
+X-Google-Smtp-Source: AGHT+IHgJAMcmnFtHnMA9H6+U073rnN92J9qg0NMtx3Uc1X+CV7BeZTfMM++8Qzg0mvGKiDu9RF4wA==
+X-Received: by 2002:a05:600c:3b06:b0:3fe:da37:d59 with SMTP id m6-20020a05600c3b0600b003feda370d59mr1491431wms.4.1697265036405;
+        Fri, 13 Oct 2023 23:30:36 -0700 (PDT)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id f12-20020a05600c4e8c00b0040772934b12sm1130748wmq.7.2023.10.13.23.30.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Oct 2023 23:30:35 -0700 (PDT)
+Date:   Sat, 14 Oct 2023 07:30:34 +0100
+From:   Stafford Horne <shorne@gmail.com>
+To:     Mike Frysinger <vapier@gentoo.org>
+Cc:     GNU Binutils <binutils@sourceware.org>,
+        Linux OpenRISC <linux-openrisc@vger.kernel.org>
+Subject: Re: [PATCH] sim: or1k: Eliminate dangerous RWX load segments
+Message-ID: <ZSo1iv/ob7D8VRQj@antec>
+References: <20230819074518.2253226-1-shorne@gmail.com>
+ <ZSkrm9jO8ljxhpal@vapier>
 MIME-Version: 1.0
-References: <20230807230513.102486-1-vishal.moola@gmail.com>
- <20230807230513.102486-15-vishal.moola@gmail.com> <20231012072505.6160-A-hca@linux.ibm.com>
-In-Reply-To: <20231012072505.6160-A-hca@linux.ibm.com>
-From:   Vishal Moola <vishal.moola@gmail.com>
-Date:   Fri, 13 Oct 2023 14:03:08 -0700
-Message-ID: <CAOzc2px-SFSnmjcPriiB3cm1fNj3+YC8S0VSp4t1QvDR0f4E2A@mail.gmail.com>
-Subject: Re: [PATCH mm-unstable v9 14/31] s390: Convert various pgalloc
- functions to use ptdescs
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
-        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
-        Hugh Dickins <hughd@google.com>,
-        David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Mike Rapoport <rppt@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZSkrm9jO8ljxhpal@vapier>
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-On Thu, Oct 12, 2023 at 12:25=E2=80=AFAM Heiko Carstens <hca@linux.ibm.com>=
- wrote:
->
-> On Mon, Aug 07, 2023 at 04:04:56PM -0700, Vishal Moola (Oracle) wrote:
-> > As part of the conversions to replace pgtable constructor/destructors w=
-ith
-> > ptdesc equivalents, convert various page table functions to use ptdescs=
-.
-> >
-> > Some of the functions use the *get*page*() helper functions. Convert
-> > these to use pagetable_alloc() and ptdesc_address() instead to help
-> > standardize page tables further.
-> >
-> > Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
-> > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-> > ---
-> >  arch/s390/include/asm/pgalloc.h |   4 +-
-> >  arch/s390/include/asm/tlb.h     |   4 +-
-> >  arch/s390/mm/pgalloc.c          | 128 ++++++++++++++++----------------
-> >  3 files changed, 69 insertions(+), 67 deletions(-)
-> ...
-> > diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
-> > index d7374add7820..07fc660a24aa 100644
-> > --- a/arch/s390/mm/pgalloc.c
-> > +++ b/arch/s390/mm/pgalloc.c
-> ...
-> > @@ -488,16 +486,20 @@ static void base_pgt_free(unsigned long *table)
-> >  static unsigned long *base_crst_alloc(unsigned long val)
-> >  {
-> >       unsigned long *table;
-> > +     struct ptdesc *ptdesc;
-> >
-> > -     table =3D (unsigned long *)__get_free_pages(GFP_KERNEL, CRST_ALLO=
-C_ORDER);
-> > -     if (table)
-> > -             crst_table_init(table, val);
-> > +     ptdesc =3D pagetable_alloc(GFP_KERNEL & ~__GFP_HIGHMEM, CRST_ALLO=
-C_ORDER);
->
-> I guess I must miss something, but what is the reason to mask out
-> __GFP_HIGHMEM here? It is not part of GFP_KERNEL, nor does s390 support
-> HIGHMEM.
+On Fri, Oct 13, 2023 at 05:20:55PM +0545, Mike Frysinger wrote:
+> On 19 Aug 2023 08:45, Stafford Horne wrote:
+> > This fixes test failures caused by the new linker warning which report:
+> > 
+> >   ./ld/ld-new: warning: load.S.x has a LOAD segment with RWX permissions
+> > 
+> > Fix this by splitting the linker MEMORY into ram and rom to avoid
+> > generating RWX sections.  This required tests to be adjusted to fix
+> > issues with the move.  Namely:
+> > 
+> >   - fpu tests: were incorrectly using l.ori with ha(anchor) which now
+> >     that we pushed the anchor up in memory it exposes the bug.  Update
+> >     to used the correct l.movhi instruction instead.
+> >   - adrp test: the test reports ram offset addresses, now that we have
+> >     moved memory layout around a bit I adjusted the test output.  Some
+> >     padding is added before pi to show that the actual address of pi and
+> >     the adrp page offset are not the same.
+> > 
+> > Bug: https://sourceware.org/PR29957
+> 
+> nit: put [PR sim/29957] at the end of the git commit summary (first line)
+> 
+> otherwise, lgtm, thanks
+> -mike
 
-You're not missing anything.
+Thanks Mike,
 
-This was replacing __get_free_pages() which also doesn't support HIGHMEM,
-so I had that in to ensure a non-HIGHMEM allocation in case a
-passed-in gfp_flags
-had it set. In hindsight since we're just passing in the GFP flags
-directly here, we don't
-actually need to mask out GFP_HIGHMEM.
+I actually pushed this long back without the above update after I read Nick's
+comment.  I for some reason missed that he said he was forwarding to the sim
+maintainers.
+
+Sorry for that.
+
+-Stafford
