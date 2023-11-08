@@ -2,104 +2,123 @@ Return-Path: <linux-openrisc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0623CC4167B;
-	Sat,  4 Nov 2023 09:17:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 246AEC4167B;
+	Wed,  8 Nov 2023 01:02:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231808AbjKDJRN (ORCPT
+        id S234592AbjKHBCV (ORCPT
         <rfc822;linux-openrisc@archiver.kernel.org> + 1 other);
-        Sat, 4 Nov 2023 05:17:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44110 "EHLO
+        Tue, 7 Nov 2023 20:02:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231818AbjKDJRG (ORCPT
+        with ESMTP id S229988AbjKHBCU (ORCPT
         <rfc822;linux-openrisc@vger.kernel.org>);
-        Sat, 4 Nov 2023 05:17:06 -0400
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6DE2D59
-        for <linux-openrisc@vger.kernel.org>; Sat,  4 Nov 2023 02:16:48 -0700 (PDT)
-Received: by mail-pl1-x62c.google.com with SMTP id d9443c01a7336-1cc5916d578so25592025ad.2
-        for <linux-openrisc@vger.kernel.org>; Sat, 04 Nov 2023 02:16:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1699089408; x=1699694208; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=u81VqdenU6rFeGWkxk+k7NmV751uBEWgkJJ/j9Mn6BA=;
-        b=iXZFWWqpaH4lrEjLLgW4xKnBoKhtVmWVQ6o192cCZsu/A2WluT+/ABCn+FH76UY9wb
-         mFug182r1PZt5hqvYxYgHaDoWHWl+nZODIOs1iUxm4mFRK5Yw2fQlVPpesAool2Pb9oO
-         cHYSJnr1t8t05HRzYt5Z6Y6rHJ8L+clIozV5ooPGIvnqOUzCcwDMFR9iurKTHioFouyi
-         Hb2HDSwecBtNY705+VUJWX4n5NU3AvBuoZbHslPdjyJTs93/nMSwwvwjEAhPD2ldY2oE
-         gMrElQcY49bYFh8CoVy0aot1xFBZlMXzDoRAP5K0kLIwy5ryavHTJq6LmA2Fl2CW8NoT
-         nVPQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699089408; x=1699694208;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=u81VqdenU6rFeGWkxk+k7NmV751uBEWgkJJ/j9Mn6BA=;
-        b=JLEgQZ2rqsuqzhkl5+dL4RdBezpEet43GtQAaZhpm8kjwPOw29EZhoAiaA1VJRbAQ5
-         kkrx8Yjj3hY5xf8EOue7jFOkOdXQuCfBQFirgTDTuqhzUHakDxLjhQdL/BIV54B0NKC/
-         H0MILJ852sMLmP9UN3Y343b7bSr+ygoPxSu545JmFv7gxG2FWPgnuaieBf01IZIFPS5i
-         9gsdnxr4Tqo1KQPeY3bjGBWSdH3SQ41/H5VbZncj38sft5mBrAvs1D0fl6cuTmmED9Xw
-         FkMuvybWD3zCVZGBjJRDRsw+ktM0id4Aixkn1+/CkHpoXMCCGJrLp1lE3ps6OR9GwqYO
-         9N+g==
-X-Gm-Message-State: AOJu0YxDQ8tpD8EPC/HFqYAB5O1SEgX6IlXlfZG74GiBvWtJDW5SI1iV
-        gw7hSsobbZeCaScsu3islbmzcA==
-X-Google-Smtp-Source: AGHT+IGyFGHSId75XF/2M3hYNYvMSIwS/0Bo7S7DMpr1Hxge/taB1vX6bB3CXc+D3ltngIbF+e1EcA==
-X-Received: by 2002:a17:902:ea0d:b0:1cc:4f55:db72 with SMTP id s13-20020a170902ea0d00b001cc4f55db72mr20756805plg.0.1699089408468;
-        Sat, 04 Nov 2023 02:16:48 -0700 (PDT)
-Received: from devz1.bytedance.net ([203.208.167.147])
-        by smtp.gmail.com with ESMTPSA id d4-20020a170903230400b001cc54202429sm2585127plh.288.2023.11.04.02.16.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 04 Nov 2023 02:16:48 -0700 (PDT)
-From:   "wuqiang.matt" <wuqiang.matt@bytedance.com>
-To:     vgupta@kernel.org, bcain@quicinc.com, jonas@southpole.se,
+        Tue, 7 Nov 2023 20:02:20 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 129D7181;
+        Tue,  7 Nov 2023 17:02:18 -0800 (PST)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DE5CC433C8;
+        Wed,  8 Nov 2023 01:02:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1699405337;
+        bh=YCzRL+kVqkfECP59e1QJcGLwwNjryJJh+Cs7cpeWcEw=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=nt2CDjhJwpkem9VZrZ5m/LnBJWzlcPt0G8R+/J6Om5IQsejFGlYCKYlj6udl4WwCB
+         F2HnU4rmciaUff6HS8zKKGnwGmMcq67t/z78urCReiOgvAQB/1SFfB8qu7PMRWjmTB
+         TObwr9QxHm4BzppdwOwlpc37JwLsGo/oaxlJ8lWFKgRDvZZtzCtOTdQZwAh471oPET
+         4y0Da5MkH4G5zGOe+aA+mBaZnLdUC2SXDGTnCZZGaC7mHs70bVpniL6aqGjA0AObJl
+         KVext8xhjSbkkhvbpkpZDr9Yt3UW5F8RrEbBNxal1kpzaHhsD71dCxeoQjOuqhkBnQ
+         9oGT3NFU5cTZQ==
+Date:   Wed, 8 Nov 2023 10:02:10 +0900
+From:   Masami Hiramatsu (Google) <mhiramat@kernel.org>
+To:     "wuqiang.matt" <wuqiang.matt@bytedance.com>
+Cc:     vgupta@kernel.org, bcain@quicinc.com, jonas@southpole.se,
         stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
         geert@linux-m68k.org, andi.shyti@linux.intel.com, mingo@kernel.org,
         palmer@rivosinc.com, andrzej.hajda@intel.com, arnd@arndb.de,
-        peterz@infradead.orgm, mhiramat@kernel.org
-Cc:     linux-snps-arc@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linux-trace-kernel@vger.kernel.org, mattwu@163.com,
-        linux@roeck-us.ne, "wuqiang.matt" <wuqiang.matt@bytedance.com>
-Subject: [PATCH v2 3/4] locking/atomic: openrisc: arch_cmpxchg[64]_local undefined
-Date:   Sat,  4 Nov 2023 17:16:14 +0800
-Message-Id: <20231104091615.4884-4-wuqiang.matt@bytedance.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20231104091615.4884-1-wuqiang.matt@bytedance.com>
+        peterz@infradead.orgm, linux-snps-arc@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-openrisc@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        mattwu@163.com, linux@roeck-us.ne
+Subject: Re: [PATCH v2 1/4] locking/atomic: arc: data size checking in
+ arch_cmpxchg
+Message-Id: <20231108100210.8118bdfe6fc67317f3638f1c@kernel.org>
+In-Reply-To: <20231104091615.4884-2-wuqiang.matt@bytedance.com>
 References: <20231104091615.4884-1-wuqiang.matt@bytedance.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        <20231104091615.4884-2-wuqiang.matt@bytedance.com>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-openrisc.vger.kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 
-For architectures that support native cmpxchg, we'd like to
-implement arch_cmpxchg[64]_local with the native variants of
-supported data size. If not, the generci_cmpxchg[64]_local
-will be used.
+On Sat,  4 Nov 2023 17:16:12 +0800
+"wuqiang.matt" <wuqiang.matt@bytedance.com> wrote:
 
-Signed-off-by: wuqiang.matt <wuqiang.matt@bytedance.com>
----
- arch/openrisc/include/asm/cmpxchg.h | 6 ++++++
- 1 file changed, 6 insertions(+)
+> Macro __cmpxchg() renamed to __cmpxchg_32() to emphasize it's explicit
+> support of 32bit data size, BUILD_BUG_ON() added to avoid any possible
+> misuses with unsupported data types.
+> 
+> In case CONFIG_ARC_HAS_LLSC is undefined, arch_cmpxchg() uses spinlock
+> to accomplish SMP-safety, so the BUILD_BUG_ON checking is uncecessary.
+> 
 
-diff --git a/arch/openrisc/include/asm/cmpxchg.h b/arch/openrisc/include/asm/cmpxchg.h
-index 8ee151c072e4..f1ffe8b6f5ef 100644
---- a/arch/openrisc/include/asm/cmpxchg.h
-+++ b/arch/openrisc/include/asm/cmpxchg.h
-@@ -139,6 +139,12 @@ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
- 					       (unsigned long)(n),	\
- 					       sizeof(*(ptr)));		\
- 	})
-+#define arch_cmpxchg_local arch_cmpxchg
-+
-+/* always make arch_cmpxchg64_local available for openrisc */
-+#include <asm-generic/cmpxchg-local.h>
-+
-+#define arch_cmpxchg64_local(ptr, o, n) __generic_cmpxchg64_local((ptr), (o), (n))
- 
- /*
-  * This function doesn't exist, so you'll get a linker error if
+Looks good to me.
+
+Reviewed-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+
+> Signed-off-by: wuqiang.matt <wuqiang.matt@bytedance.com>
+> ---
+>  arch/arc/include/asm/cmpxchg.h | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/arc/include/asm/cmpxchg.h b/arch/arc/include/asm/cmpxchg.h
+> index e138fde067de..bf46514f6f12 100644
+> --- a/arch/arc/include/asm/cmpxchg.h
+> +++ b/arch/arc/include/asm/cmpxchg.h
+> @@ -18,14 +18,16 @@
+>   * if (*ptr == @old)
+>   *      *ptr = @new
+>   */
+> -#define __cmpxchg(ptr, old, new)					\
+> +#define __cmpxchg_32(ptr, old, new)					\
+>  ({									\
+>  	__typeof__(*(ptr)) _prev;					\
+>  									\
+> +	BUILD_BUG_ON(sizeof(*(ptr)) != 4);				\
+> +									\
+>  	__asm__ __volatile__(						\
+> -	"1:	llock  %0, [%1]	\n"					\
+> +	"1:	llock  %0, [%1]		\n"				\
+>  	"	brne   %0, %2, 2f	\n"				\
+> -	"	scond  %3, [%1]	\n"					\
+> +	"	scond  %3, [%1]		\n"				\
+>  	"	bnz     1b		\n"				\
+>  	"2:				\n"				\
+>  	: "=&r"(_prev)	/* Early clobber prevent reg reuse */		\
+> @@ -47,7 +49,7 @@
+>  									\
+>  	switch(sizeof((_p_))) {						\
+>  	case 4:								\
+> -		_prev_ = __cmpxchg(_p_, _o_, _n_);			\
+> +		_prev_ = __cmpxchg_32(_p_, _o_, _n_);			\
+>  		break;							\
+>  	default:							\
+>  		BUILD_BUG();						\
+> @@ -65,8 +67,6 @@
+>  	__typeof__(*(ptr)) _prev_;					\
+>  	unsigned long __flags;						\
+>  									\
+> -	BUILD_BUG_ON(sizeof(_p_) != 4);					\
+> -									\
+>  	/*								\
+>  	 * spin lock/unlock provide the needed smp_mb() before/after	\
+>  	 */								\
+> -- 
+> 2.40.1
+> 
+
+
 -- 
-2.40.1
-
+Masami Hiramatsu (Google) <mhiramat@kernel.org>
