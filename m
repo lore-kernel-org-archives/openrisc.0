@@ -1,93 +1,135 @@
-Received: from mail-yw1-f172.google.com (mail-yw1-f172.google.com [209.85.128.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out4-smtp.messagingengine.com (out4-smtp.messagingengine.com [66.111.4.28])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FBE4524DF
-	for <linux-openrisc@vger.kernel.org>; Wed, 31 Jan 2024 07:37:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E9EA762CD;
+	Wed, 31 Jan 2024 11:49:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.111.4.28
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706686675; cv=none; b=iotoPtBjsHgvkMd00bEGtvs6/zDo4K4YJ2ZCM1NTQmAVf2Nr32cc5QI/hmtF8gQJJ17+N2jZuC2z/FFIj0VOUa8VNRVwFuNEmlQC/+mQbZ+Gjmzyb6ptfucRVoXSF5mvh8bITYhas7sxhlmH7nsvRv9cMcU0CaeOt6hgXk6rDa0=
+	t=1706701743; cv=none; b=GYEcqHOGqcxQMmmAcNSUOSErICIsONQtPXJL5ODKKokd32rCxaaVi3mGIALWy1AcLpK6dnqMpqN01672HyKro6YAf7G6eQNzgyPxXC1P0IzwtEa2EL/5akAhquGQru1//gzqk9fuIhtbQdGdSMqCk0zawiyQlSJ6IOZQ1UbCdDA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706686675; c=relaxed/simple;
-	bh=TmG+rznpqqyErX4zfSJ54u90o8JuQXslthwDpqEjAiI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gjpir74ZXkMz3CJCak0VJ+GLJ8ccjrhuZ3CvfBcDH3S52K5aOmv/nWvVieIFmIrYkfCxXNQbDNEv9uec6uI7apA4pQUxhyyyjWok8dQtA+z1zZOocCSg7LtzBVXqLENTsIMORcWtsjAb2hXbt3lJn9Qv2StnmaGfWmkobzBlDbQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=qugRA3lU; arc=none smtp.client-ip=209.85.128.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1706701743; c=relaxed/simple;
+	bh=TRuURq3q59U4DW7sJNnHZgy5fStIIlr8tOaoqxV0LV0=;
+	h=MIME-Version:Message-Id:In-Reply-To:References:Date:From:To:Cc:
+	 Subject:Content-Type; b=HlSK8NAAvrO8wyNzlohHGNtYVVdn3tIJmh3dbkuJMMDnHEgQ+fHT6GEDj8JSvLkevcZhfKX+ME/MzS0yKO6n+EG3gj4T3EHhbN9jNsT4Z/fF3/ONa4IrEej5dgDxiqBt02S4OOlsL2WT4A7Cp1pkmRII5fOe1jvElND1I461yrQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=c3ZpuaVm; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=g729DEvY; arc=none smtp.client-ip=66.111.4.28
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="qugRA3lU"
-Received: by mail-yw1-f172.google.com with SMTP id 00721157ae682-603fdc46852so9783257b3.2
-        for <linux-openrisc@vger.kernel.org>; Tue, 30 Jan 2024 23:37:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1706686672; x=1707291472; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=TmG+rznpqqyErX4zfSJ54u90o8JuQXslthwDpqEjAiI=;
-        b=qugRA3lUGE+4iv2RbCrW9rOiaw+w1w3TnSsPYDomTVfsIhBg2yT8hCDktaLzV3YGPN
-         WBPsoZOl2KfuIr0rENOH+XOCCEeDvC3sZczUAKUMtG7ZqIdeEaKs1yFvO/WULHi4fXYc
-         QXg/hYuy920fMaLiFZcR5MURBY0NKyO505nTAXQiC2yHNPMZ2aENuRnHDJlfmFVDwVJl
-         7qt9yIFqWkVfGto8L5BeZSTJ3GlnL8D6EaEgkKMbzlDnoa/G03OPi52x9soysoVd0wst
-         agXaaPO1fxdI4jS0s22srNBdAFPD1+vYng+hLso2Z0EQi5ud482G+YaHuHAD5CMh49p0
-         UHOA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706686672; x=1707291472;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=TmG+rznpqqyErX4zfSJ54u90o8JuQXslthwDpqEjAiI=;
-        b=cJ9Zz1w6Znr71mQRvQz/QGzqp3DoiDDRaYFKQcnQrS4+jPIHvEKnOMyvynV2hMUpcI
-         hbiNDLiA4rUbjsSdcQ3d1l1M/zmW31irHlQnwD2lt7huLf2MBio2l/J9fvF8KECrvH9r
-         AuPTr9rhRrDXaKEfqcYWiwUpVVTpHaZuYOHxNumMbj8Ya4FveSNQ19Be9KqY2epZVYsh
-         Z6xr32Kh6EtSKLDy8NJRXEZX3VUSqBgmExWql2hN4QZNTPWLU3ejccmp8I8VtqdvIsJG
-         TLb9PeNFjzKv6KaLKfD2YUx0mipjeIAdohhPe7+ZZR9Q6PtNAWE8GKJE/aDzHeLjMi3d
-         xm7g==
-X-Gm-Message-State: AOJu0YwHAeIH5tjRP0Fx5mkyzXGkdWob//CUC2j+c6I4O6Zk1ncdScUw
-	B+w9Q/4A02pbQ+GCOgFLWttF5CE8lG95xE0WM7BCrwe55JEW21m46+UF+dDVPxoEGVcZk71Axqg
-	UHJ7T13jcG6No+kE/+yCKGVDN1txvK7ud1D0lMw==
-X-Google-Smtp-Source: AGHT+IHYpXRaWLqQlh0oX2pZAjMnT3Ad18mWcU8jYVwFB0aAGnyeiCdKxqpu+uBFZ0ub/5leFryzgJhdACbtZXLSvtQ=
-X-Received: by 2002:a81:c545:0:b0:5ff:a52b:55ac with SMTP id
- o5-20020a81c545000000b005ffa52b55acmr594058ywj.34.1706686672385; Tue, 30 Jan
- 2024 23:37:52 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="c3ZpuaVm";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="g729DEvY"
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+	by mailout.nyi.internal (Postfix) with ESMTP id 12BB15C0159;
+	Wed, 31 Jan 2024 06:49:00 -0500 (EST)
+Received: from imap51 ([10.202.2.101])
+  by compute5.internal (MEProxy); Wed, 31 Jan 2024 06:49:00 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-type:content-type:date:date:from:from:in-reply-to
+	:in-reply-to:message-id:mime-version:references:reply-to:subject
+	:subject:to:to; s=fm2; t=1706701740; x=1706788140; bh=jT9sL1YmAi
+	hadqrUHigLsBRY9XsxrsPNsnYd6WguPNA=; b=c3ZpuaVmDri3q/zgzFGGbYmnlr
+	v5KtWlex5deya16dz2doLnWM2HemO/U/HByq33bviMR/T9HI0G4pZbgv4fujo9oD
+	4QK93CVIvQkIYCM8siJl8h9UENtfj2T1ztvpKQM9P6dWEW5DR5bkX+vQnUsf8tqT
+	0hNDIzLs6ENHxC/iAcdfHFMVWJCISYq5FVd+w6pLyPpqSTdLmQqlaiy5EqwSpLJ5
+	gNPLoYMEn10BUTsE94g26AlDSc2/488D23UFbD2R0/6gFfPYw9jPh7iZQMJjmQ+/
+	apB3+jOj6eIns2ECguBdY41z7tomKGgvuiWfN8rYTr4XqPCk6zLXwhYppZ3w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+	fm3; t=1706701740; x=1706788140; bh=jT9sL1YmAihadqrUHigLsBRY9Xsx
+	rsPNsnYd6WguPNA=; b=g729DEvYgTEUVfuUErlIPFGRGtDR83GKuPIeKNPF5qqn
+	uxdYFRuuSWq5zUBAu1MrgjdwaWnyLJ9PdmIyPfNtH5IW66LqliMwHzqIIXlDGrm0
+	Uya8VqEUYCW/lzuZU7AD4ecc8R896HXsmgWjAKdJGq0X2J6TCf31hka+6Y6YXWn8
+	MFJ82gEIkX3+5d7zGmCg9HtytLi6n3WSXSrlXmey5sF4m/S51mVDHvETHyBsv2Nk
+	41VDjckeTDlfGbJGSzxMphJ79B091QKB5nkLzz0A/TvXhKLIglD+l/2i9ajq8zOd
+	XQ3PSA/Udf7DrrGQSiXZbNrTxpo7lMwZvEKqt3679Q==
+X-ME-Sender: <xms:qzO6ZfM2_SFlM_qzag13_ifNoa3-UhBdDDAGjZVeLRrkm2GR7OHZNw>
+    <xme:qzO6ZZ_TKKLvGaYfkC55jwQgM53vTFn51AFdxcT1qUpTfMlsipg8NuHu5Oh44SIda
+    qEipBu8DXdUpITruyY>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvkedrfedtledgfedtucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
+    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
+    htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
+    teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
+    hrnhgusegrrhhnuggsrdguvg
+X-ME-Proxy: <xmx:qzO6ZeRMd6nErXTpUgamGeftjqhas_qBP8Tp8EZ21Owe4ius29S0gQ>
+    <xmx:qzO6ZTsB9DWZQvEYMAIxSne630UngHy3z0jMrVSz5yUGmJ3iuNDhCQ>
+    <xmx:qzO6ZXdMp7o7XjskIemSSB24ax5p4pytl6Jklotu9jqYsMRNDmkXfg>
+    <xmx:rDO6Zb7mx2aAd5no5SShJqenqMT50SpLR8gInAzlkBlCzQtUcgjOuA>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+	id 270C7B6008D; Wed, 31 Jan 2024 06:48:59 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.11.0-alpha0-144-ge5821d614e-fm-20240125.002-ge5821d61
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240131055159.2506-1-yan.y.zhao@intel.com>
+Message-Id: <5e55b5c0-6c8d-45b4-ac04-cf694bcb08d3@app.fastmail.com>
 In-Reply-To: <20240131055159.2506-1-yan.y.zhao@intel.com>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Wed, 31 Jan 2024 08:37:40 +0100
-Message-ID: <CACRpkdY6dS_sedemVk-fGzhsyT_B5dXAeFX-PO+GcvCrt9Je5w@mail.gmail.com>
+References: <20240131055159.2506-1-yan.y.zhao@intel.com>
+Date: Wed, 31 Jan 2024 12:48:38 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Yan Zhao" <yan.y.zhao@intel.com>,
+ "Linus Walleij" <linus.walleij@linaro.org>, guoren <guoren@kernel.org>,
+ "Brian Cain" <bcain@quicinc.com>, "Jonas Bonn" <jonas@southpole.se>,
+ "Stefan Kristiansson" <stefan.kristiansson@saunalahti.fi>,
+ "Stafford Horne" <shorne@gmail.com>
+Cc: Linux-Arch <linux-arch@vger.kernel.org>, linux-kernel@vger.kernel.org,
+ "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+ linux-hexagon@vger.kernel.org,
+ "linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>
 Subject: Re: [PATCH 0/4] apply page shift to PFN instead of VA in pfn_to_virt
-To: Yan Zhao <yan.y.zhao@intel.com>
-Cc: arnd@arndb.de, guoren@kernel.org, bcain@quicinc.com, jonas@southpole.se, 
-	stefan.kristiansson@saunalahti.fi, shorne@gmail.com, 
-	linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
-	linux-openrisc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 
-On Wed, Jan 31, 2024 at 7:25=E2=80=AFAM Yan Zhao <yan.y.zhao@intel.com> wro=
-te:
-
+On Wed, Jan 31, 2024, at 06:51, Yan Zhao wrote:
 > This is a tiny fix to pfn_to_virt() for some platforms.
 >
-> The original implementaion of pfn_to_virt() takes PFN instead of PA as th=
-e
+> The original implementaion of pfn_to_virt() takes PFN instead of PA as the
 > input to macro __va, with PAGE_SHIFT applying to the converted VA, which
 > is not right under most conditions, especially when there's an offset in
 > __va.
+>
+>
+> Yan Zhao (4):
+>   asm-generic/page.h: apply page shift to PFN instead of VA in
+>     pfn_to_virt
+>   csky: apply page shift to PFN instead of VA in pfn_to_virt
+>   Hexagon: apply page shift to PFN instead of VA in pfn_to_virt
+>   openrisc: apply page shift to PFN instead of VA in pfn_to_virt
 
-Ooops that's right, I wonder why I got it wrong.
-Arithmetic made it not regress :/
-Thank you so much for fixing this Yan!
+Nice catch, this is clearly a correct fix, and I can take
+the series through the asm-generic tree if we want to take
+this approach.
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+I made a couple of interesting observations looking at this patch
+though:
 
-Arnd: I think you can take most of them through the arch tree.
+- this function is only used in architecture specific code on
+  m68k, riscv and s390, though a couple of other architectures
+  have the same definition.
 
-Yours,
-Linus Walleij
+- There is another function that does the same thing called
+  pfn_to_kaddr(), which is defined on arm, arm64, csky,
+  loongarch, mips, nios2, powerpc, s390, sh, sparc and x86,
+  as well as yet another pfn_va() on parisc.
+
+- the asm-generic/page.h file used to be included by h8300, c6x
+  and blackfin, all of which are now gone. It has no users left
+  and can just as well get removed, unless we find a new use
+  for it.
+
+Since it looks like the four broken functions you fix
+don't have a single caller, maybe it would be better to
+just remove them all?
+
+How exactly did you notice the function being wrong,
+did you try to add a user somewhere, or just read through
+the code?
+
+    Arnd
