@@ -1,80 +1,89 @@
-Received: from mail-oo1-f54.google.com (mail-oo1-f54.google.com [209.85.161.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C98B15ADF
-	for <linux-openrisc@vger.kernel.org>; Thu, 21 Dec 2023 08:16:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=landley.net
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=landley.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B390C3EA7A;
+	Wed, 31 Jan 2024 06:25:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1706682355; cv=none; b=fg+R+MdYbyl/E6UpHrGvPrH92kBU3oXuxWns8pV5kjr9xOkSND+T7B4Nt0JoRfwYA5mKAnf5uBVBHZp+IU7uZBOjq8FWvld8HVHF3WSwZIaAuz0o0h3r8W1SLm7HbHMB534vaaEnim58T82zLk8CQ5LeLGsMGSPtwW+pWjOE1Ro=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1706682355; c=relaxed/simple;
+	bh=Dz+rEBJ1wZtGL4hQOfZUqa80XN/mQMePbBMimQSo/DE=;
+	h=From:To:Cc:Subject:Date:Message-Id; b=I0cFyrxwB6CUjqhI5SpUDhovsFHQIqC5p+/pJU4IEqrPpVxsEzqW8DZe7ful/FQgKuPfcqY0guf8oFyyIOLM/i+dWAfcZQftqtWwmwQgDhs4WSvgXMxkfM3Ub88IyoFs6JNjvTG/OoZdaQ9yOBX9pHllMc/b6gEqgpKNbVlTRRA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=eAHplHh2; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=landley-net.20230601.gappssmtp.com header.i=@landley-net.20230601.gappssmtp.com header.b="dV2pV2RM"
-Received: by mail-oo1-f54.google.com with SMTP id 006d021491bc7-594178b3959so403190eaf.0
-        for <linux-openrisc@vger.kernel.org>; Thu, 21 Dec 2023 00:16:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=landley-net.20230601.gappssmtp.com; s=20230601; t=1703146588; x=1703751388; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=4H8xIQ/SVpT9WfB/BP+wTR3QvYNjlqB4qA+BUcm3ppo=;
-        b=dV2pV2RMN2jK/8OlNRP4oJ7/gDMY5QvGIsIDIDD+B8pOgtvcBsKmxteswDgIokgJGH
-         nKos/bRfNfMcSUwmed5gfZlaNC/JMRagjRM9S2R67cjKyfVbvS9y4xTnMEuur0gq7nNW
-         TQBNXmwQKW7MeLBSm9oFOcM1Or7WgsKFgQkeyNzZ6BGBOFvup9tFVXZ7Q9vQibN9RTfE
-         AZGAngdiKCqNHf0gH4e9oZhA6TI+5go2ikkeqihlPn7TxUM0h1zXs8wKMRBSt55kwMvT
-         Uq9ZNBsLB3QWX1FPMDITNpf3ZqwcW1ifJm+ILcgXeMTrObj5/dSjdOPXsv5HW+sZBcez
-         Jz7Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703146588; x=1703751388;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=4H8xIQ/SVpT9WfB/BP+wTR3QvYNjlqB4qA+BUcm3ppo=;
-        b=ZZDk9DfgCMnME0WbbC46fpGh3CFF+XEij2on3gQrIIo/r6YZtIuvPcAiFDjx9T8dnt
-         UNh8zl1CYV68obE4E1h+fhCzJ65z9O/bkUF55tHixrWw4IoWhVSXH3CE4RYkg21N/eFP
-         jtwB/z0D+Z7foLn9y8pSYDOfKD2n7azyBEtoMqt4lEbl47YKjYo5K+kKOvkxmW2p/27J
-         UxPrSI3FXk78Aur7Gq9ECCbc6bDfHJgU91D8pUEKK9msdp+yj0F/2veBRi+2C8StVI1C
-         3wgC924xdjXwXzL2KUbHwDgJkqpJgyuUwcn8Is1Iln3NYFvDJKP+q3NJGF7DOrntIJ9C
-         iRuw==
-X-Gm-Message-State: AOJu0YyJcAHuMtvPS2zko06i3u+iq+pT5BX3d8t0mFnBTzpeLQd3Q/Wc
-	fjCGnM0uwcUPv6AlPDcLkhQb2y5+5EMFstdiocQuLg==
-X-Google-Smtp-Source: AGHT+IF8+JkgvlOUXZzofQXPlUpGxqSH7tsviANAlWMWXgQrmZjZD9Ja1ghBXWXLoxGAUEbvkSTPkg==
-X-Received: by 2002:a4a:8c66:0:b0:591:cb69:956 with SMTP id v35-20020a4a8c66000000b00591cb690956mr4797195ooj.0.1703146588073;
-        Thu, 21 Dec 2023 00:16:28 -0800 (PST)
-Received: from ?IPV6:2607:fb90:e600:87e2:3ea9:f4ff:fe4b:aee8? ([2607:fb90:e600:87e2:3ea9:f4ff:fe4b:aee8])
-        by smtp.gmail.com with ESMTPSA id h126-20020a4a5e84000000b0058df21de4fasm280401oob.10.2023.12.21.00.16.27
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 21 Dec 2023 00:16:27 -0800 (PST)
-Message-ID: <8f8eec8f-598c-a1b0-7b8f-21e4f66a4d83@landley.net>
-Date: Thu, 21 Dec 2023 02:22:26 -0600
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="eAHplHh2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1706682353; x=1738218353;
+  h=from:to:cc:subject:date:message-id;
+  bh=Dz+rEBJ1wZtGL4hQOfZUqa80XN/mQMePbBMimQSo/DE=;
+  b=eAHplHh2S9pdRDzjgvzFHshNkiSArFrKroXo7QoWq/B812hZ6r8Z/UwD
+   sabFCxTq56v5R+WcUv2ELz6qFPZf7sxg0eB+f066YRfU0IdP7mHIu57yy
+   Mc1U3emt7Mo/Rk/kbsq9hBaM7ZcMRVcr6JVLNL8zaKW3+6KI6sCF6JimX
+   7fy5sWQwrIHjcSvWf3gIsHEi1pT9Mc7Izmj3Usuoh33qoWYC2+zxNHoG+
+   vLu8yFUWT8a05EKxed4Aq4Zislw0nUV2WtNDJkc5+W11qifFIaCHgrkVu
+   xk6sCzv6YdEKUzaPWVId1Vxj70GBMsQcPrznm3JoRUiacWEHobr+jEQM0
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10969"; a="16888137"
+X-IronPort-AV: E=Sophos;i="6.05,231,1701158400"; 
+   d="scan'208";a="16888137"
+Received: from orviesa005.jf.intel.com ([10.64.159.145])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jan 2024 22:25:53 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.05,231,1701158400"; 
+   d="scan'208";a="3939842"
+Received: from yzhao56-desk.sh.intel.com ([10.239.159.62])
+  by orviesa005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jan 2024 22:25:50 -0800
+From: Yan Zhao <yan.y.zhao@intel.com>
+To: arnd@arndb.de,
+	linus.walleij@linaro.org,
+	guoren@kernel.org,
+	bcain@quicinc.com,
+	jonas@southpole.se,
+	stefan.kristiansson@saunalahti.fi,
+	shorne@gmail.com
+Cc: linux-arch@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	linux-openrisc@vger.kernel.org,
+	Yan Zhao <yan.y.zhao@intel.com>
+Subject: [PATCH 0/4] apply page shift to PFN instead of VA in pfn_to_virt
+Date: Wed, 31 Jan 2024 13:51:59 +0800
+Message-Id: <20240131055159.2506-1-yan.y.zhao@intel.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: Adding or1k support to mkroot.
-Content-Language: en-US
-To: Stafford Horne <shorne@gmail.com>
-Cc: linux-openrisc@vger.kernel.org, Jonas Bonn <jonas@southpole.se>,
- Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-References: <79b2561e-3167-9758-8196-f2470aec06f7@landley.net>
- <ZXtck05MRrk2e675@antec> <95d45290-4b92-c189-beeb-b7e34dd298d8@landley.net>
- <ZX1xbs_AGdgLgcx7@antec> <2e1d9f74-88fa-3f5a-7bc3-4fe7b726f2be@landley.net>
- <ZX658P7dEgqCezpi@antec>
-From: Rob Landley <rob@landley.net>
-In-Reply-To: <ZX658P7dEgqCezpi@antec>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
-On 12/17/23 03:05, Stafford Horne wrote:
->> >> > -device virtio-blk-device,drive=d0 \
->> >> >   -drive file=/home/shorne/work/openrisc/or1k-utils/buildroot/output/qemu-fs-or1k.qcow2,id=d0,if=none,format=qcow2 \
->> >> >   -gdb tcp::10001 \
->> >> >   -accel tcg,thread=multi \
->> >> >   -smp cpus=4 -m 768 \
+This is a tiny fix to pfn_to_virt() for some platforms.
 
-My qemu-system-or1k (built from commit cf6f26d6f9b2 last april) says virt is an
-unknown machine type, and to build a newer one I have to upgrade devuan to a
-version with python 3.8. (The build refuses to use 3.7.3 since commit ca056f4499c2.)
+The original implementaion of pfn_to_virt() takes PFN instead of PA as the
+input to macro __va, with PAGE_SHIFT applying to the converted VA, which
+is not right under most conditions, especially when there's an offset in
+__va.
 
-Rob
+
+Yan Zhao (4):
+  asm-generic/page.h: apply page shift to PFN instead of VA in
+    pfn_to_virt
+  csky: apply page shift to PFN instead of VA in pfn_to_virt
+  Hexagon: apply page shift to PFN instead of VA in pfn_to_virt
+  openrisc: apply page shift to PFN instead of VA in pfn_to_virt
+
+ arch/csky/include/asm/page.h     | 2 +-
+ arch/hexagon/include/asm/page.h  | 2 +-
+ arch/openrisc/include/asm/page.h | 2 +-
+ include/asm-generic/page.h       | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
+
+
+base-commit: 41bccc98fb7931d63d03f326a746ac4d429c1dd3
+-- 
+2.17.1
+
