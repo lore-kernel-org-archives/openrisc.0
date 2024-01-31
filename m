@@ -1,92 +1,93 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f172.google.com (mail-yw1-f172.google.com [209.85.128.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00817125CA;
-	Wed, 31 Jan 2024 06:31:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FBE4524DF
+	for <linux-openrisc@vger.kernel.org>; Wed, 31 Jan 2024 07:37:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706682673; cv=none; b=V5A9XemPKHnblvKiTT5NRg04pZzadydrR+eS1ZrgV/g1k2nSb9HgqusiQ4aCfpdZz5rJq08LfUCwm6ie35ggmqRzhLD+Kkr/T/F8UIejbk3vVPKdP8zyHwM8Es+7Cf+3en2HfhLw7WUnaz3Y379bN6oBX37RQ4ApLfHySTUzCmQ=
+	t=1706686675; cv=none; b=iotoPtBjsHgvkMd00bEGtvs6/zDo4K4YJ2ZCM1NTQmAVf2Nr32cc5QI/hmtF8gQJJ17+N2jZuC2z/FFIj0VOUa8VNRVwFuNEmlQC/+mQbZ+Gjmzyb6ptfucRVoXSF5mvh8bITYhas7sxhlmH7nsvRv9cMcU0CaeOt6hgXk6rDa0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706682673; c=relaxed/simple;
-	bh=rWpNYhvi5Y7XEDqsmQ7YOXj2NszqHIpA2qBYV+5aizE=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=bKrVVEJyzBzJv0e43ll4wN6rRozrJ3EgFMgZKX3odYvE/SR/lOlHEElX0OjKCpDAjFKjB9Ml7RwJ7vpxXQrINfmsyAFZbWqyNoBZmAWsGxY7O3SBZnmdSFybPTXBREofAVBZSKsej1fdyvQefYB0TdOKEI2rpj4TySGSXAy0CoA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mmQFZQ15; arc=none smtp.client-ip=198.175.65.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1706686675; c=relaxed/simple;
+	bh=TmG+rznpqqyErX4zfSJ54u90o8JuQXslthwDpqEjAiI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=gjpir74ZXkMz3CJCak0VJ+GLJ8ccjrhuZ3CvfBcDH3S52K5aOmv/nWvVieIFmIrYkfCxXNQbDNEv9uec6uI7apA4pQUxhyyyjWok8dQtA+z1zZOocCSg7LtzBVXqLENTsIMORcWtsjAb2hXbt3lJn9Qv2StnmaGfWmkobzBlDbQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=qugRA3lU; arc=none smtp.client-ip=209.85.128.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mmQFZQ15"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1706682673; x=1738218673;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references;
-  bh=rWpNYhvi5Y7XEDqsmQ7YOXj2NszqHIpA2qBYV+5aizE=;
-  b=mmQFZQ15dYt8NhEMlVcdhRYa0u3xnfkQLqMib7qbOgJtDIz2y/RIPt4+
-   2WA5JJfD2219ZbFDdU5ORcag9Gfva0fQwvivmjqn6hFvBrBCDXAFf6AmV
-   2jsNQvP5dHNdlT7ZZauPcuoZaeb+k/meHXAaD6Gs7ACSpSFDNY3Dt0yBQ
-   h7mC+/202asF2pdIQNypTg7L0gro0TeX+dvXvNNDPu48JsrEus7ww1+u1
-   nluYSQDSjSnl8HwCaGE3E5O6KxSCcYP6ZLuzycMQ73TWwwHJeDBuRzq+L
-   rFX1fvXX/9Ooxji1GxQmKOy0myy1ycKTkYaNmDCMrRCc7gxJcJG+5mMiO
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10969"; a="10145767"
-X-IronPort-AV: E=Sophos;i="6.05,231,1701158400"; 
-   d="scan'208";a="10145767"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jan 2024 22:31:11 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10969"; a="907779612"
-X-IronPort-AV: E=Sophos;i="6.05,231,1701158400"; 
-   d="scan'208";a="907779612"
-Received: from yzhao56-desk.sh.intel.com ([10.239.159.62])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jan 2024 22:31:07 -0800
-From: Yan Zhao <yan.y.zhao@intel.com>
-To: arnd@arndb.de,
-	linus.walleij@linaro.org,
-	guoren@kernel.org,
-	bcain@quicinc.com,
-	jonas@southpole.se,
-	stefan.kristiansson@saunalahti.fi,
-	shorne@gmail.com
-Cc: linux-arch@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org,
-	linux-openrisc@vger.kernel.org,
-	Yan Zhao <yan.y.zhao@intel.com>
-Subject: [PATCH 4/4] openrisc: apply page shift to PFN instead of VA in pfn_to_virt
-Date: Wed, 31 Jan 2024 14:01:42 +0800
-Message-Id: <20240131060142.2823-1-yan.y.zhao@intel.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20240131055159.2506-1-yan.y.zhao@intel.com>
-References: <20240131055159.2506-1-yan.y.zhao@intel.com>
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="qugRA3lU"
+Received: by mail-yw1-f172.google.com with SMTP id 00721157ae682-603fdc46852so9783257b3.2
+        for <linux-openrisc@vger.kernel.org>; Tue, 30 Jan 2024 23:37:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1706686672; x=1707291472; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=TmG+rznpqqyErX4zfSJ54u90o8JuQXslthwDpqEjAiI=;
+        b=qugRA3lUGE+4iv2RbCrW9rOiaw+w1w3TnSsPYDomTVfsIhBg2yT8hCDktaLzV3YGPN
+         WBPsoZOl2KfuIr0rENOH+XOCCEeDvC3sZczUAKUMtG7ZqIdeEaKs1yFvO/WULHi4fXYc
+         QXg/hYuy920fMaLiFZcR5MURBY0NKyO505nTAXQiC2yHNPMZ2aENuRnHDJlfmFVDwVJl
+         7qt9yIFqWkVfGto8L5BeZSTJ3GlnL8D6EaEgkKMbzlDnoa/G03OPi52x9soysoVd0wst
+         agXaaPO1fxdI4jS0s22srNBdAFPD1+vYng+hLso2Z0EQi5ud482G+YaHuHAD5CMh49p0
+         UHOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706686672; x=1707291472;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=TmG+rznpqqyErX4zfSJ54u90o8JuQXslthwDpqEjAiI=;
+        b=cJ9Zz1w6Znr71mQRvQz/QGzqp3DoiDDRaYFKQcnQrS4+jPIHvEKnOMyvynV2hMUpcI
+         hbiNDLiA4rUbjsSdcQ3d1l1M/zmW31irHlQnwD2lt7huLf2MBio2l/J9fvF8KECrvH9r
+         AuPTr9rhRrDXaKEfqcYWiwUpVVTpHaZuYOHxNumMbj8Ya4FveSNQ19Be9KqY2epZVYsh
+         Z6xr32Kh6EtSKLDy8NJRXEZX3VUSqBgmExWql2hN4QZNTPWLU3ejccmp8I8VtqdvIsJG
+         TLb9PeNFjzKv6KaLKfD2YUx0mipjeIAdohhPe7+ZZR9Q6PtNAWE8GKJE/aDzHeLjMi3d
+         xm7g==
+X-Gm-Message-State: AOJu0YwHAeIH5tjRP0Fx5mkyzXGkdWob//CUC2j+c6I4O6Zk1ncdScUw
+	B+w9Q/4A02pbQ+GCOgFLWttF5CE8lG95xE0WM7BCrwe55JEW21m46+UF+dDVPxoEGVcZk71Axqg
+	UHJ7T13jcG6No+kE/+yCKGVDN1txvK7ud1D0lMw==
+X-Google-Smtp-Source: AGHT+IHYpXRaWLqQlh0oX2pZAjMnT3Ad18mWcU8jYVwFB0aAGnyeiCdKxqpu+uBFZ0ub/5leFryzgJhdACbtZXLSvtQ=
+X-Received: by 2002:a81:c545:0:b0:5ff:a52b:55ac with SMTP id
+ o5-20020a81c545000000b005ffa52b55acmr594058ywj.34.1706686672385; Tue, 30 Jan
+ 2024 23:37:52 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20240131055159.2506-1-yan.y.zhao@intel.com>
+In-Reply-To: <20240131055159.2506-1-yan.y.zhao@intel.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Wed, 31 Jan 2024 08:37:40 +0100
+Message-ID: <CACRpkdY6dS_sedemVk-fGzhsyT_B5dXAeFX-PO+GcvCrt9Je5w@mail.gmail.com>
+Subject: Re: [PATCH 0/4] apply page shift to PFN instead of VA in pfn_to_virt
+To: Yan Zhao <yan.y.zhao@intel.com>
+Cc: arnd@arndb.de, guoren@kernel.org, bcain@quicinc.com, jonas@southpole.se, 
+	stefan.kristiansson@saunalahti.fi, shorne@gmail.com, 
+	linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
+	linux-openrisc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Apply the page shift to PFN to get physical address for final VA.
-The macro __va should take physical address instead of PFN as input.
+On Wed, Jan 31, 2024 at 7:25=E2=80=AFAM Yan Zhao <yan.y.zhao@intel.com> wro=
+te:
 
-Fixes: 232ba1630c66 ("openrisc: Make pfn accessors statics inlines")
-Signed-off-by: Yan Zhao <yan.y.zhao@intel.com>
----
- arch/openrisc/include/asm/page.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> This is a tiny fix to pfn_to_virt() for some platforms.
+>
+> The original implementaion of pfn_to_virt() takes PFN instead of PA as th=
+e
+> input to macro __va, with PAGE_SHIFT applying to the converted VA, which
+> is not right under most conditions, especially when there's an offset in
+> __va.
 
-diff --git a/arch/openrisc/include/asm/page.h b/arch/openrisc/include/asm/page.h
-index 44fc1fd56717..55c66f6cb1bd 100644
---- a/arch/openrisc/include/asm/page.h
-+++ b/arch/openrisc/include/asm/page.h
-@@ -79,7 +79,7 @@ static inline unsigned long virt_to_pfn(const void *kaddr)
- 
- static inline void * pfn_to_virt(unsigned long pfn)
- {
--	return (void *)((unsigned long)__va(pfn) << PAGE_SHIFT);
-+	return __va(pfn << PAGE_SHIFT);
- }
- 
- #define virt_to_page(addr) \
--- 
-2.17.1
+Ooops that's right, I wonder why I got it wrong.
+Arithmetic made it not regress :/
+Thank you so much for fixing this Yan!
 
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+
+Arnd: I think you can take most of them through the arch tree.
+
+Yours,
+Linus Walleij
