@@ -1,123 +1,91 @@
-Received: from out4-smtp.messagingengine.com (out4-smtp.messagingengine.com [66.111.4.28])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs1-f51.google.com (mail-vs1-f51.google.com [209.85.217.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0A3A7869A;
-	Thu,  1 Feb 2024 05:47:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.111.4.28
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0955415B970;
+	Thu,  1 Feb 2024 10:46:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706766481; cv=none; b=jKdMwCw8TPgQauJnswjuOd4tjtHNu4x2bZyPvZ4es4JWMO8VhPkiL5iLVI0qDSdgg3wC3gKYAjuW/4qttkL+SzcOWj+I+gIKqey9MViS1DxVHAjfln5v5WyYeG2Kcs8uGS2Bb+dAJj/8WsRA/8R5g79Nbj2IPm+gqN3ACd6zlOk=
+	t=1706784417; cv=none; b=fKzD+8W4/nEdnL7JborArpWv7zmTZvF/z7OTG0KWodysF2c3RplW1Hpx2ZrrAVHu6+Y0WsNduvNrS1B/sFtVEsCauRSAcP2ujShTf5FAFpHr9di5BqtYVujlUIP2yxyzGISoGlgvKIO/3pCQ3IMqmzjyZ3jZ7CPTq2HtNSqCGlY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706766481; c=relaxed/simple;
-	bh=zzu8lVaM5bUvdOhbpWfG5cOKtg+i8Vg7Hw3qhA1wYXA=;
-	h=MIME-Version:Message-Id:In-Reply-To:References:Date:From:To:Cc:
-	 Subject:Content-Type; b=dNEwS4B/GOJocOqTxVFzpdZjxBKCOG6sbuYLDWL5LOMLZAM6uy955qvdZOueXEIWEboxsnPT+HgP9lfGgRG0U8ksjtRlwxJEayzb+yo8/kfp6jdcbgY9CAF6nGBsOhyGJJSAQh2T2Rl1PWw0DFqdV9wGZnXgUca1sMKaM++yY2w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=ofcCD7y9; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=a0Z9bQxZ; arc=none smtp.client-ip=66.111.4.28
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="ofcCD7y9";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="a0Z9bQxZ"
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-	by mailout.nyi.internal (Postfix) with ESMTP id 939405C0116;
-	Thu,  1 Feb 2024 00:47:57 -0500 (EST)
-Received: from imap51 ([10.202.2.101])
-  by compute5.internal (MEProxy); Thu, 01 Feb 2024 00:47:57 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm2; t=1706766477; x=1706852877; bh=CpotEzYlW1
-	lmLAWEU8O++zTNrosbiHDCaZ3gtXPQArY=; b=ofcCD7y9E1SMralIsej2I7/ElJ
-	9qB8+JKSqlt90zsZ/VlQ3e5rD5eDVW480dmsAHaZrWS+9oeOSBukpkuidcFz50cX
-	pziLdZ++lgCnSYWOQiKXh0xrj24+a1qV+7IDPOzW3uIrj+Z4YFyIO5dWCqYUV0ep
-	+907Vk4+CqAUs2hHjK3Yw92MC7Q7faQW5iQGZOcDoqFOKDT04o8uJ4D3D62WvKSp
-	IYZp9Sk9Bwwqnn+8BDy4cLQJTHYK72iIkpNL5rISuQWxOOVChliraSIinPhLrsdg
-	jUgSXieg442R2TEKu+xmHkeitn2zS295YQSH/k6u6PtqCT5p+e1IBu9QuZZQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-	fm3; t=1706766477; x=1706852877; bh=CpotEzYlW1lmLAWEU8O++zTNrosb
-	iHDCaZ3gtXPQArY=; b=a0Z9bQxZwmNq7T6m+Y6Wq792Zn9K8cPWGchlPBhgRreL
-	LmetZ9OStKFS2X9fTpZJ2wP+KCHJCt2BulvVml7m9chmQoeUQwwCx9ziGGBzGS4l
-	85fBu0jgo3KPiWtvPVf4LtsvaBGdjaA123jpTHX/oxaH9H2I1gO0VUho/vQ6NcDe
-	2KVNfrhgzeJLeogzkXvD9IuM/vMSlwATLnNX8hJHwMkZIzkHP1tAZ4fM7lsTzrgK
-	LZdMx8HPgnhIX0fgThAnXDvUN+zIF3IwNn/kDMbB0sQXdys8jzFA28W2mPFQ3fiN
-	ItWKQpXIKSrCpdlimiT9WeL2h/T8J8Hcp06gydO+rA==
-X-ME-Sender: <xms:jDC7Zbi54YRFUiT4scy9KKjdOMnQOULALkFBp-NF3AsmPPZj8deDsQ>
-    <xme:jDC7ZYB_jW4sHqYVgHfzuEWoNYw-m20YQo6DWnJQafiiyLG27sP1YkR7R6mWa9tfm
-    g4xjJBpQnRcVAoTxto>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvkedrfedutddgkeeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
-    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
-    htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
-    teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
-    hrnhgusegrrhhnuggsrdguvg
-X-ME-Proxy: <xmx:jDC7ZbGhLLSlK4aZrPll8xb92W8ZEWoxOG_Mi2E7YOqJund-InOb_A>
-    <xmx:jDC7ZYRKVaLr8jcMeCqc6AdwF5-OAriSVV7HgiZvbaZDi4gUxwl7Kg>
-    <xmx:jDC7ZYwWNyVr3dX1ypRiaZWJtbupayrMovQpob_KeW9lctEv9JR3xw>
-    <xmx:jTC7ZUcUIkO5lEJJeU-Z3BQGn9j5fA_P7AQALJvTx0MrvWsoJiq1HA>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-	id 6975DB6008D; Thu,  1 Feb 2024 00:47:56 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.11.0-alpha0-144-ge5821d614e-fm-20240125.002-ge5821d61
+	s=arc-20240116; t=1706784417; c=relaxed/simple;
+	bh=V/x1b1ldsDYK3JfVzlP9ZZq7WJ2uPOBTgaU55XZNPrU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=uae74+ml/x9I8YHsawncyZ/bLn9nMjJgD/nQyKq5iSu/6u9CGaLlOl4FAWn20jMx8XtzDq72Nt/QgJpyEDlVaY2gwESdAWOoltPW1GSoQzMXhse1vCGvQf2FaRI/juEPR33rjgcZN5MBwWsl/hXl3wBpqoPsVKa4KsxVa/mEVCE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.217.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-vs1-f51.google.com with SMTP id ada2fe7eead31-46b2aaa36d5so314226137.1;
+        Thu, 01 Feb 2024 02:46:54 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706784413; x=1707389213;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=HFZPcFLhDs+gYYjGu7bIEoeJY8eTRZGl5q1i/K40hjQ=;
+        b=AfuD/sPbMby0fAp02Uipxv1N1hhgGlyfRNBoHYWA5TxYrbndJ7584pgDZFssUVyyoA
+         tzmh5/mHUh4uEaJ46pxMfVIm0hLkefgukuPlTc58ElBFdIgx5RZfUCvMEG000CyEdLyc
+         DtNeweYULzfHKJ4LkEHR5UtyOedmc49kgWt76NFIHbH1v9ub3XmRG978ecgBpFDTnurJ
+         EGiK22H9CN2TGQ7NLD5RobNSa7JvwKGruu5JU4LESwPB4C2DT2QELOKnsKkcVUmZEKNT
+         nzUAjU58clAK3Pnsf3d/fRxQrQr1kjUVqCcNn2z7qQHppQDZwF1NKQeCi/U8ld5jnpQD
+         ioOw==
+X-Gm-Message-State: AOJu0YxHEe8ubUmZcjL/kT9sbQO9p7wDesxu328zED16Ocw4fB72g0b9
+	tS6enfEBNVHHzDd0qSPIZEA5HbPhFneU/f+Zav/ZHOEtM/QTTKfSBjsIo97eirQ=
+X-Google-Smtp-Source: AGHT+IGAax/Sb4kznliaD3ZikyM2fMNpStWpgDSjdppPgPo6zArlRUDDpv43TD1zZV1AYQmu+PZg0A==
+X-Received: by 2002:a05:6102:529:b0:46c:ad31:a013 with SMTP id m9-20020a056102052900b0046cad31a013mr1938286vsa.32.1706784413193;
+        Thu, 01 Feb 2024 02:46:53 -0800 (PST)
+X-Forwarded-Encrypted: i=0; AJvYcCUCcA6+DcW2Zid2/1Bir3jdUBSreyAhSoWuY/+WAnYhGDWSwKlYqOphWSKItWfgw1kvyyOrhc8AQanKU1MTMniidZzz8SYazmZoA8HCkuZGCq9DgERUd5F32ESn8X1KKaVTwp0MF+rxTU+DbSzAOIqG0l/v4EOswjtN+PXeDCLKqE8CJS9bE8mBeRewetkh+hWKiUJHL1JW4iDFrBgIqZXouAS4nU2xmoWXz6wja0SotnznG9cDzGnaan4xHDAqL5ME8uQ=
+Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com. [209.85.222.169])
+        by smtp.gmail.com with ESMTPSA id ly9-20020a0562145c0900b0068509353fb6sm5840691qvb.133.2024.02.01.02.46.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 01 Feb 2024 02:46:52 -0800 (PST)
+Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-78406c22dc7so58782585a.0;
+        Thu, 01 Feb 2024 02:46:52 -0800 (PST)
+X-Received: by 2002:a0d:ea85:0:b0:5ff:7cdc:404b with SMTP id
+ t127-20020a0dea85000000b005ff7cdc404bmr1645047ywe.52.1706784391742; Thu, 01
+ Feb 2024 02:46:31 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <9f27c23b-ea8b-443c-b09c-03ecaa210cd5@app.fastmail.com>
-In-Reply-To: <ZbrfcTaiuu2gaa2A@yzhao56-desk.sh.intel.com>
-References: <20240131055159.2506-1-yan.y.zhao@intel.com>
- <5e55b5c0-6c8d-45b4-ac04-cf694bcb08d3@app.fastmail.com>
- <ZbrfcTaiuu2gaa2A@yzhao56-desk.sh.intel.com>
-Date: Thu, 01 Feb 2024 06:46:46 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Yan Zhao" <yan.y.zhao@intel.com>
-Cc: "Linus Walleij" <linus.walleij@linaro.org>, guoren <guoren@kernel.org>,
- "Brian Cain" <bcain@quicinc.com>, "Jonas Bonn" <jonas@southpole.se>,
- "Stefan Kristiansson" <stefan.kristiansson@saunalahti.fi>,
- "Stafford Horne" <shorne@gmail.com>, Linux-Arch <linux-arch@vger.kernel.org>,
- linux-kernel@vger.kernel.org,
- "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
- linux-hexagon@vger.kernel.org,
- "linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>
+References: <20240131055159.2506-1-yan.y.zhao@intel.com> <5e55b5c0-6c8d-45b4-ac04-cf694bcb08d3@app.fastmail.com>
+ <ZbrfcTaiuu2gaa2A@yzhao56-desk.sh.intel.com> <9f27c23b-ea8b-443c-b09c-03ecaa210cd5@app.fastmail.com>
+In-Reply-To: <9f27c23b-ea8b-443c-b09c-03ecaa210cd5@app.fastmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Thu, 1 Feb 2024 11:46:19 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdWPToeXdcBWv2LJuu2Z6td-JYz3GGf5fD1+ScqVD+Wurg@mail.gmail.com>
+Message-ID: <CAMuHMdWPToeXdcBWv2LJuu2Z6td-JYz3GGf5fD1+ScqVD+Wurg@mail.gmail.com>
 Subject: Re: [PATCH 0/4] apply page shift to PFN instead of VA in pfn_to_virt
-Content-Type: text/plain
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Yan Zhao <yan.y.zhao@intel.com>, Linus Walleij <linus.walleij@linaro.org>, 
+	guoren <guoren@kernel.org>, Brian Cain <bcain@quicinc.com>, Jonas Bonn <jonas@southpole.se>, 
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, 
+	Linux-Arch <linux-arch@vger.kernel.org>, linux-kernel@vger.kernel.org, 
+	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>, linux-hexagon@vger.kernel.org, 
+	"linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 1, 2024, at 01:01, Yan Zhao wrote:
-> On Wed, Jan 31, 2024 at 12:48:38PM +0100, Arnd Bergmann wrote:
->> On Wed, Jan 31, 2024, at 06:51, Yan Zhao wrote:
->> 
->> How exactly did you notice the function being wrong,
->> did you try to add a user somewhere, or just read through
->> the code?
-> I came across them when I was debugging an unexpected kernel page fault
-> on x86, and I was not sure whether page_to_virt() was compiled in
-> asm-generic/page.h or linux/mm.h.
-> Though finally, it turned out that the one in linux/mm.h was used, which
-> yielded the right result and the unexpected kernel page fault in my case
-> was not related to page_to_virt(), it did lead me to noticing that the
-> pfn_to_virt() in asm-generic/page.h and other 3 archs did not look right.
->
-> Yes, unlike virt_to_pfn() which still has a caller in openrisc (among
-> csky, Hexagon, openrisc), pfn_to_virt() now does not have a caller in
-> the 3 archs. Though both virt_to_pfn() and pfn_to_virt() are referenced
-> in asm-generic/page.h, I also not sure if we need to remove the
-> asm-generic/page.h which may serve as a template to future archs ?
->
-> So, either way looks good to me :)
+Hi Arnd,
 
-I think it's fair to assume we won't need asm-generic/page.h any
-more, as we likely won't be adding new NOMMU architectures.
-I can have a look myself at removing any such unused headers in
-include/asm-generic/, it's probably not the only one.
+On Thu, Feb 1, 2024 at 11:11=E2=80=AFAM Arnd Bergmann <arnd@arndb.de> wrote=
+:
+> I think it's fair to assume we won't need asm-generic/page.h any
+> more, as we likely won't be adding new NOMMU architectures.
 
-Can you just send a patch to remove the unused pfn_to_virt()
-functions?
+So you think riscv-nommu (k210) was the last one we will ever see?
 
-     Arnd
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--=20
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
+
+In personal conversations with technical people, I call myself a hacker. Bu=
+t
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds
