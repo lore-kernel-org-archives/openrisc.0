@@ -1,119 +1,151 @@
-Received: from out1-smtp.messagingengine.com (out1-smtp.messagingengine.com [66.111.4.25])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3552B1799B;
-	Fri,  2 Feb 2024 07:28:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.111.4.25
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5E701798F;
+	Fri,  2 Feb 2024 14:35:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706858889; cv=none; b=VB5bRquuv2Xpxqey2aoqvA7qXLnBiQ3db9WhbBkEIfaw58evbocgOcLyc3QlQJL1u6FcpRz5lNIi90QSPR3kbqURwICRvpVy16HoLYGKij9j/Vk+KMz0zczBb98WxO9SkRYC0YkFUX2Yj4cbMsWl6q5Eg0xPEcd7tjVhzeBfRsg=
+	t=1706884529; cv=none; b=aMTKuz0eruMTwNU09ZZnCJ6biCLRFwl0IBllUbLzu3jrBrcDyXX/aPokq1fGUawWp9IF0KFN8gbiVnU2syDquOR3XOreOzxVh8yq3mLSWxcg9fNzyCmRofDcyVN0CKpp5ERsFjSSWUUBbFfmoIJub+o+BrnsNKWt4Gvl58cGzTE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706858889; c=relaxed/simple;
-	bh=qzWs7s2cjCDmOtXG5wsxz7DfTUlVvOtF6j0Zrjbgr1c=;
-	h=MIME-Version:Message-Id:In-Reply-To:References:Date:From:To:Cc:
-	 Subject:Content-Type; b=QEudhAQ3RaUVAUmh5+Z28GuwPZQ6vlv8QD4QQsM/6OJd8+rXXnitLyBFERH4rJGKsyeDxApPBrzCL1aY+zm3z809tgwTDbmPQYg9nDKQqjBa4GJAPi9n0pdstpjzOI6FeTxRQDK+pHvfucp5P7iGY6cNtaKjCundq9lpo/yS0pM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=eprMJ04E; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=tx2jpuRx; arc=none smtp.client-ip=66.111.4.25
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1706884529; c=relaxed/simple;
+	bh=wriapjeWuh2ey1LerCDuOBHA5fjmti3BBGSuCxUGacE=;
+	h=From:To:Cc:Subject:Date:Message-Id; b=aPKOo9B4RC27ncRebT2GjZDpzLFUqjlX/au/1f1ZCb8s47vyKQEsbZqReaNM9vI0WtRBB0bXxbSoi7G84quK7Raasrc/B+wkx3mvNMANVLVMfWeSqZI9VQDi+ra9+RleHdQ5qoQAQEK73vABoagmh3mx6Ow+aRw+PP3vFmNm5zo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=GpRI3mL6; arc=none smtp.client-ip=198.175.65.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="eprMJ04E";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="tx2jpuRx"
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-	by mailout.nyi.internal (Postfix) with ESMTP id B2F3E5C015B;
-	Fri,  2 Feb 2024 02:28:05 -0500 (EST)
-Received: from imap51 ([10.202.2.101])
-  by compute5.internal (MEProxy); Fri, 02 Feb 2024 02:28:05 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1706858885;
-	 x=1706945285; bh=IBhqBcxYgArhRS7kDjbkPgkUVZMe8vXWLNsnaVY75NY=; b=
-	eprMJ04EiYCWlFcEeNIqGZhp0qteiNOVp5xwxMRhruh13A+1lHAv14LGC0mgYfzQ
-	DNoKWiZlvG1DpONyKEAeXwbYZGC7gahiGm6RryFrS2/OBT4GvOfea8xVSmJetlDU
-	oCM5FoDhTnIcn9xx2sw8EPkQAuiZf1Gy1s6rKGHTxPLd0q3YUGu8A6maWGfzlPr/
-	Ar6N2/yBu9G0pJybx16suvWI/7En9wkR36rOhvYFZwEM2ImIrmOg1+XT0M8nR9Cq
-	AhaFZW5Rrl8AQYxHZgpjs90T/1s7i+nhHQvMjqyg5WnGHE7o6EwxBvgSl9ow/Ydh
-	IYkI0t9epQnLiW696GDpWA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1706858885; x=
-	1706945285; bh=IBhqBcxYgArhRS7kDjbkPgkUVZMe8vXWLNsnaVY75NY=; b=t
-	x2jpuRxZFTXsR+uLz6RFaAik9Xok8AF/8AFgu+VBnBy3I6BdakGBCKoz54E3plrn
-	wMkr++6acBGqXmZAFGwGjo4TKsfdb8yHAI95XcgUrVAWIp83eYeu/LK0i4iBemaU
-	PnAF6Xn4RgUnGCavBwbeFAie31CWTN+GT21PBmFxj1kgnYi9sWPzam2UR15N3D9u
-	A21tl7DW6JA4ITC6mrEfnMs2kEmxQ9RX/II0S2i7qH9QI1oEI3kUghAmfz+0+NtJ
-	XiTd08wRwcDJlVYzJnVtEchE3W4i4Ab91pXUurS49WMkwS4hKeiGN1fmQJKMMCMQ
-	C7eDadqSNO4RpTqhlVSsQ==
-X-ME-Sender: <xms:hZm8ZXvvbRMfzy7svCN_sNXsMryR7yOUCKvADPtNBiNpwJTqNJ9gUQ>
-    <xme:hZm8ZYeVUcLy6HrRYn2WaHFtmUqRcPuCJBXPKO5OkSfjQMPruhFi5HK7EnEZfSUTH
-    DDs3C9FgpVM3F4BMWE>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvkedrfedufedgvdejucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvfevufgtgfesthhqredtreerjeenucfhrhhomhepfdet
-    rhhnugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrg
-    htthgvrhhnpeeghefggeduuedvvdfgiefgffehfedtffdvvddutefhvddvtdfhgfetveet
-    ueevheenucffohhmrghinhepghhithhhuhgsrdgtohhmnecuvehluhhsthgvrhfuihiivg
-    eptdenucfrrghrrghmpehmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvg
-X-ME-Proxy: <xmx:hZm8ZaxM6OoRWhGpL46GEYaSFCgq_sk_6uSNzNWdPyfhmGmo5ezeSQ>
-    <xmx:hZm8ZWOZPtWitIYGcNKjrQDCCto_K7L_mm0vgtGwIOx_tOpqWoZxGQ>
-    <xmx:hZm8ZX8F_oaT9NFnhztJSzuwMFsM0pTfXiP2eh6CE_zukT4WrI8n_A>
-    <xmx:hZm8ZY31fPDy9VGPiAfoXQadB8awDZtcoPBLELb-3nXF9sqEvCBZQg>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-	id 18AA0B6008D; Fri,  2 Feb 2024 02:28:05 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.11.0-alpha0-144-ge5821d614e-fm-20240125.002-ge5821d61
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="GpRI3mL6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1706884528; x=1738420528;
+  h=from:to:cc:subject:date:message-id;
+  bh=wriapjeWuh2ey1LerCDuOBHA5fjmti3BBGSuCxUGacE=;
+  b=GpRI3mL618VYgPf6Axyxb/1UXZJJrEpk5NG49LBqgYybDS8MwCFuqnYT
+   rXtU1cKU4UzPV99FdUtAWucK5wfZSa7iBrt+bQtD+dMWpgGSfVNd4Gfgc
+   cdggaIzol+gfCguKIdK1x1AOgXrqjlL6w1cvz1g39KXJBCrNvMeqPGND8
+   t8BTYyUHDeTRQRcSyA7EURMJSl3VkS7e1FLtEko9seJiwWHKPEgSvpDAf
+   pse4s8DFOyCDPy3TQ0eU8CWUPzSOqH1lw+GlBUL3im2kaok1IdyTIGOzD
+   fdTbxFbKo/vXE77UU8uWu1zS+CjhHtkkHwQaDTTRqi5ZeIUyCUohWPsVc
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10971"; a="11265575"
+X-IronPort-AV: E=Sophos;i="6.05,238,1701158400"; 
+   d="scan'208";a="11265575"
+Received: from fmviesa003.fm.intel.com ([10.60.135.143])
+  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Feb 2024 06:35:27 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.05,238,1701158400"; 
+   d="scan'208";a="4707751"
+Received: from yzhao56-desk.sh.intel.com ([10.239.159.62])
+  by fmviesa003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Feb 2024 06:35:23 -0800
+From: Yan Zhao <yan.y.zhao@intel.com>
+To: arnd@arndb.de,
+	linus.walleij@linaro.org,
+	guoren@kernel.org,
+	bcain@quicinc.com,
+	jonas@southpole.se,
+	stefan.kristiansson@saunalahti.fi,
+	shorne@gmail.com
+Cc: linux-arch@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	linux-openrisc@vger.kernel.org,
+	Yan Zhao <yan.y.zhao@intel.com>
+Subject: [PATCH] mm: Remove broken pfn_to_virt() on arch csky/hexagon/openrisc
+Date: Fri,  2 Feb 2024 22:05:50 +0800
+Message-Id: <20240202140550.9886-1-yan.y.zhao@intel.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Message-Id: <38ad9807-a298-44f6-88eb-4fb8047eafbe@app.fastmail.com>
-In-Reply-To: 
- <CAMuHMdWPToeXdcBWv2LJuu2Z6td-JYz3GGf5fD1+ScqVD+Wurg@mail.gmail.com>
-References: <20240131055159.2506-1-yan.y.zhao@intel.com>
- <5e55b5c0-6c8d-45b4-ac04-cf694bcb08d3@app.fastmail.com>
- <ZbrfcTaiuu2gaa2A@yzhao56-desk.sh.intel.com>
- <9f27c23b-ea8b-443c-b09c-03ecaa210cd5@app.fastmail.com>
- <CAMuHMdWPToeXdcBWv2LJuu2Z6td-JYz3GGf5fD1+ScqVD+Wurg@mail.gmail.com>
-Date: Fri, 02 Feb 2024 08:27:44 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Geert Uytterhoeven" <geert@linux-m68k.org>
-Cc: "Yan Zhao" <yan.y.zhao@intel.com>,
- "Linus Walleij" <linus.walleij@linaro.org>, guoren <guoren@kernel.org>,
- "Brian Cain" <bcain@quicinc.com>, "Jonas Bonn" <jonas@southpole.se>,
- "Stefan Kristiansson" <stefan.kristiansson@saunalahti.fi>,
- "Stafford Horne" <shorne@gmail.com>, Linux-Arch <linux-arch@vger.kernel.org>,
- linux-kernel@vger.kernel.org,
- "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
- linux-hexagon@vger.kernel.org,
- "linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>
-Subject: Re: [PATCH 0/4] apply page shift to PFN instead of VA in pfn_to_virt
-Content-Type: text/plain;charset=utf-8
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 1, 2024, at 11:46, Geert Uytterhoeven wrote:
-> Hi Arnd,
->
-> On Thu, Feb 1, 2024 at 11:11=E2=80=AFAM Arnd Bergmann <arnd@arndb.de> =
-wrote:
->> I think it's fair to assume we won't need asm-generic/page.h any
->> more, as we likely won't be adding new NOMMU architectures.
->
-> So you think riscv-nommu (k210) was the last one we will ever see?
+Remove the broken pfn_to_virt() on architectures csky/hexagon/openrisc.
 
-Yes. We've already removed half of the nommu architectures
-(blackfin, avr32, h8300, m32r, microblaze-nommu)  over
-the past couple of years, and the remaining ones are pretty
-much only there to support existing users.
+The pfn_to_virt() on those architectures takes PFN instead of PA as the
+input to macro __va(), with PAGE_SHIFT applying to the converted VA, which
+is not right, especially when there's a non-zero offset in __va(). [1]
 
-The only platform one that I see getting real work is
-esp32 [1], but that is not a new architecture.
+The broken pfn_to_virt() was noticed when checking how page_to_virt() is
+unfolded on x86. It turns out that the one in linux/mm.h instead of in
+asm-generic/page.h is compiled for x86. However, page_to_virt() in
+asm-generic/page.h is found out expanding to pfn_to_virt() with a bug
+described above. The pfn_to_virt() is found out not right as well on
+architectures csky/hexagon/openrisc.
 
-     Arnd
+Since there's no single caller on csky/hexagon/openrisc to pfn_to_virt()
+and there are functions doing similar things as pfn_to_virt() --
+- pfn_to_kaddr() in asm/page.h for csky,
+- page_to_virt() in asm/page.h for hexagon, and
+- page_to_virt() in linux/mm.h for openrisc,
+just delete the pfn_to_virt() on those architectures.
 
-[1] https://github.com/jcmvbkbc/linux-xtensa/tree/xtensa-6.8-rc2-esp32
+The pfn_to_virt() in asm-generic/page.h is not touched in this patch as
+it's referenced by page_to_virt() in that header while the whole header is
+going to be removed as a whole due to no one including it.
+
+Link:https://lore.kernel.org/all/20240131055159.2506-1-yan.y.zhao@intel.com [1]
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Yan Zhao <yan.y.zhao@intel.com>
+---
+ arch/csky/include/asm/page.h     | 5 -----
+ arch/hexagon/include/asm/page.h  | 6 ------
+ arch/openrisc/include/asm/page.h | 5 -----
+ 3 files changed, 16 deletions(-)
+
+diff --git a/arch/csky/include/asm/page.h b/arch/csky/include/asm/page.h
+index 4a0502e324a6..866855e1ab43 100644
+--- a/arch/csky/include/asm/page.h
++++ b/arch/csky/include/asm/page.h
+@@ -82,11 +82,6 @@ static inline unsigned long virt_to_pfn(const void *kaddr)
+ 	return __pa(kaddr) >> PAGE_SHIFT;
+ }
+ 
+-static inline void * pfn_to_virt(unsigned long pfn)
+-{
+-	return (void *)((unsigned long)__va(pfn) << PAGE_SHIFT);
+-}
+-
+ #define MAP_NR(x)	PFN_DOWN((unsigned long)(x) - PAGE_OFFSET - \
+ 				 PHYS_OFFSET_OFFSET)
+ #define virt_to_page(x)	(mem_map + MAP_NR(x))
+diff --git a/arch/hexagon/include/asm/page.h b/arch/hexagon/include/asm/page.h
+index 10f1bc07423c..32394b7e752e 100644
+--- a/arch/hexagon/include/asm/page.h
++++ b/arch/hexagon/include/asm/page.h
+@@ -133,12 +133,6 @@ static inline unsigned long virt_to_pfn(const void *kaddr)
+ 	return __pa(kaddr) >> PAGE_SHIFT;
+ }
+ 
+-static inline void *pfn_to_virt(unsigned long pfn)
+-{
+-	return (void *)((unsigned long)__va(pfn) << PAGE_SHIFT);
+-}
+-
+-
+ #define page_to_virt(page)	__va(page_to_phys(page))
+ 
+ #include <asm/mem-layout.h>
+diff --git a/arch/openrisc/include/asm/page.h b/arch/openrisc/include/asm/page.h
+index 44fc1fd56717..de33ba10ee67 100644
+--- a/arch/openrisc/include/asm/page.h
++++ b/arch/openrisc/include/asm/page.h
+@@ -77,11 +77,6 @@ static inline unsigned long virt_to_pfn(const void *kaddr)
+ 	return __pa(kaddr) >> PAGE_SHIFT;
+ }
+ 
+-static inline void * pfn_to_virt(unsigned long pfn)
+-{
+-	return (void *)((unsigned long)__va(pfn) << PAGE_SHIFT);
+-}
+-
+ #define virt_to_page(addr) \
+ 	(mem_map + (((unsigned long)(addr)-PAGE_OFFSET) >> PAGE_SHIFT))
+ 
+
+base-commit: 41bccc98fb7931d63d03f326a746ac4d429c1dd3
+-- 
+2.17.1
+
