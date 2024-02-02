@@ -1,97 +1,83 @@
-Received: from wout1-smtp.messagingengine.com (wout1-smtp.messagingengine.com [64.147.123.24])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f179.google.com (mail-yb1-f179.google.com [209.85.219.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76E0A1482FC;
-	Fri,  2 Feb 2024 16:10:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=64.147.123.24
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 778C614AD11
+	for <linux-openrisc@vger.kernel.org>; Fri,  2 Feb 2024 17:43:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706890264; cv=none; b=iMWhvTROgz7oLx6ojiQj2lrkwdqx7IQ8tW3nd3DU+aOIIzqSB0kuWOHflor7gUSHjU6mMB4N3CCZlsfQQDuGACumMoEhojhwDCZvhmnAMY+ZjU6CQGu1DSqfcj6qHrCLLCGGghV1OqBXZO0uH6TsNkGLIMiKIapaiX8PoKyxqsg=
+	t=1706895795; cv=none; b=UtQWPVvqW0KboB5qx6so/pKa+9yxrvX/ySgRIJuoRsOQ6DWyeILQWDmIrXo0GZ81iUYfdxEImT/mEXeY1ZSqR8Q8IY4QSokH2iKOGbqW9bwGOPlCx8X1I+HXBnenk3/bsp9yS6R1ic20b/RXBDR5ARq4yAnokYhxQ/hhfVlpmRo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706890264; c=relaxed/simple;
-	bh=kX8+BVQxSYRnGw0819gNuu29AfOA1dT9NVBEToCHPrQ=;
-	h=MIME-Version:Message-Id:In-Reply-To:References:Date:From:To:Cc:
-	 Subject:Content-Type; b=ehLRdQc54/nsUd+Zi4ee6azgmjazyoVUgO1AKxicSoux5TF84pMcQFKR5NspJ1BKWRY4gTRPz33eoLGlv0AWoBnV/XOG4FbR5AieDGCuDaOKqClN4iB3AYL/TYSe2uzcyGN3xXedO5lsc0BTsKkMzDz+j80v0+6n7jQJQwE1mS4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=fupEQTET; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=HnkcbCIS; arc=none smtp.client-ip=64.147.123.24
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1706895795; c=relaxed/simple;
+	bh=T+NxqikMqY8zMy1caHhysblQq9xG1f252fz6RtPoVcE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=P4lX0Nr3UW1VOb3tztYNWly0BGDa0x61SXyIPzL/iScGpA+KHUN1CF31rgn4MXuptluEgaBqKx/Al8gti2wuJPtYLMz+YO9VML0bCDMl9IlDOLAiPGuY+yH8UHnU0Dl3q71Ktqi+QNHjndEkxsMNO2hlLDoDEJY0fRLNEPuV+D8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=SlVx6PbB; arc=none smtp.client-ip=209.85.219.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="fupEQTET";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="HnkcbCIS"
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-	by mailout.west.internal (Postfix) with ESMTP id 3FC5E3200B01;
-	Fri,  2 Feb 2024 11:10:56 -0500 (EST)
-Received: from imap51 ([10.202.2.101])
-  by compute5.internal (MEProxy); Fri, 02 Feb 2024 11:10:57 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm2; t=1706890255; x=1706976655; bh=2b8pFnyFR4
-	gRpQFE8oYwKJiua/TdZSaJZKmQUS52IdY=; b=fupEQTETV1yFF8O5lK0uJpzGgm
-	WJeEipvRSfQVqK3q9QukriFXCuGrl/A5rFDj3uu2JsvDp5ku2WDg1MO28mFXvRtJ
-	4aGrFl7/muB1E8jWK+dvCmfzqxlUsORpkZlebWTMGimFoN8/K7EG/duu7yFEdhas
-	Ms56THyEbnQYqP9nDBJDdljvMdbxLcDTJVuR+9JfskKYDSNb87Uv8w2aJHP+bJ4i
-	r9OgdBuus4VBE6chImh9cyzTguslBBOiuSNCB2O9ET23C5/Ru9prZxG5KGDS6jZf
-	KBSbtiRKMthNqr5xgXvTudKZK1tnJw8U3vbFEjWPlA6yVbB8z+mvMbpEcp8A==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-	fm3; t=1706890255; x=1706976655; bh=2b8pFnyFR4gRpQFE8oYwKJiua/Td
-	ZSaJZKmQUS52IdY=; b=HnkcbCIShL5JS4xUYseORfLa1KOctLg5H1tdMbKPm1xz
-	IEn+/JtJillqyISbvGsqPZ19y5rapjIMMwJe0rI3y5NsBSX2D3sQwfSjqeDKgBgd
-	VBiF8ZcEG4wm783Drz+yWInsvT2TrRFx1G4Ym7Az5txpaJuJWkimG+ibtpTJWoIG
-	sju+zZxqHEr19YTO1lGIu9AjV1/qVeoiwocgH3SMMZZMznXiy8tF4k+pnD0akTf/
-	cZB5MrKdoKh/G2eKRRnKdlJoVEzEw4UAuCJ96Kb6Q/7BLKFx/gWbxbOiIgoe9V6J
-	xTb+hi2UY8iAhM4r9Axr0tymKQY9TmIte2RuflPWQg==
-X-ME-Sender: <xms:DhS9ZT-bfty49ak_TsE6Wgw5qsubM3RpoVgKWaIUMQQWpYCM5FghZw>
-    <xme:DhS9ZfvPbKnCmWhNwoIB46uEQ2m1BuUpOntcmHGosgAhq9AKhrs0DTj1v-7G8ERoS
-    LtpnzzTig0Nx5zqk3g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvkedrfedugedgkeegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
-    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
-    htvghrnhepvefhffeltdegheeffffhtdegvdehjedtgfekueevgfduffettedtkeekueef
-    hedunecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpe
-    dtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrrhhnugesrghrnhgusgdruggv
-X-ME-Proxy: <xmx:DhS9ZRBo9ELzQQwzmG89xWC4GS7JN3HVwgzCOK_Ji1yddMyV8xRAJQ>
-    <xmx:DhS9ZfcaMisjyebEb4-8AO7Np9qKjUbem4QhkhQQHZSFN47bUDNugg>
-    <xmx:DhS9ZYMph7LnpU09I0VicOivZIzGqF0OsFzahIO194r_ytgJxU4LXA>
-    <xmx:DxS9ZXrn71Df2iQYM7II-hjuBT9B-NgKEGBTFjrCcEOvbEeG4-FYJQ>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-	id 07AF7B6008D; Fri,  2 Feb 2024 11:10:53 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.11.0-alpha0-144-ge5821d614e-fm-20240125.002-ge5821d61
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="SlVx6PbB"
+Received: by mail-yb1-f179.google.com with SMTP id 3f1490d57ef6-db4364ecd6aso2286080276.2
+        for <linux-openrisc@vger.kernel.org>; Fri, 02 Feb 2024 09:43:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1706895791; x=1707500591; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=T+NxqikMqY8zMy1caHhysblQq9xG1f252fz6RtPoVcE=;
+        b=SlVx6PbB7PYS11tWyXl1FRKQN9gJVKiolOghLgYliRP+lkaopifg6QQvJZOYzHj2RP
+         qn7frcav8E4KPXfnOhzhwD0bxDEnRhD6MTvxMcwo+ZVoifkRppGPZdFuzySzyvut6js0
+         5zV8CZ3pPYntE97AjeD4gOQzVeyY5Ipy02Qsq04dfWDRX//ylGr+L3smhB0L8SKU9TKx
+         /ZlyAY47wVqCFy1kj40ntfbpw3MQe6ry/uZLoD5oXJqrD8ZOg/e0hTzdm0yN9Q23Gp7Z
+         OHzNMhiuS9PNAiYfhrbhwkDKtj7stnQ45MmUKPWeIn0v/0mXl1o4vaiLutdSwM5unWkT
+         0EGQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706895791; x=1707500591;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=T+NxqikMqY8zMy1caHhysblQq9xG1f252fz6RtPoVcE=;
+        b=s95k9dmna+PIluuvzIBuj1Y5z4UVEcUDdr+5/Zou98nCj0ATbcwa9cwCdUra/bglrh
+         gXPeYppspKBmYdWYjqjOn21OGasWW0jjNM5aR36xfUF2REtVhAcKc/5+++7UyKlDDBqQ
+         3FEuPwCD7zHctAjybg4rdd2bx2aclodXGZNc0Ap/zYfJ04n+x//Ni+N/js4g5SyxAY/B
+         y+JY6kmCJ6i6tu/EtqlTnJC0WzK44vua1vn3BhbFfVGxVOf94voUhRiHdBRcWYXQM6C5
+         Eps2EmTRcbuz+B9svhU3ve5Dc/pD9zl3QM2MJn/EHTU2emFwfDM0QjSNwH7HmMpby+X8
+         cSsQ==
+X-Gm-Message-State: AOJu0YywAcSZ2y61bLdtwivgvNH4PVAQHfTpRZnr5uI+y+iUCAs2DdQG
+	hiBe95Pq8bMf0ATvgeik2CbRn3xCP6vRXGwkdvqa0ZB0A6aIYz+XGfkDy5cVWVubvtZmKLZ5J08
+	Y/LC8i/+MpXeeGTlOwHI0RTB4kjdIkIbx2obtsQ==
+X-Google-Smtp-Source: AGHT+IHTaFiLwtqyLg8kSKQCyZ9cLuPMVYmKAcJIt8eLghpONdnZGm3WBgei2TskaAhjfRZa6yT6FKg3E1ONuoiITUs=
+X-Received: by 2002:a25:5f49:0:b0:dc6:af04:2e05 with SMTP id
+ h9-20020a255f49000000b00dc6af042e05mr6356972ybm.7.1706895791304; Fri, 02 Feb
+ 2024 09:43:11 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <819000e2-e638-4bfe-81d4-cb588f86adaa@app.fastmail.com>
-In-Reply-To: <20240202140550.9886-1-yan.y.zhao@intel.com>
 References: <20240202140550.9886-1-yan.y.zhao@intel.com>
-Date: Fri, 02 Feb 2024 17:10:33 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Yan Zhao" <yan.y.zhao@intel.com>,
- "Linus Walleij" <linus.walleij@linaro.org>, guoren <guoren@kernel.org>,
- "Brian Cain" <bcain@quicinc.com>, "Jonas Bonn" <jonas@southpole.se>,
- "Stefan Kristiansson" <stefan.kristiansson@saunalahti.fi>,
- "Stafford Horne" <shorne@gmail.com>
-Cc: Linux-Arch <linux-arch@vger.kernel.org>, linux-kernel@vger.kernel.org,
- "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
- linux-hexagon@vger.kernel.org,
- "linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>
+In-Reply-To: <20240202140550.9886-1-yan.y.zhao@intel.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Fri, 2 Feb 2024 18:43:00 +0100
+Message-ID: <CACRpkdarfWFhvJ8vrDZXOk-nhDkgfwOLB+EytVm1S=-dEFKy3A@mail.gmail.com>
 Subject: Re: [PATCH] mm: Remove broken pfn_to_virt() on arch csky/hexagon/openrisc
-Content-Type: text/plain
+To: Yan Zhao <yan.y.zhao@intel.com>
+Cc: arnd@arndb.de, guoren@kernel.org, bcain@quicinc.com, jonas@southpole.se, 
+	stefan.kristiansson@saunalahti.fi, shorne@gmail.com, 
+	linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
+	linux-openrisc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 2, 2024, at 15:05, Yan Zhao wrote:
+On Fri, Feb 2, 2024 at 3:35=E2=80=AFPM Yan Zhao <yan.y.zhao@intel.com> wrot=
+e:
+
 > Remove the broken pfn_to_virt() on architectures csky/hexagon/openrisc.
 >
 > The pfn_to_virt() on those architectures takes PFN instead of PA as the
-> input to macro __va(), with PAGE_SHIFT applying to the converted VA, which
+> input to macro __va(), with PAGE_SHIFT applying to the converted VA, whic=
+h
 > is not right, especially when there's a non-zero offset in __va(). [1]
 >
 > The broken pfn_to_virt() was noticed when checking how page_to_virt() is
@@ -109,16 +95,18 @@ On Fri, Feb 2, 2024, at 15:05, Yan Zhao wrote:
 > just delete the pfn_to_virt() on those architectures.
 >
 > The pfn_to_virt() in asm-generic/page.h is not touched in this patch as
-> it's referenced by page_to_virt() in that header while the whole header is
+> it's referenced by page_to_virt() in that header while the whole header i=
+s
 > going to be removed as a whole due to no one including it.
 >
-> Link:https://lore.kernel.org/all/20240131055159.2506-1-yan.y.zhao@intel.com [1]
+> Link:https://lore.kernel.org/all/20240131055159.2506-1-yan.y.zhao@intel.c=
+om [1]
 > Cc: Linus Walleij <linus.walleij@linaro.org>
 > Suggested-by: Arnd Bergmann <arnd@arndb.de>
 > Signed-off-by: Yan Zhao <yan.y.zhao@intel.com>
 
-Nice changelog text!
+Thanks for making the kernel a better place!
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-Applied it to the asm-generic tree now, thanks,
-
-    Arnd
+Yours,
+Linus Walleij
