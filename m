@@ -1,112 +1,106 @@
-Received: from mail-yb1-f179.google.com (mail-yb1-f179.google.com [209.85.219.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 778C614AD11
-	for <linux-openrisc@vger.kernel.org>; Fri,  2 Feb 2024 17:43:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4E8A1FB3;
+	Sat, 10 Feb 2024 00:32:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706895795; cv=none; b=UtQWPVvqW0KboB5qx6so/pKa+9yxrvX/ySgRIJuoRsOQ6DWyeILQWDmIrXo0GZ81iUYfdxEImT/mEXeY1ZSqR8Q8IY4QSokH2iKOGbqW9bwGOPlCx8X1I+HXBnenk3/bsp9yS6R1ic20b/RXBDR5ARq4yAnokYhxQ/hhfVlpmRo=
+	t=1707525146; cv=none; b=bse8fGydcZUbNM4CHObZ6TIdCvjNvl4er2Y32nTQXXde5RIX/yE0HEdZHkBzqJXlH1uEZpXiIdRj5Q4lN5eJAQVoXScBE49GiACzm+PDf0ZZbiy6im7OhK8dBt15SRKX8XiG1fyq23cdh9gETXHj2lZyzktPNpsWehr7UrY2I58=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706895795; c=relaxed/simple;
-	bh=T+NxqikMqY8zMy1caHhysblQq9xG1f252fz6RtPoVcE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=P4lX0Nr3UW1VOb3tztYNWly0BGDa0x61SXyIPzL/iScGpA+KHUN1CF31rgn4MXuptluEgaBqKx/Al8gti2wuJPtYLMz+YO9VML0bCDMl9IlDOLAiPGuY+yH8UHnU0Dl3q71Ktqi+QNHjndEkxsMNO2hlLDoDEJY0fRLNEPuV+D8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=SlVx6PbB; arc=none smtp.client-ip=209.85.219.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1707525146; c=relaxed/simple;
+	bh=86ofy+kM5/T8yxYifh+rhywEk+E0E7T2saCw5ZL4pS4=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=AGjeDFcB29lk0BZzEu114Tu+thmtHtGPzcckk5sAvGyWmnFcCCuT2DMzkig8WXcnPdjZ+GmnShQ/bwUZO3oOI/hJpK70eFG7F3GUxTl0/cD6p9FkB3Go7h/WVrcFFkBqKFAmKricZtcdiJ+eUYBCCOmsQeIsmSzDypWEhZ++uhQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=BI11iwot; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="SlVx6PbB"
-Received: by mail-yb1-f179.google.com with SMTP id 3f1490d57ef6-db4364ecd6aso2286080276.2
-        for <linux-openrisc@vger.kernel.org>; Fri, 02 Feb 2024 09:43:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1706895791; x=1707500591; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=T+NxqikMqY8zMy1caHhysblQq9xG1f252fz6RtPoVcE=;
-        b=SlVx6PbB7PYS11tWyXl1FRKQN9gJVKiolOghLgYliRP+lkaopifg6QQvJZOYzHj2RP
-         qn7frcav8E4KPXfnOhzhwD0bxDEnRhD6MTvxMcwo+ZVoifkRppGPZdFuzySzyvut6js0
-         5zV8CZ3pPYntE97AjeD4gOQzVeyY5Ipy02Qsq04dfWDRX//ylGr+L3smhB0L8SKU9TKx
-         /ZlyAY47wVqCFy1kj40ntfbpw3MQe6ry/uZLoD5oXJqrD8ZOg/e0hTzdm0yN9Q23Gp7Z
-         OHzNMhiuS9PNAiYfhrbhwkDKtj7stnQ45MmUKPWeIn0v/0mXl1o4vaiLutdSwM5unWkT
-         0EGQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706895791; x=1707500591;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=T+NxqikMqY8zMy1caHhysblQq9xG1f252fz6RtPoVcE=;
-        b=s95k9dmna+PIluuvzIBuj1Y5z4UVEcUDdr+5/Zou98nCj0ATbcwa9cwCdUra/bglrh
-         gXPeYppspKBmYdWYjqjOn21OGasWW0jjNM5aR36xfUF2REtVhAcKc/5+++7UyKlDDBqQ
-         3FEuPwCD7zHctAjybg4rdd2bx2aclodXGZNc0Ap/zYfJ04n+x//Ni+N/js4g5SyxAY/B
-         y+JY6kmCJ6i6tu/EtqlTnJC0WzK44vua1vn3BhbFfVGxVOf94voUhRiHdBRcWYXQM6C5
-         Eps2EmTRcbuz+B9svhU3ve5Dc/pD9zl3QM2MJn/EHTU2emFwfDM0QjSNwH7HmMpby+X8
-         cSsQ==
-X-Gm-Message-State: AOJu0YywAcSZ2y61bLdtwivgvNH4PVAQHfTpRZnr5uI+y+iUCAs2DdQG
-	hiBe95Pq8bMf0ATvgeik2CbRn3xCP6vRXGwkdvqa0ZB0A6aIYz+XGfkDy5cVWVubvtZmKLZ5J08
-	Y/LC8i/+MpXeeGTlOwHI0RTB4kjdIkIbx2obtsQ==
-X-Google-Smtp-Source: AGHT+IHTaFiLwtqyLg8kSKQCyZ9cLuPMVYmKAcJIt8eLghpONdnZGm3WBgei2TskaAhjfRZa6yT6FKg3E1ONuoiITUs=
-X-Received: by 2002:a25:5f49:0:b0:dc6:af04:2e05 with SMTP id
- h9-20020a255f49000000b00dc6af042e05mr6356972ybm.7.1706895791304; Fri, 02 Feb
- 2024 09:43:11 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="BI11iwot"
+Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.17.1.24/8.17.1.24) with ESMTP id 419Nts6s031351;
+	Sat, 10 Feb 2024 00:29:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	from:to:cc:subject:date:message-id:mime-version:content-type; s=
+	qcppdkim1; bh=Y+AILw3pX1T29zesxJoDs7erTQv/gDbeD35hCxK6nqc=; b=BI
+	11iwotVsHW4+YaVnK6MfOXbxyVFhGjjb7xTNKbO6c+0r8/TTeZnKJPcIA/bZrZxh
+	I1IfTPs5Gc9Vt7G8KjJGaGgL7UtHuBybizvQml1skqiDwNd2HF0xVuEio/6NdcuP
+	mL2TeLoY0dzn+9pw9P7v3rv9cnnLIRzgKBtzujicQwVsfkpe4iNj97Vey7bS/A1r
+	p/A+3uwcUjM2IMHGfyJXVrZiP/HmwTFSUTJ61djqQaXAK80AmnvYGBxUuOTh3dSF
+	TdXTPy28w+kL0dm3+24tS6jxna/hb5tyO80GpgGGsCa3LRogzbhdx38B4+p7EpaG
+	p25KzyVD5G73vZ+prKrg==
+Received: from nalasppmta02.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3w5u2k8c02-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 10 Feb 2024 00:29:48 +0000 (GMT)
+Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
+	by NALASPPMTA02.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 41A0TlCw025917
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 10 Feb 2024 00:29:47 GMT
+Received: from th-lint-014.qualcomm.com (10.80.80.8) by
+ nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.40; Fri, 9 Feb 2024 16:29:44 -0800
+From: Oreoluwa Babatunde <quic_obabatun@quicinc.com>
+To: <chenhuacai@kernel.org>, <jonas@southpole.se>,
+        <stefan.kristiansson@saunalahti.fi>, <shorne@gmail.com>,
+        <ysato@users.sourceforge.jp>, <dalias@libc.org>,
+        <glaubitz@physik.fu-berlin.de>, <robh+dt@kernel.org>,
+        <frowand.list@gmail.com>
+CC: <linux-openrisc@vger.kernel.org>, <loongarch@lists.linux.dev>,
+        <linux-sh@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <kernel@quicinc.com>,
+        Oreoluwa Babatunde
+	<quic_obabatun@quicinc.com>
+Subject: [PATCH 0/3] Restructure init sequence to set aside reserved memory earlier
+Date: Fri, 9 Feb 2024 16:29:28 -0800
+Message-ID: <1707524971-146908-1-git-send-email-quic_obabatun@quicinc.com>
+X-Mailer: git-send-email 2.7.4
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240202140550.9886-1-yan.y.zhao@intel.com>
-In-Reply-To: <20240202140550.9886-1-yan.y.zhao@intel.com>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Fri, 2 Feb 2024 18:43:00 +0100
-Message-ID: <CACRpkdarfWFhvJ8vrDZXOk-nhDkgfwOLB+EytVm1S=-dEFKy3A@mail.gmail.com>
-Subject: Re: [PATCH] mm: Remove broken pfn_to_virt() on arch csky/hexagon/openrisc
-To: Yan Zhao <yan.y.zhao@intel.com>
-Cc: arnd@arndb.de, guoren@kernel.org, bcain@quicinc.com, jonas@southpole.se, 
-	stefan.kristiansson@saunalahti.fi, shorne@gmail.com, 
-	linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
-	linux-openrisc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
+ nalasex01b.na.qualcomm.com (10.47.209.197)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-ORIG-GUID: _wH-3-rOkUcyW1AYOaxCUEVnFN9qy5ZW
+X-Proofpoint-GUID: _wH-3-rOkUcyW1AYOaxCUEVnFN9qy5ZW
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-09_20,2024-02-08_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1011
+ lowpriorityscore=0 suspectscore=0 mlxlogscore=510 bulkscore=0
+ impostorscore=0 malwarescore=0 mlxscore=0 priorityscore=1501 phishscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2401310000 definitions=main-2402100002
 
-On Fri, Feb 2, 2024 at 3:35=E2=80=AFPM Yan Zhao <yan.y.zhao@intel.com> wrot=
-e:
+The loongarch, openric, and sh architectures allocate memory from
+memblock before it gets the chance to set aside reserved memory regions.
+This means that there is a possibility for memblock to allocate from
+memory regions that are supposed to be reserved.
 
-> Remove the broken pfn_to_virt() on architectures csky/hexagon/openrisc.
->
-> The pfn_to_virt() on those architectures takes PFN instead of PA as the
-> input to macro __va(), with PAGE_SHIFT applying to the converted VA, whic=
-h
-> is not right, especially when there's a non-zero offset in __va(). [1]
->
-> The broken pfn_to_virt() was noticed when checking how page_to_virt() is
-> unfolded on x86. It turns out that the one in linux/mm.h instead of in
-> asm-generic/page.h is compiled for x86. However, page_to_virt() in
-> asm-generic/page.h is found out expanding to pfn_to_virt() with a bug
-> described above. The pfn_to_virt() is found out not right as well on
-> architectures csky/hexagon/openrisc.
->
-> Since there's no single caller on csky/hexagon/openrisc to pfn_to_virt()
-> and there are functions doing similar things as pfn_to_virt() --
-> - pfn_to_kaddr() in asm/page.h for csky,
-> - page_to_virt() in asm/page.h for hexagon, and
-> - page_to_virt() in linux/mm.h for openrisc,
-> just delete the pfn_to_virt() on those architectures.
->
-> The pfn_to_virt() in asm-generic/page.h is not touched in this patch as
-> it's referenced by page_to_virt() in that header while the whole header i=
-s
-> going to be removed as a whole due to no one including it.
->
-> Link:https://lore.kernel.org/all/20240131055159.2506-1-yan.y.zhao@intel.c=
-om [1]
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Suggested-by: Arnd Bergmann <arnd@arndb.de>
-> Signed-off-by: Yan Zhao <yan.y.zhao@intel.com>
+This series makes changes to the arch specific setup code to call the
+functions responsible for setting aside the reserved memory regions earlier
+in the init sequence.
+Hence, by the time memblock starts being used to allocate memory, the
+reserved memory regions should already be set aside, and it will no
+longer be possible for allocations to come from them.
 
-Thanks for making the kernel a better place!
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+I am currnetly using an arm64 device, and so I will need assistance from
+the relevant arch maintainers to help check if this breaks anything from
+compilation to device bootup.
 
-Yours,
-Linus Walleij
+Oreoluwa Babatunde (3):
+  loongarch: Call arch_mem_init() before platform_init() in the init
+    sequence
+  openrisc: Call setup_memory() earlier in the init sequence
+  sh: Call paging_init() earlier in the init sequence
+
+ arch/loongarch/kernel/setup.c | 2 +-
+ arch/openrisc/kernel/setup.c  | 6 +++---
+ arch/sh/kernel/setup.c        | 4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
+
+-- 
