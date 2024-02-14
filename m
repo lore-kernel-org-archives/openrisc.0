@@ -1,119 +1,107 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1428D364;
-	Sat, 10 Feb 2024 00:32:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 976D21B813;
+	Wed, 14 Feb 2024 13:03:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707525147; cv=none; b=fQYwDf4Snc5hcQa0tNk0B0MefTb7vgBRB3BJFTDF5QqclOMRcypNJeJQv994leCJpeGLYWcEMYAF4Sw9p2+lFRzR43NweFmIHSOWo8zm2hR3SftxgO7fuNLwrWUd5UqDl2f1qqEXqQI0stMUpOJJjQKvg8hWimwh1VevBU/cAWo=
+	t=1707915834; cv=none; b=AbtcI12rcK0k+LFosUNwilX5LDGML94EqQ2QUAqs4qJJySDSWXDwpjVNoCbSmhqyuRzHLTGHKsM0cuu5iswQZZvYJMeV9JGnEB/UubS8LAp/9dwl2JJtvRitcOPvPqzB49/n03J7WlJkhFAov0qlX2jGvgGxguE2H4Gn0HpyWyQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707525147; c=relaxed/simple;
-	bh=tWs/RdzKNSpeNzDiKFrH3scRraIzvGSczheN43Mzbmk=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ghC+ZCEEqMREE8kll4PVffpUUWi/ZomsAV1lS93tuRKKbs0Kb9rmkMeiFSIAu7JVDeFmKvCe5S2zZIBDnoPNoa7xU2/5lTQYLmZWrYbsk+bz3VWhAUKulHu/tJBdgchiNVBpcD/QH1NwdQB1IpHxOAN9utiEEYp0OAV4il7HbUw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=i1e/u8ml; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
+	s=arc-20240116; t=1707915834; c=relaxed/simple;
+	bh=Y5cCv6WN3AG3tMIqacma1w2YSEMZ6JaBHyisxC12c9w=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=UXwdbTZSOrryKwlob7xGvdHrK4UUVzJn84vpVQdAP6stEDNCDdGfHvgLeWIGTD+5iSzKQP4j1qTKWTuON/7bWW9lEeZq5FN31HCjLE3FoXMrYIx8dv13bEhRLBx9CgVmOj6cspIu2LMje01qFLxhDLQ2GR8+/jI0IwGBc7nLgwY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AvcT8YJo; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="i1e/u8ml"
-Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.17.1.24/8.17.1.24) with ESMTP id 41A0A2jM028423;
-	Sat, 10 Feb 2024 00:29:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	from:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-type; s=qcppdkim1; bh=d6dqZepJKO2rTUXSkKqD
-	A+q3/xHQWCJswgErNvcSL/I=; b=i1e/u8mlsbL3zHlvANP1b06qPEQG4XpUsU1O
-	RI6JisAzcGzNtLCMDbMsp5OsDe50MEK/uvAtV+yzh/DrMduN74hmxR/HpCK+qx6L
-	afGn63vRw53qHV68rhtzeDkFFTeYZJvs8NujfaZGtVZnee7nweGGZjqyYYhae48z
-	72I2pr0FNfd8G9uAM19fBdwUKX6ezo7/Bk5qxBl3MT3pQg0vJMVf+fpDBH77cqhb
-	SGSk4FqX2kNc6ANjKZ8VVRtuOTVr5+xeWfVoK2yLm8Lx8hESxF/9MfvqNHPUKFAX
-	x5PMpFyZRXT/3/UgA5R8e1iBiUmooHsN4geJyi76pULcA09b4A==
-Received: from nalasppmta05.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3w5m159bts-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sat, 10 Feb 2024 00:29:50 +0000 (GMT)
-Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
-	by NALASPPMTA05.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 41A0Tn2A011721
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sat, 10 Feb 2024 00:29:49 GMT
-Received: from th-lint-014.qualcomm.com (10.80.80.8) by
- nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Fri, 9 Feb 2024 16:29:46 -0800
-From: Oreoluwa Babatunde <quic_obabatun@quicinc.com>
-To: <chenhuacai@kernel.org>, <jonas@southpole.se>,
-        <stefan.kristiansson@saunalahti.fi>, <shorne@gmail.com>,
-        <ysato@users.sourceforge.jp>, <dalias@libc.org>,
-        <glaubitz@physik.fu-berlin.de>, <robh+dt@kernel.org>,
-        <frowand.list@gmail.com>
-CC: <linux-openrisc@vger.kernel.org>, <loongarch@lists.linux.dev>,
-        <linux-sh@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <kernel@quicinc.com>,
-        Oreoluwa Babatunde
-	<quic_obabatun@quicinc.com>
-Subject: [PATCH 3/3] sh: Call paging_init() earlier in the init sequence
-Date: Fri, 9 Feb 2024 16:29:31 -0800
-Message-ID: <1707524971-146908-4-git-send-email-quic_obabatun@quicinc.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1707524971-146908-1-git-send-email-quic_obabatun@quicinc.com>
-References: <1707524971-146908-1-git-send-email-quic_obabatun@quicinc.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AvcT8YJo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FED8C43143;
+	Wed, 14 Feb 2024 13:03:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1707915834;
+	bh=Y5cCv6WN3AG3tMIqacma1w2YSEMZ6JaBHyisxC12c9w=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=AvcT8YJoQNZs8sfRDTkmYygA8l0Kza6K8KEPY6U7YF/29oo0kvqwp44UZBHOO9osR
+	 TK4RFyjNq+qR4wlkN6n+/wJeiSFhvBNfCAObgM80sJtGSwoUvEgYM7erDzssa3Fx8B
+	 rxHRY+UhSYZjUxn+MgyDUGzHqPBf7DIS2+9n2BX6DogXsBakeZgX3CVQ6HNVmQJ2H9
+	 yg/6H+xw9ZzE5Sxgpwj4QToZs1eY5dOaaUEd2NWIZNm3z+/fcmPObmj+mQtJQzz4e3
+	 leKlh4ZGTJMSOlFYXtUASBH4/14g80J141xiKM29JjkRFxnMLfX5eKDJcXmKTbLqrx
+	 cYW5Fi/ic4yUA==
+Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-5638aa9a5c2so529040a12.3;
+        Wed, 14 Feb 2024 05:03:54 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCWD6j/DH0k7FIsBz9pEDIpD8O8mzLMWlyx9IzfvbXEUGGoOQO/vT2OHGcnqNWdYdXVO/ROcW6ElcmFJLpNFgtkPpuxueGhmfpU/u+ndLuG+SJNzXmAX07OuJjsxmyO1j3A5d6f/7N2LJkPK8dOpwbL5z0LWsfYK94qc911wogbZ3P2N3vMHUfVQ98BddLknqdh24pK9kuwXy+9j1DWu0aY/xXU=
+X-Gm-Message-State: AOJu0YwqZyjH+kx1ouDtvBdKHvfwwQicj386I1Xn5gNDdtZmfdbN2x+q
+	7ZirB/LGfgQSufG3l/iN1qcFXTnisuguHLg0N1VsYjikMFrlGkidyaiIT+tnMoJuJpkPyhmhtLZ
+	6F8rFK+Sj/J/Y0c9lZOQUG1gLZ18=
+X-Google-Smtp-Source: AGHT+IGDqSWASlPOhhqmPfhR917mdVVEr1HDL41oniwRUbx8hEYlWBy0XN5Ku7zm3JoyjDeFMN3Gw5snyzzzzutcjwg=
+X-Received: by 2002:a05:6402:514f:b0:562:9f3:afeb with SMTP id
+ n15-20020a056402514f00b0056209f3afebmr1987648edd.20.1707915832828; Wed, 14
+ Feb 2024 05:03:52 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
- nalasex01b.na.qualcomm.com (10.47.209.197)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-GUID: Ayi3Q_Ob1ob7P-VVfjTiuXJiq6E1gt_K
-X-Proofpoint-ORIG-GUID: Ayi3Q_Ob1ob7P-VVfjTiuXJiq6E1gt_K
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-09_20,2024-02-08_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
- bulkscore=0 mlxlogscore=862 lowpriorityscore=0 clxscore=1015 spamscore=0
- priorityscore=1501 adultscore=0 malwarescore=0 impostorscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2401310000 definitions=main-2402100002
+References: <1707524971-146908-1-git-send-email-quic_obabatun@quicinc.com> <1707524971-146908-2-git-send-email-quic_obabatun@quicinc.com>
+In-Reply-To: <1707524971-146908-2-git-send-email-quic_obabatun@quicinc.com>
+From: Huacai Chen <chenhuacai@kernel.org>
+Date: Wed, 14 Feb 2024 21:03:49 +0800
+X-Gmail-Original-Message-ID: <CAAhV-H5f5e-cCaX7Gr20oG8F-aywJcosLn4ajxx2SQWoB8JtSA@mail.gmail.com>
+Message-ID: <CAAhV-H5f5e-cCaX7Gr20oG8F-aywJcosLn4ajxx2SQWoB8JtSA@mail.gmail.com>
+Subject: Re: [PATCH 1/3] loongarch: Call arch_mem_init() before
+ platform_init() in the init sequence
+To: Oreoluwa Babatunde <quic_obabatun@quicinc.com>
+Cc: jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com, 
+	ysato@users.sourceforge.jp, dalias@libc.org, glaubitz@physik.fu-berlin.de, 
+	robh+dt@kernel.org, frowand.list@gmail.com, linux-openrisc@vger.kernel.org, 
+	loongarch@lists.linux.dev, linux-sh@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, kernel@quicinc.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The unflatten_device_tree() function contains a call to
-memblock_alloc(). This is a problem because this allocation is done
-before any of the reserved memory is set aside in paging_init().
-This means that there is a possibility for memblock to allocate from
-any of the memory regions that are supposed to be set aside as reserved.
+Hi, Oreoluwa,
 
-Hence, move the call to paging_init() to be earlier in the init
-sequence so that the reserved memory regions are set aside before any
-allocations are done using memblock.
+On Sat, Feb 10, 2024 at 8:29=E2=80=AFAM Oreoluwa Babatunde
+<quic_obabatun@quicinc.com> wrote:
+>
+> The platform_init() function which is called during device bootup
+> contains a few calls to memblock_alloc().
+> This is an issue because these allocations are done before reserved
+> memory regions are set aside in arch_mem_init().
+> This means that there is a possibility for memblock to allocate memory
+> from any of the reserved memory regions.
+>
+> Hence, move the call to arch_mem_init() to be earlier in the init
+> sequence so that all reserved memory is set aside before any allocations
+> are made with memblock.
+>
+> Signed-off-by: Oreoluwa Babatunde <quic_obabatun@quicinc.com>
+> ---
+>  arch/loongarch/kernel/setup.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/arch/loongarch/kernel/setup.c b/arch/loongarch/kernel/setup.=
+c
+> index edf2bba..66c307c 100644
+> --- a/arch/loongarch/kernel/setup.c
+> +++ b/arch/loongarch/kernel/setup.c
+> @@ -597,8 +597,8 @@ void __init setup_arch(char **cmdline_p)
+>         parse_early_param();
+>         reserve_initrd_mem();
+>
+> -       platform_init();
+>         arch_mem_init(cmdline_p);
+> +       platform_init();
+Thank you for your patch, but I think we cannot simply exchange their
+order. If I'm right, you try to move all memblock_reserve() as early
+as possible, but both arch_mem_init() and platform_init() call
+memblock_reserve(), we should do a complete refactor for this. And
+since it works with the existing order, we can simply keep it as is
+now.
 
-Signed-off-by: Oreoluwa Babatunde <quic_obabatun@quicinc.com>
----
- arch/sh/kernel/setup.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Huacai
 
-diff --git a/arch/sh/kernel/setup.c b/arch/sh/kernel/setup.c
-index d3175f0..ea40798 100644
---- a/arch/sh/kernel/setup.c
-+++ b/arch/sh/kernel/setup.c
-@@ -322,6 +322,8 @@ void __init setup_arch(char **cmdline_p)
- 	/* Let earlyprintk output early console messages */
- 	sh_early_platform_driver_probe("earlyprintk", 1, 1);
- 
-+	paging_init();
-+
- #ifdef CONFIG_OF_EARLY_FLATTREE
- #ifdef CONFIG_USE_BUILTIN_DTB
- 	unflatten_and_copy_device_tree();
-@@ -330,8 +332,6 @@ void __init setup_arch(char **cmdline_p)
- #endif
- #endif
- 
--	paging_init();
--
- 	/* Perform the machine specific initialisation */
- 	if (likely(sh_mv.mv_setup))
- 		sh_mv.mv_setup(cmdline_p);
--- 
+>
+>         resource_init();
+>  #ifdef CONFIG_SMP
+> --
