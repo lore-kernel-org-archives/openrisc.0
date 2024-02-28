@@ -1,157 +1,173 @@
-Received: from flow5-smtp.messagingengine.com (flow5-smtp.messagingengine.com [103.168.172.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F34771482E3;
-	Tue, 27 Feb 2024 15:48:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C991A86248;
+	Wed, 28 Feb 2024 21:06:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709048933; cv=none; b=ZBg4CWtSrc8LmWfWL8jKQzXFNh/Dw9OcRqvuW6VD/4BqJGzckUxQbw2IVyTGU8GEM3J5IACSdAKKIltD4i2Hahu8uDffPKib9D7eSBaE2uBUsLoUAkYSsgwl39M0AaX4cTWvxnD4sYSe/Iwc1LzQQvGxzGvURlMaUrdiq7WLCsQ=
+	t=1709154386; cv=none; b=nrepMUTPYM3lEDXJC9TszdyNpMWezTm0et0qYDxVxPK8vceaSwlGfSFzA31UAyGklN1IEREe8vPsnWA3XQ2GHmZuVsjsKBz0gEh4PJCEN3WrBzNWRjwbuvi7yowUgKChetSzyw3ZULGF9NJbBAS/HqKgQcvGzk/5a2+JOBFf92c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709048933; c=relaxed/simple;
-	bh=2jqupzrqvGkM46I6Bvk5B+arL4luMkNH22lQhJoirTk=;
-	h=MIME-Version:Message-Id:In-Reply-To:References:Date:From:To:Cc:
-	 Subject:Content-Type; b=B1LamLEP3lgcYXgwJTylSDWCOlmt8mcjzNEjswsfFjE+h0l1LuR//3hKCGEvbRL6ESl46U5j4qwyBXvp+6+HYD3ZHf3SoLtI5BIobLNevdjNYfPADKIvM7mp1cjXJQTm2NtUISQbqS7D7s/OmNqkDcb55umtmqAhqk+WeceT5Tk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=Uj8nTtuX; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=hY1txy5S; arc=none smtp.client-ip=103.168.172.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1709154386; c=relaxed/simple;
+	bh=KnopYAd5eQKEby5VAzV5cjLQUuk9vdF/QgTymLF2AQs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ck1y9kVWJkORfqXAM2BzmGZfnPhPA7Gdm2EL56FeM7BxOVjR9dBY59f0fzNwXHPcXInR6Q08RyhUHmAHG+A2BaUxgDsPthExQPCVPvQFp/skexpQLMG5Xcvj+XhpNvA7nWIJFse51s33kfv8J+lbU1EC/4mxILT0P0FMXO10svc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OqWX1w8k; arc=none smtp.client-ip=209.85.221.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="Uj8nTtuX";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="hY1txy5S"
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-	by mailflow.nyi.internal (Postfix) with ESMTP id 0E22F200094;
-	Tue, 27 Feb 2024 10:48:51 -0500 (EST)
-Received: from imap51 ([10.202.2.101])
-  by compute5.internal (MEProxy); Tue, 27 Feb 2024 10:48:51 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1709048931;
-	 x=1709056131; bh=ybbnN0+SobfyxbHHH4ZELWrRQvYBzt/PThTgohkZVK8=; b=
-	Uj8nTtuXWeEi/jXfJb5n+JbsF1HSR0x3KgfCm6wqbBwTdbvkhRqJ3Yq98CMAeG5r
-	D/GO+gsxXcyWzUSYVXbRGbhBL/Z62QpHxQL4Nwm51CeelVfQrM0VsRmYU5oQiksk
-	K0/XMoHjN3ofZ1Z5lt03aTV2rHIKloqb+z/hoNnTFtklsNNfr3RZjbgENs0es2gb
-	IDGbBSGW0xc7Je2i9GyV0TikqeTQ8ZIH5rJ4x5Zc8k491PIy0z0afqdlN46J0Dyh
-	GwV1UL/IypRhnck5jK4xrsxLBGUV4OhZP+DMMw5EqYb3GTEee00bKrSNOVOQW2Of
-	C/8GqY9nA4ZbWGv/r1HmIQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1709048931; x=
-	1709056131; bh=ybbnN0+SobfyxbHHH4ZELWrRQvYBzt/PThTgohkZVK8=; b=h
-	Y1txy5S4iu4CgzO1d33RQRTVdIFEUhjhCu5bud7oeKr3YK+aS49Q7U3ClfbHqdDi
-	1Qn/NXLKPd6IvD9u+mdo6jUi/KerXGwKqXU19Z54fEINfjHSApkWghFTcS4W/D9z
-	bsuvJAFYYdOULYWSgsXdENf8NuVwaZV5nSsSdhul8qQvwBokhTpI/C4zH6thcdJh
-	bnr/GHXwlUup2+3kPL1y1HI4RcBsijL0XYOj/FHZT6izdSVL9jmjE+Sv7hDo4FzA
-	ReVIikHX+Zzdb6tpZ5dMHS/HBnj9HUKp1GKOSPqZGRRmEAJNIjOaV9BN4ViQqd2y
-	/UEth2/MdcbGXPG2wRf0g==
-X-ME-Sender: <xms:YgTeZTjQ2h_cNZ8jalaG9yLuQqXC07isf9GGcrOmBfNOKOEulyuU8A>
-    <xme:YgTeZQAU0_LLiTKPpNYMDEOZ3KF4sj8-pyoo1S0mcZ4WuXW9vxRtrWSOshLIwEkGN
-    rSu-Vae63C6tVsVR-A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvledrgeehgdehiecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefofgggkfgjfhffhffvvefutgfgsehtqhertderreejnecuhfhrohhmpedftehr
-    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
-    htvghrnhepgeefjeehvdelvdffieejieejiedvvdfhleeivdelveehjeelteegudektdfg
-    jeevnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
-    hrnhgusegrrhhnuggsrdguvg
-X-ME-Proxy: <xmx:YgTeZTHcN2-Yez8UX5mfvZ1mSJnr_0tSCCXpqVxUG-IHqIPIoNvmcg>
-    <xmx:YgTeZQQzrErr268F2CxBpd9lwv9mwfSPdqVRsNCxYMDirZwuyZpTug>
-    <xmx:YgTeZQwVGz3Yu09b5df-6afMzKl0E5RnQicJLgSLEI6srfnAno_efg>
-    <xmx:YwTeZaeeqww0pq-Uj1Spmu0Q0w5FIsyXzvjrxIQzMA-5KGL3vLMjzLwEdE0>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-	id 407DCB6008F; Tue, 27 Feb 2024 10:48:50 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.11.0-alpha0-153-g7e3bb84806-fm-20240215.007-g7e3bb848
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OqWX1w8k"
+Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-33d6f1f17e5so122441f8f.3;
+        Wed, 28 Feb 2024 13:06:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1709154383; x=1709759183; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=0a8qBD6vozPIAISnQHJRWdPKOWiVN4p5/6pJZQ2dXnQ=;
+        b=OqWX1w8kHwCQYXdkCxNjkAQNbg4Un52uFynZh9KWAuo0Mg0yufkEJLg8+QGrR2zl+N
+         bUVNl4B36a2m5dfVxWPTQX8LSGAxZ5U/rnCq5XKgpuBCE2cX86uZuSq0O1dzQsRrFR/v
+         a6iKolcy7LoX6oK11F8J3i7dWamFYW6/uVq6HleodcXIe/8M3Hsxh+7luhUZZJEMu2x2
+         asAY7rK9p/+Tn4zAj/6f774PkyekMZAKF2NLs5RQx8EHrakYC590S9KfYC7w/I0qOQag
+         eosKGXOlF22OQ/1L9V9DI9kVxD+qQoxqf7b1J0Mmi3Y3PW5RQhzfHuF0Q5l5Lq8sfbOv
+         vLxQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1709154383; x=1709759183;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=0a8qBD6vozPIAISnQHJRWdPKOWiVN4p5/6pJZQ2dXnQ=;
+        b=QTKUa/AQt16od3drKCrR+9Ndt8RnArK9ta16WxcwMUyubc3LyZ3KuyZv2HdTaGKhbR
+         dIAOQ8dME51JQrU0R67dPFp83GGaRqwxHn97QUmZ3YpX8VVkIcZLv/FK7QacGrXOPUcY
+         UL55o9RUKp4S1WNq7Uu1JBjn/7kiFpaClJvDfrbiMqZrqSa/e7o2Q0a9FktIMpAUld3i
+         CUqbntMoVP4wSJBCwM8+gDQ3hop2a95BuRQ3lmEnVFfUQkrz7JN+tQTNSfKRiRp/A9fc
+         mf1/fNrhCjT9Tkff84Jnf4DJoqMiQ1oYL/xND4x1sKDLgM1AqKy6MeiW5or8hDhRR4ui
+         hPrQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVwV96jXs9VLnTWCaSA9CbWYUaIQkbyRZDiLMdbQ62qYaJG7jFvJjU6zELi7sB2y0hM8MEAnhjTkgEtxcFjDVsELB+X9r4Y9luPG628XhW/OxAEw5U1kTb0yvUemwqn+AhmW6N03NoZ2uMKjWM38cRSsAXQjs+IXdApDKZ3TUELkq/VqwjkDWBrPUYDq589x5+30lgB7Mhkhpmog3niAmO4PSQoUqoIVIrCkVpIMdjKHC4Y+IW/CfZBfzudN5zrLuN2zZtnm5fqpGke/G028K+smnPptuPQCYMWr0b48aSvKCfUwu8U8Hcmf/hCb0uUWAOgm4pPo0pm0hztCAe+M8GuwggOnxKnbFelFUjLURaW72GxFGWhk3dJ8hChoNk5IE3yB7E4n6H+bTzP9hqMVDhjdCics6br6jLvyQfcQwkXYCkzo3j34oAv9Z4IwbQDtHk=
+X-Gm-Message-State: AOJu0Yyt5x/xkYD0dT17lBEvwQYDbxWaNgQceSVc+iQP4+8dFC5UCxSP
+	UntYBUYDHaaUH3I/k64+ev0yXmlVwtGWYg4cWuhTssJnrtfpZzDe
+X-Google-Smtp-Source: AGHT+IHczATb7A8ZRTaH383CIQ4ejybI9MzL/yjlqycOyBbx2+IYQRI3gE2POfqlKMAC8LKmr3GeXg==
+X-Received: by 2002:a5d:618d:0:b0:33d:f51f:2da5 with SMTP id j13-20020a5d618d000000b0033df51f2da5mr46406wru.7.1709154383088;
+        Wed, 28 Feb 2024 13:06:23 -0800 (PST)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id m1-20020adfa3c1000000b0033d67791dc0sm15568132wrb.43.2024.02.28.13.06.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 Feb 2024 13:06:21 -0800 (PST)
+Date: Wed, 28 Feb 2024 21:06:21 +0000
+From: Stafford Horne <shorne@gmail.com>
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+	Vincenzo Frascino <vincenzo.frascino@arm.com>,
+	Kees Cook <keescook@chromium.org>,
+	Anna-Maria Behnsen <anna-maria@linutronix.de>,
+	Arnd Bergmann <arnd@arndb.de>, Matt Turner <mattst88@gmail.com>,
+	Vineet Gupta <vgupta@kernel.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Guo Ren <guoren@kernel.org>, Brian Cain <bcain@quicinc.com>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Michal Simek <monstr@monstr.eu>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Richard Weinberger <richard@nod.at>, x86@kernel.org,
+	Max Filippov <jcmvbkbc@gmail.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Jan Kiszka <jan.kiszka@siemens.com>,
+	Kieran Bingham <kbingham@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-um@lists.infradead.org
+Subject: Re: [PATCH 3/4] arch: define CONFIG_PAGE_SIZE_*KB on all
+ architectures
+Message-ID: <Zd-gTf6mvVdPEovO@antec>
+References: <20240226161414.2316610-1-arnd@kernel.org>
+ <20240226161414.2316610-4-arnd@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <1b857914-bc1d-4b9a-b3f1-4eabd8db9810@app.fastmail.com>
-In-Reply-To: <b737a088-c811-45eb-b143-d24e6cdf7eea@csgroup.eu>
-References: <20240226161414.2316610-1-arnd@kernel.org>
- <20240226161414.2316610-2-arnd@kernel.org>
- <764fafb0-2206-4ab1-84ea-ebb7848c8ff2@sifive.com>
- <83450530-c908-4abc-bab7-88c50a3143ff@app.fastmail.com>
- <b737a088-c811-45eb-b143-d24e6cdf7eea@csgroup.eu>
-Date: Tue, 27 Feb 2024 16:48:29 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Christophe Leroy" <christophe.leroy@csgroup.eu>,
- "Samuel Holland" <samuel.holland@sifive.com>,
- "Arnd Bergmann" <arnd@kernel.org>, "Thomas Gleixner" <tglx@linutronix.de>,
- "Vincenzo Frascino" <vincenzo.frascino@arm.com>,
- "Kees Cook" <keescook@chromium.org>,
- "Anna-Maria Gleixner" <anna-maria@linutronix.de>
-Cc: "x86@kernel.org" <x86@kernel.org>,
- "loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
- "Andreas Larsson" <andreas@gaisler.com>,
- "Catalin Marinas" <catalin.marinas@arm.com>,
- "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
- "Max Filippov" <jcmvbkbc@gmail.com>, guoren <guoren@kernel.org>,
- "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
- "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>,
- "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
- "Jan Kiszka" <jan.kiszka@siemens.com>,
- "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
- "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
- "Richard Weinberger" <richard@nod.at>, "Helge Deller" <deller@gmx.de>,
- "Huacai Chen" <chenhuacai@kernel.org>,
- "Russell King" <linux@armlinux.org.uk>,
- "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
- "Geert Uytterhoeven" <geert@linux-m68k.org>,
- "Vineet Gupta" <vgupta@kernel.org>, "Matt Turner" <mattst88@gmail.com>,
- "linux-snps-arc@lists.infradead.org"
- <linux-snps-arc@lists.infradead.org>,
- "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
- "Kieran Bingham" <kbingham@kernel.org>,
- "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
- "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>,
- "Andy Lutomirski" <luto@kernel.org>,
- "John Paul Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>,
- "linux-arm-kernel@lists.infradead.org"
- <linux-arm-kernel@lists.infradead.org>, "Brian Cain" <bcain@quicinc.com>,
- "Michal Simek" <monstr@monstr.eu>,
- "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>,
- "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
- "linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "Palmer Dabbelt" <palmer@dabbelt.com>,
- "Andrew Morton" <akpm@linux-foundation.org>,
- "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
-Subject: Re: [PATCH 1/4] arch: consolidate existing CONFIG_PAGE_SIZE_*KB definitions
-Content-Type: text/plain;charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240226161414.2316610-4-arnd@kernel.org>
 
-On Tue, Feb 27, 2024, at 16:44, Christophe Leroy wrote:
-> Le 27/02/2024 =C3=A0 16:40, Arnd Bergmann a =C3=A9crit=C2=A0:
->> On Mon, Feb 26, 2024, at 17:55, Samuel Holland wrote:
->
->
-> For 256K pages, powerpc has the following help. I think you should hav=
-e=20
-> it too:
->
-> 	  The kernel will only be able to run applications that have been
-> 	  compiled with '-zmax-page-size' set to 256K (the default is 64K) us=
-ing
-> 	  binutils later than 2.17.50.0.3, or by patching the ELF_MAXPAGESIZE
-> 	  definition from 0x10000 to 0x40000 in older versions.
+On Mon, Feb 26, 2024 at 05:14:13PM +0100, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> Most architectures only support a single hardcoded page size. In order
+> to ensure that each one of these sets the corresponding Kconfig symbols,
+> change over the PAGE_SHIFT definition to the common one and allow
+> only the hardware page size to be selected.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  arch/alpha/Kconfig                 | 1 +
+>  arch/alpha/include/asm/page.h      | 2 +-
+>  arch/arm/Kconfig                   | 1 +
+>  arch/arm/include/asm/page.h        | 2 +-
+>  arch/csky/Kconfig                  | 1 +
+>  arch/csky/include/asm/page.h       | 2 +-
+>  arch/m68k/Kconfig                  | 3 +++
+>  arch/m68k/Kconfig.cpu              | 2 ++
+>  arch/m68k/include/asm/page.h       | 6 +-----
+>  arch/microblaze/Kconfig            | 1 +
+>  arch/microblaze/include/asm/page.h | 2 +-
+>  arch/nios2/Kconfig                 | 1 +
+>  arch/nios2/include/asm/page.h      | 2 +-
+>  arch/openrisc/Kconfig              | 1 +
+>  arch/openrisc/include/asm/page.h   | 2 +-
+>  arch/riscv/Kconfig                 | 1 +
+>  arch/riscv/include/asm/page.h      | 2 +-
+>  arch/s390/Kconfig                  | 1 +
+>  arch/s390/include/asm/page.h       | 2 +-
+>  arch/sparc/Kconfig                 | 2 ++
+>  arch/sparc/include/asm/page_32.h   | 2 +-
+>  arch/sparc/include/asm/page_64.h   | 3 +--
+>  arch/um/Kconfig                    | 1 +
+>  arch/um/include/asm/page.h         | 2 +-
+>  arch/x86/Kconfig                   | 1 +
+>  arch/x86/include/asm/page_types.h  | 2 +-
+>  arch/xtensa/Kconfig                | 1 +
+>  arch/xtensa/include/asm/page.h     | 2 +-
+>  28 files changed, 32 insertions(+), 19 deletions(-)
+....
+> diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+> index fd9bb76a610b..3586cda55bde 100644
+> --- a/arch/openrisc/Kconfig
+> +++ b/arch/openrisc/Kconfig
+> @@ -25,6 +25,7 @@ config OPENRISC
+>  	select GENERIC_CPU_DEVICES
+>  	select HAVE_PCI
+>  	select HAVE_UID16
+> +	select HAVE_PAGE_SIZE_8KB
+>  	select GENERIC_ATOMIC64
+>  	select GENERIC_CLOCKEVENTS_BROADCAST
+>  	select GENERIC_SMP_IDLE_THREAD
+> diff --git a/arch/openrisc/include/asm/page.h b/arch/openrisc/include/asm/page.h
+> index 44fc1fd56717..7925ce09ab5a 100644
+> --- a/arch/openrisc/include/asm/page.h
+> +++ b/arch/openrisc/include/asm/page.h
+> @@ -18,7 +18,7 @@
+>  
+>  /* PAGE_SHIFT determines the page size */
+>  
+> -#define PAGE_SHIFT      13
+> +#define PAGE_SHIFT      CONFIG_PAGE_SHIFT
+>  #ifdef __ASSEMBLY__
+>  #define PAGE_SIZE       (1 << PAGE_SHIFT)
+>  #else
 
-I don't think we need to mention pre-2.18 binutils any more, but the
-rest seems useful, changed the text now to
+For the openrisc bits,
 
-config PAGE_SIZE_256KB
-        bool "256KiB pages"
-        depends on HAVE_PAGE_SIZE_256KB
-        help
-          256KiB pages have little practical value due to their extreme
-          memory usage.  The kernel will only be able to run applications
-          that have been compiled with '-zmax-page-size' set to 256KiB
-          (the default is 64KiB or 4KiB on most architectures).
-
-      Arnd
+Acked-by: Stafford Horne <shorne@gmail.com>
