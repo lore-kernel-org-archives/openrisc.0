@@ -1,72 +1,69 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3EEF13A276;
-	Wed,  6 Mar 2024 17:18:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 278023FB16;
+	Wed,  6 Mar 2024 23:41:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=150.107.74.76
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709745482; cv=none; b=bkbXulTAv8KkhIhi2+vQC5+MCKNpnCG/BgXb8hcNfyaR2wn0gjzcrNp0MANBIShB4HxlisDbiEanxa8laOmc9P5YCORPyTI2jky1hrjqaJGprt2uAuyqJhW4IrPCXOFXlzlhSDzH1WHAGRw+RcIAFi6SmjZWoTs94ZtwhMDp58M=
+	t=1709768482; cv=none; b=awTI0mhN82gEeAvB3C3J787toCMnN17gVRfNAI/6d8ty1gvTdw99tqqdM+FJiLvWJfBuq44XKPvr6Ka6E3EG8RZrWTSGzTckap+kZdZxOVf+tIZofMcvKtLUcULVSi78cJpTtV2V4o9nVi6G4p5lolD+HsOkqiL07gSSUrAzdSg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709745482; c=relaxed/simple;
-	bh=cGH9oveyYZrJR4sQqUZvr3RgdUZ1IunEgpUKcc2IsXA=;
+	s=arc-20240116; t=1709768482; c=relaxed/simple;
+	bh=dZ6jOLMDzgPZpijPacAiasUg5Crtb+AP4LxE80M2xBA=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=EFA4SKJrBZMn5PK0p7EnN6aDEyYQcEJ6NUeUa3KsqDIoTRqRXPVvqlXjb+xjKS+RGhj4C25ZzKQWEYbcOjMWf17EWxPLODL3hJiWGXHzJ5ECOxUIJuQPoaOcHSP5X3143ForH3TlRm82xPSXLTLVBpNNRnqgO1n4U+BY4wtfnVs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=gDCCIQT1; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Ba8NRrLO; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	 MIME-Version:Content-Type; b=iHuEzZsu/Urn8zldaiQ5j7gzq7GJ0CTbGgp67QIz72WiI+U5gLTWlVlL5x/hkMHlzYSsaA/mHWW497z+fQSp0kyu9Jzw63h7t9EVYEfjScasjKTy5baSAkmsV9DIXOLagUXW9H6/eGvrDEXdd3NUu6o6Al788cDBoF29z2idXTw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ellerman.id.au; spf=pass smtp.mailfrom=ellerman.id.au; dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b=dfxSn7ES; arc=none smtp.client-ip=150.107.74.76
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ellerman.id.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ellerman.id.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="gDCCIQT1";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Ba8NRrLO"
-From: Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1709745479;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/OQqHSSiFO9QvgB4mY2J+LyWd+etZHTC3EZIIQab4fo=;
-	b=gDCCIQT1qxbWXTzhufSmoNS52MsO6T6khcDRU4R/DvjT4G7MoNh9Ky1nmGGMUA5kBJGmB5
-	azsjDUOsuP8fnYd10g8AahY82D+0bOAV5U3WP5daAn+croDLWUY3Ux3Xh7i9JWhMGu7ILz
-	CZx/MWC+XoyW1OE1/HgI9ImOzMQ3Hsu7ZGgFD0XsFBH1gJkU/OqCW7ZFdp75gTfSAIe5PP
-	r0Jjoh6AeTDkw4LFACDFt43V3o5FzJyQ23zOJdJCOPm4FdIlpDNblApjxSKyFng8p2xu18
-	6rz3+EZYW43r4daGc6RkeHzoLH9pHS88uirHCfRuC4FSfS7+MEcP8Bkyg26BgA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1709745479;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/OQqHSSiFO9QvgB4mY2J+LyWd+etZHTC3EZIIQab4fo=;
-	b=Ba8NRrLO9SKa1kou0+rIbBztNEAwJsDv3WFMK2NllzRQnMhckZV3x6THtTFG81tO6REjSx
-	6aQnDwMJIY/8bAAA==
+	dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b="dfxSn7ES"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+	s=201909; t=1709768472;
+	bh=OHx3bVLlXnvaD4Lk/LqRAXihRU8d5iuk+jHowRU57+A=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=dfxSn7ESt9feXa7Ah5VgnrgsTR94t0TrfqG0PcTuTf3mOM2nYClb7KzncEO44oWvJ
+	 z177IwNoKxwaRwuRElWO9dM9vGP1BGgcQEfox5PbPq0mqdcUVphkGszRXScQ0d7mcO
+	 jW4ikoUKpq/rq3DBl50CSj6CPBHJDbwDqtBF6NxW+foiGgFyBpZYE+I728npTZNMg3
+	 1t/2+QbQypMyzr9+0O+l4J8vO9YugJeJGU6R2JxmPiIz07vqQ4qeSoMI/Ta1CVt4Pi
+	 EW9aQ8ONAeTLEZ2I6yd+B+il/wLckJElOl67KFtvN0q8NsP2LkndTztEXc4YygJJsv
+	 te7iy+1YEdhjg==
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mail.ozlabs.org (Postfix) with ESMTPSA id 4Tqppm50HGz4wcN;
+	Thu,  7 Mar 2024 10:41:04 +1100 (AEDT)
+From: Michael Ellerman <mpe@ellerman.id.au>
 To: Arnd Bergmann <arnd@kernel.org>, Anna-Maria Behnsen
- <anna-maria@linutronix.de>, Vincenzo Frascino <vincenzo.frascino@arm.com>,
- Kees Cook <keescook@chromium.org>
+ <anna-maria@linutronix.de>, Thomas Gleixner <tglx@linutronix.de>, Vincenzo
+ Frascino <vincenzo.frascino@arm.com>, Kees Cook <keescook@chromium.org>
 Cc: Arnd Bergmann <arnd@arndb.de>, Matt Turner <mattst88@gmail.com>, Vineet
  Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Catalin
  Marinas <catalin.marinas@arm.com>, Guo Ren <guoren@kernel.org>, Brian Cain
  <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>, Geert
  Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>,
  Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Helge Deller
- <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Christophe Leroy
- <christophe.leroy@csgroup.eu>, Palmer Dabbelt <palmer@dabbelt.com>, John
- Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Andreas Larsson
- <andreas@gaisler.com>, Richard Weinberger <richard@nod.at>,
- x86@kernel.org, Max Filippov <jcmvbkbc@gmail.com>, Andy Lutomirski
- <luto@kernel.org>, Jan Kiszka <jan.kiszka@siemens.com>, Kieran Bingham
- <kbingham@kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
- linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
- linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
- loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-um@lists.infradead.org
-Subject: Re: [v2 PATCH 0/3] arch: mm, vdso: consolidate PAGE_SIZE definition
-In-Reply-To: <20240306141453.3900574-1-arnd@kernel.org>
+ <deller@gmx.de>, Christophe Leroy <christophe.leroy@csgroup.eu>, Palmer
+ Dabbelt <palmer@dabbelt.com>, John Paul Adrian Glaubitz
+ <glaubitz@physik.fu-berlin.de>, Andreas Larsson <andreas@gaisler.com>,
+ Richard Weinberger <richard@nod.at>, x86@kernel.org, Max Filippov
+ <jcmvbkbc@gmail.com>, Andy Lutomirski <luto@kernel.org>, Jan Kiszka
+ <jan.kiszka@siemens.com>, Kieran Bingham <kbingham@kernel.org>, Andrew
+ Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org,
+ linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+ linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-um@lists.infradead.org
+Subject: Re: [PATCH v2 1/3] arch: consolidate existing CONFIG_PAGE_SIZE_*KB
+ definitions
+In-Reply-To: <20240306141453.3900574-2-arnd@kernel.org>
 References: <20240306141453.3900574-1-arnd@kernel.org>
-Date: Wed, 06 Mar 2024 18:17:58 +0100
-Message-ID: <87wmqfth2x.ffs@tglx>
+ <20240306141453.3900574-2-arnd@kernel.org>
+Date: Thu, 07 Mar 2024 10:41:02 +1100
+Message-ID: <87sf13nd2p.fsf@mail.lhotse>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -75,18 +72,77 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain
 
-On Wed, Mar 06 2024 at 15:14, Arnd Bergmann wrote:
+Hi Arnd,
+
+Arnd Bergmann <arnd@kernel.org> writes:
 > From: Arnd Bergmann <arnd@arndb.de>
 >
-> Naresh noticed that the newly added usage of the PAGE_SIZE macro in
-> include/vdso/datapage.h introduced a build regression. I had an older
-> patch that I revived to have this defined through Kconfig rather than
-> through including asm/page.h, which is not allowed in vdso code.
+> These four architectures define the same Kconfig symbols for configuring
+> the page size. Move the logic into a common place where it can be shared
+> with all other architectures.
 >
-> The vdso patch series now has a temporary workaround, but I still want to
-> get this into v6.9 so we can place the hack with CONFIG_PAGE_SIZE
-> in the vdso.
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+> Changes from v1:
+>  - improve Kconfig help texts
+>  - fix Hexagon Kconfig
+>
+>  arch/Kconfig                      | 92 ++++++++++++++++++++++++++++++-
+>  arch/hexagon/Kconfig              | 24 ++------
+>  arch/hexagon/include/asm/page.h   |  6 +-
+>  arch/loongarch/Kconfig            | 21 ++-----
+>  arch/loongarch/include/asm/page.h | 10 +---
+>  arch/mips/Kconfig                 | 58 ++-----------------
+>  arch/mips/include/asm/page.h      | 16 +-----
+>  arch/sh/include/asm/page.h        | 13 +----
+>  arch/sh/mm/Kconfig                | 42 ++++----------
+>  9 files changed, 121 insertions(+), 161 deletions(-)
 
-Thank you for cleaning this up!
+There's a few "help" lines missing, which breaks the build:
 
-      tglx
+  arch/Kconfig:1134: syntax error
+  arch/Kconfig:1133: invalid statement
+  arch/Kconfig:1134: invalid statement
+  arch/Kconfig:1135:warning: ignoring unsupported character '.'
+  arch/Kconfig:1135:warning: ignoring unsupported character '.'
+  arch/Kconfig:1135: invalid statement
+  arch/Kconfig:1136: invalid statement
+  arch/Kconfig:1137:warning: ignoring unsupported character '.'
+  arch/Kconfig:1137: invalid statement
+  arch/Kconfig:1143: syntax error
+  arch/Kconfig:1142: invalid statement
+  arch/Kconfig:1143: invalid statement
+  arch/Kconfig:1144:warning: ignoring unsupported character '.'
+  arch/Kconfig:1144: invalid statement
+  arch/Kconfig:1145: invalid statement
+  arch/Kconfig:1146: invalid statement
+  arch/Kconfig:1147: invalid statement
+  arch/Kconfig:1148:warning: ignoring unsupported character '.'
+  arch/Kconfig:1148: invalid statement
+  make[4]: *** [../scripts/kconfig/Makefile:85: syncconfig] Error 1
+
+Fixup diff is:
+
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 56d45a75f625..f2295fa3b48c 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -1130,6 +1130,7 @@ config PAGE_SIZE_16KB
+ config PAGE_SIZE_32KB
+        bool "32KiB pages"
+        depends on HAVE_PAGE_SIZE_32KB
++       help
+          Using 32KiB page size will result in slightly higher performance
+          kernel at the price of higher memory consumption compared to
+          16KiB pages.  This option is available only on cnMIPS cores.
+@@ -1139,6 +1140,7 @@ config PAGE_SIZE_32KB
+ config PAGE_SIZE_64KB
+        bool "64KiB pages"
+        depends on HAVE_PAGE_SIZE_64KB
++       help
+          Using 64KiB page size will result in slightly higher performance
+          kernel at the price of much higher memory consumption compared to
+          4KiB or 16KiB pages.
+
+
+cheers
