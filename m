@@ -1,122 +1,166 @@
-Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com [209.85.208.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from JPN01-TYC-obe.outbound.protection.outlook.com (mail-tycjpn01olkn2073.outbound.protection.outlook.com [40.92.99.73])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52D22604B0;
-	Fri,  8 Mar 2024 22:27:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.173
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709936874; cv=none; b=AjdAXxZuus4cZTvEcUAjF0zLaABj7GiSLW9GGzmBj0vbrcNyfrC18IpTxHU9c2+eUPeSPIKjFY3t5umG3QpQMOtWkKgpGPo9hpAL1XERN3QNidb7V9YZ4NLB0+FY754JsjTvVng0/yFtcdLsDEhcEUtLVamnqXTRH1dlqcFmwzY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709936874; c=relaxed/simple;
-	bh=NPnRFZ5W/JRhURogsF+Y0uGFxMzLl4XSlbzwLW6Yauc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=IZC2LrwbszxkZVfLtmutwGA5m+JPWf+FeXxMkRTmwYtxeIJqjcOG6TDpORygWv4qsW8R6Qr+50r784xXrjviK/PW9xeu2lAELvFIH6aoaP4tZ9Tfg5lCvvbXodJpAgOFv+Yb1Gt+5hOarh1+DAtzEVFE1dS66dDNe+I2wwQPoAQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KeOOR+Ni; arc=none smtp.client-ip=209.85.208.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 465B44C90;
+	Sat,  9 Mar 2024 10:24:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.92.99.73
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1709979888; cv=fail; b=cOP1ebV4dcX3SX0/SAtltErnFqZqhAQti5E8KvIva40gKpgwfqsSRb0+ZRO4VgWSxNuiqzTKf1V66jMu9nQ65d1yFkHphev9douoQUVMPQuJXtL8MYQO3mOtm1a9Vdz9qbG0pvs8ETtGDdvGutt34oBYy6dFbT7cZ20vD6d7pAo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1709979888; c=relaxed/simple;
+	bh=O0RQAFbKHonigJv17Mi5J4NfG89cllJQofZW5X8XKXA=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=D8QkRPfF0/TX5YVglH6v5ZTtXdZR6/ZM+M65nXhD4rKnsTkbJD9+vp1+3NSTxVTSJRyOP738Jyu9/1b5mIXPZ5AxNzsBoMwXOT9phQS7FPnXw3HG2GXQhxHMguQgIohfNDY+JLBSx6MrRznt/5Mc/+iPxN1s7RrJD/+pwLU49JQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=lAEI3SJD; arc=fail smtp.client-ip=40.92.99.73
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KeOOR+Ni"
-Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-2d26227d508so34370051fa.2;
-        Fri, 08 Mar 2024 14:27:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1709936870; x=1710541670; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=d9Cm+sjEP7eeQzRpM/dyVnRkWK0R2O4wf+q730ac8Fc=;
-        b=KeOOR+Ni8AFbh9uNKNSKl0CrXCdfAFKhoykA3tQNe1jyEcCQGO+JHJl4IHNvw1djYQ
-         5g1fvVZZMroqX5DpIrW2dJIVOYBRLXe38LrHNEIgeLuyIA/warD0EF1dsaitYSKIXSss
-         uFqN8C+1PGeLcisbInzSW4bqZuTzDARYZJ3G0sB6fodP35XIhOaqCWUElgXLUKoBWywC
-         k5dtWQmKKovE68Fys6oJcgaqHpss8MfNTCnzQroLnAtz7Yra/A25DxyYHGHokY806pdq
-         8yyPZC/7hGxhhduip2kSC9gYmkVzuzRKmmcoGokfaOvPepoUP8kqSmk0nhscxR5LTVF5
-         P7Jg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709936870; x=1710541670;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=d9Cm+sjEP7eeQzRpM/dyVnRkWK0R2O4wf+q730ac8Fc=;
-        b=EoFBkXIcjpCN5tmtYBV+OgCB9BzB1lJZHYcbY4yHsU5KRYak4WRzz7nWCCzzHBNhk+
-         awjAsN28kjJ3/urZb7nHP9sR6LfASQWNmY6vB5F0PdfZ7U0cAmDqw9s3KGNGfEISpbrZ
-         +HXiUGcaPDMyAud/gUdxxbX4ItSM9LR849CTlKntK8UISzx+Ja6qmEt2NVrMB2KTjyIl
-         khjvloUiBlVAMiVp1220J+cBbQs6KQRIEwV2Nd8kNssa5PDGnKM0AhQuNEH+Dt+yxApM
-         I9qHnIAYWI46WFWany5qtsQ6XqIgSnJ9/wrIinS/U0Ghv/yZPBeQyruaOzYe5Dvd75RN
-         NcUg==
-X-Forwarded-Encrypted: i=1; AJvYcCUe30VbQOrVGRygIpONXjL2OBz7oDD8pyZbB9XGoKR1G9cw0rkEzNds1O5B6L7SUJWfCsgAHj7PQvbaxgkAxbM5hzdfx18Zlh4BTZa3hW7Mh8l1ZdIyOhS6auE1dpCgeHnX3H6U/BH+7ZERBgpHkfZCufa2odMocgqS8pOJNsEt3s+cbfhhtp+vv07zLNevnepGtEaKoLh9NVODPe7bb8DAiLw=
-X-Gm-Message-State: AOJu0YwM0fTLFRqgoOz3BOBcYnbZLV34CKuJYlSshyb06Cv79TrArQuP
-	c9PvT2V4PXEcRCZUW1KsvdX8f/wdByj2palW1ubKdzYiE41ZSKh/
-X-Google-Smtp-Source: AGHT+IEefucnzeVaDrDXp7nL1ogp1q8ajUc4eKNA2EnYRvSPiplLYVDd8jWuXxI04LK1BlfLqEEo6A==
-X-Received: by 2002:ac2:44c7:0:b0:513:202b:9001 with SMTP id d7-20020ac244c7000000b00513202b9001mr214641lfm.6.1709936869789;
-        Fri, 08 Mar 2024 14:27:49 -0800 (PST)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id z2-20020a5d44c2000000b0033e2b9f647asm437822wrr.31.2024.03.08.14.27.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 Mar 2024 14:27:48 -0800 (PST)
-Date: Fri, 8 Mar 2024 22:27:48 +0000
-From: Stafford Horne <shorne@gmail.com>
-To: Oreoluwa Babatunde <quic_obabatun@quicinc.com>
-Cc: chenhuacai@kernel.org, jonas@southpole.se,
-	stefan.kristiansson@saunalahti.fi, ysato@users.sourceforge.jp,
-	dalias@libc.org, glaubitz@physik.fu-berlin.de, robh+dt@kernel.org,
-	frowand.list@gmail.com, linux-openrisc@vger.kernel.org,
-	loongarch@lists.linux.dev, linux-sh@vger.kernel.org,
-	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-	kernel@quicinc.com
-Subject: Re: [PATCH 2/3] openrisc: Call setup_memory() earlier in the init
- sequence
-Message-ID: <ZeuQ5EFFCw3O8qkS@antec>
-References: <1707524971-146908-1-git-send-email-quic_obabatun@quicinc.com>
- <1707524971-146908-3-git-send-email-quic_obabatun@quicinc.com>
+	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="lAEI3SJD"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=a3d5GZtpDbLY9yj3VsC7Hc6U+pwugwjTVhabtVyZ7kgoJhV+DXpOBukmTkvdAc6hCRQa2jR1E68ovfpOgyooTSK9xyks8lD5u7PUgXDFAcEVzgBJZs7H20v4yBDz4Tr0je57iWq6nld/W/2XoR6Il9hh4aaJsphzffEj5PrlTQoJIZRU80FZuadmJYhi/fAGBaQMMfJhfBn8wdzQmPmvVEM81H3Pnyle7Fzyy8bnbF0xaiIqY7i54nue4+9c5VvoaY4VGE6PiLmIOGT+vbo1jDtiHOl9k+UTJrtY1hI1UlVMo/UkhbMO5q1kladCe6/5yRyud47IpQDJjSmr8WTh1Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=pNhCd+CMIb3+/agr2Y29GjSyjRtgQslucuFWFClCjNQ=;
+ b=mgUIiMVyJO9ryB47wAlmRina2hjJ9RVnEXLBzJRNen1OZfB8p4KLFr/xwHaOqqQxqckHglzvLvApKCMAF7u5jog5QQyo3tYP3mG50xnDJB37z+RePsbWDE+qw5uWr3n6X78TsbO1bfLf9Jwo7vCowoTRHu8MPhKp/Pig0a4hPjGRnpJ2lqEZkkAys9PQzz0zI8eqMEbFkqMUJ3J8GCQpUpQActs6z7PyNFzyTYFtBOxRsQaMWQ3xATkuCfmQXXRWiA3meBoO79IUSLTCZaJhMZUfaBzaBChWmd6lKSl8BFeynklx4DuKDQGxzER0vpoKXzNo66m3qZ7mJ0tqbQMI+A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=pNhCd+CMIb3+/agr2Y29GjSyjRtgQslucuFWFClCjNQ=;
+ b=lAEI3SJDJCatQmydfzrx/seNqWri6XdG1KBrczo5r1LiMspBjWDesO2i9RedYeFI0xZe8+EiyRiKRAJLWmD5FJOxzlUZzCoKOa1V0e4X0Qhb7NURdK7SCdOgTLK4RUpJYv8qJjAQVj5uN4j6HhGfSf/eUQDblWTEz5b6aVMhHX80M6e1PKpFJO87sbkNYrdClh0YGnomO7YX5Y3yTVjXIgNSp2EAZ0Edhce9XTZit+dcwjqVlySbsJGz3X++bjjP11LREdB0kkkTYscK845PRUSQcn3NwBfcXrXOLNRdl3TQTpWhjS8/ogm3ihpe/CfRgI2pwMJ4qLjuSUf3IAPyHg==
+Received: from TY3P286MB3567.JPNP286.PROD.OUTLOOK.COM (2603:1096:400:3b6::10)
+ by OS3P286MB1879.JPNP286.PROD.OUTLOOK.COM (2603:1096:604:171::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7362.32; Sat, 9 Mar
+ 2024 10:24:43 +0000
+Received: from TY3P286MB3567.JPNP286.PROD.OUTLOOK.COM
+ ([fe80::e959:a431:1b57:faf6]) by TY3P286MB3567.JPNP286.PROD.OUTLOOK.COM
+ ([fe80::e959:a431:1b57:faf6%7]) with mapi id 15.20.7362.031; Sat, 9 Mar 2024
+ 10:24:43 +0000
+From: Dawei Li <set_pte_at@outlook.com>
+To: jonas@southpole.se,
+	stefan.kristiansson@saunalahti.fi,
+	shorne@gmail.com
+Cc: linux-openrisc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Dawei Li <set_pte_at@outlook.com>
+Subject: [PATCH] openrisc: Use asm-generic's version of fix_to_virt() & virt_to_fix()
+Date: Sat,  9 Mar 2024 18:24:07 +0800
+Message-ID:
+ <TY3P286MB35670C95140EEC4DD181AEE4CA262@TY3P286MB3567.JPNP286.PROD.OUTLOOK.COM>
+X-Mailer: git-send-email 2.25.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-TMN: [iI73yfNiUJuEzeCTMstO/fBx9TWNLoSO]
+X-ClientProxiedBy: SI2PR04CA0002.apcprd04.prod.outlook.com
+ (2603:1096:4:197::17) To TY3P286MB3567.JPNP286.PROD.OUTLOOK.COM
+ (2603:1096:400:3b6::10)
+X-Microsoft-Original-Message-ID:
+ <20240309102407.403962-1-set_pte_at@outlook.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1707524971-146908-3-git-send-email-quic_obabatun@quicinc.com>
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: TY3P286MB3567:EE_|OS3P286MB1879:EE_
+X-MS-Office365-Filtering-Correlation-Id: 07ed8ed3-5d6b-446a-5012-08dc40232284
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	YkZVZ+duttPNG3arx27rHDpGYl4uNXklkkZB8+lr038OVzS1EQS5ZJhoLjk+SZ2hDRlWm7kFKqXo9WHUCmslXuhyJfy9+LouIpvbxXuUFUwCVos6xT/HgosT0RanmcCibV7E4mk387wRzvnfEez4uB3gW5v91RiV2d2P0CJn2lLKU7ay9gqQgG2NB2nZNFkDqzXiQ1upJfjP8e549hmJl/BMWbzwEwD7k/HL+rxl8C6kPD5rvKjhjQTNsuIVnjQZHhps7LwHTsmrTGZwt8FOvOnHbdNUZJS/RrUf9I0Yh6pv3U1CX3zBBj+ZgG+DgGJKaTn8vIORaENB222QWX7kcnH36Pb6EvXPozxyR2jLORKZT1pCcI7JNQf/tLDLDWG3iDwdTel/3tuj1lwzeSFNnRTuitnRGhyvfJxSrebLbsWprSu9pHGWtU75DM3JdPAW8OjfFX0lRhhWyBs5YzfBsn2YxYHGI/oRlCiC+qJ2V6ysSm1+mou7PAy8/h+vemC9h8gEcpjXr8qYpxwci/ylHDxkzEMUgV5WW/s/oZyrwFVcOWFmdHKERa/jnFkGTeRPJ/M0wV0xDzyzqeoicckgR84DKPftRzGnURNCGtH6CTWT2HQxC07t0j1OjmkLJHkg
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?t8iiS5erEejrwhrtJEmRjwBDI7Va5ZH8o6FSXoyiWlTezWktVKjJZmRyVZuu?=
+ =?us-ascii?Q?guMAf0s4+X7JVEF4X6fd9sFyhc8UT0fdMONA5aALwuHjkzpbP00iFA8ILUY5?=
+ =?us-ascii?Q?zjQpmr3WoTz4PklseR1Gq+orvDR5vNyJP1wLBHs2jT7M2nDvsx/jcr5ilEX1?=
+ =?us-ascii?Q?YDueWpCeJGNR2VgDkqKXgspcwky7sXG5QgwX162RFFAU7jIPxFk8IbsS8CEW?=
+ =?us-ascii?Q?2SQH3fO/498/YkLb7JRKWnuSqBUWBlUuhOhkCrhAB+VmgdSLXiUZy0SmAp+u?=
+ =?us-ascii?Q?qhxrO/b232SSjXUGgBSO2SBW5zIfhr0jjk5wC0q5OxLUqxfPC6BxLJZQPW+s?=
+ =?us-ascii?Q?ITIdvEeSUryeZ/U/L9wqFBEWRgk0SMIgtZflxy9uHHhSPuMU5J/ukPm+7VzS?=
+ =?us-ascii?Q?4WWyvIFetW4NkCosGDwZYwZ9KQk8IxIiLrAmVlKcxjt6iVK3AkdSNoigoNbo?=
+ =?us-ascii?Q?GZ+ii3FiaHwLCGPxewNfhco/IVVhzvvLtE9pHRqpCtmm6y3dPPtbfR8Tv1z9?=
+ =?us-ascii?Q?vb9bE+5YpkDylZtkq1V+7S1i1bzn/Uqn+HIgsoK+RqSP/2sSRJ1FzzmgLzd7?=
+ =?us-ascii?Q?HnkcKzyBTJ8eIQSE7Xt89ZFuqh876K22sO8yPM7+qsM/HTlNzGHfwtOtbYbZ?=
+ =?us-ascii?Q?FFEI6T/Tamg36q4+RVpx6h1jYdyzVEazXHjfkPO9q/HpOIM6JmD0nFjJO0lE?=
+ =?us-ascii?Q?BtLm711ItUW5wwbJ+d9DLl9ewtcJ43e3DKORrZeXO2cHOr0t+yFquDmCqukT?=
+ =?us-ascii?Q?sQSLVE+AP6ZLN5lUa+3yaV7b+2CM8GENqTgrRzggqmdLfxIoQZbibr1jbZQ2?=
+ =?us-ascii?Q?juMIDmIFJRCdMedcBh93sPTDmCDaUINsVkyQ1XKRW4syMX+sqQb5qTyAmrvz?=
+ =?us-ascii?Q?UqsStSSbZJZqpCHqbfGyh1S81QBJtoeRnSN8fY3FZitdm+tuc1HTTZiBQB3f?=
+ =?us-ascii?Q?layKZLNg0mr1sR5+GIczry6TdfaTZD3JwVuEseewsjC4QaDfDeUvn2YwUS+r?=
+ =?us-ascii?Q?4pRiMwR1wYqjYoojbgWmqcSz05dMe5LKLXh21SalK1WmYLvMIoH27APFVAFF?=
+ =?us-ascii?Q?Y+aRUXd39t5wkhBo4quglZTgoF3f9ag3fTmarCGouL918wm1c764ZBu7R25C?=
+ =?us-ascii?Q?mdCDBtl5yOzBRlR6sq9BX+Esw1bvklZm39gBP4m32xMuSnlnUWgEzpHukvnK?=
+ =?us-ascii?Q?T9XB3w3K3d3LVGY/rg2Ebrp4ZBRoh8s8cAxPDDaB4HUSLUUu0T0M6pUwdas?=
+ =?us-ascii?Q?=3D?=
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 07ed8ed3-5d6b-446a-5012-08dc40232284
+X-MS-Exchange-CrossTenant-AuthSource: TY3P286MB3567.JPNP286.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Mar 2024 10:24:43.3425
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
+	00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: OS3P286MB1879
 
-On Fri, Feb 09, 2024 at 04:29:30PM -0800, Oreoluwa Babatunde wrote:
-> The unflatten_and_copy_device_tree() function contains a call to
-> memblock_alloc(). This means that memblock is allocating memory before
-> any of the reserved memory regions are set aside in the setup_memory()
-> function which calls early_init_fdt_scan_reserved_mem(). Therefore,
-> there is a possibility for memblock to allocate from any of the
-> reserved memory regions.
-> 
-> Hence, move the call to setup_memory() to be earlier in the init
-> sequence so that the reserved memory regions are set aside before any
-> allocations are done using memblock.
-> 
-> Signed-off-by: Oreoluwa Babatunde <quic_obabatun@quicinc.com>
-> ---
->  arch/openrisc/kernel/setup.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
-> index 9cf7fb6..be56eaa 100644
-> --- a/arch/openrisc/kernel/setup.c
-> +++ b/arch/openrisc/kernel/setup.c
-> @@ -255,6 +255,9 @@ void calibrate_delay(void)
->  
->  void __init setup_arch(char **cmdline_p)
->  {
-> +	/* setup memblock allocator */
-> +	setup_memory();
-> +
->  	unflatten_and_copy_device_tree();
->  
->  	setup_cpuinfo();
-> @@ -278,9 +281,6 @@ void __init setup_arch(char **cmdline_p)
->  	}
->  #endif
->  
-> -	/* setup memblock allocator */
-> -	setup_memory();
-> -
->  	/* paging_init() sets up the MMU and marks all pages as reserved */
->  	paging_init();
+Openrisc's implementation of fix_to_virt() & virt_to_fix() share same
+functionality with ones of asm generic.
 
-This looks good.  I will merge it via the openrisc queue as you requested.
+Plus, generic version of fix_to_virt() can trap invalid index at compile
+time.
 
--Stafford
+Thus, Replace the arch-specific implementations with asm generic's ones.
+
+Signed-off-by: Dawei Li <set_pte_at@outlook.com>
+---
+ arch/openrisc/include/asm/fixmap.h | 31 +-----------------------------
+ 1 file changed, 1 insertion(+), 30 deletions(-)
+
+diff --git a/arch/openrisc/include/asm/fixmap.h b/arch/openrisc/include/asm/fixmap.h
+index ad78e50b7ba3..ecdb98a5839f 100644
+--- a/arch/openrisc/include/asm/fixmap.h
++++ b/arch/openrisc/include/asm/fixmap.h
+@@ -50,35 +50,6 @@ enum fixed_addresses {
+ /* FIXADDR_BOTTOM might be a better name here... */
+ #define FIXADDR_START		(FIXADDR_TOP - FIXADDR_SIZE)
+ 
+-#define __fix_to_virt(x)	(FIXADDR_TOP - ((x) << PAGE_SHIFT))
+-#define __virt_to_fix(x)	((FIXADDR_TOP - ((x)&PAGE_MASK)) >> PAGE_SHIFT)
+-
+-/*
+- * 'index to address' translation. If anyone tries to use the idx
+- * directly without tranlation, we catch the bug with a NULL-deference
+- * kernel oops. Illegal ranges of incoming indices are caught too.
+- */
+-static __always_inline unsigned long fix_to_virt(const unsigned int idx)
+-{
+-	/*
+-	 * this branch gets completely eliminated after inlining,
+-	 * except when someone tries to use fixaddr indices in an
+-	 * illegal way. (such as mixing up address types or using
+-	 * out-of-range indices).
+-	 *
+-	 * If it doesn't get removed, the linker will complain
+-	 * loudly with a reasonably clear error message..
+-	 */
+-	if (idx >= __end_of_fixed_addresses)
+-		BUG();
+-
+-	return __fix_to_virt(idx);
+-}
+-
+-static inline unsigned long virt_to_fix(const unsigned long vaddr)
+-{
+-	BUG_ON(vaddr >= FIXADDR_TOP || vaddr < FIXADDR_START);
+-	return __virt_to_fix(vaddr);
+-}
++#include <asm-generic/fixmap.h>
+ 
+ #endif
+-- 
+2.25.1
+
