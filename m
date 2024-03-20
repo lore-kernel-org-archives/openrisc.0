@@ -1,147 +1,134 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE7774D5AB
-	for <linux-openrisc@vger.kernel.org>; Wed, 20 Mar 2024 13:28:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DB4B44370
+	for <linux-openrisc@vger.kernel.org>; Wed, 20 Mar 2024 14:13:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710941307; cv=none; b=mFqnMu5myOCuiwTVe769F9odgvY0EcTwpRKq8J0KmqDPZA1fwS5IzO//oXCcz6z03XO2P/LuGMzGRjhb5xTXB31THKty+6iQmqf7oAO4ZNxWynYT68DpSdSKv7ufUqvPVPU46/kpfwR2n308IM1WpjHpRM2IwLaVA3pCNXZhUHA=
+	t=1710944034; cv=none; b=Mu4ZEeUeTqXw9DAJXI7k2szAz1kKUmrJdr9uR3OxEkLFMBvXxlqvdzRnobdgMBJYU3tIMztY0eY4Z8zXJMb6D1rks4FEMKD4IL+utZGwCsXbyYj2pkGsBHP/c0417i8i9SacbDwxxw1GfkbBw0/A6GsBZ+BBgv0jMx8AYYJ+Ank=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710941307; c=relaxed/simple;
-	bh=JvYreo8Lxd0WU0NaMQ378qU+sjxUh98378fILnoP8y8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YOd1MYhrnKYk4UsQe26HBxF0ftKwBeFF6FB6yf50bEQHL24kpXhZfPR46xGtADga0VHgKPIO/PMPOQriI8njlZxjzWMfwzwaUloDKyz7nG5rlUoq6zzXpQviJvLaNPEcGioAadruPwdBsl4PmEOBmVx6izcRmWcymV0zUO6P/k8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=Z8my5zWD; arc=none smtp.client-ip=209.85.216.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1710944034; c=relaxed/simple;
+	bh=hL3IIlsZoHgI2i8qdvTIeuFhB8vfdRynE7d9k8lZkgU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ylhuyr8BRSHOBEd0ZGshW4qZZpYpYvOUqH5+n27fbon7nI5Ku8lyVxyH8eZVr7kYWHBP9Bk09IUwnpvy8qebWF8+4CE28/ndp2xgEy1OIsd5dW+ThtOgYFicl7uw9DyZUsbQiXEcBm4Uvr9W6Iv2TDoI/aPcTEQsA/ay88qmkOU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CZfycCjz; arc=none smtp.client-ip=209.85.221.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="Z8my5zWD"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-299b818d63aso696267a91.0
-        for <linux-openrisc@vger.kernel.org>; Wed, 20 Mar 2024 06:28:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CZfycCjz"
+Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-3416df43cabso1953425f8f.3
+        for <linux-openrisc@vger.kernel.org>; Wed, 20 Mar 2024 07:13:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1710941305; x=1711546105; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:organization:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=JrA4OYSghLG3evtY7qUXeFWKhBNcsLnb97lB9uYa090=;
-        b=Z8my5zWDePs5OjS8QNHOHcS42BnuASwyX5swjXuzprwpD0hQ+J9OFTuw3XZncFfkAN
-         o9CVVsSkcQAugg1MGZXgpFo3yTytdH/ryf9hfu/VHSqZzkuMA+pQGE1yDELDPM/QWudO
-         1t8X+SHcMj3tf+cyagMHkbZTmKE0/fu1JINu6Bs4fRUcl6suE6FC+mMGmqsVqaEdvMnH
-         8mvzV0Qixrk1kumMZSbUSYnoQeC0KtALxfsIrHQ1ii2oyKQeSjIJiQMvItH4/ibi1RhJ
-         Eb3f+olJNTrTJVlOHlIU6ETws5NIrPPvu37G7jmtrpe4dR0TSbw8n37k9ug89v3kaZb7
-         w8Mg==
+        d=gmail.com; s=20230601; t=1710944031; x=1711548831; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=YhYwsG2mOYwzEym2DhIU02QGvWkIFZG1dzTkOTEZIbI=;
+        b=CZfycCjz6lmlr/dB17jIOq0ttDUWJenOf6tYVNS78RGAcnN7vJNArlfi6v6v1LbTNU
+         GnQryRNUauFfZvHc0FmYlIaFnRCwOrTRIFXYpjOgzBNcaiAQY4UkrzAaerShD+SUOic+
+         bH7hxsjMuOdh7KvQ84SnnneYVnToqphsJxqZkGpZ3OVlz51BEuyyURA827sCbpRwk0e8
+         ZaOZS7QKZ0Mp55Tq2DfylEKhbCvNs4IBjFI9fuj6b4NIApBxdCiFJ9SdwklGQYa7hsHe
+         BzXqJFcFJ1T7CL0UGKpvZ2m5gsvSlZvuaUqdPN91ozwxR2iwMcn7KeDUSlmcOwt9kbVl
+         hHSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710941305; x=1711546105;
-        h=content-transfer-encoding:in-reply-to:organization:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=JrA4OYSghLG3evtY7qUXeFWKhBNcsLnb97lB9uYa090=;
-        b=bWCAnBAzX65sD3mLFDzRWerM90guHfGJC2b4nXbCM4alEC9ROknPlLC8hoBCpkfJrr
-         7wwe2W+b14Yb9SXuW5dVNO4Bd/08Tnv7r0KausTPnZbDwp4uAWeAeMSuuOpq1ESgHXzn
-         ppWmrFl8kYlvWnPP8cxr3N2Q57vrnjB8e1OEB5UPe09Ok8snM6FyKuRDlZY2hMHz9+OH
-         15bhpmWsjWv8jFjvJsrjJm22Mmp9zjjntiod42YrtNnFOX6/IeY6nu5fTKjHDPqRMNte
-         z9X+faHfhRIu5pEP/kW5d3KLzHBDqBUZ3XzDFRk3n1GyPa5PJIe/2Oy1KC0PqNW4I19P
-         +4Tw==
-X-Gm-Message-State: AOJu0YwWNrKreTqme1smRC424Ihey5vr+XsuGNl5zUso5bDMCpaW556J
-	Cc068WwLfQtM7JnWIgGAvvqvNAC0vqJH5w3+hcHgkbF6B4A+FCXnpxD0+3ZfGnKTg7BxSqMk8ED
-	m
-X-Google-Smtp-Source: AGHT+IEfmICBBfqjx+GAlRT0M17qwbS78cnkUHEfs46RQiU6n8dzdgkKCS2TrKRUZb0UdtYZQvqF8A==
-X-Received: by 2002:a17:90a:3482:b0:29b:a345:620a with SMTP id p2-20020a17090a348200b0029ba345620amr3382415pjb.20.1710941304932;
-        Wed, 20 Mar 2024 06:28:24 -0700 (PDT)
-Received: from ?IPV6:2804:1b3:a7c3:1d04:9481:20ec:563b:127c? ([2804:1b3:a7c3:1d04:9481:20ec:563b:127c])
-        by smtp.gmail.com with ESMTPSA id nr19-20020a17090b241300b0029beec8e86csm1578580pjb.36.2024.03.20.06.28.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 20 Mar 2024 06:28:24 -0700 (PDT)
-Message-ID: <21f682a2-60cf-4310-87dc-44fdb2df2702@linaro.org>
-Date: Wed, 20 Mar 2024 10:28:21 -0300
+        d=1e100.net; s=20230601; t=1710944031; x=1711548831;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=YhYwsG2mOYwzEym2DhIU02QGvWkIFZG1dzTkOTEZIbI=;
+        b=IBuL6ZpInpb1Ib40ifN93l1w7qeEOI0HHQ7XKIbSZnl2/vPWtXxjbLPBPkjcD+xXBj
+         cBb6yL901e4PX6lGUEjfXQw2IrPmja7IHtBC9OD1KiL2puIX2VlLatreMFAEiB11lTn1
+         d+6ZLNM8KGcdazcf8lbBGkxOl2EElq6Q2ngFhNhLbFvcdh0UVwbQIwboIq5USNcDApPQ
+         CpXJK3F0fkgk7rA3QBD5INwisTqs9PtUcz+ghRhIzqRHzBnS10+w+JxS10HntXjHCoW8
+         ns0pEYLyWh4CGdfKdf6me4a3MtCbS+gwpch0yzOe+aZYSD6E3/uWdyNusD5+C9BGvIFe
+         cHvQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUrAbtMp1/YDhlPheKfAFg2ELm1Ghzmr9Y88MF98d+jPaMuh0my2SvvO2Sm5gkF0O+rkTt/wfLuJHnRQVVTPjNWFpL4dyS9vO1jU0ssEQQ=
+X-Gm-Message-State: AOJu0YxvGhoR2jOWI+qjSsJpZ+GO8kM0R5DygdTOm4aXPQRb/xGmvgDe
+	eY2021oiBBmNmSIYovJTQd1TAFPzhSde/IMxws5CP79ZafjvdxShCHLdw7QL
+X-Google-Smtp-Source: AGHT+IGSdjzYsQ5Zx1IU9/UX+FxI9xK0cNN7VsbWxygqSdFflhB8sY0SlhbNum5snq0laQYgEt/IDA==
+X-Received: by 2002:adf:f6c1:0:b0:33d:5f98:82e3 with SMTP id y1-20020adff6c1000000b0033d5f9882e3mr12789705wrp.13.1710944030406;
+        Wed, 20 Mar 2024 07:13:50 -0700 (PDT)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id p6-20020adff206000000b0033cf5094fcesm14786010wro.36.2024.03.20.07.13.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 20 Mar 2024 07:13:49 -0700 (PDT)
+Date: Wed, 20 Mar 2024 14:13:48 +0000
+From: Stafford Horne <shorne@gmail.com>
+To: Adhemerval Zanella Netto <adhemerval.zanella@linaro.org>
+Cc: GLIBC patches <libc-alpha@sourceware.org>,
+	Linux OpenRISC <linux-openrisc@vger.kernel.org>
+Subject: Re: [PATCH 1/4] or1k: Fix Linux user space signal ABI
+Message-ID: <ZfrvHIfPjF2GHnXL@antec>
+References: <20240319214244.736981-1-shorne@gmail.com>
+ <20240319214244.736981-2-shorne@gmail.com>
+ <d892782b-7959-4256-9b9f-6dadd5493dcb@linaro.org>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 4/4] or1k: Add prctl wrapper to unwrap variadic args
-Content-Language: en-US
-To: Stafford Horne <shorne@gmail.com>,
- GLIBC patches <libc-alpha@sourceware.org>
-Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>
-References: <20240319214244.736981-1-shorne@gmail.com>
- <20240319214244.736981-5-shorne@gmail.com>
-From: Adhemerval Zanella Netto <adhemerval.zanella@linaro.org>
-Organization: Linaro
-In-Reply-To: <20240319214244.736981-5-shorne@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d892782b-7959-4256-9b9f-6dadd5493dcb@linaro.org>
 
-
-
-On 19/03/24 18:42, Stafford Horne wrote:
-> On OpenRISC variadic functions and regular functions have different
-> calling conventions so this wrapper is needed to translate.  This
-> wrapper is copied from x86_64/x32.  I don't know the build system enough
-> to find a cleaner way to share the code between x86_64/x32 and or1k
-> (maybe Implies?), so I went with the straight copy.
-
-It looks ok, the old way of cross-reference ABIs implementations only
-add complications. 
-
+On Wed, Mar 20, 2024 at 10:24:15AM -0300, Adhemerval Zanella Netto wrote:
 > 
-> This fixes test failures:
 > 
->   misc/tst-prctl
->   nptl/tst-setgetname
-> ---
->  sysdeps/unix/sysv/linux/or1k/prctl.c | 42 ++++++++++++++++++++++++++++
->  1 file changed, 42 insertions(+)
->  create mode 100644 sysdeps/unix/sysv/linux/or1k/prctl.c
+> On 19/03/24 18:42, Stafford Horne wrote:
+> > The OpenRISC sigcontext structure has always been defined as:
+> > 
+> >     struct user_regs_struct {
+> > 	    /* GPR R0-R31... */
+> > 	    unsigned long gpr[32];
+> > 	    unsigned long pc;
+> > 	    unsigned long sr;
+> >     };
+> > 
+> >     struct sigcontext {
+> > 	    struct user_regs_struct regs;  /* needs to be first */
+> > 	    unsigned long oldmask;	/* unused */
+> >     };
+> > 
+> > With Linux v6.8 we added FPU support and repurposed the oldmask
+> > to use for the FPCSR (floating point control status register).
+> > 
+> >     struct sigcontext {
+> > 	    struct user_regs_struct regs;  /* needs to be first */
+> > 	    union {
+> > 		    unsigned long fpcsr;
+> > 		    unsigned long oldmask;	/* unused */
+> > 	    };
+> >     };
+> > 
+> > The definition of mcontext_t was always missing the extra space for
+> > oldmask.  This patch adds the field __fpcsr to mcontext_t to fix the ABI
+> > mismatch between glibc and Linux.
 > 
-> diff --git a/sysdeps/unix/sysv/linux/or1k/prctl.c b/sysdeps/unix/sysv/linux/or1k/prctl.c
-> new file mode 100644
-> index 0000000000..1aa707d175
-> --- /dev/null
-> +++ b/sysdeps/unix/sysv/linux/or1k/prctl.c
-> @@ -0,0 +1,42 @@
-> +/* prctl - Linux specific syscall.  OpenRISC version.
-> +   Copyright (C) 2024 Free Software Foundation, Inc.
-> +   This file is part of the GNU C Library.
-> +
-> +   The GNU C Library is free software; you can redistribute it and/or
-> +   modify it under the terms of the GNU Lesser General Public
-> +   License as published by the Free Software Foundation; either
-> +   version 2.1 of the License, or (at your option) any later version.
-> +
-> +   The GNU C Library is distributed in the hope that it will be useful,
-> +   but WITHOUT ANY WARRANTY; without even the implied warranty of
-> +   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> +   Lesser General Public License for more details.
-> +
-> +   You should have received a copy of the GNU Lesser General Public
-> +   License along with the GNU C Library; if not, see
-> +   <https://www.gnu.org/licenses/>.  */
-> +
-> +#include <sysdep.h>
-> +#include <stdarg.h>
-> +#include <sys/prctl.h>
-> +
-> +/* Unconditionally read all potential arguments.  This may pass
-> +   garbage values to the kernel, but avoids the need for teaching
-> +   glibc the argument counts of individual options (including ones
-> +   that are added to the kernel in the future).  */
-> +
-> +int
-> +__prctl (int option, ...)
-> +{
-> +  va_list arg;
-> +  va_start (arg, option);
-> +  unsigned long int arg2 = va_arg (arg, unsigned long int);
-> +  unsigned long int arg3 = va_arg (arg, unsigned long int);
-> +  unsigned long int arg4 = va_arg (arg, unsigned long int);
-> +  unsigned long int arg5 = va_arg (arg, unsigned long int);
-> +  va_end (arg);
-> +  return INLINE_SYSCALL_CALL (prctl, option, arg2, arg3, arg4, arg5);
-> +}
-> +
-> +libc_hidden_def (__prctl)
-> +weak_alias (__prctl, prctl)
+> This is strictly an ABI break, this won't make the swapcontext functions 
+> to fail (since they are not update to take in consideration the new field),
+> but it also means that the fpcsr won't be save/restore and the application
+> can potentially read uninitialized values.
+> 
+> But I take that the fpu support will be a new ABI, so I suggest to fix
+> when you add it (along with proper support to context functions).
+
+OK, I got it.  I will post this when the hard float code is added and also fixup
+swapcontext etc to populated it correctly with or without hard float.
+
+Note there is broken ABI already, as programs will not be able to access sigmask
+if needed due to:
+
+Linux definition:
+
+    struct ucontext {
+	    unsigned long     uc_flags;
+	    struct ucontext  *uc_link;
+	    stack_t           uc_stack;
+	    struct sigcontext uc_mcontext;  <-- size differs between glibc and linux
+	    sigset_t          uc_sigmask;   <-- won't be able to access if needed
+    };
+
+But still I will leave as is for now.  This hasn't cause any issues as far as I
+have seen so far.
+
+-Stafford
