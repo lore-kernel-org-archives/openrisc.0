@@ -1,66 +1,68 @@
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBFD83FE27
-	for <linux-openrisc@vger.kernel.org>; Fri, 29 Mar 2024 07:40:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 900151C0DD3;
+	Sun, 31 Mar 2024 07:02:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711698058; cv=none; b=ZgL/2vID+dJQTvKvJz/0duDnFrxhzjAPxRk89W/MDksApk1JsK73Y3UnD+pLoe0eUMod0JLFg2g6/+tmP52+S55IsmDwHpK4OyRGzgArrAtj3kFf8FhmIPqlRmSUncpWVwuMWFDrFKJiuLrig8VooiCd5RYUKVZGXpvhStT1BXM=
+	t=1711868574; cv=none; b=oMAHO6cBAduQCDYBtaRVHPWwo4RyllC1eIAaVK8RqIfEVTQcMvsnJ9fdM6fDVjfsa9XpfVj3oealDXv2/nv9gf1jnUzAcj7/l4898q90SAgJ+oq0dN94MFp/Y03fxWhFD9sBBu8btpZM2GQoQ2LGmXObrtVCgeMmU6tDX1CiJE4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711698058; c=relaxed/simple;
-	bh=rSaMcId9Kx4meKVLPyQ6cWidUe1U6WrWOSdASO1Uvy0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=a7Po/m4HORCHEWcLfxOHH4SUcExvInSrften39qLmWo58F2Fi++cgqU82SslD1iOlUECVRaf2QZS2crqx0ZUdAELdI43dQRVKPzjNiTlBkr47JCugRqVcKjTesMPHi13f0hdxCGaJZeZcrHDuUBXhK6BfucYFSajzjI06xk4D94=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=l/Ed4Wp4; arc=none smtp.client-ip=209.85.128.44
+	s=arc-20240116; t=1711868574; c=relaxed/simple;
+	bh=dxne36p7CNzoDc1pQ1xQpNgyEGkny34AksP98O9zziA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hgscki+f26YADC+aTjTWdVuBQwQGfuQ4/aMf+/D6cqQ67IoH6auHyWSAYEH8jKLCnOtIp1rQ42d42F9M9BtXaKiRdOfY9XJaOWlpIWylskRVyZU4g+v+bOCMIzjANSZz5wWnpfDnJImGKRnMjFhPqi/QlIxUSOXR2lMtJUK0qnU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BwEAKnya; arc=none smtp.client-ip=209.85.128.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l/Ed4Wp4"
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4154d24cc77so3155895e9.3
-        for <linux-openrisc@vger.kernel.org>; Fri, 29 Mar 2024 00:40:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BwEAKnya"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-415482307b0so24398835e9.0;
+        Sun, 31 Mar 2024 00:02:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1711698055; x=1712302855; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=9SEyGktlNufi3XKbd9DQr+1ESpUuLug902D2yBSDVPs=;
-        b=l/Ed4Wp4LkVAp1HuORLcknmkKTsGPyJmkc6RPsTDYH2BYLDmMy95Y5RPP4/jiEp6po
-         plQfpbXDOpBn/lFF0V/+LMBYrg4zgs+b64nxKgncS4UgImKaj3c5J5kMoYRg9GbRCp4/
-         bGIrR639fhN0WTUZudWQB+RvdvGOZsyJtoK8NNiYWdvz+3WiaPmoZD+9zjxEqp1X6GXP
-         r1/5AdiYG7v645zxra+54sPmeeADRh3QLDpFXn3tJvfhNMlJgg4bGBWtxgfW9qDUMrZN
-         aK9IrWFv92PhwgaI+EMj+9PTe8sc5PB/diGLJakScAguZEfefcpjEw2XnVdSSR73Ijog
-         28bQ==
+        d=gmail.com; s=20230601; t=1711868570; x=1712473370; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ftueHlK6SdS74xEyMEJM1z5ZFa9C8bMEaWxJQ9cgy6c=;
+        b=BwEAKnyai9v8Zfz/zeL7DJ1FkrWk1V6Snn8hIkc/LzbmQ6Y+7VxQdTV9PTuynyeFMd
+         LtpvqAv4Tn2d97qhlgMcneSdnwUV6WAo3GGvxgNX3XO9t4rvg6XI4mkGeA4YP86z6gH2
+         FVFZJeO7Qq++JPXsc/bcNi5IvzH52TUFXEmmif/x/zR9Vbrswn0nIuqoDN+q1DE1xaB0
+         T2jkbBit221y48NJZmcnFuB+9VeFIuP1J6rkFxm9etZXx/k5k+zMVxeO890McaFpqrIq
+         4ECAGDv5o6BNj67vyeCHL+0eXhcwoYeQpO7dqQEiUqSs1yJVz+9yV50AW9hhrZ2GIR1d
+         DmxA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711698055; x=1712302855;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=9SEyGktlNufi3XKbd9DQr+1ESpUuLug902D2yBSDVPs=;
-        b=eeqo8uJIY23gz/xZDnbafnFP/EB48puFzTkHIAwQm4xHG4FGKA1+jyAoZ+ZSYm5kH9
-         Nvx6xtLy+1whRbpuKKszYLMKnjvJQZe8GKmNtrMvtw5MxCL6dUKRvBXVS+d72dEZXLWs
-         eP/qt4mKhcT/uKLm1LFHMryT3JABZsX43s0/soelHQ1Jl7Y0bEbW03p8eSe/09BKYswV
-         oAdRSdGpqQnO8mKwxywcpeP6JCkzM4T/5KIQevOzM7yENhgOezeKBW+xJp2Qnycokbw4
-         dpLWvs79k1FL1ZWuOc7hFrNnqj+JrjKDrm38g7rVPbfDF4sPuCPeo1ENLqHnEgoJmEKE
-         14pQ==
-X-Gm-Message-State: AOJu0Yx/QhpsrVgdmEyS0jb7NTn3iiBUw/AzbX09d6LcFBdhWsJOa4xm
-	i3U37N2DZLfnpSci/kHGxV47sCoYChAzpKUiQVr6W9cEkfcthlfzOY2JEe9F
-X-Google-Smtp-Source: AGHT+IFaPKA3GFvd+vtFRbJCO+2knZm41cyZt4mnsHASHP1oU9PSXtNeN7WObXWww9dQB4qmnPwYQw==
-X-Received: by 2002:a05:600c:3502:b0:414:222:ad5e with SMTP id h2-20020a05600c350200b004140222ad5emr1114700wmq.11.1711698054894;
-        Fri, 29 Mar 2024 00:40:54 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1711868570; x=1712473370;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ftueHlK6SdS74xEyMEJM1z5ZFa9C8bMEaWxJQ9cgy6c=;
+        b=CJbu5vqLIsnn4hCPfMTvTlwXlDhufNkZ2/Xzjyqf1Vvw1e3diQQ7HuNJSGKuBsCeNR
+         KfB3iWVq5o+qurcZoG7cLRNPCt0ru2Ipi1oAcsY3xOJoyjPzhzVflxEIwaDcEXRsYgUI
+         kpuN6XKcFWPphvS22tY5R3PORY0T91LrRMoa7tWcXnEo4WigNjQfOSF9he7UvU92otnX
+         scWG81phwsHM3WgLCU/lsESW5tNRt6dTmuOeoPnkqTkfa7u/pKILnGwOJgczkPt3DFP6
+         ds2XGAoRm+VzOT+atIzUkvmIpahZnYBSG9AiFXoBBL7YDlKCGC66HlpqvDuaQQDEiQZG
+         aQ6w==
+X-Forwarded-Encrypted: i=1; AJvYcCU14EJfd4OFYrt0uec99LRjQ23eH1FFiAHn8f3K47tX2p7+ws2vTo/V0eNbjMl2nPTr9iZMWAw18Bv5QBeiboHxI/zdgxL0SmWL5biWmvw=
+X-Gm-Message-State: AOJu0Yw7Fvogbq/gOX/4EIwglcIpEw6acxhyDo+RPLyF7XUpdjtO/Ybk
+	Eff0x4f9HT77LzHKRRhGbsl9BYKESsY1NrgHNL5on0FoVd7YFUH2quMBfLsH5UA=
+X-Google-Smtp-Source: AGHT+IF7lZOkvpocBQ55+s4W2G35MpHj5Sam1R7pxRZi/Ex6OgRPj7MDoU0YvUMkRqRFqBUvtGtBjg==
+X-Received: by 2002:a05:600c:4f0d:b0:412:beee:36b3 with SMTP id l13-20020a05600c4f0d00b00412beee36b3mr5915412wmq.7.1711868569752;
+        Sun, 31 Mar 2024 00:02:49 -0700 (PDT)
 Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id p12-20020a05600c358c00b0041486a6f9fcsm7782164wmq.37.2024.03.29.00.40.52
+        by smtp.gmail.com with ESMTPSA id jb2-20020a05600c54e200b004155387c08esm5937826wmb.27.2024.03.31.00.02.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Mar 2024 00:40:52 -0700 (PDT)
+        Sun, 31 Mar 2024 00:02:49 -0700 (PDT)
 From: Stafford Horne <shorne@gmail.com>
-To: GLIBC patches <libc-alpha@sourceware.org>
-Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	Stafford Horne <shorne@gmail.com>
-Subject: [PATCH 2/2] build-many-glibcs.py: Add openrisc hard float glibc variant
-Date: Fri, 29 Mar 2024 07:40:44 +0000
-Message-ID: <20240329074044.1961252-3-shorne@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Stafford Horne <shorne@gmail.com>,
+	Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Andrew Davis <afd@ti.com>,
+	Sebastian Reichel <sebastian.reichel@collabora.com>,
+	linux-openrisc@vger.kernel.org
+Subject: [PATCH] openrisc: Use do_kernel_power_off()
+Date: Sun, 31 Mar 2024 08:02:28 +0100
+Message-ID: <20240331070230.2252922-1-shorne@gmail.com>
 X-Mailer: git-send-email 2.44.0
-In-Reply-To: <20240329074044.1961252-1-shorne@gmail.com>
-References: <20240329074044.1961252-1-shorne@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -69,32 +71,50 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This adds the OpenRISC hard float glibc variant to the build many
-script.  We update the compiler for glibc to support hard-float
-multilibs to allow us to use a single generic compiler for all glibc
-variants, this requires updating the compiler name.
+After commit 14c5678720bd ("power: reset: syscon-poweroff: Use
+devm_register_sys_off_handler(POWER_OFF)") setting up of pm_power_off
+was removed from the driver, this causes OpenRISC platforms using
+syscon-poweroff to no longer shutdown.
 
-Tested and all builds are passing.
+The kernel now supports chained power-off handlers. Use
+do_kernel_power_off() that invokes chained power-off handlers.  All
+architectures have moved away from using pm_power_off except OpenRISC.
+
+This patch migrates openrisc to use do_kernel_power_off() instead of the
+legacy pm_power_off().
+
+Fixes: 14c5678720bd ("power: reset: syscon-poweroff: Use devm_register_sys_off_handler(POWER_OFF)")
+Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- scripts/build-many-glibcs.py | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/openrisc/kernel/process.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/scripts/build-many-glibcs.py b/scripts/build-many-glibcs.py
-index ecc743e672..b3d4617f62 100755
---- a/scripts/build-many-glibcs.py
-+++ b/scripts/build-many-glibcs.py
-@@ -361,8 +361,9 @@ class Context(object):
-                         os_name='linux-gnu')
-         self.add_config(arch='or1k',
-                         os_name='linux-gnu',
--                        variant='soft',
--                        gcc_cfg=['--with-multilib-list=mcmov'])
-+                        gcc_cfg=['--with-multilib-list=mcmov,mhard-float'],
-+                        glibcs=[{'variant': 'soft'},
-+                                {'variant': 'hard', 'ccopts': '-mhard-float'}])
-         self.add_config(arch='powerpc',
-                         os_name='linux-gnu',
-                         gcc_cfg=['--disable-multilib', '--enable-secureplt'],
+diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
+index 86e02929f3ac..3c27d1c72718 100644
+--- a/arch/openrisc/kernel/process.c
++++ b/arch/openrisc/kernel/process.c
+@@ -65,7 +65,7 @@ void machine_restart(char *cmd)
+ }
+ 
+ /*
+- * This is used if pm_power_off has not been set by a power management
++ * This is used if a sys-off handler was not set by a power management
+  * driver, in this case we can assume we are on a simulator.  On
+  * OpenRISC simulators l.nop 1 will trigger the simulator exit.
+  */
+@@ -89,10 +89,8 @@ void machine_halt(void)
+ void machine_power_off(void)
+ {
+ 	printk(KERN_INFO "*** MACHINE POWER OFF ***\n");
+-	if (pm_power_off != NULL)
+-		pm_power_off();
+-	else
+-		default_power_off();
++	do_kernel_power_off();
++	default_power_off();
+ }
+ 
+ /*
 -- 
 2.44.0
 
