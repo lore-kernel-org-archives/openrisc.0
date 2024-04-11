@@ -1,68 +1,62 @@
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A33684652D;
-	Thu, 11 Apr 2024 16:42:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07427502B5;
+	Thu, 11 Apr 2024 18:07:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712853776; cv=none; b=JMJDW3lppWVnAByuzPTffPP8IkMib3KxTyEXaLOKbDFR6/OYjEX7sKgXhoNnV76Re8H2KqAg461wtJR4BU6Vjy+3Nh9+56YovUntndF9FLYiTQrUscxwedB1QayLtufjOHR5eApQuYXJSoKdde8/8+5IcECv4fss53VaVsXEpxY=
+	t=1712858831; cv=none; b=b7b7Wad+kvxYDHNiGtdiziJsGq+o6/OkPBpSWoGqSWWbGujHyT1SESKjK8vBt2lY3P2DdT6+z95ylELCdaJ4huln56E0xEQYogSkmRol50+dbGixI0dkl+cEEWdCvx9MKi81THytFuOwQGkWunFR33aZ3pN8D9Kdn6RisrZKQNs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712853776; c=relaxed/simple;
-	bh=iWW/qCaP0P9tau2/wi1UmwH7bekDCUCjwopj3xWE5g4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lI0em8jYi7TNy93Jk6AVVv2NB4IleCudbNuva4EO1hwmsxpimSSV98++enc9bEB7b7YKY8w0mHrq2IzKMT802mbIGMtpGq3wRARF80q8XNkqTCKfmKUv+PhAj7nzaCSdKMOwhSWcqkKLw3Avxj22lAcOLnGlxX5W9/I9/w2GutE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=noOcEE8f; arc=none smtp.client-ip=209.85.128.41
+	s=arc-20240116; t=1712858831; c=relaxed/simple;
+	bh=h05CbtcAxI8aFNKx4QsEB4SWlbdKRKn/4mkPD2O/G50=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=k8cU41YIfDUofAKp6VnS6lcKAF58GQyG5Jmp1wvtjFTyn1w50IjGsXuL+EdLnIuGvlJBk96dcVhf4BSm0b8GuSi0tYRIX0huq2hNuWMyAcCwUeqr91ohY9qoW8/m2zVWpiWLRenxcul5vYxPIFd8PfOA+xdqdelMPM7NAiXM37s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NKghfGn/; arc=none smtp.client-ip=209.85.221.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="noOcEE8f"
-Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-417c5aa361cso395285e9.1;
-        Thu, 11 Apr 2024 09:42:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NKghfGn/"
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-343d7ff2350so22872f8f.0;
+        Thu, 11 Apr 2024 11:07:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1712853772; x=1713458572; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SZmEpr7qdrpveg9LiEZiAb+CNWkMrLC0rQ3S13EVdo0=;
-        b=noOcEE8fyJg3arZ+WFgFsEGt8EMerdAEoG6Tq0c6LOmrU8XEVMbnknWdav9MUP1oQz
-         mzwTvYkzoSq9WCmIzBRZwCH71Kz/nJW17cZX6jWfofl07Rx0BZhfDDkiqOvOFJr+9q9K
-         EjJl1wWEjOfx+Bb7ZoNlIllxzHGnlfiixx56KgawNNhrdTcvw4xzQVqaNWpyV0Y/Zi9b
-         P6GRQYcMF5wR04AKX0A2BImmiG3sjcocabPuFThxhb6ElR9ZUNTrx7uaoOmX+6sjAVFn
-         XnZSFj42sNpySeYZAXV14rh6SkZVHpVUfVG7qXoPx7mOqD3B7SoTyY1CC9n+/tvFdbOp
-         OWSQ==
+        d=gmail.com; s=20230601; t=1712858828; x=1713463628; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=yWLNY8BuzmLk8t2ZD8eDNEWlsMPvC04pg9vc4aQu/60=;
+        b=NKghfGn/DICxY5vkB71tbaro01KTIpAUUc+9NnI0L2xYEXOt8YyxgK7IFysFW+NyyE
+         A4tgstu93Gpj1PNN+V+W6YiAW4+OWlcaico8lVlQxzWHKImxrntVx9xkYyqgtkamGFjA
+         G1GgZ99+iKhZ0OBCLwx1iDEB/Ij7jcjLFPJOflC+Atc/MfNpSRwNl+LqODurC0gCkcg+
+         9HBI9AAWaG63btPGsIHb1bsl/bbAs64Vm/XDpnYPF9klfLz6iMxumsbLjh/e4Oau0bT+
+         Yze7VySvokxFlL9QZupGkb/EmgZ1Kh1VTzGAg2MziCZtcfTcZ8kc/AIuLBy0dPotFDhh
+         YI9g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712853772; x=1713458572;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=SZmEpr7qdrpveg9LiEZiAb+CNWkMrLC0rQ3S13EVdo0=;
-        b=rLric5Sjrh9LvLyPk3aH5alUblHKLMXa1DPnRIZxKuaYndNEh0IR3St9LCRHBefzX+
-         O2mt2FOhrM6Uz/e7J61f/Iv0WT7t8kofKhGGCfCN6UEfoNDFF+DW2Yqyctg1aYDlGBzw
-         VwTwqit0AU6a23/klp2/s3n1HHernIqb0IIPxPYUi+UkY3M0cK8U15FBbUOTyT3N77H6
-         WkxJ1TOruTLwzOuCYreYgUBvzWzWE8BWBxROFmE+Bpsccu0r7TRAWTsjpUVGpHfYbqBa
-         6FDvpEKmeHvnx/leMD6CSmo5/2QHHuTADjgIJYDMf3mIx/E54GzMdS9J6oWyq1hxR/sK
-         yoow==
-X-Gm-Message-State: AOJu0YzMZA7HQH+i/pYz7DTDEXC82KcplrGUP3M+RhgN7wZnh0AMO7MK
-	p86pTrB6/Yj584d5oIioLB5Inaua8JeBCcHjc+A+V2kM+7JE7jyOszxQUA==
-X-Google-Smtp-Source: AGHT+IE1nwZZGnCs9lN5mKQ9+e0avbIXauPOHN5tbzbqmoviyDEd3bg07vRozyPSakQKtuVq9FCARQ==
-X-Received: by 2002:a05:600c:500f:b0:416:a8a7:9505 with SMTP id n15-20020a05600c500f00b00416a8a79505mr219018wmr.5.1712853771996;
-        Thu, 11 Apr 2024 09:42:51 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1712858828; x=1713463628;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=yWLNY8BuzmLk8t2ZD8eDNEWlsMPvC04pg9vc4aQu/60=;
+        b=nGuuHj9wXhd4yt3937lT1Xue9LQOlP36o8Bp9G+V4+n9DuSi0TAeIQ2PYKVPBwrz3b
+         ORzbWbwXVLkTMH+Z2CHb2pfyZL8nrSSD9sg6W5kOtr8fBGV4JL9yjahxq5o20IgnSgEJ
+         vdn5/O5aM1eA23rcH8CPRZTeym+c5qaqKvol0vnD1MI1A860NqkWDVtDLUOA2R1c1/WK
+         9LisOYcvrBvXHampNn0w9O1vqELobopJZL7aMfOrvcjycNMomehLiJDuubhiEMckmDOE
+         mdOFx+Q5GA1fY1z4RVEA7umJ8ugGz/5reUWdOoKtyhwVPJNb7qJLrohcWmFvlPH0/XUe
+         KcCg==
+X-Gm-Message-State: AOJu0YxkUUE3JLWlOe3KiCrLzEz7LzJNbJo3tVgSh86hfvpuOODYXPMM
+	dd4Ajabs2bESTffhAGf+fE4LfxDb6gBm6al9GW5YpvVMeeJzDXj/DEIn9Q==
+X-Google-Smtp-Source: AGHT+IGwl4TS8EnUa5huGs5MMxc9kEB4SXxgszl+vnh77zhUlqYTRFW5luIwoiE/NoEpy4YydiENIA==
+X-Received: by 2002:a5d:47c2:0:b0:343:6b0c:7553 with SMTP id o2-20020a5d47c2000000b003436b0c7553mr223025wrc.55.1712858827273;
+        Thu, 11 Apr 2024 11:07:07 -0700 (PDT)
 Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id iv11-20020a05600c548b00b0041665b6e111sm6025351wmb.12.2024.04.11.09.42.51
+        by smtp.gmail.com with ESMTPSA id k9-20020adfe3c9000000b00344a8f9cf18sm2324640wrm.7.2024.04.11.11.07.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Apr 2024 09:42:51 -0700 (PDT)
+        Thu, 11 Apr 2024 11:07:06 -0700 (PDT)
 From: Stafford Horne <shorne@gmail.com>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	Stafford Horne <shorne@gmail.com>,
-	Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Subject: [PATCH v2 2/2] openrisc: Add support for more module relocations
-Date: Thu, 11 Apr 2024 17:42:32 +0100
-Message-ID: <20240411164234.1997000-3-shorne@gmail.com>
+	Stafford Horne <shorne@gmail.com>
+Subject: [PATCH 0/5] OpenRISC FPU and Signal handling fixups
+Date: Thu, 11 Apr 2024 19:06:27 +0100
+Message-ID: <20240411180644.2023991-1-shorne@gmail.com>
 X-Mailer: git-send-email 2.44.0
-In-Reply-To: <20240411164234.1997000-1-shorne@gmail.com>
-References: <20240411164234.1997000-1-shorne@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -71,38 +65,41 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-When testing modules in OpenRISC I found R_OR1K_AHI16 (signed adjusted
-high 16-bit) and R_OR1K_SLO16 (split low 16-bit) relocations are used in
-modules but not implemented yet.
+This series has some fixups found when I was doing a deep dive
+documentation of the OpenRISC FPU support which was added in 2023.
 
-This patch implements the relocations. I have tested with a few modules.
+  http://stffrdhrn.github.io/hardware/embedded/openrisc/2023/08/24/or1k-fpu-linux-and-compilers.html
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- arch/openrisc/kernel/module.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+The FPU handling has issues of being inefficient and also not providing the
+proper state if signals are received when handling syscalls.
 
-diff --git a/arch/openrisc/kernel/module.c b/arch/openrisc/kernel/module.c
-index 292f0afe27b9..c9ff4c4a0b29 100644
---- a/arch/openrisc/kernel/module.c
-+++ b/arch/openrisc/kernel/module.c
-@@ -55,6 +55,16 @@ int apply_relocate_add(Elf32_Shdr *sechdrs,
- 			value |= *location & 0xfc000000;
- 			*location = value;
- 			break;
-+		case R_OR1K_AHI16:
-+			/* Adjust the operand to match with a signed LO16.  */
-+			value += 0x8000;
-+			*((uint16_t *)location + 1) = value >> 16;
-+			break;
-+		case R_OR1K_SLO16:
-+			/* Split value lower 16-bits.  */
-+			value = ((value & 0xf800) << 10) | (value & 0x7ff);
-+			*location = (*location & ~0x3e007ff) | value;
-+			break;
- 		default:
- 			pr_err("module %s: Unknown relocation: %u\n",
- 			       me->name, ELF32_R_TYPE(rel[i].r_info));
+The series is small, so should be easy to see from the commit list but in
+summary does:
+
+ - Fixup some issues with exception handling.
+ - Adds CONFIG_FPU to allow disabling FPU support
+ - Fixups to e FPU handling logic moving the FPCSR state out of the kernel
+   stack pt_regs and into the task_struct.
+
+Stafford Horne (5):
+  openrisc: traps: Convert printks to pr_<level> macros
+  openrisc: traps: Remove calls to show_registers before die
+  openrisc: traps: Don't send signals to kernel mode threads
+  openrisc: Add FPU config
+  openrisc: Move FPU state out of pt_regs
+
+ arch/openrisc/Kconfig                 |   9 ++
+ arch/openrisc/include/asm/fpu.h       |  22 ++++
+ arch/openrisc/include/asm/processor.h |   1 +
+ arch/openrisc/include/asm/ptrace.h    |   3 +-
+ arch/openrisc/kernel/entry.S          |  15 +--
+ arch/openrisc/kernel/process.c        |   5 +
+ arch/openrisc/kernel/ptrace.c         |  18 ++--
+ arch/openrisc/kernel/signal.c         |  36 ++++++-
+ arch/openrisc/kernel/traps.c          | 144 ++++++++++++++------------
+ 9 files changed, 160 insertions(+), 93 deletions(-)
+ create mode 100644 arch/openrisc/include/asm/fpu.h
+
 -- 
 2.44.0
 
