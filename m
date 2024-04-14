@@ -1,409 +1,142 @@
-Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92D9A4C601;
-	Thu, 11 Apr 2024 18:07:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CAF413443E;
+	Sun, 14 Apr 2024 17:52:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.235.227.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712858848; cv=none; b=QU8SI48TRDB9RGwfATMzsuAfqK/ppS5O1k8ghRF0MGD6s+wb7ERwF6RF7v4ZnzIA9WLEptET6VvA790pBBy46qE2hqgkWDhFgjmn0EI1RdBhHTzPnjy+O7xRxICj+nCkaQ9EHE7Hdj7bZS1kXlQHblHONmEn8k2CCThYP667rN8=
+	t=1713117127; cv=none; b=G6mLmp2Ff5sWFuoosUZDG8yKPNPYxiBjPlXmHln/8HY1WBtHFxUJUjC2UBoTf4wghG2af9ZHksVAlt0Ki23ulMSGA2x0YpYgqpBpKW0UwKZKJt4fBNWvKkhCY/Sbv37kyJqoVD3l4WtMclriSZVeWEEcL+H56AmkzfhT56L1XOk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712858848; c=relaxed/simple;
-	bh=uoypgfILpOV53u+PqSpW90h3uRnnMDs8RrJ/fNVLPnA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=h5EB09V56EPWeFOzAuotneZJxhBWtHEzXJSKePqcJzGVoACTy5MHxhkyceXqBhmVbF0NcfhsK7hgKdsX4+MPnEyOwH6sVhmgROHPuyNkokdEf2Dix3Y18ACBHacV/f4wBMxsxFVv2GdSKaEegDayqY7UiuALMcBPLeimVX37Cso=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ajT89B8r; arc=none smtp.client-ip=209.85.221.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1713117127; c=relaxed/simple;
+	bh=7oeIJBJB28bTtI1s924RfikvUhz080zhzK+OctRWIX0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FF/Br0HklLcq+snRgt2GPtcP/1KItjPrw1vOnhP7qd+HlhlWWTlsUlhOXrjvfeA1rM109k2zVGOG33bOcz8FFmNEGCih484IuSHqRD/wH3oziRiGnAUCMuFwAg1uWK3NgX/cKhqcRd3xXKNe2CDLnBaDy2uSv8dbjELJ8Qqjekw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=VXFF7a42; arc=none smtp.client-ip=46.235.227.194
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ajT89B8r"
-Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-343d7ff2350so23045f8f.0;
-        Thu, 11 Apr 2024 11:07:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1712858844; x=1713463644; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=VVHctDY4yjRyI0xciRRAMqYJCTVTs5KhPgdzO+9ACCE=;
-        b=ajT89B8rHNGbzB1XUvgsD/Tq4SAiPyCKHq4QKSXnasD/cbUf+feJgbRU72XYB9jz12
-         1t8F9njzjnG3IuNnBY8M3Lc7oD2zSH3vNpbRP073aV1pGbxwbkJtvbZRIQLYOJtal53i
-         nE/Xhg1gFOi9eNpm1xAcYUOEirFb1FTDuunr/s8agrTxwqDB7cTj7pWEe9JSArZZVIKg
-         88CVxkuv+o5FT/b+/j1owHiubBaqKUVZze87yId+Htqfy7+OEjo6aKk0SJxonPFea4A+
-         M5KlwOJYeTxVYMFLMlWGmkwqakTM1YC+a/nHi+r1cGTMQAOOq+vnc/kei0IwkjMW9Xa1
-         32cA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712858844; x=1713463644;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=VVHctDY4yjRyI0xciRRAMqYJCTVTs5KhPgdzO+9ACCE=;
-        b=GPvoKzc9oPhbaDgfeJIemoMs3+PBBfxhlLwHCHYDc+tcfRVPD18BOZ61mq6NHQ8ZVJ
-         nxmO0XId0CfAb+DxZpbQbqxEd7zG7IJ9rG/2wAnLT+g/9DWmd/r8bXDB7zFHadFC8QXG
-         V1BVubVvF83gyEWGSCinoES6JIpn/SLr3CL1Iqy/AY3HZbKbyPK+n2UssusY6Z2V9/lE
-         yUCX8i1B7WnxMryzqvergariFvkIGftogr9O/rvOqFbM+soLReHx698cSjjJM+OSmHQl
-         YwSwZR2rzEz3pxtJyrynlJQ5m3r9JiIH0PLpZcHsjZlUfPpt4+ZrpRUAoqN2Ii/tU40z
-         g/Cg==
-X-Gm-Message-State: AOJu0Yyfmv+Tc4mYbWANNG9/2QGIcErpDYIXgIXCxjvJsjbDa/9oD3Yy
-	Hp1f0s8JVwQzVs7qVFYIyrNDl4DTDEL3dlCW9p3dNcE3au/Gl29bJ54OhA==
-X-Google-Smtp-Source: AGHT+IFzK4yl38sBR9rXf+9DqkqXC7YWeTg82+WE1s85TEPotZSV5CMnwrwvhHNPuJ3kGX0IqOPjwA==
-X-Received: by 2002:a5d:4e0c:0:b0:346:f906:f6c1 with SMTP id p12-20020a5d4e0c000000b00346f906f6c1mr13823wrt.0.1712858844244;
-        Thu, 11 Apr 2024 11:07:24 -0700 (PDT)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id o9-20020a5d6709000000b00343956e8852sm2309447wru.42.2024.04.11.11.07.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Apr 2024 11:07:23 -0700 (PDT)
-From: Stafford Horne <shorne@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	Stafford Horne <shorne@gmail.com>,
-	Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Oleg Nesterov <oleg@redhat.com>
-Subject: [PATCH 5/5] openrisc: Move FPU state out of pt_regs
-Date: Thu, 11 Apr 2024 19:06:32 +0100
-Message-ID: <20240411180644.2023991-6-shorne@gmail.com>
-X-Mailer: git-send-email 2.44.0
-In-Reply-To: <20240411180644.2023991-1-shorne@gmail.com>
-References: <20240411180644.2023991-1-shorne@gmail.com>
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="VXFF7a42"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1713117124;
+	bh=7oeIJBJB28bTtI1s924RfikvUhz080zhzK+OctRWIX0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=VXFF7a42IADRYKhS+sBrSGfjmdAs85LDOwP9HMq5H+vYSp75SKYhQSrdMb8cRKQnq
+	 usMzPmf4/OLD6WNVR+2Urku1hyGSmMzjkknl66wX0hCEY+8yfh1LDUSc4ZUkOawl33
+	 QX6sOma7NStoOGHe3GB0KT9hFoIepEbrwgoYvuagBXZEFoxHPgB2IGZ95+e/LIciZ2
+	 fhtV6yxJQJR6ecWLrfdW3MR2/SFAUmmitHsYWcFw/CBd+eOnTpmkXsIq6ZyoaZ/vVT
+	 brPfDterPmxMmSLExE/4MKlFtOIEYggBvAj5v5utI0I6GqjEJlHaRxol2UCWYGZMnF
+	 JsSCt4nRcMvTA==
+Received: from mercury (cola.collaboradmins.com [195.201.22.229])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits))
+	(No client certificate requested)
+	(Authenticated sender: sre)
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 9273B37813CA;
+	Sun, 14 Apr 2024 17:52:04 +0000 (UTC)
+Received: by mercury (Postfix, from userid 1000)
+	id 3376D106134A; Sun, 14 Apr 2024 19:52:03 +0200 (CEST)
+Date: Sun, 14 Apr 2024 19:52:03 +0200
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
+To: Stafford Horne <shorne@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Jonas Bonn <jonas@southpole.se>, 
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Andrew Davis <afd@ti.com>, linux-openrisc@vger.kernel.org
+Subject: Re: [PATCH] openrisc: Use do_kernel_power_off()
+Message-ID: <rfbxtgppobtvtp2flghzpw7mzlrhnzwuk5gulwdauf5ecfkpa7@xk4qspf3mo3c>
+References: <20240331070230.2252922-1-shorne@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="5g3tqu2f5hovaone"
+Content-Disposition: inline
+In-Reply-To: <20240331070230.2252922-1-shorne@gmail.com>
 
-My original, naive, FPU support patch had the FPCSR register stored
-during both the *mode switch* and *context switch*.  This is wasteful.
 
-Also, the original patches did not save the FPU state when handling
-signals during the system call fast path.
+--5g3tqu2f5hovaone
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-We fix this by moving the FPCSR state to thread_struct in task_struct.
-We also introduce new helper functions save_fpu and restore_fpu which
-can be used to sync the FPU with thread_struct.  These functions are now
-called when needed:
+Hi,
 
- - Setting up and restoring sigcontext when handling signals
- - Before and after __switch_to during context switches
- - When handling FPU exceptions
- - When reading and writing FPU register sets
+On Sun, Mar 31, 2024 at 08:02:28AM +0100, Stafford Horne wrote:
+> After commit 14c5678720bd ("power: reset: syscon-poweroff: Use
+> devm_register_sys_off_handler(POWER_OFF)") setting up of pm_power_off
+> was removed from the driver, this causes OpenRISC platforms using
+> syscon-poweroff to no longer shutdown.
+>=20
+> The kernel now supports chained power-off handlers. Use
+> do_kernel_power_off() that invokes chained power-off handlers.  All
+> architectures have moved away from using pm_power_off except OpenRISC.
+>=20
+> This patch migrates openrisc to use do_kernel_power_off() instead of the
+> legacy pm_power_off().
+>=20
+> Fixes: 14c5678720bd ("power: reset: syscon-poweroff: Use devm_register_sy=
+s_off_handler(POWER_OFF)")
+> Signed-off-by: Stafford Horne <shorne@gmail.com>
+> ---
 
-In the future we can further optimize this by doing lazy FPU save and
-restore.  For example, FPU sync is not needed when switching to and from
-kernel threads (x86 does this).  FPU save and restore does not need to
-be done two times if we have both rescheduling and signal work to do.
-However, since OpenRISC FPU state is a single register, I leave these
-optimizations for future consideration.
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- arch/openrisc/include/asm/fpu.h       | 22 ++++++++++++++++
- arch/openrisc/include/asm/processor.h |  1 +
- arch/openrisc/include/asm/ptrace.h    |  3 +--
- arch/openrisc/kernel/entry.S          | 15 +----------
- arch/openrisc/kernel/process.c        |  5 ++++
- arch/openrisc/kernel/ptrace.c         | 12 +++------
- arch/openrisc/kernel/signal.c         | 36 +++++++++++++++++++++++++--
- arch/openrisc/kernel/traps.c          | 14 +++++++----
- 8 files changed, 76 insertions(+), 32 deletions(-)
- create mode 100644 arch/openrisc/include/asm/fpu.h
+-- Sebastian
 
-diff --git a/arch/openrisc/include/asm/fpu.h b/arch/openrisc/include/asm/fpu.h
-new file mode 100644
-index 000000000000..57bc44d80d53
---- /dev/null
-+++ b/arch/openrisc/include/asm/fpu.h
-@@ -0,0 +1,22 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __ASM_OPENRISC_FPU_H
-+#define __ASM_OPENRISC_FPU_H
-+
-+struct task_struct;
-+
-+#ifdef CONFIG_FPU
-+static inline void save_fpu(struct task_struct *task)
-+{
-+	task->thread.fpcsr = mfspr(SPR_FPCSR);
-+}
-+
-+static inline void restore_fpu(struct task_struct *task)
-+{
-+	mtspr(SPR_FPCSR, task->thread.fpcsr);
-+}
-+#else
-+#define save_fpu(tsk)			do { } while (0)
-+#define restore_fpu(tsk)		do { } while (0)
-+#endif
-+
-+#endif /* __ASM_OPENRISC_FPU_H */
-diff --git a/arch/openrisc/include/asm/processor.h b/arch/openrisc/include/asm/processor.h
-index 3b736e74e6ed..e05d1b59e24e 100644
---- a/arch/openrisc/include/asm/processor.h
-+++ b/arch/openrisc/include/asm/processor.h
-@@ -44,6 +44,7 @@
- struct task_struct;
- 
- struct thread_struct {
-+	long fpcsr;		/* Floating point control status register. */
- };
- 
- /*
-diff --git a/arch/openrisc/include/asm/ptrace.h b/arch/openrisc/include/asm/ptrace.h
-index 375147ff71fc..1da3e66292e2 100644
---- a/arch/openrisc/include/asm/ptrace.h
-+++ b/arch/openrisc/include/asm/ptrace.h
-@@ -59,7 +59,7 @@ struct pt_regs {
- 	 * -1 for all other exceptions.
- 	 */
- 	long  orig_gpr11;	/* For restarting system calls */
--	long fpcsr;		/* Floating point control status register. */
-+	long dummy;		/* Cheap alignment fix */
- 	long dummy2;		/* Cheap alignment fix */
- };
- 
-@@ -115,6 +115,5 @@ static inline long regs_return_value(struct pt_regs *regs)
- #define PT_GPR31      124
- #define PT_PC	      128
- #define PT_ORIG_GPR11 132
--#define PT_FPCSR      136
- 
- #endif /* __ASM_OPENRISC_PTRACE_H */
-diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
-index c9f48e750b72..440711d7bf40 100644
---- a/arch/openrisc/kernel/entry.S
-+++ b/arch/openrisc/kernel/entry.S
-@@ -106,8 +106,6 @@
- 	l.mtspr r0,r3,SPR_EPCR_BASE				;\
- 	l.lwz   r3,PT_SR(r1)					;\
- 	l.mtspr r0,r3,SPR_ESR_BASE				;\
--	l.lwz	r3,PT_FPCSR(r1)					;\
--	l.mtspr	r0,r3,SPR_FPCSR					;\
- 	l.lwz   r2,PT_GPR2(r1)					;\
- 	l.lwz   r3,PT_GPR3(r1)					;\
- 	l.lwz   r4,PT_GPR4(r1)					;\
-@@ -177,8 +175,6 @@ handler:							;\
- 	/* r30 already save */					;\
- 	l.sw    PT_GPR31(r1),r31					;\
- 	TRACE_IRQS_OFF_ENTRY						;\
--	l.mfspr	r30,r0,SPR_FPCSR				;\
--	l.sw	PT_FPCSR(r1),r30				;\
- 	/* Store -1 in orig_gpr11 for non-syscall exceptions */	;\
- 	l.addi	r30,r0,-1					;\
- 	l.sw	PT_ORIG_GPR11(r1),r30
-@@ -219,8 +215,6 @@ handler:							;\
- 	/* Store -1 in orig_gpr11 for non-syscall exceptions */	;\
- 	l.addi	r30,r0,-1					;\
- 	l.sw	PT_ORIG_GPR11(r1),r30				;\
--	l.mfspr	r30,r0,SPR_FPCSR				;\
--	l.sw	PT_FPCSR(r1),r30				;\
- 	l.addi	r3,r1,0						;\
- 	/* r4 is exception EA */				;\
- 	l.addi	r5,r0,vector					;\
-@@ -852,6 +846,7 @@ _syscall_badsys:
- 
- EXCEPTION_ENTRY(_fpe_trap_handler)
- 	CLEAR_LWA_FLAG(r3)
-+
- 	/* r4: EA of fault (set by EXCEPTION_HANDLE) */
- 	l.jal   do_fpe_trap
- 	 l.addi  r3,r1,0 /* pt_regs */
-@@ -1100,10 +1095,6 @@ ENTRY(_switch)
- 	l.sw    PT_GPR28(r1),r28
- 	l.sw    PT_GPR30(r1),r30
- 
--	/* Store the old FPU state to new pt_regs */
--	l.mfspr	r29,r0,SPR_FPCSR
--	l.sw	PT_FPCSR(r1),r29
--
- 	l.addi	r11,r10,0			/* Save old 'current' to 'last' return value*/
- 
- 	/* We use thread_info->ksp for storing the address of the above
-@@ -1126,10 +1117,6 @@ ENTRY(_switch)
- 	l.lwz	r29,PT_SP(r1)
- 	l.sw	TI_KSP(r10),r29
- 
--	/* Restore the old value of FPCSR */
--	l.lwz	r29,PT_FPCSR(r1)
--	l.mtspr	r0,r29,SPR_FPCSR
--
- 	/* ...and restore the registers, except r11 because the return value
- 	 * has already been set above.
- 	 */
-diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
-index 3c27d1c72718..eef99fee2110 100644
---- a/arch/openrisc/kernel/process.c
-+++ b/arch/openrisc/kernel/process.c
-@@ -36,6 +36,7 @@
- #include <linux/reboot.h>
- 
- #include <linux/uaccess.h>
-+#include <asm/fpu.h>
- #include <asm/io.h>
- #include <asm/processor.h>
- #include <asm/spr_defs.h>
-@@ -244,6 +245,8 @@ struct task_struct *__switch_to(struct task_struct *old,
- 
- 	local_irq_save(flags);
- 
-+	save_fpu(current);
-+
- 	/* current_set is an array of saved current pointers
- 	 * (one for each cpu). we need them at user->kernel transition,
- 	 * while we save them at kernel->user transition
-@@ -256,6 +259,8 @@ struct task_struct *__switch_to(struct task_struct *old,
- 	current_thread_info_set[smp_processor_id()] = new_ti;
- 	last = (_switch(old_ti, new_ti))->task;
- 
-+	restore_fpu(current);
-+
- 	local_irq_restore(flags);
- 
- 	return last;
-diff --git a/arch/openrisc/kernel/ptrace.c b/arch/openrisc/kernel/ptrace.c
-index cf410193095f..5091b18eab4c 100644
---- a/arch/openrisc/kernel/ptrace.c
-+++ b/arch/openrisc/kernel/ptrace.c
-@@ -98,9 +98,7 @@ static int fpregs_get(struct task_struct *target,
- 		       const struct user_regset *regset,
- 		       struct membuf to)
- {
--	const struct pt_regs *regs = task_pt_regs(target);
--
--	return membuf_store(&to, regs->fpcsr);
-+	return membuf_store(&to, target->thread.fpcsr);
- }
- 
- static int fpregs_set(struct task_struct *target,
-@@ -108,13 +106,9 @@ static int fpregs_set(struct task_struct *target,
- 		       unsigned int pos, unsigned int count,
- 		       const void *kbuf, const void __user *ubuf)
- {
--	struct pt_regs *regs = task_pt_regs(target);
--	int ret;
--
- 	/* FPCSR */
--	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
--				 &regs->fpcsr, 0, 4);
--	return ret;
-+	return user_regset_copyin(&pos, &count, &kbuf, &ubuf,
-+				  &target->thread.fpcsr, 0, 4);
- }
- #endif
- 
-diff --git a/arch/openrisc/kernel/signal.c b/arch/openrisc/kernel/signal.c
-index e2f21a5d8ad9..c7ab42e2cb7a 100644
---- a/arch/openrisc/kernel/signal.c
-+++ b/arch/openrisc/kernel/signal.c
-@@ -23,6 +23,7 @@
- #include <linux/stddef.h>
- #include <linux/resume_user_mode.h>
- 
-+#include <asm/fpu.h>
- #include <asm/processor.h>
- #include <asm/syscall.h>
- #include <asm/ucontext.h>
-@@ -39,6 +40,37 @@ asmlinkage long _sys_rt_sigreturn(struct pt_regs *regs);
- asmlinkage int do_work_pending(struct pt_regs *regs, unsigned int thread_flags,
- 			       int syscall);
- 
-+#ifdef CONFIG_FPU
-+static long restore_fp_state(struct sigcontext __user *sc)
-+{
-+	long err;
-+
-+	err = __copy_from_user(&current->thread.fpcsr, &sc->fpcsr, sizeof(unsigned long));
-+	if (unlikely(err))
-+		return err;
-+
-+	/* Restore the FPU state */
-+	restore_fpu(current);
-+
-+	return 0;
-+}
-+
-+static long save_fp_state(struct sigcontext __user *sc)
-+{
-+	long err;
-+
-+	/* Sync the user FPU state so we can copy to sigcontext */
-+	save_fpu(current);
-+
-+	err = __copy_to_user(&sc->fpcsr, &current->thread.fpcsr, sizeof(unsigned long));
-+
-+	return err;
-+}
-+#else
-+#define save_fp_state(sc) (0)
-+#define restore_fp_state(sc) (0)
-+#endif
-+
- static int restore_sigcontext(struct pt_regs *regs,
- 			      struct sigcontext __user *sc)
- {
-@@ -55,7 +87,7 @@ static int restore_sigcontext(struct pt_regs *regs,
- 	err |= __copy_from_user(regs, sc->regs.gpr, 32 * sizeof(unsigned long));
- 	err |= __copy_from_user(&regs->pc, &sc->regs.pc, sizeof(unsigned long));
- 	err |= __copy_from_user(&regs->sr, &sc->regs.sr, sizeof(unsigned long));
--	err |= __copy_from_user(&regs->fpcsr, &sc->fpcsr, sizeof(unsigned long));
-+	err |= restore_fp_state(sc);
- 
- 	/* make sure the SM-bit is cleared so user-mode cannot fool us */
- 	regs->sr &= ~SPR_SR_SM;
-@@ -118,7 +150,7 @@ static int setup_sigcontext(struct pt_regs *regs, struct sigcontext __user *sc)
- 	err |= __copy_to_user(sc->regs.gpr, regs, 32 * sizeof(unsigned long));
- 	err |= __copy_to_user(&sc->regs.pc, &regs->pc, sizeof(unsigned long));
- 	err |= __copy_to_user(&sc->regs.sr, &regs->sr, sizeof(unsigned long));
--	err |= __copy_to_user(&sc->fpcsr, &regs->fpcsr, sizeof(unsigned long));
-+	err |= save_fp_state(sc);
- 
- 	return err;
- }
-diff --git a/arch/openrisc/kernel/traps.c b/arch/openrisc/kernel/traps.c
-index 57e0d674eb04..c195be9cc9fc 100644
---- a/arch/openrisc/kernel/traps.c
-+++ b/arch/openrisc/kernel/traps.c
-@@ -31,6 +31,7 @@
- #include <linux/uaccess.h>
- 
- #include <asm/bug.h>
-+#include <asm/fpu.h>
- #include <asm/io.h>
- #include <asm/processor.h>
- #include <asm/unwinder.h>
-@@ -84,9 +85,8 @@ void show_registers(struct pt_regs *regs)
- 		in_kernel = 0;
- 
- 	pr_info("CPU #: %d\n"
--		"   PC: %08lx    SR: %08lx    SP: %08lx FPCSR: %08lx\n",
--		smp_processor_id(), regs->pc, regs->sr, regs->sp,
--		regs->fpcsr);
-+		"   PC: %08lx    SR: %08lx    SP: %08lx\n",
-+		smp_processor_id(), regs->pc, regs->sr, regs->sp);
- 	pr_info("GPR00: %08lx GPR01: %08lx GPR02: %08lx GPR03: %08lx\n",
- 		0L, regs->gpr[1], regs->gpr[2], regs->gpr[3]);
- 	pr_info("GPR04: %08lx GPR05: %08lx GPR06: %08lx GPR07: %08lx\n",
-@@ -183,7 +183,10 @@ asmlinkage void do_fpe_trap(struct pt_regs *regs, unsigned long address)
- 	if (user_mode(regs)) {
- 		int code = FPE_FLTUNK;
- #ifdef CONFIG_FPU
--		unsigned long fpcsr = regs->fpcsr;
-+		unsigned long fpcsr;
-+
-+		save_fpu(current);
-+		fpcsr = current->thread.fpcsr;
- 
- 		if (fpcsr & SPR_FPCSR_IVF)
- 			code = FPE_FLTINV;
-@@ -197,7 +200,8 @@ asmlinkage void do_fpe_trap(struct pt_regs *regs, unsigned long address)
- 			code = FPE_FLTRES;
- 
- 		/* Clear all flags */
--		regs->fpcsr &= ~SPR_FPCSR_ALLF;
-+		current->thread.fpcsr &= ~SPR_FPCSR_ALLF;
-+		restore_fpu(current);
- #endif
- 		force_sig_fault(SIGFPE, code, (void __user *)regs->pc);
- 	} else {
--- 
-2.44.0
+>  arch/openrisc/kernel/process.c | 8 +++-----
+>  1 file changed, 3 insertions(+), 5 deletions(-)
+>=20
+> diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/proces=
+s.c
+> index 86e02929f3ac..3c27d1c72718 100644
+> --- a/arch/openrisc/kernel/process.c
+> +++ b/arch/openrisc/kernel/process.c
+> @@ -65,7 +65,7 @@ void machine_restart(char *cmd)
+>  }
+> =20
+>  /*
+> - * This is used if pm_power_off has not been set by a power management
+> + * This is used if a sys-off handler was not set by a power management
+>   * driver, in this case we can assume we are on a simulator.  On
+>   * OpenRISC simulators l.nop 1 will trigger the simulator exit.
+>   */
+> @@ -89,10 +89,8 @@ void machine_halt(void)
+>  void machine_power_off(void)
+>  {
+>  	printk(KERN_INFO "*** MACHINE POWER OFF ***\n");
+> -	if (pm_power_off !=3D NULL)
+> -		pm_power_off();
+> -	else
+> -		default_power_off();
+> +	do_kernel_power_off();
+> +	default_power_off();
+>  }
+> =20
+>  /*
+> --=20
+> 2.44.0
+>=20
 
+--5g3tqu2f5hovaone
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAmYcF78ACgkQ2O7X88g7
++pq5mQ/+M+426GVgXDcqLWaBeZW3HA03bp5BIZ/MDyTJhm0Rddyq9+9y1SftS9bc
+A1Hn5oGq3LBhUarGxPIsDzum+BFAnY9H0iLLNSa9GxFNHvatxsEsPPLAgF1+M3Q5
+PaU9fBuC25Kihszf9bfnopMAt+3RbgDc2IVQv/f9sPjnd2S//342bFq2e8E7MTGp
+sMa91/Jn4/2OPwjiSogBx1LehE4cnREYOWo7ruBCp8fW4e6G+wpQ5FhSVfe3NF/m
+RYVpsVXGvVoIU1XecjC2CTi6g0MKJ6xZhXfjjRnmYDHnod04lVggh5zKzWgO6j+b
+7M+7pw7EaCce/38W5u/hM40X0FH1GT/ZUdmTFhaBPUFzBBTpw1X9HXe0VLJhIYGe
+urGx2G6QnX/x0YbDrbKJv27NsgVorKfE5qwPtpbD4MEhQqWovEl80Ysv0gCajs08
+RmPVqqmFsxSqbPjsrzP8BL1bPTMBN/2iM05hzScis9/OgrGHRuSm8TNCGx7stYpE
+PBoiE8bMlEKREoLriPRrcKvkpPCcKD1T19hsjonZZpLry6sTiQaCQbbeugNM97uK
+EWy5DmeTgiYSQ/10auOYWkJG2Tp1FKPWz9o5D892DBrRKeyweHnJEF5g7LYjC+hy
+5IQvYdd8SKIyrJACVazpoPbMWk8bjnmXuwBcXp8x2G+o7NtSzxY=
+=fROO
+-----END PGP SIGNATURE-----
+
+--5g3tqu2f5hovaone--
