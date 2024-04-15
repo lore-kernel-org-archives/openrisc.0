@@ -1,142 +1,101 @@
-Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CAF413443E;
-	Sun, 14 Apr 2024 17:52:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.235.227.194
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EE617602A;
+	Mon, 15 Apr 2024 14:22:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713117127; cv=none; b=G6mLmp2Ff5sWFuoosUZDG8yKPNPYxiBjPlXmHln/8HY1WBtHFxUJUjC2UBoTf4wghG2af9ZHksVAlt0Ki23ulMSGA2x0YpYgqpBpKW0UwKZKJt4fBNWvKkhCY/Sbv37kyJqoVD3l4WtMclriSZVeWEEcL+H56AmkzfhT56L1XOk=
+	t=1713190941; cv=none; b=L35fR8gN1BppqV/rRHS6jj2/orHorwau0XBRcELM0JXNHA8hs4KmZgRQIsvmZU3QRHd+gx9JNmDQtCs4tsy09adCQQWL2K+IJgdH4/olCMNA4vcMXTJ3iSkOxgENz7kVwAx9somjfB9tyRRmzJiPwnG8zBzuvONtMe7Giqax29M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713117127; c=relaxed/simple;
-	bh=7oeIJBJB28bTtI1s924RfikvUhz080zhzK+OctRWIX0=;
+	s=arc-20240116; t=1713190941; c=relaxed/simple;
+	bh=9Ir3scp8W23/upQsjLBGH5uBSSThzCEeVGhPNF50irY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FF/Br0HklLcq+snRgt2GPtcP/1KItjPrw1vOnhP7qd+HlhlWWTlsUlhOXrjvfeA1rM109k2zVGOG33bOcz8FFmNEGCih484IuSHqRD/wH3oziRiGnAUCMuFwAg1uWK3NgX/cKhqcRd3xXKNe2CDLnBaDy2uSv8dbjELJ8Qqjekw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=VXFF7a42; arc=none smtp.client-ip=46.235.227.194
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=sReDT4k8E7vXJhX5pSJk7o9+i1zuk4MeBOMvlKt3YuG0mnpEGZMQmxF+8FqUxd4W9zS8nlb6Rby3h3FCABecFBLpGbf01/4PTjmysGiqTG/p+JYbVHn7mDP413vO427DnVd7fAEscGsFgjAxxucLcjfvo/CrGf80EiiHMxomIgM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aDJdQYJF; arc=none smtp.client-ip=209.85.221.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="VXFF7a42"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1713117124;
-	bh=7oeIJBJB28bTtI1s924RfikvUhz080zhzK+OctRWIX0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=VXFF7a42IADRYKhS+sBrSGfjmdAs85LDOwP9HMq5H+vYSp75SKYhQSrdMb8cRKQnq
-	 usMzPmf4/OLD6WNVR+2Urku1hyGSmMzjkknl66wX0hCEY+8yfh1LDUSc4ZUkOawl33
-	 QX6sOma7NStoOGHe3GB0KT9hFoIepEbrwgoYvuagBXZEFoxHPgB2IGZ95+e/LIciZ2
-	 fhtV6yxJQJR6ecWLrfdW3MR2/SFAUmmitHsYWcFw/CBd+eOnTpmkXsIq6ZyoaZ/vVT
-	 brPfDterPmxMmSLExE/4MKlFtOIEYggBvAj5v5utI0I6GqjEJlHaRxol2UCWYGZMnF
-	 JsSCt4nRcMvTA==
-Received: from mercury (cola.collaboradmins.com [195.201.22.229])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits))
-	(No client certificate requested)
-	(Authenticated sender: sre)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 9273B37813CA;
-	Sun, 14 Apr 2024 17:52:04 +0000 (UTC)
-Received: by mercury (Postfix, from userid 1000)
-	id 3376D106134A; Sun, 14 Apr 2024 19:52:03 +0200 (CEST)
-Date: Sun, 14 Apr 2024 19:52:03 +0200
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
-To: Stafford Horne <shorne@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Jonas Bonn <jonas@southpole.se>, 
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Andrew Davis <afd@ti.com>, linux-openrisc@vger.kernel.org
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aDJdQYJF"
+Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-343f62d8124so2806276f8f.2;
+        Mon, 15 Apr 2024 07:22:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1713190937; x=1713795737; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=NBenbo5yQKESlQcuptjD7PXvm5EokMPUnv64i7h32sY=;
+        b=aDJdQYJFVOm2mQZxsfgXeVG5MYkL0Ysu2Ry5WT848l0jY+2I2CUa9IyI1v8Z2sxpwe
+         t2S5EUWRPhRn8XzB3xsMO2Pogr/ihOFbFVt5bMfq0ETyjMbMVLPbukUmXloaUTcGQ1NH
+         CnzC2mIRX53ImtrzQmapCDXDlrVUC+z3IAH+8fp888X7CwOzEGDtYBik4hMFIe6DeDgQ
+         mkMZmCNIf+uKAhvyWQMIW8oH9MiyNcF+4kOpS69qc3iBfhQm8bMSSfXL2xz0ORn32TC9
+         jmgJCoqLslVEeJb2Sa1L9bqIeuHflMCGnYsGH53ALyESLmkrhDZSPrEcfuiNfKJhYkYN
+         jxGQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713190937; x=1713795737;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=NBenbo5yQKESlQcuptjD7PXvm5EokMPUnv64i7h32sY=;
+        b=FNeEGtkzkIJwNn11zO58ec5wHDWkEbUhPIVLxwqyI0zAiqHtyul2+CnNMXC3frJ+BU
+         l5jOhutQ97X6zXrdaSdfNNpaQAobWLAd6foUmA11k5FMAUJuJQ3l0p8CekjTkZbKuF3m
+         5jW2w0rd3EaiN+xg2gATuCJFJj6svPR4QlhaddUA5LD2uL34bu06YPfe0bmKUip+Gz0w
+         FLbpKPixUx9dNL8u7AVlpdx6QzxKGFEKnj8infeWY1K0xONpCQ36i3Cy9Dp9yfRPfaTB
+         ciH1DyEMpp73TaIfdfrVYElagSsnDw5VLQFOG0S4dXfBb0i503XRcwprWwU9J4+tzW2S
+         xKXQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVZxuCHvr20AKT78hwPO1j/JBfvdCMTBlEwq5v+9YDE457bNQwVSeZJycbhIxF09IKuj+VfKQpU0JfsLr0xgDIN3ywjyMm+VbnLRQvGSS0=
+X-Gm-Message-State: AOJu0YwVzrp8jc3yaByW6NriziPXQEvqD4yO3j2I6zF692RFZw5cTrvy
+	bfrMVYtC2MzW6ZV9dfezwqCFtYG4xE61TZfqq8fi04FcZZVmT3Ll
+X-Google-Smtp-Source: AGHT+IHAzOowbhnnS1r8iOQS2XKcb1UW9ylxxkx+9LC1Cc9deOsVai8q8xm55TijMA3QQR8NySm2Zw==
+X-Received: by 2002:adf:e610:0:b0:33e:c389:69ff with SMTP id p16-20020adfe610000000b0033ec38969ffmr5612522wrm.68.1713190937035;
+        Mon, 15 Apr 2024 07:22:17 -0700 (PDT)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id k12-20020a5d6d4c000000b00343e392829dsm12185010wri.97.2024.04.15.07.22.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 15 Apr 2024 07:22:15 -0700 (PDT)
+Date: Mon, 15 Apr 2024 15:22:15 +0100
+From: Stafford Horne <shorne@gmail.com>
+To: Sebastian Reichel <sebastian.reichel@collabora.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Andrew Davis <afd@ti.com>, linux-openrisc@vger.kernel.org
 Subject: Re: [PATCH] openrisc: Use do_kernel_power_off()
-Message-ID: <rfbxtgppobtvtp2flghzpw7mzlrhnzwuk5gulwdauf5ecfkpa7@xk4qspf3mo3c>
+Message-ID: <Zh04F8RP2vQsOiH8@antec>
 References: <20240331070230.2252922-1-shorne@gmail.com>
+ <rfbxtgppobtvtp2flghzpw7mzlrhnzwuk5gulwdauf5ecfkpa7@xk4qspf3mo3c>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="5g3tqu2f5hovaone"
-Content-Disposition: inline
-In-Reply-To: <20240331070230.2252922-1-shorne@gmail.com>
-
-
---5g3tqu2f5hovaone
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <rfbxtgppobtvtp2flghzpw7mzlrhnzwuk5gulwdauf5ecfkpa7@xk4qspf3mo3c>
 
-Hi,
+On Sun, Apr 14, 2024 at 07:52:03PM +0200, Sebastian Reichel wrote:
+> Hi,
+> 
+> On Sun, Mar 31, 2024 at 08:02:28AM +0100, Stafford Horne wrote:
+> > After commit 14c5678720bd ("power: reset: syscon-poweroff: Use
+> > devm_register_sys_off_handler(POWER_OFF)") setting up of pm_power_off
+> > was removed from the driver, this causes OpenRISC platforms using
+> > syscon-poweroff to no longer shutdown.
+> > 
+> > The kernel now supports chained power-off handlers. Use
+> > do_kernel_power_off() that invokes chained power-off handlers.  All
+> > architectures have moved away from using pm_power_off except OpenRISC.
+> > 
+> > This patch migrates openrisc to use do_kernel_power_off() instead of the
+> > legacy pm_power_off().
+> > 
+> > Fixes: 14c5678720bd ("power: reset: syscon-poweroff: Use devm_register_sys_off_handler(POWER_OFF)")
+> > Signed-off-by: Stafford Horne <shorne@gmail.com>
+> > ---
+> 
+> Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-On Sun, Mar 31, 2024 at 08:02:28AM +0100, Stafford Horne wrote:
-> After commit 14c5678720bd ("power: reset: syscon-poweroff: Use
-> devm_register_sys_off_handler(POWER_OFF)") setting up of pm_power_off
-> was removed from the driver, this causes OpenRISC platforms using
-> syscon-poweroff to no longer shutdown.
->=20
-> The kernel now supports chained power-off handlers. Use
-> do_kernel_power_off() that invokes chained power-off handlers.  All
-> architectures have moved away from using pm_power_off except OpenRISC.
->=20
-> This patch migrates openrisc to use do_kernel_power_off() instead of the
-> legacy pm_power_off().
->=20
-> Fixes: 14c5678720bd ("power: reset: syscon-poweroff: Use devm_register_sy=
-s_off_handler(POWER_OFF)")
-> Signed-off-by: Stafford Horne <shorne@gmail.com>
-> ---
+Hello,
 
-Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Thank you for the review.
 
--- Sebastian
-
->  arch/openrisc/kernel/process.c | 8 +++-----
->  1 file changed, 3 insertions(+), 5 deletions(-)
->=20
-> diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/proces=
-s.c
-> index 86e02929f3ac..3c27d1c72718 100644
-> --- a/arch/openrisc/kernel/process.c
-> +++ b/arch/openrisc/kernel/process.c
-> @@ -65,7 +65,7 @@ void machine_restart(char *cmd)
->  }
-> =20
->  /*
-> - * This is used if pm_power_off has not been set by a power management
-> + * This is used if a sys-off handler was not set by a power management
->   * driver, in this case we can assume we are on a simulator.  On
->   * OpenRISC simulators l.nop 1 will trigger the simulator exit.
->   */
-> @@ -89,10 +89,8 @@ void machine_halt(void)
->  void machine_power_off(void)
->  {
->  	printk(KERN_INFO "*** MACHINE POWER OFF ***\n");
-> -	if (pm_power_off !=3D NULL)
-> -		pm_power_off();
-> -	else
-> -		default_power_off();
-> +	do_kernel_power_off();
-> +	default_power_off();
->  }
-> =20
->  /*
-> --=20
-> 2.44.0
->=20
-
---5g3tqu2f5hovaone
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAmYcF78ACgkQ2O7X88g7
-+pq5mQ/+M+426GVgXDcqLWaBeZW3HA03bp5BIZ/MDyTJhm0Rddyq9+9y1SftS9bc
-A1Hn5oGq3LBhUarGxPIsDzum+BFAnY9H0iLLNSa9GxFNHvatxsEsPPLAgF1+M3Q5
-PaU9fBuC25Kihszf9bfnopMAt+3RbgDc2IVQv/f9sPjnd2S//342bFq2e8E7MTGp
-sMa91/Jn4/2OPwjiSogBx1LehE4cnREYOWo7ruBCp8fW4e6G+wpQ5FhSVfe3NF/m
-RYVpsVXGvVoIU1XecjC2CTi6g0MKJ6xZhXfjjRnmYDHnod04lVggh5zKzWgO6j+b
-7M+7pw7EaCce/38W5u/hM40X0FH1GT/ZUdmTFhaBPUFzBBTpw1X9HXe0VLJhIYGe
-urGx2G6QnX/x0YbDrbKJv27NsgVorKfE5qwPtpbD4MEhQqWovEl80Ysv0gCajs08
-RmPVqqmFsxSqbPjsrzP8BL1bPTMBN/2iM05hzScis9/OgrGHRuSm8TNCGx7stYpE
-PBoiE8bMlEKREoLriPRrcKvkpPCcKD1T19hsjonZZpLry6sTiQaCQbbeugNM97uK
-EWy5DmeTgiYSQ/10auOYWkJG2Tp1FKPWz9o5D892DBrRKeyweHnJEF5g7LYjC+hy
-5IQvYdd8SKIyrJACVazpoPbMWk8bjnmXuwBcXp8x2G+o7NtSzxY=
-=fROO
------END PGP SIGNATURE-----
-
---5g3tqu2f5hovaone--
+-Stafford
