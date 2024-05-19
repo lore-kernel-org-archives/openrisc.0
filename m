@@ -1,63 +1,70 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f46.google.com (mail-io1-f46.google.com [209.85.166.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C70AA181B9C;
-	Tue, 14 May 2024 18:41:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA8935024E
+	for <linux-openrisc@vger.kernel.org>; Sun, 19 May 2024 22:15:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715712119; cv=none; b=W2T29jwL4ItV8hGNJVQecHyiKfWOOArlAqXkPAHHVQtkeovvOiXpCCKru7HjHyzyJtULEbTar3JyyR3k4c28I/kpstwL5i/ZOwlLdp84RpJCmLqA0T/2xCLaN055+Z6KKxRMVWCFkOO+4JcCB4G449glXKqQp/3uF6oxojXMIbo=
+	t=1716156906; cv=none; b=mR7/MbKu9xdZdPUZCPdCXjLb7oNdAYRPK344tNZdN2a6j/hmOdYaFTzt3mbAQ7rPTm0Ld5WTjo1VIoCNVCYcwzP5/leMI8ytaV5lthrIOK1WyDiYHXJ9+XMu+zZS/tl4eiRCBBg6xMzNQyDa90KV9QRxPh6oycSTqmYoYhGsQ9o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715712119; c=relaxed/simple;
-	bh=1kh35XskmiMKH/cxumaDajFCWX/O2Ot3u6gKjNAxahw=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=M3dzdano82Vurvd86FTG4t1x6V76i0sc5jC/Rb+DFUp2w4Wzc6tr5DJIgSglw0exrER51hZt25iQGoXKBnHttMDusZ9Q72VBPZr3qEtMx017fIZlWoJ4kxOylyW8kEI+zW6km2lVByJ1MVEHZRCcxUVYKAGxIo7/321tULtJvsk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Q86/qKve; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1716156906; c=relaxed/simple;
+	bh=Q8MwV2FG+9esaMeCjAoKvO1wVkYLNAIuX47vKlJquxY=;
+	h=Message-ID:Date:MIME-Version:To:From:Content-Type; b=jg7rG14Eqb8IN5hnd/bZybqDW2xSv1oNikRDSC9TtCs1h+MYIM1juNa4MzfdXP8p8NoVggznyB1LseL+Mb6l/ZyXwQw8sY6bkhrhog82reEnpDAYUpIKcAv0Rwgch+rWqFFFf1gC3sUCd91EoLSgWginShumBT+/qV0q7S5+zuY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ccDnSvjW; arc=none smtp.client-ip=209.85.166.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Q86/qKve"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id A36F7C2BD10;
-	Tue, 14 May 2024 18:41:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1715712119;
-	bh=1kh35XskmiMKH/cxumaDajFCWX/O2Ot3u6gKjNAxahw=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=Q86/qKveITjyWtKEvU5jigorenRST5RBL+9BQpK17jWO7U016zxHyYPsSmeVcv0g0
-	 LpAbT2dBcCMmbEefAFK2ZQOfkpquoxRemmPIwHTuZC4rWN9/fhCoRTVeROlteQ2gjj
-	 AGAYOEaHjiKN/0xqOb2YMPW7CzxPDhEqI3/y0ue6s8LhvloXGQtc7O1c/CS1uAiWG1
-	 fIL7oCEegCvR9BRvwK+ZAvpR2erk570a2YdQ3nM2J+6vabBF2gQhNWpXoIwcXzesyQ
-	 ITFI57Y0nWF3U6HOZBQf1GVGLYNqnox1WvSJd6Z12RLA/+TkmXAQZ8EB3gskOIFxVW
-	 GgzBgStkfpPDQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 9B187C43339;
-	Tue, 14 May 2024 18:41:59 +0000 (UTC)
-Subject: Re: [GIT PULL] OpenRISC updates for 6.10
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <ZkOEkhs_-wiwucSO@antec>
-References: <ZkOEkhs_-wiwucSO@antec>
-X-PR-Tracked-List-Id: <linux-openrisc.vger.kernel.org>
-X-PR-Tracked-Message-Id: <ZkOEkhs_-wiwucSO@antec>
-X-PR-Tracked-Remote: https://github.com/openrisc/linux.git tags/for-linus
-X-PR-Tracked-Commit-Id: 4dc70e1aadfadf968676d983587c6f5d455aba85
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 590103732442b4bb83886f03f2ddd39d129c3289
-Message-Id: <171571211963.4202.10926114607793169471.pr-tracker-bot@kernel.org>
-Date: Tue, 14 May 2024 18:41:59 +0000
-To: Stafford Horne <shorne@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Linux OpenRISC <linux-openrisc@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ccDnSvjW"
+Received: by mail-io1-f46.google.com with SMTP id ca18e2360f4ac-7e1ec659c40so185412339f.2
+        for <linux-openrisc@vger.kernel.org>; Sun, 19 May 2024 15:15:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1716156903; x=1716761703; darn=vger.kernel.org;
+        h=content-transfer-encoding:from:to:content-language:user-agent
+         :mime-version:date:message-id:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Q8MwV2FG+9esaMeCjAoKvO1wVkYLNAIuX47vKlJquxY=;
+        b=ccDnSvjWLzR+zobWRpGC+GctLUf5LqQbvvF6D3lpCSfMNQ5XEVIkQTsgXZeeTkwO2s
+         d7JN6we3oXxIC60x4YxiGuZHZtqGsgwU5dr02lUnaq77RmDU6Au/Tz3Elw2REWIUl6qa
+         lzpCn6aTJEfJO/I1U506lp3D//LwMSJBhD6REyqBuSTFTNBZUVXrOaqXcxhzhLr2fVRw
+         nfFr0P7q4h5THNe37yx36YG/YKxwJpfXrM6MIja+LZoH1IA9n7l/qgF+G1KoXoZcV+ed
+         OxQoPlo5FwOa0C45yXxdjVnKBrjihIBrPWWPxcCiiQq74w8Uf61jSNT9G64oF3AjvkvH
+         5KVA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1716156903; x=1716761703;
+        h=content-transfer-encoding:from:to:content-language:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=Q8MwV2FG+9esaMeCjAoKvO1wVkYLNAIuX47vKlJquxY=;
+        b=hIUFS/28XmteAzAmh90Elvg0djwLTw5YIbmX6Z5unzd2shicZkPY11qs5T7H31lyXJ
+         VuzMyo+P0PtjAbfTuzA15XVzEqdoOzkeqXxzRpxuavY8IGfabU9R6lfHnkzBLn9S5ha0
+         xkivXv9QfsCxtX8LiLnF9Zmp9J8ioNJP/0NzWAixR4hjItLRP4Z9MXz9yGsSkfiadIuL
+         tyqWc5rBOkRzfh3/J8AJJnHgzQ0icj48rYkioWQvZWg6jh7p5Dy6e7ETVPxlySyXqbBT
+         5pb7SahKCNoXVQuVZp5uGLCWBLPT4c6NzRFpEY0BUwVwc15Rgojljx0+laH9AqhcupXw
+         Go8Q==
+X-Gm-Message-State: AOJu0Yzg8YBzxHqc7PZFE5ns4y0jZCCn/glUoS5fCrvHN7NGhY1xOJCt
+	taPudPXDHyRI5kIas7ZXV6sGl9hMgqO5z9xgF8icF8KT8l+WGc67b0FEouJi
+X-Google-Smtp-Source: AGHT+IGmFEXJ7jzONKaNUD/bh7N/GkKSqKcHQovUe7C/xk5X5igPHhJ9QxHVIuU0E32U2xOZ3x154g==
+X-Received: by 2002:a6b:5b0e:0:b0:7da:4135:89be with SMTP id ca18e2360f4ac-7e1b521f9b3mr3127255639f.17.1716156903290;
+        Sun, 19 May 2024 15:15:03 -0700 (PDT)
+Received: from [192.168.1.14] ([98.245.154.160])
+        by smtp.gmail.com with ESMTPSA id ca18e2360f4ac-7e1a88b8942sm551704639f.52.2024.05.19.15.15.02
+        for <linux-openrisc@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 19 May 2024 15:15:02 -0700 (PDT)
+Message-ID: <a003b7f4-42df-4244-9f32-ae41db168cb7@gmail.com>
+Date: Sun, 19 May 2024 16:15:02 -0600
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Content-Language: en-US
+To: linux-openrisc@vger.kernel.org
+From: el 01 <quantumleo78@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The pull request you sent on Tue, 14 May 2024 16:34:42 +0100:
+i'd like to subscribe to the mailing list!
 
-> https://github.com/openrisc/linux.git tags/for-linus
-
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/590103732442b4bb83886f03f2ddd39d129c3289
-
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
