@@ -1,80 +1,94 @@
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2067.outbound.protection.outlook.com [40.107.93.67])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6182B1581E9;
-	Tue, 18 Jun 2024 18:33:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.93.67
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BFC41C680;
+	Thu, 20 Jun 2024 07:31:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.18
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718735634; cv=fail; b=ODnMOQGrMEil+ho3516Zo4IaTFNnF4tot69af5VXy00waN7EEa7gI30u+1pzhI7HQNjJ1tn02KrRKzaiCFlFbpItNQ6cUhNsZVKVhRg3cVISUdqH2P4HCEaB9lkwJB4Gqi/3/sO8VzqFc7oU84SgPIzcNT4ZuzDb0OTZf/tjqSk=
+	t=1718868692; cv=fail; b=TBCgOdkrdKL4NT3OicIe22Aq1MIOGj8l+hWZvOqGZXvXeM2B5MQkNOMNtey0sVMg/3oNWyUUxQd7XdNTBNQ76pB4bwSxT2NXM8JlfFdjvk8WNNvmwF8q+gIkHaoAY7PfEEIUHaAKPNu1ImUmR6e94LWTYHoKwNs0olPrJOIoNjc=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718735634; c=relaxed/simple;
-	bh=LFzUthoM1BXExljKAixmyKLODJwzVcifZGltd2nsIxA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=MYMlKbAYQpAQ8Q4R8X+N3jwc6Wv8W79kL+4x5BS+7XdIGa0AkeMgtFCDaJ+m55LZ/56rQU35UpoJXzXju5in10V1vT/HiiJM0gavn+FKl8fXaP2dttbWChDYopUDV7szLmRbZ07aG6y4E15xCOUT1lpsRUoo5FXGn0NVyDQS51k=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=lrzMnMf+; arc=fail smtp.client-ip=40.107.93.67
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	s=arc-20240116; t=1718868692; c=relaxed/simple;
+	bh=ObMyqpfdH9oiXJmEmISO11yjx0/QHExLNbkw2XLDljE=;
+	h=Date:From:To:CC:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=mb8JTcQsXuAYq+WnsshopGVrS6kWAI9zxiO9DNoZssgcHFX9OUOu7GYyf4L0H93JO0Zc5rYPmno8R7j19nf82hvT+uoA3gqVyAExoUL5lMdy3ZfW3m4Gx+LMcW9rA57065eZEWgsTFdwHdQJCLQR8Bpp6Wx3ZcihtjC4fcTXKCg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=LxJfB6ts; arc=fail smtp.client-ip=192.198.163.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="lrzMnMf+"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="LxJfB6ts"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1718868691; x=1750404691;
+  h=date:from:to:cc:subject:message-id:references:
+   in-reply-to:mime-version;
+  bh=ObMyqpfdH9oiXJmEmISO11yjx0/QHExLNbkw2XLDljE=;
+  b=LxJfB6tsQuFPwyfoaMBzkSwsIt6RQXw9SWgCJ/5o65YVHAdK66Rh9r5P
+   hVjxTwaWPPT8ABXmoYnVOE1DP1PKV22Y4ysUcmnNEJ12/UoDOtZ+gHGAe
+   elGoBuQXy1AzkE85B98Iky5joKdLSiFIBikds0YCVCsTfjxPM8x39w6e1
+   5xG8XORNprWjlkDKLnL8v/ldIe0tGmESa07Bamf7QllI/wBC2ucEUDh8k
+   LsqQJIk936x/ic2bp/Vp71SYw7Ik3OipNK9PUKHGED8uAlPKUP6sbkcL3
+   UucU7cll1dxr5X7FA+CwrRbZwYj6uYTqNbkF3N37b00oJlijqM4foNTsz
+   Q==;
+X-CSE-ConnectionGUID: O4BsQU2CQsmOCxc84CYqbg==
+X-CSE-MsgGUID: JTp8DaDxQwm9ZydlnB4cjw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11108"; a="15539363"
+X-IronPort-AV: E=Sophos;i="6.08,251,1712646000"; 
+   d="scan'208";a="15539363"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jun 2024 00:31:29 -0700
+X-CSE-ConnectionGUID: DPvGtP0/SyeTYeZbTTE/JA==
+X-CSE-MsgGUID: s6ygVqnNRAKhVDNhI6/1Bg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,251,1712646000"; 
+   d="scan'208";a="42812024"
+Received: from orsmsx601.amr.corp.intel.com ([10.22.229.14])
+  by orviesa008.jf.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 20 Jun 2024 00:31:21 -0700
+Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
+ ORSMSX601.amr.corp.intel.com (10.22.229.14) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39; Thu, 20 Jun 2024 00:31:21 -0700
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX611.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39; Thu, 20 Jun 2024 00:31:20 -0700
+Received: from ORSEDG602.ED.cps.intel.com (10.7.248.7) by
+ orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39 via Frontend Transport; Thu, 20 Jun 2024 00:31:20 -0700
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (104.47.56.169)
+ by edgegateway.intel.com (134.134.137.103) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.39; Thu, 20 Jun 2024 00:31:20 -0700
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=j9u56sykacbDtnLKqqIjOdK9VWEQiY7gCKucOZyYEiVKfPJ69IFGMd4RXiMKv+qYL/K7wU1rUtHjuywiaLaoJUYR1ThBT/S89+gJrrDtLsms8RNAalJtFotWkUgiOO7T63wrnStAu8RvenJ8W0ReYVACGGqExHOrDTspW+6J/NvPml5irQm3js1f2Q3cJh+ZG7udatzUwo/YAbTUzGTDPxUviCa0IjxNriQ82wrG8NF2QVMyWoXQCFffT+9n2SnXFlidW/hh+Gr8Ca5e9XHsVxwU27eQK+htpQQqORAy+q0Zn8Ah1YCSf4XaR1eWSMwvAQ5kH2bNYH23C7oa+o+Q9Q==
+ b=Uyw15Xnk882zvH/1BdOLC0cR/3zvCYq1h0Pws9sV46SYJO6s/XQrjzzzJm0zhUzLocoF5eRTSChmIknSW94ehrQhaXTPYOZWhwSUTP5lZGhRsuSsVLSfdUyC6CzUkVHCZcv4DKUNSoEK7/ag3IFP8sG73X8BwMQY3pYLHEuJ1DxRduaTYTtYNx0m6lSfm4ZAHchwydiKBLk2wJCi4qP9LAVbhpqmub4hdjArChaOYUw6LhLHqj9RX/eUAXhPu4XLSix6GlC49Zmuc1L6apZ3cUgcw/CtZZfFkR2eFGNcuzxVgCc7b8SWuThBM+PFJReZimuuHHTdQhTpE7DT8ym+WQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=K57Ck2EoACRkJcvW6iE8gT1MkTr1IgjlB4UgSKx7JTE=;
- b=mvp6uu2++rP+gV0DTL87oaL+w80FGY5rqD9h7v3i0wXUEnBa18xQGB/m7AyYXoh5WvZsIs3fqeWlg0/8TGNg0nsO4mVmMgKTyFM0dU3xKzHTTp03SvdmTV6CxIHF+McodYzrLPesXA3bzcN+NTN8mzizwd3vy4S7j/invwC6r+SZeiuhDgRC1JWpnukamEwxefvyYksC6+nQs0x/B4yacwcPFHe01hkzrjDyqhHvvarnmsLM+fzORAleHn5mFKZB8aWQ47oXyhTt9sSGLp8HqMkCtgCGUiXhvK843mYEuloJIzZ9CG7Yu9A5hbVQR4UKSbd2dmRjUfJTOP+1QzH8iA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=intel.com smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=K57Ck2EoACRkJcvW6iE8gT1MkTr1IgjlB4UgSKx7JTE=;
- b=lrzMnMf+ifIEFT7stxYRaqHxJEj/N67N1P/2HyXdVXCnhd596nfY0mmR+lNSwIG/22n9zJ1Pgu4zgrQFVyq2xJd3eUkbon5TY2DNEBfzV4vk2xDJz64nftMj9krnWuOoh56j6QFt1syDZtPKbt/+OzyES1tcX0NXEYYPpftgo8U=
-Received: from MW4PR03CA0318.namprd03.prod.outlook.com (2603:10b6:303:dd::23)
- by MN0PR12MB5979.namprd12.prod.outlook.com (2603:10b6:208:37e::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7677.31; Tue, 18 Jun
- 2024 18:33:49 +0000
-Received: from CO1PEPF000075EF.namprd03.prod.outlook.com
- (2603:10b6:303:dd:cafe::b2) by MW4PR03CA0318.outlook.office365.com
- (2603:10b6:303:dd::23) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7677.31 via Frontend
- Transport; Tue, 18 Jun 2024 18:33:49 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- CO1PEPF000075EF.mail.protection.outlook.com (10.167.249.38) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.7677.15 via Frontend Transport; Tue, 18 Jun 2024 18:33:48 +0000
-Received: from [10.252.216.179] (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Tue, 18 Jun
- 2024 13:33:32 -0500
-Message-ID: <1035ec64-b3d3-c398-d6e7-99745a14c294@amd.com>
-Date: Wed, 19 Jun 2024 00:03:30 +0530
-Precedence: bulk
-X-Mailing-List: linux-openrisc@vger.kernel.org
-List-Id: <linux-openrisc.vger.kernel.org>
-List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
-List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.1
-Subject: Re: [PATCH v2 00/14] Introducing TIF_NOTIFY_IPI flag
-Content-Language: en-US
-To: Chen Yu <yu.c.chen@intel.com>, Peter Zijlstra <peterz@infradead.org>
-CC: Vincent Guittot <vincent.guittot@linaro.org>,
-	<linux-kernel@vger.kernel.org>, "Gautham R. Shenoy" <gautham.shenoy@amd.com>,
-	Richard Henderson <richard.henderson@linaro.org>, Ivan Kokshaysky
-	<ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Russell King
-	<linux@armlinux.org.uk>, Guo Ren <guoren@kernel.org>, Michal Simek
-	<monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn
-	<jonas@southpole.se>, Stefan Kristiansson
+ bh=VAXBiEak0UNXNAp5/SjuoqXlMk+EvUg1YvcnDFb3ekQ=;
+ b=nIRfPAyWY52al8ZEnjEajUx2huwn2OoK6OwhBDbfM3F+ycbbUxu3dAdTRDFWIxNAbk11Jy64ctsu1TRIA38XuN14lOG9564QCEGL5f6TiFF1Av04Bnw309r9Qbx5I83LcFXAeYneO1zMrgas5kN4+ZXcgiDCQZHNPOh++laGGegzJHZthTPxIzz/eSux3gm3P9B7upI4hujY/U/eyYUrGoOrk41HaRuhXBSF9/jZdKxDSesxg7WEeo89IQkROdYG7b/lgWRjvXMucjlH3d5ZyncJOPqkE8vuvAnHfa6Z2GS11Ojpt2AoY4W9J3Pg72F/7d0/0/zXbPa2YiuvNsWW/w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from DM4PR11MB6020.namprd11.prod.outlook.com (2603:10b6:8:61::19) by
+ MW3PR11MB4731.namprd11.prod.outlook.com (2603:10b6:303:2f::8) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7698.19; Thu, 20 Jun 2024 07:31:14 +0000
+Received: from DM4PR11MB6020.namprd11.prod.outlook.com
+ ([fe80::4af6:d44e:b6b0:fdce]) by DM4PR11MB6020.namprd11.prod.outlook.com
+ ([fe80::4af6:d44e:b6b0:fdce%7]) with mapi id 15.20.7633.036; Thu, 20 Jun 2024
+ 07:31:14 +0000
+Date: Thu, 20 Jun 2024 15:30:36 +0800
+From: Chen Yu <yu.c.chen@intel.com>
+To: K Prateek Nayak <kprateek.nayak@amd.com>
+CC: Peter Zijlstra <peterz@infradead.org>, Vincent Guittot
+	<vincent.guittot@linaro.org>, <linux-kernel@vger.kernel.org>, "Gautham R.
+ Shenoy" <gautham.shenoy@amd.com>, Richard Henderson
+	<richard.henderson@linaro.org>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>, "Guo
+ Ren" <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Dinh Nguyen
+	<dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson
 	<stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>,
 	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller
 	<deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin
@@ -92,227 +106,240 @@ CC: Vincent Guittot <vincent.guittot@linaro.org>,
  Bristot de Oliveira" <bristot@redhat.com>, Valentin Schneider
 	<vschneid@redhat.com>, Andrew Donnellan <ajd@linux.ibm.com>, Benjamin Gray
 	<bgray@linux.ibm.com>, Frederic Weisbecker <frederic@kernel.org>, Xin Li
-	<xin3.li@intel.com>, "Kees Cook" <keescook@chromium.org>, Rick Edgecombe
-	<rick.p.edgecombe@intel.com>, Tony Battersby <tonyb@cybernetics.com>, Bjorn
- Helgaas <bhelgaas@google.com>, Brian Gerst <brgerst@gmail.com>, Leonardo Bras
-	<leobras@redhat.com>, "Imran Khan" <imran.f.khan@oracle.com>, "Paul E.
- McKenney" <paulmck@kernel.org>, "Rik van Riel" <riel@surriel.com>, Tim Chen
-	<tim.c.chen@linux.intel.com>, "David Vernet" <void@manifault.com>, Julia
- Lawall <julia.lawall@inria.fr>, <linux-alpha@vger.kernel.org>,
+	<xin3.li@intel.com>, Kees Cook <keescook@chromium.org>, Rick Edgecombe
+	<rick.p.edgecombe@intel.com>, Tony Battersby <tonyb@cybernetics.com>, "Bjorn
+ Helgaas" <bhelgaas@google.com>, Brian Gerst <brgerst@gmail.com>, Leonardo
+ Bras <leobras@redhat.com>, Imran Khan <imran.f.khan@oracle.com>, "Paul E.
+ McKenney" <paulmck@kernel.org>, Rik van Riel <riel@surriel.com>, Tim Chen
+	<tim.c.chen@linux.intel.com>, David Vernet <void@manifault.com>, "Julia
+ Lawall" <julia.lawall@inria.fr>, <linux-alpha@vger.kernel.org>,
 	<linux-arm-kernel@lists.infradead.org>, <linux-csky@vger.kernel.org>,
 	<linux-openrisc@vger.kernel.org>, <linux-parisc@vger.kernel.org>,
 	<linuxppc-dev@lists.ozlabs.org>, <linux-sh@vger.kernel.org>,
 	<sparclinux@vger.kernel.org>, <linux-pm@vger.kernel.org>, <x86@kernel.org>
+Subject: Re: [PATCH v2 00/14] Introducing TIF_NOTIFY_IPI flag
+Message-ID: <ZnPam37GQleKSBsP@chenyu5-mobl2>
 References: <20240613181613.4329-1-kprateek.nayak@amd.com>
  <20240614092801.GL8774@noisy.programming.kicks-ass.net>
  <CAKfTPtBTxhbmh=605TJ9sRw-nFu6w-KY7QpAxRUh5AjhQWa2ig@mail.gmail.com>
  <ZmxwWdW78hjNuxWU@chenyu5-mobl2>
  <4748fabf-c359-9199-16aa-469840201540@amd.com>
  <ZnE77ons3lb/JAxP@chenyu5-mobl2>
-From: K Prateek Nayak <kprateek.nayak@amd.com>
-In-Reply-To: <ZnE77ons3lb/JAxP@chenyu5-mobl2>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
+ <1035ec64-b3d3-c398-d6e7-99745a14c294@amd.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <1035ec64-b3d3-c398-d6e7-99745a14c294@amd.com>
+X-ClientProxiedBy: SI2PR01CA0016.apcprd01.prod.exchangelabs.com
+ (2603:1096:4:191::20) To DM4PR11MB6020.namprd11.prod.outlook.com
+ (2603:10b6:8:61::19)
+Precedence: bulk
+X-Mailing-List: linux-openrisc@vger.kernel.org
+List-Id: <linux-openrisc.vger.kernel.org>
+List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
+List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CO1PEPF000075EF:EE_|MN0PR12MB5979:EE_
-X-MS-Office365-Filtering-Correlation-Id: 325485c3-40ee-4043-14a7-08dc8fc53210
+X-MS-TrafficTypeDiagnostic: DM4PR11MB6020:EE_|MW3PR11MB4731:EE_
+X-MS-Office365-Filtering-Correlation-Id: 7fceb8d7-4b67-4626-1c74-08dc90faf6df
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230037|36860700010|1800799021|7416011|376011|82310400023;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?NTArVUU0K09aZzM4Q2t5NTJBaGs5U0t0bXY0NVJXMmcvakdqSmp3T2lVaUJn?=
- =?utf-8?B?c2V6WU5JVko5KzFjK3p3UHMvQnlJZmQybVM1ZWRqeHRFUGdpZ3hoNEovU0c0?=
- =?utf-8?B?cHBEb3FFdy9kbnM4L0dpNTJqNDBMWW1SZ3lhNnFoTm83VWFFby9sOTcvcm1N?=
- =?utf-8?B?NTYvcDczTkYwRVZOcU54VVJPNDdEQVR3Sm5sS0JlM1RlcTUxY01TUEFLZ3Nw?=
- =?utf-8?B?bmxQai9HU01TUEdzdWJudzUwNTBmM2FMVy9xOTU2eHhDVG9NQ29MUXkyQUhZ?=
- =?utf-8?B?dU9VY2JvUlZ3UWFURVV4WDZNUkpTUm1pSUpMaytBNlNQRlJFNzExMnZXQyt6?=
- =?utf-8?B?SHQ1QW1DUTRFMExmS3hHOUJZS1hXdElVVm84bW9ZYlc4eHFrcEU2OU1Pckp6?=
- =?utf-8?B?OXgrL1dEaXVoZlNPWFV4TnlsR0ZRZXI1WVV5VE14Sk92MkV2ank0ZWdYL0Fj?=
- =?utf-8?B?b29YUVdsNEZoOTNwcEZXbmREcjVneW1OR25sQmc1VTBDU1FPRmpjS1ZyaEVu?=
- =?utf-8?B?ODYzaE5ocU9EVGpLSlJmY0djcEJDMFhsMU5SQ2RDaW4vcXRoRjJMRWZ3NWdv?=
- =?utf-8?B?SFloekQrVllmdllGQk8xRklhaW5nZE5zMWVoQ3BidVRTOThWOHRlUDA0WWRC?=
- =?utf-8?B?SldsNFJzbHFtaFZQc0U2ckFlZE9qS21EVUhjWGN4T1FyYlhPL1R3Z2VUck5P?=
- =?utf-8?B?d2VXcnlJRFg2dnE2NzduMm50MGxwV0pPRWo2aTFwb3kreWxOTHBQUTBkMjVM?=
- =?utf-8?B?WFBoc0crODNjRkROWURsc25Fa3R0ZVRFQUl3dVVIUFRqejI4bjhBQm5xY1oz?=
- =?utf-8?B?VHZ4SnBkZTQwYUJjdmZxekp4RnZSSG5MZmk5cmlHY2VmK3NHMDBOYnc0OHNi?=
- =?utf-8?B?dG9iRkFSVDhrQXQ4aUFtays4am5ZaDJkRkIxNkxjeTVSdEUxR0Jrd2VBUlhY?=
- =?utf-8?B?NVJJNkdhTG50bHZKQ0Rlc3BraE1udWZYMjVKdjFkbnQzTHJjMjMxbGJGeFR1?=
- =?utf-8?B?ZnJGWmU3VFJZQWl0bDBPUHl6eHVMNUpHcDBxNGZOdFcxK1EyRVFUL0xramZv?=
- =?utf-8?B?bDFQQk9ZRTE0WlN4c21NZlJhZk04UWNLaVNlSWNEaFZvVGhoNC9LTm5sbjEz?=
- =?utf-8?B?d2k5a1FSR3JpUHJBRlJHZWJVMzFlVHNlUVhLdFB2TDdkaWRTZEhqM041aTVp?=
- =?utf-8?B?d0ZMdGgwS1pmM3NGU25tbWtldkNGdkZyK3QrdWtsNElQcUtkZVo1SDYzRW41?=
- =?utf-8?B?Z2gwdFVjMG85MDEyTVA4Y3MzWDBRVHdpTXRTa3ZrU3FvWFJFWkFsWEFyKy8y?=
- =?utf-8?B?ZUhIckZwRkczbmQzRlMxMUJaVkxDVDZqZ1V0NUxpcjZ1cGszSC90ZkRwRS9i?=
- =?utf-8?B?TDYvamFCaGVQZjNsS3ZjUXNNN2lCczMwL0NuYXN5TG9aSS9aY0ZoMTk2Qk5o?=
- =?utf-8?B?WElXcnlSVHFQMDcrUndvNitmQnlRWUtmdHdGbGx6dGNUS2cvUXdHcWFmeTFv?=
- =?utf-8?B?QkUwWFc5R3VhelpYd3hGVjBRc0N5c0F1aXhKb3FaeUlFQkhGSnZFUTg4QWRa?=
- =?utf-8?B?Ujd0ZjBOUFFHczAxcW1rSWtOYUZqUERZLzRxZ2dBUUJHVTBYQUprVWJaL0FM?=
- =?utf-8?B?cUlyWnd6OEM2V0x6WVFvZnJKMlMzWFpUOXgreGFsa0lsRk9YajBWejVnbng2?=
- =?utf-8?B?K21KUTlTTS9tOWJpNFhDVkpiWTNlM3dvY0dDUmlDNWFPNlV1Slh4aC9KTSt1?=
- =?utf-8?B?SzJEZWtWNUxYKzQvcURsRExyUVVlKy9VQU9UVk8vK0ZyVmFBZ2xTaXV0cGJx?=
- =?utf-8?B?emQ0VjhzUytMQUhOTEpJRW5ZRHR3NDFxRW9DUGFGb2RSZnI5YnVzTFB4VTAr?=
- =?utf-8?B?N1JJN2d4aDE1dUoxNjdOVW0rbTU0cU04QkxURlUvcE9rV0E9PQ==?=
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230037)(36860700010)(1800799021)(7416011)(376011)(82310400023);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Jun 2024 18:33:48.9136
+X-Microsoft-Antispam: BCL:0;ARA:13230037|366013|7416011|376011|1800799021;
+X-Microsoft-Antispam-Message-Info: =?us-ascii?Q?cZqxyq9AkcZxv0mMnubYCg7roTk7PzCKK5VxPJbQXZp1G9Pjv9oaigDHJQkZ?=
+ =?us-ascii?Q?CRPh3xiNLUgLtQMeJisylXUttlb/pLASvH2his7hlRSSeC+UiVcuYy2FoohB?=
+ =?us-ascii?Q?nFwO6oWS/vIF6y8iGUw5zjIzIV5UnYuB/aAKZJrBeMua33V9k1Gjge+HMWMs?=
+ =?us-ascii?Q?AjhU1brp1VGFW3j/HYKmWvstC9xrigEIrwHfXWZ33aUSl3n2vUGaFUSROTMJ?=
+ =?us-ascii?Q?5qnuJGt/6EyXzzM7/6VQD8HIlnLfhDOUUwonfd3mWsroVgi2ea4WyY50YLPA?=
+ =?us-ascii?Q?GpSKgJ3kPwo6Dvdlzqt3Nj+BPs8WPC9UQNteI1GxotGex8XhNcVRiUNHZRmX?=
+ =?us-ascii?Q?7xoXnuAC/egURr3uJ6SqKuin0YqBCiSCXoIXiY9ZhnX9bq1JHXr3+B7+oD45?=
+ =?us-ascii?Q?FvEEER99jsZFA0bPD83XkO5QRzR0C+GWy7dgZa8zzR9RdN1FAQ6ATXLGXCBx?=
+ =?us-ascii?Q?lCC7Fl9UKzDVzFpfDbgev14cG18lRAhwpNOXTt9egw8zVAP9oSyN3wh8vbdl?=
+ =?us-ascii?Q?W+Ho5Q5LgVQVEd7YNLIMvybp3y3RjviUkG/3b2e7vLkPEAo/Bzdz0vYT4mxK?=
+ =?us-ascii?Q?AmRCFuTQAI2r3fXr8r6lfPpop7+Mo+HENoJPEQ/2yX3W5zjp6d6Tc595ay/b?=
+ =?us-ascii?Q?geJ60kd9djD9IA4x5eML+Ne3lh9HYhnLdiaDkSZuZ7J2ee2Etd+hgP53LdgC?=
+ =?us-ascii?Q?wW5PctgDavNosnyQ1H0JjkU4hkCByo5e3oNSd22Qr9sdKMfES60YZfnBDC2r?=
+ =?us-ascii?Q?NVlWs2mko02kLVnZuNc6M359SgFZU7dwMQFf8GfdvdBT0D+PZjW0s2jQaPxk?=
+ =?us-ascii?Q?50qemdTyPeW5NdemsjyVvY3LDdzECvzK3ZDJ2mFmj6BlIArMb7lj3U/mwHHw?=
+ =?us-ascii?Q?/rlVSwe6RDfi1lx50NS6LXcCydkQOUim9XYzchPDNlsryU5wUH+gC50B6c80?=
+ =?us-ascii?Q?6d2aD0TXKok5+N9g6OrHQpojiZypH3aRnLZnYYlPwuyFFeHfZDK+5EAut8Cu?=
+ =?us-ascii?Q?WGrE68nNAqaop0JCfv/eZ4waDT4sy3WGBxA3uYjXdfC1EbzTjq0Ld2SxJxFp?=
+ =?us-ascii?Q?tKnXM1mDWsTBHlZ+/iU0E41jaqWR9McXIaBci2Aqy21J6SLicx/F3ys/QYS+?=
+ =?us-ascii?Q?hzPjbO3H/qxVlcYSEg+oSWz2tbgeL62FmzPi2FMjexzFthvv6Pxc1sLtIVDc?=
+ =?us-ascii?Q?zvSryYHkuoqX4Yu6RS36ZHzXzXo6FgXHtby6evmNG8L2JgehvhoVG3vRFCET?=
+ =?us-ascii?Q?hcqRnuCuJwIOB7E+WictwfhGnY+74vkfLpS+wQYmcJFG97qu+1zagGl6f3NR?=
+ =?us-ascii?Q?C8tub8j/QcbtZXJrHhCG39TH?=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB6020.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230037)(366013)(7416011)(376011)(1800799021);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?FxMskAbaVe+b8/ZjvRwmb0IJvXu8RtfyvNApl+0w6qKcRxx1m+6BY+JSg9Sf?=
+ =?us-ascii?Q?e2rDTcnREOqEigyJozsOwM/x8FPoTIQlb6Qc775bSBJ8SXhlqcxh4Dl6Vto7?=
+ =?us-ascii?Q?70taGFJEGI/v8jM824ZQ2TYsgwynJJSpBWsC7oL1b8WAlZqB1q1DkVJg+fzp?=
+ =?us-ascii?Q?dW+iKcSNvQ6dgEQvdP/R5gaeJCDQGyBALTkEiJU/fZAYhxyDyb+MMVYlp/m4?=
+ =?us-ascii?Q?alBuP8G36Qo/CS9hAkwMNDFwfjW3bZPDh8KWPkB6GBLqyr+ez8vRyS1Hpk8F?=
+ =?us-ascii?Q?bcdmYyfZnDUieJgT+W2UukxnXTfawREGmhLovz3Lb7hwonMbArsIxQuMB9k7?=
+ =?us-ascii?Q?gOXn/9akLLzluYZDYEQSv3hn6baqIZkbDwfV94/G6+ehGJGA6FzrrQQOkbrC?=
+ =?us-ascii?Q?jGQHetwOMJzhx5zqkmmPBFuQffBJqgB2g7sPuBdDK7d0wU282XHFQk2jLyu4?=
+ =?us-ascii?Q?UqPIz9wuZ8z6+3+stqgRvFkUu021eeQD2Kk33Dj0tvI02pwxmv5ytj2Gtf3M?=
+ =?us-ascii?Q?uMU3Md6h4S9kxH+3+kZ/qbxVYOuAovW7kDGKbPky9uNbJAD+iQ/hAS3L0wTH?=
+ =?us-ascii?Q?j2fk1MGoeSByaIeK+tJmCMVdeHWiLfaSY8vsQmMjyc8Ct4Ahk16YqC0Gy+7a?=
+ =?us-ascii?Q?6TTRkyNg7y7aSTcaTujsV0r1JnBtw/aoVRyBXwRbuDfSJgz9CwqtHmpSN4PR?=
+ =?us-ascii?Q?QgAepiXeBB+M268TIvAgH2X00MWCDyl2M8DdTerSveqkoPyIcDK0JTKHkzHX?=
+ =?us-ascii?Q?aBPgMxzgBNXvltT2ImFvFKWIQuZcBmxVPl5ni4lU6jV0R6Ce4CKlZlhp4h+b?=
+ =?us-ascii?Q?rR3U8lV3RHUKi2rlCqMkg1yKhPISzHMsEHTX6u5VVSup9emTxQkM0C9zYZ2P?=
+ =?us-ascii?Q?OFsDkr22WKI22vK3or0ZK2XiKJnmdZRwQ2P/UY7GzQ1e3TRpXNsXZnVgUxJy?=
+ =?us-ascii?Q?ZsIsnqXjjEo5Q4exhMwgu3HqTUZmfcNRDrq309u8/nz7zq2hJUb7sgAWdhTv?=
+ =?us-ascii?Q?yPSHdovlBkCSGxnLntM6DdKWlsRWavbfj6eLG4fjQDj5ljPvZVygACRxpNaG?=
+ =?us-ascii?Q?CdUzDDg3DruPmu8fO1qZCqZRGIKuaWcCtcLPdc6B5tDd1mEcmdRV5fh05kAr?=
+ =?us-ascii?Q?7RCUiKmUW3bFsCRTQLWfUFvFiN4mDo6yodXAlI8JCY7Mn4wbR6j0E2kZOGDm?=
+ =?us-ascii?Q?eoKMr3TLpd3/2JPS9ImB1mJm5bwyWpoWOpA5a/FKjIncI+PL9nYBJBLYdNYs?=
+ =?us-ascii?Q?fUd5fDENWAvFGASLdeCHqLH4vUkiDduTMK/w6FpfU0UdtfSeux27uDgtyG4R?=
+ =?us-ascii?Q?ZlG4DqIF1O4XMqUgcbFvnITdu6dx9qngKyEnCw8LxLOkldVpoozooIUOpS+8?=
+ =?us-ascii?Q?SZ11mgD+4jqCpi3JsWXBF/q7uM02W6V2y/KKstaKT8pvcsyoP/pxUAnwVOpf?=
+ =?us-ascii?Q?Ka0crjQFfDkV9GmavCvpWwRTIFZUQ13/jTVU3tEhqW0U1/ba+zz+WJZeB+FW?=
+ =?us-ascii?Q?Gr4FN+Cte/WFlE+iX+EgAnLBU7AJLr8k43IVWaSqMVJfiNsxkyQU+dBc/YgV?=
+ =?us-ascii?Q?HxSfbed+vPaNR7pdWE7KtWcKsdDkbQ3DpKJneJS5?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7fceb8d7-4b67-4626-1c74-08dc90faf6df
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB6020.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Jun 2024 07:31:13.9963
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 325485c3-40ee-4043-14a7-08dc8fc53210
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CO1PEPF000075EF.namprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN0PR12MB5979
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Dr+suYxs+ViDfYkwoCd2MLB+ofI6+lkjZE7hi+4REIbIc0yOHEEHbMPuYVdrPV/O6+o65DO9WjgW++EkB3LQ9g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW3PR11MB4731
+X-OriginatorOrg: intel.com
 
-Hello Chenyu,
-
-On 6/18/2024 1:19 PM, Chen Yu wrote:
-> [..snip..]
->>>>>
->>>>>> Vincent [5] pointed out a case where the idle load kick will fail to
->>>>>> run on an idle CPU since the IPI handler launching the ILB will check
->>>>>> for need_resched(). In such cases, the idle CPU relies on
->>>>>> newidle_balance() to pull tasks towards itself.
->>>>>
->>>>> Is this the need_resched() in _nohz_idle_balance() ? Should we change
->>>>> this to 'need_resched() && (rq->nr_running || rq->ttwu_pending)' or
->>>>> something long those lines?
->>>>
->>>> It's not only this but also in do_idle() as well which exits the loop
->>>> to look for tasks to schedule
->>>>
->>>>>
->>>>> I mean, it's fairly trivial to figure out if there really is going to be
->>>>> work there.
->>>>>
->>>>>> Using an alternate flag instead of NEED_RESCHED to indicate a pending
->>>>>> IPI was suggested as the correct approach to solve this problem on the
->>>>>> same thread.
->>>>>
->>>>> So adding per-arch changes for this seems like something we shouldn't
->>>>> unless there really is no other sane options.
->>>>>
->>>>> That is, I really think we should start with something like the below
->>>>> and then fix any fallout from that.
->>>>
->>>> The main problem is that need_resched becomes somewhat meaningless
->>>> because it doesn't  only mean "I need to resched a task" and we have
->>>> to add more tests around even for those not using polling
->>>>
->>>>>
->>>>> diff --git a/kernel/sched/core.c b/kernel/sched/core.c
->>>>> index 0935f9d4bb7b..cfa45338ae97 100644
->>>>> --- a/kernel/sched/core.c
->>>>> +++ b/kernel/sched/core.c
->>>>> @@ -5799,7 +5800,7 @@ static inline struct task_struct *
->>>>>    __pick_next_task(struct rq *rq, struct task_struct *prev, struct rq_flags *rf)
->>>>>    {
->>>>>           const struct sched_class *class;
->>>>> -       struct task_struct *p;
->>>>> +       struct task_struct *p = NULL;
->>>>>
->>>>>           /*
->>>>>            * Optimization: we know that if all tasks are in the fair class we can
->>>>> @@ -5810,9 +5811,11 @@ __pick_next_task(struct rq *rq, struct task_struct *prev, struct rq_flags *rf)
->>>>>           if (likely(!sched_class_above(prev->sched_class, &fair_sched_class) &&
->>>>>                      rq->nr_running == rq->cfs.h_nr_running)) {
->>>>>
->>>>> -               p = pick_next_task_fair(rq, prev, rf);
->>>>> -               if (unlikely(p == RETRY_TASK))
->>>>> -                       goto restart;
->>>>> +               if (rq->nr_running) {
->>>>
->>>> How do you make the diff between a spurious need_resched() because of
->>>> polling and a cpu becoming idle ? isn't rq->nr_running null in both
->>>> cases ?
->>>> In the later case, we need to call sched_balance_newidle() but not in the former
->>>>
->>>
->>> Not sure if I understand correctly, if the goal of smp_call_function_single() is to
->>> kick the idle CPU and do not force it to launch the schedule()->sched_balance_newidle(),
->>> can we set the _TIF_POLLING_NRFLAG rather than _TIF_NEED_RESCHED in set_nr_if_polling()?
->>> I think writing any value to the monitor address would wakeup the idle CPU. And _TIF_POLLING_NRFLAG
->>> will be cleared once that idle CPU exit the idle loop, so we don't introduce arch-wide flag.
->> Although this might work for MWAIT, there is no way for the generic idle
->> path to know if there is a pending interrupt within a TIF_POLLING_NRFLAG
->> section. do_idle() sets TIF_POLLING_NRFLAG and relies on a bunch of
->> need_resched() checks along the way to bail early until finally doing a
->> current_clr_polling_and_test() before handing off to the cpuidle driver
->> in call_cpuidle(). I believe this section will necessarily need the sender
->> to indicate a pending interrupt via TIF_NEED_RESCHED flag to enable the
->> early bail out before going into the cpuidle driver since this case cannot
->> be considered the same as a break from MWAIT.
->>
+On 2024-06-19 at 00:03:30 +0530, K Prateek Nayak wrote:
+> Hello Chenyu,
 > 
-> I see, this is a good point. So you mean with only TIF_POLLING_NRFLAG there is
-> possibility that the 'ipi kick CPU out of idle' is lost after the CPU enters
-> do_idle() and before finally entering the idle state. While setting _TIF_NEED_RESCHED
-> could help the do_idle() loop to detect pending request easier.
-
-Yup, that is correct.
-
-> BTW, before the
-> commit b2a02fc43a1f ("smp: Optimize send_call_function_single_ipi()"), the
-> lost of ipi after entering do_idle() and before entering driver idle state
-> is also possible, right(the local irq is disabled)?
-
- From what I understand, the IPI remains pending until the interrupts
-are enabled again. Before the optimization, the interrupts would be
-disabled all the way until the instruction that is used to put the CPU
-to sleep which is what __sti_mwait() and native_safe_halt() does. The
-CPU would have received the IPI then and broke out of idle before
-Peter's optimization went in. There is an elaborate comment on this in
-do_idle() function above the call to local_irq_disable(). In  commit
-edc8fc01f608 ("x86: Fix CPUIDLE_FLAG_IRQ_ENABLE leaking timer
-reprogram") Peter describes a case of actually missing the break from
-an interrupt as the driver enabled interrupts much earlier than
-executing the sleep instruction.
-
-Since the CPU was in TIF_POLLING_NRFLAG state, one could simply get away
-by setting TIF_NEED_RESCHED and not sending an actual IPI which the
-need_resched() checks in the idle path would catch and the
-flush_smp_call_function_queue() on the exit path would have serviced the
-call function.
-
-MWAIT with Interrupt Break extension (CPUID 0x5 ECX[IBE]) can break out
-on pending interrupts even if interrupts are disabled  which is why
-"mwait_idle_with_hints()" now checks "ecx" to choose between "__mwait()"
-and "__mwait_sti()". The APM describes the extension to "allows
-interrupts to wake MWAIT, even when eFLAGS.IF = 0". (Vol. 3.
-"General-Purpose and System Instructions", Chapter 4. "System Instruction
-Reference", Section "MWAIT")
-
-I do hope someone corrects me if I'm wrong :)
-
->   
->> On x86, there seems to be a possibility of missing an interrupt if
->> someone writes _TIF_POLLING_NRFLAG to thread info between the target
->> executing MONTOR and MWAIT. AMD64 Architecture Programmer’s Manual
->> Volume 3: "General-Purpose and System Instructions", Chapter 4. "System
->> Instruction Reference", section "MWAIT" carries the following note in
->> the coding requirements:
->>
->> "MWAIT must be conditionally executed only if the awaited store has not
->> already occurred. (This prevents a race condition between the MONITOR
->> instruction arming the monitoring hardware and the store intended to
->> trigger the monitoring hardware.)"
->>
->> There exists a similar note in the "Example" section for "MWAIT" in
->> Intel 64 and IA-32 Architectures Software Developer’s Manual, Vol 2B
->> Chapter 4.3 "Instructions (M-U)"
->>
+> On 6/18/2024 1:19 PM, Chen Yu wrote:
+> > [..snip..]
+> > > > > > 
+> > > > > > > Vincent [5] pointed out a case where the idle load kick will fail to
+> > > > > > > run on an idle CPU since the IPI handler launching the ILB will check
+> > > > > > > for need_resched(). In such cases, the idle CPU relies on
+> > > > > > > newidle_balance() to pull tasks towards itself.
+> > > > > > 
+> > > > > > Is this the need_resched() in _nohz_idle_balance() ? Should we change
+> > > > > > this to 'need_resched() && (rq->nr_running || rq->ttwu_pending)' or
+> > > > > > something long those lines?
+> > > > > 
+> > > > > It's not only this but also in do_idle() as well which exits the loop
+> > > > > to look for tasks to schedule
+> > > > > 
+> > > > > > 
+> > > > > > I mean, it's fairly trivial to figure out if there really is going to be
+> > > > > > work there.
+> > > > > > 
+> > > > > > > Using an alternate flag instead of NEED_RESCHED to indicate a pending
+> > > > > > > IPI was suggested as the correct approach to solve this problem on the
+> > > > > > > same thread.
+> > > > > > 
+> > > > > > So adding per-arch changes for this seems like something we shouldn't
+> > > > > > unless there really is no other sane options.
+> > > > > > 
+> > > > > > That is, I really think we should start with something like the below
+> > > > > > and then fix any fallout from that.
+> > > > > 
+> > > > > The main problem is that need_resched becomes somewhat meaningless
+> > > > > because it doesn't  only mean "I need to resched a task" and we have
+> > > > > to add more tests around even for those not using polling
+> > > > > 
+> > > > > > 
+> > > > > > diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+> > > > > > index 0935f9d4bb7b..cfa45338ae97 100644
+> > > > > > --- a/kernel/sched/core.c
+> > > > > > +++ b/kernel/sched/core.c
+> > > > > > @@ -5799,7 +5800,7 @@ static inline struct task_struct *
+> > > > > >    __pick_next_task(struct rq *rq, struct task_struct *prev, struct rq_flags *rf)
+> > > > > >    {
+> > > > > >           const struct sched_class *class;
+> > > > > > -       struct task_struct *p;
+> > > > > > +       struct task_struct *p = NULL;
+> > > > > > 
+> > > > > >           /*
+> > > > > >            * Optimization: we know that if all tasks are in the fair class we can
+> > > > > > @@ -5810,9 +5811,11 @@ __pick_next_task(struct rq *rq, struct task_struct *prev, struct rq_flags *rf)
+> > > > > >           if (likely(!sched_class_above(prev->sched_class, &fair_sched_class) &&
+> > > > > >                      rq->nr_running == rq->cfs.h_nr_running)) {
+> > > > > > 
+> > > > > > -               p = pick_next_task_fair(rq, prev, rf);
+> > > > > > -               if (unlikely(p == RETRY_TASK))
+> > > > > > -                       goto restart;
+> > > > > > +               if (rq->nr_running) {
+> > > > > 
+> > > > > How do you make the diff between a spurious need_resched() because of
+> > > > > polling and a cpu becoming idle ? isn't rq->nr_running null in both
+> > > > > cases ?
+> > > > > In the later case, we need to call sched_balance_newidle() but not in the former
+> > > > > 
+> > > > 
+> > > > Not sure if I understand correctly, if the goal of smp_call_function_single() is to
+> > > > kick the idle CPU and do not force it to launch the schedule()->sched_balance_newidle(),
+> > > > can we set the _TIF_POLLING_NRFLAG rather than _TIF_NEED_RESCHED in set_nr_if_polling()?
+> > > > I think writing any value to the monitor address would wakeup the idle CPU. And _TIF_POLLING_NRFLAG
+> > > > will be cleared once that idle CPU exit the idle loop, so we don't introduce arch-wide flag.
+> > > Although this might work for MWAIT, there is no way for the generic idle
+> > > path to know if there is a pending interrupt within a TIF_POLLING_NRFLAG
+> > > section. do_idle() sets TIF_POLLING_NRFLAG and relies on a bunch of
+> > > need_resched() checks along the way to bail early until finally doing a
+> > > current_clr_polling_and_test() before handing off to the cpuidle driver
+> > > in call_cpuidle(). I believe this section will necessarily need the sender
+> > > to indicate a pending interrupt via TIF_NEED_RESCHED flag to enable the
+> > > early bail out before going into the cpuidle driver since this case cannot
+> > > be considered the same as a break from MWAIT.
+> > > 
+> > 
+> > I see, this is a good point. So you mean with only TIF_POLLING_NRFLAG there is
+> > possibility that the 'ipi kick CPU out of idle' is lost after the CPU enters
+> > do_idle() and before finally entering the idle state. While setting _TIF_NEED_RESCHED
+> > could help the do_idle() loop to detect pending request easier.
 > 
-> Thanks for the explaination of this race condition in detail.
+> Yup, that is correct.
 > 
-> thanks,
-> Chenyu
+> > BTW, before the
+> > commit b2a02fc43a1f ("smp: Optimize send_call_function_single_ipi()"), the
+> > lost of ipi after entering do_idle() and before entering driver idle state
+> > is also possible, right(the local irq is disabled)?
+> 
+> From what I understand, the IPI remains pending until the interrupts
+> are enabled again. Before the optimization, the interrupts would be
+> disabled all the way until the instruction that is used to put the CPU
+> to sleep which is what __sti_mwait() and native_safe_halt() does. The
+> CPU would have received the IPI then and broke out of idle before
+> Peter's optimization went in.
 
--- 
-Thanks and Regards,
-Prateek
+I see, once local irq is enabled, the pending ipi will be served.
+
+> There is an elaborate comment on this in
+> do_idle() function above the call to local_irq_disable(). In  commit
+> edc8fc01f608 ("x86: Fix CPUIDLE_FLAG_IRQ_ENABLE leaking timer
+> reprogram") Peter describes a case of actually missing the break from
+> an interrupt as the driver enabled interrupts much earlier than
+> executing the sleep instruction.
+>
+
+Yup, the commit edc8fc01f608 deals with delay of the timer handling. If
+a timer queues the callback after local irq enabled and before mwait,
+the long sleep time after mwait might delay the handling of the callback.
+
+> Since the CPU was in TIF_POLLING_NRFLAG state, one could simply get away
+> by setting TIF_NEED_RESCHED and not sending an actual IPI which the
+> need_resched() checks in the idle path would catch and the
+> flush_smp_call_function_queue() on the exit path would have serviced the
+> call function.
+> 
+> MWAIT with Interrupt Break extension (CPUID 0x5 ECX[IBE]) can break out
+> on pending interrupts even if interrupts are disabled  which is why
+> "mwait_idle_with_hints()" now checks "ecx" to choose between "__mwait()"
+> and "__mwait_sti()". The APM describes the extension to "allows
+> interrupts to wake MWAIT, even when eFLAGS.IF = 0". (Vol. 3.
+> "General-Purpose and System Instructions", Chapter 4. "System Instruction
+> Reference", Section "MWAIT")
+> 
+> I do hope someone corrects me if I'm wrong :)
+>
+
+You are right, and thanks for the description.
+
+thanks,
+Chenyu
