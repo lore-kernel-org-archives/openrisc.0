@@ -1,54 +1,54 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A607D8479;
-	Thu, 11 Jul 2024 15:49:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 877BC13DDC2;
+	Fri, 12 Jul 2024 08:38:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720712950; cv=none; b=ZlI4yHbvWzgbp160x3mDsOFNKCQu8joQT/SpSpdWPkCwnzTbFyfH3CoPcZz+GEJcGPN07A+TachmMU0WKTlyZs6ysn7kJlP5XjboKABeg5xuN01DlpyWtJtYUu8dn5hYIxRlJTC9lcn4+ArxHJsHXq4Wed2vceVxzt5FEmenVkU=
+	t=1720773485; cv=none; b=rwW85A+vvUSuajC3Lgt3uK5NKhJNskAtwSf37dHKCCkbMerr3fQeKPHQ/8rVa9ztS+qLYcLgFVAo3MyDWG0EofD1IJyx9AE+YPYtdF5NKg+KTRusBU+GOVBk8PQm8BjP491voWw0qxvO2B4uE4wxprx2n41tEONYvaL1D7kmH00=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720712950; c=relaxed/simple;
-	bh=ZuSNhp04Wh6EW5lLCQ+g2TTMsPvkJdMs1uzOY5TVPg0=;
+	s=arc-20240116; t=1720773485; c=relaxed/simple;
+	bh=X4sxkxfa0puHMD2lnMvIKYZ5jErEYw2uVCAwMxYRmSA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Sot1Csse3v4aV+0oq2rtEjZDn5vikZT+38xvpxEmVuqJcphfEqiQvMIhX6zxfBBN56FphWK/HTgTBIbCIjX4/4cyasomfesjnlnvx29Zm8C9czpdTiRkC+t3kN3PD3SzsudgcT3G43vjG/KXCcHgUurTVtxxlem8y2I5FWWVFFs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iEfV6QDW; arc=none smtp.client-ip=10.30.226.201
+	 To:Cc:Content-Type; b=g62WBzB/tIRrFwZeOlQaA3YfxRidMhiPporkD6gMh1f3oB5nw9osPoWQMGhqm/7HvUVoZ0LIwdFjCkmuEqRCrlvrJMw5gMWuxy7mtCYp3CKaDM1aJ87mL/5Wa4CDODCPD6jI0K4nqUHz3veoLNwX8Xm23M5c2u3ToBXm9wGo+OY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z00SDfgO; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iEfV6QDW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1555CC116B1;
-	Thu, 11 Jul 2024 15:49:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z00SDfgO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1259CC4AF19;
+	Fri, 12 Jul 2024 08:38:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1720712949;
-	bh=ZuSNhp04Wh6EW5lLCQ+g2TTMsPvkJdMs1uzOY5TVPg0=;
+	s=k20201202; t=1720773485;
+	bh=X4sxkxfa0puHMD2lnMvIKYZ5jErEYw2uVCAwMxYRmSA=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=iEfV6QDWwbMnp9Ta0Jer7ufy7zKuRm0UWvkJW72QY10t6ps7bgp01pqrrI/nPJYK4
-	 aMRh9ZF/IE1zLE2CWaaFQqoH87euXHgcVDUCI8FRHQLRzl0Hn5cM5pGTcdcuB1ubWY
-	 7C0umyGH23O1dml7/cbWgv+m1S0Z5bC39W80eVrXz6QNggeVgiL7GVN5GGQXoSyNXO
-	 x9/a5jfhts/AMfl6Y1Ah/Pvl+GppiyWxzLsd7vdSq8U1uD/hk7ObzadMOrVkHQ6wWX
-	 mp+jdOGkXJyV7+IWDlVnAzxY48Ah5kvgicHHgUyI46+s+fRE2+Q7aNoVeQ82HxcNNS
-	 L2NSAQhoN06lw==
-Received: by mail-lj1-f178.google.com with SMTP id 38308e7fff4ca-2eecd2c6432so11605361fa.3;
-        Thu, 11 Jul 2024 08:49:08 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUW9zY4hS3Hy6ZeU7MOU82G0a8spyWi5/aC/0zLpGwnf5vRZVKbylW6XdREkqbiccwcq/UWcIGkPmJ/yHWmQNX9xFULm21MEZJHn0iB8dANj8LwT4cK0kjyZNiNgKLFjsd2QKYi16L32qabJV9wj9Gm9fzkFkNdSHiRfDS5fenQBz6wiDnihtCXEkhVkj72Stg1cU4E/Uz/+QgItjGPLvQUMxBH00QRzw2Wws/GQPFel2fKM1XaYTFGgm98lax1gPK2ng0RcA==
-X-Gm-Message-State: AOJu0YwSRB64OocGoCX4QpnlwOISrumaBTll7EA6guk3/CZt1EFo3ieX
-	KbK7aaB012u8ansLH4ahJZKtqofXQQ5Q8ngH0L6ofJ0V/NwLw54QcY8i4KAniByWV424Hwhu6+g
-	aNi7+pUQsBDHV2ZCJNv3STweS75c=
-X-Google-Smtp-Source: AGHT+IF7NQdXn1ehcZ9BG8DZDkjb0sOdI+MsrOYGuBrT+fO/aduK2xqVz6OBibzkuFUSmSL45H3g6KQ3ZY2sharGRnY=
-X-Received: by 2002:a2e:8ed3:0:b0:2ee:4d37:91df with SMTP id
- 38308e7fff4ca-2eeb30fef50mr68275581fa.27.1720712947779; Thu, 11 Jul 2024
- 08:49:07 -0700 (PDT)
+	b=Z00SDfgOaF/iQqYzh+oapqEALLE+nmuOZep5iSxydOBEkfHHQgSTe75kMA5aU8MF7
+	 IYvJE9zmfABY3crLS3SgXhvL7zJBVg9BUYPzoOG3t5gtUt5rh/QW48SX3mywu49yzC
+	 7nkTAvk61IANHwMRYnadNnNflufGcpqNt7gLgHESMd6Cp0cErNHCecHLfcYmILIk5x
+	 k11nqFyEJtapNtJ3INjcX6fM11J2NMbCohzmOWmxMwfo2c+3vw+Xxzuoaqphb3jNzW
+	 CPMWA65qdTbLAHjWXcPptnegF1HnAHNex+NFGj2wpx2cBo4M3asuCWplFDeHCsRDX2
+	 tGoTAA4upFv+g==
+Received: by mail-lj1-f170.google.com with SMTP id 38308e7fff4ca-2ee98947f70so18708511fa.1;
+        Fri, 12 Jul 2024 01:38:04 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCULYYpz4yVqLT8JQCpS2C4/r0Aq5W3+2mQ9C1iAF3BL88ejyoNcLxyT+jR6ZyJnlzmO8maRq4k3HNnaAiOdbn1wN+JIYLrJ9uq33Bd/3s9M2LufWUvnEXaUeU3/ciHGbKBG45lGWuJDa3i1VML4B58CTHfH8DeYY3oq7eyEEiXMWVE0exB5KmrtRzzVJEM6Y5Y92EX5I6H+raQhRKQZsL0/ZUEBTU2l3EAYHJlGqZUU+N2nqiOGI5oJrmTFxEZ8kas6sE3V4g==
+X-Gm-Message-State: AOJu0Ywgf+0+iyK59iAszeRbkE1AQAxl+mSGhfiu5nHpvukGWgRw+2Ze
+	h+dJQz64cI4nmR3CNKB1gaBcgajpsrtsim2xk9kb6gEHvPONlyxteHo3HTu8BwMhvjUp1d+cpR4
+	QHaEg5n7PKZLEAhOR95BRJZtH9ug=
+X-Google-Smtp-Source: AGHT+IFfkbTH0GPwVyglXJ2Er1yvq7AU75kSwOPof9lxDJA6WZS/bfYrYyjHckbhe1dyXepshm4Uwstcj4sDcu5PIlo=
+X-Received: by 2002:a2e:95c6:0:b0:2ee:97b4:8028 with SMTP id
+ 38308e7fff4ca-2eeb30fd369mr67338551fa.31.1720773483308; Fri, 12 Jul 2024
+ 01:38:03 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240704143611.2979589-1-arnd@kernel.org> <20240704143611.2979589-3-arnd@kernel.org>
-In-Reply-To: <20240704143611.2979589-3-arnd@kernel.org>
+References: <20240704143611.2979589-1-arnd@kernel.org> <20240704143611.2979589-4-arnd@kernel.org>
+In-Reply-To: <20240704143611.2979589-4-arnd@kernel.org>
 From: Masahiro Yamada <masahiroy@kernel.org>
-Date: Fri, 12 Jul 2024 00:48:30 +0900
-X-Gmail-Original-Message-ID: <CAK7LNATLVY1xtSMVMro-KMQVPgVHoiRKGX33ajCg8ZU0-EZS2w@mail.gmail.com>
-Message-ID: <CAK7LNATLVY1xtSMVMro-KMQVPgVHoiRKGX33ajCg8ZU0-EZS2w@mail.gmail.com>
-Subject: Re: [PATCH 02/17] csky: drop asm/gpio.h wrapper
+Date: Fri, 12 Jul 2024 17:37:26 +0900
+X-Gmail-Original-Message-ID: <CAK7LNAS=h6dML-06ox1dje_bxF2+R-Gq7Yw-s73Vi-FW39L9eg@mail.gmail.com>
+Message-ID: <CAK7LNAS=h6dML-06ox1dje_bxF2+R-Gq7Yw-s73Vi-FW39L9eg@mail.gmail.com>
+Subject: Re: [PATCH 03/17] um: don't generate asm/bpf_perf_event.h
 To: Arnd Bergmann <arnd@kernel.org>
 Cc: linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, 
 	Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nicolas@fjasle.eu>, Vineet Gupta <vgupta@kernel.org>, 
@@ -69,41 +69,65 @@ Cc: linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 4, 2024 at 11:36=E2=80=AFPM Arnd Bergmann <arnd@kernel.org> wro=
+On Thu, Jul 4, 2024 at 11:37=E2=80=AFPM Arnd Bergmann <arnd@kernel.org> wro=
 te:
 >
 > From: Arnd Bergmann <arnd@arndb.de>
 >
-> The asm/gpio.h header is gone now that all architectures just use
-> gpiolib, and so the redirect is no longer valid.
+> If we start validating the existence of the asm-generic side of
+> generated headers, this one causes a warning:
+>
+> make[3]: *** No rule to make target 'arch/um/include/generated/asm/bpf_pe=
+rf_event.h', needed by 'all'.  Stop.
+>
+> The problem is that the asm-generic header only exists for the uapi
+> variant, but arch/um has no uapi headers and instead uses the x86
+> userspace API.
+>
+> Add a custom file with an explicit redirect to avoid this.
 >
 > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 > ---
-
-
-Reviewed-by: Masahiro Yamada <masahiroy@kernel.org>
-
-
->  arch/csky/include/asm/Kbuild | 1 -
->  1 file changed, 1 deletion(-)
+>  arch/um/include/asm/Kbuild           | 1 -
+>  arch/um/include/asm/bpf_perf_event.h | 3 +++
+>  2 files changed, 3 insertions(+), 1 deletion(-)
+>  create mode 100644 arch/um/include/asm/bpf_perf_event.h
 >
-> diff --git a/arch/csky/include/asm/Kbuild b/arch/csky/include/asm/Kbuild
-> index 1117c28cb7e8..13ebc5e34360 100644
-> --- a/arch/csky/include/asm/Kbuild
-> +++ b/arch/csky/include/asm/Kbuild
-> @@ -1,7 +1,6 @@
+> diff --git a/arch/um/include/asm/Kbuild b/arch/um/include/asm/Kbuild
+> index 6fe34779291a..6c583040537c 100644
+> --- a/arch/um/include/asm/Kbuild
+> +++ b/arch/um/include/asm/Kbuild
+> @@ -1,5 +1,4 @@
 >  # SPDX-License-Identifier: GPL-2.0
->  generic-y +=3D asm-offsets.h
->  generic-y +=3D extable.h
-> -generic-y +=3D gpio.h
->  generic-y +=3D kvm_para.h
->  generic-y +=3D mcs_spinlock.h
->  generic-y +=3D qrwlock.h
+> -generic-y +=3D bpf_perf_event.h
+>  generic-y +=3D bug.h
+>  generic-y +=3D compat.h
+>  generic-y +=3D current.h
+> diff --git a/arch/um/include/asm/bpf_perf_event.h b/arch/um/include/asm/b=
+pf_perf_event.h
+> new file mode 100644
+> index 000000000000..0a30420c83de
+> --- /dev/null
+> +++ b/arch/um/include/asm/bpf_perf_event.h
+> @@ -0,0 +1,3 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +
+> +#include <asm-generic/bpf_perf_event.h>
 > --
 > 2.39.2
 >
 
 
---=20
+I guess this is a step backward.
+
+Technically, kernel-space asm/*.h files are allowed to
+wrap UAPI <asm-generic/*.h>.
+There is no reason why we ban generic-y for doing this,
+whereas check-in source is allowed.
+
+
+
+
+--
 Best Regards
 Masahiro Yamada
