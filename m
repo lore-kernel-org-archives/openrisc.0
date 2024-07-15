@@ -1,129 +1,242 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from fhigh3-smtp.messagingengine.com (fhigh3-smtp.messagingengine.com [103.168.172.154])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 677CFD27D;
-	Sun, 14 Jul 2024 17:22:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CB6EC15B;
+	Mon, 15 Jul 2024 21:07:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720977773; cv=none; b=CJRTSAc0lgVtgAyIuluVVKSkupvf1b5cgJ6XQ1yYpiZCDjMMLYuRh7ZlrJMljeLeoixBk9621gHzEMMxJ7+1tx3bg0TiAAjMHvZNAdBTbNTHGC0GncBxN2lMtBQ1jFdvEelG8QuG6UoJp149EFtYRiEVspeB4jAekO9a8t58fyE=
+	t=1721077630; cv=none; b=IQYmCBi0N+pin/NBP4vFbMqDUDe5xSuLMHxzrNGTJNh6xaKwGcHZDCmsWK1twL+M5fiJgLXcNM4P9/dazrMSFFI+ibLYQFf9fuuCvmRsNodW9d8svUtXaQTWgA/Mf6dY+iJFX9JWZGCon1s30A89GiL/U8lYBniTqhgfd2ijSrM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720977773; c=relaxed/simple;
-	bh=7xLPqy1jM0O+0195mcRA60FHmWtnGBVHJTGgtTxpOjk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=otWPQfpNIY95H74qhw+3RyYJwopaVPqH/SaOk7t6rXyYB4FXiEP2RBrj4sm2hxkXw78rbPC206BwR0HFzL7DImpmURmeLCsULxDbi1OKtQYr9Ev8/O+ch57XAJDGuqHXLV8f+LcycJwkfFtPvg4j0IcWcI7k7jHmdk+do6Jzerg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Np/k4ysP; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1721077630; c=relaxed/simple;
+	bh=lizupEQGnTa1Co130gaT2iURcByI6Rqjj4RZmXjS+Uo=;
+	h=MIME-Version:Message-Id:Date:From:To:Cc:Subject:Content-Type; b=A+sqs7juebLNiTpV0j0ZU7a0FHzmwyHGkrr7yv+fdYUvAKcN/cJIy6HyZm8MHmwgdwjblPwGp7+M8Lj7pTbrM0VTxseG1WZYPiVdyc27IP0UTQPk24pTZyP6pIdewW9IZXP2cV3CAAMLmI9b6YfBkzXxxphydKQCVQcA04QGM8w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=wS2E9kgf; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=SjWxd3R+; arc=none smtp.client-ip=103.168.172.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Np/k4ysP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13315C4AF52;
-	Sun, 14 Jul 2024 17:22:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1720977773;
-	bh=7xLPqy1jM0O+0195mcRA60FHmWtnGBVHJTGgtTxpOjk=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=Np/k4ysPWfJGh/Vzr2yW3vI4rGlgUmizlgw7EEBEsv9eCLblCHD9MKYn7Y4lK5rKv
-	 CvEpeHnwTHXXi+Fuo0HFdnwjqbaGWT+aPPCN3EMoPB5sY87mXioJBhuOa72Mj/5kS/
-	 tiM1wNQtvLlGLpaAZHmQyE05p4mF6vz3hOrx1mR0+X6M+SiHXePabsj+YaMQ2aYy26
-	 tNwBiyfhN6NjEBsb8ztjJnSDc5vbaa5yvjL4OclQ9xhSb7ayDX8kR7C5k7ySCG1sew
-	 h9HqYsIPLZgLqxPeMPD6DKgywBsVGBMNy8zNezQcOfzlQY7Qxy3yi6Zz9I4ZGAHQW8
-	 i3WCd4ViIlVtQ==
-Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-58b447c519eso4683246a12.3;
-        Sun, 14 Jul 2024 10:22:53 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCW2dXsTFHoMn6RZLA6BTuJWg5MRNp4DotqAeCt8znc1YqhONxg+BQis8erVP8VsadEq49xbe894FTYi54a/rBuqJKOEOctEaJmAG5XRBl4uej1pNH9ZR0x8sD2NmkkoAoD1vWkdU5x7eDwSAqlcMSxNkM2jSju6WHia01iuJVFNzqG6iEFiDrOk4y+untSYLTAcRl8tY47ya2lwy0CXztU0hdjPQTQpEPpfWePjFfWrl4yVWFzcnUtJpNRwv3RCjCeuFkARPQhKQ+E1bIh5qYug7hR+FyNkx3uoreweZ99Maqs=
-X-Gm-Message-State: AOJu0Yxn+DBnKxg32HqnNwP3Ju9aNdKimWuw4dQEjAKiFtnyiMvgIkPA
-	AFGoq28Om/vngKUg4xCfIqFZwo5rXviPthhuLWTHTZUBvgbEQOEmPQpyltM5qcJ7tcigZqav+1V
-	NKRthHyE5oRFIHVxHiTjJxqRFqhM=
-X-Google-Smtp-Source: AGHT+IEqlf4co9CQdw2WGl/Xqoo4fkGgeyLA8K1xIwoAlG8h/Wd4OdPV3wQEkk7NltbZTH51erICKgVwW7rB3xSuihg=
-X-Received: by 2002:a17:906:39d6:b0:a72:9963:eb8e with SMTP id
- a640c23a62f3a-a780b6b307emr939527966b.28.1720977771290; Sun, 14 Jul 2024
- 10:22:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="wS2E9kgf";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="SjWxd3R+"
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+	by mailfhigh.nyi.internal (Postfix) with ESMTP id 268BE1147F7B;
+	Mon, 15 Jul 2024 17:07:08 -0400 (EDT)
+Received: from imap51 ([10.202.2.101])
+  by compute5.internal (MEProxy); Mon, 15 Jul 2024 17:07:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-type:content-type:date:date:from:from:in-reply-to
+	:message-id:mime-version:reply-to:subject:subject:to:to; s=fm2;
+	 t=1721077628; x=1721164028; bh=7q+6IYnqmuD50MShCet25BciLTxKWgfP
+	x9cMuhrwtGI=; b=wS2E9kgfykEbvr4fI31z3CQP1CSeei4rzb0lMAGgZ6RIUSgo
+	BRFmtlOH+rtPNMxh+MzOYT7JWGdTneI1f9X1kg7Di+Y4R89a6etxzS9i0p8ViaDR
+	pYuLv634QUV0f1LUl9pIWNuFj4dqwrCe91RVCprEvN2tAxFEgJuSE4mCpd9iSfcm
+	hPS/1dcVjob5TD9XXIRSy/LKODsFITjxLWG3NVposgu441tHn+vIz31PUSu6FYQJ
+	mPKmRfkom7KkODjRVCtDW7bxEZRBxmDqyK5JyIiaDOXXC1rIbKFwEekFfDcj+unI
+	GCKwdwh1eg1RmUpiaLBg8LPcZUnmilwT54e0OQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:message-id
+	:mime-version:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
+	1721077628; x=1721164028; bh=7q+6IYnqmuD50MShCet25BciLTxKWgfPx9c
+	MuhrwtGI=; b=SjWxd3R+lq3EleIFErSZn/DYiwI00hnYTeFPdMPnD3A6Ia9ha/M
+	V+vruY9CxVBLEI3+lH6SsObvqysnd6z2bU0n6rv0dTlxxJ1VjL5LCcAwciN0KKOm
+	l0h0qesT3hFeQRSfZ4akx/QpoxsOqioKs+ldhkEsUYfMSF5i8yUm38y9xLYXSrlj
+	JJ6mU4Hwd7E8ouGF4zMa406ijk5mOsKVIQH0lSoDs85yFGv0wNZOJkR91xiaAzRx
+	VM/cRdJQYS6FUTVAfmZ07imAjVVBO3r7BCrEx3nkU6DX2MlwNu3FSc5ZdUDjPGjM
+	bYDaWXLt3fOvoDjoE8veNEQZ4FHXrPRuXxQ==
+X-ME-Sender: <xms:e4-VZmwQmKewoJrhtTl_WW5z1vjxWBGMWPgc_ZI9Ujfh3xtvgFv14A>
+    <xme:e4-VZiQiBg4B-TqGGxmpnFGo4CXilO_UJW7NLVTe0PVioUdhW9l6D6yE-0qm5E-ns
+    RYJcEZa08aQ-85jovE>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrgedvgdduheeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepofgfggfkfffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehrnhgu
+    uceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrthhtvg
+    hrnhepfeefuefhkeejvedtvddtleeltddttdejgedvhfdtuddvhfeukeduiefhjeetgfei
+    necuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtne
+    curfgrrhgrmhepmhgrihhlfhhrohhmpegrrhhnugesrghrnhgusgdruggv
+X-ME-Proxy: <xmx:fI-VZoU52SOcvNZtiAXeZWY6biEWtooXgSHE2f0fn2oZJhgcPrwZvA>
+    <xmx:fI-VZshnqg6B1qoW_S7KdOtvdUdOlBuC4nT7rMtA2tiP45Ttf_Duug>
+    <xmx:fI-VZoCkb7BEuRUCZ7p0XRlUaOvFGokWtF2TH98ZZ558Psgd4BVrZA>
+    <xmx:fI-VZtKmOpTNoEUAFXAlM4Idrlu_2Exwp_qe900ds72pKa9gl-BUhA>
+    <xmx:fI-VZk2NjfSL59A8L2VEa5T41Zzl-MBo4qJUHe3lLxKEloa9Wp2EPcjy>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+	id D49A8B6008D; Mon, 15 Jul 2024 17:07:07 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.11.0-alpha0-568-g843fbadbe-fm-20240701.003-g843fbadb
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240704143611.2979589-1-arnd@kernel.org> <20240704143611.2979589-13-arnd@kernel.org>
- <9b269c2a-c6b5-4fa0-801b-e5e1c3ccb671@app.fastmail.com>
-In-Reply-To: <9b269c2a-c6b5-4fa0-801b-e5e1c3ccb671@app.fastmail.com>
-From: Guo Ren <guoren@kernel.org>
-Date: Mon, 15 Jul 2024 01:22:40 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTTDT=DyPs8NWe7gxvuNa0i_X9go2dgcBMGk9eqFdSwLTQ@mail.gmail.com>
-Message-ID: <CAJF2gTTDT=DyPs8NWe7gxvuNa0i_X9go2dgcBMGk9eqFdSwLTQ@mail.gmail.com>
-Subject: Re: [PATCH 12/17] csky: convert to generic syscall table
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Arnd Bergmann <arnd@kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>, 
-	Masahiro Yamada <masahiroy@kernel.org>, Nathan Chancellor <nathan@kernel.org>, 
-	Nicolas Schier <nicolas@fjasle.eu>, Vineet Gupta <vgupta@kernel.org>, 
-	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>, 
-	WANG Xuerui <kernel@xen0n.name>, Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, 
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, 
-	Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Albert Ou <aou@eecs.berkeley.edu>, Rich Felker <dalias@libc.org>, 
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "David S . Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Christian Brauner <brauner@kernel.org>, 
-	Mark Rutland <mark.rutland@arm.com>, linux-kbuild@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, 
-	linux-arm-kernel@lists.infradead.org, 
-	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>, linux-hexagon@vger.kernel.org, 
-	loongarch@lists.linux.dev, 
-	"linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>, linux-riscv@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Message-Id: <a662962e-e650-4d99-bed2-aa45f0b2cf19@app.fastmail.com>
+Date: Mon, 15 Jul 2024 23:14:27 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Linus Torvalds" <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>,
+ linux-arm-kernel@lists.infradead.org,
+ "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+ linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+ "linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>,
+ linux-snps-arc@lists.infradead.org
+Subject: [GIT PULL] asm-generic updates for 6.11
+Content-Type: text/plain
 
-On Wed, Jul 10, 2024 at 6:27=E2=80=AFPM Arnd Bergmann <arnd@arndb.de> wrote=
-:
->
-> On Thu, Jul 4, 2024, at 16:36, Arnd Bergmann wrote:
-> > -
-> > -#define __NR_set_thread_area (__NR_arch_specific_syscall + 0)
-> > -__SYSCALL(__NR_set_thread_area, sys_set_thread_area)
-> > -#define __NR_cacheflush              (__NR_arch_specific_syscall + 1)
-> > -__SYSCALL(__NR_cacheflush, sys_cacheflush)
-> > +#include <asm/unistd_32.h>
-> > +#define __NR_sync_file_range2 __NR_sync_file_range
->
-> A small update: I have folded this fixup into this patch
-> and the hexagon one, to ensure we don't define both
-> __NR_sync_file_range2 and __NR_sync_file_range. I already
-> have patches to clean this up further to avoid both the
-> #undef and #define, but that is part of a larger rework
-> that is not ready before the merge window.
->
->      Arnd
->
-> diff --git a/arch/csky/include/uapi/asm/unistd.h b/arch/csky/include/uapi=
-/asm/unistd.h
-> index 794adbc04e48..44882179a6e1 100644
-> --- a/arch/csky/include/uapi/asm/unistd.h
-> +++ b/arch/csky/include/uapi/asm/unistd.h
-> @@ -1,4 +1,6 @@
->  /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
->
->  #include <asm/unistd_32.h>
-> -#define __NR_sync_file_range2 __NR_sync_file_range
-> +
-> +#define __NR_sync_file_range2 84
-> +#undef __NR_sync_file_range
-For csky part:
+The following changes since commit 22a40d14b572deb80c0648557f4bd502d7e83826:
 
-Acked-by: Guo Ren <guoren@kernel.org>
+  Linux 6.10-rc6 (2024-06-30 14:40:44 -0700)
 
-> diff --git a/arch/hexagon/include/uapi/asm/unistd.h b/arch/hexagon/includ=
-e/uapi/asm/unistd.h
-> index 6f670347dd61..a3b0cac25580 100644
-> --- a/arch/hexagon/include/uapi/asm/unistd.h
-> +++ b/arch/hexagon/include/uapi/asm/unistd.h
-> @@ -29,4 +29,5 @@
->
->  #include <asm/unistd_32.h>
->
-> -#define __NR_sync_file_range2 __NR_sync_file_range
-> +#define __NR_sync_file_range2 84
-> +#undef __NR_sync_file_range
+are available in the Git repository at:
 
+  https://git.kernel.org/pub/scm/linux/kernel/git/arnd/asm-generic.git tags/asm-generic-6.11
 
+for you to fetch changes up to 1a7b7326d587c9a5e8ff067e70d6aaf0333f4bb3:
 
---=20
-Best Regards
- Guo Ren
+  vmlinux.lds.h: catch .bss..L* sections into BSS") (2024-07-12 08:52:45 +0200)
+
+----------------------------------------------------------------
+asm-generic updates for 6.11
+
+Most of this is part of my ongoing work to clean up the system call
+tables. In this bit, all of the newer architectures are converted to
+use the machine readable syscall.tbl format instead in place of complex
+macros in include/uapi/asm-generic/unistd.h.
+
+This follows an earlier series that fixed various API mismatches
+and in turn is used as the base for planned simplifications.
+
+The other two patches are dead code removal and a warning fix.
+
+----------------------------------------------------------------
+Arnd Bergmann (17):
+      syscalls: add generic scripts/syscall.tbl
+      csky: drop asm/gpio.h wrapper
+      um: don't generate asm/bpf_perf_event.h
+      loongarch: avoid generating extra header files
+      kbuild: verify asm-generic header list
+      kbuild: add syscall table generation to scripts/Makefile.asm-headers
+      clone3: drop __ARCH_WANT_SYS_CLONE3 macro
+      arc: convert to generic syscall table
+      arm64: convert unistd_32.h to syscall.tbl format
+      arm64: generate 64-bit syscall.tbl
+      arm64: rework compat syscall macros
+      csky: convert to generic syscall table
+      hexagon: use new system call table
+      loongarch: convert to generic syscall table
+      nios2: convert to generic syscall table
+      openrisc: convert to generic syscall table
+      riscv: convert to generic syscall table
+
+Christophe Leroy (1):
+      vmlinux.lds.h: catch .bss..L* sections into BSS")
+
+Steven Price (1):
+      fixmap: Remove unused set_fixmap_offset_io()
+
+ Makefile                                          |   2 +-
+ arch/arc/include/asm/Kbuild                       |   2 +
+ arch/arc/include/asm/unistd.h                     |  14 +
+ arch/arc/include/uapi/asm/Kbuild                  |   2 +
+ arch/arc/include/uapi/asm/unistd.h                |  44 +-
+ arch/arc/kernel/Makefile.syscalls                 |   3 +
+ arch/arc/kernel/sys.c                             |   5 +-
+ arch/arm/include/asm/unistd.h                     |   1 -
+ arch/arm64/include/asm/Kbuild                     |   8 +
+ arch/arm64/include/asm/seccomp.h                  |  13 +-
+ arch/arm64/include/asm/unistd.h                   |  22 +-
+ arch/arm64/include/asm/unistd32.h                 | 939 +---------------------
+ arch/arm64/include/asm/vdso/compat_gettimeofday.h |  12 +-
+ arch/arm64/include/uapi/asm/Kbuild                |   1 +
+ arch/arm64/include/uapi/asm/unistd.h              |  25 +-
+ arch/arm64/kernel/Makefile.syscalls               |   6 +
+ arch/arm64/kernel/signal32.c                      |   4 +-
+ arch/arm64/kernel/sigreturn32.S                   |  18 +-
+ arch/arm64/kernel/sys.c                           |   6 +-
+ arch/arm64/kernel/sys32.c                         |  17 +-
+ arch/arm64/kernel/syscall.c                       |   3 +-
+ arch/arm64/tools/Makefile                         |   6 +-
+ arch/arm64/tools/syscall_32.tbl                   | 476 +++++++++++
+ arch/arm64/tools/syscall_64.tbl                   |   1 +
+ arch/csky/include/asm/Kbuild                      |   3 +-
+ arch/csky/include/asm/unistd.h                    |   3 +
+ arch/csky/include/uapi/asm/Kbuild                 |   2 +
+ arch/csky/include/uapi/asm/unistd.h               |  15 +-
+ arch/csky/kernel/Makefile.syscalls                |   4 +
+ arch/csky/kernel/syscall_table.c                  |   4 +-
+ arch/hexagon/include/asm/Kbuild                   |   2 +
+ arch/hexagon/include/asm/unistd.h                 |  10 +
+ arch/hexagon/include/uapi/asm/Kbuild              |   2 +
+ arch/hexagon/include/uapi/asm/unistd.h            |  14 +-
+ arch/hexagon/kernel/Makefile.syscalls             |   3 +
+ arch/hexagon/kernel/syscalltab.c                  |   8 +-
+ arch/loongarch/include/asm/Kbuild                 |  17 +-
+ arch/loongarch/include/asm/unistd.h               |   2 +
+ arch/loongarch/include/uapi/asm/Kbuild            |   2 +
+ arch/loongarch/include/uapi/asm/unistd.h          |   4 +-
+ arch/loongarch/kernel/Makefile.syscalls           |   4 +
+ arch/loongarch/kernel/syscall.c                   |   3 +-
+ arch/m68k/include/asm/unistd.h                    |   1 -
+ arch/mips/include/asm/unistd.h                    |   1 -
+ arch/nios2/include/asm/Kbuild                     |   2 +
+ arch/nios2/include/asm/unistd.h                   |  12 +
+ arch/nios2/include/uapi/asm/Kbuild                |   2 +
+ arch/nios2/include/uapi/asm/unistd.h              |  14 +-
+ arch/nios2/kernel/Makefile.syscalls               |   3 +
+ arch/nios2/kernel/syscall_table.c                 |   6 +-
+ arch/openrisc/include/asm/Kbuild                  |   2 +
+ arch/openrisc/include/asm/syscalls.h              |   4 -
+ arch/openrisc/include/asm/unistd.h                |   8 +
+ arch/openrisc/include/uapi/asm/Kbuild             |   2 +
+ arch/openrisc/include/uapi/asm/unistd.h           |  15 +-
+ arch/openrisc/kernel/Makefile.syscalls            |   3 +
+ arch/openrisc/kernel/sys_call_table.c             |   9 +-
+ arch/parisc/include/asm/unistd.h                  |   1 -
+ arch/powerpc/include/asm/unistd.h                 |   1 -
+ arch/riscv/include/asm/Kbuild                     |   3 +
+ arch/riscv/include/asm/syscall_table.h            |   7 +
+ arch/riscv/include/asm/unistd.h                   |  13 +-
+ arch/riscv/include/uapi/asm/Kbuild                |   2 +
+ arch/riscv/include/uapi/asm/unistd.h              |  41 +-
+ arch/riscv/kernel/Makefile.syscalls               |   4 +
+ arch/riscv/kernel/compat_syscall_table.c          |   6 +-
+ arch/riscv/kernel/syscall_table.c                 |   6 +-
+ arch/s390/include/asm/unistd.h                    |   1 -
+ arch/sh/include/asm/unistd.h                      |   2 +
+ arch/sparc/include/asm/unistd.h                   |   2 +
+ arch/um/include/asm/Kbuild                        |   1 -
+ arch/um/include/asm/bpf_perf_event.h              |   9 +
+ arch/x86/include/asm/unistd.h                     |   1 -
+ arch/xtensa/include/asm/unistd.h                  |   1 -
+ include/asm-generic/Kbuild                        |   1 -
+ include/asm-generic/fixmap.h                      |   3 -
+ include/asm-generic/vmlinux.lds.h                 |   2 +-
+ include/uapi/asm-generic/unistd.h                 |   4 -
+ kernel/fork.c                                     |   8 +-
+ kernel/sys_ni.c                                   |   2 -
+ scripts/Makefile.asm-generic                      |  58 --
+ scripts/Makefile.asm-headers                      |  98 +++
+ scripts/syscall.tbl                               | 404 ++++++++++
+ tools/arch/arm64/include/uapi/asm/unistd.h        |   1 -
+ tools/arch/loongarch/include/uapi/asm/unistd.h    |   1 -
+ tools/include/uapi/asm-generic/unistd.h           |   4 -
+ 86 files changed, 1228 insertions(+), 1275 deletions(-)
+ create mode 100644 arch/arc/include/asm/unistd.h
+ create mode 100644 arch/arc/kernel/Makefile.syscalls
+ create mode 100644 arch/arm64/kernel/Makefile.syscalls
+ create mode 100644 arch/arm64/tools/syscall_32.tbl
+ create mode 120000 arch/arm64/tools/syscall_64.tbl
+ create mode 100644 arch/csky/kernel/Makefile.syscalls
+ create mode 100644 arch/hexagon/include/asm/unistd.h
+ create mode 100644 arch/hexagon/kernel/Makefile.syscalls
+ create mode 100644 arch/loongarch/kernel/Makefile.syscalls
+ create mode 100644 arch/nios2/include/asm/unistd.h
+ create mode 100644 arch/nios2/kernel/Makefile.syscalls
+ create mode 100644 arch/openrisc/include/asm/unistd.h
+ create mode 100644 arch/openrisc/kernel/Makefile.syscalls
+ create mode 100644 arch/riscv/include/asm/syscall_table.h
+ create mode 100644 arch/riscv/kernel/Makefile.syscalls
+ create mode 100644 arch/um/include/asm/bpf_perf_event.h
+ delete mode 100644 scripts/Makefile.asm-generic
+ create mode 100644 scripts/Makefile.asm-headers
+ create mode 100644 scripts/syscall.tbl
