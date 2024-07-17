@@ -1,137 +1,84 @@
-Received: from fout2-smtp.messagingengine.com (fout2-smtp.messagingengine.com [103.168.172.145])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C997A11712;
-	Wed, 17 Jul 2024 06:02:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.145
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6327125DE;
+	Wed, 17 Jul 2024 06:41:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721196128; cv=none; b=mTnueleeKqnK1VoAGdf62pU82ateQr+NV6lFBgh6GweBHs2lHHoWddQ32uH+EWYuVBvyy9Om7rlfuc8nKobBzVTtdSRSkKmgx6dJonrV+7k888FdiGfrKIoIaORwmqvOgJjTXIvBCC4TIy5ijoiYyzk6A23Tvd5t3tGdglxS4j8=
+	t=1721198471; cv=none; b=rbFA9S6N5InOKjVrSKwUAhE86bCHrX4QmB68w9gl2VSXKnWsfCsa2G387ZlPL1GzFPnEIdGR8UbVwB9ZmueFcZV+hqP/0Qec2Hi6ZoZ0/WsK++3qPylnXC7Z+ETJA/VxeY/q/4D5vZLSoSmmnUbDzTXKYNWv/DXl0hkslpFGm04=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721196128; c=relaxed/simple;
-	bh=f+RmEIUQ9VSi19cek3Sz+RL9dW4upJpc7vO2wruJXm4=;
-	h=MIME-Version:Message-Id:In-Reply-To:References:Date:From:To:Cc:
-	 Subject:Content-Type; b=gVrXA0Ge1GI4Ac2TaXlFd16s5/07KBWNCRXCgTyILoRSCcuJU7U472ol+qMATuUrE/TBWdZQN+yrcAcmxs6Bl3m4SCgtoLyIZ8Sbq5gkhdmwkGiEcA8d4J658qQwL0h8v1qxAcJV7IWZn+YcfnB5QoUxRc0qA7qzPhFaIKTQLi4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=TxdDuVHB; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=iy57Shj+; arc=none smtp.client-ip=103.168.172.145
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1721198471; c=relaxed/simple;
+	bh=TtuRc2bthK6fRDYeDiyYE7I8wA3/LSlbRqB8Z94EXF8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Nqif1xaa8IXcUMfCeg3hIncYD43g1QTcAefxCK/NIbvgPwWXxfceLC77jYAMyz60fRkniBRuVN6+Qy9BVXnxIdDGvk0VYJh3fwFLTypfmHFr3ppndcdnNh8NtV0m3vu7NIl6152go69SaJNPexDS3JorbEk8DcfMzkhkpXn/VeY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Da/UtMXG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="TxdDuVHB";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="iy57Shj+"
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
-	by mailfout.nyi.internal (Postfix) with ESMTP id EC27B1380273;
-	Wed, 17 Jul 2024 02:02:05 -0400 (EDT)
-Received: from wimap26 ([10.202.2.86])
-  by compute6.internal (MEProxy); Wed, 17 Jul 2024 02:02:05 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm2; t=1721196125; x=1721282525; bh=s7KuyIqvIg
-	I/k+6qXPqK6+K+0ILQ6zny5br217rA/cg=; b=TxdDuVHBA6pP2KAS6CIrwvUNlj
-	eXMZnKZ+s+Gn8e+mTrnqEfd3NAq531VmO+spYY4WHFjdYiG+C0y2Cv1oulqJJRug
-	McSGhGS+vxIisP70kd+QUSRlOB3S7ek2fTIWs26QCd6BMdXbSLv+ACLWaWgMuw0G
-	LLGbDHxb+ODAv+sDkOn9aqHsW2iNr2Lg+ZEcGzXMoHYcKhlqYp15tK7N4Hc1WaXR
-	gUIVDRnOtEp1qc7NJQGQGSR5Li0/mw5cJod3ROR2NZN0Cei1VvlkD1lENVdytYKu
-	FbMTlh3kfQkKWZHXITUqcAXJJut8/x4bfsLPIQUDM4oKNeI7lRlbfHal+eDg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-	fm2; t=1721196125; x=1721282525; bh=s7KuyIqvIgI/k+6qXPqK6+K+0ILQ
-	6zny5br217rA/cg=; b=iy57Shj+rMMq0tgL8F/b4GYe9Nu5PqrGYSCT/PbD9M5/
-	0KhYhe473tb02Gs5inSJPVoB4lIH9FVQdHR1oyz4lo2upKFXmc4nYOYa4teAaq3V
-	R07LkGrhuYforttrNu0XCLMZSeUNJEpz/k4KREfn6ajhuNuibkmPzv43lt8VN0fT
-	i1/a+8BEL5wXsZXK+ilbEO3bXZ1UMllWfAeWH0prDPs6T94pwOc3Z0fIUcrsW9vV
-	tcGWgiFRSV016P+CaygIErZsVUq2BBziw/u7gEZ+YeJzlA6fIwJf89RcGeh12UkR
-	uuW2Y+5Jhls8ywPxJYPKGMpaYqjhZJXvBZsbUWZFag==
-X-ME-Sender: <xms:XF6XZhASZKRtrx88hvmEqjeC4Joes9NXX9VPo9GyHKgpJNnVSx266Q>
-    <xme:XF6XZvgsjLXz3zi9oGV7g2tyYzXvEQ3w8lyegGX3eEuUoarepzwpZNoCIqdAKQySy
-    3eS9905O-rjWOG_Zq8>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrgeehgddutdehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
-    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
-    htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
-    teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
-    hrnhgusegrrhhnuggsrdguvg
-X-ME-Proxy: <xmx:XF6XZslNFrl7P2PNLVmEzkv4YrLUeV64nc8FBVEyYKCWGTO9AQBDRw>
-    <xmx:XF6XZrwgkSDQ7vjyFVOvY8HBHZdrHUnFS9hU3NzLrC3z-S7q4FAgYQ>
-    <xmx:XF6XZmScx7LJyMWu_IbYlUK4h8k_-ZMJQyTixDgUXprSjJv-cP9rag>
-    <xmx:XF6XZuYKltr-lNPOmRWTppGpWmh6NWQqxBsewHtt7h0sujRWIzzZRg>
-    <xmx:XV6XZn_oX9nmRr2w04j_4ZetEq37mOqIJ60LsUeH07ay06T4PzvAJjt_>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-	id 83D2419C005D; Wed, 17 Jul 2024 02:02:04 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.11.0-alpha0-568-g843fbadbe-fm-20240701.003-g843fbadb
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Da/UtMXG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACC76C32782;
+	Wed, 17 Jul 2024 06:41:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1721198469;
+	bh=TtuRc2bthK6fRDYeDiyYE7I8wA3/LSlbRqB8Z94EXF8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Da/UtMXGLGpAloHTui+wRHmRa78G93Ysni0bH8ZiPhLaF6kWU0JSEq+A9KYhAlkSm
+	 ay/J1K12NOBeucVPz1UeX0cGVegg4/ClxbTZlTHn8aiH61taFZdKtn05BVx3IxyFoN
+	 po3XrI6w8bbNrUeQOjXqm/3+LoERkZVFY9JySkoiH+ovrtZR+hR7bofeYRua4D+uf7
+	 LGKw4RPHd/lK0T2bIaHI2D4PpiB9xnhx/Zg8NfSIDBQqpl8uoiq02K3RXOFKK1P87U
+	 NXBfXvi4t6rFBfv4Nl3xt6nakUoMQ9gYMQfiBbTnqn1S4zvbiP3jpkgj1znAR/lKm9
+	 aiX7hAlo2IDBg==
+Received: from johan by xi.lan with local (Exim 4.97.1)
+	(envelope-from <johan@kernel.org>)
+	id 1sTyLe-000000005p8-1glo;
+	Wed, 17 Jul 2024 08:41:10 +0200
+Date: Wed, 17 Jul 2024 08:41:10 +0200
+From: Johan Hovold <johan@kernel.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>,
+	Masahiro Yamada <masahiroy@kernel.org>,
+	linux-kernel@vger.kernel.org,
+	Linux-Arch <linux-arch@vger.kernel.org>,
+	linux-arm-kernel@lists.infradead.org,
+	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+	"linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>,
+	linux-snps-arc@lists.infradead.org
+Subject: Re: [GIT PULL] asm-generic updates for 6.11
+Message-ID: <ZpdnhhaQum_epcGp@hovoldconsulting.com>
+References: <a662962e-e650-4d99-bed2-aa45f0b2cf19@app.fastmail.com>
+ <CAHk-=wibB7SvXnUftBgAt+4-3vEKRpvEgBeDEH=i=j2GvDitoA@mail.gmail.com>
+ <d7d6854b-e10d-473f-90c8-5e67cc5d540a@app.fastmail.com>
+ <CAHk-=wir5og_Pd6MBSDFS+dL-bxoBix03QyGheySeeWPX82SDw@mail.gmail.com>
+ <CAHk-=wjqr_ahprUjddSBdQfSXUtg3Y2dCxHre=-Wa4VGdi7wuw@mail.gmail.com>
+ <2b6336d1-34e0-48dd-b901-7b5208045597@app.fastmail.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <2b6336d1-34e0-48dd-b901-7b5208045597@app.fastmail.com>
-In-Reply-To: 
- <CAHk-=wjqr_ahprUjddSBdQfSXUtg3Y2dCxHre=-Wa4VGdi7wuw@mail.gmail.com>
-References: <a662962e-e650-4d99-bed2-aa45f0b2cf19@app.fastmail.com>
- <CAHk-=wibB7SvXnUftBgAt+4-3vEKRpvEgBeDEH=i=j2GvDitoA@mail.gmail.com>
- <d7d6854b-e10d-473f-90c8-5e67cc5d540a@app.fastmail.com>
- <CAHk-=wir5og_Pd6MBSDFS+dL-bxoBix03QyGheySeeWPX82SDw@mail.gmail.com>
- <CAHk-=wjqr_ahprUjddSBdQfSXUtg3Y2dCxHre=-Wa4VGdi7wuw@mail.gmail.com>
-Date: Wed, 17 Jul 2024 08:01:43 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Linus Torvalds" <torvalds@linux-foundation.org>
-Cc: "Masahiro Yamada" <masahiroy@kernel.org>, linux-kernel@vger.kernel.org,
- Linux-Arch <linux-arch@vger.kernel.org>,
- linux-arm-kernel@lists.infradead.org,
- "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
- linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
- "linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>,
- linux-snps-arc@lists.infradead.org
-Subject: Re: [GIT PULL] asm-generic updates for 6.11
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2b6336d1-34e0-48dd-b901-7b5208045597@app.fastmail.com>
 
-On Wed, Jul 17, 2024, at 07:08, Linus Torvalds wrote:
-> On Tue, 16 Jul 2024 at 21:57, Linus Torvalds
-> <torvalds@linux-foundation.org> wrote:
->>
->> Note, it really might be just 'allmodconfig'. We've had things that
->> depend on config entries in the past, eg the whole
->> CONFIG_HEADERS_INSTALL etc could affect things.
+On Wed, Jul 17, 2024 at 08:01:43AM +0200, Arnd Bergmann wrote:
+> On Wed, Jul 17, 2024, at 07:08, Linus Torvalds wrote:
+> > On Tue, 16 Jul 2024 at 21:57, Linus Torvalds
+> > <torvalds@linux-foundation.org> wrote:
+> >>
+> >> Note, it really might be just 'allmodconfig'. We've had things that
+> >> depend on config entries in the past, eg the whole
+> >> CONFIG_HEADERS_INSTALL etc could affect things.
+> 
+> I had tried a partial allmodconfig build earlier to save time,
+> did a full build again now, still nothing:
 
-I had tried a partial allmodconfig build earlier to save time,
-did a full build again now, still nothing:
+FWIW, I noticed this last Friday as well when I did a few builds of
+linux-next and every change I made triggered what appeared to be a full
+rebuild of the tree.
 
-arnd@studio:~/arm-soc/bisect$ make allmodconfig -sj20
-arnd@studio:~/arm-soc/bisect$ make -sj20
-arnd@studio:~/arm-soc/bisect$ touch .config
-arnd@studio:~/arm-soc/bisect$ make allmodconfig -sj20
-arnd@studio:~/arm-soc/bisect$ make -j20
-  SYNC    include/config/auto.conf.cmd
-  CALL    scripts/checksyscalls.sh
-  CHK     kernel/kheaders_data.tar.xz
-arnd@studio:~/arm-soc/bisect$ find . -newer .config
-.
-./arch/arm64/kvm
-./include/config
-./include/config/auto.conf.cmd
-./include/config/auto.conf
-./include/generated
-./include/generated/uapi/linux
-./include/generated/autoconf.h
-./include/generated/rustc_cfg
-./init
-./kernel
-./lib
-./scripts/mod
-./.missing-syscalls.d
+This was with a trimmed config [1] and separate build tree (tmpfs).
 
-This is in a fresh worktree, doing a native arm64 build
-in the source directory. In case the problem is related to
-changes in high-resolution timestamping, I am running
-a slightly older kernel (still 6.8) and I'm using btrfs
-with relatime for the build here. I also tried on tmpfs
-now, same results. ccache is disabled.
+Johan
 
-      Arnd
+
+[1] https://github.com/jhovold/linux/commit/c3324059a67c7c63186107771eabc17a66772989
