@@ -1,53 +1,53 @@
-Received: from fout4-smtp.messagingengine.com (fout4-smtp.messagingengine.com [103.168.172.147])
+Received: from fout5-smtp.messagingengine.com (fout5-smtp.messagingengine.com [103.168.172.148])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 819193032A;
-	Wed, 17 Jul 2024 09:36:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.147
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 361C717DE29;
+	Wed, 17 Jul 2024 10:55:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.148
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721208999; cv=none; b=VHzwP8m5Cqsz+covEh62l2sHQ0K/3MGP1H1YMv0jQ09zfgzxDBOAZRYsCq+aj49CtkfTOKk8IWqRlAGfYDyK1jm3AhKMqT3mtct//D/1gNhsLoovw3WlA7tYNEqGSTE3iE6cqe4K2XSW49OxuJ1rV/pGfLTgJ6eT8cov8lffxn4=
+	t=1721213711; cv=none; b=l0f7lL4PEITz4NtMVGmatwWyNwYGN7+h9PXGGKWJivjMdBehu8CyrFoZkT94iUMntVM+FkviOIonV+lOvz97LtybyQ2KRCAoEv4aJfHyrosNmxBIUsyAYRgq4tEZ12u8yXd+MtcwEapTzSChbhd7f6ZiNJvGzuqlQztg4C1Knsk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721208999; c=relaxed/simple;
-	bh=xyjyfNGXdWpRnYLoYvaMCdzkbU3pFFxpX1W4+PfIUb0=;
+	s=arc-20240116; t=1721213711; c=relaxed/simple;
+	bh=AMsDz/Ku3aEvwfE1d5aax219Ew2wLx/1hyo1nCxhUyo=;
 	h=MIME-Version:Message-Id:In-Reply-To:References:Date:From:To:Cc:
-	 Subject:Content-Type; b=ePcSSy9j79BVYdy45mwzVy5MiaIfVWc8BNC1QkuCaa65wsDrtmknIjMlALbhsHKDGCKB8CuGzi7skKAllkXSlLxIJPHgdmuOwqY/Y5QGp0hwCc0waKJd50wAnKC6wp3Oq9g4r70NdEKO6UPSaDcVCtPfmh2zmyQk76E9/ByFOU8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=isyoZPSE; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=IuTu2zxP; arc=none smtp.client-ip=103.168.172.147
+	 Subject:Content-Type; b=QbN1kmwT4dp6YckCVg6IpoQ3YSpynBXjONQQkB7XIjice5A3DR0Em6crSoA3IWPoWNSHu82dOMaKF+b7Cmt7pqyLJ5TT3PNyyt+HZlWZOAXCU+agDoEkp7oNobPQfJRLGcTHvdUKyHn7ytsPagYBiwXRIfcvKy8+jjZVmqWy3Mg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=sSzQKesS; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=Uj/+wQX0; arc=none smtp.client-ip=103.168.172.148
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="isyoZPSE";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="IuTu2zxP"
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="sSzQKesS";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Uj/+wQX0"
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
-	by mailfout.nyi.internal (Postfix) with ESMTP id 92EC41380327;
-	Wed, 17 Jul 2024 05:36:36 -0400 (EDT)
+	by mailfout.nyi.internal (Postfix) with ESMTP id 547B71380286;
+	Wed, 17 Jul 2024 06:55:08 -0400 (EDT)
 Received: from wimap26 ([10.202.2.86])
-  by compute6.internal (MEProxy); Wed, 17 Jul 2024 05:36:36 -0400
+  by compute6.internal (MEProxy); Wed, 17 Jul 2024 06:55:08 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
 	:cc:content-type:content-type:date:date:from:from:in-reply-to
 	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm2; t=1721208996; x=1721295396; bh=ds4aqM5Kli
-	aeb4EM9aEvOVD2sDxY4nAQiMOn0gmaAbs=; b=isyoZPSErBU9/B/t1RVSo3tn7U
-	Tc3YRkr7pgDPJni2+1kEPudKDRq9Z/DhmIm3IdRxv/xc5IbMqawD7hhI4RMUiZc8
-	9mACyynTn6yuEc4yNx+Wwg3lJYaxoZOqG9slbIAn4AdR9gu4GwgCVOmY4N0FYFbE
-	LQ7sr6n6dmOZ2a8Qp2MpuKR3NDWfVRo9Bmy3D329b6ex17kTCU8oKgUWjgmgk7mz
-	qr3c8jdpENSTE7CybQub0T7N8kA3EiBe9qEczTmxUV9bcDNvAguh9t7vQpGd2rJz
-	2g3g/Km2lgKDnj8MZetYS2/jbUNsV+KMueiMxxHXdFa+vj60MQw+gfhIIG6g==
+	:subject:to:to; s=fm2; t=1721213708; x=1721300108; bh=8TPRB3j9rL
+	zE1rwWl+Ls1dJsZyiFWQAyaVNpYBWytB8=; b=sSzQKesS28tzRD3ycMfsHJZzHM
+	mb+/LOuqTrCGwZJDGcQNnJdKH0Sj7JxGiyACbnSjdZ7jhKBEZhC26nSEXXff01YA
+	3JpotsV7/zJ5MCe+fdyamsjsp9S2DrchwkfORG/ELfJ3aXGRzEWYCd3zDP9Bk8HS
+	sGiiCkdFEOOq97/M6iqGdf4xbII/G8ccZWbljeSipuzObXbMUFC2VS/nqGduJ+kx
+	y07wayoLPaub+/tRYZ8V7VPF80IFiCXx+01rWOqumEUBbAPnjdCNT9jh51VvokDA
+	end0ch72kvrXPf2O/vnpUjMlgzNMfF+pA05NYI6k2P/CsDIDXTh+ilVpvT5w==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	messagingengine.com; h=cc:cc:content-type:content-type:date:date
 	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
 	:message-id:mime-version:references:reply-to:subject:subject:to
 	:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-	fm2; t=1721208996; x=1721295396; bh=ds4aqM5Kliaeb4EM9aEvOVD2sDxY
-	4nAQiMOn0gmaAbs=; b=IuTu2zxPr6v2uLemejK0Ei3q2B4Q5qgGmSQzRk8i6DLv
-	vTrmN2pXjRAB7TogFn4MgE1l/SlcRTGZFdNhMgX6RowdwUfgZyXdETR7l/oQx8Uz
-	acXX3NohpJxvp7OEXzYW402k1xxPokR0RTJ7A3FxrsYAOigVoUPmiM74YMAM7jz6
-	PUfcqVFTwhWWYY63PWHaGQUB6ReeN+MssZ8JEUodVtXKlnLS2Ky5GIoUkEKePm6W
-	xRLMDKvrDQrp/Im3iLn/kL1I7ykewwGpFDWrRhFJKtH6gP0CoH/HcxfbEZvMCALB
-	OeLTYztagTQn3c5EnEI0C4GHxk9qYKBz1JwxEuvoKg==
-X-ME-Sender: <xms:o5CXZuhHJeo328Hjywk4ATXGO_xTowOvuBLqBMB9x7vDw3N3_h3p6A>
-    <xme:o5CXZvApUPKK7-wHjTzWsNyRJQ2vxM4h4IV9UcTrUVvPT3l8JJUm7IS8o4dZENEDn
-    YB1kug2ZKo964UxCck>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrgeeigddujecutefuodetggdotefrodftvf
+	fm2; t=1721213708; x=1721300108; bh=8TPRB3j9rLzE1rwWl+Ls1dJsZyiF
+	WQAyaVNpYBWytB8=; b=Uj/+wQX06B0+FbPAETtoiXpL19N2SDw2r05omykUv9vm
+	UQ5jN/5ooHFpKmC9/OeTLL/mryXkc+YdSCIbrqlgkbv3+XccswlTzizUh+8cP+IM
+	HJCDQz9PpU692+Tl3nYX54rTTCZ9ds+kC6kEsmRFV3vV536xSEkjUAl+N8diE1i9
+	noad3VfSoGRNuWozy1WyABALzTvES+8zWTHpl1+Hr4WXO+jNY6+EV3earT56nH+t
+	iSweoq2QRsewPiFbHluLa+M2Ge+gJf7KYIK/nzoCoxpfyxyfefWwmpdxm6YoK1Pa
+	7xVk1Bxni+/9WO5T8w/NDQyzIco11dk5HSvl10l6KQ==
+X-ME-Sender: <xms:C6OXZuQOkBGuoTGdD5m5RKKuty_76kxEVrX373t3PNyieEnI7U3eUA>
+    <xme:C6OXZjxL3aEmkVItid8N0JP73i5KAG3vPgc3CMf51q6jtRBrwlPslTjnkBmQB1zHG
+    HVrJSgDm8_j4GRDSjk>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrgeeigdeffecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
     fjughrpefofgggkfgjfhffhffvvefutgesthdtredtreertdenucfhrhhomhepfdetrhhn
@@ -55,14 +55,14 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrgeeigddujecutefuodetggdote
     gvrhhnpeffheeugeetiefhgeethfejgfdtuefggeejleehjeeutefhfeeggefhkedtkeet
     ffenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrrh
     hnugesrghrnhgusgdruggv
-X-ME-Proxy: <xmx:o5CXZmHTb_KO_B7rug2PaYI8JJcj3CGwU5Q-oWM_o3p-cfzt28dWmA>
-    <xmx:o5CXZnSS1fFdG2a24qTS-iXIVfIn1WLz_T_hXOQBWB2dQPO-29ZlzQ>
-    <xmx:o5CXZrxXt7Ba_vQnQnpzMzBBqhuM1FlyIaX28V6hNbIT4Gm9_2zDQw>
-    <xmx:o5CXZl7fGWEov250RGBtfHL3SyIT_rpGUYjYUFhCMJk8j0lTbSPSMg>
-    <xmx:pJCXZgpR0x6tJgWfugM-QILTlcTWV-om2c6810xHInv2PguUoHyykUCM>
+X-ME-Proxy: <xmx:C6OXZr1IgRed4C-ppieiHgf6s7NlVM1e-Ll20ASfZcKMAXmjw-RtvQ>
+    <xmx:C6OXZqAyhWKbw21N6I3g1uwuLk08AmNjKjHvsb2gM7PZ0X_Wt--2aQ>
+    <xmx:C6OXZngS9kXR_S5sGCT-6pUxi1CsSNHKGPU2wArBAcGIUJffhG0IrA>
+    <xmx:C6OXZmpJ5HUuZfi2Eqz99SkyJK2dvK0bGYs7ddTni3cSWiNH7X1NCQ>
+    <xmx:DKOXZsYyZp4SgPBafctwqljY71fPeEOjc5k00ZIdbHF5w7UykbObrQto>
 Feedback-ID: i56a14606:Fastmail
 Received: by mailuser.nyi.internal (Postfix, from userid 501)
-	id 301D919C005F; Wed, 17 Jul 2024 05:36:35 -0400 (EDT)
+	id EB13219C005E; Wed, 17 Jul 2024 06:55:06 -0400 (EDT)
 X-Mailer: MessagingEngine.com Webmail Interface
 User-Agent: Cyrus-JMAP/3.11.0-alpha0-568-g843fbadbe-fm-20240701.003-g843fbadb
 Precedence: bulk
@@ -71,8 +71,8 @@ List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <4d471a38-f86f-429d-a1a3-b882439ef7ba@app.fastmail.com>
-In-Reply-To: <Zpd-Bx3VwrYWVeTs@hovoldconsulting.com>
+Message-Id: <91b10591-1554-4860-8843-01c6cfd7de13@app.fastmail.com>
+In-Reply-To: <4d471a38-f86f-429d-a1a3-b882439ef7ba@app.fastmail.com>
 References: <a662962e-e650-4d99-bed2-aa45f0b2cf19@app.fastmail.com>
  <CAHk-=wibB7SvXnUftBgAt+4-3vEKRpvEgBeDEH=i=j2GvDitoA@mail.gmail.com>
  <d7d6854b-e10d-473f-90c8-5e67cc5d540a@app.fastmail.com>
@@ -82,7 +82,8 @@ References: <a662962e-e650-4d99-bed2-aa45f0b2cf19@app.fastmail.com>
  <ZpdnhhaQum_epcGp@hovoldconsulting.com>
  <be80d8f6-2a1b-4f63-a43e-652fa5328d11@app.fastmail.com>
  <Zpd-Bx3VwrYWVeTs@hovoldconsulting.com>
-Date: Wed, 17 Jul 2024 11:36:15 +0200
+ <4d471a38-f86f-429d-a1a3-b882439ef7ba@app.fastmail.com>
+Date: Wed, 17 Jul 2024 12:54:46 +0200
 From: "Arnd Bergmann" <arnd@arndb.de>
 To: "Johan Hovold" <johan@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>,
@@ -96,16 +97,56 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>,
 Subject: Re: [GIT PULL] asm-generic updates for 6.11
 Content-Type: text/plain
 
-On Wed, Jul 17, 2024, at 10:17, Johan Hovold wrote:
-> On Wed, Jul 17, 2024 at 10:01:10AM +0200, Arnd Bergmann wrote:
+On Wed, Jul 17, 2024, at 11:36, Arnd Bergmann wrote:
+> On Wed, Jul 17, 2024, at 10:17, Johan Hovold wrote:
+>> On Wed, Jul 17, 2024 at 10:01:10AM +0200, Arnd Bergmann wrote:
+>>
+>> Yeah, that's not something I noticed at least (and I assume I would
+>> have). And I only did aarch64 builds on a 6.9 x86_64 host (make 4.4.1).
 >
-> Yeah, that's not something I noticed at least (and I assume I would
-> have). And I only did aarch64 builds on a 6.9 x86_64 host (make 4.4.1).
+> Ok, I can reproduce the problem now: I installed a Fedora
+> VM guest and chroot mount and I see the same issue in there.
+>
+> My normal Debian host has make 4.3, so I'll see if I can figure
+> if a specific change in make does it.
 
-Ok, I can reproduce the problem now: I installed a Fedora
-VM guest and chroot mount and I see the same issue in there.
+I see that there is a version check in scripts/Makefile.include
+from commit 875ef1a57f32 ("kbuild: use .NOTINTERMEDIATE for
+future GNU Make versions") that detects Fedora's make 4.4.1
+as newer than 4.4, so for the first time enables this
+logic that I did not see on Debian.
 
-My normal Debian host has make 4.3, so I'll see if I can figure
-if a specific change in make does it.
+In my scripts/Makefile.asm-headers, I had copied the 'FORCE'
+from the existing rules in arch/x86/entry/syscalls/Makefile
+etc without fully understanding what that does.
+It looks like this does not make a difference for make-4.3
+but is actually wrong for make-4.4 on the generic rule.
 
-     Arnd
+This makes it work for me with both versions of make:
+
+--- a/scripts/Makefile.asm-headers
++++ b/scripts/Makefile.asm-headers
+@@ -77,14 +77,14 @@ all: $(generic-y) $(syscall-y)
+ $(obj)/%.h: $(srctree)/$(generic)/%.h
+        $(call cmd,wrap)
+ 
+-$(obj)/unistd_%.h: $(syscalltbl) $(syshdr) FORCE
++$(obj)/unistd_%.h: $(syscalltbl) $(syshdr)
+        $(call if_changed,syshdr)
+ 
+ $(obj)/unistd_compat_%.h: syscall_compat:=1
+-$(obj)/unistd_compat_%.h: $(syscalltbl) $(syshdr) FORCE
++$(obj)/unistd_compat_%.h: $(syscalltbl) $(syshdr)
+        $(call if_changed,syshdr)
+ 
+-$(obj)/syscall_table_%.h: $(syscalltbl) $(systbl) FORCE
++$(obj)/syscall_table_%.h: $(syscalltbl) $(systbl)
+        $(call if_changed,systbl)
+ 
+ # Create output directory. Skip it if at least one old header exists
+
+Masahiro, does that make sense to you? I assume you can
+explain this properly, but I'll already send a patch with
+this version.
+
+       Arnd
