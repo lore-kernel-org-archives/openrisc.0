@@ -1,120 +1,118 @@
-Received: from fhigh3-smtp.messagingengine.com (fhigh3-smtp.messagingengine.com [103.168.172.154])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C20C81173F;
-	Wed, 17 Jul 2024 12:46:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.154
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6DAB152504;
+	Tue, 23 Jul 2024 12:58:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721220379; cv=none; b=EyTJLVrmIMqLAUvS/uvMJ1Rfwt0EJE2X5M4Aa26DbD62LxvaBYVhrXkhX7mMd3yq384OevrjQQ/hpuazIBorAASUKjbRpS+BOpmIXoGG0IDeT3O8c9N5/bQ4Di6T8A25z68+pGPIDbWSVq/5YwgzmyMK/z/MKl2SbiJATA5zY2o=
+	t=1721739517; cv=none; b=rLysHj5MuSSpKKMlHFEGyZExHFmP/OD9ckO3xCUv26mRO7MY4OGD8RmROv8qYaJqtzZ7Rtl7WDhtvRUdyskSdOc/KRT3aN4ArEXUBzsE14qQo1nVbUoG41CLOl/RkBdUG/ScG+3Os/8lKBJlOid/WQkRMawIgvcP7mIs/XT2t24=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721220379; c=relaxed/simple;
-	bh=GuFkuwgqT80GRWXZvm7LRcX0ZMXSO6k1+urf/KtMogI=;
-	h=MIME-Version:Message-Id:In-Reply-To:References:Date:From:To:Cc:
-	 Subject:Content-Type; b=EoH5999evv2KLFfT2BwDudy0psR8KUx1fEvvwI/J1I94k3lkpEppGo88OQcTzZO/q4CDZf16tvRyFbg2fvWQgwpA/qY91yf5UTB6o583Zw2B3apxcCCtc189bpE6ly3+SAqWTYXnCJSept8AXpnqBd+qFSIq4cB7eCtrCMCAiPo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=qiqOQV/Z; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=lYhGR3c6; arc=none smtp.client-ip=103.168.172.154
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1721739517; c=relaxed/simple;
+	bh=XnGab5Oc0HUWROXuLXNSpwek1pYBFbd7tB6YAr94S9E=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=lMO62rTDNUm0nTwvh7WvUPTrbrti3Hsxj7Q7oUXalm/mPFGqtu0tQzJlgrzG4WBg/zyyPj5eJpGi6nCZQp+6cxrSU8x8tpjnDlXVcgb9IOB2v9R7o2n5pApKuNTMZsey5LoPMnrJ4bXLsiRxSezLIN7EIE7k1ML2Xu7rB8mEMeo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z4wIy8Pi; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="qiqOQV/Z";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="lYhGR3c6"
-Received: from compute9.internal (compute9.nyi.internal [10.202.2.228])
-	by mailfhigh.nyi.internal (Postfix) with ESMTP id D13FC1140186;
-	Wed, 17 Jul 2024 08:46:16 -0400 (EDT)
-Received: from wimap26 ([10.202.2.86])
-  by compute9.internal (MEProxy); Wed, 17 Jul 2024 08:46:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm2; t=1721220376; x=1721306776; bh=/CApYD6wKY
-	nJBVN4NbL8zaH4ZDUgadgUBuZp5+ecVs4=; b=qiqOQV/ZBHOGp+WRExDp4NzLdj
-	ziUl9xIHaUXYnBshQBoAxGk/gVS9rKLhRK3WBuRgdNEnDrwmn0Lz+anGbh4newhE
-	qiATIwmRv/uj2g97g8OM9RmpergkSLw+X7W4kUIR3qD0+Sl3oiyBhFE7eqVdaNTI
-	hC5+8KqqGeDfYXzIGk8dMxUi5mEwdWN2Hc6IAtoq5iGyL4pQpuMcTcRNKOKP2de3
-	6zNHPaNDFteBrktsnqiWXnXbafZ0NsOCqMvmUv1OmeMZMyfrbORXxOjHXJeMxP2+
-	4q3LewaZnF+cG+ZYcI2RbDUOX+kfrd+vAJCTLl/90fgj2rZLmCRi4UlvyZMg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-	fm2; t=1721220376; x=1721306776; bh=/CApYD6wKYnJBVN4NbL8zaH4ZDUg
-	adgUBuZp5+ecVs4=; b=lYhGR3c6zUvtgFpfRszwIHAm42Q0BxFUb415+QYJFeWc
-	xgsRAJPATdNRpoNNiS9aXLKn0WxLdP682FIdPO46JBZmfMGQhly4a8i6oFGthfZz
-	MhFlY26GuQSbriMBkK+V96uPCGjdex4OQ1xbetOET4QNa3VNWCeBc5hNFUyTNl+L
-	rHmQwOmCnsr3GcrnNgqz27e439an53N8EqFLy9tRPFumSP+Sq2OIEBy1i91XrbA1
-	KPpacdbigM/viaWRTAxU/POrsaT3X1zfv7DLwIDNeU0MIYbgtFpSqjy6mpU5h2Cg
-	3FlnIjvjSEGDizXvce20/14W1hOI1EbikHnEsxZt6Q==
-X-ME-Sender: <xms:FL2XZgu54zRo188ytbgokKLG-eM4_oct46qUF3zL2lA9v_10Y08z2A>
-    <xme:FL2XZtfHT4Wi8X98SWGHqJjKULUVb3Lv8BrlqYk6a31KbWqIe6kozNUkhdKJoFqki
-    AP5eR3FC6wazrKMIKk>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrgeeigdehhecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefofgggkfgjfhffhffvvefutgesthdtredtreertdenucfhrhhomhepfdetrhhn
-    ugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtth
-    gvrhhnpeevhfffledtgeehfeffhfdtgedvheejtdfgkeeuvefgudffteettdekkeeufeeh
-    udenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptd
-    enucfrrghrrghmpehmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvg
-X-ME-Proxy: <xmx:FL2XZryYFxReCHxYg1QjiiH7dcsKpiwNjFrFgvo9GdtpbStBQBAuag>
-    <xmx:Fb2XZjNceNt8fkAK1H8grmE9yW5ioXtEGgCiD38SIQUspwW20NYIWQ>
-    <xmx:Fb2XZg_YXApV0zJUjelNBs_wv_CkV8Vm_zjLElkOJ-FFFFFcNOuA0g>
-    <xmx:Fb2XZrUUYISPVoAHWqmqGi54AAfe6u4d7cGemq7uUnXOcqRDtpbcow>
-    <xmx:GL2XZh2MdXKDq-J1IfFLVUWchvHx5FvMcBTDJmK2Ej4vcoG0Bdlci1mt>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-	id 1A54C19C0062; Wed, 17 Jul 2024 08:46:12 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.11.0-alpha0-568-g843fbadbe-fm-20240701.003-g843fbadb
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z4wIy8Pi"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 6F9CBC4AF13;
+	Tue, 23 Jul 2024 12:58:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1721739516;
+	bh=XnGab5Oc0HUWROXuLXNSpwek1pYBFbd7tB6YAr94S9E=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=Z4wIy8PilVKD3upkFv7+8P0M3fwFN6M6m/FwfRjPy6dPwZxV+9DBMeCXJMf+3QWdx
+	 f0AHw6mTOo6SdlNe5QdV20d2GgdCMeJKIelmOKvSs76KAumtkEA1iqioW709/M+rG1
+	 zsFnJgWmmen+Tc2yEgIoz68D4zyUf4KrQgocLTKt2aXenfPk7Ya6eSesUQ5jFTvtVP
+	 BKoYUnAs5eiduQnkXmUT4v1Pyh4n8ewZvKgDNyJacJXOZWy7mVvfArBbzbIZIOwMZK
+	 lBFMZMGIaHBpm/RjCQc5uZxWAcsHZhBnFlcj7VBc+U0BF5QumfxtMkh80xnp9w6Efn
+	 CbbcIL1FkoRmg==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 5E34BC4332C;
+	Tue, 23 Jul 2024 12:58:36 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <f92d9393-779d-408a-b3f0-906658fef3cd@app.fastmail.com>
-In-Reply-To: <91b10591-1554-4860-8843-01c6cfd7de13@app.fastmail.com>
-References: <a662962e-e650-4d99-bed2-aa45f0b2cf19@app.fastmail.com>
- <CAHk-=wibB7SvXnUftBgAt+4-3vEKRpvEgBeDEH=i=j2GvDitoA@mail.gmail.com>
- <d7d6854b-e10d-473f-90c8-5e67cc5d540a@app.fastmail.com>
- <CAHk-=wir5og_Pd6MBSDFS+dL-bxoBix03QyGheySeeWPX82SDw@mail.gmail.com>
- <CAHk-=wjqr_ahprUjddSBdQfSXUtg3Y2dCxHre=-Wa4VGdi7wuw@mail.gmail.com>
- <2b6336d1-34e0-48dd-b901-7b5208045597@app.fastmail.com>
- <ZpdnhhaQum_epcGp@hovoldconsulting.com>
- <be80d8f6-2a1b-4f63-a43e-652fa5328d11@app.fastmail.com>
- <Zpd-Bx3VwrYWVeTs@hovoldconsulting.com>
- <4d471a38-f86f-429d-a1a3-b882439ef7ba@app.fastmail.com>
- <91b10591-1554-4860-8843-01c6cfd7de13@app.fastmail.com>
-Date: Wed, 17 Jul 2024 14:45:46 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Johan Hovold" <johan@kernel.org>
-Cc: "Linus Torvalds" <torvalds@linux-foundation.org>,
- "Masahiro Yamada" <masahiroy@kernel.org>, linux-kernel@vger.kernel.org,
- Linux-Arch <linux-arch@vger.kernel.org>,
- linux-arm-kernel@lists.infradead.org,
- "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
- linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
- "linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>,
- linux-snps-arc@lists.infradead.org
-Subject: Re: [GIT PULL] asm-generic updates for 6.11
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH 00/17] arch: convert everything to syscall.tbl
+From: patchwork-bot+linux-riscv@kernel.org
+Message-Id: 
+ <172173951638.10883.11414221741425402977.git-patchwork-notify@kernel.org>
+Date: Tue, 23 Jul 2024 12:58:36 +0000
+References: <20240704143611.2979589-1-arnd@kernel.org>
+In-Reply-To: <20240704143611.2979589-1-arnd@kernel.org>
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: linux-riscv@lists.infradead.org, linux-arch@vger.kernel.org,
+ arnd@arndb.de, masahiroy@kernel.org, nathan@kernel.org, nicolas@fjasle.eu,
+ vgupta@kernel.org, linux@armlinux.org.uk, catalin.marinas@arm.com,
+ will@kernel.org, guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org,
+ kernel@xen0n.name, dinguyen@kernel.org, jonas@southpole.se,
+ stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
+ paul.walmsley@sifive.com, palmer@dabbelt.com, aou@eecs.berkeley.edu,
+ dalias@libc.org, glaubitz@physik.fu-berlin.de, davem@davemloft.net,
+ andreas@gaisler.com, brauner@kernel.org, mark.rutland@arm.com,
+ linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
+ linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-openrisc@vger.kernel.org
 
-On Wed, Jul 17, 2024, at 12:54, Arnd Bergmann wrote:
+Hello:
+
+This series was applied to riscv/linux.git (for-next)
+by Arnd Bergmann <arnd@arndb.de>:
+
+On Thu,  4 Jul 2024 16:35:54 +0200 you wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
 > 
-> -$(obj)/syscall_table_%.h: $(syscalltbl) $(systbl) FORCE
-> +$(obj)/syscall_table_%.h: $(syscalltbl) $(systbl)
->         $(call if_changed,systbl)
+> There are eight architectures using include/uapi/asm-generic/unistd.h,
+> which is still in an old format and not easily parsed by scripts.
+> In addition, arm64 uses the old format for the 32-bit arm compat syscalls,
+> despite them using the modern syscall.tbl format for the native calls.
 > 
->  # Create output directory. Skip it if at least one old header exists
->
-> Masahiro, does that make sense to you? I assume you can
-> explain this properly, but I'll already send a patch with
-> this version.
+> [...]
 
-This was not quite right either, but I sent a patch now
-that works with both old and new versions of make and
-has appears to have the intended behavior for incremental
-builds with or without changes to syscall.tbl:
+Here is the summary with links:
+  - [01/17] syscalls: add generic scripts/syscall.tbl
+    https://git.kernel.org/riscv/c/4fe53bf2ba0a
+  - [02/17] csky: drop asm/gpio.h wrapper
+    https://git.kernel.org/riscv/c/ed8023ae9d79
+  - [03/17] um: don't generate asm/bpf_perf_event.h
+    (no matching commit)
+  - [04/17] loongarch: avoid generating extra header files
+    https://git.kernel.org/riscv/c/ff96f5c6971c
+  - [05/17] kbuild: verify asm-generic header list
+    https://git.kernel.org/riscv/c/b70f12e962bc
+  - [06/17] kbuild: add syscall table generation to scripts/Makefile.asm-headers
+    https://git.kernel.org/riscv/c/fbb5c0606fa4
+  - [07/17] clone3: drop __ARCH_WANT_SYS_CLONE3 macro
+    https://git.kernel.org/riscv/c/505d66d1abfb
+  - [08/17] arc: convert to generic syscall table
+    https://git.kernel.org/riscv/c/4414ad8eb4c2
+  - [09/17] arm64: convert unistd_32.h to syscall.tbl format
+    https://git.kernel.org/riscv/c/7fe33e9f662c
+  - [10/17] arm64: generate 64-bit syscall.tbl
+    (no matching commit)
+  - [11/17] arm64: rework compat syscall macros
+    (no matching commit)
+  - [12/17] csky: convert to generic syscall table
+    (no matching commit)
+  - [13/17] hexagon: use new system call table
+    (no matching commit)
+  - [14/17] loongarch: convert to generic syscall table
+    https://git.kernel.org/riscv/c/26a3b85bac08
+  - [15/17] nios2: convert to generic syscall table
+    https://git.kernel.org/riscv/c/ef608c5767f9
+  - [16/17] openrisc: convert to generic syscall table
+    https://git.kernel.org/riscv/c/77122bf9e3df
+  - [17/17] riscv: convert to generic syscall table
+    https://git.kernel.org/riscv/c/3db80c999deb
 
-https://lore.kernel.org/lkml/20240717124253.2275084-1-arnd@kernel.org/T/
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-    Arnd
+
