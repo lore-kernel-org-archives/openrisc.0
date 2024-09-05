@@ -1,89 +1,71 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A4A419412F;
-	Wed,  4 Sep 2024 23:48:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A9B419925B;
+	Thu,  5 Sep 2024 13:44:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725493733; cv=none; b=BUSuvf+SoElVCgSytSS1oJG5xzQ3/si9cn2as/v2fzxbimaWLJ+i8eSDR9Wu0JIvtI37gjawnL0btBOJua/kLUwJBCt9QneGKsgDr3MA+G8Z7yFFrVtdcyEMtsrFxQAo0seG8Hv3d+Gq3G6wsSPa+CN3qJH8Uie0wcrNzj3EoJE=
+	t=1725543872; cv=none; b=ZeYXJW6NXZ1UyNZFWvg9wzEDD8xCV9AkgMLBaE4M7jJI6ZKcDp6Rs0snKV6I7qHmx9/veNUVsuh0OOBuMI9uTVOb4mtw9kh7n46wx9qDzD6AW4Oxmd8+1McEAXgRwdkGpfjrCsvBXtfkcN0AQESrx6Xy067WD5JBhAiq7ccHzMw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725493733; c=relaxed/simple;
-	bh=X36d1ZLy2VkgrLWOHRLYke7ZNl3jahnWeNpcJovYays=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=RYKx7QnvLlF1In9bPMG9+6y6/mLAe3HOUHHAcrzjpC8owURFnUsb2PQkNKaAO0UAADK5wqA183HYiuEkTrEv3Asd0Pf3q7phifhChFMzlYAUPt3pp7Da69wPNTQWP2pGRZOd6V/RgvkHmi1KJaOyirF/y+DK9JZK4ABdj0VMoSs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Y2gZoLH9; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1725543872; c=relaxed/simple;
+	bh=b9acX5IhkohSbskqXXvGeItLmD2/cfBjvS2Wfhcu7XM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IwLj1OPqk+p8eJugqALldeKyexpH2ncpwjc72/+LNZV82fgA2WBPj0CnOc+sqMzpR7NOM4VJGlPDTBsoNMR8GspOVfzDIcCMKToJ/Iuh5XVDg45oBAnmFnBX1mWgnXVEr/LjVttG38Z+VLORamWGqhHVXX7xmgIOt2pTI9quXe0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uIVMffKc; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Y2gZoLH9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FF2BC4CECA;
-	Wed,  4 Sep 2024 23:48:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uIVMffKc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2709C4CEC3;
+	Thu,  5 Sep 2024 13:44:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1725493733;
-	bh=X36d1ZLy2VkgrLWOHRLYke7ZNl3jahnWeNpcJovYays=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Y2gZoLH9QReVU2beUb37eQb86PpeBHhfuYh04yM6PcStHc5a1MJwX5bzTQip8QgIN
-	 ThrZWo14eLlz72zPRNBf3CdFCnWWPvsoj7JrcDEd8MKK+uxKs1Gw7qXJMOWhXSwltr
-	 9kEyPolldAhCurBcGOMorBnW0BLlhb2kEEAjjoDuSIJJ5ZfEIbYts6DnDX6nw31jA1
-	 oezNgGSlDQtJdZCd0txWWcWX5wKt0e1/2xwyTczUJV2NA0hKXcts35xX4SFK6oi0iw
-	 fONr6eZWZE7gL3WL+5tAWFKpZbcHjqNPH+JzGOWALncjhVORNz+4mxqqXlDqVoKZHU
-	 mnHKIm6R+pFZA==
-From: Masahiro Yamada <masahiroy@kernel.org>
-To: linux-kbuild@vger.kernel.org
-Cc: linux-arch@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Michal Simek <monstr@monstr.eu>,
-	Rob Herring <robh@kernel.org>,
-	devicetree@vger.kernel.org,
-	linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 15/15] kbuild: use .init.rodata section unconditionally for cmd_wrap_S_dtb
-Date: Thu,  5 Sep 2024 08:47:51 +0900
-Message-ID: <20240904234803.698424-16-masahiroy@kernel.org>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240904234803.698424-1-masahiroy@kernel.org>
+	s=k20201202; t=1725543870;
+	bh=b9acX5IhkohSbskqXXvGeItLmD2/cfBjvS2Wfhcu7XM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=uIVMffKcqsMxDOvKmpQ/o52EIXtFaMD2p2GliETZD9N0Dk4ATVa7h8aY7R3arCYMp
+	 6PEOjR1bq/MdcLyU9jcyTwzMWMRPlsX+J/UIMUYK7RKvPwFssxhdY4iVx2DY4c0Z7s
+	 uue4s4wk1gtXDdxkJet5ojFq8gd9VObkCdj0dTyHH57NfvWZ5V2GcbYjNN4Zn+06uQ
+	 EzMbC3xKlj7V45GE7t/TPviuOx7NkOFlIil6D3lPT+VE0ZjrR6uPchXtQ0cvPHDUyH
+	 wdIw6zQPG6/KSBHdFcAAp18fvvQcsOIsAXX2GSUbcoLchhW8ng4EhXQUVAUZ21rsoH
+	 CzGYdGtYtvYfQ==
+Date: Thu, 5 Sep 2024 08:44:28 -0500
+From: Rob Herring <robh@kernel.org>
+To: Masahiro Yamada <masahiroy@kernel.org>
+Cc: linux-kbuild@vger.kernel.org, linux-arch@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org, linux-kernel@vger.kernel.org,
+	Michal Simek <monstr@monstr.eu>, devicetree@vger.kernel.org,
+	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+	Dinh Nguyen <dinguyen@kernel.org>
+Subject: Re: [PATCH 02/15] kbuild: split device tree build rules into
+ scripts/Makefile.dtbs
+Message-ID: <20240905134428.GA1517132-robh@kernel.org>
 References: <20240904234803.698424-1-masahiroy@kernel.org>
+ <20240904234803.698424-3-masahiroy@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240904234803.698424-3-masahiroy@kernel.org>
 
-Boot DTBs are now wrapped and compiled in scripts/Makefile.vmlinux.
+On Thu, Sep 05, 2024 at 08:47:38AM +0900, Masahiro Yamada wrote:
+> scripts/Makefile.lib is included not only from scripts/Makefile.build
+> but also from scripts/Makefile.{modfinal,package,vmlinux,vmlinux_o},
+> where DT build rules are not required.
+> 
+> Split the DT build rules out to scripts/Makefile.dtbs, and include it
+> only when necessary.
+> 
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+> ---
+> 
+>  drivers/of/fdt.c       |   2 +-
+>  drivers/of/unittest.c  |   4 +-
+>  scripts/Makefile.build |  25 +++-----
+>  scripts/Makefile.dtbs  | 142 +++++++++++++++++++++++++++++++++++++++++
+>  scripts/Makefile.lib   | 115 ---------------------------------
+>  5 files changed, 153 insertions(+), 135 deletions(-)
+>  create mode 100644 scripts/Makefile.dtbs
 
-The cmd_wrap_S_dtb rule in scripts/Makefile.dtbs is now only used
-for generic purposes, so the .init.rodata section should be used
-unconditionally.
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
----
-
- scripts/Makefile.dtbs | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
-
-diff --git a/scripts/Makefile.dtbs b/scripts/Makefile.dtbs
-index 55998b878e54..436bfea85bb9 100644
---- a/scripts/Makefile.dtbs
-+++ b/scripts/Makefile.dtbs
-@@ -34,14 +34,12 @@ $(obj)/dtbs-list: $(dtb-y) FORCE
- # Assembly file to wrap dtb(o)
- # ---------------------------------------------------------------------------
- 
--builtin-dtb-section = $(if $(filter arch/%, $(obj)),.dtb.init.rodata,.init.rodata)
--
- # Generate an assembly file to wrap the output of the device tree compiler
- quiet_cmd_wrap_S_dtb = WRAP    $@
-       cmd_wrap_S_dtb = {								\
- 		symbase=__$(patsubst .%,%,$(suffix $<))_$(subst -,_,$(notdir $*));	\
- 		echo '\#include <asm-generic/vmlinux.lds.h>';				\
--		echo '.section $(builtin-dtb-section),"a"';				\
-+		echo '.section .init.rodata,"a"';					\
- 		echo '.balign STRUCT_ALIGNMENT';					\
- 		echo ".global $${symbase}_begin";					\
- 		echo "$${symbase}_begin:";						\
--- 
-2.43.0
-
+Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
