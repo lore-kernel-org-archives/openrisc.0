@@ -1,458 +1,212 @@
-Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BEFE78C90;
-	Wed, 23 Oct 2024 17:14:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11EAC1C1753;
+	Thu, 24 Oct 2024 08:17:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729703680; cv=none; b=bIx7VotXIITI/R22Ue6qFr3Hd0CIwwrLUA6iaz3tAF5KZk7piHdZob6m2kw2If1avRMm4t94bIt9lWdLB+Eb9kE6SjEVYYaAygUDTLz4oDRTuSdlRCmRmeGQhWzyiluK5aJ1/pFO9H8/oZm9TxNjHVkqgHJE0zZ+yXK++l3Ws88=
+	t=1729757850; cv=none; b=iVCPWxqAnsujoZZVTrLA9XoEh8jY+P+Y4FRKL9RwSHCfJzhElR55hGw18j4QhIkvySr6DIWKmPB2o74qxyrolG4YFRbMGUmrpqf+wISDiAJ5R0OKuROFoer5YB0zmA8xk6/2f1HyajhCrr/7tAb/UxKlHoQtpnv1lhooIgUGhBc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729703680; c=relaxed/simple;
-	bh=Y6BOAvOnYonjiQDUtbE1GcbHSsxsqYgIX2h9A/lWZoE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=bdZ5tdekJzAHy2ViViGqaRYSmbVRpe9/hK6udF7v5nmFuxZl0XNr2HPlAHxGCRyRMEF1hz1raige6E1MFiJDaCztIRoRCNqxck09EVgmzFEpPdGJ0FQh2W2VHju3JrNPcLVVxzr8dqIrLkC9r1SXg9ZvycmXlTJaB2jL/9Ix7Hw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P/vry7RT; arc=none smtp.client-ip=209.85.160.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1729757850; c=relaxed/simple;
+	bh=Ox/ZYsBrrmbPK3A2QSUcQ8QfXoa69FGJYXDNNRcdBnE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FYHTSMJeMw6+i3oRT/+mzh6oStFV+NEaxc1JpjnyaoZ3xql9AaiFDVtmjVyf93aKXxocZPK10yYFpy5TDBs4jJDoeW953iR2cCJvQYXPNdoDZ1en6MvWbqkbgV4WIA2ROdQ7WO7c8hLjoUqjonmemb32zkAgyV1WMYSuQyqipBU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kUYTT8Tx; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P/vry7RT"
-Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-460b2e4c50fso226361cf.0;
-        Wed, 23 Oct 2024 10:14:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1729703677; x=1730308477; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Ocy032bdcho2couvO6/QgCKu9IriwGzbqAqGCvUdpMA=;
-        b=P/vry7RTvyppW59uG32ZUiUIx5QjvJbKFiYNkUgVnD/4WWz3bQ9LMynxyPuBLhIfku
-         TzQmhoGU6OEZGJH36mhjplPLYzKDynqlRv7HMy/IiJPNnAe1wLds0KnegmC3dGXWOGwq
-         XYQmmBQPmW4e0HqLHCxenEgsD8ElfLU17R550afjXZnJAw5gIyHmYOk54ZBoWXBoPZjD
-         y8a1skQKle6iN4SfJfNWv1MMSQsPE66toSPoJ9MNjVAHJ0QZZFqi21W5cidaAmal43UU
-         u3MuTudVpnQpLrReq/t61LSB6r3IxUSAyyKm8RGUZcN27+t8KLPJqYsIpUrQ7J7XJehL
-         GbfA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729703677; x=1730308477;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Ocy032bdcho2couvO6/QgCKu9IriwGzbqAqGCvUdpMA=;
-        b=eKUdLZm+EpCp2M9Dp8KWVJBPmazV6YtmJH+cu/HXO1yJasYtoO6JLNIUr0xBm4tPn9
-         Ni+4x25kc3bzbAngaiftDy/NcmSc36UpBRfWWK0+5afPkAO5yLCcZKP/dpmE0A21hZek
-         OquQGLX5tw0ZF3sP+lCV4bgcAJoGWRQEh843JJoveIiJ9MGQmv1WADf9r8D9sOaQ9n9e
-         TuqgQWVbEJRVyyQ65kXtPk2ckbekkRLJyv96xoo5xReqKtHM1nkof2SEdkPASHxlqfBY
-         Wl7eoeK4/X87B7KwWBunWlZakkCjq7hZV88O3e/6th8OSPCIk24xXEzEMm7C/vuCtZ8L
-         I8uA==
-X-Forwarded-Encrypted: i=1; AJvYcCUYzWzcc5iAGZUFLcOkeUM6B/Nsoqol7OsUrcny6t3hndNswGsd30z5WyC0d36hbSU8oZNwJkywXZY=@vger.kernel.org, AJvYcCVBYA3lJ8S9tDjTNedc5uKRyGUno0ldHzLekJRIj7NHYEE6SB4+Ow4/lLS3FoGgtqwSAcu6aiaVhKGX@vger.kernel.org, AJvYcCVrRMNpU4PRikp2hJYRNeQR/JAG3BUOtxPn1k/IC8U/5XemuRqsjapQcG1iR/XKN5Z2GXfcqQ09QCIhbam1LhE=@vger.kernel.org, AJvYcCWbikWxQMZTBFpqH5mKHkbhIWaYiW+ZI13DOw5UBvLKVE2PHZ8wQOuVtHZo5jdBFdqNKsMKcK6+a7CNZg==@vger.kernel.org, AJvYcCXHNj3MB5KpQNcuQY5Grkr3J0fZfIf+SIBIWXVL4twOYfWddkYm5ty1MVbE+ayGz/rfG4l3S6x5Y4DtYg==@vger.kernel.org, AJvYcCXk2iTTcyHvkjSt3tGxaq5PK56PdTQ0wuGZwfPD4fXNNxbudUh/K3nkR3I8cU+fNGuOnDSu7/418L4a3Lhy@vger.kernel.org
-X-Gm-Message-State: AOJu0YzBvJ4+GdU4/dde/fyiKSiP6bKmeSbZol/1mPKr9WzD9CfsDzts
-	UxfWoVEBs2/mn4HWCE8W2C/9uHswcscov29+g77ekGlIdOkvWU3d
-X-Google-Smtp-Source: AGHT+IH4iUuNlJ5a4C6P+CxLaR5teClGbQdmg1jOeGXfO69rKTgzE6VI3Y8w6vkgZ/WvzrJsQJMOEA==
-X-Received: by 2002:ac8:7f51:0:b0:460:e593:45aa with SMTP id d75a77b69052e-461146c97admr42391941cf.33.1729703677086;
-        Wed, 23 Oct 2024 10:14:37 -0700 (PDT)
-Received: from localhost (fwdproxy-ash-007.fbsv.net. [2a03:2880:20ff:7::face:b00c])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6ce009e5407sm41539416d6.129.2024.10.23.10.14.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Oct 2024 10:14:36 -0700 (PDT)
-From: Usama Arif <usamaarif642@gmail.com>
-To: robh@kernel.org,
-	mark.rutland@arm.com,
-	will@kernel.org
-Cc: leitao@debian.org,
-	catalin.marinas@arm.com,
-	tglx@linutronix.de,
-	chris@zankel.net,
-	saravanak@google.com,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	kexec@lists.infradead.org,
-	loongarch@lists.linux.dev,
-	linux-sh@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-openrisc@vger.kernel.org,
-	linux-mips@vger.kernel.org,
-	linux-csky@vger.kernel.org,
-	Usama Arif <usamaarif642@gmail.com>
-Subject: [PATCH v2] of/fdt: add dt_phys arg to early_init_dt_scan and early_init_dt_verify
-Date: Wed, 23 Oct 2024 18:14:26 +0100
-Message-ID: <20241023171426.452688-1-usamaarif642@gmail.com>
-X-Mailer: git-send-email 2.43.5
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kUYTT8Tx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 612D5C4CEC7;
+	Thu, 24 Oct 2024 08:16:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1729757849;
+	bh=Ox/ZYsBrrmbPK3A2QSUcQ8QfXoa69FGJYXDNNRcdBnE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=kUYTT8Tx/x5v0ueXFlaIbTgM/tC1LFzcQH/Bk/9E/G27ofyIbDJ7VnB94NYJst0cv
+	 rwM3dJS8U0ddWOUUXyYJ5U2DbjwqikH39DsU8Z9vNeIPIaGV5iltmAX+1Y07CtyHuu
+	 qjH8xAIYsTm3k2jYsPE3Yg78rgh4kjznfSO7VPR6GqKUwnNvv6GGqa5UsKhK6x1lWv
+	 w5QasDDvCUMmBgmW/lX8F5rn9hH0iBupLlusSquog8hp4ocLfovmnzNHmy5eiFqmmK
+	 d1E2Of3Az/DoYE4MNq3gGFDCWEofW+6fRLAOpgssfQgrtruzoRtxJno9OxgV2pJlkI
+	 Cl6tQ0r75+5yg==
+Date: Thu, 24 Oct 2024 11:13:11 +0300
+From: Mike Rapoport <rppt@kernel.org>
+To: Nathan Chancellor <nathan@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
+	Brian Cain <bcain@quicinc.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Guo Ren <guoren@kernel.org>, Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Kent Overstreet <kent.overstreet@linux.dev>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Michal Simek <monstr@monstr.eu>, Oleg Nesterov <oleg@redhat.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Richard Weinberger <richard@nod.at>,
+	Russell King <linux@armlinux.org.uk>, Song Liu <song@kernel.org>,
+	Stafford Horne <shorne@gmail.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>,
+	bpf@vger.kernel.org, linux-alpha@vger.kernel.org,
+	linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org, linux-mm@kvack.org,
+	linux-modules@vger.kernel.org, linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+	linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+	linux-trace-kernel@vger.kernel.org, linux-um@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+	sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v6 6/8] x86/module: prepare module loading for ROX
+ allocations of text
+Message-ID: <ZxoBlwkh528r-vef@kernel.org>
+References: <20241016122424.1655560-1-rppt@kernel.org>
+ <20241016122424.1655560-7-rppt@kernel.org>
+ <20241021221519.GA3567210@thelio-3990X>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241021221519.GA3567210@thelio-3990X>
 
- __pa() is only intended to be used for linear map addresses and using
-it for initial_boot_params which is in fixmap for arm64 will give an
-incorrect value. Hence save the physical address when it is known at
-boot time when calling early_init_dt_scan for arm64 and use it at kexec
-time instead of converting the virtual address using __pa().
+Hi Nathan,
 
-Reported-by: Breno Leitao <leitao@debian.org>
-Suggested-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Usama Arif <usamaarif642@gmail.com>
-Fixes: ac10be5cdbfa ("arm64: Use common of_kexec_alloc_and_setup_fdt()")
----
-v1 -> 2:
-- pass dt_phys in early_init_dt_scan instead of creating
-  anorther arch->dt function (Rob Herring)
----
- arch/arc/kernel/devtree.c              |  2 +-
- arch/arm/kernel/devtree.c              |  2 +-
- arch/arm64/kernel/setup.c              |  6 +++++-
- arch/csky/kernel/setup.c               |  4 ++--
- arch/loongarch/kernel/setup.c          |  2 +-
- arch/microblaze/kernel/prom.c          |  2 +-
- arch/mips/kernel/prom.c                |  2 +-
- arch/mips/kernel/relocate.c            |  2 +-
- arch/nios2/kernel/prom.c               |  4 ++--
- arch/openrisc/kernel/prom.c            |  2 +-
- arch/powerpc/kernel/dt_cpu_ftrs.c      |  2 +-
- arch/powerpc/kernel/prom.c             |  2 +-
- arch/powerpc/platforms/pseries/plpks.c |  2 +-
- arch/riscv/kernel/setup.c              |  2 +-
- arch/sh/kernel/setup.c                 |  2 +-
- arch/um/kernel/dtb.c                   |  2 +-
- arch/x86/kernel/devicetree.c           |  2 +-
- arch/xtensa/kernel/setup.c             |  2 +-
- drivers/of/fdt.c                       | 14 ++++++++------
- drivers/of/kexec.c                     |  2 +-
- include/linux/of_fdt.h                 |  5 +++--
- 21 files changed, 36 insertions(+), 29 deletions(-)
+On Mon, Oct 21, 2024 at 03:15:19PM -0700, Nathan Chancellor wrote:
+> Hi Mike,
+> 
+> On Wed, Oct 16, 2024 at 03:24:22PM +0300, Mike Rapoport wrote:
+> > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+> > 
+> > When module text memory will be allocated with ROX permissions, the
+> > memory at the actual address where the module will live will contain
+> > invalid instructions and there will be a writable copy that contains the
+> > actual module code.
+> > 
+> > Update relocations and alternatives patching to deal with it.
+> > 
+> > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> 
+> Sorry that you have to hear from me again :) It seems that module
+> loading is still broken with this version of the patch, which is
+> something that I missed in my earlier testing since I only test a
+> monolithic kernel with my regular virtual machine testing. If I build
+> and install the kernel and modules in the VM via a distribution package,
+> I get the following splat at boot:
+>
+>   Starting systemd-udevd version 256.7-1-arch
+>   [    0.882312] SMP alternatives: Something went horribly wrong trying to rewrite the CFI implementation.
+>   [    0.883526] CFI failure at do_one_initcall+0x128/0x380 (target: init_module+0x0/0xff0 [crc32c_intel]; expected type: 0x0c7a3a22)
+>   [    0.884802] Oops: invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+>   [    0.885434] CPU: 3 UID: 0 PID: 157 Comm: modprobe Tainted: G        W          6.12.0-rc3-debug-next-20241021-06324-g63b3ff03d91a #1 291f0fd70f293827edec681d3c5304f5807a3c7b
+>   [    0.887084] Tainted: [W]=WARN
+>   [    0.887409] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS unknown 2/2/2022
+>   [    0.888241] RIP: 0010:do_one_initcall+0x128/0x380
+>   [    0.888720] Code: f3 0f 1e fa 41 be ff ff ff ff e9 0f 01 00 00 0f 1f 44 00 00 41 81 e7 ff ff ff 7f 49 89 db 41 ba de c5 85 f3 45 03 53 f1 74 02 <0f> 0b 41 ff d3 0f 1f 00 41 89 c6 0f 1f 44 00 00 c6 04 24 00 65 8b
+>   [    0.890598] RSP: 0018:ff3f93e5c052f970 EFLAGS: 00010217
+>   [    0.891129] RAX: ffffffffb4c105b8 RBX: ffffffffc0602010 RCX: 0000000000000000
+>   [    0.891850] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffffc0602010
+>   [    0.892588] RBP: ff3f93e5c052fc88 R08: 0000000000000020 R09: 0000000000000000
+>   [    0.893305] R10: 000000002a378b84 R11: ffffffffc0602010 R12: 00000000000069c6
+>   [    0.894003] R13: ff1f0090c5596900 R14: ff1f0090c15a55c0 R15: 0000000000000000
+>   [    0.894693] FS:  00007ffb712c0740(0000) GS:ff1f00942fb80000(0000) knlGS:0000000000000000
+>   [    0.895453] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>   [    0.896020] CR2: 00007ffffc4424c8 CR3: 0000000100af4002 CR4: 0000000000771ef0
+>   [    0.896698] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>   [    0.897391] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>   [    0.898077] PKRU: 55555554
+>   [    0.898337] Call Trace:
+>   [    0.898577]  <TASK>
+>   [    0.898784]  ? __die_body+0x6a/0xb0
+>   [    0.899132]  ? die+0xa4/0xd0
+>   [    0.899413]  ? do_trap+0xa6/0x180
+>   [    0.899740]  ? do_one_initcall+0x128/0x380
+>   [    0.900130]  ? do_one_initcall+0x128/0x380
+>   [    0.900523]  ? handle_invalid_op+0x6a/0x90
+>   [    0.900917]  ? do_one_initcall+0x128/0x380
+>   [    0.901311]  ? exc_invalid_op+0x38/0x60
+>   [    0.901679]  ? asm_exc_invalid_op+0x1a/0x20
+>   [    0.902081]  ? __cfi_init_module+0x10/0x10 [crc32c_intel 5331566c5540f82df397056699bc4ddac8be1306]
+>   [    0.902933]  ? __cfi_init_module+0x10/0x10 [crc32c_intel 5331566c5540f82df397056699bc4ddac8be1306]
+>   [    0.903781]  ? __cfi_init_module+0x10/0x10 [crc32c_intel 5331566c5540f82df397056699bc4ddac8be1306]
+>   [    0.904634]  ? do_one_initcall+0x128/0x380
+>   [    0.905028]  ? idr_alloc_cyclic+0x139/0x1d0
+>   [    0.905437]  ? security_kernfs_init_security+0x54/0x190
+>   [    0.905958]  ? __kernfs_new_node+0x1ba/0x240
+>   [    0.906377]  ? sysfs_create_dir_ns+0x8f/0x140
+>   [    0.906795]  ? kernfs_link_sibling+0xf2/0x110
+>   [    0.907211]  ? kernfs_activate+0x2c/0x110
+>   [    0.907599]  ? kernfs_add_one+0x108/0x150
+>   [    0.907981]  ? __kernfs_create_file+0x75/0xa0
+>   [    0.908407]  ? sysfs_create_bin_file+0xc6/0x120
+>   [    0.908853]  ? __vunmap_range_noflush+0x347/0x420
+>   [    0.909313]  ? _raw_spin_unlock+0xe/0x30
+>   [    0.909692]  ? free_unref_page+0x22c/0x4c0
+>   [    0.910097]  ? __kmalloc_cache_noprof+0x1a8/0x360
+>   [    0.910546]  do_init_module+0x60/0x250
+>   [    0.910910]  __se_sys_finit_module+0x316/0x420
+>   [    0.911351]  do_syscall_64+0x88/0x170
+>   [    0.911699]  ? __x64_sys_lseek+0x68/0xb0
+>   [    0.912077]  ? syscall_exit_to_user_mode+0x97/0xc0
+>   [    0.912538]  ? do_syscall_64+0x94/0x170
+>   [    0.912902]  ? syscall_exit_to_user_mode+0x97/0xc0
+>   [    0.913353]  ? do_syscall_64+0x94/0x170
+>   [    0.913709]  ? clear_bhb_loop+0x45/0xa0
+>   [    0.914071]  ? clear_bhb_loop+0x45/0xa0
+>   [    0.914428]  ? clear_bhb_loop+0x45/0xa0
+>   [    0.914767]  entry_SYSCALL_64_after_hwframe+0x76/0x7e
+>   [    0.915089] RIP: 0033:0x7ffb713dc1fd
+>   [    0.915316] Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d e3 fa 0c 00 f7 d8 64 89 01 48
+>   [    0.916491] RSP: 002b:00007ffffc4454a8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+>   [    0.916964] RAX: ffffffffffffffda RBX: 000055f28c6a5420 RCX: 00007ffb713dc1fd
+>   [    0.917413] RDX: 0000000000000000 RSI: 000055f26c40cc03 RDI: 0000000000000003
+>   [    0.917858] RBP: 00007ffffc445560 R08: 0000000000000001 R09: 00007ffffc4454f0
+>   [    0.918302] R10: 0000000000000040 R11: 0000000000000246 R12: 000055f26c40cc03
+>   [    0.918748] R13: 0000000000060000 R14: 000055f28c6a4b50 R15: 000055f28c6ac5b0
+>   [    0.919211]  </TASK>
+>   [    0.919356] Modules linked in: crc32c_intel(+)
+>   [    0.919661] ---[ end trace 0000000000000000 ]---
+> 
+> I also see some other WARNs interleaved along the lines of
+> 
+>   [    0.982759] no CFI hash found at: 0xffffffffc0608000 ffffffffc0608000 cc cc cc cc cc
+>   [    0.982767] WARNING: CPU: 5 PID: 170 at arch/x86/kernel/alternative.c:1204 __apply_fineibt+0xa6d/0xab0
+> 
+> The console appears to be a bit of a mess after that initial message.
+> 
+> If there is any more information I can provide or patches I can test, I
+> am more than happy to do so.
+ 
+I've got similar report from kbuild bot a few days ago:
+https://lore.kernel.org/all/202410202257.b7edc376-lkp@intel.com
 
-diff --git a/arch/arc/kernel/devtree.c b/arch/arc/kernel/devtree.c
-index 4c9e61457b2f..cc6ac7d128aa 100644
---- a/arch/arc/kernel/devtree.c
-+++ b/arch/arc/kernel/devtree.c
-@@ -62,7 +62,7 @@ const struct machine_desc * __init setup_machine_fdt(void *dt)
- 	const struct machine_desc *mdesc;
- 	unsigned long dt_root;
- 
--	if (!early_init_dt_scan(dt))
-+	if (!early_init_dt_scan(dt, __pa(dt)))
- 		return NULL;
- 
- 	mdesc = of_flat_dt_match_machine(NULL, arch_get_next_mach);
-diff --git a/arch/arm/kernel/devtree.c b/arch/arm/kernel/devtree.c
-index fdb74e64206a..3b78966e750a 100644
---- a/arch/arm/kernel/devtree.c
-+++ b/arch/arm/kernel/devtree.c
-@@ -200,7 +200,7 @@ const struct machine_desc * __init setup_machine_fdt(void *dt_virt)
- 
- 	mdesc_best = &__mach_desc_GENERIC_DT;
- 
--	if (!dt_virt || !early_init_dt_verify(dt_virt))
-+	if (!dt_virt || !early_init_dt_verify(dt_virt, __pa(dt_virt)))
- 		return NULL;
- 
- 	mdesc = of_flat_dt_match_machine(mdesc_best, arch_get_next_mach);
-diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
-index b22d28ec8028..177262739c49 100644
---- a/arch/arm64/kernel/setup.c
-+++ b/arch/arm64/kernel/setup.c
-@@ -175,7 +175,11 @@ static void __init setup_machine_fdt(phys_addr_t dt_phys)
- 	if (dt_virt)
- 		memblock_reserve(dt_phys, size);
- 
--	if (!dt_virt || !early_init_dt_scan(dt_virt)) {
-+	/*
-+	 * dt_virt is a fixmap address, hence __pa(dt_virt) can't be used.
-+	 * Pass dt_phys directly.
-+	 */
-+	if (!dt_virt || !early_init_dt_scan(dt_virt, dt_phys)) {
- 		pr_crit("\n"
- 			"Error: invalid device tree blob at physical address %pa (virtual address 0x%px)\n"
- 			"The dtb must be 8-byte aligned and must not exceed 2 MB in size\n"
-diff --git a/arch/csky/kernel/setup.c b/arch/csky/kernel/setup.c
-index 51012e90780d..fe715b707fd0 100644
---- a/arch/csky/kernel/setup.c
-+++ b/arch/csky/kernel/setup.c
-@@ -112,9 +112,9 @@ asmlinkage __visible void __init csky_start(unsigned int unused,
- 	pre_trap_init();
- 
- 	if (dtb_start == NULL)
--		early_init_dt_scan(__dtb_start);
-+		early_init_dt_scan(__dtb_start, __pa(dtb_start));
- 	else
--		early_init_dt_scan(dtb_start);
-+		early_init_dt_scan(dtb_start, __pa(dtb_start));
- 
- 	start_kernel();
- 
-diff --git a/arch/loongarch/kernel/setup.c b/arch/loongarch/kernel/setup.c
-index 00e307203ddb..10d878204018 100644
---- a/arch/loongarch/kernel/setup.c
-+++ b/arch/loongarch/kernel/setup.c
-@@ -290,7 +290,7 @@ static void __init fdt_setup(void)
- 	if (!fdt_pointer || fdt_check_header(fdt_pointer))
- 		return;
- 
--	early_init_dt_scan(fdt_pointer);
-+	early_init_dt_scan(fdt_pointer, __pa(fdt_pointer));
- 	early_init_fdt_reserve_self();
- 
- 	max_low_pfn = PFN_PHYS(memblock_end_of_DRAM());
-diff --git a/arch/microblaze/kernel/prom.c b/arch/microblaze/kernel/prom.c
-index e424c796e297..76ac4cfdfb42 100644
---- a/arch/microblaze/kernel/prom.c
-+++ b/arch/microblaze/kernel/prom.c
-@@ -18,7 +18,7 @@ void __init early_init_devtree(void *params)
- {
- 	pr_debug(" -> early_init_devtree(%p)\n", params);
- 
--	early_init_dt_scan(params);
-+	early_init_dt_scan(params, __pa(params));
- 	if (!strlen(boot_command_line))
- 		strscpy(boot_command_line, cmd_line, COMMAND_LINE_SIZE);
- 
-diff --git a/arch/mips/kernel/prom.c b/arch/mips/kernel/prom.c
-index 6062e6fa589a..4fd6da0a06c3 100644
---- a/arch/mips/kernel/prom.c
-+++ b/arch/mips/kernel/prom.c
-@@ -41,7 +41,7 @@ char *mips_get_machine_name(void)
- 
- void __init __dt_setup_arch(void *bph)
- {
--	if (!early_init_dt_scan(bph))
-+	if (!early_init_dt_scan(bph, __pa(bph)))
- 		return;
- 
- 	mips_set_machine_name(of_flat_dt_get_machine_name());
-diff --git a/arch/mips/kernel/relocate.c b/arch/mips/kernel/relocate.c
-index 7eeeaf1ff95d..cda7983e7c18 100644
---- a/arch/mips/kernel/relocate.c
-+++ b/arch/mips/kernel/relocate.c
-@@ -337,7 +337,7 @@ void *__init relocate_kernel(void)
- #if defined(CONFIG_USE_OF)
- 	/* Deal with the device tree */
- 	fdt = plat_get_fdt();
--	early_init_dt_scan(fdt);
-+	early_init_dt_scan(fdt, __pa(fdt));
- 	if (boot_command_line[0]) {
- 		/* Boot command line was passed in device tree */
- 		strscpy(arcs_cmdline, boot_command_line, COMMAND_LINE_SIZE);
-diff --git a/arch/nios2/kernel/prom.c b/arch/nios2/kernel/prom.c
-index 9a8393e6b4a8..db049249766f 100644
---- a/arch/nios2/kernel/prom.c
-+++ b/arch/nios2/kernel/prom.c
-@@ -27,7 +27,7 @@ void __init early_init_devtree(void *params)
- 	if (be32_to_cpup((__be32 *)CONFIG_NIOS2_DTB_PHYS_ADDR) ==
- 		 OF_DT_HEADER) {
- 		params = (void *)CONFIG_NIOS2_DTB_PHYS_ADDR;
--		early_init_dt_scan(params);
-+		early_init_dt_scan(params, __pa(params));
- 		return;
- 	}
- #endif
-@@ -37,5 +37,5 @@ void __init early_init_devtree(void *params)
- 		params = (void *)__dtb_start;
- #endif
- 
--	early_init_dt_scan(params);
-+	early_init_dt_scan(params, __pa(params));
- }
-diff --git a/arch/openrisc/kernel/prom.c b/arch/openrisc/kernel/prom.c
-index 19e6008bf114..e424e9bd12a7 100644
---- a/arch/openrisc/kernel/prom.c
-+++ b/arch/openrisc/kernel/prom.c
-@@ -22,6 +22,6 @@
- 
- void __init early_init_devtree(void *params)
- {
--	early_init_dt_scan(params);
-+	early_init_dt_scan(params, __pa(params));
- 	memblock_allow_resize();
- }
-diff --git a/arch/powerpc/kernel/dt_cpu_ftrs.c b/arch/powerpc/kernel/dt_cpu_ftrs.c
-index af4263594eb2..1bee15c013e7 100644
---- a/arch/powerpc/kernel/dt_cpu_ftrs.c
-+++ b/arch/powerpc/kernel/dt_cpu_ftrs.c
-@@ -867,7 +867,7 @@ bool __init dt_cpu_ftrs_init(void *fdt)
- 	using_dt_cpu_ftrs = false;
- 
- 	/* Setup and verify the FDT, if it fails we just bail */
--	if (!early_init_dt_verify(fdt))
-+	if (!early_init_dt_verify(fdt, __pa(fdt)))
- 		return false;
- 
- 	if (!of_scan_flat_dt(fdt_find_cpu_features, NULL))
-diff --git a/arch/powerpc/kernel/prom.c b/arch/powerpc/kernel/prom.c
-index 0be07ed407c7..88cbe432cad5 100644
---- a/arch/powerpc/kernel/prom.c
-+++ b/arch/powerpc/kernel/prom.c
-@@ -791,7 +791,7 @@ void __init early_init_devtree(void *params)
- 	DBG(" -> early_init_devtree(%px)\n", params);
- 
- 	/* Too early to BUG_ON(), do it by hand */
--	if (!early_init_dt_verify(params))
-+	if (!early_init_dt_verify(params, __pa(params)))
- 		panic("BUG: Failed verifying flat device tree, bad version?");
- 
- 	of_scan_flat_dt(early_init_dt_scan_model, NULL);
-diff --git a/arch/powerpc/platforms/pseries/plpks.c b/arch/powerpc/platforms/pseries/plpks.c
-index 4a595493d28a..b1667ed05f98 100644
---- a/arch/powerpc/platforms/pseries/plpks.c
-+++ b/arch/powerpc/platforms/pseries/plpks.c
-@@ -683,7 +683,7 @@ void __init plpks_early_init_devtree(void)
- out:
- 	fdt_nop_property(fdt, chosen_node, "ibm,plpks-pw");
- 	// Since we've cleared the password, we must update the FDT checksum
--	early_init_dt_verify(fdt);
-+	early_init_dt_verify(fdt, __pa(fdt));
- }
- 
- static __init int pseries_plpks_init(void)
-diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
-index a2cde65b69e9..26c886db4fb3 100644
---- a/arch/riscv/kernel/setup.c
-+++ b/arch/riscv/kernel/setup.c
-@@ -227,7 +227,7 @@ static void __init init_resources(void)
- static void __init parse_dtb(void)
- {
- 	/* Early scan of device tree from init memory */
--	if (early_init_dt_scan(dtb_early_va)) {
-+	if (early_init_dt_scan(dtb_early_va, __pa(dtb_early_va))) {
- 		const char *name = of_flat_dt_get_machine_name();
- 
- 		if (name) {
-diff --git a/arch/sh/kernel/setup.c b/arch/sh/kernel/setup.c
-index 620e5cf8ae1e..f2b6f16a46b8 100644
---- a/arch/sh/kernel/setup.c
-+++ b/arch/sh/kernel/setup.c
-@@ -255,7 +255,7 @@ void __ref sh_fdt_init(phys_addr_t dt_phys)
- 	dt_virt = phys_to_virt(dt_phys);
- #endif
- 
--	if (!dt_virt || !early_init_dt_scan(dt_virt)) {
-+	if (!dt_virt || !early_init_dt_scan(dt_virt, __pa(dt_virt))) {
- 		pr_crit("Error: invalid device tree blob"
- 			" at physical address %p\n", (void *)dt_phys);
- 
-diff --git a/arch/um/kernel/dtb.c b/arch/um/kernel/dtb.c
-index 4954188a6a09..8d78ced9e08f 100644
---- a/arch/um/kernel/dtb.c
-+++ b/arch/um/kernel/dtb.c
-@@ -17,7 +17,7 @@ void uml_dtb_init(void)
- 
- 	area = uml_load_file(dtb, &size);
- 	if (area) {
--		if (!early_init_dt_scan(area)) {
-+		if (!early_init_dt_scan(area, __pa(area))) {
- 			pr_err("invalid DTB %s\n", dtb);
- 			memblock_free(area, size);
- 			return;
-diff --git a/arch/x86/kernel/devicetree.c b/arch/x86/kernel/devicetree.c
-index 64280879c68c..59d23cdf4ed0 100644
---- a/arch/x86/kernel/devicetree.c
-+++ b/arch/x86/kernel/devicetree.c
-@@ -305,7 +305,7 @@ void __init x86_flattree_get_config(void)
- 			map_len = size;
- 		}
- 
--		early_init_dt_verify(dt);
-+		early_init_dt_verify(dt, __pa(dt));
- 	}
- 
- 	unflatten_and_copy_device_tree();
-diff --git a/arch/xtensa/kernel/setup.c b/arch/xtensa/kernel/setup.c
-index bdec4a773af0..e51f2060e830 100644
---- a/arch/xtensa/kernel/setup.c
-+++ b/arch/xtensa/kernel/setup.c
-@@ -216,7 +216,7 @@ static int __init xtensa_dt_io_area(unsigned long node, const char *uname,
- 
- void __init early_init_devtree(void *params)
- {
--	early_init_dt_scan(params);
-+	early_init_dt_scan(params, __pa(params));
- 	of_scan_flat_dt(xtensa_dt_io_area, NULL);
- 
- 	if (!command_line[0])
-diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
-index 4d528c10df3a..546e76ac407c 100644
---- a/drivers/of/fdt.c
-+++ b/drivers/of/fdt.c
-@@ -457,6 +457,7 @@ int __initdata dt_root_addr_cells;
- int __initdata dt_root_size_cells;
- 
- void *initial_boot_params __ro_after_init;
-+phys_addr_t initial_boot_params_pa __ro_after_init;
- 
- #ifdef CONFIG_OF_EARLY_FLATTREE
- 
-@@ -1136,17 +1137,18 @@ static void * __init early_init_dt_alloc_memory_arch(u64 size, u64 align)
- 	return ptr;
- }
- 
--bool __init early_init_dt_verify(void *params)
-+bool __init early_init_dt_verify(void *dt_virt, phys_addr_t dt_phys)
- {
--	if (!params)
-+	if (!dt_virt)
- 		return false;
- 
- 	/* check device tree validity */
--	if (fdt_check_header(params))
-+	if (fdt_check_header(dt_virt))
- 		return false;
- 
- 	/* Setup flat device-tree pointer */
--	initial_boot_params = params;
-+	initial_boot_params = dt_virt;
-+	initial_boot_params_pa = dt_phys;
- 	of_fdt_crc32 = crc32_be(~0, initial_boot_params,
- 				fdt_totalsize(initial_boot_params));
- 
-@@ -1173,11 +1175,11 @@ void __init early_init_dt_scan_nodes(void)
- 	early_init_dt_check_for_usable_mem_range();
- }
- 
--bool __init early_init_dt_scan(void *params)
-+bool __init early_init_dt_scan(void *dt_virt, phys_addr_t dt_phys)
- {
- 	bool status;
- 
--	status = early_init_dt_verify(params);
-+	status = early_init_dt_verify(dt_virt, dt_phys);
- 	if (!status)
- 		return false;
- 
-diff --git a/drivers/of/kexec.c b/drivers/of/kexec.c
-index 9ccde2fd77cb..5b924597a4de 100644
---- a/drivers/of/kexec.c
-+++ b/drivers/of/kexec.c
-@@ -301,7 +301,7 @@ void *of_kexec_alloc_and_setup_fdt(const struct kimage *image,
- 	}
- 
- 	/* Remove memory reservation for the current device tree. */
--	ret = fdt_find_and_del_mem_rsv(fdt, __pa(initial_boot_params),
-+	ret = fdt_find_and_del_mem_rsv(fdt, initial_boot_params_pa,
- 				       fdt_totalsize(initial_boot_params));
- 	if (ret == -EINVAL) {
- 		pr_err("Error removing memory reservation.\n");
-diff --git a/include/linux/of_fdt.h b/include/linux/of_fdt.h
-index d69ad5bb1eb1..b8d6c0c20876 100644
---- a/include/linux/of_fdt.h
-+++ b/include/linux/of_fdt.h
-@@ -31,6 +31,7 @@ extern void *of_fdt_unflatten_tree(const unsigned long *blob,
- extern int __initdata dt_root_addr_cells;
- extern int __initdata dt_root_size_cells;
- extern void *initial_boot_params;
-+extern phys_addr_t initial_boot_params_pa;
- 
- extern char __dtb_start[];
- extern char __dtb_end[];
-@@ -70,8 +71,8 @@ extern u64 dt_mem_next_cell(int s, const __be32 **cellp);
- /* Early flat tree scan hooks */
- extern int early_init_dt_scan_root(void);
- 
--extern bool early_init_dt_scan(void *params);
--extern bool early_init_dt_verify(void *params);
-+extern bool early_init_dt_scan(void *dt_virt, phys_addr_t dt_phys);
-+extern bool early_init_dt_verify(void *dt_virt, phys_addr_t dt_phys);
- extern void early_init_dt_scan_nodes(void);
- 
- extern const char *of_flat_dt_get_machine_name(void);
+I fixed fineibt handling in v7:
+https://lore.kernel.org/linux-mm/20241023162711.2579610-1-rppt@kernel.org
+
+> Cheers,
+> Nathan
+> 
+
 -- 
-2.43.5
-
+Sincerely yours,
+Mike.
