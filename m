@@ -1,120 +1,84 @@
-Received: from fhigh-b7-smtp.messagingengine.com (fhigh-b7-smtp.messagingengine.com [202.12.124.158])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89E8B1632D5;
-	Fri, 25 Oct 2024 13:37:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.158
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D639217F40;
+	Fri, 25 Oct 2024 22:16:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729863461; cv=none; b=hKnmYldDJ3SBTW80ZEuX7EhMIYOD5vlPVYJNUN/a9q5Mp1BXcZ3W0OpKyOr2fslE/RZXqpHKUrHE0cd7cQ5Zjm/BfElMLVjeYOKtl9XJVXGHnzxxBCF2uSDbdjiB7r0Gx38pW7dAqk64Nu9x65tVFcPOWXPqJW3bQ/7VWqjAdRo=
+	t=1729894577; cv=none; b=tolFa/TlmvrERuqrHuzvte7Tjr4ql0VDhT0poCiwWAsGKMaDIBbdFK+5lqRnQ9LncJra/DT5O4dorrER4b7M5pqJc09atXd42zUrr/Oa9xx6mwEpqW0TQ1ib0tRUKM1+ZyryJkiWCgnGocviNJ2bWtd71A1o74bCngL1xWOaxvY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729863461; c=relaxed/simple;
-	bh=IO5JRAi5QVuzB3nZMKM6uhv+seJAQIBK2VjWW9MTLG0=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=pO/WSeOhnV4TRJ57ZlTrvjstVsnX9Aew079uu6wd3sLpHpyTJLIZxB3UkYYmGJIn/i6s3jm7kvHwgkwQ31C9mflou6MPdSBoQM4mBTH7c95fOztk9qBw6uC+eSiYfr0crWrVSBKG4giA9AQv6SSy9nPFSx4objkSXvh8maNrWMw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=nTq77u+Y; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=YYd+CaNQ; arc=none smtp.client-ip=202.12.124.158
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1729894577; c=relaxed/simple;
+	bh=uJTuxxbpUOhYgzs5WgqjZ9oJKXZ+IXXPP0S1EvdK364=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=EBSGcxSHScBEBRpfzv0vqrC5YkOllkG27SEYG5XKHteGqUorPkVVbNDxahLmzmVJ0l7q7MHPyUUAilQwET13kvL5g7NvHJTZmO/skZ/KSy5hC7y1Z6rQcNCbJCWVBreMBRTJB/N8jYaevVGY6eIc0M5SQHz+2ybjOKh1CjVAqwk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nnsUCoKs; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="nTq77u+Y";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="YYd+CaNQ"
-Received: from phl-compute-10.internal (phl-compute-10.phl.internal [10.202.2.50])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 54D1325400C4;
-	Fri, 25 Oct 2024 09:37:37 -0400 (EDT)
-Received: from phl-imap-11 ([10.202.2.101])
-  by phl-compute-10.internal (MEProxy); Fri, 25 Oct 2024 09:37:37 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1729863457;
-	 x=1729949857; bh=mTD/E8mUSNoNp+vtjeW8NYfb5u7ndnKHIytXzDhahwE=; b=
-	nTq77u+YbjEK1oOGqWOEMss4pavBeea5xmfNB5v8n1RQ22NxJIlmfp2TzT4IKpOx
-	caApVTp1/TP1+2AFsH+6DaC7B1jXPpi59lVd0QmK1g4cyigLCbwCjjCU5UZejO28
-	8c3d8AGT1CdV1FpUSe8Ohc2JPaB0EAv7X1aw4eGMMqsDN9QNF4MBCkY7XT7NWXhL
-	O/OEAgSYzhCEctYt3/dxus3LsMgxjvtStf4TUCEi3KDe+iRqYuAwvWG/ws/9TCTb
-	91Febe33d87M4u4RsAc2PSDoS2l7TEXW3ZHH0N9mqk4H/wIO2sYqmM++nNVpXfOu
-	l8mVjbE2Y3ckzB0U2VTGjA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1729863457; x=
-	1729949857; bh=mTD/E8mUSNoNp+vtjeW8NYfb5u7ndnKHIytXzDhahwE=; b=Y
-	Yd+CaNQUnHw9YsFM/xsr4EEUnyKUrgtD2vti8QGZood/Hu9648OKjYo4bH7A6Neg
-	jnJDKNvwBYkFvlybTuqF2bH/KaZKDCsMPx9nvXzHCWTKjsCUnllyUHCbFyKAeDhX
-	YNkya00Lwsz0+acBTk9P7pZOFNJx3BvJUubdQClXQQcfFmAJOHzcSMDEsFGYeUz+
-	Jg9HE+6A7ymczxjo7UpkNZEyk9ue5mso6y8MDn4M5ldn8ZNSI/lsZrOwKW2qGN95
-	SK1C5a5uk//QbB1mqxfMZZhPvCEMy7uIU9Opdu0mHCbXfdkyJRO6uRsr50PfJcTO
-	dO3S1hvvUj92Ys457iJAw==
-X-ME-Sender: <xms:IJ8bZxsuj29dJ1vr5lHn5cEFvY6c8AEcCMtZGM1az7Jp64ZRgbF05Q>
-    <xme:IJ8bZ6f_PFYR1VPWQ6NunpU9GXYmb8uTFHK2WzhvwLuyhGpOciB1CBT9pvUeu8GH4
-    UYBuOr6HJ-I4-vOr1Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrvdejvddgieeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggvpdfu
-    rfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnh
-    htshculddquddttddmnecujfgurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddt
-    necuhfhrohhmpedftehrnhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrd
-    guvgeqnecuggftrfgrthhtvghrnhephfdthfdvtdefhedukeetgefggffhjeeggeetfefg
-    gfevudegudevledvkefhvdeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohepudel
-    pdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehlihhnuhigqdgrrhhmqdhkvghrnh
-    gvlheslhhishhtshdrihhnfhhrrgguvggrugdrohhrghdprhgtphhtthhopehlihhnuhig
-    qdhrihhstghvsehlihhsthhsrdhinhhfrhgruggvrggurdhorhhgpdhrtghpthhtoheplh
-    hinhhugidqshhnphhsqdgrrhgtsehlihhsthhsrdhinhhfrhgruggvrggurdhorhhgpdhr
-    tghpthhtoheplhhinhhugidquhhmsehlihhsthhsrdhinhhfrhgruggvrggurdhorhhgpd
-    hrtghpthhtoheplhhinhhugidqmheikehksehlihhsthhsrdhlihhnuhigqdhmieekkhdr
-    ohhrghdprhgtphhtthhopehlohhonhhgrghrtghhsehlihhsthhsrdhlihhnuhigrdguvg
-    hvpdhrtghpthhtoheplhhinhhugihpphgtqdguvghvsehlihhsthhsrdhoiihlrggsshdr
-    ohhrghdprhgtphhtthhopehhtghhsehlshhtrdguvgdprhgtphhtthhopehlihhnuhigqd
-    grlhhphhgrsehvghgvrhdrkhgvrhhnvghlrdhorhhg
-X-ME-Proxy: <xmx:IJ8bZ0w8_fyzDu0Dhxg43egcOQd9fPmeL9IF1HbPQzAPODUmdkywqg>
-    <xmx:IJ8bZ4Ng8v61LIOz9Z6hcNW7TrkYDvZ9-QsNLZ7fNM7Okgrh7sPTiA>
-    <xmx:IJ8bZx-O8B7MlF4JofybzIynmnGJvvLwnq8RLzH_1fknLv9ZsqMu1w>
-    <xmx:IJ8bZ4X5lrN7iDkKbGm85k7BOBq5kmsTovQZ6V9cVszatdT146tmOA>
-    <xmx:IZ8bZ02QO2wzbQXTtXh5NJPoq2r5QyMwBKYu4QPUoTFRk_k35DiZGUWq>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 3B9352220071; Fri, 25 Oct 2024 09:37:36 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nnsUCoKs"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD093C4AF09;
+	Fri, 25 Oct 2024 22:16:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1729894576;
+	bh=uJTuxxbpUOhYgzs5WgqjZ9oJKXZ+IXXPP0S1EvdK364=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=nnsUCoKsPy331Chn2UUcsngk6k5T9x6sJ5x/vQCqmf50lgps9XEwpgmo4ieWnMh2v
+	 hKKhwmyShVPTqg/aa8W1r73marKoLDlVeVlofleUY/xPKgT1+9Mj3gW7tRebb1/J0Z
+	 0Nb8Myml3Mh8xhW6GxZCRVqJQI9a0IlZxwhIb/FFLjWW7zb3vS5IAOKR5P46cuH1bX
+	 6HIe2Fv9Hy8qoXg6BWAQLe1RwZxXCtspPILf7Beo+xbCY0Zov9G0Zr+tfys0Y9cjmm
+	 B8TBd0ZUpDH1lyus/5Zn/fUtOn0w957/BJ7tJ0vN45wzDau2TLxE75xt0/m5uLMVPd
+	 35fr3Z21N4TFw==
+Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-539e690479cso2617526e87.3;
+        Fri, 25 Oct 2024 15:16:16 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCVKprcsRllH7BJ41sXSlqyiCtIEsZ5vnmYR+0LZuY6d1/SABCV4Eki8T+FS+cDAf7Ae0Xa34HX/3o8=@vger.kernel.org, AJvYcCVbtVU1h19fnBYgkPHPIuPVmzehwOx3o1Nvl9HFsoZ+WZREgRcolAuNCgtPmCv2x6sARdrCSHszGMAmeoSQ4aY=@vger.kernel.org, AJvYcCVmrLmjITh4Vz5rfc6pQkgS+TdDkeDTDhhapBIizEAHZfjr4BA0PTnjQeKc1l9o+wlTujqosk/Juj1U@vger.kernel.org, AJvYcCWgNNJWtqw0SNqrO5synDUeNVMHVpTMwpQBgYGWbp8LGyIgJNCM2JbITEaHeYr6I+bBiTFfuuly3GltLA==@vger.kernel.org, AJvYcCX66Kl9k9Pj5j2YoaCxI3IBhJtrzoV6SAjWvwXY25tTg7yPZ6MRFuhaELIC3AtFuyorkyRPEaRdSk6NgEVN@vger.kernel.org, AJvYcCXk7+aoCbzPQb0qZOhdFPB5agJ6xjWL3i430K4kk4cakm6LEqnQ173u/Got0SfcCVvsVbVr/5nCFE8zgQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy02GYSOV3/Ce2xQEewmVNy4zY5tTDypkvTAnF6N02Ff7wzHJj5
+	KDwmA0xSn+Rjjywy2e+QIjAZSd/boiumJLJr4HKMxjlvTge52sEq8d7BGZO/+uwOIDMcQ0ol4Jn
+	HdrViav/x34Dn0aLHRmgwrk/WbA==
+X-Google-Smtp-Source: AGHT+IFDzz30e4eepxmp8y9NIgcU0ohK45V4obAXv/vuq7kDznzhS/1RZo0KUZFB2KLhRb/lyUfqMvvtY4COXI6AOVA=
+X-Received: by 2002:a05:6512:3d8b:b0:539:d0ef:b3f9 with SMTP id
+ 2adb3069b0e04-53b3491dfc0mr415910e87.40.1729894575274; Fri, 25 Oct 2024
+ 15:16:15 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Fri, 25 Oct 2024 13:37:15 +0000
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Christoph Hellwig" <hch@lst.de>
-Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
- "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
- linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
- linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
- "linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>,
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-um@lists.infradead.org, Linux-Arch <linux-arch@vger.kernel.org>
-Message-Id: <c9f10ee9-697f-4f45-8c82-a6dc61e5a74e@app.fastmail.com>
-In-Reply-To: <20241023053644.311692-1-hch@lst.de>
-References: <20241023053644.311692-1-hch@lst.de>
-Subject: Re: provide generic page_to_phys and phys_to_page implementations v3
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+References: <20241023171426.452688-1-usamaarif642@gmail.com>
+In-Reply-To: <20241023171426.452688-1-usamaarif642@gmail.com>
+From: Rob Herring <robh@kernel.org>
+Date: Fri, 25 Oct 2024 17:15:53 -0500
+X-Gmail-Original-Message-ID: <CAL_JsqLBuzRYgnYHCdbdO4wneFNPe5_iEfbehvKK5M7bBuiyfA@mail.gmail.com>
+Message-ID: <CAL_JsqLBuzRYgnYHCdbdO4wneFNPe5_iEfbehvKK5M7bBuiyfA@mail.gmail.com>
+Subject: Re: [PATCH v2] of/fdt: add dt_phys arg to early_init_dt_scan and early_init_dt_verify
+To: Usama Arif <usamaarif642@gmail.com>
+Cc: mark.rutland@arm.com, will@kernel.org, leitao@debian.org, 
+	catalin.marinas@arm.com, tglx@linutronix.de, chris@zankel.net, 
+	saravanak@google.com, linux-arm-kernel@lists.infradead.org, 
+	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
+	kexec@lists.infradead.org, loongarch@lists.linux.dev, 
+	linux-sh@vger.kernel.org, linux-riscv@lists.infradead.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-openrisc@vger.kernel.org, 
+	linux-mips@vger.kernel.org, linux-csky@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 23, 2024, at 05:36, Christoph Hellwig wrote:
-> page_to_phys is duplicated by all architectures, and from some strange
-> reason placed in <asm/io.h> where it doesn't fit at all.  
+On Wed, Oct 23, 2024 at 12:14=E2=80=AFPM Usama Arif <usamaarif642@gmail.com=
+> wrote:
 >
-> phys_to_page is only provided by a few architectures despite having a lot 
-> of open coded users.
+>  __pa() is only intended to be used for linear map addresses and using
+> it for initial_boot_params which is in fixmap for arm64 will give an
+> incorrect value. Hence save the physical address when it is known at
+> boot time when calling early_init_dt_scan for arm64 and use it at kexec
+> time instead of converting the virtual address using __pa().
 >
-> Provide generic versions in <asm-generic/memory_model.h> to make these
-> helpers more easily usable.
->
+> Reported-by: Breno Leitao <leitao@debian.org>
+> Suggested-by: Mark Rutland <mark.rutland@arm.com>
+> Signed-off-by: Usama Arif <usamaarif642@gmail.com>
+> Fixes: ac10be5cdbfa ("arm64: Use common of_kexec_alloc_and_setup_fdt()")
 
-I've applied this to the asm-generic tree now.
+This looks fine, but what is the symptom without this compared to
+before the above change? The original code in the referenced commit
+above didn't remove the reservation at all. Unless the current code
+does something worse, this is new functionality more than a fix (for
+stable).
 
-Thanks for the cleanup!
-
-     Arnd
+Rob
