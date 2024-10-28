@@ -1,84 +1,123 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D639217F40;
-	Fri, 25 Oct 2024 22:16:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 163E0192B98;
+	Mon, 28 Oct 2024 10:49:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729894577; cv=none; b=tolFa/TlmvrERuqrHuzvte7Tjr4ql0VDhT0poCiwWAsGKMaDIBbdFK+5lqRnQ9LncJra/DT5O4dorrER4b7M5pqJc09atXd42zUrr/Oa9xx6mwEpqW0TQ1ib0tRUKM1+ZyryJkiWCgnGocviNJ2bWtd71A1o74bCngL1xWOaxvY=
+	t=1730112587; cv=none; b=WvrvYc9xyJ0V5GgAW+KS/t2PPD0AHunbqO2FUunuUt2H/LG0Gv8bHfhaFtUV2zdFbF1QwCemJ5J3DZg+HNlrhux0oTkH2Su0SvBYsr/NeKVinfAK3OJsgdBUeE/Ka5XjA9OjPoWDGqHquAm/Ox8C6xmCZ0vjXlMRcLUbv47/quc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729894577; c=relaxed/simple;
-	bh=uJTuxxbpUOhYgzs5WgqjZ9oJKXZ+IXXPP0S1EvdK364=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=EBSGcxSHScBEBRpfzv0vqrC5YkOllkG27SEYG5XKHteGqUorPkVVbNDxahLmzmVJ0l7q7MHPyUUAilQwET13kvL5g7NvHJTZmO/skZ/KSy5hC7y1Z6rQcNCbJCWVBreMBRTJB/N8jYaevVGY6eIc0M5SQHz+2ybjOKh1CjVAqwk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nnsUCoKs; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1730112587; c=relaxed/simple;
+	bh=OIlWErpCErhhvqC1O/BLstj0Os973FkT8FU9m2dF2y4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=izqtUc2c3bZTE8+5jnpvpn5d1+3uU4PZtsNmx5EX6aIGBlxnkXndUR7xg9bvflUS48cn/+ZBoz8w783z9z6KRCLu3pDzKVoNWetr6A8soGs3Te7GpYndCKpiuhoZWkpL6RIoY7sVfq07mlPvg2SCRqmRJAzozp4FMGRIzeo5Cwc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Jx1CqIXv; arc=none smtp.client-ip=209.85.208.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nnsUCoKs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD093C4AF09;
-	Fri, 25 Oct 2024 22:16:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1729894576;
-	bh=uJTuxxbpUOhYgzs5WgqjZ9oJKXZ+IXXPP0S1EvdK364=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=nnsUCoKsPy331Chn2UUcsngk6k5T9x6sJ5x/vQCqmf50lgps9XEwpgmo4ieWnMh2v
-	 hKKhwmyShVPTqg/aa8W1r73marKoLDlVeVlofleUY/xPKgT1+9Mj3gW7tRebb1/J0Z
-	 0Nb8Myml3Mh8xhW6GxZCRVqJQI9a0IlZxwhIb/FFLjWW7zb3vS5IAOKR5P46cuH1bX
-	 6HIe2Fv9Hy8qoXg6BWAQLe1RwZxXCtspPILf7Beo+xbCY0Zov9G0Zr+tfys0Y9cjmm
-	 B8TBd0ZUpDH1lyus/5Zn/fUtOn0w957/BJ7tJ0vN45wzDau2TLxE75xt0/m5uLMVPd
-	 35fr3Z21N4TFw==
-Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-539e690479cso2617526e87.3;
-        Fri, 25 Oct 2024 15:16:16 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCVKprcsRllH7BJ41sXSlqyiCtIEsZ5vnmYR+0LZuY6d1/SABCV4Eki8T+FS+cDAf7Ae0Xa34HX/3o8=@vger.kernel.org, AJvYcCVbtVU1h19fnBYgkPHPIuPVmzehwOx3o1Nvl9HFsoZ+WZREgRcolAuNCgtPmCv2x6sARdrCSHszGMAmeoSQ4aY=@vger.kernel.org, AJvYcCVmrLmjITh4Vz5rfc6pQkgS+TdDkeDTDhhapBIizEAHZfjr4BA0PTnjQeKc1l9o+wlTujqosk/Juj1U@vger.kernel.org, AJvYcCWgNNJWtqw0SNqrO5synDUeNVMHVpTMwpQBgYGWbp8LGyIgJNCM2JbITEaHeYr6I+bBiTFfuuly3GltLA==@vger.kernel.org, AJvYcCX66Kl9k9Pj5j2YoaCxI3IBhJtrzoV6SAjWvwXY25tTg7yPZ6MRFuhaELIC3AtFuyorkyRPEaRdSk6NgEVN@vger.kernel.org, AJvYcCXk7+aoCbzPQb0qZOhdFPB5agJ6xjWL3i430K4kk4cakm6LEqnQ173u/Got0SfcCVvsVbVr/5nCFE8zgQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy02GYSOV3/Ce2xQEewmVNy4zY5tTDypkvTAnF6N02Ff7wzHJj5
-	KDwmA0xSn+Rjjywy2e+QIjAZSd/boiumJLJr4HKMxjlvTge52sEq8d7BGZO/+uwOIDMcQ0ol4Jn
-	HdrViav/x34Dn0aLHRmgwrk/WbA==
-X-Google-Smtp-Source: AGHT+IFDzz30e4eepxmp8y9NIgcU0ohK45V4obAXv/vuq7kDznzhS/1RZo0KUZFB2KLhRb/lyUfqMvvtY4COXI6AOVA=
-X-Received: by 2002:a05:6512:3d8b:b0:539:d0ef:b3f9 with SMTP id
- 2adb3069b0e04-53b3491dfc0mr415910e87.40.1729894575274; Fri, 25 Oct 2024
- 15:16:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jx1CqIXv"
+Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-5cbb0900c86so3105476a12.0;
+        Mon, 28 Oct 2024 03:49:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1730112582; x=1730717382; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=BADti5TEboUpz7hQZAwm95LJ4r/iBnqor7lFpH91gUs=;
+        b=Jx1CqIXvA9KUrVhiqPZYG5ZulMclVp0nks7EDlZlnubKOwpSEDj79jG4v1PfVrXh8Z
+         /N/cxdXlpFJ1nbkOiE/stbgMZvuNO4ic4owt6tvJqHe3Q+HDdgzH70jgUlhPRUjdgHOK
+         ODA+YSMTcyJ/6DOPalw7lknWUdNWnF4VhzeasF7A2JLZzaEwC2KlLDDDQNpnnwRZls77
+         FPj2bj9cHd/3Pul62ybfmt88z25YYCVYhlDCN5QLPo1KBCQg69/VAUYiig0kjRc7FAnj
+         avAhDnAp3aN21MmtYCkahxhWSRIR4mldIrlNfOGgsbbnxWpxtL2JEETPgc7ApTY492oL
+         Jk9A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1730112582; x=1730717382;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=BADti5TEboUpz7hQZAwm95LJ4r/iBnqor7lFpH91gUs=;
+        b=sspJDpOadx36kJGAyMsSs/SL6+QCa52a9iEpYVSL9p6SbwCc+lBAzWXqwjjyc5TzSB
+         VYF/myZYrwqwpVvHqqu+izhYN8LtqCNgGbqirUWbV7Er5Ng8wHiy3wQg9Ucbf1Hkq1UD
+         SOpP+84hWK7BBecX/GxFmYmbhBKngW4Ssnd7UMLOmmJJK59LtYPZ19HhYtSjjunHAftM
+         QvSOeExtbPZ9hsTUYDwrBz2pNcwAwqHRqzHrOQDyOotHcIIs8ulcbiKWKBUDINED8uWU
+         sH2CrEqJjCOyzntV2/4IhLTZGT/45efjxY1HcBtHZJbOa6EATAU1kXcA/PBaa1p0OPtS
+         d24Q==
+X-Forwarded-Encrypted: i=1; AJvYcCURs8OxEEkoXIyzXv3EFJ4h9dSCWFjWdCxaHP+C/cTzX4j/5ZJXgSLC1Rt8KNVvEPo/bhtwAfRJYjAMDLZj@vger.kernel.org, AJvYcCUVbmRYMTy/ZmWRoaCYUSgiSnG7Kdom31zAshgNw0ptyr2iJiFVqK+uvdjdDBjx8ZZE1Satraw5z2lv@vger.kernel.org, AJvYcCVvd7xfA12kTw5lkO08D7XoLQBxRRxarbgPIm5P8sql1pdGG0+vakAxytdLOLO9EQwYUFhwR6MCcLGR1w==@vger.kernel.org, AJvYcCWOa2M1/vkM1w5UCbEATTQr0QXBK+QgTwKFTd9Qpw/iJztUA7myZfcHlbOO0uYttIk4awSJGMJc0ARbsDaQMTY=@vger.kernel.org, AJvYcCWYswW85swLkgzkNesROMkLHIk8dIwvdbYA3XC4Dny6FNdN4eZJ3HJ67QNK4n3YWRACOeZFH7k7TY354g==@vger.kernel.org, AJvYcCWwP+SMGuKAMcgVbTHo4feZCLh8dPTX7WQFfTG/cl/liwpMfc9YKAjwM0p2VNQeMJx8ZkZ95qgy1sw=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzYaWCUiejFLYTcAPOMv9RJ8lb455tS1VjCZ+URCIXdd0hyyIX8
+	Ue1PdAHs1jijyA/lB+p07kFPXy2PNQUj8bStq0F6Ztv5uhcbQacH
+X-Google-Smtp-Source: AGHT+IEm+HFLbPsaDOWlAHThJ3+XtoGjdhXujglmfhVMP7yNqtZqIoTJpMUXVSYjXbaSqnnT3/SHtw==
+X-Received: by 2002:a05:6402:5202:b0:5c9:5cff:3cc2 with SMTP id 4fb4d7f45d1cf-5cbbfa71a66mr5776613a12.29.1730112582021;
+        Mon, 28 Oct 2024 03:49:42 -0700 (PDT)
+Received: from ?IPV6:2a03:83e0:1126:4:eb:d0d0:c7fd:c82c? ([2620:10d:c092:500::5:1494])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5cbb6258683sm3063919a12.20.2024.10.28.03.49.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 28 Oct 2024 03:49:41 -0700 (PDT)
+Message-ID: <71decb01-4241-4fb0-bc38-187e180d6ee5@gmail.com>
+Date: Mon, 28 Oct 2024 10:49:40 +0000
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] of/fdt: add dt_phys arg to early_init_dt_scan and
+ early_init_dt_verify
+To: Rob Herring <robh@kernel.org>
+Cc: mark.rutland@arm.com, will@kernel.org, leitao@debian.org,
+ catalin.marinas@arm.com, tglx@linutronix.de, chris@zankel.net,
+ saravanak@google.com, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+ kexec@lists.infradead.org, loongarch@lists.linux.dev,
+ linux-sh@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linuxppc-dev@lists.ozlabs.org, linux-openrisc@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-csky@vger.kernel.org
 References: <20241023171426.452688-1-usamaarif642@gmail.com>
-In-Reply-To: <20241023171426.452688-1-usamaarif642@gmail.com>
-From: Rob Herring <robh@kernel.org>
-Date: Fri, 25 Oct 2024 17:15:53 -0500
-X-Gmail-Original-Message-ID: <CAL_JsqLBuzRYgnYHCdbdO4wneFNPe5_iEfbehvKK5M7bBuiyfA@mail.gmail.com>
-Message-ID: <CAL_JsqLBuzRYgnYHCdbdO4wneFNPe5_iEfbehvKK5M7bBuiyfA@mail.gmail.com>
-Subject: Re: [PATCH v2] of/fdt: add dt_phys arg to early_init_dt_scan and early_init_dt_verify
-To: Usama Arif <usamaarif642@gmail.com>
-Cc: mark.rutland@arm.com, will@kernel.org, leitao@debian.org, 
-	catalin.marinas@arm.com, tglx@linutronix.de, chris@zankel.net, 
-	saravanak@google.com, linux-arm-kernel@lists.infradead.org, 
-	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
-	kexec@lists.infradead.org, loongarch@lists.linux.dev, 
-	linux-sh@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-openrisc@vger.kernel.org, 
-	linux-mips@vger.kernel.org, linux-csky@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+ <CAL_JsqLBuzRYgnYHCdbdO4wneFNPe5_iEfbehvKK5M7bBuiyfA@mail.gmail.com>
+Content-Language: en-US
+From: Usama Arif <usamaarif642@gmail.com>
+In-Reply-To: <CAL_JsqLBuzRYgnYHCdbdO4wneFNPe5_iEfbehvKK5M7bBuiyfA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Wed, Oct 23, 2024 at 12:14=E2=80=AFPM Usama Arif <usamaarif642@gmail.com=
-> wrote:
->
->  __pa() is only intended to be used for linear map addresses and using
-> it for initial_boot_params which is in fixmap for arm64 will give an
-> incorrect value. Hence save the physical address when it is known at
-> boot time when calling early_init_dt_scan for arm64 and use it at kexec
-> time instead of converting the virtual address using __pa().
->
-> Reported-by: Breno Leitao <leitao@debian.org>
-> Suggested-by: Mark Rutland <mark.rutland@arm.com>
-> Signed-off-by: Usama Arif <usamaarif642@gmail.com>
-> Fixes: ac10be5cdbfa ("arm64: Use common of_kexec_alloc_and_setup_fdt()")
 
-This looks fine, but what is the symptom without this compared to
-before the above change? The original code in the referenced commit
-above didn't remove the reservation at all. Unless the current code
-does something worse, this is new functionality more than a fix (for
-stable).
 
-Rob
+On 25/10/2024 23:15, Rob Herring wrote:
+> On Wed, Oct 23, 2024 at 12:14 PM Usama Arif <usamaarif642@gmail.com> wrote:
+>>
+>>  __pa() is only intended to be used for linear map addresses and using
+>> it for initial_boot_params which is in fixmap for arm64 will give an
+>> incorrect value. Hence save the physical address when it is known at
+>> boot time when calling early_init_dt_scan for arm64 and use it at kexec
+>> time instead of converting the virtual address using __pa().
+>>
+>> Reported-by: Breno Leitao <leitao@debian.org>
+>> Suggested-by: Mark Rutland <mark.rutland@arm.com>
+>> Signed-off-by: Usama Arif <usamaarif642@gmail.com>
+>> Fixes: ac10be5cdbfa ("arm64: Use common of_kexec_alloc_and_setup_fdt()")
+> 
+> This looks fine, but what is the symptom without this compared to
+> before the above change? The original code in the referenced commit
+> above didn't remove the reservation at all. Unless the current code
+> does something worse, this is new functionality more than a fix (for
+> stable).
+> 
+> Rob
+
+After the series in [1] was merged, we always get a warning when kexecing
+a debug kernel, which was reported by Breno in [2].
+The issue is using __pa for a fixmap address in arm64 as described in [2],
+which could result in removing a memory reservation for a completely
+unrelated area.
+That was introduced by the patch just before 
+"arm64: Use common of_kexec_alloc_and_setup_fdt" [3], but arm64 switched to
+using the common kexec fdt function in that commit. This commit is trying
+to fix removing and corrupting any random memory reservation (and get rid
+of the warning) that was introduced by [1], not adding a new functionality.
+
+[1] https://lore.kernel.org/all/20210221174930.27324-7-nramas@linux.microsoft.com/ 
+[2] https://lore.kernel.org/all/ZnFKEtqfqJkYflwL@gmail.com/
+[3] https://lore.kernel.org/all/20210221174930.27324-6-nramas@linux.microsoft.com/
+
+Thanks,
+Usama
