@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AAC11FDFB8;
-	Mon,  4 Nov 2024 23:27:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10E3C1FEFD4;
+	Tue,  5 Nov 2024 07:02:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730762866; cv=none; b=DUmZPgGllUSpsCScWP67LZ4WMz+xT3AIpFq7UTpxuw5IfdeNNr8pE5DNZPab2rE0JxBnk3V8TCMgYZF5jbe1vGmyB5Lai0nFa1jEqP98FoTjJg38Us1QgBtAOjRLVG82HwqMwtRC1PPLrujn7N1zC02qF3YkIxvSa4oXiQfAZTM=
+	t=1730790175; cv=none; b=RcJeWZ6v52G06I3IJ7catWvPxRXIlj3AmNTX2upEKe1gL281mlAVS6gvBS/Dnx3uI01DCsNpKqn9u0c9oSZV5qwNVN7DlCoeW/sTgLbBL3Eh/eN1R+gPA887izB1NONSr5EHSJL9AFi5oQBp4jyT6f++7QML7iywRBOBvn02JEU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730762866; c=relaxed/simple;
-	bh=G7tF/ZaqXBtDJLMTb97Oc+SktZk//Kx3oRVjwm2Gkec=;
+	s=arc-20240116; t=1730790175; c=relaxed/simple;
+	bh=vfcX72EWl1PlKyFBzjhHz5V71yaLAfzK3VjVgomZL4Y=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iMfr9ma5FM5iB+sdPQI+ndfM51faiAWWz/rSdiqVGlsTnRDmmrbVlCCzCVQfOR+CUMMgOC020tyydBrT60q6bI3PWwXC6wyIs3oc6FirponM3aGC8+VE9nH8tjmg1eu9f4qqmpUcBEEFUvDTV4354qXfHRoQYtp7o5KRUYqqpXo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uD6aQVKZ; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=Uj/7jDTU/QqpD9FFIjKjnCvPfRZF9vJoxPylVeB5cmvjdCmI+cxnpcr9kIWY/H6xMRd+aj/A/5iI9dPeHF4wvcqSAQifexW70in+eKc3yObppkL/p9VI6ZIRoQCk7d1C1zWjQqppaNwnaOEV960KLEQc7l9IaQq/cGWTUHwoh24=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i3dpbmwH; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uD6aQVKZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB3A7C4CECE;
-	Mon,  4 Nov 2024 23:27:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i3dpbmwH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4B12C4CECF;
+	Tue,  5 Nov 2024 07:02:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1730762866;
-	bh=G7tF/ZaqXBtDJLMTb97Oc+SktZk//Kx3oRVjwm2Gkec=;
+	s=k20201202; t=1730790174;
+	bh=vfcX72EWl1PlKyFBzjhHz5V71yaLAfzK3VjVgomZL4Y=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=uD6aQVKZ8xYi+PTTwYupZ6PGdQoZjGxor3CJ6T/KZlWjFxurKitUGg4OsLqeVl22R
-	 oTMAQXmWqXP0EO6JaBIYZ9VEqoL35XGUitRTwgi+bJtDhjSL6UuAIcLW7XMfz2tbvE
-	 x3MFVpG1yHfJRXfsS6NaRprs6A1rIqEf/OZ8jX2sy+DwUFdsMetTULRZ3iOQoxlOsn
-	 5JoGBx6K0BrtfF9Z0+hxFGtNMWymLR+Dppngi0NxeJnTpYgOWeDN7FHowhaRXk3khA
-	 u6nha7LupF4lzkb6ryYEoHDIxLmpv0DY+XiF9diWn7xWUzJjMMZ/7hbbF3UF0ISQXS
-	 B++nhrf0RE3MQ==
-Date: Mon, 4 Nov 2024 16:27:41 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Mike Rapoport <rppt@kernel.org>
+	b=i3dpbmwHLfd+qUmJoaWeTGPHb10DC+M0kf+DMEykGWoYpGOuSUDviaUCAAx4zIAfi
+	 my4z1l/oyVoPrY5WEhvGAqrSv0MLPuXbzVIKUoMd0jh8oEVUCEONnRV4s7PDepCIp9
+	 ZD54y4ohFGVDY1Cs7nPdmpyfCNtvqUqW5KJ/Ch+xipF5ZFMCAivKT3JR6Xd9V1a/4G
+	 LvZ1wHQ1rlIUNyplCl+fPkOtsT/XeAFLJAPXe+EdvajpWUHCrgFIHiD89oCp0/Bkx4
+	 xYtH7/sknC5+POJtdvm/YMmFy0WRYObll2kMIURKDi3pF/30ytxQP7HSq81EZrmTXO
+	 namiYtOl86+Aw==
+Date: Tue, 5 Nov 2024 09:02:26 +0200
+From: Mike Rapoport <rppt@kernel.org>
+To: Nathan Chancellor <nathan@kernel.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>,
 	Luis Chamberlain <mcgrof@kernel.org>,
 	Andreas Larsson <andreas@gaisler.com>,
@@ -76,9 +76,10 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
 	sparclinux@vger.kernel.org, x86@kernel.org
 Subject: Re: [PATCH v7 6/8] x86/module: prepare module loading for ROX
  allocations of text
-Message-ID: <20241104232741.GA3843610@thelio-3990X>
+Message-ID: <ZynDAhW0lKCfOqZl@kernel.org>
 References: <20241023162711.2579610-1-rppt@kernel.org>
  <20241023162711.2579610-7-rppt@kernel.org>
+ <20241104232741.GA3843610@thelio-3990X>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -87,65 +88,91 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20241023162711.2579610-7-rppt@kernel.org>
+In-Reply-To: <20241104232741.GA3843610@thelio-3990X>
 
-Hi Mike,
+Hi Nathan,
 
-On Wed, Oct 23, 2024 at 07:27:09PM +0300, Mike Rapoport wrote:
-> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+On Mon, Nov 04, 2024 at 04:27:41PM -0700, Nathan Chancellor wrote:
+> Hi Mike,
 > 
-> When module text memory will be allocated with ROX permissions, the
-> memory at the actual address where the module will live will contain
-> invalid instructions and there will be a writable copy that contains the
-> actual module code.
+> On Wed, Oct 23, 2024 at 07:27:09PM +0300, Mike Rapoport wrote:
+> > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+> > 
+> > When module text memory will be allocated with ROX permissions, the
+> > memory at the actual address where the module will live will contain
+> > invalid instructions and there will be a writable copy that contains the
+> > actual module code.
+> > 
+> > Update relocations and alternatives patching to deal with it.
+> > 
+> > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> > Tested-by: kdevops <kdevops@lists.linux.dev>
 > 
-> Update relocations and alternatives patching to deal with it.
+> Hopefully the last time you have to hear from me, as I am only
+> experiencing issues with only one of my test machines at this point and
+> it is my only machine that supports IBT, so it seems to point to
+> something specific with the IBT part of the FineIBT support. I notice
+> either a boot hang or an almost immediate reboot (triple fault?). I
+> guess this is how I missed reporting this earlier, as my machine was
+> falling back to the default distribution kernel after the restart and I
+> did not notice I was not actually testing a -next kernel.
 > 
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> Tested-by: kdevops <kdevops@lists.linux.dev>
+> Checking out the version of this change that is in next-20241104, commit
+> 7ca6ed09db62 ("x86/module: prepare module loading for ROX allocations of
+> text"), it boots with either 'cfi=off' or 'cfi=kcfi' but it exhibits the
+> issues noted above with 'cfi=fineibt'. At the immediate parent, commit
+> b575d981092f ("arch: introduce set_direct_map_valid_noflush()"), all
+> three combinations boot fine.
+> 
+>   $ uname -r; tr ' ' '\n' </proc/cmdline | grep cfi=
+> 
+>   6.12.0-rc5-debug-00214-g7ca6ed09db62
+>   cfi=kcfi
+> 
+>   6.12.0-rc5-debug-00214-g7ca6ed09db62
+>   cfi=off
+> 
+>   6.12.0-rc5-debug-00213-gb575d981092f
+>   cfi=fineibt
+> 
+>   6.12.0-rc5-debug-00213-gb575d981092f
+>   cfi=kcfi
+> 
+>   6.12.0-rc5-debug-00213-gb575d981092f
+>   cfi=off
+> 
+> I do not think this machine has an accessible serial port and I do not
+> think IBT virtualization is supported via either KVM or TCG in QEMU, so
+> I am not sure how to get more information about what is going on here. I
+> wanted to try reverting these changes on top of next-20241104 but there
+> was a non-trivial conflict in mm/execmem.c due to some changes on top,
+> so I just tested in the mm history.
+> 
+> If there is any other information I can provide or patches I can test, I
+> am more than happy to do so.
 
-Hopefully the last time you have to hear from me, as I am only
-experiencing issues with only one of my test machines at this point and
-it is my only machine that supports IBT, so it seems to point to
-something specific with the IBT part of the FineIBT support. I notice
-either a boot hang or an almost immediate reboot (triple fault?). I
-guess this is how I missed reporting this earlier, as my machine was
-falling back to the default distribution kernel after the restart and I
-did not notice I was not actually testing a -next kernel.
+Yes, please :)
 
-Checking out the version of this change that is in next-20241104, commit
-7ca6ed09db62 ("x86/module: prepare module loading for ROX allocations of
-text"), it boots with either 'cfi=off' or 'cfi=kcfi' but it exhibits the
-issues noted above with 'cfi=fineibt'. At the immediate parent, commit
-b575d981092f ("arch: introduce set_direct_map_valid_noflush()"), all
-three combinations boot fine.
+There's a silly mistake in cfi_rewrite_endbr() in that commit, the patch
+below should fix it. Can you please test?
 
-  $ uname -r; tr ' ' '\n' </proc/cmdline | grep cfi=
+diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
+index 3407efc26528..243843e44e89 100644
+--- a/arch/x86/kernel/alternative.c
++++ b/arch/x86/kernel/alternative.c
+@@ -1241,7 +1241,7 @@ static void cfi_rewrite_endbr(s32 *start, s32 *end, struct module *mod)
+ 		void *addr = (void *)s + *s;
+ 		void *wr_addr = module_writable_address(mod, addr);
+ 
+-		poison_endbr(addr+16, wr_addr, false);
++		poison_endbr(addr + 16, wr_addr + 16, false);
+ 	}
+ }
+ 
+ 
+> Cheers,
+> Nathan
 
-  6.12.0-rc5-debug-00214-g7ca6ed09db62
-  cfi=kcfi
-
-  6.12.0-rc5-debug-00214-g7ca6ed09db62
-  cfi=off
-
-  6.12.0-rc5-debug-00213-gb575d981092f
-  cfi=fineibt
-
-  6.12.0-rc5-debug-00213-gb575d981092f
-  cfi=kcfi
-
-  6.12.0-rc5-debug-00213-gb575d981092f
-  cfi=off
-
-I do not think this machine has an accessible serial port and I do not
-think IBT virtualization is supported via either KVM or TCG in QEMU, so
-I am not sure how to get more information about what is going on here. I
-wanted to try reverting these changes on top of next-20241104 but there
-was a non-trivial conflict in mm/execmem.c due to some changes on top,
-so I just tested in the mm history.
-
-If there is any other information I can provide or patches I can test, I
-am more than happy to do so.
-
-Cheers,
-Nathan
+-- 
+Sincerely yours,
+Mike.
