@@ -1,107 +1,117 @@
-Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 528111CDA3E;
-	Tue,  5 Nov 2024 09:56:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.17.235.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D775A1714B3;
+	Tue,  5 Nov 2024 19:04:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730800607; cv=none; b=ZG9ODsI66cgDosozifeBD/ko39Fna9Ar9xnW+7OCyzf3InBGjiAtnpNIHyqM16Bn/BQLca7qKIJvh1VClaKXvy/XiNFubot5uxrqvQ4cGQAjQEgqF1tpNUfbchk82O+7IEG/0MEKD2txfFhBqtXAQh4IGW5y5QlDvoQJiSfot0o=
+	t=1730833473; cv=none; b=u/Z/dDTm+O0vTv/fJJQYJBau0/Y1uBrdhZ5M6JgGqAIw2jn76xCCSdJuAIeZg8bIZXbPp60ARfEC8T87lEw1PYnL3gqfS36D9qGoFBA6Aave62nBJjeWtMl1Kip2kZr5Uz6JCVbFdmjLNAglkWtwSHA/2eUMCzX2UDKP8M1G+ls=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730800607; c=relaxed/simple;
-	bh=R7fYE1ho6RL0rqvfjF3EYrY/xOTC+OyPnNaWsD9XQcY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=KaFpLlaPJaiMvdEp6ODpUs1nM2CUIMJnCwyh9ZAjJh+MUIpdQYTRLiPT5gbA3O3+4OnDyTcHIVlDtVRfHSWTUgoyeJdmUVHpLdqvnRBEeqTB6Ej8jGPHniIztMRIDrKFN6ZAEl+dEv0gSBnrwOoCoc1UZoVhQqBMOWOyPRhwvSk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu; spf=pass smtp.mailfrom=csgroup.eu; arc=none smtp.client-ip=93.17.235.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csgroup.eu
-Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
-	by localhost (Postfix) with ESMTP id 4XjNyz319Qz9sPd;
-	Tue,  5 Nov 2024 10:56:43 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from pegase2.c-s.fr ([172.26.127.65])
-	by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id CpEO93zW8bQ7; Tue,  5 Nov 2024 10:56:43 +0100 (CET)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-	by pegase2.c-s.fr (Postfix) with ESMTP id 4XjNyz27jdz9rvV;
-	Tue,  5 Nov 2024 10:56:43 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id 346688B770;
-	Tue,  5 Nov 2024 10:56:43 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-	by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-	with ESMTP id BXNslob-hZDZ; Tue,  5 Nov 2024 10:56:43 +0100 (CET)
-Received: from [192.168.232.44] (unknown [192.168.232.44])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id 9E0918B763;
-	Tue,  5 Nov 2024 10:56:42 +0100 (CET)
-Message-ID: <9ee9c21b-179f-49aa-8c65-304c8ef2c9a7@csgroup.eu>
-Date: Tue, 5 Nov 2024 10:56:42 +0100
+	s=arc-20240116; t=1730833473; c=relaxed/simple;
+	bh=uoF4ZbISUkj3LBJVbm7mjK2pNt272UgYSEG9wAikNJE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qTVCpA/MsSM6wb7HDUNMjT5x8n3MYqO0MtF0nnI5zLkrRQVMyFYUbQNWjb0sv28srMgW5MwsGF/kODia9MQqFdyGoJnI5qwGKbFARum0JE6F6hzobyl/dq2boUlSIkSCtD7v2waf7gQ4ObMfEk63uJ70JTzmLAbYXqGs8mdnAmo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ndFUDxiZ; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ndFUDxiZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14183C4CECF;
+	Tue,  5 Nov 2024 19:04:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1730833472;
+	bh=uoF4ZbISUkj3LBJVbm7mjK2pNt272UgYSEG9wAikNJE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=ndFUDxiZpHd3P71EA4Dtdpamj3S+pD0a2NSCYEIkT703any4R0lrK0H/JhQd4Hv2S
+	 hAfH0p9N7ObDyDDis1fM3KZKbcT6xDBcyV1iwhCKpgr5eJTjsn996Jr680vAO44Otj
+	 drCVf6YoRKOceIQN9knu/aAssyHKuocecyBZr/vNKZiP9PdCl8g8D3PbpLRYGfT7S3
+	 8Jxa1hlnrGJeQdCliPqKl36JEkEIgDaJdtPl3tXojvE85kFpWmMnDAcr4PjH7oX62l
+	 V8Za49Z9doiMVqhjlWd7GWzNdgnAXYy87njYhKhjV/rXdMfHzibVSbsFtDSY64+oSA
+	 zKXctAOfMY/4A==
+Date: Tue, 5 Nov 2024 12:04:27 -0700
+From: Nathan Chancellor <nathan@kernel.org>
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
+	Brian Cain <bcain@quicinc.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Guo Ren <guoren@kernel.org>, Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Kent Overstreet <kent.overstreet@linux.dev>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Michal Simek <monstr@monstr.eu>, Oleg Nesterov <oleg@redhat.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Richard Weinberger <richard@nod.at>,
+	Russell King <linux@armlinux.org.uk>, Song Liu <song@kernel.org>,
+	Stafford Horne <shorne@gmail.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>,
+	bpf@vger.kernel.org, linux-alpha@vger.kernel.org,
+	linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org, linux-mm@kvack.org,
+	linux-modules@vger.kernel.org, linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+	linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+	linux-trace-kernel@vger.kernel.org, linux-um@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+	sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v7 6/8] x86/module: prepare module loading for ROX
+ allocations of text
+Message-ID: <20241105190427.GA2903209@thelio-3990X>
+References: <20241023162711.2579610-1-rppt@kernel.org>
+ <20241023162711.2579610-7-rppt@kernel.org>
+ <20241104232741.GA3843610@thelio-3990X>
+ <ZynDAhW0lKCfOqZl@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] asm-generic: add an optional pfn_valid check to
- page_to_phys
-To: Christoph Hellwig <hch@lst.de>, Arnd Bergmann <arnd@arndb.de>
-Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
- linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
- loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-um@lists.infradead.org, linux-arch@vger.kernel.org
-References: <20241023053644.311692-1-hch@lst.de>
- <20241023053644.311692-3-hch@lst.de>
-Content-Language: fr-FR
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-In-Reply-To: <20241023053644.311692-3-hch@lst.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZynDAhW0lKCfOqZl@kernel.org>
 
+On Tue, Nov 05, 2024 at 09:02:26AM +0200, Mike Rapoport wrote:
+> There's a silly mistake in cfi_rewrite_endbr() in that commit, the patch
+> below should fix it. Can you please test?
 
+Yup, that was it! All my machines boot with this diff applied on top of
+next-20241105, so with that fixed, I think we are all good here.
 
-Le 23/10/2024 à 07:36, Christoph Hellwig a écrit :
-> page_to_pfn is usually implemented by pointer arithmetics on the memory
-> map, which means that bogus input can lead to even more bogus output.
-> 
-> Powerpc had a pfn_valid check on the intermediate pfn in the page_to_phys
-> implementation when CONFIG_DEBUG_VIRTUAL is defined, which seems
-> generally useful, so add that to the generic version.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->   include/asm-generic/memory_model.h | 10 ++++++++++
->   1 file changed, 10 insertions(+)
-> 
-> diff --git a/include/asm-generic/memory_model.h b/include/asm-generic/memory_model.h
-> index a73a140cbecd..6d1fb6162ac1 100644
-> --- a/include/asm-generic/memory_model.h
-> +++ b/include/asm-generic/memory_model.h
-> @@ -64,7 +64,17 @@ static inline int pfn_valid(unsigned long pfn)
->   #define page_to_pfn __page_to_pfn
->   #define pfn_to_page __pfn_to_page
->   
-> +#ifdef CONFIG_DEBUG_VIRTUAL
-> +#define page_to_phys(page)						\
-> +({									\
-> +	unsigned long __pfn = page_to_pfn(page);			\
-> +									\
-> +	WARN_ON_ONCE(!pfn_valid(__pfn));				\
+Tested-by: Nathan Chancellor <nathan@kernel.org>
 
-On powerpc I think it was a WARN_ON().
+> diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
+> index 3407efc26528..243843e44e89 100644
+> --- a/arch/x86/kernel/alternative.c
+> +++ b/arch/x86/kernel/alternative.c
+> @@ -1241,7 +1241,7 @@ static void cfi_rewrite_endbr(s32 *start, s32 *end, struct module *mod)
+>  		void *addr = (void *)s + *s;
+>  		void *wr_addr = module_writable_address(mod, addr);
+>  
+> -		poison_endbr(addr+16, wr_addr, false);
+> +		poison_endbr(addr + 16, wr_addr + 16, false);
+>  	}
+>  }
 
-Will a WARN_ON_ONCE() be enough ?
-
-> +	PFN_PHYS(__pfn);						\
-> +})
-> +#else
->   #define page_to_phys(page)	PFN_PHYS(page_to_pfn(page))
-> +#endif /* CONFIG_DEBUG_VIRTUAL */
->   #define phys_to_page(phys)	pfn_to_page(PHYS_PFN(phys))
->   
->   #endif /* __ASSEMBLY__ */
+Cheers,
+Nathan
