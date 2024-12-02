@@ -1,112 +1,121 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 798E21DED67;
-	Mon,  2 Dec 2024 20:33:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD4A31DEFF9
+	for <linux-openrisc@vger.kernel.org>; Mon,  2 Dec 2024 20:59:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733171595; cv=none; b=SQ0KEf08stuTHb+EU4jDjLhzIpL6vMOY7HQ2mCUvA6ZUdR234Nn7aE9lKhpOmLngma8rvWHS2Nt69i41uxXXPh/NzQb7lakH5xi/eKTVx49MPcP27vrYd3e9E8pf3V+vy6aeMS+FfACP1t7NeftfrTNtGQqy3eMk3/1yyn/NYrQ=
+	t=1733173182; cv=none; b=qp/aKw3RAFhuyS9Ehb8byOJkdN1WV5Ms+8F3wQUD3x1MF2UCB9zOaJ31111W6JKJAghqEBo5izZwLRRHTfJWuD9f4XarLTemrenZtdET9qxhQO2UQ6rRCWJK5lqaI18DVe5/bfM0uAtK1Xu3VR7qEL9dcw5BkDy3pEk24EE8dpk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733171595; c=relaxed/simple;
-	bh=5hTytA/323orTHPBckXWro3utEuKP7/p06If5sUJ5wY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HqOcjRudLTj0L5oyT7E6JuFZkU+pJ/Y9u1ODdpbiKz0dBNgIrg1iKVzQ7J/kNXObkTnCXWi4b7PcQNFxcqLAmDuzRAxNQN74DCNcUMCk6lKyWvR1h/7hOH3LK1bK6BS8HQF8i/k7J56Zu201i7c7ko9f7Ko8mheNG4uuzsean90=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WcCNsyYD; arc=none smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1733173182; c=relaxed/simple;
+	bh=bWUbsbYzAXpNGIx3FEeO/he6o43ml139S4/Re94zVhM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=J//5kCAFlo4dpaBiAOcDSlD2CbPvb25vGiY+lhI79GyWMK9q0LdkIJrWOBPKnRva4+e2LgREO/nnFazkoOEeiz9Z/Vp4oK44wew7V5iXKlkdFQ/jNk0pmVlPOmBBmZXqwrRQvSZrIVzoRCzxFLdTxmAo+O/9VNXrMg6a8V4bn1s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=WiSZQH47; arc=none smtp.client-ip=209.85.160.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WcCNsyYD"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-215348d1977so37153475ad.3;
-        Mon, 02 Dec 2024 12:33:13 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="WiSZQH47"
+Received: by mail-qt1-f178.google.com with SMTP id d75a77b69052e-46687f60b73so17221cf.0
+        for <linux-openrisc@vger.kernel.org>; Mon, 02 Dec 2024 12:59:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1733171593; x=1733776393; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=JvIrUVZ26c/hkCNcIW5Ac8d45yn03JhhJVVGGlpUW/w=;
-        b=WcCNsyYDj9Vs4sPfGcnsSvgeCjVRvHB488U/yovAzW0TKYsv8kJrZ55MwjteyZ/d+L
-         A5kf1cssMx/Rln/6uHFQoXso4WcR+YwdLK4zM9FcPEPGJXYNo/EWWO4IkN8G/1FsgEqr
-         +DZNFEHdiRomKcfkxSk/Wwkz9PWJBm4CjiVxnx/KCV1DVyty3Dexy6aY1Ngs/ThGVayq
-         ncNh3qlQ6j+b/Aksj+dsQvti72fD+55c1oPrO45MpSABVpPqdDS0CIjOpqwtURuqCXkT
-         f11nPnVpBRBuJ3NkAfYv7MA7CpOdrj74BFWy5nqMfgfcfOhmv9iQBCVHVL9gy5HISOkg
-         TvNg==
+        d=google.com; s=20230601; t=1733173179; x=1733777979; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=3oVEWy2iyizmNbl2ITO+8ooVXprBB5JT3rcAZ9azxCo=;
+        b=WiSZQH47AC9Nu2HsTtwxhUFddzssiZ8uNg7TUB1BQmN2BocA2zeR0CAm69YVPuQ9k2
+         WNvB0KquFga8UKMDZ6CpRcPa5O+3StK/t41r/kW6WgQ6gXa80q0Hd1KryyCKc9CVLAM8
+         i2KIQ5cvUSV3TCU+bVSTk8n88tv8KSrS5LlWN4YhxLDpYdvNZR90SdigUmfDWtZbZAGq
+         5Bbwo8LHlBwTEiJaqXOrY4eshLc+gVU+qESfaayoswZnNytNpFXcwxplDiUkdLaVK5lI
+         tw73BdP4Twgd7NZL+Kyn3IHn31s3PwNs3mLnNhU9H2zsEGwQDsNT0I038Fg0BBGz9Mqj
+         eXSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733171593; x=1733776393;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1733173179; x=1733777979;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=JvIrUVZ26c/hkCNcIW5Ac8d45yn03JhhJVVGGlpUW/w=;
-        b=UEY4VlZHSLpUiKFpyyaMDVb3ABOymU4E7qX8m34B5R7oSx6nJ+ALLjbOdhDEHkcd1f
-         Q182+kDCTfu5Tkd1tW+hwyZXFxdn4pt1dtfLbY1K5ASv/pO7CRBG3cq27YGW/cmnACVV
-         K0/k7L7eNL1QxpBwissBrGGetjVaDa5RRPSNwEWo2w42qzTo512+kvB6E/o2zEVYExpl
-         KYEG69UZ9A7H+6p5Id/8wq11hA8McNirZaC/3VAMKnTlvAWxgGx1eJojMX8Ur4JS49IH
-         RIc96it58Ke2/uQvvCH/4h0FbFoXY5Y1Zsb/x0ZoZF86IDikXIYJZwDuqDuOE4+TYmU+
-         HVAA==
-X-Forwarded-Encrypted: i=1; AJvYcCUqj0txbm1Lq9R/Cbaqs/UiXdmJNWGESt9dQssy7MRlGcLjK/bORJhkSoH4ozxDqZqkxq1Big/YKdQnPpI=@vger.kernel.org, AJvYcCWRJT2/PnfAT6kvq1vNk9BDpj9j2f3ZgnUTgfRU+w+39MTfVjO5Pno10usdCwgv904taaaiiGYXBICIbt/L@vger.kernel.org, AJvYcCXXWQq6MmWbHc+smMYwBubXIMwmRjjBcA9AgacQG/t7inTTQDcv/uYeq6PqrC1ifPZs//9MJg2jUEBFl9znP58=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyHwCyRd6QjyqpC5HHD6nTMKd1RTBWtEoxPqRggaDL/pB8ZoCEC
-	bWn6EMrEMw5/6cHog8W1NZr0f62m9eUABQyqx6lyB0Sd7fs90OH4
-X-Gm-Gg: ASbGncty0HIIvw18qv0dJfU2HK7mY2cRQ4/s+v62AFdNsSnIckuVwScy6lgfcr93dJW
-	udEpAgUtdqP6b63K+0PxKyHYv88Fqr6mQcZh63KnG9a+kssPtyjkwupEq4wNAgRc1PRLrtOd3YS
-	zYFAcQtiOEYObrYlvQ0XyPtUS3NVGJvnRrh1861YPmR5/CFwURYM3jAmYMp9Y2Laaz+JoREIS5f
-	5kP0hxTvpo4eKKCAAmUBjvZbGZlrqyGpPCL+F3GtwFB39U7nRQDQLtNFr94OOs=
-X-Google-Smtp-Source: AGHT+IH8dNd1XAqIFQbJi+JtUGTNnehRKYTwkqN0kLONDL4Bl28lQMIPvBJQYHM3PhL4mvPCaRWpgA==
-X-Received: by 2002:a17:902:f549:b0:215:5d4a:fdfe with SMTP id d9443c01a7336-2155d4affefmr147512115ad.20.1733171592583;
-        Mon, 02 Dec 2024 12:33:12 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2152191dcc9sm81565565ad.112.2024.12.02.12.33.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Dec 2024 12:33:11 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Mon, 2 Dec 2024 12:33:10 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Stafford Horne <shorne@gmail.com>, linux-openrisc@vger.kernel.org,
-	linux-kbuild@vger.kernel.org, Rong Xu <xur@google.com>,
-	Han Shen <shenhan@google.com>, Kees Cook <kees@kernel.org>,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] openrisc: place exception table at the head of vmlinux
-Message-ID: <07dcb646-d806-4767-b29d-77092f6819e4@roeck-us.net>
-References: <20241202062909.2194341-1-masahiroy@kernel.org>
+        bh=3oVEWy2iyizmNbl2ITO+8ooVXprBB5JT3rcAZ9azxCo=;
+        b=kAavDzccj0kIAH/PG9taijM5rSO8IjrYufxoTjRZs9e/1L4uSvHF2YauGJ98oryFWz
+         WZMD1YqWPO7X+ZRT7NaC50I46jfntaJKgZdMjgQwMK/tDlZmtqTSiRNkc0YT0N/vzJS7
+         ubnAl7F3AH2BH0C/7/2RoYvP7NaidftGbbhG8By/qjkF9QnfCVpI3uAxWmLqixPaSyz1
+         ycBqwb8PrR78HI8iab1TxA6z8A7q1sLykG1a4YrJZRym3Tksis0cGmGeUqi89R2i/vPA
+         g7J+Qx6XJZvFHw5cTEuJLhgRbQzETeG46084bXXUL1A6Ib5ScocfyNZqQLxEbC2QhuOc
+         M79g==
+X-Forwarded-Encrypted: i=1; AJvYcCVyD58wwC1F1E4msjYjd8tXXyNSKYWn1WIcYB9KnQEkaJx+8G5Y2SbZCFG4rkBM5JFr0rd2+nEFaLifJXqAbA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyboqG+dSZqhfsV0mpL4btEMdTEBRQHTAlz2DoxVYIRlwoufhQZ
+	JN/yP+7PJrxt3VTLSr6ERZ9M0rWF33mB+2lk+OCVDOJ5nxP82sPCdOztJI2MedJp/rPpFGLPQKg
+	HKKA2v7D//8N25CurL2ZX6ZPrx1sg/SmKvwmRs6CkET8hbVr0Is5N
+X-Gm-Gg: ASbGncv8A33/k66SHRnQPZGsTxMGf0WVoAF6u6SJHU9Rz1qG6NHLwuEgT4/iX7H7l6Y
+	m8CAJJFxM60CXuLfQgsxTggnviwGOa9oFst+EYddE1FN10zT4XPsTZIUlKrIYYA==
+X-Google-Smtp-Source: AGHT+IHXajz9FjvZ5+7EyyCzVsXQCy9Z4GCJO1PItlq2H+4of7VPChdd4GL3fxrK7I1fkXmoDaG7ouG2iPSNtCOsmZw=
+X-Received: by 2002:a05:622a:2516:b0:460:463d:78dd with SMTP id
+ d75a77b69052e-4670abded03mr34641cf.4.1733173179359; Mon, 02 Dec 2024 12:59:39
+ -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241202062909.2194341-1-masahiroy@kernel.org>
+References: <20241202062909.2194341-1-masahiroy@kernel.org> <07dcb646-d806-4767-b29d-77092f6819e4@roeck-us.net>
+In-Reply-To: <07dcb646-d806-4767-b29d-77092f6819e4@roeck-us.net>
+From: Rong Xu <xur@google.com>
+Date: Mon, 2 Dec 2024 12:59:27 -0800
+Message-ID: <CAF1bQ=R_VUDR9rGAWhjPa4jHuauftLg=A9Mp=thJaK8PdjM0Wg@mail.gmail.com>
+Subject: Re: [PATCH] openrisc: place exception table at the head of vmlinux
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Masahiro Yamada <masahiroy@kernel.org>, Jonas Bonn <jonas@southpole.se>, 
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, 
+	linux-openrisc@vger.kernel.org, linux-kbuild@vger.kernel.org, 
+	Han Shen <shenhan@google.com>, Kees Cook <kees@kernel.org>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Dec 02, 2024 at 03:28:22PM +0900, Masahiro Yamada wrote:
-> Since commit 0043ecea2399 ("vmlinux.lds.h: Adjust symbol ordering in
-> text output section"), the exception table in arch/openrisc/kernel/head.S
-> is no longer positioned at the very beginning of the kernel image, which
-> causes a boot failure.
-> 
-> Currently, the exception table resides in the regular .text section.
-> Previously, it was placed at the head by relying on the linker receiving
-> arch/openrisc/kernel/head.o as the first object. However, this behavior
-> has changed because sections like .text.{asan,unknown,unlikely,hot} now
-> precede the regular .text section.
-> 
-> The .head.text section is intended for entry points requiring special
-> placement. However, in OpenRISC, this section has been misused: instead
-> of the entry points, it contains boot code meant to be discarded after
-> booting. This feature is typically handled by the .init.text section.
-> 
-> This commit addresses the issue by replacing the current __HEAD marker
-> with __INIT and re-annotating the entry points with __HEAD. Additionally,
-> it adds __REF to entry.S to suppress the following modpost warning:
-> 
->   WARNING: modpost: vmlinux: section mismatch in reference: _tng_kernel_start+0x70 (section: .text) -> _start (section: .init.text)
-> 
-> Fixes: 0043ecea2399 ("vmlinux.lds.h: Adjust symbol ordering in text output section")
-> Reported-by: Guenter Roeck <linux@roeck-us.net>
-> Closes: https://lore.kernel.org/all/5e032233-5b65-4ad5-ac50-d2eb6c00171c@roeck-us.net/#t
-> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+This looks good to me.
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Rong Xu <xur@google.com>
 
-Guenter
+-Rong
+
+On Mon, Dec 2, 2024 at 12:33=E2=80=AFPM Guenter Roeck <linux@roeck-us.net> =
+wrote:
+>
+> On Mon, Dec 02, 2024 at 03:28:22PM +0900, Masahiro Yamada wrote:
+> > Since commit 0043ecea2399 ("vmlinux.lds.h: Adjust symbol ordering in
+> > text output section"), the exception table in arch/openrisc/kernel/head=
+.S
+> > is no longer positioned at the very beginning of the kernel image, whic=
+h
+> > causes a boot failure.
+> >
+> > Currently, the exception table resides in the regular .text section.
+> > Previously, it was placed at the head by relying on the linker receivin=
+g
+> > arch/openrisc/kernel/head.o as the first object. However, this behavior
+> > has changed because sections like .text.{asan,unknown,unlikely,hot} now
+> > precede the regular .text section.
+> >
+> > The .head.text section is intended for entry points requiring special
+> > placement. However, in OpenRISC, this section has been misused: instead
+> > of the entry points, it contains boot code meant to be discarded after
+> > booting. This feature is typically handled by the .init.text section.
+> >
+> > This commit addresses the issue by replacing the current __HEAD marker
+> > with __INIT and re-annotating the entry points with __HEAD. Additionall=
+y,
+> > it adds __REF to entry.S to suppress the following modpost warning:
+> >
+> >   WARNING: modpost: vmlinux: section mismatch in reference: _tng_kernel=
+_start+0x70 (section: .text) -> _start (section: .init.text)
+> >
+> > Fixes: 0043ecea2399 ("vmlinux.lds.h: Adjust symbol ordering in text out=
+put section")
+> > Reported-by: Guenter Roeck <linux@roeck-us.net>
+> > Closes: https://lore.kernel.org/all/5e032233-5b65-4ad5-ac50-d2eb6c00171=
+c@roeck-us.net/#t
+> > Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+>
+> Tested-by: Guenter Roeck <linux@roeck-us.net>
+>
+> Guenter
