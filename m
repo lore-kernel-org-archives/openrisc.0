@@ -1,181 +1,134 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B052229B15
-	for <linux-openrisc@vger.kernel.org>; Thu,  5 Dec 2024 18:39:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2E1C2EB1F;
+	Thu,  5 Dec 2024 19:05:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733423959; cv=none; b=ISuFuuTQ0xPnkanhDR1PqYndxpZyOY+kZ0brPHoh0xHRkGioFnh0UihmWhuMC4VfucopmSUTNztOCxI6E0FcsM432wxdwIIrr2punYPWNthe2Wej7fYm9nL4OhNm1y6diLTHAgf26dGEX4nh89j8wvmkiTyic/3EfzK8b3pP1RE=
+	t=1733425550; cv=none; b=B8ZapHtKBhtUZ/cRuGILKBbUqdgrdxedTt+bmkoDA694M8SRYG99qUCqtd5ZGUt6YJgUP+hvmkfZC0SKI0SIKTbEtM/dt+AdMk1X7xz82xUk16x+1PV3zyXx/n3OBaLRSIzb8Bidl1oBAaofTuiLASzUtlGFWAO5GRRSCTqgH9Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733423959; c=relaxed/simple;
-	bh=tSSOA98V1ooVvl6nFyragV0ng/5yQsplGLl4src2huw=;
+	s=arc-20240116; t=1733425550; c=relaxed/simple;
+	bh=fbjFRbT812S2i1TIZtn2iX4j7BIjiLB+D/7f6MXQU3I=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=c1XBuowgrO7slPI/4KOHuBlBmHTgn5VY09H2BL3NCYk5O8n4yvdZCKh1PxWAtbZcS4SdMnCrwCF226PoQqHv7JwWBhvULjmBavZyoyfgY+HN/LWyd7hLZUf1Kc2uj0oznplD7WJVTSBU50xfvVQdo+lR8bDzqkmNRc4ebJkY3lc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jXLpzAH9; arc=none smtp.client-ip=209.85.128.51
+	 Content-Type:Content-Disposition:In-Reply-To; b=sWu1tMtiaduLcIg2H6w+pQq8QVZnDUHiRy+5fZirJU2Q/06rt6Wm7v/OwThcJhEv3sIY9LJjKGd/kL3FzD3X44RFHbLUdfJNQB2eT7+Qn/aIsb/Cf33Z8bMDpF2hCQQA2OVGCqooSzXkgwAmeBxZHmEQuPEepel82qu6S46zCvg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DZ6Pw/DS; arc=none smtp.client-ip=209.85.128.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jXLpzAH9"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4349e1467fbso8984935e9.1
-        for <linux-openrisc@vger.kernel.org>; Thu, 05 Dec 2024 10:39:17 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DZ6Pw/DS"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-434a044dce2so14988515e9.2;
+        Thu, 05 Dec 2024 11:05:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1733423956; x=1734028756; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=bU34PUEcdS74+JaGWlUkw3oTRGmAJJj4DYgTUuiOwCU=;
-        b=jXLpzAH9+SGQCH2NsC6BD9nqZyQHmh5VH8oPjII7paNUbZ19uRBlI7VdTkymEC6frf
-         V09i+1F+ypdRbnPMUFIAi6ISQHesXiCik9LvrKxvgjzxCk/bPvCCchJiHQg6AgS9/DN+
-         kkvbJZFGkl1ygWmy/5FLfE2qyZC4D/szZdckVPY5dV+eMeTFL/+2c1sw0iidazFjRyPt
-         BT7s5NsxBFoqZW1mDYYQDUibFDvRTJ0KDm5Wh240DxTAGpbrJD6OyRxLRv2DgaUWZgCr
-         PRNZswu+3D19zUxTmt+LJFqTH+1253+9pkw8I5auvE9iWYOvopf/9lco9gzhyFdyfClc
-         pafg==
+        d=gmail.com; s=20230601; t=1733425547; x=1734030347; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=5dDApur/Rj0EwjQM+0WphnoTkxIDXSHSGeMDAISBHXY=;
+        b=DZ6Pw/DShnacoA2Mr39A2aJHQ9E81zf0z0FWpHBcXsJ1v93ncPjhY73EpWtchJBdjM
+         UeEjRr7VVxPEBGTOcE6AHVrhaKZRF4S1dm3wTtz/tBFb8KrzaAqnVz30omKJlcD446lw
+         MhzhisxQGl8vfyK1j8bjLZlQBX6Md28H007zZdwdt8Tg5qJfBh6EfRl5zDUKakMPVYLW
+         GOycilV0UetQKBycmnPMHP0IwrFC6BLbWBTynbg7QJHbGbKKX4m9gtHdonlnc/tQyDB2
+         /U8tx3O26uUayZoHKC7rJtrhyWjYHwaj9ccpFCON4R/egKBi6SNdovSy/IdhbYq4jfmf
+         fB6g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733423956; x=1734028756;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=bU34PUEcdS74+JaGWlUkw3oTRGmAJJj4DYgTUuiOwCU=;
-        b=AKuyYAsNrVbgF5BEk8/qqMwJ3e96PzD+bwjDbQ5oQ5ZLYVxxAzAK1C+Ie7CzIN7z7k
-         RmxNBZTOiYdtAsj53QJ//3yAMLeaVPtSJ1B/iSW8WEOpbgYaCbMX3tEVqFnQ60mmsVau
-         8luIH5uCUf9zT6JcOSREbuayCogBsy8Qde0O2YmhnflBlv+v2bD5DlGB6P9cbukvEUPA
-         R/wYeRgJNDiuAgxbYGpj/Bya0xD+TkYf79QMSdQXZRG7EWezLFbACX0JmhlUZI8MrOcN
-         znTiZLaZuhTV74ImGiHYj4LFMWsbUGTtYuKlR4G7IBxjJwCSh6XoC1Mcftoxq2XrAAQl
-         YsAQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWA2F9hFFkGhya9dHxUhrOtwL9coHggBhAVHbLNKpknJD32rBc0qykY2v1VkMU3uDkviwxFC61TLC5CFLjg1g==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzl91ljHhdmFxlRJN6inUnXbS5/sExv12UbQoNXLw9rxZXwVKNB
-	KHwJOipMAksav191qwxeCEF1JZIhY0CAzcax/IpOYeHEhFp5Dw0poUzBBA==
-X-Gm-Gg: ASbGncvH58hPCxDNTLv9zfxAoPWyzT/4u2+bCzFVCiNdgBYlCZcvN/x5hNJjp9CIYb7
-	yp0v0JA70Dmy4gpu+39IzZdwJbpQH2YRpc9gvnmOTp4JpiT3SuDKLrezeYBTDr6hUqWV8rfIzmw
-	XZQNixmdUgpY7DyRSFrw71KF2OaBPwfcoJuYdjv8hYvIc/mwmBlTyoGbGIjyBpMB0XlYpW2+7hd
-	PMhyGa4cC/g/92BRDInfqGjSviMeDS+5RBWqaJQ8JN6sxvZQeZheu1q7Wah9z1KoTOPHcvOJ0U5
-	2lhBgzW6Z6TliA==
-X-Google-Smtp-Source: AGHT+IEeDWFKr4JDOoEYQvrbsIBtDhx61QbI1L3A4Igjq8+H6tjrlffJos2XaA3QAAgkYSdi/7493w==
-X-Received: by 2002:a5d:64ce:0:b0:385:edb7:69ba with SMTP id ffacd0b85a97d-3862b335324mr135568f8f.1.1733423955668;
-        Thu, 05 Dec 2024 10:39:15 -0800 (PST)
+        d=1e100.net; s=20230601; t=1733425547; x=1734030347;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=5dDApur/Rj0EwjQM+0WphnoTkxIDXSHSGeMDAISBHXY=;
+        b=B/T2eZiTavHLq3y2Am68+/Rv2OFBekG8S/QPnoi6wdFtwt5BME8tAeTyQYjZTRIDRR
+         u4vB5qeXV03CKyI0y8DpGCtflakxKBoyEY3ioK5oQ6+c+HW0zHOwnXKqbGNIZGFlyaV0
+         KC79JnGaZwOdT9y/jx59WFIB7U1/CW7ddnjWb7e8/BRcz6qOVqTbs00xNtwCmvGOfsaU
+         pVt5DUDwBt7imXn3zf1CSdb24L243q+CJYxtdgJd5ePqG9gjAej7kp4I+Ec/3bu9/UNa
+         VYEuLh1mREectj5FT5Ae+TLMOBq0caUKxheRfTYI+qP0hhfTmJJB/lBblj5aideG16nX
+         +OlA==
+X-Forwarded-Encrypted: i=1; AJvYcCUQ2DeutzI2jKbiPAJpTx3+D3QOoEC1iO3dbzM6PPxXZWog0BmvXl1+z6Ovjrv2kvZyGy8zpwsM3L7iyR7l@vger.kernel.org, AJvYcCUr57biQv4vbkAXGWFPdWgTzw4S8pdkoJoUfkmnsB5U6H5acDYUE9uAMToTa1muGE1T7eoTxUNymhi2w8dmdRU=@vger.kernel.org, AJvYcCVHk6Ul4J64RWsB0ShLl8pE+4rjXWLVBUfPlubNqQAYLgHhaBUDB6TN/s2rJZhxvLQ+cccao6HgeNZ0g4Q=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz7aEWWvw891AdXVKCmWzfIiUudZsYsq+AoqaXAWQcooL0OflQx
+	M52o4YYQnasr6u9vEIwCEa8D3cr0+DrN8DqSNmN8C0lQL20DCSaEE2N8kpRz
+X-Gm-Gg: ASbGnctDswxMgOZIeahziMnXLLaKF/bL2q37LAsgKDjsK3k7Y22IlwkIJJCwfWyk8MP
+	mmBtit4qjtwuCuCJo91hM02hR7ZNQMG9xNJN1TmrWy5K3bHvfH9CoPpFpTSrlvcpaOxoWPwh/Qf
+	yToIppV+nngQTUEL1DV3vphSF0zJLzH55tzm/wcyAVeCO/VRo5E5386ptRz8KbGE9xw8ENLxubb
+	wZUD5wBjsgjRlC8LWnbRcQWM8n8WMECNeU/Ikd8ClnolwSJ9hge2jTGSKwIkzYpdTotW5e4j9JP
+	+ssWt7lvboNbQA==
+X-Google-Smtp-Source: AGHT+IF/uMyK+AWVINA2rb19bG20bBWUHi4bTRxZiJkaWIaVaVtLZ3V2qnVe6CwVkwjVfYAgs2RBWg==
+X-Received: by 2002:a05:600c:4f51:b0:434:a923:9321 with SMTP id 5b1f17b1804b1-434ddead515mr4582165e9.5.1733425546814;
+        Thu, 05 Dec 2024 11:05:46 -0800 (PST)
 Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-386219098c8sm2678882f8f.77.2024.12.05.10.39.14
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-434d52c0cfdsm72030475e9.33.2024.12.05.11.05.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Dec 2024 10:39:14 -0800 (PST)
-Date: Thu, 5 Dec 2024 18:39:13 +0000
+        Thu, 05 Dec 2024 11:05:45 -0800 (PST)
+Date: Thu, 5 Dec 2024 19:05:45 +0000
 From: Stafford Horne <shorne@gmail.com>
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Jonas Bonn <jonas@southpole.se>,
+To: Rong Xu <xur@google.com>
+Cc: Guenter Roeck <linux@roeck-us.net>,
+	Masahiro Yamada <masahiroy@kernel.org>,
+	Jonas Bonn <jonas@southpole.se>,
 	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	linux-openrisc@vger.kernel.org
-Subject: Re: [PATCH] openrisc: Fix misalignments in head.S
-Message-ID: <Z1HzUZJ9TzVj5LlB@antec>
-References: <5bd42e2b9e50929f7a1df03655bbaebb78f167ba.1733403630.git.geert+renesas@glider.be>
+	linux-openrisc@vger.kernel.org, linux-kbuild@vger.kernel.org,
+	Han Shen <shenhan@google.com>, Kees Cook <kees@kernel.org>,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] openrisc: place exception table at the head of vmlinux
+Message-ID: <Z1H5iZNh7N4Gf7_X@antec>
+References: <20241202062909.2194341-1-masahiroy@kernel.org>
+ <07dcb646-d806-4767-b29d-77092f6819e4@roeck-us.net>
+ <CAF1bQ=R_VUDR9rGAWhjPa4jHuauftLg=A9Mp=thJaK8PdjM0Wg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <5bd42e2b9e50929f7a1df03655bbaebb78f167ba.1733403630.git.geert+renesas@glider.be>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAF1bQ=R_VUDR9rGAWhjPa4jHuauftLg=A9Mp=thJaK8PdjM0Wg@mail.gmail.com>
 
-On Thu, Dec 05, 2024 at 02:04:26PM +0100, Geert Uytterhoeven wrote:
-> Align all line continuations and (sub)section headers in a consistent
-> way.
-> 
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> ---
->  arch/openrisc/kernel/head.S | 26 +++++++++++++-------------
->  1 file changed, 13 insertions(+), 13 deletions(-)
-> 
-> diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
-> index 439e00f81e5dde18..b64ac73455ed3279 100644
-> --- a/arch/openrisc/kernel/head.S
-> +++ b/arch/openrisc/kernel/head.S
-> @@ -26,15 +26,15 @@
->  #include <asm/asm-offsets.h>
->  #include <linux/of_fdt.h>
->  
-> -#define tophys(rd,rs)				\
-> -	l.movhi	rd,hi(-KERNELBASE)		;\
-> +#define tophys(rd,rs)						\
-> +	l.movhi	rd,hi(-KERNELBASE)				;\
->  	l.add	rd,rd,rs
->  
-> -#define CLEAR_GPR(gpr)				\
-> +#define CLEAR_GPR(gpr)						\
->  	l.movhi	gpr,0x0
->  
-> -#define LOAD_SYMBOL_2_GPR(gpr,symbol)		\
-> -	l.movhi gpr,hi(symbol)			;\
-> +#define LOAD_SYMBOL_2_GPR(gpr,symbol)				\
-> +	l.movhi gpr,hi(symbol)					;\
->  	l.ori   gpr,gpr,lo(symbol)
->  
->  
-> @@ -326,21 +326,21 @@
->  	l.addi  r1,r1,-(INT_FRAME_SIZE)				;\
->  	/* r1 is KSP, r30 is __pa(KSP) */			;\
->  	tophys  (r30,r1)					;\
-> -	l.sw    PT_GPR12(r30),r12					;\
-> +	l.sw    PT_GPR12(r30),r12				;\
->  	l.mfspr r12,r0,SPR_EPCR_BASE				;\
->  	l.sw    PT_PC(r30),r12					;\
->  	l.mfspr r12,r0,SPR_ESR_BASE				;\
->  	l.sw    PT_SR(r30),r12					;\
->  	/* save r31 */						;\
->  	EXCEPTION_T_LOAD_GPR30(r12)				;\
-> -	l.sw	PT_GPR30(r30),r12					;\
-> +	l.sw	PT_GPR30(r30),r12				;\
->  	/* save r10 as was prior to exception */		;\
->  	EXCEPTION_T_LOAD_GPR10(r12)				;\
-> -	l.sw	PT_GPR10(r30),r12					;\
-> -	/* save PT_SP as was prior to exception */			;\
-> +	l.sw	PT_GPR10(r30),r12				;\
-> +	/* save PT_SP as was prior to exception */		;\
->  	EXCEPTION_T_LOAD_SP(r12)				;\
->  	l.sw	PT_SP(r30),r12					;\
-> -	l.sw    PT_GPR13(r30),r13					;\
-> +	l.sw    PT_GPR13(r30),r13				;\
->  	/* --> */						;\
->  	/* save exception r4, set r4 = EA */			;\
->  	l.sw	PT_GPR4(r30),r4					;\
-> @@ -394,7 +394,7 @@ _dispatch_do_ipage_fault:
->      .org 0x500
->  	EXCEPTION_HANDLE(_timer_handler)
->  
-> -/* ---[ 0x600: Alignment exception ]-------------------------------------- */
-> +/* ---[ 0x600: Alignment exception ]------------------------------------- */
->      .org 0x600
->  	EXCEPTION_HANDLE(_alignment_handler)
->  
-> @@ -424,7 +424,7 @@ _dispatch_do_ipage_fault:
->      .org 0xc00
->  	EXCEPTION_HANDLE(_sys_call_handler)
->  
-> -/* ---[ 0xd00: Floating point exception ]--------------------------------- */
-> +/* ---[ 0xd00: Floating point exception ]-------------------------------- */
->      .org 0xd00
->  	EXCEPTION_HANDLE(_fpe_trap_handler)
->  
-> @@ -816,7 +816,7 @@ secondary_start:
->  
->  #endif
->  
-> -/* ========================================[ cache ]=== */
-> +/* ==========================================================[ cache ]=== */
->  
->  	/* alignment here so we don't change memory offsets with
->  	 * memory controller defined
+Hello,
 
-Hi Geert,
+This looks ok to me too. I also confirmed that the symbols that end up in the
+.init.text of head.o are correct.
 
-This all looks fine to me.  Traditionally I haven't attempted to fix up these
-formatting issues as early on the maintainer Jonas was agaist this due to it
-being unncessasary churn in the git history.  Also, it makes git blame a bit
-more difficult to use.
-
-However, I am fine with this if there are more people than must me who feel the
-formatting needs fixing.
-
-I will queue this up.
-
-Thanks,
+I will queue this to go in the next rc.
 
 -Stafford
+
+On Mon, Dec 02, 2024 at 12:59:27PM -0800, Rong Xu wrote:
+> This looks good to me.
+> 
+> Reviewed-by: Rong Xu <xur@google.com>
+> 
+> -Rong
+> 
+> On Mon, Dec 2, 2024 at 12:33 PM Guenter Roeck <linux@roeck-us.net> wrote:
+> >
+> > On Mon, Dec 02, 2024 at 03:28:22PM +0900, Masahiro Yamada wrote:
+> > > Since commit 0043ecea2399 ("vmlinux.lds.h: Adjust symbol ordering in
+> > > text output section"), the exception table in arch/openrisc/kernel/head.S
+> > > is no longer positioned at the very beginning of the kernel image, which
+> > > causes a boot failure.
+> > >
+> > > Currently, the exception table resides in the regular .text section.
+> > > Previously, it was placed at the head by relying on the linker receiving
+> > > arch/openrisc/kernel/head.o as the first object. However, this behavior
+> > > has changed because sections like .text.{asan,unknown,unlikely,hot} now
+> > > precede the regular .text section.
+> > >
+> > > The .head.text section is intended for entry points requiring special
+> > > placement. However, in OpenRISC, this section has been misused: instead
+> > > of the entry points, it contains boot code meant to be discarded after
+> > > booting. This feature is typically handled by the .init.text section.
+> > >
+> > > This commit addresses the issue by replacing the current __HEAD marker
+> > > with __INIT and re-annotating the entry points with __HEAD. Additionally,
+> > > it adds __REF to entry.S to suppress the following modpost warning:
+> > >
+> > >   WARNING: modpost: vmlinux: section mismatch in reference: _tng_kernel_start+0x70 (section: .text) -> _start (section: .init.text)
+> > >
+> > > Fixes: 0043ecea2399 ("vmlinux.lds.h: Adjust symbol ordering in text output section")
+> > > Reported-by: Guenter Roeck <linux@roeck-us.net>
+> > > Closes: https://lore.kernel.org/all/5e032233-5b65-4ad5-ac50-d2eb6c00171c@roeck-us.net/#t
+> > > Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+> >
+> > Tested-by: Guenter Roeck <linux@roeck-us.net>
+> >
+> > Guenter
