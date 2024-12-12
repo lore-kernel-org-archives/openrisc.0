@@ -1,221 +1,112 @@
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A103A22652A
-	for <linux-openrisc@vger.kernel.org>; Thu, 12 Dec 2024 16:23:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EAC6223320;
+	Thu, 12 Dec 2024 16:49:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734020591; cv=none; b=nvuorwMh2NygUv4iXmTXFC+MpwVkfE/6T0zZIuwR5vmKJ8bAdWCM3d58zO60u6+Hi8V4czpSAhVC9uo3AjZYvcv3kp7Ra1681NCST0xmEsTpsuNaGajJvzmm7EhVg+IeCpIF1t8cAzipR4I/ekfW1xXbJTXNNBKQPMphSUBAIe8=
+	t=1734022161; cv=none; b=t8MAy/3OuPDlJhcUHeKXFxlMqTQySZv7Ox9O7TlWby67PK64IRVIFFdzsYGujTqpYW+Possk7rWgGEBk//jFB535YtdChNFlIiL3R55bi0gjLGbGhywFXpqD/KRDEOLKOvdqU6tlVlqHhkdq1iLUExYzI1RywKfWzGq0I1QYL8Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734020591; c=relaxed/simple;
-	bh=36FxLdCssaEQSgMOs9RPUqNlxAPx+mn01Wrdf0athl4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=A7WgGU3fQSnbxD2jVb3vNMtO1abyt4+9YbNql0PiExij9GyAw1nGn2KOVjzwbP5bx1/HnWp3wxdalfzvcIPaGGOR/tcCvBhtaU3jzBi2zXRIGlW2PdasIq9i1wzJvvf4cKBJpepn2Os3pPBEaWa3vG0Np7c7IeedjYUirG7+f0s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GjHF/53o; arc=none smtp.client-ip=209.85.221.41
+	s=arc-20240116; t=1734022161; c=relaxed/simple;
+	bh=2INhEt1eRMpTOWgisekYLZPaLn9XCfC+rwGP2+7G0kU=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=K9ccHIZqTdve0juxLMplPMH07tE+mH3bNbSS6UnxjpfSwwFpyTBcliDHCxs2PD3IhaE36+zoGFDTn7NHgnB0urt2qnZUQazuqN0J+TMsKBuA1cdYzF96AKzgtNlI5w2W/UeG/13oYxAwI4BX0zteRm+yVLXZynHIC2HDrU1zO9g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mmVxQ/mX; arc=none smtp.client-ip=209.85.128.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GjHF/53o"
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-38633b5dbcfso868349f8f.2
-        for <linux-openrisc@vger.kernel.org>; Thu, 12 Dec 2024 08:23:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mmVxQ/mX"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4361f664af5so9059335e9.1;
+        Thu, 12 Dec 2024 08:49:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1734020588; x=1734625388; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=fzM/sUg/vilspFYDBoep5ao74/q7GF7Uv1pyzJwCLdE=;
-        b=GjHF/53o7tAvtBGE7a1bmHfcrFNtUvUDHUXkr2cy6iNLQabfABZoi3NzaOgmQumipR
-         JyjkCdRw1RmWMcUcAOiRzoVpN7OjlTamit+etf38O5wfJD/0HdJSAgj2eaeVrmXuQsKj
-         XTEIFeGwLcKmjFboilUHPOL1fHwSZnO3yufcP8iyVqrHeZZripXMQKcx6R2BGD1ZOks6
-         DV+CcWvtKF25anH2+UKoBinf4Sjv6QGQhfUHGLKNn7JKLUaOThbmF/V4M+JIBs4Ma/ev
-         JRkIMxfDGUBBfd8q632ANdQzandGL4yLWKV1S5HUiiP9YH+Bwnnp0IdcQgyFhbyx2mAc
-         pYLA==
+        d=gmail.com; s=20230601; t=1734022157; x=1734626957; darn=vger.kernel.org;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=xS8zOG2k7BJL/kIikK2Hmoex0ZOjVqRhO0dl3w9WJVc=;
+        b=mmVxQ/mXjNNpwci5jBaSvYz3PzSGZN4rzNybGW7MCumXLuY8PqCZ2uk1mcskRD7UGA
+         YHkJFKoxcoChAEhEEuKWkcz85RN8lupc2d6XzpjGOr3IVVw41F7W+O8IbK16xHPtzCu3
+         asxnI91YFnLAshefxfKP1+XAAvKEqrbzCM6PCNWa7IBtsVQ2fBY2E6sL2QnO3ayFJ5+t
+         CW6B+WlFLYiim9U5tn6ikbmnOX4LLHdSad7RMaAaFpRqWgD5CsA3XBf3xfwmHRVOCtPM
+         gnXr05HeFSN0qTgN3ZQCfo2huaDhHurF7ZNtlt5vcr2qzjH198O+L+KJ+wIIQrMb4pWv
+         tZ7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734020588; x=1734625388;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=fzM/sUg/vilspFYDBoep5ao74/q7GF7Uv1pyzJwCLdE=;
-        b=CecSBrw280Cdd9yQMrPVtMdnVSG9FhwB2zQSMw5om81narLlzk0j1BF+kVTSM/Axz9
-         tqrmubeFdTVj2UBsShDf7QnJLB8Thoq2yBeiUK+spfko1clXwxLvSOJEqFRtAJMFIWdP
-         l4w1R7B4m+/4/9lWWseIh0tv43MYjGBzAO3MVBqxK7H1LOtzNj9/X39/y9cFzCOOHGJp
-         TyHVHa1r4foHQKTOadvnv6y3j6vbd1QOFmhA9RWM4uabcvuHUeo2joKEOZ/NHmccGV4R
-         xsThPxmf2dkSbzE6i/uze6UkJIVkDJ89W+2Uw8pF0WIvIT1YagA8Mx2UiKcOCVCs8P6b
-         h8fA==
-X-Gm-Message-State: AOJu0Yz73PwQdpk1dhEbsobnKoXe0uN4ozevoZvkl+66xiQP6wJKaB5h
-	2ZJ2yrcn9fGyY0GwMsl7pcuP1s4HVUfKNQEQk1HV+NqARrI1NbY9JuN2vg==
-X-Gm-Gg: ASbGncuUqYr0uNsGWeimHSvS55TD1WQj7W3pXT708eHH/GcDas0QdLxA6JQQfin9/B1
-	u+eoTRCxfV1DMd9cJI+1HzhZR7HhyVuPMyNj/AILbvoENKx2rvX72lTqXbNGwdOQVN05vRHZZGd
-	88saAew8bgTU+n1m6n8/8HNP1Pzsn3SioVt9W0xDDj6AJB/yBPltT6raaVd7xO5hnybJGz8J92x
-	E4ANVklzASGnHJ7YQw5nOgfWEZW/kSlqUP/6oCqjM7qRPKXW2EngF1Mq/xbkJR/6Ke0Y+DoKlJY
-	g8Z5yo7E27z71+vdsbYf
-X-Google-Smtp-Source: AGHT+IE3wJbndaMMjyh1q2Vl9kyRK0mHGi6dI+tVHhJZ5Ij6i2GMJ17APU8LGv3uF7sdySHOCBdL8g==
-X-Received: by 2002:a5d:64aa:0:b0:386:3ba8:5326 with SMTP id ffacd0b85a97d-3864ce96dffmr7726792f8f.21.1734020587619;
-        Thu, 12 Dec 2024 08:23:07 -0800 (PST)
+        d=1e100.net; s=20230601; t=1734022157; x=1734626957;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=xS8zOG2k7BJL/kIikK2Hmoex0ZOjVqRhO0dl3w9WJVc=;
+        b=NAwPoVYaz55jBHuisrtUtCJ8YW1Dhn0j3gHS7f7MtUZK9oOJMIF5zXGiM991b5VdnE
+         JAq6ycnVG5p0Dif0RI4nH+G10YF23Nv1EyujxTLuNEt/6zCrAGY6391jrprjmo9watQO
+         3O+dFS5nfxpDJujF+G91VHiAq2kOS/r+b7ZvslZ4LAzlpnMPiHtYVILEO/KGZQEAUb+v
+         NXQGH7GIVYvnRjOgYyvDf55WzYysPyK6LZaoHFXcOdH9q544tUSCt6H+a5ecrH+PHHcz
+         ogBpIlmpruRUBCazbBtHvIRvSU6DPE6LgmQORpDatDL9Uvxi5FkxMq1hkcIhxSlcRHoQ
+         WZ7g==
+X-Forwarded-Encrypted: i=1; AJvYcCVaZSc27sMAj8DSpalXAEpvugYN3f48eHI1TIVIVfoEyqDv6Y8GVipVQ2ljgpb8fvHGqvXdmIEAb84jbHM=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzHX0lzDikOQ9QMs2EAEMB7o2saiRo/gqI8fO9DCg2zTZPe5rpD
+	4JBNuperMBFmNw9HierzmBssn3nkvvKkuiCYaDPqCFfLARdBIov+kTbd3Q==
+X-Gm-Gg: ASbGncuSDcqgq65HsO6UD3GOZjiXgiP+G5tZFuxzctupSzItZDOoe5W5RklWpdgDyPW
+	om07ZT76JhR1o8bZoWNhAEbE9hBOdH++6Nwr/hQHlZcEmqRijtkd4+olaN/Ho+egW4mBCk7QKL0
+	roHhsageg349y9hxDhUhM/e6AvAZ0kvOeurD/TFPBqk1oceEBMclvDXsa4LXLDBUx+E2uJtEc22
+	eudxx9cSzM0QLlrfZZ9XfzbXvhJVp55gqoBVgb3YsykmcF7wlXlcquYj3N9JDC/jvqJUkpk1gxK
+	2qExeRFSyj+8EjwokgiI
+X-Google-Smtp-Source: AGHT+IHOrAVPljiHnhz8atpFCl+4bujtYaOrnXoZxDtpXkoTjXUfq98vko4R1tM33lrtMOnwjgkSYw==
+X-Received: by 2002:a05:600c:19ca:b0:434:f586:753c with SMTP id 5b1f17b1804b1-4362282772fmr38061515e9.7.1734022157392;
+        Thu, 12 Dec 2024 08:49:17 -0800 (PST)
 Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-387824c50b7sm4370430f8f.57.2024.12.12.08.23.06
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-436256b44f4sm21561785e9.30.2024.12.12.08.49.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Dec 2024 08:23:06 -0800 (PST)
+        Thu, 12 Dec 2024 08:49:16 -0800 (PST)
+Date: Thu, 12 Dec 2024 16:49:15 +0000
 From: Stafford Horne <shorne@gmail.com>
-To: Newlib <newlib@sourceware.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	Stafford Horne <shorne@gmail.com>
-Subject: [PATCH v2] or1k: Fix compiler warnings
-Date: Thu, 12 Dec 2024 16:23:03 +0000
-Message-ID: <20241212162303.2099025-1-shorne@gmail.com>
-X-Mailer: git-send-email 2.47.0
+	LKML <linux-kernel@vger.kernel.org>
+Subject: [GIT PULL] OpenRISC fixes for 6.13-rc3
+Message-ID: <Z1sUC4d1kUipZIy1@antec>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-In my build the below are treated as error now and causing failures.  I
-have described the fixes of each warning below.
+Hello Linus,
 
-In newlib/libc/sys/or1k/mlock.c:
+Please consider for pull,
 
-      CC       libc/sys/or1k/libc_a-mlock.o
-    newlib/libc/sys/or1k/mlock.c: In function ‘__malloc_lock’:
-    newlib/libc/sys/or1k/mlock.c:56:19: warning: implicit declaration of function ‘or1k_critical_begin’ [-Wimplicit-function-declaration]
-       56 |         restore = or1k_critical_begin();
-	  |                   ^~~~~~~~~~~~~~~~~~~
-    newlib/libc/sys/or1k/mlock.c: In function ‘__malloc_unlock’:
-    newlib/libc/sys/or1k/mlock.c:93:17: warning: implicit declaration of function ‘or1k_critical_end’ [-Wimplicit-function-declaration]
-       93 |                 or1k_critical_end(restore);
-	  |                 ^~~~~~~~~~~~~~~~~
+The following changes since commit fac04efc5c793dccbd07e2d59af9f90b7fc0dca4:
 
-This patch adds prototypes for functions or1k_critical_begin and
-or1k_critical_end to suppress the warning, inline with what we do for
-or1k_sync_cas.
+  Linux 6.13-rc2 (2024-12-08 14:03:39 -0800)
 
-In libgloss/or1k/or1k_uart.c:
+are available in the Git repository at:
 
-    libgloss/or1k/or1k_uart.c: In function ‘or1k_uart_set_read_cb’:
-    libgloss/or1k/or1k_uart.c:163:25: warning: passing argument 2 of ‘or1k_interrupt_handler_add’ from incompatible pointer type [-Wincompatible-pointer-types]
-      163 |                         _or1k_uart_interrupt_handler, 0);
-	  |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	  |                         |
-	  |                         void (*)(uint32_t) {aka void (*)(long unsigned int)}
-    In file included from libgloss/or1k/or1k_uart.c:19:
-    libgloss/or1k/include/or1k-support.h:97:45: note: expected ‘or1k_interrupt_handler_fptr’ {aka ‘void (*)(void *)’} but argument is of type ‘void (*)(uint32_t)’ {aka ‘void (*)(long unsigned int)’}
-       97 |                 or1k_interrupt_handler_fptr handler,
-	  |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~
+  https://github.com/openrisc/linux.git tags/for-linus
 
-The public API is ‘void (*)(void *)' for our interrupt handlers.  The
-function _or1k_uart_interrupt_hander is the internal default
-implementation of the uart IRQ handler and it doesn't use the data
-argument.
+for you to fetch changes up to c8f8d4344d50d72181207ee73175bba567c25f58:
 
-This patch updates the _or1k_uart_interrupt_handler argument type from
-uint32_t to void* allowing the function prototype to match the required
-prototype.
+  openrisc: Fix misalignments in head.S (2024-12-10 12:04:19 +0000)
 
-If we did have a 64-bit implementation it would be an ABI issue. But,
-there never has been one, or1k is only 32-bit.
+----------------------------------------------------------------
+OpenRISC fixes for 6.13-rc3
 
-In libgloss/or1k/interrupts.c:
+A few fixes. One is just a formatting change but I figure I will include
+it here to avoid unnessesary pull requests in the future.  If you prefer
+not to merge it now I can leave it out.
 
-    libgloss/or1k/interrupts.c: In function ‘or1k_interrupt_handler_add’:
-    libgloss/or1k/interrupts.c:41:52: warning: assignment to ‘void *’ from ‘long unsigned int’ makes pointer from integer without a cast [-Wint-conversion]
-       41 |         _or1k_interrupt_handler_data_ptr_table[id] = (uint32_t) data_ptr;
-	  |                                                    ^
+ - Fix from Masahiro Yamada to fix 6.13 OpenRISC boot issues after
+   vmlinux.lds.h symbol ordering was changed.
+ - Code formatting fixups from Geert.
 
-The table _or1k_interrupt_handler_data_ptr_table is an array of void*
-and data_ptr is void*.  There is no need for the cast so remove it.
+----------------------------------------------------------------
+Geert Uytterhoeven (1):
+      openrisc: Fix misalignments in head.S
 
-In libgloss/or1k/sbrk.c:
+Masahiro Yamada (1):
+      openrisc: place exception table at the head of vmlinux
 
-    libgloss/or1k/sbrk.c:23:29: warning: initialization of ‘uint32_t’ {aka ‘long unsigned int’} from ‘uint32_t *’ {aka ‘long unsigned int *’} makes integer from pointer without a cast [-Wint-conversion]
-       23 | uint32_t _or1k_heap_start = &end;
-	  |
-
-This patch adds a cast, which is safe in or1k as the architecture in
-32-bit only.  But this code would not be 64-compatible.
-
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
-Since v1:
- - Update the commit message to explain the reasoning behind each warning fix.
-
- libgloss/or1k/interrupts.c   | 4 ++--
- libgloss/or1k/or1k_uart.c    | 2 +-
- libgloss/or1k/or1k_uart.h    | 2 +-
- libgloss/or1k/sbrk.c         | 2 +-
- newlib/libc/sys/or1k/mlock.c | 3 +++
- 5 files changed, 8 insertions(+), 5 deletions(-)
-
-diff --git a/libgloss/or1k/interrupts.c b/libgloss/or1k/interrupts.c
-index 6badc497c..516d74be3 100644
---- a/libgloss/or1k/interrupts.c
-+++ b/libgloss/or1k/interrupts.c
-@@ -35,10 +35,10 @@ void or1k_interrupt_handler_add(uint32_t id,
- {
- #ifdef __OR1K_MULTICORE__
- 	_or1k_interrupt_handler_table[or1k_coreid()][id] = handler;
--	_or1k_interrupt_handler_data_ptr_table[or1k_coreid()][id] = (uint32_t) data_ptr;
-+	_or1k_interrupt_handler_data_ptr_table[or1k_coreid()][id] = data_ptr;
- #else
- 	_or1k_interrupt_handler_table[id] = handler;
--	_or1k_interrupt_handler_data_ptr_table[id] = (uint32_t) data_ptr;
-+	_or1k_interrupt_handler_data_ptr_table[id] = data_ptr;
- #endif
- }
- 
-diff --git a/libgloss/or1k/or1k_uart.c b/libgloss/or1k/or1k_uart.c
-index 0a991e6ba..1391d565c 100644
---- a/libgloss/or1k/or1k_uart.c
-+++ b/libgloss/or1k/or1k_uart.c
-@@ -90,7 +90,7 @@ void (*_or1k_uart_read_cb)(char c);
-  * This is the interrupt handler that is registered for the callback
-  * function.
-  */
--void _or1k_uart_interrupt_handler(uint32_t data)
-+void _or1k_uart_interrupt_handler(void *data)
- {
- 	uint8_t iir = REG8(IIR);
- 
-diff --git a/libgloss/or1k/or1k_uart.h b/libgloss/or1k/or1k_uart.h
-index 4cbb68350..201b7749f 100644
---- a/libgloss/or1k/or1k_uart.h
-+++ b/libgloss/or1k/or1k_uart.h
-@@ -30,7 +30,7 @@ extern void (*_or1k_uart_read_cb)(char c);
- /**
-  * The UART interrupt handler
-  */
--void _or1k_uart_interrupt_handler(uint32_t data);
-+void _or1k_uart_interrupt_handler(void *data);
- 
- /**
-  * Initialize UART
-diff --git a/libgloss/or1k/sbrk.c b/libgloss/or1k/sbrk.c
-index 0c3e66e87..ca196d228 100644
---- a/libgloss/or1k/sbrk.c
-+++ b/libgloss/or1k/sbrk.c
-@@ -20,7 +20,7 @@
- #include "include/or1k-support.h"
- 
- extern uint32_t	end; /* Set by linker.  */
--uint32_t _or1k_heap_start = &end;
-+uint32_t _or1k_heap_start = (uint32_t) &end;
- uint32_t _or1k_heap_end;
- 
- void *
-diff --git a/newlib/libc/sys/or1k/mlock.c b/newlib/libc/sys/or1k/mlock.c
-index ccb840161..a0c038335 100644
---- a/newlib/libc/sys/or1k/mlock.c
-+++ b/newlib/libc/sys/or1k/mlock.c
-@@ -38,6 +38,9 @@ volatile uint32_t _or1k_malloc_lock_restore;
- 
- extern uint32_t or1k_sync_cas(void *address, uint32_t compare, uint32_t swap);
- 
-+extern uint32_t or1k_critical_begin();
-+extern void or1k_critical_end(uint32_t restore);
-+
- /**
-  * Recursive lock of the malloc
-  */
--- 
-2.47.0
-
+ arch/openrisc/kernel/entry.S       |  2 ++
+ arch/openrisc/kernel/head.S        | 32 +++++++++++++++++---------------
+ arch/openrisc/kernel/vmlinux.lds.S |  3 +--
+ scripts/head-object-list.txt       |  1 -
+ 4 files changed, 20 insertions(+), 18 deletions(-)
