@@ -1,128 +1,161 @@
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F1928BFF
-	for <linux-openrisc@vger.kernel.org>; Sun, 15 Dec 2024 00:44:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD007433B1
+	for <linux-openrisc@vger.kernel.org>; Mon, 16 Dec 2024 10:12:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734223489; cv=none; b=fZLHVFI+DOpDKybf1muAWWiYHi8pGuApIxCHH9cPq42XNY/zWZfYiW1PbXOL2WAb/fvUPZT2Uil0tAhtjQxW/ScRayPC/jDjYlmQ4XXP5GcygPNYdr/vOmUky8qnAeOoxegxHTZ/qrumJIVIeztze7O0Nv9NHO/MXqzVJIRd6Aw=
+	t=1734343981; cv=none; b=op6r4dbYx9sbBp7GF0XZQhPD4xefq8QNmSVRyuhndZ5bXfZZ+Mcn0m137uAChS7PfNcOGc+yEli5K4C0/3m/4456ku38pb92g6h66C4zUUTQyNyAPgcM6w5zLoopTlk8TJeQzO6h82PLBnLz3fqw9KEfJHb6ICAnbT9HtZq3/6k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734223489; c=relaxed/simple;
-	bh=HUkorgYR3e7TGltVDC7aIZ6PHkCqeWnOrf1Zxdo5+GE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LjufGJDbJI/4fJB8qN04ugWvW4XGrgwahGXE6gO6xWlrAKLHLO+nTlWXpXB/XnlF0srOiG6wRhG31czCWCGZTpa1/iFAxQSTyV03aFNXekGMdS4rgLp6JyujczXHh9iLC03PkP4RDOy5tkDwr7pv+f4n5H9RD5nlxKzVUcvsks0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=a/BefedF; arc=none smtp.client-ip=209.85.128.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1734343981; c=relaxed/simple;
+	bh=S4Ff31i3SY8vLgPddEQpV067mS0/98TtKSTCy2g58dk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=gJo3I1DJ6LpuGrCMAzigNFVbu4xHSepyXjHimK/SHpndi8YPGRQHgbEC8GLD2yhQzyW9TuXEWm9QcbqKtky4+a2gjSlNCdYFTxOD832iA78SisdoX4+mGOaQSFGtaloXJVX8sADUMTbTivE78GY9HkZ0AgF+kMGHZynMdqm3cdQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JrGR8AsK; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a/BefedF"
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-436345cc17bso9304795e9.0
-        for <linux-openrisc@vger.kernel.org>; Sat, 14 Dec 2024 16:44:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1734223487; x=1734828287; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=crfFUxL6R3D0jTIPZqGcddrjBQLoahBd4QpQ/wPr2L0=;
-        b=a/BefedF+VxS9KRl2P96lkT0uSYQXIwCt9wJwYJI0MwUIQ0VWiVqBusdLYK05VBJQ0
-         XlnRCt2Ode5LmTLpV6RmlGQxBjudetqJvNyCpiDAHIppRGS0ld36++WzskYytOZ+pWEN
-         4ii0DYHC55wibb6TSIH0WNka621sDlknZPBft0hRQtO6a85THbM2BCqhuwMZixuMKJLF
-         xYgUc/5dngwgddcfhzH3MdmJDvGOX35dhX2YxVF6oKNlISH+Nja1+12OOCxl/IUfgZ3W
-         rOA972JSeWG2AQJ807ZglwPWF5Mna6Ce5Do7AB9kmfupYiBt6ApcKbRIDzARoi+7zWqu
-         Lrsw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734223487; x=1734828287;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=crfFUxL6R3D0jTIPZqGcddrjBQLoahBd4QpQ/wPr2L0=;
-        b=g699Bl5v5LnALCoFvzXP1ySZ7N8BwBrTpVUm1sIqdcD5iXS5tMFnuyTV/KnpvZu5We
-         YmoMABlrcpHAECW1cs2ZK1J3qMN1vGGdMmU4fpex30NX6Us3CAWeSnVWRvje04EnQHIy
-         GcNG/Sy35fwF8KjkJF9g2BjES6OwpJkyFO5cL/Pv/2urm02601JE/IpLiZZ+o36esr4Z
-         2C7m83fW7aa9nouD2xjRqucODJt7DRhGGv8kXU8ZLM2DSQzqjdKhBGdaWPrfbLr4zK0M
-         3JElToKmwfQtMjGIWuYVBwxXLZii8lGlrpuHTqsNebJGRHKLTjWgmg9Ye1lSNcTEIV5S
-         9Wcw==
-X-Gm-Message-State: AOJu0Yyfp+eg6F1itRxUuww5Y6ChdUVpIq3rbS41oQvSFo8rvSIDigOr
-	dH/OOBMeAUwyYrwFKWGms9wLKNKHf4qjsPjrkGLQBuoOiqNefCt4
-X-Gm-Gg: ASbGncvl5lkxdpyJYS1lUDcTK+SK9Gdb0/b7VwoWpG4D7+LmZUF3+HRAH8Q+4gP3zS6
-	7cWiNfqO7DQ06You32AfE4ocpqKdHd2aUki0fvYiufmgY/9jtljJ5ZQhscZ48ojwWd7bTrK3A9X
-	w3z3MYf9v7nztTIR87rSXQPBB6ujPFSBtSw2zso5h3wM7tYsVFOgKLsL7fTS6LhBaEBwES9F9ge
-	YYhksn1a5VvNOWpaN8vUny/Z3EMDANBjGLDw2TS9jz/bfa9eWPDZgZr1/ZXk9TbZ7qMItYfe83U
-	M0SxgEB9NERENZyjP3op
-X-Google-Smtp-Source: AGHT+IGa1rEXY5WihI3XywHYWPQMus+SKE+XhoNXKv5DtVFrjvwOMe3hdAAVTbNTuESnniqCuJTOAQ==
-X-Received: by 2002:a5d:6da2:0:b0:386:3213:5b9d with SMTP id ffacd0b85a97d-3888e0b5a3fmr6155326f8f.41.1734223486360;
-        Sat, 14 Dec 2024 16:44:46 -0800 (PST)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43625706cc6sm94574965e9.30.2024.12.14.16.44.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 14 Dec 2024 16:44:43 -0800 (PST)
-From: Stafford Horne <shorne@gmail.com>
-To: GLIBC patches <libc-alpha@sourceware.org>
-Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	Stafford Horne <shorne@gmail.com>
-Subject: [COMMITTED] or1k: Update libm-test-ulps
-Date: Sun, 15 Dec 2024 00:44:34 +0000
-Message-ID: <20241215004434.2723843-1-shorne@gmail.com>
-X-Mailer: git-send-email 2.47.0
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JrGR8AsK"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1734343977;
+	h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jHM32heCVJfG3JOl1adj/cgqH9gzkHVFVrCM9byVCRs=;
+	b=JrGR8AsKAOuYrsKNU1tB/LPge+2H2Wu4dgsiTVZW/ChOKaPRIit+vvVRbH6Pe9ECZibqkf
+	w/NARZdSxk645vQvxIDPvY2hrbtihVFkkMUCPyqzV4go3DPiqC0b68cGbGWBL+NUvGxvcK
+	2OcazRPKUgMqBTUTdIT20Mn7OJCK2mw=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-77-yL_wZKSBNMivJ-t_I3Tm6Q-1; Mon,
+ 16 Dec 2024 05:12:52 -0500
+X-MC-Unique: yL_wZKSBNMivJ-t_I3Tm6Q-1
+X-Mimecast-MFC-AGG-ID: yL_wZKSBNMivJ-t_I3Tm6Q
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 80D3519560AF;
+	Mon, 16 Dec 2024 10:12:51 +0000 (UTC)
+Received: from calimero.vinschen.de (unknown [10.39.194.155])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 3F9F219560A3;
+	Mon, 16 Dec 2024 10:12:51 +0000 (UTC)
+Received: by calimero.vinschen.de (Postfix, from userid 500)
+	id CDB34A8088D; Mon, 16 Dec 2024 11:12:48 +0100 (CET)
+Date: Mon, 16 Dec 2024 11:12:48 +0100
+From: Corinna Vinschen <vinschen@redhat.com>
+To: Stafford Horne <shorne@gmail.com>
+Cc: Newlib <newlib@sourceware.org>,
+	Linux OpenRISC <linux-openrisc@vger.kernel.org>
+Subject: Re: [PATCH v2] or1k: Fix compiler warnings
+Message-ID: <Z1_9IM-ya8DuQIl8@calimero.vinschen.de>
+Reply-To: newlib@sourceware.org
+Mail-Followup-To: Stafford Horne <shorne@gmail.com>,
+	Newlib <newlib@sourceware.org>,
+	Linux OpenRISC <linux-openrisc@vger.kernel.org>
+References: <20241212162303.2099025-1-shorne@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+In-Reply-To: <20241212162303.2099025-1-shorne@gmail.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 7ZUM_SSFu117DGVdE_431JV-1JNX_4QAlRtqwYT788o_1734343971
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-Regen to add new functions acospi, asinpi, atan2pi and atanpi.
----
- sysdeps/or1k/nofpu/libm-test-ulps | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+Hi Stafford,
 
-diff --git a/sysdeps/or1k/nofpu/libm-test-ulps b/sysdeps/or1k/nofpu/libm-test-ulps
-index 305b6cef70..be6e12d8ac 100644
---- a/sysdeps/or1k/nofpu/libm-test-ulps
-+++ b/sysdeps/or1k/nofpu/libm-test-ulps
-@@ -33,6 +33,10 @@ Function: "acosh_upward":
- double: 2
- float: 2
- 
-+Function: "acospi":
-+double: 1
-+float: 1
-+
- Function: "asin":
- double: 1
- float: 1
-@@ -65,6 +69,10 @@ Function: "asinh_upward":
- double: 3
- float: 3
- 
-+Function: "asinpi":
-+double: 1
-+float: 1
-+
- Function: "atan":
- double: 1
- float: 1
-@@ -84,6 +92,10 @@ Function: "atan2_upward":
- double: 8
- float: 2
- 
-+Function: "atan2pi":
-+double: 1
-+float: 1
-+
- Function: "atan_downward":
- double: 1
- float: 2
-@@ -112,6 +124,10 @@ Function: "atanh_upward":
- double: 3
- float: 3
- 
-+Function: "atanpi":
-+double: 1
-+float: 1
-+
- Function: "cabs":
- double: 1
- 
--- 
-2.47.0
+I pushed your patch, thank you.
+
+However, assuming that 64 bit *might* be supported in future, I can't
+help noticing that or1k uses uint32_t as numerical replacement type for
+pointers.
+
+As an example, take sbrk.c:
+
+On Dec 12 16:23, Stafford Horne wrote:
+> In libgloss/or1k/sbrk.c:
+> 
+>     libgloss/or1k/sbrk.c:23:29: warning: initialization of ‘uint32_t’ {aka ‘long unsigned int’} from ‘uint32_t *’ {aka ‘long unsigned int *’} makes integer from pointer without a cast [-Wint-conversion]
+>        23 | uint32_t _or1k_heap_start = &end;
+> 	  |
+> 
+> This patch adds a cast, which is safe in or1k as the architecture in
+> 32-bit only.  But this code would not be 64-compatible.
+> [...]
+> diff --git a/libgloss/or1k/sbrk.c b/libgloss/or1k/sbrk.c
+> index 0c3e66e87..ca196d228 100644
+> --- a/libgloss/or1k/sbrk.c
+> +++ b/libgloss/or1k/sbrk.c
+> @@ -20,7 +20,7 @@
+>  #include "include/or1k-support.h"
+>  
+>  extern uint32_t	end; /* Set by linker.  */
+> -uint32_t _or1k_heap_start = &end;
+> +uint32_t _or1k_heap_start = (uint32_t) &end;
+>  uint32_t _or1k_heap_end;
+
+Just adding the cast silences the compiler, ok, but the question is, if
+the code shouldn't use void * directly for actual pointer values, and
+uintptr_t as numerical type.  Not only to future-proof for 64 bit, but
+also for readability and correctness.
+
+Also, even though all vars in the code are uint32_t anyway, the code
+recasts them to uint32_t a lot, for instance, line 44:
+
+    } while (or1k_sync_cas((void*) &_or1k_heap_end,
+		    (uint32_t) prev_heap_end,
+		    (uint32_t) (prev_heap_end + incr)) != (uint32_t) prev_heap_end);
+
+So, still using sbrk.c as an example, what about this?
+
+===== SNIP =====
+extern void *end;
+void *_or1k_heap_start = &end;
+void *_or1k_heap_end;
+
+void *
+_sbrk_r (struct _reent * reent, ptrdiff_t incr)
+{
+	void *	prev_heap_end;
+
+	// This needs to be atomic
+
+	// Disable interrupts on this core
+	uint32_t sr_iee = or1k_interrupts_disable();
+	uint32_t sr_tee = or1k_timer_disable();
+
+	// Initialize heap end to end if not initialized before
+	or1k_sync_cas(&_or1k_heap_end, 0, (uintptr_t) _or1k_heap_start);
+
+	do {
+		// Read previous heap end
+		prev_heap_end = _or1k_heap_end;
+		// and try to set it to the new value as long as it has changed
+	} while (or1k_sync_cas(&_or1k_heap_end,
+			(uintptr_t) prev_heap_end,
+			(uintptr_t) (prev_heap_end + incr))
+		 != (uintptr_t) prev_heap_end);
+
+	// Restore interrupts on this core
+	or1k_timer_restore(sr_tee);
+	or1k_interrupts_restore(sr_iee);
+
+	return prev_heap_end;
+}
+===== SNAP =====
+
+What do you think?
+
+Thanks,
+Corinna
 
