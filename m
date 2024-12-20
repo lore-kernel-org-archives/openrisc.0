@@ -1,50 +1,50 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B0291DFF8;
-	Fri, 20 Dec 2024 14:45:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8EF9221451;
+	Fri, 20 Dec 2024 19:31:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734705961; cv=none; b=inbSIsLlSWD2rmu+NA4t3lCwUUzq8K3EuQyMbKUktmebD/EIziul83W1jv31np59KMaF/0L2MFuwy3oMzsLlDd9pC2AxLuR7CRyew0h8VuJPRUiFePYi9QM5nph9kVlckM6SKCyls+RTUBdmOH1YPqWqX/VDpTiJdsZ9qMSile4=
+	t=1734723116; cv=none; b=MlsYBSzvzzWdOdwu/DpqFu+kXAEko+zXnes7THwnFF9AlWaPexzsGHnIwnrCvP6Ymkqi2YYR3AvA6BSuZFwzdzxcN4jlvKzInjUCFsoeKevTZaDjLcHK0VPqQpzZ/GRRXyYKjrew62D/8w1cpHm/o1DxlCtJ8qqQ48+XsOEKsyY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734705961; c=relaxed/simple;
-	bh=l+TvdBfWvVPAcsK8VbC159CKm8RgkJY+V79Gv5r8DN4=;
+	s=arc-20240116; t=1734723116; c=relaxed/simple;
+	bh=cWsdyve87/ahvL1Kdn+WU4yfF9lwFtfjevTBD3q3a5I=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=X8TKVXYSIBRVx3ygUrnCaKKmjRQFMEOTfTsqlu1ptE077tJ0wYGlHAnSUJuCoSD4AEJDqGh8cx8wx3kRdCWdf3Gt/W7vBC1/XXto65YeKYutEylS2C72PuLgV6xAx+j8nJefpWSLj1M5kF77Y7UOD8EpBTqzXPv35MWn7yAcOLA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Y2t7h63B; arc=none smtp.client-ip=198.175.65.14
+	 In-Reply-To:Content-Type; b=W0ofl3mxLmM51BVC5xUsjdwv322k6C0RCA3M8JvJ6u1ZNM2rdR2RUurEowhj5FSNGKoLdax2ORsvq0RCqg5PJ4NtC9kjZ5gTlityQua8Ln/KYV/m3+7vIiDlspA+LTqI5HE1OrhejdUjzW+Il7K16AZcf/QC4LdEbaJBfyg/MP4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=lBvD8A5g; arc=none smtp.client-ip=192.198.163.14
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Y2t7h63B"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lBvD8A5g"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1734705960; x=1766241960;
+  t=1734723115; x=1766259115;
   h=message-id:date:mime-version:subject:to:cc:references:
    from:in-reply-to:content-transfer-encoding;
-  bh=l+TvdBfWvVPAcsK8VbC159CKm8RgkJY+V79Gv5r8DN4=;
-  b=Y2t7h63B84LFeLPl5Vlj39/ZVv+UOwsCcCnQSTSMXvQIrKEUpcnYDhtv
-   9NGVkftjBhhkv6e72J7iw3yz9br09WXQsYW1UfLVXjVUjJHbjSd0g/JyB
-   XSLkrRCIr8MCVYNKjnWXa2C8FYE4uS1LecZhh6lFHEGT6Qb7N52Du7JIG
-   bMNS/w1Wjmv1Td4Y8v7JkJxy2GX432K9BopKX0zXpvKLd7QeAXY3llk2W
-   EM5/7BgGkdrSWuba1sNILezqEmXoAxwLYu4n7xGC4TSwDquZqbNHrMvBb
-   IsKsKDoTa4gVoeO739+MJzBrZjnr0vG/IF5UwHyGbel1aKAM3zrTMcx/v
-   Q==;
-X-CSE-ConnectionGUID: Hdq3m46dTbqatmmq178X3A==
-X-CSE-MsgGUID: fAZfb6TOQ+u2AdiisAqDcA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11292"; a="39040668"
+  bh=cWsdyve87/ahvL1Kdn+WU4yfF9lwFtfjevTBD3q3a5I=;
+  b=lBvD8A5gq5ZhryWgEkUZa0tFdge/1GcQ791QTG32VqCO+Cc4YhJkljiX
+   DGiz+DiH3RGoRZ36KpD+o1zt9T3dt5D5aL42RtSCPl3fTTTYlRoU7DBaY
+   v4I4A+7Tc4dXuyaBw6ZwSwzpm/qBIikYjZ08/qGuWCt6PXHeHVNHwpsUp
+   9f3PrZ56qnpn4rhOwNeuSy5YM3Op68DXz3Dhn3sYbAew/CwKMBx5mRzJH
+   KyM+HeJf+2QSwy940k69bl+/RbS/TIQRPipzr6AHaGuaBe4tWG9S6rbU+
+   MFnWt7NzIQNXWR/vLYyWEU1Lvjk17tt8D8vvONNEFzY6KKwnQsdOrCRbw
+   w==;
+X-CSE-ConnectionGUID: VYO5eTQgQgSWLHO0uTdf1g==
+X-CSE-MsgGUID: nyNw2gJKRAmi/wiISM/PwA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11292"; a="35498885"
 X-IronPort-AV: E=Sophos;i="6.12,251,1728975600"; 
-   d="scan'208";a="39040668"
-Received: from fmviesa006.fm.intel.com ([10.60.135.146])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Dec 2024 06:45:59 -0800
-X-CSE-ConnectionGUID: hdInxSi0Qf+/UQqd7LkLGQ==
-X-CSE-MsgGUID: OYmUDywbTrqpRN47tHU7cw==
+   d="scan'208";a="35498885"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Dec 2024 11:31:53 -0800
+X-CSE-ConnectionGUID: puhYWLhrTxCkddI44a7G2Q==
+X-CSE-MsgGUID: ZOvVbemkRy6XjG3xptTdtg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.12,251,1728975600"; 
-   d="scan'208";a="98311222"
+   d="scan'208";a="98986706"
 Received: from jairdeje-mobl1.amr.corp.intel.com (HELO [10.124.221.219]) ([10.124.221.219])
-  by fmviesa006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Dec 2024 06:45:56 -0800
-Message-ID: <719c5aa7-63ad-43f1-a2e8-644ef220db4f@intel.com>
-Date: Fri, 20 Dec 2024 06:45:55 -0800
+  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Dec 2024 11:31:52 -0800
+Message-ID: <989b55cf-1f9e-4b73-b3dd-d8b6a62be3f2@intel.com>
+Date: Fri, 20 Dec 2024 11:31:51 -0800
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -68,7 +68,8 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
  linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
  linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
  linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org,
- linux-um@lists.infradead.org, loongarch@lists.linux.dev, x86@kernel.org
+ linux-um@lists.infradead.org, loongarch@lists.linux.dev, x86@kernel.org,
+ Joerg Roedel <jroedel@suse.de>
 References: <20241219164425.2277022-1-kevin.brodsky@arm.com>
  <a7398426-56d1-40b4-a1c9-40ae8c8a4b4b@intel.com>
  <765aec36-55a4-4161-bb30-4ff838bc2d98@arm.com>
@@ -122,8 +123,29 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 12/20/24 02:58, Kevin Brodsky wrote:
->> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-> Just to double-check, are your ack'ing the x86 changes specifically? If
-> so I'll add your Acked-by on patch 6, 7 and 9.
+>> One super tiny nit is that the PAE pgd _can_ be allocated using
+>> __get_free_pages(). It was originally there for Xen, but I think it's
+>> being used for PTI only at this point and the comments are wrong-ish.
+>>
+>> I kinda think we should just get rid of the 32-bit kmem_cache entirely.
+> That would certainly simplify things on the x86 side! I'm not at all
+> familiar with that code though, would you be happy with providing a
+> patch? I could add it to this series if that's convenient.
 
-Feel free to add it to each patch in the series.
+I hacked this together yesterday:
+
+> https://git.kernel.org/pub/scm/linux/kernel/git/daveh/devel.git/log/?h=simplify-pae-20241220
+It definitely needs some more work. I'm particularly still puzzling
+about why SHARED_KERNEL_PMD is used both as a trigger for 32b vs.
+PAGE_SIZE PAE pgd allocations _and_ for the actual PMD sharing.
+
+Xen definitely needed the whole page behavior but I'm not sure why PTI did.
+
+Either way, that series should make the PAE PGDs a _bit_ less weird at
+the cost of an extra ~2 pages per process for folks who are running
+32-bit PAE kernels with PTI disabled.
+
+But I think the diffstat is worth it:
+
+ 5 files changed, 16 insertions(+), 96 deletions(-)
+
