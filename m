@@ -1,266 +1,152 @@
-Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0768219993E
-	for <linux-openrisc@vger.kernel.org>; Mon, 23 Dec 2024 09:46:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70D8614293
+	for <linux-openrisc@vger.kernel.org>; Mon, 23 Dec 2024 13:05:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734947202; cv=none; b=XA0VDHcXWpFO3OJRsJmmU9YAiHUBh8zw74DEg0j2eWh8VCuCm8RKEKvnRQUdUU1QNhBksYe8LpouxVjIHn9afDQyD+br+EVxs+pX0HoBePkqaQFo1Q5PBps/9HGbrqius27S3S76GnH30RrE60tRJWx9tPtd2c37dn03ZQaqGw0=
+	t=1734959157; cv=none; b=G2rQ2y6UvoH8TeSdnFIfYERA9SaBCRHQxt9sm56M7cmaa/6dUcgYSddLd9RsVE7hgOgIr2qp9CXjrMl0q2triO1Nx3dpgBgtpulIEOlSnfG4aL+0o/8t523gd6HJnXjCH0IzOdB50MMU9VNJ8xAI3dR8dtbxGPQgRVOq2nxa2Qk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734947202; c=relaxed/simple;
-	bh=z7CWl7O3eullh1F2ul6vkw9nxR1R7juWYomvqNSqC4Q=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=bsXn0SGURv8EtEqu5uoehhqtdASFtlrVwgASh8B9QXxgynUOLfILYk+9EfQN5yzbkHuCdIzT9Sj3FXspFLGtwpOFgGJqdPDRZj1+Mn5d7agHFt4Ls2zuY6kRvKgTWgKBqR7YWLkPyF4acPVNUqugXmcC2nz88NHdzMzbN91U6mk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=gBJl0ZEh; arc=none smtp.client-ip=209.85.210.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
+	s=arc-20240116; t=1734959157; c=relaxed/simple;
+	bh=TO0sqPdT9VR/yskt6Z5hywRsIjd/s6X9CexAAqRuh+k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=WtnM9VO+kwaQ/ydFrCxR/iHOMKp5cM30H8j8atMFchqKWMN7r3LJympJ7tbuNfEo+gnWIx6wr0h0IO0bZMU7CJxswvrjnn8yp9/bnWXzcnXVZeBF29/dcF4r/TRWuoaKpYQXRmJZxdMQOnIBmlHW5WMeLzK+TaeG23Gf7kQ0dtw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=btfIA2QB; arc=none smtp.client-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="gBJl0ZEh"
-Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-725f2f79ed9so3110669b3a.2
-        for <linux-openrisc@vger.kernel.org>; Mon, 23 Dec 2024 01:46:41 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="btfIA2QB"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-436345cc17bso30553385e9.0
+        for <linux-openrisc@vger.kernel.org>; Mon, 23 Dec 2024 05:05:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1734947200; x=1735552000; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/Vy7m3PQdTp9s3cHn2TFUEZi29ZbV6wwwxQw/bfJltk=;
-        b=gBJl0ZEhPzt/YSVHFKr2G4DdLNfHEeophzf6xmt5hCsiabjCqcPJbB3Q9Y/7nmsme7
-         poM4DwoLIFZWGSCWZJTwjTM8ndd0C8Yw18HkASeG7zFK+VVeS2Nf69oEJRfu5s/AJkYj
-         aQkDbDagyRe8U46EnyVq2TwDG+CPWkCmxCZFQrkRpzBtV7aKmFBumvlZif5WOL3WRKZT
-         jABbdnWKZoXLBvRJeaeVUqY1vOLNfyTmAau39IhKdbinpDl7svx0FvYBFps/t4XqkLvo
-         nA4zbKRN6ZAB3c7BaDnFnRiqDpJjSV3Pzx1TGH2u/AiK68Hf+z0CDLrcsFWE0lJn3G+t
-         MEaA==
+        d=gmail.com; s=20230601; t=1734959154; x=1735563954; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=vJZA8aIH2hF6nRR7Q585417JyQyDA2yXP2MpwsXzLe8=;
+        b=btfIA2QB95AEdAL2olpXwxU6qqq+u1Mpzs3pDas0rHOirdyCptDIZdVegoIdWlM0TY
+         zeFHgV2NSaYr62eHb00rxecidyEgSL6oBHdnGFQ19Mqi34iS2t6hwxXkliC/2/F1s+jb
+         mRfSgg/BhwpFE2b5RsAPwO/S9KidGvZEiCQExRCkvvVVFWSJthqmp0kK2mp57C+ST+GJ
+         CRnvfXfmD2NlLsY++SrN6su6RfYXjpW+PJvZvIF/pqkIsYiyjtsVS7qb1mPocEG+VXQi
+         iycr/ZDfIyhwzcZ7rjgh/fbfQb2B1Xy9ZGW5IKw5msbJq/pzrfB1/4kfW0Qx8RC16rXs
+         5ULQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734947200; x=1735552000;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/Vy7m3PQdTp9s3cHn2TFUEZi29ZbV6wwwxQw/bfJltk=;
-        b=NSWRGQmfwhmhbMsNXCnyUM/N5j39q6CZLMBNrFYYfXQ/+b3oS/iGH5B6zB0JTWWY8m
-         2Mj0wvltSIOnXENbQh+Qh1KfbQdtg3Q6lObevlf3p24q4zegYqvTWCAjYl53K49qRYvr
-         /a1lGyo0U0WyzPHzeMl0vFh9cYlLvWXgDU9uoIyw9Uf+i0zM/jj54WiyEFN0n4VPIAKI
-         JrniYVF8cUsKUf0R6Dr5X720QjOyzI5ytbNDQndgUfsJcN4Oce9Kj0SD21DIAIYIe/GZ
-         kBaZF4til/icfCNlWIFncs0Bu9VvRhNusyXLuZp2H77SGEtJhBHdwcEc+mCPV5vI4rO5
-         96Mg==
-X-Forwarded-Encrypted: i=1; AJvYcCXl/tqzo4OVYoH7Owdc/vrmvkAZmmj8xNbd3r9enpYxcvKHm9mqlP1BLGGB5dzt++IDhbK67yoZZWgE6GqNcw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz6WyXDvJFT/LL0SCy2UVE10RuMLgeK9q3gOQ5WsX5zSO/s7iyL
-	LiiH/qQk3RUG9pEti/0jlNd9NaI6K6Va7+ugpLo62IymsNMJqCu1/ejKy+xaeB4=
-X-Gm-Gg: ASbGncuHWY2gt33yoAsKUJi7dMoMsgUMYRGK0k2IgIgnPJTab0+8gXio9HjXGbPK9qU
-	TNDkreDqsSmRvU26DOnFTi/NlF4flsAmjx6uos3khYPSYcE4ML31QqK/Jf5pLG61XD2UpsldpLW
-	L8sfdQmAK62nlwA8kDG+KlTkYPVCaUkEKW6B5ztw5wiHVMWlxk0u4sRQvUOO/6nX++ayAf5JyzJ
-	QI/6k8imyuPuzNjqFcwcuAEEYH5kCqWZdG8B1hUMb7tL4B8pmQf9sADyb0wZ4cUU+nU4t6StGWJ
-	0ChWS9/hpvTF3ytZCq1h3w==
-X-Google-Smtp-Source: AGHT+IHTlP+hesMysY/dnyw4k1T/aSGpJ0FSxzWG+ektln9VxnC2FaHlf9zeRwOgabkwOIXU2HSkPg==
-X-Received: by 2002:a05:6a00:2407:b0:729:597:4faa with SMTP id d2e1a72fcca58-72abde9c004mr15027146b3a.16.1734947200520;
-        Mon, 23 Dec 2024 01:46:40 -0800 (PST)
-Received: from C02DW0BEMD6R.bytedance.net ([203.208.167.150])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-72aad8486c6sm7468309b3a.85.2024.12.23.01.46.28
+        d=1e100.net; s=20230601; t=1734959154; x=1735563954;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=vJZA8aIH2hF6nRR7Q585417JyQyDA2yXP2MpwsXzLe8=;
+        b=fK/r+V53lwbgl+jSmXXzF5mcK/2HlN5/m3eQXzrVWZH1ovUkDhzhDgFVD3j3Cb1HGE
+         apja05102ltLa2T8r/1naxLoTlbc0CdbF/hj+ThdMrgxllczYDN8jg07RgXoSyqDP9w0
+         8cYgDeEXFLXMUaP/79+he1YITTFEW7wKZvbFUssJ/USPYcUpMabNUjSwmWxTLnAzm0xz
+         nTuob2a/vvQGx67Nw+2cPQZsr9jY7fVTlduiZgImmTJrcLgHvyHNft6pPKjKT16GhOtN
+         WfIuFL7gGkyWgS61M0rv+PsgTHkgaYnC2CZ7NLuW2fNY1MTlCxBVng/bqp5w2xd/C+IZ
+         ICrw==
+X-Forwarded-Encrypted: i=1; AJvYcCUkAtskjT0ymAkuFdg67kiv+Yr07sWkI+tDJaInoB887Af1fYcvwLxGr5QqnQjdT1oR8OxyUKUuSNFVIJV/ZA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxOshuK0iU00hhgmoQ+MyuaBMUWUQpa424tr/vfSL3bdW8wTBxw
+	m7By1LX5DjIvPu7gO04qUtv6gP5WtXPcWNSZplDFHha4zl7sf3IM
+X-Gm-Gg: ASbGncu9hpp/YRXvNnsJAjCKoH0raxlFvoQTEsv4/Y1ztHjWYW7wbnApOFs2aR4R+2s
+	C5uocLSuIL8+uacAytxufVZy4GkAceaVGHZk6G2T7SwdBn++lCzpWUAVlnq8McaGbw7bneAKUYb
+	HRVPeueuivTnGE5CTx7Sv7gRzwmhvziMOBy66MDd6MfwhH/Ifnl0SA+febQdalWOJQLwZe+A5bd
+	k3+KQnC96fqdgdR3VBToV+8YP/VXV/eyymo5jwb+8aGVtAPdM3OBTW+j0Qm66abwOojJo13uf4S
+	A7pRL73ZMe+QPON6SK5o
+X-Google-Smtp-Source: AGHT+IGQl/G8wSP5yMr8WqG/kPJCMHd4Lu+TB7B5wpdiAuw3pY8srqlCbieEo/q4ZxzsZYcY1MzI1Q==
+X-Received: by 2002:a05:600c:1ca7:b0:434:fe3c:c67c with SMTP id 5b1f17b1804b1-43668b5e201mr96260495e9.26.1734959153340;
+        Mon, 23 Dec 2024 05:05:53 -0800 (PST)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43661289995sm134953735e9.36.2024.12.23.05.05.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Dec 2024 01:46:40 -0800 (PST)
-From: Qi Zheng <zhengqi.arch@bytedance.com>
-To: peterz@infradead.org,
-	agordeev@linux.ibm.com,
-	kevin.brodsky@arm.com,
-	tglx@linutronix.de,
-	david@redhat.com,
-	jannh@google.com,
-	hughd@google.com,
-	yuzhao@google.com,
-	willy@infradead.org,
-	muchun.song@linux.dev,
-	vbabka@kernel.org,
-	lorenzo.stoakes@oracle.com,
-	akpm@linux-foundation.org,
-	rientjes@google.com,
-	vishal.moola@gmail.com,
-	arnd@arndb.de,
-	will@kernel.org,
-	aneesh.kumar@kernel.org,
-	npiggin@gmail.com,
-	dave.hansen@linux.intel.com,
-	rppt@kernel.org,
-	ryan.roberts@arm.com
-Cc: linux-mm@kvack.org,
-	linux-arm-kernel@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	x86@kernel.org,
-	linux-arch@vger.kernel.org,
-	linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	linux-m68k@lists.linux-m68k.org,
-	linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org,
-	linux-sh@vger.kernel.org,
-	linux-um@lists.infradead.org,
-	Qi Zheng <zhengqi.arch@bytedance.com>
-Subject: [PATCH v3 17/17] mm: pgtable: introduce generic pagetable_dtor_free()
-Date: Mon, 23 Dec 2024 17:41:03 +0800
-Message-Id: <3ade33c5049f465dc2f0b95edc2d68c80f2048c9.1734945104.git.zhengqi.arch@bytedance.com>
-X-Mailer: git-send-email 2.24.3 (Apple Git-128)
-In-Reply-To: <cover.1734945104.git.zhengqi.arch@bytedance.com>
-References: <cover.1734945104.git.zhengqi.arch@bytedance.com>
+        Mon, 23 Dec 2024 05:05:52 -0800 (PST)
+Date: Mon, 23 Dec 2024 13:05:51 +0000
+From: Stafford Horne <shorne@gmail.com>
+To: Rob Landley <rob@landley.net>
+Cc: Peter Maydell <peter.maydell@linaro.org>,
+	"Jason A. Donenfeld" <Jason@zx2c4.com>,
+	QEMU Developers <qemu-devel@nongnu.org>,
+	Linux OpenRISC <linux-openrisc@vger.kernel.org>
+Subject: Re: or1k -M virt -hda and net.
+Message-ID: <Z2lgL31ZeSkO59MZ@antec>
+References: <afac091f-08cb-0f6d-4c01-bfa4421e7a47@landley.net>
+ <Zufcf4iAqosZ7VBf@antec>
+ <9b2761aa-8ee0-4399-b237-31e70e3ed165@landley.net>
+ <Z0Cyx3i3z7Zl7XPm@antec>
+ <31fa6255-8e0c-4d05-bad9-dd843c676244@landley.net>
+ <Z0GSETLeT5w8B2DX@antec>
+ <87a6b910-5af6-47ad-ad8d-b79f11a7cbf2@landley.net>
+ <Z0LMqEqcdjkAxnN-@antec>
+ <57c5207c-3aca-47cd-bfd3-3d7eb7be3c0f@landley.net>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <57c5207c-3aca-47cd-bfd3-3d7eb7be3c0f@landley.net>
 
-The pte_free(), pmd_free(), __pud_free() and __p4d_free() in
-asm-generic/pgalloc.h and the generic __tlb_remove_table() are basically
-the same, so let's introduce pagetable_dtor_free() to deduplicate them.
+On Sun, Dec 22, 2024 at 11:29:19AM -0600, Rob Landley wrote:
+> On 11/24/24 00:50, Stafford Horne wrote:
+> > > Speaking of which, is there a way to get or1k to exit the emulator? I told
+> > > the kernel to reboot but it says "reboot failed, system halted" and hangs
+> > > instead of exiting qemu. (My testroot runs qemu under "timeout -i 10" to
+> > > kill it after 10 seconds of inactivity, I.E. nothing written to stdout, but
+> > > it still counts as a failure on one of the criteria.)
+> > 
+> > With the or1k-sim board it is not possible.  Traditionally on or1k we use
+> > special NOP instructions to reboot simulators i.e. 'l.nop 1'.  The QEMU team was
+> > not happy to support this mechanism.
+> > 
+> >    https://lore.kernel.org/openrisc/fb69c137317a365dcb549dfef1ecd2fbff48e92c.1492384862.git.shorne@gmail.com/T/#mef76d30d294aed84548b1e0d3e23aae499deaeec
+> > 
+> > As an alertnative we can use the 'virt' board which supports shutdown and
+> > restart via the generic syscon drivers.
+> > 
+> >      $ grep -C1 SYSCON arch/openrisc/configs/virt_defconfig
+> >      CONFIG_POWER_RESET=y
+> >      CONFIG_POWER_RESET_SYSCON=y
+> >      CONFIG_POWER_RESET_SYSCON_POWEROFF=y
+> >      CONFIG_SYSCON_REBOOT_MODE=y
+> >      # CONFIG_HWMON is not set
+> 
+> I built the 6.12 ARCH=openrisc virt_defconfig and got it to boot my
+> initramfs, but while it does shut down, it hasn't got network or block
+> device support.
+> 
+> The kernel config looks like it should have virt block device support, but
+> nether -hda README nor "-drive file=README,format=raw,id=hd0 -device
+> virtio-blk-device,drive=hd0" seem to be wiring it up in qemu where the
+> kernel can find it?
 
-In addition, the pagetable_dtor_free() in s390 actually does the same
-thing, so let's s390 also calls generic pagetable_dtor_free().
+The default virt_defconfig should have the drivers we need.  The OpenRISC virt
+platform supports PCI and virtio devices, so I select many of the related
+drivers.
 
-Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
-Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
- arch/s390/mm/pgalloc.c        | 18 ++++++------------
- include/asm-generic/pgalloc.h | 23 ++++-------------------
- include/asm-generic/tlb.h     |  5 +----
- include/linux/mm.h            |  8 ++++++++
- 4 files changed, 19 insertions(+), 35 deletions(-)
+    $ grep -C1 -e PCI -e VIRT arch/openrisc/configs/virt_defconfig
+    # CONFIG_WIRELESS is not set
+    CONFIG_PCI=y
+    CONFIG_PCIEPORTBUS=y
+    CONFIG_PCI_HOST_GENERIC=y
+    CONFIG_DEVTMPFS=y
+    --
+    CONFIG_BLK_DEV_NBD=y
+    CONFIG_VIRTIO_BLK=y
+    CONFIG_NETDEVICES=y
+    CONFIG_VIRTIO_NET=y
+    CONFIG_ETHOC=y
 
-diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
-index 3e002dea6278f..1e0727be48eaf 100644
---- a/arch/s390/mm/pgalloc.c
-+++ b/arch/s390/mm/pgalloc.c
-@@ -180,32 +180,26 @@ unsigned long *page_table_alloc(struct mm_struct *mm)
- 	return table;
- }
- 
--static void pagetable_dtor_free(struct ptdesc *ptdesc)
--{
--	pagetable_dtor(ptdesc);
--	pagetable_free(ptdesc);
--}
--
- void page_table_free(struct mm_struct *mm, unsigned long *table)
- {
--	struct ptdesc *ptdesc = virt_to_ptdesc(table);
-+	struct page *page = virt_to_page(table);
- 
--	pagetable_dtor_free(ptdesc);
-+	pagetable_dtor_free(page);
- }
- 
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
- static void pte_free_now(struct rcu_head *head)
- {
--	struct ptdesc *ptdesc = container_of(head, struct ptdesc, pt_rcu_head);
-+	struct page *page = container_of(head, struct page, rcu_head);
- 
--	pagetable_dtor_free(ptdesc);
-+	pagetable_dtor_free(page);
- }
- 
- void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
- {
--	struct ptdesc *ptdesc = virt_to_ptdesc(pgtable);
-+	struct page *page = virt_to_page(pgtable);
- 
--	call_rcu(&ptdesc->pt_rcu_head, pte_free_now);
-+	call_rcu(&page->rcu_head, pte_free_now);
- 	/*
- 	 * THPs are not allowed for KVM guests. Warn if pgste ever reaches here.
- 	 * Turn to the generic pte_free_defer() version once gmap is removed.
-diff --git a/include/asm-generic/pgalloc.h b/include/asm-generic/pgalloc.h
-index 4afb346eae255..7d327889df306 100644
---- a/include/asm-generic/pgalloc.h
-+++ b/include/asm-generic/pgalloc.h
-@@ -107,10 +107,7 @@ static inline pgtable_t pte_alloc_one_noprof(struct mm_struct *mm)
-  */
- static inline void pte_free(struct mm_struct *mm, struct page *pte_page)
- {
--	struct ptdesc *ptdesc = page_ptdesc(pte_page);
--
--	pagetable_dtor(ptdesc);
--	pagetable_free(ptdesc);
-+	pagetable_dtor_free(pte_page);
- }
- 
- 
-@@ -150,11 +147,7 @@ static inline pmd_t *pmd_alloc_one_noprof(struct mm_struct *mm, unsigned long ad
- #ifndef __HAVE_ARCH_PMD_FREE
- static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
- {
--	struct ptdesc *ptdesc = virt_to_ptdesc(pmd);
--
--	BUG_ON((unsigned long)pmd & (PAGE_SIZE-1));
--	pagetable_dtor(ptdesc);
--	pagetable_free(ptdesc);
-+	pagetable_dtor_free(virt_to_page(pmd));
- }
- #endif
- 
-@@ -199,11 +192,7 @@ static inline pud_t *pud_alloc_one_noprof(struct mm_struct *mm, unsigned long ad
- 
- static inline void __pud_free(struct mm_struct *mm, pud_t *pud)
- {
--	struct ptdesc *ptdesc = virt_to_ptdesc(pud);
--
--	BUG_ON((unsigned long)pud & (PAGE_SIZE-1));
--	pagetable_dtor(ptdesc);
--	pagetable_free(ptdesc);
-+	pagetable_dtor_free(virt_to_page(pud));
- }
- 
- #ifndef __HAVE_ARCH_PUD_FREE
-@@ -245,11 +234,7 @@ static inline p4d_t *p4d_alloc_one_noprof(struct mm_struct *mm, unsigned long ad
- 
- static inline void __p4d_free(struct mm_struct *mm, p4d_t *p4d)
- {
--	struct ptdesc *ptdesc = virt_to_ptdesc(p4d);
--
--	BUG_ON((unsigned long)p4d & (PAGE_SIZE-1));
--	pagetable_dtor(ptdesc);
--	pagetable_free(ptdesc);
-+	pagetable_dtor_free(virt_to_page(p4d));
- }
- 
- #ifndef __HAVE_ARCH_P4D_FREE
-diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
-index 583e95568f52b..ef25169523602 100644
---- a/include/asm-generic/tlb.h
-+++ b/include/asm-generic/tlb.h
-@@ -211,10 +211,7 @@ struct mmu_table_batch {
- #ifndef __HAVE_ARCH_TLB_REMOVE_TABLE
- static inline void __tlb_remove_table(void *table)
- {
--	struct ptdesc *ptdesc = page_ptdesc((struct page *)table);
--
--	pagetable_dtor(ptdesc);
--	pagetable_free(ptdesc);
-+	pagetable_dtor_free(table);
- }
- #endif
- 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index cad11fa10c192..cd078d51f47c7 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -3001,6 +3001,14 @@ static inline void pagetable_dtor(struct ptdesc *ptdesc)
- 	lruvec_stat_sub_folio(folio, NR_PAGETABLE);
- }
- 
-+static inline void pagetable_dtor_free(void *table)
-+{
-+	struct ptdesc *ptdesc = page_ptdesc((struct page *)table);
-+
-+	pagetable_dtor(ptdesc);
-+	pagetable_free(ptdesc);
-+}
-+
- static inline bool pagetable_pte_ctor(struct ptdesc *ptdesc)
- {
- 	struct folio *folio = ptdesc_folio(ptdesc);
--- 
-2.20.1
+In my qemu startup I wire in the hard drive and network in my qemu start script:
 
+ - https://github.com/stffrdhrn/or1k-utils/blob/master/scripts/qemu-or1k-linux
+
+This uses:
+
+  -device virtio-net-pci,netdev=user -netdev user,id=user,net=$IPRANGE.1/24,host=$IPRANGE.100
+  -device virtio-blk-device,drive=d0 -drive file=${DISK},id=d0,if=none,format=qcow2
+
+> Haven't tried to get fancy with the network yet. The buildroot config is
+> still or1ksim...
+
+Yeah, its nothing fancy for me either. The buildroot with systemV init scripts
+get everything working for me.
+
+-Stafford
