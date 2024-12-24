@@ -1,77 +1,76 @@
-Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
+Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A80D17996
-	for <linux-openrisc@vger.kernel.org>; Tue, 24 Dec 2024 20:20:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BCAF212D65;
+	Tue, 24 Dec 2024 20:21:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735071609; cv=none; b=qClGKvIFf63wiOcv7QWzJxW6NwWK8tIxcV6Tn3NEuzNMC2QvTacQTsh6ZL1DiSAtXeo7NoDhEgThw6KtIVywVeXaiXj3XDrnkAx7BGpwEf9DZKsh5vOxVrRNRONOIL/7kIvnr0jSEjBY6bnyOefsjMFfg0QJGkZGNx5etl/R3Gs=
+	t=1735071719; cv=none; b=TPM8r9EaiRFSev6CaKtWmeaccwiCoBCVMTYsOsINYFp0oWQVQo1TBXKUHL/ZBnh2GqoxcEAPPS8QLgkdxqdO3ygtH7zDKVO/xKQVXxKxUeqZ6pCj3dOW/OEgcgXTknV04zsarUeSsdhDLW3WiJE1oAv7Lp6OoZogUsfI1tY0SmM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735071609; c=relaxed/simple;
-	bh=NbTSWFXz6Eh4CKJa9rqiMMWgfXuetnFsqx5MvzdH5Hg=;
+	s=arc-20240116; t=1735071719; c=relaxed/simple;
+	bh=lrZuvtJLO+ODhBjiaYakRFdOqlf92oZVKHokzkG0r/c=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=piyVC4MVSNMM0Fcsv84GwNbqTd50K1x40KASlhaPh6MzaT5uatRAGSzzo3MOgJVVQ0xNvNE3rI2IXZJWW3Q+ftb0vcNV/QxUybAKCQIhxZSettWOsLRmUWcUwUwqICBpviAHGkJ4xbVd0MGTcctZERAsUxM4ziJkZNKZ//tZft4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ae0YAf9x; arc=none smtp.client-ip=209.85.221.53
+	 Content-Type:Content-Disposition:In-Reply-To; b=BO+5JwgyqzXoqx0mm7GYCSiMfRfvu80RxH//MteFAfXtyJrK0xquSYtph3OAIQxSmLVQWeH04g4rMeZ4T7PMcG5eRalxe9moMjLp2l41vPOqFKy9/gu9h0dWY2CwuS1ZrR4XTBKWWGxLRAVXhwAFGA1wO5POSki1wsPg1eMo2TM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SvTtF2P1; arc=none smtp.client-ip=209.85.221.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ae0YAf9x"
-Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-385d7b4da2bso4634421f8f.1
-        for <linux-openrisc@vger.kernel.org>; Tue, 24 Dec 2024 12:20:06 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SvTtF2P1"
+Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-3862d161947so2619581f8f.3;
+        Tue, 24 Dec 2024 12:21:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1735071605; x=1735676405; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1735071716; x=1735676516; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=T7Pey9rXArqJvfAxmxOrdrxqfM/gCIyHOw8FfQUqsE4=;
-        b=Ae0YAf9xDl1DJBKiWBUumphpgMt8TFbLt0yRskaIVgu4+YDyp2YazLx+o8652tWCo4
-         sY5Eevn7RxPDCqwwGoNG06pRKV3OMceSGFu8NHuAB5PsH4I/bVgbHqVMCzzwOBcet0WT
-         Qr7PPT+zr5C1OfvVH1apzVvz0A2agWIupChS+QnkXbPrZA17KwitkX6L3Lh3W4IVBhEd
-         8mWlrp9/8JelXNujXB5rHq6XNySyywhZMhngnYL6kNNCGMbAXWFo4WKpBIGS725QK5Z0
-         iiJ+wY5IBoF2+oFC8ZC6b1Q4JjwEr5DLnittOCKRUNrl4DHzWGPGfNVf8qIAB+vIKLLZ
-         w0DA==
+        bh=atbGifQIM2H5IJ+rpy7vbzj9n0kS26ASFPC2gnvIgMw=;
+        b=SvTtF2P18giy2X6stKsaNCOrvoJSNzxOzB7LKczoISBEeDDCDQJMXXJ7xl1fpnmHiS
+         HUCFZ2QoXf4l8Nr7SGAE1rH/RCnr4ZoUcmrViQLYgatjPsYRx0Z47Pgu3MDluSeJI7ff
+         WhK+NokqfTzg56FU66widApV7SgNZgqv/+Q7mmj96bffGQyXupC9DK1dMpOMXspytRkN
+         DEXBmBCY5ZNrpNJfhi/A8wm7ujgWHz6/VvJvZZIF5zv993u7GDVCPBVhf+Ty2YOiog5r
+         QOTcJDs+ozM0tF+tuw0HjQGDrbSRj8jrvBzvupAfa0x6RYPRZmqeugsAuhUUA7gEvwG8
+         fhHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1735071605; x=1735676405;
+        d=1e100.net; s=20230601; t=1735071716; x=1735676516;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=T7Pey9rXArqJvfAxmxOrdrxqfM/gCIyHOw8FfQUqsE4=;
-        b=dwwIzGcCu+QqvVeW4dNfQ6NoAybmX1819B5yCviEoz6Pk/k0BVyOL8gMnZDpXSmZjd
-         9qAEaB01Zsrwx4EMFoeWNbMQuKJiOCC4M8P0sLur7DZJhbpVNxDfwd00Zbx3udgFSGQt
-         YK2r0zsADYrvBtStqeWwIOjFyjYQqHDPdiSZu/J8/aVpu5PRyc/OmYbKZxBseC8eSzXF
-         m7XP1aoIjF09XoTg0GfazxI6yQzGmp248MA7hj3Aq+QIZ4KmGog0p87W3PhgGyqxs5dE
-         6Xpn2Qlt610yVNKPCePCMxeGRzQFZf6CN8J/mfmeeQW6ZqCyLdZsg2/AoNb9ZuxrpxA3
-         HXug==
-X-Gm-Message-State: AOJu0Yx//hoaEKAjkkiLfj83kbgL4XE9yWrcDLpXR3XOge5pmJpqjUZZ
-	K8ehoFGGi3er5lkgyxXp1VX6g+r7TqGnm8V9fnOhYs+b26QFO94rE2wjD+2v
-X-Gm-Gg: ASbGncvVfSWjgJF9XD52QnBWHvhXq4qn/35UwuEB9zGbwQRs5H7FxzqqBjQr2L8G+4Z
-	d6zEBhZtl8AVKODR3NhOTPw8CdX+es3ogt6zEbI+Q6/KYrRLaIs0w/fazyB2LTQEx4YA4uRWb1s
-	8OzGma8mpcoXkFO2j4Oz2JVrbtkV6BG19PfJOgi1M1WdDcstS13OU71xXWKg0j6zvfgrMztSG0o
-	wb9wDYwtCahLgov49VGCF/liABveaW7ez/9hiC2xHnbcQbWiKhdOXXcsjtLfP2bI/oaTB/cHdLa
-	51ACGNNJJaNHtqxnmwWJ
-X-Google-Smtp-Source: AGHT+IGmlrpV17eSJR8Pj9jB3jnNViHfW6rDhC5+AIibawvpGyF7qy5ntzOR7Fn2FX4KOL1y75HgtQ==
-X-Received: by 2002:a05:6000:2ad:b0:386:3a8e:64bd with SMTP id ffacd0b85a97d-38a221f2c6emr17914244f8f.22.1735071604462;
-        Tue, 24 Dec 2024 12:20:04 -0800 (PST)
+        bh=atbGifQIM2H5IJ+rpy7vbzj9n0kS26ASFPC2gnvIgMw=;
+        b=NKDSnqr0K2tBsZR7eHWmqaVjF8mm889a/zGRXch7KnHdhhSTmg/sAK8eA8TbtRQb1g
+         qXgLlrBX0UjCPFGrV2se/mXf8nbDmW5EzODqdAFZfvLEsGcCzOt/HwKT9d64EsV7/BTj
+         iJmsZHDLmVIzYs8TXGNSa7gjF20dWnh6PnEVIAdaN76BJZ+ANCCYB9/bx9z5uJtWVmPJ
+         gUaVFV89gOIQ/sOk0gUMxSS1/1oHb7L9YNSSm1Rzm0cOW14IgCrc620zWoNr6IGpfH0w
+         eOL8rG5PSOSH/744hpLQqe5CLzGnHKtQhueGsqJNBRL5COlxmb1hArcYhCEYUoXMGthN
+         2/4g==
+X-Forwarded-Encrypted: i=1; AJvYcCUiI+pPpLPZJU7Z5+iwmDhj0iEX7ugnObC6DHWiT7AQHvJPua7i/cR4j6/otXuFrzGeTR30OyShCQc4ZXUW@vger.kernel.org, AJvYcCVwVqYNmKYmPLEkdaw1PTzIe4VdL/C9wooMrRDUWS2daQtHmWntkaN84RGvf0RuGe6ng0Q1pUOO/pZd@vger.kernel.org, AJvYcCWItDYnoh+gYDaL82yEIIneGeMIIiZ/opYHo3xOOZdAgi03/tp99BpZegxutmP3mNQzi9PtfYgQUv2tB6YE/p8=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy9Ych6Xo33+q9uUwOKqRyZX0XG70u5Y2o4Fio2ZeR2DaTc92dA
+	aDGYkxinTYrebCxzSoC4a1kPQtXo9neYj6xPenIDP7o6hgVdAYTfPtUlIcQyusQ=
+X-Gm-Gg: ASbGncsJ3j36O+jX3CkZhvc0r+eKG+2fvgl7npo0SN6YaKy9i19WFObGl9H+Gdbdvam
+	dpLkKppwfa8fMo1qMYhhNxhzQnvC/cxVG0WbfuSLPfhmKz6XDVE/UkGlrRZZOfwYV92Qn1NqEom
+	4ch1u4ETfB6Cb9dy3gD9mPQnqnCRhEkf7ngsWTfXGACbIF7OXSas1UZrwlGdhrv+EAO6l8CBbGR
+	2W/BacgnGlpWaDP0CxdQuRL8yxcAkP9C/MVfeXxiKf9fJ5FxEWUDX9K1kMibaH1Ej4ZCffQuykt
+	XjYlge5tAn0Ys81HGPz4
+X-Google-Smtp-Source: AGHT+IFTtglOPOnR65bnQJNVIFMfAuslZGfpnY/WuS/Unk8l/SSDeHIHXRhKgP9srRxl3LeizZ0Gnw==
+X-Received: by 2002:a05:6000:178c:b0:385:d7f9:f15d with SMTP id ffacd0b85a97d-38a221e300amr16069720f8f.11.1735071715809;
+        Tue, 24 Dec 2024 12:21:55 -0800 (PST)
 Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4366127c515sm178339055e9.30.2024.12.24.12.20.00
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38a1c89e126sm14711673f8f.65.2024.12.24.12.21.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Dec 2024 12:20:01 -0800 (PST)
-Date: Tue, 24 Dec 2024 20:20:00 +0000
+        Tue, 24 Dec 2024 12:21:54 -0800 (PST)
+Date: Tue, 24 Dec 2024 20:21:53 +0000
 From: Stafford Horne <shorne@gmail.com>
-To: Michael Jeanson <mjeanson@efficios.com>
-Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	GLIBC patches <libc-alpha@sourceware.org>
-Subject: Re: [PATCH] nptl: Add <thread_pointer.h> for or1k
-Message-ID: <Z2sXcENuw--JWlx6@antec>
-References: <20241101192339.123141-5-mjeanson@efficios.com>
- <ZzJ-T-5VFZ8gZEf7@antec>
- <94aee33f-c9d2-428b-9b03-7e4fb1c97472@efficios.com>
- <Z1g2UxaMlKH5o5nc@antec>
- <Z1h5hzWpD8Fu77AL@antec>
- <8dcf9b95-b7fb-4b5e-8708-b4428b58ecd1@efficios.com>
- <8afa2c34-9416-412d-9920-ab15b44c6d4b@efficios.com>
- <Z1rZ6APG2ViLdLmy@antec>
- <e249789e-0cfa-4d66-805b-e3cd1aef957a@efficios.com>
- <Z11l_-7RV07JRwCo@antec>
+To: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	linux-openrisc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Conor Dooley <conor+dt@kernel.org>,
+	Gabriel Somlo <gsomlo@gmail.com>, Joel Stanley <joel@jms.id.au>,
+	Karol Gugala <kgugala@antmicro.com>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Mateusz Holenko <mholenko@antmicro.com>,
+	Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org
+Subject: Re: [PATCH] openrisc: migrate to the generic rule for built-in DTB
+Message-ID: <Z2sX4UwT_ds_6TFt@antec>
+References: <20241222002355.2581242-1-masahiroy@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -80,89 +79,116 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Z11l_-7RV07JRwCo@antec>
+In-Reply-To: <20241222002355.2581242-1-masahiroy@kernel.org>
 
-On Sat, Dec 14, 2024 at 11:03:27AM +0000, Stafford Horne wrote:
-> +CC Lists,
+On Sun, Dec 22, 2024 at 09:23:50AM +0900, Masahiro Yamada wrote:
+> Commit 654102df2ac2 ("kbuild: add generic support for built-in boot
+> DTBs") introduced generic support for built-in DTBs.
 > 
-> They should have been included for all of these.
+> Select GENERIC_BUILTIN_DTB to use the generic rule.
 > 
-> On Fri, Dec 13, 2024 at 11:22:32AM -0500, Michael Jeanson wrote:
-> > On 2024-12-12 07:41, Stafford Horne wrote:
-> > > On Tue, Dec 10, 2024 at 03:30:05PM -0500, Michael Jeanson wrote:
-> > >> On 2024-12-10 13:56, Michael Jeanson wrote:
-> > >>>> I started adding rseq support to OpenRISC, but it seems I need to do a bit more
-> > >>>> for me than just call rseq_signal_deliver().  OpenRISC does not implement
-> > >>>> HAVE_REGS_AND_STACK_ACCESS_API yet, so I will need to do that first.  Also I
-> > >>>> need to think of an instruction to use for RSEQ_SIG, but that should not be too
-> > >>>> hard.
-> > >>>
-> > >>> Do you have a WIP tree somewhere I can have a look at? Assuming you add
-> > >>> HAVE_REGS_AND_STACK_ACCESS_API, the rest should be pretty simple.
-> > >>
-> > >> I had a quick look at the kernel code and it looks pretty straightforward,
-> > >> I hacked this together just to see if it would build :
-> > >>
-> > >>   https://github.com/mjeanson/linux/commits/openrisc-rseq/
-> > >>
-> > >> This is thoroughly untested and only cross-compiled.
-> > > 
-> > > Thanks, while you were doing this I did something similar but took a much
-> > > shorter route, I only implemented the APIs used by rseq.
-> > > 
-> > > I have pushed branches for linux and glibc here:
-> > > 
-> > >  - https://github.com/stffrdhrn/or1k-glibc/commits/or1k-rseq/
-> > >  - https://github.com/stffrdhrn/linux/commits/or1k-rseq/
-> > 
-> > You might also want to add a call to 'rseq_syscall' in arch/openrisc/kernel/entry.S
-> > on return to userspace when CONFIG_DEBUG_RSEQ is enabled.
+> To keep consistency across architectures, this commit also renames
+> CONFIG_OPENRISC_BUILTIN_DTB_NAME to CONFIG_BUILTIN_DTB_NAME.
 > 
-> Yes, I am aware of that one, but I think I discovered an issue with the return to
-> userspace code that needs some cleanup before I can add that in.
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 
-I think this ended up being ok.
+Thanks,
 
-I have added the call to rseq_syscall and implemented self tests on my branch
-now.
-
- - https://github.com/stffrdhrn/linux/commits/or1k-rseq/
- - commit 1fa73dd6c2d3 ("rseq/selftests: Add support for OpenRISC")
-
-I haven't got the tests to complete fully yet though.  Do you have a recommended
-approach for building, testing and debugging them?  I am using my glibc
-toolchain, but I assume the original implementations didnt have glibc support
-available when they were testing.
-
-My stack now:
-
-  - QEMU virt
-  - Linux virt_defconfig (or1k-rseq branch)
-    - rseq selftests - built with gcc/glibc toolchain (or1k-rseq branch)
-  - rootfs - Buildroot with my glibc (or1k-rseq branch)
-    - gdb
-    - strace
-
-In general I am using the latest git HEADs for qemu, gcc, binutils etc.
-
-Once, everything is working on QEMU I will test again on the FPGA hardware.
-
-Currently tests are failing with SIGSEGV:
-
-    TAP version 13
-    1..10
-    # timeout set to 0
-    # selftests: rseq: basic_test
-    # testing current cpu
-    ok 1 selftests: rseq: basic_test
-    # timeout set to 0
-    # selftests: rseq: basic_percpu_ops_test
-    # spinlock
-    # ./kselftest/runner.sh: line 37:   772 Segmentation fault      /usr/bin/timeout  --foreground "$kselftest_timeout" /usr/bin/timeout "$kselftest_timeout" $1
-    not ok 2 selftests: rseq: basic_percpu_ops_test # exit=139
-
-In gdb it looks to be happening in in an mprotect syscall in glibc and at that
-point the stack seems to be corrupt already.  So its taking me a bit of time to
-untangle.
+This looks good to me. I will queue this for 6.14.
 
 -Stafford
+
+> ---
+> 
+>  arch/openrisc/Kbuild                       | 1 -
+>  arch/openrisc/Kconfig                      | 3 ++-
+>  arch/openrisc/boot/dts/Makefile            | 2 +-
+>  arch/openrisc/configs/or1klitex_defconfig  | 2 +-
+>  arch/openrisc/configs/or1ksim_defconfig    | 2 +-
+>  arch/openrisc/configs/simple_smp_defconfig | 2 +-
+>  6 files changed, 6 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/openrisc/Kbuild b/arch/openrisc/Kbuild
+> index b0b0f2b03f87..70bdb24ff204 100644
+> --- a/arch/openrisc/Kbuild
+> +++ b/arch/openrisc/Kbuild
+> @@ -1,6 +1,5 @@
+>  # SPDX-License-Identifier: GPL-2.0
+>  obj-y += lib/ kernel/ mm/
+> -obj-y += boot/dts/
+>  
+>  # for cleaning
+>  subdir- += boot
+> diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+> index 3279ef457c57..3d053e0b59f4 100644
+> --- a/arch/openrisc/Kconfig
+> +++ b/arch/openrisc/Kconfig
+> @@ -10,6 +10,7 @@ config OPENRISC
+>  	select ARCH_HAS_DMA_SET_UNCACHED
+>  	select ARCH_HAS_DMA_CLEAR_UNCACHED
+>  	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
+> +	select GENERIC_BUILTIN_DTB
+>  	select COMMON_CLK
+>  	select OF
+>  	select OF_EARLY_FLATTREE
+> @@ -92,7 +93,7 @@ config DCACHE_WRITETHROUGH
+>  
+>  	  If unsure say N here
+>  
+> -config OPENRISC_BUILTIN_DTB
+> +config BUILTIN_DTB_NAME
+>  	string "Builtin DTB"
+>  	default ""
+>  
+> diff --git a/arch/openrisc/boot/dts/Makefile b/arch/openrisc/boot/dts/Makefile
+> index 13db5a2aab52..3a66e0ef3985 100644
+> --- a/arch/openrisc/boot/dts/Makefile
+> +++ b/arch/openrisc/boot/dts/Makefile
+> @@ -1,4 +1,4 @@
+>  # SPDX-License-Identifier: GPL-2.0
+> -obj-y += $(addsuffix .dtb.o, $(CONFIG_OPENRISC_BUILTIN_DTB))
+> +dtb-y += $(addsuffix .dtb, $(CONFIG_BUILTIN_DTB_NAME))
+>  
+>  #DTC_FLAGS ?= -p 1024
+> diff --git a/arch/openrisc/configs/or1klitex_defconfig b/arch/openrisc/configs/or1klitex_defconfig
+> index 466f31a091be..3e849d25838a 100644
+> --- a/arch/openrisc/configs/or1klitex_defconfig
+> +++ b/arch/openrisc/configs/or1klitex_defconfig
+> @@ -7,7 +7,7 @@ CONFIG_BLK_DEV_INITRD=y
+>  CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+>  CONFIG_SGETMASK_SYSCALL=y
+>  CONFIG_EXPERT=y
+> -CONFIG_OPENRISC_BUILTIN_DTB="or1klitex"
+> +CONFIG_BUILTIN_DTB_NAME="or1klitex"
+>  CONFIG_HZ_100=y
+>  CONFIG_OPENRISC_HAVE_SHADOW_GPRS=y
+>  CONFIG_NET=y
+> diff --git a/arch/openrisc/configs/or1ksim_defconfig b/arch/openrisc/configs/or1ksim_defconfig
+> index 0116e465238f..59fe33cefba2 100644
+> --- a/arch/openrisc/configs/or1ksim_defconfig
+> +++ b/arch/openrisc/configs/or1ksim_defconfig
+> @@ -14,7 +14,7 @@ CONFIG_SLUB=y
+>  CONFIG_SLUB_TINY=y
+>  CONFIG_MODULES=y
+>  # CONFIG_BLOCK is not set
+> -CONFIG_OPENRISC_BUILTIN_DTB="or1ksim"
+> +CONFIG_BUILTIN_DTB_NAME="or1ksim"
+>  CONFIG_HZ_100=y
+>  CONFIG_NET=y
+>  CONFIG_PACKET=y
+> diff --git a/arch/openrisc/configs/simple_smp_defconfig b/arch/openrisc/configs/simple_smp_defconfig
+> index b990cb6c9309..6008e824d31c 100644
+> --- a/arch/openrisc/configs/simple_smp_defconfig
+> +++ b/arch/openrisc/configs/simple_smp_defconfig
+> @@ -20,7 +20,7 @@ CONFIG_SLUB=y
+>  CONFIG_SLUB_TINY=y
+>  CONFIG_MODULES=y
+>  # CONFIG_BLOCK is not set
+> -CONFIG_OPENRISC_BUILTIN_DTB="simple_smp"
+> +CONFIG_BUILTIN_DTB_NAME="simple_smp"
+>  CONFIG_SMP=y
+>  CONFIG_HZ_100=y
+>  CONFIG_OPENRISC_HAVE_SHADOW_GPRS=y
+> -- 
+> 2.43.0
+> 
