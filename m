@@ -1,31 +1,74 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9972913633F;
-	Mon, 30 Dec 2024 04:55:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 005E21465AD
+	for <linux-openrisc@vger.kernel.org>; Mon, 30 Dec 2024 05:01:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735534548; cv=none; b=GjfPfIskX5O1SfKqF72cG51/hlxSSNoEqvQdMshhrUFBUtB3RbLWwYwHhUuJf1pTPrclDLIcGV9PLaKJo0NtGuadJjxtQ5SGnOzy9cVoD4Kwu6Dgours5O+hwrfy9wbtCLPy4hHL5KXi6wwLmNUvdM/XRevY4HvMHkIr1edRbBM=
+	t=1735534907; cv=none; b=Q+JyDaRjxMWgkn37tEt8x0tMOSIvPGmJBF/TGjBwMfGNwOdF9ALA9ARiGLVGxQfZeTqTkQ0Swb9zxhoAyqha0juE8GFy3DrXF81N+mC+0o0bXMHPJdnNpYUZhWiq54GGLK98UX1Vwg7T/zcm1L0EU2TznFDbt9MCFUNgC7YH7Eo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735534548; c=relaxed/simple;
-	bh=AJswIJAQd5FETiIh0u+rfDfZfqamfQp06InUDAPDuXA=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=b+JjTqKCZVchG7ZZlmUmndAxreL1/piroF8I1stE5Mch0D6pjRpUPVEATm6p+1NVrfApLGTb2B5kgdELdQ4FXELLbK4v6eJNFsuUBBHDXPG2Perq7W//mOI/Em5Z/2UsKbm3LIFfN/EHGfm/ITNthahOKUc7Io/5dEZcPI4vDUs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=rhe3QlxD; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1735534907; c=relaxed/simple;
+	bh=piyHCVVAMwS1wQEyd4KrwKqNTu7KlhnDsmo79+H7v/E=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=n7BGSoZP+V6LSGE9dDikaujfpT/faaUPBfKry1zbiM5qjsdpnBGAflbXZmlahMakagRz5uft2DuDC0yPgA8xvr6UoIG9ArSTUBw8o4ZoddkYyrQ48Rapo7tYIe1/b4RRmaidWQ6idvPO6Ggq7u/k/cFO6TStgXJAlWMharsLq30=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=AVwYCuks; arc=none smtp.client-ip=209.85.214.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="rhe3QlxD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB0FAC4CED0;
-	Mon, 30 Dec 2024 04:55:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-	s=korg; t=1735534547;
-	bh=AJswIJAQd5FETiIh0u+rfDfZfqamfQp06InUDAPDuXA=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=rhe3QlxDLrSSLi3sUiu8VVb+GHWge7MOiJcFxtA8oK28fW9HmGNW19VjrwSTcCGgb
-	 r2YmGYGxTSfcYGqg8CrarFXVALRtvCpH5QUm8X8Dcox5YzUhoHoyUwOYqQ6lnY9L2Q
-	 H2PY79bq6wwE7WdNlWq8aScHu3jsSCDF3yqMjhok=
-Date: Sun, 29 Dec 2024 20:55:45 -0800
-From: Andrew Morton <akpm@linux-foundation.org>
-To: Qi Zheng <zhengqi.arch@bytedance.com>
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="AVwYCuks"
+Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-21670dce0a7so14276215ad.1
+        for <linux-openrisc@vger.kernel.org>; Sun, 29 Dec 2024 21:01:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1735534904; x=1736139704; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=z71RF7AQSzzvF96cC/aV2tD8Znb4DG916rBbscUdZ1I=;
+        b=AVwYCuksyL4MWKNaOrcPqCsZHjP15dUO7Ft7whW/+MGucPq2CCF41ayT8HETt/nEMO
+         INyXiKOGq8dtgD/nwAjk5Uvbn/UNo6jLG8qZLyqXrnJTAdRzC7Kamk4u5TtkyRp8o3/A
+         +1Rvh7mPtO96ubOzkKZmD+51Gvtwp7vYJNHB3SEvUmi7l+9dL+Z3crf/xHOccAuBwsfd
+         k1c3oolBT037qU5KPaOm4MllAPqW3k8jlJDhTFXsAr7VPyZz5sI+gBdqLOmCO810bvI/
+         2VnuL99Nd7JF3vQY+V7vuf4tXweQBDZ0VLv7S4ip/DrVWjK5G//bmm3zSbnYRAqLIFvz
+         XWUA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1735534904; x=1736139704;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=z71RF7AQSzzvF96cC/aV2tD8Znb4DG916rBbscUdZ1I=;
+        b=nPzlPiQUv/2TqpEezCenUbz5I+/KK191iJoCpD36YweUpeFajFBLFijQCxha4ZEtVY
+         7e4nzzMihdBSrNlZcF/UZdcFi6DO4HTgNDLohJ+p29PfE84w/+9lAQ7BuaoXPZTBCLP2
+         1J3WNJSD4FcduM5sTh+T+XztCRDoF4ykjvmaDCbrsT/xdjtkEhgzGHyv3klOYrTOBPNL
+         EAERA5dDPo4EPowRpHMqw0vdXjlpauCoCmQQOTXN9aw3m/X52UcE+jZ9Q0TlIuw8quSy
+         EbK9qtSpuPbM94jxBtBnrxCq3EUcyllPbqfxWGb6K5YaXBX8Pv5CcTTFxFekk8NqJ7h6
+         yJ6Q==
+X-Forwarded-Encrypted: i=1; AJvYcCVhfDjC+Y//Hb7mO6xcFrDyIetD2eg3N5orzVX9PJ1iZ20GeGtMRSIVLcQKfgs2jmYJwNM/vOVNRqb6XKmA4w==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwJG1LWnaD9EKHG7fVWm15SyHO/7hR3XHA40TLQpqQS2IBSXMBz
+	jtTSRxHtklnTJqdlQmw6H+g7D97h2MKWeVZ9iJTWfRuMdzvVMTZsJxRV9TY0RDg=
+X-Gm-Gg: ASbGnctKX/9y02kx/bScdZ8v8p9qKFJfGDWaRTXGLNCytJKYO9kLwk9fFDlv0nRVYtv
+	nKJ2y9xWdNfOvotbzSMDVlfwpHFpYP98zxsV12fVRXRjsrNEKE7YK88kUWJ4r7hQC1p2YbjA1PW
+	IcGaqkriI8NVacfEUANk+zPue5HQI/tXjSvBcM1fpdnhVb9v/MRI2I8oHzmXnZ/OuameTMdfitW
+	ncgZZV8LmXLzFdxjFJAuzigkUjUBu0jD5dWhwj6agBOvjOLVQawuYZQ7E6QfHWkywu6uaWvfdsP
+	XTNoYQ==
+X-Google-Smtp-Source: AGHT+IGNJA4bVLowcqsTNcTKWXSt9C1oo/1EXH42Qr0z5K3kcPv3AzGfuER3K4niOaxH4y3G0nd6hA==
+X-Received: by 2002:a17:902:ce86:b0:215:a57e:88e7 with SMTP id d9443c01a7336-219e6e89215mr362710865ad.3.1735534904325;
+        Sun, 29 Dec 2024 21:01:44 -0800 (PST)
+Received: from [10.84.148.23] ([203.208.167.150])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-842aba7325csm16914771a12.7.2024.12.29.21.01.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 29 Dec 2024 21:01:43 -0800 (PST)
+Message-ID: <efd81018-f637-4925-9104-c9586fef688c@bytedance.com>
+Date: Mon, 30 Dec 2024 13:01:29 +0800
+Precedence: bulk
+X-Mailing-List: linux-openrisc@vger.kernel.org
+List-Id: <linux-openrisc.vger.kernel.org>
+List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
+List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 15/17] mm: pgtable: remove tlb_remove_page_ptdesc()
+Content-Language: en-US
+To: Andrew Morton <akpm@linux-foundation.org>
 Cc: Mike Rapoport <rppt@kernel.org>, kevin.brodsky@arm.com,
  peterz@infradead.org, agordeev@linux.ibm.com, tglx@linutronix.de,
  david@redhat.com, jannh@google.com, hughd@google.com, yuzhao@google.com,
@@ -41,38 +84,40 @@ Cc: Mike Rapoport <rppt@kernel.org>, kevin.brodsky@arm.com,
  linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
  linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org,
  linux-um@lists.infradead.org
-Subject: Re: [PATCH v3 15/17] mm: pgtable: remove tlb_remove_page_ptdesc()
-Message-Id: <20241229205545.e4fa797886f30cb20c38ad06@linux-foundation.org>
-In-Reply-To: <9cac5690-c570-4d43-a6bc-2b59b85497ae@bytedance.com>
 References: <cover.1734945104.git.zhengqi.arch@bytedance.com>
-	<b37435768345e0fcf7ea358f69b4a71767f0f530.1734945104.git.zhengqi.arch@bytedance.com>
-	<Z2_EPmOTUHhcBegW@kernel.org>
-	<9cac5690-c570-4d43-a6bc-2b59b85497ae@bytedance.com>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
-Precedence: bulk
-X-Mailing-List: linux-openrisc@vger.kernel.org
-List-Id: <linux-openrisc.vger.kernel.org>
-List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
-List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+ <b37435768345e0fcf7ea358f69b4a71767f0f530.1734945104.git.zhengqi.arch@bytedance.com>
+ <Z2_EPmOTUHhcBegW@kernel.org>
+ <9cac5690-c570-4d43-a6bc-2b59b85497ae@bytedance.com>
+ <20241229205545.e4fa797886f30cb20c38ad06@linux-foundation.org>
+From: Qi Zheng <zhengqi.arch@bytedance.com>
+In-Reply-To: <20241229205545.e4fa797886f30cb20c38ad06@linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On Mon, 30 Dec 2024 11:12:00 +0800 Qi Zheng <zhengqi.arch@bytedance.com> wrote:
+Hi Andrew,
 
-> > For now struct ptdesc overlaps struct page, but the goal is to have them
-> > separate and always operate on struct ptdesc when working with page tables.
+On 2024/12/30 12:55, Andrew Morton wrote:
+> On Mon, 30 Dec 2024 11:12:00 +0800 Qi Zheng <zhengqi.arch@bytedance.com> wrote:
 > 
-> OK, so tlb_remove_page_ptdesc() and tlb_remove_ptdesc() are somewhat
-> intermediate products of the project.
+>>> For now struct ptdesc overlaps struct page, but the goal is to have them
+>>> separate and always operate on struct ptdesc when working with page tables.
+>>
+>> OK, so tlb_remove_page_ptdesc() and tlb_remove_ptdesc() are somewhat
+>> intermediate products of the project.
+>>
+>> Hi Andrew, can you help remove [PATCH v3 15/17], [PATCH v3 16/17] and
+>> [PATCH v3 17/17] from the mm-unstable branch?
+>>
+>> For [PATCH v3 17/17], I can send it separately later, or Kevin Brodsky
+>> can help do this in his patch series. ;)
 > 
-> Hi Andrew, can you help remove [PATCH v3 15/17], [PATCH v3 16/17] and
-> [PATCH v3 17/17] from the mm-unstable branch?
-> 
-> For [PATCH v3 17/17], I can send it separately later, or Kevin Brodsky
-> can help do this in his patch series. ;)
+> I think it would be best if you were to send a v4 series.  Please
+> ensure that the changelogs are appropriately updated to reflect these
+> (and any other) changes.
 
-I think it would be best if you were to send a v4 series.  Please
-ensure that the changelogs are appropriately updated to reflect these
-(and any other) changes.
+Got it. Will send a v4 ASAP (remove [PATCH v3 15/17] and
+[PATCH v3 16/17], keep [PATCH v3 17/17]).
 
+Thanks!
+
+> 
