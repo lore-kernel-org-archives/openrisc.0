@@ -1,62 +1,64 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01D07182D2
-	for <linux-openrisc@vger.kernel.org>; Mon,  6 Jan 2025 14:38:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC00D1DFE37
+	for <linux-openrisc@vger.kernel.org>; Mon,  6 Jan 2025 14:44:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736174283; cv=none; b=k3pZ7gawGBX7vOcKbmox8SwNHkoiRx7chZivK4DQ1YHnHxAXQ1/a8gFXbs4Yp0YO7nDJy/S5bsnr+JxHCEYYkWTB5EURRuoQVA8LxNqpUJB5u8K8WkmBvsmSr3fPueKsuVeul5WoBySyh8pMNjGV8T4eAtjHmMV5C+K6cCakvQ4=
+	t=1736174679; cv=none; b=lYJ5Pk+C6q8utsYoBQQYOQ0cgseLKseeZ0lym1yyddtjqgjuzhrEOZod4v50ptG9HZzP+1wvRrQDUlc9Scap62EA1aJjQ/VQ2OYUxuMk/TwWCoEZplxUp2cLfa8aV6gZ3KxMadyp81Xu0h5iHJaVrD+daygw0qvUG2CfmAwdVVg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736174283; c=relaxed/simple;
-	bh=KR7/p1tWxV+V8Hoc8wqEDEMtvUVw4Ke8M85MSQiUmMM=;
+	s=arc-20240116; t=1736174679; c=relaxed/simple;
+	bh=FT+GsbrHFNytgmVw9pS4MWUyG9GELMc2aWIALV4R5HM=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=r0So9A8mZ5jKITiVOkGAQYIroznnj/+n43STSQ0Kb2jZ4wmijQrdM5xQmozXrD2baH8Npwb4oLfYxlqnlR2m0nnfwWHSN+90AFyGS+d/EBSO1bh94NM4HmvPUOBQEKcqWPHRHUGdBB04kVClbrQlaz4scbzQu7Pq33s2dWk28os=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=k+KANoby; arc=none smtp.client-ip=209.85.214.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 In-Reply-To:Content-Type; b=BEiBkXYV2uEI6cgU0jizR6ov4Ax72Gt7D1xkzNVe/eJqCIiHMVmhMXUiWBFvcE1dG7TfZmq2r6YKOwzFSG9Vo3JWNRk/CTKlRaUR3Zm7gkNt1f0uTJw8DdFYRS6/7SpVGHqNdHRtqMoF0Hs7Qo+JjtJU5yczHIbHxJGFRxa/U7o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=AOENsm2R; arc=none smtp.client-ip=209.85.214.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="k+KANoby"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-21654fdd5daso193413705ad.1
-        for <linux-openrisc@vger.kernel.org>; Mon, 06 Jan 2025 06:38:01 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="AOENsm2R"
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-216634dd574so137625665ad.2
+        for <linux-openrisc@vger.kernel.org>; Mon, 06 Jan 2025 06:44:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1736174281; x=1736779081; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
+        d=bytedance.com; s=google; t=1736174674; x=1736779474; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=pSJC2s0MA1gDBlI7x+jEWzXg3kOxe4ocHpmZdFBU2TM=;
-        b=k+KANobyM5YuyoDasGjtF3goOajEU7sTDUffqWnrYLCTPepSXnLNRPPMB28+FZdIM+
-         ladBLWg5qcL4cc36iwqmg9lRBVyTPK1vhg56GKs89wMkzrOxwSWljjuH5uRoJfkFOkW9
-         Hk2nhQk50LronuZCmiiE4OSprFMfEV67C3LcdLEIbXOS7YB0iRmmXK89kbTjPMMzKIzM
-         fdpaLGe4JSw+s5hXtwTzLGQ8BFj9S7DpVG9hOGsqwTSdGlZeQerHSR/msSlcKSbz37BC
-         Wiv9z9bxljbzKiwJiLfO65rrGB6tn5M/JfwMRPwe8VxF3A8UIJuLNhsWyvwy+3bq3UNX
-         j1CA==
+        bh=NViglkR77PlL2AqsFJ9M2rA8vsy0VBtzEibmSHACi+I=;
+        b=AOENsm2RWVESkj+tEE8NednRuNGe+HrlfMpqdMmB96TFPb1M05S6p2+RrKZ6kOJ2r6
+         2m1ghhviUlJEv7uX2tL/vtDm1POjsFwB5CCUwKifHrGiN6wAdyKGQ9X2oL3piluKNYb0
+         I3X+PpobzTtVz7/hTPrBW0pImZItQ99bJssa2FVL4Lrrjx7q1lNsJd7rELXfXFDMcswv
+         aXqs85gh+NKJfwv3V9Dy+ZrYnXCasR3YIZbwRcM0jNsQdZ/dg9IB1W+XfduD1DKb5HNn
+         zxq03RDCixKBfv9y4elRxUNAap32HNjC1W6uJzlwSMZFFa8MSUhCPMDJQ1aCRNa6iLgr
+         188g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736174281; x=1736779081;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20230601; t=1736174674; x=1736779474;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=pSJC2s0MA1gDBlI7x+jEWzXg3kOxe4ocHpmZdFBU2TM=;
-        b=nUJ6poqjezVlPWDvMkMCL9rFomn8g7sPO6y0DI4p+QyMf19c5+0TtOpGhnwMC0oQ1A
-         NYRTETMWdXbyDf0O22OZ9ZYNK8wkOtMVTg01huEgAXcOsK7QrBYX8gCKnHvD7WqOwHtz
-         PqQSgzcpzRTTP9oZVMrXaiILVBhFzNEPpS6zfd8FIQhxPCWu8pe5pcpkqWkGNYfpI8vK
-         WSU+xJSHPq0BZpq6Qgznnf5jqeqeHJHhPSKRaokDEclGC3Awb/BM18Ya3ygMaZ+cMSOz
-         8jD3D0xYk4G6wXUffTb81K1AhygaXPfeP8zkJCbjd+tscrDSMCAXKxwzGSEM6Ase1lf7
-         wcbg==
-X-Gm-Message-State: AOJu0YxBmLOfnr6rRkFj6fDkUsvx8WPXFDXCS6zA5IdJoW4eanpQknD6
-	aeMs9chhrOEl7DTxJ5GF9ga/8+YtXN8uTVvXm3avhXGTnje8GYzvJWIFGPeZ
-X-Gm-Gg: ASbGncs5Sd3aDmrPf/+3XedyixvUKdLJ3qE7wMrlOrgPshCzOd3bLwEeIl1bE+fYFUI
-	FJgdPkG2rTbpCbkuEcGQG+xCDFLQXJO/JhAgrxeCmvJmxE0T6odyftL/kHpfbXeHR3t+Ymk27l7
-	/M9KzPXfsFfenbPomLmD3L+vo453nWxy0pgXp7C51HyliRQTmW4D96DkYDRD23HC8ZUoqT8ycwu
-	fhaKSfXZZWFFo3oy1Z+79TtKQO7R0nqEuT9vLmRdklDoXBzHA+eD4GVV8nY
-X-Google-Smtp-Source: AGHT+IGIVg9qJDfK+au2ttG+ROuSwzzEyTPtaNJ0mHyhukLKMR6TrMFK2kZYgkajdXqyY3bccqUZnQ==
-X-Received: by 2002:a05:6a00:23c1:b0:72a:bc54:be9e with SMTP id d2e1a72fcca58-72abde30d9dmr74968264b3a.15.1736174281084;
-        Mon, 06 Jan 2025 06:38:01 -0800 (PST)
-Received: from [172.31.0.17] ([136.60.141.45])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-72aad816312sm31618711b3a.1.2025.01.06.06.37.58
+        bh=NViglkR77PlL2AqsFJ9M2rA8vsy0VBtzEibmSHACi+I=;
+        b=n5gkRC9TVrJ/3nDau1u14HpF+eyoDHEyLC43AbqTzOq6kb8ZCtV35V4DjtnrN9nL0p
+         oNLHPnvwF/Gey8T4u/P2NLJy1Jw+epRw2pqQivdcV3Ap/EzzLfOdCv9Ho9qU7GDIuXBk
+         IHOYcDqKJLotPQ2JLqshDmBZREAzuPyOqOCCGZT62O1uLpOBZopwSllWB0alycaX4F2Q
+         uW1NHr9A1RmwEDtXzafacp7vpeKDRj+ScvTTU0vEXFYdWvYCdrv0W1mrBWldlLD1p/OQ
+         0Yl8TsUGtIk/Sqp3GA40D2ZLb2TRix2Ffa0y5auWdnfsGkDh1g9DYp/mLqnfIgP05Q3C
+         3TmQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXdOmt4Cn1SO0pviUFLA6UY8oP+HtYHvHsPCMEp+ga/fOPEIfZLUy0uDzramRA5bgPBfN6vYf68U4o2VMrvQw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy04DsYR08T3f2Dt6Lr4T4QHJOL9Gbyi7KsUmZ+swxUIG1rYco2
+	gtGrjh/HEkACLgxuGEOlsLaFq0Ve/KOBGx6s3RMnjbFnviGhqsp2wcefl7Fufwg=
+X-Gm-Gg: ASbGncuUARHgrstQCMLOQ1D0fOSos+2OONdbMDsDb/oClcRWznYPVncyqHR1/RXgJju
+	pEdVJkbI/YvjInvXK2E0zNj2VEwLPY3dqqEf46ZpEw4nh6w5n86QGHADOuBaEqAYz9ecjT00EdN
+	I5UAJ2YF4wfdiIxpfUXA2Fmfzd2QHQNxlehaN+mpQ04HU+HXem3yc0VYmBYOVUayJ+oGNKsC2nw
+	fQQgk/IQLVC0B7HOhwikIZYgeTqumYlkfQHDL1DLVFGz20Z37pZluTD30/GHJ63AzwrcRjMXptt
+	WXUDzkuN6Ghnsq+KpC4aJ9+mYAUFXgu7NyRAhYwAn1E7DeLPtq63
+X-Google-Smtp-Source: AGHT+IHfRKlSBRBXUw7mHIW0SQFNESOEWbBrtQcBXd7/ffhetsdlBCZHRjeTrMJdIBfoDiMG7l+wRg==
+X-Received: by 2002:a05:6a00:ac3:b0:726:f7c9:7b1e with SMTP id d2e1a72fcca58-72abddcadd6mr82367083b3a.13.1736174674262;
+        Mon, 06 Jan 2025 06:44:34 -0800 (PST)
+Received: from ?IPV6:2409:8a28:f44:d64:296c:a8f3:f81e:f88b? ([2409:8a28:f44:d64:296c:a8f3:f81e:f88b])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-72aad815804sm31532588b3a.32.2025.01.06.06.44.23
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Jan 2025 06:38:00 -0800 (PST)
-Message-ID: <3335b1e7-5488-4e4d-a313-3e989b2abd9f@gmail.com>
-Date: Mon, 6 Jan 2025 07:37:56 -0700
+        Mon, 06 Jan 2025 06:44:33 -0800 (PST)
+Message-ID: <dbcbf4c3-f86a-4414-be52-8ac02dae5b6b@bytedance.com>
+Date: Mon, 6 Jan 2025 22:44:21 +0800
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -64,32 +66,65 @@ List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] or1k: add .note.GNU-stack section on linux
-To: Stafford Horne <shorne@gmail.com>, GCC patches <gcc-patches@gcc.gnu.org>
-Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>
-References: <20250106130117.1230925-1-shorne@gmail.com>
+Subject: Re: [PATCH v4 12/15] s390: pgtable: also move pagetable_dtor() of PxD
+ to __tlb_remove_table()
 Content-Language: en-US
-From: Jeff Law <jeffreyalaw@gmail.com>
-In-Reply-To: <20250106130117.1230925-1-shorne@gmail.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: peterz@infradead.org, kevin.brodsky@arm.com, palmer@dabbelt.com,
+ tglx@linutronix.de, david@redhat.com, jannh@google.com, hughd@google.com,
+ yuzhao@google.com, willy@infradead.org, muchun.song@linux.dev,
+ vbabka@kernel.org, lorenzo.stoakes@oracle.com, akpm@linux-foundation.org,
+ rientjes@google.com, vishal.moola@gmail.com, arnd@arndb.de, will@kernel.org,
+ aneesh.kumar@kernel.org, npiggin@gmail.com, dave.hansen@linux.intel.com,
+ rppt@kernel.org, ryan.roberts@arm.com, linux-mm@kvack.org,
+ linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org,
+ linux-arch@vger.kernel.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+ linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-um@lists.infradead.org
+References: <cover.1735549103.git.zhengqi.arch@bytedance.com>
+ <ad21b9392096336cf15aee46f68f9989a9cf877e.1735549103.git.zhengqi.arch@bytedance.com>
+ <Z3uyJ2BjslzsjkZI@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <2d16f0fe-9c7f-4229-b7b5-ffa3ab1b1143@bytedance.com>
+ <Z3vQHplZqtHf6Td8@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <57ea8193-2fd9-41a9-85b4-7af924f900f4@bytedance.com>
+ <Z3vqHXdwIMBVQ2GT@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+From: Qi Zheng <zhengqi.arch@bytedance.com>
+In-Reply-To: <Z3vqHXdwIMBVQ2GT@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
-On 1/6/25 6:01 AM, Stafford Horne wrote:
-> In the OpenRISC build we get the following warning:
+On 2025/1/6 22:35, Alexander Gordeev wrote:
+> On Mon, Jan 06, 2025 at 09:34:55PM +0800, Qi Zheng wrote:
+>> OK, will change the subject and description to:
+>>
+>> s390: pgtable: also move pagetable_dtor() of PxD to pagetable_dtor_free()
+>>
+>> To unify the PxD and PTE TLB free path, also move the pagetable_dtor() of
+>> PMD|PUD|P4D to pagetable_dtor_free().
+>>
+>> But pagetable_dtor_free() is newly introduced in this patch, should it
+>> be changed to 'move ... to pagetable_pte_dtor_free()'? But this seems
+>> strange. :(
 > 
->      ld: warning: __modsi3_s.o: missing .note.GNU-stack section implies executable stack
->      ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+> s390: pgtable: consolidate PxD and PTE TLB free paths
 > 
-> Fix this by adding a .note.GNU-stack to indicate the stack does not need to be
-> executable for the lib1funcs.
+> Call pagetable_dtor() for PMD|PUD|P4D tables just before ptdesc is
+> freed - same as it is done for PTE tables. That allows consolidating
+> TLB free paths for all table types.
 > 
-> Note, this is also needed for the upcoming glibc 2.41.
-> 
-> libgcc/
-> 	* config/or1k/lib1funcs.S: Add .note.GNU-stack section on linux.
-OK for the trunk.  You've got write privs, correct?
+> Makes sense?
 
-jeff
+Ah, make sense. Many thanks to you!
 
+Will do it in v5.
+
+> 
+>> Thanks!
+> 
+> Thank you!
