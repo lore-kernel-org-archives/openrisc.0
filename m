@@ -1,107 +1,142 @@
-Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA348159565
-	for <linux-openrisc@vger.kernel.org>; Mon,  6 Jan 2025 13:01:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E95A61DE4C3
+	for <linux-openrisc@vger.kernel.org>; Mon,  6 Jan 2025 13:23:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736168495; cv=none; b=O1xrl5lWoj20JcMVdqsqSTxUK1SsMdkccm7EoAN4acgslGhi10/+FGVRTSKcV1sAQoITa7tT7IJaj2omLDst8TcAs9h5yY5YI2u7Cm+GVP0eXOjaYeUhHgXoAZGQzqRixv2GgjG/ulmjlVfGSOu4TqwHKj7KUnv9f3OL7M7yE8g=
+	t=1736169806; cv=none; b=CdHghNJ4X+ku3VrAaLq+S2rvoDPq1XFMJ2xA2iDeWAVF3NA72D9FELv75+hkk3zNE2EfRZxPy62tspL8njAYZUJNEHgtmKn60b4cms1D4yM1HvaR1L0wDktBr8NV5IAkLriBM6RDxW+bn3QkPVI/3J8+iUHEccnEIGhHCm3hxsM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736168495; c=relaxed/simple;
-	bh=wTfMFHqejdyMqF7T3PCgetw79DKiWCEzG/hRrSC9K2Y=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=bgbOhn/Dc9kPxdUl4RqyFju7EpXdBA865KUnDiP4TBKnTBdmjVcstAtb9Fu9G/dOxbZxVCLoFIt1BCnBgTJe2W7wNHxor5WW4DY1D3ypL8rFqnCjgkG1+hApSp5b8TC+g8H3PycdBwDNR2bGbQ0bw+e6pWep4cvtxIQHi2RIirw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=H83dX/Cf; arc=none smtp.client-ip=209.85.128.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1736169806; c=relaxed/simple;
+	bh=AslleoXTRiRbWr13FtvX0Ckl/9sdreGxSQ4NH4wFg4A=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ZOtIrpIx69MapvILi3AKNV3avLMRyCVxlPlh8JPkzwXGRoIQ3G0TCTjSZMbZZUkqZCq5iGJv/xQrGIjUX48TuL+YIL7mFzazdA68+mZlp9Y1KpjB2MeZR4F5qpmNRmP42yp/81wePlmQ7WXVPEJtp+Qib2oPKJnMTAIFEJUU5OA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=iI74JgsW; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="H83dX/Cf"
-Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-436637e8c8dso145862335e9.1
-        for <linux-openrisc@vger.kernel.org>; Mon, 06 Jan 2025 05:01:33 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="iI74JgsW"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-216728b1836so186444795ad.0
+        for <linux-openrisc@vger.kernel.org>; Mon, 06 Jan 2025 05:23:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1736168492; x=1736773292; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=/Mk+JzD7LuFMEpDTdDcsmHlJ7HrXGvotCwnVeQEKBd8=;
-        b=H83dX/CfnXcQ5NJchLXsW2VnRXfr2Rs69FWIZtFyuVO5vDdWBT/VMpf1FLWSRSlPCx
-         sYcqcmhpUX2rcrCK3cb+P0GnxYqQGHRFi3oRw/nXVp6qQqOJovAdd7yV8LZU86aqfWDC
-         +WHLmqktOJazugHhw+ctd0Uh0OcNxiUK4jsuYoFnYeTpUtPk4Wf4HyUIB8z2KHAcTqTD
-         Pc4Q01rvcxFPJDRTj4re2jAbVs9uTirfwddsuxGUwPpoqjn+98F+6P8HuSUFU7iMHHI5
-         8r2HMEys9KjyNzfCzhzJzwgsylyO+3QUQA3QowI+KpD0+f0c+pVhFLecOP/8sGKM3pDn
-         yo8w==
+        d=bytedance.com; s=google; t=1736169803; x=1736774603; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=af8Jbj+kqP+p1W8uyVyt9V0YBDVs6Wu8XxDGXWv1rDo=;
+        b=iI74JgsWTKG37DnW1YB/IMki+ScFHLvhEOk3vxDv9FgI6CI9jtlHtVi79I2xbSTyM0
+         VdBztaV4PlDix6fx6Q3JW9PtPijrK1Ant99fgmA3is03DXu6hHX041PZwIdTpkeOjtKN
+         LoDu7u38zHH64G1Ap/bFiO2Ul4iVjxZgRJ22LavyqnEuA4hlfThhKkPpKvqpm+Yl4HWd
+         0Y10N6CsIor4KJg9gJ0tR5ljeF+yarKareNh75UOnmdOXB3oHayFxKL/nV0iYlWUDX2N
+         n0o/oAxFwFOpZhIRnap5aLfCm/HwMLi3b9miICri0ljBKer+MO7weBR7HlkCSFvoh1c+
+         NJrA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736168492; x=1736773292;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=/Mk+JzD7LuFMEpDTdDcsmHlJ7HrXGvotCwnVeQEKBd8=;
-        b=Po4tsXUvrhtthzEA85oZREAflAd2T5Cqm4dcyHVL/MWMsfCqXYB/fePPszYyIY6p7v
-         nCmaPITK8GhXdm/p7qq7uQhBG2QWaTtQh+0XI1hzrdZPQZEmG5i10kRKJjeZRKtRGrXW
-         usqYwvnnpTkaiKxBoumNPdIY8mg6UAHUsfxiB5ZNndIl3QLvXAl6roRyRDYYEiE5LZH2
-         oI7N9PgnYmEX/jhLmIcexHoy0q748fUPYBq/dYk0MxGRfj4qpfuDT4k7uIi6vaOP/ww+
-         UANcU1dy8zNTbf9BqJCk5u2sFeM2RcQFW2i2y2SXMAUBYK6ugVsvb901l+nUucTF+Sof
-         Z6Tg==
-X-Gm-Message-State: AOJu0YxSKa0LVOUR9fe2pjuQBCLol2OZdJO7Tjbn9Mk1948XNp46DDPj
-	ThkiSoVjIyySb4rRItYq71Vbm7+G5q0KYBMDk+1kw3haRA6+/S1fOJrURw==
-X-Gm-Gg: ASbGncsJh38ZVApPuplAcMV9VrFT7nnSqRdHwhS1fQyic6CaTCq57bcbQcgmdor/fDp
-	qFunVWV4pZiFDsFMZEGe7oKvUJcpwChtD8VD3vvmq74fqtN8cdTDtDhghAI9AXVeA1uWLCzBe+q
-	0bwkL3ta9CGxZ1XVcGoUB/Fm802ggiTXF0UCyi7E5iBuBX446RCGmUvYo/5+dxNuRaU639PqU1j
-	BKMK/SYBzofns+hm24KGKc/vwp5SdDlc0gxKHscRCcW0/nGpbWmEMMHCHrYdrBMKoiVILwf1i8X
-	dZXWkrn4nD61GvGm2VZh
-X-Google-Smtp-Source: AGHT+IHIEfxyi0Zojkaoz5KClwLmZ/3MEKk+5hziIZDuQwVAHpmTHbdMm5+igGLO4rJs8DEVcgU7mw==
-X-Received: by 2002:a05:600c:3b23:b0:436:4708:9fb6 with SMTP id 5b1f17b1804b1-43668b5e02dmr430317715e9.20.1736168491033;
-        Mon, 06 Jan 2025 05:01:31 -0800 (PST)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43656b4274csm603821645e9.38.2025.01.06.05.01.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Jan 2025 05:01:29 -0800 (PST)
-From: Stafford Horne <shorne@gmail.com>
-To: GCC patches <gcc-patches@gcc.gnu.org>
-Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	Stafford Horne <shorne@gmail.com>
-Subject: [PATCH] or1k: add .note.GNU-stack section on linux
-Date: Mon,  6 Jan 2025 13:01:17 +0000
-Message-ID: <20250106130117.1230925-1-shorne@gmail.com>
-X-Mailer: git-send-email 2.47.0
+        d=1e100.net; s=20230601; t=1736169803; x=1736774603;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=af8Jbj+kqP+p1W8uyVyt9V0YBDVs6Wu8XxDGXWv1rDo=;
+        b=tAkdbBp91yh+vltznJJXbgk8bcFD3lKgQl9JP32HpT7XPJ8nyg15mOL9DqPsZzJHYH
+         rS/FcWYnP3yGCVsBMzpxJuOC3x9nmhpUjhYAZ9E+app/6vvoSbeFQvP3Pgvfo9WesaWy
+         yzUP2tQxuPw0w0hVJoM2lrwkvGZIDZmit6QIwYzp2m6nlnYBkQVjyFJPuFeQcp6SAN68
+         SeXwIp7ANF/XI42kmtz82Yv1Hb/M7qkLh+AZ1vBLXBzlsFfxGgyM2CTXmqan2AS/BiAK
+         Qy0Q75QRlkbNJfq7x23mVJCpB5QeirZkW+XSb8Cl0hjd3AJzrcyBbBpaqb1oxXS9txLn
+         p9jQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXqHcGBTPw0PRnMQm/n3DD8M+b1DV8rOC5+ZHYxwrv4gc35ejtk5dJGrlcsfFAWwRQCwAK8Nyad4XsvohurVQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyp7jpfIwIaw6HA07ERjt+0pvGwN3cSAQYokcKPBLlV3Mz1RNtJ
+	gYsOASLC00tqj4IVmRMVPq8T2Y01oQfqFHlb2VGqAop5le86/I+MMPnPAHolZz4=
+X-Gm-Gg: ASbGncv2x+npPy/lkihvL+ZYQYoQ6O1chnbjKJgx5KNoctw9GovqdKThWi4Hr0cSVJm
+	tIwSSR+zzKXO0fJzRFW2hioEYEIdWm5WnduUudYGZABIkKDNUDzHXT3Ay6M9eawKItO7POn3s8o
+	E1MNzd4NlrizB9jUDcdk1D7mWbb+27IcJO4kbhwQtOM2fRb7sR6CcC7E/x7MToEs5JeZIK2iapy
+	7JnMNzqzHKI3zRrhtrxniGoxNzbQ8ImjP8tWAHM0INAk85om9kJCa9RH9Fu7hh5E+Q7spWW3/f7
+	Y7LzYmTKVUIFL+l5IEVJ7T2Qvxk1m0P3EPdeqJWjAWvCxKNqKOMu
+X-Google-Smtp-Source: AGHT+IE/ZrXmD5LZyqp5+IF7XucHWltqSucrfnZMLD6UEt/qaBj6OXgwMq9je0lWMbXPRWlni+TKWA==
+X-Received: by 2002:a05:6a20:2d07:b0:1e1:b44f:cff1 with SMTP id adf61e73a8af0-1e5e07f9c06mr81291446637.33.1736169803320;
+        Mon, 06 Jan 2025 05:23:23 -0800 (PST)
+Received: from ?IPV6:2409:8a28:f44:d64:296c:a8f3:f81e:f88b? ([2409:8a28:f44:d64:296c:a8f3:f81e:f88b])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-72aad90c149sm31371677b3a.191.2025.01.06.05.23.12
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 06 Jan 2025 05:23:22 -0800 (PST)
+Message-ID: <bce4bb4e-459a-44c8-945b-8889149377fd@bytedance.com>
+Date: Mon, 6 Jan 2025 21:23:10 +0800
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 07/15] mm: pgtable: introduce pagetable_dtor()
+Content-Language: en-US
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: peterz@infradead.org, kevin.brodsky@arm.com, palmer@dabbelt.com,
+ tglx@linutronix.de, david@redhat.com, jannh@google.com, hughd@google.com,
+ yuzhao@google.com, willy@infradead.org, muchun.song@linux.dev,
+ vbabka@kernel.org, lorenzo.stoakes@oracle.com, akpm@linux-foundation.org,
+ rientjes@google.com, vishal.moola@gmail.com, arnd@arndb.de, will@kernel.org,
+ aneesh.kumar@kernel.org, npiggin@gmail.com, dave.hansen@linux.intel.com,
+ rppt@kernel.org, ryan.roberts@arm.com, linux-mm@kvack.org,
+ linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org,
+ linux-arch@vger.kernel.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+ linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-um@lists.infradead.org
+References: <cover.1735549103.git.zhengqi.arch@bytedance.com>
+ <8ada95453180c71b7fca92b9a9f11fa0f92d45a6.1735549103.git.zhengqi.arch@bytedance.com>
+ <Z3uxwiEhYHDqdTh3@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <e1de887c-6193-48ee-a9b3-04c8a0cdda45@bytedance.com>
+ <Z3vOZ18jcCpHIcPD@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+From: Qi Zheng <zhengqi.arch@bytedance.com>
+In-Reply-To: <Z3vOZ18jcCpHIcPD@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-In the OpenRISC build we get the following warning:
 
-    ld: warning: __modsi3_s.o: missing .note.GNU-stack section implies executable stack
-    ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
 
-Fix this by adding a .note.GNU-stack to indicate the stack does not need to be
-executable for the lib1funcs.
+On 2025/1/6 20:36, Alexander Gordeev wrote:
+> On Mon, Jan 06, 2025 at 06:55:58PM +0800, Qi Zheng wrote:
+>>>> +static inline void pagetable_dtor(struct ptdesc *ptdesc)
+>>>> +{
+>>>> +	struct folio *folio = ptdesc_folio(ptdesc);
+>>>> +
+>>>> +	ptlock_free(ptdesc);
+>>>> +	__folio_clear_pgtable(folio);
+>>>> +	lruvec_stat_sub_folio(folio, NR_PAGETABLE);
+>>>> +}
+>>>> +
+>>>
+>>> If I am not mistaken, it is just pagetable_pte_dtor() rename.
+>>> What is the point in moving the code around?
+>>
+>> No, this is to unify pagetable_p*_dtor() into pagetable_dtor(), so
+>> that we can move pagetable_dtor() to __tlb_remove_table(), and then
+>> ptlock and PTE page can be freed together through RCU, which is
+>> also the main purpose of this patch series.
+> 
+> I am only talking about this patch. pagetable_dtor() code above is
+> the same pagetable_pte_dtor() below - it is only the function name
+> that changed. So why to move the function body? Anyway, that is
 
-Note, this is also needed for the upcoming glibc 2.41.
+Ah, I just don't want to put pagetable_dtor() in between
+pagetable_pte_ctor() and ___pte_offset_map(), so I moved it above
+pagetable_pte_ctor(). No other special reason. ;)
 
-libgcc/
-	* config/or1k/lib1funcs.S: Add .note.GNU-stack section on linux.
----
- libgcc/config/or1k/lib1funcs.S | 5 +++++
- 1 file changed, 5 insertions(+)
+Thanks!
 
-diff --git a/libgcc/config/or1k/lib1funcs.S b/libgcc/config/or1k/lib1funcs.S
-index 0c2ec5fc8c4..8f7266bedb9 100644
---- a/libgcc/config/or1k/lib1funcs.S
-+++ b/libgcc/config/or1k/lib1funcs.S
-@@ -19,6 +19,11 @@ a copy of the GCC Runtime Library Exception along with this program;
- see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
- <http://www.gnu.org/licenses/>.  */
- 
-+/* An executable stack is *not* required for these functions.  */
-+#ifdef __linux__
-+.section .note.GNU-stack,"",%progbits
-+.previous
-+#endif
- 
- #ifdef L__mulsi3
- 	.balign 4
--- 
-2.47.0
-
+> just a nit.
+> 
+>> Thanks!
+> 
+>>>> -static inline void pagetable_pte_dtor(struct ptdesc *ptdesc)
+>>>> -{
+>>>> -	struct folio *folio = ptdesc_folio(ptdesc);
+>>>> -
+>>>> -	ptlock_free(ptdesc);
+>>>> -	__folio_clear_pgtable(folio);
+>>>> -	lruvec_stat_sub_folio(folio, NR_PAGETABLE);
+>>>> -}
+> 
+> Thank you!
