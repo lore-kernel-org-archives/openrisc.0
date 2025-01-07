@@ -1,83 +1,64 @@
-Received: from seashell.cherry.relay.mailchannels.net (seashell.cherry.relay.mailchannels.net [23.83.223.162])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DE5F1EB9E7
-	for <linux-openrisc@vger.kernel.org>; Tue,  7 Jan 2025 12:06:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=23.83.223.162
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736251607; cv=fail; b=PrE2Ju3k8eZwu6/26L4L/RrdDnK8DZ2QJ7vhBIQ906FWrNNlLCsSfstP3nUDIKS1n+Ix+wOvCV8B3yz4nelc6ZMwV/uPPX2Drjq8ovpo3CkmDGEIpRZRUhUbIlehIg1NYjY64JAubV2D6FOTIs1+jkeMe4hyi/Gk2oXxCVmWwxo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736251607; c=relaxed/simple;
-	bh=CU0ysfjSpwtSTmiEEi3n0n6rs5yX23ZcR79W4tAZKOM=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=eU2CqjZsPNQDaVo8LO9PBCTVQ6B6kgjoO5FJ/idJOrR7CLdDJjGiEr+B9Rqnd7fxG2q0eBGo0RQSeXUvkj0YStx0ccGq1YXfXZoWE3kuT7R89oBjwI+wJ7qdIvhazFk4vzchj+8OXjPpXrzsF012547jyl2cYsc5Spb48/7Ooo0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=landley.net; spf=pass smtp.mailfrom=landley.net; dkim=pass (2048-bit key) header.d=landley.net header.i=@landley.net header.b=pv1cd20M; arc=fail smtp.client-ip=23.83.223.162
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=landley.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=landley.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C471B1EF08A
+	for <linux-openrisc@vger.kernel.org>; Tue,  7 Jan 2025 12:31:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1736253092; cv=none; b=SDNgyh/TLSe+h9tf9qcOAO7OiP6dR8zMszCpWJtYp1lZ7rXfR6+2pJ2xhoYezZKEeL2dWdSsyqnCL/60zvEoeB51+FniNriGJ9gd4VMUW1S6PSZn2J02rQR2tpRDeEVxqOe8oJo+NraB4pZN3L/FB2r1XvgxoX9sUe8sO9oOPTg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1736253092; c=relaxed/simple;
+	bh=34vcDRGNbJs9/rF9Nwk+RqGOpzLc/F/ty++YlbWokmQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=EG7Z+hMAeQRxLH1/2gAbU+rU4URIP6vlqjdPd4q/vwCzN6tL64Si+eXrzRbFNWzbzADeK15TNYEZ2XRSfLyO/YyFaU6iLRI4ZcgtTXzIV3mrn1UWG73cs/B+3JNF0uRp97TokqwgQINw2/QamsGVovZxaaKY9OI8D/tphfK1JQk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=H+ZukA1D; arc=none smtp.client-ip=209.85.214.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=landley.net header.i=@landley.net header.b="pv1cd20M"
-X-Sender-Id: dreamhost|x-authsender|rob@landley.net
-Received: from relay.mailchannels.net (localhost [127.0.0.1])
-	by relay.mailchannels.net (Postfix) with ESMTP id C43902308E;
-	Tue,  7 Jan 2025 11:56:53 +0000 (UTC)
-Received: from pdx1-sub0-mail-a264.dreamhost.com (trex-0.trex.outbound.svc.cluster.local [100.109.200.96])
-	(Authenticated sender: dreamhost)
-	by relay.mailchannels.net (Postfix) with ESMTPA id 5FAAA221B2;
-	Tue,  7 Jan 2025 11:56:53 +0000 (UTC)
-ARC-Seal: i=1; s=arc-2022; d=mailchannels.net; t=1736251013; a=rsa-sha256;
-	cv=none;
-	b=TXX1ymFTJIYIu447Py4TQN/9feshXZqzfXBdphXy/bxj3KEbPuY24yP3mCibTtPEQxUpge
-	LxzVGtyA7M6vlQhV/SmuGXkQIudhgeWx9f7sYPfscDPD92MPvJ2bibeIoNC5yGCpzJVcQa
-	Iibprfyas99NYa0AcQUkRqHRbFx6MdM4mUVV/9GEqAIJcunmy/tErk+6Dnj3kyJQqEvmGh
-	4DUFlNFy200+s4l52fBspC2BbOWpHUrKqcdJk7edTlt/4nbHFrUYgimjt9/eijbODdAGji
-	LuYQS2p8RQRb+YB6GfXm5fcoTbWKMo0lxx8k0Ixsy/u1XZtnuJbUvlPC/mKa4Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed;
- d=mailchannels.net;
-	s=arc-2022; t=1736251013;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:dkim-signature;
-	bh=duMUvX3UNp0veUQogtJaVfQVHfwtVm56e34BJZWojcM=;
-	b=DWuz7T2XVGd8aOr8C93LqlmCY7jnjocivdTSVLG+4W1UaDjN4n8C70xdhOb1DSeirll/tO
-	GQWbqzOIeIGIiXU3DLYPUZFfyRmqxB9MuntlO5M1wWpWweAvbJNBt9Gj3xq4cnYvUOfkR9
-	KrDzUgl4DLDZMJXZSEtpYXbZ2n7dQTPNt55kKXnA92T5DLKL9R1GO9NYOOkOJ7RFHtEcxs
-	QxyGwdwwOhPu6QFoH6xKspz+LG+Adh4CYilyGKB+BydIgKbK2GUmxZ9G5aRSVl8xdDZq94
-	BZ7zR9T9+B+uJaw7PnM0HAH3i0BbyXwa227zhOL77ChgjuOrbcrHUU1rD+1YHA==
-ARC-Authentication-Results: i=1;
-	rspamd-78747dd9f8-lwggx;
-	auth=pass smtp.auth=dreamhost smtp.mailfrom=rob@landley.net
-X-Sender-Id: dreamhost|x-authsender|rob@landley.net
-X-MC-Relay: Neutral
-X-MailChannels-SenderId: dreamhost|x-authsender|rob@landley.net
-X-MailChannels-Auth-Id: dreamhost
-X-Obese-Duck: 076470374949171f_1736251013622_767715808
-X-MC-Loop-Signature: 1736251013622:4167575820
-X-MC-Ingress-Time: 1736251013622
-Received: from pdx1-sub0-mail-a264.dreamhost.com (pop.dreamhost.com
- [64.90.62.162])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384)
-	by 100.109.200.96 (trex/7.0.2);
-	Tue, 07 Jan 2025 11:56:53 +0000
-Received: from [172.16.32.88] (unknown [198.232.126.202])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: rob@landley.net)
-	by pdx1-sub0-mail-a264.dreamhost.com (Postfix) with ESMTPSA id 4YS8fX5WyzzFZ;
-	Tue,  7 Jan 2025 03:56:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=landley.net;
-	s=dreamhost; t=1736251013;
-	bh=hAa+Wut4rNka3epnxinp2FbGd5RGhLNRtZ/OEEaCMnU=;
-	h=Date:Subject:From:To:Cc:Content-Type:Content-Transfer-Encoding;
-	b=pv1cd20MmKIjnTgcMXaB9gfkfL/s2OyhyPupHdObPC/nDIZS3+HMElLv5fws8womu
-	 Z9UTn7GLrT9P/r/BFlGgWwMvj5+eWHMUNge6pPmMcO8bSTLG8cLsOWmBWemmepkQbf
-	 3Ab6cq8F0azBjl8280S2M8gX68pLtoeC79T7NxZva25v0Xsr6iWV8Sa2tExOGKdwx8
-	 RxFfGTs06JVhDfXAGiy/gh2ZaidJzv4RhrNHoiVblGj3GfF3Qoy0s8oFsexe98woUH
-	 aADI+iwjpgFkX9vMvfdR0YzcdB754xguTQM0sbnpRaguR6Es8wSyUqMZ6A3o/bqhC+
-	 FWywujou0z+Ow==
-Message-ID: <39511711-b86a-4ac6-8bd6-8dab824b693e@landley.net>
-Date: Tue, 7 Jan 2025 05:56:52 -0600
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="H+ZukA1D"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-21661be2c2dso205571295ad.1
+        for <linux-openrisc@vger.kernel.org>; Tue, 07 Jan 2025 04:31:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1736253088; x=1736857888; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=j2Sg0kNPwV4gGCFeUvrc0oDDUwUGkE4XjlNGrPro8W4=;
+        b=H+ZukA1DPmA9BWgrtPtywilc7xRhQwNnPHZK6aOmh6ZlL0rg5elfG/fnhlEWHcNFio
+         UYwLeZbbd0VGC2TxixJDtQFUs5PXmhbplyeTuzWf3Mwfw5X77Pxtit4sK88rQXIDr2XQ
+         RDcU7xEiISQvf/wv+DvK0MEaN29vRf/PJjkdRYpPSqXkhvFr7t5B2o+ORIiSwRCkjwq9
+         xFf1gRwCwS05jUXLJ2RI2CJ4F5lFttVo7jIFev+6jLD/SjGzCvSr9Ns260jncC9/l4af
+         JF1LfusYFcCrN8Og7iuqp2CYVH4NgUYHYjL1ZbQOidYWKgmN7NVqiACOgCJ9eY/t3gfR
+         XKZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736253088; x=1736857888;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=j2Sg0kNPwV4gGCFeUvrc0oDDUwUGkE4XjlNGrPro8W4=;
+        b=swv3RJeOuhvM8/BzKezP4lPiaqqKzI2HnKfqoGDrLqyrN9z4hpvZOAxi2l8EXNNL5G
+         ZZJD2/Mn300FhZKE15OmzdE6YZr+zUdsRD8WSqkRIyZOHW0rULS7SS1/9ffm3tcDYur9
+         GxqCm2paggZ7RGGz9NhDaziFcaVlIywKRYejMFqzh7vRNqAUlouUPZRrRdmIbyQILA5z
+         rh6G4Z5GwA2HMyqHyaFqwaffLjXOlW3bwOGuXvhjA10RSOxLK7FAxmG1oB5L0ww3cvlD
+         CE+plxxMHd0UeA4jpXkWxA6B6YIDOgxvCOynWwUyzpFXT9akvhQ4/9cZkwIp4JOWk/jZ
+         6xNA==
+X-Forwarded-Encrypted: i=1; AJvYcCVPU3FO/1jP9KycJ3Ix6w5QNy4VGFLjkNtPURreJ3qQijboa8RHuNYfrGdhmV+HLVBBuglXx9lzgtCTddU1Lg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzIce8U+D/t/BVEuwJ/OnZI2f3WWRPjhDuM5pS6DsRVLHCGyIza
+	4R+8O75FhFJXZJt64yGur7Jc0nqamULXq8KbkvYL+pS6DSyE9CqcDejQHiEWYBw=
+X-Gm-Gg: ASbGnctjZ7CWVHuTDIOtegSYed4jXq/Gwfz2Zwl8K4G6ox98dwjG+PKPSFZu+ddZoPf
+	JecUC0aeW+mVhNRcWu9JL1NWytIJlyalWWpw8hl3dXvv1yOMXwO+b4GnD1gD5fQQCX6eLiEtdKr
+	HTFgpWBavBGknNt3bE6CjhIqEVqg6DBiw+64qj2kU/GEvPKsAc3zf4phSyiGpYl2vKPE1GeP2FW
+	9B7CfEVvL7kUnoPKRoNYDpwFwORmrohkUandPGKtJR6J6YnJf9Eb7dDq4fm1ZWqRZA0XXmdw5cT
+	wzMA
+X-Google-Smtp-Source: AGHT+IHdrC/g0o4yqle0rmLjmhkyYNUhmDJ4pfXjCTmOvwgBk4798gzhlJqtML37UPom2J/Tnd9DQg==
+X-Received: by 2002:a17:902:ce81:b0:216:282d:c692 with SMTP id d9443c01a7336-219e6ec1499mr788151455ad.34.1736253087824;
+        Tue, 07 Jan 2025 04:31:27 -0800 (PST)
+Received: from [10.4.33.153] ([139.177.225.247])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-219dca006fasm309326755ad.227.2025.01.07.04.31.12
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Jan 2025 04:31:27 -0800 (PST)
+Message-ID: <fca0d7de-b563-4d11-9ed8-c6b8290c4cf9@bytedance.com>
+Date: Tue, 7 Jan 2025 20:31:10 +0800
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -85,64 +66,156 @@ List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: or1k -M virt -hda and net.
-From: Rob Landley <rob@landley.net>
-To: Stafford Horne <shorne@gmail.com>
-Cc: Peter Maydell <peter.maydell@linaro.org>,
- "Jason A. Donenfeld" <Jason@zx2c4.com>,
- QEMU Developers <qemu-devel@nongnu.org>,
- Linux OpenRISC <linux-openrisc@vger.kernel.org>
-References: <afac091f-08cb-0f6d-4c01-bfa4421e7a47@landley.net>
- <Zufcf4iAqosZ7VBf@antec> <9b2761aa-8ee0-4399-b237-31e70e3ed165@landley.net>
- <Z0Cyx3i3z7Zl7XPm@antec> <31fa6255-8e0c-4d05-bad9-dd843c676244@landley.net>
- <Z0GSETLeT5w8B2DX@antec> <87a6b910-5af6-47ad-ad8d-b79f11a7cbf2@landley.net>
- <Z0LMqEqcdjkAxnN-@antec> <57c5207c-3aca-47cd-bfd3-3d7eb7be3c0f@landley.net>
- <Z2lgL31ZeSkO59MZ@antec> <8807078a-0673-4b27-8d58-4a2a3ce4987d@landley.net>
+Subject: Re: [PATCH v4 10/15] riscv: pgtable: move pagetable_dtor() to
+ __tlb_remove_table()
 Content-Language: en-US
-In-Reply-To: <8807078a-0673-4b27-8d58-4a2a3ce4987d@landley.net>
+To: Kevin Brodsky <kevin.brodsky@arm.com>
+Cc: agordeev@linux.ibm.com, palmer@dabbelt.com, tglx@linutronix.de,
+ david@redhat.com, jannh@google.com, hughd@google.com, yuzhao@google.com,
+ willy@infradead.org, muchun.song@linux.dev, vbabka@kernel.org,
+ lorenzo.stoakes@oracle.com, rientjes@google.com, vishal.moola@gmail.com,
+ arnd@arndb.de, will@kernel.org, aneesh.kumar@kernel.org, npiggin@gmail.com,
+ dave.hansen@linux.intel.com, rppt@kernel.org, ryan.roberts@arm.com,
+ linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-kernel@vger.kernel.org, x86@kernel.org, linux-arch@vger.kernel.org,
+ linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+ linux-sh@vger.kernel.org, linux-um@lists.infradead.org,
+ peterz@infradead.org, akpm@linux-foundation.org
+References: <cover.1735549103.git.zhengqi.arch@bytedance.com>
+ <0e8f0b3835c15e99145e0006ac1020ae45a2b166.1735549103.git.zhengqi.arch@bytedance.com>
+ <1b09335c-f0b6-4ccb-9800-5fb22f7e8083@arm.com>
+ <ebce5e05-5e46-4c6e-94a0-bcf3655a862b@bytedance.com>
+ <7e2c26c8-f5df-4833-a93f-3409b00b58fd@arm.com>
+ <e9fe97d4-99d5-443e-b722-43903655a76e@bytedance.com>
+ <31e1a033-00a7-4953-81e7-0caedd0227a9@bytedance.com>
+ <d9a14211-4bbd-4fb6-ba87-a555a40bb67a@arm.com>
+ <de8756aa-dbf7-4f6f-91f0-934270397192@bytedance.com>
+ <ee393a7f-d01e-4e5d-9bf8-779795613af1@arm.com>
+ <07e0c05f-cb69-4263-885d-6d20d4442152@bytedance.com>
+ <4a0b5edb-6fc7-4df4-93d9-ca834e6a760b@arm.com>
+From: Qi Zheng <zhengqi.arch@bytedance.com>
+In-Reply-To: <4a0b5edb-6fc7-4df4-93d9-ca834e6a760b@arm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 12/31/24 19:19, Rob Landley wrote:
-> On 12/23/24 07:05, Stafford Horne wrote:
->>> The kernel config looks like it should have virt block device 
->>> support, but
-...
->>    -device virtio-blk-device,drive=d0 -drive 
->> file=${DISK},id=d0,if=none,format=qcow2
+
+
+On 2025/1/7 19:58, Kevin Brodsky wrote:
+> On 07/01/2025 11:51, Qi Zheng wrote:
+>> [...]
+>>
+>> Author: Qi Zheng <zhengqi.arch@bytedance.com>
+>> Date:   Fri Dec 13 17:13:48 2024 +0800
+>>
+>>      mm: pgtable: completely move pagetable_dtor() to generic
+>> tlb_remove_table()
+>>
+>>      For the generic tlb_remove_table(), it is implemented in the
+>> following two
+>>      forms:
+>>
+>>      1) CONFIG_MMU_GATHER_TABLE_FREE is enabled
+>>
+>>      tlb_remove_table
+>>      --> generic __tlb_remove_table()
+>>
+>>      2) CONFIG_MMU_GATHER_TABLE_FREE is disabled
+>>
+>>      tlb_remove_table
+>>      --> tlb_remove_page
+>>
+>>      For case 1), the pagetable_dtor() has already been moved to generic
+>>      __tlb_remove_table().
+>>
+>>      For case 2), now only arm will call
+>> tlb_remove_table()/tlb_remove_ptdesc()
+>>      when CONFIG_MMU_GATHER_TABLE_FREE is disabled. Let's move
+>> pagetable_dtor()
+>>      completely to generic tlb_remove_table(), so that the
+>> architectures can
+>>      follow more easily.
+>>
+>>      Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
+
+I missed your Suggested-by, will add it in v5.
+
+>>
+>> diff --git a/arch/arm/include/asm/tlb.h b/arch/arm/include/asm/tlb.h
+>> index b8eebdb598631..ea4fbe7b17f6f 100644
+>> --- a/arch/arm/include/asm/tlb.h
+>> +++ b/arch/arm/include/asm/tlb.h
+>> @@ -34,10 +34,6 @@ __pte_free_tlb(struct mmu_gather *tlb, pgtable_t
+>> pte, unsigned long addr)
+>>   {
+>>          struct ptdesc *ptdesc = page_ptdesc(pte);
+>>
+>> -#ifndef CONFIG_MMU_GATHER_TABLE_FREE
+>> -       pagetable_dtor(ptdesc);
+>> -#endif
 > 
-> -drive file=file.img,format=raw,id=hd0 -device virtio-blk-device,drive=hd0
+> I guess this hunk will disappear since this call isn't present to start
+> with.
+
+Yes, I plan to add this in the patch #8, and remove it in this patch.
+
 > 
-> My -device looks similar but -drive is file=file.img,format=raw,id=hd0
+>> -
+>>   #ifndef CONFIG_ARM_LPAE
+>>          /*
+>>           * With the classic ARM MMU, a pte page has two corresponding pmd
+>> diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
+>> index 69de47c7ef3c5..53ae7748f555b 100644
+>> --- a/include/asm-generic/tlb.h
+>> +++ b/include/asm-generic/tlb.h
+>> @@ -220,14 +220,20 @@ static inline void __tlb_remove_table(void *table)
+>>
+>>   extern void tlb_remove_table(struct mmu_gather *tlb, void *table);
+>>
+>> -#else /* !CONFIG_MMU_GATHER_HAVE_TABLE_FREE */
+>> +#else /* !CONFIG_MMU_GATHER_TABLE_FREE */
 > 
-> No idea what if= does? I haven't seemed to need it...
-...
-> Thanks, I think this target is good for release. Now to figure out why 
-> sh2eb network isn't working after the restore (it used to!). Nor is 
-> microblaze's network...
+> Good catch!
+> 
+>>
+>> +static inline void tlb_remove_page(struct mmu_gather *tlb, struct
+>> page *page);
+> 
+> Nit: might be better to move the declaration up, e.g. above #ifdef
+> CONFIG_MMU_GATHER_TABLE_FREE.
 
-My test harness appends -hda filename.img to the qemu command line, 
-which works for all the other targets, and is awkward to turn into
--device lots-of-stuff,file-filename.img,more-stuff inside a shell 
-script. (At best it's a special case parsing and rewriting qemu command 
-line plumbing to turn "generic" into an architecture-specific workaround.)
+Now only the tlb_remove_table() below calls it, maybe it's better to
+keep the impact to minimum?
 
-In THEORY I should be able to do something like:
+> 
+>>   /*
+>>    * Without MMU_GATHER_TABLE_FREE the architecture is assumed to have
+>> page based
+>>    * page directories and we can use the normal page batching to free
+>> them.
+>>    */
+>> -#define tlb_remove_table(tlb, page) tlb_remove_page((tlb), (page))
+>> +static inline void tlb_remove_table(struct mmu_gather *tlb, void *table)
+>> +{
+>> +       struct page *page = (struct page *)table;
+>>
+>> +       pagetable_dtor(page_ptdesc(page));
+>> +       tlb_remove_page(tlb, page);
+>> +}
+>>   #endif /* CONFIG_MMU_GATHER_TABLE_FREE */
+>>
+>>   #ifdef CONFIG_MMU_GATHER_RCU_TABLE_FREE
+> 
+> Looks good to me otherwise.
 
-root/or1k/run-qemu.sh -netdev user,id=net0 -device 
-virtio-net-device,netdev=net0 -device virtio-blk-device,drive=sd0 -hda 
-README
+I will add your Reviewed-by to all patches (except yours) in v5, can
+I also add it to this new added patch? (if we agree with the discussion
+above) ;)
 
-And just have extra arch setup that then accepts the generic appended to 
-it. But in practice that says:
+Thanks!
 
-qemu-system-or1k: -device virtio-blk-device,drive=sd0: Device needs 
-media, but drive is empty
-
-Putting the -hda before the -device doesn't help. (And even if it did, 
-the result would barf if run _without_ -hda, which should also work.)
-
-Having -hda by itself is accepted by qemu, but I don't know what 
-bus/driver gets added as a result (or1k kernel does not find it).
-
-Rob
+> 
+> - Kevin
