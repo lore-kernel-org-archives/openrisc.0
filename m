@@ -1,214 +1,255 @@
-Received: from caracal.ash.relay.mailchannels.net (caracal.ash.relay.mailchannels.net [23.83.222.30])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75D41273F9
-	for <linux-openrisc@vger.kernel.org>; Tue,  7 Jan 2025 23:20:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=23.83.222.30
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736292061; cv=fail; b=O+QimEvQfy9qunjreJnG7CU9qfOl6q44V091A9m9eK5varK4iHWV7bOu3gHs70VatRZGHcYLvYA4nRT+epq3ErDj3FysZl0rwTfcIaF3uQCCTaWX0pCh0oxW/5YFvxNMGiQsLosU2CwtnyChkFBZTZoXmSUZ7G7Gw/XA+OyRcBY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736292061; c=relaxed/simple;
-	bh=fN4U7E5OmPyLTfshmgr69REO8fvfnglNwUX4ROpgI2U=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=SBImkDRnA8CVkhGCwerLiiEK9t5piq2MLCkoB2pxssyWdvGdqAY6JpLFmesyDdVj6Kgw+uu7mWBvyLBZk99TQECKqIofobPq4k+38d6IyJ4PpIo8U7b8t3YpGKyzp4hZihiTaA5v3rVPYkcHBOghfVPLV+Rv3zBCT92Ry3iDOnA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=landley.net; spf=pass smtp.mailfrom=landley.net; dkim=pass (2048-bit key) header.d=landley.net header.i=@landley.net header.b=YR+GRBwk; arc=fail smtp.client-ip=23.83.222.30
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=landley.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=landley.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03A301A9B23
+	for <linux-openrisc@vger.kernel.org>; Wed,  8 Jan 2025 06:59:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1736319557; cv=none; b=RBMS2RvR6EC2f7VoWQeigdug9Bon/cSGFt/XfdqoiTzASZNaq/G5VdL4D34HKf258fgWevyB9P4tTWz3lt1agT4ffmtjcZHwQuJOKerMtKNtYATcTvwCbqO0/Gpr0qpRdu7Us4bgwBJll94XkppQBpiWuQxq5ZeCdwGwSYOwqYs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1736319557; c=relaxed/simple;
+	bh=EdTs1gy5zYgx6BoMVvtYVm1nCTmCaYsA6ZdI4rTRksQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=FCtay/P7BEViTpAV87ilpOcVMH6zZlYc3sDKRFbnq2mq3P4ZH131qUZIT+ldDswOMlBL4ZnP1x3gtzkqaB0FQTdz2sc554nVOwpYcD/tHbwoW+ebpkDcHfdciFGyvKQYAmq/DOgEQhQ8E5ksOsaMhNx8rgp/nKq82ryjUi+iHBk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=Dqj/YQm1; arc=none smtp.client-ip=209.85.216.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=landley.net header.i=@landley.net header.b="YR+GRBwk"
-X-Sender-Id: dreamhost|x-authsender|rob@landley.net
-Received: from relay.mailchannels.net (localhost [127.0.0.1])
-	by relay.mailchannels.net (Postfix) with ESMTP id 340623237F6;
-	Tue,  7 Jan 2025 23:20:58 +0000 (UTC)
-Received: from pdx1-sub0-mail-a234.dreamhost.com (trex-2.trex.outbound.svc.cluster.local [100.109.23.135])
-	(Authenticated sender: dreamhost)
-	by relay.mailchannels.net (Postfix) with ESMTPA id A31233223F9;
-	Tue,  7 Jan 2025 23:20:57 +0000 (UTC)
-ARC-Seal: i=1; s=arc-2022; d=mailchannels.net; t=1736292057; a=rsa-sha256;
-	cv=none;
-	b=ERBS0oiVBk2Xb6JwdkcXLRqG1qX7KuXhDocNEsYsb7berQkUcbPhQEH/6D/IXXrC2iiojg
-	n13YhgIRcXyjqRNJgF+vRLSOGlB2GLDh9DHwCzZgJAEDZT9Mu+iT0q+2ceo24hdxwL/lWa
-	IoyiZ57aUt686Ss1yzBArk/v8lkWv2+XjAraOEZ7+lZX3EHiUdpvpEDvctPUpMTQwXFZ0C
-	BWnzfZjAyilMfRzEKyrNEE8KP903zVTMzOLu0efBdgwwutfxgBQWICruWcqQUapamekaJx
-	S1BFYVFnQbZG/lIkiX1y8TnZJDzY0I0rZT0e7wAKQsguuA0M0HD2AAOeC3scnQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed;
- d=mailchannels.net;
-	s=arc-2022; t=1736292057;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:dkim-signature;
-	bh=uTPIbz7LB+ULVOPIft/sMzfCsyOKg2ovifBBeDjlNiw=;
-	b=avWeJe1ZAgNUlXujgh4KlD7R2WZ+5aACVdB7FOn5J9K4drrXClnT/m0Feo7B03T3COlTsN
-	OccRu9HDc7N2tx/JHWy2g5ZZUB5Nw+rsWolwWxrA9Okesoe9rperpKIKuJ+GhanN2PnREV
-	SHibX+dxZivQ8LYuDJ82wOODTCJdXxSrihTMkzJhZbHnUjQuAzV1zaIiJHH2S/YfN2VKCD
-	gNK5+z0SKtPRldMuWJclrJp0ygIv8w9gMOrkygXSep/7LLktfEHLPM0yABD7E35/deovAG
-	8jPU64/bHsomN4RPr5zIkmkRVrXI/f7gl0b41DwYu1gpV7J+BuT04r1XpOPm+A==
-ARC-Authentication-Results: i=1;
-	rspamd-7df4dcbd86-4qk5j;
-	auth=pass smtp.auth=dreamhost smtp.mailfrom=rob@landley.net
-X-Sender-Id: dreamhost|x-authsender|rob@landley.net
-X-MC-Relay: Neutral
-X-MailChannels-SenderId: dreamhost|x-authsender|rob@landley.net
-X-MailChannels-Auth-Id: dreamhost
-X-Harbor-Cold: 2435848978ac12b9_1736292057917_4051586479
-X-MC-Loop-Signature: 1736292057917:226697232
-X-MC-Ingress-Time: 1736292057917
-Received: from pdx1-sub0-mail-a234.dreamhost.com (pop.dreamhost.com
- [64.90.62.162])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384)
-	by 100.109.23.135 (trex/7.0.2);
-	Tue, 07 Jan 2025 23:20:57 +0000
-Received: from [172.16.32.88] (unknown [198.232.126.202])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
-	(No client certificate requested)
-	(Authenticated sender: rob@landley.net)
-	by pdx1-sub0-mail-a234.dreamhost.com (Postfix) with ESMTPSA id 4YSRqr6rBBz8S;
-	Tue,  7 Jan 2025 15:20:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=landley.net;
-	s=dreamhost; t=1736292057;
-	bh=wWKlZUyNNVVj1YsXWkNsJDVvt0wHxvoYrtx+2KFO3gk=;
-	h=Date:Subject:To:Cc:From:Content-Type:Content-Transfer-Encoding;
-	b=YR+GRBwk00tVJR+vSRWtil5ZHEyS92qt2LXmA8h5CoIA81O8dhLBi0OFXqI/k11/f
-	 N9f3ZqRIa/QNMD4OhzxVxoIIXcZFMoJuHtsozN984BO0UzWTz36yw+3i/n5S1BI4Ov
-	 hRxG8lqeHStDTmF9koToXZCcg2hQlaSs34lHsg/RsgqAA3eSLC4rxL3tjpd1kAvMR/
-	 lUXv1+mWteYFXvL+0K4b4SIN4ppo8z9PToxWIPn7/vn+s0Ljy5puVD/Aasq9DCKaqc
-	 wFcRAvIM5suj/M4ZrTS5sy9FSilqS3MdgZpqFnC9lwRyzKC9GWS9GiEQudrKkJ89lj
-	 jp63iW5vmFgsw==
-Message-ID: <e2f1c14c-f5d2-48f3-bb6e-d1db0ce6d1fa@landley.net>
-Date: Tue, 7 Jan 2025 17:20:56 -0600
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="Dqj/YQm1"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-2ef70c7efa5so19469842a91.2
+        for <linux-openrisc@vger.kernel.org>; Tue, 07 Jan 2025 22:59:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1736319555; x=1736924355; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=+oUJziA+3SIeve9hH8p/SUshEWFM4XR7pFGccDfjKoA=;
+        b=Dqj/YQm1bfzrDP7DQ/Ic9GW1KGuM2dMvaJwVKjeZPFhAtabgeh2VZ9zKIJ3s5a+5oJ
+         Otd0i/ATtjG8HecynSEhahYK2aba6UHEgbi8t2y/NE2FU91cptxKUwRZD5EZ4+rVA4lr
+         wRVdqJHFXig/GgDpGj5DLE8+p7Uy5apd74P9rAWo6wdmHHOBy8zZetKiV7gp95emdlZa
+         HjYO9cJEnGhNHroCbBgtjHkJi7O6Jdxd7kiDXL/mMcQFdq120JyzURtGvDrVXiWY+urw
+         5ThXXXSBvM/JTLb+skk6PEDTLG5Oi5s+Qp4y2XoXv4y/fOrQE/SXFPVfFffPLrZoztJu
+         yddw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736319555; x=1736924355;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=+oUJziA+3SIeve9hH8p/SUshEWFM4XR7pFGccDfjKoA=;
+        b=cJOLxk3C3modNTZrWk1QxhSuTyqMvzkb1IEPmrvjdLt1zRyKhTXy4+t7s2CVa0wlZC
+         MDjvIL4rUuBeBPTIfyzxCTnti2cthw/aKIfDpCOwrRU7oE7SCwHv/qNwyjauv4SltNbS
+         OiS//lpxC4J2IQEv41K/TfvHCcUKgT2572+vz9JDIxCGB0BiHyLA8zzK4doKD0k1NRkN
+         k/NYc87F936Yz0PCiNE6T2iKXf9X/YAhC4sjJHcwHclRS9AE3oBQSDVxylDKmAhUKYGc
+         loseVKrglNpL2t2uaYbIchYWPFCXSmVcKwnz6VtZbkn6JhYKHcWSMIQlrQBYdY9p7tUO
+         uQsA==
+X-Forwarded-Encrypted: i=1; AJvYcCVsGjy+h8/mZGvQUpVmEnl6Oibdg1QQehA5kCiozD1LmptBOnBAWh4/05aAybdPhhKfECuuQjRLLPp6diF1Pw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzpcc90gqYPVVkff7tr5x/Leg3rVVAjgQvHJuQYmdUNC2yQ7bru
+	dY09OEE1FOYCdij7EB6a2240N0cnUdU6L41k364oAZZnbgUANFbJhdKpzeegn9w=
+X-Gm-Gg: ASbGnctx+WtpMesmjo1MaSQ0IAQ6HN1VZs0cBO7jLADyaehymHbwUq/CBKB8XNHrOcD
+	LDbz+iB4e4vGTI6wwz8W/05MAikitW7j3fQMDbuE9AnrIQrJn4EUzge/hqp6yHQhYkF814o8/Mh
+	uSoZc3VvaWUZljfe9k6qGAS/UXucWzwSi5cu64TcJ7iD/Tg/7xlFOMpVieGdzuwrjOKqM6uyPFU
+	+m/txngxvQZ48vLf+OpX4T8eIBO2AT08Ihuvh3jQvectdNP4efczkL5CyL4VaeUqOZTC1AQ7xSe
+	B9bOgf9WtC2WuQ33FZrFbptnN1Y=
+X-Google-Smtp-Source: AGHT+IF0KICf2IpNdbhCgJ/4FLwWodDPqZ+kJ6jQ+m3hTC2SCt6RG6Dd8PQChw/e3cG7DLZH3PR19A==
+X-Received: by 2002:a17:90b:4d05:b0:2ee:f80c:6884 with SMTP id 98e67ed59e1d1-2f548f426ccmr2612187a91.33.1736319554907;
+        Tue, 07 Jan 2025 22:59:14 -0800 (PST)
+Received: from C02DW0BEMD6R.bytedance.net ([139.177.225.244])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-219dca023a3sm320067275ad.250.2025.01.07.22.59.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Jan 2025 22:59:14 -0800 (PST)
+From: Qi Zheng <zhengqi.arch@bytedance.com>
+To: peterz@infradead.org,
+	agordeev@linux.ibm.com,
+	kevin.brodsky@arm.com,
+	alex@ghiti.fr,
+	andreas@gaisler.com,
+	palmer@dabbelt.com,
+	tglx@linutronix.de,
+	david@redhat.com,
+	jannh@google.com,
+	hughd@google.com,
+	yuzhao@google.com,
+	willy@infradead.org,
+	muchun.song@linux.dev,
+	vbabka@kernel.org,
+	lorenzo.stoakes@oracle.com,
+	akpm@linux-foundation.org,
+	rientjes@google.com,
+	vishal.moola@gmail.com,
+	arnd@arndb.de,
+	will@kernel.org,
+	aneesh.kumar@kernel.org,
+	npiggin@gmail.com,
+	dave.hansen@linux.intel.com,
+	rppt@kernel.org,
+	ryan.roberts@arm.com
+Cc: linux-mm@kvack.org,
+	linux-arm-kernel@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	sparclinux@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	x86@kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org,
+	linux-openrisc@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	Qi Zheng <zhengqi.arch@bytedance.com>
+Subject: [PATCH v5 00/17] move pagetable_*_dtor() to __tlb_remove_table()
+Date: Wed,  8 Jan 2025 14:57:16 +0800
+Message-Id: <cover.1736317725.git.zhengqi.arch@bytedance.com>
+X-Mailer: git-send-email 2.24.3 (Apple Git-128)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: or1k -M virt -hda and net.
-To: =?UTF-8?Q?Alex_Benn=C3=A9e?= <alex.bennee@linaro.org>,
- Stafford Horne <shorne@gmail.com>
-Cc: Peter Maydell <peter.maydell@linaro.org>,
- "Jason A. Donenfeld" <Jason@zx2c4.com>,
- QEMU Developers <qemu-devel@nongnu.org>,
- Linux OpenRISC <linux-openrisc@vger.kernel.org>
-References: <9b2761aa-8ee0-4399-b237-31e70e3ed165@landley.net>
- <Z0Cyx3i3z7Zl7XPm@antec> <31fa6255-8e0c-4d05-bad9-dd843c676244@landley.net>
- <Z0GSETLeT5w8B2DX@antec> <87a6b910-5af6-47ad-ad8d-b79f11a7cbf2@landley.net>
- <Z0LMqEqcdjkAxnN-@antec> <57c5207c-3aca-47cd-bfd3-3d7eb7be3c0f@landley.net>
- <Z2lgL31ZeSkO59MZ@antec> <8807078a-0673-4b27-8d58-4a2a3ce4987d@landley.net>
- <39511711-b86a-4ac6-8bd6-8dab824b693e@landley.net> <Z31k3zNN3pOdGWWK@antec>
- <87y0zmbita.fsf@draig.linaro.org>
-Content-Language: en-US
-From: Rob Landley <rob@landley.net>
-In-Reply-To: <87y0zmbita.fsf@draig.linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 1/7/25 12:05, Alex Bennée wrote:
-> Stafford Horne <shorne@gmail.com> writes:
->> I have not used -hda before, do you have it working with other targets?
->>
->> According to the qemu docs in qemu-options.hx. I see:
->>
->>      Use file as hard disk 0, 1, 2 or 3 image on the default bus of the
->>      emulated machine (this is for example the IDE bus on most x86 machines,
->>      but it can also be SCSI, virtio or something else on other target
->>      architectures). See also the :ref:`disk images` chapter in the System
->>      Emulation Users Guide.
->>
->> I think, since we don't have a "default" bus in openrisc this doesn't work so we
->> need to specify the -drive explictly.
->>
->> I checked the x86 machine code and confirm it seems to work like this.  There is
->> code in the system setup to look for hd* drives and wire them into IDE.  There
->> is no such code in openrisc.
-> 
-> Yeah don't use -hdX as they are legacy options with a lot of default
-> assumptions. As the docs say: https://qemu.readthedocs.io/en/master/system/invocation.html#hxtool-1
-> 
->    The QEMU block device handling options have a long history and have
->    gone through several iterations as the feature set and complexity of
->    the block layer have grown. Many online guides to QEMU often reference
->    older and deprecated options, which can lead to confusion.
+Changes in v5:
+ - cancel the move of p4d_free_tlb()'s location in [PATCH v4 06/15]
+   (Alexander Gordeev)
+ - fix the missing pagetable_dtor() in [PATCH v4 08/15] (Kevin Brodsky)
+ - change the subject and description in [PATCH v4 12/15]
+   (Alexander Gordeev)
+ - remove the redundant __HAVE_ARCH_TLB_REMOVE_TABLE definition in [PATCH v4 13/15]
+   (Andreas Larsson)
+ - add "mm: pgtable: completely move pagetable_dtor() to generic tlb_remove_table()"
+   (Kevin Brodsky)
+ - add "x86: pgtable: convert __tlb_remove_table() to use struct ptdesc"
+ - collect Acked-bys and Reviewed-bys
 
-I want "a block device from this file" in a generic way that works the 
-same across multiple architectures regardless of the board being 
-emulated, where I only have to specify the file not explicitly 
-micromanage bus plumbing details, and which is easy for a human to type 
-from when explained over a voice call.
+Changes in v4:
+ - remove [PATCH v3 15/17] and [PATCH v3 16/17] (Mike Rapoport)
+   (the tlb_remove_page_ptdesc() and tlb_remove_ptdesc() are intermediate
+    products of the project: https://kernelnewbies.org/MatthewWilcox/Memdescs,
+    so keep them)
+ - collect Acked-by
 
-What's the alternative to -hda you suggest for that?
+Changes in v3:
+ - take patch #5 and #6 from Kevin Brodsky's patch series below.
+   Link: https://lore.kernel.org/lkml/20241219164425.2277022-1-kevin.brodsky@arm.com/
+ - separate the statistics part from [PATCH v2 02/15] as [PATCH v3 04/17], and
+   replace the rest part with Kevin Brodsky's patch #6
+   (Alexander Gordeev and Kevin Brodsky)
+ - change the commit message of [PATCH v2 10/15] and [PATCH v2 11/15]
+   (Alexander Gordeev)
+ - fix the bug introduced by [PATCH v2 11/15]
+   (Peter Zijlstra)
+ - rebase onto the next-20241220
 
-Can I do "./run-qemu.sh -drive file=blah.img" without the rest? Perhaps 
-specify all the details in the script and then optionally add an extra 
-argument at the end? I couldn't get that to work:
+Changes in v2:
+ - add [PATCH v2 13|14|15/15] (suggested by Peter Zijlstra)
+ - add Originally-bys and Suggested-bys
+ - rebase onto the next-20241218
 
-$ root/or1k/run-qemu.sh -netdev user,id=net0 -device 
-virtio-net-device,netdev=net0 -drive format=raw,id=hd0 -device 
-virtio-blk-device,drive=hd0 -drive file=README
-qemu-system-or1k: -drive format=raw,id=hd0: A block device must be 
-specified for "file"
+Hi all,
 
-Also, if you say -device and -drive but do NOT specify a file, qemu 
-refuses to start. So I can't set the defaults but only optionally use 
-them, the way -hda has defaults built into the image that don't cause a 
-problem if I DON'T add a -hda argument to the command line.
+As proposed [1] by Peter Zijlstra below, this patch series aims to move
+pagetable_*_dtor() into __tlb_remove_table(). This will cleanup pagetable_*_dtor()
+a bit and more gracefully fix the UAF issue [2] reported by syzbot.
 
->    Older options like -hda are essentially macros which expand into -drive
->    options for various drive interfaces.
+```
+Notably:
 
-Where the knowledge of "what this board needs in order to do that" is 
-built into qemu rather than provided by the caller, yes.
+ - s390 pud isn't calling the existing pagetable_pud_[cd]tor()
+ - none of the p4d things have pagetable_p4d_[cd]tor() (x86,arm64,s390,riscv)
+   and they have inconsistent accounting
+ - while much of the _ctor calls are in generic code, many of the _dtor
+   calls are in arch code for hysterial raisins, this could easily be
+   fixed
+ - if we fix ptlock_free() to handle NULL, then all the _dtor()
+   functions can use it, and we can observe they're all identical
+   and can be folded
 
-> The original forms bake in a lot
->    of assumptions from the days when QEMU was emulating a legacy PC, they
->    are not recommended for modern configurations.
+after all that cleanup, you can move the _dtor from *_free_tlb() into
+tlb_remove_table() -- which for the above case, would then have it
+called from __tlb_remove_table_free().
+```
 
-I'm building a kernel. It finds /dev/?da so I can mount it. That is my 
-desired outcome.
+And hi Andrew, I developed the code based on the latest linux-next, so I reverted
+the "mm: pgtable: make ptlock be freed by RCU" first. Once the review of this
+patch series is completed, the "mm: pgtable: make ptlock be freed by RCU" can be
+dropped directly from mm tree, and this revert patch will not be needed.
 
-I am attempting to get generic behavior out of multiple architectures, 
-among other reasons so I can cross-test and package up "it fails on X, 
-here's a build and test" to point package maintainers at.
+This series is based on next-20241220. And I tested this patch series on x86 and
+only cross-compiled it on arm, arm64, powerpc, riscv, s390 and sparc.
 
-"It natively builds under the emulator" is the easiest way to make that 
-work, which is why https://landley.net/bin/toolchains/latest/ has a 
-native.sqf for each cross.tar.xz.
+Comments and suggestions are welcome!
 
-wget system-image-arch.txz
-wget toolchain.sqf
-wget test.img
+Thanks,
+Qi
 
-./run-emulator.sh -hda test.img -hdb toolchain.sqf
+[1]. https://lore.kernel.org/all/20241211133433.GC12500@noisy.programming.kicks-ass.net/
+[2]. https://lore.kernel.org/all/67548279.050a0220.a30f1.015b.GAE@google.com/
 
-If I have to explain "-drive virtio-potato-walrus,inkpot=striated 
--device collect=striated,burbank-potato,ireland" at somebody whose 
-domain expertise is xfce or something, the barrier to getting them to 
-reproduce the issue I'm seeing is noticeably higher. If I have to MAKE a 
-bespoke wrapper shell script for them with every bug report, the 
-likelihood that it works differently for them than when I tried it is 
-noticeably nonzero, and the likelihood of the issue going on my todo 
-heap and never getting pursued upstream is also noticeably higher. Which 
-is why I try to make generic tools...
+Kevin Brodsky (2):
+  riscv: mm: Skip pgtable level check in {pud,p4d}_alloc_one
+  asm-generic: pgalloc: Provide generic p4d_{alloc_one,free}
 
-(Making a _test_ script to demonstrate the issue is normal. If it's 
-their project, usually they can tell if I typoed it and fix it up 
-themselves because they know what I MEANT. But if I typo the setup for 
-the virtual environment, or are missing a prerequisite package install, 
-or they hit qemu version skew, or I said /bin/sh and theirs points to 
-dash... Brick wall. It either works or it doesn't.)
+Qi Zheng (15):
+  Revert "mm: pgtable: make ptlock be freed by RCU"
+  mm: pgtable: add statistics for P4D level page table
+  arm64: pgtable: use mmu gather to free p4d level page table
+  s390: pgtable: add statistics for PUD and P4D level page table
+  mm: pgtable: introduce pagetable_dtor()
+  arm: pgtable: move pagetable_dtor() to __tlb_remove_table()
+  arm64: pgtable: move pagetable_dtor() to __tlb_remove_table()
+  riscv: pgtable: move pagetable_dtor() to __tlb_remove_table()
+  x86: pgtable: convert __tlb_remove_table() to use struct ptdesc
+  x86: pgtable: move pagetable_dtor() to __tlb_remove_table()
+  s390: pgtable: consolidate PxD and PTE TLB free paths
+  mm: pgtable: introduce generic __tlb_remove_table()
+  mm: pgtable: completely move pagetable_dtor() to generic
+    tlb_remove_table()
+  mm: pgtable: move __tlb_remove_table_one() in x86 to generic file
+  mm: pgtable: introduce generic pagetable_dtor_free()
 
-(And when I have to set up the long version for a nightly cron job, and 
-then when the test fails 6 months later and I look at it and go "huh? 
-salad?" that's a bad 3am digression as well. And which is more likely to 
-break from version skew during qemu version upgrades: two lines of 
-micromanaging --longopts or -hda that gets adjusted by the maintainers?)
+ Documentation/mm/split_page_table_lock.rst |  4 +-
+ arch/arm/include/asm/tlb.h                 | 10 ----
+ arch/arm64/include/asm/pgalloc.h           | 18 ------
+ arch/arm64/include/asm/tlb.h               | 21 ++++---
+ arch/csky/include/asm/pgalloc.h            |  2 +-
+ arch/hexagon/include/asm/pgalloc.h         |  2 +-
+ arch/loongarch/include/asm/pgalloc.h       |  2 +-
+ arch/m68k/include/asm/mcf_pgalloc.h        |  4 +-
+ arch/m68k/include/asm/sun3_pgalloc.h       |  2 +-
+ arch/m68k/mm/motorola.c                    |  2 +-
+ arch/mips/include/asm/pgalloc.h            |  2 +-
+ arch/nios2/include/asm/pgalloc.h           |  2 +-
+ arch/openrisc/include/asm/pgalloc.h        |  2 +-
+ arch/powerpc/include/asm/tlb.h             |  1 +
+ arch/powerpc/mm/book3s64/mmu_context.c     |  2 +-
+ arch/powerpc/mm/book3s64/pgtable.c         |  2 +-
+ arch/powerpc/mm/pgtable-frag.c             |  4 +-
+ arch/riscv/include/asm/pgalloc.h           | 69 +++++-----------------
+ arch/riscv/include/asm/tlb.h               | 18 ------
+ arch/riscv/mm/init.c                       |  4 +-
+ arch/s390/include/asm/pgalloc.h            | 31 +++++++---
+ arch/s390/include/asm/tlb.h                | 10 ++--
+ arch/s390/mm/pgalloc.c                     | 23 +-------
+ arch/sh/include/asm/pgalloc.h              |  2 +-
+ arch/sparc/include/asm/tlb_64.h            |  1 +
+ arch/sparc/mm/init_64.c                    |  2 +-
+ arch/sparc/mm/srmmu.c                      |  2 +-
+ arch/um/include/asm/pgalloc.h              |  6 +-
+ arch/x86/include/asm/pgalloc.h             | 18 ------
+ arch/x86/include/asm/tlb.h                 | 33 -----------
+ arch/x86/kernel/paravirt.c                 |  5 +-
+ arch/x86/mm/pgtable.c                      | 23 ++++----
+ include/asm-generic/pgalloc.h              | 55 +++++++++++++++--
+ include/asm-generic/tlb.h                  | 24 ++++++--
+ include/linux/mm.h                         | 50 ++++++----------
+ include/linux/mm_types.h                   |  9 +--
+ mm/memory.c                                | 23 +++-----
+ mm/mmu_gather.c                            | 20 ++++++-
+ 38 files changed, 211 insertions(+), 299 deletions(-)
 
-Rob
+-- 
+2.20.1
 
-P.S. For some reason -hda grew an "I'm going to make the first block 
-read-only just like loopback devices do because you can't be trusted" 
-nag a few years back, but it's mostly yet more boot spam. I can tell the 
-kernel to be quiet during boot, but never figured out the equivalent for 
-qemu-system...
