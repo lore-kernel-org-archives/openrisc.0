@@ -1,230 +1,107 @@
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+Received: from mail-ua1-f51.google.com (mail-ua1-f51.google.com [209.85.222.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25DEA1F03F1
-	for <linux-openrisc@vger.kernel.org>; Wed,  8 Jan 2025 07:03:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2072513B288
+	for <linux-openrisc@vger.kernel.org>; Wed,  8 Jan 2025 08:24:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736319823; cv=none; b=AbLj/ibSEYBjvPNKqCS5gWrhh2BMny5kF6OFbJHFcQ/nm38pViMxjFNhC7zRPA95/uengsd/DtIHmXYdLR4AtjcMqk9cj+Se8TuHBZT9eqcD3QZtLrlvoWb08IZS68rKkMMyBMqU/7scrotR3zcagC4Cu4ZPX/2/WdZzpOTYMd0=
+	t=1736324675; cv=none; b=WWYclqLWYeF6tE97IJD3jr4rZ0Aco93E29g2R4jl4g0Yb6yaEvu88swRd1HpvCuOKZX0E9mXdFQMFbWvHY0aGQWDUFYV48wX6RvA+/p3XdC43qpTUzJp9Tm9jcxXl9djkGYkJMovns9JibgPjwXdhYJcC+IHUE52xaOSGQa9iXU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736319823; c=relaxed/simple;
-	bh=6Tm9tzzLwfPI5sWMJ+gGPjjpg7Ij0ovc/RrCPGoP6W0=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=RZuHpsA8Dac3QreiCjhJkEMUeLp7nKRKUYBBkVLMfY6WWdH/KF6FG909jWiKIq9lLrA08g2tXM47SwtCafMdgni+B2EI6HF3hSS3pKcMNmq5vHmF95NzPXYpSTzJwObMrBe/v3y+B2ic7c46tk4khJNkd8nUPZlzov452aaI0U8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=KtvLg51X; arc=none smtp.client-ip=209.85.214.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="KtvLg51X"
-Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2167141dfa1so9535465ad.1
-        for <linux-openrisc@vger.kernel.org>; Tue, 07 Jan 2025 23:03:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1736319820; x=1736924620; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SmV2C/123ilQKoYc6h41pKDzG2aiaIfZ7nQkaBcWxp0=;
-        b=KtvLg51Xue1YBzIOtDDnaKVLDxho5Y6O34b3QLXYGujr9xXAirsHXiFIDJ98IjU9oz
-         Z0hAvHLsx9XPp3Agplnwmdgv1qA4pbR9wYkuCUL2dZ92URLD0cl6irNm7klKTt/Is0tm
-         4JLj7aE1faDKWpUwyXHPqT4sgeuViPZFzB2ipUzZMoMJ296x2IbGR20ZTsAMf8/Au32o
-         CIOBHWY/teEwvunVztgAgLPbdBy3ANmKwDUgjV3S+uTok9chdNvvXzRT2hGQqLXZcP1s
-         LvQFH6G/sHCtN/HFAGvMHOg0FcCEXTRuZI0StA33iKs4vlrGO5YuafH2wd1ZbnK0lL1T
-         VwLQ==
+	s=arc-20240116; t=1736324675; c=relaxed/simple;
+	bh=q1g+r69Fh4zvWmSE8sEWdnZnqTkXw5vq15lYLbjCgt0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=FYrfxUozzfmEb57779tv5/e0T1+HcyuuqWhdGugAfD0hShs7+dioAAWexf/zBUnaFSjlB1Ptq8FIbr3tTbqOtFV+7c+wF+k4hGjU4Ip7VZrrJUy/x1uJly7qY3+i0y7MHZL35cehmvNRRB+CyIR3w7TA6b/ZCWapZeqMVgmkW3U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.222.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-ua1-f51.google.com with SMTP id a1e0cc1a2514c-85c5eb83a7fso7959802241.2
+        for <linux-openrisc@vger.kernel.org>; Wed, 08 Jan 2025 00:24:32 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736319820; x=1736924620;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1736324671; x=1736929471;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=SmV2C/123ilQKoYc6h41pKDzG2aiaIfZ7nQkaBcWxp0=;
-        b=VAXQ95QjSWLEc3Iz3Vy1N/QzQuQJTwCoZTq3ct8usGZpK+Hnz+Lro3Ri85fcecrBhc
-         9MEmFlCTFW7VQRbqrtWYlTWSBFLyUzs6d2Kxd/BPdv4d9W3A7o9RZIIME5RL6PJ1dwnp
-         zXR0kK0DB/SEMCwxWOeHjsmZHKd8drmJ8AjfVAipiYKwINN9z0Rim1vSJ0mV3VHgTR9a
-         vrG0zhVKMd75VD5ksn8QyiiEpIg8cmv3LquCTk1j90EZQAHBCrIqpEeG7UWfLCgOix6G
-         4rBPV0I1IaKx1lxegdK/FI3p0iZIQdNJIJrnB0uAe44qo/Z7hzpEijckAjzrZwXgg0Dg
-         hlxQ==
-X-Forwarded-Encrypted: i=1; AJvYcCX9Is91ULqla/8hkqe+FNDv06yYYsPLxKnLxHy7sHNa2fX6zxhbxQo8koEm6K2hc7/XeQEidjz61pGBqXGSzQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxvvrMtFvK1gMWZRd6ZmySKLvCfFi3Kty262X5Y/M1C13whVRVq
-	3B0ZdOdWVOnaWYxkjcZVdodraMAJ04xrzgEip68BDk5X8Np91nO8hRjABnpLPw4=
-X-Gm-Gg: ASbGncv60/joWFGu1USNE8/Uho/vX1jSHvrOLxoIQt6clPHsqxGewgqG4FDSP5Rlhrq
-	A3PVn7J6RsHm8zTvI0/y3TxC15FKT+kTLsXpFUPFA6bHcfCSU0d0iSaEKIZRH3Tds5BKcq89Xp9
-	u2hxT6luk/Zj6gUpj7AdtQ2gmmISckrhc7nWIl2uzT7TTDIEwCw+A0t3bVHUJEkEuF3nBohkAD5
-	L+t3MIGdPD3kYUO9ybkrqVPd5y6PhPx+J9xVCaHN2VHHgautf9XDhX5IgZQr6kuLvcFvxwJ07zf
-	F40ZUvuSxD/99XN8dxw4ezrboCg=
-X-Google-Smtp-Source: AGHT+IFPhscn4ro6sBJsBOR2a8pRlJGCRsiSDouRo+43OGNlwIzbjZLHQRkjQ8iB7a2FmZbbQjyk4w==
-X-Received: by 2002:a17:902:fc46:b0:216:4fad:35d0 with SMTP id d9443c01a7336-21a7a1d4731mr100818035ad.9.1736319820276;
-        Tue, 07 Jan 2025 23:03:40 -0800 (PST)
-Received: from C02DW0BEMD6R.bytedance.net ([139.177.225.244])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-219dca023a3sm320067275ad.250.2025.01.07.23.03.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jan 2025 23:03:39 -0800 (PST)
-From: Qi Zheng <zhengqi.arch@bytedance.com>
-To: peterz@infradead.org,
-	agordeev@linux.ibm.com,
-	kevin.brodsky@arm.com,
-	alex@ghiti.fr,
-	andreas@gaisler.com,
-	palmer@dabbelt.com,
-	tglx@linutronix.de,
-	david@redhat.com,
-	jannh@google.com,
-	hughd@google.com,
-	yuzhao@google.com,
-	willy@infradead.org,
-	muchun.song@linux.dev,
-	vbabka@kernel.org,
-	lorenzo.stoakes@oracle.com,
-	akpm@linux-foundation.org,
-	rientjes@google.com,
-	vishal.moola@gmail.com,
-	arnd@arndb.de,
-	will@kernel.org,
-	aneesh.kumar@kernel.org,
-	npiggin@gmail.com,
-	dave.hansen@linux.intel.com,
-	rppt@kernel.org,
-	ryan.roberts@arm.com
-Cc: linux-mm@kvack.org,
-	linux-arm-kernel@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	x86@kernel.org,
-	linux-arch@vger.kernel.org,
-	linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	linux-m68k@lists.linux-m68k.org,
-	linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org,
-	linux-sh@vger.kernel.org,
-	linux-um@lists.infradead.org,
-	Qi Zheng <zhengqi.arch@bytedance.com>
-Subject: [PATCH v5 17/17] mm: pgtable: introduce generic pagetable_dtor_free()
-Date: Wed,  8 Jan 2025 14:57:33 +0800
-Message-Id: <1663a0565aca881d1338ceb7d1db4aa9c333abd6.1736317725.git.zhengqi.arch@bytedance.com>
-X-Mailer: git-send-email 2.24.3 (Apple Git-128)
-In-Reply-To: <cover.1736317725.git.zhengqi.arch@bytedance.com>
-References: <cover.1736317725.git.zhengqi.arch@bytedance.com>
+        bh=BaBeI/iD9rwPK/9Kgw+JgxCrmVuCW+9PizmHcP7JTnk=;
+        b=IFmlNlu2rtkTdSdX+lS7IcLOlolfMBK7DOWpA5xpKLIf6CItpmwHtjYFJZ9AkKJ5IF
+         IIMAtqkRS36ZRm/CbvFX5tMsT6cRNQSO3oFR/P42yep6yntPr4OpAv51Nu1W/EzgUKWK
+         fFAgRBKiMCrphE9CawaXz2g+bLsdqO+wGKYpmfkbVYCFrmz80XHDjSWXfSuOZO7DvKYi
+         XenCwEp7tuFtYNMionbr+NTcefNMR8hKGnK+h4C55LyLiqKZcKGXw6iKnQgPX5CV2s+Q
+         PqCdYFJmYjHXWiW+kCGFbfaVZuJNP53EnO2OTQiJCIfc0Zyon5IGpo12sbNXyzqQDV5V
+         XCQw==
+X-Forwarded-Encrypted: i=1; AJvYcCXeZfMoi3Ube5kXsG+xZ84NcQPj/z1c9w5uPwiIzdVdjjdhRZPgHknOGQoDwbb6+4iery2Iw3/bSL2KVC05hQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzViVRgT26Hdj3r1+fPd5n988CimqUrDxnd9+hMr2iXKj9WTW3H
+	nW9NNZ2TUJw/TY0hsq2wkZB0Tyi+BAqb7Mee2qLVcJnsmxIli4nLhGaEbIz/
+X-Gm-Gg: ASbGncuBzRJzdauohHe1VQbSlGC+9zalMJt69YTIBSuvhhCYzU78SWEpX7fBE/M9Buc
+	gELQ6EvABgQ46QvwzqNv2kbidOOpPGQfcFBOlOv179e39FmxkQuRHGBeluMchcfStIkAQxBUEu4
+	kHjDbJRoqhac+gQPbCyIV5tWWpbERDD8Fh1XHPViD6mLMTXbjWgzYg6tyB5oKy98h5wUPwPPHg9
+	uGCXkiq+5cPksZms0l+12SqZTWl78VFEufK4dfDrPm3NKaPP4bg0DtvEDg1HqHx2FmXqyb1YCfE
+	vinGD/feMhE5DMWjtUD9uN8=
+X-Google-Smtp-Source: AGHT+IExo2lIVmrwBuee9iFuZKhJjjG26iAkLIIkcx5lFpyDLsCmIiySXLEDEUpJRjslu8qqA+dnNQ==
+X-Received: by 2002:a05:6102:509f:b0:4b1:1b41:ff5f with SMTP id ada2fe7eead31-4b3d0da4c1bmr1311029137.1.1736324671154;
+        Wed, 08 Jan 2025 00:24:31 -0800 (PST)
+Received: from mail-vk1-f179.google.com (mail-vk1-f179.google.com. [209.85.221.179])
+        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-4b2bf9a4095sm8192307137.9.2025.01.08.00.24.30
+        for <linux-openrisc@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Jan 2025 00:24:30 -0800 (PST)
+Received: by mail-vk1-f179.google.com with SMTP id 71dfb90a1353d-51619b06a1cso9134987e0c.3
+        for <linux-openrisc@vger.kernel.org>; Wed, 08 Jan 2025 00:24:30 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCXs4ZT8Pp2rLelelVJS2M6IUlKCC0zdeL+9CFRoNWFKsw5zMB7VJl4z8QlY+TUXeKX9i9zbBS4Bv6S6jiTuwg==@vger.kernel.org
+X-Received: by 2002:a05:6102:b02:b0:4af:56a8:737c with SMTP id
+ ada2fe7eead31-4b3d0dd199cmr1341907137.12.1736324670156; Wed, 08 Jan 2025
+ 00:24:30 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <9b2761aa-8ee0-4399-b237-31e70e3ed165@landley.net>
+ <Z0Cyx3i3z7Zl7XPm@antec> <31fa6255-8e0c-4d05-bad9-dd843c676244@landley.net>
+ <Z0GSETLeT5w8B2DX@antec> <87a6b910-5af6-47ad-ad8d-b79f11a7cbf2@landley.net>
+ <Z0LMqEqcdjkAxnN-@antec> <57c5207c-3aca-47cd-bfd3-3d7eb7be3c0f@landley.net>
+ <Z2lgL31ZeSkO59MZ@antec> <8807078a-0673-4b27-8d58-4a2a3ce4987d@landley.net>
+ <39511711-b86a-4ac6-8bd6-8dab824b693e@landley.net> <Z31k3zNN3pOdGWWK@antec> <0d2df37a-a167-445f-aacf-714a29587511@landley.net>
+In-Reply-To: <0d2df37a-a167-445f-aacf-714a29587511@landley.net>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 8 Jan 2025 09:24:18 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdU2XT=xHr3D4kWVSU=h4jJSoQj1RAdeXDNGEDXdOaqBjQ@mail.gmail.com>
+X-Gm-Features: AbW1kvZzrhxO471coP-DUQZQXWDXgFR5eNkZOOkRN3HgcaBG79rM4GHszy7Ikb8
+Message-ID: <CAMuHMdU2XT=xHr3D4kWVSU=h4jJSoQj1RAdeXDNGEDXdOaqBjQ@mail.gmail.com>
+Subject: Re: or1k -M virt -hda and net.
+To: Rob Landley <rob@landley.net>
+Cc: Stafford Horne <shorne@gmail.com>, Peter Maydell <peter.maydell@linaro.org>, 
+	"Jason A. Donenfeld" <Jason@zx2c4.com>, QEMU Developers <qemu-devel@nongnu.org>, 
+	Linux OpenRISC <linux-openrisc@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The pte_free(), pmd_free(), __pud_free() and __p4d_free() in
-asm-generic/pgalloc.h and the generic __tlb_remove_table() are basically
-the same, so let's introduce pagetable_dtor_free() to deduplicate them.
+Hi Rob,
 
-In addition, the pagetable_dtor_free() in s390 does the same thing, so
-let's s390 also calls generic pagetable_dtor_free().
+On Tue, Jan 7, 2025 at 11:53=E2=80=AFPM Rob Landley <rob@landley.net> wrote=
+:
+> Microblaze has no /dev/?da (as in there's no device I could attach it to
+> even with the long option, I'd have to use NBD), sh4eb has -hda is
+> working but it's having some endianness hiccup with the network card
+> (works in sh4 but not sh4eb, I'm trying to track it down, I thought this
+> worked at one point), and the two "No kernel" ones legitimately have no
 
-Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
-Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Kevin Brodsky <kevin.brodsky@arm.com>
-Acked-by: Alexander Gordeev <agordeev@linux.ibm.com> # s390
----
- arch/s390/mm/pgalloc.c        |  6 ------
- include/asm-generic/pgalloc.h | 12 ++++--------
- include/asm-generic/tlb.h     |  3 +--
- include/linux/mm.h            |  6 ++++++
- 4 files changed, 11 insertions(+), 16 deletions(-)
+That's using sh_eth, right?
+Last time I tried booting a big endian ARM kernel on Koelsch (R-Car
+M2-W), it booted fine until "unable to mount root" (I have no suitable
+userspace), except for broken Ethernet, so it failed to obtain a
+DHCP lease.
 
-diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
-index 3e002dea6278f..a4e7619020931 100644
---- a/arch/s390/mm/pgalloc.c
-+++ b/arch/s390/mm/pgalloc.c
-@@ -180,12 +180,6 @@ unsigned long *page_table_alloc(struct mm_struct *mm)
- 	return table;
- }
- 
--static void pagetable_dtor_free(struct ptdesc *ptdesc)
--{
--	pagetable_dtor(ptdesc);
--	pagetable_free(ptdesc);
--}
--
- void page_table_free(struct mm_struct *mm, unsigned long *table)
- {
- 	struct ptdesc *ptdesc = virt_to_ptdesc(table);
-diff --git a/include/asm-generic/pgalloc.h b/include/asm-generic/pgalloc.h
-index 4afb346eae255..e3977ddca15e4 100644
---- a/include/asm-generic/pgalloc.h
-+++ b/include/asm-generic/pgalloc.h
-@@ -109,8 +109,7 @@ static inline void pte_free(struct mm_struct *mm, struct page *pte_page)
- {
- 	struct ptdesc *ptdesc = page_ptdesc(pte_page);
- 
--	pagetable_dtor(ptdesc);
--	pagetable_free(ptdesc);
-+	pagetable_dtor_free(ptdesc);
- }
- 
- 
-@@ -153,8 +152,7 @@ static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
- 	struct ptdesc *ptdesc = virt_to_ptdesc(pmd);
- 
- 	BUG_ON((unsigned long)pmd & (PAGE_SIZE-1));
--	pagetable_dtor(ptdesc);
--	pagetable_free(ptdesc);
-+	pagetable_dtor_free(ptdesc);
- }
- #endif
- 
-@@ -202,8 +200,7 @@ static inline void __pud_free(struct mm_struct *mm, pud_t *pud)
- 	struct ptdesc *ptdesc = virt_to_ptdesc(pud);
- 
- 	BUG_ON((unsigned long)pud & (PAGE_SIZE-1));
--	pagetable_dtor(ptdesc);
--	pagetable_free(ptdesc);
-+	pagetable_dtor_free(ptdesc);
- }
- 
- #ifndef __HAVE_ARCH_PUD_FREE
-@@ -248,8 +245,7 @@ static inline void __p4d_free(struct mm_struct *mm, p4d_t *p4d)
- 	struct ptdesc *ptdesc = virt_to_ptdesc(p4d);
- 
- 	BUG_ON((unsigned long)p4d & (PAGE_SIZE-1));
--	pagetable_dtor(ptdesc);
--	pagetable_free(ptdesc);
-+	pagetable_dtor_free(ptdesc);
- }
- 
- #ifndef __HAVE_ARCH_P4D_FREE
-diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
-index 53ae7748f555b..e402aef79c93e 100644
---- a/include/asm-generic/tlb.h
-+++ b/include/asm-generic/tlb.h
-@@ -213,8 +213,7 @@ static inline void __tlb_remove_table(void *table)
- {
- 	struct ptdesc *ptdesc = (struct ptdesc *)table;
- 
--	pagetable_dtor(ptdesc);
--	pagetable_free(ptdesc);
-+	pagetable_dtor_free(ptdesc);
- }
- #endif
- 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index cad11fa10c192..94078c488e904 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -3001,6 +3001,12 @@ static inline void pagetable_dtor(struct ptdesc *ptdesc)
- 	lruvec_stat_sub_folio(folio, NR_PAGETABLE);
- }
- 
-+static inline void pagetable_dtor_free(struct ptdesc *ptdesc)
-+{
-+	pagetable_dtor(ptdesc);
-+	pagetable_free(ptdesc);
-+}
-+
- static inline bool pagetable_pte_ctor(struct ptdesc *ptdesc)
- {
- 	struct folio *folio = ptdesc_folio(ptdesc);
--- 
-2.20.1
+Gr{oetje,eeting}s,
 
+                        Geert
+
+--=20
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
+
+In personal conversations with technical people, I call myself a hacker. Bu=
+t
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds
