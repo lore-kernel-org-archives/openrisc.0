@@ -1,55 +1,55 @@
-Received: from mail-wr1-f73.google.com (mail-wr1-f73.google.com [209.85.221.73])
+Received: from mail-wm1-f73.google.com (mail-wm1-f73.google.com [209.85.128.73])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D55C215F46
-	for <linux-openrisc@vger.kernel.org>; Fri, 10 Jan 2025 18:41:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 473132147E8
+	for <linux-openrisc@vger.kernel.org>; Fri, 10 Jan 2025 18:41:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736534474; cv=none; b=GV82CAbaNLehBrbyz6oJBIlOn4Jn3n7FIdSatnVNzkLv06BYy957fKu8AUDMhmFPvVhjKYX5ymXWa3GKe+11HaDsUBsTAbcn+dCk4asbjFitWnTiUfGlVgROUKmOg4kAj2s7370eI5UPUgW0y+kfQ7CU/s1iasSg0S3KqwgMbwk=
+	t=1736534474; cv=none; b=iQYtxuDqTU2eRgdLyQwGp7kTCblfXS3qrGAbeOxJsJTN6FyhwWpsRL4FLccnNOB9zZpOXKdIYb4JufiIN6LcxiyV8W4A3n/KWTLrI8D2V3qw8SSNLQS0KYw+am3cjou91/DBnalWTnggdl5i3ihSqyV4cCIH/seCgUZ1p1IFB7g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1736534474; c=relaxed/simple;
-	bh=/pPC1ygi9PuAIQr3pnrOT1/KCXhFsF8V8SBrs6XZuug=;
+	bh=XnAw5nMnRVqakR2t02DFaQRnPs8banykJ7ILMz9ZBlM=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=RYdU35cyaX1WW/S6OzFfTnr+dRWzxFAOzQ2BqaOWd3Cc3wyq12Z6AJkDjnL+BI8QrKHzNXDNDVgAHFU1kGUH11USun1PF9oJzpjKarGPTujayoMwpHFO621oKDa73mpaz5shzngTFp5xdwDjsWlJsRfWP/DhOTU9bCYYbo4vhSo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ZZ8Jfce9; arc=none smtp.client-ip=209.85.221.73
+	 To:Cc:Content-Type; b=Z22GPGHpoNx736LohLhGmwHgobe4FKENFZXxzlkDriua9FtO8uQOL/rNZEnTz4BtTBR9WzddXfeTYwVukZXsQmx8IHqaYDORO1DrN1dJPJWIS7JN6XGi1tKEu+Wj/FrjTemNQv0F5C7c/joJzCsvTuZv00Tue+HIQcmGxpl9fvc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=G1T3ZOcw; arc=none smtp.client-ip=209.85.128.73
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ZZ8Jfce9"
-Received: by mail-wr1-f73.google.com with SMTP id ffacd0b85a97d-385d7611ad3so1372647f8f.2
-        for <linux-openrisc@vger.kernel.org>; Fri, 10 Jan 2025 10:41:07 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="G1T3ZOcw"
+Received: by mail-wm1-f73.google.com with SMTP id 5b1f17b1804b1-436723bf7ffso19277235e9.3
+        for <linux-openrisc@vger.kernel.org>; Fri, 10 Jan 2025 10:41:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1736534462; x=1737139262; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1736534466; x=1737139266; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=/j+RB8/lAgzqGTtPca+XTmsHyqC3ld9qGwXYbAsCbQ0=;
-        b=ZZ8Jfce99xDwuy8LFvrFwJcu8q4ErOhhVo/kYEVcuoXkPiVBLeaKvvP0bTbRPP7/7O
-         GtsUo0cQOV0TtlJUfCjXKyDG5uPqudrHhH6y69EmId5dKrfinbIxibRGL4I4TNOmILib
-         GDHjdSZty1RvRYto0gz9xyaH1bYGeOFt+gbHKHkCFsCixoqY0MqoEPhsplq77/+abGy2
-         g9GYfhcO9HQfTyDKxIwzBGubAKhB62VteRRNUelDuYO8e1ZLExAYrD4YczF1GmKPJEb8
-         01ixMxVi6S6St/6agTCjvS4JhnI/Hz7zeZehzMFITa5eM0m/j5d4eice3M5YVZAVfEix
-         yvbw==
+        bh=WaFp0TOYaWSuGPhKgfBnenMecO/UsWYRxmgXZ26ETaU=;
+        b=G1T3ZOcwHTnab8YlPK6O9gOURuFau0S6MmThrjvXzqfR2WA3xrOQzRp4j+AkWXuaco
+         EA6mcKAhzDdYPUK4CJMRphQzjnG25y5NEQRBe/300nVD6UeJ9V/M7K0oWS/Bnw7eFq/4
+         uTacpc46ZOJdPtA8yS16LGBxBmfu1mL38N4FxeaK5onfNijZ32LpEk80g5WzUfep2vWU
+         adfGCrFJvJL+2SHF6BNs8iCCrEWIKDxColBTeznrquPHenMvsifoK3PlW/gjUQ1XYPEQ
+         JDzcviI/JFHzUZjDHxGlPhrQlDbC/wNEmBWmiRLOu67Mix0VaV3GmmsECOPb4jyJFS3B
+         IHUw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736534462; x=1737139262;
+        d=1e100.net; s=20230601; t=1736534466; x=1737139266;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=/j+RB8/lAgzqGTtPca+XTmsHyqC3ld9qGwXYbAsCbQ0=;
-        b=nRjReiH/L/PLn5LbKycuQP21mk0a/vM5xp7awwSaqM0L2Kmi/nJyOJUsGYO7lr0mC2
-         EEh16o42QOlh2/MvIPZuCYiU3ADKs2PwWCKs9AnhXUz4ybjPMgNnlnyCh4qy7ccWSOm2
-         TL49rRDs2Hkq7m4xHU7Y5O9X9hPd9P88aNA6LBc7AAXu75xZOdnMbjhqDHvknnpWKZ8w
-         lxYPpoLBQBC2KrVbmxp0ymRwT/Gp2YRks7kTGi6uFF2fOQgeptpqzKPGRSPW/yYXPwJ/
-         QGNqEgNUGi773lhR3L9Ykvztq/dYIwiCNp0edoJHM2H0Cn7Q/lqV1FDkPtHaSWUX0lBq
-         4EpQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWHKgy8wZFD/3K1TLN7aIqmRGKssybseX15BhLDlbifERTfIumO1yonXcyQ2ZmVRdtmqJmiXO+GX1RNTU2eKg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzVf8jfaYh+s5N3arU5Pe+38dJvBCmo8L/WXsR3o62LzZRcTS0L
-	9n7irbY3a0IZBSanuldwfNkD0YoWxVlxQ4kaPs4ScU2gPkKo0sXuKB68BcBwF4mg9OI5rtW7eZL
-	0RVna3NKXZw==
-X-Google-Smtp-Source: AGHT+IEaBJ4kVsH9fdlEpqyA1vEXALZVlXyRkre6Nr4itvNL2JHwYHaMyiaIiF1xr8efeWfazalHNzAFq1Ad7A==
-X-Received: from wrbfi1.prod.google.com ([2002:a05:6000:4401:b0:386:333e:ad16])
+        bh=WaFp0TOYaWSuGPhKgfBnenMecO/UsWYRxmgXZ26ETaU=;
+        b=iZ+fWOSc3d3Md/eusBs2vBJeZ8r0em8jm9yOqE580W1cyYHKkJpA7+QqaLfyfGoDKm
+         Uhb2i2zqWXMX+9IFukZM+g4xdszO2HojPl386HFPnRuglzLaCA43gHxJa8IW1f8RRTF2
+         H33w004oi9wsRJYoDYVn+bm825FrDZBJ1O7g7tQA/L5qzEy7JQshGQpNJ3NL5MjkwJNH
+         HEYGJfIwa8uBgl+G+qav9kZ//h4uZtrhSoaN0VsKTesquPRjlv/sci7SUMz0gYwnoQLU
+         mwQ8PfmTKGzmLfCGUx7V8MrAVeN2hI/f3kfbkuZA93GVXXlzHnjh2Vjv6oGe8JXjmTkk
+         w7cw==
+X-Forwarded-Encrypted: i=1; AJvYcCUpFM7sfknofrD9EXF25uRXaqYKFO5H4g9+Srsn+cieQqxidWxz3mReG0HbgeruEjbULFxSAYknrH81gReDyw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxP4dnFZjv0Dchuq4HArLDr/n9PfT3/Tz9fOBY5+WEbuOAsKbpU
+	naJnFcWnyjIpjBj6Q1rsmNByMPMCrk3FIAspnBAygh6ur1Gr0KtMEFzs5PA3DvWwCrHXSsTCm1W
+	KMiaIcTBkHw==
+X-Google-Smtp-Source: AGHT+IEE4az+Oz6XpM1h3immNPii0BZQy1AjHZ6Oe5B/in2qx8QsaCvn5PLTDmCUbo/W1PshFIv+Soo2Sqz9XA==
+X-Received: from wmrn35.prod.google.com ([2002:a05:600c:5023:b0:434:f2eb:aa72])
  (user=jackmanb job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:6000:470d:b0:385:dedb:a156 with SMTP id ffacd0b85a97d-38a872cfdffmr10312148f8f.6.1736534461506;
- Fri, 10 Jan 2025 10:41:01 -0800 (PST)
-Date: Fri, 10 Jan 2025 18:40:33 +0000
+ 2002:a05:600c:3ca4:b0:434:a26c:8291 with SMTP id 5b1f17b1804b1-436e26e203emr101768035e9.24.1736534465947;
+ Fri, 10 Jan 2025 10:41:05 -0800 (PST)
+Date: Fri, 10 Jan 2025 18:40:35 +0000
 In-Reply-To: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
@@ -59,8 +59,8 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
 X-Mailer: b4 0.15-dev
-Message-ID: <20250110-asi-rfc-v2-v2-7-8419288bc805@google.com>
-Subject: [PATCH RFC v2 07/29] mm: asi: Make __get_current_cr3_fast() ASI-aware
+Message-ID: <20250110-asi-rfc-v2-v2-9-8419288bc805@google.com>
+Subject: [PATCH RFC v2 09/29] mm: asi: ASI page table allocation functions
 From: Brendan Jackman <jackmanb@google.com>
 To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
 	Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, 
@@ -116,88 +116,94 @@ Content-Type: text/plain; charset="utf-8"
 
 From: Junaid Shahid <junaids@google.com>
 
-When ASI is active, __get_current_cr3_fast() adjusts the returned CR3
-value accordingly to reflect the actual ASI CR3.
+This adds custom allocation and free functions for ASI page tables.
 
+The alloc functions support allocating memory using different GFP
+reclaim flags, in order to be able to support non-sensitive allocations
+from both standard and atomic contexts. They also install the page
+tables locklessly, which makes it slightly simpler to handle
+non-sensitive allocations from interrupts/exceptions.
+
+checkpatch.pl MACRO_ARG_UNUSED,SPACING is false positive. COMPLEX_MACRO - I
+dunno, suggestions welcome.
+
+Checkpatch-args: --ignore=MACRO_ARG_UNUSED,SPACING,COMPLEX_MACRO
 Signed-off-by: Junaid Shahid <junaids@google.com>
 Signed-off-by: Brendan Jackman <jackmanb@google.com>
 ---
- arch/x86/mm/tlb.c | 37 +++++++++++++++++++++++++++++++------
- 1 file changed, 31 insertions(+), 6 deletions(-)
+ arch/x86/mm/asi.c | 59 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 59 insertions(+)
 
-diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
-index 2601beed83aef182d88800c09d70e4c5e95e7ed0..b2a13fdab0c6454c1d9d4e3338801f3402da4191 100644
---- a/arch/x86/mm/tlb.c
-+++ b/arch/x86/mm/tlb.c
-@@ -20,6 +20,7 @@
- #include <asm/cache.h>
- #include <asm/cacheflush.h>
- #include <asm/apic.h>
-+#include <asm/asi.h>
- #include <asm/perf_event.h>
- 
- #include "mm_internal.h"
-@@ -197,8 +198,8 @@ static inline unsigned long build_cr3_noflush(pgd_t *pgd, u16 asid,
- 	return build_cr3(pgd, asid, lam) | CR3_NOFLUSH;
+diff --git a/arch/x86/mm/asi.c b/arch/x86/mm/asi.c
+index 8d060c633be68b508847e2c1c111761df1da92af..b15d043acedc9f459f17e86564a15061650afc3a 100644
+--- a/arch/x86/mm/asi.c
++++ b/arch/x86/mm/asi.c
+@@ -73,6 +73,65 @@ const char *asi_class_name(enum asi_class_id class_id)
+ 	return asi_class_names[class_id];
  }
  
--noinstr unsigned long build_cr3_pcid_noinstr(pgd_t *pgd, u16 pcid,
--					     unsigned long lam, bool noflush)
-+static __always_inline unsigned long build_cr3_pcid(pgd_t *pgd, u16 pcid,
-+						    unsigned long lam, bool noflush)
- {
- 	u64 noflush_bit = 0;
- 
-@@ -210,6 +211,12 @@ noinstr unsigned long build_cr3_pcid_noinstr(pgd_t *pgd, u16 pcid,
- 	return __build_cr3(pgd, pcid, lam) | noflush_bit;
- }
- 
-+noinstr unsigned long build_cr3_pcid_noinstr(pgd_t *pgd, u16 pcid,
-+					     unsigned long lam, bool noflush)
-+{
-+	return build_cr3_pcid(pgd, pcid, lam, noflush);
++#ifndef mm_inc_nr_p4ds
++#define mm_inc_nr_p4ds(mm)	do {} while (false)
++#endif
++
++#ifndef mm_dec_nr_p4ds
++#define mm_dec_nr_p4ds(mm)	do {} while (false)
++#endif
++
++#define pte_offset		pte_offset_kernel
++
++/*
++ * asi_p4d_alloc, asi_pud_alloc, asi_pmd_alloc, asi_pte_alloc.
++ *
++ * These are like the normal xxx_alloc functions, but:
++ *
++ *  - They use atomic operations instead of taking a spinlock; this allows them
++ *    to be used from interrupts. This is necessary because we use the page
++ *    allocator from interrupts and the page allocator ultimately calls this
++ *    code.
++ *  - They support customizing the allocation flags.
++ *
++ * On the other hand, they do not use the normal page allocation infrastructure,
++ * that means that PTE pages do not have the PageTable type nor the PagePgtable
++ * flag and we don't increment the meminfo stat (NR_PAGETABLE) as they do.
++ */
++static_assert(!IS_ENABLED(CONFIG_PARAVIRT));
++#define DEFINE_ASI_PGTBL_ALLOC(base, level)				\
++__maybe_unused								\
++static level##_t * asi_##level##_alloc(struct asi *asi,			\
++				       base##_t *base, ulong addr,	\
++				       gfp_t flags)			\
++{									\
++	if (unlikely(base##_none(*base))) {				\
++		ulong pgtbl = get_zeroed_page(flags);			\
++		phys_addr_t pgtbl_pa;					\
++									\
++		if (!pgtbl)						\
++			return NULL;					\
++									\
++		pgtbl_pa = __pa(pgtbl);					\
++									\
++		if (cmpxchg((ulong *)base, 0,				\
++			    pgtbl_pa | _PAGE_TABLE) != 0) {		\
++			free_page(pgtbl);				\
++			goto out;					\
++		}							\
++									\
++		mm_inc_nr_##level##s(asi->mm);				\
++	}								\
++out:									\
++	VM_BUG_ON(base##_leaf(*base));					\
++	return level##_offset(base, addr);				\
 +}
 +
- /*
-  * We get here when we do something requiring a TLB invalidation
-  * but could not go invalidate all of the contexts.  We do the
-@@ -1133,14 +1140,32 @@ void flush_tlb_kernel_range(unsigned long start, unsigned long end)
-  */
- noinstr unsigned long __get_current_cr3_fast(void)
++DEFINE_ASI_PGTBL_ALLOC(pgd, p4d)
++DEFINE_ASI_PGTBL_ALLOC(p4d, pud)
++DEFINE_ASI_PGTBL_ALLOC(pud, pmd)
++DEFINE_ASI_PGTBL_ALLOC(pmd, pte)
++
+ void __init asi_check_boottime_disable(void)
  {
--	unsigned long cr3 =
--		build_cr3(this_cpu_read(cpu_tlbstate.loaded_mm)->pgd,
--			  this_cpu_read(cpu_tlbstate.loaded_mm_asid),
--			  tlbstate_lam_cr3_mask());
-+	unsigned long cr3;
-+	pgd_t *pgd;
-+	u16 asid = this_cpu_read(cpu_tlbstate.loaded_mm_asid);
-+	struct asi *asi = asi_get_current();
-+	u16 pcid;
-+
-+	if (asi) {
-+		pgd = asi_pgd(asi);
-+		pcid = asi_pcid(asi, asid);
-+	} else {
-+		pgd = this_cpu_read(cpu_tlbstate.loaded_mm)->pgd;
-+		pcid = kern_pcid(asid);
-+	}
-+
-+	cr3 = build_cr3_pcid(pgd, pcid, tlbstate_lam_cr3_mask(), false);
- 
- 	/* For now, be very restrictive about when this can be called. */
- 	VM_WARN_ON(in_nmi() || preemptible());
- 
-+	/*
-+	 * Outside of the ASI critical section, an ASI-restricted CR3 is
-+	 * unstable because an interrupt (including an inner interrupt, if we're
-+	 * already in one) could cause a persistent asi_exit.
-+	 */
-+	VM_WARN_ON_ONCE(asi && asi_in_critical_section());
-+
- 	VM_BUG_ON(cr3 != __read_cr3());
- 	return cr3;
- }
+ 	bool enabled = IS_ENABLED(CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION_DEFAULT_ON);
 
 -- 
 2.47.1.613.gc27f4b7a9f-goog
