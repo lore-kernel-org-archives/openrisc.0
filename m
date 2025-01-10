@@ -1,140 +1,190 @@
-Received: from mail-ua1-f52.google.com (mail-ua1-f52.google.com [209.85.222.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFD6B2F2D;
-	Thu,  9 Jan 2025 08:49:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17B218BEC;
+	Fri, 10 Jan 2025 03:18:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736412583; cv=none; b=r67nL9EOO2tkKntZpvH27aoXQdW9zIQF0gdkbaRP/PTjxnD6eVFDEjlYS117bFGl76PGc2JiDMWaalO9ubXiiR+MaZat+2Y5ujhiovXnd2UwjI0ylqaUuqEY8JGxvR7eOzFfb3rhmzmFSBkhfMvccvKq9piRQnIArwfkpGsf3Z0=
+	t=1736479097; cv=none; b=EneuVV6Pd1pFA+uYo6ZjkqaWRQ0hhdKGPUw/Jjbxw+rtHUFAeAY//2K4GyOdmNdOEA5kf3duikyo0HM0Aj313yOLwIvqt3Ilp7C27VcQ3aDSUdiLGXlsBycxrOjvzjBXgqiNjC99H7Tb7as+9ew0Aa5S/XETZSwRAbfQHmx9dME=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736412583; c=relaxed/simple;
-	bh=gXEGuMGSOcBrQKhonI9sutiNdyi+iWknhbxloYgyS/k=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GyqXTVpPgTswhiRrgk/0Repc09VD01Mua3U5McckYIJ8nVKuBKh1Hla2Mnx9lu0qEd6pZGDb0AWDwC/7iFC4lp1knZ7wI1sl2NzC3UcMLpbbtgtJ1RrL/aVOhqfHXPiGfbggjZKDa/PmtZXqtwIo/VHCjevVItkJhwL7IX5c4zE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.222.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ua1-f52.google.com with SMTP id a1e0cc1a2514c-85b9f2de38eso188770241.2;
-        Thu, 09 Jan 2025 00:49:40 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736412579; x=1737017379;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=980cp5wg6VreAhZrvif3H7Z9Otc1vWhF3tByoZBAw1Y=;
-        b=haPVfeQ+NXmUxuKdG3w52inmfMP08un++HJp4uFjyN8rNlzzYnnJDNQUGiBHQsKk+c
-         7ytQVffsJWgtZfo7TDuroOG4oSz3AOhU0+YQUNtVIeapLe7TxqoGFW0Wwr9bY7jxfpZQ
-         e+00JVLOVkb4r04U7NpMHDiWTBqDlsYlhAUeGI4nHRM/S1pzYpBJvdLlxu5cERfXOB62
-         NrfvK2YjOQLOWd3YCRO2Xx90uO8741cTLmF31aq4YGd1jkOA+bC4U4cLGQK8L9rFfGWV
-         m5RmJVK34FfcEWIyY1tPLbech8nNgpplY6qbhjZnu0MEZTRz9e3Xx1dwaj1Eng/thARt
-         Vnmg==
-X-Forwarded-Encrypted: i=1; AJvYcCXX6lLG6lf9nDEPE9dJYLpU8QxTpWivspNzhcxJXmBAb4iHcAmYabNNxCb4HjP8HhHFUmrMt8IrgDk=@vger.kernel.org, AJvYcCXvCBATfj12GkBcabxlkxKXGSLt+I/i9VeKDlqSBb+VnYYj9ooBnfvOXCrP8FAAKsoOwJWVv9UB+5ogYaG6LA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzoYi+W4Var9/iPIL7euRGKfNqXr9m5vD08r3qyjGDJZ6eLwSrW
-	CkbjNoTzca7S1fgWFrGCMdlqZbVohWEqfUd5AxHRDBT+wxdM900cvWR+mdXS
-X-Gm-Gg: ASbGncsVajTcZHJR7cBuvM97Z/KeMBM6x3E+3qvf4ib/+eyXV/ZIgFQxZqLQ0WL1vwo
-	78Fc5yIsFG81LcmU8x/q4dXKoNDufUqFSj2RaymEPqXgbI+8ZdQJhGwOmMZXO6J54kku0eWU3Ps
-	YwKpmhe/L51ADmGMk4L0hLhO8OAtRUeFutbqZieWgY+vHhU7aP9otujtyPgNxusoB48fsi1aEP7
-	DfqshKxVQ3I9kMb5cbFIS3ouGrouYc+Nmpsb15AXXX+/o4pVtCz05wRcFQtkZsAnFnAT4tx0dW9
-	bBCQXuBMsfU8C4ZP5X0=
-X-Google-Smtp-Source: AGHT+IGAM9fWa334ZtBPaOL0PnfxDYfgExRHU1f3b3m6nUQXapSCPZuUsnKPHpGYyyANgv/3I1kclg==
-X-Received: by 2002:a05:6102:549f:b0:4af:fa1b:d8f9 with SMTP id ada2fe7eead31-4b3d0f046aemr4626198137.7.1736412579315;
-        Thu, 09 Jan 2025 00:49:39 -0800 (PST)
-Received: from mail-vs1-f44.google.com (mail-vs1-f44.google.com. [209.85.217.44])
-        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-4b608f86d6fsm531257137.17.2025.01.09.00.49.37
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 09 Jan 2025 00:49:38 -0800 (PST)
-Received: by mail-vs1-f44.google.com with SMTP id ada2fe7eead31-4b1279ca1d2so213071137.3;
-        Thu, 09 Jan 2025 00:49:37 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCUA0Lm6S3myBbqNqJJf+iHflFErMWZzJp8jAfipbGqLCrgw0JQfvDwcEHY0YE7NY0QC8ByD+8mZ6x4=@vger.kernel.org, AJvYcCVgYCzcNvjA5B9q32eBIUP298tyHDrzCg5mQr/zBp+jjGnYajez7QYhCdSlpFG7pDeGIaVntqQcu2bWvTtxbg==@vger.kernel.org
-X-Received: by 2002:a05:6102:290f:b0:4b2:5d63:a0f3 with SMTP id
- ada2fe7eead31-4b3d0f2d89cmr4381603137.15.1736412577224; Thu, 09 Jan 2025
- 00:49:37 -0800 (PST)
+	s=arc-20240116; t=1736479097; c=relaxed/simple;
+	bh=aIXN1fFDfC84V416aPhCKGkGdMkFr9cf9umweXfeUA0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=QpyZFcwDh+Csjsc1M8UGNyPSONPvmIIVtETI1dWXcT24NTRgyUaQoFTcn10iYYPcMBE6rR9eRRQE/BjafqESQV08+biouFs+fKZjsNiu0jGrwe/PU8rP2B/9/QoMhYuDUP4M3hQyYAJenvKEKOrQ48siMmPC/DqQw187J2OcZXk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=UI2PWbpd; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="UI2PWbpd"
+Received: from [IPV6:2601:646:8080:c1f1:e386:c572:17d3:6ddc] ([IPv6:2601:646:8080:c1f1:e386:c572:17d3:6ddc])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 50A3FGON981507
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Thu, 9 Jan 2025 19:15:22 -0800
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 50A3FGON981507
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2024121701; t=1736478939;
+	bh=2Gsk7+JP3PoZg8VhoEWFUmet8fDEOviqEDX2siCLmXA=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=UI2PWbpd/173uf8ET7OhKCSxHMq3wIV9uPwlDabKLopTn4XQlVOW2UhdDhLNKQ2ou
+	 8eY5IkJPjKd/ufxYXpC3T7ngILIHHww7s3f/TxHKadq33uowsRPtdqvlulWYDcl4s8
+	 98gF9cD/iHRBhl+LkNR2Vz4dcuRwuyCMkzCPxTONo9GrePkGJYLa5vUD7mYV9L5Uos
+	 ee2fTgpV4TmVkm3/EnjzCs2Wh3is/8drjYQa4kdxx6i4NZ58BWsIW3fEOCUEzu/US4
+	 z0xQ+UHFUiZOJoDRJIqr/23SWWVPTNXl6Nb/6Jv9OAyLaNK9jKDb4DWbnzq60xty/Q
+	 X0SCgYzOXKJQw==
+Message-ID: <4536aca6-c430-4cf9-a98f-8282c7378955@zytor.com>
+Date: Thu, 9 Jan 2025 19:15:09 -0800
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <9b2761aa-8ee0-4399-b237-31e70e3ed165@landley.net>
- <Z0Cyx3i3z7Zl7XPm@antec> <31fa6255-8e0c-4d05-bad9-dd843c676244@landley.net>
- <Z0GSETLeT5w8B2DX@antec> <87a6b910-5af6-47ad-ad8d-b79f11a7cbf2@landley.net>
- <Z0LMqEqcdjkAxnN-@antec> <57c5207c-3aca-47cd-bfd3-3d7eb7be3c0f@landley.net>
- <Z2lgL31ZeSkO59MZ@antec> <8807078a-0673-4b27-8d58-4a2a3ce4987d@landley.net>
- <39511711-b86a-4ac6-8bd6-8dab824b693e@landley.net> <Z31k3zNN3pOdGWWK@antec>
- <0d2df37a-a167-445f-aacf-714a29587511@landley.net> <CAMuHMdU2XT=xHr3D4kWVSU=h4jJSoQj1RAdeXDNGEDXdOaqBjQ@mail.gmail.com>
- <ecdf9e8a-9886-43e6-bb02-bf04fc1e88a4@landley.net> <CAMuHMdVDhdkLEc-YuDCXHaCpkdtj0QL6wudXDFi0E=PqXyJDtA@mail.gmail.com>
- <4b9b20a0-ab3a-4ef5-9ae5-5a32a2eb6be7@landley.net>
-In-Reply-To: <4b9b20a0-ab3a-4ef5-9ae5-5a32a2eb6be7@landley.net>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Thu, 9 Jan 2025 09:49:25 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdVZU1JBFg_Z8gkvi=ovXdyFomvG4R-oUUCKiiuyXs2LKQ@mail.gmail.com>
-X-Gm-Features: AbW1kva_tBde59Tj-FtT2FMM0NeMlWqY72yftUafHQ8o4qk5LZMDGlu0s4tj9bc
-Message-ID: <CAMuHMdVZU1JBFg_Z8gkvi=ovXdyFomvG4R-oUUCKiiuyXs2LKQ@mail.gmail.com>
-Subject: Re: or1k -M virt -hda and net.
-To: Rob Landley <rob@landley.net>
-Cc: Stafford Horne <shorne@gmail.com>, Peter Maydell <peter.maydell@linaro.org>, 
-	"Jason A. Donenfeld" <Jason@zx2c4.com>, QEMU Developers <qemu-devel@nongnu.org>, 
-	Linux OpenRISC <linux-openrisc@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/6] ptrace: introduce PTRACE_SET_SYSCALL_INFO API
+To: "Dmitry V. Levin" <ldv@strace.io>, Oleg Nesterov <oleg@redhat.com>
+Cc: Eugene Syromyatnikov <evgsyr@gmail.com>,
+        Mike Frysinger <vapier@gentoo.org>, Renzo Davoli <renzo@cs.unibo.it>,
+        Davide Berardi <berardi.dav@gmail.com>, strace-devel@lists.strace.io,
+        Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>,
+        WANG Xuerui <kernel@xen0n.name>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Stafford Horne <shorne@gmail.com>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Naveen N Rao <naveen@kernel.org>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt
+ <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.osdn.me>, Rich Felker <dalias@libc.org>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Andreas Larsson <andreas@gaisler.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>, Shuah Khan <shuah@kernel.org>,
+        linux-snps-arc@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-m68k@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-arch@vger.kernel.org, linux-kselftest@vger.kernel.org
+References: <20250107230153.GA30560@strace.io>
+Content-Language: en-US
+From: "H. Peter Anvin" <hpa@zytor.com>
+In-Reply-To: <20250107230153.GA30560@strace.io>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi Rob,
+This would seem like a very good idea. However, it is perhaps important 
+to realize that it doesn't fully eliminate the problems with 64-bit 
+arguments on 32-bit ABIs being handled differently (never mind 
+inconsistencies in system call ABIs etc.) There isn't all that much that 
+can be done about that directly, though.
 
-CC linux-sh
+	-hpa
 
-On Wed, Jan 8, 2025 at 11:40=E2=80=AFPM Rob Landley <rob@landley.net> wrote=
-:
-> The sh2eb turtle board uses JCORE_EMAC which is still an out of tree
-> driver. It's not secret, just too ugly to go upstream: done by a
-> contractor and never cleaned up, full of half-finished IEEE-1588 support
-> and so on. It used to be on
-> https://web.archive.org/web/20200812035510/http://git.musl-libc.org/cgit/=
-linux-sh/
-> but alas Rich purged his trees when he stopped being maintainer and
-> archive.org didn't crawl that far down.
->
-> I have the patch locally if you care, but without the corresponding
-> hardware, not much point attaching 1600 lines. (We sent several turtle
-> boards to Glaubitz and his assistants last year, and at least one of the
-> recipients asked for a copy of the ethernet driver patch, which I sent.
 
-I still have to ask you for that driver, so yes I am interested in
-the patch ;-)
+On 1/7/25 15:01, Dmitry V. Levin wrote:
+> PTRACE_SET_SYSCALL_INFO is a generic ptrace API that complements
+> PTRACE_GET_SYSCALL_INFO by letting the ptracer modify details of
+> system calls the tracee is blocked in.
+> 
+> This API allows ptracers to obtain and modify system call details
+> in a straightforward and architecture-agnostic way.
+> 
+> Current implementation supports changing only those bits of system call
+> information that are used by strace, namely, syscall number, syscall
+> arguments, and syscall return value.
+> 
+> Support of changing additional details returned by PTRACE_GET_SYSCALL_INFO,
+> such as instruction pointer and stack pointer, could be added later
+> if needed, by re-using struct ptrace_syscall_info.reserved to specify
+> the additional details that should be set.  Currently, the reserved
+> field of struct ptrace_syscall_info must be initialized with zeroes;
+> arch, instruction_pointer, and stack_pointer fields are ignored.
+> 
+> PTRACE_SET_SYSCALL_INFO currently supports only PTRACE_SYSCALL_INFO_ENTRY,
+> PTRACE_SYSCALL_INFO_EXIT, and PTRACE_SYSCALL_INFO_SECCOMP operations.
+> Other operations could be added later if needed.
+> 
+> Ideally, PTRACE_SET_SYSCALL_INFO should have been introduced along with
+> PTRACE_GET_SYSCALL_INFO, but it didn't happen.  The last straw that
+> convinced me to implement PTRACE_SET_SYSCALL_INFO was apparent failure
+> to provide an API of changing the first system call argument on riscv
+> architecture [1].
+> 
+> ptrace(2) man page:
+> 
+> long ptrace(enum __ptrace_request request, pid_t pid, void *addr, void *data);
+> ...
+> PTRACE_SET_SYSCALL_INFO
+>         Modify information about the system call that caused the stop.
+>         The "data" argument is a pointer to struct ptrace_syscall_info
+>         that specifies the system call information to be set.
+>         The "addr" argument should be set to sizeof(struct ptrace_syscall_info)).
+> 
+> [1] https://lore.kernel.org/all/59505464-c84a-403d-972f-d4b2055eeaac@gmail.com/
+> 
+> Dmitry V. Levin (6):
+>    Revert "arch: remove unused function syscall_set_arguments()"
+>    syscall.h: add syscall_set_arguments() on remaining
+>      HAVE_ARCH_TRACEHOOK arches
+>    syscall.h: introduce syscall_set_nr()
+>    ptrace_get_syscall_info: factor out ptrace_get_syscall_info_op
+>    ptrace: introduce PTRACE_SET_SYSCALL_INFO request
+>    selftests/ptrace: add a test case for PTRACE_SET_SYSCALL_INFO
+> 
+>   arch/arc/include/asm/syscall.h                |  20 +
+>   arch/arm/include/asm/syscall.h                |  25 +
+>   arch/arm64/include/asm/syscall.h              |  20 +
+>   arch/csky/include/asm/syscall.h               |  13 +
+>   arch/hexagon/include/asm/syscall.h            |  14 +
+>   arch/loongarch/include/asm/syscall.h          |  15 +
+>   arch/m68k/include/asm/syscall.h               |   7 +
+>   arch/microblaze/include/asm/syscall.h         |   7 +
+>   arch/mips/include/asm/syscall.h               |  53 +++
+>   arch/nios2/include/asm/syscall.h              |  16 +
+>   arch/openrisc/include/asm/syscall.h           |  13 +
+>   arch/parisc/include/asm/syscall.h             |  19 +
+>   arch/powerpc/include/asm/syscall.h            |  15 +
+>   arch/riscv/include/asm/syscall.h              |  16 +
+>   arch/s390/include/asm/syscall.h               |  19 +
+>   arch/sh/include/asm/syscall_32.h              |  19 +
+>   arch/sparc/include/asm/syscall.h              |  17 +
+>   arch/um/include/asm/syscall-generic.h         |  19 +
+>   arch/x86/include/asm/syscall.h                |  43 ++
+>   arch/xtensa/include/asm/syscall.h             |  18 +
+>   include/asm-generic/syscall.h                 |  30 ++
+>   include/linux/ptrace.h                        |   3 +
+>   include/uapi/linux/ptrace.h                   |   3 +-
+>   kernel/ptrace.c                               | 154 ++++++-
+>   tools/testing/selftests/ptrace/Makefile       |   2 +-
+>   .../selftests/ptrace/set_syscall_info.c       | 436 ++++++++++++++++++
+>   26 files changed, 994 insertions(+), 22 deletions(-)
+>   create mode 100644 tools/testing/selftests/ptrace/set_syscall_info.c
+> 
 
-> Still applies and works as of the last kernel I updated on the board,
-> 6.18 I think? The update is a "pop the sd card, stick in laptop, copy
-> files, move sd card back" kinda thing.
-
-... which has been the main obstacle for me to integrate turtleboard
-in my regular kernel testing workflow. There are only 24 hours in a day,
-so usually there is no time left for juggling SD cards :-(
-
-> I should do a linux image that
-> can wget and kexec, but haven't yet... Anyway, doesn't help with this
-> issue.)
-
-Does kexec work on MMU-less J2?
-On SH4, there was never an upstream kernel that worked with upstream
-kexec-tools. The only one that works is the kexec binary from the old
-landisk distro, which predates SH support in upstream kexec-tools,
-and can only start a new kernel from a system that is running kernel
-2.6.22...
-
-BTW, this is seriously off-topic for openrisc and qemu, so please
-reduce the CC list when continuing the linux-sh discussion..
-
-Thanks!
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---=20
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
-
-In personal conversations with technical people, I call myself a hacker. Bu=
-t
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
