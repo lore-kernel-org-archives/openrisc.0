@@ -1,217 +1,119 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C63A82054E7;
-	Fri, 10 Jan 2025 07:39:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F139520A5FC;
+	Fri, 10 Jan 2025 10:23:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736494753; cv=none; b=ijtyMG8v4B+DDWI7ie5edEIs5aeRCz+YQZoSdn6uwcaVhAZbP4ON/vKnQlykjkGqYQdgW0T1SLBbgDrQYWXfXPRztJsfjGbDLEP4t67Klk6yzDTtCCryibwE7kxntO1Et53As5Pu450qBqdWEB/4JkI01elSyOEIzSv4+lL40Kw=
+	t=1736504590; cv=none; b=A1iV4sQwy4fuzujwU79U9F20E8kCjDNGk+xIGt1Y1KBzL/iDGD5281k049+bSM9CIrBU2ApHYRYEgITYE7rqQOq2O1CrB9PIeubhsto3GzXPgIrd0uq+C6FU0dqOlXsVGOFJBgubIOLKxiFuYtuw9LVByCezLpi51KG8smjcmWA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736494753; c=relaxed/simple;
-	bh=UqpeD7AFDIeauyvYNP7b1aaXOeL4aPQfa0cJe+ReQVs=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=Ns78nPKCu9Y+JbuR7f348NMq6IINY0VIYEOYpXucatFO9SajiLRjGakYwCpU4DfB4dAn9uqoT/E9QglV5Lod2RQ2eDOKOKHsYQDrx14xbmVfCseuji/OjNbb7hYF8/VxEYL0pG9+ujxkNHRqIL3MFyL/nKtbPEP3s5pGESceKUo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oRQpF/U/; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1736504590; c=relaxed/simple;
+	bh=rqggyW6QZm407UobnUyp1FVC7BFjRNq4aag1f1kCSTE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ALWc6noK0pqEN09cloXLRkmk9ytTbKEaRdz+D0NxrrzdC7JrcGFrKYfxeHDnubjTWUdPKtnkKS+CXomKDFxmHipzydg/2y+eLg3ENp4ZxHzpY+Yd8m54d78Gpq961zO9WKBnpf0dmGdNiPs5ATPyC8+wb28XetwJkGWyvZPGOlc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bNs+1S7y; arc=none smtp.client-ip=209.85.221.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oRQpF/U/"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 509Nx3H2001639;
-	Fri, 10 Jan 2025 07:37:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=2WLKmmEPE7uT96J0bnuWzAWEZ+Ks9U
-	e/uzhm9byypE8=; b=oRQpF/U/6grcr4Snq1iRk/I9GYPWsewmz147QsJg3tlJpp
-	Sm/UeyETvgjJAENQaWXaSd8cfqXr/0vuRhl8N3wtL6grgFwp/aIijZOMmhsN47FV
-	f5jNMRsdgk7yT4y+tHRFOoWJtkEWYjhp56XaA02mxcT8qNb30IwNF63MXXQkZAEl
-	UIlk8MTqRCqzy91KOcrwItqlnQdxp2B2h/5xAgUKTct76fC0NSNLcVTVxD2ZYQ7X
-	9rxhSluh+DwsIN5cVsDEsi/dxgg4ADMCRoXyhv5xzciWSwH6XZkvVHoOuULqD2BA
-	tjfE3Xo8v5ux7lwgyBH9IJOGKqLEpFGzYgoJwZfA==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 442rkhsd0u-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 Jan 2025 07:37:54 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50A7YWLB014523;
-	Fri, 10 Jan 2025 07:37:53 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 442rkhsd0p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 Jan 2025 07:37:53 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50A5a76b015805;
-	Fri, 10 Jan 2025 07:37:51 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43ygtm930f-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 Jan 2025 07:37:51 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50A7bmZl54264154
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 10 Jan 2025 07:37:48 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DCF1520049;
-	Fri, 10 Jan 2025 07:37:47 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2113920040;
-	Fri, 10 Jan 2025 07:37:47 +0000 (GMT)
-Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 10 Jan 2025 07:37:47 +0000 (GMT)
-From: Sven Schnelle <svens@linux.ibm.com>
-To: "Dmitry V. Levin" <ldv@strace.io>
-Cc: Oleg Nesterov <oleg@redhat.com>, Eugene Syromyatnikov
- <evgsyr@gmail.com>,
-        Mike Frysinger <vapier@gentoo.org>, Renzo Davoli
- <renzo@cs.unibo.it>,
-        Davide Berardi <berardi.dav@gmail.com>, strace-devel@lists.strace.io,
-        Vineet Gupta <vgupta@kernel.org>,
-        Russell
- King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Brian Cain <bcain@quicinc.com>,
-        Huacai
- Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
-        Geert
- Uytterhoeven <geert@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen
- <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
-        Stefan
- Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne
- <shorne@gmail.com>,
-        "James E.J. Bottomley"
- <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin
- <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Naveen N Rao <naveen@kernel.org>,
-        Madhavan Srinivasan
- <maddy@linux.ibm.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer
- Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>, Heiko
- Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        John Paul Adrian Glaubitz
- <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Andreas Larsson <andreas@gaisler.com>,
-        Richard Weinberger
- <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Thomas Gleixner
- <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov
- <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel
- <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>, Arnd Bergmann
- <arnd@arndb.de>,
-        linux-snps-arc@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 3/6] syscall.h: introduce syscall_set_nr()
-In-Reply-To: <20250107230438.GC30633@strace.io> (Dmitry V. Levin's message of
-	"Wed, 8 Jan 2025 01:04:38 +0200")
-References: <20250107230438.GC30633@strace.io>
-Date: Fri, 10 Jan 2025 08:37:46 +0100
-Message-ID: <yt9dzfjz6rw5.fsf@linux.ibm.com>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bNs+1S7y"
+Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-3863494591bso1040624f8f.1;
+        Fri, 10 Jan 2025 02:23:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1736504586; x=1737109386; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Uptf3GXc/k/u9e7lbAQhZINoMQaRjvXtjGmMCYEc/JE=;
+        b=bNs+1S7y8xytKBRCD5lws4rSenniMWMp2EM277yJLH9OQWsCjbQ6uSYUlgkkvZ2GJc
+         va+70G8FbEM36fz6NfGeQqio6udBi0Rmj7w3j3XIbZ4iSw4V/nx2tp5KUVMaI3xr4SOm
+         zJxLTL7Xn+vYdBG2He9zkoz5qtYI0RJa52VYJUW+MueGSThKLRsXZz7d9mG6Y5AF/9E/
+         TPqoFQolyYW2N7N0unUfcb9QtZVcXb743AvFPcLoLuETn8H9CkL7jvgv1JQD1eYxQhBs
+         oTk2gPXYJSI6RZBMY0mun23yRsQaqlkn5REowiJR1tM0aQSMM0kbgtWrAuI6+kihjbGD
+         KAsw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736504586; x=1737109386;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Uptf3GXc/k/u9e7lbAQhZINoMQaRjvXtjGmMCYEc/JE=;
+        b=DzdwZdaP2l6fhJb8S4meDdDSwwRT2GaFgl/H4kdED5CumfAWcEERz+Ez3Q+HBvs1fG
+         vM/t8jgocRNQbfJEw75Q2djUN7HMW1+dWhergZLElcBLZVXV5uml36Cc5tO7NnWnnjyT
+         pdb2+11O23NsSdbXto89Dt9ypD7mw1kq/6RoZbmSLrXLRTEw0LfAkhyrMsG8OHn78/gW
+         CuIQqmU9Ql3Nbl/697GW2EnULFYIwpQyUAdFAjIxLl5pUHTZnoht0i4U9zCP/sOiAyyQ
+         7aSrkhIpkan5SOZ9LXMaYZzXHxl5fnyMsvDVXQppZly1qTLUJi+/mYeeFEa3TlzbDlor
+         fRjw==
+X-Gm-Message-State: AOJu0YzlM+QguXuzaT86KM0cTroskuUX+dqBadoU8rJW54TMe+KTPCKP
+	zUsqtFwa7+hznjM1U0Yz+UlZrNn/kX39c7aSrJiDxyj0fpcM4jzJJHBUzw==
+X-Gm-Gg: ASbGncs+jtWyW/M/W8RZkwV08xE2FyevxfMewfC4HDmqCHRNGm0GISoprY/GWAclsjK
+	JIq9U0KLIjKELsn2DQ29c4uc3P/XiIDgQDzqjaxe3ITSpun57acJL4gdOyZzqZ3d5ikh1XruWFU
+	CDvaWQk7x+cBjxh2o/0zq12X0v2cMn95GAKzfoVi8KMUMeTPuhItPK/D54AtZiiR8jmL1kV6K+a
+	TNYzy19viOxFk94PJNHkaXFrZKzNOurPfFTHa1Pt6HJWnQReYQJNKaNT02V+z9L+gem/STLiJpa
+	00rWVpBkPuMIkwvoTPck
+X-Google-Smtp-Source: AGHT+IEPudct7hjeXT2efX3Ffw4ABkF+MQ0uNBX6Rjj4y4YEv3Pr5n0gzGpy3z45iBW839P4MKeRNA==
+X-Received: by 2002:a5d:588f:0:b0:385:f062:c2df with SMTP id ffacd0b85a97d-38a872d2b3cmr8354456f8f.11.1736504585889;
+        Fri, 10 Jan 2025 02:23:05 -0800 (PST)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-436dcc8ddddsm74859185e9.0.2025.01.10.02.23.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Jan 2025 02:23:04 -0800 (PST)
+From: Stafford Horne <shorne@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+	Stafford Horne <shorne@gmail.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	linux-riscv@lists.infradead.org
+Subject: [PATCH 0/3] Add OpenRISC restartable sequences support
+Date: Fri, 10 Jan 2025 10:22:42 +0000
+Message-ID: <20250110102248.3295944-1-shorne@gmail.com>
+X-Mailer: git-send-email 2.47.0
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: oQL9q4Cm2OlRS0avVKS0GOik26TaXbjd
-X-Proofpoint-GUID: v26jL7-Nw4XZK-M8Nskiprqug0sq7Zhb
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 bulkscore=0
- mlxscore=0 suspectscore=0 phishscore=0 impostorscore=0 adultscore=0
- malwarescore=0 priorityscore=1501 mlxlogscore=723 lowpriorityscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501100061
+Content-Transfer-Encoding: 8bit
 
-"Dmitry V. Levin" <ldv@strace.io> writes:
+This series adds restartable sequences support to OpenRISC.  This came after
+discussions with Michael on the libc-alpha list where he added some preliminary
+rseq support [1].
 
-> Similar to syscall_set_arguments() that complements
-> syscall_get_arguments(), introduce syscall_set_nr()
-> that complements syscall_get_nr().
->
-> syscall_set_nr() is going to be needed along with
-> syscall_set_arguments() on all HAVE_ARCH_TRACEHOOK
-> architectures to implement PTRACE_SET_SYSCALL_INFO API.
->
-> Signed-off-by: Dmitry V. Levin <ldv@strace.io>
-> ---
->  arch/arc/include/asm/syscall.h        |  6 ++++++
->  arch/arm/include/asm/syscall.h        | 12 ++++++++++++
->  arch/arm64/include/asm/syscall.h      |  7 +++++++
->  arch/hexagon/include/asm/syscall.h    |  7 +++++++
->  arch/loongarch/include/asm/syscall.h  |  7 +++++++
->  arch/m68k/include/asm/syscall.h       |  7 +++++++
->  arch/microblaze/include/asm/syscall.h |  7 +++++++
->  arch/mips/include/asm/syscall.h       |  7 +++++++
->  arch/nios2/include/asm/syscall.h      |  5 +++++
->  arch/openrisc/include/asm/syscall.h   |  6 ++++++
->  arch/parisc/include/asm/syscall.h     |  7 +++++++
->  arch/powerpc/include/asm/syscall.h    |  5 +++++
->  arch/riscv/include/asm/syscall.h      |  7 +++++++
->  arch/s390/include/asm/syscall.h       |  7 +++++++
->  arch/sh/include/asm/syscall_32.h      |  7 +++++++
->  arch/sparc/include/asm/syscall.h      |  7 +++++++
->  arch/um/include/asm/syscall-generic.h |  5 +++++
->  arch/x86/include/asm/syscall.h        |  7 +++++++
->  arch/xtensa/include/asm/syscall.h     |  7 +++++++
->  include/asm-generic/syscall.h         | 14 ++++++++++++++
->  20 files changed, 144 insertions(+)
->
-> diff --git a/arch/s390/include/asm/syscall.h b/arch/s390/include/asm/syscall.h
-> index b3dd883699e7..1c0e349fd5c9 100644
-> --- a/arch/s390/include/asm/syscall.h
-> +++ b/arch/s390/include/asm/syscall.h
-> @@ -24,6 +24,13 @@ static inline long syscall_get_nr(struct task_struct *task,
->  		(regs->int_code & 0xffff) : -1;
->  }
->  
-> +static inline void syscall_set_nr(struct task_struct *task,
-> +				  struct pt_regs *regs,
-> +				  int nr)
-> +{
+The changes use mostly the riscv port as a template.
 
-I think there should be a
+The patches were tested with selftests on qemu using my glibc branch containing
+rseq patches [2].
 
-	if (!test_pt_regs_flags(regs, PIF_SYSCALL))
-		return;
+Note the RSEQ_SIG instruction I chose is a `l.nop 0x35` which is just a nop,
+which is different than most other architectures that use a `break` instruction.
+As the signature does not need to actually be a break or trap instruction I
+figured the nop is good for this.
 
-before the modification so a user can't accidentally change int_code
-when ptrace stopped in a non-syscall path.
+[1] https://gcc.gnu.org/pipermail/libc-alpha/2025-January/163504.html
+[2] https://github.com/stffrdhrn/or1k-glibc/commits/or1k-rseq/
 
-> +	regs->int_code = (regs->int_code & ~0xffff) | (nr & 0xffff);
-> +}
-> +
->  static inline void syscall_rollback(struct task_struct *task,
->  				    struct pt_regs *regs)
->  {
+Michael Jeanson (1):
+  openrisc: Add HAVE_REGS_AND_STACK_ACCESS_API support
+
+Stafford Horne (2):
+  openrisc: Add support for restartable sequences
+  rseq/selftests: Add support for OpenRISC
+
+ arch/openrisc/Kconfig                         |   2 +
+ arch/openrisc/include/asm/ptrace.h            |  73 +++-
+ arch/openrisc/kernel/entry.S                  |   4 +
+ arch/openrisc/kernel/ptrace.c                 |  96 ++++
+ arch/openrisc/kernel/signal.c                 |   2 +
+ tools/testing/selftests/rseq/param_test.c     |  24 +
+ tools/testing/selftests/rseq/rseq-or1k-bits.h | 412 ++++++++++++++++++
+ .../selftests/rseq/rseq-or1k-thread-pointer.h |  13 +
+ tools/testing/selftests/rseq/rseq-or1k.h      | 181 ++++++++
+ .../selftests/rseq/rseq-thread-pointer.h      |   2 +
+ tools/testing/selftests/rseq/rseq.h           |   2 +
+ 11 files changed, 810 insertions(+), 1 deletion(-)
+ create mode 100644 tools/testing/selftests/rseq/rseq-or1k-bits.h
+ create mode 100644 tools/testing/selftests/rseq/rseq-or1k-thread-pointer.h
+ create mode 100644 tools/testing/selftests/rseq/rseq-or1k.h
+
+-- 
+2.47.0
+
