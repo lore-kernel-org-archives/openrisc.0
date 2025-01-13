@@ -1,149 +1,122 @@
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75B5428FD
-	for <linux-openrisc@vger.kernel.org>; Mon, 13 Jan 2025 06:31:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07F44187554;
+	Mon, 13 Jan 2025 11:11:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736749916; cv=none; b=tmekDmv7Ok3tG4/6uMxCljateOOaQBkWo4Kf2giLO0aFSp7qql5vy5HHUqLlxBpi+pKzL+Q/Qz9yWZc1rpLqFMDuwj2BYApGAl9sOTCztzq/U5V/sVqYpcH2zaJm+e+mz5bAfb9B2paTchDAOt+9Vp+Vk7vnv+BC6uSMiJdovN8=
+	t=1736766683; cv=none; b=Ywv/nPpmIafdiydBuhEHJXT5nk5EGDr80OSeYKwPmlMLDrhDHjWarw0/PgS4PUQGLLVknqS9HBcQZ4Nyl/Ksm8OlE8PETBrzPHWXYF+V/ZqMJ+sUSBFO3giHL/669RpbpGihVezOkVMYcIxiFCGOyW3c1EnoK6v1xMbjR1ZeeNw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736749916; c=relaxed/simple;
-	bh=KHReTNLiq1yMidPW2aJskmJs/EoTsctWYjE9Y2GnyFA=;
+	s=arc-20240116; t=1736766683; c=relaxed/simple;
+	bh=ONKN8fq0iP0VC62UEpQtN5Nmm165/LMTCyM9flI8nJA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lR6vdR3rNVGuNUTc3eZtZx63HKOT59y05mxmYFfdG+4Nm8W1kVeA6QKqK55tqB2LcGztlVbaDU77SfTf/NmYFsp1mVnsPEAVlOlKrZ/lg2R6eMaBI7pWjxutak60q3zo9eiNaNBfyd2mToBg2vREigM29R8YJIsY5dBhAQEl5dc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=djfCsu06; arc=none smtp.client-ip=209.85.128.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=NdSlismQnPk2L1Bcyx47XceufHVyS0FCLCykC+UJS1M8PoUz1jU/hCbFZuWUL0OwMRHht/DIVSnUlnsVR2Frhmv7mcaMaqGt3gk7ROmJg07GcgAj0aWc/yKlIN8DyfJbSWr7nOOk+9MiXdtTjuDT+kPcWRIqPLqfSjALNidS88s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=QyUDxo68; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="djfCsu06"
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-436281c8a38so27160635e9.3
-        for <linux-openrisc@vger.kernel.org>; Sun, 12 Jan 2025 22:31:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1736749913; x=1737354713; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Duz3qOgyfoqqLepyffKfRJkobUXjE5BMwWW0uKuUTek=;
-        b=djfCsu06KZDSUHy9sMn97mF4y+8k/MMZySMelKg8JOuDoN+r3jpGLvUPuRQVDwksXk
-         O2WljIUR/WLEKoFVMmPMALS4WXRgKbJsgT+IPXRM1kuKWiCZTPGafMIEVwrHpb4oq3ie
-         uoxjhIDWu8MrYjtI3D/x3AE7tgKAPn0OuWsEh14OLVjaGXU0htrOsJ52q5Iz9P3IbnMU
-         G/hJR4iZaF7nVzq+4SLxbgv0LWzWEjU6GU2SWbIBFs0UqqB7Bi+YVSZVvYPwpKU+7b96
-         rqWpAvP8Lu/+J0z+We1bHVNpqax+h1vG66dYJIVb+GdsSVp3BSN8MbAXtGFf7do1xh9q
-         sWXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736749913; x=1737354713;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Duz3qOgyfoqqLepyffKfRJkobUXjE5BMwWW0uKuUTek=;
-        b=w0dp9uOCfQ8ZEOPpdwV4fUFYCoGWu69Qh+yT48In4jAdW6BzWl1LC9ngVCKdo4NTO3
-         hQ0OYHZnOQcIjPIgvgi8WDbzsmDQ2m3GSEjz/S/hLfskAFSNb4wAC1K717/2rrArvxvG
-         8T7y3LJgxFanEuXY7NJlgxNO6CKG2nUZpmAmNuxJaLbPze8yzXCF7Gl5qWpNYa8Y6caf
-         QKfSrardsBOpT2Qs+si87TINOVsOfJ4nYk8x6Kr+pMmOygLjyj2zT9i5pTKYJ/Tap7IT
-         gQk7yCXOFDcwKNDCU3K3VvjswVBiFm6uiRtyFpuO6NKZ8MmyMI2/sG3vHibAdQZphXp2
-         pgfw==
-X-Gm-Message-State: AOJu0Yxp47YieY8x66R8lN7IrDaO0v43dCNKu5QtL58BOToDpHkvCSoh
-	jdFbOxPNgyF/2SsT7+U+c21JUwirooFlNJJI0oDBTWhZCRPWw6GK
-X-Gm-Gg: ASbGncu0ASMoR6uhCEAanXhYyUdkz+dO2PQHOPneVoBCNwnsEWZaKMTUSlFIom/u0Nx
-	nhFu4pa8twCynaB9vK9mBikHGzac87ryGs338hxSoD+4sRjUnMCO8cA8awf8bAULLrL3Uhk7obx
-	dQY7G8OSmV4q6UVxikQeddG5X6vIqtbT6pvncvo4GZWO4AYM7pX1xyEB8/uGNU6NtwvNmnqspXg
-	m5Kh1TKRopDvwHa7e4PtRTXBz+pOp24vg2+ZIo61F1cr6Y7XBF04ytAAEjiq98S0Tcae1CDX6AK
-	lJteAJ/YqUEueeICKKDS
-X-Google-Smtp-Source: AGHT+IF/kfw+2NHkc1CcxbuDL/cgwHH9/tcAFsT2rkq7OvMIWX+smxDM+HUrRizsan17T2Lyk6ZMuA==
-X-Received: by 2002:a05:600c:45c3:b0:436:aaf:7eb9 with SMTP id 5b1f17b1804b1-436e26f4ae1mr161660635e9.20.1736749912407;
-        Sun, 12 Jan 2025 22:31:52 -0800 (PST)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-436dcceb374sm159046065e9.0.2025.01.12.22.31.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 12 Jan 2025 22:31:51 -0800 (PST)
-Date: Mon, 13 Jan 2025 06:31:50 +0000
-From: Stafford Horne <shorne@gmail.com>
-To: Sahil Siddiq <icegambit91@gmail.com>
-Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>
-Subject: Re: Contributing to OpenRISC Linux
-Message-ID: <Z4SzVtTIuVN7gsX8@antec>
-References: <2613c1c6-2a2f-4ceb-8adb-f819961ec61f@gmail.com>
- <Z4NvBPYCkz12k0-1@antec>
- <d7c3ecb8-1838-4271-be90-fa7b344356fe@gmail.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="QyUDxo68"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Transfer-Encoding:
+	Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
+	Sender:Reply-To:Content-ID:Content-Description;
+	bh=qj0XqtoExeVFzH/0zurjfq7xU6GfRici48V+bRozJOU=; b=QyUDxo6884XncYuqYHzTOCqFhP
+	MJCHu9a4GRwdc2gzh5B2GGjOVCLjQQf/G/U7qmHwI17hAY1iN75xRQXZxeLGWu2r1IqKnZpyhJLDh
+	hIuO5PZHdwSPf5wZW6TqT3qcud0nyXMDVNWDhVWthft1Bnu+Kcj3mv+vxETbGCx0QJOf9qMcwsms+
+	nqHs/Wgi5QapoBbNUV5Co3c/+0Nu0ObKp+3f0PdvoSv/EyJ2MD7vobCUSztpqsbNNqvMOm1sEmva6
+	MTgfeJGjb7Ed6OquAEAdfsZxBI82GyxEwWFFo9IdPl3Yqv95YLHEjIJQwF7fzvfeJC+e9a3V3YyCz
+	FdRvrBKQ==;
+Received: from 77-249-17-89.cable.dynamic.v4.ziggo.nl ([77.249.17.89] helo=noisy.programming.kicks-ass.net)
+	by desiato.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
+	id 1tXILk-0000000AHYu-4BnK;
+	Mon, 13 Jan 2025 11:11:18 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id 27A6730057A; Mon, 13 Jan 2025 12:11:16 +0100 (CET)
+Date: Mon, 13 Jan 2025 12:11:16 +0100
+From: Peter Zijlstra <peterz@infradead.org>
+To: Borislav Petkov <bp@alien8.de>
+Cc: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>,
+	Mike Rapoport <rppt@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>, Brian Cain <bcain@quicinc.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Guo Ren <guoren@kernel.org>, Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Kent Overstreet <kent.overstreet@linux.dev>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Michal Simek <monstr@monstr.eu>, Oleg Nesterov <oleg@redhat.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Richard Weinberger <richard@nod.at>,
+	Russell King <linux@armlinux.org.uk>, Song Liu <song@kernel.org>,
+	Stafford Horne <shorne@gmail.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>,
+	bpf@vger.kernel.org, linux-alpha@vger.kernel.org,
+	linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org, linux-mm@kvack.org,
+	linux-modules@vger.kernel.org, linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.or
+Subject: Re: [REGRESSION] Re: [PATCH v7 8/8] x86/module: enable ROX caches
+ for module text on 64 bit
+Message-ID: <20250113111116.GF5388@noisy.programming.kicks-ass.net>
+References: <20241023162711.2579610-1-rppt@kernel.org>
+ <20241023162711.2579610-9-rppt@kernel.org>
+ <Z4QM_RFfhNX_li_C@intel.com>
+ <20250112190755.GCZ4QTC01KzoZkxel9@fat_crate.local>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <d7c3ecb8-1838-4271-be90-fa7b344356fe@gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250112190755.GCZ4QTC01KzoZkxel9@fat_crate.local>
 
-On Mon, Jan 13, 2025 at 11:42:08AM +0530, Sahil Siddiq wrote:
-> Hi,
+On Sun, Jan 12, 2025 at 08:07:55PM +0100, Borislav Petkov wrote:
+> On Sun, Jan 12, 2025 at 08:42:05PM +0200, Ville Syrjälä wrote:
+> > On Wed, Oct 23, 2024 at 07:27:11PM +0300, Mike Rapoport wrote:
+> > > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+> > > 
+> > > Enable execmem's cache of PMD_SIZE'ed pages mapped as ROX for module
+> > > text allocations on 64 bit.
+> > 
+> > Hi,
+> > 
+> > This breaks resume from hibernation on my Alderlake laptop.
+> > 
+> > Fortunately this still reverts cleanly.
 > 
-> Thank you for your reply.
+> Does that hunk in the mail here fix it?
 > 
-> On 1/12/25 12:58 PM, Stafford Horne wrote:
-> > Hi Sunil,
-> > 
-> > +CC List
-> > 
-> > yes, the cacheinfo task is still open.  There are many things that are still not
-> > implemented in OpenRISC, you can always just look under the kernel
-> > Documentation/features.
-> > 
-> > For example:
-> > 
-> >      < shorne@antec ~/work/linux > grep -r -e openrisc.*TODO Documentation/features | column -t
-> >      Documentation/features/vm/huge-vmap/arch-support.txt:                |  openrisc:  |  TODO  |
-> >      Documentation/features/vm/ELF-ASLR/arch-support.txt:                 |  openrisc:  |  TODO  |
-> >      Documentation/features/vm/ioremap_prot/arch-support.txt:             |  openrisc:  |  TODO  |
-> >      Documentation/features/vm/pte_special/arch-support.txt:              |  openrisc:  |  TODO  |
-> >      Documentation/features/perf/kprobes-event/arch-support.txt:          |  openrisc:  |  TODO  |
-> >      ...
-> 
-> Got it. I did find this list in the online documentation [1] but I couldn't find
-> the cacheinfo task listed there.
+> https://lore.kernel.org/all/Z4DwPkcYyZ-tDKwY@kernel.org/
 
-Right, not all features have config flags that are documented.
+There's definiltely breakage with that module_writable_address()
+nonsense in alternative.c that will not be fixed by that patch.
 
-Cacheinfo is implemented by overriding some weak symbols.
+The very simplest thing at this point is to remove:
 
-> > How far have you come with OpenRISC so far?  If you haven't already I suggest
-> > working through:
-> > 
-> >   - Get a simulator, I use QEMU for most development as it's faster and supports
-> >     more memory than most FPGA.  Final verification can be done on an FPGA.
-> >   - Get a working compiler toolchain.
-> >   - Compile and boot the openrisc kernel.
-> >   - Build a userspace environment, either buildroot, toybox or busybox.
-> > 
-> > I have some tools to help with this in or1k-utils [1], also there are prebuilt
-> > environments and docs in the linux kernel [2] and qemu [3].
-> 
-> I don't have an environment set up yet. I'll start with the steps above. I'll use
-> QEMU for development. I don't have an FPGA with me currently.
-> 
-> > At the momoment, I am also thinking of what to work on next for OpenRISC, there is:
-> > 
-> >    - kexec
-> >    - jump_label
-> >    - kprobes
-> >    - perf_events
-> >    - ftrace
-> 
-> Is the virtio task [2] also still a part of the roadmap? I can't find that either
-> in the TODO list.
+     select ARCH_HAS_EXECMEM_ROX             if X86_64
 
-The virtio task is still possible but will be more advanced and may need some
-architecture changes to support hypervisors.
-
--Stafford
-
-> > [1] https://github.com/stffrdhrn/or1k-utils
-> > [2] https://docs.kernel.org/arch/openrisc/openrisc_port.html
-> > [3] https://wiki.qemu.org/Documentation/Platforms/OpenRISC.
-> > [...]
-> 
-> Thanks,
-> Sahil
-> 
-> [1] https://docs.kernel.org/arch/openrisc/features.html
-> [2] https://fossi-foundation.org/gsoc/gsoc24-ideas#openrisc-linux-feature-development
-> 
+and try again next cycle.
