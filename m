@@ -1,156 +1,115 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0AFE230982
-	for <linux-openrisc@vger.kernel.org>; Tue, 14 Jan 2025 02:27:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC5181FAC37;
+	Tue, 14 Jan 2025 17:18:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736821634; cv=none; b=vCh+DKdbmAKyvDCf9CNpn9yaL+HWjo6x+QSDzjSg54gxXFpgKZENS0jahYsn4lCrnGpcmH61MqGnt61apJtl7EJ5Ib/2Iz7YpxUweyUxkbXP2nZJtvPKQzDij/DX+ldlpBn74hgPbqTPYOBhXw2R78VYG3jOBd4j+F54+elht14=
+	t=1736875104; cv=none; b=MwRcLfBFzhzJCRvgkUtBPT40sHAHXUmuvOk/FD6uxXISDM92LkUXpmtXAZSUcgrZ41gsdEGNCm7UKdhaJKYLmKRRrdkvwxCtxkrjbEL41bura3tZ0O/727xba3cKG/LFW1oOX0wFLd/oUztdVtL3RJfB78uu6xwCsDz/oDtpcSY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736821634; c=relaxed/simple;
-	bh=Hom/cNZrW7mjFJzUlYAAyuZtoR84A5mWMLCiREKQDso=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=A6Xnp1BXw8CFt7p2PfG5L3ZuSuo3/gsTLy2BKD01IHIkHXYnlgmLdtyX/tb0JdX/ZqRw0cdI54snKu+ZM+leyqz+sbh9c+r6tHBW/VFPQr8rJ2nkZwTbFQpvn9QpTdKHYnmGU83xbLO3XCMwW8f578xu3bU4JkKuDrh0RYRsbIE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=Y/NQe4SJ; arc=none smtp.client-ip=209.85.214.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
+	s=arc-20240116; t=1736875104; c=relaxed/simple;
+	bh=lfITl1hV7HSdyCxSQYiXEzetpxQr9wCU32zXGTxsDGg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=b/fCQ/tWNzLG99QsjSZsTlLMqVvsiSOk+E3QFe2+RCepT4Y8Z/2AZqAE0+IEqgM+mZZsVP6RLwmghHov8sPs6oYyn7khBIOCsx2uXMEFMK2MzjYBNCToMdxmqLV938APfheFSkPB0vm0YZNm0PxHwNe7EPGzyUudVuADDRUebDY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=giKj94Lc; arc=none smtp.client-ip=209.85.128.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="Y/NQe4SJ"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-219f8263ae0so81100845ad.0
-        for <linux-openrisc@vger.kernel.org>; Mon, 13 Jan 2025 18:27:12 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="giKj94Lc"
+Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-4361815b96cso41104565e9.1;
+        Tue, 14 Jan 2025 09:18:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1736821632; x=1737426432; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Q3uCzTDF/NUXWi9pKun3Q1ZeVpbVlQmIUTgvJ2reRXQ=;
-        b=Y/NQe4SJpABS9SMKo8sJ6ZJHSXwOWNedrB3gU4/b9TlGgmyjkcMxl59ayVFBky3918
-         zBZt67kgvz9U473Cye5K0rwM49xz+FfkJcDxOJnp6v8B9Nc+iN3/z5Ae9hLirObCnl9l
-         WIjxRr8dj6LC5OAWbsC8pONJqzhPG8pLi3KLMmzw5jDhgQ4YLWsBZ0riFWoERDRDSMmc
-         9isWoGiNhn0KherO9CrV5GYFSiRn0wApXE6Z2HKrB3HqTTxQ2rAC2enWpHlq3RW2qmgY
-         X3n5yrcvacLVA1B8RaIKH++54V0naeV7lOBX3p6Y+C8Xa7f5Hw/vPPN9fyKRICAs0nWn
-         mNEg==
+        d=gmail.com; s=20230601; t=1736875101; x=1737479901; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=uYGUe64gxerF/HU3IG52omjn7xuMOnbvQ42b4szHS88=;
+        b=giKj94LcmAOh6dFSGCPOYy2WLmHoBbs4PiQ2j7KqkM/uumxbGFAUaxpc8DnX5aEzjJ
+         jp7SNcBR1vH4TG50ZRlgYiivSZDnUrTuwP/Sq/YLvf1+mTEJ341nIvll5Pzs8GsS0C3S
+         YRACCzxJIa0ULAlgXISyYfJoqNGXB9pP8Vy6Z2BMCrtPJdNLWwpu3DMHA3QO82NIgoZi
+         7UW4+sfDXaOlPTBAa6o7G2W4Kh73vFMHc1K9EGtHodSZ6CZJ5N5+e0LjT3WfEI7v34ql
+         gQ+AXmfyDNuNCWeW4xa+VMIZ1fbtHoZ13VicNYhsl2hdtw/b+W2Z7163atEJalI5WqrG
+         qe0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736821632; x=1737426432;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20230601; t=1736875101; x=1737479901;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Q3uCzTDF/NUXWi9pKun3Q1ZeVpbVlQmIUTgvJ2reRXQ=;
-        b=kYhROw1UDzodjR8hBqxWuDgrfOMMA92f+VA8/9zBW9xYM6uLVStvQgRc/pQH5KYeTn
-         OASSJDO3OCqeyDa2hPbH0gcRsLHXS2bas8lFFvIcee2zcPc6/7+N9R9o+Ag+FCKrsicH
-         X31mdFnH0Dn7S/JK0Ys1hh/MW/rnMMCjM4gM6rj0WhCsvIpWEMKMnWcUxh2JYAl4Sz6t
-         AhKtemZ1ejuucbMtcR332ZumSH+s0ndpTcWNTr4MLlskOZBI250TR9jPkhtWVybtaP8h
-         wJcVh5Rhf75XQHiTHmD+gIS1q2FYGiSF+QydrjiKh5bWcDL0XxwoLxAF6XI/BXy4FlLn
-         y0dA==
-X-Forwarded-Encrypted: i=1; AJvYcCWsk8g1dZtrWrxEakPTDHzmzCQimlN/l1f0jw31CmVPt/atNLxZGry3n6xJ38s0r5B2LBH6PXC+Zv4CCsrMIw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz5hdaKxbQX7moI/pPW/KFHrqJDEZtN3WICUfiC1GujRjfDA0KT
-	PGno8yj1tACib3UvPaK9PFc2XKaYKCPxdKs5spsjMetdhnQocvV46FjOjxmOw9s=
-X-Gm-Gg: ASbGncs7tHEWRws/N9eka4PZuKW1WZ3ktDWNJmpcmfQ9AHZJOmuAJOydTPHgcTJjHr0
-	LEM0dlie2pz4OoLLepvEcXN0vZSABI9NCZc+d5JuhD1Px83mtRCo3uR3b4PND/FILVUMcjcCBNQ
-	QVwhYBUnXOS/eqXMXTZhNHbAQVnLFN0Odu3Uq31ecTkSvPMR4vBkVU7eDGs8Y8bb2t8l7C63V3O
-	Os632ai0NfVEaoDb2VEBVGP27tHnaUzc0VFYgveRsOtuHy9BV0+hVt0afwM4Z3kWOfVBjBs1jeR
-	nL4R
-X-Google-Smtp-Source: AGHT+IFszANM2ttg3bHXqwu4kokOxCLHcRwKXlC7FRtBmzrGdqYoySfArdJur+xTrJx3xY86w59zAA==
-X-Received: by 2002:a05:6a20:7f8a:b0:1db:de38:294b with SMTP id adf61e73a8af0-1e88d2f6820mr38362107637.38.1736821632027;
-        Mon, 13 Jan 2025 18:27:12 -0800 (PST)
-Received: from [10.84.148.23] ([63.216.146.178])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-72d4056a5e8sm6847007b3a.53.2025.01.13.18.26.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 13 Jan 2025 18:27:11 -0800 (PST)
-Message-ID: <a017d072-943f-4008-bb1d-7be438804a44@bytedance.com>
-Date: Tue, 14 Jan 2025 10:26:54 +0800
+        bh=uYGUe64gxerF/HU3IG52omjn7xuMOnbvQ42b4szHS88=;
+        b=YAjSrEFp9yKD0BbLH9mtK2f6HW2Ghv4xN/KX7bTZCbaEYCYVhdQp/7wZWzT+G9/rMv
+         xQwpqS0c2/ayG0Hl398FRTztHOUrZ70gXmanbCxlEUh2h/66yd7c1U1LvmEhFJULlnwS
+         83wylk2B3+cWoN5KLJKU8Pcne7lC4+Ztf2XX+rOuTIqcDaDCRroAREVh92izVwsAw9qA
+         Pgx07l90XIxtQ4boXSbuGieUX3uPLTTi3e7wPt8YRssbI+CJceHe+HXNKPkeFWMM06Og
+         aV3N5u3Z0H3KntzD3r1T43h1lPolqtBC7Bhg5FRcuoiFFV/GCd6jZNYCA5mmzmNr1+54
+         Jcug==
+X-Forwarded-Encrypted: i=1; AJvYcCVCpx6ZfQNsCnK5oSNnnqCIK6SJgoJ8M49t98DtPPicHKdy/Eml5rYak04FO6nly4+9ygqIW55owEnNm0n5TXI=@vger.kernel.org, AJvYcCVzuJAKgVfAKL8w/b9RjVFz1UCyWgYaMul9B7rbJ7Xd09HAtfLD+rKmBd+cmef9dzrSQIeWBH76DgSz704pieLA@vger.kernel.org, AJvYcCWOyFrvl3eKQ51TVBSKHl5qdyNN5tNrnub1mNPos42PC/Z7tl1hZDa8943TTt7URraH0dM5N6ZNjc978lk=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw16aTYzIPXZ23W3Gsb7vb4Rxk4YeMxvNaxjvb41tVqAJ2x6JV0
+	j76lQMP6Nrr7Wbfegzlt6yar55JFimjdZsGX8ROcmA1q20w9y9/S
+X-Gm-Gg: ASbGncu5NHK5E5vm81DXYJT7zp/WfRMgkvEoBnWQIneW3VXgUaVdJLdzfc6L50HwcAV
+	8avh0YJkfzEeZcAmkhqgHs6QywCXCXEzqUJnw6qRiFCR3nlmWfUlAa6nXsiH+OQF7qAiK0saGPd
+	7gJVaeJ9qa+ixF4vkhV/J9IR2O2FSW40ZLt1Rz7mO483/AFs2H8MesV9fMV3J54WGgSXPfyaVK3
+	zqjJDip3YmqgNo0wgUyK3gh1oGjqTelMBWIPCDL4JH8Lgrsbi6Ee7+3C5Wjt1wUXPAOoQcJ1RjV
+	KN+H4SimzGkQ7AAqvBCw
+X-Google-Smtp-Source: AGHT+IG3mWtyGgJuwKxhcEZalkLI8ph/rLux/zMEGyE2gMJUUPVUcTv9Ikx9hKHlk2OMasJI7f5OoQ==
+X-Received: by 2002:a5d:584d:0:b0:386:4a16:dad7 with SMTP id ffacd0b85a97d-38a872d2a33mr24734020f8f.10.1736875100744;
+        Tue, 14 Jan 2025 09:18:20 -0800 (PST)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38a8e4b8214sm15312122f8f.78.2025.01.14.09.18.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Jan 2025 09:18:19 -0800 (PST)
+Date: Tue, 14 Jan 2025 17:18:19 +0000
+From: Stafford Horne <shorne@gmail.com>
+To: Shuah Khan <skhan@linuxfoundation.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	"Paul E. McKenney" <paulmck@kernel.org>,
+	Boqun Feng <boqun.feng@gmail.com>, Shuah Khan <shuah@kernel.org>,
+	linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH 3/3] rseq/selftests: Add support for OpenRISC
+Message-ID: <Z4acW3Yyq4BSXSPv@antec>
+References: <20250110102248.3295944-1-shorne@gmail.com>
+ <20250110102248.3295944-4-shorne@gmail.com>
+ <cf78a480-e38f-496c-931c-cd889fb29d59@efficios.com>
+ <668be2b3-4db1-45e9-bf2d-558c237db57f@linuxfoundation.org>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 05/17] arm64: pgtable: use mmu gather to free p4d level
- page table
-To: Will Deacon <will@kernel.org>
-Cc: peterz@infradead.org, agordeev@linux.ibm.com, kevin.brodsky@arm.com,
- alex@ghiti.fr, andreas@gaisler.com, palmer@dabbelt.com, tglx@linutronix.de,
- david@redhat.com, jannh@google.com, hughd@google.com, yuzhao@google.com,
- willy@infradead.org, muchun.song@linux.dev, vbabka@kernel.org,
- lorenzo.stoakes@oracle.com, akpm@linux-foundation.org, rientjes@google.com,
- vishal.moola@gmail.com, arnd@arndb.de, aneesh.kumar@kernel.org,
- npiggin@gmail.com, dave.hansen@linux.intel.com, rppt@kernel.org,
- ryan.roberts@arm.com, linux-mm@kvack.org,
- linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org,
- linux-arch@vger.kernel.org, linux-csky@vger.kernel.org,
- linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
- linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
- linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-um@lists.infradead.org
-References: <cover.1736317725.git.zhengqi.arch@bytedance.com>
- <3fd48525397b34a64f7c0eb76746da30814dc941.1736317725.git.zhengqi.arch@bytedance.com>
- <20250113162600.GA14101@willie-the-truck>
-Content-Language: en-US
-From: Qi Zheng <zhengqi.arch@bytedance.com>
-In-Reply-To: <20250113162600.GA14101@willie-the-truck>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <668be2b3-4db1-45e9-bf2d-558c237db57f@linuxfoundation.org>
 
-Hi Will,
-
-On 2025/1/14 00:26, Will Deacon wrote:
-> On Wed, Jan 08, 2025 at 02:57:21PM +0800, Qi Zheng wrote:
->> Like other levels of page tables, also use mmu gather mechanism to free
->> p4d level page table.
->>
->> Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
->> Originally-by: Peter Zijlstra (Intel) <peterz@infradead.org>
->> Reviewed-by: Kevin Brodsky <kevin.brodsky@arm.com>
->> Cc: linux-arm-kernel@lists.infradead.org
->> ---
->>   arch/arm64/include/asm/pgalloc.h |  1 -
->>   arch/arm64/include/asm/tlb.h     | 14 ++++++++++++++
->>   2 files changed, 14 insertions(+), 1 deletion(-)
->>
->> diff --git a/arch/arm64/include/asm/pgalloc.h b/arch/arm64/include/asm/pgalloc.h
->> index 2965f5a7e39e3..1b4509d3382c6 100644
->> --- a/arch/arm64/include/asm/pgalloc.h
->> +++ b/arch/arm64/include/asm/pgalloc.h
->> @@ -85,7 +85,6 @@ static inline void pgd_populate(struct mm_struct *mm, pgd_t *pgdp, p4d_t *p4dp)
->>   	__pgd_populate(pgdp, __pa(p4dp), pgdval);
->>   }
->>   
->> -#define __p4d_free_tlb(tlb, p4d, addr)  p4d_free((tlb)->mm, p4d)
->>   #else
->>   static inline void __pgd_populate(pgd_t *pgdp, phys_addr_t p4dp, pgdval_t prot)
->>   {
->> diff --git a/arch/arm64/include/asm/tlb.h b/arch/arm64/include/asm/tlb.h
->> index a947c6e784ed2..445282cde9afb 100644
->> --- a/arch/arm64/include/asm/tlb.h
->> +++ b/arch/arm64/include/asm/tlb.h
->> @@ -111,4 +111,18 @@ static inline void __pud_free_tlb(struct mmu_gather *tlb, pud_t *pudp,
->>   }
->>   #endif
->>   
->> +#if CONFIG_PGTABLE_LEVELS > 4
->> +static inline void __p4d_free_tlb(struct mmu_gather *tlb, p4d_t *p4dp,
->> +				  unsigned long addr)
->> +{
->> +	struct ptdesc *ptdesc = virt_to_ptdesc(p4dp);
->> +
->> +	if (!pgtable_l5_enabled())
->> +		return;
->> +
->> +	pagetable_p4d_dtor(ptdesc);
->> +	tlb_remove_ptdesc(tlb, ptdesc);
->> +}
+On Mon, Jan 13, 2025 at 03:58:31PM -0700, Shuah Khan wrote:
+> On 1/10/25 09:16, Mathieu Desnoyers wrote:
+> > On 2025-01-10 05:22, Stafford Horne wrote:
+> > > Add support for OpenRISC in the rseq selftests.  OpenRISC is 32-bit
+> > > only.
+> > > 
+> > > Tested this with:
+> > > 
+> > >      Compiler:  gcc version 14.2.0 (GCC)
+> > >      Binutils:  GNU assembler version 2.43.1 (or1k-smh-linux-gnu) using BFD version (GNU Binutils) 2.43.1.20241207
+> > >      Linux:     Linux buildroot 6.13.0-rc2-00005-g1fa73dd6c2d3-dirty #213 SMP Sat Dec 28 22:18:39 GMT 2024 openrisc GNU/Linux
+> > >      Glibc:     2024-12-13 e4e49583d9 Stafford Horne   or1k: Update libm-test-ulps
+> > > 
+> > > Signed-off-by: Stafford Horne <shorne@gmail.com>
+> > 
+> > Thanks!
+> > 
+> > Reviewed-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+> > 
 > 
-> Should we update p4d_free() to call the destructor, too? It looks like
-> it just does free_page() atm.
-
-The patch #3 introduces the generic p4d_free() and lets arm64 to use it.
-The patch #4 adds the destructor to generic p4d_free(). So IIUC, there
-is no problem here.
-
-Thanks!
-
+> If these are going through risc repo
 > 
-> Will
+> Acked-by: Shuah Khan <skhan@linuxfoundation.org>
+> 
+> If you would like me to take this, let me know.
+
+Thank you, I will take this via the OpenRISC repo.
+
+-Stafford
