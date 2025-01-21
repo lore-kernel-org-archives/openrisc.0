@@ -1,127 +1,137 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C71C535968;
-	Sat, 18 Jan 2025 04:39:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05DF01F03D8;
+	Tue, 21 Jan 2025 16:37:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737175165; cv=none; b=pWISXyTzykOtAlNs4Yc4QQkjLGuS8bGyd1MFo1fX0G3QYftnfqarE/OPLFsTrhI9jBHaDOIRtkUi0XlJOIBMQItPOmGE1mgMR7Xb4ThmRuI5LfnDr14bkBA9htLh+4Eq/tTP8/LHIWIXj+m/o8yVSQ7qIMPOfnmUdRiIx7Cfw8A=
+	t=1737477460; cv=none; b=utX4/wrKEjtobppy6bhePAdpdhNMPzO3eXK43K/m3vHX2BMbXaMpmaYL+dP9G+KPR0Y7nmNQGUzveVxuRkXA2z1xPYzWrWSvGOASVlbLAnWz7/rjL1FUgsUys3FmSVF3DdSOvsBl152NV5rJOTyvd+cqp/MhmOKvs2wDVqab6JI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737175165; c=relaxed/simple;
-	bh=tFLBkahsiihIpZSximl2JBqPEwqeQPi3tzP7hERo3Ig=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=j9PKmrTwbCmE6ltqSDL0eJJ2YyFrKyRr2lVDPt0BUT6huv8mQuS+nPYK+YYhkzUPLDNVWWW1F5/eaPDYgIdz3XB4XqYlB8ZPLQjM2tydW2bob+W6Nv4P8tmCAedJYtTDCpIhzI0rboj9mfm66+mZPAvczifcMQbRW94ul1lIciM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=hdj5mGq9; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1737477460; c=relaxed/simple;
+	bh=2Bll/kQz90Tn4jHBA7WS0kX/UcVPGVgEgqRQA0g7Tpw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=X2qRHTE5M7Muz8YWu9hYK5Fm/jDogKAJbRyNmo9T4eqKPTyJtpkgttJg9hpXvBEvlEcA8n/ZezfjIB0AxKmixVJmdvNjrJ5T86U4KnRMLvspXxMxkVoS4dZZCtlS7ewFK0JJQ2YMn9qT2erDc0ShA1u8X7urf0APZ9XNag7QtzM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fz8cQTU8; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="hdj5mGq9"
-Received: from [127.0.0.1] ([76.133.66.138])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 50I4YkBo262261
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Fri, 17 Jan 2025 20:34:46 -0800
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 50I4YkBo262261
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2024121701; t=1737174897;
-	bh=w1vtBdwCDfUdjXlAPq/H8CEoUqmusT1ScqFMMfS7dZ8=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-	b=hdj5mGq9LhBqQz1DGkEXyOAPg5UumXs4rYaXrAxe/XdXtsj44W9H6+brjFlKruZEu
-	 KZw5piA42OHN/XcSeaUskoitHUnJNqT+XsxtkAneGSnIvuXW+n6ZC7eW8FnCimYSsG
-	 Lq1HAj2fYTDCYOqRHD+qLXvSb6ZxhtiXDCdoJyIe1GRxYKC8axRGOudEZFGw1AbPA8
-	 XfSMDwvu4q4o4HAn0vaClp5lq+a2D6iGDyVD9URdyKl9xLKY6kTXhchRX+IiLJk6MT
-	 lQqfZZED15R6MYW2CL2TKc8zQ0Rfpn6iPT2QNmGS8gBb8X3N0roFy9uw8TLOeP93LY
-	 mjPwqKCNYdQPg==
-Date: Fri, 17 Jan 2025 20:34:45 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-To: Eugene Syromyatnikov <evgsyr@gmail.com>
-CC: Charlie Jenkins <charlie@rivosinc.com>, "Dmitry V. Levin" <ldv@strace.io>,
-        Oleg Nesterov <oleg@redhat.com>, Mike Frysinger <vapier@gentoo.org>,
-        Renzo Davoli <renzo@cs.unibo.it>,
-        Davide Berardi <berardi.dav@gmail.com>, strace-devel@lists.strace.io,
-        Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>,
-        WANG Xuerui <kernel@xen0n.name>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Naveen N Rao <naveen@kernel.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.osdn.me>, Rich Felker <dalias@libc.org>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Andreas Larsson <andreas@gaisler.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>, linux-snps-arc@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fz8cQTU8"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50LFdu2e007924;
+	Tue, 21 Jan 2025 16:37:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=rk7YrE6UBezqaR/fdDYkZZ8HhhiqPd
+	u23Nnd1oC9law=; b=fz8cQTU8PvP8JVPbKU6Ynem/RjPPMY4uzRJefS9/1Tx/qT
+	LzhhVSjzTVTggodrGdoC7U7DKDLLylgyhVs2FXbeQ7/tfYw6bKUuWYwWuOif/J55
+	axSnjLRVcxlX4rVFmGjI9yaNmgps2TdyXZGRxYJBxyypnf4KKtSpIijUn0tx2sG2
+	UQkEtTDltlKN8Af1rd91bT/prAvISQdM/HX80B8iBN3U4iv/2IgONEpJfBHX5Mtz
+	927QozGW/1WX1WRlYYGSfytKSwEZp1r05DyTHoaBZJKMtMvgB8PB502t9kcSNrkN
+	9ZetdoZIDddF9W2j5/S1Aryn/L+NhiQXTESjl6tQ==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44aee188u7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 21 Jan 2025 16:37:37 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50LDIAgN024307;
+	Tue, 21 Jan 2025 16:37:37 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 448q0y45w6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 21 Jan 2025 16:37:36 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50LGbZgU57803258
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 21 Jan 2025 16:37:35 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DB61420040;
+	Tue, 21 Jan 2025 16:37:34 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3F9B220043;
+	Tue, 21 Jan 2025 16:37:34 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 21 Jan 2025 16:37:34 +0000 (GMT)
+Date: Tue, 21 Jan 2025 17:37:33 +0100
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Kevin Brodsky <kevin.brodsky@arm.com>
+Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Mike Rapoport (IBM)" <rppt@kernel.org>,
+        Ryan Roberts <ryan.roberts@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Qi Zheng <zhengqi.arch@bytedance.com>, linux-alpha@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
-        linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        linux-arch@vger.kernel.org
-Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_v2_3/7=5D_syscall=2Eh=3A_add_syscall=5Fse?=
- =?US-ASCII?Q?t=5Farguments=28=29_and_syscall=5Fset=5Freturn=5Fvalue=28=29?=
-User-Agent: K-9 Mail for Android
-In-Reply-To: <CACGkJdtAmtxsPiKYUzLLmfNGf6oJ9YS-25ZY9VvEEWhz37Qx6Q@mail.gmail.com>
-References: <20250113170925.GA392@strace.io> <20250113171140.GC589@strace.io> <Z4hs0X8RhGTuevnn@ghost> <eecada37-9d0e-4e3c-9b70-fefb990835b2@zytor.com> <CACGkJdtAmtxsPiKYUzLLmfNGf6oJ9YS-25ZY9VvEEWhz37Qx6Q@mail.gmail.com>
-Message-ID: <B5D44A2A-BF4F-4EEA-992D-0A06F2AE08CA@zytor.com>
+        linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+        linux-um@lists.infradead.org, loongarch@lists.linux.dev,
+        x86@kernel.org
+Subject: Re: [PATCH v2 6/6] mm: Introduce ctor/dtor at PGD level
+Message-ID: <Z4/NTRDBXEEimdvc@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20250103184415.2744423-1-kevin.brodsky@arm.com>
+ <20250103184415.2744423-7-kevin.brodsky@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250103184415.2744423-7-kevin.brodsky@arm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: owdc1hfezV5r1qMyZ-PJv6g9U8L_bBb5
+X-Proofpoint-GUID: owdc1hfezV5r1qMyZ-PJv6g9U8L_bBb5
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-21_07,2025-01-21_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1011
+ lowpriorityscore=0 mlxlogscore=494 priorityscore=1501 bulkscore=0
+ spamscore=0 malwarescore=0 phishscore=0 suspectscore=0 mlxscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501210134
 
-On January 17, 2025 7:45:02 AM PST, Eugene Syromyatnikov <evgsyr@gmail=2Eco=
-m> wrote:
->On Fri, Jan 17, 2025 at 2:03=E2=80=AFAM H=2E Peter Anvin <hpa@zytor=2Ecom=
-> wrote:
->>
->> I link the concept of this patchset, but *please* make it clear in the
->> comments that this does not solve the issue of 64-bit kernel arguments
->> on 32-bit systems being ABI specific=2E
->
->Sorry, but I don't see how this is relevant; each architecture has its
->own ABI with its own set of peculiarities, and there's a lot of
->(completely unrelated) work needed in order to make an ABI that is
->architecture-agnostic=2E  All this patch set does is provides a
->consistent way to manipulate scno and args across architectures;  it
->doesn't address the fact that some architectures have mmap2/mmap_pgoff
->syscall, or that some have fadvise64_64 in addition to fadvise64, or
->the existence of clone2, or socketcall, or ipc; or that some
->architectures don't have open or stat;  or that scnos on different
->architectures or even different bit-widths within the "same"
->architecture are different=2E
->
->> This isn't unique to this patch in any way; the only way to handle it i=
-s
->> by keeping track of each ABI=2E
->
->That's true, but this patch doesn't even try to address that=2E
->
+On Fri, Jan 03, 2025 at 06:44:15PM +0000, Kevin Brodsky wrote:
 
-I just want it noted in the comment, that's all=2E
+Hi Kevin,
+...
+> diff --git a/arch/s390/include/asm/pgalloc.h b/arch/s390/include/asm/pgalloc.h
+> index 5fced6d3c36b..b19b6ed2ab53 100644
+> --- a/arch/s390/include/asm/pgalloc.h
+> +++ b/arch/s390/include/asm/pgalloc.h
+> @@ -130,11 +130,18 @@ static inline void pud_populate(struct mm_struct *mm, pud_t *pud, pmd_t *pmd)
+>  
+>  static inline pgd_t *pgd_alloc(struct mm_struct *mm)
+>  {
+> -	return (pgd_t *) crst_table_alloc(mm);
+> +	unsigned long *table = crst_table_alloc(mm);
+> +
+> +	if (!table)
+> +		return NULL;
+
+I do not know status of this series, but FWIW, this call is missed:
+
+	crst_table_init(table, _REGION1_ENTRY_EMPTY); 
+
+> +	pagetable_pgd_ctor(virt_to_ptdesc(table));
+> +
+> +	return (pgd_t *) table;
+>  }
+>  
+>  static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
+>  {
+> +	pagetable_dtor(virt_to_ptdesc(pgd));
+>  	crst_table_free(mm, (unsigned long *) pgd);
+>  }
+
+...
+
+Thanks!
