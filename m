@@ -1,488 +1,230 @@
-Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com [209.85.208.169])
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11687270ECC;
-	Tue, 18 Feb 2025 17:58:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BF6921B9F6
+	for <linux-openrisc@vger.kernel.org>; Tue, 18 Feb 2025 19:38:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739901483; cv=none; b=uh0iKtoOv22OvLHmQ/qcro+jcjL3g3kSKHSj35LfOl1yCOjdR+YW0nYvvv/L78rpIEZXaRh2ychOyR9DYKCt3hkWTri3PfVvT49O98J5etaZzqyVhz0BqQ1HYd9QdrTjSmDhziApJ5Bq0GIaqrqYizBaVJR0B+aihFe5lStTRTE=
+	t=1739907504; cv=none; b=gsyuAliG7KafP8ZDC4EEWULB9jcWm5on3/lMmnUi+9q5C/vqWgWujcA7Xk4IndNtS5KxpUYtkQIu/D5Mi2oyK/UXW4Chyh0heHGvfAT11GndyA9Aur6xzTBDtuwitVyZUnxmozNEckMZxLmWLF7rQ8VfjrfH3xt1TAXQ4l5vYLA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739901483; c=relaxed/simple;
-	bh=cJ4imszoCMKGeyB93XcE2Aj6dhlMiYYoTv2JhP4p0RI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Ujd0wjfF26FxlTjAJUTskn3esanNh2FBn6/XdnKMKG/w2J2jBZBm+A5W/65XZKc74Bo1wzq0oP/n++I6ad/6K/GYvc6i9xcehVImp87SAN85GKaEerniW+kU2NJ5LIiuasxnCZbf3akBaKPoDh0cykBbbi4biSJxOxmGhHUwl+c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BPKbgJ9m; arc=none smtp.client-ip=209.85.208.169
+	s=arc-20240116; t=1739907504; c=relaxed/simple;
+	bh=3jikLlntcNc2kC3I0SNXSrgZ4VwDKJT2mGrxtvuopZU=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=L0s4w3LjW9z51qk/ERy2xQKsDYugzs4p3dDYaVmybPZ/zBNIqF4p0YSII1hmWQvE/O2jJxJeDfUPgINWSe0b5kcjlvNK6yOyvaK9FEeJooWqJYknDFIfyBWukL7xoohZYcn4psyG51rQ88yWU15FUAM0mIfllllt4KXg87Zc7CY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PJTEh9xm; arc=none smtp.client-ip=209.85.214.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BPKbgJ9m"
-Received: by mail-lj1-f169.google.com with SMTP id 38308e7fff4ca-30930b0b420so30885581fa.2;
-        Tue, 18 Feb 2025 09:58:00 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PJTEh9xm"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-220c8cf98bbso119783805ad.1
+        for <linux-openrisc@vger.kernel.org>; Tue, 18 Feb 2025 11:38:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1739901479; x=1740506279; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=acUkvDOoPzVu8QFyEGbOwTRevnv3q6AoiZvxRlOpwJ0=;
-        b=BPKbgJ9mgdkE9QfhSG0RPPykXOldv+vaJvLmUYeH0HhgQLLss+5wKSPONCaQh7hKmK
-         8xx++Khjw1OdKYHOnNW4CBTTdM6+EYz7E9QSo6NG8D3du9L1nl3xeCt11wF/GxQfvVRO
-         mJF79vtYtk+UhVs13Tax6e46nKTMx6JACCNcJQLuUJAZxWfcQUqwW/58U4v15B3GOyRA
-         vaiYqsFD1gVxTw4xIOCX++ooilhaFXFV77cWeYavi2EXrc2rhoposNWzcAUX0i74UHuU
-         9s8JGBz6tPn+jKiGsKLS687eLHmNcTzkyGY6vPNJn0yk3FaVHKOfWQiVmI12e9GgnlGT
-         Z2JQ==
+        d=gmail.com; s=20230601; t=1739907502; x=1740512302; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :references:cc:to:from:subject:user-agent:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=+4trjz0NbWOm+KhCobvNX1N8QVXkCWujPPDfu/ya560=;
+        b=PJTEh9xmI1uJojUnKHfb08DA0ZLQcwcOZx2kiX1mzmD++VuIOWz0HzMAYFZOKo573G
+         ZKc5N4dQ29+HFCsup695icnW9jExe6rE5Xiri8dCUO5oEPdUjmrJcLl1iJfAPufPRWtG
+         GV2W+UDy5rfvN7YjhlxROCCY37NFakMzHSk0rNJS8qP/A/ujwttO2Lo+bfKxBGTjaN0V
+         2OzRfaxob0yyQL0cRQNgS1HHMQx9+FhLlgzX/RcU0W4X9RZ48Y8mBXFE9FnL+4jewVxN
+         11bcccfWm7FItcIoaOcToFCzsriW5WPnIo7k6VWPyGR/XtPFxBDE9QIsoZ1KPSrJiX8F
+         RdIQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739901479; x=1740506279;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=acUkvDOoPzVu8QFyEGbOwTRevnv3q6AoiZvxRlOpwJ0=;
-        b=D0YyEZgyCyVQq2GsREJWYnqRmi/KVHlQe5RFHPkpp3dsM0gzxYf/C/Q1alrl2Snz6S
-         zYbb9eC+cFq1zqv17DYkqtkS51w5osaLIoF+6sUMBtLYzIEsKuDYjeKpsSjnlv19u4wx
-         1VIJ5opIOZmJvjehHYQ4xGHKFpYuSuyvkfIvAs1u5/S//Zmrk6nONKa4uYFAs4+FbMYQ
-         uiZ1U/aASdmtKyPV1bX2KEm09dV+tcVNTXcVCJS6UEbnE9v8OemmXAHwUbBjzY93her4
-         4EwWteV9GCrhI01rrjYV/vrVETDHuagSSwulJa/ETkczzAK7qXJf1Ex1aLhAbJsqld/k
-         rvoA==
-X-Forwarded-Encrypted: i=1; AJvYcCUAjdk0HofreJd8KUjYGPuUwepGgG8LafGPqBFKNaeJF9pBITsBfv4zgMetz9o0RKGDwKfzOb3TTeMe9Q==@vger.kernel.org, AJvYcCUNxzvJTYB8sLLtVZQMhZLmt8DuFZc6yahZKSWdVRGw9VFt2KEF1ebT2vUNgKMQcYbpcO7VkcF8Ftk=@vger.kernel.org, AJvYcCUo5iI5hqQN8Hs2JLsJNAWBNuOLxzavC3XWldA9OaTxUQRwp7XODk2XC/kfUdeqOLJE0cmyI3EE0X4XIg==@vger.kernel.org, AJvYcCV9HyJkaAVhD1cRcaP/Wp7UjiBMABG8yOjAUSdvTIciNmn+x0eYCKyF8R7vxmMvXqDv7wY/jG+oyqCQ6g==@vger.kernel.org, AJvYcCVZrqPUpskq33R0rq76pyDg4mATqPVo0cNzbImRcDkB9eBCaFNOCRSk9ZZJLHMvowFkjqBxrgm3sfr1CA==@vger.kernel.org, AJvYcCVfoHNme5wjPcl70RlD5jjPdcT5pgWI7TyKjElqaDTutZfI2uzC1YIMWnzzUGLzULOOiHky7h0yALjb0lAQpK0=@vger.kernel.org, AJvYcCWFKbYs9M88WuS25g/F7NRAY6rOCKOCAgvPVybB67qCuE3pN7WbGWuBpAcPOB/Dtl41NskuIf94FW3Y78/Y@vger.kernel.org, AJvYcCWVQWBKs2D+//JiRhIhElyjAbGMu5FZ7ReK7Ti61N5dryqrrGD9skG/UsK62GhZ6O0nmgJC9+E9g83bS2Zr@vger.kernel.org, AJvYcCWbtoV2rtNwMZ3U3k0oNw00MZrzVTXmHx51FdJe+cQ0oSJCQGSa/WxMeVWtyNZcwLTDUjOxliEcGKJo0lX/gw==@vger.kernel.org, AJvYcCXTGaDGWi9AgTwQ7IdE6xxvUvPi8VwTdIsyhSAOmebaxe4DhXiPY8fMDJfIwhsAFIaFDkpwRXAmq20y3g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwduN8PKL9nNPV371LVow6uLSNnPJLC5KxCVM8dpR1wIs7CXYKH
-	rFK6Fcmc3Wzdst9njEJQuvcCScf6kjdcsVgL65xthdpS+bbx5BrZ/PpZ9EYz
-X-Gm-Gg: ASbGncv2eTT6572Ncx3s9I/v38/55tJn0BZIg/N29ok7z9WA7haonvVndIxcWjnKsxR
-	uuM34LrjshtC8J5fu1D1HK+a0cIYxs0mY+W1JNd+H/VIYpFyR379Ua554VeBgArouYlbZSRstC/
-	yK4ONI8qGCy/fhyGkUD2pg1nM59ipt0WHaNWtJ4KNh+jL8ely1XTDGp5CHc4FS+ljCI8rkMha9i
-	5fCCVav3FY/DS9t/67dtk/kvgj4PW2+bplFDA2urSBbwDd7StOp1cATsVqgSQZyoTCMZF9nHHuN
-	Sp6pWd2uw7jV4FLDgYJxQWWjiLAB60Ud5atVJK4NDqIavuikyWl+uJfobHo4yw==
-X-Google-Smtp-Source: AGHT+IEGlkLPaex5Nk+m7WgXIuMgOlltIYpcbCZK41uHBEuu20+yIMUmFVs0CaJEx31B2yiq1Zo5ew==
-X-Received: by 2002:a05:6512:33cd:b0:540:1b07:e033 with SMTP id 2adb3069b0e04-5462ef2373cmr237152e87.45.1739901478771;
-        Tue, 18 Feb 2025 09:57:58 -0800 (PST)
-Received: from es40.darklands.se (h-94-254-104-176.A469.priv.bahnhof.se. [94.254.104.176])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-545254f7072sm1709286e87.127.2025.02.18.09.57.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Feb 2025 09:57:58 -0800 (PST)
-From: Magnus Lindholm <linmag7@gmail.com>
-To: linmag7@gmail.com,
-	richard.henderson@linaro.org,
-	mattst88@gmail.com,
-	glaubitz@physik.fu-berlin.de,
-	ink@unseen.parts,
-	kees@kernel.org,
-	arnd@arndb.de,
-	linux-kernel@vger.kernel.org,
-	linux-alpha@vger.kernel.org
-Cc: chris@zankel.net,
-	dinguyen@kernel.org,
-	jcmvbkbc@gmail.com,
-	linux-arm-kernel@lists.infradead.org,
-	linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	linux-sh@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-um@lists.infradead.org,
-	loongarch@lists.linux.dev,
-	monstr@monstr.eu,
-	sparclinux@vger.kernel.org,
-	x86@kernel.org
-Subject: [PATCH v2 1/1] mm: pgtable: fix pte_swp_exclusive
-Date: Tue, 18 Feb 2025 18:55:14 +0100
-Message-ID: <20250218175735.19882-2-linmag7@gmail.com>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20250218175735.19882-1-linmag7@gmail.com>
-References: <20250218175735.19882-1-linmag7@gmail.com>
+        d=1e100.net; s=20230601; t=1739907502; x=1740512302;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :references:cc:to:from:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=+4trjz0NbWOm+KhCobvNX1N8QVXkCWujPPDfu/ya560=;
+        b=qknEr9PIL98dMARxWW6bB/loH1Xn6NYjYUnNbDZiU/CFhzNXI95UQGBwsTGHBqRA9i
+         y5HrpAqH78YWKu982iVfOWXG2GQ+32lUwnOIjgwXaPSe7wwUicjsbVXhS9fyT38P41Js
+         EYuOjQS12PZc9G94KAUwlPGsD0tWQYi+CN3WVXEFwmXNi0/mp7lC5rxUBERbkPLcTRYI
+         tZhIEhTXAUL5PsLr3oD5kafR0REXJKWRG5n+37x2QP1gQNez/pbnVZkXobDoTqTr+38Z
+         DZszcRVPEE5L2iOy1hImdP/P0HnfR3DhP2k5yqXlc+z6hE9Acbb51GEVdlcWjpxjGe2s
+         C64Q==
+X-Gm-Message-State: AOJu0YzzCCI3nQixf/ZvVRY65GqZPHByrMdgBpN4B9hi56v4/j4NAtui
+	g29jVJBy/swEK8CkUSV8DHIX7ODB52WkV0gPYfg0PO6GABjZpqkfMy2b0w==
+X-Gm-Gg: ASbGncswAOLWx0fvXFmZJ9w2ZrROQnLCaBhUJjHXkXscxCT+EL1UXPb9XakOoi/kYYr
+	4Kn0YDo/r71KeraPQX3TZDSJoXpYcOhxst/oLkFa2r+Ww1iILqRUjOYD0tl+uv1LlLXXJKPRV58
+	nta9VgZvNVyuYH1KYNNs0s4l4y8b6HShDzIc0aPBPiZOhXgxWNiPI4ppEdi6ovqal0VzLTvBAow
+	+TiE/kKwjk4sMDJUdkEBHXlja/IURbZ5JSuIWCGrYi+J6IS++t07XTc2z2MkbEoqAL+PQLnDur1
+	yuIwrhsE2PnLdR4LZAOl2u2Nb/pGnIJX8hWc/b/LdrGwKowDw8qBTkT0
+X-Google-Smtp-Source: AGHT+IGyt+kMlykSA/xQNvC+hJzFtYtb1mRSFCF4M8qVnXrMCfl6TN6ZTCb7GsJe/NlXZKvGwFEaiQ==
+X-Received: by 2002:a05:6a00:99a:b0:730:888a:251d with SMTP id d2e1a72fcca58-7326190c58emr24560078b3a.20.1739907502166;
+        Tue, 18 Feb 2025 11:38:22 -0800 (PST)
+Received: from ?IPV6:2401:4900:1c43:14e:b774:f226:fbad:d915? ([2401:4900:1c43:14e:b774:f226:fbad:d915])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7326d58d4d0sm6153580b3a.94.2025.02.18.11.38.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 18 Feb 2025 11:38:21 -0800 (PST)
+Message-ID: <b6ba7708-6c4d-41df-b057-9f92b4e938f9@gmail.com>
+Date: Wed, 19 Feb 2025 01:08:18 +0530
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: Queries regarding OpenRISC CPU cache
+From: Sahil Siddiq <icegambit91@gmail.com>
+To: Stafford Horne <shorne@gmail.com>
+Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>
+References: <2613c1c6-2a2f-4ceb-8adb-f819961ec61f@gmail.com>
+ <Z4NvBPYCkz12k0-1@antec> <d7c3ecb8-1838-4271-be90-fa7b344356fe@gmail.com>
+ <Z4SzVtTIuVN7gsX8@antec> <1052b18b-7524-49b4-8ac2-22031bf90d4b@gmail.com>
+ <Z5STI5WUqCXPwcNF@antec> <ae00d43a-f8bb-4919-8ee1-079a30bc6f42@gmail.com>
+ <d789bca7-0266-44e1-bc36-966a70adcf26@gmail.com>
+Content-Language: en-US
+Autocrypt: addr=icegambit91@gmail.com; keydata=
+ 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
+ rPgMe6IIvn24UuW2f6fIt0AaqOWq
+In-Reply-To: <d789bca7-0266-44e1-bc36-966a70adcf26@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-Make pte_swp_exclusive return bool instead of int. This will better reflect
-how pte_swp_exclusive is actually used in the code. This fixes swap/swapoff
-problems on Alpha due pte_swp_exclusive not returning correct values when
-_PAGE_SWP_EXCLUSIVE bit resides in upper 32-bits of PTE (like on alpha).
+Hi,
 
-Signed-off-by: Magnus Lindholm <linmag7@gmail.com>
----
- arch/alpha/include/asm/pgtable.h             | 2 +-
- arch/arc/include/asm/pgtable-bits-arcv2.h    | 2 +-
- arch/arm/include/asm/pgtable.h               | 2 +-
- arch/arm64/include/asm/pgtable.h             | 2 +-
- arch/csky/include/asm/pgtable.h              | 2 +-
- arch/hexagon/include/asm/pgtable.h           | 2 +-
- arch/loongarch/include/asm/pgtable.h         | 2 +-
- arch/m68k/include/asm/mcf_pgtable.h          | 2 +-
- arch/m68k/include/asm/motorola_pgtable.h     | 2 +-
- arch/m68k/include/asm/sun3_pgtable.h         | 2 +-
- arch/microblaze/include/asm/pgtable.h        | 2 +-
- arch/mips/include/asm/pgtable.h              | 4 ++--
- arch/nios2/include/asm/pgtable.h             | 2 +-
- arch/openrisc/include/asm/pgtable.h          | 2 +-
- arch/parisc/include/asm/pgtable.h            | 2 +-
- arch/powerpc/include/asm/book3s/32/pgtable.h | 2 +-
- arch/powerpc/include/asm/book3s/64/pgtable.h | 2 +-
- arch/powerpc/include/asm/nohash/pgtable.h    | 2 +-
- arch/riscv/include/asm/pgtable.h             | 2 +-
- arch/s390/include/asm/pgtable.h              | 2 +-
- arch/sh/include/asm/pgtable_32.h             | 2 +-
- arch/sparc/include/asm/pgtable_32.h          | 2 +-
- arch/sparc/include/asm/pgtable_64.h          | 2 +-
- arch/um/include/asm/pgtable.h                | 2 +-
- arch/x86/include/asm/pgtable.h               | 2 +-
- arch/xtensa/include/asm/pgtable.h            | 2 +-
- 26 files changed, 27 insertions(+), 27 deletions(-)
+On 2/12/25 8:59 PM, Sahil Siddiq wrote:
+> Hi,
+> 
+> I have started working on implementing cacheinfo support for OpenRISC, and
+> I have got a few queries.
+> 
+> Q1.
+> Does OpenRISC support multilevel cache hierarchy? I couldn't find anything
+> in the architecture manual [1] mentioning the possibility of a multilevel
+> cache hierarchy. I wasn't able to find anything in the verilog implementation
+> either [2].
+> 
+> Q2.
+> In /sys/devices/system/cpu/cpuX/cache, each indexY directory corresponds
+> to a CPU cache. According to the OpenRISC 1000 Architecture specification [1],
+> it is possible to have a unified cache. In such a case, registers controlling
+> the instruction and data cache represent the same thing (section 9.1 of the
+> manual).
+> 
+> Consequently, should there be only one index (i.e. index0), or should there
+> be 2 index directories (index0 and index1) with identical content? If aunified
+> cache is used, will the DCP and ICP bits both be set in the UPR register?
+> 
+> Q3.
+> Cache-related arithmetic performed in arch/openrisc/kernel/setup.c:setup_cpuinfo() [3]
+> cannot be avoided. But we can expose this info in sysfs instead of cpuinfo as
+> specified in this mail [4]. So, I was thinking of moving these calculations to
+> arch/openrisc/kernel/cacheinfo.c in init_cache_level().
+> 
+> What are your thoughts on this?
+> 
+> Another thing I noticed in the current implementation is that these calculations
+> are performed for icache and dcache before using the UPR register to check if
+> they even exist. Should these calculations instead be performed after determining
+> that they exist?
+> [...]
 
-diff --git a/arch/alpha/include/asm/pgtable.h b/arch/alpha/include/asm/pgtable.h
-index 02e8817a8921..b0870de4b5b8 100644
---- a/arch/alpha/include/asm/pgtable.h
-+++ b/arch/alpha/include/asm/pgtable.h
-@@ -334,7 +334,7 @@ extern inline pte_t mk_swap_pte(unsigned long type, unsigned long offset)
- #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) })
- #define __swp_entry_to_pte(x)	((pte_t) { (x).val })
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/arc/include/asm/pgtable-bits-arcv2.h b/arch/arc/include/asm/pgtable-bits-arcv2.h
-index 8ebec1b21d24..3084c53f402d 100644
---- a/arch/arc/include/asm/pgtable-bits-arcv2.h
-+++ b/arch/arc/include/asm/pgtable-bits-arcv2.h
-@@ -130,7 +130,7 @@ void update_mmu_cache_range(struct vm_fault *vmf, struct vm_area_struct *vma,
- #define __pte_to_swp_entry(pte)		((swp_entry_t) { pte_val(pte) })
- #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/arm/include/asm/pgtable.h b/arch/arm/include/asm/pgtable.h
-index be91e376df79..aa4f3f71789c 100644
---- a/arch/arm/include/asm/pgtable.h
-+++ b/arch/arm/include/asm/pgtable.h
-@@ -303,7 +303,7 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
- #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) })
- #define __swp_entry_to_pte(swp)	__pte((swp).val)
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_isset(pte, L_PTE_SWP_EXCLUSIVE);
- }
-diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
-index 0b2a2ad1b9e8..b48b70d8d12d 100644
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -496,7 +496,7 @@ static inline pte_t pte_swp_mkexclusive(pte_t pte)
- 	return set_pte_bit(pte, __pgprot(PTE_SWP_EXCLUSIVE));
- }
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & PTE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/csky/include/asm/pgtable.h b/arch/csky/include/asm/pgtable.h
-index a397e1718ab6..e68722eb33d9 100644
---- a/arch/csky/include/asm/pgtable.h
-+++ b/arch/csky/include/asm/pgtable.h
-@@ -200,7 +200,7 @@ static inline pte_t pte_mkyoung(pte_t pte)
- 	return pte;
- }
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/hexagon/include/asm/pgtable.h b/arch/hexagon/include/asm/pgtable.h
-index 8c5b7a1c3d90..fa007eb9aad3 100644
---- a/arch/hexagon/include/asm/pgtable.h
-+++ b/arch/hexagon/include/asm/pgtable.h
-@@ -390,7 +390,7 @@ static inline unsigned long pmd_page_vaddr(pmd_t pmd)
- 		(((type & 0x1f) << 1) | \
- 		 ((offset & 0x3ffff8) << 10) | ((offset & 0x7) << 7)) })
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/loongarch/include/asm/pgtable.h b/arch/loongarch/include/asm/pgtable.h
-index da346733a1da..bac946693d87 100644
---- a/arch/loongarch/include/asm/pgtable.h
-+++ b/arch/loongarch/include/asm/pgtable.h
-@@ -302,7 +302,7 @@ static inline pte_t mk_swap_pte(unsigned long type, unsigned long offset)
- #define __pmd_to_swp_entry(pmd) ((swp_entry_t) { pmd_val(pmd) })
- #define __swp_entry_to_pmd(x)	((pmd_t) { (x).val | _PAGE_HUGE })
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/m68k/include/asm/mcf_pgtable.h b/arch/m68k/include/asm/mcf_pgtable.h
-index 48f87a8a8832..7e9748b29c44 100644
---- a/arch/m68k/include/asm/mcf_pgtable.h
-+++ b/arch/m68k/include/asm/mcf_pgtable.h
-@@ -274,7 +274,7 @@ extern pgd_t kernel_pg_dir[PTRS_PER_PGD];
- #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) })
- #define __swp_entry_to_pte(x)	(__pte((x).val))
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/m68k/include/asm/motorola_pgtable.h b/arch/m68k/include/asm/motorola_pgtable.h
-index 9866c7acdabe..26da9b985c5f 100644
---- a/arch/m68k/include/asm/motorola_pgtable.h
-+++ b/arch/m68k/include/asm/motorola_pgtable.h
-@@ -191,7 +191,7 @@ extern pgd_t kernel_pg_dir[128];
- #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) })
- #define __swp_entry_to_pte(x)	((pte_t) { (x).val })
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/m68k/include/asm/sun3_pgtable.h b/arch/m68k/include/asm/sun3_pgtable.h
-index 30081aee8164..ac0793f57f31 100644
---- a/arch/m68k/include/asm/sun3_pgtable.h
-+++ b/arch/m68k/include/asm/sun3_pgtable.h
-@@ -175,7 +175,7 @@ extern pgd_t kernel_pg_dir[PTRS_PER_PGD];
- #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) })
- #define __swp_entry_to_pte(x)	((pte_t) { (x).val })
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/microblaze/include/asm/pgtable.h b/arch/microblaze/include/asm/pgtable.h
-index e4ea2ec3642f..b281c2bbd6c0 100644
---- a/arch/microblaze/include/asm/pgtable.h
-+++ b/arch/microblaze/include/asm/pgtable.h
-@@ -406,7 +406,7 @@ extern pgd_t swapper_pg_dir[PTRS_PER_PGD];
- #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) >> 2 })
- #define __swp_entry_to_pte(x)	((pte_t) { (x).val << 2 })
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/mips/include/asm/pgtable.h b/arch/mips/include/asm/pgtable.h
-index c29a551eb0ca..c19da4ab7552 100644
---- a/arch/mips/include/asm/pgtable.h
-+++ b/arch/mips/include/asm/pgtable.h
-@@ -540,7 +540,7 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
- #endif
- 
- #if defined(CONFIG_PHYS_ADDR_T_64BIT) && defined(CONFIG_CPU_MIPS32)
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte.pte_low & _PAGE_SWP_EXCLUSIVE;
- }
-@@ -557,7 +557,7 @@ static inline pte_t pte_swp_clear_exclusive(pte_t pte)
- 	return pte;
- }
- #else
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/nios2/include/asm/pgtable.h b/arch/nios2/include/asm/pgtable.h
-index eab87c6beacb..64ce06bae8ac 100644
---- a/arch/nios2/include/asm/pgtable.h
-+++ b/arch/nios2/include/asm/pgtable.h
-@@ -265,7 +265,7 @@ static inline unsigned long pmd_page_vaddr(pmd_t pmd)
- #define __swp_entry_to_pte(swp)	((pte_t) { (swp).val })
- #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) })
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/openrisc/include/asm/pgtable.h b/arch/openrisc/include/asm/pgtable.h
-index 60c6ce7ff2dc..34cad9177a48 100644
---- a/arch/openrisc/include/asm/pgtable.h
-+++ b/arch/openrisc/include/asm/pgtable.h
-@@ -413,7 +413,7 @@ static inline void update_mmu_cache_range(struct vm_fault *vmf,
- #define __pte_to_swp_entry(pte)		((swp_entry_t) { pte_val(pte) })
- #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/parisc/include/asm/pgtable.h b/arch/parisc/include/asm/pgtable.h
-index babf65751e81..dfeba45b6d6f 100644
---- a/arch/parisc/include/asm/pgtable.h
-+++ b/arch/parisc/include/asm/pgtable.h
-@@ -431,7 +431,7 @@ static inline void set_ptes(struct mm_struct *mm, unsigned long addr,
- #define __pte_to_swp_entry(pte)		((swp_entry_t) { pte_val(pte) })
- #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/powerpc/include/asm/book3s/32/pgtable.h b/arch/powerpc/include/asm/book3s/32/pgtable.h
-index 42c3af90d1f0..92d21c6faf1e 100644
---- a/arch/powerpc/include/asm/book3s/32/pgtable.h
-+++ b/arch/powerpc/include/asm/book3s/32/pgtable.h
-@@ -365,7 +365,7 @@ static inline void __ptep_set_access_flags(struct vm_area_struct *vma,
- #define __pte_to_swp_entry(pte)		((swp_entry_t) { pte_val(pte) >> 3 })
- #define __swp_entry_to_pte(x)		((pte_t) { (x).val << 3 })
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/powerpc/include/asm/book3s/64/pgtable.h b/arch/powerpc/include/asm/book3s/64/pgtable.h
-index 6d98e6f08d4d..dbf772bef20d 100644
---- a/arch/powerpc/include/asm/book3s/64/pgtable.h
-+++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
-@@ -693,7 +693,7 @@ static inline pte_t pte_swp_mkexclusive(pte_t pte)
- 	return __pte_raw(pte_raw(pte) | cpu_to_be64(_PAGE_SWP_EXCLUSIVE));
- }
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return !!(pte_raw(pte) & cpu_to_be64(_PAGE_SWP_EXCLUSIVE));
- }
-diff --git a/arch/powerpc/include/asm/nohash/pgtable.h b/arch/powerpc/include/asm/nohash/pgtable.h
-index 8d1f0b7062eb..7d6b9e5b286e 100644
---- a/arch/powerpc/include/asm/nohash/pgtable.h
-+++ b/arch/powerpc/include/asm/nohash/pgtable.h
-@@ -286,7 +286,7 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
- 	return __pte((pte_val(pte) & _PAGE_CHG_MASK) | pgprot_val(newprot));
- }
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index 050fdc49b5ad..433c78c44e02 100644
---- a/arch/riscv/include/asm/pgtable.h
-+++ b/arch/riscv/include/asm/pgtable.h
-@@ -880,7 +880,7 @@ extern pmd_t pmdp_collapse_flush(struct vm_area_struct *vma,
- #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) })
- #define __swp_entry_to_pte(x)	((pte_t) { (x).val })
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 3ca5af4cfe43..cb86dbf7126a 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -913,7 +913,7 @@ static inline int pmd_protnone(pmd_t pmd)
- }
- #endif
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/sh/include/asm/pgtable_32.h b/arch/sh/include/asm/pgtable_32.h
-index f939f1215232..5f221f3269e3 100644
---- a/arch/sh/include/asm/pgtable_32.h
-+++ b/arch/sh/include/asm/pgtable_32.h
-@@ -478,7 +478,7 @@ static inline unsigned long pmd_page_vaddr(pmd_t pmd)
- /* In both cases, we borrow bit 6 to store the exclusive marker in swap PTEs. */
- #define _PAGE_SWP_EXCLUSIVE	_PAGE_USER
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte.pte_low & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/sparc/include/asm/pgtable_32.h b/arch/sparc/include/asm/pgtable_32.h
-index 62bcafe38b1f..0362f8357371 100644
---- a/arch/sparc/include/asm/pgtable_32.h
-+++ b/arch/sparc/include/asm/pgtable_32.h
-@@ -353,7 +353,7 @@ static inline swp_entry_t __swp_entry(unsigned long type, unsigned long offset)
- #define __pte_to_swp_entry(pte)		((swp_entry_t) { pte_val(pte) })
- #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & SRMMU_SWP_EXCLUSIVE;
- }
-diff --git a/arch/sparc/include/asm/pgtable_64.h b/arch/sparc/include/asm/pgtable_64.h
-index 2b7f358762c1..65e53491fe07 100644
---- a/arch/sparc/include/asm/pgtable_64.h
-+++ b/arch/sparc/include/asm/pgtable_64.h
-@@ -1027,7 +1027,7 @@ pgtable_t pgtable_trans_huge_withdraw(struct mm_struct *mm, pmd_t *pmdp);
- #define __pte_to_swp_entry(pte)		((swp_entry_t) { pte_val(pte) })
- #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/um/include/asm/pgtable.h b/arch/um/include/asm/pgtable.h
-index 5601ca98e8a6..c32309614a15 100644
---- a/arch/um/include/asm/pgtable.h
-+++ b/arch/um/include/asm/pgtable.h
-@@ -316,7 +316,7 @@ extern pte_t *virt_to_pte(struct mm_struct *mm, unsigned long addr);
- 	((swp_entry_t) { pte_val(pte_mkuptodate(pte)) })
- #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_get_bits(pte, _PAGE_SWP_EXCLUSIVE);
- }
-diff --git a/arch/x86/include/asm/pgtable.h b/arch/x86/include/asm/pgtable.h
-index 593f10aabd45..4c7ce40023d3 100644
---- a/arch/x86/include/asm/pgtable.h
-+++ b/arch/x86/include/asm/pgtable.h
-@@ -1586,7 +1586,7 @@ static inline pte_t pte_swp_mkexclusive(pte_t pte)
- 	return pte_set_flags(pte, _PAGE_SWP_EXCLUSIVE);
- }
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_flags(pte) & _PAGE_SWP_EXCLUSIVE;
- }
-diff --git a/arch/xtensa/include/asm/pgtable.h b/arch/xtensa/include/asm/pgtable.h
-index 1647a7cc3fbf..6da0aa0604f1 100644
---- a/arch/xtensa/include/asm/pgtable.h
-+++ b/arch/xtensa/include/asm/pgtable.h
-@@ -355,7 +355,7 @@ ptep_set_wrprotect(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
- #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) })
- #define __swp_entry_to_pte(x)	((pte_t) { (x).val })
- 
--static inline int pte_swp_exclusive(pte_t pte)
-+static inline bool pte_swp_exclusive(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
- }
--- 
-2.48.1
+Building on my previous mail, I noticed another thing:
 
+On 1/25/25 1:00 PM, Stafford Horne wrote:
+> On my x86 machine I see:
+> 
+>      $ tree /sys/devices/system/cpu/cpu0/cache/
+>      /sys/devices/system/cpu/cpu0/cache/
+>      ├── index0
+>      │   ├── coherency_line_size
+>      │   ├── id
+>      │   ├── level
+>      │   ├── number_of_sets
+>      │   ├── physical_line_partition
+>      │   ├── shared_cpu_list
+> 
+> On or1k I only see (no cache info yet):
+> 
+>      $ tree /sys/devices/system/cpu/cpu0/
+>      /sys/devices/system/cpu/cpu0/
+>      |-- of_node -> ../../../../firmware/devicetree/base/cpus/cpu@0
+>      |-- subsystem -> ../../../../bus/cpu
+>      |-- topology
+>      |   |-- core_cpus
+>      |   |-- core_cpus_list
+>      |   |-- core_id
+>      |   |-- core_siblings
+>      |   |-- core_siblings_list
+>      |   |-- package_cpus
+>      |   |-- package_cpus_list
+>      |   |-- physical_package_id
+>      |   |-- thread_siblings
+>      |   `-- thread_siblings_list
+>      `-- uevent
+> 
+> But we do have some cache info available via cpuinfo:
+> 
+>      $ cat /proc/cpuinfo | head -n16
+>      processor               : 0
+>      cpu                     : OpenRISC-13
+>      revision                : 8
+>      frequency               : 20000000
+>      dcache size             : 256 bytes
+>      dcache block size       : 16 bytes
+>      dcache ways             : 1
+>      icache size             : 32 bytes
+>      icache block size       : 16 bytes
+>      icache ways             : 2
+>      immu                    : 128 entries, 1 ways
+>      dmmu                    : 128 entries, 1 ways
+>      bogomips                : 40.00
+>      features                : orbis32  orfpx32
+> 
+
+While I can see icache and dcache info in /proc/cpuinfo, dmesg reports
+that the caches have been disabled.
+
+OF: reserved mem: Reserved memory: No reserved-memory node in the DT
+CPU: OpenRISC-13 (revision 8) @20 MHz
+-- dcache disabled
+-- icache disabled
+-- dmmu:  128 entries, 1 way(s)
+-- immu:  128 entries, 1 way(s)
+-- additional features:
+-- power management
+-- PIC
+-- timer
+
+This is because the value of upr is 0x719 and the value of SPR_UPR_DCP is
+0x2. ANDing both values gives 0 which, according to the arch manual [1], means
+there's no dcache. The same thing applies to icache.
+
+Thanks,
+Sahil
+
+[1] https://raw.githubusercontent.com/openrisc/doc/master/openrisc-arch-1.4-rev0.pdf (Section 16.3)
