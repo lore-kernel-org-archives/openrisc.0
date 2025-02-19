@@ -1,230 +1,505 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BF6921B9F6
-	for <linux-openrisc@vger.kernel.org>; Tue, 18 Feb 2025 19:38:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF0C31DE896;
+	Wed, 19 Feb 2025 10:57:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739907504; cv=none; b=gsyuAliG7KafP8ZDC4EEWULB9jcWm5on3/lMmnUi+9q5C/vqWgWujcA7Xk4IndNtS5KxpUYtkQIu/D5Mi2oyK/UXW4Chyh0heHGvfAT11GndyA9Aur6xzTBDtuwitVyZUnxmozNEckMZxLmWLF7rQ8VfjrfH3xt1TAXQ4l5vYLA=
+	t=1739962627; cv=none; b=NULkBV2qwe95AsO8q+0LWNeRP0jWi8lomwvawj/BmSOawnFyk0OB/zMf5QgLypkaayDKcfT4cF0Y2hMwqhpViNeOaa+mw+TiC8GyAwcjAelu2MJ5Isi+VM3wauiyWMbxPjyRZZEmO8vSRKfzktpQBOjgbvL47L2RdSyhxZGLrcU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739907504; c=relaxed/simple;
-	bh=3jikLlntcNc2kC3I0SNXSrgZ4VwDKJT2mGrxtvuopZU=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=L0s4w3LjW9z51qk/ERy2xQKsDYugzs4p3dDYaVmybPZ/zBNIqF4p0YSII1hmWQvE/O2jJxJeDfUPgINWSe0b5kcjlvNK6yOyvaK9FEeJooWqJYknDFIfyBWukL7xoohZYcn4psyG51rQ88yWU15FUAM0mIfllllt4KXg87Zc7CY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PJTEh9xm; arc=none smtp.client-ip=209.85.214.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1739962627; c=relaxed/simple;
+	bh=luKAxHsvrVJI3rjvtCOJTo+55XyMmeRCwJO3mKY+DZs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=cxQDGzcwruVXYoXMByNPh/UlKsu0NGTIreXaYCbly4ZFMC8/RbAYNnw6K3zth35mkIzQ5pK3cczhtmzloLVoiRMSM7eirw9Jp0iL0tzeOOhw5QDVlwEGZStBMYKSKFZutvwvP7+URd34jZwiHMru4N9K1YkkUwvFBRqeFMN9v98=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=RfHqzYxe; arc=none smtp.client-ip=65.109.113.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PJTEh9xm"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-220c8cf98bbso119783805ad.1
-        for <linux-openrisc@vger.kernel.org>; Tue, 18 Feb 2025 11:38:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1739907502; x=1740512302; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :references:cc:to:from:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=+4trjz0NbWOm+KhCobvNX1N8QVXkCWujPPDfu/ya560=;
-        b=PJTEh9xmI1uJojUnKHfb08DA0ZLQcwcOZx2kiX1mzmD++VuIOWz0HzMAYFZOKo573G
-         ZKc5N4dQ29+HFCsup695icnW9jExe6rE5Xiri8dCUO5oEPdUjmrJcLl1iJfAPufPRWtG
-         GV2W+UDy5rfvN7YjhlxROCCY37NFakMzHSk0rNJS8qP/A/ujwttO2Lo+bfKxBGTjaN0V
-         2OzRfaxob0yyQL0cRQNgS1HHMQx9+FhLlgzX/RcU0W4X9RZ48Y8mBXFE9FnL+4jewVxN
-         11bcccfWm7FItcIoaOcToFCzsriW5WPnIo7k6VWPyGR/XtPFxBDE9QIsoZ1KPSrJiX8F
-         RdIQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739907502; x=1740512302;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :references:cc:to:from:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=+4trjz0NbWOm+KhCobvNX1N8QVXkCWujPPDfu/ya560=;
-        b=qknEr9PIL98dMARxWW6bB/loH1Xn6NYjYUnNbDZiU/CFhzNXI95UQGBwsTGHBqRA9i
-         y5HrpAqH78YWKu982iVfOWXG2GQ+32lUwnOIjgwXaPSe7wwUicjsbVXhS9fyT38P41Js
-         EYuOjQS12PZc9G94KAUwlPGsD0tWQYi+CN3WVXEFwmXNi0/mp7lC5rxUBERbkPLcTRYI
-         tZhIEhTXAUL5PsLr3oD5kafR0REXJKWRG5n+37x2QP1gQNez/pbnVZkXobDoTqTr+38Z
-         DZszcRVPEE5L2iOy1hImdP/P0HnfR3DhP2k5yqXlc+z6hE9Acbb51GEVdlcWjpxjGe2s
-         C64Q==
-X-Gm-Message-State: AOJu0YzzCCI3nQixf/ZvVRY65GqZPHByrMdgBpN4B9hi56v4/j4NAtui
-	g29jVJBy/swEK8CkUSV8DHIX7ODB52WkV0gPYfg0PO6GABjZpqkfMy2b0w==
-X-Gm-Gg: ASbGncswAOLWx0fvXFmZJ9w2ZrROQnLCaBhUJjHXkXscxCT+EL1UXPb9XakOoi/kYYr
-	4Kn0YDo/r71KeraPQX3TZDSJoXpYcOhxst/oLkFa2r+Ww1iILqRUjOYD0tl+uv1LlLXXJKPRV58
-	nta9VgZvNVyuYH1KYNNs0s4l4y8b6HShDzIc0aPBPiZOhXgxWNiPI4ppEdi6ovqal0VzLTvBAow
-	+TiE/kKwjk4sMDJUdkEBHXlja/IURbZ5JSuIWCGrYi+J6IS++t07XTc2z2MkbEoqAL+PQLnDur1
-	yuIwrhsE2PnLdR4LZAOl2u2Nb/pGnIJX8hWc/b/LdrGwKowDw8qBTkT0
-X-Google-Smtp-Source: AGHT+IGyt+kMlykSA/xQNvC+hJzFtYtb1mRSFCF4M8qVnXrMCfl6TN6ZTCb7GsJe/NlXZKvGwFEaiQ==
-X-Received: by 2002:a05:6a00:99a:b0:730:888a:251d with SMTP id d2e1a72fcca58-7326190c58emr24560078b3a.20.1739907502166;
-        Tue, 18 Feb 2025 11:38:22 -0800 (PST)
-Received: from ?IPV6:2401:4900:1c43:14e:b774:f226:fbad:d915? ([2401:4900:1c43:14e:b774:f226:fbad:d915])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7326d58d4d0sm6153580b3a.94.2025.02.18.11.38.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 18 Feb 2025 11:38:21 -0800 (PST)
-Message-ID: <b6ba7708-6c4d-41df-b057-9f92b4e938f9@gmail.com>
-Date: Wed, 19 Feb 2025 01:08:18 +0530
+	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="RfHqzYxe"
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id 1C20F40E01AD;
+	Wed, 19 Feb 2025 10:57:00 +0000 (UTC)
+X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
+Received: from mail.alien8.de ([127.0.0.1])
+	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
+	with ESMTP id MuhRjJG8dSVG; Wed, 19 Feb 2025 10:56:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
+	t=1739962615; bh=fzmVeMolHHfNK8MWJfns5nr6CAxpqySaRGO9y0S6Ies=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=RfHqzYxeNSeAwm0yBKkt3BFRT6WwRDtGptKKmYYtod2NbMtpM8bqaE4Am0115gKQq
+	 s6bzbi/QMuXqHH4rIsMbHnfyyDb/DMMnBqunn967EXG3HP4Vb787URNEAt2Jv4Wifz
+	 hjADK77YpGhp1s3RFjOLF/gYxWNONBAJagKefBNWITn6NJ0eYEU+ES1M54R+UHBl+2
+	 tFDb3vrO8d8gT/XUbWKLkelvkoUjHlGjcwLDD+3cyHcjf+qnaJ3xttjJD6YWMTsdic
+	 vLr5uy9kU/QcukaM9vg1ms3QLHmluggCCZkpJoPXOlSFrkZl6XiCR30lPvPnaiFo6Z
+	 gjzm0Lu9Sg2EN/W5nk9YuCgx01RXkLTj+B+bpR/wf2WkzodbKQao7sGsqbLQ6cHO5e
+	 lL5eYSFUOjHcUY7n0QWvEwe1q+pEZDIdy1LBMdgHOIP5xag8eQ49lWbSaBmCtqLpgO
+	 v0mj9+AWqeSta32LTtksTU3GcwgPcoNromU5+0ig0J1hp54vI0TNhPIbaiBUE/yxCx
+	 RByGXppWJ5Mz1zYQdan4Qc1DV2UoBXp+Yofox8o/3u74nyLd4cP9bb/l1FrGM8W9FD
+	 nOpA/QHPNBj0NZ6ejfAJrlH/EWHRG4iJHNVkYORtCbb3pumsRXfRjCOC1BU0BGCnZ0
+	 uvBdPPgX8OStzakizKy8yHUU=
+Received: from zn.tnic (pd95303ce.dip0.t-ipconnect.de [217.83.3.206])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
+	(No client certificate requested)
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 7F08F40E0220;
+	Wed, 19 Feb 2025 10:55:10 +0000 (UTC)
+Date: Wed, 19 Feb 2025 11:55:03 +0100
+From: Borislav Petkov <bp@alien8.de>
+To: Brendan Jackman <jackmanb@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+	Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Michal Simek <monstr@monstr.eu>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Stafford Horne <shorne@gmail.com>,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Naveen N Rao <naveen@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+	Valentin Schneider <vschneid@redhat.com>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Mike Rapoport <rppt@kernel.org>,
+	Arnaldo Carvalho de Melo <acme@kernel.org>,
+	Namhyung Kim <namhyung@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+	Adrian Hunter <adrian.hunter@intel.com>,
+	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
+	Christoph Lameter <cl@linux.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, x86@kernel.org,
+	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+	linux-arch@vger.kernel.org, linux-mm@kvack.org,
+	linux-trace-kernel@vger.kernel.org,
+	linux-perf-users@vger.kernel.org, kvm@vger.kernel.org,
+	linux-efi@vger.kernel.org, Ofir Weisse <oweisse@google.com>,
+	Junaid Shahid <junaids@google.com>
+Subject: Re: [PATCH RFC v2 03/29] mm: asi: Introduce ASI core API
+Message-ID: <20250219105503.GKZ7W4h6QW1CNj48U9@fat_crate.local>
+References: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
+ <20250110-asi-rfc-v2-v2-3-8419288bc805@google.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Queries regarding OpenRISC CPU cache
-From: Sahil Siddiq <icegambit91@gmail.com>
-To: Stafford Horne <shorne@gmail.com>
-Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>
-References: <2613c1c6-2a2f-4ceb-8adb-f819961ec61f@gmail.com>
- <Z4NvBPYCkz12k0-1@antec> <d7c3ecb8-1838-4271-be90-fa7b344356fe@gmail.com>
- <Z4SzVtTIuVN7gsX8@antec> <1052b18b-7524-49b4-8ac2-22031bf90d4b@gmail.com>
- <Z5STI5WUqCXPwcNF@antec> <ae00d43a-f8bb-4919-8ee1-079a30bc6f42@gmail.com>
- <d789bca7-0266-44e1-bc36-966a70adcf26@gmail.com>
-Content-Language: en-US
-Autocrypt: addr=icegambit91@gmail.com; keydata=
- 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
- rPgMe6IIvn24UuW2f6fIt0AaqOWq
-In-Reply-To: <d789bca7-0266-44e1-bc36-966a70adcf26@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20250110-asi-rfc-v2-v2-3-8419288bc805@google.com>
 
-Hi,
+On Fri, Jan 10, 2025 at 06:40:29PM +0000, Brendan Jackman wrote:
+> Subject: Re: [PATCH RFC v2 03/29] mm: asi: Introduce ASI core API
 
-On 2/12/25 8:59 PM, Sahil Siddiq wrote:
-> Hi,
-> 
-> I have started working on implementing cacheinfo support for OpenRISC, and
-> I have got a few queries.
-> 
-> Q1.
-> Does OpenRISC support multilevel cache hierarchy? I couldn't find anything
-> in the architecture manual [1] mentioning the possibility of a multilevel
-> cache hierarchy. I wasn't able to find anything in the verilog implementation
-> either [2].
-> 
-> Q2.
-> In /sys/devices/system/cpu/cpuX/cache, each indexY directory corresponds
-> to a CPU cache. According to the OpenRISC 1000 Architecture specification [1],
-> it is possible to have a unified cache. In such a case, registers controlling
-> the instruction and data cache represent the same thing (section 9.1 of the
-> manual).
-> 
-> Consequently, should there be only one index (i.e. index0), or should there
-> be 2 index directories (index0 and index1) with identical content? If aunified
-> cache is used, will the DCP and ICP bits both be set in the UPR register?
-> 
-> Q3.
-> Cache-related arithmetic performed in arch/openrisc/kernel/setup.c:setup_cpuinfo() [3]
-> cannot be avoided. But we can expose this info in sysfs instead of cpuinfo as
-> specified in this mail [4]. So, I was thinking of moving these calculations to
-> arch/openrisc/kernel/cacheinfo.c in init_cache_level().
-> 
-> What are your thoughts on this?
-> 
-> Another thing I noticed in the current implementation is that these calculations
-> are performed for icache and dcache before using the UPR register to check if
-> they even exist. Should these calculations instead be performed after determining
-> that they exist?
-> [...]
+x86/asi: ...
 
-Building on my previous mail, I noticed another thing:
-
-On 1/25/25 1:00 PM, Stafford Horne wrote:
-> On my x86 machine I see:
+> Introduce core API for Address Space Isolation (ASI).  Kernel address
+> space isolation provides the ability to run some kernel
+> code with a restricted kernel address space.
 > 
->      $ tree /sys/devices/system/cpu/cpu0/cache/
->      /sys/devices/system/cpu/cpu0/cache/
->      ├── index0
->      │   ├── coherency_line_size
->      │   ├── id
->      │   ├── level
->      │   ├── number_of_sets
->      │   ├── physical_line_partition
->      │   ├── shared_cpu_list
+> There can be multiple classes of such restricted kernel address spaces
+> (e.g. KPTI, KVM-PTI etc.). Each ASI class is identified by an index.
+> The ASI class can register some hooks to be called when
+> entering/exiting the restricted address space.
 > 
-> On or1k I only see (no cache info yet):
+> Currently, there is a fixed maximum number of ASI classes supported.
+> In addition, each process can have at most one restricted address space
+> from each ASI class. Neither of these are inherent limitations and
+> are merely simplifying assumptions for the time being.
 > 
->      $ tree /sys/devices/system/cpu/cpu0/
->      /sys/devices/system/cpu/cpu0/
->      |-- of_node -> ../../../../firmware/devicetree/base/cpus/cpu@0
->      |-- subsystem -> ../../../../bus/cpu
->      |-- topology
->      |   |-- core_cpus
->      |   |-- core_cpus_list
->      |   |-- core_id
->      |   |-- core_siblings
->      |   |-- core_siblings_list
->      |   |-- package_cpus
->      |   |-- package_cpus_list
->      |   |-- physical_package_id
->      |   |-- thread_siblings
->      |   `-- thread_siblings_list
->      `-- uevent
+> To keep things simpler for the time being, we disallow context switches
+
+Please use passive voice in your commit message: no "we" or "I", etc,
+and describe your changes in imperative mood.
+
+Also, see section "Changelog" in
+Documentation/process/maintainer-tip.rst
+
+> within the restricted address space. In the future, we would be able to
+> relax this limitation for the case of context switches to different
+> threads within the same process (or to the idle thread and back).
 > 
-> But we do have some cache info available via cpuinfo:
+> Note that this doesn't really support protecting sibling VM guests
+> within the same VMM process from one another. From first principles
+> it seems unlikely that anyone who cares about VM isolation would do
+> that, but there could be a use-case to think about. In that case need
+> something like the OTHER_MM logic might be needed, but specific to
+> intra-process guest separation.
 > 
->      $ cat /proc/cpuinfo | head -n16
->      processor               : 0
->      cpu                     : OpenRISC-13
->      revision                : 8
->      frequency               : 20000000
->      dcache size             : 256 bytes
->      dcache block size       : 16 bytes
->      dcache ways             : 1
->      icache size             : 32 bytes
->      icache block size       : 16 bytes
->      icache ways             : 2
->      immu                    : 128 entries, 1 ways
->      dmmu                    : 128 entries, 1 ways
->      bogomips                : 40.00
->      features                : orbis32  orfpx32
+> [0]:
+> https://lore.kernel.org/kvm/1562855138-19507-1-git-send-email-alexandre.chartre@oracle.com
 > 
+> Notes about RFC-quality implementation details:
+> 
+>  - Ignoring checkpatch.pl AVOID_BUG.
+>  - The dynamic registration of classes might be pointless complexity.
+>    This was kept from RFCv1 without much thought.
+>  - The other-mm logic is also perhaps overly complex, suggestions are
+>    welcome for how best to tackle this (or we could just forget about
+>    it for the moment, and rely on asi_exit() happening in process
+>    switch).
+>  - The taint flag definitions would probably be clearer with an enum or
+>    something.
+> 
+> Checkpatch-args: --ignore=AVOID_BUG,COMMIT_LOG_LONG_LINE,EXPORT_SYMBOL
+> Co-developed-by: Ofir Weisse <oweisse@google.com>
+> Signed-off-by: Ofir Weisse <oweisse@google.com>
+> Co-developed-by: Junaid Shahid <junaids@google.com>
+> Signed-off-by: Junaid Shahid <junaids@google.com>
+> Signed-off-by: Brendan Jackman <jackmanb@google.com>
+> ---
+>  arch/x86/include/asm/asi.h       | 208 +++++++++++++++++++++++
+>  arch/x86/include/asm/processor.h |   8 +
+>  arch/x86/mm/Makefile             |   1 +
+>  arch/x86/mm/asi.c                | 350 +++++++++++++++++++++++++++++++++++++++
+>  arch/x86/mm/init.c               |   3 +-
+>  arch/x86/mm/tlb.c                |   1 +
+>  include/asm-generic/asi.h        |  67 ++++++++
+>  include/linux/mm_types.h         |   7 +
+>  kernel/fork.c                    |   3 +
+>  kernel/sched/core.c              |   9 +
+>  mm/init-mm.c                     |   4 +
+>  11 files changed, 660 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/x86/include/asm/asi.h b/arch/x86/include/asm/asi.h
+> new file mode 100644
+> index 0000000000000000000000000000000000000000..7cc635b6653a3970ba9dbfdc9c828a470e27bd44
+> --- /dev/null
+> +++ b/arch/x86/include/asm/asi.h
+> @@ -0,0 +1,208 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef _ASM_X86_ASI_H
+> +#define _ASM_X86_ASI_H
+> +
+> +#include <linux/sched.h>
+> +
+> +#include <asm-generic/asi.h>
+> +
+> +#include <asm/pgtable_types.h>
+> +#include <asm/percpu.h>
+> +#include <asm/processor.h>
+> +
+> +#ifdef CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION
+> +
+> +/*
+> + * Overview of API usage by ASI clients:
+> + *
+> + * Setup: First call asi_init() to create a domain. At present only one domain
+> + * can be created per mm per class, but it's safe to asi_init() this domain
+> + * multiple times. For each asi_init() call you must call asi_destroy() AFTER
+> + * you are certain all CPUs have exited the restricted address space (by
+> + * calling asi_exit()).
+> + *
+> + * Runtime usage:
+> + *
+> + * 1. Call asi_enter() to switch to the restricted address space. This can't be
+> + *    from an interrupt or exception handler and preemption must be disabled.
+> + *
+> + * 2. Execute untrusted code.
+> + *
+> + * 3. Call asi_relax() to inform the ASI subsystem that untrusted code execution
+> + *    is finished. This doesn't cause any address space change. This can't be
+> + *    from an interrupt or exception handler and preemption must be disabled.
+> + *
+> + * 4. Either:
+> + *
+> + *    a. Go back to 1.
+> + *
+> + *    b. Call asi_exit() before returning to userspace. This immediately
+> + *       switches to the unrestricted address space.
 
-While I can see icache and dcache info in /proc/cpuinfo, dmesg reports
-that the caches have been disabled.
+So only from reading this, it does sound weird. Maybe the code does it
+differently - I'll see soon - but this basically says:
 
-OF: reserved mem: Reserved memory: No reserved-memory node in the DT
-CPU: OpenRISC-13 (revision 8) @20 MHz
--- dcache disabled
--- icache disabled
--- dmmu:  128 entries, 1 way(s)
--- immu:  128 entries, 1 way(s)
--- additional features:
--- power management
--- PIC
--- timer
+I asi_enter(), do something, asi_relax() and then I decide to do something
+more and to asi_enter() again!? And then I can end it all with a *single*
+asi_exit() call?
 
-This is because the value of upr is 0x719 and the value of SPR_UPR_DCP is
-0x2. ANDing both values gives 0 which, according to the arch manual [1], means
-there's no dcache. The same thing applies to icache.
+Hm, definitely weird API. Why?
 
-Thanks,
-Sahil
+/*
+ * Leave the "tense" state if we are in it, i.e. end the critical section. We
+ * will stay relaxed until the next asi_enter.
+ */
+void asi_relax(void);
 
-[1] https://raw.githubusercontent.com/openrisc/doc/master/openrisc-arch-1.4-rev0.pdf (Section 16.3)
+Yeah, so there's no API functions balance between enter() and relax()...
+
+> + *
+> + * The region between 1 and 3 is called the "ASI critical section". During the
+> + * critical section, it is a bug to access any sensitive data, and you mustn't
+> + * sleep.
+> + *
+> + * The restriction on sleeping is not really a fundamental property of ASI.
+> + * However for performance reasons it's important that the critical section is
+> + * absolutely as short as possible. So the ability to do sleepy things like
+> + * taking mutexes oughtn't to confer any convenience on API users.
+> + *
+> + * Similarly to the issue of sleeping, the need to asi_exit in case 4b is not a
+> + * fundamental property of the system but a limitation of the current
+> + * implementation. With further work it is possible to context switch
+> + * from and/or to the restricted address space, and to return to userspace
+> + * directly from the restricted address space, or _in_ it.
+> + *
+> + * Note that the critical section only refers to the direct execution path from
+> + * asi_enter to asi_relax: it's fine to access sensitive data from exceptions
+> + * and interrupt handlers that occur during that time. ASI will re-enter the
+> + * restricted address space before returning from the outermost
+> + * exception/interrupt.
+> + *
+> + * Note: ASI does not modify KPTI behaviour; when ASI and KPTI run together
+> + * there are 2+N address spaces per task: the unrestricted kernel address space,
+> + * the user address space, and one restricted (kernel) address space for each of
+> + * the N ASI classes.
+> + */
+> +
+> +/*
+> + * ASI uses a per-CPU tainting model to track what mitigation actions are
+> + * required on domain transitions. Taints exist along two dimensions:
+> + *
+> + *  - Who touched the CPU (guest, unprotected kernel, userspace).
+> + *
+> + *  - What kind of state might remain: "data" means there might be data owned by
+> + *    a victim domain left behind in a sidechannel. "Control" means there might
+> + *    be state controlled by an attacker domain left behind in the branch
+> + *    predictor.
+> + *
+> + *    In principle the same domain can be both attacker and victim, thus we have
+> + *    both data and control taints for userspace, although there's no point in
+> + *    trying to protect against attacks from the kernel itself, so there's no
+> + *    ASI_TAINT_KERNEL_CONTROL.
+> + */
+> +#define ASI_TAINT_KERNEL_DATA		((asi_taints_t)BIT(0))
+> +#define ASI_TAINT_USER_DATA		((asi_taints_t)BIT(1))
+> +#define ASI_TAINT_GUEST_DATA		((asi_taints_t)BIT(2))
+> +#define ASI_TAINT_OTHER_MM_DATA		((asi_taints_t)BIT(3))
+> +#define ASI_TAINT_USER_CONTROL		((asi_taints_t)BIT(4))
+> +#define ASI_TAINT_GUEST_CONTROL		((asi_taints_t)BIT(5))
+> +#define ASI_TAINT_OTHER_MM_CONTROL	((asi_taints_t)BIT(6))
+> +#define ASI_NUM_TAINTS			6
+> +static_assert(BITS_PER_BYTE * sizeof(asi_taints_t) >= ASI_NUM_TAINTS);
+
+Why is this a typedef at all to make the code more unreadable than it needs to
+be? Why not a simple unsigned int or char or whatever you need?
+
+> +
+> +#define ASI_TAINTS_CONTROL_MASK \
+> +	(ASI_TAINT_USER_CONTROL | ASI_TAINT_GUEST_CONTROL | ASI_TAINT_OTHER_MM_CONTROL)
+> +
+> +#define ASI_TAINTS_DATA_MASK \
+> +	(ASI_TAINT_KERNEL_DATA | ASI_TAINT_USER_DATA | ASI_TAINT_OTHER_MM_DATA)
+> +
+> +#define ASI_TAINTS_GUEST_MASK (ASI_TAINT_GUEST_DATA | ASI_TAINT_GUEST_CONTROL)
+> +#define ASI_TAINTS_USER_MASK (ASI_TAINT_USER_DATA | ASI_TAINT_USER_CONTROL)
+> +
+> +/* The taint policy tells ASI how a class interacts with the CPU taints */
+> +struct asi_taint_policy {
+> +	/*
+> +	 * What taints would necessitate a flush when entering the domain, to
+> +	 * protect it from attack by prior domains?
+> +	 */
+> +	asi_taints_t prevent_control;
+
+So if those necessitate a flush, why isn't this var called "taints_to_flush"
+or whatever which exactly explains what it is?
+
+> +	/*
+> +	 * What taints would necessetate a flush when entering the domain, to
+
++	 * What taints would necessetate a flush when entering the domain, to
+Unknown word [necessetate] in comment.
+Suggestions: ['necessitate',
+
+Spellchecker please. Go over your whole set.
+
+> +	 * protect former domains from attack by this domain?
+> +	 */
+> +	asi_taints_t protect_data;
+
+Same.
+
+> +	/* What taints should be set when entering the domain? */
+> +	asi_taints_t set;
+
+
+So "required_taints" or so... hm?
+
+> +};
+> +
+> +/*
+> + * An ASI domain (struct asi) represents a restricted address space. The
+
+no need for "(struct asi)" - it is right below :).
+
+> + * unrestricted address space (and user address space under PTI) are not
+> + * represented as a domain.
+> + */
+> +struct asi {
+> +	pgd_t *pgd;
+> +	struct mm_struct *mm;
+> +	int64_t ref_count;
+> +	enum asi_class_id class_id;
+> +};
+> +
+> +DECLARE_PER_CPU_ALIGNED(struct asi *, curr_asi);
+
+Or simply "asi" - this per-CPU var will be so prominent so that when you do
+"per_cpu(asi)" you know what exactly it is
+
+
+
+> +
+> +void asi_init_mm_state(struct mm_struct *mm);
+> +
+> +int asi_init_class(enum asi_class_id class_id, struct asi_taint_policy *taint_policy);
+> +void asi_uninit_class(enum asi_class_id class_id);
+
+"uninit", meh. "exit" perhaps? or "destroy"?
+
+And you have "asi_destroy" already so I guess you can do:
+
+asi_class_init()
+asi_class_destroy()
+
+to have the namespace correct.
+
+> +const char *asi_class_name(enum asi_class_id class_id);
+> +
+> +int asi_init(struct mm_struct *mm, enum asi_class_id class_id, struct asi **out_asi);
+> +void asi_destroy(struct asi *asi);
+> +
+> +/* Enter an ASI domain (restricted address space) and begin the critical section. */
+> +void asi_enter(struct asi *asi);
+> +
+> +/*
+> + * Leave the "tense" state if we are in it, i.e. end the critical section. We
+> + * will stay relaxed until the next asi_enter.
+> + */
+> +void asi_relax(void);
+> +
+> +/* Immediately exit the restricted address space if in it */
+> +void asi_exit(void);
+> +
+> +/* The target is the domain we'll enter when returning to process context. */
+> +static __always_inline struct asi *asi_get_target(struct task_struct *p)
+> +{
+> +	return p->thread.asi_state.target;
+> +}
+> +
+> +static __always_inline void asi_set_target(struct task_struct *p,
+> +					   struct asi *target)
+> +{
+> +	p->thread.asi_state.target = target;
+> +}
+> +
+> +static __always_inline struct asi *asi_get_current(void)
+> +{
+> +	return this_cpu_read(curr_asi);
+> +}
+> +
+> +/* Are we currently in a restricted address space? */
+> +static __always_inline bool asi_is_restricted(void)
+> +{
+> +	return (bool)asi_get_current();
+> +}
+> +
+> +/* If we exit/have exited, can we stay that way until the next asi_enter? */
+> +static __always_inline bool asi_is_relaxed(void)
+> +{
+> +	return !asi_get_target(current);
+> +}
+> +
+> +/*
+> + * Is the current task in the critical section?
+> + *
+> + * This is just the inverse of !asi_is_relaxed(). We have both functions in order to
+> + * help write intuitive client code. In particular, asi_is_tense returns false
+> + * when ASI is disabled, which is judged to make user code more obvious.
+> + */
+> +static __always_inline bool asi_is_tense(void)
+> +{
+> +	return !asi_is_relaxed();
+> +}
+
+So can we tone down the silly helpers above? You don't really need
+asi_is_tense() for example. It is still very intuitive if I read
+
+	if (!asi_is_relaxed())
+
+...
+
+> +
+> +static __always_inline pgd_t *asi_pgd(struct asi *asi)
+> +{
+> +	return asi ? asi->pgd : NULL;
+> +}
+> +
+> +#define INIT_MM_ASI(init_mm) \
+> +	.asi_init_lock = __MUTEX_INITIALIZER(init_mm.asi_init_lock),
+> +
+> +void asi_handle_switch_mm(void);
+> +
+> +#endif /* CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION */
+> +
+> +#endif
+
+Splitting the patch here and will continue with the next one as this one is
+kinda big for one mail.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
