@@ -1,25 +1,25 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 058D520E001;
-	Wed, 26 Feb 2025 08:31:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 97C321E1E06;
+	Wed, 26 Feb 2025 08:32:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740558677; cv=none; b=ONNUStue+PTFtws7f8hYP8QFQOe5UjBE3XlUQR9Dn9LdPXhiHY2k2eyTgnSZ03BYaLsIED4Al82Bj0daKaRSf414e5xCWBagLs2uVO6iScCi7sXCBPTlyIzB+u28TD7NE0zQGEJzbBwWxbet1PZ7JM/VmHp6CoyGHeOdPFvU9Vo=
+	t=1740558731; cv=none; b=P9bON/94WYVYxZRWndSGR93TbbdQRUB55g9GAD01n75YzYsGjmSY+/OazYfAxKOJHxd5NPQRC7FSwr+RVsktrcjqTpMZ+/Dn1th/3S598oj6qP7tJvB8MhByo9UTPAbNt0/YekLneoIOLIZZXDWgPgzu4n7pqfp4rWGFVYKo780=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740558677; c=relaxed/simple;
-	bh=t15i2Nu6IjmH90KiIySiPPJRC3rXNFYxxidwT82OIWQ=;
+	s=arc-20240116; t=1740558731; c=relaxed/simple;
+	bh=VzFLUv0z/EwZ8puFlNA21YpnnKh3HRPwIE+WN0pXlG4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=s95FefinX7DjGp9AZCRdkY8Mp2JlF4/kza4NV4GrvxatKLIsimvITDEWivB7PaMFfVdRX3iRCndWl6OjtSUsd+ZF4Imj43V1tRs04vrWiXj5adFV4WhZ5Lwim80ri00Evh1NT980jbkYKNWICF3dS6CWrnpPSyVhyyqly+kmad8=
+	 In-Reply-To:Content-Type; b=KjfenFluVIY8LuUSa0z5GMInF84NADgZrpZDmzHi8Je6q0f/SQLIwmMVNHW+YV2iyliCjA8lzaUl7SkGyXQhxSKlC4XGFb1PoQRFh84os64M+CjDJQ7Tb4B2eef2hkOWtVK5BU5LB7K16IYS8OYnaAJVoyYN9vB1c0WEFDvFh60=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 43D791C01;
-	Wed, 26 Feb 2025 00:31:31 -0800 (PST)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id EC3A71516;
+	Wed, 26 Feb 2025 00:32:24 -0800 (PST)
 Received: from [10.57.78.248] (unknown [10.57.78.248])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id D0D573F673;
-	Wed, 26 Feb 2025 00:31:08 -0800 (PST)
-Message-ID: <2f4c6d8e-ecb4-42aa-8f42-3d386ac017f1@arm.com>
-Date: Wed, 26 Feb 2025 09:31:06 +0100
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4C0533F673;
+	Wed, 26 Feb 2025 00:32:02 -0800 (PST)
+Message-ID: <3f6c1872-cec8-4a7a-ac18-f5a426962a11@arm.com>
+Date: Wed, 26 Feb 2025 09:31:59 +0100
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -27,8 +27,8 @@ List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/6] mm: pgtable: change pt parameter of
- tlb_remove_ptdesc() to struct ptdesc *
+Subject: Re: [PATCH v2 3/6] mm: pgtable: convert some architectures to use
+ tlb_remove_ptdesc()
 To: Qi Zheng <zhengqi.arch@bytedance.com>, peterz@infradead.org,
  riel@surriel.com, vishal.moola@gmail.com, david@redhat.com,
  jannh@google.com, hughd@google.com, willy@infradead.org, yuzhao@google.com,
@@ -42,19 +42,25 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  linux-sh@vger.kernel.org, linux-um@lists.infradead.org, x86@kernel.org,
  linux-riscv@lists.infradead.org
 References: <cover.1740454179.git.zhengqi.arch@bytedance.com>
- <60bb44299cf2d731df6592e446e7f694054d0dbe.1740454179.git.zhengqi.arch@bytedance.com>
+ <19db3e8673b67bad2f1df1ab37f1c89d99eacfea.1740454179.git.zhengqi.arch@bytedance.com>
 Content-Language: en-GB
 From: Kevin Brodsky <kevin.brodsky@arm.com>
-In-Reply-To: <60bb44299cf2d731df6592e446e7f694054d0dbe.1740454179.git.zhengqi.arch@bytedance.com>
+In-Reply-To: <19db3e8673b67bad2f1df1ab37f1c89d99eacfea.1740454179.git.zhengqi.arch@bytedance.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 25/02/2025 04:45, Qi Zheng wrote:
-> All callers of tlb_remove_ptdesc() pass it a pointer of struct ptdesc, so
-> let's change the pt parameter from void * to struct ptdesc * to perform
-> a type safety check.
+> Now, the nine architectures of csky, hexagon, loongarch, m68k, mips,
+> nios2, openrisc, sh and um do not select CONFIG_MMU_GATHER_RCU_TABLE_FREE,
+> and just call pagetable_dtor() + tlb_remove_page_ptdesc() (the wrapper of
+> tlb_remove_page()). This is the same as the implementation of
+> tlb_remove_{ptdesc|table}() under !CONFIG_MMU_GATHER_TABLE_FREE, so
+> convert these architectures to use tlb_remove_ptdesc().
+>
+> The ultimate goal is to make the architecture only use tlb_remove_ptdesc()
+> or tlb_remove_table() for page table pages.
 >
 > Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
-> Originally-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 
 Reviewed-by: Kevin Brodsky <kevin.brodsky@arm.com>
