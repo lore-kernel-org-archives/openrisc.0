@@ -1,75 +1,132 @@
-Received: from sonic311-15.consmr.mail.bf2.yahoo.com (sonic311-15.consmr.mail.bf2.yahoo.com [74.6.131.125])
+Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1704322611
-	for <linux-openrisc@vger.kernel.org>; Mon,  3 Mar 2025 02:11:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.6.131.125
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCC6E1D63F5
+	for <linux-openrisc@vger.kernel.org>; Mon,  3 Mar 2025 07:15:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740967874; cv=none; b=k8REDHTKZOzllH5auKtKf0mcqU2OrlCOQ4fbaaO1OcmnfRMuFgpiALcOgVN5gcZbymbGh0gMraj1JNKqMPwM9qdyrvDfEUU9LS6aUQ0yj+nmedvgY4RV9qT+Cb0Z6pv4gJRiIF0NEkwKhjktRKh1XRfbMcbuPQGxx06IU+CB7xs=
+	t=1740986140; cv=none; b=f4ANqzslkcmKqyr6Qx5WW+QoL5y8a7NRZV687o9j8XyMn0wc2WqHaziIp753wPrOkKIuN+GOuMDtfBJ0CIaShV8LT/8UU3euPanzjMgSeVlj9u/dOi2+hpBsjmRpfh0glt84+REB9mGcNW8rJBPTNkC+o9s9p548uC6ft58ZmH4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740967874; c=relaxed/simple;
-	bh=FtwEmGBQek6TiuRkfboxJnHVO1d0mvicCj4bgbxrlc8=;
-	h=Date:From:To:Message-ID:Subject:MIME-Version:Content-Type:
-	 References; b=QSpcNj7RZlakS75siHZ6ep6z6kZQisu4Z/hnrhk8ET4KZxYNRSLDs92FU6hN7imR8IH6crIE3aSWUf37QFmxkgNFIYrqkmre2h2cpdOXuwCKSqAA3tl/jiyOWQrQJ0eKQs81MNQNHJZsAavG+02eD5WvSsdLP8KTGS1w+FiXBCg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=yahoo.com; spf=pass smtp.mailfrom=yahoo.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=WkXNEmpY; arc=none smtp.client-ip=74.6.131.125
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=yahoo.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yahoo.com
+	s=arc-20240116; t=1740986140; c=relaxed/simple;
+	bh=cyZ+Grt5WsWeJ35wJ4Miw4zucqCOoTXmPw42CecotaE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=RRHG4qa/A2btEukAcWzbjJwg8W8Kuoy+iOpGKDgvIPrQPOvexp0JvX6PQ9NOi4wb+XpZdVNwFT7YEmXa8FprlkpYnsJ/280Fjl9f9KWQyMG0e75rigIsBwLOMuSYfr3NAxpVVbowAHhb2fI5CXJiYNwj8zH8qxq5j+TmQJBu93k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=f4A84WM5; arc=none smtp.client-ip=209.85.214.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="WkXNEmpY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1740967871; bh=FtwEmGBQek6TiuRkfboxJnHVO1d0mvicCj4bgbxrlc8=; h=Date:From:To:Subject:References:From:Subject:Reply-To; b=WkXNEmpYwcPpZjtNPWaZYvxVaQlkvYsJn5e3kChgANlkdN84ZoBIc6erICO+CX3naFKzSfCu3ZhZIgHZ1wAMupsZqbAUDg2bwzB9fyAH4EmggA0pYywctdhqZp6WOcVijteR0bapAR7xuAPrQBVlJFflHx0/KMeTSaI5TgSaAXzQmmFirpG33zyX1lBmZMdv3HKYSW/lyT7tjE1LI3t6zD0C43hCW0jslHnvv5XzMcclnOr6GkY0ytpxquXUvpeytiB+tbE2U3cLzBQYzNY+a4OmhYeZdx3U6VNFmf/pWD6RUsawvGwz0/Dp79mLQNVOish09p1r/KJ3hVetovSs3w==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1740967871; bh=orG7hbvbMkT9P4nCcVFORM5WyMgQeOZsuS/LPUYfYcp=; h=X-Sonic-MF:Date:From:To:Subject:From:Subject; b=t3ChU2ocf7lwe72U4k29JRhZUx2tyWSVfgKf+0rIFkUqc++3UgtLZ51V+bJDYzBgrsbBrSGyfSGmBONLRcjMkOnPSKek8tIgsmAFwb0FN9CuhQEw/sNNCOgJW/5ynmVKoEVCs7chFRE+zt2MGF5PZzA/9tqHwfjpNZOEywkRkfANak+Wnr7bonKIYaJTKxjTycJBIWMVjhtBU3SI81PzF+UgO9kwKooADaN2qjHDcRRrBdZ0Zwvsv6WhN+qXY9KpWQXJ90Or9oAjK2hYovQ6qT0PwCy6dK75GpyPSuW5FRaOje99PNGzr7wfHBjfNUmQyUIUzQp65XGw14SUqGWqZQ==
-X-YMail-OSG: M1kVobYVM1lrW_15dZcfyqvU7PhbnWNrynDvWYmexIXQaLI3xhPWLn7b3USmeyB
- TDieUVuZABIC5owpwDX3mcUt2B81MJt7eWl1ufC_oPqyTHlO2Do0FBHehsoqMBDPYo6ZLj0oaVje
- CvHplysOv4xj8_ABRA.pvgYpcN3zU8d5Cp4MAflOOQ_uESKCmV6J39o9JyXzDDc0R7qh77HY09BV
- qHxvqLY1I9DJplXJ2vl8CFtbjNbo_94mOU0Zu.30kT0F1yS5IrHtH54UGiiOKoJifNjgGxLi9Dxb
- HIIUQjGexwPoPQJ6m8Nlme.fLhWUIAVGLyIek6u8xCrzhsJFfzk6O_6tX9gfnTmSnPUf8ACFVZh1
- aDiVe4BqS6G3oILgmkR3jjsfHCpUYkq61dlii_czPhC_bsiAQlg8SuTx8i26E_xUKkgUidaT6n.K
- 6diDOeiA6RlFlkq8VH_FeZoCZGkNdbi3fGUd11hCVBUve8.ef7fOP_aHfUSfk3u0wZXvUxKvO6Ob
- MO1rhixpcOkKoerrIDN7SdDx1lfCT5Cxoi2eJShuv2Nw1zan3IbXW3RWsnw01txrOIXxe2Pg.xjt
- 3cW76JvC_yVYb4xXSG6YaQgJs5MI1s5FG7lsMAKLucPXjwSVhNnaIHV_rTQfJl.Ga.G_VrZT7Gih
- J7ax3J8vxw3x5po5i9iv869ogj35nrhDaIZOx3z14YUpyAntD4itZtzw4llysa5gNUSxaAbw1FQS
- dvC7W6l0Ini8aoG_kWbp300NBenNEuox4AN6iCPiVO6g82ZzHgd0kJwVGy3_wJENuIdmYtaoUzkz
- QiAYhyOhsJp.h9KxAsJLv22A1i7e4lobo_eVsCGvGG59PDkXCUChY8U0iAGzx5pMVSHzSGCqEIB_
- sfRk_49pJLzi6ZHA_uw80sk9I0RpV7AX.r2vOQRX4WsyijAdq5dbCQpFcSfj7egsJ9gT8C2CgV8H
- NaLPJ4qM_Hz9iqZqARNJyhH0wpjm1Hk2Aqf4ODwWZ5Q9bZrTfxUOqisfh_U_s9T.uWMvi4VzFJhR
- _AcNyO8O2.GjbmTtSwpHX3jqyCyab4vtsbWPJzzfyJXwQC9chO0uyyQ7FIWGOQUW_6sILBZpXR39
- P8ZhySn9kpfwSz3ls.sSGf2.5tkeVitQwoOdePNqi.TgQHSKxkp6sAMeVzw5IKQZeRcsxJHsvlLp
- yRz6ZxOoPxvIffd3FGaJ.NmqidzHRnZZ8cMuNF1LIEEW0tubGRn.CwRKf9Uz8TZvbcYq3y26yu4y
- Zjr3MTZbZwlUw6r9ZU3fwxYe1Ol8UHE6tMLdoykOhpYCsx3TcBQd8nPs91gT5P7qrZZaKSO6GkiG
- CSqOpvmNsVwUUE8J0AtkqeMkEw4u43F.78XoCX72jlfnDzeKvM2ys4PyfSdgKWBnt2i2C_tJs6QL
- 8O4xjXN7sY7IoCeKvZ7Bf4g33FEYWpxzIbS9qjIMHAgS.acOx6qQuC7pJNVjqCGRVMMml_hU.A3_
- z5wfAiKloPjYGo6emf4R21FpsJ_WfnFeGugMOf6BN0gqx5ZNChDN5TUv1xdSJuOT7Pif_M7sn99R
- ELhmpg7bva_4kg8NElB4tQwnud4Wg5GMkWlZOTHlE4AFRW0KHHpgoQ6OoYGhRtZFodHYXI_RTwKW
- hdiVXqvR719yEtXj._0UBNZgmHS0KM4ddNhHBITprDK3klYbpGP5HH6i7BzTz.uwQbn0NWIEo6tX
- lvNzPAfkU4vWDJ4DZXIPOZUVJ0vuf7PUg3eUFXvMoNyPfRYMo4jof1n.zsDYQXClg1WuB_BWGyCN
- ylqCuLJ0C3_l0mmXDcczQtQK4tibHwTrPKXNOsTcwDDgmFcIGXuLrvbpaPxYlS9h8pp9TdDMRVGX
- x1X.2itg.dJlK63FVt4XWJ0xlx_NVEgzXm3arCLo6EYHHkaQnvfKtd4FYHeE2dI6myiML8vnMOWL
- pEjhHEG.kMjMeorhT48exnGM9IGG0ZfSZ5xFocRHKQTCJf.KupqtcZjgKaCIpGsD_w3ZaXg79iI9
- tQymPa7kpsP6mMANp411J9mA_v6kl8j_gbvB0guMpS6fhA.yw3Es..zJH.DADkHrcvzXCjE0JU2I
- OwtysxNBi_pKkFQDEZJKocegfLDqJUO4lttOiyUZbvWBqKNY8Xgj7HosmX3lGQHCBfwg4rLPSa1f
- bCq3vtB6HunH04NQ1KgBgQS8Qw2TYYoAa9XvnkjbdfHME7TBWkqN0cM3Q5gUflq8FvKyBdpTbCJW
- med1kV1bmjoKzhSQM.otqxJBOHhM-
-X-Sonic-MF: <idzwan.nizam@yahoo.com>
-X-Sonic-ID: 5e26fb43-3591-44c0-9132-08a7f6878aa7
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.bf2.yahoo.com with HTTP; Mon, 3 Mar 2025 02:11:11 +0000
-Date: Mon, 3 Mar 2025 02:11:06 +0000 (UTC)
-From: Idzwan Nizam Jamal Abdul Nasir <idzwan.nizam@yahoo.com>
-To: linux-openrisc@vger.kernel.org
-Message-ID: <810295975.3514440.1740967866807@mail.yahoo.com>
-Subject: Performance improvements of Marocchino implementation
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="f4A84WM5"
+Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-22328dca22fso60768495ad.1
+        for <linux-openrisc@vger.kernel.org>; Sun, 02 Mar 2025 23:15:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1740986137; x=1741590937; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Z3xf7HJyOLISUqnBF4lpknQTsncyxq6apcdgU1Q2bwI=;
+        b=f4A84WM5UBmOEItKzAifDxDy7QSqQog+5OdOY7cDip+Ifi/SFUtojaXd3nv9N46OkR
+         obbn8XiDHfPwzOhP+v9F4yJio5kY6Fy6S6Dij4j9DhRO+gigEV2oQ1XDcdtvMOTvOPmE
+         WpuxN3y1/iFpfhe6FIe7LgfmoW5WjaSdqf2obCSIVsNV4KU9GPJlIYbIQ+dtrHsEz8Qj
+         obAsvIJ84Xaa/DfhJQP52pW8eNlzAzvKCu3ybiqdRykVPzSYIGvK4+hUWmRrrn+BPGQx
+         E1zuno2Ug6TvBtzOsf/XTEeGekcF2JdKNte3lMVXw8TZSOU37BEEcnrYWZ+wVCIGz6FH
+         p2wg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1740986137; x=1741590937;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=Z3xf7HJyOLISUqnBF4lpknQTsncyxq6apcdgU1Q2bwI=;
+        b=nDyqf28T5kbj25f66OrpZVB00MaW5IaKz3DJnkw8A87Jelv6i1DPFGZw93odeY/FuT
+         Mt6tnb78oXPyrV1e9zEUS9B518d0/mzglQj+XcIefQp/BY2H1flF9ihsPnYcGLD53d6H
+         wgarMivoCxbufhgNZMwWcW7M6dtr/BlPn9haVmRl+IHkQNXFs5ZlnW7zYBG83Ce7heeZ
+         uJx/RLnjjtUy8Trj6WnobqjK1uULodRHavhrB+iK/PCrZlRymESGyza6Yswgo292TygX
+         innw3q1bSWZUEe8IDDhz+L1PYZ9r7FvRlf3VBiudSCfgqW/Yb7PiT2gBrVGqdV4IwbwU
+         h3Qg==
+X-Forwarded-Encrypted: i=1; AJvYcCU4pjR1vILtHME/coXe7YAbFD1D3n+1g9Rs6SiQurkgAkCBIv95mkolo4lOHHPGTYgIb5Us+ztd90Z4ly41/w==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy5JM1TEpJKBa4ym7ryacMG+nLZTl+7ruJB88LZo+i+3I52uReW
+	OAX3aO0sP5+KyffEtE6WWeg7OD6QytjZ+qB1d7+bK2XF7KjgJD7VeZOuK14nKvs=
+X-Gm-Gg: ASbGnctTFOrHPTBP4P1NO7zEpP6xgkhWYXuZWaP6ofvLyKGE2cmz44hra7TOuIULrqo
+	ca61fMeBQB6k/Ru2BCsDKxGptqxV65BWaq5qVuo1kU2aVwJgDLehlnM/dNHxrib6gucaMHYTY4H
+	vq5S+QGNBmNg2RJiSmH9UtxDHvHg2OSS89UaktpgxnQhEkkCqK6XtmbkUYkCmP2g2C5cZQtO/Ov
+	SY9dHtIAK0AvZZikD5IiUdwOTG5wiMBca2cI2zmfeSoWdP0h4yOU5wJsLItF1/glwakG3g5g1l7
+	qTj7wG3uKeOP9ngVqCtnKSp0JO/jDdmHqz2UWeSyza97ZGfiC4HIEjd347pcSOBZHve6NA==
+X-Google-Smtp-Source: AGHT+IFFzAQLESy+9XTrR371K4l9s8+Ug8zXVzf/oXiEIXCRNjxwSBTp4Oh3Iq6eaMxuwqzsZm0CFA==
+X-Received: by 2002:a17:902:f64a:b0:223:5645:8e1a with SMTP id d9443c01a7336-2236926727dmr181629675ad.51.1740986137075;
+        Sun, 02 Mar 2025 23:15:37 -0800 (PST)
+Received: from [10.68.122.90] ([203.208.167.148])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2235050ce10sm71093955ad.200.2025.03.02.23.15.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 02 Mar 2025 23:15:36 -0800 (PST)
+Message-ID: <4eb93ca8-7526-4709-b43e-2ed9e5583e3b@bytedance.com>
+Date: Mon, 3 Mar 2025 15:15:22 +0800
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 4/6] riscv: pgtable: unconditionally use
+ tlb_remove_ptdesc()
+To: yunhui cui <cuiyunhui@bytedance.com>
+Cc: peterz@infradead.org, kevin.brodsky@arm.com, riel@surriel.com,
+ vishal.moola@gmail.com, david@redhat.com, jannh@google.com,
+ hughd@google.com, willy@infradead.org, yuzhao@google.com,
+ muchun.song@linux.dev, akpm@linux-foundation.org, will@kernel.org,
+ aneesh.kumar@kernel.org, npiggin@gmail.com, arnd@arndb.de,
+ dave.hansen@linux.intel.com, rppt@kernel.org, alexghiti@rivosinc.com,
+ linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+ linux-sh@vger.kernel.org, linux-um@lists.infradead.org, x86@kernel.org,
+ linux-riscv@lists.infradead.org
+References: <cover.1740454179.git.zhengqi.arch@bytedance.com>
+ <9025595e895515515c95e48db54b29afa489c41d.1740454179.git.zhengqi.arch@bytedance.com>
+ <CAEEQ3wnvgX=Bq=oAQV6wfg5a7H2jiG7f8P6trbC9agJ8D6t4pA@mail.gmail.com>
+From: Qi Zheng <zhengqi.arch@bytedance.com>
+In-Reply-To: <CAEEQ3wnvgX=Bq=oAQV6wfg5a7H2jiG7f8P6trbC9agJ8D6t4pA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <810295975.3514440.1740967866807.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.23369 YMailNodin
 
-Hi,
 
-I am interested in OpenRISC Benchmarking and Performance improvements task listed as one of the project ideas in Google Summer of Code. I am unable to participate in GSOC but I would like to contribute to the task gradually as I acquire skills in digital logic and computer architecture.
 
-Is the task still open? I would be glad if you could point me to the right direction such as documentation I should read or tools I have to be familiar with. Any guidance is welcome and greatly appreciated. Thank you.
+On 3/3/25 9:45 AM, yunhui cui wrote:
+> Hi Qi,
+> 
+
+[...]
+
+>>
+>>
+> 
+> This set of patches mainly refactors the remove page table function
+> interfaces. The comment "riscv_ipi_for_rfence" has been removed, as it
+> was no longer needed, and this patch handles that.
+> 
+> Additionally, whether riscv_use_sbi_for_rfence is true or false, page
+> tables can now be released using RCU. This patch changes the previous
+> synchronous release logic (for !riscv_use_sbi_for_rfence) to an
+> RCU-based release.
+> 
+> So, Reviewed-by: Yunhui Cui <cuiyunhui@bytedance.com>
+> 
+> Based on qemu-system-riscv64, I tested this patch. The log is as follows:
+> ./gup_test
+> TAP version 13
+> 1..1
+> # GUP_FAST_BENCHMARK: Time: get:663365 put:117 us
+> # ok 1 ioctl status 0
+> # Totals: pass:1 fail:0 xfail:0 xpass:0 skip:0 error:0
+
+Nice.
+
+> 
+> So, Tested-by: Yunhui Cui <cuiyunhui@bytedance.com>
+
+Thank you very much for your review and testing!
+
+> 
+> Thanks,
+> Yunhui
+
