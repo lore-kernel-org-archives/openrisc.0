@@ -1,251 +1,243 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa1-f48.google.com (mail-oa1-f48.google.com [209.85.160.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FE981B87D1;
-	Sat,  1 Mar 2025 07:24:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D05586321
+	for <linux-openrisc@vger.kernel.org>; Mon,  3 Mar 2025 01:45:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740813871; cv=none; b=q/lrASCUG8cJkKL9UQ6ex7RfFT5igJmo+EJVDofq3TOGAvll6qGnYuISvMZfBMee4jGPnzvHjHAu5YagAQe1xTpTKDV2FbLnD3w4I0j4MZbCk1zWjUiQo5VouB4cYArLXrNA0MpldmuO1P14ilghOIB2inVzTRnAZ8RqnsZfUpo=
+	t=1740966352; cv=none; b=JPZfBI7iZw+G+++AcCyHn+q98PkO05TcdmorLYuTCVuJdg0KMRPpytxhlBHttV8MMJB3sbmooH0C8u5ifbEbqH3o9eo2OgxQGaq1QrK4wpGY6KsaWPDTNOSoHfoWpJjtqFrQFZ9m+AJ6I06CKW4/jJFfUWzzlHtPLjAm8Fk17xM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740813871; c=relaxed/simple;
-	bh=zNyC5lhRK0Jp4F93R1ijsSaURdoFR2R28yW7mia17cM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hmIaCfSUuUyAwzhAQ0Jrs/ioobSgF7YXBKxTiSNXnXdC9wGzWPZJY4f1XYl2Bv/2NKYoYBwaNlxUtF2tvLLVfHN/A0gbk0tJXf82UJbDIIb1g3/g99XdeBrsfaKVxNMRrIYD3OhErwQVf4/ZH33dzUVlCKT64ny14jpASaQ8JRo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gtscTzal; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1740966352; c=relaxed/simple;
+	bh=VVdApa3BG2mFUlbyWpECbB13z5U6JMfWDjN+ddRNM7c=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=mjGycI/Kf3OT6IbzDLnuK4HwCp//ADEshzNH9Ym/zVVKv3SWWcXIlYVZbjAGN1ZXadwvFDluRJMInoFeS0n8ISJFOMYEs4AFoXTNOwmIzzTYOYC2LfPy5ej5a4qsNxqkZ6wIJUfbEBN3YiMOQAKb+lnChXXhMSZPOAvhKk7L8NU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=TK04mLFo; arc=none smtp.client-ip=209.85.160.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gtscTzal"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 800D1C4CEDD;
-	Sat,  1 Mar 2025 07:24:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1740813870;
-	bh=zNyC5lhRK0Jp4F93R1ijsSaURdoFR2R28yW7mia17cM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=gtscTzalpXI+EBlbvhmEfLi9LdExvWsiMbsCojuFb6z7D6TJ+eIyI5Zu0dNVt1+Rt
-	 R7KC6887+sVZtgnQ19+IkfSlJqXOab6/YNi9aZBAtp/VgQU/JqRJpIH8eBc4GGjByG
-	 /iEET/+yluuuSKQHZY8L55Rx9HismpEadrVB6zyppH+G3FGWR/3bh3ot8dW5rcHNI7
-	 NKKycvvnkEsnUXv1eFIzBBP8cwd+jkC4/L6TStK9cq+p4BvnEfW2RzlrWF5UZglu5h
-	 /IAlH97YxPUeMyrnxQe6BmmTiig5TOwLHznM4yMtuGGFo8JCLj5r1JCg4T+JRGSA6x
-	 kS+2S3GSKmFcQ==
-Date: Sat, 1 Mar 2025 09:23:51 +0200
-From: Mike Rapoport <rppt@kernel.org>
-To: Brendan Jackman <jackmanb@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-	Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Michal Simek <monstr@monstr.eu>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Stafford Horne <shorne@gmail.com>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Naveen N Rao <naveen@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Uladzislau Rezki <urezki@gmail.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Arnaldo Carvalho de Melo <acme@kernel.org>,
-	Namhyung Kim <namhyung@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
-	Adrian Hunter <adrian.hunter@intel.com>,
-	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
-	Christoph Lameter <cl@linux.com>,
-	Sean Christopherson <seanjc@google.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	Josh Poimboeuf <jpoimboe@kernel.org>,
-	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, x86@kernel.org,
-	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-	linux-arch@vger.kernel.org, linux-mm@kvack.org,
-	linux-trace-kernel@vger.kernel.org,
-	linux-perf-users@vger.kernel.org, kvm@vger.kernel.org,
-	linux-efi@vger.kernel.org, Junaid Shahid <junaids@google.com>
-Subject: Re: [PATCH RFC v2 02/29] x86: Create
- CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION
-Message-ID: <Z8K2B3WJoICVbDj3@kernel.org>
-References: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
- <20250110-asi-rfc-v2-v2-2-8419288bc805@google.com>
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="TK04mLFo"
+Received: by mail-oa1-f48.google.com with SMTP id 586e51a60fabf-2c186270230so477540fac.0
+        for <linux-openrisc@vger.kernel.org>; Sun, 02 Mar 2025 17:45:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1740966349; x=1741571149; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=W8SnZDZRbvLSaoNIXAx3tJOrDKr8WC27+4Kk8dOe4BE=;
+        b=TK04mLFogIQ65pDkgHnRSCTOCitks0JFjNzCP9pXKTMzD5Tg32Eqb9rXN7CS7i8yyk
+         AG+d0IVfykTXSi1HRB9zjSWb83BHgEdiDqDfQP+WV/4r3h338ReQIecHig++pFaz5uKd
+         0QWgk4rUM+MxXcDZqqZ5h4OmkUI7NkYaKOqd4Xe6eZcuDqsNdt8mqUkzxowxK4jG5EUs
+         XD/ZwAkBqoBcXaXSBbxigzj6RKgIKjMHR6nEWf3G42pRqjfYBzad+lSvDi6eatiD3fF+
+         2OfFDAjysExJ/VxJ4nt7oRA1Ab6PUTpD9/ojbtOTGq/FOy7r1JG9Wtr8wTtjGbHf1/+l
+         r5lQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1740966349; x=1741571149;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=W8SnZDZRbvLSaoNIXAx3tJOrDKr8WC27+4Kk8dOe4BE=;
+        b=KI+DsWvgfnC3pWIUMXU7984B8oO3XQByqTuWWJ6WwJa35VWUtjW5cy10x9+c5prnQv
+         0SU3GHe1I8JXwilYuu5XN2Cm3ql9zg46XoXnR4d8/agIu2lTpmB/M1N49Vjtzoc8tSKN
+         JxtGPdFU4SHJHi9yUO5bvbIf0J8kBiDoNTLKgcFz76Brc19ubiB5FRPL3ISCYWsUc49W
+         O06Na8uKOrVgvjOnzBk7vC8jkadRvkDQobsOsxBBgPZjPouzxZShLT2U8QgiSAVahpkr
+         wI1N3nePHdvMj3bXTh326/gAkCF0xk9ObJAtwNdjn0qDo8o6FTDbrOR1GFXcCavjsj2T
+         QIcA==
+X-Forwarded-Encrypted: i=1; AJvYcCXFQOm1IBrtWa152qQVLcZrT6YDevciI+Tu44NfE8iCTqR6wUm0qZJqNG6+U1FTAKCnUaq14YKGR3kCK4mk4Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz3oCEo0Ry3I7FiQeiPlrr6t4QnohQ0a3o6LNowqrDAYI7ijIDg
+	1yjMvAtD0G5yyGNOuPXEUJfnqc9wj6YKRk9Yl+/aLSKILeUcYQ3I7VADg/BDtFj8Yx/kWygxw5F
+	kUv0es0k3/I2JvODEfQ+wglFFyHTm2Rvs0bKN7g==
+X-Gm-Gg: ASbGnctW8kke5Dh4C5UUwiGDsnPMqsN4vRjiU6b83ymYuTogaI/q+iCTtlbI6P1Bh8e
+	ClTqyNJ24pGepeD8NsPqaBIh6x210mMtgXIALgOUqNnlEElou+XeAN+p4cC9KnrZnqmFfpzzaZZ
+	r4930e9ybGsgkX+GvCuOmPxMFaGjd/
+X-Google-Smtp-Source: AGHT+IGOWIRMroQZxbRNJcNH5tnmnGD/bIDamuPKwa3GDm5B/gWkRsBelrb1kdvpy/ijW+hukYwC4esnzOdnOPSB3MY=
+X-Received: by 2002:a05:6871:aa16:b0:2b8:3d1c:772 with SMTP id
+ 586e51a60fabf-2c178335be6mr6945276fac.5.1740966349475; Sun, 02 Mar 2025
+ 17:45:49 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250110-asi-rfc-v2-v2-2-8419288bc805@google.com>
+References: <cover.1740454179.git.zhengqi.arch@bytedance.com> <9025595e895515515c95e48db54b29afa489c41d.1740454179.git.zhengqi.arch@bytedance.com>
+In-Reply-To: <9025595e895515515c95e48db54b29afa489c41d.1740454179.git.zhengqi.arch@bytedance.com>
+From: yunhui cui <cuiyunhui@bytedance.com>
+Date: Mon, 3 Mar 2025 09:45:37 +0800
+X-Gm-Features: AQ5f1Jrb5nkY3jTSkwu3MIgtit28ISDfNBjj4Qwj5SXBUXKwFnVTECUIEIzLwQo
+Message-ID: <CAEEQ3wnvgX=Bq=oAQV6wfg5a7H2jiG7f8P6trbC9agJ8D6t4pA@mail.gmail.com>
+Subject: Re: [External] [PATCH v2 4/6] riscv: pgtable: unconditionally use tlb_remove_ptdesc()
+To: Qi Zheng <zhengqi.arch@bytedance.com>
+Cc: peterz@infradead.org, kevin.brodsky@arm.com, riel@surriel.com, 
+	vishal.moola@gmail.com, david@redhat.com, jannh@google.com, hughd@google.com, 
+	willy@infradead.org, yuzhao@google.com, muchun.song@linux.dev, 
+	akpm@linux-foundation.org, will@kernel.org, aneesh.kumar@kernel.org, 
+	npiggin@gmail.com, arnd@arndb.de, dave.hansen@linux.intel.com, 
+	rppt@kernel.org, alexghiti@rivosinc.com, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org, 
+	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, 
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
+	linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org, 
+	linux-um@lists.infradead.org, x86@kernel.org, linux-riscv@lists.infradead.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Brendan,
+Hi Qi,
 
-On Fri, Jan 10, 2025 at 06:40:28PM +0000, Brendan Jackman wrote:
-> Currently a nop config. Keeping as a separate commit for easy review of
-> the boring bits. Later commits will use and enable this new config.
-> 
-> This config is only added for non-UML x86_64 as other architectures do
-> not yet have pending implementations. It also has somewhat artificial
-> dependencies on !PARAVIRT and !KASAN which are explained in the Kconfig
-> file.
-> 
-> Co-developed-by: Junaid Shahid <junaids@google.com>
-> Signed-off-by: Junaid Shahid <junaids@google.com>
-> Signed-off-by: Brendan Jackman <jackmanb@google.com>
+On Tue, Feb 25, 2025 at 11:48=E2=80=AFAM Qi Zheng <zhengqi.arch@bytedance.c=
+om> wrote:
+>
+> To support fast gup, the commit 69be3fb111e7 ("riscv: enable
+> MMU_GATHER_RCU_TABLE_FREE for SMP && MMU") did the following:
+>
+> 1) use tlb_remove_page_ptdesc() for those platforms which use IPI to
+>    perform TLB shootdown
+>
+> 2) use tlb_remove_ptdesc() for those platforms which use SBI to perform
+>    TLB shootdown
+>
+> The tlb_remove_page_ptdesc() is the wrapper of the tlb_remove_page(). By
+> design, the tlb_remove_page() should be used to remove a normal page from
+> a page table entry, and should not be used for page table pages.
+>
+> The tlb_remove_ptdesc() is the wrapper of the tlb_remove_table(), which i=
+s
+> designed specifically for freeing page table pages. If the
+> CONFIG_MMU_GATHER_TABLE_FREE is enabled, the tlb_remove_table() will use
+> semi RCU to free page table pages, that is:
+>
+>  - batch table freeing: asynchronous free by RCU
+>  - single table freeing: IPI + synchronous free
+>
+> If the CONFIG_MMU_GATHER_TABLE_FREE is disabled, the tlb_remove_table()
+> will fall back to pagetable_dtor() + tlb_remove_page().
+>
+> For case 1), since we need to perform TLB shootdown before freeing the
+> page table page, the local_irq_save() in fast gup can block the freeing
+> and protect the fast gup page walker. Therefore we can ensure safety by
+> just using tlb_remove_page_ptdesc(). In addition, we can also the
+> tlb_remove_ptdesc()/tlb_remove_table() to achieve it, and it doesn't
+> matter whether CONFIG_MMU_GATHER_RCU_TABLE_FREE is selected. And in
+> theory, the performance of freeing pages asynchronously via RCU will not
+> be lower than synchronous free.
+>
+> For case 2), since local_irq_save() only disable S-privilege IPI irq but
+> not M-privilege's, which is used by the SBI implementation to perform TLB
+> shootdown, so we must select CONFIG_MMU_GATHER_RCU_TABLE_FREE and use
+> tlb_remove_ptdesc() to ensure safety. The riscv selects this config for
+> SMP && MMU, the CONFIG_RISCV_SBI is dependent on MMU. Therefore, only the
+> UP system may have the situation where CONFIG_MMU_GATHER_RCU_TABLE_FREE i=
+s
+> disabled but CONFIG_RISCV_SBI is enabled. But there is no freeing vs fast
+> gup race in the UP system.
+>
+> So, in summary, we can use tlb_remove_ptdesc() to support fast gup in all
+> cases, and this interface is specifically designed for page table pages.
+> So let's use it unconditionally.
+>
+> Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
+> Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 > ---
->  arch/alpha/include/asm/Kbuild      |  1 +
->  arch/arc/include/asm/Kbuild        |  1 +
->  arch/arm/include/asm/Kbuild        |  1 +
->  arch/arm64/include/asm/Kbuild      |  1 +
->  arch/csky/include/asm/Kbuild       |  1 +
->  arch/hexagon/include/asm/Kbuild    |  1 +
->  arch/loongarch/include/asm/Kbuild  |  3 +++
->  arch/m68k/include/asm/Kbuild       |  1 +
->  arch/microblaze/include/asm/Kbuild |  1 +
->  arch/mips/include/asm/Kbuild       |  1 +
->  arch/nios2/include/asm/Kbuild      |  1 +
->  arch/openrisc/include/asm/Kbuild   |  1 +
->  arch/parisc/include/asm/Kbuild     |  1 +
->  arch/powerpc/include/asm/Kbuild    |  1 +
->  arch/riscv/include/asm/Kbuild      |  1 +
->  arch/s390/include/asm/Kbuild       |  1 +
->  arch/sh/include/asm/Kbuild         |  1 +
->  arch/sparc/include/asm/Kbuild      |  1 +
->  arch/um/include/asm/Kbuild         |  2 +-
->  arch/x86/Kconfig                   | 14 ++++++++++++++
->  arch/xtensa/include/asm/Kbuild     |  1 +
->  include/asm-generic/asi.h          |  5 +++++
->  22 files changed, 41 insertions(+), 1 deletion(-)
+>  arch/riscv/include/asm/pgalloc.h | 26 ++++----------------------
+>  1 file changed, 4 insertions(+), 22 deletions(-)
+>
+> diff --git a/arch/riscv/include/asm/pgalloc.h b/arch/riscv/include/asm/pg=
+alloc.h
+> index 3e2aebea6312d..770ce18a7328b 100644
+> --- a/arch/riscv/include/asm/pgalloc.h
+> +++ b/arch/riscv/include/asm/pgalloc.h
+> @@ -15,24 +15,6 @@
+>  #define __HAVE_ARCH_PUD_FREE
+>  #include <asm-generic/pgalloc.h>
+>
+> -/*
+> - * While riscv platforms with riscv_ipi_for_rfence as true require an IP=
+I to
+> - * perform TLB shootdown, some platforms with riscv_ipi_for_rfence as fa=
+lse use
+> - * SBI to perform TLB shootdown. To keep software pagetable walkers safe=
+ in this
+> - * case we switch to RCU based table free (MMU_GATHER_RCU_TABLE_FREE). S=
+ee the
+> - * comment below 'ifdef CONFIG_MMU_GATHER_RCU_TABLE_FREE' in include/asm=
+-generic/tlb.h
+> - * for more details.
+> - */
+> -static inline void riscv_tlb_remove_ptdesc(struct mmu_gather *tlb, void =
+*pt)
+> -{
+> -       if (riscv_use_sbi_for_rfence()) {
+> -               tlb_remove_ptdesc(tlb, pt);
+> -       } else {
+> -               pagetable_dtor(pt);
+> -               tlb_remove_page_ptdesc(tlb, pt);
+> -       }
+> -}
+> -
+>  static inline void pmd_populate_kernel(struct mm_struct *mm,
+>         pmd_t *pmd, pte_t *pte)
+>  {
+> @@ -108,14 +90,14 @@ static inline void __pud_free_tlb(struct mmu_gather =
+*tlb, pud_t *pud,
+>                                   unsigned long addr)
+>  {
+>         if (pgtable_l4_enabled)
+> -               riscv_tlb_remove_ptdesc(tlb, virt_to_ptdesc(pud));
+> +               tlb_remove_ptdesc(tlb, virt_to_ptdesc(pud));
+>  }
+>
+>  static inline void __p4d_free_tlb(struct mmu_gather *tlb, p4d_t *p4d,
+>                                   unsigned long addr)
+>  {
+>         if (pgtable_l5_enabled)
+> -               riscv_tlb_remove_ptdesc(tlb, virt_to_ptdesc(p4d));
+> +               tlb_remove_ptdesc(tlb, virt_to_ptdesc(p4d));
+>  }
+>  #endif /* __PAGETABLE_PMD_FOLDED */
+>
+> @@ -143,7 +125,7 @@ static inline pgd_t *pgd_alloc(struct mm_struct *mm)
+>  static inline void __pmd_free_tlb(struct mmu_gather *tlb, pmd_t *pmd,
+>                                   unsigned long addr)
+>  {
+> -       riscv_tlb_remove_ptdesc(tlb, virt_to_ptdesc(pmd));
+> +       tlb_remove_ptdesc(tlb, virt_to_ptdesc(pmd));
+>  }
+>
+>  #endif /* __PAGETABLE_PMD_FOLDED */
+> @@ -151,7 +133,7 @@ static inline void __pmd_free_tlb(struct mmu_gather *=
+tlb, pmd_t *pmd,
+>  static inline void __pte_free_tlb(struct mmu_gather *tlb, pgtable_t pte,
+>                                   unsigned long addr)
+>  {
+> -       riscv_tlb_remove_ptdesc(tlb, page_ptdesc(pte));
+> +       tlb_remove_ptdesc(tlb, page_ptdesc(pte));
+>  }
+>  #endif /* CONFIG_MMU */
+>
+> --
+> 2.20.1
+>
+>
 
-I don't think this all is needed. You can put asi.h with stubs used outside
-of arch/x86 in include/linux and save you the hassle of updating every
-architecture.
- 
-> diff --git a/arch/sparc/include/asm/Kbuild b/arch/sparc/include/asm/Kbuild
-> index 43b0ae4c2c2112d4d4d3cb3c60e787b175172dea..cb9062c9be17fe276cc92d2ac99d8b165f6297bf 100644
-> --- a/arch/sparc/include/asm/Kbuild
-> +++ b/arch/sparc/include/asm/Kbuild
-> @@ -4,3 +4,4 @@ generated-y += syscall_table_64.h
->  generic-y += agp.h
->  generic-y += kvm_para.h
->  generic-y += mcs_spinlock.h
-> +generic-y += asi.h
+This set of patches mainly refactors the remove page table function
+interfaces. The comment "riscv_ipi_for_rfence" has been removed, as it
+was no longer needed, and this patch handles that.
 
-sparc already has include/asm/asi.h, this will break the build
+Additionally, whether riscv_use_sbi_for_rfence is true or false, page
+tables can now be released using RCU. This patch changes the previous
+synchronous release logic (for !riscv_use_sbi_for_rfence) to an
+RCU-based release.
 
-> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-> index 7b9a7e8f39acc8e9aeb7d4213e87d71047865f5c..5a50582eb210e9d1309856a737d32b76fa1bfc85 100644
-> --- a/arch/x86/Kconfig
-> +++ b/arch/x86/Kconfig
-> @@ -2519,6 +2519,20 @@ config MITIGATION_PAGE_TABLE_ISOLATION
->  
->  	  See Documentation/arch/x86/pti.rst for more details.
->  
-> +config MITIGATION_ADDRESS_SPACE_ISOLATION
-> +	bool "Allow code to run with a reduced kernel address space"
-> +	default n
-> +	depends on X86_64 && !PARAVIRT && !UML
-> +	help
-> +	  This feature provides the ability to run some kernel code
-> +	  with a reduced kernel address space. This can be used to
-> +	  mitigate some speculative execution attacks.
-> +
-> +	  The !PARAVIRT dependency is only because of lack of testing; in theory
-> +	  the code is written to work under paravirtualization. In practice
-> +	  there are likely to be unhandled cases, in particular concerning TLB
-> +	  flushes.
-> +
+So, Reviewed-by: Yunhui Cui <cuiyunhui@bytedance.com>
 
-If you expect other architectures might implement ASI the config would better
-fit into init/Kconfig or mm/Kconfig and in arch/x86/Kconfig will define
-ARCH_HAS_MITIGATION_ADDRESS_SPACE_ISOLATION.
+Based on qemu-system-riscv64, I tested this patch. The log is as follows:
+./gup_test
+TAP version 13
+1..1
+# GUP_FAST_BENCHMARK: Time: get:663365 put:117 us
+# ok 1 ioctl status 0
+# Totals: pass:1 fail:0 xfail:0 xpass:0 skip:0 error:0
 
->  config MITIGATION_RETPOLINE
->  	bool "Avoid speculative indirect branches in kernel"
->  	select OBJTOOL if HAVE_OBJTOOL
-> diff --git a/arch/xtensa/include/asm/Kbuild b/arch/xtensa/include/asm/Kbuild
-> index fa07c686cbcc2153776a478ac4093846f01eddab..07cea6902f98053be244d026ed594fe7246755a6 100644
-> --- a/arch/xtensa/include/asm/Kbuild
-> +++ b/arch/xtensa/include/asm/Kbuild
-> @@ -8,3 +8,4 @@ generic-y += parport.h
->  generic-y += qrwlock.h
->  generic-y += qspinlock.h
->  generic-y += user.h
-> +generic-y += asi.h
-> diff --git a/include/asm-generic/asi.h b/include/asm-generic/asi.h
-> new file mode 100644
-> index 0000000000000000000000000000000000000000..c4d9a5ff860a96428422a15000c622aeecc2d664
-> --- /dev/null
-> +++ b/include/asm-generic/asi.h
-> @@ -0,0 +1,5 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +#ifndef __ASM_GENERIC_ASI_H
-> +#define __ASM_GENERIC_ASI_H
-> +
-> +#endif
+So, Tested-by: Yunhui Cui <cuiyunhui@bytedance.com>
 
-IMHO it should be include/linux/asi.h, with something like
-
-#infdef __LINUX_ASI_H
-#define __LINUX_ASI_H
-
-#ifdef CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION
-
-#include <asm/asi.h>
-
-#else /* CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION */
-
-/* stubs for functions used outside arch/ */
-
-#endif /* CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION */
-
-#endif /* __LINUX_ASI_H */
-
--- 
-Sincerely yours,
-Mike.
+Thanks,
+Yunhui
