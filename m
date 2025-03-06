@@ -1,140 +1,187 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03BB04C6E
-	for <linux-openrisc@vger.kernel.org>; Thu,  6 Mar 2025 15:38:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4EE3B667;
+	Thu,  6 Mar 2025 18:51:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741275523; cv=none; b=jY4OmJgDJbKskjqZDeyXLfYp+tXP0UjEXiNXwb1lJRZx/d751cB6lUM4lDMripg4ZhrSWLB1KXh1m3QymjSsm/JFupwoW0AFTE+0Z0fw1Jr0OrjKWJfXy6mWqEmGyRTNAgrjfKyZvkKBoP0SJ2bnPt+EmMlcLVAOJli4azM6TI0=
+	t=1741287106; cv=none; b=dftyZyyPMzxbw5dldh0XC5tWRPkNPmM+4Vvy78h91J/BzfdcOo2BJHLinsAsooANfU2p2t1jJMfcDRrCin/QRNEtch/xSR5eh6HRKSC2L/Ec3rKuSZsnD8Ojnddm1hTl/a0S0EbVelBNLsFPYY7oB0zF4KMEhdU/nZU7TXLvic8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741275523; c=relaxed/simple;
-	bh=0iInUkr6YB9lRmxxnzbKbOFNE31vCim7xZLrJ/qaIj8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QMyP25F+ynpImwqrrQdAcqD9te2ed3N9rVlOyODFLvmdiRYkjRXipPOAg382KHF043BW5S8u9QUCvV8R6gF60BYmIVl+is7ULQ2wO0Cx2xF36XlT1NTtJRI+7+UJbZBnBPH4olyX47e4rIy+zkC6BH54LJKh/9wOddqSW+2yU4Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mQP8m9+5; arc=none smtp.client-ip=209.85.128.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1741287106; c=relaxed/simple;
+	bh=/wpX+rodiPgNkc2E/+2EOJ8vtAUtpxXz9ICTWI7pMKs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KJUglPnL5NkRRBWfkmpaH7UW4q7JK9fkTbPPDCpQNDM0QYAGmluz7hRAKOUGJ4iBh/goODIK68Ifv3XGaRMZ25RJBpUEUvTS1dsXc4/02PwCftSPK7Jltxnx5AOMVsBTQBBLwknT90TPQpuD8j7IkOkFUKKrdpCiBDu03buNORo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=P80r7Rsa; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mQP8m9+5"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-43bcc04d4fcso5349905e9.2
-        for <linux-openrisc@vger.kernel.org>; Thu, 06 Mar 2025 07:38:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1741275520; x=1741880320; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=fRgwxpiT4aTdZ/wGnP3XHQkvcO+hTpqTs04DM1z7cmQ=;
-        b=mQP8m9+5dy9cAXKADlzk9NKZSnjGGcGinVoYxZd2bjbenMAY7BB5X2kRNIS8wW1rwK
-         2Pq1Kt+1Zwzl9mLJz7hR3rDq5TgWGPwPIfU2IoIdTbZo57FDUhi5DrDdkyRYytvINoqA
-         FVBDIgAwNAENZ8qQEFHxQ74GbtwcI85Oj5wYMgj1fbzgtumOKvdepMA8c7T0p34rlKwz
-         RIqgQqGiTDxYU7JGf5FSKOhGRRyqIEnUP8sDNzZj+Lv1K49nLQ8lYaKiL2zS/ajfXaqm
-         VAHpbi3MZUmbU9EcEOd1iPAljiSOlsm81S8F+mZjo/eoUwYggZN3oPaQkEEeNBpJ9+wO
-         Y4/w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741275520; x=1741880320;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=fRgwxpiT4aTdZ/wGnP3XHQkvcO+hTpqTs04DM1z7cmQ=;
-        b=YFfRQj+Ui9S6PnGxr20C71bpzRHjAtVs/FXzzpl2fG6rKYFqH6LVXKKFg+cC2DANAd
-         k8LBwVCUp5FdRJLNJtgV5Mbm3q9qRM0Qmlf7dbAsKIK/zHryX72NQ654JtH7XyapJjbY
-         QTZ153aivnkRWzM+UGsFOxdWl35OdqyMugdcN40I6cgRSww5Ku2JbHsapvXeKgzb+5QE
-         zPbkGJdmnkhexTwqDpF7IelGLm6uVkhBnwXFhcUon78hOEixyepvEZLcz2Q5Fxrm8EDP
-         I2YahBNJ1KeqnP0kWdzPErQigRxvNMvd6LnzqJ2oVTAka9dr2ipxghwE+3xZwrT3cMoN
-         bDWQ==
-X-Gm-Message-State: AOJu0YyUcrn3diY3mNuPrCbSZip80VLKk6cktwm4J+Z2eeE1E4GQwNXb
-	XRNWJsJBc4P6JNDAlDiy6d0BR1E7IbVFXeMWlHLup5086Cd8QB1DEEAAANVF
-X-Gm-Gg: ASbGncultipKQGudI4MMnDkj+Sn7gnkAkWC3dYoD1VikpRKdN478/rO/dtQe16wKxzF
-	xSGdBMVp80+92UQRPO8z5ycrbVV8CtIm6PlsP0gfmoELURTlYaZ4TcmTdGWz71krbPWnkXIL/oQ
-	z4ZfQWL+wZXuC39JH/sx1yLiW12YZBjivuLxIaK15gC0Z1IU+d/+hbJqJe4O22mXP9A6FVDWkbj
-	0fXlw67Y9u6S++CWucgo3xdUH4C222kouAtX3YCukmJXAg0Uij51u2OCzfBVIxOipamkJlp74Gi
-	YYhTge76LOn4WcBFSug8vvvbQmwFAjKKZ/eGiiX0LXDyDv3ysZJsB3Fs1LZjLcMIxHM07dilUL4
-	8IT/6g+ER
-X-Google-Smtp-Source: AGHT+IGDgckB4ZMZ5mZU0sxyKTq8ZJBoTAYCuLFuurn4bNWOB+P6Fky5fiath0W2dBMzKg+RrTDubg==
-X-Received: by 2002:a05:600c:4f15:b0:439:8c80:6af2 with SMTP id 5b1f17b1804b1-43bd2ae000emr51699605e9.21.1741275519717;
-        Thu, 06 Mar 2025 07:38:39 -0800 (PST)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3912c01d2cdsm2410489f8f.57.2025.03.06.07.38.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Mar 2025 07:38:38 -0800 (PST)
-Date: Thu, 6 Mar 2025 15:38:37 +0000
-From: Stafford Horne <shorne@gmail.com>
-To: Idzwan Nizam Jamal Abdul Nasir <idzwan.nizam@yahoo.com>
-Cc: linux-openrisc@vger.kernel.org
-Subject: Re: Performance improvements of Marocchino implementation
-Message-ID: <Z8nBfbkXiNCcdtK5@antec>
-References: <810295975.3514440.1740967866807.ref@mail.yahoo.com>
- <810295975.3514440.1740967866807@mail.yahoo.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="P80r7Rsa"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73E1BC4CEE0;
+	Thu,  6 Mar 2025 18:51:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1741287105;
+	bh=/wpX+rodiPgNkc2E/+2EOJ8vtAUtpxXz9ICTWI7pMKs=;
+	h=From:To:Cc:Subject:Date:From;
+	b=P80r7Rsa2pkCu11363Fa/SyYTsTL5K11aoIfGVkUhXZXMZF9ghtejyVAEAn/9gYin
+	 1wjIQSDGLefP2aOn0lF4nfOFQWYeL481ld2xteJKdOm4N0DyD3FCaFsp8v0/3LF+Zj
+	 A1q//tTu1zIkAikd8Mvn+6NSXoOT1YkxG40QhglljaBoNvOzWHiF8i1U7IHFop/QuY
+	 5qG0votPJ3w9ptEMTqOjG9ejudqVaGGqjAr6pLD9gnSTU97J4z2wTm+bpnENlPeeCa
+	 JlGFrkz4pFB5qBl+yf6kzfEB+qI0NhdVqEy7aOxbZiiRw30qg1qYZpVJ1ch4THxRCE
+	 TD35zfcbQZ4wA==
+From: Mike Rapoport <rppt@kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Borislav Petkov <bp@alien8.de>,
+	Brian Cain <bcain@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Guo Ren <guoren@kernel.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Jiaxun Yang <jiaxun.yang@flygoat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Matt Turner <mattst88@gmail.com>,
+	Max Filippov <jcmvbkbc@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Michal Simek <monstr@monstr.eu>,
+	Mike Rapoport <rppt@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Richard Weinberger <richard@nod.at>,
+	Russell King <linux@armlinux.org.uk>,
+	Stafford Horne <shorne@gmail.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Vineet Gupta <vgupta@kernel.org>,
+	Will Deacon <will@kernel.org>,
+	linux-alpha@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org,
+	linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	linux-arch@vger.kernel.org,
+	linux-mm@kvack.org,
+	x86@kernel.org
+Subject: [PATCH 00/13] arch, mm: reduce code duplication in mem_init()
+Date: Thu,  6 Mar 2025 20:51:10 +0200
+Message-ID: <20250306185124.3147510-1-rppt@kernel.org>
+X-Mailer: git-send-email 2.47.2
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <810295975.3514440.1740967866807@mail.yahoo.com>
+Content-Transfer-Encoding: 8bit
 
-On Mon, Mar 03, 2025 at 02:11:06AM +0000, Idzwan Nizam Jamal Abdul Nasir wrote:
-> Hi,
-> 
-> I am interested in OpenRISC Benchmarking and Performance improvements task
-> listed as one of the project ideas in Google Summer of Code. I am unable to
-> participate in GSOC but I would like to contribute to the task gradually as I
-> acquire skills in digital logic and computer architecture.
-> 
-> Is the task still open? I would be glad if you could point me to the right
-> direction such as documentation I should read or tools I have to be familiar
-> with. Any guidance is welcome and greatly appreciated. Thank you.
+From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
 
-The task is still open.  There are other students interested so I will have to
-end up having to choose the student with the best proposal and skill.
+Hi,
 
-Please try to get started by reading up on what was done last year in this
-space and see if you can follow some of the steps to get the development
-environment setup.
+Every architecture has implementation of mem_init() function and some
+even more than one. All these release free memory to the buddy
+allocator, most of them set high_memory to the end of directly
+addressable memory and many of them set max_mapnr for FLATMEM case.
 
-Our previous GSoC participant, Leo, did a lot of ground work but never submitted
-any formal GSoC progress report or documentation.
+These patches pull the commonalities into the generic code and refactor
+some of the mem_init() implementations so that many of them can be just
+dropped.
 
-What he did produce were:
+Mike Rapoport (Microsoft) (13):
+  arm: mem_init: use memblock_phys_free() to free DMA memory on SA1111
+  csky: move setup_initrd() to setup.c
+  hexagon: move initialization of init_mm.context init to paging_init()
+  MIPS: consolidate mem_init() for NUMA machines
+  MIPS: make setup_zero_pages() use memblock
+  nios2: move pr_debug() about memory start and end to setup_arch()
+  s390: make setup_zero_pages() use memblock
+  xtensa: split out printing of virtual memory layout to a function
+  arch, mm: set max_mapnr when allocating memory map for FLATMEM
+  arch, mm: set high_memory in free_area_init()
+  arch, mm: streamline HIGHMEM freeing
+  arch, mm: introduce arch_mm_preinit
+  arch, mm: make releasing of memory to page allocator more explicit
 
-    Here's the embench-iot with fusesoc compatability changes applied:
-    https://github.com/hhe07/embench-or-patched
+ arch/alpha/mm/init.c               |  8 ----
+ arch/arc/mm/init.c                 | 25 +----------
+ arch/arm/mm/init.c                 | 43 +------------------
+ arch/arm/mm/mmu.c                  |  2 -
+ arch/arm/mm/nommu.c                |  1 -
+ arch/arm64/mm/init.c               | 12 +-----
+ arch/csky/kernel/setup.c           | 43 +++++++++++++++++++
+ arch/csky/mm/init.c                | 67 ------------------------------
+ arch/hexagon/mm/init.c             | 32 ++------------
+ arch/loongarch/kernel/numa.c       |  6 ---
+ arch/loongarch/mm/init.c           |  8 ----
+ arch/m68k/mm/init.c                |  4 --
+ arch/m68k/mm/mcfmmu.c              |  1 -
+ arch/m68k/mm/motorola.c            |  2 -
+ arch/m68k/sun3/config.c            |  1 -
+ arch/microblaze/mm/init.c          | 25 -----------
+ arch/mips/include/asm/mmzone.h     |  2 -
+ arch/mips/loongson64/numa.c        |  7 ----
+ arch/mips/mm/init.c                | 49 ++++------------------
+ arch/mips/sgi-ip27/ip27-memory.c   |  9 ----
+ arch/nios2/kernel/setup.c          |  3 +-
+ arch/nios2/mm/init.c               | 16 +------
+ arch/openrisc/mm/init.c            |  6 ---
+ arch/parisc/mm/init.c              |  4 --
+ arch/powerpc/kernel/setup-common.c |  3 --
+ arch/powerpc/mm/mem.c              | 18 +-------
+ arch/riscv/mm/init.c               |  5 +--
+ arch/s390/mm/init.c                | 18 +-------
+ arch/sh/mm/init.c                  | 10 -----
+ arch/sparc/mm/init_32.c            | 31 +-------------
+ arch/sparc/mm/init_64.c            |  4 --
+ arch/um/include/shared/mem_user.h  |  1 -
+ arch/um/kernel/mem.c               |  9 ++--
+ arch/um/kernel/physmem.c           | 12 ------
+ arch/um/kernel/um_arch.c           |  2 -
+ arch/x86/include/asm/highmem.h     |  3 --
+ arch/x86/include/asm/numa.h        |  4 --
+ arch/x86/include/asm/numa_32.h     | 13 ------
+ arch/x86/kernel/setup.c            |  2 -
+ arch/x86/mm/Makefile               |  2 -
+ arch/x86/mm/highmem_32.c           | 34 ---------------
+ arch/x86/mm/init_32.c              | 41 ++----------------
+ arch/x86/mm/init_64.c              |  7 ++--
+ arch/x86/mm/numa_32.c              |  3 --
+ arch/xtensa/mm/init.c              | 66 +++++++----------------------
+ include/asm-generic/memory_model.h |  5 ++-
+ include/linux/memblock.h           |  1 -
+ include/linux/mm.h                 | 13 +-----
+ mm/internal.h                      |  3 +-
+ mm/memblock.c                      |  3 +-
+ mm/memory.c                        | 16 -------
+ mm/mm_init.c                       | 58 ++++++++++++++++++++++----
+ mm/nommu.c                         |  6 ---
+ 53 files changed, 151 insertions(+), 618 deletions(-)
+ delete mode 100644 arch/x86/include/asm/numa_32.h
+ delete mode 100644 arch/x86/mm/highmem_32.c
 
-    And here's some tools I made for working with instruction printouts on
-posedge:
-    https://codeberg.org/hhe07/or-analysis-utils
 
-He started this blog with details of how to get OpenRISC simulations working
-with Litex or FuseSoC.
+base-commit: d082ecbc71e9e0bf49883ee4afd435a77a5101b6
+-- 
+2.47.2
 
-    https://hhe07.codeberg.page/openrisc-work/
-
-What we want to do is:
-
- *Getting started*
-  1 Get openrisc mor1kx and maroccino working in embench-iot
-    a. With SoC, either fusesoc or litex (fusesoc should be easier)
-    b. With backend, either icarus or verilator (verilator seems to run faster)
-    c. Serial output needs to work to be able to capture timing information or
-      when tests start and stop.  In verilator this is a bit tricky but should
-      work with the proper flags.
- *Recording Results*
-  2 We next want to record reults in a format similar to embench-iot-results[0]
-    a. Collect results for default maroccino, mor1kx
-    b. Collect results with permutations of cpu and compiler config
-      i.  Caches of difference sizes, enabled/disabled, different branch
-          prediction algorithms, different ALU implementations, etc.
-      ii. Certain instructions enabled/disabled by the compiler, -mror, -msfimm
-          etc see `or1k-elf-gcc --target-help` (Note: the project aims to
-          benchmark both CPU pipeline, compiler and instruction set efficiency)
- *Improving results*
-  3 We next can look at where the cpus are lacking performance and how to
-    improve things in the pipeline, LSU, caches etc.
-  4 We can then go back to 2 (Record results again) and compare.
-
-The 2024 GSoC project was only able to get done with steps in 1 and just started
-with 2.a.  I think there is a lot of work left to be done, getting done with 2
-for a GSoC project would be a great accomplishment.
-
-[0] https://github.com/embench/embench-iot-results
