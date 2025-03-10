@@ -1,237 +1,164 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from sonic311-13.consmr.mail.bf2.yahoo.com (sonic311-13.consmr.mail.bf2.yahoo.com [74.6.131.123])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C17532F28;
-	Mon, 10 Mar 2025 00:44:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98A711D5AB2
+	for <linux-openrisc@vger.kernel.org>; Mon, 10 Mar 2025 10:19:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.6.131.123
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741567453; cv=none; b=SrZ/SQuwTpOUI48+8BKYcpoNvAx91qtoYKDIkbS+1126OpyhPidKh6ZbM0x+wpDDKAZB7Pthl5obIwIBW1hBO/BeGd8E3bGq+bQcSP8a2xZR3Y+VblKu3wnILGB64TSwjdIFO8vUEVGnJxeKdR8YUt9tdU2+wISdiJhzeByrQ9U=
+	t=1741601983; cv=none; b=NtSIls0jTx/gasIupcSyKlLVDt6FslsV5OaeRTBURQ3xuLGIaT0CI3FSZBw8svC1t2HMejvNZdX67ro9mgDfgM9zAE11vP3wLzNhWSYWmoVq+pGQeBahY5NNx3O1RzHXBjbnmvPcjhf5tLe2StMmB8Ps7nBPh93rbDuWij+8Ajc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741567453; c=relaxed/simple;
-	bh=tXY/sDLcuj92SaFYz0hFOsAFXofDkFw5jSfwl2CB2dY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WwMAKGVNzCbhH5Ti3Qw9yajV7sSiyZFgEBkWpygyYK73w/3QdOXWHiRxUmUd6M1+inqUWLROterY4XRU7d0/5JVtqbuD2tqqkH3YByonKw3tVqKg6D6eVRrjCtP1g3wL/bJbgdJKQtNBNw0rRKH6M6ORIFdyrb8JsWfJRqaXDkg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BVSocaYZ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1741601983; c=relaxed/simple;
+	bh=ycFiyAgaLUDPEqMiuTPYlotGOJ0SndgF5M760zsiYGs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=IEuZIhYLSD5LSyxwa5ULdTdUWURNJsdqtOd4ZQos7S2wNHZrfLZICW/C3Xgkdv9korUvaCbl7LlGMCHZYZmRvRTNEl3geA7U4URt2bK9FdbEdT/pZLSkQ2tHgFlA1M+sFobt8kSKDjjHtf+TJSozK248pMEGwojVSbvadyJ/0ME=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=yahoo.com; spf=pass smtp.mailfrom=yahoo.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=ftYExzlE; arc=none smtp.client-ip=74.6.131.123
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=yahoo.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yahoo.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BVSocaYZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE6E2C4CEFB;
-	Mon, 10 Mar 2025 00:44:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1741567451;
-	bh=tXY/sDLcuj92SaFYz0hFOsAFXofDkFw5jSfwl2CB2dY=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=BVSocaYZc2rAS9DmzOR25Py/nYQDKd36w67O/0f9ylpFUIWrKw00/eEyMdMxUmEnT
-	 NCXedm8BdKAPb2DDHW/gVC70TSdEV2tqTRDbyeVdnS0x5i7l3qBINrQb5+yrFjV2nL
-	 yJlPfiMabW5EhD/hEm2DYm0W3dPpC5LvZoTr7ApvT8Ju7gY1RegDx5zL1A0z9PwyXG
-	 3yRjPZw573XVubRbjFOXqpAoQhLdKtK714p3+ESSV5Xi9sNjr5uTPAsxaHljEkBrNR
-	 8s92NP6QLtWXH4QXEwGK53QDFSH2XRVYuup0zGWIcKuguSpfx56dz9btSD3K/PGaKw
-	 AQmLlaIjyhUCw==
-Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-3914aba1ce4so170133f8f.2;
-        Sun, 09 Mar 2025 17:44:11 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCV1eM344Xsla3w/aRO4wmSrjJu39Lgg1JPZITtYbkVX7t5KKdA0SJRTdkl/xRc9MZKgGKwk3cWfXkevk7xx@vger.kernel.org, AJvYcCV2R/Q7tn05RpUis0/RbjX57VkjXh5YNu71RSBoFsqEyw3ge+DqPmi4qunELr7UrdfIx5L3su816/hnxg==@vger.kernel.org, AJvYcCVbXm6XPydNaJgIB2vgHZRl55ysxP/eS9kZOnXD4vCAH445LI9063iLnp0gSn4lCTyHoN4N63Gpl9vwegKq96w=@vger.kernel.org, AJvYcCViTAmbxje8MnFWTeArMDHz4tsCJ8Ux6CSSe3YICmGsDpT1tZuvs/BLFLDm+lwrQp25EGEZe8NqmGg=@vger.kernel.org, AJvYcCWM4yH2NO4f88rc5SwUr3OXIDzWPsFa5FRWocgOIY9jBsLniVrRpxYfdqL40umQFTUSSs2TfBhskhNUZw==@vger.kernel.org, AJvYcCWNUKBgsBTqCkPFfVWVqAiRGeb3h2gb7Ea69ztQZjbfRAjPF/bNGqFzyulBCwfQwIQzmQI4ZVeBiWkrYesX@vger.kernel.org, AJvYcCWqhru8eA9e1MWcaKgZ9LO2iz0SZWyeXVF2LBmPxbuxSjdlgwSckGiHmSQ7dGoVySGmvbVCNGlz0gyTCA==@vger.kernel.org, AJvYcCX+r+aIfzNhbnHx5J/v2pAwEzNeXo2e/1dBnm86Qyw+XpKpjR/mP/RwpIOn/V52eehLB0c3eKBDIwUvVA==@vger.kernel.org, AJvYcCXEejc/yyH+wBDCBXRtD5ebNqubECssx3jhAriQqiFqQkTWd/zrj1u50N0xJGjuVjB015QDygH31bHY1VowbA==@vger.kernel.org, AJvYcCXSXM8CO7YsTBmpeTX3FSaSCzsmiNk5KPEmSVWaJ1kM/CbLf/TMkHaZ0Y9r3sl3so3BN+FTHy6aVY3wKw==@vger.kernel.org, AJvYcCXWqqg/DcCK5NfDp4ysoVOJKOWvQS9/OU3FxIj9Q1voLm1ZIazmzSW6G00kpHCxIKURatMWVu6jTHusIw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxT1IlKGBmfxXAflYSf3fpgCaxYYGap4BUA7ZLaBfk8KOIR0197
-	74s9FsYXgdi/9aFVIjlV9ntS4AUXSQwkpvm5EoPNMo7vbbpIDbQflaZsTaQqdpn5VhwAjXzV4bb
-	HadlW79k4S9PV29GXWa3q7Bj1Wwc=
-X-Google-Smtp-Source: AGHT+IHp0xTG1Ng23HFO+vDoVdsoufkarKG1pMLa2Hgf32UrExuCoU7QvtsFi3JnHOAx4U/X+f6ME+7JOCYs321ZM0M=
-X-Received: by 2002:a5d:6d8a:0:b0:391:1218:d5f7 with SMTP id
- ffacd0b85a97d-39132dacbd3mr7997015f8f.40.1741567450112; Sun, 09 Mar 2025
- 17:44:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="ftYExzlE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1741601974; bh=j+Fx6nRQAcnvlctoNadDgdR3v6BsKeHUtyKMxVMMUTk=; h=Date:Subject:To:References:From:In-Reply-To:From:Subject:Reply-To; b=ftYExzlEr51zVfM7H/IAoALRcpSVZuRPGKowahY8Kp/safdrctgVWwGLRZncSNvLudQ/Yo9Ek7UfhMrlKKlcKjGqOqxyU3F7X+T0FvuJCm46VdL2y+payZdP0JPrG+7NZFc1DjR7dZnokjgg3Cfc+WOxbA5e0I1G4TUMSD86B+R0wr9uoiIf70jTC/FoUnmpa/P9hKUKfqfZQCLBWq9qOZoIfrP6Ky9k0HjmoP1wsGonpDxtDqCm0/d+xQgcxVqzOpk4/MMqQYc41yzd+y+CtWGb5nkZK3D7R6c0sCtFN+X4RArrXYK42yd7dcNPy3N4eW0SXNnTHZ6Uv1qS1yv4Yw==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1741601974; bh=5y2tCukdi98tBL+89f0qIhxpOooLCn+0163qnlLm1wL=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=P3oq0rfNhb1JHOc62VfiwvVTiOZqf/FNm0x2HvbmSnkJ9BdZI0IO9PlZLol6aTzQ7zsAOsR3wPdAmThHz+MXPG4QGmYkmGjHzxBff5cmI8XPwTXbE3MC6Q4pwGuDDhFbXsykh+rBVnSJfBFADjKehfygLxLVoOvqzxRKMi793R8N4Z1oNY00V5+zx1CDeasmanQ0b1SNgJh7WbG7VUKr098YlU9oaF4YGX3bU4VE/G7otQIgdgNwk/Am69XKbYq1PzmMciE7U2lZ6RrjqE9jU3GNP9vzgSbe+EZh9ZjYTYtbvirqgn16TIwDlgNDZmv/9UHW1APHneYsy2Pwx1CKHg==
+X-YMail-OSG: B.c2o1EVM1lbQCjEhfGVG7kskKr1FT_yFmsetIsuVEzc51feFnLNXoP7t05oXay
+ V2nHWiUTPMFeGWuJQywrX60ctGgGq4zzzRHKp71vFU35XMTmVPMbKRLBi4nb465IE1jQ8VGmph0J
+ CdRiPA1zE7Gb2ffKrVF91DajFMO_n6wMYiRB3KBBuOVt23mW.2iiRVuK0FoZ5Da1dELqAz3APcU7
+ d0SaNfLCTvpALkdTt_ntN1Ap_JDjHo2bbm_QPS.2krMQEdeCs.lx.I1c9rw3xURkZslk7TbwPfDl
+ Swo_h6QAOsdzPK734Ib2QZiFoiWEyksIz4Fcwk0cBCreRgBlIBSGq0CvI7f7P7Trff5URGTGP3K.
+ vvGjKlHhRZmmv3x7BRTh.tTgjV7FYNPlz7e7PN7TyOOvswSp9wXmVQhxyzZXQ3CpCyZDej.lFFSV
+ hirnxEtxqvsvi4mg2ntoALNtlzzBrXEiidgO1VyzX5Fz.dZOMw0JheIn1tx4BU.3qSQCnFurA8Kv
+ y8nrlPWl6tLD2i1iJkhn58rPclu9.Yfl3gS6AOXOna.VE8.qWCy1nmnzS9ovXCQPUJg1_B3TwAgp
+ G7Tkwus9TkKRRy.D0YTAMaR30c.JqD65xVcW2GBc1JfmWXTZmDGNjlJMi26iTn2MuuM6JLseqWLn
+ NP8zmdXYFPQoMrwhDMNfMa_VpI2.ALfkN5PFZd3RTOQxBJ7kU4ViFbL2hrGgVa488FIZN8pIlTM8
+ SsG.R9UeQmEIXeqIF9qAj2ezFSVzXZAVceyhuV_hCs2t86m8nVCZeGrRggsCjc1BQUpjT3DV_sKM
+ S1bZ0ulD_pB6d9qLqdmuVY7Kxq1k5d6YxB1SWzZix4IIASQyIRdiOJf2LVvgzynFU1FHFlMZyvKd
+ GPybPoFjnk_kNyPAPsH6PLBvgBrBJgMFDB_8JYFTWTkXQtoqVTVBXj5yL1xpBGztCHToM3YPfLcA
+ 0ScGb0LBCr91X5Dpkzs.wPc6bEzlwt4yvByYiNIIBRraoWhDbT431EdMhXUQ_avQYtp3zLcP4oBz
+ F8LkUW4eB.uvAX5cp4EN0K9zE8dFPXH1NFPB2g3E_aM2_dW0Z4stOvSNlYCXz9WDgjcdMhUMfwUy
+ dOkXtGttcHh4tIGV8wZbeikntqa1aspCf4El.3idcdb5vSTki6mDuloh0FWbfGVGzMMie1mwe1ef
+ I8gbJ0Z0.Ps1x2_xPYxX6EPZgACHLhrKFfKmMpBbAhasCTdS7HTzUmZoTJ2PPPw3YiY.uMItn.az
+ CSQyXk5qymmnvaVBCU7cFfYkGbJ.BFQi0vegvgB6DKVWOyFzZKxSfSU4RNruj6c6OUUWHZtIvUvY
+ fgCfoN8vPbc8CqEI6jVx7YqRB7f0uo_C2acvSeldWoYgBs2TXeI39354Atk03hBhHgvInpI07Shk
+ WF85A8lb1T7yr7WI8tFTEau7omlQVntTac0W804sSssdmwxT8hdnaAQ6LyvCeyWDsgPRpgUpufBh
+ XeixzdTbCbPwsJc3Zrz1dkesv5WryBjyKTzMCtMyv_8aYzQgKQfaUDbRpeIPXukxM.Ucd6wZW0PD
+ Q9_oVTpqLDyjnKaJecYbGDz_kcAFrryiBpwXZYUn_HIpzhK8R1BgeepBR2NhuR1bD5wj57LfVMva
+ ulfE81nd32gQFbAiUDWCcjHqEhmMd1wu6MDG.z0XOw7onqljmXOhaweRrRNaWpRiWU7Bl7yyZ_Hx
+ IhAnZog7_uTmbj.8XUmuWkZdsX3HtifvpISevWrhuS1WepTAgWvpu.j5zFWbhq6CzOyFl5bq0uFk
+ xBzYB_wLWOomZPa7P5DHLkiOCoOpAGPN7fUvn1jK7cjbj5d2tYZTvR3GFzcyJvdTyPZ5iSykxupk
+ i9NH6845t06Ug9yYJR0OvLaMmCw1H9M7k_w2xxgNwVs6._gKpWy99t2zx6vdpiru7.9mVFBTCUmH
+ ll3U0OYZ7L.xb1p_UzwjWwKUao4eLhoYu2fZq3a.LKqmoPBtw_NgSE37wFXpA1C5QDHofX1CDB5t
+ WgoylwaQQdQkFoPPNxgYHy98ej5Std.Bkl.kT6F1tyEHUfwqOHNUy5C3S3xHuLHFskXDyTmBwDZO
+ JcYfwNoMM8UdTYL0gWCGJO.pHva2yEd5VCkfYLf3vFh1XQ8qtxcCGalNB26NgGhQLKSFnQXp8kPI
+ EtbrNkowv53D8HBNdzunfeqFq2dmn4q9A54Q4o_IbagmXMESz1F0PDzFHrSm1OHOOErlOWDjo2GY
+ fT08dz5bC7x3aDJy8JirvAJIexOCaWhmkr_QZkUQ4565kUhae5wU_WFpK5foUVnflokiALDvDGTG
+ PIm0tv2A-
+X-Sonic-MF: <idzwan.nizam@yahoo.com>
+X-Sonic-ID: 5add2714-2f45-420a-8992-26afd2a4683a
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.bf2.yahoo.com with HTTP; Mon, 10 Mar 2025 10:19:34 +0000
+Received: by hermes--production-sg3-fdfb796d6-g2nmd (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 16f5d2d74d96d5b2a9f20e98df8789c2;
+          Mon, 10 Mar 2025 10:09:22 +0000 (UTC)
+Message-ID: <4da2a6d4-bd1b-4043-92fe-4c16d2313a31@yahoo.com>
+Date: Mon, 10 Mar 2025 18:09:20 +0800
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250306185124.3147510-1-rppt@kernel.org> <20250306185124.3147510-3-rppt@kernel.org>
-In-Reply-To: <20250306185124.3147510-3-rppt@kernel.org>
-From: Guo Ren <guoren@kernel.org>
-Date: Mon, 10 Mar 2025 08:43:58 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTQBLMt01QjnhX1tCgHs6HJm1hZXQXgVjNkNS5Yt5t4UCQ@mail.gmail.com>
-X-Gm-Features: AQ5f1JpCBLojM2w9P1ED3pCe1VmP9TPz-dzItajSIbNDMlmKYLEeMGoNaHpCAZk
-Message-ID: <CAJF2gTQBLMt01QjnhX1tCgHs6HJm1hZXQXgVjNkNS5Yt5t4UCQ@mail.gmail.com>
-Subject: Re: [PATCH 02/13] csky: move setup_initrd() to setup.c
-To: Mike Rapoport <rppt@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
-	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	"David S. Miller" <davem@davemloft.net>, Dinh Nguyen <dinguyen@kernel.org>, 
-	Geert Uytterhoeven <geert@linux-m68k.org>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Jiaxun Yang <jiaxun.yang@flygoat.com>, 
-	Johannes Berg <johannes@sipsolutions.net>, 
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Peter Zijlstra <peterz@infradead.org>, 
-	Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>, 
-	Stafford Horne <shorne@gmail.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>, 
-	Will Deacon <will@kernel.org>, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
-	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
-	loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, 
-	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
-	linux-um@lists.infradead.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, 
-	x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: Performance improvements of Marocchino implementation
+To: linux-openrisc@vger.kernel.org
+References: <810295975.3514440.1740967866807.ref@mail.yahoo.com>
+ <810295975.3514440.1740967866807@mail.yahoo.com>
+ <917f2fb4-adf1-4c1a-a268-8229a90161db@gmail.com>
+Content-Language: en-US
+From: Idzwan Nizam <idzwan.nizam@yahoo.com>
+In-Reply-To: <917f2fb4-adf1-4c1a-a268-8229a90161db@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.23435 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-Move setup_initrd from mem_init into memblock_init, that LGTM.
+Would it be OK and consider a progress if only FuseSoC were used?
 
-Acked by: Guo Ren (csky) <guoren@kernel.org>
-
-On Fri, Mar 7, 2025 at 2:52=E2=80=AFAM Mike Rapoport <rppt@kernel.org> wrot=
-e:
+On 10/3/2025 1:02 am, el 01 wrote:
+> Hello,
 >
-> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+> Hopefully this makes its way onto the mailing list, my previous email 
+> didn't.
 >
-> Memory used by initrd should be reserved as soon as possible before
-> there any memblock allocations that might overwrite that memory.
+> Stafford's previous email basically covered what I did last summer. 
+> I've been dealing with some health issues and haven't been able to 
+> consistently document my progress; really sorry about the lack of 
+> documentation.
 >
-> This will also help with pulling out memblock_free_all() to the generic
-> code and reducing code duplication in arch::mem_init().
+> I left off at trying to figure out some (perhaps superficial) 
+> differences between measured cycle counts when running a benchmark on 
+> LiteX and FuseSoC, two different 'build systems' for the HDL design. 
+> This doesn't directly address the discrepancy between marocchino and 
+> mor1kx, but was a step along the way.
 >
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> ---
->  arch/csky/kernel/setup.c | 43 ++++++++++++++++++++++++++++++++++++++++
->  arch/csky/mm/init.c      | 43 ----------------------------------------
->  2 files changed, 43 insertions(+), 43 deletions(-)
+> The build systems bundle the OpenRISC core with some other necessary 
+> hardware (e.g. simulated memory, peripherals, etc.) and build either a 
+> binary for simulation on your computer, or something which can be put 
+> on an FPGA.
 >
-> diff --git a/arch/csky/kernel/setup.c b/arch/csky/kernel/setup.c
-> index fe715b707fd0..e0d6ca86ea8c 100644
-> --- a/arch/csky/kernel/setup.c
-> +++ b/arch/csky/kernel/setup.c
-> @@ -12,6 +12,45 @@
->  #include <asm/mmu_context.h>
->  #include <asm/pgalloc.h>
+> When running binaries from the Embench benchmarking suite on the same 
+> processor core / simulation engine (and only changing the build 
+> system), there are some tests which have substantially different cycle 
+> counts.
 >
-> +#ifdef CONFIG_BLK_DEV_INITRD
-> +static void __init setup_initrd(void)
-> +{
-> +       unsigned long size;
-> +
-> +       if (initrd_start >=3D initrd_end) {
-> +               pr_err("initrd not found or empty");
-> +               goto disable;
-> +       }
-> +
-> +       if (__pa(initrd_end) > PFN_PHYS(max_low_pfn)) {
-> +               pr_err("initrd extends beyond end of memory");
-> +               goto disable;
-> +       }
-> +
-> +       size =3D initrd_end - initrd_start;
-> +
-> +       if (memblock_is_region_reserved(__pa(initrd_start), size)) {
-> +               pr_err("INITRD: 0x%08lx+0x%08lx overlaps in-use memory re=
-gion",
-> +                      __pa(initrd_start), size);
-> +               goto disable;
-> +       }
-> +
-> +       memblock_reserve(__pa(initrd_start), size);
-> +
-> +       pr_info("Initial ramdisk at: 0x%p (%lu bytes)\n",
-> +               (void *)(initrd_start), size);
-> +
-> +       initrd_below_start_ok =3D 1;
-> +
-> +       return;
-> +
-> +disable:
-> +       initrd_start =3D initrd_end =3D 0;
-> +
-> +       pr_err(" - disabling initrd\n");
-> +}
-> +#endif
-> +
->  static void __init csky_memblock_init(void)
->  {
->         unsigned long lowmem_size =3D PFN_DOWN(LOWMEM_LIMIT - PHYS_OFFSET=
-_OFFSET);
-> @@ -40,6 +79,10 @@ static void __init csky_memblock_init(void)
->                 max_low_pfn =3D min_low_pfn + sseg_size;
->         }
+> Some initial data I gathered will be attached, it seems like there are 
+> some substantial differences in the cycles required to execute some 
+> instructions on LiteX.
 >
-> +#ifdef CONFIG_BLK_DEV_INITRD
-> +       setup_initrd();
-> +#endif
-> +
->         max_zone_pfn[ZONE_NORMAL] =3D max_low_pfn;
+> I'm also not 100% on whether the measured cycle counts are completely 
+> accurate, as the debug / trace parts of the LiteX and FuseSoC are 
+> somewhat different.
 >
->         mmu_init(min_low_pfn, max_low_pfn);
-> diff --git a/arch/csky/mm/init.c b/arch/csky/mm/init.c
-> index bde7cabd23df..ab51acbc19b2 100644
-> --- a/arch/csky/mm/init.c
-> +++ b/arch/csky/mm/init.c
-> @@ -42,45 +42,6 @@ unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsig=
-ned long)]
->                                                 __page_aligned_bss;
->  EXPORT_SYMBOL(empty_zero_page);
+> Another minor thing that I wanted to address was some inefficiency in 
+> running LiteX simulations. Because of the way that the Embench testing 
+> script for LiteX works (see 
+> https://github.com/hhe07/litex-esp/blob/main/sim.py -- from what I 
+> remember this is stuff that you can copy into your Embench install 
+> folder to enable compatibility), I think the CPU and some of the 
+> supporting software is rebuilt every time a different benchmark is 
+> run, which wastes a lot of time.
 >
-> -#ifdef CONFIG_BLK_DEV_INITRD
-> -static void __init setup_initrd(void)
-> -{
-> -       unsigned long size;
-> -
-> -       if (initrd_start >=3D initrd_end) {
-> -               pr_err("initrd not found or empty");
-> -               goto disable;
-> -       }
-> -
-> -       if (__pa(initrd_end) > PFN_PHYS(max_low_pfn)) {
-> -               pr_err("initrd extends beyond end of memory");
-> -               goto disable;
-> -       }
-> -
-> -       size =3D initrd_end - initrd_start;
-> -
-> -       if (memblock_is_region_reserved(__pa(initrd_start), size)) {
-> -               pr_err("INITRD: 0x%08lx+0x%08lx overlaps in-use memory re=
-gion",
-> -                      __pa(initrd_start), size);
-> -               goto disable;
-> -       }
-> -
-> -       memblock_reserve(__pa(initrd_start), size);
-> -
-> -       pr_info("Initial ramdisk at: 0x%p (%lu bytes)\n",
-> -               (void *)(initrd_start), size);
-> -
-> -       initrd_below_start_ok =3D 1;
-> -
-> -       return;
-> -
-> -disable:
-> -       initrd_start =3D initrd_end =3D 0;
-> -
-> -       pr_err(" - disabling initrd\n");
-> -}
-> -#endif
-> -
->  void __init mem_init(void)
->  {
->  #ifdef CONFIG_HIGHMEM
-> @@ -92,10 +53,6 @@ void __init mem_init(void)
->  #endif
->         high_memory =3D (void *) __va(max_low_pfn << PAGE_SHIFT);
+> As for where this fits into the larger issue of the performance 
+> discrepancy between mor1kx and marocchino, (in my opinion / 
+> experience) I spent a lot of time trying to figure out the tools and 
+> determining if what I wanted to do was a feature of a tool or 
+> something I needed to figure out. So, I'd recommend trying to 
+> understand the tooling and perhaps doing some practice tasks around 
+> it. YMMV, though.
 >
-> -#ifdef CONFIG_BLK_DEV_INITRD
-> -       setup_initrd();
-> -#endif
-> -
->         memblock_free_all();
+> I know I haven't really made this problem better due to poor 
+> documentation on my part, so please email if you're unsure about 
+> something that I did. I'll try to reply ASAP.
 >
->  #ifdef CONFIG_HIGHMEM
-> --
-> 2.47.2
+> As for the attached files:
+> - profile.ods includes analysis on cycle counts per instruction for 
+> one test, I think nettle_sha256. This is for the mor1kx CPU.
+> - results.ods includes cycle counts for all Embench tests run on both 
+> FuseSoC and LiteX, and calculated percent differences between the two.
+> - nettle-mor1kx-{fusesoc, litex}-trace-prof include the outputs of 
+> cycle counts from the analysis scripts I wrote (basically same as 
+> profile.ods), as well as some additional information on the PCs of the 
+> start/end of critical sections in the code, and how many cycles they 
+> took to execute.
 >
-
-
---=20
-Best Regards
- Guo Ren
+>
+> ~ Leo
+>
+> On 02/03/2025 21:11, Idzwan Nizam Jamal Abdul Nasir wrote:
+>> Hi,
+>>
+>> I am interested in OpenRISC Benchmarking and Performance improvements 
+>> task listed as one of the project ideas in Google Summer of Code. I 
+>> am unable to participate in GSOC but I would like to contribute to 
+>> the task gradually as I acquire skills in digital logic and computer 
+>> architecture.
+>>
+>> Is the task still open? I would be glad if you could point me to the 
+>> right direction such as documentation I should read or tools I have 
+>> to be familiar with. Any guidance is welcome and greatly appreciated. 
+>> Thank you.
+>>
