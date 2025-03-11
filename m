@@ -1,177 +1,110 @@
-Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37EB6223335
-	for <linux-openrisc@vger.kernel.org>; Tue, 11 Mar 2025 20:00:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 504F91386DA;
+	Tue, 11 Mar 2025 21:07:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741723228; cv=none; b=o8vR6HoozBdbzWTDxGvg8pceFGT9ZwdOIFWDsKBEv1hCQFVjWBjQ4hHzaInMTbD4V+79Zcqyzy/zbFhlDxxkpxJecRM+IPotP3z4E77H48q8py2l+OAwbhPh2Hnz4oEuWY+twqFVvE2yPxYk3NHlk9BQeTN+VE5iRd1gmtL1Jhg=
+	t=1741727240; cv=none; b=PL3zvAbWTUDu+7deZ69JBiNfkRyosqmvycJD0EhgsxOyVAqp1oLI+mTwQSzIpuHh8Pr08Ri+W4S/a6IDYu1RreIXmaFKkimQT1nWY7nQkaaOF9ky8YKb/475xY+f2yzm/ztIDCcujm68NPnRemQlMhHiuaQrfiwz+64CUWVvBQA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741723228; c=relaxed/simple;
-	bh=dQ/AyXc2NIr13EXujeVDPG7Aop/eru5YTYIiS6mm+cw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=qPx7VKx61mHdkyvmIJhCOmfubnvGm5UQFAcwhVGYywC/GznDFNzCW5z3zTE/lE83rXLa2tC8cs9ZbXQ0aiWF6mY6ofgwE4ktvH0bshABR77vsNX0fUS35oXMTWsc1KyPah5Wn92hawPYGuHvK8woq6B08uH2O959tV0fcYxmxD0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gfT95wPk; arc=none smtp.client-ip=209.85.222.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1741727240; c=relaxed/simple;
+	bh=rNimSVN80xWe5rcUWVjkmfCgcoptPPb9Jv9OZmpPkd4=;
+	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=X1z2akSPjKUnyHGPupSdQxL2wMGpC1BlofJAYH2/e/HwbR7yL4PglCJ/JZT/8in8IkPoEBSxy04VJw7IvJ7mjw1QRA8C/ic3jmcIvJk53lJtTsWY899Bsp/qpw3M2++lPkKdQOqHioCZjZMdureHxxQ4UK22Dx1+5ASZiGa9hLY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=C1iHqPEK; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gfT95wPk"
-Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-7c07b65efeeso557446985a.2
-        for <linux-openrisc@vger.kernel.org>; Tue, 11 Mar 2025 13:00:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1741723225; x=1742328025; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:to:subject:user-agent:mime-version:date:message-id:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=FAbXnq+8at0OW+uVXOCeffGNHW2g+BuBjY5zrgBmcTo=;
-        b=gfT95wPkElFg9zd+ttH/UfZ0WlbKdEmwSTfCQs9Fu0LjBqxta2eMG3IPP8ttMrenM+
-         PoK7yL10k3ECYHjTha2t0XTw7dppTyJj36CU4MT6U+Q+DYj9rqjEA6vDurgkJXH4nznQ
-         y1b9uNX7wJBOhRhsmh+8tKACG2upX8sLxFetvJkbOAPi6CfI4w7uMHrmJEj6TTkY27no
-         m6QCQI8jGN2qJ8SjaaqEO7poIsbwxEodRidBPjyGXW9KNeUuZ+fP9JEn2gbsOtR2rdyv
-         oyeqXgeN/bdhu+fEvLeCxJGEP2RGpwDdMyAPjHnEgl24HB7IBp6CdFOLBbaXwgirE5oi
-         fr8g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741723225; x=1742328025;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=FAbXnq+8at0OW+uVXOCeffGNHW2g+BuBjY5zrgBmcTo=;
-        b=k8WDzyUMmpVHO8130oH4kl6hFTpepWEd0mSG52mruYcPm5ZO5ZPPAUEKyUwfYXoGOx
-         ywYDlq00Ub3uzrPW2VVT3ziXbRiyL9jlw7iRARLFrS2qXqCS2OtKhSI6NgjhmsPHwdB5
-         PnQQPV+1aD5a4GKq5BvfNfXZ+rZdkoLlc2iTrM336UUpsdxa1kx1McT+EapFShogRpl6
-         dZVN5k7ECI5d+cv/u8MDzQ4P12wtXYqKt5WfWtq/QUat84GITEmlzb6uLRnaxqfMC6E9
-         gBTEk1b8/px5Rbebn0TMRzptMfz3/XYVVSUFxP8yTZLQqRdhN7ViCeLv0JutdfBjPxrr
-         cL/Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVG6a1P+wBatHaYPalAVJ528vYT4mAE4Ab/N1vZrMS27OA3WQI89FzsgvrBTIHfG3i1P/hg7QFl9x1+E2xzkQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzYh9jE56BjZ84qtNiokwPSR6Ea3ZqxdBTdTr8L+0Nzx1rC/Vlc
-	epDYZWrqKNBYg8fE3m72bdsYVeLOAIlnEvjm9RDV0hmTuTGbnuMC
-X-Gm-Gg: ASbGncu0Kp+wt6XAetgCxe0N+GKoJI6ROWL0hEFt5GxTVI0RYWKC504a/7kMhWA4sls
-	UEkAg8Hwk1VsiS82TCdPaRjsyqyPtM7kuRWZFmiLqJIWFSyHo0DU36zNU42Ap6rLl7GUdr2TGyQ
-	54grVU6nE/hNkF40iquwksliilssAA2zVIspbsZbew4pTodiIMlzQxBCNMQ5I25S1y1NvbfhJjA
-	hPzPuX8GL0tAt/aJe9ur2iL9Ma/mHn3UHe44JMQC4Dx2yo/BM4JmJ/RSmN+KEvT4A/5bp/zKO2k
-	oEJr/tq40PC7JP2n/iusi2ED3xiQY5EtVJbta3ea+WEVbDFuWa8Hl1vc/UG51kWDUzW8IR+fvpU
-	1sYO3RmPunfLAaXDm
-X-Google-Smtp-Source: AGHT+IHmJEcmvIS109VIaPPwT0tPeSIKmh4JzzfBujQ1ad5YqylACnT9xBLTq5pWuRT+Za56ZWjIfQ==
-X-Received: by 2002:a05:620a:86cc:b0:7c3:c500:ca9f with SMTP id af79cd13be357-7c55e93de0fmr753058585a.56.1741723224862;
-        Tue, 11 Mar 2025 13:00:24 -0700 (PDT)
-Received: from [10.49.92.110] (nat-128-84-124-0-110.cit.cornell.edu. [128.84.124.110])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7c5568480d8sm341773285a.91.2025.03.11.13.00.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 11 Mar 2025 13:00:23 -0700 (PDT)
-Message-ID: <7084228c-23a1-45f9-bb58-8c85c1ae13f0@gmail.com>
-Date: Tue, 11 Mar 2025 16:00:23 -0400
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="C1iHqPEK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25BDBC4CEE9;
+	Tue, 11 Mar 2025 21:07:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1741727240;
+	bh=rNimSVN80xWe5rcUWVjkmfCgcoptPPb9Jv9OZmpPkd4=;
+	h=Date:From:To:Subject:References:In-Reply-To:From;
+	b=C1iHqPEKFmOZ1AdRri3tQAqNRCUTPzRJDLMlo7w9miEeyKlINu4yaWAdRhzIs0paH
+	 jfkQRnK0XKmpkNOb3HtMEZGNKykGUrnuj1eWXqoXCuk4rS12Ikm530MvS19u7Mf4J3
+	 tH/UJQzFzlpWZeIQ8GU3qF5sOrZxvuNLkXsoHttkETnhl82ybMrj85LRdzmLv+hBla
+	 wPX3Fb5aCd0lbfNzAcpKqyB8kieIZqzft75UbkCyh4kRvACkkIIDZ2qg0qRSwpfeTU
+	 KbinhUeYSjsKqONFQqPFUHd8wwI3NPOSMI/Iwxdn5G8aIP9ZQgz2eFjKKr2GfyLFcr
+	 AI9TcpmJNf73w==
+Date: Tue, 11 Mar 2025 23:06:56 +0200
+From: Mike Rapoport <rppt@kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+	Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Jiaxun Yang <jiaxun.yang@flygoat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Michal Simek <monstr@monstr.eu>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Richard Weinberger <richard@nod.at>,
+	Russell King <linux@armlinux.org.uk>,
+	Stafford Horne <shorne@gmail.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>,
+	Will Deacon <will@kernel.org>, linux-alpha@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+	linux-arch@vger.kernel.org, linux-mm@kvack.org, x86@kernel.org
+Subject: Re: [PATCH 10/13] arch, mm: set high_memory in free_area_init()
+Message-ID: <Z9Cl8JKkRGhaRrgM@kernel.org>
+References: <20250306185124.3147510-1-rppt@kernel.org>
+ <20250306185124.3147510-11-rppt@kernel.org>
+ <cee346ec-5fa5-4d0b-987b-413ee585dbaa@sirena.org.uk>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Performance improvements of Marocchino implementation
-To: Idzwan Nizam <idzwan.nizam@yahoo.com>, linux-openrisc@vger.kernel.org
-References: <810295975.3514440.1740967866807.ref@mail.yahoo.com>
- <810295975.3514440.1740967866807@mail.yahoo.com>
- <917f2fb4-adf1-4c1a-a268-8229a90161db@gmail.com>
- <4da2a6d4-bd1b-4043-92fe-4c16d2313a31@yahoo.com>
-Content-Language: en-US
-From: el 01 <quantumleo78@gmail.com>
-In-Reply-To: <4da2a6d4-bd1b-4043-92fe-4c16d2313a31@yahoo.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cee346ec-5fa5-4d0b-987b-413ee585dbaa@sirena.org.uk>
 
-I defer to Stafford's judgement, but please don't feel an obligation to 
-continue exactly where I left off. If you want to work with FuseSoC 
-only, that should be fine.
+Hi Mark,
 
-A bit of advice in advance -- I didn't write a script to batch run tests 
-on FuseSoC. I instead ran each of the binaries individually by invoking 
-``fusesoc run``.
-
-On 10/03/2025 06:09, Idzwan Nizam wrote:
-> Would it be OK and consider a progress if only FuseSoC were used?
+On Tue, Mar 11, 2025 at 05:51:06PM +0000, Mark Brown wrote:
+> On Thu, Mar 06, 2025 at 08:51:20PM +0200, Mike Rapoport wrote:
+> > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+> > 
+> > high_memory defines upper bound on the directly mapped memory.
+> > This bound is defined by the beginning of ZONE_HIGHMEM when a system has
+> > high memory and by the end of memory otherwise.
+> > 
+> > All this is known to generic memory management initialization code that
+> > can set high_memory while initializing core mm structures.
+> > 
+> > Remove per-architecture calculation of high_memory and add a generic
+> > version to free_area_init().
 > 
-> On 10/3/2025 1:02 am, el 01 wrote:
->> Hello,
->>
->> Hopefully this makes its way onto the mailing list, my previous email 
->> didn't.
->>
->> Stafford's previous email basically covered what I did last summer. 
->> I've been dealing with some health issues and haven't been able to 
->> consistently document my progress; really sorry about the lack of 
->> documentation.
->>
->> I left off at trying to figure out some (perhaps superficial) 
->> differences between measured cycle counts when running a benchmark on 
->> LiteX and FuseSoC, two different 'build systems' for the HDL design. 
->> This doesn't directly address the discrepancy between marocchino and 
->> mor1kx, but was a step along the way.
->>
->> The build systems bundle the OpenRISC core with some other necessary 
->> hardware (e.g. simulated memory, peripherals, etc.) and build either a 
->> binary for simulation on your computer, or something which can be put 
->> on an FPGA.
->>
->> When running binaries from the Embench benchmarking suite on the same 
->> processor core / simulation engine (and only changing the build 
->> system), there are some tests which have substantially different cycle 
->> counts.
->>
->> Some initial data I gathered will be attached, it seems like there are 
->> some substantial differences in the cycles required to execute some 
->> instructions on LiteX.
->>
->> I'm also not 100% on whether the measured cycle counts are completely 
->> accurate, as the debug / trace parts of the LiteX and FuseSoC are 
->> somewhat different.
->>
->> Another minor thing that I wanted to address was some inefficiency in 
->> running LiteX simulations. Because of the way that the Embench testing 
->> script for LiteX works (see https://github.com/hhe07/litex-esp/blob/ 
->> main/sim.py -- from what I remember this is stuff that you can copy 
->> into your Embench install folder to enable compatibility), I think the 
->> CPU and some of the supporting software is rebuilt every time a 
->> different benchmark is run, which wastes a lot of time.
->>
->> As for where this fits into the larger issue of the performance 
->> discrepancy between mor1kx and marocchino, (in my opinion / 
->> experience) I spent a lot of time trying to figure out the tools and 
->> determining if what I wanted to do was a feature of a tool or 
->> something I needed to figure out. So, I'd recommend trying to 
->> understand the tooling and perhaps doing some practice tasks around 
->> it. YMMV, though.
->>
->> I know I haven't really made this problem better due to poor 
->> documentation on my part, so please email if you're unsure about 
->> something that I did. I'll try to reply ASAP.
->>
->> As for the attached files:
->> - profile.ods includes analysis on cycle counts per instruction for 
->> one test, I think nettle_sha256. This is for the mor1kx CPU.
->> - results.ods includes cycle counts for all Embench tests run on both 
->> FuseSoC and LiteX, and calculated percent differences between the two.
->> - nettle-mor1kx-{fusesoc, litex}-trace-prof include the outputs of 
->> cycle counts from the analysis scripts I wrote (basically same as 
->> profile.ods), as well as some additional information on the PCs of the 
->> start/end of critical sections in the code, and how many cycles they 
->> took to execute.
->>
->>
->> ~ Leo
->>
->> On 02/03/2025 21:11, Idzwan Nizam Jamal Abdul Nasir wrote:
->>> Hi,
->>>
->>> I am interested in OpenRISC Benchmarking and Performance improvements 
->>> task listed as one of the project ideas in Google Summer of Code. I 
->>> am unable to participate in GSOC but I would like to contribute to 
->>> the task gradually as I acquire skills in digital logic and computer 
->>> architecture.
->>>
->>> Is the task still open? I would be glad if you could point me to the 
->>> right direction such as documentation I should read or tools I have 
->>> to be familiar with. Any guidance is welcome and greatly appreciated. 
->>> Thank you.
->>>
-> 
+> This patch appears to be causing breakage on a number of 32 bit arm
+> platforms, including qemu's virt-2.11,gic-version=3.  Affected platforms
+> die on boot with no output, a bisect with qemu points at this commit and
+> those for physical platforms appear to be converging on the same place.
 
+Can you share how this can be reproduced with qemu?
+
+-- 
+Sincerely yours,
+Mike.
