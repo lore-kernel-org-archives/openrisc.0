@@ -1,92 +1,73 @@
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [78.32.30.218])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE391199FBA;
-	Tue, 11 Mar 2025 22:06:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.32.30.218
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E9A82F28
+	for <linux-openrisc@vger.kernel.org>; Tue, 11 Mar 2025 22:17:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741730784; cv=none; b=YHCBTqvoymG0w3fwSHvUnPaeVnbt1zkNElUXgvLHIOSSNwtCiYpheK+SF/FFH5kKna95M6EsPJCi7xz2nf2h/PgLWVeLUoWuDa5mDhw8W6DiWCONg0koMGnpSwl0dr/CWddhFKBaZgAwqQ27cRqlDWDAqpap+WMjbJurOhuwQ8c=
+	t=1741731440; cv=none; b=a4JHcAHuYRCIK71N5R9f1DJxq3qcnqRyTjRWpq0EqVhcRl1hgc//oJXkJMdn3lJFvMcKEnSNVpxemQkwIE7Q52sCr5rXXxX3NEtSSbtMVgP7ogrqjnJmqk1r3j6oltW7GwEsGUznaMbWfcz0ovLsbSUxPYwb4mVqFETN4yETVkw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741730784; c=relaxed/simple;
-	bh=1FsEAoBQCwul9SXkYZakBAby+nof+BFT5YLa9ZLbmWo=;
+	s=arc-20240116; t=1741731440; c=relaxed/simple;
+	bh=NQ/n7zpRQaCuYQsZZPiur/Rq0wkra2uLhIQkcWcIsVE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jE5bBFsU4YQI5slNlwSO4amX1ivljkuFZHYXDhy4K2frMb6sbqTYqeyyExw/IhYSZi7Dvo4UFJyk3lZJHGqEN9ZpbhBogVuvoTzcTmYqB9thFvFWzM2Se1e7cCf8GWeLqogCXL/azMkhWpuEMSun2TuuByr5FTr9aithxY12Wq8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=armlinux.org.uk; spf=none smtp.mailfrom=armlinux.org.uk; dkim=pass (2048-bit key) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.b=JMh6fI6C; arc=none smtp.client-ip=78.32.30.218
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=armlinux.org.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=armlinux.org.uk
+	 Content-Type:Content-Disposition:In-Reply-To; b=OaRN3FCUC5wQCcCw93w6Wp4auUD08iioNdMPK+nCrkTWMgh9HSNmrYEiNu7dRoHRHXPHgm0s19caC5CN4OnYe+ZrzEAt2dgrJjdV9lyDW6r6abj9hpQ8XZY/5x0asZD1elpAlGpKZhnGtxIn7g2ojs8YSWAOY60XuM7/oysikPg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MBQAQieo; arc=none smtp.client-ip=209.85.221.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.b="JMh6fI6C"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=VEtYjw1bJy2FyEgqNltD6h1CKY3ei2RKfjZVJcAYac8=; b=JMh6fI6ClsD77q6QFlO594QFyv
-	sKF4LPcJaQcTQzRqy28KBHvEvNbva/Q4T4karOQKqy3zGz5C6FZf26kql8lG10rd/yWDclC8ace2t
-	E8nv+RSCOd4MSUMTE37Jd6pwCjUlHw6IB88o86uJeQeu1vXLQvCcelUpTMH5zI9UW1Ln/0xzTIYnc
-	+ZxX47CDZdxAPYKw9IFXZpxwHKBPV2C5StuOVk/ouA+IPkzqmTobJn+hz8OlhffXTedE2VG2aUA6F
-	6ipRngplcXCrRC298lr1CqzLj89tc6A4tBT19pldI+iCk9Vc5UcPgIif4YSb1J3UDshYyiuaHWSri
-	JsTs7FhA==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:38464)
-	by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <linux@armlinux.org.uk>)
-	id 1ts7j7-0004gC-0h;
-	Tue, 11 Mar 2025 22:05:29 +0000
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.96)
-	(envelope-from <linux@shell.armlinux.org.uk>)
-	id 1ts7j4-0003rB-0F;
-	Tue, 11 Mar 2025 22:05:26 +0000
-Date: Tue, 11 Mar 2025 22:05:25 +0000
-From: "Russell King (Oracle)" <linux@armlinux.org.uk>
-To: Mark Brown <broonie@kernel.org>
-Cc: Mike Rapoport <rppt@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
-	Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Jiaxun Yang <jiaxun.yang@flygoat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Michal Simek <monstr@monstr.eu>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Richard Weinberger <richard@nod.at>,
-	Stafford Horne <shorne@gmail.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>,
-	Will Deacon <will@kernel.org>, linux-alpha@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-	linux-arch@vger.kernel.org, linux-mm@kvack.org, x86@kernel.org
-Subject: Re: [PATCH 10/13] arch, mm: set high_memory in free_area_init()
-Message-ID: <Z9CzpTlA2e0jR7UJ@shell.armlinux.org.uk>
-References: <20250306185124.3147510-1-rppt@kernel.org>
- <20250306185124.3147510-11-rppt@kernel.org>
- <cee346ec-5fa5-4d0b-987b-413ee585dbaa@sirena.org.uk>
- <Z9Cl8JKkRGhaRrgM@kernel.org>
- <5e40219b-f149-4e0f-aa10-c09fa183945e@sirena.org.uk>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MBQAQieo"
+Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-391211ea598so3353308f8f.1
+        for <linux-openrisc@vger.kernel.org>; Tue, 11 Mar 2025 15:17:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1741731433; x=1742336233; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=4tRH4QCT5VzCl3Ci5EmpPIkejrzDkyp4mIn3x3FjVKw=;
+        b=MBQAQieo6TAXwhYT0CxHOKI6jphfxHF7GmU0rfcxZxFQPknvWqalqZdpECXl8DMPbC
+         y80H/imkQ0vMKdM0wLnAfQ9X+vKZu22iDV93fs5u/xRZ/NEX44AOSuAcNNj8erUiNML3
+         9Xzq3Z5diThGvwNKsj2O5VdUhUtra5BYb+mikLKjUe7YAhOt9dIdOvCrYZD3vGveRwcj
+         HxKewqzqgg2yjSBbnvnZJ0Tz6MYFsyvaB2ELsJbm/E4dk9eFO6H/nGSoUVKxjAPofJLx
+         E/U4dIsb+oSs0rXpnCgszFx1C+8D8ihpKuwnHnRhBpAEgeWi1In8F/bHCC5hNnbOgWn5
+         pxeQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1741731433; x=1742336233;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=4tRH4QCT5VzCl3Ci5EmpPIkejrzDkyp4mIn3x3FjVKw=;
+        b=VvTEMvWXerAvpj0+LoBbnNkpKcJBzOKz5ZEd/Apv/6q3viRZj5IgZ8yU5i6HZy0tWs
+         j5JE93EmVNSgUXZOIhUbXVl1nSZpSeooRtWzamieOQjo4/GVv0JqQScAhfmNHXWfdHII
+         lO9M8rTbc7jB/Z1DoTpEP9WaOLPgSekSEWAp9EuJH+7gckdrOaGNQ/zwn6fEhdT4VWXP
+         RQXWjuSX6R+U96dTUJv8znSMueI/tK8fZoXSC3j1FX74oRFNAiDdHc4yGw8yz7MiDmuW
+         SXPkw0fKim28GzZdOe04cYxJAgcqXAiAUYwAEA8ce+cURj25A/K2d2Y8N/372ZkAh9+k
+         bElQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWxYKU5f6C+fkA/U3V2WDh+JL9J4wh4A7WU2x4XhKIDRN6/eaZrXlOmzxGn2Lhw/vuo1R4sAF3kqo3/whgGoA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyo5MtgE9PIpDgn5oqc8cAtKE58dhBKZfV0svgIc/K5yo9fGXbK
+	uYD8dskCI981jNa+rnONCrw7JtmTDeR+Pib7vuQJVntYUE5Va6yJ
+X-Gm-Gg: ASbGnctJigX7l2I/szyXi4lZBPm8bHrLNulmv2t4I7LwzsZmArDxtppVvNFIozXloZz
+	1WMkR5oeenDbxqvgRC9A3w1hqv3xiEneSbKFdX0IBsewlzljV5ZyPDBgx1wb1qyvaBy8/C9CeR5
+	dVrUMfUVasFMT+zfqu0BHe0BFS/yEwzX5+gLMxIIx2EGSWFm0zL9OZgFGu/UTNijTNWLc/s3qDV
+	T+IxWsGruXZaJdo9fEuPGVelgssp9ifHqTO2zVuleHTnLFUpJVkT/vkFD9PFdE+N2TW6CgoAf9b
+	3JSJ5PA+kLEOnT0OkrqVYZnh/iyxOvky42R+cVA/8esB4Vf8K9nsOD7P/9r6iRMjYI+7RH7iCpE
+	3HxvTtOZF
+X-Google-Smtp-Source: AGHT+IFDGx+qRfXzE/Utu4mV4xZAgW8xNh6JDWZcH58KTwh7DAVjrP8oCMSiBRv5uL9P97myjcltNg==
+X-Received: by 2002:a5d:5987:0:b0:391:2bab:d2fd with SMTP id ffacd0b85a97d-39132da96c9mr15704207f8f.37.1741731433246;
+        Tue, 11 Mar 2025 15:17:13 -0700 (PDT)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3912c0e2b6asm19534642f8f.66.2025.03.11.15.17.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Mar 2025 15:17:10 -0700 (PDT)
+Date: Tue, 11 Mar 2025 22:17:09 +0000
+From: Stafford Horne <shorne@gmail.com>
+To: el 01 <quantumleo78@gmail.com>
+Cc: Idzwan Nizam <idzwan.nizam@yahoo.com>, linux-openrisc@vger.kernel.org
+Subject: Re: Performance improvements of Marocchino implementation
+Message-ID: <Z9C2ZSpretIpZ2DL@antec>
+References: <810295975.3514440.1740967866807.ref@mail.yahoo.com>
+ <810295975.3514440.1740967866807@mail.yahoo.com>
+ <917f2fb4-adf1-4c1a-a268-8229a90161db@gmail.com>
+ <4da2a6d4-bd1b-4043-92fe-4c16d2313a31@yahoo.com>
+ <7084228c-23a1-45f9-bb58-8c85c1ae13f0@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -95,48 +76,116 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5e40219b-f149-4e0f-aa10-c09fa183945e@sirena.org.uk>
-Sender: Russell King (Oracle) <linux@armlinux.org.uk>
+In-Reply-To: <7084228c-23a1-45f9-bb58-8c85c1ae13f0@gmail.com>
 
-On Tue, Mar 11, 2025 at 09:33:29PM +0000, Mark Brown wrote:
-> [    0.000000] Booting Linux on physical CPU 0x0
-> [    0.000000] Linux version 6.14.0-rc6-next-20250311 (tuxmake@tuxmake) (arm-linux-gnueabihf-gcc (Debian 13.3.0-5) 13.3.0, GNU ld (GNU Binutils for Debian) 2.43.1) #1 SMP @1741691801
-> [    0.000000] CPU: ARMv7 Processor [414fc0f0] revision 0 (ARMv7), cr=10c5387d
-> [    0.000000] CPU: div instructions available: patching division code
-> [    0.000000] CPU: PIPT / VIPT nonaliasing data cache, PIPT instruction cache
-> [    0.000000] OF: fdt: Machine model: linux,dummy-virt
-> [    0.000000] random: crng init done
-> [    0.000000] earlycon: pl11 at MMIO 0x09000000 (options '')
-> [    0.000000] printk: legacy bootconsole [pl11] enabled
-> [    0.000000] Memory policy: Data cache writealloc
-> [    0.000000] efi: UEFI not found.
-> [    0.000000] cma: Reserved 64 MiB at 0x00000000
+Hi Idzwan,
 
-If that CMA address is correct, then it's wrong. virt machines start
-DRAM at 0x40000000. This is a small memory VM:
+I noticed you reached out on IRC, if you want to join OTFC/#openrisc
+we could chat there too.  I am not around much there as it has been really quiet
+recently but its also available.
 
-[    0.000000] Zone ranges:
-[    0.000000]   Normal   [mem 0x0000000040000000-0x0000000045ffffff]
-[    0.000000]   HighMem  empty
+On Tue, Mar 11, 2025 at 04:00:23PM -0400, el 01 wrote:
+> I defer to Stafford's judgement, but please don't feel an obligation to
+> continue exactly where I left off. If you want to work with FuseSoC only,
+> that should be fine.
 
-and this is a larger memory VM:
+I thimk using fusesoc is a good option.  But ideally both fusesoc and litex
+would both work.  I think whatever you are more familiar with is best.
 
-[    0.000000] Zone ranges:
-[    0.000000]   Normal   [mem 0x0000000040000000-0x000000006fffffff]
-[    0.000000]   HighMem  [mem 0x0000000070000000-0x000000007fffffff]
+-Stafford
 
-Neither have CMA enabled (it's not necessary for a VM).
-
-On a real platform where CMA and highmem is enabled, then:
-
-[    0.000000] cma: Reserved 16 MiB at 0x4f000000 on node -1
-[    0.000000] Zone ranges:
-[    0.000000]   Normal   [mem 0x0000000010000000-0x000000003fffffff]
-[    0.000000]   HighMem  [mem 0x0000000040000000-0x000000004fffffff]
-
-So that "cma:" line you are seeing is indicating that something is very
-very wrong - it should definitely not be zero.
-
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 80Mbps down 10Mbps up. Decent connectivity at last!
+> A bit of advice in advance -- I didn't write a script to batch run tests on
+> FuseSoC. I instead ran each of the binaries individually by invoking
+> ``fusesoc run``.
+> 
+> On 10/03/2025 06:09, Idzwan Nizam wrote:
+> > Would it be OK and consider a progress if only FuseSoC were used?
+> > 
+> > On 10/3/2025 1:02 am, el 01 wrote:
+> > > Hello,
+> > > 
+> > > Hopefully this makes its way onto the mailing list, my previous
+> > > email didn't.
+> > > 
+> > > Stafford's previous email basically covered what I did last summer.
+> > > I've been dealing with some health issues and haven't been able to
+> > > consistently document my progress; really sorry about the lack of
+> > > documentation.
+> > > 
+> > > I left off at trying to figure out some (perhaps superficial)
+> > > differences between measured cycle counts when running a benchmark
+> > > on LiteX and FuseSoC, two different 'build systems' for the HDL
+> > > design. This doesn't directly address the discrepancy between
+> > > marocchino and mor1kx, but was a step along the way.
+> > > 
+> > > The build systems bundle the OpenRISC core with some other necessary
+> > > hardware (e.g. simulated memory, peripherals, etc.) and build either
+> > > a binary for simulation on your computer, or something which can be
+> > > put on an FPGA.
+> > > 
+> > > When running binaries from the Embench benchmarking suite on the
+> > > same processor core / simulation engine (and only changing the build
+> > > system), there are some tests which have substantially different
+> > > cycle counts.
+> > > 
+> > > Some initial data I gathered will be attached, it seems like there
+> > > are some substantial differences in the cycles required to execute
+> > > some instructions on LiteX.
+> > > 
+> > > I'm also not 100% on whether the measured cycle counts are
+> > > completely accurate, as the debug / trace parts of the LiteX and
+> > > FuseSoC are somewhat different.
+> > > 
+> > > Another minor thing that I wanted to address was some inefficiency
+> > > in running LiteX simulations. Because of the way that the Embench
+> > > testing script for LiteX works (see
+> > > https://github.com/hhe07/litex-esp/blob/ main/sim.py -- from what I
+> > > remember this is stuff that you can copy into your Embench install
+> > > folder to enable compatibility), I think the CPU and some of the
+> > > supporting software is rebuilt every time a different benchmark is
+> > > run, which wastes a lot of time.
+> > > 
+> > > As for where this fits into the larger issue of the performance
+> > > discrepancy between mor1kx and marocchino, (in my opinion /
+> > > experience) I spent a lot of time trying to figure out the tools and
+> > > determining if what I wanted to do was a feature of a tool or
+> > > something I needed to figure out. So, I'd recommend trying to
+> > > understand the tooling and perhaps doing some practice tasks around
+> > > it. YMMV, though.
+> > > 
+> > > I know I haven't really made this problem better due to poor
+> > > documentation on my part, so please email if you're unsure about
+> > > something that I did. I'll try to reply ASAP.
+> > > 
+> > > As for the attached files:
+> > > - profile.ods includes analysis on cycle counts per instruction for
+> > > one test, I think nettle_sha256. This is for the mor1kx CPU.
+> > > - results.ods includes cycle counts for all Embench tests run on
+> > > both FuseSoC and LiteX, and calculated percent differences between
+> > > the two.
+> > > - nettle-mor1kx-{fusesoc, litex}-trace-prof include the outputs of
+> > > cycle counts from the analysis scripts I wrote (basically same as
+> > > profile.ods), as well as some additional information on the PCs of
+> > > the start/end of critical sections in the code, and how many cycles
+> > > they took to execute.
+> > > 
+> > > 
+> > > ~ Leo
+> > > 
+> > > On 02/03/2025 21:11, Idzwan Nizam Jamal Abdul Nasir wrote:
+> > > > Hi,
+> > > > 
+> > > > I am interested in OpenRISC Benchmarking and Performance
+> > > > improvements task listed as one of the project ideas in Google
+> > > > Summer of Code. I am unable to participate in GSOC but I would
+> > > > like to contribute to the task gradually as I acquire skills in
+> > > > digital logic and computer architecture.
+> > > > 
+> > > > Is the task still open? I would be glad if you could point me to
+> > > > the right direction such as documentation I should read or tools
+> > > > I have to be familiar with. Any guidance is welcome and greatly
+> > > > appreciated. Thank you.
+> > > > 
+> > 
+> 
+> 
