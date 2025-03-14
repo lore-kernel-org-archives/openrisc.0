@@ -1,39 +1,65 @@
-Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 931081F2B90;
-	Fri, 14 Mar 2025 09:50:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.17.235.10
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AB10207A08;
+	Fri, 14 Mar 2025 20:04:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741945807; cv=none; b=QpG7yCWHhm3ilTljkPN3hOeysQeCxE0m0r1t++CYWl7XK8MkWo+zRUA4+EUr/MgSwNkam92OInt0Cw/4JFu1MevMfQFE7UH8vigAZ1ATLacHwSO5FljbSSTUvGFxcR6/GQJaZjjysfz7+Ft+c+G4HX+b3xvrv6SryYHJWsF/ApY=
+	t=1741982652; cv=none; b=rMBwG8gf/FwAZ6zoekN9s4ayy//JoleBHj7UzQKLVO1/cA7h6QDciHEYaQyAq9veJ1JGxkB42vG0HuDlKoKYd+GzceWI2YCo20AfNAK5zYvB3SZpz36fuzyUmEblTni7mz4GiV1aP+G7frWuJXuONMI48lwo1VuJNCobfrEFmzU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741945807; c=relaxed/simple;
-	bh=ItygPhVOMyAP9b92OVwMZceKD88YUZs2rOSEhpxC3OY=;
+	s=arc-20240116; t=1741982652; c=relaxed/simple;
+	bh=0lZ7TV+HuFhnNRmrc+D71R8kElOW83LxTSLgJtaFRD8=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Y8crR/kCot3MG/Ing7kgzl3Ll059NvZZHfiXWqUvkL1HKSC8UYsKGsLtzq+BLaskP+lcjnMa4n+1ygnlYk0gCt9bRet+PzalBrkUjl/+/r0ZZplhyFKNYf5nhgA/YpO0vKXj2pPC4mJ94PtlIvrt2qAiRljiiNELXbFeLeHveH8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu; spf=pass smtp.mailfrom=csgroup.eu; arc=none smtp.client-ip=93.17.235.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csgroup.eu
-Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
-	by localhost (Postfix) with ESMTP id 4ZDf9F5TBfz9sSL;
-	Fri, 14 Mar 2025 10:25:21 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from pegase2.c-s.fr ([172.26.127.65])
-	by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id CLp-Gj1__Flt; Fri, 14 Mar 2025 10:25:21 +0100 (CET)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-	by pegase2.c-s.fr (Postfix) with ESMTP id 4ZDf9F434bz9sS8;
-	Fri, 14 Mar 2025 10:25:21 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id 76F258B779;
-	Fri, 14 Mar 2025 10:25:21 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-	by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-	with ESMTP id mkS0oYzCmrz6; Fri, 14 Mar 2025 10:25:21 +0100 (CET)
-Received: from [192.168.235.99] (unknown [192.168.235.99])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id EF57F8B770;
-	Fri, 14 Mar 2025 10:25:18 +0100 (CET)
-Message-ID: <4b9627f2-65ff-4baf-931f-4e23b5732e6b@csgroup.eu>
-Date: Fri, 14 Mar 2025 10:25:18 +0100
+	 In-Reply-To:Content-Type; b=RoW0/tnPFgWOCsH2QLLTwMMK40Ly+FRjYBYuilxIBeWF4PTEqopUzKWYX660ALq2JpvafjkRi4f6iC7SFYgP/NTeYbzoc4xu2HVHhMYuNM+Rb33kg8EqmAT+b/R1I1GYanlxx7jPC4pRqTctFCOy6L0koGExDlcKzNwHLpAvvyw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HqxSA2Ev; arc=none smtp.client-ip=209.85.214.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HqxSA2Ev"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-219f8263ae0so44233995ad.0;
+        Fri, 14 Mar 2025 13:04:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1741982649; x=1742587449; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=J4Bf2S/fpp2wK4pGyIW5xYqNeXGgwH4UybUfrV/yXw8=;
+        b=HqxSA2EvXP41z/CXYJrkL8nh2I5u8zodI2/A5dm7Yekebo9zoyig8+wy4UlF8XFFQB
+         Acw/0mkhA2NUsnHksdjaQV/Ih8xKkyoiT8jznPRzNdcNL71JesR6IRZ9G0nUfNl7504m
+         pHu1MtE0ExsJhjctcEAmANc1S5JryLXpQP3IgPy3GRSBxI5aw62UaBV6hs3+IcXJxpY/
+         GDY3kFiRQakvA7T0slbJTY7HxzR76sQJsZjogdDezsRc5Cq0w/0WOk0e8FWaPSwm836n
+         dcKUmGzSxKP5MwSP0pm9dHapOXV6g7V0VI83/r5x2SodKRsvLh5UAKE+evi3+sA8q1Af
+         xk6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1741982649; x=1742587449;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=J4Bf2S/fpp2wK4pGyIW5xYqNeXGgwH4UybUfrV/yXw8=;
+        b=L/mkeY6fF0KD+nvqLQIVBg64GBpKYwiCtlcxvOjl7D7GWci1+zMsBRZ6+2GFjjOg63
+         hK0QRbih24/OCFaO1X67ZXVsBKD+4u9loFBh0cQiKrLSRTmYwIjmKveuMBvV00X8hCas
+         O7A5evp9O3ddtK7BQQSQNIK+BiKjs/Yf7RU0jSa+Qu9t9gsfAo1Z8q/sI1+godBvsMq5
+         qcmIex+2kfDHa1ryuYunT6GcBHTp/pMZfOq5Vazl+aHliVw6FHbxwLXC094vz7Ld6iAC
+         ycuCSUr4GxSSi/E8PCjnkyk3qU7WjOYKBJ8uyyKYsTplWoN94AJHmrx58H456xjTTmRU
+         mtwA==
+X-Forwarded-Encrypted: i=1; AJvYcCU3pV7ZZdeBZPPEIzbXl8Cch1TYu0YuaE+sqdY9App8CYgB95JB2cHzRDkG17RAZsxN2mja6LMIqZLQNmk=@vger.kernel.org, AJvYcCXO3NUG8oXCpek4FAY+yZrfy507xYSbDc9zyMxw8Wp3EMxH5Pj4XOaZ9S1xkuBdfEjY15stpD4pQtoIFKblIqM=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyFWCXycUfsIngIPbP5SZpTtNy6SYSOHYD6p9P+oMrd8ZfgHo7Q
+	CTTUELCAQ3uTjRd/wWRSvZRn6/9L1/gGtvNOpRTQmq2Lifpt7a/rCy4U4g==
+X-Gm-Gg: ASbGnctOGTIYImLN2qg+ZlYTV77M1Eh4LC4T1Q6vPszHl5q4HEVAcStctoI+X+E+YEm
+	t1B4wPPgasfEfo5n8JHDnaO+I9sf7/Ws4mp1IHHUZCKxU+EMfNi15qD+K+cPOUG9XyqwJRKZYTe
+	V53mq2lJ4MgJvgg4ocAslhQ8D28j1M+gO20RtSHWuJjW2oLuwQAADA6YnyVRmzWjIxyV4icgvYG
+	Wr9KHaGHRn6yP3bjfoHmbcXAfIDdMpnyTGet4Y7JbyHN0e55CHqDA/vw+1e12fuit/QiaqglcnT
+	egC9alshsCJMxqqetYD3m2u+fFI=
+X-Google-Smtp-Source: AGHT+IF/L2vWRzyEe3FGeTPphEvEl0w1P6eGyMd5yfheVvq7B7m4L8vQ047h58PYN+Jc3LKeHuT+pQ==
+X-Received: by 2002:a05:6a00:929e:b0:737:9b:581c with SMTP id d2e1a72fcca58-7372238e7bdmr4482897b3a.7.1741982648648;
+        Fri, 14 Mar 2025 13:04:08 -0700 (PDT)
+Received: from [192.168.0.106] ([114.79.174.156])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-73711529641sm3256623b3a.7.2025.03.14.13.04.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 14 Mar 2025 13:04:08 -0700 (PDT)
+Message-ID: <ee43f507-c0a2-45ed-818e-f24babf07d60@gmail.com>
+Date: Sat, 15 Mar 2025 01:34:03 +0530
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -41,529 +67,201 @@ List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 09/13] arch, mm: set max_mapnr when allocating memory
- map for FLATMEM
-To: Mike Rapoport <rppt@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
- Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>,
- Ard Biesheuvel <ardb@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
- Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- "David S. Miller" <davem@davemloft.net>, Dinh Nguyen <dinguyen@kernel.org>,
- Geert Uytterhoeven <geert@linux-m68k.org>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Guo Ren
- <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
- Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, Jiaxun Yang <jiaxun.yang@flygoat.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Madhavan Srinivasan <maddy@linux.ibm.com>, Mark Brown <broonie@kernel.org>,
- Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>,
- Palmer Dabbelt <palmer@dabbelt.com>, Peter Zijlstra <peterz@infradead.org>,
- Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>,
- Stafford Horne <shorne@gmail.com>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>,
- Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>,
- linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
- linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
- loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-um@lists.infradead.org, linux-arch@vger.kernel.org,
- linux-mm@kvack.org, x86@kernel.org
-References: <20250313135003.836600-1-rppt@kernel.org>
- <20250313135003.836600-10-rppt@kernel.org>
-Content-Language: fr-FR
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-In-Reply-To: <20250313135003.836600-10-rppt@kernel.org>
+Subject: Re: [RFC] openrisc: Add cacheinfo support
+To: Stafford Horne <shorne@gmail.com>
+Cc: jonas@southpole.se, stefan.kristiansson@saunalahti.fi,
+ sahilcdq@proton.me, linux-openrisc@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20250310191358.67912-1-sahilcdq@proton.me>
+ <Z9NM8K92M8kS6t4k@antec>
+Content-Language: en-US
+From: Sahil Siddiq <icegambit91@gmail.com>
+Autocrypt: addr=icegambit91@gmail.com; keydata=
+ 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
+ rPgMe6IIvn24UuW2f6fIt0AaqOWq
+In-Reply-To: <Z9NM8K92M8kS6t4k@antec>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
+Hi,
 
-
-Le 13/03/2025 à 14:49, Mike Rapoport a écrit :
-> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+On 3/14/25 2:54 AM, Stafford Horne wrote:
+> On Tue, Mar 11, 2025 at 12:43:57AM +0530, Sahil Siddiq wrote:
+>> Add cacheinfo support for OpenRISC.
+>>
+>> [...]
+>> None of the functions in drivers/base/cacheinfo.c that are capable of
+>> pulling these details (e.g.: cache_size) have been used. This is because
+>> they pull these details by reading properties present in the device tree
+>> file. In setup.c, for example, the value of "clock-frequency" is pulled
+>> from the device tree file.
+>>
+>> Cache related properties are currently not present in OpenRISC's device
+>> tree files.
 > 
-> max_mapnr is essentially the size of the memory map for systems that use
-> FLATMEM. There is no reason to calculate it in each and every architecture
-> when it's anyway calculated in alloc_node_mem_map().
+> If we want to add L2 caches and define them in the device tree would
+> it "just work" or is more work needed?
 > 
-> Drop setting of max_mapnr from architecture code and set it once in
-> alloc_node_mem_map().
 
-As far as I can see alloc_node_mem_map() is called quite late.
+A little more work will have to be done. The implementation of "init_cache_level"
+and "populate_cache_leaves" will have to be extended. To pull L2 cache attributes,
+they'll need to make calls to the "of_get_property" family of functions similar to
+what's being done for RISC-V and PowerPC.
 
-I fear that it will regress commit daa9ada2093e ("powerpc/mm: Fix boot 
-crash with FLATMEM")
+Shall I resubmit this patch with those extensions? I think I'll be able to test
+those changes with a modified device tree file that has an L2 cache component.
 
-Can you check ?
-
-Christophe
-
+>> Regarding the "shared_cpu_map" cache attribute, I wasn't able to find
+>> anything in the OpenRISC architecture manual to indicate that processors
+>> in a multi-processor system may share the same cache component. MIPS uses
+>> "globalnumber" to detect siblings. LoongArch uses a "CACHE_PRIVATE" flag
+>> to detect siblings sharing the same cache.
 > 
-> While on it, move definition of mem_map and max_mapnr to mm/mm_init.c so
-> there won't be two copies for MMU and !MMU variants.
+> In SMP environment the L1 caches are not shared they are specific to each CPU.
 > 
-> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>	# x86
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> ---
->   arch/alpha/mm/init.c               |  1 -
->   arch/arc/mm/init.c                 |  5 -----
->   arch/arm/mm/init.c                 |  2 --
->   arch/csky/mm/init.c                |  4 ----
->   arch/loongarch/mm/init.c           |  1 -
->   arch/microblaze/mm/init.c          |  4 ----
->   arch/mips/mm/init.c                |  8 --------
->   arch/nios2/kernel/setup.c          |  1 -
->   arch/nios2/mm/init.c               |  2 +-
->   arch/openrisc/mm/init.c            |  1 -
->   arch/parisc/mm/init.c              |  1 -
->   arch/powerpc/kernel/setup-common.c |  2 --
->   arch/riscv/mm/init.c               |  1 -
->   arch/s390/mm/init.c                |  1 -
->   arch/sh/mm/init.c                  |  1 -
->   arch/sparc/mm/init_32.c            |  1 -
->   arch/um/include/shared/mem_user.h  |  1 -
->   arch/um/kernel/physmem.c           | 12 ------------
->   arch/um/kernel/um_arch.c           |  1 -
->   arch/x86/mm/init_32.c              |  3 ---
->   arch/xtensa/mm/init.c              |  1 -
->   include/asm-generic/memory_model.h |  5 +++--
->   include/linux/mm.h                 | 11 -----------
->   mm/memory.c                        |  8 --------
->   mm/mm_init.c                       | 25 +++++++++++++++++--------
->   mm/nommu.c                         |  4 ----
->   26 files changed, 21 insertions(+), 86 deletions(-)
+> Also, we do not have hyperthreading in OpenRISC so shared_cpu_map should be a
+> 1-to-1 mapping with the cpu.  Do you need to do extra work to setup that
+> mapping?
 > 
-> diff --git a/arch/alpha/mm/init.c b/arch/alpha/mm/init.c
-> index 61c2198b1359..ec0eeae9c653 100644
-> --- a/arch/alpha/mm/init.c
-> +++ b/arch/alpha/mm/init.c
-> @@ -276,7 +276,6 @@ srm_paging_stop (void)
->   void __init
->   mem_init(void)
->   {
-> -	set_max_mapnr(max_low_pfn);
->   	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
->   	memblock_free_all();
->   }
-> diff --git a/arch/arc/mm/init.c b/arch/arc/mm/init.c
-> index 6a71b23f1383..7ef883d58dc1 100644
-> --- a/arch/arc/mm/init.c
-> +++ b/arch/arc/mm/init.c
-> @@ -154,11 +154,6 @@ void __init setup_arch_memory(void)
->   
->   	arch_pfn_offset = min(min_low_pfn, min_high_pfn);
->   	kmap_init();
-> -
-> -#else /* CONFIG_HIGHMEM */
-> -	/* pfn_valid() uses this when FLATMEM=y and HIGHMEM=n */
-> -	max_mapnr = max_low_pfn - min_low_pfn;
-> -
->   #endif /* CONFIG_HIGHMEM */
->   
->   	free_area_init(max_zone_pfn);
-> diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
-> index 9aec1cb2386f..d4bcc745a044 100644
-> --- a/arch/arm/mm/init.c
-> +++ b/arch/arm/mm/init.c
-> @@ -275,8 +275,6 @@ void __init mem_init(void)
->   	swiotlb_init(max_pfn > arm_dma_pfn_limit, SWIOTLB_VERBOSE);
->   #endif
->   
-> -	set_max_mapnr(pfn_to_page(max_pfn) - mem_map);
-> -
->   #ifdef CONFIG_SA1111
->   	/* now that our DMA memory is actually so designated, we can free it */
->   	memblock_phys_free(PHYS_OFFSET, __pa(swapper_pg_dir) - PHYS_OFFSET);
-> diff --git a/arch/csky/mm/init.c b/arch/csky/mm/init.c
-> index ab51acbc19b2..ba6694d6170a 100644
-> --- a/arch/csky/mm/init.c
-> +++ b/arch/csky/mm/init.c
-> @@ -46,10 +46,6 @@ void __init mem_init(void)
->   {
->   #ifdef CONFIG_HIGHMEM
->   	unsigned long tmp;
-> -
-> -	set_max_mapnr(highend_pfn - ARCH_PFN_OFFSET);
-> -#else
-> -	set_max_mapnr(max_low_pfn - ARCH_PFN_OFFSET);
->   #endif
->   	high_memory = (void *) __va(max_low_pfn << PAGE_SHIFT);
->   
-> diff --git a/arch/loongarch/mm/init.c b/arch/loongarch/mm/init.c
-> index ca5aa5f46a9f..00449df50db1 100644
-> --- a/arch/loongarch/mm/init.c
-> +++ b/arch/loongarch/mm/init.c
-> @@ -78,7 +78,6 @@ void __init paging_init(void)
->   
->   void __init mem_init(void)
->   {
-> -	max_mapnr = max_low_pfn;
->   	high_memory = (void *) __va(max_low_pfn << PAGE_SHIFT);
->   
->   	memblock_free_all();
-> diff --git a/arch/microblaze/mm/init.c b/arch/microblaze/mm/init.c
-> index 4520c5741579..857cd2b44bcf 100644
-> --- a/arch/microblaze/mm/init.c
-> +++ b/arch/microblaze/mm/init.c
-> @@ -104,17 +104,13 @@ void __init setup_memory(void)
->   	 *
->   	 * min_low_pfn - the first page (mm/bootmem.c - node_boot_start)
->   	 * max_low_pfn
-> -	 * max_mapnr - the first unused page (mm/bootmem.c - node_low_pfn)
->   	 */
->   
->   	/* memory start is from the kernel end (aligned) to higher addr */
->   	min_low_pfn = memory_start >> PAGE_SHIFT; /* minimum for allocation */
-> -	/* RAM is assumed contiguous */
-> -	max_mapnr = memory_size >> PAGE_SHIFT;
->   	max_low_pfn = ((u64)memory_start + (u64)lowmem_size) >> PAGE_SHIFT;
->   	max_pfn = ((u64)memory_start + (u64)memory_size) >> PAGE_SHIFT;
->   
-> -	pr_info("%s: max_mapnr: %#lx\n", __func__, max_mapnr);
->   	pr_info("%s: min_low_pfn: %#lx\n", __func__, min_low_pfn);
->   	pr_info("%s: max_low_pfn: %#lx\n", __func__, max_low_pfn);
->   	pr_info("%s: max_pfn: %#lx\n", __func__, max_pfn);
-> diff --git a/arch/mips/mm/init.c b/arch/mips/mm/init.c
-> index 820e35a59d4d..eb61a73520a0 100644
-> --- a/arch/mips/mm/init.c
-> +++ b/arch/mips/mm/init.c
-> @@ -415,15 +415,7 @@ void __init paging_init(void)
->   		       " %ldk highmem ignored\n",
->   		       (highend_pfn - max_low_pfn) << (PAGE_SHIFT - 10));
->   		max_zone_pfns[ZONE_HIGHMEM] = max_low_pfn;
-> -
-> -		max_mapnr = max_low_pfn;
-> -	} else if (highend_pfn) {
-> -		max_mapnr = highend_pfn;
-> -	} else {
-> -		max_mapnr = max_low_pfn;
->   	}
-> -#else
-> -	max_mapnr = max_low_pfn;
->   #endif
->   	high_memory = (void *) __va(max_low_pfn << PAGE_SHIFT);
->   
-> diff --git a/arch/nios2/kernel/setup.c b/arch/nios2/kernel/setup.c
-> index a4cffbfc1399..2a40150142c3 100644
-> --- a/arch/nios2/kernel/setup.c
-> +++ b/arch/nios2/kernel/setup.c
-> @@ -158,7 +158,6 @@ void __init setup_arch(char **cmdline_p)
->   	*cmdline_p = boot_command_line;
->   
->   	find_limits(&min_low_pfn, &max_low_pfn, &max_pfn);
-> -	max_mapnr = max_low_pfn;
->   
->   	memblock_reserve(__pa_symbol(_stext), _end - _stext);
->   #ifdef CONFIG_BLK_DEV_INITRD
-> diff --git a/arch/nios2/mm/init.c b/arch/nios2/mm/init.c
-> index aa692ad30044..3cafa87ead9e 100644
-> --- a/arch/nios2/mm/init.c
-> +++ b/arch/nios2/mm/init.c
-> @@ -51,7 +51,7 @@ void __init paging_init(void)
->   	pagetable_init();
->   	pgd_current = swapper_pg_dir;
->   
-> -	max_zone_pfn[ZONE_NORMAL] = max_mapnr;
-> +	max_zone_pfn[ZONE_NORMAL] = max_low_pfn;
->   
->   	/* pass the memory from the bootmem allocator to the main allocator */
->   	free_area_init(max_zone_pfn);
-> diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
-> index d0cb1a0126f9..9093c336e158 100644
-> --- a/arch/openrisc/mm/init.c
-> +++ b/arch/openrisc/mm/init.c
-> @@ -193,7 +193,6 @@ void __init mem_init(void)
->   {
->   	BUG_ON(!mem_map);
->   
-> -	max_mapnr = max_low_pfn;
->   	high_memory = (void *)__va(max_low_pfn * PAGE_SIZE);
->   
->   	/* clear the zero-page */
-> diff --git a/arch/parisc/mm/init.c b/arch/parisc/mm/init.c
-> index 61c0a2477072..2cdfc0b1195c 100644
-> --- a/arch/parisc/mm/init.c
-> +++ b/arch/parisc/mm/init.c
-> @@ -563,7 +563,6 @@ void __init mem_init(void)
->   #endif
->   
->   	high_memory = __va((max_pfn << PAGE_SHIFT));
-> -	set_max_mapnr(max_low_pfn);
->   	memblock_free_all();
->   
->   #ifdef CONFIG_PA11
-> diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
-> index a08b0ede4e64..68d47c53876c 100644
-> --- a/arch/powerpc/kernel/setup-common.c
-> +++ b/arch/powerpc/kernel/setup-common.c
-> @@ -957,8 +957,6 @@ void __init setup_arch(char **cmdline_p)
->   
->   	/* Parse memory topology */
->   	mem_topology_setup();
-> -	/* Set max_mapnr before paging_init() */
-> -	set_max_mapnr(max_pfn);
->   	high_memory = (void *)__va(max_low_pfn * PAGE_SIZE);
->   
->   	/*
-> diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-> index 15b2eda4c364..157c9ca51541 100644
-> --- a/arch/riscv/mm/init.c
-> +++ b/arch/riscv/mm/init.c
-> @@ -298,7 +298,6 @@ static void __init setup_bootmem(void)
->   	high_memory = (void *)(__va(PFN_PHYS(max_low_pfn)));
->   
->   	dma32_phys_limit = min(4UL * SZ_1G, (unsigned long)PFN_PHYS(max_low_pfn));
-> -	set_max_mapnr(max_low_pfn - ARCH_PFN_OFFSET);
->   
->   	reserve_initrd_mem();
->   
-> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-> index f8333feb6a7e..36fed6dffb38 100644
-> --- a/arch/s390/mm/init.c
-> +++ b/arch/s390/mm/init.c
-> @@ -159,7 +159,6 @@ void __init mem_init(void)
->   	cpumask_set_cpu(0, &init_mm.context.cpu_attach_mask);
->   	cpumask_set_cpu(0, mm_cpumask(&init_mm));
->   
-> -	set_max_mapnr(max_low_pfn);
->           high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
->   
->   	pv_init();
-> diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
-> index 289a2fecebef..72aea5cd1b85 100644
-> --- a/arch/sh/mm/init.c
-> +++ b/arch/sh/mm/init.c
-> @@ -290,7 +290,6 @@ void __init paging_init(void)
->   	 */
->   	max_low_pfn = max_pfn = memblock_end_of_DRAM() >> PAGE_SHIFT;
->   	min_low_pfn = __MEMORY_START >> PAGE_SHIFT;
-> -	set_max_mapnr(max_low_pfn - min_low_pfn);
->   
->   	nodes_clear(node_online_map);
->   
-> diff --git a/arch/sparc/mm/init_32.c b/arch/sparc/mm/init_32.c
-> index d96a14ffceeb..6b58da14edc6 100644
-> --- a/arch/sparc/mm/init_32.c
-> +++ b/arch/sparc/mm/init_32.c
-> @@ -275,7 +275,6 @@ void __init mem_init(void)
->   
->   	taint_real_pages();
->   
-> -	max_mapnr = last_valid_pfn - pfn_base;
->   	high_memory = __va(max_low_pfn << PAGE_SHIFT);
->   	memblock_free_all();
->   
-> diff --git a/arch/um/include/shared/mem_user.h b/arch/um/include/shared/mem_user.h
-> index adfa08062f88..d4727efcf23d 100644
-> --- a/arch/um/include/shared/mem_user.h
-> +++ b/arch/um/include/shared/mem_user.h
-> @@ -47,7 +47,6 @@ extern int iomem_size;
->   #define ROUND_4M(n) ((((unsigned long) (n)) + (1 << 22)) & ~((1 << 22) - 1))
->   
->   extern unsigned long find_iomem(char *driver, unsigned long *len_out);
-> -extern void mem_total_pages(unsigned long physmem, unsigned long iomem);
->   extern void setup_physmem(unsigned long start, unsigned long usable,
->   			  unsigned long len);
->   extern void map_memory(unsigned long virt, unsigned long phys,
-> diff --git a/arch/um/kernel/physmem.c b/arch/um/kernel/physmem.c
-> index a74f17b033c4..af02b5f9911d 100644
-> --- a/arch/um/kernel/physmem.c
-> +++ b/arch/um/kernel/physmem.c
-> @@ -22,18 +22,6 @@ static int physmem_fd = -1;
->   unsigned long high_physmem;
->   EXPORT_SYMBOL(high_physmem);
->   
-> -void __init mem_total_pages(unsigned long physmem, unsigned long iomem)
-> -{
-> -	unsigned long phys_pages, iomem_pages, total_pages;
-> -
-> -	phys_pages  = physmem >> PAGE_SHIFT;
-> -	iomem_pages = iomem   >> PAGE_SHIFT;
-> -
-> -	total_pages = phys_pages + iomem_pages;
-> -
-> -	max_mapnr = total_pages;
-> -}
-> -
->   void map_memory(unsigned long virt, unsigned long phys, unsigned long len,
->   		int r, int w, int x)
->   {
-> diff --git a/arch/um/kernel/um_arch.c b/arch/um/kernel/um_arch.c
-> index 79ea97d4797e..6414cbf00572 100644
-> --- a/arch/um/kernel/um_arch.c
-> +++ b/arch/um/kernel/um_arch.c
-> @@ -419,7 +419,6 @@ void __init setup_arch(char **cmdline_p)
->   
->   	stack_protections((unsigned long) init_task.stack);
->   	setup_physmem(uml_physmem, uml_reserved, physmem_size);
-> -	mem_total_pages(physmem_size, iomem_size);
->   	uml_dtb_init();
->   	read_initrd();
->   
-> diff --git a/arch/x86/mm/init_32.c b/arch/x86/mm/init_32.c
-> index ac41b1e0940d..6d2f8cb9451e 100644
-> --- a/arch/x86/mm/init_32.c
-> +++ b/arch/x86/mm/init_32.c
-> @@ -650,9 +650,6 @@ void __init initmem_init(void)
->   
->   	memblock_set_node(0, PHYS_ADDR_MAX, &memblock.memory, 0);
->   
-> -#ifdef CONFIG_FLATMEM
-> -	max_mapnr = IS_ENABLED(CONFIG_HIGHMEM) ? highend_pfn : max_low_pfn;
-> -#endif
->   	__vmalloc_start_set = true;
->   
->   	printk(KERN_NOTICE "%ldMB LOWMEM available.\n",
-> diff --git a/arch/xtensa/mm/init.c b/arch/xtensa/mm/init.c
-> index 01577d33e602..9f1b0d5fccc7 100644
-> --- a/arch/xtensa/mm/init.c
-> +++ b/arch/xtensa/mm/init.c
-> @@ -164,7 +164,6 @@ void __init mem_init(void)
->   {
->   	free_highpages();
->   
-> -	max_mapnr = max_pfn - ARCH_PFN_OFFSET;
->   	high_memory = (void *)__va(max_low_pfn << PAGE_SHIFT);
->   
->   	memblock_free_all();
-> diff --git a/include/asm-generic/memory_model.h b/include/asm-generic/memory_model.h
-> index 6d1fb6162ac1..a3b5029aebbd 100644
-> --- a/include/asm-generic/memory_model.h
-> +++ b/include/asm-generic/memory_model.h
-> @@ -19,11 +19,12 @@
->   #define __page_to_pfn(page)	((unsigned long)((page) - mem_map) + \
->   				 ARCH_PFN_OFFSET)
->   
-> +/* avoid <linux/mm.h> include hell */
-> +extern unsigned long max_mapnr;
-> +
->   #ifndef pfn_valid
->   static inline int pfn_valid(unsigned long pfn)
->   {
-> -	/* avoid <linux/mm.h> include hell */
-> -	extern unsigned long max_mapnr;
->   	unsigned long pfn_offset = ARCH_PFN_OFFSET;
->   
->   	return pfn >= pfn_offset && (pfn - pfn_offset) < max_mapnr;
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index 7b1068ddcbb7..fdf20503850e 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -45,17 +45,6 @@ extern int sysctl_page_lock_unfairness;
->   void mm_core_init(void);
->   void init_mm_internals(void);
->   
-> -#ifndef CONFIG_NUMA		/* Don't use mapnrs, do it properly */
-> -extern unsigned long max_mapnr;
-> -
-> -static inline void set_max_mapnr(unsigned long limit)
-> -{
-> -	max_mapnr = limit;
-> -}
-> -#else
-> -static inline void set_max_mapnr(unsigned long limit) { }
-> -#endif
-> -
->   extern atomic_long_t _totalram_pages;
->   static inline unsigned long totalram_pages(void)
->   {
-> diff --git a/mm/memory.c b/mm/memory.c
-> index b4d3d4893267..126fdd3001e3 100644
-> --- a/mm/memory.c
-> +++ b/mm/memory.c
-> @@ -95,14 +95,6 @@
->   #warning Unfortunate NUMA and NUMA Balancing config, growing page-frame for last_cpupid.
->   #endif
->   
-> -#ifndef CONFIG_NUMA
-> -unsigned long max_mapnr;
-> -EXPORT_SYMBOL(max_mapnr);
-> -
-> -struct page *mem_map;
-> -EXPORT_SYMBOL(mem_map);
-> -#endif
-> -
->   static vm_fault_t do_fault(struct vm_fault *vmf);
->   static vm_fault_t do_anonymous_page(struct vm_fault *vmf);
->   static bool vmf_pte_changed(struct vm_fault *vmf);
-> diff --git a/mm/mm_init.c b/mm/mm_init.c
-> index 2630cc30147e..50a93714e1c6 100644
-> --- a/mm/mm_init.c
-> +++ b/mm/mm_init.c
-> @@ -36,6 +36,14 @@
->   
->   #include <asm/setup.h>
->   
-> +#ifndef CONFIG_NUMA
-> +unsigned long max_mapnr;
-> +EXPORT_SYMBOL(max_mapnr);
-> +
-> +struct page *mem_map;
-> +EXPORT_SYMBOL(mem_map);
-> +#endif
-> +
->   #ifdef CONFIG_DEBUG_MEMORY_INIT
->   int __meminitdata mminit_loglevel;
->   
-> @@ -1617,7 +1625,7 @@ static void __init alloc_node_mem_map(struct pglist_data *pgdat)
->   	start = pgdat->node_start_pfn & ~(MAX_ORDER_NR_PAGES - 1);
->   	offset = pgdat->node_start_pfn - start;
->   	/*
-> -		 * The zone's endpoints aren't required to be MAX_PAGE_ORDER
-> +	 * The zone's endpoints aren't required to be MAX_PAGE_ORDER
->   	 * aligned but the node_mem_map endpoints must be in order
->   	 * for the buddy allocator to function correctly.
->   	 */
-> @@ -1633,14 +1641,15 @@ static void __init alloc_node_mem_map(struct pglist_data *pgdat)
->   	pr_debug("%s: node %d, pgdat %08lx, node_mem_map %08lx\n",
->   		 __func__, pgdat->node_id, (unsigned long)pgdat,
->   		 (unsigned long)pgdat->node_mem_map);
-> -#ifndef CONFIG_NUMA
-> +
->   	/* the global mem_map is just set as node 0's */
-> -	if (pgdat == NODE_DATA(0)) {
-> -		mem_map = NODE_DATA(0)->node_mem_map;
-> -		if (page_to_pfn(mem_map) != pgdat->node_start_pfn)
-> -			mem_map -= offset;
-> -	}
-> -#endif
-> +	WARN_ON(pgdat != NODE_DATA(0));
-> +
-> +	mem_map = pgdat->node_mem_map;
-> +	if (page_to_pfn(mem_map) != pgdat->node_start_pfn)
-> +		mem_map -= offset;
-> +
-> +	max_mapnr = end - start;
->   }
->   #else
->   static inline void alloc_node_mem_map(struct pglist_data *pgdat) { }
-> diff --git a/mm/nommu.c b/mm/nommu.c
-> index baa79abdaf03..f0209dd26dfa 100644
-> --- a/mm/nommu.c
-> +++ b/mm/nommu.c
-> @@ -44,16 +44,12 @@
->   
->   void *high_memory;
->   EXPORT_SYMBOL(high_memory);
-> -struct page *mem_map;
-> -unsigned long max_mapnr;
-> -EXPORT_SYMBOL(max_mapnr);
->   unsigned long highest_memmap_pfn;
->   int sysctl_nr_trim_pages = CONFIG_NOMMU_INITIAL_TRIM_EXCESS;
->   int heap_stack_gap = 0;
->   
->   atomic_long_t mmap_pages_allocated;
->   
-> -EXPORT_SYMBOL(mem_map);
->   
->   /* list of mapped, potentially shareable regions */
->   static struct kmem_cache *vm_region_jar;
+
+No extra work has to be done to set up the 1-to-1 mapping. This is already being
+done in "ci_leaf_init()".
+
+>> I am running with the assumption that every OpenRISC core has its own
+>> icache and dcache. Given that OpenRISC does not support a multi-level
+>> cache architecture and that icache and dcache are like L1 caches, I
+>> think this assumption is reasonable. What are your thoughts on this?
+> 
+> Currently this is the case, but it could be possible to create an SoC with L2
+> caches.  I could imagine these would be outside of the CPU and we could define
+> them with the device tree.
+
+In this case, some extra work will have to be done to set the "shared_cpu_map"
+appropriately. But I think the modifications will be quite small. If the L2 cache
+is external to all CPUs, then all online CPUs will have their corresponding bit
+set in the "shared_cpu_map".
+
+>> Another issue I noticed is that the unit used in ...cache/indexN/size
+>> is KB. The actual value of the size is right-shifted by 10 before being
+>> reported. When testing these changes using QEMU (and without making any
+>> modifications to the values stored in DCCFGR and ICCFGR), the cache size
+>> is far smaller than 1KB. Consequently, this is reported as 0K. For cache
+>> sizes smaller than 1KB, should something be done to report it in another
+>> unit? Reporting 0K seems a little misleading.
+> 
+> I think this is fine, as long as we pass in the correct size in bytes.
+
+Understood.
+
+>> [...]
+>> +
+>> +int init_cache_level(unsigned int cpu)
+>> +{
+>> +	struct cpuinfo_or1k *cpuinfo = &cpuinfo_or1k[smp_processor_id()];
+>> +	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
+>> +	int leaves = 0, levels = 0;
+>> +	unsigned long upr = mfspr(SPR_UPR);
+>> +	unsigned long iccfgr, dccfgr;
+>> +
+>> +	if (!(upr & SPR_UPR_UP)) {
+>> +		printk(KERN_INFO
+>> +		       "-- no UPR register... unable to detect configuration\n");
+>> +		return -ENOENT;
+>> +	}
+>> +
+>> +	if (upr & SPR_UPR_DCP) {
+>> +		dccfgr = mfspr(SPR_DCCFGR);
+>> +		cpuinfo->dcache.ways = 1 << (dccfgr & SPR_DCCFGR_NCW);
+>> +		cpuinfo->dcache.sets = 1 << ((dccfgr & SPR_DCCFGR_NCS) >> 3);
+>> +		cpuinfo->dcache.block_size = 16 << ((dccfgr & SPR_DCCFGR_CBS) >> 7);
+>> +		cpuinfo->dcache.size =
+>> +		    cpuinfo->dcache.sets * cpuinfo->dcache.ways * cpuinfo->dcache.block_size;
+>> +		leaves += 1;
+>> +		printk(KERN_INFO
+>> +		       "-- dcache: %4d bytes total, %2d bytes/line, %d way(s)\n",
+>> +		       cpuinfo->dcache.size, cpuinfo->dcache.block_size,
+>> +		       cpuinfo->dcache.ways);
+> 
+> Can we print the number of sets here too?  Also is there a reason to pad these
+> int's with 4 and 2 spaces? I am not sure the padding is needed.
+> 
+>> +	} else
+>> +		printk(KERN_INFO "-- dcache disabled\n");
+>> +
+>> +	if (upr & SPR_UPR_ICP) {
+>> +		iccfgr = mfspr(SPR_ICCFGR);
+>> +		cpuinfo->icache.ways = 1 << (iccfgr & SPR_ICCFGR_NCW);
+>> +		cpuinfo->icache.sets = 1 << ((iccfgr & SPR_ICCFGR_NCS) >> 3);
+>> +		cpuinfo->icache.block_size = 16 << ((iccfgr & SPR_ICCFGR_CBS) >> 7);
+>> +		cpuinfo->icache.size =
+>> +		    cpuinfo->icache.sets * cpuinfo->icache.ways * cpuinfo->icache.block_size;
+>> +		leaves += 1;
+>> +		printk(KERN_INFO
+>> +		       "-- icache: %4d bytes total, %2d bytes/line, %d way(s)\n",
+>> +		       cpuinfo->icache.size, cpuinfo->icache.block_size,
+>> +		       cpuinfo->icache.ways);
+> 
+> Same here.
+
+
+Sure, I'll print the number of sets as well.
+
+I don't think there's any reason for the padding. It was part of the original
+implementation in setup.c. There shouldn't be any issues in removing them.
+
+>> [...]
+>>   	seq_printf(m, "frequency\t\t: %ld\n", loops_per_jiffy * HZ);
+>> -	seq_printf(m, "dcache size\t\t: %d bytes\n", cpuinfo->dcache_size);
+>> -	seq_printf(m, "dcache block size\t: %d bytes\n",
+>> -		   cpuinfo->dcache_block_size);
+>> -	seq_printf(m, "dcache ways\t\t: %d\n", cpuinfo->dcache_ways);
+>> -	seq_printf(m, "icache size\t\t: %d bytes\n", cpuinfo->icache_size);
+>> -	seq_printf(m, "icache block size\t: %d bytes\n",
+>> -		   cpuinfo->icache_block_size);
+>> -	seq_printf(m, "icache ways\t\t: %d\n", cpuinfo->icache_ways);
+>>   	seq_printf(m, "immu\t\t\t: %d entries, %lu ways\n",
+>>   		   1 << ((mfspr(SPR_DMMUCFGR) & SPR_DMMUCFGR_NTS) >> 2),
+>>   		   1 + (mfspr(SPR_DMMUCFGR) & SPR_DMMUCFGR_NTW));
+>> -- 
+>> 2.48.1
+>>
+> 
+> This pretty much looks ok to me.
+>
+
+Thank you for the review.
+
+Thanks,
+Sahil
 
