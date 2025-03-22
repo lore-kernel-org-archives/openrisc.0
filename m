@@ -1,66 +1,40 @@
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout.web.de (mout.web.de [212.227.17.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4A231E9907;
-	Sat, 22 Mar 2025 13:51:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DCEF1FC111;
+	Sat, 22 Mar 2025 15:41:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742651485; cv=none; b=ox3BQWWxyGcuV//Dc7QrcRmkwDKAR2JRkmN9k9U8dulD0tgt8JCXNe4kB1Gpmmqjpoyy9DX4vvb3YImiM7Qloya2hfR8FuJqlj/HAvCOHEaBeyryubJNTBvT1HCwV1VyeHI7sfM2Me7eE6s7dXzYJ9yzhUjEe6voRCPNRRjOS0g=
+	t=1742658081; cv=none; b=LHNe1akpJYfmFdHdAbZBawHbwB+z/e4fW768M/qlPeeiv+Va8VmNN0Z0Cdaj+Ez74WB0+bLkdMmEv2hQwC4azEEhHb/BhKyltXFEjp2MWo8ww5AScU8hXs2xCGKKvh62I8uhkyF+X22IBUlWPi+BJRxseiE4s11CooyeCLz9nwU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742651485; c=relaxed/simple;
-	bh=AXgKldIJDFxGGTSesb7GOpU8h0qDcUTcY0vEC43gwss=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Wx9oa16xjtIVOw89QrDXNjuG0b4hkCpCuQf26CrTt/tMd+SPZxT0rHjtoFU0Vl5wHhK6N3Yw2U+OJKcLfbfntK6FNbfDXMbPoHz22VcyF6JnAWns3EPFNGduSWfmq0U6C+XPhFFiiDsDsShD+PxwqLEW5Y5B6+eQ5wEtawCxZbs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e7+3VPJo; arc=none smtp.client-ip=209.85.214.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1742658081; c=relaxed/simple;
+	bh=yBsJdEaL0lHYY7uQaEKOkXXNSi/IF0RzWIcvS08y2bk=;
+	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
+	 In-Reply-To:Content-Type; b=LKtvw8VjbdQN4nBYUUHQoOu19E+kigEZwF00DXROtJJC717cw8zUbU9VUSJCv6bViHjSOFVdP2bX4CAwOGNXB2XarDoofH/b89+vynwH2uwoe+rxt8rQztm+jIU6LaGaALt39Xw43C8NXSRfC0LzRMZS7lnfCDiEF8+sIDb7Q/U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=KkibrdrM; arc=none smtp.client-ip=212.227.17.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e7+3VPJo"
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-225b5448519so57745785ad.0;
-        Sat, 22 Mar 2025 06:51:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1742651483; x=1743256283; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=9hoE3iAQOV2Sj7MhPY6vXJpvggMasHemIzplUShugBI=;
-        b=e7+3VPJoBzgK6tBKmwo+VFLB8v5acNxU9zSlWsnSYFKui5AG+wqhZ9ypcl7PB5Y5KD
-         Mx9LJS+YT6Tvj17IY6oVnry2M9NZHKkr8Hq106u9pyOwHYTK8kbj+SNdTAmHjEumsdpb
-         ssDV5+jbYMugcEH/u9rVsi/0FB3G872AWTyNArOT9s995zE9TQQLFPZOHN34h8B4jF7t
-         7mP4xdQYPjrGJlRSdTa6cFcUq490IBj4FOWFR+D1WzREFoZ3H80VEWYk9LuKzoNOlNJf
-         8eadWgyo98zjAj+fYg7VuhLVx4bdJioqVYDmsPrmJuFeHe+UwvZLc1q2U/xOr//JEOT4
-         xC8Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742651483; x=1743256283;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=9hoE3iAQOV2Sj7MhPY6vXJpvggMasHemIzplUShugBI=;
-        b=puUeQsa5pLdqf1qi2/5f636bolyq1zfAAcYOk058FMLoQA5U/YaCKJ19nInwo2c8oo
-         rnKow4UvQp47mdgU/vdSkpsdVZ07KIpT7Um968alMXRWg6yx4T0tWFPvklRjlzfoQvBg
-         /8B154b1eWIZpibPkKWpwJQzQxUe/aMC1q50simOO6BJ9QxGPQ28SrYjrXVTNukTF/XP
-         VGWfJ7CgJi5QXvhcjvrTEtrpRRjWUHPlqIpCKwEiFromJsq8ivXzL53V3jlHP0NS3voO
-         xKwa1cR+E8NTWrTPwtvYsuvPUg1dgOfBGUBYQcgRbso75rQIYR7JvKyBDnbRSWnVP6vs
-         N2dg==
-X-Forwarded-Encrypted: i=1; AJvYcCVLZh4J6L2pfzTkVHHZ5bc5N7sM6JKac5KUxMyKf6VF5CnzTdJPuUAggZi4Z7bGNE6PcVOVFquMOLMJ2gE1wZ4=@vger.kernel.org, AJvYcCVd0O7ITeE+FYWFGIMf4Pbf4cPIyBiPw80fIowW2TXs5T9DswuNkzyIjshtbqlCJpCTXZbgFeU7ZdguSNM=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxsB69kJNNYLwZiiUdICLO3vfOKUSmqt006Kv0olM3pDx2ktF2h
-	BSeCyuaWnliFEjtf6M0Y+p2Pm/f9m9mFmWFGhVJNoe+sI7Zp158b
-X-Gm-Gg: ASbGncuTlqmDNTixXJGzlZdqIz7gEKxMrxX/UALmG5bvegUOjbMYc+c7x/xHejwuHqM
-	h5PvSNB8fmtFLFpJK6DOmkaBJUtAImCMyAuDuXviifQDJ2Qor2PaNaRVBDINV0DosdhAj6gVJDG
-	fshDjMDFUNeF1Kv8TOgSqpGC+IomNKZO4I6UOQGxHqvQwolYimkm6z/9eqJ41tqEFeEeF6leBzI
-	CE9EkuJl6Ke7QiFnq35oPY6UPX4j/4w9mkHrbruvCgdWoCWVkQ2wxywo7okBHmDGdwtoFHshnJk
-	XUR3C4Sp57kBvu5p46V8MT0LDNpfwZ/g//0T8PW7CJV937U12zBcCr1Nv3EVFa/jCzJGffiOQNC
-	mT4Z3nvQiDlbu
-X-Google-Smtp-Source: AGHT+IHuerATWGFhIPO0eIxScwtZUhrScb0YX7Ezgxo/yo5HB/H2u0y3pK9K+pI33jtz02wbUqSfcA==
-X-Received: by 2002:a17:902:f68a:b0:21f:85d0:828 with SMTP id d9443c01a7336-22780e0782amr122080015ad.41.1742651482730;
-        Sat, 22 Mar 2025 06:51:22 -0700 (PDT)
-Received: from ?IPV6:2401:4900:1c45:ad2a:889a:b085:dc4f:7d7b? ([2401:4900:1c45:ad2a:889a:b085:dc4f:7d7b])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-227811c1b8fsm35451155ad.154.2025.03.22.06.51.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 22 Mar 2025 06:51:22 -0700 (PDT)
-Message-ID: <10b01724-d47f-4f0f-87ea-2793e67b18b9@gmail.com>
-Date: Sat, 22 Mar 2025 19:21:18 +0530
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="KkibrdrM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
+	s=s29768273; t=1742658062; x=1743262862; i=markus.elfring@web.de;
+	bh=yBsJdEaL0lHYY7uQaEKOkXXNSi/IF0RzWIcvS08y2bk=;
+	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:To:Cc:References:
+	 Subject:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
+	 cc:content-transfer-encoding:content-type:date:from:message-id:
+	 mime-version:reply-to:subject:to;
+	b=KkibrdrMZ1SOaDOGeJ1RFcgLHg2kqt0XvdNbkpGyn0jWSOMXgBT3xAR/xkZfnH3m
+	 Nc4lYxk5+9FQLfD9UqCOGmbij63q9x8+HpKTWLdbHXzvjCZBVya3YFXIdMsoH5E25
+	 BHXlXVy9CDgu233WZZLC9bx0Df6gH8CmuoXgetkqzQ9Cm56GukvwCI9KwuCnXu6z0
+	 3G1lal3na2d9CwbqiFXPInXt3JjqlEmUauqsIlXQb9ZmTmfojC9nfyuIMVwgNjzwx
+	 63Oe98we03cEpmVWsx3pDHWdFfufueYoX6UwnqKWYXIWGDkgRjo/os9suuB7frFo/
+	 qfIUKqgWDpBSTVo0sg==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from [192.168.178.29] ([94.31.70.73]) by smtp.web.de (mrweb105
+ [213.165.67.124]) with ESMTPSA (Nemesis) id 1Mpl4x-1tO4Kx3Fhl-00ZCpW; Sat, 22
+ Mar 2025 16:41:02 +0100
+Message-ID: <b5374b26-ccff-4ce9-8500-8b3da427be83@web.de>
+Date: Sat, 22 Mar 2025 16:40:59 +0100
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -68,115 +42,54 @@ List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] openrisc: Add cacheinfo support
-To: Stafford Horne <shorne@gmail.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, jonas@southpole.se,
- stefan.kristiansson@saunalahti.fi, linux-openrisc@vger.kernel.org,
- linux-kernel@vger.kernel.org, Sahil Siddiq <sahilcdq@proton.me>
+To: Sahil Siddiq <sahilcdq@proton.me>, linux-openrisc@vger.kernel.org
+Cc: Sahil Siddiq <icegambit91@gmail.com>, LKML
+ <linux-kernel@vger.kernel.org>, Jonas Bonn <jonas@southpole.se>,
+ Stafford Horne <shorne@gmail.com>,
+ Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
 References: <20250315203937.77017-1-sahilcdq@proton.me>
- <Z9Z2sjWQHKgGJyGo@antec>
- <CAMuHMdWh=oo6JykPGD3DNEL=GcfgyKw2UK7vb8XMbH19GcdrwA@mail.gmail.com>
- <Z9gOwYl6kmoPY9-C@antec> <d54849db-956b-4c1a-ab93-4705394af637@gmail.com>
- <Z9kkE3uQru_VxLqA@antec>
-Content-Language: en-US
-From: Sahil Siddiq <icegambit91@gmail.com>
-Autocrypt: addr=icegambit91@gmail.com; keydata=
- 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
- rPgMe6IIvn24UuW2f6fIt0AaqOWq
-In-Reply-To: <Z9kkE3uQru_VxLqA@antec>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v2] openrisc: Add cacheinfo support
+Content-Language: en-GB
+From: Markus Elfring <Markus.Elfring@web.de>
+In-Reply-To: <20250315203937.77017-1-sahilcdq@proton.me>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:d+eZTTnpFfK8HwrJ8q+nM6IOgyDfuwp/7EZO1EPNQSGrZsC8wG8
+ MqFQ+tboD9BDNgbwlsQBxNfeEQXwGJsRdM7xDfRYiLtfi0tmSip0vOVn08t6tq5/f238eGy
+ ilH/8waD1l7FgeRVRvO3BXSP/FzI8oCAE1dUBhggTB/MTlCERHmBMQqPGKEY8KyDYfCSFEp
+ k1o+vcpW6+l+SIiNvNrKw==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:5yR82eWG0/I=;zjWMpkCK/BOmwmIPc2Py6J2sKTq
+ 7pBxf0elnUbE9bl7lgSrcOt1sMM3oeVlng2BCId/fWTkNvR+ZE6P8G2DjcqYmJBWsQZp0qiTl
+ 1c414wGlzHyx1GynQbsMoxEVKLEU2CCF+ErbFbikUow6Gqyo303d7dzIsMZ9VOhboxUbPvqes
+ xk0tBCmGu1l9s2Du5IfpFw8IFjriM/Wpg96IDRduKBfYrkSfpMWPln3nmz1RqpfXiXLk0OoN1
+ 7CeFJzQ8XuuYFkRHXoq73R8kpUGN/20f4JjvES1Wwu6s6mUbQVZb673TjXN4KBTh7ZoZoQb+/
+ lTR5wYTkIi2Nxd/SLtaqIFww/tU3Y5Ory/gQ5zMyC56zKXoUe7MNry3LQenj9wOEOM/Y/cFh6
+ QUBff6tHOlgUMWgF4xpCfadFNQyLjf8Htrilq/7KxKRamYf18POjBoWpHRWKYShhZ4gohKuS0
+ Az4ytJ8veIH9HQTaemGGXE1z1PBgX8cLIe9huw9xU/d0kbKrB+SKXrT95c22W0G+qg4tmgnkE
+ FZ6oKDK/C4vcBxg+9YSzyhki7msaV7ZcAk77sYr4DJ1ITyaBHbNQUGDrzcniyLj/C8ilv//FS
+ 3m1RJEMz653M56EoJRDLCAiu7NZMpSJp6P5It65joFMr5y4HF3iwUstWdc+yUPUMsRcrA9ZyQ
+ FYRCb0n1K+LVsx1KtfWzwXvzOkEl7bh0lDfoEHwr/c2uccNYJp01OHCBWop+9uHG7lK8OrqWI
+ SCpv9GOu0ldalIuqDoSh6cGUzs1Y2lP7wFeEDutv2vxPSoUI2wZVNSomgztD7vClaShUjWTtg
+ lij4cZIsXTdBLlA5aHWDH3UGhTdjskVshuefuhFtqopTtcHKajDSTS4+fjmN1IAIG1jLgfo9H
+ TfmKzzR4Vu5qufqd1W1VnZXmVoa9/UNPqPp/ASoNbQKne1jdKVAOWX+JyLXUv2lni2RsnMBXs
+ wxpZfisjHko03zQL+ePfcN0WiBdvYDDuLiWteypBLfC7nGkaxYnA3xbIdczg8srAtexwXthT8
+ E6iLpHdBM/YzfWqS6tB4YdeZDtFXhLQHC2Ul+msvOYYPzrBtbUkbPw879ZtIJvcSgLLE7XDJF
+ 9mADt932n2BUwg+dgnu0YghcIPlQvATRmyIpHSmifYPI2FeC1xbPHpSZvBoRfAqysl3GPz88r
+ FHEWfgUYX6u8RA6pC8P+fjBYIlghcUnx/D+Qlpnw8Cxp01+Qel34p70EuyDAw63RbcnyCo+Ei
+ PmP4CsyXcY1oJ428+KkAIpN/c1GzxGiKXAPvbxZIUQNXU8ap3DElpgmJKtHEYSdyOXbeyNglC
+ Tj/vIkE1nHbiQdqeFV/BzbCPJTs0wYGzR2we0lnSQ5GCq8oNiUvZ5WWhocxtYJtlJi4OgqvgI
+ 0EzN/jA+e51BTJeplPQKh3yQU2IFwl7q0Xaalp0YlEAUYMPUmv6tQoU0Ig2h2JeNPaWXvUPdA
+ OAP2f8iFYpOfAQnLByUxlFCNmeQOHurgHYfcOXl/ITi47ymz49bhR558s43SylS/YNy+xnw==
 
-Hi Stafford,
+=E2=80=A6
+> This patch provides a mechanism =E2=80=A6
 
-On 3/18/25 1:13 PM, Stafford Horne wrote:
-> On Tue, Mar 18, 2025 at 12:06:30AM +0530, Sahil Siddiq wrote:
->> On 3/17/25 1:55 PM, Geert Uytterhoeven wrote:
->>> On Sun, 16 Mar 2025 at 07:59, Stafford Horne <shorne@gmail.com> wrote:
->>> [...]
->>>> @@ -176,8 +177,11 @@ void __init paging_init(void)
->>>>    	barrier();
->>>>    	/* Invalidate instruction caches after code modification */
->>>> -	mtspr(SPR_ICBIR, 0x900);
->>>> -	mtspr(SPR_ICBIR, 0xa00);
->>>> +	upr = mfspr(SPR_UPR);
->>>> +	if (upr & SPR_UPR_UP & SPR_UPR_ICP) {
->>>> +		mtspr(SPR_ICBIR, 0x900);
->>>> +		mtspr(SPR_ICBIR, 0xa00);
->>>> +	}
->>> Here we could use new utilities such as local_icache_range_inv(0x900,
->>> L1_CACHE_BYTES);
->>>
->>> Or something like local_icache_block_inv(0x900).  This only needs to flush a
->>> single block as the code it is invalidating is just 2 instructions 8 bytes:
->>>
->>>       .org 0x900
->>> 	l.j     boot_dtlb_miss_handler
->>> 	 l.nop
->>>
->>>       .org 0xa00
->>> 	l.j     boot_itlb_miss_handler
->>> 	 l.nop
->>
->> Given that there'll be generic local_(i|d)cache_range_inv(start, stop) utility
->> functions, would it make sense to simply have a macro defined as:
->>
->> #define local_icache_block_inv(addr) local_icache_range_inv(start, L1_CACHE_BYTES)
->>
->> instead of having a separate function for invalidating a single cache line? This would
->> still use cache_loop() under the hood. The alternative would be to use
->> local_icache_range_inv(start, L1_CACHE_BYTES) directly but using the macro might be
->> more readable.
-> 
-> Yes, I think a macro would be fine.  Should we use cache_desc.block_size or
-> L1_CACHE_BYTES?  It doesn't make much difference as L1_CACHE_BYTES is defined as
-> 16 bytes which is the minimum block size and using that will always invalidate a
-> whole block.  It would be good to have a comment explaining why using
-> L1_CACHE_BYTES is enough.
-> 
+> The patch also moves =E2=80=A6
 
-While working on the patch's v3, I realized I am a bit unclear here. Is the ".org"
-macro used to set the address at which the instructions are stored in memory? If so,
-the first two instructions should occupy the memory area 0x900 through 0x907, right?
-Similarly, the next two instructions will occupy 0xa00-0xa07.
+See also:
+https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tre=
+e/Documentation/process/submitting-patches.rst?h=3Dv6.14-rc7#n94
 
-Since the two instructions are 256 bytes apart, they shouldn't be cached in the same
-cache line, right? Maybe one cache line will have 16 bytes starting from 0x900 while
-another cache line will have 16 bytes starting from 0xa00.
-
-If the above is true, I think it'll be better to simply call mtspr() for each address
-individually.
-
-Thanks,
-Sahil
+Regards,
+Markus
