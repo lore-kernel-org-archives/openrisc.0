@@ -1,188 +1,182 @@
-Received: from mail-wm1-f73.google.com (mail-wm1-f73.google.com [209.85.128.73])
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABD6B224254
-	for <linux-openrisc@vger.kernel.org>; Thu, 20 Mar 2025 10:44:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4A231E9907;
+	Sat, 22 Mar 2025 13:51:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742467484; cv=none; b=JQDQHw4rXS+saFGU6sohnAcammtI74yprzn+7CGvtpkOlMCRjUURDXut0jLQwtLA3RikMH7zlbx8egSj7PlB+83lUAkKHEFsA3mUzoHWdYUAAx7VFHz8osEFIQqS+LZU3S2jQuFriBjGZ06xkmXk5SAnhDoKi698nHGxNrYElaI=
+	t=1742651485; cv=none; b=ox3BQWWxyGcuV//Dc7QrcRmkwDKAR2JRkmN9k9U8dulD0tgt8JCXNe4kB1Gpmmqjpoyy9DX4vvb3YImiM7Qloya2hfR8FuJqlj/HAvCOHEaBeyryubJNTBvT1HCwV1VyeHI7sfM2Me7eE6s7dXzYJ9yzhUjEe6voRCPNRRjOS0g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742467484; c=relaxed/simple;
-	bh=O8zyyL1p84aMCSSYT842uw6SFy2rTfsgAblLzeFkCR0=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=lJ8eonGPsmPvyK72szt0OP3t+VTT6Pr0d/d1GNxdhK5JZzVvTCtz3bDuf3KkjD3/+387AghssP/h9R+6nx+ZJBeJM3bBCP1huby4+jMl2QlGiZ6p2zGWzoqNhvOIExGZaoJ9aKTNEZD7qGKJ8YYR+iQg1J/3iUbngcTi7FtKXJk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Kdj3JpaA; arc=none smtp.client-ip=209.85.128.73
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com
+	s=arc-20240116; t=1742651485; c=relaxed/simple;
+	bh=AXgKldIJDFxGGTSesb7GOpU8h0qDcUTcY0vEC43gwss=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Wx9oa16xjtIVOw89QrDXNjuG0b4hkCpCuQf26CrTt/tMd+SPZxT0rHjtoFU0Vl5wHhK6N3Yw2U+OJKcLfbfntK6FNbfDXMbPoHz22VcyF6JnAWns3EPFNGduSWfmq0U6C+XPhFFiiDsDsShD+PxwqLEW5Y5B6+eQ5wEtawCxZbs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e7+3VPJo; arc=none smtp.client-ip=209.85.214.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Kdj3JpaA"
-Received: by mail-wm1-f73.google.com with SMTP id 5b1f17b1804b1-43d22c304adso7494455e9.0
-        for <linux-openrisc@vger.kernel.org>; Thu, 20 Mar 2025 03:44:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e7+3VPJo"
+Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-225b5448519so57745785ad.0;
+        Sat, 22 Mar 2025 06:51:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1742467480; x=1743072280; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=j11DFSETqOLtc+vMOz1k4rHgXFA118EedepjEdU8Zqw=;
-        b=Kdj3JpaAcTMsJX0fWv0whfnlnrjaZjQkUoIxaVNNWymywgQ1lxYjwO8r7iq1JNp6QM
-         Ojbu13PJrvGpih/A3lZ8h//bm+lQo87tlhkP9QV9OC12v7CPJ6kEgjQXJce0C5ni+hLc
-         WK8hRYGR3L0Fg1Ms6LVwx4HmFLLx967l5J71fKJh2+DS8uT7oCIJlhzicsDfSOQYSkWF
-         sHWVXfORZG9aTGDrruW97o37vT+nFRgMDzAibG+h4BCecMAJVWL9zR8i+Q2//u9V8cvF
-         qTDTgtuLxb6b7EYFGNlNI/IdDW+67sG2wCaCd7GvxlgTKp/aIF7rCtp1mbYDuCw4iql2
-         FLfw==
+        d=gmail.com; s=20230601; t=1742651483; x=1743256283; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=9hoE3iAQOV2Sj7MhPY6vXJpvggMasHemIzplUShugBI=;
+        b=e7+3VPJoBzgK6tBKmwo+VFLB8v5acNxU9zSlWsnSYFKui5AG+wqhZ9ypcl7PB5Y5KD
+         Mx9LJS+YT6Tvj17IY6oVnry2M9NZHKkr8Hq106u9pyOwHYTK8kbj+SNdTAmHjEumsdpb
+         ssDV5+jbYMugcEH/u9rVsi/0FB3G872AWTyNArOT9s995zE9TQQLFPZOHN34h8B4jF7t
+         7mP4xdQYPjrGJlRSdTa6cFcUq490IBj4FOWFR+D1WzREFoZ3H80VEWYk9LuKzoNOlNJf
+         8eadWgyo98zjAj+fYg7VuhLVx4bdJioqVYDmsPrmJuFeHe+UwvZLc1q2U/xOr//JEOT4
+         xC8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742467480; x=1743072280;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=j11DFSETqOLtc+vMOz1k4rHgXFA118EedepjEdU8Zqw=;
-        b=DjxN6kLX1hfdrx+nRw4kYvd15JLMsWBfa7cpzk9KTThs/BK+dT6S3B2Cd07H3grPtz
-         rMDtqcpQXsDaQZQsQ+3NNxmBs21WhM3jTP+MlI0eTgtEppi4F+F9+ROGZTlVaGGMz0QI
-         Vmo62jm37K25K/52iz4jyTinb3UMN7TBGkvIHJQanMZ5XF9wWU5EVkMovEaRmuPZQce4
-         TyibY2iB42ikV/y2oy8UMnKi6AApAzU7IBW1kFOBpz/nWhhbNUY0RSU9aORozCDXRDon
-         YZREF9QrODqoHdm+VJEOG/AMUUnZM4QzWoy28+KYUMhB+edhnjjvxN0WYj9sX6J3MA7/
-         rqRQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVuPZnDdagdjvFo22Z/C+cRkmWelvGAoyS0MIBIQD6sU8BDIaWxBmSZqBjnxO3Fi56Wf0McJ1MfNkJGZBqGpg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx1RsZIwYfrB+U5nKCwh0mA8eLRclpBu6gmvXpFCX1Axh7JJgbj
-	oGVy718IOk6dn5uQfLkuBMi/+w6zTir+0JOjNTP7U0+3WZgotfH44FFpOPnYY/hsBHgJtXQRZo6
-	578z3k0H0UQ==
-X-Google-Smtp-Source: AGHT+IHmhdHTuCMOMffmpvyIMCzJObzjHJotMPvb7/CKZriBN1WJ2Qe2CHVhTxdEuiWThlixsbw8H9oOiShQMA==
-X-Received: from wmgg15.prod.google.com ([2002:a05:600d:f:b0:43b:c450:ea70])
- (user=jackmanb job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:600c:1da2:b0:439:5f04:4f8d with SMTP id 5b1f17b1804b1-43d49187ba9mr20806165e9.12.1742467480075;
- Thu, 20 Mar 2025 03:44:40 -0700 (PDT)
-Date: Thu, 20 Mar 2025 10:44:38 +0000
-In-Reply-To: <Z9sRQ0cK0rupEiT-@google.com>
+        d=1e100.net; s=20230601; t=1742651483; x=1743256283;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=9hoE3iAQOV2Sj7MhPY6vXJpvggMasHemIzplUShugBI=;
+        b=puUeQsa5pLdqf1qi2/5f636bolyq1zfAAcYOk058FMLoQA5U/YaCKJ19nInwo2c8oo
+         rnKow4UvQp47mdgU/vdSkpsdVZ07KIpT7Um968alMXRWg6yx4T0tWFPvklRjlzfoQvBg
+         /8B154b1eWIZpibPkKWpwJQzQxUe/aMC1q50simOO6BJ9QxGPQ28SrYjrXVTNukTF/XP
+         VGWfJ7CgJi5QXvhcjvrTEtrpRRjWUHPlqIpCKwEiFromJsq8ivXzL53V3jlHP0NS3voO
+         xKwa1cR+E8NTWrTPwtvYsuvPUg1dgOfBGUBYQcgRbso75rQIYR7JvKyBDnbRSWnVP6vs
+         N2dg==
+X-Forwarded-Encrypted: i=1; AJvYcCVLZh4J6L2pfzTkVHHZ5bc5N7sM6JKac5KUxMyKf6VF5CnzTdJPuUAggZi4Z7bGNE6PcVOVFquMOLMJ2gE1wZ4=@vger.kernel.org, AJvYcCVd0O7ITeE+FYWFGIMf4Pbf4cPIyBiPw80fIowW2TXs5T9DswuNkzyIjshtbqlCJpCTXZbgFeU7ZdguSNM=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxsB69kJNNYLwZiiUdICLO3vfOKUSmqt006Kv0olM3pDx2ktF2h
+	BSeCyuaWnliFEjtf6M0Y+p2Pm/f9m9mFmWFGhVJNoe+sI7Zp158b
+X-Gm-Gg: ASbGncuTlqmDNTixXJGzlZdqIz7gEKxMrxX/UALmG5bvegUOjbMYc+c7x/xHejwuHqM
+	h5PvSNB8fmtFLFpJK6DOmkaBJUtAImCMyAuDuXviifQDJ2Qor2PaNaRVBDINV0DosdhAj6gVJDG
+	fshDjMDFUNeF1Kv8TOgSqpGC+IomNKZO4I6UOQGxHqvQwolYimkm6z/9eqJ41tqEFeEeF6leBzI
+	CE9EkuJl6Ke7QiFnq35oPY6UPX4j/4w9mkHrbruvCgdWoCWVkQ2wxywo7okBHmDGdwtoFHshnJk
+	XUR3C4Sp57kBvu5p46V8MT0LDNpfwZ/g//0T8PW7CJV937U12zBcCr1Nv3EVFa/jCzJGffiOQNC
+	mT4Z3nvQiDlbu
+X-Google-Smtp-Source: AGHT+IHuerATWGFhIPO0eIxScwtZUhrScb0YX7Ezgxo/yo5HB/H2u0y3pK9K+pI33jtz02wbUqSfcA==
+X-Received: by 2002:a17:902:f68a:b0:21f:85d0:828 with SMTP id d9443c01a7336-22780e0782amr122080015ad.41.1742651482730;
+        Sat, 22 Mar 2025 06:51:22 -0700 (PDT)
+Received: from ?IPV6:2401:4900:1c45:ad2a:889a:b085:dc4f:7d7b? ([2401:4900:1c45:ad2a:889a:b085:dc4f:7d7b])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-227811c1b8fsm35451155ad.154.2025.03.22.06.51.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 22 Mar 2025 06:51:22 -0700 (PDT)
+Message-ID: <10b01724-d47f-4f0f-87ea-2793e67b18b9@gmail.com>
+Date: Sat, 22 Mar 2025 19:21:18 +0530
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
- <20250110-asi-rfc-v2-v2-4-8419288bc805@google.com> <20250319172935.GMZ9r-_zzXhyhHBLfj@fat_crate.local>
- <Z9sRQ0cK0rupEiT-@google.com>
-X-Mailer: aerc 0.18.2
-Message-ID: <D8L164U8HBTB.G5MS86AIISLM@google.com>
-Subject: Re: [PATCH RFC v2 04/29] mm: asi: Add infrastructure for boot-time enablement
-From: Brendan Jackman <jackmanb@google.com>
-To: Yosry Ahmed <yosry.ahmed@linux.dev>, Borislav Petkov <bp@alien8.de>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, 
-	Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
-	Josh Poimboeuf <jpoimboe@kernel.org>, Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, 
-	<x86@kernel.org>, <linux-kernel@vger.kernel.org>, 
-	<linux-alpha@vger.kernel.org>, <linux-snps-arc@lists.infradead.org>, 
-	<linux-arm-kernel@lists.infradead.org>, <linux-csky@vger.kernel.org>, 
-	<linux-hexagon@vger.kernel.org>, <loongarch@lists.linux.dev>, 
-	<linux-m68k@lists.linux-m68k.org>, <linux-mips@vger.kernel.org>, 
-	<linux-openrisc@vger.kernel.org>, <linux-parisc@vger.kernel.org>, 
-	<linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>, 
-	<linux-s390@vger.kernel.org>, <linux-sh@vger.kernel.org>, 
-	<sparclinux@vger.kernel.org>, <linux-um@lists.infradead.org>, 
-	<linux-arch@vger.kernel.org>, <linux-mm@kvack.org>, 
-	<linux-trace-kernel@vger.kernel.org>, <linux-perf-users@vger.kernel.org>, 
-	<kvm@vger.kernel.org>, <linux-efi@vger.kernel.org>, 
-	Junaid Shahid <junaids@google.com>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] openrisc: Add cacheinfo support
+To: Stafford Horne <shorne@gmail.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, jonas@southpole.se,
+ stefan.kristiansson@saunalahti.fi, linux-openrisc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Sahil Siddiq <sahilcdq@proton.me>
+References: <20250315203937.77017-1-sahilcdq@proton.me>
+ <Z9Z2sjWQHKgGJyGo@antec>
+ <CAMuHMdWh=oo6JykPGD3DNEL=GcfgyKw2UK7vb8XMbH19GcdrwA@mail.gmail.com>
+ <Z9gOwYl6kmoPY9-C@antec> <d54849db-956b-4c1a-ab93-4705394af637@gmail.com>
+ <Z9kkE3uQru_VxLqA@antec>
+Content-Language: en-US
+From: Sahil Siddiq <icegambit91@gmail.com>
+Autocrypt: addr=icegambit91@gmail.com; keydata=
+ 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
+ rPgMe6IIvn24UuW2f6fIt0AaqOWq
+In-Reply-To: <Z9kkE3uQru_VxLqA@antec>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Wed Mar 19, 2025 at 6:47 PM UTC, Yosry Ahmed wrote:
-> On Wed, Mar 19, 2025 at 06:29:35PM +0100, Borislav Petkov wrote:
-> > On Fri, Jan 10, 2025 at 06:40:30PM +0000, Brendan Jackman wrote:
-> > > Add a boot time parameter to control the newly added X86_FEATURE_ASI.
-> > > "asi=on" or "asi=off" can be used in the kernel command line to enable
-> > > or disable ASI at boot time. If not specified, ASI enablement depends
-> > > on CONFIG_ADDRESS_SPACE_ISOLATION_DEFAULT_ON, which is off by default.
-> > 
-> > I don't know yet why we need this default-on thing...
->
-> It's a convenience to avoid needing to set asi=on if you want ASI to be
-> on by default. It's similar to HUGETLB_PAGE_OPTIMIZE_VMEMMAP_DEFAULT_ON
-> or ZSWAP_DEFAULT_ON.
->
-> [..]
-> > > @@ -175,7 +184,11 @@ static __always_inline bool asi_is_restricted(void)
-> > >  	return (bool)asi_get_current();
-> > >  }
-> > >  
-> > > -/* If we exit/have exited, can we stay that way until the next asi_enter? */
-> > > +/*
-> > > + * If we exit/have exited, can we stay that way until the next asi_enter?
-> > 
-> > What is that supposed to mean here?
->
-> asi_is_relaxed() checks if the thread is outside an ASI critical
-> section.
->
-> I say "the thread" because it will also return true if we are executing
-> an interrupt that arrived during the critical section, even though the
-> interrupt handler is not technically part of the critical section.
->
-> Now the reason it says "if we exit we stay that way" is probably
-> referring to the fact that an asi_exit() when interrupting a critical
-> section will be undone in the interrupt epilogue by re-entering ASI.
->
-> I agree the wording here is confusing. We should probably describe this
-> more explicitly and probably rename the function after the API
-> discussions you had in the previous patch.
+Hi Stafford,
 
-Yeah, this is confusing. It's trying to very concisely define the
-concept of "relaxed" but now I see it through Boris' eyes I realise
-it's really unhelpful to try and do that. And yeah we should probably
-just rework the terminology/API.
+On 3/18/25 1:13 PM, Stafford Horne wrote:
+> On Tue, Mar 18, 2025 at 12:06:30AM +0530, Sahil Siddiq wrote:
+>> On 3/17/25 1:55 PM, Geert Uytterhoeven wrote:
+>>> On Sun, 16 Mar 2025 at 07:59, Stafford Horne <shorne@gmail.com> wrote:
+>>> [...]
+>>>> @@ -176,8 +177,11 @@ void __init paging_init(void)
+>>>>    	barrier();
+>>>>    	/* Invalidate instruction caches after code modification */
+>>>> -	mtspr(SPR_ICBIR, 0x900);
+>>>> -	mtspr(SPR_ICBIR, 0xa00);
+>>>> +	upr = mfspr(SPR_UPR);
+>>>> +	if (upr & SPR_UPR_UP & SPR_UPR_ICP) {
+>>>> +		mtspr(SPR_ICBIR, 0x900);
+>>>> +		mtspr(SPR_ICBIR, 0xa00);
+>>>> +	}
+>>> Here we could use new utilities such as local_icache_range_inv(0x900,
+>>> L1_CACHE_BYTES);
+>>>
+>>> Or something like local_icache_block_inv(0x900).  This only needs to flush a
+>>> single block as the code it is invalidating is just 2 instructions 8 bytes:
+>>>
+>>>       .org 0x900
+>>> 	l.j     boot_dtlb_miss_handler
+>>> 	 l.nop
+>>>
+>>>       .org 0xa00
+>>> 	l.j     boot_itlb_miss_handler
+>>> 	 l.nop
+>>
+>> Given that there'll be generic local_(i|d)cache_range_inv(start, stop) utility
+>> functions, would it make sense to simply have a macro defined as:
+>>
+>> #define local_icache_block_inv(addr) local_icache_range_inv(start, L1_CACHE_BYTES)
+>>
+>> instead of having a separate function for invalidating a single cache line? This would
+>> still use cache_loop() under the hood. The alternative would be to use
+>> local_icache_range_inv(start, L1_CACHE_BYTES) directly but using the macro might be
+>> more readable.
+> 
+> Yes, I think a macro would be fine.  Should we use cache_desc.block_size or
+> L1_CACHE_BYTES?  It doesn't make much difference as L1_CACHE_BYTES is defined as
+> 16 bytes which is the minimum block size and using that will always invalidate a
+> whole block.  It would be good to have a comment explaining why using
+> L1_CACHE_BYTES is enough.
+> 
 
-To re-iterate what Yosry said, aside from my too-clever comment style
-the more fundamental thing that's confusing here is that, using the
-terminology currently in the code there are two concepts at play:
+While working on the patch's v3, I realized I am a bit unclear here. Is the ".org"
+macro used to set the address at which the instructions are stored in memory? If so,
+the first two instructions should occupy the memory area 0x900 through 0x907, right?
+Similarly, the next two instructions will occupy 0xa00-0xa07.
 
-- The critical section: this is the path from asi_enter() to
-  asi_relax(). The critical section can be interrupted, and code
-  running in those interupts is not said to be "in the critical
-  section".
+Since the two instructions are 256 bytes apart, they shouldn't be cached in the same
+cache line, right? Maybe one cache line will have 16 bytes starting from 0x900 while
+another cache line will have 16 bytes starting from 0xa00.
 
-- Being "tense" vs "relaxed". Being "tense" means the _task_ is in a
-  critical section, but the current code might not be.
+If the above is true, I think it'll be better to simply call mtspr() for each address
+individually.
 
-This distinction is theoretically relevant because e.g. it's a bug to
-access sensitive data in a critical section, but it's OK to access it
-while in the tense state (we will switch to the restricted address
-space, but this is OK because we will have a chance to asi_enter()
-again before we get back to the untrusted code). 
-
-BTW, just to be clear:
-
-1. Both of these are only relevant to code that's pretty deeply aware
-   of ASI. (TLB flushing code, entry code, stuff like that).
-
-2. To be honest whenever you write:
-
-     if (asi_in_critical_section())
-
-   You probably mean:
-
-     if (WARN_ON(asi_in_critical_section()))
-
-   For example if we try to flush the TLB in the critical section,
-   there's a thing we can do to handle it. But that really shouldn't
-   be necessary.  We want the critical section code to be very small
-   and straight-line code.
-
-   And indeed in the present code we don't use
-   asi_in_critical_section() for anything bur WARNing.
-
-> asi_is_relaxed() checks if the thread is outside an ASI critical
-> section.
-
-Now I see it written this way, this is probably the best way to
-conceptualise it. Instead of having two concepts "tense/relaxed" vs
-"ASI critical section" we could just say "the task is in a critical
-section" vs "the CPU is in a critical section". So we could have
-something like:
-
-bool asi_task_critical(void);
-bool asi_cpu_critical(void);
-
-(They could also accept an argument for the task/CPU, but I can't see
-any reason why you'd peek at another context like that).
-
---
-
-For everything else, Ack to Boris or +1 to Yosry respectively.
+Thanks,
+Sahil
