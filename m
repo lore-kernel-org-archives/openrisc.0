@@ -1,160 +1,134 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7498231A2D;
-	Sat, 22 Mar 2025 16:29:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE4647080D;
+	Sat, 22 Mar 2025 19:03:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742660954; cv=none; b=uUrXx3NAD1z0Kc6F08vaYAbLCSG5i8Ki6awQ50qdYK1HhcMh/sGga3Xe9p4PI7s+wP5E8Wl+yH0uGf0DwcMLaLYTLWaMYtvuMYDvvUOOaj+PfKWLeoX1Xrm96uy9AwflD9gPzG2WZFGaeWURlBTwckwJvwW6e/06/uLKaDFspi4=
+	t=1742670231; cv=none; b=dCswgqJpT9qUXhQYXdmNDbwyhiK6r8EZjmijeLOC6+sgSiMnp/cnatlm+1klvLYzq/yTCPbeepQYpPxvt7Qpyu2qZNauH18uvok5GWrDpZ31hPT5MmngfSb3r6kOeg4Ca9pYryC5lWgaYZtt1omFx7RdiH5sG90avWlC6t3Nbps=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742660954; c=relaxed/simple;
-	bh=dSX1hlD8JlR6cQLjXz4aNKYoO15uc2ktXL2PwK/NCKY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XJHCo+5QLNDzCQvFTT8UEyk1ODSE+7CAZIMPnCN4veWL/utpytH+JNIaNZcrTk96NHi3KDuJJHAwVzCDXjo5ekw07OzRtqDgv4JMpJ2mmdFSUrQeSz+/IGEAT86HwjvH0W+0pMfVhsYR1K43eCXRFLdDONKpFOiT9SzkfLulv0o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YGzWtpfa; arc=none smtp.client-ip=209.85.128.42
+	s=arc-20240116; t=1742670231; c=relaxed/simple;
+	bh=RNZ+SFKPD8t32hadmXHhxsS8s8gsADDb7WZvvvJPZfA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=OP5aYIL9BKj/42CKArK/w86CehxgjZBy42LIKb6VyBTnODnT4GXXpvwV++q33QDHM2qx0VzPjVfzIQpgOOnwL0WNVVPro7JlW9CKHEG17Jji5ETaYoDFa1A4hGNHA4DS6siffvCk9SkM2BsQ+ArwVRxRF7SP+b2x3yTlgtRPsio=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YHmNOBXA; arc=none smtp.client-ip=209.85.214.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YGzWtpfa"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-4394a823036so29795285e9.0;
-        Sat, 22 Mar 2025 09:29:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YHmNOBXA"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-225b5448519so60415775ad.0;
+        Sat, 22 Mar 2025 12:03:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1742660951; x=1743265751; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=cmGR1LbtL4J3t71evUykuzeSOw/JJ1sOFslRh5h/mjs=;
-        b=YGzWtpfaoexS2kJOtvXDX2Ik4j0eR85VgWPDhyTotjgtLDMyAmM1izIB2dmYbIB2ax
-         Cy0ijy7UZMzYEnhMgXO7jtGBvjQSH0Ks7pwhwMtWwWQ3SuRUClulwBwFQ4Qe+mRjR0Ur
-         14qfa5/Ysu8324kXYbPwWgf7kT6rvVXLAV+Fr/1C4xhH1gutVULFtaiDs7nhpZD3c/GL
-         8dWzYlI6M0YoXrLCNsI36SrzepyCts/tjotn9T4vZZEw0hWL3ulg2/NtDNV/lAmN/vKW
-         Qe5pzezaV5KhpsRCdIkCxC9yEu3yfp/Q4aUIh1T8+wGQwGJK+BBx/1jRKHpYtrkaWwHr
-         IMrg==
+        d=gmail.com; s=20230601; t=1742670229; x=1743275029; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=6l7C/zW2p3Vvzg8NFad22w7yRQc1NGlRXkUjHFTz6Ig=;
+        b=YHmNOBXAdT5nvQQWwnhmjF9hgYi/55nU+HEFGfgMHdiDEE+XU72mhjBodn8wb0C7Dl
+         RAYHlHTxPDnMmWhJQAbZdUSHW1QhfUE720KFQGuSXlD/SqoU3PSOrFbuhznSPim8ypBW
+         +bjpwYOS4NXyAM6O+j/Ro4/97zWTd59vZFt9QxOruTmjlOiYidwKBL+NpjReVSqAQPiw
+         Cw6XFGm8yxgNhGRlLRohgsDEcLRWX8JumzTcNXRSNUO+pLoobiTrCzoqrmQ6PVnBEYDl
+         j0q1ocKZjUqW6CmSoq8zwF/yhvXBgXXB4ubfH04jH0t6u+/IBVQ+mcFV/WuwVYu9y6i7
+         ZnNg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742660951; x=1743265751;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20230601; t=1742670229; x=1743275029;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=cmGR1LbtL4J3t71evUykuzeSOw/JJ1sOFslRh5h/mjs=;
-        b=Qilym9e6KVMxXfSJ051Z/HatWe6QPH2D4zsVJGZINH6MJ7LBpjruVNfeihzln3BZXF
-         1n5jOgTiXfba7Bb64R/UnAadPTEEiQrdAGjUCd9zYs6846O8iuyR2IcTAwK5hNiJYw7n
-         RIJhiGciteQz6lMRucKGN3pMXc/QS10lVocZZ3vmYD3ZdJPqa2yptP9u+3vpQy61xmGa
-         ScD1kg+rvpJfg7fincauBbp5QU1pdlIfnC7WwQV9G0xfGNEqL5fsVGYVVIiT6NMiPCQ9
-         uPyD+vCeSs7S85pW8jHvU+jvuLTpziuvC+P3+8JlvwmPokNxSgiKrkcoD3wL4drFNw64
-         dqEg==
-X-Forwarded-Encrypted: i=1; AJvYcCUd4OnsQH1P3BjzI/cxwLz1PAG/+wjswpKxHNFlNYwm8hBe9M/zLwO5RuYJ+J8cQOB2xYpRQIcxJG0cKQA=@vger.kernel.org, AJvYcCVp+iA9Vr0eK3ZzgjhOVP+KjpQy7XDnvJtq0MlDjda+rJS7ERBhhLZr+HoZJbmcFECYQHMTKzoeHNt6LCnwygw=@vger.kernel.org
-X-Gm-Message-State: AOJu0YywPitVZRACvUBEOML0yLJ2jgo57+pfMcumiWVc00D4ABcH/1Iz
-	pw71by1YJAd00GwO+/qq96QJD9spzI7Gm0VMuxNvmwXctQTmXril
-X-Gm-Gg: ASbGncuD7qH+pRMaWGvubaIdCcmjJtmMz14viF8t6mnE7PcyOOdAYmG/HoPlyB/s+SU
-	SelUNpKHvSyIdka+aZMitnImyyDUdi4zTaL+aMEk4xrTnZdQltefrXQ1Qz66ixxa8W1An+OCY7S
-	xqY/xVmCdDaTRGh18oUPlTTIg72oXL4bQDJFQmLBpifMiF63gS0vGIJis/fGOBwunUehEcJQbIx
-	5ztrtHy2c/QwmJCyg2Xp96JZiB+a5aQ9udWqW0pkJ0BKR7fYPcPH7+tP4YYKya5f4RpGcPTF4m8
-	6eg8b8xMQHj+6a505lcHXu6c3CfOxS3nZNnT5mNpbAINHpTLXYmWlN1Rl59ijlioDIuuWrGpmfI
-	HsuNiAKZq
-X-Google-Smtp-Source: AGHT+IGcZ30m5rPc0OUpnWOu5jkqU14bSxURCwLJlz4cPqVUZMYOVNFcLgoAsfm44aBEBzsQCbwccg==
-X-Received: by 2002:a05:600c:1547:b0:43c:f64c:44a4 with SMTP id 5b1f17b1804b1-43d509ec734mr65143995e9.8.1742660950606;
-        Sat, 22 Mar 2025 09:29:10 -0700 (PDT)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43d4fd17cfesm61192345e9.10.2025.03.22.09.29.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 22 Mar 2025 09:29:08 -0700 (PDT)
-Date: Sat, 22 Mar 2025 16:29:06 +0000
-From: Stafford Horne <shorne@gmail.com>
-To: Sahil Siddiq <icegambit91@gmail.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, jonas@southpole.se,
-	stefan.kristiansson@saunalahti.fi, linux-openrisc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Sahil Siddiq <sahilcdq@proton.me>
-Subject: Re: [PATCH v2] openrisc: Add cacheinfo support
-Message-ID: <Z97lUpoTXVccaCeN@antec>
-References: <20250315203937.77017-1-sahilcdq@proton.me>
- <Z9Z2sjWQHKgGJyGo@antec>
- <CAMuHMdWh=oo6JykPGD3DNEL=GcfgyKw2UK7vb8XMbH19GcdrwA@mail.gmail.com>
- <Z9gOwYl6kmoPY9-C@antec>
- <d54849db-956b-4c1a-ab93-4705394af637@gmail.com>
- <Z9kkE3uQru_VxLqA@antec>
- <10b01724-d47f-4f0f-87ea-2793e67b18b9@gmail.com>
+        bh=6l7C/zW2p3Vvzg8NFad22w7yRQc1NGlRXkUjHFTz6Ig=;
+        b=ku/9S826q14KYsWcgLxwG64iiaiZFGHVSv4iLxdJGXPx/vvZ7DJpmFa6DUmGHzI+9g
+         FqzX4yFvs65zvVtnDttAb0bSALaBlAekK7V2UZbYHQNRtGVmayI0c274ZkJRoTmxEp9H
+         Lpe+ndyfUJ1D9+LVsReyJhcomHH9RhfqmkrP8yUtRgEKl/wAMHvoe4IdTwG8vS2w8drX
+         Z0YagN5W7kNIJjU2h4ZtQuNFNCWv4NAVTVUTjvU2ADLcYTaH6oWOZOLuhybJG3IHddgk
+         paKgneWC5UljDym81tZVzKFHwDUe5gZLnQNotYGi+P7Xxb+faGVk8WpYzPacfXnNodVJ
+         yp5A==
+X-Forwarded-Encrypted: i=1; AJvYcCW3rBS83Io2a18pvdQdulrUZv+IIVwLz4iJJTLOZ++PTl862l+3o4w1YnzmzGDgmEarRYh38ICJ13wZlJnWKQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyGaGgI7Gi6lE4JM5mcJXxST+QbypNCLNVig7mDSu7nbHHEAHZk
+	u8VVjo2y05DPB9IAkC1MKIe4gdg6XWirCvQZWM9gsQmkql8qPTiu
+X-Gm-Gg: ASbGncsmWCvrP47SDyjKs8nkBvW0w4ODQgXkmdePBj+YWlIw22DEnKaSsprjfouwqAy
+	q5K/upz2M0ACx51yeW0JRhtp6ctLsmlPRWFqkH+THlItBR2bgHGurOzfNF3i/yFI1dytn4USJFl
+	n8bhPT0zSzxN3LqtHpKqXyJmc4nMTGXISF2Pjg3KR0GsSKlZUe6pbY7UJirifRJVj6muDfhWaJw
+	4s4cX/AzL5y//VCFlK7STCEK3yDqjkRGAGNQFOKUUfZgHuMjToeKG6muGzQbB7GAJ1NZvCfNB6d
+	+5869S0hnXAwQXkLw9Uj8oznhbRG8M0JNtaBCznIUbSmMgpL5LZJBls5AATzu2NoaJXi8VKEKyM
+	Gh0aq7Sp6u/f5l6EdBljkvsE=
+X-Google-Smtp-Source: AGHT+IEDkjyaU05ken8+Yocks3qPpTRUcBeT+7cQ5Q2Qv30m5yHesj0KD+JVopXBmWGp+GiT9Lvxig==
+X-Received: by 2002:a05:6a00:4650:b0:736:50d1:fc84 with SMTP id d2e1a72fcca58-73905a2d446mr13377730b3a.21.1742670228860;
+        Sat, 22 Mar 2025 12:03:48 -0700 (PDT)
+Received: from ?IPV6:2401:4900:1c45:ad2a:889a:b085:dc4f:7d7b? ([2401:4900:1c45:ad2a:889a:b085:dc4f:7d7b])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7390611c7cfsm4366254b3a.110.2025.03.22.12.03.46
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 22 Mar 2025 12:03:48 -0700 (PDT)
+Message-ID: <a5646811-bcfd-4da6-9cf0-bd0cc7c234e0@gmail.com>
+Date: Sun, 23 Mar 2025 00:33:44 +0530
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <10b01724-d47f-4f0f-87ea-2793e67b18b9@gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] openrisc: Add cacheinfo support
+To: Markus Elfring <Markus.Elfring@web.de>, Sahil Siddiq
+ <sahilcdq@proton.me>, linux-openrisc@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>, Jonas Bonn <jonas@southpole.se>,
+ Stafford Horne <shorne@gmail.com>,
+ Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+References: <20250315203937.77017-1-sahilcdq@proton.me>
+ <b5374b26-ccff-4ce9-8500-8b3da427be83@web.de>
+Content-Language: en-US
+From: Sahil Siddiq <icegambit91@gmail.com>
+Autocrypt: addr=icegambit91@gmail.com; keydata=
+ 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
+ rPgMe6IIvn24UuW2f6fIt0AaqOWq
+In-Reply-To: <b5374b26-ccff-4ce9-8500-8b3da427be83@web.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Sat, Mar 22, 2025 at 07:21:18PM +0530, Sahil Siddiq wrote:
-> Hi Stafford,
+Hi,
+
+On 3/22/25 9:10 PM, Markus Elfring wrote:
+> …
+>> This patch provides a mechanism …
 > 
-> On 3/18/25 1:13 PM, Stafford Horne wrote:
-> > On Tue, Mar 18, 2025 at 12:06:30AM +0530, Sahil Siddiq wrote:
-> > > On 3/17/25 1:55 PM, Geert Uytterhoeven wrote:
-> > > > On Sun, 16 Mar 2025 at 07:59, Stafford Horne <shorne@gmail.com> wrote:
-> > > > [...]
-> > > > > @@ -176,8 +177,11 @@ void __init paging_init(void)
-> > > > >    	barrier();
-> > > > >    	/* Invalidate instruction caches after code modification */
-> > > > > -	mtspr(SPR_ICBIR, 0x900);
-> > > > > -	mtspr(SPR_ICBIR, 0xa00);
-> > > > > +	upr = mfspr(SPR_UPR);
-> > > > > +	if (upr & SPR_UPR_UP & SPR_UPR_ICP) {
-> > > > > +		mtspr(SPR_ICBIR, 0x900);
-> > > > > +		mtspr(SPR_ICBIR, 0xa00);
-> > > > > +	}
-> > > > Here we could use new utilities such as local_icache_range_inv(0x900,
-> > > > L1_CACHE_BYTES);
-> > > > 
-> > > > Or something like local_icache_block_inv(0x900).  This only needs to flush a
-> > > > single block as the code it is invalidating is just 2 instructions 8 bytes:
-> > > > 
-> > > >       .org 0x900
-> > > > 	l.j     boot_dtlb_miss_handler
-> > > > 	 l.nop
-> > > > 
-> > > >       .org 0xa00
-> > > > 	l.j     boot_itlb_miss_handler
-> > > > 	 l.nop
-> > > 
-> > > Given that there'll be generic local_(i|d)cache_range_inv(start, stop) utility
-> > > functions, would it make sense to simply have a macro defined as:
-> > > 
-> > > #define local_icache_block_inv(addr) local_icache_range_inv(start, L1_CACHE_BYTES)
-> > > 
-> > > instead of having a separate function for invalidating a single cache line? This would
-> > > still use cache_loop() under the hood. The alternative would be to use
-> > > local_icache_range_inv(start, L1_CACHE_BYTES) directly but using the macro might be
-> > > more readable.
-> > 
-> > Yes, I think a macro would be fine.  Should we use cache_desc.block_size or
-> > L1_CACHE_BYTES?  It doesn't make much difference as L1_CACHE_BYTES is defined as
-> > 16 bytes which is the minimum block size and using that will always invalidate a
-> > whole block.  It would be good to have a comment explaining why using
-> > L1_CACHE_BYTES is enough.
-> > 
+>> The patch also moves …
 > 
-> While working on the patch's v3, I realized I am a bit unclear here. Is the ".org"
-> macro used to set the address at which the instructions are stored in memory? If so,
-> the first two instructions should occupy the memory area 0x900 through 0x907, right?
-> Similarly, the next two instructions will occupy 0xa00-0xa07.
+> See also:
+> https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/process/submitting-patches.rst?h=v6.14-rc7#n94
 > 
-> Since the two instructions are 256 bytes apart, they shouldn't be cached in the same
-> cache line, right? Maybe one cache line will have 16 bytes starting from 0x900 while
-> another cache line will have 16 bytes starting from 0xa00.
 
-Yes, to invalidate the cache we will need to do:
+Thank you. I'll change the wording of the commit message.
 
-	local_icache_block_inv(0x900);
-	local_icache_block_inv(0xa00);
-
-This will then compile down to the pretty much same as, (but with checks to
-validate the caches exist first):
-
-	mtspr(0x900);
-	mtspr(0xa00);
-
-> If the above is true, I think it'll be better to simply call mtspr() for each address
-> individually.
-
-Thats right, but I figured the local_icache_block_inv function/macro would be
-more useful other than just this block.
-
--Stafford
+Thanks,
+Sahil
