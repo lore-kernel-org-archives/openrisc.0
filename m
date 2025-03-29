@@ -1,75 +1,71 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6754F1B2194;
-	Sat, 29 Mar 2025 09:47:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF732184524;
+	Sat, 29 Mar 2025 10:12:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743241622; cv=none; b=o8fiDODghg0ihkAbNpChjluB//ewSBXHhiMYb0+kIQdxYJ0apWhcdG23eLKpRiMg1mPuxr84DY3QU0T8qzlm1C6JztoIteSscV8tFm6iHmnb5fZdp2/iaplQC7kWNTn9ethLs1sptr806CPmhYwhHBNvNnAq+pF4yuR0vhLzCls=
+	t=1743243146; cv=none; b=rItokiFxnqtk8gHrvqXHzgdfY4MaMZe7czo/UHqUDjJmMLDy95V1m4GNF+uPpQ9s3PIWr6RN1Mbs5+eDfaVLUsgODtNQGaPprELOp8ihVbdsqMQY14fMUpyY0zf4lfa6EU9BcPWE1MzHxKBcuAgo/rNm/wGBj1yRaNyn7YuDanw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743241622; c=relaxed/simple;
-	bh=wQDzDPA+qW+Rg0Qk32WQ6KzPgriI/m9cGtZnihr/STw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=NKVcAGYt73lgFn9HcTMjrKoJtJhc5qlwVGiQIQQo9lbydHwleYq6Sy8sbfHUHlFc8/FMRjE209zSaWtPbRRk3XcqSO/z9xcMUts2PSBPDI96u7cgj8WAa9dE36dcpwcTcl0zLZ0E+/bF2yUTfqNuJW2DBJT/uvq/do13pL7gkYs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dflrB+4A; arc=none smtp.client-ip=209.85.216.43
+	s=arc-20240116; t=1743243146; c=relaxed/simple;
+	bh=wvxCqMNZb48yRiki3mhcMKOZ1kNCA1qXcKYhdLENOKE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=tGdtAUm3LqdeAXYFObYAKQhBhAWRXXiGnNiiK/gfOfFlR06ECtX1x67Ff1fHspVuwROHDKug3aOz7meZuA36JqcLThOI7rcza0e3qiUPSJskrs8Ooen/i9igeQiTsBI8+tYsgNVd6avYNoO7RD6frXWC3GGCYjKL34A/6OvoiwM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DYOzXy3y; arc=none smtp.client-ip=209.85.128.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dflrB+4A"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-3031354f134so3981809a91.3;
-        Sat, 29 Mar 2025 02:47:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DYOzXy3y"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-43d04ea9d9aso13604305e9.3;
+        Sat, 29 Mar 2025 03:12:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1743241619; x=1743846419; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MB//eABbA+sUDJU5vA5poS1PnshzB5aeueAsSvx051c=;
-        b=dflrB+4A/QuFEzE8gRxJAlBHEB0gEi11/RLNttYuzmEP+4sKjPvqw1xixGO3KhyafU
-         oTwkEng/2EWXPZ4k0WDJSWePb2SdnCa8/NrmqJec/tpAoTUyE0lWaEIJoYaNPERMBEGd
-         rH5e7g4df3Go6oiXDqw08LIiFEAIFz/VKLKrzMb+fHNQzqhEr9IdkIf8zw+BqDYAkUsB
-         YEVQ3fczbgUiBXGA2eIJBs3dvf/bfWTOnsKml8kC/S8M7cMRuFj5vXNCqAMD5R9TeXTH
-         VhPNBbpkTz2UFbz0W9q4Tk85YceuuV8KIU/PZX6Vtajl1W5BWpAZFovcLeJT/SrhFHqi
-         cRfg==
+        d=gmail.com; s=20230601; t=1743243143; x=1743847943; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=SUeHeIiWi0wUklAANF4ypF28tasePe8/YNHk2njR8mA=;
+        b=DYOzXy3y7WY0uDaZ5UIVF7399fYLd+bUYFifn+ILxLcHFrMOInbZUiv7CQsXy8Svhc
+         rtEC0r3S3rnN+jdeYEEVphi9ef69XJMm0DUc6G5PPtT73Johi1/Y37xzpxjHAFR84IM8
+         tsg0+BeYGodWwhnggSw0aSfrkx7D4kq5hw6RriM3G5H7RrTX2gx+k1Dz1GCST2bE615i
+         mQkMf8+wFzyToKDA9E0iSWC17h/J0i4HswpBQ2OwrxlgUsjvL22iKjgwzsV/OalY4Epg
+         MFkdrz4qyeKcVspdkLskBNBdPV5UPDTKGc8GcdFHgrbzk0kY4952yK7UIvZnx1Po3dRh
+         wv1w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743241619; x=1743846419;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=MB//eABbA+sUDJU5vA5poS1PnshzB5aeueAsSvx051c=;
-        b=aBNBcou/dToo4GNXHcjviNOwPEscH0M+mFDkvqg2nJcLFBpizouW3bAnRgPoUJYw26
-         25X8X4Bd/l8zzxPGBEwUXebi2xpIce2NJrS9D9IXL5YYW2S3F1xUrtsVlGxeJaNCcafG
-         1e2zcPWd2Y91Y/pb2ne9StXqxN7TifxSpvoZ1RbXziplsQWUaMeMZO0lX92gr7mupNd3
-         OMpRP2ClI9FBSIOBcXlSRdp+SkSPFIQyuyAZ/zkIxU7pA5/lHyP3uT4uoKRx47E6OT2B
-         JUZtil9DDGAooIJYnWssDB/GadaadkMLWBzbxVaXScz4PqD1EQMpESccf1o5xm2LXu6y
-         N0Sw==
-X-Forwarded-Encrypted: i=1; AJvYcCVsVsvGHs76jcRUsBqYovQzvppVPzQAlI3nIwyHlmXbBgdSB7vTBLxJoZ/RqPgB+ZGxQPRhTCxeb/ACfsg5JfI=@vger.kernel.org, AJvYcCXkSbta2EfRipoXh4T6056VN9WL1+IxfvHCi3cYCLCTTI2fK5ANOtj1dXZS51pLm5VP9ycYckf8Eu3YQAE=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxAI9Rt2W/u1pTozYZT70Ydjj6QZnSyeOsOOVRi5JLh8CFe4118
-	C7NNhl9Op9Jqvj8Hw+eB7uN0XmreeyTxhMkkILNKgWrye40QQ4B2OW3zzA==
-X-Gm-Gg: ASbGncu+q4oyIy5KQfMeZolKuWAx9sZrhq2ag9yj8H04fjCkTjlPEuPA9Nu0aCA6qNW
-	rwaRwJfLhMcYlVzfkw7I2y5ubXJqs4bGRpULLjYOjePum/9o/Qs12hs7gND1jLEvUqoSEvuD4kO
-	BVQep+6kp61CoHAVgP/FcXzsqX+53aLVXty+TYJywZApY6Ugj8iaI7kNq1e5urRE8LM2uItIeQ/
-	Ij2TomKgQP3SsRDsEukieQWAOpoTUh6M8LAvvTRck5C7bn1q1DR5zcD8ZbxWjw9rN8etGcrIgBY
-	uLD9ad2d4va09K00uXRyN0ci4XzT/IyOnDlz
-X-Google-Smtp-Source: AGHT+IFhiHEbEkkIPQFBMeCUjDSSg1wxyVGwnIeFvk8SxYJ8uNcnFZJ1JuTghes5dGWR+XcTMR+IfQ==
-X-Received: by 2002:a17:90b:3c4f:b0:2ee:f550:3848 with SMTP id 98e67ed59e1d1-30531f7c573mr3284391a91.5.1743241619525;
-        Sat, 29 Mar 2025 02:46:59 -0700 (PDT)
-Received: from valdaarhun.. ([2401:4900:1c44:e4e:6e69:d5cb:5b5a:ea6])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3039f6b31fbsm5680573a91.40.2025.03.29.02.46.57
+        d=1e100.net; s=20230601; t=1743243143; x=1743847943;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=SUeHeIiWi0wUklAANF4ypF28tasePe8/YNHk2njR8mA=;
+        b=T35SJok0fep7C/mrIgKt8/39MjrszP8QhPa6F8QUojvLaOuty4WNZatQipm843brtc
+         0pV4gs8E4ZEe5WM9P87e9qAdTMfP7P/vX51QDELYxF/GLfgY2vHG82ubxtKMVYT7/BlE
+         +W9h2qCB7zL/KrhEfoJ4pGhK2yGJFhHNMV0znEbE0t7ZIlRasrsRYoCk1MEZE0tfGplF
+         fFgulyEi58GkTubBBV7GtllVTdNCxAbkFgfESOFJOzbYhnDrQ9kolkrw7hps02b0Nu9v
+         FY5+w+dyqdVQ2h9fMD2245PYSHgQM2mJMAb5WLDVRm9hUu2mU/vzy40G+kdnosGr390b
+         U1mA==
+X-Forwarded-Encrypted: i=1; AJvYcCUlNqTWwU+NCGF+CEwOmL+O3Vvn1hCAQ6Yiy8CWbn9xj1MVbt2R2/iW+PtoRZFKPp97ra30nK6UwikZoj+CVJ4=@vger.kernel.org, AJvYcCWYySNShdFTiEPFQXtsuAGqpfQ4HSSpffpMDHIkswIJdLlhezcH0EVXGofUbBz5rNQN+30XNjK459kOErk=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzPTBDdhldseVamqu7adwo4rjWu5xW09bEHJmcsVFKtqY6F1w9L
+	DV0+IV6ipK/Iu1qRyy1WJSlm9f3lPC8r4UV3pBabzjeX7kHioEK0
+X-Gm-Gg: ASbGncvdSW/xiqELB0oLNVL9hDOKkjyh8LUMvbkoUUdDATFTOmvUvlbxU+dpu0RhpBE
+	9mGJgs5cJb4hTYbA+w/gDHIvBI1j7f+01HvEIykYkCowaJxu1THIxbQgPeQPE8j6fZyEvJwHPUq
+	9E03Gxy/B5l7ubmkBWL9STDSU/e6B+PrRcsmXRq9NUqioN0fhqx4mcJzVi8g8bgZpBSB97tRTZK
+	oCxnRyXR3hRb4IS46O6cr+Pl+k+u/39IlI6TxminBbMpFUdwFtc/8juL/qfK+guFoUtjLjPWMgs
+	HbfyAGDDMsW9NnyEQsBg4iYcLi8G0rptjc2ClM1oLgq7RVMFTEkCnw6MKZ9QLYGTtRB56D9wgrD
+	Nu+UCrIZD
+X-Google-Smtp-Source: AGHT+IEvib4QJSDtDKzImmT9Wsq0Oz1Zz/p5LdLn6+XNsYmYqtOHG0tdssdwoQRf1dGv1lz5TClS9g==
+X-Received: by 2002:a05:600c:5126:b0:43c:e7a7:1e76 with SMTP id 5b1f17b1804b1-43db61d7d4dmr19828375e9.1.1743243142816;
+        Sat, 29 Mar 2025 03:12:22 -0700 (PDT)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43d82dede5csm102417455e9.8.2025.03.29.03.12.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 29 Mar 2025 02:46:59 -0700 (PDT)
-From: Sahil Siddiq <icegambit91@gmail.com>
-X-Google-Original-From: Sahil Siddiq <sahilcdq@proton.me>
-To: jonas@southpole.se,
-	stefan.kristiansson@saunalahti.fi,
-	shorne@gmail.com
-Cc: sahilcdq@proton.me,
-	linux-openrisc@vger.kernel.org,
+        Sat, 29 Mar 2025 03:12:21 -0700 (PDT)
+Date: Sat, 29 Mar 2025 10:12:21 +0000
+From: Stafford Horne <shorne@gmail.com>
+To: Sahil Siddiq <icegambit91@gmail.com>
+Cc: jonas@southpole.se, stefan.kristiansson@saunalahti.fi,
+	sahilcdq@proton.me, linux-openrisc@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v5 3/3] openrisc: Add cacheinfo support
-Date: Sat, 29 Mar 2025 15:16:22 +0530
-Message-ID: <20250329094622.94919-4-sahilcdq@proton.me>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20250329094622.94919-1-sahilcdq@proton.me>
+Subject: Re: [PATCH v5 0/3] openrisc: Add cacheinfo support and introduce new
+ utility functions
+Message-ID: <Z-fHhT-0a-fEkPnD@antec>
 References: <20250329094622.94919-1-sahilcdq@proton.me>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
@@ -77,256 +73,59 @@ List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250329094622.94919-1-sahilcdq@proton.me>
 
-Add cacheinfo support for OpenRISC.
+Thanks for the respin.
 
-Currently, a few CPU cache attributes pertaining to OpenRISC processors
-are exposed along with other unrelated CPU attributes in the procfs file
-system (/proc/cpuinfo). However, a few cache attributes remain unexposed.
+I will take this version and put it in linux next to see if any issues come up.
 
-Provide a mechanism that the generic cacheinfo infrastructure can employ
-to expose these attributes via the sysfs file system. These attributes
-can then be exposed in /sys/devices/system/cpu/cpuX/cache/indexN. Move
-the implementation to pull cache attributes from the processor's
-registers from arch/openrisc/kernel/setup.c with a few modifications.
+-Stafford
 
-This implementation is based on similar work done for MIPS and LoongArch.
-
-Link: https://raw.githubusercontent.com/openrisc/doc/master/openrisc-arch-1.4-rev0.pdf
-
-Signed-off-by: Sahil Siddiq <sahilcdq@proton.me>
----
-No change from v4 -> v5.
-
-Changes from v3 -> v4:
-- arch/openrisc/kernel/cacheinfo.c: Fix build warning detected by
-  kernel test robot.
-
-Changes from v2 -> v3:
-- arch/openrisc/kernel/cacheinfo.c:
-  1. Use new functions introduced in patch #2.
-  2. Address review comments regarding coding style.
-- arch/openrisc/kernel/setup.c:
-  (print_cpuinfo): Don't remove detection of UPR register.
-
- arch/openrisc/kernel/Makefile    |   2 +-
- arch/openrisc/kernel/cacheinfo.c | 104 +++++++++++++++++++++++++++++++
- arch/openrisc/kernel/setup.c     |  44 +------------
- 3 files changed, 108 insertions(+), 42 deletions(-)
- create mode 100644 arch/openrisc/kernel/cacheinfo.c
-
-diff --git a/arch/openrisc/kernel/Makefile b/arch/openrisc/kernel/Makefile
-index 79129161f3e0..e4c7d9bdd598 100644
---- a/arch/openrisc/kernel/Makefile
-+++ b/arch/openrisc/kernel/Makefile
-@@ -7,7 +7,7 @@ extra-y	:= vmlinux.lds
- 
- obj-y	:= head.o setup.o or32_ksyms.o process.o dma.o \
- 	   traps.o time.o irq.o entry.o ptrace.o signal.o \
--	   sys_call_table.o unwinder.o
-+	   sys_call_table.o unwinder.o cacheinfo.o
- 
- obj-$(CONFIG_SMP)		+= smp.o sync-timer.o
- obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
-diff --git a/arch/openrisc/kernel/cacheinfo.c b/arch/openrisc/kernel/cacheinfo.c
-new file mode 100644
-index 000000000000..61230545e4ff
---- /dev/null
-+++ b/arch/openrisc/kernel/cacheinfo.c
-@@ -0,0 +1,104 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * OpenRISC cacheinfo support
-+ *
-+ * Based on work done for MIPS and LoongArch. All original copyrights
-+ * apply as per the original source declaration.
-+ *
-+ * OpenRISC implementation:
-+ * Copyright (C) 2025 Sahil Siddiq <sahilcdq@proton.me>
-+ */
-+
-+#include <linux/cacheinfo.h>
-+#include <asm/cpuinfo.h>
-+#include <asm/spr.h>
-+#include <asm/spr_defs.h>
-+
-+static inline void ci_leaf_init(struct cacheinfo *this_leaf, enum cache_type type,
-+				unsigned int level, struct cache_desc *cache, int cpu)
-+{
-+	this_leaf->type = type;
-+	this_leaf->level = level;
-+	this_leaf->coherency_line_size = cache->block_size;
-+	this_leaf->number_of_sets = cache->sets;
-+	this_leaf->ways_of_associativity = cache->ways;
-+	this_leaf->size = cache->size;
-+	cpumask_set_cpu(cpu, &this_leaf->shared_cpu_map);
-+}
-+
-+int init_cache_level(unsigned int cpu)
-+{
-+	struct cpuinfo_or1k *cpuinfo = &cpuinfo_or1k[smp_processor_id()];
-+	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
-+	int leaves = 0, levels = 0;
-+	unsigned long upr = mfspr(SPR_UPR);
-+	unsigned long iccfgr, dccfgr;
-+
-+	if (!(upr & SPR_UPR_UP)) {
-+		printk(KERN_INFO
-+		       "-- no UPR register... unable to detect configuration\n");
-+		return -ENOENT;
-+	}
-+
-+	if (cpu_cache_is_present(SPR_UPR_DCP)) {
-+		dccfgr = mfspr(SPR_DCCFGR);
-+		cpuinfo->dcache.ways = 1 << (dccfgr & SPR_DCCFGR_NCW);
-+		cpuinfo->dcache.sets = 1 << ((dccfgr & SPR_DCCFGR_NCS) >> 3);
-+		cpuinfo->dcache.block_size = 16 << ((dccfgr & SPR_DCCFGR_CBS) >> 7);
-+		cpuinfo->dcache.size =
-+		    cpuinfo->dcache.sets * cpuinfo->dcache.ways * cpuinfo->dcache.block_size;
-+		leaves += 1;
-+		printk(KERN_INFO
-+		       "-- dcache: %d bytes total, %d bytes/line, %d set(s), %d way(s)\n",
-+		       cpuinfo->dcache.size, cpuinfo->dcache.block_size,
-+		       cpuinfo->dcache.sets, cpuinfo->dcache.ways);
-+	} else
-+		printk(KERN_INFO "-- dcache disabled\n");
-+
-+	if (cpu_cache_is_present(SPR_UPR_ICP)) {
-+		iccfgr = mfspr(SPR_ICCFGR);
-+		cpuinfo->icache.ways = 1 << (iccfgr & SPR_ICCFGR_NCW);
-+		cpuinfo->icache.sets = 1 << ((iccfgr & SPR_ICCFGR_NCS) >> 3);
-+		cpuinfo->icache.block_size = 16 << ((iccfgr & SPR_ICCFGR_CBS) >> 7);
-+		cpuinfo->icache.size =
-+		    cpuinfo->icache.sets * cpuinfo->icache.ways * cpuinfo->icache.block_size;
-+		leaves += 1;
-+		printk(KERN_INFO
-+		       "-- icache: %d bytes total, %d bytes/line, %d set(s), %d way(s)\n",
-+		       cpuinfo->icache.size, cpuinfo->icache.block_size,
-+		       cpuinfo->icache.sets, cpuinfo->icache.ways);
-+	} else
-+		printk(KERN_INFO "-- icache disabled\n");
-+
-+	if (!leaves)
-+		return -ENOENT;
-+
-+	levels = 1;
-+
-+	this_cpu_ci->num_leaves = leaves;
-+	this_cpu_ci->num_levels = levels;
-+
-+	return 0;
-+}
-+
-+int populate_cache_leaves(unsigned int cpu)
-+{
-+	struct cpuinfo_or1k *cpuinfo = &cpuinfo_or1k[smp_processor_id()];
-+	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
-+	struct cacheinfo *this_leaf = this_cpu_ci->info_list;
-+	int level = 1;
-+
-+	if (cpu_cache_is_present(SPR_UPR_DCP)) {
-+		ci_leaf_init(this_leaf, CACHE_TYPE_DATA, level, &cpuinfo->dcache, cpu);
-+		this_leaf->attributes = ((mfspr(SPR_DCCFGR) & SPR_DCCFGR_CWS) >> 8) ?
-+					CACHE_WRITE_BACK : CACHE_WRITE_THROUGH;
-+		this_leaf++;
-+	}
-+
-+	if (cpu_cache_is_present(SPR_UPR_ICP))
-+		ci_leaf_init(this_leaf, CACHE_TYPE_INST, level, &cpuinfo->icache, cpu);
-+
-+	this_cpu_ci->cpu_map_populated = true;
-+
-+	return 0;
-+}
-diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
-index 66207cd7bb9e..a9fb9cc6779e 100644
---- a/arch/openrisc/kernel/setup.c
-+++ b/arch/openrisc/kernel/setup.c
-@@ -113,21 +113,6 @@ static void print_cpuinfo(void)
- 		return;
- 	}
- 
--	if (upr & SPR_UPR_DCP)
--		printk(KERN_INFO
--		       "-- dcache: %4d bytes total, %2d bytes/line, %d set(s), %d way(s)\n",
--		       cpuinfo->dcache.size, cpuinfo->dcache.block_size,
--		       cpuinfo->dcache.sets, cpuinfo->dcache.ways);
--	else
--		printk(KERN_INFO "-- dcache disabled\n");
--	if (upr & SPR_UPR_ICP)
--		printk(KERN_INFO
--		       "-- icache: %4d bytes total, %2d bytes/line, %d set(s), %d way(s)\n",
--		       cpuinfo->icache.size, cpuinfo->icache.block_size,
--		       cpuinfo->icache.sets, cpuinfo->icache.ways);
--	else
--		printk(KERN_INFO "-- icache disabled\n");
--
- 	if (upr & SPR_UPR_DMP)
- 		printk(KERN_INFO "-- dmmu: %4d entries, %lu way(s)\n",
- 		       1 << ((mfspr(SPR_DMMUCFGR) & SPR_DMMUCFGR_NTS) >> 2),
-@@ -155,7 +140,6 @@ static void print_cpuinfo(void)
- void __init setup_cpuinfo(void)
- {
- 	struct device_node *cpu;
--	unsigned long iccfgr, dccfgr;
- 	int cpu_id = smp_processor_id();
- 	struct cpuinfo_or1k *cpuinfo = &cpuinfo_or1k[cpu_id];
- 
-@@ -163,20 +147,6 @@ void __init setup_cpuinfo(void)
- 	if (!cpu)
- 		panic("Couldn't find CPU%d in device tree...\n", cpu_id);
- 
--	iccfgr = mfspr(SPR_ICCFGR);
--	cpuinfo->icache.ways = 1 << (iccfgr & SPR_ICCFGR_NCW);
--	cpuinfo->icache.sets = 1 << ((iccfgr & SPR_ICCFGR_NCS) >> 3);
--	cpuinfo->icache.block_size = 16 << ((iccfgr & SPR_ICCFGR_CBS) >> 7);
--	cpuinfo->icache.size =
--	    cpuinfo->icache.sets * cpuinfo->icache.ways * cpuinfo->icache.block_size;
--
--	dccfgr = mfspr(SPR_DCCFGR);
--	cpuinfo->dcache.ways = 1 << (dccfgr & SPR_DCCFGR_NCW);
--	cpuinfo->dcache.sets = 1 << ((dccfgr & SPR_DCCFGR_NCS) >> 3);
--	cpuinfo->dcache.block_size = 16 << ((dccfgr & SPR_DCCFGR_CBS) >> 7);
--	cpuinfo->dcache.size =
--	    cpuinfo->dcache.sets * cpuinfo->dcache.ways * cpuinfo->dcache.block_size;
--
- 	if (of_property_read_u32(cpu, "clock-frequency",
- 				 &cpuinfo->clock_frequency)) {
- 		printk(KERN_WARNING
-@@ -293,14 +263,14 @@ static int show_cpuinfo(struct seq_file *m, void *v)
- 	unsigned int vr, cpucfgr;
- 	unsigned int avr;
- 	unsigned int version;
-+#ifdef CONFIG_SMP
- 	struct cpuinfo_or1k *cpuinfo = v;
-+	seq_printf(m, "processor\t\t: %d\n", cpuinfo->coreid);
-+#endif
- 
- 	vr = mfspr(SPR_VR);
- 	cpucfgr = mfspr(SPR_CPUCFGR);
- 
--#ifdef CONFIG_SMP
--	seq_printf(m, "processor\t\t: %d\n", cpuinfo->coreid);
--#endif
- 	if (vr & SPR_VR_UVRP) {
- 		vr = mfspr(SPR_VR2);
- 		version = vr & SPR_VR2_VER;
-@@ -319,14 +289,6 @@ static int show_cpuinfo(struct seq_file *m, void *v)
- 		seq_printf(m, "revision\t\t: %d\n", vr & SPR_VR_REV);
- 	}
- 	seq_printf(m, "frequency\t\t: %ld\n", loops_per_jiffy * HZ);
--	seq_printf(m, "dcache size\t\t: %d bytes\n", cpuinfo->dcache.size);
--	seq_printf(m, "dcache block size\t: %d bytes\n",
--		   cpuinfo->dcache.block_size);
--	seq_printf(m, "dcache ways\t\t: %d\n", cpuinfo->dcache.ways);
--	seq_printf(m, "icache size\t\t: %d bytes\n", cpuinfo->icache.size);
--	seq_printf(m, "icache block size\t: %d bytes\n",
--		   cpuinfo->icache.block_size);
--	seq_printf(m, "icache ways\t\t: %d\n", cpuinfo->icache.ways);
- 	seq_printf(m, "immu\t\t\t: %d entries, %lu ways\n",
- 		   1 << ((mfspr(SPR_DMMUCFGR) & SPR_DMMUCFGR_NTS) >> 2),
- 		   1 + (mfspr(SPR_DMMUCFGR) & SPR_DMMUCFGR_NTW));
--- 
-2.48.1
-
+On Sat, Mar 29, 2025 at 03:16:19PM +0530, Sahil Siddiq wrote:
+> Hi,
+> 
+> The main purpose of this series is to expose CPU cache attributes for
+> OpenRISC in sysfs using the cacheinfo API. The core implementation
+> to achieve this is in patch #3. Patch #1 and #2 add certain enhancements
+> to simplify the implementation of cacheinfo support.
+> 
+> Patch #1 removes duplication of cache-related data members in struct
+> cpuinfo_or1k.
+> 
+> Patch #2 introduces several utility functions. One set of functions is
+> used to check if the cache components and SPRs exist before attempting
+> to use them. The other set provides a convenient interface to flush or
+> invalidate a range of cache blocks.
+> 
+> While testing these changes with QEMU, I realized that the check being
+> performed in cpu_cache_is_present() would always get evaluated to true
+> when the UPR_UP bit was set. This series fixes this check and addresses
+> v4's review comments.
+> 
+> Thanks,
+> Sahil
+> 
+> Sahil Siddiq (3):
+>   openrisc: Refactor struct cpuinfo_or1k to reduce duplication
+>   openrisc: Introduce new utility functions to flush and invalidate
+>     caches
+>   openrisc: Add cacheinfo support
+> 
+>  arch/openrisc/include/asm/cacheflush.h |  17 ++++
+>  arch/openrisc/include/asm/cpuinfo.h    |  24 ++++--
+>  arch/openrisc/kernel/Makefile          |   2 +-
+>  arch/openrisc/kernel/cacheinfo.c       | 104 +++++++++++++++++++++++++
+>  arch/openrisc/kernel/dma.c             |  18 +----
+>  arch/openrisc/kernel/setup.c           |  45 +----------
+>  arch/openrisc/mm/cache.c               |  56 ++++++++++---
+>  arch/openrisc/mm/init.c                |   5 +-
+>  8 files changed, 196 insertions(+), 75 deletions(-)
+>  create mode 100644 arch/openrisc/kernel/cacheinfo.c
+> 
+> 
+> base-commit: ea1413e5b53a8dd4fa7675edb23cdf828bbdce1e
+> -- 
+> 2.48.1
+> 
