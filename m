@@ -1,168 +1,135 @@
-Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3303F45C18;
-	Thu,  3 Apr 2025 14:06:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1210D2E62B2;
+	Fri,  4 Apr 2025 05:09:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743689168; cv=none; b=YWQnST+fLRlwwjNEyQ+fPzZmm5XqEoFzNswtwgsHcNuAsQJe2CkaMReEUrWht0j96abAGmsfLj6/+wKkG5dJQO5q7suUeeaGYiOrq4QtPEKiZdEh2tq0E6ZAQrLNViTT5KASrIWLQqMYIPP4njd92cnDwRCBdv2BAOdWsUXtqbA=
+	t=1743743374; cv=none; b=S6geISX79XvgcSDU87x5n1KONNvnk/D81hB/8d3DXVYMk2jTbLQl5VWW4ZMzfW5BHLCzInpg9RTziW7cbIAoU+wZFWhc02YV+WDlXKZqW+xs+MdgLlgOsCY7TlX62CMUBd3sUtATaFzui7HL81ZCIUXhUC72KkcBOUkfuxaW9DM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743689168; c=relaxed/simple;
-	bh=zu3u2ChpM6x6j8qkhbLwOzKuOSKEV5HQD/n9ssTYcyA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ufFOwgVmdiS1+kBFHNgUt8dPFaYuSJ9Kt/5Nj/IIAJ8bFK9E60Or9thzbfTD9IZWtiExFZgedhaMkBYN5VpYemyUZjihc+8h/ULT37sPcRqS+P3Nbd81Y5Ls9qzz3SmMCKwr+mzczGk8y6SSdam3yKiUymGzr38SheR46Wt8IRQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fkz4kfuB; arc=none smtp.client-ip=209.85.221.47
+	s=arc-20240116; t=1743743374; c=relaxed/simple;
+	bh=+Y89xKdY3aybpX6e1Po7JdL1tt3WjlRY6OuWx+f16Ho=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bHP1aI3VPdDr8fy736ohpYn5DSEyhqbPmgrgWphfTgpYH/qidUPWTCbumEMV9VyMNONB/mByWCeqWok1OR7LvVGGIOZixAOjABCabSHpp5Y+Gyulme04mvG4OHkvSK6xc703r3IfAlhEv5yD43c9+YpWkB3nNp8JLLmhJ4HM0Hs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MPFARCoH; arc=none smtp.client-ip=209.85.214.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fkz4kfuB"
-Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-39c30d9085aso464754f8f.1;
-        Thu, 03 Apr 2025 07:06:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MPFARCoH"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2243803b776so24032965ad.0;
+        Thu, 03 Apr 2025 22:09:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1743689165; x=1744293965; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=MSVBq2vvXQ5f0YR3Y4w44ZUYQpggzfZsXtbYmHNAQYE=;
-        b=fkz4kfuBcM645+Ww3fS8JS/DtYBHqxT9WZHzpfW4Gb6V6ftgIKf8Z5xJWSXyAooAY/
-         VWCDn+MsCaRqF3WoRoxBgDP9Zy1ZmvD8ZZsAq6MtyTRlQJVDTXid8EMsqP8YY7Snw960
-         B6dXlaFR1+I3t7nIJGqHDO0poSRKIMBfA227NQuvP2eNms6ScCpw/ATnqima+p7ptPP3
-         S8pRJkQvGPgGMyEa1xQiQT73+FGVwyu3lBuGEBVbavT300hpgeIh7nNCm3BvN0UmNqIH
-         cStulaxvzbRO4ROcdX/X0qiLOPXLqwi5lISdDSH1j3KWzhmg3iVFr1VDHgZ2d5YjHlkr
-         WnOg==
+        d=gmail.com; s=20230601; t=1743743372; x=1744348172; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=wSKBdKJWD85BGkVJG82rz/2xZOHcRMfuk0+Kg65yG/k=;
+        b=MPFARCoHwA8FG8NH7FmvzFPVIXVaCTZ0JA3Oh7+ruG2fVyCrW/eZXXr8lPqACeyn5v
+         zcp6K1z7rUjA+2ONsa0xYouZ0PhdJfMwfWjjtJIwABEneb58+GAdeEdg1nl6FSRb0fFr
+         CX7nw16QxPgciXvni6KA5wxDt1p0cTJ+m3PvqqQ3AWaImkDrBEV2ovOVxRza7SYciDYq
+         nLWcUDzQ4gelFO+Elsd72pACH+gevKNIHjMxtdTmewpTlkjjz5i2ujibSCGj4g6DzfjO
+         rV5jao2B/kNemUxyXP9BMKBoEq2yZbDMKAyIRZ2Wuj0iPd/duxATBWX/Sw2E8suvposm
+         2+oQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743689165; x=1744293965;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20230601; t=1743743372; x=1744348172;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=MSVBq2vvXQ5f0YR3Y4w44ZUYQpggzfZsXtbYmHNAQYE=;
-        b=p7Wh7qQCBLOPL7GCi+dUFgANsUA2Rfv5ogTUfTYA6zeRD1ekknLdDf8WDjCqJJc7WA
-         8AD99jFHunMI4sHJW/kqZUQW65PsSeLBn6E9i9j3uxd+jyzxw1yEKBCuQDZbg6BRge9f
-         EPLVKgx88EYzhpCnVm72IZffg6eP/DbJRqEVIR8p81cH6iJV2oiYUAIZU2AzLUXfP4Vu
-         gMvUAA1M2XSOm5k1rXB9TuS1XXEEZqwqp1JpExFzYjQObG8/FgSYx9K5gkWuA1Qa2t4j
-         EAgCgnP/8ahuYnePPrb9GL88C4oCnIujpf+D4S+FROce8K0ThVvOlr02K4HjhPvDQCBd
-         UXzg==
-X-Forwarded-Encrypted: i=1; AJvYcCUfGvKiefZ7OHTmsTX2phdkLuGFkXTIS8WOh+4oq5m8iCoZnQ0SBZDqVNhIHrDEOKnGP7VYh5jNh9emCQUEyWA=@vger.kernel.org, AJvYcCWLabLNZh8ZnSUVo2Uk76/5xet6MQwA8vTiJS2aVoTU8cgZeWz7jB9QA5xHZl6gP+bM59qvjmC/xpfUKhA=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwmTxNwdE2Ues4Dsyk01vP4grru6WdqF37NmLllZOGpnq1q993h
-	p7dmDBfqrBJ2LrbfpvVz1UDFnmmyu6bp7jnnvHo3aLkbTn1mUTiwPBsfJQ==
-X-Gm-Gg: ASbGncs6CcIIzoyaXrrV+zhCZXVb4qVYmbDcO3PT1uIfS9bGzngrgwrkS70AWOItAHI
-	9f0YcQUiTZuXPi50WXo6b4CPJjyegQQz7g+74uKFCd/K8eHv0+yrdphxJiRYvJmwnEiPllMHoW8
-	rYYQDL1EFfAWqXU0qRWa3Wogp/k4gZDgdfdNjEI7tUGGtVUF9nACg5GaGa8GsVZMLLJMlzCBcft
-	St/XveM9oeRcoJM5JVCq+hF+kWFDPykag+avXy8UyAzaTjf1WY4U+kl187MJrWVvj5JGtxgWuR8
-	LV6sNyuPq9QlgSs8xmiHRQn2p2HZomL1kYP+p8jTWg3fJLeRfz4JMrpaDuoqutumlP2PudZIATW
-	L0ccGDtSc
-X-Google-Smtp-Source: AGHT+IFd+r4atu1Xj2pyFaetp8ao4PwiW1Baonfysak549TauseTYG3yw3uf4PIBIllkoVzLvHmc5Q==
-X-Received: by 2002:a05:6000:400f:b0:391:2f15:c1f4 with SMTP id ffacd0b85a97d-39c2f957927mr2905069f8f.55.1743689164678;
-        Thu, 03 Apr 2025 07:06:04 -0700 (PDT)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c30239813sm1859153f8f.101.2025.04.03.07.06.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Apr 2025 07:06:02 -0700 (PDT)
-Date: Thu, 3 Apr 2025 15:06:01 +0100
-From: Stafford Horne <shorne@gmail.com>
-To: Sahil Siddiq <icegambit91@gmail.com>
-Cc: jonas@southpole.se, stefan.kristiansson@saunalahti.fi,
-	sahilcdq@proton.me, linux-openrisc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH] openrisc: Fix build warning in cache.c
-Message-ID: <Z-6VyRhGdInVidsw@antec>
-References: <20250401200129.287769-1-sahilcdq@proton.me>
+        bh=wSKBdKJWD85BGkVJG82rz/2xZOHcRMfuk0+Kg65yG/k=;
+        b=p10gcdyaxwzKP/R7EAZTlxMyTzMdHXVOELw305lr5KT9lkFUxZIsULKvWrTBSRVzS4
+         Oyd7z/mZ4QxvGC4tRQbyOb6oMCUhri+50j9t9ImEUK6CA/TCMUHiKQjUtN285ax8vExa
+         wuCaD45KATuLTbk0T6crS4MJD80guUW9muVQHNJKh+I2jbvshfx9epuZ5MjE67K2FrWt
+         +3Zczgx7wfGLRxt9zZzU9kYPqilJigAmmsnzDVTp7NJRlOQ8St7gKphorkXXm03ps6gO
+         FDxqYOZdemNqM4xQpcSnE/6S6kTa5CoJoFv6YJ9fZv0RnABc3IesEeOtNqYrBoN3mxH2
+         yKPQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUMJ3wuGqzNwe+SbKdhUDihTWDizA88MMQzFjrMQtVWovZZH+Tm24yoxw/Z5Dmh5FjYRLFkuJ0smB9ITgk=@vger.kernel.org, AJvYcCVC0sdPGpEyp3Ba3w+Q2ivWvOI5WrhoupzvPkkCjXv5fDLdEBQKcnYZHpAcT5Nfq/gw9tQ8PCCdb2Hxo6qeD6U=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwSnN6XB/q9D7Y4qRBZ+FUn2RfGihui8X/Eqa5Rua0IOyht70yY
+	Sb4e9BYkawXcHbs4VbZMcpVoamfXIHHWlvxL/IfhTYAvAldwzkDF
+X-Gm-Gg: ASbGnctSOViVhF+rUZ5pnFAj7rm0kle+k8TzPMtsIRtJ3/G+kfyGxHDQcYMEaGRhwah
+	PtNNi6PLQd+I0WlmF5gCahNHM4+EfHUJhix6kOZp/afjLVyPDRGYt1IYZd0ilPDGPg+x+c0JBE2
+	tS8xtVQa3IWJ2wrQ/A34HYxkjzzpAV2OiGcKw5E8PwKMtPtJa+xmjQV9gM6Q212OqyjmNgrWSh/
+	mhBue5t3yPihFwmQihFFqRRmJuKJ94MJm8Qmcx9+sbu7dpO9A3ItRPeZJhzn1r/eYen36kDQuky
+	HS4WTDak7J/Ysarj/kdesKz028nOqm2l0d95HAiRrWXFZ0Y/MzkjqwHJF8E/Rh9KHtc0g2cXNNf
+	sje+eta9cP9y8
+X-Google-Smtp-Source: AGHT+IEanHeNGYxM9ZfIUf0DXDVlfWjo7Bj0q9virSicUpWfttVcUSwisBFmzQ2nyhEd83Bv9pqF9g==
+X-Received: by 2002:a17:902:f642:b0:220:e896:54e1 with SMTP id d9443c01a7336-22a8a06af6amr24516185ad.26.1743743372375;
+        Thu, 03 Apr 2025 22:09:32 -0700 (PDT)
+Received: from ?IPV6:2401:4900:1c44:1eed:2902:4d97:bc47:aea3? ([2401:4900:1c44:1eed:2902:4d97:bc47:aea3])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2297866e173sm23535165ad.192.2025.04.03.22.09.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 03 Apr 2025 22:09:31 -0700 (PDT)
+Message-ID: <af85b465-13e5-44e5-a0af-c7c68af7d43e@gmail.com>
+Date: Fri, 4 Apr 2025 10:39:22 +0530
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250401200129.287769-1-sahilcdq@proton.me>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] openrisc: Fix build warning in cache.c
+To: Stafford Horne <shorne@gmail.com>
+Cc: jonas@southpole.se, stefan.kristiansson@saunalahti.fi,
+ sahilcdq@proton.me, linux-openrisc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>
+References: <20250401200129.287769-1-sahilcdq@proton.me>
+ <Z-6VyRhGdInVidsw@antec>
+Content-Language: en-US
+From: Sahil Siddiq <icegambit91@gmail.com>
+Autocrypt: addr=icegambit91@gmail.com; keydata=
+ xsDNBGcgaYEBDADpKUSKbchLCMdCuZGkuF50/7BiraKc8Ch+mk4T+2+E2/6qXAkalvCkFoqx
+ 3/sa35rconZAFzB/r19e7i3UajIQjATvENrGxqe/IFqcJxo2Jr1HQBwCrsmlQoUCilSC6nDi
+ ejcEIAFytJORDkCcZwLXPjdf5/4pbqVAW5823LB5j5F0TqHAnGY1RhS2V1eBPdRqjAA3xecT
+ zTmLHlkqAXgM2DOot1KbycedZSieCwEykTXMaLC0/3Gyo2Cp1WTWOIyD0hsXpLyFioV4FaX2
+ Lm+z45Zc4PoNXeC6+l4PdDxixs+saAbadknP+9omwlb+PkMd3esq2wkowTwTJVJK8FCCNTo5
+ 2OArA/ddxcyXY25JHN7vzGooFNW6Bb9YV+lbX6y95ytE3KcAmid73tQrcjlebIpgNAvOMyyZ
+ BgQJY0HSu3DGNZuKtbNM3iTl82TFj7MVgkEffgF83N6XyBqDztIz2lN47/q5wyRi3jda9NDt
+ geI+Nv145HjulO7bI3NT048AEQEAAc0kU2FoaWwgU2lkZGlxIDxpY2VnYW1iaXQ5MUBnbWFp
+ bC5jb20+wsENBBMBCAA3FiEERtYfQYWFu+uAZjYrrzGlXdb6f1cFAmcgaYEFCQWjmoACGwME
+ CwkIBwUVCAkKCwUWAgMBAAAKCRCvMaVd1vp/V/nnC/9KnNIr4a3JW3E/snxv1+XIyUmHBDLn
+ PKBmLDYxO9RJe1xKo/sNmLEno4c8G1F/y12TLV086cpBYGKkE8mPMBABqxuiPG8srwoKc2HW
+ bvoC2Zfeu/WeQ0YqeI9ZEwRhsDGQZ7vc8PnKnEUaPZn6iWW4GeX7dXWeGNrK0wU2B04l2d+M
+ FIKaoPHk8w5Ff++QNcn0YRkm//nYlukHUrMxhNcuc18jaLLftOh7BH/4EbKtTN75KAFePQBi
+ I2CbuC41fchTt12QrPB3yz1GKfudsEMLFHBNeComJNnuolPOq0YSyuKdRO8Jubn5ZqWQeTwj
+ XbG7wTonDc8xe46irOhz36VcjsjSY+PYhVZSeDWeDUZgpaJkBjQDDodIN2eoMwVEyUByos9H
+ mKrqrpBMmylOspAZzqjb5FtOqM0BCxQINdKKiMwRelSb6pHYCrbS0XzpwDUEpp7RWCbHgg+6
+ Ot72kQCEFxj2LzX9VxF24GGQy9inlUfN51IV04klSibtBuuz/NbOwM0EZyBpgQEMAJelVX4k
+ CtCxD4Ji3FQ8LZs22z7VoUvqIb7Gj2lNvhPeijlqqBkSMIgnSCLxlH4ahqKnEV58IrfVriV0
+ 92zb94Az2nl0r+bZYfvev1qCcVIYxk+pYYcRl5qPXX8XGalrkcBBWmkgTSwzNK9rV4850iVI
+ hsJNel49qen9JwiFYMSKa2MYgdYSbeuuwXwUp0ZHeVFc5RnPK2wxws1xcnsdb9hRXs2UeTEE
+ 0klG3HuXqJ96DzKrCieKHLjs330h+16gDWAFZSEoT7Mh3HFGI2dscVuBstQNgnwUMnsJv8jx
+ c005CfLCjCBnJEhMd2/QFuLwCZv4IdoghKwYw18e61UbX2bFovo9dduD527pD4sFqi7U7ofv
+ aO3yf+ulL6jiKypGvnbiBP3KY3aKxx6pHHH3aDc9eOqCUgrtS3+xt1du4+qxrYqEnrywFoJy
+ 5zqSzbnTTjFpdTbY5SS52fIOktLlAKzEg6V9hkg2r08hC3/L4NVj6I4tsGZlqb2neRlHFmCr
+ bQARAQABwsD8BBgBCAAmFiEERtYfQYWFu+uAZjYrrzGlXdb6f1cFAmcgaYIFCQWjmoACGwwA
+ CgkQrzGlXdb6f1fDIgwAmpB7eL3XNSx3F+gbmksOPMqCU5rEswRedjEt6tBzFTXhdNFfhZTb
+ vCddUNePZnzddgxAnDBcTqI1jx6Go6Hkti/mxJqXSczMYBsImD/lEm47axsADvpnNaEM+tmu
+ m/cMKfpILUpy2Ey7CKXUA1vpzYeUD29EQWi0fxM0arplrVt/uzUdFRFQRn2hCqeDLBLONX1F
+ Adq+re6M0dhKl4a2+erzZRIXh3vIGiDmpJEGrajrhqEnMXFp6toSiMGian94m8H3NT6rB64E
+ JmdHgyjXADFbn2G5Mb6Pwa8KnnK1kYcZ+Pwu9LfMXfgI01Sh/k01hjUVmnpYep4nHUfwXA8r
+ kn6WekD80DYbAfKyFAXQCO/nclZ82RNmJbDRi3AeMFrxKi6KgdGCp1Izhj9USaMOVqcuV2p0
+ Rsoq+sFqWOKaHWnQHCM9RkynQVqrgUaSawEbGlCP1KIhVmjfjVsmsCaKkUb9T6VeO+ZNe+Pn
+ rPgMe6IIvn24UuW2f6fIt0AaqOWq
+In-Reply-To: <Z-6VyRhGdInVidsw@antec>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi Sahil,
+Hi Stafford,
 
+On 4/3/25 7:36 PM, Stafford Horne wrote:
+> [...]
+> I will just take this fix and apply it to the series (git fixup) rather than
+> take this patch as is.  Also, as registers should be unsigned short, I think
+> we should change the type to that.
+> 
+> I will fixup patches in place.
+> 
 
-On Wed, Apr 02, 2025 at 01:31:29AM +0530, Sahil Siddiq wrote:
-> Commit c5c6fd8be51207f0abd3 ("openrisc: Introduce new utility functions
-> to flush and invalidate caches") introduced new functions to flush or
-> invalidate a range of addresses. These functions make use of the mtspr
-> macro.
-> 
-> The kernel test robot reported an asm constraint-related warning and
-> error related to the usage of mtspr in these functions. This is because
-> the compiler is unable to verify that the constraints are not breached
-> by functions which call cache_loop_page().
-> 
-> Make cache_loop_page() inline so that the compiler can verify the
-> constraints of the operands used in mtspr.
-> 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Closes: https://lore.kernel.org/oe-kbuild-all/202503311807.BZaUHY5L-lkp@intel.com/
-> Signed-off-by: Sahil Siddiq <sahilcdq@proton.me>
-> ---
-> Hi,
-> 
-> I noticed that the previous patches have already been merged in the
-> for-next branch of openrisc's repo. So, I thought I would send a separate
-> patch to fix this.
-> 
-> I managed to reproduce the warning and error using or1k-linux-gcc 13.3
-> following the instructions found here [1]. The issue is not with the usage
-> of unsigned int in place of unsigned short. I tried replacing int with
-> short but that didn't work either. Apart from this, I see there are no
-> issues with mfspr even though this uses unsigned long for the register
-> "ret" and for the immediate value "add".
-> 
-> Also, from the gcc manual [2]:
-> 
-> > The compiler cannot check whether the operands have data types that are
-> > reasonable for the instruction being executed.
-> 
-> I am not sure if the above is just for output operands or all operands.
-> 
-> In mtspr, __spr is constrained to be an immediate value. I noticed that
-> all calls to mtspr (except for the ones called via cache_loop_page())
-> have the value of __spr evaluated to a constant at compile time. However,
-> the compiler is unable to determine if the constraints of the operands
-> are violated when mtspr is called via cache_loop_page(). Making
-> cache_loop_page() __always_inline solves this problem since this results
-> in the value of __spr being evaluated before compilation is completed.
-> 
-> This warning/error can also be observed for mfspr by changing its
-> prototype to:
-> 
-> __attribute__((__noinline__))
-> static unsigned long mfspr(unsigned long add) {...}
-> 
-> The compiler did not throw any other warnings/errors on my machine.
-> 
-> Thanks,
-> Sahil
-> 
-> [1] https://download.01.org/0day-ci/archive/20250331/202503311807.BZaUHY5L-lkp@intel.com/reproduce
-> [2] https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html#Output-Operands
+Sure thing. Will you be changing the register types as well in place with this
+fix? Let me know if I should send v2 of this patch so the changes are together.
 
-I will just take this fix and apply it to the series (git fixup) rather than
-take this patch as is.  Also, as registers should be unsigned short, I think
-we should change the type to that.
+Also, should the types used in mfspr also be changed?
 
-I will fixup patches in place.
-
--Stafford
-
->  arch/openrisc/mm/cache.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/openrisc/mm/cache.c b/arch/openrisc/mm/cache.c
-> index 7bdd07cfca60..0216d65e6f86 100644
-> --- a/arch/openrisc/mm/cache.c
-> +++ b/arch/openrisc/mm/cache.c
-> @@ -40,7 +40,7 @@ static __always_inline void cache_loop(unsigned long paddr, unsigned long end,
->  	}
->  }
->  
-> -static void cache_loop_page(struct page *page, const unsigned int reg,
-> +static __always_inline void cache_loop_page(struct page *page, const unsigned int reg,
->  					    const unsigned int cache_type)
->  {
->  	unsigned long paddr = page_to_pfn(page) << PAGE_SHIFT;
-> -- 
-> 2.48.1
-> 
+Thanks,
+Sahil
