@@ -1,100 +1,66 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 1BD452676F7;
-	Wed,  9 Apr 2025 14:50:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 532112036E0
+	for <linux-openrisc@vger.kernel.org>; Thu, 10 Apr 2025 12:28:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744210216; cv=none; b=qTwplMtUnZLobha8kJ1PmVEzhPyepG158UQl/3Cf4ho7Gvs+iOgFNNCm+Dd+Ai6glvHThWRZspMBu06fs/96Pf92zXPB8kkEUBYEG4BIbVKaQpNqCToxBT74hkFQSEeK46yiAGjmNOmw/MblswHPVmjARybfipXj7gj5wyqBomU=
+	t=1744288123; cv=none; b=OLRGegKZHxJMpPB5dZ+P23IAoXZsw6WvHDOYtnlF2KdLYsJHowI5yEZt8YuVW7AYxWk7mmCCstg3ooL4ATL2iSONjEPuII41ZiCWtDBsRkkHfXiuLNr7+RF9ROOhZI1nd6nKrxm9QLDzSUbCHQS8o1c2YAlBCAycVZcggQNlGAw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744210216; c=relaxed/simple;
-	bh=4pLTv0zekgYPNEgwM2RuMiOZmFr4+wJ4i/oOyh8hrvI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Mzk/mwPJJT0jaK4hDCWlvWXwjlyO+eduEe8A0jVD9l+Gw1OQZ8Nw53l4L8W+cXME4lr7Bpj8Ls8iKGPNbBBM3ZAxKWBZPcotXqSgpQi0zSXLA7GM+gY1QnSv65Q8ILHd5GR2/r8JQa1HLCc+dxJK2chYOWccbUuDHEtviqjN3eI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 52F3115A1;
-	Wed,  9 Apr 2025 07:50:13 -0700 (PDT)
-Received: from [10.57.67.254] (unknown [10.57.67.254])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 58A653F59E;
-	Wed,  9 Apr 2025 07:50:07 -0700 (PDT)
-Message-ID: <99771f33-8ad8-4ba5-9cf0-f504588d99a0@arm.com>
-Date: Wed, 9 Apr 2025 16:50:04 +0200
+	s=arc-20240116; t=1744288123; c=relaxed/simple;
+	bh=szmKlrtU1BFfGnb30WxLY9gF0BRo1IeUYdVGDbvg7ws=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=q9j74vy2DJ5YXVqL23NDxrn6rOtP/6apH7eILK6iokSQIMW5v+yfB08x3z9jxC3YOxLgDnKW3L7lh6dhd79NWRINtOpusSOvXKjqdFrnjQSoiml7LMqVHDK01nNWh9zGVl6xZFWLjvAJ/4rhM3ozOOUsctJ50YYz1oqG2q4mihY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cmpd5xff; arc=none smtp.client-ip=209.85.218.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cmpd5xff"
+Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-ac29fd22163so128202766b.3
+        for <linux-openrisc@vger.kernel.org>; Thu, 10 Apr 2025 05:28:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1744288120; x=1744892920; darn=vger.kernel.org;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=szmKlrtU1BFfGnb30WxLY9gF0BRo1IeUYdVGDbvg7ws=;
+        b=cmpd5xffxo2lkb7bL72tNWQq9E41SGTLEWIdIvFXluDYTQo/bMj1oZ4z/qSyNlOd3C
+         gXvYBq62qGyBZWQanSjpRiWQBeLi8axI0NDf3o1V9RXw8duooc7O8BKzWDHH3NzQ3FCJ
+         5h62aIm9nYs+ROCZj1JAfNcQBDN+OFlRhT1097tYICBaEXHem6/iYn2izS0Ty7e3bVrV
+         zab4vZteOxEQScbzDa9bYyfPPqoGFz7Le4iqgv209rRcVP8zzE3KOCOlc5npJB29ca88
+         erJQq3UW0DTwR2CVM43/UDU4LS7MINHQzKZ7+SrAi/OH/1ZTaE2CR05sVdQNgSDV/38n
+         +bvg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744288120; x=1744892920;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=szmKlrtU1BFfGnb30WxLY9gF0BRo1IeUYdVGDbvg7ws=;
+        b=J5CV4fx8bVo1x8g0VW3nbhI6jHKXggFA+Ub8sHKTmodrjODxRek0A4bQKio3Ur4QLQ
+         e4MKd5ozn+yXkdlkh0r6PmG3eqORnKGHaUNCied1LNZc4myJVXydQMHUWtufAbtZJ+Al
+         3JLYg2NPBNqE8A+lRe3jtlerhjMSGqnnADKHMhVYcXXqiUqku1CWVY5DQ0UIT3e8L7HS
+         ZcYP9nkXGDtjQZZPFAASQTno+EGIS0XvdzKmTp7/fNdN+xZzEywrjj2O0A7+EexhUNwP
+         5Ah4kQIFHpey42rxFAZZpU4u67OEmQt0IYPy/MzOi+xytYFWLMkOIBuZISh/DOjur5Xb
+         ut9g==
+X-Gm-Message-State: AOJu0YzcTmNjNk7cCI/Y4kazbaYlyWm31u9V5iHI8z3WN5XuCPzGwL/f
+	Q/9Kn1a/FvCht7VhQIgXeMYv/DEcl+ne50vLdpcZ/wFeRKVYRGUtYVlJ9MraXrLSvhjLSRYM4Bf
+	BHa9XKMXd9PdG3WSKt5dGIeTuboIJU9oEZaU=
+X-Gm-Gg: ASbGncshH0r7luOTLeq1NWS6YNvxfgQPVmEZWMF0maVwXlseTZ6y1xl46pXJazpARlk
+	z7BunUIc1Mm28HF30dTPnRlHNLRgUyuUh3G2IDinNZRCpOi2oAIKw/9WMm+oLMltNDkktKtU19B
+	jH08nUcLirX6sFi5Ot359FEEY=
+X-Google-Smtp-Source: AGHT+IG00cWD+w7vMwqsv/s+fkvz49FGc1rp2y6Vu1soEflq09in88jNnt4EEXTKeWcKkFENm6bRM5G/CjAwGDBUjpo=
+X-Received: by 2002:a17:907:7208:b0:ac2:dfcf:3e09 with SMTP id
+ a640c23a62f3a-acac011664bmr184440366b.43.1744288120190; Thu, 10 Apr 2025
+ 05:28:40 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 02/12] x86: pgtable: Always use pte_free_kernel()
-To: Matthew Wilcox <willy@infradead.org>, Dave Hansen <dave.hansen@intel.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
- Albert Ou <aou@eecs.berkeley.edu>, Andreas Larsson <andreas@gaisler.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- "David S. Miller" <davem@davemloft.net>,
- Geert Uytterhoeven <geert@linux-m68k.org>,
- Linus Walleij <linus.walleij@linaro.org>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Mark Rutland <mark.rutland@arm.com>, Michael Ellerman <mpe@ellerman.id.au>,
- "Mike Rapoport (IBM)" <rppt@kernel.org>, Palmer Dabbelt
- <palmer@dabbelt.com>, Paul Walmsley <paul.walmsley@sifive.com>,
- Peter Zijlstra <peterz@infradead.org>, Qi Zheng
- <zhengqi.arch@bytedance.com>, Ryan Roberts <ryan.roberts@arm.com>,
- Will Deacon <will@kernel.org>, Yang Shi <yang@os.amperecomputing.com>,
- linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-csky@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
- linux-openrisc@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- sparclinux@vger.kernel.org, x86@kernel.org
-References: <20250408095222.860601-1-kevin.brodsky@arm.com>
- <20250408095222.860601-3-kevin.brodsky@arm.com>
- <409d2019-a409-4e97-a16f-6b345b0f5a38@intel.com>
- <Z_VQxyqkU8DV7QGy@casper.infradead.org>
- <9247436d-ae01-4eb8-bd5d-370b2fb2eebc@intel.com>
- <Z_VfeFgrj23Oa0fX@casper.infradead.org>
-Content-Language: en-GB
-From: Kevin Brodsky <kevin.brodsky@arm.com>
-In-Reply-To: <Z_VfeFgrj23Oa0fX@casper.infradead.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: Miao Chen <chenmiao.ku@gmail.com>
+Date: Thu, 10 Apr 2025 20:28:28 +0800
+X-Gm-Features: ATxdqUFR-UfLVKXzC3vXF6ZsppaG-K0JiD1RxRmMcjEiqfIgK8uWbaCVRaia618
+Message-ID: <CAKxVwgeso4VhM4Yezw0+EaJ2m35zXo9GkMVXg0C=DfB237C5uw@mail.gmail.com>
+Subject: 
+To: linux-openrisc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On 08/04/2025 19:40, Matthew Wilcox wrote:
-> On Tue, Apr 08, 2025 at 09:54:42AM -0700, Dave Hansen wrote:
->> On 4/8/25 09:37, Matthew Wilcox wrote:
->>> On Tue, Apr 08, 2025 at 08:22:47AM -0700, Dave Hansen wrote:
->>>> Are there any tests for folio_test_pgtable() at free_page() time? If we
->>>> had that, it would make it less likely that another free_page() user
->>>> could sneak in without calling the destructor.
->>> It's hidden, but yes:
->>>
->>> static inline bool page_expected_state(struct page *page,
->>>                                         unsigned long check_flags)
->>> {
->>>         if (unlikely(atomic_read(&page->_mapcount) != -1))
->>>                 return false;
->>>
->>> PageTable uses page_type which aliases with mapcount, so this check
->>> covers "PageTable is still set when the last refcount to it is put".
->> Huh, so shouldn't we have ended up in bad_page() for these, other than:
->>
->>         pagetable_dtor(virt_to_ptdesc(pmd));
->>         free_page((unsigned long)pmd);
-> I think at this point in Kevin's series, we don't call the ctor for
-> these pages, so we never set PageTable() on them. I could be wrong;
-
-Correct, that's why I added this patch early in the series (the next
-patch adds the ctor call in pte_alloc_one_kernel()).
-
-The BUG() in v1 was indeed triggered by a page_expected_state() check [1].
-
-> as Kevin says, this is all very twisty and confusing with exceptions and
-> exceptions to exceptions.  This series should reduce the confusion.
-
-I hope so!
-
-- Kevin
-
-[1] https://lore.kernel.org/oe-lkp/202503211612.e11bd73f-lkp@intel.com/
+subcribe linux-openrisc
