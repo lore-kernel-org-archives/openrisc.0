@@ -1,154 +1,121 @@
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCEE7136E;
-	Sat, 19 Apr 2025 05:12:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 016BC78F30;
+	Sat, 19 Apr 2025 15:48:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745039539; cv=none; b=Ll3UUcD8jd+wIovdpnIVEQGc/JlfWCPpgViIH0nnJOcZjn9+jXerdkd8CxYedOEuT6EvyrkelefBk7xx6YxOfRwtzxTT5YFRNGdPu/F/R86n8bXpHIheK/+vXXqOxnBC6Z9xcKPWI/sxS+VfFjFJMza8qSuwkQEimuBiLSYRaQU=
+	t=1745077731; cv=none; b=pYypIdzcWpWk4GoFR8hylRhS6MlILSiOPsnrZyyrauFxXsof2rPHdfGHwy8ieQXv6ZYNvIhZF2stZ6nsFaiV3VVqjOQxZq/QROKkt7/Tmv15maLp2vowmIVkTU7A9nNnZPD2lBlijL/PUBdCrMAHBx4WahqxM+1aiwFR79IF1U4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745039539; c=relaxed/simple;
-	bh=AlEY4zKhmRNDt20P9Xp6i5Nd73YvPO7VbqqVtJST+RY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=odjmst6OhLRhNS1DPgohgn0pmI9J3EAOPWYbpLR+7mnHs4aapQVcAzPDGSrYlpr4XqzMESGUKJuk/uGnVe7MqqbtWFBu94gK6mivlp8o912JBDZ7lNFOtZG2E3sUTYBgzSiC5drC/u5Q1pJa2IrRU3T/sTPBb9rWR3YFMVIo1aM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=T6903dHy; arc=none smtp.client-ip=209.85.128.43
+	s=arc-20240116; t=1745077731; c=relaxed/simple;
+	bh=nVreUzZT/ZCyCOUBM2MnNq8SkTx4mGUDQJ6XZoobqpg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=XgriS9+0g/RCetKCcnAIAFPSvrDxzphCCM1+Gm4fgFhnT2UkhcQ8Q1qzHuHvZtd52krzJfyrX2R6OYDV0bmut41N4ODm6Et2uYF3ldr2Brr4sK7LDZUau4PT1eLDcAxpB54TrYCMKt1z5EW66eP0HfD3HPKmbm3q6gIOsn9SaYs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UK8ivAr1; arc=none smtp.client-ip=209.85.210.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T6903dHy"
-Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-43edecbfb94so25223235e9.1;
-        Fri, 18 Apr 2025 22:12:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UK8ivAr1"
+Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-7370a2d1981so2250482b3a.2;
+        Sat, 19 Apr 2025 08:48:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1745039536; x=1745644336; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=dWXhDw052JqSwc2DEiWR3CaVZdUZyR9wDp3GTxz2iYM=;
-        b=T6903dHyoI8e/rd5EPeep42RKoYdI8DzYFXk47sOvp9XHkcph1GwXIXlDGzRwDG89o
-         J4Yjz6ebtn+xG3jzH/tActkz7F+1ecXspzaoTu6NKk7ivhGDhEJ7MFrdzqRo1qT08ijp
-         GmHq8yLJrdj5RjnB5WYS+NHXAwyEmivQju0eMHaWierocsAcK+Cyi5MLZZFiII/kENU5
-         8CeRxLwCNUTdar2aANxVcNJ78Bedtcppbg+xDErjpRT/IjNWTpxmoVAJE2kqMWXvEUcA
-         4ZBpli7jtcJwb7qbebDRl14HZG1ihju2Wo3Uz5/uF9S8nj1BSPbKmmEt4TGbrkTktVTv
-         jrwA==
+        d=gmail.com; s=20230601; t=1745077729; x=1745682529; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=lN/OhSLKgem6xUfA74KqwNX7jjY+v/yYMY/uZ9dnJks=;
+        b=UK8ivAr1OIW9RvN2EXbJ54ti26pVetYNr7V0hln8F1s+F/sWThnw0EuK2BQ0eXVBet
+         eAJ0MA7cruvai5aMi352Gqhkha0teEHbeMxByRnWuBUenJO02s/ivy0l17klMncdn+rs
+         eIU/ck4F3It2Zl2uKLN7SePmTlEaOObQxwSzMLtlBllQecI5iPPbgfStQ6dgBOUhr8qI
+         wiriYlP5JJ2eH1HatCXLaNlueXuVfzpABpyePXinZ5a5lG+Kx0L4hPW2q6xFEDHEiieF
+         AgEpCFiPSwi8G2GpOKIurhYACdrC+i/YvT7eGSEOR70fXKDs0p+vajZll8BAttLGRKxE
+         RLsQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745039536; x=1745644336;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=dWXhDw052JqSwc2DEiWR3CaVZdUZyR9wDp3GTxz2iYM=;
-        b=eVcSIBuNlrJkE4VtQgX4Cy20Ba0kxid8mUFMW04L+mpEpjSZbeaWG84mm8usGNq1Bk
-         cpsdXUPn7x1exJfSuz5TXGzsSNbNDELAI8fU8KLGqpM/t+WCBLskHNx2Z/VKJhc3NglI
-         2AmfpmXygdKFx24AESZaWUI3nVxcgQln0PVjHZ29Yksh8YvpiNt8kqOpFM1c9XuA6Q2m
-         TGrsVfxymq9EpFaOU8/6bvd+x2AryKyFVzHwP6MU/sMFSnf59MSBXeZXi8vviQ1PWfo9
-         2LQM8mBGaGjdlO2pu26LrZQk9DtWGMeF/HTHDHTmeorVc60q5fqGOyms+PoN5oDI9PMy
-         RwGw==
-X-Forwarded-Encrypted: i=1; AJvYcCUdOX9/AWUMbSLvN+AMCGwYGKA5290XZLIWg286l1zNJfeW9R21/lt+QRj3x0BqimSXdJtB9ZsEqmq3TrrFhIM=@vger.kernel.org, AJvYcCX74JYDR1IEGdvLfNyq1UnJGiwlyayWnnLqjy0TvTEuAQ2r6aqasOUPml0TYeQzhI9G5c+rQFn7MoB/KsI=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzZMNptRsgaXkDMjdAWZKUDhHwc6eOQnBz1WpVr0o8Ci0alPn3d
-	/VHjRfUtOKxsu9vY8kRYbcSDu2+7ncOw4kPxMzrs1AEiHNZYnzBp
-X-Gm-Gg: ASbGncvEPXa3UnQ91p796Ykt5fZPzOooVY//dcRPaz51SKMfoIJK8xu41bO1ME3poYS
-	yY9sYFaKcoJpqY0wchZ5QOSG0f+aOJTCvQnIPTBVob5VflAyNvb84RxiPVi1notImeNKHFhPqBK
-	0jYkrsCEVmLJJX9TLVMiGwdGVFH5tNdayvh0y3yCUz+AATpU6lB1pKsuLBR1aNTwRFqCBv9+Os0
-	+xa16fV2FuWRWgg7V0wmZTAzYM2S1ZDrsVFThAOJyKluEMDS1lh1+XBO5/A08VNAAq2Z1AtzY51
-	+7QaPYsMq00ANCTNJGJbFBgFF9GdpHp7XgNlJ12EyVgD8uvO3o/FAZTDDLDFhfIxrB0FSbeNkUZ
-	IdPqQ
-X-Google-Smtp-Source: AGHT+IF0DV0PcqkPAMgHSHJ/AFOSOa8OeTQRkmET5HDuCcPTUUq6yyc8/DRGg/vAcFHczFOzZXzsSQ==
-X-Received: by 2002:a05:600c:1c9d:b0:43c:fb95:c76f with SMTP id 5b1f17b1804b1-4406ab93151mr44342075e9.9.1745039535907;
-        Fri, 18 Apr 2025 22:12:15 -0700 (PDT)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4406d5bbd7fsm45920605e9.21.2025.04.18.22.12.14
+        d=1e100.net; s=20230601; t=1745077729; x=1745682529;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=lN/OhSLKgem6xUfA74KqwNX7jjY+v/yYMY/uZ9dnJks=;
+        b=E14sbWBu4K5zUyW4L4qdmtj2h0hyD/zYvw9NIIqqtHUyTHnICX40V3LUjJVj4BbT22
+         xPNV0i9mV6R/8dhnjuaHvoIs1kyE65KDpMJ1o1G1+SJbBgqExNB2yqsvKhWYRPdaQ9U0
+         n9grEUX+7Xllr/hZh8xbSRbWIIwiMRw+VyqyGSsnzJJASr9at569kyW6mApOCFoql3ar
+         aXDaTvKCvNAHdt1tMvbNXE+c1W9FnOY0PGasrdnqp1r/Zj7f8k94O6CI+foe2xoWIDMQ
+         UPZGgVQwK7jIYP57gAZAQeRFWDq3MLZKciZ+DnM2UzZpCrdJ9JAQLD4itNZy1pCIVv7u
+         zjZA==
+X-Forwarded-Encrypted: i=1; AJvYcCUsHh6fsB+dgLj5nnB1BBH0Wp5pBfCfBBPRJLHWqnb4UL5hjTbvdwX29/U5BsVRGvoRNRcql3Iz4gpw4sw=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwgmuFWQagi3s9WDQHj3HIZYcHCeLM6RJ3O2f0QvqaJusWqwjJQ
+	4AOKAYLvai8IrxSf+KvSV2M6k0jyfY6yG8zEWsvOjrXdU7+Xa3jUrMogfuDm
+X-Gm-Gg: ASbGncugldbtJMqP/NR7ZP/AAAzqmHILxqrwxrhTK5pXp80PFmBNysKSabiwRZbddEE
+	Mi6AP+uQ0brAEwo3Qk7VCwwKCbG0AOVJDlIUD30FM3k2nI7/46FQLl5b/5m05dLsxTlpnyS9JK8
+	XUhsYcGh5cpc16rNV0RiaNUGlnomMDgj+2kr4z94coJoDy7NPqU3qbuUHJr0kl2Wc7D7Mbdfe58
+	pKFPV2CVqFKjAmtmypp2U636/ZTgfKLVc/iomAkRrCJiTS80rJLoAlSJhWVJ6XYkuL3pbCQdfkg
+	n/UMSIn2rHBfG+HZr9YOnOqOOSSlESzNaUBR
+X-Google-Smtp-Source: AGHT+IG3bWPll+jBQM73z1sLmhDzeJ8FQuuTzTHYN7HBwqeA9z385xk8JgiFB60CbXyw+wSoTFHihw==
+X-Received: by 2002:a05:6a00:3911:b0:736:491b:536d with SMTP id d2e1a72fcca58-73dc1610c96mr9449435b3a.20.1745077729098;
+        Sat, 19 Apr 2025 08:48:49 -0700 (PDT)
+Received: from valdaarhun.. ([2401:4900:1c45:45a3:affe:4635:b6b6:1a76])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-73dbfaad42fsm3430658b3a.121.2025.04.19.08.48.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Apr 2025 22:12:14 -0700 (PDT)
-Date: Sat, 19 Apr 2025 06:12:14 +0100
-From: Stafford Horne <shorne@gmail.com>
-To: Sahil Siddiq <icegambit91@gmail.com>
-Cc: jonas@southpole.se, stefan.kristiansson@saunalahti.fi,
-	sahilcdq@proton.me, linux-openrisc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH] openrisc: Fix build warning in cache.c
-Message-ID: <aAMwri9RK2oNuC_p@antec>
-References: <20250401200129.287769-1-sahilcdq@proton.me>
- <Z-6VyRhGdInVidsw@antec>
- <af85b465-13e5-44e5-a0af-c7c68af7d43e@gmail.com>
- <aAIDfcZ4XD5f6mA4@antec>
- <f6f4f410-4a0a-4ce3-bf41-413af39fd50e@gmail.com>
- <aAIivK7NDG-6_aIU@antec>
- <64beb3b4-a8fa-4acd-a139-6c19de0e37f4@gmail.com>
+        Sat, 19 Apr 2025 08:48:48 -0700 (PDT)
+From: Sahil Siddiq <sahilcdq0@gmail.com>
+To: jonas@southpole.se,
+	stefan.kristiansson@saunalahti.fi,
+	shorne@gmail.com
+Cc: linux-openrisc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Sahil Siddiq <sahilcdq0@gmail.com>
+Subject: [PATCH v6 0/3] openrisc: Add cacheinfo support and introduce new utility functions
+Date: Sat, 19 Apr 2025 21:18:16 +0530
+Message-ID: <20250419154819.85063-1-sahilcdq0@gmail.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <64beb3b4-a8fa-4acd-a139-6c19de0e37f4@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-On Fri, Apr 18, 2025 at 06:04:29PM +0530, Sahil Siddiq wrote:
-> Hi,
-> 
-> On 4/18/25 3:30 PM, Stafford Horne wrote:
-> > On Fri, Apr 18, 2025 at 02:42:20PM +0530, Sahil Siddiq wrote:
-> > > On 4/18/25 1:17 PM, Stafford Horne wrote:
-> > > > On Fri, Apr 04, 2025 at 10:39:22AM +0530, Sahil Siddiq wrote:
-> > > > [...]
-> > > > I was working on getting this patches ready for upstreaming and noticed one
-> > > > thing:
-> > > > 
-> > > >       ---------------------------------------------------------------------------------------
-> > > >       ./patches/or1k-20250418/0001-openrisc-Refactor-struct-cpuinfo_or1k-to-reduce-dupl.patch
-> > > >       ---------------------------------------------------------------------------------------
-> > > >       WARNING: From:/Signed-off-by: email address mismatch: 'From: Sahil Siddiq <icegambit91@gmail.com>' != 'Signed-off-by: Sahil Siddiq <sahilcdq@proton.me>'
-> > > > 
-> > > >       total: 0 errors, 1 warnings, 102 lines checked
-> > > > 
-> > > > As you can see above the scripts/checkpatch.pl is failing with the warning
-> > > > about your email and signed-off-by not matching.  You can see more about it
-> > > > in the FROM_SIGN_OFF_MISMATCH section of the checkpatch[0] docs.
-> > > 
-> > > Ok, this makes sense. I configured git-send-email to use gmail because
-> > > protonmail does not work with git-send-email without a paid account.
-> > > 
-> > > > How would you like to resolve this?
-> > > 
-> > > Is this a warning that cannot be ignored? I can:
-> > > 
-> > > 1. submit the patch series with another email address that won't have issues
-> > >     with git-send-email, or
-> > > 2. submit the patch series using protonmail's web client (which might not be
-> > >     the best option).
-> > > 
-> > > I would prefer not to use "icegambit91" in the signed-off-by tag.
-> > > 
-> > > What are your thoughts on this?
-> > 
-> > I could rewrite the from header to match sahilcdq@proton.me.
-> > 
-> > But if I do that you should find a way to get proton.me to work with
-> > gi-send-email [0] for future commits.  It seems this can work using the
-> > Protonmail Bridge[1], though this site also says proton.me is not so good for
-> > using with git send email.
-> 
-> Right. Also, protonmail bridge requires a paid proton account.
-> 
-> > Maybe using another email in signed-off-by would be better.  The current
-> > patches are on linux-next[2] where we can see the From/Signed-off-by mismatch.
-> > For example:
-> > 
-> >      author	Sahil Siddiq <icegambit91@gmail.com>	2025-03-29 15:16:22 +0530
-> >      committer	Stafford Horne <shorne@gmail.com>	2025-03-29 10:22:21 +0000
-> >      commit	af83ece87a1ef5097434b7c3c1fc0e9e7b83b192 (patch)
-> > 
-> >      ...
-> > 
-> >      Signed-off-by: Sahil Siddiq <sahilcdq@proton.me>
-> >      Signed-off-by: Stafford Horne <shorne@gmail.com>
-> > 
-> 
-> I agree. I have another email id (sahilcdq0@gmail.com). I can configure git
-> to use this and this can also be used in the signed-off-by tag. So, this id
-> shouldn't cause an issue.
-> 
-> Let me know if I should send the series using this email id.
+Hi,
 
-Yes, please do this.
+The main purpose of this series is to expose CPU cache attributes for
+OpenRISC in sysfs using the cacheinfo API. The core implementation
+to achieve this is in patch #3. Patch #1 and #2 add certain enhancements
+to simplify the implementation of cacheinfo support.
 
--Stafford
+The difference between this patch series and the previous version [1] is
+minor. The email address used in 'From' and 'signed-off-by' are now the
+same so checkpatch does not throw a FROM_SIGN_OFF_MISMATCH warning.
+
+The patch also addresses a build warning that was caught by the kernel
+test robot [2] and addressed in a standalone patch earlier [3].
+
+Thanks,
+Sahil
+
+[1] https://lore.kernel.org/openrisc/564042d9-0645-4a0d-aac8-383b0c699b49@gmail.com/T/#m67aed7737e79675352815470cd1e3b9ed6814b05
+[2] https://lore.kernel.org/openrisc/20250323195544.152948-1-sahilcdq@proton.me/T/#md4b867e8d721f8894368ddc209875e262c1e2b60
+[3] https://lore.kernel.org/openrisc/aAMwri9RK2oNuC_p@antec/T/#mc42cafae92957171cef94065f25257e5bed37ed6
+
+Sahil Siddiq (3):
+  openrisc: Refactor struct cpuinfo_or1k to reduce duplication
+  openrisc: Introduce new utility functions to flush and invalidate
+    caches
+  openrisc: Add cacheinfo support
+
+ arch/openrisc/include/asm/cacheflush.h |  17 ++++
+ arch/openrisc/include/asm/cpuinfo.h    |  24 ++++--
+ arch/openrisc/kernel/Makefile          |   2 +-
+ arch/openrisc/kernel/cacheinfo.c       | 104 +++++++++++++++++++++++++
+ arch/openrisc/kernel/dma.c             |  18 +----
+ arch/openrisc/kernel/setup.c           |  45 +----------
+ arch/openrisc/mm/cache.c               |  56 ++++++++++---
+ arch/openrisc/mm/init.c                |   5 +-
+ 8 files changed, 196 insertions(+), 75 deletions(-)
+ create mode 100644 arch/openrisc/kernel/cacheinfo.c
+
+
+base-commit: 183601b78a9b1c3da2b59f2bee915f97ba745c0b
+prerequisite-patch-id: 3ec7c4c93dc2780c9978de0775bf46ae43c00b83
+prerequisite-patch-id: 0b455477c75ef34d81032b9419d8ad3d5e74043d
+-- 
+2.48.1
+
