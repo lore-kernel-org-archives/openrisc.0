@@ -1,62 +1,62 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE9372AEFE;
-	Sat, 19 Apr 2025 15:49:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2A034690;
+	Sat, 19 Apr 2025 15:49:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745077751; cv=none; b=RlaCvX6LRqT1U1yp9jKpxgVgomdvvmTGm+8wKwQCVhIVGK2i5O9u07VIVsnz9NVIRSeRnLysoPpApW6QXWZpykvxbW2rEOKf65uvKV2/EqbwSTlFqQKdC67RDWZMeITR00XtwMDnfcNG7chX2h3xD8upr/XR9TwwtbHTjcXaAlU=
+	t=1745077765; cv=none; b=Nmmd3HJ70GiRn7NaySv3ylYIEhVEd0PWakiJ8tHYkG02GfNQsI3F0mOm+x0OgAd0pKkg+VRO3UJd9P4KtQ+x9ynpSjFcOmORy08bvTS/aFYDdgx77JLZsEErrHCBveAtn3kN8RBvqH9FjSAq2gQSIJqZCcvgZ4X/MsU7HEZUVKw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745077751; c=relaxed/simple;
-	bh=XrFFM38YkZP59a98NvcqYT8xogSkXbadbY49qgxIENA=;
+	s=arc-20240116; t=1745077765; c=relaxed/simple;
+	bh=IR8WDV7gxXimOVT2bOGadIKeezwXiNZAf+HREoo39Nw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=W7FSyNHLpdME7eSC4wPvq2w28oPLR0MbcfgEQcHmNqicHqGE5R7FAcKICROliSZNKy3E2ek3j7kAE3x75SoRTyId9hNTNx3DjZHzD/RbSTchxMibyDAL2yWQxZhHNs6VFVWCvHPaQBek7Ya6novxPIGfvOoPypFxkMZT8SNUqZM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=C4oCQYdN; arc=none smtp.client-ip=209.85.214.178
+	 MIME-Version; b=tomtveewTY34p9WXvKG2MiLvd2BRLjS64tKe7TizWux1k3lk/pW6mlGpdMIHVRBzcYXymEROeeWt2S8SqPQhQBLmceaedJy043eTiWAjHV+9zvp8I6RnAlfZx77zb9IokBux+/uKCciiGxX7cxdsgJKj00S/LNP8KaPE2n0utsk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eVOpQlPp; arc=none smtp.client-ip=209.85.210.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C4oCQYdN"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2243803b776so42856475ad.0;
-        Sat, 19 Apr 2025 08:49:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eVOpQlPp"
+Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-739be717eddso2075912b3a.2;
+        Sat, 19 Apr 2025 08:49:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1745077749; x=1745682549; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1745077763; x=1745682563; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=89ouSf5j74jcdMywOrcUFJcRcgIPNPoWQh8ZRj8rrkI=;
-        b=C4oCQYdN3lb8QdvsGkHyVE/HzRiYxCDndVLD6AotCAWBmhZaXmfcYvUn5roZ4UixeD
-         w/WLDWI28PqFkx91CySDQySJQ9NnwCw2Et20z9LhSBnw0vyOx1TLLDYvQlI4R7S0uh3z
-         xLjmPnJkDUAk5/Rmm6P0vmqtmbiVbXQf8bvmuawsjdM5q+cjRjf8MpsLUsLhptb1czF0
-         ViHb0npScVTYcSo4SM59XoagySabJhEXjslgyL4SgVNgxFTFebzDYIo2eK20NWx6RkW3
-         yth05uIBnHhCIZI8wrEvfQqbZ6KjncrxkY35rlFow3HYgXeBQ+1oY5PVCkLGl9WWd+BF
-         Gtlw==
+        bh=KO+xwD1ck431u5h+EhxDb5MGidFRh6eyyfNB4shCLoc=;
+        b=eVOpQlPpI6xNfsPrChGrNINt40Q49fBArc6AXAaWwA1/RoyOcdXvnUyAbFZ5Hbr+o6
+         ebGxr8a3EVv5gWhdn8iyxum1tTyb2RNyY3GO+Y0nqb25FDtZF5+HrkC/INnglrYd6Hd6
+         LixB3w0mAzCVcIDaEI5AUgwPsJ4yjeIS0s2ugkp27kdGnlBKrhvK2QBEEGJNyM8XU1Kj
+         c+G6C9BIUTwb98fcVK6ELX6kYIGZaczA3VbKrkomoQfhWEPR0qcF0U3covGiBzpMBZqS
+         trblyKOHWUQZPgAvlIXZqn5mAiltGgf+FJqxbqvlv0pil81F85z4D2c7YNpdzQTpg3t9
+         JM1g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745077749; x=1745682549;
+        d=1e100.net; s=20230601; t=1745077763; x=1745682563;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=89ouSf5j74jcdMywOrcUFJcRcgIPNPoWQh8ZRj8rrkI=;
-        b=WP9wwKaSpqPHqh3LVONh+ZS5mBNj1s3XUtqkX4OUqkAMU04xPnujZWKJ+OKo8R0N31
-         A76OMY59ljIeyNbvVmTk2zeThAqvWOqBLues82q1yt6wElRuVPq78W7x8s75lKdlzEPT
-         1guv9qHGTQ1M784Dxcysi/rmhHR+e+Nq9O/RkVaQO/WY/vdpdVO1kX+3PAAb8jYBVVfT
-         GOKOdm6Ejlww/jN+nj6d9VwvYdqsujwHkdUMx+kimjtt38N1mdwoYjBd8QY1yYH7kwcK
-         EQQGGjMA+rHl7tGL6op/8+g4obOZ3gKbLNpyUIi5w8mGVlT+rO8NaH+h9S2nLHrdL5v/
-         Odig==
-X-Forwarded-Encrypted: i=1; AJvYcCUJqotvSlVU1n1H0kfWTZP0sCBTOykGWp0ZpcurxP2NxE3k385D6KNdP3redflkukiBV8YGd8QSOhsbka0=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzKQ7bCtkcjXN9uyqqOjfjdLQxJROiGAVBcnSk7e81txvBlgri1
-	FeGTkDELJ7Ubxwb6L42aPy61SvHWyhZzlEkipWj9tS3hFspQAHNW
-X-Gm-Gg: ASbGncveQ4pYX5rF7hwnTbJUNsChYvl3/EBaXLOm7iQZegCdG+/c4gjBW6pLkNCTZOY
-	K2r55Iwblh+meUrLrXXowfPpAAaubZJCGjCZOZ18oYZNHZ2Rq2jCCPJg4HmErn6JBLOZ5Rj5tEN
-	y+12ExQLbEI6VUAp8stpDCzgR7mvdo0wdNRYSTNgx1TFQnGdMxJ/5WIpJD/MOPCWntT2NafeHwK
-	P+0Sb1HecOi/8sb6LhRXo7TyaBp8Gdtef7InoVos7DIlSY/7auInMg1V5E8smJ0ohGCLAWeCblQ
-	ocW5/vXcN49+QlLeDkHWo3sHAyNwQQdapJKl
-X-Google-Smtp-Source: AGHT+IG+ZZ2uccDiofqr2ED/bN/g3MNLqpJgaPDmV0Rhm4aX9+wgLPW2w/3G/OQ61P8n4DqrhR7HAw==
-X-Received: by 2002:a17:902:cec8:b0:215:a179:14ca with SMTP id d9443c01a7336-22c5357a118mr86074435ad.2.1745077749023;
-        Sat, 19 Apr 2025 08:49:09 -0700 (PDT)
+        bh=KO+xwD1ck431u5h+EhxDb5MGidFRh6eyyfNB4shCLoc=;
+        b=O1mCk1Q00H3N5llJYvINKpWMmqvfGv4EHu8q7JTC/V8vQN7iN8ppezveipUVK8KPj7
+         WnR197z228VBbkUr+4aJLYPN+vLheo20Gv74XPXuIxHK2sv4p26pjVx5g6ODKm0FD5hR
+         NmWy8KT9BKqAcWLiCsrGezSeTXyfrbywfRzGJmvvylYTGqntyqsDtFCxsYocDoK9i1IK
+         CjDEZwutS/XxeBHyzn7QXTQZ0feW2PnPbdMDTaMD2R7doi+IByAi7XfPTd2muDaH0HNR
+         TgAs8xMPbYjAYzxMePHmCactXrSc8UKQLRo7jE6IBi99aSJaEU7BzVwLynj6HT4Qpmw8
+         O7Kg==
+X-Forwarded-Encrypted: i=1; AJvYcCV54AB9RMR7/xkASoTNlXEltATNkUsVfxrcwkEo6svJWNwVcq/WDsvdxsB/ObF0AC8P+O11rQBTXxYFs4s=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzbo301owFSPIQUJUPIbhkQMmEoFOKt7cG91qCVRrjSuucqUZ7P
+	aySCBfCkPHq5eFxMTGPiLALnr01ddNWKxRv0mTHMGVH3VpbbW+fq
+X-Gm-Gg: ASbGncuqIVW6SlAlKTp+ZhY1ZtgUKx7B1KVlGXIV51whmu617tCJxEvPJxRx8wFvZ5f
+	ku1Dngdy1fl9s5iv2E9Dh3+sRNEDIsoBG3e/ZWlvTTY37MkvLGjPKEELXUpS/H3/OEOHojzQQ16
+	ZS61bfoizXB5gc90MkyeDw8RH6dyUt0hCJTaR7KGXpPWPsfr5NFwpo4PIM3j7dL/nTI7awmJpJ8
+	3uviIKRnAH4OZBoo8W2KkygiZAjsDNUFxy8EfaJ6GazgoUB00TeGzLR1kQHe5A52BQlUoTGkXh6
+	5x5z4wKLsVR0RAPImh3oGosf5cFBJI07SA1i
+X-Google-Smtp-Source: AGHT+IFt2foi3WyhplRZC4yqLjl1pdTstBvZM+5xxRt6FiWMGIL8PDFQnlHdPbd9S34O6XF+mmx15Q==
+X-Received: by 2002:a05:6a20:d50d:b0:1f5:7b6f:f8e8 with SMTP id adf61e73a8af0-203cbc253e1mr9042183637.6.1745077763192;
+        Sat, 19 Apr 2025 08:49:23 -0700 (PDT)
 Received: from valdaarhun.. ([2401:4900:1c45:45a3:affe:4635:b6b6:1a76])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-73dbfaad42fsm3430658b3a.121.2025.04.19.08.49.06
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-73dbfaad42fsm3430658b3a.121.2025.04.19.08.49.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 19 Apr 2025 08:49:08 -0700 (PDT)
+        Sat, 19 Apr 2025 08:49:22 -0700 (PDT)
 From: Sahil Siddiq <sahilcdq0@gmail.com>
 To: jonas@southpole.se,
 	stefan.kristiansson@saunalahti.fi,
@@ -64,9 +64,9 @@ To: jonas@southpole.se,
 Cc: linux-openrisc@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Sahil Siddiq <sahilcdq0@gmail.com>
-Subject: [PATCH v6 2/3] openrisc: Introduce new utility functions to flush and invalidate caches
-Date: Sat, 19 Apr 2025 21:18:18 +0530
-Message-ID: <20250419154819.85063-3-sahilcdq0@gmail.com>
+Subject: [PATCH v6 3/3] openrisc: Add cacheinfo support
+Date: Sat, 19 Apr 2025 21:18:19 +0530
+Message-ID: <20250419154819.85063-4-sahilcdq0@gmail.com>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250419154819.85063-1-sahilcdq0@gmail.com>
 References: <20250419154819.85063-1-sahilcdq0@gmail.com>
@@ -78,261 +78,243 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-According to the OpenRISC architecture manual, the dcache and icache may
-not be present. When these caches are present, the invalidate and flush
-registers may be absent. The current implementation does not perform
-checks to verify their presence before utilizing cache registers, or
-invalidating and flushing cache blocks.
+Add cacheinfo support for OpenRISC.
 
-Introduce new functions to detect the presence of cache components and
-related special-purpose registers.
+Currently, a few CPU cache attributes pertaining to OpenRISC processors
+are exposed along with other unrelated CPU attributes in the procfs file
+system (/proc/cpuinfo). However, a few cache attributes remain unexposed.
 
-There are a few places where a range of addresses have to be flushed or
-invalidated and the implementation is duplicated. Introduce new utility
-functions and macros that generalize this implementation and reduce
-duplication.
+Provide a mechanism that the generic cacheinfo infrastructure can employ
+to expose these attributes via the sysfs file system. These attributes
+can then be exposed in /sys/devices/system/cpu/cpuX/cache/indexN. Move
+the implementation to pull cache attributes from the processor's
+registers from arch/openrisc/kernel/setup.c with a few modifications.
 
+This implementation is based on similar work done for MIPS and LoongArch.
+
+Link: https://raw.githubusercontent.com/openrisc/doc/master/openrisc-arch-1.4-rev0.pdf
 Signed-off-by: Sahil Siddiq <sahilcdq0@gmail.com>
 ---
 Changes v5 -> v6:
 - Changed 'From' and signed-off-by email addresses.
-- cache.c:
-  (cache_loop): Make 'reg' unsigned short.
-  (cache_loop_page): Use __always_inline and make 'reg' unsigned short.
 
- arch/openrisc/include/asm/cacheflush.h | 17 ++++++++
- arch/openrisc/include/asm/cpuinfo.h    |  8 ++++
- arch/openrisc/kernel/dma.c             | 18 ++-------
- arch/openrisc/mm/cache.c               | 56 +++++++++++++++++++++-----
- arch/openrisc/mm/init.c                |  5 ++-
- 5 files changed, 79 insertions(+), 25 deletions(-)
+ arch/openrisc/kernel/Makefile    |   2 +-
+ arch/openrisc/kernel/cacheinfo.c | 104 +++++++++++++++++++++++++++++++
+ arch/openrisc/kernel/setup.c     |  44 +------------
+ 3 files changed, 108 insertions(+), 42 deletions(-)
+ create mode 100644 arch/openrisc/kernel/cacheinfo.c
 
-diff --git a/arch/openrisc/include/asm/cacheflush.h b/arch/openrisc/include/asm/cacheflush.h
-index 984c331ff5f4..0e60af486ec1 100644
---- a/arch/openrisc/include/asm/cacheflush.h
-+++ b/arch/openrisc/include/asm/cacheflush.h
-@@ -23,6 +23,9 @@
-  */
- extern void local_dcache_page_flush(struct page *page);
- extern void local_icache_page_inv(struct page *page);
-+extern void local_dcache_range_flush(unsigned long start, unsigned long end);
-+extern void local_dcache_range_inv(unsigned long start, unsigned long end);
-+extern void local_icache_range_inv(unsigned long start, unsigned long end);
+diff --git a/arch/openrisc/kernel/Makefile b/arch/openrisc/kernel/Makefile
+index 79129161f3e0..e4c7d9bdd598 100644
+--- a/arch/openrisc/kernel/Makefile
++++ b/arch/openrisc/kernel/Makefile
+@@ -7,7 +7,7 @@ extra-y	:= vmlinux.lds
  
- /*
-  * Data cache flushing always happen on the local cpu. Instruction cache
-@@ -38,6 +41,20 @@ extern void local_icache_page_inv(struct page *page);
- extern void smp_icache_page_inv(struct page *page);
- #endif /* CONFIG_SMP */
+ obj-y	:= head.o setup.o or32_ksyms.o process.o dma.o \
+ 	   traps.o time.o irq.o entry.o ptrace.o signal.o \
+-	   sys_call_table.o unwinder.o
++	   sys_call_table.o unwinder.o cacheinfo.o
  
+ obj-$(CONFIG_SMP)		+= smp.o sync-timer.o
+ obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
+diff --git a/arch/openrisc/kernel/cacheinfo.c b/arch/openrisc/kernel/cacheinfo.c
+new file mode 100644
+index 000000000000..61230545e4ff
+--- /dev/null
++++ b/arch/openrisc/kernel/cacheinfo.c
+@@ -0,0 +1,104 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
 +/*
-+ * Even if the actual block size is larger than L1_CACHE_BYTES, paddr
-+ * can be incremented by L1_CACHE_BYTES. When paddr is written to the
-+ * invalidate register, the entire cache line encompassing this address
-+ * is invalidated. Each subsequent reference to the same cache line will
-+ * not affect the invalidation process.
++ * OpenRISC cacheinfo support
++ *
++ * Based on work done for MIPS and LoongArch. All original copyrights
++ * apply as per the original source declaration.
++ *
++ * OpenRISC implementation:
++ * Copyright (C) 2025 Sahil Siddiq <sahilcdq@proton.me>
 + */
-+#define local_dcache_block_flush(addr) \
-+	local_dcache_range_flush(addr, addr + L1_CACHE_BYTES)
-+#define local_dcache_block_inv(addr) \
-+	local_dcache_range_inv(addr, addr + L1_CACHE_BYTES)
-+#define local_icache_block_inv(addr) \
-+	local_icache_range_inv(addr, addr + L1_CACHE_BYTES)
 +
- /*
-  * Synchronizes caches. Whenever a cpu writes executable code to memory, this
-  * should be called to make sure the processor sees the newly written code.
-diff --git a/arch/openrisc/include/asm/cpuinfo.h b/arch/openrisc/include/asm/cpuinfo.h
-index 82f5d4c06314..3cfc4cf0b019 100644
---- a/arch/openrisc/include/asm/cpuinfo.h
-+++ b/arch/openrisc/include/asm/cpuinfo.h
-@@ -15,6 +15,9 @@
- #ifndef __ASM_OPENRISC_CPUINFO_H
- #define __ASM_OPENRISC_CPUINFO_H
- 
++#include <linux/cacheinfo.h>
++#include <asm/cpuinfo.h>
 +#include <asm/spr.h>
 +#include <asm/spr_defs.h>
 +
- struct cache_desc {
- 	u32 size;
- 	u32 sets;
-@@ -34,4 +37,9 @@ struct cpuinfo_or1k {
- extern struct cpuinfo_or1k cpuinfo_or1k[NR_CPUS];
- extern void setup_cpuinfo(void);
- 
-+/*
-+ * Check if the cache component exists.
-+ */
-+extern bool cpu_cache_is_present(const unsigned int cache_type);
++static inline void ci_leaf_init(struct cacheinfo *this_leaf, enum cache_type type,
++				unsigned int level, struct cache_desc *cache, int cpu)
++{
++	this_leaf->type = type;
++	this_leaf->level = level;
++	this_leaf->coherency_line_size = cache->block_size;
++	this_leaf->number_of_sets = cache->sets;
++	this_leaf->ways_of_associativity = cache->ways;
++	this_leaf->size = cache->size;
++	cpumask_set_cpu(cpu, &this_leaf->shared_cpu_map);
++}
 +
- #endif /* __ASM_OPENRISC_CPUINFO_H */
-diff --git a/arch/openrisc/kernel/dma.c b/arch/openrisc/kernel/dma.c
-index b3edbb33b621..3a7b5baaa450 100644
---- a/arch/openrisc/kernel/dma.c
-+++ b/arch/openrisc/kernel/dma.c
-@@ -17,6 +17,7 @@
- #include <linux/pagewalk.h>
- 
- #include <asm/cpuinfo.h>
-+#include <asm/cacheflush.h>
- #include <asm/spr_defs.h>
- #include <asm/tlbflush.h>
- 
-@@ -24,9 +25,6 @@ static int
- page_set_nocache(pte_t *pte, unsigned long addr,
- 		 unsigned long next, struct mm_walk *walk)
- {
--	unsigned long cl;
--	struct cpuinfo_or1k *cpuinfo = &cpuinfo_or1k[smp_processor_id()];
--
- 	pte_val(*pte) |= _PAGE_CI;
- 
- 	/*
-@@ -36,8 +34,7 @@ page_set_nocache(pte_t *pte, unsigned long addr,
- 	flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
- 
- 	/* Flush page out of dcache */
--	for (cl = __pa(addr); cl < __pa(next); cl += cpuinfo->dcache_block_size)
--		mtspr(SPR_DCBFR, cl);
-+	local_dcache_range_flush(__pa(addr), __pa(next));
- 
- 	return 0;
- }
-@@ -98,21 +95,14 @@ void arch_dma_clear_uncached(void *cpu_addr, size_t size)
- void arch_sync_dma_for_device(phys_addr_t addr, size_t size,
- 		enum dma_data_direction dir)
- {
--	unsigned long cl;
--	struct cpuinfo_or1k *cpuinfo = &cpuinfo_or1k[smp_processor_id()];
--
- 	switch (dir) {
- 	case DMA_TO_DEVICE:
- 		/* Flush the dcache for the requested range */
--		for (cl = addr; cl < addr + size;
--		     cl += cpuinfo->dcache_block_size)
--			mtspr(SPR_DCBFR, cl);
-+		local_dcache_range_flush(addr, addr + size);
- 		break;
- 	case DMA_FROM_DEVICE:
- 		/* Invalidate the dcache for the requested range */
--		for (cl = addr; cl < addr + size;
--		     cl += cpuinfo->dcache_block_size)
--			mtspr(SPR_DCBIR, cl);
-+		local_dcache_range_inv(addr, addr + size);
- 		break;
- 	default:
- 		/*
-diff --git a/arch/openrisc/mm/cache.c b/arch/openrisc/mm/cache.c
-index eb43b73f3855..0f265b8e73ec 100644
---- a/arch/openrisc/mm/cache.c
-+++ b/arch/openrisc/mm/cache.c
-@@ -14,31 +14,70 @@
- #include <asm/spr_defs.h>
- #include <asm/cache.h>
- #include <asm/cacheflush.h>
-+#include <asm/cpuinfo.h>
- #include <asm/tlbflush.h>
- 
--static __always_inline void cache_loop(struct page *page, const unsigned int reg)
-+/*
-+ * Check if the cache component exists.
-+ */
-+bool cpu_cache_is_present(const unsigned int cache_type)
- {
--	unsigned long paddr = page_to_pfn(page) << PAGE_SHIFT;
--	unsigned long line = paddr & ~(L1_CACHE_BYTES - 1);
++int init_cache_level(unsigned int cpu)
++{
++	struct cpuinfo_or1k *cpuinfo = &cpuinfo_or1k[smp_processor_id()];
++	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
++	int leaves = 0, levels = 0;
 +	unsigned long upr = mfspr(SPR_UPR);
-+	unsigned long mask = SPR_UPR_UP | cache_type;
++	unsigned long iccfgr, dccfgr;
 +
-+	return !((upr & mask) ^ mask);
++	if (!(upr & SPR_UPR_UP)) {
++		printk(KERN_INFO
++		       "-- no UPR register... unable to detect configuration\n");
++		return -ENOENT;
++	}
++
++	if (cpu_cache_is_present(SPR_UPR_DCP)) {
++		dccfgr = mfspr(SPR_DCCFGR);
++		cpuinfo->dcache.ways = 1 << (dccfgr & SPR_DCCFGR_NCW);
++		cpuinfo->dcache.sets = 1 << ((dccfgr & SPR_DCCFGR_NCS) >> 3);
++		cpuinfo->dcache.block_size = 16 << ((dccfgr & SPR_DCCFGR_CBS) >> 7);
++		cpuinfo->dcache.size =
++		    cpuinfo->dcache.sets * cpuinfo->dcache.ways * cpuinfo->dcache.block_size;
++		leaves += 1;
++		printk(KERN_INFO
++		       "-- dcache: %d bytes total, %d bytes/line, %d set(s), %d way(s)\n",
++		       cpuinfo->dcache.size, cpuinfo->dcache.block_size,
++		       cpuinfo->dcache.sets, cpuinfo->dcache.ways);
++	} else
++		printk(KERN_INFO "-- dcache disabled\n");
++
++	if (cpu_cache_is_present(SPR_UPR_ICP)) {
++		iccfgr = mfspr(SPR_ICCFGR);
++		cpuinfo->icache.ways = 1 << (iccfgr & SPR_ICCFGR_NCW);
++		cpuinfo->icache.sets = 1 << ((iccfgr & SPR_ICCFGR_NCS) >> 3);
++		cpuinfo->icache.block_size = 16 << ((iccfgr & SPR_ICCFGR_CBS) >> 7);
++		cpuinfo->icache.size =
++		    cpuinfo->icache.sets * cpuinfo->icache.ways * cpuinfo->icache.block_size;
++		leaves += 1;
++		printk(KERN_INFO
++		       "-- icache: %d bytes total, %d bytes/line, %d set(s), %d way(s)\n",
++		       cpuinfo->icache.size, cpuinfo->icache.block_size,
++		       cpuinfo->icache.sets, cpuinfo->icache.ways);
++	} else
++		printk(KERN_INFO "-- icache disabled\n");
++
++	if (!leaves)
++		return -ENOENT;
++
++	levels = 1;
++
++	this_cpu_ci->num_leaves = leaves;
++	this_cpu_ci->num_levels = levels;
++
++	return 0;
 +}
 +
-+static __always_inline void cache_loop(unsigned long paddr, unsigned long end,
-+				       const unsigned short reg, const unsigned int cache_type)
++int populate_cache_leaves(unsigned int cpu)
 +{
-+	if (!cpu_cache_is_present(cache_type))
-+		return;
- 
--	while (line < paddr + PAGE_SIZE) {
--		mtspr(reg, line);
--		line += L1_CACHE_BYTES;
-+	while (paddr < end) {
-+		mtspr(reg, paddr);
-+		paddr += L1_CACHE_BYTES;
++	struct cpuinfo_or1k *cpuinfo = &cpuinfo_or1k[smp_processor_id()];
++	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
++	struct cacheinfo *this_leaf = this_cpu_ci->info_list;
++	int level = 1;
++
++	if (cpu_cache_is_present(SPR_UPR_DCP)) {
++		ci_leaf_init(this_leaf, CACHE_TYPE_DATA, level, &cpuinfo->dcache, cpu);
++		this_leaf->attributes = ((mfspr(SPR_DCCFGR) & SPR_DCCFGR_CWS) >> 8) ?
++					CACHE_WRITE_BACK : CACHE_WRITE_THROUGH;
++		this_leaf++;
++	}
++
++	if (cpu_cache_is_present(SPR_UPR_ICP))
++		ci_leaf_init(this_leaf, CACHE_TYPE_INST, level, &cpuinfo->icache, cpu);
++
++	this_cpu_ci->cpu_map_populated = true;
++
++	return 0;
++}
+diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
+index 66207cd7bb9e..a9fb9cc6779e 100644
+--- a/arch/openrisc/kernel/setup.c
++++ b/arch/openrisc/kernel/setup.c
+@@ -113,21 +113,6 @@ static void print_cpuinfo(void)
+ 		return;
  	}
- }
  
-+static __always_inline void cache_loop_page(struct page *page, const unsigned short reg,
-+					    const unsigned int cache_type)
-+{
-+	unsigned long paddr = page_to_pfn(page) << PAGE_SHIFT;
-+	unsigned long end = paddr + PAGE_SIZE;
-+
-+	paddr &= ~(L1_CACHE_BYTES - 1);
-+
-+	cache_loop(paddr, end, reg, cache_type);
-+}
-+
- void local_dcache_page_flush(struct page *page)
- {
--	cache_loop(page, SPR_DCBFR);
-+	cache_loop_page(page, SPR_DCBFR, SPR_UPR_DCP);
- }
- EXPORT_SYMBOL(local_dcache_page_flush);
- 
- void local_icache_page_inv(struct page *page)
- {
--	cache_loop(page, SPR_ICBIR);
-+	cache_loop_page(page, SPR_ICBIR, SPR_UPR_ICP);
- }
- EXPORT_SYMBOL(local_icache_page_inv);
- 
-+void local_dcache_range_flush(unsigned long start, unsigned long end)
-+{
-+	cache_loop(start, end, SPR_DCBFR, SPR_UPR_DCP);
-+}
-+
-+void local_dcache_range_inv(unsigned long start, unsigned long end)
-+{
-+	cache_loop(start, end, SPR_DCBIR, SPR_UPR_DCP);
-+}
-+
-+void local_icache_range_inv(unsigned long start, unsigned long end)
-+{
-+	cache_loop(start, end, SPR_ICBIR, SPR_UPR_ICP);
-+}
-+
- void update_cache(struct vm_area_struct *vma, unsigned long address,
- 	pte_t *pte)
- {
-@@ -58,4 +97,3 @@ void update_cache(struct vm_area_struct *vma, unsigned long address,
- 			sync_icache_dcache(folio_page(folio, nr));
- 	}
- }
+-	if (upr & SPR_UPR_DCP)
+-		printk(KERN_INFO
+-		       "-- dcache: %4d bytes total, %2d bytes/line, %d set(s), %d way(s)\n",
+-		       cpuinfo->dcache.size, cpuinfo->dcache.block_size,
+-		       cpuinfo->dcache.sets, cpuinfo->dcache.ways);
+-	else
+-		printk(KERN_INFO "-- dcache disabled\n");
+-	if (upr & SPR_UPR_ICP)
+-		printk(KERN_INFO
+-		       "-- icache: %4d bytes total, %2d bytes/line, %d set(s), %d way(s)\n",
+-		       cpuinfo->icache.size, cpuinfo->icache.block_size,
+-		       cpuinfo->icache.sets, cpuinfo->icache.ways);
+-	else
+-		printk(KERN_INFO "-- icache disabled\n");
 -
-diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
-index d0cb1a0126f9..46b8720db08e 100644
---- a/arch/openrisc/mm/init.c
-+++ b/arch/openrisc/mm/init.c
-@@ -35,6 +35,7 @@
- #include <asm/fixmap.h>
- #include <asm/tlbflush.h>
- #include <asm/sections.h>
-+#include <asm/cacheflush.h>
+ 	if (upr & SPR_UPR_DMP)
+ 		printk(KERN_INFO "-- dmmu: %4d entries, %lu way(s)\n",
+ 		       1 << ((mfspr(SPR_DMMUCFGR) & SPR_DMMUCFGR_NTS) >> 2),
+@@ -155,7 +140,6 @@ static void print_cpuinfo(void)
+ void __init setup_cpuinfo(void)
+ {
+ 	struct device_node *cpu;
+-	unsigned long iccfgr, dccfgr;
+ 	int cpu_id = smp_processor_id();
+ 	struct cpuinfo_or1k *cpuinfo = &cpuinfo_or1k[cpu_id];
  
- int mem_init_done;
+@@ -163,20 +147,6 @@ void __init setup_cpuinfo(void)
+ 	if (!cpu)
+ 		panic("Couldn't find CPU%d in device tree...\n", cpu_id);
  
-@@ -176,8 +177,8 @@ void __init paging_init(void)
- 	barrier();
+-	iccfgr = mfspr(SPR_ICCFGR);
+-	cpuinfo->icache.ways = 1 << (iccfgr & SPR_ICCFGR_NCW);
+-	cpuinfo->icache.sets = 1 << ((iccfgr & SPR_ICCFGR_NCS) >> 3);
+-	cpuinfo->icache.block_size = 16 << ((iccfgr & SPR_ICCFGR_CBS) >> 7);
+-	cpuinfo->icache.size =
+-	    cpuinfo->icache.sets * cpuinfo->icache.ways * cpuinfo->icache.block_size;
+-
+-	dccfgr = mfspr(SPR_DCCFGR);
+-	cpuinfo->dcache.ways = 1 << (dccfgr & SPR_DCCFGR_NCW);
+-	cpuinfo->dcache.sets = 1 << ((dccfgr & SPR_DCCFGR_NCS) >> 3);
+-	cpuinfo->dcache.block_size = 16 << ((dccfgr & SPR_DCCFGR_CBS) >> 7);
+-	cpuinfo->dcache.size =
+-	    cpuinfo->dcache.sets * cpuinfo->dcache.ways * cpuinfo->dcache.block_size;
+-
+ 	if (of_property_read_u32(cpu, "clock-frequency",
+ 				 &cpuinfo->clock_frequency)) {
+ 		printk(KERN_WARNING
+@@ -293,14 +263,14 @@ static int show_cpuinfo(struct seq_file *m, void *v)
+ 	unsigned int vr, cpucfgr;
+ 	unsigned int avr;
+ 	unsigned int version;
++#ifdef CONFIG_SMP
+ 	struct cpuinfo_or1k *cpuinfo = v;
++	seq_printf(m, "processor\t\t: %d\n", cpuinfo->coreid);
++#endif
  
- 	/* Invalidate instruction caches after code modification */
--	mtspr(SPR_ICBIR, 0x900);
--	mtspr(SPR_ICBIR, 0xa00);
-+	local_icache_block_inv(0x900);
-+	local_icache_block_inv(0xa00);
+ 	vr = mfspr(SPR_VR);
+ 	cpucfgr = mfspr(SPR_CPUCFGR);
  
- 	/* New TLB miss handlers and kernel page tables are in now place.
- 	 * Make sure that page flags get updated for all pages in TLB by
+-#ifdef CONFIG_SMP
+-	seq_printf(m, "processor\t\t: %d\n", cpuinfo->coreid);
+-#endif
+ 	if (vr & SPR_VR_UVRP) {
+ 		vr = mfspr(SPR_VR2);
+ 		version = vr & SPR_VR2_VER;
+@@ -319,14 +289,6 @@ static int show_cpuinfo(struct seq_file *m, void *v)
+ 		seq_printf(m, "revision\t\t: %d\n", vr & SPR_VR_REV);
+ 	}
+ 	seq_printf(m, "frequency\t\t: %ld\n", loops_per_jiffy * HZ);
+-	seq_printf(m, "dcache size\t\t: %d bytes\n", cpuinfo->dcache.size);
+-	seq_printf(m, "dcache block size\t: %d bytes\n",
+-		   cpuinfo->dcache.block_size);
+-	seq_printf(m, "dcache ways\t\t: %d\n", cpuinfo->dcache.ways);
+-	seq_printf(m, "icache size\t\t: %d bytes\n", cpuinfo->icache.size);
+-	seq_printf(m, "icache block size\t: %d bytes\n",
+-		   cpuinfo->icache.block_size);
+-	seq_printf(m, "icache ways\t\t: %d\n", cpuinfo->icache.ways);
+ 	seq_printf(m, "immu\t\t\t: %d entries, %lu ways\n",
+ 		   1 << ((mfspr(SPR_DMMUCFGR) & SPR_DMMUCFGR_NTS) >> 2),
+ 		   1 + (mfspr(SPR_DMMUCFGR) & SPR_DMMUCFGR_NTW));
 -- 
 2.48.1
 
