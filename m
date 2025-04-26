@@ -1,121 +1,107 @@
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
+Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 550D91ABEA5;
-	Sat, 26 Apr 2025 08:50:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99330A94A;
+	Sat, 26 Apr 2025 13:58:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745657449; cv=none; b=Ysd3NStydxmGdeSIX5xWZTp0bsBfbZPSLW2T8G6/z1kxm/c3RhqQR223B4xNcaZl/FOVJrua2Bfwn5+F2srVhHG3nw4ti8u9u5Fw8K8atLZZ+dUJVRJf/3Dr3meZFP3lyjHoAdMapZGGlHqNFOumqKdk0R2FgGmnpIiavP7KtTs=
+	t=1745675921; cv=none; b=SxCmyuiFc6zgQWt9Ykv+zkR0nENSGlnOj2ps0c2F1lHIim5rVGkSIDBHS2tW/lEJw5Phkre8hI4q/H6o1kpf5BCT4VEulCVHrLMfBCp1huLgEz1u09ojeZlF6h8I5+RJ8zTEg75Pnzo89AWrZu/9eYjd2VHtbM4a3y5V6OMu17Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745657449; c=relaxed/simple;
-	bh=vOC+XArWTnrUyRqnOa0YSxgxbCDfn7LGUYWPMoGQ3xA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ex1iQlXCT7dV/7F8gU9E4elnrIYecb/bNciC9UxeM8OdgD1BrJ5rk/lNPpKUtccB3HsgpgBDvIog4IZrPUyFR9v5bXtQyBxym2h9WccxCGSNPMPGXyK+rJU4ZTy8Mm1J1toT+B9BfrfcEcitV9k7CJ5CfnPj9YSPqPWYxdOpEHs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nEqWeTt9; arc=none smtp.client-ip=209.85.128.41
+	s=arc-20240116; t=1745675921; c=relaxed/simple;
+	bh=jcJH2uY7xwisDKTpoXiSdFpRmVUr1IsGNewM+lcU89g=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=hgfxCl9z8X+23lWJxM3eAKbAUnDF/krdv1/Y474nxUX3TWqIlrV8ZAdQP7+d9Nen+ctXsgwfX2XDeCorwPaj+ZqAV9wJAuKKtM4Nf/nZ5nMekUoKeAxMgWfc6gQIAMiRxgCHKlEyMm6VBLQ1wK1eetNnYOZGW101s54GAIDfK5w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WcDOe0D9; arc=none smtp.client-ip=209.85.215.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nEqWeTt9"
-Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-43cf3192f3bso27979175e9.1;
-        Sat, 26 Apr 2025 01:50:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WcDOe0D9"
+Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-af5085f7861so2420290a12.3;
+        Sat, 26 Apr 2025 06:58:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1745657445; x=1746262245; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=u++CHq19depwRXmivfgeucz9xTKpXmOjbCOWLfIjFrw=;
-        b=nEqWeTt9B3OZYjGtGITv+eRHwJIWc2Qy0+hjTAisXq6LXVSWVJgBeC9YMXnacBapJg
-         BTqi5A9a49CRMMvTfSUjtghhQVKxPNgYdOnu1yM7mBZnG6ESY1wtGka6DGWeV95Yuz+d
-         uxbXRLILzmRx31RrNkzRj736IQUHCA70fqvd29vEb9ZznoeCyLY4IKhgTxQ+U6mPA2+e
-         hAu/wSXYGXXQQd6a/JSaZ5ugppZrPHfoPPyLvX53sj16EBIu4Atc4oF7Z7wfJVHrFYD+
-         aqWCGzz/NVKu6pa9p8BkBnUcJTRjO02sfbsUxONegSU0UXCARnPt5SXUJHm8Os2hfarG
-         5prQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745657445; x=1746262245;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1745675919; x=1746280719; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=u++CHq19depwRXmivfgeucz9xTKpXmOjbCOWLfIjFrw=;
-        b=eHhzzbpqRmRXUH/gtB1FF1f0sFdiesxxqkG3n5xvDg+xb831/3Knrxz8kmG4fxWFFp
-         47CmYaigjX7Ud1gqp47oOVqmFtZvF3OuHfSZzpyouyAcRGx/LtNHYcobECzEjB0VY0rH
-         Rf4Uu4NgqqV0EPGUd8WOgyDMzqdwKT9zNdt3d9TLKvJCONaVQzZebOPaFVw9ne3DiQP0
-         MxvlJGtvbM2s7X7+HD6VHQcW87fvyEhxwMkmk/XvWua9qgH45fT4dA1TM+tXKyIDTm4x
-         G0O45/zUXiC/YZrFSw+qKmIl0k3a29sWW+60+mml+k/65ffWt3QTCTl0cw1sADB5FHmz
-         VYAw==
-X-Forwarded-Encrypted: i=1; AJvYcCUnaoq+PIltRtKD5K7Ydh9N5SwrpyTbzXkeJW1QOj1ty2RwWmNUrhWwMneGmss5YZ9WAIh44mvXuFw=@vger.kernel.org, AJvYcCVoL/jCfTq2O/ggESbi2bNDNhxk0dMZkepNKlQeVqayVsOFsw4jbMZcarHYWPHEwguOYu9kDpUmW6tcwliVJOg=@vger.kernel.org, AJvYcCWOhIl86SJf3Z5ZoDGCqYQA6BntMDVRzMeAtcXxh0XI/ak3ZHsNA8p5AnAz45deAVNrRxnxz9KrEcqMBfAN@vger.kernel.org
-X-Gm-Message-State: AOJu0YzdGu1c/IKsKtmH/Q22mFOZq5a0o/XkaW1kE7tVocaAUgy/HbU4
-	/KKURbI7DYS+Y4QdX65nx79eHY0T4FXFZ/ZRn3Odhbd9rJrezJKiSX5/yQ==
-X-Gm-Gg: ASbGnct/DAumDq3qyuBpgxj7nPUcvBtSyED0tUv8ATlvTm4USQar0b2jFP6fteUxZtn
-	8Bou6po+8fo5zjMrAAMWw8kN3mxhcfv+trAZibQ0erzDJuUHBOSjbWgYeF4XDfpfbSD1DgAB8q/
-	grFdLgS4kdHRGkmVLAg1LQ+5uApd/WFJu/JN2XZoZj1/pi3h8yiVFC3T0r75fihzkreVMNczyhG
-	U6TGiOxMyu6XllkLDrXiQh9KCSnsHkRKHCYI7da0h31pjPpx4wZckKOKx9YOkfOLbvt+ZRyjdzE
-	eCOUgJXtzRtHwXcTI4cTxzRPyq1BUPyBDNOUPJVGJJv1rD/22GrCZ5j4d/jSlyyDLYsDpRX7lDM
-	3otn+tVvJh41SS0Y=
-X-Google-Smtp-Source: AGHT+IGZ2JKoAMAnk3e/zD6qAb4IjMbF8OfH0tbLCxS6bSA2+zmwJ6Akf6HD9MCHePtBzvsH/W9qwg==
-X-Received: by 2002:a05:600c:a345:b0:43d:82c:2b23 with SMTP id 5b1f17b1804b1-440a66985e6mr40692515e9.23.1745657445195;
-        Sat, 26 Apr 2025 01:50:45 -0700 (PDT)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4409d29ba29sm85440365e9.7.2025.04.26.01.50.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 26 Apr 2025 01:50:44 -0700 (PDT)
-Date: Sat, 26 Apr 2025 09:50:43 +0100
-From: Stafford Horne <shorne@gmail.com>
-To: Ann Yun <by.ann.yun@gmail.com>
-Cc: jonas@southpole.se, stefan.kristiansson@saunalahti.fi, corbet@lwn.net,
-	linux-openrisc@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Documentation:openrisc: Add build instructions with
- initramfs
-Message-ID: <aAyeY-cFSDuLYnJZ@antec>
-References: <20250425201018.12756-1-by.ann.yun@gmail.com>
+        bh=hiGdo2FHJd8De8ADEidT5DPemaaP0nnmMXhnvOOqxuo=;
+        b=WcDOe0D9pcNnF5RHMh8yMK/5JYaPsUYCYcIaAqjh4xabQsN54pkhBs8fBtqo+SPixp
+         mynrk7ZPS3JjOCo4yjX27mpqpANQxKluI4ygrJFOtFzbx8qFhGOrRAayqVK9pLareuMn
+         YS706urO764gTyz2JmGtXxcNEi9dREnqANCD0061PQHgOG8Lszs5JuVvV0q78vc5OR5N
+         MafxtGJSClxuhm/7vFmj3s76tAZnuZegi7WCvT5rvU6+5xwt3acHar6Tw1SzLJ3d50hj
+         qvR7Ifs+Yc7NH148cutMq9EjMexVIKjgs9F8VWLkcZmWKac5uFSqLECsyAcbSzhf9jTP
+         UmPg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1745675919; x=1746280719;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=hiGdo2FHJd8De8ADEidT5DPemaaP0nnmMXhnvOOqxuo=;
+        b=WSJ+K/DNkSu1OEZaPU/Cq/bOz3+N4VGk7/MAJ/JSo+37L+r3iq7gT+EHd/kmx+xQuB
+         6X+gY2V99ascUVkyc2LTrVbQe8coK51d//3u7Rtl6LXf2CNSabiqqzSCwBjB8PA4YiEX
+         1D/jjBcL4L2qxj7Fx/hfLPVnqNSN9zXYy3F549+N8d1znygbTaXqs+AT0iKfleWGJRVP
+         imrNQFp0ZOrcvPuDFHhKPOy7KpimY5OcDYnoau7nAPhZ2tTk6rzsWn8eOzNjsGVQ7dbe
+         qZk8duhUVxxcn/kA/9Ppfu7SkNFuNpQjrf2Absurozw7PYjnWVI6pN9YZnRh2feJnWyw
+         Uutw==
+X-Forwarded-Encrypted: i=1; AJvYcCUmUcek5onOZVZ6LPzihZNOYUdgd6v4rJjwWXw0tcRqtXxhttKiARbMtkAjgBDtkFgA/t04Hdm8/3TtM8T/518=@vger.kernel.org, AJvYcCV6kr448q/aqkJ6dFWG7GE8Rt3Mw/rwumBuPNvv2/ygDBkEwiifNFoPr82oicHVaImiu/kg3TVvgBDe9VPJ@vger.kernel.org, AJvYcCXf8s2LxdswYW1CYXajtWG8UQeAvLW/5vvhGJWglTfSx0raVHzQgqWlH8p3Gjq2FTUuqSP8UMwwU3A=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwMICi+Z5ZFYY9zzzDv7wUDgFYyY4bpXtq6N4lintm5GFV4rBIT
+	u/o1o6UbDyVBsX0Uyfnr3wtH51Zit2rkMW7OFaj8o+dMiB6cgKa6VddeWpChdF8MTVm73EJzfYl
+	SN9yBleljOMkWHneUXyGVML3KfKUxEXpttqE=
+X-Gm-Gg: ASbGncuRo9vSg/C7X4In5+at2Q/FhnFBWe/DE/gPHJ2v7ayqb7z4B9Vfm1sUq7+jISJ
+	aoHMHuuGtNCwqERFc6xXlgIpINW9NowfvRff8+/cCXMQlk0FRgj9JUfo+8yy875Unz4gzcpxdXz
+	MkWvKWqbFN1H1NDZsRRw+ciA==
+X-Google-Smtp-Source: AGHT+IHQRfyQdCrnuIRknDKukO/4PUTw6x1XqIRIJ3y1/jSIKnziD8NYCuXTLTCYgrjJm9l1uKOVnAOp5Cj+UcTxHZM=
+X-Received: by 2002:a17:90b:47:b0:2ff:58a4:9db3 with SMTP id
+ 98e67ed59e1d1-30a013c3fdfmr4966449a91.35.1745675918898; Sat, 26 Apr 2025
+ 06:58:38 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250425201018.12756-1-by.ann.yun@gmail.com>
+References: <20250425201018.12756-1-by.ann.yun@gmail.com> <aAyeY-cFSDuLYnJZ@antec>
+In-Reply-To: <aAyeY-cFSDuLYnJZ@antec>
+From: Ann Yun <by.ann.yun@gmail.com>
+Date: Sat, 26 Apr 2025 09:58:28 -0400
+X-Gm-Features: ATxdqUEsSIOWUKOM40YB5o8sO36FbTC11EnJNuwZDiW3l41_jTXfMS9YN9U9EaY
+Message-ID: <CAB60mtNRLstmV7c97=tUnW9GhMkn809eKHcGnA4x1iGcpGjYLQ@mail.gmail.com>
+Subject: Re: [PATCH] Documentation:openrisc: Add build instructions with initramfs
+To: Stafford Horne <shorne@gmail.com>
+Cc: jonas@southpole.se, stefan.kristiansson@saunalahti.fi, corbet@lwn.net, 
+	linux-openrisc@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Apr 25, 2025 at 04:10:18PM -0400, Ann Yun wrote:
-> Mention how to include initramfs when building the kernel
-> 
-> Signed-off-by: Ann Yun <by.ann.yun@gmail.com>
-> ---
->  Documentation/arch/openrisc/openrisc_port.rst | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/Documentation/arch/openrisc/openrisc_port.rst b/Documentation/arch/openrisc/openrisc_port.rst
-> index a8f307a3b499..4ab28879d7ed 100644
-> --- a/Documentation/arch/openrisc/openrisc_port.rst
-> +++ b/Documentation/arch/openrisc/openrisc_port.rst
-> @@ -40,6 +40,10 @@ Build the Linux kernel as usual::
->  	make ARCH=openrisc CROSS_COMPILE="or1k-linux-" defconfig
->  	make ARCH=openrisc CROSS_COMPILE="or1k-linux-"
->  
-> +If you want to embed initramfs in the kernel, also pass ``CONFIG_INITRAMFS_SOURCE``. For example::
-> +
-> +	make ARCH=openrisc CROSS_COMPILE="or1k-linux-" CONFIG_INITRAMFS_SOURCE="path/to/rootfs path/to/devnodes"
-> +
+Hi Stafford,
 
-I think this is good, but maybe we can mention to refer to Documentation/filesystems/ramfs-rootfs-initramfs.rst
-for more details on this?
+I am sending my same reply to the whole group again, because I
+previously did not do "Reply All".
 
-Also, it may be helpful to mention we can get pre-built busybox rootfs images
-here:
+On Sat, Apr 26, 2025 at 4:50=E2=80=AFAM Stafford Horne <shorne@gmail.com> w=
+rote:
+>
+> I think this is good, but maybe we can mention to refer to Documentation/=
+filesystems/ramfs-rootfs-initramfs.rst
+> for more details on this?
 
-  https://github.com/stffrdhrn/or1k-rootfs-build/releases
+Thanks for pointing that out. That is an excellent idea, I will add that.
 
-But if we do that then it would be better to show how to use thos rootfs images,
-which maybe something better we have in our openrisc/tutorials[0].
+> Also, it may be helpful to mention we can get pre-built busybox rootfs im=
+ages
+> here:
+>
+>   https://github.com/stffrdhrn/or1k-rootfs-build/releases
+>
+> But if we do that then it would be better to show how to use thos rootfs =
+images,
+> which maybe something better we have in our openrisc/tutorials[0].
+>
+> -Stafford
+>
+> [0] https://github.com/openrisc/tutorials
 
--Stafford
+Exactly! I was working on a QEMU tutorial inside openrisc/tutorials
+and that prompted me to add that one line here.
 
-[0] https://github.com/openrisc/tutorials
-
->  3) Running on FPGA (optional)
->  
->  The OpenRISC community typically uses FuseSoC to manage building and programming
-> -- 
-> 2.37.2
-> 
+Ann
