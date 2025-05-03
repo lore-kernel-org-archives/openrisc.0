@@ -1,110 +1,106 @@
-Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB2D523AD;
-	Sun, 27 Apr 2025 00:08:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4FFB1A704B;
+	Sat,  3 May 2025 16:01:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745712485; cv=none; b=EKXwIO+CKAVUDriUry4ncr55EVET8vJUhuXePMd9DTKZeg8CfHBLeT2IxIlCEuWMOUbhkrnDrWLLqBynao+BquGARDBYeMHDHRpsabFYCw8x/EkOUBR6hpu3Oy8Drt7IxRrH6JrvuM5uLyU2kD0LDHmjN8JkUInXxpKeEuueEIA=
+	t=1746288104; cv=none; b=CRZHnLN9/6uJOyWyhQC4otoYVub9hhHj9vvkykEVc3eAvM+Q048xYgl2I5huXr++sqEUCasBwdoVjPsX0X08iKvXT0SbcvoSoClBY9mZz+NmnSsG5h+yl1oONGYHZvFLv9ERiH2Sq2FkkdGXD/0105S8bK5Vkr17C7VRTX1udBQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745712485; c=relaxed/simple;
-	bh=wjfCCLlYwZmCYTqqiEjtNJ6/c6Tb+wztP3xDkbSqKdw=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=TXQ5fNpdU7gTQr73Le04HkI55yB60Tmov/y+39Fb2cRJd0Y5WXuWHko8I0HOXvwjHTGPmqaa814bWKC98gT4lglb/m3cdnqTzZSBuCS4eeByEiDCW0bB0yrXpw9AvnBPNfzRoxUWI+8oihVo5qoULgI90WO+EzwarHC/rFRBw9k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aetFolDD; arc=none smtp.client-ip=209.85.160.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1746288104; c=relaxed/simple;
+	bh=T3xhUt0kg/A3i3GrfehzEXjZkOb3WIjWQfFzVpGNbJY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=gJI+UxKkOPm3JC/yeq1CXGHLibsNvfZL37VhkKQ0BS9+yisnjpzzBe8yY3JF2kH89pgzcD68bSiXj0yujoW/1dbi4LLU93YT1DOgXU35z9OBXRANP8nIDN2HAEe8YS6BH5DJuIK9Z/JEcX0uVW4rnW+Z4UWLP3QWhQdGwjslkZM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UEk5bTkT; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aetFolDD"
-Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-476ae781d21so41496201cf.3;
-        Sat, 26 Apr 2025 17:08:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1745712483; x=1746317283; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=RCT/HRgqINzLY7CNRmoeSWmRK0EmClZ132m+Jd5dekw=;
-        b=aetFolDDcFDNAiJwkUZQqxIloKVF0KnKh9PZ7g7703AQSkbvy4jc+fii57eQpOMKGL
-         nGmxTuRrH80KyMO1ItiXmKSLV0/eH+O6Tf0f072LHt8FmrRx4MHRK3gNTIciKYcNEGeE
-         P6q22FTkeQBSwdSDb0Rmkj/qyZJQQQmrRVX10LEAuGGy/jidKXJUhJtAb3Kfo1r9p3dI
-         1gA1+O+I+kUGcv5svYgybduswTFazni+ui+viZL9HyYyoQ1tIZGSpKhUW0yvVBzxvw8k
-         O40/sIqvkjUl2LKW64DE2Wj74syBWevKcH666h+376p2Nw/yjdHGDD1qk9bW6V8egzY8
-         gqqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745712483; x=1746317283;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=RCT/HRgqINzLY7CNRmoeSWmRK0EmClZ132m+Jd5dekw=;
-        b=Q6VwWbv7UyYAbl6wCnhtweuy3LmoroH2ayM5LhKaDK9FeJfwG6bFki+aD59nboD37q
-         5vptBUGKq4WtNqV+WjeCwjoNrOcwsr+z/oRan0hLvqguOeTY6+KO1RpeZWfu0zj5hsiW
-         JIsTVEOCc05Kv9fJjrIcYLCtlPwRAANAPhC/IU4ALo+ngu5H74Vyt3CB5HIOVfe66HkK
-         /uh2aVs1RbwrmVknLFfZI0v9zeUodRfJW6aM9ycoC1Pz/SevLWH8x9Jbw/0Amvv/MI5n
-         GODfhLeFeEyhSyREpzV5xdlUDf13fT+ss0e9NUXagWR1cBjt/FTPto9MPkitMyCmp0y2
-         yKVQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUYve9UnsL0q4nY2vhsGNSoEQs3sEYVSFWaWfvGzveyZrsXQvWhwx2VU68J9VCjWO+7OTIluIXoz2lTKpvF@vger.kernel.org, AJvYcCV7rErHIsVTzb1dvtSzXSDB8ZPFdD1I6SYIZCKWgqrFyh0z6OMimpCEYgvtclTXTXaZzA6Tt9S1oEm5WRzbAi4=@vger.kernel.org, AJvYcCVyg7MtqnNxGZLD68kQ8TuXD+hKIta57yfG7YWFb1bnIXL5NN3XWf/+Dd4+iM+KdqNZuPNM2C6RhrQ=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxE8mF2hx1CfaHUEwcthV3Ugsy5LiFBeM3sSg79W0IWtJ4ZBOjf
-	Iy5FDKwUclzXZwZ8uVfLFXJvfXrsaIau3kboDElgH6XylMemtC6+SPCiNJiD
-X-Gm-Gg: ASbGncsF3SPnlhxdVqJQ0Bv6WmCyYS/yrv8nrw8VlY4gGM+LyR0757v61SRNBrJz9QB
-	zXsEbRudOyfvc4QvJsizm0t0wGTyaEWL0GELAUvQqYQn91QQf07L5OSj2xWcNHtT5WCaneWAnKk
-	hVPHEiOe2psg5nOgO4hbSfTBkWhiTxHwcr26vUhuLPiPyis+6B/xNLL3InrTT+x6fl6S1BAF2Hk
-	sEbDTa5B3k71QvT3PfYFDa32Jc6Hr07RerpzU90O1J0zZM8CqW6cYmYoC3T+bPxF3FmcDtXNMy4
-	arK2jQNTdMmK5siBt3w/7YPJRV6PZndb4Z+7CxVd46ettkqKaWix8gaYAG1dF4cE
-X-Google-Smtp-Source: AGHT+IGJRjTpMxSkNOT4b/hu4ZKYONDwvEUcE81889nOKyIcHfYOkBgTJk5UAGkzu0u6JlnnrSv6cw==
-X-Received: by 2002:ad4:5f0b:0:b0:6e4:3ddc:5d33 with SMTP id 6a1803df08f44-6f4d1efe8abmr89438496d6.13.1745712482754;
-        Sat, 26 Apr 2025 17:08:02 -0700 (PDT)
-Received: from localhost.localdomain ([142.113.95.30])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6f4c0ad455asm39529296d6.122.2025.04.26.17.08.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 26 Apr 2025 17:08:02 -0700 (PDT)
-From: Ann Yun <by.ann.yun@gmail.com>
-To: jonas@southpole.se,
-	stefan.kristiansson@saunalahti.fi,
-	shorne@gmail.com
-Cc: corbet@lwn.net,
-	linux-openrisc@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Ann Yun <by.ann.yun@gmail.com>
-Subject: [PATCH v3] Documentation:openrisc: Add build instructions with initramfs
-Date: Sat, 26 Apr 2025 20:07:26 -0400
-Message-Id: <20250427000726.17015-1-by.ann.yun@gmail.com>
-X-Mailer: git-send-email 2.37.2
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UEk5bTkT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22B1EC4AF0B;
+	Sat,  3 May 2025 16:01:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1746288104;
+	bh=T3xhUt0kg/A3i3GrfehzEXjZkOb3WIjWQfFzVpGNbJY=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=UEk5bTkTn+Y0ZmB62xIHEGGKmsjExMw0cGKB4xehquY32KIGuw9H0xVJmSffP+pSK
+	 OcGMchWg0ORDIhSaGeg2SIk8+9n5dfmSpaUido0qp3fKGkG102pAX1dMeAeYnsElKL
+	 PUH33MwLkNG3vHwu9LiY11Bwr9pO19mXXpaWyRYLLCnS9x7Cg7JhWJfJBnUFNj5PDp
+	 J9zJTlcQoJ8FtvcHl4g9GT8rsM9gVOwRfqbEaZ65We4U8nDmxpl7SbR89tdpGKRJr/
+	 DD/H9Z35eGcy7JPLwlu0FCmEP8W/uo+y939Obf5smli7z8+XB0A5TJqmOk0deVIUAL
+	 LGGXiu9ngw44g==
+Received: by mail-lj1-f179.google.com with SMTP id 38308e7fff4ca-30db1bc464dso26531951fa.0;
+        Sat, 03 May 2025 09:01:44 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCUe5JFk8yQ8uT/YOZ0yq3ek7GpwZ6Wd56E2xbHlNMpYp0d+W/GMAWRM8UIVkM8XRlXMP1v5Jtmjhiq54IY=@vger.kernel.org, AJvYcCXQBVUDXAT5446QvmwiAeXozaINsRFqpz4XsiCOejqh91wIudYHEQv2ya0nCQV3Eg5Yspqw65MRbLsATcuywkM=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyq0bPIAYHWdshAXs61rHEy1QDYk/8DT18lef4Iw8SYwpNJk3j3
+	Md2iIbuXx+FQlM1/LNSF/De/twacA//EDFM2Qsm3pgwAUsaNCOXSit+5/zF8sEmlAaVRDl45aom
+	tklo5sEgcGvbQXQvCf/Eelq1VErg=
+X-Google-Smtp-Source: AGHT+IE1k2njXlrJVwx5wy0BaMqq8VrYSRX6eObRLAgRA0UXd8FU1sIFugB+B0oEBM4JwiTmry+C9yKYFVlh2fsn1qk=
+X-Received: by 2002:a05:651c:19a5:b0:30b:efa3:b105 with SMTP id
+ 38308e7fff4ca-321db694cdamr9994841fa.19.1746288102837; Sat, 03 May 2025
+ 09:01:42 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250426030815.1310875-1-rdunlap@infradead.org>
+In-Reply-To: <20250426030815.1310875-1-rdunlap@infradead.org>
+From: Masahiro Yamada <masahiroy@kernel.org>
+Date: Sun, 4 May 2025 01:01:06 +0900
+X-Gmail-Original-Message-ID: <CAK7LNASww7Zyeg7G0R9US-_MWtFmBF-P5JiwZkgGBBrfoivi5A@mail.gmail.com>
+X-Gm-Features: ATxdqUFVz1PuN6NjNtYZqjGYBrlw_r1_IMNCejsbhZmx44ZvOo_z9HHNtUCST4I
+Message-ID: <CAK7LNASww7Zyeg7G0R9US-_MWtFmBF-P5JiwZkgGBBrfoivi5A@mail.gmail.com>
+Subject: Re: [PATCH] usr/include: openrisc: don't HDRTEST bpf_perf_event.h
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: linux-kernel@vger.kernel.org, Jonas Bonn <jonas@southpole.se>, 
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, 
+	linux-openrisc@vger.kernel.org, linux-kbuild@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Mention how to include initramfs when building the kernel and
-direct the reader to ramfs-rootfs-initramfs.rst documentation for more
-details
+On Sat, Apr 26, 2025 at 12:08=E2=80=AFPM Randy Dunlap <rdunlap@infradead.or=
+g> wrote:
+>
+> Since openrisc does not support PERF_EVENTS, omit the HDRTEST of
+> bpf_perf_event.h for arch/openrisc/.
+>
+> Fixes a build error:
+> usr/include/linux/bpf_perf_event.h:14:28: error: field 'regs' has incompl=
+ete type
 
-Signed-off-by: Ann Yun <by.ann.yun@gmail.com>
----
-V2 -> V3: Fix the styling error (trailing whitespace)
-V1 -> V2: Mention Documentation/filesystems/ramfs-rootfs-initramfs.rst
 
- Documentation/arch/openrisc/openrisc_port.rst | 6 ++++++
- 1 file changed, 6 insertions(+)
 
-diff --git a/Documentation/arch/openrisc/openrisc_port.rst b/Documentation/arch/openrisc/openrisc_port.rst
-index a8f307a3b499..60b0a9e51d70 100644
---- a/Documentation/arch/openrisc/openrisc_port.rst
-+++ b/Documentation/arch/openrisc/openrisc_port.rst
-@@ -40,6 +40,12 @@ Build the Linux kernel as usual::
- 	make ARCH=openrisc CROSS_COMPILE="or1k-linux-" defconfig
- 	make ARCH=openrisc CROSS_COMPILE="or1k-linux-"
- 
-+If you want to embed initramfs in the kernel, also pass ``CONFIG_INITRAMFS_SOURCE``. For example::
-+
-+	make ARCH=openrisc CROSS_COMPILE="or1k-linux-" CONFIG_INITRAMFS_SOURCE="path/to/rootfs path/to/devnodes"
-+
-+For more information on this, please check Documentation/filesystems/ramfs-rootfs-initramfs.rst.
-+
- 3) Running on FPGA (optional)
- 
- The OpenRISC community typically uses FuseSoC to manage building and programming
--- 
-2.37.2
+Where can I get openrisc compiler that enables CONFIG_CC_CAN_LINK?
 
+
+
+
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> Cc: Masahiro Yamada <masahiroy@kernel.org>
+> Cc: Jonas Bonn <jonas@southpole.se>
+> Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+> Cc: Stafford Horne <shorne@gmail.com>
+> Cc: linux-openrisc@vger.kernel.org
+> Cc: linux-kbuild@vger.kernel.org
+> ---
+>  usr/include/Makefile |    4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> --- linux-next-20250424.orig/usr/include/Makefile
+> +++ linux-next-20250424/usr/include/Makefile
+> @@ -59,6 +59,10 @@ ifeq ($(SRCARCH),arc)
+>  no-header-test +=3D linux/bpf_perf_event.h
+>  endif
+>
+> +ifeq ($(SRCARCH),openrisc)
+> +no-header-test +=3D linux/bpf_perf_event.h
+> +endif
+> +
+>  ifeq ($(SRCARCH),powerpc)
+>  no-header-test +=3D linux/bpf_perf_event.h
+>  endif
+
+
+
+--=20
+Best Regards
+Masahiro Yamada
