@@ -1,113 +1,92 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03DEF1DE2DF;
-	Mon, 19 May 2025 17:20:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B35C1E5702
+	for <linux-openrisc@vger.kernel.org>; Tue, 20 May 2025 07:39:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747675209; cv=none; b=nzmdV7pdP3ZqRQcDjNmd+hDZ+c0HQu+Up+tVHBWPoO+LiuRJa8SiZWy65vZdNOQpA/iK0XVIPMbbt5zybdhNoHiHI/cNqmAHE2L0X10m6O27s6EwmX92eOfOyZ1XaRo2oE8IIvGXgBXOxFrgOBXu6dUEFFbRnIEa6XQQd/i9CjQ=
+	t=1747726749; cv=none; b=gdrF6ldyO1sHLN9GJNzwLKH4HTAqikL9r1YZORGdBYbJzxFJXc1kaN+7f9lgsN/Ol/s7RrfOCXG42g2vLnoU/KA300yY4dB9fuB4QYb8tWOTHAnBeM+GBFXls152ADNJV5FsrsrYKlFHLSaLygmVPN8aUgndrTeDGKa85Ty0hgE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747675209; c=relaxed/simple;
-	bh=/qDPGAJe6QWZQRFh5mkIaN3rUECBPrvhVDophOu0STQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kDsIzr/h8OwM3S8fzRfwd/auHPBxqnubkI86JW5C5n+qO8fxXY5mlWvOtqDpvlRZDXRuruys3PudRSuSyVdMzsxV2dbG8SV+IMsIBBXrXa9mUJS9Pc9iw0+26i0+8KWprzLHPZ+w8UYWg7E2isrgyp0sG13GsICfwfaIIe7W2fI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nv6a6o/9; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1747726749; c=relaxed/simple;
+	bh=v/Uj6nwrQaij9kcOBMimmKpNeHhBXlq3xaqchHGWz+o=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=ImIprypYIyUczIPHV7st4ZfX59jTP7VB94q/8Vn4WWv9kieMERAFpTHiDzdgdzBextzyk4bIks1j4GC4a1vT/ZA+H9HrlRhzX0LLpQ9E88vUSMuU1DROBs7xOGlA5RwYuil0X/75gTZodofKGRzd4soKDW9q5QuCTXvh4AY+7gA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dofsQfub; arc=none smtp.client-ip=209.85.218.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nv6a6o/9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0486C4CEE4;
-	Mon, 19 May 2025 17:19:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1747675208;
-	bh=/qDPGAJe6QWZQRFh5mkIaN3rUECBPrvhVDophOu0STQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=nv6a6o/9GXqFce+WdqziKMZrgOnXd14Xk3g4S1nNlUHZltfdV2rEB9RDQCOmCeSgK
-	 ebQsjcpfmgR6sWVWBw5dta/I6m1xLYkae6rTJ4OSb859vEywgddyloj50eaFEjRTPe
-	 8FJ2qDU6rfYPGiDk1ORLqVzTGk/lQ8qlSrYclPnaRHuqKyuUafe4DFZ6lMgRdY6Wt1
-	 dRptEgZtQ8qGZDrQUwGD8JbkbioWwAY9aSpa8iIJWxNVsecoqluy1Xci9uIALX28U6
-	 ObnLi7IgFlid4DAXOMe7kw3cQbAB55J7ruXkv/fKErQRWuv0MXWPHfuo3pZS732DBZ
-	 yyZPReh2t/BVw==
-Date: Mon, 19 May 2025 20:19:48 +0300
-From: Mike Rapoport <rppt@kernel.org>
-To: Alexandre Ghiti <alex@ghiti.fr>
-Cc: Pratyush Yadav <ptyadav@amazon.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
-	Brian Cain <bcain@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
-	Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Jiaxun Yang <jiaxun.yang@flygoat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Mark Brown <broonie@kernel.org>, Matt Turner <mattst88@gmail.com>,
-	Max Filippov <jcmvbkbc@gmail.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Michal Simek <monstr@monstr.eu>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Richard Weinberger <richard@nod.at>,
-	Russell King <linux@armlinux.org.uk>,
-	Stafford Horne <shorne@gmail.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>,
-	Will Deacon <will@kernel.org>, Praveen Kumar <pravkmr@amazon.de>,
-	linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-	linux-arch@vger.kernel.org, linux-mm@kvack.org, x86@kernel.org
-Subject: Re: [PATCH v2 10/13] arch, mm: set high_memory in free_area_init()
-Message-ID: <aCtoNLf1FbtqijGr@kernel.org>
-References: <20250313135003.836600-1-rppt@kernel.org>
- <20250313135003.836600-11-rppt@kernel.org>
- <mafs05xi0o9ri.fsf@amazon.de>
- <aCdveN2w9ThjVhae@kernel.org>
- <dc4e60dc-9b78-473a-9c18-3a2f128a02d2@ghiti.fr>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dofsQfub"
+Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-ad572ba1347so229929966b.1
+        for <linux-openrisc@vger.kernel.org>; Tue, 20 May 2025 00:39:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1747726745; x=1748331545; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=v/Uj6nwrQaij9kcOBMimmKpNeHhBXlq3xaqchHGWz+o=;
+        b=dofsQfubazAHLBeozGbQtjJzDiD7OHobn+WJ36Z9He/Qb6fQMQI5YWdiSoHb47rJ4z
+         C6HDPJMf8iIjAJuzYpo38b4QCJ5mZA6byJexMBBi2Jv5XdzI60CLtyPB7NWciPgtl9Qi
+         veC+MJujiW6j3sa8lvW69+X+TpWQPlx6KoxU1tKPMdymoB1HTqgp55hNmOCpKV+zOeDJ
+         7PeXXRFhjJd282iuAfGvF1UTN85cRHa2GnLU2i+NwqQKYI39eQY7lLTjY2IDkT+ByKcZ
+         R6fqCVXv4X5ft2F3Kd7jLT/IW1N+yGkzamQj8MQesU4O2tHbLU1/3oqGzgjF/L4BHRKx
+         ndRw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1747726745; x=1748331545;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=v/Uj6nwrQaij9kcOBMimmKpNeHhBXlq3xaqchHGWz+o=;
+        b=eapkwRcy1uZkEgGpvfts1QmnDDgKL9fuIMle7jXZvJtTehOneEc2gOHqIJ297FkAf2
+         cgI2dScEv3I+cTQBp0B2wuw6c/WvMUYS2CxoTkJhen2q8HX9XY5GKIsE826ldPTk4BPJ
+         Q3WBcN1YY0Qj/zJfKYzTMpKvBwOoOeJ70dMOo5yaFPvNwSqTm+P9PYJZogKE0Qo6tUxX
+         knolLS5O9TccvqI5AZN4WFpi9y9tSGJmbGBlZwtSYNduwv7KRkNNN7qSU69Bqs8Hx3sF
+         Ay6+ZicqYphFvuPpDBXUUS8PFb5+4/5lfQwaNrOZelPKkhk3Ff3rj8kYW4oeyYMwvhuu
+         433g==
+X-Forwarded-Encrypted: i=1; AJvYcCVupjJdJwECcFFrK2Qx06ZhSTHQGR1WrsmZogE9R8pUfyi4AyM0j5eXojxHDh80VIOjrebaIcASVj2C0uljBA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzCR0w/g1TCxC8Pva2ryjsue0HWvu8GI41UEcV6bz3+b6ypOjx2
+	+SohRlFAB+obyMLTwhIsEwvupUPqcSCevSHjiMoheZfs4GPTSZ3s5fCDwG7WhuBaEjsJffLYZbS
+	SUnIBge0YkAoYl6LQXOkqJKBn81MxnxVhL7db3zedhA==
+X-Gm-Gg: ASbGncv+R7Ijn5Oz333laJWKCA5WQREL6mWDmRUi03u8keiCcOzWG7y2jbypJ0BUWiC
+	oSH7vLyzvOOsEYcWB13jQcrebJYxGdoFlnzRtSZkf+bUTHG7a46LMnRCLawyidr28sU3mKkyClS
+	tgWymlinglE6f3noN/68oczxgLjuczXlJijQ==
+X-Google-Smtp-Source: AGHT+IGyyUSETkUgn7h7HkvzkDtG91+dPJI2Fz/hSkHTB051zuXqXFHoDPRJtPNYT1HKF7JGIVgCwvu7WUPA1aii5Sc=
+X-Received: by 2002:a17:907:97c6:b0:ad4:cc66:1524 with SMTP id
+ a640c23a62f3a-ad52d609746mr1528648466b.54.1747726745393; Tue, 20 May 2025
+ 00:39:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <dc4e60dc-9b78-473a-9c18-3a2f128a02d2@ghiti.fr>
+From: Miao Chen <chenmiao.ku@gmail.com>
+Date: Tue, 20 May 2025 15:38:28 +0800
+X-Gm-Features: AX0GCFssMX8JzAWAqAxlw_q-OfhHMEvASKfG_DwZRNk45Gsn2qhQKGNIFo2K3-k
+Message-ID: <CAKxVwgfv8+wSHpEndr_RT3duU0U7dzNDRJROFtGnhpmVz1SBkA@mail.gmail.com>
+Subject: Need help implementing text_patch for JUMP_LABEL
+To: Sahil Siddiq <icegambit91@gmail.com>
+Cc: Stafford Horne <shorne@gmail.com>, Linux OpenRISC <linux-openrisc@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Alexandre,
+Hi,
 
-On Mon, May 19, 2025 at 05:54:23PM +0200, Alexandre Ghiti wrote:
-> Hi Mike,
-> 
-> I encountered the same error as Pratyush and the above diff fixes it: do you
-> plan on sending this fix for 6.15?
-> 
-> If so, you can add:
-> 
-> Tested-by: Alexandre Ghiti <alexghiti@rivosinc.com>
+As part of my participation in GSOC, I am currently working on
+implementing the jump_label mechanism for OpenRISC. I have already
+implemented the basic functionality of jump_label, but when working on
+the arch_jump_label_transform_queue function, I need to perform
+instruction replacement and writing. In the implementations for the
+ARM64 architecture [1] and RISC-V architecture [2], this is achieved
+using text_patch [3].
 
-Thanks!
-Here's the patch:
-https://lore.kernel.org/linux-mm/20250519171805.1288393-1-rppt@kernel.org
+By the way, ftrace also relies on this functionality for writing
+instructions [4].
 
-> Thanks,
-> Alex
+However, after reviewing the OpenRISC architecture code, I found that
+the text_patch functionality is missing. Since you previously worked
+on ftrace, I wanted to ask if you have already made progress on the
+text_patch part? If not, I might start working on it myself.
 
--- 
-Sincerely yours,
-Mike.
+Best regards,
+Chen Miao
+
+[1] https://github.com/torvalds/linux/blob/a5806cd506af5a7c19bcd596e4708b5c464bfd21/arch/arm64/kernel/jump_label.c#L28
+[2] https://github.com/torvalds/linux/blob/a5806cd506af5a7c19bcd596e4708b5c464bfd21/arch/riscv/kernel/jump_label.c#L45
+[3] https://github.com/torvalds/linux/blob/master/arch/riscv/include/asm/text-patching.h
+[4] https://github.com/torvalds/linux/blob/a5806cd506af5a7c19bcd596e4708b5c464bfd21/arch/riscv/kernel/ftrace.c#L91
