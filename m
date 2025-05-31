@@ -1,67 +1,67 @@
-Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
+Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6079341C64
-	for <linux-openrisc@vger.kernel.org>; Mon, 26 May 2025 08:27:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 845742904
+	for <linux-openrisc@vger.kernel.org>; Sat, 31 May 2025 05:48:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748248031; cv=none; b=Qxwxkq3JnAAP40P2O96k9f0l9ICdngJkjzlHTnIY/whxwvTyBZ9+FueHjrHjbXZx0qHbq4MVjMSjhRyrElBE89u2SxomoWT+lXk6wPhIFLDQ1nLpnwswOXfFgijgJZ98RsJjOAQqFACzpM1QicHc54S5HsekhTTEE6kjS9cS4+M=
+	t=1748670495; cv=none; b=qTTwYfml8WN7QkN1ASI9phHVJ/XuyEfHs4ha+mc2Zb8BfBefHXiEAfiQwlJKXqCJ6dD2pqj1ldR449g1QwGIh3Q66XwwkDzDhukQvrwLFKRq3o/NhbE9UOfFMGO+Ca8MTvD/rYvsqRsJcBNRzg+K8DwrlmOdS75KIRHVYs0HafI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748248031; c=relaxed/simple;
-	bh=9raJkyPYd/IVXT0D0h/HMYLHmv1zOqybe5mfOmJmoFg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=bysxJVFiI83KgGUiT1Poe4gG06PI+deABuarzGrtHshL4XqX7Ny+f2tno+AuVq1mLAgS7Odp4CVG2fRTWV/mZ5nqYq/2xvP0Xi3j7eD/MYBiEMASDbzIn3Ck9qlFZXxCyxRNH06yqplGYZcv09WNFA+k1IrDsFoUysPss4kq964=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DmJsSSda; arc=none smtp.client-ip=209.85.221.46
+	s=arc-20240116; t=1748670495; c=relaxed/simple;
+	bh=fgKuskuP/IEb3z96PRdncmSLJGKCEJ3RjLRpTi6Wz7Y=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Rqe6sGbu5c1/fYULVKW1YKLm6a2nhAJfMoZo9bLLTe+72QnIjISgKkAWMeA09QlGSPUjp7VheSUJ86qrCiE/T+WeLYj4YZXe+D960xs6QD9EWIGesF2OjD9g3F9/GayRHuFJ8TWXKahzy4VWM+c2YOOJgD0j7XPLWjkoKgesQS4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VLYo8O9s; arc=none smtp.client-ip=209.85.128.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DmJsSSda"
-Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-3a375e72473so1196152f8f.0
-        for <linux-openrisc@vger.kernel.org>; Mon, 26 May 2025 01:27:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VLYo8O9s"
+Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-450cfb6a794so15106015e9.1
+        for <linux-openrisc@vger.kernel.org>; Fri, 30 May 2025 22:48:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1748248028; x=1748852828; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1748670492; x=1749275292; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=dJlAZ4aQYe6YL6ZRsjifSHKNHwCkAdXiqvugqt1ymMM=;
-        b=DmJsSSdaRkuC3ofUpOysDC+gAhF35zjLI2g6UQSI6aPACY5HDHmZFCFfNnQA1/U1CE
-         woeDWk4NlPH8buHnWFcQW4a2LsQbWJeafc2sw4GNXM4YvBNy4ULZ9SpiulQ5aacEEYp+
-         lpu5sHLZRP43sSS72knA+xuyu6kckY/kGF6tIAdUWkcSjN+rmEqbY7yxJFtwXxHtTsFG
-         1sr+VFJkZa1hyqXzaKrK59r7vAjS2gNMiLmTgwKImRIxR57lhc2/fL9ldlXoIgNZT6XQ
-         BvupnLmPpgU/6OUo7Q+XUhE1ZrNHimRWJJ5QYToKXX+aVfUmv2SR2aFIZyfxVXCP4ZZj
-         g3QA==
+        bh=74ld+xqUu2RuCdkCOwO2J4d49N0U+iIfAB2ddVkf85U=;
+        b=VLYo8O9sFzcskKIEfXK+vTDwMSwaqQUzKzcnHup9+IkGgYtmE6DKP3dCfM/VLbmTJp
+         zxl/0/VuUCloe7TEYMgn0aobWf9FfdHCM0HgF5aE8g2H6sVfPJTJDTq/MQx2uOqwa3mv
+         2YV0Ddc2jaEgeXKhCnQ4tg0em2HPjoSs9lhb/3ciVhWFzkE+g5jLUuSoFdTVIvck2jed
+         NPvm7N6XfJY1WoXmSn07FWWVarWcMfut6RIrIg7C273lU+BVyxH+nCY3fjWR5XIiuVjo
+         AycVN7oU/Z/37v/ZYi2lXlMk8H1wMn4yokA35tPPXql92AVgMHS141356lHr5gq7UfIo
+         /dlA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748248028; x=1748852828;
+        d=1e100.net; s=20230601; t=1748670492; x=1749275292;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=dJlAZ4aQYe6YL6ZRsjifSHKNHwCkAdXiqvugqt1ymMM=;
-        b=vjsnDjmdkh5r1MdIaN46TtmI+Tx7amSVqygL6nyoXxWY2laihHgPIUQLsOrJSCiQul
-         NSYmbTkYImX3Y45SfQNiEMN+q2iLmg2RXkJRnWO65LOsXE7lOnZDsDADsR1ml9MHfR9s
-         OPcLFtDN8hoS76Rwkyb+5MgW7UQHMkYTerg+XUiRDSmPAeULq5X67W9dmoUAnzfLoX6/
-         463Ekg6aSwJ/4Njvckd73tbRpALQkfFg/BmKKuJKEwwpWUbM/M3AAkLlum4Bgjo4BhrI
-         DZyRU7DxtwgB1LL3TmX6a/B2UW6mTpsSA6BpkXRVhewwFSHA0j8f/O1UAVWAJAv/g5ZW
-         YrQQ==
-X-Gm-Message-State: AOJu0Yz8sptzniPKOq9NAumSDivTc3PSERzLjj9PE0QeZun2kBJ/hGzM
-	S/XIgfO+z3J+TKqh8OPRZgx1vhmMJ9tNAuCgDXk+RiL8AlCWZi6NcynAG6iqrayF
-X-Gm-Gg: ASbGncuzWHkC7GoukPBwxm3I0BR54u5cEzm6CXKFmBX//munYQP0DpXiOdygnhAktlc
-	qSXOhijNDigu9iR8r8GngWkUfcxZ2hMFEAB8CGM4hV2NQxdyNoWMERckAG8wN7Bbmfpme4Adcoy
-	WPP1RZmrt/pBg/BQJzxqnV3ri8OfhZDY41uhO1cQwpJCcuC3bSexqc+bjtfnma/nppqJ0Uu7+zw
-	fMHwntWEIhRD5mYgHtBDGIrcdiJubnJlFF1Q93kwY1GUxFJIh0U5LexBVInlG4JMwYXWgONb7Lp
-	3ngezmr0SQ03EsU0L6dR51LZJm5anM7MQ8apbfEsH3qBZDsvPwKgyhl0/r7V2/x0h37i2dRPZMp
-	Wai+cg0tOxoAk7vI=
-X-Google-Smtp-Source: AGHT+IEXy0KCxEZ6KtkuP9mKxu9ifXBbf1g6g5cywMKVkuxTSKR6IkbofPCXqRrndw4l97jvuexg9Q==
-X-Received: by 2002:a05:6000:3108:b0:3a3:76ff:a617 with SMTP id ffacd0b85a97d-3a4cb45e366mr5497687f8f.32.1748248027431;
-        Mon, 26 May 2025 01:27:07 -0700 (PDT)
+        bh=74ld+xqUu2RuCdkCOwO2J4d49N0U+iIfAB2ddVkf85U=;
+        b=b6emGCRZ3EKtFUVN4G+xCjgbY9UbOHBxB0CZopt08kBTm6WXbRwAtdehVtiF4XuebR
+         pw0EbEY4x+m6+pJ74FVyrxHRKEKqP3lwqIvpG37ATPTxm+V4hRuIH8rzDafIOhdLtpHt
+         UDWEYWaotiEIBjGlU4lueTRjLgTgGqqEL9eUQbUAy6EvYtqVYqAZY2v2ROiXaeMg3hvR
+         BCSiLWvbN3150R3ADZmUNKCPF+HUuFHdZwRIrTgUqNEFq/akpHjEfFskJXPrlHvM0KoB
+         iQHDZo9NL8yuV6WrPSln7CUXCva81B3byBDdFq662MTZdeS1ahS/T2tG0S6yOpSrLTsU
+         5sBg==
+X-Gm-Message-State: AOJu0YwUzILGHParNNAfIzyAOvzIORqQYKiGR1VxFGtt46SK3R5MEgK8
+	dOf2WoyJ1mzCNZTimP3Xxt/Gr5LWqNCrA++hgOKfelN9wT9iDlmYNovR
+X-Gm-Gg: ASbGncutM4XqeDk5b2C6eUJqfwFnejKW8xm9zpH82YguxNU/KHM5Su1ZhBjGXlqbeq/
+	gv3H0oxqCwf0cvIuiT1gR3lq62z+jVljq8gy14WgU9Mb2yrEXlGBCrljuVM3958/ozFtxZ6RjOY
+	Actk+txL45Eu9HVXaeBPNZdKipwiknhCXPryCS1A7AzBwNHYyC622ieYscXs+Xoe5jYPfZbTPWi
+	RtqTqtA5NEwICsI+2BSinJLU/7BHJ5elLdZ2TgIOsORpJSYWhzX/nEtmwUOuNKWM+ey2Iuvp42e
+	vaSRi4HuJKPXd+MpeHl4CAEdhIHBWwgGzOlGumBPBI2f0rxNthenbitPfCAfia1OKMPqvIJwLTm
+	9drHRl1PCZw30Zg0=
+X-Google-Smtp-Source: AGHT+IFQtXi0E5/YGRNV2YMpKMMUqmZhIQtTyNTJjCArOzNUzhV/La/Z+3T9WZ16XGMf+Qs1+cDGVw==
+X-Received: by 2002:a05:600c:4e0b:b0:442:f4d4:53a with SMTP id 5b1f17b1804b1-450d64c322amr66960885e9.2.1748670491432;
+        Fri, 30 May 2025 22:48:11 -0700 (PDT)
 Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a4c90624cfsm7946217f8f.62.2025.05.26.01.27.05
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-450d8000e3esm37401155e9.22.2025.05.30.22.48.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 May 2025 01:27:05 -0700 (PDT)
+        Fri, 30 May 2025 22:48:09 -0700 (PDT)
 From: Stafford Horne <shorne@gmail.com>
 To: GCC patches <gcc-patches@gcc.gnu.org>
 Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
 	Stafford Horne <shorne@gmail.com>
-Subject: [PATCH] or1k: Support long jump offsets with -mcmodel=large
-Date: Mon, 26 May 2025 09:27:02 +0100
-Message-ID: <20250526082702.3319014-1-shorne@gmail.com>
+Subject: [PATCH v2] or1k: Support long jump offsets with -mcmodel=large
+Date: Sat, 31 May 2025 06:47:54 +0100
+Message-ID: <20250531054754.3687519-1-shorne@gmail.com>
 X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
@@ -88,19 +88,29 @@ coded assembly bits.
 gcc/ChangeLog:
 
 	* config/or1k/predicates.md (call_insn_operand): Add condition
-	  to not allow symbol_ref operands with TARGET_CMODEL_LARGE.
+	to not allow symbol_ref operands with TARGET_CMODEL_LARGE.
 	* config/or1k/or1k.opt: Document new -mcmodel=large
-	  implications.
+	implications.
 	* doc/invoke.texi: Likewise.
+
+gcc/testsuite/ChangeLog:
+
+	* gcc.target/or1k/call-1.c: New test.
+	* gcc.target/or1k/got-1.c: New test.
 ---
-If anyone is interested with the kernel patches I have them on this branch:
+Since v1:
 
- https://github.com/stffrdhrn/linux/commits/or1k-allyesconfig-2/
+ - Fix intentation in ChangeLog entries.
+ - Add tests.
 
- gcc/config/or1k/or1k.opt      | 4 ++--
- gcc/config/or1k/predicates.md | 3 ++-
- gcc/doc/invoke.texi           | 7 ++++---
- 3 files changed, 8 insertions(+), 6 deletions(-)
+ gcc/config/or1k/or1k.opt               |  4 ++--
+ gcc/config/or1k/predicates.md          |  3 ++-
+ gcc/doc/invoke.texi                    |  7 ++++---
+ gcc/testsuite/gcc.target/or1k/call-1.c | 22 ++++++++++++++++++++++
+ gcc/testsuite/gcc.target/or1k/got-1.c  | 18 ++++++++++++++++++
+ 5 files changed, 48 insertions(+), 6 deletions(-)
+ create mode 100644 gcc/testsuite/gcc.target/or1k/call-1.c
+ create mode 100644 gcc/testsuite/gcc.target/or1k/got-1.c
 
 diff --git a/gcc/config/or1k/or1k.opt b/gcc/config/or1k/or1k.opt
 index 00c55603300..d252de08204 100644
@@ -152,6 +162,58 @@ index ab89686256d..cfbb9eda083 100644
  
  
  @end table
+diff --git a/gcc/testsuite/gcc.target/or1k/call-1.c b/gcc/testsuite/gcc.target/or1k/call-1.c
+new file mode 100644
+index 00000000000..593e402d21c
+--- /dev/null
++++ b/gcc/testsuite/gcc.target/or1k/call-1.c
+@@ -0,0 +1,22 @@
++/* { dg-do compile } */
++/* { dg-options "-O2 -mcmodel=large" } */
++
++/* Generate local and global function calls. */
++
++extern int geti (void);
++
++__attribute__ ((noinline)) int
++calc (int a, int b)
++{
++  return a * b + 255;
++}
++
++int
++main (void)
++{
++  return geti () + calc (3, 4);
++}
++
++/* Ensure the 2 calls use register not immediate jumps.  */
++/* { dg-final { scan-assembler-times "l.movhi\\s+" 2 } } */
++/* { dg-final { scan-assembler-times "l.jalr\\s+" 2 } } */
+diff --git a/gcc/testsuite/gcc.target/or1k/got-1.c b/gcc/testsuite/gcc.target/or1k/got-1.c
+new file mode 100644
+index 00000000000..5357096421d
+--- /dev/null
++++ b/gcc/testsuite/gcc.target/or1k/got-1.c
+@@ -0,0 +1,18 @@
++/* { dg-do compile } */
++/* { dg-options "-O2 -fPIC -mcmodel=large" } */
++
++/* Generate references to the GOT. */
++
++extern int geti (void);
++extern int j;
++
++int
++calc (int a)
++{
++  return a * j + geti ();
++}
++
++/* Ensure the 2 references use gotha relocations and that the function call does
++   not use an immediate jump instruction.  */
++/* { dg-final { scan-assembler-times "gotha" 2 } } */
++/* { dg-final { scan-assembler "l.jalr\\s+" } } */
 -- 
 2.49.0
 
