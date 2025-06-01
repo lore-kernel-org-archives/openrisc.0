@@ -1,100 +1,117 @@
-Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 999BA208A7
-	for <linux-openrisc@vger.kernel.org>; Sat, 31 May 2025 06:03:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4405B2AF14;
+	Sun,  1 Jun 2025 09:42:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748671409; cv=none; b=pvAs5y4bIajoNUj92YWxIHUpFx2WiaSnoet5ZOzAQN5hVQfO5VKX6Win94WHn3N7unS4+6x+/Rf47RUNNUhPVQPpqq+jtLg2Wb2EX31IBCNKG1CJCqESF58dXjCYoKO3W3ujmPrLYQfddE8gVmHNslgLbXT9C7Q4NI67cKKibdA=
+	t=1748770967; cv=none; b=huuFTsoUqQj+39O2OE6vXg91mLn73t2zUupLG5cQMIGcE9TW6h5vUgtIKM6yQMLrSoOcNgfGTob/X0hSuDUvM7WDCHTrzvV7cJ1gV3VPZhqfS72Em/gDoBrbYsgdtZoeEn/Fi1fhwgl6OzDc9knHzGpT2lP7UzrR4TeTsvZfxP8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748671409; c=relaxed/simple;
-	bh=uk9sMwOeMT1oclgKXm9xFr5xNUPRIj/Q1WbH3h8lxVE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=FotcODyxO9zBaOQ8WzYowqlzxi/y3Kg2tdkYpJZwLxsaSHhWFnaAKR+DKAqMCVA95vhi1wmRXPnK/FI6kv+qHMMUpFT6++mlSEuofTQmxPxduUVcaEVbTJku1xdT4eaiPZO44FxyhkYr2NE7D27qsDHq/FzOmsj+Zl9v69kUPTA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HZJfpy4U; arc=none smtp.client-ip=209.85.221.46
+	s=arc-20240116; t=1748770967; c=relaxed/simple;
+	bh=eDEyj7O0DXxrQ8H0lcHGd7ocPN07l4RbXQMbW2am0+U=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=rU1/e1Ky2fuqAXJkDj8AmI1JeRwSTGSM2MIAmGigDxPeXUuHOPOCufZQihObQ4WjHbwzA9OCvKFH6YCOxHgOD8LEQAidxgQS6GTKJzyuvyc2iOKk+wrSXQOv6/SquJcS+XA5jevHITefYo6LVVmiTgVYGCqLGIhjNJcU7Y5G7os=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nL+3lrQl; arc=none smtp.client-ip=209.85.128.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HZJfpy4U"
-Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-3a4fdc27c4aso132555f8f.3
-        for <linux-openrisc@vger.kernel.org>; Fri, 30 May 2025 23:03:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nL+3lrQl"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-450ce671a08so21347645e9.3;
+        Sun, 01 Jun 2025 02:42:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1748671406; x=1749276206; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=u0baP/kVXWz7gvsVaNZ8memoPrOqil+E1U2Rg1IE5H8=;
-        b=HZJfpy4UfuFDswvfQeC/uwxLp+K6Q/1Y+TexfFu6mzouFDo8lyKjj4xSCKN15GgQ1P
-         DsJTNTrB9Ie/ZNviAl/Cg29vovrD3wypeKptZYKFti8y8Wgbto9EQqqk/SJ4Gk0qtRyO
-         QJo0tphxiBor2be4xnmd0a7Nz3ljggguOV3lPxOQt0m7Nx4iJhvaW+ZZ8xDHx72KvCio
-         QRbnxTVggU88/1HG89/YZkTmZmlFarl15mOzPCZkHYD6NgzJSj4bbkWDUszkqYvGUWhA
-         Nkxu/dEXEZQpMesfXmg706V4hBpq8Ai27Zlon1YTAj814o6sM1Rs6+ONVgIyu2c3sXJp
-         LC0w==
+        d=gmail.com; s=20230601; t=1748770964; x=1749375764; darn=vger.kernel.org;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=k07lU4HYaGQ7czfdPqx1uX0xnZzdxn8nnvAUd6IQVT0=;
+        b=nL+3lrQloZiEt3n2ldn7d/L33x8fv0MplePHH+/9o8P98+g/LqQWLyyUwKq0JY4EI8
+         ThH5j3aAppiCbIWoztf35t+PQTd7gkMglRhm0jZUpeT6ToRlh/UM1Met2dEoMjookvZb
+         MG9TX1+mZ37A7EHIVCCz1pX4MC6iSjjO2fP4XslsepCyVTmwwbIH2ag8amtJyK3xbgSd
+         mzC1gODJz/d3r1JYSRJk3Ucrh3PEz/qACqbqaRZf5q5LPk7yvx30IZnAaKyqpZu1MYjg
+         QXQ4bA8EEWuHdG8LfC5B6q+6Bz3uSj08Uh57t8RURN+eI+2z92Ev+tO3FKsGVZmuQJ12
+         s4CA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748671406; x=1749276206;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=u0baP/kVXWz7gvsVaNZ8memoPrOqil+E1U2Rg1IE5H8=;
-        b=piOHnfU7KwTV9mF/gsyC5G+fVBXHQBf3F3osQmVHa+19HIW680wlQX06fPMk1s30Cm
-         LE1Ry6nX78brHoGSF2BjuyXjcAbDAxMzUN+GDVZEqn98sL8wdk969a/rpgMeuRYhAm9a
-         mqiCfMMm8mcp35MpZH4j3ZvmIDjJA93w0SClZrqBPT6OmBfc7sZE5whHKDYyXRc6y/MZ
-         GvT7pII70UL8j3dOlwfjpLcb+aI0Ue66YgaQ+P5cZxX3EbhVT7bju1HXx9V1V7jpbGXr
-         zG8vJqn5Bb+uUze9VRBOvx0TgGb6bEomnU3D2WwUALAH/Tp4d2RbsNTVGdCtuaaNlxSg
-         jlRw==
-X-Gm-Message-State: AOJu0YxejlAFtzndzkgLbsLAxoG1/pn5tZL+pJyi4mspIsatRLHj9CrR
-	o2uqGDI3Pb36bcgtEAAl7XzKH9f1LJlplVbfFl2Zoa3uZBdKTMqai1qKlwWXdQ==
-X-Gm-Gg: ASbGnctwL1Wg6EKGvuQt24ZTF5JtfgSYbI8T6K9sBsAfrAVCFyHsSRNu1UAkQjL9SDz
-	MXbOvFH6ptAS0b90CVUv7+xqYgXyNb0zuu623howvwtJ9WLsAs6tud9Urt6V0DfFNZfjh6TK91T
-	1beDUtr/4+y8jRfmimZ2eiZmQ0VrgqHYd8LYFzz3fmS4AdmLK73VwpND11k/19awlcsESL0zZsq
-	ONBzB+OqQFdMDhUecYUIVoH6Xckhb/PYCZDYMVDK48NkGCYM52MB55/5lVniPUAD5fGa4c65SSP
-	zU4ucI3ZQVSs/izmQcBrtDb360EZpIKLYSQTOvRmzwlGOZYt+nZXoqejIm2GTzsmmSCYO6hjgBS
-	WkcSDI2h2nORTObk=
-X-Google-Smtp-Source: AGHT+IGG2MHt33VB5oEbcahLxA92otJRMqhQ0mdGVF1/QfEMUnbiYpm1ZHhEUqbUbFTB9heBXuIVGQ==
-X-Received: by 2002:a05:6000:2407:b0:3a4:e082:c8f4 with SMTP id ffacd0b85a97d-3a4f89e2ec5mr4019332f8f.47.1748671405714;
-        Fri, 30 May 2025 23:03:25 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1748770964; x=1749375764;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=k07lU4HYaGQ7czfdPqx1uX0xnZzdxn8nnvAUd6IQVT0=;
+        b=EEZIo3hBZr2wyi7Hp3mAH+khPVjhciVIO5CU/priwNz9b++22OJUcd6P0zDEXMJ5VE
+         RO2LUhnPYUC3pPuICbrrmIRtcOjog2AHEnwDbKD+ft9KmGeBcZBVE0+HisMinqcqQgdU
+         zyLZsXUuDi3hffkIPDYsbTJbPWWdP2Oc+ELZPuKfFALtsyw77F+bhmLopBcmfrt57Qn+
+         l9oQkEV4UWxbZ1vvHBRPp69TgHvNGKywklfPPxOKnrdJcwVoGUyCbCgkUA3JS2F9aYKH
+         APaThFi5/3KXkOsiclKfnUTQA+1n1MpdOVqZMyloy49Jqrdn/F222xn5Jcd/F+w/pND0
+         NATw==
+X-Forwarded-Encrypted: i=1; AJvYcCWJYizqADbS79+AVF47aj3VlJmKYnjlJpFjVW50NBuzp5M0s67NB3nkUW3aM8K0pcGlb8DwMUwr17QOSeo=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzX271rDi8inryXRIU6Z/+jGbUiWavmaEhlUpnODsxjCL0e+Z3Q
+	ppKCDDgfoFIMv+Gd2aD6a6r8Vep+m80SasGvmrDmJuHEIt0tHakQ7GkbMb9QDA==
+X-Gm-Gg: ASbGncvKUot7eNW3cfiNY0Ysm66t22NzdRXqb1z3GfUXkxrNNxZgERpcdoTbv4cl1wA
+	X7cRynVC+Pkm3wvUbTkzcDxMsvC8VUivqDq/wLFhQAOMrQZCOvNAVODVpuYmVwcFZzqUl4Ubsn5
+	ZSkXlfszG3Wd9bC9up3+/OhzccBVZ2TYQ/tfOmc2MVl1GlEUJX9cTt689SjdbcvqRzbVPxoKxEY
+	+Fi/3SlbV+RHkG47wYcdYY+j5YZsukelUE3C/GfBNf/XXE96mi0bWKW1osTrYP2q0SIQr5IvvvL
+	ESgEhOQK7Jrlas6LRzJJ2mCWY3I7c1eV9KKA2W6md8hGNStvz08YOtk+08wK67xQrKogRfRJnEw
+	5ygfy/mqjS10PFlo=
+X-Google-Smtp-Source: AGHT+IEKvrUBq7vAuqxc1b8RpAVLQzGgnBtqTRUmTUOlFAfmKzSgtoNHxVcCjpQ7zUI9oTOYsrMYDw==
+X-Received: by 2002:a05:600c:500e:b0:43d:db5:7af8 with SMTP id 5b1f17b1804b1-4511edd5e6fmr35593875e9.21.1748770964291;
+        Sun, 01 Jun 2025 02:42:44 -0700 (PDT)
 Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a4efe6c866sm7007699f8f.32.2025.05.30.23.03.23
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-450d7fc24d7sm80284705e9.36.2025.06.01.02.42.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 May 2025 23:03:24 -0700 (PDT)
+        Sun, 01 Jun 2025 02:42:43 -0700 (PDT)
+Date: Sun, 1 Jun 2025 10:42:42 +0100
 From: Stafford Horne <shorne@gmail.com>
-To: GCC patches <gcc-patches@gcc.gnu.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	Stafford Horne <shorne@gmail.com>
-Subject: [PATCH] or1k: Fix struct return test
-Date: Sat, 31 May 2025 07:03:21 +0100
-Message-ID: <20250531060321.3687859-1-shorne@gmail.com>
-X-Mailer: git-send-email 2.49.0
+	LKML <linux-kernel@vger.kernel.org>
+Subject: [GIT PULL] OpenRISC updates for 6.16
+Message-ID: <aDwgkjzeTVNUs1Ee@antec>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-In or1k structs are returned from functions using the memory address
-passed in r3.  In the current version of GCC the struct stores changed
-from r11 (the return value) to r3 the incoming memory address.  Both of
-are valid.
+Hello Linus,
 
-Adjust the test to match what GCC is producing now.
+Please consider for pull,
 
-gcc/testsuite/ChangeLog:
+The following changes since commit 92a09c47464d040866cf2b4cd052bc60555185fb:
 
-	* gcc.target/or1k/return-2.c: Fix test.
----
- gcc/testsuite/gcc.target/or1k/return-2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+  Linux 6.15-rc5 (2025-05-04 13:55:04 -0700)
 
-diff --git a/gcc/testsuite/gcc.target/or1k/return-2.c b/gcc/testsuite/gcc.target/or1k/return-2.c
-index add3720c88e..c072ae23142 100644
---- a/gcc/testsuite/gcc.target/or1k/return-2.c
-+++ b/gcc/testsuite/gcc.target/or1k/return-2.c
-@@ -16,4 +16,4 @@ struct a getstruct (long aa) {
- /* Ensure our return value is returned on stack.  */
- /* { dg-final { scan-assembler-not "r12," } } */
- /* { dg-final { scan-assembler "l.or\\s+r11, r3, r3" } } */
--/* { dg-final { scan-assembler-times "l.sw\\s+\\d+.r11.," 3 } } */
-+/* { dg-final { scan-assembler-times "l.sw\\s+\\d+.r3.," 3 } } */
--- 
-2.49.0
+are available in the Git repository at:
 
+  https://github.com/openrisc/linux.git tags/for-linus
+
+for you to fetch changes up to f698ee1f40030118e3ae1af1a02fa76f79452b5c:
+
+  dt-bindings: interrupt-controller: Convert openrisc,ompic to DT schema (2025-05-07 06:14:30 +0100)
+
+----------------------------------------------------------------
+OpenRISC updates for 6.16
+
+Just a few documentation updates from the community.
+
+ - Device tree documentation conversion from txt to yaml.
+ - Documentation addition to help users getting started with initramfs
+   on OpenRISC.
+
+----------------------------------------------------------------
+Ann Yun (1):
+      Documentation:openrisc: Add build instructions with initramfs
+
+Rob Herring (Arm) (2):
+      dt-bindings: interrupt-controller: Convert opencores,or1k-pic to DT schema
+      dt-bindings: interrupt-controller: Convert openrisc,ompic to DT schema
+
+ Documentation/arch/openrisc/openrisc_port.rst      |  6 +++
+ .../interrupt-controller/opencores,or1k-pic.txt    | 23 -----------
+ .../interrupt-controller/opencores,or1k-pic.yaml   | 38 ++++++++++++++++++
+ .../interrupt-controller/openrisc,ompic.txt        | 22 -----------
+ .../interrupt-controller/openrisc,ompic.yaml       | 45 ++++++++++++++++++++++
+ 5 files changed, 89 insertions(+), 45 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/interrupt-controller/opencores,or1k-pic.txt
+ create mode 100644 Documentation/devicetree/bindings/interrupt-controller/opencores,or1k-pic.yaml
+ delete mode 100644 Documentation/devicetree/bindings/interrupt-controller/openrisc,ompic.txt
+ create mode 100644 Documentation/devicetree/bindings/interrupt-controller/openrisc,ompic.yaml
