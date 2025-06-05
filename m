@@ -1,80 +1,74 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CCC01F03D9
-	for <linux-openrisc@vger.kernel.org>; Thu,  5 Jun 2025 06:57:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB3D628E3F
+	for <linux-openrisc@vger.kernel.org>; Thu,  5 Jun 2025 07:45:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749106623; cv=none; b=ouMWJw0qJof/o62ozHrCcxf6HUb8lXbPH++FTFbVVBZhXkO0PbeGKUvvyQ27rqeWf78PvZskyspi2fj4rOSftn2fswN0wUKb8wF+LPaHOa9cw/k+lxfnOBY8tL5nWE+rnbsC6uTA3jsPrQc4nI0FMtK03LnGMWqkZ/lFw94Jf9o=
+	t=1749109558; cv=none; b=MfOdo0UiIvyIBRJpnUKC5Hqs3JmJKfaM5o/vG/b11HCBdW3N1mGexLV4Ldvevy7FVbulIxkCcr/XN8EVvus9ca6R1RObSsYZGdx1XlMZwa6Oe4TH6CatZPvb28mIXYEXLByjkfaSAVzyJfAL1A3WQtLuQK+G+ugu5X0tnjMZzn4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749106623; c=relaxed/simple;
-	bh=q79+Um1+HXmTCuXp48qIXfskJas9hJ2zahTLYz1FM4k=;
+	s=arc-20240116; t=1749109558; c=relaxed/simple;
+	bh=z2ayjJ0mQBVlcuddv2EsRljL5k9ruhgeCyZFOwfJwG4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GqqrWY+WevtrON0KbENYkpv3QR4UUlEVqAg18i5AX405ukDMrKT3gfMcV4X/6lM3ymzRBi81dJoyHc6loMuXAcV93kSo0G3eDMCBzB871hCXAjwomESD689D+IHIwzZIRSDZj86J7eCaER7XiUV9pzf1RSiuiYwrY+f7IP57WS4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=A2jx7igy; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=oP1XkW7f; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=A2jx7igy; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=oP1XkW7f; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	 In-Reply-To:Content-Type; b=llWea6j39yLM9TufMNe9C2/kff1uhsBOQin2Qer43mk9pwYcGsiS4BGgRiJGjqhbUKvuLsKJxOlOVN4K/8vrVJ9bDx8V4kKhIqDw1TjWRVJDiZ9MRGg7NiUW/tmxMFTI+qeivAAz8+BjkCZyT55GyMii4LTjCfpQkUh8jkjaLic=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DAfZkgwJ; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="A2jx7igy";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="oP1XkW7f";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="A2jx7igy";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="oP1XkW7f"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id C0BBA344E8;
-	Thu,  5 Jun 2025 06:56:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1749106619; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DAfZkgwJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1749109554;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=wPI4ofmTk/E4f6+NaUnYTS8dt4fvqBsAjz20vg9T5ho=;
-	b=A2jx7igySZ/yVPwubUtmc7FJFO1ugw0ElRhqfchp0SdKNCeUtSR13WYTlt36wn3Z0yy8c/
-	uEq4rvyK5bL5tG2N8p0l4fcHmncC2QgtJsmP6mIpD3kTJKD3W6EG0yPNBLPGsIgkC+zRfy
-	gtu6v9p8OpykT91eIoJ5ZE5/yTpz17U=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1749106619;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=wPI4ofmTk/E4f6+NaUnYTS8dt4fvqBsAjz20vg9T5ho=;
-	b=oP1XkW7fUFiGZ+uMI0VOtQkeBavyIGTALJn0hqDpVUGgKl5G800tbwPqlrnhNvpsAz4wbg
-	A76527JC5m4PWdDQ==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1749106619; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=wPI4ofmTk/E4f6+NaUnYTS8dt4fvqBsAjz20vg9T5ho=;
-	b=A2jx7igySZ/yVPwubUtmc7FJFO1ugw0ElRhqfchp0SdKNCeUtSR13WYTlt36wn3Z0yy8c/
-	uEq4rvyK5bL5tG2N8p0l4fcHmncC2QgtJsmP6mIpD3kTJKD3W6EG0yPNBLPGsIgkC+zRfy
-	gtu6v9p8OpykT91eIoJ5ZE5/yTpz17U=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1749106619;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=wPI4ofmTk/E4f6+NaUnYTS8dt4fvqBsAjz20vg9T5ho=;
-	b=oP1XkW7fUFiGZ+uMI0VOtQkeBavyIGTALJn0hqDpVUGgKl5G800tbwPqlrnhNvpsAz4wbg
-	A76527JC5m4PWdDQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 9008B137FE;
-	Thu,  5 Jun 2025 06:56:59 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 0wrcIrs/QWiwIgAAD6G6ig
-	(envelope-from <vbabka@suse.cz>); Thu, 05 Jun 2025 06:56:59 +0000
-Message-ID: <536f5ffd-b4cf-4f35-970c-ad3a7593af2f@suse.cz>
-Date: Thu, 5 Jun 2025 08:56:59 +0200
+	bh=O6H1ftBO6CEKGJOKs9g86ajvG5fS+ZjCtKrVQh3o6Cw=;
+	b=DAfZkgwJcPav1ZPPKcFWiqMQusZACozHyH2qv9ZEyQj5CJXVzU1JQahkUXGPgYQ1b1acNj
+	uvL/pG2ZqXlA3WhmEG8U/MexjxwbPBaiHvb5J3Ts+LgQBpuKfQFG5RolEx/EhcVFhfALT1
+	h37N/j9TcQ0TsQf55ag8OJgjLK861d4=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-202-KC3Fka-nMfSTTUsuiHfsRw-1; Thu, 05 Jun 2025 03:45:53 -0400
+X-MC-Unique: KC3Fka-nMfSTTUsuiHfsRw-1
+X-Mimecast-MFC-AGG-ID: KC3Fka-nMfSTTUsuiHfsRw_1749109550
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-451ac1b43c4so3686405e9.0
+        for <linux-openrisc@vger.kernel.org>; Thu, 05 Jun 2025 00:45:52 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1749109550; x=1749714350;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=O6H1ftBO6CEKGJOKs9g86ajvG5fS+ZjCtKrVQh3o6Cw=;
+        b=D18PqfB9CY/L6fafibIF3Mad4l/lDSkSwUcpTGu3c03WpSYEnIJUE3CEWGc48pPhv0
+         L8/vL44EUhzUHIT0w9P0nQokDd0rY5AfTx3Awz25/Ty840XA7TM479eT27WKBk3yGxUI
+         i40ZEyrk79W6bi4uLRe+ft4DiGlSTpgg80BtvXzpr3njFMhOdFHOp+eAFr03+LuwlgfI
+         DelwWygu/VqqFr6QqC5mSnUiZ94xq5T4/4hZma7ykm1iJYisLqPkQbtJwhdPMwSGhLdZ
+         FUQSWThxJo6Aowr62Z8S/bj5+3WQmuTo+5Qmj4kk7CEkvtQJDnm4VFDDobguOQOaByjh
+         QRFQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWtpvjAMTy+Hqw6HRYbokWYWxAbCFyGG5dINJDtGExOgE5VB397uPeHaZe/BVl6yyhwYNFXdMHPEExZriQkOw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz+VET5lJ4elob9QzNNCgGzpZxr3TDTSfZyakby5nAIqzJpBiom
+	iLL2u5dhdHNEPBEzXzLLF5hnffhr5WLr8m95dUvBNYNqdLB5/ShWfq9V+aAL33SlPfG0daFhK4N
+	+rduIGigokbIUc5tCINf/C7yY+JtyNjQwcfOHKj79thJtWQq3EaRX+4H5EnOVV4OeD7gTS7hw1Y
+	lh
+X-Gm-Gg: ASbGnctrsg6F9wtCjQ8Xp/ikkTxBq/iZ9OSEUu30HUb2Upka0+fkyStB4oL2dxz61Dg
+	G7rKQX+XI+Zrkt9nn4bmiHjl0Ckz/DYtpuKoIHI/lkWLdnAuotpkdyvf5HFMkv6HQ/Y8U4bn5yQ
+	XSm2Iwn78d7QAuW3MnQ9B1MDJPsUGvP71+atWYgofRCoVd6riRVppNE1GvJgJ5u+YKRgxEGIr8m
+	X74msb804AjM+LRmWzyxLbrBzhk3nKnKUfdyvcsWFvYjLTQuwpHmj9ABlRdBZL6h8ja1s8QwMZx
+	Wd+mPP/xIvNKNPFKfiZZW7+M/nrdTSpSkiyJa5T/GovFZa289HYyFIOEVp9rXbY9/V7dYKV4zJx
+	ekWSdRK0tn0g078olZ7x/tErCbRjnSLFD0RQC
+X-Received: by 2002:a05:600c:4e01:b0:442:f4a3:b5ec with SMTP id 5b1f17b1804b1-451f0a64f08mr56930865e9.4.1749109550289;
+        Thu, 05 Jun 2025 00:45:50 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHROMgPjj+pP0emg4VKEoyCSGEnHYlNibukVyaEg4rn+/3yPGA5yK/itaMc1AE1G562Zflv1g==
+X-Received: by 2002:a05:600c:4e01:b0:442:f4a3:b5ec with SMTP id 5b1f17b1804b1-451f0a64f08mr56930315e9.4.1749109549833;
+        Thu, 05 Jun 2025 00:45:49 -0700 (PDT)
+Received: from ?IPV6:2003:d8:2f27:ec00:4f4d:d38:ba97:9aa2? (p200300d82f27ec004f4d0d38ba979aa2.dip0.t-ipconnect.de. [2003:d8:2f27:ec00:4f4d:d38:ba97:9aa2])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-451fb208ad0sm9163115e9.24.2025.06.05.00.45.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 05 Jun 2025 00:45:49 -0700 (PDT)
+Message-ID: <590641e8-35f0-43e5-985a-3912c126b4aa@redhat.com>
+Date: Thu, 5 Jun 2025 09:45:47 +0200
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -84,12 +78,11 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v2] mm/pagewalk: split walk_page_range_novma() into
  kernel/user parts
-Content-Language: en-US
 To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
  Andrew Morton <akpm@linux-foundation.org>
-Cc: Barry Song <baohua@kernel.org>, David Hildenbrand <david@redhat.com>,
- "Liam R . Howlett" <Liam.Howlett@oracle.com>, Mike Rapoport
- <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+Cc: Barry Song <baohua@kernel.org>, "Liam R . Howlett"
+ <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@suse.cz>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
  Michal Hocko <mhocko@suse.com>, Muchun Song <muchun.song@linux.dev>,
  Oscar Salvador <osalvador@suse.de>, Huacai Chen <chenhuacai@kernel.org>,
  WANG Xuerui <kernel@xen0n.name>, Jonas Bonn <jonas@southpole.se>,
@@ -101,75 +94,61 @@ Cc: Barry Song <baohua@kernel.org>, David Hildenbrand <david@redhat.com>,
  linux-openrisc@vger.kernel.org, linux-riscv@lists.infradead.org,
  linux-mm@kvack.org
 References: <20250604141958.111300-1-lorenzo.stoakes@oracle.com>
-From: Vlastimil Babka <vbabka@suse.cz>
-Autocrypt: addr=vbabka@suse.cz; keydata=
- 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
- m6M14QORSWTLRg==
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
 In-Reply-To: <20250604141958.111300-1-lorenzo.stoakes@oracle.com>
-Content-Type: text/plain; charset=UTF-8
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: dQ9Dth0gKhWV_DHVtFBZahgMc6dC5N3Su5qPvisU2ug_1749109550
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spamd-Result: default: False [-4.30 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	RCVD_TLS_ALL(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[25];
-	MID_RHS_MATCH_FROM(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[kernel.org,redhat.com,oracle.com,google.com,suse.com,linux.dev,suse.de,xen0n.name,southpole.se,saunalahti.fi,gmail.com,sifive.com,dabbelt.com,eecs.berkeley.edu,ghiti.fr,lists.linux.dev,vger.kernel.org,lists.infradead.org,kvack.org];
-	TO_DN_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo]
-X-Spam-Level: 
-X-Spam-Flag: NO
-X-Spam-Score: -4.30
 
-On 6/4/25 16:19, Lorenzo Stoakes wrote:
+On 04.06.25 16:19, Lorenzo Stoakes wrote:
 > The walk_page_range_novma() function is rather confusing - it supports two
 > modes, one used often, the other used only for debugging.
 > 
@@ -201,105 +180,59 @@ On 6/4/25 16:19, Lorenzo Stoakes wrote:
 > We additionally make walk_page_range_debug() internal to mm.
 > 
 > Note that ptdump uses the precise same function for kernel walking as a
-
-IMHO it's not clear at this point what "the precise same function" means.
-
 > convenience, so we permit this but make it very explicit by having
 > walk_page_range_novma() invoke walk_kernel_page_table_range() in this case.
-
-  ^ walk_page_range_debug()
-
-Maybe this could be reworded in the sense (AFAIU) that
-walk_page_range_debug() can be used for both user space page table walking
-or kernel depending on what mm is passed, so in the case of init_mm it
-invokes walk_kernel_page_table_range() internally.
-
 > 
 > Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
 > Acked-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 > ---
-> v2:
-> * Renamed walk_page_range_novma() to walk_page_range_debug() as per David.
-> * Moved walk_page_range_debug() definition to mm/internal.h as per Mike.
-> * Renamed walk_page_range_kernel() to walk_kernel_page_table_range() as
->   per David.
-> 
-> v1 resend:
-> * Actually cc'd lists...
-> * Fixed mistake in walk_page_range_novma() not handling kernel mappings and
->   update commit message to referene.
-> * Added Mike's off-list Acked-by.
-> * Fixed up comments as per Mike.
-> * Add some historic flavour to the commit message as per Mike.
-> https://lore.kernel.org/all/20250603192213.182931-1-lorenzo.stoakes@oracle.com/
-> 
-> v1:
-> (accidentally sent off-list due to error in scripting)
-> 
->  arch/loongarch/mm/pageattr.c |  2 +-
->  arch/openrisc/kernel/dma.c   |  4 +-
->  arch/riscv/mm/pageattr.c     |  8 +--
->  include/linux/pagewalk.h     |  7 ++-
->  mm/hugetlb_vmemmap.c         |  2 +-
->  mm/internal.h                |  4 ++
->  mm/pagewalk.c                | 98 ++++++++++++++++++++++++------------
->  mm/ptdump.c                  |  3 +-
->  8 files changed, 82 insertions(+), 46 deletions(-)
-> 
-> diff --git a/arch/loongarch/mm/pageattr.c b/arch/loongarch/mm/pageattr.c
-> index 99165903908a..f5e910b68229 100644
-> --- a/arch/loongarch/mm/pageattr.c
-> +++ b/arch/loongarch/mm/pageattr.c
-> @@ -118,7 +118,7 @@ static int __set_memory(unsigned long addr, int numpages, pgprot_t set_mask, pgp
->  		return 0;
-> 
->  	mmap_write_lock(&init_mm);
-> -	ret = walk_page_range_novma(&init_mm, start, end, &pageattr_ops, NULL, &masks);
-> +	ret = walk_kernel_page_table_range(start, end, &pageattr_ops, NULL, &masks);
->  	mmap_write_unlock(&init_mm);
 
-You've removed init_mm from walk_page_range_novma() but I see most callers
-do the locking of init_mm immediately around it. This suggests a version
-handling that automatically? A bit complicated by the read/write
-possibilities, so maybe not worth wrapping? Just a thought, as David says ;)
 
-> 
->  	flush_tlb_kernel_range(start, end);
-> diff --git a/arch/openrisc/kernel/dma.c b/arch/openrisc/kernel/dma.c
-> index 3a7b5baaa450..af932a4ad306 100644
-> --- a/arch/openrisc/kernel/dma.c
-> +++ b/arch/openrisc/kernel/dma.c
-> @@ -72,7 +72,7 @@ void *arch_dma_set_uncached(void *cpu_addr, size_t size)
->  	 * them and setting the cache-inhibit bit.
->  	 */
->  	mmap_write_lock(&init_mm);
-> -	error = walk_page_range_novma(&init_mm, va, va + size,
-> +	error = walk_kernel_page_table_range(va, va + size,
->  			&set_nocache_walk_ops, NULL, NULL);
->  	mmap_write_unlock(&init_mm);
-> 
-> @@ -87,7 +87,7 @@ void arch_dma_clear_uncached(void *cpu_addr, size_t size)
-> 
->  	mmap_write_lock(&init_mm);
->  	/* walk_page_range shouldn't be able to fail here */
-> -	WARN_ON(walk_page_range_novma(&init_mm, va, va + size,
-> +	WARN_ON(walk_kernel_page_table_range(va, va + size,
->  			&clear_nocache_walk_ops, NULL, NULL));
->  	mmap_write_unlock(&init_mm);
->  }
-> diff --git a/arch/riscv/mm/pageattr.c b/arch/riscv/mm/pageattr.c
-> index d815448758a1..3f76db3d2769 100644
-> --- a/arch/riscv/mm/pageattr.c
-> +++ b/arch/riscv/mm/pageattr.c
-> @@ -299,7 +299,7 @@ static int __set_memory(unsigned long addr, int numpages, pgprot_t set_mask,
->  			if (ret)
->  				goto unlock;
-> 
-> -			ret = walk_page_range_novma(&init_mm, lm_start, lm_end,
-> +			ret = walk_kernel_page_table_range(lm_start, lm_end,
->  						    &pageattr_ops, NULL, &masks);
+[...]
 
-Note this and other places break the second line's arguments alignment on
-the opening bracket. Maybe it just shows it's a bit fragile style...
+>   bool try_get_and_clear_pmd(struct mm_struct *mm, pmd_t *pmd, pmd_t *pmdval);
+> diff --git a/mm/pagewalk.c b/mm/pagewalk.c
+> index e478777c86e1..057a125c3bc0 100644
+> --- a/mm/pagewalk.c
+> +++ b/mm/pagewalk.c
+> @@ -584,9 +584,28 @@ int walk_page_range(struct mm_struct *mm, unsigned long start,
+>   	return walk_page_range_mm(mm, start, end, ops, private);
+>   }
+> 
+> +static int __walk_page_range_novma(struct mm_struct *mm, unsigned long start,
+> +		unsigned long end, const struct mm_walk_ops *ops,
+> +		pgd_t *pgd, void *private)
+> +{
+> +	struct mm_walk walk = {
+> +		.ops		= ops,
+> +		.mm		= mm,
+> +		.pgd		= pgd,
+> +		.private	= private,
+> +		.no_vma		= true
+> +	};
+> +
+> +	if (start >= end || !walk.mm)
+> +		return -EINVAL;
+> +	if (!check_ops_valid(ops))
+> +		return -EINVAL;
 
+I'm wondering if that could be moved into walk_pgd_range().
+
+> +
+> +	return walk_pgd_range(start, end, &walk);
+> +}
+> +
+
+I would inline that into both functions and finally get rid of that 
+"novma" ... beauty of a function.
+
+Well, we still have the "no_vma" parameter, but that's a different thing.
+
+E.g.,, there is no need to check for walk.mm in the 
+walk_kernel_page_table_range() case.
+
+-- 
+Cheers,
+
+David / dhildenb
 
