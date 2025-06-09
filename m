@@ -1,67 +1,67 @@
-Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DB4921CC49
-	for <linux-openrisc@vger.kernel.org>; Mon,  9 Jun 2025 18:52:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB9EB21D3D6
+	for <linux-openrisc@vger.kernel.org>; Mon,  9 Jun 2025 18:59:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749495157; cv=none; b=cjRQAc4Xx21JmAzz/7J78B71iwW9nGh3JLFUBl3LJaMFXPa2uDpgPCnKoWL8vB91o3hPSWh2ifsFnHbNVexZfoMxOG6bFIRNXWj3a2wm6QzqwuN+7u+gU0ZGBEEKKDnjpt11faOx6AKRq3CKctDc+oonFgOgYfKq6XH8WLIQVbA=
+	t=1749495595; cv=none; b=afmYSHHbQY65AxZcX4p1vwQdSj/Ut0w5QhqLC5Xvxsq/fGPMUg14V3UBlnzNDqQ8y7Ov0efQJtGBB+XVD+MxJT//bj+OXcoej7hd4+p9eieryMLM8i0G569l/C2emyK+zxTaB6VrGcRIjGfwDryDVHXRqwdonwC1uLuiHlmAwLc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749495157; c=relaxed/simple;
-	bh=Levtmfvv0rwwwpseMSRW8qBekn5KxZb6KJoIpX+UHvE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tovXmka1iAYgF4z80HCUIt6C1s20Q4TDpiQlN0GTXg9593yxzvCwuPa5L9A1IcyD7muq8CwsOuOc511MhG57NcnwJHhYOeajgs8DBSZF6/pdoeaEXd48CAbmAfoOknkFv2YGWYgepR+SYPbLCxidDFzjcY1D0HHVKSpIp/lRdSU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=f7NDfH0f; arc=none smtp.client-ip=209.85.128.47
+	s=arc-20240116; t=1749495595; c=relaxed/simple;
+	bh=q/jc9lfJFfoAgT+zc/3m3DAHq1WHSKLxUUK34iNmf+o=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZdDhNyg45KLmyJJYNCfBLTEzjB4reNgWef93K/lAfPetdUDs3AZESYCbD7U6hsTUJIC1OTa1FCBpGf5NX6U4cbEUlJ14WLoA6sD6vJwWeLH311QqmIavqmJxVbzFQiE9WNUDIY2Snnw4AIQWC8Y2t2OqBCrQqyiBmWDQYLrj6yE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AyWZt/JA; arc=none smtp.client-ip=209.85.128.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f7NDfH0f"
-Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-450ce3a2dd5so41301535e9.3
-        for <linux-openrisc@vger.kernel.org>; Mon, 09 Jun 2025 11:52:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AyWZt/JA"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-450cfb790f7so32992055e9.0
+        for <linux-openrisc@vger.kernel.org>; Mon, 09 Jun 2025 11:59:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1749495154; x=1750099954; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1749495592; x=1750100392; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=yqnwRpiapkoG3nEq9l4SJVCZxQ1TdzaJNT2KrYSEGPU=;
-        b=f7NDfH0fkI5qKDgIsDFXPmjBRDA9OX72mN/hRFzUS5XltBfwPyAGMFTHddrd2cdzZz
-         fNlUGOAJ6q1NGXpbMGb7TLqdJEjZ23zI7KTqCmbmW3WUspTXiMI4sHqay44p0nvgSqNz
-         j3G1xsdc8aL0B8355catBzjL+1B2kKAH5jSx+VxGgC6P8MKDBxW+MWJ3XPyBES31mSqM
-         kI+KKCKoo5wB5CXdtr49pXiCwBVYnCkks20k727mx755tWVifKAeopjlGDAoIL2bokkx
-         jCK3L6TMFeXeVoaR8LtNBq7PFQlWZl6d/GFFyzl3Fo3ckvxkxpOE70DUat8zDApFxmBk
-         8Zvw==
+        bh=2k4SK+lTe91LQklGg9ahzquwN7Y50TXezRd7P0ejvII=;
+        b=AyWZt/JA79d6oCZMM1C/L9E0BXt/8kIymgqS4DXuvBBSSkg+aCzVkfbH4bTzofiPDS
+         +CLfCJSAO+CdsavcYQLXnOCQmt7cjsXxqD6p0wPslKUGiaXvt39aNFHOAwnpikgXoflo
+         7cxb4XjeCnO1OJET15+I4H5YV12RK82qCMJh+QJfl94pmeh6qfSKmptIw7lrHDobae3g
+         CtpVEzzf2g9QZq357h0WXb/PMTXuLOEGEoK+EsfiTkwJE3N6tFVuUqviiRJDe0j23UG2
+         ULeCNyB4n0AIA2xmhBOFFCLol+FngWzx870P8RJArzP16PSs/Ua1J8LXPs7r7ODe2cXp
+         DxZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749495154; x=1750099954;
+        d=1e100.net; s=20230601; t=1749495592; x=1750100392;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=yqnwRpiapkoG3nEq9l4SJVCZxQ1TdzaJNT2KrYSEGPU=;
-        b=lQSPxnjLh/aZ/bHLjiGFg+gXa/CKi6NRhBj9rEvwW93gSIMR57I5wGXh1VutNUKAZe
-         3XVOCDIeqL0tKWqZHQIxthSBHXqFmoIt0OFG1C39DdcsGg4pm+QWl6JBa8TtkuQa+tQD
-         KngbdBVB9JSI7iEGTQ2H9gzTLZeupBYzN1I8HycJH14/7RSi4ohAJjBYzYdPirLfGvyb
-         2uzaeQmUSs2xtukN4ifP11ub26oeMROHoyv80VfsnJqWICxwbHr49xJ/U/TbOrlaCyXi
-         P5XPrC2eyKJ3rY5SRECsISSepo4uPc/zLIRzhN5UJm/MdlE/eGdDKeydY3uNHU+PQmz7
-         PgoA==
-X-Gm-Message-State: AOJu0YxBIlAbAk75QVdxR6YxI6je4By+GuIb3tLtCG4V4K1vqX/4dFDf
-	yCVUHQt+ln1oh7YixIpZW85JoZM33mThtqQOBLrPXvSRjrYfSoUFWBlr
-X-Gm-Gg: ASbGnctPi34zSNYZ3oX77i6qKQKkPG+gPtYKVolhfNu1bdvrXWWuHdJR2BsgCZO90UT
-	7fGyBk4hzSlkB5tvrJcL4dW7s9wDHezS8yh1GSf4himKwwDOrFsRUdQHmJ3dYFqDguruwgX6vF7
-	5+BsaJi7mgwaqIS7gTrUdcC9tfGid3FZsRbphjU4SP/SU8psRxVULJ7Boma/J0YVa5vZsFkrBzk
-	1QUuec6y9kR2nSfvTuAJpwT67647qLw+BDFAVdCR64U3Mqw/39yIqJ1ItiGLvcLtfrXXzlPmtny
-	UQtPMqvo/ustoFv5yig70KwcgfjvjUKc92gOXOccQlvhQPZhEXo/n1xufa7HgkWPlcRd2GN80rX
-	fp5S3VnpSK52sVXOuywxqmti7h+oPmE5k8I/V
-X-Google-Smtp-Source: AGHT+IFmI9lsLSelrlXNTkZLM9b4eUOo9hiI5OtwlOwTrQteFG5b2FVPsdiJSMZJksa4XHowoOhqRw==
-X-Received: by 2002:a05:600c:190b:b0:453:dda:a52e with SMTP id 5b1f17b1804b1-4530ddaa8b3mr46205255e9.33.1749495153437;
-        Mon, 09 Jun 2025 11:52:33 -0700 (PDT)
+        bh=2k4SK+lTe91LQklGg9ahzquwN7Y50TXezRd7P0ejvII=;
+        b=OOu0uZeetRnkwJwAnoPWtxIhJn/AZE4I8/LJUkR+Xzh9ieQ96pOaDzdKP083JUbSgc
+         3BxsCq1D0en9UgDoRiQcbZ/N3NcsTgj3lItE3li3+d9AZ7nIhxJ7lr4WiG8dxpdewBej
+         RwLj8jrZycLBopQ1ACR4kwPuU68+UgRjGEynU/aKwKwNmOLNJOJQXSX+lf+FQT2VZlnM
+         L3g5bNAhxnS7nCwCdfP//5wWeMhOAouaGDwHWlDL7IIq7FIFEQOpR7oS3YRmF/2UB/ne
+         DY53wVSgw1ssZb9lXHuENHSTN0hxGTNnxQfqtiaoZGjqIdTl4Drc1fq3nNb8+UwhblSX
+         zgYg==
+X-Gm-Message-State: AOJu0Yw0BK3qYNAvjkpf6OaisF/Yd9lQE+7aFrw9wteAmMXW7VFO9DnO
+	yF3ft/L2pUTfFNrVRmywNSBYWKNhlgNpyq4kHlZ4uhoICPiTHUQmHnAa
+X-Gm-Gg: ASbGncucP4gvA3dRPnGj+ScdpeHcKiUk3iDKKzofkbgEbPSCfmJhotE5PQ/sF0lvqKB
+	A6Ic/vNxohlW44dhZkFLV86ZyvhieYeMzO6a2ppSpr0sdOAd1Gy9cr7l3/fdChhuO3mnaBa4MAS
+	mRmKnZaNx1z6FWzBNjPBE+gFEmd19z9zK+iYg8EtSGlhR4TkXpV44doY51RtGkuys1DU3l48/zw
+	+l+LtkIn34MiLn+ZnkjJzhjDS+WrtCg3rF87dzbRGrUfK/jB+w0k7KPqRVHeGrgqiOUbmrFKucA
+	uWb6xl9lXsi4bC18lC53HVjktl4rr20/mAT7RdDUEbTunYPEqG2v6MPzqtgwjSyLTYl1F+fglCO
+	p0iuL54GcV4kb3V0=
+X-Google-Smtp-Source: AGHT+IHmmGwnSYuars7eMt4CdrFshBR1nSFr2mvLWVMVYxjF6Fk12rNkKxJtlIM0rVOguZWuRUo2mA==
+X-Received: by 2002:a05:6000:2f88:b0:3a4:dd63:4adf with SMTP id ffacd0b85a97d-3a5319a2f10mr11929150f8f.34.1749495592166;
+        Mon, 09 Jun 2025 11:59:52 -0700 (PDT)
 Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45209ce1f34sm120208615e9.14.2025.06.09.11.52.31
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a532461798sm10003386f8f.87.2025.06.09.11.59.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Jun 2025 11:52:31 -0700 (PDT)
+        Mon, 09 Jun 2025 11:59:50 -0700 (PDT)
 From: Stafford Horne <shorne@gmail.com>
-To: GDB patches <gdb-patches@sourceware.org>
+To: GCC patches <gcc-patches@gcc.gnu.org>
 Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
 	Stafford Horne <shorne@gmail.com>
 Subject: [PATCH] or1k: Fix ICE in libgcc caused by recent validate_subreg changes
-Date: Mon,  9 Jun 2025 19:52:22 +0100
-Message-ID: <20250609185222.1538148-1-shorne@gmail.com>
+Date: Mon,  9 Jun 2025 19:59:46 +0100
+Message-ID: <20250609185946.1538314-1-shorne@gmail.com>
 X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
@@ -88,6 +88,8 @@ gcc/ChangeLog:
 	changing flags mode from BI to SI to allow for paradoxical
 	subregs.
 ---
+Sending again to correct mailing list.
+
  gcc/config/or1k/or1k.cc | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
