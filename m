@@ -1,128 +1,137 @@
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0FBF26D4E2
-	for <linux-openrisc@vger.kernel.org>; Thu, 12 Jun 2025 16:28:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C71428F4A
+	for <linux-openrisc@vger.kernel.org>; Sun, 15 Jun 2025 04:32:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749745730; cv=none; b=Fp+oke+e+sgeEsTeKuVheAbeqtT852MPmKwwuCK3E/L6b39kSy/DFSov8EMktdtBf77y+L6r5UZkyMh0H1KnUTMPErMyvH1G0fxFkXHSKW9QlpFftby4N9fu8SBJg6eVRcx67mElRBTVmTJI1HLe6rzwd+ePbeMoQKecLXd1hl4=
+	t=1749961964; cv=none; b=ovnCrq/Vkj67N3ed8Yb1U37/CFBSQc0ERLQDfgfFRQdjx0VknzQPmUv1jtPoL9qXNr1xqyY+5/zbOPKxztm6mAlPH/EqRKJ31lvkToT+1o0B+xCaPka0CKn3AhaSAf6UeZjGlP67kJhZB38xCp/d88SmdLyKIkBbNKFa3W0zyhY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749745730; c=relaxed/simple;
-	bh=uPO3p+Bzt5Civc5Dd5c6rZ/T3I2evXZb7b1MxLL4zmE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ltl0ZWzG00Q6+rmUnSE0hMhGirhrWSOiTYPlCFzCnmH5PVvw58frXf9bbfgKH29cRclG3tQoHUWCFcA7U690EBQn4uaT6rWBO0eTafI0jtli62s5uKzQtTFMzxVfJNLyinYBVnmgwRZJuDnQyWoSKzVsXxyE2ooGBwSAH4HzOb8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Fx3T1WiR; arc=none smtp.client-ip=209.85.128.53
+	s=arc-20240116; t=1749961964; c=relaxed/simple;
+	bh=kNrs6Z6n5dYg3hEgYy0RugzjTApu9ewEFTM/c6RzAkw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=C5jWPw7glECPsuDncYhXqMDLVkEzR6Hx1bHr/y9GUhQeVrzT4AT55ZITiNO+HlzTg6wf1EqxATj1VT6A4mtfeAYtOIgXRO9/5sfx2KoUwtRBT9LBlXppRFsl7zNlXpkAab9YHWXM9pSXq+Tior9TzygB6YPIB6QOamEsQ1kbg5Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CVcMViTO; arc=none smtp.client-ip=209.85.221.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Fx3T1WiR"
-Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-451d41e1ad1so10065295e9.1
-        for <linux-openrisc@vger.kernel.org>; Thu, 12 Jun 2025 09:28:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CVcMViTO"
+Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-3a51481a598so1978951f8f.3
+        for <linux-openrisc@vger.kernel.org>; Sat, 14 Jun 2025 21:32:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1749745727; x=1750350527; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=kjmFrdeNhutTMNYJTVVPydWsY7q+n9MQCHqvQ9GcvJg=;
-        b=Fx3T1WiRA97NvWf+B1oCN6pqCxD2m1sdCiD1/Qy/8+B8m6l1ZwjqnGphd7zCf7HQrm
-         7muL6xo4S0vJY0UER8cYMcMXs/xaY+AlhQ8L5KdeQUO3VndRuCzM8eldpp/kR0FvcWEE
-         slEka5Z7GVx9w8FV7/KbcY5VH9vsnAFpDLPhDKPSD7XtErY78MO8UIDk2vLUD5mW6NHR
-         xFhl5S8ZTT7DXS5m1xNXYjsn+iSOh5h/PmOpwvrYokJaFAwbvQUr8e3jh7QO1dMtXph4
-         3qqSQ+V07ibFCCH8J9NdruZ1qA022kKXrcaGO02W4RiV63/IFWUrMnH/34mEWN5kCkxT
-         KAmA==
+        d=gmail.com; s=20230601; t=1749961961; x=1750566761; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=UPadYhcSPwi1f7rD8AQJPh4g+k7RfoM7UUYmWSSOYaY=;
+        b=CVcMViTO07dco/Jrgf09TZ4fYTWf+ZbbpIgcfFRuFNcLYbn5/t4o9EhbmHhS8DDb+S
+         7+lFZPFDUG5eSvRe8444xVqzRF6tfJpnhkS7wDOQwLIRb/MiJaBvXkdMYO2rQBMlm7nl
+         JNMoLnhzr+5R78h5grmMUCRw1U7NrGTVBC9iuKoby8ottuv3gHpD449l4tO1qkSfDdm1
+         TdXZda2AC4b1Qj5nb+dBUPcKPhIE1KXeNB4rdCZ0O8/AfgXfbVO8RscNAaa7KCRM+9Fl
+         lPQX8SYuDtrEs+fQvxluyrv/PcLW1WeXr+UDRaqQ4P4JfjV0mdTzuHzrk+1nklAK/sp2
+         SHOg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749745727; x=1750350527;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kjmFrdeNhutTMNYJTVVPydWsY7q+n9MQCHqvQ9GcvJg=;
-        b=dIIudwTWootdQCcq1UQkfZBuaIxK6LxaTJTRCgnRV/x8JuwfyQcYzJebYCjFnwmb6r
-         8AyCKMJ55G4il5cbSSoSzedxbtrJazaEKSKUSZzoCO15KqZjkwRLxytZYMBI/pAlkthp
-         9dvppV8t+7MEDenlIQVLzaHdG6t32Eo01zlT20K8MSF/oOYya81N1q7aBDxrKnZbCsoB
-         5UmVwMmQpKw8f0R4FJxcDnahFfpBz9vVV9ezsLIx8kO1DDA38vOPgRA8GoRvHSvyAd73
-         vvYGTWaOlA4wfnglCWhGWTApCj6apMEB3A5FIy5iUkA0OSPf6b3dfB5BC+DSDRfz1mYG
-         1esA==
-X-Gm-Message-State: AOJu0Yw1VEtXPxBY5qUJawakB54+zrjfsWdMA81rCX9/+qdeJjjaoCXi
-	scIMD1qO0nysuH7NCaIrdsVaa8j45R+OvUV8O2mwusoRYiG45KAz/6Jyv0Vh5Q==
-X-Gm-Gg: ASbGncugmvL2V0ctNFBnAxjqR1gPseyKs/hyY5YyN5Q1inRsGTpKCuY9YX8O8g38Jxy
-	6q0b+U68HyX+1iwAo5PKCd9irkD6v0dUFGMa38itRsUlaNX4lsETrMoJYrR7g4luk3tpF7q77fn
-	+bKxPHqjYUT8SSmdZ3ocGvGSXarHY/B8zyKQGAaSspNcBBvKW6mRo8cq1+7ZfILlW/EKrbbGNda
-	8OkVJ4BGUEi9+j9mGgmN982z+KC6G4P1/o+rqX5bpvwe85KQ68mP3bPoU8rXC2ZMdYhqRHtnFPN
-	AvSVuitnCaBNy5qpin0gVdNtByCaLwYGo/2eIFRr5Vh4k17ELd7hK7yIkDi2UE1u3n7W4vovXOB
-	YU0lOQBFuOTi6F6Nd+gwP+NTYiw==
-X-Google-Smtp-Source: AGHT+IG+dbVy9OuadEpxgiRvVeXO9pN1eZwxsoynDxICv6fAbCYCRcvL5Gs39FcXENU8H3A69br8Zw==
-X-Received: by 2002:a05:600c:4f07:b0:450:d3b9:a5fc with SMTP id 5b1f17b1804b1-4532490d350mr70266555e9.27.1749745726677;
-        Thu, 12 Jun 2025 09:28:46 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1749961961; x=1750566761;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=UPadYhcSPwi1f7rD8AQJPh4g+k7RfoM7UUYmWSSOYaY=;
+        b=vA6A0r68HxuTv+z2WdNwFf2aS3woE/wvD3ENdfEDU+D+pYbExZ+YLK0xweRr9J2fq4
+         8CbzbNYSVVcFNfMjgA6ZArGiELVThqc4yGJAmtazpxrKu3NVXtQUlGX+NKlOq6pupU/n
+         J0IbR8QY1Qbcvd534qZgktScvPecu3IIqd9e8pkg2nIAmZKsHKqRbEfZdVMFAJESOA7O
+         5yoNNhcn7mu8C3o4Um18jEfuKWo2TwJO6UEADhoNNwbJrNA0Nbz9BDCq+b9f0QKiGLCl
+         k/99dgV9TZ2HgUDxw9Y4xzTSyNpA6qJD3E51KMOR+MZapyz/cO7uqvVMe4kL6xq1JYKp
+         anLg==
+X-Gm-Message-State: AOJu0YyLk/473amUW72HW+DOUB1gC7Dk/lhl8motj1MP2QKmUKt6jiC+
+	niVqpy58hyYER7jBs+5M/z5Tu/JfYVUVtYYpIH6baEGHwfn3d2ErRjkl
+X-Gm-Gg: ASbGncu7TIBIQWm416b+SE5JaXospmpYsw0t5CxPmfc55OkE3eYfs0I682TbI2o2Dig
+	DB00sg3GGHnXZepZSpHfLR2rOAb7O0H+S82SHJB1KG5lXaeP8nraMBOnpZSsnBAfenM6r/OiLvc
+	9MnEbEwMbiGRy4dKU9tWc0aGzNdcDQrtSvp9npKYpm0xS44PGhOJdFCDNhD9ap4fP/6LZbI13Ku
+	HYagt+RP95R1T0fTChZ3AoB/QrC+9WtNCYsKPvRceRUux+VOPdkiOnGVEJPukf2DzAKRmx+pVbD
+	W3mVMQXhtWkMQkLkuhl4omo+CPGuXHADxGDB8aZnwGJPo3vuLHtptZoZozLQwoebvi5ACtfQjZq
+	8zhrwdXrAr8w2CBRTVR9jVhYbjebxVdd9DJz4
+X-Google-Smtp-Source: AGHT+IF33CmxPUkLx24k/vRXN3Ey2pGvNKK83X30Mu8PD3jb0y429oC5G+F7KKy02+guFhVgbxmJrA==
+X-Received: by 2002:a05:6000:2010:b0:3a4:f70d:8673 with SMTP id ffacd0b85a97d-3a57237dc6cmr4384436f8f.25.1749961960749;
+        Sat, 14 Jun 2025 21:32:40 -0700 (PDT)
 Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4532e256d95sm24997775e9.31.2025.06.12.09.28.45
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a568a67361sm6812390f8f.30.2025.06.14.21.32.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Jun 2025 09:28:45 -0700 (PDT)
-Date: Thu, 12 Jun 2025 17:28:44 +0100
+        Sat, 14 Jun 2025 21:32:38 -0700 (PDT)
 From: Stafford Horne <shorne@gmail.com>
-To: GCC patches <gcc-patches@gcc.gnu.org>
-Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>
-Subject: Re: [PATCH] or1k: Fix ICE in libgcc caused by recent validate_subreg
- changes
-Message-ID: <aEsAPJzXb-pTzBD6@antec>
-References: <20250609185946.1538314-1-shorne@gmail.com>
+To: GNU Binutils <binutils@sourceware.org>
+Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+	Stafford Horne <shorne@gmail.com>
+Subject: [PATCH] or1k: Fix disassembly for litte endian binaries
+Date: Sun, 15 Jun 2025 05:32:33 +0100
+Message-ID: <20250615043233.418239-1-shorne@gmail.com>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250609185946.1538314-1-shorne@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-On Mon, Jun 09, 2025 at 07:59:46PM +0100, Stafford Horne wrote:
-> After commit eb2ea476db2 ("emit-rtl: Allow extra checks for
-> paradoxical subregs [PR119966]") paradoxical subregs or the OpenRISC
-> condition flag register (reg:BI sr_f) are no longer allowed.
-> 
-> This causes and ICE in the ce1 pass which tries to get the or1k flag
-> register into an SI register, which is no longer possible.
-> 
-> Adjust or1k_can_change_mode_class to allow changing the or1k flag reg to
-> SI mode which in turn allows paradoxical subregs to bre generated again.
-> 
-> gcc/ChangeLog:
-> 
-> 	PR or1k/120587
-> 	* config/or1k/or1k.cc (or1k_can_change_mode_class): Allow
-> 	changing flags mode from BI to SI to allow for paradoxical
-> 	subregs.
-> ---
-> Sending again to correct mailing list.
-> 
->  gcc/config/or1k/or1k.cc | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/gcc/config/or1k/or1k.cc b/gcc/config/or1k/or1k.cc
-> index 62e2168e0ee..f1c92c6bf6c 100644
-> --- a/gcc/config/or1k/or1k.cc
-> +++ b/gcc/config/or1k/or1k.cc
-> @@ -1408,8 +1408,9 @@ static bool
->  or1k_can_change_mode_class (machine_mode from, machine_mode to,
->  			    reg_class_t rclass)
->  {
-> +  /* Allow cnoverting special flags to SI mode subregs.  */
->    if (rclass == FLAG_REGS)
-> -    return from == to;
-> +    return from == to || (from == BImode && to == SImode);
->    return true;
->  }
+There are some OpenRISC CPU's that have their binaries stored in litte
+endian format.  Using objdump to disassemble these is problematic as
+shown below, some instructions fail to disassmble.
 
-I have pushed this now, it restores the or1k port to be able to compile again by
-providing the behavior with subreg's that we had before.
+    objdump -D -b binary -EB -m or1k test_be.bin
 
-However, this did uncover an issue with how the (reg:SI SR_F_REGNUM) SR[F]
-register is treated in OpenRISC.  I think the backend is producing sub optimal
-code that's ok because it gets discarded, but I think its preventing CE passes
-from producing optimal cmov sequences.  I am working to fix this by either:
+       0:	18 60 07 27 	l.movhi r3,0x727
+       4:	a8 63 0e 00 	l.ori r3,r3,0xe00
+       8:	9c 63 ff ff 	l.addi r3,r3,-1
+       c:	bc 43 00 00 	l.sfgtui r3,0
+      10:	13 ff ff fe 	l.bf 0x8
+      14:	44 00 48 00 	l.jr r9
 
- 1. Working withing the current contraints of treating SR[F] as BImode
- 2. Change SR[F] to SImode and added proper splits/etc to make it work (like sh
-    does)
- 3. Harder, convert SR[F] handing to use CC_MODE (this might work the best?)
+    objdump -D -b binary -EL -m or1k test_le.bin
 
--Stafford
+       0:	27 07 60 18 	*unknown*
+       4:	00 0e 63 a8 	l.ori r3,r3,0xe00
+       8:	ff ff 63 9c 	*unknown*
+       c:	00 00 43 bc 	l.sfgtui r3,0
+      10:	fe ff ff 13 	*unknown*
+      14:	00 48 00 44 	l.jr r9
+
+It was found that the hash function was using the still little-endian
+buffer to extract the opcode used for the has lookup.  This didn't work
+as it was pulling the wrong hashcode causing instruction lookup to fail.
+
+Fix the hash function by using the normalized/byte-swapped value instead
+of the buffer.
+
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+ cpu/or1k.opc       | 2 +-
+ opcodes/or1k-opc.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/cpu/or1k.opc b/cpu/or1k.opc
+index 5d20a1f33a7..748187edcdf 100644
+--- a/cpu/or1k.opc
++++ b/cpu/or1k.opc
+@@ -38,7 +38,7 @@
+ #undef  CGEN_DIS_HASH_SIZE
+ #define CGEN_DIS_HASH_SIZE 256
+ #undef  CGEN_DIS_HASH
+-#define CGEN_DIS_HASH(buffer, value) (((unsigned char *) (buffer))[0] >> 2)
++#define CGEN_DIS_HASH(buffer, value) ((value >> 26) & 0xff)
+ 
+ /* Check applicability of instructions against machines.  */
+ #define CGEN_VALIDATE_INSN_SUPPORTED
+diff --git a/opcodes/or1k-opc.h b/opcodes/or1k-opc.h
+index d3d084b1bec..6eec8006828 100644
+--- a/opcodes/or1k-opc.h
++++ b/opcodes/or1k-opc.h
+@@ -35,7 +35,7 @@ extern "C" {
+ #undef  CGEN_DIS_HASH_SIZE
+ #define CGEN_DIS_HASH_SIZE 256
+ #undef  CGEN_DIS_HASH
+-#define CGEN_DIS_HASH(buffer, value) (((unsigned char *) (buffer))[0] >> 2)
++#define CGEN_DIS_HASH(buffer, value) ((value >> 26) & 0xff)
+ 
+ /* Check applicability of instructions against machines.  */
+ #define CGEN_VALIDATE_INSN_SUPPORTED
+-- 
+2.49.0
+
