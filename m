@@ -1,243 +1,237 @@
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C04A231858
-	for <linux-openrisc@vger.kernel.org>; Thu, 19 Jun 2025 15:40:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8A017275B15;
+	Tue,  1 Jul 2025 13:56:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750347637; cv=none; b=dYpRAZdyhnnBpU9xLapNqffaSRufEY7VvpOJ+tOD/XL7r7E6jRmCkTr7mMUZwWEfpXzLmTyEHVFbdKc3bL/SsleHaqDQ5dQMJSgSs1j+G0qY+M92ALLDOjmWkUSfmN/Ab0kj+q14J7HErgXT48SWOXcLc9vhgIYbo5vFXQnhcbw=
+	t=1751378196; cv=none; b=rbbe1W1yp4U1FG980YMDJI4llXN5Mfx+Ay7WfQVF7eK5vewN+oJ2hfidjF8FU0C+fDLHH4j3/ekssClsQzTpvxBWqybtTYdge259i7lfKgoUUWmExkP4L+Q4Pd6TSfb+goyDUgI2EbwgU9Kt3q7uOX8XOM+45BCSpk6b9T8Hvn0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750347637; c=relaxed/simple;
-	bh=uncMZthE7/Y1mkam3i4tuXNFmGQ3PFccIIbLf59gZVI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XV03C/65PwZZ34JVeSjwVFFI5s0JgvE89H7gHwaOoXe6pT+tB68qyECX8E4EVfl+xf0ux6om62rwuGhsNeMwrqGolKwL3daKf2a0904GuLhbPqCxOMW3dV88XuvIs5rxF+JC1sZr1GGWmG5HxMbdPDJh7yAHJ6y1qsmvYxmibmc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gxzti/bW; arc=none smtp.client-ip=209.85.128.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gxzti/bW"
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-43edecbfb46so6797865e9.0
-        for <linux-openrisc@vger.kernel.org>; Thu, 19 Jun 2025 08:40:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750347633; x=1750952433; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=SMd9cwCrBZT1hAebuQD0KN2bw8pJ/j+iSXqIr3keu5A=;
-        b=gxzti/bWns8uUadp/86l5rVMdc8XJkPf2GfZSOx5cRpsohUphteZw72OA3f5UXvKGI
-         mX42DJGawkuxDShbRKxHPmRixGfwn6akSI64rfGx94SsvuDJN+W8Jua+GUNv/wEafZsC
-         fwxr5mQ6jOZpBpJC+hCmPLOHzbL+QVNmxsQ38rbmmudFYP37q2mUF2IN5Le1rc0MzsoQ
-         7N4ommkmXctbemtwfmicnRPsbAKDtHJc4ytwdgCU8OimhIk9XMH9uifnhKV0g2BsfJkw
-         MTYoEsyfYAqkAF/4gq4dUy3wsy47AGRDlrw0O727XC6q9B13OOC8gfSJoon20FQZ+QjJ
-         9Myw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750347633; x=1750952433;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SMd9cwCrBZT1hAebuQD0KN2bw8pJ/j+iSXqIr3keu5A=;
-        b=gWv1lS0qb4cRsHUuMwJ0HIloJ4a4YpPYcOCbJd0d/2E6gQsfL1PCOeVTgVtc5F9R3T
-         vIkQitK9O1VHZM7n4mqNeKRe8qypVnIjh+Q6xgScs9WdRELguXxzcZXcjS8G3FhdBmQO
-         DFyl/YQFomV7GV3pPF3+8zJjnF4m6ueTZBRFLxCOtX8aMAGUOhS/FgELNTM2G3TS6Vmz
-         wd1UlGGm3G8eiA9DfWFvDxR32YsIL+m3ryAs6ZDqjAu7ImKWu4cycySnfRa9Ay0EQtIE
-         TRk4t2yMHxyBiZoIP/bCsIi+fjMVS+EkGJrMl7XbkHLnGvmkOKr/rnHEsVy2r/rZsPge
-         qUOQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXEbI8hivTLaGzLX5ncKLsbvn4xoiid0DDevoX8kEYbxVsfsLHcCzlPBgrVLwqguUWRTbEAWCaVRZVU4dUJ+Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0YybH2dfc1lKT0mb5zfJh6v3S0MKOwwKmzIKpWVpgZ0aIynlofLA
-	qIYVgE9PPvMr3HBEk95nWUCyT769O6WAviLif+wzCXc3sFLMBkEmShPw
-X-Gm-Gg: ASbGncseGCNU4wdMrzzwcN5fwCUOmUp84qVBoTwE/yoFHremdl8FwhcAYtDacsNIDZl
-	Y3s5sEQ5pzl/PPhwrKOZXn5t6hVKIxwaYBsh/zl9AghOCoDUG1PMvklpfZSRzpWBEg8qpCvs/jV
-	H9+5kAxVIssuxp/8aHRSyILIURBiwPbK9EjjG4qSTfCiaI0VC7va3+5NFZHaydzt0VrwQNEwp1c
-	AsuQ0M4i8pa3lsSpGXFkma0ALSyDCHU08SxYcdYXkPea7zlmbCAjDanGyvAY67+QEA+6+1Qh2xB
-	BUUfRbR5q3J5h8yT4b8ePyvtmLoYQq8W9DynLwFyoeL69Wzjr0aD44sHP1muAFDY9lH/gjHsv0N
-	pbFtOr/YnoQmN2mlyhLecxbPwiQ==
-X-Google-Smtp-Source: AGHT+IGrxt7Ejgl+qlb6/2bT1nTmYi+bMCJSJdVNYP1OgxKLGZK0xyBHLleNg6DCB8l42hqrXPYTZA==
-X-Received: by 2002:a05:600c:37c4:b0:43c:f6c6:578c with SMTP id 5b1f17b1804b1-4533d5a03a9mr243174685e9.15.1750347633067;
-        Thu, 19 Jun 2025 08:40:33 -0700 (PDT)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4535e99cb61sm32342285e9.33.2025.06.19.08.40.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Jun 2025 08:40:28 -0700 (PDT)
-Date: Thu, 19 Jun 2025 16:40:28 +0100
-From: Stafford Horne <shorne@gmail.com>
-To: GCC patches <gcc-patches@gcc.gnu.org>
-Cc: Dimitar Dimitrov <dimitar@dinux.eu>,
-	Linux OpenRISC <linux-openrisc@vger.kernel.org>
-Subject: Re: [PATCH 2/2] or1k: Improve If-Conversion by delaying cbranch
- splits
-Message-ID: <aFQvbEkfUzsJnKq6@antec>
-References: <20250619131426.1292212-1-shorne@gmail.com>
- <20250619131426.1292212-3-shorne@gmail.com>
+	s=arc-20240116; t=1751378196; c=relaxed/simple;
+	bh=OjzN30GIiPcplOAaeYUjDuVVavt00lwj5wf5fyxHSgE=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=hCjUhNlpOp+5G4Rpsg+7XNo5V/3hT+jckl75ilm5IAE0bnRT5YWFbJ3aDM/DZbtgoz9PX6H7l9qLde/feC2Vn+Gs0eWh9yxVvbIhA8qj2e4sRPzMg3vqqxkJH7Zxucpd29VXOA3QRgZEkKtDG3QyhM/wwtudzCIfr7u80kcaHIw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4E7141713;
+	Tue,  1 Jul 2025 06:56:18 -0700 (PDT)
+Received: from e133380.cambridge.arm.com (e133380.arm.com [10.1.197.52])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CE12C3F58B;
+	Tue,  1 Jul 2025 06:56:23 -0700 (PDT)
+From: Dave Martin <Dave.Martin@arm.com>
+To: linux-kernel@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+	Akihiko Odaki <akihiko.odaki@daynix.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Alexandre Ghiti <alex@ghiti.fr>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Brian Cain <bcain@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Chris Zankel <chris@zankel.net>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Guo Ren <guoren@kernel.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Jonas Bonn <jonas@southpole.se>,
+	Kees Cook <kees@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Max Filippov <jcmvbkbc@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Oleg Nesterov <oleg@redhat.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Rich Felker <dalias@libc.org>,
+	Richard Weinberger <richard@nod.at>,
+	Russell King <linux@armlinux.org.uk>,
+	Stafford Horne <shorne@gmail.com>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Vineet Gupta <vgupta@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Will Deacon <will@kernel.org>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org,
+	linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-um@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org,
+	loongarch@lists.linux.dev,
+	sparclinux@vger.kernel.org,
+	x86@kernel.org
+Subject: [PATCH 00/23] binfmt_elf,arch/*: Use elf.h for coredump note names
+Date: Tue,  1 Jul 2025 14:55:53 +0100
+Message-Id: <20250701135616.29630-1-Dave.Martin@arm.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250619131426.1292212-3-shorne@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jun 19, 2025 at 02:14:26PM +0100, Stafford Horne wrote:
-> When working on PR120587 I found that the ce1 pass was not able to
-> properly optimize branches on OpenRISC.  This is because of the early
-> splitting of "compare" and "branch" instructions during the expand pass.
-> 
-> Convert the cbranch* instructions from define_expand to
-> define_insn_and_split.  This dalays the instruction split until after
-> the ce1 pass is done giving ce1 the best opportunity to perform the
-> optimizations on the original form of cbranch<mode>4 instructions.
-> 
-> gcc/ChangeLog:
-> 
-> 	* config/or1k/or1k.cc (or1k_noce_conversion_profitable_p): New
-> 	function.
-> 	(or1k_is_cmov_insn): New function.
-> 	(TARGET_NOCE_CONVERSION_PROFITABLE_P): Define macro.
-> 	* config/or1k/or1k.md (cbranchsi4): Convert to insn_and_split.
-> 	(cbranch<mode>4): Convert to insn_and_split.
-> 
-> Signed-off-by: Stafford Horne <shorne@gmail.com>
-> ---
->  gcc/config/or1k/or1k.cc | 54 +++++++++++++++++++++++++++++++++++++++++
->  gcc/config/or1k/or1k.md | 32 ++++++++++++++++++++++--
->  2 files changed, 84 insertions(+), 2 deletions(-)
-> 
-> diff --git a/gcc/config/or1k/or1k.cc b/gcc/config/or1k/or1k.cc
-> index f1c92c6bf6c..36c16a51d44 100644
-> --- a/gcc/config/or1k/or1k.cc
-> +++ b/gcc/config/or1k/or1k.cc
-> @@ -1654,6 +1654,60 @@ or1k_rtx_costs (rtx x, machine_mode mode, int outer_code, int /* opno */,
->  #undef TARGET_RTX_COSTS
->  #define TARGET_RTX_COSTS or1k_rtx_costs
->  
-> +static bool
-> +or1k_is_cmov_insn (rtx_insn *seq)
-> +{
-> +  rtx_insn *curr_insn = seq;
-> +  rtx set = NULL_RTX;
-> +
-> +  /* The pattern may start with a simple set with register operands.  Skip
-> +     through any of those.  */
-> +  while (curr_insn)
-> +    {
-> +      set = single_set (curr_insn);
-> +      if (!set
-> +	  || !REG_P (SET_DEST (set)))
-> +	return false;
-> +
-> +      /* If it's not a simple reg or immediate break.  */
-> +      if (REG_P (SET_SRC (set)) || CONST_INT_P (SET_SRC (set)))
-> +        curr_insn = NEXT_INSN (curr_insn);
-> +      else
-> +	break;
+This series aims to clean up an aspect of coredump generation:
 
-Indentation issue.
+ELF coredumps contain a set of notes describing the state of machine
+registers and other information about the dumped process.
 
-> +    }
-> +
-> +  /* The next instruction should be a compare.  OpenRISC has many operators used
-> +     for comparison so skip and confirm the next is IF_THEN_ELSE.  */
-> +  curr_insn = NEXT_INSN (curr_insn);
+Notes are identified by a numeric identifier n_type and a "name"
+string, although this terminology is somewhat misleading.  Officially,
+the "name" of a note is really an "originator" or namespace identifier
+that indicates how to interpret n_type [1], although in practice it is
+often used more loosely.
 
-Need to check curr_insn before calling NEXT_INSN () to avoid failures.
+Either way, each kind of note needs _both_ a specific "name" string and
+a specific n_type to identify it robustly.
 
-> +  if (!curr_insn)
-> +    return false;
-> +
-> +  /* And the last instruction should be an IF_THEN_ELSE.  */
-> +  set = single_set (curr_insn);
-> +  if (!set
-> +      || !REG_P (SET_DEST (set))
-> +      || GET_CODE (SET_SRC (set)) != IF_THEN_ELSE)
-> +    return false;
-> +
-> +  return !NEXT_INSN (curr_insn);
-> +}
-> +
-> +/* Implement TARGET_NOCE_CONVERSION_PROFITABLE_P.  We detect if the conversion
-> +   resulted in a l.cmov instruction and if so we consider it more profitable than
-> +   branch instructions.  */
-> +
-> +static bool
-> +or1k_noce_conversion_profitable_p (rtx_insn *seq,
-> +				    struct noce_if_info *if_info)
-> +{
-> +  if (TARGET_CMOV)
-> +    return or1k_is_cmov_insn (seq);
-> +
-> +  return default_noce_conversion_profitable_p (seq, if_info);
-> +}
-> +
-> +#undef TARGET_NOCE_CONVERSION_PROFITABLE_P
-> +#define TARGET_NOCE_CONVERSION_PROFITABLE_P or1k_noce_conversion_profitable_p
->  
->  /* A subroutine of the atomic operation splitters.  Jump to LABEL if
->     COND is true.  Mark the jump as unlikely to be taken.  */
-> diff --git a/gcc/config/or1k/or1k.md b/gcc/config/or1k/or1k.md
-> index a30cc18892d..bf7125375ac 100644
-> --- a/gcc/config/or1k/or1k.md
-> +++ b/gcc/config/or1k/or1k.md
-> @@ -609,7 +609,7 @@
->  ;; Branch instructions
->  ;; -------------------------------------------------------------------------
->  
-> -(define_expand "cbranchsi4"
-> +(define_insn_and_split "cbranchsi4"
->    [(set (pc)
->  	(if_then_else
->  	  (match_operator 0 "comparison_operator"
-> @@ -618,13 +618,27 @@
->  	  (label_ref (match_operand 3 "" ""))
->  	  (pc)))]
->    ""
-> +  "#"
-> +  "&& 1"
-> +  [(const_int 0)]
->  {
-> +  rtx label;
-> +
-> +  /* Generate *scc */
->    or1k_expand_compare (operands);
-> +  /* Generate *cbranch */
-> +  label = gen_rtx_LABEL_REF (VOIDmode, operands[3]);
-> +  emit_jump_insn (gen_rtx_SET (pc_rtx,
-> +			       gen_rtx_IF_THEN_ELSE (VOIDmode,
-> +						     operands[0],
-> +						     label,
-> +						     pc_rtx)));
-> +  DONE;
->  })
->  
->  ;; Support FP branching
->  
-> -(define_expand "cbranch<F:mode>4"
-> +(define_insn_and_split "cbranch<F:mode>4"
->    [(set (pc)
->  	(if_then_else
->  	  (match_operator 0 "fp_comparison_operator"
-> @@ -633,8 +647,22 @@
->  	  (label_ref (match_operand 3 "" ""))
->  	  (pc)))]
->    "TARGET_HARD_FLOAT"
-> +  "#"
-> +  "&& 1"
-> +  [(const_int 0)]
->  {
-> +  rtx label;
-> +
-> +  /* Generate *scc */
->    or1k_expand_compare (operands);
-> +  /* Generate *cbranch */
-> +  label = gen_rtx_LABEL_REF (VOIDmode, operands[3]);
-> +  emit_jump_insn (gen_rtx_SET (pc_rtx,
-> +			       gen_rtx_IF_THEN_ELSE (VOIDmode,
-> +						     operands[0],
-> +						     label,
-> +						     pc_rtx)));
-> +  DONE;
->  })
->  
->  (define_insn "*cbranch"
-> -- 
-> 2.49.0
-> 
+To centralise this knowledge in one place and avoid the need for ad-hoc
+code to guess the correct name for a given note, commit 7da8e4ad4df0
+("elf: Define note name macros") [2] added an explicit NN_<foo> #define
+in elf.h to give the name corresponding to each named note type
+NT_<foo>.
+
+Now that the note name for each note is specified explicitly, the
+remaining guesswork for determining the note name for common and
+arch-specific regsets in ELF core dumps can be eliminated.
+
+This series aims to do just that:
+
+ * Patch 2 adds a user_regset field to specify the note name, and a
+   helper macro to populate it correctly alongside the note type.
+
+ * Patch 3 ports away the ad-hoc note names in the common coredump
+   code.
+
+ * Patches 4-22 make the arch-specific changes.  (This is pretty
+   mechanical for most arches.)
+
+ * The final patch adds a WARN() when no note name is specified,
+   and simplifies the fallback guess.  This should only be applied
+   when all arches have ported across.
+
+See the individual patches for details.
+
+
+Testing:
+
+ * x86, arm64: Booted in a VM and triggered a core dump with no WARN(),
+   and verified that the dumped notes are the same.
+
+ * arm: Build-tested only (for now).
+
+ * Other arches: not tested yet
+
+Any help with testing is appreciated.  If the following generates the
+same notes (as dumped by readelf -n core) and doesn't trigger a WARN,
+then we are probably good.
+
+$ sleep 60 &
+$ kill -QUIT $!
+
+(Register content might differ between runs, but it should be safe to
+ignore that -- this series only deals with the note names and types.)
+
+Cheers
+---Dave
+
+
+[1] System V Application Binary Interface, Edition 4.1,
+Section 5 (Program Loading and Dynamic Linking) -> "Note Section"
+
+https://refspecs.linuxfoundation.org/elf/gabi41.pdf
+
+[2] elf: Define note name macros
+
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/include/uapi/linux/elf.h?id=7da8e4ad4df0dd12f37357af62ce1b63e75ae2e6
+
+
+Dave Martin (23):
+  regset: Fix kerneldoc for struct regset_get() in user_regset
+  regset: Add explicit core note name in struct user_regset
+  binfmt_elf: Dump non-arch notes with strictly matching name and type
+  ARC: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+  ARM: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+  arm64: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+    names
+  csky: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+  hexagon: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+    names
+  LoongArch: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+    names
+  m68k: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+  MIPS: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+  nios2: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+    names
+  openrisc: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+    names
+  parisc: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+    names
+  powerpc/ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+    names
+  riscv: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+    names
+  s390/ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+  sh: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+  sparc: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+    names
+  x86/ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+  um: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+  xtensa: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+    names
+  binfmt_elf: Warn on missing or suspicious regset note names
+
+ arch/arc/kernel/ptrace.c                 |  4 +-
+ arch/arm/kernel/ptrace.c                 |  6 +-
+ arch/arm64/kernel/ptrace.c               | 52 ++++++++---------
+ arch/csky/kernel/ptrace.c                |  4 +-
+ arch/hexagon/kernel/ptrace.c             |  2 +-
+ arch/loongarch/kernel/ptrace.c           | 16 ++---
+ arch/m68k/kernel/ptrace.c                |  4 +-
+ arch/mips/kernel/ptrace.c                | 20 +++----
+ arch/nios2/kernel/ptrace.c               |  2 +-
+ arch/openrisc/kernel/ptrace.c            |  4 +-
+ arch/parisc/kernel/ptrace.c              |  8 +--
+ arch/powerpc/kernel/ptrace/ptrace-view.c | 74 ++++++++++++------------
+ arch/riscv/kernel/ptrace.c               | 12 ++--
+ arch/s390/kernel/ptrace.c                | 42 +++++++-------
+ arch/sh/kernel/ptrace_32.c               |  4 +-
+ arch/sparc/kernel/ptrace_32.c            |  4 +-
+ arch/sparc/kernel/ptrace_64.c            |  8 +--
+ arch/x86/kernel/ptrace.c                 | 22 +++----
+ arch/x86/um/ptrace.c                     | 10 ++--
+ arch/xtensa/kernel/ptrace.c              |  4 +-
+ fs/binfmt_elf.c                          | 36 +++++++-----
+ fs/binfmt_elf_fdpic.c                    | 17 +++---
+ include/linux/regset.h                   | 12 +++-
+ 23 files changed, 194 insertions(+), 173 deletions(-)
+
+
+base-commit: 86731a2a651e58953fc949573895f2fa6d456841
+-- 
+2.34.1
+
