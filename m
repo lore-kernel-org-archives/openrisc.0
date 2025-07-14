@@ -1,126 +1,91 @@
-Received: from out203-205-221-190.mail.qq.com (out203-205-221-190.mail.qq.com [203.205.221.190])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2584619AD48
-	for <linux-openrisc@vger.kernel.org>; Mon, 14 Jul 2025 09:45:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.190
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE935246778
+	for <linux-openrisc@vger.kernel.org>; Mon, 14 Jul 2025 14:59:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752486356; cv=none; b=Z0PdXoSfAwTeuQaCtye2YmtVUu1cxImECZIyOBzGpgUHm/MDpRoCa5QC+BiUGx+X2M6ArSgTwD3hS3e9m5dQ+ddWJJE12DCh/wH+Z8sVWa1WYLvzUCnA4SL+tMros4iwQMjEMSwdgiLr9fFjL0KmYoGGkKfVcydNdaenrxZnGk8=
+	t=1752505165; cv=none; b=OzQncO49kNZvwdT4pP/DRv+YsosyR863gl9y72nlrK2i4OV0R9R6E+PXwm2NOP6Rghs1B5xXn49XzXz7J1HebbSFOFOsckYyRyOzKn3/Nil17f/+rdPj5SWZU6ViiNk3TnS35nfAME07jWScap6gqqTJOeOyvMfFMn7oIK2aW/w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752486356; c=relaxed/simple;
-	bh=VfNVA3lxE/EatfSPl2LMD0HPzqp1A22eva87zMP9kuk=;
-	h=From:To:Cc:Subject:Mime-Version:Content-Type:Date:Message-ID:
-	 References:In-Reply-To; b=LBWhs87okt+ZyvPobUq556+6OqaQDxub/3WB4RTyPiNVpVenKbrV3ButIjHJGAx4mD3KQSjBnW6HTj8xuGu4VCUBQYme6fGDN5qHda6J5cYTKnngvsH4DRvgpKSKhOwXtQhBElZXLvhVCXE+P2RyI3XgEMqnjUEBr2Yqy0eCm8g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=hREON3oE; arc=none smtp.client-ip=203.205.221.190
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
+	s=arc-20240116; t=1752505165; c=relaxed/simple;
+	bh=I0uwFyjoHf3dO8eVxOXL7xmxM6xJpTF7aCCD8p5QI7U=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hKjeU0O+V6svVAq4ReW+TKfWG6mgMDxtX44dEtMfhdx91ziRTHTKdSLXQTWNf+6FT6LT8E3pdriqYeNpQtJtV8+WovERu/nVAlmfBPQY7FMLf+wqqpIYBjvQIMKiC8slj7bhFFZHPmnexLqfKoaz/TN9TqUkoOBZt7ZNmdeh0Js=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gEZJMT1h; arc=none smtp.client-ip=209.85.128.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="hREON3oE"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
-	s=s201512; t=1752486044;
-	bh=VfNVA3lxE/EatfSPl2LMD0HPzqp1A22eva87zMP9kuk=;
-	h=From:To:Cc:Subject:Date:References:In-Reply-To;
-	b=hREON3oEbju+YUlmzoSuprxl5hG9DDtgaBxRQsp9uKoGFbZfWguq0HrpMFTioPuH/
-	 BTHwSU1Ok21sa2x5lZAAJr1/KYtvR6OSamazAv0Py1/sJhtBVLLyt5OTRzEgDUucPm
-	 vjk8nAsXSg0eB2QrKcAAYFE1pBPQLooHxRlzxPno=
-X-QQ-XMRINFO: Mp0Kj//9VHAxr69bL5MkOOs=
-X-QQ-XMAILINFO: OUnVc07lD2ZBMsJUUfQfvj5qFZ0bRsKFWAQNJJDn6VgGl8OMIn2Sh/5LsA8Q2J
-	 HboXCqJTcSrI7ts3uqYCkh10pegH2lGADIiVh6HBGzPGEeMyiKHjbHVy74AasGf6ilwz7cDKD32Mw
-	 rtaJa5QabbBwLIBoNuMcz7kpdOF8c+CeSq2+bAW/t34tcWYClzu9MeD6zlPK9pHritMvjCIVhxCd9
-	 0CffhCkI9NnmY3YDXJJFlREbJd5/XNo9ArToPgIT9hltv7phJbyjBO8fDhBQr8slTgx7mFKCRAOde
-	 V+u68T4pJohhgiI17EUqJTM24cqoiN2ppNqFvVecFmti7orwcTv+6v/U9sLcnZpP+nRUIpsSdqyCW
-	 QX0kih8KS+nXYPDYuhGkbtQP2qEJQRgIkk1iH83gbCV7hb+OrWGE8s1o/37359mhrReQ4ENa9l3gK
-	 TYj3UgwVNNTvhWXsJDj8KoAkQWjEs8YfxdQingZDnIvrGyK9qkWbcB/Ff8MAurFa2ojsaaZpQsPNF
-	 rGJ3TxHimY2U80Vh03tj3TEMqRgyqx9EoNkR1LAjyfv/1wrUoOhJlAy8Bwxsu9NI83PqJ45p3hLaX
-	 dpUjmTOZsBGNE8HAdqsCYbiwWX7W1NcfM28JxsJdVvBWINkY/jMxT4FDDab9Uv5MRx9n6Rafzhexs
-	 q6H6L9ausHhKy52C8L2TUxF+rLa44WGDezoKxMYdqgi0KaOmTKrOwyXe8ZOv2mRHRCMiegnOtCq1I
-	 5aHb2LB177nX8ci/8e4Rsgg3LvQe17GplOv4aLyQdLl4+L+EW9ay/PZ2E4lUKGekW1TywMSuoAnlQ
-	 AIUeHlCd1ZKg5hRqodZv9ZZASS5dEv0/FM4cAdSeYRF2n8enl3IFbdu2GV8Y01Y/UmpzcQToSGaaY
-	 RgpRiorWa4NYZiEWUmG3OBDvaaH+RiRo7kndV9Qbh8neounyZeMvjJnQrmbfw3V7rTV5u6xxjizf6
-	 9LILUDPkBromqlx77P95s0ojWuZF7PHT/+ndGARYnLJpl1Lbb2vZ1oHqhzamNCNayO0RgrmZ3UxGt
-	 Ke54IR/HGJKylEoQ=
-From: "=?utf-8?B?R2FyeSBMYXU=?=" <zgliu@foxmail.com>
-To: "=?utf-8?B?U3RhZmZvcmQgSG9ybmU=?=" <shorne@gmail.com>
-Cc: "=?utf-8?B?bGludXgtb3BlbnJpc2M=?=" <linux-openrisc@vger.kernel.org>
-Subject: Re: [Question]or1k-elf/or1k-linux Windows/Cygwin toolchainavailability?
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gEZJMT1h"
+Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-454ac069223so27574265e9.1
+        for <linux-openrisc@vger.kernel.org>; Mon, 14 Jul 2025 07:59:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1752505162; x=1753109962; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=I0uwFyjoHf3dO8eVxOXL7xmxM6xJpTF7aCCD8p5QI7U=;
+        b=gEZJMT1h/ejIze9PDJBe8hDoonXEWJBNz3FeNkj6CfL+0iXb8+TlC38IUwLakTRQ2n
+         /IKGXS+WtNw+tRtToE4z9/FIzaNxZrjwk/FP2ArhG4T9IsvSgI5w5UQZ3BfZcevnZn2j
+         z+p7b0fJWi5/Xv3dadTHKXeBaV+kqtYlUiWZRtzfeODYsNPcy4MaDs8i9O+jr4RE0w+E
+         CNHN8AdWl6U4aAlNnWUn6Noxcv/rTEzTY/exObYXR/plLtfTeBcbRSfEvpImHEBNxi7k
+         z9NNYetlko/b4sYwrXefcfpSDW4j5kGR/lhaD4+VTCayQdbT/MoVcl5OHVtX4EXepLeN
+         AVcQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1752505162; x=1753109962;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=I0uwFyjoHf3dO8eVxOXL7xmxM6xJpTF7aCCD8p5QI7U=;
+        b=HelrFQvt5L4rGZkSBjATxChKmEePnwSCMGxs/uJk2wOJGeAxJoWRs1abyNBzbIFIhP
+         2QQqKTz+QOJ713TNpMIlw+mj6stDiZeJCdhZ6H8Gno1yW5hFVbdkNnecVqGDcnnTzM3T
+         A+7rPAMvOPojf6OVpFLEXf9ERIucmZj8kYVhH6DU8hkpP8JbQIQ/sPCK8c4IhICgxV8J
+         sin1AnPmu/uxxBAEMdGWKYothedlNhQos3ia0oSJTx1mvmDUPa+J/ugFscKB/OoCaSiU
+         hw3oG0X91w2Ee3l/A4JyMthI23x7EMa3G2Y8DAVwYZOGEPUHBJaGpIsr6dY1jUYuvM97
+         jSDg==
+X-Gm-Message-State: AOJu0YyCXaV6qSXqd1AjNzFAJ36cx1alAQjGTxkQq81Y5Ejaz1E6BpQN
+	xwPBgK/VavTmCpIqNJTeXDbKmSzBnJrd8YstdHAQc+jfzz/Gvu7NcZp9VykwrQ==
+X-Gm-Gg: ASbGnctGAmkKKVpxOw/DgSaGLou+KdNu5aCcrZW6X25V6Nq3ya8hSDssiP9TtFT25zt
+	jsCrtJf5MUe7bEdWfx4sDKaH6E5Pi+c58t1K4H5CpC2bUvGRsaccbscE5hGto8Jmry4S3/ikamo
+	jTLb/H2RSzb6KnhUPhhhbDy/7KCJX/2+g4j3GrErAkHy9bVchOT6UtL2qlYfb+C34qSy48SMfmG
+	UyOUa1+yUafH4jszXciwJUas9BO0Hk+gUL24CJaQ/380DqJxIQSooSNT/Ck6gWUitq80SfC1jbo
+	0qqRKiiqpfLOQWK3dA1aq/+tKvX3OZ+li3k4sqArIQKis+0pN+QlEFLKgJM4J5xz05eHbkpL5/0
+	0h49cfW85OtgmVvtbHRvksmQTtUxlYWQwXISQ8Legnp11kEJJjlHSy19Z3N6xnw==
+X-Google-Smtp-Source: AGHT+IGO5/opwsI88gfzaKm1ibI8wfcaom/rTfC7KrFE+bwOHUmqgjb5EG0GV0oP/Jl4bH8f39slpg==
+X-Received: by 2002:a05:600c:46ce:b0:456:21f4:a0a3 with SMTP id 5b1f17b1804b1-45621f4a239mr19914045e9.5.1752505161911;
+        Mon, 14 Jul 2025 07:59:21 -0700 (PDT)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4561a052729sm38824595e9.33.2025.07.14.07.59.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Jul 2025 07:59:20 -0700 (PDT)
+Date: Mon, 14 Jul 2025 15:59:19 +0100
+From: Stafford Horne <shorne@gmail.com>
+To: Gary Lau <zgliu@foxmail.com>
+Cc: linux-openrisc <linux-openrisc@vger.kernel.org>
+Subject: Re: [QUESTION] Does or1k-elf-gcc handle OpenRISC 4B
+ alignmentrequirement?
+Message-ID: <aHUbRxBk6fBnLaj3@antec>
+References: <tencent_9B9E72B11681621EC7FA7CBD636247D74F06@qq.com>
+ <aHI1dhsflDh2Ci1l@antec>
+ <tencent_FEB56C143F39CEE7BB1C5B3A1C7E82940909@qq.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
-Date: Mon, 14 Jul 2025 17:40:43 +0800
-X-Priority: 3
-Message-ID: <tencent_5BAB7280D682A23F87C6FC91637DC7DBCF06@qq.com>
-X-QQ-MIME: TCMime 1.0 by Tencent
-X-Mailer: QQMail 2.x
-X-QQ-Mailer: QQMail 2.x
-References: <tencent_D7671DAE3F2DCA4F5AAD8A421C72F3568E08@qq.com>
-	<aHNLQdk1W_A7PvDw@antec>
-In-Reply-To: <aHNLQdk1W_A7PvDw@antec>
-X-QQ-mid: xmsezb29-0t1752486043t1688hgs9
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <tencent_FEB56C143F39CEE7BB1C5B3A1C7E82940909@qq.com>
 
-SGkgU3RhZmZvcmQsClRoZSBsb2FkIGVsZiBmYWlsdXJlIHNlZW1zIG5vdCBiZSByZWxhdGVk
-IHRvIHRoZSBhbGlnbm1lbnQgaXNzdWUuCkl0IHNlZW1zIGJlIHJlbGF0ZWQgdG8gdGhlIG1l
-bW9yeSBzdGFjayBjb25mbGljdCBiZXR3ZWVuIG1haW4gcHJvZ3JhbSBhbmQgY2xpZW50IGVs
-Zi4KSSB3aWxsIGZpeCBpdC4KQW55d2F5LCB0aGFua3MgdGhhdCB5b3UgY29uZmlybWVkIHRo
-ZSBvcjFrLWdjYyBkb2VzIG5vdCB0YWtlIGNhcmUgb2YgNEIgYWxpZ25tZW50LgoKCk9yaWdp
-bmFsCkZyb206U3RhZmZvcmQgSG9ybmUgPHNob3JuZUBnbWFpbC5jb20+ClNlbnQgVGltZToy
-MDI1LTA3LTEzLSAxMzo1OQpUbzpHYXJ5IExhdSA8emdsaXVAZm94bWFpbC5jb20+CkNjOmxp
-bnV4LW9wZW5yaXNjIDxsaW51eC1vcGVucmlzY0B2Z2VyLmtlcm5lbC5vcmc+ClN1YmplY3Q6
-UmU6IFtRdWVzdGlvbl1vcjFrLWVsZi9vcjFrLWxpbnV4IFdpbmRvd3MvQ3lnd2luIHRvb2xj
-aGFpbmF2YWlsYWJpbGl0eT8KCgpIacKgR2FyeSwKCknCoHNlZcKgeW91wqBzZW50wqAywqBl
-bWFpbHPCoHdoaWNowqBhcmXCoGFib3V0wqB0aGXCoHNhbWUuwqDCoEnCoHdpbGzCoHJlcGx5
-wqBvbmx5wqB0b8KgdGhpcwpvbmUuCgpPbsKgU2F0LMKgSnVswqAxMizCoDIwMjXCoGF0wqAw
-MzoxMTo0M1BNwqArMDgwMCzCoEdhcnnCoExhdcKgd3JvdGU6Cj7CoEhpwqBvcGVucmlzY8Kg
-Zm9sa3MswqDCoAo+wqAKPsKgSeKAmW3CoGV4cGxvcmluZ8KgT3BlblJJU0PCoGRldmVsb3Bt
-ZW50wqBhbmTCoHdvdWxkwqBsaWtlwqB0b8KgYnVpbGTCoHRoZcKgbGludXjCoGtlcm5lbC9i
-dXN5Ym94wqByb290ZnPCoG9uwqBXaW5kb3dzL0N5Z3dpbi7CoAo+wqBJwqB3YW50ZWTCoHRv
-wqBjaGVjazrCoMKgCj7CoDEuwqBBcmXCoHByZWJ1aWx0wqBvcjFrLWVsZsKgYW5kwqBvcjFr
-LWxpbnV4wqB0b29sY2hhaW5zwqBhdmFpbGFibGXCoGZvcsKgV2luZG93cy9DeWd3aW4/wqDC
-oAoKVGhlcmXCoGFyZcKgbm9uZcKgYXZhaWxhYmxlwqBhdMKgdGhlwqBtb21lbnQuwqDCoFdl
-wqBkb8KgaGF2ZcKgZG9ja2VywqBpbWFnZXPCoGhvd2V2ZXIuwqDCoEl0CnNlZW1zwqBwb3Nz
-aWJsZcKgdG/CoHJ1bsKgY29udGFpbmVyc8Kgb27CoHdpbmRvd3MuwqDCoEJ1dMKgScKgaGF2
-ZW4ndMKgdHJpZWTCoGl0LgoKwqAtwqBEb2NrZXLCoGltYWdlczrCoGh0dHBzOi8vb3BlbnJp
-c2MuaW8vdHV0b3JpYWxzL2ltYWdlcy5odG1sCsKgLcKgQ29udGFpbmVyc8Kgb27CoHdpbmRv
-d3M6wqBodHRwczovL3VidW50dS5jb20vdHV0b3JpYWxzL3dpbmRvd3MtdWJ1bnR1LWh5cGVy
-di1jb250YWluZXJzIzEtb3ZlcnZpZXcKCkluwqB0ZXJtc8Kgb2bCoHRvb2xjaGFpbnMswqB5
-b3XCoG1hecKgb25secKgbmVlZMKgYW7CoG9yMWstZWxmwqB0b29sY2hhaW4uwqBUaGXCoG9y
-MWstbGludXgKdG9vbGNoYWluwqBpc8KgYcKgc3BlY2lhbMKgYnVpbGTCoHdpdGjCoG5vwqBs
-aWJjwqBsaWJyYXJ5wqB3aGljaMKgaXPCoG9ubHnCoGdvb2TCoGZvcgpidWlsZGluZ8KgdGhl
-wqBrZXJuZWwswqB5b3XCoGNhbsKgdXNlwqBvcjFrLWVsZsKgdG/CoGJ1aWxkwqB0aGXCoGtl
-cm5lbMKgdG9vLgoKPsKgMi7CoElmwqBub3QswqBpc8KgY3Jvc3MtY29tcGlsaW5nwqBmcm9t
-wqBDeWd3aW7CoGZlYXNpYmxlLMKgb3LCoGlzwqBhwqBuYXRpdmXCoExpbnV4wqBob3N0wqBz
-dHJvbmdsecKgcmVjb21tZW5kZWQ/wqDCoAoKScKgYW3CoHN1cmXCoGl0J3PCoHBvc3NpYmxl
-LMKgScKgaGF2ZcKgc2VlbsKgdGhhdMKgQVJNwqBhbmTCoFJpc2MtVsKgdG9vbGNoYWluc8Kg
-YXJlCmF2YWlsYWJsZcKgb27CoHdpbmRvd3PCoHZpYcKgY3lnd2luLsKgwqBUaGV5wqBtZW50
-aW9uwqB0aGF0wqB0b8KgYnVpbGTCoHRoZcKgdG9vbGNoYWluwqB5b3UKbXVzdMKgZW5zdXJl
-wqB0aGXCoGZpbGVzeXN0ZW3CoGlzwqBjYXNlLXNlbnNpdGl2ZS7CoMKgSWbCoHlvdcKgY2Fu
-wqBnZXTCoGN5Z3dpbsKgaW5zdGFsbGVkCndpdGjCoHRoZcKgR0NDwqB0b29sY2hhaW4swqB5
-b3XCoGNhbsKgdGhlbsKgcnVuwqBvdXLCoG5vcm1hbMKgdG9vbGNoYWluwqBidWlsZMKgc2Ny
-aXB0LMKgdGhlCm9uZcKgScKgdXNlwqBpc8KgdGhpczoKCsKgwqAtwqBuZXdsaWIuYnVpbGQ6
-wqBGcm9twqBodHRwczovL2dpdGh1Yi5jb20vc3RmZnJkaHJuL29yMWstdXRpbHMvdHJlZS9t
-YXN0ZXIKwqDCoC3CoGV4YW1wbGXCoHVzYWdlOsKgRnJvbcKgaHR0cHM6Ly9naXRodWIuY29t
-L3N0ZmZyZGhybi9vcjFrLXRvb2xjaGFpbi1idWlsZC9ibG9iL21hc3Rlci9vcjFrLXRvb2xj
-aGFpbi1idWlsZC9idWlsZC1nY2Muc2gKCsKgwqDCoMKgwqDCoCPCoFNldHVwwqBvdmVycmlk
-ZXPCoGZvcsKgbmV3bGliLmNvbmZpZwrCoMKgwqDCoMKgwqBleHBvcnTCoE5PVElGWT1uCsKg
-wqDCoMKgwqDCoGV4cG9ydMKgQlVJTERESVI9JFBXRArCoMKgwqDCoMKgwqBleHBvcnTCoEdD
-Q19TUkM9JChhcmNoaXZlX3NyY8KgZ2NjwqAke0dDQ19WRVJTSU9OfSkKwqDCoMKgwqDCoMKg
-ZXhwb3J0wqBCSU5VVElMU19TUkM9JChhcmNoaXZlX3NyY8KgYmludXRpbHPCoCR7QklOVVRJ
-TFNfVkVSU0lPTn0pCsKgwqDCoMKgwqDCoGV4cG9ydMKgR0RCX1NSQz0kKGFyY2hpdmVfc3Jj
-wqBnZGLCoCR7R0RCX1ZFUlNJT059KQrCoMKgwqDCoMKgwqBleHBvcnTCoE5FV0xJQl9TUkM9
-JChhcmNoaXZlX3NyY8KgbmV3bGliwqAke05FV0xJQl9WRVJTSU9OfSkKwqDCoMKgwqDCoMKg
-ZXhwb3J0wqBJTlNUQUxMRElSPSRQUkVGSVgKwqDCoMKgwqDCoMKgZXhwb3J0wqBDUk9TUz0k
-e3RhcmdldH0KwqDCoMKgwqDCoMKgLi4vb3Ixay11dGlscy90b29sY2hhaW5zL25ld2xpYi5i
-dWlsZAoKPsKgScKgY2hlY2tlZMKgdGhlwqBPcGVuUklTQ8KgZG9jc8KgYW5kwqB0b29sY2hh
-aW7CoHJlcG9zwqBidXTCoGNvdWxkbuKAmXTCoGZpbmTCoFdpbmRvd3Mtc3BlY2lmaWPCoMKg
-Cj7CoGd1aWRhbmNlLsKgQW55wqBwb2ludGVyc8Kgd291bGTCoGJlwqBoZWxwZnVsIcKgwqAK
-CllvdcKgY2FuwqBtYWlubHnCoGxvb2vCoGZvcsKgcmlzYy12wqBhbmTCoGFybcKgZ3VpZGFu
-Y2XCoGFuZMKgdGhlbsKgdHJhbnNsYXRlwqBpdMKgdG8KT3BlblJJU0MuwqDCoElmwqB5b3XC
-oGdldMKgYW55dGhpbmfCoHdvcmtpbmfCoHBsZWFzZcKgbGV0wqBtZcKga25vdyzCoHdlwqBj
-YW7CoHRyecKgdG/CoGFkZMKgaXQKYXPCoGHCoHR1dG9yaWFswqB0b8Kgb3VywqBtYWluwqBk
-b2N1bWVudGF0aW9uLgoKLVN0YWZmb3JkCgo=
+On Mon, Jul 14, 2025 at 05:21:16PM +0800, Gary Lau wrote:
+> Hi Stafford,
+> The load elf failure seems not be related to the alignment issue.
+> It seems be related to the memory stack conflict between main program and client elf.
+> I will fix it.
 
+OK Great.
+
+> Anyway, thanks that you confirmed the or1k-gcc does not take care of 4B alignment.
+
+Thanks for confirming.
+
+-Stafford
