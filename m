@@ -1,130 +1,126 @@
-Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out203-205-221-190.mail.qq.com (out203-205-221-190.mail.qq.com [203.205.221.190])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA8EC4D599
-	for <linux-openrisc@vger.kernel.org>; Sun, 13 Jul 2025 05:59:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2584619AD48
+	for <linux-openrisc@vger.kernel.org>; Mon, 14 Jul 2025 09:45:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.190
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752386375; cv=none; b=IPpC6ZXwR3qYOChB73lNh/OwOWtw3MSb423bFXumGRDa2qD7yve/ezX2l5+5th4WbRFO9iL3eFCDPb874TGkugogMTb1NeyFsMaG2sEd0oQ8QKEMtjdCKBiWoCRTUjFEvaXTmP2kkd5PTqLnvuc0QCBXB/+hQasR4javkiy7cWI=
+	t=1752486356; cv=none; b=Z0PdXoSfAwTeuQaCtye2YmtVUu1cxImECZIyOBzGpgUHm/MDpRoCa5QC+BiUGx+X2M6ArSgTwD3hS3e9m5dQ+ddWJJE12DCh/wH+Z8sVWa1WYLvzUCnA4SL+tMros4iwQMjEMSwdgiLr9fFjL0KmYoGGkKfVcydNdaenrxZnGk8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752386375; c=relaxed/simple;
-	bh=lHW68xjdlbaJTsvJYT8hh3y4XL3Op2JQAYL23cDT8MI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=L2xbDAbxJYUMNQNfaEv5q3l0O8+KbiYQ1peM1oFKURx1fXk/9tOl9fyiKcW8uQHTJJb3HU2NTXijDfr08iAm/TudwJ0p+0/QVvGO+WC2jRKqYSqc9fLdAWRtKtakIKybJNUe2DzUNC4RQSPZn0l4nC5K5vIYGPmDNgUaxLhWXx4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZTnJYORy; arc=none smtp.client-ip=209.85.128.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1752486356; c=relaxed/simple;
+	bh=VfNVA3lxE/EatfSPl2LMD0HPzqp1A22eva87zMP9kuk=;
+	h=From:To:Cc:Subject:Mime-Version:Content-Type:Date:Message-ID:
+	 References:In-Reply-To; b=LBWhs87okt+ZyvPobUq556+6OqaQDxub/3WB4RTyPiNVpVenKbrV3ButIjHJGAx4mD3KQSjBnW6HTj8xuGu4VCUBQYme6fGDN5qHda6J5cYTKnngvsH4DRvgpKSKhOwXtQhBElZXLvhVCXE+P2RyI3XgEMqnjUEBr2Yqy0eCm8g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=hREON3oE; arc=none smtp.client-ip=203.205.221.190
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZTnJYORy"
-Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-455fddfa2c3so10688035e9.2
-        for <linux-openrisc@vger.kernel.org>; Sat, 12 Jul 2025 22:59:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1752386372; x=1752991172; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=I+KxWgH6QfJTIEjf0mSnV+RnkEPGWqP4HB3m1ZMG0jk=;
-        b=ZTnJYORyOt+/Fwv1Mgwu1O1+8z6L1frUCc7dlUy547GKjc4i7Syk/YPF7YUG3Kafr3
-         6VEOR+S7e8KnECgZtWfFQ6Qxl6etX+M8W/ykID+8yuxb+DgrIsoAT0AUcPkmz5o9wonn
-         dO4MX2N58DlTq6cOwnEzmzBYhE2ZIy64KsgDaeSoi9LlmqCn4fA9GGcBcITJGr0sdN6V
-         vIXH1F6Im71WxcmknFI6RdjV1uSgPeOUkLHOLoPksapmWWAwl+TaPFUuyf8CSf9EUKVi
-         ansNQL/3cPmj1zT9CBSBNU6fOgmzap3h7l523KQ5pmE9tIEidHXmlUCuvQJ0OPD90Pps
-         ELuA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752386372; x=1752991172;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=I+KxWgH6QfJTIEjf0mSnV+RnkEPGWqP4HB3m1ZMG0jk=;
-        b=Zg/Ad1Vn0t12Anj4vl3QTRq+DPVUimNMf+z/3dhrYZVJXqedpqIjCPzdGFf0t5uhbL
-         Bnz+qhdYy0DoJN7TiqlO3PJfnBl5sLEAGLp6LGGaFc9xNTV9iBIvRH7EsyPcOZvNiZzg
-         +W1mh0QxddRZ5zWWzA0p6R8+gMa8R0djC2f7qW2B1R8JaGRYBDMOfd68RSTZPfexA7Up
-         BzmefjFX1X4pSdSPSliOU9ztDTU/Gr8e93CRhQ8iUE4590x3yICebi07zpyuIZGm4PWK
-         +8cu2Qe/7rJH+z3r+Y6GnrM9adA2kbvtEcrLXDnUUBhO8HpRPvNICd/VYuGJh+3yS5K7
-         OyWw==
-X-Gm-Message-State: AOJu0YwkMPU6DbsGmwvON6cJF/hPjPfP2xk5vWb9wflcqxWng8svwNfJ
-	hf24z5FCjC1qJ33wKGVJmv1kbeFV/YbTrxYP7NEBm2p9QM4wZKF+faOHsJTMk+jd
-X-Gm-Gg: ASbGnctssXwqwMG1JqLUXFsjOqyx8J5zs/TNLZKrLqIwS2NSFjbcdf6lUXChu/HSzc6
-	znDatGXUbkxduJKYf9NLRbLvT/K9dWeWNAbjcI7VX4BR8AG+X9SICb2V3sNXf4NHE7ZXDvXKb7M
-	4y10RczTe6XvL/sj8tuSkJoIG0QWuT9WLrAfkyvnsLU/owKqw5/5lxl50QkuSROkqjRYgducGAY
-	BjAtsx51PZ6uMI4UqVGVEFYNdhpRIuI6Zv+xLqks2+e3hseVnIFQ0SqaeInquvRZ680mS0veI3p
-	03sFThhosS1hOD5Zrp8oHSAYplo8X8QfQ9gJ3ZwOFZYfpt+Ld9h5sbOzue1+gu1NK9XV3rssIZz
-	hAL9MgQD7YgDDuPNvE7Vx+tN22wucmLnQnJ3HwboEOq4AOgWYfpeXIJbQs/BN1Q==
-X-Google-Smtp-Source: AGHT+IHPltSTytgxnRophJ5XrAok14Qx1JMSGHN7wCJ0VXTuh4PzT3jll6Z3lw652EEBM0Ffqrd+sA==
-X-Received: by 2002:a05:600c:c4a6:b0:455:ed0f:e8d4 with SMTP id 5b1f17b1804b1-455ed0fedc6mr95596125e9.10.1752386371657;
-        Sat, 12 Jul 2025 22:59:31 -0700 (PDT)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-455f7ddd667sm49379615e9.34.2025.07.12.22.59.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 12 Jul 2025 22:59:30 -0700 (PDT)
-Date: Sun, 13 Jul 2025 06:59:29 +0100
-From: Stafford Horne <shorne@gmail.com>
-To: Gary Lau <zgliu@foxmail.com>
-Cc: linux-openrisc <linux-openrisc@vger.kernel.org>
-Subject: Re: [Question]or1k-elf/or1k-linux Windows/Cygwin toolchain
- availability?
-Message-ID: <aHNLQdk1W_A7PvDw@antec>
-References: <tencent_D7671DAE3F2DCA4F5AAD8A421C72F3568E08@qq.com>
+	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="hREON3oE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
+	s=s201512; t=1752486044;
+	bh=VfNVA3lxE/EatfSPl2LMD0HPzqp1A22eva87zMP9kuk=;
+	h=From:To:Cc:Subject:Date:References:In-Reply-To;
+	b=hREON3oEbju+YUlmzoSuprxl5hG9DDtgaBxRQsp9uKoGFbZfWguq0HrpMFTioPuH/
+	 BTHwSU1Ok21sa2x5lZAAJr1/KYtvR6OSamazAv0Py1/sJhtBVLLyt5OTRzEgDUucPm
+	 vjk8nAsXSg0eB2QrKcAAYFE1pBPQLooHxRlzxPno=
+X-QQ-XMRINFO: Mp0Kj//9VHAxr69bL5MkOOs=
+X-QQ-XMAILINFO: OUnVc07lD2ZBMsJUUfQfvj5qFZ0bRsKFWAQNJJDn6VgGl8OMIn2Sh/5LsA8Q2J
+	 HboXCqJTcSrI7ts3uqYCkh10pegH2lGADIiVh6HBGzPGEeMyiKHjbHVy74AasGf6ilwz7cDKD32Mw
+	 rtaJa5QabbBwLIBoNuMcz7kpdOF8c+CeSq2+bAW/t34tcWYClzu9MeD6zlPK9pHritMvjCIVhxCd9
+	 0CffhCkI9NnmY3YDXJJFlREbJd5/XNo9ArToPgIT9hltv7phJbyjBO8fDhBQr8slTgx7mFKCRAOde
+	 V+u68T4pJohhgiI17EUqJTM24cqoiN2ppNqFvVecFmti7orwcTv+6v/U9sLcnZpP+nRUIpsSdqyCW
+	 QX0kih8KS+nXYPDYuhGkbtQP2qEJQRgIkk1iH83gbCV7hb+OrWGE8s1o/37359mhrReQ4ENa9l3gK
+	 TYj3UgwVNNTvhWXsJDj8KoAkQWjEs8YfxdQingZDnIvrGyK9qkWbcB/Ff8MAurFa2ojsaaZpQsPNF
+	 rGJ3TxHimY2U80Vh03tj3TEMqRgyqx9EoNkR1LAjyfv/1wrUoOhJlAy8Bwxsu9NI83PqJ45p3hLaX
+	 dpUjmTOZsBGNE8HAdqsCYbiwWX7W1NcfM28JxsJdVvBWINkY/jMxT4FDDab9Uv5MRx9n6Rafzhexs
+	 q6H6L9ausHhKy52C8L2TUxF+rLa44WGDezoKxMYdqgi0KaOmTKrOwyXe8ZOv2mRHRCMiegnOtCq1I
+	 5aHb2LB177nX8ci/8e4Rsgg3LvQe17GplOv4aLyQdLl4+L+EW9ay/PZ2E4lUKGekW1TywMSuoAnlQ
+	 AIUeHlCd1ZKg5hRqodZv9ZZASS5dEv0/FM4cAdSeYRF2n8enl3IFbdu2GV8Y01Y/UmpzcQToSGaaY
+	 RgpRiorWa4NYZiEWUmG3OBDvaaH+RiRo7kndV9Qbh8neounyZeMvjJnQrmbfw3V7rTV5u6xxjizf6
+	 9LILUDPkBromqlx77P95s0ojWuZF7PHT/+ndGARYnLJpl1Lbb2vZ1oHqhzamNCNayO0RgrmZ3UxGt
+	 Ke54IR/HGJKylEoQ=
+From: "=?utf-8?B?R2FyeSBMYXU=?=" <zgliu@foxmail.com>
+To: "=?utf-8?B?U3RhZmZvcmQgSG9ybmU=?=" <shorne@gmail.com>
+Cc: "=?utf-8?B?bGludXgtb3BlbnJpc2M=?=" <linux-openrisc@vger.kernel.org>
+Subject: Re: [Question]or1k-elf/or1k-linux Windows/Cygwin toolchainavailability?
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <tencent_D7671DAE3F2DCA4F5AAD8A421C72F3568E08@qq.com>
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
+Date: Mon, 14 Jul 2025 17:40:43 +0800
+X-Priority: 3
+Message-ID: <tencent_5BAB7280D682A23F87C6FC91637DC7DBCF06@qq.com>
+X-QQ-MIME: TCMime 1.0 by Tencent
+X-Mailer: QQMail 2.x
+X-QQ-Mailer: QQMail 2.x
+References: <tencent_D7671DAE3F2DCA4F5AAD8A421C72F3568E08@qq.com>
+	<aHNLQdk1W_A7PvDw@antec>
+In-Reply-To: <aHNLQdk1W_A7PvDw@antec>
+X-QQ-mid: xmsezb29-0t1752486043t1688hgs9
 
-Hi Gary,
+SGkgU3RhZmZvcmQsClRoZSBsb2FkIGVsZiBmYWlsdXJlIHNlZW1zIG5vdCBiZSByZWxhdGVk
+IHRvIHRoZSBhbGlnbm1lbnQgaXNzdWUuCkl0IHNlZW1zIGJlIHJlbGF0ZWQgdG8gdGhlIG1l
+bW9yeSBzdGFjayBjb25mbGljdCBiZXR3ZWVuIG1haW4gcHJvZ3JhbSBhbmQgY2xpZW50IGVs
+Zi4KSSB3aWxsIGZpeCBpdC4KQW55d2F5LCB0aGFua3MgdGhhdCB5b3UgY29uZmlybWVkIHRo
+ZSBvcjFrLWdjYyBkb2VzIG5vdCB0YWtlIGNhcmUgb2YgNEIgYWxpZ25tZW50LgoKCk9yaWdp
+bmFsCkZyb206U3RhZmZvcmQgSG9ybmUgPHNob3JuZUBnbWFpbC5jb20+ClNlbnQgVGltZToy
+MDI1LTA3LTEzLSAxMzo1OQpUbzpHYXJ5IExhdSA8emdsaXVAZm94bWFpbC5jb20+CkNjOmxp
+bnV4LW9wZW5yaXNjIDxsaW51eC1vcGVucmlzY0B2Z2VyLmtlcm5lbC5vcmc+ClN1YmplY3Q6
+UmU6IFtRdWVzdGlvbl1vcjFrLWVsZi9vcjFrLWxpbnV4IFdpbmRvd3MvQ3lnd2luIHRvb2xj
+aGFpbmF2YWlsYWJpbGl0eT8KCgpIacKgR2FyeSwKCknCoHNlZcKgeW91wqBzZW50wqAywqBl
+bWFpbHPCoHdoaWNowqBhcmXCoGFib3V0wqB0aGXCoHNhbWUuwqDCoEnCoHdpbGzCoHJlcGx5
+wqBvbmx5wqB0b8KgdGhpcwpvbmUuCgpPbsKgU2F0LMKgSnVswqAxMizCoDIwMjXCoGF0wqAw
+MzoxMTo0M1BNwqArMDgwMCzCoEdhcnnCoExhdcKgd3JvdGU6Cj7CoEhpwqBvcGVucmlzY8Kg
+Zm9sa3MswqDCoAo+wqAKPsKgSeKAmW3CoGV4cGxvcmluZ8KgT3BlblJJU0PCoGRldmVsb3Bt
+ZW50wqBhbmTCoHdvdWxkwqBsaWtlwqB0b8KgYnVpbGTCoHRoZcKgbGludXjCoGtlcm5lbC9i
+dXN5Ym94wqByb290ZnPCoG9uwqBXaW5kb3dzL0N5Z3dpbi7CoAo+wqBJwqB3YW50ZWTCoHRv
+wqBjaGVjazrCoMKgCj7CoDEuwqBBcmXCoHByZWJ1aWx0wqBvcjFrLWVsZsKgYW5kwqBvcjFr
+LWxpbnV4wqB0b29sY2hhaW5zwqBhdmFpbGFibGXCoGZvcsKgV2luZG93cy9DeWd3aW4/wqDC
+oAoKVGhlcmXCoGFyZcKgbm9uZcKgYXZhaWxhYmxlwqBhdMKgdGhlwqBtb21lbnQuwqDCoFdl
+wqBkb8KgaGF2ZcKgZG9ja2VywqBpbWFnZXPCoGhvd2V2ZXIuwqDCoEl0CnNlZW1zwqBwb3Nz
+aWJsZcKgdG/CoHJ1bsKgY29udGFpbmVyc8Kgb27CoHdpbmRvd3MuwqDCoEJ1dMKgScKgaGF2
+ZW4ndMKgdHJpZWTCoGl0LgoKwqAtwqBEb2NrZXLCoGltYWdlczrCoGh0dHBzOi8vb3BlbnJp
+c2MuaW8vdHV0b3JpYWxzL2ltYWdlcy5odG1sCsKgLcKgQ29udGFpbmVyc8Kgb27CoHdpbmRv
+d3M6wqBodHRwczovL3VidW50dS5jb20vdHV0b3JpYWxzL3dpbmRvd3MtdWJ1bnR1LWh5cGVy
+di1jb250YWluZXJzIzEtb3ZlcnZpZXcKCkluwqB0ZXJtc8Kgb2bCoHRvb2xjaGFpbnMswqB5
+b3XCoG1hecKgb25secKgbmVlZMKgYW7CoG9yMWstZWxmwqB0b29sY2hhaW4uwqBUaGXCoG9y
+MWstbGludXgKdG9vbGNoYWluwqBpc8KgYcKgc3BlY2lhbMKgYnVpbGTCoHdpdGjCoG5vwqBs
+aWJjwqBsaWJyYXJ5wqB3aGljaMKgaXPCoG9ubHnCoGdvb2TCoGZvcgpidWlsZGluZ8KgdGhl
+wqBrZXJuZWwswqB5b3XCoGNhbsKgdXNlwqBvcjFrLWVsZsKgdG/CoGJ1aWxkwqB0aGXCoGtl
+cm5lbMKgdG9vLgoKPsKgMi7CoElmwqBub3QswqBpc8KgY3Jvc3MtY29tcGlsaW5nwqBmcm9t
+wqBDeWd3aW7CoGZlYXNpYmxlLMKgb3LCoGlzwqBhwqBuYXRpdmXCoExpbnV4wqBob3N0wqBz
+dHJvbmdsecKgcmVjb21tZW5kZWQ/wqDCoAoKScKgYW3CoHN1cmXCoGl0J3PCoHBvc3NpYmxl
+LMKgScKgaGF2ZcKgc2VlbsKgdGhhdMKgQVJNwqBhbmTCoFJpc2MtVsKgdG9vbGNoYWluc8Kg
+YXJlCmF2YWlsYWJsZcKgb27CoHdpbmRvd3PCoHZpYcKgY3lnd2luLsKgwqBUaGV5wqBtZW50
+aW9uwqB0aGF0wqB0b8KgYnVpbGTCoHRoZcKgdG9vbGNoYWluwqB5b3UKbXVzdMKgZW5zdXJl
+wqB0aGXCoGZpbGVzeXN0ZW3CoGlzwqBjYXNlLXNlbnNpdGl2ZS7CoMKgSWbCoHlvdcKgY2Fu
+wqBnZXTCoGN5Z3dpbsKgaW5zdGFsbGVkCndpdGjCoHRoZcKgR0NDwqB0b29sY2hhaW4swqB5
+b3XCoGNhbsKgdGhlbsKgcnVuwqBvdXLCoG5vcm1hbMKgdG9vbGNoYWluwqBidWlsZMKgc2Ny
+aXB0LMKgdGhlCm9uZcKgScKgdXNlwqBpc8KgdGhpczoKCsKgwqAtwqBuZXdsaWIuYnVpbGQ6
+wqBGcm9twqBodHRwczovL2dpdGh1Yi5jb20vc3RmZnJkaHJuL29yMWstdXRpbHMvdHJlZS9t
+YXN0ZXIKwqDCoC3CoGV4YW1wbGXCoHVzYWdlOsKgRnJvbcKgaHR0cHM6Ly9naXRodWIuY29t
+L3N0ZmZyZGhybi9vcjFrLXRvb2xjaGFpbi1idWlsZC9ibG9iL21hc3Rlci9vcjFrLXRvb2xj
+aGFpbi1idWlsZC9idWlsZC1nY2Muc2gKCsKgwqDCoMKgwqDCoCPCoFNldHVwwqBvdmVycmlk
+ZXPCoGZvcsKgbmV3bGliLmNvbmZpZwrCoMKgwqDCoMKgwqBleHBvcnTCoE5PVElGWT1uCsKg
+wqDCoMKgwqDCoGV4cG9ydMKgQlVJTERESVI9JFBXRArCoMKgwqDCoMKgwqBleHBvcnTCoEdD
+Q19TUkM9JChhcmNoaXZlX3NyY8KgZ2NjwqAke0dDQ19WRVJTSU9OfSkKwqDCoMKgwqDCoMKg
+ZXhwb3J0wqBCSU5VVElMU19TUkM9JChhcmNoaXZlX3NyY8KgYmludXRpbHPCoCR7QklOVVRJ
+TFNfVkVSU0lPTn0pCsKgwqDCoMKgwqDCoGV4cG9ydMKgR0RCX1NSQz0kKGFyY2hpdmVfc3Jj
+wqBnZGLCoCR7R0RCX1ZFUlNJT059KQrCoMKgwqDCoMKgwqBleHBvcnTCoE5FV0xJQl9TUkM9
+JChhcmNoaXZlX3NyY8KgbmV3bGliwqAke05FV0xJQl9WRVJTSU9OfSkKwqDCoMKgwqDCoMKg
+ZXhwb3J0wqBJTlNUQUxMRElSPSRQUkVGSVgKwqDCoMKgwqDCoMKgZXhwb3J0wqBDUk9TUz0k
+e3RhcmdldH0KwqDCoMKgwqDCoMKgLi4vb3Ixay11dGlscy90b29sY2hhaW5zL25ld2xpYi5i
+dWlsZAoKPsKgScKgY2hlY2tlZMKgdGhlwqBPcGVuUklTQ8KgZG9jc8KgYW5kwqB0b29sY2hh
+aW7CoHJlcG9zwqBidXTCoGNvdWxkbuKAmXTCoGZpbmTCoFdpbmRvd3Mtc3BlY2lmaWPCoMKg
+Cj7CoGd1aWRhbmNlLsKgQW55wqBwb2ludGVyc8Kgd291bGTCoGJlwqBoZWxwZnVsIcKgwqAK
+CllvdcKgY2FuwqBtYWlubHnCoGxvb2vCoGZvcsKgcmlzYy12wqBhbmTCoGFybcKgZ3VpZGFu
+Y2XCoGFuZMKgdGhlbsKgdHJhbnNsYXRlwqBpdMKgdG8KT3BlblJJU0MuwqDCoElmwqB5b3XC
+oGdldMKgYW55dGhpbmfCoHdvcmtpbmfCoHBsZWFzZcKgbGV0wqBtZcKga25vdyzCoHdlwqBj
+YW7CoHRyecKgdG/CoGFkZMKgaXQKYXPCoGHCoHR1dG9yaWFswqB0b8Kgb3VywqBtYWluwqBk
+b2N1bWVudGF0aW9uLgoKLVN0YWZmb3JkCgo=
 
-I see you sent 2 emails which are about the same.  I will reply only to this
-one.
-
-On Sat, Jul 12, 2025 at 03:11:43PM +0800, Gary Lau wrote:
-> Hi openrisc folks,  
-> 
-> I’m exploring OpenRISC development and would like to build the linux kernel/busybox rootfs on Windows/Cygwin. 
-> I wanted to check:  
-> 1. Are prebuilt or1k-elf and or1k-linux toolchains available for Windows/Cygwin?  
-
-There are none available at the moment.  We do have docker images however.  It
-seems possible to run containers on windows.  But I haven't tried it.
-
- - Docker images: https://openrisc.io/tutorials/images.html
- - Containers on windows: https://ubuntu.com/tutorials/windows-ubuntu-hyperv-containers#1-overview
-
-In terms of toolchains, you may only need an or1k-elf toolchain. The or1k-linux
-toolchain is a special build with no libc library which is only good for
-building the kernel, you can use or1k-elf to build the kernel too.
-
-> 2. If not, is cross-compiling from Cygwin feasible, or is a native Linux host strongly recommended?  
-
-I am sure it's possible, I have seen that ARM and Risc-V toolchains are
-available on windows via cygwin.  They mention that to build the toolchain you
-must ensure the filesystem is case-sensitive.  If you can get cygwin installed
-with the GCC toolchain, you can then run our normal toolchain build script, the
-one I use is this:
-
-  - newlib.build: From https://github.com/stffrdhrn/or1k-utils/tree/master
-  - example usage: From https://github.com/stffrdhrn/or1k-toolchain-build/blob/master/or1k-toolchain-build/build-gcc.sh
-
-      # Setup overrides for newlib.config
-      export NOTIFY=n
-      export BUILDDIR=$PWD
-      export GCC_SRC=$(archive_src gcc ${GCC_VERSION})
-      export BINUTILS_SRC=$(archive_src binutils ${BINUTILS_VERSION})
-      export GDB_SRC=$(archive_src gdb ${GDB_VERSION})
-      export NEWLIB_SRC=$(archive_src newlib ${NEWLIB_VERSION})
-      export INSTALLDIR=$PREFIX
-      export CROSS=${target}
-      ../or1k-utils/toolchains/newlib.build
-
-> I checked the OpenRISC docs and toolchain repos but couldn’t find Windows-specific  
-> guidance. Any pointers would be helpful!  
-
-You can mainly look for risc-v and arm guidance and then translate it to
-OpenRISC.  If you get anything working please let me know, we can try to add it
-as a tutorial to our main documentation.
-
--Stafford
