@@ -1,123 +1,186 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C51F52F88;
-	Wed, 16 Jul 2025 18:16:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D81EC19F135;
+	Sat, 26 Jul 2025 21:39:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752689765; cv=none; b=MUb+NLDl3umxOA+k0XN3Yt2pg9Mzu5NiLMDPhjCwN9iT8zptoNBLQDXgzjxMweN+Uvp1bV83mTWbefFrPCkikulHkKRd5h1iBFZ/6lWxx1MpRtAeZAmTumhgh6+GXA6fSf7vhnUK85f4Bdnte5Db9MlJGjQrEcDYdE04ITNaSWc=
+	t=1753565961; cv=none; b=AYW6DX/jJbWAa/YeYROeslCdtVtKC3bgtd7uXQOAV/TeuLZEybb7ml7pBNz3Jpfqr+bcUW/UtU7YuFe2L3V1WM+a+JvLXfXM/ADNXnE3TNkUWfng9gNC6LBWexsCRrMADEvgeSy/qpIAc7jcauOFOaaza4km8rODsW5RVxyPuTQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752689765; c=relaxed/simple;
-	bh=AxYk3hb0otPOpe8iCoKRDXyzipO8+IEj3pxhrwFiias=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=mv36Ox1PVk8hnD3xOC4ArP2C0pFpqq2+z1/sbV9o6l4M56er6JhN0x4fFODYCIdeuwg4xhSxltO5n5HpqPKg640zcUTQ9664JInY5hte0hvnuMaAjcCmPuRlEY2opVZb2MV+TqfJCOl9ogFF1HleuLA0yBegB0kQX4mhiXA0uzQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=PdYs1CW7; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1753565961; c=relaxed/simple;
+	bh=bE8gOgUvTZi4vI0lg9qUYLnf/GEXOkxooNHihx3vuJw=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=sBGjGdkGKPUtN645G7k253uakuUi42RnGpsHMRz2Y/seKy898lgIfL+Xit52iEESYEqlo3cryRrQI5O7taXO8jUkJWHOmH7aKWnib+Kug1OKvwSxjrS6c829qpIFbi/ydI3HdKw0bBQEFkWaW04FtVU3Js1b6qmrRm9DgZP1UYg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XHrb3axi; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="PdYs1CW7"
-Received: from [127.0.0.1] (c-76-133-66-138.hsd1.ca.comcast.net [76.133.66.138])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 56GI4wZF1640497
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Wed, 16 Jul 2025 11:05:02 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 56GI4wZF1640497
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025062101; t=1752689107;
-	bh=AxYk3hb0otPOpe8iCoKRDXyzipO8+IEj3pxhrwFiias=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-	b=PdYs1CW7P6NGZ7nqrSTKiw9kGz8+zKtbJLnnYWGn7EmE85IhMRHjUsfqejqSu3NpC
-	 F8mkqPxV94oRfsry8xLqbBh6TIeqEphXrM8IQVQXG98VV0VtmaqRkm8gcHZ1DS8I+Y
-	 9Ud40lsWpWvI8f/Mw4fJttPFSqVPnBxm60MpDadKClPpxIliIxgGgmXKbtvKQmNI4w
-	 9zRbpJ/rGGTy9XhzMH+JGYmHR8cviSmLp4ZAluTl43LX0HJw1hILVpbbrTd8F7h/pQ
-	 VEaChnOfID89c6bfwtXUBb4UKngfABWVJFjrAYzLGKal7C5mVferZwFoGX1uSfry52
-	 xqWYa7EnyTKlQ==
-Date: Wed, 16 Jul 2025 11:04:52 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-To: "Russell King (Oracle)" <linux@armlinux.org.uk>
-CC: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Richard Henderson <richard.henderson@linaro.org>,
-        Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Brian Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
-        WANG Xuerui <kernel@xen0n.name>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
-        Alexandre Ghiti <alex@ghiti.fr>, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.osdn.me>, Rich Felker <dalias@libc.org>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Andreas Larsson <andreas@gaisler.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        linux-arch@vger.kernel.org, linux-serial@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-api@vger.kernel.org,
-        Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-        linux-m68k@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org
-Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_1/1=5D_uapi/termios=3A_remov?=
- =?US-ASCII?Q?e_struct_ktermios_from_uapi_headers?=
-User-Agent: K-9 Mail for Android
-In-Reply-To: <aHfn9z9_oIVgNGgx@shell.armlinux.org.uk>
-References: <20250716164735.170713-1-hpa@zytor.com> <aHfn9z9_oIVgNGgx@shell.armlinux.org.uk>
-Message-ID: <9AEAF0BE-39D7-4617-9CB5-D0703B3E6DF8@zytor.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XHrb3axi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85239C4CEF4;
+	Sat, 26 Jul 2025 21:39:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1753565960;
+	bh=bE8gOgUvTZi4vI0lg9qUYLnf/GEXOkxooNHihx3vuJw=;
+	h=Date:From:To:Cc:Subject:From;
+	b=XHrb3axiSsGzIoF2z2Ix7pQjSMf1Hy42ar894fKLOABDtiMSiJhU7EOw7iJrgd6tB
+	 IbaRdb5qeWEpZin3fRvADFhKWu6rwXZK251hn0vmJbDMaGw9ALbzwGt5jlO4g1Ev/5
+	 38kyT5jk9ILeJA/C732uod/apU+rxyQj7EYgW1D/FfLwRv3xciKcU+EEYDtA1K1HQw
+	 89qGLSJb5I1UF5EVZNysHbVA4poyaagUpDWiSn+7w1Wkxrul3aS8xbgWpQmDVmq97o
+	 1XX7DFiDUydJ2ZJduymhDp4XdKL9MxP2XYT1rwFJYEc0IFFTjUHBVSjh8qB39SdIcg
+	 FmVRs5hgMDysg==
+Date: Sat, 26 Jul 2025 14:39:20 -0700
+From: Kees Cook <kees@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, Akihiko Odaki <akihiko.odaki@daynix.com>,
+	Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Alexandre Ghiti <alex@ghiti.fr>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Chris Zankel <chris@zankel.net>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Dave Martin <Dave.Martin@arm.com>,
+	David Hildenbrand <david@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Dishank Jogi <dishank.jogi@siqol.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+	Helge Deller <deller@gmx.de>, "H. Peter Anvin" <hpa@zytor.com>,
+	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Jonas Bonn <jonas@southpole.se>, Kees Cook <kees@kernel.org>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+	linux-um@lists.infradead.org, loongarch@lists.linux.dev,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Max Filippov <jcmvbkbc@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Oleg Nesterov <oleg@redhat.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Richard Weinberger <richard@nod.at>, Rich Felker <dalias@libc.org>,
+	Russell King <linux@armlinux.org.uk>, sparclinux@vger.kernel.org,
+	Stafford Horne <shorne@gmail.com>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>, Will Deacon <will@kernel.org>,
+	x86@kernel.org, Yin Fengwei <fengwei_yin@linux.alibaba.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>
+Subject: [GIT PULL] execve updates for v6.17
+Message-ID: <202507261437.F2079B3B7@keescook>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On July 16, 2025 10:57:11 AM PDT, "Russell King (Oracle)" <linux@armlinux=
-=2Eorg=2Euk> wrote:
->On Wed, Jul 16, 2025 at 09:47:32AM -0700, H=2E Peter Anvin wrote:
->> diff --git a/arch/arm/include/asm/ktermios=2Eh b/arch/arm/include/asm/k=
-termios=2Eh
->> new file mode 100644
->> index 000000000000=2E=2E4320921a82a9
->> --- /dev/null
->> +++ b/arch/arm/include/asm/ktermios=2Eh
->> @@ -0,0 +1 @@
->> +#include <asm-generic/ktermios=2Eh>
->
->Isn't this what arch/arm/include/asm/Kbuild's generic-y is for?
->
->Ditto for other arches=2E
->
+Hi Linus,
 
-Ah, yes, you're right (except for those with nontrivial stubs=2E)
+Please pull these execve updates for v6.17. Note that while the REGSET
+macro changes touch all the architectures, they are fairly mechanical
+and have been in linux-next for almost the entire development window.
 
-I also found that a handful of drivers and arch/sparc needs <asm/termios=
-=2Eh> =E2=86=92 <linux/termios=2Eh> in <linux/termios_internal=2Eh>=2E
+Thanks!
+
+-Kees
+
+The following changes since commit e04c78d86a9699d136910cfc0bdcf01087e3267e:
+
+  Linux 6.16-rc2 (2025-06-15 13:49:41 -0700)
+
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/kees/linux.git tags/execve-v6.17
+
+for you to fetch changes up to 7f71195c15dcf5f34c4c7f056603659374e3a525:
+
+  fork: reorder function qualifiers for copy_clone_args_from_user (2025-07-17 16:37:05 -0700)
+
+----------------------------------------------------------------
+execve updates for v6.17
+
+- Introduce regular REGSET note macros arch-wide (Dave Martin)
+
+- Remove arbitrary 4K limitation of program header size (Yin Fengwei)
+
+- Reorder function qualifiers for copy_clone_args_from_user() (Dishank Jogi)
+
+----------------------------------------------------------------
+Dave Martin (23):
+      regset: Fix kerneldoc for struct regset_get() in user_regset
+      regset: Add explicit core note name in struct user_regset
+      binfmt_elf: Dump non-arch notes with strictly matching name and type
+      ARC: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      ARM: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      arm64: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      csky: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      hexagon: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      LoongArch: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      m68k: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      MIPS: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      nios2: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      openrisc: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      parisc: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      powerpc/ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      riscv: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      s390/ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      sh: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      sparc: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      x86/ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      um: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      xtensa: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      binfmt_elf: Warn on missing or suspicious regset note names
+
+Dishank Jogi (1):
+      fork: reorder function qualifiers for copy_clone_args_from_user
+
+Yin Fengwei (1):
+      binfmt_elf: remove the 4k limitation of program header size
+
+ include/linux/regset.h                   | 12 +++++-
+ arch/arc/kernel/ptrace.c                 |  4 +-
+ arch/arm/kernel/ptrace.c                 |  6 +--
+ arch/arm64/kernel/ptrace.c               | 52 +++++++++++-----------
+ arch/csky/kernel/ptrace.c                |  4 +-
+ arch/hexagon/kernel/ptrace.c             |  2 +-
+ arch/loongarch/kernel/ptrace.c           | 16 +++----
+ arch/m68k/kernel/ptrace.c                |  4 +-
+ arch/mips/kernel/ptrace.c                | 20 ++++-----
+ arch/nios2/kernel/ptrace.c               |  2 +-
+ arch/openrisc/kernel/ptrace.c            |  4 +-
+ arch/parisc/kernel/ptrace.c              |  8 ++--
+ arch/powerpc/kernel/ptrace/ptrace-view.c | 74 ++++++++++++++++----------------
+ arch/riscv/kernel/ptrace.c               | 12 +++---
+ arch/s390/kernel/ptrace.c                | 42 +++++++++---------
+ arch/sh/kernel/ptrace_32.c               |  4 +-
+ arch/sparc/kernel/ptrace_32.c            |  4 +-
+ arch/sparc/kernel/ptrace_64.c            |  8 ++--
+ arch/x86/kernel/ptrace.c                 | 22 +++++-----
+ arch/x86/um/ptrace.c                     | 10 ++---
+ arch/xtensa/kernel/ptrace.c              |  4 +-
+ fs/binfmt_elf.c                          | 38 ++++++++++------
+ fs/binfmt_elf_fdpic.c                    | 17 ++++----
+ kernel/fork.c                            |  2 +-
+ 24 files changed, 196 insertions(+), 175 deletions(-)
+
+-- 
+Kees Cook
