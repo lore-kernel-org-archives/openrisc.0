@@ -1,82 +1,84 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 958B92E370A;
-	Tue,  5 Aug 2025 08:41:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE0AA2E370A;
+	Tue,  5 Aug 2025 08:41:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754383301; cv=none; b=fXXRbkZVm6gLDtr2vUzGwGw2/uJ7DzjriOR2Zm69wd1iFWHKAIe73BXoxYfEb2cX2DqiXaycJ0I2ykRL01RWUdMJYrAXGhOz2MZeotQCqv4fUpgscD0CETdxbQEPakbeejc0Leeng55UxMKy7I3pWWB7az2SxTgsejfI05iZWAw=
+	t=1754383313; cv=none; b=oCBEy3zIMJtY9Yn7PLKTcdCvsFFyNibH2OBnQJAxjBYLw+pQvsVnKo58FlQftDGZE4miXwU4JT3lUVoRXEqjMl3+J0qDA7xEv2ZtB6/QOAdzOyjJWUzz+z2ND1wYAGHcbxEt4wTD8xXyGaCnVlnMFGcu/0GVgG6/zj7igNp4HxE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754383301; c=relaxed/simple;
-	bh=vrVX00n4NgychyfD3mLdp1tlITQ0TnqV6fDFIZEKQQs=;
+	s=arc-20240116; t=1754383313; c=relaxed/simple;
+	bh=R1vvMMGbAwU4pKGfXNuxlMgPu5ebzN/tHzShrj64SV4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=sqWCrbgWeZ8zBZB0UhL8j2+DHe1iV7xx9oHOjxR+58BgV7LDK4oPvqoJWGW+cR3G7LQQGp1mYE3h83/LCVcihF8/U1dLmCKE7HmLpHq2+kLMgUJVUUkIXg2MaaAaUQSEdXx7K2gzdtEI2VsWEk0dlTGQSPyBBOlWAQrDEXkiYdw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jV6XsWYD; arc=none smtp.client-ip=209.85.214.180
+	 MIME-Version; b=QDbsHtcVMdq/rZWxZheq3Lu9/Ew8RJMuIAwBO+ZVS+vhNL0VYymALqDw4RbmVRilmRk10mdl+C7ohazQwEss98PSIINuOoQiJT/q2nhHP/xV6hPZT6hKRcooz2c4lxhyIgTsu0Dr4jCv8EOoX4fL7JUmt8oarQWfyiaxp4U4/PQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aLfrJjCQ; arc=none smtp.client-ip=209.85.210.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jV6XsWYD"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2403ca0313aso42917965ad.0;
-        Tue, 05 Aug 2025 01:41:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aLfrJjCQ"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-76be8e4b59aso2549851b3a.1;
+        Tue, 05 Aug 2025 01:41:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754383297; x=1754988097; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1754383311; x=1754988111; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=z1HC+HPZ0PIyj32+UCRv8XB54ETxx5jXRG1Xe0qQ0bg=;
-        b=jV6XsWYD/Wu2utJv+PBDWQu5sv2HgRe/zfpnf5ZUSFO5EkPQSsvnO0AxSh0teI4gwX
-         Spb5T3k8QhJith70SU8i9iIoXI0l2wpm+boIZR25sRnbGAFMxaUGV2SZYkMjYXKUiWh+
-         Xi0z7sYYID8fX74swC5QgDNIy0UZ0MypLvlXCj9MB7MXCOeH4DoeYDXu2unQJnfnN22N
-         LrvQ/tsaPZ/jhHwnlHqLMtNMboIicn5UrpZh3joR1ZNf/rdlqVVF5jDlUD4nWWE9eQwe
-         KwQzDVC32dsqHTxiM4PaOwvfyf9N1pMlU+3SlEXixKo4pwkcnk8HNWZEIXNX0Mbbp+/P
-         4Wzg==
+        bh=hRJJifz5CC8NQFb6tc5aBM8nA2YPhDrgucWKgxjTqVo=;
+        b=aLfrJjCQ4bgldiU1UjdtJJeOxJ+YPkspA9DFgeLe3ih7kZUthr3cQgRTXTUT9Kv/CS
+         8GrM/z+Kpf3F+QsznuOFN+VgbgLF8Wx8OPTVwRMUhdTug9T4oTfllZdR0l2CypqJYmEd
+         yCqBhM87QADWx7H7H7RQSVLZq/ntmmGKatOBWTjgKsR0QUfIygQ10s7CzJtGnuQEnOCk
+         wWVk/+hrBiRtAOBXF7llwjbQuH0pqeE/opltQ0pTFPP7EnuExh0fOh4hQ+1K3jFW6+QV
+         D0k9vcT7ErdYz8br4HkfXICcEG6xeS3UXcZSPGmp4TtB68prJemD60RV8x77gl+Mpfel
+         S0qw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754383297; x=1754988097;
+        d=1e100.net; s=20230601; t=1754383311; x=1754988111;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=z1HC+HPZ0PIyj32+UCRv8XB54ETxx5jXRG1Xe0qQ0bg=;
-        b=RhRL3Clmp2bGOJ86LShZ2nW5Ua7pVlrCp+md4JCoSMDgNEABBpD9+BuW/Wqwpz8G7z
-         179I9ARdBXZFRhMORHq56T8lgLcPdNsuCtm07/bpmB7dqCiLw78GFineywcqRx8BwgCY
-         pIRWX7LjRxqrGMPScuH4SAMqEHLYLGM1AubP3smqnvB3PEEdobWOzFqDW2TY/5rKAT3z
-         6jq132GGnYGcRR4eQIznGQ/MJ2TWCGL4jOblL/SlnBbT1hH7UsNXLm6OPFczxZlHkpa6
-         V2qbUdbB3tWNy4Vaiw51FcHbxJ1OYk9oS6PoqrhspQUrUvHdRCQl6i+/5YTdPQ5f4HhY
-         IWJA==
-X-Forwarded-Encrypted: i=1; AJvYcCXP1LXM2CICWPEInCo/IgrbxZWjgSM2qZ8TKHsXvzGYkEgZGFv9PF1ZN6Pt9UiL6QCb3E4o2S9NwXb07tYtsrE=@vger.kernel.org, AJvYcCXx5BuSOohwIiHipVAFRGTVv4pLNIlJeQjTAr3YokuDZvgeBGqxbDBAvNNg0UJW0uQck8Zpz/QtgqjYSsQ=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy5dsubpbWjthw52Btm3FmdkaIrzkZhN1xNFLG5YAOly6f3HUT+
-	LL4GcV3aTW71oVSzRGvjMuJhNXIXsbvLUTi54adZXaA92fme080R6DFl
-X-Gm-Gg: ASbGncvWOHKq1ppf+DVRVFSHABzpUe5brf+kqrzwVGpP86B/tKBMZ7hJj2ltNAbwRaF
-	MDMBtoyDZFaPKUHHZZIvTP5W6poWnpQAumWaJ/fFLzWPdWRHWRx6TJMJT6XATeJTGczZ45pj2CY
-	Guk5NVP2pDIcS5EPKPrN8u8tGFrcwgC9MH1poNOn5YWuCnaxrnf9ar5kV5JKkCZvefxR3GPWrKE
-	qA1cFQ7jTt9qrz0swprQCZEKoVZvEkDWiThdV1eJwqt/HY2c6hvN4UHlUuqj9Kb81V8ltgtnkSn
-	BaDSoe8TDCSP/myJQcCkq4tf26g/NiMBIveyWrUm0Rc0D8KCPgIrNBo68xmlKyDVM/obuahES6m
-	pWi1aAorxrd2FcNfZpjFoNSpT1Gw=
-X-Google-Smtp-Source: AGHT+IFWyufrGlvyPfxj+kUY9mIupE900ilLVdLjMJwjECEy0UgNCbP//2momS0M4SeGVu+L7iicVQ==
-X-Received: by 2002:a17:903:32c1:b0:234:b743:c7a4 with SMTP id d9443c01a7336-2424701ae4fmr196698665ad.38.1754383296700;
-        Tue, 05 Aug 2025 01:41:36 -0700 (PDT)
+        bh=hRJJifz5CC8NQFb6tc5aBM8nA2YPhDrgucWKgxjTqVo=;
+        b=a4v8P3jl0L+EynYEAiYTu0DJBvzfJXGdEBXZXFBVZBG9Y/V0WS0YqVP5Nal8zsaF8+
+         /erc43ZFfkIzhYIUJqB+Y1K8mXgmJ2/PscU2bAdkrB8dBSO6EWfOILcY3i7vu836vOm4
+         QNRTY+Y5NFDh8vxeXSluyQByxs2G2zy213mOf46SBZzY9/vOgepQqTcq24yRtl9mBYvq
+         dbcD/6BKt4ybvI5Q07VbuwIXYVKXJc2TrqgCiV5xu22J77fO8NDUzog39wsCfsqn9lzZ
+         B/99nzVJuz5P4vn8J2Z14gKCMILTwcuv//rrzCdiYrQT1fc/rU8dDeG2zFqys0yyiM3j
+         aXBg==
+X-Forwarded-Encrypted: i=1; AJvYcCV4FkAAuVmhWTq9DFmkORsggD4+jBODk7xwIdB9L7G/VSqFUOc6FkSDHTn5uc2WCazg0N9yEG9hUVk=@vger.kernel.org, AJvYcCWhJEwQh32vPmHoyEbbQfqUErF9LagBKATOq5nbtEK3VbMpbmJ8Ulk+lNQa7jKzbLZMJSaxdFJs7KKaeiWHRJE=@vger.kernel.org, AJvYcCXP8K47aS9GAUL3iWB8pdtRPGE18K/LL4vSuOl/2uFVMj7+3lyg2VbQ+paAWgpvrN2nNIpG84a5EsajACSE@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyvv7XwDRsnW/pt3gippRZkqUBoz3FeVmz+oggLxf5Z5ORu146n
+	2JtWdvrgLQ58q3ZDxIZES6rDCdmWtaJGW/uysyp6PAVqTGIFCBuByzVO
+X-Gm-Gg: ASbGnctGWdNm6Ix/YDVYqLTSC5MuwVLnZNtlju71EfdwZKUuR9HzN7yYMEj+VlQZ+bq
+	8NQdNPUTWIKyPwdFi5EU6OUPL3weSwkmAVdrhJ5961wWhCu/pRCmO6O9WkCguO099rW4X3CY/4+
+	tEpDEp6y4ysJF+p8YGvltZ45UHGzBbXw8QnyGx2BgN1iM6UX8j6HlTqaTnmwGN0lJOg77vK1dX3
+	1WXGgqweHiZqPNX0BdfhtZf+FBz+0eB1zQjn8tBMHnlCIk576eKdwSSSBFLiN0+9qLDQFDvLoR0
+	xgXsohTRvHxI5Za/1FOvruXJ++inEL7ftNWFqmgM6/BOb/PuuRE2K69yboL+lA5L50SpM9p9FMm
+	BebF8HAtWi7qExDD8WF1Ye+FdF82zz4DypjaHhw==
+X-Google-Smtp-Source: AGHT+IHRWWIpIfad1+0DN2xYUj8cS93fXfqPhfGlf9VrdzTRTOBEazMeYux9j17jEK/yELWoLIUKMg==
+X-Received: by 2002:a17:902:f706:b0:234:9cdd:ffd5 with SMTP id d9443c01a7336-2424700f50emr183870875ad.25.1754383310767;
+        Tue, 05 Aug 2025 01:41:50 -0700 (PDT)
 Received: from nyaos.. ([141.11.79.172])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-241d1ef7d96sm126981995ad.18.2025.08.05.01.41.29
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-241d1ef7d96sm126981995ad.18.2025.08.05.01.41.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Aug 2025 01:41:36 -0700 (PDT)
+        Tue, 05 Aug 2025 01:41:50 -0700 (PDT)
 From: ChenMiao <chenmiao.ku@gmail.com>
 To: Stafford Horne <shorne@gmail.com>
 Cc: chenmiao <chenmiao.ku@gmail.com>,
+	Jonathan Corbet <corbet@lwn.net>,
 	Jonas Bonn <jonas@southpole.se>,
 	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Arnd Bergmann <arnd@arndb.de>,
-	"Mike Rapoport (Microsoft)" <rppt@kernel.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Sahil Siddiq <sahilcdq0@gmail.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Jason Baron <jbaron@akamai.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Ard Biesheuvel <ardb@kernel.org>,
 	Masahiro Yamada <masahiroy@kernel.org>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	linux-openrisc@vger.kernel.org (open list:OPENRISC ARCHITECTURE),
-	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH 1/2] openrisc: Add text patching API support
-Date: Tue,  5 Aug 2025 08:40:57 +0000
-Message-ID: <20250805084114.4125333-2-chenmiao.ku@gmail.com>
+	Nicolas Schier <nicolas.schier@linux.dev>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Sahil Siddiq <sahilcdq0@gmail.com>,
+	linux-doc@vger.kernel.org (open list:DOCUMENTATION),
+	linux-kernel@vger.kernel.org (open list),
+	linux-openrisc@vger.kernel.org (open list:OPENRISC ARCHITECTURE)
+Subject: [PATCH 2/2] openrisc: Add jump label support
+Date: Tue,  5 Aug 2025 08:40:58 +0000
+Message-ID: <20250805084114.4125333-3-chenmiao.ku@gmail.com>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20250805084114.4125333-1-chenmiao.ku@gmail.com>
 References: <20250805084114.4125333-1-chenmiao.ku@gmail.com>
@@ -90,197 +92,285 @@ Content-Transfer-Encoding: 8bit
 
 From: chenmiao <chenmiao.ku@gmail.com>
 
-We need a text patching mechanism to ensure that in the subsequent
-implementation of jump_label, the code can be modified to the correct
-location. Therefore, FIX_TEXT_POKE0 has been added as a mapping area.
+Implemented the full functionality of jump_label, of course,
+with text patching supported by just one API.
 
-And, I create a new file named insn-def.h to define the or1k insn macro
-size and more define in the future.
-
-Among these changes, we implement patch_map and support the
-patch_insn_write API for single instruction writing.
+By the way, add new macro OPENRISC_INSN_NOP in insn-def.h to use.
 
 Signed-off-by: chenmiao <chenmiao.ku@gmail.com>
 ---
- arch/openrisc/include/asm/Kbuild          |  1 -
- arch/openrisc/include/asm/fixmap.h        |  1 +
- arch/openrisc/include/asm/insn-def.h      | 12 ++++
- arch/openrisc/include/asm/text-patching.h | 13 ++++
- arch/openrisc/kernel/Makefile             |  1 +
- arch/openrisc/kernel/patching.c           | 79 +++++++++++++++++++++++
- arch/openrisc/mm/init.c                   |  2 +-
- 7 files changed, 107 insertions(+), 2 deletions(-)
- create mode 100644 arch/openrisc/include/asm/insn-def.h
- create mode 100644 arch/openrisc/include/asm/text-patching.h
- create mode 100644 arch/openrisc/kernel/patching.c
+ .../core/jump-labels/arch-support.txt         |  2 +-
+ arch/openrisc/Kconfig                         |  2 +
+ arch/openrisc/configs/or1ksim_defconfig       | 19 ++----
+ arch/openrisc/configs/virt_defconfig          |  1 +
+ arch/openrisc/include/asm/insn-def.h          |  3 +
+ arch/openrisc/include/asm/jump_label.h        | 68 +++++++++++++++++++
+ arch/openrisc/kernel/Makefile                 |  1 +
+ arch/openrisc/kernel/jump_label.c             | 53 +++++++++++++++
+ arch/openrisc/kernel/setup.c                  |  2 +
+ 9 files changed, 138 insertions(+), 13 deletions(-)
+ create mode 100644 arch/openrisc/include/asm/jump_label.h
+ create mode 100644 arch/openrisc/kernel/jump_label.c
 
-diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
-index 2b1a6b00cdac..cef49d60d74c 100644
---- a/arch/openrisc/include/asm/Kbuild
-+++ b/arch/openrisc/include/asm/Kbuild
-@@ -9,4 +9,3 @@ generic-y += spinlock.h
- generic-y += qrwlock_types.h
- generic-y += qrwlock.h
- generic-y += user.h
--generic-y += text-patching.h
-diff --git a/arch/openrisc/include/asm/fixmap.h b/arch/openrisc/include/asm/fixmap.h
-index aaa6a26a3e92..74000215064d 100644
---- a/arch/openrisc/include/asm/fixmap.h
-+++ b/arch/openrisc/include/asm/fixmap.h
-@@ -28,6 +28,7 @@
- 
- enum fixed_addresses {
- 	FIX_EARLYCON_MEM_BASE,
-+	FIX_TEXT_POKE0,
- 	__end_of_fixed_addresses
- };
- 
+diff --git a/Documentation/features/core/jump-labels/arch-support.txt b/Documentation/features/core/jump-labels/arch-support.txt
+index ccada815569f..683de7c15058 100644
+--- a/Documentation/features/core/jump-labels/arch-support.txt
++++ b/Documentation/features/core/jump-labels/arch-support.txt
+@@ -17,7 +17,7 @@
+     |  microblaze: | TODO |
+     |        mips: |  ok  |
+     |       nios2: | TODO |
+-    |    openrisc: | TODO |
++    |    openrisc: |  ok  |
+     |      parisc: |  ok  |
+     |     powerpc: |  ok  |
+     |       riscv: |  ok  |
+diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+index b38fee299bc4..9156635dd264 100644
+--- a/arch/openrisc/Kconfig
++++ b/arch/openrisc/Kconfig
+@@ -24,6 +24,8 @@ config OPENRISC
+ 	select GENERIC_PCI_IOMAP
+ 	select GENERIC_IOREMAP
+ 	select GENERIC_CPU_DEVICES
++	select HAVE_ARCH_JUMP_LABEL
++	select HAVE_ARCH_JUMP_LABEL_RELATIVE
+ 	select HAVE_PCI
+ 	select HAVE_UID16
+ 	select HAVE_PAGE_SIZE_8KB
+diff --git a/arch/openrisc/configs/or1ksim_defconfig b/arch/openrisc/configs/or1ksim_defconfig
+index 59fe33cefba2..769705ac24d5 100644
+--- a/arch/openrisc/configs/or1ksim_defconfig
++++ b/arch/openrisc/configs/or1ksim_defconfig
+@@ -3,26 +3,23 @@ CONFIG_LOG_BUF_SHIFT=14
+ CONFIG_BLK_DEV_INITRD=y
+ # CONFIG_RD_GZIP is not set
+ CONFIG_EXPERT=y
+-# CONFIG_KALLSYMS is not set
+ # CONFIG_EPOLL is not set
+ # CONFIG_TIMERFD is not set
+ # CONFIG_EVENTFD is not set
+ # CONFIG_AIO is not set
+-# CONFIG_VM_EVENT_COUNTERS is not set
+-# CONFIG_COMPAT_BRK is not set
+-CONFIG_SLUB=y
+-CONFIG_SLUB_TINY=y
+-CONFIG_MODULES=y
+-# CONFIG_BLOCK is not set
++# CONFIG_KALLSYMS is not set
+ CONFIG_BUILTIN_DTB_NAME="or1ksim"
+ CONFIG_HZ_100=y
++CONFIG_JUMP_LABEL=y
++CONFIG_MODULES=y
++# CONFIG_BLOCK is not set
++CONFIG_SLUB_TINY=y
++# CONFIG_COMPAT_BRK is not set
++# CONFIG_VM_EVENT_COUNTERS is not set
+ CONFIG_NET=y
+ CONFIG_PACKET=y
+ CONFIG_UNIX=y
+ CONFIG_INET=y
+-# CONFIG_INET_XFRM_MODE_TRANSPORT is not set
+-# CONFIG_INET_XFRM_MODE_TUNNEL is not set
+-# CONFIG_INET_XFRM_MODE_BEET is not set
+ # CONFIG_INET_DIAG is not set
+ CONFIG_TCP_CONG_ADVANCED=y
+ # CONFIG_TCP_CONG_BIC is not set
+@@ -35,7 +32,6 @@ CONFIG_DEVTMPFS=y
+ CONFIG_DEVTMPFS_MOUNT=y
+ # CONFIG_PREVENT_FIRMWARE_BUILD is not set
+ # CONFIG_FW_LOADER is not set
+-CONFIG_PROC_DEVICETREE=y
+ CONFIG_NETDEVICES=y
+ CONFIG_ETHOC=y
+ CONFIG_MICREL_PHY=y
+@@ -53,4 +49,3 @@ CONFIG_SERIAL_OF_PLATFORM=y
+ # CONFIG_DNOTIFY is not set
+ CONFIG_TMPFS=y
+ CONFIG_NFS_FS=y
+-# CONFIG_ENABLE_MUST_CHECK is not set
+diff --git a/arch/openrisc/configs/virt_defconfig b/arch/openrisc/configs/virt_defconfig
+index c1b69166c500..4a80c5794877 100644
+--- a/arch/openrisc/configs/virt_defconfig
++++ b/arch/openrisc/configs/virt_defconfig
+@@ -12,6 +12,7 @@ CONFIG_NR_CPUS=8
+ CONFIG_SMP=y
+ CONFIG_HZ_100=y
+ # CONFIG_OPENRISC_NO_SPR_SR_DSX is not set
++CONFIG_JUMP_LABEL=y
+ # CONFIG_COMPAT_BRK is not set
+ CONFIG_NET=y
+ CONFIG_PACKET=y
 diff --git a/arch/openrisc/include/asm/insn-def.h b/arch/openrisc/include/asm/insn-def.h
-new file mode 100644
-index 000000000000..dc8d16db1579
---- /dev/null
+index dc8d16db1579..2ccdbb37c27c 100644
+--- a/arch/openrisc/include/asm/insn-def.h
 +++ b/arch/openrisc/include/asm/insn-def.h
-@@ -0,0 +1,12 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Copyright (C) 2025 Chen Miao
-+ */
+@@ -9,4 +9,7 @@
+ /* or1k instructions are always 32 bits. */
+ #define	OPENRISC_INSN_SIZE		4
+ 
++/* or1k nop instruction code */
++#define OPENRISC_INSN_NOP     0x15000000U
 +
-+#ifndef __ASM_INSN_DEF_H
-+#define __ASM_INSN_DEF_H
-+
-+/* or1k instructions are always 32 bits. */
-+#define	OPENRISC_INSN_SIZE		4
-+
-+#endif /* __ASM_INSN_DEF_H */
-diff --git a/arch/openrisc/include/asm/text-patching.h b/arch/openrisc/include/asm/text-patching.h
+ #endif /* __ASM_INSN_DEF_H */
+diff --git a/arch/openrisc/include/asm/jump_label.h b/arch/openrisc/include/asm/jump_label.h
 new file mode 100644
-index 000000000000..4c3d8a6a906a
+index 000000000000..03afca9c3a1f
 --- /dev/null
-+++ b/arch/openrisc/include/asm/text-patching.h
-@@ -0,0 +1,13 @@
++++ b/arch/openrisc/include/asm/jump_label.h
+@@ -0,0 +1,68 @@
 +/* SPDX-License-Identifier: GPL-2.0-only */
 +/*
 + * Copyright (C) 2025 Chen Miao
++ *
++ * Based on arch/arm/include/asm/jump_label.h
 + */
++#ifndef __ASM_JUMP_LABEL_H
++#define __ASM_JUMP_LABEL_H
 +
-+#ifndef _ASM_PATCHING_H_
-+#define _ASM_PATCHING_H_
++#ifndef __ASSEMBLY__
 +
 +#include <linux/types.h>
-+
-+int patch_insn_write(void *addr, const void *insn);
-+
-+#endif /* _ASM_PATCHING_H_ */
-diff --git a/arch/openrisc/kernel/Makefile b/arch/openrisc/kernel/Makefile
-index 58e6a1b525b7..f0957ce16d6b 100644
---- a/arch/openrisc/kernel/Makefile
-+++ b/arch/openrisc/kernel/Makefile
-@@ -13,5 +13,6 @@ obj-$(CONFIG_SMP)		+= smp.o sync-timer.o
- obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
- obj-$(CONFIG_MODULES)		+= module.o
- obj-$(CONFIG_OF)		+= prom.o
-+obj-y	+= patching.o
- 
- clean:
-diff --git a/arch/openrisc/kernel/patching.c b/arch/openrisc/kernel/patching.c
-new file mode 100644
-index 000000000000..2b979a0bc584
---- /dev/null
-+++ b/arch/openrisc/kernel/patching.c
-@@ -0,0 +1,79 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/* Copyright (C) 2020 SiFive
-+ * Copyright (C) 2025 Chen Miao
-+ */
-+
-+#include <linux/mm.h>
-+#include <linux/kernel.h>
-+#include <linux/spinlock.h>
-+#include <linux/uaccess.h>
-+
 +#include <asm/insn-def.h>
-+#include <asm/cacheflush.h>
-+#include <asm/page.h>
-+#include <asm/fixmap.h>
-+#include <asm/text-patching.h>
-+#include <asm/sections.h>
 +
-+static DEFINE_RAW_SPINLOCK(patch_lock);
++#define HAVE_JUMP_LABEL_BATCH
 +
-+static inline bool is_exit_text(uintptr_t addr)
++#define JUMP_LABEL_NOP_SIZE OPENRISC_INSN_SIZE
++
++/*
++ * should aligned 4
++ * for jump_label relative
++ * entry.code   = nop.addr - . -> return false
++ * entry.target = l_yes - .    -> return true
++ * entry.key	= key - .
++ */
++#define JUMP_TABLE_ENTRY(key, label)			\
++	".pushsection	__jump_table, \"aw\"	\n\t"	\
++	".align 	4 			\n\t"	\
++	".long 		1b - ., " label " - .	\n\t"	\
++	".long 		" key " - . 		\n\t"	\
++	".popsection				\n\t"
++
++#define ARCH_STATIC_BRANCH_ASM(key, label)		\
++	".align		4			\n\t"	\
++	"1: l.nop				\n\t"	\
++	"    l.nop				\n\t"	\
++	JUMP_TABLE_ENTRY(key, label)
++
++static __always_inline bool arch_static_branch(struct static_key *const key,
++					       const bool branch)
 +{
-+	/* Now Have NO Mechanism to do */
++	asm goto (ARCH_STATIC_BRANCH_ASM("%0", "%l[l_yes]")
++		  ::"i"(&((char *)key)[branch])::l_yes);
++
++	return false;
++l_yes:
 +	return true;
 +}
 +
-+static __always_inline void *patch_map(void *addr, int fixmap)
-+{
-+	uintptr_t uaddr = (uintptr_t) addr;
-+	phys_addr_t phys;
++#define ARCH_STATIC_BRANCH_JUMP_ASM(key, label)		\
++	".align		4			\n\t"	\
++	"1: l.j	" label "			\n\t"	\
++	"    l.nop				\n\t"	\
++	JUMP_TABLE_ENTRY(key, label)
 +
-+	if (core_kernel_text(uaddr) || is_exit_text(uaddr)) {
-+		phys = __pa_symbol(addr);
++static __always_inline bool
++arch_static_branch_jump(struct static_key *const key, const bool branch)
++{
++	asm goto (ARCH_STATIC_BRANCH_JUMP_ASM("%0", "%l[l_yes]")
++		  ::"i"(&((char *)key)[branch])::l_yes);
++
++	return false;
++l_yes:
++	return true;
++}
++
++#endif /* __ASSEMBLY__ */
++#endif /* __ASM_JUMP_LABEL_H */
+diff --git a/arch/openrisc/kernel/Makefile b/arch/openrisc/kernel/Makefile
+index f0957ce16d6b..19e0eb94f2eb 100644
+--- a/arch/openrisc/kernel/Makefile
++++ b/arch/openrisc/kernel/Makefile
+@@ -9,6 +9,7 @@ obj-y	:= head.o setup.o or32_ksyms.o process.o dma.o \
+ 	   traps.o time.o irq.o entry.o ptrace.o signal.o \
+ 	   sys_call_table.o unwinder.o cacheinfo.o
+ 
++obj-$(CONFIG_JUMP_LABEL)	+= jump_label.o
+ obj-$(CONFIG_SMP)		+= smp.o sync-timer.o
+ obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
+ obj-$(CONFIG_MODULES)		+= module.o
+diff --git a/arch/openrisc/kernel/jump_label.c b/arch/openrisc/kernel/jump_label.c
+new file mode 100644
+index 000000000000..2cda900dd33e
+--- /dev/null
++++ b/arch/openrisc/kernel/jump_label.c
+@@ -0,0 +1,53 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Copyright (C) 2025 Chen Miao
++ *
++ * Based on arch/arm/kernel/jump_label.c
++ */
++#include <linux/jump_label.h>
++#include <linux/kernel.h>
++#include <linux/memory.h>
++#include <asm/bug.h>
++#include <asm/cacheflush.h>
++#include <asm/text-patching.h>
++
++bool arch_jump_label_transform_queue(struct jump_entry *entry,
++				     enum jump_label_type type)
++{
++	void *addr = (void *)jump_entry_code(entry);
++	u32 insn;
++
++	if (type == JUMP_LABEL_JMP) {
++		long offset;
++
++		offset = jump_entry_target(entry) - jump_entry_code(entry);
++		/*
++		 * The actual maximum range of the l.j instruction's offset is -134,217,728
++		 * ~ 134,217,724 (sign 26-bit imm).
++		 * For the original jump range, we need to right-shift N by 2 to obtain the
++		 * instruction's offset.
++		 */
++		if (unlikely(offset < -134217728 || offset > 134217724)) {
++			WARN_ON_ONCE(true);
++		}
++		/* 26bit imm mask */
++		offset = (offset >> 2) & 0x03ffffff;
++
++		insn = offset;
 +	} else {
-+		struct page *page = vmalloc_to_page(addr);
-+		BUG_ON(!page);
-+		phys = page_to_phys(page) + offset_in_page(addr);
++		insn = OPENRISC_INSN_NOP;
 +	}
 +
-+	return (void *)set_fixmap_offset(fixmap, phys);
++	if (early_boot_irqs_disabled) {
++		copy_to_kernel_nofault(addr, &insn, sizeof(insn));
++	} else {
++		patch_insn_write(addr, &insn);
++	}
++	return true;
 +}
 +
-+static void patch_unmap(int fixmap)
++void arch_jump_label_transform_apply(void)
 +{
-+	clear_fixmap(fixmap);
++	// flush
++	kick_all_cpus_sync();
 +}
-+
-+static int __patch_insn_write(void *addr, const void *insn)
-+{
-+	void *waddr = addr;
-+	unsigned long flags = 0;
-+	int ret;
-+
-+	raw_spin_lock_irqsave(&patch_lock, flags);
-+
-+	waddr = patch_map(addr, FIX_TEXT_POKE0);
-+
-+	ret = copy_to_kernel_nofault(waddr, insn, OPENRISC_INSN_SIZE);
-+	local_icache_range_inv((unsigned long)waddr,
-+			       (unsigned long)waddr + OPENRISC_INSN_SIZE);
-+
-+	patch_unmap(FIX_TEXT_POKE0);
-+
-+	raw_spin_unlock_irqrestore(&patch_lock, flags);
-+
-+	return ret;
-+}
-+
-+int patch_insn_write(void *addr, const void *insn)
-+{
-+	u32 *tp = addr;
-+	int ret;
-+
-+	if ((uintptr_t) tp & 0x3)
-+		return -EINVAL;
-+
-+	ret = __patch_insn_write(tp, insn);
-+
-+	return ret;
-+}
-diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
-index e4904ca6f0a0..b5925710f954 100644
---- a/arch/openrisc/mm/init.c
-+++ b/arch/openrisc/mm/init.c
-@@ -226,7 +226,7 @@ static int __init map_page(unsigned long va, phys_addr_t pa, pgprot_t prot)
- 	return 0;
- }
+diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
+index a9fb9cc6779e..000a9cc10e6f 100644
+--- a/arch/openrisc/kernel/setup.c
++++ b/arch/openrisc/kernel/setup.c
+@@ -249,6 +249,8 @@ void __init setup_arch(char **cmdline_p)
+ 		initrd_below_start_ok = 1;
+ 	}
+ #endif
++	/* perform jump_table sorting before paging_init locks down read only memory */
++	jump_label_init();
  
--void __init __set_fixmap(enum fixed_addresses idx,
-+void __set_fixmap(enum fixed_addresses idx,
- 			 phys_addr_t phys, pgprot_t prot)
- {
- 	unsigned long address = __fix_to_virt(idx);
+ 	/* paging_init() sets up the MMU and marks all pages as reserved */
+ 	paging_init();
 -- 
 2.45.2
 
