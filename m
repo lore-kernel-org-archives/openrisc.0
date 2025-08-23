@@ -1,71 +1,61 @@
-Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0BEA12CD88;
-	Sat, 23 Aug 2025 05:45:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3790A21D5B3;
+	Sat, 23 Aug 2025 23:17:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755927933; cv=none; b=Z5YBkbLZpb/a7lBdl7lOvjQg+cWn87ISeyoVz93SAyoaruAeukcMcZHzYHQb85Gl5gE/17irzAMAxYcWmsUP6364bzdz703p4nwuwfVROnKh1XeN+iQlsTvwn+0LdyFRNCqO9+zFRWusvWDOPRJ/q54xU+YOhk6YWA0dFfAWSl8=
+	t=1755991042; cv=none; b=msLe/rDi/nVuLJSZzLcb34JKrXJD7vYYpFz8DaqBgmzkRNg4mT53pMb5V+ZnFOv3PC2KkEEnQWGj3B7O0wWr7jk0cUWLJccNRRBa86euBw9JvjjIzpdO+awmIh6KiUoMojk2x8mmm15grleifugnBZMkRPEbhOug4+2tr+zg7U4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755927933; c=relaxed/simple;
-	bh=4c1uRTP1ULf8MzVaohNYgZKILmRfZfYAs/EfNYq5oBw=;
+	s=arc-20240116; t=1755991042; c=relaxed/simple;
+	bh=5XgjPckc4HN3AGI2QCeHwGUL1qex5fbc9P55Xl/SwpY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NCEjerYCvTP+FGjfN4qcd00Ly9L/QhSRHSHe/gBoJAjI/dsNo0swJGpBMmZQz/tHlFtchHPypejkbDIQkvjSV9PhcQRQ7OJr3Z7jQdMUaR2RggEAnTDBNCPpYJbkNq0RcORas4CbEejAitVXRLPjARfHVerV5Nifh0orz88xIBs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cdW7Y/+S; arc=none smtp.client-ip=209.85.221.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=Dbf9U/t7v55T2MQJpV/HudHsJQbVBduIuEToC5xMixbtC1qLeNPiB+TXc0hYW36zj0epyxQ6lx3SWS/U8XFvxfYlSzbHI6UtJtYfALATFdTKR7aj1zhyGcQGTV+G9KPElQIpdXC7lO5ofytxV30aYBe9cWQL7TP9SoRCjJjucuU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ZT8ITdbP; arc=none smtp.client-ip=198.175.65.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cdW7Y/+S"
-Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-3c380aa1ad0so1457600f8f.3;
-        Fri, 22 Aug 2025 22:45:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1755927930; x=1756532730; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=gHyH7SH7PU5UaHOdLMIKMPTSPXJ2+4pLSckTrVkAoLU=;
-        b=cdW7Y/+SfJ25MIIYJDoQZyo4ZDuej3jZP7wQiNb8gq4r2iNNA1qgOG4qHGJY640pD2
-         RyXpj0BkliUqyBoeqc/sivojM03aS543sTZCap/b2gOJcLcwK0iMdDJ4/ONP+W92NKVv
-         R4AAkFg575nOe85MnB9L/xPScELrLFBN6YzIOgK8H09W91JnGUPFYxkzPgY8H3jmOokV
-         wf4y1EnnubglXBddPDim/a9n+1KsYU5FVYsCLknDtJePyp1Fjs/Nf9LZ565fakWoEqGw
-         Y/RRL+tj16DFr3k5u3bN2ucwf/BexpJ54qvWT33jYRfCR5BZy99owJD4S+oCVMoqekpo
-         QswA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755927930; x=1756532730;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=gHyH7SH7PU5UaHOdLMIKMPTSPXJ2+4pLSckTrVkAoLU=;
-        b=C579PPoGooVvrF6dC5kafLLv/9OxjOnJUOqVu48AgdSblgnaFIrVyJJiUGX1K2ou1z
-         cx0fIK84ckIuHeESgYML2/yD7r7GD/oQgTiCr/lO7TWiCls7q9kysXxSgKtPPO5Eq8Lf
-         LIFrknGYiwm2HLwLG26Q79TLfcVso6Y+hinryaN0dYhOwi335YaNgXyItQ34CY0xUbHm
-         BVgmCaanhFPCIQU+/NmjwvW4++1u6rdEeiWPaZVUyxUUiqnQLgdUuK/LTYKwFX03i059
-         JeYT2Vx0DY0/SlsbpdVLICx/vXOJt+koobqWnPAS59gVlCldBzVhd3ZnjtWRYrLhFWFN
-         srnA==
-X-Forwarded-Encrypted: i=1; AJvYcCXvezAAFntHBB/bNj5jMUoTlIx8EPegE062waLm5ZZvQWPBphYfnrPTTv3XtbC/nUIdsSEa5qy/MHCatfhi1w==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw0q6qIrBY5cwydvgcNGgYGwFL0SjdWA9+YbYO8fbduoNDOTeIx
-	bwISB7pJ7iVIbO1dtluHYGxIpY+ZpJC+I4t4KLS326TL/inaCKfGUYzE
-X-Gm-Gg: ASbGnctu2e7ljohgXqpOjRwkwpdabkz23jA+A6huVS7XuGlymWGVecitHPeJLGygR5l
-	D5Z8sodakiCqfoVzBLDHzXjVwKj4Ax4uW7FcwP6qNGx+hQB2cWSkZ2xa7dXNx0UR1291vqnPQMk
-	CvvFHdvikIho94kUc+P6qy8itu2x37nXqph530Y9B6x70uuHy8txE2LNbKUcDBYe2MeQgeUHvzA
-	mEh+EjZV37nFbV7EZxh6Zn/0hXU2DBXj01KG925M9lATA/LPpPZolEE48s30je9hS1msCTfiqkv
-	hGqdWe2U6fX46O9pW98RRUgSWdjV51TAl9F6wJxLWmL5UrUEgDr43T2HW0gDqWzIGBG95uQZJ9k
-	B05WVs5StIHcC1ZNUbEDaxXFuMNao+f0ghaDqzbce7g8SUhHHby3z8pp41L7Uuw==
-X-Google-Smtp-Source: AGHT+IE3FSE1VWJjDYenOMyDErlW2oj0xKkBLZx8Cc4Yc5rQNXNSm9CfoU6qDcLTMcTeOkEAQUJEAw==
-X-Received: by 2002:a05:6000:2288:b0:3a3:63d3:369a with SMTP id ffacd0b85a97d-3c5daefc851mr4336870f8f.25.1755927929809;
-        Fri, 22 Aug 2025 22:45:29 -0700 (PDT)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3c70ef566dcsm2150299f8f.24.2025.08.22.22.45.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Aug 2025 22:45:27 -0700 (PDT)
-Date: Sat, 23 Aug 2025 06:45:26 +0100
-From: Stafford Horne <shorne@gmail.com>
-To: Ben Hutchings <ben.hutchings@mind.be>
-Cc: bpf@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
-	linux-openrisc@vger.kernel.org, Chris Zankel <chris@zankel.net>,
-	Max Filippov <jcmvbkbc@gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ZT8ITdbP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1755991041; x=1787527041;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=5XgjPckc4HN3AGI2QCeHwGUL1qex5fbc9P55Xl/SwpY=;
+  b=ZT8ITdbPo5ZYf9KNx5RQtkLrW6eSzuTlEZGYDNmLPtE3wsZrihQku/zQ
+   PjJZqBIQgX7ipDWPazEvZEeoW439/g1cqOeEvsegGDjAtD79SZv8e0x34
+   7IKKZBeQn0vaJ3rYh45uyvt3Qvw+u70Z6fZWm2EiryKJCHCr4IZ6nwClS
+   1zc0+7WqFZ4WGfDJIp0UH8htcNzEQBpcxtr604rjQEXdsrDCHdtZ1Ffkq
+   AuEk+0w+R3ooNw/FqwYaqSqFuIjNeFDa0lDM2WGT5CH9ujuemUZ8YN0c3
+   WWZE+hqYnygUDtFtvi2EI5bl1S4yJS1wMjYDQMhUNucCjTJKSjtI2GKMw
+   w==;
+X-CSE-ConnectionGUID: luzLh+w7RJeg6IDH5llkjw==
+X-CSE-MsgGUID: 14qS8E9oQ82PP077NUNdeg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11531"; a="58115518"
+X-IronPort-AV: E=Sophos;i="6.17,312,1747724400"; 
+   d="scan'208";a="58115518"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Aug 2025 16:17:20 -0700
+X-CSE-ConnectionGUID: lsj8eNKZRY+e6vcV9yzrAA==
+X-CSE-MsgGUID: sySn3Nh+RcyTJNUhc9FmZw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.17,312,1747724400"; 
+   d="scan'208";a="168887192"
+Received: from lkp-server02.sh.intel.com (HELO 4ea60e6ab079) ([10.239.97.151])
+  by orviesa007.jf.intel.com with ESMTP; 23 Aug 2025 16:17:18 -0700
+Received: from kbuild by 4ea60e6ab079 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1upxU3-000MeB-2G;
+	Sat, 23 Aug 2025 23:17:15 +0000
+Date: Sun, 24 Aug 2025 07:16:22 +0800
+From: kernel test robot <lkp@intel.com>
+To: Ben Hutchings <bwh@kernel.org>, bpf@vger.kernel.org
+Cc: oe-kbuild-all@lists.linux.dev, Ben Hutchings <bwh@kernel.org>,
+	Dinh Nguyen <dinguyen@kernel.org>, linux-openrisc@vger.kernel.org,
+	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>
 Subject: Re: [PATCH] nios2, openrisc, xtensa: Fix definitions of
  bpf_user_pt_regs_t
-Message-ID: <aKlVdonjv3URRmtG@antec>
+Message-ID: <202508240726.GADEDNYH-lkp@intel.com>
 References: <20250822135848.1922288-1-ben.hutchings@mind.be>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
@@ -77,97 +67,69 @@ Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20250822135848.1922288-1-ben.hutchings@mind.be>
 
-On Fri, Aug 22, 2025 at 03:58:48PM +0200, Ben Hutchings wrote:
-> The UAPI <asm/bpf_perf_event.h> header is required to define the type
-> alias bpf_user_pt_regs_t.  The generic version includes
-> <linux/ptrace.h> and defines it as an alias for struct pt_regs.
-> 
-> For these 3 architectures, struct pt_regs is not defined in the UAPI.
-> They need to override the generic version with an architecture-
-> specific definition of bpf_user_pt_regs_t.
-> 
-> References: https://autobuild.buildroot.org/results/bf2/bf21079facd21d684e8656e7ac44b4218a8fcb9d/build-end.log
-> Fixes: c895f6f703ad ("bpf: correct broken uapi for BPF_PROG_TYPE_PERF_EVENT program type")
-> Signed-off-by: Ben Hutchings <ben.hutchings@mind.be>
-> ---
-> I understand that perf_events is not yet supported on nios2 and
-> openrisc, so this isn't obviously useful.  However, libbpf has generic
-> handling for BPF_PROG_TYPE_PERF_EVENT that includes
-> <linux/bpf_perf_event.h> and it now fails to build on openrisc.
+Hi Ben,
 
-Understood.
+kernel test robot noticed the following build errors:
 
-> I verified that:
-> - This fixes building libbpf with Buildroot for openrisc
-> - This makes "#include <linux/bpf_perf_event.h>" work on xtensa
-> 
-> I wasn't able to test nios2 at all.
-> 
-> Ben.
-> 
->  arch/nios2/include/uapi/asm/bpf_perf_event.h    | 9 +++++++++
->  arch/openrisc/include/uapi/asm/bpf_perf_event.h | 9 +++++++++
->  arch/xtensa/include/uapi/asm/bpf_perf_event.h   | 9 +++++++++
->  3 files changed, 27 insertions(+)
->  create mode 100644 arch/nios2/include/uapi/asm/bpf_perf_event.h
->  create mode 100644 arch/openrisc/include/uapi/asm/bpf_perf_event.h
->  create mode 100644 arch/xtensa/include/uapi/asm/bpf_perf_event.h
-> 
-> diff --git a/arch/nios2/include/uapi/asm/bpf_perf_event.h b/arch/nios2/include/uapi/asm/bpf_perf_event.h
-> new file mode 100644
-> index 000000000000..5e1e648aeec4
-> --- /dev/null
-> +++ b/arch/nios2/include/uapi/asm/bpf_perf_event.h
-> @@ -0,0 +1,9 @@
-> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-> +#ifndef _UAPI__ASM_BPF_PERF_EVENT_H__
-> +#define _UAPI__ASM_BPF_PERF_EVENT_H__
-> +
-> +#include <asm/ptrace.h>
-> +
-> +typedef struct user_pt_regs bpf_user_pt_regs_t;
-> +
-> +#endif /* _UAPI__ASM_BPF_PERF_EVENT_H__ */
-> diff --git a/arch/openrisc/include/uapi/asm/bpf_perf_event.h b/arch/openrisc/include/uapi/asm/bpf_perf_event.h
-> new file mode 100644
-> index 000000000000..6cb1c2823288
-> --- /dev/null
-> +++ b/arch/openrisc/include/uapi/asm/bpf_perf_event.h
-> @@ -0,0 +1,9 @@
-> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-> +#ifndef _UAPI__ASM_BPF_PERF_EVENT_H__
-> +#define _UAPI__ASM_BPF_PERF_EVENT_H__
-> +
-> +#include <asm/ptrace.h>
-> +
-> +typedef struct user_regs_struct bpf_user_pt_regs_t;
-> +
-> +#endif /* _UAPI__ASM_BPF_PERF_EVENT_H__ */
+[auto build test ERROR on linus/master]
+[also build test ERROR on openrisc/for-next jcmvbkbc-xtensa/xtensa-for-next v6.17-rc2 next-20250822]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-This bit,
+url:    https://github.com/intel-lab-lkp/linux/commits/Ben-Hutchings/nios2-openrisc-xtensa-Fix-definitions-of-bpf_user_pt_regs_t/20250822-220742
+base:   linus/master
+patch link:    https://lore.kernel.org/r/20250822135848.1922288-1-ben.hutchings%40mind.be
+patch subject: [PATCH] nios2, openrisc, xtensa: Fix definitions of bpf_user_pt_regs_t
+config: xtensa-allyesconfig (https://download.01.org/0day-ci/archive/20250824/202508240726.GADEDNYH-lkp@intel.com/config)
+compiler: xtensa-linux-gcc (GCC) 15.1.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250824/202508240726.GADEDNYH-lkp@intel.com/reproduce)
 
-Acked-by: Stafford Horne <shorne@gmail.com>
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202508240726.GADEDNYH-lkp@intel.com/
 
-Who do you plan on having take this patch for upstream?  Will you?
+All errors (new ones prefixed by >>):
 
--Stafford
+   kernel/events/core.c: In function 'bpf_overflow_handler':
+>> kernel/events/core.c:10208:18: error: assignment to 'bpf_user_pt_regs_t *' {aka 'struct user_pt_regs *'} from incompatible pointer type 'struct pt_regs *' [-Wincompatible-pointer-types]
+   10208 |         ctx.regs = perf_arch_bpf_user_pt_regs(regs);
+         |                  ^
 
-> diff --git a/arch/xtensa/include/uapi/asm/bpf_perf_event.h b/arch/xtensa/include/uapi/asm/bpf_perf_event.h
-> new file mode 100644
-> index 000000000000..5e1e648aeec4
-> --- /dev/null
-> +++ b/arch/xtensa/include/uapi/asm/bpf_perf_event.h
-> @@ -0,0 +1,9 @@
-> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-> +#ifndef _UAPI__ASM_BPF_PERF_EVENT_H__
-> +#define _UAPI__ASM_BPF_PERF_EVENT_H__
-> +
-> +#include <asm/ptrace.h>
-> +
-> +typedef struct user_pt_regs bpf_user_pt_regs_t;
-> +
-> +#endif /* _UAPI__ASM_BPF_PERF_EVENT_H__ */
-> -- 
-> 2.39.5
-> 
-> 
+
+vim +10208 kernel/events/core.c
+
+030a976efae83f Peter Zijlstra 2022-11-19  10195  
+4c03fe11b96bda Kyle Huey      2024-04-11  10196  #ifdef CONFIG_BPF_SYSCALL
+f11f10bfa1ca23 Kyle Huey      2024-04-11  10197  static int bpf_overflow_handler(struct perf_event *event,
+4c03fe11b96bda Kyle Huey      2024-04-11  10198  				struct perf_sample_data *data,
+4c03fe11b96bda Kyle Huey      2024-04-11  10199  				struct pt_regs *regs)
+4c03fe11b96bda Kyle Huey      2024-04-11  10200  {
+4c03fe11b96bda Kyle Huey      2024-04-11  10201  	struct bpf_perf_event_data_kern ctx = {
+4c03fe11b96bda Kyle Huey      2024-04-11  10202  		.data = data,
+4c03fe11b96bda Kyle Huey      2024-04-11  10203  		.event = event,
+4c03fe11b96bda Kyle Huey      2024-04-11  10204  	};
+4c03fe11b96bda Kyle Huey      2024-04-11  10205  	struct bpf_prog *prog;
+4c03fe11b96bda Kyle Huey      2024-04-11  10206  	int ret = 0;
+4c03fe11b96bda Kyle Huey      2024-04-11  10207  
+4c03fe11b96bda Kyle Huey      2024-04-11 @10208  	ctx.regs = perf_arch_bpf_user_pt_regs(regs);
+4c03fe11b96bda Kyle Huey      2024-04-11  10209  	if (unlikely(__this_cpu_inc_return(bpf_prog_active) != 1))
+4c03fe11b96bda Kyle Huey      2024-04-11  10210  		goto out;
+4c03fe11b96bda Kyle Huey      2024-04-11  10211  	rcu_read_lock();
+4c03fe11b96bda Kyle Huey      2024-04-11  10212  	prog = READ_ONCE(event->prog);
+4c03fe11b96bda Kyle Huey      2024-04-11  10213  	if (prog) {
+4c03fe11b96bda Kyle Huey      2024-04-11  10214  		perf_prepare_sample(data, event, regs);
+4c03fe11b96bda Kyle Huey      2024-04-11  10215  		ret = bpf_prog_run(prog, &ctx);
+4c03fe11b96bda Kyle Huey      2024-04-11  10216  	}
+4c03fe11b96bda Kyle Huey      2024-04-11  10217  	rcu_read_unlock();
+4c03fe11b96bda Kyle Huey      2024-04-11  10218  out:
+4c03fe11b96bda Kyle Huey      2024-04-11  10219  	__this_cpu_dec(bpf_prog_active);
+4c03fe11b96bda Kyle Huey      2024-04-11  10220  
+f11f10bfa1ca23 Kyle Huey      2024-04-11  10221  	return ret;
+4c03fe11b96bda Kyle Huey      2024-04-11  10222  }
+4c03fe11b96bda Kyle Huey      2024-04-11  10223  
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
