@@ -1,411 +1,293 @@
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0956A1E522;
-	Tue, 26 Aug 2025 15:12:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94A7514AD20;
+	Mon,  1 Sep 2025 13:10:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756221168; cv=none; b=Zyd8zHxp8BZDAGm66MW0viOSxLwfMCeEHwd0Xxs9gJOAjjM09BYgvMazbcD1S2Ek1aWzBXWwaWCIBR103aZphHYdSAyym5NGYmXifF7eIeu46889ed1/nKsB/4BcvrCFNRqhDa3F5FSCgOvzIEFuerZlZTT3P0l2SuloM3fu/rk=
+	t=1756732249; cv=none; b=Yuy93KLU6m1bKKs+uUBXgQHjWGJzHWXsY76s2KIZ/Cixbl5fyZsYiHPX+X9ZaAxeMJBZKcVcIwd46EHhaIn/djH3b8S9vHZDyGWkXyXVIEZIy/E1O0FEWhsMBwrkXyJCVt0ElTkelC1M9EgfyGXaDrV+7CflwP5Ni5rOS446ZYQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756221168; c=relaxed/simple;
-	bh=poE2bSlhrsZ48YhrGNd+qqoTNdamNKV99qDxtacTcEc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=muNZfvbEynIvTZ2jvCF1TD1KxG/JLhrJWmIAHZVe0JKWOH0fEAuQc6d5M18DeTHlsVKmmgM9JdgxRr84d0SjfWIuUMPpvYN/oFzy7hAhJOC4lC7PCvTfkNBydPHP8xoxqoc3SCDHguR7UOkFfjpVy1QLdligP7K+NVfKDbscf4A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KY8JdY/H; arc=none smtp.client-ip=209.85.128.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1756732249; c=relaxed/simple;
+	bh=l+zEh4GN06CwujvuIj3y3Fd32BGM/P2y+zLD4+u7l7M=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=gVhAQq/Iba4I5xoh+vMPvbkydDCxDX/hwivFMODG8j6Cpp8hqTpKTQA00Nb805uM2JVtkUvE8QaBO4xfnNP+AlfxzN1qkMq/Ib2iqCQwnS8ct+sx7yxtjcl+rJ6PzQzPE3/CjWWcZDPSzJcoSJdsBoebuMvORdiH/hJ1SiLqLg4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KQpP1hz3; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KY8JdY/H"
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-45a1b04f8b5so36378565e9.1;
-        Tue, 26 Aug 2025 08:12:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1756221164; x=1756825964; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ONmbW5esqMOez0fXy4tVMfg0Y/iOt+VR1S+OBbiVslc=;
-        b=KY8JdY/HMUfhzwItATF6t/ES0ywtsSZ+wAysYCbZNlgGqgILPBo/6JmVkSTZ5fH6jP
-         R+eVChlqmlk0bLb3369M+rhzBH3pU9yTaNC4OzKpHWXqc2Wz3dEvWKdJgS51brck9Unc
-         yStxDQJBW7aaBCohhRm4FCuSuOPgZ91TT44FMedjZpOiM4CvwZIxH5KbPRqcgPemnIvb
-         LZM2lMtK573KhrZ+SyP33S3p4odq+ggC2anZLhgM4vhaXiuInhe82SVjxWgZ8yzCN41u
-         VVBg+kMCyWBQt76FLLOxPLqTCv/Eve3YdUHGVbtohksfCGF8PmAuEWHF41Lb138i6Bjz
-         38Gw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756221164; x=1756825964;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ONmbW5esqMOez0fXy4tVMfg0Y/iOt+VR1S+OBbiVslc=;
-        b=syjZTt8eAstdqSkWjnI1gRoCFyW5wN0zjc4jb0q5AFjvEHpvv/D+Do0ye1xqlvWHKP
-         eVT7toQZmdVmPWw3CJ8mvuIiVf6j1dn3qIZVYDv3nF1WKASLfSOK4a6E/JRGM12dp6mG
-         p9PVNZQyIFAAcMXbhrRSiSlmqE9flOeAYs8lDfdFp+fl7TKxowaBezfKxYbekjFNT3Za
-         iAG0zBFYyKXX5Aiw8ZlBpe/5FWXO1IbCv6y0eEQvvchl+kGbjinesbTs1JYMRwkNyAp/
-         NODP3GnVylrYgc5kVIb/0xvEEw16xI2ZnmryFa8/wyuyu9xbshpSl+YY2OdRh6LjxcdD
-         ua0w==
-X-Forwarded-Encrypted: i=1; AJvYcCVmTReFgcc+b3ndLiSD1SFCSCMO+3SEkTKpOikQQxiep9WEPpfqDXxP80KJiKJzZMI7fJhxwlVC5v4=@vger.kernel.org, AJvYcCWg394pknq+DANZgldw5bAbXKUnP+PcROR/M2Ti3/fKROi+XWKiJSrkJVA8fGhmMOs2Bl1K3aEnKbTAGjsgMGQ=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyL/MZHZATn810fvJYgHp5MVvq/Epots5SYLaJiiuTWojiD5x4M
-	GwDFFiJhsJmxCeYIkGq3zVcke1pP4N1vVcx4dR7DjVfERX26cz7KNClfUGQVmd42
-X-Gm-Gg: ASbGncsi4+fOzMCQomOe1dVM3r/YkwzFHtDbA/qXA59l9xL5Cq0ZXWUo7jOPv9Mn1Dw
-	blkPsNHJot/OUgIFStbvc1PiL9fucSc0e31zDJBktJkIq7cgNwC5f0veLlKDwLMl4lPTJTU/em0
-	B6kUyOC8U3be2Sa5KEihDkH67b84TxAKXW704ikMFSXqNuwdUOCHwm0Ukcw+RtD/n1/EmGbfWCv
-	NRTaanUlTTY4iQmeAy+L63qlMTGpzdlFMEzC03xpOJKDD1boQdn4Gk4mckovbVNiEf7Rqxoj8DQ
-	X5K7Q9F2AQA/dGQFwN443IFjhavlRWjqnS5I2qQL4lyqpMfKw2NJsIiDVe9NgshNuPkN+rp4/z0
-	LbgZwFz2Len5AlolfB1Y4Q0JQ9ZAtzUasiQkRf12xo2EixTHq4/sOirZF08MohOzYt0uhhXhB
-X-Google-Smtp-Source: AGHT+IGhN4oHbHy//ACajEZKQOIiPiwcrun+5fF5awcgDHHwxh0hLQa5tka7vmRiauTyYXDSv4qenQ==
-X-Received: by 2002:a05:600c:609b:b0:458:a7b6:c683 with SMTP id 5b1f17b1804b1-45b541d1026mr134336525e9.1.1756221164109;
-        Tue, 26 Aug 2025 08:12:44 -0700 (PDT)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45b57589c42sm154269435e9.17.2025.08.26.08.12.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Aug 2025 08:12:43 -0700 (PDT)
-Date: Tue, 26 Aug 2025 16:12:42 +0100
-From: Stafford Horne <shorne@gmail.com>
-To: ChenMiao <chenmiao.ku@gmail.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-	Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	Jonathan Corbet <corbet@lwn.net>, Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Josh Poimboeuf <jpoimboe@kernel.org>,
-	Jason Baron <jbaron@akamai.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	Masahiro Yamada <masahiroy@kernel.org>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Nicolas Schier <nicolas.schier@linux.dev>,
-	Sahil Siddiq <sahilcdq0@gmail.com>, linux-doc@vger.kernel.org
-Subject: Re: [PATCH v3 2/2] openrisc: Add jump label support
-Message-ID: <aK3O6kOMqgDb6zZj@antec>
-References: <20250814032717.785395-1-chenmiao.ku@gmail.com>
- <20250814032717.785395-3-chenmiao.ku@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KQpP1hz3"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 2C4A7C4CEF7;
+	Mon,  1 Sep 2025 13:10:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1756732249;
+	bh=l+zEh4GN06CwujvuIj3y3Fd32BGM/P2y+zLD4+u7l7M=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=KQpP1hz3p7pySlQA+S80YSRFmx1/RZzMbVqgwb6DJ7FII9WAZ2aC0Vkb2bY2IPIgo
+	 5RCwWfOsqj6oH3/pX4lIDCuOOnNj9pXtQBn1tnrmIQEH+XVh9Y1PJP+hS509fIk0oM
+	 7NnEVi31nSQ/8MpxGe34E6NqS5meKjX8tV7J4kEDUQj4qbBrjxI9QxaHniIUyy3yEY
+	 gtjmo/KHVVgmCi45l9Q6BNFzV43IAWtjbRH902bx28dItj0RpqcveeXYME8ipfRIBt
+	 uCZQnUdWBrjyoriL6ICoig8e7WsKXoloqJHchCd36LnqZQtWt5aeK+UBbdVHOc8NTG
+	 YbdnooPnpDcUg==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0481CCA1002;
+	Mon,  1 Sep 2025 13:10:49 +0000 (UTC)
+From: Simon Schuster via B4 Relay <devnull+schuster.simon.siemens-energy.com@kernel.org>
+Subject: [PATCH v2 0/4] nios2: Add architecture support for clone3
+Date: Mon, 01 Sep 2025 15:09:49 +0200
+Message-Id: <20250901-nios2-implement-clone3-v2-0-53fcf5577d57@siemens-energy.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250814032717.785395-3-chenmiao.ku@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAB2btWgC/3WNzQqDMBCEX0Vy7pZkrT/05HsUD5quuqCJZEUq4
+ rs3Sq89fsPMN7sSCkyinsmuAq0s7F0EvCXKDo3rCfgdWaHGTJemBMdeEHiaR5rILWBH7yiFosM
+ MLeoy162K4zlQx59L/KojDyyLD9v1s5oz/SnR/FOuBjSYtsWHNkVa5E0lfBYEyFHot7v1k6qP4
+ /gCMZ8FFcUAAAA=
+X-Change-ID: 20250818-nios2-implement-clone3-7f252c20860b
+To: Dinh Nguyen <dinguyen@kernel.org>, 
+ Christian Brauner <brauner@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
+ Andrew Morton <akpm@linux-foundation.org>, 
+ David Hildenbrand <david@redhat.com>, 
+ Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, 
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>, 
+ Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>, 
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
+ Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, 
+ Juri Lelli <juri.lelli@redhat.com>, 
+ Vincent Guittot <vincent.guittot@linaro.org>, 
+ Dietmar Eggemann <dietmar.eggemann@arm.com>, 
+ Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>, 
+ Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>, 
+ Kees Cook <kees@kernel.org>, Paul Walmsley <paul.walmsley@sifive.com>, 
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+ Alexandre Ghiti <alex@ghiti.fr>, Guo Ren <guoren@kernel.org>, 
+ Oleg Nesterov <oleg@redhat.com>, Jens Axboe <axboe@kernel.dk>, 
+ Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, 
+ Tejun Heo <tj@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>, 
+ =?utf-8?q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
+ Paul Moore <paul@paul-moore.com>, Serge Hallyn <sergeh@kernel.org>, 
+ James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+ Anna-Maria Behnsen <anna-maria@linutronix.de>, 
+ Frederic Weisbecker <frederic@kernel.org>, 
+ Thomas Gleixner <tglx@linutronix.de>, 
+ Masami Hiramatsu <mhiramat@kernel.org>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>, 
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
+ Arnaldo Carvalho de Melo <acme@kernel.org>, 
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
+ Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>, 
+ Adrian Hunter <adrian.hunter@intel.com>, 
+ John Johansen <john.johansen@canonical.com>, 
+ Stephen Smalley <stephen.smalley.work@gmail.com>, 
+ Ondrej Mosnacek <omosnace@redhat.com>, 
+ Kentaro Takeda <takedakn@nttdata.co.jp>, 
+ Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, 
+ Richard Henderson <richard.henderson@linaro.org>, 
+ Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>, 
+ Russell King <linux@armlinux.org.uk>, 
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+ Brian Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, 
+ WANG Xuerui <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>, 
+ Michal Simek <monstr@monstr.eu>, 
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+ Jonas Bonn <jonas@southpole.se>, 
+ Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, 
+ Stafford Horne <shorne@gmail.com>, 
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
+ Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+ Christophe Leroy <christophe.leroy@csgroup.eu>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, 
+ Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+ Andreas Larsson <andreas@gaisler.com>, Richard Weinberger <richard@nod.at>, 
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+ Johannes Berg <johannes@sipsolutions.net>, Borislav Petkov <bp@alien8.de>, 
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+ "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>, 
+ Max Filippov <jcmvbkbc@gmail.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+ linux-riscv@lists.infradead.org, linux-csky@vger.kernel.org, 
+ linux-block@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+ cgroups@vger.kernel.org, linux-security-module@vger.kernel.org, 
+ linux-trace-kernel@vger.kernel.org, netdev@vger.kernel.org, 
+ linux-perf-users@vger.kernel.org, apparmor@lists.ubuntu.com, 
+ selinux@vger.kernel.org, linux-alpha@vger.kernel.org, 
+ linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+ linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, 
+ linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
+ linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, 
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+ linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
+ linux-um@lists.infradead.org, 
+ Simon Schuster <schuster.simon@siemens-energy.com>, stable@vger.kernel.org
+X-Mailer: b4 0.14.3-dev-2ce6c
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1756732247; l=6552;
+ i=schuster.simon@siemens-energy.com; s=20250818;
+ h=from:subject:message-id;
+ bh=l+zEh4GN06CwujvuIj3y3Fd32BGM/P2y+zLD4+u7l7M=;
+ b=GDpCexNrElu2yO/MxuDkpG+xctyQVH7o61ewBoPT3J8lEgMWXNxMsXtjVUaPsmeHSieQm4/hP
+ 49FpVyBe5rsBihPxAhRaNZH/1KUoHHYEsSlrwUEFI8iutPmfJs+jkNi
+X-Developer-Key: i=schuster.simon@siemens-energy.com; a=ed25519;
+ pk=PUhOMiSp43aSeRE1H41KApxYOluamBFFiMfKlBjocvo=
+X-Endpoint-Received: by B4 Relay for
+ schuster.simon@siemens-energy.com/20250818 with auth_id=495
+X-Original-From: Simon Schuster <schuster.simon@siemens-energy.com>
+Reply-To: schuster.simon@siemens-energy.com
 
-On Thu, Aug 14, 2025 at 03:27:02AM +0000, ChenMiao wrote:
-> From: chenmiao <chenmiao.ku@gmail.com>
-> 
-> Implemented the full functionality of jump_label, of course,
-> with text patching supported by just one API.
+This series adds support for the clone3 system call to the nios2
+architecture. This addresses the build-time warning "warning: clone3()
+entry point is missing, please fix" introduced in 505d66d1abfb9
+("clone3: drop __ARCH_WANT_SYS_CLONE3 macro"). The implementation passes
+the relevant clone3 tests of kselftest when applied on top of
+next-20250815:
 
-I am not sure the second part of the statement is relevant.  Perhaps we can
-mention that we use relative labels.
+	./run_kselftest.sh
+	TAP version 13
+	1..4
+	# selftests: clone3: clone3
+	ok 1 selftests: clone3: clone3
+	# selftests: clone3: clone3_clear_sighand
+	ok 2 selftests: clone3: clone3_clear_sighand
+	# selftests: clone3: clone3_set_tid
+	ok 3 selftests: clone3: clone3_set_tid
+	# selftests: clone3: clone3_cap_checkpoint_restore
+	ok 4 selftests: clone3: clone3_cap_checkpoint_restore
 
-Do you have any details about how this improves performance?
+The series also includes a small patch to kernel/fork.c that ensures
+that clone_flags are passed correctly on architectures where unsigned
+long is insufficient to store the u64 clone_flags. It is marked as a fix
+for stable backporting.
 
-How have you tested this?
+As requested, in v2, this series now further tries to correct this type
+error throughout the whole code base. Thus, it now touches a larger
+number of subsystems and all architectures.
 
-We should try to measure boot time or various syscalls or scheduling operations.
-I would like to get some numbers before we queue this for upstream.  I may do
-myself as I think its beneficial.
+Therefore, another test was performed for ARCH=x86_64 (as a
+representative for 64-bit architectures). Here, the series builds cleanly
+without warnings on defconfig with CONFIG_SECURITY_APPARMOR=y and
+CONFIG_SECURITY_TOMOYO=y (to compile-check the LSM-related changes).
+The build further successfully passes testing/selftests/clone3 (with the
+patch from 20241105062948.1037011-1-zhouyuhang1010@163.com to prepare
+clone3_cap_checkpoint_restore for compatibility with the newer libcap
+version on my system).
 
-Other than that I think this is ok, one small comment below.
+Is there any option to further preflight check this patch series via
+lkp/KernelCI/etc. for a broader test across architectures, or is this
+degree of testing sufficient to eventually get the series merged?
 
-> Link: https://lore.kernel.org/openrisc/aJIC8o1WmVHol9RY@antec/T/#t
-> 
-> Signed-off-by: chenmiao <chenmiao.ku@gmail.com>
-> 
-> ---
-> Changes in V3:
->   - Ensure the two defconfig using the make savedefconfig.
->   - modify the __ASSEMBLY__ to __ASSEMBLER__, modify the
->     __ASM_JUMP_LABEL_H to __ASM_OPENRISC_JUMP_LABEL_H and remove
->     invalid comment.
-> 
-> Changes in V2:
->   - using the patch_insn_write(void *addr, u32 insn) not the
->     const void *insn.
->   - add new macro OPENRISC_INSN_NOP in insn-def.h to use.
-> 
-> Signed-off-by: chenmiao <chenmiao.ku@gmail.com>
-> ---
->  .../core/jump-labels/arch-support.txt         |  2 +-
->  arch/openrisc/Kconfig                         |  2 +
->  arch/openrisc/configs/or1ksim_defconfig       | 19 ++----
->  arch/openrisc/configs/virt_defconfig          |  2 +-
->  arch/openrisc/include/asm/insn-def.h          |  3 +
->  arch/openrisc/include/asm/jump_label.h        | 68 +++++++++++++++++++
->  arch/openrisc/kernel/Makefile                 |  1 +
->  arch/openrisc/kernel/jump_label.c             | 52 ++++++++++++++
->  arch/openrisc/kernel/setup.c                  |  2 +
->  9 files changed, 137 insertions(+), 14 deletions(-)
->  create mode 100644 arch/openrisc/include/asm/jump_label.h
->  create mode 100644 arch/openrisc/kernel/jump_label.c
-> 
-> diff --git a/Documentation/features/core/jump-labels/arch-support.txt b/Documentation/features/core/jump-labels/arch-support.txt
-> index ccada815569f..683de7c15058 100644
-> --- a/Documentation/features/core/jump-labels/arch-support.txt
-> +++ b/Documentation/features/core/jump-labels/arch-support.txt
-> @@ -17,7 +17,7 @@
->      |  microblaze: | TODO |
->      |        mips: |  ok  |
->      |       nios2: | TODO |
-> -    |    openrisc: | TODO |
-> +    |    openrisc: |  ok  |
->      |      parisc: |  ok  |
->      |     powerpc: |  ok  |
->      |       riscv: |  ok  |
-> diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-> index b38fee299bc4..9156635dd264 100644
-> --- a/arch/openrisc/Kconfig
-> +++ b/arch/openrisc/Kconfig
-> @@ -24,6 +24,8 @@ config OPENRISC
->  	select GENERIC_PCI_IOMAP
->  	select GENERIC_IOREMAP
->  	select GENERIC_CPU_DEVICES
-> +	select HAVE_ARCH_JUMP_LABEL
-> +	select HAVE_ARCH_JUMP_LABEL_RELATIVE
->  	select HAVE_PCI
->  	select HAVE_UID16
->  	select HAVE_PAGE_SIZE_8KB
-> diff --git a/arch/openrisc/configs/or1ksim_defconfig b/arch/openrisc/configs/or1ksim_defconfig
-> index 59fe33cefba2..769705ac24d5 100644
-> --- a/arch/openrisc/configs/or1ksim_defconfig
-> +++ b/arch/openrisc/configs/or1ksim_defconfig
-> @@ -3,26 +3,23 @@ CONFIG_LOG_BUF_SHIFT=14
->  CONFIG_BLK_DEV_INITRD=y
->  # CONFIG_RD_GZIP is not set
->  CONFIG_EXPERT=y
-> -# CONFIG_KALLSYMS is not set
->  # CONFIG_EPOLL is not set
->  # CONFIG_TIMERFD is not set
->  # CONFIG_EVENTFD is not set
->  # CONFIG_AIO is not set
-> -# CONFIG_VM_EVENT_COUNTERS is not set
-> -# CONFIG_COMPAT_BRK is not set
-> -CONFIG_SLUB=y
-> -CONFIG_SLUB_TINY=y
-> -CONFIG_MODULES=y
-> -# CONFIG_BLOCK is not set
-> +# CONFIG_KALLSYMS is not set
->  CONFIG_BUILTIN_DTB_NAME="or1ksim"
->  CONFIG_HZ_100=y
-> +CONFIG_JUMP_LABEL=y
-> +CONFIG_MODULES=y
-> +# CONFIG_BLOCK is not set
-> +CONFIG_SLUB_TINY=y
-> +# CONFIG_COMPAT_BRK is not set
-> +# CONFIG_VM_EVENT_COUNTERS is not set
->  CONFIG_NET=y
->  CONFIG_PACKET=y
->  CONFIG_UNIX=y
->  CONFIG_INET=y
-> -# CONFIG_INET_XFRM_MODE_TRANSPORT is not set
-> -# CONFIG_INET_XFRM_MODE_TUNNEL is not set
-> -# CONFIG_INET_XFRM_MODE_BEET is not set
->  # CONFIG_INET_DIAG is not set
->  CONFIG_TCP_CONG_ADVANCED=y
->  # CONFIG_TCP_CONG_BIC is not set
-> @@ -35,7 +32,6 @@ CONFIG_DEVTMPFS=y
->  CONFIG_DEVTMPFS_MOUNT=y
->  # CONFIG_PREVENT_FIRMWARE_BUILD is not set
->  # CONFIG_FW_LOADER is not set
-> -CONFIG_PROC_DEVICETREE=y
->  CONFIG_NETDEVICES=y
->  CONFIG_ETHOC=y
->  CONFIG_MICREL_PHY=y
-> @@ -53,4 +49,3 @@ CONFIG_SERIAL_OF_PLATFORM=y
->  # CONFIG_DNOTIFY is not set
->  CONFIG_TMPFS=y
->  CONFIG_NFS_FS=y
-> -# CONFIG_ENABLE_MUST_CHECK is not set
-> diff --git a/arch/openrisc/configs/virt_defconfig b/arch/openrisc/configs/virt_defconfig
-> index c1b69166c500..a93a3e1e4f87 100644
-> --- a/arch/openrisc/configs/virt_defconfig
-> +++ b/arch/openrisc/configs/virt_defconfig
-> @@ -12,6 +12,7 @@ CONFIG_NR_CPUS=8
->  CONFIG_SMP=y
->  CONFIG_HZ_100=y
->  # CONFIG_OPENRISC_NO_SPR_SR_DSX is not set
-> +CONFIG_JUMP_LABEL=y
->  # CONFIG_COMPAT_BRK is not set
->  CONFIG_NET=y
->  CONFIG_PACKET=y
-> @@ -55,7 +56,6 @@ CONFIG_DRM=y
->  # CONFIG_DRM_FBDEV_EMULATION is not set
->  CONFIG_DRM_VIRTIO_GPU=y
->  CONFIG_FB=y
-> -CONFIG_FIRMWARE_EDID=y
->  CONFIG_FRAMEBUFFER_CONSOLE=y
->  CONFIG_FRAMEBUFFER_CONSOLE_DETECT_PRIMARY=y
->  CONFIG_LOGO=y
-> diff --git a/arch/openrisc/include/asm/insn-def.h b/arch/openrisc/include/asm/insn-def.h
-> index dc8d16db1579..2ccdbb37c27c 100644
-> --- a/arch/openrisc/include/asm/insn-def.h
-> +++ b/arch/openrisc/include/asm/insn-def.h
-> @@ -9,4 +9,7 @@
->  /* or1k instructions are always 32 bits. */
->  #define	OPENRISC_INSN_SIZE		4
->  
-> +/* or1k nop instruction code */
-> +#define OPENRISC_INSN_NOP     0x15000000U
-> +
->  #endif /* __ASM_INSN_DEF_H */
-> diff --git a/arch/openrisc/include/asm/jump_label.h b/arch/openrisc/include/asm/jump_label.h
-> new file mode 100644
-> index 000000000000..28dd6c78f8ce
-> --- /dev/null
-> +++ b/arch/openrisc/include/asm/jump_label.h
-> @@ -0,0 +1,68 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only */
-> +/*
-> + * Copyright (C) 2025 Chen Miao
-> + *
-> + * Based on arch/arm/include/asm/jump_label.h
-> + */
-> +#ifndef __ASM_OPENRISC_JUMP_LABEL_H
-> +#define __ASM_OPENRISC_JUMP_LABEL_H
-> +
-> +#ifndef __ASSEMBLER__
-> +
-> +#include <linux/types.h>
-> +#include <asm/insn-def.h>
-> +
-> +#define HAVE_JUMP_LABEL_BATCH
-> +
-> +#define JUMP_LABEL_NOP_SIZE OPENRISC_INSN_SIZE
-> +
-> +/*
-> + * should aligned 4
-> + * for jump_label relative
-> + * entry.code   = nop.addr - . -> return false
-> + * entry.target = l_yes - .    -> return true
-> + * entry.key	= key - .
-> + */
+N.B.: The series is not checkpatch clean right now:
+ - include/linux/cred.h, include/linux/mnt_namespace.h:
+   function definition arguments without identifier name
+ - include/trace/events/task.h:
+   space prohibited after that open parenthesis
 
-Perhaps this comment could be expanded a bit?
+I did not fix these warnings to keep my changes minimal and reviewable,
+as the issues persist throughout the files and they were not introduced
+by me; I only followed the existing code style and just replaced the
+types. If desired, I'd be happy to make the changes in a potential v3,
+though.
 
-> +#define JUMP_TABLE_ENTRY(key, label)			\
-> +	".pushsection	__jump_table, \"aw\"	\n\t"	\
-> +	".align 	4 			\n\t"	\
-> +	".long 		1b - ., " label " - .	\n\t"	\
-> +	".long 		" key " - . 		\n\t"	\
-> +	".popsection				\n\t"
-> +
-> +#define ARCH_STATIC_BRANCH_ASM(key, label)		\
-> +	".align		4			\n\t"	\
-> +	"1: l.nop				\n\t"	\
-> +	"    l.nop				\n\t"	\
-> +	JUMP_TABLE_ENTRY(key, label)
-> +
-> +static __always_inline bool arch_static_branch(struct static_key *const key,
-> +					       const bool branch)
-> +{
-> +	asm goto (ARCH_STATIC_BRANCH_ASM("%0", "%l[l_yes]")
-> +		  ::"i"(&((char *)key)[branch])::l_yes);
-> +
-> +	return false;
-> +l_yes:
-> +	return true;
-> +}
-> +
-> +#define ARCH_STATIC_BRANCH_JUMP_ASM(key, label)		\
-> +	".align		4			\n\t"	\
-> +	"1: l.j	" label "			\n\t"	\
-> +	"    l.nop				\n\t"	\
-> +	JUMP_TABLE_ENTRY(key, label)
-> +
-> +static __always_inline bool
-> +arch_static_branch_jump(struct static_key *const key, const bool branch)
-> +{
-> +	asm goto (ARCH_STATIC_BRANCH_JUMP_ASM("%0", "%l[l_yes]")
-> +		  ::"i"(&((char *)key)[branch])::l_yes);
-> +
-> +	return false;
-> +l_yes:
-> +	return true;
-> +}
-> +
-> +#endif /* __ASSEMBLER__ */
-> +#endif /* __ASM_OPENRISC_JUMP_LABEL_H */
-> diff --git a/arch/openrisc/kernel/Makefile b/arch/openrisc/kernel/Makefile
-> index f0957ce16d6b..19e0eb94f2eb 100644
-> --- a/arch/openrisc/kernel/Makefile
-> +++ b/arch/openrisc/kernel/Makefile
-> @@ -9,6 +9,7 @@ obj-y	:= head.o setup.o or32_ksyms.o process.o dma.o \
->  	   traps.o time.o irq.o entry.o ptrace.o signal.o \
->  	   sys_call_table.o unwinder.o cacheinfo.o
->  
-> +obj-$(CONFIG_JUMP_LABEL)	+= jump_label.o
->  obj-$(CONFIG_SMP)		+= smp.o sync-timer.o
->  obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
->  obj-$(CONFIG_MODULES)		+= module.o
-> diff --git a/arch/openrisc/kernel/jump_label.c b/arch/openrisc/kernel/jump_label.c
-> new file mode 100644
-> index 000000000000..071dacad885c
-> --- /dev/null
-> +++ b/arch/openrisc/kernel/jump_label.c
-> @@ -0,0 +1,52 @@
-> +// SPDX-License-Identifier: GPL-2.0-only
-> +/*
-> + * Copyright (C) 2025 Chen Miao
-> + *
-> + * Based on arch/arm/kernel/jump_label.c
-> + */
-> +#include <linux/jump_label.h>
-> +#include <linux/kernel.h>
-> +#include <linux/memory.h>
-> +#include <asm/bug.h>
-> +#include <asm/cacheflush.h>
-> +#include <asm/text-patching.h>
-> +
-> +bool arch_jump_label_transform_queue(struct jump_entry *entry,
-> +				     enum jump_label_type type)
-> +{
-> +	void *addr = (void *)jump_entry_code(entry);
-> +	u32 insn;
-> +
-> +	if (type == JUMP_LABEL_JMP) {
-> +		long offset;
-> +
-> +		offset = jump_entry_target(entry) - jump_entry_code(entry);
-> +		/*
-> +		 * The actual maximum range of the l.j instruction's offset is -134,217,728
-> +		 * ~ 134,217,724 (sign 26-bit imm).
-> +		 * For the original jump range, we need to right-shift N by 2 to obtain the
-> +		 * instruction's offset.
-> +		 */
-> +		if (unlikely(offset < -134217728 || offset > 134217724)) {
-> +			WARN_ON_ONCE(true);
-> +		}
-> +		/* 26bit imm mask */
-> +		offset = (offset >> 2) & 0x03ffffff;
-> +
-> +		insn = offset;
-> +	} else {
-> +		insn = OPENRISC_INSN_NOP;
-> +	}
-> +
-> +	if (early_boot_irqs_disabled) {
-> +		copy_to_kernel_nofault(addr, &insn, sizeof(insn));
-> +	} else {
-> +		patch_insn_write(addr, insn);
-> +	}
-> +	return true;
-> +}
-> +
-> +void arch_jump_label_transform_apply(void)
-> +{
-> +	kick_all_cpus_sync();
-> +}
-> diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
-> index a9fb9cc6779e..000a9cc10e6f 100644
-> --- a/arch/openrisc/kernel/setup.c
-> +++ b/arch/openrisc/kernel/setup.c
-> @@ -249,6 +249,8 @@ void __init setup_arch(char **cmdline_p)
->  		initrd_below_start_ok = 1;
->  	}
->  #endif
-> +	/* perform jump_table sorting before paging_init locks down read only memory */
-> +	jump_label_init();
->  
->  	/* paging_init() sets up the MMU and marks all pages as reserved */
->  	paging_init();
-> -- 
-> 2.45.2
-> 
+Signed-off-by: Simon Schuster <schuster.simon@siemens-energy.com>
+---
+Changes in v2:
+- Introduce "Fixes:" and "Cc: stable@vger.kernel.org" where necessary
+- Factor out "Fixes:" when adapting the datatype of clone_flags for
+  easier backports
+- Fix additional instances where `unsigned long` clone_flags is used
+- Reword commit message to make it clearer that any 32-bit arch is
+  affected by this bug
+- Link to v1: https://lore.kernel.org/r/20250821-nios2-implement-clone3-v1-0-1bb24017376a@siemens-energy.com
+
+---
+Simon Schuster (4):
+      copy_sighand: Handle architectures where sizeof(unsigned long) < sizeof(u64)
+      copy_process: pass clone_flags as u64 across calltree
+      arch: copy_thread: pass clone_flags as u64
+      nios2: implement architecture-specific portion of sys_clone3
+
+ arch/alpha/kernel/process.c       |  2 +-
+ arch/arc/kernel/process.c         |  2 +-
+ arch/arm/kernel/process.c         |  2 +-
+ arch/arm64/kernel/process.c       |  2 +-
+ arch/csky/kernel/process.c        |  2 +-
+ arch/hexagon/kernel/process.c     |  2 +-
+ arch/loongarch/kernel/process.c   |  2 +-
+ arch/m68k/kernel/process.c        |  2 +-
+ arch/microblaze/kernel/process.c  |  2 +-
+ arch/mips/kernel/process.c        |  2 +-
+ arch/nios2/include/asm/syscalls.h |  1 +
+ arch/nios2/include/asm/unistd.h   |  2 --
+ arch/nios2/kernel/entry.S         |  6 ++++++
+ arch/nios2/kernel/process.c       |  2 +-
+ arch/nios2/kernel/syscall_table.c |  1 +
+ arch/openrisc/kernel/process.c    |  2 +-
+ arch/parisc/kernel/process.c      |  2 +-
+ arch/powerpc/kernel/process.c     |  2 +-
+ arch/riscv/kernel/process.c       |  2 +-
+ arch/s390/kernel/process.c        |  2 +-
+ arch/sh/kernel/process_32.c       |  2 +-
+ arch/sparc/kernel/process_32.c    |  2 +-
+ arch/sparc/kernel/process_64.c    |  2 +-
+ arch/um/kernel/process.c          |  2 +-
+ arch/x86/include/asm/fpu/sched.h  |  2 +-
+ arch/x86/include/asm/shstk.h      |  4 ++--
+ arch/x86/kernel/fpu/core.c        |  2 +-
+ arch/x86/kernel/process.c         |  2 +-
+ arch/x86/kernel/shstk.c           |  2 +-
+ arch/xtensa/kernel/process.c      |  2 +-
+ block/blk-ioc.c                   |  2 +-
+ fs/namespace.c                    |  2 +-
+ include/linux/cgroup.h            |  4 ++--
+ include/linux/cred.h              |  2 +-
+ include/linux/iocontext.h         |  6 +++---
+ include/linux/ipc_namespace.h     |  4 ++--
+ include/linux/lsm_hook_defs.h     |  2 +-
+ include/linux/mnt_namespace.h     |  2 +-
+ include/linux/nsproxy.h           |  2 +-
+ include/linux/pid_namespace.h     |  4 ++--
+ include/linux/rseq.h              |  4 ++--
+ include/linux/sched/task.h        |  2 +-
+ include/linux/security.h          |  4 ++--
+ include/linux/sem.h               |  4 ++--
+ include/linux/time_namespace.h    |  4 ++--
+ include/linux/uprobes.h           |  4 ++--
+ include/linux/user_events.h       |  4 ++--
+ include/linux/utsname.h           |  4 ++--
+ include/net/net_namespace.h       |  4 ++--
+ include/trace/events/task.h       |  6 +++---
+ ipc/namespace.c                   |  2 +-
+ ipc/sem.c                         |  2 +-
+ kernel/cgroup/namespace.c         |  2 +-
+ kernel/cred.c                     |  2 +-
+ kernel/events/uprobes.c           |  2 +-
+ kernel/fork.c                     | 10 +++++-----
+ kernel/nsproxy.c                  |  4 ++--
+ kernel/pid_namespace.c            |  2 +-
+ kernel/sched/core.c               |  4 ++--
+ kernel/sched/fair.c               |  2 +-
+ kernel/sched/sched.h              |  4 ++--
+ kernel/time/namespace.c           |  2 +-
+ kernel/utsname.c                  |  2 +-
+ net/core/net_namespace.c          |  2 +-
+ security/apparmor/lsm.c           |  2 +-
+ security/security.c               |  2 +-
+ security/selinux/hooks.c          |  2 +-
+ security/tomoyo/tomoyo.c          |  2 +-
+ 68 files changed, 95 insertions(+), 89 deletions(-)
+---
+base-commit: 1357b2649c026b51353c84ddd32bc963e8999603
+change-id: 20250818-nios2-implement-clone3-7f252c20860b
+
+Best regards,
+-- 
+Simon Schuster <schuster.simon@siemens-energy.com>
+
+
