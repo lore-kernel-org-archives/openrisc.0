@@ -1,59 +1,59 @@
-Received: from mail-yb1-f177.google.com (mail-yb1-f177.google.com [209.85.219.177])
+Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com [209.85.167.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81EEE2222C0
-	for <linux-openrisc@vger.kernel.org>; Sat, 20 Sep 2025 03:55:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA0731EF39F
+	for <linux-openrisc@vger.kernel.org>; Mon, 22 Sep 2025 14:29:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758340538; cv=none; b=c5B7jwJ3sFPapl5f4BWuafLw6o1jxzmvG83Uf3KVPTEm6GA2w8EAstzmrQDbyemCfKdxWJZcLGgMozC2vyBa0UtYOcFv4tfv5NfiRX59OQzTsfIAKSR5JKBb+MhvJkA1WD8YAiD+lWWNjWslaNXMK8xuAQVLSiLKUB6uVSbI+J8=
+	t=1758551349; cv=none; b=Id+WsQahX6rQwjmyAZf58IyG9KlFxsIXaLl28Tj5vVeMU8eTkLCpnBdoEttoBuF4t5kLviwknzHiWVLW05hLyGODbePNROzzwzjwyMy06YQR9s4U3CVYN6KADWDUZbotF7vERAEHvibFjY+w0yXnSpahoG1EwPPENB7YozohQZE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758340538; c=relaxed/simple;
-	bh=wLR5A4WVJygISPHG42IIvYb+LPD25B9I3WH7jC2e5xU=;
+	s=arc-20240116; t=1758551349; c=relaxed/simple;
+	bh=zds9c11i5EPuC+LW5E2qVk5slu7nHVv1cCYASY1uK64=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=R+ztk2LstOWH5b/Sj1xd6h3mVQ0E6e7f6FJs2YsDh/Cw9PBfaXrLglzFI9IZh+Wuga6Cri3LYu4tHwXGDOliVTAizg5hJvf+S4EveyEjun7832PSgfDsU+3Ku2eXBakF/wY5zk/6xeXc25nQle09wfV9AbX4/BIDk64M1+nOqZE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZFPKZ+Oq; arc=none smtp.client-ip=209.85.219.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=Moz6nmY89bkpV8FHZBe2hIyZt4FwJeUCiTK3p/fWCCbda1X+Gl4UsOILKOcl3dTrr2I8xB81Tl7cTjpYiXsVUPQp/uIOQUzkctX77ZfXUTvjBzU+9jJscdQLGflL2zM1Bk5ugOTRgrTxa4hxqT6jJ4Z+i/vYYKWdQhlp8GQBZzg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=freebox.fr; spf=pass smtp.mailfrom=freebox.fr; dkim=pass (2048-bit key) header.d=freebox-fr.20230601.gappssmtp.com header.i=@freebox-fr.20230601.gappssmtp.com header.b=T5tm19TQ; arc=none smtp.client-ip=209.85.167.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=freebox.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=freebox.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZFPKZ+Oq"
-Received: by mail-yb1-f177.google.com with SMTP id 3f1490d57ef6-ea63e86b79aso1890042276.2
-        for <linux-openrisc@vger.kernel.org>; Fri, 19 Sep 2025 20:55:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=freebox-fr.20230601.gappssmtp.com header.i=@freebox-fr.20230601.gappssmtp.com header.b="T5tm19TQ"
+Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-57cfe6656dcso1483991e87.1
+        for <linux-openrisc@vger.kernel.org>; Mon, 22 Sep 2025 07:29:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1758340534; x=1758945334; darn=vger.kernel.org;
+        d=freebox-fr.20230601.gappssmtp.com; s=20230601; t=1758551345; x=1759156145; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=wLR5A4WVJygISPHG42IIvYb+LPD25B9I3WH7jC2e5xU=;
-        b=ZFPKZ+OqAAj1VhKugky3kjemp/VIqd75of38HGEmt1IOj91W4b7jLe+Myfu3ent1n8
-         I+OsNztO7baVS7SDNqQDhsKyRcudzp5fPl2dQ3EsKmIi5TGzzTSREF9BOYtdvwLtcCQ9
-         lX8BgfQDKyo0m2JfxIC+zD4CzDFgLzCucCTNnl0sqYXFOybMgodTGPU/RxeED3KpD6Ge
-         7yQG/mA18ZVwa9TAvZspdmtVMoFft3MmApalEp7/PJVnD7pAqdNfemDIdWOkktS1fK7N
-         5MIan1ZBYEJnEUm4lD9oNaRI/NjfTi3RIA4zVC5lAmPgo6eel/h/B86mXEMgdrCKJemE
-         DM2g==
+        bh=zds9c11i5EPuC+LW5E2qVk5slu7nHVv1cCYASY1uK64=;
+        b=T5tm19TQZikqjHqoMR54+Q7+U/JgAbrwxCDjAEr+j4BV3oKJ1vYACVblsq/0dgQB3O
+         xzcE44eyHkSt3+1/LwS8iG05NDQybwpGXmErJGsX7qf1JoHnxQE/QJKsAyQCq5BZ8yUL
+         fZfsv/oGGtZ7K0RaFe8fFXZtm3jS4C5jkLwGskUTTKy01oseY4elZgmJ1wcia/Nwx29N
+         /akdQTqyJ1yRSFcBAOKV1BSGnn1RLnJEPHIfsiagl3HTh7OEmakPzgo3DZkunVSmL2Xx
+         hH2z75SXfyBjFg0mXpIzvJjI6rXfLJCfOxCsk/r78caU8Q500JO1XsPO5Zy2dD22Jb+z
+         2rDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758340534; x=1758945334;
+        d=1e100.net; s=20230601; t=1758551345; x=1759156145;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=wLR5A4WVJygISPHG42IIvYb+LPD25B9I3WH7jC2e5xU=;
-        b=Mh37vADIyYhZuFsnljM606nlJtcK4SKnGVGLytc7qUVqLzi2lYrugh/uC8AYaB4o0K
-         lCLNy5am8hgRo3aPvRy/HNuGCis/WxEjoOrRpaliw5aoAJ8a9DZoz9HpBkoYYCMNX3q5
-         IJ0fItLJ5PNaZO/ppNZrjWOeSNbHo+ToxV2aFTW2+AENvBRbnVNYVCdsYd7ebjccPrnp
-         6ZSmms+UiUKbEQvEb/2gl9IOjU/ZComAcA5E109ir5xT7K5nUWcD3pgloLLqEVTSDeBu
-         OXZsC1wXEuf1suN+9Z3FAUKtPUaNunVjkp37XO3uSt1sW5z90AX3/6kg54uREA58DdW/
-         QPyQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXiEX5UuiU/nZq8vZI8CKnfx9WilrzdBFTgHax9JawSERwRSnXupqHm9sfOz5jMcqUBVJ7217bqYWm954FbNg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyvgh9ozf2KIn8iLUJKcqwD3k1rBF75k1kHCL0A0QW6yal4ICJE
-	qrsIkIqaNMizgCd48vcD0WNqiZInc7lb50nlAcZbMtZypE3KY1gUow2R9pYqjIfJoL6ZschNmWf
-	q6IhDyGZ8lUqIxvTQP2q84eF2ecJj1RY=
-X-Gm-Gg: ASbGnctXIcroTPPZpMQN+jCYPuBLWZ+ZR6CVz7+cru+qWSCQ6mdC+KEPmbGaDavCY3j
-	CCqPVlsZQSdlqDuykgDjP8CbNXfBpdpKjqLWSQg9+PG7RAYxEAv5SCQZQMfBkeGMFekN23CRWGI
-	K7TB2Ga3K9PgUmKDt9Rf/30pPze8DnnZare0qfUEBSlu5vDTXUzMXqujZ9wNHq7xe8pOzltb2Ki
-	OzEkwM=
-X-Google-Smtp-Source: AGHT+IH7cxRQcDAWrx6iopGK0fgAvvotX/SwRt/T/KElvH4XQULrd96czgOrVv1CSvA0vDpbRNCMKcVlhfdowxEBryU=
-X-Received: by 2002:a53:b3c5:0:b0:622:4818:ce38 with SMTP id
- 956f58d0204a3-6347f610c7emr3546092d50.37.1758340534336; Fri, 19 Sep 2025
- 20:55:34 -0700 (PDT)
+        bh=zds9c11i5EPuC+LW5E2qVk5slu7nHVv1cCYASY1uK64=;
+        b=YYFTqHRXfmM62VkihXYDJntxDVz5UlFdM0wqrHeRMLnN8DNCZ6O5EVfX49qR1CuCoX
+         MKAcjJGemC8YcPCml38E3GtbG1YA1rSCJxXjr6VmRqrOHuJHt9F+IAZ4FglCOTqArA6n
+         KaX4hhgxpBxgUZTXjOOouLpMoJJ+chKSgnxCKllR7IsBNzh8+lBrHO/OLNeJ+c/pXU3+
+         XoQ2UwFM86LJjCQDniwsDgS348wGrtjOFVwRolFtbXiDab2CfPyc4CrG11vk306GFjOI
+         l+1zfTnm+qahVShrKVQRZAzYmFVIdF1qVwWqQ90us6vgpDQGZqdbV8LwKbmEGKbnAhGV
+         Al6A==
+X-Forwarded-Encrypted: i=1; AJvYcCWxOv1wELhbZ9M3KQoAFSJjkddWbW+WzUd2DKpqbeip5sJ1Tlb7nFHZXY05RCZskDRLkfIVrWx7+mU6LRtWGw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyCfnGUsKHMkmQ7gHVltOSgf8PHra/CnpDjNkMnDv7VOoMyn41x
+	s1+WdWZpoV3KvTOn4qCmcLKzbwtl2z9X6ehzw2l09SE1wiFlcJZfw9yI933VG73S5DKIIBEjLaD
+	BUqnLNNrbv12jIXENabRn7wRXiq4X8EpnHD+egU7MUA==
+X-Gm-Gg: ASbGncsBDI6tk5JMUPnohuc0EL8zNc5Cny/sO1vYMpdU0OcwACP1/TKMl97FMjQQFHm
+	IQIY5slZW+qWW5rWYLt8oDwiqK/8XXabEgc5FRJPP9ipx38qGWQuLpT7hNPj8Qjh0+AqTu4lKYG
+	wHVFUV65HeWj1hk0VOnm6XZ2hZyUhp8pPGtw9fQY2u+E1C5j1OxjDE/R7LyvHa1lGuhFn1yFMnT
+	GnUtlUD7ZSyAl8=
+X-Google-Smtp-Source: AGHT+IF9Kx0YHTgWZximr8IphichwJGTQ/wmiFKfxBKU7xEPIwY53K1eZ5EsUZqb+vcW1xAllqgOcQU2VEEacURTmEE=
+X-Received: by 2002:a05:6512:4389:b0:57b:478b:d8a6 with SMTP id
+ 2adb3069b0e04-57b478be162mr3313173e87.35.1758551344116; Mon, 22 Sep 2025
+ 07:29:04 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -61,14 +61,14 @@ List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20250918152830.438554-1-nschichan@freebox.fr> <20250918195806.6337-1-safinaskar@gmail.com>
- <CAHNNwZAzecVcJXZmycX063-=p-M5jVkfStfgYVKJruOFo7y9zg@mail.gmail.com>
-In-Reply-To: <CAHNNwZAzecVcJXZmycX063-=p-M5jVkfStfgYVKJruOFo7y9zg@mail.gmail.com>
-From: Askar Safin <safinaskar@gmail.com>
-Date: Sat, 20 Sep 2025 06:54:58 +0300
-X-Gm-Features: AS18NWCqg0xtU5KiNe17DWjmiPCEbBI_FSj5NCOyDGZFj_7oFaRqSu7O_vUKCrA
-Message-ID: <CAPnZJGDwETQVVURezSRxZB8ZAwBETQ5fwbXyeMpfDLuLW4rVdg@mail.gmail.com>
+ <CAHNNwZAzecVcJXZmycX063-=p-M5jVkfStfgYVKJruOFo7y9zg@mail.gmail.com> <CAPnZJGDwETQVVURezSRxZB8ZAwBETQ5fwbXyeMpfDLuLW4rVdg@mail.gmail.com>
+In-Reply-To: <CAPnZJGDwETQVVURezSRxZB8ZAwBETQ5fwbXyeMpfDLuLW4rVdg@mail.gmail.com>
+From: Nicolas Schichan <nschichan@freebox.fr>
+Date: Mon, 22 Sep 2025 16:28:52 +0200
+X-Gm-Features: AS18NWBjmNA3KBj8cPrgwDAVm5OX9a5odWP7LbRlHvhoE96nP3yo2_PGoZ1JbG8
+Message-ID: <CAHNNwZC7gC7zaZGiSBhobSAb4m2O1BuoZ4r=SQBF-tCQyuAPvw@mail.gmail.com>
 Subject: Re: [PATCH RESEND 00/62] initrd: remove classic initrd support
-To: Nicolas Schichan <nschichan@freebox.fr>
+To: Askar Safin <safinaskar@gmail.com>
 Cc: akpm@linux-foundation.org, andy.shevchenko@gmail.com, axboe@kernel.dk, 
 	brauner@kernel.org, cyphar@cyphar.com, devicetree@vger.kernel.org, 
 	ecurtin@redhat.com, email2tema@gmail.com, graf@amazon.com, 
@@ -95,25 +95,55 @@ Cc: akpm@linux-foundation.org, andy.shevchenko@gmail.com, axboe@kernel.dk,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 19, 2025 at 6:25=E2=80=AFPM Nicolas Schichan <nschichan@freebox=
-.fr> wrote:
-> Considering that the deprecation message didn't get displayed in some
-> configurations, maybe it's a bit early at the very least.
+[resending to the lists and Cc, sorry I initially replied only to Askar]
 
-I changed my opinion.
-Breaking users, who did not see a deprecation message at all,
-is unfair.
-I will send a patchset soon, which will remove initrd codepath,
-which currently contains deprecation notice. And I will put
-deprecation notice to
-other codepath.
+On Sat, Sep 20, 2025 at 5:55=E2=80=AFAM Askar Safin <safinaskar@gmail.com> =
+wrote:
+> On Fri, Sep 19, 2025 at 6:25=E2=80=AFPM Nicolas Schichan <nschichan@freeb=
+ox.fr> wrote:
+> > Considering that the deprecation message didn't get displayed in some
+> > configurations, maybe it's a bit early at the very least.
+>
+> I changed my opinion.
+> Breaking users, who did not see a deprecation message at all,
+> is unfair.
+> I will send a patchset soon, which will remove initrd codepath,
+> which currently contains deprecation notice. And I will put
+> deprecation notice to
+> other codepath.
 
-Then in September 2026 I will fully remove initrd.
+Thanks
 
-> SMTP server I used wasn't authenticated to google, so all gmail
-> recipients were dropped. Hopefully this work better today.
+> Then in September 2026 I will fully remove initrd.
 
-Yes, this time I got your email
+Is there a way to find some kind of middle ground here ?
+
+I'm lead to believe that the main issue with the current code is that
+it needs to parse the superblocks of the ramdisk image in order to get
+the amount to data to copy into /dev/ram0.
+
+It looks like it is partly because of the ramdisk_start=3D kernel
+command line parameter which looks to be a remnant of the time it was
+possible to boot on floppy disk on x86.
+
+This kernel command line allows to look for a rootfs image at an
+offset into the initrd data.
+
+If we assume now that the rootfs image data starts at the beginning of
+the initrd image and is the only part of the initrd image this would
+indeed remove a lot of complexity.
+
+Maybe it would be possible to remove the identify_ramdisk_image()
+function and just copy the actual size of /initrd.image into
+/dev/ram0. This would allow any file system to be used in an initrd
+image (no just romfs, cramfs, minixfs, ext2fs and squashfs), and this
+would simplify the code in init/do_mounts_rd.c greatly, with just the
+function rd_load_image() and nr_blocks() remaining in this file.
+
+I can send a patch for that but first I need to sort out my SMTP
+issues from the other day.
+
+Regards,
 
 --=20
-Askar Safin
+Nicolas Schichan
