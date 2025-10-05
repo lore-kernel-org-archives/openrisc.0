@@ -1,242 +1,126 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8D22283FD7
-	for <linux-openrisc@vger.kernel.org>; Mon, 29 Sep 2025 09:13:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B73EE10A1E
+	for <linux-openrisc@vger.kernel.org>; Sun,  5 Oct 2025 06:35:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759137224; cv=none; b=thvJkR8XM7a1zVPYZ1S7cuIYbT8DSeE4RJ0zDPm3/7dM1WdOjV8ekx9VKa7dXPOv5/A57bCxfyn7mbXm4I66Z8W0qbil2+0cMm1CgccCCu3WOd/efnccd2f5XTEpMysIfXCmKZfbT8GuAVPoEc6yKawx3qzVcVXygrjjJPYbpis=
+	t=1759646141; cv=none; b=Ljf3eTBNhWEi31w7uLfqP6ET1UsdXOWw0XEvoG6tNrSfPHesQalep93gEBcICPqFz9U6QzktPFRcsVpFGIGpJRXCFrkc6GNJ8Z0PBzXwJFA6B1lDnntrVMgYLuqU7S56qKfbxNOh1oPCSe6UYZ7rfGWWH8f4UVBLr8RLuIm2xrA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759137224; c=relaxed/simple;
-	bh=jtJHKeg4V3hrJtslZs+qvCCY9ECaZmET93hB+vqILeg=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=jyJFH9DjHAH36mO4CKfoiVa5knm8WkUDTmM7zCK9sR62hcfeFH2sBc5QxligJZEovuT/xok2Gzv+q7LlkCt8n176rquPLhArxsIJSnYE2qNVCHIsjm4IvChoBInQEtpBuLaBQZL+Rns3SaAC9vLNWZONq/n1hdMQYQRXGMZXOUs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Hq4pd3FL; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=b25DWtEA; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=hMG0X5o7; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=ZWV8cEdM; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1759646141; c=relaxed/simple;
+	bh=5VrhzHDMjjWSE91exTxL2AaN739vo05Zspz0TxMnduE=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=dADN9AcXH/KfN2GPzEgK3fkC0j5MAn/2pA6bh1gecCQDoH0Og5QBgiqO9vxrAKrC5HnpGXTeZ8gvV7n7J5O74bAaY8VBcuZvXMFT6EKKMyJDAQZGPnTPEzzL0lO+yQb5k33IJfawPA89t2nIhM/NZTOq8qYeIVmro+dyQYHChuU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lSpiZXbI; arc=none smtp.client-ip=209.85.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Hq4pd3FL";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="b25DWtEA";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="hMG0X5o7";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="ZWV8cEdM"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id A4745297E2;
-	Mon, 29 Sep 2025 09:13:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1759137220; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=krawKFrMK6CfXJGZRbum6m0whh/VNnnKuCLw/mlg22U=;
-	b=Hq4pd3FLlIHlpsq/WIWIpKTQIK1u5uVC206WcP0fQUSFrI19DANzMPCVUP75KY+hBZcL0Q
-	dtdVgf8LzRHS+mLGqBHxvAYy4l40BsAWLIlpobyu01j8D02b0I98f1+p5dw6q44ptuX62H
-	m9Zo3mhg2ZXRKipx4DYunUuhbPd04E4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1759137220;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=krawKFrMK6CfXJGZRbum6m0whh/VNnnKuCLw/mlg22U=;
-	b=b25DWtEAGkPFc4sT9issDmqy/BMl9Qbnlh5ruisp0J1gFMCT/qNvoATff8AwO5EUhSceEL
-	kSBiQsu7tqSUuVAA==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=hMG0X5o7;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=ZWV8cEdM
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1759137219; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=krawKFrMK6CfXJGZRbum6m0whh/VNnnKuCLw/mlg22U=;
-	b=hMG0X5o7qx5uLzOvtPU6oAOR/sM1jQy2B6QsQik0JJGzKLSrpedSDbKzqP6/qSgL4E6z5c
-	PYEIwt7LMqEi6gairxqjXKFRdyD4dFJYTy2ovOneowKDznaaZr9VZ4B/+OwUlRFxMrvTSI
-	pzIsg61tXM/wB+hrp8gOffgcwit1QxI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1759137219;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=krawKFrMK6CfXJGZRbum6m0whh/VNnnKuCLw/mlg22U=;
-	b=ZWV8cEdMR8rl5mD9g70Zqdfp6Osb2Z+ASfy/UIiBlSB9+DmXXVL0n2mnz3VGfUEWe6Zu2m
-	Fw46i1nCG69w1gBA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id CB9D413782;
-	Mon, 29 Sep 2025 09:13:22 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id q2iJILJN2mgkQwAAD6G6ig
-	(envelope-from <ddiss@suse.de>); Mon, 29 Sep 2025 09:13:22 +0000
-Date: Mon, 29 Sep 2025 19:13:16 +1000
-From: David Disseldorp <ddiss@suse.de>
-To: nschichan@freebox.fr
-Cc: akpm@linux-foundation.org, andy.shevchenko@gmail.com, axboe@kernel.dk,
- brauner@kernel.org, cyphar@cyphar.com, devicetree@vger.kernel.org,
- ecurtin@redhat.com, email2tema@gmail.com, graf@amazon.com,
- gregkh@linuxfoundation.org, hca@linux.ibm.com, hch@lst.de,
- hsiangkao@linux.alibaba.com, initramfs@vger.kernel.org, jack@suse.cz,
- julian.stecklina@cyberus-technology.de, kees@kernel.org,
- linux-acpi@vger.kernel.org, linux-alpha@vger.kernel.org,
- linux-api@vger.kernel.org, linux-arch@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org,
- linux-csky@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-efi@vger.kernel.org, linux-ext4@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-hexagon@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
- linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
- linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
- mcgrof@kernel.org, mingo@redhat.com, monstr@monstr.eu,
- mzxreary@0pointer.de, patches@lists.linux.dev, rob@landley.net,
- safinaskar@gmail.com, sparclinux@vger.kernel.org,
- thomas.weissschuh@linutronix.de, thorsten.blum@linux.dev,
- torvalds@linux-foundation.org, tytso@mit.edu, viro@zeniv.linux.org.uk,
- x86@kernel.org
-Subject: Re: [PATCH-RFC] init: simplify initrd code (was Re: [PATCH RESEND
- 00/62] initrd: remove classic initrd support).
-Message-ID: <20250929171652.50b7a959.ddiss@suse.de>
-In-Reply-To: <20250925131055.3933381-1-nschichan@freebox.fr>
-References: <CAHNNwZC7gC7zaZGiSBhobSAb4m2O1BuoZ4r=SQBF-tCQyuAPvw@mail.gmail.com>
-	<20250925131055.3933381-1-nschichan@freebox.fr>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lSpiZXbI"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-46e2e363118so33627515e9.0
+        for <linux-openrisc@vger.kernel.org>; Sat, 04 Oct 2025 23:35:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1759646138; x=1760250938; darn=vger.kernel.org;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=2rcSyZ+WMtwF2hZaJMeBS9ckws0AkW9s6+ei9+CY7Kk=;
+        b=lSpiZXbIP9QfYuPlIgFNMUXG/LObHjgBXjAZtUE93s7vVICxfMA3NwhJ1uHEgymQiG
+         gRMY88qIOePszKTWF0hsgvmo/KakQU1Tu1GPTp/YKI4WbdewNF+AbSAIct89Vfb4NZUg
+         MuO0kM3/3UikIrI8oy4J8ui4smjw624PuWDHaJMK1t04HxfQPzhTUU5a5ZMNwe6UlklI
+         d6RNAJy0jzGX49i3OwsXJmk0Xsfr2MqASkzGAdOlprJEhnre/z4V6f74J3K3TXP9szKp
+         pET7skjKU67PYWfiQjlul1+rvvemlIeA9DF/p63L/ylL6OOFnB/H8Hz3gNoRVCJIw9zV
+         tzxA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1759646138; x=1760250938;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=2rcSyZ+WMtwF2hZaJMeBS9ckws0AkW9s6+ei9+CY7Kk=;
+        b=WjBbHVv2ArxKOo7zyk3/7pV4B86av9MFT3zyN3J8giEgKo2erRq8w8HUtNiz8H3g0Q
+         m3169iltNPQfoyR6fWCV33cE/HYKK5pkg4jUapKDUe/PN27SDz2AUVmzo/dlM8Pwyany
+         8tkWMM7uImF3OWrYeISHaI3z1f+iqKGQyrXKQCb63EiAMI+DFmfhpy4RIwv0Qzq+4QUP
+         xuetBYickKF3wGdjgMbmxTUpaYC48AgrW+NyM1F5Q+zdsrQnAlEpca2rrwVBeHDvRiBD
+         xsycu87fP/MxDVgNZ8ByPXOTjR+iiU9aKrUTGqnhVyqqFQyGaj+3yPE2HMkw0fo1icOM
+         C1dA==
+X-Gm-Message-State: AOJu0YzTzhIQHq83J8oPJI5PJniACuh6tVJ5OyuAHyO5RWvHMEH713nP
+	airBEJ0VMcDLFJIbyGOS9OED/OQ5PwYJSJjZfPTYBjgL8YUpcGLIYq1b6vPy8w==
+X-Gm-Gg: ASbGncu6jfVWeb7SNVgVCqSObS94ZBzYPYwf/X8b46xkAK5GvuVVTe9rn/Elpf2WRgd
+	8d8461HUD7dj3zZrk3tOmCaAinjvsd0ZghQXc+D5qGDWNbbpZNxTzxByGAGwsLw8UhJ95Zf9WbY
+	txQKCPrwzV9CVTA0s68vqBbkXSl+gpPcXStYmsX7RJWLYcpDu/tZu77px64O8HWRMjMjfr63xSo
+	6l56i+BP9WaVvsLcQ7rPipkII9mY4hsKmfyqCVGQSpMMP37PmQIExRTZh6qT4J6BsMycp7V0/6i
+	c4UWtWbAN4tYrSaszCpFFy94He1cpaCCmbG2Kwb+EFUR24ztghwrGXXWE5g9RcTLNZ0+DHhIYk7
+	l0mByx9zwAm31GKp/6UsfsnJZGXcwPvdl3I3YCM2hNli8WVZwJG9mxx9ol8D3Y2BxcLfSPrKtLP
+	yYi+6icVq0YWuW6dTi1/rC
+X-Google-Smtp-Source: AGHT+IG4EpN5GFt0hdbvyfHbROf8lY/f3eM4VfEv5SVIfYealuYiXMFchpEPZEsQb1Hc940YbQdTxA==
+X-Received: by 2002:a05:600c:8b16:b0:45f:29ed:2cff with SMTP id 5b1f17b1804b1-46e711725fdmr53349985e9.35.1759646137650;
+        Sat, 04 Oct 2025 23:35:37 -0700 (PDT)
+Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-46e619b7e37sm197232645e9.1.2025.10.04.23.35.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 04 Oct 2025 23:35:35 -0700 (PDT)
+Date: Sun, 5 Oct 2025 07:35:34 +0100
+From: Stafford Horne <shorne@gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+	LKML <linux-kernel@vger.kernel.org>
+Subject: [GIT PULL] OpenRISC updates for 6.18
+Message-ID: <aOIRtnhTn3Gt8yr5@antec>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spamd-Result: default: False [-2.01 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_CONTAINS_FROM(1.00)[];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	FROM_HAS_DN(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	MIME_TRACE(0.00)[0:+];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	ARC_NA(0.00)[];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	FREEMAIL_CC(0.00)[linux-foundation.org,gmail.com,kernel.dk,kernel.org,cyphar.com,vger.kernel.org,redhat.com,amazon.com,linuxfoundation.org,linux.ibm.com,lst.de,linux.alibaba.com,suse.cz,cyberus-technology.de,lists.infradead.org,lists.linux-m68k.org,lists.ozlabs.org,lists.linux.dev,monstr.eu,0pointer.de,landley.net,linutronix.de,linux.dev,mit.edu,zeniv.linux.org.uk];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	TO_DN_NONE(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	RCPT_COUNT_GT_50(0.00)[56];
-	MISSING_XM_UA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:dkim]
-X-Spam-Flag: NO
-X-Spam-Level: 
-X-Rspamd-Queue-Id: A4745297E2
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Action: no action
-X-Spam-Score: -2.01
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hi Nicolas,
+Hello Linus,
 
-On Thu, 25 Sep 2025 15:10:56 +0200, nschichan@freebox.fr wrote:
+Please consider for pull,
 
-> From: Nicolas Schichan <nschichan@freebox.fr>
-> 
-> - drop prompt_ramdisk and ramdisk_start kernel parameters
-> - drop compression support
-> - drop image autodetection, the whole /initrd.image content is now
->   copied into /dev/ram0
-> - remove rd_load_disk() which doesn't seem to be used anywhere.
-> 
-> There is now no more limitation on the type of initrd filesystem that
-> can be loaded since the code trying to guess the initrd filesystem
-> size is gone (the whole /initrd.image file is used).
-> 
-> A few global variables in do_mounts_rd.c are now put as local
-> variables in rd_load_image() since they do not need to be visible
-> outside this function.
-> ---
-> 
-> Hello,
-> 
-> Hopefully my email config is now better and reaches gmail users
-> correctly.
-> 
-> The patch below could probably split in a few patches, but I think
-> this simplify the code greatly without removing the functionality we
-> depend on (and this allows now to use EROFS initrd images).
-> 
-> Coupled with keeping the function populate_initrd_image() in
-> init/initramfs.c, this will keep what we need from the initrd code.
-> 
-> This removes support of loading bzip/gz/xz/... compressed images as
-> well, not sure if many user depend on this feature anymore.
-> 
-> No signoff because I'm only seeking comments about those changes right
-> now.
-> 
->  init/do_mounts.h    |   2 -
->  init/do_mounts_rd.c | 243 +-------------------------------------------
->  2 files changed, 4 insertions(+), 241 deletions(-)
+The following changes since commit 76eeb9b8de9880ca38696b2fb56ac45ac0a25c6c:
 
-This seems like a reasonable improvement to me. FWIW, one alternative
-approach to clean up the FS specific code here was proposed by Al:
-https://lore.kernel.org/all/20250321020826.GB2023217@ZenIV/
+  Linux 6.17-rc5 (2025-09-07 14:22:57 -0700)
 
-...
-> diff --git a/init/do_mounts_rd.c b/init/do_mounts_rd.c
-> index ac021ae6e6fa..5a69ff43f5ee 100644
-> --- a/init/do_mounts_rd.c
-> +++ b/init/do_mounts_rd.c
-> @@ -14,173 +14,9 @@
->  
->  #include <linux/decompress/generic.h>
->  
-> -static struct file *in_file, *out_file;
-> -static loff_t in_pos, out_pos;
-> -
-> -static int __init prompt_ramdisk(char *str)
-> -{
-> -	pr_warn("ignoring the deprecated prompt_ramdisk= option\n");
-> -	return 1;
-> -}
-> -__setup("prompt_ramdisk=", prompt_ramdisk);
-> -
-> -int __initdata rd_image_start;		/* starting block # of image */
-> -
-> -static int __init ramdisk_start_setup(char *str)
-> -{
-> -	rd_image_start = simple_strtol(str,NULL,0);
-> -	return 1;
-> -}
-> -__setup("ramdisk_start=", ramdisk_start_setup);
+are available in the Git repository at:
 
-There are a couple of other places that mention these parameters, which
-should also be cleaned up.
+  https://github.com/openrisc/linux.git tags/for-linus
 
-...
->  static unsigned long nr_blocks(struct file *file)
->  {
-> -	struct inode *inode = file->f_mapping->host;
-> -
-> -	if (!S_ISBLK(inode->i_mode))
-> -		return 0;
-> -	return i_size_read(inode) >> 10;
-> +	return i_size_read(file->f_mapping->host) >> 10;
+for you to fetch changes up to 8c30b0018f9d93391573e091960d257fd9de120a:
 
-This should be >> BLOCK_SIZE_BITS, and dropped as a wrapper function
-IMO.
+  openrisc: Add jump label support (2025-09-11 11:27:59 +0100)
+
+----------------------------------------------------------------
+OpenRISC updates for 6.18
+
+I picked up one series from Chen Miao, our Google Summer
+of Code contributor:
+
+ - Added OpenRISC support for static keys
+
+----------------------------------------------------------------
+chenmiao (4):
+      openrisc: Add text patching API support
+      openrisc: Add R_OR1K_32_PCREL relocation type module support
+      openrisc: Regenerate defconfigs.
+      openrisc: Add jump label support
+
+ .../features/core/jump-labels/arch-support.txt     |  2 +-
+ arch/openrisc/Kconfig                              |  2 +
+ arch/openrisc/configs/or1ksim_defconfig            | 19 ++----
+ arch/openrisc/configs/virt_defconfig               |  2 +-
+ arch/openrisc/include/asm/Kbuild                   |  1 -
+ arch/openrisc/include/asm/fixmap.h                 |  1 +
+ arch/openrisc/include/asm/insn-def.h               | 15 ++++
+ arch/openrisc/include/asm/jump_label.h             | 72 ++++++++++++++++++++
+ arch/openrisc/include/asm/text-patching.h          | 13 ++++
+ arch/openrisc/kernel/Makefile                      |  2 +
+ arch/openrisc/kernel/jump_label.c                  | 51 ++++++++++++++
+ arch/openrisc/kernel/module.c                      |  4 ++
+ arch/openrisc/kernel/patching.c                    | 79 ++++++++++++++++++++++
+ arch/openrisc/kernel/setup.c                       |  2 +
+ arch/openrisc/mm/init.c                            |  6 +-
+ 15 files changed, 255 insertions(+), 16 deletions(-)
+ create mode 100644 arch/openrisc/include/asm/insn-def.h
+ create mode 100644 arch/openrisc/include/asm/jump_label.h
+ create mode 100644 arch/openrisc/include/asm/text-patching.h
+ create mode 100644 arch/openrisc/kernel/jump_label.c
+ create mode 100644 arch/openrisc/kernel/patching.c
