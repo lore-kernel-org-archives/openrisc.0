@@ -1,114 +1,116 @@
-Received: from mail-yx1-f46.google.com (mail-yx1-f46.google.com [74.125.224.46])
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16F7C265CD0
-	for <linux-openrisc@vger.kernel.org>; Fri, 10 Oct 2025 04:57:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54C3B2FDC41
+	for <linux-openrisc@vger.kernel.org>; Mon, 13 Oct 2025 09:57:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760072282; cv=none; b=XFAMl2EnolZ8No/zyfZ9a7V9AFQ8nJ2jhVBTRtcaS/amxch/d2H9iek3IeLTceSUaTCt3fWkgc4CCOn90JsEF/HKmSo2Y4jdLe6hM9+WyTSOB1qk5pOt8/FeVDr2f+y/m3te9kqFRr85FqVnSb8mrYOb27361Rfixaz/2H3xhqc=
+	t=1760349467; cv=none; b=lljoApMIqSJMCZBiZWkdnVQ4R31LNyanDBWh4n4hJ7Ebox7uEmWGkkUf55WWTUZYkBQ5oM8XSoZi7+iAsTu+eMFX6LSr+Y/xFIgG7XUdyjkWihN50esE1RAer0hItNzdUOMCJAmNYWyUpcBHS0axnbVBR1pCdvOUp6sZMpo9eZo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760072282; c=relaxed/simple;
-	bh=20zVq/I1A85ImSdUuzZ7bh9Qs7dqD4eEIEsQzzw5Ci4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hqX4TBrHJxPLRLmQaGHu29WCXsOVJppzidDal/wGIUAs9f+tr5LBK7Bgx3hemMVzNYRvsTyyA8T+fPrgGUhQVcqDP/WJGrJCNs1v15XEPvWVmiYU8kAiulSy9Mh/ivpEV7ErlbHJOfp4FGB7Rpban8OnJ5TXMWSjHtc8SP0KCKk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GrdiTzbT; arc=none smtp.client-ip=74.125.224.46
+	s=arc-20240116; t=1760349467; c=relaxed/simple;
+	bh=ZuPAOglWfkrlozTa9bHQkbIm5fGJG00hwMhQdCV1duo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Ck2uYVs2/7VhU3P6qOYeRaPnYW874SdCA39wvIL2GhK8zLrs6EKgkuCHRtdCHdWkCMT6sXClrWqGY86191xvCUfpapdgq2EJ1TouV3ZvUrzAXhVCw1jklcZZvjJv72fy6dlIBWzu0eJtZc9dtK5+4ail96HPmldy7NK7J/6cFSA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A5yLh/W8; arc=none smtp.client-ip=209.85.216.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GrdiTzbT"
-Received: by mail-yx1-f46.google.com with SMTP id 956f58d0204a3-63bcfcb800aso1879310d50.0
-        for <linux-openrisc@vger.kernel.org>; Thu, 09 Oct 2025 21:57:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A5yLh/W8"
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-330a4d4359bso3363079a91.2
+        for <linux-openrisc@vger.kernel.org>; Mon, 13 Oct 2025 02:57:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1760072278; x=1760677078; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=j7qS0AM3lX7OGhXSFEYS6mkC3EKNzPxshbg7hLZcah0=;
-        b=GrdiTzbTpmXrgj0/PjkohCZ6LgFNbxV45gb5L/ZVbzaWKAHJgA12/mfFqFdtOpY72m
-         bZZCyt4k8jRvQo4unsWw4ZeaFcU/eOYR2U/wcLgsvZR/RYdUoV9fmyuViF8Of5PYj/l4
-         634Gm0JHXypxB9ycdlhLckuOP80mjqw4wIO9HLiTQ6purdE8gu3SXgXaNMsYndjRbf75
-         1dPvVv1bpLUsn7UsoLTsiGPIZ2KQmnwtMFB4nrm8RHlzLeSFwrO7OIHtu7G4t0f6Q3Az
-         maevl8wn3jZRwLsUqzTevJOM0Q45hnxhlAkendZd7mXKlZsyaRmG6ugJRYjmZ1sxfyiy
-         qCrQ==
+        d=gmail.com; s=20230601; t=1760349466; x=1760954266; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=i3XnHndYuazUzKkBoZfqihk8WxxHAQT9C3eBczoAx1A=;
+        b=A5yLh/W8EGFsw5/VlizUM4o/Ju7cqnmK+ujPR6zR2btR+uzK8oCk4W1NrZFuHdQxmw
+         OoGV90rXMSvN/jqCPG/VWB5OtbjWmEZ3Xq112eySbYvOWY9Bvzq5VKbvJsyKqv/4/XVn
+         96sknkxflNHxkfSyFvWCs78mJdcEa3rwQC5aFUKMbbwEPVEyIx08toat2nA6v3R5IvUB
+         3ITHZjBkzarxiRQF8/8ZQAq9iaCeUf2z7Bj+SQKmH8VK6YW40gEjv38G5AmkYYzaVdYa
+         ZyT1gJ+pyKaI07FhUFnxOpB4jjQF88zQoea3r7emP92PJyUAk3aHqwWtqE0GFHJel3Yo
+         WlHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760072278; x=1760677078;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=j7qS0AM3lX7OGhXSFEYS6mkC3EKNzPxshbg7hLZcah0=;
-        b=mb/1BTVealcl/h8+/eIIiWzNd4W+x1U3EfukK/dbT3OIxO/cSiHtfwgAauOx2ySFea
-         eJbrtEiM2b97TaDLBVKsvN09Ss860pMYQ7OHxYes3rg5kg6PMrhCVwNScaXmp6gQ8H9Z
-         COeDOYj2CAzFEnmxzZQH0uzptHq/eErTAMjm1TRR3rS+fdnNzFLIP690mfoWYJ4noS9I
-         fW/ME+tHowLPzGUUGjgRHl4d3PeCoWbiu1RXhMwhC/6fVlLcg0RoGX6VCnUmflWNPhi4
-         CtJGYYJU5sf0wFG/2OG4fovHehPDePqpMDSmpa7mjAUwGoRi6NFKzwBFJnD680IRf0H9
-         Ja+Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVhI0aT4oMA/M9BeTufJVVy2eKNPEAVf6Bp8PbvnltzijfK0ZJeUKLSN0Yk7JQPAnJnvsRH1/ZWlfRVIzUdDQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyzopkhVelqxN2KYzoLlXNqCP0m2fFvgVIorwl7RjgmftptW1rd
-	S3Wq+TfjNcSAt99hqoM4hsRit4Tfm5qCttRtufwzHpiAtimfMqURTUzYpHdwG8touKSwCvph+jz
-	MWhteP+viMLg8+1u3rsx2wUlfSaI45J0=
-X-Gm-Gg: ASbGnculSsnwhNjWYLUUSYBmA4sLc841y0AqCAH8QnYkpbQzXF7PYgy8zgNlzGqRjLx
-	F4F3dl0Yk3HnT35wKZMmn/3AJcyP1jYy/OU0MzOX10jM4kdoEB7qdSC35v1da/v0q6EdKmN2vDm
-	kRrqDzSOgLCiJaGXoIjhbU6T/0fKO+xNloXW8671rYhMRNk5mzREVG7/ufND6/AKOQbw2h50k5y
-	l9EPXe19D5jBXokqRwyOZ+ALQ==
-X-Google-Smtp-Source: AGHT+IHqDciv7GAPYfMGdKr9Fwuo5GT168N8GcrpsJ5KozP5HqYqg/LDALxuogvzJXgNCm6zrA+DoCqu7lr8uhQrVc0=
-X-Received: by 2002:a53:5009:0:b0:636:2420:d3ce with SMTP id
- 956f58d0204a3-63ccb93456dmr7466309d50.51.1760072277565; Thu, 09 Oct 2025
- 21:57:57 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1760349466; x=1760954266;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=i3XnHndYuazUzKkBoZfqihk8WxxHAQT9C3eBczoAx1A=;
+        b=YYtIcIBoILb+Rl0x0wc2b+ifWt5D4xk9xiZp4UBc3G6/JEc8+CLV8tx82/2dvRkeSO
+         7lPXjBtIPWFhNy6LNIOHeuUzgPVy3250px+UM8ohVvVGKadbHpRhj0KIjD1ghsuKNj4O
+         Xw7ecQqAI+Mb/g4jaycdzLZXEq6MzIam/1is7a2ekNo2NEQ4sR5OFq6rtYUPlDOii1Sa
+         SltQ9pmOwmeptUw1F3ptC+iWsus9pIWIy7uy9EPYS0dKyAluwi1Mri/A9yBfQ6yXsqrz
+         enbwSzZliokH1AbVMEUSrKhloHcB2pgYhSOHQltI804TMFrIPAADtMm3ybuKp/Vi5pCP
+         +Blw==
+X-Gm-Message-State: AOJu0YyywkrBCJjtMVYesXIf3+7hhHUzLgs+urcEtmyuJtQgSJoZQK66
+	RhceFcyptIwPm7sOvGTeyR7YRiyHE10uSd9vJy+XttRgkiW0KZmUhwhs
+X-Gm-Gg: ASbGnctXEXecMJ1ZAVgoer/FrMIvcGxWlSsjAVX3aX/KCtXi5NQCpLE0eCauBRulK4V
+	lsr5C+Z3soxMkzX26hpWppTltoWqqIptPwcWMnW3Ni6NLC8+fHcxIkAJ4hEagibbRkOQYNN5WZe
+	7/NanosehZ93Tvth5QbOeKBc/5+3B0aYRdTbfOZ+rLpt3kGIzWP5kLlCqIlQyei6qQJomQSMYeS
+	dgelqk3iPnpHJgUGPBBT1XXai5IG6Nt3mGyR5NnpoulJzk4j1HsZdGLrvSe5PvHW+B3uxeWzQP/
+	pI1X8ZZmK+6V6gVmjeGS/99/go5O9EvG+EFuwXNfyeNkAG7MuXX7YinWMfkFY2XNQ+4H+HEkiKT
+	4Acqho7DRKMP2LwesnVMXbzTM0CT3+widyF7wfgi2QAA=
+X-Google-Smtp-Source: AGHT+IHQTu4pibsF4lm5RR/qerTFyyf5uF7jaQuf7q1QL9EChi16hw+7XrobofPehr1xtNWyrqqeEw==
+X-Received: by 2002:a17:90b:1d89:b0:330:797a:f504 with SMTP id 98e67ed59e1d1-33b5114d664mr27383350a91.3.1760349465588;
+        Mon, 13 Oct 2025 02:57:45 -0700 (PDT)
+Received: from HP.. ([119.63.139.7])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-33b52953666sm9239659a91.2.2025.10.13.02.57.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Oct 2025 02:57:44 -0700 (PDT)
+From: Taimoor Zaeem <taimoorzaeem@gmail.com>
+To: jonas@southpole.se,
+	stefan.kristiansson@saunalahti.fi,
+	shorne@gmail.com,
+	oleg@redhat.com
+Cc: linux-openrisc@vger.kernel.org,
+	Taimoor Zaeem <taimoorzaeem@gmail.com>
+Subject: [PATCH] openrisc: rename STACK_FRAME_OVERHEAD to MIN_REDZONE
+Date: Mon, 13 Oct 2025 14:57:04 +0500
+Message-ID: <20251013095704.43277-1-taimoorzaeem@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAHNNwZC7gC7zaZGiSBhobSAb4m2O1BuoZ4r=SQBF-tCQyuAPvw@mail.gmail.com>
- <20250925131055.3933381-1-nschichan@freebox.fr>
-In-Reply-To: <20250925131055.3933381-1-nschichan@freebox.fr>
-From: Askar Safin <safinaskar@gmail.com>
-Date: Fri, 10 Oct 2025 07:57:21 +0300
-X-Gm-Features: AS18NWAQwCKadWHXCZjVUBNaD3TaKIilJiJAQzSbvGFaYuFuE8UDpW1_H3riB-k
-Message-ID: <CAPnZJGBPyONjJoM6cskxysDnN4pxWuWJCK5A6TgikR2xHsrN5Q@mail.gmail.com>
-Subject: Re: [PATCH-RFC] init: simplify initrd code (was Re: [PATCH RESEND
- 00/62] initrd: remove classic initrd support).
-To: nschichan@freebox.fr
-Cc: akpm@linux-foundation.org, andy.shevchenko@gmail.com, axboe@kernel.dk, 
-	brauner@kernel.org, cyphar@cyphar.com, devicetree@vger.kernel.org, 
-	ecurtin@redhat.com, email2tema@gmail.com, graf@amazon.com, 
-	gregkh@linuxfoundation.org, hca@linux.ibm.com, hch@lst.de, 
-	hsiangkao@linux.alibaba.com, initramfs@vger.kernel.org, jack@suse.cz, 
-	julian.stecklina@cyberus-technology.de, kees@kernel.org, 
-	linux-acpi@vger.kernel.org, linux-alpha@vger.kernel.org, 
-	linux-api@vger.kernel.org, linux-arch@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org, 
-	linux-csky@vger.kernel.org, linux-doc@vger.kernel.org, 
-	linux-efi@vger.kernel.org, linux-ext4@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-hexagon@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
-	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
-	linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org, 
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, mcgrof@kernel.org, 
-	mingo@redhat.com, monstr@monstr.eu, mzxreary@0pointer.de, 
-	patches@lists.linux.dev, rob@landley.net, sparclinux@vger.kernel.org, 
-	thomas.weissschuh@linutronix.de, thorsten.blum@linux.dev, 
-	torvalds@linux-foundation.org, tytso@mit.edu, viro@zeniv.linux.org.uk, 
-	x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Thu, Sep 25, 2025 at 4:12=E2=80=AFPM <nschichan@freebox.fr> wrote:
-> - drop prompt_ramdisk and ramdisk_start kernel parameters
-> - drop compression support
-> - drop image autodetection, the whole /initrd.image content is now
->   copied into /dev/ram0
-> - remove rd_load_disk() which doesn't seem to be used anywhere.
+As mentioned in the TODO, the STACK_FRAME_OVERHEAD is
+the red zone, hence renamed to MIN_REDZONE in ptrace.h
+and processor.h.
 
-I welcome any initrd simplification!
+Signed-off-by: Taimoor Zaeem <taimoorzaeem@gmail.com>
+---
+ arch/openrisc/include/asm/processor.h | 2 +-
+ arch/openrisc/include/asm/ptrace.h    | 3 +--
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
-> Hopefully my email config is now better and reaches gmail users
-> correctly.
+diff --git a/arch/openrisc/include/asm/processor.h b/arch/openrisc/include/asm/processor.h
+index 3ff893a67c13..b0a00dcebf0c 100644
+--- a/arch/openrisc/include/asm/processor.h
++++ b/arch/openrisc/include/asm/processor.h
+@@ -55,7 +55,7 @@ struct thread_struct {
+  * user->kernel transition registers are reached by this (i.e. not regs
+  * for running signal handler)
+  */
+-#define user_regs(thread_info)  (((struct pt_regs *)((unsigned long)(thread_info) + THREAD_SIZE - STACK_FRAME_OVERHEAD)) - 1)
++#define user_regs(thread_info)  (((struct pt_regs *)((unsigned long)(thread_info) + THREAD_SIZE - MIN_REDZONE)) - 1)
+ 
+ /*
+  * Dito but for the currently running task
+diff --git a/arch/openrisc/include/asm/ptrace.h b/arch/openrisc/include/asm/ptrace.h
+index 28facf2f3e00..0b86764653ef 100644
+--- a/arch/openrisc/include/asm/ptrace.h
++++ b/arch/openrisc/include/asm/ptrace.h
+@@ -94,8 +94,7 @@ struct pt_regs {
+ 	long dummy2;		/* Cheap alignment fix */
+ };
+ 
+-/* TODO: Rename this to REDZONE because that's what it is */
+-#define STACK_FRAME_OVERHEAD  128  /* size of minimum stack frame */
++#define MIN_REDZONE  128  /* size of minimum stack frame */
+ 
+ #define MAX_REG_OFFSET offsetof(struct pt_regs, orig_gpr11)
+ 
+-- 
+2.43.0
 
-Yes, I got this email.
-
---
-Askar Safin
