@@ -1,116 +1,126 @@
-Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54C3B2FDC41
-	for <linux-openrisc@vger.kernel.org>; Mon, 13 Oct 2025 09:57:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2865178372;
+	Sun, 19 Oct 2025 06:50:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760349467; cv=none; b=lljoApMIqSJMCZBiZWkdnVQ4R31LNyanDBWh4n4hJ7Ebox7uEmWGkkUf55WWTUZYkBQ5oM8XSoZi7+iAsTu+eMFX6LSr+Y/xFIgG7XUdyjkWihN50esE1RAer0hItNzdUOMCJAmNYWyUpcBHS0axnbVBR1pCdvOUp6sZMpo9eZo=
+	t=1760856631; cv=none; b=K/78XNAKiDzDOooJcNp6Eu7AipUYBG1kPLI8N/p5Cza3u1FLaw2JLMT5Zo8BYIUgv2wrfJXIekPQJ4MKhqrHKYxeHu2n5PKjQi/v1gR9tQPp1p0HCXWMQh93jRWQwhafmjrxGk3HtW7t1K2WNNouBp355Vl+DkRC1mW8enY/ZJE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760349467; c=relaxed/simple;
-	bh=ZuPAOglWfkrlozTa9bHQkbIm5fGJG00hwMhQdCV1duo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Ck2uYVs2/7VhU3P6qOYeRaPnYW874SdCA39wvIL2GhK8zLrs6EKgkuCHRtdCHdWkCMT6sXClrWqGY86191xvCUfpapdgq2EJ1TouV3ZvUrzAXhVCw1jklcZZvjJv72fy6dlIBWzu0eJtZc9dtK5+4ail96HPmldy7NK7J/6cFSA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A5yLh/W8; arc=none smtp.client-ip=209.85.216.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1760856631; c=relaxed/simple;
+	bh=EdgpjTa5vPTpdpYEzLk3B3e9bf5d6qYFWAfS+EwNqnE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=XiUeVLimD7Xq4wSNC3HT1XLtnTbynNPLVCwp5kXj5tnPfO2LiZS7Aq3Hwcs9tAOrM4NxzNwsFxaGc+bDR/nSuaoZCEWPzZS0KK5z/1IrC2OiPCslTQ4AtyUyXJrOlkgO0X0N3i/BwgXUfIqBbW8d97EvWjh0wtDx/lsiuCVDo6w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cl0KoSN2; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A5yLh/W8"
-Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-330a4d4359bso3363079a91.2
-        for <linux-openrisc@vger.kernel.org>; Mon, 13 Oct 2025 02:57:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1760349466; x=1760954266; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=i3XnHndYuazUzKkBoZfqihk8WxxHAQT9C3eBczoAx1A=;
-        b=A5yLh/W8EGFsw5/VlizUM4o/Ju7cqnmK+ujPR6zR2btR+uzK8oCk4W1NrZFuHdQxmw
-         OoGV90rXMSvN/jqCPG/VWB5OtbjWmEZ3Xq112eySbYvOWY9Bvzq5VKbvJsyKqv/4/XVn
-         96sknkxflNHxkfSyFvWCs78mJdcEa3rwQC5aFUKMbbwEPVEyIx08toat2nA6v3R5IvUB
-         3ITHZjBkzarxiRQF8/8ZQAq9iaCeUf2z7Bj+SQKmH8VK6YW40gEjv38G5AmkYYzaVdYa
-         ZyT1gJ+pyKaI07FhUFnxOpB4jjQF88zQoea3r7emP92PJyUAk3aHqwWtqE0GFHJel3Yo
-         WlHA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760349466; x=1760954266;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=i3XnHndYuazUzKkBoZfqihk8WxxHAQT9C3eBczoAx1A=;
-        b=YYtIcIBoILb+Rl0x0wc2b+ifWt5D4xk9xiZp4UBc3G6/JEc8+CLV8tx82/2dvRkeSO
-         7lPXjBtIPWFhNy6LNIOHeuUzgPVy3250px+UM8ohVvVGKadbHpRhj0KIjD1ghsuKNj4O
-         Xw7ecQqAI+Mb/g4jaycdzLZXEq6MzIam/1is7a2ekNo2NEQ4sR5OFq6rtYUPlDOii1Sa
-         SltQ9pmOwmeptUw1F3ptC+iWsus9pIWIy7uy9EPYS0dKyAluwi1Mri/A9yBfQ6yXsqrz
-         enbwSzZliokH1AbVMEUSrKhloHcB2pgYhSOHQltI804TMFrIPAADtMm3ybuKp/Vi5pCP
-         +Blw==
-X-Gm-Message-State: AOJu0YyywkrBCJjtMVYesXIf3+7hhHUzLgs+urcEtmyuJtQgSJoZQK66
-	RhceFcyptIwPm7sOvGTeyR7YRiyHE10uSd9vJy+XttRgkiW0KZmUhwhs
-X-Gm-Gg: ASbGnctXEXecMJ1ZAVgoer/FrMIvcGxWlSsjAVX3aX/KCtXi5NQCpLE0eCauBRulK4V
-	lsr5C+Z3soxMkzX26hpWppTltoWqqIptPwcWMnW3Ni6NLC8+fHcxIkAJ4hEagibbRkOQYNN5WZe
-	7/NanosehZ93Tvth5QbOeKBc/5+3B0aYRdTbfOZ+rLpt3kGIzWP5kLlCqIlQyei6qQJomQSMYeS
-	dgelqk3iPnpHJgUGPBBT1XXai5IG6Nt3mGyR5NnpoulJzk4j1HsZdGLrvSe5PvHW+B3uxeWzQP/
-	pI1X8ZZmK+6V6gVmjeGS/99/go5O9EvG+EFuwXNfyeNkAG7MuXX7YinWMfkFY2XNQ+4H+HEkiKT
-	4Acqho7DRKMP2LwesnVMXbzTM0CT3+widyF7wfgi2QAA=
-X-Google-Smtp-Source: AGHT+IHQTu4pibsF4lm5RR/qerTFyyf5uF7jaQuf7q1QL9EChi16hw+7XrobofPehr1xtNWyrqqeEw==
-X-Received: by 2002:a17:90b:1d89:b0:330:797a:f504 with SMTP id 98e67ed59e1d1-33b5114d664mr27383350a91.3.1760349465588;
-        Mon, 13 Oct 2025 02:57:45 -0700 (PDT)
-Received: from HP.. ([119.63.139.7])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-33b52953666sm9239659a91.2.2025.10.13.02.57.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Oct 2025 02:57:44 -0700 (PDT)
-From: Taimoor Zaeem <taimoorzaeem@gmail.com>
-To: jonas@southpole.se,
-	stefan.kristiansson@saunalahti.fi,
-	shorne@gmail.com,
-	oleg@redhat.com
-Cc: linux-openrisc@vger.kernel.org,
-	Taimoor Zaeem <taimoorzaeem@gmail.com>
-Subject: [PATCH] openrisc: rename STACK_FRAME_OVERHEAD to MIN_REDZONE
-Date: Mon, 13 Oct 2025 14:57:04 +0500
-Message-ID: <20251013095704.43277-1-taimoorzaeem@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cl0KoSN2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57F25C4CEE7;
+	Sun, 19 Oct 2025 06:50:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1760856630;
+	bh=EdgpjTa5vPTpdpYEzLk3B3e9bf5d6qYFWAfS+EwNqnE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Cl0KoSN24WldfEYSRSfu5lozmGJAVE9xioGE6C+PBBseYSuE/7hgf2KbKvxu1nAfq
+	 +AnxTaK9VaE7xdn62r2Zk9oFnNMs7lSpecdggsfr9Z5mfbyraggVUnrWZwla30ASHd
+	 TTQUKVBXbjDXmyKfOdXMojvKQKorenot/jpefXad8wpoUyJQ/gWBwcSUSTx6MlFUkq
+	 O4BqR0RMnSAfMnvUpkN7wKJhQIsaUmfqwAekVS20NwyN/940rzzKb69Mu6Ni7vQrxn
+	 4PzVEO7y+ixH5H5iambi/6vum/20jOqyGoZB3A2tTRPyBtt8DjbzWrov4g4xwvEbN2
+	 ljhF5KLlm27vA==
+Date: Sun, 19 Oct 2025 02:50:21 -0400
+From: Guo Ren <guoren@kernel.org>
+To: Kees Cook <kees@kernel.org>
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+	x86@kernel.org, linux-alpha@vger.kernel.org,
+	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, llvm@lists.linux.dev,
+	linux-hardening@vger.kernel.org
+Subject: Re: [PATCH 03/17] csky: Add __attribute_const__ to ffs()-family
+ implementations
+Message-ID: <aPSKLRnWUAVSGQjF@gmail.com>
+References: <20250804163910.work.929-kees@kernel.org>
+ <20250804164417.1612371-3-kees@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250804164417.1612371-3-kees@kernel.org>
 
-As mentioned in the TODO, the STACK_FRAME_OVERHEAD is
-the red zone, hence renamed to MIN_REDZONE in ptrace.h
-and processor.h.
+On Mon, Aug 04, 2025 at 09:43:59AM -0700, Kees Cook wrote:
+> While tracking down a problem where constant expressions used by
+> BUILD_BUG_ON() suddenly stopped working[1], we found that an added static
+> initializer was convincing the compiler that it couldn't track the state
+> of the prior statically initialized value. Tracing this down found that
+> ffs() was used in the initializer macro, but since it wasn't marked with
+> __attribute__const__, the compiler had to assume the function might
+> change variable states as a side-effect (which is not true for ffs(),
+> which provides deterministic math results).
+> 
+> Add missing __attribute_const__ annotations to C-SKY's implementations of
+> ffs(), __ffs(), fls(), and __fls() functions. These are pure mathematical
+> functions that always return the same result for the same input with no
+> side effects, making them eligible for compiler optimization.
+LGTM.
 
-Signed-off-by: Taimoor Zaeem <taimoorzaeem@gmail.com>
----
- arch/openrisc/include/asm/processor.h | 2 +-
- arch/openrisc/include/asm/ptrace.h    | 3 +--
- 2 files changed, 2 insertions(+), 3 deletions(-)
+Acked-by: Guo Ren <guoren@kernel.org>
 
-diff --git a/arch/openrisc/include/asm/processor.h b/arch/openrisc/include/asm/processor.h
-index 3ff893a67c13..b0a00dcebf0c 100644
---- a/arch/openrisc/include/asm/processor.h
-+++ b/arch/openrisc/include/asm/processor.h
-@@ -55,7 +55,7 @@ struct thread_struct {
-  * user->kernel transition registers are reached by this (i.e. not regs
-  * for running signal handler)
-  */
--#define user_regs(thread_info)  (((struct pt_regs *)((unsigned long)(thread_info) + THREAD_SIZE - STACK_FRAME_OVERHEAD)) - 1)
-+#define user_regs(thread_info)  (((struct pt_regs *)((unsigned long)(thread_info) + THREAD_SIZE - MIN_REDZONE)) - 1)
- 
- /*
-  * Dito but for the currently running task
-diff --git a/arch/openrisc/include/asm/ptrace.h b/arch/openrisc/include/asm/ptrace.h
-index 28facf2f3e00..0b86764653ef 100644
---- a/arch/openrisc/include/asm/ptrace.h
-+++ b/arch/openrisc/include/asm/ptrace.h
-@@ -94,8 +94,7 @@ struct pt_regs {
- 	long dummy2;		/* Cheap alignment fix */
- };
- 
--/* TODO: Rename this to REDZONE because that's what it is */
--#define STACK_FRAME_OVERHEAD  128  /* size of minimum stack frame */
-+#define MIN_REDZONE  128  /* size of minimum stack frame */
- 
- #define MAX_REG_OFFSET offsetof(struct pt_regs, orig_gpr11)
- 
--- 
-2.43.0
-
+> 
+> Build tested ARCH=csky defconfig with GCC csky-linux 15.1.0.
+> 
+> Link: https://github.com/KSPP/linux/issues/364 [1]
+> Signed-off-by: Kees Cook <kees@kernel.org>
+> ---
+>  arch/csky/include/asm/bitops.h | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/arch/csky/include/asm/bitops.h b/arch/csky/include/asm/bitops.h
+> index 72e1b2aa29a0..80d67eee6e86 100644
+> --- a/arch/csky/include/asm/bitops.h
+> +++ b/arch/csky/include/asm/bitops.h
+> @@ -9,7 +9,7 @@
+>  /*
+>   * asm-generic/bitops/ffs.h
+>   */
+> -static inline int ffs(int x)
+> +static inline __attribute_const__ int ffs(int x)
+>  {
+>  	if (!x)
+>  		return 0;
+> @@ -26,7 +26,7 @@ static inline int ffs(int x)
+>  /*
+>   * asm-generic/bitops/__ffs.h
+>   */
+> -static __always_inline unsigned long __ffs(unsigned long x)
+> +static __always_inline __attribute_const__ unsigned long __ffs(unsigned long x)
+>  {
+>  	asm volatile (
+>  		"brev %0\n"
+> @@ -39,7 +39,7 @@ static __always_inline unsigned long __ffs(unsigned long x)
+>  /*
+>   * asm-generic/bitops/fls.h
+>   */
+> -static __always_inline int fls(unsigned int x)
+> +static __always_inline __attribute_const__ int fls(unsigned int x)
+>  {
+>  	asm volatile(
+>  		"ff1 %0\n"
+> @@ -52,7 +52,7 @@ static __always_inline int fls(unsigned int x)
+>  /*
+>   * asm-generic/bitops/__fls.h
+>   */
+> -static __always_inline unsigned long __fls(unsigned long x)
+> +static __always_inline __attribute_const__ unsigned long __fls(unsigned long x)
+>  {
+>  	return fls(x) - 1;
+>  }
+> -- 
+> 2.34.1
+> 
+> 
