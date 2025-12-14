@@ -1,126 +1,122 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2865178372;
-	Sun, 19 Oct 2025 06:50:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F0AAA95E
+	for <linux-openrisc@vger.kernel.org>; Sun, 14 Dec 2025 18:02:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760856631; cv=none; b=K/78XNAKiDzDOooJcNp6Eu7AipUYBG1kPLI8N/p5Cza3u1FLaw2JLMT5Zo8BYIUgv2wrfJXIekPQJ4MKhqrHKYxeHu2n5PKjQi/v1gR9tQPp1p0HCXWMQh93jRWQwhafmjrxGk3HtW7t1K2WNNouBp355Vl+DkRC1mW8enY/ZJE=
+	t=1765735337; cv=none; b=nOIxZ/O/rNOGud3wci8UBvl67TASJ2LKaLOp1u2mIhGTRtnTpmOqn/UT3Xcm77HlM4l/SSwOAk+3VtMKgm/nuGcQNw8lNHlkwFBnWP/ztPPP5d6XTEhmtG39hHFHnyE/N0VUfB79UXt0hHUjVGO2SVmdP8WGTbqzpsal88lgOx8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760856631; c=relaxed/simple;
-	bh=EdgpjTa5vPTpdpYEzLk3B3e9bf5d6qYFWAfS+EwNqnE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XiUeVLimD7Xq4wSNC3HT1XLtnTbynNPLVCwp5kXj5tnPfO2LiZS7Aq3Hwcs9tAOrM4NxzNwsFxaGc+bDR/nSuaoZCEWPzZS0KK5z/1IrC2OiPCslTQ4AtyUyXJrOlkgO0X0N3i/BwgXUfIqBbW8d97EvWjh0wtDx/lsiuCVDo6w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cl0KoSN2; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1765735337; c=relaxed/simple;
+	bh=P3TXGhCZT+rIZJpGSKbPpXIi23ODM0ebjDP4IWKQW/E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=U0JYYnlxfK11VGLTdp3/dAb8DKUpjqmaDDkT236GWSpqzGXvNEVxW6no/FTXWv71j07e9BTyST/Gx+2bPotIMHjP/umWuQXzWjwfYPQgkG91l0LnKBSxS5laQ9S/OQpioZf1KFNk9Xteluh3WPgacHCzY88B/gjDURpGqrwew7Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZrqbApE9; arc=none smtp.client-ip=209.85.128.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cl0KoSN2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57F25C4CEE7;
-	Sun, 19 Oct 2025 06:50:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1760856630;
-	bh=EdgpjTa5vPTpdpYEzLk3B3e9bf5d6qYFWAfS+EwNqnE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Cl0KoSN24WldfEYSRSfu5lozmGJAVE9xioGE6C+PBBseYSuE/7hgf2KbKvxu1nAfq
-	 +AnxTaK9VaE7xdn62r2Zk9oFnNMs7lSpecdggsfr9Z5mfbyraggVUnrWZwla30ASHd
-	 TTQUKVBXbjDXmyKfOdXMojvKQKorenot/jpefXad8wpoUyJQ/gWBwcSUSTx6MlFUkq
-	 O4BqR0RMnSAfMnvUpkN7wKJhQIsaUmfqwAekVS20NwyN/940rzzKb69Mu6Ni7vQrxn
-	 4PzVEO7y+ixH5H5iambi/6vum/20jOqyGoZB3A2tTRPyBtt8DjbzWrov4g4xwvEbN2
-	 ljhF5KLlm27vA==
-Date: Sun, 19 Oct 2025 02:50:21 -0400
-From: Guo Ren <guoren@kernel.org>
-To: Kees Cook <kees@kernel.org>
-Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-	x86@kernel.org, linux-alpha@vger.kernel.org,
-	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org, llvm@lists.linux.dev,
-	linux-hardening@vger.kernel.org
-Subject: Re: [PATCH 03/17] csky: Add __attribute_const__ to ffs()-family
- implementations
-Message-ID: <aPSKLRnWUAVSGQjF@gmail.com>
-References: <20250804163910.work.929-kees@kernel.org>
- <20250804164417.1612371-3-kees@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZrqbApE9"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-477b5e0323bso11469605e9.0
+        for <linux-openrisc@vger.kernel.org>; Sun, 14 Dec 2025 10:02:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1765735333; x=1766340133; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=BaLVGWHT/6afngHJPtyhcSr7j71rNPZxixu9l9kci/8=;
+        b=ZrqbApE9riiT5Bl844MfiTtE/z52ELKm5vs8AEFYZWPEAaDqsIVXKzYUXXS8RpdB5s
+         LAdmpIEjzgGm6wNTjSpoMZcrjvcpXQ3cfctgy9MEsjSzj13ULxl0M97cQMUsUMlroS0m
+         TLzKLS/xF82BavGFSyhbz54zGFf6apQPyI4LLtUES1Wf878kwaLnLs/Ed0U1KWVj5jZ5
+         QOZQfdoIhZRiwHFajlUX/4Nq5wYSKKds3vElg6jTAdpfCTV0zw0/sSCeHHW3Tktcdrl2
+         E/y8YanWW17wgHhkoVosgbDAVQZJYjPVFVL0qT3OnnHsRhbzfdX/QTZ5BQuC5KsWYcFw
+         6a9w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1765735333; x=1766340133;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BaLVGWHT/6afngHJPtyhcSr7j71rNPZxixu9l9kci/8=;
+        b=P+qSWx/2GSRVEWWq1YBnMagxenU/4J71/GSbnTQwfQJZugzysgUrnsqpGF6lpvJR7S
+         EWmUMUTyGv1xG4FvD/SK+Gs6lAWydAVEvTK+JobOksYaIITvTW5WTk+I9h6WyzK+RIvJ
+         DOSDY+pY6x+RKYpt9sivSIIEzBarQHJT0WsEsu4eCAHz5hGCaRHv8VAAHzkz/ZhokHKS
+         JEooxcaBdw8gMH171l1qy1LjYrf1OVFlzeG72Y0fZ1uU3QyYaGpbmDVbqEcojxiLx0HD
+         WPit179ZXwwCJFkO60PVnU1wnFZyli93r/ajqD//lRP9lfXu3MESXnei0sM/RPSYKX7h
+         fCUQ==
+X-Gm-Message-State: AOJu0YyNKBodaYO9a2hY85ocHY0uuukpicgW2CsV2imJJS2DiXsNCRtU
+	b7Z7BNq5PPsGmIxyfKh7EB7y75BZbp00LCweaV/ZzFYuvWxCh1N/tEwE
+X-Gm-Gg: AY/fxX7pI+RjRiAOd7TSntmVyVPpQTav0UDowwXRPQS897mj+gn1uJTc0bpV54mbbeA
+	8ec60O0LA/P3ovf90xkepsi8otCUm5SkHc0pgSOe7ltl48lGPobOSedUBFdiKa1+zBzJayk8OuQ
+	196KcdnHTu5Uh2SBlPdg62CesNm5vQEDJxdybUzAK0rWJFyC4K+ZaFhQNH2rvjW73sq6XcXOBx/
+	2Gs/8iIrcLbQfi+5uIR5OFR33P2db6gCy9JdMV5/EXBKHHMSlJ1KQQNSe8frlO2m1IF3c244fRP
+	Alf/AG81DkEkWlb2klkCXKkUJeHDpTUH//QmvJXJZNR9Xu6hwZhK8fucXYvgdWEeqvFrO7ve/iv
+	LHTe2/pEcUFERzYuIJLNukyz36uTb4sfY5iy/9RXS5L4z/MTkPhi1/jEWQGi023K/8lqiuzI4g4
+	AlUTwROVuJMfFBrHfDgIM0RU/34+z3RFp4fRi6Ls5jgEEOlR9IRYEZuqDwzOSzPE6GhaQOkNX6+
+	j4=
+X-Google-Smtp-Source: AGHT+IFYrZdmaza/sQBYhBRDt4B0FE1MA9WEkCRzQUCqkcUpsLwl9B8UJ6J3Z35lY2PJnc+QbHHWrw==
+X-Received: by 2002:a05:600c:4e91:b0:475:ddad:c3a9 with SMTP id 5b1f17b1804b1-47a8f2c2f62mr88590115e9.13.1765735332802;
+        Sun, 14 Dec 2025 10:02:12 -0800 (PST)
+Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47a8f8e90f2sm141041525e9.13.2025.12.14.10.02.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 14 Dec 2025 10:02:11 -0800 (PST)
+From: Stafford Horne <shorne@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+	Stafford Horne <shorne@gmail.com>
+Subject: [PATCH 0/5] OpenRISC de0 nano single and multicore boards
+Date: Sun, 14 Dec 2025 18:01:40 +0000
+Message-ID: <20251214180158.3955285-1-shorne@gmail.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250804164417.1612371-3-kees@kernel.org>
+Content-Transfer-Encoding: 8bit
 
-On Mon, Aug 04, 2025 at 09:43:59AM -0700, Kees Cook wrote:
-> While tracking down a problem where constant expressions used by
-> BUILD_BUG_ON() suddenly stopped working[1], we found that an added static
-> initializer was convincing the compiler that it couldn't track the state
-> of the prior statically initialized value. Tracing this down found that
-> ffs() was used in the initializer macro, but since it wasn't marked with
-> __attribute__const__, the compiler had to assume the function might
-> change variable states as a side-effect (which is not true for ffs(),
-> which provides deterministic math results).
-> 
-> Add missing __attribute_const__ annotations to C-SKY's implementations of
-> ffs(), __ffs(), fls(), and __fls() functions. These are pure mathematical
-> functions that always return the same result for the same input with no
-> side effects, making them eligible for compiler optimization.
-LGTM.
+The patches add support for OpenRISC systems running on the De0 Nano FPGA
+development board.  We have two SoCs which are available here:
 
-Acked-by: Guo Ren <guoren@kernel.org>
+ - https://github.com/olofk/de0_nano - Single core
+ - https://github.com/stffrdhrn/de0_nano-multicore - Multicore
 
-> 
-> Build tested ARCH=csky defconfig with GCC csky-linux 15.1.0.
-> 
-> Link: https://github.com/KSPP/linux/issues/364 [1]
-> Signed-off-by: Kees Cook <kees@kernel.org>
-> ---
->  arch/csky/include/asm/bitops.h | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/csky/include/asm/bitops.h b/arch/csky/include/asm/bitops.h
-> index 72e1b2aa29a0..80d67eee6e86 100644
-> --- a/arch/csky/include/asm/bitops.h
-> +++ b/arch/csky/include/asm/bitops.h
-> @@ -9,7 +9,7 @@
->  /*
->   * asm-generic/bitops/ffs.h
->   */
-> -static inline int ffs(int x)
-> +static inline __attribute_const__ int ffs(int x)
->  {
->  	if (!x)
->  		return 0;
-> @@ -26,7 +26,7 @@ static inline int ffs(int x)
->  /*
->   * asm-generic/bitops/__ffs.h
->   */
-> -static __always_inline unsigned long __ffs(unsigned long x)
-> +static __always_inline __attribute_const__ unsigned long __ffs(unsigned long x)
->  {
->  	asm volatile (
->  		"brev %0\n"
-> @@ -39,7 +39,7 @@ static __always_inline unsigned long __ffs(unsigned long x)
->  /*
->   * asm-generic/bitops/fls.h
->   */
-> -static __always_inline int fls(unsigned int x)
-> +static __always_inline __attribute_const__ int fls(unsigned int x)
->  {
->  	asm volatile(
->  		"ff1 %0\n"
-> @@ -52,7 +52,7 @@ static __always_inline int fls(unsigned int x)
->  /*
->   * asm-generic/bitops/__fls.h
->   */
-> -static __always_inline unsigned long __fls(unsigned long x)
-> +static __always_inline __attribute_const__ unsigned long __fls(unsigned long x)
->  {
->  	return fls(x) - 1;
->  }
-> -- 
-> 2.34.1
-> 
-> 
+As I work on tutorials to help other get started with OpenRISC I would like to
+have these defconfig and devicetree definitions in the upstream kernel to avoid
+losing them.
+
+When I was working on resurrecting these old setup's I found a major bug in
+OpenRISC SMP which is fixed in this series as well.
+
+Link: https://openrisc.io/tutorials/
+
+Stafford Horne (5):
+  dt-bindings: Add compatible string opencores,gpio to gpio-mmio
+  openrisc: dts: Add de0 nano config and devicetree
+  openrisc: Fix IPIs on simple multicore systems
+  openrisc: dts: Split simple smp dts to dts and dtsi
+  openrisc: dts: Add de0 nano multicore config and devicetree
+
+ .../devicetree/bindings/gpio/gpio-mmio.yaml   |  1 +
+ arch/openrisc/boot/dts/de0-nano-common.dtsi   | 41 +++++++++
+ arch/openrisc/boot/dts/de0-nano-multicore.dts | 25 +++++
+ arch/openrisc/boot/dts/de0-nano.dts           | 54 +++++++++++
+ arch/openrisc/boot/dts/simple-smp.dts         | 25 +++++
+ .../dts/{simple_smp.dts => simple-smp.dtsi}   | 12 +--
+ arch/openrisc/configs/de0_nano_defconfig      | 79 ++++++++++++++++
+ .../configs/de0_nano_multicore_defconfig      | 92 +++++++++++++++++++
+ arch/openrisc/configs/simple_smp_defconfig    |  2 +-
+ arch/openrisc/include/asm/smp.h               |  3 +-
+ arch/openrisc/kernel/smp.c                    | 22 ++++-
+ drivers/irqchip/irq-ompic.c                   | 15 ++-
+ drivers/irqchip/irq-or1k-pic.c                | 27 +++++-
+ 13 files changed, 384 insertions(+), 14 deletions(-)
+ create mode 100644 arch/openrisc/boot/dts/de0-nano-common.dtsi
+ create mode 100644 arch/openrisc/boot/dts/de0-nano-multicore.dts
+ create mode 100644 arch/openrisc/boot/dts/de0-nano.dts
+ create mode 100644 arch/openrisc/boot/dts/simple-smp.dts
+ rename arch/openrisc/boot/dts/{simple_smp.dts => simple-smp.dtsi} (89%)
+ create mode 100644 arch/openrisc/configs/de0_nano_defconfig
+ create mode 100644 arch/openrisc/configs/de0_nano_multicore_defconfig
+
+-- 
+2.51.0
+
