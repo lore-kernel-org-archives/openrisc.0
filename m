@@ -1,79 +1,80 @@
-Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
+Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2352131AF22
-	for <linux-openrisc@vger.kernel.org>; Mon, 15 Dec 2025 18:19:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99DB42F0C49
+	for <linux-openrisc@vger.kernel.org>; Mon, 15 Dec 2025 18:40:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765822790; cv=none; b=J7+9zSsUWB6VB0cmhge6YtWiz15508uKo5iF8r86o8tVD8PYfPOa2/me1Dos+HtAnIAA6j09xJehPoiDmulZ/FtxrxXfbORaRf9WlIw3copCJ8qZYC/e62Xn1xu07nY//QUFdc3hm+gygfkot5MRdw6HIRVKAxsy55iGCk6//g4=
+	t=1765824055; cv=none; b=sBSSKqFWR0imwr1Smt6kBcZn8p1Zvr+CIb3QKQ2cXn0RqU7lx7AQeCZg8G4wCtnj5zN1Lgmn9dhI16GFBNyHYirDiMGMr7uaqGI8FBL7H8Op8LxnDGbj+wLXn1nPrWNzAYVR25n3krG8HwbM/Geibi3CZOfIkfOYks/phHxJdNg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765822790; c=relaxed/simple;
-	bh=+eSIzyNsld8324MccJzy0k1uEsMhJSv9KmPlRqapoLo=;
+	s=arc-20240116; t=1765824055; c=relaxed/simple;
+	bh=lIVXipTQUVpTOtDEFUYihhyCWJmbz98l7oWne/NFb7Y=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SKN451Rxl7pPSzEpVENz1kAeI0aVU1Zxa5Rgb9HkLCV8xewnaMlfS+L202ne7QbFQ8+iuul7oBvfcPJgaTVVbze29tg6KOvk5RBD9AmvOltwjwopmGY72REKwdWZX5Pz4h/EPsO0V+PlDcW/KWQAMAHxP0jeNZgWK3rXE0BpM8Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=S7w6c1/S; arc=none smtp.client-ip=209.85.128.54
+	 Content-Type:Content-Disposition:In-Reply-To; b=HNuEhXrKTwglS3uaTheClBF0nDtljlVqdUWEocymMOHf2UWNXSDK7esZRSZUh3Iun2x8sR0dVosR1YDsi6Z8jITc2hmbEGLbndBpLo2qUFmHXOXi7HdKNt1f9/RuM09H/iT0eAX2eL1eDranV2m5zmazUyyJWwjDpuDyubP18os=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nAb+sZvA; arc=none smtp.client-ip=209.85.221.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="S7w6c1/S"
-Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-4779a637712so25664315e9.1
-        for <linux-openrisc@vger.kernel.org>; Mon, 15 Dec 2025 10:19:48 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nAb+sZvA"
+Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-430f1cd0026so1513471f8f.0
+        for <linux-openrisc@vger.kernel.org>; Mon, 15 Dec 2025 10:40:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1765822787; x=1766427587; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1765824051; x=1766428851; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=XM8muLe+cUJikc6NHCimAzQfLZpxefXeXRMQFGpchNU=;
-        b=S7w6c1/SU0igq0Bx5ZsIlysEN9LhqllSGpR+dwM2cYGkoIk2ni29edIWvFHKE9f+m1
-         ruBY8dMeONYfnC9hx1fyz4El3FCJzFneFXyAKPY66LwnqPVxjmSiJfKwVc9hhqH/Yf+J
-         /OSDqZtqQ2oR2mtRuKQrl0EcujRPcVd/sEa8dEh4jkThN4TM4rk2tfPPFof7NjT2bhCr
-         tpgVPZLeaPDYqe2lscNS7Jbk16M2wBvuSlPpaOMv98Vk+gSbybTHgme1ttUGOzcH3v7D
-         xAWGL/qFki186SvxocnoPzo36GaAO9q0DguUZqGAiN4whWSLvUneB36H/MfTwPolQuBT
-         tK0g==
+        bh=9CyBTq9jLEiMDCmEowsuiPxhEFRUD4GVU2KPfPukCJE=;
+        b=nAb+sZvAqbk0+0fa7+lJd27J73fsbUCOsQmoXfZLkJkJOpvLUtNqD6W9lSr95DuyYp
+         7XcNEOgdMomo6hL1vuXtKpfWoAG4OZb+vQoFDkWhFDhlx20AQTeqCRBkt9XWiUhlr8Yz
+         kBuxgsQNwSIa+KHKVtTTFevZ96md6N8r34Tx16re+dB2o1gOCDW0yLrqUs8Bh/5Y3njA
+         aOKbtWZMQap4Y60d1Ugrr/Kc2zOTnvhdnhu9vXYkkFco6pK/9KqqahxdJyMJnFJMJ6ii
+         Px2InM/DARYhXax97Ua5qHnkNs4hfRrkTbw7wVh4jybhsuv1ACNripFISh+rWvpMMl03
+         K6Vw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765822787; x=1766427587;
+        d=1e100.net; s=20230601; t=1765824051; x=1766428851;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=XM8muLe+cUJikc6NHCimAzQfLZpxefXeXRMQFGpchNU=;
-        b=J1WuIsg2Art9ejpI3vjk0Ttrj75QBGH2A540j/oMKETh25OC8Eg8fUl8YFNv4SSqDA
-         zPlLFlPF8a+J8f5rXst8UIwwvYcvSaKX4UmUr0STtNJ/Ql1vSHfO5hBYpgPWpm3tzjvq
-         1gVaWl4D8Zx2sRKSyH3xZJBJmHVgeOiRv1mUw9d7Xk/3Di39R+wQU0vzGLwAGKvosXQb
-         g1TqFZDhii23uZLQkA7cm1YhBNFKGwxBKBWOQHLNe45zZ9VNs9gtIvMH4x6FXxrknKvU
-         alPMIIvhR/ZdY5oGjwagnZOtMgxJnEk6UOqlsOoWNWGAvV51wxjF6ZVOKPLYprrPNmub
-         EZ6g==
-X-Forwarded-Encrypted: i=1; AJvYcCUzBT1FswsdRxgEwtIl1aIkx++67k6uDFnT3YRMgHiFDz8loeV8BKYqF1fjT0O//IwQGh1cabHRwgk6R7OoDg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwmnNR8ACsAJYBpoCaiatp9oLHSwywYEw1X9NBHPxSecUoWghPu
-	BOX4pMGDrPNDQdW2LevcImmZFegRswG0Lvl9p5TAYvVLT4lFmDQ3Eflc
-X-Gm-Gg: AY/fxX5pAiTlRjk/40cw9/Q/nkfmjjTkyYAV1riqFnOS01kdNYTxuIvbTt6ts5Pne25
-	yBYsux0x5yfbEwtCqnaIHnkTwCTVufZ+Z3WdhVdaGWA13BF8m7Dfi8ka9dniRZItVG0ZAtg6Afr
-	WZFSFe8K5yfNHklruZMHw31U0mP0sTYmdp8E0cHXJqPoVwxJ6X8bGhTsH+1IJiTTPnlGOjSVyy4
-	oyJ59JADDbeydw+mFfnH8GdBwHn/GtntCLRjDYnOOEO0ddJyZKgcVCHXg4iTQd5OiPqmEYO0KZ4
-	prcZCTJLKYtiO4oVn7vte7arV5aWeh77J+dbUsHLEMlj7DBs95/IXGmoChaLzeL+Ub9P8XX74/W
-	/L+B4ZbW1AOHeinu2DssrGuNZUCzJH8/n288rSikfKnVUmo++jLYtdofd3tXsVYrHFy7IarTWlM
-	rYWkiqRfMhV5MNO1rlLvmunxoqW6AHPlz/Hk+abxjGRu65EAfdpjXqXQJFewdz0CtsD6p2MA5aP
-	6w=
-X-Google-Smtp-Source: AGHT+IHlEdUry2/A5eLerel/tgOjxOM1UDY/0/bP0yUxROsj/AbKDjvP1/Icp5UEQBDq+MBNOn2Pzg==
-X-Received: by 2002:a05:600d:6405:20b0:47a:935f:618e with SMTP id 5b1f17b1804b1-47a935f64d7mr91820175e9.15.1765822786707;
-        Mon, 15 Dec 2025 10:19:46 -0800 (PST)
+        bh=9CyBTq9jLEiMDCmEowsuiPxhEFRUD4GVU2KPfPukCJE=;
+        b=xQFDJNpbUXYxHLFUsvYHMrF9zPMelnavCI4hN/sRZqZeoacbzXbiCyCwet1rimnnMd
+         NUQqO2DQI+iNLjmJBjbLprrSjUqgolLa93kmQccymqO4uF2xBeODDPOHQ4F/ZjC3fAkH
+         S3BR8F1KxPGXamKgOISTvwR94gqfSJwdRkh0bcp9Nc2FpIT714Auem7wxisYb6ic+b/m
+         3YtcX/nmGZlijy1/PRExHYyRDaZM9gRsC0GR0zRy8mKIcRPKRng2o419O7w/8BfQDLiF
+         kEK+EP8gDO/3HVrSeoLkwQc5NBK5iIac8byqVAzBj9QQSUP5cza2La3VOQVJSiEjE0iE
+         +wqw==
+X-Forwarded-Encrypted: i=1; AJvYcCXtvrJm+Rka/SReGTBD6BsjR7T+chsJangF0+GflYJUF1GRNp80j+BdpovjV7U517JOaJVx+KHRyEGXxeMX+A==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxnqOYWhaOvCnIN224Ekn9TsTAl2V5kWq70IrlKtwY4+djd90mi
+	hci0S+mbytnGgpu6vCe58yY5VHNyzpHkhN2LI00TyI7JXm4sGWyr21m0
+X-Gm-Gg: AY/fxX7UdrYg0MLjMgv1v2yuUanSrePb64IfYPmNWXKvP5ww7FJ7DLbyixY1WIxLdYS
+	defE4/jyIrz0peKI+zARDzjGTb2pNeSOr0qAGPdD/R4oQS2JJxrFOOy5yLnWXWE+ku5ZfT2xnbK
+	tn/3JS8cJGmNgwP9DlGka66d1Mw2+2RibJsWS6/yISEYrUkFry0eqvTghM1cfo+8RvkDh1JiJin
+	1v4sHTDX5TRWoSGQi0ruJ0XGtABX5HCQLjFDs8srIR6ABkD0JU8ZdZBVY16WPC478iPtmqTBYW+
+	2VnaBcHqiJ8XdSUl1ZD1EbHRM2YC+oWyvyeKO+uPbi+ZAIbG7c1Ubgzyes/lLGfIQfLusIBJ3pD
+	26k+8u6l2ojfr8SnkQlsxrlpPfs6LRwyMbh7y2jmV2dFmQxVOgh1zhhcEcwFnBCNEEYXSR6BEhw
+	D7IIK1DAPbl4gaN7TKtx/bJGolreuUNH865/Bc3n3vNXTb9x1N7y5vyOvDw9ifNksb
+X-Google-Smtp-Source: AGHT+IFpW6CxSU45/d3ozXnd56s4i9wy9U479O5ED3vRIcHNNAFa5Ur26ZBdU+1QKOAT3KavHokbqg==
+X-Received: by 2002:a05:6000:230f:b0:430:fdb8:8510 with SMTP id ffacd0b85a97d-430fdb886c1mr4417808f8f.24.1765824050820;
+        Mon, 15 Dec 2025 10:40:50 -0800 (PST)
 Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47bd5f89867sm504235e9.0.2025.12.15.10.19.45
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-430f268d459sm15401602f8f.32.2025.12.15.10.40.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Dec 2025 10:19:45 -0800 (PST)
-Date: Mon, 15 Dec 2025 18:19:44 +0000
+        Mon, 15 Dec 2025 10:40:50 -0800 (PST)
+Date: Mon, 15 Dec 2025 18:40:49 +0000
 From: Stafford Horne <shorne@gmail.com>
 To: Conor Dooley <conor@kernel.org>
 Cc: LKML <linux-kernel@vger.kernel.org>,
 	Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
 	Rob Herring <robh@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Masahiro Yamada <masahiroy@kernel.org>, devicetree@vger.kernel.org
-Subject: Re: [PATCH 4/5] openrisc: dts: Split simple smp dts to dts and dtsi
-Message-ID: <aUBRQDJdFi7cppI8@antec>
+	Conor Dooley <conor+dt@kernel.org>, linux-gpio@vger.kernel.org,
+	devicetree@vger.kernel.org
+Subject: Re: [PATCH 1/5] dt-bindings: Add compatible string opencores,gpio to
+ gpio-mmio
+Message-ID: <aUBWMbKLMWO2Wv_B@antec>
 References: <20251214180158.3955285-1-shorne@gmail.com>
- <20251214180158.3955285-5-shorne@gmail.com>
- <20251215-graffiti-baritone-4eb0a9f58ab6@spud>
+ <20251214180158.3955285-2-shorne@gmail.com>
+ <20251215-skillet-perceive-2b564a29ed71@spud>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -82,123 +83,54 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20251215-graffiti-baritone-4eb0a9f58ab6@spud>
+In-Reply-To: <20251215-skillet-perceive-2b564a29ed71@spud>
 
-On Mon, Dec 15, 2025 at 04:58:41PM +0000, Conor Dooley wrote:
-> On Sun, Dec 14, 2025 at 06:01:44PM +0000, Stafford Horne wrote:
-> > Split out the common memory, CPU and PIC definitions of the simple SMP
-> > system to a DTSI file which we will later use for our De0 Nano multicore
-> > board device tree.  We also take this opportunity to swich underscores
-> > to dashes as that seems to be the more common convention for DTS files.
+On Mon, Dec 15, 2025 at 04:57:45PM +0000, Conor Dooley wrote:
+> On Sun, Dec 14, 2025 at 06:01:41PM +0000, Stafford Horne wrote:
+> > In FPGA Development boards with GPIOs we use the opencores gpio verilog
+> > rtl.  This is compatible with the gpio-mmio.  Add the compatible string
+> > to allow as below.
 > > 
+> > Example:
+> > 
+> >         gpio0: gpio@91000000 {
+> >                 compatible = "opencores,gpio", "brcm,bcm6345-gpio";
+> 
+> What you have done below does not permit this, it only permits
+> opencores,gpio in isolation.
+> pw-bot: changes-requested
+
+Understood, I was not familar with the new schema. I was trying to follow what
+was seen in some other patches, now I see where I went wrong.  I will fix this
+and use the schema validation tools to verify.
+
+Thanks for pointing it out.
+
+> >                 reg = <0x91000000 0x1>, <0x91000001 0x1>;
+> >                 reg-names = "dat", "dirout";
+> >                 gpio-controller;
+> >                 #gpio-cells = <2>;
+> >                 status = "okay";
+> >         };
+> > 
+> > Link: https://opencores.org/projects/gpio
 > > Signed-off-by: Stafford Horne <shorne@gmail.com>
 > > ---
-> >  arch/openrisc/boot/dts/simple-smp.dts         | 25 +++++++++++++++++++
-> >  .../dts/{simple_smp.dts => simple-smp.dtsi}   | 12 ++++-----
-> >  arch/openrisc/configs/simple_smp_defconfig    |  2 +-
-> >  3 files changed, 32 insertions(+), 7 deletions(-)
-> >  create mode 100644 arch/openrisc/boot/dts/simple-smp.dts
-> >  rename arch/openrisc/boot/dts/{simple_smp.dts => simple-smp.dtsi} (89%)
+> >  Documentation/devicetree/bindings/gpio/gpio-mmio.yaml | 1 +
+> >  1 file changed, 1 insertion(+)
 > > 
-> > diff --git a/arch/openrisc/boot/dts/simple-smp.dts b/arch/openrisc/boot/dts/simple-smp.dts
-> > new file mode 100644
-> > index 000000000000..174c2613c419
-> > --- /dev/null
-> > +++ b/arch/openrisc/boot/dts/simple-smp.dts
-> > @@ -0,0 +1,25 @@
-> > +// SPDX-License-Identifier: GPL-2.0
-> > +
-> > +/dts-v1/;
-> > +
-> > +#include "simple_smp.dtsi"
-> > +
-> > +/ {
-> > +	model = "Simple SMP Board";
-> > +};
-> > +
-> > +&cpu0 {
-> > +	clock-frequency = <20000000>;
-> > +};
-> > +
-> > +&cpu1 {
-> > +	clock-frequency = <20000000>;
-> > +};
-> > +
-> > +&serial0 {
-> > +	clock-frequency = <20000000>;
-> > +};
-> > +
-> > +&enet0 {
-> > +	status = "okay";
-> > +};
-> > diff --git a/arch/openrisc/boot/dts/simple_smp.dts b/arch/openrisc/boot/dts/simple-smp.dtsi
-> > similarity index 89%
-> > rename from arch/openrisc/boot/dts/simple_smp.dts
-> > rename to arch/openrisc/boot/dts/simple-smp.dtsi
-> > index 71af0e117bfe..92770bb6fcf7 100644
-> > --- a/arch/openrisc/boot/dts/simple_smp.dts
-> > +++ b/arch/openrisc/boot/dts/simple-smp.dtsi
-> > @@ -1,4 +1,3 @@
-> > -/dts-v1/;
-> >  / {
-> >  	compatible = "opencores,or1ksim";
-> >  	#address-cells = <1>;
-> > @@ -22,15 +21,15 @@ memory@0 {
-> >  	cpus {
-> >  		#address-cells = <1>;
-> >  		#size-cells = <0>;
-> > -		cpu@0 {
-> > +		cpu0: cpu@0 {
-> >  			compatible = "opencores,or1200-rtlsvn481";
-> >  			reg = <0>;
-> > -			clock-frequency = <20000000>;
-> > +			clock-frequency = <0>;
-> 
-> Delete these lines, don't set them to zero please.
-
-OK, I wasn't sure what to put here so put 0, Just removing is much better.
-
--Stafford
-
-> >  		};
-> > -		cpu@1 {
-> > +		cpu1: cpu@1 {
-> >  			compatible = "opencores,or1200-rtlsvn481";
-> >  			reg = <1>;
-> > -			clock-frequency = <20000000>;
-> > +			clock-frequency = <0>;
-> >  		};
-> >  	};
+> > diff --git a/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml b/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml
+> > index b4d55bf6a285..0490580df19e 100644
+> > --- a/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml
+> > +++ b/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml
+> > @@ -23,6 +23,7 @@ properties:
+> >        - ni,169445-nand-gpio
+> >        - wd,mbl-gpio # Western Digital MyBook Live memory-mapped GPIO controller
+> >        - intel,ixp4xx-expansion-bus-mmio-gpio
+> > +      - opencores,gpio
 > >  
-> > @@ -57,7 +56,7 @@ serial0: serial@90000000 {
-> >  		compatible = "opencores,uart16550-rtlsvn105", "ns16550a";
-> >  		reg = <0x90000000 0x100>;
-> >  		interrupts = <2>;
-> > -		clock-frequency = <20000000>;
-> > +		clock-frequency = <0>;
-> >  	};
+> >    big-endian: true
 > >  
-> >  	enet0: ethoc@92000000 {
-> > @@ -65,5 +64,6 @@ enet0: ethoc@92000000 {
-> >  		reg = <0x92000000 0x800>;
-> >  		interrupts = <4>;
-> >  		big-endian;
-> > +		status = "disabled";
-> >  	};
-> >  };
-> > diff --git a/arch/openrisc/configs/simple_smp_defconfig b/arch/openrisc/configs/simple_smp_defconfig
-> > index 6008e824d31c..db77c795225e 100644
-> > --- a/arch/openrisc/configs/simple_smp_defconfig
-> > +++ b/arch/openrisc/configs/simple_smp_defconfig
-> > @@ -20,7 +20,7 @@ CONFIG_SLUB=y
-> >  CONFIG_SLUB_TINY=y
-> >  CONFIG_MODULES=y
-> >  # CONFIG_BLOCK is not set
-> > -CONFIG_BUILTIN_DTB_NAME="simple_smp"
-> > +CONFIG_BUILTIN_DTB_NAME="simple-smp"
-> >  CONFIG_SMP=y
-> >  CONFIG_HZ_100=y
-> >  CONFIG_OPENRISC_HAVE_SHADOW_GPRS=y
 > > -- 
 > > 2.51.0
 > > 
