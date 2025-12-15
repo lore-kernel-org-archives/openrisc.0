@@ -1,236 +1,195 @@
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F6B430BF4E
-	for <linux-openrisc@vger.kernel.org>; Sun, 14 Dec 2025 18:02:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3C22328B63
+	for <linux-openrisc@vger.kernel.org>; Mon, 15 Dec 2025 07:30:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765735356; cv=none; b=Ysg6TUnzm/DLIJF3RC1S+QcnEuBmNgzL2FYGmhxSoFw3DkubRJLTtELAK6MNS9i7do/OXckcMRJQzauKhyT/241vjz6n13Gha7ox92WPgMQwtahoFRTA5NYg68jnQIY4xiupqgAfJWuWs7nM8eUf2Xw5IBcy7SFPCz3nE16IgR0=
+	t=1765783828; cv=none; b=ZQKhlEGsNE1GKqfuaTcOw2zWvv3K2yUhVraN690QcmCqFerJan66SOhOTmAyo8/GNVWubpIGIidiD0iPXzvIozW12xnDKYTSdGdcHX3Q425o2tLBcn3VTmFnNK8NDpcJleeCg+BJuBpK373U1HmdZx/u8ENwpDo7RlHVLarI6I4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765735356; c=relaxed/simple;
-	bh=un/mmc47M7TzaiskJcRDfyxuLNhftyXJQ1e6SZgvuK4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ts5paFtgfstisiAInEU1d8gp4pXcaN83bDIB3M/tW+jE9wx9dTV8Blt1lvIrpew8Hk2q0q7CnkTrQxakeg9VVTsRfrAT8qs811UgjtbritLDLjD+pu9Rml5P1GdK1v6IdHmmlxlxcL2c+RM2WX05TXG3IcIR2DWyfGAykfXb7+g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QZrB4sAT; arc=none smtp.client-ip=209.85.221.44
+	s=arc-20240116; t=1765783828; c=relaxed/simple;
+	bh=ny2OD9BiO7SHTpHigNLl/XImUrXL4VCXAvUSIHW8BGk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bFiRVxRo6wc2PjyAaWYVXy9z1nph6h0QExXI0vkQKMeL1/CI1hMxqNpT7w1JQUmRMxdiqqyC8JT8P8ZGk/s7cHiWbP8JJsdJO1RZrMt5smfgPW6lzMRWzilzo/35BrUrwgAC1PqOgQ034WstuhA9oLjjA8d2qs1bqtUshbTEIS0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DLfquJmP; arc=none smtp.client-ip=209.85.128.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QZrB4sAT"
-Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-42e2d5e119fso1212047f8f.2
-        for <linux-openrisc@vger.kernel.org>; Sun, 14 Dec 2025 10:02:34 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DLfquJmP"
+Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-4779a637712so20500235e9.1
+        for <linux-openrisc@vger.kernel.org>; Sun, 14 Dec 2025 23:30:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1765735353; x=1766340153; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=3suL/FJnULndAdzhv6eYWlf/ToXJG1zAeBlGIDXgmts=;
-        b=QZrB4sATIG51nznQz0V+7AoCp+3nbc2iQvR9xKi9D5ZfEe4g5lt679adz+dAQB01EM
-         m8/8rXX0uOjQ7WWGTJem12l95rsQPtjUFDXVIepetVFt6qx+S8rdzM9IlQImSGBdnLIE
-         d/LoklqnmoKGBRDF3dA1q0fVKMTDjUfKagS2QmRH+wVwhnhgjlm23dohZxv6Ea8yFwww
-         SmG9ipxNiRqhSMpCKv3iI6gHtKE6M5VVb1wA6oRx4dYMCDPMVcxdtG4gZayahyDLjY1B
-         OgQYEO6ALCNDgKI0zNuMlqefjtb9nfvEr3fPZlhTGPBYMN4IMbvg+N5eX5x8B1AImqPb
-         LMEA==
+        d=gmail.com; s=20230601; t=1765783825; x=1766388625; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=R1Xd5pQpDiVW5fKbBbRiS4/q3sr+HKaLlW1Eq/UI+9o=;
+        b=DLfquJmPnJMVuFRtn4oBWUX7s3WxUFm7ZjlmW1HXETicMMjSlilhnYNl0NlBQX8m/C
+         2TMN8QRR2rOQ91aYOqt5zShn7Ri0DsymP/1OlPlrQ6pACK1EpgKvmnNQw1zY68Z2Ua8D
+         jBmVf8M4AtDDDI5ItZkmgL2j3L3eKMF/9wXBPa8Izw+vdhsDfvnKWeUuu2Md/ob5aZ7S
+         8X6cmRX+x/sUr5ZwyDyrUZHwZeRAUyp/DGHvvh4h+UBWjjRgaaJCe9hHqgnKd0aLZSD7
+         Ht3+lfPoLdZcBsfPIeBHaEtUnXkhVNaY1ROgDzCRn/UjoW4dbVLqDpOSr2y7NW14Kn0F
+         v46A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765735353; x=1766340153;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=3suL/FJnULndAdzhv6eYWlf/ToXJG1zAeBlGIDXgmts=;
-        b=eLPkobrdaxkRSsaVuh3X2f6N6x9XbANlR8VB26ShOpQEp3AETcFBpJ5ORe07CA4PFd
-         SQSkEyYUTTmq6jCjRACltsJFWCNmnRX5zaDlIKuDxykDi8FFzvwJqd7gxrdL19HWufWs
-         rZuwOkcx5gPKJUBNl0tikyZPwrYIqFulTYIUhAvBH6sej2SSL5jRJGRNSWad6OPLQSJN
-         2/XeZ+1v8wcSruUz2v+BZ4tOjH992e/ACXOccMW0pb2AKwL1YPqda9fAt67umis5l/pE
-         P7XN9GOhSbCNXg9CjWdOFkvQhgaw+Gf8FqPF8qU49YW8I2Xokc0YC/2aZAma86QdoXCv
-         lJ+w==
-X-Gm-Message-State: AOJu0YxrG6yAolxM5gXc1UanqXPMJGqH+wHIrmbLAnWPjKRD1I+7SRtH
-	UIKerc1D2SJ3gL/iwcEWhTxsPsp5KeexMGTfpSAOThnKisznNipDYsqk
-X-Gm-Gg: AY/fxX5tuaZO9M4+yoqaqs7LnLvRU4zQ85gtXybUUa6tt5bioj1U2/VJ9bCIR1xbakL
-	KCnT+BwRRP1byG7ZI3iIBrDIm+VIecUvzH9OP1tGQwJ0GkQ/WWEKhCOLuR18zkAFYQZ1pRoI0SA
-	/0D72BsyoRFRWp/n/eh7S89rQQaRRnLyMTlLn/F+KiekKmTuziOgVyKEQJhEl89cpYhOnr3FJ8Q
-	cHg8VBK/BRPE5dHfpC2Qjfdcv+BCslntw5BbFlPwplC10vTOJMPoT8IxBeW6tsmwYdlpbazi1hg
-	sm0PEeiS8O+coSB+fmx5p+cQMQ43XNLX+G5ebLqUfq9CpC+rHih2fvfcM12JbwkDi5MmTGa+GHf
-	iCspkU3nLQVWkjjMIx4BrCbhMqgwA7dHzqe7xU+NHAmCEXCHg/WM553Vct+8Irvn9r1YyS1XT84
-	H2dUeQMccq5h6bLvKbXqbGAU41Fj9Ovr5t/C1kx6uXCIzoaWBzNEul35ncoJCz3FdF
-X-Google-Smtp-Source: AGHT+IFi543Ah7qQJNoCZbbCool8FzH32tRpHvz50asOQj9hEJOf4Qlc8YfJy804WxMQDWXmPYlFfA==
-X-Received: by 2002:adf:9b19:0:b0:42f:bb9b:9a82 with SMTP id ffacd0b85a97d-42fbb9b9ccamr4669909f8f.60.1765735352513;
-        Sun, 14 Dec 2025 10:02:32 -0800 (PST)
+        d=1e100.net; s=20230601; t=1765783825; x=1766388625;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=R1Xd5pQpDiVW5fKbBbRiS4/q3sr+HKaLlW1Eq/UI+9o=;
+        b=CC0W9SzaufjjTmfWklEtQNIAHyZbV21h04ntrKeKKsSQWhfruE1+ab3c3SZ1mJhlpw
+         3VhG+LBduh9NYLs4VR5b+2CH8SxcNUEzggAYBnF6yyHlv9jd7SAWMXn69o/BkraFxtw0
+         0xbDVtV7n1DOeTnaUsPXvwmFbHHgRbiSAh53L6hPHbe+p8XAo+LMxyEC5zgVloczOQ/G
+         T93NvQNquFttesAYHtgimqEnB61ujyJnP3ClVolAM/JCNjsc5kbG8NqHxfkvm9b/8vSc
+         n9vjl/Gut1qqRPIGRROCiKDyMkh5+fp8Qb7mYshiOSOmASw+3WzlUkmGL7r7XSH54K7f
+         WflA==
+X-Gm-Message-State: AOJu0Yz03HR/0cuZMLHNdB7XAfdfD1FMxKX1exleoQuJERu3xXYzEVd0
+	xeQg2PG1wUwA9rQfTJvHxYNJDZeHkvMX/URxxiY5NYCDezr/OLu75LJi
+X-Gm-Gg: AY/fxX6/zjV7vAkTNjo7I96b7fbnAJYgsMb7f6fy6S9rJpDo0+aNYV/zybs030/4J5a
+	d/yZhWIraRiYtmYYvEhyjNAoZJdCOfgklfa6kNmYDwOjVYW1UIgpkExuFmRY3fqn7kb9x/SAMWs
+	C1V3sLNKFaOJWNrRilqT1d3zX4Bte4QXVvtRlph1U4530mBEH/Uzav8OtZVx+9kuRkuPZXpZYoX
+	Nqq+iQcM9355GXRQUjYKFr0Orkrw/shCYPz/qKjWDlc6lEWaX/SjFLr2FMgclTwHjh1nd4CrPrM
+	AMjbZM6VI+Z7jiudLEK3JkrRf4p5NZL5r58nKasKbXNe1hIBsuJK85VKohgVkJln7Ao8vlq87jU
+	quT8gdQnm07XYfmXteedhyhu824WdNxVQWnBPRAuYNLWh4m09wBTfjPAj++ff9y0/Omaci9jUhH
+	NJ6e/nER0qneJuu5S9kp9DISqyPu3s1fowhSWnUqG/3/9yf3luohR8Dup/NB19S/vJ
+X-Google-Smtp-Source: AGHT+IHZi4YEyjXSh3+xr8wfS4Ptfco/QiJmJQcOuGES3JsEx8a6lhUx7zm74MVICNiYUDhJ7dAdnA==
+X-Received: by 2002:a05:600c:6090:b0:477:a21c:2066 with SMTP id 5b1f17b1804b1-47a8f8a7efdmr89529355e9.5.1765783824606;
+        Sun, 14 Dec 2025 23:30:24 -0800 (PST)
 Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-430f280cf05sm9817368f8f.7.2025.12.14.10.02.31
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-430f280cf30sm13151751f8f.3.2025.12.14.23.30.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 14 Dec 2025 10:02:31 -0800 (PST)
+        Sun, 14 Dec 2025 23:30:23 -0800 (PST)
+Date: Mon, 15 Dec 2025 07:30:22 +0000
 From: Stafford Horne <shorne@gmail.com>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	Stafford Horne <shorne@gmail.com>,
 	Rob Herring <robh@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Jonas Bonn <jonas@southpole.se>,
+	Conor Dooley <conor+dt@kernel.org>, Jonas Bonn <jonas@southpole.se>,
 	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	devicetree@vger.kernel.org
-Subject: [PATCH 5/5] openrisc: dts: Add de0 nano multicore config and devicetree
-Date: Sun, 14 Dec 2025 18:01:45 +0000
-Message-ID: <20251214180158.3955285-6-shorne@gmail.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20251214180158.3955285-1-shorne@gmail.com>
+	Masahiro Yamada <masahiroy@kernel.org>, devicetree@vger.kernel.org
+Subject: Re: [PATCH 4/5] openrisc: dts: Split simple smp dts to dts and dtsi
+Message-ID: <aT-5DoreXbGm_QMn@antec>
 References: <20251214180158.3955285-1-shorne@gmail.com>
+ <20251214180158.3955285-5-shorne@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251214180158.3955285-5-shorne@gmail.com>
 
-Add a multicore configuration for the Terasic de0 nano FPGA development
-board.  This SoC runs 2 OpenRISC CPUs at 50Mhz with 32MB ram, UART for
-console and GPIOs for LEDs.
+On Sun, Dec 14, 2025 at 06:01:44PM +0000, Stafford Horne wrote:
+> Split out the common memory, CPU and PIC definitions of the simple SMP
+> system to a DTSI file which we will later use for our De0 Nano multicore
+> board device tree.  We also take this opportunity to swich underscores
+> to dashes as that seems to be the more common convention for DTS files.
+> 
+> Signed-off-by: Stafford Horne <shorne@gmail.com>
+> ---
+>  arch/openrisc/boot/dts/simple-smp.dts         | 25 +++++++++++++++++++
+>  .../dts/{simple_smp.dts => simple-smp.dtsi}   | 12 ++++-----
+>  arch/openrisc/configs/simple_smp_defconfig    |  2 +-
+>  3 files changed, 32 insertions(+), 7 deletions(-)
+>  create mode 100644 arch/openrisc/boot/dts/simple-smp.dts
+>  rename arch/openrisc/boot/dts/{simple_smp.dts => simple-smp.dtsi} (89%)
+> 
+> diff --git a/arch/openrisc/boot/dts/simple-smp.dts b/arch/openrisc/boot/dts/simple-smp.dts
+> new file mode 100644
+> index 000000000000..174c2613c419
+> --- /dev/null
+> +++ b/arch/openrisc/boot/dts/simple-smp.dts
+> @@ -0,0 +1,25 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +
+> +/dts-v1/;
+> +
+> +#include "simple_smp.dtsi"
 
-This FPGA SoC is based on the simple-smp reference board and brings in
-devices from the de0 nano common DTSI file.
+This should be simple-smp.dtsi.
 
-A default config is added that brings together the device tree and
-driver setup.
-
-Link: https://github.com/stffrdhrn/de0_nano-multicore
-
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- arch/openrisc/boot/dts/de0-nano-multicore.dts | 25 +++++
- .../configs/de0_nano_multicore_defconfig      | 92 +++++++++++++++++++
- 2 files changed, 117 insertions(+)
- create mode 100644 arch/openrisc/boot/dts/de0-nano-multicore.dts
- create mode 100644 arch/openrisc/configs/de0_nano_multicore_defconfig
-
-diff --git a/arch/openrisc/boot/dts/de0-nano-multicore.dts b/arch/openrisc/boot/dts/de0-nano-multicore.dts
-new file mode 100644
-index 000000000000..b6cf286afaa4
---- /dev/null
-+++ b/arch/openrisc/boot/dts/de0-nano-multicore.dts
-@@ -0,0 +1,25 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/leds/common.h>
-+
-+/dts-v1/;
-+
-+#include "simple-smp.dtsi"
-+#include "de0-nano-common.dtsi"
-+
-+/ {
-+	model = "Terasic DE0 Nano - Multicore";
-+};
-+
-+&cpu0 {
-+	clock-frequency = <50000000>;
-+};
-+
-+&cpu1 {
-+	clock-frequency = <50000000>;
-+};
-+
-+&serial0 {
-+	clock-frequency = <50000000>;
-+};
-diff --git a/arch/openrisc/configs/de0_nano_multicore_defconfig b/arch/openrisc/configs/de0_nano_multicore_defconfig
-new file mode 100644
-index 000000000000..d33b1226e09c
---- /dev/null
-+++ b/arch/openrisc/configs/de0_nano_multicore_defconfig
-@@ -0,0 +1,92 @@
-+CONFIG_LOCALVERSION="-de0nano-smp"
-+CONFIG_SYSVIPC=y
-+CONFIG_POSIX_MQUEUE=y
-+CONFIG_NO_HZ=y
-+CONFIG_LOG_BUF_SHIFT=14
-+CONFIG_BLK_DEV_INITRD=y
-+# CONFIG_RD_GZIP is not set
-+# CONFIG_RD_BZIP2 is not set
-+# CONFIG_RD_LZMA is not set
-+# CONFIG_RD_XZ is not set
-+# CONFIG_RD_LZO is not set
-+# CONFIG_RD_LZ4 is not set
-+CONFIG_EXPERT=y
-+# CONFIG_EPOLL is not set
-+# CONFIG_TIMERFD is not set
-+# CONFIG_EVENTFD is not set
-+# CONFIG_AIO is not set
-+CONFIG_KALLSYMS_ALL=y
-+CONFIG_DCACHE_WRITETHROUGH=y
-+CONFIG_BUILTIN_DTB_NAME="de0-nano-multicore"
-+CONFIG_OPENRISC_HAVE_INST_CMOV=y
-+CONFIG_SMP=y
-+CONFIG_HZ_100=y
-+CONFIG_JUMP_LABEL=y
-+# CONFIG_BLOCK is not set
-+CONFIG_SLUB_TINY=y
-+# CONFIG_COMPAT_BRK is not set
-+# CONFIG_VM_EVENT_COUNTERS is not set
-+CONFIG_NET=y
-+CONFIG_PACKET=y
-+CONFIG_UNIX=y
-+CONFIG_UNIX_DIAG=y
-+CONFIG_INET=y
-+CONFIG_IP_MULTICAST=y
-+CONFIG_TCP_CONG_ADVANCED=y
-+# CONFIG_TCP_CONG_BIC is not set
-+# CONFIG_TCP_CONG_CUBIC is not set
-+# CONFIG_TCP_CONG_WESTWOOD is not set
-+# CONFIG_TCP_CONG_HTCP is not set
-+# CONFIG_IPV6 is not set
-+# CONFIG_WIRELESS is not set
-+CONFIG_DEVTMPFS=y
-+CONFIG_DEVTMPFS_MOUNT=y
-+# CONFIG_PREVENT_FIRMWARE_BUILD is not set
-+# CONFIG_FW_LOADER is not set
-+CONFIG_NETDEVICES=y
-+CONFIG_ETHOC=y
-+CONFIG_MICREL_PHY=y
-+# CONFIG_WLAN is not set
-+# CONFIG_INPUT is not set
-+# CONFIG_SERIO is not set
-+# CONFIG_VT is not set
-+# CONFIG_LEGACY_PTYS is not set
-+CONFIG_SERIAL_8250=y
-+CONFIG_SERIAL_8250_CONSOLE=y
-+CONFIG_SERIAL_OF_PLATFORM=y
-+# CONFIG_HW_RANDOM is not set
-+CONFIG_GPIO_SYSFS=y
-+# CONFIG_GPIO_CDEV_V1 is not set
-+CONFIG_GPIO_GENERIC_PLATFORM=y
-+# CONFIG_HWMON is not set
-+# CONFIG_USB_SUPPORT is not set
-+CONFIG_NEW_LEDS=y
-+CONFIG_LEDS_CLASS=y
-+CONFIG_LEDS_GPIO=y
-+CONFIG_LEDS_TRIGGERS=y
-+CONFIG_LEDS_TRIGGER_TIMER=y
-+CONFIG_LEDS_TRIGGER_ONESHOT=y
-+CONFIG_LEDS_TRIGGER_HEARTBEAT=y
-+CONFIG_LEDS_TRIGGER_CPU=y
-+CONFIG_LEDS_TRIGGER_ACTIVITY=y
-+CONFIG_LEDS_TRIGGER_GPIO=y
-+CONFIG_LEDS_TRIGGER_DEFAULT_ON=y
-+CONFIG_LEDS_TRIGGER_TRANSIENT=y
-+CONFIG_LEDS_TRIGGER_PANIC=y
-+CONFIG_LEDS_TRIGGER_NETDEV=y
-+CONFIG_LEDS_TRIGGER_PATTERN=y
-+CONFIG_LEDS_TRIGGER_TTY=y
-+# CONFIG_DNOTIFY is not set
-+CONFIG_TMPFS=y
-+CONFIG_NFS_FS=y
-+CONFIG_XZ_DEC=y
-+CONFIG_PRINTK_TIME=y
-+CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT=y
-+CONFIG_GDB_SCRIPTS=y
-+CONFIG_VMLINUX_MAP=y
-+CONFIG_HARDLOCKUP_DETECTOR=y
-+CONFIG_WQ_WATCHDOG=y
-+CONFIG_WQ_CPU_INTENSIVE_REPORT=y
-+CONFIG_STACKTRACE=y
-+CONFIG_RCU_CPU_STALL_CPUTIME=y
-+# CONFIG_RCU_TRACE is not set
--- 
-2.51.0
-
+> +
+> +/ {
+> +	model = "Simple SMP Board";
+> +};
+> +
+> +&cpu0 {
+> +	clock-frequency = <20000000>;
+> +};
+> +
+> +&cpu1 {
+> +	clock-frequency = <20000000>;
+> +};
+> +
+> +&serial0 {
+> +	clock-frequency = <20000000>;
+> +};
+> +
+> +&enet0 {
+> +	status = "okay";
+> +};
+> diff --git a/arch/openrisc/boot/dts/simple_smp.dts b/arch/openrisc/boot/dts/simple-smp.dtsi
+> similarity index 89%
+> rename from arch/openrisc/boot/dts/simple_smp.dts
+> rename to arch/openrisc/boot/dts/simple-smp.dtsi
+> index 71af0e117bfe..92770bb6fcf7 100644
+> --- a/arch/openrisc/boot/dts/simple_smp.dts
+> +++ b/arch/openrisc/boot/dts/simple-smp.dtsi
+> @@ -1,4 +1,3 @@
+> -/dts-v1/;
+>  / {
+>  	compatible = "opencores,or1ksim";
+>  	#address-cells = <1>;
+> @@ -22,15 +21,15 @@ memory@0 {
+>  	cpus {
+>  		#address-cells = <1>;
+>  		#size-cells = <0>;
+> -		cpu@0 {
+> +		cpu0: cpu@0 {
+>  			compatible = "opencores,or1200-rtlsvn481";
+>  			reg = <0>;
+> -			clock-frequency = <20000000>;
+> +			clock-frequency = <0>;
+>  		};
+> -		cpu@1 {
+> +		cpu1: cpu@1 {
+>  			compatible = "opencores,or1200-rtlsvn481";
+>  			reg = <1>;
+> -			clock-frequency = <20000000>;
+> +			clock-frequency = <0>;
+>  		};
+>  	};
+>  
+> @@ -57,7 +56,7 @@ serial0: serial@90000000 {
+>  		compatible = "opencores,uart16550-rtlsvn105", "ns16550a";
+>  		reg = <0x90000000 0x100>;
+>  		interrupts = <2>;
+> -		clock-frequency = <20000000>;
+> +		clock-frequency = <0>;
+>  	};
+>  
+>  	enet0: ethoc@92000000 {
+> @@ -65,5 +64,6 @@ enet0: ethoc@92000000 {
+>  		reg = <0x92000000 0x800>;
+>  		interrupts = <4>;
+>  		big-endian;
+> +		status = "disabled";
+>  	};
+>  };
+> diff --git a/arch/openrisc/configs/simple_smp_defconfig b/arch/openrisc/configs/simple_smp_defconfig
+> index 6008e824d31c..db77c795225e 100644
+> --- a/arch/openrisc/configs/simple_smp_defconfig
+> +++ b/arch/openrisc/configs/simple_smp_defconfig
+> @@ -20,7 +20,7 @@ CONFIG_SLUB=y
+>  CONFIG_SLUB_TINY=y
+>  CONFIG_MODULES=y
+>  # CONFIG_BLOCK is not set
+> -CONFIG_BUILTIN_DTB_NAME="simple_smp"
+> +CONFIG_BUILTIN_DTB_NAME="simple-smp"
+>  CONFIG_SMP=y
+>  CONFIG_HZ_100=y
+>  CONFIG_OPENRISC_HAVE_SHADOW_GPRS=y
+> -- 
+> 2.51.0
+> 
