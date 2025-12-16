@@ -1,135 +1,146 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from fhigh-b1-smtp.messagingengine.com (fhigh-b1-smtp.messagingengine.com [202.12.124.152])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71F4336B;
-	Tue, 16 Dec 2025 00:05:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEC16241691;
+	Tue, 16 Dec 2025 06:38:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.152
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765843511; cv=none; b=Gq6024UywrSGdOiXmc6ZI8Lf5FwFfZwOq5OJTnMV7ERY0OMjQzXxhfl5IOANpkZusA4Hjit+5hfoIPFKaCeSXOmHsqvblZEfgLeDfWe3trQADidx5+A+V1CZX7ctDdbwGqXZfjHUEe90q4h6mSMJJnJOis9p++GBNhnCk5QqoxU=
+	t=1765867120; cv=none; b=cBcGGw36r3zBZiYiLpEvLPJipV8y0BQg/i1ix7dkfYGdXPQfUGrd3K/+D8YZZGYXaT6AMwjtHfdIpzKwOZg6owIDfLV2MPD+noIYX5ZEiUR6gGhte+U2hxLyj/bFc9kqdikR3m8XoDlyjCqJ/vwkD6gHvqKJaHQqugV0UQ6wEsY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765843511; c=relaxed/simple;
-	bh=LJhx7W/W6voccLzCJ3OlzUKuTDdqlnqRvF+0+Fs3Ndg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YqlMLr1Pgs6iRHLwYOx6CdP2ggw7LQxedlZEpFi9gOv5aHBrVHGM8b42cJer8CtW/gVGktZI2ZQMNz+EG8Wth0RRoL1hGSLJVK3KF7/Ic3jo6vorteUZz1z4n0s2AgCAnUtmbJZrjEbe6wNKaL8k9hgeNUaF665WbpZcRzHhpK4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dIkdHao+; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1765867120; c=relaxed/simple;
+	bh=+m9ugDvP8DldppU+Xne3BpzGk7erpZucQQE5LNo8A2E=;
+	h=Message-ID:From:Subject:Date:To:Cc; b=RNU+7FsotGdNSDFaH/+tvbvUbCVkdp+3wUNoMJpNrPIXKhVyOmmUna49Wi0WuRlmqae4/13vUbNZvLKBtDqtRivBzAtjbPycX/Zcht5KCF7jo9kWQ1IuQcY8veQ3ZJ+JAgfn2LdRIeIKrbREFqw1zyoSImy0r+vR5TFvFjOYeZU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=none smtp.mailfrom=linux-m68k.org; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=XpOQ7fR4; arc=none smtp.client-ip=202.12.124.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux-m68k.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dIkdHao+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD37AC4CEF5;
-	Tue, 16 Dec 2025 00:05:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1765843510;
-	bh=LJhx7W/W6voccLzCJ3OlzUKuTDdqlnqRvF+0+Fs3Ndg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=dIkdHao+A3DaGCD4A28Dg7JqAHFsQYRHKKbz4m/RlRoWcAzcMH0WkwkWAYH8ZQDgT
-	 wzfNRrtG8czgE5M9kg1tJGGvpkVb9/JfBL4T2XqVc9r9lATJWdM01kHcB8tllAyhEk
-	 WSfs4YfbqEkN76LMG7I71OYyCa1wXcAe2RN9CVzSbAssBdwjBqn84J/BEBZxNLASJl
-	 ZHz1uOZXVNozwDOC9NqXzsFy+s5IglIqbWHW2vFyjjK4aFVEy+fZkZX8X956hGBhZj
-	 EooslNMgQtWH7aiiu+vBEMMXYOonTmz/gXOKkXgH/xWlekgfsqP3rrXl9qQE2Uq8JM
-	 plQYbS8lAwU7g==
-Date: Tue, 16 Dec 2025 00:05:06 +0000
-From: Conor Dooley <conor@kernel.org>
-To: Stafford Horne <shorne@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, linux-gpio@vger.kernel.org,
-	devicetree@vger.kernel.org
-Subject: Re: [PATCH 1/5] dt-bindings: Add compatible string opencores,gpio to
- gpio-mmio
-Message-ID: <20251216-area-commuting-d20343c98fce@spud>
-References: <20251214180158.3955285-1-shorne@gmail.com>
- <20251214180158.3955285-2-shorne@gmail.com>
- <20251215-skillet-perceive-2b564a29ed71@spud>
- <aUBWMbKLMWO2Wv_B@antec>
- <aUBi0Fid8vF-G8Wl@antec>
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="XpOQ7fR4"
+Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id CA7DB7A00FC;
+	Tue, 16 Dec 2025 01:38:25 -0500 (EST)
+Received: from phl-frontend-02 ([10.202.2.161])
+  by phl-compute-06.internal (MEProxy); Tue, 16 Dec 2025 01:38:26 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+	:feedback-id:from:from:in-reply-to:message-id:reply-to:subject
+	:subject:to:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+	fm1; t=1765867105; x=1765953505; bh=9AoWIhfivy4UOmlDhOIXxucmgxZr
+	f7I6w7HEi8HnW/4=; b=XpOQ7fR4p5tZHtVqK9hezAwN0iR7Ej3xwfmj6h2wl0PT
+	u9MuVU8odNVKLPmTejjbR9tm0tLsMfB2gQR4Y1taeNrLGJ4J9RmtfIa+EN/Ke2kf
+	mXVUOLpq287yxZR0HSgr0D3IdsmOTHe75czX6R5lkMHqw6RvbLHuDio2Y0gft2tB
+	R1bbXYMr1fDxRH2qSafqByoj2xw4jUxlLvsJON4NynBzSqjLrn4PO67T6a0T5frP
+	LTUCD3jDrT1pyDjgL38j5INN4ETiXILU3RLti2Sg9Ka1Ze34q7dzdCf4jyk+fHpw
+	KyLi88ojCydxBJ916IRT6r7PHahEgmz9gom0qrq8zA==
+X-ME-Sender: <xms:X_5Aaar7URYpNmvxdK7vDqbW6R6P7_oaHf2HJTdnCKikVNCUkPhVyQ>
+    <xme:X_5AaahLqfjIcpa1rNTqZg6H4cZP5ZQ9Ok8cEjBLC758rOxuczwaDz9ZT7ajmecQ9
+    m46yAMJ73rKxderSDT7kYnFjyEdwqJSNWgtxyLUB5ZsEYztcSf7Cw>
+X-ME-Received: <xmr:X_5AaT1jrnOfUKl0vjVSC-UvATqSRSGwo_-LnF1h1avenvg_DZBpj3eb0eHNLF0ckb1WWH-YzxUiQw7KkJKmdHzbv59Zdo0Sh80>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdefkeellecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
+    hrpefkhffufffvveestddtredttddttdenucfhrhhomhephfhinhhnucfvhhgrihhnuceo
+    fhhthhgrihhnsehlihhnuhigqdhmieekkhdrohhrgheqnecuggftrfgrthhtvghrnhepud
+    evtdeiveefvdffteduheetieehtdekhfekiedvledvtdehkeetieeuuddufeeunecuffho
+    mhgrihhnpedujedrqdhnvgifnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepfhhthhgrihhnsehlihhnuhigqdhmieekkhdrohhrghdpnhgspghr
+    tghpthhtohepfeehpdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehpvghtvghrii
+    esihhnfhhrrgguvggrugdrohhrghdprhgtphhtthhopeifihhllheskhgvrhhnvghlrdho
+    rhhgpdhrtghpthhtoheprghkphhmsehlihhnuhigqdhfohhunhgurghtihhonhdrohhrgh
+    dprhgtphhtthhopegrnhgurhhiiheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheprghr
+    nhgusegrrhhnuggsrdguvgdprhgtphhtthhopegrshhtsehkvghrnhgvlhdrohhrghdprh
+    gtphhtthhopegsohhquhhnrdhfvghnghesghhmrghilhdrtghomhdprhgtphhtthhopegs
+    phhfsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepuggrlhhirghssehlih
+    gstgdrohhrgh
+X-ME-Proxy: <xmx:X_5AaYZXDuSyF6P66w92xvicPXnobpN8Xpw5UGL-SoWpNjcJ6kN9xA>
+    <xmx:X_5AaZ4d0tEF2QN-dZ0E5ohtaW8NEzkP2qNW-oNMvzebmpvRD2rBDQ>
+    <xmx:X_5AaWIxt82httcCmTeewHLxbx1ppXqQb7IYiWVXXXYLltDHk8pHQg>
+    <xmx:X_5AacqnFu4MPU9Ce6YZ9yUpOSrR6jJZL6j6pWyYsLHxyd_SYhYKxg>
+    <xmx:Yf5AaboFQo-iNoPfBejvSJoR0jFweEV6XUdV6-NzhTGNDN6TTNAzEWwQ>
+Feedback-ID: i58a146ae:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 16 Dec 2025 01:38:21 -0500 (EST)
+Message-ID: <cover.1765866665.git.fthain@linux-m68k.org>
+From: Finn Thain <fthain@linux-m68k.org>
+Subject: [PATCH v5 0/4] Align atomic storage
+Date: Tue, 16 Dec 2025 17:31:05 +1100
+To: Peter Zijlstra <peterz@infradead.org>,
+    Will Deacon <will@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+    Andrii Nakryiko <andrii@kernel.org>,    Arnd Bergmann <arnd@arndb.de>,
+    Alexei Starovoitov <ast@kernel.org>,
+    Boqun Feng <boqun.feng@gmail.com>,    bpf@vger.kernel.org,
+    Rich Felker <dalias@libc.org>,
+    Daniel Borkmann <daniel@iogearbox.net>,
+    Dinh Nguyen <dinguyen@kernel.org>,
+    Eduard Zingerman <eddyz87@gmail.com>,    Gary Guo <gary@garyguo.net>,
+    Geert Uytterhoeven <geert@linux-m68k.org>,
+    John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+    Guo Ren <guoren@kernel.org>,    Hao Luo <haoluo@google.com>,
+    John Fastabend <john.fastabend@gmail.com>,
+    Jiri Olsa <jolsa@kernel.org>,    Jonas Bonn <jonas@southpole.se>,
+    KP Singh <kpsingh@kernel.org>,    linux-arch@vger.kernel.org,
+    linux-csky@vger.kernel.org,    linux-kernel@vger.kernel.org,
+    linux-m68k@lists.linux-m68k.org,    linux-openrisc@vger.kernel.org,
+    linux-sh@vger.kernel.org,    Mark Rutland <mark.rutland@arm.com>,
+    Martin KaFai Lau <martin.lau@linux.dev>,
+    Stanislav Fomichev <sdf@fomichev.me>,
+    Stafford Horne <shorne@gmail.com>,    Song Liu <song@kernel.org>,
+    Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+    Yonghong Song <yonghong.song@linux.dev>,
+    Yoshinori Sato <ysato@users.sourceforge.jp>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="bIdgZ0CC1Xivo1pc"
-Content-Disposition: inline
-In-Reply-To: <aUBi0Fid8vF-G8Wl@antec>
 
+This series adds the __aligned attribute to atomic_t and atomic64_t
+definitions in include/linux and include/asm-generic (respectively)
+to get natural alignment of both types on csky, m68k, microblaze,
+nios2, openrisc and sh.
 
---bIdgZ0CC1Xivo1pc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This series also adds Kconfig options to enable a new run-time warning
+to help reveal misaligned atomic accesses on platforms which don't
+trap that.
 
-On Mon, Dec 15, 2025 at 07:34:40PM +0000, Stafford Horne wrote:
-> On Mon, Dec 15, 2025 at 06:40:49PM +0000, Stafford Horne wrote:
-> > On Mon, Dec 15, 2025 at 04:57:45PM +0000, Conor Dooley wrote:
-> > > On Sun, Dec 14, 2025 at 06:01:41PM +0000, Stafford Horne wrote:
-> > > > In FPGA Development boards with GPIOs we use the opencores gpio ver=
-ilog
-> > > > rtl.  This is compatible with the gpio-mmio.  Add the compatible st=
-ring
-> > > > to allow as below.
-> > > >=20
-> > > > Example:
-> > > >=20
-> > > >         gpio0: gpio@91000000 {
-> > > >                 compatible =3D "opencores,gpio", "brcm,bcm6345-gpio=
-";
-> > >=20
-> > > What you have done below does not permit this, it only permits
-> > > opencores,gpio in isolation.
-> > > pw-bot: changes-requested
-> >=20
-> > Understood, I was not familar with the new schema. I was trying to foll=
-ow what
-> > was seen in some other patches, now I see where I went wrong.  I will f=
-ix this
-> > and use the schema validation tools to verify.
-> >=20
-> > Thanks for pointing it out.
->=20
-> I think the below is correct. But, would this be ok to put in one patch?
->=20
-> I do:
->   - Convert compatible from simple enum to oneOf.
->   - Add items: for the openrisc,gpio compatiblity string.
->=20
->  properties:
->    compatible:
-> -    enum:
-> -      - brcm,bcm6345-gpio
-> -      - ni,169445-nand-gpio
-> -      - wd,mbl-gpio # Western Digital MyBook Live memory-mapped GPIO con=
-troller
-> -      - intel,ixp4xx-expansion-bus-mmio-gpio
-> +    oneOf:
+The performance impact is expected to vary across platforms and workloads.
+The measurements I made on m68k show that some workloads run faster and
+others slower.
 
-> +      - const: brcm,bcm6345-gpio
-> +      - const: ni,169445-nand-gpio
-> +      - const: wd,mbl-gpio # Western Digital MyBook Live memory-mapped G=
-PIO controller
-> +      - const: intel,ixp4xx-expansion-bus-mmio-gpio
+---
 
-This is fine, but keep the enum instead of making these into a bunch of
-const entries. IOW, just put a - in front of the existing enum: and
-reindent it to be correct under the oneOf.
+Changed since v4:
+ - Dropped parisc header file patch as it's been merged already.
+ - Submitted as PATCH instead of RFC.
 
-> +      - items:
-> +          - enum:
-> +              - opencores,gpio
-> +          - const: brcm,bcm6345-gpio
+Changed since v3:
+ - Rebased on v6.17.
+ - New patch to resolve header dependency issue on parisc.
+ - Dropped documentation patch.
 
---bIdgZ0CC1Xivo1pc
-Content-Type: application/pgp-signature; name="signature.asc"
+Changed since v2:
+ - Specify natural alignment for atomic64_t.
+ - CONFIG_DEBUG_ATOMIC checks for natural alignment again.
+ - New patch to add weakened alignment check.
+ - New patch for explicit alignment in BPF header.
 
------BEGIN PGP SIGNATURE-----
+---
 
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCaUCiMgAKCRB4tDGHoIJi
-0tJJAQDPP7IUyjpfrVRCrN1DBjIkm1Wgwun0jxfuFzSGrHiObAD+Ns3gpbcNgIc+
-6rzW60Cumuuy+qnrAZUBUGVHsD1D4A8=
-=R5UD
------END PGP SIGNATURE-----
+Finn Thain (3):
+  bpf: Explicitly align bpf_res_spin_lock
+  atomic: Specify alignment for atomic_t and atomic64_t
+  atomic: Add option for weaker alignment check
 
---bIdgZ0CC1Xivo1pc--
+Peter Zijlstra (1):
+  atomic: Add alignment check to instrumented atomic operations
+
+ include/asm-generic/atomic64.h   |  2 +-
+ include/asm-generic/rqspinlock.h |  2 +-
+ include/linux/instrumented.h     | 15 +++++++++++++++
+ include/linux/types.h            |  2 +-
+ kernel/bpf/rqspinlock.c          |  1 -
+ lib/Kconfig.debug                | 18 ++++++++++++++++++
+ 6 files changed, 36 insertions(+), 4 deletions(-)
+
+-- 
+2.49.1
