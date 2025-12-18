@@ -1,212 +1,159 @@
-Received: from mail-vk1-f176.google.com (mail-vk1-f176.google.com [209.85.221.176])
+Received: from mail-vk1-f177.google.com (mail-vk1-f177.google.com [209.85.221.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 465563043CF
-	for <linux-openrisc@vger.kernel.org>; Thu, 18 Dec 2025 18:36:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A52D2C08AC
+	for <linux-openrisc@vger.kernel.org>; Thu, 18 Dec 2025 18:37:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766082986; cv=none; b=qX2U/zIYJjbFAT6RU8A8a+VnBYiht/s5OdMFNj7i+Fi7E8XjDxzKLspjFMo0oT9zQg9I9BO5W2I+uKRcTfKQxuCXNZySwndJar3pMJEEKeByqEJtjfZNrJldJPkeOukEiUBRU/AgTJNF5wZ9qVZY2B36esE8a7tgbr50mGjuXZg=
+	t=1766083077; cv=none; b=EwWFj272RBVo7bAThmY6j3pglxBWeoGN4enFwMNMj7q2l8IYaESmNpyEKrhzvpvoD5UamA3i9iyQLIrMXn8jw1w/2bTNyTtbn4agsiS1XNk/uwn8/W8YVr6HVycP2+zHwiVCGxX+1NH0SQoFIlBpSrowi4u4bd8i7mqnHeDjRCI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766082986; c=relaxed/simple;
-	bh=f9vnFO3ZAr0ROjj4iO2mIyqQF6HfJIBfN6MUQuNhK9A=;
+	s=arc-20240116; t=1766083077; c=relaxed/simple;
+	bh=0OhEslZjp+aTkNYgZvD96zEORwlOpU29eBj68fD9rdM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=e3SKwLhvd1FGa08t9akGxEBF9/scEVLAk2sTgGFFFIuBBhDvM5ATsVPrePZllp+prEW8QBhh1QT07vvpVk8YwY1aZ62uA6K/xxN/3p/Zu/UKpxhwilhBEp3gyQNBWjlQn50u2bOZKzF2SVr74C+JDuNcirMRzWVr6fw9nqVuaFM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.221.176
+	 To:Cc:Content-Type; b=nV8pRZGcqjF4yZec/VPSd3LhYgJ0baHuNCXRICkzcLOM1D6nbUejsSGQzGoIXaZLNGHEXQ1NGK+it4sOL5fSXxnDDfTQxZh9z+TOlteyl5pq7FltldZwF6NZrlBRBUzEkJ9kijFq0vDwGJcn2QH+TLo8E+Ql4cGmDxS94Nzx0co=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.221.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vk1-f176.google.com with SMTP id 71dfb90a1353d-5597a426807so551535e0c.2
-        for <linux-openrisc@vger.kernel.org>; Thu, 18 Dec 2025 10:36:22 -0800 (PST)
+Received: by mail-vk1-f177.google.com with SMTP id 71dfb90a1353d-55b22d3b2a6so573023e0c.1
+        for <linux-openrisc@vger.kernel.org>; Thu, 18 Dec 2025 10:37:56 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766082981; x=1766687781;
+        d=1e100.net; s=20230601; t=1766083075; x=1766687875;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=TUIzj6tuJEWWz1NJlvcpUJodOdc/whg25y/XKksTcLU=;
-        b=NIs9Qzh/YsTe1lKVHBQkCYgloSdc85FFHpt0yNog5+X5TOirEyWwEo7/qZ4p3Vq0M8
-         l37Eb/sMpWGdBOFH1YlAuLMEziN02FmMhVjVZq+8Y7Igx/vRDDEvTCLk746RtnDs5glG
-         RyCKrI024i5g5rLZDGDINez0/8Hiv3lEXbLYy+aZPFzRqdmmyO4HVBheFW79l0msCh/d
-         ALpE1J5uJ6e8oBgUj8aIed4m9+tuXMnOuhRd0ukI793A0WI7yTGp/2heAp9ojh58R5TO
-         gmQm/nwYI34B6uHCSjsb9hzkgXJcyx8eky0oNhQZsFF3NHpdfuhaxxnxVJbr6V0hghfq
-         Qb6w==
-X-Forwarded-Encrypted: i=1; AJvYcCVBvhq1zCbt7nT/3w8sIYUuQEHjqM/36Sc8c57tFWBLAKtvGdK85jPmkvrXFQmXoqz07spZUzll2Wsgeg8wMg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz1MgIku/ri840H65GpjwP8JcxlYeFeQIvTHkPwc4RBOtnBhCke
-	rQ1I3v8s4xJhSAbN4B+/l2NgwS6OhK7jS/bbc91yg7vgpZhUJUAySPcWQSRb4mq2
-X-Gm-Gg: AY/fxX7+v8dQrG9De7QbVe+alsLNvG7NWnwMdykO8Hn3axyWCT2bQMD7EAeJlS5n5V4
-	L4NFYdZ2d/LNsqJgffaGlxsmpLRmwnUetQuBd9SHS5tUXJFsCH9rdH7yZzZJb2yp5ReVAy2pOZM
-	k9ERhB983RSK6zVZNo0IoLUPCKBWaSWIMJBneBzM5oWMFJ8idDdwkdmrVvp9i1IJB59aeJQp41a
-	dF/x+CNy4WROjlktOAcqdgfH37v9V13ShKhfedFjqHlG7YgGsNPgVE/v9wrIs2xemizSGwWHyKS
-	UYGy700Et/PidrjI0MVtIrhoInqlQu+owhl1YNDTNw0ENw9uRe/npNhjfjc0q4K0yXJYXQnpdYP
-	p69F5JTlt7gNTv0rea/MhXy9RVxlvcQzzzy/Wy89ffQ2+Dd8XXynn1nKJJkveqzcrTCHJiSM6l1
-	2a0z7QPEllppdtLJ0ZW9k9XgO+dxUUnLB60AGfIHUPAoeNLs32FQTeT46ICUOK/98=
-X-Google-Smtp-Source: AGHT+IHcyBF4CdljOYK9cDoBJbbYtw9aQhhvz74Zfh6sY2P2z7d+UUpWgXExLmWN5pIFU73PWUgO8Q==
-X-Received: by 2002:a05:6122:1d0b:b0:55b:305b:4e29 with SMTP id 71dfb90a1353d-5615befda3dmr227062e0c.21.1766082981366;
-        Thu, 18 Dec 2025 10:36:21 -0800 (PST)
-Received: from mail-vk1-f182.google.com (mail-vk1-f182.google.com. [209.85.221.182])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5615d132be6sm1623e0c.12.2025.12.18.10.36.20
+        bh=NzQKpj+K5xZCnwXpy+92eyq9yIgTThbDeKk8EFe1x70=;
+        b=gxYzV6aPuEiHSrawYd4GJntf4/bKtFPlL9yRqCeLmJ5VOVmhph3hnyxev7A4cZc6xW
+         6qsT9wEGrRhZn/HYEG0b5YJVS1uezzi4CS6TD5pUgZ8HekHw3UtytqlzC4pHI+95X9og
+         uiI1FUtPyLHCBAt3+3rlpqDyF7KpWbVR6tEmO+FqkXqON5GC0mq4l6g7u948X8oEIw3Q
+         pFY+xyqsNjRQwvBOImJqLw3sepGLxs4rAFT+KtorDncdw1TmNss3uPqVIhBI2aHO4tdv
+         IZxbR2EpnCUlTQ4Mvwe8vV5Vgqqik5ORL2lSUFK0MyVFZKa4MLek6fIZvMs4PyD/sTVr
+         nlrg==
+X-Forwarded-Encrypted: i=1; AJvYcCUqwzZ5UrGSERRnpnx/ZysUq6OLwR7Ps+u95p1YhTGavR6Nsf320TKhjH23EreX6c8dA91FJq+EqY+nr5DAZA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyflLL/DtYoDTPAx9g8+ZEwykBq4u6xIKcWx9rkMZkrruOPwO2v
+	9z53gB+x2GL5rG4PO7+F59RJhIzrGGe6WqVM0Z1MPtR51oVpz3Eqs08VPhYIa97X
+X-Gm-Gg: AY/fxX5W07ANsJIzLaBbykUk7oKkd/rOQjkk93VaTUrjxDVOwMichybNokMYVfvChLY
+	sCKNy1aVz2mChyDkkpWYGH2KnobZK+uRIwcEE2tPoR5FD+dCN/y+aamobZbKOiWivMlbT/uURmv
+	RWEff+3sqzRGbdZ5hIOjGpRjEaTZzniLCXVgZHeVAs4QgyAzFgKwCAB1n6kbEXlQTZF+yqi0sVv
+	go7ysQ7RsuCB7zrkgZYEngCpDol0QDBBR4yxvku3t55uzoIhH03sxhciaHMj2TQ5b3kM3MlFMoc
+	NosMR5apKkUe39AMI4OlFNY4FFLqw1jjPF2MUf/KDdULjRQoto2UKPCt+b+135msOvFukag//p0
+	82LfeQl32lPJkfzrRDczQAfuN64JIQE+/RVFzAgH4lJGA7SHm/rHgaKoa0WmK/lGYpxWMMmWpLp
+	tdk0mshDKtZq+2uwP889VggSwZA3VuyhKc0ftmrAiap700KNJ/
+X-Google-Smtp-Source: AGHT+IFbizpev+ZVMuHdSksVbaM4EolKF6vgxWZusi/EFZ3BXmu4kJEY6wH3X5GxclCc3GBb2avwug==
+X-Received: by 2002:a05:6122:400f:b0:54a:a3b1:db63 with SMTP id 71dfb90a1353d-5615b851f7dmr251494e0c.6.1766083075181;
+        Thu, 18 Dec 2025 10:37:55 -0800 (PST)
+Received: from mail-vs1-f45.google.com (mail-vs1-f45.google.com. [209.85.217.45])
+        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5615d14efe7sm1888e0c.15.2025.12.18.10.37.54
         for <linux-openrisc@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 18 Dec 2025 10:36:20 -0800 (PST)
-Received: by mail-vk1-f182.google.com with SMTP id 71dfb90a1353d-5597a426807so551515e0c.2
-        for <linux-openrisc@vger.kernel.org>; Thu, 18 Dec 2025 10:36:20 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCXXfajC7l6GTtLnZ8ORvgn9UCnQoLAdfx2ma37DDqZC8Jvdrh+9o+hZAiS23/2QwPOfb3CP6vZpMV64qXh4+w==@vger.kernel.org
-X-Received: by 2002:a05:6122:7cd:b0:559:6e78:a434 with SMTP id
- 71dfb90a1353d-5615bbb613fmr287845e0c.0.1766082979838; Thu, 18 Dec 2025
- 10:36:19 -0800 (PST)
+        Thu, 18 Dec 2025 10:37:54 -0800 (PST)
+Received: by mail-vs1-f45.google.com with SMTP id ada2fe7eead31-5dbde7f4341so1470520137.1
+        for <linux-openrisc@vger.kernel.org>; Thu, 18 Dec 2025 10:37:54 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCVrwjO5iWinH80Q/jmGaj8b6XOmEJFW+jz3nCeGY8TJuZZ+YZPs5Fb5OPIVUjROISpjpxnDGv1J5uf5LNtJww==@vger.kernel.org
+X-Received: by 2002:a05:6102:510a:b0:5e0:d009:e4d7 with SMTP id
+ ada2fe7eead31-5eb0237d823mr1577578137.1.1766083073953; Thu, 18 Dec 2025
+ 10:37:53 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251217080843.70621-1-shorne@gmail.com> <20251217080843.70621-3-shorne@gmail.com>
-In-Reply-To: <20251217080843.70621-3-shorne@gmail.com>
+References: <20251217080843.70621-1-shorne@gmail.com> <20251217080843.70621-5-shorne@gmail.com>
+In-Reply-To: <20251217080843.70621-5-shorne@gmail.com>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Thu, 18 Dec 2025 19:36:08 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdVCY=5UypK65Ver6UZM_m6DZuw9mhfANMx4+Y6PgNAdmA@mail.gmail.com>
-X-Gm-Features: AQt7F2re0c6O1zn3_Tpesl3XSo6xjfJa4z8L5_DxCBrXJH-PmZ5isCD3kETTmI4
-Message-ID: <CAMuHMdVCY=5UypK65Ver6UZM_m6DZuw9mhfANMx4+Y6PgNAdmA@mail.gmail.com>
-Subject: Re: [PATCH v2 2/5] openrisc: dts: Add de0 nano config and devicetree
+Date: Thu, 18 Dec 2025 19:37:43 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdXG2HQ8e+Hx1CUBus_VYKmx4fEeDRH+sDXmaQQANTraBg@mail.gmail.com>
+X-Gm-Features: AQt7F2rcVD25xb8nrGQqVpj5b8hg3KTWDJWwSSU46X3JARvL_KWM_hi9moWh8eY
+Message-ID: <CAMuHMdXG2HQ8e+Hx1CUBus_VYKmx4fEeDRH+sDXmaQQANTraBg@mail.gmail.com>
+Subject: Re: [PATCH v2 4/5] openrisc: dts: Split simple smp dts to dts and dtsi
 To: Stafford Horne <shorne@gmail.com>
 Cc: LKML <linux-kernel@vger.kernel.org>, 
 	Linux OpenRISC <linux-openrisc@vger.kernel.org>, Rob Herring <robh@kernel.org>, 
 	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
 	Jonas Bonn <jonas@southpole.se>, 
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, devicetree@vger.kernel.org
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Masahiro Yamada <masahiroy@kernel.org>, 
+	devicetree@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 
 Hi Stafford,
 
 On Wed, 17 Dec 2025 at 09:23, Stafford Horne <shorne@gmail.com> wrote:
-> The de0 nano from Terasic is an FPGA board that we use in the OpenRISC
-> community to test OpenRISC configurations.  Add a base configuration for
-> the board that runs an OpenRISC CPU at 50Mhz with 32MB ram, UART for
-> console and some GPIOs for LEDs and switches.
->
-> There is an older version of this floating around that defines all of
-> the hardware on the board including SPI's, flash devices, sram, ADCs
-> etc.  Eventually it would be good to get the full version upstream
-> but for now I think a minimal board is good to start with.
->
-> Link: https://openrisc.io/tutorials/de0_nano/
-> Link: https://github.com/olofk/de0_nano
+> Split out the common memory, CPU and PIC definitions of the simple SMP
+> system to a DTSI file which we will later use for our De0 Nano multicore
+> board device tree.  We also take this opportunity to swich underscores
+> to dashes as that seems to be the more common convention for DTS files.
 >
 > Signed-off-by: Stafford Horne <shorne@gmail.com>
 
 Thanks for your patch!
 
 > --- /dev/null
-> +++ b/arch/openrisc/boot/dts/de0-nano-common.dtsi
-> @@ -0,0 +1,41 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +
-> +#include <dt-bindings/gpio/gpio.h>
-> +#include <dt-bindings/leds/common.h>
-> +
-> +/ {
-> +       memory@0 {
-> +               device_type = "memory";
-> +               reg = <0x00000000 0x02000000>;
-> +       };
-> +
-> +       leds: leds {
-
-Move this up (or down), before (or after) all nodes with unit addresses?
-
-> +               compatible = "gpio-leds";
-> +               status = "okay";
-
-Missing blank line.
-
-> +               led-heartbeat {
-> +                       gpios = <&gpio0 0 GPIO_ACTIVE_HIGH>;
-> +                       color = <LED_COLOR_ID_GREEN>;
-> +                       function = LED_FUNCTION_HEARTBEAT;
-> +                       linux,default-trigger = "heartbeat";
-> +                       label = "heartbeat";
-> +               };
-> +       };
-> +
-> +       gpio0: gpio@91000000 {
-> +               compatible = "opencores,gpio", "brcm,bcm6345-gpio";
-> +               reg = <0x91000000 0x1>, <0x91000001 0x1>;
-> +               reg-names = "dat", "dirout";
-> +               gpio-controller;
-> +               #gpio-cells = <2>;
-> +               status = "okay";
-
-"okay" is the default, so you could drop this line.
-
-> +       };
-> +
-> +       gpio1: gpio@92000000 {
-> +               compatible = "opencores,gpio", "brcm,bcm6345-gpio";
-> +               reg = <0x92000000 0x1>, <0x92000001 0x1>;
-> +               reg-names = "dat", "dirout";
-> +               gpio-controller;
-> +               #gpio-cells = <2>;
-> +               status = "disabled";
-> +       };
-> +};
-
-> --- /dev/null
-> +++ b/arch/openrisc/boot/dts/de0-nano.dts
-> @@ -0,0 +1,54 @@
+> +++ b/arch/openrisc/boot/dts/simple-smp.dts
+> @@ -0,0 +1,25 @@
 > +// SPDX-License-Identifier: GPL-2.0
 > +
 > +/dts-v1/;
 > +
-> +#include "de0-nano-common.dtsi"
+> +#include "simple-smp.dtsi"
 > +
 > +/ {
-> +       model = "Terasic DE0 Nano";
-> +       compatible = "opencores,or1ksim";
-> +       #address-cells = <1>;
-> +       #size-cells = <1>;
-> +       interrupt-parent = <&pic>;
+> +       model = "Simple SMP Board";
+> +};
 > +
-> +       aliases {
-> +               uart0 = &serial0;
-> +       };
+> +&cpu0 {
+> +       clock-frequency = <20000000>;
+> +};
 > +
-> +       chosen {
-> +               bootargs = "earlycon";
+> +&cpu1 {
+> +       clock-frequency = <20000000>;
+> +};
+> +
+> +&serial0 {
+> +       clock-frequency = <20000000>;
+> +};
+> +
+> +&enet0 {
 
-Do you need this?
+Alphabetical sort order?
 
-> +               stdout-path = "uart0:115200";
-> +       };
-> +
-> +       cpus {
-> +               #address-cells = <1>;
-> +               #size-cells = <0>;
+> +       status = "okay";
+> +};
+> diff --git a/arch/openrisc/boot/dts/simple_smp.dts b/arch/openrisc/boot/dts/simple-smp.dtsi
+> similarity index 90%
+> rename from arch/openrisc/boot/dts/simple_smp.dts
+> rename to arch/openrisc/boot/dts/simple-smp.dtsi
+> index 71af0e117bfe..2013fd3e7a18 100644
+> --- a/arch/openrisc/boot/dts/simple_smp.dts
+> +++ b/arch/openrisc/boot/dts/simple-smp.dtsi
+> @@ -1,4 +1,3 @@
+> -/dts-v1/;
+>  / {
+>         compatible = "opencores,or1ksim";
+>         #address-cells = <1>;
+> @@ -22,15 +21,13 @@ memory@0 {
+>         cpus {
+>                 #address-cells = <1>;
+>                 #size-cells = <0>;
 
 Missing blank line.
 
-> +               cpu@0 {
-> +                       compatible = "opencores,or1200-rtlsvn481";
-> +                       reg = <0>;
-> +                       clock-frequency = <50000000>;
-> +               };
-> +       };
-> +
-> +       /*
-> +        * OR1K PIC is built into CPU and accessed via special purpose
-> +        * registers.  It is not addressable and, hence, has no 'reg'
-> +        * property.
-> +        */
-> +       pic: pic {
-> +               compatible = "opencores,or1k-pic";
-> +               #interrupt-cells = <1>;
-> +               interrupt-controller;
-> +       };
-> +
-> +       serial0: serial@90000000 {
-> +               compatible = "opencores,uart16550-rtlsvn105", "ns16550a";
-> +               reg = <0x90000000 0x100>;
-> +               interrupts = <2>;
-> +               clock-frequency = <50000000>;
-> +       };
-> +};
+> -               cpu@0 {
+> +               cpu0: cpu@0 {
+>                         compatible = "opencores,or1200-rtlsvn481";
+>                         reg = <0>;
+> -                       clock-frequency = <20000000>;
+>                 };
+
+Likewise.
+
+> -               cpu@1 {
+> +               cpu1: cpu@1 {
+>                         compatible = "opencores,or1200-rtlsvn481";
+>                         reg = <1>;
+> -                       clock-frequency = <20000000>;
+>                 };
+>         };
+>
 
 Gr{oetje,eeting}s,
 
