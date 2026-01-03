@@ -1,78 +1,86 @@
-Received: from mail-wr1-f65.google.com (mail-wr1-f65.google.com [209.85.221.65])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76A9E199920
-	for <linux-openrisc@vger.kernel.org>; Sat,  3 Jan 2026 06:17:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.65
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F4371E5018;
+	Sat,  3 Jan 2026 18:54:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767421027; cv=none; b=PAllFo9E+AY7u/zZfZ7yUu5IiM7J8+tE9rETmqHUrSq76mPrFaS51UbFiGNkGuyBsxgaU7JWAaP34V2l0P7maEagupvZ1oBbJILVe1+5/B/4SHKmIfmY82xoHcr9f8jt0CY6FV4j3VplNfW71Vgc02TDkeAJKVSN1IfSkVSwaB0=
+	t=1767466486; cv=none; b=asnM/BQh1Z+w4rtSS5Gk1SaARPpW9O4caiURenPvV0dXOcgctfN44wFMBEV+UQ+kuh5iow16LMa3qWipnCPsj9uFdgRTuNKEYiSC+Lvq1bNYeeIX7hykX196E+8W47qIGqjQL9oIV2hXS9FHLFM5N7p50np0ANVDu0+ICxygnDQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767421027; c=relaxed/simple;
-	bh=OvhHsmnhwBytDwLUIZZt3NNO22amAFYoNYaJEB8XD9I=;
+	s=arc-20240116; t=1767466486; c=relaxed/simple;
+	bh=JJi0MIW7ufay+ZZEo6EH5bf/kqP+vRBsByx4CICNQCs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=U1wvgP/WyYWrkqX+70dMhQ1qNdJ+GxP4tyJe3vA0/qeKQyapbsIHch1lHR/VbHFAWPVESUqmKxRCJ/gcPTOQTJmqFoz5isXTEP1MLiZcS7qd/hLFM9hUOByHyZmIpBfrszrjnM5TVzFdbVGH6Jzvq4zFALr1vYAnC7b172bCjvA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CLMzOR/R; arc=none smtp.client-ip=209.85.221.65
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=Y/QsaDYSq4hESQ4K1bmYPLRv/adZdWfNfPpUsR31xn4HpRUifmPhBGA9uWlOv/UtH+ARiasGCLhsk/yBci3lJ83Pw6LQHaPsSot9VSOb1fPeDuB4+OPpXplbFYcVp8b6wrAbtJYMff2eDQ1C7CgbAoCl8yYpEXqZ6oJMeOs2Xv8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ntpZea6S; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CLMzOR/R"
-Received: by mail-wr1-f65.google.com with SMTP id ffacd0b85a97d-430f5ecaa08so5122880f8f.3
-        for <linux-openrisc@vger.kernel.org>; Fri, 02 Jan 2026 22:17:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1767421024; x=1768025824; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=0fBTw2m0sw3DdZqYCahoE5TIOLBwDoJuhOGkXgvJXBI=;
-        b=CLMzOR/RwI2YMXXLnWzTNCq3EuQGAR22JxggEVtWWzr1wQMLzQjOkIR85wRFSmnnjQ
-         knWZnqb1RMq9+0vFeaW9oWDA5gfvfUnV9+NuTOWyoiNrKZ2GeFR3a9OPInEdql6CETdx
-         GKPj2dt34tWAes36tNyETN9n+qbuVoBcTTa8GYY328my4WZkekcbYIwkMf0XqBBSD8+j
-         eY83w1CTYj8KrnMBheItjCUuT0Zih+E31ngcHAid4InNDU5yGS3a5Fegn7EXzKHitXMA
-         Jpzap6jRsQokSlQ9lhRq/UYDYOsy8gf9nNrF0Y1zJadD0o4E9t6FpLH4U9twiUpq7L30
-         jt6Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767421024; x=1768025824;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=0fBTw2m0sw3DdZqYCahoE5TIOLBwDoJuhOGkXgvJXBI=;
-        b=mGciWb4YjIpds8YkGYbtp0oeTjnx3dsJ6Suxd94kIiDmA3ucgW/Byb8/7kv1Q1Uoly
-         enAMJimEQ9MyVVprjIphMlg1ZM1FzGPoTHmKQa0eLdKi5JSxpNvG4iq2f8w04jslxkIr
-         rtWm2ZSpYM9MM0ak2J9/Z+8gYRxRz6njEiWvoyqnkU/ScjTYBm2LMCsvYo4k/wGZCEVA
-         kIpvoIq5Y7Hjjq/GQydUR6pl9gKdwvubfAL55fXQJlr9Mi4+0aWzWNaQkoaOFlsxMEBo
-         DXuBNSQrPjo89ZedJaCIVHW+Fkjg/T7w3LB6dVfSBWTNLebtTLBsXsSoE9itsNsmXb7V
-         ZZug==
-X-Forwarded-Encrypted: i=1; AJvYcCU8AztdyQfBld/djxmV/a0uIz4H79qIQmo/PXoisG5ROwQE+barDttPNhEAi1K0oUyWguQSV/dkLLPdIYi7QA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzA/mFtjlAZhj8Ytn9HLrrvPXKGtzxt5TApuJeUOHJDAnLe9pWq
-	G/eYZlF/DqLNncWxU0uf1MAWMRVkuzPEKU1GNMsH3Zaw+xel8CX219rT
-X-Gm-Gg: AY/fxX7Xr2XGgqIn3evzo5IKWIxRuX5yVMf/Nn1+KRw/8mfPlTQ6jiaCsqwsC5hvUaz
-	4MpvPksu4eELhqhiuPaeAdlhIzw7zpYotmHv0CmNcD/TN1n+vQobWFIIasCNUUutDkzSsTUPHMo
-	pa4yq4MAbJMcnMurqqMUaK0fYV1E87be8YFhgY/t8dDdOLGTi4jBC5t8h9Jiqe3l88C8U3WUv1c
-	uqQSd1ZazXDxOX+aCd0a1763mwEm3YdUs/UedpPN+T+wvmL3IDy6cySHvIiv979q3j0Nz0QFJoj
-	q7kvj1Xqgi0TLWEx5M9YCbiBXYSSzMvGyTLlWgoE0UfJjz8BxrIvc5cF0i7eKVfn6KJkYaZ+lSm
-	79HSJWnyEPGdBAg5XI5I3m7Vtvi75RuDa0TF9Y7/x7nLVsSXf/tZjmQ/Ae8JsANmnFyGueCPlp/
-	m00SLnO8DdxyNM+hYa3d4tf7EkHq4iX/wm56rrW63mY78QR/arMRxnWYcCD3WCuSob
-X-Google-Smtp-Source: AGHT+IHdlE+Cj3VwwM7OZ4YHjWykCfF7XHJggX+PliZI3MM3Nwc7QElP+yBNZ3QQxm4vymnI/vBKVA==
-X-Received: by 2002:a05:6000:2504:b0:431:5ca:c1b7 with SMTP id ffacd0b85a97d-4324e4cbcc1mr61300652f8f.23.1767421023534;
-        Fri, 02 Jan 2026 22:17:03 -0800 (PST)
-Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4324eab257asm88770406f8f.38.2026.01.02.22.17.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 02 Jan 2026 22:17:00 -0800 (PST)
-Date: Sat, 3 Jan 2026 06:16:59 +0000
-From: Stafford Horne <shorne@gmail.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	devicetree@vger.kernel.org
-Subject: Re: [PATCH v2 2/5] openrisc: dts: Add de0 nano config and devicetree
-Message-ID: <aVi0W6syzK6buL_v@antec>
-References: <20251217080843.70621-1-shorne@gmail.com>
- <20251217080843.70621-3-shorne@gmail.com>
- <CAMuHMdVCY=5UypK65Ver6UZM_m6DZuw9mhfANMx4+Y6PgNAdmA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ntpZea6S"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09051C113D0;
+	Sat,  3 Jan 2026 18:54:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1767466485;
+	bh=JJi0MIW7ufay+ZZEo6EH5bf/kqP+vRBsByx4CICNQCs=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=ntpZea6Sa23o++gxekMhG3I2QU/XUTWc5nMNjfwy8Zyi3NxPf/H771f3L1fK5G+JV
+	 BrIkjrHnTIa77Opbod1/wKDGPBT3rKbTairESVy5GIn6kLNbwjXgkey0AYjrLhGdtm
+	 1WmiT9BvnPKoouYAqUVpZ8pMait9YtcjloPtOthbURuem94A6kCmWXPP6kGGR5TMsk
+	 u58EQYc7patXv3IP/W4ZCBdZ3acr/VkBhoQVGrCvo13QtDF90hlUSKKPF5FMbB73Cg
+	 bSz/V5A/Jkpw/H2SFDajyAjOcb+N26PpJKiNlYzPGaxtX/S68RKs74BHnvORKROqCy
+	 PVF9NX0W2W0Vg==
+Date: Sat, 3 Jan 2026 20:54:23 +0200
+From: Mike Rapoport <rppt@kernel.org>
+To: Klara Modin <klarasmodin@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Alex Shi <alexs@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	David Hildenbrand <david@kernel.org>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+	Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Jonathan Corbet <corbet@lwn.net>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	Magnus Lindholm <linmag7@gmail.com>,
+	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Michal Hocko <mhocko@suse.com>, Michal Simek <monstr@monstr.eu>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Pratyush Yadav <pratyush@kernel.org>,
+	Richard Weinberger <richard@nod.at>,
+	Russell King <linux@armlinux.org.uk>,
+	Stafford Horne <shorne@gmail.com>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>,
+	Vlastimil Babka <vbabka@suse.cz>, Will Deacon <will@kernel.org>,
+	x86@kernel.org, linux-alpha@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+	linux-cxl@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+	linux-mm@kvack.org, linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+	sparclinux@vger.kernel.org
+Subject: Re: [PATCH v2 22/28] arch, mm: consolidate initialization of nodes,
+ zones and memory map
+Message-ID: <aVll339wim7dCIaQ@kernel.org>
+References: <20260102070005.65328-1-rppt@kernel.org>
+ <20260102070005.65328-23-rppt@kernel.org>
+ <aVhN2NgQEKe0yzva@soda.int.kasm.eu>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -81,152 +89,196 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAMuHMdVCY=5UypK65Ver6UZM_m6DZuw9mhfANMx4+Y6PgNAdmA@mail.gmail.com>
+In-Reply-To: <aVhN2NgQEKe0yzva@soda.int.kasm.eu>
 
-On Thu, Dec 18, 2025 at 07:36:08PM +0100, Geert Uytterhoeven wrote:
-> Hi Stafford,
+Hi,
+
+On Sat, Jan 03, 2026 at 12:33:29AM +0100, Klara Modin wrote:
+> On 2026-01-02 08:59:58 +0200, Mike Rapoport wrote:
+> > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+> > 
+> > To initialize node, zone and memory map data structures every architecture
+> > calls free_area_init() during setup_arch() and passes it an array of zone
+> > limits.
+> > 
+> > Beside code duplication it creates "interesting" ordering cases between
+> > allocation and initialization of hugetlb and the memory map. Some
+> > architectures allocate hugetlb pages very early in setup_arch() in certain
+> > cases, some only create hugetlb CMA areas in setup_arch() and sometimes
+> > hugetlb allocations happen mm_core_init().
+> > 
+> > With arch_zone_limits_init() helper available now on all architectures it
+> > is no longer necessary to call free_area_init() from architecture setup
+> > code. Rather core MM initialization can call arch_zone_limits_init() in a
+> > single place.
+> > 
+> > This allows to unify ordering of hugetlb vs memory map allocation and
+> > initialization.
+> > 
+> > Remove the call to free_area_init() from architecture specific code and
+> > place it in a new mm_core_init_early() function that is called immediately
+> > after setup_arch().
+> > 
+> > After this refactoring it is possible to consolidate hugetlb allocations
+> > and eliminate differences in ordering of hugetlb and memory map
+> > initialization among different architectures.
+> > 
+> > As the first step of this consolidation move hugetlb_bootmem_alloc() to
+> > mm_core_early_init().
+> > 
+> > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 > 
-> On Wed, 17 Dec 2025 at 09:23, Stafford Horne <shorne@gmail.com> wrote:
-> > The de0 nano from Terasic is an FPGA board that we use in the OpenRISC
-> > community to test OpenRISC configurations.  Add a base configuration for
-> > the board that runs an OpenRISC CPU at 50Mhz with 32MB ram, UART for
-> > console and some GPIOs for LEDs and switches.
-> >
-> > There is an older version of this floating around that defines all of
-> > the hardware on the board including SPI's, flash devices, sram, ADCs
-> > etc.  Eventually it would be good to get the full version upstream
-> > but for now I think a minimal board is good to start with.
-> >
-> > Link: https://openrisc.io/tutorials/de0_nano/
-> > Link: https://github.com/olofk/de0_nano
-> >
-> > Signed-off-by: Stafford Horne <shorne@gmail.com>
+> This breaks boot on my Raspberry Pi 1. The reason seems to be the use of
+> page_folio() when initializing the dynamically allocated zero page in
+> arm, which doesn't work when free_area_init() hasn't been called yet.
+
+I believe the reason is rather the use of virt_to_phys() that now happens
+before the memory map is ready.
+
+> The following oopses are generated:
 > 
-> Thanks for your patch!
+>  8<--- cut here ---
+>  Unable to handle kernel paging request at virtual address 003dfb44 when read
+>  [003dfb44] *pgd=00000000
+>  Internal error: Oops: 5 [#1] ARM
+>  CPU: 0 UID: 0 PID: 0 Comm: swapper Not tainted 6.19.0-rc3-03898-g7975b0084358 #451 NONE
+>  Hardware name: BCM2835
+>  PC is at paging_init (include/linux/page-flags.h:284 (discriminator 2) arch/arm/mm/mmu.c:1790 (discriminator 2))
+>  LR is at paging_init (arch/arm/mm/mmu.c:1789 (discriminator 1))
+
+...
+
+>  8<--- cut here ---
 > 
-> > --- /dev/null
-> > +++ b/arch/openrisc/boot/dts/de0-nano-common.dtsi
-> > @@ -0,0 +1,41 @@
-> > +// SPDX-License-Identifier: GPL-2.0
-> > +
-> > +#include <dt-bindings/gpio/gpio.h>
-> > +#include <dt-bindings/leds/common.h>
-> > +
-> > +/ {
-> > +       memory@0 {
-> > +               device_type = "memory";
-> > +               reg = <0x00000000 0x02000000>;
-> > +       };
-> > +
-> > +       leds: leds {
+> and the second one repeats for some time afterwards.
 > 
-> Move this up (or down), before (or after) all nodes with unit addresses?
+> I experimented a little by allocating the zero page statically as many
+> other arches do which fixes the issue as it does not need to be
+> initialized at this point anymore, though I have no idea if that's
+> appropriate.
 
-OK.
+Do you mean putting the zero in the BSS like, e.g. arm64? I don't see a
+reason why this shouldn't work.
 
-> > +               compatible = "gpio-leds";
-> > +               status = "okay";
+I also have a patch with some minor changes that still keeps
+empty_zero_page allocated, but avoids virt_to_page() and folio_page()
+dance. Can you please test it in your setup?
+
+From 8a213c13211106d592fbe96b68ee29879ed739f8 Mon Sep 17 00:00:00 2001
+From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+Date: Sat, 3 Jan 2026 20:40:09 +0200
+Subject: [PATCH] arm: make initialization of zero page independent of the
+ memory map
+
+Unlike most architectures, arm keeps a struct page pointer to the
+empty_zero_page and to initialize it requires conversion of a virtual
+address to page which makes it necessary to have memory map initialized
+before creating the empty_zero_page.
+
+Make empty_zero_page a void * to decouple it's initialization from the
+initialization of the memory map.
+
+Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+---
+ arch/arm/include/asm/pgtable.h |  4 ++--
+ arch/arm/mm/mmu.c              | 10 +++-------
+ arch/arm/mm/nommu.c            | 10 +++-------
+ 3 files changed, 8 insertions(+), 16 deletions(-)
+
+diff --git a/arch/arm/include/asm/pgtable.h b/arch/arm/include/asm/pgtable.h
+index 86378eec7757..08bbd2aed6c9 100644
+--- a/arch/arm/include/asm/pgtable.h
++++ b/arch/arm/include/asm/pgtable.h
+@@ -15,8 +15,8 @@
+  * ZERO_PAGE is a global shared page that is always zero: used
+  * for zero-mapped memory areas etc..
+  */
+-extern struct page *empty_zero_page;
+-#define ZERO_PAGE(vaddr)	(empty_zero_page)
++extern void *empty_zero_page;
++#define ZERO_PAGE(vaddr)	(virt_to_page(empty_zero_page))
+ #endif
+ 
+ #include <asm-generic/pgtable-nopud.h>
+diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
+index 8bac96e205ac..867258f1ae09 100644
+--- a/arch/arm/mm/mmu.c
++++ b/arch/arm/mm/mmu.c
+@@ -45,7 +45,7 @@ extern unsigned long __atags_pointer;
+  * empty_zero_page is a special page that is used for
+  * zero-initialized data and COW.
+  */
+-struct page *empty_zero_page;
++void *empty_zero_page;
+ EXPORT_SYMBOL(empty_zero_page);
+ 
+ /*
+@@ -1754,8 +1754,6 @@ static void __init early_fixmap_shutdown(void)
+  */
+ void __init paging_init(const struct machine_desc *mdesc)
+ {
+-	void *zero_page;
+-
+ #ifdef CONFIG_XIP_KERNEL
+ 	/* Store the kernel RW RAM region start/end in these variables */
+ 	kernel_sec_start = CONFIG_PHYS_OFFSET & SECTION_MASK;
+@@ -1782,12 +1780,10 @@ void __init paging_init(const struct machine_desc *mdesc)
+ 	top_pmd = pmd_off_k(0xffff0000);
+ 
+ 	/* allocate the zero page. */
+-	zero_page = early_alloc(PAGE_SIZE);
++	empty_zero_page = early_alloc(PAGE_SIZE);
++	__cpuc_flush_dcache_area(empty_zero_page, PAGE_SIZE);
+ 
+ 	bootmem_init();
+-
+-	empty_zero_page = virt_to_page(zero_page);
+-	__flush_dcache_folio(NULL, page_folio(empty_zero_page));
+ }
+ 
+ void __init early_mm_init(const struct machine_desc *mdesc)
+diff --git a/arch/arm/mm/nommu.c b/arch/arm/mm/nommu.c
+index d638cc87807e..f80ff5a69fbb 100644
+--- a/arch/arm/mm/nommu.c
++++ b/arch/arm/mm/nommu.c
+@@ -31,7 +31,7 @@ unsigned long vectors_base;
+  * empty_zero_page is a special page that is used for
+  * zero-initialized data and COW.
+  */
+-struct page *empty_zero_page;
++void *empty_zero_page;
+ EXPORT_SYMBOL(empty_zero_page);
+ 
+ #ifdef CONFIG_ARM_MPU
+@@ -156,18 +156,14 @@ void __init adjust_lowmem_bounds(void)
+  */
+ void __init paging_init(const struct machine_desc *mdesc)
+ {
+-	void *zero_page;
+-
+ 	early_trap_init((void *)vectors_base);
+ 	mpu_setup();
+ 
+ 	/* allocate the zero page. */
+-	zero_page = (void *)memblock_alloc_or_panic(PAGE_SIZE, PAGE_SIZE);
++	empty_zero_page = memblock_alloc_or_panic(PAGE_SIZE, PAGE_SIZE);
++	__cpuc_flush_dcache_area(empty_zero_page, PAGE_SIZE);
+ 
+ 	bootmem_init();
+-
+-	empty_zero_page = virt_to_page(zero_page);
+-	flush_dcache_page(empty_zero_page);
+ }
+ 
+ /*
+-- 
+2.51.0
+
+ 
+> Regards,
+> Klara Modin
 > 
-> Missing blank line.
 
-OK, also I can remove the "okay" line as well.
-
-> > +               led-heartbeat {
-> > +                       gpios = <&gpio0 0 GPIO_ACTIVE_HIGH>;
-> > +                       color = <LED_COLOR_ID_GREEN>;
-> > +                       function = LED_FUNCTION_HEARTBEAT;
-> > +                       linux,default-trigger = "heartbeat";
-> > +                       label = "heartbeat";
-> > +               };
-> > +       };
-> > +
-> > +       gpio0: gpio@91000000 {
-> > +               compatible = "opencores,gpio", "brcm,bcm6345-gpio";
-> > +               reg = <0x91000000 0x1>, <0x91000001 0x1>;
-> > +               reg-names = "dat", "dirout";
-> > +               gpio-controller;
-> > +               #gpio-cells = <2>;
-> > +               status = "okay";
-> 
-> "okay" is the default, so you could drop this line.
-
-OK.
-
-> > +       };
-> > +
-> > +       gpio1: gpio@92000000 {
-> > +               compatible = "opencores,gpio", "brcm,bcm6345-gpio";
-> > +               reg = <0x92000000 0x1>, <0x92000001 0x1>;
-> > +               reg-names = "dat", "dirout";
-> > +               gpio-controller;
-> > +               #gpio-cells = <2>;
-> > +               status = "disabled";
-> > +       };
-> > +};
-> 
-> > --- /dev/null
-> > +++ b/arch/openrisc/boot/dts/de0-nano.dts
-> > @@ -0,0 +1,54 @@
-> > +// SPDX-License-Identifier: GPL-2.0
-> > +
-> > +/dts-v1/;
-> > +
-> > +#include "de0-nano-common.dtsi"
-> > +
-> > +/ {
-> > +       model = "Terasic DE0 Nano";
-> > +       compatible = "opencores,or1ksim";
-> > +       #address-cells = <1>;
-> > +       #size-cells = <1>;
-> > +       interrupt-parent = <&pic>;
-> > +
-> > +       aliases {
-> > +               uart0 = &serial0;
-> > +       };
-> > +
-> > +       chosen {
-> > +               bootargs = "earlycon";
-> 
-> Do you need this?
-
-What do you mean here? I want to keep "earlycon", and it is not supplied in
-de0-nano-common.dtsi.
-
-> > +               stdout-path = "uart0:115200";
-> > +       };
-> > +
-> > +       cpus {
-> > +               #address-cells = <1>;
-> > +               #size-cells = <0>;
-> 
-> Missing blank line.
-
-OK.
-
-> > +               cpu@0 {
-> > +                       compatible = "opencores,or1200-rtlsvn481";
-> > +                       reg = <0>;
-> > +                       clock-frequency = <50000000>;
-> > +               };
-> > +       };
-> > +
-> > +       /*
-> > +        * OR1K PIC is built into CPU and accessed via special purpose
-> > +        * registers.  It is not addressable and, hence, has no 'reg'
-> > +        * property.
-> > +        */
-> > +       pic: pic {
-> > +               compatible = "opencores,or1k-pic";
-> > +               #interrupt-cells = <1>;
-> > +               interrupt-controller;
-> > +       };
-> > +
-> > +       serial0: serial@90000000 {
-> > +               compatible = "opencores,uart16550-rtlsvn105", "ns16550a";
-> > +               reg = <0x90000000 0x100>;
-> > +               interrupts = <2>;
-> > +               clock-frequency = <50000000>;
-> > +       };
-> > +};
-
--Stafford
+-- 
+Sincerely yours,
+Mike.
