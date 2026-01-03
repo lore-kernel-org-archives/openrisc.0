@@ -1,115 +1,80 @@
-Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87EDB1E1E16
-	for <linux-openrisc@vger.kernel.org>; Sat,  3 Jan 2026 05:36:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A72024E4A8
+	for <linux-openrisc@vger.kernel.org>; Sat,  3 Jan 2026 05:55:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767418594; cv=none; b=NDzjw+f5tpsrjkP3ANv/739bLhyOjm5ZrOopRnFXo0PlAiuWfaUZdhyOVQt/iBWl9P5SD5B+wfkSSxY1R0ppImbeSk/2351Xbl3cXlTcgtGIpxLV13OZWPtry/2mCK/NJ+C4+Nto2md7LvsDZYkLowP2G1rz/yM3VzHw4PML4UQ=
+	t=1767419733; cv=none; b=OiGsRorZZHtxjdBnHj8s1lxLiDsPVdB2SpkW4M+LH37btVW4wGbgatYXSOxhvVZp7rGpA+qEk+sO9zs7CuanV/k+iyUGgtHBPmbzH+Zs2SWxhSwJFOw6SLieVMEkaUYUt+DmzwG/ACnr+mbW+EDw/kliLQdAP8qKGaxIGiof67U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767418594; c=relaxed/simple;
-	bh=ATXYUvNs1r7k2R+QkRXiglU8qywdgmSoPgsNlVWS4pc=;
+	s=arc-20240116; t=1767419733; c=relaxed/simple;
+	bh=3073OMvs0/LjEg4wr9mG+ncYvQgejlGvftaRsNqKdQs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TfuktSx1Iw9SQsakYV1XsSVqBhYD3WyqC4abdLXZLAQ7251cHkIvcOrVdAuykzjAj+tgZErFS6/65oZlDVzBqP6W3+7D4Skjp2w7DxvUMTUTTur5F93mnlJNF75AqLdIlcA4TyrIbkAOD+TRf4L0NCqRlAxXhlU0GlrV0U2tQFU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gDXMiTxx; arc=none smtp.client-ip=209.85.221.47
+	 Content-Type:Content-Disposition:In-Reply-To; b=e2KHUD4Z2Iv8ymqkQFWZzb49QVGuGjXOOkZp4YwEStsO9dq06lvFqFvucPoOPBCO5lO1abbeLBSogMBHt66gqt/hZqsSJAABcg9DlnbWzkKUJJwas+Ng56aDirZY7WLlc1DqLOPtWo26da8Il+x70aPyUUuRvcUk3DH3gaarV+I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J+kqM7Vu; arc=none smtp.client-ip=209.85.128.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gDXMiTxx"
-Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-430f5ecaa08so5117844f8f.3
-        for <linux-openrisc@vger.kernel.org>; Fri, 02 Jan 2026 21:36:32 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J+kqM7Vu"
+Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-47d6a1f08bbso3763995e9.2
+        for <linux-openrisc@vger.kernel.org>; Fri, 02 Jan 2026 21:55:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1767418591; x=1768023391; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1767419730; x=1768024530; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=10gk4kIzv5viXrYP6wsblohOaaYzL8Wh9uCfOfLAyTE=;
-        b=gDXMiTxxJbSjZSyFQUB6T5kBrvh2LsNE97UOkAmZYirAEl0yRraTfieWvOhBoqRUqm
-         FIHLEGPxujyCQ7b66gUmIrAfOBp7ZQQM3oo59+R2v2NQ6TSeJYwC1+sItTOs92L+mPC0
-         YOyKfOGX7SpTHcnTlGt7O7cRpP7+e1ku6+iHq6X7qBAfXhq/5C14HOJ86NOU1aIrYiYH
-         eCgLhdjtCLh/ZPCiL4WZX3EZAkiX1RxBgsaDDWflHrVLWdoHDOG4GK6ARhzE6uUQrbGT
-         SxBpM24mo+zNzRAf3+4C+lNZlydg1P+21uuT1rhnmXBZLBRxqG5dbSIdSV7mOFxyqUk6
-         b+mA==
+        bh=3073OMvs0/LjEg4wr9mG+ncYvQgejlGvftaRsNqKdQs=;
+        b=J+kqM7VuDohgXrxd7lR0e+wM8kyPNyNEaGS5Lz4WeHSirtVEiESBLdKpTjlSRn+YnW
+         m9DjtzH/UrfWqt7je+tew61V71iFTpoy8wveUlhAOgQb7uP6dHkt+khvseylqwhHICrp
+         mmp6at4TYAATsexL0XC23eTaZyEIJIUZFKWeTLNC6jeR6FDAjTBAMla111MfvCzz8dUD
+         k73S2RHTBRluZ5YzqhduAdrX8BjksTWS64oxr5zMkJpVq+kGroF7I76Xl5zekIwG/93o
+         O17lUOqaw5i1kNbMBye78zxE4VHUHFQtPG2NGHTFbOhnC6kiQoOvkZ7g80RAog6pgYpz
+         In5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767418591; x=1768023391;
+        d=1e100.net; s=20230601; t=1767419730; x=1768024530;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=10gk4kIzv5viXrYP6wsblohOaaYzL8Wh9uCfOfLAyTE=;
-        b=rBEZ5v4G/bkPytyhKLvmtBhEL4dD1ccFzaLzvHz6oaQIvcr0z1YBlOgaTbaOGhwuaC
-         TrQg256cRXV6v2xtuYddaGKKCFKEUQJJ0uu4Xj2avJqe0E5CRhrvp3XmTXn0ybzdnvXM
-         gbBVazZ9ANe5MvY8Bh+MiZKnOHgCExJrWxg+WAf5THjcI5bZtiwji0vAToZpvet5hkj7
-         jxGrUnK+Xq/xsCoofwikGiYqjroG5+NNPpL1DszfRdNEz0G5casyICdjPhDOMX5fL+za
-         tSJAKJW2zHOzUs2OPeZ4hykrQU+kxPyMrX+fpcTreuwubGbIbL5Wse9fjLH7sSDuZl2O
-         8QAg==
-X-Forwarded-Encrypted: i=1; AJvYcCVpgDNhMip/y/4xG0CFpo2IuAy5duM6RHM3fLyC/KeL+knkMIPY/1R/dE1wp5DL/8UU4x9hw+N6cadoQYSIOw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx9X1Q0c2mJotPEHl+aG0F1zOzZaXLoXc/lbI4GxR9Ppkwpcr5X
-	XCVkTYSjnvojtQ0h6uRvfF6u4nKpPMf/Cto9OKonoEbvKmekU7ug/jbZ
-X-Gm-Gg: AY/fxX4kiv4u3cKjb3ShRuPIfIw2V1nfm7ED8lYwN3Nflk5TFcomb7k/t/I+i+eduFe
-	Nv+S/jsHo1NKr+vilCz5lZdWOh/3wGq0oGKp3iUhLe4lWDZzVOIt9vcwEOuA0lqjrNy0OgwpMPq
-	2pfdxRpaqW+6Q6qsYDorEgjo16KQBbCRoFrjuXeFp5LFhry38S6VuM1vxiQzTUymMcoUY2qtzWs
-	5koLTuoqayUgF0urW5mUzCMaW9hwfSB1miZlPOgcyC19/CK2I3uW0hOG1umoCUHHsHpBaXxWsgd
-	P2RyJaMyJ3sW5DP+y82Svw2ETAS/WA3fuU1gZBbviSdSXMOniwByOV074O/7v2CzmnJ7P/Cc7au
-	UXzDVxhXiUG0pqIOAKJrNHllx9/CJlfqcZvUS3JqpImbly0BtbNxb3+vJ+ERIVWwPkiqjM6ITy8
-	bAVekAtZMsDg9/FK3K1HGVmruEKPAC1I+s9WShUxG1AECjaMixo0JYDpItVDK2FBFM
-X-Google-Smtp-Source: AGHT+IGVfFhDmvRzquITceR9a5MtoKyW2aPxvUx0HbCgVxiLGpVVcSZGOqzt3JsoKLBzXfIUaXLywg==
-X-Received: by 2002:a05:6000:178f:b0:430:fd84:317a with SMTP id ffacd0b85a97d-4324e4fb825mr53362620f8f.38.1767418590643;
-        Fri, 02 Jan 2026 21:36:30 -0800 (PST)
+        bh=3073OMvs0/LjEg4wr9mG+ncYvQgejlGvftaRsNqKdQs=;
+        b=AgiUVINEBBwJzLnGw3Rk+gz6c0/lXSo7xr9QBptPw49/d3KItzA8K3axgy6w05dACx
+         K6HuTEbHXvFDLJiwfo2Z/4AJsq6Y8r9Y0XgqgGY00mQZy6sAbTvH6lzSW5wXlEuGtATe
+         J5efirLMTYOgF66hHyIjo+TxcAM54yT8pvbNxj+udlM0NYDj/NEXLAEzehkrvivpYvj7
+         LN/M76HumcToi/IHBwL7D89Uod8SaPHx5+ReziHaDKAH55woSN1mAG/wmWyIWWRyC4NN
+         MMNCBP6kiiTcWIEdDoIM1Xl4StfpLG8pxOgOaeUXS67UoFW6R+/KzG9VNmHGlU9sutmI
+         Owhg==
+X-Forwarded-Encrypted: i=1; AJvYcCU78+Bk6Vid+UbwAPGUu4hBBP9wNRoC2Syf0uXiDFt85EUXPMMq8zBWCX2D6cXa5V8Y5MCheA7Z0purcZ3Aew==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxgCEWRgH7ESGOC4wNehVMmfOf/zB9ioUrpQBZVtvQwG1fvXilY
+	eZPK+ABCNARS3yT77UL83WFhlJ/x5G+yU/1x3mtSMCM0vf2p4lyI1f8x
+X-Gm-Gg: AY/fxX7FwWjne5dzBYiRI5DBCc3rc2JclewZfmS6VK6wLwx1EDuEpZ/f80yC8AvNpZQ
+	7htOs6ucBTTdXi1H+XPeoCumOcaUh1a+V1ZGd3GHU3Cd0/GBVwwpBSKj37fZwuMgQn/+jo+3wDF
+	tKsgoCfn1C+t5YzIxrniPRiLc3IDi6Mrlg1YPWMSn9n6SmUs722qcQsvD62a2k2pize6AjFP+Ug
+	NtYwTza03IVjD6Vd3jqAg/PScV6K6KyAJE2CRV1WrAVDWuht7dAgb3Uhpk7TwoM0F/IPbQKQ5A7
+	hOCbw0FnA5sZ/OCRzT7CdTPnOtxkIW9dqCliSW1KahgYC++rJr6aRGFCWr3Yhw4PTkL5zedih3b
+	6+BF0K0+rxV3n7UlU75VOUg6TWqsvBaeAYQnMqI6jdG5otXz54u7f7Ku34LOxGF6T22pgA8gRgE
+	ED07mZgV4QP1J4blBi0psT/TcBrV3uKjpT2Q0l7NULGxnliEduJHQBI90hSqld8Jup
+X-Google-Smtp-Source: AGHT+IFDlUycpHh35Bxl9zkKufMif2HIaPtEr71It/NuTPMJMkB/txx1IFoOyyH3seAcSTAkGZqUKg==
+X-Received: by 2002:a05:600c:3b07:b0:47a:814c:eea1 with SMTP id 5b1f17b1804b1-47d195917d2mr509496085e9.35.1767419729438;
+        Fri, 02 Jan 2026 21:55:29 -0800 (PST)
 Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4324eaa4749sm89007161f8f.37.2026.01.02.21.36.27
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d6be5a555sm10532405e9.4.2026.01.02.21.55.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 02 Jan 2026 21:36:28 -0800 (PST)
-Date: Sat, 3 Jan 2026 05:36:26 +0000
+        Fri, 02 Jan 2026 21:55:28 -0800 (PST)
+Date: Sat, 3 Jan 2026 05:55:27 +0000
 From: Stafford Horne <shorne@gmail.com>
-To: Mike Rapoport <rppt@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Alex Shi <alexs@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	David Hildenbrand <david@kernel.org>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
-	Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Jonathan Corbet <corbet@lwn.net>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Michal Hocko <mhocko@suse.com>, Michal Simek <monstr@monstr.eu>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Pratyush Yadav <pratyush@kernel.org>,
-	Richard Weinberger <richard@nod.at>,
-	Russell King <linux@armlinux.org.uk>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>,
-	Vlastimil Babka <vbabka@suse.cz>, Will Deacon <will@kernel.org>,
-	x86@kernel.org, linux-alpha@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-	linux-cxl@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-	linux-mm@kvack.org, linux-openrisc@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-	sparclinux@vger.kernel.org
-Subject: Re: [PATCH v2 12/28] openrisc: introduce arch_zone_limits_init()
-Message-ID: <aViq2vsMk5tltK0f@antec>
-References: <20260102070005.65328-1-rppt@kernel.org>
- <20260102070005.65328-13-rppt@kernel.org>
+To: Conor Dooley <conor@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, linux-gpio@vger.kernel.org,
+	devicetree@vger.kernel.org
+Subject: Re: [PATCH v2 1/5] dt-bindings: Add compatible string opencores,gpio
+ to gpio-mmio
+Message-ID: <aVivT0ruGpwdBO7L@antec>
+References: <20251217080843.70621-1-shorne@gmail.com>
+ <20251217080843.70621-2-shorne@gmail.com>
+ <20251218-muzzle-diploma-25832f4af271@spud>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -118,52 +83,12 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260102070005.65328-13-rppt@kernel.org>
+In-Reply-To: <20251218-muzzle-diploma-25832f4af271@spud>
 
-On Fri, Jan 02, 2026 at 08:59:48AM +0200, Mike Rapoport wrote:
-> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-> 
-> Move calculations of zone limits to a dedicated arch_zone_limits_init()
-> function.
-> 
-> Later MM core will use this function as an architecture specific callback
-> during nodes and zones initialization and thus there won't be a need to
-> call free_area_init() from every architecture.
-> 
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> ---
->  arch/openrisc/mm/init.c | 12 ++++++++----
->  1 file changed, 8 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
-> index 9382d9a0ec78..67de93e7a685 100644
-> --- a/arch/openrisc/mm/init.c
-> +++ b/arch/openrisc/mm/init.c
-> @@ -39,15 +39,19 @@
->  
->  int mem_init_done;
->  
-> -static void __init zone_sizes_init(void)
-> +void __init arch_zone_limits_init(unsigned long *max_zone_pfns)
->  {
-> -	unsigned long max_zone_pfn[MAX_NR_ZONES] = { 0 };
-> -
->  	/*
->  	 * We use only ZONE_NORMAL
->  	 */
-> -	max_zone_pfn[ZONE_NORMAL] = max_low_pfn;
-> +	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
-> +}
-> +
-> +static void __init zone_sizes_init(void)
-> +{
-> +	unsigned long max_zone_pfn[MAX_NR_ZONES] = { 0 };
->  
-> +	arch_zone_limits_init(max_zone_pfn);
->  	free_area_init(max_zone_pfn);
->  }
+On Thu, Dec 18, 2025 at 12:55:07AM +0000, Conor Dooley wrote:
+> Acked-by: Conor Dooley <conor.dooley@microchip.com>
+> pw-bot: not-applicable
 
-Thanks, this looks like a good cleanup.
+Thanks,
 
-
-Acked-by: Stafford Horne <shorne@gmail.com>
+ -Stafford
