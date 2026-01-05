@@ -1,140 +1,138 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vk1-f181.google.com (mail-vk1-f181.google.com [209.85.221.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFB512820A4;
-	Sun,  4 Jan 2026 22:07:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32054313558
+	for <linux-openrisc@vger.kernel.org>; Mon,  5 Jan 2026 11:03:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767564465; cv=none; b=rdVQCrfIebnfhOvwYUnOgEeVlBV45L2zHwbO1xOg9UWPP6OPZ5qXuv9kFxUy5+P30Voxk1bMhAsNdDiQ+0YiDs2qKgClyl7Cfc1+QoSYvAB50huimiWF7Sa3PABLn9/7/a/2KypUf3Iism/Jb4+HGeGVNLMEUgMs5KvcftP6/Gs=
+	t=1767610988; cv=none; b=roTQediPMtdYc8ut5PzcMg9Etzw7pEw0SR5yUyaMCgNECfOqLa32XfjkTENl4733O2+xRxcfGcvNFKJUkz843ZDaCpt0s712/6uwWi60qS+mobKYELFKwFs1x4d/KpG4ZiZLPF7PLY+dLMHApEa7FZpGNk7vMU83U78i9OHHHw0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767564465; c=relaxed/simple;
-	bh=Ee42W97PW2cmqfwn1Sv3QlRj9Q5zCvDbUSuBQxv/Op0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=O8HLYx1cMog07vD01vHXdwUj3X2izcGioc9f5SKQh/C8I1Hub+vYP0RJ0dFxRKxIiQPwcG4lr0pSwdOCZiH+lIakQ/j04VG9RclpTr1/z/oGe/AoGWScdG41Mnnq0bI2VErkh4dOsIN+C5PmuAgzqfjOIu65LJ3LgcxrKlDtfrk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gScty2Ff; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gScty2Ff"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E756CC4CEF7;
-	Sun,  4 Jan 2026 22:07:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1767564464;
-	bh=Ee42W97PW2cmqfwn1Sv3QlRj9Q5zCvDbUSuBQxv/Op0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=gScty2FfULdESXHMa7hr8G8loXGEUlcQN5S80gDD5UqJ9suJ3KSg5EBnAfBmPbN4t
-	 9i+loVAvbh0AVx5Yk4Koh1k8IXcYongXSPkBU/coQveXqy9HIob5+WjT9N8n85Gjtm
-	 QC1qHBE6xVD7AdKk4C44SLTYTxRO2wXx2AsAtG8JDeEhyiIAC6f2WQDRBjpGsCOR0w
-	 FS8iQ8IYIJkUJd7l21ONO+cGDEowjKvrtTSsbbdAQreKdAJdoXpAyGIgxSjm5iGWsN
-	 P4fDUybYnndFC6q8lAflfYkDiUy/1o2TDN1ho6i4H4kKv0NoHgcQix3vta1Wo/qJz4
-	 ESWpk4nesfdDw==
-Date: Mon, 5 Jan 2026 00:07:22 +0200
-From: Mike Rapoport <rppt@kernel.org>
-To: "Russell King (Oracle)" <linux@armlinux.org.uk>
-Cc: Klara Modin <klarasmodin@gmail.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Alex Shi <alexs@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	David Hildenbrand <david@kernel.org>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
-	Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Jonathan Corbet <corbet@lwn.net>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Michal Hocko <mhocko@suse.com>, Michal Simek <monstr@monstr.eu>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Pratyush Yadav <pratyush@kernel.org>,
-	Richard Weinberger <richard@nod.at>,
-	Stafford Horne <shorne@gmail.com>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>,
-	Vlastimil Babka <vbabka@suse.cz>, Will Deacon <will@kernel.org>,
-	x86@kernel.org, linux-alpha@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-	linux-cxl@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-	linux-mm@kvack.org, linux-openrisc@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-	sparclinux@vger.kernel.org
-Subject: Re: [PATCH 3.5] arm: make initialization of zero page independent of
- the memory map (was Re: [PATCH v2 22/28] arch, mm: consolidate
- initialization of nodes, zones and memory map)
-Message-ID: <aVrkmnzgwM5i1VqX@kernel.org>
-References: <20260102070005.65328-1-rppt@kernel.org>
- <20260102070005.65328-23-rppt@kernel.org>
- <aVhN2NgQEKe0yzva@soda.int.kasm.eu>
- <aVll339wim7dCIaQ@kernel.org>
- <aVlwOyicOLPB9SOa@parmesan.int.kasm.eu>
- <aVpWpLV4Dut5Muo2@kernel.org>
- <aVrUDeSkqqY9ZCtS@shell.armlinux.org.uk>
+	s=arc-20240116; t=1767610988; c=relaxed/simple;
+	bh=hAms7IKyqam6rNOoqdYp7LLOeRfAUy6pwyvcxDno2zY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=K5ivm5CRPgT0Q0BRLTNYs3prJkJZs1H4OiS1bD/19tLiEP6wqIOYLjXunEYFIRK2V+UBhkeJ1JqcR1bdQ2IIqXIyDz3ELabMKIBJzOT+tHvYCENHioJ6rKqlGCrdReA9KbOQh7bZUlDVvDW/+BRaKd1A2Rlfr+ClD8EGyGjgODo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.221.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-vk1-f181.google.com with SMTP id 71dfb90a1353d-55b155c9ab2so3160627e0c.1
+        for <linux-openrisc@vger.kernel.org>; Mon, 05 Jan 2026 03:03:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1767610984; x=1768215784;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5HVxxcSl5ZUgm/OiTpMLt/jnUpdmkmBIJiQ/3TY5I8k=;
+        b=H5eI2ecwadOzdJDkuz397JaXhu5U+EcmAq9nBKjUQdjIlZXD/14JRKPkLNXr9LOi6h
+         TrOjmRzeEmU/bV/9tdSi15d2vynGSaGMeZhSHtLglVM0n20+1nDTKfZPPXy7NkhEYB6j
+         +f35U++fj1Q98iq3x43Nj+QLWIvSa+ChT/4IzU4rZms6ruZqk7b3XEh3u/4Wd8c5CqPz
+         1hkgkf4FyS7WNCHAg54Flp6gOPiJ9ITPojRCAT2Xsf3FZe5n2qXePzDxIwfYjYSV1gvf
+         pvvTC8rYUoPCoxfu8cv6MnfB8xvXboe+nVRDOmawC5tSZ7GC7TgFLiRuMbquSqYDYDjX
+         uyIg==
+X-Forwarded-Encrypted: i=1; AJvYcCUlQ408sCw3VtwFFxBNSIQ1Leu3dyXOBPeoP0YZ8PqxLYvvzQzKVRChDOYNZhLX/wfR8nagg0rISDUfV9XXhw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyMhwmoFVqDAo2PcDrVlBe7A+Yd0Ijzpm923WdOiJ9lagVgOz7p
+	29zSGqLno6MTkjoiA1Weu4o1/xEV+Kjv77HNouyb5b4qSCWi2cC9IqKHA7xpeQzW
+X-Gm-Gg: AY/fxX518kuyvJQoWH9U55UZmF2w46uK4Nmkg5PlNreKVnt/r6/0f6koYSVnynBQ0VI
+	WF5xRTBShHggTFKcL3CB4E9eyWTCUw3g9ttDwUbwKMszpoK+n9O/lgD1hB8KFSG0b35Bn34my7V
+	7NSXYCbOLtWM90loC8XJaWgwm8cihUxYG7P+rPzehq0Dhn2H6ZeOUlrx8e8blHQ9k6e2KZermif
+	2REcdX8zsKTveZPQtGBibHPpZwerd5UBpvvRD7+opgy7nZhMZDehRi5oZ9brMgI/hKLillbC5bb
+	hHqGdVe/+2sn9imMxTtdIvniXB7+EhXkzQBHZRGg19vmCkyiVfzRn2GUbLABngIgj1tBcUg2wF9
+	609HCjQWK568D+l3kWlk0On7Ic+1/u2zbhcPnc7VTzM+x6aofCEwoL2E3bRgRtB0kE7SuoNTV21
+	3hyqafJ0k6qS4CGdjdVAZms1C0UAJ6ewEjmXldXzhmwrncjs5t
+X-Google-Smtp-Source: AGHT+IE1PbUtik0FFXX6YHedHhegpcVazuaIhBygGNW1M3vWd6/2oBzvhPZYkn7+HlrceKgNqmudAA==
+X-Received: by 2002:a05:6122:c9d:b0:55b:305b:4e36 with SMTP id 71dfb90a1353d-5615bebce42mr13280076e0c.17.1767610983921;
+        Mon, 05 Jan 2026 03:03:03 -0800 (PST)
+Received: from mail-vs1-f54.google.com (mail-vs1-f54.google.com. [209.85.217.54])
+        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5615d165f2csm14933390e0c.20.2026.01.05.03.03.03
+        for <linux-openrisc@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 05 Jan 2026 03:03:03 -0800 (PST)
+Received: by mail-vs1-f54.google.com with SMTP id ada2fe7eead31-5dd6fbe50c0so5277334137.2
+        for <linux-openrisc@vger.kernel.org>; Mon, 05 Jan 2026 03:03:03 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCXhhJi1nWKLN3JlKtR2Au0uL0SNPuOJGS9QIn8J49QFEQGGaBNG0ifvA5xoGMUvpV2czMK1MFdcgr/hnhFCqw==@vger.kernel.org
+X-Received: by 2002:a05:6102:c90:b0:5df:c15b:4feb with SMTP id
+ ada2fe7eead31-5eb1a7d3c4fmr13074222137.26.1767610982990; Mon, 05 Jan 2026
+ 03:03:02 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aVrUDeSkqqY9ZCtS@shell.armlinux.org.uk>
+References: <20251217080843.70621-1-shorne@gmail.com> <20251217080843.70621-3-shorne@gmail.com>
+ <CAMuHMdVCY=5UypK65Ver6UZM_m6DZuw9mhfANMx4+Y6PgNAdmA@mail.gmail.com> <aVi0W6syzK6buL_v@antec>
+In-Reply-To: <aVi0W6syzK6buL_v@antec>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Mon, 5 Jan 2026 12:02:52 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdUP3z4Os=3XC6Nuzx8QAap=LTcuJrGZsy71GO=NFTOjZg@mail.gmail.com>
+X-Gm-Features: AQt7F2psihV0yZwb9Ig62dHZ18S-t-DpkRavD32vIkfcb25fPGFgWjTlZzYQH6k
+Message-ID: <CAMuHMdUP3z4Os=3XC6Nuzx8QAap=LTcuJrGZsy71GO=NFTOjZg@mail.gmail.com>
+Subject: Re: [PATCH v2 2/5] openrisc: dts: Add de0 nano config and devicetree
+To: Stafford Horne <shorne@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, 
+	Linux OpenRISC <linux-openrisc@vger.kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Jonas Bonn <jonas@southpole.se>, 
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, devicetree@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Sun, Jan 04, 2026 at 08:56:45PM +0000, Russell King (Oracle) wrote:
-> On Sun, Jan 04, 2026 at 02:01:40PM +0200, Mike Rapoport wrote:
-> > From 35d016bbf5da7c08cc5c5547c85558fc50cb63aa Mon Sep 17 00:00:00 2001
-> > From: Klara Modin <klarasmodin@gmail.com>
-> > Date: Sat, 3 Jan 2026 20:40:09 +0200
-> > Subject: [PATCH] arm: make initialization of zero page independent of the
-> >  memory map
-> > 
-> > Unlike most architectures, arm keeps a struct page pointer to the
-> > empty_zero_page and to initialize it requires conversion of a virtual
-> > address to page which makes it necessary to have memory map initialized
-> > before creating the empty_zero_page.
-> > 
-> > Make empty_zero_page a stataic array in BSS to decouple it's
-> > initialization from the initialization of the memory map.
-> 
-> I see you haven't considered _why_ ARM does this.
-> 
-> You are getting rid of the flush_dcache_page() call, which ensures
-> that the zeroed contents of the page are pushed out of the cache
-> into memory. This is necessary.
-> 
-> BSS is very similar. It's memset() during the kernel boot _after_
-> the caches are enabled. Without an explicit flush, nothing
-> guarantees that those writes will be visible to userspace.
+Hi Stafford,
 
-There's a call to flush_cache_all() paging_init()->devicemaps_init() that
-will guarantee that those writes are flushed long before userspace starts.
- 
-> To me, this seems like a bad idea, which will cause userspace to
-> break.
-> 
-> We need to call flush_dcache_page(), and _that_ requires a struct
-> page.
+On Sat, 3 Jan 2026 at 07:17, Stafford Horne <shorne@gmail.com> wrote:
+> On Thu, Dec 18, 2025 at 07:36:08PM +0100, Geert Uytterhoeven wrote:
+> > On Wed, 17 Dec 2025 at 09:23, Stafford Horne <shorne@gmail.com> wrote:
+> > > The de0 nano from Terasic is an FPGA board that we use in the OpenRISC
+> > > community to test OpenRISC configurations.  Add a base configuration for
+> > > the board that runs an OpenRISC CPU at 50Mhz with 32MB ram, UART for
+> > > console and some GPIOs for LEDs and switches.
+> > >
+> > > There is an older version of this floating around that defines all of
+> > > the hardware on the board including SPI's, flash devices, sram, ADCs
+> > > etc.  Eventually it would be good to get the full version upstream
+> > > but for now I think a minimal board is good to start with.
+> > >
+> > > Link: https://openrisc.io/tutorials/de0_nano/
+> > > Link: https://github.com/olofk/de0_nano
+> > >
+> > > Signed-off-by: Stafford Horne <shorne@gmail.com>
 
-Right now there's __flush_dcache_folio() that will break anyway when folio
-divorces from struct page.   
+> > > --- /dev/null
+> > > +++ b/arch/openrisc/boot/dts/de0-nano.dts
+> > > @@ -0,0 +1,54 @@
+> > > +// SPDX-License-Identifier: GPL-2.0
+> > > +
+> > > +/dts-v1/;
+> > > +
+> > > +#include "de0-nano-common.dtsi"
+> > > +
+> > > +/ {
+> > > +       model = "Terasic DE0 Nano";
+> > > +       compatible = "opencores,or1ksim";
+> > > +       #address-cells = <1>;
+> > > +       #size-cells = <1>;
+> > > +       interrupt-parent = <&pic>;
+> > > +
+> > > +       aliases {
+> > > +               uart0 = &serial0;
+> > > +       };
+> > > +
+> > > +       chosen {
+> > > +               bootargs = "earlycon";
+> >
+> > Do you need this?
+>
+> What do you mean here? I want to keep "earlycon", and it is not supplied in
+> de0-nano-common.dtsi.
+
+Why do you want to keep it? "earlycon" is a typical debug option,
+and should not be needed during normal use.
+
+Gr{oetje,eeting}s,
+
+                        Geert
 
 -- 
-Sincerely yours,
-Mike.
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
