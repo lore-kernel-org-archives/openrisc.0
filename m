@@ -1,109 +1,133 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D9D72D12F5;
-	Thu,  8 Jan 2026 19:19:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8DB62D8760
+	for <linux-openrisc@vger.kernel.org>; Fri,  9 Jan 2026 10:07:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767899962; cv=none; b=mjs8T2vDHw0bFs87Ph022gMftAZ4mpsPNBhvUaHy1uvHp06gsXg1J8aqicnTy5104oMJGQmfRVTjFJCsulgLsnb8dnCQzLOAHGAmbVs1d5Kb8pIQrAn8FkfTV/cr6Y33p78/QVg4uXAjn6gUx8mMN2/BvsvKDtL3qttBF793ksM=
+	t=1767953249; cv=none; b=Db0TLcDSUxqEddSKPIMXskUhab2yBUHSx0R0DbbBPpvTGB7ZenK1sgOosKg1S9Qs9lvH6R+Rz4gBHcJQ+vP73lychS+cRR2ujRLTmtM0Ha7aKHKkJVdZ1CZrH+zeB+ZouGijjvmKvg5Xi6/P37QcQ1RmwgmqBoFH6WsWEVY8v3E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767899962; c=relaxed/simple;
-	bh=fSg1rFUc7Lj8obCBDIiOBzwmsy2PDWnpS6aiVKuno6E=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=lZKq+/mNe0KkgH7LqfphQ7mITA5boXiSsOZb1fO6dG1msYF0oQY4rHX/q1PT8lXdRRxRYhC7ci9oTqGCRHw86ehlq03pKvT7/2IxDj9+uWjydrrSrrRrVc755AKVyrHS03EGAM5vQq3055who61jnZGEaFF7Pyu9fuP598OKG1w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=CVumgl5u; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1767953249; c=relaxed/simple;
+	bh=riYk6e8Dd3Mlz7Rg0OW9jG0C2dloU+TtN6raRtCEDzE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=s7KlKBk8GG7cNHHLEwrjWCEG4QNsJvFo7rkYaozc3Ixt8fkIT3RY3kpvRkI/gBhNYUj2fH8xg9a5yVZ/gk5HZTop2xpPr23+kzyAthjFMfvOafVdoKbgTwIOThUeVrWq3K+q5mOJwG5qCrKmx+L/vHcMgLt1inw2FB6Pm02UirY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=h94xtsVu; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="CVumgl5u"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEE9CC116C6;
-	Thu,  8 Jan 2026 19:19:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-	s=korg; t=1767899961;
-	bh=fSg1rFUc7Lj8obCBDIiOBzwmsy2PDWnpS6aiVKuno6E=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=CVumgl5uYfQfaLqYgweLov8FT7OgO1ch7qHlwuZbONKicqb+bmGFoLIsYAxoWfRsr
-	 6BxVTZH+QFJx2xSpWVk0NUrA2Ddxjwu2/Wcc1JG/gPIWft2fVjXp2CIt9nEHIpeVml
-	 fnOoO4sO6q/7KPmJQudmyHeHcLC9E7nvlzSuO+ys=
-Date: Thu, 8 Jan 2026 11:19:19 -0800
-From: Andrew Morton <akpm@linux-foundation.org>
-To: Mike Rapoport <rppt@kernel.org>
-Cc: Klara Modin <klarasmodin@gmail.com>, Alex Shi <alexs@kernel.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>, Andreas Larsson
- <andreas@gaisler.com>, Borislav Petkov <bp@alien8.de>, Brian Cain
- <bcain@kernel.org>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
- Catalin Marinas <catalin.marinas@arm.com>, "David S. Miller"
- <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David
- Hildenbrand <david@kernel.org>, Dinh Nguyen <dinguyen@kernel.org>, Geert
- Uytterhoeven <geert@linux-m68k.org>, Guo Ren <guoren@kernel.org>, Heiko
- Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, Huacai Chen
- <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>, Johannes Berg
- <johannes@sipsolutions.net>, John Paul Adrian Glaubitz
- <glaubitz@physik.fu-berlin.de>, Jonathan Corbet <corbet@lwn.net>,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>, Lorenzo Stoakes
- <lorenzo.stoakes@oracle.com>, Magnus Lindholm <linmag7@gmail.com>, Matt
- Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael
- Ellerman <mpe@ellerman.id.au>, Michal Hocko <mhocko@suse.com>, Michal Simek
- <monstr@monstr.eu>, Muchun Song <muchun.song@linux.dev>, Oscar Salvador
- <osalvador@suse.de>, Palmer Dabbelt <palmer@dabbelt.com>, Pratyush Yadav
- <pratyush@kernel.org>, Richard Weinberger <richard@nod.at>, Russell King
- <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Suren
- Baghdasaryan <surenb@google.com>, Thomas Bogendoerfer
- <tsbogend@alpha.franken.de>, Thomas Gleixner <tglx@linutronix.de>, Vasily
- Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>, Vlastimil
- Babka <vbabka@suse.cz>, Will Deacon <will@kernel.org>, x86@kernel.org,
- linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-csky@vger.kernel.org, linux-cxl@vger.kernel.org,
- linux-doc@vger.kernel.org, linux-hexagon@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-mm@kvack.org,
- linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
- linux-um@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
- loongarch@lists.linux.dev, sparclinux@vger.kernel.org
-Subject: Re: [PATCH 3.5] arm: make initialization of zero page independent
- of the memory map (was Re: [PATCH v2 22/28] arch, mm: consolidate
- initialization of nodes, zones and memory map)
-Message-Id: <20260108111919.ac5f811132672e760f47fbab@linux-foundation.org>
-In-Reply-To: <aVpWpLV4Dut5Muo2@kernel.org>
-References: <20260102070005.65328-1-rppt@kernel.org>
-	<20260102070005.65328-23-rppt@kernel.org>
-	<aVhN2NgQEKe0yzva@soda.int.kasm.eu>
-	<aVll339wim7dCIaQ@kernel.org>
-	<aVlwOyicOLPB9SOa@parmesan.int.kasm.eu>
-	<aVpWpLV4Dut5Muo2@kernel.org>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="h94xtsVu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D725C4CEF1
+	for <linux-openrisc@vger.kernel.org>; Fri,  9 Jan 2026 10:07:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1767953248;
+	bh=riYk6e8Dd3Mlz7Rg0OW9jG0C2dloU+TtN6raRtCEDzE=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=h94xtsVuiwJwpeajC84ICPNrMguGqpOSsSc+0bro1fvBnKfpW29OwXb2uVl29PNvf
+	 76ou2YxV6bRA3YwP6eZzY/dK2HwY5QPpg2b4ZHL/3RhAVaVRROt8TtVOHjTHIjOCKL
+	 6Pp2z8QpxoTWSzEvcCZRxdS/IOCGYbFocx7VQXy5p/Qs5AiFtL2cWGJrCTOlh/NKx/
+	 yow/vuIu2CPnawBJfldZgIlgg4rvvcII9xAoTA1hKvLJpnkhs6LtMd0CKWBHcFaj1e
+	 9ngpxN9LzN4kuWc4iWYfAthE1KVuZjG2kzFBiscWuxbC8fPmho3ZuRT73iPAV0jtlW
+	 tpxBL5C+ah2eA==
+Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-790b7b3e581so42993617b3.0
+        for <linux-openrisc@vger.kernel.org>; Fri, 09 Jan 2026 02:07:28 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCUVcYyxJKKY/xgoBwAjrUulTC+aCevlb6Q5AxXa3VX3YGWeg/SmOY0jsMdfcViL02mpApIDd6jBWkmLzFvx/g==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzCN8oWtYtd/WvmB9waHVJyUjxkztcy2KQ/AU7YkFfx156ygwpn
+	VZtQxUFo+qQAKBXJ0MTNYJY768wugwMSZCXFQyIjNJ6kcn5nzwQQUUlRi81XxNasbclrc43dD4s
+	YatEmbkbUJwdbM1wUhks6kShdYF9EH5k=
+X-Google-Smtp-Source: AGHT+IFtop6NgCgOGI2H1Tf/ZLX96R4DPoeTPeexiIWoM7CJ9zqZb3ZUELl4TWvlqDYKeuVlYNTkL5bIobNwleTDJaU=
+X-Received: by 2002:a05:690e:1699:b0:644:60d9:8661 with SMTP id
+ 956f58d0204a3-6470d3164d0mr10216937d50.45.1767953248025; Fri, 09 Jan 2026
+ 02:07:28 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+References: <20251217080843.70621-1-shorne@gmail.com> <20251217080843.70621-2-shorne@gmail.com>
+ <CAMuHMdUaO_PwWygW8qss47W_ErB4pm1Z2HQ+edvw1-x7ce7oKw@mail.gmail.com>
+ <aV9o1LL0Ahip0O3-@antec> <CAMuHMdXYCNR0ANn152ghFExpWY_yZ5+kyFGGRwA+X-EFUvxZXw@mail.gmail.com>
+In-Reply-To: <CAMuHMdXYCNR0ANn152ghFExpWY_yZ5+kyFGGRwA+X-EFUvxZXw@mail.gmail.com>
+From: Linus Walleij <linusw@kernel.org>
+Date: Fri, 9 Jan 2026 11:07:17 +0100
+X-Gmail-Original-Message-ID: <CAD++jLm1u9ChqsftwvbOptiG3Qo2KWxPjqN2snOVuZDYuVST5Q@mail.gmail.com>
+X-Gm-Features: AQt7F2pnPTebbIFltdZPnHxWAsTxQNpdBrfUBhaGeXTwRyFgKEPvC4aG4NGA5cs
+Message-ID: <CAD++jLm1u9ChqsftwvbOptiG3Qo2KWxPjqN2snOVuZDYuVST5Q@mail.gmail.com>
+Subject: Re: [PATCH v2 1/5] dt-bindings: Add compatible string opencores,gpio
+ to gpio-mmio
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Stafford Horne <shorne@gmail.com>, LKML <linux-kernel@vger.kernel.org>, 
+	Linux OpenRISC <linux-openrisc@vger.kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	linux-gpio@vger.kernel.org, devicetree@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, 4 Jan 2026 14:01:40 +0200 Mike Rapoport <rppt@kernel.org> wrote:
+On Thu, Jan 8, 2026 at 9:41=E2=80=AFAM Geert Uytterhoeven <geert@linux-m68k=
+.org> wrote:
 
-> Can you please stick this between patch 3 (arm: introduce
-> arch_zone_limits_init()) and patch 4 (arm64: introduce
-> arch_zone_limits_init())?
+> > > What is the rationale behind using brcm,bcm6345-gpio?
+> > > Given brcm,bcm6345-gpio has 32-bit registers, while opencores,gpio
+> > > has 8-bit registers, I doubt the latter is compatible with the former=
+...
 
-Did, thanks.  I made this a standalone patch rather than  a
-squashable -fix.
+Yeah this needs to be fixed/reverted pronto :/
 
-> >From 35d016bbf5da7c08cc5c5547c85558fc50cb63aa Mon Sep 17 00:00:00 2001
-> From: Klara Modin <klarasmodin@gmail.com>
-> Date: Sat, 3 Jan 2026 20:40:09 +0200
-> Subject: [PATCH] arm: make initialization of zero page independent of the
->  memory map
-> 
-> Unlike most architectures, arm keeps a struct page pointer to the
-> empty_zero_page and to initialize it requires conversion of a virtual
-> address to page which makes it necessary to have memory map initialized
-> before creating the empty_zero_page.
-> 
-> Make empty_zero_page a stataic array in BSS to decouple it's
-> initialization from the initialization of the memory map.
-> 
-> This also aligns arm with vast majorty of architectures.
+> > I switch the size from 32-bit to 8-bit using the reg =3D <* 0x1>, <* 0x=
+1> setting.
+> > Also the reg addresses of "dat" and "dirout" are different for the real
+> > brcm,bcm6345-gpio.
+> >
+> > brcm,bcm6345-gpio. Example:
+> >
+> >        /* GPIOs 192 .. 223 */
+> >        gpio6: gpio@518 {
+> >                compatible =3D "brcm,bcm6345-gpio";
+> >                reg =3D <0x518 0x04>, <0x538 0x04>;
+> >                reg-names =3D "dirout", "dat";
+> >                gpio-controller;
+> >                #gpio-cells =3D <2>;
+> >        };
+> >
+> > vs opencores,gpio Example:
+> >
+> >        gpio0: gpio@91000000 {
+> >                compatible =3D "opencores,gpio", "brcm,bcm6345-gpio";
+> >                reg =3D <0x91000000 0x1>, <0x91000001 0x1>;
+> >                reg-names =3D "dat", "dirout";
+> >                gpio-controller;
+> >                #gpio-cells =3D <2>;
+> >        };
+>
+> Exactly, the register space and register widths are different
 
-Russell, can you please update us on your concerns with this change?
+...as proved here.
+
+Stafford can you send a fixup or revert patch?
+(Only need to revert if you can't make a fix quick enough, which I
+think you can.)
+
+> > The opencores,gpio setup does work.
+> >
+> > Now that I think about it, would it have been better to just add openco=
+res,gpio
+> > to gpio-mmio.c compatible list?
+>
+> I think that would be better.
+
+Yes this is better.
+
+I should have seen this, I guess I was sloppy :(
+
+> > If so I will can revise this patch and add patch to gpio-mmio.c.
+>
+> DT maintainers: Given gpio-mmio is that generic/simple, is there a
+> specific reason there is no generic "gpio-mmio" compatible value that
+> can be used as a fallback, avoiding the need to keep on adding new
+> entries to gpio_mmio_of_match[]?
+
+I think "gpio-mmio" combined with compulsory property of
+bus-width =3D <nn> (as used by multiple bindings) would be
+generic enough. So a schema that accepts "gpio-mmio" if and
+only if bus-width =3D 8|16|32|64 would be acceptable.
+
+Yours,
+Linus Walleij
