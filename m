@@ -1,80 +1,74 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB25538D
-	for <linux-openrisc@vger.kernel.org>; Sun, 11 Jan 2026 16:34:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC3DA500940
+	for <linux-openrisc@vger.kernel.org>; Sun, 11 Jan 2026 16:39:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768149281; cv=none; b=EifHsmvf5cKKCDZrPBlAz/HMxgux+EN3jkbVsVc3PU5lGxll+pm5x/xXBlJ4l8X2zW+xt7WFu0tVsQZOpdbUErFFl0PnDycxKm3GtbzZ7Q69OiDMuK2FkahKIQrY2ELEjwIavkOI/bvDHjKo2m8rJQJ4GcVpiPfI75/YCIHor9g=
+	t=1768149569; cv=none; b=EydCHnKCAir87blz7trOuPHcP511tKuEyvvJBgPYNoRlB6sRh448AXk6PO5w/xHFuPbf2vFGDFn9K98a8J8ip8DtLSzUnVzV6+Bd+Ogy3K9saFH6XpQXQWKaYL1O3IzbCPvcrOVyumqOt1wkbT/5VxWLO3isHudv6307kTmnuYc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768149281; c=relaxed/simple;
-	bh=F+U56dSbf7Zy+QbKFDejhjPm0vpdjDs41/JBQT0YeyM=;
+	s=arc-20240116; t=1768149569; c=relaxed/simple;
+	bh=eO1AVpSk59oA0tWauR5oZblvoKabzFz5L7YlptvNcJk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=etDK83mOb8qsS97bFJNepzTGJl+mYgRqwfKyWcixmtS5eEwosjIEU6M3tw2mVcOcNR4vdn1Q1N1skVGDUGZQtel/qP2ZkwHNho5wr9u9tKgdxIlgVrNiBhs7N564o05fi3rtv06NbJBdC82TSQw2C7IMuSc2u8mKQIkD0bMPqV8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=izhscTgG; arc=none smtp.client-ip=209.85.128.42
+	 Content-Type:Content-Disposition:In-Reply-To; b=kfhPWWhbGEzjQ6CENm/AszfF6JF3IrU395g9uYEZ0CetF4tWaF5bkEtTYebaGabuDvyi3F9HFoIyb1xn5iH/3xW/uVYkGnVip7EdTIY1hV6OpKfN6lYhDBbx1MjyYHVOC0vTcJ+XW4mUmYoEJiaumgd/4+tII6zPuydQ8OMyl+c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MKzpsGW1; arc=none smtp.client-ip=209.85.128.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="izhscTgG"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-47d3ffa5f33so25766985e9.2
-        for <linux-openrisc@vger.kernel.org>; Sun, 11 Jan 2026 08:34:39 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MKzpsGW1"
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-477a2ab455fso51766035e9.3
+        for <linux-openrisc@vger.kernel.org>; Sun, 11 Jan 2026 08:39:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768149278; x=1768754078; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1768149565; x=1768754365; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=p8q1LsrMBmg/TGb8G1+4FUjTEnWz4H6p2nQGEZCp0b4=;
-        b=izhscTgGQiCwnhQ+XHOzvZXbbf8yk5vs0bWRVczqQvjg2gd7yO8m60k0m7RlSPn78U
-         DBM2757kxeUTZegXhR9HwkLqMQ1zytxTnWmfspmvf6uiSNtSMo7XXasVSbes7U1CKfuz
-         flC8Ynt5LAgh++SFRMgUYh3yNNRjhZzg11oOIntF9z7o9MWfAmJjq4Q3hE79/sL/av7w
-         Jk4Caot698DtgqnGvbPBA2ISw29/FwsMRmaLzWtvDxyv1Pklu4BcppKtPkTHLTSwjNY6
-         4O3vsCwCk/BxTrumVNeS5UPZz38QB34MvqUDoOpUwWevb3+y5TPtq9WPEToR1lhoDCTW
-         0afg==
+        bh=mz2xAPMP6u2Cl+fDwJ8gf02dRfUGoZtdvzbIFlJ5LDE=;
+        b=MKzpsGW1SxxSzQuLGkt5wFIfsCuNsJnpwKRoWo01nnfiJAaUedy1iNICJ7MGIxgXMW
+         d7J0af0FWHKTwWwi1+EuJuijIDOqc3EqSrwx5mWyneomlxo8qh2nZqI2k8puqt8XP0f9
+         4xbYYadnBvuZoPY94oMf0Z+sHEyexB0SBreldhSA6q1lCKXFbMVOpAvonhRZvllX9wVO
+         CveQvoAS0MMaF05YvIN4tEMAasZv7rVshL+P5eXaDOWugxibz8QsIW+kGlqhzsZ0hhfk
+         Yt0i+R828ivfexTbTDLEt2221OI/8IbgicQzh/40+5fBe/o35lGGNw7kBW49Zhz98+KX
+         H7Nw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768149278; x=1768754078;
+        d=1e100.net; s=20230601; t=1768149565; x=1768754365;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=p8q1LsrMBmg/TGb8G1+4FUjTEnWz4H6p2nQGEZCp0b4=;
-        b=Cy4oYsTjcXC7Wudjf5C8reWQ/1I/JF6wD+pCfS4u2pZXEptk7M1as54J/y/WKGL8Na
-         gv5TdeknRHrY9DbLZrNTGunnqGGDZEzz9T6OoLxySCNiv12Ncin+QPx/mWIIqxeWrBku
-         VPaZo890ihNm/DM2XgUV94Glkc1lvSLRZwYeS1uQN8bQro4CYrrolLkT52fx2Aevyggk
-         QkA3XpXD86botu7I98Hd+qbH3mncBcPN8gE5jJ2Pp3Dv5doXpCOPb9Dmq0IVcVxhG6mg
-         KyEYa+y1vrj2ojw4lAoQ6MGGU7+/yY6/Oy91/7mboz0hLbXh/XJn8/Mj+nDiJFEe3O4Q
-         ybMA==
-X-Forwarded-Encrypted: i=1; AJvYcCX+BRCKZ3DSpiVqff68NYt3gnXw6bh+qVU8+uP5THqsDQNjR0+4UUis/VuNhYCzD4rjqvI3Ips9vQ6BnThAJA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzNIJ+WV3mutECQ++KTUOytTRNx7WgD14WBYtay8t3MFmVZgzEu
-	41f8YE6TzqMMy+o+aquMeJxqnbpd/D8CCr/OO1jP85JCDoPc9QGtrao3
-X-Gm-Gg: AY/fxX4IPMorGvZnCA2pKHFcXYI7MRCvnWY++fnA8+7fWKUKyZfICO93SUSTqF6MhcU
-	baM8O6YAIXKDEnzaffXDYabD+9bT+GGjEZCAef1w6XRpojpl0IOInX7dKzO/cIVFXKRbzAcqRVR
-	FXeLYVG89IBZ204eAdHBfwsRkbMlH+F3boPPI21Ag360cyHLjxf/oK8uVTIHboXVoJPXStRVAhX
-	bPZYX4KTEYxdXkIpy2RIDNhEywl7N6TRHlPsA7Zlh4QkKa2qYLbS8FLd5PFLSTBDP2uCp3jWevD
-	meb4Bgk29jdfCD0LjDVaVSKzGIH3nfcB91Jdh1W1wmKAdqmNO0fI6B+EJXleEcXOHwx2/RRtbmS
-	g62k9opWsNuGtZ2LrmsxJmRc+d1mov3d9DpmIv1OawEwSd9LE8GpbEGe7oljsgPWA1q5Mi0aisN
-	OfduIvoZ0laeejYDlYGbnDsPVNEbE77pS2w+eJShEFyRe+SsJW8YBYOebt5KZI1HKiVxBcOnU90
-	oE=
-X-Google-Smtp-Source: AGHT+IFYvLDVG9dfmgUfUU3OGeAq3xGgS7rQ4R72Ej+LSG+5Vt262FuiLPk/JG1Eub29aEzaeex3eA==
-X-Received: by 2002:a05:600c:4713:b0:477:1bb6:17de with SMTP id 5b1f17b1804b1-47d84b5b43dmr200425195e9.30.1768149277862;
-        Sun, 11 Jan 2026 08:34:37 -0800 (PST)
+        bh=mz2xAPMP6u2Cl+fDwJ8gf02dRfUGoZtdvzbIFlJ5LDE=;
+        b=t7FkGcPRKVu6ChDMUXdCg/LGN8tgaHS8k71emRMAny702Iu4XkAT+UcZUJAe/fkpOF
+         DeOY0Co9fMpA2/5x1uwF+8PSsjlUvtW1AhxFKpPyQyVntukgDf4huTY6YHe/wtzW5HBf
+         qxEe+r3gNzhk5BgVI02EoSb9T5oLQ+1I1DI2OHbytxusXJW0hfuP3dpldJ0L5qMF+WTA
+         bv+zuhSg0eD8/rybtSn9FnzMg1U6OGzG+DYdJJk1SpblgdCBWlM0NurdnE54k7KHAf93
+         wSoVkd6VgfMFb8EoglRIfRMhAAeU/hr6r0p+emF24Tj22rbVnKggQuZWGSRb9IK5RV3G
+         y6ew==
+X-Forwarded-Encrypted: i=1; AJvYcCVgX6KEiSWW9oaniyZGFD/sqTFPKUsbDNkPaDpjGrptHRhc2yU9qi0oyCZ8tsGIgG5kgqT+V5dlH/XtZ+MW1Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyPenJ6e0RJga0EfOKN2g/0Z5FEbk0Wgb7C6jxJKSGN/TcvNw7m
+	9v9XtUWIh0AM9qAVm5GnlPPUtr+bP8IuL0pyhyJLF0SjVY6Th5Qewkf8
+X-Gm-Gg: AY/fxX4CfMeppr2d2t70Pkc/bFr8Sf/5fdCz8Vmt3v2RLI5C9Dj1vILPfmTrkRYDnOp
+	UoTTJI+rSzUiBziBSUUEIGZV+A9jvi4VoFqwUvEEKJxORj3xpiSaEmOXjF//8a3oZmEApmNWGM+
+	fJNgmaeiq6l0hC4+uMHZBxyzaRChsCRehS6T9YdSFiEhujfbEkLlP7RkdHZnCwuiRKPiDXTcmu8
+	OoQrbf7rEoRHrTo7k3hlwq/70R3naq14VcvHdtTdPyGAlZ5QRehSbTvFiRlIEBiYnZ6hE2YNoHF
+	68jTuniZKu1gUkzkAMaAqYU47oHTRNuGDHUTOzGDv7cEtNR6rDsh49Cci18HkDG509D//p/fYGm
+	dtZJrfJOpHrY4gEm0ENUlt8QcJbBxQ68dSj14mQ+3bTeW7PqHaJg3AsERxu6CKf+vjyRYBjIoMJ
+	soCcJJM515uE4gz+DlR0lMsUC2WvZ5p23Sh4LQujdw4BC4cPZvgMPJiyB9gil3IezP3oOIm9yeu
+	VM=
+X-Google-Smtp-Source: AGHT+IH+Se0dgfT+MtQCblXH4IS2OIwWST/EMlxFFgfLh7CPq+K6JRpZgl78BXXKXKcha0vzJ+31AA==
+X-Received: by 2002:a05:600c:3152:b0:479:1a0a:ebbe with SMTP id 5b1f17b1804b1-47d84b18db4mr180030555e9.14.1768149564984;
+        Sun, 11 Jan 2026 08:39:24 -0800 (PST)
 Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d865f0cf2sm109933435e9.3.2026.01.11.08.34.36
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d7f703a8csm308010895e9.13.2026.01.11.08.39.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 11 Jan 2026 08:34:36 -0800 (PST)
-Date: Sun, 11 Jan 2026 16:34:36 +0000
+        Sun, 11 Jan 2026 08:39:22 -0800 (PST)
+Date: Sun, 11 Jan 2026 16:39:22 +0000
 From: Stafford Horne <shorne@gmail.com>
-To: Krzysztof Kozlowski <krzk@kernel.org>
+To: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
 Cc: LKML <linux-kernel@vger.kernel.org>,
-	Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, linux-gpio@vger.kernel.org,
-	devicetree@vger.kernel.org
-Subject: Re: [PATCH v3 2/6] dt-bindings: gpio-mmio: Add opencores GPIO
-Message-ID: <aWPRHHhdjGE2f8aT@antec>
-References: <20260109134409.2153333-1-shorne@gmail.com>
- <20260109134409.2153333-3-shorne@gmail.com>
- <20260111-amorphous-cow-of-stamina-6f2720@quoll>
+	Linux OpenRISC <linux-openrisc@vger.kernel.org>
+Subject: Re: (subset) [PATCH v2 0/5] OpenRISC de0 nano single and multicore
+ boards
+Message-ID: <aWPSOmKD9_bePghi@antec>
+References: <20251217080843.70621-1-shorne@gmail.com>
+ <176606559331.6520.4498279930581822500.b4-ty@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -83,39 +77,35 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260111-amorphous-cow-of-stamina-6f2720@quoll>
+In-Reply-To: <176606559331.6520.4498279930581822500.b4-ty@oss.qualcomm.com>
 
-On Sun, Jan 11, 2026 at 11:20:38AM +0100, Krzysztof Kozlowski wrote:
-> On Fri, Jan 09, 2026 at 01:43:53PM +0000, Stafford Horne wrote:
-> > Add a device tree binding for the opencores GPIO controller.
-> > 
-> > On FPGA Development boards with GPIOs the OpenRISC architecture uses the
-> > opencores gpio verilog rtl which is compatible with the MMIO GPIO driver.
-> > 
-> > Link: https://opencores.org/projects/gpio
-> > Signed-off-by: Stafford Horne <shorne@gmail.com>
-> > ---
-> > Since v2:
-> >  - Fixup patch to simply add opencores,gpio and add an example.
+On Thu, Dec 18, 2025 at 02:46:48PM +0100, Bartosz Golaszewski wrote:
+> 
+> On Wed, 17 Dec 2025 08:08:26 +0000, Stafford Horne wrote:
 > > Since v1:
-> >  - Fix schema to actually match the example.
+> >  - Use proper schema in gpio-mmio suggsted by Conor Dooley
+> >  - Remove 0 clock-frequency definitions in dtsi file
 > > 
-> >  Documentation/devicetree/bindings/gpio/gpio-mmio.yaml | 9 +++++++++
-> >  1 file changed, 9 insertions(+)
+> > The patches add support for OpenRISC systems running on the De0 Nano FPGA
+> > development board.  We have two SoCs which are available here:
+> > 
+> > [...]
 > 
-> This does not even apply now. Your previous version was applied almost
-> one month before and you WERE notified about it.
+> Tweaked the commit message a bit and applied, thanks!
 > 
-> Why did you ignore Bartosz's reply?
+> [1/5] dt-bindings: Add compatible string opencores,gpio to gpio-mmio
+>       commit: f48b5e8bc2e1344f588cc730082aed6ccc5a6b3e
 
-Hi Krzysztof,
+Hi Bartosz,
 
-Sorry for the confusion, we discussed [1] this patch in the last Series with Geert
-and Linus W. We decided to Fixup (replace) the original patch with this and a
-patch to the GPIO MMIO driver instead.  I pointed it out in the cover letter but
-it may have not been clear.
+After discussion [1] with Linus W and Geert U on this patch we agreed it would be
+best to drop this old patch and replace with a patch to add "opencores,gpio" to
+the binding and the driver.
 
-I will reply to Bartosz's original mail too so he can understand the intent.
+I have sent two new patches for that.  Can you please consider dropping this
+original patch from your queue and replacing with the new?
+
+If you prefer me to post these in a different way I can do that too.
 
 [1] https://lore.kernel.org/lkml/CAD++jLm1u9ChqsftwvbOptiG3Qo2KWxPjqN2snOVuZDYuVST5Q@mail.gmail.com/
 
