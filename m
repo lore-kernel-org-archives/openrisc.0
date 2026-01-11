@@ -1,221 +1,104 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D88CA24A07C;
-	Sun, 11 Jan 2026 08:28:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A098E1A5B84;
+	Sun, 11 Jan 2026 10:18:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768120122; cv=none; b=JaNsuf1Xmfg5UlhXp5h/NKWRydPymbnU54ZVNjOss8qeOuQjXb41OuRPSxRfjkW5+xTRvkqrUPaD+jQ645CqhTiK93ETFWtAc8YDGWPGhJUjRsDSxKg/VoMhRo+Q4fOjhje9B8GZh2izatrGvYRTjeSSiASuGX2sYyrO6B4FwHM=
+	t=1768126725; cv=none; b=GsTJ/vgNlu94tvKlqlKMSKyZdUzFGBeQopfvD9HAuADMneGIOKwdVJAQix8/FPen/CN3ERe2gKlyXBHwaeaFRYD8cFCb/sNHHF5Vvyo4PSstBTfwwG6859lBmQ9+dh+av+88vnBHc8xLjMx4vPz1nh43z0jk9LjPOkz4fJeIg/w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768120122; c=relaxed/simple;
-	bh=HRLMNbJfcIyzccjy/sfTD1k/8iARayV6dPdQfJTMnWo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=RZ7c4p0xb6u3pt424oVoQbraGkR6Dl4j3CubewkohlApuDbU/fe7c36Ay+pZaTj/0LQCJAUE3w8MIl5kkyywYhnxl3oLvUiEEOYn/5/sMNaO8JwtQO5pTsCIWIQa6j4SYi2lwtaYy7Yxobr0AbBzxGubfAuFrnW3r5ReW2RlnF4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ec2bGwWO; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1768126725; c=relaxed/simple;
+	bh=2R3Z7M0zSvL7DPn1AI4tWPhor2GuFLNNBnThZc5CUZc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rYNUctOVssu9TtbhDCUHTc/aZDE9VZkBVL9pcr4K6T3frcmWVGFfhjsJlazonks7CcciA847RQCLu0NFCNXqOFQNfwOcOhdv2hn4ivbARkT6DJCP6Rpzt1vhN3psDUOOU2BGGdb442X1XTIHFNWzOU7vYTTKs74k08Q+8jZwlaw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hcMWFVSm; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ec2bGwWO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 274D1C16AAE;
-	Sun, 11 Jan 2026 08:28:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hcMWFVSm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AFDFC4CEF7;
+	Sun, 11 Jan 2026 10:18:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768120122;
-	bh=HRLMNbJfcIyzccjy/sfTD1k/8iARayV6dPdQfJTMnWo=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Ec2bGwWOeOjXW+ySUXXKPm6eayFRFkSmbxQ0Yi2N08exR6X1pcnRzRL1jFrEN60gu
-	 EjR2EbdukWQDt0gz83zhTod3BcTK9hToNe52kcKWqr9xEFUT69+VRURPQ8b21IwNRd
-	 rp3gC/u2WEVHsJheESwI5qHhh9E4BZZ1xav9luUXT439xB/CPrZE8H4fLmmGL8QILy
-	 9Yfb6Y/uPZ+yYjsvo1Q90O2WW22H/avuDFr8cB76tUKXJ5Wsc0cale2xr++cTaYOu9
-	 eji+2hoq7YT65edlzcRMhkEPeXUV9Ua93DTgqCtd5AaZJXvzgL4tJVCdJGBVI9moFu
-	 uPmsuMV4ggZaw==
-From: Mike Rapoport <rppt@kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Alex Shi <alexs@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Brian Cain <bcain@kernel.org>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	David Hildenbrand <david@kernel.org>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Guo Ren <guoren@kernel.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Helge Deller <deller@gmx.de>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Klara Modin <klarasmodin@gmail.com>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	Matt Turner <mattst88@gmail.com>,
-	Max Filippov <jcmvbkbc@gmail.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Michal Hocko <mhocko@suse.com>,
-	Michal Simek <monstr@monstr.eu>,
-	Mike Rapoport <rppt@kernel.org>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Pratyush Yadav <pratyush@kernel.org>,
-	Richard Weinberger <richard@nod.at>,
-	Ritesh Harjani <ritesh.list@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Stafford Horne <shorne@gmail.com>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Vineet Gupta <vgupta@kernel.org>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Will Deacon <will@kernel.org>,
-	x86@kernel.org,
-	linux-alpha@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-csky@vger.kernel.org,
-	linux-cxl@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	linux-hexagon@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	linux-mips@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-openrisc@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	linux-sh@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-um@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org,
-	loongarch@lists.linux.dev,
-	sparclinux@vger.kernel.org
-Subject: [PATCH v3 29/29] Revert "mm/hugetlb: deal with multiple calls to hugetlb_bootmem_alloc"
-Date: Sun, 11 Jan 2026 10:21:03 +0200
-Message-ID: <20260111082105.290734-30-rppt@kernel.org>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260111082105.290734-1-rppt@kernel.org>
-References: <20260111082105.290734-1-rppt@kernel.org>
+	s=k20201202; t=1768126725;
+	bh=2R3Z7M0zSvL7DPn1AI4tWPhor2GuFLNNBnThZc5CUZc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=hcMWFVSmf3lnydeBLNjReZqnDjlBPsElZGPj/4UgIgvmkxtktdycdEtphLZdV278E
+	 QNZK8IUoGOAYPgcQbX7fXscnED2TKQEpZoGk7nG5kdu1OTyyMQHFhle0A0J0N+xLj2
+	 nLoU7qi4sxnkxNomp53XQ9aJEf3oUMq6kHrqp4IOLNWVE52EyC2AbU0WcFwGM1IJQY
+	 VOuMyPqIyDaHXzOb4Ql3ZlGc6cuD41ssjr11OidYtGV7y0N6bDslB2oEXxGuo36lYN
+	 2VVu8XUMubVqCpVpXjXAPPOiptvSmqE8FmByyGDu+t9wU9rVfGT4u6ZsG8MECN42LS
+	 BcONQFKSNjilQ==
+Date: Sun, 11 Jan 2026 11:18:42 +0100
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Stafford Horne <shorne@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, 
+	Linux OpenRISC <linux-openrisc@vger.kernel.org>, Linus Walleij <linusw@kernel.org>, 
+	Bartosz Golaszewski <brgl@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, linux-gpio@vger.kernel.org, 
+	devicetree@vger.kernel.org
+Subject: Re: [PATCH v3 2/6] dt-bindings: gpio-mmio: Add opencores GPIO
+Message-ID: <20260111-bold-wolf-of-champagne-58fac7@quoll>
+References: <20260109134409.2153333-1-shorne@gmail.com>
+ <20260109134409.2153333-3-shorne@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260109134409.2153333-3-shorne@gmail.com>
 
-From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+On Fri, Jan 09, 2026 at 01:43:53PM +0000, Stafford Horne wrote:
+> Add a device tree binding for the opencores GPIO controller.
+> 
+> On FPGA Development boards with GPIOs the OpenRISC architecture uses the
+> opencores gpio verilog rtl which is compatible with the MMIO GPIO driver.
+> 
+> Link: https://opencores.org/projects/gpio
+> Signed-off-by: Stafford Horne <shorne@gmail.com>
+> ---
+> Since v2:
+>  - Fixup patch to simply add opencores,gpio and add an example.
 
-This reverts commit d58b2498200724e4f8c12d71a5953da03c8c8bdf.
+Simplify? You completely changed the meaning of binding here - now
+device is not compatible.
 
-hugetlb_bootmem_alloc() is called only once, no need to check if it was
-called already at its entry.
+I don't know which one is correct, but your changelog must explain why
+now devices are not compatible but they were before.
 
-Other checks performed during HVO initialization are also no longer
-necessary because sparse_init() that calls hugetlb_vmemmap_init_early()
-and hugetlb_vmemmap_init_late() is always called after
-hugetlb_bootmem_alloc().
+> Since v1:
+>  - Fix schema to actually match the example.
+> 
+>  Documentation/devicetree/bindings/gpio/gpio-mmio.yaml | 9 +++++++++
+>  1 file changed, 9 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml b/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml
+> index ee5d5d25ae82..d44edc181e0a 100644
+> --- a/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml
+> +++ b/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml
+> @@ -23,6 +23,7 @@ properties:
+>        - ni,169445-nand-gpio
+>        - wd,mbl-gpio # Western Digital MyBook Live memory-mapped GPIO controller
+>        - intel,ixp4xx-expansion-bus-mmio-gpio
+> +      - opencores,gpio
+>  
+>    big-endian: true
+>  
+> @@ -160,3 +161,11 @@ examples:
+>              intel,ixp4xx-eb-write-enable = <1>;
+>          };
+>      };
+> +
+> +    gpio@91000000 {
 
-Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-Acked-by: Muchun Song <muchun.song@linux.dev>
----
- include/linux/hugetlb.h |  6 ------
- mm/hugetlb.c            | 12 ------------
- mm/hugetlb_vmemmap.c    | 11 -----------
- 3 files changed, 29 deletions(-)
+Please do not grow the examples if they are exactly the same as other.
 
-diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-index 08fc332e88a7..c8b1a6dd2d46 100644
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -175,7 +175,6 @@ extern int sysctl_hugetlb_shm_group __read_mostly;
- extern struct list_head huge_boot_pages[MAX_NUMNODES];
- 
- void hugetlb_bootmem_alloc(void);
--bool hugetlb_bootmem_allocated(void);
- extern nodemask_t hugetlb_bootmem_nodes;
- void hugetlb_bootmem_set_nodes(void);
- 
-@@ -1300,11 +1299,6 @@ static inline bool hugetlbfs_pagecache_present(
- static inline void hugetlb_bootmem_alloc(void)
- {
- }
--
--static inline bool hugetlb_bootmem_allocated(void)
--{
--	return false;
--}
- #endif	/* CONFIG_HUGETLB_PAGE */
- 
- static inline spinlock_t *huge_pte_lock(struct hstate *h,
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 82b322ae3fdc..e5a350c83d75 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -4470,21 +4470,11 @@ void __init hugetlb_bootmem_set_nodes(void)
- 	}
- }
- 
--static bool __hugetlb_bootmem_allocated __initdata;
--
--bool __init hugetlb_bootmem_allocated(void)
--{
--	return __hugetlb_bootmem_allocated;
--}
--
- void __init hugetlb_bootmem_alloc(void)
- {
- 	struct hstate *h;
- 	int i;
- 
--	if (__hugetlb_bootmem_allocated)
--		return;
--
- 	hugetlb_bootmem_set_nodes();
- 
- 	for (i = 0; i < MAX_NUMNODES; i++)
-@@ -4498,8 +4488,6 @@ void __init hugetlb_bootmem_alloc(void)
- 		if (hstate_is_gigantic(h))
- 			hugetlb_hstate_alloc_pages(h);
- 	}
--
--	__hugetlb_bootmem_allocated = true;
- }
- 
- /*
-diff --git a/mm/hugetlb_vmemmap.c b/mm/hugetlb_vmemmap.c
-index 9d01f883fd71..a9280259e12a 100644
---- a/mm/hugetlb_vmemmap.c
-+++ b/mm/hugetlb_vmemmap.c
-@@ -794,14 +794,6 @@ void __init hugetlb_vmemmap_init_early(int nid)
- 	struct huge_bootmem_page *m = NULL;
- 	void *map;
- 
--	/*
--	 * Noting to do if bootmem pages were not allocated
--	 * early in boot, or if HVO wasn't enabled in the
--	 * first place.
--	 */
--	if (!hugetlb_bootmem_allocated())
--		return;
--
- 	if (!READ_ONCE(vmemmap_optimize_enabled))
- 		return;
- 
-@@ -847,9 +839,6 @@ void __init hugetlb_vmemmap_init_late(int nid)
- 	struct hstate *h;
- 	void *map;
- 
--	if (!hugetlb_bootmem_allocated())
--		return;
--
- 	if (!READ_ONCE(vmemmap_optimize_enabled))
- 		return;
- 
--- 
-2.51.0
-
+> +        compatible = "opencores,gpio";
+> +        reg = <0x91000000 0x1>, <0x91000001 0x1>;
+> +        reg-names = "dat", "dirout";
+> +        gpio-controller;
+> +        #gpio-cells = <2>;
+> +    };
+> -- 
+> 2.51.0
+> 
