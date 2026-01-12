@@ -1,79 +1,115 @@
-Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6ED31F8AC5
-	for <linux-openrisc@vger.kernel.org>; Sun, 11 Jan 2026 16:46:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 796A432A3D8;
+	Mon, 12 Jan 2026 07:03:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768150017; cv=none; b=R/ueAyDORdDi1Vu7HJppqj6jtenlp6KAe4CP3XB+lmhZCok9DIq3UT3p43o2uwbUMUOpTy8mksifZt2uEaQXTH3fMOsBcsq9JVhQXAVUPrzCO5GYNkcM/hk9Mhme4mr8RUlVHCi9rqJglnkqEXUIQ7wd8AL2hm/864EKpV8mgoA=
+	t=1768201443; cv=none; b=YKcM79JEGkbErG/+XJmyccIpwdf76hglNRCrZqvtCvb/e+plG+Ow4sV5S5I2AhGVgxbc4p7JYCd43+hagdPUVhiZIVOyXezebiMKl5nLhD/yubXOW3oPnX2ScD3q5NwIWNizW/bMhkgU4g3wzYvKiwb4XmZ1P2vgNB0icH8q31M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768150017; c=relaxed/simple;
-	bh=EKeMRlHlw2Rgeq19TymBbPBx8wczT3GJe0/hQx0Xx0A=;
+	s=arc-20240116; t=1768201443; c=relaxed/simple;
+	bh=qbLAjFzWHVn/j1snb9tqD/d3W6ufTt+pmY8fFRlEJXs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ctqgz/Q9iV2VCr09lWDlvgfCT/u2HOfNNDcLxwJkPGF3U2B8/qSRujndJ6etD+N9wRkKN5hHQkL8JxVSAzl8XDRXlu7OqLUqF0qL8YLfskp2HniUqUGTKREdbVQ94FbVXj2erpbCSXmEtLdSdNJnJiTvnCNdNcPE4Xs6xUyxuVs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RQ6MJ9LH; arc=none smtp.client-ip=209.85.128.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=EuZAGd9zvruqCry1DXxngIQcCJwUpIBMp3wLrkGTNzoIP48c9wgtuqjqt/HbOhUz+qHLQcpSDgxD3rC2XozjQ3ZBOo8GqLuE4/g3VEW0SfXnFjuMeKxjSlCgX5V4fdktwYyngVFRxkaSom28b1dOwN6w2NyKiVnfB746OxL/P/w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FnlWHg7y; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RQ6MJ9LH"
-Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-47d493a9b96so32645535e9.1
-        for <linux-openrisc@vger.kernel.org>; Sun, 11 Jan 2026 08:46:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768150014; x=1768754814; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=JXXIjf5GUwJDqboXk/BUgrbJnl8FqgJPhbiKhNF9WA0=;
-        b=RQ6MJ9LHuABBd9ogQNkQfS/9O3RDmNxuR4vrJ14RGOcQgHchoqwJE5e4RpNtRWWYU3
-         OfEqQYJktCFKykX/DeyKL3ddpF49HcfKEwe+g8n5+nEDREgPIZnH8/F7fGLYqByTJwSW
-         1jgwVLD/DXoenWTSNiv4OCvV2PDZgWRDT/lxbdy5Wo3wB6+DdrlP9Qs8xowncs04aGfS
-         PWW2D6x0BnEU4D/hYc2bDaXkjVp58VIFosSRTQ39VgPP0GhydlCDF+hCDfJUxZsD7i2v
-         +tH/ovKHwBrvUtY2+Mf2DK2l1ErL0+NOUPJlVCZjdFtRFH4ObnucSJrKL3N3g0bMSmZz
-         1YYA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768150014; x=1768754814;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JXXIjf5GUwJDqboXk/BUgrbJnl8FqgJPhbiKhNF9WA0=;
-        b=tEAOlPdTuyXIqaCXYbfRU7PQh2cF+3RQu1/VT+kx0+4LHLiXGyPPyGyi6YeQbcDN4n
-         DuYRozRrrhMptnTnnp3rFlp7UpFTcnEXjgFAe2piOZ987DyPY6STZr/i4ErVfDxstW5B
-         SJiY7+dNKh1Hb7EQ+Al7XbiKrDDhbBxrXtlUPeHHRkaHFVIHC6gsnuEkT8CVaUaUOuK/
-         T0JvKtB1vhf+K/4Zc5/FOWKa2MtsACAJ5ddY/LrNBnMvExijaA/lITANz7zOG5jJUgGb
-         DFZs6FE3Orv0fsN/ykBgq2qXpiY6fqjX70sz0aITXzpr3RE+uLc9HLZLh42ZEZyWyHgc
-         sOsw==
-X-Forwarded-Encrypted: i=1; AJvYcCX9zOQYC3xWwIHPKVjkYUUdutUbKUEkFBgzfb/k05Kp7MU1gpZ2IuNs0NRfpE8tyAdDkqO4EvAPf6Izm/V68w==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwRXkRcrb31KTXAltbGJU2WAu8JaAFaBZY8+D64mVCGQNYzZv+V
-	aY535WLH2jaXumQdTw+wSWl6abvAk0aXJ73XPyfDMu+TTXN7YaLbAlcI
-X-Gm-Gg: AY/fxX5yZskQbhQQuUbqrXGmO8/yiTKx6DX8AXd6U4EJ/bz1M52XLHA3KhnWBIdv8pi
-	AGk8ZC9XYXG7/BAeROurberdPVZ1tY7bSBN1lcQ95c82S18q7Edn5mJChOuHNjJUSzKpFeX0jwB
-	TNrRYK//9nCxcKijv5Cr7kH5S1P9b2DJgBAPc+onCbXKJoZtSQV5YhX+L7vgu/LnRPpw6KtiWmw
-	IITkdfgWKFY6hGBvk+Q0S6iK7Ko+uJSz7sT6yjX77QQ7OCTxu5OW3/y5qi+cRI13UX2tCag8H0Z
-	tUzxI+TkojB5V98CyrfETTfTm04N3oIi7wz0gil5zdla9zAnGv+FAdhUhLoMpw9dML9c1mgNzma
-	86uUuKpJaWh2XdwjM1Tl6Fp/U6csiJ+l4ITcTD6aQ+zYbCIyPoMTnKhbWJ9q45H8WT8O3oHq499
-	g09+xaNMqeVMNhCMHHhOhFkCx36g/d4uFPkZEna60qv1yin8zKHsvQXwf51KKuo08h
-X-Google-Smtp-Source: AGHT+IE/2VrwBn/B2S3fOGbBdhWgsr/s+ZUXrx13BwQ/UzL/3rHx0t494nmIc60K28I7RKjr7ysiHw==
-X-Received: by 2002:a05:600c:a08:b0:477:b0b8:4dd0 with SMTP id 5b1f17b1804b1-47d84b36b7emr195633575e9.17.1768150014007;
-        Sun, 11 Jan 2026 08:46:54 -0800 (PST)
-Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d865f0cf2sm110128995e9.3.2026.01.11.08.46.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 11 Jan 2026 08:46:52 -0800 (PST)
-Date: Sun, 11 Jan 2026 16:46:52 +0000
-From: Stafford Horne <shorne@gmail.com>
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, linux-gpio@vger.kernel.org,
-	devicetree@vger.kernel.org
-Subject: Re: [PATCH v3 2/6] dt-bindings: gpio-mmio: Add opencores GPIO
-Message-ID: <aWPT_HsRVC0dQ_j6@antec>
-References: <20260109134409.2153333-1-shorne@gmail.com>
- <20260109134409.2153333-3-shorne@gmail.com>
- <20260111-bold-wolf-of-champagne-58fac7@quoll>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FnlWHg7y"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60B8SDe5007270;
+	Mon, 12 Jan 2026 07:03:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=DaR8QIrJoPyGAUdK2XoR50gjX3a8Jt
+	Q3y3ZpcU0sC3M=; b=FnlWHg7yF0EhltIiIn9ZnFKG/nvLKG/pF1swSGpJYPCijY
+	W3Rmt5GG9EndclJOkAjsYj7aziAqVbObyNXQkmpQybP1JTD40KYizrnejvBH5N0R
+	uxWhc470C1N521DLBDW/4DIyhAp6m6ddM4POUpDrVis1Hlh6nnlYKZ+MBCseQRuL
+	2/T+gL9VYGZJLh0qjYX71ULRHWwG39FOsJ/hdlnDgOBY/V7LzQa8RoX1JtXisNa8
+	CSva6dlpDA66CEU6Mn19ZO4lOZMC2xpo5csLamqkyzMu14mWfv6OS/UZ3RdAJtGZ
+	P+oSF809jDQ8YtKfRtAb1iHfsp5syvvLc4So3efA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bkd6dwpng-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 12 Jan 2026 07:03:00 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 60C72xtd026579;
+	Mon, 12 Jan 2026 07:02:59 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bkd6dwpne-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 12 Jan 2026 07:02:59 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60C5F3XY014244;
+	Mon, 12 Jan 2026 07:02:58 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4bm1fxvq99-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 12 Jan 2026 07:02:58 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60C72r9n41288168
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 12 Jan 2026 07:02:53 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C7F1020040;
+	Mon, 12 Jan 2026 07:02:53 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4E39620043;
+	Mon, 12 Jan 2026 07:02:50 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.87.151.31])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 12 Jan 2026 07:02:50 +0000 (GMT)
+Date: Mon, 12 Jan 2026 08:02:48 +0100
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Alex Shi <alexs@kernel.org>,
+        Andreas Larsson <andreas@gaisler.com>, Borislav Petkov <bp@alien8.de>,
+        Brian Cain <bcain@kernel.org>,
+        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        David Hildenbrand <david@kernel.org>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>, Guo Ren <guoren@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Jonathan Corbet <corbet@lwn.net>, Klara Modin <klarasmodin@gmail.com>,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+        Magnus Lindholm <linmag7@gmail.com>, Matt Turner <mattst88@gmail.com>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>, Michal Hocko <mhocko@suse.com>,
+        Michal Simek <monstr@monstr.eu>, Muchun Song <muchun.song@linux.dev>,
+        Oscar Salvador <osalvador@suse.de>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Pratyush Yadav <pratyush@kernel.org>,
+        Richard Weinberger <richard@nod.at>,
+        Ritesh Harjani <ritesh.list@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Stafford Horne <shorne@gmail.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>,
+        Vlastimil Babka <vbabka@suse.cz>, Will Deacon <will@kernel.org>,
+        x86@kernel.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-cxl@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-openrisc@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        sparclinux@vger.kernel.org
+Subject: Re: [PATCH v3 17/29] s390: introduce arch_zone_limits_init()
+Message-ID: <b211f877-f9bb-4892-b67c-d2610048575a-agordeev@linux.ibm.com>
+References: <20260111082105.290734-1-rppt@kernel.org>
+ <20260111082105.290734-18-rppt@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -82,71 +118,58 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260111-bold-wolf-of-champagne-58fac7@quoll>
+In-Reply-To: <20260111082105.290734-18-rppt@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: bCS-OSZblyIq8lvlPyjEILoO8GzzpHGN
+X-Authority-Analysis: v=2.4 cv=LLxrgZW9 c=1 sm=1 tr=0 ts=69649ca4 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=kj9zAlcOel0A:10 a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=7WlQhDu6A2usLaOTEWYA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTEyMDA1MSBTYWx0ZWRfX59mP2KNE13j0
+ a6aegnon1oN4dcuG8YaVOaJhcRG6s3uUJFEsmdkW+MZ5sZ09v9vfZ00cHaM+sNVIGfNSGFA6TA/
+ amYWC8VtNTQv0JRk3gc5rBBltZHgc72KTXGu3prlXckbdY0t0zp5Lo5Yhjr8IF/vYaYhc4GEfSU
+ Qn3vnNEGmBOVemoTnAoVuUgIbpnnLrr8prY2Jcsedc9458fa4aIErXN9hSBcQEeZAjafXeGIs3U
+ PkSTvWywRsb27htzKZSu/lI9i25vaLSZKrrQYY6kqWC0MKkmjKSiCkMGVZp7eE7xKVafOgrDfKv
+ /IgXdjJYtIVn8udUlyOpA1x4MgwEQYsjb20V4FINx3F9Zvbn5I4upMwVWMuGSRYRH4uAOicy3EX
+ 58rNjYtR0Ljy4P0wI73tlEk2VHClT7wveMeVEf9wv8ox2a4bReXLiwz96iuRvRG4P5usk/SQFvy
+ YK5patORVNK5OiJVC/A==
+X-Proofpoint-ORIG-GUID: Mt_xEhUTi_ZaKY8BdbSWDFf-6SwyebPB
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2026-01-12_02,2026-01-09_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 suspectscore=0 clxscore=1011 spamscore=0 impostorscore=0
+ malwarescore=0 phishscore=0 adultscore=0 lowpriorityscore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2512120000 definitions=main-2601120051
 
-On Sun, Jan 11, 2026 at 11:18:42AM +0100, Krzysztof Kozlowski wrote:
-> On Fri, Jan 09, 2026 at 01:43:53PM +0000, Stafford Horne wrote:
-> > Add a device tree binding for the opencores GPIO controller.
-> > 
-> > On FPGA Development boards with GPIOs the OpenRISC architecture uses the
-> > opencores gpio verilog rtl which is compatible with the MMIO GPIO driver.
-> > 
-> > Link: https://opencores.org/projects/gpio
-> > Signed-off-by: Stafford Horne <shorne@gmail.com>
-> > ---
-> > Since v2:
-> >  - Fixup patch to simply add opencores,gpio and add an example.
-> 
-> Simplify? You completely changed the meaning of binding here - now
-> device is not compatible.
->
-> I don't know which one is correct, but your changelog must explain why
-> now devices are not compatible but they were before.
+On Sun, Jan 11, 2026 at 10:20:51AM +0200, Mike Rapoport wrote:
 
-Hello,
+Hi Mike,
 
-Did you miss the 1/6 patch in this series?  We add the compatible string to the
-driver there before we add it here.
+...
+> +void __init arch_zone_limits_init(unsigned long *max_zone_pfns)
+> +{
+> +	max_zone_pfns[ZONE_DMA] = virt_to_pfn(MAX_DMA_ADDRESS);
+> +	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
+> +}
+> +
+>  /*
+>   * paging_init() sets up the page tables
+>   */
+> @@ -97,8 +103,7 @@ void __init paging_init(void)
+>  	sparse_init();
+>  	zone_dma_limit = DMA_BIT_MASK(31);
+>  	memset(max_zone_pfns, 0, sizeof(max_zone_pfns));
+> -	max_zone_pfns[ZONE_DMA] = virt_to_pfn(MAX_DMA_ADDRESS);
+> -	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
+> +	arch_zone_limits_init(max_zone_pfns);
 
-Sorry, I thought the series and the over letter would be enough to understand
-what I meant by the "Fixup" description here.
+You move initialization of max_zone_pfns[] to a function, name the
+function arch_zone_limits_init(), but leave the initializatio of
+max_zone_pfns[] to zeroes outside. Should not it be brought along?
 
-> > Since v1:
-> >  - Fix schema to actually match the example.
-> > 
-> >  Documentation/devicetree/bindings/gpio/gpio-mmio.yaml | 9 +++++++++
-> >  1 file changed, 9 insertions(+)
-> > 
-> > diff --git a/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml b/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml
-> > index ee5d5d25ae82..d44edc181e0a 100644
-> > --- a/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml
-> > +++ b/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml
-> > @@ -23,6 +23,7 @@ properties:
-> >        - ni,169445-nand-gpio
-> >        - wd,mbl-gpio # Western Digital MyBook Live memory-mapped GPIO controller
-> >        - intel,ixp4xx-expansion-bus-mmio-gpio
-> > +      - opencores,gpio
-> >  
-> >    big-endian: true
-> >  
-> > @@ -160,3 +161,11 @@ examples:
-> >              intel,ixp4xx-eb-write-enable = <1>;
-> >          };
-> >      };
-> > +
-> > +    gpio@91000000 {
-> 
-> Please do not grow the examples if they are exactly the same as other.
+>  	free_area_init(max_zone_pfns);
+>  }
 
-I figured this is a new compatible string with a different set of 8 bit
-registers so having this example would be beneficial.
-
-> > +        compatible = "opencores,gpio";
-> > +        reg = <0x91000000 0x1>, <0x91000001 0x1>;
-> > +        reg-names = "dat", "dirout";
-> > +        gpio-controller;
-> > +        #gpio-cells = <2>;
-> > +    };
-> > -- 
-> > 2.51.0
-> > 
+Thanks!
