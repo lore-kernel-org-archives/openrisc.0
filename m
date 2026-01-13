@@ -1,180 +1,142 @@
-Received: from fhigh-b5-smtp.messagingengine.com (fhigh-b5-smtp.messagingengine.com [202.12.124.156])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2B5A2C235D;
-	Tue, 13 Jan 2026 05:38:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.156
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FE4A369208
+	for <linux-openrisc@vger.kernel.org>; Tue, 13 Jan 2026 06:50:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768282705; cv=none; b=shg62/AD+fwstuqeEuxv4eRrz33crhwdM3DFiO2oulN7+MVn6FfzDrAo3sLS4YPG7B91ThtP961cvU8vPN0fUYu6F1so5XS7y6So+oePfN2GL+SrTA2LsWZzbKdTc3iGli87643Xh0lW+VwLwy6mgiZu3z3+RglCBr2UwgVZSqQ=
+	t=1768287054; cv=none; b=o3YXmwViMMHpNgD6MqltzgYDrwVMfyOBVeskdM83dh7r/QenTHHiT7VTJsTY6WWBwPLEE/pys3rUI8ix+FI1qgA7pE5fUlz59XUnxD+J2fDVdJ/RiaIPF+h423IP7+FG0nYGU9976SSpgdAyMJwvEsjTBvILcyo1h2AWloa40WY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768282705; c=relaxed/simple;
-	bh=TVBYg+2G0DLr0zMyrc3vdOsG1553YTGNnc2V942V/Bw=;
-	h=To:Cc:Message-ID:In-Reply-To:References:From:Subject:Date; b=mVyu03FPbDLB9VZ9MaJ9G3bsWfHlCUxNbD0vJlMhoAy2H9Wl3LDwIzFGYANl24Us8bW6Gs6BFW2y0Su+BITePePVZ75PEI1VvMwKcxGcGmhrabvjJU8nLhpPtB5GSZl3HWP79HFnOTPywxyzPz682y2Fk311y707BSCX3ugsWhU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=none smtp.mailfrom=linux-m68k.org; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=ByJH5Iks; arc=none smtp.client-ip=202.12.124.156
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux-m68k.org
+	s=arc-20240116; t=1768287054; c=relaxed/simple;
+	bh=aDB3sdHl8yEvBSscr99tVhZre5iBP2s4Ktcd0fugEGQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=BWIye15Z8VMFAsJ557EQqfdANiJhMGp3WkZcxM7TTnHoHlxEkgJ87D97a/HOpTSDetf4OAppPqEVjkpr3j4Arjm/HyAiI8xvGFp7X3g/QcJjQ3lfxH4JVt/aO2G3b2X4HEk5KiYXijm5VUUDRWsQaMJj3QcRJGUYRl048lH7ZBk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aDminwzO; arc=none smtp.client-ip=209.85.219.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="ByJH5Iks"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 66C077A0095;
-	Tue, 13 Jan 2026 00:38:21 -0500 (EST)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-04.internal (MEProxy); Tue, 13 Jan 2026 00:38:22 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-	:feedback-id:from:from:in-reply-to:in-reply-to:message-id
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1768282701; x=
-	1768369101; bh=CsktC8xD5EhNAbS2AjeT72YR6CfdK+yufEdKYFi5oBo=; b=B
-	yJH5Iksp+s2dl2BeWNT3+0GXbL4pFiKVsqQIuA5LP7MZcGQPzrzLzVVOY/gd3jB7
-	DmdH4tLHsdFYTg3Y0O6peSyDn0ebLh8xGPCX+ho0WzIBPgL65IsYmgyqitQUURwH
-	/UHfYmmrpcfb2An26uoJHQRjteEsb7QbKXjia2ULzcAq+AADrr7AzXwqZYBAbIOm
-	HQB8KFZzG5l6WyzfjbB/74WUFrmGduqob7rlQ7/kPkK5xe4itM5h2ZQWE92+225X
-	8KzYvdr9wJZC9pFsglfdGzZL++P//5GUy5cWPxPl10jcySHCK5IOyUMMp5ZamB82
-	/XkQWKFU71TrkZn2cCRPQ==
-X-ME-Sender: <xms:TNplaYOFuJ72KZUAG0ulz69EqOhU01dAjDDulhURWBqgEavESR064w>
-    <xme:TNplaT1-mQ3vIbDaNNosfmD80vpyZxnzgwPd1_Pdjeyfy1b91N4HD89JLAsVwDbpE
-    xjM-6PFjLcLNb5ALX8QCrw_h9Tc0KJNEns1CtSG0QkxtQWrmZGFKc13>
-X-ME-Received: <xmr:TNplac2eLVCFtcNAlMuXVlC6MZKm-2jTkjB1GhueunvBTiO7O973ouH9yxL8PLOJeHZPq4n3eN8zZIQoX6ToHNFOL9cGFfE93us>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdduudelhedtucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepvfevkfgjfhfhufffsedttdertddttddtnecuhfhrohhmpefhihhnnhcuvfhhrghi
-    nhcuoehfthhhrghinheslhhinhhugidqmheikehkrdhorhhgqeenucggtffrrghtthgvrh
-    hnpeehkeduffehjedvieevkeelleegffeiuddvgeeluefhuedugeekkeehffekgffgheen
-    ucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenuc
-    frrghrrghmpehmrghilhhfrhhomhepfhhthhgrihhnsehlihhnuhigqdhmieekkhdrohhr
-    ghdpnhgspghrtghpthhtohepvddvpdhmohguvgepshhmthhpohhuthdprhgtphhtthhope
-    grkhhpmheslhhinhhugidqfhhouhhnuggrthhiohhnrdhorhhgpdhrtghpthhtohepphgv
-    thgvrhiisehinhhfrhgruggvrggurdhorhhgpdhrtghpthhtohepfihilhhlsehkvghrnh
-    gvlhdrohhrghdprhgtphhtthhopegrrhhnugesrghrnhgusgdruggvpdhrtghpthhtohep
-    sghoqhhunhdrfhgvnhhgsehgmhgrihhlrdgtohhmpdhrtghpthhtohepghgrrhihsehgrg
-    hrhihguhhordhnvghtpdhrtghpthhtohepmhgrrhhkrdhruhhtlhgrnhgusegrrhhmrdgt
-    ohhmpdhrtghpthhtoheplhhinhhugidqrghrtghhsehvghgvrhdrkhgvrhhnvghlrdhorh
-    hgpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdho
-    rhhg
-X-ME-Proxy: <xmx:TNplaSybt1dc4nXV8Pbz5hJaaI8SMS2x8qghwV2UQMV2q-pu-gVOpg>
-    <xmx:TNplafnybh97IHBbMMTouPbWixNMjTiIASA_c-HPv6qmXBSyPkRX8Q>
-    <xmx:TNplaWxxP8odMBWvLSqZxW2SvHAKMPYI5uK1dXnEAxhjl_p0wenkZg>
-    <xmx:TNplaeKSN53fJ2BOOKvOOf481cgZ2jZN9sTnx-K27QucyPiSoQ1ZaA>
-    <xmx:TdplaRTwYJPXw5r5bc3N6CnGoFRLJjc99VVeZSkMC3liyzQ6EZTDbsGR>
-Feedback-ID: i58a146ae:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 13 Jan 2026 00:38:19 -0500 (EST)
-To: Andrew Morton <akpm@linux-foundation.org>,
-    Peter Zijlstra <peterz@infradead.org>,
-    Will Deacon <will@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-    Boqun Feng <boqun.feng@gmail.com>,
-    Gary Guo <gary@garyguo.net>,
-    Mark Rutland <mark.rutland@arm.com>,
-    linux-arch@vger.kernel.org,
-    linux-kernel@vger.kernel.org,
-    linux-m68k@lists.linux-m68k.org,
-    Guo Ren <guoren@kernel.org>,
-    linux-csky@vger.kernel.org,
-    Geert Uytterhoeven <geert@linux-m68k.org>,
-    Dinh Nguyen <dinguyen@kernel.org>,
-    Jonas Bonn <jonas@southpole.se>,
-    Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-    Stafford Horne <shorne@gmail.com>,
-    linux-openrisc@vger.kernel.org,
-    Yoshinori Sato <ysato@users.sourceforge.jp>,
-    Rich Felker <dalias@libc.org>,
-    John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-    linux-sh@vger.kernel.org
-Message-ID: <a76bc24a4e7c1d8112d7d5fa8d14e4b694a0e90c.1768281748.git.fthain@linux-m68k.org>
-In-Reply-To: <cover.1768281748.git.fthain@linux-m68k.org>
-References: <cover.1768281748.git.fthain@linux-m68k.org>
-From: Finn Thain <fthain@linux-m68k.org>
-Subject: [PATCH v7 2/4] atomic: Specify alignment for atomic_t and atomic64_t
-Date: Tue, 13 Jan 2026 16:22:28 +1100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aDminwzO"
+Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-88a32bf0248so58459456d6.0
+        for <linux-openrisc@vger.kernel.org>; Mon, 12 Jan 2026 22:50:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1768287051; x=1768891851; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=vX59/flKMUDb8zjb/CqTAfKlTuGyJwgf2lJ9POWv81Y=;
+        b=aDminwzOmtGELvrpXwoJuF8Vised+qClS8KGMqtYTJiKEfsIaa5dWb3jmtAob22nDv
+         twjz1EHrcgyDKfjRZ3Twgh4sHntR+paZs4j/WrWXcezBL5h9pZB+Y35Rpaoqj94bzJLH
+         LzUJJDummWcO7+Fu9vmEXHAqMtN/RgAVNL3HVVVJ/KA9KgjbQbJw9SJjv2T+owOdJrSI
+         gKtqBri2R3YLCNaWnzW1ZZwYkw5Kz5JavRwotg7jJ9otywgfhsKptyFtV2uULx+3+Hx6
+         ffuyj5L+UjDyfUNovCLPg1y4mFHEIYGqp2qIrLLjXqPRk7VyPT1s4YT3HU1to52g4vnP
+         AqDw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768287051; x=1768891851;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=vX59/flKMUDb8zjb/CqTAfKlTuGyJwgf2lJ9POWv81Y=;
+        b=enVwIVf9PE90dSwW0Ej1LGHqymvFLh7qjDNx7F/ZkgkH5IZt4mgJSOwOguQ9qh4Gzs
+         LkfCQ3z6fGnEMzNZdMAb8J0jp4WvUxsXfc+dMDxBYfWdbbepNthcybAs/eD4ezZTrzXR
+         PYwe36v/lb5INRi2tEMhRjLbACHb6I/FGsmiDAVA/VNk5m3+/Z1t4EySp2/JVolPswgb
+         cxBkIOzzA3s5xJ6mFPyUspiG1GmbShRJ8nlWM9q9Vj9dXvgE8m26906l9j8X8Y6aIakj
+         RoXcosoAFkrwWDIy5JuQLLfJq5l3sypgk3dMkcaHcxehqM2uZ8A3yYDdlRTkX7hcosNu
+         0zJg==
+X-Forwarded-Encrypted: i=1; AJvYcCV2FIQ+N4+gN2HLxZiekIY1oyOCVyU1LgiespMDbISyMUpnBY+Lpp1YoRwldfehS6vKxBUyp3pF8yJCdg1i7g==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxNbyfmWkjvVLYNZfCAyFHEIKYXESRHntvlr/usBhwCaZhJSrvu
+	b7RJiZ9caycDznXL3hh9BqjgPYzMCgk5gOQoUMOF5IXiHX9rkHtxKCU+
+X-Gm-Gg: AY/fxX6Y5Sr+veJDrDLoJJjaDSPZlqfBrdGOg6VCqs83WnSnSaqsaRemF8s070WBgnj
+	El5RXLL5Io7KkmK3bzG74nR+a/FV3ZC24rx97Jnny0WqRqhLa+pMM0QLdL9TkXinORKjPFaKysE
+	OwS9n13B+2h31FbJa8MVqJHf4vhOr2hL8m9Wz9Wf1xXKtTRGCahmQl5CgftSJa+6/lLd2oR1hjR
+	tU6ot9ycJEYpjn0ep57N4qGj/ibs5LajSbZi1Iij6VRy3YdVHm8IWY44I9gJD32Bicq8FEmbyhJ
+	7o0Jr/PnW4BGZEvuH+p+8GzSh5Ojk2Ciu5trKYPa8SoTh/dQP9JAXGaKnzVUIgEg2oVxr40hZAr
+	q5oacLc+35EjpyDOKQPZq5pH0nKMziaeaZJcjMv4NVxv/FwC9102voozPNdSHR2/RgFz+ijpNRF
+	CEwudD49N2qlNskEfqZjTEGv1Txc6xh3R4jsCHlJegxkvCZKvgCfea4F7LOA==
+X-Google-Smtp-Source: AGHT+IFA85MjM1cnTGL5nks8UTBaUTRvSeGOw/MqVWENdA/8we2okwkLgNeF33lCoaLlOIlw7RP7mg==
+X-Received: by 2002:a05:6214:4291:b0:888:81f1:a05e with SMTP id 6a1803df08f44-890842d1be9mr273660036d6.60.1768287051243;
+        Mon, 12 Jan 2026 22:50:51 -0800 (PST)
+Received: from [172.20.10.9] (mobile-access-c1d2ca-216.dhcp.inet.fi. [193.210.202.216])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-890770cdfb0sm152433806d6.6.2026.01.12.22.50.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 12 Jan 2026 22:50:50 -0800 (PST)
+Message-ID: <86b974d7-cabd-4913-b5f2-5b62b520e023@gmail.com>
+Date: Tue, 13 Jan 2026 08:50:33 +0200
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 00/29] arch, mm: consolidate hugetlb early reservation
+To: Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@kernel.org>
+Cc: Alex Shi <alexs@kernel.org>, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Andreas Larsson <andreas@gaisler.com>, Borislav Petkov <bp@alien8.de>,
+ Brian Cain <bcain@kernel.org>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ David Hildenbrand <david@kernel.org>, Dinh Nguyen <dinguyen@kernel.org>,
+ Geert Uytterhoeven <geert@linux-m68k.org>, Guo Ren <guoren@kernel.org>,
+ Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
+ Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ Jonathan Corbet <corbet@lwn.net>, Klara Modin <klarasmodin@gmail.com>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+ Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ Magnus Lindholm <linmag7@gmail.com>, Matt Turner <mattst88@gmail.com>,
+ Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>,
+ Michal Hocko <mhocko@suse.com>, Michal Simek <monstr@monstr.eu>,
+ Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Pratyush Yadav <pratyush@kernel.org>,
+ Richard Weinberger <richard@nod.at>, Ritesh Harjani <ritesh.list@gmail.com>,
+ Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>,
+ Suren Baghdasaryan <surenb@google.com>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>,
+ Vineet Gupta <vgupta@kernel.org>, Vlastimil Babka <vbabka@suse.cz>,
+ Will Deacon <will@kernel.org>, x86@kernel.org, linux-alpha@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ linux-cxl@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+ linux-mm@kvack.org, linux-openrisc@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
+ linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+ sparclinux@vger.kernel.org
+References: <20260111082105.290734-1-rppt@kernel.org>
+ <20260112142323.495fc43e662e7d276b0fa371@linux-foundation.org>
+Content-Language: en-US
+From: Kalle Niemi <kaleposti@gmail.com>
+In-Reply-To: <20260112142323.495fc43e662e7d276b0fa371@linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Some recent commits incorrectly assumed 4-byte alignment of locks.
-That assumption fails on Linux/m68k (and, interestingly, would have
-failed on Linux/cris also). The jump label implementation makes a
-similar alignment assumption.
+On 1/13/26 00:23, Andrew Morton wrote:
+> On Sun, 11 Jan 2026 10:20:34 +0200 Mike Rapoport <rppt@kernel.org> wrote:
+> 
+>> v3 changes:
+>> * fix empty_zero_page initialization on arm
+>> * fix ZONE_DMA limit calculation on powerpc
+>> * add Acks
+> 
+> updated, thanks.  I'll suppress the ensuing email flood.
+> 
+> Kalle, can you please retest sometime, see if the BeagleBone Black boot
+> failure was fixed?
+> 
+> Seems we haven't heard back from rmk regarding
+> https://lkml.kernel.org/r/aVrUDeSkqqY9ZCtS@shell.armlinux.org.uk.
 
-The expectation that atomic_t and atomic64_t variables will be naturally
-aligned seems reasonable, as indeed they are on 64-bit architectures.
-But atomic64_t isn't naturally aligned on csky, m68k, microblaze, nios2,
-openrisc and sh. Neither atomic_t nor atomic64_t are naturally aligned
-on m68k.
+Hello!
 
-This patch brings a little uniformity by specifying natural alignment
-for atomic types. One benefit is that atomic64_t variables do not get
-split across a page boundary. The cost is that some structs grow which
-leads to cache misses and wasted memory.
+I will test this v3 patch ASAP and reply results here.
+Collective sorry for the delay; I have been busy!
 
-See also, commit bbf2a330d92c ("x86: atomic64: The atomic64_t data type
-should be 8 bytes aligned on 32-bit too").
-
-Cc: Guo Ren <guoren@kernel.org>
-Cc: linux-csky@vger.kernel.org
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: linux-m68k@lists.linux-m68k.org
-Cc: Dinh Nguyen <dinguyen@kernel.org>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: linux-openrisc@vger.kernel.org
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: Rich Felker <dalias@libc.org>
-Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc: linux-sh@vger.kernel.org
-Link: https://lore.kernel.org/lkml/CAFr9PX=MYUDGJS2kAvPMkkfvH+0-SwQB_kxE4ea0J_wZ_pk=7w@mail.gmail.com
-Link: https://lore.kernel.org/lkml/CAMuHMdW7Ab13DdGs2acMQcix5ObJK0O2dG_Fxzr8_g58Rc1_0g@mail.gmail.com/
-Acked-by: Guo Ren <guoren@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Finn Thain <fthain@linux-m68k.org>
----
-Changed since v5:
- - Added tags from Guo Ren and Arnd Bergmann.
-
-Changed since v2:
- - Specify natural alignment for atomic64_t.
-
-Changed since v1:
- - atomic64_t now gets an __aligned attribute too.
- - The 'Fixes' tag has been dropped because Lance sent a different fix
-   for commit e711faaafbe5 ("hung_task: replace blocker_mutex with encoded
-   blocker") that's suitable for -stable.
----
- include/asm-generic/atomic64.h | 2 +-
- include/linux/types.h          | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/include/asm-generic/atomic64.h b/include/asm-generic/atomic64.h
-index 100d24b02e52..f22ccfc0df98 100644
---- a/include/asm-generic/atomic64.h
-+++ b/include/asm-generic/atomic64.h
-@@ -10,7 +10,7 @@
- #include <linux/types.h>
- 
- typedef struct {
--	s64 counter;
-+	s64 __aligned(sizeof(s64)) counter;
- } atomic64_t;
- 
- #define ATOMIC64_INIT(i)	{ (i) }
-diff --git a/include/linux/types.h b/include/linux/types.h
-index d4437e9c452c..1760e1feeab9 100644
---- a/include/linux/types.h
-+++ b/include/linux/types.h
-@@ -180,7 +180,7 @@ typedef phys_addr_t resource_size_t;
- typedef unsigned long irq_hw_number_t;
- 
- typedef struct {
--	int counter;
-+	int __aligned(sizeof(int)) counter;
- } atomic_t;
- 
- #define ATOMIC_INIT(i) { (i) }
--- 
-2.49.1
-
+BR
+Kalle
