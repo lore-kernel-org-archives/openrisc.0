@@ -1,127 +1,145 @@
-Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D89738E5D3
-	for <linux-openrisc@vger.kernel.org>; Tue, 13 Jan 2026 12:33:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 432922C859
+	for <linux-openrisc@vger.kernel.org>; Tue, 13 Jan 2026 16:15:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768307610; cv=none; b=HU73hL60CJrtRFgmyFja+bu14nQJFuly2UgFCW0VNOkku/z3Atq1UEW8wWkkLPNHskp6a5Ditw2FzcwXsBsaEA/ZvvVlL2yu+pXdO9GuHeQL5Ki91ZqTblCLrYNuZIE7gGVjmYJ+EjMeIZpzypHGcWXZ0tCq1PdeLVaH5qop/EA=
+	t=1768320912; cv=none; b=C9JDPSNXkEuMcueNJcNIHcJACCYF5TPOG2A9ulSiB23vYupIiu2L7pl/ie3vDhHX+oiWPhD+JABbgfCBb3S0xeEINWxE9OB5oi3luFzEKRJo+NfQJ376nnMKnOGJkqB+o5a7Kd46ydhMWnoKUkX86CzAjB4gwvd6E02MNkBzOUM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768307610; c=relaxed/simple;
-	bh=c2pQGNsmx4TXSTG4ks/OmiO2LMby6F7I6nhF1Yls93E=;
-	h=From:To:Cc:Subject:In-Reply-To:Date:Message-ID:References:
-	 MIME-Version:Content-Type; b=HZenKxVEGwtPIZUh5K9lNqSJ9Bj33kS0TMJJ4sjS0PxaGIjYUAOY/Ee+iWSMbOdEoUDWJRYUKugz+WhAUC4zGXt2SbUTdyjzKOg/Dh/f+j2iK2ifQN/8wpvg1ORh1dhow8RjmARw3WLM5vg2ruW/wu7pK+n+uA/gFKWe5jaEJ9Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GCrBvpZe; arc=none smtp.client-ip=209.85.216.42
+	s=arc-20240116; t=1768320912; c=relaxed/simple;
+	bh=TLoU5lWDyws1OeV7OXou1lN7fTwwTLr00N4mF7uK9x0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nV/HZGxuX21ZLhS9Fn1N4psbF8IPkuReWfYdL21TINFvKSBHWvIf/inF3tlEbFcJxUipxHGkELUP3Q+DRML93vzg5Wv5a89u5LKDlMOt2bwku2YHiBXZPpCoR7UWl5f0c6aKP76YKIKubEiuIN6KWJ4xksA2jLanA1x8gPU36QY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jbwZ8dlp; arc=none smtp.client-ip=209.85.128.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GCrBvpZe"
-Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-34c30f0f12eso4361774a91.1
-        for <linux-openrisc@vger.kernel.org>; Tue, 13 Jan 2026 04:33:28 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jbwZ8dlp"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-47d5e021a53so57847705e9.3
+        for <linux-openrisc@vger.kernel.org>; Tue, 13 Jan 2026 08:15:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768307607; x=1768912407; darn=vger.kernel.org;
-        h=mime-version:references:message-id:date:in-reply-to:subject:cc:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=j4BCb4tuwUydlXX/lekB/MWAbo5xTWmBY98lhxIZgCk=;
-        b=GCrBvpZeucBOdNpJseUbRKNa77J3jEjSKSr2rQltUiOSzioURb4448Kr9GVdc4A4M6
-         EeRxRTsOfiRVNkUEGN4mkvBWr7+cqibFBBnbNCpse52V2sMsMNI9lEm95Cnlek63otZl
-         syjrb7MRSUA4zfswNNSYnSNoKl7QdqKysebTzPHBsCeNlTTSfvgjmp0e0FuW/B95Alst
-         oe/iuaWn7B8uGt+o/gTqlwZd0wTuqVGIQR6mFwzUCdAVrz2qHLtEl1u3M5lND7sa/YIo
-         WJVxnqKjY+DdRZteDSadMj1yuf/MI2IqhwEjkDmLAD+876PYUwT4dDvY2csrpor9dpk1
-         na4g==
+        d=gmail.com; s=20230601; t=1768320910; x=1768925710; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=hvtxYilHF4JVL0eXB0D64yPAf4KKBwd/NTOQX2Jue3w=;
+        b=jbwZ8dlpO+NbW2m0Cdbp2Bd042UVS5eSflx4nVu4KNBG2fIeBqbFWQfw6+arzV2d4A
+         1lBFdrKuBMN2QU2ViRm+cl0eVi6S8CJzjNF/wgCfjrMR695NI2X2TQmaJ0qWlLg3AKT1
+         lSgP1MP3bqEgIoA4cG37+ac84/FlhP0jF7dfEOQvUhB1IXXvsT4Van9xLNfHBJa/4azL
+         bkmkAK5iIffoKCMT5dENVv8GLFj9gqj7PTfd7FUdoPO9fIXL/e2MEk+P1ZaQJzSt93mB
+         eVHbLbzXyMcGJl/U7BIx5Myd5/9xyp+GWZexyKy8tVr+nLKuNBbp6h4PfaS1P9lFPK2D
+         UBSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768307607; x=1768912407;
-        h=mime-version:references:message-id:date:in-reply-to:subject:cc:to
-         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=j4BCb4tuwUydlXX/lekB/MWAbo5xTWmBY98lhxIZgCk=;
-        b=U7/7fZEOJCMIck/495fFgobpd4v0AUows7DcXW6UCiiEawmV0zP9QDnlK+2ewxQ0A7
-         yBN022t5UhXLM223CEIx2DM/a18qL7z2zyl/b3s50uzhc0HN+GsJijfNjznChiRsbBsn
-         GqN85kesCs/BOsODJa12p4kJ3dxcn/D0MW2jkhueDLbukZm8ItT4LK0z84YJNV/zbcRC
-         L07r1xn16tPSi+YHHtk7RL+8A6Ofev6QgVTCknU1OhvszZjn/rnYxuKu1vidFMEphcdt
-         IPVhpt2sAgra/aksaEi+k1t7BXqlK1bN45Xq+K1CtePoSp7196n2rzRv6hJ/roxBOJA1
-         fo5A==
-X-Forwarded-Encrypted: i=1; AJvYcCV2dGwEzjE4fL7UAwmgUdd/ZS34Hqe98ZjgJJAET1F1b/mf8IAd9aKlQrBe0HZktep6NXSyc4rjVQM98vCsBQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywnx0wokDMEL9MHVXl2e8WC1bxmqT9wl0xY+/DDwu4SqT2P3w+U
-	Rd/v1XPHwjjjynfmaQDXrqZ80DDtbJ329ElUyIWKXqMOKaM4t40YV6rG
-X-Gm-Gg: AY/fxX6vPvsaXwNFzFKGDAiFgWVC+oA2r47UlV+q+gAB8ysUqQoFYukPq5Ibpacv1xp
-	JdD3E9KMuATnMjjL87W+4l3Fj8ZApI28VtzFZXEeNCfjJ22vRBoHF2h+HV2yJrz2z7DHFtq1ty8
-	VOb95phGB4GUUXG/usdWqzxNUPt9Ar8UbaOtCs+3HoPNG2yp9BucaFOONrr0je6sfukDvVzrZvT
-	hkSq+kIwYH/RNtHewpIbue5rc/kfVr17/Ai090MaelTj+csdhQmXnlA6i3bda8STqwDPnLH20mH
-	KO6q1WDZ/5mvLqkU98003eeCAzZ5hy3PIiMh/Gut06xT+9OVgKs3xBz7Ro+/kyKDbKxxBy0vEhR
-	3BA+RH4lHR2wwdcCI/jRNeALPzpxlL2pKGxMN4boIpA9DPkL0pfbSK+WXb2pq3LEzr/JdGBKdCr
-	sl8TqK
-X-Google-Smtp-Source: AGHT+IFw8NQUhXWsNFLNcy9VnhtaeqSccMp4bageDierszWlx1Kxyih6osyfD1+uAcqTN4o2oK4SYQ==
-X-Received: by 2002:a17:90b:3ccc:b0:340:9ba6:8af4 with SMTP id 98e67ed59e1d1-34f68c47f0amr18570023a91.35.1768307607428;
-        Tue, 13 Jan 2026 04:33:27 -0800 (PST)
-Received: from dw-tp ([49.205.216.49])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-350fd6e343bsm1428958a91.1.2026.01.13.04.33.06
+        d=1e100.net; s=20230601; t=1768320910; x=1768925710;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=hvtxYilHF4JVL0eXB0D64yPAf4KKBwd/NTOQX2Jue3w=;
+        b=YbQu926iHWTFL/bB+jfHguUrOrQv0W2hn9tH20CucZvwC6k+gv8KvXlmegY61IV+By
+         +ZlSsnwFQv7OkY1rpHH8gT0ecvBT3VXBSazjm6DDfMu4BjhrlPJvFrdOlkGS9SrlBexe
+         PMh0GkH/aHRYWGGxtyLzfCirwM7x+c2g8QUPcwbxC6sMreGP3IBuJU/oz1wpylwncicG
+         PsTicTZTWjeC8Wxm3TZs7REajFao7mURnM6pfkJ735UbwmB2BqwaiDpR+sgNVvygt9SO
+         dEbHFE4ZzfCEiK/8KlsIxn1KmIAB15YSjLPYD0jgCW+Eug5TbOkwDh59yvCJTbRlgXJf
+         czfw==
+X-Gm-Message-State: AOJu0Yxm9DcP+IWANDQV6SO1PxGVkHBp/1BqSSn97/EzOl0rHb+oAIYl
+	EPPPIihUWFHnhfnoZ0qWAYDDk2fXpQkGUuyvT5b0Nrp4B2RppFPGY6P3
+X-Gm-Gg: AY/fxX7pB6q1u2clOb83lvXpgrwaFpXGqsLc+r0XJ/HInfQOofkor3rkfYRdymM1/6C
+	edSg16r6t4sEpLJE9lmrW5gBBBOl77DB/Tj3Q39dPOfa8V2mISO1cLM7q1Lu0kOTu23VGq+DYzi
+	HEvwCysMiwZcyPzG4ewWed608Vn6legoIH8YEctX92gCUYI6grPAl1p7DMEMjBj5qIJayK3BniM
+	UVbxyr1H6lE3ws48OSm56Ca4FDXiOfg2jNGXEEZ3nigas2DbAH1M/o1WyBcs47LHc5bwUvNoWht
+	Z8i2vSvDzxi2IDWIcM0lBaWkKUFBpCnf8mi57Jks7WaIFnwbHensg5tv2aCLEEWba6KgNIpTTrw
+	Zla4/ql9e4uXvnjyrnERdLQl2JuEHMnOYWpJ+Xi6FLDJEL6iF97F/Mu+8FqiGT5244DQEAporOM
+	X2FMltgV+14t36q9wvfvhF9s51zLrh8Jwu9w69+R7OvwqoGCkJLXHfw9I4m2L0femD
+X-Google-Smtp-Source: AGHT+IHGnmH/TbTUHTNUygniJjnxJnceaBkBBxZYIEq6h5tXVP2zWAtGpXJekrtv9xsl6fqRHOSMxQ==
+X-Received: by 2002:a05:600c:4ed3:b0:477:afc5:fb02 with SMTP id 5b1f17b1804b1-47d84b34785mr281616625e9.21.1768320909407;
+        Tue, 13 Jan 2026 08:15:09 -0800 (PST)
+Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d7f418538sm415828485e9.5.2026.01.13.08.15.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Jan 2026 04:33:26 -0800 (PST)
-From: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
-To: Mike Rapoport <rppt@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Alex Shi <alexs@kernel.org>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Andreas Larsson <andreas@gaisler.com>, Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>, 
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
-	"David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	David Hildenbrand <david@kernel.org>, Dinh Nguyen <dinguyen@kernel.org>, 
-	Geert Uytterhoeven <geert@linux-m68k.org>, Guo Ren <guoren@kernel.org>, 
-	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Johannes Berg <johannes@sipsolutions.net>, 
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Jonathan Corbet <corbet@lwn.net>, 
-	Klara Modin <klarasmodin@gmail.com>, "Liam R. Howlett" <Liam.Howlett@oracle.com>, 
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Magnus Lindholm <linmag7@gmail.com>, 
-	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Michal Hocko <mhocko@suse.com>, Michal Simek <monstr@monstr.eu>, 
-	Mike Rapoport <rppt@kernel.org>, Muchun Song <muchun.song@linux.dev>, 
-	Oscar Salvador <osalvador@suse.de>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Pratyush Yadav <pratyush@kernel.org>, Richard Weinberger <richard@nod.at>, 
-	Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, 
-	Suren Baghdasaryan <surenb@google.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>, 
-	Vlastimil Babka <vbabka@suse.cz>, Will Deacon <will@kernel.org>, x86@kernel.org, 
-	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-csky@vger.kernel.org, linux-cxl@vger.kernel.org, 
-	linux-doc@vger.kernel.org, linux-hexagon@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
-	linux-mips@vger.kernel.org, linux-mm@kvack.org, 
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org, 
-	linux-um@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, 
-	loongarch@lists.linux.dev, sparclinux@vger.kernel.org
-Subject: Re: [PATCH v3 15/29] powerpc: introduce arch_zone_limits_init()
-In-Reply-To: <20260111082105.290734-16-rppt@kernel.org>
-Date: Tue, 13 Jan 2026 17:59:49 +0530
-Message-ID: <87zf6hu24i.ritesh.list@gmail.com>
-References: <20260111082105.290734-1-rppt@kernel.org> <20260111082105.290734-16-rppt@kernel.org>
+        Tue, 13 Jan 2026 08:15:06 -0800 (PST)
+From: Stafford Horne <shorne@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+	devicetree <devicetree@vger.kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Stafford Horne <shorne@gmail.com>
+Subject: [PATCH v4 0/6] OpenRISC de0 nano single and multicore boards
+Date: Tue, 13 Jan 2026 16:11:33 +0000
+Message-ID: <20260113161152.3688309-1-shorne@gmail.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-Mike Rapoport <rppt@kernel.org> writes:
+Since v3:
+ - Switch order of gpio-mmio driver and bindings patches to patch binding
+   first before driver.  Suggested by Krzysztof.
+ - Removed example form binding suggested by Krzysztof.
+ - Added Reviewed-by's from Geert and Linus W.
+Since v2:
+ - Fixup (replace) gpio-mmio patch to update driver compatible list and just add
+   opencores,gpio to mmio-gpio bindings.  Discussed with Geert and Linus W
+   because the 8-bit opencores,gpio is not the same as the 32-bit broadcom
+   chip. [1].
+ - Update new device trees to use proper ordering, remove debug options, remove
+   unneeded "status" properties.  Suggested by Geert.
+Since v1:
+ - Use proper schema in gpio-mmio suggsted by Conor Dooley
+ - Remove 0 clock-frequency definitions in dtsi file
 
-> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
->
-> Move calculations of zone limits to a dedicated arch_zone_limits_init()
-> function.
->
-> Later MM core will use this function as an architecture specific callback
-> during nodes and zones initialization and thus there won't be a need to
-> call free_area_init() from every architecture.
->
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> ---
->  arch/powerpc/mm/mem.c | 22 ++++++++++++----------
->  1 file changed, 12 insertions(+), 10 deletions(-)
+The patches add support for OpenRISC systems running on the De0 Nano FPGA
+development board.  We have two SoCs which are available here:
 
-This v2 looks good to me. 
-I have also done a basic bootup testing using Linux PPC CI.
+ - https://github.com/olofk/de0_nano - Single core
+ - https://github.com/stffrdhrn/de0_nano-multicore - Multicore
 
-Please feel free to add:
+As I work on tutorials [2] to help other get started with OpenRISC I would like to
+have these defconfig and devicetree definitions in the upstream kernel to avoid
+losing them.
 
-Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
+When I was working on resurrecting these old setup's I found a major bug in
+OpenRISC SMP which is fixed in this series as well.
+
+[1] https://lore.kernel.org/lkml/20251217080843.70621-1-shorne@gmail.com/
+[2] https://openrisc.io/tutorials/
+
+
+Stafford Horne (6):
+  dt-bindings: gpio-mmio: Add opencores GPIO
+  gpio: mmio: Add compatible for opencores GPIO
+  openrisc: dts: Add de0 nano config and devicetree
+  openrisc: Fix IPIs on simple multicore systems
+  openrisc: dts: Split simple smp dts to dts and dtsi
+  openrisc: dts: Add de0 nano multicore config and devicetree
+
+ .../devicetree/bindings/gpio/gpio-mmio.yaml   |  1 +
+ arch/openrisc/boot/dts/de0-nano-common.dtsi   | 42 +++++++++
+ arch/openrisc/boot/dts/de0-nano-multicore.dts | 25 +++++
+ arch/openrisc/boot/dts/de0-nano.dts           | 54 +++++++++++
+ arch/openrisc/boot/dts/simple-smp.dts         | 25 +++++
+ .../dts/{simple_smp.dts => simple-smp.dtsi}   | 11 +--
+ arch/openrisc/configs/de0_nano_defconfig      | 79 ++++++++++++++++
+ .../configs/de0_nano_multicore_defconfig      | 92 +++++++++++++++++++
+ arch/openrisc/configs/simple_smp_defconfig    |  2 +-
+ arch/openrisc/include/asm/smp.h               |  3 +-
+ arch/openrisc/kernel/smp.c                    | 22 ++++-
+ drivers/gpio/gpio-mmio.c                      |  1 +
+ drivers/irqchip/irq-ompic.c                   | 15 ++-
+ drivers/irqchip/irq-or1k-pic.c                | 27 +++++-
+ 14 files changed, 385 insertions(+), 14 deletions(-)
+ create mode 100644 arch/openrisc/boot/dts/de0-nano-common.dtsi
+ create mode 100644 arch/openrisc/boot/dts/de0-nano-multicore.dts
+ create mode 100644 arch/openrisc/boot/dts/de0-nano.dts
+ create mode 100644 arch/openrisc/boot/dts/simple-smp.dts
+ rename arch/openrisc/boot/dts/{simple_smp.dts => simple-smp.dtsi} (90%)
+ create mode 100644 arch/openrisc/configs/de0_nano_defconfig
+ create mode 100644 arch/openrisc/configs/de0_nano_multicore_defconfig
+
+-- 
+2.51.0
+
