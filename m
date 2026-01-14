@@ -1,160 +1,148 @@
-Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 244E7285CB4
-	for <linux-openrisc@vger.kernel.org>; Wed, 14 Jan 2026 14:24:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 679761EF09B
+	for <linux-openrisc@vger.kernel.org>; Wed, 14 Jan 2026 15:14:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768400686; cv=none; b=oiZ+tq9JFjulQYuF1UoDUDkTg5YEYJ62r7UxIZLswS+F+vzG9rVPH5CGP8Wx3MLJZIHIiI6kQTwyaL1ZTBcmd843y5HPqOmVFLWxBY0jY9e9ZOdNgyR6AanknoKd0GHyEGMSoGJQ4/oHAkdphHJYsMsUs8jzyiL96cXezl3eYB0=
+	t=1768403662; cv=none; b=QbnzeBVKPoKYUDRyeqjyokLMJR1hnS9cqEIoE/tlZeosHdaFZJ/NVcNnZwVELxfwuATatz2cUiPxROMrnjQms2uCFrfabAgRZs9rCW3qkCCu/HWrazKPNO28upF60+8auP5LeetokVIW+47bPl4gpMiJZGo1//1OhYG3ac66g3Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768400686; c=relaxed/simple;
-	bh=5oL6AvIqkyKwZjO0mD2/yYyQwRXx8TSv2K9qlKzrIXE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qm2bd6VdFcffAv4djbztR1oDspFhGZo7gq4O84J+ieHOmlcAuyyLLxiXhPQDEHbXhBK0GhKrEfkqGEjpbwdqfEX1hxD0PH/epML0hgCuf6Jk7tykSY2mCuuHY9xbQYuLh1SSJXpms8bwt56qeVQd1wUzKwBI/HBs3oDCov3Y4yo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RUMwOu5n; arc=none smtp.client-ip=209.85.221.43
+	s=arc-20240116; t=1768403662; c=relaxed/simple;
+	bh=CHfzIK5x4XWL9/QUaUxETkAfLbkuw00XyD5/YC1qkJs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=RZd/spO7pr4cRLyr05eEzwdS1qGH8siwhH8CegpQf5wB5PcXzpO2vsQpQesRq9lv21mNaL1FMiKaTUrqeQYz9xImXHuFtKEQP0e1e3tUHMJxM3264wib1VizR6NKJ5fbYRFwrW7sghMffrk6A6tzqwB+HSho8Ex+kYcTd0L95EQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QJPeGloq; arc=none smtp.client-ip=209.85.128.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RUMwOu5n"
-Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-432d2c7dd52so4773839f8f.2
-        for <linux-openrisc@vger.kernel.org>; Wed, 14 Jan 2026 06:24:44 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QJPeGloq"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-47edffe5540so14544445e9.0
+        for <linux-openrisc@vger.kernel.org>; Wed, 14 Jan 2026 07:14:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768400683; x=1769005483; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=ijENdGZX9Lgu2wTs3qW/G5R3AgDc664xhdb20AB1kI0=;
-        b=RUMwOu5nLQqNO95IbNVJgOcZ6Ss/9l89DpfA8Y7a97Qzzr3+pqQOrsV/nAbeqi5MOM
-         BueDuyx84ql+bJOsZt8m6lrgA7Ekx3r656bVODYGCjoti+jaYOEZaYLcm23Yvnw5+EVv
-         3iDtL9I2VVa2Z1iX2cIA+1sWu3mfh1lQIJQEZQad214Bik4cKa1Dt+Ouv0SrSd93cK5O
-         yz6Hzg37MXi5gVLmz9mrm+iwpPhiDaAoQz2KEJJCQ6LCitRIXbpyEzPEwz5XTluzHwpe
-         EUjREbsq9ADAtJ8m9UBdl5JNISiFGc0MXrkpuJomoFWkpvS8JMZNbIxyVJa7PLt7gJEx
-         m/mg==
+        d=gmail.com; s=20230601; t=1768403660; x=1769008460; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=YKMHDOEQHHupe6LSng+rHSyrir0wywLcfnwHlAz/xGg=;
+        b=QJPeGloqkkax/oLPO7PRqGTwZujmlTOB8ZRfqI+Rd86ofrVsqYm9hOdbK5JDziPXse
+         cr43TwgX5qSCoHSVLdmXA/eme+tUawRc0tnV5YVjuq2iShhbUfabAj/a4o6Jf0oaDNCq
+         K0BL3tDVUFqv7Bo5tnMRikLxEwdxL3MwjqBSkmdrVXMD3teCCjcOCjt5iZ79rXMhoxf8
+         5GLZjYBSUB6UerqO3C35H18h7HcwDZo13fDP+PK+okMcqoW3Rin+XuXbng6bt1MAQUTE
+         HOxA6gZXfkeEG2AhSch4pad7xncnWHTS6FUS//yxMwiMxpTPKR9UgauNWAG/q6Ueo8li
+         JwSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768400683; x=1769005483;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ijENdGZX9Lgu2wTs3qW/G5R3AgDc664xhdb20AB1kI0=;
-        b=l2K696mi+VyFG1jwV29Xxj44F/dXUZkSjSHMNHcBTeWPpmEP/B80v+TG8kXny8gfv8
-         pKyB7WJ8eejebQZe1e+7yiu92dx8XKVk3bncTMwHysF0LENHp9IqbCpa0MuS2+7Qsy5j
-         1xB06w0YfN6skjYo7Y0Y+7hhVFVEOROTTx6jdNft8TWRKo+ANGEre3r+4S91rft1J/Qy
-         NGBNtylRUoSOFw8IWdmihUzrz+ijm8PWkYuGJB2dX5T9IztqenAHk4auLbHeKLJtLDyF
-         D7XyztGfCP7qfbr1Mt6LSXzGlG8LM5NO1cCaSg3+KTBgFt/s29MmQKBJi/xBwCUethCg
-         +eHw==
-X-Forwarded-Encrypted: i=1; AJvYcCWYBekmh7Y3Kd498zkDeADxSkVIZp8u+X+yAG7pS023WUAOVBfe1F/nZBBkxzplA3SMCs5NzyL4Qzy81wwwOA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxCRBkwzFEYhklNoYOrjbG0afwC/oDKFZuoOFuOxy8d21p5pHXR
-	cCu+O88RvroJ3RSYKKGt40QKJS/l2FPsxYr8KlX9ghbgDZMylqP9z+un
-X-Gm-Gg: AY/fxX65OIFXcgmbYJiRBwt+8EwF1++VSqSnrjj48CIazByREUzW6GNxQPSZIhBmceG
-	vItKa0DMZbEzj1gPokDxICkI0pRAq3j1yjTAf5IXe6h11E8geabauFxzvfRw6kxRdA4cCJYK0+e
-	jjlMX1hb9uaPocjiUDJs3+X2x/CvF9tJg2IFpqN8NH72zNDjLCyr8q4ru76zjGjf0hR5xi4zCUK
-	Frk+3RssUa0Kk0IWJWnaNJuex5jTNtT6B8rrsJ/FV0bNULgIKw1JyzSRsnzg47HLxMW8hogLpce
-	FcdtokAB7auJf64CTltyy+hZQz8FTJtbBiB8nZubmOhPatTcBN79TQjenGKHD4MD0JCThyLLy4A
-	t2tpMBmxf4KqFzmT54x97AZzG0XMzveQQYRw9uF6Okkkp2oPNzAcj6CTCJBYnuoEVxXulUQCAtr
-	rUdfNEdrCVlhQba6wEaGYyue/B+URZi7/yTC1ACHj3WeRqLHfZhb/Ed0DEAMYMefGZ
-X-Received: by 2002:a05:6000:2dc2:b0:431:66a:cbc4 with SMTP id ffacd0b85a97d-4342c501145mr3034386f8f.17.1768400683257;
-        Wed, 14 Jan 2026 06:24:43 -0800 (PST)
+        d=1e100.net; s=20230601; t=1768403660; x=1769008460;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=YKMHDOEQHHupe6LSng+rHSyrir0wywLcfnwHlAz/xGg=;
+        b=nTx7ijkTitSyivZe5YT0rvF8cUvX3Nb9Hc1YHVKsNkldSAqtstZVHZ/t3gRZIpi0Ty
+         4lcLLyhWpFlbmgUohXW/HmR4DaeXKHfP+YoupH4QhwZhYPg1GNEhuA/bRidwOcPwJRwI
+         FvSFtBal7wKAR9oFD5gFJ1j18dyWDJZNirY5VHcdrlT6i9mXdjHZIz2OjdwV2ytvQH0N
+         juUSMGUvZCQChklS4uHv0McRTAvmwmDyPA/0obwW8wQEHTJjuz+j6gItLugixfZ1rj1B
+         ZfCDcI8uejxuVza82AyRtpbfsOzx6/ndmCH6gzKj/Wl6XhFosOIYqjE4qFRm1E5QcnXt
+         n6ZA==
+X-Gm-Message-State: AOJu0Yzpreys6eUmGVvn8Zmb4L5/0vexEEPYwP6S2CyAV6jhi1RovvJG
+	nirDQxUz2q6CTV8IK58DxxdCoCmYLN8MR1uxE6kReaMnAfZj+n1vzG7w
+X-Gm-Gg: AY/fxX5lkThJDUPbRNGF8WuH/mvqM0XBcO01ve8SSlrFBMSGd91Be4/DKBLiD+0E/Az
+	RjZJhWVpVEDt34TtA+d4GzgVBauU8qwUgXHrA3u1WqSOhT7+rE1zDVaubxyxPvgkyXoa1CW7NwR
+	nkrsSlNHbWZyByJdYeCmN5k8qVOOucwZDls5qo7wHjbIg4PRN/AkJ60GfATdmy+ebPqXHfq8Cry
+	q/nHDOuoXKg61t6NUsQaxBrHgniIL/rZsi/O1s2HkJwAOzp5yUaUio/9TWMqZNwv3XPWCo8s55m
+	5Q47/uOOO5Ccw0wjaESEy+xDiu1JrhbfxB2/OmZ31rZt8cN2bKpvbccvIfWPMb1VejC/RhDZW3J
+	/k6dlrQM+iVR1RtyC+QhLH77IVXQZ+kRgcuZjHly7ickJUtSdJzCwo3wAcmJbBj0Vi8282GPIn0
+	E9BwpOf/kJ0bjfxQM7EUlnndKL7Q1z3eTPos4QqfgxKucKKpuvnqBwswq7nlcIsBP7
+X-Received: by 2002:a05:600c:818c:b0:47e:e2ec:9960 with SMTP id 5b1f17b1804b1-47ee339ba32mr33334245e9.35.1768403659669;
+        Wed, 14 Jan 2026 07:14:19 -0800 (PST)
 Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-432bd5fe67csm50308328f8f.40.2026.01.14.06.24.42
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-432dd78f5a8sm30905094f8f.27.2026.01.14.07.14.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Jan 2026 06:24:42 -0800 (PST)
-Date: Wed, 14 Jan 2026 14:24:41 +0000
+        Wed, 14 Jan 2026 07:14:18 -0800 (PST)
 From: Stafford Horne <shorne@gmail.com>
-To: Bartosz Golaszewski <brgl@kernel.org>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
 	devicetree <devicetree@vger.kernel.org>,
 	Rob Herring <robh@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	Conor Dooley <conor+dt@kernel.org>,
-	Linus Walleij <linusw@kernel.org>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	linux-gpio@vger.kernel.org
-Subject: Re: [PATCH v4 1/6] dt-bindings: gpio-mmio: Add opencores GPIO
-Message-ID: <aWenKb6N6mTJDipT@antec>
-References: <20260113161152.3688309-1-shorne@gmail.com>
- <20260113161152.3688309-2-shorne@gmail.com>
- <CAMRc=MfLqoPvCiEtunvfidaRGAfZFbGM98y8vjj8R187ziUtdg@mail.gmail.com>
- <aWZzZWTjctHasCHh@antec>
- <20260114-agile-kangaroo-of-honor-963dc6@quoll>
- <CAMRc=Meicads1OAYM+bRN3B8P2Jt9=D=VNSL-KQytsUiBLaAbg@mail.gmail.com>
+	Stafford Horne <shorne@gmail.com>
+Subject: [PATCH v5 0/6] OpenRISC de0 nano single and multicore boards
+Date: Wed, 14 Jan 2026 15:13:09 +0000
+Message-ID: <20260114151328.3827992-1-shorne@gmail.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAMRc=Meicads1OAYM+bRN3B8P2Jt9=D=VNSL-KQytsUiBLaAbg@mail.gmail.com>
 
-On Wed, Jan 14, 2026 at 09:36:55AM +0100, Bartosz Golaszewski wrote:
-> On Wed, Jan 14, 2026 at 9:31 AM Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> >
-> > On Tue, Jan 13, 2026 at 04:31:33PM +0000, Stafford Horne wrote:
-> > > On Tue, Jan 13, 2026 at 05:20:28PM +0100, Bartosz Golaszewski wrote:
-> > > > On Tue, Jan 13, 2026 at 5:15 PM Stafford Horne <shorne@gmail.com> wrote:
-> > > > >
-> > > > > Add a device tree binding for the opencores GPIO controller.
-> > > > >
-> > > > > On FPGA Development boards with GPIOs the OpenRISC architecture uses the
-> > > > > opencores gpio verilog rtl which is compatible with the MMIO GPIO driver.
-> > > > >
-> > > > > Link: https://opencores.org/projects/gpio
-> > > > > Signed-off-by: Stafford Horne <shorne@gmail.com>
-> > > > > Reviewed-by: Linus Walleij <linusw@kernel.org>
-> > > > > Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> > > > > ---
-> > > > > Since v3:
-> > > > >  - Removed example.
-> > > > >  - Re-order this patch to be before adding compatible string to driver as per
-> > > > >    device tree binding patch rules.
-> > > > >  - Add Reviewed-by's.
-> > > > > Since v2:
-> > > > >  - Fixup (replace) patch to simply add opencores,gpio and add an example.
-> > > > >    (It was incorrect to specifying opencores,gpio with brcm,bcm6345-gpio
-> > > > >     as opencores,gpio is not the same hardware, its 8-bit vs 32-bit)
-> > > > > Since v1:
-> > > > >  - Fix schema to actually match the example.
-> > > > >
-> > > > >  Documentation/devicetree/bindings/gpio/gpio-mmio.yaml | 1 +
-> > > > >  1 file changed, 1 insertion(+)
-> > > > >
-> > > > > diff --git a/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml b/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml
-> > > > > index ee5d5d25ae82..a8823ca65e78 100644
-> > > > > --- a/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml
-> > > > > +++ b/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml
-> > > > > @@ -23,6 +23,7 @@ properties:
-> > > > >        - ni,169445-nand-gpio
-> > > > >        - wd,mbl-gpio # Western Digital MyBook Live memory-mapped GPIO controller
-> > > > >        - intel,ixp4xx-expansion-bus-mmio-gpio
-> > > > > +      - opencores,gpio
-> > > > >
-> > > > >    big-endian: true
-> > > > >
-> > > > > --
-> > > > > 2.51.0
-> > > > >
-> > > >
-> > > > This is not a follow-up patch. Please rebase your fix on top of
-> > > > linux-next. I already have the previous patch in my tree and will not
-> > > > be rebasing the entire for-next branch.
-> > >
-> > > OK, understood, I wasn't aware you would not rebase. I will rework this rebasing
-> > > on linux-next reberting my previous dt-binding: patch first.
-> >
-> > No, you need to rebase, not revert.
-> >
-> 
-> Just to be extra-clear: take current linux-next (next-20260114) and -
-> on top of it - create a patch that fixes the issues in an incremental
-> way. No reverts. Also: add the Fixes: tag to your commit before your
-> SoB.
+Since v4:
+ - Rebased the series on linux-next to allow patches to be incremental.
+ - Rewrote the dt-bindings patch as an incremental patch, Due to this I
+   dropped reviewed-by's.
+ - Added acked-by to the IPI fix patch.
+Since v3:
+ - Switch order of gpio-mmio driver and bindings patches to patch binding
+   first before driver.  Suggested by Krzysztof.
+ - Removed example form binding suggested by Krzysztof.
+ - Added Reviewed-by's from Geert and Linus W.
+Since v2:
+ - Fixup (replace) gpio-mmio patch to update driver compatible list and just add
+   opencores,gpio to mmio-gpio bindings.  Discussed with Geert and Linus W
+   because the 8-bit opencores,gpio is not the same as the 32-bit broadcom
+   chip. [1].
+ - Update new device trees to use proper ordering, remove debug options, remove
+   unneeded "status" properties.  Suggested by Geert.
+Since v1:
+ - Use proper schema in gpio-mmio suggsted by Conor Dooley
+ - Remove 0 clock-frequency definitions in dtsi file
 
-Got it, I was doing this but preparing the series with a revert.  Good thing I
-waited a bit before sending.
+The patches add support for OpenRISC systems running on the De0 Nano FPGA
+development board.  We have two SoCs which are available here:
 
--Stafford
+ - https://github.com/olofk/de0_nano - Single core
+ - https://github.com/stffrdhrn/de0_nano-multicore - Multicore
+
+As I work on tutorials [2] to help other get started with OpenRISC I would like to
+have these defconfig and devicetree definitions in the upstream kernel to avoid
+losing them.
+
+When I was working on resurrecting these old setup's I found a major bug in
+OpenRISC SMP which is fixed in this series as well.
+
+[1] https://lore.kernel.org/lkml/20251217080843.70621-1-shorne@gmail.com/
+[2] https://openrisc.io/tutorials/
+
+Stafford Horne (6):
+  dt-bindings: gpio-mmio: Correct opencores GPIO
+  gpio: mmio: Add compatible for opencores GPIO
+  openrisc: dts: Add de0 nano config and devicetree
+  openrisc: Fix IPIs on simple multicore systems
+  openrisc: dts: Split simple smp dts to dts and dtsi
+  openrisc: dts: Add de0 nano multicore config and devicetree
+
+ .../devicetree/bindings/gpio/gpio-mmio.yaml   | 16 ++--
+ arch/openrisc/boot/dts/de0-nano-common.dtsi   | 42 +++++++++
+ arch/openrisc/boot/dts/de0-nano-multicore.dts | 25 +++++
+ arch/openrisc/boot/dts/de0-nano.dts           | 54 +++++++++++
+ arch/openrisc/boot/dts/simple-smp.dts         | 25 +++++
+ .../dts/{simple_smp.dts => simple-smp.dtsi}   | 11 +--
+ arch/openrisc/configs/de0_nano_defconfig      | 79 ++++++++++++++++
+ .../configs/de0_nano_multicore_defconfig      | 92 +++++++++++++++++++
+ arch/openrisc/configs/simple_smp_defconfig    |  2 +-
+ arch/openrisc/include/asm/smp.h               |  3 +-
+ arch/openrisc/kernel/smp.c                    | 22 ++++-
+ drivers/gpio/gpio-mmio.c                      |  1 +
+ drivers/irqchip/irq-ompic.c                   | 15 ++-
+ drivers/irqchip/irq-or1k-pic.c                | 27 +++++-
+ 14 files changed, 390 insertions(+), 24 deletions(-)
+ create mode 100644 arch/openrisc/boot/dts/de0-nano-common.dtsi
+ create mode 100644 arch/openrisc/boot/dts/de0-nano-multicore.dts
+ create mode 100644 arch/openrisc/boot/dts/de0-nano.dts
+ create mode 100644 arch/openrisc/boot/dts/simple-smp.dts
+ rename arch/openrisc/boot/dts/{simple_smp.dts => simple-smp.dtsi} (90%)
+ create mode 100644 arch/openrisc/configs/de0_nano_defconfig
+ create mode 100644 arch/openrisc/configs/de0_nano_multicore_defconfig
+
+-- 
+2.51.0
 
