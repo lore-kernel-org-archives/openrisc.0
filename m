@@ -1,62 +1,62 @@
-Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9272319610
-	for <linux-openrisc@vger.kernel.org>; Wed, 14 Jan 2026 15:14:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9512931AAA8
+	for <linux-openrisc@vger.kernel.org>; Wed, 14 Jan 2026 15:14:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768403671; cv=none; b=ST5hMWI90sGcoRVzSSAIKbvtP3DtK5Ud+u4FmT4dnyugffMLxIb5Sp6fac5N8iqGvMlBlmG/BXhN0NRMhwLjlJstNXMBrgR2Y6VWQZtCBpFExRBAdsJBOkkbzIubNSNdz1xKDc+auUqAR29q0cs26UlYFfRY05I4hnLnlT0qd/k=
+	t=1768403675; cv=none; b=l6q8sqbGNSoKnWrelLTXzDRQOVjyxxExT7BDhyc+sfSvsjW/YBvCWRjAvRd35zvgmfXWrLQFLbhFqN+M7YlFUIWPvRborWrrpiYMhK6xi4KjCSNomjch30/BaXWPUnf5cBTo/3p0Q03khuD8d8veQNJ6GZ9jNxkda6Q8EAQ6bkA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768403671; c=relaxed/simple;
-	bh=X+1J5PrXk/eYAdcNrlogIy51e8BwUbac79/oxhidec0=;
+	s=arc-20240116; t=1768403675; c=relaxed/simple;
+	bh=3w9x74jvoREdIp5sUyjkTqZxpMoWLz4rF2zIt3mzXw8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=V/t01Wfqu2EzseAvESKoAgnJhNEgO48v+qdDrbTXto6Vno9ieU6IrtWS8v3BBEO0+XEzCiKw15SQPPhozfzPy66nKac5Dy4lZJcR9FfgyMdGig1T2CwQcevLBl1hYZEO6YAAB5ZwpNNrEWXL1DNR0OfAIybLfyZGv/aJARrXfxI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RSPCCXSO; arc=none smtp.client-ip=209.85.128.52
+	 MIME-Version; b=MfoIM+U/ZSLF0VIZBMiWcAlBJXBIcN97TwohYgjN+4Ft0TMSTL5HSAxl8q18QmHFegjrBTaJyu8LFHUdNIK9HATlN9tTRDgn4M4GGHDn8oRG7+DzuIiMAcR4REIc/uz3TjptiN4ljQl+1OxEth0eTW5dLgqfHzMgwVYJr+/FwwU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CXFjAT3g; arc=none smtp.client-ip=209.85.128.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RSPCCXSO"
-Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-47ee4338e01so3694875e9.2
-        for <linux-openrisc@vger.kernel.org>; Wed, 14 Jan 2026 07:14:29 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CXFjAT3g"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-47edffe5540so14546885e9.0
+        for <linux-openrisc@vger.kernel.org>; Wed, 14 Jan 2026 07:14:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768403668; x=1769008468; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1768403672; x=1769008472; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=1s6pH8NPA0ipZmaojy8syPtuylZJ77gPmpuGh7ODFgg=;
-        b=RSPCCXSOAUDaZqmkmBRNvLm2rHJ7n1oVXsDgZkM4zV0xeWrGfxmUy+G9+H+l38qgKe
-         mKMv1iSz+sbrZ6AouZztWLXOaboNVM/jYpX1N84bniKs8dE4SZ0VPeNAUAqpQr/uq6sE
-         RjqgWv3auJQMxlUAVRDn/zv0+sEdku8PkpvWoWKvpiyMW5nLr4R7VBnQvts6aakr1a3M
-         f5PEB4IllfQEqwWKKv0zPk0V+7PCd5Up6RcGUH1F0bt3Iv363qZJT64j58F9P7TsdtqH
-         5HxvGFqsJP7tTj9EBQ2zwLSXy84LXHtP9oT5Y2OeLGrCy1K4/Nfej3QN4hmMC2Pq4nzb
-         xeFw==
+        bh=C8A+Z3N19sy1v8240Of8lIsB5cOXR7K+c682PDevVZw=;
+        b=CXFjAT3gyQ8p+tLGiwV1h4vJxIk0y9qiggBGgx+2/Glv3A4MM6/a9MUNuVTLIABxBH
+         9dC66puXLDDOsJx3hohSR5WKHaESWtPDeYkeOjYUe2psMXeiRC5oV8C3amNHeNm9RWSv
+         +rKD5Zwb3AIjHXsi1YE9MRpmJkDFgyQF7d8nCsiHP0nharX1eZ3HDAx+5bAuK1Dm8iYk
+         DhapoU07c00rxnDXBRvedVg7r8g+2gt8B9WOB13MKcT42nvoHPv5XBRBpjisGE4RBH1e
+         tnW71zZiXnQXGTJ0M0Y6OeZzljPbwxyWx3DlPu1e6p9EC1G+mrqCpofbwgcoHMPZ6miC
+         bwRg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768403668; x=1769008468;
+        d=1e100.net; s=20230601; t=1768403672; x=1769008472;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=1s6pH8NPA0ipZmaojy8syPtuylZJ77gPmpuGh7ODFgg=;
-        b=UgHR8mT4ZbFG2dXBGUOLxFCl4HkM6JxvlCyaLB/g0KuEvsLKOtQLjPXwoXg0zBp4oC
-         Qe4B/KGrbxAxqjmZxEspbR78tCpat1qBOBXcxJZl8i8i2lv1G4z5YRVAUAB5zNwgP8Fr
-         1/czWRyLLEliqAAtH3KvpLlFRvTeHp4y30sDG3TWvMRTo+0LAXeq4iJyyYEFFBFrJKr1
-         mRW8JgVUlGvISA0+HLF2ERz1Xh/uARRs4aaMMSNbbZW1pHjN+SkiXNudvbVTtR9ZqVIt
-         WMN3k0j6uQgd3+e1GmtkWageBo7sKX927tuJ2xvVWaKpXl1r+qV5nqFivKSuOvm5P8hC
-         CdTA==
-X-Gm-Message-State: AOJu0Yw/xv6kO4i4r7WTqPX2NIAbpgFMRXDO1tVGSh/+bPp40UYUOsKf
-	EaL+sDMtDcDrzdjAoQmcwQHGroXiEA+5VS1G92jFaChHZ7lTyZFnlYj2
-X-Gm-Gg: AY/fxX5xw7Ci4c/eBA+iWcYfWAK3fIWM9QLy+pRgb04yEq5Twr7h/kBF6uw4hF2/0jp
-	YOywQDFZNmF3jCiLrHrT6JyambG63XghAKrFDqWs7KrMUqlXbSKwz6oBWN5KiXDsF4iC4RW4GPC
-	vuBat8Qrhp4TyFxw5sehJF0kRba7fS7touFnsS20kBIBWV9rXSDfXsipB9Eu6gy7vVRU95zEmFR
-	wA6Kv7e87k78rdSavEKbBc0TWTw4Y3FQKSwpLhiIKUPMlxMxzUkS816l42HUNI39/1On5rD0EhR
-	20OpEBgDoUuGW7T6Yqik8ql+1LJJzjVGQj7ch3xWoGKftYpTI91jt5yIpC8epd8rYHv48ObD2wq
-	NXnx1J3lDSsEpMP0GtUSabD9ECdp5d2Osqz1CqeLUHfwvtZGzdrU4jnaWa1cl6+CAVdf5nyqvvD
-	LZLCYOkECIuz6eR5PWU+0GnIfzW3qPOPL78seY39V5pqvKu1xLnuL/Ya+6MIhoiXfV
-X-Received: by 2002:a05:600c:a318:b0:47e:e952:86c9 with SMTP id 5b1f17b1804b1-47ee952876fmr8858615e9.0.1768403668144;
-        Wed, 14 Jan 2026 07:14:28 -0800 (PST)
+        bh=C8A+Z3N19sy1v8240Of8lIsB5cOXR7K+c682PDevVZw=;
+        b=swCsDJQy18pVgpHHdTw7N4GULVXRLNV06J69GzsRrYZTErPWKai+YxMr+r3n7S3d20
+         d25axOzg50kxchjGvVHQR0ew3d758NcEwFSeTfqoLjvIdJLvr1AkR3wUPDEZL6lX3pAj
+         v0X5ZSJuYsLAFBG5GUbUdfs7AR52DwnoA4HlC9ZLj/KHnMdzLXjqlZYf1M1enr+aE+GM
+         ZegSH1hiFet1sFeIKLCCiA82EpiQfOUZiYi3uYh/8p6QepgbPUcWIpgytsfXqgtZX+Dv
+         jwDISIpN5FDBAsYoB+aPwt3HMh7xZIjPLQqLIrnKxwdOnFhOrLuTv11WF0Juyqnxv2bf
+         IXew==
+X-Gm-Message-State: AOJu0Yz+LXzMtWQ1Ti7cWnanBplzsGFlVbIDVdMZFxK7nZ1CY7sT93GC
+	geKY7+M/IC/9uR41eSx+de/4Sl7CSwKUJGJhS8M+yhpiXAPNQkKbU7vx
+X-Gm-Gg: AY/fxX4Fon5LObHVq75MbSHmWfDSdE5J58RJ6IU7CEEXx6O8QcAXHQK1z8hOSMBnV3+
+	m1mPPncofEiGNOfwkHMCzFcoUWV/LSXDLGF3uaLZOyyb5A7tsqkHeN6TKWZ04t1rVS6vuCwEwda
+	Q+veyXIvMsHnDJo5qDF0PMVCPtN9XAO+ioEfFsX4CrzP0izYNepULbZ1dCdsi8cR909YmE1uIgm
+	RuUErOvMAP2TwzAVyrzx0+nh20hR20e7qzUTPknSZkO9VJdDTooWKbzXIRgat8pY2GgL0Iqq+tx
+	76dCykGPpP0Req6UsKjuGeTj695c1Udj0irCuE+B+AAdzUjZPQqVTKoyM1SeqOVYQDwmz4vI2Mf
+	0h844lO3FJmXDtHhHWdVzP8lQYTgBRaC/FrCYl664m8kMOBVXVbxIlSM4SMrJ1fO37J94L0vJNl
+	xka3wkj+RkzecOH5FjA67KjT/sJd2s+DGZc9h1oSjfEc49sG8T3oqY9d+unPDzgMRW
+X-Received: by 2002:a05:600c:1f89:b0:47d:3ffa:5c75 with SMTP id 5b1f17b1804b1-47ee335157dmr33867745e9.20.1768403671798;
+        Wed, 14 Jan 2026 07:14:31 -0800 (PST)
 Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-432bd0dacc5sm50466226f8f.5.2026.01.14.07.14.27
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47ee7d58f09sm21659865e9.12.2026.01.14.07.14.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Jan 2026 07:14:27 -0800 (PST)
+        Wed, 14 Jan 2026 07:14:31 -0800 (PST)
 From: Stafford Horne <shorne@gmail.com>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
@@ -65,11 +65,12 @@ Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	Conor Dooley <conor+dt@kernel.org>,
 	Stafford Horne <shorne@gmail.com>,
+	Thomas Gleixner <tglx@kernel.org>,
 	Jonas Bonn <jonas@southpole.se>,
 	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Subject: [PATCH v5 3/6] openrisc: dts: Add de0 nano config and devicetree
-Date: Wed, 14 Jan 2026 15:13:12 +0000
-Message-ID: <20260114151328.3827992-4-shorne@gmail.com>
+Subject: [PATCH v5 4/6] openrisc: Fix IPIs on simple multicore systems
+Date: Wed, 14 Jan 2026 15:13:13 +0000
+Message-ID: <20260114151328.3827992-5-shorne@gmail.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260114151328.3827992-1-shorne@gmail.com>
 References: <20260114151328.3827992-1-shorne@gmail.com>
@@ -81,229 +82,190 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The de0 nano from Terasic is an FPGA board that we use in the OpenRISC
-community to test OpenRISC configurations.  Add a base configuration for
-the board that runs an OpenRISC CPU at 50Mhz with 32MB ram, UART for
-console and some GPIOs for LEDs and switches.
+Commit c05671846451 ("openrisc: sleep instead of spin on secondary
+wait") fixed OpenRISC SMP Linux for QEMU. However, stability was never
+achieved on FPGA development boards.  This is because the above patch
+has a step to unmask IPIs on non-boot cpu's but on hardware without
+power management, IPIs remain masked.
 
-There is an older version of this floating around that defines all of
-the hardware on the board including SPI's, flash devices, sram, ADCs
-etc.  Eventually it would be good to get the full version upstream
-but for now I think a minimal board is good to start with.
+This meant that IPI's were never actually working on the simple SMP
+systems we run on development boards.  The systems booted but stability
+was very suspect.
 
-Link: https://openrisc.io/tutorials/de0_nano/
-Link: https://github.com/olofk/de0_nano
+Add the ability to unmask IPI's on the non-boot cores.  This is done by
+making the OMPIC IRQs proper percpu IRQs.  We can then use the
+enabled_percpu_irq() to unmask IRQ on the non-boot cpus.
+
+Update the or1k PIC driver to use a flow handler that can switch between
+percpu and the configured level or edge flow handlers at runtime.
+This mechanism is inspired by that done in the J-Core AIC driver.
 
 Signed-off-by: Stafford Horne <shorne@gmail.com>
+Acked-by: Thomas Gleixner <tglx@kernel.org>
 ---
-Since v3:
- - No changes.
-Since v2:
- - Move leds block up to the top.
- - Remove unneeded "status" from gpio0.
- - Removed earlycon from de0-nano.dts.
+Since v4:
+ - Added acked-by.
 
- arch/openrisc/boot/dts/de0-nano-common.dtsi | 42 +++++++++++
- arch/openrisc/boot/dts/de0-nano.dts         | 54 ++++++++++++++
- arch/openrisc/configs/de0_nano_defconfig    | 79 +++++++++++++++++++++
- 3 files changed, 175 insertions(+)
- create mode 100644 arch/openrisc/boot/dts/de0-nano-common.dtsi
- create mode 100644 arch/openrisc/boot/dts/de0-nano.dts
- create mode 100644 arch/openrisc/configs/de0_nano_defconfig
+ arch/openrisc/include/asm/smp.h |  3 ++-
+ arch/openrisc/kernel/smp.c      | 22 +++++++++++++++++++++-
+ drivers/irqchip/irq-ompic.c     | 15 +++++++++++----
+ drivers/irqchip/irq-or1k-pic.c  | 27 ++++++++++++++++++++++++++-
+ 4 files changed, 60 insertions(+), 7 deletions(-)
 
-diff --git a/arch/openrisc/boot/dts/de0-nano-common.dtsi b/arch/openrisc/boot/dts/de0-nano-common.dtsi
-new file mode 100644
-index 000000000000..02e329e28e33
---- /dev/null
-+++ b/arch/openrisc/boot/dts/de0-nano-common.dtsi
-@@ -0,0 +1,42 @@
-+// SPDX-License-Identifier: GPL-2.0
+diff --git a/arch/openrisc/include/asm/smp.h b/arch/openrisc/include/asm/smp.h
+index e21d2f12b5b6..007296f160ef 100644
+--- a/arch/openrisc/include/asm/smp.h
++++ b/arch/openrisc/include/asm/smp.h
+@@ -20,7 +20,8 @@ extern void smp_init_cpus(void);
+ extern void arch_send_call_function_single_ipi(int cpu);
+ extern void arch_send_call_function_ipi_mask(const struct cpumask *mask);
+ 
+-extern void set_smp_cross_call(void (*)(const struct cpumask *, unsigned int));
++extern void set_smp_cross_call(void (*)(const struct cpumask *, unsigned int),
++			       unsigned int irq);
+ extern void handle_IPI(unsigned int ipi_msg);
+ 
+ #endif /* __ASM_OPENRISC_SMP_H */
+diff --git a/arch/openrisc/kernel/smp.c b/arch/openrisc/kernel/smp.c
+index 86da4bc5ee0b..040ca201b692 100644
+--- a/arch/openrisc/kernel/smp.c
++++ b/arch/openrisc/kernel/smp.c
+@@ -13,6 +13,7 @@
+ 
+ #include <linux/smp.h>
+ #include <linux/cpu.h>
++#include <linux/interrupt.h>
+ #include <linux/sched.h>
+ #include <linux/sched/mm.h>
+ #include <linux/irq.h>
+@@ -25,6 +26,7 @@
+ 
+ asmlinkage __init void secondary_start_kernel(void);
+ 
++static unsigned int ipi_irq __ro_after_init;
+ static void (*smp_cross_call)(const struct cpumask *, unsigned int);
+ 
+ unsigned long secondary_release = -1;
+@@ -39,6 +41,14 @@ enum ipi_msg_type {
+ 
+ static DEFINE_SPINLOCK(boot_lock);
+ 
++static void or1k_ipi_enable(void)
++{
++	if (WARN_ON_ONCE(!ipi_irq))
++		return;
 +
-+#include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/leds/common.h>
++	enable_percpu_irq(ipi_irq, 0);
++}
 +
-+/ {
-+	leds0: leds {
-+		compatible = "gpio-leds";
+ static void boot_secondary(unsigned int cpu, struct task_struct *idle)
+ {
+ 	/*
+@@ -136,6 +146,7 @@ asmlinkage __init void secondary_start_kernel(void)
+ 	complete(&cpu_running);
+ 
+ 	synchronise_count_slave(cpu);
++	or1k_ipi_enable();
+ 	set_cpu_online(cpu, true);
+ 
+ 	local_irq_enable();
+@@ -195,9 +206,18 @@ void smp_send_stop(void)
+ 	smp_call_function(stop_this_cpu, NULL, 0);
+ }
+ 
+-void __init set_smp_cross_call(void (*fn)(const struct cpumask *, unsigned int))
++void __init set_smp_cross_call(void (*fn)(const struct cpumask *, unsigned int),
++			       unsigned int irq)
+ {
++	if (WARN_ON(ipi_irq))
++		return;
 +
-+		led-heartbeat {
-+			gpios = <&gpio0 0 GPIO_ACTIVE_HIGH>;
-+			color = <LED_COLOR_ID_GREEN>;
-+			function = LED_FUNCTION_HEARTBEAT;
-+			linux,default-trigger = "heartbeat";
-+			label = "heartbeat";
-+		};
-+	};
+ 	smp_cross_call = fn;
 +
-+	memory@0 {
-+		device_type = "memory";
-+		reg = <0x00000000 0x02000000>;
-+	};
++	ipi_irq = irq;
 +
-+	/* 8 Green LEDs */
-+	gpio0: gpio@91000000 {
-+		compatible = "opencores,gpio";
-+		reg = <0x91000000 0x1>, <0x91000001 0x1>;
-+		reg-names = "dat", "dirout";
-+		gpio-controller;
-+		#gpio-cells = <2>;
-+	};
++	/* Enabled IPIs for boot CPU immediately */
++	or1k_ipi_enable();
+ }
+ 
+ void arch_send_call_function_single_ipi(int cpu)
+diff --git a/drivers/irqchip/irq-ompic.c b/drivers/irqchip/irq-ompic.c
+index e66ef4373b1e..f0e0b435bb1d 100644
+--- a/drivers/irqchip/irq-ompic.c
++++ b/drivers/irqchip/irq-ompic.c
+@@ -84,6 +84,8 @@ DEFINE_PER_CPU(unsigned long, ops);
+ 
+ static void __iomem *ompic_base;
+ 
++static DEFINE_PER_CPU_READ_MOSTLY(int, ipi_dummy_dev);
 +
-+	/* 4 DIP Switches */
-+	gpio1: gpio@92000000 {
-+		compatible = "opencores,gpio";
-+		reg = <0x92000000 0x1>, <0x92000001 0x1>;
-+		reg-names = "dat", "dirout";
-+		gpio-controller;
-+		#gpio-cells = <2>;
-+		status = "disabled";
-+	};
-+};
-diff --git a/arch/openrisc/boot/dts/de0-nano.dts b/arch/openrisc/boot/dts/de0-nano.dts
-new file mode 100644
-index 000000000000..b5b854e7e8b4
---- /dev/null
-+++ b/arch/openrisc/boot/dts/de0-nano.dts
-@@ -0,0 +1,54 @@
-+// SPDX-License-Identifier: GPL-2.0
+ static inline u32 ompic_readreg(void __iomem *base, loff_t offset)
+ {
+ 	return ioread32be(base + offset);
+@@ -183,12 +185,17 @@ static int __init ompic_of_init(struct device_node *node,
+ 		goto out_unmap;
+ 	}
+ 
+-	ret = request_irq(irq, ompic_ipi_handler, IRQF_PERCPU,
+-				"ompic_ipi", NULL);
+-	if (ret)
++	irq_set_percpu_devid(irq);
++	ret = request_percpu_irq(irq, ompic_ipi_handler, "ompic_ipi",
++				 &ipi_dummy_dev);
 +
-+/dts-v1/;
++	if (ret) {
++		pr_err("ompic: failed to request irq %d, error: %d",
++		       irq, ret);
+ 		goto out_irq_disp;
++	}
+ 
+-	set_smp_cross_call(ompic_raise_softirq);
++	set_smp_cross_call(ompic_raise_softirq, irq);
+ 
+ 	return 0;
+ 
+diff --git a/drivers/irqchip/irq-or1k-pic.c b/drivers/irqchip/irq-or1k-pic.c
+index 48126067c54b..73dc99c71d40 100644
+--- a/drivers/irqchip/irq-or1k-pic.c
++++ b/drivers/irqchip/irq-or1k-pic.c
+@@ -118,11 +118,36 @@ static void or1k_pic_handle_irq(struct pt_regs *regs)
+ 		generic_handle_domain_irq(root_domain, irq);
+ }
+ 
++/*
++ * The OR1K PIC is a cpu-local interrupt controller and does not distinguish or
++ * use distinct irq number ranges for per-cpu event interrupts (IPI). Since
++ * information to determine whether a particular irq number should be treated as
++ * per-cpu is not available at mapping time, we use a wrapper handler function
++ * which chooses the right handler at runtime based on whether IRQF_PERCPU was
++ * used when requesting the irq.  Borrowed from J-Core AIC.
++ */
++static void or1k_irq_flow_handler(struct irq_desc *desc)
++{
++#ifdef CONFIG_SMP
++	struct irq_data *data = irq_desc_get_irq_data(desc);
++	struct or1k_pic_dev *pic = data->domain->host_data;
 +
-+#include "de0-nano-common.dtsi"
++	if (irqd_is_per_cpu(data))
++		handle_percpu_devid_irq(desc);
++	else
++		pic->handle(desc);
++#endif
++}
 +
-+/ {
-+	model = "Terasic DE0 Nano";
-+	compatible = "opencores,or1ksim";
-+	#address-cells = <1>;
-+	#size-cells = <1>;
-+	interrupt-parent = <&pic>;
+ static int or1k_map(struct irq_domain *d, unsigned int irq, irq_hw_number_t hw)
+ {
+ 	struct or1k_pic_dev *pic = d->host_data;
+ 
+-	irq_set_chip_and_handler(irq, &pic->chip, pic->handle);
++	if (IS_ENABLED(CONFIG_SMP))
++		irq_set_chip_and_handler(irq, &pic->chip, or1k_irq_flow_handler);
++	else
++		irq_set_chip_and_handler(irq, &pic->chip, pic->handle);
 +
-+	aliases {
-+		uart0 = &serial0;
-+	};
-+
-+	chosen {
-+		stdout-path = "uart0:115200";
-+	};
-+
-+	cpus {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		cpu@0 {
-+			compatible = "opencores,or1200-rtlsvn481";
-+			reg = <0>;
-+			clock-frequency = <50000000>;
-+		};
-+	};
-+
-+	/*
-+	 * OR1K PIC is built into CPU and accessed via special purpose
-+	 * registers.  It is not addressable and, hence, has no 'reg'
-+	 * property.
-+	 */
-+	pic: pic {
-+		compatible = "opencores,or1k-pic";
-+		#interrupt-cells = <1>;
-+		interrupt-controller;
-+	};
-+
-+	serial0: serial@90000000 {
-+		compatible = "opencores,uart16550-rtlsvn105", "ns16550a";
-+		reg = <0x90000000 0x100>;
-+		interrupts = <2>;
-+		clock-frequency = <50000000>;
-+	};
-+};
-+
-+&gpio1 {
-+	status = "okay";
-+};
-diff --git a/arch/openrisc/configs/de0_nano_defconfig b/arch/openrisc/configs/de0_nano_defconfig
-new file mode 100644
-index 000000000000..bc63905f9cd8
---- /dev/null
-+++ b/arch/openrisc/configs/de0_nano_defconfig
-@@ -0,0 +1,79 @@
-+CONFIG_SYSVIPC=y
-+CONFIG_NO_HZ=y
-+CONFIG_LOG_BUF_SHIFT=14
-+CONFIG_BLK_DEV_INITRD=y
-+# CONFIG_RD_GZIP is not set
-+# CONFIG_RD_LZMA is not set
-+# CONFIG_RD_LZO is not set
-+# CONFIG_RD_LZ4 is not set
-+# CONFIG_RD_ZSTD is not set
-+CONFIG_EXPERT=y
-+# CONFIG_EPOLL is not set
-+# CONFIG_TIMERFD is not set
-+# CONFIG_EVENTFD is not set
-+# CONFIG_AIO is not set
-+CONFIG_BUILTIN_DTB_NAME="de0-nano"
-+# CONFIG_FPU is not set
-+CONFIG_HZ_100=y
-+# CONFIG_BLOCK is not set
-+CONFIG_SLUB_TINY=y
-+# CONFIG_COMPAT_BRK is not set
-+# CONFIG_VM_EVENT_COUNTERS is not set
-+CONFIG_NET=y
-+CONFIG_UNIX=y
-+CONFIG_UNIX_DIAG=y
-+CONFIG_INET=y
-+CONFIG_IP_MULTICAST=y
-+CONFIG_INET_UDP_DIAG=y
-+CONFIG_INET_RAW_DIAG=y
-+CONFIG_INET_DIAG_DESTROY=y
-+# CONFIG_IPV6 is not set
-+CONFIG_DEVTMPFS=y
-+CONFIG_DEVTMPFS_MOUNT=y
-+# CONFIG_PREVENT_FIRMWARE_BUILD is not set
-+# CONFIG_FW_LOADER is not set
-+# CONFIG_INPUT is not set
-+# CONFIG_SERIO is not set
-+# CONFIG_VT is not set
-+# CONFIG_LEGACY_PTYS is not set
-+CONFIG_SERIAL_8250=y
-+CONFIG_SERIAL_8250_CONSOLE=y
-+CONFIG_SERIAL_OF_PLATFORM=y
-+# CONFIG_HW_RANDOM is not set
-+CONFIG_PPS=y
-+CONFIG_GPIO_SYSFS=y
-+# CONFIG_GPIO_SYSFS_LEGACY is not set
-+CONFIG_GPIO_GENERIC_PLATFORM=y
-+# CONFIG_HWMON is not set
-+# CONFIG_USB_SUPPORT is not set
-+CONFIG_NEW_LEDS=y
-+CONFIG_LEDS_CLASS=y
-+CONFIG_LEDS_GPIO=y
-+CONFIG_LEDS_TRIGGERS=y
-+CONFIG_LEDS_TRIGGER_TIMER=y
-+CONFIG_LEDS_TRIGGER_ONESHOT=y
-+CONFIG_LEDS_TRIGGER_HEARTBEAT=y
-+CONFIG_LEDS_TRIGGER_CPU=y
-+CONFIG_LEDS_TRIGGER_ACTIVITY=y
-+CONFIG_LEDS_TRIGGER_GPIO=y
-+CONFIG_LEDS_TRIGGER_DEFAULT_ON=y
-+CONFIG_LEDS_TRIGGER_TRANSIENT=y
-+CONFIG_LEDS_TRIGGER_PANIC=y
-+CONFIG_LEDS_TRIGGER_NETDEV=y
-+CONFIG_LEDS_TRIGGER_PATTERN=y
-+CONFIG_LEDS_TRIGGER_TTY=y
-+# CONFIG_VIRTIO_MENU is not set
-+# CONFIG_VHOST_MENU is not set
-+# CONFIG_DNOTIFY is not set
-+CONFIG_TMPFS=y
-+# CONFIG_XZ_DEC_X86 is not set
-+# CONFIG_XZ_DEC_POWERPC is not set
-+# CONFIG_XZ_DEC_ARM is not set
-+# CONFIG_XZ_DEC_ARMTHUMB is not set
-+# CONFIG_XZ_DEC_ARM64 is not set
-+# CONFIG_XZ_DEC_SPARC is not set
-+# CONFIG_XZ_DEC_RISCV is not set
-+CONFIG_PRINTK_TIME=y
-+# CONFIG_DEBUG_MISC is not set
-+# CONFIG_FTRACE is not set
-+# CONFIG_RUNTIME_TESTING_MENU is not set
+ 	irq_set_status_flags(irq, pic->flags);
+ 
+ 	return 0;
 -- 
 2.51.0
 
