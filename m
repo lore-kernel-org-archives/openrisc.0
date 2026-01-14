@@ -1,235 +1,109 @@
-Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
+Received: from mail-ua1-f48.google.com (mail-ua1-f48.google.com [209.85.222.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBA893191DE
-	for <linux-openrisc@vger.kernel.org>; Wed, 14 Jan 2026 15:14:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50D0B279327
+	for <linux-openrisc@vger.kernel.org>; Wed, 14 Jan 2026 15:36:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768403684; cv=none; b=qUUN+FcRKd5kAmxjAAKM/kv5D9fBVSsX0MgwJZl2B2OeHDfMiLP4InYDlPhkvglSjOPTQ2XbOevHWNJ1ZTWc3e0kLLBMrUioezIip1ZuhKp63Id21lemVfc/J8X+Tx/LQh/M351fW4K3H8wQGnyQ2gOPhFLUaqhyGAxlL054pV8=
+	t=1768404998; cv=none; b=fy0o5HikDZI1h8U6xyc+HfMgaGyzrkEhiGAKcElx5VeqB7z8wauw5eSdVz5lR3FoBW9baUJHJxd/yjXDlb+sqsE9NeY8yM0oXruMU3IqzT0glIYvQHZHKB2QFu3onHni60FO8p/RMml7l5Ss5k5A87iejPZ8TWuRewQu5xnhcWo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768403684; c=relaxed/simple;
-	bh=un/mmc47M7TzaiskJcRDfyxuLNhftyXJQ1e6SZgvuK4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Twy0+GUQd2TQbAfVvmgofLqhgW0xzDHpgDfiitut5PpbR5yzkIOP+qsBN1bfTCa6B2Qs8VaWx44zkwWhZ5bhTQflaK1SD9N01P4ZodItzfJDhTDgIlBoQd13YGb0FuppmJu48dvIqg1QHkd8y7ydn1rPXY6Dka2isTZRHcwC9Gk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SSuo61Ce; arc=none smtp.client-ip=209.85.128.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	s=arc-20240116; t=1768404998; c=relaxed/simple;
+	bh=O8YhrdqWvzZyoq4CqxqmbkpSRKVqDxU7IFcj9d6kka8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=LdHlVJawExi/80XjyROS+tZZfXhPRT0U9GY6OD6aI+RUGtIIkxtDgczvOIIs7ca0bMgz15UWFLMLKdR4JnWRaV54qLDLM2RNwJ6zLqwKuk7RUjMB5x7bI4PeQ8YGs1oztSxHZPF5eAqPaheQqZ4cM/NGhsnf1WrRAvEKnqM85XI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.222.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SSuo61Ce"
-Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-47ee807a4c5so3556385e9.2
-        for <linux-openrisc@vger.kernel.org>; Wed, 14 Jan 2026 07:14:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768403681; x=1769008481; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=3suL/FJnULndAdzhv6eYWlf/ToXJG1zAeBlGIDXgmts=;
-        b=SSuo61Cee6oBBChgYprUZkmT/KuZ1emC5/Lh9ndx9V9+deLreojMGrimDcw9PHj4SG
-         6NTA/vxhs3d7KeDWf40vUnwaGWGR2yLc5qSAg2V+b+r+y3NChPrOE8Qmu0+jSbkGUPZ0
-         P9EM85mjKwBA+2ruTwLdAGDkbOvkLZ4l+E33B4BHHDKOryr24EAZXqK9uXBWGQheKt9P
-         mup4mMEw3cXJQ28aFmw2eRSEaowPFVm6ByFHcp41IFshxxUtjgwonkldqo/sBTIxFocn
-         BZhScurVIexHkaENhc4AIiy1R2per1oAKGAGfTUwZGlZbt804T0kBAPDwHZeImL7+P2g
-         O/tw==
+Received: by mail-ua1-f48.google.com with SMTP id a1e0cc1a2514c-93f573ba819so3529986241.1
+        for <linux-openrisc@vger.kernel.org>; Wed, 14 Jan 2026 07:36:37 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768403681; x=1769008481;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=3suL/FJnULndAdzhv6eYWlf/ToXJG1zAeBlGIDXgmts=;
-        b=ibuz22Q3psHD7wSCpF24KtCwawlYsZvLVkRDakQ2H+Gw+pnhW80rYZvsQ27HlBlz+f
-         UKh3QG7DJ4PJ6Bmb7qc8ii6SxHSJQlj97JeHGB2PfPpYPeAs/v5kd8huYZ+E4SWdHTJg
-         19HMRu/wmMvwGVQ4OtmyhLW8v8SjJIIj/A2GrdobHISa1/OpQzJt5FWcIDSWhdqg9jG/
-         wzh7ux2Q1Y1pMyMxQfMDSbpKbuWX27pjTLJS4CnW2TQ/XY951InE+YHODu3iJSx+1K6S
-         YpfDA+p9e5rJ8wEU9PEDjJV/6ZlrgPm/LiwwZc8mfFBIBe70gL08akoYUxgyGpfH5DUo
-         qFqg==
-X-Gm-Message-State: AOJu0YzQNLvGvYcb1rXIHC0l3R8RU24VQDrnq0VrRv/3ulb+CNokG2pr
-	tR4wMv46l48tL3QdXoLXsMaD4VUP/WU68aWq50/WslAyn/mmq71rf5Jr
-X-Gm-Gg: AY/fxX5IJAdDXxSefcEOo2ik46JZ57bn4z86+XnbART0+9MKtRxycN/27cn4uAxtxTl
-	5C0Vhtkz7dlJGlE1/wipr7wNVRHwyFJql0yjdrLqtL39xDg4L5X15pvgMpotFZs4rGJXMmXiX2A
-	nsAtitOrWIKjkReI0P/N73WKtU6L0WzMigju3iuL+Zb40x9FIugmfMCly4wpvTyf2S/+94nPOdM
-	WUES/4abKH1XVjChCUxCAgWetPIl1f7ZpstXrdSBbmRMMVrBrtpe8A0Eq5lIyV0m8Vyfu1g7ZC5
-	IiD5tFdRxaoVedi7PD2oX1xTHTzvb7FywHtUEhxEONvihVB1jECzRuYIf+rFxCWARcGNUhhpCRt
-	FYIjBYjob9LVaORkeuH2gEoUmBi86gr20C/TXrZ59fGVMtpsBupo5a3z3aNLbrqKWjm54r/t6M7
-	+NAI9xfRgsKcv1g9SiexDxnrb1Mfbs1ErE/55ssgcROVM0P3pRI7vGidSqj70kY2uv
-X-Received: by 2002:a05:600c:3510:b0:47a:9560:5944 with SMTP id 5b1f17b1804b1-47ee33a9684mr34349325e9.34.1768403681233;
-        Wed, 14 Jan 2026 07:14:41 -0800 (PST)
-Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47ee57b0749sm36864255e9.7.2026.01.14.07.14.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Jan 2026 07:14:40 -0800 (PST)
-From: Stafford Horne <shorne@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	devicetree <devicetree@vger.kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Stafford Horne <shorne@gmail.com>,
-	Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Subject: [PATCH v5 6/6] openrisc: dts: Add de0 nano multicore config and devicetree
-Date: Wed, 14 Jan 2026 15:13:15 +0000
-Message-ID: <20260114151328.3827992-7-shorne@gmail.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260114151328.3827992-1-shorne@gmail.com>
-References: <20260114151328.3827992-1-shorne@gmail.com>
+        d=1e100.net; s=20230601; t=1768404996; x=1769009796;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Q8vpeO0iETHWaHO53ExF9TcMHcv+dXCbwCEeIoUj/6s=;
+        b=CSQH0mqYLtdxWO5W/3eYu9qF/RXQfEkggBbOZLHUsTGq/7trUwk4qMVNwGCyHQlyln
+         njlqSNOI0TyYu2OqYDg4O2vEiSPNdFtCPmpcWJ+//XUNnz42HxsynUH6TPcFTPpljEuh
+         shMGTAbyCfvyQHKuvHpK7a5OmdnekC1yJDdbiO9kcbLBSSCyFlAFAjrcGtaiI7INaIzh
+         e1AAVQfs5f1LhikYonGXGbL4d7e2q18LwBSHO4ePD8JPfE7Pf8dRi93iJ3VwnbcrcXxF
+         WFfPTpAAfG4Wzza87HUGfWDkxcz7+5IrMkDs6wOKJVIWpuFzRh2X2bQEKaInUztvlFw/
+         oVfA==
+X-Forwarded-Encrypted: i=1; AJvYcCXsqk4h8FCMiKhHMl/sEytFcW4nwGyai5lo/LFE1Dd5U7cBwzNm+0o3GGt1/xmoDw3pyzNMAJBSj48cJ4E8Xg==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw22KoLlxPWkirHSiELyiR+Srwec76JsSeR8pbIPKmkZ0qIT/8u
+	Y0xkiBKNIBQFie/tLqva2kmzdxdKVtdFTQ6vQhbhaYAL1k3XaWAlWXPitdbO7VbS
+X-Gm-Gg: AY/fxX5Oteb3tJjw0ibbS2rAIpKsl/7TvjKC7XT/ysf+82RzwWvPg0uLI32qe1l8Lgd
+	tdlKi93wUBm5w4HzeLrtF6SkRddPSPfaN8bKzzN3oIoLHXjLGZadierw0UKrNLsCeWtNmlAc4sD
+	054468w2Alp60wt3FesiOYYCmHhUtlkMfT18Xs68oqrX5lw2yqMPr94THdaqEtVCGwL2ExaKqQo
+	PLmZ7h59wxiDLlIpsqfbvum1svqNP6LGrxO0CMT8AnNSmQHIQjcooB4SzCivkOBHAeVJB/TdsCf
+	+SkTLHgyT5XLxOocBy6OdEDThftg9dH6CTHBMkkp5apUvvmomWwjbAwOJ9Fkxu8GleNqS/2yOsF
+	045kiP8gjr06Dp0esFZ1tD5Efx3OISo9TUiY0fs8HojzhESTH1tups79Pk9SUjZyYy4MpCcCFfD
+	LStPI3g16bb+HmuqAo16BvykLex8+WW99saDLNwS9UTRL+31v7
+X-Received: by 2002:a05:6102:3584:b0:5ee:a309:6684 with SMTP id ada2fe7eead31-5f1838c41f6mr768331137.10.1768404994761;
+        Wed, 14 Jan 2026 07:36:34 -0800 (PST)
+Received: from mail-ua1-f53.google.com (mail-ua1-f53.google.com. [209.85.222.53])
+        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-944121ef3fcsm22781987241.0.2026.01.14.07.36.34
+        for <linux-openrisc@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 14 Jan 2026 07:36:34 -0800 (PST)
+Received: by mail-ua1-f53.google.com with SMTP id a1e0cc1a2514c-93f573ba819so3529974241.1
+        for <linux-openrisc@vger.kernel.org>; Wed, 14 Jan 2026 07:36:34 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCUYjfnVcaTMz2Y7WWfmu57pki0GJy9cJQYP24+2APaSLoRpnFnl1q79OR3wJYNaPXtLlB9qSaDi0Bl1iDDK3A==@vger.kernel.org
+X-Received: by 2002:a05:6102:a49:b0:5db:f615:1819 with SMTP id
+ ada2fe7eead31-5f183896f48mr869822137.3.1768404994347; Wed, 14 Jan 2026
+ 07:36:34 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260114151328.3827992-1-shorne@gmail.com> <20260114151328.3827992-2-shorne@gmail.com>
+In-Reply-To: <20260114151328.3827992-2-shorne@gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 14 Jan 2026 16:36:23 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdVdeepsCSMBrzUvhAFXj4zjA7VwRpxn+xVuZ0d1+9mTEA@mail.gmail.com>
+X-Gm-Features: AZwV_QgYklX1dY-yBai_t1Hmyb0_GhAlHmkB-BntyC-t8YeO5tJVXZ8WCzYpBkQ
+Message-ID: <CAMuHMdVdeepsCSMBrzUvhAFXj4zjA7VwRpxn+xVuZ0d1+9mTEA@mail.gmail.com>
+Subject: Re: [PATCH v5 1/6] dt-bindings: gpio-mmio: Correct opencores GPIO
+To: Stafford Horne <shorne@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, 
+	Linux OpenRISC <linux-openrisc@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, linux-gpio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Add a multicore configuration for the Terasic de0 nano FPGA development
-board.  This SoC runs 2 OpenRISC CPUs at 50Mhz with 32MB ram, UART for
-console and GPIOs for LEDs.
+Hi Stafford,
 
-This FPGA SoC is based on the simple-smp reference board and brings in
-devices from the de0 nano common DTSI file.
+Thanks for your patch!
 
-A default config is added that brings together the device tree and
-driver setup.
+On Wed, 14 Jan 2026 at 16:14, Stafford Horne <shorne@gmail.com> wrote:
+> In commit f48b5e8bc2e1 ("dt-bindings: gpio-mmio: Add compatible
+> string for opencores,gpio") we marked opencores,gpio to be allowed with
+> brcm,bcm6345-gpio. This was wrong, opencores,gpio is not hardware
+> equivalent to brcm,bcm6345-gpio. It has a different register map and
+> is 8-bit vs braodcom which is 32-bit.  Change opencores,gpio to be a
 
-Link: https://github.com/stffrdhrn/de0_nano-multicore
+broadcom or Broadcom
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- arch/openrisc/boot/dts/de0-nano-multicore.dts | 25 +++++
- .../configs/de0_nano_multicore_defconfig      | 92 +++++++++++++++++++
- 2 files changed, 117 insertions(+)
- create mode 100644 arch/openrisc/boot/dts/de0-nano-multicore.dts
- create mode 100644 arch/openrisc/configs/de0_nano_multicore_defconfig
+> separate compatible string for MMIO GPIO.
+>
+> Fixes: f48b5e8bc2e1 ("dt-bindings: gpio-mmio: Add compatible string for opencores,gpio")
+> Signed-off-by: Stafford Horne <shorne@gmail.com>
+> ---
+> Since v4:
+>  - New patch.
+>  - Rebased old patch and rewrote commit message.
 
-diff --git a/arch/openrisc/boot/dts/de0-nano-multicore.dts b/arch/openrisc/boot/dts/de0-nano-multicore.dts
-new file mode 100644
-index 000000000000..b6cf286afaa4
---- /dev/null
-+++ b/arch/openrisc/boot/dts/de0-nano-multicore.dts
-@@ -0,0 +1,25 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/leds/common.h>
-+
-+/dts-v1/;
-+
-+#include "simple-smp.dtsi"
-+#include "de0-nano-common.dtsi"
-+
-+/ {
-+	model = "Terasic DE0 Nano - Multicore";
-+};
-+
-+&cpu0 {
-+	clock-frequency = <50000000>;
-+};
-+
-+&cpu1 {
-+	clock-frequency = <50000000>;
-+};
-+
-+&serial0 {
-+	clock-frequency = <50000000>;
-+};
-diff --git a/arch/openrisc/configs/de0_nano_multicore_defconfig b/arch/openrisc/configs/de0_nano_multicore_defconfig
-new file mode 100644
-index 000000000000..d33b1226e09c
---- /dev/null
-+++ b/arch/openrisc/configs/de0_nano_multicore_defconfig
-@@ -0,0 +1,92 @@
-+CONFIG_LOCALVERSION="-de0nano-smp"
-+CONFIG_SYSVIPC=y
-+CONFIG_POSIX_MQUEUE=y
-+CONFIG_NO_HZ=y
-+CONFIG_LOG_BUF_SHIFT=14
-+CONFIG_BLK_DEV_INITRD=y
-+# CONFIG_RD_GZIP is not set
-+# CONFIG_RD_BZIP2 is not set
-+# CONFIG_RD_LZMA is not set
-+# CONFIG_RD_XZ is not set
-+# CONFIG_RD_LZO is not set
-+# CONFIG_RD_LZ4 is not set
-+CONFIG_EXPERT=y
-+# CONFIG_EPOLL is not set
-+# CONFIG_TIMERFD is not set
-+# CONFIG_EVENTFD is not set
-+# CONFIG_AIO is not set
-+CONFIG_KALLSYMS_ALL=y
-+CONFIG_DCACHE_WRITETHROUGH=y
-+CONFIG_BUILTIN_DTB_NAME="de0-nano-multicore"
-+CONFIG_OPENRISC_HAVE_INST_CMOV=y
-+CONFIG_SMP=y
-+CONFIG_HZ_100=y
-+CONFIG_JUMP_LABEL=y
-+# CONFIG_BLOCK is not set
-+CONFIG_SLUB_TINY=y
-+# CONFIG_COMPAT_BRK is not set
-+# CONFIG_VM_EVENT_COUNTERS is not set
-+CONFIG_NET=y
-+CONFIG_PACKET=y
-+CONFIG_UNIX=y
-+CONFIG_UNIX_DIAG=y
-+CONFIG_INET=y
-+CONFIG_IP_MULTICAST=y
-+CONFIG_TCP_CONG_ADVANCED=y
-+# CONFIG_TCP_CONG_BIC is not set
-+# CONFIG_TCP_CONG_CUBIC is not set
-+# CONFIG_TCP_CONG_WESTWOOD is not set
-+# CONFIG_TCP_CONG_HTCP is not set
-+# CONFIG_IPV6 is not set
-+# CONFIG_WIRELESS is not set
-+CONFIG_DEVTMPFS=y
-+CONFIG_DEVTMPFS_MOUNT=y
-+# CONFIG_PREVENT_FIRMWARE_BUILD is not set
-+# CONFIG_FW_LOADER is not set
-+CONFIG_NETDEVICES=y
-+CONFIG_ETHOC=y
-+CONFIG_MICREL_PHY=y
-+# CONFIG_WLAN is not set
-+# CONFIG_INPUT is not set
-+# CONFIG_SERIO is not set
-+# CONFIG_VT is not set
-+# CONFIG_LEGACY_PTYS is not set
-+CONFIG_SERIAL_8250=y
-+CONFIG_SERIAL_8250_CONSOLE=y
-+CONFIG_SERIAL_OF_PLATFORM=y
-+# CONFIG_HW_RANDOM is not set
-+CONFIG_GPIO_SYSFS=y
-+# CONFIG_GPIO_CDEV_V1 is not set
-+CONFIG_GPIO_GENERIC_PLATFORM=y
-+# CONFIG_HWMON is not set
-+# CONFIG_USB_SUPPORT is not set
-+CONFIG_NEW_LEDS=y
-+CONFIG_LEDS_CLASS=y
-+CONFIG_LEDS_GPIO=y
-+CONFIG_LEDS_TRIGGERS=y
-+CONFIG_LEDS_TRIGGER_TIMER=y
-+CONFIG_LEDS_TRIGGER_ONESHOT=y
-+CONFIG_LEDS_TRIGGER_HEARTBEAT=y
-+CONFIG_LEDS_TRIGGER_CPU=y
-+CONFIG_LEDS_TRIGGER_ACTIVITY=y
-+CONFIG_LEDS_TRIGGER_GPIO=y
-+CONFIG_LEDS_TRIGGER_DEFAULT_ON=y
-+CONFIG_LEDS_TRIGGER_TRANSIENT=y
-+CONFIG_LEDS_TRIGGER_PANIC=y
-+CONFIG_LEDS_TRIGGER_NETDEV=y
-+CONFIG_LEDS_TRIGGER_PATTERN=y
-+CONFIG_LEDS_TRIGGER_TTY=y
-+# CONFIG_DNOTIFY is not set
-+CONFIG_TMPFS=y
-+CONFIG_NFS_FS=y
-+CONFIG_XZ_DEC=y
-+CONFIG_PRINTK_TIME=y
-+CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT=y
-+CONFIG_GDB_SCRIPTS=y
-+CONFIG_VMLINUX_MAP=y
-+CONFIG_HARDLOCKUP_DETECTOR=y
-+CONFIG_WQ_WATCHDOG=y
-+CONFIG_WQ_CPU_INTENSIVE_REPORT=y
-+CONFIG_STACKTRACE=y
-+CONFIG_RCU_CPU_STALL_CPUTIME=y
-+# CONFIG_RCU_TRACE is not set
+The actual patch LGTM, so
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
 -- 
-2.51.0
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
