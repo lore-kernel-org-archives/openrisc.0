@@ -1,62 +1,62 @@
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AFDA3AE6F4
-	for <linux-openrisc@vger.kernel.org>; Thu, 15 Jan 2026 15:10:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13DEB3ACF06
+	for <linux-openrisc@vger.kernel.org>; Thu, 15 Jan 2026 15:10:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768489843; cv=none; b=ZxPOYTU9r/fWxV1W06tt+Qz479X2mODMxFe+mS9wIFCQhwzn3mdUQ8X6NAylP+m5V26SSOhJZEwn1bpVDq5HWVuyogU2pkBmKThJ26rJ25i3+n80pc+ul3INVuH7n5ilrjyFb2EqOE+1wCtRIYDcuCzaQBTXdfkSBAyLwPRkGD0=
+	t=1768489849; cv=none; b=sQLmjE+Hov6F6TNlqPcQOH5N//bwvXvpfSXskSXzGeQkNHI44/NaHHYzuk/FChbUZ9pMwhCe1r968zhBi0zwX4qtPlk4bII6SXkFLE2gEhdwvw3VNMdA4CmGt8Lff2plTdWTANIQXgQ5wtDX1VBPNirCErRPS5ob1NF1K2MGnKk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768489843; c=relaxed/simple;
-	bh=37ssBE3aanUugoLgxto0YwPyHpxoTGe7/lnWA6Cd1/4=;
+	s=arc-20240116; t=1768489849; c=relaxed/simple;
+	bh=QL67zO2OXNn7d293fXZUWqsB5I5Tjghhi53EjdI7gqU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZvIN2RbYFEvuENEkiRn7yVGNlDW1DHjzSFCcRApM3Fq0N5pzrAUzkMBe1EBBC/M+Ty3uq2ZplV2lC1DN92CXuwxgmLJ1qZWBQwm1NQJbAACoKw+1DCra9mKkqlbUy+2lg6CBzZxPiNonJxRHTP8AY3YwbJBTghRQe0I9YN6cisw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=awqxOGH4; arc=none smtp.client-ip=209.85.221.45
+	 MIME-Version; b=AoMZy4htWqmQ+teQYlw6vIvc/ajzyvBlH5u7x0cVrEE4z4EFnjiVAHdlCOdopdSZnzwKw0PtAqg6bMJYNqZ76rAtKz1eT2ymk5i3J5x+5yvunnhK9Btc8/9k5C6R5Yy4HVqzRRik90ugtvodFc3e+f+urTBZ3RO1tlD+o59tMx4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JWvtb05M; arc=none smtp.client-ip=209.85.221.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="awqxOGH4"
-Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-432d256c2a9so1016418f8f.3
-        for <linux-openrisc@vger.kernel.org>; Thu, 15 Jan 2026 07:10:30 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JWvtb05M"
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-42fed090e5fso550528f8f.1
+        for <linux-openrisc@vger.kernel.org>; Thu, 15 Jan 2026 07:10:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768489827; x=1769094627; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1768489825; x=1769094625; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=M11xPiXaInwVnEMGq59nYgno6MdcMcqZX62iafSYodw=;
-        b=awqxOGH4jxKzmyKtx/4jGpeWy2goEGWU9FqwGpICyoFZX3OrjGqnWcZmvCm2ZoB5lo
-         Q94rUkiyxftm3E6tNFPMITfwYCW6nIqofYHJilDDZQepErzvcRKmhWtC50DnHDaYwUIZ
-         JokW1sRFd4m3J1HLdXJlW9MYRXEKQTGeLFZqqcDOdvDY2k/xzSNrH1NnXFiCP9FfcZAT
-         DcGjOaKUodI0X0C7hsIcqmGfa/SJ12ZaVSp3BEU+Q3YblYq5NxAffJHPGkS6xGdlW1Fz
-         4J2gdYae2M+fp5ggzTJjXq62VmoZOUvWcTQC7BTOkg39uMoAJtobHsRYF6efIXmssANM
-         ApVA==
+        bh=7KyUY1CKl3fCa1LRr33ngkD0vxuK8KXOZ0/VtJmlEFc=;
+        b=JWvtb05MBamycS/ROxb2C9GOaRTqsNyEzgj8yvxERVPpYjBxqHtssz43oGNrrHppK1
+         x+Hgz0A20Do5YsPM5ZKoPhBLNtMQSvfeBBu0MfGFrAxS6Iv4LSwve4YK1ytWVzDkijdp
+         m6kf6YxlgET7199gdWZgbryU4luh8QzQX7WIdtBWS7orgETvmkOmZjA/WuTnt7MCatTG
+         oUxiI6av+xCKhr/RYE7Xehk6pIr9sANw4u2/CBg3fKU9Xv4IXuIyNHnzRC2Ht5C4Yprz
+         fTNTyT8bw0DMXeyG55ZulzAn1XAWyxgv+WIXdX1LmLkQ8raLJwqms0QgMYURTau3BVdW
+         j0CQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768489827; x=1769094627;
+        d=1e100.net; s=20230601; t=1768489825; x=1769094625;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=M11xPiXaInwVnEMGq59nYgno6MdcMcqZX62iafSYodw=;
-        b=V3jwZo/DlL74lX9oxa9cuckgOlDNSuxB0oUxHekriS01KE8RYnCiII5YqJPN7krsHZ
-         93bkSZbbID7hVrz6lJW2p6jVGElw2zF/37X5kbCvGI10RMZvpRju+UR1VpCRJ/JNEGw5
-         Vu3UzpSIns5Imyzimf1N89NAhko2u3ZyN2F3ERU4KyeAMYkNSxCL3lnbSoPJJpbbvPEP
-         zLO5MeUAyhH2oO1LaQGkTIa2naE639GUZV4+P8TsJLYmLyaiY5yP6mHeqnpWaVjcsU5B
-         oiRK5Z9yger7ldzvqYHPNb8l+W/q7idpT1J5hkavgindpyoP5eBp5CXG3MoLlmSvobZt
-         NKKA==
-X-Gm-Message-State: AOJu0Yysn2BlC4FBFYGQbZLunddWOVgiAfZ6P4fzDk++r38IJPTQDH+R
-	nLos70wKq9sl0vnsvw+0zsHcTMDxDRm9Dm9X+KYT/m2C3fdzu749tnkF
-X-Gm-Gg: AY/fxX7gB+A/Fq3Grz9fthCo3lsai+G98j9RoNn4A5J+dqhWnqpbZwbAVizpUIOKm+H
-	eJfh63kOOew0JngimOZZ056Dqk27f1wjONIwBBPhzvjZvBnurw1t6MB0NrdSoP4mjSNdN2HmHBP
-	4V5ySz8UymcIHq79jEKMf8OwzCoaz5e6kuE1jnvkl6YMaLKz3b7agrdDdlTKcGCu1bZMpe1jl4p
-	x7e7MlFISWltjk7se5pjpucxaJy8LsYONt3sHYTrBAyycBkJ3D8F6P1L0C3DKVAsmKIfEDNC5K+
-	ZJ3N5RSJUWxPnDeGHni7vc5E3th6DjQYWkyOxpql+uJjnemhjJloCB4teDx51pSEvXD2ooqxSwD
-	oU81ISs93ZTIQ0kOe29v3enOxSj6KVz8E1uMuDBXa1NjDLT/PqiU3CNXdNU3t3XncbCAbTGfUqG
-	rJYn42ndA13wKNxfzt7vGx5XruiEVO/3/yoshzM4spvZIb8VTVQcRX9CAjJSEKtJ3i
-X-Received: by 2002:a05:600c:a0a:b0:47d:3ead:7440 with SMTP id 5b1f17b1804b1-4801e34fd4cmr521465e9.32.1768489827187;
-        Thu, 15 Jan 2026 07:10:27 -0800 (PST)
+        bh=7KyUY1CKl3fCa1LRr33ngkD0vxuK8KXOZ0/VtJmlEFc=;
+        b=O3zH7f8GKbHsYdhw9kHa3N0ho9ySC5amLH6/KMu28xmi1A274vwmZRwT0g3wcUAZfm
+         XmRicwv7Y4osryvRtsZNjdoxwpSdNuxvvIjcXSymonI6Pq4Tj1ocPUyLPtdmhX/7O8g8
+         GU7hUyXYKV+5Lh4/xb/xjYyqdDBmbqOYnzlLDmJ0gcR0j7BxnsnuvKxdVibQcCb5ZrGA
+         YPki937cYgYaOnkQJOldlvYPdH6nREbastEVnTfOtFsQgTxwPHLLkHJX3KNPTBvVu3Cr
+         mp0SRrCbKiwRaqKN4XvqxlUAtHIEnQqfB/adjjmwal9y25fnsasu42KNpY9yMxy1x3mm
+         5UXQ==
+X-Gm-Message-State: AOJu0YwJU/DR8KTs4/2PBiSS6t3BR0a3eDEXhDWx7Qrbr3TlU1K7lrP+
+	8JDYQv7RMwXRVYeJOOnVnYL1LuFycQaC5ujZE76Vc3zOvkyd7Zw4Iqcq
+X-Gm-Gg: AY/fxX7o87T0jAKxq35cclCKmyP0nygBa6Eu/5gLo0sKRx9lZZW1/zuYsGPYueQmZzX
+	O6OczEwiLJeCMR1f/ON73YbBmVf+6HSwp7h2UW6EjNzthTG/6Xeq54+3JIOFmex37EBEugnZbRC
+	xBwbbBWBqEesD6C+jhmYGjPfKcdFs1OhyNJSbB+dnBGdTQd2W5YlXXITeN/tUvOcGsSbUR2VyTN
+	RK3lYVSab/a2c04HSM8drKkhXn9qSuz/XZWQUi7rArEtdnjVDqqvXLBjwisGi0T8i3d7VHLh9h6
+	a7umPhRVRo8ZzlUp2s4ZjwrC9699r9Z7JXTlEO+VIxb6JJVJnTusSQrNRUGe7Cj2Q+UxIcvvFZm
+	wrw/GWNs/ZtMU8XQGmpCtzyLxS1sODVlKTNh6RHTYAcYcHekgPKFczFXuyBKNlePbHw3/zNN3rT
+	w62z3HL7fX2BYpP/zakXj1ZoNcndfen2wS1pIoPRM1e8Pp79OgGFyKyoNbIX22Gp/J
+X-Received: by 2002:a05:6000:22ca:b0:432:8651:4071 with SMTP id ffacd0b85a97d-4342c4ff4e4mr7932953f8f.18.1768489825150;
+        Thu, 15 Jan 2026 07:10:25 -0800 (PST)
 Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-434af6535c7sm7011861f8f.16.2026.01.15.07.10.25
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-434af64a6c0sm6528481f8f.5.2026.01.15.07.10.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Jan 2026 07:10:26 -0800 (PST)
+        Thu, 15 Jan 2026 07:10:24 -0800 (PST)
 From: Stafford Horne <shorne@gmail.com>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
@@ -65,13 +65,14 @@ Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	Conor Dooley <conor+dt@kernel.org>,
 	Stafford Horne <shorne@gmail.com>,
-	Linus Walleij <linusw@kernel.org>,
 	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>,
+	Linus Walleij <linusw@kernel.org>,
 	Bartosz Golaszewski <brgl@kernel.org>,
 	linux-gpio@vger.kernel.org
-Subject: [PATCH v6 2/6] gpio: mmio: Add compatible for opencores GPIO
-Date: Thu, 15 Jan 2026 15:09:58 +0000
-Message-ID: <20260115151014.3956805-3-shorne@gmail.com>
+Subject: [PATCH v6 1/6] dt-bindings: gpio-mmio: Correct opencores GPIO
+Date: Thu, 15 Jan 2026 15:09:57 +0000
+Message-ID: <20260115151014.3956805-2-shorne@gmail.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260115151014.3956805-1-shorne@gmail.com>
 References: <20260115151014.3956805-1-shorne@gmail.com>
@@ -83,38 +84,60 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-On FPGA Development boards with GPIOs the OpenRISC architecture uses the
-opencores gpio verilog rtl.  This is compatible with the gpio-mmio.  Add
-the compatible string to allow probing this driver from the devicetree.
+In commit f48b5e8bc2e1 ("dt-bindings: gpio-mmio: Add compatible string
+for opencores,gpio") we marked opencores,gpio to be allowed with
+brcm,bcm6345-gpio. This was wrong, opencores,gpio is not compatible with
+brcm,bcm6345-gpio. It has a different register map and is 8-bit vs
+Broadcom which is 32-bit. Change opencores,gpio to be a separate
+compatible string for MMIO GPIO.
 
-Link: https://opencores.org/projects/gpio
+Also, as this change rewrote the entire enum, I took this opportunity to
+alphabetically sort the list.
+
+Fixes: f48b5e8bc2e1 ("dt-bindings: gpio-mmio: Add compatible string for opencores,gpio")
 Signed-off-by: Stafford Horne <shorne@gmail.com>
-Reviewed-by: Linus Walleij <linusw@kernel.org>
 Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 ---
+Since v5:
+ - Updated comment based on comments from Krzysztof and Geert.
+ - Added reviewed-by's.
+ - Sorted the enum list and added not to commit message based on comment
+   from Krzysztof.
 Since v4:
- - No changes.
-Since v3:
- - Order this patch after the binding patch.
- - Add Reviewed-by's.
-Since v2:
- - New patch
+ - New patch.
+ - Rebased old patch and rewrote commit message.
 
- drivers/gpio/gpio-mmio.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../devicetree/bindings/gpio/gpio-mmio.yaml      | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpio/gpio-mmio.c b/drivers/gpio/gpio-mmio.c
-index 5daf962b0323..edbcaad57d00 100644
---- a/drivers/gpio/gpio-mmio.c
-+++ b/drivers/gpio/gpio-mmio.c
-@@ -724,6 +724,7 @@ static const struct of_device_id gpio_mmio_of_match[] = {
- 	{ .compatible = "wd,mbl-gpio" },
- 	{ .compatible = "ni,169445-nand-gpio" },
- 	{ .compatible = "intel,ixp4xx-expansion-bus-mmio-gpio" },
-+	{ .compatible = "opencores,gpio" },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, gpio_mmio_of_match);
+diff --git a/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml b/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml
+index 7ee40b9bc562..1b2d253b19c1 100644
+--- a/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml
++++ b/Documentation/devicetree/bindings/gpio/gpio-mmio.yaml
+@@ -18,16 +18,12 @@ description:
+ 
+ properties:
+   compatible:
+-    oneOf:
+-      - enum:
+-          - brcm,bcm6345-gpio
+-          - ni,169445-nand-gpio
+-          - wd,mbl-gpio # Western Digital MyBook Live memory-mapped GPIO controller
+-          - intel,ixp4xx-expansion-bus-mmio-gpio
+-      - items:
+-          - enum:
+-              - opencores,gpio
+-          - const: brcm,bcm6345-gpio
++    enum:
++      - brcm,bcm6345-gpio
++      - intel,ixp4xx-expansion-bus-mmio-gpio
++      - ni,169445-nand-gpio
++      - opencores,gpio
++      - wd,mbl-gpio # Western Digital MyBook Live memory-mapped GPIO controller
+ 
+   big-endian: true
+ 
 -- 
 2.51.0
 
