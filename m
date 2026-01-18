@@ -1,33 +1,65 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8105C34A3CD;
-	Fri, 16 Jan 2026 16:42:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B46BE276038
+	for <linux-openrisc@vger.kernel.org>; Sun, 18 Jan 2026 08:14:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768581758; cv=none; b=h6fa3BbTbxxSpKz/hQhqhcpJISmIeNkVk8XHL2hayzOGtWB9u6IhwHWpQOdxJ9O+cYmhUrb9cEzs65+9fvJwT86wpwVEevYup4yPRUJDJam5vS/Tpv7ytfETlWDiSy6HpF7asu77da3V0wFdnK6xCczTb1xdaslsxaxo60KUVUY=
+	t=1768724054; cv=none; b=qJlfu/THUPBsMGoLfUOp+pXofpoYWYhP3WkcVAg3JIE71TjGu1nuQ8+KVqabvVCYCo7fSUtUgbIYohZGGI/Z+dntpGUzQhYBDUtwUtn7tHOta8Fx0ho7W4HOaIcIzecYr1+r4RKDBpNGIs5WpNC0FeltEFGDlxLZ9E2VpO+Bgmc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768581758; c=relaxed/simple;
-	bh=NAbQmStEoxCQvEpU3MvvttZbpIMETufJ8+UV+QFr8ZI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Vya/CCrYYANQIvW2swsHs2EyorI42eitLPayaMFFld+E+Sl4DJiAOGGROPVuzSLaIczv7VMD0MjrH++XBSjiYmc7ISi3rlamqD5bTKoU8vcPyLL+4yhHc/zArqeaOoiZSAIJCRNr1SEFT4VXI9hRNzA0v9BO7gqKSl4yLpjUGGk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=odiQJT2P; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1768724054; c=relaxed/simple;
+	bh=QgT2evQuj3cvQqRAA1G9AXLS+KHzWpz3urey0I2MaQM=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=p0qtVGitZ+puAY8BIyD5gM1G95XgiPPKjWbwlQ1xX2l+E/5CvZqGyBFchWalIPbHlLVFqxi4h/9s5liydWjvEfqsHAKhToRj9iAfUZq3YlBW/7E4+XCBLTLfHT23ce4acVY6IvKCoe5finNOFD4ALsLkUAFMdY3IBOWyltAaCno=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YzQ5aXSe; arc=none smtp.client-ip=209.85.214.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="odiQJT2P"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 595F3C116C6;
-	Fri, 16 Jan 2026 16:42:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768581758;
-	bh=NAbQmStEoxCQvEpU3MvvttZbpIMETufJ8+UV+QFr8ZI=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=odiQJT2PkiuB0tMOI0O9ZE1iPYIIOoKn8JN2Geap7E//q78XT/zMPqCdUdVzK0z+I
-	 z7TKNOqm9mGLVQiRBuTNJpWI/asFPYmmyzZD6awRPZxSdiDmBpqVouwky61DhtN9Jo
-	 bFpBbkC7YJ19QziWEIcKuPgLAB/Bj6TRj0AzfYkYGkN1lJ0lBH5B8jd8g2VhpFaEa0
-	 3PB6T1ny46zY5oGkIsn3dt4/Pb6t27y5q/yrY6YEfiH7HLV/hluFppabAPf8KDK0e2
-	 mgRvLgLclPRZf21Vxvv8rdp3VEKSlROIR2wEYEr8WRuVXa9qSsoRi8EtHPZHER/Rqw
-	 1WHWKZNQsBNgw==
-Message-ID: <7b59f630-87f4-4ddb-b9b1-9d688ab51803@kernel.org>
-Date: Fri, 16 Jan 2026 17:42:34 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YzQ5aXSe"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2a0d52768ccso21781745ad.1
+        for <linux-openrisc@vger.kernel.org>; Sun, 18 Jan 2026 00:14:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1768724052; x=1769328852; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:from:subject:user-agent:mime-version:date:message-id:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=X+fhLmMt6EbvGWzllqZJVhmHGvaT37bdUz8irugZaMU=;
+        b=YzQ5aXSezflQSS4fyv6YrVmbfYKirEpnZcjFX8vKbHywdSy74iYS6281s9Keui7EAZ
+         CQ5KoP6iC97nn7Kv0GsSObUSL2JQywB7nmYE676KDVv4XZKKf3hlx24Q7ny3bd8jpEJl
+         gDuJ8d45gtLMWZYw4UJxjV39vcXirmfTu79baWdlAJlll6LfU4Mj9VzAHpfW2p5Bn0mz
+         Kw0s7hbWKRT7+vEb79JxIrGc8laHKof/zs22o8Rff0TwpBUlD+Is2rYEPfhRcs+6MwIC
+         Yqp50pTXO4z7pH/OINQ0KX7kFvDuxlNiVIV5M8DiZ3pAS6VD591IxrR81OcXia5FHQJW
+         x5Yw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768724052; x=1769328852;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:from:subject:user-agent:mime-version:date:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=X+fhLmMt6EbvGWzllqZJVhmHGvaT37bdUz8irugZaMU=;
+        b=qmQU1xGY7t4GAZQcOYqMnyMXo81YPBsDGGu/YSEftfKmFvXGXe7LfZvDaeERHnhzTV
+         6rLxNu7RgmYUZMsRltQGR/IOkV+9ixmqY/TE6eimaQmoBzdw3N9i5e1p5FnfnsS+KZ2q
+         qOZtY9mWL6eVMHgbhn2jptMWohWDK3gNCK2vZ6z7XnD1miDmynR3g1ufvkCUyIRg1RWo
+         vdQna3HdzoDXnP7/bj0Pmoo0vOZammx72zf7lOS1Q9S0EpNYPlWYD6D7d6u/g9FVpU0M
+         vabWgXH5wfJFPMQ8zO8uYC5jDvDEFFbxnKbeY765sgjoYEEp9pS3Qb99ZDAarylp5Mrr
+         A07A==
+X-Forwarded-Encrypted: i=1; AJvYcCW9EqLdccwTw11Oum9nLkZA0tagRC556JquCAxCgLEjPlegSEBIVX5MRilbaIlaQdLC5z9Zv2VSLAPNHk25FA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyTE9EjxAldZRbcSejg0TfcezY1HTKlVyQeLXhxzNh0iivjBeeq
+	0NjKHktQUD75ixlCa5GH+lNx7ZRfNXymHMY+9Bq3AqOkQeVnkEmp8V1S
+X-Gm-Gg: AY/fxX50zrkUJSR4Cy6y9MnIDuljl0t9LD56ACsiMle3cWVI56QH0ploN0LgxuN7bKU
+	ONTbkp/40nRO/WD/DlNf5GgZI8ajBOkcSrYx4a3CA9cE6gNHKy+FrvMzVU/2D2kS2yj38h0u6/0
+	79ZJIegINs1HfSUyMIZV3FesZHvRJtLzzjNpvt0sqPkwJq6nNVsExwmNAkv0uP8cG+lkPIdqycd
+	NCwZLzl+Pwg4QUl5ZcQavnuygmFkQkj9L6WUapDL0Tcwn01DzwbcJq/MI+VkuWe5vDjXpJa7KMM
+	zoCzabuwqAYfF0aKcyMQcqFNhJr08R+aiEqvSGcvl4yK/NAoUY6z7MSzPfMJrNKFLbMleSB8FMp
+	jZIuVw9M5js/M8GwB/XJaaRQCghDPP+OIC+a8YK2PEaI6imUQPC5n3MSLJqTiVwqIw73+hYK7Dh
+	Fa/VteV0iV
+X-Received: by 2002:a17:903:40c5:b0:2a7:3dae:de9b with SMTP id d9443c01a7336-2a73daedf5fmr2287485ad.44.1768724051933;
+        Sun, 18 Jan 2026 00:14:11 -0800 (PST)
+Received: from [192.168.2.226] ([114.92.45.6])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a7190abcf0sm63240195ad.12.2026.01.18.00.13.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 18 Jan 2026 00:14:11 -0800 (PST)
+Message-ID: <85a0be43-3598-435d-a50e-9403b7e963f7@gmail.com>
+Date: Sun, 18 Jan 2026 16:13:47 +0800
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -35,92 +67,124 @@ List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: (subset) [PATCH v6 0/6] OpenRISC de0 nano single and multicore
- boards
-To: Stafford Horne <shorne@gmail.com>
-Cc: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
- LKML <linux-kernel@vger.kernel.org>,
- Linux OpenRISC <linux-openrisc@vger.kernel.org>,
- devicetree <devicetree@vger.kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>
-References: <20260115151014.3956805-1-shorne@gmail.com>
- <176849165027.29734.708711779514578942.b4-ty@oss.qualcomm.com>
- <aWonvu4xgqIGBGmI@antec> <56e0c7bf-8f51-47b4-9ec7-edcf1b815c06@kernel.org>
- <aWppKQRWATsSuDeX@antec>
-From: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: Re: [PATCH] mm/pgtable: convert pgtable_t to ptdesc pointer
+From: Alex Shi <seakeel@gmail.com>
+To: Matthew Wilcox <willy@infradead.org>
+Cc: Mike Rapoport <rppt@kernel.org>, alexs@kernel.org,
+ Richard Henderson <richard.henderson@linaro.org>,
+ Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>,
+ Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>,
+ Will Deacon <will@kernel.org>, "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>, Nick Piggin <npiggin@gmail.com>,
+ Peter Zijlstra <peterz@infradead.org>,
+ Catalin Marinas <catalin.marinas@arm.com>, Guo Ren <guoren@kernel.org>,
+ Brian Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+ WANG Xuerui <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>,
+ Michal Simek <monstr@monstr.eu>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
+ Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+ Stafford Horne <shorne@gmail.com>,
+ "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+ Helge Deller <deller@gmx.de>, Paul Walmsley <pjw@kernel.org>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ Alexandre Ghiti <alex@ghiti.fr>, Yoshinori Sato
+ <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>,
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+ "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
+ Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
+ Arnd Bergmann <arnd@arndb.de>, David Hildenbrand <david@kernel.org>,
+ Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka
+ <vbabka@suse.cz>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>,
+ "open list:ALPHA PORT" <linux-alpha@vger.kernel.org>,
+ open list <linux-kernel@vger.kernel.org>,
+ "open list:SYNOPSYS ARC ARCHITECTURE" <linux-snps-arc@lists.infradead.org>,
+ "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>,
+ "open list:MMU GATHER AND TLB INVALIDATION" <linux-arch@vger.kernel.org>,
+ "open list:MMU GATHER AND TLB INVALIDATION" <linux-mm@kvack.org>,
+ "open list:C-SKY ARCHITECTURE" <linux-csky@vger.kernel.org>,
+ "open list:QUALCOMM HEXAGON ARCHITECTURE" <linux-hexagon@vger.kernel.org>,
+ "open list:LOONGARCH" <loongarch@lists.linux.dev>,
+ "open list:M68K ARCHITECTURE" <linux-m68k@lists.linux-m68k.org>,
+ "open list:MIPS" <linux-mips@vger.kernel.org>,
+ "open list:OPENRISC ARCHITECTURE" <linux-openrisc@vger.kernel.org>,
+ "open list:PARISC ARCHITECTURE" <linux-parisc@vger.kernel.org>,
+ "open list:RISC-V ARCHITECTURE" <linux-riscv@lists.infradead.org>,
+ "open list:SUPERH" <linux-sh@vger.kernel.org>,
+ "open list:USER-MODE LINUX (UML)" <linux-um@lists.infradead.org>
+References: <20260107064642.15771-1-alexs@kernel.org>
+ <aV4h5vQUNXn5cpMY@kernel.org>
+ <080e493a-e4f1-4c97-a3e1-f76f126b5213@gmail.com>
+ <aV5yIuGi9Ni5YP5E@casper.infradead.org>
+ <1d110134-89ab-474b-bca6-cfbfd4b5057f@gmail.com>
 Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <aWppKQRWATsSuDeX@antec>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <1d110134-89ab-474b-bca6-cfbfd4b5057f@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On 16/01/2026 17:36, Stafford Horne wrote:
->>> It seems a bit messy, Maybe I should just wait for the next cycle.  But if you
->>
->> There is no mess, you do not have to wait for anything. Please follow
->> standard rules like we follow for all other SoC-based architectures
->> (arm, arm64, riscv).
->>
->> What happens when you apply *independently* DTS? What is broken, which
->> was not broken so far? What features stop working? What existing DTS is
->> affected? What existing code is doing worse than before?
+
+
+On 2026/1/8 10:23, Alex Shi wrote:
 > 
-> Hi Krzysztof,
 > 
-> You are right, there is no build time dependency here only a dependency at
-> runtime.  Also the dtbs_check will warn about missing "opencores,gpio" bindings
-> for the new soc devicestrees on my branch.  Now, I understand that is no issue.
+> On 2026/1/7 22:48, Matthew Wilcox wrote:
+>> On Wed, Jan 07, 2026 at 05:28:36PM +0800, Alex Shi wrote:
+>>> Right, I will fix this. and sent the 2nd version.
+>> No, the patch is stupid and wrong.  Don't send a v2.  You seem to have a
+>> hairtrigger resend, so I'm trying to prevent a v2 being sent instead of
+>> sending a patient reply.
+> 
+> Hi Matthew,
+> 
+> I hear you—no v2 will be sent.
+> but sorry for a bit confusing, what's your expected fix? is the too 
+> quick resenting? or the direction to alignment pgtable_t with ptdesc is 
+> wrong?
 
-That warning is expected and everything is "fine" as long as linux-next
-does not have it. "Fine" as a meaning part of current process, but far
-from optimal. But you should not pull the drivers into DTS branch just
-to solve it. You could pull only the binding file, although no one does
-it currently just for that (there was such proposal and Rob did not
-immediately reject it so maybe that's where it could go).
+Hi Willy, Do you mind to share the detailed concern for this patch?
 
+Thanks
 
+> 
+> If it's the first. the new change for review address Mike's concern.
+> diff --git a/arch/arm/include/asm/pgalloc.h b/arch/arm/include/asm/ 
+> pgalloc.h
+> index a17f01235c29..a204c3ac800a 100644
+> --- a/arch/arm/include/asm/pgalloc.h
+> +++ b/arch/arm/include/asm/pgalloc.h
+> @@ -94,13 +94,13 @@ pte_alloc_one_kernel(struct mm_struct *mm)
+>   static inline pgtable_t
+>   pte_alloc_one(struct mm_struct *mm)
+>   {
+> -       struct page *pte;
+> +       struct ptdesc *pte;
+> 
+>          pte = __pte_alloc_one(mm, GFP_PGTABLE_USER | PGTABLE_HIGHMEM);
+>          if (!pte)
+>                  return NULL;
+> -       if (!PageHighMem(pte))
+> -               clean_pte_table(page_address(pte));
+> +       if (!PageHighMem(ptdesc_page(pte)))
+> +               clean_pte_table(ptdesc_address(pte));
+>          return pte;
+>   }
+> 
+> @@ -141,7 +141,7 @@ pmd_populate(struct mm_struct *mm, pmd_t *pmdp, 
+> pgtable_t ptep)
+>          else
+>                  prot = _PAGE_USER_TABLE;
+> 
+> -       __pmd_populate(pmdp, page_to_phys(ptep), prot);
+> +       __pmd_populate(pmdp, page_to_phys(ptdesc_page(ptep)), prot);
+>   }
+> 
+>   #endif /* CONFIG_MMU */
 
-Best regards,
-Krzysztof
