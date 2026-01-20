@@ -1,84 +1,146 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F004A319601
-	for <linux-openrisc@vger.kernel.org>; Sun, 18 Jan 2026 23:19:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 581C334D4FA
+	for <linux-openrisc@vger.kernel.org>; Tue, 20 Jan 2026 17:07:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768778400; cv=none; b=iX3rBwAGpL7XxD/Hi4lkrjyHMtG9bkoGm1bFhZd5ki0IOEMIs4w242Pm4JbcJxg80BgWi+VqvpsOQnmLKixbGL/X9mQgk3wCUcWUP1X8BhVHoTGNem1Cgq6KHFoiHmExn28hFpqZhYjQwB/9n23xMuNgAMFyg6S1TrNV0mKiQWQ=
+	t=1768928876; cv=none; b=Ci/8SBUfOs/YV2vRRi2ITuKhWLOidSo68U4RIncKSn7MD6m86apnDbPd6y2MNp2n7D7DFfMkDy5SaYb0Q3bW5yvAswiTQoc7mE2YGa1ZL/Oy1+TRiQ6J/XJMrMgeiHj7Mwqai2ijCBVdu62qw/cQZCxTKo3NCaiP3dWbYE66ElM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768778400; c=relaxed/simple;
-	bh=KQahX9Ida40SOepzr8jeh3Kbh0VozFNGC0uFeVXRi8Q=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YilIJrzFQ9eGPvz737JkpHhWNVtAyPnGPaLGjm8hzE6Q8KYa9JvFyRcnPnMoSJ1PzotXQR/PACglW1jpyZX3y5/P+ii1W8bnQXXdkcD3TqBGGBEu+UASq5ZABKzIHiJVTVpHSPRXtDacq78AB5GwwYOSeJM7uyCTR1T7Dlj9F2w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IJmmi3Nm; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1768928876; c=relaxed/simple;
+	bh=yaiWIw951xQh8LxqCes7U6aQaT2eH7soDbS1FxASes0=;
+	h=From:Date:Subject:MIME-Version:Message-Id:To:Cc:Content-Type; b=nuVqPOXprw+qGFn942TzMdBXnRVT5Z/TQP2EAWSeYTy5NZsgf8N5QJ90+TBrrijHWNwszpfsjWBUqmdwT7Rmrm0u2aCtTaEnNAi2mcD/DsASFn/23Cn3dkD3HHD+2uCGXJ6iaV/yDPh16MNdskMHjkkldYXLZ6w9ZHlfXjC5L6w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YHTLUt+H; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IJmmi3Nm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6FE3C116D0
-	for <linux-openrisc@vger.kernel.org>; Sun, 18 Jan 2026 23:19:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768778399;
-	bh=KQahX9Ida40SOepzr8jeh3Kbh0VozFNGC0uFeVXRi8Q=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=IJmmi3NmKmrvwoL7N/hX8L+Aifsq1REGYp8ZY+XK86rSstwzzH+Xv69riym8VssDh
-	 oCysqk4h5w3+z6my0aJkiRk0zl6PEuPmKwTb0JIxZ+VH/h8EdKBmqY90RYN0ggtQ54
-	 EsMNggHbl4+9OLT/SncoEXee9iXWAkWo5/6eQd6wvfeGKTOQcGHDdJQ92FTC/IbTA3
-	 xDFA2szab4+o1/ujZ2NvChIBZMVdE1SWbQHTlE7YQX9ZD8yS978rIIOaNs8r2l3LwI
-	 3BngCPBW8Xnu72OgIUVyBhWm9t37h34UiHn5dLFCZOjNX6856wO5+Q7hRNsS7SSRLj
-	 gE6P8VsKSpzEA==
-Received: by mail-yx1-f41.google.com with SMTP id 956f58d0204a3-646fe7f70e2so2688447d50.0
-        for <linux-openrisc@vger.kernel.org>; Sun, 18 Jan 2026 15:19:59 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCWnrAFZYglfytHwftdH2WnCoxVd1KATFWTRciHHll5ilDiKKJZo/baPvDDnsr3ADOQ51LsOwsmE8sZHu9yLtg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyYpZUqrKIS22rUEupU4h8/unZUkCQUiH8G2UdM1zSn+dccpGut
-	Re54MAh48NELTekqmMIs6wZHEtOUiw68soapHGmfhNdO+aSdYapX4VmXbNTrRYQO9hYog6n7cRQ
-	Ze/yywE4yZj+gOaXsIRkiQDAZpe2vGbo=
-X-Received: by 2002:a53:b11b:0:b0:63f:a79a:7690 with SMTP id
- 956f58d0204a3-649176ef355mr5879650d50.39.1768778399088; Sun, 18 Jan 2026
- 15:19:59 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YHTLUt+H"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1768928873;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=iaKzfCbyFQZSOqNeo+ub1E9K3vbJu1lANAkalkOAeWw=;
+	b=YHTLUt+Hff75SO+7FaPt7Mq81yf6+E2i5qNlhPwJ/HcP4OsfGSikXYREqHfCnZmi5hkDvd
+	/K1LclAiwPo9bgUZBlufpLqdorVigf3fk51wzeZvvBJpiXCG1orhzbC4SfUt6VVGet4YcI
+	4XWqInp+1nDcvvADByT60R448HbUUWI=
+Received: from mail-dy1-f197.google.com (mail-dy1-f197.google.com
+ [74.125.82.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-552-GZA3y_fjOPS-cHEW15YF1A-1; Tue, 20 Jan 2026 12:07:51 -0500
+X-MC-Unique: GZA3y_fjOPS-cHEW15YF1A-1
+X-Mimecast-MFC-AGG-ID: GZA3y_fjOPS-cHEW15YF1A_1768928871
+Received: by mail-dy1-f197.google.com with SMTP id 5a478bee46e88-2b70bd4a2ccso816501eec.1
+        for <linux-openrisc@vger.kernel.org>; Tue, 20 Jan 2026 09:07:51 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768928871; x=1769533671;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=iaKzfCbyFQZSOqNeo+ub1E9K3vbJu1lANAkalkOAeWw=;
+        b=HDwIc89ELG2z0hDL6sfEhtJJyvekfLuGLTWx7uxLpBZm8eqLOyADSgEmKHva6qLzUP
+         RQ1X4W5Hxer3Le2zSTFeq20F0JzRBvjoKNO9FlZ6Fk1HaAo1AwrnwwJ3UwSPfKmP86Ah
+         N2KkuheCtPTAog3CwssyhM03lywQ9kppJo+pqrNzPNq91f3SKcEacm5YHy8G/7+OgwIk
+         rNuv2xOuCxmwA9RB1oy/Z0drcmypCW7Aa3MVQn23C6NDmU3ZDsNFLHlbM3mx3My4I/Q4
+         WJohv1uunWf0YwZtyu8jw3/QYeXyJbEUtdfh5U0n/zfTaiSuo5GK3xEaGYebYFv80bW7
+         2P/g==
+X-Gm-Message-State: AOJu0YzQegPEjVGBYHaVx3aKkioGMBWf6Ps/h2uhQQB/ivalBIMpjvc3
+	s24XrtCdqFcAb8wyW6pg5RJZUvXTeyDmO2a5sJhZoJpbwxkwE/sZpUls3M89YIvZtUnZmOt6iMM
+	wXMQg7srqg3dA4te2k/+tX3tDim7Q3cJs/0s+RIiGQD5awvgudl5tI03Sj0R+u1Hy4ZAk
+X-Gm-Gg: AZuq6aL6PtZNSdJ49jIK9RAkjOmOiw1BTGc+TNeD4w0vdiSyaN4DeA0cCIj5wJbi2VK
+	hhIfK2zq3csbd1rAjY6Af5jkCPdGhGP7tZq3NxCDH/fX55eZDpZTaDO9e8/o3eOAfEF2DoNuj+Y
+	+GGZqLhl9epCYXZrthQd35aR8kKdIhxbGNoBpHtpE7OoTfYtByzu1CQ9jwjsWUk1LfTbgHzKURO
+	Q9rFaqNtwx3ZetBJMWN+SNjGhcTwT+iH7PrVLf4+0kbUcfwAmGOceqfRrmbMuS80FWqBj1iKZ2E
+	Xnsi2i+UWQuzryEx45UbnDRC8Zn8dgYTvija7++1bqN/heOXTU6p9t/06oNzNbjCp4QJxDVZZwt
+	puTJyzMs0lk846UZkdrCLA3Nq45ADiqjhpf8whN+vq8tiKAby
+X-Received: by 2002:a05:7301:d0f:b0:2a4:61d1:f451 with SMTP id 5a478bee46e88-2b6b3f33b7cmr11274660eec.16.1768928869231;
+        Tue, 20 Jan 2026 09:07:49 -0800 (PST)
+X-Received: by 2002:a05:7301:d0f:b0:2a4:61d1:f451 with SMTP id 5a478bee46e88-2b6b3f33b7cmr11274587eec.16.1768928867120;
+        Tue, 20 Jan 2026 09:07:47 -0800 (PST)
+Received: from [192.168.1.3] (c-73-183-52-120.hsd1.pa.comcast.net. [73.183.52.120])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b6b3503ce3sm17718409eec.12.2026.01.20.09.07.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Jan 2026 09:07:46 -0800 (PST)
+From: Brian Masney <bmasney@redhat.com>
+Date: Tue, 20 Jan 2026 12:07:23 -0500
+Subject: [PATCH] openrisc: define arch-specific version of nop()
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260115151014.3956805-1-shorne@gmail.com> <20260115151014.3956805-2-shorne@gmail.com>
-In-Reply-To: <20260115151014.3956805-2-shorne@gmail.com>
-From: Linus Walleij <linusw@kernel.org>
-Date: Mon, 19 Jan 2026 00:19:48 +0100
-X-Gmail-Original-Message-ID: <CAD++jLnY058sc+S_rjor0fr++OvcrRt83OQwBg4h-dJb02UVzw@mail.gmail.com>
-X-Gm-Features: AZwV_QgiHVcO8adqXA1eRik_biKmhzWNffXr4dW_AsBt0gNd876ueevIIqnPwpA
-Message-ID: <CAD++jLnY058sc+S_rjor0fr++OvcrRt83OQwBg4h-dJb02UVzw@mail.gmail.com>
-Subject: Re: [PATCH v6 1/6] dt-bindings: gpio-mmio: Correct opencores GPIO
-To: Stafford Horne <shorne@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, 
-	Linux OpenRISC <linux-openrisc@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Geert Uytterhoeven <geert+renesas@glider.be>, 
-	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>, 
-	Bartosz Golaszewski <brgl@kernel.org>, linux-gpio@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Message-Id: <20260120-openrisc-nop-v1-1-a29da65537c8@redhat.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3MQQqAIBBA0avIrBN0oKyuEi1Mx5qNikIE0t2Tl
+ m/xf4NKhanCKhoUurlyih16EOAuG0+S7LsBFU5Ko5IpUyxcnYwpyxkPE5bRW28C9CQXCvz8u21
+ /3w+MnPi0XgAAAA==
+X-Change-ID: 20260120-openrisc-nop-82b7f95dad7f
+To: Jonas Bonn <jonas@southpole.se>, 
+ Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, 
+ Stafford Horne <shorne@gmail.com>
+Cc: linux-openrisc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ kernel test robot <lkp@intel.com>, Brian Masney <bmasney@redhat.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1497; i=bmasney@redhat.com;
+ s=20250903; h=from:subject:message-id;
+ bh=yaiWIw951xQh8LxqCes7U6aQaT2eH7soDbS1FxASes0=;
+ b=owGbwMvMwCW2/dJd9di6A+2Mp9WSGDLzt8VL7BI449AfV2H35rDGK1vdrlOyYZMPspf2bmSa0
+ Ca28OqdjlIWBjEuBlkxRZYluUYFEamrbO/d0WSBmcPKBDKEgYtTACaiosPIMOGZ9ultx9ZP0lG/
+ lL56/ZcsD5GSaIOSO1Zv19/yaL+ccYCRYaOyjNeOW8ddy3a/5H3gxRSp62agd53v37SX6wu0tY/
+ XsgEA
+X-Developer-Key: i=bmasney@redhat.com; a=openpgp;
+ fpr=A46D32705865AA3DDEDC2904B7D2DD275D7EC087
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: PJ4t5SYun7GAOzaOxpsSGGMLiDqrHCEK6Idxscl76bQ_1768928871
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 
-On Thu, Jan 15, 2026 at 4:10=E2=80=AFPM Stafford Horne <shorne@gmail.com> w=
-rote:
+When compiling a driver written for MIPS on OpenRISC that uses the nop()
+function, it fails due to the following error:
 
-> In commit f48b5e8bc2e1 ("dt-bindings: gpio-mmio: Add compatible string
-> for opencores,gpio") we marked opencores,gpio to be allowed with
-> brcm,bcm6345-gpio. This was wrong, opencores,gpio is not compatible with
-> brcm,bcm6345-gpio. It has a different register map and is 8-bit vs
-> Broadcom which is 32-bit. Change opencores,gpio to be a separate
-> compatible string for MMIO GPIO.
->
-> Also, as this change rewrote the entire enum, I took this opportunity to
-> alphabetically sort the list.
->
-> Fixes: f48b5e8bc2e1 ("dt-bindings: gpio-mmio: Add compatible string for o=
-pencores,gpio")
-> Signed-off-by: Stafford Horne <shorne@gmail.com>
-> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+    drivers/watchdog/pic32-wdt.c: Assembler messages:
+    drivers/watchdog/pic32-wdt.c:125: Error: unrecognized instruction `nop'
 
-Reviewed-by: Linus Walleij <linusw@kernel.org>
+The driver currently uses the generic version of nop() from
+include/asm-generic/barrier.h:
 
-Yours,
-Linus Walleij
+    #ifndef nop
+    #define nop()   asm volatile ("nop")
+    #endif
+
+Let's fix this on OpenRISC by defining an architecture-specific version
+of nop().
+
+This was tested by performing an allmodconfig openrisc cross compile on
+an aarch64 host.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202601180236.BVy480We-lkp@intel.com/
+Signed-off-by: Brian Masney <bmasney@redhat.com>
+---
+ arch/openrisc/include/asm/barrier.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/openrisc/include/asm/barrier.h b/arch/openrisc/include/asm/barrier.h
+index 7538294721bed7bc8da3d08f3db89a408091f3f8..8e592c99090235423a9f4c9149da9822918afb13 100644
+--- a/arch/openrisc/include/asm/barrier.h
++++ b/arch/openrisc/include/asm/barrier.h
+@@ -4,6 +4,8 @@
+ 
+ #define mb() asm volatile ("l.msync" ::: "memory")
+ 
++#define nop() asm volatile ("l.nop")
++
+ #include <asm-generic/barrier.h>
+ 
+ #endif /* __ASM_BARRIER_H */
+
+---
+base-commit: d08c85ac8894995d4b0d8fb48d2f6a3e53cd79ab
+change-id: 20260120-openrisc-nop-82b7f95dad7f
+
+Best regards,
+-- 
+Brian Masney <bmasney@redhat.com>
+
