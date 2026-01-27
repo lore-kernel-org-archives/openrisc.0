@@ -1,108 +1,167 @@
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp-out3.simply.com (smtp-out3.simply.com [94.231.106.210])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A4042D8777
-	for <linux-openrisc@vger.kernel.org>; Sat, 24 Jan 2026 12:36:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B80EF30B53F;
+	Tue, 27 Jan 2026 16:02:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=94.231.106.210
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769258208; cv=none; b=Ycw8LLJnRa7hURPevbdiJxuX2NUC5+IP5ZS/6b8RvnU1/g9OfF/4BOLIOVYmjYb2+8Ho7m+yihhMtGTqW8nmrMDTAHJw+xOE8ZsUbF7lJF5dJeF3nCYZQe4RqSl2I/in+HrTLrZberKmjRC/DyiV6+QdZJ1zNKUmt7ffgoSlxQo=
+	t=1769529772; cv=none; b=WI15zEIFN5XjdNaPlo2fCtwNfqeCl+ftl5+0zlhL9lQ+pN1u9PxPT1lSClsAtwAcGN3LZy4xnSYAY4X4pQrLU9gutJVXQU3cLrSCOtiU97UGFWqsEOK94hkA4QDiwPJ+O59ZD3SC+lGoFDHXFJtawlsnQvw5jpyWMjuXahdjZt8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769258208; c=relaxed/simple;
-	bh=2lpZPiehnZVWy67SwNKoHY2awngWTM8se8vqxPxB49s=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ilg/zAYkt5MxtIQa5G4l/TNCdWPhT9Do4rsfVkE32+//WHP4cUbYpRnDlg+l37XLq+vJ0W2qDD1Juez85txvBKwlRkbZT4c3ryBAtvBzVDXwTxTXKsONdDJkMtcmVomxbemr+/NYCHgNDSzwXSRimv8Uctg6ttZsXf4fA8cUtQw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZKXZuKU6; arc=none smtp.client-ip=209.85.221.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1769529772; c=relaxed/simple;
+	bh=ryzKYRbfcu3WHWMX8djpR6uvSuJDdabV/Aq6Tc+9sTs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=SQ5ueUKOEx8IIfaZlVHYFB8qo+Jd5Fv0SgHbJdIDFAfahK+drrSjGd+aNLSuD78gkW7yx9n2t/UCd0Lf7mQFLahdRhOLzqHEMVdZY+FJ2q6ZFe2NoUdYpQONaU3162+EM3FWgmD4vm+mf17A3wwOddiI1T1BHgT6UkHhMU2zntk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gaisler.com; spf=pass smtp.mailfrom=gaisler.com; dkim=fail (0-bit key) header.d=gaisler.com header.i=@gaisler.com header.b=nF1rwIiB reason="key not found in DNS"; arc=none smtp.client-ip=94.231.106.210
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gaisler.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gaisler.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZKXZuKU6"
-Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-4327555464cso2030964f8f.1
-        for <linux-openrisc@vger.kernel.org>; Sat, 24 Jan 2026 04:36:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769258204; x=1769863004; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=aWxFjlQ15iLHcZ2sWOA5/KipFAdTrRSE3rE8bBRoPNA=;
-        b=ZKXZuKU6H3gpgJsBv4nBKoSRZurn8Uq84zCD5msjjPeLSfiZHak/zkvW5uVpmUeVvu
-         IQ7b6BTrwj2w9L8U1cdLDndX2TzL/nBRBVaPPsIn8I0I/BC+UX1pSiEKnHgOzQiv3Kqr
-         2Dtd7OglaljVFT4EHPwI70g2PDFnu58bcaWX3Kf6JXerqh4rxnVtsCzr7ljxQH6OVjNE
-         So2h+8zVCiz7V+tb9gMd9NOUm0WTkWZDP1zmhJnqmKNTG7AzfDCANQk7mxiXsXVVb87s
-         1WGs3mc42WxRCY8yXugGy/O5l7bEn0cywRpujac9wUrOamSS8ii1q7RU9D8RhPdaqDFw
-         xGUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769258204; x=1769863004;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=aWxFjlQ15iLHcZ2sWOA5/KipFAdTrRSE3rE8bBRoPNA=;
-        b=ckvgoU4aArX3msEHG0qynQ5xeiBYFZKGZ275VoK9KqH4GOqCE6E4EOTf+bS4Dqt1rK
-         OCgFb8PCtzIndsDL5OuZL/BLoqp/p6tYPHO9r0PTHc73WbcidaHIh5C5sWyQT7w2Wzb9
-         xRVdVRSQtmsgReNfo11D1ECdhAKzzqz9C8y37ATfhS4tBCsbiY8Pk03cY19hpe7OX/le
-         fzU/hJ+vWMMhUjCo3ZZF1xowjyGwP89V6jEhU7ZXV4rDLAs3DMuv/qBPVHdYKgJlsB6f
-         lGfKQLnuiHZ5h3HFAOmf8vbeuxkrDvpZGuFDFslQmQeXw41FiAkZgJ06Wmnm8oTYskij
-         vGjg==
-X-Forwarded-Encrypted: i=1; AJvYcCUwJhqeWRIpO/CmvghzhYD2cwvK8vkxROl/Tu3y/xwUv7ach1vS93xygYmR3LJrEzZ6Kw2VnAq6+uumjogJ7Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzqwfOoESzyOAUIKSeacxaUx9Lf2dxNx3oIWq6rctehqsXIQRZV
-	NCJkr7UDp4HxSwOTc9F2v6KA9UILk/UgkCw/RqNMtUZMgyzlkT2+dkau
-X-Gm-Gg: AZuq6aKVCXW1t1FTrUflzc9lcSYiNnD0YKkAt0kT5pt+PhItv7LXOGoRjk8AuHdBsvX
-	nNdNm3Myx5sVtHxG5d5GTiMpzkqw90l+bD50fVNCpMEe0q04Z58eWG2azdx4P55QWLLlFglT26Z
-	2BBfQUHrEZb1ANGfYqoMrZ8VVd5yT4WyLuSfuMLYIU9xK1o2i8gaATkKM4u0vJM8zIuyjAaUgXH
-	SwDR9Gh8i2KRwHYOSbkLiRnLAYaBqWbXZtMRLXP8CQ83sfEGHoLs2KNvSX/Cn5R5DWOpVt1m22n
-	WFud0USZp2mm8rjP6lEAVkzh9Qhh1PnKdhkFCKmnu6tj7P0Q/VN3kpBjDEOuXBbF+62NmC390j/
-	waaK89k8PjBzIRlulGI9XgjH/Ry9bJTsIjrx6598HvbhjKgvVKNv1TMoyJPY74WuE5BrHEyoeGZ
-	faRA3ekrxpzYyXJDsxbdnJCmvdA7+T/BzDLDvaZfpfg1Esd9hQSqGgj3s6UZTO/oww
-X-Received: by 2002:a05:6000:1847:b0:435:9756:d4c4 with SMTP id ffacd0b85a97d-435b15d6927mr9998528f8f.17.1769258204232;
-        Sat, 24 Jan 2026 04:36:44 -0800 (PST)
-Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-435b1f7c9cesm14772613f8f.41.2026.01.24.04.36.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 24 Jan 2026 04:36:42 -0800 (PST)
-Date: Sat, 24 Jan 2026 12:36:42 +0000
-From: Stafford Horne <shorne@gmail.com>
-To: Gary Lau <zgliu@foxmail.com>
-Cc: linusw <linusw@kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-	linux-openrisc <linux-openrisc@vger.kernel.org>,
-	devicetree <devicetree@vger.kernel.org>, robh <robh@kernel.org>,
-	krzk+dt <krzk+dt@kernel.org>, conor+dt <conor+dt@kernel.org>,
-	geert+renesas <geert+renesas@glider.be>,
-	"krzysztof.kozlowski" <krzysztof.kozlowski@oss.qualcomm.com>,
-	brgl <brgl@kernel.org>, linux-gpio <linux-gpio@vger.kernel.org>
-Subject: Re: [PATCH v6 1/6] dt-bindings: gpio-mmio: Correct opencores GPIO
-Message-ID: <aXS82qiNNvPVMqdV@antec>
-References: <tencent_F07E7380CFFB3A6A7480FDA42A636B7D290A@qq.com>
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=gaisler.com header.i=@gaisler.com header.b="nF1rwIiB"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.simply.com (Simply.com) with ESMTP id 4f0qtT3pH1z1DPkw;
+	Tue, 27 Jan 2026 17:02:41 +0100 (CET)
+Received: from [192.168.0.25] (h-98-128-223-123.NA.cust.bahnhof.se [98.128.223.123])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	by smtp.simply.com (Simply.com) with ESMTPSA id 4f0qtS1KPDz1DPkR;
+	Tue, 27 Jan 2026 17:02:40 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gaisler.com;
+	s=simplycom2; t=1769529761;
+	bh=XjNhgAV5Uc7zjxVMNfRjSJ4NulgkiTn1O8FFUA42SJ4=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=nF1rwIiBmdMccnC6GLsJ+1cTxVIoLNBWUK2hRgllWz+vqzG3zn6qSGadd3ql/fc/j
+	 wftmmd9opEasAb176XRKPUE8StMbl/6p+SplfVp5nf9nN1Js2h0Lp8VSMmtcQE30aH
+	 Bl1zEaQxtIRA2e3e+l06MPu18XvsS1MAwBqoUlTwwd2s8vpthHuAcTJvSs6AHdaqC9
+	 IvGbmsJblv3nhY89l91lTlG8IritYfepiywoeUokkcFJYOBd8jK3YPlU2kPdjCdp4y
+	 HkLZ042uE8RsQsy76g2JHghhGJKUQuKXN/sEzVbuaQAH2qMCw8MbIO603QZ3+XYxw6
+	 58WjXFSREqUIw==
+Message-ID: <2157220c-0394-40fa-9918-a8514171bd10@gaisler.com>
+Date: Tue, 27 Jan 2026 17:02:39 +0100
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <tencent_F07E7380CFFB3A6A7480FDA42A636B7D290A@qq.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH mm-unstable] arch, mm: consolidate empty_zero_page
+To: Mike Rapoport <rppt@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ David Hildenbrand <david@kernel.org>, Dinh Nguyen <dinguyen@kernel.org>,
+ Geert Uytterhoeven <geert@linux-m68k.org>, Guo Ren <guoren@kernel.org>,
+ Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Johannes Berg <johannes@sipsolutions.net>,
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+ Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Magnus Lindholm <linmag7@gmail.com>, Matt Turner <mattst88@gmail.com>,
+ Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>,
+ Michal Hocko <mhocko@suse.com>, Michal Simek <monstr@monstr.eu>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Richard Weinberger <richard@nod.at>,
+ Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>,
+ Suren Baghdasaryan <surenb@google.com>, Thomas Gleixner <tglx@kernel.org>,
+ Vineet Gupta <vgupta@kernel.org>, Vlastimil Babka <vbabka@suse.cz>,
+ Will Deacon <will@kernel.org>, linux-alpha@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-m68k@lists.linux-m68k.org, linux-openrisc@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+ linux-mm@kvack.org, x86@kernel.org
+References: <20260124095628.668870-1-rppt@kernel.org>
+Content-Language: en-US
+From: Andreas Larsson <andreas@gaisler.com>
+In-Reply-To: <20260124095628.668870-1-rppt@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Fri, Jan 23, 2026 at 10:18:04PM +0800, Gary Lau wrote:
-> Hi Stafford,
+On 2026-01-24 10:56, Mike Rapoport wrote:
+> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
 > 
-> I should clarify my setup: I'm using hardware address translation to make the
-> OpenCores 8-bit GPIO appear as 32-bit to the CPU. Specifically:
+> Reduce 22 declarations of empty_zero_page to 3 and 23 declarations of
+> ZERO_PAGE() to 4.
 > 
-> 1. Address translation: The CPU's 32-bit addresses are right-shifted by 2 bits
->    (adr_i[2] in Verilog), so each 32-bit CPU access maps to the correct 8-bit
->    OpenCores register.
+> Every architecture defines empty_zero_page that way or another, but for the
+> most of them it is always a page aligned page in BSS and most definitions
+> of ZERO_PAGE do virt_to_page(empty_zero_page).
 > 
-> 2. Data width adaptation: Only dat_i[7:0] and dat_o[7:0] are connected, so
->    32-bit writes are truncated to 8-bit, and reads are zero-extended.
+> Move Linus vetted x86 definition of empty_zero_page and ZERO_PAGE() to the
+> core MM and drop these definitions in architectures that do not implement
+> colored zero page (MIPS and s390).
 > 
-> This hardware wrapper makes brcm,bcm6345-gpio driver "work" with my OpenCores
-> GPIO, but it's really a hardware-level compatibility layer, not true software
-> compatibility.
+> ZERO_PAGE() remains a macro because turning it to a wrapper for a static
+> inline causes severe pain in header dependencies.
 > 
-> So you're absolutely right that the native opencores,gpio isn't compatible
-> with brcm,bcm6345-gpio. My setup works because of custom hardware translation,
-> not because the IP cores are compatible.
+> For the most part the change is mechanical, with these being noteworthy:
+> 
+> * alpha: aliased empty_zero_page with ZERO_PGE that was also used for boot
+>   parameters. Switching to a generic empty_zero_page removes the aliasing
+>   and keeps ZERO_PGE for boot parameters only
+> * arm64: uses __pa_symbol() in ZERO_PAGE() so that definition of
+>   ZERO_PAGE() is kept intact.
+> * m68k/parisc/sparc64/um: allocated empty_zero_page from memblock,
+>   although they do not support zero page coloring and having it in BSS
+>   will work fine.
+> * sh: used empty_zero_page for boot parameters at the very early boot.
+>   Rename the parameters page to boot_params_page and let sh use the generic
+>   empty_zero_page.
+> * hexagon: had an amusing comment about empty_zero_page
+> 
+> 	/* A handy thing to have if one has the RAM. Declared in head.S */
+> 
+>   that unfortunately had to go :)
+> 
+> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> ---
 
-Thanks Gary for testing.
+Running this in an LDOM on an UltraSparc T4 sparc64, the entire LDOM
+hangs after a while during boot.
 
--Stafford
+
+> diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
+> index c2d19c9a9244..2bd99944176d 100644
+> --- a/arch/sparc/mm/init_64.c
+> +++ b/arch/sparc/mm/init_64.c
+> @@ -177,9 +177,6 @@ extern unsigned long sparc_ramdisk_image64;
+>  extern unsigned int sparc_ramdisk_image;
+>  extern unsigned int sparc_ramdisk_size;
+>  
+> -struct page *mem_map_zero __read_mostly;
+> -EXPORT_SYMBOL(mem_map_zero);
+> -
+>  unsigned int sparc64_highest_unlocked_tlb_ent __read_mostly;
+>  
+>  unsigned long sparc64_kern_pri_context __read_mostly;
+> @@ -2506,18 +2503,6 @@ void __init mem_init(void)
+>  	 */
+>  	register_page_bootmem_info();
+>  
+> -	/*
+> -	 * Set up the zero page, mark it reserved, so that page count
+> -	 * is not manipulated when freeing the page from user ptes.
+> -	 */
+> -	mem_map_zero = alloc_pages(GFP_KERNEL|__GFP_ZERO, 0);
+> -	if (mem_map_zero == NULL) {
+> -		prom_printf("paging_init: Cannot alloc zero page.\n");
+> -		prom_halt();
+> -	}
+> -	mark_page_reserved(mem_map_zero);
+> -
+> -
+>  	if (tlb_type == cheetah || tlb_type == cheetah_plus)
+>  		cheetah_ecache_flush_init();
+>  }
+
+This just removes the mark_page_reserved(mem_map_zero) without 
+replacing it with something corresponding to that. Perhaps part
+of the problem?
+
+Cheers,
+Andreas
+
