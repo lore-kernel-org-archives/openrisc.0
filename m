@@ -1,136 +1,279 @@
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 891DC227EB9
-	for <linux-openrisc@vger.kernel.org>; Wed, 11 Feb 2026 08:28:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF07B306483;
+	Wed, 11 Feb 2026 10:31:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770798517; cv=none; b=ota1D5/z8tKmjsZWkx0HPvk94R60sze56Z1DH8lrpxR/izsvxiehikjnfV1twCBQ9+bI/plkEjGiBxgUmF4JNLBl6wFUEgJXYlqJ2ktB3LU/zY+0795Tf1uSCvhzd/1WGrfLmQXvBTYU/tTPbKcM2MTPTgdV69LFLAApQwBOnVg=
+	t=1770805918; cv=none; b=JfJWjSWZueLXXphRxPyh+lQ4rxGf+qsZ67MlxJRWf3XqmrMEPHQ1tt5DMFUlpVujwecTipU4RnXA7NO7EZV0LxZPfmEf46bFVsCpnt7Vlr7/yhcI4m1sQ4H/WacV/wwFPI9u3TiNAqm0wwDZs0vrGnVWIHcolIY5jrAZspOmr20=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770798517; c=relaxed/simple;
-	bh=Ak1YujHq9kFYaR7TmMgiEZBtZ/CiAId6y8MnYEZw9Oc=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=p2OEDlM0Hml71gG6LO/KZhFPXhbL1o5Tf/ImN/OTVFazFj/VvfToL29jdvZgcy6NspaX97SUo6cNth7AK2K0aFm93M++JZMga3Z1ZLbYO3ZoLSbeF3xUEOFScRPl4WCUAON7wtd3/iyKj2VU9c+GBwJS5mVGPpL64KG6FDQ+hHc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GtecvNVb; arc=none smtp.client-ip=209.85.221.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1770805918; c=relaxed/simple;
+	bh=BzPjss/o79E8vniYif3vhWCcMbpnh+bfpm0PwJifv0s=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jmv2jHLmeJuF5BG5+KKQuxvf6IRbdDStOrO1nfmBXkheEmbZmfIAPC0Ze5U9afl5u9j5bmxNmb37NhxdjnbNk5HJTDFv8bGB0Oh+4tBMzSzAvKE3utdUKVe8kI1ZyFGOSw7mizXbP1NKOQopy5fYZbBlevpsNqsr+eg5emz57+c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PV/jXKpF; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GtecvNVb"
-Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-4376de3f128so2024168f8f.0
-        for <linux-openrisc@vger.kernel.org>; Wed, 11 Feb 2026 00:28:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770798513; x=1771403313; darn=vger.kernel.org;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=0pu7i52Btkb7oUqPMLtups+y6usK4kMsNyCTAZ2BkKk=;
-        b=GtecvNVblf1ixWZ7jQvnTu9nnGp8B58gP7VXSt7RISYL75/KWuH6FwP5i3Xg9n4nSw
-         Ss/L+SwAwdpp4iMM4aEOnt0ayIM0fAkqX9Nbxu8unCaV1vp/lz9a8aHPWRyfaCY0kbU2
-         UhXw5YKOf0C5vjb1/FF1KR0Ws7Pnuxp8QQmBElFtrDSk2jTVqd2l42LzsYs9RFgLQIJL
-         SyQHr8TXLmo3H1/Q5vDMN5u8dTFrOb/E78FaFR37tGPR5W5MgZt7Trj1fqlMVbHmLrjv
-         wRZj1cjuuIWAXMAzg7fv65NP/uSmOZQD5EmaF6le97dkLCs4XxGD7Jh+O1VFGz4Mq1mF
-         AyEQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770798513; x=1771403313;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=0pu7i52Btkb7oUqPMLtups+y6usK4kMsNyCTAZ2BkKk=;
-        b=Y3pWW/tF3SWmV+f4em8OqYPnkJinOBL9MWLWEb+0lFUoYLvz4wX7P7yZGtuMksq/11
-         DLh9AdrEiaGSdazWWIEDU3L2KtmVMR7VM81JRbl7oyHgyanogCJmjsmXCIJiKc+Ueu26
-         3/1L6l22RC5iqarem9i5xiAIlAN8ASlEyvLTAs24hYSG+bsNJ5o2RIASkVyK0DEnXNq8
-         4SX2fJtwg5/0veLMQfyjCQECBCvnpqQAFdOux4N2fEOV4OP9MeX/2MuYTF2/1nXYQWIr
-         UnDY/NBBxMH2AdK0Is/ZKyxZeODoxP/WqDqj8jW0J3XhjkyS3IITDXiZcVJgFt392rz6
-         Nr5w==
-X-Gm-Message-State: AOJu0YyeTKxH18uBkb79HDuv3Jj+Q8jDZa7vl2ATS5/uiSo1RVIKlg8z
-	i90mATqmSpikp4zdmG7udkYMVsLsNLk+eeO8RdCzhhUFJfxbRNZtBdJ8s7znFw==
-X-Gm-Gg: AZuq6aLFLT+BIBAmodpKX+RO3Z1S2plWovxlsla3PcLZKjaNTXdMhYOFG9D31OAu5ZQ
-	MrECLBk+KNs/z4XkXBm1MQJs1tHwAutkwCYWvF7u2G+dbhkeyCM7x1jpFhn5IIv8c84/IDhO2i6
-	Szcj2jKOdOqYqQDmoSi4lhgVwkdJulaaytL8l6laeYr4JXjWKrTUnL5IN3nGYoQX3aCjorK9V0d
-	H9UqXm2HpIia10Fqe8Dh0EBVdB6U/J3jckD2osBmLlrQ0YnuniSUh/thAgkYR0n4xocfKXP1deu
-	V/9l0PpHNXw/0Nb5nL6IukE+iBKZMtZJoKs/48ocT1mF0Ju0MwZF68/IT/gGqSywfDkxeNLg9kj
-	brb1wa8C8i5kphPVLBzIgvnutGb6MhT5lYzgKUx0gMDRfHEFvyoUwz67lT9gOk6La+t8d29ahyl
-	ejnp/bYULJki6Tx+0/ia7XjbR46uJ77LN3FxHSjwejmGSSMz62dojvepwo8QefrKQZ98xaimiIZ
-	xJk
-X-Received: by 2002:a05:6000:3110:b0:436:307c:b753 with SMTP id ffacd0b85a97d-43782cc05fdmr2704323f8f.61.1770798512485;
-        Wed, 11 Feb 2026 00:28:32 -0800 (PST)
-Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43783e544e2sm3314579f8f.32.2026.02.11.00.28.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Feb 2026 00:28:31 -0800 (PST)
-Date: Wed, 11 Feb 2026 08:28:31 +0000
-From: Stafford Horne <shorne@gmail.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	LKML <linux-kernel@vger.kernel.org>
-Subject: [GIT PULL] OpenRISC updates for 6.20
-Message-ID: <aYw9r7h2ej3BUTMH@antec>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PV/jXKpF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D364AC19421;
+	Wed, 11 Feb 2026 10:31:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1770805918;
+	bh=BzPjss/o79E8vniYif3vhWCcMbpnh+bfpm0PwJifv0s=;
+	h=From:To:Cc:Subject:Date:From;
+	b=PV/jXKpFwT8Fev+iuIdzwDQGCp1d9tQZwQOxpL0LXiHzOkF4CIyDk3VR8KHKDtHPW
+	 95broCDwDG6FDa0dsrh08bvjDtJvEVi+8U3bdfQGt0/3GFehuGtNXEfr5rcfZqIyHe
+	 4Gas0OFpDJ0b6cdfz9zvpAFeNg4A3xRSvqWBEmxAoCac9/v12nM5/tozP4vCWoIt3t
+	 WM1Df8XDDZbZ4yrkjS35IzQoTegVuVT5cx/AIkgGipbvq47QF+8iCUbZqSYaNcR9kd
+	 /L0GUWtHeBli4O4MUGnMTsxwsezchH/soEQNYXQrx3YIGnwJ/R226FAA4/HIBChyBn
+	 bpfII91wxqjeA==
+From: Mike Rapoport <rppt@kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andreas Larsson <andreas@gaisler.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Brian Cain <bcain@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	David Hildenbrand <david@kernel.org>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Guo Ren <guoren@kernel.org>,
+	Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Magnus Lindholm <linmag7@gmail.com>,
+	Matt Turner <mattst88@gmail.com>,
+	Max Filippov <jcmvbkbc@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Michal Hocko <mhocko@suse.com>,
+	Michal Simek <monstr@monstr.eu>,
+	Mike Rapoport <rppt@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Richard Weinberger <richard@nod.at>,
+	Russell King <linux@armlinux.org.uk>,
+	Stafford Horne <shorne@gmail.com>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Vineet Gupta <vgupta@kernel.org>,
+	Vlastimil Babka <vbabka@suse.cz>,
+	Will Deacon <will@kernel.org>,
+	linux-alpha@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linux-m68k@lists.linux-m68k.org,
+	linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	linux-mm@kvack.org,
+	x86@kernel.org
+Subject: [PATCH v3 0/4] arch, mm: consolidate empty_zero_page
+Date: Wed, 11 Feb 2026 12:31:37 +0200
+Message-ID: <20260211103141.3215197-1-rppt@kernel.org>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-Hello Linus,
+From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
 
-Please consider for pull,
+Hi,
 
-The following changes since commit 0f61b1860cc3f52aef9036d7235ed1f017632193:
+These patches cleanup handling of ZERO_PAGE() and zero_pfn.
 
-  Linux 6.19-rc5 (2026-01-11 17:03:14 -1000)
+v3 changes:
+* move zero_page_pfn extern declaration back inside the helpers
+* add tags, thanks all!
 
-are available in the Git repository at:
+v2: https://lore.kernel.org/all/20260209144058.2092871-1-rppt@kernel.org
+* add patches that cleanup zero_pfn code a bit (patches 1,2)
+* add a patch that caches struct page for empty_zero_page (patch 4)
+* use uint8_t instead of unsigned long for empty_zero_page
+* fix sparc64 changes in patch 3
 
-  https://github.com/openrisc/linux.git tags/for-linus
+v1: https://lore.kernel.org/all/20260124095628.668870-1-rppt@kernel.org
 
-for you to fetch changes up to 0dfffa5479d6260d04d021f69203b1926f73d889:
+Mike Rapoport (Microsoft) (4):
+  mm: don't special case !MMU for is_zero_pfn() and my_zero_pfn()
+  mm: rename my_zero_pfn() to zero_pfn()
+  arch, mm: consolidate empty_zero_page
+  mm: cache struct page for empty_zero_page and return it from ZERO_PAGE()
 
-  openrisc: define arch-specific version of nop() (2026-01-20 19:24:05 +0000)
+ arch/alpha/include/asm/pgtable.h          |  6 ---
+ arch/arc/include/asm/pgtable.h            |  3 --
+ arch/arc/mm/init.c                        |  2 -
+ arch/arm/include/asm/pgtable.h            |  9 -----
+ arch/arm/mm/mmu.c                         |  7 ----
+ arch/arm/mm/nommu.c                       |  7 ----
+ arch/arm64/include/asm/pgtable.h          |  7 ----
+ arch/arm64/mm/init.c                      |  5 +++
+ arch/arm64/mm/mmu.c                       |  7 ----
+ arch/csky/include/asm/pgtable.h           |  3 --
+ arch/csky/mm/init.c                       |  3 --
+ arch/hexagon/include/asm/pgtable.h        |  6 ---
+ arch/hexagon/kernel/head.S                |  5 ---
+ arch/hexagon/kernel/hexagon_ksyms.c       |  1 -
+ arch/loongarch/include/asm/pgtable.h      |  9 -----
+ arch/loongarch/mm/init.c                  |  3 --
+ arch/m68k/include/asm/pgtable_mm.h        |  9 -----
+ arch/m68k/include/asm/pgtable_no.h        |  7 ----
+ arch/m68k/mm/init.c                       |  9 -----
+ arch/m68k/mm/mcfmmu.c                     |  2 -
+ arch/m68k/mm/motorola.c                   |  6 ---
+ arch/m68k/mm/sun3mmu.c                    |  2 -
+ arch/microblaze/include/asm/pgtable.h     | 10 -----
+ arch/microblaze/kernel/head.S             |  4 --
+ arch/microblaze/kernel/microblaze_ksyms.c |  2 -
+ arch/mips/mm/init.c                       | 11 +-----
+ arch/nios2/include/asm/pgtable.h          |  7 ----
+ arch/nios2/kernel/head.S                  | 10 -----
+ arch/nios2/kernel/nios2_ksyms.c           |  1 -
+ arch/openrisc/include/asm/pgtable.h       |  4 --
+ arch/openrisc/kernel/head.S               |  3 --
+ arch/openrisc/kernel/or32_ksyms.c         |  1 -
+ arch/openrisc/mm/init.c                   |  3 --
+ arch/parisc/include/asm/pgtable.h         | 11 ------
+ arch/parisc/mm/init.c                     |  6 ---
+ arch/powerpc/include/asm/pgtable.h        |  6 ---
+ arch/powerpc/mm/mem.c                     |  3 --
+ arch/riscv/include/asm/pgtable.h          |  7 ----
+ arch/riscv/mm/init.c                      |  4 --
+ arch/s390/mm/init.c                       |  4 +-
+ arch/sh/include/asm/pgtable.h             |  8 ----
+ arch/sh/include/asm/setup.h               |  3 +-
+ arch/sh/kernel/head_32.S                  |  4 +-
+ arch/sh/kernel/sh_ksyms_32.c              |  1 -
+ arch/sh/mm/init.c                         |  1 -
+ arch/sparc/include/asm/pgtable_32.h       |  8 ----
+ arch/sparc/include/asm/pgtable_64.h       |  3 --
+ arch/sparc/include/asm/setup.h            |  2 -
+ arch/sparc/kernel/head_32.S               |  7 ----
+ arch/sparc/mm/init_32.c                   |  4 --
+ arch/sparc/mm/init_64.c                   | 24 +++++-------
+ arch/um/include/asm/pgtable.h             |  9 -----
+ arch/um/include/shared/kern_util.h        |  1 -
+ arch/um/kernel/mem.c                      | 16 --------
+ arch/um/kernel/um_arch.c                  |  1 -
+ arch/x86/include/asm/pgtable.h            |  8 ----
+ arch/x86/kernel/head_32.S                 |  4 --
+ arch/x86/kernel/head_64.S                 |  7 ----
+ arch/x86/kvm/mmu/spte.h                   |  2 +-
+ arch/xtensa/include/asm/pgtable.h         |  4 --
+ arch/xtensa/kernel/head.S                 |  3 --
+ arch/xtensa/kernel/xtensa_ksyms.c         |  2 -
+ fs/dax.c                                  |  2 +-
+ fs/proc/vmcore.c                          |  2 +-
+ include/linux/pgtable.h                   | 48 ++++++++++++++---------
+ mm/huge_memory.c                          |  2 +-
+ mm/memory.c                               | 15 +------
+ mm/migrate.c                              |  2 +-
+ mm/mm_init.c                              | 28 +++++++++++++
+ mm/userfaultfd.c                          |  4 +-
+ 70 files changed, 86 insertions(+), 354 deletions(-)
 
-----------------------------------------------------------------
-OpenRISC updates for 6.20
 
-The main focus for this series has been to improve OpenRISC
-kernel out-of-the-box support for FPGA dev boards.
+base-commit: 50c7f34c5c7403a12003c6759f6f6ca9a5a10872
+--
+2.51.0
 
- - Adds device tree configurations for De0 Nano single and
-   multicore configurations.
- - Fixes bug in OpenRISC SMP preventing the kernel from running on FPGA
-   boards, due to IPIs not being unmasked on secondary CPUs in some
-   configurations.
- - Picked up a fix from Brian Masney defining the nop() macro to fix
-   build failures on OpenRISC for drivers using the nop() macro.
+*** BLURB HERE ***
 
-----------------------------------------------------------------
-Brian Masney (1):
-      openrisc: define arch-specific version of nop()
+Mike Rapoport (Microsoft) (4):
+  mm: don't special case !MMU for is_zero_pfn() and my_zero_pfn()
+  mm: rename my_zero_pfn() to zero_pfn()
+  arch, mm: consolidate empty_zero_page
+  mm: cache struct page for empty_zero_page and return it from
+    ZERO_PAGE()
 
-Stafford Horne (4):
-      openrisc: dts: Add de0 nano config and devicetree
-      openrisc: Fix IPIs on simple multicore systems
-      openrisc: dts: Split simple smp dts to dts and dtsi
-      openrisc: dts: Add de0 nano multicore config and devicetree
+ arch/alpha/include/asm/pgtable.h          |  6 ---
+ arch/arc/include/asm/pgtable.h            |  3 --
+ arch/arc/mm/init.c                        |  2 -
+ arch/arm/include/asm/pgtable.h            |  9 ----
+ arch/arm/mm/mmu.c                         |  7 ----
+ arch/arm/mm/nommu.c                       |  7 ----
+ arch/arm64/include/asm/pgtable.h          |  7 ----
+ arch/arm64/mm/init.c                      |  5 +++
+ arch/arm64/mm/mmu.c                       |  7 ----
+ arch/csky/include/asm/pgtable.h           |  3 --
+ arch/csky/mm/init.c                       |  3 --
+ arch/hexagon/include/asm/pgtable.h        |  6 ---
+ arch/hexagon/kernel/head.S                |  5 ---
+ arch/hexagon/kernel/hexagon_ksyms.c       |  1 -
+ arch/loongarch/include/asm/pgtable.h      |  9 ----
+ arch/loongarch/mm/init.c                  |  3 --
+ arch/m68k/include/asm/pgtable_mm.h        |  9 ----
+ arch/m68k/include/asm/pgtable_no.h        |  7 ----
+ arch/m68k/mm/init.c                       |  9 ----
+ arch/m68k/mm/mcfmmu.c                     |  2 -
+ arch/m68k/mm/motorola.c                   |  6 ---
+ arch/m68k/mm/sun3mmu.c                    |  2 -
+ arch/microblaze/include/asm/pgtable.h     | 10 -----
+ arch/microblaze/kernel/head.S             |  4 --
+ arch/microblaze/kernel/microblaze_ksyms.c |  2 -
+ arch/mips/mm/init.c                       | 11 +----
+ arch/nios2/include/asm/pgtable.h          |  7 ----
+ arch/nios2/kernel/head.S                  | 10 -----
+ arch/nios2/kernel/nios2_ksyms.c           |  1 -
+ arch/openrisc/include/asm/pgtable.h       |  4 --
+ arch/openrisc/kernel/head.S               |  3 --
+ arch/openrisc/kernel/or32_ksyms.c         |  1 -
+ arch/openrisc/mm/init.c                   |  3 --
+ arch/parisc/include/asm/pgtable.h         | 11 -----
+ arch/parisc/mm/init.c                     |  6 ---
+ arch/powerpc/include/asm/pgtable.h        |  6 ---
+ arch/powerpc/mm/mem.c                     |  3 --
+ arch/riscv/include/asm/pgtable.h          |  7 ----
+ arch/riscv/mm/init.c                      |  4 --
+ arch/s390/mm/init.c                       |  4 +-
+ arch/sh/include/asm/pgtable.h             |  8 ----
+ arch/sh/include/asm/setup.h               |  3 +-
+ arch/sh/kernel/head_32.S                  |  4 +-
+ arch/sh/kernel/sh_ksyms_32.c              |  1 -
+ arch/sh/mm/init.c                         |  1 -
+ arch/sparc/include/asm/pgtable_32.h       |  8 ----
+ arch/sparc/include/asm/pgtable_64.h       |  3 --
+ arch/sparc/include/asm/setup.h            |  2 -
+ arch/sparc/kernel/head_32.S               |  7 ----
+ arch/sparc/mm/init_32.c                   |  4 --
+ arch/sparc/mm/init_64.c                   | 24 ++++-------
+ arch/um/include/asm/pgtable.h             |  9 ----
+ arch/um/include/shared/kern_util.h        |  1 -
+ arch/um/kernel/mem.c                      | 16 -------
+ arch/um/kernel/um_arch.c                  |  1 -
+ arch/x86/include/asm/pgtable.h            |  8 ----
+ arch/x86/kernel/head_32.S                 |  4 --
+ arch/x86/kernel/head_64.S                 |  7 ----
+ arch/x86/kvm/mmu/spte.h                   |  2 +-
+ arch/xtensa/include/asm/pgtable.h         |  4 --
+ arch/xtensa/kernel/head.S                 |  3 --
+ arch/xtensa/kernel/xtensa_ksyms.c         |  2 -
+ fs/dax.c                                  |  2 +-
+ fs/proc/vmcore.c                          |  2 +-
+ include/linux/pgtable.h                   | 51 +++++++++++++++--------
+ mm/huge_memory.c                          |  2 +-
+ mm/memory.c                               | 15 +------
+ mm/migrate.c                              |  2 +-
+ mm/mm_init.c                              | 28 +++++++++++++
+ mm/userfaultfd.c                          |  4 +-
+ 70 files changed, 89 insertions(+), 354 deletions(-)
 
- arch/openrisc/boot/dts/de0-nano-common.dtsi        | 42 ++++++++++
- arch/openrisc/boot/dts/de0-nano-multicore.dts      | 25 ++++++
- arch/openrisc/boot/dts/de0-nano.dts                | 54 +++++++++++++
- arch/openrisc/boot/dts/simple-smp.dts              | 25 ++++++
- .../boot/dts/{simple_smp.dts => simple-smp.dtsi}   | 11 ++-
- arch/openrisc/configs/de0_nano_defconfig           | 79 +++++++++++++++++++
- arch/openrisc/configs/de0_nano_multicore_defconfig | 92 ++++++++++++++++++++++
- arch/openrisc/configs/simple_smp_defconfig         |  2 +-
- arch/openrisc/include/asm/barrier.h                |  2 +
- arch/openrisc/include/asm/smp.h                    |  3 +-
- arch/openrisc/kernel/smp.c                         | 22 +++++-
- drivers/irqchip/irq-ompic.c                        | 15 +++-
- drivers/irqchip/irq-or1k-pic.c                     | 27 ++++++-
- 13 files changed, 385 insertions(+), 14 deletions(-)
- create mode 100644 arch/openrisc/boot/dts/de0-nano-common.dtsi
- create mode 100644 arch/openrisc/boot/dts/de0-nano-multicore.dts
- create mode 100644 arch/openrisc/boot/dts/de0-nano.dts
- create mode 100644 arch/openrisc/boot/dts/simple-smp.dts
- rename arch/openrisc/boot/dts/{simple_smp.dts => simple-smp.dtsi} (90%)
- create mode 100644 arch/openrisc/configs/de0_nano_defconfig
- create mode 100644 arch/openrisc/configs/de0_nano_multicore_defconfig
+
+base-commit: 50c7f34c5c7403a12003c6759f6f6ca9a5a10872
+--
+2.51.0
