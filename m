@@ -1,105 +1,142 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9D5932B9AC;
-	Fri, 20 Feb 2026 04:10:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 479E030DEA0;
+	Mon, 23 Feb 2026 16:16:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771560654; cv=none; b=O2M98dtiOjFjn6gWK90AqGKI0dTwIHw5XwGyCazEDpfdnhe3DkotMQvSRjyhIXnx3BQfiUeBuB9kSNo7B2FNx3/rgDmDrLdapa4uWN0V2vG+fjKPUH1KqFe+4Z+2sN+1cpua1GRimrSaYcctFvid753Fua4UckpQvXNXvVcBKrQ=
+	t=1771863379; cv=none; b=k5Kk4zx2ojuAFbvasvucYgVrtgy2ueG3gQaVIeBQsnqUPENalrzxN2ODnf/yHRWqCv2xyPm4o8CXg0F2VkAdVy3ncP9953nIdWlMpsDf1ckWP2WMp020+lVGr7l6DFas2Ch18u5u4D7k7nE7ZYlqqMnBM/4VtqGH7rIX+BtJxqw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771560654; c=relaxed/simple;
-	bh=Wl/q2I9MW4EAYAIqkkPs9cMuPySyeP7Ys0yLcRoxiik=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=sWrcsNMX8CCeDPiwtCNI6d/bzG5pwSTgZyiwzTkp9o5PQsqTYBFxJPjNPxAUZxiNpBSlBDvjkrJ1dAr8mbAFhmoWIQwwnREQOgbBUAJwObyN76NTufuBt8R5Fbf6Lj8QYOWWdFxeSZ6ItzoFE4r7Q/2lY9LJE0QczEr82Zb3AV8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N1VrZuK9; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1771863379; c=relaxed/simple;
+	bh=9JBeH7cRemY2uqM6ZDX/nXNUAvQrJ8Fr8vmuN0HFcI4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=r0S58KG6rb4SPcKMYn2Ql/U/YbIcUS1mdtYXDk68vPWsgWv0McHmxQr0Vg+HUnY9anjPK57FHs5MNxhztXp1EKLXCBuiTERQ5EDfaBY24LfuJoq/NXPccSnxNVkDNSfrkTbxfEVQnnxlY83V4gKmARnSDcShNdWvjZPXJteLGpE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lm/Ir+vc; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N1VrZuK9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BDE6C19425;
-	Fri, 20 Feb 2026 04:10:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lm/Ir+vc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCE72C116C6;
+	Mon, 23 Feb 2026 16:16:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771560654;
-	bh=Wl/q2I9MW4EAYAIqkkPs9cMuPySyeP7Ys0yLcRoxiik=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=N1VrZuK9lrvi+0jv5UrnpCwpMzW70T8EtjcsHnyvYb/C3ysXhXnwcXh0J1BUrz/fQ
-	 FXvJgc0MX5grtuvCDCjFOveYmh43k7YKrhJKjA6KNPY5GbthY3tSAB5Rd8DWyI60O4
-	 60LGpZhdpz2TPplFhz9GOt22IkO9j9SafKfb23NhzY6Pqtbyy2AyC4nRduEnajg21H
-	 pPrMunHoqFuSELpIJz/FNzbQUBVTQ/4/r5X9keCr5k8mekJQPLFSEN/1VTk4FKKX96
-	 mGvQFqOn+07PQ7stZW8usaIlrYxFaew9yX4CoBIDJ2elY6T+mswJuAAcc8jX+e9rPf
-	 2Anz+jmhWYL+g==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 3FEBA3809A88;
-	Fri, 20 Feb 2026 04:11:04 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20201202; t=1771863378;
+	bh=9JBeH7cRemY2uqM6ZDX/nXNUAvQrJ8Fr8vmuN0HFcI4=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=lm/Ir+vche8iTl6XhPS0GouZun+tZOLYdBGzcyyG0ygbzNjx8afI9Nz4L4YtQqVAw
+	 L7ZQ7pDZ3gaWLb6Qul8yrWt6MyN/Ncsx/yenyXe0G7aXWCG54VFdu0mx+X6zje7COX
+	 XEJaY+ZnGfc75MWIz1/A5pttxWXYU6C5BONj+3xpZoofXWS0dkDk5KdXNJzysLD8C8
+	 mh9EFg+GhstVxQ0fwB0wDfvCmdp0slrt/Qrnlj74UtibyBW712ksIyGKFR4M6w0rZP
+	 jWGQFdCM/rMnpLawlWRdN5X44PPEzw4avAZq+hXefgZuWqzU2Ox2OnD0b/jKqgIeea
+	 EU+NgodHersKQ==
+Message-ID: <37e62ad6-8922-4022-8660-38b818ae9cca@kernel.org>
+Date: Mon, 23 Feb 2026 17:16:05 +0100
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH 3.5] arm: make initialization of zero page independent of
- the
- memory map (was Re: [PATCH v2 22/28] arch, mm: consolidate initialization of
- nodes, zones and memory map)
-From: patchwork-bot+linux-riscv@kernel.org
-Message-Id: 
- <177156066278.189817.13783312336351868850.git-patchwork-notify@kernel.org>
-Date: Fri, 20 Feb 2026 04:11:02 +0000
-References: <aVpWpLV4Dut5Muo2@kernel.org>
-In-Reply-To: <aVpWpLV4Dut5Muo2@kernel.org>
-To: Mike Rapoport <rppt@kernel.org>
-Cc: linux-riscv@lists.infradead.org, klarasmodin@gmail.com,
- akpm@linux-foundation.org, alexs@kernel.org, agordeev@linux.ibm.com,
- andreas@gaisler.com, bp@alien8.de, bcain@kernel.org, chleroy@kernel.org,
- catalin.marinas@arm.com, davem@davemloft.net, dave.hansen@linux.intel.com,
- david@kernel.org, dinguyen@kernel.org, geert@linux-m68k.org,
- guoren@kernel.org, hca@linux.ibm.com, deller@gmx.de, chenhuacai@kernel.org,
- mingo@redhat.com, johannes@sipsolutions.net, glaubitz@physik.fu-berlin.de,
- corbet@lwn.net, Liam.Howlett@oracle.com, lorenzo.stoakes@oracle.com,
- linmag7@gmail.com, mattst88@gmail.com, jcmvbkbc@gmail.com,
- mpe@ellerman.id.au, mhocko@suse.com, monstr@monstr.eu, muchun.song@linux.dev,
- osalvador@suse.de, palmer@dabbelt.com, pratyush@kernel.org, richard@nod.at,
- linux@armlinux.org.uk, shorne@gmail.com, surenb@google.com,
- tsbogend@alpha.franken.de, tglx@linutronix.de, gor@linux.ibm.com,
- vgupta@kernel.org, vbabka@suse.cz, will@kernel.org, x86@kernel.org,
- linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-csky@vger.kernel.org, linux-cxl@vger.kernel.org,
- linux-doc@vger.kernel.org, linux-hexagon@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-mm@kvack.org,
- linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
- linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
- sparclinux@vger.kernel.org
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/4] mm: don't special case !MMU for is_zero_pfn() and
+ my_zero_pfn()
+To: Mike Rapoport <rppt@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Andreas Larsson <andreas@gaisler.com>, Borislav Petkov <bp@alien8.de>,
+ Brian Cain <bcain@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+ "David S. Miller" <davem@davemloft.net>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Dinh Nguyen
+ <dinguyen@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>,
+ Guo Ren <guoren@kernel.org>, Helge Deller <deller@gmx.de>,
+ Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+ Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Magnus Lindholm <linmag7@gmail.com>, Matt Turner <mattst88@gmail.com>,
+ Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>,
+ Michal Hocko <mhocko@suse.com>, Michal Simek <monstr@monstr.eu>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Richard Weinberger <richard@nod.at>,
+ Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>,
+ Suren Baghdasaryan <surenb@google.com>, Thomas Gleixner <tglx@kernel.org>,
+ Vineet Gupta <vgupta@kernel.org>, Vlastimil Babka <vbabka@suse.cz>,
+ Will Deacon <will@kernel.org>, linux-alpha@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-m68k@lists.linux-m68k.org, linux-openrisc@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+ linux-mm@kvack.org, x86@kernel.org
+References: <20260209144058.2092871-1-rppt@kernel.org>
+ <20260209144058.2092871-2-rppt@kernel.org>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <20260209144058.2092871-2-rppt@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hello:
-
-This patch was applied to riscv/linux.git (fixes)
-by Andrew Morton <akpm@linux-foundation.org>:
-
-On Sun, 4 Jan 2026 14:01:40 +0200 you wrote:
-> Andrew,
+On 2/9/26 15:40, Mike Rapoport wrote:
+> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
 > 
-> Can you please stick this between patch 3 (arm: introduce
-> arch_zone_limits_init()) and patch 4 (arm64: introduce
-> arch_zone_limits_init())?
+> nommu architectures have empty_zero_page and define ZERO_PAGE() and
+> although they don't really use it to populate page tables, there is no
+> reason to hardwire !MMU implementation of is_zero_pfn() and my_zero_pfn()
+> to 0.
 > 
-> From 35d016bbf5da7c08cc5c5547c85558fc50cb63aa Mon Sep 17 00:00:00 2001
-> From: Klara Modin <klarasmodin@gmail.com>
-> Date: Sat, 3 Jan 2026 20:40:09 +0200
-> Subject: [PATCH] arm: make initialization of zero page independent of the
->  memory map
+> Drop #ifdef CONFIG_MMU around implementations of is_zero_pfn() and
+> my_zero_pfn() and remove !MMU version.
 > 
-> [...]
+> While on it, make zero_pfn __ro_after_init.
+> 
+> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 
-Here is the summary with links:
-  - [3.5] arm: make initialization of zero page independent of the memory map (was Re: [PATCH v2 22/28] arch, mm: consolidate initialization of nodes, zones and memory map)
-    https://git.kernel.org/riscv/c/18b7cc70dea8
+Acked-by: David Hildenbrand (Arm) <david@kernel.org>
 
-You are awesome, thank you!
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Cheers,
 
-
+David
