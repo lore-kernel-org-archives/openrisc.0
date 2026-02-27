@@ -1,328 +1,228 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBB0843C04D
-	for <linux-openrisc@vger.kernel.org>; Fri, 27 Feb 2026 15:14:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D49BD33EAED;
+	Fri, 27 Feb 2026 20:31:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772205288; cv=none; b=MXNDiB9rj8PyHQqI3laQ3RSplYAo+/QYYYld6EQaFEiMxcOJuV3uBEm9mPugNug4BRGmWKRIxsyo7phON59ppa/k1hiDGON1RpIAGRxm1DHcIlGkkMSOpvpa9txaOxYp+xD66Dj69HjpC/DbGodFJV+Ng2oILljRCBV0CX1UWt0=
+	t=1772224318; cv=none; b=B/xLCtjSu+XF7VLuCkFD6d0FXlJB/9LOlLP52iQUGuqMi+tNwZGAyho1r94t12u+hy4m3FbUsK6w+jn5yFkp6KddCd/trN5H5rcDmMb/ngjyjx61eZaRMJupLh0eGv0w87M0b/YhnySOyUdI7xFNaFA88IE5/NenuAB8X364KsI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772205288; c=relaxed/simple;
-	bh=+IOgEWsyu2MJI+EqMnnNEuKk3zJfEZhPF0BfMcjddtk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=S2Vln199OIUBqkJf/mKtdH6V3wva6I/uVeePEualrm54ovYDKzP2uBR7bLnXbeQa081KeCggV545RlaKk2uXT2hQPT0N5dLkVCj2DpLamCSxsoP2ALg3mgHjuwA0bdGI/9JbIY/wJ8GIgfabdAQgWqQYjGYAbUU4d0uJKCBqq5Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=KGOsO2xl; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=XGo0ZI5s; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=KGOsO2xl; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=XGo0ZI5s; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1772224318; c=relaxed/simple;
+	bh=GsGJcM5lC5dbmgIT+M4WfJsd6FtHP9AI7W3MvjVlZXE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=i4KjkuVhyCzvwrdPRo3ZSH5DgXBLULgKS/pfjfs2aqKZGmOPclkPmWPY8Nsk6oHgrlPkcfYOfidiAbYVVx3S4mrhzCM8TrhAaCNUJZiGsDV7LPMagUVrzafwpXTjiTr9zmcJokkxsQzWYOYODi3cBKgHGgoyvIXW+IaphhFuRcU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kyuHOhzj; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="KGOsO2xl";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="XGo0ZI5s";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="KGOsO2xl";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="XGo0ZI5s"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 2EAE35CD90;
-	Fri, 27 Feb 2026 15:14:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1772205284; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=xAMGvNmWWeOUWrlpPVGbaYyjorfoWBrXuzOEHd95yzU=;
-	b=KGOsO2xleHoPus27Y6Ek1ayBAgbsPByIHYStimBLio2ET2VRaKaAMbpD+3lbbEgLxgpaLQ
-	rDuM9X3O5+laNfxDbsFh4dp2Q0Nb+3YfHsqRaikWExEP/Mce9jmgcjn98m37Fy/fVXk/jR
-	FZTDLzEz3YPJ7E3JQnM8na3mJ1AOD6s=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1772205284;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=xAMGvNmWWeOUWrlpPVGbaYyjorfoWBrXuzOEHd95yzU=;
-	b=XGo0ZI5slqI2tjMLFZ/Wnev+M7Y3Q1kSMCz81M1kuEb53HEbjts5xw+hxTUDFmXpikLuER
-	hjJuPfdnYXEQbCCQ==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=KGOsO2xl;
-	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=XGo0ZI5s
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1772205284; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=xAMGvNmWWeOUWrlpPVGbaYyjorfoWBrXuzOEHd95yzU=;
-	b=KGOsO2xleHoPus27Y6Ek1ayBAgbsPByIHYStimBLio2ET2VRaKaAMbpD+3lbbEgLxgpaLQ
-	rDuM9X3O5+laNfxDbsFh4dp2Q0Nb+3YfHsqRaikWExEP/Mce9jmgcjn98m37Fy/fVXk/jR
-	FZTDLzEz3YPJ7E3JQnM8na3mJ1AOD6s=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1772205284;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=xAMGvNmWWeOUWrlpPVGbaYyjorfoWBrXuzOEHd95yzU=;
-	b=XGo0ZI5slqI2tjMLFZ/Wnev+M7Y3Q1kSMCz81M1kuEb53HEbjts5xw+hxTUDFmXpikLuER
-	hjJuPfdnYXEQbCCQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 9B9643EA69;
-	Fri, 27 Feb 2026 15:14:43 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id UdmtJeO0oWn4GgAAD6G6ig
-	(envelope-from <vbabka@suse.cz>); Fri, 27 Feb 2026 15:14:43 +0000
-Message-ID: <b9527ed4-7a5c-42e9-8814-b276b3741f63@suse.cz>
-Date: Fri, 27 Feb 2026 16:14:42 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kyuHOhzj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96BD0C116C6;
+	Fri, 27 Feb 2026 20:31:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772224318;
+	bh=GsGJcM5lC5dbmgIT+M4WfJsd6FtHP9AI7W3MvjVlZXE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=kyuHOhzjPeaL9ZBX8v9BFk4Vl1+Z8aFaC9olyQsYhW+BEPn4gG+OirqiS0vjY7wSh
+	 08AMVtHAdfLIukZECBbxqF78N9qGu5FW8Bt5tRmyiQAQYFEw5wxcQuuzR9pqH6WqJw
+	 r3wShM1wgJAs/WfWXNGcQSjs2IlTlepCJqMP4x/V5zu2VMrV5sMU8NMr+KOPjW/OyS
+	 itN52VkP0EjHt7tbTWQfjPdKlfT5854ZDrWUbFljsH2eAU+gk+L6ltqkFxDegpDUJq
+	 GyMKzPup//vrXRRmPfxpL1HVKDjePjl8VyB6YHiKhoq6Y49SPP4z4wQTNnR2bzJ/f2
+	 3gdeO5LHu2EBQ==
+Date: Fri, 27 Feb 2026 22:31:41 +0200
+From: Mike Rapoport <rppt@kernel.org>
+To: Vlastimil Babka <vbabka@suse.cz>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Alex Shi <alexs@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	David Hildenbrand <david@kernel.org>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+	Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Klara Modin <klarasmodin@gmail.com>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	Magnus Lindholm <linmag7@gmail.com>,
+	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Michal Hocko <mhocko@suse.com>, Michal Simek <monstr@monstr.eu>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Pratyush Yadav <pratyush@kernel.org>,
+	Richard Weinberger <richard@nod.at>,
+	Ritesh Harjani <ritesh.list@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Stafford Horne <shorne@gmail.com>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>,
+	Will Deacon <will@kernel.org>, x86@kernel.org,
+	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-csky@vger.kernel.org, linux-cxl@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-hexagon@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org, linux-mm@kvack.org,
+	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+	linux-um@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+	loongarch@lists.linux.dev, sparclinux@vger.kernel.org
+Subject: Re: [PATCH v3 23/29] arch, mm: consolidate initialization of nodes,
+ zones and memory map
+Message-ID: <aaH_LVnl8FlERA_r@kernel.org>
+References: <20260111082105.290734-1-rppt@kernel.org>
+ <20260111082105.290734-24-rppt@kernel.org>
+ <b9527ed4-7a5c-42e9-8814-b276b3741f63@suse.cz>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 23/29] arch, mm: consolidate initialization of nodes,
- zones and memory map
-Content-Language: en-US
-To: Mike Rapoport <rppt@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Alex Shi <alexs@kernel.org>, Alexander Gordeev <agordeev@linux.ibm.com>,
- Andreas Larsson <andreas@gaisler.com>, Borislav Petkov <bp@alien8.de>,
- Brian Cain <bcain@kernel.org>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
- Catalin Marinas <catalin.marinas@arm.com>,
- "David S. Miller" <davem@davemloft.net>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- David Hildenbrand <david@kernel.org>, Dinh Nguyen <dinguyen@kernel.org>,
- Geert Uytterhoeven <geert@linux-m68k.org>, Guo Ren <guoren@kernel.org>,
- Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
- Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Jonathan Corbet <corbet@lwn.net>, Klara Modin <klarasmodin@gmail.com>,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>,
- Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Magnus Lindholm <linmag7@gmail.com>, Matt Turner <mattst88@gmail.com>,
- Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>,
- Michal Hocko <mhocko@suse.com>, Michal Simek <monstr@monstr.eu>,
- Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
- Palmer Dabbelt <palmer@dabbelt.com>, Pratyush Yadav <pratyush@kernel.org>,
- Richard Weinberger <richard@nod.at>, Ritesh Harjani <ritesh.list@gmail.com>,
- Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>,
- Suren Baghdasaryan <surenb@google.com>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>,
- Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>,
- x86@kernel.org, linux-alpha@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
- linux-cxl@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
- linux-mm@kvack.org, linux-openrisc@vger.kernel.org,
- linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
- linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
- sparclinux@vger.kernel.org
-References: <20260111082105.290734-1-rppt@kernel.org>
- <20260111082105.290734-24-rppt@kernel.org>
-From: Vlastimil Babka <vbabka@suse.cz>
-Autocrypt: addr=vbabka@suse.cz; keydata=
- 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
- m6M14QORSWTLRg==
-In-Reply-To: <20260111082105.290734-24-rppt@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spamd-Result: default: False [-3.01 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	FROM_HAS_DN(0.00)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	ARC_NA(0.00)[];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	TO_DN_SOME(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	FREEMAIL_CC(0.00)[kernel.org,linux.ibm.com,gaisler.com,alien8.de,arm.com,davemloft.net,linux.intel.com,linux-m68k.org,gmx.de,redhat.com,sipsolutions.net,physik.fu-berlin.de,lwn.net,gmail.com,oracle.com,ellerman.id.au,suse.com,monstr.eu,linux.dev,suse.de,dabbelt.com,nod.at,armlinux.org.uk,google.com,alpha.franken.de,linutronix.de,vger.kernel.org,lists.infradead.org,lists.linux-m68k.org,kvack.org,lists.ozlabs.org,lists.linux.dev];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.cz:+];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCPT_COUNT_GT_50(0.00)[66];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.cz:dkim,suse.cz:mid,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
-X-Rspamd-Action: no action
-X-Spam-Flag: NO
-X-Spam-Score: -3.01
-X-Spam-Level: 
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Rspamd-Queue-Id: 2EAE35CD90
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b9527ed4-7a5c-42e9-8814-b276b3741f63@suse.cz>
 
-On 1/11/26 09:20, Mike Rapoport wrote:
-> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+Hi Vlastimil,
+
+On Fri, Feb 27, 2026 at 04:14:42PM +0100, Vlastimil Babka wrote:
+> On 1/11/26 09:20, Mike Rapoport wrote:
+> > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+> > 
+> > To initialize node, zone and memory map data structures every architecture
+> > calls free_area_init() during setup_arch() and passes it an array of zone
+> > limits.
+> > 
+> > Beside code duplication it creates "interesting" ordering cases between
+> > allocation and initialization of hugetlb and the memory map. Some
+> > architectures allocate hugetlb pages very early in setup_arch() in certain
+> > cases, some only create hugetlb CMA areas in setup_arch() and sometimes
+> > hugetlb allocations happen mm_core_init().
+> > 
+> > With arch_zone_limits_init() helper available now on all architectures it
+> > is no longer necessary to call free_area_init() from architecture setup
+> > code. Rather core MM initialization can call arch_zone_limits_init() in a
+> > single place.
+> > 
+> > This allows to unify ordering of hugetlb vs memory map allocation and
+> > initialization.
+> > 
+> > Remove the call to free_area_init() from architecture specific code and
+> > place it in a new mm_core_init_early() function that is called immediately
+> > after setup_arch().
+> > 
+> > After this refactoring it is possible to consolidate hugetlb allocations
+> > and eliminate differences in ordering of hugetlb and memory map
+> > initialization among different architectures.
+> > 
+> > As the first step of this consolidation move hugetlb_bootmem_alloc() to
+> > mm_core_early_init().
+> > 
+> > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> I've bisected a problem with virtme-ng testing a NUMA memoryless
+> node setup (on x86_64) to this patch (commit d49004c5f0c1).
 > 
-> To initialize node, zone and memory map data structures every architecture
-> calls free_area_init() during setup_arch() and passes it an array of zone
-> limits.
+> It's executed like this, where node 0 has memory and node 1 only cpus:
 > 
-> Beside code duplication it creates "interesting" ordering cases between
-> allocation and initialization of hugetlb and the memory map. Some
-> architectures allocate hugetlb pages very early in setup_arch() in certain
-> cases, some only create hugetlb CMA areas in setup_arch() and sometimes
-> hugetlb allocations happen mm_core_init().
+> vng -vr . -p 8 -m 4G --numa 4G,cpus=0-3 --numa 0,cpus=4-7
 > 
-> With arch_zone_limits_init() helper available now on all architectures it
-> is no longer necessary to call free_area_init() from architecture setup
-> code. Rather core MM initialization can call arch_zone_limits_init() in a
-> single place.
+> This fails to boot due to:
 > 
-> This allows to unify ordering of hugetlb vs memory map allocation and
-> initialization.
+> [    0.095894] BUG: unable to handle page fault for address: 0000000000004620
+> [    0.097196] #PF: supervisor read access in kernel mode
+> [    0.098180] #PF: error_code(0x0000) - not-present page
+> [    0.099155] PGD 0 P4D 0 
+> [    0.099641] Oops: Oops: 0000 [#1] SMP NOPTI
+> [    0.100437] CPU: 0 UID: 0 PID: 0 Comm: swapper Not tainted 6.19.0-rc6-00152-gf206359553c9 #53 PREEMPT 
+> [    0.102201] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.17.0-2-g4f253b9b-prebuilt.qemu.org 04/01/2014
+> [    0.104313] RIP: 0010:mm_core_init_early+0x263/0x900
+> [    0.105271] Code: 93 ff 72 09 8b 7c 24 30 e8 da 82 00 00 48 63 44 24 30 45 31 db 4c 8b 24 c5 a0 7b 1d 9a 48 89 c3 4c 89 5c 24 50 4c 89 5c 24 58 <41> 83 bc 24 20 46 00 00 00 75 0b 41 83 bc 24 14 47 00 00 00 74 04
+> [    0.108863] RSP: 0000:ffffffff99403e38 EFLAGS: 00010046
+> [    0.109861] RAX: 0000000000000001 RBX: 0000000000000001 RCX: 0000000000000001
+> [    0.111223] RDX: 0000000000000040 RSI: 0000000000100000 RDI: ffff89597fffae00
+> [    0.112577] RBP: 0000000000000005 R08: 0000000000000000 R09: ffff89597fffa200
+> [    0.113924] R10: 80000000ffffe000 R11: 0000000000000000 R12: 0000000000000000
+> [    0.115294] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+> [    0.116656] FS:  0000000000000000(0000) GS:0000000000000000(0000) knlGS:0000000000000000
+> [    0.118193] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [    0.119283] CR2: 0000000000004620 CR3: 0000000060048000 CR4: 00000000000000b0
+> [    0.120645] Call Trace:
+> [    0.121122]  <TASK>
+> [    0.121521]  start_kernel+0x5d/0x780
+> [    0.122206]  x86_64_start_reservations+0x24/0x30
+> [    0.123079]  x86_64_start_kernel+0xd1/0xe0
+> [    0.123860]  common_startup_64+0x12c/0x138
+> [    0.124641]  </TASK>
+> [    0.125061] Modules linked in:
+> [    0.125646] CR2: 0000000000004620
+> [    0.126279] ---[ end trace 0000000000000000 ]---
+> [    0.127162] RIP: 0010:mm_core_init_early+0x263/0x900
+> [    0.128106] Code: 93 ff 72 09 8b 7c 24 30 e8 da 82 00 00 48 63 44 24 30 45 31 db 4c 8b 24 c5 a0 7b 1d 9a 48 89 c3 4c 89 5c 24 50 4c 89 5c 24 58 <41> 83 bc 24 20 46 00 00 00 75 0b 41 83 bc 24 14 47 00 00 00 74 04
+> [    0.131676] RSP: 0000:ffffffff99403e38 EFLAGS: 00010046
+> [    0.132684] RAX: 0000000000000001 RBX: 0000000000000001 RCX: 0000000000000001
+> [    0.134033] RDX: 0000000000000040 RSI: 0000000000100000 RDI: ffff89597fffae00
+> [    0.135412] RBP: 0000000000000005 R08: 0000000000000000 R09: ffff89597fffa200
+> [    0.136763] R10: 80000000ffffe000 R11: 0000000000000000 R12: 0000000000000000
+> [    0.138112] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+> [    0.139487] FS:  0000000000000000(0000) GS:0000000000000000(0000) knlGS:0000000000000000
+> [    0.141014] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [    0.142094] CR2: 0000000000004620 CR3: 0000000060048000 CR4: 00000000000000b0
+> [    0.143448] Kernel panic - not syncing: Attempted to kill the idle task!
+> [    0.144833] ---[ end Kernel panic - not syncing: Attempted to kill the idle task! ]---
 > 
-> Remove the call to free_area_init() from architecture specific code and
-> place it in a new mm_core_init_early() function that is called immediately
-> after setup_arch().
+> > ./scripts/faddr2line vmlinux mm_core_init_early+0x263/0x900
+> mm_core_init_early+0x263/0x900:
+> free_area_init_node at mm/mm_init.c:1721
+> (inlined by) free_area_init at mm/mm_init.c:1902
+> (inlined by) mm_core_init_early at mm/mm_init.c:2681
 > 
-> After this refactoring it is possible to consolidate hugetlb allocations
-> and eliminate differences in ordering of hugetlb and memory map
-> initialization among different architectures.
+> It crashes at WARN_ON(pgdat->nr_zones || pgdat->kswapd_highest_zoneidx);
+> because pgdat is NULL.
 > 
-> As the first step of this consolidation move hugetlb_bootmem_alloc() to
-> mm_core_early_init().
+> With some debug printk's I've figured out that in free_area_init()
+> we have:
 > 
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-I've bisected a problem with virtme-ng testing a NUMA memoryless
-node setup (on x86_64) to this patch (commit d49004c5f0c1).
+>                 if (!node_online(nid))
+>                         alloc_offline_node_data(nid);
+>              
+>                 pgdat = NODE_DATA(nid);
+>                 free_area_init_node(nid);
+> 
+> 
+> But node_online() is true so this allocation doesn't happen, and
+> pgdat remains NULL.
+> 
+> And node_online() becomes true in init_cpu_to_node():
+> 
+>                 if (!node_online(node))
+>                         node_set_online(node);
+> 
+> But without having a pgdat allocated.
+> 
+> I was able to workaround this by changing the code in free_area_init() to
+> 
+>                if (!node_online(nid) || !NODE_DATA(nid))
+>                         alloc_offline_node_data(nid);
 
-It's executed like this, where node 0 has memory and node 1 only cpus:
+if (!NODE_DATA(nid)) is enough ...
+ 
+> But I don't have the bigger picture, and also didn't check yet what exactly
+> about this patch results in the failure. Probably ordering of various related 
+> actions. Thoughts?
 
-vng -vr . -p 8 -m 4G --numa 4G,cpus=0-3 --numa 0,cpus=4-7
+... and there's a fix already in the mm-hotfixes-stable:
 
-This fails to boot due to:
+https://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm.git/commit/?h=mm-hotfixes-unstable&id=a4ab97e34bb687a2ca63fc70b47e8762e689797f
 
-[    0.095894] BUG: unable to handle page fault for address: 0000000000004620
-[    0.097196] #PF: supervisor read access in kernel mode
-[    0.098180] #PF: error_code(0x0000) - not-present page
-[    0.099155] PGD 0 P4D 0 
-[    0.099641] Oops: Oops: 0000 [#1] SMP NOPTI
-[    0.100437] CPU: 0 UID: 0 PID: 0 Comm: swapper Not tainted 6.19.0-rc6-00152-gf206359553c9 #53 PREEMPT 
-[    0.102201] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.17.0-2-g4f253b9b-prebuilt.qemu.org 04/01/2014
-[    0.104313] RIP: 0010:mm_core_init_early+0x263/0x900
-[    0.105271] Code: 93 ff 72 09 8b 7c 24 30 e8 da 82 00 00 48 63 44 24 30 45 31 db 4c 8b 24 c5 a0 7b 1d 9a 48 89 c3 4c 89 5c 24 50 4c 89 5c 24 58 <41> 83 bc 24 20 46 00 00 00 75 0b 41 83 bc 24 14 47 00 00 00 74 04
-[    0.108863] RSP: 0000:ffffffff99403e38 EFLAGS: 00010046
-[    0.109861] RAX: 0000000000000001 RBX: 0000000000000001 RCX: 0000000000000001
-[    0.111223] RDX: 0000000000000040 RSI: 0000000000100000 RDI: ffff89597fffae00
-[    0.112577] RBP: 0000000000000005 R08: 0000000000000000 R09: ffff89597fffa200
-[    0.113924] R10: 80000000ffffe000 R11: 0000000000000000 R12: 0000000000000000
-[    0.115294] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-[    0.116656] FS:  0000000000000000(0000) GS:0000000000000000(0000) knlGS:0000000000000000
-[    0.118193] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    0.119283] CR2: 0000000000004620 CR3: 0000000060048000 CR4: 00000000000000b0
-[    0.120645] Call Trace:
-[    0.121122]  <TASK>
-[    0.121521]  start_kernel+0x5d/0x780
-[    0.122206]  x86_64_start_reservations+0x24/0x30
-[    0.123079]  x86_64_start_kernel+0xd1/0xe0
-[    0.123860]  common_startup_64+0x12c/0x138
-[    0.124641]  </TASK>
-[    0.125061] Modules linked in:
-[    0.125646] CR2: 0000000000004620
-[    0.126279] ---[ end trace 0000000000000000 ]---
-[    0.127162] RIP: 0010:mm_core_init_early+0x263/0x900
-[    0.128106] Code: 93 ff 72 09 8b 7c 24 30 e8 da 82 00 00 48 63 44 24 30 45 31 db 4c 8b 24 c5 a0 7b 1d 9a 48 89 c3 4c 89 5c 24 50 4c 89 5c 24 58 <41> 83 bc 24 20 46 00 00 00 75 0b 41 83 bc 24 14 47 00 00 00 74 04
-[    0.131676] RSP: 0000:ffffffff99403e38 EFLAGS: 00010046
-[    0.132684] RAX: 0000000000000001 RBX: 0000000000000001 RCX: 0000000000000001
-[    0.134033] RDX: 0000000000000040 RSI: 0000000000100000 RDI: ffff89597fffae00
-[    0.135412] RBP: 0000000000000005 R08: 0000000000000000 R09: ffff89597fffa200
-[    0.136763] R10: 80000000ffffe000 R11: 0000000000000000 R12: 0000000000000000
-[    0.138112] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-[    0.139487] FS:  0000000000000000(0000) GS:0000000000000000(0000) knlGS:0000000000000000
-[    0.141014] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    0.142094] CR2: 0000000000004620 CR3: 0000000060048000 CR4: 00000000000000b0
-[    0.143448] Kernel panic - not syncing: Attempted to kill the idle task!
-[    0.144833] ---[ end Kernel panic - not syncing: Attempted to kill the idle task! ]---
-
-> ./scripts/faddr2line vmlinux mm_core_init_early+0x263/0x900
-mm_core_init_early+0x263/0x900:
-free_area_init_node at mm/mm_init.c:1721
-(inlined by) free_area_init at mm/mm_init.c:1902
-(inlined by) mm_core_init_early at mm/mm_init.c:2681
-
-It crashes at WARN_ON(pgdat->nr_zones || pgdat->kswapd_highest_zoneidx);
-because pgdat is NULL.
-
-With some debug printk's I've figured out that in free_area_init()
-we have:
-
-                if (!node_online(nid))
-                        alloc_offline_node_data(nid);
-             
-                pgdat = NODE_DATA(nid);
-                free_area_init_node(nid);
-
-
-But node_online() is true so this allocation doesn't happen, and
-pgdat remains NULL.
-
-And node_online() becomes true in init_cpu_to_node():
-
-                if (!node_online(node))
-                        node_set_online(node);
-
-But without having a pgdat allocated.
-
-I was able to workaround this by changing the code in free_area_init() to
-
-               if (!node_online(nid) || !NODE_DATA(nid))
-                        alloc_offline_node_data(nid);
-
-But I don't have the bigger picture, and also didn't check yet what exactly
-about this patch results in the failure. Probably ordering of various related 
-actions. Thoughts?
+-- 
+Sincerely yours,
+Mike.
