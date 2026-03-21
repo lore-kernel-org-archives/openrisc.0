@@ -1,119 +1,119 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12AF81494C3;
-	Thu,  5 Mar 2026 00:36:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D04752E63C
+	for <linux-openrisc@vger.kernel.org>; Sat, 21 Mar 2026 09:35:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772671005; cv=none; b=kdXvbGDuaaQjD/NHVqe/mk7Gzp4vuKenXGmkVXZLiFIm0UompskYwsk/yk1Q919syQiQbi2v87Wg06apPFRxe/h488j+QT5u1sarXVM6ODP64I/uNi/2vr/p/Ol2EECPOz28L/cNm5JJPBgEVjUTRi/zEOxxyN19olScvgIkEvI=
+	t=1774085761; cv=none; b=mupfWk6u5TJIp0B288cMUCpvRcrTkvesgEZPSZwX7gSqVGN0BzIQNBdx4ikhstaNKhWEtfkwBd6wUdnX2Qx/o8QBc9+lvsUM9VDuhTul2tTE1hKlR80KIObT9Y7WpYszuLuhkpl1HZSz+wnZN6J+LbCwUJUbsDXdOF2mz5khHCU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772671005; c=relaxed/simple;
-	bh=dufxbUIyr7d8ExFT8JscxBc90VyX6BXpvMXaMHirGFY=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=NuB/2colSWq/IScSq18GNiHE9njLfWu1FVHPyCKCfmAb6AmgXUadRwqUf50X1RmW/1rsLk2jtZO5xkdokw2u1nz0C6TxUfd60zK7ai+EisGPgfYxcymmEq5W9xrVF8c5AeTab/97dQitXFTA8IhdeHrMUVAAH0BGU7V1LwlRAZ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KToGiCmv; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774085761; c=relaxed/simple;
+	bh=gygbfXP5WEaXEUAToDoL+Stj3+nM2DNGzKwp/3EKx6M=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=S6UDijrb8kG9XTozJChUhSfQQw8+ArK0AWbRG9I4QfbMdozKOSOezRL5Mu+ckliv9qaIRUxoJl4OafxM0DsYydBMYAjPwAxU8E2VhcoRfuNP9QXhmEg/CNTMCSYhF/rIdNflY16Oh1gCUfVZpUG2qk8BPsZoZlSrcjqqicFe6XE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NQFIW9rr; arc=none smtp.client-ip=209.85.221.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KToGiCmv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70C0CC4CEF7;
-	Thu,  5 Mar 2026 00:36:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772671004;
-	bh=dufxbUIyr7d8ExFT8JscxBc90VyX6BXpvMXaMHirGFY=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
-	b=KToGiCmvRjrVNqFH9bmGJHeZ38P88LzG7roLZL+LfIaWcpEiN2r+2cd8LeoKKP35z
-	 U1kZMnp2GF5lnZ/nU+B3HGi0hmJYpifkPnaIttjOzC0p4MJWgdE7whcAtStb71A/hR
-	 PWMEoeZUETbXXgqKLd947UqscZTCqE7PdSGVXWHEJVzdsA5P/GL+TYntigcrzmPu9S
-	 bwFDNJowrmaquHt0GQepYaacF/aqErDIPLaR1+ZJBBxnDoRwltgCLkyg6X/do1S70f
-	 /t3wS/hkSXMAn5Ptc3L2X59NGkKMvuLeUJNxpcdH9xAkM1JdLfqBeN7u7tjz5Udo9K
-	 2yvhogx3J8MSA==
-From: Nathan Chancellor <nathan@kernel.org>
-To: Nicolas Schier <nsc@kernel.org>, Nathan Chancellor <nathan@kernel.org>
-Cc: Richard Henderson <richard.henderson@linaro.org>, 
- Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>, 
- Vineet Gupta <vgupta@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
- Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, 
- Brian Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, 
- WANG Xuerui <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>, 
- Sam Creasey <sammy@sammy.net>, 
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
- Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, 
- Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, 
- Stafford Horne <shorne@gmail.com>, 
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
- Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
- Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, 
- Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
- "David S. Miller" <davem@davemloft.net>, 
- Andreas Larsson <andreas@gaisler.com>, Richard Weinberger <richard@nod.at>, 
- Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
- Johannes Berg <johannes@sipsolutions.net>, 
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
- Kees Cook <kees@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
- Masahiro Yamada <masahiroy@kernel.org>, Alexey Gladkov <legion@kernel.org>, 
- linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
- linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
- loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, 
- linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, 
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
- linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
- linux-um@lists.infradead.org, linux-kbuild@vger.kernel.org, 
- stable@vger.kernel.org, Ed W <lists@wildgooses.com>
-In-Reply-To: <20260225-separate-modinfo-from-elf-details-v1-1-387ced6baf4b@kernel.org>
-References: <20260225-separate-modinfo-from-elf-details-v1-1-387ced6baf4b@kernel.org>
-Subject: Re: [PATCH] kbuild: Split .modinfo out from ELF_DETAILS
-Message-Id: <177267099220.1730256.13119170390082704508.b4-ty@kernel.org>
-Date: Wed, 04 Mar 2026 17:36:32 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NQFIW9rr"
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-43b4f48c47cso1031402f8f.0
+        for <linux-openrisc@vger.kernel.org>; Sat, 21 Mar 2026 02:35:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1774085758; x=1774690558; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=6Y6Md6EAaVnAD6yK0uQblpYua3YBFMftWsFKGRKdGbg=;
+        b=NQFIW9rrn2QPu4eu08eN60P9QLAKX+1Y6WDgqXnhfeHcBHfDIOVEFYOdbL2gwOennI
+         emO7YdcqHyZBMNhKEn+8ipOYbsY01Fx/08ybJVOiqpOfQAhGCAQUun7DHxU85ksjo/94
+         vhpVRgfOIVm+Wrsan48WDrfD6OynciqjDXTcWFpio8EVpd+0Tmm4caJgNINBS5pcWCbS
+         PsvnGPaBkUpLmtF/eyA81eyAO31Zw8oohZLh3FwqMgJS6/RH+98A8ocYDi2YKsIjpEhH
+         BEHDU0vZ8M05Q6N2eYLNgVwI/EqAy2vSLmcz7v9fRFb5xWVMus6ialC2Rkt/tBwhy9Y2
+         JrUA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774085758; x=1774690558;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6Y6Md6EAaVnAD6yK0uQblpYua3YBFMftWsFKGRKdGbg=;
+        b=RcmXF/5E2Oh2JL3TiP+qrgE1BCQZewF8MuL4PM3Ik+Fe2KGnqu1QNEzehH2s0z73w0
+         EI/GEdCsO119p6iA+BniYv1NCt1lk2/ioXFh+lJpby3zmpGuCl4PJ6J10B0Z51L0Wrmn
+         wavtidDR1IbdCeufu+/89ebP9Um7WlXAye3RnHYku0EpDlvyaQMOH7gKqy9QHHmc4fxt
+         Gt9zVL2EV3T384upTn0G9GHqITbr72IQ3EHxOiDulb4HZB7ii/cXvsiYhiR8PCjhAp1E
+         5ItXy9HQObaSTFnYoYpMFfsHF53DrGfHiK6V9DYQIUecXO3d89NH+UtIqKZP69xlH+Tw
+         lvgQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXRSNrgZYYZsVLN70l373P8mKtX2YwnoQBqlzmH0I0DHmU1GRmhQ5Fg7axOve2zmlq5q7pW56bkqH8VXeKRdw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx1lPlKCo4VK+45YmbY8oOBVhFG4SvEVe0RkEiFitBdW8TN93Eb
+	eVx8HOd6p1b1qjkA3uBxdHZk2T9S+QYEPVJNhCkrcqX1qotjS78WYuu0
+X-Gm-Gg: ATEYQzwqAt1FDVPRWkspQCgWlmRPi8HwvGzsxjTJaijjE+u3PwDJwBT//Po0uOT7KmW
+	4s8SbZdSImlmLZL85uCC5WTZn/jrLrFDTRgQ8FfnCQLsGWVYLkKqlyfCI0vJakvBSWUGsqUqW3u
+	H6DEnyM8UEh4Ovk7Ir6cl9eBfk7V/slpGN2bQwxt0BSpVwDrKIPUdg4BnziqdymqWvGvW/GcilZ
+	P+em0I6/q9WuK1S3nqw9QD3ek7ZLVVklY6T8SRgMr36CAUiYWYGsj/Z3UQ5OiXCTcT7nrUX/8CB
+	qiJm53FZo6390ilTkfkKvB3YI+fp0c+fgbGPux+X5zf7Y3KO30Go8Nf2KuqbzG6ELUk8jCs3lLV
+	nFbfMm2Sw3tB83tjsXB1PKe4kkhmVXslCauGFSptn95bsealO6yXRIgggDEJRKcpfSwnDNufeGd
+	oJfjOXmoc1X98nrVBCOxFtWw7aQPWt3FMsxqyP65ObljphOe1amNTMRpwsenPzUyf9ECk8crxq/
+	OZEqLBaWTMIYRwg
+X-Received: by 2002:a05:6000:290d:b0:439:d242:e8fe with SMTP id ffacd0b85a97d-43b64242fddmr9643859f8f.11.1774085757880;
+        Sat, 21 Mar 2026 02:35:57 -0700 (PDT)
+Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43b644ae16fsm14159634f8f.8.2026.03.21.02.35.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 21 Mar 2026 02:35:57 -0700 (PDT)
+From: Stafford Horne <shorne@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Stafford Horne <shorne@gmail.com>,
+	kernel test robot <lkp@intel.com>,
+	Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	"Mike Rapoport (Microsoft)" <rppt@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	chenmiao <chenmiao.ku@gmail.com>,
+	Sahil Siddiq <sahilcdq0@gmail.com>,
+	linux-openrisc@vger.kernel.org
+Subject: [PATCH] openrisc: mm: Fix section mismatch between map_page and __set_fixmap
+Date: Sat, 21 Mar 2026 09:35:38 +0000
+Message-ID: <20260321093540.3402319-1-shorne@gmail.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.15-dev
+Content-Transfer-Encoding: 8bit
 
-On Wed, 25 Feb 2026 15:02:51 -0700, Nathan Chancellor wrote:
-> Commit 3e86e4d74c04 ("kbuild: keep .modinfo section in
-> vmlinux.unstripped") added .modinfo to ELF_DETAILS while removing it
-> from DISCARDS, as it was needed in vmlinux.unstripped and ELF_DETAILS
-> was present in all architecture specific vmlinux linker scripts. While
-> this shuffle is fine for vmlinux, ELF_DETAILS and DISCARDS may be used
-> by other linker scripts, such as the s390 and x86 compressed boot
-> images, which may not expect to have a modinfo section. In certain
-> circumstances, this could result in a bootloader failing to load the
-> compressed kernel [1].
-> 
-> [...]
+This warning was reported by the kernel test robot:
 
-Applied to
+  WARNING: modpost: vmlinux: section mismatch in reference: __set_fixmap+0x84 (section: .text.unlikely) -> map_page.isra.0 (section: .init.text)
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/kbuild/linux.git kbuild-fixes
+With commit 4735037b5d9b ("openrisc: Add text patching API support") the
+__set_fixmap function was moved out of the .init.text section.
+However, the map_page helper that it uses was not moved.  This was not
+noticed on gcc 15.1.0 where map_page gets inlined unlike lkp@intel.com
+which uses gcc 10.5.0.
 
-Thanks!
+Fix this by also moving the map_page helper function out of the init
+section.
 
-[1/1] kbuild: Split .modinfo out from ELF_DETAILS
-      https://git.kernel.org/kbuild/c/8678591b47469
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202603211503.E8mMETO3-lkp@intel.com/
+Fixes: 4735037b5d9b ("openrisc: Add text patching API support")
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+ arch/openrisc/mm/init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Please look out for regression or issue reports or other follow up
-comments, as they may result in the patch/series getting dropped or
-reverted. Patches applied to an "unstable" branch are accepted pending
-wider testing in -next and any post-commit review; they will generally
-be moved to the main branch in a week if no issues are found.
-
-Best regards,
+diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
+index 78fb0734cdbc..50aee0ea18b7 100644
+--- a/arch/openrisc/mm/init.c
++++ b/arch/openrisc/mm/init.c
+@@ -196,7 +196,7 @@ void __init mem_init(void)
+ 	return;
+ }
+ 
+-static int __init map_page(unsigned long va, phys_addr_t pa, pgprot_t prot)
++static int map_page(unsigned long va, phys_addr_t pa, pgprot_t prot)
+ {
+ 	p4d_t *p4d;
+ 	pud_t *pud;
 -- 
-Nathan Chancellor <nathan@kernel.org>
+2.51.0
 
