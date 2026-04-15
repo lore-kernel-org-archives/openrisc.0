@@ -1,149 +1,181 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBA1B7261C;
-	Wed, 15 Apr 2026 06:48:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2762C3043BE;
+	Wed, 15 Apr 2026 06:48:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776235688; cv=none; b=VC0HeiIeyPbFiMPlht12nkmj1sOzpLciXiWZzrfVe3CdzIDzMfGMaDd4M9L7dXoPu3Xn17ZUfQcJCs35e/vkLuPElTADpam7hW9ZdfalSZYuAhmiQqdJ7c/HhXIdK+9QX8sAGO4oLasX4Xd8bYeefuH1BEsNhE7tRPAWAVjp08w=
+	t=1776235711; cv=none; b=WnJBW/SASPV7jCgCXpAcyKU/uk55YvtxzV9Q6dcVhaxIRIH0Wq2/vcPp+mhHDdDTONZ71nspCA/esFrKg0o+PCQT9DonFZzLHf6S8SY8fXkGa4Ie//RB7sLMSIWvatuExI+CmFVFyW94uGwOHFPw9V2PhlLlsNIfR/0ot84qe2I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776235688; c=relaxed/simple;
-	bh=uO1fFgRaYkEaX03uIGSllbIp0KmN4e8uhrxbiL7j6JA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=b0DifANz9TAza/g0YGWlyJzT5cmj1b9jAXrEuvQudqCfl5mh8pMN2VV1x2+/jiRPgx0WazlQLhgh7ibkcQI/dZwKq6QLErIeBGUQOPa+o9gTiX1e30B7xxARW4oG5XxFubH77edrD36djPekrUkEd9FvBvlIzw0rcZJWWysSLkk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Wn6Hr/rv; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1776235711; c=relaxed/simple;
+	bh=rPWZ6utNdK1NA62XbK2HB3jeBpHc1tnaRLYIJU9NPRM=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=rpulGgOaMb/M18O70Elk0b+G3BWCJovHuMnU0Dytuwguc+TvD0B+eiSdRCLH2zruk8/eMlt6LscrSUbzsDDhuwzUJafOfpFIYq1xiDzga3Z9zjChAXLGjfoo3SJV9OeX0duiyiZeHC7GTAtrNMm5tvZGeqdXYvFObcirMu1rzEQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tX5ZtfES; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Wn6Hr/rv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E1D1C19424;
-	Wed, 15 Apr 2026 06:47:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tX5ZtfES"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 830FAC19424;
+	Wed, 15 Apr 2026 06:48:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776235687;
-	bh=uO1fFgRaYkEaX03uIGSllbIp0KmN4e8uhrxbiL7j6JA=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=Wn6Hr/rv7RQ0mjmBpBGnHzSLGoawtRWrJKf8Yulby+TTpp7z1W2m+/e3q+cBeZYn8
-	 9EULstKmB1P1aIGBA/hM7NfdL90zPADnWSMrSZUOJgfBI2Y0gYKo15ZH/8SN+3BCpi
-	 LFdpD3kIOkfmc5kLWHOPn/7qJv2G9rdoWFZcqmWwEJGa7DK0r7DBeorJlYNCKX5hcM
-	 Q22Qw/tg/rR1esDPVyaYxqkxnFQnTVF5/bVWUROMriQiIMAWyo9xVZRAIqfM9NCvMV
-	 JvPvhMbjPkTiWVz5ZUzK2DMWWd8bbim3aFcilo4uxvNCEcTYhNnaiu0tF2t4jRv/Q5
-	 DezCa9n7clYBA==
-Message-ID: <9c33afea-7a64-456e-aa2f-bdcf7459b567@kernel.org>
-Date: Wed, 15 Apr 2026 08:47:55 +0200
+	s=k20201202; t=1776235710;
+	bh=rPWZ6utNdK1NA62XbK2HB3jeBpHc1tnaRLYIJU9NPRM=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=tX5ZtfESqVc6mjbOQ8XuoIm6ETLi0apv7+wh5RemrKx9i9B5kDyH/QwTQaLs3FSg8
+	 Bv4DfAOaVOD/V9vjRhF3SKLKzll3UKC5NkrfK0PzN9jBQ4srAAyTuj3FcE5rLFfZbK
+	 vYUChgLuTDozgtV9sTdXaWrGBN7v7g+g2gtsCbeqs/jq6E51vK4gMNuOJGdffJ6ExF
+	 PUXadX24/+80Nz4HYlRcUjp5gWCF24VBUrIBwLGwSvH82nEbYuIou86+iwZuaV7/oD
+	 kJii2aNkHX7/E9X7XlBuamS31y2eROtiUFBPANrMCluX3r6TT4teipjBOeAHFeEi5Y
+	 5DYkd1lTwem9A==
+Date: Wed, 15 Apr 2026 15:48:26 +0900
+From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+To: Sahil Siddiq <sahilcdq0@gmail.com>
+Cc: jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
+ naveen@kernel.org, davem@davemloft.net, peterz@infradead.org,
+ jpoimboe@kernel.org, jbaron@akamai.com, rostedt@goodmis.org,
+ ardb@kernel.org, chenmiao.ku@gmail.com, johannes@sipsolutions.net,
+ nsc@kernel.org, masahiroy@kernel.org, tytso@mit.edu,
+ linux-openrisc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-trace-kernel@vger.kernel.org
+Subject: Re: [RFC 0/2] openrisc: Add support for KProbes
+Message-Id: <20260415154826.fc8aeb67f1cb3aa58be6ac48@kernel.org>
+In-Reply-To: <20260407185650.79816-1-sahilcdq0@gmail.com>
+References: <20260407185650.79816-1-sahilcdq0@gmail.com>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [patch 33/38] powerpc: Select ARCH_HAS_RANDOM_ENTROPY
-To: Thomas Gleixner <tglx@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
- Arnd Bergmann <arnd@arndb.de>, x86@kernel.org,
- Lu Baolu <baolu.lu@linux.intel.com>, iommu@lists.linux.dev,
- Michael Grzeschik <m.grzeschik@pengutronix.de>, netdev@vger.kernel.org,
- linux-wireless@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
- linux-crypto@vger.kernel.org, Vlastimil Babka <vbabka@kernel.org>,
- linux-mm@kvack.org, David Woodhouse <dwmw2@infradead.org>,
- Bernie Thompson <bernie@plugable.com>, linux-fbdev@vger.kernel.org,
- Theodore Tso <tytso@mit.edu>, linux-ext4@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>,
- Uladzislau Rezki <urezki@gmail.com>, Marco Elver <elver@google.com>,
- Dmitry Vyukov <dvyukov@google.com>, kasan-dev@googlegroups.com,
- Andrey Ryabinin <ryabinin.a.a@gmail.com>,
- Thomas Sailer <t.sailer@alumni.ethz.ch>, linux-hams@vger.kernel.org,
- "Jason A. Donenfeld" <Jason@zx2c4.com>,
- Richard Henderson <richard.henderson@linaro.org>,
- linux-alpha@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
- linux-arm-kernel@lists.infradead.org,
- Catalin Marinas <catalin.marinas@arm.com>,
- Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
- Geert Uytterhoeven <geert@linux-m68k.org>, linux-m68k@lists.linux-m68k.org,
- Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
- linux-openrisc@vger.kernel.org, Helge Deller <deller@gmx.de>,
- linux-parisc@vger.kernel.org, Paul Walmsley <pjw@kernel.org>,
- linux-riscv@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
- linux-s390@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
- sparclinux@vger.kernel.org
-References: <20260410120044.031381086@kernel.org>
- <20260410120319.789114053@kernel.org>
-Content-Language: fr-FR
-From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-In-Reply-To: <20260410120319.789114053@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+
+Hi Sahil,
+
+On Wed,  8 Apr 2026 00:26:48 +0530
+Sahil Siddiq <sahilcdq0@gmail.com> wrote:
+
+> Hi,
+> 
+> This series adds basic support for KProbes on OpenRISC. There are
+> a few changes that I would still like to add and test before this
+> can be considered for merging. I was hoping to get some feedback on
+> the changes made so far. The implementation in this series is based
+> on KProbes for LoongArch, MIPS and RISC-V. 
+
+Thanks for porting!
+Sashiko reviewed this series, can you check the comments?
+Most comments (not all) look reasonable to me.
+
+https://sashiko.dev/#/patchset/20260407185650.79816-1-sahilcdq0%40gmail.com
+
+Generally, please make better use of macros rather than magic values
+in your code to make it easier to understand.
+Also, use GENMASK() and BIT() macro to define bitmasks and bit.
+
+Thanks,
+
+> 
+> The current state of the series allows traps to be inserted dynamically
+> in the kernel. A KProbe can be inserted via a kernel module whose
+> init/exit functions are used to register/unregister a KProbe. A pre-
+> handler and post-handler can also be provisioned in the module, which
+> are associated with the KProbe and triggered when the probe is hit. See
+> the documentation on KProbes for a detailed explanation [1].
+> 
+> The following are yet to be implemented for OpenRISC:
+> 1. kretprobes
+> 2. kprobe-based event tracing
+> 3. ftrace, and kprobe features that depend on ftrace (particularly,
+> dynamic tracing)
+> 
+> I hope to submit a patch for kretprobes soon (possibly in a revision of
+> this series).
+> 
+> I wrote a couple of kernel modules to test these changes. They can be found
+> here [2]. I also ran test_kprobes located at ./lib/tests/ against these
+> changes [3]. The results are as shown below:
+> 
+> /home # insmod test_kprobes.ko 
+> KTAP version 1
+> 1..1
+>     KTAP version 1
+>     # Subtest: kprobes_test
+>     # module: test_kprobes
+>     1..3
+>     ok 1 test_kprobe
+>     ok 2 test_kprobes
+>     ok 3 test_kprobe_missed
+> # kprobes_test: pass:3 fail:0 skip:0 total:3
+> # Totals: pass:3 fail:0 skip:0 total:3
+> ok 1 kprobes_test
+> /home # 
+> 
+> When compiling the kernel, the following options should be enabled:
+> 1. CONFIG_HAVE_KPROBES=y
+> 2. CONFIG_KPROBES=y
+> 
+> Also ensure that CONFIG_KPROBE_EVENTS is disabled.
+> 
+> To compile /lib/tests/test_kprobes.c, add the following to .config:
+> 1. CONFIG_KUNIT=y
+> 2. CONFIG_DEBUG_KERNEL=y
+> 3. CONFIG_KPROBES_SANITY_TEST=m
+> 
+> The first commit cleans up and reorganizes existing functions, fixes
+> a few issues with instruction simulation, and introduces new structures
+> and macros that will be used by KProbes and other tracing facilities
+> in the future.
+> 
+> The second commit adds support for KProbes. Currently, I have
+> implemented this in such a way that KProbes can't be used to probe
+> a few "blacklisted" instructions. Probes can't be inserted in a delay
+> slot either (similar to MIPS). I have also added a few asm functions
+> to the blacklist that I think should not be probed. For e.g., "memset"
+> and "_trap_handler" have been blacklisted because probing them causes
+> the kernel to hang. However, I am not sure if other functions in "entry.S"
+> need to be added as well to the blacklist.
+> 
+> Thanks,
+> Sahil
+> 
+> [1] https://www.kernel.org/doc/html/latest/trace/kprobes.html
+> [2] https://github.com/valdaarhun/or-dev/tree/main/home
+> [3] https://github.com/openrisc/linux/blob/for-next/lib/tests/test_kprobes.c
+> 
+> Sahil Siddiq (2):
+>   openrisc: Add utilities and clean up simulation of instructions
+>   openrisc: Add KProbes
+> 
+>  arch/openrisc/Kconfig                   |   1 +
+>  arch/openrisc/configs/or1ksim_defconfig |   2 +
+>  arch/openrisc/configs/virt_defconfig    |   2 +
+>  arch/openrisc/include/asm/asm.h         |  22 ++
+>  arch/openrisc/include/asm/break.h       |  19 ++
+>  arch/openrisc/include/asm/insn-def.h    |  61 +++-
+>  arch/openrisc/include/asm/kprobes.h     |  76 +++++
+>  arch/openrisc/include/asm/spr_defs.h    |   1 +
+>  arch/openrisc/kernel/Makefile           |   3 +-
+>  arch/openrisc/kernel/entry.S            |  16 +
+>  arch/openrisc/kernel/insn.c             |  74 +++++
+>  arch/openrisc/kernel/jump_label.c       |   2 +-
+>  arch/openrisc/kernel/kprobes.c          | 381 ++++++++++++++++++++++++
+>  arch/openrisc/kernel/traps.c            |  67 ++---
+>  arch/openrisc/lib/memcpy.c              |   2 +
+>  arch/openrisc/lib/memset.S              |   4 +
+>  arch/openrisc/mm/fault.c                |   5 +
+>  samples/kprobes/kprobe_example.c        |   8 +
+>  18 files changed, 701 insertions(+), 45 deletions(-)
+>  create mode 100644 arch/openrisc/include/asm/asm.h
+>  create mode 100644 arch/openrisc/include/asm/break.h
+>  create mode 100644 arch/openrisc/include/asm/kprobes.h
+>  create mode 100644 arch/openrisc/kernel/insn.c
+>  create mode 100644 arch/openrisc/kernel/kprobes.c
+> 
+> -- 
+> 2.53.0
+> 
 
 
-
-Le 10/04/2026 à 14:21, Thomas Gleixner a écrit :
-> The only remaining usage of get_cycles() is to provide random_get_entropy().
-> 
-> Switch powerpc over to the new scheme of selecting ARCH_HAS_RANDOM_ENTROPY
-> and providing random_get_entropy() in asm/random.h.
-> 
-> Remove asm/timex.h as it has no functionality anymore.
-> 
-> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: linuxppc-dev@lists.ozlabs.org
-
-Reviewed-by: Christophe Leroy (CS GROUP) <chleroy@kernel.org>
-
-> ---
->   arch/powerpc/Kconfig              |    1 +
->   arch/powerpc/include/asm/random.h |   13 +++++++++++++
->   arch/powerpc/include/asm/timex.h  |   21 ---------------------
->   3 files changed, 14 insertions(+), 21 deletions(-)
-> 
-> --- a/arch/powerpc/Kconfig
-> +++ b/arch/powerpc/Kconfig
-> @@ -150,6 +150,7 @@ config PPC
->   	select ARCH_HAS_PREEMPT_LAZY
->   	select ARCH_HAS_PTDUMP
->   	select ARCH_HAS_PTE_SPECIAL
-> +	select ARCH_HAS_RANDOM_ENTROPY
->   	select ARCH_HAS_SCALED_CPUTIME		if VIRT_CPU_ACCOUNTING_NATIVE && PPC_BOOK3S_64
->   	select ARCH_HAS_SET_MEMORY
->   	select ARCH_HAS_STRICT_KERNEL_RWX	if (PPC_BOOK3S || PPC_8xx) && !HIBERNATION
-> --- /dev/null
-> +++ b/arch/powerpc/include/asm/random.h
-> @@ -0,0 +1,13 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +#ifndef _ASM_POWERPC_RANDOM_H
-> +#define _ASM_POWERPC_RANDOM_H
-> +
-> +#include <asm/cputable.h>
-> +#include <asm/vdso/timebase.h>
-> +
-> +static inline unsigned long random_get_entropy(void)
-> +{
-> +	return mftb();
-> +}
-> +
-> +#endif	/* _ASM_POWERPC_RANDOM_H */
-> --- a/arch/powerpc/include/asm/timex.h
-> +++ b/arch/powerpc/include/asm/timex.h
-> @@ -1,21 +0,0 @@
-> -/* SPDX-License-Identifier: GPL-2.0 */
-> -#ifndef _ASM_POWERPC_TIMEX_H
-> -#define _ASM_POWERPC_TIMEX_H
-> -
-> -#ifdef __KERNEL__
-> -
-> -/*
-> - * PowerPC architecture timex specifications
-> - */
-> -
-> -#include <asm/cputable.h>
-> -#include <asm/vdso/timebase.h>
-> -
-> -ostatic inline cycles_t get_cycles(void)
-> -{
-> -	return mftb();
-> -}
-> -#define get_cycles get_cycles
-> -
-> -#endif	/* __KERNEL__ */
-> -#endif	/* _ASM_POWERPC_TIMEX_H */
-> 
-> 
-
+-- 
+Masami Hiramatsu (Google) <mhiramat@kernel.org>
