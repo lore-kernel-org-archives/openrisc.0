@@ -1,123 +1,152 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7048637E2ED;
-	Wed, 15 Apr 2026 06:38:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBF2F39021D;
+	Wed, 15 Apr 2026 06:39:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776235117; cv=none; b=AgFZeuskP2O4SM3devXZMXFwhIOaBacACY0XUqQf1Qp/OogjqXqVctLR2T6ghOFFBjZ7sp3frQfVVRIcXE8nMWzqt23g+cglVzPYdA+4HUDTEhSwYroagHu7eNOVThvpIq9/Ux2SbJzImJkBWcKg2+Ok2GHnTE+nauN859mt3os=
+	t=1776235156; cv=none; b=CO+4OEpDwx32ZOcLuich/CMJxmWMWT5yqfLmZS6E+HRTX8Wdq1mrX3CA3J3taKwlL5GTAvToUwToeVgYdBs4HJG671DGHShDXpd5qKKMtHXoV6vwlLgNz2HcAQI3bcV28Hcnk/UOmMP+PyyzZ7ceL01lmw7wIwjXJrx8VyT3nF0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776235117; c=relaxed/simple;
-	bh=oJA3I+zKvq9KD+ojZoVICzDS05lI3MCnC5Rlh6cn04Q=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jXjA0y5dHh8PQl81mmJoFRpXX7f1Fb3QKw1gPRR6LwyQEumT7Vng6SaFRUko6bOsur0xqrQuc2ybgALkH7j8SCToK8v++V1FvEViXVoYdQF1l3RqbyOYUfoFWEVaUJy3xVLGI9+XvHf5+P58E9+8xUG0WcWc8sLImnXC3M4k/Ko=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CW1zPJNS; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1776235156; c=relaxed/simple;
+	bh=kd3t/0h0MZEPC1AEukuUFSkcMQSDxZRRrpw85dJuaeU=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=K7Cu71EGAyEAdOP9Y3lVOBUM2LHLtBi1Lw9C1I5e0b/WPCrnqGBB+NKGAOjZ2XAuPLvp3+yvWsEj4y5BKGqoppRqZnT8xTPzap0vWpkZ54TL7oas3TpfVpdS9kAamDLGeuUhc5QDj1LLsr5VeqYpIGPQAidCH/SdV9qhCd9tMTI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Nv6EqNmR; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CW1zPJNS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4603C19424;
-	Wed, 15 Apr 2026 06:38:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Nv6EqNmR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F06B4C19424;
+	Wed, 15 Apr 2026 06:39:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776235117;
-	bh=oJA3I+zKvq9KD+ojZoVICzDS05lI3MCnC5Rlh6cn04Q=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=CW1zPJNSJCGtniBmy6uyWDY71JAL0i4dK/N5qkFlNYs3kz0wXN03HHuHTh1S4hKQi
-	 e2yWcwq5RclCcCVX6A0Lopstyv1iJwvVwNRsKmdSs6NBxbKPvhq3apDF5Mh9EQ73Js
-	 q6/zItY3OOkWbN+i3+Ng0jCLJkMAwhrFhYQnM+LI0mETHNwewJwuPg1EQX95XcPKNN
-	 j2R4mf89jj4nr2TUgQRoKIUpiIuUlriELzBuol0ebMztd/ZZRtnQ1qtW+tQ2/QgIAp
-	 oYZF1auoZqP0e9mHU9TqSeeI5ff2Bxo+lnB6gCW6VWEs5KrEifF6NFFvP+OSWCop4o
-	 Cz3scEaJinP/g==
-Message-ID: <f6e6f630-07f1-46b4-888d-324a62a41070@kernel.org>
-Date: Wed, 15 Apr 2026 08:38:24 +0200
+	s=k20201202; t=1776235156;
+	bh=kd3t/0h0MZEPC1AEukuUFSkcMQSDxZRRrpw85dJuaeU=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=Nv6EqNmRQvuOBgLh6CmGaraznnyLPVvEie2P3G5ml6g2Xr0feIAB1c7Ohn1NaSxTM
+	 jyR4wn49u1h3apjmul83sXihBbc/Dei7uf+d8j0tbNkxVTumr+KO8dhy1IC+kOSKmb
+	 9WQ5UfOyvBM9Hgf8nHjyg2ynGS6xFkTNho3Fd9k8ZswQVDdHtMf5dYymQgz0b0BBy3
+	 o5hE+WWw34pe1iUcD2MQl3hRAtsdb/jMNlGDaAY0GZWBY8TgUbEIDj8X7ud6JQOhVb
+	 oBTKMD4WzjY0jqekDH16I2fjhGHgwpLPOH7s1C9FKKaogyUeYIQK3e/QNdqBd1x7Ct
+	 wBLVr5yPLh0iw==
+Date: Wed, 15 Apr 2026 15:39:12 +0900
+From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+To: Stafford Horne <shorne@gmail.com>
+Cc: Sahil Siddiq <sahilcdq0@gmail.com>, jonas@southpole.se,
+ stefan.kristiansson@saunalahti.fi, naveen@kernel.org, davem@davemloft.net,
+ mhiramat@kernel.org, peterz@infradead.org, jpoimboe@kernel.org,
+ jbaron@akamai.com, rostedt@goodmis.org, ardb@kernel.org,
+ chenmiao.ku@gmail.com, johannes@sipsolutions.net, nsc@kernel.org,
+ masahiroy@kernel.org, tytso@mit.edu, linux-openrisc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org
+Subject: Re: [RFC 1/2] openrisc: Add utilities and clean up simulation of
+ instructions
+Message-Id: <20260415153912.f26b46a37a078f491836bd76@kernel.org>
+In-Reply-To: <ad51SeeF2Gv06mgQ@antec>
+References: <20260407185650.79816-1-sahilcdq0@gmail.com>
+	<20260407185650.79816-2-sahilcdq0@gmail.com>
+	<ad51SeeF2Gv06mgQ@antec>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [patch 32/38] powerpc/spufs: Use mftb() directly
-To: Thomas Gleixner <tglx@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
- Arnd Bergmann <arnd@arndb.de>, x86@kernel.org,
- Lu Baolu <baolu.lu@linux.intel.com>, iommu@lists.linux.dev,
- Michael Grzeschik <m.grzeschik@pengutronix.de>, netdev@vger.kernel.org,
- linux-wireless@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
- linux-crypto@vger.kernel.org, Vlastimil Babka <vbabka@kernel.org>,
- linux-mm@kvack.org, David Woodhouse <dwmw2@infradead.org>,
- Bernie Thompson <bernie@plugable.com>, linux-fbdev@vger.kernel.org,
- Theodore Tso <tytso@mit.edu>, linux-ext4@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>,
- Uladzislau Rezki <urezki@gmail.com>, Marco Elver <elver@google.com>,
- Dmitry Vyukov <dvyukov@google.com>, kasan-dev@googlegroups.com,
- Andrey Ryabinin <ryabinin.a.a@gmail.com>,
- Thomas Sailer <t.sailer@alumni.ethz.ch>, linux-hams@vger.kernel.org,
- "Jason A. Donenfeld" <Jason@zx2c4.com>,
- Richard Henderson <richard.henderson@linaro.org>,
- linux-alpha@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
- linux-arm-kernel@lists.infradead.org,
- Catalin Marinas <catalin.marinas@arm.com>,
- Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
- Geert Uytterhoeven <geert@linux-m68k.org>, linux-m68k@lists.linux-m68k.org,
- Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
- linux-openrisc@vger.kernel.org, Helge Deller <deller@gmx.de>,
- linux-parisc@vger.kernel.org, Paul Walmsley <pjw@kernel.org>,
- linux-riscv@lists.infradead.org, Heiko Carstens <hca@linux.ibm.com>,
- linux-s390@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
- sparclinux@vger.kernel.org
-References: <20260410120044.031381086@kernel.org>
- <20260410120319.723429844@kernel.org>
-Content-Language: fr-FR
-From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-In-Reply-To: <20260410120319.723429844@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
+On Tue, 14 Apr 2026 18:11:37 +0100
+Stafford Horne <shorne@gmail.com> wrote:
+
+> Hello Sahil,
+> 
+> Thanks for your patches.  I have a few questions. so this is not really a
+> technical review at the moment just some main items.
+> 
+> On Wed, Apr 08, 2026 at 12:26:49AM +0530, Sahil Siddiq wrote:
+> > Introduce new instruction-related utilities and macros for OpenRISC.
+> > This is in preparation for patches that add tracing support such as
+> > KProbes.
+> > 
+> > Simulate l.adrp. Fix bugs in simulation of l.jal and l.jalr. Earlier,
+> 
+> Why emulate l.adrp?  We don't really use this yet in any OpenRISC code.  This
+> instruction is meant to be used to help -fpic code, see:
+> 
+>   https://openrisc.io/proposals/ladrp
+
+Maybe because l.adrp depends on InsnAddr (instruction address), 
+if kprobe runs copied instruction on its trampoline buffer, it
+generates a wrong result. If it may not be used in the kernel,
+arch_prepare_kprobe() can detect it and return an error.
+
+[...]
+> > +
+> > +#define OPENRISC_INSN_SIZE  (sizeof(union openrisc_instruction))
+
+This should be defined within an architecture header file.
+
+> > +
+> > +/* Helpers for working with l.trap */
+> > +static inline unsigned long __emit_trap(unsigned int code)
+> > +{
+> > +	return (code & 0xffff) | OPCODE_TRAP;
+> > +}
+> > +
+> > +static inline bool has_delay_slot(void)
+> > +{
+> > +	unsigned int cpucfgr = mfspr(SPR_CPUCFGR);
+> > +
+> > +	return !(cpucfgr & SPR_CPUCFGR_ND);
+> > +}
+> 
+> This is for handling CPU's that do not have delay slots.  We didn't do this
+> before, why are you doing it now?  Should we mention this in the git commit
+> message?
+> 
+> Also, since this is a static configuration for the CPU should we use static keys
+> for this?
+> 
+> > +
+> > +void simulate_pc(struct pt_regs *regs, unsigned int jmp);
+> > +void simulate_branch(struct pt_regs *regs, unsigned int jmp, bool has_delay_slot);
+
+Also, do not use the same name for a function name and a local variable.
+Please rename has_delay_slot() to machine_has_delay_slot() or rename
+the has_delay_slot parameter to 'delay_slot'.
+
+[...]
+> > +#include <linux/ptrace.h>
+> > +#include <asm/insn-def.h>
+> > +
+> > +void simulate_pc(struct pt_regs *regs, unsigned int jmp)
+> > +{
+> > +	int displacement;
+> > +	unsigned int rd, op;
+> > +
+> > +	displacement = sign_extend32(((jmp) & 0x7ffff) << 13, 31);
+> > +	rd = (jmp & 0x3ffffff) >> 21;
+
+Please use GENMASK() macro instead of hex value.
+(Moreover, define meaningful named macro instead of the magic number.)
+
+> > +	op = jmp >> 26;
+> > +
+> > +	switch (op) {
+> > +	case l_adrp:
+
+l_adrp seems have 2 modes. Is this OK only supporting 32-bit?
+
+32-bit Implementation:
+rD[31:0] ← exts(Immediate[18:0] << 13) + (InstAddr & -8192)
+64-bit Implementation:
+rD[63:0] ← exts(Immediate[20:0] << 13) + (InstAddr & -8192)
+
+> > +		regs->gpr[rd] = displacement + (regs->pc & (-8192));
+
+Please use nicely named macro instead of -8192.
+
+Thanks,
 
 
-Le 10/04/2026 à 14:21, Thomas Gleixner a écrit :
-> There is no reason to indirect via get_cycles(), which is about to be
-> removed.
-> 
-> Use mftb() directly.
-> 
-> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: linuxppc-dev@lists.ozlabs.org
 
-Reviewed-by: Christophe Leroy (CS GROUP) <chleroy@kernel.org>
-
-> ---
->   arch/powerpc/platforms/cell/spufs/switch.c |    5 +++--
->   1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> --- a/arch/powerpc/platforms/cell/spufs/switch.c
-> +++ b/arch/powerpc/platforms/cell/spufs/switch.c
-> @@ -34,6 +34,7 @@
->   #include <asm/spu_priv1.h>
->   #include <asm/spu_csa.h>
->   #include <asm/mmu_context.h>
-> +#include <asm/time.h>
->   
->   #include "spufs.h"
->   
-> @@ -279,7 +280,7 @@ static inline void save_timebase(struct
->   	 *    Read PPE Timebase High and Timebase low registers
->   	 *    and save in CSA.  TBD.
->   	 */
-> -	csa->suspend_time = get_cycles();
-> +	csa->suspend_time = mftb();
->   }
->   
->   static inline void remove_other_spu_access(struct spu_state *csa,
-> @@ -1261,7 +1262,7 @@ static inline void setup_decr(struct spu
->   	 *     in LSCSA.
->   	 */
->   	if (csa->priv2.mfc_control_RW & MFC_CNTL_DECREMENTER_RUNNING) {
-> -		cycles_t resume_time = get_cycles();
-> +		cycles_t resume_time = mftb();
->   		cycles_t delta_time = resume_time - csa->suspend_time;
->   
->   		csa->lscsa->decr_status.slot[0] = SPU_DECR_STATUS_RUNNING;
-> 
-> 
-
+-- 
+Masami Hiramatsu (Google) <mhiramat@kernel.org>
