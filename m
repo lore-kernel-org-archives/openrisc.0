@@ -1,410 +1,492 @@
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0F332F12CE
-	for <linux-openrisc@vger.kernel.org>; Tue, 14 Apr 2026 17:11:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A48F8351C0B
+	for <linux-openrisc@vger.kernel.org>; Wed, 15 Apr 2026 06:11:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776186703; cv=none; b=eXCPg09mmhi2qAZvYdlVv7gl/1qYhZ4faZ+eqKO6Ew+pTKfORM67/esIpIdzJKM2iJevVsZUBooV7RU3rSUSHcUcOLWKNw6+azqgATAE4/vpO4qYljE5HdlUFn85GBrk+1KucQjFw+uy+CnM/xjdXI67RRvvRloK00QeMw41t7U=
+	t=1776233466; cv=none; b=ALj0+vmc5E+46qGl6mOefI9+2GXAq3RANqLW4P57wrkGSXqrYTWmlxRGLdar4Z9fv+8Hs38VHskmGkPQeLdyn8yQXLKqCCss9RDq7SIN83KGSbLSc1XCAIW0YmsZnBRCNMGh+G7ZsbZzIfS8xt/gw8mDxuGzR4jtoqIMAAMB8jU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776186703; c=relaxed/simple;
-	bh=tQFfyfhVurzi6HFvZeSjwn3hHXowrfiG+0GHddv7jiQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DqiSiVVNBHta5oYqzYrXUqRsWVeoDIiWxtGWowgDN3cu3r/wDcixyXnHqfr9I6vl9zC/0WjMr0tNjLt28t99Ume0qi7yXRKc9I1nGAgkKI7YtgkoMpcqln9kS7ZY1xVDAziGpWiX8jRJbcWQnvWx/qKarzKrAsK/w1uAiV8gS4Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CME/EBdY; arc=none smtp.client-ip=209.85.128.48
+	s=arc-20240116; t=1776233466; c=relaxed/simple;
+	bh=HG6JDrGtfQaRx9o8IdU6ob0KxbXWBXuFq6lG0QDLE04=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ORUWSpYBwT/KzDaKn7D/zhL9ZLgYKBq1pAjCde/BDNezPc3+1XE5R9PsMmRMSRFNCHee65v6D0EAaEpmHZtGOuEUrDADBnUpTmnPmzsTWIQSh/65C+8laYiMwm6aXGcEL3T3s/WjQwa+X4Y+ZSUHUe0tykuCT7DgAhTVAcIPsv0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=X4ue3nDC; arc=none smtp.client-ip=209.85.210.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CME/EBdY"
-Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-488ba6366a7so72438585e9.0
-        for <linux-openrisc@vger.kernel.org>; Tue, 14 Apr 2026 10:11:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X4ue3nDC"
+Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-82f1dcd5886so2575013b3a.2
+        for <linux-openrisc@vger.kernel.org>; Tue, 14 Apr 2026 23:11:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776186700; x=1776791500; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=tqMuMIPqGZhECnMazPqsxGt2Vxf0shcWAHgruuCSXf0=;
-        b=CME/EBdY9L74hYFF9vBUko5k+4Vc3Qd589sBnhZziKWNlKjOTWFuQXR2g0DtMk3cPx
-         D985wTq8bgQNKijg7HyNW+LmHruZWmG1jBW1HyMd4dsOIHGPymNemmGDe3l7QOMpAIJf
-         U0KV9aVhiyVpKVRdJH/f4PrZf2iHTGf3heLISUdkGv3BnTLmLOnT8ROHMg8eW6a1TUGE
-         +Kja12xuT5weHWJXJn7neTDTbqCsdY8Yg/rkLcO7TFeTAQ7hxZHs///pCQiNAAYG6bWP
-         Eukzjao68BzxDaNvicXgKDhyp6wUVwx0DSZZ4E0Ocf8U9TuJo/xKd68ikr/NiLpBAZBU
-         pzng==
+        d=gmail.com; s=20251104; t=1776233464; x=1776838264; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=5D4ixRbcWbP2Euvq/IISGe50nb00WAHqUYDMp6lVcso=;
+        b=X4ue3nDCPBKKvC/8/nvvDsl2w5lOvxIy6gRBitaiwYBuqUDzpBliTEh1HDAfenSuVD
+         ieBV5UCdWyDBanXeEa8JSSOpe8JJfHCFM4Fo4eYtD4c35sbQxjAuAP7DcqDIy+kb5F5N
+         dUy1RCoqgnqVclI1aZRGSUDUcr8sf7D1whe55BdB/kFdjXsLUUyEwjIMaYZWNrqmkEuk
+         kt85DEQAeyX9K7CoSVOcHs4BYQaOSdmOxGMvYaKAgXGsuU7Di0r1m+fKviyUduYD9OAT
+         zq0Zmroi0QJhCHwUrba58kBO3Z1RJiH7/uHQOHxe+y9gjKwFqiVMkQ+GBbQaGxA40SgB
+         yR+g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776186700; x=1776791500;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=tqMuMIPqGZhECnMazPqsxGt2Vxf0shcWAHgruuCSXf0=;
-        b=fvlTZM00WnxMcUy0fSDzVYsVHtA+dPOc8XHSX5aXeUFDIlirJfB8W5vpN0+YlPBq9s
-         lCeco3++IJZcbeq2iese5n+kC0L4fZ5VB48tApvWOq/1Sx396lIwMrxE0HKSW6fKSyd5
-         LbhTzF/Z0qphfhXNkqnTNJEf9reZjJp5kETPVd0xjS3L+O1DgIe4qkolUKDpcM9XwlKh
-         HklxrmKI+J5NpPBy3DTUq1hUC/rlCxDVIJf8G0aw9+AScvfqS6sXFx/oU6HtHbnruvJN
-         I/3QNH27fVU8vPo7U3R8HL3IPvtsEJ42wXr4879wELU/0qMaCwIaDj3Q/lLktrtDpW37
-         AFMQ==
-X-Forwarded-Encrypted: i=1; AFNElJ87Ems69qIpA9MA1K6AiyeeESkvEXkwuZqD1gZvVkmplmKKwvCch3ao3Nu75NknoionxMXHW11C9I+h1lMYpA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz145f/PuwqcSliqktSpWWGs469wCgBOIAI4jT0oy/6Rq5vwwdD
-	mHUU9p7EZ0UdmVYpJYJZ4Bx7qFR1iHA7GNnW83o3rKsqxc8BrC4CqYuX
-X-Gm-Gg: AeBDieuiUuTmaCMxmh55V2nZWGVfrhBpnrtZPaPfuEpKgfe7N4Rzb1AqOD+db8AYf/Z
-	QGle0ewGhssLixpUrfuUsKYlNwh8hLuR4vEqrcLBp5vRVeyEOhIP/PmxCxl20Tyvdy1NYvDMkze
-	gxhWKAHCvBiHkJLL4L41S0SAMUtcsCdw3xGQUR5ztynx62bzfAKY46AT/zpCFFuBQrbjK4zDxA5
-	vfTB0Burw3MSuR7on4VESGVJbNta/4gu05asFq0ww8kIQLGKHWBzRGd23gZiMzTlKOzwW05XUlv
-	xYxSgSIezJcl6iqmnGWKgdqv6Z7mVqnJ5XiTh0tLGcoWEjbW7LITUC4SCnJZvC71p9hJZmSm8ES
-	3zQIqaSD1ZC/JvBdYlan1t0vreP8+bE1y0IyV07q1uSpmsfi1YEqbsrQETFvjOnln3xG1iyU1BW
-	Kvg6trByXfdxOLXasec4h5XRyEARjH/KvNPZVhUkSPcinQwfSPsIpEJ+w2+M0F7KezuS0y7D2ie
-	c2caORgbLhWcKPx
-X-Received: by 2002:a05:600c:4504:b0:488:9db9:5235 with SMTP id 5b1f17b1804b1-488d6867c23mr248019775e9.22.1776186699706;
-        Tue, 14 Apr 2026 10:11:39 -0700 (PDT)
-Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488ee019e44sm111827645e9.15.2026.04.14.10.11.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Apr 2026 10:11:38 -0700 (PDT)
-Date: Tue, 14 Apr 2026 18:11:37 +0100
-From: Stafford Horne <shorne@gmail.com>
-To: Sahil Siddiq <sahilcdq0@gmail.com>
-Cc: jonas@southpole.se, stefan.kristiansson@saunalahti.fi,
-	naveen@kernel.org, davem@davemloft.net, mhiramat@kernel.org,
-	peterz@infradead.org, jpoimboe@kernel.org, jbaron@akamai.com,
-	rostedt@goodmis.org, ardb@kernel.org, chenmiao.ku@gmail.com,
-	johannes@sipsolutions.net, nsc@kernel.org, masahiroy@kernel.org,
-	tytso@mit.edu, linux-openrisc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org
-Subject: Re: [RFC 1/2] openrisc: Add utilities and clean up simulation of
- instructions
-Message-ID: <ad51SeeF2Gv06mgQ@antec>
-References: <20260407185650.79816-1-sahilcdq0@gmail.com>
- <20260407185650.79816-2-sahilcdq0@gmail.com>
+        d=1e100.net; s=20251104; t=1776233464; x=1776838264;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=5D4ixRbcWbP2Euvq/IISGe50nb00WAHqUYDMp6lVcso=;
+        b=ZiE585H5LxHpcyZBWh/+7Mm4ZiUvlTUt/AUTEH899Vl3Fkwcxm6+5GrmIwu0dcPQdk
+         jerFrUX0nWvDHdCNGbMIs0CWX5QJW6hdoOSZ5bQkTDCxej1t7OOIffYpVmxGNkf/rQ7d
+         SyZBbg9prF3Jr9iIc9diQHIeyCjyzWSQuFnu8XKNnS5ZogimFVrAIhGR7RffNPrj9bLd
+         ejqxltfv5HpPJu4Zt6J02qT9NBgGbrJwTIRbmhZc220nMT0aW4yD7eb+dvEX2yBwC353
+         0QdPCGhZRIMUxMA08UgNvzzKJprSlXqruFj3U474YFzxPGEdXs/GuNknHwX4PZ3Zrghb
+         gDZA==
+X-Forwarded-Encrypted: i=1; AFNElJ+J0DYFy3O3Y+p/1yHsxHiGo8qkVM+z/H96o4ei+CRluJs5EtsTcWFxS+1er9HP7MDoD5o0lJjYP4VbtjdMeA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzLvlVZ7S1BFK8qJgwzabEx+fz8Y7LocZoSo6s9bFRoo/Qv7vOc
+	NfDGM7WsRdzB9y32z8aHVYWprgUoJGoI8fOySSqMPywgPLoNB4+c2lTN
+X-Gm-Gg: AeBDiesFELRyPFAtL0SLoc1cdPlD5AETcdXymf9palGYzMK2xA9mAfYMdws/eOcCsq+
+	9jTDvgv5Zs+Owqza7DmY7p8YF2Oo349nFJ7CopKq6JvwiQLJ6yn0+uH/+P8Nb0Kr7aE54nazVuc
+	JaXp+HSh324qqRrkyIRJ+v50k6X+ETIi2rks3TntimwPqhdZjCesF/LD9BbZJmDfXgIgU37A2CS
+	sEOALwWHgkZXqQV8OFnDvYXkhqqrfEZ/24ZGCqJxTQzayd/1Whcvbjv306z418FzLF30ezqHDZE
+	l/qAorLSAYfO9eDS3/wQup19XSMKh7MdvaXvnMmiWrUNTLRgMSvEV0+OOGguC8RQxoKEf9o77cM
+	lVY+1MEHf+vLRzkJSbQ5o0tN6qBOhe6hOrozhHsQWH5BW9BGq54Y8TUppJMhJ3R5BeDGQEkjBtD
+	hEvep5VtrBTceaAK1UkxGcm8B7PEWH8Th7V2Vx9DgdTqCehxHwQgu1JSUN6uaAtZ0=
+X-Received: by 2002:a05:6a00:bc8d:b0:82f:6858:3f6 with SMTP id d2e1a72fcca58-82f685808afmr1082773b3a.0.1776233463801;
+        Tue, 14 Apr 2026 23:11:03 -0700 (PDT)
+Received: from ?IPV6:2401:4900:1c42:151c:9ad5:78a0:5dfa:8cb7? ([2401:4900:1c42:151c:9ad5:78a0:5dfa:8cb7])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82f673e0ca3sm978653b3a.30.2026.04.14.23.10.57
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 14 Apr 2026 23:11:03 -0700 (PDT)
+Message-ID: <1c8c1663-b1f6-4306-b602-182b02273140@gmail.com>
+Date: Wed, 15 Apr 2026 11:40:56 +0530
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260407185650.79816-2-sahilcdq0@gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC 1/2] openrisc: Add utilities and clean up simulation of
+ instructions
+To: Stafford Horne <shorne@gmail.com>
+Cc: jonas@southpole.se, stefan.kristiansson@saunalahti.fi, naveen@kernel.org,
+ davem@davemloft.net, mhiramat@kernel.org, peterz@infradead.org,
+ jpoimboe@kernel.org, jbaron@akamai.com, rostedt@goodmis.org,
+ ardb@kernel.org, chenmiao.ku@gmail.com, johannes@sipsolutions.net,
+ nsc@kernel.org, masahiroy@kernel.org, tytso@mit.edu,
+ linux-openrisc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-trace-kernel@vger.kernel.org
+References: <20260407185650.79816-1-sahilcdq0@gmail.com>
+ <20260407185650.79816-2-sahilcdq0@gmail.com> <ad51SeeF2Gv06mgQ@antec>
+Content-Language: en-US
+From: Sahil <sahilcdq0@gmail.com>
+In-Reply-To: <ad51SeeF2Gv06mgQ@antec>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hello Sahil,
+Hi Stafford,
 
-Thanks for your patches.  I have a few questions. so this is not really a
-technical review at the moment just some main items.
+Thank you for your review.
 
-On Wed, Apr 08, 2026 at 12:26:49AM +0530, Sahil Siddiq wrote:
-> Introduce new instruction-related utilities and macros for OpenRISC.
-> This is in preparation for patches that add tracing support such as
-> KProbes.
+On 4/14/26 10:41 PM, Stafford Horne wrote:
+> Hello Sahil,
 > 
-> Simulate l.adrp. Fix bugs in simulation of l.jal and l.jalr. Earlier,
-
-Why emulate l.adrp?  We don't really use this yet in any OpenRISC code.  This
-instruction is meant to be used to help -fpic code, see:
-
-  https://openrisc.io/proposals/ladrp
-
-> PC was being updated and then saved in the link register r9, resulting
-> in a corrupted page table (bad page map in process). Instead, update
-> PC after storing it in r9.
+> Thanks for your patches.  I have a few questions. so this is not really a
+> technical review at the moment just some main items.
 > 
-> Move instruction simulation to its own file to enable reuse. Clean it
-> up and replace hardcoded values with computed expressions.
+> On Wed, Apr 08, 2026 at 12:26:49AM +0530, Sahil Siddiq wrote:
+>> Introduce new instruction-related utilities and macros for OpenRISC.
+>> This is in preparation for patches that add tracing support such as
+>> KProbes.
+>>
+>> Simulate l.adrp. Fix bugs in simulation of l.jal and l.jalr. Earlier,
 > 
-> Link: https://raw.githubusercontent.com/openrisc/doc/master/openrisc-arch-1.4-rev0.pdf
-> Signed-off-by: Sahil Siddiq <sahilcdq0@gmail.com>
-> ---
->  arch/openrisc/include/asm/insn-def.h | 61 +++++++++++++++++++++--
->  arch/openrisc/include/asm/spr_defs.h |  1 +
->  arch/openrisc/kernel/Makefile        |  2 +-
->  arch/openrisc/kernel/insn.c          | 74 ++++++++++++++++++++++++++++
->  arch/openrisc/kernel/jump_label.c    |  2 +-
->  arch/openrisc/kernel/traps.c         | 41 +--------------
->  6 files changed, 136 insertions(+), 45 deletions(-)
->  create mode 100644 arch/openrisc/kernel/insn.c
+> Why emulate l.adrp?  We don't really use this yet in any OpenRISC code.  This
+> instruction is meant to be used to help -fpic code, see:
 > 
-> diff --git a/arch/openrisc/include/asm/insn-def.h b/arch/openrisc/include/asm/insn-def.h
-> index 1e0c028a5b95..c98f9770c52e 100644
-> --- a/arch/openrisc/include/asm/insn-def.h
-> +++ b/arch/openrisc/include/asm/insn-def.h
-> @@ -3,13 +3,66 @@
->   * Copyright (C) 2025 Chen Miao
->   */
->  
-> +#include <asm/spr.h>
-> +#include <asm/spr_defs.h>
-> +
->  #ifndef __ASM_OPENRISC_INSN_DEF_H
->  #define __ASM_OPENRISC_INSN_DEF_H
->  
-> -/* or1k instructions are always 32 bits. */
-> -#define	OPENRISC_INSN_SIZE		4
-> -
->  /* or1k nop instruction code */
-> -#define OPENRISC_INSN_NOP     0x15000000U
-> +#define INSN_NOP	0x15000000U
+>    https://openrisc.io/proposals/ladrp
 
-Why remove the OPENRISC_ namespace from thse definitions?
+Right, I couldn't find l.adrp in the kernel's image after compilation. But I
+was thinking, in case l.adrp is used somewhere in the future (for e.g. in a
+custom kernel module) and a probe is placed at that instruction, we would need
+to emulate that instruction. This is because the target address is calculated
+using the instruction's address (InsnAddr & -8192). If l.adrp is moved to an
+out-of-line slot to single-step for KProbes, the slot's address will be used to
+generate the target address instead of the original address.
 
-Other architectures like arm64, riscv have namespaces on these similar
-definitions.
+Since l.adrp is not really used anywhere and it's highly unlikely that it will
+be probed, an alternative could be to add l.adrp to the blacklist so that probes
+at this instruction are never inserted.
 
-> +
-> +#define INSN_CSYNC	0x23000000U
-> +#define INSN_MSYNC	0x22000000U
-> +#define INSN_PSYNC	0x22800000U
-> +
-> +#define OPCODE_TRAP	0x21000000U
-> +#define OPCODE_SYS	0x20000000U
-> +#define OPCODE_MACRC	0x18010000U
-> +
-> +struct pt_regs;
-> +
-> +enum six_bit_opcodes {
-
-I don't see why we need to name this six_bit as such.  OpenRISC
-instructions have either fir most significant 6-bits or 11-bits
-as opcodes but we still use the first 6-bits to drive the logic.
-
-> +	l_rfe = 0x09,
-> +	l_lwa = 0x1b,
-> +	l_mfspr = 0x2d,
-> +	l_mtspr = 0x30,
-> +	l_swa = 0x33,
-> +	l_j = 0x00,
-> +	l_jal = 0x01,
-> +	l_adrp = 0x02,
-> +	l_bnf = 0x03,
-> +	l_bf = 0x04,
-> +	l_jr = 0x11,
-> +	l_jalr = 0x12,
-> +};
-> +
-> +struct insn {
-> +	unsigned int opcode: 6;
-> +	unsigned int operands: 26;
-> +};
-> +
-> +union openrisc_instruction {
-> +	unsigned int word;
-> +	struct insn opcodes_6bit;
-> +};
-> +
-> +#define OPENRISC_INSN_SIZE  (sizeof(union openrisc_instruction))
-> +
-> +/* Helpers for working with l.trap */
-> +static inline unsigned long __emit_trap(unsigned int code)
-> +{
-> +	return (code & 0xffff) | OPCODE_TRAP;
-> +}
-> +
-> +static inline bool has_delay_slot(void)
-> +{
-> +	unsigned int cpucfgr = mfspr(SPR_CPUCFGR);
-> +
-> +	return !(cpucfgr & SPR_CPUCFGR_ND);
-> +}
-
-This is for handling CPU's that do not have delay slots.  We didn't do this
-before, why are you doing it now?  Should we mention this in the git commit
-message?
-
-Also, since this is a static configuration for the CPU should we use static keys
-for this?
-
-> +
-> +void simulate_pc(struct pt_regs *regs, unsigned int jmp);
-> +void simulate_branch(struct pt_regs *regs, unsigned int jmp, bool has_delay_slot);
->  
->  #endif /* __ASM_OPENRISC_INSN_DEF_H */
-> diff --git a/arch/openrisc/include/asm/spr_defs.h b/arch/openrisc/include/asm/spr_defs.h
-> index f0b6b492e9f4..5d13a9b96263 100644
-> --- a/arch/openrisc/include/asm/spr_defs.h
-> +++ b/arch/openrisc/include/asm/spr_defs.h
-> @@ -179,6 +179,7 @@
->  #define SPR_CPUCFGR_OF32S  0x00000080  /* ORFPX32 supported */
->  #define SPR_CPUCFGR_OF64S  0x00000100  /* ORFPX64 supported */
->  #define SPR_CPUCFGR_OV64S  0x00000200  /* ORVDX64 supported */
-> +#define SPR_CPUCFGR_ND     0x00000400  /* No delay slot */
->  #define SPR_CPUCFGR_RES	   0xfffffc00  /* Reserved */
->  
->  /*
-> diff --git a/arch/openrisc/kernel/Makefile b/arch/openrisc/kernel/Makefile
-> index 19e0eb94f2eb..150779fbf010 100644
-> --- a/arch/openrisc/kernel/Makefile
-> +++ b/arch/openrisc/kernel/Makefile
-> @@ -5,7 +5,7 @@
->  
->  always-$(KBUILD_BUILTIN)	:= vmlinux.lds
->  
-> -obj-y	:= head.o setup.o or32_ksyms.o process.o dma.o \
-> +obj-y	:= head.o insn.o setup.o or32_ksyms.o process.o dma.o \
->  	   traps.o time.o irq.o entry.o ptrace.o signal.o \
->  	   sys_call_table.o unwinder.o cacheinfo.o
->  
-> diff --git a/arch/openrisc/kernel/insn.c b/arch/openrisc/kernel/insn.c
-> new file mode 100644
-> index 000000000000..2c97eceee6d7
-> --- /dev/null
-> +++ b/arch/openrisc/kernel/insn.c
-> @@ -0,0 +1,74 @@
-> +// SPDX-License-Identifier: GPL-2.0-or-later
-> +/*
-> + * OpenRISC instruction utils
-> + *
-> + * Linux architectural port borrowing liberally from similar works of
-> + * others.  All original copyrights apply as per the original source
-> + * declaration.
-> + *
-> + * OpenRISC implementation:
-> + * Copyright (C) 2026 Sahil Siddiq <sahilcdq0@gmail.com>
-> + */
-> +
-> +#include <linux/ptrace.h>
-> +#include <asm/insn-def.h>
-> +
-> +void simulate_pc(struct pt_regs *regs, unsigned int jmp)
-> +{
-> +	int displacement;
-> +	unsigned int rd, op;
-> +
-> +	displacement = sign_extend32(((jmp) & 0x7ffff) << 13, 31);
-> +	rd = (jmp & 0x3ffffff) >> 21;
-> +	op = jmp >> 26;
-> +
-> +	switch (op) {
-> +	case l_adrp:
-> +		regs->gpr[rd] = displacement + (regs->pc & (-8192));
-> +		return;
-> +	default:
-> +		break;
-> +	}
-> +}
-
-This function is not used, what will it be used for? Could you mention it in the
-commit message?  Also could you document it?
-
-> +
-> +void simulate_branch(struct pt_regs *regs, unsigned int jmp_insn, bool has_delay_slot)
-
-Since you are using this for more than just instruction simulation now, maybe
-its good to document what it does. For example when we use it below we surround
-it with the in_delay_slot check.
-
-> +{
-> +	int displacement;
-> +	unsigned int rb, op, jmp;
-> +
-> +	displacement = sign_extend32(((jmp_insn) & 0x3ffffff) << 2, 27);
-> +	rb = (jmp_insn & 0x0000ffff) >> 11;
-> +	op = jmp_insn >> 26;
-
-Naming this variable jmp is a bit misleading.  Maybe something like
-link_displacement, link_offset or fallthrough?
-
-> +	jmp = has_delay_slot ? 2 * OPENRISC_INSN_SIZE : OPENRISC_INSN_SIZE;
-> +
-> +	switch (op) {
-> +	case l_j: /* l.j */
-> +		regs->pc += displacement;
-> +		return;
-> +	case l_jal: /* l.jal */
-> +		regs->gpr[9] = regs->pc + jmp;
-> +		regs->pc += displacement;
-> +		return;
-> +	case l_bnf: /* l.bnf */
-> +		if (regs->sr & SPR_SR_F)
-> +			regs->pc += jmp;
-> +		else
-> +			regs->pc += displacement;
-> +		return;
-> +	case l_bf: /* l.bf */
-> +		if (regs->sr & SPR_SR_F)
-> +			regs->pc += displacement;
-> +		else
-> +			regs->pc += jmp;
-> +		return;
-> +	case l_jr: /* l.jr */
-> +		regs->pc = regs->gpr[rb];
-> +		return;
-> +	case l_jalr: /* l.jalr */
-> +		regs->gpr[9] = regs->pc + jmp;
-> +		regs->pc = regs->gpr[rb];
-> +		return;
-> +	default:
-> +		break;
-> +	}
-> +}
-> diff --git a/arch/openrisc/kernel/jump_label.c b/arch/openrisc/kernel/jump_label.c
-> index ab7137c23b46..fe082eb847a4 100644
-> --- a/arch/openrisc/kernel/jump_label.c
-> +++ b/arch/openrisc/kernel/jump_label.c
-> @@ -34,7 +34,7 @@ bool arch_jump_label_transform_queue(struct jump_entry *entry,
->  
->  		insn = offset;
->  	} else {
-> -		insn = OPENRISC_INSN_NOP;
-> +		insn = INSN_NOP;
->  	}
->  
->  	if (early_boot_irqs_disabled)
-> diff --git a/arch/openrisc/kernel/traps.c b/arch/openrisc/kernel/traps.c
-> index c195be9cc9fc..ee87a3af34fc 100644
-> --- a/arch/openrisc/kernel/traps.c
-> +++ b/arch/openrisc/kernel/traps.c
-> @@ -32,6 +32,7 @@
->  
->  #include <asm/bug.h>
->  #include <asm/fpu.h>
-> +#include <asm/insn-def.h>
->  #include <asm/io.h>
->  #include <asm/processor.h>
->  #include <asm/unwinder.h>
-> @@ -269,47 +270,9 @@ static inline int in_delay_slot(struct pt_regs *regs)
->  
->  static inline void adjust_pc(struct pt_regs *regs, unsigned long address)
->  {
-> -	int displacement;
-> -	unsigned int rb, op, jmp;
-> -
->  	if (unlikely(in_delay_slot(regs))) {
->  		/* In delay slot, instruction at pc is a branch, simulate it */
-> -		jmp = *((unsigned int *)regs->pc);
-> -
-> -		displacement = sign_extend32(((jmp) & 0x3ffffff) << 2, 27);
-> -		rb = (jmp & 0x0000ffff) >> 11;
-> -		op = jmp >> 26;
-> -
-> -		switch (op) {
-> -		case 0x00: /* l.j */
-> -			regs->pc += displacement;
-> -			return;
-> -		case 0x01: /* l.jal */
-> -			regs->pc += displacement;
-> -			regs->gpr[9] = regs->pc + 8;
-> -			return;
-> -		case 0x03: /* l.bnf */
-> -			if (regs->sr & SPR_SR_F)
-> -				regs->pc += 8;
-> -			else
-> -				regs->pc += displacement;
-> -			return;
-> -		case 0x04: /* l.bf */
-> -			if (regs->sr & SPR_SR_F)
-> -				regs->pc += displacement;
-> -			else
-> -				regs->pc += 8;
-> -			return;
-> -		case 0x11: /* l.jr */
-> -			regs->pc = regs->gpr[rb];
-> -			return;
-> -		case 0x12: /* l.jalr */
-> -			regs->pc = regs->gpr[rb];
-> -			regs->gpr[9] = regs->pc + 8;
-> -			return;
-> -		default:
-> -			break;
-> -		}
-> +		simulate_branch(regs, *((unsigned int *)regs->pc), has_delay_slot());
->  	} else {
->  		regs->pc += 4;
->  	}
-> -- 
-> 2.53.0
+>> PC was being updated and then saved in the link register r9, resulting
+>> in a corrupted page table (bad page map in process). Instead, update
+>> PC after storing it in r9.
+>>
+>> Move instruction simulation to its own file to enable reuse. Clean it
+>> up and replace hardcoded values with computed expressions.
+>>
+>> Link: https://raw.githubusercontent.com/openrisc/doc/master/openrisc-arch-1.4-rev0.pdf
+>> Signed-off-by: Sahil Siddiq <sahilcdq0@gmail.com>
+>> ---
+>>   arch/openrisc/include/asm/insn-def.h | 61 +++++++++++++++++++++--
+>>   arch/openrisc/include/asm/spr_defs.h |  1 +
+>>   arch/openrisc/kernel/Makefile        |  2 +-
+>>   arch/openrisc/kernel/insn.c          | 74 ++++++++++++++++++++++++++++
+>>   arch/openrisc/kernel/jump_label.c    |  2 +-
+>>   arch/openrisc/kernel/traps.c         | 41 +--------------
+>>   6 files changed, 136 insertions(+), 45 deletions(-)
+>>   create mode 100644 arch/openrisc/kernel/insn.c
+>>
+>> diff --git a/arch/openrisc/include/asm/insn-def.h b/arch/openrisc/include/asm/insn-def.h
+>> index 1e0c028a5b95..c98f9770c52e 100644
+>> --- a/arch/openrisc/include/asm/insn-def.h
+>> +++ b/arch/openrisc/include/asm/insn-def.h
+>> @@ -3,13 +3,66 @@
+>>    * Copyright (C) 2025 Chen Miao
+>>    */
+>>   
+>> +#include <asm/spr.h>
+>> +#include <asm/spr_defs.h>
+>> +
+>>   #ifndef __ASM_OPENRISC_INSN_DEF_H
+>>   #define __ASM_OPENRISC_INSN_DEF_H
+>>   
+>> -/* or1k instructions are always 32 bits. */
+>> -#define	OPENRISC_INSN_SIZE		4
+>> -
+>>   /* or1k nop instruction code */
+>> -#define OPENRISC_INSN_NOP     0x15000000U
+>> +#define INSN_NOP	0x15000000U
 > 
+> Why remove the OPENRISC_ namespace from thse definitions?
+> 
+> Other architectures like arm64, riscv have namespaces on these similar
+> definitions.
+
+Oh, got it. I hadn't checked those architectures at that point. I was
+following the convention in LoongArch and the namespace wasn't there. I'll
+revert this change.
+
+>> +
+>> +#define INSN_CSYNC	0x23000000U
+>> +#define INSN_MSYNC	0x22000000U
+>> +#define INSN_PSYNC	0x22800000U
+>> +
+>> +#define OPCODE_TRAP	0x21000000U
+>> +#define OPCODE_SYS	0x20000000U
+>> +#define OPCODE_MACRC	0x18010000U
+
+I'll add the namespace here.
+
+>> +struct pt_regs;
+>> +
+>> +enum six_bit_opcodes {
+> 
+> I don't see why we need to name this six_bit as such.  OpenRISC
+> instructions have either fir most significant 6-bits or 11-bits
+> as opcodes but we still use the first 6-bits to drive the logic.
+
+Maybe it should be renamed to something that indicates this is related
+to probes (I wasn't able to come up with a better name).
+
+The enums are used in a few places in KProbe's implementation to check
+if an instruction requires emulation, has been blacklisted, or can be
+single-stepped in an out-of-line slot. An alternative would be to use
+macros (similar to OPCODE_SYS) but that won't have type checking. Either
+way, I think it's better than using raw values in multiple places.
+
+Shall I simply rename the enum type, or shall I switch to macros? What
+are your thoughts?
+
+>> +	l_rfe = 0x09,
+>> +	l_lwa = 0x1b,
+>> +	l_mfspr = 0x2d,
+>> +	l_mtspr = 0x30,
+>> +	l_swa = 0x33,
+>> +	l_j = 0x00,
+>> +	l_jal = 0x01,
+>> +	l_adrp = 0x02,
+>> +	l_bnf = 0x03,
+>> +	l_bf = 0x04,
+>> +	l_jr = 0x11,
+>> +	l_jalr = 0x12,
+>> +};
+>> +
+>> +struct insn {
+>> +	unsigned int opcode: 6;
+>> +	unsigned int operands: 26;
+>> +};
+>> +
+>> +union openrisc_instruction {
+>> +	unsigned int word;
+>> +	struct insn opcodes_6bit;
+>> +};
+>> +
+>> +#define OPENRISC_INSN_SIZE  (sizeof(union openrisc_instruction))
+>> +
+>> +/* Helpers for working with l.trap */
+>> +static inline unsigned long __emit_trap(unsigned int code)
+>> +{
+>> +	return (code & 0xffff) | OPCODE_TRAP;
+>> +}
+>> +
+>> +static inline bool has_delay_slot(void)
+>> +{
+>> +	unsigned int cpucfgr = mfspr(SPR_CPUCFGR);
+>> +
+>> +	return !(cpucfgr & SPR_CPUCFGR_ND);
+>> +}
+> 
+> This is for handling CPU's that do not have delay slots.  We didn't do this
+> before, why are you doing it now?  Should we mention this in the git commit
+> message?
+
+I am not entirely sure why CPUs with no delay slot were not taken into account
+initially. The "in_delay_slot" function in traps.c [1] always assumes (for the
+case where SPR_SR_DSX is not implemented) that the CPU has a delay slot if PC is
+a branch instruction.
+
+Given that the specification allows CPUs not to have a delay slot, I thought I
+would include that as well. With no SPR_SR_DSX, if it can be guaranteed that PC
+will be a branch instruction only when delay slots are enabled, then there should
+be no change in behaviour in "simulate_branch" even with the addition of the
+"has_delay_slot" check.
+
+However, if PC can be a branch instruction even when there are no delay slots, then
+"simulate_branch" now adds 4 to regs->pc instead of adding 8 unconditionally. Please
+correct me if I am wrong.
+
+"has_delay_slot" is particularly important for KProbes, since a probe at a branch
+instruction with a delay slot means the branch will have to be emulated followed
+by single-stepping of the delay slot instruction.
+
+But if there are no delay slots, then only branch emulation is required.
+
+> Also, since this is a static configuration for the CPU should we use static keys
+> for this?
+
+Yes, I think static keys can be used here. If the more likely case is that a delay
+slot exists, we can make that the more likely branch.
+
+>> +
+>> +void simulate_pc(struct pt_regs *regs, unsigned int jmp);
+>> +void simulate_branch(struct pt_regs *regs, unsigned int jmp, bool has_delay_slot);
+>>   
+>>   #endif /* __ASM_OPENRISC_INSN_DEF_H */
+>> diff --git a/arch/openrisc/include/asm/spr_defs.h b/arch/openrisc/include/asm/spr_defs.h
+>> index f0b6b492e9f4..5d13a9b96263 100644
+>> --- a/arch/openrisc/include/asm/spr_defs.h
+>> +++ b/arch/openrisc/include/asm/spr_defs.h
+>> @@ -179,6 +179,7 @@
+>>   #define SPR_CPUCFGR_OF32S  0x00000080  /* ORFPX32 supported */
+>>   #define SPR_CPUCFGR_OF64S  0x00000100  /* ORFPX64 supported */
+>>   #define SPR_CPUCFGR_OV64S  0x00000200  /* ORVDX64 supported */
+>> +#define SPR_CPUCFGR_ND     0x00000400  /* No delay slot */
+>>   #define SPR_CPUCFGR_RES	   0xfffffc00  /* Reserved */
+>>   
+>>   /*
+>> diff --git a/arch/openrisc/kernel/Makefile b/arch/openrisc/kernel/Makefile
+>> index 19e0eb94f2eb..150779fbf010 100644
+>> --- a/arch/openrisc/kernel/Makefile
+>> +++ b/arch/openrisc/kernel/Makefile
+>> @@ -5,7 +5,7 @@
+>>   
+>>   always-$(KBUILD_BUILTIN)	:= vmlinux.lds
+>>   
+>> -obj-y	:= head.o setup.o or32_ksyms.o process.o dma.o \
+>> +obj-y	:= head.o insn.o setup.o or32_ksyms.o process.o dma.o \
+>>   	   traps.o time.o irq.o entry.o ptrace.o signal.o \
+>>   	   sys_call_table.o unwinder.o cacheinfo.o
+>>   
+>> diff --git a/arch/openrisc/kernel/insn.c b/arch/openrisc/kernel/insn.c
+>> new file mode 100644
+>> index 000000000000..2c97eceee6d7
+>> --- /dev/null
+>> +++ b/arch/openrisc/kernel/insn.c
+>> @@ -0,0 +1,74 @@
+>> +// SPDX-License-Identifier: GPL-2.0-or-later
+>> +/*
+>> + * OpenRISC instruction utils
+>> + *
+>> + * Linux architectural port borrowing liberally from similar works of
+>> + * others.  All original copyrights apply as per the original source
+>> + * declaration.
+>> + *
+>> + * OpenRISC implementation:
+>> + * Copyright (C) 2026 Sahil Siddiq <sahilcdq0@gmail.com>
+>> + */
+>> +
+>> +#include <linux/ptrace.h>
+>> +#include <asm/insn-def.h>
+>> +
+>> +void simulate_pc(struct pt_regs *regs, unsigned int jmp)
+>> +{
+>> +	int displacement;
+>> +	unsigned int rd, op;
+>> +
+>> +	displacement = sign_extend32(((jmp) & 0x7ffff) << 13, 31);
+>> +	rd = (jmp & 0x3ffffff) >> 21;
+>> +	op = jmp >> 26;
+>> +
+>> +	switch (op) {
+>> +	case l_adrp:
+>> +		regs->gpr[rd] = displacement + (regs->pc & (-8192));
+>> +		return;
+>> +	default:
+>> +		break;
+>> +	}
+>> +}
+> 
+> This function is not used, what will it be used for? Could you mention it in the
+> commit message?  Also could you document it?
+
+"simulate_pc" is used by KProbes for single-stepping l.adrp. At the moment, it's
+not being used anywhere else. Maybe I should move this function to the second commit
+which has the KProbe changes.
+
+Also, this function can be removed altogether if we choose to blacklist l.adrp.
+
+>> +
+>> +void simulate_branch(struct pt_regs *regs, unsigned int jmp_insn, bool has_delay_slot)
+> 
+> Since you are using this for more than just instruction simulation now, maybe
+> its good to document what it does. For example when we use it below we surround
+> it with the in_delay_slot check.
+
+I am a little confused here. The core of the function was already wrapped in the
+"in_delay_slot" check [2]. I moved it to a new file so instruction emulation could be
+used in other places as well(e.g., in KProbes). Functionality wise, the function is
+still the same with the added feature that it also supports CPUs with no delay slot.
+
+>> +{
+>> +	int displacement;
+>> +	unsigned int rb, op, jmp;
+>> +
+>> +	displacement = sign_extend32(((jmp_insn) & 0x3ffffff) << 2, 27);
+>> +	rb = (jmp_insn & 0x0000ffff) >> 11;
+>> +	op = jmp_insn >> 26;
+> 
+> Naming this variable jmp is a bit misleading.  Maybe something like
+> link_displacement, link_offset or fallthrough?
+
+Sure, I'll rename this.
+
+>> +	jmp = has_delay_slot ? 2 * OPENRISC_INSN_SIZE : OPENRISC_INSN_SIZE;
+>> +
+>> +	switch (op) {
+>> +	case l_j: /* l.j */
+>> +		regs->pc += displacement;
+>> +		return;
+>> +	case l_jal: /* l.jal */
+>> +		regs->gpr[9] = regs->pc + jmp;
+>> +		regs->pc += displacement;
+>> +		return;
+>> +	case l_bnf: /* l.bnf */
+>> +		if (regs->sr & SPR_SR_F)
+>> +			regs->pc += jmp;
+>> +		else
+>> +			regs->pc += displacement;
+>> +		return;
+>> +	case l_bf: /* l.bf */
+>> +		if (regs->sr & SPR_SR_F)
+>> +			regs->pc += displacement;
+>> +		else
+>> +			regs->pc += jmp;
+>> +		return;
+>> +	case l_jr: /* l.jr */
+>> +		regs->pc = regs->gpr[rb];
+>> +		return;
+>> +	case l_jalr: /* l.jalr */
+>> +		regs->gpr[9] = regs->pc + jmp;
+>> +		regs->pc = regs->gpr[rb];
+>> +		return;
+>> +	default:
+>> +		break;
+>> +	}
+>> +}
+>> diff --git a/arch/openrisc/kernel/jump_label.c b/arch/openrisc/kernel/jump_label.c
+>> index ab7137c23b46..fe082eb847a4 100644
+>> --- a/arch/openrisc/kernel/jump_label.c
+>> +++ b/arch/openrisc/kernel/jump_label.c
+>> @@ -34,7 +34,7 @@ bool arch_jump_label_transform_queue(struct jump_entry *entry,
+>>   
+>>   		insn = offset;
+>>   	} else {
+>> -		insn = OPENRISC_INSN_NOP;
+>> +		insn = INSN_NOP;
+>>   	}
+>>   
+>>   	if (early_boot_irqs_disabled)
+>> diff --git a/arch/openrisc/kernel/traps.c b/arch/openrisc/kernel/traps.c
+>> index c195be9cc9fc..ee87a3af34fc 100644
+>> --- a/arch/openrisc/kernel/traps.c
+>> +++ b/arch/openrisc/kernel/traps.c
+>> @@ -32,6 +32,7 @@
+>>   
+>>   #include <asm/bug.h>
+>>   #include <asm/fpu.h>
+>> +#include <asm/insn-def.h>
+>>   #include <asm/io.h>
+>>   #include <asm/processor.h>
+>>   #include <asm/unwinder.h>
+>> @@ -269,47 +270,9 @@ static inline int in_delay_slot(struct pt_regs *regs)
+>>   
+>>   static inline void adjust_pc(struct pt_regs *regs, unsigned long address)
+>>   {
+>> -	int displacement;
+>> -	unsigned int rb, op, jmp;
+>> -
+>>   	if (unlikely(in_delay_slot(regs))) {
+>>   		/* In delay slot, instruction at pc is a branch, simulate it */
+>> -		jmp = *((unsigned int *)regs->pc);
+>> -
+>> -		displacement = sign_extend32(((jmp) & 0x3ffffff) << 2, 27);
+>> -		rb = (jmp & 0x0000ffff) >> 11;
+>> -		op = jmp >> 26;
+>> -
+>> -		switch (op) {
+>> -		case 0x00: /* l.j */
+>> -			regs->pc += displacement;
+>> -			return;
+>> -		case 0x01: /* l.jal */
+>> -			regs->pc += displacement;
+>> -			regs->gpr[9] = regs->pc + 8;
+>> -			return;
+>> -		case 0x03: /* l.bnf */
+>> -			if (regs->sr & SPR_SR_F)
+>> -				regs->pc += 8;
+>> -			else
+>> -				regs->pc += displacement;
+>> -			return;
+>> -		case 0x04: /* l.bf */
+>> -			if (regs->sr & SPR_SR_F)
+>> -				regs->pc += displacement;
+>> -			else
+>> -				regs->pc += 8;
+>> -			return;
+>> -		case 0x11: /* l.jr */
+>> -			regs->pc = regs->gpr[rb];
+>> -			return;
+>> -		case 0x12: /* l.jalr */
+>> -			regs->pc = regs->gpr[rb];
+>> -			regs->gpr[9] = regs->pc + 8;
+>> -			return;
+>> -		default:
+>> -			break;
+>> -		}
+>> +		simulate_branch(regs, *((unsigned int *)regs->pc), has_delay_slot());
+>>   	} else {
+>>   		regs->pc += 4;
+>>   	}
+>> -- 
+>> 2.53.0
+>>
+
+Thanks,
+Sahil
+
+[1] https://github.com/openrisc/linux/blob/for-next/arch/openrisc/kernel/traps.c#L248
+[2] https://github.com/openrisc/linux/blob/for-next/arch/openrisc/kernel/traps.c#L275-L312
+
