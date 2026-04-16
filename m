@@ -1,181 +1,218 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2762C3043BE;
-	Wed, 15 Apr 2026 06:48:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2135633C518
+	for <linux-openrisc@vger.kernel.org>; Thu, 16 Apr 2026 04:57:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776235711; cv=none; b=WnJBW/SASPV7jCgCXpAcyKU/uk55YvtxzV9Q6dcVhaxIRIH0Wq2/vcPp+mhHDdDTONZ71nspCA/esFrKg0o+PCQT9DonFZzLHf6S8SY8fXkGa4Ie//RB7sLMSIWvatuExI+CmFVFyW94uGwOHFPw9V2PhlLlsNIfR/0ot84qe2I=
+	t=1776315472; cv=none; b=mULmQfSV9il9WA4ccAJlcfAmKuBcFctiuSD1hIeapgvLx3hyfplTdyqedFGV8Sh59AIA2jULZfXigR8hWQp7iM41kSO31m908EI2kBMz9ABrjm8NhaMBVSKNzcjjeqqIatuArzGoczA5Z79ldkiggUoTTNmUcVd4f/Jp3I9bvbY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776235711; c=relaxed/simple;
-	bh=rPWZ6utNdK1NA62XbK2HB3jeBpHc1tnaRLYIJU9NPRM=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=rpulGgOaMb/M18O70Elk0b+G3BWCJovHuMnU0Dytuwguc+TvD0B+eiSdRCLH2zruk8/eMlt6LscrSUbzsDDhuwzUJafOfpFIYq1xiDzga3Z9zjChAXLGjfoo3SJV9OeX0duiyiZeHC7GTAtrNMm5tvZGeqdXYvFObcirMu1rzEQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tX5ZtfES; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1776315472; c=relaxed/simple;
+	bh=yVYbxHeIoVJCctXTuuSgSApkORzkzhjnq4+3ov2IETM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=s1ThVktgynpWhzNABRUpSefh49o7El3imaQLjynDMdyN/uWM0HudH5H+lwcSREN3nu0MqKAZyHjYKhapTlatdIYF7c6/m5T2vUPInSJi5du+MIWRJkTOqwFB/YiMzE5Qpq5rOTpYbNvkpQtzA+A80gXJWg07pcYRQeI+yEBbPLc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VuebZ76J; arc=none smtp.client-ip=209.85.216.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tX5ZtfES"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 830FAC19424;
-	Wed, 15 Apr 2026 06:48:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776235710;
-	bh=rPWZ6utNdK1NA62XbK2HB3jeBpHc1tnaRLYIJU9NPRM=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=tX5ZtfESqVc6mjbOQ8XuoIm6ETLi0apv7+wh5RemrKx9i9B5kDyH/QwTQaLs3FSg8
-	 Bv4DfAOaVOD/V9vjRhF3SKLKzll3UKC5NkrfK0PzN9jBQ4srAAyTuj3FcE5rLFfZbK
-	 vYUChgLuTDozgtV9sTdXaWrGBN7v7g+g2gtsCbeqs/jq6E51vK4gMNuOJGdffJ6ExF
-	 PUXadX24/+80Nz4HYlRcUjp5gWCF24VBUrIBwLGwSvH82nEbYuIou86+iwZuaV7/oD
-	 kJii2aNkHX7/E9X7XlBuamS31y2eROtiUFBPANrMCluX3r6TT4teipjBOeAHFeEi5Y
-	 5DYkd1lTwem9A==
-Date: Wed, 15 Apr 2026 15:48:26 +0900
-From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-To: Sahil Siddiq <sahilcdq0@gmail.com>
-Cc: jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
- naveen@kernel.org, davem@davemloft.net, peterz@infradead.org,
- jpoimboe@kernel.org, jbaron@akamai.com, rostedt@goodmis.org,
- ardb@kernel.org, chenmiao.ku@gmail.com, johannes@sipsolutions.net,
- nsc@kernel.org, masahiroy@kernel.org, tytso@mit.edu,
- linux-openrisc@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-trace-kernel@vger.kernel.org
-Subject: Re: [RFC 0/2] openrisc: Add support for KProbes
-Message-Id: <20260415154826.fc8aeb67f1cb3aa58be6ac48@kernel.org>
-In-Reply-To: <20260407185650.79816-1-sahilcdq0@gmail.com>
-References: <20260407185650.79816-1-sahilcdq0@gmail.com>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VuebZ76J"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-35fc258aaa4so2339906a91.2
+        for <linux-openrisc@vger.kernel.org>; Wed, 15 Apr 2026 21:57:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1776315470; x=1776920270; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=HiN0RfmkSs4otdyTHmyH7CDjyefKOusScNU8kWaZ/cg=;
+        b=VuebZ76JL5hayI+hBo6vr0/5Ha2PgfhH1qkRGohgByn8EwQLW112LaWsNXfI5F07HC
+         4sgEv9+R6jgsRYQ5Q+alc1l4zK/GJjF6rEqxpMRpZ0SzoFSLqNzYnqiz+kDkPm/kRqKn
+         WDtk17uiGoRewiX0l6Ci8jaDphO59G2Cdn6dC2lTcD7ah561BleKYGqyxlbZ+DFF9+Zi
+         VebP31WgfVZ+LaAPPmt3mwiOLKxyAB+bOs5MHx9PgOg4xFtu/WpMfYp3Gy6Wc8jAYZLu
+         Ikc9y7+pc/hebwc3BQOtkZ16MfzCax+VCuEQluzPCRqcS0hMiUo5hSc+XVl3AdmbvGjM
+         fCDw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776315470; x=1776920270;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=HiN0RfmkSs4otdyTHmyH7CDjyefKOusScNU8kWaZ/cg=;
+        b=R8h6g7cKh7Kucb3Ug2SSAmi7d/nXLo/KBO1DTJzIjmQiB7YBKh/pqXJyFzUqSe19FQ
+         ZIbjkp1nHzoxj8srOMsnTobeJeqZGVxRscbHrtu0OxYQUgK4iB9If8NsvOVwXzJLmIMX
+         +1XN4O7I35VV6ynDbDZo6XLLtx3Dztdr6JR8NGVIl99okqQTQkthruTyZyJky+QuUgDi
+         0gGEd+joIOcNoyDidh+F/L0vZEpwg5AdjikW6ixwshoEpWXxxxWAp0YHno7QRo6cSCKv
+         p10VYN+5GM1AxBZQ9GMhmhIkDo789YLTsNC6jtIIVKc9Tsf/rw+VjgnqtFhF/vPf1wbo
+         LpTQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8RJuGg+urp6oZQv/zJgPkqlKjUBR9SYUO2w5qas4dZfxVbbIwvsJnoRAb/RGFe9KEKwzsVSEgYoerXffZLAQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwHuOCGXG4ehU/Z8qMogaSG2UUkJqsDJPMK1kqSTPDDgjNth9wZ
+	11I9hXZeo778hJ1Sk4gaj1CU5YHJ7xuy0JWdcTjps/hwB2PAm/IsdtyF
+X-Gm-Gg: AeBDies96J/xsTwwFAxtOQACMMdVkuEZzCUjFVWmYaZmJyd2J+zgliveqb+tDfqDF40
+	RbwBy1rFXa82CBjhViWy9PmdcJiR3lZJSGIqdntZ3usJm58qCcL0rwEJ/4BYeiQ55H3ADPEDgRE
+	BXgYzdLZ8E6RwKBXfhK38mzIfXn7ikjOwCySt9sBKGCVGHqE/X9bbNBbP6Z/depvnioLMXADNXT
+	Ye2yyCaTVMhJfpdU9C/wwrbzwIMoglP+3NUZiEgykg67PpBioeg/LyLn9eGvH2+zSj+itlb5UaM
+	QSACrbRqxMVWQFXTZNgsMHauPIj8pmaJXgMLLRslm5WR9SWo6zAdmUhpEhQKnfasQ8FdBw5h3/M
+	uaLBWM3o5qw8GaUDGra4ovlGUqwXHTNhumLhJprY7p+pUcpG94MwCn+HSeqfUevLABT6q+kfSFI
+	YT9pCg3njsHCwJVyPRaYX3wF8Dc1tmsTlPrs3rkizVLSCE9roeG5yBvyQ//pRo
+X-Received: by 2002:a17:90a:d888:b0:35e:5a4c:9069 with SMTP id 98e67ed59e1d1-35e5a4c9205mr17262448a91.14.1776315470340;
+        Wed, 15 Apr 2026 21:57:50 -0700 (PDT)
+Received: from ?IPV6:2401:4900:1c42:2fce:8c3f:5fe6:9cda:e56? ([2401:4900:1c42:2fce:8c3f:5fe6:9cda:e56])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36132cd52adsm778419a91.11.2026.04.15.21.57.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 15 Apr 2026 21:57:49 -0700 (PDT)
+Message-ID: <eb751bc8-c6db-430a-9ba4-9218928c3a3a@gmail.com>
+Date: Thu, 16 Apr 2026 10:27:41 +0530
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC 1/2] openrisc: Add utilities and clean up simulation of
+ instructions
+To: "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+ Stafford Horne <shorne@gmail.com>
+Cc: jonas@southpole.se, stefan.kristiansson@saunalahti.fi, naveen@kernel.org,
+ davem@davemloft.net, peterz@infradead.org, jpoimboe@kernel.org,
+ jbaron@akamai.com, rostedt@goodmis.org, ardb@kernel.org,
+ chenmiao.ku@gmail.com, johannes@sipsolutions.net, nsc@kernel.org,
+ masahiroy@kernel.org, tytso@mit.edu, linux-openrisc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org
+References: <20260407185650.79816-1-sahilcdq0@gmail.com>
+ <20260407185650.79816-2-sahilcdq0@gmail.com> <ad51SeeF2Gv06mgQ@antec>
+ <20260415153912.f26b46a37a078f491836bd76@kernel.org>
+Content-Language: en-US
+From: Sahil <sahilcdq0@gmail.com>
+In-Reply-To: <20260415153912.f26b46a37a078f491836bd76@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Hi Sahil,
+Hi Masami,
 
-On Wed,  8 Apr 2026 00:26:48 +0530
-Sahil Siddiq <sahilcdq0@gmail.com> wrote:
+Thank you for your review.
 
-> Hi,
+On 4/15/26 12:09 PM, Masami Hiramatsu (Google) wrote:
+> On Tue, 14 Apr 2026 18:11:37 +0100
+> Stafford Horne <shorne@gmail.com> wrote:
 > 
-> This series adds basic support for KProbes on OpenRISC. There are
-> a few changes that I would still like to add and test before this
-> can be considered for merging. I was hoping to get some feedback on
-> the changes made so far. The implementation in this series is based
-> on KProbes for LoongArch, MIPS and RISC-V. 
+>> Hello Sahil,
+>>
+>> Thanks for your patches.  I have a few questions. so this is not really a
+>> technical review at the moment just some main items.
+>>
+>> On Wed, Apr 08, 2026 at 12:26:49AM +0530, Sahil Siddiq wrote:
+>>> Introduce new instruction-related utilities and macros for OpenRISC.
+>>> This is in preparation for patches that add tracing support such as
+>>> KProbes.
+>>>
+>>> Simulate l.adrp. Fix bugs in simulation of l.jal and l.jalr. Earlier,
+>>
+>> Why emulate l.adrp?  We don't really use this yet in any OpenRISC code.  This
+>> instruction is meant to be used to help -fpic code, see:
+>>
+>>    https://openrisc.io/proposals/ladrp
+> 
+> Maybe because l.adrp depends on InsnAddr (instruction address),
+> if kprobe runs copied instruction on its trampoline buffer, it
+> generates a wrong result. If it may not be used in the kernel,
+> arch_prepare_kprobe() can detect it and return an error.
+> 
+> [...]
+>>> +
+>>> +#define OPENRISC_INSN_SIZE  (sizeof(union openrisc_instruction))
+> 
+> This should be defined within an architecture header file.
 
-Thanks for porting!
-Sashiko reviewed this series, can you check the comments?
-Most comments (not all) look reasonable to me.
+Sorry, I am a little confused here. OPENRISC_INSN_SIZE is in OpenRISC's
+instruction definition file (arch/openrisc/include/asm/insn-def.h).
 
-https://sashiko.dev/#/patchset/20260407185650.79816-1-sahilcdq0%40gmail.com
+The instruction size for Arm has also been set in it's own insn-def.h
+file [1].
 
-Generally, please make better use of macros rather than magic values
-in your code to make it easier to understand.
-Also, use GENMASK() and BIT() macro to define bitmasks and bit.
+>>> +
+>>> +/* Helpers for working with l.trap */
+>>> +static inline unsigned long __emit_trap(unsigned int code)
+>>> +{
+>>> +	return (code & 0xffff) | OPCODE_TRAP;
+>>> +}
+>>> +
+>>> +static inline bool has_delay_slot(void)
+>>> +{
+>>> +	unsigned int cpucfgr = mfspr(SPR_CPUCFGR);
+>>> +
+>>> +	return !(cpucfgr & SPR_CPUCFGR_ND);
+>>> +}
+>>
+>> This is for handling CPU's that do not have delay slots.  We didn't do this
+>> before, why are you doing it now?  Should we mention this in the git commit
+>> message?
+>>
+>> Also, since this is a static configuration for the CPU should we use static keys
+>> for this?
+>>
+>>> +
+>>> +void simulate_pc(struct pt_regs *regs, unsigned int jmp);
+>>> +void simulate_branch(struct pt_regs *regs, unsigned int jmp, bool has_delay_slot);
+> 
+> Also, do not use the same name for a function name and a local variable.
+> Please rename has_delay_slot() to machine_has_delay_slot() or rename
+> the has_delay_slot parameter to 'delay_slot'.
+> 
+> [...]
+
+Oh, good catch. I missed this. I'll change this and retest.
+
+>>> +#include <linux/ptrace.h>
+>>> +#include <asm/insn-def.h>
+>>> +
+>>> +void simulate_pc(struct pt_regs *regs, unsigned int jmp)
+>>> +{
+>>> +	int displacement;
+>>> +	unsigned int rd, op;
+>>> +
+>>> +	displacement = sign_extend32(((jmp) & 0x7ffff) << 13, 31);
+>>> +	rd = (jmp & 0x3ffffff) >> 21;
+> 
+> Please use GENMASK() macro instead of hex value.
+> (Moreover, define meaningful named macro instead of the magic number.)
+
+Understood, I'll fix this.
+
+>>> +	op = jmp >> 26;
+>>> +
+>>> +	switch (op) {
+>>> +	case l_adrp:
+> 
+> l_adrp seems have 2 modes. Is this OK only supporting 32-bit?
+> 
+> 32-bit Implementation:
+> rD[31:0] ← exts(Immediate[18:0] << 13) + (InstAddr & -8192)
+> 64-bit Implementation:
+> rD[63:0] ← exts(Immediate[20:0] << 13) + (InstAddr & -8192)
+
+I think supporting the 32-bit version should be good enough for the time
+being, since OpenRISC's implemention in the kernel is 32-bit. Please see
+the following comment from the patch series to support jump labels (published
+last year) [2]:
+
+> for us it's more correct to use u32.  I always thing unsigned long is
+> OK in openrisc as we have no 64-bit implementations.  But might as well have it
+> correct in case we ever add the 64-bit implementation.
+
+I haven't found any OpenRISC patches in the past year that add the 64-bit
+implementation.
+
+>>> +		regs->gpr[rd] = displacement + (regs->pc & (-8192));
+> 
+> Please use nicely named macro instead of -8192.
+
+Got it. I'll make this change too.
+
+> Thanks,
 
 Thanks,
+Sahil
 
-> 
-> The current state of the series allows traps to be inserted dynamically
-> in the kernel. A KProbe can be inserted via a kernel module whose
-> init/exit functions are used to register/unregister a KProbe. A pre-
-> handler and post-handler can also be provisioned in the module, which
-> are associated with the KProbe and triggered when the probe is hit. See
-> the documentation on KProbes for a detailed explanation [1].
-> 
-> The following are yet to be implemented for OpenRISC:
-> 1. kretprobes
-> 2. kprobe-based event tracing
-> 3. ftrace, and kprobe features that depend on ftrace (particularly,
-> dynamic tracing)
-> 
-> I hope to submit a patch for kretprobes soon (possibly in a revision of
-> this series).
-> 
-> I wrote a couple of kernel modules to test these changes. They can be found
-> here [2]. I also ran test_kprobes located at ./lib/tests/ against these
-> changes [3]. The results are as shown below:
-> 
-> /home # insmod test_kprobes.ko 
-> KTAP version 1
-> 1..1
->     KTAP version 1
->     # Subtest: kprobes_test
->     # module: test_kprobes
->     1..3
->     ok 1 test_kprobe
->     ok 2 test_kprobes
->     ok 3 test_kprobe_missed
-> # kprobes_test: pass:3 fail:0 skip:0 total:3
-> # Totals: pass:3 fail:0 skip:0 total:3
-> ok 1 kprobes_test
-> /home # 
-> 
-> When compiling the kernel, the following options should be enabled:
-> 1. CONFIG_HAVE_KPROBES=y
-> 2. CONFIG_KPROBES=y
-> 
-> Also ensure that CONFIG_KPROBE_EVENTS is disabled.
-> 
-> To compile /lib/tests/test_kprobes.c, add the following to .config:
-> 1. CONFIG_KUNIT=y
-> 2. CONFIG_DEBUG_KERNEL=y
-> 3. CONFIG_KPROBES_SANITY_TEST=m
-> 
-> The first commit cleans up and reorganizes existing functions, fixes
-> a few issues with instruction simulation, and introduces new structures
-> and macros that will be used by KProbes and other tracing facilities
-> in the future.
-> 
-> The second commit adds support for KProbes. Currently, I have
-> implemented this in such a way that KProbes can't be used to probe
-> a few "blacklisted" instructions. Probes can't be inserted in a delay
-> slot either (similar to MIPS). I have also added a few asm functions
-> to the blacklist that I think should not be probed. For e.g., "memset"
-> and "_trap_handler" have been blacklisted because probing them causes
-> the kernel to hang. However, I am not sure if other functions in "entry.S"
-> need to be added as well to the blacklist.
-> 
-> Thanks,
-> Sahil
-> 
-> [1] https://www.kernel.org/doc/html/latest/trace/kprobes.html
-> [2] https://github.com/valdaarhun/or-dev/tree/main/home
-> [3] https://github.com/openrisc/linux/blob/for-next/lib/tests/test_kprobes.c
-> 
-> Sahil Siddiq (2):
->   openrisc: Add utilities and clean up simulation of instructions
->   openrisc: Add KProbes
-> 
->  arch/openrisc/Kconfig                   |   1 +
->  arch/openrisc/configs/or1ksim_defconfig |   2 +
->  arch/openrisc/configs/virt_defconfig    |   2 +
->  arch/openrisc/include/asm/asm.h         |  22 ++
->  arch/openrisc/include/asm/break.h       |  19 ++
->  arch/openrisc/include/asm/insn-def.h    |  61 +++-
->  arch/openrisc/include/asm/kprobes.h     |  76 +++++
->  arch/openrisc/include/asm/spr_defs.h    |   1 +
->  arch/openrisc/kernel/Makefile           |   3 +-
->  arch/openrisc/kernel/entry.S            |  16 +
->  arch/openrisc/kernel/insn.c             |  74 +++++
->  arch/openrisc/kernel/jump_label.c       |   2 +-
->  arch/openrisc/kernel/kprobes.c          | 381 ++++++++++++++++++++++++
->  arch/openrisc/kernel/traps.c            |  67 ++---
->  arch/openrisc/lib/memcpy.c              |   2 +
->  arch/openrisc/lib/memset.S              |   4 +
->  arch/openrisc/mm/fault.c                |   5 +
->  samples/kprobes/kprobe_example.c        |   8 +
->  18 files changed, 701 insertions(+), 45 deletions(-)
->  create mode 100644 arch/openrisc/include/asm/asm.h
->  create mode 100644 arch/openrisc/include/asm/break.h
->  create mode 100644 arch/openrisc/include/asm/kprobes.h
->  create mode 100644 arch/openrisc/kernel/insn.c
->  create mode 100644 arch/openrisc/kernel/kprobes.c
-> 
-> -- 
-> 2.53.0
-> 
+[1] https://github.com/torvalds/linux/blob/master/arch/arm64/include/asm/insn-def.h#L9
+[2] https://lore.kernel.org/openrisc/20250805084114.4125333-2-chenmiao.ku@gmail.com/T/#mb4a939437351b705c30ec7f9e9195d519f9b586f
 
-
--- 
-Masami Hiramatsu (Google) <mhiramat@kernel.org>
