@@ -1,107 +1,158 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6479A26F289
-	for <linux-openrisc@vger.kernel.org>; Tue, 28 Apr 2026 17:21:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8B1744DB67;
+	Tue, 28 Apr 2026 17:33:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777396896; cv=none; b=VG9LpeDxS82SWzfOaX0QXdWSjmle9oKcqGcVVuE/U/Pyl1QgP1nO3qe52PzT44Sqo1UifqTQMGr5PhrYMFkn30MOZnZGCAw1RUF9AX0nqLBEXYiCf7JkdEbfJjyEicAMdSVPzS0FMqICZP0sg+XSfcDcjc4T/h1RtvvNpAQ8Aa0=
+	t=1777397642; cv=none; b=E5jnBRqTT4p+75bEEwpZEvuDra1ou+TYJ0wedEbpqoizPKG8gH3NkjsY4JMxZf8iJh/wiXAwX4g3tOOezRFJSRvda9zPeCE8qsl+BftCE2a5ZTD/7izzuEL9TDsQGY9BNLODgNqkd70aK41R5bEP7gQWtu2DGLmIqJLcxL4+XvA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777396896; c=relaxed/simple;
-	bh=4XHQIhU6JFFJSMVzNaX9EI+uUYFdED97lTFZClWxvIM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=d2Las6mPJjSaYjXuEpIsEtq/viq8XZVBUjhBaxRXvQjU9Kxvgn/f9LRrXo75o7vdAa/8+2Y/dFcbsQn544BSsa1xIyM6EdWhjkecB8U6UhL/GAC38Mfyt0uc4Ua+cxDgqLL6O72YCPxqx17ioi3lBFJ8gTfDoOsf0qF/QPWCMNc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F1qNMXWq; arc=none smtp.client-ip=209.85.128.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1777397642; c=relaxed/simple;
+	bh=UZC8SFlB86YJDJswwxe6Gnyvjqf8PPN1xkQBYA1ImjU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GuSJmXLz5+sEqSi5DBCvkdlXo82RdwxSm021tH4Jdy0m6T+Y+XDOcmPAvbiXwVZtiRBKe70zZUj5SNlPKUYS44Y/O0DyrpduHCLDK4i3HlhH8TLd666vYE8KrRMNYGek4i3+2GKRbnWgoBGyTEPCaCxv0A96Uxw4QKo83bMrvm0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=GzV8SSQz; arc=none smtp.client-ip=159.69.126.157
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F1qNMXWq"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-488af96f6b2so154342615e9.0
-        for <linux-openrisc@vger.kernel.org>; Tue, 28 Apr 2026 10:21:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777396894; x=1778001694; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=RmGOYhAGLse9yeus0Owfrm0ZcexMp7LbBCY4UT6PZys=;
-        b=F1qNMXWqyEOl+70GoJ6q0J5cEHOiXQq2v31EWa7HrP7DseHFYupipgp+LhdakAGwuL
-         dAKNuzuH2Dj394r3ZoV3ai/F1O/V/X13nFk6AcTJGv3tkt5I3MC38sG15YLoMoaYT24K
-         w2/ZG+yQvWBk5ZVGp/Xvno9KBDMWcbTHe/igyybEJEr8rixU4mJcxjXEVAmW6ewek3Je
-         MkHmr41AF4aMia7Alt7AdJaXaxK3+USkaaudCUDMgiwgM2w9wr2juYS7U09IucFfUyBD
-         MROePG3itZ6xt7AsT8AAxFfiVT18WpGXsKzIOOeUirDk3u7NNvbSyRbM3wintiL0cq0H
-         RkRQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777396894; x=1778001694;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=RmGOYhAGLse9yeus0Owfrm0ZcexMp7LbBCY4UT6PZys=;
-        b=YqqYiscQtnRnBhS2srZO0nsKcJqyXKxDW5Ajse9Rx/5qPcABFkF0TxOpJUjpZ3pY/P
-         /ZJ7caa6kZs03sHgyNqn+wuPxEI5BVWAMnnG+NbxXPADXsOAA5tLDZw7HaiDOCONqAbF
-         NuHAXhjkAdC85M2UYhy6MipGARh4DU+H8dqqyG3vn3l85C32Z0zDf4ujR2aFYHT7W+bv
-         jb3O33jYDcfVhs33hwbPaYqPrD8ETS79wmbM1eJ/I3gaQi3Wu9w2456SQDcO9j+de3q+
-         nddT1gmR74Atdidj5zu1S7MXjWIxGgK5EO7FY8KxL2axvjfRSBXIt9rBAfx+SEfaAVbG
-         Q7Fw==
-X-Gm-Message-State: AOJu0YzNwaWaQWTBmQpPZlEjeQGATPWEGdyXGCPlC8WSBscJ9lMsV3RZ
-	7id0ZUg498ySr58V+PHQ97HIoLzcrOoIB4ru+qs/Wdx95Xfpn0Lram5wkQthA+8G
-X-Gm-Gg: AeBDieuLj+J18XBQva6m3reaPfYP5c6/9KowwYd5dxdE/kdNXFVqhER9iI++keXuyiA
-	p2SvhUeCLHrxetx9Neox0pQV+1txC+NpksuDa0Q+qym5HHlO2soWE+ytbj8fsQ12OWZQanJmlLZ
-	ot6mUknUOdTyjpGSI+gGrNuVbefkLO9y8TZMvsxfpONlB/QeBLNFIH0SbG+b+vbdZOB+By1M+if
-	Hfjy0dTUnVqp2uh+ZgBdL1QbJcUWKlFqyh/xzNzVVF0gMTTnARao2+Du9WG4Am5uZE2wtwMshxa
-	oNIupYRJ1VJ/IHHq3jKigsHjDU//w8OzamumAhvjSDoJFy+s78FGfg5fbihBE5tc1OMaptd81Ht
-	FWKcQHUGMluBN3Y1glnvbD7gUx/wyNZ18disn2DmZPRHU8TUElvZyai5VHD7QXmwbSJLRDBoKgp
-	+Vbo293stOxr5D4XsT7Sx2OQsNCaQfNb+nS7cyzxu5faqRkr7iMO+EgVEZDkZ9vujocFTt8SxFU
-	AEe4cQ3qF802rco
-X-Received: by 2002:a05:600c:3b8a:b0:48a:56de:d640 with SMTP id 5b1f17b1804b1-48a77b0a367mr70786875e9.16.1777396893535;
-        Tue, 28 Apr 2026 10:21:33 -0700 (PDT)
-Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48a7b900af7sm900415e9.1.2026.04.28.10.21.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Apr 2026 10:21:30 -0700 (PDT)
-From: Stafford Horne <shorne@gmail.com>
-To: QEMU Development <qemu-devel@nongnu.org>
-Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	Peter Maydell <peter.maydell@linaro.org>,
-	Stafford Horne <shorne@gmail.com>
-Subject: [PATCH 2/2] MAINTAINERS: Add myself as the OpenRISC virt maintainer
-Date: Tue, 28 Apr 2026 18:20:55 +0100
-Message-ID: <20260428172055.1525176-3-shorne@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260428172055.1525176-1-shorne@gmail.com>
-References: <20260428172055.1525176-1-shorne@gmail.com>
+	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="GzV8SSQz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
+	s=mail; t=1777397636;
+	bh=UZC8SFlB86YJDJswwxe6Gnyvjqf8PPN1xkQBYA1ImjU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=GzV8SSQzDSNGVAcYAfHfU4jmjKxtVCD7/wlo551LJ78SCe3N6jGcGyabG/728lgNn
+	 J1Ck0bvoh+TQug+wabk/Wnh6dyXBD+scrVJERj/QchHDf278IohiT8+r9DlrTQO1g9
+	 yMNEQwggRfyz3SoGVIdZQkzsdh5UECffuyLfhrcQ=
+Date: Tue, 28 Apr 2026 19:33:55 +0200
+From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <linux@weissschuh.net>
+To: Stafford Horne <shorne@gmail.com>
+Cc: Willy Tarreau <w@1wt.eu>, Jonas Bonn <jonas@southpole.se>, 
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, linux-openrisc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] tools/nolibc: add support for OpenRISC / or1k
+Message-ID: <f501622f-aa21-4ac2-ab90-4775d6bf5867@t-8ch.de>
+References: <20260428-nolibc-openrisc-v1-1-33b399054af6@weissschuh.net>
+ <afDor4Fh8aZt82sr@antec>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <afDor4Fh8aZt82sr@antec>
 
-I defined the virt board but didn't realize there is a separate section
-for listing boards in MAINTAINERS.  Add myself as maintainer.
+On 2026-04-28 18:04:47+0100, Stafford Horne wrote:
+> On Tue, Apr 28, 2026 at 05:48:51PM +0200, Thomas Weißschuh wrote:
+> > Add support for OpenRISC / or1k to nolibc.
+> > 
+> > _start() uses the same wrapper construct as in arch-sh.h.
+> > libgcc is necessary as OpenRISC is missing 64-bit multiplication.
+> 
+> There are a few minor issues with this patch.
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- MAINTAINERS | 6 ++++++
- 1 file changed, 6 insertions(+)
+Thanks for taking a look!
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 44207949d7..e9807fe6c7 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1516,6 +1516,12 @@ F: hw/intc/ompic.c
- F: hw/or1k/or1k-sim.c
- F: tests/functional/or1k/test_sim.py
- 
-+virt
-+M: Stafford Horne <shorne@gmail.com>
-+S: Odd Fixes
-+F: docs/system/or1k/virt.rst
-+F: hw/or1k/virt.c
-+
- PowerPC Machines
- ----------------
- Bamboo
--- 
-2.53.0
+> Could you give any background for this?  What are you working on?
+> Just getting more coverage in the test suite?
 
+I have no specific goal. In general I'd like for nolibc to support all
+architectures which are supported by Linux.
+
+> Do you have any results for or1k, considering one of the issues I
+> highlighted before I am not sure this will compile as is.
+
+This compiled fine for me and ran the full nolibc testsuite.
+More details below.
+
+With "highlighted before", do you mean "below"?
+
+> > Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
+> > ---
+> >  tools/include/nolibc/Makefile                  |   2 +-
+> >  tools/include/nolibc/arch-openrisc.h           | 176 +++++++++++++++++++++++++
+> >  tools/include/nolibc/arch.h                    |   2 +
+> >  tools/testing/selftests/nolibc/Makefile.nolibc |   5 +
+> >  tools/testing/selftests/nolibc/run-tests.sh    |   4 +-
+> >  5 files changed, 187 insertions(+), 2 deletions(-)
+
+(...)
+
+> > +#define __nolibc_syscall0(num)                                                \
+> > +({                                                                            \
+> > +	register long _num __asm__ ("r11") = (num);                           \
+> > +	register long _ret __asm__ ("r11");                                   \
+> > +									      \
+> > +	__asm__ volatile (                                                    \
+> > +		"l.sys 1\n"                                                   \
+> > +		"l.nop\n"                                                     \
+> 
+> We do not need l.nop for l.sys instructions.  They do not have a delay-slot line
+> branches.
+
+Ack, I'll remove them.
+
+> > +		: "=r"(_ret)                                                  \
+> > +		: "r"(_num)                                                   \
+> > +		: "r3", "r4", "r5", "r6", "r7", "r8",                         \
+> > +		  _NOLIBC_SYSCALL_CLOBBERLIST                                 \
+> > +	);                                                                    \
+> > +	_ret;                                                                 \
+> > +})
+
+(...)
+
+> > +#ifndef NOLIBC_NO_RUNTIME
+> > +/* startup code */
+> > +void _start_wrapper(void);
+> > +void __attribute__((weak,noreturn))
+> > +__nolibc_entrypoint __nolibc_no_stack_protector
+> > +_start_wrapper(void)
+> > +{
+> > +	__asm__ volatile (
+> > +		".global _start\n"           /* The C function will have a prologue,         */
+> > +		".type _start, @function\n"  /* corrupting "sp"                              */
+> > +		".weak _start\n"
+> > +		"_start:\n"
+> > +
+> > +		"l.or r3,sp,sp\n"            /* save stack pointer to 3, as arg1 of _start_c */
+> 
+> What is sp here?  There is no sp alias in OpenRISC, should it be r1?  Does this
+> compile?
+
+It compiles and works with my fairly modern GCC.
+It is translated to 'r1'. If it is not idiomatic, I'll change it to r1.
+
+> 
+> > +		"l.jal _start_c\n"           /* transfer to c runtime                        */
+> > +		"l.nop\n"
+> 
+> The l.or can go in the delay slot.
+
+Ack.
+
+> Also, preferrably we use spaces between args, and a space to indicate a delay
+> slot e.g.
+> 
+> 	"l.jal _start_c\n"
+> 	 "l.or r3, r1, r1\n"
+
+I'd prefer to keep this aligned with the rest of nolibc instead of
+aligning it with the arch/openrisc/ code.
+
+> > +
+> > +		".size _start, .-_start\n"
+> > +	);
+> > +	__nolibc_entrypoint_epilogue();
+> > +}
+> > +#endif /* NOLIBC_NO_RUNTIME */
+
+(...)
+
+> The rest looks ok to me.
+
+Thanks!
+
+
+Thomas
