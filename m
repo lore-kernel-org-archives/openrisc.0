@@ -1,75 +1,54 @@
-Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8660821638D
-	for <linux-openrisc@vger.kernel.org>; Tue,  5 May 2026 17:29:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BBB4299931
+	for <linux-openrisc@vger.kernel.org>; Wed,  6 May 2026 18:19:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778002186; cv=none; b=W0Y7Efqoxea0Ra/KJqhjL07ZVLDYISHAuV2jdUaPC6idRlPBsdPMKyy46O9uV69bGO63vumpV5++fRZmkjk7nxUiBMmx4mLJ5xfzDLyeOBcZrsTjSWTu0TpPYI1KrzJKT76UHmn32lsshKPwWPTzWlXea/PGzRnlUIWG0fFKMRk=
+	t=1778091586; cv=none; b=C5dH1L0YvKRY59I67RBW2S4U6ZPQOVVajjfFSv/0l//Un4V1FhrPJrPMC5KHwlxeS84VZ14ipx3SUWQ8/f+5C9V8QCt8qhMt7zdvoN1btpc5zKJTDDLPyB14CkMGcznLpSBNLpwtxaVgvKenoXwo2NjanHrSK0AqAI4ZXAOgFXc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778002186; c=relaxed/simple;
-	bh=DlvkOUBq1EWRnsEHL/tlQgCSflFWn7V7hj56qKLfNDw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=lMhnN4lQVFvkiuekYZ7tedX18Y/r+bDr3HIza3Fm0hZ0gRoZOSDh6fJ1DKzUJkOk2cTgOD8ekrMsLZcPJ/UO/2jdqkQiKzEB0IBExdokf8P7He8rxrp4xl0ZUDoFD/Hr66dZe+I0Ox9puKA3DJCy6oNiQsJ0d8FVoPabW1EcAXo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FNHvkxp7; arc=none smtp.client-ip=209.85.221.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778091586; c=relaxed/simple;
+	bh=kJTWDH+RMDBRw6z32nWM5I1eeBUaU/qi5bJ1+ClXTms=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZSj/nylxnfWfIYUgKH4WMoABcCYiSaMVWGUZhLm6HJax7085oDAuivooryElH5CCZ6JIuZpiKopRe2OXeUrUcK3pHEQU1QZ3sTk3pFp5in2XtKl7lT6BZJOsCJzCPhiVmOl1FHyQcQ5ne6600lm7K+mBCTHXQTan07jVMLhnjfU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BAQ4mZap; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FNHvkxp7"
-Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-43d64313c39so3919775f8f.3
-        for <linux-openrisc@vger.kernel.org>; Tue, 05 May 2026 10:29:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778002184; x=1778606984; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=uyaAkabMJvUFOvU8uLyog+hcEkYJAZfMRJ0zkLwucxQ=;
-        b=FNHvkxp7A85Zz8+eSjlQAbkK4L0WGQxz2Se9YW3O4CxS7+tjNliLKMrchNrSDPH2xT
-         5SYP9tbkHTVw3VBPyMPnx819DVVJFlw1ho8adgqHpNubsElzyEm8wnifkLY7y6BGQC2j
-         m4EQA2P58yfZjhr8eDSLMSqXhTIte1xDzQyE95tRctOVkPhkoUKX2EDiaG5l6PnNZL0k
-         rg/8Cb4CJPQTLJgw3yppfcTh4QVwNVhzwVqm22VMti73kHMbBxdZMqelWytlGXmdiH1I
-         gNleqphPGoKzcBYGocNVWr81qfKnTudLAJdRiWxBXSEtT5saq6O/WAuPRJZpHygpBHm2
-         p56g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778002184; x=1778606984;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=uyaAkabMJvUFOvU8uLyog+hcEkYJAZfMRJ0zkLwucxQ=;
-        b=dZWWSU5ck8Ar2ermm9oz0bCWPmmBmU//eFnux9AdjpYs2hV9gAgEAnv6FUIw9c2x9x
-         +dNnsiCbRYIn80b4E3DJlzmSE3V5L0eAPTn4egpG4Ots3auW1mtaUHevc4D2v5msImzn
-         qAyDNXeRUmC8KZkA21yMnUZOK3oeLU+gcQm8N4pqwLo5tbcNDTsyeM6YHDxKlaJ7i35C
-         j1Nb0FhZNppTbBzIFgpAU2X5dezQ9vzB3Gg1ZV3LXHiNt12PvGLCL+o51leKtqKrtAdn
-         hP89QcTYtheJqJ88kSh2Y29eeSa72fhuvYJ1KcJclEEZlcHIxVyGVjmPdoR/nfKBaXLW
-         IpFA==
-X-Gm-Message-State: AOJu0YyaH+Ce/VY0JnpHUN4k++F/YGD3qRjuc048b0E7Ml91D+huu1GX
-	8Kn9jfNiYmaYvQOB6b9JHTptwT3fEW5+4pj0lXJ4XCLxzsvod6kDENYf
-X-Gm-Gg: AeBDievZzhSteck+M58Wfz32zezAyne2Di7vLui/f6LaQwOqRX73t1vc3W60oTcMHrT
-	j/uZhCQvZktH3zPOPH502KfUZwbPERKXEgocaE0F757a67vP+IGRGG7CQDJxb+YChyjwAiZsiZ7
-	L3vRkzwfFRbUNtt1xbZysx8yW2A3QqCizXOzq7Sgl+yMd4MmlxoYgsFMgfXvu7jSN/P4upEYUED
-	aqM0Gnfpvg4jsyhP6yxbTofubazDE0xwO6fLGd1pGEN8jHC9Cx2K488Wy2QPmgdCBXlNdKpfnqL
-	kuP/WgAg5IHwTpSyPYyGkx4QARtbf4Wkgww5m8kSdh1y2LWOQoBRBGaVErWoPj+W7RnlZSFRRmB
-	Pec4Uxmqjh2yls29eW5P8c+ci7ofSSS9rLYQiwzIv5De/h2ys2GqfOAF3/kV2BYi+ysL4M7wNez
-	xy6Me0zqlmhobV/h1kAVlxMiLhaSX5zNVKnPeN6vmTJA8DlWw9/8+Cb317ByyChRIgkXWJ2PKWZ
-	5IKisH5qbAE0dz0
-X-Received: by 2002:a5d:5f90:0:b0:44a:8c10:40dc with SMTP id ffacd0b85a97d-4515b9f3c74mr97263f8f.18.1778002183738;
-        Tue, 05 May 2026 10:29:43 -0700 (PDT)
-Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45055960902sm6694853f8f.28.2026.05.05.10.29.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 May 2026 10:29:41 -0700 (PDT)
-From: Stafford Horne <shorne@gmail.com>
-To: QEMU Development <qemu-devel@nongnu.org>
-Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	stefanha@redhat.com,
-	Stafford Horne <shorne@gmail.com>,
-	=?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
-	Peter Maydell <peter.maydell@linaro.org>
-Subject: [PULL 2/2] MAINTAINERS: Add myself as the OpenRISC virt maintainer
-Date: Tue,  5 May 2026 18:29:26 +0100
-Message-ID: <20260505172926.2235826-3-shorne@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260505172926.2235826-1-shorne@gmail.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BAQ4mZap"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1778091584;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=kJTWDH+RMDBRw6z32nWM5I1eeBUaU/qi5bJ1+ClXTms=;
+	b=BAQ4mZapGsoI1DGDqGSwhhTPZIZnvpfiFp+rcM3uDkQG/EHXn8iAV4dWw3kLqrMWU7S1RC
+	/V/1Lu6jcRMEY4SiKdDNAshKwR2MwSYXjAkjmJZbz4bukOJ8uwbgouy84NmUIFYhdNx51j
+	zgT7zj5g5vgOQD6jbC1xO6QDoNy1FzA=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-623-GeJ85Je9NT-E0NaopyakuQ-1; Wed,
+ 06 May 2026 14:19:40 -0400
+X-MC-Unique: GeJ85Je9NT-E0NaopyakuQ-1
+X-Mimecast-MFC-AGG-ID: GeJ85Je9NT-E0NaopyakuQ_1778091579
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 6C94318005B9;
+	Wed,  6 May 2026 18:19:39 +0000 (UTC)
+Received: from localhost (unknown [10.2.16.44])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 9A8D219560A2;
+	Wed,  6 May 2026 18:19:38 +0000 (UTC)
+Date: Wed, 6 May 2026 14:19:37 -0400
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Stafford Horne <shorne@gmail.com>
+Cc: QEMU Development <qemu-devel@nongnu.org>,
+	Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+	stefanha@redhat.com, Stafford Horne <shorne@gmail.com>
+Subject: Re: [PULL 0/2] OpenRISC board maintainer updates for 2026-05-05
+Message-ID: <20260506181937.GA208805@fedora>
 References: <20260505172926.2235826-1-shorne@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
@@ -77,36 +56,35 @@ List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="EfLLO0Px+pxi0o+s"
+Content-Disposition: inline
+In-Reply-To: <20260505172926.2235826-1-shorne@gmail.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-I defined the virt board but didn't realize there is a separate section
-for listing boards in MAINTAINERS.  Add myself as maintainer.
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
-Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
-Reviewed-by: Peter Maydell <peter.maydell@linaro.org>
----
- MAINTAINERS | 6 ++++++
- 1 file changed, 6 insertions(+)
+--EfLLO0Px+pxi0o+s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 44207949d7..e9807fe6c7 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1516,6 +1516,12 @@ F: hw/intc/ompic.c
- F: hw/or1k/or1k-sim.c
- F: tests/functional/or1k/test_sim.py
- 
-+virt
-+M: Stafford Horne <shorne@gmail.com>
-+S: Odd Fixes
-+F: docs/system/or1k/virt.rst
-+F: hw/or1k/virt.c
-+
- PowerPC Machines
- ----------------
- Bamboo
--- 
-2.53.0
+Applied, thanks.
+
+Please update the changelog at https://wiki.qemu.org/ChangeLog/11.1 for any user-visible changes.
+
+--EfLLO0Px+pxi0o+s
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmn7hjkACgkQnKSrs4Gr
+c8iL5wf/QuhYyfjZuZ+W9Urwjzhi8CGOFT2cdT5XT+bIIDHpL965S9rCPutQ1h16
+9Rhg1hVRSMlErg0hbS2SsMuJ3BkKjO1tPEFWLZ7BBzQgL9VzvHU3VJ/ozcsAGT2b
+Aax/EJ6N/6rKGUWAtnpQ9LNXx92+ZwHzC9kqZIZQmZsPrxdXDtY4omHCavzRlTr3
+silaI9dg9aC3QyiZRwjSbSrZVjfUZXKDA4ngWMUCR9S13tgbWntCFsKEKhOaPM5N
+eysiouNV61IY3K3SSs9rd2zZY+84KIICIkwNm9dO7Nl96IMgjkb+aEQT36BBK8oj
+OLBygV40yOrbY5mLkfUBJpu71fTN5g==
+=2nR0
+-----END PGP SIGNATURE-----
+
+--EfLLO0Px+pxi0o+s--
 
