@@ -1,73 +1,115 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+Received: from mail-dy1-f194.google.com (mail-dy1-f194.google.com [74.125.82.194])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34EF52ED84A
-	for <linux-openrisc@vger.kernel.org>; Mon, 18 May 2026 07:08:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 448D01A262A
+	for <linux-openrisc@vger.kernel.org>; Tue, 19 May 2026 01:19:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779088114; cv=none; b=FF86lBCxEC8nvAo/k/dflOYO9/VTx4heszlDQLfDPGiEl6Yw6qqR1LbZGGQczjJaUgTH2fdRguA6BtXx/ROVu5qzUM5HSYGWBoaHdyD+CLArM+epR5THoh5ZnmN95wqTG3gCLyrxxsatH7+FYT91Ly6YRGOO5sj8mxusqD55cEQ=
+	t=1779153601; cv=none; b=qv/sC3fyYj8L9REDz+DMuPjjy2bNV52v/BgCMLUA92Dghs1P7zRTxqoHX5J2XUEC3Yjlp/OlDeav2stjThskbN7/9pokA1MxvZQJs3xxbGr/hn7ET49nPmwYjYHS+ZxxH5w5D2UwVzaL0wwj1OfUlidvhxJHObVe4E5TO1E+c6s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779088114; c=relaxed/simple;
-	bh=U8RnSVI63jA3VZmVpfcJQT469phe/4cQTvh1xJCcgsw=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=DTvGI0ZC9zWyQ9y4H+QEEnUcbS0QSS7Bl+meDd/kt7SJyPGaxyprcXsbU+HAmelj8dfUlICNFtecnsph8FrZ0VMBXbe5+geh5LET1EOwAYGJ73/V0zI/+xCJjMSwdp3BR4lH7WXU9zuwf+nlJSxQBbbXB1KJI+djyGon8NMIAOw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HEvpIDZE; arc=none smtp.client-ip=209.85.216.51
+	s=arc-20240116; t=1779153601; c=relaxed/simple;
+	bh=uC/YTHZQN/5OVj8zrqwkRVYTiYsHlJGxeqoHIVP2gds=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=os0mqWc+aZNC5+bPNivVy7O1TP1a0qW+NVdtxNfcBIuKNh3x2br5HZKPma8g2eJmmCZK/nDtNc7qgi47vfBAtmwbJskdM3hvSEOjzZGwUcL1RnS6F5jC9W4n09jyGSUba/o90p1fyIdeeJjguP7j9318cS4s904fFKeKc4elcm8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Gnq9KH6L; arc=none smtp.client-ip=74.125.82.194
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HEvpIDZE"
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-366be8040a9so671908a91.3
-        for <linux-openrisc@vger.kernel.org>; Mon, 18 May 2026 00:08:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Gnq9KH6L"
+Received: by mail-dy1-f194.google.com with SMTP id 5a478bee46e88-2f00a567cfaso2066971eec.0
+        for <linux-openrisc@vger.kernel.org>; Mon, 18 May 2026 18:19:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779088112; x=1779692912; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1779153598; x=1779758398; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=a1o4hxowLzHHd4Yw10PawGm+yAZguIaKz4mMl3Ok7xM=;
-        b=HEvpIDZEykUzR0Wr/3UJ/TL1f3AkCw2fOtyiN8Quwfv56Qj3ne3dB5zJvjBP/Wd1L3
-         EX7vC+PfiLUf6STkhe8tLbKhfWgJTsHa6vP1/Mb3w5lRF7DMLqNcdjBt0fR/65uydXVb
-         hDC6U6+qVm18FSpW0sSLrcmqEkjqd1qR9PQtH670pjm5OUupyVwh+wlFzX1lmAxCGssK
-         q0h+cWwEdq8mCBaH3kH+de/TxPwP6CwQH/1y0MSvWqocjhIO8etyt6zdsTszz22cNO5C
-         zr5PVEwUh9sRp7vmcaWttS6OJrRl9qYHkjyJcfE708GWYZRXPJ1TPzZ/y1UVV9ISvBmU
-         u5MA==
+        bh=61IH/1X9bdUpbndRHMPT6pWv81GYEfTAPjpqMU4gh2E=;
+        b=Gnq9KH6LWICcWk7JWuKm/yO7WrEL8YdF16tJOwwX6ldJtlzHzg3BPOJ5xEFqBZtB+Y
+         tRPoXh2UKPZykIPBQ1B2NCVcMrXZd4p2O71mHDrUTiQ+Mu9SheWOXy+e0EKwgA1J5sn+
+         kJLd+JOHTDf3Ubb8ibtuh5QOvXaRY74iKP49OIXMtqOTVTBJmIx97QXFq072WIaI7g9/
+         EqFGjQzC2UkprAahERIuFlfyxObO3ZWMcnoqPZl/kh6sFUXla246l8PpDSAmOSh/7Pc7
+         r98KsIGUv5IXvdjaAonGlfTxKVzsGZJB0DFMy0ttEpIU4Sly8j8QLk36NAPTHdOAAe2N
+         AkdQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779088112; x=1779692912;
+        d=1e100.net; s=20251104; t=1779153598; x=1779758398;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=a1o4hxowLzHHd4Yw10PawGm+yAZguIaKz4mMl3Ok7xM=;
-        b=ap2uiN9CEd/uwOq9EM27Dqlhugv1koIVe+bFRXppZcLBDTMQ0SAu+NA9DQVjozZlAm
-         +zp0UGog7/FFGPiMom/bAbpYJ1n0ZwwLL03Yht/yqnc1Vw50GxASdrOGW/4mSp/aGm7H
-         5YRftx+dc4rhCRtJIZR/GbaqKOIYF5I72FVVoCl5TcA3Gb5JBi/8rZoRO4AzDzBKBKMU
-         c0/55MBv68lR/oWDoMsggkVub3qlvdM4xPRYqxs41WUBtMBg1G0pmpeg6H05fv/mkfqn
-         9DxIdTZrabRYbbWRoeudU6ImmPmhnUIZfhlL0yP1b9e217YulpjIfCSMq3M6RVFxDy7B
-         JBTg==
-X-Forwarded-Encrypted: i=1; AFNElJ8ToyqMmycS/AbXyS673JbSqhjndZjFBdRm+/enVYjqkCvyRSqEwOYpjSyfzyP4DGgmG1mcSzmTimVO4Svozw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwIkxK5gxquR2CGzKWsAr0LqPDZnLC6cUrO7JSnpZJ6V0KvxHIU
-	IAMI+WFmJM4emY3K6bdn723o9UfHswAQu1vUP8BiasqmmQLj8aT9BWI3W40NVdEb
-X-Gm-Gg: Acq92OHVflnUA6hSXL51jEsA2wFD62IYR/7voCFyd031b3/NtENvvTiLJ2o2z3DyI75
-	J6qrdq8M+//3G6yLVnK8OFcWQDKz6Rqy8sd5cI60jJcOLqQYuOJ0caTZ85t9GofrBDzDE72S+nf
-	XevNO9Bco4OnIbQUOFAIj1RA8VxoxI3Ei1iWWMfpGTkjSwn5ca9JWxXsgTG0tYdcglmgX6+vmZ1
-	w2ZWBEl9LCvdAETauvlnl9hr1ZWwfZoLeY+skGQhL9r0oGlmnqMOiKba183oWGzSs0nnS6jNIJC
-	9xZdJ8HWpuNpTfxlMG55L5H0YZtV00SjIMr6subsACK+BAPk+nym8WJI/cnC2CAIXQLX1sDjfO8
-	6TX4nriF8y6W3cuhnMbPx8WoLeh9DboeWNOltikZONPhBhE2kkH2HLxUntuJUzQ49i3Cnw2uqdD
-	hmiHll/lTgoVuZBLfIQKGXbi7qDHLHiJFqb/EfiyZKn5fsY5a5NvShTosKnOMF6w==
-X-Received: by 2002:a17:90b:2fc4:b0:366:7dbd:cd50 with SMTP id 98e67ed59e1d1-36951dd07a8mr14732610a91.27.1779088112450;
-        Mon, 18 May 2026 00:08:32 -0700 (PDT)
-Received: from 4rynvubuntu.tailf26d3b.ts.net ([103.27.51.89])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36959b06290sm5243514a91.2.2026.05.18.00.08.29
+        bh=61IH/1X9bdUpbndRHMPT6pWv81GYEfTAPjpqMU4gh2E=;
+        b=ihs+noMC5bVzkiAzcR8gHL8mf5VQGu8oretQ3r078dbbdSTiLJoG61QPBQkk4Mao6g
+         VrT28DX6EzHM5aTdxhkKUwOTZ0HJxUYKyCF/U8wFdqolvgOVSqbKMsuT9Hj0WI4K4ovo
+         C1ICGWrw6RApJhYxJe7s/CDhClFQEOHxzTHOFKo1vGpft5G37MNoMEqPTVcHSXC2DDaJ
+         KqbewyqHPV6AIkcfq24LsP6f40B63zSIpl8kPNrvr+Vmwch7vPEKgvNinmx3LICSCnPH
+         BSqkWDo5h7d9uqVgDejXkJB/Pcb2Z2vFfBq0oH/OZgmOp1inl92bWe8JriQOy1k66dcw
+         AjhQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8LC5TFa3BlW27MjV92AU3xUV5L5yHE/jygoTlFrJ9PV5PklhsJafbrwLHFc1qYQcwEMJI88SHbbJPih0YOkg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzOoKRfnJebJlPJExQbjFLmkBeAooEI80Y9j2gAIgdb5EzdEDM4
+	cZGcRsrdmAKFERzkmDTl4xlNbS9F+5/hlVWMtXRmLJiT3h2pA2Wusufx
+X-Gm-Gg: Acq92OG2B9Qzt6aQgLIJA3oB7qdhfG9EU2NfvTT0D+1x1QQ2grZJI7vo7Elt6/qjX3f
+	iRGOWheerfBaWeyiPSOdQGuqb2WGRA59QFitfY/k170M4ztO65G4tXSOkilOX1I/NM1qwVafQpw
+	B9PJQXoJAW6NMnNDp80TxoUN2nx5bRp2uCxOHSDXXaAwT37/kiVS/JB7imZzU3rqUXihm4Z5ZpO
+	idJiaPnxXhHhoW05yjK30sRhRbBem0fIIUrGRtgtjOtcszKE8bYIK3YfLf4hmY5rv3T7JSqnxf1
+	awk9mFWCxtMXkYm8+3tsXWmJgxwZEcE9qFhZP55c7b81fr773D4IrpHdIIn5QVFcunjBdyvw8Z8
+	TQQIFWfNh9dcHO4/v2eGUzUagI6P9yYJ+zkp0/AG2evnYHytOIhwgOEm9gJJYWCG5ImFObSj32G
+	YXI3PX3N57/2J4IHoBEicW1CmLi20CS4vfxKOftQ4uZsj6z6NYflXK+nGX42ZCPnh1xvIwfz8oP
+	G01CdWHCFEisDN0kvnMSUmDGe75OT4SADPeE0jSHq7Pu7/opRD7n3x3qaAs5o47XKrejMyJdw8z
+	GM38TXlKn+7V1W8Jjw==
+X-Received: by 2002:a05:7300:ec07:b0:302:b44b:b64a with SMTP id 5a478bee46e88-3039785c81fmr7064800eec.1.1779153598298;
+        Mon, 18 May 2026 18:19:58 -0700 (PDT)
+Received: from ethan-latitude5420.. (host-127-24.cafrjco.fresno.ca.us.clients.pavlovmedia.net. [68.180.127.24])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30296dcb6adsm17034305eec.15.2026.05.18.18.19.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 May 2026 00:08:31 -0700 (PDT)
-From: 4rynv <vyapariaryan642@gmail.com>
-To: shorne@gmail.com
-Cc: jonas@southpole.se,
-	stefan.kristiansson@saunalahti.fi,
-	oleg@redhat.com,
+        Mon, 18 May 2026 18:19:57 -0700 (PDT)
+From: Ethan Nelson-Moore <enelsonmoore@gmail.com>
+To: linux-kernel@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	linux-mips@vger.kernel.org,
 	linux-openrisc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	4rynv <vyapariaryan642@gmail.com>
-Subject: [PATCH] openrisc: ptrace: Rename STACK_FRAME_OVERHEAD to KERNEL_REDZONE_SIZE
-Date: Mon, 18 May 2026 07:08:11 +0000
-Message-Id: <20260518070811.3816-1-vyapariaryan642@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	linux-parisc@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org,
+	linux-arch@vger.kernel.org
+Cc: Ethan Nelson-Moore <enelsonmoore@gmail.com>,
+	Vineet Gupta <vgupta@kernel.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Brian Cain <bcain@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Michal Simek <monstr@monstr.eu>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Stafford Horne <shorne@gmail.com>,
+	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+	Helge Deller <deller@gmx.de>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Paul Walmsley <pjw@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Alexandre Ghiti <alex@ghiti.fr>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Chris Zankel <chris@zankel.net>,
+	Max Filippov <jcmvbkbc@gmail.com>,
+	Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH] Generate <asm/asm-offsets.h> and remove identical copies in all architectures
+Date: Mon, 18 May 2026 18:18:41 -0700
+Message-ID: <20260519011928.78398-1-enelsonmoore@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -76,117 +118,200 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The 128-byte area below the stack pointer is a red zone, not a stack
-frame overhead. Rename it to KERNEL_REDZONE_SIZE to match the powerpc
-convention and better reflect its actual purpose.
+Every architecture supported by the kernel has a functionally identical
+copy of <asm/asm-offsets.h> which simply includes
+<generated/asm-offsets.h>, even though it is also present in
+asm-generic. Eliminate this unnecessary complexity by adding
+<asm/asm-offsets.h> to the list of mandatory asm headers, which causes
+a copy of it that includes <asm-generic/asm-offsets.h> to be generated
+automatically.
 
-Tests:
-- Verified no remaining references to STACK_FRAME_OVERHEAD in
-  arch/openrisc/ using grep
-- Built arch/openrisc/ successfully with or1k-elf cross-compiler:
-  make ARCH=openrisc CROSS_COMPILE=or1k-elf- arch/openrisc/
-
-Resolves the TODO comment in ptrace.h.
-
-Signed-off-by: 4rynv <vyapariaryan642@gmail.com>
+Signed-off-by: Ethan Nelson-Moore <enelsonmoore@gmail.com>
 ---
- arch/openrisc/include/asm/processor.h | 4 +++-
- arch/openrisc/include/asm/ptrace.h    | 3 +--
- arch/openrisc/kernel/asm-offsets.c    | 4 ++--
- arch/openrisc/kernel/process.c        | 4 ++--
- arch/openrisc/kernel/signal.c         | 2 +-
- arch/openrisc/kernel/stacktrace.c     | 2 +-
- 6 files changed, 10 insertions(+), 9 deletions(-)
+ arch/arc/include/asm/asm-offsets.h        | 6 ------
+ arch/arm/include/asm/asm-offsets.h        | 1 -
+ arch/arm64/include/asm/asm-offsets.h      | 1 -
+ arch/hexagon/include/asm/asm-offsets.h    | 1 -
+ arch/loongarch/include/asm/asm-offsets.h  | 5 -----
+ arch/m68k/include/asm/asm-offsets.h       | 1 -
+ arch/microblaze/include/asm/asm-offsets.h | 1 -
+ arch/mips/include/asm/asm-offsets.h       | 1 -
+ arch/nios2/include/asm/asm-offsets.h      | 7 -------
+ arch/openrisc/include/asm/asm-offsets.h   | 1 -
+ arch/parisc/include/asm/asm-offsets.h     | 1 -
+ arch/powerpc/include/asm/asm-offsets.h    | 1 -
+ arch/riscv/include/asm/asm-offsets.h      | 1 -
+ arch/sh/include/asm/asm-offsets.h         | 2 --
+ arch/sparc/include/asm/asm-offsets.h      | 1 -
+ arch/x86/include/asm/asm-offsets.h        | 1 -
+ arch/xtensa/include/asm/asm-offsets.h     | 1 -
+ include/asm-generic/Kbuild                | 1 +
+ 18 files changed, 1 insertion(+), 33 deletions(-)
+ delete mode 100644 arch/arc/include/asm/asm-offsets.h
+ delete mode 100644 arch/arm/include/asm/asm-offsets.h
+ delete mode 100644 arch/arm64/include/asm/asm-offsets.h
+ delete mode 100644 arch/hexagon/include/asm/asm-offsets.h
+ delete mode 100644 arch/loongarch/include/asm/asm-offsets.h
+ delete mode 100644 arch/m68k/include/asm/asm-offsets.h
+ delete mode 100644 arch/microblaze/include/asm/asm-offsets.h
+ delete mode 100644 arch/mips/include/asm/asm-offsets.h
+ delete mode 100644 arch/nios2/include/asm/asm-offsets.h
+ delete mode 100644 arch/openrisc/include/asm/asm-offsets.h
+ delete mode 100644 arch/parisc/include/asm/asm-offsets.h
+ delete mode 100644 arch/powerpc/include/asm/asm-offsets.h
+ delete mode 100644 arch/riscv/include/asm/asm-offsets.h
+ delete mode 100644 arch/sh/include/asm/asm-offsets.h
+ delete mode 100644 arch/sparc/include/asm/asm-offsets.h
+ delete mode 100644 arch/x86/include/asm/asm-offsets.h
+ delete mode 100644 arch/xtensa/include/asm/asm-offsets.h
 
-diff --git a/arch/openrisc/include/asm/processor.h b/arch/openrisc/include/asm/processor.h
-index 3ff893a67c13..f4ababd1de24 100644
---- a/arch/openrisc/include/asm/processor.h
-+++ b/arch/openrisc/include/asm/processor.h
-@@ -55,7 +55,9 @@ struct thread_struct {
-  * user->kernel transition registers are reached by this (i.e. not regs
-  * for running signal handler)
-  */
--#define user_regs(thread_info)  (((struct pt_regs *)((unsigned long)(thread_info) + THREAD_SIZE - STACK_FRAME_OVERHEAD)) - 1)
-+#define user_regs(thread_info) \
-+	(((struct pt_regs *)((unsigned long)(thread_info) + \
-+	THREAD_SIZE - KERNEL_REDZONE_SIZE)) - 1)
+diff --git a/arch/arc/include/asm/asm-offsets.h b/arch/arc/include/asm/asm-offsets.h
+deleted file mode 100644
+index 32a1d3d518dc..000000000000
+--- a/arch/arc/include/asm/asm-offsets.h
++++ /dev/null
+@@ -1,6 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-only */
+-/*
+- * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+- */
+-
+-#include <generated/asm-offsets.h>
+diff --git a/arch/arm/include/asm/asm-offsets.h b/arch/arm/include/asm/asm-offsets.h
+deleted file mode 100644
+index d370ee36a182..000000000000
+--- a/arch/arm/include/asm/asm-offsets.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <generated/asm-offsets.h>
+diff --git a/arch/arm64/include/asm/asm-offsets.h b/arch/arm64/include/asm/asm-offsets.h
+deleted file mode 100644
+index d370ee36a182..000000000000
+--- a/arch/arm64/include/asm/asm-offsets.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <generated/asm-offsets.h>
+diff --git a/arch/hexagon/include/asm/asm-offsets.h b/arch/hexagon/include/asm/asm-offsets.h
+deleted file mode 100644
+index d370ee36a182..000000000000
+--- a/arch/hexagon/include/asm/asm-offsets.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <generated/asm-offsets.h>
+diff --git a/arch/loongarch/include/asm/asm-offsets.h b/arch/loongarch/include/asm/asm-offsets.h
+deleted file mode 100644
+index d9ad88d293e7..000000000000
+--- a/arch/loongarch/include/asm/asm-offsets.h
++++ /dev/null
+@@ -1,5 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-/*
+- * Copyright (C) 2020-2022 Loongson Technology Corporation Limited
+- */
+-#include <generated/asm-offsets.h>
+diff --git a/arch/m68k/include/asm/asm-offsets.h b/arch/m68k/include/asm/asm-offsets.h
+deleted file mode 100644
+index d370ee36a182..000000000000
+--- a/arch/m68k/include/asm/asm-offsets.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <generated/asm-offsets.h>
+diff --git a/arch/microblaze/include/asm/asm-offsets.h b/arch/microblaze/include/asm/asm-offsets.h
+deleted file mode 100644
+index d370ee36a182..000000000000
+--- a/arch/microblaze/include/asm/asm-offsets.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <generated/asm-offsets.h>
+diff --git a/arch/mips/include/asm/asm-offsets.h b/arch/mips/include/asm/asm-offsets.h
+deleted file mode 100644
+index d370ee36a182..000000000000
+--- a/arch/mips/include/asm/asm-offsets.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <generated/asm-offsets.h>
+diff --git a/arch/nios2/include/asm/asm-offsets.h b/arch/nios2/include/asm/asm-offsets.h
+deleted file mode 100644
+index e51465213b53..000000000000
+--- a/arch/nios2/include/asm/asm-offsets.h
++++ /dev/null
+@@ -1,7 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-or-later */
+-/*
+- *  Copyright (C) 2010 Tobias Klauser <tklauser@distanz.ch>
+- *  Copyright (C) 2009 Thomas Chou <thomas@wytron.com.tw>
+- */
+-
+-#include <generated/asm-offsets.h>
+diff --git a/arch/openrisc/include/asm/asm-offsets.h b/arch/openrisc/include/asm/asm-offsets.h
+deleted file mode 100644
+index d370ee36a182..000000000000
+--- a/arch/openrisc/include/asm/asm-offsets.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <generated/asm-offsets.h>
+diff --git a/arch/parisc/include/asm/asm-offsets.h b/arch/parisc/include/asm/asm-offsets.h
+deleted file mode 100644
+index d370ee36a182..000000000000
+--- a/arch/parisc/include/asm/asm-offsets.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <generated/asm-offsets.h>
+diff --git a/arch/powerpc/include/asm/asm-offsets.h b/arch/powerpc/include/asm/asm-offsets.h
+deleted file mode 100644
+index d370ee36a182..000000000000
+--- a/arch/powerpc/include/asm/asm-offsets.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <generated/asm-offsets.h>
+diff --git a/arch/riscv/include/asm/asm-offsets.h b/arch/riscv/include/asm/asm-offsets.h
+deleted file mode 100644
+index d370ee36a182..000000000000
+--- a/arch/riscv/include/asm/asm-offsets.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <generated/asm-offsets.h>
+diff --git a/arch/sh/include/asm/asm-offsets.h b/arch/sh/include/asm/asm-offsets.h
+deleted file mode 100644
+index 9f8535716392..000000000000
+--- a/arch/sh/include/asm/asm-offsets.h
++++ /dev/null
+@@ -1,2 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-#include <generated/asm-offsets.h>
+diff --git a/arch/sparc/include/asm/asm-offsets.h b/arch/sparc/include/asm/asm-offsets.h
+deleted file mode 100644
+index d370ee36a182..000000000000
+--- a/arch/sparc/include/asm/asm-offsets.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <generated/asm-offsets.h>
+diff --git a/arch/x86/include/asm/asm-offsets.h b/arch/x86/include/asm/asm-offsets.h
+deleted file mode 100644
+index d370ee36a182..000000000000
+--- a/arch/x86/include/asm/asm-offsets.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <generated/asm-offsets.h>
+diff --git a/arch/xtensa/include/asm/asm-offsets.h b/arch/xtensa/include/asm/asm-offsets.h
+deleted file mode 100644
+index d370ee36a182..000000000000
+--- a/arch/xtensa/include/asm/asm-offsets.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <generated/asm-offsets.h>
+diff --git a/include/asm-generic/Kbuild b/include/asm-generic/Kbuild
+index 2c53a1e0b760..9879bba63a38 100644
+--- a/include/asm-generic/Kbuild
++++ b/include/asm-generic/Kbuild
+@@ -6,6 +6,7 @@
  
- /*
-  * Dito but for the currently running task
-diff --git a/arch/openrisc/include/asm/ptrace.h b/arch/openrisc/include/asm/ptrace.h
-index 28facf2f3e00..940f0b045b2a 100644
---- a/arch/openrisc/include/asm/ptrace.h
-+++ b/arch/openrisc/include/asm/ptrace.h
-@@ -94,8 +94,7 @@ struct pt_regs {
- 	long dummy2;		/* Cheap alignment fix */
- };
- 
--/* TODO: Rename this to REDZONE because that's what it is */
--#define STACK_FRAME_OVERHEAD  128  /* size of minimum stack frame */
-+#define KERNEL_REDZONE_SIZE  128  /* size of minimum stack frame */
- 
- #define MAX_REG_OFFSET offsetof(struct pt_regs, orig_gpr11)
- 
-diff --git a/arch/openrisc/kernel/asm-offsets.c b/arch/openrisc/kernel/asm-offsets.c
-index 3cc826f2216b..07bfa12ca4af 100644
---- a/arch/openrisc/kernel/asm-offsets.c
-+++ b/arch/openrisc/kernel/asm-offsets.c
-@@ -53,8 +53,8 @@ int main(void)
- 	DEFINE(PT_SIZE, sizeof(struct pt_regs));
- 
- 	/* Interrupt register frame */
--	DEFINE(STACK_FRAME_OVERHEAD, STACK_FRAME_OVERHEAD);
--	DEFINE(INT_FRAME_SIZE, STACK_FRAME_OVERHEAD + sizeof(struct pt_regs));
-+	DEFINE(KERNEL_REDZONE_SIZE, KERNEL_REDZONE_SIZE);
-+	DEFINE(INT_FRAME_SIZE, KERNEL_REDZONE_SIZE + sizeof(struct pt_regs));
- 
- 	DEFINE(NUM_USER_SEGMENTS, TASK_SIZE >> 28);
- 	return 0;
-diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
-index 73ffb9fa3118..bbe2b36d698d 100644
---- a/arch/openrisc/kernel/process.c
-+++ b/arch/openrisc/kernel/process.c
-@@ -176,12 +176,12 @@ copy_thread(struct task_struct *p, const struct kernel_clone_args *args)
- 	top_of_kernel_stack = sp;
- 
- 	/* Locate userspace context on stack... */
--	sp -= STACK_FRAME_OVERHEAD;	/* redzone */
-+	sp -= KERNEL_REDZONE_SIZE;	/* redzone */
- 	sp -= sizeof(struct pt_regs);
- 	userregs = (struct pt_regs *) sp;
- 
- 	/* ...and kernel context */
--	sp -= STACK_FRAME_OVERHEAD;	/* redzone */
-+	sp -= KERNEL_REDZONE_SIZE;	/* redzone */
- 	sp -= sizeof(struct pt_regs);
- 	kregs = (struct pt_regs *)sp;
- 
-diff --git a/arch/openrisc/kernel/signal.c b/arch/openrisc/kernel/signal.c
-index f70a13ee0593..63121750fe5e 100644
---- a/arch/openrisc/kernel/signal.c
-+++ b/arch/openrisc/kernel/signal.c
-@@ -171,7 +171,7 @@ static inline void __user *get_sigframe(struct ksignal *ksig,
- 	unsigned long sp = regs->sp;
- 
- 	/* redzone */
--	sp -= STACK_FRAME_OVERHEAD;
-+	sp -= KERNEL_REDZONE_SIZE;
- 	sp = sigsp(sp, ksig);
- 	sp = align_sigframe(sp - frame_size);
- 
-diff --git a/arch/openrisc/kernel/stacktrace.c b/arch/openrisc/kernel/stacktrace.c
-index 54d38809e22c..0c4ca1eac2c2 100644
---- a/arch/openrisc/kernel/stacktrace.c
-+++ b/arch/openrisc/kernel/stacktrace.c
-@@ -79,7 +79,7 @@ void save_stack_trace_tsk(struct task_struct *tsk, struct stack_trace *trace)
- 
- 		/* Locate stack from kernel context */
- 		ksp = task_thread_info(tsk)->ksp;
--		ksp += STACK_FRAME_OVERHEAD;	/* redzone */
-+		ksp += KERNEL_REDZONE_SIZE;	/* redzone */
- 		ksp += sizeof(struct pt_regs);
- 
- 		sp = (unsigned long *) ksp;
+ mandatory-y += atomic.h
+ mandatory-y += archrandom.h
++mandatory-y += asm-offsets.h
+ mandatory-y += barrier.h
+ mandatory-y += bitops.h
+ mandatory-y += bug.h
 -- 
-2.34.1
+2.43.0
 
