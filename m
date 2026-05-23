@@ -1,77 +1,80 @@
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D15E3314D0
-	for <linux-openrisc@vger.kernel.org>; Sat, 23 May 2026 05:36:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C8582E6CCD
+	for <linux-openrisc@vger.kernel.org>; Sat, 23 May 2026 05:36:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779514617; cv=none; b=azZjpHrhpJwyHxpWzJnPdJKJ3R0SD5kWFnXwW4ZIFxrrBjPfMfJR61zFsP3NusslpNHT6/cj4uZvBKhAIz5++9xT5aNI3j5zRjOyBBbiGF3OBw2kcQL2uBmHZTzTSEqsXx858JUWbvpKNFsPjMCRGQu2SztYOL/d0KlqD1HV8c0=
+	t=1779514620; cv=none; b=OqLt0spNQepFcYrPtX3g0q57lOMTxFUgHNY43znbxcq941pG2saJ1OY7bB6IDxhkw1b9SmtsAwnKArUhsZcOirfKbljXfY2Y88FpHE2AsSyynJ6OvN8Bgi5+Npz3VmHsSHkSF5UpL9lXpBeEmptxG7jTqZDoCxjnf+MQTHueKd0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779514617; c=relaxed/simple;
-	bh=Ld1JJn+zGIIrv4OfEQcvAVuHm3e1kxZgfP5KYvnpil4=;
+	s=arc-20240116; t=1779514620; c=relaxed/simple;
+	bh=K1iy/7Us+v9iabohnw6QHdQ4FKbTQ+1yjGBvyFrzzaw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KeiezDmczTOsU9hnYZnpbb/WcGGmnEgg8E5CdLKoX1B1XK8CrGUPCFgC4JWgy6NKT53HwOa86vp2zv/QCQ130/QayOwn+cQm+f4NFCgPGOkY29LstxEwOKZibBPaBE2I8AqZ8OgUoFzicBKcf3UO0InJvcb/5yvVgLBqaSSCDvk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VQeeVL4Q; arc=none smtp.client-ip=209.85.221.45
+	 MIME-Version; b=djG5X6yyAlMpRcAeE/h+XvSG9aprDv6c13l44bO2mLP5B14zOPCjtm1eYLIch0pxsSCtA1f3DV7nnJHcjX+NOBxKpbhbkdLL3PjHhP/KTqewmQbBSAdVJqHsb6Aj0fuEyovjEJRsWaaiE+E4EbNT+Iv0m6bSTce3y6nitiTY1VQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rQ8PAWkF; arc=none smtp.client-ip=209.85.221.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VQeeVL4Q"
-Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-45ea19f412aso1692679f8f.3
-        for <linux-openrisc@vger.kernel.org>; Fri, 22 May 2026 22:36:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rQ8PAWkF"
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-44509921fbcso5142726f8f.3
+        for <linux-openrisc@vger.kernel.org>; Fri, 22 May 2026 22:36:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779514615; x=1780119415; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1779514618; x=1780119418; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=nUwKR3yq6fKwgsxnrOqNBKyVRzqIoUnbsdF3bmKoKC4=;
-        b=VQeeVL4QUyCLjLvwJHM1Yqzxhyzk5qt82EpvewGnJZENq4vOseqQLyuzzr1Vq17HRJ
-         W2Qr/YFxC9ycyMYHMVD6YPD4AyIrQj12F/HHhg9k3hV+6x/7JtlzqxmuDbdWCnZapBmU
-         pd9cwbOtTD4Z5fCR0wHOqHaaAKqjCYRjougNWfR65WBeDQ7+nyL65h6+0MkI8ZTNTqnO
-         Sc1mYu/A4kIytUkJ55XLlLBsIeNvqtyyP4lXFNAyv2DJp4V0fU2eDpL0gFepv5zj9DF3
-         Z+EGcJrWbVJlFMtoc9W57WlhU9aoDPfvBsinFUnMzOPcfFQE9Q8W3kd5aw4Atrd4r08i
-         IYPA==
+        bh=LfCXYx65YgeEukMHypUmArLMk/VIi+xGB6BZmr+icPM=;
+        b=rQ8PAWkFYtCSvihyR3Nf21St1nM3N2XyrNwWp8eAh+Z7W3C51MJKlyyTV5sNh4nf/e
+         OU2OhCghSunIuXKUdvO5m1HMc8NB4beWjqIGZXMcTIgvi4F5AkZQ5jZnsr0ktvmOUQka
+         fgz3Aspqm5+Cn9ti8uEA0ccnHJpPONqqeS2NGUGSGLiQHg7pA5XMlaIR6GJ7vyFe11jW
+         DOg05O70HxJsAIKheBwB4um7XLvk+bRHXiHEq/hKF/6sQMkrZmKKbx8o31Rev1AID48c
+         2FuEpWgQFLb6VKHQk3h6Q37OGPb4MdkpMQHe3HbYZeEpPwqEERKsXVXmcDEZiOGLVyHM
+         5t3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779514615; x=1780119415;
+        d=1e100.net; s=20251104; t=1779514618; x=1780119418;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=nUwKR3yq6fKwgsxnrOqNBKyVRzqIoUnbsdF3bmKoKC4=;
-        b=afLuZ0CKImRTE/qgO37ctSrRqkoWAuiXh5X1qKd+I12rXNNjhPzde7XOKtNi55IEF5
-         Ydgpy/2O+gbbKcVOnEBOv1JQ4jFBjvFFDy1822w00ByTj4dd1IhrYEynnGnbjzNiuvJ6
-         Eq6ScydOuthhliCbdRnvaFxi1IX9+N352i1ybylATQNigCZUt1FIH9n1Bmq2PF9dxuqF
-         oIlGrCMSIt+YAv8tHDUtAk1CIVetdCXPfty22qmKWI26eTg477ZMBhWQG++1i1JdSKE6
-         qzO2r12pTJ2oVzxXQ7HoIkTZvQX9n1zMGTpTfUFpfF14MVXAHyxIL77HE2j8Fl2p8KG7
-         k5qg==
-X-Gm-Message-State: AOJu0YweGWiUJ1o2/fwWs1Utki1m78Nc/qN3BxcVTYc2cEHQ++MPCHiT
-	/f0silVQ89qsruawumMcydWnM4tdwdg9Fa17L3jEWLsnCLXnSOt24zQ3
-X-Gm-Gg: Acq92OGLZVFya00c3Q4ioRxqq+kadLCTNJXccQlHs+51azljO0cG1KuEGgWQT/RTDYV
-	vwNo9vE96ZtvJK31Pe/HHWYTPfI1dEDXsjenxMxUkenGHi/KiNKQio+jQOb8U4XglB/T4hJIxLh
-	qx+Isd77bc3e6RW9nSg7Q7xYTAcG3zYmLnN/FDIaNwfwZAY3ja1JARpFRTLu6UMc5bSvFUgJDTV
-	87JjYMiMRKheImQI/T5rWVpFo1FxcVvM450gRPibjO3OvTF4yn45InLRn8LGV4AakxWz3mY/Rn5
-	7bctLg6xrJvFgw1C9tmTsnj8lfDmWa9x7EXg+A58Vno9kRypwuEEyR1u8W+gRYLKB/94UmDiukh
-	c9DxG3tc7XKaw0Ma318uxTZ9Z+mtGqivXtPZ/vycj1yX6WCKyhYm85qrl0freXa5G9+nUzvds8K
-	ZNITqGCbBTiXApgQrixxT8bjgo8MUahLScNFM1EJ4w2pboiXif8YlwlOIL9xui7hKASSP0dc+RU
-	vPBsw==
-X-Received: by 2002:a05:600c:6287:b0:48f:eb8b:997a with SMTP id 5b1f17b1804b1-49042ae285bmr93143975e9.31.1779514614442;
-        Fri, 22 May 2026 22:36:54 -0700 (PDT)
+        bh=LfCXYx65YgeEukMHypUmArLMk/VIi+xGB6BZmr+icPM=;
+        b=I5M79XyQbFnlPltsff3sI/+2KeVgEBiS9vQ2JtC8jzBnU95pGZCKmzFBKarhDrKonH
+         dr99k6gR/jmo+RsiF77POur/Y1pAE6MYnEFdUGnwNQFPXMHKNsolmrQwgNrKHUOvhyNU
+         /BvTbr6wGbomRxQNclMPMu3XcJ3mxnl0/FThcutVXMiSpFI+jmUtcpwvmqaZ3PRIf+k3
+         3j8405fCaFcb1t6N5xLBdan5ugU8WaeoF+IPhWM29SW3jS82evObQg7ijPEKbRBmDv5Z
+         3mM6FiyHx1esuQLCsYuyXjmClwOagE4XM5FfoeUvz03T6t23KhvPMcPkWgomTEiJ+FnS
+         Z+tg==
+X-Gm-Message-State: AOJu0YxQWq4tgkESX3v9eaRh55YLscrtFNffaOgEj3pYKYB3FHREqEXY
+	ZRDYUyVpoisDB1ppLLtM2ufIRnI7PVzbCham8TrKZzJuYP64pHP3dZQ3
+X-Gm-Gg: Acq92OFliacB1KjroPVrpgkv9J7P4Qh4ll2Fp8n14nwfGEy5jBbAahN5uJHf589x7Lv
+	3pSyokJr8v3fn8uezfp/Pqct2Bk8qu2g9MkUJ4tJ0s56WrreNUhyt3oP9YtI7yfyxodrOLWGo0v
+	uR9uOyhVyHOcEgjREt0UD6Chbwlw1MjCJKVpfv5qxR++K4xOKTaDrFOl0WlrP/CCQPQ7MieD2dD
+	A17xpKiTZEIFhzBFToLbY/9IG5I5RU6i06DziPHZtI9EkPcHFgcual3/YnFxj5nncGa5H3rEnFa
+	Ej6G8xwfqeP3m+gzRCB7bA9uF3pILDOlb7kB2n+nV+ONsw2iTDlu+XHUvNXqUU7vxnN4sgj/qMe
+	tvdXa3wESiA5oxAI0j3yX4qDDw9FHQV1ez+IwulAlE0yAkk8SZIcmgSeRyQ+erLC8sjNcOgRYEs
+	JL2FyoCXfYBYaSqWYYQZiIo5e5CBSPp2dLEBmpO2vHOZ5DzeX/PtkBHQuTCye6NoohBaU/38LqP
+	ILUtw==
+X-Received: by 2002:a05:6000:2007:b0:43e:a81d:c475 with SMTP id ffacd0b85a97d-45eb3673201mr10681423f8f.6.1779514617661;
+        Fri, 22 May 2026 22:36:57 -0700 (PDT)
 Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45eb6c9f6ffsm9336779f8f.1.2026.05.22.22.36.53
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45eb6d5e484sm9473519f8f.30.2026.05.22.22.36.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 May 2026 22:36:53 -0700 (PDT)
+        Fri, 22 May 2026 22:36:56 -0700 (PDT)
 From: Stafford Horne <shorne@gmail.com>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
 	Stafford Horne <shorne@gmail.com>,
 	stable@vger.kernel.org,
+	Peter Zijlstra <peterz@infradead.org>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Jason Baron <jbaron@akamai.com>,
+	Alice Ryhl <aliceryhl@google.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Ard Biesheuvel <ardb@kernel.org>,
 	Jonas Bonn <jonas@southpole.se>,
 	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	"Matthew Wilcox (Oracle)" <willy@infradead.org>,
-	Zi Yan <ziy@nvidia.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Thomas Gleixner <tglx@kernel.org>
-Subject: [PATCH 2/3] openrisc: Add full instruction cache invalidate functions
-Date: Sat, 23 May 2026 06:36:17 +0100
-Message-ID: <20260523053624.630443-3-shorne@gmail.com>
+	chenmiao <chenmiao.ku@gmail.com>
+Subject: [PATCH 3/3] openrisc: Fix jump_label smp syncing
+Date: Sat, 23 May 2026 06:36:18 +0100
+Message-ID: <20260523053624.630443-4-shorne@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260523053624.630443-1-shorne@gmail.com>
 References: <20260523053624.630443-1-shorne@gmail.com>
@@ -83,107 +86,61 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add functions to invalidate all cache lines which we will use for
-static_key patching.
+The original commit 8c30b0018f9d ("openrisc: Add jump label support")
+copies from arm64 and does not properly consider how icache invalidation
+on remote cores works in OpenRISC.  On OpenRISC remote icaches need to
+be invalidated otherwise static key's may remain state after updating.
 
-On OpenRISC there is no instruction to invalidate an entire cache so we
-loop and invalidate cache lines one by one.  This is not extremely
-expensive on OpenRISC as we usually have only a few hundred cache lines.
+Fix SMP cache syncing by:
 
-I considered using the invalidate cache page or range functions.
-However, tracking which ranges need invalidation would have been more
-expensive than flushing all pages.
+ 1. Properly invalidate remote core icaches on SMP systems by using
+    icache_all_inv.  The old code uses kick_all_cpus_sync() which runs a
+    no-op IPI function call on remote CPU's which does execute a lot of
+    code and flushes many cache lines in the process, but does not flush
+    all and it's not correct on OpenRISC.
+ 2. For architectures that do not have WRITETHROUGH caches be sure
+    to flush the dcache after patching.
 
-Cc: stable@vger.kernel.org
+To test this I first reproduced the issue using a custom test module
+[0].  The test confirmed that some icache lines maintained stale
+static_key code sequences after calling static_branch_enable().  After
+this patch there are no longer jump_label coherency issues.
+
+[0] https://github.com/stffrdhrn/or1k-utils/tree/master/tests/smp_static_key_test
+
+Cc: stable@vger.kernel.org # depends on openrisc: Add icache_all_inv
+Fixes: 8c30b0018f9d ("openrisc: Add jump label support")
 Signed-off-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/openrisc/include/asm/cacheflush.h |  4 ++++
- arch/openrisc/kernel/smp.c             | 21 +++++++++++++++++++++
- arch/openrisc/mm/cache.c               | 16 ++++++++++++++++
- 3 files changed, 41 insertions(+)
+ arch/openrisc/kernel/jump_label.c | 2 +-
+ arch/openrisc/kernel/patching.c   | 3 +++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/openrisc/include/asm/cacheflush.h b/arch/openrisc/include/asm/cacheflush.h
-index cd8f971c0fec..7b8c043a831d 100644
---- a/arch/openrisc/include/asm/cacheflush.h
-+++ b/arch/openrisc/include/asm/cacheflush.h
-@@ -26,6 +26,7 @@ extern void local_icache_page_inv(struct page *page);
- extern void local_dcache_range_flush(unsigned long start, unsigned long end);
- extern void local_dcache_range_inv(unsigned long start, unsigned long end);
- extern void local_icache_range_inv(unsigned long start, unsigned long end);
-+extern void local_icache_all_inv(void);
+diff --git a/arch/openrisc/kernel/jump_label.c b/arch/openrisc/kernel/jump_label.c
+index ab7137c23b46..9cb63f2d2e2b 100644
+--- a/arch/openrisc/kernel/jump_label.c
++++ b/arch/openrisc/kernel/jump_label.c
+@@ -47,5 +47,5 @@ bool arch_jump_label_transform_queue(struct jump_entry *entry,
  
- /*
-  * Data cache flushing always happen on the local cpu. Instruction cache
-@@ -35,10 +36,13 @@ extern void local_icache_range_inv(unsigned long start, unsigned long end);
- #ifndef CONFIG_SMP
- #define dcache_page_flush(page)      local_dcache_page_flush(page)
- #define icache_page_inv(page)        local_icache_page_inv(page)
-+#define icache_all_inv()             local_icache_all_inv()
- #else  /* CONFIG_SMP */
- #define dcache_page_flush(page)      local_dcache_page_flush(page)
- #define icache_page_inv(page)        smp_icache_page_inv(page)
-+#define icache_all_inv()             smp_icache_all_inv()
- extern void smp_icache_page_inv(struct page *page);
-+extern void smp_icache_all_inv(void);
- #endif /* CONFIG_SMP */
- 
- /*
-diff --git a/arch/openrisc/kernel/smp.c b/arch/openrisc/kernel/smp.c
-index 040ca201b692..65599252f3d4 100644
---- a/arch/openrisc/kernel/smp.c
-+++ b/arch/openrisc/kernel/smp.c
-@@ -346,3 +346,24 @@ void smp_icache_page_inv(struct page *page)
- 	on_each_cpu(ipi_icache_page_inv, page, 1);
- }
- EXPORT_SYMBOL(smp_icache_page_inv);
-+
-+static void ipi_icache_all_inv(void *arg)
-+{
-+	local_icache_all_inv();
-+}
-+
-+void smp_icache_all_inv(void)
-+{
-+	if (num_online_cpus() < 2) {
-+		local_icache_all_inv();
-+		return;
-+	}
-+
-+	/*
-+	 * Ensure stores complete before we request remote icaches
-+	 * to invalidate.
-+	 */
-+	mb();
-+
-+	on_each_cpu(ipi_icache_all_inv, NULL, 1);
-+}
-diff --git a/arch/openrisc/mm/cache.c b/arch/openrisc/mm/cache.c
-index f33df46dae4e..2667d90691b5 100644
---- a/arch/openrisc/mm/cache.c
-+++ b/arch/openrisc/mm/cache.c
-@@ -63,6 +63,22 @@ void local_icache_page_inv(struct page *page)
- }
- EXPORT_SYMBOL(local_icache_page_inv);
- 
-+void local_icache_all_inv(void)
-+{
-+	if (cpu_cache_is_present(SPR_UPR_ICP)) {
-+		unsigned long iccfgr = mfspr(SPR_ICCFGR);
-+		unsigned long sets = 1 << ((iccfgr & SPR_ICCFGR_NCS) >> 3);
-+		unsigned long block_size = 16 << ((iccfgr & SPR_ICCFGR_CBS) >> 7);
-+		unsigned long paddr = 0;
-+		unsigned long end = sets * block_size;
-+
-+		while (paddr < end) {
-+			mtspr(SPR_ICBIR, paddr);
-+			paddr += block_size;
-+		}
-+	}
-+}
-+
- void local_dcache_range_flush(unsigned long start, unsigned long end)
+ void arch_jump_label_transform_apply(void)
  {
- 	cache_loop(start, end, SPR_DCBFR, SPR_UPR_DCP);
+-	kick_all_cpus_sync();
++	icache_all_inv();
+ }
+diff --git a/arch/openrisc/kernel/patching.c b/arch/openrisc/kernel/patching.c
+index d186172beb33..5db027b78bc4 100644
+--- a/arch/openrisc/kernel/patching.c
++++ b/arch/openrisc/kernel/patching.c
+@@ -49,6 +49,9 @@ static int __patch_insn_write(void *addr, u32 insn)
+ 	waddr = patch_map(addr, FIX_TEXT_POKE0);
+ 
+ 	ret = copy_to_kernel_nofault(waddr, &insn, OPENRISC_INSN_SIZE);
++	if (!IS_ENABLED(CONFIG_DCACHE_WRITETHROUGH))
++		local_dcache_range_flush((unsigned long)waddr,
++					 (unsigned long)waddr + OPENRISC_INSN_SIZE);
+ 	local_icache_range_inv((unsigned long)waddr,
+ 			       (unsigned long)waddr + OPENRISC_INSN_SIZE);
+ 
 -- 
 2.53.0
 
