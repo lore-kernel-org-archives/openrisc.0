@@ -1,83 +1,110 @@
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C8582E6CCD
-	for <linux-openrisc@vger.kernel.org>; Sat, 23 May 2026 05:36:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 240F22EC0AE;
+	Tue, 26 May 2026 15:21:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779514620; cv=none; b=OqLt0spNQepFcYrPtX3g0q57lOMTxFUgHNY43znbxcq941pG2saJ1OY7bB6IDxhkw1b9SmtsAwnKArUhsZcOirfKbljXfY2Y88FpHE2AsSyynJ6OvN8Bgi5+Npz3VmHsSHkSF5UpL9lXpBeEmptxG7jTqZDoCxjnf+MQTHueKd0=
+	t=1779808918; cv=none; b=kNeOGP9mJ5JR1oSRHe5HnE5l3n5CpcNLa1QW5kX3ahnk2uYUHrH4pnNnlwW5aRpcrYRDNUWh4fUMs33JvzhZIy3t1TNJEgxxQKjRCmLm0zTbnLAXv/ZRA76kBrR59edJRbxh8ymOiMvs/VrcDw3cks8rFoybbAwL7LtBWTFGLxU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779514620; c=relaxed/simple;
-	bh=K1iy/7Us+v9iabohnw6QHdQ4FKbTQ+1yjGBvyFrzzaw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=djG5X6yyAlMpRcAeE/h+XvSG9aprDv6c13l44bO2mLP5B14zOPCjtm1eYLIch0pxsSCtA1f3DV7nnJHcjX+NOBxKpbhbkdLL3PjHhP/KTqewmQbBSAdVJqHsb6Aj0fuEyovjEJRsWaaiE+E4EbNT+Iv0m6bSTce3y6nitiTY1VQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rQ8PAWkF; arc=none smtp.client-ip=209.85.221.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1779808918; c=relaxed/simple;
+	bh=fTKrci0yQyhLBN7q+ikXPwSrGDqHjqNeY3AAetkN90s=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YIP3N1IWbLB7EROQu9CMCxxczBuz+Tj1VU5eXttvQSmH4BX2swydYWaE1eEPuWmdk3yXrIh3kDv8zCwMU8FJYiOTEnaGQzuRfKMMC1iKU+l+7oIguFTPW35H2XHISNCIL7RKJbJpDcHCZaZBaVJ2xe+29WNoe3am/H+fB9WUZj0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PClKmWp8; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rQ8PAWkF"
-Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-44509921fbcso5142726f8f.3
-        for <linux-openrisc@vger.kernel.org>; Fri, 22 May 2026 22:36:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779514618; x=1780119418; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LfCXYx65YgeEukMHypUmArLMk/VIi+xGB6BZmr+icPM=;
-        b=rQ8PAWkFYtCSvihyR3Nf21St1nM3N2XyrNwWp8eAh+Z7W3C51MJKlyyTV5sNh4nf/e
-         OU2OhCghSunIuXKUdvO5m1HMc8NB4beWjqIGZXMcTIgvi4F5AkZQ5jZnsr0ktvmOUQka
-         fgz3Aspqm5+Cn9ti8uEA0ccnHJpPONqqeS2NGUGSGLiQHg7pA5XMlaIR6GJ7vyFe11jW
-         DOg05O70HxJsAIKheBwB4um7XLvk+bRHXiHEq/hKF/6sQMkrZmKKbx8o31Rev1AID48c
-         2FuEpWgQFLb6VKHQk3h6Q37OGPb4MdkpMQHe3HbYZeEpPwqEERKsXVXmcDEZiOGLVyHM
-         5t3Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779514618; x=1780119418;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=LfCXYx65YgeEukMHypUmArLMk/VIi+xGB6BZmr+icPM=;
-        b=I5M79XyQbFnlPltsff3sI/+2KeVgEBiS9vQ2JtC8jzBnU95pGZCKmzFBKarhDrKonH
-         dr99k6gR/jmo+RsiF77POur/Y1pAE6MYnEFdUGnwNQFPXMHKNsolmrQwgNrKHUOvhyNU
-         /BvTbr6wGbomRxQNclMPMu3XcJ3mxnl0/FThcutVXMiSpFI+jmUtcpwvmqaZ3PRIf+k3
-         3j8405fCaFcb1t6N5xLBdan5ugU8WaeoF+IPhWM29SW3jS82evObQg7ijPEKbRBmDv5Z
-         3mM6FiyHx1esuQLCsYuyXjmClwOagE4XM5FfoeUvz03T6t23KhvPMcPkWgomTEiJ+FnS
-         Z+tg==
-X-Gm-Message-State: AOJu0YxQWq4tgkESX3v9eaRh55YLscrtFNffaOgEj3pYKYB3FHREqEXY
-	ZRDYUyVpoisDB1ppLLtM2ufIRnI7PVzbCham8TrKZzJuYP64pHP3dZQ3
-X-Gm-Gg: Acq92OFliacB1KjroPVrpgkv9J7P4Qh4ll2Fp8n14nwfGEy5jBbAahN5uJHf589x7Lv
-	3pSyokJr8v3fn8uezfp/Pqct2Bk8qu2g9MkUJ4tJ0s56WrreNUhyt3oP9YtI7yfyxodrOLWGo0v
-	uR9uOyhVyHOcEgjREt0UD6Chbwlw1MjCJKVpfv5qxR++K4xOKTaDrFOl0WlrP/CCQPQ7MieD2dD
-	A17xpKiTZEIFhzBFToLbY/9IG5I5RU6i06DziPHZtI9EkPcHFgcual3/YnFxj5nncGa5H3rEnFa
-	Ej6G8xwfqeP3m+gzRCB7bA9uF3pILDOlb7kB2n+nV+ONsw2iTDlu+XHUvNXqUU7vxnN4sgj/qMe
-	tvdXa3wESiA5oxAI0j3yX4qDDw9FHQV1ez+IwulAlE0yAkk8SZIcmgSeRyQ+erLC8sjNcOgRYEs
-	JL2FyoCXfYBYaSqWYYQZiIo5e5CBSPp2dLEBmpO2vHOZ5DzeX/PtkBHQuTCye6NoohBaU/38LqP
-	ILUtw==
-X-Received: by 2002:a05:6000:2007:b0:43e:a81d:c475 with SMTP id ffacd0b85a97d-45eb3673201mr10681423f8f.6.1779514617661;
-        Fri, 22 May 2026 22:36:57 -0700 (PDT)
-Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45eb6d5e484sm9473519f8f.30.2026.05.22.22.36.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 May 2026 22:36:56 -0700 (PDT)
-From: Stafford Horne <shorne@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	Stafford Horne <shorne@gmail.com>,
-	stable@vger.kernel.org,
-	Peter Zijlstra <peterz@infradead.org>,
-	Josh Poimboeuf <jpoimboe@kernel.org>,
-	Jason Baron <jbaron@akamai.com>,
-	Alice Ryhl <aliceryhl@google.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Ard Biesheuvel <ardb@kernel.org>,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PClKmWp8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E69511F00A3C;
+	Tue, 26 May 2026 15:21:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779808917;
+	bh=0hQwi5+nW+dV7R2wQlzvmP6fT6QYtAlQz+HAiPUDCiU=;
+	h=From:To:Cc:Subject:Date;
+	b=PClKmWp8o2MiIEjJ0bXiVigLzS7ij/SkJt2GdHkjrZxNlic0FOVnSS3bEFaMgb0ka
+	 jCuuPFnLrwg8EmEiQgxyq1I6CbGXazxX/vc1B0b2QEI7r6GOsSzAVAiA089oxV2DJF
+	 z6haTk4agckDec5T7pfLWMXgRQxJOk7e/P9NvQAHG/yYvrYZkhXeZpNObBEvx9ytQn
+	 zmf+cwpdAi4YqjMADWgvYkCUVZMm6/KQESHc0rGesbn4xKlDex1JAeOBz3qHSu1YhJ
+	 X7Oj5dbzsiPZjZR7rpv6Y94GmL8/R51594T3+Jp6PQfUi4RxlJOV79ngd+XFy3aSUR
+	 wp80it8tf8X5w==
+Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
+	by mailfauth.phl.internal (Postfix) with ESMTP id 403B0F4006B;
+	Tue, 26 May 2026 11:21:54 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-02.internal (MEProxy); Tue, 26 May 2026 11:21:54 -0400
+X-ME-Sender: <xms:kroVagybSl3oAEyYhVs-fulOrUpWcDtTdoCA2nEPrqyKMz1FtwwNlA>
+    <xme:kroVapJbk8oSsIW9WpJakxFiyLTOges66Pi7_AwIcpVAlNtGyMSODtgi1Qmn_Cb1B
+    gFxV36cWxt1SFWEVHYL1kUOFgyD9vagp4B2aiDLr3ZkOoQt5CXOLg>
+X-ME-Received: <xmr:kroVaoO_RCv6pL7iuPtVvqH2Wg6JxHVYnCWei9fqChxvHNWccchDLJG1Ivvh-DGOdgTQlf6OgK1MUV_8c8M0yCCZeuVc8Q89>
+X-ME-Proxy-Cause: dmFkZTEc8a0D2GdCjrvIhiNGB2Nh4cWuQxL5ZFYu9/Yar+XUr10figlOqIqzZ35yWmZKqP
+    1e7rvFFTLvMZqOu3FuGq4lX65NtD/MteFhq94HrvbeDHeIwRMhuzkfUd3Nj2G1+NpBICKp
+    6sF87Mj5FVmkDzWHyKKu0EBWLAfJk7BHjLPIkbXNytuoqAp+/FLkSEjFELHI2kl2/BQmsY
+    eymRo7s3JBXS0yRHUCuZp9MDu+CdW526s52Lixpit9kqC/DNyw6ZSWLKiIA/7Ex68TstWu
+    XLy1p2JlIkBHFPlZ0WVdh/zUtiR8MDz6pF8Le6EA7VH4rNS53h+8SZCydHfWRQSzORE1UF
+    wDnMDwsNqklA3mcHdWLOQAM3r2KNCVwvSj+z84CmnWgHTJydUvi4FW3gB61UWhRqNelRbK
+    fNNn4UUiBB80v7p+rmHEjjIfepwm+q5guv4qBZzmqOtd3Hb3Pdt67nxs9yLRaE7d0cbUPJ
+    dKhtAwrfGFqyfQJb+74inmexhzMSsgwmWjQytC2PNoeoOZDL8te1G6KGLMdysorHkrVnFx
+    oKkYZzf8IBLTZM8dvN/4AMUDU8tGzJyTv0GdTQdHHoH5dRkSGEHK/LGnpep0JXhtd2q+rM
+    bbWVifmiPwINUswNxaO+84i5I65WWLTBXUsTGAmEa+8Yhy0i0cTy2iaTHBjg
+X-ME-Proxy: <xmx:kroVag8DthoomKlo_BXoZGQ6V1IYJ-byKB03FK7PyxOm5nZY1fnZhQ>
+    <xmx:kroVaoEeR3snZSyIqn_eikQ0Bo3bWf1boG0Rnf2-bK6Y24qZGtBfzA>
+    <xmx:kroVaolPdSFdJoEvggbZXwd1pqGksSrgohVtwI9h0NpT8HSJVQHubA>
+    <xmx:kroVahq4E_GgWdS0KfntacoyBcxaxeOUCIBzrWLjAiGPFl5TSlBmFg>
+    <xmx:kroVajNHJq0pUr5G5QX3qwvGrHttu0-vPZRLhOZ21LFi0eZ2cIk-cEda>
+Feedback-ID: i8dbe485b:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 26 May 2026 11:21:53 -0400 (EDT)
+From: Boqun Feng <boqun@kernel.org>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>,	Will Deacon <will@kernel.org>,
 	Jonas Bonn <jonas@southpole.se>,
 	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	chenmiao <chenmiao.ku@gmail.com>
-Subject: [PATCH 3/3] openrisc: Fix jump_label smp syncing
-Date: Sat, 23 May 2026 06:36:18 +0100
-Message-ID: <20260523053624.630443-4-shorne@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260523053624.630443-1-shorne@gmail.com>
-References: <20260523053624.630443-1-shorne@gmail.com>
+	Stafford Horne <shorne@gmail.com>,	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,	Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,	x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,	Arnd Bergmann <arnd@arndb.de>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Steven Rostedt <rostedt@goodmis.org>,	Ben Segall <bsegall@google.com>,
+	Mel Gorman <mgorman@suse.de>,	Valentin Schneider <vschneid@redhat.com>,
+	K Prateek Nayak <kprateek.nayak@amd.com>,	Boqun Feng <boqun@kernel.org>,
+	Waiman Long <longman@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Eduard Zingerman <eddyz87@gmail.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>,	Song Liu <song@kernel.org>,
+	Yonghong Song <yonghong.song@linux.dev>,	Jiri Olsa <jolsa@kernel.org>,
+	Shuah Khan <shuah@kernel.org>,	Miguel Ojeda <ojeda@kernel.org>,
+	Gary Guo <gary@garyguo.net>,
+	=?UTF-8?q?Bj=C3=B6rn=20Roy=20Baron?= <bjorn3_gh@protonmail.com>,
+	Benno Lossin <lossin@kernel.org>,
+	Andreas Hindborg <a.hindborg@kernel.org>,
+	Alice Ryhl <aliceryhl@google.com>,	Trevor Gross <tmgross@umich.edu>,
+	Danilo Krummrich <dakr@kernel.org>,	Jinjie Ruan <ruanjinjie@huawei.com>,
+	Lyude Paul <lyude@redhat.com>,	Thomas Huth <thuth@redhat.com>,
+	Sohil Mehta <sohil.mehta@intel.com>,	"Xin Li (Intel)" <xin@zytor.com>,
+	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+	Nikunj A Dadhania <nikunj@amd.com>,
+	Joel Fernandes <joelagnelf@nvidia.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Randy Dunlap <rdunlap@infradead.org>,	Yury Norov <ynorov@nvidia.com>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	linux-kernel@vger.kernel.org,	linux-openrisc@vger.kernel.org,
+	linux-s390@vger.kernel.org,	linux-arch@vger.kernel.org,
+	bpf@vger.kernel.org,	linux-kselftest@vger.kernel.org,
+	rust-for-linux@vger.kernel.org,
+	=?UTF-8?q?Onur=20=C3=96zkan?= <work@onurozkan.dev>,
+	Daniel Almeida <daniel.almeida@collabora.com>
+Subject: [PATCH v2 00/12] Refcounted interrupt disable and SpinLockIrq for rust (Part 1)
+Date: Tue, 26 May 2026 08:21:36 -0700
+Message-ID: <20260526152148.30514-1-boqun@kernel.org>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -86,61 +113,96 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The original commit 8c30b0018f9d ("openrisc: Add jump label support")
-copies from arm64 and does not properly consider how icache invalidation
-on remote cores works in OpenRISC.  On OpenRISC remote icaches need to
-be invalidated otherwise static key's may remain state after updating.
+Hi Peter,
 
-Fix SMP cache syncing by:
+This is a follow-up for Lyude's work [1]. After learning the current
+preempt_count() usage and how ARM64 handle this, I came up with this
+series that could resolve your feedback [2]. The basic idea is based on:
 
- 1. Properly invalidate remote core icaches on SMP systems by using
-    icache_all_inv.  The old code uses kick_all_cpus_sync() which runs a
-    no-op IPI function call on remote CPU's which does execute a lot of
-    code and flushes many cache lines in the process, but does not flush
-    all and it's not correct on OpenRISC.
- 2. For architectures that do not have WRITETHROUGH caches be sure
-    to flush the dcache after patching.
+1) preempt_count() previously already masks our NEED_RESCHED bit, so the
+   effective bits is 31bits
+2) with a 64bit preempt count implementation (as in your PREEMPT_LONG
+   proposal), the effective bits that record "whether we CAN preempt or
+   not" still fit in 32bit (i.e. an int)
 
-To test this I first reproduced the issue using a custom test module
-[0].  The test confirmed that some icache lines maintained stale
-static_key code sequences after calling static_branch_enable().  After
-this patch there are no longer jump_label coherency issues.
+as a result, I don't think we need to change the existing
+preempt_count() API, but rather keep "32bit vs 64bit" as an
+implementation detail. This saves us the need to change the printk code
+for preempt_count().
 
-[0] https://github.com/stffrdhrn/or1k-utils/tree/master/tests/smp_static_key_test
+v1: https://lore.kernel.org/rust-for-linux/20260508042111.24358-1-boqun@kernel.org/
 
-Cc: stable@vger.kernel.org # depends on openrisc: Add icache_all_inv
-Fixes: 8c30b0018f9d ("openrisc: Add jump label support")
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
- arch/openrisc/kernel/jump_label.c | 2 +-
- arch/openrisc/kernel/patching.c   | 3 +++
- 2 files changed, 4 insertions(+), 1 deletion(-)
+Changes since v1:
 
-diff --git a/arch/openrisc/kernel/jump_label.c b/arch/openrisc/kernel/jump_label.c
-index ab7137c23b46..9cb63f2d2e2b 100644
---- a/arch/openrisc/kernel/jump_label.c
-+++ b/arch/openrisc/kernel/jump_label.c
-@@ -47,5 +47,5 @@ bool arch_jump_label_transform_queue(struct jump_entry *entry,
- 
- void arch_jump_label_transform_apply(void)
- {
--	kick_all_cpus_sync();
-+	icache_all_inv();
- }
-diff --git a/arch/openrisc/kernel/patching.c b/arch/openrisc/kernel/patching.c
-index d186172beb33..5db027b78bc4 100644
---- a/arch/openrisc/kernel/patching.c
-+++ b/arch/openrisc/kernel/patching.c
-@@ -49,6 +49,9 @@ static int __patch_insn_write(void *addr, u32 insn)
- 	waddr = patch_map(addr, FIX_TEXT_POKE0);
- 
- 	ret = copy_to_kernel_nofault(waddr, &insn, OPENRISC_INSN_SIZE);
-+	if (!IS_ENABLED(CONFIG_DCACHE_WRITETHROUGH))
-+		local_dcache_range_flush((unsigned long)waddr,
-+					 (unsigned long)waddr + OPENRISC_INSN_SIZE);
- 	local_icache_range_inv((unsigned long)waddr,
- 			       (unsigned long)waddr + OPENRISC_INSN_SIZE);
- 
+* Rename PREEMPT_COUNT_64BIT to HAS_SEPARATE_PREEMPT_RESCHED_BITS per
+  Mark Rutland.
+* Add s390's support for HAS_SEPARATE_PREEMPT_RESCHED_BITS for Heiko
+  Carstens, thank you!
+* Reorder patch #1 and #2 per Steven Rostedt.
+* Keep the NMI count warning per Steven Rostedt and Joel Fernandes.
+* Fix an race between interrupt disabling and softirq reported by
+  sashiko (see the changes in __irq_exit_rcu()).
+* Add Context Analysis annotations for the newly introduced API.
+* Sync the preempt bits changes to BPF tests.
+
+I would like to target this changes for 7.2 if possible.
+
+[1]: https://lore.kernel.org/all/20260121223933.1568682-1-lyude@redhat.com/
+[2]: https://lore.kernel.org/all/20260204111234.GA3031506@noisy.programming.kicks-ass.net/
+
+Regards,
+Boqun
+
+Boqun Feng (8):
+  preempt: Introduce HARDIRQ_DISABLE_BITS
+  preempt: Introduce __preempt_count_{sub, add}_return()
+  irq & spin_lock: Add counted interrupt disabling/enabling
+  locking: Switch to _irq_{disable,enable}() variants in cleanup guards
+  sched: Remove the unused preempt_offset parameter of __cant_sleep()
+  sched: Avoid signed comparison of preempt_count() in __cant_migrate()
+  preempt: Introduce HAS_SEPARATE_PREEMPT_RESCHED_BITS
+  arm64: sched/preempt: Enable HAS_SEPARATE_PREEMPT_RESCHED_BITS
+
+Heiko Carstens (1):
+  s390/preempt: Enable HAS_SEPARATE_PREEMPT_RESCHED_BITS
+
+Joel Fernandes (1):
+  preempt: Track NMI nesting to separate per-CPU counter
+
+Lyude Paul (2):
+  openrisc: Include <linux/cpumask.h> in smp.h
+  irq: Add KUnit test for refcounted interrupt enable/disable
+
+ arch/arm64/Kconfig                            |   1 +
+ arch/arm64/include/asm/preempt.h              |  18 +++
+ arch/openrisc/include/asm/smp.h               |   2 +
+ arch/s390/Kconfig                             |   1 +
+ arch/s390/include/asm/lowcore.h               |  13 ++-
+ arch/s390/include/asm/preempt.h               |  49 ++++----
+ arch/x86/Kconfig                              |   1 +
+ arch/x86/include/asm/preempt.h                |  61 +++++++---
+ arch/x86/kernel/cpu/common.c                  |   2 +-
+ include/asm-generic/preempt.h                 |  14 +++
+ include/linux/hardirq.h                       |  43 ++++++-
+ include/linux/interrupt_rc.h                  |  65 +++++++++++
+ include/linux/kernel.h                        |   4 +-
+ include/linux/preempt.h                       |  35 ++++--
+ include/linux/spinlock.h                      |  48 +++++---
+ include/linux/spinlock_api_smp.h              |  41 +++++++
+ include/linux/spinlock_api_up.h               |  16 +++
+ include/linux/spinlock_rt.h                   |  18 +++
+ kernel/Kconfig.preempt                        |   4 +
+ kernel/irq/Makefile                           |   1 +
+ kernel/irq/refcount_interrupt_test.c          | 109 ++++++++++++++++++
+ kernel/locking/spinlock.c                     |  29 +++++
+ kernel/sched/core.c                           |  18 ++-
+ kernel/softirq.c                              |  22 +++-
+ lib/locking-selftest.c                        |   2 +-
+ .../testing/selftests/bpf/bpf_experimental.h  |   7 +-
+ 26 files changed, 544 insertions(+), 80 deletions(-)
+ create mode 100644 include/linux/interrupt_rc.h
+ create mode 100644 kernel/irq/refcount_interrupt_test.c
+
 -- 
-2.53.0
+2.50.1 (Apple Git-155)
 
