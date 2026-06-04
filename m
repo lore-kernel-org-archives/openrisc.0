@@ -1,173 +1,171 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D9253A5E89;
-	Thu,  4 Jun 2026 12:40:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 470F718CC13
+	for <linux-openrisc@vger.kernel.org>; Thu,  4 Jun 2026 18:06:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780576844; cv=none; b=Skes5YCuElk4Hyu/oNh/5sSalQDzPtpCD6u9XQMoyUffhgAFTH3ijAQutUcqdVAUlivGUVYjJlLQAvJ47ZQk+8/5oL9t64pWR75QvL9gtTRTYgRT71WTMde4ey6NGimEEYRmjL8IHNwzMyHfy5b+5PwcrUAzZPoFV1GfcLlykps=
+	t=1780596405; cv=none; b=dTjQ4BtkIDsiqJRJ0jHIHjOg6L4lKgRTSCDrNfHKrhPU+8LNG4hu2/3sGr+FeNVzerVTVggHmp04sRI443cLmzZruFERZpc83WZZzNvgnW2OhxL31KkPY7Ow+R2Ty/tgXdDJRizALT2l0uFHdR/KHtenXxnYEL8vXdF6F57nBqQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780576844; c=relaxed/simple;
-	bh=3motd/Kk9tEcEy98c5ncAGr3nNkb1fzwM1uTOGz4Qus=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KAVGqEsQqFBvIfHaD01KJdfq6MfSaMT+/yB+cloAYXLcZBEqebiSjsuWaaEhLJ7tXXkUliKxyugyGhdgWcZGc4OKCwMF1y1NaL+fFd0oHFvlbGwF6DIkX/7N5uwUxOHC4RVVNMuptmLU2GQjIXMPMdt0bpjxegBHJp8icG41uIo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=daq4p9mT; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780596405; c=relaxed/simple;
+	bh=dHIQ4vKY4d9EKYjURKC9YWdxfSaDwuegWVM7O7UKiDE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dAh85FFaxXauD1xee2shZpbIa8FXWiMU8z5A6YWa2RiugT3XY/JRXPsZH2DKko6OEc4mjU/OQqwqkcSwcsF6NcsI6CM0zVDW5XCDUtMo3EiedwyVw1dVx+aoa+xN/ju6NBYoevlpy4jdTau/cPgvRRz/A1fioV6Pyzt9C1N1P4s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Dt9pG83f; arc=none smtp.client-ip=209.85.128.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="daq4p9mT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBDC31F00899;
-	Thu,  4 Jun 2026 12:40:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780576843;
-	bh=GnOm+v7F1LKSbVaBQReSZi8hz25Kzy0nepO4bxrUVcs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=daq4p9mTxZM6hg5qQa/qHACfQnQNHHJBfDXDZldcF2oHlB3rhT2K9WeXrV8DpICBQ
-	 ChETc4cbkLuTEfQQomffF4ZDXoOkbJlShcZp+gaRwsU03Ob6jh4vxRpGgmIybx7MiS
-	 0Q6kTXsQaMMkiRlLva0vqHO8zJAZ25fV2lo4Iwm7JCR2aKboyZBL5lVEITHft9qxX0
-	 GkQdYzIUJ5P8y31MMiUfphTTGDChzuxN8Hs86+X2QhDQOpjt8UdnXhaxci7Ao2eogs
-	 lUnPqgL3gvZxrYqDe7AeVTZYhdiIepM/Oxx/uFb99h7xH99KiZewhfCg5FOfUIFW0e
-	 /X2zv2MBvrBtg==
-Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
-	by mailfauth.phl.internal (Postfix) with ESMTP id F3A80F40084;
-	Thu,  4 Jun 2026 08:40:40 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-06.internal (MEProxy); Thu, 04 Jun 2026 08:40:41 -0400
-X-ME-Sender: <xms:SHIhakSnCrdg9gx5m4iHzTicKaK_DQbZUK11E3bhlG_5yYmLh4HVcA>
-    <xme:SHIhamrf8l8qqXn5spEz_3zIQSqGxPGzydYKiqYC1Ad9mQIGDEO2BI-tVRzQTjo8L
-    N8dPE-jHh3R_hm5kGq61j-lWA9098jHtcxIXHtK6lSOM5b04J8>
-X-ME-Received: <xmr:SHIhanvyg3DUTUpzz1Tr6mmNDYVvEMOWhgBEhBREpTYdxxCkkBVJjshxDdQ>
-X-ME-Proxy-Cause: dmFkZTF1BaCWatKURocL+NpcgGk8YfcgR1XBShgJesrvsvC2cG3vlDNwoRLKuuKWvI9wgr
-    KG4Un6Q8MLsUhJ7qUby0lAaArhUaGksZuyniOIcFRF3jBJfW9luEJSa356GyMvadHeAIUB
-    F7Fsk6uIaYS9/XUo/AHbvEW2iTXW7UQHwAiD96JBraglfj5eFgrMXQqkhBFZpo5fmGG/eI
-    AQb5l6O4b5u+PthGYCRYvuYPUJXdmWKqj7KOhX79C+va6qRUJSnqWA/slW9fvEtsxZflmn
-    cZYxt7SIfaZSY+71gr8mRZqSZhlvD3ofSHh//MmWZCDH7C7YuX5/Ca4yauFP5gCXu8R5e8
-    ATuCazD5w14RyGhUDf8kJ2nnJlgWRO3UwgsRWPcouZeOlihQh5D8nnxfIJXtuCyTTW3jlv
-    7TsEq+dkGy+hPVqy5gzBhzu74DPvX0twDJI7dlB6ID2+z1ZSG+J1UYSs61b9WIUb4ttyzS
-    TjZSEePWTPWlDNq9PoUQQWqdzHgd48jCUCsvE2SpVwPE7xmxBMRNl9jVOmXJglehoDpXd9
-    z7WWsk64xF+a6MwNoBsFE/yKMv6OSIpaAByuh/5HYUXC1C2pht/LVhYAvicEDOwXVeAMyN
-    6QHhq6XTEBwnqHjw+vWgmxJE8KWrktttFqSpXIHL+Ldl3JEWwh3FcBx1FKuw
-X-ME-Proxy: <xmx:SHIhaqeGCWvoTr6Zf4A7VuqQKHMJAl9R7ARuuX7SWO3hikB0EABGqw>
-    <xmx:SHIhajm2MNfjagJxh9VKB7kVOB1FHuJFe5pi_tBuhyOPef0APhlWJA>
-    <xmx:SHIhauE42o8acVl_EkD0i90rEiqekyJ5wDDuuU7N0Uc-cMcHHEKKFA>
-    <xmx:SHIhapIi0Aj_i8f5RMMHTUFMJs_gmylfCV5Mpk-2TVrJhlM3iZONJw>
-    <xmx:SHIhaktsp0bNSEQQ_zMYZ1h3aUBSoUkTxD9FkfVknP1rAqe0eaUb8bXA>
-Feedback-ID: i8dbe485b:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 4 Jun 2026 08:40:40 -0400 (EDT)
-Date: Thu, 4 Jun 2026 05:40:39 -0700
-From: Boqun Feng <boqun@kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>,	Will Deacon <will@kernel.org>,
- Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Stafford Horne <shorne@gmail.com>,	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,	Thomas Gleixner <tglx@kernel.org>,
- Ingo Molnar <mingo@redhat.com>,	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Steven Rostedt <rostedt@goodmis.org>,	Ben Segall <bsegall@google.com>,
- Mel Gorman <mgorman@suse.de>,	Valentin Schneider <vschneid@redhat.com>,
-	K Prateek Nayak <kprateek.nayak@amd.com>,
-	Waiman Long <longman@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Andrii Nakryiko <andrii@kernel.org>,
-	Eduard Zingerman <eddyz87@gmail.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Martin KaFai Lau <martin.lau@linux.dev>,
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>,	Song Liu <song@kernel.org>,
- Yonghong Song <yonghong.song@linux.dev>,	Jiri Olsa <jolsa@kernel.org>,
- Shuah Khan <shuah@kernel.org>,	Miguel Ojeda <ojeda@kernel.org>,
- Gary Guo <gary@garyguo.net>,
-	=?iso-8859-1?Q?Bj=F6rn?= Roy Baron <bjorn3_gh@protonmail.com>,
-	Benno Lossin <lossin@kernel.org>,
-	Andreas Hindborg <a.hindborg@kernel.org>,
-	Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>,
-	Danilo Krummrich <dakr@kernel.org>,	Jinjie Ruan <ruanjinjie@huawei.com>,
- Lyude Paul <lyude@redhat.com>,	Thomas Huth <thuth@redhat.com>,
- Sohil Mehta <sohil.mehta@intel.com>,	"Xin Li (Intel)" <xin@zytor.com>,
-	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-	Nikunj A Dadhania <nikunj@amd.com>,
-	Joel Fernandes <joelagnelf@nvidia.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Randy Dunlap <rdunlap@infradead.org>,	Yury Norov <ynorov@nvidia.com>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	linux-kernel@vger.kernel.org, linux-openrisc@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-arch@vger.kernel.org,
-	bpf@vger.kernel.org, linux-kselftest@vger.kernel.org,
-	rust-for-linux@vger.kernel.org,
-	Onur =?iso-8859-1?Q?=D6zkan?= <work@onurozkan.dev>,
-	Daniel Almeida <daniel.almeida@collabora.com>
-Subject: Re: [PATCH v2 10/12] preempt: Introduce
- HAS_SEPARATE_PREEMPT_RESCHED_BITS
-Message-ID: <aiFyR-9rSGx38tWi@tardis-2.local>
-References: <20260526152148.30514-1-boqun@kernel.org>
- <20260526152148.30514-11-boqun@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Dt9pG83f"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-490b4e1ade7so11812065e9.0
+        for <linux-openrisc@vger.kernel.org>; Thu, 04 Jun 2026 11:06:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780596403; x=1781201203; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=UnI7mngI8KOXSiQXFx1508hrXwqre67mamzzkaCk+1E=;
+        b=Dt9pG83fVH1v1CvAdovAoKwc7FQw9rcG2r3U7m2Gady4xfxvoUMzJj1Hy2uSEuqXTJ
+         wdbLuM5dUdLxpvlsSio+LWlG2DHYs13r8hk+rsKfnf20AK6pVHl4HfpwN0LbIyBrF8zR
+         1sOQ96AgvWKpumQP91fhb2Z9Tn7bHphMqD5Fv6542KpwgrPZbqSE5+h5c1go3MXdBSV0
+         a93o9Zv8K+hc+HzIde9tqoXgX9VVa8k7ShNT5nGF2LKLFL5qC82Q19snZc96EohD+Kfb
+         x+2Mra0ZUeZWtSDS01hUckVmiMu7lfF0/aZ8z7Xy+cyFe0AkafsMn0dpTyErZClY9SpU
+         r4RQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780596403; x=1781201203;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=UnI7mngI8KOXSiQXFx1508hrXwqre67mamzzkaCk+1E=;
+        b=q7+1gMjf7DvsXc5nhV8tt3d41nWnRj+VYwriCMGN0t5VbTiKf+KWAvMrD1PwPUKxhf
+         EjFJipFnMqEbYbkO+1VDygpyD9rYD6HRQcTBvpmqCJ1oS4HoRhL7JI3t13aNpn1BKOCM
+         PrtpIC+bGzIg0Bm4FWWWkjpUJxGnOvl89URBs9d70Yz/GlN3Yq26femMzDVue5MwXjFL
+         Ic4gTRfDpQ7K5h02p/OIWOJv56h/AWg9CFECWEvkc2RpzVP8Omhf7dZ3pC8UP3iIQfmp
+         c330JXbtchwNZGTPrWaoxK+Hi4M5pgxdrcEknXcfygvIu0vgYVA57lEtrcY+4OG4Pw6E
+         psiw==
+X-Gm-Message-State: AOJu0YxHLZRl4ABJ4QsBXEmwTvgXT6ILEW5RJ85rfoU4hzomxGz1KwYS
+	QQZCq0CRIpA/kLUeRks54Wgvwl6cMubPW5iXu+NIvdaThRq5dZPl62oX
+X-Gm-Gg: Acq92OHHgChtitnPz0y1YxQAGXjxYnNPtTPMlnO/2gJVbjc42GRRQ2TH1s3K6c1IHNp
+	YOiB8eeo3It7Pe7aP/js/0gsTDLQqoBzzv7rU6Paj4kGAyNH1kCUdUBSlMd26pyihpYoN1j4JF5
+	8UCmOjjxeZcK+o7URF0xpTJcZMiI+iY0poIi+GJxyxlvLz3oL8eVGn72DJJPxVAwZ5fRjMG5QXh
+	XRCIW8rgOvj+FSgMNlaxE1uL38stziawOW+o9mH7sodbI7qkoIbbUisQd2k6G43MDXh0DlZ9g8q
+	VkBA4kYKYEcma0ZJofueQPV09+5W9isF+uDlWvA22hE94u36NDQzdOC42SiwxMej+iCfTLgHkCT
+	VwQue3h16r/tUqR4td1iDywVQxed7Twdl8WLyex3x2hFq2DZ4hnIFSzN1B2jBYBhWyAdyqp6Dn2
+	DreF3RF6UHzU2NQLjB85h7v8W/feBcGqv/DYQmOAltNE0ykImsrnyGdWYSU6GGFQNqi5YiohAou
+	19T7Gn27n3x+7t2
+X-Received: by 2002:a05:600c:8b76:b0:490:bb44:3f8b with SMTP id 5b1f17b1804b1-490bb4440a2mr97961345e9.17.1780596402538;
+        Thu, 04 Jun 2026 11:06:42 -0700 (PDT)
+Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-46028a6dce6sm9866288f8f.30.2026.06.04.11.06.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Jun 2026 11:06:41 -0700 (PDT)
+From: Stafford Horne <shorne@gmail.com>
+To: GCC patches <gcc-patches@gcc.gnu.org>
+Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+	Stafford Horne <shorne@gmail.com>
+Subject: [PATCH] or1k: Fix 64-bit shifts on OpenRISC
+Date: Thu,  4 Jun 2026 19:06:34 +0100
+Message-ID: <20260604180634.1920890-1-shorne@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260526152148.30514-11-boqun@kernel.org>
+Content-Transfer-Encoding: 8bit
 
-On Tue, May 26, 2026 at 08:21:46AM -0700, Boqun Feng wrote:
-[...]
-> +#ifdef CONFIG_HAS_SEPARATE_PREEMPT_RESCHED_BITS
-> +static __always_inline void __preempt_count_nmi_enter(void)
-> +{
-> +	__preempt_count_add(NMI_OFFSET + HARDIRQ_OFFSET);
-> +}
-> +
-> +static __always_inline void __preempt_count_nmi_exit(void)
-> +{
-> +	__preempt_count_sub(NMI_OFFSET + HARDIRQ_OFFSET);
-> +}
-> +#else
-> +DECLARE_PER_CPU(unsigned int, nmi_nesting);
-> +
-> +#define __preempt_count_nmi_enter()				\
-> +	do {							\
-> +		unsigned int _o = NMI_MASK + HARDIRQ_OFFSET;	\
-> +		/* Maximum NMI nesting is 15. */		\
-> +		BUG_ON(__this_cpu_read(nmi_nesting) >= 15);	\
-> +		__this_cpu_inc(nmi_nesting);			\
-> +		_o -= (preempt_count() & NMI_MASK);		\
-> +		__preempt_count_add(_o);			\
-> +	} while (0)
-> +
-> +#define __preempt_count_nmi_exit()				\
-> +	do {							\
-> +		unsigned int _o = HARDIRQ_OFFSET;		\
-> +		if (!__this_cpu_dec_return(nmi_nesting))	\
-> +			_o += NMI_MASK;				\
-> +		__preempt_count_sub(_o);			\
-> +	} while (0)
+On OpenRISC, 64-bit shift tests shiftdi-2.c and vshift-1.c were failing
+and it looks to always have been broken.
 
-This needs to be:
+After investigation it was found that OpenRISC fails to define
+SHIFT_COUNT_TRUNCATED which is needed as both register and immediate
+shift amounts are unsigned and only use the low-order 5 bits.  Also,
+the immediate used for 32-bit shifts is an unsigned 5-bit value not a
+6-bit value; update the predicate.
 
-#define __preempt_count_nmi_exit()				\
-	do {							\
-		__preempt_count_sub(HARDIRQ_OFFSET);		\
-		if (!__this_cpu_dec_return(nmi_nesting))	\
-			preempt_count_set(preempt_count() & ~NMI_MASK); \
-	} while (0)
+After these changes the tests pass.
 
-otherwise we would have an underflow issue if an NMI happen between
-the "if" being true and __preempt_count_sub(_o);
+  $ make check-gcc RUNTESTFLAGS='dg.exp=vshift-1.c execute.exp=shiftdi-2.c'
+  # of expected passes            14
 
-Regards,
-Boqun
+gcc/ChangeLog:
 
-> +
-> +#endif
-> +
-> +
-[...]
+	* config/or1k/or1k.h (SHIFT_COUNT_TRUNCATED): Define.
+	* config/or1k/or1k.md (rotrsi3): Rename reg_or_u6_operand to
+	reg_or_u5_operand.
+	(<shift_op>si3): Ditto.
+	* config/or1k/predicates.md (reg_or_u6_operand): Remove.
+	(reg_or_u5_operand): New predicate.
+
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+ gcc/config/or1k/or1k.h        | 3 +++
+ gcc/config/or1k/or1k.md       | 4 ++--
+ gcc/config/or1k/predicates.md | 8 ++++----
+ 3 files changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/gcc/config/or1k/or1k.h b/gcc/config/or1k/or1k.h
+index ee3a7814f09..af043f8c2d9 100644
+--- a/gcc/config/or1k/or1k.h
++++ b/gcc/config/or1k/or1k.h
+@@ -394,6 +394,9 @@ do {                                                    \
+ /* All the work is done in PROFILE_HOOK, but this is still required.  */
+ #define FUNCTION_PROFILER(STREAM, LABELNO) do { } while (0)
+ 
++/* Shift instructions ignore all but the low-order few bits.  */
++#define SHIFT_COUNT_TRUNCATED 1
++
+ /* Dwarf 2 Support */
+ #define DWARF2_DEBUGGING_INFO 1
+ #define INCOMING_RETURN_ADDR_RTX gen_rtx_REG (Pmode, LR_REGNUM)
+diff --git a/gcc/config/or1k/or1k.md b/gcc/config/or1k/or1k.md
+index d3fbb209be7..6de0dc26511 100644
+--- a/gcc/config/or1k/or1k.md
++++ b/gcc/config/or1k/or1k.md
+@@ -217,7 +217,7 @@
+ (define_insn "<shift_op>si3"
+   [(set (match_operand:SI 0 "register_operand" "=r,r")
+ 	(SHIFT:SI (match_operand:SI 1 "register_operand"  "r,r")
+-		  (match_operand:SI 2 "reg_or_u6_operand" "r,n")))]
++		  (match_operand:SI 2 "reg_or_u5_operand" "r,n")))]
+   ""
+   "@
+    l.<shift_asm>\t%0, %1, %2
+@@ -227,7 +227,7 @@
+ (define_insn "rotrsi3"
+   [(set (match_operand:SI 0 "register_operand" "=r,r")
+ 	(rotatert:SI (match_operand:SI 1 "register_operand"  "r,r")
+-		     (match_operand:SI 2 "ror_reg_or_u6_operand" "r,n")))]
++		     (match_operand:SI 2 "ror_reg_or_u5_operand" "r,n")))]
+   "TARGET_ROR || TARGET_RORI"
+   "@
+    l.ror\t%0, %1, %2
+diff --git a/gcc/config/or1k/predicates.md b/gcc/config/or1k/predicates.md
+index cde49a3754c..1f78e57366d 100644
+--- a/gcc/config/or1k/predicates.md
++++ b/gcc/config/or1k/predicates.md
+@@ -38,9 +38,9 @@
+   (ior (match_operand 0 "register_operand")
+        (match_operand 0 "const0_operand")))
+ 
+-(define_predicate "reg_or_u6_operand"
++(define_predicate "reg_or_u5_operand"
+   (if_then_else (match_code "const_int")
+-    (match_test "INTVAL (op) >= 0 && INTVAL (op) <= 0x3f")
++    (match_test "INTVAL (op) >= 0 && INTVAL (op) <= 0x1f")
+     (match_operand 0 "register_operand")))
+ 
+ (define_predicate "reg_or_u16_operand"
+@@ -53,9 +53,9 @@
+     (match_test "INTVAL (op) >= -32768 && INTVAL (op) <= 32767")
+     (match_operand 0 "register_operand")))
+ 
+-(define_predicate "ror_reg_or_u6_operand"
++(define_predicate "ror_reg_or_u5_operand"
+   (if_then_else (match_code "const_int")
+-    (and (match_test "INTVAL (op) >= 0 && INTVAL (op) <= 0x3f")
++    (and (match_test "INTVAL (op) >= 0 && INTVAL (op) <= 0x1f")
+ 	 (match_test "TARGET_RORI"))
+     (and (match_operand 0 "register_operand")
+ 	 (match_test "TARGET_ROR"))))
+-- 
+2.53.0
+
