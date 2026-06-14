@@ -1,145 +1,126 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8344A40F8C2;
-	Fri,  5 Jun 2026 06:45:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44CBB5695
+	for <linux-openrisc@vger.kernel.org>; Sun, 14 Jun 2026 01:26:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780641939; cv=none; b=gXU3+8KDRGNeuhkeVCWQhuWEZj/pExWZQszy+pGcmktg84OHhCPriRNTZgr5kG1isGTnlXmHijhbquk9GCMwMctoJpcaL6z8JhXwjVW2iDdihtGq2uCUlv642qaNaH4q6WQ4pOD5PmdpQH3SWfERndWnBnXGxojS70O7TYTiJjo=
+	t=1781400367; cv=none; b=g2Ps8DoxNo4SGf+gTtIxsED7XX6cE+IpFncJPkgcR/cNKDKAJJh9TWb9MCuCHyyS8zl35Om18mAcutniWhVUuVU/5InH+6TWNxmD2n0Q1ZaoYNxgLC6rvfkvbiPNz/q/e1623k53TSkadAnP63JnsOrayuWIU64JJE+ag1iWaeU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780641939; c=relaxed/simple;
-	bh=ht0m413PEIPsvFhOM1o886ZRoLV1gC4nu/drcCsImqs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dsYBqBheu/zeu+o60xu70H31WF1wAEg7l26cgY6Y1iwYFThoeW4pNHRVZOfMOByx5fmm2pQRm0YWfsT6L+e4P9+9ZC/oFdDaOe7n0ZxbA5WuqX16VNYJz/fDx3MgUYEPHJZ+D/9p/Bz3MJW5vtSQucEE5HjOsnFbLmEXpMj5Tk0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dK0zPN9m; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781400367; c=relaxed/simple;
+	bh=gZED6QN6l95WsBz4yysGYWUWKBZHWy4M/0yR7tAlPlY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=F+WCkueLCIAQ4D2N2CRkD50EnnN2iyARSFp3SwlW7v8xBbfyxihchuAhFSX95QISjru1gprAT6EE2yCkGB+EfinRW/37vGHi8Ee5Mc21lYnH+6uTgOAfrOpqkhnxfaUrrbKWkAkIOKXdt5DXNhKK9MnU2by2S2STihaeBYnYr+8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ovbitzBY; arc=none smtp.client-ip=209.85.221.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dK0zPN9m"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43C491F00898;
-	Fri,  5 Jun 2026 06:45:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780641934;
-	bh=6AYsKMuIdTg8BFUNDzRsVuHiBD4UL7B2xke/AuEe1z0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=dK0zPN9mxzfuHkm4hcM3IAZJDt3m85l7bTjDAVJ/aM9X33cVUMHMAIeUPL4LsDIhp
-	 k54xhzFHe2Q4W+KWJrjVRaG8F9zCXkYdJzie2Mh3vjAqFKr8u3F7D83v9wCnJ4oI9Z
-	 h6/0N6w+4jquG06meZl9RL8Ss7yCedqPfDMJcji3RR9XOF7gpPigVmQdf0Sk7AA9IN
-	 imdEVehSS8rQ+IBsAKH+QIFxrvmOpJukHhGwYYb+FZLJ64JEBQWmHTdTI/7jMPgQIk
-	 JpEUrUXdPdRlMb8IGt0nJqhb0gJu+ic0bU1SCxeZ/v03ODFmZRaPNHatt4/BPS7cB2
-	 p+W7TNNiZ8Z4g==
-Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
-	by mailfauth.phl.internal (Postfix) with ESMTP id 6A0B5F40069;
-	Fri,  5 Jun 2026 02:45:31 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-05.internal (MEProxy); Fri, 05 Jun 2026 02:45:31 -0400
-X-ME-Sender: <xms:i3AiasdNhS_KlyqsumDnLI22Nji4lRgCBXcSawziHZ2KFg80dz_r4Q>
-    <xme:i3AiakojmIrUnzTRKqDHplwGdcPbZxtOaTFP6K98Vj0YJ24e4Yl6aUGtq9D9Nzmvn
-    dcMr-cG4jeurCmamtatymxfRXu8-9msdHJpL6xRRXmXxk5SNBRDTw>
-X-ME-Received: <xmr:i3AiamWVTVH3_IAljezw_p-QLVIZaFjSRdoyaHFhFkYxqxmTVE3j8bXmTY4>
-X-ME-Proxy-Cause: dmFkZTGlcVUQF+Wer3Y5GEVfzATn/deLTQvoklESl61u/rNXp18gne78kg+hRKjPmN+C95
-    +Y+rXOz/wSPynF1ZkSdI0xvnTDk3JzZaYZOwjqPAn5fQPB5z2a4kXq2VN3blLahI0YorC6
-    APEiTrZ02zYFXqZnZgAW76LEBfDjgETDW2APCndMnzlyLbZN8mPXZJRcW+BiZy/tT4XTI9
-    gorxxmEj99FWScGx0DkJim8WCCu/p+rSQEv5zsCk6uLz2qEy3UOrvzI1IH/P0syZmm1PjK
-    z1nsfspXhNfHZz9/FZPcRBYZZsf499hB7WRksmESyQj/3vQnvnMuEcLF8frbXbZ+jh3fYq
-    F9er7eAogPZABVgXL6W7BcIowtwwkYDNbmnE3IOgIUgj9NagEvWW20FlTpx1yL6strEj/Z
-    WJHbcOzvwEWsv8PV/fayj3VJ6keQBQfgmLk7QDi0JfAjld7LRft2EECvZe2ZYFD4zzOej9
-    Nxy8uaR71MAQJHZKEy6xZSdbys0s6JQU1Ij1OY/VhQ/GBrcZf9PmTcsSLHJ/eSfwDSfzbA
-    n0lCqO7VCrMBNcd8az+EodvJTqUDsl7rw3cGMPTDoCvxMwUOIZAoAT8nRABxxbcxFTW052
-    QhmDCDgRZCK7bhjDhoaTeT5bgah4eMxVV4uUgn9Jy+K/G1Mb+K3JD6lRF7gg
-X-ME-Proxy: <xmx:i3Aiak0_yaXo814KKvtjbSJLXyCjEkcH-jAjAUdSEKbjbfUGfoZPMw>
-    <xmx:i3AiaoCA73VJ_JuQ_aX7YVQOERTqb8jzs1LYgHeSIzJEnG1wIJS8wg>
-    <xmx:i3AiaqMkJXwDRZCfL3DNEZs0PCOCBrBagytlIIa-7N2B1_8f-BTGgQ>
-    <xmx:i3Aiahi-nEmDbpxiyOSDZbNGp3rTP8ngb1TRRq9n44dGNgvY0THPRQ>
-    <xmx:i3AiapA8TnDWJqClrosWAiqwxgG4UVI_aUwompfqr0Bbc312m9quGLuN>
-Feedback-ID: i8dbe485b:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 5 Jun 2026 02:45:30 -0400 (EDT)
-Date: Thu, 4 Jun 2026 23:45:29 -0700
-From: Boqun Feng <boqun@kernel.org>
-To: bot+bpf-ci@kernel.org
-Cc: peterz@infradead.org, catalin.marinas@arm.com, will@kernel.org,
-	jonas@southpole.se, stefan.kristiansson@saunalahti.fi,	shorne@gmail.com,
- hca@linux.ibm.com, gor@linux.ibm.com,	agordeev@linux.ibm.com,
- borntraeger@linux.ibm.com,	svens@linux.ibm.com, tglx@kernel.org,
- mingo@redhat.com,	bp@alien8.de, dave.hansen@linux.intel.com,
- x86@kernel.org,	hpa@zytor.com, arnd@arndb.de, juri.lelli@redhat.com,
-	vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
-	rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de,
-	vschneid@redhat.com, kprateek.nayak@amd.com, longman@redhat.com,
-	akpm@linux-foundation.org, andrii@kernel.org, eddyz87@gmail.com,
-	ast@kernel.org, daniel@iogearbox.net, martin.lau@linux.dev,
-	memxor@gmail.com, song@kernel.org, yonghong.song@linux.dev,
-	jolsa@kernel.org, shuah@kernel.org, ojeda@kernel.org,	gary@garyguo.net,
- bjorn3_gh@protonmail.com, lossin@kernel.org,	a.hindborg@kernel.org,
- aliceryhl@google.com, tmgross@umich.edu,	dakr@kernel.org,
- ruanjinjie@huawei.com, lyude@redhat.com,	thuth@redhat.com,
- sohil.mehta@intel.com,	pawan.kumar.gupta@linux.intel.com,
- seanjc@google.com,	nikunj@amd.com, xin@zytor.com, joelagnelf@nvidia.com,
-	andriy.shevchenko@linux.intel.com, rdunlap@infradead.org,
-	ynorov@nvidia.com, bigeasy@linutronix.de,	linux-kernel@vger.kernel.org,
- linux-openrisc@vger.kernel.org,	linux-s390@vger.kernel.org,
- linux-arch@vger.kernel.org,	bpf@vger.kernel.org,
- linux-kselftest@vger.kernel.org,	rust-for-linux@vger.kernel.org,
- boqun.feng@gmail.com,	martin.lau@kernel.org, clm@meta.com,
- ihor.solodrai@linux.dev
-Subject: Re: [PATCH v3 03/13] preempt: Introduce __preempt_count_{sub,
- add}_return()
-Message-ID: <aiJwieZoxCBEZ2ji@tardis-2.local>
-References: <20260605054128.5925-4-boqun@kernel.org>
- <d3e91d227b0e1b777a85806e54b03d46581e4460f893e5b45baa9168f5319fbf@mail.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ovbitzBY"
+Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-45f3cf907ceso1087125f8f.2
+        for <linux-openrisc@vger.kernel.org>; Sat, 13 Jun 2026 18:26:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781400364; x=1782005164; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=qHht0T1zK7yMSNRwoYR5/8t5KwTUUznUiJjJMmP2tas=;
+        b=ovbitzBYHVvUwO8UQvUer0A72hzaXhYidGmIPmEyj6WOqPSftOG/LlRJzojnCwB0mT
+         mYoZ0vJ7PGNEbkb7IFOSvtut/8IgJoouNKprbD/nhSx/3BuNC57dOw4Ia74kcsFz8U5c
+         Y5H3YIK9gDg/gJdMerAQESDNhngL0fs0XF3pmFoeAb4C7/TtDDdArLNDgyjIiiinbhbo
+         V3oXNjITpWEJh5WKVar4zAmpnm0bQb0aJb69UJS99ReMA+8Y1+EBz5YYiuZBO4o/iMKV
+         3DK0UC50mMqCixY9J8GM3zYOkacHfwu5gJZlqRUBrl7Ph/mfi8SFD/ZJDKitsexMOq3Z
+         qbKQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781400364; x=1782005164;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=qHht0T1zK7yMSNRwoYR5/8t5KwTUUznUiJjJMmP2tas=;
+        b=CHZwueiSatpRkNwRave3R1WRbvdec0B36yCJX0RkPKp25VLW1CXzHVIujZnjUPompa
+         1raJrg9eO/Bo3wF33abHr2ZmL40TsyG/cVGvcK0SuDWuxWmoiIUGwa2kWfvYeyw8lTKM
+         fZUlZkrmtfE4vd+d/PKg3fj/DZW3hORHvTDNFpkUiA5cCFY68v+8JHJIMDJvknCaccql
+         DXCItAlQ+yEUAcs2dPgSLtzlvwvRYT6x8MWUpJrE5IC3IMCVgxSxpyQ1Gi0ekftjS1S3
+         18240StAv4jZHrIO4JAy3cP+7HF4fW3vtp4mtGVd0bOUgUT/B8Wszdo14pmXDil3uv/g
+         RDug==
+X-Gm-Message-State: AOJu0YzMW8f1DPIghqncReOqJeufE/l9nI1dIeVr4vE5gTjYmyxq1ikh
+	4L5D02GBi9O5rj4N225HAH8/qfH292TGcu98sQ4FDkCDCkoTg3U++Nd5
+X-Gm-Gg: Acq92OH4HhMocrre22b0LAbFuuZTQbd8Rb3pWT6evd5EhhCTtl4S5vDggIt1VkAwnTP
+	TdErbJvQEwbjrlQlIITgpRbbSsy3wZIi4qandVnx+ypuNorVq+dltYckDGVc25wGT6Jer73QS2H
+	xncTOyEWHdV5/HrFgbGLfDHWQIQp2VhL09herC+KgIWwa9jwsMW+sZjbo/SjQznW4guawjmV7de
+	OxV50vaw8I5S5H81ZT9G0fu8PfgD9QlzE7pDCBCb2BWLbW506SmqaouPcoH+VoarBELWy9XdV+n
+	B2hybRBum8RabdwidL9l9em33n34TkQxYlaAOl+/NJWKe089J1Rzu5TcknQdaepEN26HF8OEsgm
+	xlu8P03d3Q0f0eV/sQ3R3tYDLQlH6P8gFUyJ5sT72TKU91+en3fwwq1jadY/2JN67eAITFwvaE4
+	OQCxZS1FR2VjR8QxygIwyEGiRPYuyhg06ypVINd7A/eYCTmhtnRLx0qdfr0pA3RFB6JlxLZ6H1p
+	6lliA==
+X-Received: by 2002:a05:6000:40c7:b0:44a:fa76:5193 with SMTP id ffacd0b85a97d-46074a5c60dmr6529047f8f.12.1781400364339;
+        Sat, 13 Jun 2026 18:26:04 -0700 (PDT)
+Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4606f2b1092sm20860852f8f.17.2026.06.13.18.26.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 13 Jun 2026 18:26:03 -0700 (PDT)
+From: Stafford Horne <shorne@gmail.com>
+To: GCC patches <gcc-patches@gcc.gnu.org>
+Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+	Stafford Horne <shorne@gmail.com>
+Subject: [PATCH] or1k: Fix improper placement of cbranchsi4 instructions
+Date: Sun, 14 Jun 2026 02:26:00 +0100
+Message-ID: <20260614012600.2347385-1-shorne@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d3e91d227b0e1b777a85806e54b03d46581e4460f893e5b45baa9168f5319fbf@mail.kernel.org>
+Content-Transfer-Encoding: 8bit
 
-On Fri, Jun 05, 2026 at 06:30:14AM +0000, bot+bpf-ci@kernel.org wrote:
-> >     preempt: Introduce __preempt_count_{sub, add}_return()
-> >
-> >     In order to use preempt_count() to tracking the interrupt disable
-> >     nesting level, __preempt_count_{add,sub}_return() are introduced, as
-> >     their name suggest, these primitives return the new value of the
-> >     preempt_count() after changing it. The following example shows the usage
-> >     of it in local_interrupt_disable():
-> >
-> >             // increase the HARDIRQ_DISABLE bit
-> >             new_count = __preempt_count_add_return(HARDIRQ_DISABLE_OFFSET);
-> >
-> >             // if it's the first-time increment, then disable the interrupt
-> >             // at hardware level.
-> >             if (new_count & HARDIRQ_DISABLE_MASK == HARDIRQ_DISABLE_OFFSET) {
->                                                     ^^
-> 
-> The operator precedence in this example appears incorrect. In C, the equality
-> operator == has higher precedence than the bitwise AND operator &, so this
-> evaluates as:
-> 
->     new_count & (HARDIRQ_DISABLE_MASK == HARDIRQ_DISABLE_OFFSET)
-> 
-> Since the mask does not equal the offset, the equality evaluates to 0, making
-> the entire condition always false.
-> 
-> Should this be written with explicit parentheses to prevent readers from
-> copying flawed logic into downstream implementations?
-> 
+When investigating a builtin-arith-overflow-12.c test failure I found
+the cause to be improper placement of a cbranchsi4 instruction.
 
-Will fix this but this code is in commit log rather than real code.
+In openrisc a cbranchsi4 instruction will be split to something like:
 
-Regards,
-Boqun
+    (set (reg:BI ?sr_f)
+	    (cmp:BI (reg:SI x) (reg:SI y)))
+    (set (pc)
+	    (if_then_else (eq (reg:BI ?sr_f)
+		    (const_int 0 [0]))
+		(label_ref:SI z)
+		(pc)))
 
->     if ((new_count & HARDIRQ_DISABLE_MASK) == HARDIRQ_DISABLE_OFFSET) {
-> 
-> This was raised by sashiko-bot@kernel.org in v3 review:
-> https://lore.kernel.org/all/20260605055933.EDF3D1F00898@smtp.kernel.org/
-> 
-> 
-> ---
-> AI reviewed your patch. Please fix the bug or email reply why it's not a bug.
-> See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/README.md
-> 
-> CI run summary: https://github.com/kernel-patches/bpf/actions/runs/26998319662
+Between combine and late_combine1 optimization passes I found a case
+where a cbranchsi4 was getting injected between the "set sr_f" and
+"jump if sr_f" instructions.  The middle-end thought this was ok as it
+could not see that the cbranchsi4 pattern will clobber the sr_f register
+after splitting.
+
+Add a clause to the cbranchsi4 pattern to indicate that it will clobber
+sr_f.  This allows the middle-end to avoid placing the cbranchsi4
+pattern incorrectly.
+
+After this patch these tests pass.
+  make check-gcc RUNTESTFLAGS='dg-torture.exp=builtin-arith-overflow-12.c'
+
+gcc/ChangeLog:
+
+	* config/or1k/or1k.md (cbranchsi4): Add clobber clause.
+
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+---
+ gcc/config/or1k/or1k.md | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/gcc/config/or1k/or1k.md b/gcc/config/or1k/or1k.md
+index 85209a63f20..1af29f247d3 100644
+--- a/gcc/config/or1k/or1k.md
++++ b/gcc/config/or1k/or1k.md
+@@ -616,7 +616,8 @@
+ 	    [(match_operand:SI 1 "reg_or_0_operand" "")
+ 	     (match_operand:SI 2 "reg_or_s16_operand" "")])
+ 	  (label_ref (match_operand 3 "" ""))
+-	  (pc)))]
++	  (pc)))
++   (clobber (reg:BI SR_F_REGNUM))]
+   ""
+   "#"
+   "&& 1"
+-- 
+2.53.0
 
