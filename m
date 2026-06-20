@@ -1,99 +1,119 @@
-Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
+Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BCB51F91F6
-	for <linux-openrisc@vger.kernel.org>; Sun, 14 Jun 2026 19:58:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 712F425B08E
+	for <linux-openrisc@vger.kernel.org>; Sat, 20 Jun 2026 06:08:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781467084; cv=none; b=KzRxRzz42IJHBiSOdZe8tkvZJKIh6CORwaS0rsLunI9VuyB30U1NbOBvjcFtyvZgZPgWthnNJtpIVqNgc1Jit9WSneTGr5h7deNnJkfqVwO6FB4sp1zhpw2FZSxscqRd2mOVICcCWSi5mTaJHwli2zrKyZ7lJYRxm8L0fpcE6NU=
+	t=1781935698; cv=none; b=VjVa/4zzL2Ya7EVSSFmokMbX+cQ4YlDWy2FH0L3WYD/FQkzumQQ9rpyyRvS5iMDueiK++6QZqprkRwvb8T8OpAJFiFgHLtyWLNBsWA6lsXXdAF+UlMuUfUAZVNvrMovl9XxS7grm0WkEqILL4RTeg9gofBM9L2KTy2EkgEwST6Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781467084; c=relaxed/simple;
-	bh=ezbhlo7hFMx4si1POh1HrPPX19ql4RK5cEjXbttekVo=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=M63uJBMqiJ1qddANf1JnBaIo/sLiHT5fnLwIl6lJNBz0Io4Hj8uE7Pr3U6DIMiGt/EAQxutE1N3PwEhnYgFO8Syo9i1sPQlLIRHsXTiBwQ9y8kHNcE4QC5QAoh+CATUMZvDUwn9H9LQ1tfhrx3nlBtGG6XBRirs1noC3PmtuOdQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hH1rtZSw; arc=none smtp.client-ip=209.85.216.50
+	s=arc-20240116; t=1781935698; c=relaxed/simple;
+	bh=ZVPVwIfKksOvosJ1evCJa7ljpfK31kaKF80PclCmTpU=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=W3jiEtg8jriKnH/Ac9e8LmAfoASlg9/26E9YU1sB2NzcRaOp3HUAMcTl8tiGopRQPtoDjP8vszKYpWiNTuifkzeZTmWFukCTCnPK3ja3CdOs5EDAkvIU7GRXxT7rhfEwNqsgdsbla1tbRBljwS5DW/2AULp8iuxqJT8QRenvmwY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OG/QwgT3; arc=none smtp.client-ip=209.85.128.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hH1rtZSw"
-Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-36b8e1760ccso1677740a91.0
-        for <linux-openrisc@vger.kernel.org>; Sun, 14 Jun 2026 12:58:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OG/QwgT3"
+Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-4921eed3fa2so21704845e9.0
+        for <linux-openrisc@vger.kernel.org>; Fri, 19 Jun 2026 23:08:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781467082; x=1782071882; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=YGL+jmZh6/w96+7JsNV5y8DbTOJz2qyWO10SLl9MbFw=;
-        b=hH1rtZSwTZ66ahHUUOmeh3UuYpzZpB1fEgq3eGMN55fkD6BD18hbmK9jdIsVYHSB3O
-         JXFsvLrvW+RLNW+biPfJ8Ey4AfpIl6+af9ZwCZT8Zl6OgevkRc3zwCylydDqpJARF1Aa
-         laROuHByD88hovBgRR6oQD8sLqTdB1TwWg8IFHneRynH/+I09IxO/UgNbS+kmS9YQzcF
-         tvEvui0mN5vFqedpm67OtKQv/xqECR8Hpv/ayl0CMbKJXX9J9NqB8Uv3WwO8XEoJXlfT
-         EE+DJAmhb84f0swEi6BwxT45jMt9Tt2pL3TEjxDQCC8Pbr9avb8XnkeVaEF8I8ejjY/V
-         i+Ww==
+        d=gmail.com; s=20251104; t=1781935694; x=1782540494; darn=vger.kernel.org;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ordXgc9nJRpLSeLkwWhZb/qzIyRmr4ECwc5iFQ8iUW8=;
+        b=OG/QwgT3KgKUizU78+FX+KfMD4ylUCAKNUBs9QBR4LJWLAafanS3ErNX/T4Xv5a+o8
+         c4SqPJsKKWa54zhlZ7RkJoKIMUSXAmhzCVPAGvtdvtj74VoiThFX2rkvzTUPZu3+Rc7p
+         7T64Y4k2m9xK8Qyiph7PUTTJnxa3ywtaqqBhW3HD5jqWz4Gi8MSLc6FAu07klXKlX9s/
+         Yt9QGy+3OBYtrJz+xrOrmGplyUE+RNZl6TCVk/SNlIMeunUhdTb7GZNGxatdi7hQke/B
+         Q4nakX2Afo9gAEqrChzp9f0Lthakg4MYQU++sK8cR8IpZZtWTDw1npDJGeStx/w2eOR8
+         WTeA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781467082; x=1782071882;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=YGL+jmZh6/w96+7JsNV5y8DbTOJz2qyWO10SLl9MbFw=;
-        b=PlUeGS4IwsKr9U5F5C89/0oNd+nzAmezYUJI/8xCxzUQw7h3INFzskOR7VDdw1qu7r
-         ba6ga3oYH7njtgjhvLAA9SjIpOaeJ49uXx0v3etatpqljTMAXFtyFmYE1X/sbe2gevIT
-         rQY+cK6Mp3Za8N4bgm7DnJByDEYkUbGwzP7n1VyPx+wr61EtDl4709Yvo74WOo2wbRiO
-         5GqkH1Gf8FvpI/OkVSB+HExBUTJNJ7CCRETOdUbKyK5wWdcS6C5Bksp5j0rg6SGkPamc
-         wikVkX1rCSAxyAn2qNfwCiqFwOA63zBeYcDo/RJkFVv04Mo/efizRy0qN1yOWM6nvlQL
-         0bqw==
-X-Gm-Message-State: AOJu0YyeBc6tg9ltDl2P9kWqObvhBHs7Wqkja0p1/OBcfES3S8ZrNvY1
-	YI1w7KLS92edaPc1wc3steT1B01vaxbBdbivOVfrF6Au7ufjFcE10Mtr
-X-Gm-Gg: Acq92OHT7wmZuVYG7t1Rp6CSkRZOZlUGa0kRJC9/tIg6IGLM+EQaTA+hpRAcPE/SkvD
-	YTx1PWq1pIMBQ6KW1vVAHcwKjR2NOt7UVUUVjxSa+PRn4qt+cm+sJ26hJSiaYe5qjo9NOFR/hJg
-	99vaCCffc6NFkufeKcWL/cp70cpP6bHOgziQzYs616TWTnSnwRsxcHVxC2avU+gAs6LdpeWyUdb
-	86rpKvBzRlbgXSOErECZedm9swoykIposWt5TdHYuyJkd7w8lU7XU7uJdAJdgxHOzPVZ3VnnbTb
-	Y6quuqW4PtsVhUW7Pw8wBCTllOrCwmHQAL2dDO8oQn/TSwQJ0JzQJXdXVsIVMc/rZEcvnELE99K
-	w91OJeqPuu2gKcdWfZdm2Xkr8g4xXiqAAt7ViCB3R/JubZLb8+20z1ONY+TCxJrJeWBdlQqKB4q
-	YoyrbUNkVsxLOllCxED2B+0i5Uy8bivvMVtmZMYCw5MYM8
-X-Received: by 2002:a17:90a:d004:b0:36d:649a:39f7 with SMTP id 98e67ed59e1d1-37a03ec2584mr11831203a91.22.1781467081920;
-        Sun, 14 Jun 2026 12:58:01 -0700 (PDT)
-Received: from LAPTOP-TMVMP5FD.localdomain ([223.235.128.148])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-37a212a920asm10124942a91.13.2026.06.14.12.57.58
+        d=1e100.net; s=20251104; t=1781935694; x=1782540494;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ordXgc9nJRpLSeLkwWhZb/qzIyRmr4ECwc5iFQ8iUW8=;
+        b=HUzdwdh4PgfsZPGXvNZuPKg30bMhTDLZuWRhCaqp1UIiz3gFXTkMNjrbyHrwC8RZRV
+         40CvRmzQ4LEYzl4ishgx+wYy7BEcAIEH0FAyt9nuVdkF5C1NXJXu0DGTIM4G3gGOAypV
+         ItzNVSy3PNQrdPqnsDilFb8v6015zBz/UcVnt5ruFpipX48a5ZTiWJ9ZdF62Vna5sLxl
+         v6RyJPC95la6WsD6/RV7nmE4rzbpHwM5resQ5MJamTB3LUeiduZMvMU/+rLQs6e+tmoc
+         TWM0EOry09ew3rzRv7InBN0xu8O0EvIJyZBfBxpvmw8BN1uFKg/QVzM5VSh/eE9rl08U
+         i5lg==
+X-Gm-Message-State: AOJu0YyA/vJgSzJYznG4LHOehSOZA4xgwjE1DJHrl0IiE2Tcewt/+YKo
+	lMt3ON+LhYFKRSlxMD79U+NqFgeV8ydIEk0G7WdX5oIDJt4FcXfv8kiY
+X-Gm-Gg: AfdE7ckXXnyfbcGdr5LcCX/niOyd/021qzdHnc0ZK2wmo4SLjR0rXKotSCLv+6vulo9
+	P6sTPpE9E0pSsZMwtLo3HubyODVhhS0GPILGUSowJnnYDlEmyVEd/kBCR6iYFia/wIa1C2imUqz
+	CzerWsgGQKAmKVDDovde8pgRLpaYZ22sbWYqYe83O4HNBTPiF46UuGWQAkCSt7LWfsaEBi5HnKO
+	T1Z7BL1ze2sw+P0dZS6i8bdx4Mqi3JGZv5eY+B5SwJZDd35T3SUhV1NDMlDJV37Cbupppou6RGR
+	C68K/gb5/Knck1gF/rxDSSYD2uqTZ7Sjz7nbV1cTQ8uBjTakCL6C20MxKN5RvnMMjf5BLBanseH
+	UC8QuaVqhrTewcQhAauwCYjd5A+RNRTfHJFpyp+NdE1EhUJ+Q7lWsQovlkjFex56IGeeHQ16/bE
+	mnaH5daXJ+j4WR3xozi3K5twOKquxX46QcHOF8G2IxIv8oaRJkbjvjHGIF/PDGK2LPIaChwW6jR
+	nJiUg==
+X-Received: by 2002:a05:600c:4fd0:b0:492:4986:24e with SMTP id 5b1f17b1804b1-4924986054bmr22525905e9.21.1781935693608;
+        Fri, 19 Jun 2026 23:08:13 -0700 (PDT)
+Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4923fd1fa34sm133654435e9.5.2026.06.19.23.08.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 14 Jun 2026 12:58:01 -0700 (PDT)
-From: syncrain <iganschel@gmail.com>
-To: jonas@southpole.se,
-	stefan.kristiansson@saunalahti.fi,
-	shorne@gmail.com
-Cc: linux-openrisc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	syncrain <iganschel@gmail.com>
-Subject: [PATCH] openrisc: Fix typo in exception comment
-Date: Mon, 15 Jun 2026 01:27:32 +0530
-Message-Id: <20260614195732.1592-1-iganschel@gmail.com>
-X-Mailer: git-send-email 2.39.5
+        Fri, 19 Jun 2026 23:08:12 -0700 (PDT)
+Date: Sat, 20 Jun 2026 07:08:12 +0100
+From: Stafford Horne <shorne@gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+	LKML <linux-kernel@vger.kernel.org>
+Subject: [GIT PULL] OpenRISC updates for 7.2
+Message-ID: <ajYuTOzdrCbV8NM3@antec>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Fix a typo in a comment describing exception register state.
+Hello Linus,
 
-Signed-off-by: syncrain <iganschel@gmail.com>
----
- arch/openrisc/kernel/entry.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I just noticed, this series was done on top of a random merge during v7.0.
+Please let me know if you would like to rebase on 7.1 etc, but I think it will
+not change much, it's been in next for a while.
 
-diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
-index c7e90b09645e..24993c35ee68 100644
---- a/arch/openrisc/kernel/entry.S
-+++ b/arch/openrisc/kernel/entry.S
-@@ -231,7 +231,7 @@ handler:							;\
- /*
-  * NOTE: one should never assume that SPR_EPC, SPR_ESR, SPR_EEAR
-  *       contain the same values as when exception we're handling
-- *	 occured. in fact they never do. if you need them use
-+ *	 occurred. in fact they never do. if you need them use
-  *	 values saved on stack (for SPR_EPC, SPR_ESR) or content
-  *       of r4 (for SPR_EEAR). for details look at EXCEPTION_HANDLE()
-  *       in 'arch/openrisc/kernel/head.S'
--- 
-2.39.5
+Please consider for pull,
 
+The following changes since commit d79526b89571ae447c1a5cfd3d627efa07098348:
+
+  Merge tag 'spi-fix-v7.0-merge-window' of git://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi (2026-02-20 17:14:36 -0800)
+
+are available in the Git repository at:
+
+  https://github.com/openrisc/linux.git tags/for-linus
+
+for you to fetch changes up to aca063c9024522e4e5b9a9d1927433f6a01785a3:
+
+  openrisc: Fix jump_label smp syncing (2026-05-23 06:34:49 +0100)
+
+----------------------------------------------------------------
+OpenRISC updates for 7.2
+
+A few fixes for text patching related code:
+
+ * Update the section of map_page used in text patching.  It was
+   left with __init when text patching was introduced to OpenRISC.
+ * Add fix to invalidate remote SMP core i-caches after text is patched.
+
+----------------------------------------------------------------
+Stafford Horne (4):
+      openrisc: mm: Fix section mismatch between map_page and __set_fixmap
+      openrisc: Cache invalidation cleanup
+      openrisc: Add full instruction cache invalidate functions
+      openrisc: Fix jump_label smp syncing
+
+ arch/openrisc/include/asm/cacheflush.h |  4 ++++
+ arch/openrisc/kernel/head.S            | 10 ----------
+ arch/openrisc/kernel/jump_label.c      |  2 +-
+ arch/openrisc/kernel/patching.c        |  3 +++
+ arch/openrisc/kernel/smp.c             | 21 +++++++++++++++++++++
+ arch/openrisc/mm/cache.c               | 16 ++++++++++++++++
+ arch/openrisc/mm/init.c                |  2 +-
+ 7 files changed, 46 insertions(+), 12 deletions(-)
