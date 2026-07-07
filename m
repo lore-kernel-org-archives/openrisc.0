@@ -1,180 +1,239 @@
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1C013B27F3
-	for <linux-openrisc@vger.kernel.org>; Mon,  6 Jul 2026 05:53:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D3962F12A5;
+	Tue,  7 Jul 2026 19:05:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783317201; cv=none; b=TFo82xCEPGuZyFeJaCXnJ4xwJNBou020YexrFkExJBvjkiXZjlbInBpcjGn/ZNfi/v2iGjO/p53kyeTdLV4qTVfzAfHqXcUjc+qERFTBCOzinIxJzlGe1PtqSCWNQ5umYCNWgnET9FzrhpPpxc7Ygg6GTN7AWwVjVmEID2uL4f0=
+	t=1783451159; cv=none; b=pkEvgJ/wGEQHYxNTnXDdjRAdNZ6ke0tREY3EjUFeQGyP17E4byRSUqaFmG0xcXuEyqA2krjEvKEwANDQ9XKDbSp6HHkHRhDc0KH03YiiuNba8/qiZW3ZDqUL9fliqA/etdXvesJbA5zZvnK4WFTpOexSr+LCHPs4xeV9VUJTp50=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783317201; c=relaxed/simple;
-	bh=vBzM7d2GTGtCSLhMGD1oQ8S0dpHAGRgOZ2axbesKWkU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PBeeOi6m/GAkxPTs41+8TC3Yxdzrlul0ctpm17kxmzDkMh/P1QETG3nV5/8oUSUEIQ1eGTHOjkh6c9pGfiB1QJnpC7mrnVa9BkG+qmOlZb5L6MM6vSLsHW1ZfM9QZxv5YMLipBKrP4HvXlgib8Z6tAFpzhuZ9zjVS552N06fm7Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lpo+sUXN; arc=none smtp.client-ip=209.85.221.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1783451159; c=relaxed/simple;
+	bh=QXLUt1TPzW5KUIfT+EbS13frXZWcSnBhPA0WRti5QHo=;
+	h=Date:Message-ID:From:To:Cc:Subject; b=POA9D7ZKW0/zNUHuA5rKB3WkMniTIJteB8EAENg8NhbVwtwBt1fg1LHd6lLxJcr0qlUrf1Pmg0JlU1I6ZWzgY3/UX05uHHb/AeEgLfHkg2qeTewX/n0KReX/MxrzlfZTfT3AJBHZflxvsHuI+ljeIgwraSElD/x/7CLYHHxXlTE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VFkWTdo5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lpo+sUXN"
-Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-476d8e647e9so2184740f8f.0
-        for <linux-openrisc@vger.kernel.org>; Sun, 05 Jul 2026 22:53:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783317198; x=1783921998; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=VcIZKV4zH0BrlrRcemQRYOKRxsSCmsQ/ZwjvzvgAF6c=;
-        b=lpo+sUXNSbNy+n6DO576Rja2nDpm+/Q0xbI3GP938UGbFn3NvBKOqwaNIoJuVnqGDX
-         LocImFaibIDxGdUwiCsYHaVsgyWyAVKaNzXhT7OGoVaYFM5JbJxmHuZ56qphSz0GF+lT
-         6QdjrXvcHXzKShfMQyOBXV/KAzKH9oo2gshwxJ8/4IDItJEAu44k17f8sGx+mmUkNWQb
-         0Nu6UVBSfS0N5/4TnU69jADczUo1URaMEfR5DT0qPkR/S78Z4UjGbdBy04CZGvDfe+BD
-         G+qe1jKDLzcv1B/UHUxUtsWkKWnmmcUUVpuTElMHgj3+4dHKMQ85en9gXRddBfJ6JPDY
-         QQNQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783317198; x=1783921998;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=VcIZKV4zH0BrlrRcemQRYOKRxsSCmsQ/ZwjvzvgAF6c=;
-        b=etiOJQPJUWe2IrHiKu2mELeWJOce+hhO8YKT3rbr+F9so3Jo7XlY3pgFm4V+fTiHSl
-         MSFlcYRtIFweWRIJwrtTfTUwsqFyzTnS4Sn4hKcJDuYfXYXOJ6DgH/SaA066dSYL+RP1
-         1UecJ5mb0t0p8c1CUrkRZmOnLlR0Pe7zDCzjCoRnp6IQMEBc3VPGw7bY3QvkbzuXoM5o
-         WnvnTP5Tm827nK0wZUdZvGOZ+53TO7dSV8ZkTTkEAe09Ock5gOgAh8c7Y/DBl1mV6L2L
-         oBQA4D/mN8BGTKk4Jwu8N03n0KtS6rjyEvaHxAil+vdhFUB88uQWkwfMD5jgcXXPnBQW
-         uSYQ==
-X-Gm-Message-State: AOJu0YyqgqTvHPFhOPHaZftG2krc3aLOHekZBGPWKJgekFTH0a4VLv6m
-	fKsm9OaiOYOUsIqZFyTWWNy9NHz7U6xCDvKVPBxgt4m2dVIYHO33ddOt/0HVJq0hL0U=
-X-Gm-Gg: AfdE7ckKPuvPU1F+hv1+j0g9kXgtftlKJzmmGwaB7vdKcw/ZSUhYA7twLWefwR6PIMY
-	9JAOUkTN2W8NhS/ojHW+hLwVNgxUdYIrgJQJxDyFIKN6UQnf6ghTCQvtAUE1m/QxkZtm4cztWij
-	0F5Jyv3l0UX6E1AFW6QM7eRL5US04GeIaNIllaWe84UnL+uDCqjx/OLm1IxuWWatWoVHYJpNte2
-	88Uxg3n1Qv7FLsli4L9R5uMsCcrM/yVzQAxclair7u3eduCMP83Lt25cScHJBC4OjJiWJYzyrEx
-	TpA/uWe6ZlJqNevcLDfcu1MmSc/8vywCWtA6kuKGiYob/yw8g5ddH5EWnBxgb1tV5exyy1Oi4I+
-	YQCbplPl3Io8MMEa7j2UINU29jPZSbamHvxgswkiG1AM1zbEdgn1QQUohlL3TcGxJtYp0RGfZfK
-	iZJIyOSrV8Tq1eSDL/H5ZZCm1OGjoQCcxRJJQaL0iJ3zZDwusJCDTei2uB0bPLoEODkVX2d45A8
-	ZBBMw==
-X-Received: by 2002:a5d:588b:0:b0:471:2631:9d7e with SMTP id ffacd0b85a97d-47aacab5251mr10555631f8f.27.1783317197859;
-        Sun, 05 Jul 2026 22:53:17 -0700 (PDT)
-Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47aa039b0cesm21356154f8f.22.2026.07.05.22.53.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 05 Jul 2026 22:53:17 -0700 (PDT)
-From: Stafford Horne <shorne@gmail.com>
-To: GCC patches <gcc-patches@gcc.gnu.org>
-Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	Stafford Horne <shorne@gmail.com>
-Subject: [PATCH] or1k: Stop allowing referring to SR_F in SImode and fix cmov
-Date: Mon,  6 Jul 2026 06:53:14 +0100
-Message-ID: <20260706055314.1428104-1-shorne@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VFkWTdo5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 113781F000E9;
+	Tue,  7 Jul 2026 19:05:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783451156;
+	bh=sKaa6jqJcnZ3kixdUKctGHCLE8bgvUhOgv/iQQ4U2eg=;
+	h=Date:From:To:Cc:Subject;
+	b=VFkWTdo5yhgpXx9sxvRHZ3HlP4xSZ4aHXa1zsGtMnp9mQpMvU4qieroT0K0+AUmNe
+	 mH4Zbvrp37BWRtV+WSrFvOBwzQyMx5YfHARXuOrmubRPkhjAk6NgYYQTWgkAhazAju
+	 1djGcOQc2V77x2qVXGFvC6BkwM/+Iezw2J7QhqUY7M9Y5saOvbXsETd73JhuSwTJ1e
+	 Hk7rq39ys7eddzm/Skk6nfXmoJIZBJVZnDdD7rbJtFga+XVDyFyYEDjJyfJdP9Y2Vt
+	 rb/jER5CfvGmtQfb87VuvQHb1UgZTCkpnw26sWY8rQ0z0x4vkc0U56YUbxw1o0tQkB
+	 6sQc63NXlLiVQ==
+Date: Tue, 07 Jul 2026 21:05:53 +0200
+Message-ID: <20260707181957.433213175@kernel.org>
+User-Agent: quilt/0.69
+From: Thomas Gleixner <tglx@kernel.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>,
+ Michael Ellerman <mpe@ellerman.id.au>,
+ Shrikanth Hegde <sshegde@linux.ibm.com>,
+ linuxppc-dev@lists.ozlabs.org,
+ Kees Cook <kees@kernel.org>,
+ Huacai Chen <chenhuacai@kernel.org>,
+ loongarch@lists.linux.dev,
+ Paul Walmsley <pjw@kernel.org>,
+ Palmer Dabbelt <palmer@dabbelt.com>,
+ linux-riscv@lists.infradead.org,
+ Sven Schnelle <svens@linux.ibm.com>,
+ linux-s390@vger.kernel.org,
+ x86@kernel.org,
+ Mark Rutland <mark.rutland@arm.com>,
+ Jinjie Ruan <ruanjinjie@huawei.com>,
+ Andy Lutomirski <luto@kernel.org>,
+ Oleg Nesterov <oleg@redhat.com>,
+ Richard Henderson <richard.henderson@linaro.org>,
+ Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Guo Ren <guoren@kernel.org>,
+ Geert Uytterhoeven <geert@linux-m68k.org>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Helge Deller <deller@gmx.de>,
+ Yoshinori Sato <ysato@users.sourceforge.jp>,
+ Richard Weinberger <richard@nod.at>,
+ Chris Zankel <chris@zankel.net>,
+ linux-arm-kernel@lists.infradead.org,
+ linux-alpha@vger.kernel.org,
+ linux-csky@vger.kernel.org,
+ linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org,
+ linux-parisc@vger.kernel.org,
+ linux-sh@vger.kernel.org,
+ linux-um@lists.infradead.org,
+ Arnd Bergmann <arnd@arndb.de>,
+ Vineet Gupta <vgupta@kernel.org>,
+ Will Deacon <will@kernel.org>,
+ Brian Cain <bcain@kernel.org>,
+ Michal Simek <monstr@monstr.eu>,
+ Dinh Nguyen <dinguyen@kernel.org>,
+ "David S. Miller" <davem@davemloft.net>,
+ Andreas Larsson <andreas@gaisler.com>,
+ linux-snps-arc@lists.infradead.org,
+ linux-hexagon@vger.kernel.org,
+ linux-openrisc@vger.kernel.org,
+ sparclinux@vger.kernel.org,
+ linux-arch@vger.kernel.org,
+ =?UTF-8?q?Michal=20Such=C3=A1nek?= <msuchanek@suse.de>,
+ Jonathan Corbet <corbet@lwn.net>,
+ linux-doc@vger.kernel.org
+Subject: [patch 00/18] entry: Consolidate and rework syscall entry handling
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-We were seeing compiler errors such as:
+Sorry for the long CC list, but this is a treewide change.
 
-    x.c:8:1: error: insn does not satisfy its constraints:
-	8 | }
-	  | ^
-    (insn 33 28 35 2 (set (reg:SI 34 ?sr_f)
-	    (reg:SI 16 r17 [52])) "x.c":6:7 discrim 1 28 {*movsi_internal}
-	 (nil))
-    during RTL pass: postreload
+Michal recently posted a RFC patch to separate the potential syscall number
+modifications in syscall_enter_user_mode_work() from the information
+whether the syscall should be processed and the return value modified:
 
-This was being caused by previous commit c0694f95f59 ("or1k: Fix ICE in
-libgcc caused by recent validate_subreg changes") and commit 710581c80b2
-("or1k: Allow SImode for condition flag register") which allow
-referecing SR_F in SImode to avoid errors during if conversion.
+  https://lore.kernel.org/lkml/CE1qW@kunlun.suse.cz
 
-We can completely avoid this by reverting the changes to allow
-referencing SR_F in SImode and fixing the
-or1k_noce_conversion_profitable_p function to allow cmov expansion even
-when TARGET_CMOV is not enabled.  The *cmov split logic can take care of
-lowering the *cmov instructions if l.cmov is not supported during the
-later split passes.
+The existing logic is:
 
-gcc/
+arch_syscall()
+	regs->result = -ENOSYS;
 
-	PR target/126081
-	* config/or1k/or1k.cc (or1k_hard_regno_mode_ok): Stop allowing
-	SImode for FLAG_REGS.
-	(or1k_can_change_mode_class): Stop allowing SImode for
-	FLAG_REGS.
-	(or1k_noce_conversion_profitable_p): Always check
-	or1k_is_cmov_insn.
+	syscallnr = syscall_enter_from_user_mode(regs, syscall);
 
-gcc/testsuite/
+	if (syscallnr != -1L)
+		regs->result = invoke_syscall(regs, syscall;
 
-	PR target/126081
-	* gcc.target/or1k/pr126081.c: New test.
+syscall_enter_from_user_mode() invokes ptrace, seccomp and
+tracing/BPF/Probes. All of them can modify the syscall number.
+
+ptrace and seccomp explicitly set the syscall number to -1L to indicate
+that the syscall invocation needs to be skipped and the result has not to
+be modified as it might have been modified by ptrace or seccomp. The
+tracer/BPF/Probes mechanism can modify the syscall number as well and
+relies implicitly on the -1L logic.
+
+This can obviously not be differentiated from a syscall invocation where
+userspace provided -1 as syscall number.
+
+The general agreement of the discussion was that the current mechanism,
+while functionally correct is non-intuitive and something like Michals
+proposal would make that code clearer and easier to handle on the
+architecture side:
+
+arch_syscall()
+	regs->result = -ENOSYS;
+
+	if (syscall_enter_from_user_mode(regs, &syscall)) 
+		regs->result = invoke_syscall(regs, syscall;
+
+That discussion made me look deeper into the related code and as usual
+there were a lot of other things to discover.
+
+  1) Stack randomization
+
+     add_random_kstack_offset() can only be invoked after
+     enter_from_user_mode() established proper state as it calls into
+     instrumentable code.
+
+     PowerPC got that wrong and the other architectures either invoke it
+     after enter_from_user_mode() or after syscall_enter_from_user_mode().
+
+     The latter is suboptimal as the randomization takes place after all
+     the user mode entry work. Aside of that add_random_kstack_offset()
+     uses get/put_cpu_var(), which makes it usable in preemptible code, but
+     when invoked in the interrupt disabled region that's pointless
+     overhead.
+
+  2) As discussed in the above thread just changing the function signature
+     of syscall_enter_from_user_mode[_work]() so they take a pointer
+     argument for the syscall and then return 0 on success is not really
+     intuitive either. Aside of that this breaks the implicit assumption of
+     the tracer when setting the syscall number to -1.
+
+  3) The x86 entry code has some historically accumulated oddities
+
+The following series addresses this by:
+
+  1) Providing new [syscall_]enter_from_user_mode() variants, which include
+     stack randomization and utilize a new add_random_kstack_offset_irqsoff()
+     variant, which avoids the get/put_cpu_var() overhead and converting all
+     usage sites over
+
+  2) Picking up Jinjie's seccomp patch from:
+
+     https://lore.kernel.org/lkml/20260629130616.642022-2-ruanjinjie@huawei.com
+
+     and addressing the feedback (renaming the seccomp functions)
+
+  3) Making the ptrace and tracer related functions return a boolean value
+     to indicate syscall permission
+
+  4) Addressing the x86 oddities
+
+  5) Converting the tree over to the new scheme
+
+With that all architectures using the generic syscall entry code follow the
+same scheme, apply stack randomization at the correct and earliest possible
+place and skip syscall processing depending on the boolean return value of
+syscall_enter_from_user_mode[_work]().
+
+There should be no functional changes, at least there are none intended.
+
+The resulting text size for the syscall entry code on x8664 is slightly
+smaller than before these changes.
+
+Testing syscall heavy workloads and micro benchmarks shows a small
+performance gain for the general rework, but the last patch, which changes
+the logic to be more understandable has no measurable impact in either
+direction.
+
+The series applies on Linus tree and is also available from git:
+
+        git://git.kernel.org/pub/scm/linux/kernel/git/tglx/devel.git entry-rework-v1
+
+Thanks,
+
+	tglx
 ---
-THis has been tested with toolchain and rootfs builds as well as the GCC
-testsuite with no regressions.  After message reviews I will push.
+ Documentation/core-api/entry.rst      |   33 +++++---
+ arch/alpha/kernel/ptrace.c            |    4 -
+ arch/arc/kernel/ptrace.c              |    2 
+ arch/arm/kernel/ptrace.c              |    4 -
+ arch/arm64/kernel/ptrace.c            |    4 -
+ arch/csky/kernel/ptrace.c             |    4 -
+ arch/hexagon/kernel/traps.c           |    2 
+ arch/loongarch/kernel/syscall.c       |   17 +---
+ arch/m68k/kernel/ptrace.c             |    4 -
+ arch/microblaze/kernel/ptrace.c       |    2 
+ arch/mips/kernel/ptrace.c             |    4 -
+ arch/nios2/kernel/ptrace.c            |    2 
+ arch/openrisc/kernel/ptrace.c         |    2 
+ arch/parisc/kernel/ptrace.c           |   12 +--
+ arch/powerpc/kernel/syscall.c         |    5 -
+ arch/riscv/kernel/traps.c             |   14 +--
+ arch/s390/kernel/syscall.c            |   11 +-
+ arch/sh/kernel/ptrace_32.c            |    4 -
+ arch/sparc/kernel/ptrace_32.c         |    2 
+ arch/sparc/kernel/ptrace_64.c         |    2 
+ arch/um/kernel/ptrace.c               |    2 
+ arch/um/kernel/skas/syscall.c         |    2 
+ arch/x86/entry/syscall_32.c           |   70 +++++++------------
+ arch/x86/entry/syscall_64.c           |   61 ++++++----------
+ arch/x86/entry/vsyscall/vsyscall_64.c |   14 +--
+ arch/x86/include/asm/entry-common.h   |    1 
+ arch/x86/include/asm/syscall.h        |   10 --
+ arch/xtensa/kernel/ptrace.c           |    5 -
+ include/asm-generic/syscall.h         |    4 -
+ include/linux/entry-common.h          |  125 ++++++++++++++++++++--------------
+ include/linux/irq-entry-common.h      |    6 -
+ include/linux/ptrace.h                |   13 +--
+ include/linux/randomize_kstack.h      |   19 +++++
+ include/linux/seccomp.h               |   12 +--
+ kernel/entry/syscall-common.c         |    7 +
+ kernel/seccomp.c                      |   35 ++++-----
+ 36 files changed, 264 insertions(+), 256 deletions(-)
 
- gcc/config/or1k/or1k.cc                  | 14 ++++++++------
- gcc/testsuite/gcc.target/or1k/pr126081.c |  8 ++++++++
- 2 files changed, 16 insertions(+), 6 deletions(-)
- create mode 100644 gcc/testsuite/gcc.target/or1k/pr126081.c
-
-diff --git a/gcc/config/or1k/or1k.cc b/gcc/config/or1k/or1k.cc
-index f1ecf21c6e2..89076ae02fc 100644
---- a/gcc/config/or1k/or1k.cc
-+++ b/gcc/config/or1k/or1k.cc
-@@ -1393,7 +1393,7 @@ or1k_hard_regno_mode_ok (unsigned int regno, machine_mode mode)
-      really single bits within SP[SR].  Also allow condition flag register
-      in SImode to match or1k_can_change_mode_class.  */
-   if (REGNO_REG_CLASS (regno) == FLAG_REGS)
--    return mode == BImode || mode == SImode;
-+    return mode == BImode;
-   return true;
- }
- 
-@@ -1411,7 +1411,7 @@ or1k_can_change_mode_class (machine_mode from, machine_mode to,
- {
-   /* Allow cnoverting special flags to SI mode subregs.  */
-   if (rclass == FLAG_REGS)
--    return from == to || (from == BImode && to == SImode);
-+    return from == to;
-   return true;
- }
- 
-@@ -1697,15 +1697,17 @@ or1k_is_cmov_insn (rtx_insn *seq)
- }
- 
- /* Implement TARGET_NOCE_CONVERSION_PROFITABLE_P.  We detect if the conversion
--   resulted in a l.cmov instruction and if so we consider it more profitable than
--   branch instructions.  */
-+   resulted in a l.cmov like instruction and if so we consider it more
-+   profitable than branch instructions.  Even if we do not support l.cmov this
-+   allows the *cmov instruction sequnce to be expanded and then later lowered
-+   with the *cmov split logic.  */
- 
- static bool
- or1k_noce_conversion_profitable_p (rtx_insn *seq,
- 				    struct noce_if_info *if_info)
- {
--  if (TARGET_CMOV)
--    return or1k_is_cmov_insn (seq);
-+  if (or1k_is_cmov_insn (seq))
-+    return true;
- 
-   return default_noce_conversion_profitable_p (seq, if_info);
- }
-diff --git a/gcc/testsuite/gcc.target/or1k/pr126081.c b/gcc/testsuite/gcc.target/or1k/pr126081.c
-new file mode 100644
-index 00000000000..b5cce62f3e9
---- /dev/null
-+++ b/gcc/testsuite/gcc.target/or1k/pr126081.c
-@@ -0,0 +1,8 @@
-+int option_mask32;
-+void xsocket(int);
-+enum { OPT_u = 1 << 3 };
-+
-+void nc_main() {
-+  int x = option_mask32 & OPT_u ? 2 : 1;
-+  xsocket(x);
-+}
--- 
-2.53.0
 
