@@ -1,75 +1,33 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 352E1372EDD
-	for <linux-openrisc@vger.kernel.org>; Wed,  8 Jul 2026 15:47:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63CB1409276
+	for <linux-openrisc@vger.kernel.org>; Wed,  8 Jul 2026 15:52:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783525622; cv=none; b=fiWItiXW+xv+vOwUsxxqEep4JpJ35vGvy1ebTGNMhwzib/yWf1ElepVnKmbAANPxas5Pmmy9RuXgBQdDoFB4wabbl1msFuWwqMpg/Dsl/u5gwy33dyhkHxniwhnSnPrmZk+b9StA1p8c7C8S03D38LtEKVskfHQZ+uDiND9ZjzA=
+	t=1783525968; cv=none; b=dMptTRWUhO+4XU902zwkzIf9YktHlptlSPJtlgIoEFq73irl58w1dzHmYrBZI+fMrEqX/Y67CNFpGoYo159OT2b8kkzsEt70llbk5+qtEZH35M0xlMnhClghdLqe3ih+qIY6StMiZHTZNM25SReFef1NancMyTZe3uf5oEMEPdw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783525622; c=relaxed/simple;
-	bh=Va2IGzeVOAPTHMa4DaH+yWHwp2fTjUY5mobPTHVuW/k=;
+	s=arc-20240116; t=1783525968; c=relaxed/simple;
+	bh=m2OZqoO4cKfu++qdZ7oxKivY75OzyGZodvLMx4WbbJo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Zf3ceXDs+0Qpg/zDl+EhcqNRZphYEFXdFC4Us6F1Sv4FIQ3oI0H3MqSFPIujzKNGcnEKlCxJJlDcp63XtYrbNf3Rq59RTCv3xysJOK8ThJPJMrGoJ6SYDecIZL5r6SZn7FwCxGPmHI5GFEYfpVPDavxVjPHeL3J5eQvkPszfcoE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ij09yy26; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ij09yy26"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1783525620;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Va2IGzeVOAPTHMa4DaH+yWHwp2fTjUY5mobPTHVuW/k=;
-	b=Ij09yy26DUaQrqHE797JHEvhe+bQFj7LhLePmrfu37NDnaq9wDCpv+W973Im3K43rZDMDj
-	MPi/dqP1x4vFucjwAkabl3EYSipGmlbnVAq2nEpqfSP4TrdWeZ9L9n8FctYZHFXIWARcnP
-	gNf3qRQfnB4tiI8vcovlA0E9T3WrFHQ=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-660-M2lrH6tYOsC5ufvFITf8jA-1; Wed,
- 08 Jul 2026 11:46:57 -0400
-X-MC-Unique: M2lrH6tYOsC5ufvFITf8jA-1
-X-Mimecast-MFC-AGG-ID: M2lrH6tYOsC5ufvFITf8jA_1783525612
-Received: from mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.95])
+	 Content-Type:Content-Disposition:In-Reply-To; b=oX+9Ar4/amdZD23HtFia6pe0W+vezJbanyEoek+mZAq/bt6wpKSIjUdVg8lzMh+2MZOyJNifw5jv68tIHL6/Nb1elBjP3o8nqN+9wHdNsOgVYydaS15bJfiTZaETYxPh7OiXGtHuEzxonv2Y91FTPqmMQtaGXS1iYdsQv8OrRYA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+Received: from kunlun.suse.cz (unknown [IPv6:2a07:de40:b306:2000::2])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 391341956060;
-	Wed,  8 Jul 2026 15:46:48 +0000 (UTC)
-Received: from fedora (unknown [10.44.33.83])
-	by mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with SMTP id 668DD31D2;
-	Wed,  8 Jul 2026 15:46:27 +0000 (UTC)
-Received: by fedora (nbSMTP-1.00) for uid 1000
-	oleg@redhat.com; Wed,  8 Jul 2026 17:46:47 +0200 (CEST)
-Date: Wed, 8 Jul 2026 17:46:24 +0200
-From: Oleg Nesterov <oleg@redhat.com>
+	by smtp-out2.suse.de (Postfix) with ESMTPS id C55F775A94;
+	Wed,  8 Jul 2026 15:52:43 +0000 (UTC)
+Authentication-Results: smtp-out2.suse.de;
+	none
+Date: Wed, 8 Jul 2026 17:52:42 +0200
+From: Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
 To: Thomas Gleixner <tglx@kernel.org>
 Cc: LKML <linux-kernel@vger.kernel.org>,
 	Peter Zijlstra <peterz@infradead.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Vineet Gupta <vgupta@kernel.org>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-	Brian Cain <bcain@kernel.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Michal Simek <monstr@monstr.eu>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Dinh Nguyen <dinguyen@kernel.org>, Helge Deller <deller@gmx.de>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Chris Zankel <chris@zankel.net>, linux-alpha@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-	linux-arch@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+	Michael Ellerman <mpe@ellerman.id.au>,
 	Shrikanth Hegde <sshegde@linux.ibm.com>,
 	linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>,
 	Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
@@ -78,36 +36,152 @@ Cc: LKML <linux-kernel@vger.kernel.org>,
 	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
 	x86@kernel.org, Mark Rutland <mark.rutland@arm.com>,
 	Jinjie Ruan <ruanjinjie@huawei.com>,
-	Andy Lutomirski <luto@kernel.org>,
+	Andy Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Guo Ren <guoren@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Helge Deller <deller@gmx.de>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
 	Richard Weinberger <richard@nod.at>,
-	Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>,
-	Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
-Subject: Re: [patch 12/18] ptrace, treewide: Rename
- ptrace_report_syscall_entry() to ptrace_report_syscall_permit_entry()
-Message-ID: <ak5w0KB_x2P4G3rd@redhat.com>
+	Chris Zankel <chris@zankel.net>,
+	linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org,
+	linux-csky@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linux-sh@vger.kernel.org, linux-um@lists.infradead.org,
+	Arnd Bergmann <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>,
+	Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>,
+	Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org,
+	linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org,
+	linux-arch@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+	linux-doc@vger.kernel.org
+Subject: Re: [patch 13/18] entry: Make trace_syscall_enter() return type bool
+Message-ID: <ak5ySpil83TNWxeq@kunlun.suse.cz>
 References: <20260707181957.433213175@kernel.org>
- <20260707190254.280015701@kernel.org>
+ <20260707190254.338083894@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20260707190254.280015701@kernel.org>
-X-Scanned-By: MIMEDefang 3.6 on 10.30.177.95
-X-Mimecast-MFC-PROC-ID: mmflf0mMhl2HJ81eQr7xWJFcSzvRGElePKTHv7PvHyE_1783525612
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20260707190254.338083894@kernel.org>
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
+X-Rspamd-Queue-Id: C55F775A94
+X-Spam-Flag: NO
+X-Spam-Score: -2.00
+X-Spam-Level: 
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
+X-Spamd-Result: default: False [-2.00 / 50.00];
+	REPLY(-4.00)[];
+	RDNS_NONE(2.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLs1yuyu6ywojxyk8y3ncu5g39)]
 
-On 07/07, Thomas Gleixner wrote:
->
-> The return value of that function is boolean and tells the caller whether
-> to permit the syscall processing or not.
->
-> Rename the function so the purpose is clear and make the return type bool.
+Hello,
 
-Just in case,
+On Tue, Jul 07, 2026 at 09:06:48PM +0200, Thomas Gleixner wrote:
+> In preparation of converting the return value of
+> syscall_enter_from_user_mode[_work]() bool, rework trace_syscall_enter() to
+> 
+>  - update the syscall number via a pointer argument
+> 
+>  - Return True if the syscall number is != -1, False otherwise
 
-Acked-by: Oleg Nesterov <oleg@redhat.com>
+This does not achieve the goal of the initial RFC: To detangle the
+return value of syscall_enter_from_user_mode from the syscall number.
 
+This still conflates them, making it impossible to tell if the syscall
+was rejected or syscall number was -1 to start with. Now also obfuscated
+by performing the check deeper inside the common code.
+
+> That aligns with ptrace_report_syscall_permit_enter() and
+> seccomp_permit_syscall().
+> 
+> The only difference is that this also returns False, when the syscall
+> number was already -1 to begin with, but there is not much which can be
+> done about that. As the architecture has to preset the return value to
+> -ENOSYS anyway, that results in the correct return value for such an
+> invalid syscall.
+
+That's not possible to do for architectures where the syscall number and
+the syscall return value are in the same register.
+
+You suggested that it is possible to not write the return value into an
+actual register but use an additional field for that, and have the exit
+code write the register.
+
+However, that's not what is documented, nor what is currently done.
+
+While this is an improvement in some respects the goal to have clear and
+intelligible API around the generic entry is not acheived.
+
+Thanks
+
+Michal
+
+> 
+> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
+> ---
+>  include/linux/entry-common.h  |    8 +++++---
+>  kernel/entry/syscall-common.c |    7 ++++---
+>  2 files changed, 9 insertions(+), 6 deletions(-)
+> 
+> --- a/include/linux/entry-common.h
+> +++ b/include/linux/entry-common.h
+> @@ -58,7 +58,7 @@ static __always_inline bool arch_ptrace_
+>  #endif
+>  
+>  bool syscall_user_dispatch(struct pt_regs *regs);
+> -long trace_syscall_enter(struct pt_regs *regs, long syscall);
+> +bool trace_syscall_enter(struct pt_regs *regs, long *syscall);
+>  void trace_syscall_exit(struct pt_regs *regs, long ret);
+>  
+>  static inline void syscall_enter_audit(struct pt_regs *regs, long syscall)
+> @@ -108,8 +108,10 @@ static __always_inline long syscall_trac
+>  	/* Either of the above might have changed the syscall number */
+>  	syscall = syscall_get_nr(current, regs);
+>  
+> -	if (unlikely(work & SYSCALL_WORK_SYSCALL_TRACEPOINT))
+> -		syscall = trace_syscall_enter(regs, syscall);
+> +	if (unlikely(work & SYSCALL_WORK_SYSCALL_TRACEPOINT)) {
+> +		if (!trace_syscall_enter(regs, &syscall))
+> +			return -1L;
+> +	}
+>  
+>  	syscall_enter_audit(regs, syscall);
+>  
+> --- a/kernel/entry/syscall-common.c
+> +++ b/kernel/entry/syscall-common.c
+> @@ -7,14 +7,15 @@
+>  
+>  /* Out of line to prevent tracepoint code duplication */
+>  
+> -long trace_syscall_enter(struct pt_regs *regs, long syscall)
+> +bool trace_syscall_enter(struct pt_regs *regs, long *syscall)
+>  {
+> -	trace_sys_enter(regs, syscall);
+> +	trace_sys_enter(regs, *syscall);
+>  	/*
+>  	 * Probes or BPF hooks in the tracepoint may have changed the
+>  	 * system call number. Reread it.
+>  	 */
+> -	return syscall_get_nr(current, regs);
+> +	*syscall = syscall_get_nr(current, regs);
+> +	return *syscall != -1L;
+>  }
+>  
+>  void trace_syscall_exit(struct pt_regs *regs, long ret)
+> 
