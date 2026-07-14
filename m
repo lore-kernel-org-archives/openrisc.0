@@ -1,235 +1,212 @@
 Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 369ED3FADFD
-	for <linux-openrisc@vger.kernel.org>; Tue, 14 Jul 2026 08:20:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A7EC36F411
+	for <linux-openrisc@vger.kernel.org>; Tue, 14 Jul 2026 10:26:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784017228; cv=none; b=PLnYQ9j7hUNy9mBN7ud3GXzHzRBiOlSQr+h3BdNRRHLcmotFkG9Ir/C8RNMigaeXizv8l9/mJj6y6+sTx3eIraIVPdNzEOxLhgoPTtFO44atZz2w7ujnID6MP9i3T8i4R2iQ++3qe+dXd0yoV1YaOaYOFkOpoCZ40DmIodqailw=
+	t=1784024796; cv=none; b=JyK4XjyMDXEFfcWR+0aFFd/PiC7EFtLvfcf4A7JEtBug+TD7o9mX4pBkKnRnSr0vYI6zlVlkpUEJS78i8VChTBNRJuUHlGcSpCYWdTCH5XKQ6IpoO/SygWFONVb02uZPwXsB1CCMW9sZrc4qzaNWsZ74f5hx9Y5Nf4JO0Sos4R0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784017228; c=relaxed/simple;
-	bh=TGt1HFaW/THuzsrHNEcoHdyo6LaeCt1ApJr4+qFvNmI=;
+	s=arc-20240116; t=1784024796; c=relaxed/simple;
+	bh=wRvxYrU0Db74kgKIg4MAkH8AJ48uHcgqYHktBr4Iftk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=j34S5FBLC/PyZcc9csMRjuV+UlqrD0SnhJfGyuR/emOvHZZsHOScgX9nLBt/d9bqvZKdwVQF8YoxzerwUwBFomPfl1kfrKrc4L13NFumNPS4N1elZWpPYilQqQ38lNA9xBHy25OIoFNG+FoO6/S/5KIAL7H4GZycnUrbsMGJoZg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=DKJ09ll/; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=kyKADJBo; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=DKJ09ll/; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=kyKADJBo; arc=none smtp.client-ip=195.135.223.130
+	 Content-Type:Content-Disposition:In-Reply-To; b=nRJn2KP9fUYP/vr+uGjWpSU5z6P2dzHq7WPwcaNSdvyC6vQ/hYevfEuwXaEDyAHPSvq7g1gjDKVUi0CQ/wqb16+CExiHS+0K6b5ZiVkMM5+GLiOOluS05kJ0Jfh071ZoHlgTCIYjlSCFsYv9dH4FMUmYEHoWw60zYYuYS1iKpNQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=X1UcKjUP; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=DPgDPUNa; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=X1UcKjUP; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=DPgDPUNa; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="DKJ09ll/";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="kyKADJBo";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="DKJ09ll/";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="kyKADJBo"
-Received: from kunlun.suse.cz (unknown [IPv6:2a07:de40:b306:2000::2])
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="X1UcKjUP";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="DPgDPUNa";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="X1UcKjUP";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="DPgDPUNa"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 5B37B77D67;
-	Tue, 14 Jul 2026 08:20:21 +0000 (UTC)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 134CB75D55;
+	Tue, 14 Jul 2026 10:26:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1784017221; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1784024793; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=j1nzoIiIS1i6/8kifcmUM+0AdKBs7HiZlyka0H+4a9w=;
-	b=DKJ09ll/zFwCXlbl6voF6Ew/i+nGfuIXvwr6+pPYyJYkjrugeEud/q+Ki5j7VPl5fqg4RU
-	7v0Fr5aEHfh6wFz8BRS8uap35P8g2QzVdrMcXNhwITMtJjhdQjQ/wGAESjusjginjvTIaB
-	s/IaH99ENQnMIs5WMPNIymEU1PqEzNQ=
+	bh=khB/to3aOpUTgGTf59zKb1ob5wdV92G9QJtQXjDAoS4=;
+	b=X1UcKjUPwFCkcvM34/QaEi0GeBdnyXah3hmHi1D8Poz47UB712qXIXRaJG6edsNfbG2ZA+
+	z5cB65T9O/OYv5qY43ugJDHwVaTgllfBIZ9UaWwkNvt07EqCc4MfDsXlOrzcTa1ljoJsh8
+	ZREca7S8uqp/stNOGwDBdmvskz1XeX0=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1784017221;
+	s=susede2_ed25519; t=1784024793;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=j1nzoIiIS1i6/8kifcmUM+0AdKBs7HiZlyka0H+4a9w=;
-	b=kyKADJBodi7qpCF8SOU3elSKX6/nsxl0ZSGyW3McIGkcmKNlth+AD/XvcaQdtO7s/xaBLW
-	/BdlcT2IZYRDreCA==
+	bh=khB/to3aOpUTgGTf59zKb1ob5wdV92G9QJtQXjDAoS4=;
+	b=DPgDPUNaL/Uj8oEf2qMTyo3J81KosNcpxLKOMxymAIDnO1BMA1vluTZ6/clWzrYO9GdgP4
+	w321jUwSCwkNL+AA==
 Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b="DKJ09ll/";
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=kyKADJBo
+	none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1784017221; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1784024793; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=j1nzoIiIS1i6/8kifcmUM+0AdKBs7HiZlyka0H+4a9w=;
-	b=DKJ09ll/zFwCXlbl6voF6Ew/i+nGfuIXvwr6+pPYyJYkjrugeEud/q+Ki5j7VPl5fqg4RU
-	7v0Fr5aEHfh6wFz8BRS8uap35P8g2QzVdrMcXNhwITMtJjhdQjQ/wGAESjusjginjvTIaB
-	s/IaH99ENQnMIs5WMPNIymEU1PqEzNQ=
+	bh=khB/to3aOpUTgGTf59zKb1ob5wdV92G9QJtQXjDAoS4=;
+	b=X1UcKjUPwFCkcvM34/QaEi0GeBdnyXah3hmHi1D8Poz47UB712qXIXRaJG6edsNfbG2ZA+
+	z5cB65T9O/OYv5qY43ugJDHwVaTgllfBIZ9UaWwkNvt07EqCc4MfDsXlOrzcTa1ljoJsh8
+	ZREca7S8uqp/stNOGwDBdmvskz1XeX0=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1784017221;
+	s=susede2_ed25519; t=1784024793;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=j1nzoIiIS1i6/8kifcmUM+0AdKBs7HiZlyka0H+4a9w=;
-	b=kyKADJBodi7qpCF8SOU3elSKX6/nsxl0ZSGyW3McIGkcmKNlth+AD/XvcaQdtO7s/xaBLW
-	/BdlcT2IZYRDreCA==
-Date: Tue, 14 Jul 2026 10:20:20 +0200
-From: Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>,
-	Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	linux-riscv@lists.infradead.org,
-	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-	x86@kernel.org, Mark Rutland <mark.rutland@arm.com>,
-	Jinjie Ruan <ruanjinjie@huawei.com>,
-	Andy Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Guo Ren <guoren@kernel.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Helge Deller <deller@gmx.de>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Richard Weinberger <richard@nod.at>,
-	Chris Zankel <chris@zankel.net>,
-	linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org,
-	linux-csky@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linux-sh@vger.kernel.org, linux-um@lists.infradead.org,
-	Arnd Bergmann <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>,
-	Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>,
-	Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org,
-	linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org,
-	linux-arch@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
-	linux-doc@vger.kernel.org
-Subject: Re: [patch 13/18] entry: Make trace_syscall_enter() return type bool
-Message-ID: <alXxRMjQsBas4AJv@kunlun.suse.cz>
-References: <20260707181957.433213175@kernel.org>
- <20260707190254.338083894@kernel.org>
- <ak5ySpil83TNWxeq@kunlun.suse.cz>
- <87se5tqkyp.ffs@fw13>
- <alDQ7isUKJFl8Va4@kunlun.suse.cz>
- <87a4rxqnar.ffs@fw13>
+	bh=khB/to3aOpUTgGTf59zKb1ob5wdV92G9QJtQXjDAoS4=;
+	b=DPgDPUNaL/Uj8oEf2qMTyo3J81KosNcpxLKOMxymAIDnO1BMA1vluTZ6/clWzrYO9GdgP4
+	w321jUwSCwkNL+AA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 0B7FB779AE;
+	Tue, 14 Jul 2026 10:26:26 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id PH4iO9IOVmoNJQAAD6G6ig
+	(envelope-from <pfalcato@suse.de>); Tue, 14 Jul 2026 10:26:26 +0000
+Date: Tue, 14 Jul 2026 11:26:20 +0100
+From: Pedro Falcato <pfalcato@suse.de>
+To: Yeoreum Yun <yeoreum.yun@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	loongarch@lists.linux.dev, linux-mips@vger.kernel.org, linux-arch@vger.kernel.org, 
+	kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, x86@kernel.org, 
+	linux-mm@kvack.org, kasan-dev@googlegroups.com, linux-csky@vger.kernel.org, 
+	linux-m68k@lists.linux-m68k.org, linux-openrisc@vger.kernel.org, david@kernel.org, 
+	linux@armlinux.org.uk, akpm@linux-foundation.org, ankur.a.arora@oracle.com, 
+	rppt@kernel.org, linmag7@gmail.com, chleroy@kernel.org, klarasmodin@gmail.com, 
+	chenhuacai@kernel.org, kernel@xen0n.name, kas@kernel.org, zhangtianyang@loongson.cn, 
+	wangyuli@aosc.io, tsbogend@alpha.franken.de, ljs@kernel.org, jgg@ziepe.ca, 
+	catalin.marinas@arm.com, will@kernel.org, arnd@arndb.de, ryan.roberts@arm.com, 
+	pasha.tatashin@soleen.com, rmclure@linux.ibm.com, baolin.wang@linux.alibaba.com, 
+	tj@kernel.org, kevin.brodsky@arm.com, anup@brainfault.org, 
+	atish.patra@linux.dev, pjw@kernel.org, palmer@dabbelt.com, aou@eecs.berkeley.edu, 
+	alex@ghiti.fr, dave.hansen@linux.intel.com, luto@kernel.org, 
+	peterz@infradead.org, tglx@kernel.org, mingo@redhat.com, bp@alien8.de, hpa@zytor.com, 
+	hannes@cmpxchg.org, mhocko@kernel.org, qi.zheng@linux.dev, shakeel.butt@linux.dev, 
+	kasong@tencent.com, baohua@kernel.org, axelrasmussen@google.com, yuanchu@google.com, 
+	weixugc@google.com, ryabinin.a.a@gmail.com, glider@google.com, andreyknvl@gmail.com, 
+	dvyukov@google.com, vincenzo.frascino@arm.com, anshuman.khandual@arm.com, 
+	yang@os.amperecomputing.com, chaitanyas.prakash@arm.com, ardb@kernel.org, guoren@kernel.org, 
+	yang.li85200@gmail.com, viro@zeniv.linux.org.uk, dinguyen@kernel.org, 
+	schuster.simon@siemens-energy.com, wangruikang@iscas.ac.cn, junhui.liu@pigmoral.tech, 
+	muchun.song@linux.dev, vishal.moola@gmail.com, namcao@linutronix.de, pavel@kernel.org, 
+	djbw@kernel.org, yu-cheng.yu@intel.com, baolu.lu@linux.intel.com, 
+	Jonathan.Cameron@huawei.com, coxu@redhat.com, andreas@gaisler.com, liam@infradead.org, 
+	vbabka@kernel.org, surenb@google.com, mhocko@suse.com, geert@linux-m68k.org, 
+	shorne@gmail.com, jonas@southpole.se, stefan.kristiansson@saunalahti.fi
+Subject: Re: [RFC PATCH 02/34] ARM: mm: make 2-level pgd_t a scalar
+Message-ID: <alYL7B0HAvmLVHGU@pedro-suse>
+References: <20260713135614.1618183-1-yeoreum.yun@arm.com>
+ <20260713135614.1618183-3-yeoreum.yun@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <87a4rxqnar.ffs@fw13>
-X-Spamd-Bar: +++++++++++++
-X-Rspamd-Queue-Id: 5B37B77D67
-X-Spam-Flag: YES
-X-Spam-Score: 13.02
-X-Spam-Level: *************
-X-Rspamd-Action: add header
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spamd-Result: default: False [13.02 / 50.00];
-	SPAM_FLAG(5.00)[];
-	NEURAL_SPAM_LONG(3.50)[1.000];
+In-Reply-To: <20260713135614.1618183-3-yeoreum.yun@arm.com>
+X-Spam-Flag: NO
+X-Spamd-Result: default: False [-2.30 / 50.00];
 	BAYES_HAM(-3.00)[100.00%];
-	HFILTER_HOSTNAME_UNKNOWN(2.50)[];
-	RDNS_NONE(2.00)[];
-	ONCE_RECEIVED(1.20)[];
-	HFILTER_HELO_IP_A(1.00)[kunlun.suse.cz];
-	NEURAL_SPAM_SHORT(0.83)[0.278];
-	HFILTER_HELO_NORES_A_OR_MX(0.30)[kunlun.suse.cz];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_RHS_NOT_FQDN(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
 	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	MIME_TRACE(0.00)[0:+];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
 	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	ARC_NA(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmx.de];
-	FREEMAIL_CC(0.00)[vger.kernel.org,infradead.org,ellerman.id.au,linux.ibm.com,lists.ozlabs.org,kernel.org,lists.linux.dev,dabbelt.com,lists.infradead.org,arm.com,huawei.com,redhat.com,linaro.org,armlinux.org.uk,linux-m68k.org,alpha.franken.de,gmx.de,users.sourceforge.jp,nod.at,zankel.net,lists.linux-m68k.org,arndb.de,monstr.eu,davemloft.net,gaisler.com,lwn.net];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b306:2000::2:from];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCPT_COUNT_GT_50(0.00)[52];
 	MISSING_XM_UA(0.00)[];
-	RCVD_COUNT_ZERO(0.00)[0];
-	DKIM_TRACE(0.00)[suse.de:+];
-	R_RATELIMIT(0.00)[to_ip_from(RLs1yuyu6ywojxyk8y3ncu5g39)];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim]
-X-Spam: Yes
+	TO_DN_SOME(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[lists.infradead.org,vger.kernel.org,lists.linux.dev,kernel.org,kvack.org,googlegroups.com,lists.linux-m68k.org,armlinux.org.uk,linux-foundation.org,oracle.com,gmail.com,xen0n.name,loongson.cn,aosc.io,alpha.franken.de,ziepe.ca,arm.com,arndb.de,soleen.com,linux.ibm.com,linux.alibaba.com,brainfault.org,linux.dev,dabbelt.com,eecs.berkeley.edu,ghiti.fr,linux.intel.com,infradead.org,redhat.com,alien8.de,zytor.com,cmpxchg.org,tencent.com,google.com,os.amperecomputing.com,zeniv.linux.org.uk,siemens-energy.com,iscas.ac.cn,pigmoral.tech,linutronix.de,intel.com,huawei.com,gaisler.com,suse.com,linux-m68k.org,southpole.se,saunalahti.fi];
+	R_RATELIMIT(0.00)[to_ip_from(RLdozb9qxkmspn1ke6sq1inr93)];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_SOME(0.00)[];
+	RCPT_COUNT_GT_50(0.00)[95];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[arm.com:email,imap1.dmz-prg2.suse.org:helo]
+X-Spam-Level: 
+X-Spam-Score: -2.30
 
-On Sat, Jul 11, 2026 at 10:33:16PM +0200, Thomas Gleixner wrote:
-> Michal!
+On Mon, Jul 13, 2026 at 02:55:41PM +0100, Yeoreum Yun wrote:
+> From: "David Hildenbrand (Arm)" <david@kernel.org>
 > 
-> On Fri, Jul 10 2026 at 13:01, Michal Suchánek wrote:
-> > On Wed, Jul 08, 2026 at 10:34:38PM +0200, Thomas Gleixner wrote:
-> >> does not make #2 magically go away. It's still the same problem whether
-> >> you like it or not.
-> >
-> > However, reading the syscall number from pt_regs only after
-> > syscall_enter_from_user_mode exits does.
+> We don't want pgd_t to be an array, as it prohibits returning it from a
+> function, like pgdp_get().
 > 
-> That does not solve anything at all.
+> So let's just use an u64, and extract the right 32bit value in
+> pgd_val().
 > 
-> TBH, your communication style is annoying as hell. You fail to provide
-> any useful arguments and explanations despite me giving you a proper
-> analysis. And I'm absolutely tired of this.
-> 
-> So let me try again for _ONE_ last time to explain you why your ppc/s390
-> world view is broken and let's look at the current code (irrelevant
-> portions omitted).
-> 
-> static __always_inline long syscall_trace_enter(struct pt_regs *regs, unsigned long work)
-> {
-> 	if (work & SYSCALL_WORK_SYSCALL_USER_DISPATCH) {
-> #1		if (syscall_user_dispatch(regs))
-> 			return -1L;
-> 	}
->         
-> 	if (work & (SYSCALL_WORK_SYSCALL_TRACE | SYSCALL_WORK_SYSCALL_EMU)) {
-> #2		ret = arch_ptrace_report_syscall_entry(regs);
-> 		if (ret || (work & SYSCALL_WORK_SYSCALL_EMU))
-> 			return -1L;
-> 	}
-> 
-> 	/* Do seccomp after ptrace, to catch any tracer changes. */
-> 	if (work & SYSCALL_WORK_SECCOMP) {
-> #3		ret = __secure_computing();
-> 		if (ret == -1L)
-> 			return ret;
-> 	}
-> 
-> 	/* Either of the above might have changed the syscall number */
-> #4	syscall = syscall_get_nr(current, regs);
-> 
-> 	if (unlikely(work & SYSCALL_WORK_SYSCALL_TRACEPOINT))
-> #5		syscall = trace_syscall_enter(regs, syscall);
-> 
->         return syscall;
-> }
-> 
-> #1) The user dispatch mechanism does not modify the syscall return
->     value, but it can rollback the syscall and tell the call site to
->     skip the invocation.
-> 
->     The mechanism used in upstream today is to return -1L as the syscall
->     number which makes the architecture specific entry code skip the
->     syscall and refrain from touching the return value.
-> 
-> #2) ptrace
-> 
->     ptrace can poke whatever it wants into the syscall number storage
->     via ptrace_set_syscall_info_entry() -> syscall_set_nr()
-> 
->     It does not set the return code.
-> 
->     It does not abort the syscall when the poked syscall number is -1L.
+> Leave the STRICT_MM_TYPECHECKS case alone for now.
 
-Indeed, it does not abort on -1 syscall number anymore although there
-are still comments around that claim that setting the syscall number to
--1 is special.
+I have to ask: is there a good reason for the STRICT_MM_TYPECHECKS ifdef?
 
-Thanks
+I see the compiler has an awkward time returning a u64 struct (see
+https://godbolt.org/z/qejbv6j9a), but if this doesn't work maybe we should
+get rid of the STRICT_MM_TYPECHECKS stuff? I seriously doubt anyone is
+purposefully toggling it on for testing from time to time.
 
-Michal
+If STRICT_MM_TYPEDEFS's worse codegen doesn't matter then maybe we should
+permanently toggle it on.
+> 
+> As an alternative, we could use the STRICT_MM_TYPECHECKS approach here
+> as well, but using an u64 looks conceptually cleaner, even though
+> pgd_val() gets a bit more involved.
+> 
+> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
+> Signed-off-by: Yeoreum Yun <yeoreum.yun@arm.com>
+> ---
+>  arch/arm/include/asm/pgtable-2level-types.h | 13 ++++++++++---
+>  1 file changed, 10 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/arm/include/asm/pgtable-2level-types.h b/arch/arm/include/asm/pgtable-2level-types.h
+> index 650e793f41429..02052cef9437a 100644
+> --- a/arch/arm/include/asm/pgtable-2level-types.h
+> +++ b/arch/arm/include/asm/pgtable-2level-types.h
+> @@ -25,7 +25,7 @@ typedef struct { pteval_t pgprot; } pgprot_t;
+>  
+>  #define pte_val(x)      ((x).pte)
+>  #define pmd_val(x)      ((x).pmd)
+> -#define pgd_val(x)	((x).pgd[0])
+> +#define pgd_val(x)      ((x).pgd[0])
+>  #define pgprot_val(x)   ((x).pgprot)
+>  
+>  #define __pte(x)        ((pte_t) { (x) } )
+> @@ -36,14 +36,21 @@ typedef struct { pteval_t pgprot; } pgprot_t;
+>  /*
+>   * .. while these make it easier on the compiler
+>   */
+> +typedef u64 pgdval_t;
+> +
+>  typedef pteval_t pte_t;
+>  typedef pmdval_t pmd_t;
+> -typedef pmdval_t pgd_t[2];
+> +typedef pgdval_t pgd_t;
+>  typedef pteval_t pgprot_t;
+>  
+>  #define pte_val(x)      (x)
+>  #define pmd_val(x)      (x)
+> -#define pgd_val(x)	((x)[0])
+> +
+> +static inline pmdval_t pgd_val(pgd_t pgd)
+> +{
+> +	return (*(pmdval_t (*)[2])&pgd)[0];
+
+Ugh. This isn't correct C code. It only works because the kernel passes
+-fno-strict-aliasing. I would recommend either forcing a struct here, or
+using a u64 with bitmasks/shifts.
+
+-- 
+Pedro
