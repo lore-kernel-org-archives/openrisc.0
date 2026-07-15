@@ -1,179 +1,215 @@
-Received: from flow-a6-smtp.messagingengine.com (flow-a6-smtp.messagingengine.com [103.168.172.141])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com [209.85.128.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0C611DF261;
-	Wed, 15 Jul 2026 06:17:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.141
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C19735F180
+	for <linux-openrisc@vger.kernel.org>; Wed, 15 Jul 2026 07:51:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784096248; cv=none; b=nrSZQ72Wxmma332YIbMTL+NWx9zY6d/c1ZXsfumGVa3/rMvsfzvlFIaGGHRyFpq3AVA2Kcc8OAyDs+YhRd4TRZ+7vrp67iF3hHd4u/1KBiOBnWXNDm8npmakhVKaIOZgV54SbhjqECMig0l8X0rQ8ZWX/nb174yqjn+3+jhPkEw=
+	t=1784101915; cv=none; b=lA14VJ74B4bxQ9fsDeENKw2PWD6xxhgjD6X6vQlTYAnE87RgzVp/UOtCEanX0dU1IbzsDM79CW7IQhKKY00iBA9biPWoDSrxF3iDCdO1CLeIXkB4nJCjNEmVZlHZ6Cz/PQv+C0H+BHPztJn0HQJUTAmgJdPMceSjoEwe8ky54NI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784096248; c=relaxed/simple;
-	bh=R7w8WDf0IA0/2pr5cbO928qK57kdMAshIWAldrpTyJA=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=eLyipwwiop4Y0Af9GsM0HWGyvOIxgl3IEsqj0KepZ2aH9ryHf1ZZPsBygr78lXs1zbI7xnxTUnBI8TolduPMy3XQGmWK3ZjlPX/JgTi/mimyYxr0I+/4QCs1zUQDX8ZMZpnkPld2mwiMa/2soaHReDkTelo6PzzUzJvuEtIfdY4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=Br8RyOFd; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=jV2/fhH4; arc=none smtp.client-ip=103.168.172.141
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="Br8RyOFd";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="jV2/fhH4"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailflow.phl.internal (Postfix) with ESMTP id 9E02C13801A5;
-	Wed, 15 Jul 2026 02:17:25 -0400 (EDT)
-Received: from phl-imap-05 ([10.202.2.95])
-  by phl-compute-04.internal (MEProxy); Wed, 15 Jul 2026 02:17:25 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1784096245;
-	 x=1784103445; bh=9Zlh+AwrrnJNWN6iwdGzo8tmzqBKgmHLc8ZF5j+zMvU=; b=
-	Br8RyOFdUU94WhnEqNGK6OUInEwtt42ECqpexhjmCAEtiEUbqF92211n+hxOfHMY
-	ZEPZNepS6e+8b5e4Ny5oNgceLgGc5c3vLc4r+DxSTddj5qKK/VlPhAtv8gfyZypL
-	VVhwha6CAnSjH23ukVh31ZHnKeJrBbcBfjdhjsA9Erz1NcVRn2D/aBT/96seeB84
-	mf6GR4E2aXL75RlOqM5NPBrQmUNI68q5OUxqVV6/teUfiDYxF6d+zdYjKSFjb+t/
-	9oYJ2Of3oxf9sYaet24kMDOpkQ0wPNWNbMYpn9a2NRPuxt6xLMqZoYqcOnUh59a+
-	+snQXzLC6ACje/o05mzrQw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1784096245; x=
-	1784103445; bh=9Zlh+AwrrnJNWN6iwdGzo8tmzqBKgmHLc8ZF5j+zMvU=; b=j
-	V2/fhH4BpAIEas3AbTCLp5pwaexaM4H3pU2w1JHxfB3jtl6WngmQSemystLzp9qI
-	kWMQ7JWcKJGnDPx9mRGLn2Umfn2cnwb+LWXFjfwmECSbyQFoqIFE+5Gcz+QZtLcx
-	Djt/VFfBgZ9Z9KOK+Kt5sy4Ld9PfnVTM7DBVfQSUP1gznaJuyEygTd4hE0ubvkLV
-	tMDqFvTinCd/9JEtBjD6pEIlpFu20QTtfHQkEtiZ6kv/55h7sInOkbaxpre8Snr4
-	67P24aRTv0Jy//R76n3QrS+jXmY8Vxky/K4Wx6HmYkHx5dmdzwGsfrttZe7l/jMe
-	5/Z9GWv/msY8WPAe60zAQ==
-X-ME-Sender: <xms:9CVXainnxMtoA9WomfkvTWtGS0gs7bLSo00FlLyMY1H-JWdtdxrNhw>
-    <xme:9CVXakoW4C3nQ9zyEuECqPuFxXYetF31e_FoGsrh6tB6lWfigrViHutFLvUHessFR
-    piUbutdBQ-Th0L0YlgUUjLO99TO-3z4t7GIE2PZ5zOv0GyY84P61lk>
-X-ME-Proxy-Cause: dmFkZTGkwoR0hlFQFm+73y1mguWnuh+qc3yybVVSFAuoDmPngFYjOIr0Zb9hX5c2qcCVvn
-    sI1HXzG2bPbm7F/c+6YwzDUd5Ig/e1VsbxdAbFwgFKlMGi6ZWtvUVGPs4BD4qR21Gx2FgY
-    EtkDPkZr2rPSNRzPvoEgLUgekSzaH0MaFl5YTqFpgdt7nbdd0Gr9D2hY5jjAVLBGjROutK
-    3Te1HF7xnfK0lu7kPD/DEMvn0oDGfUjAou46olhYK2/TlIpolme0vRNz8fZXLnF+UFTqfA
-    NrNuIYP+bMmZiOZ4/s235Gl05UEeW0+kr+DcX0HurL5HoblvsKRQW0en2vUrNDn/cfo8eM
-    exj9pqaZGMevjLWoRPwN9dSbRRNGcxRkfpJT/FYjGh0L6fAUl6AQwMFen3HgF4pXyziFj5
-    /S9FXxpGcks2/CkdMnCH3B76v2+TiHSLO+QchtDMmxtuw2ui7BdR5Glgc9xh9TAtT1ohxu
-    MfBnF/qHM+b0mENiWUSBQbYQ3b9EZU+Kn1zB1QA8bKonaOqdvl96RV/Fo+8h99Z580HSaU
-    rCtQOfLPHYRo7gxQPxYCOGfwJFFODA80tAc+IOlK9AzN5HVV/7ithUEhkK2Kafx3mlEywN
-    TjGeOlAui3leqCQavfLsLa6Bdl0Ntd5Y70kbqbLghPHduKu5sNeG6daRUv7A
-X-ME-Proxy: <xmx:9CVXamTS_Lhaint5DUHBdUZEtxYNB-HSfIXxjasq4DRxQ0ZzmiwQnQ>
-    <xmx:9CVXai-ytlfd-5wXglShUGyU2nhzt-PPuvo1QSHSJm0YdKIH9BLuMw>
-    <xmx:9CVXaoMOkyqoX4affuo8pkHyFPYU5s_-A1SBrmLhKQhJQn3FU_0hmw>
-    <xmx:9CVXaqtJ7VQ4-VLSF9ISdlKWFfQyA29rjfU-TEE0Xb_61iMVCkr_pA>
-    <xmx:9SVXatvjP514hx98-inUvTjSygpQ4_uDBf1DEi6JA-S80eWlqZCeXxVH>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id B53161820086; Wed, 15 Jul 2026 02:17:24 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	s=arc-20240116; t=1784101915; c=relaxed/simple;
+	bh=u8cicfkmRrJrH6XZK18EpfmqX98dxO0lsa0zsnA4eZE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=HOburQa0UAE6S/Wswjb6mkG3Hhxur7A7vUKwongzYremAZ8e+LemTeV0K6o7/L49VO/UiW274sMl6N8HYfB5SH2WaRu0cIPc7EY8Y4Ey1q1Y5Lo2X9RU5HR6aJsgnlm1GW9hbj3Y7O+04EawLyN63lxBGDIiFVGWVxxsGoiLF2Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.128.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-81ed2a00f12so5832037b3.2
+        for <linux-openrisc@vger.kernel.org>; Wed, 15 Jul 2026 00:51:53 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784101913; x=1784706713;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=hqKDqOfd26TqLmXrf6Sno+8+vAQxzNMwBOFafeUJRw4=;
+        b=k9ZwLFtXNQPESIoBEbhKVp1Jsq2hxNE/ariEQw6W3dRrfdplo4z5HeeM/MUowH3OKI
+         PopF+Vs2ielKKCoMdAIAfADykoma97jaOAa9dghhejSTKSKzlKkATrXppE5z3DEToNzN
+         IGII1jkK2md1LzQ2jvUN44v5kq1pvppmQpVkQ18pAw94mlZ9ipiF00XqCQadjxFKXGAV
+         uhhWTjvpRmnhgYCa/2su3/uCjHgGShrUMdk7jdyYz0UIR4QCMcfS0QC86QLCOhzO4UsK
+         hNjib0S5jGhQGSL3lftdVvHC8B6HDp9zPrg1DNi0ThpRvxDCE5FcKDIJIGqSqko/S5ZT
+         gnwQ==
+X-Forwarded-Encrypted: i=1; AHgh+Ro6YjLjTFdlzq+TFcOgT4f16IhnL9PlPDOMo3T57iZbg4aEl8evobb5kMYsadj02I4DIbWb5LeazYUZaN343w==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxKyAizsgEKH+WMJ3HcqqXUvAXtN3jLAYsFuPTtFvLb2lI5GIwE
+	VyhNcJH6EjMhnrvg4T0bmSjalZe11K0X/URHl3sr5P8uk142s7XdmbRXYvVTVo71O2M=
+X-Gm-Gg: AfdE7cmonm5Rrj72jD8AZ46J9wJx5EfPU8KJR1MQGR22Ma2ppMwNXcTBuB0bjIqfU4v
+	zG1jTKwPO/scTEUKWOvpW7wUz2LlPZ3DDEAFY8HgR87IQo4Ob04DLUS9GL8L1p/j75jNbFwpTf3
+	JfJTKH6e+LcWp0BS7/SydWsmXFte412f1r5urotfoYE2oECH/GcUUXXci07BYoQi4xluRPm+aw3
+	UZR3gIa3VBk37sJ9g9+mlQCYM3sOLB3d9FAeVGXE1Dy3XPHQVeFCHM2Lbb/8Do8uXh2ROtLO3xM
+	1BIE4UIPrh4BouEIyUopgBH8SJvpyILZLtE0Bio9dNps7SFNAqSup7OS5Z8Rz1innCPtg436jlm
+	c2hyK2vAagVFdFeVJbiYjrvNHCWIdDWWOd2EVV4QnizmtSOlPdp6i914QRXEOTsjhex6L1x9h6t
+	2421s+z8uUTYHdGGSbs9yeC8v+dF1eJhjElr4VCkDqnwu+o2LbFg==
+X-Received: by 2002:a05:690c:3704:b0:80b:9f4e:a70 with SMTP id 00721157ae682-81ebfe3b750mr40957277b3.26.1784101912966;
+        Wed, 15 Jul 2026 00:51:52 -0700 (PDT)
+Received: from mail-yx1-f42.google.com (mail-yx1-f42.google.com. [74.125.224.42])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-81e6befb688sm161270537b3.14.2026.07.15.00.51.52
+        for <linux-openrisc@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 15 Jul 2026 00:51:52 -0700 (PDT)
+Received: by mail-yx1-f42.google.com with SMTP id 956f58d0204a3-667f07e2ae0so269858d50.3
+        for <linux-openrisc@vger.kernel.org>; Wed, 15 Jul 2026 00:51:52 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+Rpp2tK+hFHGT3DoX1R/AlGXY0zt3xXeSFCR4fTQ6YE7SdYa1+pye65i9GzzP2qbvNVEvNTpi7l4/AzmBaIeig==@vger.kernel.org
+X-Received: by 2002:a05:6102:6891:b0:73e:9fae:584c with SMTP id
+ ada2fe7eead31-745875199aemr2922337137.19.1784101517020; Wed, 15 Jul 2026
+ 00:45:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: ASU80-mPZ9gg
-Date: Wed, 15 Jul 2026 08:15:42 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Yeoreum Yun" <yeoreum.yun@arm.com>, linux-arm-kernel@lists.infradead.org,
- linux-kernel@vger.kernel.org, loongarch@lists.linux.dev,
- linux-mips@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>,
- kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org,
- x86@kernel.org, linux-mm@kvack.org, kasan-dev@googlegroups.com,
- "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
- linux-m68k@lists.linux-m68k.org,
- "linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>
-Cc: "David Hildenbrand (Red Hat)" <david@kernel.org>,
- "Russell King" <linux@armlinux.org.uk>,
- "Andrew Morton" <akpm@linux-foundation.org>,
- "Ankur Arora" <ankur.a.arora@oracle.com>,
- "Mike Rapoport" <rppt@kernel.org>, "Magnus Lindholm" <linmag7@gmail.com>,
- "Christophe Leroy" <chleroy@kernel.org>,
- "Klara Modin" <klarasmodin@gmail.com>,
- "Huacai Chen" <chenhuacai@kernel.org>, "WANG Xuerui" <kernel@xen0n.name>,
- "Kirill A. Shutemov" <kas@kernel.org>, zhangtianyang@loongson.cn,
- wangyuli@aosc.io, "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>,
- "Lorenzo Stoakes" <ljs@kernel.org>, "Jason Gunthorpe" <jgg@ziepe.ca>,
- "Catalin Marinas" <catalin.marinas@arm.com>,
- "Will Deacon" <will@kernel.org>, "Ryan Roberts" <ryan.roberts@arm.com>,
- "Pasha Tatashin" <pasha.tatashin@soleen.com>,
- "Rohan McLure" <rmclure@linux.ibm.com>,
- "Baolin Wang" <baolin.wang@linux.alibaba.com>,
- "Tejun Heo" <tj@kernel.org>, "Kevin Brodsky" <kevin.brodsky@arm.com>,
- "Anup Patel" <anup@brainfault.org>, atish.patra@linux.dev,
- "Paul Walmsley" <pjw@kernel.org>, "Palmer Dabbelt" <palmer@dabbelt.com>,
- "Albert Ou" <aou@eecs.berkeley.edu>, "Alexandre Ghiti" <alex@ghiti.fr>,
- "Dave Hansen" <dave.hansen@linux.intel.com>,
- "Andy Lutomirski" <luto@kernel.org>,
- "Peter Zijlstra" <peterz@infradead.org>,
- "Thomas Gleixner" <tglx@kernel.org>, "Ingo Molnar" <mingo@redhat.com>,
- "Borislav Petkov" <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
- "Johannes Weiner" <hannes@cmpxchg.org>,
- "Michal Hocko" <mhocko@kernel.org>, qi.zheng@linux.dev,
- "Shakeel Butt" <shakeel.butt@linux.dev>,
- "Kairui Song" <kasong@tencent.com>, "Barry Song" <baohua@kernel.org>,
- "Axel Rasmussen" <axelrasmussen@google.com>,
- "Yuanchu Xie" <yuanchu@google.com>, "Wei Xu" <weixugc@google.com>,
- "Andrey Ryabinin" <ryabinin.a.a@gmail.com>,
- "Alexander Potapenko" <glider@google.com>,
- "Andrey Konovalov" <andreyknvl@gmail.com>,
- "Dmitry Vyukov" <dvyukov@google.com>,
- "Vincenzo Frascino" <vincenzo.frascino@arm.com>,
- "Anshuman Khandual" <anshuman.khandual@arm.com>,
- "Yang Shi" <yang@os.amperecomputing.com>, chaitanyas.prakash@arm.com,
- "Ard Biesheuvel" <ardb@kernel.org>, guoren <guoren@kernel.org>,
- yang.li85200@gmail.com, "Alexander Viro" <viro@zeniv.linux.org.uk>,
- "Dinh Nguyen" <dinguyen@kernel.org>,
- "schuster.simon@siemens-energy.com" <schuster.simon@siemens-energy.com>,
- "Vivian Wang" <wangruikang@iscas.ac.cn>, junhui.liu@pigmoral.tech,
- "Muchun Song" <muchun.song@linux.dev>,
- "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
- "Nam Cao" <namcao@linutronix.de>, "Pavel Machek" <pavel@kernel.org>,
- djbw@kernel.org, yu-cheng.yu@intel.com,
- "Baolu Lu" <baolu.lu@linux.intel.com>,
- "Jonathan Cameron" <Jonathan.Cameron@huawei.com>,
- "Coiby Xu" <coxu@redhat.com>, "Andreas Larsson" <andreas@gaisler.com>,
- "Liam R. Howlett" <liam@infradead.org>,
- "Vlastimil Babka (SUSE)" <vbabka@kernel.org>,
- "Suren Baghdasaryan" <surenb@google.com>,
- "Michal Hocko" <mhocko@suse.com>,
- "Geert Uytterhoeven" <geert@linux-m68k.org>,
- "Stafford Horne" <shorne@gmail.com>, "Jonas Bonn" <jonas@southpole.se>,
- "Stefan Kristiansson" <stefan.kristiansson@saunalahti.fi>
-Message-Id: <4a0f9161-961e-47f9-8672-9a06e52fefea@app.fastmail.com>
-In-Reply-To: <20260713135614.1618183-3-yeoreum.yun@arm.com>
-References: <20260713135614.1618183-1-yeoreum.yun@arm.com>
- <20260713135614.1618183-3-yeoreum.yun@arm.com>
-Subject: Re: [RFC PATCH 02/34] ARM: mm: make 2-level pgd_t a scalar
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+References: <6007625e-c3f9-4ad6-99a8-61396bccbcec@kernel.org>
+ <32d459d1-ad19-4baf-bbb1-0565458001d2@intel.com> <3ea30f8a-bb29-4bf5-8400-1c4840d46a88@kernel.org>
+ <7e84b200-25eb-43a6-b5e2-5f27f2d82a77@intel.com> <31988089-095a-4eed-b5e2-c677c70f79f6@kernel.org>
+ <14e250db-1641-4085-8d13-02f819657d5f@intel.com> <d83c76b3-ea4d-4c41-b4c5-f5ae558ace55@kernel.org>
+ <alYgMxKqRnF6_X0A@e129823.arm.com> <6df814c9-405c-48d8-96ea-929c4b28949b@intel.com>
+ <alZe-Cu7yQw9qRXU@e129823.arm.com> <alZo9feSrSB_StfO@e129823.arm.com>
+In-Reply-To: <alZo9feSrSB_StfO@e129823.arm.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 15 Jul 2026 09:45:05 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdUqL=vJFAzYgcRVNbD_VWWwhehwTuhTfwLt_yRR8c+B0g@mail.gmail.com>
+X-Gm-Features: AUfX_mwGugbyQZ1JX8fgK_JNKs5rGnucGlnBlUaIc_V2N3HkDTrdgggdZ_cY0do
+Message-ID: <CAMuHMdUqL=vJFAzYgcRVNbD_VWWwhehwTuhTfwLt_yRR8c+B0g@mail.gmail.com>
+Subject: Re: [RFC PATCH 10/34] x86: mm: carve out the generic compile-time
+ folded pgtable case in effective_prot()
+To: Yeoreum Yun <yeoreum.yun@arm.com>
+Cc: Dave Hansen <dave.hansen@intel.com>, "David Hildenbrand (Arm)" <david@kernel.org>, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	loongarch@lists.linux.dev, linux-mips@vger.kernel.org, 
+	linux-arch@vger.kernel.org, kvm-riscv@lists.infradead.org, 
+	linux-riscv@lists.infradead.org, x86@kernel.org, linux-mm@kvack.org, 
+	kasan-dev@googlegroups.com, linux-csky@vger.kernel.org, 
+	linux-m68k@lists.linux-m68k.org, linux-openrisc@vger.kernel.org, 
+	linux@armlinux.org.uk, akpm@linux-foundation.org, ankur.a.arora@oracle.com, 
+	rppt@kernel.org, linmag7@gmail.com, chleroy@kernel.org, klarasmodin@gmail.com, 
+	chenhuacai@kernel.org, kernel@xen0n.name, kas@kernel.org, 
+	zhangtianyang@loongson.cn, wangyuli@aosc.io, tsbogend@alpha.franken.de, 
+	ljs@kernel.org, jgg@ziepe.ca, catalin.marinas@arm.com, will@kernel.org, 
+	arnd@arndb.de, ryan.roberts@arm.com, pasha.tatashin@soleen.com, 
+	rmclure@linux.ibm.com, baolin.wang@linux.alibaba.com, tj@kernel.org, 
+	kevin.brodsky@arm.com, anup@brainfault.org, atish.patra@linux.dev, 
+	pjw@kernel.org, palmer@dabbelt.com, aou@eecs.berkeley.edu, alex@ghiti.fr, 
+	dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, 
+	tglx@kernel.org, mingo@redhat.com, bp@alien8.de, hpa@zytor.com, 
+	hannes@cmpxchg.org, mhocko@kernel.org, qi.zheng@linux.dev, 
+	shakeel.butt@linux.dev, kasong@tencent.com, baohua@kernel.org, 
+	axelrasmussen@google.com, yuanchu@google.com, weixugc@google.com, 
+	ryabinin.a.a@gmail.com, glider@google.com, andreyknvl@gmail.com, 
+	dvyukov@google.com, vincenzo.frascino@arm.com, anshuman.khandual@arm.com, 
+	yang@os.amperecomputing.com, chaitanyas.prakash@arm.com, ardb@kernel.org, 
+	guoren@kernel.org, yang.li85200@gmail.com, viro@zeniv.linux.org.uk, 
+	dinguyen@kernel.org, schuster.simon@siemens-energy.com, 
+	wangruikang@iscas.ac.cn, junhui.liu@pigmoral.tech, muchun.song@linux.dev, 
+	vishal.moola@gmail.com, namcao@linutronix.de, pavel@kernel.org, 
+	djbw@kernel.org, yu-cheng.yu@intel.com, baolu.lu@linux.intel.com, 
+	Jonathan.Cameron@huawei.com, coxu@redhat.com, andreas@gaisler.com, 
+	liam@infradead.org, vbabka@kernel.org, surenb@google.com, mhocko@suse.com, 
+	shorne@gmail.com, jonas@southpole.se, stefan.kristiansson@saunalahti.fi
+Content-Type: text/plain; charset="UTF-8"
 
-On Mon, Jul 13, 2026, at 15:55, Yeoreum Yun wrote:
+Hi Yeoreum,
 
->  typedef pteval_t pte_t;
->  typedef pmdval_t pmd_t;
-> -typedef pmdval_t pgd_t[2];
-> +typedef pgdval_t pgd_t;
->  typedef pteval_t pgprot_t;
-> 
+On Tue, 14 Jul 2026 at 18:51, Yeoreum Yun <yeoreum.yun@arm.com> wrote:
+> On Tue, Jul 14, 2026 at 05:08:24PM +0100, Yeoreum Yun wrote:
+> > On Tue, Jul 14, 2026 at 07:35:19AM -0700, Dave Hansen wrote:
+> > > On 7/14/26 04:40, Yeoreum Yun wrote:
+> > > > @@ -254,22 +255,8 @@ static void effective_prot(struct ptdump_state *pt_st, int level, u64 val)
+> > > >         struct pg_state *st = container_of(pt_st, struct pg_state, ptdump);
+> > > >         pgprotval_t prot = val & PTE_FLAGS_MASK;
+> > > >         pgprotval_t effective;
+> > > > -       bool first_level = false;
+> > > >
+> > > > -       /* Ignore folded levels ... */
+> > > > -       if (((level == 0) && mm_p4d_folded(st->mm)) ||
+> > > > -           ((level == 1) && mm_pud_folded(st->mm)) ||
+> > > > -           ((level == 2) && mm_pmd_folded(st->mm)))
+> > > > -               return;
+> > > > -
+> > > > -       /* ... and make the actual first level remember the protection. */
+> > > > -       if (((level == 0)) ||
+> > > > -           ((level == 1) && mm_p4d_folded(st->mm)) ||
+> > > > -           ((level == 2) && mm_pud_folded(st->mm)) ||
+> > > > -           ((level == 3) && mm_pmd_folded(st->mm)))
+> > > > -               first_level = true;
+> > > > -
+> > > > -       if (!first_level) {
+> > > > +       if (first_level > st->first_level) {
+> > > >                 pgprotval_t higher_prot = st->prot_levels[level - 1];
+> > > >
+> > > >                 effective = (higher_prot & prot & (_PAGE_USER | _PAGE_RW)) |
+> > > > @@ -471,6 +458,15 @@ bool ptdump_walk_pgd_level_core(struct seq_file *m,
+> > > >                 .seq            = m
+> > > >         };
+> > > >
+> > > > +       if (mm_pmd_folded (mm))
+> > > > +               st->first_level = 3;
+> > > > +       else if (mm_pud_folded (mm))
+> > > > +               st->first_level = 2;
+> > > > +       else if (mm_p4d_folded (mm))
+> > > > +               st->first_level = 1;
+> > > > +       else
+> > > > +               st->first_level = 0;
+> > > > +
+> > > >         ptdump_walk_pgd(&st.ptdump, mm, pgd);
+> > >
+> > > This is indeed an improvement and a step in the right direction! Thanks
+> > > for looking at this.
+> > >
+> > > But one of my test for whether it's good x86 code is whether there's any
+> > > actually x86-specific logic in it. Isn't this basically a translation
+> > > between the integer level number and whether it is folded?
+> > >
+> > > That seems like a common helper that more than one arch could use. Could
+> > > this be stuck in a helper so that all arch/x86 has to do is:
+> > >
+> > >     if (mm_pt_level_folded(mm, level))
+> > >             return;
+> >
+> > Yes. at least the level semantic in ptdump (pgd is level 0,
+> > p4d is level 1, ...) is same to all archs where use ptdump.
+> > So It seems reasonable to add this common helper in ptdump.c
+> >
+>
+> Furthermore, the effective_prot() need to require to identify whether
+> it's the first pgtable to prevent the inheriting from dummy value.
+> So I think it seems to make a ptdump_pt_level_first() like:
+>
+> diff --git a/mm/ptdump.c b/mm/ptdump.c
+> index 973020000096c..2ec5700e4be5e 100644
+> --- a/mm/ptdump.c
+> +++ b/mm/ptdump.c
+> @@ -190,6 +190,23 @@ void ptdump_walk_pgd(struct ptdump_state *st, struct mm_struct *mm, pgd_t *pgd)
+>         st->note_page_flush(st);
+>  }
+>
+> +bool pdtump_pt_level_first(struct mm_struct *mm, int level)
+> +{
+> +       if (!mm || level > CONFIG_PGTABLE_LEVELS)
+> +               return false;
+> +
+> +       if (mm_pmd_folded(mm) && level == 3)
+> +               return true;
+> +       if (mm_pud_folded(mm) && level == 2)
+> +               return true;
+> +       if (mm_p4d_folded(mm) && level == 1)
+> +               return true;
 
-Just noticed one more issue here, I think this will break these
-two macros that now access four entries instead of two:
+Is this order (... && level == ...) the optimal order?
+On arm64, mm_pud_folded() and mm_p4d_folded() perform several checks.
 
-#define copy_pmd(pmdpd,pmdps)           \
-        do {                            \
-                pmdpd[0] = pmdps[0];    \
-                pmdpd[1] = pmdps[1];    \
-                flush_pmd_entry(pmdpd); \
-        } while (0)
+> +       if (level == 0)
+> +               return true;
+> +
+> +       return false;
+> +}
+>
 
-#define pmd_clear(pmdp)                 \
-        do {                            \
-                pmdp[0] = __pmd(0);     \
-                pmdp[1] = __pmd(0);     \
-                clean_pmd_entry(pmdp);  \
-        } while (0)
+Gr{oetje,eeting}s,
 
-    Arnd
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
