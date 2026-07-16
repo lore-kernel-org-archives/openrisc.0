@@ -1,37 +1,38 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 97B983F39F6;
-	Thu, 16 Jul 2026 10:57:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9C02E33D4F0;
+	Thu, 16 Jul 2026 19:05:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784199437; cv=none; b=jm6hoeupnsGzm3a6cVgQ5cQ3JkUkkZ3k+tZdYJYxa3q3QbN/ElQOf35j2XbinxmXeJjj797Osnlwjqu90t5e3e3oKB1HDTTOr/bX9zb63nvzmhwKuUSUvfGxd1u0g5WTPhuLn0KsKxdmrfRrrSZD71OH4quDayM2684nQQoHIHA=
+	t=1784228712; cv=none; b=c58j7U5Gp4dWL4Z/isOw73C0Co+o4bUgNdZVlqzg7Nq7x0HxnoVeHVTFgWLYz44u3d9yqrtXhncFtBVeeEYU5GLH8VK4Sq3iiBKLPsUYfOje5A8OlIOnLOwn3DrES46LbKQLrg9SLRwMbyWcnFDFGGN4TA2pnOQRhaSy0HF/q3E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784199437; c=relaxed/simple;
-	bh=183FD52geXzLnicj8PRvEsp/u5QGzLUNfdkFvdlvTLc=;
+	s=arc-20240116; t=1784228712; c=relaxed/simple;
+	bh=f1ULhbuK1iL4hbXSB2hrLrFezeJ/gE3hgeZAl2sOvUs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ev5f0uMiAJJpI1K3dtAXjq2bRhXQMHVlNDjRnjAn05c+NZJq84Lqqj7Xz0S6fPoO94zRAzlN0hCP6NvJCsH+0bCLWM3JdFKGudftc7I1/KOI67zu2FO4uLd8TMunBSxfvYxVCwgruGJqu1d++CwTQaH3PDQvjtXXe1FI4x8HHVI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=d5tkmkG5; arc=none smtp.client-ip=217.140.110.172
+	 Content-Type:Content-Disposition:In-Reply-To; b=Vfj9UHIQ8r8+QiQzo2pCrLJlNLk/0v571GkJK0SF02tJGrLDVftDtL1ZGocNs+snvWOG4yI5zpenluz15zdzI1pHRfcSmLrpyGUXhThrqUrx8NWVGtLNV2EAAYViqXFmVUzcbCSZQNxouOhvs94otboiN3jCXtxe/EEgGnB6uvM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=gqrSwabc; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="d5tkmkG5"
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="gqrSwabc"
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 878791477;
-	Thu, 16 Jul 2026 03:57:10 -0700 (PDT)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 3C1121477;
+	Thu, 16 Jul 2026 12:05:05 -0700 (PDT)
 Received: from e129823.arm.com (e129823.arm.com [10.2.213.3])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 517673F7B4;
-	Thu, 16 Jul 2026 03:57:01 -0700 (PDT)
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 138523F66F;
+	Thu, 16 Jul 2026 12:04:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1784199434; bh=183FD52geXzLnicj8PRvEsp/u5QGzLUNfdkFvdlvTLc=;
+	t=1784228709; bh=f1ULhbuK1iL4hbXSB2hrLrFezeJ/gE3hgeZAl2sOvUs=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=d5tkmkG5Kp9Oy0MkBeywkl/rzGCiym7zyN9Xb6/iGX41TcFOTCCI9eR7n1jDeY++C
-	 MtXWXxwIyUA2P3b5+IQeTXGcW4DMtqA0RMDGfpR/q3XGIcPnKOXQYVi9AyUle/pECm
-	 jJ4P3dTj7+rJAFitSQuPUx0nY/0/JxwJCdCuhuF4=
-Date: Thu, 16 Jul 2026 11:56:58 +0100
+	b=gqrSwabcapydV8BcaRXrJ+3InJ/tYr8/7EQjfec8M11rV1LYtTO+i0hHOG3fWMVI8
+	 dzyFvALZUm6i3TwmO5xjMl+fdsthUr0DH07IaBF30UE5oiJvESqOEKP1mAzb+bHmtc
+	 WHJaM3g6tBoTuQz7uLK9ZM2XZRplDibEbr4kfqX4=
+Date: Thu, 16 Jul 2026 20:04:56 +0100
 From: Yeoreum Yun <yeoreum.yun@arm.com>
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: Yeoreum Yun <yeoreum.yun@arm.com>, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, loongarch@lists.linux.dev,
-	linux-mips@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>,
+Cc: Pedro Falcato <pfalcato@suse.de>, Yeoreum Yun <yeoreum.yun@arm.com>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+	Linux-Arch <linux-arch@vger.kernel.org>,
 	kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org,
 	x86@kernel.org, linux-mm@kvack.org, kasan-dev@googlegroups.com,
 	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
@@ -97,10 +98,11 @@ Cc: Yeoreum Yun <yeoreum.yun@arm.com>, linux-arm-kernel@lists.infradead.org,
 	Stafford Horne <shorne@gmail.com>, Jonas Bonn <jonas@southpole.se>,
 	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
 Subject: Re: [RFC PATCH 02/34] ARM: mm: make 2-level pgd_t a scalar
-Message-ID: <ali4-ibN7Jp9n22Q@e129823.arm.com>
+Message-ID: <alkrWNECXmoxkrUC@e129823.arm.com>
 References: <20260713135614.1618183-1-yeoreum.yun@arm.com>
  <20260713135614.1618183-3-yeoreum.yun@arm.com>
- <4a0f9161-961e-47f9-8672-9a06e52fefea@app.fastmail.com>
+ <alYL7B0HAvmLVHGU@pedro-suse>
+ <b7dbc476-1477-4004-93b3-c5e667e24df8@app.fastmail.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -109,41 +111,43 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4a0f9161-961e-47f9-8672-9a06e52fefea@app.fastmail.com>
+In-Reply-To: <b7dbc476-1477-4004-93b3-c5e667e24df8@app.fastmail.com>
 
-Hi,
+[...]
 
-> On Mon, Jul 13, 2026, at 15:55, Yeoreum Yun wrote:
+> > Ugh. This isn't correct C code. It only works because the kernel passes
+> > -fno-strict-aliasing.
 > 
-> >  typedef pteval_t pte_t;
-> >  typedef pmdval_t pmd_t;
-> > -typedef pmdval_t pgd_t[2];
-> > +typedef pgdval_t pgd_t;
-> >  typedef pteval_t pgprot_t;
-> > 
+> I think the bigger problem is the code dereferencing the pgd
+> pointer in the first place: Since the pgd pair is written in
+> 32-bit units in __pmd_populate(), anything reading it would
+> technically have to operate on both entries.
 > 
-> Just noticed one more issue here, I think this will break these
-> two macros that now access four entries instead of two:
+> As the kernel relies on -fno-strict-aliasing, the type mismatch
+> is less of a problem than actually doing the potentially wrong
+> thing.
 > 
-> #define copy_pmd(pmdpd,pmdps)           \
->         do {                            \
->                 pmdpd[0] = pmdps[0];    \
->                 pmdpd[1] = pmdps[1];    \
->                 flush_pmd_entry(pmdpd); \
->         } while (0)
+> As far as I can tell, we are however saved by pgd_val()
+> only ever being used for debug prints, where printing
+> the first entry is likely all that is needed to analyse
+> the real bug.
 > 
-> #define pmd_clear(pmdp)                 \
->         do {                            \
->                 pmdp[0] = __pmd(0);     \
->                 pmdp[1] = __pmd(0);     \
->                 clean_pmd_entry(pmdp);  \
->         } while (0)
+> > I would recommend either forcing a struct here, or
+> > using a u64 with bitmasks/shifts.
 > 
->     Arnd
+> That would require extra complexity for the big-endian
+> case though.
 
-I don't this this change wouldn't affect for this macros since
-both of them still uses *pmd_t* which is u32.
-So it still only changes tow entries.
+Agree. And since the users of pgd_val() mostly uses with
+pmd_pfn(), pmd_page() and etc. I think it doesn't matter to return
+lower pmdval_t or higher one.
+
+Therefore, without considering endianess, it's enough with downcast
+like:
+
+   #define pgd_val(x)      ((pmdval_t)x)
+
+Could we apply this in next version?
 
 -- 
 Sincerely,
