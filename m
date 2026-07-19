@@ -1,169 +1,179 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 1673032B118;
-	Fri, 17 Jul 2026 07:55:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784274951; cv=none; b=XO8RDzq0zLC/KcbwiFnSyV1aRc7teo+MuvQTtmhyPW3MWvACoEVoWFdJH3AnJfTQbtITEBJBGbjLAxIbCeKDbw86Va8gPwTWu2IPPa+cGd+zMqCkP5ID9D8vz6/v67fPw7qe7OqOf79BKSI7KXiMu43RHBzJ591F/4Uxm/MktZU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784274951; c=relaxed/simple;
-	bh=VCEVOs29qy41aLYqLsGVMHFWJos3BWY8pBqqujyqSaI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XXXGwRAyOJi6Z6fZGwSEReO96Nlb/2g4dLoSmo+KcFydPcO36+A+p6d07Xq32zjo9GnY/z4JgXLn1b1spyAwx4RfMxT1QwJ7jijmcQiJvVqdLQwF/cm8BnvI5LConEK63delyYFdGlJYenTjil/BrT/YSWrjzlDQTJ4ENkqW7ok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=DU+ugemJ; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A488E37BE6C
+	for <linux-openrisc@vger.kernel.org>; Sun, 19 Jul 2026 11:25:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.53
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784460349; cv=pass; b=ih6hr7u2K04lipBBRGQG7Qi1pI8YeyZ7whwEYjRiXjDQPIr/7RrSE0A7/blvLJO4B8hUnXDjlDRNTvWBCK009F1di4st7mAgR+zRm3RKyGbcUw8xxxAR7Rv/CMWSOuCSD115hxAxw2VNPL6eYp1GvI34n1qlw+145idW2UTU7z0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784460349; c=relaxed/simple;
+	bh=rgcqbxa6lEmJgPeR85dLIKFK2p9ERX+2iKovNt7jIVY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ldTmxO2Tnm0vw9s99LXrUAOzGajGh3ETPx+50N6yNlkjsEJ+9h+4/q+NSdgIcQ3GdLBiBt70cUHuN8ZwjFffo1st/Dmtql4cBRdnHZ6La7NvpTJywmfNOyabNECT+SRWWE8mXo5VbPMsAGjBA/X/cGl1tOdE7b2n6lDjNxRpZ2A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D9Eg2uDU; arc=pass smtp.client-ip=209.85.208.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="DU+ugemJ"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E66881477;
-	Fri, 17 Jul 2026 00:55:43 -0700 (PDT)
-Received: from e129823.arm.com (e129823.arm.com [10.2.213.3])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id AAAC53F7B4;
-	Fri, 17 Jul 2026 00:55:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1784274948; bh=VCEVOs29qy41aLYqLsGVMHFWJos3BWY8pBqqujyqSaI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=DU+ugemJvHBveBuL7dk8dm1kcBJotHvCGONmuQ5C4OeV57RJUzo7ZQjdR10jl5Jx7
-	 5L9Qh62wclbS5bjS5wPcNYuj7MV0SVESp9mh+ohyQWIHooRsWMeuoL7g/xSUEC0PGr
-	 Xt2Bp1YeFZMziIbvkg6+QSc6bbWvC8xsO7Wptwks=
-Date: Fri, 17 Jul 2026 08:55:34 +0100
-From: Yeoreum Yun <yeoreum.yun@arm.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Yeoreum Yun <yeoreum.yun@arm.com>, Pedro Falcato <pfalcato@suse.de>,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
-	Linux-Arch <linux-arch@vger.kernel.org>,
-	kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org,
-	x86@kernel.org, linux-mm@kvack.org, kasan-dev@googlegroups.com,
-	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
-	linux-m68k@lists.linux-m68k.org,
-	"linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>,
-	"David Hildenbrand (Red Hat)" <david@kernel.org>,
-	Russell King <linux@armlinux.org.uk>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Ankur Arora <ankur.a.arora@oracle.com>,
-	Mike Rapoport <rppt@kernel.org>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	Christophe Leroy <chleroy@kernel.org>,
-	Klara Modin <klarasmodin@gmail.com>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	"Kirill A. Shutemov" <kas@kernel.org>, zhangtianyang@loongson.cn,
-	wangyuli@aosc.io, Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Lorenzo Stoakes <ljs@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Ryan Roberts <ryan.roberts@arm.com>,
-	Pasha Tatashin <pasha.tatashin@soleen.com>,
-	Rohan McLure <rmclure@linux.ibm.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Tejun Heo <tj@kernel.org>, Kevin Brodsky <kevin.brodsky@arm.com>,
-	Anup Patel <anup@brainfault.org>, atish.patra@linux.dev,
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
-	Johannes Weiner <hannes@cmpxchg.org>,
-	Michal Hocko <mhocko@kernel.org>, qi.zheng@linux.dev,
-	Shakeel Butt <shakeel.butt@linux.dev>,
-	Kairui Song <kasong@tencent.com>, Barry Song <baohua@kernel.org>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-	Alexander Potapenko <glider@google.com>,
-	Andrey Konovalov <andreyknvl@gmail.com>,
-	Dmitry Vyukov <dvyukov@google.com>,
-	Vincenzo Frascino <vincenzo.frascino@arm.com>,
-	Anshuman Khandual <anshuman.khandual@arm.com>,
-	Yang Shi <yang@os.amperecomputing.com>, chaitanyas.prakash@arm.com,
-	Ard Biesheuvel <ardb@kernel.org>, guoren <guoren@kernel.org>,
-	yang.li85200@gmail.com, Alexander Viro <viro@zeniv.linux.org.uk>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	"schuster.simon@siemens-energy.com" <schuster.simon@siemens-energy.com>,
-	Vivian Wang <wangruikang@iscas.ac.cn>, junhui.liu@pigmoral.tech,
-	Muchun Song <muchun.song@linux.dev>,
-	"Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
-	Nam Cao <namcao@linutronix.de>, Pavel Machek <pavel@kernel.org>,
-	djbw@kernel.org, yu-cheng.yu@intel.com,
-	Baolu Lu <baolu.lu@linux.intel.com>,
-	Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-	Coiby Xu <coxu@redhat.com>, Andreas Larsson <andreas@gaisler.com>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	"Vlastimil Babka (SUSE)" <vbabka@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Stafford Horne <shorne@gmail.com>, Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Subject: Re: [RFC PATCH 02/34] ARM: mm: make 2-level pgd_t a scalar
-Message-ID: <alnf9noAVTTpCtaC@e129823.arm.com>
-References: <20260713135614.1618183-1-yeoreum.yun@arm.com>
- <20260713135614.1618183-3-yeoreum.yun@arm.com>
- <alYL7B0HAvmLVHGU@pedro-suse>
- <b7dbc476-1477-4004-93b3-c5e667e24df8@app.fastmail.com>
- <alkrWNECXmoxkrUC@e129823.arm.com>
- <4c3067df-20f0-43e8-8e62-354888afac04@app.fastmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D9Eg2uDU"
+Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-69c1220bd51so9916142a12.3
+        for <linux-openrisc@vger.kernel.org>; Sun, 19 Jul 2026 04:25:46 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784460345; cv=none;
+        d=google.com; s=arc-20260327;
+        b=MuGXx1IyZMNMTumhLibt6xdEc7ACTyqvy0QDOTsw8WzxCjv43yyUyW0ytxWF6Q+dVn
+         2esFRAQp9gTG1iPfX6zXyKP/obH+ETASuZUY37+OVPnxvhFCEvRy0qLsKLtTWoI28Z1b
+         HRMc3wXFMmdV1zS18oHEx1Jh99n/WGHNChNHJlhfVMo1yYNq0A2qYBFGG0apVbXoGzds
+         19GmadmUHtSDUGNP3T11NtN2GUS2vvLVNjvYYzx+70TXhJlXzpcf9QwNmUhHXmV+hUr2
+         NediBCHcmmurDdgc6ROyonPjwIucBNtN0rxadiN8OOvwTwOHSV33q9VRHg2FZNMb3fCh
+         U3YA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=HjwBEg56Cr9vHNVIU01sUWrlM5gmQ+vCUXpN04JdIto=;
+        fh=sOY+ULBHDNs+4f4v7HD0ALPEKyF0qIUbiS1zntg11k8=;
+        b=Zf9wvZmyd1U7zcQarDNQ94C5kELURJVCNagXq3TqKv/K56ae0ti0zC0ng0MYe4OqiV
+         /hW7mVyjAiApAd/33iixD7ZdRA5kFTQKbuySe8EU52uV7iU4Vu4EAR99c2O5VwCoZeKf
+         fIip4qzWJvpza3m1C/iQfvjAtWH6AWCSZurJgzfdQAftm0nuzASXm9v4/4rfCnNTFotZ
+         OWds66EUlUBO5KJL4Q93EBswfLxjfV75XokKGAUrcsNLK3fqlkeJLzd4uiuepJsbeLG2
+         HbMgvoxjl6eKaElbO+X9vw+0OurO+8yEknbperu+4M8/CQ98vk6fUrMQL9TAYm8F6jjk
+         5vYQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784460345; x=1785065145; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=HjwBEg56Cr9vHNVIU01sUWrlM5gmQ+vCUXpN04JdIto=;
+        b=D9Eg2uDUSi1x0Y0zg7fYRwtO/ea3ND5A/4nTPUeApKtSEYiUynlMiE59GblVd3IOrl
+         oWFLcCJp25Ys4PA6xy84FzRAl40+EnzjzRCpSvwGo7RHBsGsYMluu61eRFOFojQND+uf
+         lNJOO3g5JejU7GJi6tHzDEvpZzKFqs8qHKpdvXxbKlewQ6qiZ+CA5RKcpH/KLcFJLheA
+         g2ExVRjhJfMz7jIq0+v0kblCXJOFmPxGPhyEutQjLJ+4HNvh68qQ5hZaqeUXlD5xjERu
+         lUwCLdeswboAyC7uRJFB1Xc36fvUf6TDNx+P0LVWtrX9LSsJKKKRbJx1t2fLrOwcBBgd
+         7OEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784460345; x=1785065145;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=HjwBEg56Cr9vHNVIU01sUWrlM5gmQ+vCUXpN04JdIto=;
+        b=ALegUm70a+yW9rKo1v3JpKP5Q7y2qCesK34J1WrMlikxYeuqemi2vWpH/TqWpNzbTn
+         XaemarYcERXekJzjpemiztKOGHROx2uRiT/sjuMVqkpWBg6s9OVmlpaGyC9lwNmi+3VC
+         NpxHYM2BwAGlb3tjJKw5gTQ8Eq4I/93p/MJ76dMQ7dNrq6FHdKdOjPir1YA8gsJ9CBTP
+         Z3tX0imjMVwcAtZ6tQshMNqUEiEFoHd7geAbZwTcGtti1yK5d2QCL5cOwYAqgfK7SfQj
+         UCHLDabZdujgI6mGY8UmG8+x4C6eQetU9m5zqG0/seeFnqMHKGK8DpCtv4eQ7nZPAgGr
+         sSwA==
+X-Forwarded-Encrypted: i=1; AHgh+Rqb0nnz0TSxnTLOUS+smeEULx+PS509jd5IlvGnwVYzwEcG8bhb2ov9UG7JI+52afZFSKMGvpa2yr8R7qnPhQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx/jIFsTXqVSssKx3TJ1beqIZ5ou6Zl6W4EBYLycCvNp5MdjAd9
+	mB/YGL5eDDy9G4pwlSpOs/m0JhpFDPPNf6Bu4yQZwfPoYzY/pMx82NfJ8B/MP7LlKa7OOIh0ApG
+	+6MquPR7wRuIxbmnoIpte/N3OWd2DR08=
+X-Gm-Gg: AfdE7cmx5+JDgIKPlR7okybSw8wi1h6g/UmvIQyXZa9L4mrdJK8PgRVrFbgw1SFPT4v
+	WNaZDstcvSuIaTWOv1RClU7EE6+0OE+jQGjN8YrER7ruIBN+IXm3b0AvuaRty4z7OdS+3jHh8D/
+	6wQqsMRMWFR9tqGfEaOTZADPwVeCkDDYLdNdPnd38zOjY+UyfOgORtRXZ5YjHgkFj/vzZ7Nnkh+
+	ovIYS1le3l9eWVlf7Y8igsRVv3hP6yS0evepguu06gHreH9oIEh7CE+rkBJUfydsSozD5tacqMv
+	G6kz4wM4alT3FZDMO1wZm1y20UZodpnIvlhnnHg9ig==
+X-Received: by 2002:a05:6402:34d5:b0:698:3b7b:e48a with SMTP id
+ 4fb4d7f45d1cf-69e652f908dmr3652615a12.32.1784460344585; Sun, 19 Jul 2026
+ 04:25:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4c3067df-20f0-43e8-8e62-354888afac04@app.fastmail.com>
+References: <20260707181957.433213175@kernel.org>
+In-Reply-To: <20260707181957.433213175@kernel.org>
+From: Magnus Lindholm <linmag7@gmail.com>
+Date: Sun, 19 Jul 2026 13:25:32 +0200
+X-Gm-Features: AUfX_mzTzrHRlu_CZJHA0P1GUw_Z2tfq0CbfsG-DFTqsEJDFIQx7LWbdfB3YWqk
+Message-ID: <CA+=Fv5TDNH8+JAojV9_W36kUkEE68uiA00FQ7i0vJunebqs1sA@mail.gmail.com>
+Subject: Re: [patch 00/18] entry: Consolidate and rework syscall entry handling
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Shrikanth Hegde <sshegde@linux.ibm.com>, 
+	linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>, 
+	Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev, 
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, 
+	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org, x86@kernel.org, 
+	Mark Rutland <mark.rutland@arm.com>, Jinjie Ruan <ruanjinjie@huawei.com>, 
+	Andy Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
+	Richard Henderson <richard.henderson@linaro.org>, Russell King <linux@armlinux.org.uk>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Guo Ren <guoren@kernel.org>, 
+	Geert Uytterhoeven <geert@linux-m68k.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	Helge Deller <deller@gmx.de>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
+	Richard Weinberger <richard@nod.at>, Chris Zankel <chris@zankel.net>, linux-arm-kernel@lists.infradead.org, 
+	linux-alpha@vger.kernel.org, linux-csky@vger.kernel.org, 
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
+	linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org, 
+	linux-um@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, 
+	Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>, 
+	Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, 
+	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
+	linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org, 
+	linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org, 
+	linux-arch@vger.kernel.org, =?UTF-8?Q?Michal_Such=C3=A1nek?= <msuchanek@suse.de>, 
+	Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Fri, Jul 17, 2026 at 08:16:55AM +0200, Arnd Bergmann wrote:
-> On Thu, Jul 16, 2026, at 21:04, Yeoreum Yun wrote:
-> >>
-> >> > Ugh. This isn't correct C code. It only works because the kernel passes
-> >> > -fno-strict-aliasing.
-> >> 
-> >> I think the bigger problem is the code dereferencing the pgd
-> >> pointer in the first place: Since the pgd pair is written in
-> >> 32-bit units in __pmd_populate(), anything reading it would
-> >> technically have to operate on both entries.
-> >> 
-> >> As the kernel relies on -fno-strict-aliasing, the type mismatch
-> >> is less of a problem than actually doing the potentially wrong
-> >> thing.
-> >> 
-> >> As far as I can tell, we are however saved by pgd_val()
-> >> only ever being used for debug prints, where printing
-> >> the first entry is likely all that is needed to analyse
-> >> the real bug.
-> >> 
-> >> > I would recommend either forcing a struct here, or
-> >> > using a u64 with bitmasks/shifts.
-> >> 
-> >> That would require extra complexity for the big-endian
-> >> case though.
-> >
-> > Agree. And since the users of pgd_val() mostly uses with
-> > pmd_pfn(), pmd_page() and etc. I think it doesn't matter to return
-> > lower pmdval_t or higher one.
-> >
-> > Therefore, without considering endianess, it's enough with downcast
-> > like:
-> >
-> >    #define pgd_val(x)      ((pmdval_t)x)
-> >
-> > Could we apply this in next version?
-> 
-> I would just leave the original version here, at least it
-> keeps the current behavior for something that is easy to
-> get wrong. Taking the second entry on big-endian sounds
-> counterintuitive, especially when you have a hugetlb
-> mapping where the two don't just point to the same page.
+>
+> With that all architectures using the generic syscall entry code follow the
+> same scheme, apply stack randomization at the correct and earliest possible
+> place and skip syscall processing depending on the boolean return value of
+> syscall_enter_from_user_mode[_work]().
+>
+> There should be no functional changes, at least there are none intended.
+>
+> The resulting text size for the syscall entry code on x8664 is slightly
+> smaller than before these changes.
+>
+> Testing syscall heavy workloads and micro benchmarks shows a small
+> performance gain for the general rework, but the last patch, which changes
+> the logic to be more understandable has no measurable impact in either
+> direction.
+>
+> The series applies on Linus tree and is also available from git:
+>
+>         git://git.kernel.org/pub/scm/linux/kernel/git/tglx/devel.git entry-rework-v1
+>
 
-Thanks. Even my simple tests with GCC versions 8.5.0 through 16.1.0 in [0],
-did not spill to the stack. So keeping David's original implementation
-seems reasonable.
+Hi Thomas,
 
-Link: [0] https://www.kernel.org/pub/tools/crosstool/
+I did another round of testing of this series on Alpha, this time with my
+Alpha GENERIC_ENTRY conversion rebased on top of this series.
 
--- 
-Sincerely,
-Yeoreum Yun
+For this test I also manually applied the seccomp fixup discussed earlier in
+this thread, i.e. fixing the recheck-after-trace logic in
+__seccomp_filter() along the lines suggested by Jinjie/Oleg.
+
+With that in place, the kernel boots on Alpha and I do not see any
+regressions in the seccomp_bpf kernel selftest or in the strace testsuite.
+
+One note: the seccomp_bpf selftest run on Alpha uses this not-yet-upstream
+Alpha selftest enablement patch:
+
+https://lore.kernel.org/linux-alpha/20260203063357.14320-1-linmag7@gmail.com/
+
+One Alpha-specific wrinkle I hit while rebasing the GENERIC_ENTRY patch is
+that Alpha cannot unconditionally pre-seed the normal -ENOSYS return state
+before calling into the generic entry code: syscall_set_return_value() also
+updates r19/a3, which is still syscall argument 4 on the normal entry path.
+Doing that too early broke early userspace mmap() during boot.
+
+The Alpha conversion therefore handles this on the no-dispatch path instead:
+after the generic entry helper returns, if the syscall is not to be invoked
+or the resulting syscall number is invalid, Alpha skips the call, preserves
+any ptrace/seccomp/BPF-provided return value, and only synthesizes -ENOSYS if
+the return state was otherwise unchanged. That was needed for the
+TRACE_syscall.ptrace.syscall_faked and syscall_errno seccomp_bpf cases to
+pass.
+
+So from the Alpha side, with the seccomp fixup applied:
+
+Tested-by: Magnus Lindholm linmag7@gmail.com
+
+Are you planning to send a v2 with the seccomp recheck fix and any other
+review fixups folded in? Is the intention to route this upstream
+during the next merge window?
+
+Thanks,
+Magnus
