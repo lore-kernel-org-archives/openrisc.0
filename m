@@ -1,192 +1,271 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A72EB1CAA6D;
-	Tue, 21 Jul 2026 18:21:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8250D45DF48;
+	Wed, 22 Jul 2026 15:30:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784658102; cv=none; b=D90zTebqM16TMrojtslntT0nIvFHcPPF9/2L25P45wsWx+jiA8FNUhhxYNYOKZdr4s7OrKh5wAEszBc1PWzdEPNJLR6wKeVg+zc6878J8cvK3iHr8YDUNRy3MToBfJRJA973DfXLnRmDQAWX+gBf1T0K8HV6lYxifrQAfTocO3c=
+	t=1784734249; cv=none; b=l1hKMQounrUuXCYdeuALDDl51jOHYNGduLly9l/N1Yw6RWKwB4WCsHFL5J25DWTMjohp4wkCAWrhlrpuB3ajYewPoydAaRj3gq/BbXYzZbmJ9fuo2NYpem1kor1e65e+ACoAUmlsivM6ws0CeW0Amx+zqStwPmsq/chT5nYKJVw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784658102; c=relaxed/simple;
-	bh=wPeF523VPrsePN5don7EbC4JB3FiUjP6cFlZdJkEZIE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=IgXNhtfLnM7fk+pnGYnJMrZffhcLsfY4I1eJZsLzFV5SKebJAWxw/DzJ/r6DLWawce4M3IByF36xE94NBuBZyoxmux1GYQcxHGceXyVeF3QEqh+XfKkQ8zEZz4jDPSJHSuU1cswAiO1IACkesRY6eQX4EgbvrkcYgHFg2/tA9U4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NBS1CkQn; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784734249; c=relaxed/simple;
+	bh=y9r6C8+qmxpZN2UriTf9GnZ7z+Z5djCU/+tffpW++Gs=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=bQjb6w0lcRdj+og5AKdGH6IOWAqrhwBlhfEcs+hjnUgkmveGCXNkHeO4Zsk3QL02LUhKTjaKRNDLUJkhLaNlqyc2FdZUkoCv85kbuRUCsZsHJu7Za1EzJ+Ozk88I5dXdWCnmU17DekFKb3IVMwEHwrQZWZGhawWH/wAK/uZU0xI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=iMZDIMeN; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NBS1CkQn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3578A1F000E9;
-	Tue, 21 Jul 2026 18:21:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784658101;
-	bh=WED5aVE31e9UmcJgmLBdBgW0L+ihGmbx3NEOMbcoNj8=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=NBS1CkQn+apjU9r6kMfeBbrfcScZVkMbtbg0YyRdbXNT+gb4TpmpHJl+AOBiN1KVA
-	 HwrHXpXfZNMr9D8vd+zfaoUpFJBcF3TlSQ4xpe/XUE/Jd2I1zSJ1+gJB/NQRHdQkiU
-	 euAQM8EjX27K5x3alp4YE9DIy6wlXv0AmkFFEPPyENPX9nkSAGX/WlmcvYG0UgaDrD
-	 oHj+KMHEfIuSx1gyjONCpBlMYtBxQ9nwdZ8hoFq5/ABYRveZE9N0ZtbiFzc9j8NwYx
-	 HKBs6XvN+IqTFBSymLn8MS6F3gx+mXhj0GSEL22UekMGMVca95FdR81fu7ZBMfmcdJ
-	 368TJQQ7O2ErQ==
-Message-ID: <78087721-6598-44f7-b89d-1fd98dd94b6b@kernel.org>
-Date: Tue, 21 Jul 2026 20:21:03 +0200
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="iMZDIMeN"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 64104168F;
+	Wed, 22 Jul 2026 08:30:36 -0700 (PDT)
+Received: from e129823.arm.com (e129823.arm.com [10.2.213.3])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9BCA83F66F;
+	Wed, 22 Jul 2026 08:30:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1784734240; bh=y9r6C8+qmxpZN2UriTf9GnZ7z+Z5djCU/+tffpW++Gs=;
+	h=From:Subject:Date:To:Cc:From;
+	b=iMZDIMeNT8qFLRIp9mZGMzTNdCLxPs+SbFGoNqqV7NhK9FC/O1Qd9fvZM9RhF4+jK
+	 NkKYC3o+KWe4RMXbpZxziOHIvxV/17L5RnTcDfCKrGWx6MYCHNtI4kbJx4Bjx2YYT2
+	 IsqTp15KkeDZurSwN14rAFyyajBrU4DIFIv8hR0A=
+From: Yeoreum Yun <yeoreum.yun@arm.com>
+Subject: [PATCH RFC v2 00/20] mm: optimize unnecessary loads due to
+ ptep_get() and friends out
+Date: Wed, 22 Jul 2026 16:30:08 +0100
+Message-Id: <20260722-dummy_ptxp3-v2-0-d9e4bad31e0a@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 10/34] x86: mm: carve out the generic compile-time
- folded pgtable case in effective_prot()
-To: Yeoreum Yun <yeoreum.yun@arm.com>
-Cc: Dave Hansen <dave.hansen@intel.com>,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
- linux-arch@vger.kernel.org, kvm-riscv@lists.infradead.org,
- linux-riscv@lists.infradead.org, x86@kernel.org, linux-mm@kvack.org,
- kasan-dev@googlegroups.com, linux-csky@vger.kernel.org,
- linux-m68k@lists.linux-m68k.org, linux-openrisc@vger.kernel.org,
- linux@armlinux.org.uk, akpm@linux-foundation.org, ankur.a.arora@oracle.com,
- rppt@kernel.org, linmag7@gmail.com, chleroy@kernel.org,
- klarasmodin@gmail.com, chenhuacai@kernel.org, kernel@xen0n.name,
- kas@kernel.org, zhangtianyang@loongson.cn, wangyuli@aosc.io,
- tsbogend@alpha.franken.de, ljs@kernel.org, jgg@ziepe.ca,
- catalin.marinas@arm.com, will@kernel.org, arnd@arndb.de,
- ryan.roberts@arm.com, pasha.tatashin@soleen.com, rmclure@linux.ibm.com,
- baolin.wang@linux.alibaba.com, tj@kernel.org, kevin.brodsky@arm.com,
- anup@brainfault.org, atish.patra@linux.dev, pjw@kernel.org,
- palmer@dabbelt.com, aou@eecs.berkeley.edu, alex@ghiti.fr,
- dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org,
- tglx@kernel.org, mingo@redhat.com, bp@alien8.de, hpa@zytor.com,
- hannes@cmpxchg.org, mhocko@kernel.org, qi.zheng@linux.dev,
- shakeel.butt@linux.dev, kasong@tencent.com, baohua@kernel.org,
- axelrasmussen@google.com, yuanchu@google.com, weixugc@google.com,
- ryabinin.a.a@gmail.com, glider@google.com, andreyknvl@gmail.com,
- dvyukov@google.com, vincenzo.frascino@arm.com, anshuman.khandual@arm.com,
- yang@os.amperecomputing.com, chaitanyas.prakash@arm.com, ardb@kernel.org,
- guoren@kernel.org, yang.li85200@gmail.com, viro@zeniv.linux.org.uk,
- dinguyen@kernel.org, schuster.simon@siemens-energy.com,
- wangruikang@iscas.ac.cn, junhui.liu@pigmoral.tech, muchun.song@linux.dev,
- vishal.moola@gmail.com, namcao@linutronix.de, pavel@kernel.org,
- djbw@kernel.org, yu-cheng.yu@intel.com, baolu.lu@linux.intel.com,
- Jonathan.Cameron@huawei.com, coxu@redhat.com, andreas@gaisler.com,
- liam@infradead.org, vbabka@kernel.org, surenb@google.com, mhocko@suse.com,
- geert@linux-m68k.org, shorne@gmail.com, jonas@southpole.se,
- stefan.kristiansson@saunalahti.fi
-References: <ac365196-8ccc-4d8b-83d7-28fec763e75c@kernel.org>
- <710b7eb0-8e0c-4f07-991c-2285c77e1beb@intel.com>
- <6007625e-c3f9-4ad6-99a8-61396bccbcec@kernel.org>
- <32d459d1-ad19-4baf-bbb1-0565458001d2@intel.com>
- <3ea30f8a-bb29-4bf5-8400-1c4840d46a88@kernel.org>
- <7e84b200-25eb-43a6-b5e2-5f27f2d82a77@intel.com>
- <31988089-095a-4eed-b5e2-c677c70f79f6@kernel.org>
- <14e250db-1641-4085-8d13-02f819657d5f@intel.com>
- <d83c76b3-ea4d-4c41-b4c5-f5ae558ace55@kernel.org>
- <alYgMxKqRnF6_X0A@e129823.arm.com> <al-wLXp0tAv7hNv-@e129823.arm.com>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <al-wLXp0tAv7hNv-@e129823.arm.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAHiYGoC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyjHQUlJIzE
+ vPSU3UzU4B8JSMDIzMDcyMj3ZTS3NzK+IKSigJjXWNzE8MUc4vkZHODNCWgjoKi1LTMCrBp0Up
+ Bbs5KsbW1AF5jcBpiAAAA
+To: Russell King <linux@armlinux.org.uk>, 
+ Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+ Arnd Bergmann <arnd@arndb.de>, Andrew Morton <akpm@linux-foundation.org>, 
+ Kairui Song <kasong@tencent.com>, Qi Zheng <qi.zheng@linux.dev>, 
+ Shakeel Butt <shakeel.butt@linux.dev>, Barry Song <baohua@kernel.org>, 
+ Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, 
+ Wei Xu <weixugc@google.com>, Johannes Weiner <hannes@cmpxchg.org>, 
+ David Hildenbrand <david@kernel.org>, Michal Hocko <mhocko@kernel.org>, 
+ Lorenzo Stoakes <ljs@kernel.org>, Tianrui Zhao <zhaotianrui@loongson.cn>, 
+ Bibo Mao <maobibo@loongson.cn>, Anup Patel <anup@brainfault.org>, 
+ Atish Patra <atish.patra@linux.dev>, Paul Walmsley <pjw@kernel.org>, 
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+ Alexandre Ghiti <alex@ghiti.fr>, Dave Hansen <dave.hansen@linux.intel.com>, 
+ Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+ Borislav Petkov <bp@alien8.de>, x86@kernel.org, 
+ "H. Peter Anvin" <hpa@zytor.com>, "Liam R. Howlett" <liam@infradead.org>, 
+ Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
+ Jonas Bonn <jonas@southpole.se>, 
+ Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, 
+ Stafford Horne <shorne@gmail.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+ loongarch@lists.linux.dev, linux-mips@vger.kernel.org, 
+ linux-arch@vger.kernel.org, linux-mm@kvack.org, kvm@vger.kernel.org, 
+ kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
+ linux-openrisc@vger.kernel.org, Yeoreum Yun <yeoreum.yun@arm.com>
+X-Mailer: b4 0.13.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=8345; i=yeoreum.yun@arm.com;
+ h=from:subject:message-id; bh=y9r6C8+qmxpZN2UriTf9GnZ7z+Z5djCU/+tffpW++Gs=;
+ b=owEB7QES/pANAwAKAW3Vw9FaxTEzAcsmYgBqYOIPXVkSrUGz6mKXI6y0yEWq3o4owe66Petn8
+ nVDY4vdlKeJAbMEAAEKAB0WIQQtg+CS3QUzuFh1pJ1t1cPRWsUxMwUCamDiDwAKCRBt1cPRWsUx
+ M6JADADUr5G59lCYM0wOiw4e2HcD5OSYYLyafRctz8vNY6yo6bDPeo/0n6TxR2SqscwfZl0awE6
+ 8hMwJkf4/KbPw/TRaZWxT5b0H+U8Rvz+Ean8sjIqKsbxe+Wws/80SPkj4/51VEsYxHqrtYimCz0
+ s6CL89gclwhq1maxc397Bsz2j9PeL4Ai4DwWQI+MMGhDT1ibZsMGZjhTz22Mub0Bjfg7FtDp0pz
+ 1MnX3FKqxBBo7Uz1al5+cu4UruXkkf6wXd7Ksxhx5hHUSrdhMqHSfYxtFyQd4Glf3JyO1PluA5c
+ ABW8JArJI7O6GCYANLd+xOUk5TdU9NiBS9mnhvFM03eK+i8cZO6WP2fS8geXrdJBukKV0P/NBHN
+ ClsFohnF95WHZfsmcM7pusk1JlST9nms2bR3jYGHvUYYdBAYD2nZ8WjK318BqY2PQQB4jh9wZ38
+ 5KYWiZ+o3Xs1I1a0X0Os55pPGTIY9/E9pKwQPGeB2VIJZ5ELMC1Xfb0ATvuBZ78cwqAS0=
+X-Developer-Key: i=yeoreum.yun@arm.com; a=openpgp;
+ fpr=2D83E092DD0533B85875A49D6DD5C3D15AC53133
 
-On 7/21/26 19:45, Yeoreum Yun wrote:
-> Hi,
-> 
->>>
->>> Yes, exactly. :)
->>>
->>> And I agree that it is something we should be optimizing.
->>>
->>>
->>> I'd be curious about that as well. I mean, looking at the generated code
->>> it's clear that it is suboptimal.
->>>
->>>
->>> The solution space I see:
->>>
->>>
->>> (1) Pass the result from e.g., pgdp_get() into p4d_get(), so it can just return 
->>>     the value with folded p4ds.
->>>
->>> That requires extreme amounts of churn in core-mm AFAIKS, so I don't see that as feasible.
->>>
->>>
->>> (2) Rewrite folding code to make p4d_present() be a dummy instead of 
->>>     pgd_present(), and make p4dp_get() return a dummy value.
->>>
->>> ... a lot of churn across architectures. I'm sure we'll learn soon why it was done 
->>> ike the way it is today in the first place. Something interesting to look at,
->>> certainly, but a bit of a stretch just to optimize reads.
->>>
->>>
->>> (3) Make folded pgdp_get() use an ordinary read instead of a READ_ONCE / dummy.
->>>
->>> I don't like that, because we couldn't catch easily if the value is then
->>> actually used some old/new code.
->>>
->>> If pgd_present() etc are supposed to ignore the value, I'd rather have a mechanism
->>> that enforces that the values are actually ignore in pgd_offset() etc as well.
->>>
->>>
->>> (4) What we do in this series, but instead of forbidding set_pgd(), make it only 
->>>     complain when we are passing in a dummy value.
->>>
->>> The expectation is that it would avoid touching most architecture code in patch
->>> 12 -> 27 and still prevent mistakes in the future.
->>>
->>> @Yeoreum can you play with that and see what the end result would be?
-> 
-> If there's no comment anymore for (4), Could I post next version on tomorrow?
+Using ptep_get() and its counterparts in common code is suboptimal on
+kernel configurations with generic compile-time folded page tables.
+By default, ptep_get() and its friends expands to READ_ONCE(),
+forcing the compiler to emit a load even when the value is not used afterwards.
 
-Works for me.
+This issue was recently reported by Christophe Leroy [1] for ppc32
+preventing futher code conversion to ptep_get()/pmdp_get()/... helper
+and the same behavior can also be observed on arm64 when built with
+2- or 3-level page tables
 
-As discussed off-list, we should look into de-duplicating some of the arch
-vmalloc_fault fixup code, but that will be a separate effort.
+e.g) perf_get_page_size() in arm64 with CONFIG_PGTABLE_LEVEL=3:
 
+00000000000052a0 <perf_get_page_size>:
+    ...
+    52dc: d53b4234     	mrs	x20, DAIF
+    52e0: d50343df     	msr	DAIFSet, #0x3
+    ...
+    52fc: d35e9a69     	ubfx	x9, x19, #30, #9        /* pud_offset_lockless() */
+    5300: f9403508     	ldr	x8, [x8, #0x68]
+    5304: f869790a     	ldr	x10, [x8, x9, lsl #3]   /* pudp_get() */
+    5308: f90007ea     	str	x10, [sp, #0x8]
+    530c: f8697908     	ldr	x8, [x8, x9, lsl #3]    /* pudp_get() */
+    ...
+    5360: 90000009     	adrp	x9, 0x5000 <perf_prepare_sample+0x548>
+    5364: 92746908     	and	x8, x8, #0x7ffffff000
+    5368: d3557675     	ubfx	x21, x19, #21, #9       /* pmd_offset_lockless() */
+    ...
+    5394: f8757ac8     	ldr	x8, [x22, x21, lsl #3]  /* pmdp_get() */
+
+Though PGTABLE_LEVEL=3, since the pudp_get() still remain with
+READ_ONCE(), there's redundant load for the pud which is folded.
+
+To prevent generating suboptimal code, define dummy pXdp_get() and
+pXd_offset_lockless() in the pgtable-nopXd.h to handle folded page tables
+properly.
+
+As the pXdp_get() can return *dummy* entry, some of code using
+the stack value where saves the pXdp_get() could be a problematic:
+
+  1. Passing address of stack value where saves the pXdp_get() result
+     to pXd_offset() for example:
+
+       pud_t *pudp, pud;
+       pmd_t *pmdp;
+
+       pud = pudp_get(pudp, address);
+       pmdp = pmd_offset(&pud, pud, address);
+
+     (e.g. host_pfn_mapping_level() in loongarch).
+
+  2. Using the pXdp_get() result to use as argument of pXd_val() and
+     to check prot without checking pgtable is folded.
+     for example, x86's effective_prot().
+
+  3. Using set_pXd() with pXdp_get() will set problematic dummy entry
+     in folded page table like:
+
+       set_pXd(pxdp, pXdp_get(pxdp_k));
+
+     To prevent this, Let set_pXd() triggers the compile error
+     to catch the wrong usage with folded dummy entry of set_pXd() in
+     the generic compile-time folded pgtable.
+
+  4. Using pgd_page_vaddr() to get the first-level pgtable.
+     passing dummy pxdp_get() for pgd_page_vaddr() will return wrong
+     address. Therefore, make pgd_page_vaddr() and pXd_pgtable() to
+     trigger the error for improper usage with folded dummy entry in the
+     generic compile-time folded pgtable.
+
+Thanksfully, above cases are rare since (1) most of usage using
+pXd_offset() with result of upper pXd_offset(), (2) it's extreamely
+rare to use pXd_val() for non-leaf entry in the kernel,
+(3) is to handle the vmalloc_fault or set the first level of page table
+and (4) to setup early page table and etc.
+
+Therefore, convert this kind of problematic rare pattern properly.
+
+Furthermore, passing the ptep_get() (or its counterparts) as argument
+directly to pte_present() and related helpers can generate suboptimal code,
+in arm64 as the current macro implementation may evaluate its argument
+more than once like:
+
+  !pte_val(READ_ONCE(*pte) || pte_present_invalid(READ_ONCE(*pte))
+
+resulting in redundant loads.
+
+A typical example is pud_free_pmd_page(), where the expansion of
+pmd_present() generates:
+    ...
+    /* pmd_present() (x20 = pmdp) */
+    1b88: f9400288     ldr	x8, [x20]        // read pmdp.
+    1b8c: f9000fa8     str	x8, [x29, #0x18]
+    1b90: 3707fec8     tbnz	w8, #0x0, 0x1b68 <pud_free_pmd_page+0xd0>
+    1b94: f9400288     ldr	x8, [x20]        // redundant read of pmdp.
+    1b98: 8a170109     and	x9, x8, x23
+    1b9c: f9000fa8     str	x8, [x29, #0x18]
+    1ba0: f120013f     cmp	x9, #0x800
+    1ba4: 54fffe20     b.eq	0x1b68 <pud_free_pmd_page+0xd0>
+    1ba8: 17fffff4     b	0x1b78 <pud_free_pmd_page+0xe0>
+    ...
+
+To address this in arm64, convert pte_present() macro and its friends
+to static inline function.
+
+This patch is based on mm-unstable.
+
+Future work
+===========
+ - print_bad_page_map() and show_pte() still prints dummy values
+   instead of printing the same content for all generic compile-time
+   folded page tables. We might want to skip printing dummy values later.
+
+ - We currently catch abuse of dummy values on the stack at compile-time by
+   relying on constant propagation by the compiler. Usama's work [3] on using
+   distinct types for sw vs. hw PTEs could help here as well."
+
+Patch History
+=============
+from v1 to v2:
+  - Restore slient fallback to next pXd in set_pXd() and pXd_pgtable()
+    and add check whether they're called with dummy entry.
+
+  - Add some comment for returning first entry of pgd in arm with
+    2 pgtable-level
+
+  - https://lore.kernel.org/all/20260713135614.1618183-1-yeoreum.yun@arm.com/
+
+Link: [1] https://lore.kernel.org/all/0019d675-ce3d-4a5c-89ed-f126c45145c9@kernel.org/
+Link: [2] https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com/
+Link: [3] https://lore.kernel.org/r/74182e50-b54f-4d2d-a27f-3a59a538d6bc@arm.com
+---
+David Hildenbrand (Arm) (13):
+      ARM: mm: make nommu pgd_t a scalar
+      ARM: mm: make 2-level pgd_t a scalar
+      ARM: mm: remove custom pgdp_get()
+      LoongArch: mm: define pud_leaf() only when PUD exists
+      MIPS: mm: define pud_leaf() only when PUD exists
+      mm/pgtable: define (pgd|p4d|pud)_leaf() for folded page tables
+      mm/pgtable: define (pgd|p4d|pud)_offset_lockless() for folded page tables
+      x86: mm: carve out the generic compile-time folded pgtable case in effective_prot()
+      mm/pgtable: optimize pmdp_get() and friends for folded pagetable levels
+      mm/pgtable: catch abuse of folded dummy pgd_t/p4d_t/pud_t
+      mm/pgtable: disallow calling (pgd|p4d|pud)_page, pgd_page_vaddr() and (p4d|pud)_pgtable with dummy
+      mm/pgtable: disallow calling folded set_pgd/set_p4d/set_pud with dummy
+      openrisc/pgtable: drop __pmd_offset()
+
+Yeoreum Yun (7):
+      mm: vmscan: remove stack copy address of pud pass in wallk_pud_range()
+      loongarch: kvm: remove stack copy address of pXd in pXd_offset()
+      riscv: kvm: remove stack copy address of pXd in pXd_offset()
+      riscv: mm: use proper set_pXd() for generic compile-time folded patable in vmalloc_fault()
+      x86: mm: define pudp_set_access_flags() when CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD is enabled only.
+      x86: mm: skip pud setup when using generic compile-time folded pagetable
+      arm64: pgtable: convert pte_present() from macro to static inline
+
+ arch/arm/include/asm/page-nommu.h           |  4 +--
+ arch/arm/include/asm/pgtable-2level-types.h | 24 +++++++++++--
+ arch/arm/include/asm/pgtable.h              |  2 --
+ arch/arm64/include/asm/pgtable.h            | 35 +++++-------------
+ arch/loongarch/include/asm/pgtable.h        |  2 ++
+ arch/loongarch/kvm/mmu.c                    | 20 ++++++-----
+ arch/mips/include/asm/pgtable.h             |  2 ++
+ arch/openrisc/include/asm/pgtable.h         |  3 --
+ arch/riscv/kvm/mmu.c                        | 20 ++++++-----
+ arch/riscv/mm/fault.c                       | 52 +++++++++++++++++----------
+ arch/x86/mm/dump_pagetables.c               |  5 ++-
+ arch/x86/mm/pat/set_memory.c                |  5 +--
+ arch/x86/mm/pgtable.c                       |  2 ++
+ include/asm-generic/pgtable-nop4d.h         | 53 ++++++++++++++++++++++-----
+ include/asm-generic/pgtable-nopmd.h         | 54 ++++++++++++++++++++++------
+ include/asm-generic/pgtable-nopud.h         | 55 +++++++++++++++++++++++------
+ include/linux/ptdump.h                      |  1 +
+ mm/ptdump.c                                 | 11 ++++++
+ mm/vmscan.c                                 |  2 +-
+ 19 files changed, 246 insertions(+), 106 deletions(-)
+---
+base-commit: 7368ccdeff50c27809d3a8276c85bae7e402c96c
+change-id: 20260722-dummy_ptxp3-3741d78cc70f
+
+Best regards,
 -- 
-Cheers,
+Sincerely,
+Yeoreum Yun
 
-David
