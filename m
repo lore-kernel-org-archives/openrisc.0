@@ -1,32 +1,32 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id C0F0F372EFF;
-	Mon, 27 Jul 2026 15:51:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3464772630;
+	Mon, 27 Jul 2026 18:06:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785167463; cv=none; b=GGN2ExAHh8It8wIn7d9auBEcuB6NsTk6mcgIdbtxvu31Xy2dhYP79dN84zHb5JIQaHAMxGV3JnNa1urPwNtYOahmPCBCiFMYn4JUt2CC79x53JG8erZ7phAt03Rvh7929WGwWFsdLV2E9l4C3NwwmCVCvW25ACEGde7GQIvqPOE=
+	t=1785175600; cv=none; b=TQB0doGaNepz1cmFlTJ9PC8yBIR3vhgxTalDlv/D/PoY9cC0q4/dYw5H4gowJ7EjqEp4IyRXekZ37JWF49Kx7PUhcPHg1DVhrAiOxeFFnwhqkj34yxo+ZkM28MYAYt2GcW48tDyL/EPjUY0xpDTQl4fzH2URrLuc/UikLUWSdUE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785167463; c=relaxed/simple;
-	bh=ppKyIilh92SxJAUCgXnn55E0Ht4c4utSVo8m2JGUl6g=;
+	s=arc-20240116; t=1785175600; c=relaxed/simple;
+	bh=17fUHUjXNeVWMgUSlC4I4UbGJCuscyMxz/0B2wiLID0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uZlV7skzLiXzxi8R37CKXrZQx3DC8sb24hUqk79OnyJAlPWV5QiOSkLNJd46QzWl07z48TUpK8O91ZDeii/OM7vtMtfdgFqQZ6l71byV7VgBEFEe+eKFAFG7ULCw7weVgY/0DsMidjIIUmyGPfSYZs1xXlWEzWBlIH8F+NHoSG0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=CAzb1J3R; arc=none smtp.client-ip=217.140.110.172
+	 Content-Type:Content-Disposition:In-Reply-To; b=RK+9NLDrVCljYwtd8r5SlzpkJowg8wUCS87OAQpLwgbKz3DIGdxQEFEzFi1dQUz7DzAlg8O6xLkkuw1Ur5fKlKZW5H3ZkL6i+AEensxM9GAnZcLzNkkmCGQEGC+GQYgPBVm7p9FMi9+KBOPk6oewnFiNmejpfCbKE03RSEKbTzE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=Lu1jXBGs; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="CAzb1J3R"
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="Lu1jXBGs"
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0AD3C1688;
-	Mon, 27 Jul 2026 08:50:57 -0700 (PDT)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 659AD1688;
+	Mon, 27 Jul 2026 11:06:34 -0700 (PDT)
 Received: from e129823.arm.com (e129823.arm.com [10.2.213.3])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3D0923F763;
-	Mon, 27 Jul 2026 08:50:55 -0700 (PDT)
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 380273F86F;
+	Mon, 27 Jul 2026 11:06:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1785167461; bh=ppKyIilh92SxJAUCgXnn55E0Ht4c4utSVo8m2JGUl6g=;
+	t=1785175598; bh=17fUHUjXNeVWMgUSlC4I4UbGJCuscyMxz/0B2wiLID0=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=CAzb1J3RvS7dAaxGpiUZMcpmhuOLyE3H5eHiBiE2m0YEkDO6qDZ7Lqich6Vv5OhX1
-	 EK7wUBI9x0E+2OspOWwN0sF+iBLiRBIV6786feaJHGbBxX4bSwgutgvX/z9p1LCWyl
-	 f7iWW8NaSn6UkJF8qxCrYmgmdiKe80Y7r+WCd/TU=
-Date: Mon, 27 Jul 2026 16:50:52 +0100
+	b=Lu1jXBGsav0iVgrGWSZsvRyAlJ5at2QxNHv1w1hXfz5ioFXzND+YJHKyFrA03qRFY
+	 Q/hx54v2Cd4KFrZuJPBBE4RftgYfvLs49KTQX5Dz6eKnnAQEbcQ/tI+05OTQ1z0zkD
+	 i2PqFVr45Lxp9zCvG4+AVFaAlSVytmKw9arVF48g=
+Date: Mon, 27 Jul 2026 19:06:29 +0100
 From: Yeoreum Yun <yeoreum.yun@arm.com>
 To: "David Hildenbrand (Arm)" <david@kernel.org>
 Cc: Yeoreum Yun <yeoreum.yun@arm.com>, Dave Hansen <dave.hansen@intel.com>,
@@ -61,18 +61,20 @@ Cc: Yeoreum Yun <yeoreum.yun@arm.com>, Dave Hansen <dave.hansen@intel.com>,
 	Suren Baghdasaryan <surenb@google.com>,
 	Michal Hocko <mhocko@suse.com>, Jonas Bonn <jonas@southpole.se>,
 	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Stafford Horne <shorne@gmail.com>, linux-kernel@vger.kernel.org,
+	Stafford Horne <shorne@gmail.com>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
 	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
 	linux-arch@vger.kernel.org, linux-mm@kvack.org, kvm@vger.kernel.org,
 	kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org,
 	linux-openrisc@vger.kernel.org
-Subject: Re: [PATCH RFC v2 00/20] mm: optimize unnecessary loads due to
- ptep_get() and friends out
-Message-ID: <amd-XDcvRZJzkLRX@e129823.arm.com>
+Subject: Re: [PATCH RFC v2 12/20] x86: mm: define pudp_set_access_flags()
+ when CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD is enabled only.
+Message-ID: <ameeJWmSQqTJ7uzU@e129823.arm.com>
 References: <20260722-dummy_ptxp3-v2-0-d9e4bad31e0a@arm.com>
- <0143b927-08c5-4e94-ae6e-2a0d7bfe950f@intel.com>
- <amD-TLGWGdMK2ItC@e129823.arm.com>
- <2a2923e4-6166-4ed6-97ba-2e544a1a2f9d@kernel.org>
+ <20260722-dummy_ptxp3-v2-12-d9e4bad31e0a@arm.com>
+ <188623a9-dba0-4229-a7ff-5feb2ef0c088@intel.com>
+ <amD9iD7rjmU__9b6@e129823.arm.com>
+ <4dbf7e54-a541-45de-b4b9-43ee5add287b@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -81,48 +83,63 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2a2923e4-6166-4ed6-97ba-2e544a1a2f9d@kernel.org>
+In-Reply-To: <4dbf7e54-a541-45de-b4b9-43ee5add287b@kernel.org>
 
-On Mon, Jul 27, 2026 at 05:18:00PM +0200, David Hildenbrand (Arm) wrote:
-> On 7/22/26 19:30, Yeoreum Yun wrote:
-> >> One of my nits about v1 was that it didn't really frame the series
-> >> precisely. It talks about "optimization" instead of fundamentally
-> >> changing the way that the kernel deals with folded page table levels.
-> >>
-> >> The optimization that this *wants* to talk about kinda falls out of that
-> >> refactoring. It's not really the core of the series, IMNHO.
-> >>
-> >> This series effectively changes the rules about where and how folded
-> >> page table levels can be manipulated. In doing that, the door is opened
-> >> to optimizing out the unnecessary loads.
+On Mon, Jul 27, 2026 at 05:02:00PM +0200, David Hildenbrand (Arm) wrote:
+> On 7/22/26 19:27, Yeoreum Yun wrote:
+> > Hi Dave,
 > > 
-> > I see. might the title and the cover letter should be reparsed.
-> > Thanks to remind it again :)
+> >>> diff --git a/arch/x86/mm/pgtable.c b/arch/x86/mm/pgtable.c
+> >>> index f32facdb3035..edad847a2ecd 100644
+> >>> --- a/arch/x86/mm/pgtable.c
+> >>> +++ b/arch/x86/mm/pgtable.c
+> >>> @@ -411,6 +411,7 @@ int pmdp_set_access_flags(struct vm_area_struct *vma,
+> >>>  	return changed;
+> >>>  }
+> >>>  
+> >>> +#ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
+> >>>  int pudp_set_access_flags(struct vm_area_struct *vma, unsigned long address,
+> >>>  			  pud_t *pudp, pud_t entry, int dirty)
+> >>>  {
+> >>> @@ -430,6 +431,7 @@ int pudp_set_access_flags(struct vm_area_struct *vma, unsigned long address,
+> >>>  
+> >>>  	return changed;
+> >>>  }
+> >>> +#endif /* CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD */
+> >>>  #endif
+> >>>  
+> >>>  bool ptep_test_and_clear_young(struct vm_area_struct *vma,
+> >>
+> >> #ifdefs in .c files are evil.
+> >>
+> >> The changelog doesn't make a strong enough case for why this evil should
+> >> be tolerated.
+> >>
+> >> These are also _precisely_ the kind of #ifdefs that cause compilation
+> >> problems. This one is:
+> >>
+> >> #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+> >> /// function here
+> >> #ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
+> >> /// another function here
+> >> #endif
+> >> #endif
+> >>
+> >> So there end up being a couple of dependent config options in play. If
+> >> there are compile problems, this makes them harder to find.
+> >>
+> >> What is the _actual_ goal here? Saving 50 bytes of kernel text?
+> > 
+> > TBH, this came from for v1's change of behavior set_pud() where
+> > triggered compiliation problem with v2 this change wouldn't require.
 > 
-> While v1 changed "where and how folded page table levels can be manipulated"
-> more drastically, v2 leaves most of set_pgd/... working for now, and really only
-> changes how pgd_get() operates.
+> If the patch is not required right now, let's drop it.
 > 
-> With v2, there is mostly only a change for page table walkers that use
-> pgd_get(): while the existing model already made all these levels be skipped in
-> most places except in ptdump code, we now also have to skip them in ptdump code.
-> 
-> So yes, that should be clearly spelled out: as long as pgd_get() is not
-> involved, set_pgd()/pgd_page_vaddr()... will keep working as is.
-> 
-> The moment someone switches to pgd_get() with folded page tables (like riscv
-> already does), set_pgd() is disallowed, and modifications on the actual level
-> must be performed. As discussed, a common helper for vmalloc faults would
-> already minimize the pain quite a lot in that scenario.
-> 
-> While we should make that clearer in the patch description, I am wondering
-> whether we should also add some basic MM documentation for folded page tables,
-> where we at least explain the current state-of-the-art (what's ignored when
-> traversing, why does "no_p4d" actually mean "pgd helpers are dummies and p4d
-> helpers implement the real logic").
+> I agree that it's the right thing to do: just look at pudp_invalidate() in the
+> very same file, but if we can reduce the churn and leave the cleanups to x86
+> folks, that seems to be preferred.
 
-I see, while I'm trying to spell out those, let me see the MM doc
-to check whether we need to explain more about this.
+Yes. I'll drop in next version.
 
 -- 
 Sincerely,
