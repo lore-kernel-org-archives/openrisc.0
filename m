@@ -1,74 +1,70 @@
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDFDF3630BA
-	for <linux-openrisc@vger.kernel.org>; Sat, 15 Aug 2026 06:16:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 881F937CD2F
+	for <linux-openrisc@vger.kernel.org>; Sat, 15 Aug 2026 06:29:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786774589; cv=none; b=t0Ey58LNJwtMgwETM0qNldSZrHG1BZ2cDRdZDgUW/Jqz0bas+XZTJ6O5xBsWO92EYEi4IoNTF93ebEYEGVAJ89Y/SENPAPtQNbDo/O73dk9Y6GdmjEOUnDXfBiHwjD5naYWQi98k9OkkrD+ecusODaCJ/ha0PsGu3xsVntadg1c=
+	t=1786775381; cv=none; b=AAOC3k2nV9t7L86xJs78/Qz9tA2bRkJBDpOHOSY+uvtv3wN9N5PwLlvnopnclgSGeX9BFPgH0E4NTuB3yfKJ7KcMBf7XfIXQwSlqrfUdzVbEukB3jehdmNBbpWjpnGhUQNmj2/SO/dsKuLMUhuwvK4DDoiVx230dM3CSeBHJ23Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786774589; c=relaxed/simple;
-	bh=BGHkJWTyQmv0GnaSQsR6y+wwA2JB5brkk5DYlmBy+0w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=e1UWP7tz3VcsOj6QMu9zfQq1uI7ATpcmQ/DAP9ZYmwZJZQeWRyyu0bwt0h1PhGPhg+KWsCFG/xErkAmXr1n0uZ2eesoYItWaHRUWsZb2a0MP68fkJ24uzSm9MolSaMM0ShP6jAnDtKoTGQv3XK+0F+vck0XcpGbzTlvbVK+blr0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aPyjVRwd; arc=none smtp.client-ip=209.85.221.54
+	s=arc-20240116; t=1786775381; c=relaxed/simple;
+	bh=W8MmxHf8VIQLta/DajtV9zcCqnPXegiit1LybxZci8I=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=C9gfQ7VtwGKjWZrGj+qkXJhHLwV/s4D0AL90RXs+Ksf4RaCd8X8yVed+asNsTpKxE/i1gl2JlZ24SgtclbQYcmaWWqKM5wTxPAyPNndZEp/CmJiHm/tL3VZywZU2V1qa7saR9eOFbfAFsOJiobYikIGLNiAX0iOEjrxHT90qc4Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ipz2MNry; arc=none smtp.client-ip=209.85.221.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aPyjVRwd"
-Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-47fd66a094eso664654f8f.3
-        for <linux-openrisc@vger.kernel.org>; Fri, 14 Aug 2026 23:16:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ipz2MNry"
+Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-4798bea72f9so1081120f8f.1
+        for <linux-openrisc@vger.kernel.org>; Fri, 14 Aug 2026 23:29:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786774584; x=1787379384; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=HMbsrn4gJN/XmhuApQca7zXrmJcqKKIj95PmT0TacoM=;
-        b=aPyjVRwdWlH1Cv/VQMAr7RZMp6ZXwruI+C2WHMbfWf7rQ9WBNexeD5YbetbWNWSFiU
-         pKISB8LmRB9Y8UyuHBloYmmBg5Y6Ho1CJ/noFZf4kWctjH24UqQAiOz+rs1nScolyDDS
-         zo0OPXw1gAWYZ3ZznpcGN5UQASumIJgZFfP6hmg0GtulztbiBZJtYij0NbyKop5b2N0l
-         Z3M66zOj/B8VZhbgF7xOYkchcceS0d8SzKVgB9T6v35nUZ/JnYO8EnfPftm/vsSKgRhP
-         9LTEpC0qH04xQxWpl87TExNqskGbHq0QX3ccH1m0VqwLUyC22Eu3arvZ2gnmmPd+X7k9
-         SvGQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786774584; x=1787379384;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20251104; t=1786775378; x=1787380178; darn=vger.kernel.org;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=HMbsrn4gJN/XmhuApQca7zXrmJcqKKIj95PmT0TacoM=;
-        b=UR8JX/GdtHq3d8N1QaIz8dXQAnQy0Ut5Bo3NKCG/dGzbXbZbazlAiVCoHR79HxZNrA
-         I4sWf8X+yPqnSdBFcedQJyO/VnqbUcDRHxCu7B8K2RXxOZZ0awg0DJjHvQ6ra1Lvvtu3
-         OexD/RbcH9aLTfJCDQdmd9No36loN98PjVnjPQXxl/l776KviT6j6iiODLV4ENA/VHkn
-         MphVvagTy3kINzt9GJloIxzVnfy7xa8aeQB2J+Aqvb5WXZVjkCLsQB5Ma7BnyQFCaeXV
-         VafwXPj2J1rWKvpoY2rnEF9qpY55+BcvMHQqkNH29TZjyrWKi9wYAc+2um2w7ZY1Z/A3
-         A+ZQ==
-X-Forwarded-Encrypted: i=1; AHgh+RponuxaMneSmarN3QUU3ZUuy8sQxNDdXJ8jY6lTdW9q/iV2ycFnI6YSJXNIHVXuaz88cm03GHVd1fCnL6TiWA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyL7+lzXUtKEF+i9saQFyriYE/mcDqHOzjhsW9uAYIVOLOX4D4Z
-	CSO7PfWhP60EVy8UsonNFafS57YIWttP/5XomJYyxip+F3bbuYidUs9m
-X-Gm-Gg: AR+sD13PefP0sWH/90N/oFGi/0Ksqql7qRhEplvyvn5qCLi7yTnfHvgxub+0orJfh67
-	fGhdTiJYhlQLjqgLeCPNiOuk8UxtbLy/cyl4r6KsEReB1Bs6oatOnYgk7wDOUdvp910zCeDvJFF
-	/WJQDG/6d0jYmDgjxGnjWg1cPBz2uKTTtVj9pjJ9QfVvvhHICn0rgg69iDDUo1fj+y522xEOc4T
-	2ZGJnfte+9BZOgMifJGAyv55KYxiHb5KF3RFPZrxZM3BgmFbmLTOda+PxCNDk6TidoWjaKU3Ohc
-	f0OArHw/ykIdz40bJyyO6wbUT9fKWx/MrHz3H5u/YvTvS5aPxqWQn3Uf6T3WYcyk5lEbaLTaIyO
-	S1r/IobMnbW4VI32wHy37HbCbKjVR2jixK3NCbkpJ6F/TbfZqaITKpiuXKmVD1v9vLJ6S6t2JyN
-	XV4YnpsTbB108E4LxRUrB1AtWS73SPgGRIaUAlSIc5Xf+32/xZvh1sSM9cU6xOC8WLEdz3Cz2Nr
-	qDT/qpm1mQxxGhdRgKK9vN4uBAZwkhpkY9n1BJdu4Y=
-X-Received: by 2002:a05:6000:491e:b0:47f:9404:5185 with SMTP id ffacd0b85a97d-4816078827emr16850466f8f.24.1786774583939;
-        Fri, 14 Aug 2026 23:16:23 -0700 (PDT)
+        bh=yvXa4hqxNLmS0mJoNsfuYgFzcEEkXHmR2wmUF9L+xbo=;
+        b=Ipz2MNrydJfoJ7PatQ8kMlR1LQ5FyGtwJ4TvLUeE/qsLK63tGp8edShlJ6FfnIMwgJ
+         iSNR3Mtocg+t1fH2C7jIeT6jVrJm3LKcqHej6QzaGB/rN6yl6ZwCOaZ4vUaVv4f2d5fI
+         4qSRtBnH4dx0vnxaaoDPVL7NTIFm1IubMtstMCDKqZWNxojTfNIZAQRTA77RFVdkPaQt
+         bUR9Zfs6rzv3qkNeenngJOUR9MW2mTKwzhFU+W7xgvtNji6m8LvLA3TEKkIHuRpcHtvR
+         J1ykEUC/+EByxmWsaJBptM/+qsfqSuH95qN/8cAwvYN94xGKYrM9iblA60gcbON9d2jW
+         WCfg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786775378; x=1787380178;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=yvXa4hqxNLmS0mJoNsfuYgFzcEEkXHmR2wmUF9L+xbo=;
+        b=s/fnX3iBg6VLVYAplUBg5hTiuzk0yJNB+iyxh0YGYIBF2PBeh7bX3iOcOQTcg71eXO
+         wzR1L9+ztXwopIBYgEXCpl8rHdoZa26/FJ/VXwNaHQDzKeH4yB233JjamODbyaDSt6t3
+         qT7qYa4QxeZMLdAZTd9YNg6n07jX39fM4D121uUmz1Wf+NB2+xl22nWGYtaVLNzRb/wA
+         yxUBDEOR5v0hOOST7U2ZqObWgKidauhT/76yRToiH1KDw8MFSk6P+EfWHTBlnRQifGjK
+         +gE1jukkVM4gpUce2Z1AFtS9nmlcJyte8vUBjPnNInDUc3OInge4hgt+JoDTUXsDP0ro
+         Dh2Q==
+X-Gm-Message-State: AOJu0YwI789t1hVt3e7fxcjyTGZwlqFJE26c7t2xONmE0n10mu1SvEfj
+	a4V2f+n5suY6yfsrJquis2UrJmt4uVETpOzJqQ3VmLEfHBub69TN4LE1dg4uBnzG
+X-Gm-Gg: AR+sD10v7vnFuqCWsXek+L+WJKbSGorUwyGXOQRFJ30NubwadrwDoviADOTiS2JY94P
+	vhf1Pw13CXBwtwNALxU469pt3blUz02cz4Kkb8EWArRxYPUTAyAhnrVnX1wjMsQc+gbGSu9fwUy
+	Nyr3Y8keOCM1bn0o8xVj6J3j/WRu1Ry8Ywtrh/WzKBBZQJQQfB0aw/Deu+f0No4MKFG/Kv91kAd
+	sAms7LmV+LIHpYeozMjGPUBdr44h2pSy4BWugHWJKPA6nhoFoIr0P4HPGh6BjzRnNPHoaz5MPL+
+	YkANeq0mqJ8Y1IX3RcNyPfRRsTmZR7i/W3kPfP9LtmKQFZ7CRR5E+QIOsuFzGMoKgXGhWe5SmlB
+	JF3Co3+kU2X1oVoej0HJu346T5BY9B5qWFirtfrXjSEnCquA1DOGELrid1mzMDPiZTXudiAlRFb
+	YfcAzqUfUB2aMRCtDp/sGzxb8Kp2LZIJl+Wk+4BEjsjqqTdTVB3rJCCJYZWx7IimGp2AeaE2SjU
+	rI0RPd88Qmxinax0mb3+IaMHd/OyaQXuABz0R0afaRd996d
+X-Received: by 2002:a05:6000:298f:10b0:47f:b51d:f0ec with SMTP id ffacd0b85a97d-4816079a13dmr13020127f8f.15.1786775377592;
+        Fri, 14 Aug 2026 23:29:37 -0700 (PDT)
 Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4815f2ccc00sm13646333f8f.35.2026.08.14.23.16.22
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4815f2ccc00sm13726034f8f.35.2026.08.14.23.29.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Aug 2026 23:16:22 -0700 (PDT)
-Date: Sat, 15 Aug 2026 07:16:21 +0100
+        Fri, 14 Aug 2026 23:29:37 -0700 (PDT)
+Date: Sat, 15 Aug 2026 07:29:36 +0100
 From: Stafford Horne <shorne@gmail.com>
-To: Julia Lawall <Julia.Lawall@inria.fr>
-Cc: Jonas Bonn <jonas@southpole.se>, kernel-janitors@vger.kernel.org,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	linux-openrisc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] openrisc: drop unneeded semicolon
-Message-ID: <aoAENVPTu7xW8LL5@antec>
-References: <20260801191002.1383835-4-Julia.Lawall@inria.fr>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+	LKML <linux-kernel@vger.kernel.org>
+Subject: [GIT PULL] OpenRISC fix for 7.2
+Message-ID: <aoAHUJuULSJM-caZ@antec>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -77,47 +73,35 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260801191002.1383835-4-Julia.Lawall@inria.fr>
 
-On Sat, Aug 01, 2026 at 09:09:50PM +0200, Julia Lawall wrote:
-> When a function-like macro expands to an expression, that expression
-> doesn't need a semicolon after it.  All uses have been verified to
-> have their own semicolons.
-> 
-> This was found using the following Coccinelle semantic patch:
-> 
-> @r@
-> identifier i : script:ocaml() { String.lowercase_ascii i = i };
-> expression e;
-> @@
-> 
-> *#define i(...) e;
-> 
-> Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
+Hello Linus,
 
-Thank you, this looks fine to me.  I have queued it, sorry for delay I have been
-away.
+Please consider for pull,
 
-> ---
->  arch/openrisc/mm/tlb.c |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/openrisc/mm/tlb.c b/arch/openrisc/mm/tlb.c
-> index 3115f2e4f..2ee00bf30 100644
-> --- a/arch/openrisc/mm/tlb.c
-> +++ b/arch/openrisc/mm/tlb.c
-> @@ -74,11 +74,11 @@ void local_flush_tlb_all(void)
->  
->  #define flush_dtlb_page_eir(addr) mtspr(SPR_DTLBEIR, addr)
->  #define flush_dtlb_page_no_eir(addr) \
-> -	mtspr_off(SPR_DTLBMR_BASE(0), DTLB_OFFSET(addr), 0);
-> +	mtspr_off(SPR_DTLBMR_BASE(0), DTLB_OFFSET(addr), 0)
->  
->  #define flush_itlb_page_eir(addr) mtspr(SPR_ITLBEIR, addr)
->  #define flush_itlb_page_no_eir(addr) \
-> -	mtspr_off(SPR_ITLBMR_BASE(0), ITLB_OFFSET(addr), 0);
-> +	mtspr_off(SPR_ITLBMR_BASE(0), ITLB_OFFSET(addr), 0)
->  
->  void local_flush_tlb_page(struct vm_area_struct *vma, unsigned long addr)
->  {
-> 
+The following changes since commit db2ddb87143519e20a95aa36c60b36107b736a58:
+
+  Linux 7.2-rc7 (2026-08-09 14:54:50 -0700)
+
+are available in the Git repository at:
+
+  https://github.com/openrisc/linux.git tags/for-linus
+
+for you to fetch changes up to 32ef1b30ad736519f7a207bcc2986f3d4129d972:
+
+  openrisc: signal: do not restore privileged SR bits on sigreturn (2026-08-15 07:14:55 +0100)
+
+----------------------------------------------------------------
+OpenRISC fix for 7.2
+
+A bug fix found by researchers.
+
+ * Ensure to mask all privileged bits when restoring the supervisor
+   register from sigreturn.
+
+----------------------------------------------------------------
+Ali Ahmet Memis (1):
+      openrisc: signal: do not restore privileged SR bits on sigreturn
+
+ arch/openrisc/include/asm/processor.h | 2 ++
+ arch/openrisc/kernel/signal.c         | 5 +++--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
