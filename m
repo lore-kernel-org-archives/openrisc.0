@@ -1,107 +1,63 @@
-Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 881F937CD2F
-	for <linux-openrisc@vger.kernel.org>; Sat, 15 Aug 2026 06:29:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 076CD41B8E4;
+	Sat, 15 Aug 2026 16:00:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786775381; cv=none; b=AAOC3k2nV9t7L86xJs78/Qz9tA2bRkJBDpOHOSY+uvtv3wN9N5PwLlvnopnclgSGeX9BFPgH0E4NTuB3yfKJ7KcMBf7XfIXQwSlqrfUdzVbEukB3jehdmNBbpWjpnGhUQNmj2/SO/dsKuLMUhuwvK4DDoiVx230dM3CSeBHJ23Q=
+	t=1786809656; cv=none; b=ePnC0zTfAGpkuYAL9sx8QWgkykMEjjWq3bAaxFXkOnMofKa/oVVKYR19sctNZqp+G0hq9heT9oFxepQ0wLcaLh9uPqHVKtNsNjFBUEZUd5ml3KcdA3+Wb1+fVXq0Q4Uj2Oy6UwBpHLsZ0Pel/HUf4eS2pc20WcXpX/nPyB0x+Sg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786775381; c=relaxed/simple;
-	bh=W8MmxHf8VIQLta/DajtV9zcCqnPXegiit1LybxZci8I=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=C9gfQ7VtwGKjWZrGj+qkXJhHLwV/s4D0AL90RXs+Ksf4RaCd8X8yVed+asNsTpKxE/i1gl2JlZ24SgtclbQYcmaWWqKM5wTxPAyPNndZEp/CmJiHm/tL3VZywZU2V1qa7saR9eOFbfAFsOJiobYikIGLNiAX0iOEjrxHT90qc4Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ipz2MNry; arc=none smtp.client-ip=209.85.221.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786809656; c=relaxed/simple;
+	bh=rjs/5JnqDZx4hsfBla9z4d2Z94aBzfS/cSVYAmOcIVs=;
+	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=lTG5fxmtY1XoSPAaWdAcCPyM1faK7a04fVUGH5ace+du7WAiZINjWt7JpZCybGvpO+lC/zBxrbK/0hPa74TCQzODSZ7UUBdvtWMLGpVW4geuQtsnVRbUUVXWu3HI7oS72l+eMZ9R42OPy9gaEIwXHcmHve2Hr35JAFpLaaWWAzE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RZ9+QjNO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ipz2MNry"
-Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-4798bea72f9so1081120f8f.1
-        for <linux-openrisc@vger.kernel.org>; Fri, 14 Aug 2026 23:29:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786775378; x=1787380178; darn=vger.kernel.org;
-        h=content-disposition:content-type:mime-version:message-id:subject:cc
-         :to:from:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=yvXa4hqxNLmS0mJoNsfuYgFzcEEkXHmR2wmUF9L+xbo=;
-        b=Ipz2MNrydJfoJ7PatQ8kMlR1LQ5FyGtwJ4TvLUeE/qsLK63tGp8edShlJ6FfnIMwgJ
-         iSNR3Mtocg+t1fH2C7jIeT6jVrJm3LKcqHej6QzaGB/rN6yl6ZwCOaZ4vUaVv4f2d5fI
-         4qSRtBnH4dx0vnxaaoDPVL7NTIFm1IubMtstMCDKqZWNxojTfNIZAQRTA77RFVdkPaQt
-         bUR9Zfs6rzv3qkNeenngJOUR9MW2mTKwzhFU+W7xgvtNji6m8LvLA3TEKkIHuRpcHtvR
-         J1ykEUC/+EByxmWsaJBptM/+qsfqSuH95qN/8cAwvYN94xGKYrM9iblA60gcbON9d2jW
-         WCfg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786775378; x=1787380178;
-        h=content-disposition:content-type:mime-version:message-id:subject:cc
-         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=yvXa4hqxNLmS0mJoNsfuYgFzcEEkXHmR2wmUF9L+xbo=;
-        b=s/fnX3iBg6VLVYAplUBg5hTiuzk0yJNB+iyxh0YGYIBF2PBeh7bX3iOcOQTcg71eXO
-         wzR1L9+ztXwopIBYgEXCpl8rHdoZa26/FJ/VXwNaHQDzKeH4yB233JjamODbyaDSt6t3
-         qT7qYa4QxeZMLdAZTd9YNg6n07jX39fM4D121uUmz1Wf+NB2+xl22nWGYtaVLNzRb/wA
-         yxUBDEOR5v0hOOST7U2ZqObWgKidauhT/76yRToiH1KDw8MFSk6P+EfWHTBlnRQifGjK
-         +gE1jukkVM4gpUce2Z1AFtS9nmlcJyte8vUBjPnNInDUc3OInge4hgt+JoDTUXsDP0ro
-         Dh2Q==
-X-Gm-Message-State: AOJu0YwI789t1hVt3e7fxcjyTGZwlqFJE26c7t2xONmE0n10mu1SvEfj
-	a4V2f+n5suY6yfsrJquis2UrJmt4uVETpOzJqQ3VmLEfHBub69TN4LE1dg4uBnzG
-X-Gm-Gg: AR+sD10v7vnFuqCWsXek+L+WJKbSGorUwyGXOQRFJ30NubwadrwDoviADOTiS2JY94P
-	vhf1Pw13CXBwtwNALxU469pt3blUz02cz4Kkb8EWArRxYPUTAyAhnrVnX1wjMsQc+gbGSu9fwUy
-	Nyr3Y8keOCM1bn0o8xVj6J3j/WRu1Ry8Ywtrh/WzKBBZQJQQfB0aw/Deu+f0No4MKFG/Kv91kAd
-	sAms7LmV+LIHpYeozMjGPUBdr44h2pSy4BWugHWJKPA6nhoFoIr0P4HPGh6BjzRnNPHoaz5MPL+
-	YkANeq0mqJ8Y1IX3RcNyPfRRsTmZR7i/W3kPfP9LtmKQFZ7CRR5E+QIOsuFzGMoKgXGhWe5SmlB
-	JF3Co3+kU2X1oVoej0HJu346T5BY9B5qWFirtfrXjSEnCquA1DOGELrid1mzMDPiZTXudiAlRFb
-	YfcAzqUfUB2aMRCtDp/sGzxb8Kp2LZIJl+Wk+4BEjsjqqTdTVB3rJCCJYZWx7IimGp2AeaE2SjU
-	rI0RPd88Qmxinax0mb3+IaMHd/OyaQXuABz0R0afaRd996d
-X-Received: by 2002:a05:6000:298f:10b0:47f:b51d:f0ec with SMTP id ffacd0b85a97d-4816079a13dmr13020127f8f.15.1786775377592;
-        Fri, 14 Aug 2026 23:29:37 -0700 (PDT)
-Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4815f2ccc00sm13726034f8f.35.2026.08.14.23.29.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Aug 2026 23:29:37 -0700 (PDT)
-Date: Sat, 15 Aug 2026 07:29:36 +0100
-From: Stafford Horne <shorne@gmail.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
-	LKML <linux-kernel@vger.kernel.org>
-Subject: [GIT PULL] OpenRISC fix for 7.2
-Message-ID: <aoAHUJuULSJM-caZ@antec>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RZ9+QjNO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 928881F000E9;
+	Sat, 15 Aug 2026 16:00:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786809654;
+	bh=VI+22rBfL1vqfUw+os0ANUx7Lk6TqwC1HBkqUw821Zs=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc;
+	b=RZ9+QjNOKp18OQA4qSKOI/j2FZDhfeb2qKsTD30RSmsc5vA9jVBUS9ctATupG+dsB
+	 u4jNAMU9XMiebKGqyrh2T868NBMLeGtmennm+HcL9wVMT6ATuWU+a3vx+BYj3NESw3
+	 XNVONunVXhkBrguzLgIiIXQtLQSLI164H3fhorSEsLUgaX50h2eKb+CWHvgbv8sSfs
+	 WCA+AYTJvoW6zq6MA6uPic0Vjq/2jZOPv0rVRLw2aWFQYsJatnXOtHALhp5MI/J25t
+	 tKCTGbX554i8a9CN3IsaGOoCGspzTK1KmPyrOJlGqDC26y1kZLGGe2kVm9B+tP6joG
+	 FTAX/m8cViy9A==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 5691F3924A48;
+	Sat, 15 Aug 2026 16:00:09 +0000 (UTC)
+Subject: Re: [GIT PULL] OpenRISC fix for 7.2
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <aoAHUJuULSJM-caZ@antec>
+References: <aoAHUJuULSJM-caZ@antec>
+X-PR-Tracked-List-Id: <linux-openrisc.vger.kernel.org>
+X-PR-Tracked-Message-Id: <aoAHUJuULSJM-caZ@antec>
+X-PR-Tracked-Remote: https://github.com/openrisc/linux.git tags/for-linus
+X-PR-Tracked-Commit-Id: 32ef1b30ad736519f7a207bcc2986f3d4129d972
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 5e060ff9d18748dbb21b12b821fcfc738823ba93
+Message-Id: <178680960800.22095.17341952039664582264.pr-tracker-bot@kernel.org>
+Date: Sat, 15 Aug 2026 16:00:08 +0000
+To: Stafford Horne <shorne@gmail.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Linux OpenRISC <linux-openrisc@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-Hello Linus,
+The pull request you sent on Sat, 15 Aug 2026 07:29:36 +0100:
 
-Please consider for pull,
+> https://github.com/openrisc/linux.git tags/for-linus
 
-The following changes since commit db2ddb87143519e20a95aa36c60b36107b736a58:
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/5e060ff9d18748dbb21b12b821fcfc738823ba93
 
-  Linux 7.2-rc7 (2026-08-09 14:54:50 -0700)
+Thank you!
 
-are available in the Git repository at:
-
-  https://github.com/openrisc/linux.git tags/for-linus
-
-for you to fetch changes up to 32ef1b30ad736519f7a207bcc2986f3d4129d972:
-
-  openrisc: signal: do not restore privileged SR bits on sigreturn (2026-08-15 07:14:55 +0100)
-
-----------------------------------------------------------------
-OpenRISC fix for 7.2
-
-A bug fix found by researchers.
-
- * Ensure to mask all privileged bits when restoring the supervisor
-   register from sigreturn.
-
-----------------------------------------------------------------
-Ali Ahmet Memis (1):
-      openrisc: signal: do not restore privileged SR bits on sigreturn
-
- arch/openrisc/include/asm/processor.h | 2 ++
- arch/openrisc/kernel/signal.c         | 5 +++--
- 2 files changed, 5 insertions(+), 2 deletions(-)
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
