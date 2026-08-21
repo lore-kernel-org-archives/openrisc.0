@@ -1,51 +1,55 @@
 Received: from sender-of-o57.zoho.eu (sender-of-o57.zoho.eu [136.143.169.57])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB5221F3BA4;
-	Fri, 21 Aug 2026 01:41:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA57ECA6F;
+	Fri, 21 Aug 2026 01:46:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.169.57
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787276505; cv=pass; b=E9cDw5a7tm8R/FmE9bi7sdxpmqhjUCNvJ2cMpySO35tCsTgObDnWSgeq9LVx38FrqW20NOstGmItzeM5oe9P6JMBbuiH70F7TtrdsWjPYBXHt75jxlL4gB9yocQ4Ln2vXKUb5T3OY+Pol04wqIVqKbqYRONbjecC1QQdB7K/TzE=
+	t=1787276778; cv=pass; b=CGe+zjswhbPNMFwy1257B3ZUwPVsWbl9033Q8/otukQnoIL3dt0662ooLMAhe21v0ljSQJ78JXsMw6QEYlSBHrB42uhDVTXkx4ygP7EV24b1vdDPiw88pkVpNEmF2/oFrE2b8NeUvq2sw5NQ06U43BPHTXig7MXaplp9kkmNBIE=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787276505; c=relaxed/simple;
-	bh=tBsk/KKqk05IvmC7w+weZm0AbT45546mXnRem3T9z6Y=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ppJDM1yp1nelZ39KTgfpJ/XCHGCVTVtMTccyIVGYegynkE0mP7iox4hXbi05gkQrkg0SaIKgRZ2SkkTt+7f+Xk9eJBdD/yaZ+KxbUzuI0y05mLn/XJjqDO0uaqmOZ2Q316DHX4tnzFxJo2LppgXQU8OslwcANO9v+melBL8wlzI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=iusegentoo.com; spf=pass smtp.mailfrom=iusegentoo.com; dkim=pass (1024-bit key) header.d=iusegentoo.com header.i=ali@iusegentoo.com header.b=PSX0o2vs; arc=pass smtp.client-ip=136.143.169.57
+	s=arc-20240116; t=1787276778; c=relaxed/simple;
+	bh=HPPwkKcjUgrSNj9kyyEM8ZYJX/2geHZhH62K0zQO8XM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Lypl3KvXFzJ+fY1XHyfkJdiIWTgf8dGi45S0Jx0Eip4Q1ZgmBoRzyomN6Es4cLUY2ZCTZnjapyIgYd2f8eDErPgiQguEoIHD4c3xk0PaLIW5euNd1fpm1dKJvzhgOCL6SDXKkevLSosTt0wHOGxR129F2d4iYILi3i7v/+2r5aQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=iusegentoo.com; spf=pass smtp.mailfrom=iusegentoo.com; dkim=pass (1024-bit key) header.d=iusegentoo.com header.i=ali@iusegentoo.com header.b=Zi6RnThD; arc=pass smtp.client-ip=136.143.169.57
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=iusegentoo.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iusegentoo.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=iusegentoo.com header.i=ali@iusegentoo.com header.b="PSX0o2vs"
-ARC-Seal: i=1; a=rsa-sha256; t=1787276479; cv=none; 
+	dkim=pass (1024-bit key) header.d=iusegentoo.com header.i=ali@iusegentoo.com header.b="Zi6RnThD"
+ARC-Seal: i=1; a=rsa-sha256; t=1787276757; cv=none; 
 	d=zohomail.eu; s=zohoarc; 
-	b=I/HevaUN8e9fDZ9ahvoaeGyZxaRZoMsXYLM1QnTomBsuLIDQcCzuHqEmQO3cYj+HZuWcR10J1tVWySehpg8Tp8T/bx3UMcxUd63IsPL6jx4OmFqG3V2NbXHDn3wezIaL1rScaIHMJbydBzeUeQ5IQ8CZK2N/adFw/cQDVNSGWlE=
+	b=TKoVoXw/aLwragSNt2eAGpxKyfpZPzr5zVW1yVfz6MJrlJ/Kj9Iq2M35G8qB0Aru9+d2Lrv/ODKafCW6a/v4n7lOxlGVvrNFYD0AU08PbHWKAZ7PBD9oRzxxDH3XCks8y7jfsuRTZdChi0vQs3BI984aOTqMhHVi7vJDObI49KI=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
-	t=1787276479; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=oRJk9NXxMJ621xYUcx3xy/2Fc/MNOOsb/WBD73Mtnhs=; 
-	b=BpL+0FYFThv8HP1WbXT6a4/SaZe5t49FCoVbCIoCxveKqjNelpaDH/Twkkn8ncDH5qc+WUMFLEMlhy6p1UvtjBKj9sSem39LEviMGq4WCwRoaKsCAtYRqVQo6e9bCkGqWYe0SLSux4rf5s5puDkztM/OA48TkgYAKSsxegaM8m4=
+	t=1787276757; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=ISjUucAVGoT5z0VJ4jKHqh34wudxS0La4GKCHAN0u8k=; 
+	b=DCoqwdVN/dRbBb8Bs7qS0M9P01avyujHubnNXxqWZh7dJ3ma3V8OySU1zXDaJ0VDXdMUTMf/yIiHxNRNRHd8jRWOHOsms7Y1lgwqXQcvGY5SDXAnAF6Zu9AdHywPvZbsRZ1/BYEN4cq3O+e+8xIAr7xNwECKfW3PUVvGdtfdFjY=
 ARC-Authentication-Results: i=1; mx.zohomail.eu;
 	dkim=pass  header.i=iusegentoo.com;
 	spf=pass  smtp.mailfrom=ali@iusegentoo.com;
 	dmarc=pass header.from=<ali@iusegentoo.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1787276479;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1787276756;
 	s=zmail; d=iusegentoo.com; i=ali@iusegentoo.com;
-	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=oRJk9NXxMJ621xYUcx3xy/2Fc/MNOOsb/WBD73Mtnhs=;
-	b=PSX0o2vs4pQFNJ+XJSDW4bljeOLszD9jsWfc1C7QVKnPdSC+xksSrXeSuGz2+5Jo
-	ATvVirvqagpRgZaLyOBzrIRuzJpb+bDwedKpoc7841I1JmmcLxshkhLPgee+nSvrv3C
-	r+y6Mk4uKYFXCoCSsyRxq9cVKhpKypzBijNNq4WI=
-Received: by mx.zoho.eu with SMTPS id 178727647626318.432034619625256;
-	Fri, 21 Aug 2026 03:41:16 +0200 (CEST)
+	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:In-Reply-To:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=ISjUucAVGoT5z0VJ4jKHqh34wudxS0La4GKCHAN0u8k=;
+	b=Zi6RnThD9iRQN+2pFHo73sBEZTTdSZ9MugLRqoMxoJ0bUrdUGVoFBgkHfNTNzB6g
+	lzIKnZGZVO8ZNH7+2qQurvHejPR8KFkGtuj6+LrOtlTT2BnWy3hpld2ox+eG7THQrpD
+	WK8bwPnVBw6IVIwrFstIbR5D/dTAUlN10IxuMCt8=
+Received: by mx.zoho.eu with SMTPS id 1787276753606332.997101807955;
+	Fri, 21 Aug 2026 03:45:53 +0200 (CEST)
 From: Ali Ahmet Memis <ali@iusegentoo.com>
 To: Jonas Bonn <jonas@southpole.se>,
 	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
 	Stafford Horne <shorne@gmail.com>
 Cc: Arnd Bergmann <arnd@arndb.de>,
 	linux-openrisc@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] openrisc: fix arbitrary kernel memory access via or1k_atomic syscall
-Date: Fri, 21 Aug 2026 01:38:33 +0000
-Message-ID: <20260821013839.587041-1-ali@iusegentoo.com>
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH v2] openrisc: fix arbitrary kernel memory access via or1k_atomic syscall
+Date: Fri, 21 Aug 2026 01:45:27 +0000
+Message-ID: <20260821014543.588228-1-ali@iusegentoo.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260821013839.587041-1-ali@iusegentoo.com>
+References: <20260821013839.587041-1-ali@iusegentoo.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -79,8 +83,11 @@ for the four memory accesses so faults on valid but unmapped user
 addresses return -EFAULT.
 
 Fixes: 9d02a4283e9c ("OpenRISC: Boot code")
+Cc: stable@vger.kernel.org
 Signed-off-by: Ali Ahmet Memis <ali@iusegentoo.com>
 ---
+v2: add Cc: stable@vger.kernel.org, missed in v1.
+
 Tested against an unpatched or1ksim build with a local PoC that uses
 this syscall to overwrite a sys_call_table entry and escalate to root:
 
