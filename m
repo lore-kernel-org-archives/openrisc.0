@@ -1,94 +1,63 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75734425878;
-	Sat, 29 Aug 2026 21:12:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DBB421D3E8;
+	Sun, 30 Aug 2026 17:24:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788037971; cv=none; b=vFO02VJrX73hskSfX0KFumFJorLdqlQhkH74Vff9anStk5zWBuu6YpAAd3XpHjhRsKb0la1cPKe+Ywun/OKzVavIpUmeBNw/n8B+0LZNXqWXQe9CvRkRjJrHSNQmq6tI0Nrh7bXfQcSE3bY5HdVg6UF2tdizn7YsALAObSxGvh8=
+	t=1788110669; cv=none; b=ituo00sgDSDsZ4IwaSQGAHQclV4OUV/GzeL+5ex58m4DVy9sHUpHRfBQ6Z9CvNdqMB79cuzQMSd7voJSdEL+Le3K6hnb6pMQr5kZ8Ky7CaNTrpVhczabXW3hrRg0mTwY2KB+H/ourTbMV++mCKWHStjUnKqV6+NQ9fDJNWNlGPI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788037971; c=relaxed/simple;
-	bh=RtxV5GtLCFd5Nxwwhw4byzarzWlVmnm61EaGDtON7B4=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=EeYqcJerSpvnXmb/PJIHuefuHGf0Yhfyb8DAtomtaj+b96HijEqzIlWLSBq8RrAJ1Akf35xkEFQ9Qsfq8jdOjmi9wiigV+GXHmdS6o0AGuqru6lfeS4xnQSmMfaCV9OhZ/UnbBkT9XpQIdaOvofR25fwMuQnAsCc4SyU4HEu5HQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n1seToYo; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788110669; c=relaxed/simple;
+	bh=EeA2fkxwyH+Le8SDL7EPsQLTrHevInLnmfczSuL/rQ4=;
+	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=ajen0THjAmDAKtURjugN3Mb5ISkCjej/mOPvPmfsPsJM4qYZtQkhrfTxh2kwFfGeYrzZSVBdH/vxRvWyqeOyGZqc4aaIS5QTiQvmo6XGXDGH3KdVkbg7ZZmXY234OOU1OnJAI6nMA6g059JMt+et+PYm/PxcEXa5VAOeTesAkIk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B6q8w7zs; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n1seToYo"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 649AD1F000E9;
-	Sat, 29 Aug 2026 21:12:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B6q8w7zs"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30E4C1F000E9;
+	Sun, 30 Aug 2026 17:24:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788037970;
-	bh=Dtc/3TiWrxvKp0avjjHTAnH0zP9eaKC6iJzs8wdLbVc=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=n1seToYoBBT3aH6XYy57AvAYoTN8Sa1DDhmW2pGm9sBs8rkBWyAhcowrHekDBroX/
-	 LQ9shz0t6AxoS/RQDPShfDSc0m9IWLcU9cIQJq3FkW1jzrInW5+Iv/KAuW8URYVB2n
-	 2vCrp2pcnJfrchIq4fTPd7v9FJeK1MDe0dV9wrUv3zK9IWSwAUoaPxvg0yAGixhM4c
-	 Z9dwi/DUpv4kJC8uG3byshQrVjTrnzKYKROHUXMRnPyH/qBRKuo9hNfxOcn7FEeewO
-	 jvzQ+uh7MKEZRseKSgUEU40CtjsBO3Ee/xgR+WN5+SACHRv8m1z/ulKCStwZ7OqVFK
-	 esh+04RW4xs+A==
-From: Thomas Gleixner <tglx@kernel.org>
-To: "H. Peter Anvin" <hpa@zytor.com>, LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Michael Ellerman
- <mpe@ellerman.id.au>, Shrikanth Hegde <sshegde@linux.ibm.com>,
- linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>, Huacai Chen
- <chenhuacai@kernel.org>, loongarch@lists.linux.dev, Paul Walmsley
- <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- linux-riscv@lists.infradead.org, Sven Schnelle <svens@linux.ibm.com>,
- linux-s390@vger.kernel.org, x86@kernel.org, Mark Rutland
- <mark.rutland@arm.com>, Jinjie Ruan <ruanjinjie@huawei.com>, Andy
- Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Richard
- Henderson <richard.henderson@linaro.org>, Russell King
- <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Guo
- Ren <guoren@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Thomas
- Bogendoerfer <tsbogend@alpha.franken.de>, Helge Deller <deller@gmx.de>,
- Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger
- <richard@nod.at>, Chris Zankel <chris@zankel.net>,
- linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org,
- linux-csky@vger.kernel.org, linux-m68k@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
- linux-sh@vger.kernel.org, linux-um@lists.infradead.org, Arnd Bergmann
- <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>, Will Deacon
- <will@kernel.org>, Brian Cain <bcain@kernel.org>, Michal Simek
- <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, "David S. Miller"
- <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>,
- linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org,
- linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-arch@vger.kernel.org, Michal =?utf-8?Q?Such=C3=A1nek?=
- <msuchanek@suse.de>, Jonathan
- Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
-Subject: Re: [patch 03/18] entry: Provide
- [syscall_]enter_from_user_mode_randomize_stack()
-In-Reply-To: <995a61ef-ce8c-4c8b-bea8-77f375076a39@zytor.com>
-References: <20260707181957.433213175@kernel.org>
- <20260707190253.816918647@kernel.org>
- <995a61ef-ce8c-4c8b-bea8-77f375076a39@zytor.com>
-Date: Sat, 29 Aug 2026 23:12:47 +0200
-Message-ID: <87bjakeils.ffs@fw13>
+	s=k20260515; t=1788110668;
+	bh=ORApLwr3322PzRUx0EEDKux1YbeBy3RWLX6F4hxWCqk=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc;
+	b=B6q8w7zs1kpW3BmGSPZhaXmU55uAsyKshv7mccMiRd2RYsFSj+Iz5oUtAF3iKInl4
+	 RLsOm1SoAi6uZRduwpp4sB0JtaW1LOqWUOHIXrrgFlil22zwbahJwB5vgfq/qnZESD
+	 icXI7akpUXuFv8Vey5/zPbqbPrV9YXbE5cQZBnPGHzp7A1FhOrWSBfX8OgYKOlYnSj
+	 Pl+N+dixQBv91NZZ2XjgerDXY/Dvs7OMhA1f6/1Pc2vLOxE1nU3+1dXLiopbsnleBp
+	 SCqcuQH+sMS1aqBVzgVnx0681MAjyqiytHhn0BS6GonPx+DCZVm+4KaQ0/RKu4ExXy
+	 n/Lu/LK5//ZrA==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 19999380CEE3;
+	Sun, 30 Aug 2026 17:23:33 +0000 (UTC)
+Subject: Re: [GIT PULL] OpenRISC 7.3 updates
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <apJ-2fH66_goKXF0@antec>
+References: <apJ-2fH66_goKXF0@antec>
+X-PR-Tracked-List-Id: <linux-openrisc.vger.kernel.org>
+X-PR-Tracked-Message-Id: <apJ-2fH66_goKXF0@antec>
+X-PR-Tracked-Remote: https://github.com/openrisc/linux.git tags/for-linus
+X-PR-Tracked-Commit-Id: 78004e9a87f240df03e2f73120d291763c32e0a7
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: fb5b59a6a678bab054a78d99eecfdb6f5558e82e
+Message-Id: <178811061170.3405738.16015315399149286089.pr-tracker-bot@kernel.org>
+Date: Sun, 30 Aug 2026 17:23:31 +0000
+To: Stafford Horne <shorne@gmail.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Linux OpenRISC <linux-openrisc@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
 
-On Thu, Aug 27 2026 at 15:46, H. Peter Anvin wrote:
-> Can anyone *please* find out what the actual security requirements are for the
-> syscall randomization offset?
->
-> The original checkin, 39218ff4c625 ("stack: Optionally randomize kernel stack
-> offset each syscall") indicates that it is fundamental that the stack offset
-> is applied *after* pt_regs pushing, but that isn't documented anywhere in the
-> kernel sources as far as I can tell.
+The pull request you sent on Sat, 29 Aug 2026 07:40:25 +0100:
 
-> However, I have also come to understand that there are further, undocumented
-> constraints; at least at one point I was told that "the offset should not be
-> stored in memory while running in the kernel", which seems more than a bit odd.
+> https://github.com/openrisc/linux.git tags/for-linus
 
-This thread has the initial discussions about it with more explanations:
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/fb5b59a6a678bab054a78d99eecfdb6f5558e82e
 
-  https://lore.kernel.org/kernel-hardening/2236FBA76BA1254E88B949DDB74E612BA4BC57C1@IRSMSX102.ger.corp.intel.com/
+Thank you!
 
-Thanks,
-
-        tglx
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
