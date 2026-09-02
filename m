@@ -1,34 +1,35 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 6912348A8BB
-	for <linux-openrisc@vger.kernel.org>; Wed,  2 Sep 2026 11:58:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id E6755483807;
+	Wed,  2 Sep 2026 11:58:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788350339; cv=none; b=CEebKnKQEcMGKobnD4Y99Fg3pAw8jxu9c0GDaiYkGJZLBpxQwLEVK6O2f0uoMSXlVR6eOHA/LAPc6URa0G6aW7r6JboOqp9q1iFVYM9XavXalWK7pKzRvikg8JKoSD7MnnEmeVX2RZzmbvoBhPixnlCvirYquCDsSjcebrydSQ0=
+	t=1788350350; cv=none; b=b9lTw7+Umsx8uLJdJzHtvocIEkbEvyiVCF/xPNJyeENpSqk0IY8h0mSIE1IgRJAcNYBV3FBMvt4EJV9lyNCpu3CHS8EAIJsixYm0JWAnJAqvQEef9i2/wdpm6w5FIvuOmi5hyF5sKgyJ/1xLPMZ+7vAsSrCTv1f1MfFSvTPI21w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788350339; c=relaxed/simple;
-	bh=bvSJZEYuUzSfTp3lnl+FWsv3APh8RUXfn9Dgh5TGgK0=;
+	s=arc-20240116; t=1788350350; c=relaxed/simple;
+	bh=tVsLkLa07A4zHI8m1tAgMomiiERETV6ZHmwKKYasnOU=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=TuEL9LxEUsxQ6wDZvYzVZdBjoo9EBg6JDyXZSzdlc1+yItjHRhWDbbg+rK6UUVgbrH3yNqbOkfgdJSaYakj6+lNYizXkWAvLKsseGX782S0IliHPVK0LImoflumhgZAstnBwocNUb9TnzJ6ymstB5Hi2ien8sHaOkxMQPJYovfk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=VQDp4hB/; arc=none smtp.client-ip=217.140.110.172
+	 In-Reply-To:To:Cc; b=gk3948OjlhOSLZ1YhR/00VyFaM5YGTT5s/yB2QVoHgmBROSv6oE9XSscc/61ehGpbSL8nR5GrzizuGNuXo8TimSKPabbWD7ZJUgHvEws3hxLfQ9mLGh7Xhr3DeTT+MlNbyvJlRZGJGeq3Nr+7SyoHJ57oiz26J+pFRFSlOifVHA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=bafAV6hH; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="VQDp4hB/"
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="bafAV6hH"
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id BB4701E5E;
-	Wed,  2 Sep 2026 04:58:32 -0700 (PDT)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 3DA801596;
+	Wed,  2 Sep 2026 04:58:55 -0700 (PDT)
 Received: from e129823.arm.com (e129823.arm.com [10.2.213.3])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 61C613F85F;
-	Wed,  2 Sep 2026 04:58:29 -0700 (PDT)
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id BB8893F85F;
+	Wed,  2 Sep 2026 04:58:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1788350316; bh=bvSJZEYuUzSfTp3lnl+FWsv3APh8RUXfn9Dgh5TGgK0=;
+	t=1788350339; bh=tVsLkLa07A4zHI8m1tAgMomiiERETV6ZHmwKKYasnOU=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=VQDp4hB/Qs/Re5WMKT8eqfXJiFXvWLSISYhYoKX0hMDsRtHpHjqO21RHcFTSnCFI6
-	 9b+/JcPwiTaEGulcsFqpFvAx1qS0KIMrLmFTc0tWPd7LPxqmE8dpefCsYzCMnCsR6B
-	 zJuttsNkz19sQCyKpC+z6xj4ZDKTo0Dv3LF3T3PE=
+	b=bafAV6hHiMWf7UFGA2Jb1tgbVdcqzDWS6a4NkdWW3RSDN7omcp+MQvC85a47sP/CH
+	 4AmzPQ2CiW6I0PTr+lcmGRlI3chW+Y8qNRmEJ/GXdjP+VVEtJXdyRwOER+zjM60QbL
+	 i4BmSXa8lfT+QCHzh7jE+OXdMQsSLpM15Zhbg3fs=
 From: Yeoreum Yun <yeoreum.yun@arm.com>
-Date: Wed, 02 Sep 2026 12:56:18 +0100
-Subject: [PATCH RFC v3 16/21] openrisc/pgtable: drop __pmd_offset()
+Date: Wed, 02 Sep 2026 12:56:21 +0100
+Subject: [PATCH RFC v3 19/21] mm/pgtable: disallow calling
+ (pgd|p4d|pud)_page, pgd_page_vaddr() and (p4d|pud)_pgtable with dummy
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -37,7 +38,7 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260902-dummy_ptxp3-v3-16-5d8f5b17c25c@arm.com>
+Message-Id: <20260902-dummy_ptxp3-v3-19-5d8f5b17c25c@arm.com>
 References: <20260902-dummy_ptxp3-v3-0-5d8f5b17c25c@arm.com>
 In-Reply-To: <20260902-dummy_ptxp3-v3-0-5d8f5b17c25c@arm.com>
 To: Russell King <linux@armlinux.org.uk>, 
@@ -68,46 +69,99 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
  loongarch@lists.linux.dev, linux-mips@vger.kernel.org, 
  linux-arch@vger.kernel.org, linux-mm@kvack.org, kvm@vger.kernel.org, 
  kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
- linux-openrisc@vger.kernel.org
+ linux-openrisc@vger.kernel.org, Yeoreum Yun <yeoreum.yun@arm.com>
 X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=881; i=yeoreum.yun@arm.com;
- h=from:subject:message-id; bh=4wz8+CbWxbmBm+0duGq5oUD3gG+4iNNsSmDgW/+hufM=;
- b=owEB7QES/pANAwAKAW3Vw9FaxTEzAcsmYgBqmA7pv10L56yITmkv7MZ8IOM5fh/CxySzocw7K
- IjEcsCxfDiJAbMEAAEKAB0WIQQtg+CS3QUzuFh1pJ1t1cPRWsUxMwUCapgO6QAKCRBt1cPRWsUx
- M5aWDADYxAtyl+y2LxVBunlEjk46XhMmo1UlcGdl5tNFIppFTuiJhVz3RKSgMUkVVjwS56w3C6T
- coZfHX4bmgmO43d/gJSuWdFh5kXUDgY3QDfBeyzp08Id41DqlxVCwLPqhJgCg9mdV4NVbgU2rZ/
- djZdFPPzSc4qfWSpf4+UrquyNsHCkCs5hq/y21rF4TFaVoWijqkePHGMpxzH+V79M7kExoU/SFB
- FWmz5Ktb5Wb/6bBN51Y9ONW/XgI2o/yHg0AX6Qu6ruJZa8qUy/820NP3j+vAEwIov4Di6GdoEUW
- aQG1oDixs8oGNV1tSkB7ssu4WZWi8YnyYkh1I1atY36mS9tFc+8MQLVUp23sR1G1fI6wFq7Vqo7
- tQV07xnn9hKFxLcHFuE5sIW6ZidPx1NmbpwiInknq1O6vZx2+kWeRvJ3YDLVOwWgriq+mUt0CZ9
- lS/JZhKiBZfe66sAP6+SVS/mcsN8zk74Y9THLHnG8h9J8pKbVkhKBC2T2rVPfu8txo4SY=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3262; i=yeoreum.yun@arm.com;
+ h=from:subject:message-id; bh=xhnn2pyfM9DLAHxbEw+j70fkBp5Hs9TfkBrZfLGw5KQ=;
+ b=owEB7QES/pANAwAKAW3Vw9FaxTEzAcsmYgBqmA7qBnMyLZ0jKZbEx3DR97rH4+JY9IdCSD3OC
+ ACU8w0jvsuJAbMEAAEKAB0WIQQtg+CS3QUzuFh1pJ1t1cPRWsUxMwUCapgO6gAKCRBt1cPRWsUx
+ M1RlDACrNDx66AL+YlaceCy5fdL7utwGqmHqfKH4VSWSBKjq1xfzNL8PDRPqGW56m2nSz0oARim
+ kR9d5Qen3Im7+xmbnh920AbeAyU1d+WW1h6jXmyptFSppLZDGhPesgf+Y3WdqDgu3gw0nG3c9Tu
+ WU5E0d/FC72hOr8JAUhAJ9Dph9w6sm97I8Me0G+h/IBzGomkb9pVP+L4AuY9f7brkKVuRzBG6mv
+ yLWWjBoEuzxGet3Swlt6wrXQtkblT5N/VCGbrkX+P79VNjv/NHlZ+8Iy7Rp8UvaKklrUTE/0o6/
+ gjm7zRus6ux+diSIo8r+TCsBwZe70whQLrtgQz7acxhsCFWMq8wMXcNkSXKi1Hwk6kwZzqoGnBt
+ q0i4gZzhOj7Ouhbuptq1nX5OXdAxNezenqC6qupYJUnLCBJwJ5PAnpwkMeDRv4Db32ENM0HtfSf
+ N/kEaP+Gk6HX4bkAietsNqW5YNEMTF81R4dM0W/ru9ZfLn8tD6EWdADBsCIlah027kv/w=
 X-Developer-Key: i=yeoreum.yun@arm.com; a=openpgp;
  fpr=2D83E092DD0533B85875A49D6DD5C3D15AC53133
 
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 
-The macro is unused, and will collide with a folded page table helper.
-Let's just remove it.
+These helpers silently fallback to the folded helpers. With e.g., pdgp_get()
+returning dummy values, pgd_page_vaddr(pgdp_get(pgdp)) will now behave
+differently than pgd_page_vaddr(*pgdp).
+
+Disallow calling (pgd|p4d|pud)_page() entirely, and catch when passing a
+dummy value to pgd_page_vaddr() and (p4d|pud)_pgtable.
+This will catch most abuse of dummy pXdp value at compile time --
+so far there were none, and it better stay that way.
 
 Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
+Co-developed-by: Yeoreum Yun <yeoreum.yun@arm.com>
+Signed-off-by: Yeoreum Yun <yeoreum.yun@arm.com>
 ---
- arch/openrisc/include/asm/pgtable.h | 3 ---
- 1 file changed, 3 deletions(-)
+ include/asm-generic/pgtable-nop4d.h | 8 ++++++--
+ include/asm-generic/pgtable-nopmd.h | 8 ++++++--
+ include/asm-generic/pgtable-nopud.h | 8 ++++++--
+ 3 files changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/arch/openrisc/include/asm/pgtable.h b/arch/openrisc/include/asm/pgtable.h
-index 13afcc0bd863..7fceed641610 100644
---- a/arch/openrisc/include/asm/pgtable.h
-+++ b/arch/openrisc/include/asm/pgtable.h
-@@ -331,9 +331,6 @@ static inline unsigned long pmd_page_vaddr(pmd_t pmd)
- 	return ((unsigned long) __va(pmd_val(pmd) & PAGE_MASK));
- }
+diff --git a/include/asm-generic/pgtable-nop4d.h b/include/asm-generic/pgtable-nop4d.h
+index 2d86325235da..d2dccf7542da 100644
+--- a/include/asm-generic/pgtable-nop4d.h
++++ b/include/asm-generic/pgtable-nop4d.h
+@@ -70,8 +70,12 @@ static __always_inline p4d_t *__p4d_offset_lockless(pgd_t *pgdp, pgd_t pgd,
+ #define p4d_val(x)				(pgd_val((x).pgd))
+ #define __p4d(x)				((p4d_t) { __pgd(x) })
  
--#define __pmd_offset(address) \
--	(((address) >> PMD_SHIFT) & (PTRS_PER_PMD-1))
--
- #define PFN_PTE_SHIFT		PAGE_SHIFT
- #define pte_pfn(x)		((unsigned long)(((x).pte)) >> PAGE_SHIFT)
- #define pfn_pte(pfn, prot)  __pte((((pfn) << PAGE_SHIFT)) | pgprot_val(prot))
+-#define pgd_page(pgd)				(p4d_page((p4d_t){ pgd }))
+-#define pgd_page_vaddr(pgd)			((unsigned long)(p4d_pgtable((p4d_t){ pgd })))
++#define pgd_page(pgd)				({ BUILD_BUG(); (struct page *)NULL; })
++#define pgd_page_vaddr(pgd)						\
++({ 									\
++	pgd_check_dummy(pgd);						\
++	(unsigned long)p4d_pgtable((p4d_t) { pgd });			\
++})
+ 
+ /*
+  * allocating and freeing a p4d is trivial: the 1-entry p4d is
+diff --git a/include/asm-generic/pgtable-nopmd.h b/include/asm-generic/pgtable-nopmd.h
+index bd40d3a5743f..2afbf2d8659d 100644
+--- a/include/asm-generic/pgtable-nopmd.h
++++ b/include/asm-generic/pgtable-nopmd.h
+@@ -79,8 +79,12 @@ static __always_inline pmd_t *__pmd_offset_lockless(pud_t *pudp, pud_t pud,
+ #define pmd_val(x)				(pud_val((x).pud))
+ #define __pmd(x)				((pmd_t) { __pud(x) } )
+ 
+-#define pud_page(pud)				(pmd_page((pmd_t){ pud }))
+-#define pud_pgtable(pud)			((pmd_t *)(pmd_page_vaddr((pmd_t){ pud })))
++#define pud_page(pud)				({ BUILD_BUG(); (struct page *)NULL; })
++#define pud_pgtable(pud)						\
++({									\
++	pud_check_dummy(pud);						\
++	((pmd_t *)(pmd_page_vaddr((pmd_t) { pud })));			\
++})
+ 
+ /*
+  * allocating and freeing a pmd is trivial: the 1-entry pmd is
+diff --git a/include/asm-generic/pgtable-nopud.h b/include/asm-generic/pgtable-nopud.h
+index 7475d0bd0f2e..3264673c0c38 100644
+--- a/include/asm-generic/pgtable-nopud.h
++++ b/include/asm-generic/pgtable-nopud.h
+@@ -77,8 +77,12 @@ static __always_inline pud_t *__pud_offset_lockless(p4d_t *p4dp, p4d_t p4d,
+ #define pud_val(x)				(p4d_val((x).p4d))
+ #define __pud(x)				((pud_t) { __p4d(x) })
+ 
+-#define p4d_page(p4d)				(pud_page((pud_t){ p4d }))
+-#define p4d_pgtable(p4d)			((pud_t *)(pud_pgtable((pud_t){ p4d })))
++#define p4d_page(p4d)				({ BUILD_BUG(); (struct page *)NULL; })
++#define p4d_pgtable(p4d)						\
++({									\
++	p4d_check_dummy(p4d);						\
++	((pud_t *)(pud_pgtable((pud_t) { p4d })));			\
++})
+ 
+ /*
+  * allocating and freeing a pud is trivial: the 1-entry pud is
 
 -- 
 2.43.0
