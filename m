@@ -1,47 +1,47 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDA7F4A484C
-	for <linux-openrisc@vger.kernel.org>; Wed,  2 Sep 2026 14:46:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 324BA4A3F24
+	for <linux-openrisc@vger.kernel.org>; Wed,  2 Sep 2026 14:46:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788360395; cv=none; b=sPIlwEv0+QHHuQZAz+S8dxh7OmWmsr3jTS9MGtg4Vf7Q3W4zH53r5+M+kcuXsAsJKcqCphphILe+/QQtIbk26SMj6DSySLjXBrGRrLY45XzesDcT9Ya1bYI9FKrcu1EMNVNMztwpYZm8ecFH/asubCs/QS+7CHDImnfNQIE3WEo=
+	t=1788360406; cv=none; b=BR/QUp4elEklyPD/8is/p4vQ1ouZ60LRGCMz/9AxHOfLAPF6CeTa8267nF2ti7KRSqQ1sfqkApHp2PdDbIDep7QEt0xRidgnvhCleS6yWcwC0OnxWwFOPIrf57LcRWyIZLIVcA7vo8hrh5RCGVcBodhRMCRMQzrnFFVcS/FUE48=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788360395; c=relaxed/simple;
-	bh=DlPaEd7noW1KyP3qScWGZfq/VdVWdVf5pnn1WR+m1Ns=;
+	s=arc-20240116; t=1788360406; c=relaxed/simple;
+	bh=g/z2c0uejjbvW+bTUcXx6A5unb4ZHFpYUUEpYX5hIYw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=BCzG3F/At6/1ApfbqqCPmqiR0x4Ez245fvn4L0p11nGIRU8lPGEnxJfIraeWCioWv5oF0zBsu96azse8/nsSmqk46fQyWO0rj22Nl77ErcdlMqP5z7CyzO8Nh7IL4vuzbCW1vB/x/N7w48sFpCrDjpw6dXTGnPIVMMD/lLjiu2s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jKnT0zf0; arc=none smtp.client-ip=170.10.129.124
+	 MIME-Version:content-type; b=bTVeP2Qju06JPSUlR3jOW0If4nL+djUkjNXmHGt5vmnLoEtP9rJ5SSdJ8cqJ5kPC1zO/3BQdgkyYtTx0KaUASWZ5j1LtAgpmWTUXwbpP09mgTM7ww1sVhbd/GtODLdFKVZGmoCDnw8FZI3JNkvqyoCeVlxIoGHzG5J7qYlzDGwU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MgmZE0zC; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jKnT0zf0"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MgmZE0zC"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788360392;
+	s=mimecast20190719; t=1788360404;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=GiBzCemBLnI584lSVr86fUM8vzDEzjZRV2DJcn2fj5Q=;
-	b=jKnT0zf0xTQdlqZG8NSewC8s/39qqalMJJw89S24ywzsvtYrK+xdmqBAcOtULi+ZXvjXRx
-	Gqu7LjwctuH+NS/sGtCMi5gM0dXDw0lya2tDqrRv3V8SfX686lYQOqudZkHuOv6QvHRRWU
-	3yWN9V5NFI7iv/57k860grVCGjJF68Y=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+	bh=d+wbQbDqSGkxHemqbPjciPTDnnklfXLc74JSqQp6y6I=;
+	b=MgmZE0zC9XQoUL/SrOBKXX5riKHEC43rtUPEZbenF5JmKO4aNncmY7ZlXAMwwLJ4HqfNeI
+	150RhKSuVJi1JbiT3y9IQ+wce3hYrtDz+yhEB522FDZqR5LAGcSCu6gr6tuINnzR2DtrQ5
+	r8TQ2aopPHMnDipzVrDQRU82XxB3HGQ=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-257-eYe4-cicPwqUztVTJjLHNA-1; Wed,
- 02 Sep 2026 10:46:27 -0400
-X-MC-Unique: eYe4-cicPwqUztVTJjLHNA-1
-X-Mimecast-MFC-AGG-ID: eYe4-cicPwqUztVTJjLHNA_1788360383
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-446-O9slN2rfNGSVNs8IHLvaPA-1; Wed,
+ 02 Sep 2026 10:46:40 -0400
+X-MC-Unique: O9slN2rfNGSVNs8IHLvaPA-1
+X-Mimecast-MFC-AGG-ID: O9slN2rfNGSVNs8IHLvaPA_1788360395
 Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 2E1C4180131C;
-	Wed,  2 Sep 2026 14:46:23 +0000 (UTC)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 3C6021954AF4;
+	Wed,  2 Sep 2026 14:46:35 +0000 (UTC)
 Received: from wsxc.redhat.com (unknown [10.96.134.11])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id C669F1800642;
-	Wed,  2 Sep 2026 14:46:11 +0000 (UTC)
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 8846F1800641;
+	Wed,  2 Sep 2026 14:46:23 +0000 (UTC)
 From: Ricardo Robaina <rrobaina@redhat.com>
 To: audit@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
@@ -87,9 +87,9 @@ Cc: paul@paul-moore.com,
 	peterz@infradead.org,
 	luto@kernel.org,
 	Ricardo Robaina <rrobaina@redhat.com>
-Subject: [PATCH v2 10/13] sh: pass pt_regs to audit_syscall_entry()
-Date: Wed,  2 Sep 2026 11:43:43 -0300
-Message-ID: <097bd384731da18be54fafd41f67c60e2a70e37e.1788351089.git.rrobaina@redhat.com>
+Subject: [PATCH v2 11/13] sparc64: pass pt_regs to audit_syscall_entry()
+Date: Wed,  2 Sep 2026 11:43:44 -0300
+Message-ID: <336fa8f8d896ca7989bc483b53fdefe2152a16f9.1788351089.git.rrobaina@redhat.com>
 In-Reply-To: <cover.1788351089.git.rrobaina@redhat.com>
 References: <cover.1788351089.git.rrobaina@redhat.com>
 Precedence: bulk
@@ -99,7 +99,7 @@ List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
-X-Mimecast-MFC-PROC-ID: zSR7mL6HFIsy1ItAcgAF5e4XNcQrxtT6KWnPHV9hK8Q_1788360383
+X-Mimecast-MFC-PROC-ID: NfMcdLLRVBpOF3LIUbFVsfZXyq6k3EEgVBGbKqdS3Ug_1788360395
 X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
 content-type: text/plain; charset="US-ASCII"; x-default=true
@@ -110,22 +110,23 @@ individual argument registers from the call and pass regs instead.
 
 Signed-off-by: Ricardo Robaina <rrobaina@redhat.com>
 ---
- arch/sh/kernel/ptrace_32.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/sparc/kernel/ptrace_64.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/sh/kernel/ptrace_32.c b/arch/sh/kernel/ptrace_32.c
-index 8794081483fb..e138f529ee7e 100644
---- a/arch/sh/kernel/ptrace_32.c
-+++ b/arch/sh/kernel/ptrace_32.c
-@@ -466,8 +466,7 @@ asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
+diff --git a/arch/sparc/kernel/ptrace_64.c b/arch/sparc/kernel/ptrace_64.c
+index 825ddf55fece..b162585b4a74 100644
+--- a/arch/sparc/kernel/ptrace_64.c
++++ b/arch/sparc/kernel/ptrace_64.c
+@@ -1098,9 +1098,7 @@ asmlinkage int syscall_trace_enter(struct pt_regs *regs)
  	if (unlikely(test_thread_flag(TIF_SYSCALL_TRACEPOINT)))
- 		trace_sys_enter(regs, regs->regs[0]);
+ 		trace_sys_enter(regs, regs->u_regs[UREG_G1]);
  
--	audit_syscall_entry(regs->regs[3], regs->regs[4], regs->regs[5],
--			    regs->regs[6], regs->regs[7]);
-+	audit_syscall_entry(regs->regs[3], regs);
+-	audit_syscall_entry(regs->u_regs[UREG_G1], regs->u_regs[UREG_I0],
+-			    regs->u_regs[UREG_I1], regs->u_regs[UREG_I2],
+-			    regs->u_regs[UREG_I3]);
++	audit_syscall_entry(regs->u_regs[UREG_G1], regs);
  
- 	return 0;
+ 	return ret;
  }
 -- 
 2.55.0
