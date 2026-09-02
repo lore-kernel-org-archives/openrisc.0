@@ -1,34 +1,34 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id B77BB47F780
-	for <linux-openrisc@vger.kernel.org>; Wed,  2 Sep 2026 11:56:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id E658147FB16
+	for <linux-openrisc@vger.kernel.org>; Wed,  2 Sep 2026 11:56:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788350216; cv=none; b=XaXVxpCoqUjSJHmbg8hze5HOUFWKM678A8mD6QAQ1ygLRFOO99G8dmItP96XJc8Z4H/qcFbAyji16RqszjymEB0Covol8sqBfPEaoxiu2V9tbSrUE7jjZ8WLMzQByWZB3VJJcJ6Vbg6O8occsWiXXknyovbMr7NXm6TfNPlSK6c=
+	t=1788350231; cv=none; b=fsyXBxzF7p7HLY8hmNyzkNlTgYC9maff2y+5G5ZIGU/7SW0rw3Cb/iOhuF2ljbtIrwiaq+OZwbW/JXIh/3Ozc5eOL2guEYZnAW3n7mSpS9sTJ+eWBtbvPvYGR4/0o/kvsdmqt7yWddCHrVOr0jlHoJFtpV50CclsQFFCNW2VfuA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788350216; c=relaxed/simple;
-	bh=a5z3VgCuV82F6RPeAfMv4Cs88UUw7cEiZjrKWSyb5gM=;
+	s=arc-20240116; t=1788350231; c=relaxed/simple;
+	bh=gPlnE5UqZRk40YfWFz/1w9GlKcNlqtJOo/oAxLycbvE=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Fc9+MiojkRlkY3RLdW8I0pp4ySK1WE1uaaYynroKu0E8zCNkBE3e7x1YHRdkSpfQwgSF5Jgk0rksLMZoWQ800O1df70VsWKr4JGfOpJRYcUwfykrIz62mgS1uKC9Syn5MukNCslU1TjrFueELDyan4aZS/2AeR9H7z3Bapmv8CI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=JWpWS3ff; arc=none smtp.client-ip=217.140.110.172
+	 In-Reply-To:To:Cc; b=RpkulzZ+ujywvg7mUpDZSJvf4aVuJWM9JLJlLaMUIC8VFq4DNUSZYyLAdMTvQUJBG3KTh6bKSNjNnQmWOKb1RCDRyCRnSXhZCp4xE6zRUQnuvKEK5NC3qMkyPK002C+buzbgOzTp1nePKkHRr/XioaUdpxHCGYQi1JddeNARSCQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=JngvOrh/; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="JWpWS3ff"
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="JngvOrh/"
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A90D61D70;
-	Wed,  2 Sep 2026 04:56:39 -0700 (PDT)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2574B1684;
+	Wed,  2 Sep 2026 04:56:47 -0700 (PDT)
 Received: from e129823.arm.com (e129823.arm.com [10.2.213.3])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 511A93F85F;
-	Wed,  2 Sep 2026 04:56:36 -0700 (PDT)
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id C29DA3F85F;
+	Wed,  2 Sep 2026 04:56:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1788350203; bh=a5z3VgCuV82F6RPeAfMv4Cs88UUw7cEiZjrKWSyb5gM=;
+	t=1788350210; bh=gPlnE5UqZRk40YfWFz/1w9GlKcNlqtJOo/oAxLycbvE=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=JWpWS3ffE1GLLis9po+Yz/mdLIadyKedxJ5+vnCEOzxzDhXnh6pni34o9WA3lPaY3
-	 8YN4snZQJKN3Yzki8gEyuot6J5purDrlO7D076nrar2h0BRSWrEd+IKOfPbM2DjdVf
-	 C07c/tMLjlLEZskvetTLzowjaVa4wJ6vh1NpkUUc=
+	b=JngvOrh/7RH2K28ggppoS4NPOaZa16P0lMCoxQdm8Y5sORQtjxmHS2nRWh7A+nD4U
+	 lR6pGdNIo04IsFUKW5Iu2DeZy5RCXDzqAoufI7eiLPS9ULkCP3Objs0zsXamRb15xM
+	 79g8rzGAvghuXLj6fzSyLmOEqrVRnC+EMjOuSpSI=
 From: Yeoreum Yun <yeoreum.yun@arm.com>
-Date: Wed, 02 Sep 2026 12:56:03 +0100
-Subject: [PATCH RFC v3 01/21] ARM: mm: make nommu pgd_t a scalar
+Date: Wed, 02 Sep 2026 12:56:04 +0100
+Subject: [PATCH RFC v3 02/21] ARM: mm: make 2-level pgd_t a scalar
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -37,7 +37,7 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260902-dummy_ptxp3-v3-1-5d8f5b17c25c@arm.com>
+Message-Id: <20260902-dummy_ptxp3-v3-2-5d8f5b17c25c@arm.com>
 References: <20260902-dummy_ptxp3-v3-0-5d8f5b17c25c@arm.com>
 In-Reply-To: <20260902-dummy_ptxp3-v3-0-5d8f5b17c25c@arm.com>
 To: Russell King <linux@armlinux.org.uk>, 
@@ -70,52 +70,79 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
  kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
  linux-openrisc@vger.kernel.org
 X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1079; i=yeoreum.yun@arm.com;
- h=from:subject:message-id; bh=yuk3S4RfznnTM9UkPeDtkv8dyVxIm22Z2ipCHlRDCbc=;
- b=owEB7QES/pANAwAKAW3Vw9FaxTEzAcsmYgBqmA7idg6lSNQrEggQ4WH6Gwya5B5f1/qCND8aE
- jNsah22k92JAbMEAAEKAB0WIQQtg+CS3QUzuFh1pJ1t1cPRWsUxMwUCapgO4gAKCRBt1cPRWsUx
- M55BDACPu7Y6d+irL9cNnQwbHZMHkOrav9grp6zTgOsqQGAkkTBo7L2FFa0BeFXUyxp8SnK6hTV
- pltmcJWh2UV8lHAWMJVNmBSoFxKABbZ9m8XUqhLr+MDF5GUzkzGjgE5bSZHsTHg3sTFNnrWOqLM
- t6BAGepWC81BIRIjXzyJ2mZ3nZT/JgD8LZcNrSbGHdYnTQTepcdZmzhnoyimCOg99vs+8L3r2fW
- 1VClNEqJS2ceT73Hq6m+JDHPWRdSzaONSKJBA/eJgzMe4GJgyEHi/3jgaVAeChVBhJznjucUMlx
- Ctmk4MhHoQDs+cJQD+cBseLnlWTZObzMPF2boQvkQJcACt/xdHAj9/1Qxpdv92bznvMpJpgY8i2
- SsRO65VvkR3Noc63S6LyyXsfSSojY+ZlBv4nXOOBEzY76T2rC3NdKLBGN9Ir5YK8Qni76UOhW1o
- 2LO5bQUuEe+C1ZjHBi7KB2s4NUJ2IfWaKqpVdrd6w14DRusXbtpkm3DQ6MMJrXbwyFOOY=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2017; i=yeoreum.yun@arm.com;
+ h=from:subject:message-id; bh=uhcO6NTPYBqTkI+U1pSNHYmMsIjTOQrElUAua45fg4s=;
+ b=kA0DAAoBbdXD0VrFMTMByyZiAGqYDuKh4pUBsXDB1v/n9ZVHNsXgpbZHusYBh6IUK6klb7xYB
+ YkBswQAAQoAHRYhBC2D4JLdBTO4WHWknW3Vw9FaxTEzBQJqmA7iAAoJEG3Vw9FaxTEz0BQL/2nk
+ sf3h4xmh3cZtnS+lTvf+itMKAMxUvApGWmC4Wv39xE1jps4ZQyzWb/SJp98V66g00L30MWVLQgD
+ tat6tOwX2/q+6qy17JKwUz/7i6TzD/TZzQ32xBFcvYhluUlq4Pz649NjIZ1uEl17UZziViJLQZo
+ B644h4n9Wc3Fi0IzgaW+5KhHLWdt3ZRDR4WZpZi7IjFTFL9oWkZy+PhQQbx81hRv7nsS9YwgULP
+ fPyvywMC5/BRNiJv4Bv2rw2drYfgLwbtkRYVXdzToW0jskEmlweWHUbj/LEfWkimMjxMWvghuAo
+ Oeu5Ftb+6z/NoWkVWxtiZgTWcKlD6bqJRc4X95Ub5E3L9cgOVL/seXRA+oZwAczjdUHNqa91mAl
+ pnh0MNHv3f/9NAQhLk8LtdSDcYIXBjJ6AbC+3whUFU8/q87D2oQ4K6sGHgvH6W2nYMjrBVc4by4
+ tF8lhm2Doykt9IqmrtjwiMUDhbIJElBOahrbMYMCzbEgkFh+2nRz6QH8GanA==
 X-Developer-Key: i=yeoreum.yun@arm.com; a=openpgp;
  fpr=2D83E092DD0533B85875A49D6DD5C3D15AC53133
 
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 
-As pgd_t is returned  from a function, like pgdp_get(). pgd_t shouldn't be
-an array.
+As pgd_t is returned from a function like pgdp_get(), pgd_t shouldn't
+be an array.
 
-There is no need to match the actual arm page tables, because with nommu
-there are no page tables. It's all just in place to make the compiler
-happy. Making it a scalar will make the compiler happy.
+So, just use an u64, and extract the right 32bit value in pgd_val().
 
-So let's just use an u32.
+Leave the STRICT_MM_TYPECHECKS case alone for now.
+
+As an alternative, the STRICT_MM_TYPECHECKS approach could be used here
+as well, but using an u64 looks conceptually cleaner, even though
+pgd_val() gets a bit more involved.
 
 Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 ---
- arch/arm/include/asm/page-nommu.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/include/asm/pgtable-2level-types.h | 20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/include/asm/page-nommu.h b/arch/arm/include/asm/page-nommu.h
-index e74415c959be..88659b38e236 100644
---- a/arch/arm/include/asm/page-nommu.h
-+++ b/arch/arm/include/asm/page-nommu.h
-@@ -18,12 +18,12 @@
+diff --git a/arch/arm/include/asm/pgtable-2level-types.h b/arch/arm/include/asm/pgtable-2level-types.h
+index 650e793f4142..805044ea315b 100644
+--- a/arch/arm/include/asm/pgtable-2level-types.h
++++ b/arch/arm/include/asm/pgtable-2level-types.h
+@@ -25,7 +25,7 @@ typedef struct { pteval_t pgprot; } pgprot_t;
+ 
+ #define pte_val(x)      ((x).pte)
+ #define pmd_val(x)      ((x).pmd)
+-#define pgd_val(x)	((x).pgd[0])
++#define pgd_val(x)      ((x).pgd[0])
+ #define pgprot_val(x)   ((x).pgprot)
+ 
+ #define __pte(x)        ((pte_t) { (x) } )
+@@ -36,14 +36,28 @@ typedef struct { pteval_t pgprot; } pgprot_t;
+ /*
+  * .. while these make it easier on the compiler
   */
- typedef unsigned long pte_t;
- typedef unsigned long pmd_t;
--typedef unsigned long pgd_t[2];
-+typedef unsigned long pgd_t;
- typedef unsigned long pgprot_t;
++typedef u64 pgdval_t;
++
+ typedef pteval_t pte_t;
+ typedef pmdval_t pmd_t;
+-typedef pmdval_t pgd_t[2];
++typedef pgdval_t pgd_t;
+ typedef pteval_t pgprot_t;
  
  #define pte_val(x)      (x)
  #define pmd_val(x)      (x)
 -#define pgd_val(x)	((x)[0])
-+#define pgd_val(x)      (x)
++
++static inline pmdval_t pgd_val(pgd_t pgd)
++{
++	/*
++	 * A PGD entry actually corresponds to two PMD entries in the PMD table.
++	 * Both PMD entries point to PTE tables residing in the same physical page,
++	 * but at different offsets. See include/asm/pgtable-2level.h for details.
++	 *
++	 * Historically, pgd_val() has returned the lower of the two PMD entries.
++	 */
++	return (*(pmdval_t (*)[2])&pgd)[0];
++}
++
  #define pgprot_val(x)   (x)
  
  #define __pte(x)        (x)
