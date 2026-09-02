@@ -1,35 +1,35 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 85BF0472093;
-	Wed,  2 Sep 2026 11:58:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id EF24E48035C;
+	Wed,  2 Sep 2026 11:58:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788350313; cv=none; b=F7iNQtKDbfNrAAjk+iE4TyL6X18UccIbNGiGGxWceP/0CVKT3k9Vz1ZTXc8tfzPHoR7eZ/AsCQ/4HaNe4pjwt+G5cpjwQ05obnLjGkTcThu+d6LrVtwvx853ZHBoc5IRCKEJHx+Tg7cTVrvCriPy1HoAjjGh+1cAGvT/pymk4bY=
+	t=1788350329; cv=none; b=H9IJDoAnNHZeoM+hrzugdYuU7kdcwu900bResfumjHOL9L5h09CMVBrw27TZx976yWZM4G+pbw9bEcgTiuFREoGIk0UZQ01IMm6+yHhyeINRnbAG+Am4okUSvANS/wjIZyGyigTQM9SZP1jbrK8L994iZqbcnj9HEF2wAM4qPFA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788350313; c=relaxed/simple;
-	bh=lMx8oDxLrRJvH9eMXBjYWF4f+9ZOpE9Y518eoKaPMJE=;
+	s=arc-20240116; t=1788350329; c=relaxed/simple;
+	bh=k2zH0FGZAHQHsE8iyLCaqqIz9EPe8wwBeb+yxtADtNc=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=XIXB3KvdQfnvRB0AQ1FAsLzEYBDKOJfAfY2G8431GW/lGmnt6Xe00ouDAl9sG2wK/psWX11x/RHQpNAVJdqBUgL1yYGILQ7EfmHr/sLMoH6lhEfrK2W/zm93MtQO9UzCpwVc3arIxscgefd/o1sN6/jHCBhAo2pFbN92fM6vPYk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=krO2cV0w; arc=none smtp.client-ip=217.140.110.172
+	 In-Reply-To:To:Cc; b=TNr7gSu1pPAygXS/uU2sxl/DCVzBWlqCN0plZqAtRBGqMnh7FRkaNIyIbkuqtn3qmDpT2OmTUc1Kps7XXNTbhHMgaVtMuUiQKVe/kB0Z7oSlUDtZs1q4H3UDuI+jCv8DFI2QdxJI7Dp6+Lov8USLav3gCAXdPyoOfxV2yyIbxPo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=jYatJEpX; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="krO2cV0w"
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="jYatJEpX"
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 20BCD1E32;
-	Wed,  2 Sep 2026 04:58:10 -0700 (PDT)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4BC3C1E4D;
+	Wed,  2 Sep 2026 04:58:25 -0700 (PDT)
 Received: from e129823.arm.com (e129823.arm.com [10.2.213.3])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9AEF93F85F;
-	Wed,  2 Sep 2026 04:58:06 -0700 (PDT)
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id C64723F85F;
+	Wed,  2 Sep 2026 04:58:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1788350293; bh=lMx8oDxLrRJvH9eMXBjYWF4f+9ZOpE9Y518eoKaPMJE=;
+	t=1788350309; bh=k2zH0FGZAHQHsE8iyLCaqqIz9EPe8wwBeb+yxtADtNc=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=krO2cV0wUbHoNz4HiaCO7WUC3BC407rFyRRBRidPDVLMxsiarl33hEi5TdBmSfdAe
-	 bp001uGnvUM1OPwKydsZG2MF9KK8CeaZyIGT4eRDw5V4mnQ/BGbKmieKcomRbkNsOO
-	 CBFUA5OOE9OOa3d84FuizOQSQ6+w2BL4az9e0MS4=
+	b=jYatJEpXusEujngnHtU6I+YPUKEc9K8lGG+lz1k8jk0KjT5om9VcibE/ezX/VNx7b
+	 lpj/LXh8tiH840xQlDjIN8NOZFbyzF3GoEjDO3+GBfOYuqP94T7AQrC++hekhMS6tA
+	 8FkWEGa9JBOcKLOCiJlkvBaOKggzzYeRDZmNyDQM=
 From: Yeoreum Yun <yeoreum.yun@arm.com>
-Date: Wed, 02 Sep 2026 12:56:15 +0100
-Subject: [PATCH RFC v3 13/21] x86: mm: use pgtable_level enum in
- effective_prot_pXd()
+Date: Wed, 02 Sep 2026 12:56:17 +0100
+Subject: [PATCH RFC v3 15/21] x86: mm: skip collapse_pud_page() when
+ CONFIG_X86_DIRECT_GBPAGES disabled
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -38,7 +38,7 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260902-dummy_ptxp3-v3-13-5d8f5b17c25c@arm.com>
+Message-Id: <20260902-dummy_ptxp3-v3-15-5d8f5b17c25c@arm.com>
 References: <20260902-dummy_ptxp3-v3-0-5d8f5b17c25c@arm.com>
 In-Reply-To: <20260902-dummy_ptxp3-v3-0-5d8f5b17c25c@arm.com>
 To: Russell King <linux@armlinux.org.uk>, 
@@ -71,83 +71,48 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
  kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
  linux-openrisc@vger.kernel.org, Yeoreum Yun <yeoreum.yun@arm.com>
 X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2103; i=yeoreum.yun@arm.com;
- h=from:subject:message-id; bh=lMx8oDxLrRJvH9eMXBjYWF4f+9ZOpE9Y518eoKaPMJE=;
- b=owEB7QES/pANAwAKAW3Vw9FaxTEzAcsmYgBqmA7orgNlXXrDglsxwFE6HkLoSMOcv+hn/RGo5
- OZ6Np01hJGJAbMEAAEKAB0WIQQtg+CS3QUzuFh1pJ1t1cPRWsUxMwUCapgO6AAKCRBt1cPRWsUx
- M6wOC/4jh3pwjU1HOyorFYcxwSr12oxSEh2yyO74vVtlI7NHpYX5RUUsEZYTnG7+qkDv6ow2iGZ
- AmD3S0ZBxZOzZv9316P62wrPLZu+N3mv3CRuoY27dQMaReBMceQ+4a2CinVFRCeQ7E8m6YIVk5O
- fro0sHSel4RIL4bWa5rTIGwerRJl1goYmC75WreM/MYuWJL9fYxHraDTdlqR0RNnFE4gqF80Jgs
- 4TXQWJxntju4OCT7na2A1iAhwi+TjtYBPuj+OQUT0ds/9dAZMHzM6isjqvaOSBhSxnnYfCreX22
- bIQgyPKV3lI59hX7t0N7MG8fUyfmZiMKbPaY7VeioNA7Uswd+OSBeEXQYLmX4ZXfMx/qi5w198K
- t83/WRBdsBEQeChKPf05sHb1SVA5a260F4YS5f6T18Mq2g6xHN41XtDkUgU9rLheidhBTkRZ93w
- LncxMkb9iEoBk6h2+9ACSJ73MImH+il0LpD5x3Akn/XsjQWHN76L6I8KnDsqy5cVwct7g=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=958; i=yeoreum.yun@arm.com;
+ h=from:subject:message-id; bh=k2zH0FGZAHQHsE8iyLCaqqIz9EPe8wwBeb+yxtADtNc=;
+ b=owEB7QES/pANAwAKAW3Vw9FaxTEzAcsmYgBqmA7pUQwEjNuqeUAg7BhIVlnxOYow79q+z+b/o
+ Mu+s6x0zhqJAbMEAAEKAB0WIQQtg+CS3QUzuFh1pJ1t1cPRWsUxMwUCapgO6QAKCRBt1cPRWsUx
+ Mz9sDACbzWbwygGpa8m3XTPuxJjLPEKbMbsFtZoHAET7S3zJ2LzXLww4d97at64xdcy0C9qcaWn
+ tUK+uYwT5SoDrcZGmfsCgkyKnZ3bcOfrvI1CTIx3pn9wi7HlvNnFpoHJWX1wFhyDvNnivGAWwsD
+ RVZ6G5XrvM3ngBD9A3GaObxS/hOfNl6B2cAfrLJdXQlFvhTOA7evFUwYxbSFQtREo7W9iPBbbhm
+ FPNf9wlD8mSt0yJmy3Qv97MpkoT7C4YN9hgXPoJ2xU+Q0YTYJi5hf71QPpJgYQrr2aCRm06oBrf
+ Hjgq3DMzHZEQL3ROMxL2wlUgUj0dpPf6JXmI4z3zSpp0POGmdgTjUGkTKUflejOTbAnUKV3SOyA
+ /5BZiBlXnygsBnRlMPKDve452e/HvUePcW2dHO4oVqHDg+1C2R3xXuQyq+w8kGdgQXAlc2papvE
+ ACcncgIrI/l73eXzjT29pSeE28A+OoQGnf4+ycoq2SoHHMNmrkkPY3GeJeF6nalFI2ayU=
 X-Developer-Key: i=yeoreum.yun@arm.com; a=openpgp;
  fpr=2D83E092DD0533B85875A49D6DD5C3D15AC53133
 
-Instead of using hard-coded integer in effective_prot_pXd(), use
-pgtable level enum.
+The behaviour of pXd_page() will change with generic compile-time folded
+page tables by disallowing its use and triggering a compile-time error
+when it's used improperly, ensuring that the actual pXd_page() is used
+instead.
+
+To prepare fot that, skip collapse_pud_page() when
+CONFIG_X86_DIRECT_GBPAGES is disabled.
 
 There should be no functional change.
 
 Signed-off-by: Yeoreum Yun <yeoreum.yun@arm.com>
 ---
- arch/x86/mm/dump_pagetables.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ arch/x86/mm/pat/set_memory.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/mm/dump_pagetables.c b/arch/x86/mm/dump_pagetables.c
-index 2afa7a23340e..a18a61e732c3 100644
---- a/arch/x86/mm/dump_pagetables.c
-+++ b/arch/x86/mm/dump_pagetables.c
-@@ -248,13 +248,13 @@ static void note_wx(struct pg_state *st, unsigned long addr)
- 		  (void *)st->start_address);
- }
+diff --git a/arch/x86/mm/pat/set_memory.c b/arch/x86/mm/pat/set_memory.c
+index a1a061d995b3..07a873775279 100644
+--- a/arch/x86/mm/pat/set_memory.c
++++ b/arch/x86/mm/pat/set_memory.c
+@@ -1315,7 +1315,7 @@ static int collapse_pud_page(pud_t *pud, unsigned long addr,
+ 	pmd_t *pmd, first;
+ 	int i;
  
--static void effective_prot(struct ptdump_state *pt_st, int level, u64 val)
-+static void effective_prot(struct ptdump_state *pt_st, enum pgtable_level level, u64 val)
- {
- 	struct pg_state *st = container_of(pt_st, struct pg_state, ptdump);
- 	pgprotval_t prot = val & PTE_FLAGS_MASK;
- 	pgprotval_t effective;
+-	if (!direct_gbpages)
++	if (!IS_ENABLED(CONFIG_X86_FEATURE_GBPAGES) || !direct_gbpages)
+ 		return 0;
  
--	if (level > 0) {
-+	if (level > PGTABLE_LEVEL_PGD) {
- 		pgprotval_t higher_prot = st->prot_levels[level - 1];
- 
- 		effective = (higher_prot & prot & (_PAGE_USER | _PAGE_RW)) |
-@@ -268,27 +268,27 @@ static void effective_prot(struct ptdump_state *pt_st, int level, u64 val)
- 
- static void effective_prot_pte(struct ptdump_state *st, pte_t pte)
- {
--	effective_prot(st, 4, pte_val(pte));
-+	effective_prot(st, PGTABLE_LEVEL_PTE, pte_val(pte));
- }
- 
- static void effective_prot_pmd(struct ptdump_state *st, pmd_t pmd)
- {
--	effective_prot(st, 3, pmd_val(pmd));
-+	effective_prot(st, PGTABLE_LEVEL_PMD, pmd_val(pmd));
- }
- 
- static void effective_prot_pud(struct ptdump_state *st, pud_t pud)
- {
--	effective_prot(st, 2, pud_val(pud));
-+	effective_prot(st, PGTABLE_LEVEL_PUD, pud_val(pud));
- }
- 
- static void effective_prot_p4d(struct ptdump_state *st, p4d_t p4d)
- {
--	effective_prot(st, 1, p4d_val(p4d));
-+	effective_prot(st, PGTABLE_LEVEL_P4D, p4d_val(p4d));
- }
- 
- static void effective_prot_pgd(struct ptdump_state *st, pgd_t pgd)
- {
--	effective_prot(st, 0, pgd_val(pgd));
-+	effective_prot(st, PGTABLE_LEVEL_PGD, pgd_val(pgd));
- }
- 
- 
+ 	addr &= PUD_MASK;
 
 -- 
 2.43.0
