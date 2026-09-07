@@ -1,164 +1,105 @@
-Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DF61509F09
-	for <linux-openrisc@vger.kernel.org>; Fri,  4 Sep 2026 17:21:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.43
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788542483; cv=pass; b=kF1gaKN8ExAknGYrQj/Pe2mtAcxfL620LoZkNWWUJW7/U/aTs3tjGM+44Fa1y/CnPOWP42pMM2pTbTnHXlrzYdvngaqPH2oXc/KY8zIjPAW2X5jcdN8Crds01h4HF8D7V3DMfx8RdgXBwK43yGpeAFbrcR5dA5TiM1BuOPK80V0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788542483; c=relaxed/simple;
-	bh=AFNBiWCRpUcEoXNChHss1VconiHm4hB8qaeZxdrK+Dg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=AoKadHeCu3dKqD0o1ySfBucVLfF/z0EJkj7vSmKFgEEUZVD7Luvz+XzDa32V4TH16lZf1eP8GYy+wjY9lJf0HPRKmaZq8AMKgitn78gJpSu0P+mmQkLzYxaI9vi4P+Vmw6sY/HRXMLcRa82lDtjEy9RwBA/Un5ZWm4qdjm78L14=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=S+5ZMHHh; arc=pass smtp.client-ip=209.85.208.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 30DD4431E47;
+	Mon,  7 Sep 2026 08:06:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788768395; cv=none; b=RDYsNFjfsGUjgwTCCnMfcdd+2NPkN1VOOZtq8JG29CpI6V+CJ/VPq6C/h2wBQkV2sx9MlIym5X1JLbCPqDH99IxVok9pnBpdD6jImf5t5LhmvzDYS7d9VidUq8T0xFbHGlhoSUJzLXxgVkMYT9ytRmY7t9E5mUt3mWOquzYfRxw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788768395; c=relaxed/simple;
+	bh=M02Zz7duqtLH9w5WcLt9dmTeIbG6UdWlqLh0VhnRN2c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lhgrb5Anz0kF+AJUzbmilCoDgwBY0fmazyymx6dOPDTiShpoESFT+4ybPEvZDM4MIEe29A+4OuYb1zn819JxnC1A+TgA4v4Hwaav7NWmwVcHRfF61giMk/blAWfxDuHuORHVZTdTSUapUJ7D4ilAA5wBF2UffZN6p8ad4tDdUtM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=vX9YEFxm; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="S+5ZMHHh"
-Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-6a68aaf4840so2892870a12.0
-        for <linux-openrisc@vger.kernel.org>; Fri, 04 Sep 2026 10:21:21 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788542480; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Sn0yns3fagWDoVR98X6n7dIi34UUm1HGPMqcnN6/Kk4iPRmZZtDVvQcC0vOgKnVhaI
-         pgMWHEUYHGycZ9EIC0rC5nhK+4w8edlsXCS0pt3OxQfXwxbE9fQCcDqjCm7hBxOzHL5H
-         cxdk1Ej5C7cMwwHL2uS44qD17xP6/SLAQjvi/xiGPvEvvb+Y91uU68cGKBC2RM6VIUFT
-         lYVpegoR+EEskUA2CrbUZjgaTNsjUjeIGL9KWJhepzVOmV6UlWNEtiaeNzQjerUcOXKF
-         11+dWljQLlKILc1vkZSYcAt98HpW7spXVSom+to5steqxYKizwdGBrsWWJdKW72eG8rI
-         elig==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=xbP84TB5YSyUcPTlSRXVzwOJ5KiLCluO2L3qZFE4rqU=;
-        fh=YzVXMbVJhbJcBBlIMBV4CynCogN149OZ6lsE4Ye1Qug=;
-        b=oSEN1bU9ryF27XyqzacTgmUyeEeGHDRo6rvGQgU7w+B7eFtRaTZEfzfEkhcbURfHxr
-         td0/FWz/uMAFR7uk/bTrLaHkgsIFLD8Q7G0zfgqSJF3cKRvzUTnSybtHC8KsyATvPfb0
-         Su2fV5KCJOrsg/W/xm/RGwohuGEMi2TsPw3qb0OW2tDa26dFAiwo0kiH5yriOvz1IH5P
-         WK1vQkgMJ2fkw7zVQLSrL4SBfZplkWWajBsJCkL4a2AbVdN0Rz3U7AhXk1YhTt6uIIro
-         cukedD9Jo4fBg5ERfFnqEYMCB7mYIANMCcYvEXQQmi6kMdVbgFi1J9fJq0oUhch24C3e
-         DYjA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788542480; x=1789147280; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=xbP84TB5YSyUcPTlSRXVzwOJ5KiLCluO2L3qZFE4rqU=;
-        b=S+5ZMHHhfGjA+IdWmeugDDHgBwHG5bBYSPYfCEow+5chkn8MQle82UmWyVbxLiEN7d
-         ijcv6053WNTu2RqyJ6VR+Q1MSk4Vxz4n7ZKFRrjYrPqEbaWeUeae4OgCiLykWRLNUDRA
-         ZH/X93kZSKA1/wbKpcmxavHteq0Ow+JKUXYEkMsejbWI7AKmmLzp7rDEpD05dDMzdu05
-         qx2RS3AgstzLvoN8v5AUqAPOvMKc+nz/J8n2Lte3Wf5wq5bPQVeGs2cRbGv15hnp0TgY
-         EW5NlkkUE9iLPQcY1GiopKTuEm/IxQzvNCCThYHaycwvH5N4Y2kyLdCZ7Tyzs3tF5f6h
-         EH1w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788542480; x=1789147280;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=xbP84TB5YSyUcPTlSRXVzwOJ5KiLCluO2L3qZFE4rqU=;
-        b=ouFTFAhGeiKRlYxeqZLHpoG7x8u9cQkQbr86lxPHvIptTmRoLcM+Tpscdc2tYycjC9
-         zNB1Ssu5cPtk1HClhta3vXKWGRoAfaWOCMug638hdElfN6lQx4F7Z8E1tP6Dir6o+muM
-         0zLCue5jWj63tUc0VyFDfnDVusFt+wrmhUoW6LEi1HtuaGItMgI8m/wu+7apXVSHHIOq
-         N+NXAwUgl4agAqiavgCskfdqk7cgFmZbolf8sPp36vZTltM7ihq80zQZmglGOwV3+OKB
-         yqCzIHT0qaswsYJSE64g9bkSAXXfBvN45oeV/ypcwXhzirvEVvQSxUcKOHpfVOas3vzi
-         gycg==
-X-Forwarded-Encrypted: i=1; AKwUvBydvpxD2kzxLQ+wRjbzGqi7trB5nBcsBuZYUvLiw+WAe9VNU4MrpaAKuj4XfW4XsGNpfMbM0qlCEeSZXgAlaA==@vger.kernel.org
-X-Gm-Message-State: AFuF++kNug/wtwVGK55CZ3HWzke9T6GVzgoem0VjuX4J/likjx9G8Puq
-	zaMFBkKUcfIL/+cIjjNNstMw17Qhmflg9oXO3Wce1lvz6JkDosoiOUC2pYSqAPM1Fx0D7pZGMbe
-	81z6iIIVSH9fX2Po7pdl4hKdK6moeFs0=
-X-Gm-Gg: AYBFou1IT1kBumhuoCp69YOQ6wPXlECHLI6+xTsZNa55IE+lWGBgnthwwF3uukmmWbp
-	BB7qBCoi6NH0Y4PEs4NWrtxrpYjR7s1nG5TJlcUFmA5d16rgT09qra4BO1phhE+kb7yF3kN2yzJ
-	kI2mmVoHy7ks3zegjet+VRIx50A1ioFEjSCez4jtEhROmZ9KtH5BNRjc4zM3LUTcHM1J/cmcQLc
-	bq9lxGWNvAOjw9wgop+Ouy9J5C9ig59Kmo+OrYIgg0lKwE4ovwVW3WiX7P2LSbEUpowkvJxoL/f
-	JdLj9VknanfO53Fv21h0qZLdJFuGDgNnSVU5vdTcCztWeHeUXhlKZceqPAAn8n4FIjmyosivGKI
-	JT+DVZ0J27dnagw+1mUPtj0bEgrW875I=
-X-Received: by 2002:a05:6402:a252:20b0:6a6:9368:73a0 with SMTP id
- 4fb4d7f45d1cf-6a696a73aa1mr4363499a12.6.1788542479338; Fri, 04 Sep 2026
- 10:21:19 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="vX9YEFxm"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C01C71A32;
+	Mon,  7 Sep 2026 01:06:29 -0700 (PDT)
+Received: from e129823.arm.com (e129823.arm.com [10.2.213.3])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 18C753F7D8;
+	Mon,  7 Sep 2026 01:06:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1788768393; bh=M02Zz7duqtLH9w5WcLt9dmTeIbG6UdWlqLh0VhnRN2c=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=vX9YEFxmN++GHfkO2xxc2HRCAVQZnfcF+y1vVz4p+I67mwn/6aHZjc3V5wQk92028
+	 QjFA4Ff9sydSH7mdW6Ml8i/iDQuE/cqvG/ChPtrzIxW16rDWLljleu6TZ5iGFYY1Y2
+	 dWFeU1IDBLwdUjSKvUI2sIAZ7djSAJVGofJYXeo8=
+Date: Mon, 7 Sep 2026 09:06:24 +0100
+From: Yeoreum Yun <yeoreum.yun@arm.com>
+To: Dave Hansen <dave.hansen@intel.com>
+Cc: Yeoreum Yun <yeoreum.yun@arm.com>, Russell King <linux@armlinux.org.uk>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Kairui Song <kasong@tencent.com>, Qi Zheng <qi.zheng@linux.dev>,
+	Shakeel Butt <shakeel.butt@linux.dev>,
+	Barry Song <baohua@kernel.org>,
+	Axel Rasmussen <axelrasmussen@google.com>,
+	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
+	Johannes Weiner <hannes@cmpxchg.org>,
+	David Hildenbrand <david@kernel.org>,
+	Michal Hocko <mhocko@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>,
+	Tianrui Zhao <zhaotianrui@loongson.cn>,
+	Bibo Mao <maobibo@loongson.cn>, Anup Patel <anup@brainfault.org>,
+	Atish Patra <atish.patra@linux.dev>, Paul Walmsley <pjw@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>, Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Stafford Horne <shorne@gmail.com>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+	linux-arch@vger.kernel.org, linux-mm@kvack.org, kvm@vger.kernel.org,
+	kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org,
+	linux-openrisc@vger.kernel.org
+Subject: Re: [PATCH RFC v3 13/21] x86: mm: use pgtable_level enum in
+ effective_prot_pXd()
+Message-ID: <ap5wgC-J6Byt7nPS@e129823.arm.com>
+References: <20260902-dummy_ptxp3-v3-0-5d8f5b17c25c@arm.com>
+ <20260902-dummy_ptxp3-v3-13-5d8f5b17c25c@arm.com>
+ <8f3979a9-238a-4d7d-a040-6aa526fedec5@intel.com>
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <cover.1788351089.git.rrobaina@redhat.com> <4ada9fcbb93af8d5c1c9bfe2c83d94fc10bfe327.1788351089.git.rrobaina@redhat.com>
-In-Reply-To: <4ada9fcbb93af8d5c1c9bfe2c83d94fc10bfe327.1788351089.git.rrobaina@redhat.com>
-From: Magnus Lindholm <linmag7@gmail.com>
-Date: Fri, 4 Sep 2026 19:21:07 +0200
-X-Gm-Features: AcwNN1WpEQ0Y6eKbtA6wNzDHeYOBs1Tconhq7C15XjRhFKDXvjk4jMYrR9OFExk
-Message-ID: <CA+=Fv5T4826T2sd0Gbh-nfZsqcWK_phdBKy4BLWOvDTt92t5Eg@mail.gmail.com>
-Subject: Re: [PATCH v2 02/13] alpha: pass pt_regs to audit_syscall_entry()
-To: Ricardo Robaina <rrobaina@redhat.com>
-Cc: audit@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-csky@vger.kernel.org, linux-mips@vger.kernel.org, 
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
-	linux-um@lists.infradead.org, bpf@vger.kernel.org, paul@paul-moore.com, 
-	eparis@redhat.com, sgrubb@redhat.com, oleg@redhat.com, 
-	richard.henderson@linaro.org, mattst88@gmail.com, linux@armlinux.org.uk, 
-	catalin.marinas@arm.com, will@kernel.org, guoren@kernel.org, monstr@monstr.eu, 
-	tsbogend@alpha.franken.de, jonas@southpole.se, 
-	stefan.kristiansson@saunalahti.fi, shorne@gmail.com, 
-	James.Bottomley@hansenpartnership.com, deller@gmx.de, 
-	ysato@users.sourceforge.jp, dalias@libc.org, glaubitz@physik.fu-berlin.de, 
-	davem@davemloft.net, andreas@gaisler.com, richard@nod.at, 
-	anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net, chris@zankel.net, 
-	jcmvbkbc@gmail.com, tglx@kernel.org, peterz@infradead.org, luto@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8f3979a9-238a-4d7d-a040-6aa526fedec5@intel.com>
 
-Hi Ricardo,
+On Wed, Sep 02, 2026 at 01:48:03PM -0700, Dave Hansen wrote:
+> On 9/2/26 04:56, Yeoreum Yun wrote:
+> > Instead of using hard-coded integer in effective_prot_pXd(), use
+> > pgtable level enum.
+> 
+> Does this actually *do* anything? ;)
+> 
+> I guess it's nice to have a wee bit of type safety from the enum and it
+> means that you don't have to *know* which level number a PUD is, for
+> example.
+> 
+> Either way:
+> 
+> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
 
-On Wed, Sep 2, 2026 at 4:44=E2=80=AFPM Ricardo Robaina <rrobaina@redhat.com=
-> wrote:
->
-> audit_syscall_entry() now takes a pointer to pt_regs and extracts
-> the syscall arguments itself via syscall_get_arguments(). Drop the
-> individual argument registers from the call and pass regs instead.
->
-> Signed-off-by: Ricardo Robaina <rrobaina@redhat.com>
-> ---
->  arch/alpha/kernel/ptrace.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/arch/alpha/kernel/ptrace.c b/arch/alpha/kernel/ptrace.c
-> index fc8f6cedbb28..8a39c0473297 100644
-> --- a/arch/alpha/kernel/ptrace.c
-> +++ b/arch/alpha/kernel/ptrace.c
-> @@ -496,8 +496,7 @@ asmlinkage unsigned long syscall_trace_enter(void)
->         }
->
->  #ifdef CONFIG_AUDITSYSCALL
-> -       audit_syscall_entry(syscall_get_nr(current, regs),
-> -               regs->r16, regs->r17, regs->r18, regs->r19);
-> +       audit_syscall_entry(syscall_get_nr(current, regs), regs);
->  #endif
->         return syscall_get_nr(current, regs);
->  }
-> --
-> 2.55.0
->
-This doesn't apply on top of my "alpha: enable GENERIC_ENTRY" series
+Thanks!
 
-https://lore.kernel.org/linux-alpha/20260902184058.198679-1-linmag7@gmail.c=
-om/T/#t
-
-That series moves alpha's syscall entry onto the generic entry
-framework and removes syscall_trace_enter() and its direct
-audit_syscall_entry() call entirely - verified with git am against
-GENERIC_ENTRY applied, it fails at exactly this hunk.
-You don't need a replacement alpha patch, though. Once GENERIC_ENTRY
-lands, alpha's syscall entry goes through
-syscall_enter_from_user_mode_randomize_stack(), which already calls
-syscall_enter_audit() as part of the shared entry helpers
-(include/linux/entry-common.h). I applied patch 1/13 alone on top of
-GENERIC_ENTRY and confirmed alpha's entry path already routes through
-the updated __audit_syscall_entry() - no alpha-specific code needed.
-So for alpha, you can drop this patch in the next revision rather
-than rebase it.
-
-Regards
-Magnus
+-- 
+Sincerely,
+Yeoreum Yun
