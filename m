@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B26203DC4D9;
-	Thu, 10 Sep 2026 11:03:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AF4E2E764D;
+	Thu, 10 Sep 2026 11:05:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789038202; cv=none; b=kslVXXdS7VMgJvxdz2EvZ9Lj4QZ4myKnpDPodRbnxRxKMpoDDpu+BSehJDjiiZvlKR5LkjSAXyLgLMCh3tiFk5+nfxQSx5AyBm9nGtcF4lXwGqPN72IoCgmTEXFIUnfB1ag2SYOJSFAF1wBk43i1wiVQfSbExZr9w8MUXaOCEZE=
+	t=1789038335; cv=none; b=iAkxIyhlZzT0a0ilHUuFFqHZDMB/NS9i/jbAE4nHwlxmShHRe0pasi3/5qrYu9dKSQEfQpwXCb8Ta0TZ1yNNrL7Xrbs5dTtriDHd8xVLL6IIiC+YQsWVa4fVYus9tiG4B1TZNoCyqFLMKQm+ckTXDlIxEnO3oCflkCOO/6dRlkU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789038202; c=relaxed/simple;
-	bh=IZTRXru46XGJodgZ4i1nYbI+G852sEiZ20pbi+8EX2I=;
+	s=arc-20240116; t=1789038335; c=relaxed/simple;
+	bh=OqOu8jEFjFy9Ac1SnBtcL16Dna7OAhyeGq+uf2zPY5E=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sQYaR0yr5O0GG42l0UxOpmL+U+Km3qG90JW1l2LCaNjTthuc81KPbaoBtnZgUHYDX8dPXYLzX4PAa4k9NowlR4+fVnE+zD2rj0FfXyWPAd4jitDTawX3JJKeDO+e12S1ZwLmjDCgxCruTZIbCgXAd7oQgKlTLYDc8Sl1uSqe2RI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dXMfGLih; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=iUd6VY/LeuW30a3XK/PRvMErECFEq/fh8tuFd7v68Eb3AIHbmbpzFInK8bWkHBdsxHF65nCUPJerqiscqOWUGkKNaYJ72j2EryLGo2w5MaDTCH/A1xlWG/JRfmLQCHB3RFKYmtZ78xkZl5rim2tjVBRghUd5f4hfV15F/sqV9MY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O9P4brTB; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dXMfGLih"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B37C1F000FF;
-	Thu, 10 Sep 2026 11:03:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O9P4brTB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D0541F000FF;
+	Thu, 10 Sep 2026 11:05:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789038201;
-	bh=Xs5N6d4Q3VeK4CPw8sjumPscyGSXs4KBPkCsQSrD/Fg=;
+	s=k20260515; t=1789038333;
+	bh=9YZk2wCzZD7ud7nbBKJ04FWJsPn8EDTK/gTOXxFQNOk=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=dXMfGLihXvyR0gahQ2AIkqMeQkGub8BMfOB+ZZ98l5ud+Ms7cAsxntVKUZ1utDJEM
-	 nQ4//pg74UjHHC8mPasRfMu8FSDkOatRrczqiiC3LaTIfHBHPmv858G9GISLwMrdX3
-	 5t3/073kFkvaDHBaTdhFkEOMDmGpUKKC4E2Cj0V1n40/0ffKbTF+hIGUn0USrigbVC
-	 D6iE/rxT2btCRdq9PqG7qeHgFtHMEe2GvT962NY0ILA2s/3pNyarm41S82N//cyR8P
-	 iMhJW8tTmz6rcSiviTtdveTTrlyb320BlmbnPfWLAUCYZfF23wyaCs92UlD0YEhg6S
-	 GHLaU697xvBxQ==
-Message-ID: <bc96d00c-f343-42d2-99fa-e1f5fb11a72e@kernel.org>
-Date: Thu, 10 Sep 2026 13:03:06 +0200
+	b=O9P4brTBs+SaRO9GQMBGP55ozrj8eS/wvn34kbSVOVVvQGSv+4hQWqHtjF2Onz9AN
+	 /ZlxWsqUVNcxSq+6K2ChEbK2QSC0ahYV+IaDzTtpnV5KIEA34pSjHKM/7MiMMaRg4N
+	 6NGjbWhVcr++iGsRLdFZbdsf/hVDhqjrx8QWxMfTYgWBo7qhIU0H+PuySBwNV8ZW74
+	 Z7DtwGRBvklEoKCi+kEiUWK8uvvtvZFWP+zSaQfmwL4UlRv+cX3UlhBnZjUnzZtiEi
+	 0Jq8KHz8OyRyjw2fZOKgZ3v9cRudaLuE0woLzUhit0+rbKiNXIUYldYZPMLGJ25LzP
+	 fQeVdpHeQUxsA==
+Message-ID: <4b9f8ff1-8b9d-45f5-9012-b648d6e16689@kernel.org>
+Date: Thu, 10 Sep 2026 13:05:18 +0200
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
@@ -35,8 +35,8 @@ List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC v3 13/21] x86: mm: use pgtable_level enum in
- effective_prot_pXd()
+Subject: Re: [PATCH RFC v3 12/21] mm/pgtable: redefine PGTABLE_LEVEL enum with
+ ascend order from PGD
 To: Yeoreum Yun <yeoreum.yun@arm.com>, Russell King <linux@armlinux.org.uk>,
  Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
  Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
@@ -67,7 +67,7 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
  kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org,
  linux-openrisc@vger.kernel.org
 References: <20260902-dummy_ptxp3-v3-0-5d8f5b17c25c@arm.com>
- <20260902-dummy_ptxp3-v3-13-5d8f5b17c25c@arm.com>
+ <20260902-dummy_ptxp3-v3-12-5d8f5b17c25c@arm.com>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -114,15 +114,22 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260902-dummy_ptxp3-v3-13-5d8f5b17c25c@arm.com>
+In-Reply-To: <20260902-dummy_ptxp3-v3-12-5d8f5b17c25c@arm.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 9/2/26 13:56, Yeoreum Yun wrote:
-> Instead of using hard-coded integer in effective_prot_pXd(), use
-> pgtable level enum.
+> The PGTABLE_LEVEL enum values appear to be ordered in the opposite direction
+> from their intended usage.
 > 
-> There should be no functional change.
+> Intuitively, higher page table levels should have smaller enum values,
+> but PTE is currently assigned 0.
+> 
+> For consistency and cleanup, reverse the enum value ordering.
+> 
+> Since there is no current user relies on these numbers to be ascending from
+> PTE->PGD, so it can be changed to be ascending from PGD->PTE, in the
+> direction of the page table walk.
 > 
 > Signed-off-by: Yeoreum Yun <yeoreum.yun@arm.com>
 > ---
