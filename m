@@ -1,292 +1,155 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 340FE44839A;
-	Wed, 16 Sep 2026 08:25:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mail-wm2-f13.google.com (mail-wm2-f13.google.com [74.125.225.141])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 324F34AEBD8
+	for <linux-openrisc@vger.kernel.org>; Wed, 16 Sep 2026 09:50:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789547115; cv=none; b=Q8pHGWmrXBCimAj54KpHoZze8wyLhPbKUEnVed5Rq1adVP9XTQGqhm/J7fxV8M05DYqkDTjexB8KKA4ZgxwN+PBiCdP0JAAjyv2PFKj45I7sFScUFHCBkkpqjS585DGLV/fIuHp326dolOaHCqhTWfdNi3EGHxsd+UmekGf34jU=
+	t=1789552246; cv=none; b=JLK0PUKTL0Ac4KThXTbVMsMcneZ3u6UbqE3Fw5dbmO+STEegCgvKK+MZY3e1WFk9rfsk/LQRjYNhOhXi+OiZJxIGWL1JMMgUZc/gGjYj27wJEMNYPE4YGGrgkRW5jmO9YH3fc2bskRX9GKqHoaFCfoVa+ZX4dCAqzfDtEJeiemE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789547115; c=relaxed/simple;
-	bh=/8itoCy2uuAdT2BRbZBqwKTAhTZbp5WyzRD+XEeprJk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PCUtneAQlrdRzkBbT7AWBrSbns1ZhndzrarZW96B/+CLuZpctFBcdgCaSUnIfqnscklbOpjJWhre7WHSvvrT4h6cHmmyq8NECKtcRZSxOLix41va4xMTOJ7O5ATSUcFu+XmrqH8aUHhHkNf1gURM7KvEdKs+VMO3ZamtFAjg+hw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=JybzSzpK; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+	s=arc-20240116; t=1789552246; c=relaxed/simple;
+	bh=zVftL0e6KTn1Fup/RmgkkUqXURXldH56P13A6WLi8KQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=DKZCP72Ac8YPD32GgpE0z3voRC/TR9YDuZM3CVByFcu0qITvXIvZBgoePmC4PWgMrmZWokR2jFM+LXK1bKBsFSaBrBalJHHuvbFpLbWuiM4ii3oA3XSYF26u3HA4nr2Jkc2e7CGU9ldu+RlzBoRtiwaR658ibPAXmLwhw/uu5Gs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Dzby88uf; arc=none smtp.client-ip=74.125.225.141
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="JybzSzpK"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E88D11E32;
-	Wed, 16 Sep 2026 01:25:02 -0700 (PDT)
-Received: from e129823.arm.com (e129823.arm.com [10.2.213.3])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1CB9F3F882;
-	Wed, 16 Sep 2026 01:24:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1789547106; bh=/8itoCy2uuAdT2BRbZBqwKTAhTZbp5WyzRD+XEeprJk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=JybzSzpKsBXyl5ejDpbE5Lnvl5rgBgnIjwZqLVkpg80e2fZA0FHiqFmVFqCsHggez
-	 D/2HtVhTxYvpa7MlJ137x509omi1Bd/DX1rZ/NzmDZOfKOhGAxp3hQgdQFFWlUD47k
-	 F4i8xjR5OAGGBPPH7W2sg/6d2c3BHgDuGy75hXg4=
-Date: Wed, 16 Sep 2026 09:24:56 +0100
-From: Yeoreum Yun <yeoreum.yun@arm.com>
-To: Russell King <linux@armlinux.org.uk>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Kairui Song <kasong@tencent.com>, Qi Zheng <qi.zheng@linux.dev>,
-	Shakeel Butt <shakeel.butt@linux.dev>,
-	Barry Song <baohua@kernel.org>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Johannes Weiner <hannes@cmpxchg.org>,
-	David Hildenbrand <david@kernel.org>,
-	Michal Hocko <mhocko@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>,
-	Tianrui Zhao <zhaotianrui@loongson.cn>,
-	Bibo Mao <maobibo@loongson.cn>, Anup Patel <anup@brainfault.org>,
-	Atish Patra <atish.patra@linux.dev>, Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>, Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Stafford Horne <shorne@gmail.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-mm@kvack.org, kvm@vger.kernel.org,
-	kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org,
-	linux-openrisc@vger.kernel.org,
-	Muhammad Usama Anjum <usama.anjum@arm.com>,
-	Yeoreum Yun <yeoreum.yun@arm.com>
-Subject: Re: [PATCH RFC v3 00/21] mm: change behavior of
- pXdp_get()/pXd_page() in compile-time folded pgtable
-Message-ID: <aqpSWIp_YrLPKBBp@e129823.arm.com>
-References: <20260902-dummy_ptxp3-v3-0-5d8f5b17c25c@arm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Dzby88uf"
+Received: by mail-wm2-f13.google.com with SMTP id 5b1f17b1804b1-49e8185e037so3877835e9.3
+        for <linux-openrisc@vger.kernel.org>; Wed, 16 Sep 2026 02:50:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789552219; x=1790157019; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=79YAdtaHEv3S3nDvYc6X9C5ar06F3FncZEtUncQdJQ4=;
+        b=Dzby88ufsV19pEuHSQnO0Z3r75FgiJ44qF/jXgKTm3w+wAYVSGDUH6LyexeTQiqa/g
+         mb7EWvB3UuhKI7YAj+i2TOZr9/Z0Jn4HnQ3SO6kUkIrvAwSnRTzKzvfGb0So06LetuEf
+         Ts3VEs9CM5zHiWBu1V4JZ71jpXN6ZkETnLDwqKE7PV3aA5kY0+ABvWOim6YHWnbq5cCK
+         nHzOneSJDYvvXY/C7BkTDDo/hN/r3+9IBjrwRhsKYcoz9kdWM+uOTg6K8qjcDaH6D7EX
+         KA0rYEGGzwyipB5cM3imDGmhTpbUuWgcSiyW3ZIBr1TR7/Q7dN5mD7jr++kuJyreI5UR
+         skeQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789552219; x=1790157019;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=79YAdtaHEv3S3nDvYc6X9C5ar06F3FncZEtUncQdJQ4=;
+        b=HHwxti8w90xvhCbep+V8R/W+LPAVIhUg5PMYAxWHJNSIvgbnho+Q9U8heLGTFPUO8N
+         TOaWpkgrXfm0/mAkarHZT+sB9KOJuNulL9wRRoYxYBVAfoSU0I8yx3Nf793pLB18gGaf
+         BTbh/H/Q2yz4GTrNcac4bdNpFpv3v+hzvl0fyrL30ypXTnEJ1lNqge/4AjkhSBXVAYo7
+         764nPWWegL+atk8vdu5qigaGJKgtneUN6o9j70zayz/DB8aBVD8V4nzLRVJqfL8I8mff
+         kppB4QFtrOsakXi40jaaEj65K8rJcp6pqLhnN185rURtuCqrQRsdLLBu39nKH4bwHd16
+         qPdw==
+X-Forwarded-Encrypted: i=1; AKwUvBw/Dyj2htZLrz96XIm5blIPoFaOu6+3Lt2NrrIhovAeABMW6LByFJ6fpeu2BIhcTA3Qaf2UY6LsQ8Q0VVlY9g==@vger.kernel.org
+X-Gm-Message-State: AFuF++njXzDlN8AIWOVWU+keXgCEa3/ZIRnYDSEUGtJ0h4w2Rd1ZDdO2
+	0kHrVmHMe0N7nlCsOkrlp8L/NxOZa/hBoK83Lrj9WpGu21880zWfYPPm
+X-Gm-Gg: AYBFou2KzxKLBGzFvASW81aCG1lXidm5f2ZbALwH1Y98Do4yqQyS6f880+K0uVCFttb
+	DBt98EBx8kj/IhQG8ecH4FFHe3MpO1qkjmMlO4S4gpMhGl6JYadSgUhu1xqgoDiHNEug3gg6g7b
+	5AX3zUQGrcVUdtvIpq6jGmWXhN3pDEtgidMm01wvfh78zT2OnIlKGvVzNcKN1hGgq04xqo+4/lM
+	yK5W9WvfioGfad+m45uAqyW+IZ8hvuh5fzIBkwMdmTh5iWeQpqS9lGlE2Xa73LJ9apXvRA9+EF6
+	84EnFqXIBnunPa+tBgH4QxM+THlzwYflbcp+A7xVeQuIFplO/jhUISdE3i/cPIDxT4MhRINOknN
+	3VJecgUsPL4Z1lObzMBqGgZwEKQwfFNYgCdr0duy2/SAkSqdc8OlmwKgXnzGqjM+zrz5n/AFu4z
+	fQi2T4fxZNP2LlMaVjbzw20/W5d+MxRkrnI0jWsdQAh9mNu0aTcmo86rK5oqndszY3FQYefgyrN
+	zDYG1aEceLXDnDjGWLy1bO22eiOWYwfb76rkzrq+xtd8Ug=
+X-Received: by 2002:a05:600c:4ec6:b0:49c:fea3:8633 with SMTP id 5b1f17b1804b1-49eb732aec0mr19444455e9.24.1789552219000;
+        Wed, 16 Sep 2026 02:50:19 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49e83b02245sm84055225e9.10.2026.09.16.02.50.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 16 Sep 2026 02:50:18 -0700 (PDT)
+Date: Wed, 16 Sep 2026 10:50:17 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Jann Horn <jannh@google.com>, Christian Brauner <brauner@kernel.org>,
+ Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, Ingo
+ Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
+ linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-mm@kvack.org, Oleg Nesterov <oleg@redhat.com>,
+ linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-um@lists.infradead.org, Jens Axboe
+ <axboe@kernel.dk>, io-uring@vger.kernel.org, netdev@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-gpio@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ bpf@vger.kernel.org, David Airlie <airlied@redhat.com>,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ kexec@lists.infradead.org, linux-hyperv@vger.kernel.org
+Subject: Re: [PATCH RFC POC 00/50] file: handle files on syscall exit
+Message-ID: <20260916105017.13ea5e36@pumpkin>
+In-Reply-To: <CAHk-=wi3Kkqgfg6zUTHpQoZNL2VOB4vYqpi6RX0WNO++29UtyQ@mail.gmail.com>
+References: <20260915-work-fd-reserve-unify-folded-v1-0-4d5217d6b246@kernel.org>
+	<CAG48ez1RsdT=O=-0city3vjgWhDvY424KtTmrCJntWy5ds3HBQ@mail.gmail.com>
+	<CAHk-=wi3Kkqgfg6zUTHpQoZNL2VOB4vYqpi6RX0WNO++29UtyQ@mail.gmail.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260902-dummy_ptxp3-v3-0-5d8f5b17c25c@arm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hi all,
+On Tue, 15 Sep 2026 12:08:57 -0700
+Linus Torvalds <torvalds@linux-foundation.org> wrote:
 
-Are there any further comments on this series?
-If not, I’ll post the series without the RFC tag sometime next week :)
+> On Tue, 15 Sept 2026 at 10:52, Jann Horn <jannh@google.com> wrote:
+> >
+> > Is this mainly about stuff like "we installed a file descriptor and
+> > then the following put_user() failed"? Because if so, I think a nicer
+> > fix would be to have a policy of "if userspace provides unwritable
+> > memory to a syscall, just keep going and pretend the access worked",
+> > and maybe have a sysctl that kills the process when this happens to
+> > emphasize that userspace should not be doing this.  
+> 
+> We've done that before, where we just ignore put_user() errors and the
+> user gets whatever the user gets.
+> 
+> It is maybe not optimal, but it's fine. You can find quite a lot of
+> unchecked put_user() calls with a pattern like
+> 
+>         git grep '^[[:space:]]*put_user(.*);'
+> 
+> and some of them are in core code - see the two in kernel/fork.c, for example.
+> 
+> One of them says "if userspace has not set up a proper pointer then
+> tough luck". The other one doesn't even bother with a comment.
 
-Thanks!
+I think the code should try to return EFAULT (IIRC that is too hard
+in one of the exec cases).
+Otherwise very unexpected things might happen if the memory is just
+readonly.
+If you ignore the error and the pointer is invalid the application will
+get a SIGSEGV and (usually) die.
+But winding back kernel data because a user copy failed is likely to
+be problematic/difficult and at best have error path code that isn't
+really tested.
 
-> Using ptep_get() and its counterparts in common code is suboptimal on
-> kernel configurations with generic compile-time folded page tables.
-> By default, ptep_get() and its friends expands to READ_ONCE(),
-> forcing the compiler to emit a load even when the value is not used afterwards.
+As well as writing fd numbers to userspace, some sockopt code tries to
+wind back if the write to optlen fails (which has been read earlier).
+
+I've forgotten which Unix converted EFAULT to SIGSEGV in the system
+call exit code - I'm sure one of the ones I've used did.
+
+David
+
 > 
-> This issue was recently reported by Christophe Leroy [1] for ppc32
-> preventing futher code conversion to ptep_get()/pmdp_get()/... helper
-> and the same behavior can also be observed on arm64 when built with
-> 2- or 3-level page tables
+> The scheduler has two cases too, although one of them is admittedly
+> for another error case.
 > 
-> e.g) perf_get_page_size() in arm64 with CONFIG_PGTABLE_LEVEL=3:
+> So yes, saying "if you pass bogus arguments, you get what you get" is
+> a valid model. It's perhaps not the *preferred* model, but it's not
+> wrong.
 > 
-> 00000000000052a0 <perf_get_page_size>:
->     ...
->     52dc: d53b4234     	mrs	x20, DAIF
->     52e0: d50343df     	msr	DAIFSet, #0x3
->     ...
->     52fc: d35e9a69     	ubfx	x9, x19, #30, #9        /* pud_offset_lockless() */
->     5300: f9403508     	ldr	x8, [x8, #0x68]
->     5304: f869790a     	ldr	x10, [x8, x9, lsl #3]   /* pudp_get() */
->     5308: f90007ea     	str	x10, [sp, #0x8]
->     530c: f8697908     	ldr	x8, [x8, x9, lsl #3]    /* pudp_get() */
->     ...
->     5360: 90000009     	adrp	x9, 0x5000 <perf_prepare_sample+0x548>
->     5364: 92746908     	and	x8, x8, #0x7ffffff000
->     5368: d3557675     	ubfx	x21, x19, #21, #9       /* pmd_offset_lockless() */
->     ...
->     5394: f8757ac8     	ldr	x8, [x22, x21, lsl #3]  /* pmdp_get() */
+> It *would* be wrong to take code that already has error handling and
+> remove the error handling, though.
 > 
-> Though PGTABLE_LEVEL=3, since the pudp_get() still remain with
-> READ_ONCE(), there's redundant load for the pud which is folded.
-> 
-> To prevent generating suboptimal code, make pXdp_get() return a dummy
-> entry for compile-time folded page tables, make the helpers such as
-> pXd_offset()/pXd_offset_lockless(), set_pXd() validate dummy entries
-> at compile time to catch the wrong usage and prohibit calls to
-> pXd_page() in pgtable-nopXd.h.
-> 
-> This series does not change the behaviour of existing code that directly
-> manipulates folded page-table levels using set_pgd(), pgd_page_vaddr(), and
-> related helpers. Those helpers continue to behave as before.
-> 
-> The new restrictions only apply to code that adopts the pXdp_get()-based
-> access model for compile-time folded page tables.
-> 
-> As the pXdp_get() can return *dummy* entry, some of code using
-> the stack value where saves the pXdp_get() could be a problematic:
-> 
->   1. Passing address of stack value where saves the pXdp_get() result
->      to pXd_offset() for example:
-> 
->        pud_t *pudp, pud;
->        pmd_t *pmdp;
-> 
->        pud = pudp_get(pudp, address);
->        pmdp = pmd_offset(&pud, pud, address);
-> 
->      (e.g. host_pfn_mapping_level() in loongarch).
-> 
->   2. Using the pXdp_get() result to use as argument of pXd_val() and
->      to check prot without checking pgtable is folded.
->      for example, x86's effective_prot().
-> 
->   3. Using set_pXd() with pXdp_get() will set problematic dummy entry
->      in folded page table like:
-> 
->        set_pXd(pxdp, pXdp_get(pxdp_k));
-> 
->   4. Using pgd_page_vaddr() to get the first-level pgtable.
->      passing dummy pxdp_get() for pgd_page_vaddr() will return wrong
->      address. Therefore, make pgd_page_vaddr() and pXd_pgtable() to
->      trigger the error for improper usage with folded dummy entry in the
->      generic compile-time folded pgtable.
-> 
-> Thanksfully, above cases are rare since (1) most of usage using
-> pXd_offset() with result of upper pXd_offset(), (2) it's extreamely
-> rare to use pXd_val() for non-leaf entry in the kernel,
-> (3) is to handle the vmalloc_fault or set the first level of page table
-> and (4) to setup early page table and etc.
-> 
-> Therefore, properly handle this uncommon and problematic pattern, and
-> document the current design of compile-time folded page tables.
-> 
-> This patch is based on mm-unstable.
-> 
-> Future work
-> ===========
->  - print_bad_page_map() and show_pte() still prints dummy values
->    instead of printing the same content for all generic compile-time
->    folded page tables. We might want to skip printing dummy values later.
-> 
->  - We currently catch abuse of dummy values on the stack at compile-time by
->    relying on constant propagation by the compiler. Usama's work [3] on using
->    distinct types for sw vs. hw PTEs could help here as well."
-> 
->  - Clean up vmalloc fault handling by synchronizing the vmalloc entry on
->    32-bit architectures. This code is almost identical across architectures.
-> 
->  - Unfortunately, the current design of compile-time folded page tables appears
->    to be internally consistent but confusing. For example,
->    when CONFIG_PGTABLE_LEVELS is 2, p4d, pud, and pmd are expected to
->    be folded into pgd. However, the architecture code uses set_pmd()
->    to update the top-level page-table entry, even though it includes pgtable-nopmd.h.
-> 
->    In the future, it would be good to eliminate this source of confusion,
->    possibly by treating all folded upper levels consistently as dummy wrappers
->    around the highest real page-table level:
-> 
->          NOPGD
->    --> +------+           P4D
->        | ptr0 |-------> +------+           PUD
->        +------+         | ptr0 |-------> +-----+
->                         | ptr1 |-        | ptr | -------> ...
->                         | ptr2 | \       | ptr |
->                         | ptr3 |  \        ...
->                           ...      \
->                                     \        PUD
->                                      +----> +-----+
->                                             | ptr | -------> ...
->                                             | ptr |
->                                               ...
-> 
-> Patch History
-> =============
-> from v2 to v3:
->   - repasre commit message
->   - move ptdump_pgtable_first_level() into pgalloc.h
->   - skip the huge pud operation when CONFIG_X86_DIRECT_GBPAGES is disabled
->   - docuemtns compile-time folded page table
->   - drop the applied patch.
->   - https://lore.kernel.org/all/20260722-dummy_ptxp3-v2-0-d9e4bad31e0a@arm.com/
-> 
-> from v1 to v2:
->   - Restore slient fallback to next pXd in set_pXd() and pXd_pgtable()
->     and add check whether they're called with dummy entry.
->   - Add some comment for returning first entry of pgd in arm with
->     2 pgtable-level
->   - https://lore.kernel.org/all/20260713135614.1618183-1-yeoreum.yun@arm.com/
-> 
-> Link: [1] https://lore.kernel.org/all/0019d675-ce3d-4a5c-89ed-f126c45145c9@kernel.org/
-> Link: [2] https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com/
-> Link: [3] https://lore.kernel.org/r/74182e50-b54f-4d2d-a27f-3a59a538d6bc@arm.com
-> ---
-> David Hildenbrand (Arm) (13):
->       ARM: mm: make nommu pgd_t a scalar
->       ARM: mm: make 2-level pgd_t a scalar
->       ARM: mm: remove custom pgdp_get()
->       LoongArch: mm: define pud_leaf() only when PUD exists
->       MIPS: mm: define pud_leaf() only when PUD exists
->       mm/pgtable: define (pgd|p4d|pud)_leaf() for folded page tables
->       mm/pgtable: define (pgd|p4d|pud)_offset_lockless() for folded page tables
->       openrisc/pgtable: drop __pmd_offset()
->       mm/pgtable: optimize pmdp_get() and friends for folded pagetable levels
->       mm/pgtable: catch abuse of folded dummy pgd_t/p4d_t/pud_t
->       mm/pgtable: disallow calling (pgd|p4d|pud)_page, pgd_page_vaddr() and (p4d|pud)_pgtable with dummy
->       mm/pgtable: disallow calling folded set_pgd/set_p4d/set_pud with dummy
->       Documentation: mm: clarify behaviour of compile-time folded page tables
-> 
-> Yeoreum Yun (8):
->       mm: vmscan: remove stack copy address of pud/pmd pass in walk_pud/pmd_range()
->       loongarch: kvm: remove stack copy address of pXd in pXd_offset()
->       riscv: kvm: remove stack copy address of pXd in pXd_offset()
->       riscv: mm: use proper set_pXd() for generic compile-time folded patable in vmalloc_fault()
->       mm/pgtable: redefine PGTABLE_LEVEL enum with ascend order from PGD
->       x86: mm: use pgtable_level enum in effective_prot_pXd()
->       x86: mm: carve out the generic compile-time folded pgtable case in effective_prot()
->       x86: mm: skip collapse_pud_page() when CONFIG_X86_DIRECT_GBPAGES disabled
-> 
->  Documentation/mm/page_tables.rst            | 84 +++++++++++++++++++++++++----
->  arch/arm/include/asm/page-nommu.h           |  4 +-
->  arch/arm/include/asm/pgtable-2level-types.h | 20 +++++--
->  arch/arm/include/asm/pgtable.h              |  2 -
->  arch/arm64/include/asm/pgtable.h            | 23 --------
->  arch/loongarch/include/asm/pgtable.h        |  2 +
->  arch/loongarch/kvm/mmu.c                    | 20 ++++---
->  arch/mips/include/asm/pgtable.h             |  2 +
->  arch/openrisc/include/asm/pgtable.h         |  3 --
->  arch/riscv/kvm/mmu.c                        | 20 ++++---
->  arch/riscv/mm/fault.c                       | 52 +++++++++++-------
->  arch/x86/mm/dump_pagetables.c               | 18 ++++---
->  arch/x86/mm/pat/set_memory.c                |  2 +-
->  include/asm-generic/pgtable-nop4d.h         | 54 +++++++++++++++----
->  include/asm-generic/pgtable-nopmd.h         | 54 +++++++++++++++----
->  include/asm-generic/pgtable-nopud.h         | 56 +++++++++++++++----
->  include/linux/pgtable.h                     | 69 +++++++++++++++++-------
->  mm/vmscan.c                                 |  4 +-
->  18 files changed, 352 insertions(+), 137 deletions(-)
-> ---
-> base-commit: e3b5239afe1b8f0194db7436b17c33e94c1988c4
-> change-id: 20260722-dummy_ptxp3-3741d78cc70f
-> 
-> Best regards,
-> -- 
-> Sincerely,
-> Yeoreum Yun
+>                   Linus
 > 
 
--- 
-Sincerely,
-Yeoreum Yun
