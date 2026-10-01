@@ -1,149 +1,160 @@
-Received: from mail-dy2-f31.google.com (mail-dy2-f31.google.com [74.125.229.31])
+Received: from mail-pz2-f39.google.com (mail-pz2-f39.google.com [74.125.228.39])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2BF946C82B
-	for <linux-openrisc@vger.kernel.org>; Wed, 30 Sep 2026 21:19:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.31
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790803189; cv=none; b=Y0p5TA00BxHUTwDLml23s9HVrwLmDVa69bPDiRRE2R8dEObxK3Wtw/hHYaZII6rUtp8ZpsmCszjDvBApZSkoHJJ1wRNK/sv0anFyxGxSjRHKEHoNtz9zuTZoEIiePkYSQ0clgzGmCQ9XVESXnGmGxI5nUyx8uy79K6yDhjfkCaw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790803189; c=relaxed/simple;
-	bh=BBhO0G7OoXNQM+zVscTVjnR1G6JPiQRL3Q3Anj3rXW4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WpKFHM7SuuTeMCDGxQSyhtPJjsi/39OcRXDCxI4CNhOATL5c6rLJRd8K3rQyDXfNsV97oXl4D0GaNRBDbtgHGmDH1t7fD83vLYdwsIYhrzp+4qUfyr1B/yrmfsMzPMwxD5nUsBm7X9XnI2M8qpxitUjK76/r6w//+E8cc4tcPM4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sJz1CNaN; arc=none smtp.client-ip=74.125.229.31
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10FEC5304C2
+	for <linux-openrisc@vger.kernel.org>; Thu,  1 Oct 2026 21:06:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.228.39
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790888770; cv=pass; b=YFiYbL7x1FPbd80zTtHOqcE+9+viLFIlyj1bA+BT6Ek8kFq3xTQ+oZ4oLCiyqOmvFD+bPAO+cyndmbgasFoELzam1Fh9Q01R11/e6YFTOq3gPryxn5KUeOdAhBYdZt81pM8AbWnCUyORtHM1WSrkw3bjJZ64UoYn3gHn/t3Bi0o=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790888770; c=relaxed/simple;
+	bh=xN21QYy0yGgz2sHT1nXnC/21nVEwjhkQB04Hg4E+rW8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=gS1vU7pgRkPlQNV8/g8Hmv+5eixlw8nyt6qDEmTV5ldFfn0yYKOT05YGnCzKE9IzeUMTjuHDMo4yDTMPztYzHtdX/eIl663LxKVW2F9vw+xxtqZEyFZNjBEtMt842/uyeW3n4J9t/yZURdnlfZ0LMj4i8HHq83Za9SQnbaNucW4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=CAwV36pr; arc=pass smtp.client-ip=74.125.228.39
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sJz1CNaN"
-Received: by mail-dy2-f31.google.com with SMTP id 5a478bee46e88-33c11ef641aso6147044eec.1
-        for <linux-openrisc@vger.kernel.org>; Wed, 30 Sep 2026 14:19:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="CAwV36pr"
+Received: by mail-pz2-f39.google.com with SMTP id d2e1a72fcca58-88098db8dcdso3301713b3a.3
+        for <linux-openrisc@vger.kernel.org>; Thu, 01 Oct 2026 14:06:07 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1790888767; cv=none;
+        d=google.com; s=arc-20260327;
+        b=dYxobz9I1g4xzEwj8rukGg4U2PLWr3eRNlC38EpNZb0EsjmBwk9UFMOi0I1mCXyJ9E
+         G9Lowvi8aSZ5vDHFIZWV5ocIrMqjMNuhmMwcSQy3rrXBlNS/Ccd7ercnyUgZQiwVlHGw
+         oQvBriBca+dWzbx1xutj60GKYFTt7i2MwdmG7JiWrIdQK8vrEX5yHw8l+Wrz8JXmcykY
+         ZB9PyWIQp6c855UXejlRwDbzgZ/aMM7nTsNvr9wNe5U10qo1nQGojkeWKtn7plD25aOu
+         Qhu2IBJ4SdD/wheHv6lkx+QfKHx2VxnGCk4AJP0B3Qq+cljYM6UuR/3uSgNwgPGKCtSl
+         oK7w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=zQjpYhlPNUCc8b2PKOBh4ENa5gh7HULkWsy4SYnLXSM=;
+        fh=2myBgyGVoONbSFyWnQ9BX6ql2PHHrvvWleThjYzO21E=;
+        b=TeJY0cNEnHOesE+2blayKvBQsCxIGYT4ozJpnpoObfz5UAcXx9DKeTCVP2rWsdwTGe
+         9I05b/SibIkRXEHUdom+jZk5MBUawoT3Eil/GRJJNiXD8lP/+3i4/T0zYdALoK1CrQ+e
+         jwscSN2K/P1s6+y/qVA3xWBBxFHjvauzmWXW7COqAPO2dbBRMZEoSmO80kWhx8RGP7BO
+         +03LqGhAWUI3uHPfIp8WNU77Rix4F/RklRCDGNhz6P3RBZYaSB0ov9ev3t55YU87HFvI
+         FdBygXzmAeXnO211NhRH1Lhx1c/rxbrqlHOlDlPMcI30xMcLI1LNEamULvHlsq+RTlZ0
+         Kxjw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790803187; x=1791407987; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=5MAbEBhhA+02vAwebLwEVLzW2I8Vxs7DEzXGvm+ATwY=;
-        b=sJz1CNaNibzFaSSCV2MjrbPe3PzKfDZ5Yqv+MKKNZqFcJLRcNIcvwkOiOexdA6WFFV
-         VIq03vWxo+R/ulpacGVbJDhQsbvNu3sezIz8tTLL2R2dP4woJTgK9TTd1LbGC3s0HwcP
-         9J4AoaU23NFLEe3bnnl0Zbwk1tc/33q55s5RCwBmeCaH4005n2a7w90M3k8U0L8BEMvs
-         Po8Dc7RaG1Y3kI7KHqx25G8vQc7nIy/ATZOS+drtW+7b8s+p0U3z52SsBFrH9KR04BlD
-         dap0uPoXJPmwmo6ykpEM+Ak4nUQbdRyX7zkLFLCgkHmvyVlaYzaOTLtdRPp6G7xEcrll
-         FiAw==
+        d=paul-moore.com; s=google; t=1790888767; x=1791493567; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=zQjpYhlPNUCc8b2PKOBh4ENa5gh7HULkWsy4SYnLXSM=;
+        b=CAwV36prXHOZw2NRE+aSACbPdDsBf2SHqbBYA6oNTHRxcIGcOyC/CJqkRH7LJRevOZ
+         ClcJMU2t93f7XmqqwruK0c5ZXJiXQfI/+n+w9nHyb4EcEh0EZTu11pUBC9xzrVuOqKBT
+         YsV75j7RrnJU55Z+JqH44vXWfdCbI4I+NCB8980IdTgu7vzPMxHvgU+uCw/+FxPpgY0h
+         63X1M3w+g/hILuWVI8qWSFmlSwv2NKZwGdJ2DwWfYsxtFTA/lG+C3YADiA4myoIGj7HP
+         Z1Ev8yhuTUNqN+BrgGDh8F6GLVD0gbmqkkcnf9FOFy5sLyuxAa1XjcNkIrhbHMfk8YG5
+         z0BA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790803187; x=1791407987;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=5MAbEBhhA+02vAwebLwEVLzW2I8Vxs7DEzXGvm+ATwY=;
-        b=GQGH9pzVhADYFq/VQ8kF8ycUt/y9GFx/JgUDOnLCAnRi1Q8opdCqutMzRL35P9y8td
-         1VtPlMgSLveUhm4aVNmISOik8DL3vGBNMSdMBNZylAtwGenrtZU6+MVHrXy1PU6RSFWY
-         7dGV7ME1Uq7OF6XOZM5lvIrml43VaEIHI2OeNxmQQsmJZmtqguTNkkJRPIVkUnPC78MG
-         74MWh7aUHaUXXniyd7vo5yQSV3URaNUIEGOb1e3QcrxHHpOFOqupaCxP9hIpF06sB4oS
-         rorgpq5OdqKFUIsXiKDL0tQxIciURHWwJQ4+1x6RNK8EfYVOaosMLM5N42vQFpyERyiF
-         gb+w==
-X-Forwarded-Encrypted: i=1; AKwUvBwwSNO2exUGGy/eiGZMiULzOgPF1XQqr+yAvIdj5V+OovyWKX8O7i3oIt5plb7715PQURjVWN8JOwU/a6sBKA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYJKPL208xB3zWO76RWf4ri+QgBzEoxNx7EMTNzkESnXxC7LmvJ7
-	POqgFgMiKUnJqwoAXfdQITJ+dHtdbRJpzbPxU5EJzExeyKV0gPBc2OFb
-X-Gm-Gg: AYBFou1Z5n9QWBAEAOBsPAtDpUml3mPY+UYaqz7+CN9S7ApT4283fZ++eXZH7C8D6kY
-	sI/iIULGZhcemqerWpzqhkq6l5OcXuVIFUHabjmhUsPPJSo3nelQV3w6k8wDAMbz0GKYNWoPF8C
-	89O/ZNfE5V+3zxv18DG+pxoipyqTLsK0lZJRerfyOq4cp//Vxh8ruKQKCc6gdXrxHrB8s9trnDY
-	9n2GtvFHXRvd3LAhKmO6tYBMOEc/i/RsAwGBK/5MDCpgd11877zX27eq2E/DTiBnjn81iS8qNn/
-	jD3qTw3Pd16WpA0k2egA3tVqfU9FMGKKtmUUjFmzeNRd4I9JTpbQ6Z4pF0kYQ5LC6GC7U91Njqa
-	Qt8uhOS/iCkgeIp/WqyuacsaaWpucMbbleHtYVUvZnX7KIT1cmSf6F7FPbSXq3pTwIJrMyL59Aj
-	7ZKX2L64agMJEOc1QhFPDhWXhWor+QE/TzhXJzkdG70K8N1votHMlNHLx4uXonecxKGK+NVbVd7
-	/hrna4Kn9o1K2K90mARdxRswoUaFYbc55LibA==
-X-Received: by 2002:a05:7300:2143:b0:340:e422:fd3d with SMTP id 5a478bee46e88-34cdbad6906mr4380425eec.17.1790803186822;
-        Wed, 30 Sep 2026 14:19:46 -0700 (PDT)
-Received: from ?IPV6:2401:4900:1c44:2e39:63b8:ea3c:fa28:7091? ([2401:4900:1c44:2e39:63b8:ea3c:fa28:7091])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-34db31623b6sm1443764eec.7.2026.09.30.14.19.01
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 30 Sep 2026 14:19:46 -0700 (PDT)
-Message-ID: <512dd1d8-67cc-44b7-9442-0fbbab111680@gmail.com>
-Date: Thu, 1 Oct 2026 02:48:52 +0530
+        d=1e100.net; s=20260707; t=1790888767; x=1791493567;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=zQjpYhlPNUCc8b2PKOBh4ENa5gh7HULkWsy4SYnLXSM=;
+        b=gmn38jyWe2fE+PsuFG43Tawr54oWLJQraoWIsuvV7AtqbZxLIcPF36yq2uWL006JtT
+         abzSwI7MKiUkjgSYfBwsCXmvBcIGbJlKOsqcdA0gmGbqH6M/8mlph4e58dQYXYxP6VCG
+         7d02eVXwHEBKr5YCEBsaPCq1q2ss0dy/7IRinX4wHVnGM5AzL+VHEnjyUKMvwyuc4I12
+         WwqbazlZi3OgN9VWMULQNKFWKVy3l5fpR2U2D+ALVcYB89A+0PJlqkeG56/cb6PCzY6h
+         lv2jzJL5gLcsN3dhun5UF+979wvqY++W1FROrCP9uLSrQaEKCX7SS0VBxpmm5ithcWZT
+         Gx9w==
+X-Forwarded-Encrypted: i=1; AKwUvBxtWYmbN0BRK+D4QdH2KrIgbUoCzDXvwc8bOV7/ua8FZrY/yKNTk/pxZ+dwsPLFFC7s1hr+XPPn89gdkDpmMQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++muJvtOUWfSviXiDYOPSG0GBLOUoxO8u4be84HcBT196y7uJzDE
+	ZASls+bp3NsM4kGE5hQ6TISASg6iCi9vO1RtfpD2nqEOgwUQb0aGzwGUSLAUR54TK3fWi4KwzNV
+	9zY5Y86YIBJxrW0VIINhW918rnWzr1+7/9oHNfwv0
+X-Gm-Gg: AYBFou2QJqeFjnKeclINzKvN9zy1WPvqaxoRPemHWknAem8vrr0s7LWKOXjKKcHNKSs
+	IA7FjA+K26QI8Qj6C9OAHUQPMQVsKit3QK4D5khzBgKxTgo3nPdbiOSyBfRfW0kuMU8nIM0OmRQ
+	6JoG/+YTKZf2MrJ9AIE1zrJShrpHpHX5gr09QKhAoW/EBy6nZbVaF4lcPUgLhvCpJOiAFGxlT9C
+	jUkXdGRhkchI4s4wZS1Vcy64O4W2Rh+oBID8Eugv+BElkrLt66Wuw68BzVdK6p0ErjCgFVXhHoX
+	T6WP57RSGPeZvy2roFGFshE6zytCyvfTqq7Rf+Em1YZ8rKQGW8m8tiL1DC/uuDxF03/EImGwXyf
+	RIaQ9G1ncB4Jh
+X-Received: by 2002:a05:6a00:1254:b0:881:5dcb:400e with SMTP id
+ d2e1a72fcca58-88af6d24f34mr727169b3a.56.1790888767004; Thu, 01 Oct 2026
+ 14:06:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Subscribe: <mailto:linux-openrisc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 0/4] openrisc: Add support for KProbes
-To: jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
- naveen@kernel.org, davem@davemloft.net, mhiramat@kernel.org
-Cc: tytso@mit.edu, wangruikang@iscas.ac.cn, namcao@linutronix.de,
- pjw@kernel.org, kees@kernel.org, linux-openrisc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org
-References: <20260407185650.79816-2-sahilcdq0@gmail.com>
- <20260930203129.51048-1-sahilcdq0@gmail.com>
-Content-Language: en-US
-From: Sahil <sahilcdq0@gmail.com>
-In-Reply-To: <20260930203129.51048-1-sahilcdq0@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <cover.1790088067.git.rrobaina@redhat.com>
+In-Reply-To: <cover.1790088067.git.rrobaina@redhat.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 1 Oct 2026 17:05:54 -0400
+X-Gm-Features: AclHuK923qNeclwyxHc-N96rTW9f--kU_8IWc_3FVDcJfFTXqnWMr4asd_Mjppw
+Message-ID: <CAHC9VhQ=FFYVNmQdiMsqg+5KDDrSC3SZS+H2=r_GkhfwQox8tg@mail.gmail.com>
+Subject: Re: [PATCH v3 00/14] audit: log all six syscall arguments in the
+ SYSCALL record
+To: Ricardo Robaina <rrobaina@redhat.com>
+Cc: audit@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-csky@vger.kernel.org, linux-mips@vger.kernel.org, 
+	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, 
+	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
+	linux-um@lists.infradead.org, bpf@vger.kernel.org, eparis@redhat.com, 
+	sgrubb@redhat.com, oleg@redhat.com, richard.henderson@linaro.org, 
+	mattst88@gmail.com, linmag7@gmail.com, linux@armlinux.org.uk, 
+	catalin.marinas@arm.com, will@kernel.org, guoren@kernel.org, monstr@monstr.eu, 
+	tsbogend@alpha.franken.de, jonas@southpole.se, 
+	stefan.kristiansson@saunalahti.fi, shorne@gmail.com, 
+	James.Bottomley@hansenpartnership.com, deller@gmx.de, 
+	ysato@users.sourceforge.jp, dalias@libc.org, glaubitz@physik.fu-berlin.de, 
+	davem@davemloft.net, andreas@gaisler.com, richard@nod.at, 
+	anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net, chris@zankel.net, 
+	jcmvbkbc@gmail.com, tglx@kernel.org, peterz@infradead.org, luto@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 10/1/26 2:01 AM, Sahil Siddiq wrote:
-> Hi,
-> 
-> Apologies for the delay. This is v2 of the patch series to add KProbe
-> support for OpenRISC.
-> 
-> The series also adds support for Kretprobes (which depends on the rethook
-> framework [1]). Kretprobes are fired on function return.
-> 
-> [...]
-> 
-> I have also made changes based on the review comments I received for
-> v1 [5] including several of Sachiko's comments [6]. I chose not to make
-> changes in a few places. I'll send emails as a reply to this thread
-> explaining my reasoning inline.
+On Tue, Sep 22, 2026 at 3:21=E2=80=AFPM Ricardo Robaina <rrobaina@redhat.co=
+m> wrote:
 >
-> [...]
-> 
-> Sahil Siddiq (4):
->    openrisc: Add utilities and clean up simulation of instructions
->    openrisc: Add KProbes
->    openrisc: Add unit tests for KProbes on branch instructions
->    openrisc: Add Kretprobes
-> 
-> [...]> 
+> The SYSCALL record currently logs only four of the six syscall
+> arguments (a0-a3), silently discarding the remaining two. This
+> leads to the need for auxiliary records when audit-relevant
+> data lands in the 5th or 6th argument of a syscall.
+>
+> This series extends the SYSCALL record to log all six arguments,
+> by adding arguments a4 and a5 inline within the existing record.
 
+Thanks Ricardo, this looks great!
 
-Sorry, I forgot to post a summary of the differences between v2 and v1:
+There are a few things in some of the individual patches which I reply
+to in a minute, but there are a couple of "global" things that I
+wanted to mention:
 
-Commit #1:
-- arch/openrisc/include/asm/cpuinfo.h: Introduce "delay_slot" static key
-- arch/openrisc/include/asm/insn-def.h:
-   - Use macros instead of union
-   - Use better names for macros
-   - Use genmask() for masks
-- arch/openrisc/kernel/insn.c:
-   - Use macros instead of magic values
-   - (simulate_pc): Update PC
-   - (simulate_branch): Handle rb=r9 in l.jalr simulation
-- arch/openrisc/kernel/setup.c: Use "delay slot" static key
-- arch/openrisc/kernel/traps.c: Use macros instead of magic values
+* As pointed out by Sashiko, when you were converting all of the
+arches, it looks like you missed alpha.  I took a quick look and it
+appears that it should be a pretty straightforward conversion like
+most of the others.
 
-Commit #2:
-- arch/openrisc/include/asm/kprobes.h:
-   - (struct prev_kprobe): Add restore_pc
-   - (struct kprobe_ctlblk): Move restore_pc from global "struct arch_specific_insn"
-- arch/openrisc/kernel/kprobes.c:
-   - Use macros instead of magic values
-   - Use "get_kernel_nofault" instead of directly dereferencing address
-   - (insns_need_simulation): Use "daley slot" static key
-   - (arch_prepare_kprobe): Prevent KProbe insertion if instruction in delay slot also requires simulation
-   - (save_previous_kprobe): Use "restore_pc"
-   - (restore_previous_kprobe): Likewise
-   - (post_kprobe_handler): Don't re-enable preemption if KProbe is nested
-   - (setup_singlestep): Use "restore_pc"
-   - (reenter_kprobe): Return false in case of unrecoverable KProbe
-   - (kprobe_singlestep_handler): Enable interrupt in pt_regs->sr
-   - (kprobe_fault_handler): Likewise
+* We need to get ACKs from all the various arch maintainers.  Aside
+from the parisc changes all of your arch specific patches are trivial
+(and cleaner than the existing code IMO) so I don't expect anyone to
+complain, but getting ACKs will likely take some time.  Even the
+parisc patches aren't that bad, and arguably they fix a problem for
+seccomp so that should make asking for ACKs easier :)
 
-Commit #3/#4: Introduced in v2 of the series
+Since I expect chasing down all the various maintainers for ACKs will
+take a little while, and I'd like to start getting this patchset some
+basic testing, I'm going to merge it into dev-staging now.  While the
+dev-staging branch doesn't feed into linux-next (this isn't likely to
+land in the next merge window) it is one of the branches that gets
+tested automatically and included in my kernel-secnext RPM builds.
+This also means you won't need to worry about keeping this patchset
+up-to-date with rebasing, as I rebase dev-staging as needed (it
+intentionally isn't a stable branch).  Going forward, if there are any
+minor changes to this patchset, e.g. a few line change in one of two
+patches, please just send a fixup patchset based against
+audit/dev-staging and I'll squash it into the relevant patch in the
+series.  However, in the unlikely event that a major rewrite is
+needed, just send a new patchset ... but I'll be very surprised if
+that happens here :)
 
-Thanks,
-Sahil
+--=20
+paul-moore.com
