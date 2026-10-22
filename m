@@ -1,97 +1,106 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.remote-ip=209.85.215.182
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=fail;
-	t=1792514337;
-	b=qCROqW/zn/XipaQIM8EpGkullAjKFEAReIOy41iY52naucZs0YGcB4A+CoFwvp6Ac8aM
-	 Q9LKJpQu6nR+dUm8X3Ub7Pkbge/BppZOx4hQPwvIEv749//G0eeMGeQ4WVV/ultZEO1yg
-	 +dDXAg1FRXDdnbgl4SmdOyPZRSt9fHbIJOMGfp0vS/lY+8mynVV+7Wy8alcaoVhrkLfSv
-	 qYAVh5b2UKxiCEb5MfcAEalDSYgBTbYOs0H6X+Ga3qoyiCx7co2mkcgWG0WqB19C2DZw3
-	 OrnigWH5sgnJjjOAsWbWGSO7rvB+17qKvcM9VWDYfgcFAt++HpHpEhcEMv/hfkVo3ag==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792514337;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=5h6v8PMV52XAIibb0bLKm7PVGjK4muo/m4wCC4Oc5nw=;
-	b=pwzU8WgbTBvZNLz1ydJg3Wv7Gp91RfShI8RCl+mylhC21eZhbrEXgAxgWpTQa0KxduTT
-	 Bsnr5xXyPrlUbLbTqG+VcbvXIcR0p15RcMLq6KiAPuiCNj7Uvy2t7FxEoecg6hk8N5S7u
-	 y+IzJhbJGJDbxr992rw+33G3fuzoNlNEUrXvBhBmReuZAiUTCD5f414OkfrZNBZWOgwcj
-	 yTKWxeWJ9OdFOXMUBXHj0uHkcpVv0wnJMNZyPG0MiugAsImH7719umEyx/6Fa4aRaWxcw
-	 do7EBVCBC+1Fpp/ao7qOOZxa7U6mMmoYZtiqzma+psU8rab6+fS+X4PFMaHnnxWeFMA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=paul-moore.com;
-	spf=pass smtp.mailfrom=paul-moore.com;
-	arc=fail smtp.remote-ip=209.85.215.182
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=193.142.43.55
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1792679071;
+	b=RQBlRaSbTYSS84pBmWzvnhyqXq6SK3T6gissfIDc0TZguCV7xzjInskY6uLMeT5eTJYI
+	 OIHlmabFAdw7PJckhwmE0/1N8TFkf31hfOYo/VcK+v8qkScjzgibhsTGhUrySYDc1VNQK
+	 y0ihQqbL07un1RFovjWk6ukcf1gSW+FRir7yJfg9t/mop7cz9G/voFvKdWfwo6BwcxUw2
+	 BhA9w93u58cYh3yq1VKvodFWniQNlEhM5bXj/nu54fVzTIj5z4fSJFu/OG7O3O01wBO7B
+	 bNZjyzqv9WWrID1XIAFMAbt0OK2MAxp3pF9cnELGOcG7Ur5IIm1FP/hszbwigaaW+tQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792679071;
+	h=DMARC-Filter:Date:DKIM-Signature:DKIM-Signature:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 Content-Transfer-Encoding:In-Reply-To;
+	bh=ijcqFl4YNaIiVHZ0kMDDzDit0eQZX1zIOl9C/1G18QI=;
+	b=irDu32suvnN4EXemnSeM0fzNA54HhnRBhTrwrhIQqKToK+rucxxhGIr5ZUiLm89pGgjM
+	 z3owYGQ7IadeYjDcbhsvShoi3IoSBot/igVtcA8fEd2ZIZfNuEe7gwYTETAvhoBx1IKw8
+	 7dt3vhUevadbXTLXYhFpx4E1JuJaJK7rZyXAhRTWPMqwGSCIEnY+kmgqC57oWoMtmpXLU
+	 kMaTuE9FvRw3cD3ZPko3CTowybRrkqelPdI7jA0X2Wx3PqH9qhjoin3enchjmSJJI++Or
+	 4qgFxN8DMkRLTkrstxCG/l0RjZMa6YRYhKCQlcgROy1cDmLFs7ovFI7VNDVMVQe09Yw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=linutronix.de;
+	spf=pass smtp.mailfrom=linutronix.de;
+	dkim=pass header.d=linutronix.de header.i=@linutronix.de header.a=rsa-sha256 header.s=2020 header.b=tGPqmIoU;
+	dkim=pass header.d=linutronix.de header.i=@linutronix.de header.a=ed25519-sha256 header.s=2020e header.b=lrzd8ZGd;
+	arc=none smtp.remote-ip=193.142.43.55
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0465F60A2637
-	for <linux-openrisc@vger.kernel.org>; Tue, 20 Oct 2026 16:38:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0465F60A2637
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
-Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-cd5c9e52398so1265260a12.1
-        for <linux-openrisc@vger.kernel.org>; Tue, 20 Oct 2026 09:38:56 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792514336; cv=none;
-        d=google.com; s=arc-20260327;
-        b=s91HrwQ326M8ESr19Q7NVcqZWgNgLHjqVwFkx92CKvmMOYKiQssOBSBjZ05repzeys
-         uFvZIo8wjuWtI1Bs3jo3K+B2/Fj4fKOpA2R6z5EGlMCCvYFbgSkqLLgIqbexncL8eEoz
-         0nR/DnK3R0xlr9asy4nLEiQRS+kkDLPsEYSHrtbIdulz3LrbFYi1iuiuKJvY2feiQGvZ
-         uwHf6pzojUSqunFP6e78JPvdjNn0a9kit5951JeVVFlFGD9ZLR6fM9czz4nMrHtnXaGM
-         Zpk64hGSrQILnt/kivx3a5gscpw+pMpLrZBiPgRRU6HxbF1SR41OyT4IzJrpl8BEFDPq
-         Itgw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=5h6v8PMV52XAIibb0bLKm7PVGjK4muo/m4wCC4Oc5nw=;
-        fh=5ZpEi82xTCUccdDm8EmZFy4wGncED0O2RvxNuqozSu0=;
-        b=CJCFco4ZYySnhXgxBRpJvvZdt3YUO7JnMR6kPvevz9BvnVuelUHXyh76e9MtMUMeTP
-         xOQ3EMQ3udHwFSyEMssf/w0wxTXJiEQnMXEnXXSRq0/lxKrLW03UCo6acyvGbmWDTiok
-         BfxE0sPNOijCg0tXMhekLt2ReHqVQhIBow1vb9JkS8EAKdIgdRoOOw/VSHQ/Y9azokoe
-         Ctlt52vUvDj1KrurVX80rIk+vy5xda2MTJsBv4y1ITSDpZnVxaRizuThMRCXYhx4ZAt6
-         3XLb/4JfqAhy5exhr57xZ65xRWs/mQ+EaFXND9To/I0/GirnM+cozn2F0q3Ofm8JMbas
-         3ZBg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1792514336; x=1793119136; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=5h6v8PMV52XAIibb0bLKm7PVGjK4muo/m4wCC4Oc5nw=;
-        b=GwYGVURAL7E3Gqp1mE6IbppA5fK/M6QVj3T4+Mu1VqNJAQWSHTCgIBs7lXAHx7VP4b
-         X7Ol6JtjEVwHUVW/UUWijctAKk0S3FIF6sAkL2D0z4+yun1CiPIG05jQakKiuYArY+di
-         qKUZ2JssWHS9PY4Rrbam2j+K8HSVipMYAjJhVwlz0qlw5vC30c9m2oPlM5nOac4bwKsb
-         0iIOeo41vgbotndmbkqO3IW2nEL8EcaGXBwYuALkuaiWKHExqpmpd78k/kVF659++rVb
-         16kcHMvBo17gh+L06xflahlYQXJ+NMSTGDwKIeHcy9Z1IKqewLhKEpxT50Ywi1EBHbtT
-         Ya6Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792514336; x=1793119136;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=5h6v8PMV52XAIibb0bLKm7PVGjK4muo/m4wCC4Oc5nw=;
-        b=wFRXDOw6218RxPjnEH/AreeZshJrKNp4CIKynYJXV9ES5jLn0a08E1LNpqimSNEGPp
-         NCaaYGfFH0sWS3lbfOHW3xbeT0vQ5cPh9kpLgQS3lXKFoeOViT8sKf28S6cGhE45okzL
-         sLdUxhddYZuoXpn3wzyXP30QAx57SK0Spx5TLrhISM2i06aRQfEUXGnhSXELeG239p+X
-         EX7QowRof7A+O+tL3d4tJF3GzqRLu2+zMNkTgd4VqO9QPW1BE7TKowz8MOHAmz4FKfS9
-         16oLElgN4LCRjMOMX/6SQuxjZh9sLHGOneTWoN/wYz0oQQf/QUqdhypiFoZXadlzctan
-         ZDSw==
-X-Forwarded-Encrypted: i=1; AKwUvBzEaHz1RMA6ueGvATQRafp6NvwEqbUHWc/OzJgpko8sGejQUnm5sWs8HzLz3bDDUJxtRF5pj7Db+Rn6ly6bew==@vger.kernel.org
-X-Gm-Message-State: AFq9FYJ9ReYFgUvsurwA57TnBOwfZDpnu4owbdBmSqKiUVRg3EBDIBj4
-	IO84jlypOHiKSLnfFGo9jEaWaIFh38uSGqNIFTnymbStAgzu4rgDLQNj6bwEgqMDYQe7sPVoucV
-	IS4+3i9zTVzw+RZPtjZtHyEpV+mqhE9mgW5yGFPPi
-X-Gm-Gg: AYBFou05zD72N1roT8CJC7cRFSrDzLtN8EeeoP5kPy0D0toxeRGWe+1wH03G3msTRuH
-	TVQl5vhdVCx3BUNLYXqLH7L5k57oiwEZa1Gy2ezkw9qwSio3L1ZIHwoV7dWs/EJY/N+KdZSrdij
-	jRZbhAI0hALUZjmR4nsQkcdOB/XHE6/yOfESMUNcs42aPjnfDisEpJ0s2FiyqrpKY+8qhriherd
-	2asjTo4HTEPma1SbR+KHtJCkzm0Wfge30mOaT6f0lW4RTdXnXvIK00ZwmftXh/7ZEMiWCnJeTd4
-	2hkPiUH6e524PSs+7OrqIhLtiZ0ndJFKq2fiG0HBOqoThH6ugiRi3TjoQyOGBqKc/1JVsCrrGW7
-	QtSnP35BDOmw=
-X-Received: by 2002:a17:903:1111:b0:2e6:dcce:8227 with SMTP id
- d9443c01a7336-2e9a6c1a30dmr99034965ad.37.1792514336247; Tue, 20 Oct 2026
- 09:38:56 -0700 (PDT)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0402F606A31A;
+	Thu, 22 Oct 2026 14:24:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0402F606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=linutronix.de header.i=@linutronix.de header.a=rsa-sha256 header.s=2020 header.b=tGPqmIoU;
+	dkim=pass header.d=linutronix.de header.i=@linutronix.de header.a=ed25519-sha256 header.s=2020e header.b=lrzd8ZGd
+Date: Thu, 22 Oct 2026 16:24:25 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1792679067;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ijcqFl4YNaIiVHZ0kMDDzDit0eQZX1zIOl9C/1G18QI=;
+	b=tGPqmIoU7flznKuVvSgOzo2yd+DVKg7D73Wllg9sFRm9CC/iaoJaE55c3a0xpncefiwTWe
+	D0DcbKw7j7YI7N9iAD68KUbumDWDB4zuYjNIkgHfr2v+H6DCtaJTi+ZtcPVrTjX8s8nNNi
+	XYrPBSHr+CwiWmUAbayRxd1rMqP3P1fTDl5O65hszJdwi1iKQ6myUH0U2igUoTF8eZn+8r
+	G1OdblBxDgssdpqEoIOChx+/YLJ7ntbq+IsNh3ReV+JtcimJTFUP2numV2/sYLdIC+zwnD
+	aAZ46jrqFXnXLMoMGXtXmyYgRF8JauAVkMkAXxtjJDC2ZDnhWCO79rWsa0e06A==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1792679067;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ijcqFl4YNaIiVHZ0kMDDzDit0eQZX1zIOl9C/1G18QI=;
+	b=lrzd8ZGdzEWmJjZ9aZOFY32BVENA3ocTIaS/QQU0/Sv8YYe+ynbKZ/LG3OiCiXRqC6uBBI
+	wYJIr0JLNWZ7aTBw==
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	linux-riscv@lists.infradead.org,
+	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+	x86@kernel.org, Mark Rutland <mark.rutland@arm.com>,
+	Jinjie Ruan <ruanjinjie@huawei.com>,
+	Andy Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Guo Ren <guoren@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Helge Deller <deller@gmx.de>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Richard Weinberger <richard@nod.at>,
+	Chris Zankel <chris@zankel.net>,
+	linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org,
+	linux-csky@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linux-sh@vger.kernel.org, linux-um@lists.infradead.org,
+	Arnd Bergmann <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>,
+	Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>,
+	Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org,
+	linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	Michal =?utf-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>,
+	Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [patch 16/18] x86/entry: Get rid of the sys_ni_syscall()
+ indirection
+Message-ID: <20261022142425.3Wx-RrU5@linutronix.de>
+References: <20260707181957.433213175@kernel.org>
+ <20260707190254.493733289@kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Post: <mailto:linux-openrisc@vger.kernel.org>
@@ -101,59 +110,127 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-openrisc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <cover.1790088067.git.rrobaina@redhat.com> <CAHC9VhQ=FFYVNmQdiMsqg+5KDDrSC3SZS+H2=r_GkhfwQox8tg@mail.gmail.com>
- <CAABTaaBL=TScs8Qqu3b8F6KZPGMyvwy6cBC3teDaBL6MGMucNg@mail.gmail.com>
-In-Reply-To: <CAABTaaBL=TScs8Qqu3b8F6KZPGMyvwy6cBC3teDaBL6MGMucNg@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 20 Oct 2026 12:38:41 -0400
-X-Gm-Features: AclHuK9ZakV6IFm9eD67kaqUic0iU1MgVPLS7VN6RgjPgTRZmZP6_X_XOYOX9ZU
-Message-ID: <CAHC9VhROsmzbm+AP63Sm7mqCokgEy6Zu0AVMY0gxp8qY75Pqiw@mail.gmail.com>
-Subject: Re: [PATCH v3 00/14] audit: log all six syscall arguments in the
- SYSCALL record
-To: Ricardo Robaina <rrobaina@redhat.com>
-Cc: audit@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-csky@vger.kernel.org, linux-mips@vger.kernel.org, 
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
-	linux-um@lists.infradead.org, bpf@vger.kernel.org, eparis@redhat.com, 
-	sgrubb@redhat.com, oleg@redhat.com, richard.henderson@linaro.org, 
-	mattst88@gmail.com, linmag7@gmail.com, linux@armlinux.org.uk, 
-	catalin.marinas@arm.com, will@kernel.org, guoren@kernel.org, monstr@monstr.eu, 
-	tsbogend@alpha.franken.de, jonas@southpole.se, 
-	stefan.kristiansson@saunalahti.fi, shorne@gmail.com, 
-	James.Bottomley@hansenpartnership.com, deller@gmx.de, 
-	ysato@users.sourceforge.jp, dalias@libc.org, glaubitz@physik.fu-berlin.de, 
-	davem@davemloft.net, andreas@gaisler.com, richard@nod.at, 
-	anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net, chris@zankel.net, 
-	jcmvbkbc@gmail.com, tglx@kernel.org, peterz@infradead.org, luto@kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20260707190254.493733289@kernel.org>
 
-On Tue, Oct 13, 2026 at 8:36=E2=80=AFAM Ricardo Robaina <rrobaina@redhat.co=
-m> wrote:
-> On Thu, Oct 1, 2026 at 6:06=E2=80=AFPM Paul Moore <paul@paul-moore.com> w=
-rote:
-> > On Tue, Sep 22, 2026 at 3:21=E2=80=AFPM Ricardo Robaina <rrobaina@redha=
-t.com> wrote:
+On 2026-07-07 21:07:01 [+0200], Thomas Gleixner wrote:
+> Invoking sys_ni_syscall() from a code path, which already knows that the
+> syscall number is invalid just to assign -ENOSYS to regs->ax is a pointle=
+ss
+> exercise. It's even redundant as the low level entry code already has set
+> regs->ax to -ENOSYS on entry.
+>=20
+> Remove the extra conditionals and the function calls.
 
-...
+Since this patch, tools/testing/selftests/x86/syscall_numbering_64
+throws in this:
+|[RUN]   Running tests under ptrace: modifying the default return
+|[RUN]       Checking system calls with msb =3D 0 (0x0)
+|[RUN]           Checking some common syscalls as 64 bit
+|[OK]                x64 syscall 0:0 returned 0 as expected
+|[OK]                x64 syscall 0:1 returned 0 as expected
+|[RUN]           Checking some 64-bit only syscalls as 64 bit
+|[OK]                x64 syscall 0:19 returned 0 as expected
+|[OK]                x64 syscall 0:20 returned 0 as expected
+|[RUN]           Checking out of range system calls
+|[FAIL]                  x32 syscall 0:-64 returned -9999, but it should ha=
+ve returned -ENOSYS
+=E2=80=A6
+|[FAIL]                  x32 syscall 0:-2 returned -9999, but it should hav=
+e returned -ENOSYS
+|[FAIL]              x32 syscalls 0:-64..-2 had 63 failure
+|[OK]                x32 syscall 0:-1 returned MODIFIED_BY_PTRACE as expect=
+ed
+|[FAIL]                  x64 syscall 0:1073741760 returned -9999, but it sh=
+ould have returned -ENOSYS
+=E2=80=A6
+|[FAIL]                  x64 syscall 0:1073741823 returned -9999, but it sh=
+ould have returned -ENOSYS
+|[FAIL]              x64 syscalls 0:1073741760..1073741823 had 64 failure
+|[FAIL]                  x64 syscall 0:-64 returned -9999, but it should ha=
+ve returned -ENOSYS
+=E2=80=A6
+|[FAIL]                  x64 syscall 0:547 returned -9999, but it should ha=
+ve returned -ENOSYS
+|[FAIL]              x64 syscalls 0:512..547 had 36 failure
+|[RUN]           Checking some common syscalls as x32
+|[OK]                x32 syscall 0:0 returned 0 as expected
+=E2=80=A6
+|[RUN]           Checking out of range system calls
+|[FAIL]                  x32 syscall 1:-64 returned -9999, but it should ha=
+ve returned -ENOSYS
+|[FAIL]              x32 syscalls 1:-64..-2 had 63 failure
+|[OK]                x32 syscall 1:-1 returned MODIFIED_BY_PTRACE as expect=
+ed
+|[FAIL]                  x64 syscall 1:1073741760 returned -9999, but it sh=
+ould have returned -ENOSYS
+=E2=80=A6
 
-> > * As pointed out by Sashiko, when you were converting all of the
-> > arches, it looks like you missed alpha.  I took a quick look and it
-> > appears that it should be a pretty straightforward conversion like
-> > most of the others.
->
-> I've actually dropped the alpha patch as per Magnus's request [1].
->
-> [1] https://lore.kernel.org/audit/CA+=3DFv5T4826T2sd0Gbh-nfZsqcWK_phdBKy4=
-BLWOvDTt92t5Eg@mail.gmail.com/
+and so on=E2=80=A6 The test has
 
-The problem is that as things stand, this patchset breaks the build on
-Alpha.  Perhaps this gets resolved during the current merge window,
-but as you know we can't break the kernel build ...
+| #define MODIFIED_BY_PTRACE      -9999
 
-https://lore.kernel.org/oe-kbuild-all/202610041836.6TatRQSm-lkp@intel.com
+and the ptracer modifies the return code. However not always. Not sure
+if this was indeed a pointless exercise or not.
 
---=20
-paul-moore.com
+The test could be updated via the hunk below in case the new behaviour
+is what is expected. hpa made the extension to the test in commit
+795e2a023b808 ("selftests/x86/syscall: Add tests under ptrace to
+syscall_numbering_64").
+
+diff --git a/tools/testing/selftests/x86/syscall_numbering.c b/tools/testin=
+g/selftests/x86/syscall_numbering.c
+index ca0eca7b9dced..1435394fba022 100644
+--- a/tools/testing/selftests/x86/syscall_numbering.c
++++ b/tools/testing/selftests/x86/syscall_numbering.c
+@@ -250,6 +250,7 @@ static bool test_x32(void)
+ static void test_syscalls_common(int msb)
+ {
+ 	enum ptrace_pass pass =3D sh->ptrace_pass;
++	int expected_ret =3D -ENOSYS;
+=20
+ 	run("Checking some common syscalls as 64 bit\n");
+ 	check_zero(msb, SYS_READ);
+@@ -260,18 +261,22 @@ static void test_syscalls_common(int msb)
+ 	check_zero(msb, X64_WRITEV);
+=20
+ 	run("Checking out of range system calls\n");
+-	check_for(msb, -64, -2, -ENOSYS);
+ 	if (pass >=3D PTP_FUZZRET)
+-		check_for(msb, -1, -1, MODIFIED_BY_PTRACE);
+-	else
+-		check_for(msb, -1, -1, -ENOSYS);
+-	check_for(msb, X32_BIT-64, X32_BIT-1, -ENOSYS);
+-	check_for(msb, -64-X32_BIT, -1-X32_BIT, -ENOSYS);
+-	check_for(msb, INT_MAX-64, INT_MAX-1, -ENOSYS);
++		expected_ret =3D MODIFIED_BY_PTRACE;
++	check_for(msb, -64, -2, expected_ret);
++	check_for(msb, -1, -1, expected_ret);
++	check_for(msb, X32_BIT-64, X32_BIT-1, expected_ret);
++	check_for(msb, -64-X32_BIT, -1-X32_BIT, expected_ret);
++	check_for(msb, INT_MAX-64, INT_MAX-1, expected_ret);
+ }
+=20
+ static void test_syscalls_with_x32(int msb)
+ {
++	enum ptrace_pass pass =3D sh->ptrace_pass;
++	int expected_ret =3D -ENOSYS;
++
++	if (pass >=3D PTP_FUZZRET)
++		expected_ret =3D MODIFIED_BY_PTRACE;
+ 	/*
+ 	 * Syscalls 512-547 are "x32" syscalls.  They are
+ 	 * intended to be called with the x32 (0x40000000) bit
+@@ -279,7 +284,7 @@ static void test_syscalls_with_x32(int msb)
+ 	 * nonsense and should not work.
+ 	 */
+ 	run("Checking x32 syscalls as 64 bit\n");
+-	check_for(msb, 512, 547, -ENOSYS);
++	check_for(msb, 512, 547, expected_ret);
+=20
+ 	run("Checking some common syscalls as x32\n");
+ 	check_zero(msb, SYS_READ   | X32_BIT);
+
+Sebastian
