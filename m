@@ -1,88 +1,85 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.52
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793046381;
-	b=EtCu7i7Vp+gxAuTPdJa3zbOoLVkXW+gInQUXawuAz7hvlnygTkII2ITbG2D4eh5aEOqg
-	 9RfUoYWAFwCoU1LhEnHWaLrzVWWPd5Dn09Er602ZKh5ez+KtpYZePWekNtXzfYf+AB6gC
-	 GFx09x1o5mdMnr4y8DOvaBKups/d8hqMBh8ejSA83gWszg+M+d7cW0AuJAR7s6ipDWyb/
-	 QvjKTo8eYvdB3IzWE97FZgR7zChBLnEX2jhX1N70BICv3DrbLqWjanbpRPoXsA4EINq85
-	 9TmuxWkiOHJHMJu//9GgNFneyl28Mq1WJH/o1xsc/gOPd8WELVZEVuuzwEMr4Dx6CWA==
+	t=1793387502;
+	b=FDJ+31hkmfnpaxL+Pr+u0PtJEOWFFBU10R+/XwL0NWr1VOUGaPrhPuGX665bCzGU2Dip
+	 xrgY38MTA7DTKG2xSejXbfsLMXhUHMzWbyA1siRHINqVOPytHNEIOOS0UaLXs7oISZrby
+	 BoRjr7XVBxZo6/cWiu01+73J0Fz6ldekKckWkkAo9kJRFzk3It41ezaNU9w6+rGoPwfUW
+	 XuTZxtPuq0R4zfQLEgdOoMlW6iRZ4XoCxOXJz2rxxn+n8SarQNPApn34yooxWckiLI7bF
+	 0sFdm2a9eic6AQze1XSTa4qVebyLa5O6v++3xqn3Yy6eQOWWuxj8YqKfRvnQpvLOYPw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793046381;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:References:
-	 Content-Language:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=r1kwqOn9s+Z1Iv4jtlKJw++IdaDVWzo01BlrEy3WNcY=;
-	b=xqrUy2ndTe4eLot12Un2mFiNigysPFjArhYlK19ZsDMIb/LWpZ+FbARbiVQluXBilph5
-	 8jDpKQbd+dsbSyi0ZMjzRkb8/rRZ8gGYWnHpIVUaz91HjWA8IHTonhrax2p2w54uTwNtG
-	 MKuEnhCkJ/MNBcMtWmWGxePZE60x8vzqw9ZcwedLxoPRJLNoCJvvIaUZvPd2F3NLTC2Ci
-	 tnAWqsJ+Ka5T+68noEv0JAW4zm78BxOy7flSh/Rw73+WoncSNt0ajIQwEcyJcZQi/2CZU
-	 raL08LUSICNLsIqWcNC6v/jvmxMaQMnNyIDriVEj5um58KDQYbm6ZyUBjTW6I0jgMZg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793387502;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:In-Reply-To:References:
+	 Date:Message-ID:MIME-Version:Content-Type;
+	bh=T4hFvVxLfjnAJg8k+NzczjZdpae4mRcTksCIzgxfA9U=;
+	b=y+MoYQ5cHEl5xfNV7/ZaXfb13bFP5+MFZB66uUJZ52ucFUuaCvRFwBWSctjWuQfHV2DP
+	 2ZeL3YSEFdnpNKl1VfGe3LBR0qb2xIG43GTFz0OCFSQ9HxqvL2F2j+CivfgNxzn6hOM8G
+	 hpZNg3DhJTe7dZCxElvZn5/OByn9uggFBbBYjZykcLAPtoFLdBKLpSGkSTDd1xXtc5l86
+	 og4+CtWYYoSZnML+tKndMchLgcfsA28PmRpNYea54eQdCQdUo+pug2sdKxuC6AMU2zPqk
+	 6Jv14mZkuP2D6LoMdP3tFW5IS/+ahYaInhz5k6j0to7JgGN3luUZ9Stn0R2Hl87c57g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=kHQDMnDr;
-	arc=none smtp.remote-ip=74.125.82.52
-Received: from mail-dl1-f52.google.com (mail-dl1-f52.google.com [74.125.82.52])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="cJGl/G/2";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BCBB60A2636
-	for <linux-openrisc@vger.kernel.org>; Mon, 26 Oct 2026 20:26:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8BCBB60A2636
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B620E606A31A;
+	Fri, 30 Oct 2026 19:11:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=kHQDMnDr
-Received: by mail-dl1-f52.google.com with SMTP id a92af1059eb24-1a2af4c8d00so1032998c88.0
-        for <linux-openrisc@vger.kernel.org>; Mon, 26 Oct 2026 13:26:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1793046380; x=1793651180; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=r1kwqOn9s+Z1Iv4jtlKJw++IdaDVWzo01BlrEy3WNcY=;
-        b=kHQDMnDrUY/rB35jHhCGT4DG1U9ACLnZK+QMoyoDjUir2QJ8hat3p+xKM4iqJgtEII
-         5zT9Xd8f7DEVY5uH5+v/A2hnUZx0qaPU0Vm9TsmHAz8zkZaSvJdAkp0qtPac3si0RhcB
-         f6HrNt10P98lT4K/bkZ9pu5AaxqJ5AMXbX7Y29XOAVqkpoiNn6mtPFqbvZDVkffWHVH9
-         Z3qjFXoXZQq2iqy7z1R0Qw24bZ2jUcCxLxF1+qaM7Lf1DTWu+qvus9A+ukeZbkMfW2gm
-         ezOW95i0CBdGnGfCuhyr6qvJ+p64PvFmt8say3CPVpkh1A0JBGP5+Zhq07FJyWlgOtRY
-         OERw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793046380; x=1793651180;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=r1kwqOn9s+Z1Iv4jtlKJw++IdaDVWzo01BlrEy3WNcY=;
-        b=dsP4pPXq4nY/+H35x6cz5HIiwK71UD0y/59a2cnCaR0oRsqpO6c9cVEMrYfHjd0mNv
-         cFIUjy/dkObhcpMZQgghhfHZPvgjRI5L8sSaUfd8y/ucO/aUlAMgH4AQzf6oXc70JYgO
-         fzSSS0g95iXZiUKnKmiCD2+uhH3xLis0C9cQuB4oAXhCjZKgMKaCiM+ELeLuHu1LhHNQ
-         jzR1cwTOXs/fs+0dGB9IQciO9ptEBAJqnxK5/VpB6sVnB0wlGsp65WXBqrTIQbsBPkMp
-         DwwPqLyyhdBJoIZlBbTMUQ00IEqFlqdOhnlbU5pzcDTQRGyvJfsWvutuTIOrGJQjbItI
-         QEjA==
-X-Forwarded-Encrypted: i=1; AKwUvBzExfwsc/qZBNLt06GKdrsC8rNoOLUxSoq8+bUND9OR59TKMIsv2fcf9ICj4UzTbBV92xa33/LSgYp0sUX0ZQ==@vger.kernel.org
-X-Gm-Message-State: AFq9FYKsWwiCLlfIEmjq4I/eUsWjODHe2OPI8tJhGRrAgerv1N/lepPI
-	OInh7H4ufqx8mWQPtcTpPSLDG9x+5BZqSoz5ifLMLIYVy6dO4uo5CTih
-X-Gm-Gg: AYBFou0fQAGq9Kfl9yPA4TmNtNHx8NsL+suWmUJjcyp1187yN38Fb73to72W7M8O+zY
-	4IMlui6hwTbI/KN0obhzhGywHNJtGneFB8cr0ADr3QbIuB13mXvbLoqo6z2tseCwfgiw/ZwMcpD
-	WQxL7eZgbtxW44I0qUMGaYBbUi5WjWKvMYN2S7ztiF3ArozXhCy7TC6w7ea292cA6yyAWA1R38q
-	2AMy4amPCcBxcLMRu6KT/a83U0Hv3Paw5VRVzXGn7JJJSzZDziHkukqRh+os4gwuxZ1IcYWxg2y
-	5nJM2H/4qTR2RZPR3hT9ungs4l1Q/FMTYzUZYVTsn546OQcgazd2AmVw/m7Cv7GsQprgf7wRGTV
-	AZ5q0gGrTMoCxoT/ZIFwtyCyJYFutABme5hhk/x/uIo62ugQAyiBHM+w8AwsScEVEVniri5Dcmk
-	PJY0+ZpoDL9Faa15p/35e2F0mecUawyJ3Y53zY6ZgCRI1UgXUVn2038phM2Lbn7+q3LW7jgpjko
-	I9aBQOhMEQhXW/+/5Ne85bsUCf1bX1icmUyJaL5gJ2Vffh1EcaPW5u0NMjfYB8kacMljJLFDY0M
-	o0kIVk46lv9KNu80kmQ=
-X-Received: by 2002:a05:701b:2714:b0:1a2:2da2:b278 with SMTP id a92af1059eb24-1a22da2b352mr3210683c88.14.1793046379474;
-        Mon, 26 Oct 2026 13:26:19 -0700 (PDT)
-Received: from ?IPV6:2401:4900:1c44:61b8:f26f:bd5b:b550:7a07? ([2401:4900:1c44:61b8:f26f:bd5b:b550:7a07])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-19886f790e4sm26156609c88.0.2026.10.26.13.26.15
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 26 Oct 2026 13:26:18 -0700 (PDT)
-Message-ID: <19f2782e-c631-4668-99f2-95107cd2e6d3@gmail.com>
-Date: Tue, 27 Oct 2026 01:56:14 +0530
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cJGl/G/2
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 856D71F000C1;
+	Fri, 30 Oct 2026 19:11:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793387501;
+	bh=T4hFvVxLfjnAJg8k+NzczjZdpae4mRcTksCIzgxfA9U=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=cJGl/G/2fQF1yJWHTie2xk6HB608xeSGry+Y/uMzkiv7mSAAvI/rgcFa2ycf1BTVh
+	 d35A0kNRaV1SESzGWirJvsignzKFJjZo7LJ49bkaLS5abOu8oYwNJDowAY4LXAaFk3
+	 1qvBtDFkFqlDjn51/ADmcGHjG88Z10ZTRm9cloeKGen2Fvgbp7EvWKP7Fs/k+w7w7I
+	 N+Bpq3UQzRBk81FGdRpPvr/G8hUKlkAznQ9epCS9WohqPLXX6ImGQB2IoLMbeTEcsI
+	 X7PFkJetPPJchwZrSKjuCFkEbuOgCvp7lXiZPRZWxHOpx5mbgnJHdFUTifU5ObrOgF
+	 1vyrUAqP9m8pA==
+From: Thomas Gleixner <tglx@kernel.org>
+To: "H. Peter Anvin" <hpa@zytor.com>, Sebastian Andrzej Siewior
+ <bigeasy@linutronix.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra
+ <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Shrikanth
+ Hegde <sshegde@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org, Kees Cook
+ <kees@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+ loongarch@lists.linux.dev, Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt
+ <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, Sven Schnelle
+ <svens@linux.ibm.com>, linux-s390@vger.kernel.org, x86@kernel.org, Mark
+ Rutland <mark.rutland@arm.com>, Jinjie Ruan <ruanjinjie@huawei.com>, Andy
+ Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Richard
+ Henderson <richard.henderson@linaro.org>, Russell King
+ <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Guo
+ Ren <guoren@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Thomas
+ Bogendoerfer <tsbogend@alpha.franken.de>, Helge Deller <deller@gmx.de>,
+ Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger
+ <richard@nod.at>, Chris Zankel <chris@zankel.net>,
+ linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org,
+ linux-csky@vger.kernel.org, linux-m68k@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linux-sh@vger.kernel.org, linux-um@lists.infradead.org, Arnd Bergmann
+ <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>, Will Deacon
+ <will@kernel.org>, Brian Cain <bcain@kernel.org>, Michal Simek
+ <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, "David S. Miller"
+ <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>,
+ linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org,
+ linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-arch@vger.kernel.org, Michal =?utf-8?Q?Such=C3=A1nek?=
+ <msuchanek@suse.de>, Jonathan
+ Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
+Subject: [PATCH] x86/entry: Fix ptrace regression
+In-Reply-To: <87se1wyvs8.ffs@fw13>
+References: <20260707181957.433213175@kernel.org>
+ <20260707190254.493733289@kernel.org>
+ <20261022142425.3Wx-RrU5@linutronix.de> <87fqxx1r80.ffs@fw13>
+ <87cxt11ktr.ffs@fw13> <1149A39E-BEBA-46EA-94F4-4DFFC4733EF5@zytor.com>
+ <871p9g1s3w.ffs@fw13> <87y0boze95.ffs@fw13>
+ <C6D7BF04-4CF7-48D1-93B5-E80D52C2617D@zytor.com> <87se1wyvs8.ffs@fw13>
+Date: Fri, 30 Oct 2026 20:11:37 +0100
+Message-ID: <87mrrvxaty.ffs@fw13>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Post: <mailto:linux-openrisc@vger.kernel.org>
@@ -92,126 +89,83 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-openrisc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/4] openrisc: Add KProbes
-To: jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
- naveen@kernel.org, davem@davemloft.net, mhiramat@kernel.org
-Cc: pjw@kernel.org, wangruikang@iscas.ac.cn, namcao@linutronix.de,
- kees@kernel.org, linux-openrisc@vger.kernel.org,
- linux-trace-kernel@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260930202744.50489-1-sahilcdq0@gmail.com>
- <20261026201240.107462-3-sahilcdq0@gmail.com>
-Content-Language: en-US
-From: Sahil <sahilcdq0@gmail.com>
-In-Reply-To: <20261026201240.107462-3-sahilcdq0@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 
-Hi,
+The recent rework of the syscall entry code missed the historical detail of
+the abuse of syscall number -1L to abort a syscall and keep modifications
+by tracers to the return value, while a rewrite of the syscall number to an
+invalid value undoes eventual tracer modification to the return value and
+overwrites it with -ENOSYS.
 
-I have two queries in this commit.
+Restore the original behaviour.
 
-On 10/27/26 1:42 AM, Sahil Siddiq wrote:
-> Add KProbes support for OpenRISC. This work is primarily based
-> on similar work done for LoongArch, MIPS and RISC-V.
-> 
-> KProbes make it possible to trap at almost any address in the
-> kernel to collect performance/debugging info.
->
-> [...]
-> diff --git a/arch/openrisc/include/asm/kprobes.h b/arch/openrisc/include/asm/kprobes.h
-> new file mode 100644
-> index 000000000000..2b5847002141
-> --- /dev/null
-> +++ b/arch/openrisc/include/asm/kprobes.h
-> @@ -0,0 +1,77 @@
-> [...]
-> +
-> +struct prev_kprobe {
-> +	struct kprobe *kp;
-> +	unsigned int status;
-> +	unsigned long restore_pc;
-> +};
-> +
-> +/* per-cpu kprobe control block */
-> +struct kprobe_ctlblk {
-> +	unsigned int kprobe_status;
-> +	unsigned long irq_flags;
-> +	/* address of next instruction in case of SSOL */
-> +	unsigned long restore_pc;
-> +	struct prev_kprobe prev_kprobe;
-> +};
-> +
+Fixes: 1b1f3b3e1b39 ("x86/entry: Get rid of the sys_ni_syscall() indirection")
+Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Thomas Gleixner <tglx@kernel.org>
+Cc: stable@vger.kernel.org
+Closes: https://lore.kernel.org/all/20261022142425.3Wx-RrU5@linutronix.de
+---
+ arch/x86/entry/syscall_32.c |    2 ++
+ arch/x86/entry/syscall_64.c |   26 ++++++++++++++++++++++----
+ 2 files changed, 24 insertions(+), 4 deletions(-)
 
-There was a review comment from Sashiko about saving "irq_flags" in
-"struct prev_kprobe". I am not sure if that's actually required.
-
-My understanding is that a KProbe will be reentered if a probe is hit
-before single-stepping (e.g. a probe in the pre-handler) or after it
-(e.g. a probe in the post-handler). If a KProbe is reentered before
-single-stepping, nothing will be present in kprobe_ctlblk.irq_flags that
-requires restoration. So, it doesn't need to be saved in prev_kprobe.
-And if the KProbe is reentered after single-stepping, by that point the
-value in kprobe_ctlblk.irq_flags should have already been restored (i.e.
-IRQs should be reenabled by then) and so it shouldn't need saving in
-prev_kprobe.
-
-Could you please let me know if I am missing something, or if my
-reasoning is sound?
-
-> [...]
-> diff --git a/arch/openrisc/kernel/kprobes.c b/arch/openrisc/kernel/kprobes.c
-> new file mode 100644
-> index 000000000000..0b8762e340d5
-> --- /dev/null
-> +++ b/arch/openrisc/kernel/kprobes.c
-> @@ -0,0 +1,426 @@
-> [...]
-> +
-> +int kprobe_fault_handler(struct pt_regs *regs, int trapnr)
-> +{
-> +	struct kprobe *cur = kprobe_running();
-> +	struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
-> +
-> +	switch (kcb->kprobe_status) {
-> +	case KPROBE_HIT_SS:
-> +	case KPROBE_REENTER:
-> +		/*
-> +		 * The instruction being single-stepped caused a page fault.
-> +		 * Reset the current KProbe and set PC to the probe's address.
-> +		 * Then allow the page fault handler to continue as usual.
-> +		 */
-> +		instruction_pointer_set(regs, (unsigned long)cur->addr);
-> +
-
-There was another review comment from Sashiko. It stated that in the case
-of a page fault which is triggered in the delay slot of a jump-and-link
-instruction, resetting PC to the branch instruction can corrupt the state.
-It theorized that this is due to the modification made to regs->gpr[9]
-(the link register) in "simulate_branch()".
-
-I haven't really understood why the state would get corrupted in this case.
-Rewinding PC to the branch instruction implies it'll get executed again.
-If it gets re-executed, the value in regs->gpr[9] should also get re-evaluated
-and it should hold the correct value after re-execution.
-
-> +		if (kcb->kprobe_status == KPROBE_REENTER)
-> +			restore_previous_kprobe(kcb);
-> +		else
-> +			reset_current_kprobe();
-> +
-> +		kprobe_local_irq_restore(kcb, regs);
-> +		preempt_enable_no_resched();
-> +		break;
-> +	}
-> +
-> +	return 0;
-> +}
-> [...]
-
-Thanks,
-Sahil
-
-[1] https://sashiko.dev/#/patchset/20260407185650.79816-1-sahilcdq0%40gmail.com?part=2 (1st comment)
-[2] https://sashiko.dev/#/patchset/20260930203129.51048-1-sahilcdq0%40gmail.com?part=2 (6th comment)
-
+--- a/arch/x86/entry/syscall_32.c
++++ b/arch/x86/entry/syscall_32.c
+@@ -77,6 +77,8 @@ static __always_inline void do_syscall_3
+ 	if (likely(nr < IA32_NR_syscalls)) {
+ 		nr = array_index_nospec(nr, IA32_NR_syscalls);
+ 		regs->ax = ia32_sys_call(regs, (unsigned int)nr);
++	} else {
++		regs->ax = -ENOSYS;
+ 	}
+ }
+ 
+--- a/arch/x86/entry/syscall_64.c
++++ b/arch/x86/entry/syscall_64.c
+@@ -64,15 +64,20 @@ static __always_inline bool do_syscall_x
+ 	return false;
+ }
+ 
+-static __always_inline void do_syscall_x32(struct pt_regs *regs, unsigned long nr)
++static __always_inline bool do_syscall_x32(struct pt_regs *regs, unsigned long nr)
+ {
++	if (!IS_ENABLED(CONFIG_X86_X32_ABI))
++		return false;
++
+ 	/* Adjust the starting offset of the table */
+ 	nr -= __X32_SYSCALL_BIT;
+ 
+-	if (IS_ENABLED(CONFIG_X86_X32_ABI) && likely(nr < X32_NR_syscalls)) {
++	if (likely(nr < X32_NR_syscalls)) {
+ 		nr = array_index_nospec(nr, X32_NR_syscalls);
+ 		regs->ax = x32_sys_call(regs, (unsigned int)nr);
++		return true;
+ 	}
++	return false;
+ }
+ 
+ /* Returns true to return using SYSRET, or false to use IRET */
+@@ -81,8 +86,21 @@ static __always_inline void do_syscall_x
+ 	if (likely(syscall_enter_from_user_mode_randomize_stack(regs, &nr))) {
+ 		instrumentation_begin();
+ 
+-		if (!do_syscall_x64(regs, nr))
+-			do_syscall_x32(regs, nr);
++		if (unlikely(!do_syscall_x64(regs, nr))) {
++			/*
++			 * The special treatment of syscall number -1 is a
++			 * historical bogosity as the original code used -1 to
++			 * indicate syscall abort, which is not distinguishable
++			 * from a syscall which is invoked with syscall number
++			 * -1. The historic behavior is to keep the return value
++			 * in regs->ax unmodified in that case, which means it's
++			 * either the preset value -ENOSYS or a value which was
++			 * written by a tracer. If the syscall number is invalid
++			 * but not -1 then overwrite any tracer modification.
++			 */
++			if (!do_syscall_x32(regs, nr) && nr != -1L)
++				regs->ax = -ENOSYS;
++		}
+ 
+ 		instrumentation_end();
+ 	}
