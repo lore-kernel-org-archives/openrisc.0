@@ -1,86 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793555892;
-	b=FXIcFh7dOmBvLkccW6Pmtfk9UNfYtnbK2nFMIYfF7USaK2GOjNjmgWTIdZjYXK+JpG44
-	 tqyZ0MOuwDi/WYZxJq2vyrGUGsUtRFafjL2GebWj4/sufLRJsJBbyPOS6g+vpKQG2jOz/
-	 d08Nm6+1MdAl4XDfljYFpgteSVYmPyBNOrbjeYKAN+utLcDzRv7EtRP6sfdU3WPwggRhZ
-	 gt3pmB2dbX842tC4cXpO8qbDFq+1x+3GWd36mGLP3BDbxJG2s/y43YRQSG4BX8G3FL/JH
-	 VKpfCGNTp1Hz0GdDcZARYpLUn5L45Fh2eEljXH2E7aR2A95SjzD1/7WJ45Hy9hXQgLg==
+	t=1793571358;
+	b=veHfLDZGJU0MgoCpB5PsrNcLoLq2Y2PnYj0MYs3RCyPbVSw5HPn6zHMF1SJ0RpAL+p3l
+	 xRm6T/rISKcmLMThqn0s8suz+qgpyb97jeEkMiY0Hww4M4dYA31XBA6i2HXbzT6t4Q8rc
+	 80Bm5CLStEhejRfsNOB0qK+NJ7eoRpluBBWhwp0I/y3oj4SXhLEKSQ6K961oDIPiTM8CP
+	 bu8ipGDiETkUKAtlrw+FCkoh+2nmQTDTBZUoKLJ7BuiWexYaJ0x56oCz/SBvTYKW2M5j0
+	 BNHuU74Bc0uHzWcITYs4qhHIRhH7UaLownNQTF+QChsbLlIQ+B5bP72mrKt7GJkeYYA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793555892;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:In-Reply-To:References:
-	 Date:Message-ID:MIME-Version:Content-Type;
-	bh=+7HwRXGWtYS3xmU+Z46/w0lVl31Dl0sZcMyXjmUDfIs=;
-	b=e5Xj0w/BMboK2HQTrlV3GC9nl6B4wY2eIhjnYKaxYXq6FcqHV6g/4o/4sNm7Yk8pIt1P
-	 GubvDHoF3P9IfIZ64kH/SrqXU+FvyHXCkHkydGw4xIZVnM3zDZaDNVHLokOm3NLlUV5tz
-	 aj4+LvcdpZFGZawmh6JY5Sc8UMl8DTlgnC93b6QJ43JQmcZCXaa6LIvDPp3rJjDHQ9p1g
-	 0TPGTX3jwWN/n+YsCLlKSua75jB7b+KM3N/9V45vjViVZa2NwK1GRGCfVyEyuhkhDNWdl
-	 O1P/fPfVoq1Z7ZkCr6dgNpsYtUuNmhKMMMu5ivftXcMwLcIVwKssjyXi+rzxGn1H6MQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793571358;
+	h=Received:DKIM-Signature:Received:Content-Type:MIME-Version:
+	 Content-Transfer-Encoding:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc;
+	bh=22yhHEiHUWVm81OxkB+6UNZ5/HC7Jn4HF5eln+k49OY=;
+	b=K8EcHu6lVqonfolAhZwajlCpfHKnOWLpTdx+8cnsx6DwP/WmXhIpjngGUCtFxo/grNxy
+	 wDylyBCRZoU2tCI4jdaEkOpE8sTpJ4DKCfW4RTMbzUrA8Y5t2qLv9CBOti1fvdQeohIoq
+	 EFVmT5GlSzOT8UpVUoD6h7oITLDJu7hACScJYUl3CrAoQ3HXaua+X5zS991BZggtMQtSx
+	 gW5D47JwnwMfLfFhoTH2FFukBFHYuXkfNR1P/RoJXe5h+0pqGmg5YUUISHwF91gqLjdHr
+	 D0pDeqwy8M/ZFoMRwrWIm4jtJsi6zKgbzpe6H6xrwsjpsURIlHqVs+Nbg7ITtCi14Xg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FkpyzqH8;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AXmvtNOq;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 155C7606A338;
-	Sun,  1 Nov 2026 17:58:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BACD760A262D;
+	Sun,  1 Nov 2026 22:15:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FkpyzqH8
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 388A21F00A17;
-	Sun,  1 Nov 2026 17:58:11 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AXmvtNOq
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BEAA1F01578;
+	Sun,  1 Nov 2026 22:15:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793555891;
-	bh=+7HwRXGWtYS3xmU+Z46/w0lVl31Dl0sZcMyXjmUDfIs=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=FkpyzqH892Y24Bf4MzJaxg0GENU+W3h1HrKoje37+gLiStKVwoHULfobDtcxPd97k
-	 O7yDPvc5mWSjJBu8vqqdIiJljIIY/6Z6d8PFXXCg74LTEn4DannL5V6rcy3NiVl7Cu
-	 DnutKq7d2bLfY2EkKJcg1fiS7Qvebb0UQQu9SHDSugPX5Tba1NEXcVGdUEzB6sw+y5
-	 V2z/p2t+EDUDEUhm+YjJeNELsgmzPgXTja1HpGoACFV2HxgapWeRjmaKUW4P/rTSol
-	 vGE0a3SiPbMJFefI/JNfVFZ/R4iCFJ+Rd4uFfOaqAIzWd7mtslcqNYqP4841tBmpOx
-	 x3REifKbTPuGQ==
-From: Thomas Gleixner <tglx@kernel.org>
-To: "H. Peter Anvin" <hpa@zytor.com>, Sebastian Andrzej Siewior
- <bigeasy@linutronix.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra
- <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Shrikanth
- Hegde <sshegde@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org, Kees Cook
- <kees@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
- loongarch@lists.linux.dev, Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt
- <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, Sven Schnelle
- <svens@linux.ibm.com>, linux-s390@vger.kernel.org, x86@kernel.org, Mark
- Rutland <mark.rutland@arm.com>, Jinjie Ruan <ruanjinjie@huawei.com>, Andy
- Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Richard
- Henderson <richard.henderson@linaro.org>, Russell King
- <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Guo
- Ren <guoren@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Thomas
- Bogendoerfer <tsbogend@alpha.franken.de>, Helge Deller <deller@gmx.de>,
- Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger
- <richard@nod.at>, Chris Zankel <chris@zankel.net>,
- linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org,
- linux-csky@vger.kernel.org, linux-m68k@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
- linux-sh@vger.kernel.org, linux-um@lists.infradead.org, Arnd Bergmann
- <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>, Will Deacon
- <will@kernel.org>, Brian Cain <bcain@kernel.org>, Michal Simek
- <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, "David S. Miller"
- <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>,
- linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org,
- linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-arch@vger.kernel.org, Michal =?utf-8?Q?Such=C3=A1nek?=
- <msuchanek@suse.de>, Jonathan
- Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
-Subject: [PATCH V2] x86/entry: Fix ptrace regression
-In-Reply-To: <87mrrvxaty.ffs@fw13>
-References: <20260707181957.433213175@kernel.org>
- <20260707190254.493733289@kernel.org>
- <20261022142425.3Wx-RrU5@linutronix.de> <87fqxx1r80.ffs@fw13>
- <87cxt11ktr.ffs@fw13> <1149A39E-BEBA-46EA-94F4-4DFFC4733EF5@zytor.com>
- <871p9g1s3w.ffs@fw13> <87y0boze95.ffs@fw13>
- <C6D7BF04-4CF7-48D1-93B5-E80D52C2617D@zytor.com> <87se1wyvs8.ffs@fw13>
- <87mrrvxaty.ffs@fw13>
-Date: Sun, 01 Nov 2026 18:58:08 +0100
-Message-ID: <87ecd4xwlr.ffs@fw13>
+	s=k20260515; t=1793571357;
+	bh=22yhHEiHUWVm81OxkB+6UNZ5/HC7Jn4HF5eln+k49OY=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc;
+	b=AXmvtNOqtLjopWWCQdkY1kf58r2tsshOv49SBa++XWevEZbozepPlSlFvrN1dcXpb
+	 9cANlomEUPj0ZBiZL28+j2QgAXsMv3s2laIiduoGI+ce38Y8h1u9SB0tbHS5wH5wGm
+	 +MC9Oi6Swj6nPVmYgaYL1CAKQ9ojJ66d0jdnEvjYS8ncAFvCnZtFlP7tikcjqtWDG5
+	 Nh59YfDcc4DI14trFqfgqkMwwd0YKiYIlqlolp6obAZrN5CV473iUawTOR6ZCcdra9
+	 V8ouXGtGQ2ZtYTopFX4ZriYxCryYodGD8Ier/J+MdgFsg9Z8lfVl/h7OVFyYY5TBQC
+	 LvCqYqw3qq3fA==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 7D5B538003B8;
+	Sun,  1 Nov 2026 22:15:57 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Post: <mailto:linux-openrisc@vger.kernel.org>
@@ -90,87 +53,95 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-openrisc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH v5 00/12] mm: make userland page table freeing RCU-safe
+From: patchwork-bot+linux-riscv@kernel.org
+Message-Id: 
+ <179357135604.2624073.12750471724213497880.git-patchwork-notify@kernel.org>
+Date: Sun, 01 Nov 2026 22:15:56 +0000
+References: <20260925-rcu-pagetable-freeing-v5-0-31e91065fea4@kernel.org>
+In-Reply-To: <20260925-rcu-pagetable-freeing-v5-0-31e91065fea4@kernel.org>
+To: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+Cc: linux-riscv@lists.infradead.org, akpm@linux-foundation.org,
+ david@kernel.org, ziy@nvidia.com, baolin.wang@linux.alibaba.com,
+ liam@infradead.org, nico.pache@linux.dev, ryan.roberts@arm.com,
+ dev.jain@arm.com, baohua@kernel.org, lance.yang@linux.dev,
+ usama.arif@linux.dev, kas@kernel.org, guoren@kernel.org, bcain@kernel.org,
+ geert@linux-m68k.org, dinguyen@kernel.org, schuster.simon@siemens-energy.com,
+ jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
+ dalias@libc.org, glaubitz@physik.fu-berlin.de, pjw@kernel.org,
+ palmer@dabbelt.com, aou@eecs.berkeley.edu, alex@ghiti.fr,
+ linux@armlinux.org.uk, vgupta@kernel.org, monstr@monstr.eu, chris@zankel.net,
+ jcmvbkbc@gmail.com, will@kernel.org, aneesh.kumar@kernel.org,
+ npiggin@gmail.com, peterz@infradead.org, davem@davemloft.net,
+ andreas@gaisler.com, richard.henderson@linaro.org, mattst88@gmail.com,
+ linmag7@gmail.com, catalin.marinas@arm.com, mark.rutland@arm.com,
+ chenhuacai@kernel.org, kernel@xen0n.name, tsbogend@alpha.franken.de,
+ James.Bottomley@HansenPartnership.com, deller@gmx.de, maddy@linux.ibm.com,
+ mpe@ellerman.id.au, chleroy@kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
+ agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ richard@nod.at, anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
+ tglx@kernel.org, mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+ x86@kernel.org, hpa@zytor.com, arnd@arndb.de, vbabka@kernel.org,
+ rppt@kernel.org, surenb@google.com, mhocko@suse.com, jgg@ziepe.ca,
+ jhubbard@nvidia.com, peterx@redhat.com, ysato@users.sourceforge.jp,
+ shakeel.butt@linux.dev, corbet@lwn.net, rdunlap@infradead.org,
+ linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-snps-arc@lists.infradead.org,
+ linux-arch@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-alpha@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+ linux-um@lists.infradead.org, hughd@google.com, qi.zheng@linux.dev,
+ linux-doc@vger.kernel.org, gerg@linux-m68k.org
 
-The recent rework of the syscall entry code missed the historical detail of
-the abuse of syscall number -1L to abort a syscall and keep modifications
-by tracers to the return value, while a rewrite of the syscall number to an
-invalid value undoes eventual tracer modification to the return value and
-overwrite it with -ENOSYS.
+Hello:
 
-Restore the original behaviour.
+This series was applied to riscv/linux.git (fixes)
+by Andrew Morton <akpm@linux-foundation.org>:
 
-Fixes: 1b1f3b3e1b39 ("x86/entry: Get rid of the sys_ni_syscall() indirection")
-Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Thomas Gleixner <tglx@kernel.org>
-Cc: stable@vger.kernel.org
-Closes: https://lore.kernel.org/all/20261022142425.3Wx-RrU5@linutronix.de
----
-V2: Add the missing -1 check in the 32bit path - sashiko
----
- arch/x86/entry/syscall_32.c |    4 ++++
- arch/x86/entry/syscall_64.c |   26 ++++++++++++++++++++++----
- 2 files changed, 26 insertions(+), 4 deletions(-)
+On Fri, 25 Sep 2026 21:09:35 +0100 you wrote:
+> The majority of architectures in the kernel defer page table freeing until
+> an RCU grace period has elapsed, this series converts all remaining
+> architectures to do so too and eliminates CONFIG_MMU_GATHER_RCU_TABLE_FREE
+> altogether.
+> 
+> This is important because it enables safe lockless page table walking under
+> RCU alone.
+> 
+> [...]
 
---- a/arch/x86/entry/syscall_32.c
-+++ b/arch/x86/entry/syscall_32.c
-@@ -77,6 +77,10 @@ static __always_inline void do_syscall_3
- 	if (likely(nr < IA32_NR_syscalls)) {
- 		nr = array_index_nospec(nr, IA32_NR_syscalls);
- 		regs->ax = ia32_sys_call(regs, (unsigned int)nr);
-+	} else {
-+		/* See comment in do_syscall_64() */
-+		if (nr != -1UL) {
-+			regs->ax = -ENOSYS;
- 	}
- }
- 
---- a/arch/x86/entry/syscall_64.c
-+++ b/arch/x86/entry/syscall_64.c
-@@ -64,15 +64,20 @@ static __always_inline bool do_syscall_x
- 	return false;
- }
- 
--static __always_inline void do_syscall_x32(struct pt_regs *regs, unsigned long nr)
-+static __always_inline bool do_syscall_x32(struct pt_regs *regs, unsigned long nr)
- {
-+	if (!IS_ENABLED(CONFIG_X86_X32_ABI))
-+		return false;
-+
- 	/* Adjust the starting offset of the table */
- 	nr -= __X32_SYSCALL_BIT;
- 
--	if (IS_ENABLED(CONFIG_X86_X32_ABI) && likely(nr < X32_NR_syscalls)) {
-+	if (likely(nr < X32_NR_syscalls)) {
- 		nr = array_index_nospec(nr, X32_NR_syscalls);
- 		regs->ax = x32_sys_call(regs, (unsigned int)nr);
-+		return true;
- 	}
-+	return false;
- }
- 
- /* Returns true to return using SYSRET, or false to use IRET */
-@@ -81,8 +86,21 @@ static __always_inline void do_syscall_x
- 	if (likely(syscall_enter_from_user_mode_randomize_stack(regs, &nr))) {
- 		instrumentation_begin();
- 
--		if (!do_syscall_x64(regs, nr))
--			do_syscall_x32(regs, nr);
-+		if (unlikely(!do_syscall_x64(regs, nr))) {
-+			/*
-+			 * The special treatment of syscall number -1 is a
-+			 * historical bogosity as the original code used -1 to
-+			 * indicate syscall abort, which is not distinguishable
-+			 * from a syscall which is invoked with syscall number
-+			 * -1. The historic behavior is to keep the return value
-+			 * in regs->ax unmodified in that case, which means it's
-+			 * either the preset value -ENOSYS or a value which was
-+			 * written by a tracer. If the syscall number is invalid
-+			 * but not -1 then overwrite any tracer modification.
-+			 */
-+			if (!do_syscall_x32(regs, nr) && nr != -1L)
-+				regs->ax = -ENOSYS;
-+		}
- 
- 		instrumentation_end();
- 	}
+Here is the summary with links:
+  - [v5,01/12] mm/khugepaged: deposit a newly allocated page table on collapse
+    https://git.kernel.org/riscv/c/eb823057e092
+  - [v5,02/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for most 2-level architectures
+    https://git.kernel.org/riscv/c/d22254fd57f0
+  - [v5,03/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for MMU riscv
+    https://git.kernel.org/riscv/c/5ae75414416f
+  - [v5,04/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for MMU arm
+    https://git.kernel.org/riscv/c/8e645d98fb78
+  - [v5,05/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for arc, microblaze, xtensa
+    https://git.kernel.org/riscv/c/799bd3c4be5f
+  - [v5,06/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for sparc64
+    https://git.kernel.org/riscv/c/461a24a81215
+  - [v5,07/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for m68k-coldfire
+    https://git.kernel.org/riscv/c/ccdaaf591664
+  - [v5,08/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for sh-X2
+    https://git.kernel.org/riscv/c/a72df945113a
+  - [v5,09/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for m68k-motorola
+    https://git.kernel.org/riscv/c/0f5cbeebe00e
+  - [v5,10/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for sparc32
+    https://git.kernel.org/riscv/c/35dd856770f3
+  - [v5,11/12] mm: userland pgtable freeing is RCU-safe now, remove leftover bits
+    https://git.kernel.org/riscv/c/35e340a47888
+  - [v5,12/12] mm: change the contract for free_pgtables(), update docs
+    https://git.kernel.org/riscv/c/a5c0a39d0e57
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
