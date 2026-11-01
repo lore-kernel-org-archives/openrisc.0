@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793491033;
-	b=VeJ21FM1VxpK3gWO9t1iHvgn/JlcMl0gziHm8/7b8ENKfze2Jm7ZNfDKWbpsaql8MdES
-	 e4orFcbLMCw6F+Rj80hEoNPhKr3OuGsa9/Rs4UMByY2Rh6YLA8ax5XyMNpAaKBCHLJVV+
-	 vCndc4nkgt7mlJaZBN3CYEeNsGDp5930/JSKi2MdVaHUDyydBozrXIeEVVARLdQTWmL/v
-	 7OkMzbpK8r8O8xJSPoUQXfLd/52eyxDn4VrBfS6guqM4M31VLOoe2I4nYICL3TTy+hlh3
-	 Wy1ZCkigBPHZVlpdEBgJkm1gPaiKF+UKRgRDMkM/z8CbKcE6FhErVMlwLMCYLvQcJJA==
+	t=1793492819;
+	b=1IUm5hcf2agbmkCKTDf7f9lknO7sz+iLel6J6jqS3Ccjw0vrbCTN5Bbyh3O6OTLJ1/xP
+	 hiidEQSTzgIUkj8md95TaeTwcQ/ZXmvnjx6fc/xKNhmnaLH6DvyIvud1fsblhfbQdJl+C
+	 98e453t0sJb6ZNX8hTA1vk9PHCyhXYY8eamZl+vUCq2JhX/XX3NniNo8HIjGXVzSckKGR
+	 OYQqdTIy3sOlyCEIgRbfTPB4PqNeAh3e6rIr5br/jYjuHbyS2eT3EOhWJMiEXbIKbcK+Y
+	 4vAT3DpU24w4RWY11r6wCU6zKwRgnbh5rBrVwyLoudA0WLZac4Pd8nUGVxGwqb6txrw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793491033;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793492819;
 	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:From:Content-Language:In-Reply-To:
+	 Subject:From:To:Cc:References:Content-Language:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=MXDZ/tc0FGE+vZKOkRRrWrPdu4KytGFQa3AK0t7MysI=;
-	b=S+SH/DKkXbdBCjUPBqnqJ2rHY2HpFYi4BLYmaQrUSII0VC0jW61iF8frt1q3Ap9WTsWM
-	 VNNG6qpvCq9VS7eecskYJzq9mipCjHCPrfFQQXEHmZETPUSAKBnRch1CvaOVuuuXUkS4u
-	 GUBQr5rNQbLMXA0Amuzn5LuMjurmA9nWQz029zCkqiUs63BFnJ1P7zd7pURs1OhsnhkY4
-	 y6cSnG5jEJOdjmWOk1F4fHjomgTEcGtiFGo5+o4RY266LH23rcre+njSlz6FXP1z3P+Rq
-	 w2K9zh0Ew8HHGOE5p6fUrA6ae1qP+/03wWhh9dN88+Ekb43l0uU3/CFHaGiRAspENug==
+	bh=LC77J+RN6Dhy59laDBKh+N+IhdE7yeQVClWRQIT4qUg=;
+	b=2qKfWxZiuxJKw07FI1ZM9X494aSG5yhlYvjWjgtSBSaj6Ipc5pZ1l8aV5TDFmHyZaC5L
+	 Dy9sH1xpT5LYu0OlA979BV81KbdevoLEg7iXZnFzdpX4vFjDZk35l4r0Sql5DaAvhlXZM
+	 Ozt2s8cma9sOiMMg+BAXD1BL6VUZlJAs1xCUIdx+sTIfhGydTycncwAfF/N5euaWX6qJH
+	 S0JaNqAoJGZHVnWWNzyKV4oC6NT8YQhaaz/GVk8VKRhI8wceL2mMdGP7sOY/wvomFSscv
+	 TothxhvjEIXVFFeAIHMKjOwMonfveZYMWAQ7sGbBI8FgejDfG5RelEsT5ovef9RUiMA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WCSgVFKA;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LSJi3sDz;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8684C606A31A;
-	Sat, 31 Oct 2026 23:57:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CF55606A31A;
+	Sun,  1 Nov 2026 00:26:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WCSgVFKA
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0AFC1F000C1;
-	Sat, 31 Oct 2026 23:57:12 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LSJi3sDz
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F9621F000C1;
+	Sun,  1 Nov 2026 00:26:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793491033;
-	bh=MXDZ/tc0FGE+vZKOkRRrWrPdu4KytGFQa3AK0t7MysI=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=WCSgVFKAoEiUlBRt6zXiht7Cz+aUqr+u8pkCYORaKRffLYfUiW1nNB4dPLmsuMbPD
-	 1wdBNztG55Vs2jTuRiMMlABj2JgeGWWeUi0URgCasCymnaXvWEwPNj/nLzkqyeSt1d
-	 RUAW1AnfbOdNgZQpaXgh28kEwNxgNzJHuaUgJxLN7iPUIur8rixrRLsbtB+p3SXx96
-	 9Is1q95z9l8bZP/e7z3sUfujx+51XR++hsrV/64+6uWqLPhJX7VgDvH8Mh7LpNUw/Z
-	 mivUDwm3D1icMiSrin0rQa0ZUkEGQ913wYogPYduADhqTvHTif9rOr3XwbKzqwJ4o1
-	 e3xd+HdwD0Zpg==
-Message-ID: <3175caa0-9f49-465d-959e-6b6c9bbb4f01@kernel.org>
-Date: Sat, 31 Oct 2026 16:57:11 -0700
+	s=k20260515; t=1793492818;
+	bh=LC77J+RN6Dhy59laDBKh+N+IhdE7yeQVClWRQIT4qUg=;
+	h=Date:Subject:From:To:Cc:References:In-Reply-To;
+	b=LSJi3sDzqNH53xwgmCQVRjs5P3KxhDowBzhYuUU8msQ2AgB7lpotYxsHRrJG0iClj
+	 kpIrcXC40v6h63d1PdapIP12ArfdiJoWwpWDXHQdq1no5M4gvXZ0KVb1XNuiiAzYu3
+	 7GzqVw2Pcn1U1Xz+6nbGQwhOSWakM7WMwGBaWsl0hqb34ftplQn7PLgeKJqsCD/XNW
+	 t3n1MCHTs76kO1sksUX6LYr948fLQUWPWTcEIgxOf/3lq2NM/mgiXEsL4sbiIBLwpB
+	 KX6+RWCZD+IEqyN0t4epgjEdQspqh8J59zPctS4a5HZB/Owc8dTCb/rOIVtS1AqPO0
+	 aIxSiDg5CFOUw==
+Message-ID: <e9f9ac85-442a-4bcc-8ec6-a03a6519178d@kernel.org>
+Date: Sat, 31 Oct 2026 17:26:55 -0700
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Post: <mailto:linux-openrisc@vger.kernel.org>
@@ -53,6 +53,7 @@ Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH] nios2: ksyms: Declare __mulsi3 export
+From: Vineet Gupta <vgupta@kernel.org>
 To: Arnd Bergmann <arnd@arndb.de>,
  =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
  Dinh Nguyen <dinguyen@kernel.org>,
@@ -63,178 +64,68 @@ Cc: linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>,
  "linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>
 References: <20261019-nios2-mulsi3-v1-1-4fd75b1bacef@linutronix.de>
  <47eb6b48-d664-440f-84b6-ba09f34d5e08@app.fastmail.com>
-From: Vineet Gupta <vgupta@kernel.org>
+ <3175caa0-9f49-465d-959e-6b6c9bbb4f01@kernel.org>
 Content-Language: en-US
-In-Reply-To: <47eb6b48-d664-440f-84b6-ba09f34d5e08@app.fastmail.com>
+In-Reply-To: <3175caa0-9f49-465d-959e-6b6c9bbb4f01@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 10/19/26 04:16, Arnd Bergmann wrote:
-> On Mon, Oct 19, 2026, at 11:49, Thomas Weißschuh wrote:
->> GCC may emit libcalls to __mulsi3(). As modpost is not aware that this
->> function is provided through the linked in libgcc, it fails:
+On 10/31/26 16:57, Vineet Gupta wrote:
+>> * no generic implementation in kernel, need to copy from
+>>     libgcc/lib1funcs.S code:
 >>
->> ERROR: modpost: kernel/locking/test-ww_mutex.ko: symbol '__mulsi3' undefined!
->> ERROR: modpost: kernel/time/test_udelay.ko: symbol '__mulsi3' undefined!
->> ERROR: modpost: kernel/resource_kunit.ko: symbol '__mulsi3' undefined!
->> ERROR: modpost: fs/fuse/virtiofs.ko: symbol '__mulsi3' undefined!
->> etc.
->>
->> Make sure modpost can see the symbol from libgcc.
->>
->> Reported-by: kernel test robot <lkp@intel.com>
->> Closes:
->> https://lore.kernel.org/oe-kbuild-all/202610171933.J4bFOfL8-lkp@intel.com/
->> Fixes: 2fc8483fdcde ("nios2: Build infrastructure")
->> Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
+>> === __divsi3 ===
+>> arch/arc/kernel/arcksyms.c
+>> arch/nios2/kernel/nios2_ksyms.c
+>> arch/openrisc/kernel/or32_ksyms.c
+>> -> arch/arm/lib/lib1funcs.S
+>>      arch/m68k/lib/divsi3.S
+>>      arch/microblaze/lib/divsi3.S
+>>      arch/xtensa/lib/divsi3.S
+>> === __modsi3 ===
+>> arch/arc/kernel/arcksyms.c
+>> arch/nios2/kernel/nios2_ksyms.c
+>> arch/openrisc/kernel/or32_ksyms.c
+>> -> arch/m68k/lib/modsi3.S
+>>      arch/microblaze/lib/modsi3.S
+>>      arch/xtensa/lib/modsi3.S
+>> === __udivsi3 ===
+>> arch/arc/kernel/arcksyms.c
+>> arch/nios2/kernel/nios2_ksyms.c
+>> arch/openrisc/kernel/or32_ksyms.c
+>> -> arch/arm/lib/lib1funcs.S
+>>      arch/m68k/lib/udivsi3.S
+>>      arch/microblaze/lib/udivsi3.S
+>>      arch/sh/lib/udivsi3.S
+>>      arch/xtensa/lib/udivsi3.S
+>> === __umodsi3 ===
+>> arch/arc/kernel/arcksyms.c
+>> arch/nios2/kernel/nios2_ksyms.c
+>> arch/openrisc/kernel/or32_ksyms.c
+>> -> arch/arm/lib/lib1funcs.S
+>>      arch/m68k/lib/umodsi3.S
+>>      arch/microblaze/lib/umodsi3.S
+>>      arch/xtensa/lib/umodsi3.S
+> ARCv2 has hardware divide so these are not needed, but ARC700 doesn't
+> and there's a ton of calls for those.
 >
-> The patch looks correct to me, but it would also be nice to not use
-> libgcc at all. What I see is that only arc, nios2, openrisc and
-> parisc still link against the toolchain-provided libgcc, everything
-> else uses the kernel's own runtime.
+> ┌───────────┬───────┬───────────┐
+> │  routine  │ calls │ functions │
+> ├───────────┼───────┼───────────┤
+> │ __udivsi3 │ 415   │ 238       │
+> ├───────────┼───────┼───────────┤
+> │ __umodsi3 │ 203   │ 131       │
+> ├───────────┼───────┼───────────┤
+> │ __divsi3  │ 77    │ 57        │
+> ├───────────┼───────┼───────────┤
+> │ __modsi3  │ 41    │ 33        │
+> └───────────┴───────┴───────────┘
 >
-> It's probably not even that hard to do right, here is what I found
-> is imported from libgcc.
+> I can take a stab at providing the generic libgcc implementation in
+> lib/* but I only expect the arches using libgcc version to switch.
 
-And seems like ARC is the biggest offender, what a shame.
-
-> * Generic library helper exists, can be enabled through Kconfig:
->
-> === __lshrdi3 ===
-> arch/arc/kernel/arcksyms.c
-> arch/nios2/kernel/nios2_ksyms.c
-> arch/openrisc/kernel/or32_ksyms.c
-> arch/parisc/kernel/parisc_ksyms.c
-> -> lib/lshrdi3.c
-> === __ashldi3 ===
-> arch/arc/kernel/arcksyms.c
-> arch/nios2/kernel/nios2_ksyms.c
-> arch/openrisc/kernel/or32_ksyms.c
-> arch/parisc/kernel/parisc_ksyms.c
-> -> lib/ashldi3.c
-> === __ashrdi3 ===
-> arch/arc/kernel/arcksyms.c
-> arch/nios2/kernel/nios2_ksyms.c
-> arch/openrisc/kernel/or32_ksyms.c
-> arch/parisc/kernel/parisc_ksyms.c
-> -> lib/ashrdi3.c
-> === __cmpdi2 ===
-> arch/arc/kernel/arcksyms.c
-> -> lib/cmpdi2.c
-> === __muldi3 ===
-> arch/arc/kernel/arcksyms.c
-> arch/nios2/kernel/nios2_ksyms.c
-> arch/openrisc/kernel/or32_ksyms.c
-> arch/parisc/kernel/parisc_ksyms.c
-> -> lib/muldi3.c
-> === __ucmpdi2 ===
-> arch/arc/kernel/arcksyms.c
-> arch/nios2/kernel/nios2_ksyms.c
-> arch/openrisc/kernel/or32_ksyms.c
-> arch/parisc/kernel/parisc_ksyms.c
-> -> lib/ucmpdi2.c
-
-It seems Palmer added those back in 2018 which ARC was still developed 
-actively, I totally missed them.
-I now have a patch to switch ARC to generic helpers for those.
-
-> * 64-bit division probably should not be provided on arc or
->    nios2 (and sparc32, which has a private copy).
->    parisc64 should get these from libgcc/libgcc2.c.
->
-> === __divdi3 ===
-> arch/parisc/kernel/parisc_ksyms.c
-> === __udivmoddi4 ===
-> arch/nios2/kernel/nios2_ksyms.c
-> === __udivdi3 ===
-> arch/arc/kernel/arcksyms.c
-
-It seems in some of the old binaries I have, dw mmc driver was at some 
-point calling 64/64 divide which eventually got fixed.
-But agree as of today there are no callers of 64-bit div/mod. I will get 
-rid of ?div*di* from ARC.
-
-
-> arch/parisc/kernel/parisc_ksyms.c
-> === __umoddi3 ===
-> arch/nios2/kernel/nios2_ksyms.c
-> arch/parisc/kernel/parisc_ksyms.c
-> === __moddi3 ===
-> arch/nios2/kernel/nios2_ksyms.c
-> arch/parisc/kernel/parisc_ksyms.c
->
-> * floating-point math should not be provided by kernel:
->
-> === __divdf3 ===
-> arch/arc/kernel/arcksyms.c
-> === __divsf3 ===
-> arch/arc/kernel/arcksyms.c
-> === __fixunsdfsi ===
-> arch/arc/kernel/arcksyms.c
-> === __floatunsidf ===
-> arch/arc/kernel/arcksyms.c
-> === __floatunsisf ===
-> arch/arc/kernel/arcksyms.c
-> === __muldf3 ===
-> arch/arc/kernel/arcksyms.c
-
-And a second patch gets rid of those. FWIW back in the day some ARCAngel 
-board's HDD driver needed those. Crazy times.
-
-> * no generic implementation in kernel, need to copy from
->    libgcc/lib1funcs.S code:
->
-> === __divsi3 ===
-> arch/arc/kernel/arcksyms.c
-> arch/nios2/kernel/nios2_ksyms.c
-> arch/openrisc/kernel/or32_ksyms.c
-> -> arch/arm/lib/lib1funcs.S
->     arch/m68k/lib/divsi3.S
->     arch/microblaze/lib/divsi3.S
->     arch/xtensa/lib/divsi3.S
-> === __modsi3 ===
-> arch/arc/kernel/arcksyms.c
-> arch/nios2/kernel/nios2_ksyms.c
-> arch/openrisc/kernel/or32_ksyms.c
-> -> arch/m68k/lib/modsi3.S
->     arch/microblaze/lib/modsi3.S
->     arch/xtensa/lib/modsi3.S
-> === __udivsi3 ===
-> arch/arc/kernel/arcksyms.c
-> arch/nios2/kernel/nios2_ksyms.c
-> arch/openrisc/kernel/or32_ksyms.c
-> -> arch/arm/lib/lib1funcs.S
->     arch/m68k/lib/udivsi3.S
->     arch/microblaze/lib/udivsi3.S
->     arch/sh/lib/udivsi3.S
->     arch/xtensa/lib/udivsi3.S
-> === __umodsi3 ===
-> arch/arc/kernel/arcksyms.c
-> arch/nios2/kernel/nios2_ksyms.c
-> arch/openrisc/kernel/or32_ksyms.c
-> -> arch/arm/lib/lib1funcs.S
->     arch/m68k/lib/umodsi3.S
->     arch/microblaze/lib/umodsi3.S
->     arch/xtensa/lib/umodsi3.S
-
-ARCv2 has hardware divide so these are not needed, but ARC700 doesn't 
-and there's a ton of calls for those.
-
-┌───────────┬───────┬───────────┐
-│  routine  │ calls │ functions │
-├───────────┼───────┼───────────┤
-│ __udivsi3 │ 415   │ 238       │
-├───────────┼───────┼───────────┤
-│ __umodsi3 │ 203   │ 131       │
-├───────────┼───────┼───────────┤
-│ __divsi3  │ 77    │ 57        │
-├───────────┼───────┼───────────┤
-│ __modsi3  │ 41    │ 33        │
-└───────────┴───────┴───────────┘
-
-I can take a stab at providing the generic libgcc implementation in 
-lib/* but I only expect the arches using libgcc version to switch.
+It seems there 4 are always needed together or not at all.
+Do we want 4 Kconfig gates or just one will suffice ?
 
 Thx,
 -Vineet
