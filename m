@@ -1,52 +1,52 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=217.140.110.172
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793618554;
-	b=P7WxvYJmTpz3J9LSFiGPFAlBzt/TkzrV32UZGVsotwrGkw4HxyNd3hikcmqowDUjCH6b
-	 t/tOpN7e5GLXW+ZcwiDFlEXc/Fy9RycQ1kj+vePbG8kiuqVe3TFJKCWB5d4roBq3er3ZN
-	 5Psh+w2JIZevNAq8d6xKSla0ohAoY45xhRAtg8a/oV6ASwsLhn4Ha0e87TtZ9Qnv0rt3K
-	 IN9mn3nhYwr1roFbBeghhDiSXvzsqRARMPfXUipxzXwHVd7gqB6hNzzpmBWyL85BWWRSm
-	 Yj32QRLl63GutAQPA8CyRWEPUprKdtadLzrc/Q1Badv9KmTS4JIsxFVPJATVULPEMng==
+	t=1793618560;
+	b=EYRBff/442rF+c4L6f9iT3ZwOpHw8xsHi2Snr7Pa1iPUJ+4Hr3+yNVM3s73Ii40SIZ64
+	 d0wYNjLG9X+KE9kbPCCwNeXfLcfzL2tRcR89/sgpHNDqAE0XoJS8v1osJmiTOPGGfQNb1
+	 DQVDtTCKo7E1lWwWSwpmx7bxgYa+EhC8kKmlfXW5ipbCXZt4sIjgTD+PB/LBu3sQCUSSj
+	 e2/5qDRKa6DUVhbjceesOx550MY6uokHavi+6FPRAFr1f8zmlkh6SV1L3/soDNZPyFXqM
+	 NSXFW4QK/2J0eohCe5KPuWEWQN1vZZkzqmR+EmYmXvurAHJYZLIYR7+FHlrFy+xo/GQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793618554;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793618560;
 	h=DMARC-Filter:Received:Received:DKIM-Signature:From:Date:Subject:
 	 MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:
 	 References:In-Reply-To:To:Cc:X-Mailer:X-Developer-Signature:
 	 X-Developer-Key;
-	bh=HLNvHrR0Fpj6ftr47GYXDwUrEMv6CUTbezLhLSAnnFs=;
-	b=DpMUO5Jb30pOU+VxmzySuwttmbrX8HVm6FUaxMfQPWNs3fb1uiS78dN9cX2yBOnQ6lZN
-	 M/egzlLNISkHapsJNoo0P0PK4B4d3eo5V+zinE/Iq6c3m3TysrBkSDMOdbcfnIlnn6KI9
-	 rmUPQ+rnvMSUSdM8epkzlQgSEibuzwjNYl4HvA7h/LayCnhUITFCMq5E4r1rs9/nv7UMW
-	 vQ5186pJ3VLnS5QvBvmNHL+pghl49U39GzMr1go283wNXv36WElzx6eB0lBuSrAkxYi/b
-	 TncvWVHjzx3SUVQ/oTrHyAd1rrIBPzja9SbKKYGieuAooxJV0a1p+fVtPHE+LtJAPzA==
+	bh=R0uSF5qpsIfEXe0LqMz/VFLuJzJd291vneuC3VxqkSI=;
+	b=L34Xf92v93XxRJvRiRTnnhqjWHpx4q1jqJEyLk65WT5IHf3WcPELOpFbb9TTOFGtHKgV
+	 9uRkRmj5plXOJRLc+LYngjXLVHsR83ok8Jmg/EzqfKboZQhg7kI6Qm/hlbb2amXrHHDcq
+	 6w0TbVqP+xBuFhMpUZbur/7zi6o/fBVm3cai7V8NACxs4PNBkpoyRr9llzdCw8BwB0kS/
+	 iGBMYd3gIyZLLKLPqva+bXJ2vv+aw/hw1wqMQ4BFqQIcsJg3emBLwAAFse9+bfWIORqeC
+	 u2O3Karc7pb4HYNoUNE7+u2iC0bbo3spPfJC1Sd3NqvNIUEiz13mpzOkv7rfXlT+A/w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=arm.com;
 	spf=pass smtp.mailfrom=arm.com;
-	dkim=pass header.d=arm.com header.i=@arm.com header.a=rsa-sha256 header.s=foss header.b=NGzAi2YU;
+	dkim=pass header.d=arm.com header.i=@arm.com header.a=rsa-sha256 header.s=foss header.b=Ctcgk8m6;
 	arc=none smtp.remote-ip=217.140.110.172
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8BDAA60A3811;
-	Mon,  2 Nov 2026 11:22:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8BDAA60A3811
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 2DB9760A6F4B;
+	Mon,  2 Nov 2026 11:22:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2DB9760A6F4B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=arm.com header.i=@arm.com header.a=rsa-sha256 header.s=foss header.b=NGzAi2YU
+	dkim=pass (1024-bit key, unprotected) header.d=arm.com header.i=@arm.com header.a=rsa-sha256 header.s=foss header.b=Ctcgk8m6
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 090B62A31;
-	Mon,  2 Nov 2026 03:22:30 -0800 (PST)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6F81F293B;
+	Mon,  2 Nov 2026 03:22:36 -0800 (PST)
 Received: from e129823.arm.com (e129823.arm.com [10.2.213.3])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 00DBA3F632;
-	Mon,  2 Nov 2026 03:22:26 -0800 (PST)
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6474F3F632;
+	Mon,  2 Nov 2026 03:22:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1793618553; bh=QYmfwdLe215hLGuFdCj5safJ8gxdq3zlW1ht1LiurFo=;
+	t=1793618559; bh=bDxr5gvFE+Bb+w20GZGn+s22BxRoQqetE+tU52d6PfY=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=NGzAi2YUuhqkVXhnAdJL2xqwg1sWWuNnmUOJc6WYMvcZsOaHYodWzzAQDylogAHGF
-	 sAlnvTGEoaWaY/k2K8WvP84MmxrLyH3UL6M62DxDMZKwAFnAf1wnmUlSt9sVt9I0mu
-	 Q2N9zAaDmNiAxl2O123nlIpmLVp78QCa6wl12pEo=
+	b=Ctcgk8m6cdw5AgQ2Im/7eFAWIBTpDgXbtAAO8GJUIWWh/YkZBAZaw9T1WzoMpEVS2
+	 9posqID6bDX94oqX9vEed1OT6H8QPauiWj5F4typRunUthD06NqbA4adWOmWErHOFp
+	 ZJmVrpwHNi9xgaTlU68f4MNjQeHKzt2spQZCrMtg=
 From: Yeoreum Yun <yeoreum.yun@arm.com>
-Date: Mon, 02 Nov 2026 11:21:22 +0000
-Subject: [PATCH RESEND v2 09/21] loongarch: kvm: remove stack copy address
- of pXd in pXd_offset()
+Date: Mon, 02 Nov 2026 11:21:23 +0000
+Subject: [PATCH RESEND v2 10/21] riscv: kvm: remove stack copy address of
+ pXd in pXd_offset()
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Post: <mailto:linux-openrisc@vger.kernel.org>
@@ -58,7 +58,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261102-dummy_ptxp3-v2-9-78840b2ec73c@arm.com>
+Message-Id: <20261102-dummy_ptxp3-v2-10-78840b2ec73c@arm.com>
 References: <20261102-dummy_ptxp3-v2-0-78840b2ec73c@arm.com>
 In-Reply-To: <20261102-dummy_ptxp3-v2-0-78840b2ec73c@arm.com>
 To: Russell King <linux@armlinux.org.uk>, 
@@ -91,41 +91,41 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
  kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
  linux-openrisc@vger.kernel.org, Yeoreum Yun <yeoreum.yun@arm.com>
 X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2052; i=yeoreum.yun@arm.com;
- h=from:subject:message-id; bh=QYmfwdLe215hLGuFdCj5safJ8gxdq3zlW1ht1LiurFo=;
- b=owEB7QES/pANAwAKAW3Vw9FaxTEzAcsmYgBq6HIzqxNaFzhvjoxpWT/tFvwVycvQLXxje++RP
- KuCMEyxm3SJAbMEAAEKAB0WIQQtg+CS3QUzuFh1pJ1t1cPRWsUxMwUCauhyMwAKCRBt1cPRWsUx
- MwUIDACW8rDfN4PXoaycRrecOSJ5P2sV/Skn8cOJ9F/ArQxVMCOkJHu/jozzrN/5ZWRoyfVV6qI
- hDxzX47bfW4GqsHO5E1uaj6xJ9OnTVdhFE4l/Z+UE2LIN2XI1Bin4FtP4AUH6tjSrIcQmyrNuOY
- XpIxrn+T3hDCqyoo51zdCIbgMvWpEbTre5IJV1a6Mqp1c9cAMKvBQOnCovyb5XsRcbIXCK8GBUL
- 2aP3pPNFUvXRH3QTlxhUPhWul1wCFo4bQXDbwm3jT1xU3N3aXNrX3vH+jBPPeM7le+WT+nLhcpw
- JPwBBCr35AoUF9s0nSKAF8CEAIqpWUI4RFhNipztYZBEkGzzdx93KCdMunXOhPaOscVKbSwRRW1
- mKOv00ylFBZKNhssbxn6+dLKmk1it/0MZ4POP9C9XuNAa2KUbJdt9fNpzJ29FeV5L8d5guM5A+f
- InDzrZ916vWbbdE91pO/GFYPPVhW3wBYZ+/6ONFGYaYRLD9E0AY3bJ6iH3q3dxINcdz1c=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2080; i=yeoreum.yun@arm.com;
+ h=from:subject:message-id; bh=bDxr5gvFE+Bb+w20GZGn+s22BxRoQqetE+tU52d6PfY=;
+ b=owEB7QES/pANAwAKAW3Vw9FaxTEzAcsmYgBq6HIznkcwZYOsTE4W01GcU4mYfE39Lhkjeb/kl
+ qYNmf69jTeJAbMEAAEKAB0WIQQtg+CS3QUzuFh1pJ1t1cPRWsUxMwUCauhyMwAKCRBt1cPRWsUx
+ M1nPDACyTxKW0QIf1aki2ILBtcSj+P8SuxY2HQa9GTNUVsd/UcGoLZY6uA/dg7A/Yvuw0TCGbPd
+ kcIgBiMNtSZrHn52D6+1EE8BRFSLynEcFOZhgBpTFFw/vtZ6INCLbtKOpOsjDg4DyfpI12y0ZfB
+ 6LW3z7kJtoWiIOxcg7yDeqiif4xh2+ukAxnSqDWrIA8XkmLrl0meoz8b/5o0DmW6BjtbNX138z1
+ KgMPTeBvji7YOP9l4nxY0uRo11y9BlRHu9pYQE8CO0ghDHcBDVdF9JDf7OaNAFcMMlfAco1VUec
+ 5xAY2JevPpbxhhIvzqN/7k9SEa7bJIpRNqP/uwAp4sA0o4LQYqs94OeBxp7lPb5y1agzCGGwynH
+ F3F0i1TidoUuvK9RtQr4nVouqnI2kCZ7OD+1YaNGfAelozaDSsnKalZS3jbFtWUTTPcpx6ZrZ74
+ yDINCJGTkAAOUpALpC2WLfbfFmJVgwf9O+hkJStfemMtmTCYRBWPE/h7YvjwkvOWcAHD8=
 X-Developer-Key: i=yeoreum.yun@arm.com; a=openpgp;
  fpr=2D83E092DD0533B85875A49D6DD5C3D15AC53133
 
 The behaviour of pXdp_get() will change with generic compile-time folded
-page tables. To prepare for that,  rework host_pfn_mapping_level() to avoid
+page tables. To prepare for that, rework get_hva_mapping_size() to avoid
 use of a stack copy of a pXd and pass it as argument to pXd_offset() so that
 the folded entries value is ignored.
 
-Replace direct uses of stack-based pXd values with pXd_offset_lockless().
-And there should be no functional change.
+Replace direct uses of stack-based pXd values with pXd_offset_lockless()
+and there should be no functional change.
 
 Reviewed-by: David Hildenbrand (Arm) <david@kernel.org>
 Signed-off-by: Yeoreum Yun <yeoreum.yun@arm.com>
 ---
- arch/loongarch/kvm/mmu.c | 20 ++++++++++++--------
+ arch/riscv/kvm/mmu.c | 20 ++++++++++++--------
  1 file changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/arch/loongarch/kvm/mmu.c b/arch/loongarch/kvm/mmu.c
-index 64fddd9f0ada1..ab0a06b73e8d3 100644
---- a/arch/loongarch/kvm/mmu.c
-+++ b/arch/loongarch/kvm/mmu.c
-@@ -679,10 +679,10 @@ static int host_pfn_mapping_level(struct kvm *kvm, gfn_t gfn,
- 	int level = 0;
- 	unsigned long hva;
+diff --git a/arch/riscv/kvm/mmu.c b/arch/riscv/kvm/mmu.c
+index 371fccaf9df08..a062e8508d3f9 100644
+--- a/arch/riscv/kvm/mmu.c
++++ b/arch/riscv/kvm/mmu.c
+@@ -450,10 +450,10 @@ static int get_hva_mapping_size(struct kvm *kvm,
+ {
+ 	int size = PAGE_SIZE;
  	unsigned long flags;
 -	pgd_t pgd;
 -	p4d_t p4d;
@@ -137,8 +137,8 @@ index 64fddd9f0ada1..ab0a06b73e8d3 100644
 +	pmd_t *pmdp, pmd;
  
  	/*
- 	 * Note, using the already-retrieved memslot and __gfn_to_hva_memslot()
-@@ -708,19 +708,23 @@ static int host_pfn_mapping_level(struct kvm *kvm, gfn_t gfn,
+ 	 * Disable IRQs to prevent concurrent tear down of host page tables,
+@@ -469,15 +469,18 @@ static int get_hva_mapping_size(struct kvm *kvm,
  	 * value) and then p*d_offset() walks into the target huge page instead
  	 * of the old page table (sees the new value).
  	 */
@@ -159,6 +159,10 @@ index 64fddd9f0ada1..ab0a06b73e8d3 100644
 +	pud = pudp_get(pudp);
  	if (pud_none(pud) || !pud_present(pud))
  		goto out;
+ 
+@@ -486,7 +489,8 @@ static int get_hva_mapping_size(struct kvm *kvm,
+ 		goto out;
+ 	}
  
 -	pmd = pmdp_get(pmd_offset(&pud, hva));
 +	pmdp = pmd_offset_lockless(pudp, pud, hva);
