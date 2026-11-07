@@ -1,47 +1,98 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.53
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793801258;
-	b=wr9WXccx/RGh4503N7GG9EuZfVJn43y1tD7NpZ6sn2MaolhKE2r9D5sK9vwXJ5YE6rkI
-	 s0DlXPtSVB63+M5hiJcYXk633wKenjG3YkVhdmaEMdpM9CAYNhkNA4H413NrWIAx9LkHq
-	 jU3p87CtgI/UiKhocWxa0Vom8mKJmW7e2KxmB2DObACxA29DBWPjtx+L0ovirODT3SKM/
-	 mP6oyHsIgouIsa8oqzlnWGzHSPCnegkEtrEs8j+fPgvH8pgq9Er9oH1ic6uzhX80ZDhbx
-	 LBlwoctA04OzwqBnoQWLCM1kT+6e8X6sXMFKRH7Pz0/arlF53S6rBDBK07++MdVCg5Q==
+	t=1794033909;
+	b=I5KS9fkYTo5Ge9hn6waes/MrwoffyShBbyTu09WOUojVX5qzoJwyd7VeHU9mf0Vmjlx9
+	 s8IRmcXUwSYGw89+SJeURhJmW8g10bdpyW8EiJDfjR8W0Umri0mkyB7aUlOt1KLc4FYSl
+	 qkplQzCebrWf77g23id3v8L2hJYhmXqGW9787Da2pUjAD7cgr9asN0QQgMz2uyCw8Vwpq
+	 ez8AgVsyjsjzugVKtvVEjF97CNc1tzhswlZUnMOBaVMZcIOxNTmtLQ/7Hjcu1i4x4Q1QL
+	 cCKx6JEO+VYvmzMMoyjsoE/hoNOiac8GbaRZ8AVbHi076UmmXH8jKATCFXhCFeIUfFg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793801258;
-	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=lu+By1tioveqgXijEvnKTH9hPcb3YW7+OPvZU2YHEqU=;
-	b=fNdBoxtcsO4cARk7xkpYCAu+BEhkSqAOrD0baBYUumhCfajq1bkfB7Xrk9/VoqvGA8ja
-	 9Naml6dBynrFAD5USGGMYkeYluEaIVcYdRFal9jErhew3w24oSE2ocDrHQ6LBgYH05YXP
-	 wBxRiyHx/Y1A25gCilF0oFS1TtB0JUP8hAW2LHooymz6qLHQ/Fr/YvZrMYSTM5wEU2wPl
-	 1OhkS3fOPZ6hg9RXTe4W5EglFPDFxNqx5daXTu2fDQaR+pimU5F7wZT6sfNj7n1akFlgt
-	 oM3Pw2DqAcpLXc+I7XHQCjB8BlRKcF3lmRHerIOl9x24gc4v+INybjwhK5YiMTl5pkg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794033909;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=cqqyCthw7hnNA2GM5wIPdFu2kROxCR9BdN9ixgyq1o4=;
+	b=Cce4RV+K7hO8t7ZwwjbsGbPUoG8/x5JG40jzKeglYnQd5ZA6VjinZLmFhX+1adHH/tDs
+	 iL2k/0G/PoK9FkxVzYfLY4DHnAWKs7JMUfuq2fz3lKSjxrogp+xo8UbPloHY2Qxi/izcp
+	 1QEK+MeuvPSfGbXSUlJe5B7w3o3MluLbtY74mDUsb7q2vPrlmwoMhAdaosgQRYQ623HDW
+	 Hi3SzsfUiE1dwEA0o833VEzKirID2ChE9VVif7DoSCl9PP6IXuffT0nrCsYRqkXlDkEup
+	 Mhszmuu/a63j/bqWANKkkx5LRuhSy3hCNgsJCvZElTxZjCX6E8AZCFbdpcrCTNxHvhQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Xtq1rXDH;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=stoXERb1;
+	arc=none smtp.remote-ip=209.85.128.53
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A4B6606A32C;
-	Wed,  4 Nov 2026 14:07:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8787E606A32E
+	for <linux-openrisc@vger.kernel.org>; Sat,  7 Nov 2026 06:45:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8787E606A32E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Xtq1rXDH
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7652A1F00919;
-	Wed,  4 Nov 2026 14:07:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793801257;
-	bh=lu+By1tioveqgXijEvnKTH9hPcb3YW7+OPvZU2YHEqU=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=Xtq1rXDHtjUtiz8ZQNhGl864CXHsKzFi7B8tvlmfWu7TR4c8iU1QQ7cE7+ej14qL7
-	 pS6JNOtv23O1/J8qhN2eLLxNFn2kbXGEqpCY8pZ1HAwQNIaSurSyvEUbjql/gPvPal
-	 T61iZnGV/vR2e3ac0Bw20MADsSnu4thaTB1LlycSD0uxm/ysKcL7IDveGbARhJDu2n
-	 UqqT1++qFKe5w5mHs/I5Tz0WsPNt65ShBsotTQGk4N2WWfr9HhScOOyEFInpetJXft
-	 htHQMU8YKPJgBdeZNHOobv7YqLUCZLSGPQa21XFzFhn26VdaOrT6x53EJ8UNTJmbov
-	 BccP2EIaWfYYA==
-Message-ID: <64b74093-541c-4f32-8ea4-c8007067eeea@kernel.org>
-Date: Wed, 4 Nov 2026 15:07:16 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=stoXERb1
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4a20bdaf39cso14579885e9.1
+        for <linux-openrisc@vger.kernel.org>; Fri, 06 Nov 2026 22:45:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794033907; x=1794638707; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=cqqyCthw7hnNA2GM5wIPdFu2kROxCR9BdN9ixgyq1o4=;
+        b=stoXERb1Ipzneh3Zt82lYuEC3zww6a80LG6sWCvedRJ5zkjeCFNo+Coq+eu+3lXuY7
+         RRHKnHT1b5zLx70sfvwbZV3Zh1D5uQA/EV2Bfc15nvbojQ9iGL8QQS4Ob9MF19tevS/o
+         DJEZa3RUXNjR/AiwhjiLe2CTtyWgCdtL0JyGdegfBJL45Kw3FW22Mwrs2X0u+Mfm8lvQ
+         +ik11qxsn0qxu+dUYZyeOVKaJslYQKSGfckmEhzqa2NXEHIx7rJYsC1Qe3XOPj2jRi/R
+         L/4wc6fmIo2WGbLyHj2vvW56TsLCwb6GfhGBhJ23uYpaYaDkCmygc/7shF9d43l0R307
+         HgJw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794033907; x=1794638707;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=cqqyCthw7hnNA2GM5wIPdFu2kROxCR9BdN9ixgyq1o4=;
+        b=pwpsk6qyFlF1f0CB6+CAcqDDvQopRIrlby8lS4lCyio1/+f6nXYwGKRPwuwbE3u49/
+         B51u+hK1U35s7ZC8ni6Rms3GS2LPdCoz/COx5tRg9xvj/ZQjUR4GM0uavKxWZFRC8h0i
+         6ci3f4Qa/09A3Jtwxjcu1ZFPP4dgnC/IhRoA9yPZ6VtuWyD52u3Rstg3QDzFCG/cPpuf
+         dvGEyy/1lzWD8hslBfLq4lDT2QmE31mC3NEX4CqlqKS40W8eKaBYFhuQjftN9UAZIUxj
+         JsgzoCya9O+ilRomy/8cOohyW9iyRKJ3aKmf5b52Oc2u2fzFRbV9LZmY3p6COg/Zkr6j
+         lQXQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzvtjZNjFYqPAV97flt3g9qhosm0dxPwMgIv0c9K+zjz0DLOGQzxPA9050661r4NrEmmCMW27Y51csKjEmFzw==@vger.kernel.org
+X-Gm-Message-State: APuU4Z/R7CMx+5oULNBatcFOe+Awik3pv/p3dp4jE1VmG591Vjxf2NS0
+	mkTb7fvTDuEI13Z0UI5r1a1DxhnOgcpgpOs1ai+y9KNQHy4XikIj/TNf
+X-Gm-Gg: AYBFou1JXQiLDsHLBFt3HD79/z7znh3drc5CyXzcN3+E/IK+0xVtPwLcWywLfUj+3TD
+	ANomsmT2EI2kNw+t+9jNuu6IFdDIfKNC1O2P7OGvsu9N5gRxrGLLPxghGjhMotrZGjnqjb5BkOX
+	+7goAT1+bWU7vv1OayMDM0En+ZSITDQONNAdwo6cwtiKXty65LqC2Su905AS9FEc4dEcx0dNGtt
+	LLw2YHHLNlQaB9jCWq6TT29os0YP9Tr/RvFkOhN66DxXAQ1vkzQ9J4/g3mgNM7A7aM7mX9jqeDH
+	O2iyWYCti0Iy6IRFvo24/p6hgTzsBvsDjpze9UfpcwJBrTunKoWca1Es4b2e4MsVsv/ZZlnoQ+4
+	636TT1VnNaPU7+/ZRvj4jF37c3m43NkKbcqhMTat4YFK5T0PjY73rFKqEH7Snt7nZ4pHCbY+1WP
+	lmYIA9aBwgK2ktYPt1OjIBW28RRqNeTfOpTeAPTZ6J/51wx6+s+k8bJ5Cl2gIgT8nZQ0jEejSmn
+	ZJY0tS2UgeZ3bOKAlRt5c6FJyNFmhroO7nxWxAJ3TO/322y+HysRvY2GAEbqCJoM5AOYY4oLPpV
+	dU9Dyy0TvuJ9SRQyDPVGOektQFKpGxJdgmag7FqNeIsXJri39C1BMZ+p3+p/a/81Z3nwdmSSH0f
+	edjlaUA==
+X-Received: by 2002:a05:600c:4f13:b0:4a1:d8fc:8165 with SMTP id 5b1f17b1804b1-4b6de1c645dmr86817705e9.20.1794033906551;
+        Fri, 06 Nov 2026 22:45:06 -0800 (PST)
+Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-492d3d6085asm11009570f8f.3.2026.11.06.22.45.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Nov 2026 22:45:05 -0800 (PST)
+Date: Sat, 7 Nov 2026 06:45:04 +0000
+From: Stafford Horne <shorne@gmail.com>
+To: Sahil Siddiq <sahilcdq0@gmail.com>
+Cc: jonas@southpole.se, stefan.kristiansson@saunalahti.fi,
+	naveen@kernel.org, davem@davemloft.net, mhiramat@kernel.org,
+	pjw@kernel.org, wangruikang@iscas.ac.cn, namcao@linutronix.de,
+	kees@kernel.org, linux-openrisc@vger.kernel.org,
+	linux-trace-kernel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 1/4] openrisc: Add utilities and clean up simulation
+ of instructions
+Message-ID: <au7I8FNoMcsoh54X@antec>
+References: <20260930202744.50489-1-sahilcdq0@gmail.com>
+ <20261026201240.107462-2-sahilcdq0@gmail.com>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Post: <mailto:linux-openrisc@vger.kernel.org>
@@ -51,289 +102,409 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-openrisc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RESEND v2 00/21] mm: change behavior of
- pXdp_get()/pXd_page() in compile-time folded pgtable
-To: Yeoreum Yun <yeoreum.yun@arm.com>, Russell King <linux@armlinux.org.uk>,
- Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Arnd Bergmann <arnd@arndb.de>, Andrew Morton <akpm@linux-foundation.org>,
- Kairui Song <kasong@tencent.com>, Qi Zheng <qi.zheng@linux.dev>,
- Shakeel Butt <shakeel.butt@linux.dev>, Barry Song <baohua@kernel.org>,
- Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
- Wei Xu <weixugc@google.com>, Johannes Weiner <hannes@cmpxchg.org>,
- Michal Hocko <mhocko@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>,
- Tianrui Zhao <zhaotianrui@loongson.cn>, Bibo Mao <maobibo@loongson.cn>,
- Anup Patel <anup@brainfault.org>, Atish Patra <atish.patra@linux.dev>,
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
- Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski
- <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, "Liam R. Howlett" <liam@infradead.org>,
- Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- Jonas Bonn <jonas@southpole.se>,
- Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
- Stafford Horne <shorne@gmail.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-mm@kvack.org, kvm@vger.kernel.org,
- kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org,
- linux-openrisc@vger.kernel.org, Muhammad Usama Anjum <usama.anjum@arm.com>,
- Sohil Mehta <sohil.mehta@intel.com>
-References: <20261102-dummy_ptxp3-v2-0-78840b2ec73c@arm.com>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <20261102-dummy_ptxp3-v2-0-78840b2ec73c@arm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261026201240.107462-2-sahilcdq0@gmail.com>
 
-On 11/2/26 12:21, Yeoreum Yun wrote:
-> Using ptep_get() and its counterparts in common code is suboptimal on
-> kernel configurations with generic compile-time folded page tables.
-> By default, ptep_get() and its friends expands to READ_ONCE(),
-> forcing the compiler to emit a load even when the value is not used afterwards.
+Hi Sahil,
+
+Thanks for your patches, sorry its taken me time to get around to them, my year
+since summer has been quite hectic.
+
+I will do the review in chunks so give me some time.
+
+On Tue, Oct 27, 2026 at 01:42:37AM +0530, Sahil Siddiq wrote:
+> Introduce new instruction-related utilities and macros for OpenRISC.
+> This is in preparation for patches that add tracing support such as
+> KProbes and Kretprobes.
 > 
-> This issue was recently reported by Christophe Leroy [1] for ppc32
-> preventing futher code conversion to ptep_get()/pmdp_get()/... helper
-> and the same behavior can also be observed on arm64 when built with
-> 2- or 3-level page tables
+> Currently, PC is first updated and then saved in the link register
+> (r9) when simulating l.jal and l.jalr. This can result in a corrupted
+> page table (bad page map in process). Fix this by saving PC in r9
+> before updating it.
 > 
-> e.g) perf_get_page_size() in arm64 with CONFIG_PGTABLE_LEVEL=3:
+> Move branch simulation to its own function, simulate_branch(), so it
+> can be reused. It's already being used by do_illegal_instruction().
+> It'll also be used by KProbes in the following commit.
 > 
-> 00000000000052a0 <perf_get_page_size>:
->     ...
->     52dc: d53b4234     	mrs	x20, DAIF
->     52e0: d50343df     	msr	DAIFSet, #0x3
->     ...
->     52fc: d35e9a69     	ubfx	x9, x19, #30, #9        /* pud_offset_lockless() */
->     5300: f9403508     	ldr	x8, [x8, #0x68]
->     5304: f869790a     	ldr	x10, [x8, x9, lsl #3]   /* pudp_get() */
->     5308: f90007ea     	str	x10, [sp, #0x8]
->     530c: f8697908     	ldr	x8, [x8, x9, lsl #3]    /* pudp_get() */
->     ...
->     5360: 90000009     	adrp	x9, 0x5000 <perf_prepare_sample+0x548>
->     5364: 92746908     	and	x8, x8, #0x7ffffff000
->     5368: d3557675     	ubfx	x21, x19, #21, #9       /* pmd_offset_lockless() */
->     ...
->     5394: f8757ac8     	ldr	x8, [x22, x21, lsl #3]  /* pmdp_get() */
+> Introduce simulate_pc() to simulate l.adrp. KProbes will require this
+> instruction to be simulated as well. simulate_branch() and simulate_pc()
+> need to be handled differently since branch instructions change the
+> value of PC while l.adrp depends on PC but doesn't change its value.
 > 
-> Though PGTABLE_LEVEL=3, since the pudp_get() still remain with
-> READ_ONCE(), there's redundant load for the pud which is folded.
+> Use a static key to check if delay slots are disabled. Delay slots are
+> a part of the CPU's configuration and won't change at runtime. Since
+> they are often enabled in an OpenRISC CPU, using a static key will
+> reduce the overhead of checking this flag in the default case while
+> processing KProbes inserted at branch instructions and simulating them.
 > 
-> To prevent generating suboptimal code, make pXdp_get() return a dummy
-> entry for compile-time folded page tables, make the helpers such as
-> pXd_offset()/pXd_offset_lockless(), set_pXd() validate dummy entries
-> at compile time to catch the wrong usage and prohibit calls to
-> pXd_page() in pgtable-nopXd.h.
-> 
-> This series does not change the behaviour of existing code that directly
-> manipulates folded page-table levels using set_pgd(), pgd_page_vaddr(), and
-> related helpers. Those helpers continue to behave as before.
-> 
-> The new restrictions only apply to code that adopts the pXdp_get()-based
-> access model for compile-time folded page tables.
-> 
-> As the pXdp_get() can return *dummy* entry, some of code using
-> the stack value where saves the pXdp_get() could be a problematic:
-> 
->   1. Passing address of stack value where saves the pXdp_get() result
->      to pXd_offset() for example:
-> 
->        pud_t *pudp, pud;
->        pmd_t *pmdp;
-> 
->        pud = pudp_get(pudp, address);
->        pmdp = pmd_offset(&pud, pud, address);
-> 
->      (e.g. host_pfn_mapping_level() in loongarch).
-> 
->   2. Using the pXdp_get() result to use as argument of pXd_val() and
->      to check prot without checking pgtable is folded.
->      for example, x86's effective_prot().
-> 
->   3. Using set_pXd() with pXdp_get() will set problematic dummy entry
->      in folded page table like:
-> 
->        set_pXd(pxdp, pXdp_get(pxdp_k));
-> 
->   4. Using pgd_page_vaddr() to get the first-level pgtable.
->      passing dummy pxdp_get() for pgd_page_vaddr() will return wrong
->      address. Therefore, make pgd_page_vaddr() and pXd_pgtable() to
->      trigger the error for improper usage with folded dummy entry in the
->      generic compile-time folded pgtable.
-> 
-> Thanksfully, above cases are rare since (1) most of usage using
-> pXd_offset() with result of upper pXd_offset(), (2) it's extreamely
-> rare to use pXd_val() for non-leaf entry in the kernel,
-> (3) is to handle the vmalloc_fault or set the first level of page table
-> and (4) to setup early page table and etc.
-> 
-> Therefore, properly handle this uncommon and problematic pattern, and
-> document the current design of compile-time folded page tables.
-> 
-> This patch is based on mm-unstable.
-> 
-> Future work
-> ===========
->  - print_bad_page_map() and show_pte() still prints dummy values
->    instead of printing the same content for all generic compile-time
->    folded page tables. We might want to skip printing dummy values later.
-> 
->  - We currently catch abuse of dummy values on the stack at compile-time by
->    relying on constant propagation by the compiler. Usama's work [3] on using
->    distinct types for sw vs. hw PTEs could help here as well."
-> 
->  - Clean up vmalloc fault handling by synchronizing the vmalloc entry on
->    32-bit architectures. This code is almost identical across architectures.
-> 
->  - Unfortunately, the current design of compile-time folded page tables appears
->    to be internally consistent but confusing. For example,
->    when CONFIG_PGTABLE_LEVELS is 2, p4d, pud, and pmd are expected to
->    be folded into pgd. However, the architecture code uses set_pmd()
->    to update the top-level page-table entry, even though it includes pgtable-nopmd.h.
-> 
->    In the future, it would be good to eliminate this source of confusion,
->    possibly by treating all folded upper levels consistently as dummy wrappers
->    around the highest real page-table level:
-> 
->          NOPGD
->    --> +------+           P4D
->        | ptr0 |-------> +------+           PUD
->        +------+         | ptr0 |-------> +-----+
->                         | ptr1 |-        | ptr | -------> ...
->                         | ptr2 | \       | ptr |
->                         | ptr3 |  \        ...
->                           ...      \
->                                     \        PUD
->                                      +----> +-----+
->                                             | ptr | -------> ...
->                                             | ptr |
->                                               ...
-> 
-> Link: [1] https://lore.kernel.org/all/0019d675-ce3d-4a5c-89ed-f126c45145c9@kernel.org/
-> Link: [2] https://lore.kernel.org/all/20251113014656.2605447-1-samuel.holland@sifive.com/
-> Link: [3] https://lore.kernel.org/r/74182e50-b54f-4d2d-a27f-3a59a538d6bc@arm.com
-> 
-> Patch History
-> =============
-> from v1 to v2:
->   - fix docutils warning.
->   - Link to v1: https://lore.kernel.org/r/20260921-dummy_ptxp3-v1-0-cd40cf68242e@arm.com
-> 
-> from RFC v3 to v1:
->   - Drop and rebase for CONFIG_X86_DIRECT_GBPAGES and use the Dave's
->     patch (https://lore.kernel.org/all/20260902194718.E1FF3041@davehans-spike.ostc.intel.com/)
->   - Link to RFC v3: https://lore.kernel.org/r/20260902-dummy_ptxp3-v3-0-5d8f5b17c25c@arm.com
-> 
-> from RFC v2 to RFC v3:
->   - repasre commit message
->   - move ptdump_pgtable_first_level() into pgalloc.h
->   - skip the huge pud operation when CONFIG_X86_DIRECT_GBPAGES is disabled
->   - docuemtns compile-time folded page table
->   - drop the applied patch.
->   - Link to RFC v2: https://lore.kernel.org/all/20260722-dummy_ptxp3-v2-0-d9e4bad31e0a@arm.com/
-> 
-> from RFC v1 to RFC v2:
->   - Restore slient fallback to next pXd in set_pXd() and pXd_pgtable()
->     and add check whether they're called with dummy entry.
->   - Add some comment for returning first entry of pgd in arm with
->     2 pgtable-level
->   - Link to RFC v1: https://lore.kernel.org/all/20260713135614.1618183-1-yeoreum.yun@arm.com/
-> 
+> Link: https://raw.githubusercontent.com/openrisc/doc/master/openrisc-arch-1.4-rev0.pdf
+> Signed-off-by: Sahil Siddiq <sahilcdq0@gmail.com>
 > ---
-> Dave Hansen (1):
->       x86/mm: Introduce helper for checking direct map 1G page support
+> Changes v2 -> v3:
+> - arch/openrisc/kernel/insn.c:
+>   - (simulate_pc):
+>     Handle case when rd=0
+>     Add function to KProbe blacklist
+>   - (simulate_branch): Likewise
+> - arch/openrisc/kernel/setup.c:
+>   - (setup_arch): Set static key before calling paging_init()
+> - arch/openrisc/kernel/traps.c:
+>   - (do_trap): Move handling of Kprobes in commit #2
 > 
-> David Hildenbrand (Arm) (13):
->       ARM: mm: make nommu pgd_t a scalar
->       ARM: mm: make 2-level pgd_t a scalar
->       ARM: mm: remove custom pgdp_get()
->       LoongArch: mm: define pud_leaf() only when PUD exists
->       MIPS: mm: define pud_leaf() only when PUD exists
->       mm/pgtable: define (pgd|p4d|pud)_leaf() for folded page tables
->       mm/pgtable: define (pgd|p4d|pud)_offset_lockless() for folded page tables
->       openrisc/pgtable: drop __pmd_offset()
->       mm/pgtable: optimize pmdp_get() and friends for folded pagetable levels
->       mm/pgtable: catch abuse of folded dummy pgd_t/p4d_t/pud_t
->       mm/pgtable: disallow calling (pgd|p4d|pud)_page, pgd_page_vaddr() and (p4d|pud)_pgtable with dummy
->       mm/pgtable: disallow calling folded set_pgd/set_p4d/set_pud with dummy
->       Documentation: mm: clarify behaviour of compile-time folded page tables
+> Changes v1 -> v2:
+> - arch/openrisc/include/asm/cpuinfo.h: Introduce "delay_slot" static key
+> - arch/openrisc/include/asm/insn-def.h:
+>    - Use macros instead of union
+>    - Use better names for macros
+>    - Use genmask() for masks
+> - arch/openrisc/kernel/insn.c:
+>    - Use macros instead of magic values
+>    - (simulate_pc): Update PC
+>    - (simulate_branch): Handle rb=r9 in l.jalr simulation
+> - arch/openrisc/kernel/setup.c: Use "delay slot" static key
+> - arch/openrisc/kernel/traps.c: Use macros instead of magic values
 > 
-> Yeoreum Yun (7):
->       mm: vmscan: remove stack copy address of pud/pmd pass in walk_pud/pmd_range()
->       loongarch: kvm: remove stack copy address of pXd in pXd_offset()
->       riscv: kvm: remove stack copy address of pXd in pXd_offset()
->       riscv: mm: use proper set_pXd() for generic compile-time folded patable in vmalloc_fault()
->       mm/pgtable: redefine PGTABLE_LEVEL enum with ascend order from PGD
->       x86: mm: use pgtable_level enum in effective_prot_pXd()
->       x86: mm: carve out the generic compile-time folded pgtable case in effective_prot()
+>  arch/openrisc/include/asm/cpuinfo.h  |  3 +
+>  arch/openrisc/include/asm/insn-def.h | 58 ++++++++++++++++--
+>  arch/openrisc/include/asm/spr_defs.h |  1 +
+>  arch/openrisc/kernel/Makefile        |  2 +-
+>  arch/openrisc/kernel/insn.c          | 88 ++++++++++++++++++++++++++++
+>  arch/openrisc/kernel/setup.c         |  4 ++
+>  arch/openrisc/kernel/traps.c         | 53 +++--------------
+>  7 files changed, 159 insertions(+), 50 deletions(-)
+>  create mode 100644 arch/openrisc/kernel/insn.c
 > 
->  Documentation/mm/page_tables.rst            | 84 +++++++++++++++++++++++++----
->  arch/arm/include/asm/page-nommu.h           |  4 +-
->  arch/arm/include/asm/pgtable-2level-types.h | 20 +++++--
->  arch/arm/include/asm/pgtable.h              |  2 -
->  arch/arm64/include/asm/pgtable.h            | 23 --------
->  arch/loongarch/include/asm/pgtable.h        |  2 +
->  arch/loongarch/kvm/mmu.c                    | 20 ++++---
->  arch/mips/include/asm/pgtable.h             |  2 +
->  arch/openrisc/include/asm/pgtable.h         |  3 --
->  arch/riscv/kvm/mmu.c                        | 20 ++++---
->  arch/riscv/mm/fault.c                       | 52 +++++++++++-------
+> diff --git a/arch/openrisc/include/asm/cpuinfo.h b/arch/openrisc/include/asm/cpuinfo.h
+> index 3cfc4cf0b019..d6bb8744eba0 100644
+> --- a/arch/openrisc/include/asm/cpuinfo.h
+> +++ b/arch/openrisc/include/asm/cpuinfo.h
+> @@ -15,6 +15,7 @@
+>  #ifndef __ASM_OPENRISC_CPUINFO_H
+>  #define __ASM_OPENRISC_CPUINFO_H
+>  
+> +#include <linux/jump_label.h>
+>  #include <asm/spr.h>
+>  #include <asm/spr_defs.h>
+>  
+> @@ -34,6 +35,8 @@ struct cpuinfo_or1k {
+>  	u16 coreid;
+>  };
+>  
+> +DECLARE_STATIC_KEY_TRUE(delay_slot);
+> +
+>  extern struct cpuinfo_or1k cpuinfo_or1k[NR_CPUS];
+>  extern void setup_cpuinfo(void);
+>  
+> diff --git a/arch/openrisc/include/asm/insn-def.h b/arch/openrisc/include/asm/insn-def.h
+> index 1e0c028a5b95..ccbda049171f 100644
+> --- a/arch/openrisc/include/asm/insn-def.h
+> +++ b/arch/openrisc/include/asm/insn-def.h
+> @@ -3,13 +3,63 @@
+>   * Copyright (C) 2025 Chen Miao
+>   */
+>  
+> +#include <asm/spr.h>
+> +#include <asm/spr_defs.h>
+> +#include <linux/bits.h>
+> +
+>  #ifndef __ASM_OPENRISC_INSN_DEF_H
+>  #define __ASM_OPENRISC_INSN_DEF_H
+>  
+> -/* or1k instructions are always 32 bits. */
+> -#define	OPENRISC_INSN_SIZE		4
+> -
+>  /* or1k nop instruction code */
+> -#define OPENRISC_INSN_NOP     0x15000000U
+> +#define OPENRISC_INSN_CSYNC	0x23000000U
+> +#define OPENRISC_INSN_MACRC	0x18010000U
+> +#define OPENRISC_MASK_MACRC	0xfc01ffffU
+> +#define OPENRISC_INSN_MSYNC	0x22000000U
+> +#define OPENRISC_INSN_NOP	0x15000000U
+> +#define OPENRISC_INSN_PSYNC	0x22800000U
+> +#define OPENRISC_INSN_SYS	0x20000000U
+> +#define OPENRISC_INSN_TRAP	0x21000000U
+> +
+> +#define OPENRISC_OPCODE_ADRP	0x02
+> +#define OPENRISC_OPCODE_BF		0x04
+> +#define OPENRISC_OPCODE_BNF		0x03
+> +#define OPENRISC_OPCODE_J		0x00
+> +#define OPENRISC_OPCODE_JAL		0x01
+> +#define OPENRISC_OPCODE_JALR	0x12
+> +#define OPENRISC_OPCODE_JR		0x11
+> +#define OPENRISC_OPCODE_LWA		0x1b
+> +#define OPENRISC_OPCODE_MFSPR	0x2d
+> +#define OPENRISC_OPCODE_MTSPR	0x30
+> +#define OPENRISC_OPCODE_RFE		0x09
+> +#define OPENRISC_OPCODE_SWA		0x33
+> +
+> +#define OPENRISC_ADRP_IMM_MASK		GENMASK(18, 0)
+> +#define OPENRISC_ADRP_OFFSET_MASK	GENMASK(31, 13)
+> +#define OPENRISC_ADRP_IMM_SHIFT		13
+> +#define OPENRISC_ADRP_REG_MASK		GENMASK(25, 0)
+> +#define OPENRISC_ADRP_REG_SHIFT		21
+> +#define OPENRISC_JUMP_IMM_MASK		GENMASK(25, 0)
+> +#define OPENRISC_JUMP_IMM_SHIFT		2
+> +#define OPENRISC_JUMP_REG_MASK		GENMASK(15, 11)
+> +#define OPENRISC_JUMP_REG_SHIFT		11
+> +
+> +#define OPENRISC_MASK_SYS	GENMASK(31, 16)
+> +#define OPENRISC_MASK_TRAP	GENMASK(31, 16)
+> +#define OPENRISC_MASK_BCODE	GENMASK(15, 0)
+> +
+> +#define OPENRISC_OPCODE_MASK	0x3f
+> +#define OPENRISC_OPCODE_SHIFT	0x1a
+> +
+> +struct pt_regs;
+> +
+> +#define OPENRISC_INSN_SIZE	4
+> +
+> +static __always_inline unsigned char get_6_bit_opcode(unsigned long insn)
+> +{
+> +	return (insn >> OPENRISC_OPCODE_SHIFT) & OPENRISC_OPCODE_MASK;
+> +}
+> +
+> +void simulate_pc(struct pt_regs *regs, unsigned long jmp);
+> +void simulate_branch(struct pt_regs *regs, unsigned long jmp);
+>  
+>  #endif /* __ASM_OPENRISC_INSN_DEF_H */
+> diff --git a/arch/openrisc/include/asm/spr_defs.h b/arch/openrisc/include/asm/spr_defs.h
+> index f0b6b492e9f4..5d13a9b96263 100644
+> --- a/arch/openrisc/include/asm/spr_defs.h
+> +++ b/arch/openrisc/include/asm/spr_defs.h
+> @@ -179,6 +179,7 @@
+>  #define SPR_CPUCFGR_OF32S  0x00000080  /* ORFPX32 supported */
+>  #define SPR_CPUCFGR_OF64S  0x00000100  /* ORFPX64 supported */
+>  #define SPR_CPUCFGR_OV64S  0x00000200  /* ORVDX64 supported */
+> +#define SPR_CPUCFGR_ND     0x00000400  /* No delay slot */
+>  #define SPR_CPUCFGR_RES	   0xfffffc00  /* Reserved */
+>  
+>  /*
+> diff --git a/arch/openrisc/kernel/Makefile b/arch/openrisc/kernel/Makefile
+> index 19e0eb94f2eb..150779fbf010 100644
+> --- a/arch/openrisc/kernel/Makefile
+> +++ b/arch/openrisc/kernel/Makefile
+> @@ -5,7 +5,7 @@
+>  
+>  always-$(KBUILD_BUILTIN)	:= vmlinux.lds
+>  
+> -obj-y	:= head.o setup.o or32_ksyms.o process.o dma.o \
+> +obj-y	:= head.o insn.o setup.o or32_ksyms.o process.o dma.o \
+>  	   traps.o time.o irq.o entry.o ptrace.o signal.o \
+>  	   sys_call_table.o unwinder.o cacheinfo.o
+>  
+> diff --git a/arch/openrisc/kernel/insn.c b/arch/openrisc/kernel/insn.c
+> new file mode 100644
+> index 000000000000..619d8080d822
+> --- /dev/null
+> +++ b/arch/openrisc/kernel/insn.c
+> @@ -0,0 +1,88 @@
+> +// SPDX-License-Identifier: GPL-2.0-or-later
+> +/*
+> + * OpenRISC instruction utils
+> + *
+> + * Linux architectural port borrowing liberally from similar works of
+> + * others.  All original copyrights apply as per the original source
+> + * declaration.
+> + *
+> + * OpenRISC implementation:
+> + * Copyright (C) 2026 Sahil Siddiq <sahilcdq0@gmail.com>
+> + */
+> +
+> +#include <linux/kprobes.h>
+> +#include <linux/ptrace.h>
+> +#include <asm/insn-def.h>
+> +#include <asm/cpuinfo.h>
+> +
+> +DEFINE_STATIC_KEY_TRUE(delay_slot);
+> +
+> +void simulate_pc(struct pt_regs *regs, unsigned long pc_insn)
 
-To move forward with this we need an ACK from riscv folks. All other arch
-changes are fairly trivial.
+Since this simulates l.adrp, maybe the name makes more sense to be called
+simulate_adrp?
 
-@Riscv people, any comments?
+> +{
+> +	int page_offset;
+> +	unsigned int rd, op;
+> +
+> +	page_offset = sign_extend32(
+> +		(pc_insn & OPENRISC_ADRP_IMM_MASK) << OPENRISC_ADRP_IMM_SHIFT, 31);
+> +	rd = (pc_insn & OPENRISC_ADRP_REG_MASK) >> OPENRISC_ADRP_REG_SHIFT;
+> +	op = get_6_bit_opcode(pc_insn);
+> +
+> +	switch (op) {
+> +	case OPENRISC_OPCODE_ADRP:
+> +		if (rd != 0)
+> +			regs->gpr[rd] = page_offset + (regs->pc & OPENRISC_ADRP_OFFSET_MASK);
+> +		regs->pc += OPENRISC_INSN_SIZE;
+> +		return;
+> +	default:
+> +		break;
+> +	}
+> +}
+> +NOKPROBE_SYMBOL(simulate_pc)
+> +
+> +void simulate_branch(struct pt_regs *regs, unsigned long jmp_insn)
+> +{
+> +	int displacement;
+> +	unsigned int rb, op, link_offset, temp;
+> +
+> +	displacement = sign_extend32(
+> +		((jmp_insn) & OPENRISC_JUMP_IMM_MASK) << OPENRISC_JUMP_IMM_SHIFT, 27);
+> +	rb = (jmp_insn & OPENRISC_JUMP_REG_MASK) >> OPENRISC_JUMP_REG_SHIFT;
+> +	op = get_6_bit_opcode(jmp_insn);
+> +	link_offset = OPENRISC_INSN_SIZE;
+> +
+> +	if (static_branch_likely(&delay_slot))
+> +		link_offset <<= 1;
 
--- 
-Cheers,
+Why do shift left here instead of += OPENRISC_INSN_SIZE? Since logically we are
+adding one more insn for the delay slot, not doubling.
 
-David
+However, It may be more efficient to avoid using the alu and write as:
+
+       if (static_branch_likely(&delay_slot))
+               link_offset = 2 * OPENRISC_INSN_SIZE;
+       else
+               link_offset = OPENRISC_INSN_SIZE;
+
+what do you think?
+
+> +	switch (op) {
+> +	case OPENRISC_OPCODE_J: /* l.j */
+
+I think these comments (/* l.j */) are no longer needed sinc you have
+the named macros.
+
+> +		regs->pc += displacement;
+> +		return;
+> +	case OPENRISC_OPCODE_JAL: /* l.jal */
+> +		regs->gpr[9] = regs->pc + link_offset;
+> +		regs->pc += displacement;
+> +		return;
+> +	case OPENRISC_OPCODE_BNF: /* l.bnf */
+> +		if (regs->sr & SPR_SR_F)
+> +			regs->pc += link_offset;
+> +		else
+> +			regs->pc += displacement;
+> +		return;
+> +	case OPENRISC_OPCODE_BF: /* l.bf */
+> +		if (regs->sr & SPR_SR_F)
+> +			regs->pc += displacement;
+> +		else
+> +			regs->pc += link_offset;
+> +		return;
+> +	case OPENRISC_OPCODE_JR: /* l.jr */
+> +		regs->pc = rb == 0 ? 0 : regs->gpr[rb];
+> +		return;
+> +	case OPENRISC_OPCODE_JALR: /* l.jalr */
+> +		temp = regs->pc + link_offset;
+> +		regs->pc = rb == 0 ? 0 : regs->gpr[rb];
+> +		regs->gpr[9] = temp;
+> +		return;
+> +	default:
+> +		break;
+> +	}
+> +}
+> +NOKPROBE_SYMBOL(simulate_branch)
+> diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
+> index 000a9cc10e6f..9c231b320d45 100644
+> --- a/arch/openrisc/kernel/setup.c
+> +++ b/arch/openrisc/kernel/setup.c
+> @@ -252,6 +252,10 @@ void __init setup_arch(char **cmdline_p)
+>  	/* perform jump_table sorting before paging_init locks down read only memory */
+>  	jump_label_init();
+>  
+> +	/* determine if the processor supports delay slots */
+> +	if (mfspr(SPR_CPUCFGR) & SPR_CPUCFGR_ND)
+> +		static_branch_disable(&delay_slot);
+> +
+>  	/* paging_init() sets up the MMU and marks all pages as reserved */
+>  	paging_init();
+>  
+> diff --git a/arch/openrisc/kernel/traps.c b/arch/openrisc/kernel/traps.c
+> index c195be9cc9fc..a59abbca3555 100644
+> --- a/arch/openrisc/kernel/traps.c
+> +++ b/arch/openrisc/kernel/traps.c
+> @@ -32,6 +32,7 @@
+>  
+>  #include <asm/bug.h>
+>  #include <asm/fpu.h>
+> +#include <asm/insn-def.h>
+>  #include <asm/io.h>
+>  #include <asm/processor.h>
+>  #include <asm/unwinder.h>
+> @@ -252,12 +253,12 @@ static inline int in_delay_slot(struct pt_regs *regs)
+>  	insn = *((unsigned int *)regs->pc);
+>  	op = insn >> 26;
+>  	switch (op) {
+> -	case 0x00: /* l.j */
+> -	case 0x01: /* l.jal */
+> -	case 0x03: /* l.bnf */
+> -	case 0x04: /* l.bf */
+> -	case 0x11: /* l.jr */
+> -	case 0x12: /* l.jalr */
+> +	case OPENRISC_OPCODE_J: /* l.j */
+> +	case OPENRISC_OPCODE_JAL: /* l.jal */
+> +	case OPENRISC_OPCODE_BNF: /* l.bnf */
+> +	case OPENRISC_OPCODE_BF: /* l.bf */
+> +	case OPENRISC_OPCODE_JR: /* l.jr */
+> +	case OPENRISC_OPCODE_JALR: /* l.jalr */
+
+Nice cleanup, again I think comments can be removed now.
+
+>  		return 1;
+>  	default:
+>  		return 0;
+> @@ -269,47 +270,9 @@ static inline int in_delay_slot(struct pt_regs *regs)
+>  
+>  static inline void adjust_pc(struct pt_regs *regs, unsigned long address)
+>  {
+> -	int displacement;
+> -	unsigned int rb, op, jmp;
+> -
+>  	if (unlikely(in_delay_slot(regs))) {
+>  		/* In delay slot, instruction at pc is a branch, simulate it */
+> -		jmp = *((unsigned int *)regs->pc);
+> -
+> -		displacement = sign_extend32(((jmp) & 0x3ffffff) << 2, 27);
+> -		rb = (jmp & 0x0000ffff) >> 11;
+> -		op = jmp >> 26;
+> -
+> -		switch (op) {
+> -		case 0x00: /* l.j */
+> -			regs->pc += displacement;
+> -			return;
+> -		case 0x01: /* l.jal */
+> -			regs->pc += displacement;
+> -			regs->gpr[9] = regs->pc + 8;
+> -			return;
+> -		case 0x03: /* l.bnf */
+> -			if (regs->sr & SPR_SR_F)
+> -				regs->pc += 8;
+> -			else
+> -				regs->pc += displacement;
+> -			return;
+> -		case 0x04: /* l.bf */
+> -			if (regs->sr & SPR_SR_F)
+> -				regs->pc += displacement;
+> -			else
+> -				regs->pc += 8;
+> -			return;
+> -		case 0x11: /* l.jr */
+> -			regs->pc = regs->gpr[rb];
+> -			return;
+> -		case 0x12: /* l.jalr */
+> -			regs->pc = regs->gpr[rb];
+> -			regs->gpr[9] = regs->pc + 8;
+> -			return;
+> -		default:
+> -			break;
+> -		}
+> +		simulate_branch(regs, *((unsigned int *)regs->pc));
+>  	} else {
+>  		regs->pc += 4;
+>  	}
+> -- 
+> 2.55.0
+> 
