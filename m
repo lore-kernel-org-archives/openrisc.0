@@ -1,86 +1,86 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.51
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.53
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794124694;
-	b=ybtD3Ra/fRY8OtSGIqchnprXmd35eHr/pJwnaRRqXNzuxtqTJ8zY4u/Ie0XZvGEm/eXo
-	 9LhaSnmxdm9p83dRoRI1N30jQdaStb3YSVycQpY9W6+U/tc3XTq3Hi+jEPBfcDXDpH1S8
-	 hLHQQNcvwindHnXmrW5GbelKAYAPBElu674spPQgFdzkfX7ESw0FYaRsklmBxu/8/JRgH
-	 EAxhl62eoqf1z1HPcQfxnAfNOWXA1NLfraea0Ycnl+JJ/A8LWXCl6JFhpeNMbqYMLYVgF
-	 3JU8QBeUpODT61ZyQCun1sTvtQLBdm4hWocEGdqIrQRH16uVqAR9d6Mm/6wbePiHlpw==
+	t=1794125006;
+	b=tLTwpsq6KRmZsIy8axVoW2RDOoTm8B+35/UQ0QasVmFqpUGrVyizwo5Bu5c2Q1zKNQhx
+	 Xn3uQDPJV78HngaSR6Js2oVC/jmiOV1YS7PBvY2UDsJdeszMpySpABQhmpLkJ1TH3t7mB
+	 oEkO+IPvmX0TQExPa8CZLUDLoN5MTnAnWKdg8Q2afuX+Yj086ohy0IkKqx/z5B2lxEvGl
+	 EaXrfCRc9h1/YYmwGi3NYWGmaeFe/w8FPlPVqLFa68TUjJCtxY+brIPrNuiZ/0gGMEw0p
+	 FucLZLCMviFn2q4wcmjYE6Rp08n65ZEsKyIym0TbBj0xDQS5bc16WlZadxfpewBnuTA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794124694;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794125006;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
 	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=MxlVXrp6rlOPl7F6z/PePk753r6QIMo4ZGdlX0mzQgY=;
-	b=Xejw5h8E6fT7Gd3pRwUsHWFffJzLO6OTiOjXumr8hddVxjJkCEXNX2+TzOEMNWaL8+1n
-	 DVH8OYTG1ZbFfwYGHsv51/rNbkq8AZVx6aJ9ES9FVNbSHYcPEpqayKtiUzeg1upSjRzUo
-	 hneLVQanLMdP5rxkqqPqLUThvkG0PVoiokq/zi3H/pxp4BkmvegMlm8z2DVu/lSBdfLRl
-	 bj7V9/AoQ9TtQu2WFrxuAZXjuVzilpRRXIfCBUKdDnNEmSzgNsK6mjHFfE0pDx0trSREF
-	 9wJ/Wq7wyNFts3m2p6zGnvVXzQVOvOCog6mpfcvPJ9qfn8bGnTtvHAyHdZRsrLZT5DQ==
+	bh=fAj+PQF4DhPbJju2nUJ6sKmnMGHnLxMygMvekucBWDU=;
+	b=ZDGvfhipg2b6eHWhq5RzU/bttehyoT4yeOA0zjDXYs5gRX0NVvwbz9szjo1OrRem5pvU
+	 7CKXSnKdGMJXOW0Tn3kyb5T2vWpeVNQSdoF6CVMRySodmdvibPIcE1UfKbr+2Co7CQbg9
+	 3uQ3hKuyJV6/97+gMiwHy7qCZ/vJW1pQ+c0C1i8hWTsoM+nkfMdLfRpGQ6551VBEHEBMM
+	 qLKHP5vg+Uykx27bxONI8vwT39qZn3thUztbXu30pDDRg/TqWtudQtuboipRW+oc2trEL
+	 9IUniGJOdRH4CyZZRML+eI0cchwEq7bco/3CcAhaelIhHngxO57ReDhxeoLWe2XBlMA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="d/D0VLJo";
-	arc=none smtp.remote-ip=209.85.221.51
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=QoJBR1qm;
+	arc=none smtp.remote-ip=209.85.221.53
+Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 795DA606A323
-	for <linux-openrisc@vger.kernel.org>; Sun,  8 Nov 2026 07:58:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 795DA606A323
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5474A606A31C
+	for <linux-openrisc@vger.kernel.org>; Sun,  8 Nov 2026 08:03:26 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5474A606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=d/D0VLJo
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-48dfc0421d9so195715f8f.1
-        for <linux-openrisc@vger.kernel.org>; Sat, 07 Nov 2026 23:58:13 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=QoJBR1qm
+Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-48e47347279so111469f8f.1
+        for <linux-openrisc@vger.kernel.org>; Sun, 08 Nov 2026 00:03:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794124692; x=1794729492; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794125005; x=1794729805; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=MxlVXrp6rlOPl7F6z/PePk753r6QIMo4ZGdlX0mzQgY=;
-        b=d/D0VLJotg4qrzbZoi23OlLMY9CkzcHSQ9zbQJaGcaeL6tBoozZi4l+KQtVcckRoc+
-         l6LNPyQum/KASsPE+flmFY755tb4OkB6dYSPRVVZMTYrDwfef6jPzrQsJ3I5conwO2Gk
-         C83KJ1pRBBrmYC5I5JxqT0/XBPFbYuYv+syfetAiWt5+ELBJcJ4oklBsokzhHV+Z/1vl
-         nR/iJxco0OX7X7NNAF4nbyfmgPFFpTgv+zhKfoD4ISPihr1BHA9uDBZoeU+iY+lSwXGA
-         DQi48yfwWe6CNhbUpDgTGhQYFG3olYNeyKAVg40MeMhR6aq+qQH8jQDNuMhsQd6SnPB3
-         Irbw==
+        bh=fAj+PQF4DhPbJju2nUJ6sKmnMGHnLxMygMvekucBWDU=;
+        b=QoJBR1qmsTIXxmUvFfSgDo/VGHz66Y7zMDG4SH/unkeBlqtj7QK2SpMo155KfrclQ1
+         O18rX8xaz61cwZKiscvVT5PqZJTfAZ4ENVmcEiMXq5SUC3SFmIbbGjha50mtveZUAZ25
+         YDc2uMmjNIzvhpnoULYHe0LlCHM75DEgQuu3zdgWuMcKVyqU6dwVNfOW7qzVxq6iys8D
+         gIWDhTlXdAfTFAavmrhSwDLgyajZ/hMuvzIHX63WCsFXmJrf9WHv3HaRWAaUYP2BAIE9
+         ukKFigrE1eusPO6+o/m+i2Dradr3AZzOesu8Yq1WHG8ylKfrdD1nrTrmC8GBS6O9TXuM
+         8qkw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794124692; x=1794729492;
+        d=1e100.net; s=20260707; t=1794125005; x=1794729805;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=MxlVXrp6rlOPl7F6z/PePk753r6QIMo4ZGdlX0mzQgY=;
-        b=QZ5X89LXqCC4LzxUxhXu0hexDdIGmKbd/ACZkbcc3uq2Fdqb+4lCfRUXKHOoFMen7n
-         R4lANNkBFthjicfXkw40BOL4VbBEVJmWda2pyDJtuKzMJUv74yRMx/p/p2nsEMTbRYoX
-         7LR/HSjfnvYoLL5x5LDzOAZC4Y+Dyjghk5nGP1iyvj2yyHtkxkw4VkL1qSJTFuSLPgmk
-         y8fR9i5E5J49UEi56DES01dqrbEF//DuGuoAH61pM3s9He1Djd8j3c9a+HRGOuyj+5ZR
-         WA81bGSe2t2PhuBZ1eDpZ7Nd7l1FfUqj0pkQ4DfDkDgD8V5du9w/iZnwhKm0PL0805xY
-         NL3A==
-X-Forwarded-Encrypted: i=1; AL+hErEa5YUWCAkBL7YuUcLTWPn3rNrOqGiVj8x58bWw2VqOp/yiU8QMcKF10jKu0nWvkA9UQ8Uj1V5Iq0gZWIf/5A==@vger.kernel.org
-X-Gm-Message-State: APuU4Z9tqI50n/tIlav7QbMUaexypNLQYRq4NkTc8UGkF3eUBA14XZkN
-	UpuR1b+HgBn+kfSChPe5e+iep+q+guEq9lBSiRyerYOjer4kRF3NLb12
-X-Gm-Gg: AYBFou0VWCrEstwYpd0NwYsdDmeUMcpKIydr4PTqLQy7Vz0anRjOROxU3bo8Vfdjbf7
-	AD/szbGDCoZBMqV1xX4sBdyPiIB5CmBIc+Oywi/c/nBWAKEmkfCbYOgXirdssHHSyRETozMBW/9
-	Y3sYHH3tXMvqt/WK70z5iQU9eOg0WMRF1rIydst8dv17qioNGcvYEizrBdePZ8f1RWQ2DzlZd6Y
-	P5j+QhwPgaaaorhnLRH3psQWFhJjgBi/1TmDl4fGdtxc735xnZw8TmM0SLlhdlkjtKXywf7zUtT
-	1Q8wd1geLviYX0khVdQqkiwJAnWFf7SBC+k25trG6TB4lsXsTXnZktLB7WA5TJGJmCeYLiaP6lC
-	XKRl970oTR/wqXoIQ5nDzo2CVmT6GXG0zapXmpks4AoD75aMe7y6yhC4OFg6Utf/IBJvmfs8rja
-	tmMSqUOs7pMVhant4BudI3yB/SHvEWSGH+Qg84+Hw9HZIx/dRZA/luUNURfBHM1N69Jz0CblIch
-	cEcp6sK4gbDJ6gwXvV7aA4jAD390sRRtj5FEop/Harz+H7yo5aCcCuHFX9+09c6bdFencdQtcJs
-	oJF2PjlNzEDbThVXTAmG/tqFf/qTpqjsH+AuG0xY/L8i7RkX33ERCgNolJh5sqcTPeyVUMCTgWK
-	LXCWNhA==
-X-Received: by 2002:a05:6000:2388:b0:491:68e2:bf2f with SMTP id ffacd0b85a97d-4958d021480mr1459790f8f.52.1794124691575;
-        Sat, 07 Nov 2026 23:58:11 -0800 (PST)
+        bh=fAj+PQF4DhPbJju2nUJ6sKmnMGHnLxMygMvekucBWDU=;
+        b=kYMRq8iZc5SpCOCCi4vC7LlhcAnWdCLTcmFB0ww58TG6bHHvhBFEHki9BqqFoPRasY
+         Rf7mPT+V2JcIL4cNQrv6keKKV9+Cja39/+4pblHiJnCBFI9PhqRKDZhjcHOKYP1QrDmo
+         J/Ip06OQSajtjR1B0Wibi5KdQH1nw8wPSgsx3mfTppDaXLlKjCPGxsiAS6Qb/eBVeEEO
+         KpWSolVeIr2QgWiKmPpiWPTm7A810fs2fUghtmCugNQims//VajmI/ZKVgjUpYfntkkU
+         CJju3WCAUplUcWlUegXXk23I3EbmkfL1ZrsWnm5nRkS0fg5KQ3AWlXTrmSDTOZMMcGXb
+         zezg==
+X-Forwarded-Encrypted: i=1; AL+hErErWF4vP0CZlHRV9tMdSicc7vqlXWZ+sqCllv5OLl0d/A67Ck1ya+Z/fz0MiHqjbTd57I+tnf9QIOTtW8mVsQ==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+NbiqHKnNQSawLU4UIAty5GmvaTUFftNPqes0m2VZo9CygH1hE
+	GOi2YLKLf5UNR0rZ0gN6AnwHNP2EQjcYy1BAJGHNkgGjwxYA/kis+Edg
+X-Gm-Gg: AYBFou3HqZuhukE9V4zqCIPtdYonLh6MNh9DkaOcjW/cfgSPcer3Bz7KNrxk0VZCfe+
+	dKjk932Skb+Fz7SaW9xpqoeVIpKMzmo/8F0Q2iAMQR3rtL2QRUzx2FkPmrGV7Ve8fCdsBjC7fa0
+	na50MT5HkeEun+ichsLNv4YrR/IRxapzh0LM6n0LGpZKGHlZj3Wz6lZD52/UJld9POM6n3lYxCO
+	qfbIwPBnBMx3nfqEunffyXZ8KtIXxpBWbEJpSoSwa/1YHFCt3HsJy0iLzLTpvkq4FUBlQ9GimcZ
+	eVUSixHNgJ0M++fwr7IsboYWpyvIZWZhwdPZ8jdE8Pt5ELNKB/AGP/MuFXyXdzM6jO5sy258qb9
+	jjCjjpi6f3BMnpCAz1pbexbFBT8CaNFSdINiAmPE9sjk51Ap3+ST+1+k3dZgUVVegxaGJ/Sbo5T
+	b6suq7lvxSVTyEFOLZrCFJf7UA3lD9fseZLuiDJuAqQmK7Ec++aEG3EEcyAKdDTFU+jwbWPEc1J
+	QgCIrpiT4g2Zfbji3XoUJ3poG7MFc8PAPF0OrDB7fynKmUwzynPYEw4WOdeMep+Na28QG2Eot4V
+	aY/R9/QKfBdMhlUp23s+iEhdD3HSZBTNWOJZAH1w902Yn0QBQILb/1rPD0maS+7JOCMMMmKxG1n
+	Yk00YcQ==
+X-Received: by 2002:adf:e199:0:b0:48e:84e8:88c3 with SMTP id ffacd0b85a97d-49580830930mr1444729f8f.5.1794125004381;
+        Sun, 08 Nov 2026 00:03:24 -0800 (PST)
 Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-49597186eb9sm2616918f8f.35.2026.11.07.23.58.10
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-49597e00d75sm2560903f8f.58.2026.11.08.00.03.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 07 Nov 2026 23:58:11 -0800 (PST)
-Date: Sun, 8 Nov 2026 07:58:10 +0000
+        Sun, 08 Nov 2026 00:03:23 -0800 (PST)
+Date: Sun, 8 Nov 2026 08:03:23 +0000
 From: Stafford Horne <shorne@gmail.com>
 To: Sahil Siddiq <sahilcdq0@gmail.com>
 Cc: jonas@southpole.se, stefan.kristiansson@saunalahti.fi,
@@ -88,10 +88,11 @@ Cc: jonas@southpole.se, stefan.kristiansson@saunalahti.fi,
 	pjw@kernel.org, wangruikang@iscas.ac.cn, namcao@linutronix.de,
 	kees@kernel.org, linux-openrisc@vger.kernel.org,
 	linux-trace-kernel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 4/4] openrisc: Add Kretprobes
-Message-ID: <avArkiSOmUfSrmYF@antec>
+Subject: Re: [PATCH v3 3/4] openrisc: Add unit tests for KProbes on branch
+ instructions
+Message-ID: <avAsy43KVO-7Nm9z@antec>
 References: <20260930202744.50489-1-sahilcdq0@gmail.com>
- <20261026201240.107462-5-sahilcdq0@gmail.com>
+ <20261026201240.107462-4-sahilcdq0@gmail.com>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Post: <mailto:linux-openrisc@vger.kernel.org>
@@ -103,248 +104,361 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261026201240.107462-5-sahilcdq0@gmail.com>
+In-Reply-To: <20261026201240.107462-4-sahilcdq0@gmail.com>
 
-On Tue, Oct 27, 2026 at 01:42:40AM +0530, Sahil Siddiq wrote:
-> Add Kretprobes support for OpenRISC. Kretprobes allow a probe to be
-> fired when a function returns. They are built on top of the generic
-> rethook framework and also require the KProbe mechanism introduced
-> in the previous commit. This work is primarily based on similar work
-> done for RISC-V.
-> 
-> Kretprobes work by inserting a KProbe at a function's entry point.
-> When the function begins to execute, the KProbe is fired and its
-> pre-handler replaces the function's return address with that of the
-> rethook trampoline. The trampoline in turn calls the kretprobe handler.
-> Control is returned to the original caller following this.
+On Tue, Oct 27, 2026 at 01:42:39AM +0530, Sahil Siddiq wrote:
+> Tests already exist lib/tests to verify the generic functionality of
+> KProbes. Add unit tests to verify that KProbes work on instructions
+> that require simulation in the OpenRISC ISA, and that the corresponding
+> delay slots are handled correctly.
 > 
 > Signed-off-by: Sahil Siddiq <sahilcdq0@gmail.com>
 > ---
 > Changes v2 -> v3:
-> - arch/openrisc/kernel/rethook_trampoline.S:
->   (save_all_base_regs): Save SR and SP registers
->   (restore_all_base_regs): Restore SR register
+> - arch/openrisc/kernel/tests/test_kprobes_asm.S:
+>   - (test_kprobes_*): Set value in r11 register to 0 prior to running tests
+>   - (test_kprobes_adrp):
+>     Place function at page-aligned address
+>     Use PAGE_SIZE macro instead of magic number
+>     Move value in r13 to r11 before exiting
 > 
 > Changes v1 -> v2: New commit
 > 
->  arch/openrisc/Kconfig                     |   2 +
->  arch/openrisc/kernel/Makefile             |   1 +
->  arch/openrisc/kernel/rethook.c            |  32 +++++++
->  arch/openrisc/kernel/rethook.h            |   8 ++
->  arch/openrisc/kernel/rethook_trampoline.S | 111 ++++++++++++++++++++++
->  5 files changed, 154 insertions(+)
->  create mode 100644 arch/openrisc/kernel/rethook.c
->  create mode 100644 arch/openrisc/kernel/rethook.h
->  create mode 100644 arch/openrisc/kernel/rethook_trampoline.S
+>  arch/openrisc/Kconfig.debug                   |  30 +++-
+>  arch/openrisc/kernel/Makefile                 |   1 +
+>  arch/openrisc/kernel/tests/Makefile           |   3 +
+>  arch/openrisc/kernel/tests/test_kprobes.c     |  59 +++++++
+>  arch/openrisc/kernel/tests/test_kprobes.h     |  24 +++
+>  arch/openrisc/kernel/tests/test_kprobes_asm.S | 157 ++++++++++++++++++
+>  6 files changed, 273 insertions(+), 1 deletion(-)
+>  create mode 100644 arch/openrisc/kernel/tests/Makefile
+>  create mode 100644 arch/openrisc/kernel/tests/test_kprobes.c
+>  create mode 100644 arch/openrisc/kernel/tests/test_kprobes.h
+>  create mode 100644 arch/openrisc/kernel/tests/test_kprobes_asm.S
 > 
-> diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-> index d240533b424b..82365eb8f574 100644
-> --- a/arch/openrisc/Kconfig
-> +++ b/arch/openrisc/Kconfig
-> @@ -28,6 +28,8 @@ config OPENRISC
->  	select HAVE_ARCH_JUMP_LABEL_RELATIVE
->  	select HAVE_PCI
->  	select HAVE_KPROBES
-> +	select HAVE_KRETPROBES
-> +	select HAVE_RETHOOK
->  	select HAVE_UID16
->  	select HAVE_PAGE_SIZE_8KB
->  	select HAVE_REGS_AND_STACK_ACCESS_API
+> diff --git a/arch/openrisc/Kconfig.debug b/arch/openrisc/Kconfig.debug
+> index 295942fe3fd5..54110f3a111f 100644
+> --- a/arch/openrisc/Kconfig.debug
+> +++ b/arch/openrisc/Kconfig.debug
+> @@ -1,2 +1,30 @@
+>  # SPDX-License-Identifier: GPL-2.0-only
+> -# dummy file, do not delete
+> +menu "openrisc Testing"
+> +
+> +menuconfig RUNTIME_KERNEL_TESTING_MENU
+> +    bool "openrisc kernel runtime testing"
+> +    default y
+> +    help
+> +      Enable openrisc kernel runtime testing. With this option, one can
+> +      build and run tests to verify the correctness of relevant components
+> +      in the kernel at runtime.
+> +
+> +if RUNTIME_KERNEL_TESTING_MENU
+> +
+> +config OR_KPROBES_KUNIT
+> +    tristate "KUnit test for kprobes on openrisc"
+> +    depends on KUNIT
+> +    depends on KPROBES
+> +    default KUNIT_ALL_TESTS
+> +    help
+> +      Enable testing of KProbes in OpenRISC for instructions that
+> +      require simulation. When further changes related to probes or
+> +      tracing are added to OpenRISC's port, these tests can help
+> +      verify that instruction simulation and processing of delay slots
+> +      continue to work as expected.
+> +
+> +      If unsure, say N
+> +
+> +endif # RUNTIME_KERNEL_TESTING_MENU
+> +
+> +endmenu # "openrisc Testing"
 > diff --git a/arch/openrisc/kernel/Makefile b/arch/openrisc/kernel/Makefile
-> index 0c1cade09e0c..e36537cea319 100644
+> index 2ac824867963..0c1cade09e0c 100644
 > --- a/arch/openrisc/kernel/Makefile
 > +++ b/arch/openrisc/kernel/Makefile
 > @@ -15,6 +15,7 @@ obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
 >  obj-$(CONFIG_MODULES)		+= module.o
 >  obj-$(CONFIG_OF)		+= prom.o
 >  obj-$(CONFIG_KPROBES)		+= kprobes.o
-> +obj-$(CONFIG_RETHOOK)		+= rethook.o rethook_trampoline.o
->  obj-$(CONFIG_OR_KPROBES_KUNIT)	+= tests/
+> +obj-$(CONFIG_OR_KPROBES_KUNIT)	+= tests/
 >  obj-y	+= patching.o
 >  
-> diff --git a/arch/openrisc/kernel/rethook.c b/arch/openrisc/kernel/rethook.c
+>  clean:
+> diff --git a/arch/openrisc/kernel/tests/Makefile b/arch/openrisc/kernel/tests/Makefile
 > new file mode 100644
-> index 000000000000..50ef6715d044
+> index 000000000000..9e9693fd3550
 > --- /dev/null
-> +++ b/arch/openrisc/kernel/rethook.c
-> @@ -0,0 +1,32 @@
+> +++ b/arch/openrisc/kernel/tests/Makefile
+> @@ -0,0 +1,3 @@
+> +obj-$(CONFIG_OR_KPROBES_KUNIT)	+= openrisc_test_kprobes.o
+> +
+> +openrisc_test_kprobes-objs := test_kprobes.o test_kprobes_asm.o
+> diff --git a/arch/openrisc/kernel/tests/test_kprobes.c b/arch/openrisc/kernel/tests/test_kprobes.c
+> new file mode 100644
+> index 000000000000..a41bdec662e1
+> --- /dev/null
+> +++ b/arch/openrisc/kernel/tests/test_kprobes.c
+> @@ -0,0 +1,59 @@
 > +// SPDX-License-Identifier: GPL-2.0-or-later
 > +/*
-> + * Generic return hook for OpenRISC. Depends on KProbes.
+> + * KProbe unit tests for OpenRISC
 > + *
-> + * Linux architectural port borrowing liberally from similar works of
-> + * others.  All original copyrights apply as per the original source
-> + * declaration.
-> + *
-> + * OpenRISC implementation:
-> + * Copyright (C) 2026 Sahil Siddiq <sahilcdq0@gmail.com>
+> + * Unit tests borrowed liberally from similar work of RISC-V. All
+> + * original copyrights apply as per the original source declaration.
 > + */
 > +
+> +// #include <linux/kernel.h>
 > +#include <linux/kprobes.h>
-> +#include <linux/rethook.h>
-> +#include "rethook.h"
+> +#include <kunit/test.h>
+> +#include "test_kprobes.h"
 > +
-> +unsigned long arch_rethook_trampoline_callback(struct pt_regs *regs)
+> +static void test_kprobe_openrisc(struct kunit *test)
 > +{
-> +	return rethook_trampoline_handler(regs, regs->gpr2);
+> +	unsigned int num_kprobe = 0;
+> +	unsigned long (*func)(void);
+> +	struct kprobe *kp;
+> +	int i;
+> +
+> +	while (test_kprobes_addresses[num_kprobe])
+> +		num_kprobe++;
+> +
+> +	kp = kcalloc(num_kprobe, sizeof(struct kprobe), GFP_KERNEL);
+> +	KUNIT_EXPECT_TRUE(test, kp);
+> +	if (!kp)
+> +		return;
+> +
+> +	for (i = 0; i < num_kprobe; ++i) {
+> +		kp[i].addr = test_kprobes_addresses[i];
+> +		KUNIT_EXPECT_EQ(test, 0, register_kprobe(&kp[i]));
+> +	}
+> +
+> +	for (i = 0;; ++i) {
+> +		func = test_kprobes_functions[i];
+> +		if (!func)
+> +			break;
+> +		KUNIT_EXPECT_EQ_MSG(test, KPROBE_TEST_MAGIC, func(), "function %d broken", i);
+> +	}
+> +
+> +	for (i = 0; i < num_kprobe; ++i)
+> +		unregister_kprobe(&kp[i]);
+> +	kfree(kp);
 > +}
-> +NOKPROBE_SYMBOL(arch_rethook_trampoline_callback)
 > +
-> +void arch_rethook_prepare(struct rethook_node *rhn, struct pt_regs *regs, bool mcount)
-> +{
-> +	/* Store original return address and frame pointer */
-> +	rhn->ret_addr = regs->gpr9;
-> +	rhn->frame = regs->gpr2;
+> +static struct kunit_case kprobes_testcases[] = {
+> +	KUNIT_CASE(test_kprobe_openrisc),
+> +	{}
+> +};
 > +
-> +	/* Set return address to trampoline */
-> +	regs->gpr9 = (unsigned long)arch_rethook_trampoline;
-
-Though this will work, in the kernel code we prefer to regs->gpr[n] syntax
-for accessing gprs.  So to be consistent could you use that?  i.e. regs->gpr[9];
-
-> +}
-> +NOKPROBE_SYMBOL(arch_rethook_prepare)
-> diff --git a/arch/openrisc/kernel/rethook.h b/arch/openrisc/kernel/rethook.h
+> +static struct kunit_suite kprobes_test_suite = {
+> +	.name = "kprobes_openrisc",
+> +	.test_cases = kprobes_testcases,
+> +};
+> +
+> +kunit_test_suites(&kprobes_test_suite);
+> +
+> +MODULE_LICENSE("GPL");
+> +MODULE_DESCRIPTION("KUnit test for OpenRISC KProbes");
+> diff --git a/arch/openrisc/kernel/tests/test_kprobes.h b/arch/openrisc/kernel/tests/test_kprobes.h
 > new file mode 100644
-> index 000000000000..332306a5c380
+> index 000000000000..26c26920d430
 > --- /dev/null
-> +++ b/arch/openrisc/kernel/rethook.h
-> @@ -0,0 +1,8 @@
-> +/* SPDX-License-Identifier: GPL-2.0-or-later */
-> +#ifndef __OPENRISC_RETHOOK_H
-> +#define __OPENRISC_RETHOOK_H
-> +
-> +unsigned long arch_rethook_trampoline_callback(struct pt_regs *regs);
-> +void arch_rethook_prepare(struct rethook_node *rhn, struct pt_regs *regs, bool mcount);
-> +
-> +#endif
-> diff --git a/arch/openrisc/kernel/rethook_trampoline.S b/arch/openrisc/kernel/rethook_trampoline.S
-> new file mode 100644
-> index 000000000000..5e8fd5a65222
-> --- /dev/null
-> +++ b/arch/openrisc/kernel/rethook_trampoline.S
-> @@ -0,0 +1,111 @@
+> +++ b/arch/openrisc/kernel/tests/test_kprobes.h
+> @@ -0,0 +1,24 @@
 > +/* SPDX-License-Identifier: GPL-2.0-or-later */
 > +/*
-> + * Author: Sahil Siddiq <sahilcdq0@gmail.com>
+> + * Unit tests borrowed liberally from similar work of RISC-V. All
+> + * original copyrights apply as per the original source declaration.
+> + */
+> +
+> +#ifndef TEST_KPROBES_H
+> +#define TEST_KPROBES_H
+> +
+> +#define KPROBE_TEST_MAGIC          0xDEADC0DE
+> +#define KPROBE_TEST_MAGIC_LOWER    0x0000C0DE
+> +#define KPROBE_TEST_MAGIC_UPPER    0x0000DEAD
+> +
+> +#ifndef __ASSEMBLER__
+> +
+> +/* array of addresses to install kprobes */
+> +extern void *test_kprobes_addresses[];
+> +
+> +/* array of functions that return KPROBE_TEST_MAGIC */
+> +extern unsigned long (*test_kprobes_functions[])(void);
+> +
+> +#endif /* __ASSEMBLER__ */
+> +
+> +#endif /* TEST_KPROBES_H */
+> diff --git a/arch/openrisc/kernel/tests/test_kprobes_asm.S b/arch/openrisc/kernel/tests/test_kprobes_asm.S
+> new file mode 100644
+> index 000000000000..bc87a5fb00d5
+> --- /dev/null
+> +++ b/arch/openrisc/kernel/tests/test_kprobes_asm.S
+> @@ -0,0 +1,157 @@
+> +/* SPDX-License-Identifier: GPL-2.0-or-later */
+> +/*
+> + * KProbes unit tests for OpenRISC
+> + *
+> + * Unit tests borrowed liberally from similar work of RISC-V. All
+> + * original copyrights apply as per the original source declaration.
 > + */
 > +
 > +#include <linux/linkage.h>
-> +
 > +#include <asm/asm.h>
-> +#include <asm/asm-offsets.h>
-> +#include <asm/ptrace.h>
+> +#include <asm/page.h>
 > +
-> +	.text
+> +#include "test_kprobes.h"
 > +
-> +	.macro save_all_base_regs
-> +	l.sw	PT_GPR2(r1),r2
-> +	l.sw	PT_GPR3(r1),r3
-> +	l.sw	PT_GPR4(r1),r4
-> +	l.sw	PT_GPR5(r1),r5
-> +	l.sw	PT_GPR6(r1),r6
-> +	l.sw	PT_GPR7(r1),r7
-> +	l.sw	PT_GPR8(r1),r8
-> +	l.sw	PT_GPR9(r1),r9
-> +	l.sw	PT_GPR10(r1),r10
-> +	l.sw	PT_GPR11(r1),r11
-> +	l.sw	PT_GPR12(r1),r12
-> +	l.sw	PT_GPR13(r1),r13
-> +	l.sw	PT_GPR14(r1),r14
-> +	l.sw	PT_GPR15(r1),r15
-> +	l.sw	PT_GPR16(r1),r16
-> +	l.sw	PT_GPR17(r1),r17
-> +	l.sw	PT_GPR18(r1),r18
-> +	l.sw	PT_GPR19(r1),r19
-> +	l.sw	PT_GPR20(r1),r20
-> +	l.sw	PT_GPR21(r1),r21
-> +	l.sw	PT_GPR22(r1),r22
-> +	l.sw	PT_GPR23(r1),r23
-> +	l.sw	PT_GPR24(r1),r24
-> +	l.sw	PT_GPR25(r1),r25
-> +	l.sw	PT_GPR26(r1),r26
-> +	l.sw	PT_GPR27(r1),r27
-> +	l.sw	PT_GPR28(r1),r28
-> +	l.sw	PT_GPR29(r1),r29
-> +	l.sw	PT_GPR30(r1),r30
-> +	l.sw	PT_GPR31(r1),r31
-> +	/* Save SR in pt_regs */
-> +	l.mfspr	r13,r0,SPR_SR
-> +	l.sw	PT_SR(r1),r13
-> +	/* Save SP in pt_regs as it was prior to setting up this frame */
-> +	l.addi	r13,r1,PT_SIZE
-> +	l.sw	PT_SP(r1),r13
-> +	.endm
-> +
-> +	.macro restore_all_base_regs
-> +	/* Restore SR from pt_regs */
-> +	l.lwz	r13,PT_SR(r1)
-> +	l.mtspr	r0,r13,SPR_SR
-> +	/*
-> +	 * r1 doesn't need to be explicitly restored from pt_regs. When
-> +	 * arch_rethook_trampoline_callback finishes, it restores SP to
-> +	 * what it was before its frame was set up.
-> +	 */
-> +	l.lwz	r2,PT_GPR2(r1)
-> +	l.lwz	r3,PT_GPR3(r1)
-> +	l.lwz	r4,PT_GPR4(r1)
-> +	l.lwz	r5,PT_GPR5(r1)
-> +	l.lwz	r6,PT_GPR6(r1)
-> +	l.lwz	r7,PT_GPR7(r1)
-> +	l.lwz	r8,PT_GPR8(r1)
-> +	/* Return address in r9 is stale, so don't restore it */
-> +	l.lwz	r10,PT_GPR10(r1)
-> +	l.lwz	r11,PT_GPR11(r1)
-> +	l.lwz	r12,PT_GPR12(r1)
-> +	l.lwz	r13,PT_GPR13(r1)
-> +	l.lwz	r14,PT_GPR14(r1)
-> +	l.lwz	r15,PT_GPR15(r1)
-> +	l.lwz	r16,PT_GPR16(r1)
-> +	l.lwz	r17,PT_GPR17(r1)
-> +	l.lwz	r18,PT_GPR18(r1)
-> +	l.lwz	r19,PT_GPR19(r1)
-> +	l.lwz	r20,PT_GPR20(r1)
-> +	l.lwz	r21,PT_GPR21(r1)
-> +	l.lwz	r22,PT_GPR22(r1)
-> +	l.lwz	r23,PT_GPR23(r1)
-> +	l.lwz	r24,PT_GPR24(r1)
-> +	l.lwz	r25,PT_GPR25(r1)
-> +	l.lwz	r26,PT_GPR26(r1)
-> +	l.lwz	r27,PT_GPR27(r1)
-> +	l.lwz	r28,PT_GPR28(r1)
-> +	l.lwz	r29,PT_GPR29(r1)
-> +	l.lwz	r30,PT_GPR30(r1)
-> +	l.lwz	r31,PT_GPR31(r1)
-> +	.endm
-> +
-> +SYM_CODE_START(arch_rethook_trampoline)
-> +	/* Allocate enough space on stack for pt_regs */
-> +	l.addi	r1,r1,-PT_SIZE
-> +	save_all_base_regs
-> +
-> +	l.addi	r3,r1,0	/* pt_regs */
-> +	l.jal	arch_rethook_trampoline_callback
+> +SYM_FUNC_START(test_kprobes_j)
+> +test_kprobes_j_addr1:
+> +	l.addi	r11,r0,0
+> +	l.j	2f
 > +	l.nop
 
-Could you indent the delay slot? For example:
+Just a tiny comment here about indenting the delay slots.
 
-	l.jal	...
-	 l.nop
+You could also use the delayslots here, for example:
 
-> +
-> +	/* use the result as the return-address */
-> +	l.addi	r9,r11,0
-> +
-> +	restore_all_base_regs
-> +	l.addi	r1,r1,PT_SIZE
-> +
+	l.j	2f
+	 l.addi	r11,r0,0
+
+> +1:	l.ori	r13,r13,KPROBE_TEST_MAGIC_LOWER
+> +	l.addi	r11,r13,0
 > +	l.jr	r9
 > +	l.nop
-
-Indent here too.
-
-> +SYM_CODE_END(arch_rethook_trampoline)
-
-Thanks,
-
--Stafford
+> +2:	l.movhi	r13,KPROBE_TEST_MAGIC_UPPER
+> +test_kprobes_j_addr2:
+> +	l.j	1b
+> +	l.nop
+> +SYM_FUNC_END(test_kprobes_j)
+> +
+> +SYM_FUNC_START(test_kprobes_jal)
+> +	l.addi	r11,r0,0
+> +	l.addi	r15,r9,0
+> +test_kprobes_jal_addr1:
+> +	l.jal	2f
+> +	l.nop
+> +1:	l.movhi	r13,KPROBE_TEST_MAGIC_UPPER
+> +	l.jr	r9
+> +	l.nop
+> +test_kprobes_jal_addr2:
+> +2:	l.jal	1b
+> +	l.nop
+> +	l.ori	r13,r13,KPROBE_TEST_MAGIC_LOWER
+> +	l.addi	r11,r13,0
+> +	l.addi	r9,r15,0
+> +	l.jr	r9
+> +	l.nop
+> +SYM_FUNC_END(test_kprobes_jal)
+> +
+> +SYM_FUNC_START(test_kprobes_jr)
+> +	l.addi	r11,r0,0
+> +	l.movhi	r15,hi(2f)
+> +	l.ori	r15,r15,lo(2f)
+> +test_kprobes_jr_addr1:
+> +	l.jr	r15
+> +	l.nop
+> +1:	l.ori	r13,r13,KPROBE_TEST_MAGIC_LOWER
+> +	l.addi	r11,r13,0
+> +	l.jr	r9
+> +	l.nop
+> +2:	l.movhi	r13,KPROBE_TEST_MAGIC_UPPER
+> +	l.movhi	r15,hi(1b)
+> +	l.ori	r15,r15,lo(1b)
+> +test_kprobes_jr_addr2:
+> +	l.jr	r15
+> +	l.nop
+> +SYM_FUNC_END(test_kprobes_jr)
+> +
+> +SYM_FUNC_START(test_kprobes_jalr)
+> +	l.addi	r11,r0,0
+> +	l.addi	r15,r9,0
+> +	l.movhi	r17,hi(2f)
+> +	l.ori	r17,r17,lo(2f)
+> +test_kprobes_jalr_addr1:
+> +	l.jalr	r17
+> +	l.nop
+> +1:	l.movhi	r13,KPROBE_TEST_MAGIC_UPPER
+> +	l.jr	r9
+> +	l.nop
+> +2:	l.movhi	r17,hi(1b)
+> +	l.ori	r17,r17,lo(1b)
+> +test_kprobes_jalr_addr2:
+> +	l.jalr	r17
+> +	l.nop
+> +	l.ori	r13,r13,KPROBE_TEST_MAGIC_LOWER
+> +	l.addi	r11,r13,0
+> +	l.addi	r9,r15,0
+> +	l.jr	r9
+> +	l.nop
+> +SYM_FUNC_END(test_kprobes_jalr)
+> +
+> +SYM_FUNC_START(test_kprobes_branch)
+> +	l.addi	r11,r0,0
+> +	l.addi	r15,r0,1
+> +	l.addi	r17,r0,0
+> +	l.sfgts	r15,r17
+> +test_kprobes_branch_addr1:
+> +	l.bf	2f
+> +	l.nop
+> +1:	l.ori	r13,r13,KPROBE_TEST_MAGIC_LOWER
+> +	l.addi	r11,r13,0
+> +	l.jr	r9
+> +	l.nop
+> +2:	l.movhi	r13,KPROBE_TEST_MAGIC_UPPER
+> +	l.sfeq	r15,r17
+> +test_kprobes_branch_addr2:
+> +	l.bnf	1b
+> +	l.nop
+> +SYM_FUNC_END(test_kprobes_branch)
+> +
+> +	.align	PAGE_SIZE
+> +SYM_FUNC_START(test_kprobes_adrp)
+> +	l.addi	r11,r0,0
+> +	l.addi	r13,r0,0
+> +	l.addi	r15,r9,0
+> +	l.addi	r17,r0,-PAGE_SIZE
+> +	l.jal	1f
+> +	l.nop
+> +1:	l.and	r19,r9,r17
+> +test_kprobes_adrp_addr:
+> +	l.adrp	r21,0
+> +	l.sfeq	r21,r19
+> +	l.bnf	2f
+> +	l.nop
+> +	l.movhi	r13,KPROBE_TEST_MAGIC_UPPER
+> +	l.ori	r13,r13,KPROBE_TEST_MAGIC_LOWER
+> +	l.addi	r11,r13,0
+> +2:	l.addi	r9,r15,0
+> +	l.jr	r9
+> +	l.nop
+> +SYM_FUNC_END(test_kprobes_adrp)
+> +
+> +    .section .rodata
+> +SYM_DATA_START(test_kprobes_addresses)
+> +	.word test_kprobes_j_addr1
+> +	.word test_kprobes_j_addr2
+> +	.word test_kprobes_jal_addr1
+> +	.word test_kprobes_jal_addr2
+> +	.word test_kprobes_jr_addr1
+> +	.word test_kprobes_jr_addr2
+> +	.word test_kprobes_jalr_addr1
+> +	.word test_kprobes_jalr_addr2
+> +	.word test_kprobes_branch_addr1
+> +	.word test_kprobes_branch_addr2
+> +	.word test_kprobes_adrp_addr
+> +	.word 0
+> +SYM_DATA_END(test_kprobes_addresses)
+> +
+> +    .section .rodata
+> +SYM_DATA_START(test_kprobes_functions)
+> +	.word test_kprobes_j
+> +	.word test_kprobes_jal
+> +	.word test_kprobes_jr
+> +	.word test_kprobes_jalr
+> +	.word test_kprobes_branch
+> +	.word test_kprobes_adrp
+> +	.word 0
+> +SYM_DATA_END(test_kprobes_functions)
+> -- 
+> 2.55.0
+> 
