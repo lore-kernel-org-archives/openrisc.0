@@ -1,51 +1,51 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=158.69.130.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794575961;
-	b=4Fa0Yh4QNuiP8XZSzGc60T6TAd6gtw/mkDydBSk5eZ+fWjftVrvp4GZi0unHDEfmw4d4
-	 mwtP2+skzSa0MarTxnxnc6WWnfa0opa3IneBWNfEXEQ6+q/erBV/nAj7Bmr06RZvhLsTZ
-	 7ConH0FJgmqWQA2OXs9P+tVWWYuqKIP0osbH1vIupgZC1T/C4Ubxr10UJ/iWWYIm14oTa
-	 VkQ6Cq3ZzbOVpVFYpz/rJzZak/zAtCitcDmZIQTFmDTfEzyx+pxkw0Qn+NpZQhn16wNHQ
-	 kbng2QmdJmyRPFUDcXrNfgtKTMZlF2VSaTG8dZDdPl2fID5T4VcFmT1UOVIs7zOh6nQ==
+	t=1794575957;
+	b=BTYGZ8ylT7wh6V5N8RtVO7LnUl1TvI0gne1E4JOWDGKcE/iLH+MLA2+FDu54me1fpnvA
+	 G/smcVtNS0vc4p8qhW7+3SDvDYC0gA3DF1l5jG/IwfFgoC30CTHqVusjGagkZOBQubDQ2
+	 pNXBB12qgehRzvhdd16dtNwsrcT4KV/z/dBqIyctZ1WR/jTCzKiBuRoHYzqbU2nfHOebc
+	 8/7UD9ZyBAo63wbXac/YHPJRSdvj3TKbPKDDzicOZwI9rlyCoKkQb47X9TC76vDGLOmG+
+	 IRLh2wPej9i7X7UCCLXyZLf6i350lSOVH2KrWZ3ywEKKaaS7elFPBh+fwPHpNjQ8IYg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794575961;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794575957;
 	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
 	 Message-Id:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=3orQFE08kjrTAUJE8mLYeXKLSOzKBUY432bsO80CLow=;
-	b=wyyIbzlrTeOkJKiOuii5EiEiQOcYx8M8EPPUh1lysxjThbyWM1GmGK/rmptd+JrSijwB
-	 wH2O2owlxk0qYhvXiQcESADcUZ9FPbA2V6lSMmMTxbgBqiHMq6x6UvBL+zlTddQ57TljW
-	 IOqhsmZMyXZ6mg3fTOylEmVffD0QA/LJibnbkM+3Sg5RMrq8J+lEugVlOJqTYzNbQmGQQ
-	 TrDpQQ6EzGF+k6+bVniE5WgYEDJgT+886Z0fD0qGR983r+2Zvps/h02APhqe+1cmy0+JE
-	 rW7/VEgLUyyyYZPCBhHmnetBaaiGGh6ajCvnK29T4RRnqmj8R333IovLLIMbWinyUfg==
+	bh=8OhAk9cmyRbLG0MiVOEFk9DU+w4LVEx3Semv5sjBMcE=;
+	b=c52z4rwpcb8bgYTFSzDCswTftW6nq46SRnP6naB/EbUBkimVpHOSoTQ/fiww3ujmk/5v
+	 KqxSEfq+PclfHZ2XaOF3NVtXx5dF2En9IM105NGoSY1GC7J76v/iRjeTBABLxfrV6oyMa
+	 ncb+s0jweyp46m8KazLq7JhPuw0A+Kj3rBkSBk1etX3SfzTAsoy6hwe6GF7afmYcEMqlT
+	 XRqccZ6mw/3qDTUwGEPqcsnfm+myxj1KCggWWCh3dvG6Cn7ETQ7IMOtCObioQ/YFD8DXU
+	 lfDSUbIxZnN03PaRknSNBsW8M4IvJC0WYN9KXjM5StebEyDRE2hygXiDpAgRovegvHg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=efficios.com;
 	spf=pass smtp.mailfrom=efficios.com;
-	dkim=pass header.d=efficios.com header.i=@efficios.com header.a=rsa-sha256 header.s=smtpout1 header.b=uWHc25xk;
+	dkim=pass header.d=efficios.com header.i=@efficios.com header.a=rsa-sha256 header.s=smtpout1 header.b="gB8/n3oE";
 	arc=none smtp.remote-ip=158.69.130.18
 Received: from smtpout.efficios.com (smtpout.efficios.com [158.69.130.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1438C606B54B;
-	Fri, 13 Nov 2026 13:19:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1438C606B54B
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79FA9606A89C;
+	Fri, 13 Nov 2026 13:19:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 79FA9606A89C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=efficios.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=efficios.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=efficios.com header.i=@efficios.com header.a=rsa-sha256 header.s=smtpout1 header.b=uWHc25xk
+	dkim=pass (2048-bit key) header.d=efficios.com header.i=@efficios.com header.a=rsa-sha256 header.s=smtpout1 header.b=gB8/n3oE
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
-	s=smtpout1; t=1794575951;
-	bh=3orQFE08kjrTAUJE8mLYeXKLSOzKBUY432bsO80CLow=;
+	s=smtpout1; t=1794575950;
+	bh=8OhAk9cmyRbLG0MiVOEFk9DU+w4LVEx3Semv5sjBMcE=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=uWHc25xkEzUhxWbyBYK+mBLyFTPwhGDwng3vVihPa2/Qd4UVRuC0+vpkveKgCrTkQ
-	 qGgPlNv4CBc9/lMbprYKZsd/xNIk0B1rlO9DI6n3l2RYdhGosC2/yJi9IucisbfiW3
-	 rVgksakI3AVD5Uio2smeAOaCPDD3B0zGI2TGa4CpSawa90yucRZeo++uXRfhQe5D54
-	 3oPh58+5D2dm2BhffY45Ytk+/CHaSiPQXwdkWqvi3rY5XEFUVmGvRUlpH3SMXFvpTa
-	 s0EEqAS1tr0FZYbuRdRRfYtI+zMXrOtyUv+LloHzkWQofhhsnqtKlGWIcY0GXfTj91
-	 5qt6TsNhiakbw==
+	b=gB8/n3oEPTSMcNN9PdI9lIveWGuLnluQZil7NIeWFqwYI4Gw9gjeUngDIWVZTwpwC
+	 ev3GqxrZUFItO0Z0bdp4UkWTvgelfNPzCaxqyE6pAewOLcEliu8TAyGFUC3EgF/AXr
+	 KX/PzKmMk/F7ajfdA+aWSN93ZjFNgVMTnGepMcGhHONnwzz0cyGm9TrUfV7H5P9FAr
+	 G+vZJSJdtYc0QCH46I7hpJmr/ePCojt3tr2uWshOjLr3BbHKsiHgy+q0XIbxxasEvd
+	 gtmY52BTLXh/fTROKqSk6K/fEKOGyrr0+jhhUbQe4+OqBHorjefk8dtWhhwGOMsYiw
+	 Rs8opj+Gsilsg==
 Received: from thinkos.internal.efficios.com (mtl.efficios.com [216.120.195.104])
-	by smtpout.efficios.com (Postfix) with ESMTPSA id 4jQyWz5l1pzQ55;
-	Fri, 13 Nov 2026 08:19:11 -0500 (EST)
+	by smtpout.efficios.com (Postfix) with ESMTPSA id 4jQyWy1b9lzPX1;
+	Fri, 13 Nov 2026 08:19:10 -0500 (EST)
 From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 To: Peter Zijlstra <peterz@infradead.org>,
 	Ingo Molnar <mingo@redhat.com>
@@ -124,9 +124,9 @@ Cc: linux-kernel@vger.kernel.org,
 	"David S. Miller" <davem@davemloft.net>,
 	Masami Hiramatsu <mhiramat@kernel.org>,
 	linux-trace-kernel@vger.kernel.org
-Subject: [RFC PATCH 13/16] selftests/membarrier: Add litmus tests of the memory ordering
-Date: Fri, 13 Nov 2026 08:19:00 -0500
-Message-Id: <20261113131903.157186-14-mathieu.desnoyers@efficios.com>
+Subject: [RFC PATCH 07/16] selftests/membarrier: Test command arguments and registration lifetime
+Date: Fri, 13 Nov 2026 08:18:54 -0500
+Message-Id: <20261113131903.157186-8-mathieu.desnoyers@efficios.com>
 X-Mailer: git-send-email 2.39.5
 In-Reply-To: <20261113131903.157186-1-mathieu.desnoyers@efficios.com>
 References: <20261113131903.157186-1-mathieu.desnoyers@efficios.com>
@@ -141,725 +141,415 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-membarrier relies on memory barriers in the system call, in its IPI
-handler and in the scheduler. The comment at the top of
-kernel/sched/membarrier.c describes the scenarios. A test on real
-hardware can check that the kernel executes a barrier. It cannot show
-that the barrier is needed: a missing barrier may never fail in
-practice.
+The existing tests issue each command once with valid arguments, in
+one fixed order of registrations. They miss the following:
 
-Check these scenarios with the Linux kernel memory model instead.
-The litmus tests cover:
+ - the query mask is not compared with the commands which the kernel
+   accepts. Commit 809232619f5b ("sched/membarrier: Fix
+   membarrier-rseq fence command missing from query bitmask") fixed
+   such a mismatch,
+ - only MEMBARRIER_CMD_QUERY is tested with an invalid flag,
+ - only the stress test issues the rseq command. Its registration,
+   its -EPERM result and its CPU argument are not checked,
+ - each registration is not tested alone. Commit fc0d77387cb5
+   ("sched/membarrier: Fix private expedited registration check")
+   fixed an interaction between two registrations,
+ - the registrations are not tested across fork, exec and CLONE_VM.
 
- - a thread which runs after the IPI, scenario (A),
- - a thread which ran before the IPI, scenario (B),
- - a thread which is scheduled in while membarrier() sees another
-   task in rq->curr, scenarios (A) and (C),
- - a thread which is scheduled out before membarrier() loads
-   rq->curr, scenarios (B) and (C).
+Add membarrier_test_cmd for those. It uses the kselftest harness,
+which runs each test in its own process. A registration cannot be
+undone, so each test needs a new process.
 
-herd7 reports "Never" for these 4 tests. 9 variants drop one barrier
-each, and herd7 reports "Sometimes" for them. One of the variants
-replaces the full barrier after the store to rq->curr with
-smp_store_release(). This is the LoongArch and parisc case.
-
-The README describes the model and how to run the tests.
+The sync core and rseq registration tests fail without commit
+"sched/membarrier: Report only completed registrations".
 
 Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 ---
- kernel/sched/membarrier.c                     |  3 ++
- .../selftests/membarrier/litmus/README        | 52 +++++++++++++++++++
- .../litmus/ipi-after-thread-no-exit-mb.litmus | 36 +++++++++++++
- .../ipi-after-thread-no-handler-mb.litmus     | 36 +++++++++++++
- .../membarrier/litmus/ipi-after-thread.litmus | 47 +++++++++++++++++
- .../ipi-before-thread-no-entry-mb.litmus      | 37 +++++++++++++
- .../ipi-before-thread-no-handler-mb.litmus    | 37 +++++++++++++
- .../litmus/ipi-before-thread.litmus           | 46 ++++++++++++++++
- .../litmus/sched-in-no-entry-mb.litmus        | 34 ++++++++++++
- .../membarrier/litmus/sched-in-no-mb.litmus   | 33 ++++++++++++
- .../membarrier/litmus/sched-in-release.litmus | 38 ++++++++++++++
- .../membarrier/litmus/sched-in.litmus         | 51 ++++++++++++++++++
- .../litmus/sched-out-no-exit-mb.litmus        | 34 ++++++++++++
- .../litmus/sched-out-no-sched-mb.litmus       | 34 ++++++++++++
- .../membarrier/litmus/sched-out.litmus        | 49 +++++++++++++++++
- 15 files changed, 567 insertions(+)
- create mode 100644 tools/testing/selftests/membarrier/litmus/README
- create mode 100644 tools/testing/selftests/membarrier/litmus/ipi-after-thread-no-exit-mb.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/ipi-after-thread-no-handler-mb.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/ipi-after-thread.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/ipi-before-thread-no-entry-mb.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/ipi-before-thread-no-handler-mb.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/ipi-before-thread.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/sched-in-no-entry-mb.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/sched-in-no-mb.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/sched-in-release.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/sched-in.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/sched-out-no-exit-mb.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/sched-out-no-sched-mb.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/sched-out.litmus
+ tools/testing/selftests/membarrier/.gitignore |   1 +
+ tools/testing/selftests/membarrier/Makefile   |   1 +
+ .../membarrier/membarrier_test_cmd.c          | 352 ++++++++++++++++++
+ 3 files changed, 354 insertions(+)
+ create mode 100644 tools/testing/selftests/membarrier/membarrier_test_cmd.c
 
-diff --git a/kernel/sched/membarrier.c b/kernel/sched/membarrier.c
-index 46e823a3d668..5dd88ac0957b 100644
---- a/kernel/sched/membarrier.c
-+++ b/kernel/sched/membarrier.c
-@@ -133,6 +133,9 @@
-  * Using the scenario from (A), we can show that (a) needs to be paired
-  * with (g). Using the scenario from (B), we can show that (c) needs to
-  * be paired with (d).
-+ *
-+ * The litmus tests in tools/testing/selftests/membarrier/litmus check
-+ * these scenarios with the Linux kernel memory model.
-  */
+diff --git a/tools/testing/selftests/membarrier/.gitignore b/tools/testing/selftests/membarrier/.gitignore
+index 58969a5e4613..45b995b884a6 100644
+--- a/tools/testing/selftests/membarrier/.gitignore
++++ b/tools/testing/selftests/membarrier/.gitignore
+@@ -3,3 +3,4 @@ membarrier_test_multi_thread
+ membarrier_test_single_thread
+ membarrier_rseq_stress
+ membarrier_test_ipi
++membarrier_test_cmd
+diff --git a/tools/testing/selftests/membarrier/Makefile b/tools/testing/selftests/membarrier/Makefile
+index ee5b9deb808b..c7fa0573e978 100644
+--- a/tools/testing/selftests/membarrier/Makefile
++++ b/tools/testing/selftests/membarrier/Makefile
+@@ -5,6 +5,7 @@ LDLIBS += -lpthread
+ TEST_GEN_PROGS := membarrier_test_single_thread \
+ 		membarrier_test_multi_thread \
+ 		membarrier_test_ipi \
++		membarrier_test_cmd \
+ 		membarrier_rseq_stress
  
- /*
-diff --git a/tools/testing/selftests/membarrier/litmus/README b/tools/testing/selftests/membarrier/litmus/README
+ LOCAL_HDRS += membarrier_test_impl.h
+diff --git a/tools/testing/selftests/membarrier/membarrier_test_cmd.c b/tools/testing/selftests/membarrier/membarrier_test_cmd.c
 new file mode 100644
-index 000000000000..c9ae572a9d43
+index 000000000000..5982861f77b6
 --- /dev/null
-+++ b/tools/testing/selftests/membarrier/litmus/README
-@@ -0,0 +1,52 @@
-+Litmus tests of the membarrier system call. They check the memory
-+ordering scenarios of kernel/sched/membarrier.c with the Linux kernel
-+memory model. Each test with the result "Never" models a case of
-+these scenarios. A test with the result "Sometimes" drops one
-+barrier, to show that the scenario needs it.
-+
-+In each test, P0 is the caller of membarrier(). P1 is a CPU which runs
-+a thread of the target process.
-+
-+The user-space accesses of the thread are WRITE_ONCE() and READ_ONCE()
-+in program order, without a memory barrier between them. This is what
-+barrier() gives in user-space code.
-+
-+The model has no interrupt. The IPI is modeled as a request and an
-+acknowledgment: the caller stores "req", the handler loads it, issues
-+its memory barrier and stores "ack", and the caller loads "ack". The
-+"exists" clause of each test keeps the executions where this exchange
-+took place.
-+
-+Run them from tools/memory-model, with herd7 installed:
-+
-+  cd tools/memory-model
-+  for f in ../testing/selftests/membarrier/litmus/*.litmus; do
-+	herd7 -conf linux-kernel.cfg $f | grep Observation
-+  done
-+
-+Each observation must match the "Result" in the comment of its test.
-+
-+The thread is interrupted by the IPI:
-+
-+  ipi-before-thread.litmus, ipi-before-thread-no-entry-mb.litmus,
-+  ipi-before-thread-no-handler-mb.litmus
-+    Scenario (A). The thread runs after the IPI. It sees the stores
-+    which the caller did before membarrier().
-+
-+  ipi-after-thread.litmus, ipi-after-thread-no-exit-mb.litmus,
-+  ipi-after-thread-no-handler-mb.litmus
-+    Scenario (B). The thread ran before the IPI. The caller sees its
-+    stores after membarrier().
-+
-+The caller sees another task in rq->curr and sends no IPI:
-+
-+  sched-in.litmus, sched-in-no-entry-mb.litmus, sched-in-no-mb.litmus,
-+  sched-in-release.litmus
-+    Scenarios (A) and (C). The thread is scheduled in. The scheduler
-+    issues a full barrier after the store to rq->curr. An
-+    smp_store_release() which is not a full barrier is not enough.
-+
-+  sched-out.litmus, sched-out-no-exit-mb.litmus,
-+  sched-out-no-sched-mb.litmus
-+    Scenarios (B) and (C). The thread is scheduled out. The scheduler
-+    issues a full barrier before the store to rq->curr.
-diff --git a/tools/testing/selftests/membarrier/litmus/ipi-after-thread-no-exit-mb.litmus b/tools/testing/selftests/membarrier/litmus/ipi-after-thread-no-exit-mb.litmus
-new file mode 100644
-index 000000000000..fb67beaba996
---- /dev/null
-+++ b/tools/testing/selftests/membarrier/litmus/ipi-after-thread-no-exit-mb.litmus
-@@ -0,0 +1,36 @@
-+C ipi-after-thread-no-exit-mb
-+
-+(*
-+ * Result: Sometimes
++++ b/tools/testing/selftests/membarrier/membarrier_test_cmd.c
+@@ -0,0 +1,352 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Check the membarrier command arguments and the lifetime of the
++ * registrations.
 + *
-+ * ipi-after-thread without the barrier (c) at the end of membarrier().
-+ * The load of x by P0 can then be done before the IPI completes.
-+ *)
++ * The test harness runs each test in its own process. This matters
++ * because a membarrier registration cannot be undone.
++ */
++#define _GNU_SOURCE
++#include <linux/membarrier.h>
++#include <sys/wait.h>
++#include <syscall.h>
++#include <limits.h>
++#include <pthread.h>
++#include <signal.h>
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++#include <sched.h>
++#include <errno.h>
 +
-+{}
++#include "kselftest_harness.h"
 +
-+P0(int *x, int *y, int *req, int *ack)
++#define STACK_SIZE	(64 * 1024)
++
++#define REGISTER_CMDS						\
++	(MEMBARRIER_CMD_REGISTER_GLOBAL_EXPEDITED |		\
++	 MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED |		\
++	 MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_SYNC_CORE |	\
++	 MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ)
++
++/* Pairs of registration command and command which needs it. */
++static const struct {
++	int register_cmd;
++	int cmd;
++} private_cmds[] = {
++	{ MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED,
++	  MEMBARRIER_CMD_PRIVATE_EXPEDITED },
++	{ MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_SYNC_CORE,
++	  MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE },
++	{ MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ,
++	  MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ },
++};
++
++static int sys_membarrier(int cmd, unsigned int flags, int cpu_id)
 +{
-+	int r_ack;
-+	int r1;
-+	int r2;
-+
-+	r2 = READ_ONCE(*y);
-+	smp_mb();
-+	WRITE_ONCE(*req, 1);
-+	r_ack = READ_ONCE(*ack);
-+	r1 = READ_ONCE(*x);
++	return syscall(__NR_membarrier, cmd, flags, cpu_id);
 +}
 +
-+P1(int *x, int *y, int *req, int *ack)
++static int query(void)
 +{
-+	int r_req;
-+
-+	WRITE_ONCE(*x, 1);
-+	WRITE_ONCE(*y, 1);
-+	r_req = READ_ONCE(*req);
-+	smp_mb();
-+	WRITE_ONCE(*ack, 1);
++	return sys_membarrier(MEMBARRIER_CMD_QUERY, 0, 0);
 +}
 +
-+exists (0:r2=1 /\ 1:r_req=1 /\ 0:r_ack=1 /\ 0:r1=0)
-diff --git a/tools/testing/selftests/membarrier/litmus/ipi-after-thread-no-handler-mb.litmus b/tools/testing/selftests/membarrier/litmus/ipi-after-thread-no-handler-mb.litmus
-new file mode 100644
-index 000000000000..687e883850a9
---- /dev/null
-+++ b/tools/testing/selftests/membarrier/litmus/ipi-after-thread-no-handler-mb.litmus
-@@ -0,0 +1,36 @@
-+C ipi-after-thread-no-handler-mb
++static int get_registrations(void)
++{
++	return sys_membarrier(MEMBARRIER_CMD_GET_REGISTRATIONS, 0, 0);
++}
 +
-+(*
-+ * Result: Sometimes
++/* Each command is either in the query mask or returns -EINVAL. */
++TEST(query_matches_commands)
++{
++	int mask = query(), bit, ret;
++
++	ASSERT_GE(mask, 0);
++	for (bit = 0; bit < 32; bit++) {
++		int cmd = (int)(1U << bit);
++
++		errno = 0;
++		ret = sys_membarrier(cmd, 0, 0);
++		if (mask & cmd) {
++			EXPECT_NE(errno, EINVAL) {
++				TH_LOG("command 0x%x is in the query mask", cmd);
++			}
++		} else {
++			EXPECT_EQ(ret, -1);
++			EXPECT_EQ(errno, EINVAL) {
++				TH_LOG("command 0x%x is not in the query mask", cmd);
++			}
++		}
++	}
++}
++
++/* A command is a single bit. */
++TEST(invalid_commands)
++{
++	static const int cmds[] = {
++		-1, INT_MAX,
++		MEMBARRIER_CMD_GLOBAL | MEMBARRIER_CMD_GLOBAL_EXPEDITED,
++		MEMBARRIER_CMD_PRIVATE_EXPEDITED |
++			MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED,
++	};
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(cmds); i++) {
++		EXPECT_EQ(sys_membarrier(cmds[i], 0, 0), -1);
++		EXPECT_EQ(errno, EINVAL);
++	}
++}
++
++/* Only the rseq command accepts a flag: MEMBARRIER_CMD_FLAG_CPU. */
++TEST(invalid_flags)
++{
++	static const unsigned int flags[] = {
++		MEMBARRIER_CMD_FLAG_CPU, 1U << 1, 1U << 31, ~0U,
++		MEMBARRIER_CMD_FLAG_CPU | (1U << 1),
++	};
++	int mask = query(), bit, i;
++
++	ASSERT_GE(mask, 0);
++	/* Bit -1 stands for MEMBARRIER_CMD_QUERY, which is 0. */
++	for (bit = -1; bit < 32; bit++) {
++		int cmd = bit < 0 ? MEMBARRIER_CMD_QUERY : (int)(1U << bit);
++
++		if (cmd && !(mask & cmd))
++			continue;
++		for (i = 0; i < ARRAY_SIZE(flags); i++) {
++			if (cmd == MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ &&
++			    flags[i] == MEMBARRIER_CMD_FLAG_CPU)
++				continue;
++			EXPECT_EQ(sys_membarrier(cmd, flags[i], 0), -1);
++			EXPECT_EQ(errno, EINVAL) {
++				TH_LOG("command 0x%x flags 0x%x", cmd, flags[i]);
++			}
++		}
++	}
++}
++
++/* A private command needs its own registration. */
++TEST(private_needs_registration)
++{
++	int mask = query(), registered = get_registrations(), i;
++
++	ASSERT_GE(mask, 0);
++	ASSERT_GE(registered, 0);
++	for (i = 0; i < ARRAY_SIZE(private_cmds); i++) {
++		if (!(mask & private_cmds[i].cmd))
++			continue;
++		/* The C library may have registered already. */
++		if (registered & private_cmds[i].register_cmd)
++			continue;
++		EXPECT_EQ(sys_membarrier(private_cmds[i].cmd, 0, 0), -1);
++		EXPECT_EQ(errno, EPERM);
++	}
++	if ((mask & MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ) &&
++	    !(registered & MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ)) {
++		EXPECT_EQ(sys_membarrier(MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ,
++					 MEMBARRIER_CMD_FLAG_CPU, 0), -1);
++		EXPECT_EQ(errno, EPERM);
++	}
++}
++
++/*
++ * Issue one registration command. It must add its own bit to the
++ * registrations, and no other bit. It must allow its own command, and
++ * no other command.
++ */
++static void register_one(struct __test_metadata *_metadata, int register_cmd)
++{
++	int mask = query(), before = get_registrations(), i;
++
++	ASSERT_GE(mask, 0);
++	ASSERT_GE(before, 0);
++	if (!(mask & register_cmd))
++		SKIP(return, "command 0x%x is not available", register_cmd);
++	ASSERT_EQ(sys_membarrier(register_cmd, 0, 0), 0);
++	EXPECT_EQ(get_registrations(), before | register_cmd);
++	/* A second registration succeeds and changes nothing. */
++	ASSERT_EQ(sys_membarrier(register_cmd, 0, 0), 0);
++	EXPECT_EQ(get_registrations(), before | register_cmd);
++
++	for (i = 0; i < ARRAY_SIZE(private_cmds); i++) {
++		if (!(mask & private_cmds[i].cmd))
++			continue;
++		if ((before | register_cmd) & private_cmds[i].register_cmd) {
++			EXPECT_EQ(sys_membarrier(private_cmds[i].cmd, 0, 0), 0);
++		} else {
++			EXPECT_EQ(sys_membarrier(private_cmds[i].cmd, 0, 0), -1);
++			EXPECT_EQ(errno, EPERM);
++		}
++	}
++}
++
++TEST(register_global_expedited)
++{
++	register_one(_metadata, MEMBARRIER_CMD_REGISTER_GLOBAL_EXPEDITED);
++}
++
++TEST(register_private_expedited)
++{
++	register_one(_metadata, MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED);
++}
++
++TEST(register_private_expedited_sync_core)
++{
++	register_one(_metadata,
++		     MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_SYNC_CORE);
++}
++
++TEST(register_private_expedited_rseq)
++{
++	register_one(_metadata, MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ);
++}
++
++/* Register every command, one at a time. Return the registrations. */
++static int register_all(struct __test_metadata *_metadata)
++{
++	int mask = query(), expected = get_registrations(), bit;
++
++	for (bit = 0; bit < 31; bit++) {
++		int cmd = 1 << bit;
++
++		if (!(cmd & REGISTER_CMDS & mask))
++			continue;
++		ASSERT_EQ(sys_membarrier(cmd, 0, 0), 0);
++		expected |= cmd;
++		EXPECT_EQ(get_registrations(), expected);
++	}
++	return expected;
++}
++
++TEST(register_all_commands)
++{
++	register_all(_metadata);
++}
++
++static void *thread_pause(void *arg)
++{
++	for (;;)
++		pause();
++	return NULL;
++}
++
++/*
++ * The rseq command accepts any CPU number. It ignores a CPU which does
++ * not exist. A negative CPU number selects all CPUs.
 + *
-+ * ipi-after-thread without the barrier in the IPI handler. The store to
-+ * x by P1 can then be delayed past the acknowledgment.
-+ *)
-+
-+{}
-+
-+P0(int *x, int *y, int *req, int *ack)
++ * The kernel only looks at the CPU number of a multi-threaded process,
++ * so keep a second thread alive.
++ */
++TEST(rseq_cpu_argument)
 +{
-+	int r_ack;
-+	int r1;
-+	int r2;
++	static const int cpus[] = { 0, INT_MAX, -1, INT_MIN };
++	pthread_t thread;
++	int i;
 +
-+	r2 = READ_ONCE(*y);
-+	smp_mb();
-+	WRITE_ONCE(*req, 1);
-+	r_ack = READ_ONCE(*ack);
-+	smp_mb();
-+	r1 = READ_ONCE(*x);
++	if (!(query() & MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ))
++		SKIP(return, "the rseq command is not available");
++	ASSERT_EQ(pthread_create(&thread, NULL, thread_pause, NULL), 0);
++	ASSERT_EQ(sys_membarrier(MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ,
++				 0, 0), 0);
++	EXPECT_EQ(sys_membarrier(MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ,
++				 MEMBARRIER_CMD_FLAG_CPU, sched_getcpu()), 0);
++	for (i = 0; i < ARRAY_SIZE(cpus); i++) {
++		EXPECT_EQ(sys_membarrier(MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ,
++					 MEMBARRIER_CMD_FLAG_CPU, cpus[i]), 0) {
++			TH_LOG("cpu_id %d", cpus[i]);
++		}
++	}
++	/* Without the flag, the CPU argument is ignored. */
++	EXPECT_EQ(sys_membarrier(MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ,
++				 0, INT_MAX), 0);
 +}
 +
-+P1(int *x, int *y, int *req, int *ack)
++/* A forked child inherits the registrations. */
++TEST(fork_inherits_registrations)
 +{
-+	int r_req;
++	int expected = register_all(_metadata), status;
++	pid_t pid;
 +
-+	WRITE_ONCE(*x, 1);
-+	WRITE_ONCE(*y, 1);
-+	r_req = READ_ONCE(*req);
-+	WRITE_ONCE(*ack, 1);
++	pid = fork();
++	ASSERT_GE(pid, 0);
++	if (!pid)
++		_exit(get_registrations() != expected);
++	ASSERT_EQ(waitpid(pid, &status, 0), pid);
++	EXPECT_TRUE(WIFEXITED(status));
++	EXPECT_EQ(WEXITSTATUS(status), 0);
 +}
 +
-+exists (0:r2=1 /\ 1:r_req=1 /\ 0:r_ack=1 /\ 0:r1=0)
-diff --git a/tools/testing/selftests/membarrier/litmus/ipi-after-thread.litmus b/tools/testing/selftests/membarrier/litmus/ipi-after-thread.litmus
-new file mode 100644
-index 000000000000..1145faf62b6d
---- /dev/null
-+++ b/tools/testing/selftests/membarrier/litmus/ipi-after-thread.litmus
-@@ -0,0 +1,47 @@
-+C ipi-after-thread
++/*
++ * exec() drops the registrations. The new program image starts with
++ * the registrations which this test program had when it started.
++ */
++static int initial_registrations;
 +
-+(*
-+ * Result: Never
-+ *
-+ * Scenario (B) of kernel/sched/membarrier.c.
-+ *
-+ * P1 is a user-space thread which runs "x = 1; y = 1" in program order,
-+ * without a memory barrier. The IPI of membarrier() interrupts it after
-+ * that. P0 reads y before membarrier() and x after it.
-+ *
-+ * req and ack model the IPI, see README.
-+ *
-+ * The barrier in the IPI handler orders both stores before the
-+ * acknowledgment. The barrier (c) at the end of membarrier() orders the
-+ * acknowledgment before "r1 = x". P0 thus sees x == 1. This holds
-+ * whatever P0 read from y: y is kept to match the scenario.
-+ *)
-+
-+{}
-+
-+P0(int *x, int *y, int *req, int *ack)
++TEST(exec_drops_registrations)
 +{
-+	int r_ack;
-+	int r1;
-+	int r2;
++	char expected[16];
++	int status;
++	pid_t pid;
 +
-+	r2 = READ_ONCE(*y);
-+	smp_mb();
-+	WRITE_ONCE(*req, 1);
-+	r_ack = READ_ONCE(*ack);
-+	smp_mb();
-+	r1 = READ_ONCE(*x);
++	register_all(_metadata);
++	snprintf(expected, sizeof(expected), "%d", initial_registrations);
++	pid = fork();
++	ASSERT_GE(pid, 0);
++	if (!pid) {
++		execl("/proc/self/exe", "membarrier_test_cmd",
++		      "--expect-registrations", expected, NULL);
++		_exit(2);
++	}
++	ASSERT_EQ(waitpid(pid, &status, 0), pid);
++	EXPECT_TRUE(WIFEXITED(status));
++	if (WEXITSTATUS(status) == 2)
++		SKIP(return, "cannot exec /proc/self/exe");
++	EXPECT_EQ(WEXITSTATUS(status), 0);
 +}
 +
-+P1(int *x, int *y, int *req, int *ack)
++static int clone_vm_fn(void *arg)
 +{
-+	int r_req;
++	int cmd = *(int *)arg;
 +
-+	WRITE_ONCE(*x, 1);
-+	WRITE_ONCE(*y, 1);
-+	r_req = READ_ONCE(*req);
-+	smp_mb();
-+	WRITE_ONCE(*ack, 1);
++	return sys_membarrier(cmd, 0, 0) ? 1 : 0;
 +}
 +
-+exists (0:r2=1 /\ 1:r_req=1 /\ 0:r_ack=1 /\ 0:r1=0)
-diff --git a/tools/testing/selftests/membarrier/litmus/ipi-before-thread-no-entry-mb.litmus b/tools/testing/selftests/membarrier/litmus/ipi-before-thread-no-entry-mb.litmus
-new file mode 100644
-index 000000000000..9685e34e224a
---- /dev/null
-+++ b/tools/testing/selftests/membarrier/litmus/ipi-before-thread-no-entry-mb.litmus
-@@ -0,0 +1,37 @@
-+C ipi-before-thread-no-entry-mb
-+
-+(*
-+ * Result: Sometimes
-+ *
-+ * ipi-before-thread without the barrier (a) at the start of
-+ * membarrier(). The store to x can be delayed past the IPI. P1 and P0
-+ * then both read 0.
-+ *)
-+
-+{}
-+
-+P0(int *x, int *y, int *req, int *ack)
++/*
++ * The registrations belong to the mm. A task of another thread group
++ * which shares the mm (CLONE_VM without CLONE_THREAD) registers for
++ * both thread groups.
++ */
++TEST(clone_vm_shares_registrations)
 +{
-+	int r_ack;
-+	int r2;
++	int cmd = MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED;
++	int before = get_registrations(), status;
++	char *stack;
++	pid_t pid;
 +
-+	WRITE_ONCE(*x, 1);
-+	WRITE_ONCE(*req, 1);
-+	r_ack = READ_ONCE(*ack);
-+	smp_mb();
-+	r2 = READ_ONCE(*y);
++	ASSERT_GE(before, 0);
++	stack = malloc(STACK_SIZE);
++	ASSERT_NE(stack, NULL);
++	pid = clone(clone_vm_fn, stack + STACK_SIZE, CLONE_VM | SIGCHLD, &cmd);
++	ASSERT_GE(pid, 0);
++	ASSERT_EQ(waitpid(pid, &status, 0), pid);
++	EXPECT_TRUE(WIFEXITED(status));
++	EXPECT_EQ(WEXITSTATUS(status), 0);
++	EXPECT_EQ(get_registrations(), before | cmd);
++	EXPECT_EQ(sys_membarrier(MEMBARRIER_CMD_PRIVATE_EXPEDITED, 0, 0), 0);
++	free(stack);
 +}
 +
-+P1(int *x, int *y, int *req, int *ack)
++int main(int argc, char **argv)
 +{
-+	int r_req;
-+	int r1;
++	/* New program image of exec_drops_registrations. */
++	if (argc == 3 && !strcmp(argv[1], "--expect-registrations"))
++		return get_registrations() != atoi(argv[2]);
 +
-+	r_req = READ_ONCE(*req);
-+	smp_mb();
-+	WRITE_ONCE(*ack, 1);
-+	WRITE_ONCE(*y, 1);
-+	r1 = READ_ONCE(*x);
++	if (query() < 0)
++		ksft_exit_skip("sys membarrier (CONFIG_MEMBARRIER) is disabled.\n");
++	initial_registrations = get_registrations();
++	if (initial_registrations < 0)
++		ksft_exit_skip("MEMBARRIER_CMD_GET_REGISTRATIONS is not available.\n");
++	return test_harness_run(argc, argv);
 +}
-+
-+exists (1:r_req=1 /\ 0:r_ack=1 /\ 1:r1=0 /\ 0:r2=0)
-diff --git a/tools/testing/selftests/membarrier/litmus/ipi-before-thread-no-handler-mb.litmus b/tools/testing/selftests/membarrier/litmus/ipi-before-thread-no-handler-mb.litmus
-new file mode 100644
-index 000000000000..1559bce76ea5
---- /dev/null
-+++ b/tools/testing/selftests/membarrier/litmus/ipi-before-thread-no-handler-mb.litmus
-@@ -0,0 +1,37 @@
-+C ipi-before-thread-no-handler-mb
-+
-+(*
-+ * Result: Sometimes
-+ *
-+ * ipi-before-thread without the barrier in the IPI handler. The load of
-+ * x by P1 can then be done before the handler loads req. This is why
-+ * ipi_mb() issues smp_mb() rather than rely on the interrupt alone.
-+ *)
-+
-+{}
-+
-+P0(int *x, int *y, int *req, int *ack)
-+{
-+	int r_ack;
-+	int r2;
-+
-+	WRITE_ONCE(*x, 1);
-+	smp_mb();
-+	WRITE_ONCE(*req, 1);
-+	r_ack = READ_ONCE(*ack);
-+	smp_mb();
-+	r2 = READ_ONCE(*y);
-+}
-+
-+P1(int *x, int *y, int *req, int *ack)
-+{
-+	int r_req;
-+	int r1;
-+
-+	r_req = READ_ONCE(*req);
-+	WRITE_ONCE(*ack, 1);
-+	WRITE_ONCE(*y, 1);
-+	r1 = READ_ONCE(*x);
-+}
-+
-+exists (1:r_req=1 /\ 0:r_ack=1 /\ 1:r1=0 /\ 0:r2=0)
-diff --git a/tools/testing/selftests/membarrier/litmus/ipi-before-thread.litmus b/tools/testing/selftests/membarrier/litmus/ipi-before-thread.litmus
-new file mode 100644
-index 000000000000..e21e79e2d2ad
---- /dev/null
-+++ b/tools/testing/selftests/membarrier/litmus/ipi-before-thread.litmus
-@@ -0,0 +1,46 @@
-+C ipi-before-thread
-+
-+(*
-+ * Result: Never
-+ *
-+ * Scenario (A) of kernel/sched/membarrier.c.
-+ *
-+ * P0 calls membarrier(). P1 is a user-space thread which the IPI
-+ * interrupts before it runs "y = 1; r1 = x". Its two accesses are in
-+ * program order, without a memory barrier.
-+ *
-+ * req and ack model the IPI, see README.
-+ *
-+ * The barrier (a) at the start of membarrier() orders "x = 1" before
-+ * the IPI. P1 thus sees x == 1 after the IPI. This holds whatever P0
-+ * reads from y: y is kept to match the scenario.
-+ *)
-+
-+{}
-+
-+P0(int *x, int *y, int *req, int *ack)
-+{
-+	int r_ack;
-+	int r2;
-+
-+	WRITE_ONCE(*x, 1);
-+	smp_mb();
-+	WRITE_ONCE(*req, 1);
-+	r_ack = READ_ONCE(*ack);
-+	smp_mb();
-+	r2 = READ_ONCE(*y);
-+}
-+
-+P1(int *x, int *y, int *req, int *ack)
-+{
-+	int r_req;
-+	int r1;
-+
-+	r_req = READ_ONCE(*req);
-+	smp_mb();
-+	WRITE_ONCE(*ack, 1);
-+	WRITE_ONCE(*y, 1);
-+	r1 = READ_ONCE(*x);
-+}
-+
-+exists (1:r_req=1 /\ 0:r_ack=1 /\ 1:r1=0 /\ 0:r2=0)
-diff --git a/tools/testing/selftests/membarrier/litmus/sched-in-no-entry-mb.litmus b/tools/testing/selftests/membarrier/litmus/sched-in-no-entry-mb.litmus
-new file mode 100644
-index 000000000000..a40837fad005
---- /dev/null
-+++ b/tools/testing/selftests/membarrier/litmus/sched-in-no-entry-mb.litmus
-@@ -0,0 +1,34 @@
-+C sched-in-no-entry-mb
-+
-+(*
-+ * Result: Sometimes
-+ *
-+ * sched-in without the barrier (a) at the start of membarrier(). The
-+ * store to x can be delayed past the load of rq->curr. P0 sees no
-+ * thread and sends no IPI. The thread reads x == 0.
-+ *)
-+
-+{}
-+
-+P0(int *x, int *y, int *curr)
-+{
-+	int r_curr;
-+	int r2;
-+
-+	WRITE_ONCE(*x, 1);
-+	r_curr = READ_ONCE(*curr);
-+	smp_mb();
-+	r2 = READ_ONCE(*y);
-+}
-+
-+P1(int *x, int *y, int *curr)
-+{
-+	int r1;
-+
-+	WRITE_ONCE(*curr, 1);
-+	smp_mb();
-+	WRITE_ONCE(*y, 1);
-+	r1 = READ_ONCE(*x);
-+}
-+
-+exists (0:r_curr=0 /\ 1:r1=0 /\ 0:r2=0)
-diff --git a/tools/testing/selftests/membarrier/litmus/sched-in-no-mb.litmus b/tools/testing/selftests/membarrier/litmus/sched-in-no-mb.litmus
-new file mode 100644
-index 000000000000..6840cb26e13d
---- /dev/null
-+++ b/tools/testing/selftests/membarrier/litmus/sched-in-no-mb.litmus
-@@ -0,0 +1,33 @@
-+C sched-in-no-mb
-+
-+(*
-+ * Result: Sometimes
-+ *
-+ * sched-in without the full barrier after the store to rq->curr. P0
-+ * sees no thread and sends no IPI. The thread reads x == 0.
-+ *)
-+
-+{}
-+
-+P0(int *x, int *y, int *curr)
-+{
-+	int r_curr;
-+	int r2;
-+
-+	WRITE_ONCE(*x, 1);
-+	smp_mb();
-+	r_curr = READ_ONCE(*curr);
-+	smp_mb();
-+	r2 = READ_ONCE(*y);
-+}
-+
-+P1(int *x, int *y, int *curr)
-+{
-+	int r1;
-+
-+	WRITE_ONCE(*curr, 1);
-+	WRITE_ONCE(*y, 1);
-+	r1 = READ_ONCE(*x);
-+}
-+
-+exists (0:r_curr=0 /\ 1:r1=0 /\ 0:r2=0)
-diff --git a/tools/testing/selftests/membarrier/litmus/sched-in-release.litmus b/tools/testing/selftests/membarrier/litmus/sched-in-release.litmus
-new file mode 100644
-index 000000000000..d2df75b388fe
---- /dev/null
-+++ b/tools/testing/selftests/membarrier/litmus/sched-in-release.litmus
-@@ -0,0 +1,38 @@
-+C sched-in-release
-+
-+(*
-+ * Result: Sometimes
-+ *
-+ * sched-in with smp_store_release() in place of the full barrier after
-+ * the store to rq->curr. This is finish_task() on an architecture where
-+ * smp_store_release() is weaker than a full barrier. It does not order
-+ * the store to rq->curr before the loads of the thread.
-+ *)
-+
-+{
-+	int on_cpu = 1;
-+}
-+
-+P0(int *x, int *y, int *curr)
-+{
-+	int r_curr;
-+	int r2;
-+
-+	WRITE_ONCE(*x, 1);
-+	smp_mb();
-+	r_curr = READ_ONCE(*curr);
-+	smp_mb();
-+	r2 = READ_ONCE(*y);
-+}
-+
-+P1(int *x, int *y, int *curr, int *on_cpu)
-+{
-+	int r1;
-+
-+	WRITE_ONCE(*curr, 1);
-+	smp_store_release(on_cpu, 0);
-+	WRITE_ONCE(*y, 1);
-+	r1 = READ_ONCE(*x);
-+}
-+
-+exists (0:r_curr=0 /\ 1:r1=0 /\ 0:r2=0)
-diff --git a/tools/testing/selftests/membarrier/litmus/sched-in.litmus b/tools/testing/selftests/membarrier/litmus/sched-in.litmus
-new file mode 100644
-index 000000000000..c89e2c6c4554
---- /dev/null
-+++ b/tools/testing/selftests/membarrier/litmus/sched-in.litmus
-@@ -0,0 +1,51 @@
-+C sched-in
-+
-+(*
-+ * Result: Never
-+ *
-+ * Scenarios (A) and (C) of kernel/sched/membarrier.c: a thread of the
-+ * target process is scheduled in while P0 calls membarrier().
-+ *
-+ * curr stands for rq->curr of the CPU of P1: 0 for another task, 1 for
-+ * the thread. P0 loads it between its two barriers. It sends no IPI
-+ * when it reads 0, which is the case the "exists" clause keeps.
-+ *
-+ * P1 is the scheduler, then the thread in user-space. The scheduler
-+ * stores to rq->curr, then issues a full barrier before the return to
-+ * user-space. Each architecture provides this barrier its own way, see
-+ * Documentation/scheduler/membarrier.rst.
-+ *
-+ * Either P0 sees the thread and sends the IPI, or the thread sees
-+ * x == 1. This holds whatever P0 reads from y: y is kept to match the
-+ * scenario.
-+ *
-+ * The same argument holds with tsk->mm in place of rq->curr. It covers
-+ * kthread_use_mm(), scenario (E), and the icache_stale_mask of the
-+ * RISC-V sync core command.
-+ *)
-+
-+{}
-+
-+P0(int *x, int *y, int *curr)
-+{
-+	int r_curr;
-+	int r2;
-+
-+	WRITE_ONCE(*x, 1);
-+	smp_mb();
-+	r_curr = READ_ONCE(*curr);
-+	smp_mb();
-+	r2 = READ_ONCE(*y);
-+}
-+
-+P1(int *x, int *y, int *curr)
-+{
-+	int r1;
-+
-+	WRITE_ONCE(*curr, 1);
-+	smp_mb();
-+	WRITE_ONCE(*y, 1);
-+	r1 = READ_ONCE(*x);
-+}
-+
-+exists (0:r_curr=0 /\ 1:r1=0 /\ 0:r2=0)
-diff --git a/tools/testing/selftests/membarrier/litmus/sched-out-no-exit-mb.litmus b/tools/testing/selftests/membarrier/litmus/sched-out-no-exit-mb.litmus
-new file mode 100644
-index 000000000000..e4bb1ee7a935
---- /dev/null
-+++ b/tools/testing/selftests/membarrier/litmus/sched-out-no-exit-mb.litmus
-@@ -0,0 +1,34 @@
-+C sched-out-no-exit-mb
-+
-+(*
-+ * Result: Sometimes
-+ *
-+ * sched-out without the barrier (c) at the end of membarrier(). The
-+ * load of x by P0 can then be done before it loads rq->curr.
-+ *)
-+
-+{
-+	int curr = 1;
-+}
-+
-+P0(int *x, int *y, int *curr)
-+{
-+	int r_curr;
-+	int r1;
-+	int r2;
-+
-+	r2 = READ_ONCE(*y);
-+	smp_mb();
-+	r_curr = READ_ONCE(*curr);
-+	r1 = READ_ONCE(*x);
-+}
-+
-+P1(int *x, int *y, int *curr)
-+{
-+	WRITE_ONCE(*x, 1);
-+	WRITE_ONCE(*y, 1);
-+	smp_mb();
-+	WRITE_ONCE(*curr, 0);
-+}
-+
-+exists (0:r2=1 /\ 0:r_curr=0 /\ 0:r1=0)
-diff --git a/tools/testing/selftests/membarrier/litmus/sched-out-no-sched-mb.litmus b/tools/testing/selftests/membarrier/litmus/sched-out-no-sched-mb.litmus
-new file mode 100644
-index 000000000000..7b690db2b4be
---- /dev/null
-+++ b/tools/testing/selftests/membarrier/litmus/sched-out-no-sched-mb.litmus
-@@ -0,0 +1,34 @@
-+C sched-out-no-sched-mb
-+
-+(*
-+ * Result: Sometimes
-+ *
-+ * sched-out without the full barrier before the store to rq->curr. The
-+ * store to x by the thread can then be delayed past it.
-+ *)
-+
-+{
-+	int curr = 1;
-+}
-+
-+P0(int *x, int *y, int *curr)
-+{
-+	int r_curr;
-+	int r1;
-+	int r2;
-+
-+	r2 = READ_ONCE(*y);
-+	smp_mb();
-+	r_curr = READ_ONCE(*curr);
-+	smp_mb();
-+	r1 = READ_ONCE(*x);
-+}
-+
-+P1(int *x, int *y, int *curr)
-+{
-+	WRITE_ONCE(*x, 1);
-+	WRITE_ONCE(*y, 1);
-+	WRITE_ONCE(*curr, 0);
-+}
-+
-+exists (0:r2=1 /\ 0:r_curr=0 /\ 0:r1=0)
-diff --git a/tools/testing/selftests/membarrier/litmus/sched-out.litmus b/tools/testing/selftests/membarrier/litmus/sched-out.litmus
-new file mode 100644
-index 000000000000..8fb1532bd13c
---- /dev/null
-+++ b/tools/testing/selftests/membarrier/litmus/sched-out.litmus
-@@ -0,0 +1,49 @@
-+C sched-out
-+
-+(*
-+ * Result: Never
-+ *
-+ * Scenarios (B) and (C) of kernel/sched/membarrier.c: a thread of the
-+ * target process is scheduled out while P0 calls membarrier().
-+ *
-+ * curr stands for rq->curr of the CPU of P1: 1 for the thread, 0 for
-+ * another task. P0 sends no IPI when it reads 0, which is the case the
-+ * "exists" clause keeps.
-+ *
-+ * P1 is the thread in user-space, which runs "x = 1; y = 1" in program
-+ * order. Then the scheduler issues a full barrier before it stores to
-+ * rq->curr: smp_mb__after_spinlock() in __schedule().
-+ *
-+ * When P0 saw y == 1 and sees that the thread is gone, it sees x == 1.
-+ * This holds whatever P0 read from y: y is kept to match the scenario.
-+ *
-+ * The same argument holds with tsk->mm in place of rq->curr. It covers
-+ * exit_mm(), scenario (D), and kthread_unuse_mm(), scenario (E).
-+ *)
-+
-+{
-+	int curr = 1;
-+}
-+
-+P0(int *x, int *y, int *curr)
-+{
-+	int r_curr;
-+	int r1;
-+	int r2;
-+
-+	r2 = READ_ONCE(*y);
-+	smp_mb();
-+	r_curr = READ_ONCE(*curr);
-+	smp_mb();
-+	r1 = READ_ONCE(*x);
-+}
-+
-+P1(int *x, int *y, int *curr)
-+{
-+	WRITE_ONCE(*x, 1);
-+	WRITE_ONCE(*y, 1);
-+	smp_mb();
-+	WRITE_ONCE(*curr, 0);
-+}
-+
-+exists (0:r2=1 /\ 0:r_curr=0 /\ 0:r1=0)
 -- 
 2.47.3
 
