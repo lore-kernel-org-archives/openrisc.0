@@ -1,85 +1,87 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.53
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.179
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794590211;
-	b=J/uf+cuNFjqroPcBcLWdL8BxUQu/BOoo+ahle2RFXivDiPM7nLRzBzjwoU+8PhiQD5Bt
-	 o/wBS8c6de8QIpeXKBpfYyCQFqP3ejLqP4dlyEzlv6G2LJedhU3FI8RMiRrMO6fT6v5za
-	 hodh8QQXLMYhAjTl2RlQNPrpyx9EV7r0m65B/bsSmZ4J1Pc6/9ylNMuvP65UhwzZ9fUp1
-	 9VIF/dJCpYtLYJDl/pwQ4b8Nicz/bWmKfg1idXd/Ec1LZKOWDJbPDZ6b4DSydXtTZGbZu
-	 vlmQtIltIl17/haR/v5QUKdxgkKP104Emj4WKwgiwqthQmXk+py5ayDm71pd6iDojmQ==
+	t=1794590551;
+	b=F1dCpUWkILnEaI+Oo2K+TUBjrZ8nMH/CHiw+I+GAmlQDER6NdX6NDhM6acPKRZFGNxtq
+	 FxQXM663sm1IpHnVPsPiUkx+5TFpKuPbJDcHYtH7sTTsTlywzKzfJrX5lUyFKGwpyR0ku
+	 JLmDrpmcM0qXX2ZTRjgxsif89q+3y2N3DlI4jvDM0Imp3DU1ZHI/r/EwDuviamTp/PlDV
+	 z+58N/rACO/QRYd/eCydwzs/QN0Kqq01qcN6OOr4fIRZyYSxX8jLD1rYgn4vFe3GZVngF
+	 Yvv+igjsI8fMhNKwEtDlEgfSw6lsE/JCCuV531WyAM6w3H7MNatvXsFi7sRJ5d0M8+Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794590211;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794590551;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Message-ID:Date:MIME-Version:User-Agent:From:Subject:To:Cc:References:
-	 Content-Language:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-	bh=1NnwoeqjhMRZA613FNn5ml0JxbTNE6hC+WRkyiGE1vE=;
-	b=ddixfJPxM7/Uk9mpYfI9zSp3+udG6SCnagYc0D9lgNiBAPnUbFE+naxvkxgiKjtxrrCu
-	 M/3wSjbNAQyN2MWXHJnl+0xhav7QdQ7CGTjl93r8hSz/1h23f6mb6D0OaYO1PQdDo8sPd
-	 h3F5q5DJnfwIUmu1fH5D2KlDoz2tfbvuS9Mfx8s/+CoIXTRsr8e6Vz4SM07O/pAbBrIyv
-	 0jcaUXgpxPe4A4aXl+D0SNgmyw3F2qawBk4x42YCjEYoiemFKYtw6cvWCC2Su0DGLQKrF
-	 GP3qV0c6vmnfUZZ9zvhmNLsRSGhlSI8KlPcM4vG45m14xCO4o5xYdcHzZHtCkh08dXA==
+	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:References:
+	 Content-Language:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=OXfE/1W5iYUB1NrGTtPkTsDeQzVdgtifzj98ImHtgPo=;
+	b=vMXoLR3DmbCjqwPkf9QCHZfF8P7Vdt0VkSSQd0OoIWZ47/tHxlsLB/i1VogqbWWkdBwP
+	 lFnafega2ObQ+OIJYPm0c8RrcbBFjyFtOVj/30slAiWjbsEvfpUsXTLUlRNHEwVwwW+oT
+	 DSLqkF+0lWrY5gfmXcQuQ/06b2YL1i6UBF+wNo63ezMXfeB0qrKDRgP2f86XiCDGdc+5s
+	 NcsoY8zXrEeea0wntc8D5iCOuHMMbymbiIYTVLXDAwozMmhjbu8mj2CndyBquY346vb2F
+	 vQfqMLptWQ8glFomKI8guOGiFdOymrbzSeoXhZMAVD1GTwjx8OqbKec5SLbfelkR6YA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=smAQ9sJ9;
-	arc=none smtp.remote-ip=74.125.82.53
-Received: from mail-dl1-f53.google.com (mail-dl1-f53.google.com [74.125.82.53])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=fjxkZf+O;
+	arc=none smtp.remote-ip=74.125.82.179
+Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE6FA606A890
-	for <linux-openrisc@vger.kernel.org>; Fri, 13 Nov 2026 17:16:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EE6FA606A890
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 663856074B30
+	for <linux-openrisc@vger.kernel.org>; Fri, 13 Nov 2026 17:22:31 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 663856074B30
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=smAQ9sJ9
-Received: by mail-dl1-f53.google.com with SMTP id a92af1059eb24-170135e43c7so1196223c88.0
-        for <linux-openrisc@vger.kernel.org>; Fri, 13 Nov 2026 09:16:50 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=fjxkZf+O
+Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-37986eb6fa2so2930701eec.0
+        for <linux-openrisc@vger.kernel.org>; Fri, 13 Nov 2026 09:22:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794590210; x=1795195010; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :references:cc:to:subject:from:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=1NnwoeqjhMRZA613FNn5ml0JxbTNE6hC+WRkyiGE1vE=;
-        b=smAQ9sJ9ED1e8iN8XRJLVO5ZrCNIyjWAp7cVA/514X2FbnIKXxGzVIvvjYL9swD0c7
-         IM8Hx4zvQiFcGWf5cjri06K4RgyFXDDspxmF+rbSEQ+zmUxHnlgd0a6hEked587iN+A2
-         Sk3ztiLzIJ3JGPzUHSMgK0VNTsolGVU/3ANRTfp8Q22+yzizwMG6oEtPqaZPmFEzEkWA
-         2rV65rmhuS0veszEllCWZYQUEshFDyL884+hvCtufoj9GeEoXPfM8e/SUp7g0dqtPHDG
-         1kwdn5/mrsd5wJ+dXAZzoFVdIybtHrSxPpwyZfYr+lHnogfPbYRsHnQD7rgcCECJiyMi
-         qniA==
+        d=gmail.com; s=20260707; t=1794590550; x=1795195350; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=OXfE/1W5iYUB1NrGTtPkTsDeQzVdgtifzj98ImHtgPo=;
+        b=fjxkZf+OCvJgyRQFlINphS3GvpNklkEUcMMifyEbajyUYfgGR2pCfZgoTsPAe0hjAN
+         opijHSp8A/8EAoZumHy2iy34a2kc9kVqiTkavKjQjeurqIehnM9CkOfx81Z8oR0yX5ul
+         J9tpsR6m3FHT4a9p/xAt+ZRJcodC3CjeXxhpf9FCU48HlCxCPWQjC75knoVVqu2lFIcN
+         nHSzSqeeHutQy5biOw2l6oclNIlpNzW/Xl9YJQzjU9ivLVJYXXUktQN+NseViVRMAX5J
+         NZhkkF6lfJOMroSC3tEqiJyfGmbFOukuvKX4idxUk3fiKCZTP5Kb2PQA+EOwg831zczn
+         WIIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794590210; x=1795195010;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :references:cc:to:subject:from:user-agent:mime-version:date
-         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20260707; t=1794590550; x=1795195350;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=1NnwoeqjhMRZA613FNn5ml0JxbTNE6hC+WRkyiGE1vE=;
-        b=B/w3mIJF9s5RxdTs8eUGaO/1TlQUsZTEztYJ0B+cNUxP98sh6Hsz+snSR1pLlIs0DG
-         FeR6e+OrpL6TAqO7sDIiAkBkkIjTbFYdKW2pEBzK7xa0RH4ABYva4/ymDxx2PeVb0kZa
-         zNm+lJT4T7SyL2WAQL5yJezyHrWnJNLmRm19lVnr0nwcr8ltKNM6FiO1sN5dQo6ZMjym
-         9WlQppA1z3gQPkSG9PHrpWvFLe30osa0clBSRunAzhuR1Fi6o0S1zMycX9Mm4zHuejwA
-         bEwnsJcwY+QcfNAKvdykjFObtH+BcQsA+YHLsOxEmCFvckx9lWKyrfcAp0kS6uHM7moc
-         boOg==
-X-Forwarded-Encrypted: i=1; AL+hErFc9K+WnAnoyl6uYYQg2YDU+eomWBAQzAJJXqGtm+763iTUuS/1WCp6zB2SPCfUJ6x/K83cXzaZ49hlcDJ2Bg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/RmT8WCMOjdNrH1qq8w8cM6S2SchWR9IkC9GdvfMYPYVzigeyX
-	G6QRGrFk3qgPXNG1Lj/TOTmapciHWWx5hz3rm60uERf/+vs5+DMXlQZR
-X-Gm-Gg: AYBFou29+GnV3Vyy7pCzwXl8FytZ13pCpBJJQELxjF2V5tuihYw5RTZmd8mYlya37gB
-	nuP2YcMLN4fvalzpfBNCg8p1yu607AtYcG8iqTtmIsjYFlzya5muFTgUXxbkUSanKKDCmeDetsE
-	kT3dcxak7ULAf/QuAqct6mx4fVF/ZkVKh9LOy/dkvKKlgaejFHjRm0uPOedzZ8+8AdBNgjqLpX6
-	ctYetNA4y6+cUw8FSkC3v58FROiI6r/ez5kHsTJDht2sYGGMlKtUXM7AJHVqK6//Pc6mLMiMATJ
-	fLuMkLuEdKQD79GuRpwU6rBRuVYNvk2BBgMMVga0yGSq62KO14dvfVgyXAIJU3VYeYGLdveZe09
-	LMUKeG3JFiodOdujBewZcLLsImHdEXXETjgpClcVKNMpwA73lzcst2XdN8HIxtgECZWO+SZoET2
-	WpgfYj/fXMLU8vwocOUSSRilO2c0WUjufoQnwdkPiyLSgqWXdktUo6cokKJdZt1i94LMu4+g+5C
-	HDTxP4DUtBuMYUNWCP+VaQxP9oTdbDiFFl8YvRh3dd7kuVVvBlWa9Hz84tURggu2d41wdwL
-X-Received: by 2002:a05:701b:2202:b0:1b5:e9d:c641 with SMTP id a92af1059eb24-1b50e9dcabfmr765113c88.18.1794590209794;
-        Fri, 13 Nov 2026 09:16:49 -0800 (PST)
+        bh=OXfE/1W5iYUB1NrGTtPkTsDeQzVdgtifzj98ImHtgPo=;
+        b=qD+sBgmPJ7IYbz1goqWD5nSuFVKP4pphS/fHjEqcHpKCNpzS9QTN9v936FG6neVAtI
+         5XhHRyijVZW4PyxabF2qCrBv319ChShupZBM192zWagO2mUThLtF4eso1fipB+muQJ1+
+         2Bhs9jRtYHCkc1fRdMCQMC4oj07VULw614DA9Zl0k8R4fZ72cLC0QoFU/6EqhhV8G54x
+         uLMkFkU38doHYes6XCyq5du/f5qgzDAG6JoqVoNG90C5Ayw819pQ/k2F6Bw2MvmZ8Igh
+         oQiE8lTvcZG07gdyEZlIhk9bWt2+zZ+lFAB4+U+HfTHF50IUqK5LnzCq3jQLXiE7wySU
+         MsJw==
+X-Forwarded-Encrypted: i=1; AL+hErG0t27noV3hG5NBk2mzWJWB2iJRRCN3/+3xv4srHVGOxOc1PkNoHwF37dmcTKi69m3Xf/o8BXSKvxzQoJ3GLA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z9gKNeVi48Z36Xy6rIiXiJU4vkw6VY4S8b+wgEjAmvruT5DMzAT
+	aZKVsuKdDThJMoTJD2aBNps4QRxMxmD6KQWsW1B8L0KTZYLoUerhXQM/nIBz9Q==
+X-Gm-Gg: AYBFou3OZzXPB7Ok0Rid5jfIJbSqxfqfZFJY9wY5rFklpiuyD3C2IK82BxFnNYvQ3B1
+	hnGBUJL5EKbMHe/I3g+PTPtSbCPJR4HJ5PbG4skxoa4ui16GYqcO2DjZr0PjZSAjuCEDAtPtSq7
+	L7alhWacvlrfk563d1NmcV01OjrBKR7aqReM+i1v7rWbVFF0WD5bCIKKI3NYCMhhpVIre5Prj7A
+	sc5pAa5WbVf321D9OWu9eIWjmk6XcxIbS5EDcV9zwa6IlbcmW2X0xZOq2A0o7at/w2AW0yXQuik
+	LuKiSg6Semp+knTAtW+BEBtQDnM7cxu7GmoGgpIKM+QqlFcP4RtAxLFHVU1gfulAh6gwpCt05g3
+	JyApseykoBb27UlqKbb+irgI1ZLLlDcPevNia0jVhGOiwm3Vh/2uRATYasOTO8hpMASChKnPtIS
+	TTqCl7wUn0eDkUMxdP1vg6VSvS3f7upXk8hTTqc0KOeS+BGOYpWMt5BZzQ+rh5pl8CaPfKsoNEh
+	zl/L2ox1KsofW9AoiQ9XLXUXeYFVoFuCQtssEIBHyNhxxjOFBLbcVGifkib2XkgRSFQ+7aJ
+X-Received: by 2002:a05:693c:8105:b0:36a:54a0:6b4c with SMTP id 5a478bee46e88-3796721e0femr2979743eec.25.1794590550340;
+        Fri, 13 Nov 2026 09:22:30 -0800 (PST)
 Received: from [192.168.0.216] ([182.48.212.29])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b5031468b7sm10299969c88.5.2026.11.13.09.16.45
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-379560f5e06sm11744319eec.19.2026.11.13.09.22.26
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 13 Nov 2026 09:16:49 -0800 (PST)
-Message-ID: <3a931844-7b7f-4408-8d92-d0604ca7d51d@gmail.com>
-Date: Fri, 13 Nov 2026 22:46:45 +0530
+        Fri, 13 Nov 2026 09:22:30 -0800 (PST)
+Message-ID: <2f9cd058-c2a2-4a7f-a755-a66653a8f659@gmail.com>
+Date: Fri, 13 Nov 2026 22:52:25 +0530
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Post: <mailto:linux-openrisc@vger.kernel.org>
@@ -90,124 +92,61 @@ List-Owner: <mailto:linux-openrisc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-From: Sahil <sahilcdq0@gmail.com>
-Subject: Re: [PATCH v3 4/4] openrisc: Add Kretprobes
-To: Stafford Horne <shorne@gmail.com>
-Cc: jonas@southpole.se, stefan.kristiansson@saunalahti.fi, naveen@kernel.org,
- davem@davemloft.net, mhiramat@kernel.org, pjw@kernel.org,
+Subject: Re: [PATCH v3 0/4] openrisc: Add support for KProbes and Kretprobes
+To: "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
+Cc: jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
+ naveen@kernel.org, davem@davemloft.net, pjw@kernel.org,
  wangruikang@iscas.ac.cn, namcao@linutronix.de, kees@kernel.org,
  linux-openrisc@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
  linux-kernel@vger.kernel.org
 References: <20260930202744.50489-1-sahilcdq0@gmail.com>
- <20261026201240.107462-5-sahilcdq0@gmail.com> <avArkiSOmUfSrmYF@antec>
+ <20261026201240.107462-1-sahilcdq0@gmail.com>
+ <undine-1794560694824423564-2986102e2a604795@undined.local>
 Content-Language: en-US
-In-Reply-To: <avArkiSOmUfSrmYF@antec>
+From: Sahil <sahilcdq0@gmail.com>
+In-Reply-To: <undine-1794560694824423564-2986102e2a604795@undined.local>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 11/8/26 1:28 PM, Stafford Horne wrote:
-> On Tue, Oct 27, 2026 at 01:42:40AM +0530, Sahil Siddiq wrote:
->> Add Kretprobes support for OpenRISC. Kretprobes allow a probe to be
->> fired when a function returns. They are built on top of the generic
->> rethook framework and also require the KProbe mechanism introduced
->> in the previous commit. This work is primarily based on similar work
->> done for RISC-V.
->>
->> Kretprobes work by inserting a KProbe at a function's entry point.
->> When the function begins to execute, the KProbe is fired and its
->> pre-handler replaces the function's return address with that of the
->> rethook trampoline. The trampoline in turn calls the kretprobe handler.
->> Control is returned to the original caller following this.
->>
->> Signed-off-by: Sahil Siddiq <sahilcdq0@gmail.com>
->> ---
->> Changes v2 -> v3:
->> - arch/openrisc/kernel/rethook_trampoline.S:
->>    (save_all_base_regs): Save SR and SP registers
->>    (restore_all_base_regs): Restore SR register
->>
->> Changes v1 -> v2: New commit
->>
->> [...]
->> +#include <linux/kprobes.h>
->> +#include <linux/rethook.h>
->> +#include "rethook.h"
->> +
->> +unsigned long arch_rethook_trampoline_callback(struct pt_regs *regs)
->> +{
->> +	return rethook_trampoline_handler(regs, regs->gpr2);
->> +}
->> +NOKPROBE_SYMBOL(arch_rethook_trampoline_callback)
->> +
->> +void arch_rethook_prepare(struct rethook_node *rhn, struct pt_regs *regs, bool mcount)
->> +{
->> +	/* Store original return address and frame pointer */
->> +	rhn->ret_addr = regs->gpr9;
->> +	rhn->frame = regs->gpr2;
->> +
->> +	/* Set return address to trampoline */
->> +	regs->gpr9 = (unsigned long)arch_rethook_trampoline;
-> 
-> Though this will work, in the kernel code we prefer to regs->gpr[n] syntax
-> for accessing gprs.  So to be consistent could you use that?  i.e. regs->gpr[9];
+Hi Masami,
 
-Sure, I'll change this.
+On 11/13/26 2:34 PM, Masami Hiramatsu (Google) wrote:
+> Hi Sahil,
+> 
+> Can you update the series according to the Sashiko's comment[1]?
+> 
+> [1] https://sashiko.dev/#/patchset/20261026201240.107462-3-sahilcdq0%40gmail.com
 
->> +}
->> +NOKPROBE_SYMBOL(arch_rethook_prepare)
->> diff --git a/arch/openrisc/kernel/rethook.h b/arch/openrisc/kernel/rethook.h
->> new file mode 100644
->> index 000000000000..332306a5c380
->> --- /dev/null
->> +++ b/arch/openrisc/kernel/rethook.h
->> @@ -0,0 +1,8 @@
->> +/* SPDX-License-Identifier: GPL-2.0-or-later */
->> +#ifndef __OPENRISC_RETHOOK_H
->> +#define __OPENRISC_RETHOOK_H
->> +
->> +unsigned long arch_rethook_trampoline_callback(struct pt_regs *regs);
->> +void arch_rethook_prepare(struct rethook_node *rhn, struct pt_regs *regs, bool mcount);
->> +
->> +#endif
->> diff --git a/arch/openrisc/kernel/rethook_trampoline.S b/arch/openrisc/kernel/rethook_trampoline.S
->> new file mode 100644
->> index 000000000000..5e8fd5a65222
->> --- /dev/null
->> +++ b/arch/openrisc/kernel/rethook_trampoline.S
->> [...]
->> +SYM_CODE_START(arch_rethook_trampoline)
->> +	/* Allocate enough space on stack for pt_regs */
->> +	l.addi	r1,r1,-PT_SIZE
->> +	save_all_base_regs
->> +
->> +	l.addi	r3,r1,0	/* pt_regs */
->> +	l.jal	arch_rethook_trampoline_callback
->> +	l.nop
-> 
-> Could you indent the delay slot? For example:
-> 
-> 	l.jal	...
-> 	 l.nop
-> 
->> +
->> +	/* use the result as the return-address */
->> +	l.addi	r9,r11,0
->> +
->> +	restore_all_base_regs
->> +	l.addi	r1,r1,PT_SIZE
->> +
->> +	l.jr	r9
->> +	l.nop
-> 
-> Indent here too.
+Sure, I'll make those changes along with the ones suggested by Stafford.
 
-Sure, I'll format these as well.
-
->> +SYM_CODE_END(arch_rethook_trampoline)
+> Also, can you check your git email settings, so that the next
+> version does *NOT* reply to the previous version.
 > 
-> Thanks,
+> This mail has
 > 
-> -Stafford
+>    Message-ID: <20261026201240.107462-1-sahilcdq0@gmail.com>
+>    X-Mailer: git-send-email 2.55.0
+>    In-Reply-To: <20260930202744.50489-1-sahilcdq0@gmail.com>
+>    References: <20260930202744.50489-1-sahilcdq0@gmail.com>
+> 
+> But I can not find "20260930202744.50489-1-sahilcdq0@gmail.com" in
+> the LKML archive.
+> 
+> Also "[PATCH v3 2/4] openrisc: Add KProbes" has
+> 
+>    Message-ID: <20261026201240.107462-3-sahilcdq0@gmail.com>
+>    X-Mailer: git-send-email 2.55.0
+>    In-Reply-To: <20260930202744.50489-1-sahilcdq0@gmail.com>
+>    References: <20260930202744.50489-1-sahilcdq0@gmail.com>
+> 
+> This should be in reply to the cover mail
+> "20261026201240.107462-1-sahilcdq0@gmail.com"
 
+Oh, that's weird. Maybe I used the wrong message-id when setting "in-reply-to"
+using git-send-email. I'll send the next series such that it doesn't reply to
+the previous version.
+
+> 
+> Thank you,
 Thanks,
 Sahil
