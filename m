@@ -1,97 +1,111 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=202.12.124.156
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795043040;
-	b=NfYwwlMoYGRoaAvU8ZwXWtegDWeNlP8W53wGC3uW8zShNI9t5IRAGa6tmjR2OZJaTxLZ
-	 ELxw8i7yxkVWva1n7nVd/qpji73a51StIGp29XtyCK5LxbHmoDj8FwsMBReAe0j5cV0M3
-	 snWQUzgMJAupcTaoGHc7w27ci4cHirn6Q7+1qSzozsBj9v0WEdV1SG0BT8nG0oZfJwdEj
-	 KwiwlIm/5S0gDmlQJEarULYzK0stCe0LKB2+ckS3qtGbnmEZuvXrSNzVqHdzNwwoFV8R7
-	 pZmD10ToPS0WQifV6A0VUzMtrTa0gv/N0cm6/rYdV+7TiI4923kjZ99x1y6tPUjuHYQ==
+	t=1795076857;
+	b=LditTuWO83HzNOg187/4PsDEczu41WHj0hnly2KMAj9lPam5lDbcxmF7uJguRklQkSIo
+	 X6DflB265d3LqQv1XwgpCggm0MK16EVHAdsHAR8ytqxNcl62OPpMzw36XWri9ocYRSG72
+	 UblnoAKScNDD6US4Nm0iuzMRHJDyDQ198oChyi0/smW9QzD1n+2UFoDV0Qpd0mL2PeUDt
+	 D257N242tF+XX2iC/kISYm9yWhtTMx95IK3iMxhg+V965EUK1pXFsaq3kzu5JABC86rtk
+	 0whYtFOVN6W0/jW5+5Tt7PGcPh7qoNQEi0YFgh5eMkUj84O0r7BdL74DUKZ9C6jiC5w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795043040;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=i4iIo8Mq+sa6c0unlydNIobU5/d3a9Jv12oAlD0QbJE=;
-	b=AQqugHTU99pkh6KvsmtoSN4TSUAkImF8SS1m5tTlbhUuTKIor1S8cH1jokVQWrxmEnwM
-	 QgQbD3nN6rnl3CBcq6jElEjAyrObl84YasPIKdD0ykMD4zslK/HYy+oq/PU/+k5PXJGA5
-	 nGY9WNyMfleWAaJ5sy+4yC5krTcaa+RqY8zj0eNCNwqjkJzIebdxNWB0TcMH93VGoqzQH
-	 6ghI6FXOv3xjJMGIKqbE9vn82qstO9fuSEaNVutRPkbXJLcdUK3CELj5AG9A6dHm+gzRA
-	 zU4sANu0RyCw5yaR3/7WV8C3yrvceqrDSCILthkpbqTcvE/ssWUHsh+kvxQtyXefcMw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795076857;
+	h=DMARC-Filter:Received:Received:DKIM-Signature:DKIM-Signature:
+	 X-DKIM2-Info:DKIM2-Signature:X-DKIM2-Info:Message-Instance:
+	 X-ME-Sender:X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
+	 MIME-Version:X-ThreadId:Date:From:To:Cc:Message-Id:In-Reply-To:
+	 References:Subject:Content-Type:Content-Transfer-Encoding;
+	bh=Dw2q8IL1wjmsTR+qJNvV5rMR+yLv2cKTTGNhz0woQiY=;
+	b=HK8dfzo1nkffFajW+efebOqBi2Hlmpm2mxkA485SnXyZ/1mwDpLeQGgbUEo68mmOnnKI
+	 pBmmzl3TQKTAwWo7s64F8EevCeZVnnxYdeqJ3wD4OnTKcfcv2obBHikOHAt/2mN1Q4Mcr
+	 7eWn+6MaKX6TR0feAgyNh2fGRPXlJ2WykoJxu6u404iHVZOgc3VY3NqfxaaOHNh0v1Azp
+	 APHlbSIzJAbnzk2OMjcV9P5wxmpzrBYtd0hey5XqzMQp1tE8/4jsrrFTgC2T/2+MDloDp
+	 9qbko2jkzXd7lSDxRUrNfYW42w4k5QkZMTfI8mvtIhyjXREmsj4S+OH5U4p9768CdOA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=d7KqKanJ;
-	arc=none smtp.remote-ip=209.85.128.41
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=arndb.de;
+	spf=pass smtp.mailfrom=arndb.de;
+	dkim=pass header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=EXNfnMsS;
+	dkim=pass header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=XKUR1bwe;
+	arc=none smtp.remote-ip=202.12.124.156
+Received: from fhigh-b5-smtp.messagingengine.com (fhigh-b5-smtp.messagingengine.com [202.12.124.156])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7905A60A2618
-	for <linux-openrisc@vger.kernel.org>; Wed, 18 Nov 2026 23:04:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7905A60A2618
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79FCE606A325
+	for <linux-openrisc@vger.kernel.org>; Thu, 19 Nov 2026 08:27:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 79FCE606A325
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=d7KqKanJ
-Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-4bb6057b333so8090135e9.3
-        for <linux-openrisc@vger.kernel.org>; Wed, 18 Nov 2026 15:04:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795043039; x=1795647839; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=i4iIo8Mq+sa6c0unlydNIobU5/d3a9Jv12oAlD0QbJE=;
-        b=d7KqKanJSoLFBZhFpVRvnvMHT8xNhQc0a4N+nuV1SxQaWe2yTGlEX8XNa4auyifYaX
-         oUwe9LXuIEkSbq2es3uznEkZrp8gATdhncMWZw5Pp4bv4XTquDNXzSvtY3u5AsZ+vsPK
-         65sZTwqDQTWe2//IbR0jx0ID9EHYrbYkqjy1K+0FKGa/cKvxK9Y1NoCeCqNSW2sXHQcc
-         sZztzmu/U87B1aA/Gu8ywP7hZFMVdc0+IfQlCZUqUzRq6oluoqgWg0u3gZVlYYok3h9B
-         SegA3MXMbAi9R95YKpXiJIJxqHm4jV4SO/7JhSJwZk6Ny4J53Cc7PsHOl6lY1CiisyWT
-         zkkg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795043039; x=1795647839;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=i4iIo8Mq+sa6c0unlydNIobU5/d3a9Jv12oAlD0QbJE=;
-        b=Lc4mteAK5QetHTVZpl7vTHi/P85t3KM8Gp7JhRakgNLkPAcZ5g7qplXBuxtYsebiqn
-         gXLNp7E24meCZBYqr6ZGB+iPCiJ7QiF+cPwkMJfZUoUNk0fvb5cKY6G8hgQmuSEZ8Kr4
-         JCx6DcvHmLhn7jv9IuDe6qoZO0P6CYvyb7hwlKrn17T9RsFFmxfYFpT0F/dn5PxWwHzR
-         V4yO+BMJPP5osyJv2aLX1zCx5l93wQYg+1OYyJoX2XSNoqnymSmNt0os1PacwjRuoMgg
-         eTXCic2QWweE2yPDH3oO/0+Smmb/8ScN7i46La41PE8zTyYrtSk4cRjVy7tLCft7wzue
-         vh/A==
-X-Forwarded-Encrypted: i=1; AL+hErFpsHGCM4AB2Pb/N/gtSmTFmlGre08d93XWaqucrWTXAJ5vO4i0rzoikJwfjqN4fF6JeCG0J+2IRjwEn6N0Hg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+Zm4H6Xu4gpcWmZQnl8Gbb8kB55IaVDoJIYHB1elAFyC3/9dsQ
-	sahd8/C8ejqY1SODj7bBgwsiRRvggCvlbir2+v3b0ulwTIQLpB0JAV6F
-X-Gm-Gg: AYBFou2X0GeIXxgKaxEB8ADQXFZ2UjnPpe1Ngm/3xpuAQgzpuU5MoEff7J/HoLRVil8
-	SABlzTaloRuOuznlxI6uqNYGMexhxQVIbB8ql4kyVfrCP1n7XBDqDMhzPC7QHZR12/zby+PFzrm
-	x2lx/dc5MbYItR1I9Kqapu15vzix7/UrNIqBb19lnu+DGQYxrxwkg7u5QepDNruZJmyPuCqDJHo
-	PfPrE9aK2vdo51reYp16pqVvQ8kExBUWwLg2nt4YZJE0zBIIwS1a7rgbM7pMAdxggHY/XdZkv3M
-	CCxdkIEjrwFlzOvS5HSrcK/bK1v8X7E8Fq7Ch+AtcJ0FicWhRHaHqOjBN38mOa8gs/6ZAMIbX6o
-	LIbeUngofz0LA0b6iKO+uYS9D23zA60lJAswjPXgVyJyBu+ugE2uwtTsL/z1jj1VAdI+Ca5qg4O
-	rALVLXynokqdjP8ww3sKOwZieedmjB0yJ877vHVg287M4byuhWem8lcQtXNdQHOA6UakNCD5wqi
-	RFjhoiZZwfkjBgcUpXOydG/nBD94EX8PeA7M1scPLix0OsY/3HLOmyuA7asKUiRAayfzRqB6QPM
-	IVKBdItPWpUHZlAZGWuD6r5lfvkGplP9tTvMHuZOCHUVOIuJNljDUME1HftfRljOZTpJfD5+R8C
-	iGq09mN4=
-X-Received: by 2002:a05:600c:5491:b0:4bb:5e6b:49e with SMTP id 5b1f17b1804b1-4bb7d9fb0e0mr80338115e9.6.1795043038706;
-        Wed, 18 Nov 2026 15:03:58 -0800 (PST)
-Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb842e93f6sm4886145e9.2.2026.11.18.15.03.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Nov 2026 15:03:56 -0800 (PST)
-Date: Wed, 18 Nov 2026 23:03:55 +0000
-From: Stafford Horne <shorne@gmail.com>
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: soc@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
-	Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Simon Schuster <schuster.simon@siemens-energy.com>,
-	Vineet Gupta <vgupta@kernel.org>, linux-openrisc@vger.kernel.org
-Subject: Re: [PATCH] openrisc: stop using libgcc
-Message-ID: <av4u27rT4UqtnXUM@antec>
-References: <20261118160820.2994933-1-arnd@kernel.org>
+	dkim=pass (2048-bit key, unprotected) header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=EXNfnMsS;
+	dkim=pass (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=XKUR1bwe
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 9A72C7A02C7
+	for <linux-openrisc@vger.kernel.org>; Thu, 19 Nov 2026 03:27:36 -0500 (EST)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Thu, 19 Nov 2026 03:27:36 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1795076850;
+	 x=1795163250; bh=Dw2q8IL1wjmsTR+qJNvV5rMR+yLv2cKTTGNhz0woQiY=; b=
+	EXNfnMsSpzenqbvEVHu1LMUvpFnuFy6rGLQqoC6MtNEIO71BanE4eCWjn9zwHd5O
+	d+c3quKPpoWGGSt0rRVSFtp0OtEBj5Uz9sFxI8042yXyeaDmfXxBQEnariN4DGpe
+	hKPsQ+c94IG3n685i5zkTIWFK3wttbKfVWIea8B3D60MvSvBPmF8SUKX6FAsQccu
+	5R3Y1YRAPPwnRvmK/PAM9rLhtjfOg+ij7k5cW8O06GIwsYBDl2RHxKX5fSbKcYGT
+	zZmBcBN+dOgnjMK1bifLgJa+NWB6TCYmqepevSVCnUN9zjrRvQ6xDsAxZo/+4sqr
+	Ti7PKIKgQLzpzIbaj93jBw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1795076850; x=
+	1795163250; bh=Dw2q8IL1wjmsTR+qJNvV5rMR+yLv2cKTTGNhz0woQiY=; b=X
+	KUR1bwe5BwIlpkvGwgu5OnV0gkhh1BkJ2BzyLCqBQtwYuJbEvXo92OBHZuHY55ik
+	tNUWu0YkAX2RSLVF4e1S/YdoHjRWhMVUa69VUrCHv0FxTRGA+mBzWri2W0k6ag9X
+	cCGu7V3P2bnbKQWfNjkSxOnizipIToefdkekmtgSfVsYwSd0ABaxqNHQuft6uduM
+	4YSX7V0i4BuRJzkrJA/8wXTL4LL7wJgaOq4Ccjq5EvmALVydjrHconGyEdKZAq+t
+	ZR+RbOKwi6Kg9iM22d1EvIOK+230LpeUwNNksXg9Z67POlFrh4t00Zt/9kfmv2Lr
+	hIaCuyGAg55cjGrssgXpw==
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
+	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
+	action=sign d=arndb.de a=rsa-sha256;
+DKIM2-Signature: i=1; m=1; t=1795076850; d=arndb.de;
+	mf=PGFybmRAYXJuZGIuZGU+;
+	rt=PGxpbnV4LW9wZW5yaXNjQHZnZXIua2VybmVsLm9yZz4=;
+	s=fm2:rsa-sha256:PbYZi14f1AmdE7IWQUHtcTeFejhDuxvE/wJvKU6nD+sdcV1
+	3nIuE9FYyQpxKSHKksTLd/JM7lx1kdfKSpEcS6mPAbyAXRH1h3ekAtUR/Wpaf4dU
+	VZAIMjit4SE11RDK4ZMhXpczGb+eYi6Ed/+WtuO9hdfW6oW+UIHLzEnxjobYedVv
+	pUJatBXpsXUUYIUxd1IAzofl3glowCkvJWhjByq6e4QFSguA/tgnGpPQZSUmWM9k
+	I8kZjbtvZ36FXEitxAYDPGSllhoyMVm1m3JjAXh00RpgAkThqJfEJIZAHF9sRXPU
+	c+YVuXAaowGsdzQHhIk1nN0CZAjMZAj6vFpODJQ==;
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
+	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
+	action=mi-m=1; hc=12;
+	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
+	from,in-reply-to,message-id,mime-version,references,subject,to;
+Message-Instance: m=1; h=sha256:38katowk3PLIqYxjJq1fN31+3a5ifKQsxhh+W9e6f5Y=:v9sVWsIQ2Y6fKwJ6G5G1cEaPaE3lJadywxd83luirlM=;
+X-ME-Sender: <xms:7rL-ap0vSKnWuKM5bV7d6plQysQ0Ar2iyQdJbaQxK45Yq96ozPGdwA>
+    <xme:7rL-aq4nztQSHbCdhfjQcTcc_6-SL03MjkKfUKJ6ranIEf3BGYmG7rCOd81efkovf
+    dbDjnmlbqw7sOFcwioxBgQndfuJkL13RvIeuehdo5rnP_qnYa7vbGwc>
+X-ME-Proxy-Cause: dmFkZTFDzgM4lPuhyFyB7PYePOAsgiF+xpDNDzvQL5O6718m6tCxOdvKBqMnj2JpMYjRrq
+    fnMlW0tja6vUkcykU86qOM2O+jOuIlZybqBKRRsEI2HziWVGJ5Cd0JK7yDW6S42yjI9BnU
+    H9HI/lBFz87DW8LhV/72Jz2W/NKdh3Wg89z3YAutIKKYUSnwxDSlhQr4Yozvs6QR7YmVCC
+    KrOlYOKPFrgDVzFecsqDl/bZbwo75708mEZyw92qBveOlk0HpXjFUDmfO4xQX5QlQ/N2xp
+    L/reFtIezibP7xlq97dfMTSH2OZmkOcMFLSl6J0AvNbqBwIghNyYF0isD4fVzpMKLnjISM
+    r9WEzSgBsmy+UVeV6ISdLSMKgNvAiHdcsXGwXmEgt/JBwHj2gUvhydGN9oYbmUmqKXHN82
+    muUhPNr4mHGsDlo9hk4dLNCepJZgLiXzYl8sS8XblGD5A+rPvQbnLPMf4Igx2oPus5vdZJ
+    +Kfx1icFSU7F51Wf5Pz8PvYowWpdaAIXgShokVu4zN9e8c0bjzNCRG05FHUbLFSzIH5+7p
+    GstgA27kypP6qcmRACMGl1FEj5RMD22nW1aLWjCNhlZC0RWDqadjBJ8t7AzFYLGGCHwNNg
+    teKBH/RJDeVlbu/aSGbUmgKoFAH7l/GQdj9aWsKyMjXGIVqldWKcwig3+4VQ
+X-ME-Proxy: <xmx:8LL-auGbPSoCasRNthC0dMzMQ3pf6UmkgcGKqjhAAkFniXtKLG7_qg>
+    <xmx:8LL-avw6VTnay3xdP7Male_1s-nJkTigBW0C6Ak8W7N6ZKrVnw9leQ>
+    <xmx:8LL-ao2Bn62xiCFtFRnWxa5jVUzaABw8zuEdmyrA2yCtIfEbcLuowA>
+    <xmx:8LL-avq9FmfrLpjEcbBKIkDhmxZIaDStXVdEZIf4yrGJjQBB3VtdkA>
+    <xmx:8rL-at9-YqzTAFzI0o-fQA8HAuvbx6UhOzhGKmmMsfCFHduvLKsMveIX>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id 3A0AF32A009C; Thu, 19 Nov 2026 03:27:26 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Post: <mailto:linux-openrisc@vger.kernel.org>
@@ -101,118 +115,43 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-openrisc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261118160820.2994933-1-arnd@kernel.org>
+X-ThreadId: A9y9RtHuK9Pc
+Date: Thu, 19 Nov 2026 09:26:54 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Stafford Horne" <shorne@gmail.com>, "Arnd Bergmann" <arnd@kernel.org>
+Cc: soc@lists.linux.dev, "Jonas Bonn" <jonas@southpole.se>,
+ "Stefan Kristiansson" <stefan.kristiansson@saunalahti.fi>,
+ "Dinh Nguyen" <dinguyen@kernel.org>,
+ "schuster.simon@siemens-energy.com" <schuster.simon@siemens-energy.com>,
+ "Vineet Gupta" <vgupta@kernel.org>,
+ "linux-openrisc@vger.kernel.org" <linux-openrisc@vger.kernel.org>
+Message-Id: <a3d2b50c-e3ef-43d8-b330-53bcc6b804e6@app.fastmail.com>
+In-Reply-To: <av4u27rT4UqtnXUM@antec>
+References: <20261118160820.2994933-1-arnd@kernel.org>
+ <av4u27rT4UqtnXUM@antec>
+Subject: Re: [PATCH] openrisc: stop using libgcc
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On Wed, Nov 18, 2026 at 05:08:20PM +0100, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> Based on the work for nios2 and arc, remove the inclusion of libgcc
-> and instead use the kernel's own copy of the required functions.
-> 
-> Cc: Jonas Bonn <jonas@southpole.se>
-> Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-> Cc: Stafford Horne <shorne@gmail.com>
-> Cc: Dinh Nguyen <dinguyen@kernel.org>
-> Cc: Simon Schuster <schuster.simon@siemens-energy.com>
-> Cc: Vineet Gupta <vgupta@kernel.org>
-> Cc: linux-openrisc@vger.kernel.org
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+On Thu, Nov 19, 2026, at 00:03, Stafford Horne wrote:
+> On Wed, Nov 18, 2026 at 05:08:20PM +0100, Arnd Bergmann wrote:
+>> From: Arnd Bergmann <arnd@arndb.de>
+>> 
+>> Based on the work for nios2 and arc, remove the inclusion of libgcc
+>> and instead use the kernel's own copy of the required functions.
+>> 
+>> Cc: Jonas Bonn <jonas@southpole.se>
+>> Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+>> Cc: Stafford Horne <shorne@gmail.com>
+>> Cc: Dinh Nguyen <dinguyen@kernel.org>
+>> Cc: Simon Schuster <schuster.simon@siemens-energy.com>
+>> Cc: Vineet Gupta <vgupta@kernel.org>
+>> Cc: linux-openrisc@vger.kernel.org
+>> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+>
+> Acked-by: Stafford Horne <shorne@gmail.com>
 
-Acked-by: Stafford Horne <shorne@gmail.com>
+Thanks, I've added this to the asm-generic tree, and now only arch/parisc
+still uses libgcc.
 
-> ---
-> Hi Stafford,
-> 
-> I've based this on top of the branch at
-> https://lore.kernel.org/all/20261118144652.3124085-1-dinguyen@kernel.org/
-> which I've merged into the asm-generic tree. Vineet already
-> has a similar patch for arch/arc, and I did the one for
-> arch/openrisc after seeing that everything is there.
-> 
-> If this looks ok to you, please Ack so I can merge it in the 
-> asm-generic tree as well.
-
-Thanks,
-
-This all looks good to me. Acked above.
-
--Stafford
-
-> 
->  arch/openrisc/Kconfig             | 10 ++++++++++
->  arch/openrisc/Makefile            |  3 ---
->  arch/openrisc/kernel/or32_ksyms.c | 14 --------------
->  3 files changed, 10 insertions(+), 17 deletions(-)
-> 
-> diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-> index 6aaedc67a5e0..5be29befd86c 100644
-> --- a/arch/openrisc/Kconfig
-> +++ b/arch/openrisc/Kconfig
-> @@ -22,6 +22,16 @@ config OPENRISC
->  	select GENERIC_IRQ_CHIP
->  	select GENERIC_IRQ_PROBE
->  	select GENERIC_IRQ_SHOW
-> +	select GENERIC_LIB_LSHRDI3
-> +	select GENERIC_LIB_ASHLDI3
-> +	select GENERIC_LIB_ASHRDI3
-> +	select GENERIC_LIB_MULDI3
-> +	select GENERIC_LIB_UCMPDI2
-> +	select GENERIC_LIB_DIVSI3
-> +	select GENERIC_LIB_MODSI3
-> +	select GENERIC_LIB_UDIVSI3
-> +	select GENERIC_LIB_UMODSI3
-> +	select GENERIC_LIB_MULSI3
->  	select GENERIC_PCI_IOMAP
->  	select GENERIC_IOREMAP
->  	select GENERIC_CPU_DEVICES
-> diff --git a/arch/openrisc/Makefile b/arch/openrisc/Makefile
-> index 68249521db5a..38dc87bc6a3a 100644
-> --- a/arch/openrisc/Makefile
-> +++ b/arch/openrisc/Makefile
-> @@ -18,7 +18,6 @@
->  KBUILD_DEFCONFIG := or1ksim_defconfig
->  
->  OBJCOPYFLAGS    := -O binary -R .note -R .comment -S
-> -LIBGCC 		:= $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
->  
->  KBUILD_CFLAGS	+= -pipe -ffixed-r10 -D__linux__
->  KBUILD_CFLAGS	+= -msfimm -mshftimm
-> @@ -55,8 +54,6 @@ ifeq ($(CONFIG_OPENRISC_HAVE_INST_SEXT),y)
->  	KBUILD_CFLAGS += $(call cc-option,-msext)
->  endif
->  
-> -libs-y		+= $(LIBGCC)
-> -
->  PHONY += vmlinux.bin
->  
->  vmlinux.bin: vmlinux
-> diff --git a/arch/openrisc/kernel/or32_ksyms.c b/arch/openrisc/kernel/or32_ksyms.c
-> index 5aabef30ca09..7ae38030a9d4 100644
-> --- a/arch/openrisc/kernel/or32_ksyms.c
-> +++ b/arch/openrisc/kernel/or32_ksyms.c
-> @@ -27,20 +27,6 @@
->  #include <asm/hardirq.h>
->  #include <asm/delay.h>
->  
-> -#define DECLARE_EXPORT(name) extern void name(void); EXPORT_SYMBOL(name)
-> -
-> -/* compiler generated symbols */
-> -DECLARE_EXPORT(__udivsi3);
-> -DECLARE_EXPORT(__divsi3);
-> -DECLARE_EXPORT(__umodsi3);
-> -DECLARE_EXPORT(__modsi3);
-> -DECLARE_EXPORT(__muldi3);
-> -DECLARE_EXPORT(__mulsi3);
-> -DECLARE_EXPORT(__ashrdi3);
-> -DECLARE_EXPORT(__ashldi3);
-> -DECLARE_EXPORT(__lshrdi3);
-> -DECLARE_EXPORT(__ucmpdi2);
-> -
->  EXPORT_SYMBOL(__copy_tofrom_user);
->  EXPORT_SYMBOL(__clear_user);
->  EXPORT_SYMBOL(memset);
-> -- 
-> 2.53.0
-> 
+    Arnd
