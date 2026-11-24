@@ -1,48 +1,51 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=217.140.110.172
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795539957;
-	b=PutiI5ctFsxI4aXG/EshvDDO7PGzmXF8K42NDR95Bqq1hJAXDQHMFIYHsot3v7BgZ+/G
-	 4X9kR0TGPWJVPERBuPCdTCuYrRw1aDbfIpx8eBMs2wPcvg2G4g4El7UHtt3yeDw9zUAx4
-	 2EN4TiO0kkDguu8snSh5EPN+HmHwo1trfpFsHvG6WmI9wG+7UcmArIOhWa1jaI93CS+hd
-	 DeghQX7nWq/HWVe+DzObA2BDYuW2v0rZA4e4MyLieOiShHdgpTJeCjwqtfY9RoCGAURX8
-	 aOhKbFMDI1jH2E+5bk7h9mfbBdZHMUvHkoIO/t4TNDC4giJ4QaWIFr7vEoTzjBggKGg==
+	t=1795546332;
+	b=SlK/xTceC317zsxhbqymuwr2GYM5RZKYvrXxgHa3yb31IUC/Drg6gjO3OmKxBPKwfj8J
+	 1s0ath99dQb3SUaax/6J/JZdJYrFCX2k2RKT52iuQ29YqQld3BB9vPRcarbKNEkZKAhcV
+	 lzyXnnvbmZ3UHAbcyrRvaeTaAWmlSTjlV9a+YT+i2MCQXLrdzrvrAWnufS/yE43uTzMXN
+	 wYbFQUuIpRNGOPY3PXL+JQRTwv943hFe029FPCtQl2qSuBIkOU6jtEYjilZvQ964xNPdJ
+	 UWRlc8MNP45Qz/2vr2O2midr61jCuDnuKMbXFCGyLVTDF+rAA2P1NC+zMy9cfif+WWw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795539957;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=cEp/cXDtvYTiH8Vp1GK2CqYt15Bi6PXi0it+ySjQOVc=;
-	b=dY4QLchuU6MA147eesKlpdmq1cTsssIUWsZxFAyNh82pi2M6ChFwhv31C5z+URg2hRNX
-	 87zuekccpuYbCsnup2cpuWHhjQACF2OQxLTTRIySiOg0b81NjNAFJr1nPzvhntNKmkW8o
-	 1NM80Ek7oAwxi99ccrRpV3gQt4iu8P2P1MKCb8o6dg920MtidLrsGH6EufmYRN8g0O7JW
-	 /sP7PmzDZDvnLXiRZkbyTlYZenr37h2BG/0PhmlSXcMTn/yzAspGsl2033xRySCB1p+OA
-	 P+5ygoZPd/sBx2OUQmgJIYll7tSWTTt7aMcFmnpQ36FsoXWDw958VQDg186LIIlStcQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795546332;
+	h=DMARC-Filter:Received:Received:DKIM-Signature:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=0sNoW/KWYC5fenn6W3ZO2QgTuASrJJ6ujM7Ci83DK9o=;
+	b=0rBdB67nbDZtMm5dgr8qHJ4XtRONadqiCelJ6czFCUK6UeXN3F278+zayLYI2KqcL1Ac
+	 2RnSqpVBaS8teAPro0fJC4d3Xx6hiIzCxHIcZek6QESYGzHeKv8y755hZEO8Chye1uceh
+	 Tg7WmzdrDvhxc+c6xd9hvnkby7AbyIbr1NgOzhz0+Axw0hNWfDaJvsjZBwoBgtfH/joLq
+	 nsmQkV32oe6SvPbjOBozs4QPcZfzwFTZBDQcds/EAv5tbIFVHwL+VelyUOxnqsW2uMCw5
+	 8e+852g+RZ0+d+5U4C3lPIiDSRXCgeuSoomeCYqPefbjA7xKIJIYQ95dzcRmJLv5kLg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bni2B9pu;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEC76606A31E;
-	Tue, 24 Nov 2026 17:05:57 +0000 (UTC)
+	dmarc=pass header.from=arm.com;
+	spf=pass smtp.mailfrom=arm.com;
+	dkim=pass header.d=arm.com header.i=@arm.com header.a=rsa-sha256 header.s=foss header.b=HxpQmHpN;
+	arc=none smtp.remote-ip=217.140.110.172
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 7E706606A31E;
+	Tue, 24 Nov 2026 18:52:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7E706606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bni2B9pu
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1346D1F000C0;
-	Tue, 24 Nov 2026 17:05:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795539957;
-	bh=cEp/cXDtvYTiH8Vp1GK2CqYt15Bi6PXi0it+ySjQOVc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=bni2B9puF7kfV9Am5t1Ov8WQVRWkWZkohYhFYaAOCp/DQ8YyK4hiNB/6DDEmutNnx
-	 9DItMmeG9wGbsSnTa/2g6Bc+qZD0MoOo2QOCjGO0RuxOqF3Tm1xaa1EZJ9bnO6HeVo
-	 aY1UKSh6mwdd27HE+ANXhvMJYuMadmQYUspZ9MtLopcJo2kqu6TZRKLJOQ+VmUeRA8
-	 BHSro9BNahirHyqaXlAUVp75XTw4Ei0heRmarVboAGmlnTryJvfEdsallK7L2ZowDl
-	 Fuw7NBHUoexrLNsU88p9DA3WymGQjoLqXzSxY/kk/t5a2Ys6NENMpuN8WNAadIMoey
-	 tbOkOgbd3/Bhg==
-Date: Tue, 24 Nov 2026 19:05:38 +0200
-From: Mike Rapoport <rppt@kernel.org>
-To: Yeoreum Yun <yeoreum.yun@arm.com>
-Cc: Russell King <linux@armlinux.org.uk>,
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.a=rsa-sha256 header.s=foss header.b=HxpQmHpN
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0D1E2339;
+	Tue, 24 Nov 2026 10:52:08 -0800 (PST)
+Received: from e129823.arm.com (e129823.arm.com [10.2.213.3])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 7EAC33F86C;
+	Tue, 24 Nov 2026 10:52:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1795546330; bh=cEx0NNr4v9OqxertlfeaIBCZsjK0gqeBlEmSznQ0QE4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=HxpQmHpNrqXVqUfjE0HPfLK3ewOjjeolAx23daMcxTI88aKM+hL6rA2Fg+4rqd8+R
+	 qMFVk/rzRBXFpbU1Dfr/ftkZEjuXw3RMnNovsFD1RM3+rwaFKpdU0NBWTD4cVkNWWE
+	 Ki55UEoYDf7IlCgUAL9LE2jIQWyjvIsSNBfWze2I=
+Date: Tue, 24 Nov 2026 18:52:00 +0000
+From: Yeoreum Yun <yeoreum.yun@arm.com>
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Yeoreum Yun <yeoreum.yun@arm.com>, Russell King <linux@armlinux.org.uk>,
 	Huacai Chen <chenhuacai@kernel.org>,
 	WANG Xuerui <kernel@xen0n.name>,
 	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
@@ -81,9 +84,10 @@ Cc: Russell King <linux@armlinux.org.uk>,
 	linux-openrisc@vger.kernel.org
 Subject: Re: [PATCH RESEND v2 12/21] mm/pgtable: redefine PGTABLE_LEVEL enum
  with ascend order from PGD
-Message-ID: <awXD4i47F-VAG1tD@kernel.org>
+Message-ID: <awXc0MSZl9t9VW8e@e129823.arm.com>
 References: <20261102-dummy_ptxp3-v2-0-78840b2ec73c@arm.com>
  <20261102-dummy_ptxp3-v2-12-78840b2ec73c@arm.com>
+ <awXD4i47F-VAG1tD@kernel.org>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Post: <mailto:linux-openrisc@vger.kernel.org>
@@ -95,63 +99,75 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261102-dummy_ptxp3-v2-12-78840b2ec73c@arm.com>
+In-Reply-To: <awXD4i47F-VAG1tD@kernel.org>
 
-On Mon, Nov 02, 2026 at 11:21:25AM +0000, Yeoreum Yun wrote:
-> The PGTABLE_LEVEL enum values appear to be ordered in the opposite direction
-> from their intended usage.
+On Tue, Nov 24, 2026 at 07:05:38PM +0200, Mike Rapoport wrote:
+> On Mon, Nov 02, 2026 at 11:21:25AM +0000, Yeoreum Yun wrote:
+> > The PGTABLE_LEVEL enum values appear to be ordered in the opposite direction
+> > from their intended usage.
+> > 
+> > Intuitively, higher page table levels should have smaller enum values,
+> > but PTE is currently assigned 0.
 > 
-> Intuitively, higher page table levels should have smaller enum values,
-> but PTE is currently assigned 0.
+> That's not what x86 thinks :)
+> They even expose it in /proc/vmstat with smaller numbers meaning lower levels
+> 
+> $ grep direct_map /proc/vmstat 
+> direct_map_level2_splits 152
+> direct_map_level3_splits 4
+> direct_map_level2_collapses 0
+> direct_map_level3_collapses 0
+> 
+> Just an observation, I don't mind either order.
 
-That's not what x86 thinks :)
-They even expose it in /proc/vmstat with smaller numbers meaning lower levels
+Right. I made this change because a depth-based scheme seems more intuitive.
 
-$ grep direct_map /proc/vmstat 
-direct_map_level2_splits 152
-direct_map_level3_splits 4
-direct_map_level2_collapses 0
-direct_map_level3_collapses 0
+As you pointed out, though, the x86 specification uses smaller
+numbers (0) for lower levels (pte), so I think we can leave the
+x86-specific direct_map_* entries as they are.
 
-Just an observation, I don't mind either order.
- 
-> For consistency and cleanup, reverse the enum value ordering.
-> 
-> Since there is no current user relies on these numbers to be ascending from
-> PTE->PGD, so it can be changed to be ascending from PGD->PTE, in the
-> direction of the page table walk.
-> 
-> Reviewed-by: David Hildenbrand (Arm) <david@kernel.org>
-> Signed-off-by: Yeoreum Yun <yeoreum.yun@arm.com>
-> ---
->  include/linux/pgtable.h | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-> index 780fe849ff8b7..a032f95943357 100644
-> --- a/include/linux/pgtable.h
-> +++ b/include/linux/pgtable.h
-> @@ -2288,11 +2288,11 @@ static inline bool arch_has_pfn_modify_check(void)
->  typedef unsigned int pgtbl_mod_mask;
 >  
->  enum pgtable_level {
-> -	PGTABLE_LEVEL_PTE = 0,
-> -	PGTABLE_LEVEL_PMD,
-> -	PGTABLE_LEVEL_PUD,
-> +	PGTABLE_LEVEL_PGD = 0,
->  	PGTABLE_LEVEL_P4D,
-> -	PGTABLE_LEVEL_PGD,
-> +	PGTABLE_LEVEL_PUD,
-> +	PGTABLE_LEVEL_PMD,
-> +	PGTABLE_LEVEL_PTE,
->  };
->  
->  static inline const char *pgtable_level_to_str(enum pgtable_level level)
+> > For consistency and cleanup, reverse the enum value ordering.
+> > 
+> > Since there is no current user relies on these numbers to be ascending from
+> > PTE->PGD, so it can be changed to be ascending from PGD->PTE, in the
+> > direction of the page table walk.
+> > 
+> > Reviewed-by: David Hildenbrand (Arm) <david@kernel.org>
+> > Signed-off-by: Yeoreum Yun <yeoreum.yun@arm.com>
+> > ---
+> >  include/linux/pgtable.h | 8 ++++----
+> >  1 file changed, 4 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
+> > index 780fe849ff8b7..a032f95943357 100644
+> > --- a/include/linux/pgtable.h
+> > +++ b/include/linux/pgtable.h
+> > @@ -2288,11 +2288,11 @@ static inline bool arch_has_pfn_modify_check(void)
+> >  typedef unsigned int pgtbl_mod_mask;
+> >  
+> >  enum pgtable_level {
+> > -	PGTABLE_LEVEL_PTE = 0,
+> > -	PGTABLE_LEVEL_PMD,
+> > -	PGTABLE_LEVEL_PUD,
+> > +	PGTABLE_LEVEL_PGD = 0,
+> >  	PGTABLE_LEVEL_P4D,
+> > -	PGTABLE_LEVEL_PGD,
+> > +	PGTABLE_LEVEL_PUD,
+> > +	PGTABLE_LEVEL_PMD,
+> > +	PGTABLE_LEVEL_PTE,
+> >  };
+> >  
+> >  static inline const char *pgtable_level_to_str(enum pgtable_level level)
+> > 
+> > -- 
+> > 2.43.0
+> > 
 > 
 > -- 
-> 2.43.0
-> 
+> Sincerely yours,
+> Mike.
 
 -- 
-Sincerely yours,
-Mike.
+Sincerely,
+Yeoreum Yun
