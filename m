@@ -1,51 +1,48 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795703466;
-	b=InsiXcHdQQls+wIUnEMHpU9VaKp4ALSWkUrsYohovLYFFWf5bEb7SzpWo8JQYAMMSp2N
-	 HAtDb7+1PWSrsB7pjWWPNcjxGN2TKH0QUZFPZyJb7D5s51mXZV7NjFGUxi2okpReuBksp
-	 IwQfZNSmOJqC1PnqkbITplWk6IfKw+E+GnCGZ1pWiL3b6i8NDhvLJ19ATHlBu8eRrFgVw
-	 juKpfYjvSz5BEr2lZfg69olm/QpPRss9MSmsk6lhMkHuvFKdCphGSozmTWHj44WIJfgVF
-	 7954hAkSdldN/HYEcdIUO+a18RhSBK1BaGxsc19ZL3Z72aBF0QONfi6oS95ttGznBMA==
+	t=1795716663;
+	b=mfHQ4ZYHxtXbH5ESMB7UoHLXOlTu6rBUcgNuAEKYY7m2F5HAR1lBoOcx8LfDk2xmn8YD
+	 Xewx2vGlrDswogjyHIq+dEoTmt5KqXe3hNpteNFCTwbqi30+efTKiIhzv7fkbfzjaoTA0
+	 vCJ5btKA1aBfaXWCpsIGl+wJLf44Y8A+zeatGLo/mdVR8RAMKlA1yEPfTuWMTPWDjSbip
+	 lUVLS0nnMpNSdkUFmaeDCf8lPdusRlYF3odoeActfWyQow+BqezzE6QPzzwLgKnySqr8U
+	 GFtP/VjOdtwa3FQR3n4/65pZ87It9RkMB5Ji3JVXWkjgzqvrlikr1VfsM8hPcACCCNA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795703466;
-	h=DMARC-Filter:Received:Received:DKIM-Signature:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=S5r3XjtXFsLjzzhMzj390HKNPBHceWrZJqEAhyaam0k=;
-	b=Uo+3lwEecj75lPgYsDAhU0SaYe2CoXVO165AEDeUHxWgshAia2JxtyeuEOmQ47WGm4Kv
-	 ND2GvVnS7wimNxi8iyHHmEqbHKxUpTqwS4zVjMc8U0K5jIsIIfUF5e5j9h9nextuDgm5P
-	 SqKyS+EUaQ74u2nx9bUkUIYuTXbJi6O948/ovcp8OUfeV17QbmDRFgpImFlyCsxPnfBzS
-	 JfpSBnWTwetXATxx8i7tfWnxsVzb2qUE1QWvcbEAE3mSoxUYAFYPczCyaYUenJ+w9/e1V
-	 uS/8BVXzOa8Rf+8VSeWDrqZxEjO/s8SYekSbQj+jfC5PWQoyU+55EFsgQEqLoy2APjA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795716663;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=u9v575CLn7pmoDOzWOn9peb7SoijlK+LbrKGpES9aRg=;
+	b=zCRBOXk6piKOkjLeYJ25xMi4+S1hRDFTDabLsGrs7ecsDmCjUB0pnRBRIoopF15PKsgl
+	 xLrWzlsgqkxRNosRbNeqFkU2OU25bOCfU/83eejxIV2D/O7xdBq/+JZVNDZeVkqQy1Ysq
+	 4b9Th2KxfZRiwuxivc77n+mKKtnguJ3qe1YEjpUp8DKHK/85Ytdz6WSAau+v2BlL68til
+	 13Gfh7VjzT12cmZW1/5NcLW5I8n0b8DhzzAcQ5F6K15S/2OkeWJHKGl/P7y0l3lssCZgT
+	 /8Nlyo30HEXv8kenWsQE+0qO4Xl9ezX46D5RE8A48xVpBX3MCR8gGlqL9RL1SnNmpVw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=arm.com;
-	spf=pass smtp.mailfrom=arm.com;
-	dkim=pass header.d=arm.com header.i=@arm.com header.a=rsa-sha256 header.s=foss header.b=LVEeRbRa;
-	arc=none smtp.remote-ip=217.140.110.172
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id E5213606A6A7;
-	Thu, 26 Nov 2026 14:31:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E5213606A6A7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eTrh4ivt;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 866D0606A326;
+	Thu, 26 Nov 2026 18:11:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=arm.com header.i=@arm.com header.a=rsa-sha256 header.s=foss header.b=LVEeRbRa
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D0A1F1C2B;
-	Thu, 26 Nov 2026 06:31:00 -0800 (PST)
-Received: from e129823.arm.com (e129823.arm.com [10.2.213.3])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3E9F83F86F;
-	Thu, 26 Nov 2026 06:30:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1795703463; bh=Gh8fyK7BLAji0Po7ndrDo9Z/I+fzSOToLbTFsVx3zZg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=LVEeRbRacat2kmxF2QkCxag4t6jAyhtj4S+xDo+pF7fMr1Tz/HhujzVMY5tHehXMU
-	 qCzCPO6R0EVjS9S8Iu8MQu60xg6xWeReC2v+YlZNpk+tZF0qOlBkj1aO4wtTScfy+Z
-	 21pgcGpco2AGab9fHjE3qak7bp9yODvWbgfJ3hW4=
-Date: Thu, 26 Nov 2026 14:30:54 +0000
-From: Yeoreum Yun <yeoreum.yun@arm.com>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Yeoreum Yun <yeoreum.yun@arm.com>, Mike Rapoport <rppt@kernel.org>,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eTrh4ivt
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E52761F00AD3;
+	Thu, 26 Nov 2026 18:10:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795716662;
+	bh=u9v575CLn7pmoDOzWOn9peb7SoijlK+LbrKGpES9aRg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=eTrh4ivtfPOlk36i/Syox5jVW6dXJmhOgZwioO+nYxMKjGShC7TMyjjJl/zzRZ/W3
+	 SkP6MLdWC5iwrRV6uvUn6/rKonHWO56PFB3c75THzdQTim1Mri+dYH52nOteGfRTCj
+	 M+BZepOCmKNRYHvlRa117MS6yceBdzXjdmtuENyHhISgbQTyWosUB771P8KFuwQKC8
+	 pVw08LjMZlVYdDIpRqOeWvsFhzaGdSX4qDT0MagmIoJIq2tNOTskLwvuvj9X76KZmW
+	 omTnmVri/xaVPYJp7AvvaZYW/JxAmTrlzAhShiP47YqYQ+fQwkXl5svB+CMxRIbwv0
+	 XMDyeevoEqAuQ==
+Date: Thu, 26 Nov 2026 20:10:43 +0200
+From: Mike Rapoport <rppt@kernel.org>
+To: Yeoreum Yun <yeoreum.yun@arm.com>
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
 	Russell King <linux@armlinux.org.uk>,
 	Huacai Chen <chenhuacai@kernel.org>,
 	WANG Xuerui <kernel@xen0n.name>,
@@ -84,12 +81,13 @@ Cc: Yeoreum Yun <yeoreum.yun@arm.com>, Mike Rapoport <rppt@kernel.org>,
 	linux-openrisc@vger.kernel.org
 Subject: Re: [PATCH RESEND v2 12/21] mm/pgtable: redefine PGTABLE_LEVEL enum
  with ascend order from PGD
-Message-ID: <awhCnpiUc1R_BLx4@e129823.arm.com>
+Message-ID: <awh2I4llsjkB7Vds@kernel.org>
 References: <20261102-dummy_ptxp3-v2-0-78840b2ec73c@arm.com>
  <20261102-dummy_ptxp3-v2-12-78840b2ec73c@arm.com>
  <awXD4i47F-VAG1tD@kernel.org>
  <awXc0MSZl9t9VW8e@e129823.arm.com>
  <682c765f-332f-4ac2-b448-4201c8fae6fc@kernel.org>
+ <awhCnpiUc1R_BLx4@e129823.arm.com>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Post: <mailto:linux-openrisc@vger.kernel.org>
@@ -101,47 +99,64 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <682c765f-332f-4ac2-b448-4201c8fae6fc@kernel.org>
+In-Reply-To: <awhCnpiUc1R_BLx4@e129823.arm.com>
 
-On Thu, Nov 26, 2026 at 03:19:13PM +0100, David Hildenbrand (Arm) wrote:
-> On 11/24/26 19:52, Yeoreum Yun wrote:
-> > On Tue, Nov 24, 2026 at 07:05:38PM +0200, Mike Rapoport wrote:
-> >> On Mon, Nov 02, 2026 at 11:21:25AM +0000, Yeoreum Yun wrote:
-> >>> The PGTABLE_LEVEL enum values appear to be ordered in the opposite direction
-> >>> from their intended usage.
-> >>>
-> >>> Intuitively, higher page table levels should have smaller enum values,
-> >>> but PTE is currently assigned 0.
-> >>
-> >> That's not what x86 thinks :)
-> >> They even expose it in /proc/vmstat with smaller numbers meaning lower levels
-> >>
-> >> $ grep direct_map /proc/vmstat 
-> >> direct_map_level2_splits 152
-> >> direct_map_level3_splits 4
-> >> direct_map_level2_collapses 0
-> >> direct_map_level3_collapses 0
-> >>
-> >> Just an observation, I don't mind either order.
+On Thu, Nov 26, 2026 at 02:30:54PM +0000, Yeoreum Yun wrote:
+> On Thu, Nov 26, 2026 at 03:19:13PM +0100, David Hildenbrand (Arm) wrote:
+> > On 11/24/26 19:52, Yeoreum Yun wrote:
+> > > On Tue, Nov 24, 2026 at 07:05:38PM +0200, Mike Rapoport wrote:
+> > >> On Mon, Nov 02, 2026 at 11:21:25AM +0000, Yeoreum Yun wrote:
+> > >>> The PGTABLE_LEVEL enum values appear to be ordered in the opposite direction
+> > >>> from their intended usage.
+> > >>>
+> > >>> Intuitively, higher page table levels should have smaller enum values,
+> > >>> but PTE is currently assigned 0.
+> > >>
+> > >> That's not what x86 thinks :)
+> > >> They even expose it in /proc/vmstat with smaller numbers meaning lower levels
+> > >>
+> > >> $ grep direct_map /proc/vmstat 
+> > >> direct_map_level2_splits 152
+> > >> direct_map_level3_splits 4
+> > >> direct_map_level2_collapses 0
+> > >> direct_map_level3_collapses 0
+> > >>
+> > >> Just an observation, I don't mind either order.
+> > > 
+> > > Right. I made this change because a depth-based scheme seems more intuitive.
+> > > 
+> > > As you pointed out, though, the x86 specification uses smaller
+> > > numbers (0) for lower levels (pte), so I think we can leave the
+> > > x86-specific direct_map_* entries as they are.
 > > 
-> > Right. I made this change because a depth-based scheme seems more intuitive.
-> > 
-> > As you pointed out, though, the x86 specification uses smaller
-> > numbers (0) for lower levels (pte), so I think we can leave the
-> > x86-specific direct_map_* entries as they are.
+> > patch #14 depends on this, no?
 > 
-> patch #14 depends on this, no?
+> Interestingly, x86 documentation numbers the PGD level as 4 or 5,
+> whereas helpers such as effective_prot_pgd() use 0 for PGD.
+> 
+> Anyway, this follows the usage and semantics of effective_prot_pXd(),
+> rather than architecture-specific level numbering, which varies across
+> architectures.
 
-Interestingly, x86 documentation numbers the PGD level as 4 or 5,
-whereas helpers such as effective_prot_pgd() use 0 for PGD.
+I asked an LLM and here's what it told me:
 
-Anyway, this follows the usage and semantics of effective_prot_pXd(),
-rather than architecture-specific level numbering, which varies across
-architectures.
+  x86, s390, riscv, LoongArch and powerpc count from the leaf. arm64 and
+  ARM count from the root, and so does the generic page walk and ptdump.
 
-And yes, patch #14 depends on this, although changing the condition to
-level != PGD_LEVEL would remove that dependency.
+My guess that the only reason that generic ptdump counts from the root is
+because it came from @arm.com :)
+
+> And yes, patch #14 depends on this, although changing the condition to
+> level != PGD_LEVEL would remove that dependency.
+
+I think the only real hard dependency on levels numbering is x86's KVM code
+that manages secondary page tables, but it anyway does not use enum
+pgtable_level but rather x86's own enum pg_level.
+
+> -- 
+> Sincerely,
+> Yeoreum Yun
 
 -- 
-Sincerely,
-Yeoreum Yun
+Sincerely yours,
+Mike.
