@@ -1,131 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=158.69.130.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.48
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795805906;
-	b=ncQdPjwK0h037YHOMLb9hBeK2jfLUyzrDqVIl/IPop5WrQu4/BYtv2Z/3Egk5BA5Noc1
-	 wwVVnQ1UsmZFmK69ULS4fiGFheF30oYdV5meshvGO7/XMfP7Bb1kmDbDW6eWAW54X+vPz
-	 pblJfo1n8KQQru9rIldBxBq8lI8T8m7Zj08yvwUa0Ac6BZ0arE7HSNtxmfNrK59HkZ6Tm
-	 hSA0QCcA7mA/bwzQRE8riGHHS9yCS6Ayc8ccogDZR9/3g/k8UczvcPoOclG7gwJF4AZvD
-	 1q39kjXp9O/fExp6K9fB0gOAw939LC5s0afh5jKvj/WEPEggH74/fkfVFGtJP2i8d8Q==
+	t=1795851593;
+	b=shQm6pMLCLXspk/lC/hvLp6h62W7XpBcKugbA60oYNBKbk1Xt8VIuq+0ObMwUZglhRGw
+	 jE6oMX+mkbb7kzvsW/9pBFI7f24RdrQluF451ai8nZt5NiIF/WSIqRAoD8czbmI/eKIj4
+	 tBcEpfCyxn/ZmWCMDnY+273xkOxkZ4l/mCcfv69j9RTCzLCF9EQ8xwQMBbixLwTaCxEwp
+	 TUzWg0U/DwcxF1rUYjQm/r8+eCW/ioY46p7XTifatj6lo2hzq7mrXcEk8HzlB7SwMgMt6
+	 ePYyN8JZlkvW18UJA6q7fxR4qZqdMHl6cd/M50XbLYOYP+XiGWSHLFvtoPvp83HWrhQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795805906;
-	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=zuf19/Sm9DL6ZOPD0E1irSSwGTnKZXB6/6sdFafIiyg=;
-	b=wXklM6LRuiB54Urc3vrAfaqBpvhtHOCBDWuLcNKiFBKcM4RTMx1wy1eHaGW8cNGf8Dk3
-	 GGIX94L80+Ri1wK7zKDlRtTuXucunWg05Nt78ycyIHvnFV9B4hJXjViM0W18+8s6qD0rr
-	 VbkIG7HdhcnM9SzCon6BVXppQ0UFym/RGphbR5ZmBX6+WOJUf0TysKej5MrvC6mMFuroq
-	 kMXPXqe8S6QUdzklE7aAKDWQzYTqoBffN4cHU2n+gNz1fVJlczIANKaHwpY5Iop6GlKJi
-	 gz7dcpk602b8kiM/LzTaTT92R9bNtYOo4mMwumG8zShnPIpg/Vb3CuCyZ6+dmP/3sSg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795851593;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=k9y3bMursUy3wpJn2rgu9TuWODUOLA/aZV1VAd6X7oQ=;
+	b=BEpuaJP2zu8KUUCOXTdQZXdpBMQAGsszfiOlfwRYmTzoYuShqPqaBwgRKNz4YpT5LI0T
+	 LGUBhhrnfgxP0SjVjSNQTV0m9ipfQOmfSxrTij3r0iH6Ol9Ci2rvI4BkYYDFjVChFd8L8
+	 Sx6wWyd30929iaCyLFQmg3g8fjRxUXtAiwDFaqz2eqclJdaN+GTMX+ckkszlxzpj150l+
+	 TeyrsBOcFtGuKzgu/HDpM5D4dwsKWADqK7rEgVVXPwmijn5IYV81njX9VOb+7HJPV2Van
+	 1ieM8l4dgaxO3cwJOl7ar320yVgMcbVVa+hSlaTHDe29L8iEGhaeJEqzcFt7YuIeJuA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=efficios.com;
-	spf=pass smtp.mailfrom=efficios.com;
-	dkim=pass header.d=efficios.com header.i=@efficios.com header.a=rsa-sha256 header.s=smtpout1 header.b=C1em5emX;
-	arc=none smtp.remote-ip=158.69.130.18
-Received: from smtpout.efficios.com (smtpout.efficios.com [158.69.130.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=PLZWOO6B;
+	arc=none smtp.remote-ip=209.85.128.48
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC616606A321;
-	Fri, 27 Nov 2026 18:58:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EC616606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=efficios.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=efficios.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33D21606A324
+	for <linux-openrisc@vger.kernel.org>; Sat, 28 Nov 2026 07:39:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 33D21606A324
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=efficios.com header.i=@efficios.com header.a=rsa-sha256 header.s=smtpout1 header.b=C1em5emX
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
-	s=smtpout1; t=1795805903;
-	bh=zuf19/Sm9DL6ZOPD0E1irSSwGTnKZXB6/6sdFafIiyg=;
-	h=From:To:Cc:Subject:Date:From;
-	b=C1em5emXbpmwbUaychggQSZrT3/kvUnR68z3W0GT1P/KTN19CUjYc2REt7KFklvVF
-	 J8ry+o1VdxlmxoI+X886jiZoEdbjCzH0pgZlg5BvEB4Y6+RxL3+wiFZCoNWiE5hg94
-	 f7LHNRAybdMcAiNE53dIeZ6shefiwO8hFGsCtqfr9BRFRqP3hIkjZpjLniFGxpJTE1
-	 tHV46If6OOv3tjaOmG0aNuRMZ3sxMzj/fRgNPMhfMxRoVKW3Y1oroobsD5q2j9K0bW
-	 m/M98kcEHIDkPJPyzTY5YMyUrYtiXgLO3X72Jba1FZUJUA3zbA4Bz1BjRsuzUVP3j1
-	 wLoVrol/jTNkw==
-Received: from thinkos.internal.efficios.com (mtl.efficios.com [216.120.195.104])
-	by smtpout.efficios.com (Postfix) with ESMTPSA id 4jbjNv3kpyzXT5;
-	Fri, 27 Nov 2026 13:58:23 -0500 (EST)
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-To: Peter Zijlstra <peterz@infradead.org>,
-	Ingo Molnar <mingo@redhat.com>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Ben Segall <bsegall@google.com>,
-	Mel Gorman <mgorman@suse.de>,
-	Valentin Schneider <vschneid@redhat.com>,
-	K Prateek Nayak <kprateek.nayak@amd.com>,
-	linux-kernel@vger.kernel.org,
-	"Paul E. McKenney" <paulmck@kernel.org>,
-	Michal Clapinski <mclapinski@google.com>,
-	Andrei Vagin <avagin@gmail.com>,
-	Shuah Khan <shuah@kernel.org>,
-	Aniket Gattani <aniketgattani@google.com>,
-	linux-kselftest@vger.kernel.org,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Chris Gellermann <christian.gellermann@codasip.com>,
-	Bala-Vignesh-Reddy <reddybalavignesh9979@gmail.com>,
-	Wei Yang <richard.weiyang@gmail.com>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	loongarch@lists.linux.dev,
-	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-	Helge Deller <deller@gmx.de>,
-	John David Anglin <dave.anglin@bell.net>,
-	linux-parisc@vger.kernel.org,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Alexandre Ghiti <alex@ghiti.fr>,
-	Guo Ren <guoren@kernel.org>,
-	linux-doc@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	linux-csky@vger.kernel.org,
-	Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Stafford Horne <shorne@gmail.com>,
-	linux-openrisc@vger.kernel.org,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	linux-sh@vger.kernel.org,
-	Chris Zankel <chris@zankel.net>,
-	Max Filippov <jcmvbkbc@gmail.com>,
-	linux-arch@vger.kernel.org,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	linux-arm-kernel@lists.infradead.org,
-	Andy Lutomirski <luto@kernel.org>,
-	Alan Stern <stern@rowland.harvard.edu>,
-	Andrea Parri <parri.andrea@gmail.com>,
-	Boqun Feng <boqun@kernel.org>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	David Howells <dhowells@redhat.com>,
-	Jade Alglave <j.alglave@ucl.ac.uk>,
-	Luc Maranget <luc.maranget@inria.fr>,
-	Akira Yokosawa <akiyks@gmail.com>,
-	Daniel Lustig <dlustig@nvidia.com>,
-	Joel Fernandes <joelagnelf@nvidia.com>,
-	lkmm@lists.linux.dev,
-	bpf@vger.kernel.org,
-	Naveen N Rao <naveen@kernel.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	linux-trace-kernel@vger.kernel.org
-Subject: [PATCH v2 00/16] membarrier: fixes, selftests and documentation
-Date: Fri, 27 Nov 2026 13:58:05 -0500
-Message-ID: <20261127185822.158216-1-mathieu.desnoyers@efficios.com>
-X-Mailer: git-send-email 2.47.3
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=PLZWOO6B
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4bb85e07aadso107814695e9.1
+        for <linux-openrisc@vger.kernel.org>; Fri, 27 Nov 2026 23:39:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795851590; x=1796456390; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=k9y3bMursUy3wpJn2rgu9TuWODUOLA/aZV1VAd6X7oQ=;
+        b=PLZWOO6BB/irMU2VX1CU+Rts0OMgXwGkEpk+crIqnwDZeR/GsqpNZxtuPQesed9P4X
+         AAPtbbkGkf/eNiljKJmC3dSbH4NmHhdOdehCgM0yIB1AJK0dWixx3xOvAwhOC15O/dDI
+         6KwFPldv7Ofi9yvT2R0vavnS/LRVaijRdTMjQon5E49KDat6KHyDbLv1SfjT52/Uzfva
+         p4NNKBgEm4C5Suv6WynDjPPNPe4rRmHD3SsrA8I6wGDRnX7eVha+MBFjmewXkuFvyFQq
+         ZanIowFRxK+1s9rzdoUWokhMQqXfwckVz2uzUcOr4ODEIqk9yRBrsYAM46ToNvllscHN
+         e91g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795851590; x=1796456390;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=k9y3bMursUy3wpJn2rgu9TuWODUOLA/aZV1VAd6X7oQ=;
+        b=DA7OfpBzNWEdd8MN+hkljfWmduDEEnCe4yuY4r6tD/15+aNfSOirMKlrIoSXB9bs9h
+         rfb4LQ5c0TU0npyLm/XBQkKbqaL+7KQEf9yeeXbKBpvM1F1RwGu5TY/ciiW88uovpt2J
+         dCuNkHepKvEa8VSAHJM61upds7KmluqLUmQO8AUFTtaEIw7cxllP2ipuef2AkxqvPCp3
+         /OefqECuf6lcuqRoVdvHPwBCK2sr7NOSxpOF51ZpA9mLjunybTgfeIHV5p5OCdzMikIY
+         m3lK1hoqD+NoUpgBd3LObrcDd1kRR9wyGjJazgSNdH+KhpP5sX0mDAV0wT2kc+Hy1VR5
+         u4MQ==
+X-Forwarded-Encrypted: i=1; AL+hErH/otbzYTbaLvNufb4foVl41pA4u09Hzqv+W3+jy/0EmpN9xN66+1xBYKj3IYpAlZYXwWGtVEqZ121m7Zc6YQ==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+Wl/liu0Sud6f1nUQ9Chb/Z7/6+b/6G+eICXfrp3xZm5USCDLM
+	j1DdxCmM49OmS1/lOsyWmRO5Pv1XNd0MU/3iwSQ2eADF9cStRgWGAMyb
+X-Gm-Gg: AZFdTZfgys+Hrwa7VHiLqkPH1ESmI7h1MFRzxlyoVKZC9zUn6IibvXvvfquDZskFJjA
+	z80h4T+ai/8fLeKR9OJ2eIJVCX6j663xe9cr5MdSNkwOdfTpsYdfYQHITahgXxK+eY/qAyhHlO7
+	vqbUwAnI/dC2McRs5Zn5hQZX3sbFjKsDk8+YbuF79ASOkSLkNLz0ECo2oQ9SDXYqauwtZ2DT6vA
+	q8yHxDQlC1MBci36VL2CY8H9cYIQQ++NY35EeQWfqlm+HkMDp4RTSUlP0mngaFyjxypH42QBqib
+	pFI0Hnb5MMIN+u6K3B3ia2laTLaArGy0VYRHCeSD1FzX9EnYIq0GUGGkubXj2UwqUoORe/wVgXx
+	QXJzPKXB9WUhrj5YxkoLw98z++rqtVeCGIybEykM+CFeHQb7SWLTvJi5w/wf63PegaS1QJ/Pn9g
+	qto63HA5tCxKESScTa7r3AFTM4MwHw5/sSgK4pblDeNuB160gwzbdLRqRaYUgFEqmDGj1CwshQ7
+	s5MiUKggnnOokeTmtJmydLTaeslznxly1tzMbqcPmNR7MgO0txoDQ1k1aUyXBJdUftYuMU+tTPt
+	MOqHHVwd1Dyhm7LNkI1zkhvphD0aXnR1WUrBOIAOYQd+MWI5oOh3AAJIlVQXdaa7zc6F6nVSi+s
+	4KPNN0CuEB41hVTeL9Da9x2xku2Qu
+X-Received: by 2002:a05:600c:4e0b:b0:49f:e772:6ddf with SMTP id 5b1f17b1804b1-4bb8881ae90mr555018665e9.32.1795851590084;
+        Fri, 27 Nov 2026 23:39:50 -0800 (PST)
+Received: from localhost (brnt-04-b2-v4wan-170138-cust2432.vm7.cable.virginm.net. [94.175.9.129])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb8533579csm647603755e9.2.2026.11.27.23.39.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 27 Nov 2026 23:39:49 -0800 (PST)
+Date: Sat, 28 Nov 2026 07:39:48 +0000
+From: Stafford Horne <shorne@gmail.com>
+To: Sahil <sahilcdq0@gmail.com>
+Cc: jonas@southpole.se, stefan.kristiansson@saunalahti.fi,
+	naveen@kernel.org, davem@davemloft.net, mhiramat@kernel.org,
+	pjw@kernel.org, wangruikang@iscas.ac.cn, namcao@linutronix.de,
+	kees@kernel.org, linux-openrisc@vger.kernel.org,
+	linux-trace-kernel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 2/4] openrisc: Add KProbes
+Message-ID: <awqFRDdsH3S47XgT@antec>
+References: <20260930202744.50489-1-sahilcdq0@gmail.com>
+ <20261026201240.107462-3-sahilcdq0@gmail.com>
+ <avAo140Wc1CerVwf@antec>
+ <33becbe3-867a-4e54-8471-7f0101af8623@gmail.com>
+ <avkOmdojYYJkeer4@antec>
+ <af1d4e40-9d2f-4a7a-bd0c-3661b07a4599@gmail.com>
 X-Mailing-List: linux-openrisc@vger.kernel.org
 List-Id: <linux-openrisc.vger.kernel.org>
 List-Post: <mailto:linux-openrisc@vger.kernel.org>
@@ -135,210 +105,227 @@ List-Unsubscribe: <mailto:linux-openrisc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-openrisc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <af1d4e40-9d2f-4a7a-bd0c-3661b07a4599@gmail.com>
 
-This series comes from a review of the membarrier system call. The
-review covered the code, its selftests and the fixes applied over
-time. It also covered the barrier and core serialization requirements
-of each architecture.
+On Wed, Nov 18, 2026 at 11:21:43AM +0530, Sahil wrote:
+> On 11/15/26 7:14 AM, Stafford Horne wrote:
+> > On Fri, Nov 13, 2026 at 10:43:55PM +0530, Sahil wrote:
+> > > On 11/8/26 1:16 PM, Stafford Horne wrote:
+> > > > On Tue, Oct 27, 2026 at 01:42:38AM +0530, Sahil Siddiq wrote:
+> > > > > Add KProbes support for OpenRISC. This work is primarily based
+> > > > > on similar work done for LoongArch, MIPS and RISC-V.
+> > 
+> > [snip]
+> > 
+> > > > > +++ b/arch/openrisc/include/asm/kprobes.h
+> > 
+> > [snip]
+> > 
+> > > > > +#define flush_insn_slot(p)		do { } while (0)
+> > > > 
+> > > > On openrisc I think we need to implement flush_insn_slot.  As our
+> > > > copy's only affect data caches instruction caches may end up being
+> > > > stale.  This is really hard to detect as context switches invalidate
+> > > > a lot of the instruction cache lines, but not all.
+> > > > 
+> > > > I fixed this for text patching recently with commit aca063c90245
+> > > > ("openrisc: Fix jump_label smp syncing")
+> > > 
+> > > Understood. In the same commit [1], you have also mentioned that
+> > > invalidating all the cache lines is less expensive than keeping
+> > > track of which line needs to be invalidated.
+> > > 
+> > > In case of KProbes, where a KProbe at a specific instruction is
+> > > armed or disarmed:
+> > > 
+> > > void arch_arm_kprobe(struct kprobe *p) {
+> > >      patch_insn_write(p->addr, KPROBE_BP_INSN);
+> > >      flush_insn_slot(p);
+> > > }
+> > > 
+> > > void arch_disarm_kprobe(struct kprobe *p) {
+> > >      patch_insn_write(p->addr, p->opcode);
+> > >      flush_insn_slot(p);
+> > > }
+> > > 
+> > > Should only that page be invalidated? Or is it ok to invalidate all
+> > > lines?
+> > 
+> > I think you only need to flush the part of the kprobe data structure that has
+> > code that is updated, for example p->addr.  Since you have all of that
+> > information tracked for you in the kprobe structures it should be pretty simple.
+> > That was not the case for text patching.
+> > 
+> > Note, I had a look this is needed for init_aggr_kprobe() which copies code from
+> > one prope to another.
+> > 
+> > Note 2, for arch_arm_kprobe/arch_disarm_kprobe we use patch_insn_write which
+> > internally does a icache invalidation alredy.  So I think the call to
+> > flush_insn_slot() in arch_disarm_kprobe()/arch_arm_kprobe() is not needed.
+> > 
+> 
+> Got it, thank you for the clarification.
+> 
+> > > > > +#define kretprobe_blacklist_size	0
+> > > > > +
+> > > > > +void arch_remove_kprobe(struct kprobe *p);
+> > > > > +int kprobe_fault_handler(struct pt_regs *regs, int trapnr);
+> > > > > +bool kprobe_breakpoint_handler(struct pt_regs *regs);
+> > > > > +bool kprobe_singlestep_handler(struct pt_regs *regs);
+> > > > > +#else /* !CONFIG_KPROBES */
+> > > > > +static inline bool kprobe_breakpoint_handler(struct pt_regs *regs)
+> > > > > +{
+> > > > > +	return false;
+> > > > > +}
+> > > > > +
+> > > > > +static inline bool kprobe_singlestep_handler(struct pt_regs *regs)
+> > > > > +{
+> > > > > +	return false;
+> > > > > +}
+> > > > > +#endif /* CONFIG_KPROBES */
+> > > > > +#endif /* __ASM_OPENRISC_KPROBES_H */
+> > > > > diff --git a/arch/openrisc/kernel/Makefile b/arch/openrisc/kernel/Makefile
+> > > > > index 150779fbf010..2ac824867963 100644
+> > > > > --- a/arch/openrisc/kernel/Makefile
+> > > > > +++ b/arch/openrisc/kernel/Makefile
+> > > > > @@ -14,6 +14,7 @@ obj-$(CONFIG_SMP)		+= smp.o sync-timer.o
+> > > > >    obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
+> > > > >    obj-$(CONFIG_MODULES)		+= module.o
+> > > > >    obj-$(CONFIG_OF)		+= prom.o
+> > > > > +obj-$(CONFIG_KPROBES)		+= kprobes.o
+> > > > >    obj-y	+= patching.o
+> > > > >    clean:
+> > > > > diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
+> > > > > index c7e90b09645e..cd28bf1f7a3b 100644
+> > > > > --- a/arch/openrisc/kernel/entry.S
+> > > > > +++ b/arch/openrisc/kernel/entry.S
+> > > > > @@ -15,6 +15,7 @@
+> > > > >    #include <linux/linkage.h>
+> > > > >    #include <linux/pgtable.h>
+> > > > > +#include <asm/asm.h>
+> > > > >    #include <asm/processor.h>
+> > > > >    #include <asm/unistd.h>
+> > > > >    #include <asm/thread_info.h>
+> > > > > @@ -640,6 +641,7 @@ ENTRY(_sys_call_handler)
+> > > > >    	/* r30 is the only register we clobber in the fast path */
+> > > > >    	/* r30 already saved */
+> > > > >    /*	l.sw    PT_GPR30(r1),r30 */
+> > > > > +_ASM_NOKPROBE(_sys_call_handler)
+> > > > 
+> > > > How is this working for these not function symbols?  _ASM_NOKPROBE registers a
+> > > > sybmol (in this case just a macro address) into the _kprobe_blacklist.  I think
+> > > > withing kprobe.c it uses these _kprobe_blacklist entries to detect ranges that
+> > > > cannot be probed.  However, in this case I think you are not able to get range
+> > > > information.
+> > > 
+> > > _ASM_NOKPROBE and NOKPROBE_SYMBOL (for functions in C) expand to the
+> > > same thing functionally. The kernel treats these labels as symbols as
+> > > well. I verified this using "nm".
+> > > 
+> > > When a KProbe is registered using an address instead of the symbol_name,
+> > > "register_kprobe()" [2] at kernel/kprobes.c indirectly calls
+> > > "within_kprobe_blacklist()" [3] which performs "kprobe_lookup_name()".
+> > > It then checks if that name is in the blacklist. This blacklist
+> > > includes the names of the asm functions as well.
+> > > 
+> > > I wrote this test module [4] to verify that an address in memcpy's range,
+> > > for example, is also blacklisted.
+> > 
+> > Right, I think for C functions this is fine.  But for OpenRISC assembly I think
+> > we do not provide enough info for this to work correctly.
+> > 
+> > For example above _sys_call_handler, is just a label.
+> > 
+> > In other architectures they do something like this:
+> > 
+> >      SYM_CODE_START(handle_syscall)
+> > 	    UNWIND_HINT_UNDEFINED
+> > 	    csrrd           t0, PERCPU_BASE_KS
+> > ...
+> > 	    bl              do_syscall
+> > 
+> > 	    STACKLEAK_ERASE
+> > 	    RESTORE_ALL_AND_RET
+> >      SYM_CODE_END(handle_syscall)
+> >      _ASM_NOKPROBE(handle_syscall)
+> > 
+> > The SYM_CODE_START/SYM_CODE_END macros or similar are not used in OpenRISC, I
+> > think we need something to define the beginning and end of our asm macros
+> > in order for this to work.
+> 
+> Sorry, I am still not very clear here. My understanding from the implementation
+> of kprobe_lookup_name [1] is that the kernel determines which function's/symbol's
+> range an address belongs to by fetching the symbol that appears before and after
+> this address in its sequence of symbols (kallsyms_seqs_of_names [2]). Since the
+> kernel is treating the labels of asm functions also as symbols, it already has
+> the symbol's offset.
+>
+> In OpenRISC, some symbols like _sys_call_handler are wrapped in ENTRY() which is
+> identical to SYM_FUNC_START() [3], while other labels don't have this wrapper.
+> Labels without the wrapper are being treated as local symbols while those with
+> ENTRY() are being treated as global symbols.
+> 
+> I agree that none of the non-C functions are suffixed with SYM_*_END() which is
+> where the symbol's size/range is being set [4]. But I don't think this is required
+> when the kernel performs a lookup on the address to get the corresponding symbol.
+> Please let me know what your thoughts are.
 
-The series fixes four kernel issues:
+Right, I am talking about within_kprobe_blacklist [1].  This is used when
+checking if an address is OK to add a kprobe.  I think this is the main reason
+for adding _ASM_NOKPROBE.
 
- - Patch 1: update the runqueue membarrier state when the scheduler
-   switches from a kernel thread or an exited task which borrowed the
-   mm. MEMBARRIER_CMD_GLOBAL_EXPEDITED no longer skips a registered
-   process.
+This uses a list kprobe_blacklist which is initialized in init_kprobes [2] >
+populate_kprobe_blacklist [3] > kprobe_add_ksym_blacklist [4].  It starts like
+this:
 
- - Patch 2: report a registration in MEMBARRIER_CMD_GET_REGISTRATIONS
-   only when it completed. An rseq or sync core registration is no
-   longer reported as a private expedited registration as well.
+	err = populate_kprobe_blacklist(__start_kprobe_blacklist,
+					__stop_kprobe_blacklist);
 
- - Patch 8 and patch 9: add a full memory barrier in switch_mm() for
-   registered processes, on LoongArch and on parisc. The expedited
-   commands need it after the store to rq->curr.
+If symbols are not registered with a size attribute the registration will not
+work correctly.  Blacklist checking will not work.
 
-Patch 1 and patch 2 were reproduced from user-space on v7.4-rc2.
+If we look at our kernel binary we can see that memset, _syscall_call, etc
+are registed in this blacklist.  However, _syscall_call and memset have a size
+of 0. Registering it with kprobe_add_ksym_blacklist will likely not work.
 
-Patch 8 and patch 9 were found by reading the code and the
-architecture manuals. Feedback from the LoongArch and parisc
-maintainers is welcome.
+This is why we need SYM_CODE_START/SYM_CODE_END or something similar.
 
-The series fixes and extends the selftests:
+    $ readelf -sW vmlinux | grep kprobe_blacklist
+      1912: c0c16dd8     8 OBJECT  LOCAL  DEFAULT    8 kprobe_blacklist
+     43341: c0132154    88 FUNC    WEAK   DEFAULT    1 arch_within_kprobe_blacklist
+     43752: c0cdf6f0     0 NOTYPE  GLOBAL DEFAULT   11 __stop_kprobe_blacklist
+     48130: c01321ac   400 FUNC    GLOBAL DEFAULT    1 within_kprobe_blacklist
+     55159: c0cdf5f0     0 NOTYPE  GLOBAL DEFAULT   11 __start_kprobe_blacklist
+     56666: c0cb00a0    36 FUNC    WEAK   DEFAULT   10 arch_populate_kprobe_blacklist
 
- - Patch 3: rebuild the tests when membarrier_test_impl.h changes.
+    ## Dump the list contents of __start_kprobe_blacklist
+    $ readelf -x .init.data vmlinux | grep -A5 c0cdf5 | tail
+      0xc0cdf5b4 c0cdadd0 c0cdaddc c0cdade8 c0cdadf4 ................
+      0xc0cdf5c4 c0cdae00 c0cdae0c c0cdae18 c0cdae24 ...............$
+      0xc0cdf5d4 c0cdae30 c0cdae3c c0cdae48 c0cdae54 ...0...<...H...T
+      0xc0cdf5e4 c0cdae60 c0cdae6c 00000000 c0014ac0 ...`...l......J. <-- start
+      0xc0cdf5f4 c0014b70 c0017000 c0017180 c0017f7c ..Kp..p...q....|
+      0xc0cdf604 c0a38668 c0a3869c c0a386bc c0a386c8 ...h............
+      0xc0cdf614 c0a386e4 c0a386e8 c0a386f4 c0a38744 ...............D
+      0xc0cdf624 c0a3879c c0a387c4 c0a387d4 c0a38868 ...............h
+      0xc0cdf634 c0a3932c c0a3932c c0a39348 c001b130 ...,...,...H...0
+      0xc0cdf644 c001ac5c c001afb0 c001aeac c001ad00 ...\............
 
- - Patch 4: issue the sync core command in the test which is named
-   after it.
+    ## Check a few symbols
+    $ readelf -sW vmlinux | grep c0a386c8
+     10568: c0a386c8     0 NOTYPE  LOCAL  DEFAULT    1 _syscall_call
+    $ readelf -sW vmlinux | grep c0014ac0
+     52728: c0014ac0     0 FUNC    GLOBAL DEFAULT    1 memset
+    $ readelf -sW vmlinux | grep c0017000
+     39750: c0017000   384 FUNC    GLOBAL DEFAULT    1 simulate_branch
 
- - Patch 5: run the tests on nohz_full kernels, which only lack
-   MEMBARRIER_CMD_GLOBAL.
+-Stafford
 
- - Patch 6: add membarrier_test_ipi. It checks which CPUs each
-   expedited command interrupts. Two of its test cases fail without
-   patch 1.
+[1] https://elixir.bootlin.com/linux/v7.3.1/source/kernel/kprobes.c#L1472-L1490
+[2] https://elixir.bootlin.com/linux/v7.3.1/source/kernel/kprobes.c#L2770-L2771
+[3] https://elixir.bootlin.com/linux/v7.3.1/source/kernel/kprobes.c#L2582-L2609
+[4] https://elixir.bootlin.com/linux/v7.3.1/source/kernel/kprobes.c#L2511-L2529
 
- - Patch 7: add membarrier_test_cmd. It checks the command arguments
-   and the registrations across fork, exec and CLONE_VM. Two of its
-   tests fail without patch 2.
-
- - Patch 13: add litmus tests of the memory ordering scenarios, for
-   the Linux kernel memory model. One variant shows the LoongArch and
-   parisc issue.
-
- - Patch 14: add the selftests to the MEMBARRIER SUPPORT entry of
-   MAINTAINERS.
-
- - Patch 15: add membarrier_test_barrier, a stress test for x86-64.
-   BPF programs on kprobes count, for each thread, the memory
-   barriers which membarrier relies on. The test also checks the
-   barriers of the scheduler. Two of its test cases fail without
-   patch 1. It adds no kernel code.
-
- - Patch 16: extend membarrier_test_barrier to the sync core
-   command. It counts the core serializing instructions in the same
-   way.
-
-The series updates the documentation:
-
- - Patch 10: add the missing architectures to the list of barriers
-   after the store to rq->curr.
-
- - Patch 11: describe what the sync core command relies on for x86
-   with FRED and for arm64 with FEAT_ExS.
-
- - Patch 12: remove two stale x86 entry comments.
-
-The sync core requirements were checked against the architecture
-manuals of x86 (Intel SDM and AMD APM), arm, arm64, powerpc, s390 and
-riscv. These are the architectures which support the sync core
-command. No return path to user-space was found to miss its documented
-serialization.
-
-Testing:
-
- - The six membarrier test programs pass in an x86-64 KVM guest
-   with 8 CPUs and lockdep.
-
- - With nohz_full=2-7, the six programs pass. Only the
-   MEMBARRIER_CMD_GLOBAL test is skipped.
-
- - With nosmp and with maxcpus=2, membarrier_test_ipi is skipped
-   because it needs 3 CPUs. membarrier_test_barrier skips the two
-   test cases which need 3 CPUs. The four other programs pass.
-
- - With pti=on, membarrier_test_barrier passes and does not check
-   the core serialization.
-
- - Patch 8 and patch 9 are compile-tested only: LoongArch and parisc
-   (32-bit, SMP), default configuration.
-
- - herd7 reports the expected result for each of the 13 litmus tests.
-
-The series is based on v7.4-rc2.
-
-Changes since RFC v1:
-
- - Patch 15: fix three issues reported by Sashiko in
-   membarrier_test_barrier. The lazy TLB test case now sees the target
-   switch back to its CPU. The test is skipped, instead of failing,
-   on a kernel without CONFIG_BPF_EVENTS or CONFIG_KPROBE_EVENTS. A
-   test case no longer reuses the counter slots of the previous one.
-
- - Patch 16: context changes only.
-
-RFC v1: https://lore.kernel.org/lkml/20261113131903.157186-1-mathieu.desnoyers@efficios.com/
-
-An LLM coding assistant did this work at my request: the review, the
-reproducers, the fixes, the tests and the changelogs. I actively
-steered it and reviewed the result.
-
-Thanks,
-
-Mathieu
-
-Mathieu Desnoyers (16):
-  sched/membarrier: Fix stale runqueue state after a lazy mm switch
-  sched/membarrier: Report only completed registrations
-  selftests/membarrier: Rebuild the tests when their header changes
-  selftests/membarrier: Issue the sync core command in its test
-  selftests/membarrier: Run the tests on nohz_full kernels
-  selftests/membarrier: Test which CPUs the expedited commands interrupt
-  selftests/membarrier: Test command arguments and registration lifetime
-  LoongArch: membarrier: Add full memory barrier in switch_mm()
-  parisc: membarrier: Add full memory barrier in switch_mm()
-  Documentation/membarrier: Update the per-architecture barrier list
-  Documentation/features: Update the membarrier sync core requirements
-  x86/entry: Remove stale membarrier sync core comments
-  selftests/membarrier: Add litmus tests of the memory ordering
-  MAINTAINERS: Add the membarrier selftests to MEMBARRIER SUPPORT
-  selftests/membarrier: Check the memory barriers of each thread
-  selftests/membarrier: Check the core serialization of the sync core
-    command
-
- .../membarrier-sync-core/arch-support.txt     |   35 +-
- Documentation/scheduler/membarrier.rst        |   14 +-
- MAINTAINERS                                   |    1 +
- arch/loongarch/Kconfig                        |    1 +
- arch/loongarch/include/asm/membarrier.h       |   33 +
- arch/loongarch/include/asm/mmu_context.h      |    4 +
- arch/parisc/Kconfig                           |    1 +
- arch/parisc/include/asm/membarrier.h          |   33 +
- arch/parisc/include/asm/mmu_context.h         |    2 +
- arch/x86/entry/entry_32.S                     |    5 -
- arch/x86/entry/entry_64.S                     |    4 -
- arch/x86/include/asm/sync_core.h              |    2 +-
- kernel/sched/core.c                           |   16 +-
- kernel/sched/membarrier.c                     |   32 +-
- kernel/sched/sched.h                          |   15 +
- tools/testing/selftests/membarrier/.gitignore |    6 +
- tools/testing/selftests/membarrier/Makefile   |   20 +
- tools/testing/selftests/membarrier/config     |    9 +
- .../selftests/membarrier/litmus/README        |   52 +
- .../litmus/ipi-after-thread-no-exit-mb.litmus |   36 +
- .../ipi-after-thread-no-handler-mb.litmus     |   36 +
- .../membarrier/litmus/ipi-after-thread.litmus |   47 +
- .../ipi-before-thread-no-entry-mb.litmus      |   37 +
- .../ipi-before-thread-no-handler-mb.litmus    |   37 +
- .../litmus/ipi-before-thread.litmus           |   46 +
- .../litmus/sched-in-no-entry-mb.litmus        |   34 +
- .../membarrier/litmus/sched-in-no-mb.litmus   |   33 +
- .../membarrier/litmus/sched-in-release.litmus |   38 +
- .../membarrier/litmus/sched-in.litmus         |   51 +
- .../litmus/sched-out-no-exit-mb.litmus        |   34 +
- .../litmus/sched-out-no-sched-mb.litmus       |   34 +
- .../membarrier/litmus/sched-out.litmus        |   49 +
- .../membarrier/membarrier_test_barrier.bpf.c  |  173 +++
- .../membarrier/membarrier_test_barrier.c      | 1364 +++++++++++++++++
- .../membarrier/membarrier_test_barrier.h      |   54 +
- .../membarrier/membarrier_test_cmd.c          |  352 +++++
- .../membarrier/membarrier_test_impl.h         |   14 +-
- .../membarrier/membarrier_test_ipi.c          |  739 +++++++++
- 38 files changed, 3443 insertions(+), 50 deletions(-)
- create mode 100644 arch/loongarch/include/asm/membarrier.h
- create mode 100644 arch/parisc/include/asm/membarrier.h
- create mode 100644 tools/testing/selftests/membarrier/config
- create mode 100644 tools/testing/selftests/membarrier/litmus/README
- create mode 100644 tools/testing/selftests/membarrier/litmus/ipi-after-thread-no-exit-mb.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/ipi-after-thread-no-handler-mb.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/ipi-after-thread.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/ipi-before-thread-no-entry-mb.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/ipi-before-thread-no-handler-mb.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/ipi-before-thread.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/sched-in-no-entry-mb.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/sched-in-no-mb.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/sched-in-release.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/sched-in.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/sched-out-no-exit-mb.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/sched-out-no-sched-mb.litmus
- create mode 100644 tools/testing/selftests/membarrier/litmus/sched-out.litmus
- create mode 100644 tools/testing/selftests/membarrier/membarrier_test_barrier.bpf.c
- create mode 100644 tools/testing/selftests/membarrier/membarrier_test_barrier.c
- create mode 100644 tools/testing/selftests/membarrier/membarrier_test_barrier.h
- create mode 100644 tools/testing/selftests/membarrier/membarrier_test_cmd.c
- create mode 100644 tools/testing/selftests/membarrier/membarrier_test_ipi.c
-
-
-base-commit: 7475ea8b58616b33c04afb976cf0fbaad9dd63fb
--- 
-2.47.3
 
